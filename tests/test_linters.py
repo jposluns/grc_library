@@ -23095,7 +23095,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     def _one_line_landing(self, stray):
         col = ('<div class="biblio-col"><ul><li><span class="id">OWASP SAMM 2.2.0</span>'
-               '<span class="topic">x</span></li></ul></div>')
+               '<span class="topic">Software assurance maturity</span></li></ul></div>')
         return {self.LANDING: col + stray + "\n"}
 
     def test_an_id_span_nested_in_an_item_outside_every_list_fails(self):
@@ -23529,6 +23529,996 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         self.assertEqual(rc, 1)
         self.assertIn("hand-written standard edition(s) differ", err.getvalue())
         self.assertIn("'OWASP SAMM 2.0'", err.getvalue())
+
+    # 3b393 (VPR3B380-R7): ending wording outside _EDITION_ENDED_RE on a general row,
+    # including "sunset" spelt with a Cyrillic dze.
+    GENERAL_UNLISTED_CURRENTS = (
+        "2025 (revocation)", "2025 (rescission)", "2025 (terminated)", "2025 (discontinued)",
+        "2025 (end of life)", "2025 (EOL)", "2025 (archived)", "2025 (retire 2027)",
+        "2025 (" + chr(0x0455) + "unset)",
+    )
+
+    def test_general_row_current_version_is_an_allowlist(self):
+        match = self.mod.edition_matches
+        self.assertTrue(match("2025", "2025", "OWASP Top 10", ["2021", "2017"]))
+        for current in self.GENERAL_UNLISTED_CURRENTS:
+            hits = self._with_register("| OWASP Top 10 | 2025 |", f"| OWASP Top 10 | {current} |")
+            self.assertEqual(len(hits), 2, (current, hits))
+            for hit in hits:
+                self.assertIn("'OWASP Top 10 (2025)' lists edition '2025'", hit)
+                self.assertIn("GENERAL_CURRENT_FORMS", hit)
+            self.assertFalse(match("2025", current, "OWASP Top 10", ["2021", "2017"]), current)
+            self.assertFalse(self.mod.general_current_recognised("OWASP Top 10", current), current)
+        # An enumerated shape is the register's own text for its row only.
+        oecd = "2019 Recommendation as updated 2024"
+        self.assertTrue(match("2019, updated 2024", oecd, "OECD AI Principles"))
+        self.assertFalse(match("2019, updated 2024", oecd, "COBIT"))
+        hits = self._with_register(f"| OECD AI Principles | {oecd} |",
+                                   f"| OECD AI Principles | {oecd} (archived) |")
+        self.assertEqual(len(hits), 2, hits)
+        for hit in hits:
+            self.assertIn("'OECD AI Principles' lists edition '2019, updated 2024'", hit)
+            self.assertIn("GENERAL_CURRENT_FORMS", hit)
+        # The edition token is read as ASCII: a no-break space or other digits fail.
+        for current in ("Rev." + chr(0x00A0) + "5", "".join(chr(0x0660 + d) for d in (2, 0, 2, 5))):
+            self.assertFalse(self.mod.general_current_recognised("NIST SP 800-53", current), current)
+
+    def test_general_current_forms_are_the_register_text(self):
+        self.assertEqual(set(self.mod.GENERAL_CURRENT_FORMS), {
+            "OECD AI Principles", "OECD Privacy Guidelines", "WCO SAFE Framework", "ASHRAE 135",
+            "NIST SP 800-207", "NIST SP 800-185",
+        })
+        for row in self.mod.GENERAL_CURRENT_FORMS:
+            current = self._register_current(row)
+            self.assertTrue(self.mod.general_current_recognised(row, current), (row, current))
+        for compiled in (c for forms in self.mod._GENERAL_CURRENT_RES.values() for c in forms):
+            self.assertTrue(compiled.flags & re.ASCII, compiled.pattern)
+
+    def test_every_general_register_row_in_a_read_shape_passes(self):
+        # Every register row whose Current version the general rule reads matches its own
+        # Current version, and every general row the site compares is such a row.
+        _, resolver = self.mod._load_edition_resolver()
+        read = set()
+        for e in resolver.register.entries:
+            if e["id"] in self.mod.STATUTE_YEAR_ROWS or self.mod.instrument_edition(e["current"], e["id"]):
+                continue
+            if self.mod.general_current_recognised(e["id"], e["current"]):
+                read.add(e["id"])
+                self.assertTrue(self.mod.edition_matches(e["current"], e["current"], e["id"], e["superseded"]), e["id"])
+        self.assertTrue(set(self.mod.GENERAL_CURRENT_FORMS) <= read)
+        compared = {e.row for e in self.mod.standard_edition_entries()
+                    if e.edition and e.row not in self.mod.STATUTE_YEAR_ROWS
+                    and self.mod.instrument_edition(e.edition, e.row) is None}
+        self.assertTrue(compared)
+        self.assertEqual(compared - read, set())
+
+    def test_current_entries_keep_their_outcomes(self):
+        from collections import Counter
+        entries = self.mod.standard_edition_entries()
+        self.assertEqual(Counter(e.status for e in entries), Counter({"match": 89, "no edition": 43}))
+        self.assertEqual(self.mod.stale_standard_editions(), [])
+
+    def test_unreadable_listed_text_fails(self):
+        # 3b393 item 2: a listed text the edition parser cannot read on a name or topic
+        # that resolves to a register row fails instead of counting as "no edition".
+        unreadable = "is not that name with an edition the check reads"
+        for old, new, row in (
+            ('<span class="id">OWASP Top 10 (2025)</span>',
+             '<span class="id">OWASP Top 10 (2025) (repealed)</span>', "OWASP Top 10"),
+            ('<span class="id">EU GDPR</span>',
+             '<span class="id">General Data Protection Regulation (repealed)</span>', "EU GDPR"),
+            ('<span class="topic">Regulation (EU) 2016/679</span>',
+             '<span class="topic">General Data Protection Regulation (repealed)</span>', "EU GDPR"),
+            ('<span class="topic">Regulation (EU) 2016/679</span>',
+             '<span class="topic">Regulation (EU) 2016' + chr(0x2215) + '679</span>', "EU GDPR"),
+            ('<span class="topic">Regulation (EU) 2016/679</span>',
+             '<span class="topic">Regulation (EU) 2016' + chr(0x2044) + '679</span>', "EU GDPR"),
+            ('<span class="topic">Regulation (EU) 2016/679</span>',
+             '<span class="topic">Regulation (EU) 2016-679</span>', "EU GDPR"),
+            ('<span class="topic">Directive (EU) 2022/2555</span>',
+             '<span class="topic">Directive (EU) 2022-2555</span>', "EU NIS 2 Directive"),
+            ('<span class="topic">2019, updated 2024</span>',
+             '<span class="topic">2019, updated 2024 (repealed)</span>', "OECD AI Principles"),
+        ):
+            hits = self.mod.stale_standard_editions(self._landing_with(old, new))
+            self.assertEqual(len(hits), 1, (new, hits))
+            self.assertIn(f"names the register row {row!r}", hits[0])
+            self.assertIn(unreadable, hits[0])
+        text = (REPO_ROOT / ".web" / self.FOR_AI_V3).read_text(encoding="utf-8")
+        name = ">OWASP Top 10 for LLM Applications 2026<"
+        self.assertIn(name, text)
+        hits = self.mod.stale_standard_editions(
+            {self.FOR_AI_V3: text.replace(name, ">OWASP Top 10 for LLM Applications 2026 (repealed)<")}
+        )
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn("names the register row 'OWASP LLM Top 10'", hits[0])
+        # The entries that carry no edition stay "no edition".
+        for e in self.mod.standard_edition_entries():
+            self.assertIn(e.status, ("match", "no edition"), e)
+
+    def test_instrument_kind_is_compared(self):
+        # 3b393 item 3: where both sides name Regulation or Directive, the kind must agree.
+        match = self.mod.edition_matches
+        ai = self._register_current("EU AI Act")
+        eidas = self._register_current("EU eIDAS")
+        for listed, current, row in (
+            ("Directive (EU) 2016/679", "Regulation 2016/679", "EU GDPR"),
+            ("Regulation (EU) 2022/2555", "Directive 2022/2555", "EU NIS 2 Directive"),
+            ("Regulation (EU) 2024/1689, as amended by Directive (EU) 2026/1744", ai, "EU AI Act"),
+            ("Directive (EU) 2024/1183", eidas, "EU eIDAS"),
+        ):
+            self.assertFalse(match(listed, current, row), listed)
+        for listed, current, row in (
+            ("Regulation (EU) 2016/679", "Regulation 2016/679", "EU GDPR"),
+            ("Regulation (EU) 2024/1689, as amended by (EU) 2026/1744", ai, "EU AI Act"),
+            ("Regulation (EU) 2024/1183", eidas, "EU eIDAS"),
+        ):
+            self.assertTrue(match(listed, current, row), listed)
+        for old, new, name in (
+            ("Regulation (EU) 2016/679", "Directive (EU) 2016/679", "EU GDPR"),
+            ("Directive (EU) 2022/2555", "Regulation (EU) 2022/2555", "EU NIS2"),
+            ("Regulation (EU) 2024/1183", "Directive (EU) 2024/1183", "EU eIDAS 2"),
+        ):
+            hits = self.mod.stale_standard_editions(self._landing_with(
+                f'<span class="topic">{old}</span>', f'<span class="topic">{new}</span>'))
+            self.assertEqual(len(hits), 1, (new, hits))
+            self.assertIn(f"{name!r} lists edition {new!r}", hits[0])
+        hits = self._with_register("| EU GDPR | Regulation 2016/679 |", "| EU GDPR | Directive 2016/679 |")
+        self.assertEqual(len(hits), 2, hits)
+
+    STRIDE_ID = '<span class="id">STRIDE</span>'
+    UNREADABLE = "is not that name with an edition the check reads"
+
+    def test_row_name_ending_in_a_parenthesis_with_unreadable_text_fails(self):
+        # VPR3B393-R1 item 1: a register ID ending in ")" is tried as a leading part.
+        for name, row in (
+            ("ICAO Annex 17 (Chicago Convention) Edition 11", "ICAO Annex 17 (Chicago Convention)"),
+            ("ICAO Annex 17 (Chicago Convention) (repealed)", "ICAO Annex 17 (Chicago Convention)"),
+            ("EDPB Guidelines 3/2018 (territorial scope of the GDPR, Article 3) Version 1.0",
+             "EDPB Guidelines 3/2018 (territorial scope of the GDPR, Article 3)"),
+            ("WP243 (Article 29 Working Party Guidelines on Data Protection Officers) (withdrawn)",
+             "WP243 (Article 29 Working Party Guidelines on Data Protection Officers)"),
+        ):
+            hits = self.mod.stale_standard_editions(
+                self._landing_with(self.STRIDE_ID, f'<span class="id">{name}</span>'))
+            self.assertEqual(len(hits), 1, (name, hits))
+            self.assertIn(f"{name!r} names the register row {row!r}", hits[0])
+            self.assertIn(self.UNREADABLE, hits[0])
+        # The name alone still names no edition.
+        name = "ICAO Annex 17 (Chicago Convention)"
+        texts = self._landing_with(self.STRIDE_ID, f'<span class="id">{name}</span>')
+        self.assertEqual(self.mod.stale_standard_editions(texts), [])
+        self.assertEqual(self._entry(self.mod.standard_edition_entries(texts), self.LANDING, name).status,
+                         "no edition")
+        # Every register row whose ID ends in ")" is found as a leading part.
+        _, resolver = self.mod._load_edition_resolver()
+        ids = [e["id"] for e in resolver.register.entries if e["id"].endswith(")")]
+        self.assertTrue(ids)
+        for row in ids:
+            self.assertEqual(self.mod._named_prefix(resolver, f"{row} (repealed)"), resolver.named_row(row), row)
+
+    def test_compound_name_topic_is_validated(self):
+        # VPR3B393-R1 item 2: a compound name's topic that is or holds an edition fails.
+        old = '<span class="id">EU GDPR</span><span class="topic">Regulation (EU) 2016/679</span>'
+        for topic in (
+            "Regulation (EU) 2016" + chr(0x2215) + "679 (repealed)",
+            "Regulation (EU) 2016/679 (repealed)",
+            "Regulation (EU) 2016/679",
+            "2018",
+        ):
+            hits = self.mod.stale_standard_editions(self._landing_with(
+                old, f'<span class="id">EU GDPR / EU NIS2</span><span class="topic">{topic}</span>'))
+            self.assertEqual(len(hits), 2, (topic, hits))
+            for hit, row in zip(hits, ("EU GDPR", "EU NIS 2 Directive")):
+                self.assertIn(f"names the register row {row!r} but its listed text {topic!r}", hit)
+                self.assertIn(self.UNREADABLE, hit)
+        hits = self.mod.stale_standard_editions(self._landing_with(
+            '<span class="topic">UK data protection</span>', '<span class="topic">2018</span>'))
+        self.assertEqual(len(hits), 2, hits)
+        # The compound entries on the site keep their descriptive topics and pass.
+        entries = self.mod.standard_edition_entries()
+        for name in ("UK GDPR", "DPA 2018", "US CCPA", "CPRA"):
+            self.assertEqual(self._entry(entries, self.LANDING, name).status, "no edition", name)
+
+    def test_unresolved_name_holding_an_edition_fails(self):
+        # VPR3B393-R1 item 3: an edition-shaped token anywhere in an unresolved name.
+        for name, edition in (
+            ("OWASP Top Ten (2025) (repealed)", "2025"),
+            ("FooStandard 2.0 (withdrawn)", "2.0"),
+            ("OWASP Top Ten (2025)", "2025"),
+            ("FooStandard v3 draft", "v3"),
+            ("FooStandard Rev. 4 (superseded)", "Rev. 4"),
+        ):
+            hits = self.mod.stale_standard_editions(
+                self._landing_with(self.STRIDE_ID, f'<span class="id">{name}</span>'))
+            self.assertEqual(len(hits), 1, (name, hits))
+            self.assertIn(f"{name!r} carries edition {edition!r} but names no register row", hits[0])
+        # Numbers that are part of a name are no edition; a name holding none that is not
+        # enumerated in UNRESOLVED_LIST_NAMES fails as unresolved (VPR3B393-R5 item 4).
+        for name in ("IEC 62443", "FooStandard 62443 (series)", "Foo 800-53 (draft)", "Foo 12025"):
+            texts = self._landing_with(self.STRIDE_ID, f'<span class="id">{name}</span>')
+            hits = self.mod.stale_standard_editions(texts)
+            found = [e for e in self.mod.standard_edition_entries(texts) if e.name == name]
+            self.assertTrue(found, name)
+            self.assertTrue(all(e.edition == "" for e in found), found)
+            if name in self.mod.UNRESOLVED_LIST_NAMES:
+                self.assertEqual(hits, [], name)
+                self.assertTrue(all(e.status == "no edition" for e in found), found)
+            else:
+                self.assertEqual(len(hits), 1, (name, hits))
+                self.assertIn(f"{name!r} names no register row and is not among the names enumerated", hits[0])
+                self.assertTrue(all(e.status == "unresolved" for e in found), found)
+
+    OWASP_TOP_10_ITEM = ('<span class="id">OWASP Top 10 (2025)</span>'
+                         '<span class="topic">Web application risks</span>')
+
+    def _owasp_top_10_as(self, name, topic):
+        return self._landing_with(self.OWASP_TOP_10_ITEM,
+                                  f'<span class="id">{name}</span><span class="topic">{topic}</span>')
+
+    def test_topic_of_a_name_resolved_by_its_trailing_edition_is_validated(self):
+        # VPR3B393-R2 item 1: once a trailing edition is split off, the topic is checked.
+        for topic in ("2021 edition", "Web application risks (repealed)", "Top 10 web application risks",
+                      "2.0 (withdrawn)", "2025 (withdrawn)", "2019, updated 2025",
+                      "".join(chr(0x0660 + d) for d in (2, 0, 2, 5)) + " edition"):
+            hits = self.mod.stale_standard_editions(self._owasp_top_10_as("OWASP Top 10 (2025)", topic))
+            self.assertEqual(len(hits), 1, (topic, hits))
+            self.assertIn(f"'OWASP Top 10 (2025)' names the register row 'OWASP Top 10' but its listed "
+                          f"text {topic!r}", hits[0])
+            self.assertIn(self.UNREADABLE, hits[0])
+        # The same topics fail on each part of a compound name.
+        for topic in ("2.0 (withdrawn)", "2021 edition", "Web application risks (repealed)"):
+            hits = self.mod.stale_standard_editions(
+                self._owasp_top_10_as("OWASP SAMM 2.2.0 / OWASP Top 10 (2025)", topic))
+            self.assertEqual(len(hits), 2, (topic, hits))
+            for hit, (name, row) in zip(hits, (("OWASP SAMM 2.2.0", "OWASP SAMM"),
+                                               ("OWASP Top 10 (2025)", "OWASP Top 10"))):
+                self.assertIn(f"{name!r} names the register row {row!r} but its listed text {topic!r}", hit)
+        # An empty or descriptive topic, or one repeating the name's edition, still matches.
+        for topic in ("", "Web application risks", "2025 edition"):
+            texts = self._owasp_top_10_as("OWASP Top 10 (2025)", topic)
+            self.assertEqual(self.mod.stale_standard_editions(texts), [], topic)
+            entry = self._entry(self.mod.standard_edition_entries(texts), self.LANDING, "OWASP Top 10 (2025)")
+            self.assertEqual((entry.edition, entry.status), ("2025", "match"), topic)
+
+    def test_statute_amendment_topic_is_tied_to_the_register(self):
+        # VPR3B393-R2 item 1: "Australia Privacy Act 1988", topic "as amended 2024"
+        # (landing.html:353), passes only with the year of the register's amending Act.
+        entries = self.mod.standard_edition_entries()
+        for source in (self.LANDING, "templates-v2/coverage.html"):
+            entry = self._entry(entries, source, "Australia Privacy Act 1988")
+            self.assertEqual((entry.edition, entry.status), ("1988", "match"), source)
+        self.assertTrue(self.mod.statute_topic_recognised(
+            "Australia Privacy Act", "1988", "as amended 2024", self.AU_REGISTER_CURRENT))
+        old = '<span class="topic">as amended 2024</span>'
+        for topic in ("as amended 2026", "as amended 2024 (repealed)", "as amended 2024, repealed 2026",
+                      "as amended " + "".join(chr(0xFF10 + d) for d in (2, 0, 2, 4)), "amended 2024"):
+            hits = self.mod.stale_standard_editions(
+                self._landing_with(old, f'<span class="topic">{topic}</span>'))
+            self.assertEqual(len(hits), 1, (topic, hits))
+            self.assertIn(f"'Australia Privacy Act 1988' names the register row 'Australia Privacy Act' "
+                          f"but its listed text {topic!r}", hits[0])
+            self.assertFalse(self.mod.statute_topic_recognised(
+                "Australia Privacy Act", "1988", topic, self.AU_REGISTER_CURRENT), topic)
+        # The topic belongs to an amended statute only: India DPDPA names no amending Act.
+        hits = self.mod.stale_standard_editions(self._landing_with(
+            '<span class="topic">Digital Personal Data Protection Act</span>',
+            '<span class="topic">as amended 2024</span>'))
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn("names the register row 'India DPDPA' but its listed text 'as amended 2024'", hits[0])
+        # The compound entries resolve whole and keep their descriptive topics.
+        for name in ("UK GDPR", "DPA 2018", "US CCPA", "CPRA"):
+            self.assertEqual(self._entry(entries, self.LANDING, name).status, "no edition", name)
+
+    def test_unresolved_name_with_a_digit_outside_ascii_fails(self):
+        # VPR3B393-R2 item 2: a numeric character outside ASCII in an unresolved name.
+        fullwidth = "".join(chr(0xFF10 + d) for d in (2, 0, 2, 5))
+        arabic_indic = "".join(chr(0x0660 + d) for d in (2, 0, 2, 5))
+        for name in (f"OWASP Top Ten ({fullwidth}) (repealed)", f"FooStandard {arabic_indic} (withdrawn)",
+                     f"FooStandard {chr(0x0662)}.{chr(0x0660)} (withdrawn)", f"FooStandard {fullwidth}",
+                     "FooStandard " + chr(0x2167)):
+            hits = self.mod.stale_standard_editions(
+                self._landing_with(self.STRIDE_ID, f'<span class="id">{name}</span>'))
+            self.assertEqual(len(hits), 1, (ascii(name), hits))
+            self.assertIn(f"{name!r} names no register row and holds a numeric character outside ASCII",
+                          hits[0])
+        # A leading part that resolves still names its row.
+        name = f"OWASP Top 10 ({fullwidth})"
+        hits = self.mod.stale_standard_editions(
+            self._landing_with(self.STRIDE_ID, f'<span class="id">{name}</span>'))
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn(f"{name!r} names the register row 'OWASP Top 10'", hits[0])
+        self.assertIn(self.UNREADABLE, hits[0])
+
+    def test_unreadable_message_names_compound_and_spelled_out_rules(self):
+        # VPR3B393-R2 item 3: the message says what a compound EU part and a number need.
+        old = '<span class="id">EU GDPR</span><span class="topic">Regulation (EU) 2016/679</span>'
+        for name, topic in (("EU GDPR / EU NIS2", "Data protection"),
+                            ("OWASP Top 10 (2025)", "Top 10 web application risks")):
+            new = f'<span class="id">{name}</span><span class="topic">{topic}</span>'
+            hits = self.mod.stale_standard_editions(self._landing_with(old, new))
+            self.assertTrue(hits, name)
+            for hit in hits:
+                self.assertIn("a compound name with an EU instrument part needs an empty topic", hit)
+                self.assertIn("a descriptive number in a topic must be spelled out", hit)
+                self.assertIn("must be listed in TOPIC_WORDS", hit)
+        # What the message asks for passes (round 4: with every topic word in TOPIC_WORDS).
+        for name, topic in (("EU GDPR / EU NIS2", ""), ("OWASP Top 10 (2025)", "Web application risks")):
+            new = f'<span class="id">{name}</span><span class="topic">{topic}</span>'
+            self.assertEqual(self.mod.stale_standard_editions(self._landing_with(old, new)), [], name)
+
+    # VPR3B393-R3 item 1: the ending shapes the word list missed, a Cyrillic look-alike
+    # among them, and the word list's own "repealed".
+    ENDING_TOPICS = tuple(f"Web application risks ({word})" for word in (
+        "archived", "EOL", "abolished", "end of life", "defunct", "r" + chr(0x0435) + "pealed", "repealed"))
+
+    def test_descriptive_topic_words_are_enumerated(self):
+        # VPR3B393-R3 item 1: a descriptive topic passes only when every word is in TOPIC_WORDS.
+        for topic in self.ENDING_TOPICS + ("Web application " + chr(0x212A) + "isks",
+                                           "Web  application risks", "Web application risks; withdrawn"):
+            hits = self.mod.stale_standard_editions(self._owasp_top_10_as("OWASP Top 10 (2025)", topic))
+            self.assertEqual(len(hits), 1, (ascii(topic), hits))
+            self.assertIn(f"'OWASP Top 10 (2025)' names the register row 'OWASP Top 10' but its listed "
+                          f"text {topic!r}", hits[0])
+            self.assertIn("TOPIC_WORDS", hits[0])
+        # The same on each part of a compound name resolved by its trailing edition.
+        for topic in self.ENDING_TOPICS:
+            hits = self.mod.stale_standard_editions(
+                self._owasp_top_10_as("OWASP SAMM 2.2.0 / OWASP Top 10 (2025)", topic))
+            self.assertEqual(len(hits), 2, (ascii(topic), hits))
+            for hit, (name, row) in zip(hits, (("OWASP SAMM 2.2.0", "OWASP SAMM"),
+                                               ("OWASP Top 10 (2025)", "OWASP Top 10"))):
+                self.assertIn(f"{name!r} names the register row {row!r} but its listed text {topic!r}", hit)
+        # Listed words pass in any ASCII case and after entity decoding.
+        for topic in ("WEB APPLICATION RISKS", "Web application risks &amp; controls",
+                      "Secure software development (SSDF)"):
+            texts = self._owasp_top_10_as("OWASP Top 10 (2025)", topic)
+            self.assertEqual(self.mod.stale_standard_editions(texts), [], topic)
+            entry = self._entry(self.mod.standard_edition_entries(texts), self.LANDING, "OWASP Top 10 (2025)")
+            self.assertEqual((entry.edition, entry.status), ("2025", "match"), topic)
+
+    def test_topic_of_a_name_resolved_as_written_uses_the_vocabulary(self):
+        # VPR3B393-R3 item 2: a one-part name and each part of a compound that resolve as
+        # written take the same vocabulary.
+        for topic in self.ENDING_TOPICS:
+            hits = self.mod.stale_standard_editions(self._owasp_top_10_as("OWASP Top 10", topic))
+            self.assertEqual(len(hits), 1, (ascii(topic), hits))
+            self.assertIn(f"'OWASP Top 10' names the register row 'OWASP Top 10' but its listed text "
+                          f"{topic!r}", hits[0])
+            self.assertIn("TOPIC_WORDS", hits[0])
+            hits = self.mod.stale_standard_editions(self._owasp_top_10_as("OWASP Top 10 / OWASP SAMM", topic))
+            self.assertEqual(len(hits), 2, (ascii(topic), hits))
+            for hit, name in zip(hits, ("OWASP Top 10", "OWASP SAMM")):
+                self.assertIn(f"{name!r} names the register row {name!r} but its listed text {topic!r}", hit)
+        old = '<span class="topic">UK data protection</span>'
+        for topic in ("UK data protection (repealed)", "UK data protection (r" + chr(0x0435) + "pealed)",
+                      "UK data protection (EOL)", "UK data protection (archived)"):
+            hits = self.mod.stale_standard_editions(self._landing_with(old, f'<span class="topic">{topic}</span>'))
+            self.assertEqual(len(hits), 2, (ascii(topic), hits))
+            for hit, name in zip(hits, ("UK GDPR", "DPA 2018")):
+                self.assertIn(f"{name!r} names the register row", hit)
+                self.assertIn(f"but its listed text {topic!r}", hit)
+        # The descriptive topics on the site still pass, as written and resolved.
+        for topic in ("Web application risks", ""):
+            for name in ("OWASP Top 10", "OWASP Top 10 / OWASP SAMM"):
+                texts = self._owasp_top_10_as(name, topic)
+                self.assertEqual(self.mod.stale_standard_editions(texts), [], (name, topic))
+
+    def test_date_topic_in_the_name_year_passes(self):
+        # VPR3B393-R3 item 3: a date topic passes on a year edition when it dates in that year.
+        for topic in ("2025-01", "June 2025", "updated 2025-05-01", "2025-01, updated 2025-06"):
+            texts = self._owasp_top_10_as("OWASP Top 10 (2025)", topic)
+            self.assertEqual(self.mod.stale_standard_editions(texts), [], topic)
+            entry = self._entry(self.mod.standard_edition_entries(texts), self.LANDING, "OWASP Top 10 (2025)")
+            self.assertEqual((entry.edition, entry.status), ("2025", "match"), topic)
+        for topic in ("2024-01", "2025-01, updated 2026", "2025-" + chr(0x0660) + chr(0x0661), "2025-01 (repealed)"):
+            hits = self.mod.stale_standard_editions(self._owasp_top_10_as("OWASP Top 10 (2025)", topic))
+            self.assertEqual(len(hits), 1, (ascii(topic), hits))
+            self.assertIn(f"listed text {topic!r}", hits[0])
+            self.assertIn("for a year edition, dates in that year", hits[0])
+        # A name whose edition is not a year takes no date topic.
+        hits = self.mod.stale_standard_editions(self._landing_with(
+            '<span class="id">OWASP SAMM 2.2.0</span><span class="topic">Software assurance maturity</span>',
+            '<span class="id">OWASP SAMM 2.2.0</span><span class="topic">2025-01</span>'))
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn("'OWASP SAMM 2.2.0' names the register row 'OWASP SAMM' but its listed text '2025-01'",
+                      hits[0])
+
+    def test_every_current_topic_word_is_listed(self):
+        # VPR3B393-R3 item 4: TOPIC_WORDS is exactly the words of the site's descriptive
+        # topics, and none of them states that an edition ended.
+        d15, _ = self.mod._load_edition_resolver()
+        topics = set()
+        for rel, kind in self.mod.EDITION_LIST_SOURCES:
+            if kind != "biblio":
+                continue
+            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            for _, _, topic, problem in self.mod._hand_written_entries(rel, kind, text):
+                self.assertEqual(problem, "", (rel, topic))
+                if (topic and not self.mod._topic_edition(topic, d15)
+                        and not self.mod._STATUTE_TOPIC_RE.fullmatch(topic)):
+                    topics.add(topic)
+        self.assertTrue(topics)
+        for topic in topics:
+            self.assertTrue(self.mod._topic_words_listed(topic), topic)
+        words = {"".join(ch.lower() if ch.isascii() else ch for ch in w) for t in topics for w in t.split(" ")}
+        self.assertEqual(words, set(self.mod.TOPIC_WORDS))
+        for word in self.mod.TOPIC_WORDS:
+            for pattern in (self.mod._EDITION_ENDED_RE, self.mod._EDITION_DISPLACING_RE, self.mod._SUCCESSION_RE):
+                self.assertIsNone(pattern.search(word), word)
+        # The entries named in the round 3 ledger keep their outcomes.
+        entries = self.mod.standard_edition_entries()
+        for source in (self.LANDING, "templates-v2/coverage.html"):
+            for name, status in (("Brazil LGPD", "no edition"), ("Australia Privacy Act 1988", "match"),
+                                 ("UK GDPR", "no edition"), ("DPA 2018", "no edition"),
+                                 ("US CCPA", "no edition"), ("CPRA", "no edition")):
+                self.assertEqual(self._entry(entries, source, name).status, status, (source, name))
+
+    IEC_62443_ITEM = '<span class="id">IEC 62443</span><span class="topic">Industrial / OT security series</span>'
+    BIBLIO_SOURCES = ("templates/landing.html", "templates-v2/coverage.html")
+
+    def _iec_62443_topic(self, rel, topic):
+        text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+        self.assertEqual(text.count(self.IEC_62443_ITEM), 1, rel)
+        return {rel: text.replace(self.IEC_62443_ITEM,
+                                  f'<span class="id">IEC 62443</span><span class="topic">{topic}</span>')}
+
+    def test_topic_of_a_name_that_resolves_to_no_row_is_validated(self):
+        # VPR3B393-R4 item 1: "IEC 62443" names no row; its topic takes the same rules.
+        for rel in self.BIBLIO_SOURCES:
+            # A topic read as an edition or date fails as unresolved.
+            for topic in ("2009 edition", "updated 2025-01", "UPDATED 2025-01", "2018", "v2.0"):
+                texts = self._iec_62443_topic(rel, topic)
+                hits = self.mod.stale_standard_editions(texts)
+                self.assertEqual(len(hits), 1, (rel, topic, hits))
+                self.assertIn(f"'IEC 62443' carries edition {topic!r} but names no register row", hits[0])
+                entry = self._entry(self.mod.standard_edition_entries(texts), rel, "IEC 62443")
+                self.assertEqual((entry.row, entry.status), ("", "unresolved"), topic)
+            # A topic with a numeric character or a word not in TOPIC_WORDS fails as unreadable.
+            for topic in ("Industrial / OT security series (withdrawn)",
+                          "Industrial / OT security series, 2018 edition (superseded)",
+                          "Industrial / OT security series (r" + chr(0x0435) + "pealed)",
+                          "Industrial / OT security series (EOL)", "Industrial / OT security series 2",
+                          "Industrial / OT security series " + chr(0x0662), "2025-13-99 (archived)"):
+                texts = self._iec_62443_topic(rel, topic)
+                hits = self.mod.stale_standard_editions(texts)
+                self.assertEqual(len(hits), 1, (rel, ascii(topic), hits))
+                self.assertIn(f"'IEC 62443' names no register row and its topic {topic!r} is neither "
+                              f"an edition the check reads nor descriptive", hits[0])
+                self.assertIn("TOPIC_WORDS", hits[0])
+                entry = self._entry(self.mod.standard_edition_entries(texts), rel, "IEC 62443")
+                self.assertEqual((entry.row, entry.edition, entry.status), ("", topic, "unreadable"), ascii(topic))
+            # An EU instrument number keeps its handling: an edition that names no row.
+            topic = "Directive (EU) 2022/2555"
+            hits = self.mod.stale_standard_editions(self._iec_62443_topic(rel, topic))
+            self.assertEqual(len(hits), 1, hits)
+            self.assertIn(f"'IEC 62443' carries edition {topic!r} but names no register row", hits[0])
+            # The current topic, a listed-word topic in any ASCII case, and no topic pass.
+            for topic in ("Industrial / OT security series", "INDUSTRIAL / OT SECURITY SERIES", ""):
+                texts = self._iec_62443_topic(rel, topic)
+                self.assertEqual(self.mod.stale_standard_editions(texts), [], topic)
+                entry = self._entry(self.mod.standard_edition_entries(texts), rel, "IEC 62443")
+                self.assertEqual((entry.row, entry.status), ("", "no edition"), topic)
+        entries = self.mod.standard_edition_entries()
+        for rel in self.BIBLIO_SOURCES:
+            for name in ("IEC 62443", "LINDDUN", "STRIDE"):
+                self.assertEqual(self._entry(entries, rel, name).status, "no edition", (rel, name))
+
+    FOR_AI_SOURCES = ("templates/for-ai.html", "templates-v2/for-ai.html", "templates-v3/for-ai.html")
+
+    def _for_ai_with(self, rel, old, new):
+        text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+        self.assertEqual(text.count(old), 1, (rel, old))
+        return {rel: text.replace(old, new)}
+
+    def test_for_ai_text_between_the_spans_is_enumerated(self):
+        # VPR3B393-R4 item 2: the text between the name and description spans is one of
+        # the forms enumerated for its branch, on every For-AI branch.
+        for rel in self.FOR_AI_SOURCES:
+            for old, new, between in (
+                ("OWASP Top 10 for LLM Applications 2026</span>.",
+                 "OWASP Top 10 for LLM Applications 2026</span> (repealed).", "(repealed)."),
+                ("OWASP MCP Top 10</span>.", "OWASP MCP Top 10</span> 2024 edition (withdrawn).",
+                 "2024 edition (withdrawn)."),
+                # A form enumerated for another branch is not accepted on the OWASP branch.
+                ("OWASP MCP Top 10</span>.", "OWASP MCP Top 10</span>, risk management.", ", risk management."),
+                (", in force and phasing in.", ", repealed.", ", repealed."),
+                (", in force and phasing in.", ", in force and phasing in (withdrawn).",
+                 ", in force and phasing in (withdrawn)."),
+                ("ISO/IEC 42001:2023</span>, AI management system.",
+                 "ISO/IEC 42001:2023</span>, AI management system (withdrawn).",
+                 ", AI management system (withdrawn)."),
+                ("CSA AI Controls Matrix (AICM)</span>.", "CSA AI Controls Matrix (AICM)</span> (superseded).",
+                 "(superseded)."),
+            ):
+                texts = self._for_ai_with(rel, old, new)
+                hits = self.mod.stale_standard_editions(texts)
+                self.assertEqual(len(hits), 1, (rel, new, hits))
+                self.assertIn(f".web/{rel}:", hits[0])
+                self.assertIn(f"cannot be parsed: the text between its name and description spans, "
+                              f"{between!r}, is none of the forms enumerated", hits[0])
+                self.assertIn("FOR_AI_INTER_SPAN_FORMS", hits[0])
+                failed = [e for e in self.mod.standard_edition_entries(texts) if e.status != "match"
+                          and e.status != "no edition"]
+                self.assertEqual([(e.status, e.edition) for e in failed], [("unparsed", between)], (rel, new))
+            # The empty text passes, and the entry is still compared.
+            texts = self._for_ai_with(rel, "OWASP Top 10 for LLM Applications 2026</span>.",
+                                      "OWASP Top 10 for LLM Applications 2026</span>")
+            self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
+            entry = self._entry(self.mod.standard_edition_entries(texts), rel,
+                                "OWASP Top 10 for LLM Applications 2026")
+            self.assertEqual((entry.row, entry.status), ("OWASP LLM Top 10", "match"), rel)
+
+    def test_every_current_for_ai_text_between_the_spans_is_accepted(self):
+        # VPR3B393-R4 item 4: every inter-span text on the three For-AI pages is an
+        # accepted form of its branch, and every enumerated form but the empty one is used.
+        forms = self.mod.FOR_AI_INTER_SPAN_FORMS
+        used, items = {branch: set() for branch in forms}, 0
+        d15, resolver = self.mod._load_edition_resolver()
+        for rel in self.FOR_AI_SOURCES:
+            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            start = self.mod._FOR_AI_INDEX_RE.search(text).end()
+            end = text.find("<h2", start)
+            for li in self.mod._LI_RE.finditer(text, start, end):
+                m = self.mod._FOR_AI_ITEM_RE.match(li[0])
+                self.assertTrue(m, li[0])
+                items += 1
+                full = self.mod._plain(m["name"] + m["rest"])
+                eu = self.mod._FOR_AI_EU_AI_ACT_RE.match(full)
+                if eu:
+                    branch, between = self.mod.FOR_AI_EU_AI_ACT_ID, full[eu.end():].strip()
+                else:
+                    branch, _ = self.mod._for_ai_branch(d15, resolver, self.mod._plain(m["name"]))
+                    between = self.mod._plain(m["rest"])
+                self.assertIn(between, forms[branch], (rel, branch, between))
+                used[branch].add(between)
+            for _, name, _, problem in self.mod._hand_written_entries(rel, "for-ai", text):
+                self.assertEqual(problem, "", (rel, name))
+        self.assertEqual(items, 105)
+        for branch, accepted in forms.items():
+            self.assertEqual(used[branch], accepted - {""}, branch)
+        self.assertEqual({branch: len(used[branch]) for branch in forms},
+                         {"OWASP": 1, self.mod.FOR_AI_EU_AI_ACT_ID: 1, "": 30})
+        self.assertEqual(len(set().union(*used.values())), 31)
+
+    def test_date_topic_is_a_calendar_date_in_any_ascii_case(self):
+        # VPR3B393-R4 item 3: the same-year rule reads a calendar date, and date
+        # recognition and the rule ignore the case of ASCII letters alike.
+        for topic in ("2025-13-99", "2025-02-30", "2025-00", "2025-01-32", "31 June 2025",
+                      "updated 2025-13", "UPDATED 2025-13-99", "2025-01, updated 2025-13-01"):
+            hits = self.mod.stale_standard_editions(self._owasp_top_10_as("OWASP Top 10 (2025)", topic))
+            self.assertEqual(len(hits), 1, (topic, hits))
+            self.assertIn(f"'OWASP Top 10 (2025)' names the register row 'OWASP Top 10' but its listed "
+                          f"text {topic!r}", hits[0])
+            self.assertIn("for a year edition, dates in that year", hits[0])
+        for topic in ("updated 2025-01", "UPDATED 2025-01", "Updated 2025-05-01", "2025-02-28",
+                      "1 JUNE 2025", "30 June 2025", "JUNE 2025", "2025-01, UPDATED 2025-06"):
+            texts = self._owasp_top_10_as("OWASP Top 10 (2025)", topic)
+            self.assertEqual(self.mod.stale_standard_editions(texts), [], topic)
+            entry = self._entry(self.mod.standard_edition_entries(texts), self.LANDING, "OWASP Top 10 (2025)")
+            self.assertEqual((entry.edition, entry.status), ("2025", "match"), topic)
+        # The two cases give the same outcome, passing or failing.
+        for topic in ("updated 2025-01", "updated 2024-01", "updated 2025-13-99", "published 2025-02-29"):
+            outcomes = [self.mod.stale_standard_editions(self._owasp_top_10_as("OWASP Top 10 (2025)", t))
+                        for t in (topic, topic.upper())]
+            self.assertEqual([bool(o) for o in outcomes], [bool(outcomes[0])] * 2, topic)
+        d15, _ = self.mod._load_edition_resolver()
+        self.assertTrue(self.mod._topic_dates_in_year("2024-02-29", "2024", d15))
+        self.assertFalse(self.mod._topic_dates_in_year("2025-02-29", "2025", d15))
+        self.assertFalse(self.mod._topic_dates_in_year("2025-12-31", "2026", d15))
+
+    LLM_NAME = "OWASP Top 10 for LLM Applications 2026"
+
+    def _failed(self, texts):
+        return [e for e in self.mod.standard_edition_entries(texts) if e.status not in ("match", "no edition")]
+
+    def test_for_ai_owasp_entry_is_chosen_by_resolution(self):
+        # VPR3B393-R5 item 1: a For-AI name that resolves to an OWASP row, in any case
+        # or spacing, is compared; the branch is not chosen by the literal prefix.
+        d15, resolver = self.mod._load_edition_resolver()
+        nbsp = chr(0x00A0)
+        for rel in self.FOR_AI_SOURCES:
+            # Stale editions in a case or spacing variant fail as mismatches.
+            for written, name in (
+                ("Owasp Top 10 for LLM Applications 2025", "Owasp Top 10 for LLM Applications 2025"),
+                ("owasp top 10 for llm applications 2025", "owasp top 10 for llm applications 2025"),
+                ("OWASP&nbsp;Top 10 for LLM Applications 2025", f"OWASP{nbsp}Top 10 for LLM Applications 2025"),
+                (f"OWASP{nbsp}Top 10 for LLM Applications 2025", f"OWASP{nbsp}Top 10 for LLM Applications 2025"),
+                ("OWASP  Top 10 for LLM Applications 2025", "OWASP  Top 10 for LLM Applications 2025"),
+                ("OWASP Top 10 for LLM  Applications 2025", "OWASP Top 10 for LLM  Applications 2025"),
+            ):
+                self.assertEqual(self.mod._for_ai_branch(d15, resolver, name)[0], "OWASP", ascii(name))
+                texts = self._for_ai_with(rel, f"{self.LLM_NAME}</span>", f"{written}</span>")
+                hits = self.mod.stale_standard_editions(texts)
+                self.assertEqual(len(hits), 1, (rel, ascii(written), hits))
+                self.assertIn("lists edition '2025' but the register row 'OWASP LLM Top 10' has Current "
+                              "version '2026'", hits[0])
+                entry = self._entry(self.mod.standard_edition_entries(texts), rel, name)
+                self.assertEqual((entry.row, entry.status), ("OWASP LLM Top 10", "mismatch"), ascii(name))
+            # A no-break space before the edition, or ended wording after it, fails too.
+            for written in ("OWASP Top 10 for LLM Applications&nbsp;2025", "Owasp Top 10 for LLM Applications 2026 "
+                            "(withdrawn)", "OWASP" + nbsp + "Top 10 for LLM Applications 2026 (withdrawn)"):
+                hits = self.mod.stale_standard_editions(
+                    self._for_ai_with(rel, f"{self.LLM_NAME}</span>", f"{written}</span>"))
+                self.assertEqual(len(hits), 1, (rel, ascii(written), hits))
+                self.assertIn("names the register row 'OWASP LLM Top 10' but its listed text", hits[0])
+            # The current edition in any case or spacing is compared and matches.
+            for written, name in (
+                ("Owasp Top 10 for LLM Applications 2026", "Owasp Top 10 for LLM Applications 2026"),
+                ("OWASP&nbsp;Top 10 for LLM Applications 2026", f"OWASP{nbsp}Top 10 for LLM Applications 2026"),
+                ("OWASP  Top 10 for LLM Applications 2026", "OWASP  Top 10 for LLM Applications 2026"),
+            ):
+                texts = self._for_ai_with(rel, f"{self.LLM_NAME}</span>", f"{written}</span>")
+                self.assertEqual(self.mod.stale_standard_editions(texts), [], (rel, ascii(written)))
+                entry = self._entry(self.mod.standard_edition_entries(texts), rel, name)
+                self.assertEqual((entry.row, entry.status), ("OWASP LLM Top 10", "match"), ascii(name))
+            # The other OWASP rows likewise; a name with the word OWASP in any case that
+            # resolves to no row is compared and fails as unresolved.
+            texts = self._for_ai_with(rel, "OWASP MCP Top 10</span>", "Owasp&nbsp;MCP Top 10</span>")
+            self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
+            entry = self._entry(self.mod.standard_edition_entries(texts), rel, f"Owasp{nbsp}MCP Top 10")
+            self.assertEqual((entry.row, entry.status), ("OWASP MCP Top 10", "no edition"), rel)
+            hits = self.mod.stale_standard_editions(
+                self._for_ai_with(rel, "OWASP MCP Top 10</span>", "owasp mcp top 10 2024</span>"))
+            self.assertEqual(len(hits), 1, (rel, hits))
+            self.assertIn("lists edition '2024' but the register row 'OWASP MCP Top 10'", hits[0])
+            hits = self.mod.stale_standard_editions(
+                self._for_ai_with(rel, "OWASP MCP Top 10</span>", "Owasp Foo Guide 2025</span>"))
+            self.assertEqual(len(hits), 1, (rel, hits))
+            self.assertIn("'Owasp Foo Guide 2025' carries edition '2025' but names no register row", hits[0])
+        # The current outcomes are unchanged.
+        statuses = {}
+        for e in self.mod.standard_edition_entries():
+            statuses[e.status] = statuses.get(e.status, 0) + 1
+        self.assertEqual(statuses, {"match": 89, "no edition": 43})
+
+    def test_for_ai_ext_span_text_is_inter_span_text(self):
+        # VPR3B393-R5 item 2: only the exact external-link marker is dropped; any other
+        # "ext" span's text is read, between the spans and in a bibliography item.
+        marker = self.mod.EXT_LINK_MARKER
+        self.assertEqual(marker, '<span class="ext">&#8599;</span>')
+        for rel, count in (("templates/landing.html", 0), ("templates-v2/coverage.html", 60),
+                           ("templates/for-ai.html", 0), ("templates-v2/for-ai.html", 0),
+                           ("templates-v3/for-ai.html", 0)):
+            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            self.assertEqual(text.count(marker), count, rel)
+            self.assertEqual(len(re.findall(r"""class\s*=\s*["']?ext\b""", text, re.I)), count, rel)
+        self.assertEqual(self.mod._plain(f"a{marker}"), "a")
+        self.assertEqual(self.mod._plain('a<span class="ext"> (repealed)</span>'), "a (repealed)")
+        for rel in self.FOR_AI_SOURCES:
+            for old, new, between in (
+                (f"{self.LLM_NAME}</span>.", f'{self.LLM_NAME}</span><span class="ext"> (repealed)</span>.',
+                 "(repealed)."),
+                ("OWASP MCP Top 10</span>.", 'OWASP MCP Top 10</span><span class="ext">2024 edition (withdrawn)'
+                 '</span>.', "2024 edition (withdrawn)."),
+                ("CSA AI Controls Matrix (AICM)</span>.",
+                 'CSA AI Controls Matrix (AICM)</span><span class="ext"> (superseded)</span>.', "(superseded)."),
+                # A marker written in another form is text too.
+                (f"{self.LLM_NAME}</span>.", f"{self.LLM_NAME}</span><span class='ext'>&#8599;</span>.",
+                 chr(0x2197) + "."),
+            ):
+                texts = self._for_ai_with(rel, old, new)
+                hits = self.mod.stale_standard_editions(texts)
+                self.assertEqual(len(hits), 1, (rel, new, hits))
+                self.assertIn(f"the text between its name and description spans, {between!r}, is none of the "
+                              f"forms enumerated", hits[0])
+                self.assertEqual([(e.status, e.edition) for e in self._failed(texts)], [("unparsed", between)])
+            # The exact marker is dropped, and the entry is still compared.
+            texts = self._for_ai_with(rel, f"{self.LLM_NAME}</span>.", f"{self.LLM_NAME}</span>{marker}.")
+            self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
+            entry = self._entry(self.mod.standard_edition_entries(texts), rel, self.LLM_NAME)
+            self.assertEqual((entry.row, entry.status), ("OWASP LLM Top 10", "match"), rel)
+        # In a bibliography item another "ext" span leaves the item unparsed.
+        rel = "templates-v2/coverage.html"
+        texts = self._for_ai_with(rel, f"ISO/IEC 27001:2022{marker}",
+                                  'ISO/IEC 27001:2022<span class="ext"> (withdrawn)</span>')
+        hits = self.mod.stale_standard_editions(texts)
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn("'ISO/IEC 27001:2022 (withdrawn)Information security management' cannot be parsed", hits[0])
+
+    EU_AI_ACT_NAMES = {
+        "templates/for-ai.html": "European Union, AI Act (Regulation (EU) 2024/1689, as amended by (EU) 2026/1744)",
+        "templates-v2/for-ai.html": "European Union, AI Act (Regulation (EU) 2024/1689, as amended by (EU) "
+                                    "2026/1744)",
+        "templates-v3/for-ai.html": "European Union",
+    }
+
+    def _for_ai_description(self, rel, name, desc):
+        text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+        item = re.compile(r'(<li><span class="(?:fa-inst|row-name)">' + re.escape(name)
+                          + r'</span>.*?<span class="(?:fa-cov|row-desc)">).*?(</span></li>)')
+        new, count = item.subn(lambda m: m[1] + desc + m[2], text)
+        self.assertEqual(count, 1, (rel, name))
+        return {rel: new}
+
+    def test_for_ai_description_is_enumerated_per_row(self):
+        # VPR3B393-R5 item 3: the description of a For-AI item that resolves to a row is
+        # one enumerated for that row; an item that resolves to no row keeps it unchecked.
+        for rel in self.FOR_AI_SOURCES:
+            for name, row in ((self.LLM_NAME, "OWASP LLM Top 10"), ("OWASP MCP Top 10", "OWASP MCP Top 10"),
+                              ("OWASP GenAI Red Teaming Guide", "OWASP GenAI Red Teaming Guide"),
+                              (self.EU_AI_ACT_NAMES[rel], "EU AI Act"), ("ISO/IEC 42001:2023", "ISO/IEC 42001"),
+                              ("NIST Cybersecurity Framework 2.0", "NIST CSF")):
+                for desc, plain in (
+                    ("This 2026 edition is withdrawn.", "This 2026 edition is withdrawn."),
+                    ('Documented in the <a href="x">AI security and risk standard</a> (withdrawn).',
+                     "Documented in the AI security and risk standard (withdrawn)."),
+                    ('Documented in the <a href="x">AI security and risk standard</a>.<span class="x"> '
+                     'Withdrawn.</span>', "Documented in the AI security and risk standard. Withdrawn."),
+                    # A description enumerated for another row is not accepted.
+                    ("Documented in the AI compliance policy.", "Documented in the AI compliance policy."),
+                    ("", ""),
+                ):
+                    texts = self._for_ai_description(rel, name, desc)
+                    hits = self.mod.stale_standard_editions(texts)
+                    self.assertEqual(len(hits), 1, (rel, name, desc, hits))
+                    self.assertIn(f".web/{rel}:", hits[0])
+                    self.assertIn(f"list item for the register row {row!r} cannot be parsed: its description "
+                                  f"{plain!r} is none of the descriptions enumerated for that row in "
+                                  f"FOR_AI_DESCRIPTIONS", hits[0])
+                    self.assertEqual([(e.status, e.row, e.edition) for e in self._failed(texts)],
+                                     [("unparsed", row, plain)], (rel, name, desc))
+        # A link is read as its anchor text, so another target passes; the entry is compared.
+        for rel in self.FOR_AI_SOURCES:
+            texts = self._for_ai_description(rel, self.LLM_NAME, 'Documented in the <a href="https://example.org/'
+                                             'x">AI security and risk standard</a>.')
+            self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
+            entry = self._entry(self.mod.standard_edition_entries(texts), rel, self.LLM_NAME)
+            self.assertEqual((entry.row, entry.status), ("OWASP LLM Top 10", "match"), rel)
+            # An item that resolves to no row keeps its description unchecked.
+            texts = self._for_ai_description(rel, "CSA AI Controls Matrix (AICM)", "This 2026 edition is withdrawn.")
+            self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
+        # A case variant of a compared name is checked against its row's descriptions too.
+        rel = self.FOR_AI_V3
+        texts = self._for_ai_with(rel, f"{self.LLM_NAME}</span>", "Owasp Top 10 for LLM Applications 2026</span>")
+        texts = {rel: re.sub(r'(Owasp Top 10 for LLM Applications 2026</span>.<span class="row-desc">).*?(</span></li>)',
+                             r"\1This 2026 edition is withdrawn.\2", texts[rel])}
+        hits = self.mod.stale_standard_editions(texts)
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn("list item for the register row 'OWASP LLM Top 10' cannot be parsed", hits[0])
+
+    def test_every_current_for_ai_description_is_enumerated(self):
+        # VPR3B393-R5 item 3: FOR_AI_DESCRIPTIONS is exactly the descriptions of the
+        # For-AI items that resolve to a row, keyed by register Standard ID.
+        d15, resolver = self.mod._load_edition_resolver()
+        ids = {e["identity_key"]: e["id"] for e in resolver.register.entries}
+        used, items = {}, 0
+        for rel in self.FOR_AI_SOURCES:
+            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            start = self.mod._FOR_AI_INDEX_RE.search(text).end()
+            for li in self.mod._LI_RE.finditer(text, start, text.find("<h2", start)):
+                m = self.mod._FOR_AI_ITEM_RE.match(li[0])
+                if self.mod._FOR_AI_EU_AI_ACT_RE.match(self.mod._plain(m["name"] + m["rest"])):
+                    row = self.mod.FOR_AI_EU_AI_ACT_ID
+                else:
+                    key = self.mod._for_ai_row(d15, resolver, self.mod._plain(m["name"]))
+                    if not key:
+                        continue
+                    row = ids[key]
+                desc = self.mod._FOR_AI_DESC_RE.fullmatch(li[0], m.end())
+                self.assertTrue(desc, li[0])
+                items += 1
+                used.setdefault(row, set()).add(self.mod._plain(desc["desc"]))
+        self.assertEqual(used, {row: set(texts) for row, texts in self.mod.FOR_AI_DESCRIPTIONS.items()})
+        self.assertEqual((items, len(used), sum(len(t) for t in used.values())), (39, 13, 13))
+        self.assertEqual(len(set().union(*used.values())), 10)
+        self.assertTrue(set(used) <= set(ids.values()))
+
+    def test_unresolved_name_without_an_edition_is_enumerated(self):
+        # VPR3B393-R5 item 4: a name that resolves to no row and holds no edition is one
+        # enumerated in UNRESOLVED_LIST_NAMES, matched exactly, or it fails as unresolved.
+        self.assertEqual(self.mod.UNRESOLVED_LIST_NAMES, frozenset({"IEC 62443"}))
+        entries = self.mod.standard_edition_entries()
+        self.assertEqual({e.name for e in entries if not e.row}, set(self.mod.UNRESOLVED_LIST_NAMES))
+        for rel in self.BIBLIO_SOURCES:
+            for name in ("IEC 62443 (withdrawn)", "IEC 62443 superseded", "IEC 62443 (EOL)", "IEC  62443",
+                         "iec 62443", "Foo Standard"):
+                text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+                texts = {rel: text.replace(self.IEC_62443_ITEM, f'<span class="id">{name}</span><span '
+                                           f'class="topic">Industrial / OT security series</span>')}
+                hits = self.mod.stale_standard_editions(texts)
+                self.assertEqual(len(hits), 1, (rel, name, hits))
+                self.assertIn(f"{name!r} names no register row and is not among the names enumerated in "
+                              f"UNRESOLVED_LIST_NAMES", hits[0])
+                self.assertIn("add a register row", hits[0])
+                entry = self._entry(self.mod.standard_edition_entries(texts), rel, name)
+                self.assertEqual((entry.row, entry.edition, entry.status), ("", "", "unresolved"), name)
+            entry = self._entry(entries, rel, "IEC 62443")
+            self.assertEqual((entry.row, entry.status), ("", "no edition"), rel)
+        # A compared For-AI name that resolves to no row takes the same rule.
+        hits = self.mod.stale_standard_editions(
+            self._for_ai_with(self.FOR_AI_V3, "OWASP MCP Top 10</span>", "Owasp Foo Guide</span>"))
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn("'Owasp Foo Guide' names no register row and is not among the names enumerated", hits[0])
+
+    def test_month_day_year_date_topic(self):
+        # VPR3B393-R5 item 5: "Month D YYYY" is a date the same-year rule reads.
+        for topic in ("June 1 2025", "JUNE 1 2025", "updated June 30 2025", "Sept 30 2025", "Jan. 1 2025",
+                      "2025-01, June 1 2025"):
+            texts = self._owasp_top_10_as("OWASP Top 10 (2025)", topic)
+            self.assertEqual(self.mod.stale_standard_editions(texts), [], topic)
+            entry = self._entry(self.mod.standard_edition_entries(texts), self.LANDING, "OWASP Top 10 (2025)")
+            self.assertEqual((entry.edition, entry.status), ("2025", "match"), topic)
+        for topic in ("June 1 2024", "June 31 2025", "February 29 2025", "June 1 2025 (withdrawn)",
+                      "June 1, 2025", "June 1 1 2025", "1 June 1 2025"):
+            hits = self.mod.stale_standard_editions(self._owasp_top_10_as("OWASP Top 10 (2025)", topic))
+            self.assertEqual(len(hits), 1, (topic, hits))
+            self.assertIn(f"'OWASP Top 10 (2025)' names the register row 'OWASP Top 10' but its listed "
+                          f"text {topic!r}", hits[0])
+        d15, _ = self.mod._load_edition_resolver()
+        self.assertTrue(self.mod._topic_dates_in_year("February 29 2024", "2024", d15))
+        self.assertFalse(self.mod._topic_dates_in_year("June 1 2025", "2026", d15))
+
+    def test_for_ai_allowlists_are_the_5c1e2b6a_forms(self):
+        # VPR3B393-R6 item 1: after PR #2848 the For-AI allowlists are the forms at
+        # 5c1e2b6a; the biblio allowlists are unchanged.
+        from collections import Counter
+        agentic = "Documented in the AI and agentic development-security standard."
+        self.assertEqual({row: set(texts) for row, texts in self.mod.FOR_AI_DESCRIPTIONS.items()}, {
+            "EU AI Act": {"Documented in the EU AI annex (which also reflects the in-force Digital Omnibus "
+                          "on AI, Regulation (EU) 2026/1744)."},
+            "ISO 31000": {"Engaged across the risk domain and the cross-framework matrix."},
+            "ISO/IEC 23894": {"Documented in the AI model-risk framework."},
+            "ISO/IEC 42001": {"Documented in the AI governance and risk framework."},
+            "ISO/IEC 42005": {"Documented in the AI system impact-assessment procedure."},
+            "MITRE ATLAS": {"Engaged in the adversarial-test reference and the AI security tooling landscape."},
+            "NIST AI 600-1": {"Documented in the AI compliance policy."},
+            "NIST AI RMF": {"Documented in the AI governance and risk framework."},
+            "NIST CSF": {"NIST CSF 2.0 is mapped in the compliance matrix; selected NIST SP 800-53 Rev. 5 "
+                         "control families are mapped in the reverse framework-control crosswalk."},
+            "NIST SP 800-218A": {agentic},
+            "OWASP GenAI Red Teaming Guide": {agentic},
+            "OWASP LLM Top 10": {"Documented in the AI security and risk standard."},
+            "OWASP MCP Top 10": {agentic},
+        })
+        forms = self.mod.FOR_AI_INTER_SPAN_FORMS
+        self.assertEqual({branch: len(accepted) for branch, accepted in forms.items()},
+                         {"OWASP": 2, self.mod.FOR_AI_EU_AI_ACT_ID: 2, "": 31})
+        self.assertNotIn("and NIST SP 800-53.", forms[""])
+        self.assertIn("and NIST SP 800-53 Rev. 5.", forms[""])
+        self.assertEqual(len(self.mod.TOPIC_WORDS), 94)
+        self.assertEqual(self.mod.UNRESOLVED_LIST_NAMES, frozenset({"IEC 62443"}))
+        # The pre-#2848 descriptions now fail.
+        for rel in self.FOR_AI_SOURCES:
+            for name, row, old in (
+                ("ISO/IEC 23894:2023", "ISO/IEC 23894", "Documented in the AI model-risk framework and standard."),
+                ("NIST Cybersecurity Framework 2.0", "NIST CSF", "Mapped in the compliance matrix."),
+                ("OWASP MCP Top 10", "OWASP MCP Top 10", "Documented in the MCP server register."),
+                ("OWASP GenAI Red Teaming Guide", "OWASP GenAI Red Teaming Guide",
+                 "Documented in the AI adversarial-test reference."),
+            ):
+                hits = self.mod.stale_standard_editions(self._for_ai_description(rel, name, old))
+                self.assertEqual(len(hits), 1, (rel, name, hits))
+                self.assertIn(f"list item for the register row {row!r} cannot be parsed: its description "
+                              f"{old!r}", hits[0])
+        statuses = Counter(e.status for e in self.mod.standard_edition_entries())
+        self.assertEqual(statuses, Counter({"match": 89, "no edition": 43}))
+
+    def _for_ai_item(self, rel, old_name, new_name, desc=None):
+        text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+        item = re.compile(r'(<li><span class="(?:fa-inst|row-name)">)' + re.escape(old_name)
+                          + r'(</span>.*?<span class="(?:fa-cov|row-desc)">)(.*?)(</span></li>)')
+        new, count = item.subn(lambda m: m[1] + new_name + m[2] + (m[3] if desc is None else desc) + m[4], text)
+        self.assertEqual(count, 1, (rel, old_name))
+        return {rel: new}
+
+    def test_for_ai_compound_name_compares_every_part(self):
+        # VPR3B393-R6 item 2: a compound For-AI name is split on " / "; the branch, the
+        # edition comparison and the description check apply to every part.
+        agentic = "Documented in the AI and agentic development-security standard."
+        d15, resolver = self.mod._load_edition_resolver()
+        compound = f"{self.LLM_NAME} / OWASP MCP Top 10"
+        branch, keys = self.mod._for_ai_branch(d15, resolver, compound)
+        self.assertEqual((branch, len(keys), all(keys)), ("OWASP", 2, True))
+        for rel in self.FOR_AI_SOURCES:
+            # Each part that resolves has the description checked against its row.
+            for desc, rows in (("This 2026 edition is withdrawn.", ["OWASP LLM Top 10", "OWASP MCP Top 10"]),
+                               ("Documented in the AI security and risk standard.", ["OWASP MCP Top 10"]),
+                               (agentic, ["OWASP LLM Top 10"])):
+                hits = self.mod.stale_standard_editions(self._for_ai_item(rel, self.LLM_NAME, compound, desc))
+                self.assertEqual(len(hits), len(rows), (rel, desc, hits))
+                for hit, row in zip(hits, rows):
+                    self.assertIn(f"list item for the register row {row!r} cannot be parsed: its description "
+                                  f"{desc!r}", hit)
+            # Parts whose rows share a description pass, and each part is read (the
+            # GenAI guide also keeps its own item).
+            both = "OWASP MCP Top 10 / OWASP GenAI Red Teaming Guide"
+            texts = self._for_ai_item(rel, "OWASP MCP Top 10", both, agentic)
+            self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
+            for name, count in (("OWASP MCP Top 10", 1), ("OWASP GenAI Red Teaming Guide", 2)):
+                found = [e for e in self.mod.standard_edition_entries(texts)
+                         if e.source == f".web/{rel}" and e.name == name]
+                self.assertEqual([(e.row, e.status) for e in found], [(name, "no edition")] * count, (rel, name))
+            # Each part's edition is compared, the second part's too.
+            hits = self.mod.stale_standard_editions(
+                self._for_ai_item(rel, "OWASP MCP Top 10", "OWASP GenAI Red Teaming Guide / OWASP MCP Top 10 2024",
+                                  agentic))
+            self.assertEqual(len(hits), 1, (rel, hits))
+            self.assertIn("'OWASP MCP Top 10 2024' lists edition '2024' but the register row 'OWASP MCP Top 10'",
+                          hits[0])
+            # A failing description does not hide a part's stale edition.
+            hits = self.mod.stale_standard_editions(
+                self._for_ai_item(rel, self.LLM_NAME, "OWASP MCP Top 10 / OWASP Top 10 for LLM Applications 2025"))
+            self.assertEqual(len(hits), 2, (rel, hits))
+            self.assertIn("list item for the register row 'OWASP MCP Top 10' cannot be parsed", hits[0])
+            self.assertIn("lists edition '2025' but the register row 'OWASP LLM Top 10'", hits[1])
+
+    def test_for_ai_owasp_branch_residuals_fail(self):
+        # VPR3B393-R6 item 3: a name whose part resolves to an OWASP row, or that holds
+        # "owasp" once NFKC-normalised without format characters, is compared; one that
+        # does not resolve fails as unresolved.
+        d15, resolver = self.mod._load_edition_resolver()
+        fullwidth = "".join(chr(0xFF21 + ord(c) - ord("A")) for c in "OWASP")
+        zwsp = chr(0x200B)
+        with_edition = (
+            "The OWASP Top 10 for LLM Applications 2025", "The OWASP Top 10 for LLM Applications 2026",
+            "OWASP's Top 10 for LLM Applications 2025", f"OW{zwsp}ASP Top 10 for LLM Applications 2026",
+            "OWASP-Top 10 for LLM Applications 2025", f"{fullwidth} Top 10 for LLM Applications 2026",
+            "Withdrawn OWASP Top 10 for LLM Applications 2026", "OWASPTop 10 for LLM Applications 2026",
+        )
+        without_edition = (f"OW{zwsp}ASP MCP Top 10", f"{fullwidth} MCP Top 10", "The OWASP MCP Top 10")
+        for name in with_edition + without_edition:
+            self.assertEqual(self.mod._for_ai_branch(d15, resolver, name)[0], "OWASP", ascii(name))
+        for rel in self.FOR_AI_SOURCES:
+            for name in with_edition:
+                texts = self._for_ai_with(rel, f"{self.LLM_NAME}</span>", f"{name}</span>")
+                hits = self.mod.stale_standard_editions(texts)
+                self.assertEqual(len(hits), 1, (rel, ascii(name), hits))
+                self.assertIn(f"{name!r} carries edition '{name[-4:]}' but names no register row", hits[0])
+                self.assertEqual([(e.status, e.row) for e in self._failed(texts)], [("unresolved", "")], ascii(name))
+            for name in without_edition:
+                hits = self.mod.stale_standard_editions(
+                    self._for_ai_with(rel, "OWASP MCP Top 10</span>", f"{name}</span>"))
+                self.assertEqual(len(hits), 1, (rel, ascii(name), hits))
+                self.assertIn(f"{name!r} names no register row and is not among the names enumerated", hits[0])
+            # A compound whose first part is a non-OWASP row is compared on its OWASP part.
+            for first, row in (("ISO/IEC 42001", "ISO/IEC 42001"), ("MITRE ATLAS", "MITRE ATLAS")):
+                name = f"{first} / OWASP Top 10 for LLM Applications 2025"
+                self.assertEqual(self.mod._for_ai_branch(d15, resolver, name)[0], "OWASP", name)
+                hits = self.mod.stale_standard_editions(self._for_ai_item(rel, self.LLM_NAME, name))
+                self.assertEqual(len(hits), 2, (rel, name, hits))
+                self.assertIn(f"list item for the register row {row!r} cannot be parsed", hits[0])
+                self.assertIn("lists edition '2025' but the register row 'OWASP LLM Top 10'", hits[1])
+        # A name with no OWASP part and no "owasp" keeps the uncompared branch.
+        for name in ("CSA AI Controls Matrix (AICM)", "MITRE ATLAS", "ISO/IEC 42001:2023"):
+            self.assertEqual(self.mod._for_ai_branch(d15, resolver, name)[0], "", name)
+
+    def test_text_after_an_item_close_is_unparsed(self):
+        # VPR3B393-R6 item 4: only whitespace may follow an item's </li> before the next
+        # <li> or the list's close, on every list read.
+        for rel in self.BIBLIO_SOURCES + self.FOR_AI_SOURCES:
+            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            if rel in self.BIBLIO_SOURCES:
+                first = text.index("</li>", text.index("biblio-col")) + len("</li>")
+            else:
+                first = text.index("</li>", text.index(f"{self.LLM_NAME}</span>")) + len("</li>")
+            last = text.index("</ul>", first)
+            for at, inserted in ((first, " (withdrawn)"), (first, "<span>(repealed)</span>"),
+                                 (last, "(superseded) "), (first, "&nbsp;")):
+                texts = {rel: text[:at] + inserted + text[at:]}
+                hits = self.mod.stale_standard_editions(texts)
+                self.assertEqual(len(hits), 1, (rel, inserted, hits))
+                self.assertIn(f".web/{rel}:", hits[0])
+                self.assertIn("cannot be parsed (the markup the edition check reads changed", hits[0])
+                self.assertEqual([e.status for e in self._failed(texts)], ["unparsed"], (rel, inserted))
+            # Whitespace there passes.
+            self.assertEqual(self.mod.stale_standard_editions({rel: text[:first] + " \n\t" + text[first:]}), [], rel)
+        # The EU AI Act entry with text after it fails once, not also as missing.
+        for rel in self.FOR_AI_SOURCES:
+            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            at = text.index("</li>", text.index(", in force and phasing in.")) + len("</li>")
+            hits = self.mod.stale_standard_editions({rel: text[:at] + " (repealed)" + text[at:]})
+            self.assertEqual(len(hits), 1, (rel, hits))
+            self.assertIn("(repealed)' cannot be parsed", hits[0])
+
+    def test_owasp_fallback_is_stated(self):
+        # VPR3B393-R6 item 5: the fallback by spelling is stated in the USAGE text and
+        # in the standard_edition_entries docstring.
+        for doc in (self.mod.__doc__, self.mod.standard_edition_entries.__doc__):
+            flat = " ".join(doc.split())
+            self.assertIn('contains "owasp" anywhere', flat)
+            self.assertIn("NFKC", flat)
+            self.assertIn("format characters", flat)
 
 
 class WebGeneratorBaseTokenTests(unittest.TestCase):

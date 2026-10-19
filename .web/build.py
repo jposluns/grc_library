@@ -79,18 +79,20 @@ USAGE
                                    parsed (a renamed field, a moved file, a
                                    taxonomy schema change). This is the
                                    generator-health check wired into CI; it is a
-                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version, must not be among the row's Superseded versions, and must not be marked ended by the Current version (after the year of a statute named by its year only the row's enumerated notes, the register's own text with its dates, numbers and amending Act name variable, may follow (``STATUTE_NOTE_FORMS``), and an EU instrument citation may end only with a short name enumerated for its row or the row's own Standard ID (``EU_INSTRUMENT_SHORT_NAMES``), so any other text after the edition fails and the failure says to update the allowlist if the register text changed legitimately); a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, also fails, as does a list item the check cannot parse, an "id" list item outside every list read, a For-AI source without exactly one EU AI Act entry, or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
+                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version, must not be among the row's Superseded versions, and must not be marked ended by the Current version (after the year of a statute named by its year only the row's enumerated notes, the register's own text with its dates, numbers and amending Act name variable, may follow (``STATUTE_NOTE_FORMS``), and an EU instrument citation may end only with a short name enumerated for its row or the row's own Standard ID (``EU_INSTRUMENT_SHORT_NAMES``), so any other text after the edition fails and the failure says to update the allowlist if the register text changed legitimately); a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, reads as an edition or date, or is not descriptive (a numeric character or a word not in ``TOPIC_WORDS``), or that carries no edition and is not enumerated in ``UNRESOLVED_LIST_NAMES``, also fails, as does a list item the check cannot parse (any text but whitespace after an item's ``</li>`` and before the next item or the list's close included, a For-AI item's text between its name and description spans, which must be one of the forms in ``FOR_AI_INTER_SPAN_FORMS``, and the description of a For-AI item, which must be one enumerated in ``FOR_AI_DESCRIPTIONS`` for the row of every part of its name, split on " / ", that resolves; the OWASP entries are chosen by the row any part of the name resolves to, not by its literal prefix, with one fallback by spelling: a For-AI name that, NFKC-normalised with format characters removed and case-folded, contains "owasp" anywhere is compared too, so one that does not resolve fails, and every part of a compared compound name has its edition compared), an "id" list item outside every list read, a For-AI source without exactly one EU AI Act entry, or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
   python3 .web/build.py --out DIR  render into DIR instead of .web/dist/
 """
 
 from __future__ import annotations
 
 import argparse
+import datetime
 import importlib.util
 import posixpath
 import re
 import subprocess
 import sys
+import unicodedata
 from collections import Counter
 from html import unescape as html_unescape
 from pathlib import Path
@@ -2592,6 +2594,10 @@ _BIBLIO_COL_RE = re.compile(
 )
 _DIV_TAG_RE = re.compile(r"<(/?)div\b[^>]*>", re.I)
 _LI_RE = re.compile(r"<li\b.*?(?:</li>|(?=<li\b)|\Z)", re.S | re.I)
+# The text after an item's </li>, up to the next <li>, the list's close (</ul> or
+# </ol>) or the end of the list read. Only whitespace is accepted there; any other
+# text ("</li> (withdrawn)") fails the item as unparsed.
+_LI_GAP_RE = re.compile(r".*?(?=<li\b|</[uo]l\s*>|\Z)", re.S | re.I)
 _ID_SPAN_RE = re.compile(
     r"""<span\b[^>]*\bclass\s*=\s*(?:["'](?:[^"']*\s)?id(?:\s[^"']*)?["']|id(?=[\s/>]))""", re.I
 )
@@ -2609,12 +2615,127 @@ _FOR_AI_EU_AI_ACT_RE = re.compile(
 FOR_AI_EU_AI_ACT_ID = "EU AI Act"
 # An item that names the EU AI Act in some other shape; it fails as unparsed.
 _FOR_AI_EU_AI_ACT_LOOSE_RE = re.compile(r"\b(?:European Union|EU)\b.*\bAI Act\b")
+# The text a For-AI item may carry between its name span and its description span
+# (for the EU AI Act entry, after its citation), as text (``_plain``), enumerated per
+# branch from the three For-AI templates at 5c1e2b6a (105 items, 31 distinct forms):
+# "OWASP" for an item compared as an OWASP entry (``_for_ai_branch``; 9 items, all
+# "."), the EU AI Act entry (3 items), and "" for every other item (93 items, 30
+# forms). The empty text is accepted on every branch. Any other text fails the item as
+# unparsed ("</span> (repealed).", "</span> 2024 edition (withdrawn)."), whatever words
+# it uses; if a template's text changed legitimately, update this allowlist.
+FOR_AI_INTER_SPAN_FORMS = {
+    "OWASP": frozenset({"", "."}),
+    FOR_AI_EU_AI_ACT_ID: frozenset({"", ", in force and phasing in."}),
+    "": frozenset({
+        "",
+        ".",
+        "(OECD/LEGAL/0449).",
+        "and NIST SP 800-53 Rev. 5.",
+        ", AI Act (SB24-205) and its automated-decision-making re-enactment (SB26-189).",
+        ", AI Risk Management Framework 1.0.",
+        ", AI in employment (HB 3773 / Public Act 103-0804), effective 1 January 2026.",
+        ", AI management system.",
+        ", AI risk-management guidance.",
+        ", AI system impact assessment.",
+        ", Adversarial Machine Learning taxonomy.",
+        ", CCPA regulations on automated decision-making technology (11 CCR Article 11, "
+        "sections 7200 to 7222).",
+        ", Framework Act on AI (AI Basic Act, Law No. 20676, in force 22 January 2026).",
+        ", Generative AI Profile.",
+        ", Local Law 144 on automated employment decision tools.",
+        ", Model AI Governance Framework for Generative AI (advisory, not legislation).",
+        ", National Guidelines on AI Governance and Ethics (MOSTI, 2024; voluntary, seven "
+        "principles).",
+        ", OMB memoranda M-25-21 (agency use of AI), M-25-22 (AI acquisition), and M-26-04 "
+        "(Unbiased AI Principles for procured LLMs), binding on federal agencies and reaching "
+        "vendors through contract terms.",
+        ", Privacy Act automated-decision transparency amendments (commencing 2026) and the "
+        "Voluntary AI Safety Standard.",
+        ", Reducing Risks Posed by Synthetic Content.",
+        ", Responsible Artificial Intelligence Governance Act (TRAIGA, HB 149), effective "
+        "1 January 2026.",
+        ", Secure Software Development for Generative AI.",
+        ", Treasury Board Directive on Automated Decision-Making (in force) and provincial and "
+        "sectoral instruments.",
+        ", adversarial threat landscape for AI systems.",
+        ", data quality for analytics and machine learning.",
+        ", from the 2018 research paper that introduced it.",
+        ", from the 2019 research paper that introduced the practice.",
+        ", information-security management and controls.",
+        ", privacy management and data protection.",
+        ", pro-innovation AI regulation framework (CP 815 white paper, 2023, and CP 1019 "
+        "government response, 2024; non-statutory, five principles applied by existing "
+        "regulators).",
+        ", risk management.",
+    }),
+}
+# The external-link marker the templates write after a link's text (``_plain`` drops
+# it, and only it): at 5c1e2b6a the v2 coverage page carries it 60 times (57 in its
+# bibliography list; PR #2848 added one in its prose) and the landing page and the
+# three For-AI pages none. Any other span with the class "ext"
+# ("<span class="ext"> (repealed)</span>") is read as text.
+EXT_LINK_MARKER = '<span class="ext">&#8599;</span>'
+# A For-AI item's description span runs to the end of the item.
+_FOR_AI_DESC_RE = re.compile(r"(?P<desc>.*)</span></li>", re.S)
+# The descriptions (the "fa-cov" or "row-desc" span, as text: ``_plain``, so a link is
+# its anchor text) a For-AI item may carry, keyed by the register Standard ID of the
+# row its name resolves to (``_for_ai_row``; the EU AI Act entry under
+# ``FOR_AI_EU_AI_ACT_ID``), enumerated from the three For-AI templates at 5c1e2b6a
+# (39 items naming 13 rows, one description per row, 10 distinct descriptions). A
+# compound name ("A / B") is split on " / " and each part that resolves names its row,
+# so the description must be enumerated for every such row. The description of an
+# item that resolves to a row is one of its row's, or the item fails as unparsed ("This
+# 2026 edition is withdrawn."), whatever words it uses; an item no part of which
+# resolves to a row keeps its description unchecked. If a template's text changed
+# legitimately, update this allowlist.
+FOR_AI_DESCRIPTIONS = {
+    FOR_AI_EU_AI_ACT_ID: frozenset({
+        "Documented in the EU AI annex (which also reflects the in-force Digital Omnibus on AI, "
+        "Regulation (EU) 2026/1744).",
+    }),
+    "ISO 31000": frozenset({"Engaged across the risk domain and the cross-framework matrix."}),
+    "ISO/IEC 23894": frozenset({"Documented in the AI model-risk framework."}),
+    "ISO/IEC 42001": frozenset({"Documented in the AI governance and risk framework."}),
+    "ISO/IEC 42005": frozenset({"Documented in the AI system impact-assessment procedure."}),
+    "MITRE ATLAS": frozenset({
+        "Engaged in the adversarial-test reference and the AI security tooling landscape.",
+    }),
+    "NIST AI 600-1": frozenset({"Documented in the AI compliance policy."}),
+    "NIST AI RMF": frozenset({"Documented in the AI governance and risk framework."}),
+    "NIST CSF": frozenset({
+        "NIST CSF 2.0 is mapped in the compliance matrix; selected NIST SP 800-53 Rev. 5 control "
+        "families are mapped in the reverse framework-control crosswalk.",
+    }),
+    "NIST SP 800-218A": frozenset({"Documented in the AI and agentic development-security standard."}),
+    "OWASP GenAI Red Teaming Guide": frozenset({
+        "Documented in the AI and agentic development-security standard.",
+    }),
+    "OWASP LLM Top 10": frozenset({"Documented in the AI security and risk standard."}),
+    "OWASP MCP Top 10": frozenset({
+        "Documented in the AI and agentic development-security standard.",
+    }),
+}
+# The For-AI entries compared are those of the register rows whose Standard ID begins
+# with this word and a space (the OWASP rows), chosen by the row the name resolves to.
+FOR_AI_COMPARED_ID_PREFIX = "OWASP "
+# A For-AI name whose text, after NFKC normalisation with format characters (Unicode
+# category Cf, such as a zero-width space) removed and case folding, contains this
+# anywhere (as a word or inside one: "OWASP's", "OWASP-Top", a fullwidth "OWASP") is
+# compared as an OWASP entry too, so one that does not resolve fails.
+FOR_AI_COMPARED_WORD = "owasp"
+# A compound name ("UK GDPR / DPA 2018") is split into its parts here, as gate D15
+# splits a cell.
+_COMPOUND_NAME_SPLIT_RE = re.compile(r"\s+/\s+")
 # A trailing token is an edition only in one of these shapes: a dotted version, a v- or
 # Rev.-prefixed number, or a year. Any other trailing number is part of the name
 # ("IEC 62443", "EU eIDAS 2").
 _EDITION_SHAPE_RE = re.compile(
     r"(?:v|Rev\.?\s*)?\d+(?:\.\d+)+|(?:v|Rev\.?\s*)\d+|(?:19|20)\d\d", re.I
 )
+# A token in an edition shape at word boundaries anywhere in a name: a name that resolves
+# to no row and holds one carries an edition ("OWASP Top Ten (2025) (repealed)",
+# "FooStandard 2.0 (withdrawn)"), however the text after it reads.
+_EDITION_TOKEN_IN_NAME_RE = re.compile(rf"(?<!\w)(?:{_EDITION_SHAPE_RE.pattern})(?!\w)", re.I)
 # Editions are compared by their numbers ("v1.1" and "1.1", "(2026)" and "2026",
 # "Regulation (EU) 2024/1689" and "Regulation 2024/1689" are equal).
 _EDITION_NUMBER_RE = re.compile(r"\d+(?:[./]\d+)*")
@@ -2721,6 +2842,43 @@ _EDITION_ENDED_RE = re.compile(
     r"|(?:in force|in effect|valid|applies) until)\b",
     re.I,
 )
+# A general row (neither a year-named statute nor an EU instrument citation) is compared
+# only when its Current version is the edition token alone (``_GENERAL_EDITION_TOKEN_RE``:
+# "2025", "v1.1", "2.2.0", "Rev. 5", "v2026.07", matched as ASCII) or one of the row's
+# enumerated shapes below, the register's own text with the edition as the {edition} slot
+# and only a year open beyond it ({year}). Any other Current version fails closed ("2025
+# (revocation)", "2025 (EOL)", "2025 (archived)", a "sunset" spelt with another script's
+# letters), and the failure says to update this allowlist when the register text changed
+# legitimately. ``_EDITION_ENDED_RE`` still applies as a second check.
+# Sources, governance/register-canonical-citations.md at e3ca4a72 (Current version):
+# * OECD AI Principles: "2019 Recommendation as updated 2024".
+# * OECD Privacy Guidelines: "2013 (revised)".
+# * WCO SAFE Framework: "2025 edition".
+# * ASHRAE 135: "2020 (with subsequent addenda)".
+# * NIST SP 800-207 and NIST SP 800-185: "(1.0)".
+# Every other general row's Current version is the token alone or prose that carries no
+# single edition (a date, a designator, "continuous", "Version 2.1", "Edition 12"); those
+# rows fail closed if the site ever lists an edition for them.
+GENERAL_CURRENT_FORMS = {
+    "OECD AI Principles": ("{edition} Recommendation as updated {year}",),
+    "OECD Privacy Guidelines": ("{edition} (revised)",),
+    "WCO SAFE Framework": ("{edition} edition",),
+    "ASHRAE 135": ("{edition} (with subsequent addenda)",),
+    "NIST SP 800-207": ("({edition})",),
+    "NIST SP 800-185": ("({edition})",),
+}
+_GENERAL_EDITION_TOKEN_RE = re.compile(_EDITION_SHAPE_RE.pattern, re.I | re.ASCII)
+_GENERAL_SLOTS = {"edition": f"(?i:{_GENERAL_EDITION_TOKEN_RE.pattern})", "year": _STATUTE_SLOTS["year"]}
+_GENERAL_CURRENT_RES = {
+    row: tuple(
+        re.compile("".join(
+            re.escape(part) if i % 2 == 0 else f"(?:{_GENERAL_SLOTS[part]})"
+            for i, part in enumerate(re.split(r"\{(\w+)\}", form))
+        ), re.ASCII)
+        for form in forms
+    )
+    for row, forms in GENERAL_CURRENT_FORMS.items()
+}
 # The active forms. A statute note or an instrument citation never displaces anything,
 # so in those allowlisted texts these words fail too ("the Privacy Act 2026 replaces it").
 _EDITION_DISPLACING_RE = re.compile(r"\b(?:supersedes|succeeds|replaces|repeals|cancels)\b", re.I)
@@ -2742,10 +2900,10 @@ AMENDMENT_NAMED_ROWS = frozenset({"EU eIDAS"})
 # parenthetical that is one of the row's enumerated short names
 # (``instrument_short_names``). Any other text makes the citation unreadable.
 _BASE_INSTRUMENT_RE = re.compile(
-    r"(?:Regulation|Directive)\s+(?:\((?:EU|EC)\)\s+)?(?P<num>\d{1,4}/\d{1,4})(?![\w/])"
+    r"(?P<kind>Regulation|Directive)\s+(?:\((?:EU|EC)\)\s+)?(?P<num>\d{1,4}/\d{1,4})(?![\w/])"
 )
 _AMENDMENT_ITEM_RE = re.compile(
-    r"(?:(?:Regulation|Directive)\s+)?(?:\((?:EU|EC)\)\s+)?(?P<num>\d{1,4}/\d{1,4})"
+    r"(?:(?P<kind>Regulation|Directive)\s+)?(?:\((?:EU|EC)\)\s+)?(?P<num>\d{1,4}/\d{1,4})"
 )
 _AMENDED_BY_RE = re.compile(r",?\s+as amended by\s+")
 _PAREN_AMENDED_BY_RE = re.compile(r"\s+\(as amended by\s+")
@@ -2767,6 +2925,39 @@ EU_INSTRUMENT_SHORT_NAMES = {
     "EU eIDAS": frozenset({"eIDAS 2"}),
     "EU AI Act": frozenset({"Digital Omnibus"}),
 }
+# The words of a descriptive topic, enumerated from the topics of the landing and v2
+# coverage bibliography lists as of 2026-10-18 (50 distinct descriptive topics; the
+# edition, date and EU instrument citation topics and the statute amendment topic "as
+# amended 2024" keep their own rules). A topic is split at each single space after its
+# HTML entities are decoded (``_plain``), and every word, parenthesised words and the
+# symbols "&" and "/" included, must be one of these, ignoring the case of ASCII letters
+# only (so no letter of another script folds onto a listed word). Any other word or
+# character fails as unreadable ("Web application risks (archived)", "(EOL)", a
+# "repealed" spelt with a Cyrillic letter, a digit, a double space). None of these words
+# states that an edition ended; if a new topic is legitimate, add its words here, never
+# one that does.
+TOPIC_WORDS = frozenset({
+    "&", "(ot)", "(ssdf)", "/", "act", "adversarial", "adversary", "ai", "app", "application",
+    "architecture", "assessment", "assurance", "authentication", "banking", "business",
+    "california", "card", "cloud", "clouds", "compliance", "consumer", "continuity", "controls",
+    "cybersecurity", "dados", "data", "de", "development", "digital", "federal", "for",
+    "framework", "generative", "geral", "governance", "health", "identity", "impact", "in",
+    "incident", "industrial", "information", "it", "law", "lei", "llm", "management", "matrix",
+    "maturity", "media", "ml", "modeling", "of", "on", "operational", "ot", "payment",
+    "personal", "pii", "privacy", "profile", "protection", "prote\u00e7\u00e3o", "public",
+    "quality", "regulation", "response", "revised", "risk", "risks", "sanitization",
+    "sarbanes-oxley", "secure", "security", "series", "service", "software", "supply-chain",
+    "system", "systems", "tactics", "taxonomy", "techniques", "technology", "threat",
+    "threat-modeling", "threats", "to", "trust", "uk", "verification", "web", "zero",
+})
+# The names a list may carry that resolve to no register row and hold no edition,
+# enumerated from the lists read as of 2026-10-18: "IEC 62443" on the landing and v2
+# coverage lists (no For-AI entry compared resolves to no row). A name is matched
+# exactly as written. Any other name that resolves to no row and holds no edition fails
+# as unresolved ("IEC 62443 (withdrawn)", "IEC 62443 superseded"), whatever words it
+# uses; add a register row or curated alias for it, or, if it legitimately names no
+# row, add it here.
+UNRESOLVED_LIST_NAMES = frozenset({"IEC 62443"})
 
 
 class EditionEntry(NamedTuple):
@@ -2778,7 +2969,7 @@ class EditionEntry(NamedTuple):
     edition: str
     row: str
     current: str
-    status: str  # "match", "mismatch", "unresolved", "no edition", "unparsed" or "incomplete"
+    status: str  # "match", "mismatch", "unresolved", "unreadable", "no edition", "unparsed" or "incomplete"
 
 
 def _edition_source_text(rel):
@@ -2801,8 +2992,9 @@ def _load_edition_resolver():
 
 
 def _plain(fragment):
-    """Template HTML as text: the external-link marker and tags dropped, entities decoded."""
-    fragment = re.sub(r'<span class="ext">[^<]*</span>', "", fragment)
+    """Template HTML as text: the external-link marker (``EXT_LINK_MARKER``, exactly as
+    written) and tags dropped, entities decoded. The text of any other "ext" span is kept."""
+    fragment = fragment.replace(EXT_LINK_MARKER, "")
     return html_unescape(re.sub(r"<[^>]+>", "", fragment)).strip()
 
 
@@ -2823,15 +3015,67 @@ def _biblio_columns(text):
     return cols
 
 
-def _hand_written_entries(rel, kind, text):
+def _for_ai_row(d15, resolver, name):
+    """The identity key of the register row a For-AI item's name resolves to: the name
+    as written, or the name without a trailing edition in an edition shape (D15's
+    ``VERSION_TAIL``, as ``standard_edition_entries`` splits one off); None when neither
+    resolves. The resolver ignores case and spacing, so "Owasp Top 10 for LLM
+    Applications 2025", or the name with a no-break or double space, resolves."""
+    key = resolver.named_row(name)
+    if key:
+        return key
+    m = d15.VERSION_TAIL.search(name)
+    tail = m[0].strip(" :,()") if m and m.start() > 0 else ""
+    return resolver.named_row(name[:m.start()].strip()) if _EDITION_SHAPE_RE.fullmatch(tail) else None
+
+
+def _for_ai_branch(d15, resolver, name):
+    """(branch, keys) for a For-AI item that is not the EU AI Act entry. The name is
+    split on " / " (``_COMPOUND_NAME_SPLIT_RE``) and ``keys`` holds, per part, the row
+    that part resolves to (``_for_ai_row``) or None. The branch is "OWASP", the item
+    compared, when the row any part resolves to, or else the row a leading part of that
+    part names (``_named_prefix``: "Owasp Top 10 for LLM Applications 2026
+    (withdrawn)"), has a Standard ID beginning ``FOR_AI_COMPARED_ID_PREFIX`` ("ISO/IEC
+    42001 / OWASP MCP Top 10" included), or when the name contains
+    ``FOR_AI_COMPARED_WORD`` once NFKC-normalised, stripped of format characters and
+    case-folded ("The OWASP Top 10 for LLM Applications 2025", "OW<zero-width
+    space>ASP MCP Top 10", which then fail as unresolved); "" otherwise."""
+    parts = _COMPOUND_NAME_SPLIT_RE.split(name)
+    keys = [_for_ai_row(d15, resolver, part) for part in parts]
+    owasp = False
+    for part, key in zip(parts, keys):
+        named = key or _named_prefix(resolver, part)
+        if named:
+            row = next(e for e in resolver.register.entries if e["identity_key"] == named)
+            owasp = owasp or row["id"].startswith(FOR_AI_COMPARED_ID_PREFIX)
+    folded = "".join(ch for ch in unicodedata.normalize("NFKC", name)
+                     if unicodedata.category(ch) != "Cf").casefold()
+    return ("OWASP" if owasp or FOR_AI_COMPARED_WORD in folded else ""), keys
+
+
+def _hand_written_entries(rel, kind, text, d15_resolver=None):
     """(line, name, edition, problem) per entry of one hand-written list; edition may be
     empty and problem is "" for an entry read. Items are tracked by their offset in the
     source, so two items on one line are two items. An <li> of a list read that its item
-    pattern cannot parse gives problem "unparsed" with the item's text as the name; an
-    <li> with an "id" span anywhere inside it that is not among the items of the lists
-    read gives "incomplete"; a For-AI source without exactly one EU AI Act entry gives
-    one "incomplete" entry with line 0; a source with no list read gives one "unparsed"
-    entry with line 0 and an empty name."""
+    pattern cannot parse gives problem "unparsed" with the item's text as the name, and
+    so does an item followed, after its </li>, by anything but whitespace before the
+    next <li> or the list's close (``_LI_GAP_RE``; the name is the item's text with that
+    text), and a For-AI item whose text between its name and description spans is none
+    of the forms enumerated for its branch (``FOR_AI_INTER_SPAN_FORMS``), with that text
+    as the edition; a For-AI item a part of whose name (split on " / ") resolves to a
+    row (``_for_ai_row``, or the EU AI Act entry) and whose description is none of those
+    enumerated for that row (``FOR_AI_DESCRIPTIONS``) gives problem "unparsed
+    description", once per such row, with the row's Standard ID as the name and the
+    description as the edition, and its entry is still read so its editions are
+    compared (the description of an item no part of which resolves to a row is not
+    checked); an <li> with an "id" span anywhere
+    inside it that is not among the items of the lists read gives "incomplete"; a For-AI
+    source without exactly one EU AI Act entry gives one "incomplete" entry with line 0;
+    a source with no list read gives one "unparsed" entry with line 0 and an empty name.
+    ``d15_resolver`` is ``_load_edition_resolver()``'s result, loaded when not given."""
+    if kind == "for-ai":
+        d15, resolver = d15_resolver or _load_edition_resolver()
+        ids = {e["identity_key"]: e["id"] for e in resolver.register.entries}
     entries, seen, eu_entries = [], set(), 0  # entries are (offset or None, name, edition, problem)
     if kind == "biblio":
         lists = _biblio_columns(text)
@@ -2844,8 +3088,15 @@ def _hand_written_entries(rel, kind, text):
         for li in _LI_RE.finditer(text, start, end):
             pos = li.start()
             seen.add(pos)
+            gap = _LI_GAP_RE.match(text, li.end(), end)[0]
+            if gap.strip():
+                # Text after the item's </li> is read with it and fails it.
+                entries.append((pos, _plain(li[0] + gap), "", "unparsed"))
+                if kind == "for-ai" and _FOR_AI_EU_AI_ACT_LOOSE_RE.search(_plain(li[0])):
+                    eu_entries += 1
+                continue
             if kind == "biblio":
-                item = re.sub(r'<span class="ext">[^<]*</span>|</?a\b[^>]*>', "", li[0]).strip()
+                item = re.sub(r"</?a\b[^>]*>", "", li[0].replace(EXT_LINK_MARKER, "")).strip()
                 m = _BIBLIO_ITEM_RE.fullmatch(item)
                 if m:
                     entries.append((pos, _plain(m["name"]), _plain(m["topic"]), ""))
@@ -2861,11 +3112,28 @@ def _hand_written_entries(rel, kind, text):
             eu = _FOR_AI_EU_AI_ACT_RE.match(full)
             if eu:
                 eu_entries += 1
-                entries.append((pos, FOR_AI_EU_AI_ACT_ID, eu["edition"], ""))
+                (branch, keys), between = (FOR_AI_EU_AI_ACT_ID, ()), full[eu.end():].strip()
             elif _FOR_AI_EU_AI_ACT_LOOSE_RE.search(full):
                 eu_entries += 1
                 entries.append((pos, full, "", "unparsed"))
-            elif name.startswith("OWASP "):
+                continue
+            else:
+                (branch, keys), between = _for_ai_branch(d15, resolver, name), _plain(m["rest"])
+            # The rows the item names: the EU AI Act, or the row of each part that resolves.
+            row_ids = [FOR_AI_EU_AI_ACT_ID] if eu else list(dict.fromkeys(ids[k] for k in keys if k))
+            tail = _FOR_AI_DESC_RE.fullmatch(li[0], m.end())
+            desc = _plain(tail["desc"] if tail else li[0][m.end():])
+            undescribed = [r for r in row_ids if not tail or desc not in FOR_AI_DESCRIPTIONS.get(r, ())]
+            if between not in FOR_AI_INTER_SPAN_FORMS[branch]:
+                # The text between the spans is none of the forms enumerated for the branch.
+                entries.append((pos, full, between, "unparsed"))
+                continue
+            # A description none of those enumerated for a row the item names fails; the
+            # item's editions are still compared.
+            entries.extend((pos, row_id, desc, "unparsed description") for row_id in undescribed)
+            if eu:
+                entries.append((pos, FOR_AI_EU_AI_ACT_ID, eu["edition"], ""))
+            elif branch == "OWASP":
                 entries.append((pos, name, "", ""))
     if not lists or not entries:
         entries.append((None, "", "", "unparsed"))
@@ -2885,13 +3153,122 @@ def _hand_written_entries(rel, kind, text):
 def _topic_edition(topic, d15):
     """The topic span read as an edition, when it is one: it carries an EU instrument
     number ("Regulation (EU) 2016/679"), or every comma item is a date or edition
-    ("2019, updated 2024"). Descriptive topics give an empty string."""
+    ("2019, updated 2024"), read ignoring the case of ASCII letters only ("UPDATED 2025-01"
+    as "updated 2025-01") and with ASCII digits. Descriptive topics give an empty string."""
     if d15.eu_numbers(topic):
         return topic
+    fixed = re.compile(d15.FIXED_ITEM.pattern, re.I | re.ASCII)
     items = [i.strip() for i in topic.split(",")]
-    if topic and all(d15.FIXED_ITEM.fullmatch(i) for i in items):
+    if topic and all(fixed.fullmatch(i) for i in items):
         return topic
     return ""
+
+
+def _topic_words_listed(topic):
+    """Whether every word of ``topic``, split at each single space, is in ``TOPIC_WORDS``,
+    ignoring the case of ASCII letters only. An empty topic has no words and passes."""
+    if not topic:
+        return True
+    return all("".join(ch.lower() if ch.isascii() else ch for ch in word) in TOPIC_WORDS
+               for word in topic.split(" "))
+
+
+def _topic_unreadable(topic, row):
+    """Whether a topic that ``_topic_edition`` did not read as an edition fails rather
+    than counting as descriptive: the topic holds any numeric character (in any script:
+    "2019, updated 2024 (repealed)", an EU number written with a division slash or
+    "Regulation (EU) 2016-679"), or a word not in ``TOPIC_WORDS`` ("Web application risks
+    (archived)", "Top 10 web application risks"), or the row's Current version is an EU
+    instrument citation (``instrument_parts``), whose topic must be that citation
+    ("General Data Protection Regulation (repealed)" on EU GDPR). The descriptive topics
+    of the current entries ("Zero Trust Architecture") do none of these."""
+    return (_topic_not_descriptive(topic)
+            or instrument_parts(row["current"], row["id"]) is not None)
+
+
+def _topic_not_descriptive(topic):
+    """Whether ``topic`` holds any numeric character (in any script) or a word not in
+    ``TOPIC_WORDS``: the topic rules that need no register row."""
+    return any(ch.isnumeric() for ch in topic) or not _topic_words_listed(topic)
+
+
+def _topic_date_re(d15):
+    """The dates the same-year rule reads, enumerated: "YYYY", "YYYY-MM", "YYYY-MM-DD",
+    "Month YYYY", "D Month YYYY" and "Month D YYYY" ("June 1 2025"; a month as D15's
+    ``MONTH`` spells it), each optionally after one of D15's date words ("updated") and
+    one space, ASCII digits only and ASCII letters in any case."""
+    return re.compile(
+        r"(?:(?:adopted|updated|effective|published|revised) )?"
+        r"(?:(?P<year>\d{4})(?:-(?P<month>\d{2})(?:-(?P<day>\d{2}))?)?"
+        rf"|(?:(?P<mday>\d{{1,2}}) )?(?P<mname>{d15.MONTH}) (?P<myear>\d{{4}})"
+        rf"|(?P<dname>{d15.MONTH}) (?P<dday>\d{{1,2}}) (?P<dyear>\d{{4}}))",
+        re.I | re.ASCII,
+    )
+
+
+def _topic_dates_in_year(topic, year, d15):
+    """Whether ``year`` is a year edition and every comma item of ``topic`` is a date the
+    same-year rule reads (``_topic_date_re``: "2025-01", "updated 2025-05-01", "UPDATED
+    2025-01", "1 June 2025", "June 1 2025") that is a calendar date ("2025-13-99",
+    "2025-02-30", "31 June 2025" and "June 31 2025" are not) in ``year``."""
+    if not _YEAR_RE.fullmatch(year):
+        return False
+    date_re = _topic_date_re(d15)
+    months = ("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec")
+    for item in (i.strip() for i in topic.split(",")):
+        m = date_re.fullmatch(item)
+        if not m:
+            return False
+        if m["year"]:
+            y, month, day = int(m["year"]), int(m["month"] or 1), int(m["day"] or 1)
+        elif m["mname"]:
+            y, month = int(m["myear"]), months.index(m["mname"][:3].lower()) + 1
+            day = int(m["mday"] or 1)
+        else:
+            y, month = int(m["dyear"]), months.index(m["dname"][:3].lower()) + 1
+            day = int(m["dday"])
+        try:
+            datetime.date(y, month, day)
+        except ValueError:
+            return False
+        if str(y) != year:
+            return False
+    return True
+
+
+def _stripped_topic_unreadable(topic, edition, row, d15):
+    """Whether the topic of a name that resolves only once its trailing edition
+    ``edition`` is split off ("OWASP Top 10 (2025)", also as a part of a compound name)
+    fails: a topic read as an edition (``_topic_edition``) whose numbers differ from that
+    edition ("2021 edition") unless the edition is a year and the topic dates in that year
+    (``_topic_dates_in_year``: "2025-01"), or any other topic that is unreadable
+    (``_topic_unreadable``: "2.0 (withdrawn)", "Top 10 web application risks", "Web
+    application risks (repealed)", a word not in ``TOPIC_WORDS``). An empty topic, a
+    descriptive one ("Web application risks"), one that repeats the edition ("2025
+    edition") and a year-named statute's amendment topic (``statute_topic_recognised``:
+    "as amended 2024") pass."""
+    if not topic:
+        return False
+    read = _topic_edition(topic, d15)
+    if read:
+        return _numbers(read) != _numbers(edition) and not _topic_dates_in_year(read, edition, d15)
+    if statute_topic_recognised(row["id"], edition, topic, row["current"]):
+        return False
+    return _topic_unreadable(topic, row)
+
+
+def _named_prefix(resolver, name):
+    """The register row named by the longest leading part of ``name`` that ends at a
+    non-space character before a non-word character and resolves
+    (``Resolver.named_row``), or None. A name that does not resolve whole but begins
+    with a row's name ("OWASP Top 10 (2025) (repealed)", "General Data Protection
+    Regulation (repealed)", "ICAO Annex 17 (Chicago Convention) Edition 11", the row's
+    name ending in ")") names that row with text the check cannot read."""
+    for m in reversed(list(re.finditer(r"\S(?=\W)", name))):
+        key = resolver.named_row(name[:m.end()].strip())
+        if key:
+            return key
+    return None
 
 
 def _numbers(text):
@@ -2992,6 +3369,28 @@ def statute_note_recognised(row, note):
     return True
 
 
+# The one topic a year-named statute listed with its year may carry: "as amended {year}"
+# ("Australia Privacy Act 1988", topic "as amended 2024"), the year matched as ASCII.
+_STATUTE_TOPIC_RE = re.compile(r"as amended (?P<year>(?:19|20)\d\d)", re.ASCII)
+
+
+def statute_topic_recognised(row, edition, topic, current):
+    """Whether ``topic`` is the amendment topic of the statute row ``row``
+    (``STATUTE_YEAR_ROWS``) listed with the year ``edition``: "as amended {year}", where
+    the Current version is that year followed by ", as amended by" an amending Act of
+    ``STATUTE_AMENDING_ACTS`` whose name ends with the topic's year. So "as amended 2026"
+    against the register's 2024 Act, "as amended 2024 (repealed)", and the topic on any
+    other row (India DPDPA, whose Current version names no amending Act) fail."""
+    m = _STATUTE_TOPIC_RE.fullmatch(topic)
+    if not m or row not in STATUTE_YEAR_ROWS or not _YEAR_RE.fullmatch(edition):
+        return False
+    if not current.startswith(edition):
+        return False
+    opening = _clauses(current[len(edition):])[0]
+    return any(opening.startswith(f", as amended by {act} ") and act.endswith(f" {m['year']}")
+               for act in STATUTE_AMENDING_ACTS)
+
+
 def instrument_short_names(row):
     """The short names a citation of the register row ``row`` may end with in
     parentheses: the row's enumerated names (``EU_INSTRUMENT_SHORT_NAMES``) and its own
@@ -3014,9 +3413,17 @@ def instrument_edition(text, row=""):
     or one parenthetical that is one of the row's short names
     (``instrument_short_names``), so "...(eIDAS 2); valid until 2030", "... (No Longer
     Valid)" and "...(Digital Omnibus) (Until)" are not citations."""
-    def key(num):
-        a, b = num.split("/")
-        return f"{int(a)}/{int(b)}"
+    parts = instrument_parts(text, row)
+    return None if parts is None else [num for _, num in parts]
+
+
+def instrument_parts(text, row=""):
+    """``instrument_edition`` with each number's instrument kind: (kind, number) pairs,
+    kind "Regulation", "Directive" or "" where the citation names none (an amendment
+    written "(EU) 2026/1744"); None for any text that is not a citation."""
+    def key(m):
+        a, b = m["num"].split("/")
+        return (m["kind"] or "", f"{int(a)}/{int(b)}")
 
     def amendments(listed):
         out = []
@@ -3024,14 +3431,14 @@ def instrument_edition(text, row=""):
             m = _AMENDMENT_ITEM_RE.fullmatch(item)
             if not m:
                 return None
-            out.append(key(m["num"]))
+            out.append(key(m))
         return out
 
     text = text.strip()
     base = _BASE_INSTRUMENT_RE.match(text)
     if not base:
         return None
-    nums, rest = [key(base["num"])], text[base.end():]
+    nums, rest = [key(base)], text[base.end():]
     amended = _AMENDED_BY_RE.match(rest)
     paren = _PAREN_AMENDED_BY_RE.match(rest)
     if amended:
@@ -3096,25 +3503,49 @@ def edition_matches(listed, current, row="", superseded=()):
       amended", "1988, as amended; the Privacy Act 2026 replaces it", "1988
       (repealed)") does not match.
     * Any other edition, including a bare-year edition of any other row (ISO, COBIT,
-      OWASP), matches when its numbers equal the Current version's and the Current
-      version does not mark it ended (``edition_ended``: "2025 (superseded)", "2.2.0
-      (withdrawn)", "2022 (deprecated)").
+      OWASP), matches when the Current version is one the check reads for a general
+      row (``general_current_recognised``: the edition token alone or one of the row's
+      ``GENERAL_CURRENT_FORMS``), its numbers equal the Current version's, and the
+      Current version does not mark it ended (``edition_ended``: "2025 (superseded)",
+      "2.2.0 (withdrawn)", "2022 (deprecated)"). So "2025 (revocation)", "2025 (EOL)"
+      or "2025 (archived)" matches nothing, whatever word it uses.
+
+    Where both citations name the instrument kind of a number (Regulation or
+    Directive), the kinds must be equal too ("Directive (EU) 2016/679" does not match
+    "Regulation 2016/679").
     """
     if edition_superseded(listed, superseded):
         return False
-    own = instrument_edition(listed, row)
+    own = instrument_parts(listed, row)
     if own is not None:
-        cited = instrument_edition(current, row)
+        cited = instrument_parts(current, row)
         if cited is None:
             return False
-        if own == cited:
+        if len(own) == len(cited) and all(_same_instrument(a, b) for a, b in zip(own, cited)):
             return True
-        return row in AMENDMENT_NAMED_ROWS and len(own) == 1 and len(cited) > 1 and own[0] == cited[-1]
+        return (row in AMENDMENT_NAMED_ROWS and len(own) == 1 and len(cited) > 1
+                and _same_instrument(own[0], cited[-1]))
     if _INSTRUMENT_NUMBER_RE.search(listed):
         return False
     if row in STATUTE_YEAR_ROWS and _YEAR_RE.fullmatch(listed) and current.startswith(listed):
         return statute_note_recognised(row, current[len(listed):])
-    return _numbers(listed) == _numbers(current) and not edition_ended(listed, current, superseded)
+    return (general_current_recognised(row, current) and _numbers(listed) == _numbers(current)
+            and not edition_ended(listed, current, superseded))
+
+
+def _same_instrument(a, b):
+    """Two (kind, number) pairs name the same instrument: equal numbers, and equal kinds
+    where both name one."""
+    return a[1] == b[1] and (not a[0] or not b[0] or a[0] == b[0])
+
+
+def general_current_recognised(row, current):
+    """Whether ``current``, the Current version of the general register row ``row``, is
+    one the check reads: the edition token alone (``_GENERAL_EDITION_TOKEN_RE``) or one
+    of the row's enumerated shapes (``GENERAL_CURRENT_FORMS``). Anything else fails
+    closed, whatever words it uses."""
+    return bool(_GENERAL_EDITION_TOKEN_RE.fullmatch(current)
+                or any(f.fullmatch(current) for f in _GENERAL_CURRENT_RES.get(row, ())))
 
 
 def standard_edition_entries(texts=None):
@@ -3128,9 +3559,17 @@ def standard_edition_entries(texts=None):
     off and the rest resolved. On a "biblio" list, a one-part name that resolves
     without an edition takes its edition from the topic span when the topic is one
     ("EU AI Act", "Regulation (EU) 2024/1689, as amended by (EU) 2026/1744"). For a
-    name that does not resolve, the topic is read only for an EU instrument number:
-    one there ("Directive (EU) 2022/2555") is an edition that names no row, so the
-    entry fails rather than passing with a number nobody compared. Outcomes:
+    name that does not resolve and holds no edition, the biblio topic takes the same
+    rules: an EU instrument number there ("Directive (EU) 2022/2555"), or a topic read as
+    an edition or date (``_topic_edition``: "2009 edition"), is an edition that names no
+    row, so the entry fails rather than passing with a number nobody compared, and a
+    topic holding a numeric character or a word not in ``TOPIC_WORDS``
+    (``_topic_not_descriptive``: "Industrial / OT security series (withdrawn)") is
+    unreadable. A part of a compound
+    name takes no edition from the topic, so a topic that is one or holds one fails.
+    A name, or a part of a compound name, that resolves only once its trailing edition
+    is split off keeps that edition, and its topic is checked against it
+    (``_stripped_topic_unreadable``). Outcomes:
 
     * ``match``: the name resolves, its edition is not among the row's Superseded
       versions, and it equals the row's Current version under the rule for its kind
@@ -3139,8 +3578,39 @@ def standard_edition_entries(texts=None):
     * ``mismatch``: the name resolves and its edition differs, is superseded, is
       marked ended, or meets a Current version the allowlist rejects (a failure).
     * ``unresolved``: the name resolves to no row and carries an edition, in the name
-      or as an EU instrument number in the topic (a failure).
-    * ``unparsed``: an <li> of a list read that its item pattern cannot parse, or a
+      (a trailing edition, or a token in an edition shape at word boundaries anywhere:
+      "OWASP Top Ten (2025) (repealed)", "FooStandard 2.0 (withdrawn)"; "IEC 62443"
+      holds none) or in the topic, as an EU instrument number or a topic read as an
+      edition or date ("IEC 62443", topic "2009 edition"), or it carries no edition and
+      is not one of the names enumerated in ``UNRESOLVED_LIST_NAMES`` ("IEC 62443
+      (withdrawn)", "IEC 62443 superseded"; the edition field is empty) (a failure).
+    * ``unreadable``: the name does not resolve whole but a leading part of it does
+      (``_named_prefix``: "OWASP Top 10 (2025) (repealed)"), or a one-part biblio name
+      resolves and its topic is no edition the check reads yet holds a numeric
+      character or a word not in ``TOPIC_WORDS`` or belongs to an EU instrument row
+      (``_topic_unreadable``: "OWASP Top 10", topic "Web application risks
+      (repealed)"), or a part of a compound name resolves and the topic is an edition
+      the check reads (ambiguous between the parts) or is unreadable in that sense, or a
+      name or part resolves once its trailing edition is split off, that edition matches
+      (else the entry is a ``mismatch``), and its topic is an edition with other numbers
+      ("OWASP Top 10 (2025)", topic "2021 edition"; a date in the name's year passes) or
+      unreadable in that sense ("Web application risks (archived)"), or a name
+      that does not resolve holds a numeric character outside ASCII ("OWASP Top Ten
+      (2025) (repealed)" with fullwidth digits; the row is then the one a leading part
+      names, or none), or a biblio name that does not resolve and holds no edition has
+      a topic that is no edition the check reads yet is not descriptive ("IEC 62443",
+      topic "Industrial / OT security series, 2018 edition (superseded)"; no row); the
+      edition field holds the unreadable text (a failure).
+    * ``unparsed``: an <li> of a list read that its item pattern cannot parse, an <li>
+      followed after its </li> by anything but whitespace before the next <li> or the
+      list's close ("</li> (withdrawn)"; the name holds the item's text with that text),
+      a For-AI item whose text between its name and description spans is none of the
+      forms enumerated for it (``FOR_AI_INTER_SPAN_FORMS``; the edition field holds that
+      text), a For-AI item a part of whose name (split on " / ") resolves to a row
+      (``_for_ai_row``, or the EU AI Act entry) whose description is none of those
+      enumerated for that row (``FOR_AI_DESCRIPTIONS``; one entry per such row, the name
+      and row fields hold the row's Standard ID and the edition field the description;
+      an item no part of which resolves to a row keeps its description unchecked), or a
       source with no list read (a failure).
     * ``incomplete``: an <li> with an "id" span that is not among the entries read,
       or a For-AI source without exactly one EU AI Act entry (a failure).
@@ -3153,10 +3623,23 @@ def standard_edition_entries(texts=None):
       OWASP MCP Top 10 and OWASP GenAI Red Teaming Guide on the For-AI pages. EU NIS2
       and EU eIDAS 2 resolve through curated aliases and are compared.
 
-    On the For-AI pages only the OWASP entries and the EU AI Act entry are compared;
-    the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC
-    42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest) are out of scope of
-    this check, although every <li> of the resource index must still parse.
+    On the For-AI pages only the OWASP entries and the EU AI Act entry are compared.
+    A For-AI name is split on " / " like any compound name, and an OWASP entry is
+    chosen by resolution (``_for_ai_branch``: the row any part, that part without its
+    trailing edition, or a leading part of it names has a Standard ID beginning "OWASP
+    ", so "Owasp Top 10 for LLM Applications 2025", the name with a no-break or double
+    space, or "ISO/IEC 42001 / OWASP MCP Top 10" is compared), with one fallback by
+    spelling: a name that, NFKC-normalised, stripped of format characters (a zero-width
+    space) and case-folded, contains "owasp" anywhere ("The OWASP Top 10 for LLM
+    Applications 2025", "OWASP's Top 10", "OWASP-Top 10", a fullwidth "OWASP",
+    "Withdrawn OWASP Top 10") is compared too, so one that does not resolve fails as
+    unresolved (or as unreadable when a leading part names a row). Every part of a
+    compared compound name has its edition compared, and the description is checked
+    against the row of every part that resolves. The other
+    For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO
+    31000:2018, ISO/IEC 27001:2022 and the rest) are out of scope of this check,
+    although every <li> of the resource index must still parse and the description of
+    every item that resolves to a row must be enumerated (``FOR_AI_DESCRIPTIONS``).
 
     ``texts`` maps a source path to replacement text (for tests); other sources are
     read from the template tree.
@@ -3167,33 +3650,66 @@ def standard_edition_entries(texts=None):
     out = []
     for rel, kind in EDITION_LIST_SOURCES:
         text = texts[rel] if rel in texts else _edition_source_text(rel)
-        for lineno, listed, extra, problem in _hand_written_entries(rel, kind, text):
-            if problem:
-                out.append(EditionEntry(f".web/{rel}", lineno, listed, "", "", "", problem))
+        for lineno, listed, extra, problem in _hand_written_entries(rel, kind, text, (d15, resolver)):
+            if problem == "unparsed description":
+                # The name field holds the Standard ID of the row the item names.
+                out.append(EditionEntry(f".web/{rel}", lineno, listed, extra, listed, "", "unparsed"))
                 continue
-            parts = re.split(r"\s+/\s+", listed)
+            if problem:
+                out.append(EditionEntry(f".web/{rel}", lineno, listed, extra, "", "", problem))
+                continue
+            parts = _COMPOUND_NAME_SPLIT_RE.split(listed)
             for name in parts:
-                key, edition = resolver.named_row(name), ""
+                key, edition, unreadable, stray_topic = resolver.named_row(name), "", "", ""
                 if key and kind == "for-ai":
                     edition = extra
                 elif key and len(parts) == 1:
                     edition = _topic_edition(extra, d15)
+                    if not edition and _topic_unreadable(extra, rows[key]):
+                        unreadable = extra
+                elif key:
+                    # A compound name's topic names no edition: one the check reads is
+                    # ambiguous between the parts, and an unreadable one fails as well.
+                    if _topic_edition(extra, d15) or _topic_unreadable(extra, rows[key]):
+                        unreadable = extra
                 elif not key:
                     m = d15.VERSION_TAIL.search(name)
                     tail = m[0].strip(" :,()") if m and m.start() > 0 else ""
-                    if _EDITION_SHAPE_RE.fullmatch(tail):
+                    if any(ch.isnumeric() and not ch.isascii() for ch in name):
+                        # Digits in another script are read in no edition shape.
+                        key, unreadable = _named_prefix(resolver, name), name
+                    elif _EDITION_SHAPE_RE.fullmatch(tail):
                         key, edition = resolver.named_row(name[:m.start()].strip()), tail
+                        if key and _stripped_topic_unreadable(extra, edition, rows[key], d15):
+                            stray_topic = extra
+                    elif _named_prefix(resolver, name):
+                        key, unreadable = _named_prefix(resolver, name), name
                     elif kind == "biblio" and d15.eu_numbers(extra):
                         edition = extra
+                    elif _EDITION_TOKEN_IN_NAME_RE.search(name):
+                        edition = _EDITION_TOKEN_IN_NAME_RE.search(name)[0]
+                    elif kind == "biblio" and _topic_edition(extra, d15):
+                        # A topic read as an edition or date is an edition that names no row.
+                        edition = extra
+                    elif kind == "biblio" and _topic_not_descriptive(extra):
+                        unreadable = extra
                 row = rows.get(key)
-                if not edition:
+                if unreadable:
+                    status, edition = "unreadable", unreadable
+                elif not edition and row is None and name not in UNRESOLVED_LIST_NAMES:
+                    # A name that names no row and holds no edition is enumerated.
+                    status = "unresolved"
+                elif not edition:
                     status = "no edition"
                 elif row is None:
                     status = "unresolved"
-                elif edition_matches(edition, row["current"], row["id"], row["superseded"]):
-                    status = "match"
-                else:
+                elif not edition_matches(edition, row["current"], row["id"], row["superseded"]):
                     status = "mismatch"
+                elif stray_topic:
+                    # The name's edition matches; its topic still fails.
+                    status, edition = "unreadable", stray_topic
+                else:
+                    status = "match"
                 out.append(EditionEntry(
                     f".web/{rel}", lineno, name, edition,
                     row["id"] if row else "", row["current"] if row else "", status,
@@ -3222,6 +3738,12 @@ def _allowlist_rejection(edition, current, row):
         return (" (the Current version is not an EU instrument citation the check reads; a "
                 "short-name parenthetical must be listed for the row in EU_INSTRUMENT_SHORT_NAMES; "
                 "if the register text changed legitimately, update that allowlist in .web/build.py)")
+    if (not _INSTRUMENT_NUMBER_RE.search(edition) and instrument_edition(edition, row) is None
+            and not (row in STATUTE_YEAR_ROWS and _YEAR_RE.fullmatch(edition))
+            and not general_current_recognised(row, current)):
+        return (" (the Current version is neither the edition token alone nor one of the row's "
+                "shapes in GENERAL_CURRENT_FORMS; if the register text changed legitimately, "
+                "update that allowlist in .web/build.py)")
     return ""
 
 
@@ -3235,10 +3757,64 @@ def stale_standard_editions(texts=None):
                 f"row {e.row!r} has Current version {e.current!r}"
                 + _allowlist_rejection(e.edition, e.current, e.row)
             )
+        elif e.status == "unreadable" and not e.row and not any(
+                ch.isnumeric() and not ch.isascii() for ch in e.name):
+            hits.append(
+                f"{e.source}:{e.line}: {e.name!r} names no register row and its topic "
+                f"{e.edition!r} is neither an edition the check reads nor descriptive (every "
+                f"word of a descriptive topic, parenthesised words included, must be listed in "
+                f"TOPIC_WORDS in .web/build.py, and it holds no numeric character; correct the "
+                f"template, add the words of a legitimate topic to TOPIC_WORDS (never one "
+                f"stating that an edition ended), or add the row or a curated alias)"
+            )
+        elif e.status == "unreadable" and not e.row:
+            hits.append(
+                f"{e.source}:{e.line}: {e.name!r} names no register row and holds a numeric "
+                f"character outside ASCII, which the check cannot read (write any number in "
+                f"the name with ASCII digits, and add the row or a curated alias)"
+            )
+        elif e.status == "unreadable":
+            hits.append(
+                f"{e.source}:{e.line}: {e.name!r} names the register row {e.row!r} but its listed "
+                f"text {e.edition!r} is not that name with an edition the check reads (accepted: "
+                f"the name alone, the name with a trailing edition in an edition shape, or on a "
+                f"bibliography list an EU instrument citation, date or edition as the topic of a "
+                f"name that is not compound; the topic of a name with a trailing edition is "
+                f"empty, descriptive, that same edition (for a year edition, dates in that "
+                f"year), or for a year-named statute \"as amended\" and the year of the "
+                f"register's amending Act; a compound "
+                f"name with an EU instrument part needs an empty topic; every word of a "
+                f"descriptive topic, parenthesised words included, must be listed in "
+                f"TOPIC_WORDS in .web/build.py, so a descriptive number in a topic must be "
+                f"spelled out and listed; correct the template, add the words of a legitimate "
+                f"topic to TOPIC_WORDS (never one stating that an edition ended), or add a "
+                f"curated alias if it names another row)"
+            )
+        elif e.status == "unresolved" and not e.edition:
+            hits.append(
+                f"{e.source}:{e.line}: {e.name!r} names no register row and is not among the "
+                f"names enumerated in UNRESOLVED_LIST_NAMES in .web/build.py (add a register row "
+                f"or a curated alias for it, or, if it legitimately names no row, add the name "
+                f"to UNRESOLVED_LIST_NAMES)"
+            )
         elif e.status == "unresolved":
             hits.append(
                 f"{e.source}:{e.line}: {e.name!r} carries edition {e.edition!r} but names no "
                 f"register row (add the row or a curated alias)"
+            )
+        elif e.status == "unparsed" and e.line and e.row:
+            hits.append(
+                f"{e.source}:{e.line}: list item for the register row {e.row!r} cannot be parsed: "
+                f"its description {e.edition!r} is none of the descriptions enumerated for that "
+                f"row in FOR_AI_DESCRIPTIONS (correct the template, or if its text changed "
+                f"legitimately, update that allowlist in .web/build.py)"
+            )
+        elif e.status == "unparsed" and e.line and e.edition:
+            hits.append(
+                f"{e.source}:{e.line}: list item {e.name!r} cannot be parsed: the text between its "
+                f"name and description spans, {e.edition!r}, is none of the forms enumerated for "
+                f"it in FOR_AI_INTER_SPAN_FORMS (correct the template, or if its text changed "
+                f"legitimately, update that allowlist in .web/build.py)"
             )
         elif e.status == "unparsed" and e.line:
             hits.append(
