@@ -79,7 +79,7 @@ USAGE
                                    parsed (a renamed field, a moved file, a
                                    taxonomy schema change). This is the
                                    generator-health check wired into CI; it is a
-                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version, must not be among the row's Superseded versions, and must not be marked ended by the Current version (after the year of a statute named by its year only the row's enumerated notes, the register's own text with its dates, numbers and amending Act name variable, may follow (``STATUTE_NOTE_FORMS``), and an EU instrument citation may end only with a short name enumerated for its row or the row's own Standard ID (``EU_INSTRUMENT_SHORT_NAMES``), so any other text after the edition fails and the failure says to update the allowlist if the register text changed legitimately); a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, reads as an edition or date, or is not descriptive (a numeric character or a word not in ``TOPIC_WORDS``), or that carries no edition and is not enumerated in ``UNRESOLVED_LIST_NAMES``, also fails, as does a list item the check cannot parse (any text but whitespace after an item's ``</li>`` and before the next item or the list's close included, a For-AI item's text between its name and description spans, which must be one of the forms in ``FOR_AI_INTER_SPAN_FORMS``, and the description of a For-AI item, which must be one enumerated in ``FOR_AI_DESCRIPTIONS`` for the row of every part of its name, split on " / ", that resolves; the OWASP entries are chosen by the row any part of the name resolves to, not by its literal prefix, with one fallback by spelling: a For-AI name that, NFKC-normalised with format characters removed and case-folded, contains "owasp" anywhere is compared too, so one that does not resolve fails, and every part of a compared compound name has its edition compared), an "id" list item outside every list read, a For-AI source without exactly one EU AI Act entry, or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
+                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version, must not be among the row's Superseded versions, and must not be marked ended by the Current version (after the year of a statute named by its year only the row's enumerated notes, the register's own text with its dates, numbers and amending Act name variable, may follow (``STATUTE_NOTE_FORMS``), and an EU instrument citation may end only with a short name enumerated for its row or the row's own Standard ID (``EU_INSTRUMENT_SHORT_NAMES``), so any other text after the edition fails and the failure says to update the allowlist if the register text changed legitimately); a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, reads as an edition or date, or is not descriptive (a numeric character or a word not in ``TOPIC_WORDS``), or that carries no edition and is not enumerated in ``UNRESOLVED_LIST_NAMES``, also fails, as does a list item the check cannot parse (any text but whitespace after an item's ``</li>`` and before the next item or the list's close included, a For-AI item's text between its name and description spans, which must be one of the forms in ``FOR_AI_INTER_SPAN_FORMS``, a For-AI item whose description span does not run to its ``</li>``, whitespace aside, and the description of a For-AI item, which must be one enumerated in ``FOR_AI_DESCRIPTIONS`` for the row of every part of its name, split on " / " and " and ", that names one (resolved, mapped in ``FOR_AI_NAME_ROWS``, or named by a leading part); the OWASP entries are chosen by the row any part of the name resolves to, not by its literal prefix, with one fallback by spelling: a For-AI name that, NFKC-normalised with format characters removed and case-folded, contains "owasp" anywhere is compared too, so one that does not resolve fails, and every part of a compared compound name has its edition compared), an "id" list item outside every list read, a For-AI source without exactly one EU AI Act entry, or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
   python3 .web/build.py --out DIR  render into DIR instead of .web/dist/
 """
 
@@ -2675,19 +2675,22 @@ FOR_AI_INTER_SPAN_FORMS = {
 # three For-AI pages none. Any other span with the class "ext"
 # ("<span class="ext"> (repealed)</span>") is read as text.
 EXT_LINK_MARKER = '<span class="ext">&#8599;</span>'
-# A For-AI item's description span runs to the end of the item.
-_FOR_AI_DESC_RE = re.compile(r"(?P<desc>.*)</span></li>", re.S)
+# A For-AI item's description span runs to the end of the item; whitespace may stand
+# between its </span> and the </li>. An item whose description span does not run to its
+# close this way fails as unparsed, whatever its name.
+_FOR_AI_DESC_RE = re.compile(r"(?P<desc>.*)</span>\s*</li>", re.S)
 # The descriptions (the "fa-cov" or "row-desc" span, as text: ``_plain``, so a link is
-# its anchor text) a For-AI item may carry, keyed by the register Standard ID of the
-# row its name resolves to (``_for_ai_row``; the EU AI Act entry under
-# ``FOR_AI_EU_AI_ACT_ID``), enumerated from the three For-AI templates at 5c1e2b6a
-# (39 items naming 13 rows, one description per row, 10 distinct descriptions). A
-# compound name ("A / B") is split on " / " and each part that resolves names its row,
-# so the description must be enumerated for every such row. The description of an
-# item that resolves to a row is one of its row's, or the item fails as unparsed ("This
-# 2026 edition is withdrawn."), whatever words it uses; an item no part of which
-# resolves to a row keeps its description unchecked. If a template's text changed
-# legitimately, update this allowlist.
+# its anchor text) a For-AI item may carry, keyed by the register Standard ID of each
+# row its name names (``_for_ai_name_rows``; the EU AI Act entry under
+# ``FOR_AI_EU_AI_ACT_ID``), enumerated from the three For-AI templates at d6b7c37a
+# (93 of the 105 items, naming 37 rows, one description per row, 27 distinct
+# descriptions). A compound name ("A / B", "A and B") names the row of each of its
+# parts, so the description must be enumerated for every such row. The description of
+# an item that names a row is one of that row's, or the item fails as unparsed ("This
+# 2026 edition is withdrawn."), whatever words it uses; an item that names no row keeps
+# its description unchecked (at d6b7c37a the 12 items "NIST AI 100-2e2025", "NIST AI
+# 100-4", "Model Cards" and "Datasheets for Datasets", three per name, which have no
+# register row). If a template's text changed legitimately, update this allowlist.
 FOR_AI_DESCRIPTIONS = {
     FOR_AI_EU_AI_ACT_ID: frozenset({
         "Documented in the EU AI annex (which also reflects the in-force Digital Omnibus on AI, "
@@ -2714,7 +2717,86 @@ FOR_AI_DESCRIPTIONS = {
     "OWASP MCP Top 10": frozenset({
         "Documented in the AI and agentic development-security standard.",
     }),
+    # Named by a leading part of the name (``_named_prefix``): "CSA AI Controls Matrix
+    # (AICM)", "CSA Cloud Controls Matrix (CCM)", "ISO/IEC 5259 series".
+    "CSA AICM": frozenset({"Mapped in the compliance matrix."}),
+    "CSA CCM": frozenset({"Mapped in the compliance matrix."}),
+    "ISO/IEC 5259": frozenset({"Documented in the AI data-quality and readiness standard."}),
+    # The parts of "ISO/IEC 27001:2022 and 27002:2022".
+    "ISO/IEC 27001": frozenset({
+        "Both are documented in the information-security policy; ISO/IEC 27001:2022 is mapped in "
+        "the compliance matrix.",
+    }),
+    "ISO/IEC 27002": frozenset({
+        "Both are documented in the information-security policy; ISO/IEC 27001:2022 is mapped in "
+        "the compliance matrix.",
+    }),
+    # The parts of "ISO/IEC 27701:2025 and the GDPR (Regulation (EU) 2016/679)".
+    "ISO/IEC 27701": frozenset({
+        "ISO/IEC 27701:2025 is documented in the privacy programme charter and the privacy and data "
+        "governance policy; the GDPR is documented in the EU privacy annex.",
+    }),
+    "EU GDPR": frozenset({
+        "ISO/IEC 27701:2025 is documented in the privacy programme charter and the privacy and data "
+        "governance policy; the GDPR is documented in the EU privacy annex.",
+    }),
+    # The rows of ``FOR_AI_NAME_ROWS``.
+    "OECD AI Principles": frozenset({"Cited in the canonical citations register."}),
+    "Colorado AI Act": frozenset({"Documented in the Colorado AI annex."}),
+    "NYC Local Law 144 (AEDT)": frozenset({"Documented in the NYC AI annex."}),
+    "US CCPA Regulations 2026": frozenset({"Documented in the California ADMT annex."}),
+    "Canada TBS Directive on Automated Decision-Making": frozenset({"Documented in the Canada AI annex."}),
+    "Australia Privacy Act": frozenset({"Documented in the Australia AI annex."}),
+    "Australia Voluntary AI Safety Standard": frozenset({"Documented in the Australia AI annex."}),
+    "Singapore Model AI Governance Framework for Generative AI": frozenset({
+        "Documented in the Singapore AI annex.",
+    }),
+    "Malaysia AIGE": frozenset({"Documented in the Malaysia AI annex."}),
+    "UK AI regulation white paper": frozenset({"Documented in the United Kingdom AI annex."}),
+    "UK AI regulation government response": frozenset({"Documented in the United Kingdom AI annex."}),
+    "South Korea AI Basic Act": frozenset({"Documented in the South Korea AI annex."}),
+    "Illinois HB 3773": frozenset({"Documented in the Illinois AI annex."}),
+    "Texas TRAIGA": frozenset({"Documented in the Texas AI annex."}),
+    "US OMB M-25-21": frozenset({"Documented in the US federal AI annex."}),
+    "US OMB M-25-22": frozenset({"Documented in the US federal AI annex."}),
+    "US OMB M-26-04": frozenset({"Documented in the US federal AI annex."}),
 }
+# For-AI names worded unlike any register Standard ID or curated alias, mapped to the
+# Standard IDs of the rows they name, so their descriptions are checked. A name (or a
+# part of a compound name) is matched as the resolver matches one (``identity_key``:
+# case and spacing ignored), and only for the description check: no edition is read
+# from these names. A jurisdiction label names the rows of the instruments its item
+# lists between the name and description spans (``FOR_AI_INTER_SPAN_FORMS``), as on the
+# three For-AI templates at d6b7c37a: "United States, Colorado, AI Act (SB24-205) and
+# its automated-decision-making re-enactment (SB26-189)." names the Colorado AI Act
+# row, and "Australia, Privacy Act automated-decision transparency amendments
+# (commencing 2026) and the Voluntary AI Safety Standard." names two rows. A mapped
+# Standard ID that is no register row stops the check (``BuildError``); if the register
+# renames a row, update this mapping. These are not curated aliases, so gate D15 does
+# not read them.
+FOR_AI_NAME_ROWS = {
+    "OECD Recommendation on AI": ("OECD AI Principles",),
+    # The second part of "ISO/IEC 27701:2025 and the GDPR (Regulation (EU) 2016/679)".
+    "the GDPR (Regulation (EU) 2016/679)": ("EU GDPR",),
+    "United States, Colorado": ("Colorado AI Act",),
+    "United States, New York City": ("NYC Local Law 144 (AEDT)",),
+    "United States, California": ("US CCPA Regulations 2026",),
+    "Canada": ("Canada TBS Directive on Automated Decision-Making",),
+    "Australia": ("Australia Privacy Act", "Australia Voluntary AI Safety Standard"),
+    "Singapore": ("Singapore Model AI Governance Framework for Generative AI",),
+    "Malaysia": ("Malaysia AIGE",),
+    "United Kingdom": ("UK AI regulation white paper", "UK AI regulation government response"),
+    "South Korea": ("South Korea AI Basic Act",),
+    "United States, Illinois": ("Illinois HB 3773",),
+    "United States, Texas": ("Texas TRAIGA",),
+    "United States, federal": ("US OMB M-25-21", "US OMB M-25-22", "US OMB M-26-04"),
+}
+# A For-AI name, or a part of one split on " / ", that names no row whole is split
+# again on " and " ("ISO/IEC 27001:2022 and 27002:2022"). A later part that begins with
+# a digit takes the designator before the first part's number (``_SHARED_PREFIX_RE``,
+# "ISO/IEC "), so "27002:2022" is read as "ISO/IEC 27002:2022".
+_COMPOUND_AND_SPLIT_RE = re.compile(r"\s+and\s+")
+_SHARED_PREFIX_RE = re.compile(r"\D*?\s(?=\d)")
 # The For-AI entries compared are those of the register rows whose Standard ID begins
 # with this word and a space (the OWASP rows), chosen by the row the name resolves to.
 FOR_AI_COMPARED_ID_PREFIX = "OWASP "
@@ -3029,24 +3111,68 @@ def _for_ai_row(d15, resolver, name):
     return resolver.named_row(name[:m.start()].strip()) if _EDITION_SHAPE_RE.fullmatch(tail) else None
 
 
+def _for_ai_mapped_rows(d15, resolver, name):
+    """The identity keys of the rows ``FOR_AI_NAME_ROWS`` maps ``name`` to (matched by
+    ``identity_key``), or an empty list. Raises BuildError when a mapped Standard ID is
+    no register row."""
+    key = d15.identity_key(name)
+    for listed, row_ids in FOR_AI_NAME_ROWS.items():
+        if d15.identity_key(listed) != key:
+            continue
+        missing = [r for r in row_ids if not resolver.register.has_id(r)]
+        if missing:
+            raise BuildError(f"FOR_AI_NAME_ROWS maps {listed!r} to {', '.join(map(repr, missing))}, "
+                             f"which is no Standard ID in {CITATIONS_REGISTER.relative_to(REPO_ROOT)} "
+                             f"(update the mapping in .web/build.py)")
+        return [d15.identity_key(r) for r in row_ids]
+    return []
+
+
+def _for_ai_name_rows(d15, resolver, part):
+    """The identity keys of the rows one part of a For-AI name (split on " / ") names,
+    for its description check, None for a piece that names none: the row the part
+    resolves to (``_for_ai_row``), else the rows ``FOR_AI_NAME_ROWS`` maps it to, else,
+    for a part joined with " and " (``_COMPOUND_AND_SPLIT_RE``), those of each piece,
+    a later piece that begins with a digit taking the first piece's designator
+    ("ISO/IEC 27001:2022 and 27002:2022" names ISO/IEC 27001 and ISO/IEC 27002), else
+    the row a leading part of it names (``_named_prefix``: "CSA Cloud Controls Matrix
+    (CCM)", "ISO/IEC 5259 series", "ISO/IEC 42001:2023 (withdrawn)")."""
+    key = _for_ai_row(d15, resolver, part)
+    if key:
+        return [key]
+    mapped = _for_ai_mapped_rows(d15, resolver, part)
+    if mapped:
+        return mapped
+    pieces = _COMPOUND_AND_SPLIT_RE.split(part)
+    if len(pieces) == 1:
+        return [_named_prefix(resolver, part)]
+    shared = _SHARED_PREFIX_RE.match(pieces[0])
+    keys = []
+    for piece in pieces:
+        if shared and piece[:1].isdigit():
+            piece = shared[0] + piece
+        key = _for_ai_row(d15, resolver, piece)
+        keys += [key] if key else _for_ai_mapped_rows(d15, resolver, piece) or [_named_prefix(resolver, piece)]
+    return keys
+
+
 def _for_ai_branch(d15, resolver, name):
     """(branch, keys) for a For-AI item that is not the EU AI Act entry. The name is
-    split on " / " (``_COMPOUND_NAME_SPLIT_RE``) and ``keys`` holds, per part, the row
-    that part resolves to (``_for_ai_row``) or None. The branch is "OWASP", the item
-    compared, when the row any part resolves to, or else the row a leading part of that
-    part names (``_named_prefix``: "Owasp Top 10 for LLM Applications 2026
-    (withdrawn)"), has a Standard ID beginning ``FOR_AI_COMPARED_ID_PREFIX`` ("ISO/IEC
+    split on " / " (``_COMPOUND_NAME_SPLIT_RE``) and ``keys`` holds, part by part, the
+    rows that part names (``_for_ai_name_rows``), None for a part or piece that names
+    none. The branch is "OWASP", the item compared, when any of those rows (one a
+    leading part of a part names included: "Owasp Top 10 for LLM Applications 2026
+    (withdrawn)") has a Standard ID beginning ``FOR_AI_COMPARED_ID_PREFIX`` ("ISO/IEC
     42001 / OWASP MCP Top 10" included), or when the name contains
     ``FOR_AI_COMPARED_WORD`` once NFKC-normalised, stripped of format characters and
     case-folded ("The OWASP Top 10 for LLM Applications 2025", "OW<zero-width
     space>ASP MCP Top 10", which then fail as unresolved); "" otherwise."""
     parts = _COMPOUND_NAME_SPLIT_RE.split(name)
-    keys = [_for_ai_row(d15, resolver, part) for part in parts]
+    keys = [key for part in parts for key in _for_ai_name_rows(d15, resolver, part)]
     owasp = False
-    for part, key in zip(parts, keys):
-        named = key or _named_prefix(resolver, part)
-        if named:
-            row = next(e for e in resolver.register.entries if e["identity_key"] == named)
+    for key in keys:
+        if key:
+            row = next(e for e in resolver.register.entries if e["identity_key"] == key)
             owasp = owasp or row["id"].startswith(FOR_AI_COMPARED_ID_PREFIX)
     folded = "".join(ch for ch in unicodedata.normalize("NFKC", name)
                      if unicodedata.category(ch) != "Cf").casefold()
@@ -3062,13 +3188,14 @@ def _hand_written_entries(rel, kind, text, d15_resolver=None):
     next <li> or the list's close (``_LI_GAP_RE``; the name is the item's text with that
     text), and a For-AI item whose text between its name and description spans is none
     of the forms enumerated for its branch (``FOR_AI_INTER_SPAN_FORMS``), with that text
-    as the edition; a For-AI item a part of whose name (split on " / ") resolves to a
-    row (``_for_ai_row``, or the EU AI Act entry) and whose description is none of those
-    enumerated for that row (``FOR_AI_DESCRIPTIONS``) gives problem "unparsed
-    description", once per such row, with the row's Standard ID as the name and the
-    description as the edition, and its entry is still read so its editions are
-    compared (the description of an item no part of which resolves to a row is not
-    checked); an <li> with an "id" span anywhere
+    as the edition, and so does a For-AI item whose description span does not run to its
+    close (``_FOR_AI_DESC_RE``), with the item's text as the name; a For-AI item a part
+    of whose name names a row (``_for_ai_name_rows``, or the EU AI Act entry) and whose
+    description is none of those enumerated for that row (``FOR_AI_DESCRIPTIONS``) gives
+    problem "unparsed description", once per such row, with the row's Standard ID as the
+    name and the description as the edition, and its entry is still read so its editions
+    are compared (the description of an item whose name names no row is not checked);
+    an <li> with an "id" span anywhere
     inside it that is not among the items of the lists read gives "incomplete"; a For-AI
     source without exactly one EU AI Act entry gives one "incomplete" entry with line 0;
     a source with no list read gives one "unparsed" entry with line 0 and an empty name.
@@ -3119,11 +3246,15 @@ def _hand_written_entries(rel, kind, text, d15_resolver=None):
                 continue
             else:
                 (branch, keys), between = _for_ai_branch(d15, resolver, name), _plain(m["rest"])
-            # The rows the item names: the EU AI Act, or the row of each part that resolves.
-            row_ids = [FOR_AI_EU_AI_ACT_ID] if eu else list(dict.fromkeys(ids[k] for k in keys if k))
             tail = _FOR_AI_DESC_RE.fullmatch(li[0], m.end())
-            desc = _plain(tail["desc"] if tail else li[0][m.end():])
-            undescribed = [r for r in row_ids if not tail or desc not in FOR_AI_DESCRIPTIONS.get(r, ())]
+            if not tail:
+                # The description span does not run to the item's close.
+                entries.append((pos, _plain(li[0]), "", "unparsed"))
+                continue
+            # The rows the item names: the EU AI Act, or the rows its name's parts name.
+            row_ids = [FOR_AI_EU_AI_ACT_ID] if eu else list(dict.fromkeys(ids[k] for k in keys if k))
+            desc = _plain(tail["desc"])
+            undescribed = [r for r in row_ids if desc not in FOR_AI_DESCRIPTIONS.get(r, ())]
             if between not in FOR_AI_INTER_SPAN_FORMS[branch]:
                 # The text between the spans is none of the forms enumerated for the branch.
                 entries.append((pos, full, between, "unparsed"))
@@ -3606,12 +3737,14 @@ def standard_edition_entries(texts=None):
       list's close ("</li> (withdrawn)"; the name holds the item's text with that text),
       a For-AI item whose text between its name and description spans is none of the
       forms enumerated for it (``FOR_AI_INTER_SPAN_FORMS``; the edition field holds that
-      text), a For-AI item a part of whose name (split on " / ") resolves to a row
-      (``_for_ai_row``, or the EU AI Act entry) whose description is none of those
-      enumerated for that row (``FOR_AI_DESCRIPTIONS``; one entry per such row, the name
-      and row fields hold the row's Standard ID and the edition field the description;
-      an item no part of which resolves to a row keeps its description unchecked), or a
-      source with no list read (a failure).
+      text), a For-AI item whose description span does not run to its close, whitespace
+      aside ("</span> (withdrawn)</li>"), a For-AI item a part of whose name names a row
+      (``_for_ai_name_rows``: split on " / " and " and ", resolved, mapped by
+      ``FOR_AI_NAME_ROWS`` or named by a leading part; or the EU AI Act entry) whose
+      description is none of those enumerated for that row (``FOR_AI_DESCRIPTIONS``; one
+      entry per such row, the name and row fields hold the row's Standard ID and the
+      edition field the description; an item whose name names no row keeps its
+      description unchecked), or a source with no list read (a failure).
     * ``incomplete``: an <li> with an "id" span that is not among the entries read,
       or a For-AI source without exactly one EU AI Act entry (a failure).
     * ``no edition``: the entry names no edition, so there is nothing to compare.
@@ -3635,11 +3768,12 @@ def standard_edition_entries(texts=None):
     "Withdrawn OWASP Top 10") is compared too, so one that does not resolve fails as
     unresolved (or as unreadable when a leading part names a row). Every part of a
     compared compound name has its edition compared, and the description is checked
-    against the row of every part that resolves. The other
+    against the row of every part that names one. The other
     For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO
     31000:2018, ISO/IEC 27001:2022 and the rest) are out of scope of this check,
     although every <li> of the resource index must still parse and the description of
-    every item that resolves to a row must be enumerated (``FOR_AI_DESCRIPTIONS``).
+    every item whose name names a row must be enumerated (``FOR_AI_DESCRIPTIONS``; a
+    name worded unlike its row is mapped in ``FOR_AI_NAME_ROWS``).
 
     ``texts`` maps a source path to replacement text (for tests); other sources are
     read from the template tree.

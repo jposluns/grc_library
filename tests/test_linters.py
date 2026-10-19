@@ -25275,8 +25275,8 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
             entry = self._entry(self.mod.standard_edition_entries(texts), rel, self.LLM_NAME)
             self.assertEqual((entry.row, entry.status), ("OWASP LLM Top 10", "match"), rel)
-            # An item that resolves to no row keeps its description unchecked.
-            texts = self._for_ai_description(rel, "CSA AI Controls Matrix (AICM)", "This 2026 edition is withdrawn.")
+            # An item whose name names no row keeps its description unchecked.
+            texts = self._for_ai_description(rel, "Model Cards", "This 2026 edition is withdrawn.")
             self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
         # A case variant of a compared name is checked against its row's descriptions too.
         rel = self.FOR_AI_V3
@@ -25289,30 +25289,40 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     def test_every_current_for_ai_description_is_enumerated(self):
         # VPR3B393-R5 item 3: FOR_AI_DESCRIPTIONS is exactly the descriptions of the
-        # For-AI items that resolve to a row, keyed by register Standard ID.
+        # For-AI items whose names name a row, keyed by register Standard ID. 3b403: the
+        # names joined with "and", those named by a leading part and those mapped in
+        # FOR_AI_NAME_ROWS are checked too, 93 of the 105 items; the 12 left unchecked
+        # name no register row.
         d15, resolver = self.mod._load_edition_resolver()
         ids = {e["identity_key"]: e["id"] for e in resolver.register.entries}
-        used, items = {}, 0
+        used, items, unchecked = {}, 0, {}
         for rel in self.FOR_AI_SOURCES:
             text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
             start = self.mod._FOR_AI_INDEX_RE.search(text).end()
             for li in self.mod._LI_RE.finditer(text, start, text.find("<h2", start)):
                 m = self.mod._FOR_AI_ITEM_RE.match(li[0])
+                name = self.mod._plain(m["name"])
                 if self.mod._FOR_AI_EU_AI_ACT_RE.match(self.mod._plain(m["name"] + m["rest"])):
-                    row = self.mod.FOR_AI_EU_AI_ACT_ID
+                    rows = [self.mod.FOR_AI_EU_AI_ACT_ID]
                 else:
-                    key = self.mod._for_ai_row(d15, resolver, self.mod._plain(m["name"]))
-                    if not key:
-                        continue
-                    row = ids[key]
+                    rows = [ids[k] for k in self.mod._for_ai_branch(d15, resolver, name)[1] if k]
+                if not rows:
+                    unchecked[name] = unchecked.get(name, 0) + 1
+                    continue
                 desc = self.mod._FOR_AI_DESC_RE.fullmatch(li[0], m.end())
                 self.assertTrue(desc, li[0])
                 items += 1
-                used.setdefault(row, set()).add(self.mod._plain(desc["desc"]))
+                for row in rows:
+                    used.setdefault(row, set()).add(self.mod._plain(desc["desc"]))
         self.assertEqual(used, {row: set(texts) for row, texts in self.mod.FOR_AI_DESCRIPTIONS.items()})
-        self.assertEqual((items, len(used), sum(len(t) for t in used.values())), (39, 13, 13))
-        self.assertEqual(len(set().union(*used.values())), 10)
+        self.assertEqual((items, len(used), sum(len(t) for t in used.values())), (93, 37, 37))
+        self.assertEqual(len(set().union(*used.values())), 27)
         self.assertTrue(set(used) <= set(ids.values()))
+        self.assertEqual(unchecked, {"NIST AI 100-2e2025": 3, "NIST AI 100-4": 3, "Model Cards": 3,
+                                     "Datasheets for Datasets": 3})
+        for name in unchecked:
+            self.assertIsNone(self.mod._named_prefix(resolver, name), name)
+            self.assertEqual(self.mod._for_ai_mapped_rows(d15, resolver, name), [], name)
 
     def test_unresolved_name_without_an_edition_is_enumerated(self):
         # VPR3B393-R5 item 4: a name that resolves to no row and holds no edition is one
@@ -25359,12 +25369,21 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         self.assertTrue(self.mod._topic_dates_in_year("February 29 2024", "2024", d15))
         self.assertFalse(self.mod._topic_dates_in_year("June 1 2025", "2026", d15))
 
+    FOR_AI_5C1E2B6A_ROWS = frozenset({
+        "EU AI Act", "ISO 31000", "ISO/IEC 23894", "ISO/IEC 42001", "ISO/IEC 42005", "MITRE ATLAS",
+        "NIST AI 600-1", "NIST AI RMF", "NIST CSF", "NIST SP 800-218A", "OWASP GenAI Red Teaming Guide",
+        "OWASP LLM Top 10", "OWASP MCP Top 10",
+    })
+
     def test_for_ai_allowlists_are_the_5c1e2b6a_forms(self):
         # VPR3B393-R6 item 1: after PR #2848 the For-AI allowlists are the forms at
-        # 5c1e2b6a; the biblio allowlists are unchanged.
+        # 5c1e2b6a; the biblio allowlists are unchanged. 3b403 adds rows for the names it
+        # maps (test_for_ai_names_worded_unlike_their_rows_are_checked); the 13 rows
+        # enumerated at 5c1e2b6a keep their descriptions.
         from collections import Counter
         agentic = "Documented in the AI and agentic development-security standard."
-        self.assertEqual({row: set(texts) for row, texts in self.mod.FOR_AI_DESCRIPTIONS.items()}, {
+        self.assertEqual({row: set(texts) for row, texts in self.mod.FOR_AI_DESCRIPTIONS.items()
+                          if row in self.FOR_AI_5C1E2B6A_ROWS}, {
             "EU AI Act": {"Documented in the EU AI annex (which also reflects the in-force Digital Omnibus "
                           "on AI, Regulation (EU) 2026/1744)."},
             "ISO 31000": {"Engaged across the risk domain and the cross-framework matrix."},
@@ -25520,6 +25539,159 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             hits = self.mod.stale_standard_editions({rel: text[:at] + " (repealed)" + text[at:]})
             self.assertEqual(len(hits), 1, (rel, hits))
             self.assertIn("(repealed)' cannot be parsed", hits[0])
+
+    ISO_27001_AND = "ISO/IEC 27001:2022 and 27002:2022"
+    ISO_27701_AND = "ISO/IEC 27701:2025 and the GDPR (Regulation (EU) 2016/679)"
+    # 3b403: every For-AI name the check did not resolve at d6b7c37a that names a row
+    # now, with the Standard IDs of the rows it names, identical on the three pages.
+    FOR_AI_NEWLY_CHECKED = {
+        ISO_27001_AND: ["ISO/IEC 27001", "ISO/IEC 27002"],
+        ISO_27701_AND: ["ISO/IEC 27701", "EU GDPR"],
+        "CSA AI Controls Matrix (AICM)": ["CSA AICM"],
+        "CSA Cloud Controls Matrix (CCM)": ["CSA CCM"],
+        "ISO/IEC 5259 series": ["ISO/IEC 5259"],
+        "OECD Recommendation on AI": ["OECD AI Principles"],
+        "United States, Colorado": ["Colorado AI Act"],
+        "United States, New York City": ["NYC Local Law 144 (AEDT)"],
+        "United States, California": ["US CCPA Regulations 2026"],
+        "Canada": ["Canada TBS Directive on Automated Decision-Making"],
+        "Australia": ["Australia Privacy Act", "Australia Voluntary AI Safety Standard"],
+        "Singapore": ["Singapore Model AI Governance Framework for Generative AI"],
+        "Malaysia": ["Malaysia AIGE"],
+        "United Kingdom": ["UK AI regulation white paper", "UK AI regulation government response"],
+        "South Korea": ["South Korea AI Basic Act"],
+        "United States, Illinois": ["Illinois HB 3773"],
+        "United States, Texas": ["Texas TRAIGA"],
+        "United States, federal": ["US OMB M-25-21", "US OMB M-25-22", "US OMB M-26-04"],
+    }
+
+    def _for_ai_names(self, rel):
+        """(name, full label) of every For-AI item on ``rel`` but the EU AI Act entry."""
+        text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+        start = self.mod._FOR_AI_INDEX_RE.search(text).end()
+        out = []
+        for li in self.mod._LI_RE.finditer(text, start, text.find("<h2", start)):
+            m = self.mod._FOR_AI_ITEM_RE.match(li[0])
+            full = self.mod._plain(m["name"] + m["rest"])
+            if not self.mod._FOR_AI_EU_AI_ACT_RE.match(full):
+                out.append((self.mod._plain(m["name"]), full))
+        return out
+
+    def test_for_ai_names_joined_with_and_name_each_part(self):
+        # 3b403 item 1: a name joined with "and" names the row of each part. A later part
+        # that begins with a digit takes the shared "ISO/IEC " designator, and the GDPR
+        # phrase resolves through FOR_AI_NAME_ROWS. Each part's row checks the description.
+        d15, resolver = self.mod._load_edition_resolver()
+        ids = {e["identity_key"]: e["id"] for e in resolver.register.entries}
+        for name in (self.ISO_27001_AND, self.ISO_27701_AND):
+            branch, keys = self.mod._for_ai_branch(d15, resolver, name)
+            self.assertEqual((branch, [ids[k] for k in keys]), ("", self.FOR_AI_NEWLY_CHECKED[name]), name)
+        # Neither the bare second part nor the GDPR phrase resolves on its own.
+        self.assertIsNone(self.mod._for_ai_row(d15, resolver, "27002:2022"))
+        phrase = "the GDPR (Regulation (EU) 2016/679)"
+        self.assertIsNone(self.mod._for_ai_row(d15, resolver, phrase))
+        self.assertIsNone(self.mod._named_prefix(resolver, phrase))
+        self.assertEqual([ids[k] for k in self.mod._for_ai_mapped_rows(d15, resolver, phrase)], ["EU GDPR"])
+        for rel in self.FOR_AI_SOURCES:
+            for name in (self.ISO_27001_AND, self.ISO_27701_AND):
+                rows = self.FOR_AI_NEWLY_CHECKED[name]
+                for desc in ("This 2026 edition is withdrawn.", "Documented in the AI compliance policy."):
+                    texts = self._for_ai_description(rel, name, desc)
+                    hits = self.mod.stale_standard_editions(texts)
+                    self.assertEqual(len(hits), 2, (rel, name, desc, hits))
+                    for hit, row in zip(hits, rows):
+                        self.assertIn(f"list item for the register row {row!r} cannot be parsed: its "
+                                      f"description {desc!r}", hit)
+                    self.assertEqual([(e.status, e.row) for e in self._failed(texts)],
+                                     [("unparsed", row) for row in rows], (rel, name, desc))
+            # Each part is checked against its own row: a second part naming another row
+            # fails on that row alone, and a drifted second part still names its row.
+            hits = self.mod.stale_standard_editions(
+                self._for_ai_item(rel, self.ISO_27701_AND, "ISO/IEC 27701:2025 and UK GDPR"))
+            self.assertEqual(len(hits), 1, (rel, hits))
+            self.assertIn("list item for the register row 'UK GDPR' cannot be parsed", hits[0])
+            texts = self._for_ai_item(rel, self.ISO_27001_AND, "ISO/IEC 27001:2022 and 27002:2022 (withdrawn)",
+                                      "This 2026 edition is withdrawn.")
+            self.assertEqual([(e.status, e.row) for e in self._failed(texts)],
+                             [("unparsed", "ISO/IEC 27001"), ("unparsed", "ISO/IEC 27002")], rel)
+
+    def test_for_ai_description_close_allows_whitespace_and_fails_unparsed(self):
+        # 3b403 item 2: whitespace may stand between the description's </span> and the
+        # </li>, and the description is still checked; an item whose description span
+        # does not run to its close fails as unparsed, without quoting a description.
+        for rel in self.FOR_AI_SOURCES:
+            for name, desc in ((self.LLM_NAME, "Documented in the AI security and risk standard."),
+                               ("United States, Texas", "Documented in the Texas AI annex."),
+                               ("Model Cards", "Adapted as the corpus model-card template.")):
+                text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+                at = text.index("</span></li>", text.index(f">{name}</span>")) + len("</span>")
+                self.assertEqual(self.mod.stale_standard_editions({rel: text[:at] + " \n\t" + text[at:]}), [],
+                                 (rel, name))
+                # Text outside the description span before </li> fails once, as unparsed,
+                # whether or not the name names a row.
+                for inserted in (" (withdrawn)", "(repealed)", "."):
+                    broken = {rel: text[:at] + inserted + text[at:]}
+                    hits = self.mod.stale_standard_editions(broken)
+                    self.assertEqual(len(hits), 1, (rel, name, inserted, hits))
+                    self.assertIn("cannot be parsed (the markup the edition check reads changed", hits[0])
+                    self.assertNotIn("FOR_AI_DESCRIPTIONS", hits[0])
+                    self.assertNotIn(repr(desc), hits[0])
+                    self.assertEqual([(e.status, e.row) for e in self._failed(broken)], [("unparsed", "")],
+                                     (rel, name, inserted))
+            # With whitespace before </li>, a changed description still fails on its row.
+            texts = self._for_ai_description(rel, "United States, Texas", "This 2026 edition is withdrawn.")
+            text = texts[rel]
+            at = text.index("</span></li>", text.index(">United States, Texas</span>")) + len("</span>")
+            hits = self.mod.stale_standard_editions({rel: text[:at] + "\n  " + text[at:]})
+            self.assertEqual(len(hits), 1, (rel, hits))
+            self.assertIn("list item for the register row 'Texas TRAIGA' cannot be parsed: its description "
+                          "'This 2026 edition is withdrawn.'", hits[0])
+
+    def test_for_ai_names_worded_unlike_their_rows_are_checked(self):
+        # 3b403 item 3: every corpus form of a name newly checked (CSA CCM, CSA AICM,
+        # ISO/IEC 5259, the OECD Recommendation on AI, the jurisdiction labels, the names
+        # joined with "and") resolves on all three pages to its rows, and a changed
+        # description fails once per row.
+        d15, resolver = self.mod._load_edition_resolver()
+        ids = {e["identity_key"]: e["id"] for e in resolver.register.entries}
+        for rel in self.FOR_AI_SOURCES:
+            found = {}
+            for name, full in self._for_ai_names(rel):
+                if name in self.FOR_AI_NEWLY_CHECKED:
+                    self.assertNotIn(name, found, (rel, name))
+                    found[name] = [ids[k] for k in self.mod._for_ai_branch(d15, resolver, name)[1] if k]
+            self.assertEqual(found, self.FOR_AI_NEWLY_CHECKED, rel)
+            for name, rows in self.FOR_AI_NEWLY_CHECKED.items():
+                for desc in ("This 2026 edition is withdrawn.", "Mapped in the compliance matrix (withdrawn)."):
+                    texts = self._for_ai_description(rel, name, desc)
+                    hits = self.mod.stale_standard_editions(texts)
+                    self.assertEqual(len(hits), len(rows), (rel, name, desc, hits))
+                    for hit, row in zip(hits, rows):
+                        self.assertIn(f"list item for the register row {row!r} cannot be parsed: its "
+                                      f"description {desc!r}", hit)
+                    self.assertEqual([(e.status, e.row) for e in self._failed(texts)],
+                                     [("unparsed", row) for row in rows], (rel, name, desc))
+            # A description enumerated for another row fails too.
+            hits = self.mod.stale_standard_editions(
+                self._for_ai_description(rel, "United States, Texas", "Documented in the Colorado AI annex."))
+            self.assertEqual(len(hits), 1, (rel, hits))
+            self.assertIn("list item for the register row 'Texas TRAIGA' cannot be parsed", hits[0])
+            # A name with ended wording after a row's name still names that row.
+            texts = self._for_ai_item(rel, "ISO/IEC 42001:2023", "ISO/IEC 42001:2023 (withdrawn)",
+                                      "This 2026 edition is withdrawn.")
+            self.assertEqual([(e.status, e.row) for e in self._failed(texts)], [("unparsed", "ISO/IEC 42001")], rel)
+            # A mapped name in another case or spacing is matched as the resolver matches.
+            texts = self._for_ai_item(rel, "United States, Texas", "united  states, TEXAS",
+                                      "This 2026 edition is withdrawn.")
+            self.assertEqual([(e.status, e.row) for e in self._failed(texts)], [("unparsed", "Texas TRAIGA")], rel)
+        # Each mapping names register rows; one that does not stops the check.
+        for listed, rows in self.mod.FOR_AI_NAME_ROWS.items():
+            self.assertTrue(all(resolver.register.has_id(r) for r in rows), listed)
+        from unittest import mock
+        with mock.patch.dict(self.mod.FOR_AI_NAME_ROWS, {"Canada": ("Canada No Such Directive",)}):
+            with self.assertRaises(self.mod.BuildError) as cm:
+                self.mod.stale_standard_editions()
+        self.assertIn("FOR_AI_NAME_ROWS maps 'Canada' to 'Canada No Such Directive'", str(cm.exception))
 
     def test_owasp_fallback_is_stated(self):
         # VPR3B393-R6 item 5: the fallback by spelling is stated in the USAGE text and
