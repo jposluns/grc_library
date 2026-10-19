@@ -2860,8 +2860,12 @@ FOR_AI_ITEM_TEXTS = {**FOR_AI_LABEL_INSTRUMENTS, **FOR_AI_NAME_TEXTS}
 # may follow any other compared name, which fails if it does not resolve. Each name here
 # names exactly one item on every For-AI page; a page where it names no item or more
 # than one (the item removed, doubled, with or without an edition, replaced by a copy of
-# another OWASP item, or renamed) fails as incomplete, naming the page and the name. If
-# a template's text changed legitimately, update this allowlist.
+# another OWASP item, or renamed) fails as incomplete, naming the page and the name, and
+# so does a page where another item, part of a compound name or piece of one names the
+# register row of a name here in any spelling (``_for_ai_row``: a copy named by the row's
+# Standard ID, "OWASP LLM Top 10 2026", or "OWASP MCP Top 10 / OWASP GenAI Red Teaming
+# Guide" beside both items). If a template's text changed legitimately, update this
+# allowlist.
 FOR_AI_OWASP_TEXTS = {
     "OWASP Top 10 for LLM Applications 2026": frozenset({"."}),
     "OWASP MCP Top 10": frozenset({"."}),
@@ -3369,19 +3373,22 @@ def _hand_written_entries(rel, kind, text, d15_resolver=None):
     an OWASP entry named by a name of ``FOR_AI_OWASP_TEXTS`` (``_for_ai_owasp_name``)
     whose text between the spans is none of that name's forms (on either branch, only
     text that is a form of the branch reaches this check: any other text gives
-    "unparsed", as above); a For-AI item not compared as an OWASP entry gives problem "unchecked" for each part or piece of its
-    name that names no row and is not enumerated in ``FOR_AI_UNCHECKED_NAMES``
-    (``_for_ai_unchecked``), with that part as the name;
-    an <li> with an "id" span anywhere
-    inside it that is not among the items of the lists read gives "incomplete"; a For-AI
-    source without exactly one EU AI Act entry gives one "incomplete" entry with line 0,
-    and so does, once per name, a For-AI source on which a name of ``FOR_AI_ITEM_TEXTS``
-    (matched as ``_for_ai_text_name`` matches it), of ``FOR_AI_UNCHECKED_NAMES``
-    (matched exactly) or of ``FOR_AI_OWASP_TEXTS`` (matched as ``_for_ai_owasp_name``
-    matches it) is not the whole name of exactly one item, and so does, once per item, a
-    For-AI item named by a name of ``FOR_AI_OWASP_TEXTS`` that carries a trailing edition
-    (``_for_ai_owasp_key``) where that name has none, or none where it has one;
-    a source with no list read gives one "unparsed" entry with line 0 and an empty name.
+    "unparsed", as above); a For-AI item not compared as an OWASP entry gives problem
+    "unchecked" for each part or piece of its name that names no row and is not
+    enumerated in ``FOR_AI_UNCHECKED_NAMES`` (``_for_ai_unchecked``), with that part as
+    the name; an <li> with an "id" span anywhere inside it that is not among the items
+    of the lists read gives "incomplete"; a For-AI source without exactly one EU AI Act
+    entry gives one "incomplete" entry with line 0, and so does, once per name, a For-AI
+    source on which a name of ``FOR_AI_ITEM_TEXTS`` (matched as ``_for_ai_text_name``
+    matches it), of ``FOR_AI_UNCHECKED_NAMES`` (matched exactly) or of
+    ``FOR_AI_OWASP_TEXTS`` (matched as ``_for_ai_owasp_name`` matches it) is not the
+    whole name of exactly one item, and so does, once per name, a For-AI source on which
+    a name of ``FOR_AI_OWASP_TEXTS`` that is the whole name of exactly one item is not
+    the only item, part or piece naming its register row (``_for_ai_row``; counted over
+    ``_for_ai_branch``'s keys), and so does, once per item, a For-AI item named by a
+    name of ``FOR_AI_OWASP_TEXTS`` that carries a trailing edition
+    (``_for_ai_owasp_key``) where that name has none, or none where it has one; a source
+    with no list read gives one "unparsed" entry with line 0 and an empty name.
     ``d15_resolver`` is ``_load_edition_resolver()``'s result, loaded when not given."""
     if kind == "for-ai":
         d15, resolver = d15_resolver or _load_edition_resolver()
@@ -3484,8 +3491,10 @@ def _hand_written_entries(rel, kind, text, d15_resolver=None):
             # name of exactly one item whose name span is read, whether or not the item
             # passes; a name in both of the first two is counted exactly when that count is
             # not one. An item named by a name of FOR_AI_OWASP_TEXTS carries a trailing
-            # edition exactly when that name does.
-            named, exact, owasp_named, owasp_edition = Counter(), Counter(), Counter(), []
+            # edition exactly when that name does. Each name of FOR_AI_OWASP_TEXTS that
+            # names one item is also the only item, part or piece naming its register row
+            # (``_for_ai_branch``'s keys: "OWASP LLM Top 10 2026", or a compound part).
+            named, exact, owasp_named, owasp_edition, rows = Counter(), Counter(), Counter(), [], Counter()
             for start, end in lists:
                 for li in _LI_RE.finditer(text, start, end):
                     m = _FOR_AI_ITEM_RE.match(li[0])
@@ -3497,6 +3506,7 @@ def _hand_written_entries(rel, kind, text, d15_resolver=None):
                         owasp_named[owasp] += 1
                         if owasp and _for_ai_owasp_key(d15, name)[1] != _for_ai_owasp_key(d15, owasp)[1]:
                             owasp_edition.append((name, owasp))
+                        rows.update(key for key in _for_ai_branch(d15, resolver, name)[1] if key)
             found = {name: named[name] for name in FOR_AI_ITEM_TEXTS}
             for name in sorted(FOR_AI_UNCHECKED_NAMES):
                 if exact[name] != 1 or name not in found:
@@ -3517,6 +3527,15 @@ def _hand_written_entries(rel, kind, text, d15_resolver=None):
                                     f"FOR_AI_OWASP_TEXTS, case and spacing ignored and any trailing edition "
                                     f"removed; correct the template, or if the list changed legitimately, "
                                     f"update {lists_for})", "", "incomplete"))
+            for name in FOR_AI_OWASP_TEXTS:
+                key = _for_ai_row(d15, resolver, name)
+                if key and owasp_named[name] == 1 and rows[key] != 1:
+                    entries.append((None, f"expected exactly one item naming the register row {ids[key]!r} of "
+                                    f"{name!r} in the resource index, found {rows[key]} (each name of "
+                                    f"FOR_AI_OWASP_TEXTS in .web/build.py names one item on every For-AI page, "
+                                    f"and no other item, part of a compound name or piece of one names its "
+                                    f"register row, in any spelling; correct the template, or if the list "
+                                    f"changed legitimately, update FOR_AI_OWASP_TEXTS)", "", "incomplete"))
             for name, owasp in owasp_edition:
                 entries.append((None, f"item {name!r} in the resource index is the name {owasp!r} with its "
                                 f"trailing edition {'dropped' if _for_ai_owasp_key(d15, owasp)[1] else 'added'} "
@@ -4015,10 +4034,14 @@ def standard_edition_entries(texts=None):
       ignored), of ``FOR_AI_UNCHECKED_NAMES`` (matched exactly) or of
       ``FOR_AI_OWASP_TEXTS`` (case and spacing ignored, any trailing edition removed) is
       not the whole name of exactly one item (removed, renamed, doubled or replaced by a
-      copy of another item; one entry per name), or on which an item named by a name of
-      ``FOR_AI_OWASP_TEXTS`` carries a trailing edition where that name has none, or
-      none where it has one ("OWASP GenAI Red Teaming Guide 1.0", "OWASP Top 10 for LLM
-      Applications"; one entry per item) (a failure).
+      copy of another item; one entry per name), or on which a name of
+      ``FOR_AI_OWASP_TEXTS`` that names one item shares its register row with another
+      item, part of a compound name or piece of one (``_for_ai_branch``: "OWASP LLM Top
+      10 2026", "OWASP MCP Top 10 / OWASP GenAI Red Teaming Guide"; one entry per name),
+      or on which an item named by a name of ``FOR_AI_OWASP_TEXTS`` carries a trailing
+      edition where that name has none, or none where it has one ("OWASP GenAI Red
+      Teaming Guide 1.0", "OWASP Top 10 for LLM Applications"; one entry per item) (a
+      failure).
     * ``no edition``: the entry names no edition, so there is nothing to compare.
       These are out of scope. On 2026-10-18 they were: LINDDUN, STRIDE, IEC 62443,
       NIST AI 600-1 and NIST SP 800-207 on both lists; MITRE ATLAS, MITRE ATT&CK and
@@ -4052,10 +4075,11 @@ def standard_edition_entries(texts=None):
     ``FOR_AI_LABEL_INSTRUMENTS``, ``FOR_AI_NAME_TEXTS`` (both with case and spacing
     ignored) and ``FOR_AI_UNCHECKED_NAMES`` (matched exactly) must name exactly one item
     per page. So must each compared OWASP name of ``FOR_AI_OWASP_TEXTS`` (case and
-    spacing ignored, any trailing edition removed), whose item must carry a trailing
-    edition exactly when the name does (its value left to the comparison) and whose
-    text between the spans, once a form of the "OWASP" branch, must be one of its forms
-    there.
+    spacing ignored, any trailing edition removed), which must also be the only item,
+    part or piece naming its register row in any spelling, whose item must carry a
+    trailing edition exactly when the name does (its value left to the comparison) and
+    whose text between the spans, once a form of the "OWASP" branch, must be one of its
+    forms there.
 
     ``texts`` maps a source path to replacement text (for tests); other sources are
     read from the template tree.
