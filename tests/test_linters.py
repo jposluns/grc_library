@@ -25149,8 +25149,8 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         """The start of the failure line for a For-AI page ``rel`` on which ``found``
         items, compound parts or pieces name the register row ``row`` of the name
         ``name`` of FOR_AI_OWASP_TEXTS (3b413)."""
-        return (f".web/{rel}: expected exactly one item naming the register row {row!r} of {name!r} in the "
-                f"resource index, found {found} (")
+        return (f".web/{rel}: expected exactly one item, part or piece naming the register row {row!r} of "
+                f"{name!r} in the resource index, found {found} (")
 
     def test_for_ai_owasp_entry_is_chosen_by_resolution(self):
         # VPR3B393-R5 item 1: a For-AI name that resolves to an OWASP row, in any case
@@ -26215,7 +26215,8 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                     self.assertIn("in .web/build.py names one item on every For-AI page, and no other item, part "
                                   "of a compound name or piece of one names its register row, in any spelling;",
                                   hit)
-                    self.assertTrue(hit.endswith("if the list changed legitimately, update FOR_AI_OWASP_TEXTS)"), hit)
+                    self.assertTrue(hit.endswith("the row may be named once, so the template should drop the "
+                                                 "duplicate or compound part)"), hit)
                 # The copy replacing the original leaves no item named by the OWASP name,
                 # which fails as before; a compound part still beside its own item fails
                 # that item's row as well.
