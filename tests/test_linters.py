@@ -50973,6 +50973,39 @@ class HeldBranchExpiryTests(unittest.TestCase):
             self.assertEqual(self.mod.main([]), 1)
         self.assertIn("days=-1 expiry-state=LAPSED branch-presence=LOCAL entry-live=yes branch-held=yes", out.getvalue())
 
+    def test_ascii_only_expiry_in_hook_and_report(self):
+        import datetime
+        import types
+        import lint_common
+
+        class FrozenDate(datetime.date):
+            @classmethod
+            def today(cls):
+                return cls(2026, 10, 12)
+
+        with self.mock.patch.dict(os.environ, {"CLAUDE_PROJECT_DIR": str(self.root)}, clear=True), \
+                self.mock.patch.object(lint_common, "resolve_working", return_value=None):
+            hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                             "held_ascii_expiry_hook_test")
+        self.addCleanup(sys.modules.pop, "held_ascii_expiry_hook_test", None)
+        for expiry, state, held, rc in [
+            ("\u0662\u0660\u0662\u0660-\u0660\u0661-\u0660\u0661", "MALFORMED", False, 1),
+            ("2020-01-01", "LAPSED", False, 1),
+            ("2026-10-12", "DUE", True, 1),
+            ("2026-10-22", "OK", True, 0),
+        ]:
+            with self.subTest(expiry=expiry):
+                line = f"b # {expiry} reason"
+                got, out, err = self.run_report(line)
+                self.assertEqual(got, rc)
+                self.assertEqual(err, "")
+                live = "yes" if held else "no"
+                self.assertIn(f"expiry-state={state} branch-presence=LOCAL "
+                              f"entry-live={live} branch-held={live}", out)
+                with self.mock.patch.object(hook, "HELD_FILE", self.path), \
+                        self.mock.patch.object(hook, "_dt", types.SimpleNamespace(date=FrozenDate)):
+                    self.assertEqual(hook.held_branches(), {"b": "reason"} if held else {})
+
     def test_hook_parity(self):
         import contextlib
         import datetime

@@ -83,7 +83,7 @@ from pathlib import Path
 from lint_common import resolve_working, resolve_working_for_write
 
 REPO = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[1])
-EXPIRY = re.compile(r"\d{4}-\d{2}-\d{2}")
+EXPIRY = re.compile(r"\d{4}-\d{2}-\d{2}", re.ASCII)
 GIT_TIMEOUT = 5
 Entry = tuple[str, str | None, str]
 
