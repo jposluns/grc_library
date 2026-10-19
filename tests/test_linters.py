@@ -18098,6 +18098,54 @@ class BookkeepingParityTests(LinterTestCase):
         rc, found, err = self._cadence_main(mod, vp_cells, retro_cells, 939, floor=929)
         self.assertEqual((rc, found), (0, []), err)
 
+    def test_presence_reads_the_leading_identity_only(self) -> None:
+        # 3b406 (codex, ledger VPR3B206-R4B): Check 1's presence read every PR number in a
+        # validate-pr PR cell, so `#903 (re-run of #900)` counted as #900's record although no row
+        # names #900 as its identity. Presence now reads the PRs the leading identity names that
+        # PR_CELL_TOKEN also reads (_identity_reads), the set floor_kept_prs keeps.
+        mod = self._load_module()
+        row = lambda cell: f"| 2026-10-03 | {cell} | x | RETURNED | none |\n"
+        self.assertEqual(mod.parse_validate_pr_status(row("#903 (re-run of #900)")),
+                         {903: "normal"})
+        self.assertEqual(mod.parse_validate_pr_status(row("#2429 iteration 2")),
+                         {2429: "normal"})
+        for cell in ("#903 (re-run of #900)", "#2429 iteration 2", "#2500, #2501",
+                     "#2500-#2502", "248, 249", "#900-903, #904"):
+            with self.subTest(cell=cell):
+                self.assertEqual(set(mod.parse_validate_pr_status(row(cell))),
+                                 mod.floor_kept_prs(row(cell)))
+        first = mod.INCEPTION + 526
+        missing = lambda pr: f"  [qa-cadence] PR #{pr}: no row in validate-pr/history.md."
+        no_row = lambda found: [line.split(" Every merged PR")[0] for line in found
+                                if ": no row in validate-pr" in line]
+        # Through main(): `#first+1 (re-run of #first)` no longer satisfies #first.
+        retro_cells = [f"#{first + 1}", f"#{first}"]
+        rc, found, err = self._cadence_main(
+            mod, [f"#{first + 1} (re-run of #{first})"], retro_cells, first + 1, floor=first)
+        self.assertEqual(rc, 1, err)
+        self.assertEqual(no_row(found),
+                         [missing(first)], err)
+        # With #first's own row present Check 1 is satisfied. (The row-integrity reader still keys
+        # a history row on every PR token, so it reports two canonical rows for #first; that is a
+        # separate check, unchanged here.)
+        rc, found, err = self._cadence_main(
+            mod, [f"#{first + 1} (re-run of #{first})", f"#{first}"], retro_cells, first + 1,
+            floor=first)
+        self.assertEqual([line for line in found if line.startswith("  [qa-cadence]")], [], err)
+        # `#first iteration first+1` (the `#2429 iteration 2` shape with an in-window tail)
+        # satisfies only #first: #first+1 is reported missing its row.
+        rc, found, err = self._cadence_main(
+            mod, [f"#{first}", f"#{first} iteration {first + 1}"], retro_cells, first + 1,
+            floor=first)
+        self.assertEqual(rc, 1, err)
+        self.assertEqual(no_row(found),
+                         [missing(first + 1)], err)
+        # Combined `#A, #B` and well-formed `#A-#B` identities still satisfy every PR they name.
+        vp_cells = [f"#{first + 2}-#{first + 3}", f"#{first}, #{first + 1}"]
+        retro_cells = [f"#{pr}" for pr in range(first + 3, first - 1, -1)]
+        rc, found, err = self._cadence_main(mod, vp_cells, retro_cells, first + 3, floor=first)
+        self.assertEqual((rc, found), (0, []), err)
+
     def test_parse_changelog_prs_reads_compact_header(self) -> None:
         # parse_changelog_prs must read the stage-3a compact header form
         # (PR #855 reformat) as well as the long form.

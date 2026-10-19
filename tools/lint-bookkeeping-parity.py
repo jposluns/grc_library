@@ -112,6 +112,15 @@ the improvement log, with these exemptions:
   stays below the moved rows, so every moved PR that still needs a row is reported missing it.
 
 Validate-pr PR-bearing rows must begin their PR cell with a recognized identity.
+Check 1's presence reads that leading identity only (3b406): a row is the record for
+the PRs its identity names that ``PR_CELL_TOKEN`` also reads (``_identity_reads``), the
+set ``floor_kept_prs`` keeps and ``unread_identity_findings`` checks, so presence, the
+floor and the unread-identity finding share one reading. A later number in the cell is
+prose and records nothing: ``#903 (re-run of #900)`` is no row for #900, and
+``#2429 iteration 2`` is #2429's row alone; a combined ``#A, #B`` identity records both
+PRs and a well-formed ``#A-#B`` range its two endpoints. Until 3b406 presence read every
+PR number in the cell. The improvement log's presence is unchanged: ``parse_retro_prs``,
+the PR each row leads with.
 The exact historical dispositions abandoned-autocorrect (no PR) and
 routed pre-open (no PR) remain accepted without creating PR records.
 The set is closed and matched exactly (``NO_PR_DISPOSITIONS``).
@@ -677,11 +686,15 @@ def parse_validate_pr_status(text: str) -> dict[int, str]:
     """Map each PR with a validate-pr row to its status.
 
     Status is one of 'handoff', 'subsumption', 'pending', or 'normal', classified from
-    the row's Findings cell (field index 4). A PR cell may name more than one
-    PR (a combined row such as `248, 249`); each named PR inherits the row's
-    status. PR tokens are boundary-checked (P-3.245): a digit run inside a
-    dotted or hyphenated identifier (`3.245`, a version, `resume-0825b`) is
-    not read as a PR.
+    the row's Findings cell (field index 4). Presence reads the row's leading
+    identity only (3b406): the PRs ``store_row_prs`` names that ``PR_CELL_TOKEN``
+    also reads (``_identity_reads``, the set ``floor_kept_prs`` keeps), so a
+    later number is prose and records nothing: ``#903 (re-run of #900)`` is
+    #903's row, not #900's, and ``#2429 iteration 2`` is #2429's alone. A
+    combined or ranged identity (`248, 249`, `#A-#B`) names more than one PR;
+    each inherits the row's status. PR tokens are boundary-checked (P-3.245): a
+    digit run inside a dotted or hyphenated identifier (`3.245`, a version,
+    `resume-0825b`) is not read as a PR.
     """
     status: dict[int, str] = {}
     for _, c in _validate_pr_rows(text):
@@ -695,7 +708,8 @@ def parse_validate_pr_status(text: str) -> dict[int, str]:
             row_status = "pending"
         else:
             row_status = "normal"
-        for pr in (int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(c[2])):
+        named, read = _identity_reads(c[2])
+        for pr in sorted(set(named) & read):
             # 3.150 item 3: the ledger is newest-first, so the FIRST parsed row for a PR is the
             # newest; keep it (setdefault) rather than letting a later (older) row overwrite. This
             # forecloses a latent false-BLOCK where a newer RETURNED row above an older DISPATCHED
@@ -730,7 +744,8 @@ def floor_kept_prs(text: str) -> set[int]:
     called the marker above the oldest kept row #900). A PR the identity names but presence
     does not read is not kept, but its row is a finding (``unread_identity_findings``, 3b206
     r6), so a marker raised above such a row is never silent (round 5 dropped it silently).
-    The rows
+    Since 3b406 presence reads exactly this set per row (``_identity_reads``), so the two agree
+    by construction. The rows
     are those ``_validate_pr_rows`` yields (malformed cells and the accepted no-PR dispositions
     name none). The improvement log's kept PRs are not read here: they are ``parse_retro_prs``,
     the PR each row leads with, the same reader as Check 1's presence test (3b206 r4), so a
@@ -745,7 +760,11 @@ def floor_kept_prs(text: str) -> set[int]:
 
 
 def _identity_reads(cell: str):
-    """A PR cell's leading identity (``store_row_prs``) and the PRs Check 1 reads in it."""
+    """A PR cell's leading identity (``store_row_prs``) and the PRs ``PR_CELL_TOKEN`` reads in it.
+
+    Check 1's presence, the floor's kept PRs and the unread-identity finding all read the
+    identity PRs the token reader also reads (3b406), so they share this one reading.
+    """
     return store_row_prs(cell), {int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(cell)}
 
 
