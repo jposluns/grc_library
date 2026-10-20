@@ -50909,7 +50909,12 @@ class AIQTCutoverTests(unittest.TestCase):
         # statement that changelog-details/ there is the retired fallback target. The backlog
         # pointer names both backlogs (public TODO.md and private P-TODO.md). Since 3b304 W1-b the
         # raw legacy tails are the only carrier, so a retired spelling fails here even after a
-        # deliberate OVERLAY_DIGESTS update.
+        # deliberate OVERLAY_DIGESTS update. P-TODO 3b213: each citation is counted, so reverting
+        # one of several (session-lifecycle cites the handoff and the lease twice each) fails.
+        # Adding or removing a citation in a retained tail needs the matching count here, in the
+        # same commit as the OVERLAY_DIGESTS update. The counts are over the joined tails, so a
+        # citation moved from one overlay to another still passes. As in the sibling CLAUDE.md
+        # test, no name may follow grc_library_private/ anywhere in the tails.
         text = '\n'.join((self.root / path).read_bytes().decode('utf-8')
                          .split(self.aiqt.MARKER, 1)[1]
                          for path in self.aiqt.OVERLAY_DIGESTS)
@@ -50917,11 +50922,14 @@ class AIQTCutoverTests(unittest.TestCase):
                          ['grc_library_private/.working/changelog-details/'])
         self.assertNotIn('grc_library_private/degradation-watch-log.md', text)
         self.assertIn('backlogs: public `TODO.md` and private `grc_library_private/P-TODO.md`', text)
-        for name in ('session-handoff.md', 'session-state.md', 'pending-decisions.md', 'DONE.md',
-                     'overnight-pr.md', 'verifier-overrides.md', 'validate-sweeps/history.md',
-                     'degradation-watch-log.md', 'worker-brief-template.md'):
+        counts = {'session-handoff.md': 2, 'session-state.md': 2, 'pending-decisions.md': 1,
+                  'DONE.md': 1, 'overnight-pr.md': 1, 'verifier-overrides.md': 1,
+                  'validate-sweeps/history.md': 1, 'degradation-watch-log.md': 1,
+                  'worker-brief-template.md': 1}
+        for name, count in counts.items():
             with self.subTest(name=name):
-                self.assertIn('`/opt/grc/private/' + name + '`', text)
+                self.assertEqual(text.count('`/opt/grc/private/' + name + '`'), count)
+                self.assertEqual(text.count('grc_library_private/' + name), 0)
 
     def test_overlay_d2_raw(self):
         # P-TODO 3b304 W1-b: the generator no longer rewrites the superseded authoring bullet, so
