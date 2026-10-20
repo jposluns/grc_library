@@ -17,6 +17,16 @@ confirmed defect with a severity and a disposition. A row with an EMPTY disposit
 A row leaves the ledger only via FIXED, ROUTED, REFUTED or ACCEPTED, so "no disposition" is the
 primary blocking condition; the one other blocking condition is a MIS-FILED row (below).
 
+FIXED / ROUTED require an adjacent reference, with whitespace or inline markup between.
+Alongside PR and backlog references, `store:<sha>` names a private operational-store commit
+(7 to 40 lowercase hex characters), and `egress:<anchor>` names an entry in
+maintainer-egress-requests.md (ASCII letters, digits, dots or hyphens, starting and
+ending with a letter or digit). Markup must not alter either reference. A full stop
+may follow a store SHA and is not part of the reference.
+For example: `FIXED store:abcdef0` and `ROUTED egress:request-1`.
+A colon between the word and these new references is invalid; legacy references retain
+their colon-separator support. These are syntax checks, not verification of the targets.
+
 WHAT IT BLOCKS. An `error`-severity undispositioned row blocks a Bash command whose
 whitespace-collapsed text contains the case-sensitive substring `gh pr create` or `gh pr merge`, or whose
 shell tokens have `gh`, then `pr`, then `create` or `merge`, with no fresh `gh` between (so a quoted
@@ -398,7 +408,8 @@ def parse_open_rows(text: str) -> list:
 #   - REFUTED / ACCEPTED carry PROSE (the legend defines `REFUTED <evidence>` / `ACCEPTED <rationale>`),
 #     so only the terminal WORD is machine-required; the evidence/rationale is author judgement.
 # A ref is a PR number (`#1178`), a public backlog item (`3.73`, `3.56a`), a private `P-N.M` item
-# (`P-1.71`), or a `TODO`-qualified item (`TODO 3.73`, `TODO P-1.60`).
+# (`P-1.71`), a `TODO`-qualified item (`TODO 3.73`, `TODO P-1.60`), or an operational
+# reference (`store:abcdef0`, `egress:request-1`; see the module docstring).
 TERMINAL = ("fixed", "routed", "refuted", "accepted")
 # A ref is a PR number (`#1`.., never `#0`), a public backlog item (`3.73`, `3.56a`, `3.139.1`), a
 # private `P-N.M` item (`P-1.71`), or a `TODO`-qualified item. The private `P-` namespace is a
@@ -406,6 +417,15 @@ TERMINAL = ("fixed", "routed", "refuted", "accepted")
 # undispositioned (self-caught 2026-09-05, #2016). `(` or `[` may sit immediately before it (a parenthesized or link-form ref).
 # The private backlog's letter-series ids (3b108, 3b50b2e1) are refs too: routing to one was read as
 # undispositioned before (3b108).
+# Operational references (3b297) are checked before legacy colon normalization.
+# Keep their payload case and whole-token boundaries strict, even though disposition
+# words are case-insensitive. The append tool reaches disposition_valid through
+# undispositioned and is_fixed_disposition.
+_OPERATIONAL_DISPOSITION_RE = re.compile(
+    r"^(?i:fixed|routed)\s+[(]?"
+    r"(?P<reference>store:[0-9a-f]{7,40}(?=$|[.\s,;:()\]])"
+    r"|egress:[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?=$|[\s,;:()\]]))"
+)
 _REF = r"[(\[]?(?:#[1-9]\d*|TODO\s+(?:P-)?\d+(?:\.\d+)+[a-z]?|P-\d+(?:\.\d+)+[a-z]?|\d+(?:\.\d+)+[a-z]?|\d+b\d+(?:[a-z]\d+)*)"
 _DISPOSITION_RE = re.compile(
     r"^(?:fixed|routed)\s+" + _REF + r"(?:\b|[.,;:)\]])"   # FIXED/ROUTED + adjacent ref
@@ -421,13 +441,24 @@ def disposition_valid(cell: str) -> bool:
     documented "whitespace OR markup between the word and the ref" holds: `**FIXED** #1178`,
     `` FIXED `#1178` ``, `FIXED **#1208**`, `FIXED [#1208](url)`, and `**ROUTED** 3.56a` all validate
     (claude + codex verify-3126). A colon between the word and the ref (`ROUTED: 3.56a`, `FIXED: #1210`)
-    is normalized to whitespace too (3.149 (closing PR #1341)), since the ledger writes some dispositions with a colon. The ref shapes carry none of those characters, so removing them is
-    lossless for the match. Returns False for an empty cell, a bare terminal word with no adjacent
+    is normalized to whitespace for legacy references (3.149 (closing PR #1341)).
+    Operational references retain their colon and reject a colon separator (3b297).
+    Their matched span must also be unchanged in the raw cell; only surrounding
+    markup may be removed, never characters inside the reference.
+    Returns False for an empty cell, a bare terminal word with no adjacent
     ref, a narration that merely mentions a ref later (`FIXED in #1208`: `in` sits between), a `#0`
     PR ref, and any non-vocabulary prose (`pending`, `OPEN: ...`)."""
-    plain = re.sub(r"[*_`\[\]]", "", cell)
+    kept = list(re.finditer(r"[^*_`\[\]]", cell))
+    unstripped = "".join(char.group() for char in kept)
+    plain = unstripped.strip()
+    operational = _OPERATIONAL_DISPOSITION_RE.match(plain)
+    if operational:
+        offset = len(unstripped) - len(unstripped.lstrip())
+        start, end = operational.span("reference")
+        raw_ref = cell[kept[offset + start].start():kept[offset + end - 1].end()]
+        return raw_ref == operational.group("reference")
     # 3.149 (closing PR #1341): a colon separating the keyword from the ref (`ROUTED: 3.56a`, `FIXED: #1210`) is a
-    # SEPARATOR, not markup, and the ref shapes carry no colon, so normalizing it to whitespace is
+    # SEPARATOR, not markup, and legacy ref shapes carry no colon, so normalizing it to whitespace is
     # lossless and lets the adjacent-ref grammar match. The REFUTED/ACCEPTED word-only branch (which
     # already tolerates a trailing colon via `\b`) is unaffected.
     plain = plain.replace(":", " ").strip()
@@ -974,6 +1005,16 @@ def self_test() -> int:
     ck("ROUTED b12 is not", disposition_valid("ROUTED b12"), False)
     for bad in ("ROUTED 3b108pending", "ROUTED 3b108garbage", "ROUTED 24x7 support", "FIXED 1e2rror"):
         ck(f"not a ref: {bad}", disposition_valid(bad), False)
+    # 3b297: operational refs keep their payload unchanged through markup handling.
+    ck("store ref with markup is valid", disposition_valid("**FIXED** `store:abcdef0`"), True)
+    ck("store ref before a full stop is valid", disposition_valid("FIXED store:abcdef0. Then prose"), True)
+    ck("egress ref is valid", disposition_valid("ROUTED [egress:R1.entry-2](url)"), True)
+    ck("single-character egress ref is valid", disposition_valid("ROUTED egress:a"), True)
+    ck("markup inside a SHA is invalid", disposition_valid("FIXED store:abcde_f0"), False)
+    ck("markup inside an anchor is invalid", disposition_valid("ROUTED egress:req_1"), False)
+    ck("punctuation-only anchor is invalid", disposition_valid("ROUTED egress:-"), False)
+    ck("non-adjacent store ref is invalid", disposition_valid("FIXED in store:abcdef0"), False)
+    ck("operational colon separator is invalid", disposition_valid("FIXED: store:abcdef0"), False)
     # 3b108: the sanctioned merge path runs gh pr merge as a subprocess, so the tool itself is gated;
     # detection over-gates by intent (QA r1: shell parsing could not be made complete).
     for c in ("python3 tools/merge-when-green.py 12 --repo o/r --admin",
