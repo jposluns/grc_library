@@ -582,6 +582,20 @@ class LinterTestCase(unittest.TestCase):
         self.fixture_paths.append(path)
         return path
 
+    def _fixture_base(self, prefix: str) -> Path:
+        """A unique, self-cleaning fixture dir OUTSIDE the repository (3b156).
+
+        For fixtures that hold chmod-0 files and directories. Under tests/tmp
+        a concurrent run's repository walk (the version-bump-recency audit's
+        os.walk BOM screen, for one) reads them and stops with
+        PermissionError; no gate walks the system temp dir, and the unique
+        name keeps runs apart there. Cleanup is registered before the caller
+        can strip a mode, so it runs even on test failure.
+        """
+        base = Path(tempfile.mkdtemp(prefix=prefix))
+        self.addCleanup(_force_rmtree, base)
+        return base
+
     def tearDown(self) -> None:
         for p in list(self.fixture_paths):
             try:
@@ -2331,10 +2345,12 @@ class LinksLinterTests(LinterTestCase):
                           lambda p: p.write_bytes(b"[broken](missing.md) \xff\n")),
         }
         for case, (rel, break_file) in cases.items():
-            with self.subTest(case=case), \
-                    tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as directory:
-                root = self._tracked_repo(Path(directory), {
+            with self.subTest(case=case):
+                # Outside the repository: a mode-0 entry under tests/tmp stops
+                # a concurrent run's repository walk (3b156).
+                root = self._tracked_repo(self._fixture_base("links-unreadable-"), {
                     "clean.md": "Clean prose.\n", rel: "[broken](missing.md)\n"})
+                self.assertNotIn(REPO_ROOT.resolve(), root.resolve().parents)
                 path = root / rel
                 # Positive control: the file is selected while it is readable.
                 self.assertEqual(self._links_default(mod, root)[0], 1)
@@ -16043,11 +16059,9 @@ class ClaudeRulesSyncTests(LinterTestCase):
         # "claude-rules-sync internal error: PermissionError" when
         # test_unreadable's chmod-0 secrets.md raced (or was left over from an
         # interrupted run) against another --root test's read (gate-37 fix 1a).
-        root = Path(tempfile.mkdtemp(prefix="synthetic-claude-rules-sync-", dir=FIXTURE_DIR))
-        # Self-cleaning: each unique dir registers its own teardown, so no
-        # blanket FIXTURE_DIR sweep is needed (a blanket sweep would race
-        # concurrent runs' unique dirs). Runs even on test failure.
-        self.addCleanup(_force_rmtree, root)
+        # Self-cleaning, even on test failure, and outside the repository so
+        # no other run's tree walk can reach it (3b156).
+        root = self._fixture_base("synthetic-claude-rules-sync-")
         local_rel = ".claude/rules/secrets.md"
         source_rel = "guardrails/core/secrets.md"
         (root / ".claude" / "rules").mkdir(parents=True)
@@ -16100,14 +16114,20 @@ class ClaudeRulesSyncTests(LinterTestCase):
         r2, _ = self._make_synthetic(local_body="# T\n\nB.\n", source_body="# T\n\nB.\n")
         self.assertNotEqual(r1, r2, "each _make_synthetic call must get a unique fixture dir")
 
+    def test_fixtures_live_outside_the_repository(self) -> None:
+        # 3b156: a chmod-0 fixture under tests/tmp stops another run's walk.
+        root, _ = self._make_synthetic(local_body="# T\n\nB.\n", source_body="# T\n\nB.\n")
+        for path in (root, self._fixture_base("force-rmtree-test-")):
+            self.assertNotIn(REPO_ROOT.resolve(), path.resolve().parents)
+
     def test_force_rmtree_removes_chmod0_file_and_dir(self) -> None:
         # gate-37 fix 1c: _force_rmtree must remove a tree containing a chmod-0
         # FILE, and one whose ROOT dir is itself chmod-0 (os.walk yields nothing
         # on a mode-0 root, so the helper must restore the root's mode first).
         # Uses a test-local mkdtemp base, never a mid-suite setUpModule() call,
-        # so it cannot race concurrent runs (codex/gemini vpr-2292 HOLD).
-        base = Path(tempfile.mkdtemp(prefix="force-rmtree-test-", dir=FIXTURE_DIR))
-        self.addCleanup(_force_rmtree, base)
+        # so it cannot race concurrent runs (codex/gemini vpr-2292 HOLD); the
+        # base is outside the repository (3b156).
+        base = self._fixture_base("force-rmtree-test-")
         # (a) chmod-0 file inside a normal directory tree
         top1 = base / "with-chmod0-file"
         d1 = top1 / ".claude" / "rules"
@@ -16323,6 +16343,70 @@ class ClaudeRulesSyncTests(LinterTestCase):
         finally:
             mod.MIRROR_MAP = saved
             shutil.rmtree(root, ignore_errors=True)
+
+
+class OverlapHazardTests(LinterTestCase):
+    """3b156: the two checks a concurrent full run disturbed, each in one process.
+
+    Gate 36 failed once when two full runs overlapped. The run-shell-stubbed
+    temp-dirs-removed check lists only the self-test's private parent dir;
+    its count of the shared temp dir was removed in 3b267, before 3b156. The
+    other cause was a chmod-0 fixture under tests/tmp, which the
+    version-bump-recency walk (os.walk with a raising onerror) reached and
+    stopped on with PermissionError; the suite now allocates such fixtures
+    outside the repository through LinterTestCase._fixture_base. The test
+    below runs the real recency walker against a root it builds itself, so
+    it does not walk the live tree; the run-shell-stubbed self-test already
+    runs elsewhere in this suite.
+    """
+
+    SHAPES = ("mode-0-directory", "mode-0-file")
+
+    @staticmethod
+    def _hostile(parent: Path, shape: str) -> Path:
+        """Make one hostile fixture shape under ``parent``; return the mode-0 entry.
+
+        A mode-0 directory holding a file (lint-links' unreadable parent, the
+        _force_rmtree chmod-0 root) or a mode-0 Markdown file in a readable
+        directory (claude-rules-sync's secrets.md, lint-links' unreadable file,
+        the corpus-management HANDBOOK.md). The caller's _fixture_base cleanup
+        restores the mode."""
+        if shape == "mode-0-directory":
+            entry = parent / "locked"
+            entry.mkdir(parents=True)
+            (entry / "body.md").write_text("# Locked\n", encoding="utf-8")
+        else:
+            parent.mkdir(parents=True, exist_ok=True)
+            entry = parent / "locked.md"
+            entry.write_text("# Locked\n", encoding="utf-8")
+        entry.chmod(0)
+        return entry
+
+    def test_recency_walk_passes_with_hostile_fixtures_outside_its_root(self) -> None:
+        if os.name != "posix" or os.geteuid() == 0:
+            self.skipTest("needs POSIX permissions that bind the current user")
+        recency = load_linter_module("tools/lint-version-bump-recency.py", "_recency_overlap_3b156")
+        versioned = "# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n"
+        base = self._fixture_base("recency-overlap-")
+        root = base / "repo"
+        root.mkdir()
+        doc = root / "doc.md"
+        doc.write_text(versioned, encoding="utf-8")
+        # Both shapes outside the walked root, as the suite now allocates such
+        # fixtures; this half alone cannot fail, the control below shows the hazard.
+        for shape in self.SHAPES:
+            self._hostile(base / "outside", shape)
+        self.assertEqual(recency.iter_targets(root), ([doc], [], []))
+        # Positive control: each shape under the root's tests/tmp stops the same
+        # walk, so the pass above is not a walk that cannot see them.
+        for shape in self.SHAPES:
+            with self.subTest(shape=shape):
+                inside = self._fixture_base("recency-overlap-control-")
+                (inside / "doc.md").write_text(versioned, encoding="utf-8")
+                entry = self._hostile(inside / "tests" / "tmp", shape)
+                with self.assertRaises(PermissionError) as caught:
+                    recency.iter_targets(inside)
+                self.assertEqual(Path(caught.exception.filename), entry)
 
 
 class ClaudeRulesSyncCompilerOwnershipTests(LinterTestCase):
@@ -37733,8 +37817,10 @@ class CorpusManagementCompilerTests(LinterTestCase):
         # suite runs cannot delete or overwrite each other's tree (P-1.86;
         # the fixed-dir + `if exists: rmtree` pattern raced on this fleet-concurrent
         # machine; mirrors the #2292 _make_synthetic fix + _force_rmtree).
-        root = Path(tempfile.mkdtemp(prefix="synthetic-corpus-mgmt-", dir=FIXTURE_DIR))
-        self.addCleanup(_force_rmtree, root)
+        # Outside the repository, since one caller makes a target chmod-0 and
+        # a mode-0 entry under tests/tmp stops a concurrent run's repository
+        # walk (3b156).
+        root = self._fixture_base("synthetic-corpus-mgmt-")
         pack = root / ".corpus-management"
         (pack / "core").mkdir(parents=True)
         _gline = gates_register_line if gates_register_line is not None else (
@@ -38335,6 +38421,8 @@ class CorpusManagementCompilerTests(LinterTestCase):
             )
             self.skipTest("running as root: chmod-0 file remains readable; unreadable-target case not exercisable")
         root = self._block_root(self.HANDBOOK_IN_SYNC)
+        # The chmod-0 target must not sit under the repository tree (3b156).
+        self.assertNotIn(REPO_ROOT.resolve(), root.resolve().parents)
         handbook = root / "HANDBOOK.md"
         os.chmod(handbook, 0)
         self.addCleanup(os.chmod, handbook, 0o644)
