@@ -27904,6 +27904,7 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
             self.mod.Variant(
                 "v2", "templates-v2", "v2/", indexable=False,
                 extra_pages=self.mod.V2_EXTRA_PAGES, narrative_routes=True,
+                domain_rail=True,
             ),
         )
         robots = self.mod.render_robots_txt()
@@ -34243,11 +34244,18 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
 
     # --- the domain-page rendering ---
 
+    @staticmethod
+    def _generated_domains(figures):
+        # The fail-closed ground truth the rail renderer validates against:
+        # the domain slugs that actually get pages this build.
+        return {dp["domain"] for dp in figures["domain_pages"]}
+
     def test_domain_page_values_carry_computed_narrative_tokens(self):
         figures = self.mod.compute_figures()
         v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
+        generated = self._generated_domains(figures)
         for dp in figures["domain_pages"]:
-            values = self.mod.domain_page_values(dp, v2)
+            values = self.mod.domain_page_values(dp, v2, generated)
             self.assertEqual(
                 values["DOMAIN_NARRATIVE_COUNT"], str(len(dp["narratives"])),
                 f"{dp['domain']}: count token is not the computed join size",
@@ -34272,7 +34280,9 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
         dp = figures["domain_pages"][0]
         html, _ = self.mod.render_page(
             "domain.html", figures, v2, template_dir, partials,
-            extra=self.mod.domain_page_values(dp, v2),
+            extra=self.mod.domain_page_values(
+                dp, v2, self._generated_domains(figures)
+            ),
             out_rel=f"{dp['domain']}/index.html",
         )
         self.assertIn("Leadership pages that touch this area.", html)
@@ -34293,6 +34303,319 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
         self.assertIn("a declared coverage gap, not a hidden one", rows)
         self.assertIn('<li class="doc-row">', rows)
         self.assertNotIn("<a ", rows, "the declared-gap row links nowhere")
+
+    def test_narrative_lede_noun_verb_agrees_with_join_size(self):
+        # 3b152 N2: the v2 lede's noun-verb phrase is COMPUTED alongside the
+        # count, so a join of exactly one page reads "page draws" and zero
+        # keeps the plural ("0 ... pages draw"), consistent with the
+        # declared-gap row rendered beneath it.
+        figures = self.mod.compute_figures()
+        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
+        page = figures["domain_pages"][0]["narratives"][0]
+        for narratives, expected in (
+            ([], "pages draw"),
+            ([page], "page draws"),
+            ([page, page], "pages draw"),
+        ):
+            dp = dict(figures["domain_pages"][0])
+            dp["narratives"] = narratives
+            values = self.mod.domain_page_values(
+                dp, v2, self._generated_domains(figures)
+            )
+            size = len(narratives)
+            self.assertEqual(
+                values["DOMAIN_NARRATIVE_PAGES_DRAW"], expected,
+                f"join size {size}: noun-verb phrase must agree",
+            )
+
+    def test_v2_domain_lede_renders_singular_grammar(self):
+        # 3b152 N2, rendered form: a single joined page must produce
+        # "1 published leadership page draws", never "1 ... pages draw".
+        figures = self.mod.compute_figures()
+        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
+        template_dir = self.mod.template_dir_for(v2)
+        partials = self.mod.load_partials(template_dir)
+        dp = dict(figures["domain_pages"][0])
+        dp["narratives"] = [figures["domain_pages"][0]["narratives"][0]]
+        dom = dp["domain"]
+        html, _ = self.mod.render_page(
+            "domain.html", figures, v2, template_dir, partials,
+            extra=self.mod.domain_page_values(
+                dp, v2, self._generated_domains(figures)
+            ),
+            out_rel=f"{dom}/index.html",
+        )
+        self.assertIn("1 published leadership page draws on", html)
+        self.assertNotIn("1 published leadership pages draw", html)
+
+    def test_v2_domain_rail_never_self_links(self):
+        # 3b152 N4: the closing three-lens rail is shared prose, but on a v2
+        # domain page the lens entry that IS the current page must render as a
+        # non-link current-page marker, never a self-link; every other entry
+        # stays a BASE-prefixed link, and a page the rail does not name keeps
+        # all entries as links.
+        figures = self.mod.compute_figures()
+        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
+        rail_slugs = {
+            slug for _, entries in self.mod.V2_DOMAIN_RAIL_LENSES
+            for slug, _, _ in entries if slug is not None
+        }
+        generated = self._generated_domains(figures)
+        stray = sorted(rail_slugs - generated)
+        self.assertEqual(
+            stray, [], f"rail slug(s) name no generated domain page: {stray}"
+        )
+        template_dir = self.mod.template_dir_for(v2)
+        partials = self.mod.load_partials(template_dir)
+        for dp in figures["domain_pages"]:
+            dom = dp["domain"]
+            html, _ = self.mod.render_page(
+                "domain.html", figures, v2, template_dir, partials,
+                extra=self.mod.domain_page_values(dp, v2, generated),
+                out_rel=f"{dom}/index.html",
+            )
+            self.assertNotIn(
+                f'href="/v2/{dom}/"', html,
+                f"{dom}: the v2 domain page must not link to itself",
+            )
+            if dom in rail_slugs:
+                self.assertIn(
+                    '<span class="lens-here" aria-current="page">', html,
+                    f"{dom}: the rail must mark the current page",
+                )
+            else:
+                self.assertNotIn(
+                    'class="lens-here"', html.split("</style>", 1)[1],
+                    f"{dom}: no rail entry names this page, so none demotes",
+                )
+
+    def test_rail_renderer_demotes_only_the_current_domain(self):
+        # The renderer itself: exactly the current domain's entry demotes, the
+        # other nine entries stay links, and a rail slug naming no generated
+        # domain page is a loud BuildError (fail-closed against a domain
+        # rename leaving the demotion silently dead).
+        generated = self._generated_domains(self.mod.compute_figures())
+        rendered = self.mod.render_domain_rail_lenses("risk", generated)
+        self.assertIn(
+            '<span class="lens-here" aria-current="page">Risk methodology &amp; registers</span>',
+            rendered,
+        )
+        self.assertNotIn('href="{{BASE}}/risk/"', rendered)
+        self.assertEqual(rendered.count('class="lens-here"'), 1)
+        self.assertEqual(rendered.count("<a href="), 9)
+        all_links = self.mod.render_domain_rail_lenses("ai", generated)
+        self.assertNotIn('class="lens-here"', all_links)
+        self.assertEqual(all_links.count("<a href="), 10)
+        saved = self.mod.V2_DOMAIN_RAIL_LENSES
+        try:
+            self.mod.V2_DOMAIN_RAIL_LENSES = (
+                ("H", (("not-a-domain", None, "X"),)),
+            )
+            with self.assertRaisesRegex(self.mod.BuildError, "not-a-domain"):
+                self.mod.render_domain_rail_lenses("risk", generated)
+        finally:
+            self.mod.V2_DOMAIN_RAIL_LENSES = saved
+
+    def test_r2_codex_f1_f2_claude_f1_render_variant_missing_rail_domain(self):
+        figures = dict(self.mod.compute_figures())
+        self.assertIn("security", self.mod.DOMAIN_SCOPE)
+        self.assertIn("security", self._generated_domains(figures))
+        figures["domain_pages"] = [
+            dp for dp in figures["domain_pages"] if dp["domain"] != "security"
+        ]
+        # Exercise production wiring, retaining the stale scope key. Replacing
+        # generated_domains with set(DOMAIN_SCOPE) must fail the v2 assertion.
+        for variant in self.mod.VARIANTS:
+            with self.subTest(variant=variant.name):
+                if variant.name == "v2":
+                    with self.assertRaisesRegex(self.mod.BuildError, "security"):
+                        self.mod.render_variant(figures, variant)
+                else:
+                    pages = dict(self.mod.render_variant(figures, variant))
+                    self.assertIn("risk/index.html", pages)
+                    self.assertNotIn("security/index.html", pages)
+
+    def test_r2_claude_f2_meta_description_noun_agrees_only_in_v2(self):
+        from html import unescape
+
+        figures = self.mod.compute_figures()
+        generated = self._generated_domains(figures)
+        for variant in self.mod.VARIANTS:
+            template_dir = self.mod.template_dir_for(variant)
+            partials = self.mod.load_partials(template_dir)
+            for kind in ("domain", "type"):
+                original = next(
+                    page for page in figures[f"{kind}_pages"]
+                    if page["count"] >= 2
+                )
+                for count in (0, 1, 2):
+                    with self.subTest(
+                        variant=variant.name, kind=kind, count=count
+                    ):
+                        page = dict(original, count=count)
+                        page["docs"] = original["docs"][:count]
+                        noun = (
+                            "document" if variant.name == "v2" and count == 1
+                            else "documents"
+                        )
+                        if kind == "domain":
+                            values = self.mod.domain_page_values(
+                                page, variant, generated
+                            )
+                            out_rel = f"{page['domain']}/index.html"
+                            expected = (
+                                f"{page['scope']}. {count} governance {noun} "
+                                f"in the {page['domain']} domain of the open, "
+                                "CC BY-SA 4.0 GRC Library."
+                            )
+                        else:
+                            values = self.mod.type_page_values(page, variant)
+                            out_rel = f"types/{page['slug']}/index.html"
+                            expected = (
+                                f"{page['scope']}. {count} {page['type']}-type "
+                                f"{noun} in the open, CC BY-SA 4.0 GRC Library."
+                            )
+                        html, _ = self.mod.render_page(
+                            f"{kind}.html", figures, variant, template_dir,
+                            partials, extra=values, out_rel=out_rel,
+                        )
+                        descriptions = re.findall(
+                            r'<meta name="description" content="([^"]*)">',
+                            html,
+                        )
+                        self.assertEqual(
+                            [unescape(value) for value in descriptions],
+                            [expected],
+                        )
+
+    def test_rail_slug_in_scope_but_not_generated_fails_loudly(self):
+        # 3b152 round-1 QA (codex F1, claude F2, gemini F-02): the rail guard
+        # must validate against the domain pages actually GENERATED, not the
+        # curated DOMAIN_SCOPE keys. A domain that keeps its stale DOMAIN_SCOPE
+        # entry but loses its page (renamed in the taxonomy, or its last
+        # document removed) previously passed the guard and left every other
+        # domain page's rail linking to a page that does not exist.
+        generated = self._generated_domains(self.mod.compute_figures())
+        self.assertIn("security", self.mod.DOMAIN_SCOPE)
+        with self.assertRaisesRegex(self.mod.BuildError, "security"):
+            self.mod.render_domain_rail_lenses(
+                "risk", generated - set(["security"])
+            )
+
+    def test_rail_domain_hrefs_derive_from_their_slugs(self):
+        # 3b152 round-1 QA (codex F1): a domain entry's destination is derived
+        # from its validated slug, never stored beside it, so a rename cannot
+        # leave a stale hand-typed path behind a passing slug guard. The table
+        # shape enforces it (a domain entry carries no path), the renderer
+        # refuses a drifted entry loudly, and every rendered href equals its
+        # slug.
+        for _, entries in self.mod.V2_DOMAIN_RAIL_LENSES:
+            for slug, path, _ in entries:
+                if slug is not None:
+                    self.assertIsNone(
+                        path, f"{slug}: a domain entry must not hand-type a path"
+                    )
+                else:
+                    self.assertTrue(path, "a non-domain entry carries its path")
+        generated = self._generated_domains(self.mod.compute_figures())
+        rendered = self.mod.render_domain_rail_lenses("risk", generated)
+        for _, entries in self.mod.V2_DOMAIN_RAIL_LENSES:
+            for slug, _, label in entries:
+                if slug is not None and slug != "risk":
+                    self.assertIn(
+                        f'<a href="{{{{BASE}}}}/{slug}/">{label}</a>', rendered
+                    )
+        saved = self.mod.V2_DOMAIN_RAIL_LENSES
+        try:
+            self.mod.V2_DOMAIN_RAIL_LENSES = (
+                ("H", (("risk", "enterprise-risk/", "X"),)),
+            )
+            with self.assertRaisesRegex(self.mod.BuildError, "exactly one"):
+                self.mod.render_domain_rail_lenses("ai", generated)
+        finally:
+            self.mod.V2_DOMAIN_RAIL_LENSES = saved
+
+    def test_v2_domain_documents_lede_pluralizes_with_doc_count(self):
+        # 3b152 round-1 QA (gemini F-01): the documents lede's noun is COMPUTED
+        # with the count, like the leadership lede above it, so a one-document
+        # domain renders "1 reference document", never "1 reference documents".
+        figures = self.mod.compute_figures()
+        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
+        generated = self._generated_domains(figures)
+        template_dir = self.mod.template_dir_for(v2)
+        partials = self.mod.load_partials(template_dir)
+        dp = dict(figures["domain_pages"][0])
+        dp["docs"] = dp["docs"][:1]
+        dp["count"] = 1
+        values = self.mod.domain_page_values(dp, v2, generated)
+        self.assertEqual(values["DOMAIN_DOC_NOUN"], "reference document")
+        html, _ = self.mod.render_page(
+            "domain.html", figures, v2, template_dir, partials,
+            extra=values, out_rel=f"{dp['domain']}/index.html",
+        )
+        self.assertIn("1 reference document in this area.", html)
+        self.assertNotIn("1 reference documents", html)
+        many = self.mod.domain_page_values(
+            figures["domain_pages"][0], v2, generated
+        )
+        self.assertEqual(many["DOMAIN_DOC_NOUN"], "reference documents")
+
+    def test_v2_type_lede_pluralizes_with_doc_count(self):
+        # 3b152 round-1 QA (gemini F-01 at class width): the per-type lede is
+        # the same count-plus-hand-typed-plural shape, and the live corpus HAS
+        # one-document types (Checklist and Roadmap), so the v2 type page
+        # rendered "1 Checklist-type reference documents in the library".
+        figures = self.mod.compute_figures()
+        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
+        template_dir = self.mod.template_dir_for(v2)
+        partials = self.mod.load_partials(template_dir)
+        for tp in figures["type_pages"]:
+            values = self.mod.type_page_values(tp, v2)
+            self.assertEqual(
+                values["TYPE_DOC_NOUN"],
+                "reference document" if tp["count"] == 1
+                else "reference documents",
+                f"{tp['type']}: the lede noun must agree with the count",
+            )
+        singular = [tp for tp in figures["type_pages"] if tp["count"] == 1]
+        self.assertTrue(
+            singular,
+            "no one-document type left in the corpus; keep this rendered-form "
+            "check honest by synthesizing one (see the domain test above)",
+        )
+        for tp in singular:
+            html, _ = self.mod.render_page(
+                "type.html", figures, v2, template_dir, partials,
+                extra=self.mod.type_page_values(tp, v2),
+                out_rel=f"types/{tp['slug']}/index.html",
+            )
+            self.assertIn(
+                f"1 {tp['type']}-type reference document in the library", html
+            )
+            self.assertNotIn(
+                f"1 {tp['type']}-type reference documents", html
+            )
+
+    def test_v2_rail_current_page_marker_keeps_aa_contrast(self):
+        # 3b152 round-1 QA (claude F1): the current-page marker mirrors the
+        # rail links at FULL opacity (ink-soft on surface-2 measures 6.66:1
+        # light / 6.79:1 dark, WCAG AA for its 0.9rem text) and is set off by
+        # weight; the 0.65-opacity version measured about 3.0:1 / 3.7:1, below
+        # the 4.5:1 AA minimum for body text.
+        # R2 claude F3: this checks only the marker's own rule, not computed
+        # contrast or opacity introduced by other matching CSS selectors.
+        template = (
+            REPO_ROOT / ".web" / "templates-v2" / "domain.html"
+        ).read_text(encoding="utf-8")
+        rules = [
+            line for line in template.splitlines() if ".lens-here" in line
+        ]
+        self.assertEqual(len(rules), 1, "exactly one .lens-here style rule")
+        self.assertNotIn(
+            "opacity", rules[0], "no translucency on the marker text"
+        )
+        self.assertIn("font-weight: 600", rules[0])
+        self.assertIn("color: var(--ink-soft)", rules[0])
 
     def test_row_urls_go_through_single_helper(self):
         page = {
