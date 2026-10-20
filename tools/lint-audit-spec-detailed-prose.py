@@ -6,8 +6,9 @@ The audit programme's specification
 mechanically-gated section-6 inventory table, a detailed-prose
 enumeration: each gate's ``Gate N is ...`` description paragraph and,
 for the tail-appended gates, a ``Gate N is appended ...`` ordering
-sentence. Gate 35 checks only the inventory table's parity with the
-three runtime surfaces, and gate 39 only counts the table's rows;
+sentence. Gate 35 checks the inventory table's parity with the three
+runtime surfaces and with the section-5 category lists, and gate 39 only
+counts the table's rows;
 neither verifies the per-gate detailed prose's presence, so a shipped
 gate whose prose pair was never written recurs silently (gate 57's pair was absent for
 several PRs until Sweep 77 found it; gate 55's description initially

@@ -346,13 +346,16 @@ is external. Two mechanisms:
      runner, the pre-commit config, and the
      [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md)
      §6 inventory table) are the gated half; the recurring misses are the FREE-PROSE
-     surfaces the parity gates do not check for accuracy: the §5 grouped-list, the per-gate
+     surfaces the parity gates do not check for accuracy: the category choice in the
+     section 5 grouped-list, the per-gate
      §6 narrative when the detection logic changes, the module docstring, and the regression
      fixture (the §6 *detailed-prose* presence pair, the `Gate N is a ...` description plus
      the `Gate N is appended ...` sentence, is now covered by gate 64, so it no longer
      silently slips, though its ACCURACY stays sweep-and-review territory). Gate 35 checks
-     the §6 table, gate 39 counts its rows, and gate 64 checks the §6 detailed-prose
-     presence; none reads the §5 grouped-list or the per-gate narrative, so those slip (Sweep
+     the section 6 table and section 5 grouped-list coverage (each section 6 gate number
+     listed exactly once), gate 39 counts the table's rows, and gate 64 checks the section 6
+     detailed-prose presence; category choice and per-gate narrative accuracy stay review
+     territory, so those can slip (Sweep
      77 found gate 57's detailed-prose pair absent after #468, the seam gate 64 was later
      built to close; Sweep 38 found gate 48's §6 narrative stale after its logic changed in
      #308 and #309). A per-PR delta check Dn also needs its step name added to
@@ -647,7 +650,7 @@ iteratively (decision Q1); the first, the pack-README rule-scope table, shipped 
 
 | Change type | Gated (covering gate) | Free-prose (drift-prone, ungated) | Website (`grclibrary.ai`) |
 | --- | --- | --- | --- |
-| **A. new/changed gate** | four tooling surfaces (gate 35); spec §6 detailed-prose presence (gate 64); gate-count idioms on add/remove (gate 39) | the spec §5 grouped-list; the per-gate §6 narrative when detection logic changes; the module docstring; the regression fixture; a `Dn` step name in `WORKFLOW_DELTA_GATE_STEPS`; CLAUDE.md gate-count prose | NONE (no template shows a gate count or gate list) |
+| **A. new/changed gate** | four tooling surfaces and section 5 grouped-list coverage (each section 6 gate number listed exactly once) (gate 35); spec §6 detailed-prose presence (gate 64); gate-count idioms on add/remove (gate 39) | the spec section 5 grouped-list category choice; the per-gate §6 narrative when detection logic changes; the module docstring; the regression fixture; a `Dn` step name in `WORKFLOW_DELTA_GATE_STEPS`; CLAUDE.md gate-count prose | NONE (no template shows a gate count or gate list) |
 | **B. new/changed pack rule** | GRC source/procedure bodies byte-identical above PROJECT-OVERLAY, plus exact pinned AIQT bytes, scope insertions and generated compatibility (gate 37); the four enumeration surfaces (gate 41: README tree, pack CLAUDE.md, project CLAUDE.md, `rule-provenance.md` register); pack README `Version` bump on a body change (D2 + gate 40) | the pack README "Rule files and their scope" table (the change-impact-map PR-2 (#1107) gates this as gate 74); CLAUDE.md rule-index and count prose; and, on a rule-BODY change, the rule's EXECUTABLE command (`.claude/commands/<name>.md`) and skill (`guardrails/skills/<name>/SKILL.md`), whose procedure and family-count prose can silently lag the rule body (gate 44 checks paired-skill STEP-parity, not the semantic content, the #1615 dual-to-triple gap) | `pack.html` Rules sidenav AND the rule's body `<li>` entry (TWO places); on a rule-COUNT change the three count surfaces (`pack.html` meta-description, `pack.html` body count, `landing.html` pack CTA); on a RENAME, `for-ai.html` named-rule prose when it names that rule |
 | **C. new/changed skill** | the pack-README skills enumeration (gate 41 checks ONE surface for skills, the README skills tree, unlike the four it checks for rules); pack README `Version` bump on a body change (D2 + gate 40); paired-skill step-parity (gate 44, when a paired command exists); verdict-carrier-completeness for a verdict-bearing skill (gate 97, when the skill is enrolled in `tools/skill-verdict-fields.json`) | any skills-scope prose; CLAUDE.md skill cadence and count prose | `pack.html` Skills sidenav AND the skill's body `<li>` entry (TWO places); on a skill-COUNT change the three count surfaces |
 | **D. count change (rules or skills)** | the count idioms (gate 39); the enumeration surfaces carrying the count (gate 41) | any CLAUDE.md "N rules / M skills" summary line | the three website count surfaces: `pack.html` meta-description, `pack.html` body count, `landing.html` pack CTA |

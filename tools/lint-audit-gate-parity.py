@@ -29,6 +29,40 @@ being masked; and each D-numbered delta gate in the PR-time runner is confirmed
 to map to a workflow delta-gate step of the same script, with the D-numbers
 contiguous D1..HIGHEST_DELTA_GATE apart from retired numbers (D6, retired 2026-08-03). See ``verify_exclusion_and_delta_guards``.
 
+It also checks the spec's section 5 "Gate categories" grouped list against
+the section-6 inventory (backlog 3b158): every inventory gate number appears
+exactly once across the section-5 category lists, and those lists name no
+number the inventory lacks. Only the parenthesized list that opens a
+top-level numbered category item counts, ``N. **Category** (gates 12, 21):``
+at column 0; numbers later on that line (a ``(gate 40)`` gloss) or in other
+section-5 paragraphs are prose and are not read. HTML comments and fenced
+blocks in section 5 are ignored. One pass over the whole spec pairs them in
+context, close to CommonMark: a fence opens on up to three spaces then three
+or more backticks or tildes (a backtick opener's info string holds no
+backtick) and closes only on a line of the same character, at least as long,
+with nothing else on it, so a fence line with an info string inside a fence
+is fence text; outside fences and comments, inline code spans (a run of N
+backticks to the next run of exactly N on the line) are blanked before
+``<!--`` is looked for, so a ``<!--`` quoted in a code span or shown in a
+fenced block opens nothing; an open comment ends at the first ``-->`` in
+the raw text, backticks included; and a fence line inside a comment is
+comment text. A fence or comment that never closes before the end of the
+file is a finding at its opening line, and the lists are then not compared,
+since what the block hides is unknown. A forgotten opener that pairs with a
+later block's closer is not itself a finding: placed before section 5 it
+hides the heading (a missing section 5), and placed among the category
+lines it hides the lists after it (missing numbers), but placed after the
+lists or in section 6, for example a stray backtick fence before the real
+section 6 fenced block, it hides only prose and inventory text that this
+check does not read (``parse_spec_inventory`` reads the rows without the
+markup pass), so it is not reported. A section-5 line that starts like a list
+item with ``*`` or ``_`` emphasis (``N. *``, ``N) *``, ``N. _`` or ``- *``,
+indented or not) without that exact one-line list shape is a finding, and so
+is a missing section 5, so a reformatted or wrapped list fails loud instead
+of being skipped; the lists are then not compared either, which would only
+repeat the line's numbers as missing. Which category a gate belongs in stays
+a review judgment. See ``verify_category_coverage``.
+
 Comparison: the spec inventory table is the canonical source of truth.
 The other three surfaces are validated against it. For each row of the
 inventory, this linter confirms that:
@@ -246,6 +280,177 @@ def parse_spec_inventory(path: Path) -> list[tuple[int, int, str, str]]:
             f"{path.relative_to(REPO_ROOT)}: no §6 gate-inventory rows found"
         )
     return rows
+
+
+# Section-5 grouped list (3b158). A line opening with CATEGORY_ITEM_RE is a
+# category item and must match CATEGORY_LIST_RE; only group 1, the leading
+# "(gates ...)" list, is read, so later "(gate N)" glosses stay prose. The item
+# shape is wide (any numbered or bulleted line opening with "*" or "_"
+# emphasis), so a near-miss such as "8) **...**", "- **...**" or "8. __...__"
+# is malformed, not unread.
+CATEGORY_ITEM_RE = re.compile(r"^\s*(?:\d+[.)]|[-*+])\s+[*_]")
+CATEGORY_LIST_RE = re.compile(r"^\d+\. \*\*[^*]+\*\* \(gates? (\d+(?:, \d+)*)\):")
+# CommonMark fence lines: up to three spaces, then a run of three or more
+# backticks or tildes. FENCE_LINE_RE's group 2 is the info string (a backtick
+# opener's may not hold a backtick); a closer has nothing but spaces or tabs
+# after its run.
+FENCE_LINE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+FENCE_CLOSE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})[ \t]*$")
+BACKTICK_RUN_RE = re.compile(r"`+")
+
+
+def _fence_opener(line: str) -> tuple[str, int, str] | None:
+    """(character, run length, info string) if ``line`` opens a fence."""
+    m = FENCE_LINE_RE.match(line)
+    if not m or (m.group(1)[0] == "`" and "`" in m.group(2)):
+        return None
+    return m.group(1)[0], len(m.group(1)), m.group(2)
+
+
+def _mask_code_spans(line: str) -> str:
+    """``line`` with each inline code span (a run of N backticks to the next
+    run of exactly N backticks on the line) blanked to spaces, offsets kept.
+    A run with no such closer is literal text and stays."""
+    pos = 0
+    while m := BACKTICK_RUN_RE.search(line, pos):
+        closer = re.compile(rf"(?<!`){m.group(0)}(?!`)").search(line, m.end())
+        if closer is None:
+            pos = m.end()
+            continue
+        line = line[:m.start()] + " " * (closer.end() - m.start()) + line[closer.end():]
+        pos = closer.end()
+    return line
+
+
+def _scan_markup(lines: list[str]) -> tuple[list[str | None], list[str]]:
+    """One pass over ``lines`` pairing fences and HTML comments in context.
+
+    Returns the text of each line outside comments (None for a fence line or
+    a line inside a fence) and the markup findings, each at the line where the
+    block opens. Fences pair as CommonMark pairs them: a closer is the
+    opener's character, at least the opener's run, and nothing else, so a
+    fence line with an info string inside a fence is fence text. Outside
+    fences and comments, code spans are blanked before "<!--" is looked for,
+    so a "<!--" quoted in a code span opens nothing; an open comment ends at
+    the first "-->" in the raw text, backticks included, as CommonMark ends
+    it. A fence line inside a comment is comment text. A block is a finding
+    only when it never closes before the end of the file. A forgotten opener
+    that pairs with a later block's closer is not reported as such: it hides
+    the text up to that closer, which fails the check only if that text held
+    category lines whose numbers are not listed elsewhere, or the section 5
+    heading."""
+    not_checked = "the category lists are not checked until it is closed"
+    visible: list[str | None] = []
+    findings: list[str] = []
+    fence: tuple[str, int, int] | None = None  # character, run, opening line
+    comment = 0  # opening line of the open comment
+    for lineno, line in enumerate(lines, start=1):
+        if fence is not None:
+            char, run, _ = fence
+            closer = FENCE_CLOSE_RE.match(line)
+            if closer and closer.group(1)[0] == char and len(closer.group(1)) >= run:
+                fence = None
+            visible.append(None)
+            continue
+        if not comment:
+            opener = _fence_opener(line)
+            if opener:
+                fence = (opener[0], opener[1], lineno)
+                visible.append(None)
+                continue
+        kept: list[str] = []
+        pos = 0
+        while True:
+            if not comment:
+                start = _mask_code_spans(line[pos:]).find("<!--")
+                if start == -1:
+                    kept.append(line[pos:])
+                    break
+                kept.append(line[pos:pos + start])
+                comment, pos = lineno, pos + start + 4
+                continue
+            end = line.find("-->", pos)
+            if end == -1:
+                break
+            comment, pos = 0, end + 3
+        visible.append("".join(kept))
+    if fence is not None:
+        findings.append(
+            f"{SPEC_PATH}:{fence[2]}: section-5 categories: unclosed code fence "
+            f"(no later closing fence of its character and at least its "
+            f"length); {not_checked}"
+        )
+    elif comment:
+        findings.append(
+            f"{SPEC_PATH}:{comment}: section-5 categories: unclosed HTML comment "
+            f"('<!--' with no later '-->'); {not_checked}"
+        )
+    return visible, findings
+
+
+def verify_category_coverage(path: Path, expected: set[int]) -> list[str]:
+    """Return findings for the section-5 grouped list against ``expected``,
+    the section-6 inventory numbers: each must be listed exactly once, and no
+    other number may be listed. ``_scan_markup`` reads the whole file first;
+    a comment or fence that never closes is reported at its opening line and
+    the comparison is skipped, because the block hides an unknown part of the
+    file. The comparison then reads the lines the markup pass left
+    outside fences and comments (not the
+    shared ``lint_common.iter_non_code_lines``, whose fence toggle pairs
+    fences differently from the CommonMark pairing checked here). A malformed
+    category line or a missing section 5 is reported without the comparison,
+    which would only repeat its numbers as missing."""
+    lines = path.read_text(encoding="utf-8").split("\n")
+    visible, findings = _scan_markup(lines)
+    if findings:
+        return findings
+    listed: dict[int, list[int]] = {}
+    seen_section_5 = False
+    in_section_5 = False
+    for lineno, line in enumerate(visible, start=1):
+        if line is None:
+            continue
+        if line.startswith("## "):
+            in_section_5 = line.startswith("## 5.")
+            seen_section_5 = seen_section_5 or in_section_5
+            continue
+        if not in_section_5 or not CATEGORY_ITEM_RE.match(line):
+            continue
+        m = CATEGORY_LIST_RE.match(line)
+        if not m:
+            findings.append(
+                f"{SPEC_PATH}:{lineno}: section-5 categories: malformed category "
+                f"line (expected 'N. **Category** (gates 1, 2, 3):' at its start, "
+                f"at column 0, with the whole list on one line); the lists are "
+                f"not compared until it is fixed"
+            )
+            continue
+        for token in m.group(1).split(", "):
+            listed.setdefault(int(token), []).append(lineno)
+    if not seen_section_5:
+        findings.append(
+            f"{SPEC_PATH}: section-5 categories: no '## 5.' section found"
+        )
+    if findings:
+        return findings
+    for number in sorted(expected | set(listed)):
+        lines = listed.get(number, [])
+        if number not in expected:
+            findings.append(
+                f"{SPEC_PATH}:{lines[0]}: section-5 categories: gate {number} "
+                f"not in the section-6 inventory (listed at lines {lines})"
+            )
+        elif not lines:
+            findings.append(
+                f"{SPEC_PATH}: section-5 categories: gate {number} missing; "
+                f"add it to exactly one category list"
+            )
+        elif len(lines) > 1:
+            findings.append(
+                f"{SPEC_PATH}:{lines[0]}: section-5 categories: gate {number} "
+                f"listed {len(lines)} times (lines {lines}); list it exactly once"
+            )
+    return findings
 
 
 def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
@@ -580,6 +785,15 @@ def main(argv: list[str]) -> int:
 
     findings: list[str] = []
 
+    # Section-5 grouped-list coverage (3b158), against the section-6 numbers.
+    try:
+        findings.extend(verify_category_coverage(
+            spec_path, {gate_num for (_, gate_num, _, _) in spec}
+        ))
+    except (OSError, UnicodeError) as exc:
+        print(f"ERROR: section-5 categories: {exc}", file=sys.stderr)
+        return 2
+
     # Count parity. If any surface has a different number of gates, the
     # comparison cannot proceed row-by-row; report the count drift and
     # stop here. The maintainer fixes the missing entries and re-runs.
@@ -706,7 +920,7 @@ def main(argv: list[str]) -> int:
 
     print(
         f"OK: gate-name parity confirmed for {len(spec)} gates across "
-        f"all four audit-programme surfaces."
+        f"all four audit-programme surfaces, each listed once in section 5."
     )
     return 0
 
