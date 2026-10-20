@@ -725,7 +725,7 @@ The Resilience Owner needs the business continuity framework and policy, the dis
 - [Departmental Continuity Plan Template](../resilience/template-departmental-continuity-plan.md) (maturity: Mature)
 - [Lessons Learned Template](../resilience/template-lessons-learned.md) (maturity: Baseline)
 - [Recovery Runbook Template](../resilience/template-recovery-runbook.md) (maturity: Baseline)
-- [Tabletop Exercise Template](../resilience/template-tabletop-exercise.md) (maturity: Baseline)
+- [Tabletop Exercise Template](../resilience/template-tabletop-exercise.md) (maturity: Mature)
 
 ---
 
