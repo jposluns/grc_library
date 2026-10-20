@@ -25822,7 +25822,6 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     def test_general_current_forms_are_the_register_text(self):
         self.assertEqual(set(self.mod.GENERAL_CURRENT_FORMS), {
             "OECD AI Principles", "OECD Privacy Guidelines", "WCO SAFE Framework", "ASHRAE 135",
-            "NIST SP 800-207", "NIST SP 800-185",
         })
         for row in self.mod.GENERAL_CURRENT_FORMS:
             current = self._register_current(row)
