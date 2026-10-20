@@ -2,8 +2,8 @@
 
 **Document Title:** Joint Controller Arrangement Template\
 **Document Type:** Template\
-**Version:** 1.0.13\
-**Date:** 2026-09-30\
+**Version:** 1.0.14\
+**Date:** 2026-10-20\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md)\
@@ -101,7 +101,7 @@ This section is the heart of the arrangement under Article 26(1): the parties **
 | Right to restriction | Article 18 | <A / B / both / lead and coordinate> | |
 | Right to data portability | Article 20 | <A / B / both / lead and coordinate> | Data origin determines who exports |
 | Right to object | Article 21 | <A / B / both / lead and coordinate> | Includes automated direct marketing |
-| Rights re. automated decision-making | Article 22 | <A / B / both / lead and coordinate> | Where AI is involved, see also [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) |
+| Rights re. automated decision-making | Article 22 (UK GDPR: Articles 22A to 22D) | <A / B / both / lead and coordinate> | Under UK GDPR, Article 22 is replaced by Articles 22A to 22D; for a significant decision based solely on automated processing, the Article 22C(2) safeguards apply: measures that "provide the data subject with information about" such decisions and enable the data subject to "make representations about", "obtain human intervention on the part of the controller in relation to" and "contest" such decisions. Where AI is involved, see also [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) |
 | Processor engagement and Article 28 contracts | Article 28 | Per party (each party contracts with its own processors) | Where a processor is shared, the arrangement names a single contracting party with the other as named beneficiary |
 | Record of Processing Activities | Article 30 | Each party maintains its own | Both ROPAs cross-reference this arrangement |
 | Cooperation with supervisory authority | Article 31 | Both (each cooperates with its lead SA and with any SA requesting information about the joint processing) | |
