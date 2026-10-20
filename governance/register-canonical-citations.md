@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.113\
+**Version:** 1.6.0\
 **Date:** 2026-10-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -115,6 +115,58 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | NIST SP 800-185 | (1.0) | 2016-12 | SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash and ParallelHash (NIST announced a revision in 2025; the 2016 final remains current) | - | https://csrc.nist.gov/pubs/sp/800/185/final | 2026-09-25 |
 | NIST SP 800-84 | 2006 | 2006-09 | Guide to Test, Training, and Exercise Programs for IT Plans and Capabilities | - | https://csrc.nist.gov/pubs/sp/800/84/final | 2026-10-20 |
 | NIST SP 800-184 | 2016 | 2016-12 | Guide for Cybersecurity Event Recovery | - | https://csrc.nist.gov/pubs/sp/800/184/final | 2026-10-20 |
+| NIST SP 800-30 | Rev. 1 | 2012-09 | Guide for Conducting Risk Assessments | - | - | needs-reconfirm |
+| NIST SP 800-37 | Rev. 2 | 2018-12 | Risk Management Framework for Information Systems and Organizations | Rev. 1 | - | needs-reconfirm |
+| NIST SP 800-38D | 2007 | 2007-11 | Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC | - | - | needs-reconfirm |
+| NIST SP 800-38F | 2012 | 2012-12 | Recommendation for Block Cipher Modes of Operation: Methods for Key Wrapping | - | - | needs-reconfirm |
+| NIST SP 800-39 | 2011 | 2011-03 | Managing Information Security Risk: Organization, Mission, and Information System View | - | - | needs-reconfirm |
+| NIST SP 800-40 | Rev. 4 | 2022-04 | Guide to Enterprise Patch Management Planning | Rev. 3, Version 2.0, 2002 | - | needs-reconfirm |
+| NIST SP 800-41 | Rev. 1 | 2009-09 | Guidelines on Firewalls and Firewall Policy | - | - | needs-reconfirm |
+| NIST SP 800-46 | Rev. 2 | 2016-07 | Guide to Enterprise Telework, Remote Access, and Bring Your Own Device (BYOD) Security | Rev. 1 | - | needs-reconfirm |
+| NIST SP 800-47 | Rev. 1 | 2021-07 | Managing the Security of Information Exchanges | - | - | needs-reconfirm |
+| NIST SP 800-50 | Rev. 1 | 2024-09 | Building a Cybersecurity and Privacy Learning Program (supersedes SP 800-50 of October 2003 and SP 800-16) | 2003 | - | needs-reconfirm |
+| NIST SP 800-52 | Rev. 2 | 2019-08 | Guidelines for the Selection, Configuration, and Use of Transport Layer Security (TLS) Implementations | Rev. 1, 2005 | - | needs-reconfirm |
+| NIST SP 800-55 Vol. 1 | 2024 | 2024-12 | Measurement Guide for Information Security: Volume 1, Identifying and Selecting Measures (with Vol. 2, supersedes SP 800-55 Rev. 1 of July 2008) | - | - | needs-reconfirm |
+| NIST SP 800-55 Vol. 2 | 2024 | 2024-12 | Measurement Guide for Information Security: Volume 2, Developing an Information Security Measurement Program (with Vol. 1, supersedes SP 800-55 Rev. 1 of July 2008) | - | - | needs-reconfirm |
+| NIST SP 800-57 Part 1 | Rev. 5 | 2020-05 | Recommendation for Key Management, Part 1: General | Rev. 4, Rev. 3, Rev. 2, Rev. 1, 2005 | - | needs-reconfirm |
+| NIST SP 800-57 Part 2 | Rev. 1 | 2019-05 | Recommendation for Key Management, Part 2: Best Practices for Key Management Organizations | 2005 | - | needs-reconfirm |
+| NIST SP 800-57 Part 3 | Rev. 1 | 2015-01 | Recommendation for Key Management, Part 3: Application-Specific Key Management Guidance | - | - | needs-reconfirm |
+| NIST SP 800-63 | Rev. 4 | 2025-07 | Digital Identity Guidelines (base volume of the SP 800-63 Rev. 4 family; publisher identifier SP 800-63-4) | Rev. 3, Rev. 2, Rev. 1 | - | needs-reconfirm |
+| NIST SP 800-63A | Rev. 4 | 2025-07 | Digital Identity Guidelines: Identity Proofing and Enrollment (part of SP 800-63 Rev. 4 family; publisher identifier SP 800-63A-4) | 2017 | - | needs-reconfirm |
+| NIST SP 800-66 | Rev. 2 | 2024-02 | Implementing the Health Insurance Portability and Accountability Act (HIPAA) Security Rule | Rev. 1 | - | needs-reconfirm |
+| NIST SP 800-83 | Rev. 1 | 2013-07 | Guide to Malware Incident Prevention and Handling for Desktops and Laptops | - | - | needs-reconfirm |
+| NIST SP 800-86 | 2006 | 2006-08 | Guide to Integrating Forensic Techniques into Incident Response | - | - | needs-reconfirm |
+| NIST SP 800-90B | 2018 | 2018-01 | Recommendation for the Entropy Sources Used for Random Bit Generation | - | - | needs-reconfirm |
+| NIST SP 800-92 | 2006 | 2006-09 | Guide to Computer Security Log Management | - | - | needs-reconfirm |
+| NIST SP 800-94 | 2007 | 2007-02 | Guide to Intrusion Detection and Prevention Systems (IDPS) | - | - | needs-reconfirm |
+| NIST SP 800-95 | 2007 | 2007-08 | Guide to Secure Web Services | - | - | needs-reconfirm |
+| NIST SP 800-111 | 2007 | 2007-11 | Guide to Storage Encryption Technologies for End User Devices | - | - | needs-reconfirm |
+| NIST SP 800-115 | 2008 | 2008-09 | Technical Guide to Information Security Testing and Assessment | - | - | needs-reconfirm |
+| NIST SP 800-116 | Rev. 1 | 2018-06 | Guidelines for the Use of PIV Credentials in Facility Access | 2008 | - | needs-reconfirm |
+| NIST SP 800-124 | Rev. 2 | 2023-05 | Guidelines for Managing the Security of Mobile Devices in the Enterprise | Rev. 1 | - | needs-reconfirm |
+| NIST SP 800-128 | 2011 | 2011-08 | Guide for Security-Focused Configuration Management of Information Systems (includes updates as of 2019-10-10) | - | - | needs-reconfirm |
+| NIST SP 800-130 | 2013 | 2013-08 | A Framework for Designing Cryptographic Key Management Systems | - | - | needs-reconfirm |
+| NIST SP 800-131A | Rev. 2 | 2019-03 | Transitioning the Use of Cryptographic Algorithms and Key Lengths | Rev. 1, 2011 | - | needs-reconfirm |
+| NIST SP 800-137 | 2011 | 2011-09 | Information Security Continuous Monitoring (ISCM) for Federal Information Systems and Organizations | - | - | needs-reconfirm |
+| NIST SP 800-137A | 2020 | 2020-05 | Assessing Information Security Continuous Monitoring (ISCM) Programs | - | - | needs-reconfirm |
+| NIST SP 800-150 | 2016 | 2016-10 | Guide to Cyber Threat Information Sharing | - | - | needs-reconfirm |
+| NIST SP 800-152 | 2015 | 2015-10 | A Profile for U.S. Federal Cryptographic Key Management Systems (CKMS) | - | - | needs-reconfirm |
+| NIST SP 800-160 Vol. 1 | Rev. 1 | 2022-11 | Engineering Trustworthy Secure Systems | 2016 | - | needs-reconfirm |
+| NIST SP 800-160 Vol. 2 | Rev. 1 | 2021-12 | Developing Cyber-Resilient Systems: A Systems Security Engineering Approach | - | - | needs-reconfirm |
+| NIST SP 800-163 | Rev. 1 | 2019-04 | Vetting the Security of Mobile Applications | - | - | needs-reconfirm |
+| NIST SP 800-171 | Rev. 3 | 2024 | Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations (Current version from the held OSCAL catalog, which records framework-version-identifier `SP_800_171_3_0_0` and describes itself as the "OSCAL representation of the NIST SP 800-171 Rev 3"; the year from the held NIST SP 800-172 Rev. 3, which cites "NIST SP 800-171r3" as published in 2024; confirm the month upstream) | Rev. 2, Rev. 1 | - | needs-reconfirm |
+| NIST SP 800-177 | Rev. 1 | 2019-02 | Trustworthy Email | - | - | needs-reconfirm |
+| NIST SP 800-181 | Rev. 1 | 2020-11 | Workforce Framework for Cybersecurity (NICE Framework) | 2017 | - | needs-reconfirm |
+| NIST SP 800-188 | 2023 | 2023-09 | De-Identifying Government Datasets: Techniques and Governance | - | - | needs-reconfirm |
+| NIST SP 800-190 | 2017 | 2017-09 | Application Container Security Guide | - | - | needs-reconfirm |
+| NIST SP 800-204 | 2019 | 2019-08 | Security Strategies for Microservices-based Application Systems | - | - | needs-reconfirm |
+| NIST SP 800-204D | 2024 | 2024-02 | Strategies for the Integration of Software Supply Chain Security in DevSecOps CI/CD Pipelines | - | - | needs-reconfirm |
+| NIST SP 800-207A | 2023 | 2023-09 | A Zero Trust Architecture Model for Access Control in Cloud-Native Applications in Multi-Cloud Environments | - | - | needs-reconfirm |
+| NIST SP 800-210 | 2020 | 2020-07 | General Access Control Guidance for Cloud Systems | - | - | needs-reconfirm |
+| NIST SP 800-215 | 2022 | 2022-11 | Guide to a Secure Enterprise Network Landscape | - | - | needs-reconfirm |
+| NIST SP 800-221 | 2023 | 2023-11 | Enterprise Impact of Information and Communications Technology Risk | - | - | needs-reconfirm |
+| NIST SP 800-226 | 2025 | 2025-03 | Guidelines for Evaluating Differential Privacy Guarantees | - | - | needs-reconfirm |
+| NIST SP 1270 | 2022 | 2022-03 | Towards a Standard for Identifying and Managing Bias in Artificial Intelligence | - | - | needs-reconfirm |
 
 ## IEEE standards
 
