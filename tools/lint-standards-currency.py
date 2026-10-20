@@ -60,6 +60,9 @@ DEFAULT_PATHS = [
     # Domain run splatted from lint_common (scan-scope parity gate
     # forbids hardcoding the run).
     *AUDITED_DOMAIN_DIRS,
+    # A scan root, not an exemption (3b418): #1367 added it so the default
+    # run keeps checking the standards the guardrails/ pack cites after the
+    # pack left dev-security/ for the root.
     "guardrails",
 ]
 

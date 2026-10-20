@@ -48,9 +48,12 @@ EXEMPT_FROM_INDEX = {
 }
 
 # Directories whose contents are exempt from the structural-membership rule.
-EXEMPT_DIRECTORY_PREFIXES = (
-    "guardrails/",
-)
+# Intentionally empty: the engine walks only the DOMAINS directories and this
+# wrapper has no explicit-path mode, so a prefix outside those directories can
+# never match. 3b418 removed the last entry, `guardrails/`, which went dead
+# when the pack moved from `dev-security/claude-rules/` to the root (#1367).
+# Any future entry must name a path under a DOMAINS directory.
+EXEMPT_DIRECTORY_PREFIXES: tuple[str, ...] = ()
 
 
 def _engine():

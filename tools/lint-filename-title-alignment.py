@@ -35,6 +35,8 @@ PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "to
 
 
 EXEMPT_DIRECTORY_PREFIXES: tuple[str, ...] = (
+    # Live (3b418): an explicit path such as `guardrails` or `.` reaches the
+    # root guardrails/ pack, which is not corpus content, so it stays exempt.
     "guardrails/",
     "tools/",
     "docs/",

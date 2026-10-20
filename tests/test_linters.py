@@ -14889,6 +14889,42 @@ class StructureLinterTests(LinterTestCase):
             import shutil
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
+    def test_walk_never_reaches_guardrails(self) -> None:
+        # 3b418: EXEMPT_DIRECTORY_PREFIXES lost its last entry, "guardrails/", because
+        # the engine walks only the DOMAINS directories and the wrapper takes no
+        # explicit paths. Pin that scope on the live tree (which holds
+        # guardrails/*.md) and on a synthetic tree, so a non-domain directory
+        # joining DOMAINS fails here instead of silently needing the entry.
+        mod = load_linter_module("tools/lint-structure.py", "_lint_structure_3b418")
+        eng = mod._engine()
+
+        def walk(root: Path) -> list[str]:
+            return sorted(
+                f.relative_to(root).as_posix()
+                for d in mod.DOMAINS
+                for f in eng.iter_domain_files(
+                    d, root, mod.EXEMPT_FROM_INDEX, mod.EXEMPT_DIRECTORY_PREFIXES
+                )
+            )
+
+        self.assertTrue(any((REPO_ROOT / "guardrails").rglob("*.md")),
+                        "precondition: guardrails/ holds markdown the walk could reach")
+        scanned = walk(REPO_ROOT)
+        self.assertTrue(scanned)
+        self.assertEqual([r for r in scanned if r.startswith("guardrails/")], [])
+        root = Path(tempfile.mkdtemp(prefix="structure-scope-")).resolve()
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        for rel in ("governance/a.md", "governance/README.md", "guardrails/b.md",
+                    "guardrails/governance/c.md", "docs/d.md", "tools/e.md"):
+            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (root / rel).write_text("x\n", encoding="utf-8")
+        self.assertEqual(walk(root), ["governance/a.md"])
+        result = run_linter("tools/lint-structure.py", "guardrails")
+        self.assertEqual(result.returncode, 2, "the wrapper must refuse explicit paths")
+        unreachable = [p for p in mod.EXEMPT_DIRECTORY_PREFIXES
+                       if not any(p.startswith(f"{d}/") for d in mod.DOMAINS)]
+        self.assertEqual(unreachable, [], "prefixes the per-domain walk can never match")
+
 
 class OrphanDocumentsTests(LinterTestCase):
     """tools/lint-orphan-documents.py
