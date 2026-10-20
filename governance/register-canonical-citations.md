@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.112\
+**Version:** 1.5.113\
 **Date:** 2026-10-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -70,6 +70,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | ISO/IEC 27031 | 2025 | 2025-05 | Cybersecurity, information and communication technology readiness for business continuity (Second edition; supersedes the 2011 first edition) | 2011 | https://www.iso.org/standard/27031 | verified 2026-08-16 |
 | ISO/IEC 27033-1 | 2015 | 2015 | Network security - Part 1: Overview and concepts (the roadmap part of the multi-part ISO/IEC 27033 series on network security architecture and segmentation; confirmed unchanged 2021) | 2009 | https://www.iso.org/standard/63461.html | verified 2026-06-30 |
 | ISO/IEC 27034 | Part 1:2011 (+ Cor 1:2014), Part 2:2015, Part 3:2018, Part 5:2017 (+ TS 27034-5-1:2018), Part 6:2016, Part 7:2018 (no Part 4 published) | 2011 to 2018 | Application security (multi-part series on secure SDLC governance and assurance) | - | https://www.iso.org/standard/44378.html | verified 2026-08-16 |
+| ISO/IEC 27035-2 | 2023 | 2023-02 | Information security incident management - Part 2: Guidelines to plan and prepare for incident response (Edition 2; cancels and replaces the 2016 first edition) | 2016 | https://www.iso.org/standard/78974.html | verified 2026-10-20 |
 | ISO/IEC 27036-2 | 2022 | 2022-06 | Cybersecurity - Supplier relationships - Part 2: Requirements (Edition 2; cancels and replaces the 2014 first edition) | 2014 | https://www.iso.org/standard/82060.html | verified 2026-06-30 |
 | ISO/IEC 27036-3 | 2023 | 2023-06 | Cybersecurity - Supplier relationships - Part 3: Guidelines for hardware, software, and services supply chain security | 2013 | https://www.iso.org/standard/82890.html | verified 2026-07-09 |
 | ISO/IEC 27036-4 | 2016 | 2016-10 | Information security for supplier relationships - Part 4: Guidelines for security of cloud services | - | https://www.iso.org/standard/59689.html | verified 2026-07-09 |
@@ -112,6 +113,8 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | NIST SP 800-82 | Rev. 3 | 2023-09 | Guide to Operational Technology (OT) Security (formerly Guide to Industrial Control Systems Security) | Rev. 2, Rev. 1 | https://csrc.nist.gov/pubs/sp/800/82/r3/final | 2026-06-30 |
 | NIST FIPS 198-1 | 198-1 | 2008-07 | The Keyed-Hash Message Authentication Code (HMAC) (NIST has proposed withdrawing it in favour of SP 800-224, which is an initial public draft; FIPS 198-1 remains the approved standard) | FIPS 198 | https://csrc.nist.gov/pubs/fips/198-1/final | 2026-09-25 |
 | NIST SP 800-185 | (1.0) | 2016-12 | SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash and ParallelHash (NIST announced a revision in 2025; the 2016 final remains current) | - | https://csrc.nist.gov/pubs/sp/800/185/final | 2026-09-25 |
+| NIST SP 800-84 | 2006 | 2006-09 | Guide to Test, Training, and Exercise Programs for IT Plans and Capabilities | - | https://csrc.nist.gov/pubs/sp/800/84/final | 2026-10-20 |
+| NIST SP 800-184 | 2016 | 2016-12 | Guide for Cybersecurity Event Recovery | - | https://csrc.nist.gov/pubs/sp/800/184/final | 2026-10-20 |
 
 ## IEEE standards
 
