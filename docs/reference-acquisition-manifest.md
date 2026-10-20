@@ -754,7 +754,7 @@ without the private reference sibling).
 | EU Data Act, Regulation (EU) 2023/2854 |  | EU |  | FREE |
 | EU Data Governance Act (DGA), Regulation (EU) 2022/868 |  | EU |  | FREE |
 | EU Digital Markets Act (DMA), Regulation (EU) 2022/1925 |  | EU |  | FREE |
-| EU Digital Omnibus on AI: Proposal COM(2025) 836 to amend Regulations (EU) 2024/1689 and (EU) 2018/1139 (SUPERSEDED, now enacted as Regulation (EU) 2026/1744) |  | EU |  | FREE |
+| EU Digital Omnibus on AI: Proposal COM(2025) 836 to amend Regulations (EU) 2024/1689 and (EU) 2018/1139 (SUPERSEDED, enacted as Regulation (EU) 2026/1744) |  | EU |  | FREE |
 | EU Digital Omnibus on AI: Regulation (EU) 2026/1744 amending Regulations (EU) 2024/1689, (EU) 2018/1139 and (EU) 2023/1230 (IN FORCE) |  | EU |  | FREE |
 | EU Digital Services Act (DSA), Regulation (EU) 2022/2065 |  | EU |  | FREE |
 | EU DMA Commission Implementing Regulation (EU) 2023/814 (detailed arrangements for the conduct of certain proceedings) | Commission Implementing Regulation (EU) 2023/814 of 14 April 2023 | EU |  | FREE |
@@ -855,7 +855,7 @@ without the private reference sibling).
 | Nova Scotia Personal Health Information Act (SNS 2010, c. 41) | SNS 2010 c. 41, consolidated | Canada (Nova Scotia) |  | FREE |
 | Nunavut Access to Information and Protection of Privacy Act (C.S.Nu., c. A-20), official consolidation | Official consolidation date May 31, 2024 (listed as current consolidated law) | Canada |  | FREE |
 | Oman Personal Data Protection Law, Royal Decree 6/2022 (EN) |  | Oman |  | FREE |
-| Ontario Enhancing Digital Security and Trust Act, 2024 (Bill 194, S.O. 2024, c. 24) |  | Canada |  | FREE |
+| Ontario Enhancing Digital Security and Trust Act, 2024 (Schedule 1 to Bill 194, the Strengthening Cyber Security and Building Trust in the Public Sector Act, 2024; Bill 194 is S.O. 2024, c. 24) |  | Canada |  | FREE |
 | Ontario Freedom of Information and Protection of Privacy Act (R.S.O. 1990, c. F.31), consolidation | e-Laws consolidation period from September 15, 2026; last amendment 2026, c. 2, Sched. 7 | Canada |  | FREE |
 | Ontario Municipal Freedom of Information and Protection of Privacy Act (R.S.O. 1990, c. M.56), consolidation | e-Laws consolidation period from July 1, 2026; last amendment 2026, c. 2, Sched. 11 | Canada |  | FREE |
 | Ontario Order in Council 361/2025 (commencement of the Enhancing Digital Security and Trust Act, 2024) | O.C. 361/2025, approved and ordered 2025-01-28 | Canada |  | FREE |
