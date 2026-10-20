@@ -22778,7 +22778,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run_all_audits.sh FIXED F 5402b906a88e051de7a9c58cab674f360b3389046e637ba992657adb7a814f3e
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
-        session_facts.py PASSIVE F 950f2a57ed9dcf6403ada633da21d94f41fd8c03beaf7990f6e2c3a33cdd2197
+        session_facts.py PASSIVE F 0d4dcb545fcba5b1533d4aff1c3fedad69ca97d6e07f045b9976aee0ce07247a
         skill-verdict-fields.json DATA F fba56d7e70141647fcad92824591d65a0208c6e6b623caaff82bfcb62bbd06aa
         statusline-next-pr.py NO_FS F 81db4327eb56260c362e61edbae2a7c7c2fd426df579fe21d57638cfd7b55223
         suggest-listing-surfaces.py SKIP F 69a5d2c045bb2e66291c5892efe5b5bfa5777649964e2f9e8fe636430e262949

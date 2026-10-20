@@ -17,7 +17,7 @@ row in the start minute with nonzero start seconds makes the count UNKNOWN
 with a warning because its position before or after the start is unknown.
 With a known session start, a minute-form row in a stale heartbeat's minute
 also makes the count UNKNOWN with a warning regardless of heartbeat seconds,
-because the minute's later seconds lie after the heartbeat.
+because part of that minute lies after the heartbeat.
 Absent logs are distinguished from unreadable logs.
 After field ambiguity and release checks, all three usable fields must occur in
 Active-session, Status, Last-heartbeat-UTC order or every metric is UNKNOWN;

@@ -1019,8 +1019,9 @@ hook['main']()
         clock = (2026, 10, 8, 14, 30, 20)
         proc = self.fixed_cli(clock)
         self.assertEqual(proc.returncode, 0, proc.stderr)
-        for output, count in ((self.fixed_consumers(clock), 2), (proc.stdout, 1)):
-            with self.subTest(consumers=count):
+        for consumer, output, count in (("snapshot and hook", self.fixed_consumers(clock), 2),
+                                        ("snapshot CLI", proc.stdout, 1)):
+            with self.subTest(consumer=consumer):
                 self.assertEqual(output.count("compactions this session: UNKNOWN"), count)
                 self.assertEqual(output.count(
                     "a minute-form compaction row in the minute of the last "
