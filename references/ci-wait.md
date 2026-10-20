@@ -28,6 +28,10 @@ absent from the tool list, so the PR mechanism is the `gh` CLI), there is no
 `subscribe_pr_activity`. The `/orch` resume protocol and lab_infra's 2026-10-02
 12:33Z note report that the project's fine-grained token cannot read the Checks API;
 the project therefore does not use `gh pr checks` (including its watch flag).
+Read point-in-time Actions workflow state with [tools/ci-status.sh](../tools/ci-status.sh) `--repo jposluns/grc_library --pr <N>`. It requires Repository quality checks and PR attribution, not the individual Lint markdown corpus job, and every other current run must conclude success. Missing required runs mean pending unless failure or uncertainty requires not-green. Selection, retry ambiguity, diagnostic markers and exit codes are specified in [tools/README.md](../tools/README.md#operator-tools-not-gates). The reader re-reads the PR head to detect movement; merge-when-green.py remains the merge gate.
+
+For a point-in-time Actions-only probe, use `tools/ci-status.sh --repo jposluns/grc_library --pr <N>` (exit 3 means pending), bounded by the supervisor in this reference. This reader has no `--wait` mode; keep the prescribed bounded wait and cadence. The reader does not change merge-when-green.py's token requirements or configured Actions fallback.
+
 Read the Actions RUNS list for the PR's head SHA
 (`actions/runs?head_sha=<SHA>`). Two failure modes are
 FORBIDDEN: (a) bare `sleep 60 && echo "check status"` fallback timers, which pair with a
@@ -145,8 +149,11 @@ the same supervisor, setting `timeout=60` and `command` to
 un-piped, preserving its exit status. Never hand-roll a wait on unverified flags or
 leave it unbounded or silent. A foreground-only worker executes the same bounded
 command synchronously; the background-task machinery applies only where permitted.
-lab_infra's fleet `ci-status.sh --wait` will REPLACE this loop when it ships; until
-then the loop above is the prescribed form (grc has no `ci-status.sh`).
+For the separate point-in-time probe, the reader form governs: retain that supervisor
+and `timeout=60`, but replace the raw API `command` above with
+`'import subprocess, sys; sys.exit(subprocess.call(["tools/ci-status.sh", "--repo", "jposluns/grc_library", "--pr", "<N>"]))'`.
+grc's `tools/ci-status.sh` is a point-in-time reader without `--wait`; until
+lab_infra's fleet `--wait` ships, the loop above is the prescribed form.
 
 **Background-task check SOP.** The same 60-second
 cadence governs EVERY background task (a subagent, a background command, an external
