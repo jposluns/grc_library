@@ -22590,7 +22590,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         audit-cross-repo-references.py OWN F f2eeb637b2a28b3d8995fe57609c231e1845dc139b4d8aa5f917433833abd83d
         audit-gate-blindspots.py OWN F 7dbd907ece2720fce7b9fa8dfdac25bf37d94a2096e2aaba00dba10b3ac3f53b
         audit-gate-mutation.py OWN F db2e8a4e3255dfff96dc9a0f744a58508c1b88e689bea0af28fdc33062fb5716
-        audit-held-branch-expiry.py NO_FS F 062a882c813adbd5c4bb2bf56e4fff298fcf7418fb8a977ee89cb6269543ce33
+        audit-held-branch-expiry.py NO_FS F 3255ff7873ca44e429b60011d733b90f6a65434f816a55f3f1be5a53f7a8d652
         audit-inbox-drops.py SKIP F a931ec3bf370c0e755637bcb2ff3238ea9e5337761de96a712b90027588a46bc
         audit-matrix-semantic-fit.py ROOT F cbceed5cdc02aaa69975107ef39ca7a4341364347126772d64b67b5d7216d6ed
         audit-provision-siblings.py ROOT F f170396d06f2c71accad212a8c7c8102b97f9b656084e89a6cda1f2a5f42448d
@@ -56196,6 +56196,74 @@ print(json.dumps(dict(events=events, codes=codes, out=out.getvalue(), err=err.ge
                 else:
                     self.assertIn("'present' expiry=", result.stdout)
                     self.assertIn("cannot encode report output", result.stderr)
+
+    def test_closed_output_pipe_exits_2(self):
+        self.init_repo()
+        store = self.root / ".working"
+        store.mkdir()
+        (store / "held-branches.txt").write_text("present # 2026-10-22\n", encoding="utf-8")
+        env = dict(self.fixture_git_environment(), CLAUDE_PROJECT_DIR=str(self.root),
+                   GRC_STORE=str(store))
+        # The reader is gone before the report starts, so every write fails.
+        reader, writer = os.pipe()
+        os.close(reader)
+        try:
+            result = subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tools/audit-held-branch-expiry.py"),
+                 "--today", "2026-10-12"],
+                env=env, stdout=writer, stderr=subprocess.PIPE, encoding="utf-8",
+                timeout=5, check=False)
+        finally:
+            os.close(writer)
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertEqual(len(result.stderr.splitlines()), 1, result.stderr)
+        self.assertTrue(result.stderr.startswith(
+            "audit-held-branch-expiry: cannot write report output"), result.stderr)
+
+    def test_closed_fd_1_keeps_report_exit_code(self):
+        self.init_repo()
+        store = self.root / ".working"
+        store.mkdir()
+        env = dict(self.fixture_git_environment(), CLAUDE_PROJECT_DIR=str(self.root),
+                   GRC_STORE=str(store))
+        for expiry, expected in (("2026-10-22", 0), ("2026-10-01", 1)):
+            with self.subTest(expiry=expiry):
+                (store / "held-branches.txt").write_text(
+                    f"present # {expiry}\n", encoding="utf-8")
+                # fd 1 is closed before Python starts, so sys.stdout is None.
+                result = subprocess.run(
+                    [sys.executable, str(REPO_ROOT / "tools/audit-held-branch-expiry.py"),
+                     "--today", "2026-10-12"],
+                    env=env, stderr=subprocess.PIPE, encoding="utf-8",
+                    preexec_fn=lambda: os.close(1), timeout=5, check=False)
+                self.assertEqual(result.returncode, expected, result.stderr)
+                self.assertEqual(result.stderr, "")
+
+    def test_encoding_failure_with_closed_pipe_exits_2(self):
+        commit = self.init_repo()
+        self.git("update-ref", "refs/heads/caf\u00e9", commit)
+        store = self.root / ".working"
+        store.mkdir()
+        (store / "held-branches.txt").write_text(
+            "present # 2026-10-22\ncaf\u00e9 # 2026-10-22\n", encoding="utf-8")
+        env = dict(self.fixture_git_environment(), CLAUDE_PROJECT_DIR=str(self.root),
+                   GRC_STORE=str(store), LC_ALL="C", PYTHONUTF8="0",
+                   PYTHONCOERCECLOCALE="0", PYTHONIOENCODING="ascii:strict")
+        # The reader is gone, so the rows buffered before the encode error cannot be sent.
+        reader, writer = os.pipe()
+        os.close(reader)
+        try:
+            result = subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tools/audit-held-branch-expiry.py"),
+                 "--today", "2026-10-12"],
+                env=env, stdout=writer, stderr=subprocess.PIPE, encoding="ascii",
+                timeout=5, check=False)
+        finally:
+            os.close(writer)
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertEqual(len(result.stderr.splitlines()), 1, result.stderr)
+        self.assertTrue(result.stderr.startswith(
+            "audit-held-branch-expiry: cannot encode report output"), result.stderr)
 
 
 class JoinUnderContainmentTests(unittest.TestCase):

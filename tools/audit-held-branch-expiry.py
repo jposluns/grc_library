@@ -47,7 +47,7 @@ missing file); LOCAL describes the clean listing, subject to the limits below.
 Exit 0 says nothing about branches that no entry names.
 Exit 1: an entry is lapsed, due, malformed or GONE.
 Exit 2: the file, the store or git could not be read, presence is UNKNOWN,
-report output could not be encoded, or an argument is invalid.
+report output could not be encoded or written, or an argument is invalid.
 Expiry and presence are independent labelled fields. --quiet keeps entries
 with expiry other than OK or presence other than LOCAL. Its header prints only
 with rows or differing dates. The final summary counts all entries, including
@@ -73,6 +73,7 @@ a whole ref does not imply every possible name can be represented as a hold.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import datetime as dt
 import os
 import re
@@ -308,6 +309,19 @@ def self_test() -> int:
     return 0 if all(checks) else 1
 
 
+def discard_stdout() -> None:
+    """Point fd 1 at the null device so Python's exit flush cannot fail again."""
+    if sys.stdout is None:
+        return
+    with contextlib.suppress(OSError, ValueError):
+        fd = sys.stdout.fileno()
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        try:
+            os.dup2(devnull, fd)
+        finally:
+            os.close(devnull)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -335,12 +349,32 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if missing:
             print(f"audit-held-branch-expiry: no held-branches file was found at {path}")
-            return 0
-        return report(path, REPO, today, local_today, args.days, args.quiet)
+            status = 0
+        else:
+            status = report(path, REPO, today, local_today, args.days, args.quiet)
+        # A pipe buffers output; flush here so a closed reader fails inside this try.
+        # With fd 1 closed at startup, sys.stdout is None and print() does nothing.
+        if sys.stdout is not None:
+            sys.stdout.flush()
     except UnicodeError as exc:
         print(f"audit-held-branch-expiry: cannot encode report output: {exc}",
               file=sys.stderr)
+        # Deliver the rows encoded so far; if the reader is gone as well, discard
+        # them so the exit flush cannot replace exit 2 with exit 120.
+        try:
+            if sys.stdout is not None:
+                sys.stdout.flush()
+        except OSError:
+            discard_stdout()
         return 2
+    except OSError as exc:
+        print(f"audit-held-branch-expiry: cannot write report output: {exc}",
+              file=sys.stderr)
+        # Python flushes stdout again at exit; send the unwritten rest to the
+        # null device so that flush cannot replace exit 2 with exit 120.
+        discard_stdout()
+        return 2
+    return status
 
 
 if __name__ == "__main__":
