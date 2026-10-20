@@ -46,8 +46,7 @@ A fail-CLOSED path here would wedge a GOOD-model session, the worst outcome and 
 contract is fail-open.
 
 ACCEPTED RESIDUES (stated, not hidden):
-  * Opus 5 running while the transcript is momentarily unreadable is not caught (backstopped by the
-    passive statusline model readout).
+  * Opus 5 running while the transcript is momentarily unreadable is not caught by this hook.
   * The alert-write dedup is a non-atomic read-then-append: two concurrent Opus-5 sessions could each
     append one block (a duplicate alert, harmless).
   * The block is precise, not universal: it fires iff the event label is exactly `PreToolUse`
