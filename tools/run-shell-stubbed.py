@@ -208,6 +208,9 @@ def _session_members(sid: int) -> "list[tuple[int, str]]":
 
 
 GRACE_SECONDS = 2.0
+# One finite wait of a run with timeout=None; the loop around it never ends the
+# run itself (3b419).
+UNTIMED_WAIT_POLL_SECONDS = 1.0
 _CLEANUP_SIGNALS = {signal.SIGTERM, signal.SIGHUP, signal.SIGINT}
 
 
@@ -479,7 +482,24 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                         # A signal that arrived during the spawn is raised here,
                         # inside the try, so the finally below cleans up.
                         signal.pthread_sigmask(signal.SIG_SETMASK, spawn_mask)
-                    rc = p.wait(timeout=timeout)
+                    if timeout is None:
+                        # An untimed wait is a blocking waitpid: a TERM or HUP
+                        # whose C-level handler runs just before it is entered
+                        # sets the pending flag without interrupting it, so
+                        # _on_signal would not run until the command exits.
+                        # Wait in finite slices instead: the command still has
+                        # no timeout, and a pending signal raises after one of
+                        # the finite wait's sleeps (each requested for at most
+                        # 0.05s, read in the Python 3.14.4 Popen._wait source;
+                        # a request, not a wall-clock bound) (3b419).
+                        while True:
+                            try:
+                                rc = p.wait(timeout=UNTIMED_WAIT_POLL_SECONDS)
+                                break
+                            except subprocess.TimeoutExpired:
+                                pass
+                    else:
+                        rc = p.wait(timeout=timeout)
                 except subprocess.TimeoutExpired:
                     rc, timed_out = None, f"timed out after {timeout}s"
                 finally:
@@ -2647,6 +2667,162 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT, _exit_wait=None):
         _rmtree(parent)
 
 
+UNTIMED_WAIT_PROBE = r"""
+import os, runpy, signal, subprocess, sys, threading
+t = runpy.run_path(sys.argv[1])
+fd = int(sys.argv[2])
+g = t["run"].__globals__
+def idle():
+    signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGTERM})
+    os.write(fd, b"idle\n")
+    threading.Event().wait()
+saved = subprocess.Popen
+class Process(saved):
+    def wait(self, timeout=None):
+        if not getattr(self, "announced", False):
+            self.announced = True
+            # TERM is blocked on this (the waiting) thread before "sid" is
+            # written and open on the idle one before "idle" is written, so the
+            # parent's TERM runs its C-level handler on the idle thread: the
+            # pending flag is set and nothing interrupts this thread's wait.
+            threading.Thread(target=idle, daemon=True).start()
+            signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGTERM})
+            os.write(fd, ("sid " + str(self.pid) + "\n").encode())
+        return super().wait(timeout=timeout)
+subprocess.Popen = Process
+with t["_self_test_limits"]():
+    g["run"]("sleep 3600", shells=("bash",), timeout=None)
+"""
+
+
+# The kernel functions /proc/<pid>/task/<tid>/wchan named on the 3b419 host
+# (Linux 7.0) for a thread in a blocking waitpid and for one in the
+# time.sleep of a finite Popen wait.
+UNTIMED_WAIT_KERNEL_WAITS = ("do_wait", "hrtimer_nanosleep")
+
+
+def _probe_main_wchan(pid):
+    """What wchan reads for the probe's main thread, or None if unreadable."""
+    try:
+        with open(f"/proc/{pid}/task/{pid}/wchan", encoding="utf-8") as fh:
+            return fh.read().strip()
+    except OSError:
+        return None
+
+
+def _untimed_wait_term_check(failures, timeout=TEST_WAIT, _exit_wait=None):
+    # 3b419: with timeout=None, a TERM whose C-level handler runs while the
+    # main thread is in the blocking waitpid sets the pending flag without
+    # interrupting it. TERM is sent only after the probe's main thread wrote
+    # "sid" (TERM blocked there), its idle thread wrote "idle" (TERM open
+    # there), the main thread's wchan named a kernel wait, and then, read once
+    # just before the send, the shell (pid sid, the process the probe's wait
+    # reaps) was still live in its session. The accepted wchan names are
+    # do_wait (a blocking waitpid) and hrtimer_nanosleep (any time.sleep, such
+    # as a finite wait's sleep in the production slices). Both can also be
+    # read after the wait: hrtimer_nanosleep in a cleanup sleep, do_wait in a
+    # later blocking waitpid (the fixture watcher's os.waitpid). Provided no
+    # signal from outside raises out of the wait before the stage's TERM, the
+    # main thread gets past the wait only once it has reaped the shell; so,
+    # provided also that pid and session id sid are not reused between the
+    # reads, a shell live after the wchan read means the read was taken in the
+    # wait; a shell already gone fails as held-command-gone. A window remains
+    # between the liveness read and the send (the rest of the /proc scan and
+    # the send itself); the held command does not exit within the stage's
+    # deadlines, so only an outside kill could make the shell exit in it. By
+    # the masks, TERM is delivered to the idle thread; on the blocking path it
+    # arrives while the main thread is in waitpid: with TERM blocked there,
+    # only the held command's exit would end that wait, so the wchan read
+    # stays true until TERM lands. On the slice path the main thread acts on
+    # TERM after its current sleep, whose requested duration is at most 0.05s
+    # (a request, not a wall-clock bound). Without the production slices the
+    # held command never exits and the exit wait reaches its deadline. A wchan
+    # that never names an accepted wait fails as kernel-wait-timeout:<last
+    # value read> (None if unreadable). The deadline matches
+    # sigterm-cleans-up; _exit_wait replaces it for the tests only.
+    import selectors
+    parent = tempfile.mkdtemp(prefix="stubbed-untimed-test-")
+    ready_r, ready_w = os.pipe()
+    proc, sid = None, None
+    def fail(stage):
+        failures.append(("untimed-wait-acts-on-term:" + stage, False))
+        return False
+    try:
+        proc = subprocess.Popen(
+            [sys.executable, "-I", "-B", "-c", UNTIMED_WAIT_PROBE,
+             os.path.abspath(__file__), str(ready_w)],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            pass_fds=(ready_w,), env={**os.environ, "TMPDIR": parent})
+        os.close(ready_w)
+        ready_w = None
+        deadline = time.monotonic() + timeout
+        data = b""
+        with selectors.DefaultSelector() as selector:
+            selector.register(ready_r, selectors.EVENT_READ)
+            while data.count(b"\n") < 2:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0 or not selector.select(remaining):
+                    # Only "sid" arrived: the idle thread never signalled.
+                    if data.startswith(b"sid "):
+                        return fail("idle-ready-timeout")
+                    return fail("readiness-timeout")
+                chunk = os.read(ready_r, 4096)
+                if not chunk:
+                    return fail("ready-pipe-eof")
+                data += chunk
+        lines = data.splitlines()
+        sids = [line[4:] for line in lines if line.startswith(b"sid ")]
+        if b"idle" not in lines or len(sids) != 1:
+            return fail("announce-unparsable")
+        try:
+            sid = int(sids[0].decode())
+        except ValueError:
+            return fail("announce-unparsable")
+        wchan = _probe_main_wchan(proc.pid)
+        while wchan not in UNTIMED_WAIT_KERNEL_WAITS:
+            if proc.poll() is not None:
+                return fail("probe-died-before-term")
+            if time.monotonic() >= deadline:
+                return fail(f"kernel-wait-timeout:{wchan}")
+            time.sleep(0.01)
+            wchan = _probe_main_wchan(proc.pid)
+        if sid not in _live(_session_members(sid)):
+            return fail("held-command-gone")
+        proc.send_signal(signal.SIGTERM)
+        deadline = time.monotonic() + (3 * GRACE_SECONDS + 2 * TEST_WAIT
+                                       if _exit_wait is None else _exit_wait)
+        try:
+            proc.wait(timeout=max(0.001, deadline - time.monotonic()))
+        except subprocess.TimeoutExpired:
+            return fail("probe-exit-wait-timeout")
+        if proc.returncode == 0:
+            return fail("probe-exit-zero")
+        if os.listdir(parent):
+            return fail("tmp-left")
+        if _session_survivors(sid, timeout=max(0.0, deadline - time.monotonic())):
+            return fail("survivors")
+        return True
+    finally:
+        if proc is not None:
+            if proc.poll() is None:
+                proc.kill()
+            try:
+                proc.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                failures.append(("untimed-wait-probe-cleanup-wait", False))
+        for fd in (ready_r, ready_w):
+            if fd is not None:
+                os.close(fd)
+        if sid is not None:
+            _kill_session(sid)
+        for pid in _procs_under([parent]):
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        _rmtree(parent)
+
+
 SPAWN_WINDOW_COMMAND = "while ((SECONDS < 600)); do :; done"
 
 
@@ -3063,6 +3239,8 @@ def _self_test_body(policy, failures) -> int:
     checks.append(("background-call-recorded", _background_call_check()))
     _test_stage("sigterm-cleans-up")
     checks.append(("sigterm-cleans-up", _sigterm_cleanup_check(failures)))
+    _test_stage("untimed-wait-acts-on-term")
+    checks.append(("untimed-wait-acts-on-term", _untimed_wait_term_check(failures)))
     _test_stage("spawn-window-stages-named")
     checks.append(("spawn-window-stages-named", _spawn_window_stages_check()))
     _test_stage("bounded-run-qualname-stages")
