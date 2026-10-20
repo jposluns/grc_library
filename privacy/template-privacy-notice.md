@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Notice Template\
 **Document Type:** Template\
-**Version:** 1.1.4\
-**Date:** 2026-10-16\
+**Version:** 1.1.5\
+**Date:** 2026-10-20\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/framework-consent-management.md`](framework-consent-management.md)\
@@ -106,7 +106,7 @@ For each right, state the channel for exercising the right and the response wind
 
 ### 9. Automated decision-making and profiling
 
-Where Article 22 applies, state the existence of automated decision-making with legal or similarly significant effect, the logic involved at a high level, the significance and envisaged consequences, and the right to human review. Cross-reference the automated decision-making register. Where the California CCPA regulations apply (an automated decision-making technology used to make a "significant decision", 11 CCR Article 11), include a pre-use notice (11 CCR section 7220) that describes the ADMT's purpose and the consumer's rights to opt out of and to access the ADMT; the pre-use notice may be provided in the Notice at Collection.
+Where Article 22 applies (under UK GDPR, Articles 22A to 22D, which replaced Article 22), state the existence of automated decision-making with legal or similarly significant effect, the logic involved at a high level, the significance and envisaged consequences, and the right to human review. Under UK GDPR, the notice covers automated decision-making "which is subject to the requirement to provide safeguards under Article 22C" (Articles 13(2)(f) and 14(2)(g)), that is, a significant decision (one that produces a "legal effect" or has a "similarly significant effect" for the data subject, Article 22A(1)(b)) based solely on automated processing; for such a decision, also state the Article 22C(2) safeguards: information about such decisions, and how the data subject can "make representations about", "obtain human intervention on the part of the controller in relation to" and "contest" such decisions. Cross-reference the automated decision-making register. Where the California CCPA regulations apply (an automated decision-making technology used to make a "significant decision", 11 CCR Article 11), include a pre-use notice (11 CCR section 7220) that describes the ADMT's purpose and the consumer's rights to opt out of and to access the ADMT; the pre-use notice may be provided in the Notice at Collection.
 
 ### 10. Children's data
 
