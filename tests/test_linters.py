@@ -45582,6 +45582,10 @@ class ClausePreservationTests(unittest.TestCase):
     REBASED_START = (("TARGET_START.match(base, i).end()", "i"),
                      ("TARGET_START.match(text, j).end()", "j"))
     WHITESPACE_RULES = (PAREN_START,) + REBASED_START
+    # Backlog 3b204: flips that skip one leading character only, or skip no FF or VT.
+    TARGET_START_RULE = 'TARGET_START = re.compile(r"[ \\t\\n\\r\\f\\v]*")'
+    WS_RUN_RULE = (TARGET_START_RULE, TARGET_START_RULE.replace("]*", "]?"))
+    FF_VT_RULE = (TARGET_START_RULE, TARGET_START_RULE.replace("\\f\\v", ""))
     # Fixtures whose BASE and destination files sit in sibling directories.
     SIBLINGS = {"path": "p/base.md", "destination": "q/dest.md"}
     # Fixtures whose BASE and destination files share a directory.
@@ -45767,6 +45771,16 @@ class ClausePreservationTests(unittest.TestCase):
                             'R [a]( x.md#s "T (x)") and [b](../p/b.md).\n',
                             "BASE raw offset 17 (BASE line 1; destination line 1): "
                             "'(' in a '#' or '?' suffix", REBASED_START, SIBLINGS),
+        # Backlog 3b204 rows: a multi-character run, and a lone FF or VT lead.
+        "ws_run": ("R [a]( \t x.md#f](y.md)) n.\n", "R [a]( \t x.md#f](../p/y.md)) n.\n",
+                   "'(' in a link target in the BASE unit at raw offset 16",
+                   (WS_RUN_RULE,), SAME_DIR),
+        "ws_form_feed": ("R [a](\fx.md#f](y.md)) n.\n", "R [a](\fx.md#f](../p/y.md)) n.\n",
+                         "'(' in a link target in the BASE unit at raw offset 14",
+                         (FF_VT_RULE,), SAME_DIR),
+        "ws_vertical_tab": ("R [a](\vx.md#f](y.md)) n.\n", "R [a](\vx.md#f](../p/y.md)) n.\n",
+                            "'(' in a link target in the BASE unit at raw offset 14",
+                            (FF_VT_RULE,), SAME_DIR),
     }
 
     def rebase(self, base, moved, code, message="OK:", tool=None,
@@ -45962,6 +45976,86 @@ class ClausePreservationTests(unittest.TestCase):
         self.rebase_flip("R [a]( x.md) n.\n", "R [a](\t../x.md) n.\n", 1,
                          "BASE raw offset 6 (BASE line 1; destination line 1): text differs",
                          ("if base[i:start_base] != text[j:start_text]:", "if False:"))
+
+    def test_rebased_target_start_skips_whitespace_run(self):
+        self.rejected("ws_run")
+        self.rebase_flip("R [a]( \t x.md) n.\n", "R [a]( \t ../x.md) n.\n", 0,
+                         "1 REBASED asserted", self.WS_RUN_RULE)
+
+    def test_rebased_form_feed_and_vertical_tab_lead_targets(self):
+        """3b204 (d): keep skipping FF and VT, as the tool docstring explains.
+
+        markdown-it-py 3.0.0's commonmark preset renders "](" then FF or VT as
+        prose; there the "(" refusal is only stricter and the re-based segment is
+        disclosed prose. Without the skip, Python-Markdown 3.10.2, which skips
+        them, could link a "(" target the refusal misses.
+        """
+        for name in ("ws_form_feed", "ws_vertical_tab"):
+            with self.subTest(name=name):
+                self.rejected(name)
+        for lead in ("\f", "\v"):
+            with self.subTest(lead=lead):
+                self.rebase_flip(f"R [a]({lead}x.md) n.\n", f"R [a]({lead}../x.md) n.\n", 0,
+                                 "1 REBASED asserted", self.FF_VT_RULE)
+
+    def test_rebased_disclosed_shapes_in_titles_and_code(self):
+        """3b204 (e): the tool docstring examples re-base a.md, a link destination in none.
+
+        The link-title example also re-bases its real destination b.md; the
+        reference definition's own b.md must stay byte-identical.
+        """
+        gate = ('if suffix or base[i - 2:i] != "](" or', "if True or")
+        for base, moved in (("see ](a.md) now\n", "see ](../a.md) now\n"),
+                            ("Run `[x](a.md)` now.\n", "Run `[x](../a.md)` now.\n"),
+                            ("```\n[x](a.md)\n```\n", "```\n[x](../a.md)\n```\n"),
+                            ('[r]: b.md "see ](a.md now"\n', '[r]: b.md "see ](../a.md now"\n')):
+            with self.subTest(base=base):
+                self.rebase_flip(base, moved, 0, "1 REBASED asserted", gate)
+        self.rebase_flip('[x](b.md "see ](a.md now")\n', '[x](../b.md "see ](../a.md now")\n',
+                         0, "1 REBASED asserted", gate)
+        self.rebase('[r]: b.md "see ](a.md now"\n', '[r]: ../b.md "see ](../a.md now"\n', 1,
+                    "BASE raw offset 5 (BASE line 1; destination line 1): text differs")
+
+    def test_rebased_shadowed_rules_standalone(self):
+        """3b204 (b): rules that earlier refusals shadow, pinned directly.
+
+        The round 7 whole-unit refusals shadow PATH_CHAR's backslash, "<" and "("
+        refusals; the "](" count rule is shadowed by those and by target_error.
+        """
+        from unittest.mock import patch
+
+        def tool(*flips):
+            mod = self.load_tool("check-clause-preservation.py")
+            source = self.source
+            for old, new in flips:
+                self.assertEqual(source.count(old), 1, old)
+                source = source.replace(old, new)
+            exec(compile(source, mod.__file__, "exec"), mod.__dict__)
+            return mod
+
+        for char, allowed in (("\\", "\\\\"), ("<", "<"), ("(", "(")):
+            with self.subTest(char=char):
+                segment = "a" + char + "b.md"
+                self.assertEqual(tool().target_error(segment), f"character {char!r}")
+                flip = (self.PATH_RULE, self.ALLOW.replace("CHARS", allowed))
+                self.assertIsNone(tool(flip).target_error(segment))
+        base, moved = "R [x](a.md) n.\n", "R [x](../w](/../a.md) n.\n"
+        self.assertEqual(tool().rebased(base, "", moved, "docs"),
+                         (-1, "'(' in a link target in the destination unit at raw offset 11"))
+        for flips, expected in (((), (6, "'](' count differs: 1 in BASE, 2 at the destination")),
+                                ((self.COUNT_RULE,), (1, None))):
+            mod = tool(*flips)
+            with patch.object(mod, "unit_error", return_value=None), \
+                    patch.object(mod, "target_error", return_value=None):
+                self.assertEqual(mod.rebased(base, "", moved, "docs"), expected)
+
+    def test_rebased_used_index_gate_and_recording(self):
+        """3b204 (a): same-key units, so only the used set stops a second take."""
+        base, moved = "- [x](a.md)\n- [x](a.md)\n", "- [x](../a.md)\n-  [x](../a.md)\n"
+        for flip in (("if index in used or ", "if "), ("            used.add(index)\n", "")):
+            with self.subTest(flip=flip):
+                self.rebase_flip(base, moved, 1, "first difference at BASE raw offset 2 "
+                                 "(BASE line 2; destination line 2): text differs", flip)
 
     def test_rebased_occurrences_consumed(self):
         base = "- [x](a.md)\n- [x](a.md)\n"

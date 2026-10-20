@@ -11,7 +11,12 @@ targets re-based; like MOVED it needs another tracked file and an empty reason.
 It compares raw unit text (CR and line terminators included, nothing
 normalized): an unconsumed destination unit must equal the BASE unit except for
 substituted target segments. Every target starts after its "](" and any leading
-ASCII space, tab, LF, CR, FF or VT. Either unit fails if it holds a backslash
+ASCII space, tab, LF, CR, FF or VT. FF and VT stay deliberately (backlog
+3b204): markdown-it-py 3.0.0's commonmark preset renders a "](" they follow
+as prose, where the refusals below are only stricter and a re-based segment
+is disclosed prose like any "](" below, while Python-Markdown 3.10.2 skips
+them and links '[a](<FF>(x).md)' to "(x).md", a "(" target that dropping
+them would hide from the refusal. Either unit fails if it holds a backslash
 or "<" anywhere, or a "(" in any link target: the text from that start up to
 the next ASCII ")", space, tab, LF, CR, FF or VT (or the unit's end), unchanged
 targets and any "#" or "?" part included. Each such refusal names its rule,
@@ -21,7 +26,13 @@ first ASCII ")", "#", "?", space, tab, LF, CR, FF or VT; a target with no
 terminator is not a segment. A "#" or "?" terminator starts a suffix that runs
 up to the next ")" in BASE: it must be identical, and a "(" in it fails, so no
 "](" can occur inside it. Every other "](" is a target position, so "](" in
-prose, code, titles and reference definitions is re-based too. A changed
+prose, code, titles and reference definitions is re-based too. For example,
+a.md, a link destination in none of these, may become ../a.md in each:
+'see ](a.md) now' in prose; '`[x](a.md)`' in a code span or the same text in
+a fenced block; '[x](b.md "see ](a.md now")' in a link title, whose
+destination b.md is a real one, re-based under the usual rules; and
+'[r]: b.md "see ](a.md now"' in a reference definition title, whose own
+destination b.md follows no "](" and so must stay byte-identical. A changed
 segment must be nonempty, use only A-Z, a-z, 0-9 and "._~/+-", and have no
 leading or trailing "/", no empty ("//") or "." component, and no ".." as its
 last component. Each side is joined to its file's directory and resolved
@@ -253,6 +264,8 @@ def rebased(base: str, base_dir: str, text: str, text_dir: str):
             substitutions += 1
         i, j = end_base.start(), end_text.start()
         suffix = base.startswith(("#", "?"), i)
+    # Backstop (3b204): cannot fail while target_error or unit_error is in
+    # force; each keeps "(" out of changed segments, so the counts match.
     if base.count("](") != text.count("]("):
         return first, (f"'](' count differs: {base.count('](')} in BASE, "
                        f"{text.count('](')} at the destination")
