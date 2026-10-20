@@ -770,9 +770,11 @@ def load_aliases(text: str) -> dict:
             raise PolicyError(f"alias file: umbrella[{n}] malformed ({exc})") from None
     exact = {identity_key(v) for v in not_citable.get("exact", [])}
     agencies = {identity_key(v) for v in agency_labels}
-    # A label in both lists would be declared reportable and not citable at once (agency_label
-    # wins in _unregistered and after_label), so the overlap is refused to keep the file
-    # unambiguous. The error names each entry as agency_labels spells it.
+    # A label in both lists would be declared reportable and not citable at once: after_label
+    # treats the two alike, and agency_label wins in _unregistered (read before not_citable)
+    # and in resolve (its colon fallback reports an agency label's full form as unregistered).
+    # The overlap is refused to keep the file unambiguous. The error names each entry as
+    # agency_labels spells it.
     shared = list(dict.fromkeys(v for v in agency_labels if identity_key(v) in exact))
     if shared:
         raise PolicyError(

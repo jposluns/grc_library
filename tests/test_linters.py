@@ -7132,7 +7132,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
 
     def test_agency_label_may_not_also_be_not_citable(self) -> None:
         # 3b378 round 4 item 2 (VPR3B378-R3, claude W2): a label in both agency_labels and
-        # not_citable.exact silenced the bare agency again; load_aliases now refuses it.
+        # not_citable.exact would have silenced the bare agency under e3fe751b, whose
+        # _unregistered read not_citable alone; _unregistered now reads agency_label first, but
+        # the two lists would contradict each other, so load_aliases refuses the overlap.
         import json
 
         mod = self._module()
