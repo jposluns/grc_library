@@ -10,6 +10,7 @@
   "FedRAMP Consolidated Rules for 2026 (full text)": ["FedRAMP"],
   "FedRAMP Rev5 Policy for Cryptographic Module Selection (board approved; legacy)": ["FedRAMP Rev5", "FedRAMP Rev 5"],
   "FedRAMP Rev5 assessment and authorization submission templates and workbooks (blank; originals only)": ["FedRAMP Rev5", "FedRAMP Rev 5"],
+  "NIST CSF 2.0, The NIST Cybersecurity Framework 2.0 (CSWP 29)": ["NIST CSF 2.0", "CSF 2.0", "NIST Cybersecurity Framework 2.0"],
   "AI Acceptable Use Policy Template": ["AI Acceptable Use Policy"],
   "Acceptable Use (Company Systems) Policy Template": ["Acceptable Use Policy"],
   "Change Management Policy Template": ["Change Management Policy"],
