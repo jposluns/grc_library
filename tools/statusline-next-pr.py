@@ -3,8 +3,9 @@
 
 The console ``next:`` upcoming-PRs statusline segment was removed at the
 maintainer's request (PR #1565, 2026-08-15) to recover a status row.
-``main()`` now emits nothing; the statusLine command in ``.claude/settings.json``
-no longer invokes this script. The file is kept as a no-output compatibility
+``main()`` now emits nothing; no tracked file configures a statusLine command.
+The only tracked caller is the self-test in ``tests/test_linters.py``.
+The file is kept as a no-output compatibility
 stub so a cached statusLine command errors nothing, and the ``--self-test``
 path (with the dormant ``_segment`` / ``_resolve_queue`` / ``_top_items``
 helpers) stays green; a follow-up deletes the script and its self-test.
