@@ -13895,9 +13895,13 @@ class AuditGateParityTests(LinterTestCase):
     a mismatched gate NAME; an invocation (argv) drift between the execution
     surfaces (a missing flag, a wrong flag value, a pre-commit-only
     divergence now that argv-parity is 3-way, and a shlex-quoted-whitespace
-    difference a naive split would miss); plus unit coverage of the extractor's
+    difference a naive split would miss); section-5 grouped-list drift (a
+    missing, duplicated, unknown, or malformed number, or a comment or fence
+    left open, with comment, fence,
+    and prose numbers ignored; these copy the real surfaces, so they assert
+    exit 0 where clean); plus unit coverage of the extractor's
     branch routing and the documented out-of-contract metacharacter residue. Each
-    synthetic root deliberately
+    minimal synthetic root deliberately
     trips the unrelated exclusion/delta guards, so the negatives key on the
     distinctive finding substring, not on the exit code alone.
     """
@@ -14293,6 +14297,393 @@ class AuditGateParityTests(LinterTestCase):
             )
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    # Section-5 grouped-list coverage (3b158). These copy the real surfaces
+    # into a synthetic root and edit only the spec, so the baseline is clean
+    # (rc 0) and each negative keys on its own finding.
+    _CATEGORY_SURFACES = (
+        "governance/specification-audit-programme.md",
+        ".github/workflows/quality.yml",
+        "tools/run_all_audits.sh",
+        ".pre-commit-config.yaml",
+        "tools/run-pr-time-checks.sh",
+    )
+
+    def _run_category_fixture(self, *edits: tuple[str, str]) -> subprocess.CompletedProcess:
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-categories-", dir=FIXTURE_DIR))
+        try:
+            for name in self._CATEGORY_SURFACES:
+                text = (REPO_ROOT / name).read_text(encoding="utf-8")
+                if name.endswith("specification-audit-programme.md"):
+                    for old, new in edits:
+                        self.assertEqual(text.count(old), 1, f"fixture anchor {old!r}")
+                        text = text.replace(old, new)
+                target = synthetic_root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(text, encoding="utf-8")
+            return run_linter(
+                "tools/lint-audit-gate-parity.py", "--root", str(synthetic_root)
+            )
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    # Drops gate 1 from category 1's list.
+    _DROP_GATE_1 = ("(gates 1, 7,", "(gates 7,")
+    # Where an example block is inserted inside section 5.
+    _SECTION_5_TAIL = "\nCategorization is descriptive"
+
+    def test_category_missing_number_flagged(self) -> None:
+        result = self._run_category_fixture(self._DROP_GATE_1)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("section-5 categories: gate 1 missing", result.stdout)
+
+    def test_category_duplicated_number_flagged(self) -> None:
+        result = self._run_category_fixture(("(gates 3, 11,", "(gates 1, 3, 11,"))
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("section-5 categories: gate 1 listed 2 times", result.stdout)
+
+    def test_category_extra_number_flagged(self) -> None:
+        result = self._run_category_fixture(("(gates 1, 7,", "(gates 1, 999, 7,"))
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(
+            "section-5 categories: gate 999 not in the section-6 inventory",
+            result.stdout,
+        )
+
+    def test_category_numbers_in_comment_or_fence_ignored(self) -> None:
+        # The example lists gate 1 and an unknown 999 inside a comment or a
+        # fence. Intact: still clean (no duplicate, no unknown). With gate 1
+        # dropped from its real list: the example must not stand in for it.
+        example = "1. **Example** (gates 1, 999): illustration only."
+        for opening, closing in (("<!--", "-->"), ("```", "```"), ("~~~", "~~~")):
+            block = f"\n\n{opening}\n{example}\n{closing}\n"
+            insert = (self._SECTION_5_TAIL, block + self._SECTION_5_TAIL)
+            with self.subTest(opening=opening, gate_1_dropped=False):
+                result = self._run_category_fixture(insert)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            with self.subTest(opening=opening, gate_1_dropped=True):
+                result = self._run_category_fixture(insert, self._DROP_GATE_1)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn("section-5 categories: gate 1 missing", result.stdout)
+                self.assertNotIn("gate 999", result.stdout)
+
+    def test_category_prose_numbers_ignored(self) -> None:
+        # Numbers in a section-5 paragraph, or after the leading list on a
+        # category line, are prose: they neither satisfy nor duplicate.
+        prose = "\n\nGate 1 is noted here (gates 1, 999).\n"
+        result = self._run_category_fixture(
+            self._DROP_GATE_1,
+            (self._SECTION_5_TAIL, prose + self._SECTION_5_TAIL),
+            ("integrity (gate 4);", "integrity (gate 4, compare gates 1, 999);"),
+        )
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("section-5 categories: gate 1 missing", result.stdout)
+        self.assertNotIn("gate 999", result.stdout)
+        self.assertNotIn("listed 2 times", result.stdout)
+
+    def test_category_malformed_line_flagged(self) -> None:
+        result = self._run_category_fixture(("(gates 1, 7,", "(gates 1; 7,"))
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("section-5 categories: malformed category line", result.stdout)
+
+    @staticmethod
+    def _spec_line(prefix: str) -> int:
+        """One-based line of the first real-spec line starting with ``prefix``."""
+        lines = (REPO_ROOT / "governance/specification-audit-programme.md").read_text(
+            encoding="utf-8").splitlines()
+        return next(n for n, line in enumerate(lines, 1) if line.startswith(prefix))
+
+    def test_category_near_miss_item_shapes_flagged(self) -> None:
+        # Category-like lines the list pattern does not accept, and a list
+        # wrapped onto a second line, are malformed findings that name the
+        # one-line rule, not numbers silently left unread.
+        cases = (
+            ("1. **Metadata integrity**", "1) **Metadata integrity**"),
+            ("2. **Reference integrity**", "- **Reference integrity**"),
+            ("3. **Content drift defence**", "   3. **Content drift defence**"),
+            ("4. **Language and style**", "4. *Language and style*"),
+            ("6. **Security and privacy**", "6.  **Security and privacy**"),
+            ("1. **Metadata integrity**", None),
+        )
+        for prefix, shape in cases:
+            edit = (prefix, shape) if shape else ("(gates 1, 7, 8,", "(gates 1, 7,\n   8,")
+            with self.subTest(shape=shape or "wrapped list"):
+                result = self._run_category_fixture(edit)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn(
+                    f"specification-audit-programme.md:{self._spec_line(prefix)}: "
+                    f"section-5 categories: malformed category line",
+                    result.stdout,
+                )
+                self.assertIn("with the whole list on one line", result.stdout)
+
+    # Stray-opener positions: after the complete lists, before section 5,
+    # and in section 6 just before the real spec's one fenced block.
+    _STRAY_ANCHORS = (_SECTION_5_TAIL, "\n## 5. Gate categories", "\n```text\n")
+    # A category line in the middle of the section 5 lists.
+    _CATEGORY_3 = "\n3. **Content drift defence**"
+
+    def test_category_open_markup_flagged_at_its_line(self) -> None:
+        # No later line of the real spec is a tilde fence, so a stray '~~~'
+        # never closes: it is reported once, at its own line (two below the
+        # anchor's), wherever it sits, and the lists are not compared.
+        spec = (REPO_ROOT / "governance/specification-audit-programme.md").read_text(
+            encoding="utf-8")
+        for anchor in self._STRAY_ANCHORS:
+            opened_at = spec.count("\n", 0, spec.index(anchor)) + 3
+            with self.subTest(anchor=anchor):
+                result = self._run_category_fixture((anchor, f"\n\n~~~{anchor}"))
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn(
+                    f"specification-audit-programme.md:{opened_at}: section-5 "
+                    f"categories: unclosed code fence",
+                    result.stdout,
+                )
+                self.assertEqual(result.stdout.count("section-5 categories:"), 1,
+                                 result.stdout)
+                self.assertNotIn("no '## 5.' section found", result.stdout)
+                self.assertNotIn("section-5 categories: gate ", result.stdout)
+
+    def test_category_stray_opener_result_follows_what_it_hides(self) -> None:
+        # Round 5: a stray opener that pairs with a later closer is not a
+        # finding of its own; what it hides decides the result. On the real
+        # spec a stray '<!--' closes at the first '-->' after it in the raw
+        # text (the gate50-floor marker quoted after the inventory table, or
+        # the gate 104 paragraph's marker for one in section 6), and a stray
+        # '```' pairs with the closer of the real '```text' block. Before
+        # section 5 either hides the heading; among the lists it hides the
+        # categories after it; after the lists or in section 6 it hides only
+        # text gate 35 does not read, so the spec passes.
+        cases = (
+            (self._SECTION_5_TAIL, None),
+            ("\n```text\n", None),
+            ("\n## 5. Gate categories", "section-5 categories: no '## 5.' section found"),
+            (self._CATEGORY_3, "section-5 categories: gate 5 missing"),
+        )
+        for anchor, finding in cases:
+            for opening in ("<!--", "```"):
+                with self.subTest(anchor=anchor, opening=opening):
+                    result = self._run_category_fixture((anchor, f"\n\n{opening}{anchor}"))
+                    if finding is None:
+                        self.assertEqual(result.returncode, 0,
+                                         result.stdout + result.stderr)
+                        continue
+                    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                    self.assertIn(finding, result.stdout)
+                    self.assertNotIn("unclosed", result.stdout)
+
+    def test_category_closed_fence_holding_comment_opener_passes(self) -> None:
+        # Review item (1): a closed fence that shows '<!--' (or a shorter
+        # fence opener inside a longer fence) is example text, not markup.
+        blocks = (
+            "```html\n<!--\n```",
+            "~~~\n<!-- open\n~~~",
+            "````markdown\n```text\n<!--\n```\n````",
+        )
+        for block in blocks:
+            insert = (self._SECTION_5_TAIL, f"\n\n{block}\n{self._SECTION_5_TAIL}")
+            with self.subTest(block=block, gate_1_dropped=False):
+                result = self._run_category_fixture(insert)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            with self.subTest(block=block, gate_1_dropped=True):
+                result = self._run_category_fixture(insert, self._DROP_GATE_1)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn("section-5 categories: gate 1 missing", result.stdout)
+                self.assertNotIn("HTML comment", result.stdout)
+                self.assertNotIn("code fence", result.stdout)
+
+    def test_category_closed_example_with_heading_passes(self) -> None:
+        # Review item (3): a closed example holding a '## ' line is not a
+        # finding, in a fence or in a comment.
+        for block in ("```\n## Example heading\n```", "<!--\n## Example heading\n-->"):
+            insert = (self._SECTION_5_TAIL, f"\n\n{block}\n{self._SECTION_5_TAIL}")
+            with self.subTest(block=block):
+                result = self._run_category_fixture(insert)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_category_comment_opener_in_code_span_ignored(self) -> None:
+        # Review item (4): '<!--' inside an inline code span opens nothing; an
+        # unmatched backtick is literal, so the opener after it still counts.
+        # The prose sits among the lists: an opener there would hide the
+        # categories after it up to the first '-->' in the raw text.
+        anchor = self._CATEGORY_3
+        for prose in ("Write `<!--` to open a comment.",
+                      "Write ``<!-- ` -->`` with a backtick inside."):
+            with self.subTest(prose=prose):
+                result = self._run_category_fixture((anchor, f"\n\n{prose}{anchor}"))
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        result = self._run_category_fixture(
+            (anchor, f"\n\nWrite `<!-- to open a comment.{anchor}"))
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("section-5 categories: gate 5 missing", result.stdout)
+
+    def test_category_malformed_line_skips_comparison(self) -> None:
+        # Review item (5): after a malformed category line (or with no
+        # section 5) the lists are not compared, so the numbers on that line
+        # are not also reported missing.
+        for edit, finding in (
+            (("(gates 1, 7,", "(gates 1; 7,"), "malformed category line"),
+            (("\n## 5. Gate categories", "\n## 5 Gate categories"),
+             "no '## 5.' section found"),
+        ):
+            with self.subTest(finding=finding):
+                result = self._run_category_fixture(edit)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn(f"section-5 categories: {finding}", result.stdout)
+                self.assertEqual(result.stdout.count("section-5 categories:"), 1,
+                                 result.stdout)
+                self.assertNotIn("section-5 categories: gate ", result.stdout)
+
+    def test_category_underscore_emphasis_item_flagged(self) -> None:
+        # Review item (6): '_' and '__' emphasis is category-like too.
+        for prefix, shape in (
+            ("4. **Language and style**", "4. __Language and style__"),
+            ("2. **Reference integrity**", "- _Reference integrity_"),
+        ):
+            with self.subTest(shape=shape):
+                result = self._run_category_fixture((prefix, shape))
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn(
+                    f"specification-audit-programme.md:{self._spec_line(prefix)}: "
+                    f"section-5 categories: malformed category line",
+                    result.stdout,
+                )
+
+    def test_category_markup_open_at_end_of_file_flagged(self) -> None:
+        # An opener with no closer at all after it is reported at its line.
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_agp_open_markup", REPO_ROOT / "tools/lint-audit-gate-parity.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        body = "## 5. Gate categories\n\n1. **Only** (gates 1, 2): text.\n\n"
+        work = Path(tempfile.mkdtemp(prefix="synthetic-parity-open-markup-", dir=FIXTURE_DIR))
+        try:
+            path = work / "spec.md"
+            path.write_text(body, encoding="utf-8")
+            self.assertEqual(mod.verify_category_coverage(path, {1, 2}), [])
+            for opening, kind in (
+                ("<!--", "unclosed HTML comment"),
+                ("```", "unclosed code fence"),
+                ("~~~", "unclosed code fence"),
+            ):
+                with self.subTest(opening=opening):
+                    path.write_text(f"{body}{opening}\nexample\n", encoding="utf-8")
+                    findings = mod.verify_category_coverage(path, {1, 2})
+                    self.assertEqual(len(findings), 1, findings)
+                    self.assertTrue(findings[0].startswith(
+                        f"{mod.SPEC_PATH}:5: section-5 categories: {kind}"), findings)
+        finally:
+            shutil.rmtree(work, ignore_errors=True)
+
+    def test_category_markup_pairing_follows_commonmark(self) -> None:
+        # Fences pair by character and length, a closer carries nothing after
+        # its run, a backtick info string with a backtick opens nothing, and a
+        # block holding an opener of its own kind closes at its first closer.
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_agp_pairing", REPO_ROOT / "tools/lint-audit-gate-parity.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        body = "## 5. Gate categories\n\n1. **Only** (gates 1, 2): text.\n\n"
+        cases = (
+            ("```\nx\n`````\n", None),
+            ("  ```\nx\n   ```\n", None),
+            ("    ```\nx\n", None),
+            ("```a`b\nx\n", None),
+            ("~~~\n```text\n~~~\n", None),
+            ("````\nx\n```\n", "unclosed code fence"),
+            ("```\nx\n``` trailing\n", "unclosed code fence"),
+            ("~~~\nx\n```\n", "unclosed code fence"),
+            ("```\nx\n```text\ny\n```\n", None),
+            ("<!-- a\n<!-- b -->\n", None),
+            ("<!-- `-->` \nx\n", None),
+            ("<!-- a `\nx\n", "unclosed HTML comment"),
+        )
+        work = Path(tempfile.mkdtemp(prefix="synthetic-parity-pairing-", dir=FIXTURE_DIR))
+        try:
+            path = work / "spec.md"
+            for block, kind in cases:
+                with self.subTest(block=block):
+                    path.write_text(f"{body}{block}", encoding="utf-8")
+                    findings = mod.verify_category_coverage(path, {1, 2})
+                    if kind is None:
+                        self.assertEqual(findings, [])
+                        continue
+                    self.assertEqual(len(findings), 1, findings)
+                    self.assertTrue(findings[0].startswith(
+                        f"{mod.SPEC_PATH}:5: section-5 categories: {kind}"), findings)
+        finally:
+            shutil.rmtree(work, ignore_errors=True)
+
+    def test_category_closed_commonmark_layouts_pass(self) -> None:
+        # Round 5: closed CommonMark that holds an opener of its own kind
+        # passes; a comment ends at its first '-->', even one in backticks,
+        # so the category-like line after it is read; and a fence line inside
+        # a comment is comment text, so it opens no fence.
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_agp_layouts", REPO_ROOT / "tools/lint-audit-gate-parity.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        body = "## 5. Gate categories\n\n1. **Only** (gates 1, 2): text.\n\n"
+        late = "3. **Late** (gates 3): text.\n"
+        cases = (
+            ("```markdown\n```python\nprint(1)\n```\n", {1, 2}, None),
+            ("```text\n````python\n```\n", {1, 2}, None),
+            ("<!-- Write <!-- to open a comment. -->\n", {1, 2}, None),
+            # Without its line, gate 3 would be reported missing.
+            (f"<!-- `-->` \n{late}", {1, 2, 3}, None),
+            (f"<!-- write `-->` to close it\n{late}", {1, 2, 3}, None),
+            ("<!-- `-->` \n- **Late** (gates 3): text.\n", {1, 2},
+             "6: section-5 categories: malformed category line"),
+            # Read as fences, these would never close.
+            (f"<!--\n```python\n-->\n{late}", {1, 2, 3}, None),
+            (f"<!--\n~~~\n-->\n{late}", {1, 2, 3}, None),
+        )
+        work = Path(tempfile.mkdtemp(prefix="synthetic-parity-layouts-", dir=FIXTURE_DIR))
+        try:
+            path = work / "spec.md"
+            for block, expected, finding in cases:
+                with self.subTest(block=block):
+                    path.write_text(f"{body}{block}", encoding="utf-8")
+                    findings = mod.verify_category_coverage(path, expected)
+                    if finding is None:
+                        self.assertEqual(findings, [])
+                        continue
+                    self.assertEqual(len(findings), 1, findings)
+                    self.assertTrue(findings[0].startswith(
+                        f"{mod.SPEC_PATH}:{finding}"), findings)
+        finally:
+            shutil.rmtree(work, ignore_errors=True)
+
+    def test_category_unreadable_spec_exits_two(self) -> None:
+        # parse_spec_inventory reads the spec with open(); only the later
+        # section-5 read_text is made to fail, and must exit 2, not crash.
+        import contextlib
+        import importlib.util
+        from unittest import mock
+        spec = importlib.util.spec_from_file_location(
+            "_agp_unreadable", REPO_ROOT / "tools/lint-audit-gate-parity.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        spec_path = (REPO_ROOT / mod.SPEC_PATH).resolve()
+        real_read_text = Path.read_text
+
+        def read_text(path, *args, **kwargs):
+            if Path(path).resolve() == spec_path:
+                raise PermissionError("category spec unreadable")
+            return real_read_text(path, *args, **kwargs)
+
+        stderr = io.StringIO()
+        with mock.patch.object(Path, "read_text", read_text), \
+                contextlib.redirect_stderr(stderr), \
+                contextlib.redirect_stdout(io.StringIO()):
+            rc = mod.main(["--root", str(REPO_ROOT)])
+        self.assertEqual(rc, 2, stderr.getvalue())
+        self.assertIn(
+            "ERROR: section-5 categories: category spec unreadable", stderr.getvalue()
+        )
 
 class ChangelogLinkCoverageTests(LinterTestCase):
     """tools/lint-changelog-link-coverage.py"""
