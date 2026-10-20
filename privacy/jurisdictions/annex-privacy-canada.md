@@ -2,8 +2,8 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.31\
-**Date:** 2026-10-01\
+**Version:** 1.1.32\
+**Date:** 2026-10-20\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -54,6 +54,7 @@ The following summarizes the PPCDA as introduced (Bill C-36, first reading 2026-
 - **Consent:** Meaningful consent required for collection, use, or disclosure. The form of consent may vary with the circumstances and sensitivity of the information; an organization should generally seek express consent for information likely to be sensitive, and implied consent is generally appropriate for less-sensitive information (PIPEDA Schedule 1, Principle 4.3).
 - **Automated decision-making:** PIPEDA has no explicit equivalent to GDPR Article 22. The OPC has published guidance on automated decision-making (individuals informed when significant decisions use automated systems; human review available); that guidance is not held in the reference base, so an adopter confirms the current OPC position directly. <!-- ref-absence: Canada OPC automated decision | Canada OPC guidance on automated decision -->
 - **Accountability:** Organizations must designate an individual responsible for compliance, develop privacy policies and procedures, and respond to individual complaints.
+- **Data mobility (enacted, not in force; recorded 2026-10-20):** S.C. 2026, c. 3, ss. 389 to 397 add Division 1.2, Mobility of Personal Information (ss. 10.4 to 10.6), to PIPEDA and extend ss. 11(1), 14(1), 16(a), 17.1(1), 18(1), 24(c), 27(1) and 27.1(1)(a) to (c) to that Division. The Justice Laws consolidation held in the reference base (current to 2026-09-21, last amended 2025-03-04) lists them under "AMENDMENTS NOT IN FORCE"; the [Canonical Citations Register](../../governance/register-canonical-citations.md) records the consolidation as current to 2026-09-30 and last amended 2025-03-04 when checked on 2026-10-20. As enacted, s. 10.4 operates "Subject to the regulations" and only where both organizations "are subject to a data mobility framework"; s. 10.5 leaves those frameworks, the organizations subject to them, and exceptions to Governor in Council regulations. This is distinct from the data mobility right in Bill C-36's proposed PPCDA (s. 72, above). Adopters confirm on Justice Laws that Division 1.2 is in force, and that the regulations and a framework covering both organizations have been made, before relying on it.
 
 ### Under the CPPA (lapsed; proposed, not in force)
 
