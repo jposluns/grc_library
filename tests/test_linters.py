@@ -14397,6 +14397,35 @@ class ReviewCadenceTests(LinterTestCase):
             "by design, so the directory's README cadence is not scheduled here).",
         )
 
+    def test_scope_never_reaches_guardrails(self) -> None:
+        # 3b218: EXEMPT_DIRECTORY_PREFIXES lost its last entry, "guardrails/", because
+        # neither the per-domain walk nor the explicit-path filter (DOMAINS or
+        # ROOT_DOCS only) can reach it. Pin both on the live tree (which holds
+        # guardrails/*.md) and on a synthetic tree, so a non-domain directory
+        # joining DOMAINS fails here instead of silently needing the entry.
+        live = load_linter_module("tools/check-review-cadence.py", "_check_review_cadence_3b218_live")
+        self.assertTrue(any((REPO_ROOT / "guardrails").rglob("*.md")),
+                        "precondition: guardrails/ holds markdown the walk could reach")
+        scanned = [f.relative_to(REPO_ROOT).as_posix() for f in live.iter_active_docs()]
+        self.assertTrue(scanned)
+        self.assertEqual([r for r in scanned if r.startswith("guardrails/")], [])
+        mod = load_linter_module("tools/check-review-cadence.py", "_check_review_cadence_3b218")
+        root = Path(tempfile.mkdtemp(prefix="cadence-scope-")).resolve()
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        for rel in ("governance/a.md", "guardrails/b.md", "guardrails/governance/c.md",
+                    "docs/d.md", "tools/e.md", "specification-ingestion.md"):
+            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (root / rel).write_text("x\n", encoding="utf-8")
+        mod.REPO_ROOT = root
+        walked = [f.relative_to(root).as_posix() for f in mod.iter_active_docs()]
+        self.assertEqual(walked, ["governance/a.md", "specification-ingestion.md"])
+        explicit = mod.iter_active_docs([Path("guardrails/b.md"), Path("docs/d.md"),
+                                         Path("governance/a.md")])
+        self.assertEqual([f.relative_to(root).as_posix() for f in explicit], ["governance/a.md"])
+        unreachable = [p for p in mod.EXEMPT_DIRECTORY_PREFIXES
+                       if not any(p.startswith(f"{d}/") for d in mod.DOMAINS)]
+        self.assertEqual(unreachable, [], "prefixes the per-domain walk can never match")
+
 
 class CitationVerificationFreshnessTests(LinterTestCase):
     """tools/lint-citation-verification-freshness.py
@@ -23724,6 +23753,36 @@ class BuildTaxonomySectionOutlineTests(unittest.TestCase):
         text = ("# T\n\n## One\n\n    ```\n## Two\n    ```\n\n"
                 "~~~\n## Fenced away\n~~~\n\n```\n## Also fenced\n```\n\n## Three\n")
         self.assertEqual(bt.extract_sections(text), ["One", "Two", "Three"])
+
+
+class BuildTaxonomyWalkScopeTests(unittest.TestCase):
+    """tools/build-taxonomy.py iter_all_docs walks only the DOMAINS directories and
+    the named root specifications (3b218)."""
+
+    def test_walk_never_reaches_guardrails(self):
+        # 3b218: EXEMPT_DIRECTORY_PREFIXES lost its last entry, "guardrails/", because
+        # the walk never reaches it. Pin that scope on the live tree (which holds
+        # guardrails/*.md) and on a synthetic tree, so a non-domain directory
+        # joining DOMAINS fails here instead of silently needing the entry.
+        live = load_linter_module("tools/build-taxonomy.py", "build_taxonomy_3b218_live")
+        self.assertTrue(any((REPO_ROOT / "guardrails").rglob("*.md")),
+                        "precondition: guardrails/ holds markdown the walk could reach")
+        scanned = [f.relative_to(REPO_ROOT).as_posix() for f in live.iter_all_docs()]
+        self.assertTrue(scanned)
+        self.assertEqual([r for r in scanned if r.startswith("guardrails/")], [])
+        bt = load_linter_module("tools/build-taxonomy.py", "build_taxonomy_3b218")
+        root = Path(tempfile.mkdtemp(prefix="taxonomy-scope-")).resolve()
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        for rel in ("governance/a.md", "guardrails/b.md", "guardrails/governance/c.md",
+                    "docs/d.md", "tools/e.md", "specification-ingestion.md"):
+            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (root / rel).write_text("**Document Title:** X\n", encoding="utf-8")
+        bt.REPO_ROOT = root
+        walked = sorted(f.relative_to(root).as_posix() for f in bt.iter_all_docs())
+        self.assertEqual(walked, ["governance/a.md", "specification-ingestion.md"])
+        unreachable = [p for p in bt.EXEMPT_DIRECTORY_PREFIXES
+                       if not any(p.startswith(f"{d}/") for d in bt.DOMAINS)]
+        self.assertEqual(unreachable, [], "prefixes the per-domain walk can never match")
 
 
 class GeneratorSortKeyParityTests(unittest.TestCase):

@@ -46,11 +46,14 @@ EXEMPT_FROM_INDEX = {
     "privacy/annex-regional-privacy-requirements.md",
 }
 
-# Phase 23.62 removed `tools/` and `docs/` because the per-domain walk
-# is restricted to the DOMAINS list and never reaches those directories.
-EXEMPT_DIRECTORY_PREFIXES = (
-    "guardrails/",
-)
+# Intentionally empty: the per-domain walk is restricted to the DOMAINS
+# list, and an explicit path is kept only when it lies under a DOMAINS
+# directory or is a ROOT_DOCS file, so a prefix outside those directories
+# can never match. Phase 23.62 removed `tools/` and `docs/` for that
+# reason; 3b218 removed the last entry, `guardrails/`, which went dead
+# when the pack moved from `dev-security/claude-rules/` to the root
+# (#1367). Any future entry must name a path under a DOMAINS directory.
+EXEMPT_DIRECTORY_PREFIXES: tuple[str, ...] = ()
 
 ROOT_DOCS = (
     "specification-master-project.md",
