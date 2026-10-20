@@ -138,6 +138,8 @@ class Variant(NamedTuple):
     # corpus document from the enriched taxonomy. VARIANT-SCOPED like
     # narrative_routes so the frozen root/v2 trees are untouched.
     document_routes: bool = False
+    # Only templates that consume DOMAIN_RAIL_LENSES opt into its validation.
+    domain_rail: bool = False
 
 
 # Executive routes that exist ONLY on the non-indexable /v2 staging tree (wave 1
@@ -180,7 +182,7 @@ V3_EXTRA_PAGES = (
 VARIANTS = (
     Variant("v1", "templates", "", indexable=True),
     Variant("v2", "templates-v2", "v2/", indexable=False, extra_pages=V2_EXTRA_PAGES,
-            narrative_routes=True),
+            narrative_routes=True, domain_rail=True),
     Variant("v3", "templates-v3", "v3/", indexable=False,
             extra_pages=V3_EXTRA_PAGES, document_routes=True, narrative_routes=True),
 )
@@ -869,17 +871,109 @@ def render_domain_narrative_rows(dp):
     return "\n".join(rows)
 
 
-def domain_page_values(dp, variant):
+# The v2 domain page's closing three-lens "Go deeper" rail. Every other v2 page
+# carries this block verbatim in its template; the domain template instead
+# renders it from this table (via the DOMAIN_RAIL_LENSES value below) so the
+# lens entry that IS the current domain page demotes to a non-link current-page
+# marker instead of linking to itself (3b152 N4: 8 of the rail's 10 entries are
+# domain pages, so the verbatim block self-linked on 8 of the domain pages).
+# Each entry is (domain slug or None, BASE-relative path or None, label); the
+# labels are template-authored HTML, already entity-escaped. A domain entry
+# carries its slug and no path (the renderer derives its href from the slug, so
+# the link destination cannot diverge from the validated slug); a None slug
+# marks a non-domain page that can never be the current domain page, and only
+# such an entry carries a hand-typed path.
+V2_DOMAIN_RAIL_LENSES = (
+    ("Security &amp; risk (CISO)", (
+        ("security", None, "Security controls &amp; operations"),
+        ("risk", None, "Risk methodology &amp; registers"),
+        ("resilience", None, "Continuity, recovery &amp; incidents"),
+    )),
+    ("Compliance &amp; evidence", (
+        ("compliance", None, "Regulatory mapping &amp; audit readiness"),
+        ("privacy", None, "Privacy &amp; data-protection obligations"),
+        ("governance", None, "Charters, policies &amp; registers"),
+    )),
+    ("Technology", (
+        (None, "how-its-built/", "How the library is built &amp; gated"),
+        ("architecture", None, "Reference architectures"),
+        ("dev-security", None, "Secure development &amp; pipelines"),
+        (None, "for-ai/", "For AI systems"),
+    )),
+)
+
+
+def render_domain_rail_lenses(current_domain, generated_domains):
+    """The three-lens rail for one v2 domain page: the shared lens block, except
+    that the entry naming the current domain renders as a non-link current-page
+    marker (aria-current, styled in the template) rather than a self-link. Fail
+    closed on table drift (3b152 round-1 QA): a rail slug that names no
+    GENERATED domain page (a renamed domain, or a domain whose last document
+    was removed, including one whose stale DOMAIN_SCOPE key remains) is a loud
+    build error, so neither case can leave the demotion silently dead or the
+    rail linking to a page that is not built; and a domain entry's href is
+    derived from its slug (an entry carrying both a slug and a hand-typed path,
+    or neither, is a loud build error), so the link destination cannot diverge
+    from the validated slug."""
+    malformed = sorted(
+        label for _, entries in V2_DOMAIN_RAIL_LENSES
+        for slug, path, label in entries if (slug is None) == (path is None)
+    )
+    if malformed:
+        raise BuildError(
+            "V2_DOMAIN_RAIL_LENSES entr(y/ies) must carry exactly one of a "
+            "domain slug (href derived from it) or a hand-typed path: "
+            + ", ".join(malformed)
+        )
+    unknown = sorted({slug for _, entries in V2_DOMAIN_RAIL_LENSES
+                      for slug, _, _ in entries if slug is not None}
+                     - set(generated_domains))
+    if unknown:
+        raise BuildError(
+            "V2_DOMAIN_RAIL_LENSES slug(s) name no generated domain page "
+            "(a renamed domain, or every document in it removed?): "
+            + ", ".join(unknown)
+        )
+    lenses = []
+    for heading, entries in V2_DOMAIN_RAIL_LENSES:
+        lines = ['        <div class="lens">', f"          <h3>{heading}</h3>"]
+        for slug, path, label in entries:
+            if slug == current_domain:
+                lines.append(
+                    f'          <span class="lens-here" aria-current="page">{label}</span>'
+                )
+            else:
+                href_path = f"{slug}/" if slug is not None else path
+                lines.append(
+                    f'          <a href="{{{{BASE}}}}/{href_path}">{label}</a>'
+                )
+        lines.append("        </div>")
+        lenses.append("\n".join(lines))
+    return "\n".join(lenses)
+
+
+def domain_page_values(dp, variant, generated_domains):
     """The per-page values for one domain page (merged on top of the shared
     values in render_page). SEO/attribute values are built from controlled
     strings (the domain name, the curated scope, the count), never from the
-    README prose, so no quote-escaping is needed in the attribute context."""
+    README prose, so no quote-escaping is needed in the attribute context.
+    ``generated_domains`` is the set of domain slugs that actually get pages
+    this build, the fail-closed ground truth for the rail renderer."""
     name = dp["domain"]
     return {
         "DOMAIN_NAME": _esc(name),
         "DOMAIN_SCOPE_TEXT": _esc(dp["scope"]),
         "DOMAIN_PURPOSE": _esc(dp["purpose"]),
         "DOMAIN_DOC_COUNT": str(dp["count"]),
+        # The documents lede's noun is COMPUTED with the count (3b152 round-1
+        # QA, the same grammar class as the leadership lede below): exactly one
+        # document reads "reference document". A domain page exists only for a
+        # domain with at least one document, so zero never renders here. Like
+        # the narrative tokens this is inert on templates that omit the token,
+        # so v1 and v3 output stays byte-identical.
+        "DOMAIN_DOC_NOUN": (
+            "reference document" if dp["count"] == 1 else "reference documents"
+        ),
         "DOMAIN_DOC_ROWS": render_domain_doc_rows(dp, variant),
         # The leadership-page (narrative registry) join, consumed by the v2
         # and v3 domain templates. Per-page extra= values are inert in a template
@@ -887,10 +981,28 @@ def domain_page_values(dp, variant):
         # on placeholders a template contains), so the untouched v1 template's
         # output stays byte-identical. The count is COMPUTED, never typed.
         "DOMAIN_NARRATIVE_COUNT": str(len(dp["narratives"])),
+        # The lede's noun-verb agreement is COMPUTED with the count (3b152 N2):
+        # exactly one page reads "page draws"; zero keeps the plural ("0 ...
+        # pages draw"), consistent with the declared-gap row beneath it. Like
+        # the rows/count values this is inert on templates that omit the token.
+        "DOMAIN_NARRATIVE_PAGES_DRAW": (
+            "page draws" if len(dp["narratives"]) == 1 else "pages draw"
+        ),
         "DOMAIN_NARRATIVE_ROWS": render_domain_narrative_rows(dp),
+        # Only rail variants get the key, so a template that uses the rail on a
+        # variant without the flag fails the unknown-placeholder check instead of
+        # rendering an empty rail (3b152 round-3 claude N1).
+        **({"DOMAIN_RAIL_LENSES": render_domain_rail_lenses(name, generated_domains)}
+           if variant.domain_rail else {}),
         "DOMAIN_TITLE": f"{_esc(name)} domain: GRC Library",
         "DOMAIN_SEO_DESC": _esc(
             f"{dp['scope']}. {dp['count']} governance documents in the {name} "
+            "domain of the open, CC BY-SA 4.0 GRC Library."
+        ),
+        # Only v2 consumes this agreed description; keep the legacy token.
+        "DOMAIN_SEO_DESC_AGREED": _esc(
+            f"{dp['scope']}. {dp['count']} governance "
+            f"{'document' if dp['count'] == 1 else 'documents'} in the {name} "
             "domain of the open, CC BY-SA 4.0 GRC Library."
         ),
         "DOMAIN_CANONICAL": _site_url_for(variant, f"{name}/index.html"),
@@ -932,10 +1044,24 @@ def type_page_values(tp, variant):
         "TYPE_NAME": _esc(name),
         "TYPE_SCOPE_TEXT": _esc(tp["scope"]),
         "TYPE_DOC_COUNT": str(tp["count"]),
+        # The type lede's noun is COMPUTED with the count (3b152 round-1 QA,
+        # the same grammar class as the domain ledes; the live corpus has
+        # one-document types, Checklist and Roadmap): exactly one document
+        # reads "reference document". Inert on templates that omit the token,
+        # so v1 and v3 output stays byte-identical.
+        "TYPE_DOC_NOUN": (
+            "reference document" if tp["count"] == 1 else "reference documents"
+        ),
         "TYPE_DOC_ROWS": render_type_doc_rows(tp, variant),
         "TYPE_TITLE": f"{_esc(name)} documents: GRC Library",
         "TYPE_SEO_DESC": _esc(
             f"{tp['scope']}. {tp['count']} {name}-type documents in the open, "
+            "CC BY-SA 4.0 GRC Library."
+        ),
+        # Only v2 consumes this agreed description; keep the legacy token.
+        "TYPE_SEO_DESC_AGREED": _esc(
+            f"{tp['scope']}. {tp['count']} {name}-type "
+            f"{'document' if tp['count'] == 1 else 'documents'} in the open, "
             "CC BY-SA 4.0 GRC Library."
         ),
         "TYPE_CANONICAL": _site_url_for(variant, f"types/{tp['slug']}/index.html"),
@@ -2382,10 +2508,12 @@ def render_variant(figures, variant):
     # domain's per-page values. The dead-value check below covers the global
     # values (used by the fixed pages); each domain page's own leftover check in
     # render_page guarantees its DOMAIN_* placeholders all resolved.
+    generated_domains = set(d["domain"] for d in figures["domain_pages"])
     for dp in figures["domain_pages"]:
         html, _ = render_page(
             "domain.html", figures, variant, template_dir, partials,
-            extra=domain_page_values(dp, variant), out_rel=f"{dp['domain']}/index.html"
+            extra=domain_page_values(dp, variant, generated_domains),
+            out_rel=f"{dp['domain']}/index.html"
         )
         pages.append((f"{dp['domain']}/index.html", html))
 

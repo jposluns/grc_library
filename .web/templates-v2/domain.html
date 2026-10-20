@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="{{DOMAIN_SEO_DESC}}">
+<meta name="description" content="{{DOMAIN_SEO_DESC_AGREED}}">
 <link rel="canonical" href="{{DOMAIN_CANONICAL}}">
 <title>{{DOMAIN_TITLE}}</title>
 {{HEAD_STYLE}}
@@ -20,6 +20,13 @@
   /* The .doc-index / .doc-row / .doc-type / .doc-title document-list styles are
      shared with the per-type pages and live in the head-style partial; the
      leadership-pages list reuses them unchanged. */
+  /* The closing rail's current-page entry: the generator demotes the lens entry
+     that IS this domain page from a link to this marker, so the rail never
+     self-links. Mirrors .rail .lens a (head-style partial) at full opacity
+     (ink-soft on surface-2 measures 6.66:1 light / 6.79:1 dark, WCAG AA for
+     this 0.9rem text; a 0.65 opacity measured about 3.0:1 / 3.7:1, below the
+     4.5:1 minimum), so the marker is set off by weight instead, no hover. */
+  .rail .lens .lens-here { display: block; font-size: 0.9rem; color: var(--ink-soft); font-weight: 600; padding: 0.18rem 0; }
 </style>
 </head>
 
@@ -71,7 +78,7 @@
     <div class="wrap">
       <p class="eyebrow">The executive layer</p>
       <div class="sec-head"><span class="sec-num">&sect;02</span><h2>Leadership pages that touch this area.</h2></div>
-      <p class="lede">{{DOMAIN_NARRATIVE_COUNT}} published leadership pages draw on the reference documents in this area, listed from the generated narrative registry.</p>
+      <p class="lede">{{DOMAIN_NARRATIVE_COUNT}} published leadership {{DOMAIN_NARRATIVE_PAGES_DRAW}} on the reference documents in this area, listed from the generated narrative registry.</p>
       <ul class="doc-index">
 {{DOMAIN_NARRATIVE_ROWS}}
       </ul>
@@ -84,7 +91,7 @@
     <div class="wrap">
       <p class="eyebrow">The governing set</p>
       <div class="sec-head"><span class="sec-num">&sect;03</span><h2>Documents.</h2></div>
-      <p class="lede">{{DOMAIN_DOC_COUNT}} reference documents in this area. Each links to its source on GitHub, where the corpus is version-controlled and continuously gated.</p>
+      <p class="lede">{{DOMAIN_DOC_COUNT}} {{DOMAIN_DOC_NOUN}} in this area. Each links to its source on GitHub, where the corpus is version-controlled and continuously gated.</p>
       <ul class="doc-index">
 {{DOMAIN_DOC_ROWS}}
       </ul>
@@ -97,25 +104,7 @@
       <p class="eyebrow">Go deeper</p>
       <div class="sec-head"><h2 class="nobalance">Three lenses past the executive layer.</h2></div>
       <div class="rail">
-        <div class="lens">
-          <h3>Security &amp; risk (CISO)</h3>
-          <a href="{{BASE}}/security/">Security controls &amp; operations</a>
-          <a href="{{BASE}}/risk/">Risk methodology &amp; registers</a>
-          <a href="{{BASE}}/resilience/">Continuity, recovery &amp; incidents</a>
-        </div>
-        <div class="lens">
-          <h3>Compliance &amp; evidence</h3>
-          <a href="{{BASE}}/compliance/">Regulatory mapping &amp; audit readiness</a>
-          <a href="{{BASE}}/privacy/">Privacy &amp; data-protection obligations</a>
-          <a href="{{BASE}}/governance/">Charters, policies &amp; registers</a>
-        </div>
-        <div class="lens">
-          <h3>Technology</h3>
-          <a href="{{BASE}}/how-its-built/">How the library is built &amp; gated</a>
-          <a href="{{BASE}}/architecture/">Reference architectures</a>
-          <a href="{{BASE}}/dev-security/">Secure development &amp; pipelines</a>
-          <a href="{{BASE}}/for-ai/">For AI systems</a>
-        </div>
+{{DOMAIN_RAIL_LENSES}}
       </div>
     </div>
   </section>
