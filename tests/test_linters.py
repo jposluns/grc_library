@@ -38774,6 +38774,32 @@ class HookLauncherIsolationGateTests(unittest.TestCase):
             self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
             self.assertIn('ERROR: settings.json:', r.stderr)
 
+    def test_non_json_constants_refused(self):
+        # 3b270: json.loads accepts NaN, Infinity and -Infinity; strict JSON refuses each, even in
+        # an extra top-level field beside a valid isolated hook.
+        import json
+        hook = '/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'
+        hooks = json.dumps(dict(PreToolUse=[dict(matcher='Bash', hooks=[dict(type='command', command=hook)])]))
+        for constant in ('NaN', 'Infinity', '-Infinity'):
+            with tempfile.TemporaryDirectory() as td:
+                path = Path(td) / 'settings.json'
+                path.write_text('{"extra": ' + constant + ', "hooks": ' + hooks + '}', encoding='utf-8')
+                r = self._run('--settings', str(path))
+                self.assertEqual(r.returncode, 2, (constant, r.stdout, r.stderr))
+                self.assertIn('ERROR: settings.json: non-JSON constant ' + constant, r.stderr)
+
+    def test_deeply_nested_settings_refused_without_traceback(self):
+        # 3b270: nesting past the decoder's recursion limit raised an uncaught RecursionError (exit 1,
+        # which means "lacks isolation"); it is a refusal with a one-line error.
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / 'settings.json'
+            path.write_text('{"hooks": ' + '[' * 100000 + ']' * 100000 + '}', encoding='utf-8')
+            r = self._run('--settings', str(path))
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr[-400:])
+            self.assertTrue(r.stderr.startswith('ERROR: settings.json:'), r.stderr[-400:])
+            self.assertEqual(len(r.stderr.splitlines()), 1, r.stderr[-400:])
+            self.assertNotIn('Traceback', r.stderr)
+
     def test_option_arguments_never_credit_isolation(self):
         for cmd in ('/usr/bin/python3 -Wignore::ImportWarning "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -X importtime "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -W I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -XutfI "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'):
             with tempfile.TemporaryDirectory() as td:
@@ -38788,6 +38814,16 @@ class HookLauncherIsolationGateTests(unittest.TestCase):
             r = self._run('--settings', p)
             self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
             self.assertIn("ERROR: settings.json:", r.stderr)
+
+    def test_obsolete_q_option_refused_by_gate(self):
+        # 3b270: -Q (Python 2 division control) is not a Python 3 option; the gate itself refuses
+        # it as unmodelled, whether its argument is attached or separate, even beside -I.
+        for cmd in ('/usr/bin/python3 -I -Qnew "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -I -Q new "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'):
+            with tempfile.TemporaryDirectory() as td:
+                p = self._settings(td, [cmd])
+                r = self._run('--settings', p)
+                self.assertEqual(r.returncode, 2, (cmd, r.stdout, r.stderr))
+                self.assertIn('ERROR: settings.json: unmodelled Python option -Q', r.stderr)
 
     def test_compound_commands_refused(self):
         compounds = ('/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py && /usr/bin/python3 y.py', '/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py || /usr/bin/python3 y.py', '/usr/bin/python3 -I x.py; /usr/bin/python3 y.py', '/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py | tee out.log', '/usr/bin/python3 -I x.py\npython3 y.py', '/usr/bin/python3 -I "$(pick-hook)" "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -I `pick-hook` "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', 'sh -c "/usr/bin/python3 x.py"', 'bash -lc "/usr/bin/python3 x.py"')

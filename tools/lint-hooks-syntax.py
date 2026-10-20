@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
-"""Hooks Python-syntax audit (gate 95).
+"""Hooks Python-syntax audit (gate 95) and hook-launcher isolation audit (gate 105).
+
+This one tracked tool carries two gates. With no mode argument it runs gate 95 (the
+syntax audit described next); with `--launcher-isolation` as its FIRST argument it runs
+gate 105 (described after the gate 95 residues).
 
 Every hook in `.claude/hooks/*.py` is executable machinery: the Claude Code harness
-invokes each file with the running Python interpreter at hook-fire time. A hook with a
-Python syntax error fails at exactly the moment it is supposed to protect, and the
+invokes each hook that `.claude/settings.json` names at hook-fire time with the absolute
+`/usr/bin/python3 -I` launcher given there (gate 105 requires an absolute, isolated
+launcher), and helpers those hooks import run in the same interpreter. A hook
+with a Python syntax error fails at exactly the moment it is supposed to protect, and the
 hooks here FAIL OPEN by design (a guard that wedges the session on its own malfunction
 gets disabled), so a syntax-broken hook does not announce itself: it silently stops
 protecting.
@@ -29,20 +35,43 @@ TabError, and an encoding-declaration error) the gate prints `path:line: <messag
 exits 1; a file with null bytes fails the same way. Exit 0 with a scanned-file count
 otherwise.
 
-Residues, stated: a compile under THIS interpreter proves compilability for the Python
+Gate 95 residues, stated: a compile under THIS interpreter proves compilability for the Python
 version CI runs, not for every interpreter an adopter might use; and the DEFAULT hooks
 directory, when missing or empty, passes with a count of 0 (an adopter fork without the hook
 tree stays green), so the gate proves "everything present compiles", never "the hooks are
 present". An EXPLICIT --hooks-dir that is empty, not a directory, or holds no hook file is
 refused instead (3b50b2d1).
 
+Gate 105 (hook-launcher isolation): read `.claude/settings.json` (or `--settings F`) as
+strict JSON (a duplicate key, and a `NaN`, `Infinity` or `-Infinity` constant, are
+refused), collect every `"type": "command"` entry under `hooks`, and require each
+command to launch Python isolated: an absolute `python3` or `python3.N` interpreter
+given `-I`, or all of `-P`, `-E` and `-s`, then a literal script operand under
+`"$CLAUDE_PROJECT_DIR"/.claude/hooks/`. The only modelled prefix is an
+`ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/literal/path` assignment. The grammar is narrow on
+purpose: anything it does not model (shell control, redirection or expansion syntax, a
+wrapper or non-Python program, `-c`, `-m`, stdin, `-W`, `-X`, or any other unmodelled
+option, such as the Python 2 `-Q`) is refused rather than guessed at.
+
 Usage:
     python3 tools/lint-hooks-syntax.py                # scan .claude/hooks/ (gate 95)
     python3 tools/lint-hooks-syntax.py --hooks-dir D  # fixture/regression override
     python3 tools/lint-hooks-syntax.py --launcher-isolation  # gate 105
+    python3 tools/lint-hooks-syntax.py --launcher-isolation --settings F  # gate 105 override
 
-Exit codes: 0 = every scanned file compiles; 1 = one or more files do not compile;
-2 = a refused --hooks-dir (empty value, not a directory, or no hook file in it).
+Exit codes, gate 95: 0 = every scanned file compiles; 1 = one or more files do not
+compile; 2 = a refused --hooks-dir (empty value, not a directory, or no hook file in it).
+
+Exit codes, gate 105: 0 = settings hold at least one command hook and every one is an
+isolated Python launcher; 1 = one or more modelled Python launchers lack isolation
+(neither `-I` nor all of `-P`, `-E` and `-s`); 2 = a refused launcher (a command outside
+the modelled grammar, or a command value that is not a string) or refused or unreadable
+settings (an empty --settings value, a missing or unreadable file, non-UTF-8 bytes,
+invalid JSON, a duplicate key, a `NaN`, `Infinity` or `-Infinity` constant, nesting too
+deep to parse or walk, a top level that is not an object, or no command hooks).
+One refused launcher makes the whole run exit 2, even if other launchers lack isolation.
+
+In both modes an argparse usage error also exits 2.
 
 Stdlib-only Python 3.11.
 """
@@ -110,6 +139,11 @@ def _no_duplicate_keys(pairs):
     return result
 
 
+def _no_constants(name):
+    # json.loads accepts NaN, Infinity and -Infinity by default; strict JSON does not.
+    raise Refusal("non-JSON constant " + name)
+
+
 def _literal(token, role):
     if not token or any(c in token for c in "$\x60*?[{~<>()}"):
         raise Refusal(role + " must be a literal path or option token: " + repr(token))
@@ -145,15 +179,11 @@ def isolation_flags(tokens):
         if token.startswith("--"):
             raise Refusal("unmodelled Python long option " + repr(token))
         body = token[1:]
-        for position, char in enumerate(body):
+        for char in body:
             if char in "cm":
                 raise Refusal("-c and -m are refused; a script operand is required")
             if char in "WX":
                 raise Refusal("-X and -W Python options are refused")
-            if char == "Q":
-                argument = body[position + 1:] or next(args, ("", ""))[0]
-                _literal(argument, "Python option argument")
-                break
             if char not in "bBdEIOPqRsSuvx":
                 raise Refusal("unmodelled Python option -" + char)
             flags.add(char)
@@ -218,7 +248,8 @@ def launcher_main(argv):
         if args.settings is not None and not args.settings.strip():
             raise Refusal("--settings needs a nonempty file path")
         path = Path(args.settings) if args.settings is not None else REPO_ROOT / ".claude/settings.json"
-        settings = json.loads(path.read_bytes().decode("utf-8"), object_pairs_hook=_no_duplicate_keys)
+        settings = json.loads(path.read_bytes().decode("utf-8"), object_pairs_hook=_no_duplicate_keys,
+                              parse_constant=_no_constants)
         if not isinstance(settings, dict):
             raise Refusal("settings must be a JSON object")
         commands = list(iter_commands(settings.get("hooks")))
@@ -230,7 +261,7 @@ def launcher_main(argv):
                 raise Refusal(trail + ": command must be a string")
             if classify(command) != "python-isolated":
                 findings.append(trail + ": " + command)
-    except (Refusal, OSError, UnicodeError, ValueError) as exc:
+    except (Refusal, OSError, UnicodeError, ValueError, RecursionError) as exc:
         print("ERROR: settings.json: " + str(exc), file=sys.stderr)
         return 2
     if findings:
