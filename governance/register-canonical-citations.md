@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.6.2\
+**Version:** 1.6.3\
 **Date:** 2026-10-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -107,8 +107,8 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | NIST AI RMF | 1.0 | 2023-01 | AI Risk Management Framework | - | https://www.nist.gov/itl/ai-risk-management-framework | 2026-06-30 |
 | NIST Privacy Framework | 1.0 | 2020-01 | A Tool for Improving Privacy through Enterprise Risk Management (identifier NIST.CSWP.01162020; Version 1.1 is an Initial Public Draft, not yet finalized) | - | https://www.nist.gov/privacy-framework | 2026-09-04 |
 | NIST AI 600-1 | 1.0 | 2024-07 | Generative AI Profile for AI RMF | - | https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence | 2026-06-30 |
-| NIST SP 800-208 | Final | 2020-10 | Recommendation for Stateful Hash-Based Signature Schemes (stateful hash-based digital signatures: LMS and XMSS, with the HSS and XMSS-MT multi-tree variants) | - | https://csrc.nist.gov/pubs/sp/800/208/final | 2026-07-25 |
-| NIST SP 800-218 | 1.1 | 2022-02 | Secure Software Development Framework (SSDF) | 1.0 | https://csrc.nist.gov/pubs/sp/800/218/final | 2026-06-30 |
+| NIST SP 800-208 | 2020 | 2020-10 | Recommendation for Stateful Hash-Based Signature Schemes (stateful hash-based digital signatures: LMS and XMSS, with the HSS and XMSS-MT multi-tree variants) | - | https://csrc.nist.gov/pubs/sp/800/208/final | 2026-07-25 |
+| NIST SP 800-218 | 1.1 | 2022-02 | Secure Software Development Framework (SSDF) (SSDF version 1.0 preceded this Version 1.1; a 2020 NIST Cybersecurity White Paper on the SSDF has identifier NIST.CSWP.04232020; 1.0 is listed as superseded so the linter flags citations of it) | 1.0 | https://csrc.nist.gov/pubs/sp/800/218/final | 2026-06-30 |
 | NIST SP 800-161 | Rev. 1 | 2022-05 (with 2024-11 update) | Cybersecurity Supply Chain Risk Management | 2015 | https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final | 2026-06-30 |
 | NIST SP 800-82 | Rev. 3 | 2023-09 | Guide to Operational Technology (OT) Security (formerly Guide to Industrial Control Systems Security) | Rev. 2, Rev. 1 | https://csrc.nist.gov/pubs/sp/800/82/r3/final | 2026-06-30 |
 | NIST FIPS 198-1 | 198-1 | 2008-07 | The Keyed-Hash Message Authentication Code (HMAC) (NIST has proposed withdrawing it in favour of SP 800-224, which is an initial public draft; FIPS 198-1 remains the approved standard) | FIPS 198 | https://csrc.nist.gov/pubs/fips/198-1/final | 2026-09-25 |
@@ -396,7 +396,7 @@ This section records international treaties and conventions, binding at the inte
 | --- | --- | --- | --- | --- | --- | --- |
 | UK AISI inspect_evals | continuous | 2024 | UK AI Security Institute (the AI Safety Institute until 14 February 2025) community evaluation catalogue running on Inspect AI harness; hosts third-party benchmarks including AgentDojo, AgentHarm, StrongREJECT | - | https://ukgovernmentbeis.github.io/inspect_evals/ | 2026-09-29 |
 | Meta CyberSecEval | v4 | 2025 | Offensive cyber benchmark covering ATT&CK compliance, FRR, secure code generation, prompt injection, code interpreter abuse, X86-64 CTF, spear phishing, autonomous offensive cyber ops, AutoPatch, CyberSOCEval | v3, v2, v1 | https://github.com/meta-llama/PurpleLlama/tree/main/CybersecurityBenchmarks | 2026-09-29 |
-| NIST SP 800-218A | Final | 2024 | Secure Software Development Practices for Generative AI and Dual-Use Foundation Models (SSDF profile) | - | https://csrc.nist.gov/pubs/sp/800/218/a/final | 2026-09-29 |
+| NIST SP 800-218A | 2024 | 2024-07 | Secure Software Development Practices for Generative AI and Dual-Use Foundation Models (SSDF profile) | - | https://csrc.nist.gov/pubs/sp/800/218/a/final | 2026-09-29 |
 
 ## AI security tooling references
 
