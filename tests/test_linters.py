@@ -22318,6 +22318,8 @@ class ExplicitPathGuardCwdTests(LinterTestCase):
     def test_every_iter_targets_caller_has_a_reviewed_policy(self) -> None:
         # Class-completeness: a new tool that feeds paths to the iter_targets family (or a
         # local copy) must be classified here, so it cannot join the family unguarded.
+        # ExplicitPathCliInventoryTests (3b50c) widens this inventory from walker-name
+        # matching to every path-capable tools/ command line, by AST.
         reviewed = {Path(s).name for s in self.MARKDOWN} | {
             "lint-unused-imports.py", "lint-metadata.py", "lint-document-date-staleness.py",
             # Own missing-path refusal predating 3b48:
@@ -22482,6 +22484,1150 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
                 "tools/lint-followup-ageing.py", "tools/lint-hooks-syntax.py"):
             result = run_linter(script)
             self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
+
+
+class ExplicitPathCliInventoryTests(unittest.TestCase):
+    """Complete file inventory and conservative drift pins (3b50c, round 3).
+
+    HARD CHECK: exact tools-relative paths cover every Python source, shell script,
+    library and data file, independent of AST detection. Missing, extra, duplicate
+    and symlinked entries fail; traversal errors propagate. Only non-executable
+    CPython cache files with the current magic and a corresponding source file
+    are excluded. Python source
+    inside __pycache__ is not excluded. There are no basename exemptions.
+
+    Policies describe reviewed behaviour, not proof that every argument is safe:
+    ROOT/CWD use lint_common's corresponding explicit-path guard for document
+    inputs; OWN validates its own explicit input paths; NO_FS parses flags,
+    numbers, refs, dates or command/search strings, not filesystem path arguments;
+    SKIP visibly accepts a missing operational input or proposed document; WRITE
+    accepts an output destination (including cleanup's --staging move destination);
+    MESSAGE reads Git's message file, normally refusing unreadable input with 1;
+    TRANSPORT accepts/forwards Git remote name/location (possibly a local path), not a
+    corpus scan path; COMMAND forwards an executable and its arguments; CHILD is
+    an internal child runner whose argv is supplied only by a named parent tool,
+    the only tools/ caller (CHILDREN; callers outside tools/ are not searched);
+    FIXED operates on fixed/configured targets and ignores
+    command-line arguments;
+    PASSIVE has no CLI intake (including shebang-bearing reference modules);
+    DATA is non-executable .json/.md without a shebang.
+
+    MESSAGE has exit-0 exceptions: an absent guard module or the override
+    GRC_ALLOW_UNBUMPED_COMMIT. A sequencer operation also skips the version check,
+    after reading the message. The commit-msg shim delegates to that policy. The compiler's OWN policy covers --root, --pack-root and
+    --aiqt-root; its parser and local validation dependencies are pinned below.
+
+    DRIFT CHECK: A means sha256 of the exact AST surface; F means sha256 of all
+    file bytes. Both mode and digest are checked. The only certified AST grammar
+    is an unaliased argparse import, one plain parser construction, literal
+    add_argument declarations and one final parse_args call. Application code,
+    forwarding, other imports, custom types/actions, parents and subparsers all
+    require F. Every current tool uses F. This deliberately requires review of
+    comments and unrelated edits too, including all shell edits.
+
+    AST cross-check blind spots, exactly: _surface recognizes call spellings only,
+    preserves ordered declarations and structural context, and does not resolve
+    data flow, aliases, lexical bindings, parser receivers, imported factories,
+    parser mutation, helper flag variables, argv/orig_argv forwarding or storage,
+    decorators, computed getattr, exec, importlib or environment-selected code.
+    None of those shapes can certify A. Empty detection still gets F and never
+    removes an inventory entry. Shell always gets F. A missed surface therefore
+    still fails on the next whole-file edit. External code needs dependency pins:
+    this is not a proof about arbitrary environment-installed modules or config.
+    DEPENDENCIES covers the reviewed compiler and MESSAGE guard; lint_common is
+    itself inventoried. Review new delegation when updating a whole-file pin.
+
+    Guard binding checks conservatively reject syntactic shadowing of imported
+    guards/module aliases in any scope. They do not prove execution. The runtime
+    probe establishes one missing-path refusal outcome, not its cause or every
+    argv route. The skill-internal-refs fallback catches Exception, not merely
+    ImportError: it can run when lint_common exists but fails to import. Only its
+    reviewed exception-handler assignment to None is allowed by the cross-check.
+
+    CHILD: each parent's whole-file pin is the primary control; any edit to the
+    parent forces review. The launch check is only a secondary syntactic screen.
+    The named parent must be the only tools/
+    file that names the child as a command: any non-Python mention counts, and
+    in Python every string, import or identifier containing the child's stem
+    counts except docstrings and the elements of a copy-only loop inside a
+    *self_test* function. Every parent reference must sit in one literal argv
+    list passed directly as the only positional argument of subprocess.run, Popen,
+    check_call, check_output or call, so the list is never bound to a name, an
+    operand of + or *, extended, sliced or assigned into; the call's only
+    keywords are stdin, stdout, stderr and start_new_session, each None, True,
+    False or subprocess.PIPE, DEVNULL or STDOUT, so never executable, env or an
+    integer file descriptor; subprocess must be bound only by a plain import
+    and never patched, and str and Path by no form other than an import. The
+    list holds sys.executable, the reviewed flags -I (required), -B, -E, -s and
+    -P, the child, then paths built only from the parent's own __file__ through
+    module-level assignments, joining relative parts without "..". Neither
+    __file__ nor such a name may be bound
+    anywhere else in any form: assignment, deletion, import, def, class,
+    parameter, global, nonlocal, except, match capture or attribute store of
+    that name. So never its argv, environment or a starred forward.
+    Comments, computed names, exec, importlib by computed name, star imports,
+    type parameters, imports rebinding Path or str, any binding of sys,
+    attribute patches on sys, Path or pathlib (such as sys.executable or
+    Path.resolve), and mutation through globals(), vars(), sys.modules, a
+    module __dict__ or setattr are blind spots; the whole-file pins catch the
+    edit.
+    """
+
+    # Exact path, policy, mode, sha256. Update only after path-argument review.
+    INVENTORY = """
+        README.md DATA F 2ea5143f12548295d0f51826fcc3773cfe9b9300c462b3c9ec33c92a3696158e
+        adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
+        adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
+        aiqt_bootstrap.py PASSIVE F c9596844ccf7a8146a7f1ad08a1d45c8575caae841323c827595f6069c564a86
+        aiqt_rules.py NO_FS F d6b9c3d2a5107192024dbe7923ea0642dfb91e519652eb7936acef6e2f646c6b
+        alignment-register-aliases.json DATA F c55a6f1b42df5a6750adf54e027bb5c585f792d3d1c629038601a79d7f80d218
+        alignment-register-exclusions.json DATA F ae28ec61a6a973f24a33af86957dff0d1f0d0740dc82b5aec393a5bb882c3df0
+        alignment_citation_ids.json DATA F cfa3de2c52597f242d12bfce2d71756e897c173de8df9a1577aed4f42b571d56
+        alignment_citation_reference.py PASSIVE F 4d26e0d5906e57bbe205f641575c6589d0afad3f60d8b4995aa07c26caf1db4b
+        audit-activity-timing.py SKIP F e80df37531885836146bc027bc25e2c9afbeab6359b343f957d16449603e92b0
+        audit-backlog-actionability.py OWN F c089004a4e41f3a8c9273d7df9926331953635bc3133ba22023e1f2a7ffc1244
+        audit-claim-precision.py ROOT F c2e537144efb7458cba00827577f959907263a7dfffcc75bab54c888f1e1d4b2
+        audit-cross-repo-references.py OWN F f2eeb637b2a28b3d8995fe57609c231e1845dc139b4d8aa5f917433833abd83d
+        audit-gate-blindspots.py OWN F 7dbd907ece2720fce7b9fa8dfdac25bf37d94a2096e2aaba00dba10b3ac3f53b
+        audit-gate-mutation.py OWN F db2e8a4e3255dfff96dc9a0f744a58508c1b88e689bea0af28fdc33062fb5716
+        audit-held-branch-expiry.py NO_FS F 062a882c813adbd5c4bb2bf56e4fff298fcf7418fb8a977ee89cb6269543ce33
+        audit-inbox-drops.py SKIP F a931ec3bf370c0e755637bcb2ff3238ea9e5337761de96a712b90027588a46bc
+        audit-matrix-semantic-fit.py ROOT F cbceed5cdc02aaa69975107ef39ca7a4341364347126772d64b67b5d7216d6ed
+        audit-provision-siblings.py ROOT F f170396d06f2c71accad212a8c7c8102b97f9b656084e89a6cda1f2a5f42448d
+        audit-reference-acquisition-gaps.py OWN F 535c1c7f2ba2af08a2035a786ee844c63ed42e433d9f3dee66003d9d46b4a5a3
+        audit-reference-breadth.py ROOT F 12c9bce2fb0244f2db75631acb5156a66e459669785762b0dcedec88542b696a
+        audit-register-currency.py SKIP F 3364ad9fccc9b09fc204420dfc97599682bbdc6e727ccdd6950f743b2e115e17
+        audit-register-url-redirects.py OWN F 37071cd343bea8397bb8beef183a79aa8d890ac8c5478b1e5c02de423c0386cd
+        audit-selftest-discriminability.py OWN F 2f3c40f7c10663f9727cf2a358a1a1b1709afb5c087f30d7f9a66cfac1458b68
+        audit-stranded-matrix-code.py OWN F bc472383e742869d4661814776c66e741dd011a5498d1b7c37a48dfc30f9df87
+        audit-token-spend.py SKIP F f2ddc8690680ddeb190433e7264f077b7e2c969e320b7b6c9c1fb70f2f6a34ba
+        audit-validation-coverage.py NO_FS F 53684c943e2d4b72c55b38d1549e48bd4189160aee83b0ae1f7717eb8cb22942
+        audit-worklist-register-drift.py OWN F 1e3f854f86468706c311cd0484b6f2efa7b308f67eefd1aa66e7369bb8680146
+        build-alignment-citation-registry.py NO_FS F f94e4d0b1798d3b56714e21813f9598b250e3c7080b25b672f86f5848a894487
+        build-citation-publishers.py NO_FS F 300b9b1816f512275e61ee2027e2930f800dae47f6b59695e5c72e3ac01e6423
+        build-corpus-management.py OWN F 5a8cdc9491b4565b783cc4de48a65a06f0abc48bc272c039bfc6e2edc104b671
+        build-historical-citation-exceptions.py OWN F 442e33ccfd3d443d763e0576d908d0a27c74f59d5cda3d1fe53a919d074376d2
+        build-narrative-registry.py NO_FS F 92ebf6bf91d8fdce637d835dcc031a3ddd2a60ed51fbce195de18e1c734107ad
+        build-portal.py NO_FS F 8373cabccc091b43819bc71d6288e7e862091449dbf60a6d2f6664c10f084bad
+        build-provision-index.py ROOT F fe7e21ef073874b792080c23593e1d47e3e4f2702177860b06b67486a9cb46e1
+        build-public-changelog.py OWN F 407a5b794ad8b51c495f9a2d98ec1f8908fac68500a12004c092e59bd8054d77
+        build-reference-manifest.py NO_FS F 80b1c2bfc67f36d4705713fac0ce2c724a5638d1292fbd954767e1d59f2c134d
+        build-relationship-model.py NO_FS F 6f4352a07d3aa1a1e991cde011e5f11c464776d58012701d17bc8ac5b43a6d14
+        build-taxonomy.py NO_FS F bce7fe0f04c2b12dbd62898d7fed0baaba0d79b0bc30d60cb2452ea20b616d55
+        build-todo-number-allocation.py NO_FS F 8ad89e87b8a6df4a576935a21409cadc80ce0456784a22262ac3229b3f2dd99e
+        ccm_aicm_reference.py PASSIVE F 1ed15d9b1bd4cfd1162df3e720b5aa6058c3cba3cb1f626fcf2e1ee605c17e71
+        check-alignment-register-on-pr.py NO_FS F e9abf548bc7c19c3a22aa4c0eea55f792b72e45e9ebe697295ea33e7495072ee
+        check-changelog-dash-on-pr.py NO_FS F 16785d15796674651febd80a61ad7c974ee3f30fec1b969afb5cd4cc30275749
+        check-changelog-length-on-pr.py NO_FS F 6c0f192881acdc0484363c43d4a5b166ab11e25809667597a65a0e8a8eb4098d
+        check-changelog-on-pr.py NO_FS F 1c2e377a997e7e95bef19eb4d4fbdd994310b58b4b6d2476f9cdad2c789f549d
+        check-changelog-preflight-commit.py NO_FS F f125518cfecf9b175b117d05110876407193e7e4cac518abd1badbea9b35a37c
+        check-class-attestation-on-pr.py NO_FS F 8ef4e742c2610fa3c80598404991ee6aab9da409b9e95e2ad8b74ec202d40325
+        check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
+        check-claude-md-size.py NO_FS F 5cc9d9caba54c5c3be3cab015bf250454d8a704828b5e8dd93a636c1a6235c62
+        check-clause-preservation.py OWN F 43d6804eccf05f9c2434da4ec879246d48cc80081b8c852e86437cf38c65c664
+        check-clean-language-upstream.py NO_FS F 7732d2d2eceb44061d99e7c484aa83c93b0818091538ba7e3b95a0040acda6a2
+        check-commit-on-main.py NO_FS F 6b32bd410a2fee3b4dbb3ff8e3677ee4c5278c9c3f0496fe429b12a25cc967e9
+        check-daily-changelog-rollup.py SKIP F 096c9d8e8cf4741ca7fd9bb43ca5c4a5d08ead37c65559e291b44fb8af28da10
+        check-date-cobump-on-pr.py NO_FS F 02741873379df2625536b436fc126cb5f6ce30d7dd593a0ab9657ec0d0c4758e
+        check-dirty-tree-push.py TRANSPORT F 3e155b2e0e6e3bd125c36611a3c76c1d426657f2363fb4d4462659f3234bafa4
+        check-generated-commit.py NO_FS F 0966158af3a54dba6c55f7de8039ca21ff3658ffe98c4d341d6ad153e824697b
+        check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 5c49cbef61d26c22b137d6118d478faee0ba47feda27f3aac3b4c134c772c9a5
+        check-portability.sh FIXED F 47a3853e165ba918c0f4f5687904f662a0a9d805356428394fd724ff227756d5
+        check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
+        check-retired-section-orphan-on-pr.py NO_FS F e88e6f7717c4059d89a284b4b049ab5b37958ac959a94b576ee5ada35f6ea09b
+        check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
+        check-stranded-control-code-on-pr.py NO_FS F 80830fb4cc3d11694504a10fed1abc21b5019cd08b01b388ffa1b2d1f9db95d7
+        check-todo-floor-monotonic-on-pr.py NO_FS F e3c6f34a4fb62c07ce7938c0337cef4756e3628b044e2e73ac5a01b35d9e242d
+        check-todo-rotation-on-pr.py NO_FS F 4e8d01d2a96932b969a6e920601236eef9adf1725caf8db35412661b171ff2d9
+        check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
+        check-version-bump-on-pr.py NO_FS F 12b0d498e274aebdac381f7db669315183ee64ba4e0be21a31041002c7a69854
+        ci-status.py NO_FS F 9200435745e88c1bd124a3d171974b0b69b3fcd8801ca3af3101d40899c10e2a
+        ci-status.sh NO_FS F 8c66fb625693e9099b040855a90e25dac7f78960eeb2ad660ac513f513287094
+        citation_publishers.py PASSIVE F 8c9729132cfaa4f2705c023b4501872905a44dd76b996be8ea8c78ae4188d3e8
+        cleanup-tmp-worker-output.py WRITE F 188d936e3dca47b40ec662a51670d04ee2e9cc6b98b706f4e876f489483c62f8
+        cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
+        decisions-search.py NO_FS F a6f83f23008ed1a78383293f3e685e67bc8af59d1ad79cad5832bc792a111eca
+        detect-collection-candidates.py NO_FS F 4abd7344bc3bda8933daaa560e4479dea08a856f5503e6a4122f495923a6f21b
+        detect-env.py WRITE F bb9b977f0a07a9d27b09dcd85d271bb1f31efc826c5f6cd860106f283144ebc6
+        external_overlay.py PASSIVE F fcbdb23ea95b360fdb467d3d4b39a0b1fd9ac1113eb6b431aeee1de0fbcbe2f1
+        gate-mutation-variants.json DATA F c6af7a3c12d4d56ccae611dd77676e8be2113c3fed0ae83638d3be8790e72549
+        gate-scope-manifest.json DATA F 50789210ef13e032b6206ef8392f4acd2a6266cdcc47aeaa8d72efcacdcc3fee
+        git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
+        git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
+        git-hooks/pre-push TRANSPORT F 153637d865d22fd7f9a7a359a09fa4f468ad61d37ab070f6fb6ecd7fdc188b2c
+        handoff-snapshot.py NO_FS F c752b79fa8844d3b37fb8978b351cd55ad3c02e648cd0f37168f256a92154358
+        historical_citation_register.py PASSIVE F deb457b7487c069a6f1602b6a4160e1ce922da6a82a523b288dfee151d3b0236
+        install-git-hooks.sh FIXED F d7e19f3e3e27e2691c1b5d67e7132153d6277839a8f0d4f1f41e9bd93b6d61bf
+        iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
+        iso_27001_reference.py PASSIVE F e8789346ac57b557de2f5c93c7fc2b31651b49be25bc8180e8bdc84310b21418
+        lint-acronym-consistency.py CWD F 2608f2b4ef320586a895895235ce268e75dcca39f4a1e0618019ef8f1f59c3a9
+        lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
+        lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
+        lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
+        lint-audit-gate-parity.py OWN F 3cc8013f0d69f112498d69dd97629078f7852f911d0b689bb509b356165418e9
+        lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
+        lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
+        lint-bookkeeping-parity.py NO_FS F c94921cdb7086bc946dfd6d7f2469d9a697faf6147edc5dfa2b96fc774464c30
+        lint-ccm-aicm-citations.py CWD F b396ecc6a9544f00e5446f3d46235a64996340e46613fc75f21b39e74e97f306
+        lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
+        lint-changelog-link-coverage.py CWD F 0eb2c21687bcae9e697ab26d0273e766530ec144f1417ac04309badae1bd1bd2
+        lint-changelog-mirror-header-parity.py OWN F 061e2bd2ca2b95c789aeaf2697cbae580d6fa5450aeccc40f38d76113bf2f966
+        lint-citation-currency-cadence.py NO_FS F 5dba5f4f0c3ec6482ca0e465d221fe1d44010bed5c47b2af235672069cf0cadd
+        lint-citation-verification-freshness.py OWN F 057d0deb7b8442828df3042e47923cf1febf446ab77bf5f816f31bba9dc3949d
+        lint-citations.py ROOT F 83bf87b4c7ab8d59c1835f4eee4bd75d9a55e5accb60b062463f6b74dc9d5437
+        lint-claude-rules-sync.py OWN F 6ddec97bcc42f63d58f077104ba309ace4479c7c4072ed7923f436c216dd41a4
+        lint-cobit-iso31000-citations.py CWD F 8c8d47fd9bf0450ff39cac188c7ba96278fa8e6a85bf77ccefeb25cb4d36355f
+        lint-cobit-title-text.py CWD F d625c961d7681ad55eba539e49ea12cfb79e2cf94c4e4682558485b8dec65384
+        lint-collection-enumeration-consistency.py NO_FS F 2f347d07371bf789e139a27c8ff17dbf76eacd9253df0ba17f088d84b6edca61
+        lint-cross-doc-numbers.py CWD F 7f6bfb6e79043793e5a65a9511dfa9dce59330b4ae4fdf60e635a954b077162d
+        lint-cross-file-section-names.py CWD F feb2fbe79f712472ab6da77235b707d7eb01a3a61e3ccc499afb35c28594bab4
+        lint-cross-file-section-refs.py CWD F 4f8355586732cd3e3dc15bc38407e1c799fc2cf2599f14dc04a3ca95e60369cd
+        lint-date-format.py CWD F 0c81353fdf02fe3678af5b048286c450eab4dc11e98e83a33d9afb330c8cc785
+        lint-directional-dependency.py ROOT F 87a96f52dc6cda6fc97f3b1c85160c7e07b63dad53bee04a56a81b69021742f4
+        lint-doctype-parity.py NO_FS F 457af4477b67f4f36665c9c3942ecf552925ca05f18c8c82e6eab1212c5f717e
+        lint-document-control-codes.py OWN F a76633bf3c991410f08d64bb441fa8b5b1de76ad4ff8879a81ca0ef429e0ad3a
+        lint-document-date-staleness.py CWD F bd94e8055f86c3639fd11eb90712f9e63d353056de3754d2842e5b5908108e1b
+        lint-document-iso-annex-a.py OWN F d15f9b9b9e0bad6ff5a943d950b3b58322293939f8ac496fe38d52c4183e64e5
+        lint-external-link-domains.py CWD F 6705c76257afbdf86fffaeac0ed363a391899b9cb932594ea6870dcdcad5df52
+        lint-external-overlay-license.py NO_FS F 274c40601ab51949646d3c7fdf115e35b9fa47af81646ec83547e352c10f781d
+        lint-filename-title-alignment.py ROOT F 053875094e7cc520061a2dd3a0fa226f35c68834942cef0a168bbfdac5f9dcf3
+        lint-followup-ageing.py CWD F 09496e12c77b9f28e0440cb50eb71dbaac90b896524196cb9fdd09156cb3c7d0
+        lint-gate-citation-inventory.py NO_FS F 104cdff1e3c6541f5de0705c6461fb2ee2c9e7f69eae82b714a9c9dccdbc3b47
+        lint-gate-count-consistency.py CWD F 075bd03b5434c09153bf1da8d0eb6a3c3130d18f8073122f565216557be80bf0
+        lint-guardrail-cadence.py OWN F 5eb8669434b40f3dcaac9efe313684542bfc576b1d3b1883e0100d8e387631d2
+        lint-hooks-syntax.py OWN F f271dc554bdc7afdd6883d9fcf727cea7f9da6b87170d79a6d98cb0d785b15cb
+        lint-index-header-parity.py OWN F b528ec567d2b1af998e521872768a0b2c7414b5adcc5929b4a4c218f4b437f3d
+        lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
+        lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
+        lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
+        lint-library-version-monotonicity.py OWN F 7a31b639d0d9c162efed7ced217949e0558ad3c09bd6d1316e679a64cb1f43b5
+        lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
+        lint-links.py ROOT F cf4b6ae1d2c76df65234323d94650ebc62db87bf24ed4f375d5386b4a75fb0b6
+        lint-listing-surface-completeness.py NO_FS F 3dc1bb95c9133adec9f3af5640cf18a6c342118c972ab7cfb447fa6651ffe0f3
+        lint-matrix-control-codes.py OWN F db50722da09857af1b7331860449b5f928c2a14775323007c4a6c09caa0dc2ad
+        lint-metadata-line-breaks.py ROOT F c4cf5422425033ee4171b762756de7a06e7ef7c528ea92d0066d62b39ea9e6ce
+        lint-metadata.py ROOT F 4b598a5775c087c6cd29ee7de4d5989ce65f9d2f69bd7a2bf84792e999ad6eeb
+        lint-narrative-authority-boundary.py ROOT F 30604b67d564825474d8d957291b2d7fef0fcffc7fbc9dc13b42ccf80986ad41
+        lint-narrative-boundary.py OWN F 787e392e5612561e47a6cf581d7fad785f867351682b116d8b7db680d4890f9a
+        lint-narrative-disclaimer.py NO_FS F 0a3c80fe7b792ce03ed555686e33a66d5189f44a34d1ff6aa7cb95672160bd61
+        lint-narrative-metadata.py CWD F 42f55b016d27c8789767d1bd5c2ea2290a3f42482fa8967e2ac5cdca0f93d053
+        lint-narrative-vocabulary.py CWD F 8af41000aec9017b7bcc56dcdfd108075f678e3f5b359507c5cd4ab48e3bb2d3
+        lint-nested-markdown-links.py ROOT F 0cc62cd79f607f71bfcb727df3915d8ef930683786c8ccb39a0ada0b4f022f8d
+        lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
+        lint-overnight-file.py NO_FS F 34cc2994fbb9a2447eb6012f9241280793b14e05eb4aaca4c38e010e667a8065
+        lint-paired-skill-step-parity.py NO_FS F 3c110f802642ca01e84733acc50954862e8c220b91e9e7625206b03ec4df8a00
+        lint-pii-in-content.py CWD F 3892a7ab7f09960df0bdeb187a3e2b61f406483620d6baa1eaa238ea91166d8e
+        lint-placeholder-leakage.py CWD F e09ad286e82070d2f80453547f7b648d84f3f3ec46aed1c9c2af7c6c4d35929f
+        lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
+        lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
+        lint-publication-manifest.py NO_FS F 4a017db9b2313865a406351d0d0d2fb2f0d4ffdaee4c79397b742d89965b21ad
+        lint-ref-absence-claims.py ROOT F 0afbfd4f9c61d32c9ae41af3cd54b62914990269734b1feafe60526168e580c4
+        lint-required-sections.py CWD F e9a106626f65c3fc17abdb0c67d766ffd7dbb402995ebfb38edf5c65431fc283
+        lint-retention-consistency.py OWN F 9ec3807a066221fc661f42245d0427ac6b76079e8ceff98946d9a6de5154a43f
+        lint-roles.py ROOT F 7ab1670d3a4355951b6f0467114ea3e13af47f785a794aa4d1000436ff7489ac
+        lint-rule-scope-table.py OWN F de6547f8df8448bcc8f6e91f440ce8de829d8420f53137b6c441854fb4f4e547
+        lint-scan-scope-parity.py OWN F 4994e76e03b29747372bdaa82648c15b37ff7e44c601325674ce395f12f67c15
+        lint-secrets-in-content.py CWD F 868061fc0527d0843223825800fb75dd963d345d058a144b6ecc23ee8deb227b
+        lint-section-anchors.py CWD F 4b540b4eb8480d1f4be16e1c51cc7c990d22a5b4ea8911244636d0aa1956726f
+        lint-section-placement.py CWD F 936e351d52bcd0a0a4964b3ecd046c44ae057298aed6edde002687e8f4c17f98
+        lint-session-state.py NO_FS F 4223723f25b14f825089bb08e130da48962431af53e2f32750fc52f180585b71
+        lint-shall-near-uncertainty.py ROOT F 0df50c2b6826f9216f67addad8931f1eb35498d0e3862064bdb3fed317e64610
+        lint-sibling-placeholders.py NO_FS F 2ae82222a589343521ebfbc12a3b9edbec0533203e02b3f7adf906f2b8ad1d2a
+        lint-skill-derives-from.py OWN F 647bad2c581c91563e3738fb588b065a1c03aa2df6d98ca1b57562e2092a1eef
+        lint-skill-internal-refs.py ROOT F b2b1fc4846ca52b298fe12ee712477bfac97e173e3ac6368e72c5edd6c28b50e
+        lint-skill-verdict-carrier-completeness.py OWN F 7056be9141352daf10807f17e9941fb422a84cbf43eae4fff9549efd3684f5a3
+        lint-ssdf-control-ids.py CWD F 54015e59cec3436d10f624771d7f0f44367bb6e37354e7468c3474866b32901e
+        lint-standards-currency.py OWN F 490bc1face5879a115890f543a68b0bdb5ef3dbf4f750b0a6e8bc94d4e537b6a
+        lint-startup-character-ceiling.py NO_FS F aeaaf73e5efe319cb6881277ca5b7abef8db708826fe1bf0a241559d7d58a060
+        lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
+        lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
+        lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
+        lint-todo-index-reference-parity.py OWN F cf16944b198e3e919e7f2fd7ba6343363c8612e660879734585aaa48b4d99f41
+        lint-todo-list-tag.py OWN F 867aa18964d3ae7c4031831d484c50eef4d24b8753207fb7e965441eb01206f9
+        lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
+        lint-todo-number-permanence.py OWN F 539dbf64916e39d6a0202071142970b674dea97c683a4ad2b86afa003c646139
+        lint-todo-staleness.py NO_FS F 83fd453559b91e9c9a8d6c5126d6962a3ac9dfdd2bf6f3dc21eded7379ba115f
+        lint-tooling-provenance-freshness.py OWN F 4cb6ed58b8cd47d727f7d198169661581b8e94a4a62cc6380a1a64e86b74ca5b
+        lint-unbalanced-fences.py ROOT F f52bd3d3e92b3801ba454f3756c8ba76ff8518e18fd8d42ea2edf1ffc9ce2246
+        lint-ungated-dashes.py NO_FS F 1a6bd1116eb14e8a97db17cc9c89ac715b008277e91584eae59a5295ae42eb17
+        lint-unused-imports.py CWD F f242cf624e08d538fa9919ef3fbb11757ca356deb1e34249d8a349533766d4fb
+        lint-version-bump-recency.py CWD F 7d4feec3b461f25276f814283c0d6e93df0696be3666961699f84d759c6757e8
+        lint-version-date-consistency.py OWN F f9956da5ff7492dc60c99939c1e10b650fc2ffbc51a00f28bf51e53ae863f472
+        lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
+        lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
+        lint-working-prose-hygiene.py CWD F 616ae8f4ea008cda21bcf2f663ed650f82f91b2467fddc75cc4a313ff61e32b1
+        lint_common.py PASSIVE F eb3d6527507bc698799c18a6217731f0ff5eaa30b5e9f7ac90f4147f26a79e23
+        matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
+        merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
+        nist_csf_reference.py PASSIVE F 6ddcf1bace3d18bef9c4b181cedc22bd73a59a4b0c3fa32191fbf93ac4175baa
+        open-findings-row.py OWN F fb6ea37f99d59f51a07280ff04d824cdb720354132e0b91f779a4ef995865f4b
+        pre-push-guard.sh FIXED F 6266fe435475157686c5382ecaea00cfb944859d66832ab6169e35d8ff9c4603
+        preflight-changelog.py NO_FS F 6d7f57c4f725cc4f8b88b8497551875b645a1949bcb71dbfc6f9e6fbb1eedf52
+        preflight-version-date.py NO_FS F aa321341106d02ab1dda9790bf571e70f6e35f744b467d66dbf865dc5fbc2f00
+        preflight_language_runner.py CHILD F c7242875b76d4282326ba37e0f878cebfc2939aa2780657c56bb3ef007fa0644
+        provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
+        publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
+        quick-guard.sh FIXED F d8100be22ceb20a97923b97a21adfaaa0260fffd1924a76b4c98c2960a0852b9
+        ref-holds.py OWN F 12b4bc426cc0dc4f0cb070fc94feb3398c0d0d420c091e3e343393a16feb4f7d
+        reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
+        repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
+        residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
+        run-linter-regression.py FIXED F 2e97814644c614dc987df7139c5ff0ff9b875fb2c1ba0abb6ff0abc298282753
+        run-pr-time-checks.sh FIXED F 149366a50976af26bf594757d03314a39f6c81d4054d1c4403457fe2fe37af3b
+        run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
+        run_all_audits.sh FIXED F 5402b906a88e051de7a9c58cab674f360b3389046e637ba992657adb7a814f3e
+        run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
+        scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
+        session_facts.py PASSIVE F 950f2a57ed9dcf6403ada633da21d94f41fd8c03beaf7990f6e2c3a33cdd2197
+        skill-verdict-fields.json DATA F fba56d7e70141647fcad92824591d65a0208c6e6b623caaff82bfcb62bbd06aa
+        statusline-next-pr.py NO_FS F 81db4327eb56260c362e61edbae2a7c7c2fd426df579fe21d57638cfd7b55223
+        suggest-listing-surfaces.py SKIP F 69a5d2c045bb2e66291c5892efe5b5bfa5777649964e2f9e8fe636430e262949
+        sweep-preflight-exemptions.json DATA F 6912151cc3082699047edeba48f3092d50d7c21e8f8a22173372a4cda7146d7e
+        sweep-preflight-scanner.py NO_FS F ae4ca7f95dffecb823ec3bc0fdf382ead32fd92a8b0c8b0c286f0b85b2b4dd6f
+        sync-citation-worklist-baseline.py OWN F 9c465a8c77bafd52f7f3079f35346a11716a6f0bc8e91862706590e831af397b
+        tail-safe.sh COMMAND F 07908bc54b40d06445f63a08f92526d22e4a030465ee235104a3ec41fbbb0b02
+        tension-scan.py NO_FS F 674d1e5b430b2799b220bdf9d074498321a5e2a84d2d4e12ffb22c1cd5102711
+        todo-number-floor.json DATA F b5b684a17754dd265c1072f2342971befcc59b5a6e0b579f48eb21ea172f047b
+        todo_index_rows.py PASSIVE F 6aba39ba20b4bbbe5ffab3fe94ef520ec95ce8d8e2510ea73696c17d196c2e4a
+        tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4
+        validate-review-artifacts.py OWN F 037b7cc690f09b3168dbc6ba22b908c5f7cccc0d47d4f6fe9f929e5e9a98a10d
+        verify-reference-modules.py OWN F 893bd222b4fa1d6b17ee5d4a6b2bb276958f771c73c4cbd62a4bf95c287a1d0b
+    """
+
+    # Repository-relative argument-handling dependencies outside tools/.
+    DEPENDENCIES = """
+        .corpus-management/tools/corpus_mgmt_compiler.py d5e69c551cf1de7e96431b3ee707331dd02eab881ce67ba9c2922c1eaef0dc14
+        .corpus-management/tools/pack_release_delta.py 9954156fab2677b2e68f665945703d834a704ab4374ae2eaf85010ba3a54c9ad
+        .corpus-management/tools/profile_loader.py 0b61489bb735fce429c9103c814ec6b3ee3499b6ff0bea194ab6223bbd946697
+        vendor/aiqt/tools/aiqt_corpus.py d263897ff93e84e73c509b373e59669a07767e5795618475a1628ea4657e2a47
+        .claude/hooks/block-unbumped-version-commit.py 06f680c81e4af2a23721da2f374eec73dab0e5d3a9bf03895bade5ce2a08a065
+    """
+
+    POLICIES = frozenset(
+        "ROOT CWD OWN NO_FS SKIP WRITE MESSAGE TRANSPORT COMMAND CHILD FIXED PASSIVE DATA".split())
+    GUARDS = {"ROOT": "guard_explicit_paths", "CWD": "guard_explicit_paths_cwd"}
+    # CHILD tool -> the only tools/ file that starts it and supplies its argv.
+    CHILDREN = {"preflight_language_runner.py": "preflight-changelog.py"}
+    PROBES = {
+        "audit-claim-precision.py": "--docs",
+        "audit-matrix-semantic-fit.py": "--docs",
+        "audit-provision-siblings.py": "--docs",
+        "audit-reference-breadth.py": "--docs",
+        "lint-unused-imports.py": "--paths",
+    }
+
+    @staticmethod
+    def _rows(text, width):
+        rows = {}
+        for line in text.splitlines():
+            if not line.strip():
+                continue
+            fields = line.split()
+            assert len(fields) == width, line
+            path = fields[0]
+            assert path not in rows, f"duplicate inventory path: {path}"
+            assert not path.startswith("/") and all(
+                p not in ("", ".", "..") for p in path.split("/")), path
+            rows[path] = tuple(fields[1:])
+        return rows
+
+    @staticmethod
+    def _files(root):
+        import importlib.util
+        assert root.is_dir() and not root.is_symlink(), str(root)
+
+        def walk_error(error):
+            raise error
+
+        paths = []
+        for directory, dirs, names in os.walk(root, onerror=walk_error, followlinks=False):
+            paths.extend(Path(directory) / name for name in dirs + names)
+        files = {}
+        for path in sorted(paths):
+            rel = path.relative_to(root).as_posix()
+            assert not path.is_symlink(), f"symlink requires review: {rel}"
+            if path.is_dir():
+                continue
+            assert path.is_file(), f"not a regular tool file: {rel}"
+            data = path.read_bytes()
+            if (path.parent.name == "__pycache__" and path.suffix == ".pyc"
+                    and not path.stat().st_mode & 0o111
+                    and data[:4] == importlib.util.MAGIC_NUMBER
+                    and (path.parent.parent / (path.name.split(".")[0] + ".py")).is_file()):
+                continue
+            files[rel] = data
+        return files
+
+    @staticmethod
+    def _surface(data):
+        """Return ordered AST cross-check records and exactness, never membership."""
+        import ast
+        tree = ast.parse(data)
+        records = []
+        names = {"ArgumentParser", "add_argument", "add_parser", "add_subparsers",
+                 "strict_flags", "positional_args", "parse_args", "parse_known_args",
+                 "parse_intermixed_args", "parse_known_intermixed_args"}
+
+        def visit(node, context=()):
+            if isinstance(node, ast.Call):
+                name = (node.func.attr if isinstance(node.func, ast.Attribute)
+                        else node.func.id if isinstance(node.func, ast.Name) else "")
+                if name in names:
+                    records.append((context, ast.dump(node, include_attributes=False)))
+            for field, value in ast.iter_fields(node):
+                if isinstance(value, ast.AST):
+                    visit(value, context + (field,))
+                elif isinstance(value, list):
+                    for i, child in enumerate(value):
+                        if isinstance(child, ast.AST):
+                            visit(child, context + (field, i))
+
+        visit(tree)
+        # Certify a complete grammar, never the heuristic absence of argv tokens.
+        body = tree.body
+        skeleton = ast.parse("import argparse\np = argparse.ArgumentParser()\np.parse_args()\n").body
+        dump = lambda n: ast.dump(n, include_attributes=False)
+        exact = (len(body) >= 3 and dump(body[0]) == dump(skeleton[0])
+                 and dump(body[1]) == dump(skeleton[1])
+                 and dump(body[-1]) == dump(skeleton[-1]))
+        for node in body[2:-1]:
+            call = node.value if isinstance(node, ast.Expr) else None
+            if not (isinstance(call, ast.Call) and isinstance(call.func, ast.Attribute)
+                    and isinstance(call.func.value, ast.Name) and call.func.value.id == "p"
+                    and call.func.attr == "add_argument" and call.args
+                    and all(isinstance(a, ast.Constant) and isinstance(a.value, str)
+                            for a in call.args)):
+                exact = False
+                continue
+            for kw in call.keywords:
+                try:
+                    ast.literal_eval(kw.value)
+                except (ValueError, TypeError, SyntaxError):
+                    exact = False
+                if kw.arg is None or (kw.arg == "action" and not (
+                        isinstance(kw.value, ast.Constant) and kw.value.value in
+                        ("store", "store_const", "store_true", "store_false", "append",
+                         "append_const", "count", "help", "version", "extend"))):
+                    exact = False
+        return tuple(records), exact
+
+    @classmethod
+    def _pin(cls, path, data):
+        import hashlib
+        import json
+        mode, payload = "F", data
+        if path.endswith(".py"):
+            try:
+                surface, exact = cls._surface(data)
+            except (SyntaxError, ValueError, UnicodeError):
+                exact = False
+            if exact:
+                mode = "A"
+                payload = json.dumps(surface, ensure_ascii=True, separators=(",", ":")).encode("ascii")
+        return mode, hashlib.sha256(payload).hexdigest()
+
+    @classmethod
+    def _check(cls, files, rows):
+        assert set(files) == set(rows), (
+            f"unclassified tools: {sorted(set(files) - set(rows))}; "
+            f"missing tools: {sorted(set(rows) - set(files))}")
+        drift = []
+        for path, (policy, mode, digest) in rows.items():
+            assert policy in cls.POLICIES, f"{path}: unknown policy {policy}"
+            actual = cls._pin(path, files[path])
+            if (mode, digest) != actual:
+                drift.append(f"        {path} {policy} {' '.join(actual)}")
+        # Report every changed pin at once, each as its INVENTORY line after review.
+        assert not drift, (
+            f"{len(drift)} pinned file(s) changed; re-review this tool's path arguments "
+            "for each, then paste its line into INVENTORY:\n" + "\n".join(drift))
+
+    @classmethod
+    def _guard_binding(cls, source, path=""):
+        """Conservative syntactic cross-check; no claim of runtime resolution."""
+        import ast
+        tree = ast.parse(source)
+        parents = {id(c): n for n in ast.walk(tree) for c in ast.iter_child_nodes(n)}
+        imported, modules, allowed_imports = {}, set(), set()
+        guards = set(cls.GUARDS.values())
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.module == "lint_common":
+                for alias in node.names:
+                    if alias.name in guards:
+                        imported[alias.asname or alias.name] = alias.name
+                        allowed_imports.add(id(alias))
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.name == "lint_common":
+                        modules.add(alias.asname or alias.name)
+                        allowed_imports.add(id(alias))
+        watched = set(imported) | modules | guards
+        violations, resolved = [], set()
+        fallback = ast.dump(ast.parse(
+            "guard_explicit_paths = positional_args = self_test_requested = None").body[0])
+
+        def allowed_none(node):
+            assignment = parents.get(id(node))
+            handler = parents.get(id(assignment))
+            owner = parents.get(id(handler))
+            return (path == "lint-skill-internal-refs.py"
+                    and isinstance(assignment, ast.Assign) and ast.dump(assignment) == fallback
+                    and isinstance(handler, ast.ExceptHandler)
+                    and isinstance(handler.type, ast.Name) and handler.type.id == "Exception"
+                    and isinstance(owner, ast.Try) and owner in tree.body
+                    and any(isinstance(n, ast.ImportFrom) and n.module == "lint_common"
+                            and any(a.name == "guard_explicit_paths" for a in n.names)
+                            for n in owner.body))
+
+        for node in ast.walk(tree):
+            bound = None
+            if isinstance(node, ast.alias):
+                if node.name == "*":
+                    violations.append("star import can substitute a guard")
+                bound = node.asname or node.name.split(".")[0]
+                if bound in watched:
+                    if id(node) not in allowed_imports:
+                        violations.append("import substitutes " + bound)
+            if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)):
+                if node.id in watched and not allowed_none(node):
+                    violations.append("stores/deletes " + node.id)
+            if isinstance(node, ast.arg):
+                bound = node.arg
+            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                bound = node.name
+            elif isinstance(node, ast.ExceptHandler):
+                bound = node.name
+            elif isinstance(node, (ast.MatchAs, ast.MatchStar)):
+                bound = node.name
+            elif isinstance(node, ast.MatchMapping):
+                bound = node.rest
+            if not isinstance(node, ast.alias) and bound in watched:
+                violations.append("shadows " + bound)
+            if isinstance(node, (ast.Global, ast.Nonlocal)) and watched.intersection(node.names):
+                violations.append("changes guard scope")
+            if isinstance(node, ast.Attribute) and isinstance(node.ctx, (ast.Store, ast.Del)):
+                if (node.attr in guards or isinstance(node.value, ast.Name)
+                        and node.value.id in modules):
+                    violations.append("mutates guard/module attribute")
+            if isinstance(node, ast.Call):
+                fn = node.func
+                if isinstance(fn, ast.Name) and fn.id in imported:
+                    resolved.add(imported[fn.id])
+                if (isinstance(fn, ast.Attribute) and isinstance(fn.value, ast.Name)
+                        and fn.value.id in modules and fn.attr in guards):
+                    resolved.add(fn.attr)
+        return resolved, violations
+
+    @staticmethod
+    def _child_references(path, data, child):
+        """Count (command, copy) mentions of a CHILD tool; conservative, syntactic."""
+        import ast
+        stem = child.rsplit(".", 1)[0]
+        if stem.encode() not in data:
+            return 0, 0
+        if not path.endswith(".py"):
+            return 1, 0
+        tree = ast.parse(data)
+        docs, copies = set(), set()
+        copy_calls = {"copy", "copy2", "copyfile"}
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                if (node.body and isinstance(node.body[0], ast.Expr)
+                        and isinstance(node.body[0].value, ast.Constant)):
+                    docs.add(id(node.body[0].value))
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and "self_test" in node.name:
+                for loop in ast.walk(node):
+                    if not (isinstance(loop, ast.For) and isinstance(loop.iter, (ast.Tuple, ast.List))):
+                        continue
+                    calls = {c.func.attr if isinstance(c.func, ast.Attribute)
+                             else getattr(c.func, "id", "")
+                             for stmt in loop.body for c in ast.walk(stmt) if isinstance(c, ast.Call)}
+                    if calls & copy_calls and calls <= copy_calls | {"mkdir"}:
+                        copies.update(id(e) for e in loop.iter.elts)
+        commands = copied = 0
+        for node in ast.walk(tree):
+            named = (isinstance(node, ast.Constant) and stem in repr(node.value)
+                     or isinstance(node, ast.alias) and stem in node.name
+                     or isinstance(node, ast.ImportFrom) and stem in (node.module or "")
+                     or isinstance(node, ast.Name) and stem in node.id
+                     or isinstance(node, ast.Attribute) and stem in node.attr)
+            if named and id(node) in copies:
+                copied += 1
+            elif named and id(node) not in docs:
+                commands += 1
+        return commands, copied
+
+    @staticmethod
+    def _parent_launch_violations(data, child):
+        """Syntactic check that a parent starts CHILD only with self-anchored argv."""
+        import ast
+        tree = ast.parse(data)
+        # Every binding form _guard_binding rejects, in any scope; imports are kept apart
+        # because a plain import is how subprocess, Path and str are expected to be bound.
+        stores, imports = {}, {}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)):
+                stores[node.id] = stores.get(node.id, 0) + 1
+            if isinstance(node, (ast.Global, ast.Nonlocal)):
+                for name in node.names:
+                    stores[name] = stores.get(name, 0) + 2
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef,
+                                 ast.ExceptHandler, ast.MatchAs, ast.MatchStar)) and node.name:
+                stores[node.name] = stores.get(node.name, 0) + 2
+            if isinstance(node, ast.MatchMapping) and node.rest:
+                stores[node.rest] = stores.get(node.rest, 0) + 2
+            if isinstance(node, ast.arg):
+                stores[node.arg] = stores.get(node.arg, 0) + 2
+            if isinstance(node, ast.Attribute) and isinstance(node.ctx, (ast.Store, ast.Del)):
+                stores[node.attr] = stores.get(node.attr, 0) + 2
+            if isinstance(node, ast.alias):
+                bound = node.asname or node.name.split(".")[0]
+                imports[bound] = imports.get(bound, 0) + 1
+        module = {n.targets[0].id: n.value for n in tree.body
+                  if isinstance(n, ast.Assign) and len(n.targets) == 1
+                  and isinstance(n.targets[0], ast.Name) and stores.get(n.targets[0].id) == 1
+                  and not imports.get(n.targets[0].id)}
+
+        def anchor(expr, seen=()):
+            # True: built from __file__; False: a literal path part; None: anything else.
+            if isinstance(expr, ast.Constant) and isinstance(expr.value, str):
+                # An absolute part discards the __file__ anchor it is joined onto.
+                part = Path(expr.value)
+                return None if ".." in part.parts or part.is_absolute() else False
+            if isinstance(expr, ast.Name):
+                if expr.id == "__file__":
+                    # Any binding of __file__ anywhere disqualifies it as the anchor.
+                    return None if stores.get("__file__") or imports.get("__file__") else True
+                if expr.id in module and expr.id not in seen:
+                    return anchor(module[expr.id], seen + (expr.id,))
+                return None
+            if isinstance(expr, ast.Attribute) and expr.attr == "parent":
+                return anchor(expr.value, seen)
+            if isinstance(expr, ast.BinOp) and isinstance(expr.op, ast.Div):
+                left, right = anchor(expr.left, seen), anchor(expr.right, seen)
+                return left if right is False else None
+            if isinstance(expr, ast.Call) and not expr.keywords:
+                fn = expr.func
+                if isinstance(fn, ast.Attribute) and fn.attr == "resolve" and not expr.args:
+                    return anchor(fn.value, seen)
+                if (isinstance(fn, ast.Name) and fn.id in ("Path", "str") and not stores.get(fn.id)
+                        and len(expr.args) == 1):
+                    return anchor(expr.args[0], seen)
+            return None
+
+        def strip(expr):
+            if (isinstance(expr, ast.Call) and isinstance(expr.func, ast.Name)
+                    and expr.func.id == "str" and len(expr.args) == 1 and not expr.keywords):
+                return expr.args[0]
+            return expr
+
+        docs = {id(n.body[0].value) for n in ast.walk(tree)
+                if isinstance(n, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+                and n.body and isinstance(n.body[0], ast.Expr) and isinstance(n.body[0].value, ast.Constant)}
+        stem = child.rsplit(".", 1)[0]
+        named = {id(n) for n in ast.walk(tree)
+                 if isinstance(n, ast.Constant) and stem in repr(n.value) and id(n) not in docs}
+        holders = {name for name, value in module.items()
+                   if any(id(n) in named for n in ast.walk(value))}
+        violations, launches, accounted = [], 0, set()
+        for name in holders:
+            if anchor(module[name]) is not True:
+                violations.append(f"{name}: child path not built from the parent's own directory")
+            accounted.update(id(n) for n in ast.walk(module[name]) if id(n) in named)
+        parents = {id(c): n for n in ast.walk(tree) for c in ast.iter_child_nodes(n)}
+        launchers = {"run", "Popen", "check_call", "check_output", "call"}
+        flags = {"-I", "-B", "-E", "-s", "-P"}
+        keywords = {"stdin", "stdout", "stderr", "start_new_session"}
+        streams = {"PIPE", "DEVNULL", "STDOUT"}
+        # subprocess counts only when a plain import binds it and nothing rebinds or patches it.
+        if stores.get("subprocess") or any(
+                (a.asname or a.name.split(".")[0]) == "subprocess"
+                and not (isinstance(n, ast.Import) and a.name == "subprocess" and not a.asname)
+                for n in ast.walk(tree) if isinstance(n, (ast.Import, ast.ImportFrom))
+                for a in n.names) or any(
+                isinstance(n, ast.Attribute) and isinstance(n.ctx, (ast.Store, ast.Del))
+                and isinstance(n.value, ast.Name) and n.value.id == "subprocess"
+                for n in ast.walk(tree)):
+            violations.append("subprocess bound other than by a plain import, or patched")
+        # strip() drops str(...) around the child and anchor() trusts Path and str, so any
+        # recorded binding of either, in any form, is refused before either is relied on.
+        for name in ("str", "Path"):
+            if stores.get(name):
+                violations.append(f"{name} bound other than by an import")
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.List):
+                continue
+            slots = [i for i, e in enumerate(node.elts)
+                     if isinstance(strip(e), ast.Name) and strip(e).id in holders]
+            if not slots:
+                continue
+            launches += 1
+            accounted.update(id(strip(node.elts[i])) for i in slots)
+            call = parents.get(id(node))
+            if not (isinstance(call, ast.Call) and len(call.args) == 1 and call.args[0] is node
+                    and isinstance(call.func, ast.Attribute) and call.func.attr in launchers
+                    and isinstance(call.func.value, ast.Name) and call.func.value.id == "subprocess"):
+                violations.append("child argv list not passed directly as the only positional "
+                                  "argument of subprocess.run, Popen, check_call, check_output or call")
+            elif not all(kw.arg in keywords and (
+                    # Identity, not ==: 0 == False and 1 == True, and an integer is a descriptor.
+                    isinstance(kw.value, ast.Constant)
+                    and any(kw.value.value is v for v in (None, True, False))
+                    or isinstance(kw.value, ast.Attribute) and kw.value.attr in streams
+                    and isinstance(kw.value.value, ast.Name) and kw.value.value.id == "subprocess")
+                    for kw in call.keywords):
+                violations.append("child launch keyword not reviewed or not None, True, False "
+                                  "or a stream: " + ", ".join(ast.unparse(kw) for kw in call.keywords))
+            first = slots[0]
+            head, tail = node.elts[:first], node.elts[first + 1:]
+            if not (head and isinstance(head[0], ast.Attribute) and head[0].attr == "executable"
+                    and isinstance(head[0].value, ast.Name) and head[0].value.id == "sys"
+                    and all(isinstance(e, ast.Constant) and e.value in flags for e in head[1:])
+                    and any(e.value == "-I" for e in head[1:])):
+                violations.append("child not started as [sys.executable, reviewed flags with -I..., child]")
+            for e in tail:
+                if anchor(e) is not True:
+                    violations.append("child argv entry not built from the parent's own directory: "
+                                      + ast.unparse(e))
+        for node in ast.walk(tree):
+            if id(node) in named and id(node) not in accounted:
+                violations.append("child named outside a module-level path binding")
+            if (isinstance(node, ast.alias) and stem in node.name
+                    or isinstance(node, ast.ImportFrom) and stem in (node.module or "")
+                    or isinstance(node, ast.Name) and stem in node.id
+                    or isinstance(node, ast.Attribute) and stem in node.attr):
+                violations.append("child imported or named as an identifier")
+            if (isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load) and node.id in holders
+                    and id(node) not in accounted):
+                violations.append(f"{node.id} used outside a child argv list")
+        if not launches:
+            violations.append("parent never starts the child")
+        return violations
+
+    def test_every_tool_file_has_exactly_one_policy_and_pin(self):
+        files = self._files(REPO_ROOT / "tools")
+        rows = self._rows(self.INVENTORY, 4)
+        self._check(files, rows)
+        for path, (policy, _, _) in rows.items():
+            if policy == "DATA":
+                self.assertIn(Path(path).suffix, (".md", ".json"), path)
+                self.assertFalse(files[path].startswith(b"#!"), path)
+                self.assertFalse((REPO_ROOT / "tools" / path).stat().st_mode & 0o111, path)
+
+    def test_external_argument_dependencies_are_pinned(self):
+        import hashlib
+        for path, (digest,) in self._rows(self.DEPENDENCIES, 2).items():
+            source = REPO_ROOT / path
+            self.assertTrue(source.is_file() and not source.is_symlink(), path)
+            self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), digest,
+                             f"{path}: re-review this tool's path arguments")
+
+    def test_guard_policy_cross_check(self):
+        for path, (policy, _, _) in self._rows(self.INVENTORY, 4).items():
+            if not path.endswith(".py") or path == "lint_common.py":
+                continue
+            resolved, violations = self._guard_binding(
+                (REPO_ROOT / "tools" / path).read_bytes(), path)
+            self.assertFalse(violations, (path, violations))
+            expected = {self.GUARDS[policy]} if policy in self.GUARDS else set()
+            self.assertEqual(resolved, expected, path)
+
+    def test_guard_policies_refuse_one_missing_explicit_path(self):
+        for path, (policy, _, _) in self._rows(self.INVENTORY, 4).items():
+            if policy not in self.GUARDS:
+                continue
+            args = [self.PROBES[path]] if path in self.PROBES else []
+            args.append("no/such/file-3b50c.md")
+            result = subprocess.run(
+                [sys.executable, "-B", str(REPO_ROOT / "tools" / path), *args],
+                cwd=REPO_ROOT, capture_output=True, text=True, timeout=30,
+                env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"})
+            self.assertEqual(result.returncode, 2, path + result.stdout + result.stderr)
+            self.assertIn("does not exist", result.stderr, path)
+            self.assertNotIn("Traceback", result.stderr, path)
+
+    def test_child_runners_take_argv_only_from_their_parent(self):
+        files = self._files(REPO_ROOT / "tools")
+        rows = self._rows(self.INVENTORY, 4)
+        children = {path for path, (policy, _, _) in rows.items() if policy == "CHILD"}
+        self.assertEqual(children, set(self.CHILDREN), "CHILD rows and CHILDREN must match")
+        for child, parent in self.CHILDREN.items():
+            self.assertIn(parent, files, child)
+            self.assertNotEqual(rows[parent][0], "CHILD", parent)
+            callers = {path for path, data in files.items()
+                       if path != child and self._child_references(path, data, child)[0]}
+            self.assertEqual(callers, {parent}, f"{child}: only its parent may start it")
+            self.assertEqual(self._parent_launch_violations(files[parent], child), [], parent)
+
+    def test_child_definition_rejects_other_callers_and_forwarded_argv(self):
+        child = "runner.py"
+        parent = ('"""Starts runner.py."""\nimport subprocess, sys\nfrom pathlib import Path\n'
+                  "_DIR = str(Path(__file__).resolve().parent)\n"
+                  '_RUNNER = Path(_DIR) / "runner.py"\n_GATE = Path(_DIR) / "gate.py"\n'
+                  'subprocess.run([sys.executable, "-I", str(_RUNNER), str(_GATE)])\n')
+        self.assertEqual(self._parent_launch_violations(parent.encode(), child), [])
+        self.assertEqual(self._child_references("parent.py", parent.encode(), child), (1, 0))
+        copier = ("import shutil\ndef _self_test(src, dst):\n"
+                  '    for rel in ("runner.py", "gate.py"):\n'
+                  "        shutil.copy2(src / rel, dst / rel)\n")
+        self.assertEqual(self._child_references("copier.py", copier.encode(), child), (0, 1))
+        for path, caller in (
+                ("copier.py", copier.replace("_self_test", "install")),
+                ("copier.py", copier.replace("shutil.copy2", "subprocess.run")),
+                ("caller.py", 'import subprocess\nsubprocess.run(["python3", "tools/runner.py", "x"])\n'),
+                ("caller.py", "import runner\nrunner.main()\n"),
+                ("caller.sh", '#!/bin/sh\npython3 tools/runner.py "$1"\n')):
+            with self.subTest(caller=caller):
+                self.assertGreater(self._child_references(path, caller.encode(), child)[0], 0)
+        for forged in (
+                parent.replace("str(_GATE)", "sys.argv[1]"),
+                parent.replace("str(_GATE)", "*sys.argv[1:]"),
+                parent.replace("Path(_DIR) / \"gate.py\"", "Path(sys.argv[0]).parent / \"gate.py\""),
+                parent.replace('"gate.py"', '"../gate.py"'),
+                parent + "_GATE = sys.argv[1]\n",
+                parent + "subprocess.run([sys.executable, str(_RUNNER), sys.argv[1]])\n",
+                parent + "subprocess.run(['sh', '-c', str(_RUNNER)])\n",
+                parent + "import runner\n",
+                parent.replace("subprocess.run([sys.executable, \"-I\", str(_RUNNER), str(_GATE)])\n", "")):
+            with self.subTest(forged=forged):
+                self.assertTrue(self._parent_launch_violations(forged.encode(), child))
+
+    def test_R3_CHILD_1_W1_launch_list_goes_straight_to_subprocess(self):
+        child = "runner.py"
+        launch = 'subprocess.run([sys.executable, "-I", str(_RUNNER), str(_GATE)])\n'
+        parent = ('"""Starts runner.py."""\nimport subprocess, sys\nfrom pathlib import Path\n'
+                  "_DIR = str(Path(__file__).resolve().parent)\n"
+                  '_RUNNER = Path(_DIR) / "runner.py"\n_GATE = Path(_DIR) / "gate.py"\n' + launch)
+        self.assertEqual(self._parent_launch_violations(parent.encode(), child), [])
+        for name in ("Popen", "check_call", "check_output", "call"):
+            accepted = parent.replace("subprocess.run(", f"subprocess.{name}(").replace(
+                '"-I"', '"-I", "-B", "-E", "-s", "-P"')
+            with self.subTest(accepted=accepted):
+                self.assertEqual(self._parent_launch_violations(accepted.encode(), child), [])
+        bound = 'cmd = [sys.executable, "-I", str(_RUNNER), str(_GATE)]\n'
+        for forged in (
+                parent.replace("str(_GATE)])", "str(_GATE)] + sys.argv[1:])"),
+                parent.replace("str(_GATE)])", "str(_GATE)] + list(argv[1:]))"),
+                parent.replace("str(_GATE)])", "str(_GATE)] * 2)"),
+                parent.replace(launch, bound + "cmd.extend(sys.argv[1:])\nsubprocess.run(cmd)\n"),
+                parent.replace(launch, 'cmd = [sys.executable, str(_RUNNER), str(_GATE)]\n'
+                                       "cmd[2:] = sys.argv[1:]\nsubprocess.run(cmd)\n"),
+                parent.replace(launch, bound + "subprocess.run(cmd)\n"),
+                parent.replace("subprocess.run([", "subprocess.run(cmd := ["),
+                parent.replace("str(_GATE)])", "str(_GATE)][:])"),
+                parent.replace("subprocess.run(", "subprocess.getoutput("),
+                parent.replace("subprocess.run(", "os.execv(sys.executable, "),
+                parent.replace("subprocess.run(", "run(").replace(
+                    "import subprocess, sys", "import sys\nfrom subprocess import run"),
+                parent.replace("import subprocess, sys", "import sys\nimport shlex as subprocess"),
+                parent.replace(launch, "subprocess.run = print\n" + launch),
+                parent.replace('"-I"', '"-c"'),
+                parent.replace('"-I"', '"-"')):
+            with self.subTest(forged=forged):
+                self.assertTrue(self._parent_launch_violations(forged.encode(), child))
+
+    _R4_LAUNCH = 'subprocess.run([sys.executable, "-I", str(_RUNNER), str(_GATE)])\n'
+    _R4_GATE = '_GATE = Path(_DIR) / "gate.py"\n'
+    _R4_PARENT = ('"""Starts runner.py."""\nimport subprocess, sys\nfrom pathlib import Path\n'
+                  "_DIR = str(Path(__file__).resolve().parent)\n"
+                  '_RUNNER = Path(_DIR) / "runner.py"\n' + _R4_GATE + _R4_LAUNCH)
+    _R4_ENTRY = "child argv entry not built from the parent's own directory: str(_GATE)"
+
+    def test_R4_CHILD_1_rebound_file_is_not_an_anchor(self):
+        codex = ("import subprocess, sys\nfrom pathlib import Path\n"
+                 '_RUNNER = Path(__file__).resolve().parent / "runner.py"\n'
+                 "__file__ = sys.argv[1]\n_GATE = Path(__file__).resolve()\n"
+                 "subprocess.run([sys.executable, str(_RUNNER), str(_GATE)])\n")
+        imports = "from pathlib import Path\n"
+        for forged in (
+                codex,
+                codex.replace("sys.executable, ", 'sys.executable, "-I", '),
+                self._R4_PARENT.replace(imports, imports + "from os import curdir as __file__\n"),
+                self._R4_PARENT.replace(imports, imports + "match sys.argv:\n"
+                                        "    case [_, __file__]:\n        pass\n"),
+                self._R4_PARENT.replace(imports, imports + "def _f():\n    global __file__\n"
+                                        "    __file__ = sys.argv[1]\n_f()\n"),
+                self._R4_PARENT.replace(imports, imports + "sys.modules[__name__].__file__ = sys.argv[1]\n")):
+            with self.subTest(forged=forged):
+                self.assertIn(self._R4_ENTRY, self._parent_launch_violations(forged.encode(), "runner.py"))
+
+    def test_R4_W1_every_binding_form_counts_against_a_single_binding(self):
+        parent, gate, launch = self._R4_PARENT, self._R4_GATE, self._R4_LAUNCH
+        self.assertEqual(self._parent_launch_violations(parent.encode(), "runner.py"), [])
+        for forged in (
+                parent.replace(gate, gate + "match sys.argv:\n    case [_, _GATE, *_]:\n        pass\n"),
+                parent.replace(launch, "def main():\n    match sys.argv:\n        case [_, _GATE, *_]:\n"
+                                       "            pass\n    " + launch),
+                parent.replace(gate, "from os import curdir as _DIR\n" + gate),
+                parent.replace(gate, gate + "match sys.argv:\n    case [_, *_GATE]:\n        pass\n"),
+                parent.replace(gate, gate + "match dict(g=sys.argv[1]):\n    case {**_GATE}:\n        pass\n"),
+                parent.replace(gate, gate + "try:\n    pass\nexcept OSError as _GATE:\n    pass\n"),
+                parent.replace(gate, gate + "sys.modules[__name__]._GATE = sys.argv[1]\n")):
+            with self.subTest(forged=forged):
+                self.assertIn(self._R4_ENTRY, self._parent_launch_violations(forged.encode(), "runner.py"))
+
+    def test_R4_W2_launch_takes_only_the_list_reviewed_keywords_and_isolation(self):
+        parent = self._R4_PARENT
+        accepted = parent.replace("str(_GATE)])", "str(_GATE)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, "
+                                  "stderr=subprocess.DEVNULL, start_new_session=True)")
+        self.assertEqual(self._parent_launch_violations(accepted.encode(), "runner.py"), [])
+        env = 'env={**os.environ, "PYTHONPATH": sys.argv[1]}'
+        keyword = "child launch keyword not reviewed or not None, True, False or a stream"
+        head = "child not started as [sys.executable, reviewed flags with -I..., child]"
+        for forged, expected in (
+                (parent.replace("str(_GATE)])", "str(_GATE)], executable=sys.argv[1])"), [keyword]),
+                (parent.replace("str(_GATE)])", "str(_GATE)], -1, sys.argv[1])"),
+                 ["child argv list not passed directly as the only positional argument"]),
+                (parent.replace('"-I", ', "").replace("str(_GATE)])", f"str(_GATE)], {env})"),
+                 [keyword, head]),
+                (parent.replace("str(_GATE)])", f"str(_GATE)], {env})"), [keyword]),
+                (parent.replace('"-I", ', ""), [head]),
+                (parent.replace("str(_GATE)])", "str(_GATE)], stdout=sys.argv)"), [keyword]),
+                (parent.replace("str(_GATE)])", "str(_GATE)], **kw)"), [keyword])):
+            with self.subTest(forged=forged):
+                violations = self._parent_launch_violations(forged.encode(), "runner.py")
+                self.assertEqual(len(violations), len(expected), violations)
+                for message, prefix in zip(violations, expected):
+                    self.assertTrue(message.startswith(prefix), violations)
+
+    def test_R5_W1_absolute_literal_part_is_not_joined_onto_the_anchor(self):
+        child = "preflight_language_runner.py"
+        live = (REPO_ROOT / "tools" / self.CHILDREN[child]).read_text()
+        self.assertEqual(self._parent_launch_violations(live.encode(), child), [])
+        gate = '_LANGUAGE_GATE = Path(_TOOLS_DIR) / "lint-language.py"\n'
+        runner = '_LANGUAGE_RUNNER = Path(_TOOLS_DIR) / "preflight_language_runner.py"\n'
+        for line, forged, expected in (
+                (gate, gate.replace('"lint-language.py"', '"/tmp/lint-language.py"'),
+                 ["child argv entry not built from the parent's own directory: str(_LANGUAGE_GATE)"]),
+                (runner, runner.replace('"preflight', '"/tmp/preflight'),
+                 ["_LANGUAGE_RUNNER: child path not built from the parent's own directory"])):
+            with self.subTest(forged=forged):
+                self.assertIn(line, live)
+                self.assertEqual(self._parent_launch_violations(
+                    live.replace(line, forged).encode(), child), expected)
+        parent, gate = self._R4_PARENT, self._R4_GATE
+        nested = parent.replace(gate, gate.replace('"gate.py"', '"sub/gate.py"'))
+        self.assertEqual(self._parent_launch_violations(nested.encode(), "runner.py"), [])
+        forged = parent.replace(gate, gate.replace('"gate.py"', '"/tmp/gate.py"'))
+        self.assertEqual(self._parent_launch_violations(forged.encode(), "runner.py"), [self._R4_ENTRY])
+
+    def test_R5_CHILD_STR_str_or_Path_bound_in_any_form_is_refused(self):
+        codex = ("import subprocess, sys\nfrom pathlib import Path\n"
+                 '_RUNNER = Path(__file__).resolve().parent / "runner.py"\n'
+                 '_GATE = Path(__file__).resolve().parent / "gate.py"\n'
+                 "def str(value):\n    return sys.argv[1]\n"
+                 'subprocess.run([sys.executable, "-I", str(_RUNNER), _GATE])\n')
+        control = codex.replace("def str(value):\n    return sys.argv[1]\n", "")
+        self.assertEqual(self._parent_launch_violations(control.encode(), "runner.py"), [])
+        self.assertEqual(self._parent_launch_violations(codex.encode(), "runner.py"),
+                         ["str bound other than by an import"])
+        imports = "from pathlib import Path\n"
+        for name in ("str", "Path"):
+            for binding in (
+                    f"def {name}(value):\n    return sys.argv[1]\n",
+                    f"class {name}:\n    pass\n",
+                    f"{name} = lambda value: sys.argv[1]\n",
+                    f"{name}: object = lambda value: sys.argv[1]\n",
+                    f"({name} := repr)\n",
+                    f"for {name} in [repr]:\n    pass\n",
+                    f"def _f({name}=None):\n    pass\n",
+                    f"def _f():\n    global {name}\n_f()\n",
+                    f"try:\n    pass\nexcept OSError as {name}:\n    pass\n",
+                    f"match sys.argv:\n    case [_, {name}]:\n        pass\n",
+                    f"import builtins\nbuiltins.{name} = repr\n"):
+                forged = self._R4_PARENT.replace(imports, imports + binding)
+                with self.subTest(forged=forged):
+                    self.assertIn(f"{name} bound other than by an import",
+                                  self._parent_launch_violations(forged.encode(), "runner.py"))
+
+    def test_R5_N1_launch_keywords_take_no_integer_file_descriptor(self):
+        parent = self._R4_PARENT
+        for value in ("None", "True", "False"):
+            accepted = parent.replace("str(_GATE)])", f"str(_GATE)], stdin={value})")
+            with self.subTest(accepted=accepted):
+                self.assertEqual(self._parent_launch_violations(accepted.encode(), "runner.py"), [])
+        keyword = "child launch keyword not reviewed or not None, True, False or a stream"
+        for value in ("0", "1", "2", "0.0", "1.0", "'x'"):
+            forged = parent.replace("str(_GATE)])", f"str(_GATE)], stdin={value})")
+            with self.subTest(forged=forged):
+                violations = self._parent_launch_violations(forged.encode(), "runner.py")
+                self.assertEqual(len(violations), 1, violations)
+                self.assertTrue(violations[0].startswith(keyword), violations)
+
+    def test_N2_drift_lists_every_changed_pin_as_an_inventory_line(self):
+        files = {"a.py": b"import sys\nopen(sys.argv[1])\n", "b.sh": b"#!/bin/sh\ncat \"$1\"\n"}
+        rows = {path: ("OWN", *self._pin(path, data)) for path, data in files.items()}
+        self._check(files, rows)
+        changed = {path: data + b"# change\n" for path, data in files.items()}
+        with self.assertRaises(AssertionError) as caught:
+            self._check(changed, rows)
+        header, *lines = str(caught.exception).splitlines()
+        self.assertIn("2 pinned file(s) changed; re-review this tool's path arguments", header)
+        self.assertEqual(self._rows("\n".join(lines), 4),
+                         {path: ("OWN", *self._pin(path, data)) for path, data in changed.items()})
+        self.assertTrue(all(line.startswith("        ") for line in lines), lines)
+        self._check(changed, self._rows("\n".join(lines), 4))
+
+    def _assert_fallback_and_drift(self, source, changed=None):
+        data = source.encode()
+        pin = self._pin("new.py", data)
+        self.assertEqual(pin[0], "F")
+        with self.assertRaisesRegex(AssertionError, "unclassified tools"):
+            self._check({"new.py": data}, {})
+        rows = {"new.py": ("OWN", *pin)}
+        self._check({"new.py": data}, rows)
+        changed = (changed or source + "\n# reviewed source changed\n").encode()
+        with self.assertRaisesRegex(AssertionError, "re-review this tool's path arguments"):
+            self._check({"new.py": changed}, rows)
+
+    def test_F1_R2_1_ordinary_argv_imports(self):
+        for source in ("from sys import argv\nopen(argv[1])\n",
+                       "from sys import argv as paths\nopen(paths[1])\n",
+                       "import sys\nx.args = sys.argv\nopen(x.args[1])\n"):
+            self._assert_fallback_and_drift(source)
+
+    def test_evasion_vararg_forwarding(self):
+        for source in ("import sys\ndef main(*args):\n    open(args[1])\nmain(*sys.argv)\n",
+                       "import sys\ndef main(*, paths):\n    open(paths[1])\nmain(paths=sys.argv)\n"):
+            self._assert_fallback_and_drift(source)
+
+    def test_F2_inventory_key_collision(self):
+        with tempfile.TemporaryDirectory(prefix="inventory-") as directory:
+            root = Path(directory)
+            (root / "sub").mkdir()
+            source = b"#!/usr/bin/env python3\nfrom sys import argv\nopen(argv[1])\n"
+            for path in ("x.py", "sub/x.py", "sub/lint_common.py"):
+                (root / path).write_bytes(source)
+            files = self._files(root)
+            self.assertEqual(set(files), {"x.py", "sub/x.py", "sub/lint_common.py"})
+            rows = {"x.py": ("OWN", *self._pin("x.py", source))}
+            with self.assertRaisesRegex(AssertionError, "unclassified tools"):
+                self._check(files, rows)
+            rows.update({p: ("OWN", *self._pin(p, data)) for p, data in files.items()})
+            self._check(files, rows)
+            (root / "sub/x.py").unlink()
+            with self.assertRaisesRegex(AssertionError, "missing tools"):
+                self._check(self._files(root), rows)
+            (root / "alias").symlink_to(root / "sub", target_is_directory=True)
+            with self.assertRaisesRegex(AssertionError, "symlink"):
+                self._files(root)
+
+    def test_F3_R2_3_unrelated_and_mutated_parsers(self):
+        for source in (
+                "import argparse\np = argparse.ArgumentParser()\nns = make_parser().parse_args()\n",
+                "import argparse\np = argparse.ArgumentParser()\nadd_path_args(p)\np.parse_args()\n",
+                "import argparse\np = argparse.ArgumentParser(parents=[PATHS_PARSER])\np.parse_args()\n",
+                "import argparse\ndef f(p: argparse.ArgumentParser): pass\nmake_parser().parse_args()\n"):
+            self._assert_fallback_and_drift(source)
+
+    def test_F4_delegated_compiler_changes_the_pin(self):
+        import hashlib
+        path = ".corpus-management/tools/corpus_mgmt_compiler.py"
+        rows = self._rows(self.DEPENDENCIES, 2)
+        source = (REPO_ROOT / path).read_bytes()
+        self.assertEqual(hashlib.sha256(source).hexdigest(), rows[path][0])
+        changed = source.replace(b'parser.parse_args(argv)',
+                                 b'parser.add_argument("--input-path"); parser.parse_args(argv)')
+        self.assertNotEqual(source, changed)
+        from unittest import mock
+        read_bytes = Path.read_bytes
+
+        def substituted(file):
+            return changed if file == REPO_ROOT / path else read_bytes(file)
+
+        with mock.patch.object(Path, "read_bytes", substituted):
+            with self.assertRaisesRegex(AssertionError, "re-review this tool's path arguments"):
+                self.test_external_argument_dependencies_are_pinned()
+
+    def test_F5_R2_4_surface_identity_and_helper_flags(self):
+        first = ("import argparse\np = argparse.ArgumentParser()\n"
+                 "p.add_argument('strings')\np.parse_args()\n")
+        second = first.replace("p.parse_args()", "p.add_argument('strings')\np.parse_args()")
+        self.assertEqual(self._pin("x.py", first.encode())[0], "A")
+        self.assertNotEqual(self._pin("x.py", first.encode()), self._pin("x.py", second.encode()))
+        subcommands = ("import argparse\np = argparse.ArgumentParser()\n"
+                       "s = p.add_subparsers()\na = s.add_parser('search')\n"
+                       "a.add_argument('strings')\nb = s.add_parser('read')\n"
+                       "b.add_argument('strings')\np.parse_args()\n")
+        surface, exact = self._surface(subcommands.encode())
+        self.assertFalse(exact)
+        self.assertEqual(sum("attr='add_argument'" in record for _, record in surface), 2)
+        self._assert_fallback_and_drift(subcommands)
+        for source, changed in (
+                ("import sys\nstrict_flags(sys.argv[1:], ())\n",
+                 "import sys\npositional_args(sys.argv[1:], ())\n"),
+                ("import sys\nFLAGS = ('--check',)\nstrict_flags(sys.argv, FLAGS)\n",
+                 "import sys\nFLAGS = ('--check', '--path')\nstrict_flags(sys.argv, FLAGS)\n")):
+            self._assert_fallback_and_drift(source, changed)
+
+    def test_R2_2_lint_common_is_not_a_blanket_exemption(self):
+        self._assert_fallback_and_drift(
+            "import sys, lint_common\ndef main(argv):\n"
+            "    for p in lint_common.iter_targets(argv): open(p)\nmain(sys.argv)\n")
+
+    def test_R2_5_intermixed_and_R2_6_orig_argv(self):
+        for source in ("ns, rest = p.parse_known_intermixed_args()\n",
+                       "ns = p.parse_intermixed_args()\n",
+                       "import sys\nopen(sys.orig_argv[2])\n"):
+            self._assert_fallback_and_drift(source)
+
+    def test_F6_guard_binding_shadow_evasion(self):
+        base = "from lint_common import guard_explicit_paths\n"
+        call = "guard_explicit_paths(['x'])\n"
+        resolved, violations = self._guard_binding(base + call)
+        self.assertEqual(resolved, {"guard_explicit_paths"})
+        self.assertFalse(violations)
+        substitutions = (
+            "guard_explicit_paths: object = print\n",
+            "guard_explicit_paths = None\n",
+            "from os.path import exists as guard_explicit_paths\n",
+            "from other import *\n",
+            "for guard_explicit_paths in (print,): pass\n",
+            "with open('x') as guard_explicit_paths: pass\n",
+            "(guard_explicit_paths := print)\n",
+            "[x for guard_explicit_paths in ()]\n",
+            "def f(guard_explicit_paths): return guard_explicit_paths(['x'])\n",
+            "def guard_explicit_paths(x): return x\n",
+        )
+        for replacement in substitutions:
+            with self.subTest(replacement=replacement):
+                self.assertTrue(self._guard_binding(base + replacement + call)[1])
+        self.assertTrue(self._guard_binding(
+            "import lint_common as lc\nlc.guard_explicit_paths = print\n"
+            "lc.guard_explicit_paths(['x'])\n")[1])
+        self.assertFalse(self._guard_binding("other.guard_explicit_paths(['x'])\n")[0])
+
+    def test_F7_R2_8_fallback_is_specific(self):
+        source = (REPO_ROOT / "tools/lint-skill-internal-refs.py").read_bytes()
+        self.assertFalse(self._guard_binding(source, "lint-skill-internal-refs.py")[1])
+        self.assertTrue(self._guard_binding(source, "different.py")[1])
+        unconditional = ("from lint_common import guard_explicit_paths\n"
+                         "guard_explicit_paths = positional_args = self_test_requested = None\n")
+        self.assertTrue(self._guard_binding(unconditional, "lint-skill-internal-refs.py")[1])
+
+    def test_R2_10_shell_and_data_are_inventoried(self):
+        for source in (b"#!/bin/sh\nfor arg; do cat \"$arg\"; done\n",
+                       b"#!/bin/sh\nset -- input\ncat \"$1\"\n"):
+            with self.assertRaisesRegex(AssertionError, "unclassified tools"):
+                self._check({"nested/run.sh": source}, {})
+            pin = self._pin("nested/run.sh", source)
+            self.assertEqual(pin[0], "F")
+            with self.assertRaisesRegex(AssertionError, "re-review this tool's path arguments"):
+                self._check({"nested/run.sh": source + b"# change\n"},
+                            {"nested/run.sh": ("OWN", *pin)})
+        with self.assertRaisesRegex(AssertionError, "unclassified tools"):
+            self._check({"new.json": b"{}"}, {})
+        with self.assertRaisesRegex(AssertionError, "duplicate inventory path"):
+            self._rows("x OWN F hash\nx NO_FS F hash", 4)
+
+    def test_hard_inventory_is_independent_of_AST_detection(self):
+        from unittest import mock
+        with mock.patch.object(type(self), "_surface", return_value=((), False)):
+            with self.assertRaisesRegex(AssertionError, "unclassified tools"):
+                self._check({"invisible.py": b"opaque_intake()\n"}, {})
+        plain = b"def main(): pass\n"
+        with self.assertRaisesRegex(AssertionError, "unclassified tools"):
+            self._check({"flags_only.py": plain}, {})
 
 
 class StrandedMatrixRefusalTests(LinterTestCase):
