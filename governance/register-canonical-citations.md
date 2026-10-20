@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.6.1\
+**Version:** 1.6.2\
 **Date:** 2026-10-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -40,10 +40,10 @@ Entries in this register are subject to publisher-source verification under the 
 ## Conventions
 
 - **Standard ID**: the canonical short identifier as the standard publisher writes it (for example, `ISO/IEC 27001` rather than `ISO 27001`).
-- **Current version**: year, year-month, or version number as the publisher writes it.
+- **Current version**: year, year-month, or version number as the publisher writes it. A revised NIST Special Publication is `Rev. N`: NIST's "Revision N" and its hyphen suffix "-N" (as in SP 800-63-3) are both written `Rev. N`, here and in Superseded versions. For a NIST Special Publication that has never been revised and carries no version number in its title, this is the year on its title page (`2020` for SP 800-207), not `(1.0)`.
 - **Publication date**: ISO 8601 year or year-month where known.
 - **Topic**: one-line descriptor.
-- **Superseded versions**: comma-separated list of prior version markers the linter should flag if encountered. Includes prior years (`2013`) and prior phrasing (`draft 2024`, `draft`, `2024 draft`).
+- **Superseded versions**: comma-separated list of prior version markers the linter should flag if encountered. Includes prior years (`2013`) and prior phrasing (`draft 2024`, `draft`, `2024 draft`). For a NIST Special Publication, list a prior edition only if the row's held text names it or NIST's revision numbering supports it; the list need not be exhaustive. Write a revision as `Rev. N`, any other publisher marker as the publisher writes it, and an unmarked original as its year where a held text dates it (for example, `Rev. 3, Version 2.0, 2002` for SP 800-40). `Rev. 0` is not used.
 - **Upstream check location**: the authoritative upstream page where the current version is published and can be re-checked (the publisher's catalogue page, the official register or EUR-Lex / legislation ELI page, or the project's releases page). This is where a maintainer goes to confirm currency; it is deliberately a stable "where to check" pointer, not a deep version-specific link. `-` means no confirmed location is recorded yet (see the next column).
 - **Last verified (UTC)**: the UTC date on which the Upstream check location was last fetch-confirmed against the recorded Current version, or `needs-reconfirm` when currency has not been confirmed this cycle. `needs-reconfirm` is an honest deferral, not a defect: it covers both entries never yet verified and entries whose upstream blocks automated fetch (as of the 2026-06-30 population, `iso.org`, the IEC webstore, and several government sources such as `hhs.gov`, `nerc.com`, `tsa.gov`, `planalto.gov.br`, and `wcoomd.org` returned HTTP 403 / JS-gated responses to automated fetch, so their rows carry `needs-reconfirm` rather than an unconfirmed URL; a maintainer with a browser, or a future cycle with different egress, fills these).
 - "-" in any column means "not applicable" or "none recorded".
