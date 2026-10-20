@@ -3050,7 +3050,6 @@ _EDITION_ENDED_RE = re.compile(
 # * OECD Privacy Guidelines: "2013 (revised)".
 # * WCO SAFE Framework: "2025 edition".
 # * ASHRAE 135: "2020 (with subsequent addenda)".
-# * NIST SP 800-207 and NIST SP 800-185: "(1.0)".
 # Every other general row's Current version is the token alone or prose that carries no
 # single edition (a date, a designator, "continuous", "Version 2.1", "Edition 12"); those
 # rows fail closed if the site ever lists an edition for them.
@@ -3059,8 +3058,6 @@ GENERAL_CURRENT_FORMS = {
     "OECD Privacy Guidelines": ("{edition} (revised)",),
     "WCO SAFE Framework": ("{edition} edition",),
     "ASHRAE 135": ("{edition} (with subsequent addenda)",),
-    "NIST SP 800-207": ("({edition})",),
-    "NIST SP 800-185": ("({edition})",),
 }
 _GENERAL_EDITION_TOKEN_RE = re.compile(_EDITION_SHAPE_RE.pattern, re.I | re.ASCII)
 _GENERAL_SLOTS = {"edition": f"(?i:{_GENERAL_EDITION_TOKEN_RE.pattern})", "year": _STATUTE_SLOTS["year"]}

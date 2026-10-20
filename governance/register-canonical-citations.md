@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.6.0\
+**Version:** 1.6.1\
 **Date:** 2026-10-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -100,19 +100,19 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | NIST SP 800-53 | Rev. 5 | 2020-09 | Security and Privacy Controls for Information Systems and Organizations | Rev. 4 | https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final | 2026-06-30 |
 | NIST SP 800-53A | Rev. 5 | 2022-01 | Assessing Security and Privacy Controls in Information Systems and Organizations | Rev. 4 | https://csrc.nist.gov/pubs/sp/800/53/a/r5/final | 2026-09-24 |
 | NIST SP 800-61 | Rev. 3 | 2025-04 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Rev. 2, Rev. 1 | https://csrc.nist.gov/pubs/sp/800/61/r3/final | 2026-06-30 |
-| NIST SP 800-63B | Rev. 4 | 2025-07 | Digital Identity Guidelines: Authentication and Authenticator Management (part of SP 800-63 Rev. 4 family) | Rev. 3 | https://csrc.nist.gov/pubs/sp/800/63/b/4/final | 2026-06-30 |
+| NIST SP 800-63B | Rev. 4 | 2025-07 | Digital Identity Guidelines: Authentication and Authenticator Management (part of SP 800-63 Rev. 4 family) | 2017 | https://csrc.nist.gov/pubs/sp/800/63/b/4/final | 2026-06-30 |
 | NIST SP 800-88 | Rev. 2 | 2025-09 | Media sanitization (Rev. 2 reframes around an enterprise media-sanitization programme and defers sanitization-technique detail to IEEE 2883, NSA specifications, or an organizationally-approved standard, retaining only cryptographic erase directly) | Rev. 1 | https://csrc.nist.gov/pubs/sp/800/88/r2/final | verified 2026-06-30 |
-| NIST SP 800-207 | (1.0) | 2020-08 | Zero Trust Architecture | - | https://csrc.nist.gov/pubs/sp/800/207/final | 2026-06-30 |
+| NIST SP 800-207 | 2020 | 2020-08 | Zero Trust Architecture | - | https://csrc.nist.gov/pubs/sp/800/207/final | 2026-06-30 |
 | NIST CSF | 2.0 | 2024-02 | Cybersecurity Framework | 1.1 | https://www.nist.gov/cyberframework | 2026-06-30 |
 | NIST AI RMF | 1.0 | 2023-01 | AI Risk Management Framework | - | https://www.nist.gov/itl/ai-risk-management-framework | 2026-06-30 |
 | NIST Privacy Framework | 1.0 | 2020-01 | A Tool for Improving Privacy through Enterprise Risk Management (identifier NIST.CSWP.01162020; Version 1.1 is an Initial Public Draft, not yet finalized) | - | https://www.nist.gov/privacy-framework | 2026-09-04 |
 | NIST AI 600-1 | 1.0 | 2024-07 | Generative AI Profile for AI RMF | - | https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence | 2026-06-30 |
 | NIST SP 800-208 | Final | 2020-10 | Recommendation for Stateful Hash-Based Signature Schemes (stateful hash-based digital signatures: LMS and XMSS, with the HSS and XMSS-MT multi-tree variants) | - | https://csrc.nist.gov/pubs/sp/800/208/final | 2026-07-25 |
 | NIST SP 800-218 | 1.1 | 2022-02 | Secure Software Development Framework (SSDF) | 1.0 | https://csrc.nist.gov/pubs/sp/800/218/final | 2026-06-30 |
-| NIST SP 800-161 | Rev. 1 | 2022-05 (with 2024-11 update) | Cybersecurity Supply Chain Risk Management | Rev. 0 | https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final | 2026-06-30 |
+| NIST SP 800-161 | Rev. 1 | 2022-05 (with 2024-11 update) | Cybersecurity Supply Chain Risk Management | 2015 | https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final | 2026-06-30 |
 | NIST SP 800-82 | Rev. 3 | 2023-09 | Guide to Operational Technology (OT) Security (formerly Guide to Industrial Control Systems Security) | Rev. 2, Rev. 1 | https://csrc.nist.gov/pubs/sp/800/82/r3/final | 2026-06-30 |
 | NIST FIPS 198-1 | 198-1 | 2008-07 | The Keyed-Hash Message Authentication Code (HMAC) (NIST has proposed withdrawing it in favour of SP 800-224, which is an initial public draft; FIPS 198-1 remains the approved standard) | FIPS 198 | https://csrc.nist.gov/pubs/fips/198-1/final | 2026-09-25 |
-| NIST SP 800-185 | (1.0) | 2016-12 | SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash and ParallelHash (NIST announced a revision in 2025; the 2016 final remains current) | - | https://csrc.nist.gov/pubs/sp/800/185/final | 2026-09-25 |
+| NIST SP 800-185 | 2016 | 2016-12 | SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash and ParallelHash (NIST announced a revision in 2025; the 2016 final remains current) | - | https://csrc.nist.gov/pubs/sp/800/185/final | 2026-09-25 |
 | NIST SP 800-84 | 2006 | 2006-09 | Guide to Test, Training, and Exercise Programs for IT Plans and Capabilities | - | https://csrc.nist.gov/pubs/sp/800/84/final | 2026-10-20 |
 | NIST SP 800-184 | 2016 | 2016-12 | Guide for Cybersecurity Event Recovery | - | https://csrc.nist.gov/pubs/sp/800/184/final | 2026-10-20 |
 | NIST SP 800-30 | Rev. 1 | 2012-09 | Guide for Conducting Risk Assessments | - | - | needs-reconfirm |
