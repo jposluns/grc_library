@@ -33366,6 +33366,299 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
             rc2 = mod.main(["prog", "--apply", "--days", "3", "--staging", str(root / "claude-8888")])
             self.assertEqual(rc2, 2, "staging into a protected claude-* name must be refused (exit 2)")
 
+    def test_ci_status_self_test_passes(self) -> None:
+        # 3b167 ORCH-CI-STATUS: the /orch CI reader's own --self-test (classify() fail-closed
+        # verdicts: green / explicit-pending / failing / no-runs / truncated / unrecognized),
+        # wired here so the operator tool the fleet /orch text names cannot silently rot.
+        result = run_linter("tools/ci-status.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"ci-status.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stdout)
+
+    def test_ci_status_sh_wrapper_runs_the_python_tool(self) -> None:
+        # 3b167: the fleet /orch text (step 4) names "the repo's ci-status.sh" verbatim, so the
+        # wrapper must exist and must reach the Python tool. --self-test is pure (no gh call),
+        # so this exercises the wrapper end to end without the network.
+        if shutil.which("bash") is None or shutil.which("python3") is None:
+            self.skipTest("bash/python3 not on PATH")
+        result = subprocess.run(
+            ["bash", str(REPO_ROOT / "tools" / "ci-status.sh"), "--self-test"],
+            cwd=str(REPO_ROOT), capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0,
+                         f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("OK", result.stdout)
+
+    def test_ci_status_round3_fail_closed(self) -> None:
+        import contextlib
+        import json
+        from unittest import mock
+        mod = load_linter_module("tools/ci-status.py", "_ci_status_round3")
+        head = "a" * 40
+        q = {"id": 100, "run_number": 10, "run_attempt": 1,
+             "name": "Repository quality checks", "path": ".github/workflows/quality.yml",
+             "event": "pull_request", "head_sha": head,
+             "status": "completed", "conclusion": "success"}
+        a = dict(q, id=200, run_number=20, name="PR attribution",
+                 path=".github/workflows/pr-attribution.yml")
+
+        def check(entries, want, total=None, marker=None):
+            for reverse in (False, True):
+                with self.subTest(entries=entries, reverse=reverse):
+                    payload = {"workflow_runs": entries[::-1] if reverse else entries,
+                               "total_count": len(entries) if total is None else total}
+                    verdict, lines, _ = mod.classify(payload, head)
+                    self.assertEqual(verdict, want)
+                    if marker:
+                        self.assertTrue(any(marker in line for line in lines), lines)
+
+        for field in ("id", "run_number", "run_attempt", "path", "event", "status", "conclusion"):
+            for value in (None, [], {}, "", True, 0, -1, 1.5) + (
+                    ("11",) if field in ("id", "run_number", "run_attempt") else ()):
+                with self.subTest(field=field, value=value):
+                    broken = dict(q, id=101, run_number=9)
+                    broken[field] = value
+                    check([q, broken], mod.NOT_GREEN)
+            broken = dict(q, id=101, run_number=9)
+            del broken[field]
+            with self.subTest(missing=field):
+                check([q, broken], mod.NOT_GREEN)
+        check([q, dict(q, conclusion="failure")], mod.NOT_GREEN)
+        check([q, dict(q, run_attempt=2, conclusion="failure")], mod.NOT_GREEN)
+        check([q, dict(q, id=101)], mod.NOT_GREEN)
+        check([dict(q, run_attempt=2, conclusion="failure"),
+               dict(q, id=101, run_number=11)], mod.NOT_GREEN)
+        check([dict(q, id=999, run_number=9, conclusion="failure"), q], mod.GREEN)
+        check([dict(q, run_number=11, id=99, conclusion="failure"), q], mod.NOT_GREEN)
+        for conclusion in ("success", "failure"):
+            for started in (None, "2026-10-01T01:00:00Z", "2026-10-02T01:00:00Z"):
+                check([dict(q, run_attempt=2, conclusion=conclusion, run_started_at=started),
+                       dict(q, id=101, run_number=11, run_started_at="2026-10-01T12:00:00Z")],
+                      mod.NOT_GREEN)
+        check([dict(q, run_attempt=2)], mod.GREEN)
+        check([dict(q, run_attempt=2, conclusion="failure")], mod.NOT_GREEN)
+        check([dict(q, head_sha="b" * 40)], mod.NOT_GREEN, total=2, marker="[other commit]")
+        check([q, dict(q, id=101, run_number=11)], mod.NOT_GREEN,
+              total=3, marker="[superseded by run 101]")
+        expected = {"Repository quality checks": ".github/workflows/quality.yml",
+                    "PR attribution": ".github/workflows/pr-attribution.yml"}
+        self.assertEqual(mod.REQUIRED_RUNS["jposluns/grc_library"], expected)
+        for repo in ("jposluns/grc_library", "JPOSLUNS/GRC_LIBRARY"):
+            for entries in ([q], [a], [dict(a, conclusion="failure")]):
+                with self.subTest(repo=repo, missing_entries=entries):
+                    def gh(*args):
+                        if args[:2] == ("pr", "view"):
+                            return json.dumps({"headRefOid": head, "state": "OPEN"})
+                        return json.dumps({"total_count": len(entries), "workflow_runs": entries})
+                    with mock.patch.object(mod, "gh", gh), contextlib.redirect_stdout(io.StringIO()):
+                        rc = mod.main(["ci-status.py", "--repo", repo, "--pr", "7"])
+                    self.assertEqual(rc, 1 if entries[0]["conclusion"] == "failure" else 3)
+
+    def test_ci_status_round4_response_validation(self) -> None:
+        import contextlib
+        import json
+        from unittest import mock
+        mod = load_linter_module("tools/ci-status.py", "_ci_status_round4")
+        head = "a" * 40
+        q = {"id": 100, "run_number": 10, "run_attempt": 1,
+             "name": "Repository quality checks", "path": ".github/workflows/quality.yml",
+             "event": "pull_request", "head_sha": head,
+             "status": "completed", "conclusion": "success"}
+        a = dict(q, id=200, run_number=20, name="PR attribution",
+                 path=".github/workflows/pr-attribution.yml")
+        page = json.dumps({"total_count": 2, "workflow_runs": [q, a]})
+        pr = json.dumps({"headRefOid": head, "state": "OPEN"})
+
+        def drive(responses, repo="jposluns/grc_library"):
+            out, err = io.StringIO(), io.StringIO()
+            with mock.patch.object(mod, "gh", side_effect=responses) as gh, \
+                    contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                rc = mod.main(["ci-status.py", "--repo", repo, "--pr", "7"])
+            return rc, gh.call_args_list, out.getvalue(), err.getvalue()
+
+        # Duplicate members at the page, nested run, initial head and head re-read.
+        for responses in (
+            [pr, page.replace('"total_count": 2', '"total_count": 3, "total_count": 2')],
+            [pr, page.replace('"conclusion": "success"',
+                              '"conclusion": "failure", "conclusion": "success"', 1)],
+            [pr.replace('"state": "OPEN"', '"state": "CLOSED", "state": "OPEN"')],
+            [pr, page, pr.replace('"headRefOid":', '"headRefOid": "' + "b" * 40 + '", "headRefOid":')],
+        ):
+            with self.subTest(responses=responses):
+                rc, _, out, err = drive(responses)
+                self.assertEqual(rc, 2)
+                self.assertNotIn("GREEN:", out)
+                self.assertIn("duplicate JSON member", err)
+
+        # Workflow run numbers are unique across events; selection remains per event.
+        cross_event = [q, a, dict(q, id=101, event="push", conclusion="failure"),
+                       dict(q, id=102, event="push", run_number=11)]
+        for entries in (cross_event, cross_event[::-1]):
+            verdict, _, reason = mod.classify(
+                {"total_count": len(entries), "workflow_runs": entries}, head)
+            self.assertEqual(verdict, mod.NOT_GREEN)
+            self.assertIn("duplicate", reason)
+        distinct = [q, dict(q, id=101, event="push", run_number=11, conclusion="failure")]
+        self.assertEqual(mod.classify({"total_count": 2, "workflow_runs": distinct}, head)[0],
+                         mod.NOT_GREEN)
+
+        # Absence cannot be interpreted as explicit null, even on superseded runs.
+        for status in ("queued", "in_progress", "requested", "waiting", "pending"):
+            older = dict(q, id=99, run_number=9, status=status, conclusion=None)
+            for present in (True, False):
+                with self.subTest(status=status, conclusion_present=present):
+                    if not present:
+                        del older["conclusion"]
+                    entries = [older, q, a]
+                    self.assertEqual(mod.classify(
+                        {"total_count": 3, "workflow_runs": entries}, head)[0],
+                        mod.GREEN if present else mod.NOT_GREEN)
+
+        # Normalize before both gh calls and the required-workflow lookup.
+        missing = json.dumps({"total_count": 1, "workflow_runs": [a]})
+        for repo in ("jposluns/grc_library.git", "JPOSLUNS/GRC_LIBRARY.GIT"):
+            rc, calls, _, _ = drive([pr, missing, pr], repo)
+            self.assertEqual(rc, 3)
+            self.assertEqual(calls[0].args[4], repo[:-4])
+            self.assertIn("repos/" + repo[:-4] + "/actions/runs?", calls[1].args[1])
+        for repo in ("jposluns/grc_library.", "jposluns/grc_library..git",
+                     "jposluns/grc_library.git.git", "JPOSLUNS/GRC_LIBRARY.GIT.GIT"):
+            rc, calls, _, _ = drive([], repo)
+            self.assertEqual((rc, calls), (2, []))
+
+        entries = [dict(q, run_attempt=2), dict(q, id=101, run_number=11), a]
+        for total in (3, 4):
+            verdict, _, reason = mod.classify(
+                {"total_count": total, "workflow_runs": entries}, head)
+            self.assertEqual(verdict, mod.NOT_GREEN)
+            self.assertNotIn("UNRECOGNIZED", reason)
+            self.assertIn("push a new commit with a new head", reason)
+
+    def test_ci_status_round3_documented_contract(self) -> None:
+        readme = (REPO_ROOT / "tools/README.md").read_text()
+        with self.subTest(file="tools/README.md"):
+            self.assertIn("Missing required runs are pending unless failure or uncertainty requires not-green.",
+                          readme)
+        for file in ("references/ci-wait.md", ".claude/playbooks/pr-lifecycle.md"):
+            text = " ".join((REPO_ROOT / file).read_text().split())
+            with self.subTest(file=file):
+                self.assertIn("not the individual Lint markdown corpus job", text)
+
+    def test_ci_status_reads_actions_runs_only_and_reports_each_state(self) -> None:
+        # Stub gh to exercise PR head re-reads, Actions-only reads, required workflows,
+        # status reporting, supersession and exit codes. Missing runs are pending unless
+        # failure or uncertainty requires NOT-GREEN. Detailed ambiguity and metadata
+        # regressions are covered independently by test_ci_status_round3_fail_closed.
+        import contextlib
+        import json
+        from unittest import mock
+        mod = load_linter_module("tools/ci-status.py", "_ci_status_reader")
+        head = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"
+        moved = "b" * 40
+        repo = "jposluns/grc_library"
+
+        def quality(status="completed", concl="success", rid=1):
+            return {"id": rid, "run_number": rid, "run_attempt": 1,
+                    "name": "Repository quality checks",
+                    "path": ".github/workflows/quality.yml", "event": "pull_request",
+                    "status": status, "conclusion": concl, "head_sha": head}
+
+        def attribution(status="completed", concl="success", rid=2):
+            return {"id": rid, "run_number": rid, "run_attempt": 1,
+                    "name": "PR attribution",
+                    "path": ".github/workflows/pr-attribution.yml", "event": "pull_request",
+                    "status": status, "conclusion": concl, "head_sha": head}
+
+        def drive(runs, *argv, gh_exc=None, heads=None, total=None):
+            calls = []
+            pr_heads = list(heads or [head, head])
+
+            def gh(*a):
+                calls.append(a)
+                if gh_exc is not None:
+                    raise gh_exc
+                if a[:2] == ("pr", "view"):
+                    return json.dumps({"headRefOid": pr_heads.pop(0), "state": "OPEN"})
+                if a[:1] == ("api",):
+                    return json.dumps({"total_count": len(runs) if total is None else total,
+                                       "workflow_runs": runs})
+                return ""
+            out, errbuf = io.StringIO(), io.StringIO()
+            with mock.patch.object(mod, "gh", gh), \
+                    contextlib.redirect_stdout(out), contextlib.redirect_stderr(errbuf):
+                rc = mod.main(["ci-status.py", *argv])
+            return rc, calls, out.getvalue(), errbuf.getvalue()
+
+        rc, calls, out, _ = drive([quality(), attribution()], "--repo", repo, "--pr", "7")
+        self.assertEqual(rc, 0)
+        view = ("pr", "view", "7", "--repo", repo, "--json", "headRefOid,state")
+        self.assertEqual(calls.count(view), 2,
+                         "the head must be read before AND re-read after the runs read")
+        self.assertIn(("api", f"repos/{repo}/actions/runs?head_sha={head}&per_page=100"), calls)
+        for a in calls:  # the whole point of the tool: Actions:Read (plus PR-read), nothing else
+            self.assertNotEqual(a[:2], ("pr", "checks"))
+            if a[:1] == ("api",):
+                self.assertNotIn("status", a[1])
+                self.assertNotIn("check", a[1])
+        self.assertIn("Repository quality checks  completed  success", out)
+        self.assertIn("GREEN:", out)
+
+        rc, calls, out, _ = drive([quality()], "--repo", repo, "--sha", head.upper())
+        self.assertEqual(rc, 0, "--sha mode must work, normalize case, and demand no required set")
+        self.assertFalse([a for a in calls if a[:2] == ("pr", "view")],
+                         "--sha mode must not read the PR")
+
+        rc, _, out, _ = drive([quality(), attribution()], "--repo", repo, "--pr", "7",
+                              heads=[head, moved])
+        self.assertEqual(rc, 1, "a head that moved during the read must never exit 0")
+        self.assertIn("moved", out)
+        for label, runs, want_rc, marker in (
+            ("required run missing reads pending, never green",
+             [attribution()], 3, "PENDING:"),
+            ("no runs registered yet is pending in --pr mode", [], 3, "PENDING:"),
+            ("pending", [quality(status="in_progress", concl=None), attribution()],
+             3, "PENDING:"),
+            ("edit-superseded failure clears without a push",
+             [quality(), attribution(rid=2, concl="failure"), attribution(rid=3)],
+             0, "GREEN:"),
+            ("newest run failing stays red",
+             [quality(), attribution(rid=2), attribution(rid=3, concl="failure")],
+             1, "NOT-GREEN:"),
+            ("failure outranks pending",
+             [quality(concl="failure"), attribution(status="queued", concl=None)],
+             1, "NOT-GREEN:"),
+            ("skipped is not success", [quality(concl="skipped"), attribution()],
+             1, "NOT-GREEN:"),
+        ):
+            with self.subTest(label):
+                rc, _, out, _ = drive(runs, "--repo", repo, "--pr", "7")
+                self.assertEqual(rc, want_rc)
+                self.assertIn(marker, out)
+
+        rc, _, out, _ = drive([], "--repo", repo, "--sha", head)
+        self.assertEqual(rc, 1, "no runs stays fail-closed NOT green where no required set applies")
+        self.assertIn("no Actions workflow runs", out)
+
+        rc, _, out, _ = drive([quality()], "--repo", repo, "--pr", "7", total=3)
+        self.assertEqual(rc, 1, "a truncated page is fail-closed")
+        self.assertIn("Repository quality checks  completed  success", out)
+        self.assertIn("1 of 3 run(s)", out)
+
+        exc = subprocess.CalledProcessError(1, ["gh"], "", "boom")
+        rc, _, _, errtext = drive([quality()], "--repo", repo, "--sha", head, gh_exc=exc)
+        self.assertEqual(rc, 2)
+        self.assertIn("boom", errtext)
+
+        for label, argv in (("no repo", ("--pr", "7")), ("no selector", ("--repo", repo)),
+                            ("bad pr", ("--repo", repo, "--pr", "x")),
+                            ("short sha", ("--repo", repo, "--sha", "abc123"))):
+            with self.subTest(label):
+                rc, calls, _, _ = drive([quality()], *argv)
+                self.assertEqual((rc, calls), (2, []),
+                                 "a usage error exits 2 before any gh call")
+
 
 class TokenSpendToolTests(LinterTestCase):
     """The advisory ``tools/audit-token-spend.py`` tool's own ``--self-test``.

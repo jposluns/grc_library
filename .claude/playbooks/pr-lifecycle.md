@@ -110,6 +110,15 @@ drive end-to-end on the maintainer's behalf:
    `mcp__github__create_pull_request`.
 5. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
    `references/ci-wait.md` (the CI-wait discipline; lean core in CLAUDE.md); on failure, fix and re-push.
+   Read point-in-time Actions workflow state with `tools/ci-status.sh --repo jposluns/grc_library --pr <N>`.
+   The reader requires Repository quality checks and PR attribution, not the individual
+   Lint markdown corpus job, and every other current run must conclude success.
+   A missing required run is pending unless failure or
+   uncertainty requires not-green. A PR attribution failure can be fixed by editing
+   the PR title or body: an ordinary superseded first-attempt failure then clears.
+   A retried older run keeps that head NOT-GREEN while it is listed, even when both
+   it and the newest run succeeded; only a new push with a new head clears it.
+   See tools/README.md for the exact reader contract; merge-when-green.py remains the gate.
 6. Refresh `/opt/grc/private/session-handoff.md` with the
    current state snapshot, last-merged list, next-actions queue, and open decisions. The mechanical facts (versions, gate and rule and skill and command counts, HEAD sha, session figures) come from `python3 tools/handoff-snapshot.py`, a read-only aggregator; paste its verified block rather than hand-deriving the numbers. At a
    **session-closing** handoff PR, also refresh the `## Asserted expectations` section
