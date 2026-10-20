@@ -18,6 +18,8 @@ A row leaves the ledger only via FIXED, ROUTED, REFUTED or ACCEPTED, so "no disp
 primary blocking condition; the one other blocking condition is a MIS-FILED row (below).
 
 FIXED / ROUTED require an adjacent reference, with whitespace or inline markup between.
+Backlog references include a simple letter-suffixed id (`3b50c`, digits + `b` +
+digits + one lowercase letter), with no following letter, digit or hyphen.
 Alongside PR and backlog references, `store:<sha>` names a private operational-store commit
 (7 to 40 lowercase hex characters), and `egress:<anchor>` names an entry in
 maintainer-egress-requests.md (ASCII letters, digits, dots or hyphens, starting and
@@ -426,7 +428,8 @@ _OPERATIONAL_DISPOSITION_RE = re.compile(
     r"(?P<reference>store:[0-9a-f]{7,40}(?=$|[.\s,;:()\]])"
     r"|egress:[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?=$|[\s,;:()\]]))"
 )
-_REF = r"[(\[]?(?:#[1-9]\d*|TODO\s+(?:P-)?\d+(?:\.\d+)+[a-z]?|P-\d+(?:\.\d+)+[a-z]?|\d+(?:\.\d+)+[a-z]?|\d+b\d+(?:[a-z]\d+)*)"
+# 3b433: the letter-suffixed alternative is case-sensitive; its lookahead rejects a following letter, digit or hyphen.
+_REF = r"[(\[]?(?:#[1-9]\d*|TODO\s+(?:P-)?\d+(?:\.\d+)+[a-z]?|P-\d+(?:\.\d+)+[a-z]?|\d+(?:\.\d+)+[a-z]?|\d+b\d+(?:[a-z]\d+)*|(?-i:\d+b\d+[a-z])(?![a-z\d-]))"
 _DISPOSITION_RE = re.compile(
     r"^(?:fixed|routed)\s+" + _REF + r"(?:\b|[.,;:)\]])"   # FIXED/ROUTED + adjacent ref
     r"|^(?:refuted|accepted)\b",                            # REFUTED/ACCEPTED + prose (word only)
@@ -1005,6 +1008,12 @@ def self_test() -> int:
     ck("ROUTED b12 is not", disposition_valid("ROUTED b12"), False)
     for bad in ("ROUTED 3b108pending", "ROUTED 3b108garbage", "ROUTED 24x7 support", "FIXED 1e2rror"):
         ck(f"not a ref: {bad}", disposition_valid(bad), False)
+    # 3b433: a simple id may end in one bare lowercase letter, not a longer suffix.
+    for ref in ("3b50c", "(3b50c)", "3b50c text", "3b50c,", "3b50c)",
+                "3b50c (note)", "3b5c0"):
+        ck(f"letter-suffix ref: {ref}", disposition_valid("ROUTED " + ref), True)
+    for ref in ("3b50cc", "3b50c-", "3b50c1x", "3b50cX", "3b50C", "3B50c"):
+        ck(f"not a simple letter-suffix ref: {ref}", disposition_valid("ROUTED " + ref), False)
     # 3b297: operational refs keep their payload unchanged through markup handling.
     ck("store ref with markup is valid", disposition_valid("**FIXED** `store:abcdef0`"), True)
     ck("store ref before a full stop is valid", disposition_valid("FIXED store:abcdef0. Then prose"), True)

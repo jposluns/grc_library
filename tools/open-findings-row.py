@@ -93,9 +93,9 @@ RESIDUES, stated: there is no shared lock, so a write landing between the re-che
 lost, as is a write by a writer holding the old inode open; extended attributes other than the access ACL are not carried over; ACLs are read through Linux
 xattrs only.
 
-SHA-SHAPED REFS (stated residue). The hook's letter-series ref shape (`3b108`, `3b50b2e1`) overlaps
-hex, so a short SHA such as `1b2e3a4` reads as a valid ref and `FIXED 1b2e3a4` passes here as it
-passes the guard. Closing that needs a hook grammar change, which is out of scope here.
+SHA-SHAPED REFS (stated residue). The hook's letter-series and letter-suffixed ref shapes
+(`3b108`, `3b50b2e1`, `12b345a`) overlap hex, so a short SHA such as `1b2e3a4` or `12b345a`
+reads as a valid ref and `FIXED 1b2e3a4` passes here as it passes the guard. Closing that needs a hook grammar change, which is out of scope here.
 """
 from __future__ import annotations
 

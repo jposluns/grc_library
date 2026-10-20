@@ -24,16 +24,23 @@ confirmed defect with a severity and a disposition. A row with an EMPTY disposit
 A row leaves the ledger only via `FIXED`, `ROUTED`, `REFUTED`, or `ACCEPTED`.
 
 `FIXED` and `ROUTED` require an adjacent reference: a PR (`#1178`), a backlog item
-(`3.73`, `3.56a`, `3.139.1`, `P-1.71`, `3b108`), a TODO-qualified dotted item
+(`3.73`, `3.56a`, `3.139.1`, `P-1.71`, `3b108`, `3b50c`), a TODO-qualified dotted item
 (`TODO 3.73`, `TODO P-1.60`), a private operational-store commit
 (`store:abcdef0`, 7 to 40 lowercase hex characters), or a maintainer egress-list entry
 (`egress:request-1`, ASCII letters, digits, dots or hyphens, starting and ending with
 a letter or digit, naming an entry in `maintainer-egress-requests.md`). Both new forms work after either disposition.
+A simple letter-suffixed backlog id is digits + `b` + digits + one lowercase letter
+(`3b50c`). Any following character other than a letter, digit or hyphen
+(including a full stop) is allowed; parentheses and trailing prose are allowed.
+`3b50cc`, `3b50c-`, `3b50c1x` and `3b50cX` are not. Existing letter-digit series
+such as `3b5c0` and `3b50b2e1` remain valid.
 Whitespace and inline markup may separate the word and reference, as in
 `` **FIXED** `store:abcdef0` `` and `ROUTED **egress:request-1**`.
-Legacy references retain colon separators (`FIXED: #1178`); the new forms reject them
-(`FIXED: store:abcdef0`). Markup inside either reference is invalid. Prose may follow
-a reference; a full stop immediately after a store SHA is allowed and is not part
+The letter-suffixed id is a legacy-shaped reference: colon separators and inner
+markup behave as for legacy references (`FIXED: #1178`, `FIXED: 3b50c`).
+The `store:` and `egress:` forms reject colon separators (`FIXED: store:abcdef0`)
+and inner markup. Prose may follow a reference; a full stop immediately after a
+store SHA is allowed and is not part
 of the reference (`FIXED store:abcdef0. Then prose`). These checks validate syntax
 only, not the existence of the commit or entry. `REFUTED` and `ACCEPTED` require only
 the terminal word; evidence and rationale remain author judgement.
@@ -138,9 +145,9 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   there is no pathname-based fallback. `--dry-run` runs the same pre-flight (the directory-fd
   capability check and the `O_DIRECTORY|O_NOFOLLOW` parent open), so it refuses whatever that
   pre-flight refuses; later write stages can still refuse a real write.
-- **Stated residue.** The letter-series ref shape (`3b108`, `3b50b2e1`) overlaps hexadecimal, so a short
-  SHA such as `1b2e3a4` passes as a ref in the tool and in this hook. Closing it needs a hook grammar
-  change. There is no shared lock: a write between the re-check and the rename, or by a writer
+- **Stated residue.** The letter-series and letter-suffixed ref shapes (`3b108`, `3b50b2e1`,
+  `12b345a`) overlap hexadecimal, so a short SHA such as `1b2e3a4` or `12b345a` passes as a ref
+  in the tool and in this hook. Closing it needs a hook grammar change. There is no shared lock: a write between the re-check and the rename, or by a writer
   holding the old inode open, is lost. Extended attributes other than the access ACL are not carried
   over; access ACL handling uses Linux xattrs.
 

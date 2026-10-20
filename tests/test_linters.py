@@ -48527,6 +48527,22 @@ class OpenFindingsRowTests(unittest.TestCase):
                 rc, out, err = self.run_tool(row, "--id", "NEW-1", "--append", "--dry-run")
                 self.assertEqual("refused: disposition-" in err, guard == 2, out + err)
 
+    def test_simple_letter_suffix_references_match_hook_and_append_tool(self) -> None:
+        hook = load_linter_module(".claude/hooks/block-on-open-findings.py", "_ofr_letter_suffix_hook")
+        valid = ("3b50c", "(3b50c)", "3b50c text", "3b50c,", "3b50c)",
+                 "3b50c (note)", "3b5c0")
+        invalid = ("3b50cc", "3b50c-", "3b50c1x", "3b50cX", "3b50C", "3B50c")
+        for word in ("FIXED", "ROUTED"):
+            for ref in valid + invalid:
+                disp = word + " " + ref
+                with self.subTest(disp=disp):
+                    self.assertEqual(hook.disposition_valid(disp), ref in valid)
+                    row = self.row(disp + (" [class-exempt: singleton]" if word == "FIXED" else ""))
+                    if ref in valid:
+                        self.assertWouldWrite(row)
+                    else:
+                        self.assertRefused(row, "disposition-", "--append", "--dry-run")
+
     def test_operational_references_match_hook_and_append_tool(self) -> None:
         hook = load_linter_module(".claude/hooks/block-on-open-findings.py", "_ofr_store_hook")
         valid = ("store:abcdef0", "store:" + "a" * 40, "egress:R1.entry-2", "egress:a",
