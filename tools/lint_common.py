@@ -1388,7 +1388,9 @@ _HEADER_LIKE_RE = re.compile(
     re.IGNORECASE,
 )
 # Fenced-block and HTML-comment delimiters. Nothing is masked by them: they only make the
-# surrounding structure uncertain, which disables deferral and declaration.
+# surrounding structure uncertain, which disables deferral from the delimiter line to the end
+# of the scanned text, and declaration when the delimiter line is at or above the candidate
+# header.
 STORE_EXAMPLE_DELIMITERS = (chr(96) * 3, "~~~", "<!--", "-->")
 # Merged-PR evidence in origin/main's commit subjects: the squash-merge `(#N)` suffix and the
 # merge-commit `Merge pull request #N` form. Over-reading only protects more PRs.
@@ -1590,8 +1592,8 @@ def own_pr_declaration(changelog_text: str, base_changelog_text: str,
     if len(set(prs)) != 1:
         return None, f"the new root header at line {lineno} names more than one PR"
     if first_delimiter is not None and first_delimiter <= lineno:
-        return None, (f"a fence or comment delimiter at root line {first_delimiter} precedes "
-                      f"the candidate header at line {lineno}")
+        return None, (f"a fence or comment delimiter at root line {first_delimiter} is at or "
+                      f"above the candidate header at line {lineno}")
     return prs[0], ""
 
 

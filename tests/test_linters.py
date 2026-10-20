@@ -22756,7 +22756,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 616ae8f4ea008cda21bcf2f663ed650f82f91b2467fddc75cc4a313ff61e32b1
-        lint_common.py PASSIVE F eb3d6527507bc698799c18a6217731f0ff5eaa30b5e9f7ac90f4147f26a79e23
+        lint_common.py PASSIVE F 928a1208c681aa3f34ccbf8d7821c3e8911137b2a779d228b0af9c5025ced3db
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 6ddcf1bace3d18bef9c4b181cedc22bd73a59a4b0c3fa32191fbf93ac4175baa
