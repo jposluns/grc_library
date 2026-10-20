@@ -32,6 +32,60 @@ Each field line appears exactly once (a duplicate is a finding), and
 the coherence check runs unconditionally alongside the per-field value
 checks, so coexisting defects are all reported in one run.
 
+Field order: ``Active-session``, then ``Status``, then
+``Last-heartbeat-UTC``. The session-start reader
+(``tools/session_facts.py``) reports every session metric UNKNOWN when
+those three appear in another order; this gate does not check the order.
+
+Near-miss detection examines each LF-delimited line, including comments
+and fences, after optional whitespace and repeated Markdown markers:
+a bullet (-, + or *), or digits plus "." or ")", requires following
+whitespace; ">" permits none; one or more "#" requires whitespace.
+A candidate then starts with one or two stars or underscores, a nonempty
+label without stars or colons (internal spaces and underscores are allowed),
+zero to two stars or underscores, optional whitespace, a colon, and zero
+to two stars or underscores. It is a
+near miss if its normalized label casefolds to a required field name but
+that field's exact pattern does not fullmatch the line. Normalization
+maps Unicode category Pd, names containing HYPHEN or the word DASH, and
+superscript, subscript and ordinary minus signs to "-", and folds
+compatibility forms such as fullwidth letters (NFKC). Comparison removes
+whitespace, underscores and dashes before casefolding.
+Each near-miss line gets one finding listing every applicable label fault:
+its spelling or prefix faults, a space before the colon, a colon outside
+the bold, underscore emphasis or incomplete bold delimiters; wrong value
+shape is reported only when no label fault applies.
+Prose and inline code before a token prevent candidate recognition.
+
+Field labels: the session-start reader counts every LF-delimited line
+that contains ``Active-session:``, ``Status:`` or
+``Last-heartbeat-UTC:`` (case-sensitive, anywhere in the line, including
+comments, fences and inline code) and reads none of them when it finds
+two. Each such line other than that field's exact field line therefore
+gets one finding, unless it already has a near-miss finding for the same
+field. The sanctioned spelling for a mention in a comment or in free text
+is the field name without a colon directly after it (for example
+"the Status field" or "Status `active`").
+
+Exact field lines get one location finding if their start is in an HTML
+comment, a fenced block, or a later section, combining reasons.
+The scanner recognizes literal "<!--" and "-->" with no nesting; an
+unclosed comment extends through EOF. Fences use at least three identical
+backticks or tildes after at most three ASCII spaces, with arbitrary info
+text except backticks in backtick info. Closing fences use the same
+character, at least the opening length, and only trailing whitespace.
+An unclosed fence extends through EOF. Comments inside fences and fence
+markers inside comments are inert. Outside both, a column-zero ATX heading
+(one to six "#" followed by a space, tab or end of line) starts a later
+section when an earlier such line or a header-region field line precedes
+it; otherwise it is the title.
+This is a line scanner, not a Markdown parser: escaped comment delimiters
+are still recognized; fences indented over three spaces or inside
+containers are not recognized.
+Labels are checked independently of those scanner limits. Existing
+whole-text field counts, value checks and missing-field exit precedence
+remain unchanged.
+
 This gate guards the file's SHAPE only. It deliberately passes on all
 three status values: CI runs per-branch and cannot see across
 concurrent sessions, so the interlock itself (HOLD-and-surface on a
@@ -40,15 +94,17 @@ step-0 procedure, not in CI. A malformed lease would silently disable
 that procedure, which is the failure this gate exists to catch.
 
 Exit codes:
-    0: all required fields present, valid, and coherent.
-    1: an invalid field value or a status/branch incoherence.
-    2: file missing, unreadable, or a required field line absent.
+    0: a well-formed lease, or an absent operational store (skip).
+    1: an invalid value, incoherence, duplicate, near-miss label, extra
+       field label, or field line outside the header region.
+    2: an unreadable lease or a required field line absent.
 """
 
 from __future__ import annotations
 
 import re
 import sys
+import unicodedata
 
 from lint_common import REPO_ROOT, resolve_working
 
@@ -84,6 +140,136 @@ VALID_MODES = {
 }
 
 HEARTBEAT_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+
+
+def map_dashes(label: str) -> str:
+    """Map Unicode hyphens and dashes to the ASCII hyphen."""
+    return "".join(
+        "-" if (
+            unicodedata.category(char) == "Pd"
+            or "HYPHEN" in unicodedata.name(char, "")
+            or "DASH" in unicodedata.name(char, "").split()
+            or char in "\u207b\u208b\u2212"
+        ) else char
+        for char in label
+    )
+
+
+def normalize_label(label: str) -> str:
+    """Map dashes, fold compatibility forms (NFKC), then map dashes again."""
+    return map_dashes(unicodedata.normalize("NFKC", map_dashes(label)))
+
+
+LABEL_RE = re.compile(
+    r"^(?P<prefix>\s*(?:(?:[-+*]|\d+[.)])\s+|>\s*|#+\s+)*)"
+    r"(?P<open>[*_]{1,2})(?P<label>[^*:]+?)"
+    r"(?P<close>[*_]{0,2})(?P<space>\s*):(?P<after>[*_]{0,2})"
+)
+FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+
+# The fields tools/session_facts.py reads (its NAMES): it counts every line
+# containing "<name>:" as an occurrence and reads none when there are two.
+READER_FIELDS = ("Active-session", "Status", "Last-heartbeat-UTC")
+
+
+def field_line_errors(text: str) -> list[str]:
+    """Find near-miss labels, extra field labels and misplaced field lines."""
+    invalid: list[str] = []
+    comment = False
+    fence = ""
+    title_seen = False
+    header_field_seen = False
+    later_heading = False
+    for number, line in enumerate(text.split("\n"), 1):
+        exact = next(
+            (field for field, pattern in FIELD_PATTERNS.items()
+             if pattern.fullmatch(line)), None
+        )
+        near = None
+        token = LABEL_RE.match(line)
+        if token and exact is None:
+            label = token.group("label")
+            normalized = normalize_label(label)
+            near = next(
+                (name for name in FIELD_PATTERNS
+                 if re.sub(r"[\s_-]", "", normalized).casefold()
+                 == name.replace("-", "").casefold()), None
+            )
+            if near is not None:
+                faults = []
+                if re.sub(r"[\s_-]", "", normalized) != near.replace("-", ""):
+                    faults.append("wrong case")
+                if normalized.casefold() != near.casefold():
+                    faults.append("wrong separators")
+                if map_dashes(label) != label:
+                    faults.append("non-ASCII hyphen")
+                if normalized != map_dashes(label):
+                    faults.append("compatibility character")
+                if token.group("prefix"):
+                    faults.append("leading whitespace or Markdown marker")
+                if token.group("close"):
+                    faults.append("colon outside the bold")
+                if token.group("space"):
+                    faults.append("space before the colon")
+                delimiters = "".join(token.group("open", "close", "after"))
+                if "_" in delimiters:
+                    faults.append("underscore emphasis")
+                elif token.group("open") != "**" or (
+                    not token.group("close") and token.group("after") != "**"
+                ):
+                    faults.append("incomplete bold delimiters")
+                if not faults:
+                    faults.append("wrong value shape")
+                invalid.append(
+                    f"field line `**{near}:**` at line {number} "
+                    f"has a near-miss label ({', '.join(faults)})"
+                )
+        for name in READER_FIELDS:
+            if name + ":" in line and name not in (exact, near):
+                invalid.append(
+                    f"field label `{name}:` also appears at line {number}, "
+                    f"which the session-start reader counts as a second "
+                    f"field line (drop the colon from a mention)"
+                )
+
+        if not comment and not fence and re.match(r"#{1,6}(?:[ \t]|$)", line):
+            if title_seen or header_field_seen:
+                later_heading = True
+            title_seen = True
+        if exact is not None:
+            regions = []
+            if comment:
+                regions.append("HTML comment")
+            if fence:
+                regions.append("fenced code block")
+            if later_heading:
+                regions.append("later heading")
+            if regions:
+                invalid.append(
+                    f"field line `**{exact}:**` at line {number} "
+                    f"is outside the header region ({', '.join(regions)})"
+                )
+            else:
+                header_field_seen = True
+
+        marker = FENCE_RE.match(line)
+        if fence:
+            if marker and marker.group(1)[0] == fence[0] and (
+                len(marker.group(1)) >= len(fence) and not marker.group(2).strip()
+            ):
+                fence = ""
+            continue
+        if not comment and marker and (
+            marker.group(1)[0] == "~" or "`" not in marker.group(2)
+        ):
+            fence = marker.group(1)
+            continue
+        for delimiter in re.finditer(r"<!--|-->", line):
+            if delimiter.group() == "<!--":
+                comment = True
+            else:
+                comment = False
+    return invalid
 
 
 def check_text(text: str) -> tuple[list[str], list[str]]:
@@ -141,6 +327,7 @@ def check_text(text: str) -> tuple[list[str], list[str]]:
                 f"Active-session, found `none`"
             )
 
+    invalid.extend(field_line_errors(text))
     return missing, invalid
 
 

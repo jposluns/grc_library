@@ -73,7 +73,7 @@ OVERLAY_DIGESTS: dict[str, str] = {
     ".claude/references/governance/project-integrity.md":
         "744c0349e9f06d7352ba6324343c37be948273deb734a3d5388ec9c02331b695",
     ".claude/references/governance/session-lifecycle.md":
-        "b607303fda1ef924f80adf2735e2260386e48b9566e21cb83f818df22170f079",
+        "44d4a4bd4e52c6b677e0617b92b8de2cfd3aa2bb25cfc29d0be3dae5a92d2a03",
     ".claude/references/governance/surface-counterproductive-instructions.md":
         "b78c4a56be6ba6d9cf2cb7a19efd0cc8d67a0e8ec0090a40f4865acd83ae985e",
     ".claude/references/governance/trust-recovery-escalation.md":
