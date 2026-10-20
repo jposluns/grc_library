@@ -678,6 +678,39 @@ hook['main']()
         self.assertEqual(facts["compaction_rows"], 0)
         self.assertEqual(facts["lease_warning"], "")
 
+    def assert_r11_near_miss_separator(self, label, faults):
+        self.env["GRC_STORE"] = str(self.store)
+        self.lease.write_text(LIVE.replace(
+            CURRENT, label + " orch-2026-10-04T13:36:00Z\n" + OLD))
+        facts = self.metrics()
+        self.assertEqual(facts["start"], "2020-01-01T00:00:00Z")
+        self.assertEqual(facts["lease_warning"], "")
+        proc = subprocess.run([sys.executable, "tools/lint-session-state.py"],
+                              cwd=self.root, env=self.env, capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn("has a near-miss label (" + faults + ")", proc.stderr)
+
+    def test_r11_known_limit_space_separator_refused(self):
+        self.assert_r11_near_miss_separator("**Active session:**", "wrong separators")
+
+    def test_r11_known_limit_space_before_colon_refused(self):
+        self.assert_r11_near_miss_separator("**Active-session :**", "space before the colon")
+
+    def test_r11_known_limit_underscore_separator_refused(self):
+        self.assert_r11_near_miss_separator("**Active_session:**", "wrong separators")
+
+    def test_r11_known_limit_case_and_separator_refused(self):
+        self.assert_r11_near_miss_separator("**active session:**",
+                                            "wrong case, wrong separators")
+
+    def test_hash_todo_between_fields_is_not_heading(self):
+        self.env["GRC_STORE"] = str(self.store)
+        self.lease.write_text(LIVE.replace(CURRENT, CURRENT + "#todo refresh\n"))
+        proc = subprocess.run([sys.executable, "tools/lint-session-state.py"],
+                              cwd=self.root, env=self.env, capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertEqual(self.metrics()["start"], "2026-10-04T13:36:00Z")
+
     def test_r11_out_of_order_without_log(self):
         self.log.unlink()
         self.lease.write_text(HBLINE + CURRENT + "**Status:** active\n")
@@ -798,7 +831,10 @@ hook['main']()
                     self.assertEqual(self.metrics(), expected)
                     proc = subprocess.run([sys.executable, "tools/lint-session-state.py"],
                                           cwd=self.root, env=self.env, capture_output=True, text=True)
-                    self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+                    # 3b328: gate 63 refuses the copy and any near-miss header.
+                    self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+                    self.assertIn("is outside the header region (HTML comment)", proc.stderr)
+                    self.assertEqual("near-miss label" in proc.stderr, bool(replacement))
         for count in (2, 3):
             with self.subTest(uncounted=count):
                 lease = LIVE

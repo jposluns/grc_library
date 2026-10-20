@@ -35,8 +35,8 @@ or STATUS, or with the colon outside the bold), a solitary well-formed copy of
 that field elsewhere in the file is read in its place, with no warning,
 wherever the order rule accepts it: an Active-session copy above Status, a
 Status copy between Active-session and the heartbeat, or a heartbeat copy
-anywhere below Status. tools/lint-session-state.py accepted each such shape
-tried in review.
+anywhere below Status. Since 3b328 tools/lint-session-state.py (gate 63)
+refuses each such shape tried in review, so the file fails when written.
 With two or three uncounted header fields, copies can occupy other positions
 accepted by the order rule, including all three in a fenced block at EOF.
 """

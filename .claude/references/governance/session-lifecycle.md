@@ -129,6 +129,7 @@ The rule's mechanisms are the exception paths (graceful degradation for blocked 
 
 - Handoff record: `/opt/grc/private/session-handoff.md`; concurrency lease:
   `/opt/grc/private/session-state.md` (gate 63 guards its shape); resume command: `/orch`.
+  A mention of a lease field in a comment or free text names the field without a colon directly after it, for example `the Status field`.
 - Pending decisions: `/opt/grc/private/pending-decisions.md`; the timer default and the
   operating modes are operationalized in the project CLAUDE.md attended-autonomous,
   wind-down, and session-migration sections.

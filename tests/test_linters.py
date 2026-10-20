@@ -16374,6 +16374,412 @@ class SessionStateTests(LinterTestCase):
         self.assertEqual(len(missing), 1)
         self.assertTrue(any("paused" in message for message in invalid))
 
+    def _lease_result(self, text):
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest.mock import patch
+        mod = self._load_module()
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as td:
+            lease = Path(td) / "session-state.md"
+            lease.write_bytes(text.encode("utf-8"))
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with patch.object(mod, "resolve_working", return_value=lease):
+                with redirect_stdout(stdout), redirect_stderr(stderr):
+                    code = mod.main()
+        missing, invalid = mod.check_text(text)
+        return code, missing, invalid, stdout.getvalue(), stderr.getvalue()
+
+    def _shadow_lease(self, field, replacement, region):
+        line = next(line for line in self.VALID_LEASE.splitlines()
+                    if line.startswith(f"**{field}:**"))
+        wrappers = {
+            "comment": ("<!--\n", "\n-->\n"),
+            "fence": ("```markdown\n", "\n```\n"),
+            "heading": ("## History\n", "\n"),
+        }
+        before, after = wrappers[region]
+        return (self.VALID_LEASE.replace(line + "\n", replacement)
+                + "\n" + before + line + after)
+
+    def test_shadowed_near_miss_labels(self) -> None:
+        for field in ("Active-session", "Status", "Last-heartbeat-UTC"):
+            line = next(line for line in self.VALID_LEASE.splitlines()
+                        if line.startswith(f"**{field}:**"))
+            shapes = [
+                ("wrong case", line.replace(field, field.upper())),
+                ("colon outside the bold", line.replace(":**", "**:")),
+                ("leading whitespace", " " + line),
+                ("wrong value shape", line + " extra"),
+            ]
+            if "-" in field:
+                mixed = field.replace("session", "Session").replace("heartbeat", "Heartbeat")
+                shapes.extend([
+                    ("wrong case", line.replace(field, mixed)),
+                    ("non-ASCII hyphen", line.replace("-", "\u2010", 1)),
+                ])
+            for fault, near in shapes:
+                for region in ("comment", "fence", "heading"):
+                    with self.subTest(field=field, fault=fault, region=region):
+                        text = self._shadow_lease(field, near + "\n", region)
+                        code, missing, invalid, stdout, stderr = self._lease_result(text)
+                        self.assertEqual(code, 1)
+                        self.assertEqual(missing, [])
+                        self.assertEqual(len(invalid), 2, invalid)
+                        self.assertIn(f"**{field}:**", invalid[0])
+                        self.assertIn(fault, invalid[0])
+                        number = text.split("\n").index(near) + 1
+                        self.assertIn(f"at line {number} ", invalid[0])
+                        self.assertIn("outside the header region", invalid[1])
+                        self.assertEqual(stdout, "")
+                        self.assertEqual(stderr.count("FAIL:"), 2)
+
+    def test_missing_header_shadowed(self) -> None:
+        for field in ("Active-session", "Status", "Last-heartbeat-UTC"):
+            for region in ("comment", "fence", "heading"):
+                with self.subTest(field=field, region=region):
+                    text = self._shadow_lease(field, "", region)
+                    code, missing, invalid, _, _ = self._lease_result(text)
+                    self.assertEqual(code, 1)
+                    self.assertEqual(missing, [])
+                    self.assertEqual(len(invalid), 1)
+                    self.assertIn(f"**{field}:**", invalid[0])
+                    self.assertIn("outside the header region", invalid[0])
+
+    def test_old_lease_below_history(self) -> None:
+        mod = self._load_module()
+        near = self.VALID_LEASE
+        for field in mod.FIELD_PATTERNS:
+            near = near.replace(field, field.swapcase())
+        text = near + "\n## History\n" + self.VALID_LEASE.split("\n", 1)[1]
+        code, missing, invalid, _, stderr = self._lease_result(text)
+        self.assertEqual(code, 1)
+        self.assertEqual(missing, [])
+        self.assertEqual(len(invalid), 12)
+        self.assertEqual(sum("near-miss" in item for item in invalid), 6)
+        self.assertEqual(sum("outside the header" in item for item in invalid), 6)
+        self.assertEqual(stderr.count("FAIL:"), 12)
+
+    def test_comment_copy_keeps_duplicate(self) -> None:
+        text = self.VALID_LEASE + "\n<!--\n**Status:** active\n-->\n"
+        code, missing, invalid, _, _ = self._lease_result(text)
+        self.assertEqual(code, 1)
+        self.assertEqual(missing, [])
+        self.assertEqual(invalid, [
+            "field line `**Status:**` appears 2 times; each field appears exactly once",
+            "field line `**Status:**` at line 16 is outside the header region (HTML comment)",
+        ])
+
+    def test_label_boundaries(self) -> None:
+        mod = self._load_module()
+        safe = (
+            "<!-- mode source: ... the Status field ... -->\n"
+            "Prose mentions **STATUS:** released here.\n"
+            "`**STATUS:** released`\n"
+            "> prose **STATUS:** released\n"
+            "<!-- **STATUS:** released -->\n"
+        )
+        text = self.VALID_LEASE.replace(
+            "example task", "Status `active` and `**STATUS:** released`"
+        ) + safe
+        self.assertEqual(mod.check_text(text), ([], []))
+        for prefix in ("", " ", "\t", "- ", "+ ", "* ", "1. ", "2) ",
+                       "> ", ">>", "### ", " > - "):
+            for token in ("**STATUS:**", "**Status**:", "*Status:*", "**Status:"):
+                with self.subTest(prefix=prefix, token=token):
+                    missing, invalid = mod.check_text(text + prefix + token + " active\n")
+                    self.assertEqual(missing, [])
+                    self.assertEqual(len(invalid), 1)
+                    self.assertIn("near-miss label", invalid[0])
+
+    def test_unclosed_comment(self) -> None:
+        text = self._shadow_lease("Status", "", "comment").removesuffix("-->\n")
+        code, missing, invalid, _, _ = self._lease_result(text)
+        self.assertEqual((code, missing, len(invalid)), (1, [], 1))
+        self.assertIn("HTML comment", invalid[0])
+
+    def test_unclosed_fence(self) -> None:
+        for fence in ("```", "~~~"):
+            with self.subTest(fence=fence):
+                text = self._shadow_lease("Status", "", "fence")
+                text = text.replace("```", fence).removesuffix(fence + "\n")
+                code, missing, invalid, _, _ = self._lease_result(text)
+                self.assertEqual((code, missing, len(invalid)), (1, [], 1))
+                self.assertIn("fenced code block", invalid[0])
+
+    def test_crlf_and_tab_after_label(self) -> None:
+        mod = self._load_module()
+        text = self.VALID_LEASE.replace(":** ", ":**\t").replace("\n", "\r\n")
+        self.assertEqual(mod.check_text(text), ([], []))
+        self.assertEqual(self._lease_result(text)[0], 0)
+        text += "**STATUS:**\tactive\r\n"
+        code, missing, invalid, _, _ = self._lease_result(text)
+        self.assertEqual((code, missing, len(invalid)), (1, [], 1))
+        self.assertIn("at line 14 ", invalid[0])
+
+    def test_two_near_misses_for_one_field(self) -> None:
+        text = self.VALID_LEASE + "**STATUS:** active\n**status:** active\n"
+        code, missing, invalid, _, _ = self._lease_result(text)
+        self.assertEqual((code, missing, len(invalid)), (1, [], 2))
+        self.assertIn("at line 14 ", invalid[0])
+        self.assertIn("at line 15 ", invalid[1])
+
+    def test_near_miss_with_exact_header(self) -> None:
+        mod = self._load_module()
+        for field in mod.FIELD_PATTERNS:
+            with self.subTest(field=field):
+                text = self.VALID_LEASE + f"**{field.swapcase()}:** none\n"
+                missing, invalid = mod.check_text(text)
+                self.assertEqual(missing, [])
+                self.assertEqual(len(invalid), 1)
+                self.assertIn(f"**{field}:**", invalid[0])
+
+    def test_scanner_boundaries(self) -> None:
+        mod = self._load_module()
+        for prefix in (
+            "<!-- closed -->\n",
+            "<!--\n## Not a section\n```\n-->\n",
+            "```\n<!--\n## Not a section\n```\n",
+            "~~~ info\n## Not a section\n~~~\n",
+        ):
+            with self.subTest(prefix=prefix):
+                text = self.VALID_LEASE.replace("\n\n", "\n\n" + prefix, 1)
+                self.assertEqual(mod.check_text(text), ([], []))
+        for opener, middle, closer in (
+            ("<!--", "--><!--", "-->"),
+            ("```` info", "```", "````"),
+            ("~~~", "```", "~~~"),
+            ("   ~~~ info", "~~~ not a closer", "~~~~"),
+        ):
+            with self.subTest(opener=opener, middle=middle):
+                text = self._shadow_lease("Status", "", "comment")
+                text = text.replace("<!--", opener + "\n" + middle).replace("-->", closer)
+                missing, invalid = mod.check_text(text)
+                self.assertEqual(missing, [])
+                self.assertEqual(len(invalid), 1)
+                self.assertIn("outside the header", invalid[0])
+        text = self.VALID_LEASE + "## Notes\n<!--\n**Status:** active\n-->\n"
+        invalid = mod.check_text(text)[1]
+        self.assertEqual(len(invalid), 2)
+        self.assertIn("(HTML comment, later heading)", invalid[-1])
+
+    def test_near_misses_inside_regions(self) -> None:
+        for region in ("comment", "fence", "heading"):
+            with self.subTest(region=region):
+                text = self._shadow_lease("Status", "**Status:** active\n", region)
+                tail = text.rfind("**Status:** active")
+                text = text[:tail] + text[tail:].replace("Status", "STATUS", 1)
+                code, missing, invalid, _, _ = self._lease_result(text)
+                self.assertEqual((code, missing, len(invalid)), (1, [], 1))
+                self.assertIn("near-miss label", invalid[0])
+
+    def test_unicode_hyphens_and_dashes(self) -> None:
+        mod = self._load_module()
+        for dash in ("\u00ad", "\u058a", "\u05be", "\u1400", "\u1806",
+                     "\u2010", "\u2011", "\u2012", "\u2013", "\u2014",
+                     "\u2015", "\u2053", "\u207b", "\u208b", "\u2212",
+                     "\u2e17", "\u2e1a", "\u2e3a", "\u2e3b", "\u2e40",
+                     "\u2e5d", "\u301c", "\u3030", "\u30a0", "\ufe31",
+                     "\ufe32", "\ufe58", "\ufe63", "\uff0d", chr(0x10ead)):
+            with self.subTest(dash=ascii(dash)):
+                text = self.VALID_LEASE + "**Active" + dash + "session:** none\n"
+                missing, invalid = mod.check_text(text)
+                self.assertEqual(missing, [])
+                self.assertEqual(len(invalid), 1)
+                self.assertIn("non-ASCII hyphen", invalid[0])
+
+    def test_missing_field_precedence_with_near_miss(self) -> None:
+        text = self.VALID_LEASE.replace("**Status:** active", "**STATUS:** active")
+        code, missing, invalid, _, stderr = self._lease_result(text)
+        self.assertEqual((code, len(missing), len(invalid)), (2, 1, 1))
+        self.assertEqual(stderr.count("ERROR:"), 1)
+        self.assertEqual(stderr.count("FAIL:"), 1)
+
+    def test_value_cannot_move_to_next_line(self) -> None:
+        text = self.VALID_LEASE.replace("**Status:** active", "**Status:**\nactive")
+        code, missing, invalid, _, _ = self._lease_result(text)
+        self.assertEqual((code, missing, len(invalid)), (1, [], 1))
+        self.assertIn("wrong value shape", invalid[0])
+
+    def _mention(self, field, number):
+        return (
+            f"field label `{field}:` also appears at line {number}, which the "
+            f"session-start reader counts as a second field line "
+            f"(drop the colon from a mention)"
+        )
+
+    def test_reader_field_label_mentions(self) -> None:
+        # tools/session_facts.py counts every line containing "<name>:",
+        # so each such line besides the field line is a second field line.
+        lease = self.VALID_LEASE
+        shapes = {
+            "status in current-task": (
+                lease.replace("example task", "fix Status: active"), "Status", 11),
+            "session in current-task": (
+                lease.replace("example task", "example **Active-session:** old"),
+                "Active-session", 11),
+            "comment mention": (
+                lease + "<!-- on close set `Status: released` -->\n", "Status", 14),
+            "plain label": (lease + "Status: active\n", "Status", 14),
+            "inline code under a later heading": (
+                lease + "## Notes\nThe lease says `Active-session: none`.\n",
+                "Active-session", 15),
+            "plain heartbeat in a fence": (
+                lease + "```\nLast-heartbeat-UTC: 2026-07-03T12:00:00Z\n```\n",
+                "Last-heartbeat-UTC", 15),
+            "near-miss of another field": (
+                lease + "**CURRENT-TASK:** set Status: active\n", "Status", 14),
+        }
+        for name, (text, field, number) in shapes.items():
+            with self.subTest(shape=name):
+                code, missing, invalid, stdout, stderr = self._lease_result(text)
+                self.assertEqual(code, 1)
+                self.assertEqual(missing, [])
+                self.assertIn(self._mention(field, number), invalid)
+                expected = 2 if name == "near-miss of another field" else 1
+                self.assertEqual(len(invalid), expected, invalid)
+                self.assertEqual(stdout, "")
+
+    def test_sanctioned_mention_spelling_passes(self) -> None:
+        mod = self._load_module()
+        text = self.VALID_LEASE.replace(
+            "example task", "fix the Status field (Status `active`)"
+        ) + (
+            "<!-- on close the Status field becomes `released` and\n"
+            "Active-session becomes `none`; Last-heartbeat-UTC is re-stamped -->\n"
+        )
+        self.assertEqual(mod.check_text(text), ([], []))
+        self.assertEqual(self._lease_result(text)[0], 0)
+
+    def test_reader_fields_match_session_facts(self) -> None:
+        import runpy
+        mod = self._load_module()
+        names = runpy.run_path(str(REPO_ROOT / "tools/session_facts.py"))["NAMES"]
+        self.assertEqual(mod.READER_FIELDS, names)
+
+    def test_underscore_emphasis_labels(self) -> None:
+        mod = self._load_module()
+        for token, faults in (
+            ("__STATUS:__", ("wrong case", "underscore emphasis")),
+            ("__Status:__", ("underscore emphasis",)),
+            ("__Status__:", ("colon outside the bold", "underscore emphasis")),
+            ("_Status:_", ("underscore emphasis",)),
+            ("**Status:__", ("underscore emphasis",)),
+        ):
+            with self.subTest(token=token):
+                missing, invalid = mod.check_text(
+                    self.VALID_LEASE + token + " active\n")
+                self.assertEqual(missing, [])
+                self.assertEqual(invalid, [
+                    "field line `**Status:**` at line 14 has a near-miss label "
+                    f"({', '.join(faults)})"
+                ])
+        text = self.VALID_LEASE.replace(
+            "**Status:** active", "__Status:__ active"
+        ) + "<!--\n**Status:** active\n-->\n"
+        code, missing, invalid, _, _ = self._lease_result(text)
+        self.assertEqual((code, missing, len(invalid)), (1, [], 2))
+        self.assertIn("underscore emphasis", invalid[0])
+        self.assertIn("outside the header region (HTML comment)", invalid[1])
+
+    def test_compatibility_letters_in_label(self) -> None:
+        mod = self._load_module()
+
+        def wide(word):
+            # Fullwidth forms of ASCII letters sit at 0xFEE0 above them.
+            return "".join(chr(ord(char) + 0xFEE0) for char in word)
+
+        for label, faults in (
+            (wide("STATUS"), "wrong case, compatibility character"),
+            (wide("S") + "tatus", "compatibility character"),
+            ("Active" + chr(0xFF0D) + "session", "non-ASCII hyphen"),
+        ):
+            with self.subTest(label=ascii(label)):
+                missing, invalid = mod.check_text(
+                    self.VALID_LEASE + f"**{label}:** none\n")
+                self.assertEqual(missing, [])
+                self.assertEqual(len(invalid), 1, invalid)
+                self.assertIn(f"at line 14 has a near-miss label ({faults})",
+                              invalid[0])
+        text = self._shadow_lease(
+            "Status", "**" + wide("Status") + ":** released\n", "fence")
+        code, missing, invalid, _, _ = self._lease_result(text)
+        self.assertEqual((code, missing, len(invalid)), (1, [], 2))
+        self.assertIn("compatibility character", invalid[0])
+        self.assertIn("(fenced code block)", invalid[1])
+
+    def test_heading_without_title_starts_later_section(self) -> None:
+        mod = self._load_module()
+        body = self.VALID_LEASE.split("\n", 2)[2]
+        text = body.replace("**Status:** active\n", "") + "\n## History\n**Status:** active\n"
+        number = text.split("\n").index("**Status:** active") + 1
+        self.assertEqual(mod.check_text(text), ([], [
+            f"field line `**Status:**` at line {number} "
+            f"is outside the header region (later heading)"
+        ]))
+        self.assertEqual(mod.check_text(body), ([], []))
+
+    def test_three_reader_fields_fenced_at_end(self) -> None:
+        mod = self._load_module()
+        lines = [line for line in self.VALID_LEASE.split("\n")
+                 if line.startswith(("**Active-session:**", "**Status:**",
+                                     "**Last-heartbeat-UTC:**"))]
+        text = self.VALID_LEASE
+        for line in lines:
+            text = text.replace(line + "\n", "")
+        text += "```\n" + "\n".join(lines) + "\n```\n"
+        missing, invalid = mod.check_text(text)
+        self.assertEqual(missing, [])
+        self.assertEqual(len(invalid), 3, invalid)
+        for item in invalid:
+            self.assertIn("outside the header region (fenced code block)", item)
+
+    def test_control_character_prefixes(self) -> None:
+        mod = self._load_module()
+        for prefix in ("\x85", "\x0b", "\x0c", chr(0x2028), chr(0xA0)):
+            with self.subTest(prefix=ascii(prefix)):
+                missing, invalid = mod.check_text(
+                    self.VALID_LEASE + prefix + "**Active-session:** old\n")
+                self.assertEqual(missing, [])
+                self.assertEqual(len(invalid), 1, invalid)
+                self.assertIn("at line 14 has a near-miss label "
+                              "(leading whitespace or Markdown marker)", invalid[0])
+
+    def test_reader_shapes_refused(self) -> None:
+        # Every lease the reader reports ambiguous, and every solitary copy
+        # it would read in place of an uncounted header, fails this gate.
+        mod = self._load_module()
+        facts = test_session_facts
+        live, fence = facts.LIVE, facts.FENCE
+        current, old = facts.CURRENT, facts.OLD
+        shapes = {name: lease for name, (lease, _) in facts.AMBIGUOUS.items()}
+        shapes.update({
+            "solitary fenced copy": (
+                live.replace(current, "") + fence + "\n" + old + fence + "\n"),
+            "mixed case and comment copy": (
+                live.replace("**Active-session:**", "**Active-Session:**")
+                + "<!--\n" + old + "-->\n"),
+            "colon outside and history copy": (
+                live.replace("**Active-session:**", "**Active-session**:")
+                + "## History\n" + old),
+            "non-ASCII hyphen and fenced copy": (
+                live.replace("**Active-session:**",
+                             "**Active" + chr(0x2011) + "session:**")
+                + fence + "\n" + old + fence + "\n"),
+            "upper case and fenced copy": (
+                live.replace("**Status:** active", "**STATUS:** released")
+                + fence + "\n**Status:** active\n" + fence + "\n"),
+            "mixed case and copy above Status": live.replace(
+                current, "**Active-Session:** orch-2026-10-04T13:36:00Z\n" + old),
+        })
+        for line in (current, "**Status:** active\n", facts.HBLINE):
+            for replacement in ("", line.replace(":**", "**:")):
+                shapes[f"substituted {line[:12]} {bool(replacement)}"] = (
+                    live.replace(line, replacement + "<!--\n" + line + "-->\n"))
+        for name, lease in shapes.items():
+            with self.subTest(shape=name):
+                missing, invalid = mod.check_text(lease)
+                self.assertTrue(missing or invalid)
+        self.assertEqual(mod.check_text(live), ([], []))
+
 
 class CcmAicmCitationTests(LinterTestCase):
     """tools/lint-ccm-aicm-citations.py"""
