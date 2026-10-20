@@ -10085,6 +10085,37 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         for name in ("unreadable-stat", "full-registry"):
             self.assertIn(f"RESULT {name} True []", result.stdout, detail)
 
+    def test_run_shell_stubbed_untimed_wait_acts_on_pending_term(self) -> None:
+        """P-TODO 3b419: a run with timeout=None waits in finite slices, so a TERM whose C-level handler ran without
+        interrupting the wait still stops the run and its cleanup completes. The untimed-wait-acts-on-term stage
+        passes on the tool and fails, at its exit wait, on a copy whose slice loop is replaced by the old blocking
+        wait (the held command never exits there; a 20s private deadline bounds that failure)."""
+        source = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        start = source.index("                    if timeout is None:\n                        # An untimed wait")
+        end = source.index("                    else:\n                        rc = p.wait(timeout=timeout)\n", start)
+        end = source.index("\n", source.index("rc = p.wait(timeout=timeout)", end)) + 1
+        stripped = source[:start] + "                    rc = p.wait(timeout=timeout)\n" + source[end:]
+        self.assertNotIn("UNTIMED_WAIT_POLL_SECONDS)", stripped)
+        driver = (
+            "import runpy, sys\n"
+            "for name, path, wait in (('tool', sys.argv[1], None), ('blocking-wait', sys.argv[2], 20.0)):\n"
+            "    t = runpy.run_path(path)\n"
+            "    failures = []\n"
+            "    passed = t['_untimed_wait_term_check'](failures, _exit_wait=wait)\n"
+            "    print('RESULT', name, passed, failures)\n"
+        )
+        with tempfile.TemporaryDirectory(prefix="untimed-wait-test-") as tmp:
+            copy = Path(tmp) / "run-shell-stubbed.py"
+            copy.write_text(stripped, encoding="utf-8")
+            result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                         str(REPO_ROOT / "tools" / "run-shell-stubbed.py"), str(copy)],
+                                        timeout=600)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertIn("RESULT tool True []", result.stdout, detail)
+        self.assertIn("RESULT blocking-wait False [('untimed-wait-acts-on-term:probe-exit-wait-timeout', False)]",
+                      result.stdout, detail)
+
     def test_stop_guard_unattended_hook_self_test(self) -> None:
         """The adopted No-Manufactured-Wind-Down Stop guard's own self-test, wired at
         introduction (2026-09-03, fleet "No Manufactured Wind-Down" delivery). This canonical
