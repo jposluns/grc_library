@@ -495,6 +495,129 @@ class CitationCoverageTests(unittest.TestCase):
             for o in E.discover("NIST future publication", ".md")
         ))
 
+    # 3b425: one register row per cited NIST SP part or volume, exact matching kept.
+    PARTS = REGISTER + "".join(
+        "| %s | %s | 2024 | NIST | %s |\n" % row for row in (
+            ("NIST SP 800-57 Part 1", "Rev. 5", "Rev. 4, 2005"),
+            ("NIST SP 800-57 Part 2", "Rev. 1", "2005"),
+            ("NIST SP 800-55 Vol. 1", "2024", "-"),
+            ("NIST SP 800-63", "Rev. 4", "Rev. 3"),
+            ("NIST SP 800-63B", "Rev. 4", "Rev. 3"),
+        )
+    )
+
+    def identities(self, text):
+        return [(o["identity"], o["version"]) for o in self.occurrences(text)]
+
+    def test_nist_part_and_volume_are_identity(self):
+        for written in ("Part 1", "part 1", "Pt. 1", "Pt 1", "Pt.1"):
+            self.assertEqual(
+                self.identities("NIST SP 800-57 %s Rev. 5" % written),
+                [("nist sp 800-57 part 1", "Rev. 5")], written,
+            )
+        for written in ("Vol. 1", "Vol 1", "Volume 1", "vol.1"):
+            self.assertEqual(
+                self.identities("NIST SP 800-55 %s (2024)" % written),
+                [("nist sp 800-55 vol. 1", "2024")], written,
+            )
+        self.assertEqual(self.kinds("NIST SP 800-57 Part 1 Rev. 5", self.PARTS), [])
+        self.assertEqual(self.kinds("NIST SP 800-57 Pt. 2 Rev. 1", self.PARTS), [])
+        self.assertEqual(self.kinds("NIST SP 800-55 Vol. 1 (2024)", self.PARTS), [])
+        self.assertEqual(self.kinds("NIST SP 800-57 Part 1 Rev. 4", self.PARTS), ["STALE"])
+        self.assertEqual(self.kinds("NIST SP 800-57 Part 1 (2005)", self.PARTS), ["STALE"])
+        self.assertEqual(self.kinds("NIST SP 800-57 Part 1", self.PARTS), ["UNPINNED"])
+        # Exact matching: a part with no row of its own is unregistered, not folded into another.
+        self.assertEqual(self.kinds("NIST SP 800-57 Part 3 Rev. 1", self.PARTS), ["UNREGISTERED"])
+        self.assertEqual(self.kinds("NIST SP 800-55 Vol. 2", self.PARTS), ["UNREGISTERED"])
+        self.assertNotEqual(E.identity_key("NIST SP 800-57 Part 1"), E.identity_key("NIST SP 800-57 Vol. 1"))
+        # The register's spelling is the key, whichever spelling the row uses.
+        self.assertEqual(E.identity_key("NIST SP 800-57 Pt. 1"), E.identity_key("NIST SP 800-57 Part 1"))
+        self.assertEqual(E.identity_key("NIST SP 800-55 Volume 2"), "nist sp 800-55 vol. 2")
+        # The legacy check blocks the register's written form; another spelling stays advisory.
+        self.assertEqual(self.invoke("NIST SP 800-57 Part 1 Rev. 4", register=self.PARTS)[0], 1)
+        self.assertEqual(self.invoke("NIST SP 800-57 Pt. 1 Rev. 4", register=self.PARTS)[0], 0)
+
+    def test_nist_bare_number_stays_its_own_identity(self):
+        """Compatibility control: the bare-number, comma, "Parts", "Volumes" and single-part
+        cases also pass on the 3b425 round 1 grammar; only the cases naming several parts
+        after "Part", "Pt." or "Vol." are new in round 2 and fail there."""
+        # A bare number, or a citation naming several parts or volumes, names no single
+        # part: it is not folded into a part row.
+        for text in (
+            "NIST SP 800-57", "NIST SP 800-57 Parts 1 and 2", "NIST SP 800-57, Part 1",
+            "NIST SP 800-57 Parts 1, 2", "NIST SP 800-57 Parts 1 to 3",
+            "NIST SP 800-57 Part 1 and 2", "NIST SP 800-57 Part 1, 2",
+            "NIST SP 800-57 Part 1/2", "NIST SP 800-57 Part 1 / 2",
+            "NIST SP 800-57 Part 1 or 2", "NIST SP 800-57 Part 1 & 2",
+            "NIST SP 800-57 Part 1 &amp; 2", "NIST SP 800-57 Part 1 to 3",
+            "NIST SP 800-57 Part 1 and Part 2", "NIST SP 800-57 Pt. 1 and Pt. 2",
+        ):
+            self.assertEqual(self.identities(text)[0], ("nist sp 800-57", ""), text)
+            self.assertEqual(self.kinds(text, self.PARTS)[0], "UNREGISTERED", text)
+        for text in ("NIST SP 800-55 Vol. 1 and 2", "NIST SP 800-55 Volumes 1 and 2"):
+            self.assertEqual(self.identities(text)[0], ("nist sp 800-55", ""), text)
+        self.assertEqual(self.kinds("NIST SP 800-55 Rev. 1", self.PARTS), ["UNREGISTERED"])
+        # One part followed by a year, a revision or another citation keeps its part.
+        for text, version in (
+            ("NIST SP 800-57 Part 1, 2020", ""),
+            ("NIST SP 800-57 Part 1, Rev. 5", "Rev. 5"),
+            ("NIST SP 800-57 Part 1 and NIST SP 800-53", ""),
+        ):
+            self.assertEqual(self.identities(text)[0], ("nist sp 800-57 part 1", version), text)
+        # A section number or an ordinal after the comma is not a second part.
+        for text in ("NIST SP 800-57 Part 1, 5.6.1", "NIST SP 800-57 Part 1, 3rd revision"):
+            self.assertEqual(self.identities(text)[0][0], "nist sp 800-57 part 1", text)
+        # A list of parts ending a sentence stays bare.
+        self.assertEqual(self.identities("NIST SP 800-57 Part 1 and 2.")[0], ("nist sp 800-57", ""))
+
+    def test_nist_sp_800_63_written_revision_disagreeing_with_suffix(self):
+        # A written revision that disagrees with the "-N" suffix is unresolved, not overridden.
+        self.assertEqual(
+            self.identities("NIST SP 800-63B-4 Rev. 3"), [("nist sp 800-63b", "Rev. 4 / Rev. 3")]
+        )
+        self.assertEqual(self.kinds("NIST SP 800-63B-4 Rev. 3", self.PARTS), ["UNRESOLVED_EDITION"])
+        self.assertEqual(self.kinds("NIST SP 800-63-3 (Rev. 4)", self.PARTS), ["UNRESOLVED_EDITION"])
+        self.assertEqual(self.kinds("NIST SP 800-63B-4r3", self.PARTS), ["UNRESOLVED_EDITION"])
+        # An agreeing revision, in any spelling, and a date stay the suffix's edition.
+        for text in ("NIST SP 800-63B-4 Rev. 4", "NIST SP 800-63B-4 Revision 4", "NIST SP 800-63B-4 (2024)"):
+            self.assertEqual(self.identities(text), [("nist sp 800-63b", "Rev. 4")], text)
+            self.assertEqual(self.kinds(text, self.PARTS), [], text)
+
+    def test_nist_sp_800_63_revision_suffix(self):
+        self.assertEqual(self.identities(
+            "NIST SP 800-63-4, NIST SP 800-63A-4, NIST SP 800-63B-3 and NIST SP 800-63C-4"
+        ), [
+            ("nist sp 800-63", "Rev. 4"), ("nist sp 800-63a", "Rev. 4"),
+            ("nist sp 800-63b", "Rev. 3"), ("nist sp 800-63c", "Rev. 4"),
+        ])
+        self.assertEqual(self.kinds("NIST SP 800-63-4", self.PARTS), [])
+        self.assertEqual(self.kinds("NIST SP 800-63B-4", self.PARTS), [])
+        self.assertEqual(self.kinds("NIST SP 800-63-3", self.PARTS), ["STALE"])
+        self.assertEqual(self.kinds("NIST SP 800-63B-3", self.PARTS), ["STALE"])
+        # The publisher's suffix is the edition even when a date follows it.
+        self.assertEqual(self.identities("NIST SP 800-63-3 (2017)"), [("nist sp 800-63", "Rev. 3")])
+        # Outside the SP 800-63 family a trailing number stays part of one exact identity.
+        for text, key in (
+            ("NIST SP 800-73-4", "nist sp 800-73-4"),
+            ("NIST SP 800-630-4", "nist sp 800-630-4"),
+            ("NIST SP 800-63D-4", "nist sp 800-63d-4"),
+            ("NIST SP 1800-26", "nist sp 1800-26"),
+        ):
+            self.assertEqual(self.identities(text), [(key, "")], text)
+
+    def test_nist_sp_800_series_is_not_an_identity(self):
+        for text in (
+            "the NIST SP 800-series guidance",
+            "the NIST SP 800 series guidance",
+            "the NIST SP 800 Series guidance",
+            "it excludes NIST SP 800-... rows",
+        ):
+            self.assertEqual(self.occurrences(text), [], text)
+        self.assertEqual(
+            self.identities("NIST SP 1900 series and NIST SP 1800 series and NIST SP 800-53"),
+            [("nist sp 1900 series", ""), ("nist sp 1800 series", ""), ("nist sp 800-53", "")],
+        )
+
 
 # 3b75: the sanctioned historical-context form (policy register + engine binding).
 HREG = (
