@@ -23,6 +23,21 @@ or unreadable selected ledger fails open. Its `## Open` table carries one row pe
 confirmed defect with a severity and a disposition. A row with an EMPTY disposition is undispositioned.
 A row leaves the ledger only via `FIXED`, `ROUTED`, `REFUTED`, or `ACCEPTED`.
 
+`FIXED` and `ROUTED` require an adjacent reference: a PR (`#1178`), a backlog item
+(`3.73`, `3.56a`, `3.139.1`, `P-1.71`, `3b108`), a TODO-qualified dotted item
+(`TODO 3.73`, `TODO P-1.60`), a private operational-store commit
+(`store:abcdef0`, 7 to 40 lowercase hex characters), or a maintainer egress-list entry
+(`egress:request-1`, ASCII letters, digits, dots or hyphens, starting and ending with
+a letter or digit, naming an entry in `maintainer-egress-requests.md`). Both new forms work after either disposition.
+Whitespace and inline markup may separate the word and reference, as in
+`` **FIXED** `store:abcdef0` `` and `ROUTED **egress:request-1**`.
+Legacy references retain colon separators (`FIXED: #1178`); the new forms reject them
+(`FIXED: store:abcdef0`). Markup inside either reference is invalid. Prose may follow
+a reference; a full stop immediately after a store SHA is allowed and is not part
+of the reference (`FIXED store:abcdef0. Then prose`). These checks validate syntax
+only, not the existence of the commit or entry. `REFUTED` and `ACCEPTED` require only
+the terminal word; evidence and rationale remain author judgement.
+
 ## What it blocks (two conditions)
 
 1. **Undispositioned `error` row (primary).** An `error`-severity row with no disposition blocks

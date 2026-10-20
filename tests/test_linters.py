@@ -47911,10 +47911,43 @@ class OpenFindingsRowTests(unittest.TestCase):
                 rc, out, err = self.run_tool(row, "--id", "NEW-1", "--append", "--dry-run")
                 self.assertEqual("refused: disposition-" in err, guard == 2, out + err)
 
+    def test_operational_references_match_hook_and_append_tool(self) -> None:
+        hook = load_linter_module(".claude/hooks/block-on-open-findings.py", "_ofr_store_hook")
+        valid = ("store:abcdef0", "store:" + "a" * 40, "egress:R1.entry-2", "egress:a",
+                 "store:abcdef0. Then prose")
+        invalid = ("store:", "store:abcdeg0", "store:abcdef", "store:" + "a" * 41,
+                   "store:ABCDEF0", "store:abcdef0g", "egress:", "egress:request/1",
+                   "in store:abcdef0", "restore:abcdef0", "egressx:a", "STORE:abcdef0",
+                   "store:abcde_f0", "store:abcde*f0", "store:abcde`f0",
+                   "store:abcde[f0]", "egress:req_1", "egress:req*1", "egress:req`1",
+                   "egress:req[1]", "egress:-", "egress:.", "egress:...",
+                   "egress:-a", "egress:a-", "egress:.a", "egress:a.",
+                   "store:abcde_f0 later store:abcdef0", "egress:req_1 later egress:req1")
+        for word in ("FIXED", "ROUTED"):
+            for ref in valid + invalid:
+                for template in ("{} {}", "**{}** `{}`", "{} **{}**", "{} [{}](url)",
+                                 "  _{}_ ({})  "):
+                    disp = template.format(word, ref)
+                    expected = ref in valid
+                    with self.subTest(disp=disp):
+                        self.assertEqual(hook.disposition_valid(disp), expected)
+                        row = self.row(disp + " [class-exempt: singleton]")
+                        if expected:
+                            self.assertWouldWrite(row)
+                        else:
+                            self.assertRefused(row, "disposition-")
+            for ref in valid:
+                for separator in (": ", " : ", ":"):
+                    disp = word + separator + ref
+                    with self.subTest(disp=disp):
+                        self.assertFalse(hook.disposition_valid(disp))
+                        self.assertRefused(self.row(disp), "disposition-")
+
     def test_tool_defines_no_disposition_grammar(self) -> None:
         import ast
         tree = ast.parse(self.TOOL.read_text(encoding="utf-8"))
-        owned = {"TERMINAL", "SEVERITIES", "_REF", "_DISPOSITION_RE", "CLASS_TOKEN_RE", "CLASS_ATTEST_RE",
+        owned = {"TERMINAL", "SEVERITIES", "_REF", "_DISPOSITION_RE", "_OPERATIONAL_DISPOSITION_RE",
+                 "CLASS_TOKEN_RE", "CLASS_ATTEST_RE",
                  "CLASS_EXEMPT_RE", "CLASS_EXEMPT_REASONS", "MISFILED_ROW_RE"}
         assigned = {t.id for n in ast.walk(tree) if isinstance(n, (ast.Assign, ast.AnnAssign))
                     for t in (n.targets if isinstance(n, ast.Assign) else [n.target]) if isinstance(t, ast.Name)}
