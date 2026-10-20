@@ -6424,7 +6424,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         )
         warned = self._warned(out)
         self.assertEqual(len(warned), 1, out)
-        self.assertIn("alignment-table row 'NIST SP 800-57'", warned[0])
+        # 3b425: gate 6's identity keeps the explicit part.
+        self.assertIn("alignment-table row 'NIST SP 800-57 Part 1'", warned[0])
         self.assertIn("security/standard-example.md:9:", warned[0])
         self.assertIn("D15 ADVISORY: 1 added citation", out)
 
@@ -37596,7 +37597,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.15.1", "3b407 rejects an empty ise prefix in compile_language and encodes the ise_words memo compactly, on top of 3b234's ise_prefixes key (PATCH, 0.15.0 to 0.15.1)")
+        self.assertEqual(man["pack"]["version"], "0.15.2", "3b425 reads an explicit NIST SP part or volume, and the SP 800-63 family's -N revision, in the standards-currency grammar (PATCH, 0.15.1 to 0.15.2)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")

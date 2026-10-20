@@ -14,6 +14,15 @@ coverage_report also accepts wrapper-validated historical-context declarations;
 the engine masks only the declared occurrences inside one bound sentence, and a
 declaration that does not bind blocks in every mode (3b75).
 
+Discovery reads a NIST SP 800-63 family revision suffix as an edition
+("NIST SP 800-63B-4" is identity "NIST SP 800-63B" at "Rev. 4"), but
+identity_key() does not: identity_key("NIST SP 800-63B-4") stays
+"nist sp 800-63b-4", so a register row or bare exception written in that
+publisher form never matches a discovered citation; write it without the
+suffix (3b425). identity_key() is left unchanged because other callers
+(tools/check-alignment-register-on-pr.py, .web/build.py) key table headers,
+aliases and name lists with it.
+
 No register schema, repository roots, publisher lookup or current-version
 catalogue is owned here.
 """
@@ -223,10 +232,22 @@ IDENTIFIERS = [
         r"|IEC(?:\s*/\s*IEEE)?|ISA\s*/\s*IEC)"
         r"(?:\s+(?:TR|TS|PAS))?\s+\d{4,6}(?:-\d{1,3})*",
     ),
+    # 3b425: an explicit part or volume after a hyphenated SP number ("Part 1", "Pt. 1",
+    # "Vol. 2", "Vol 2", "Volume 2") is part of the identity, so each register row per
+    # cited part matches; "Parts 1 and 2" names no single part and stays the bare number,
+    # and so does a part number followed by another ("Part 1 and 2", "Part 1, 2",
+    # "Part 1/2", "Part 1 or 2", "Part 1 & 2", "Part 1 to 3", "Part 1 and Part 2").
+    # The SP 800 series itself ("SP 800-series", "SP 800 series", "SP 800-...") is a
+    # publication series, not an identity, and is left to the candidate inventory.
     (
         "NIST",
         r"(?:NIST\s+(?:"
-        r"SP\s+\d{3,4}(?:-\d+[A-Z]?(?:-\d+)?|\s+series)?"
+        r"SP\s+(?!800(?:-(?!\d)|\s+series\b))\d{3,4}"
+        r"(?:-\d+[A-Z]?(?:-\d+)?(?:\s+(?:Part|Pt\.?|Vol(?:ume|\.)?)\s*\d+"
+        r"(?!\s*(?:[,&/]|and\b|or\b|to\b)\s*"
+        r"(?:(?:Part|Pt\.?|Vol(?:ume|\.)?)\s*)?\d{1,2}(?!\d|\.\d|[A-Za-z]))"
+        r")?"
+        r"|\s+series)?"
         r"|IR\s+\d+[A-Z]?"
         r"|AI\s+\d+-\d+"
         r"|AI\s+RMF|CSF|RMF|Privacy\s+Framework)"
@@ -293,7 +314,36 @@ def identity_key(value):
         str.maketrans({"\u2013": "-", "\u2011": "-", "\u2212": "-"})
     )
     value = re.sub(r"\s*/\s*", "/", value)
-    return re.sub(r"\s+", " ", value).strip().casefold()
+    value = re.sub(r"\s+", " ", value).strip().casefold()
+    # 3b425: a NIST SP part or volume is spelled as the register spells it ("Part N",
+    # "Vol. N"), so "Pt. 1" and "Part 1", or "Vol 2", "Volume 2" and "Vol. 2", are one identity.
+    m = _NIST_PART.fullmatch(value)
+    if m:
+        kind = "part" if m[2].startswith("p") else "vol."
+        return "%s %s %s" % (m[1], kind, m[3])
+    return value
+
+
+# 3b425: a key already casefolded, its whitespace collapsed to single spaces.
+_NIST_PART = re.compile(
+    r"(nist sp \d{3,4}-\d+[a-z]?(?:-\d+)?) (part|pt\.?|vol(?:ume|\.)?) ?(\d+)"
+)
+
+# 3b425: NIST writes a revision of SP 800-63 and its lettered volumes A, B and C as a
+# trailing "-N" (SP 800-63-4, SP 800-63B-4); the volumes are lettered, never numbered, so
+# in this family alone a trailing number can only be the revision, and it is read as the
+# edition "Rev. N" of the identity without it. Every other "-N-N" stays one exact identity.
+_SP63_REVISION = re.compile(r"(NIST\s+SP\s+800-63[A-C]?)-(\d+)", re.I)
+
+
+def _sp63_revision(observed):
+    """(identity text, edition) of a grammar match: "NIST SP 800-63B-4" reads as
+    ("NIST SP 800-63B", "Rev. 4"); any other observed text is returned unchanged with no
+    edition (3b425)."""
+    m = _SP63_REVISION.fullmatch(observed)
+    if m:
+        return m[1], "Rev. " + m[2]
+    return observed, ""
 
 
 def edition_key(value):
@@ -607,12 +657,12 @@ def discover(source, suffix):
     for text, offsets in text_blocks(source, suffix):
         covered = []
 
-        def emit(a, b, family, observed, version, channel):
+        def emit(a, b, family, observed, version, channel, named=None):
             covered.append((a, b))
             occurrences.append(dict(
                 family=family,
                 observed=observed,
-                identity=identity_key(observed),
+                identity=identity_key(observed if named is None else named),
                 version=version,
                 channel=channel,
                 context=text,
@@ -627,8 +677,22 @@ def discover(source, suffix):
             version, end = version_after(
                 text, m.end(), family
             )
+            # The publisher's own revision suffix wins over a date or edition written after
+            # it ("SP 800-63-3 (2017)" is Rev. 3) (3b425).
+            named, revision = (
+                _sp63_revision(m[0]) if family == "NIST" else (m[0], "")
+            )
+            # A revision written after it that disagrees ("SP 800-63B-4 Rev. 3") keeps both,
+            # which no edition key reads, so the citation is UNRESOLVED_EDITION (3b425 r2).
+            written = edition_key(version) if revision else None
+            if (
+                written and written.startswith("rev:")
+                and written != edition_key(revision)
+            ):
+                revision += " / " + version
             emit(
-                m.start(), end, family, m[0], version, "grammar"
+                m.start(), end, family, m[0], revision or version,
+                "grammar", named,
             )
 
             # Directly coordinated ISO identifiers with colon-year pins.
