@@ -6509,7 +6509,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Canonical Citations Register"
-  version: "1.5.112"
+  version: "1.5.113"
   date: "2026-10-20"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
