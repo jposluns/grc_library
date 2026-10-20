@@ -68,7 +68,11 @@ written file does not read back as written (post-write-mismatch). The rename alr
 those last three errors. A failed temp-file close or unlink during cleanup never replaces the error
 already in flight: the original error line is printed, then a second line "error: temp-cleanup-failed",
 still exit 2; the same second line follows "error: internal" when the primary failure was
-unexpected. --dry-run runs the same write pre-flight
+unexpected. A failed close of the parent directory fd never replaces it either and adds no line,
+since it leaves nothing on disk to clean up. With no error in flight that close runs only after the
+rename and a verified read-back, so its failure prints "error: internal", still exit 2, while the
+ledger already holds the new row; it has no named code, as it checks nothing about the written file.
+--dry-run runs the same write pre-flight
 (the directory-fd capability check and the O_DIRECTORY|O_NOFOLLOW parent open, then a close), so
 it refuses whatever that pre-flight refuses; later write stages (temp creation, group,
 ACL and metadata preservation, identity re-check) can still refuse a real write. Outside --self-test an
@@ -631,7 +635,13 @@ def atomic_replace(path: Path, data: bytes, expect: os.stat_result, expect_sha25
             primary.cleanup = "temp-cleanup-failed"
         finally:
             if dfd is not None:
-                os.close(dfd)
+                # The read-only directory fd leaves nothing to clean up, so a failed close is
+                # suppressed under an error in flight rather than reported as a second line.
+                try:
+                    os.close(dfd)
+                except OSError:
+                    if primary is None:
+                        raise
 
 
 def _refuse(codes: list[str]) -> int:

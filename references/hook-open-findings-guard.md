@@ -135,7 +135,10 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   as written. A failed temp-file close or unlink during cleanup never replaces the error already in
   flight: the tool prints the original error line, then a second line, `error: temp-cleanup-failed`,
   still exit 2. Unexpected exceptions report `error: internal`, followed by that same second line
-  when the temp-file cleanup also failed.
+  when the temp-file cleanup also failed. A failed close of the parent directory fd never replaces
+  the error in flight either and adds no line, since it leaves nothing on disk to clean up. With no
+  error in flight, that close runs only after the rename and a verified read-back, so its failure
+  prints `error: internal`, still exit 2, while the ledger already holds the new row.
   `--ledger` values ending in `/` or `/.` are usage errors. Relative paths become `Path.cwd() / path`
   without additional normalization or symlink resolution, preserving kernel `link/..` semantics.
   Writes open the parent once with `O_DIRECTORY|O_NOFOLLOW`; temp creation, identity re-check,
