@@ -22638,7 +22638,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
         check-stranded-control-code-on-pr.py NO_FS F 80830fb4cc3d11694504a10fed1abc21b5019cd08b01b388ffa1b2d1f9db95d7
         check-todo-floor-monotonic-on-pr.py NO_FS F e3c6f34a4fb62c07ce7938c0337cef4756e3628b044e2e73ac5a01b35d9e242d
-        check-todo-rotation-on-pr.py NO_FS F 4e8d01d2a96932b969a6e920601236eef9adf1725caf8db35412661b171ff2d9
+        check-todo-rotation-on-pr.py NO_FS F 1a8cd373d5527d73a5737049c22a21e332bddd79ab83b77580e5936728e364c3
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 12b0d498e274aebdac381f7db669315183ee64ba4e0be21a31041002c7a69854
         ci-status.py NO_FS F 068ed02eb5f5a81572dce604a4cb1965582dbc178c7c9715be3d37dd8e01e54b
@@ -22651,7 +22651,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         detect-env.py WRITE F bb9b977f0a07a9d27b09dcd85d271bb1f31efc826c5f6cd860106f283144ebc6
         external_overlay.py PASSIVE F fcbdb23ea95b360fdb467d3d4b39a0b1fd9ac1113eb6b431aeee1de0fbcbe2f1
         gate-mutation-variants.json DATA F c6af7a3c12d4d56ccae611dd77676e8be2113c3fed0ae83638d3be8790e72549
-        gate-scope-manifest.json DATA F 50789210ef13e032b6206ef8392f4acd2a6266cdcc47aeaa8d72efcacdcc3fee
+        gate-scope-manifest.json DATA F 8f29caf3cd2485fab187579dcc95b18deb999df62d0853a6a7d3f717f271e497
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
         git-hooks/pre-push TRANSPORT F 153637d865d22fd7f9a7a359a09fa4f468ad61d37ab070f6fb6ecd7fdc188b2c
@@ -22715,7 +22715,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-nested-markdown-links.py ROOT F 0cc62cd79f607f71bfcb727df3915d8ef930683786c8ccb39a0ada0b4f022f8d
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 34cc2994fbb9a2447eb6012f9241280793b14e05eb4aaca4c38e010e667a8065
-        lint-paired-skill-step-parity.py NO_FS F 3c110f802642ca01e84733acc50954862e8c220b91e9e7625206b03ec4df8a00
+        lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
         lint-pii-in-content.py CWD F 3892a7ab7f09960df0bdeb187a3e2b61f406483620d6baa1eaa238ea91166d8e
         lint-placeholder-leakage.py CWD F e09ad286e82070d2f80453547f7b648d84f3f3ec46aed1c9c2af7c6c4d35929f
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
@@ -22747,6 +22747,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
         lint-todo-number-permanence.py OWN F 539dbf64916e39d6a0202071142970b674dea97c683a4ad2b86afa003c646139
         lint-todo-staleness.py NO_FS F 83fd453559b91e9c9a8d6c5126d6962a3ac9dfdd2bf6f3dc21eded7379ba115f
+        lint-tooling-backlog-refs.py OWN F 431a444285d38b50b89b46c5be4b7736beb41017d0de3f8492b649ad5379f7a5
         lint-tooling-provenance-freshness.py OWN F 4cb6ed58b8cd47d727f7d198169661581b8e94a4a62cc6380a1a64e86b74ca5b
         lint-unbalanced-fences.py ROOT F f52bd3d3e92b3801ba454f3756c8ba76ff8518e18fd8d42ea2edf1ffc9ce2246
         lint-ungated-dashes.py NO_FS F 1a6bd1116eb14e8a97db17cc9c89ac715b008277e91584eae59a5295ae42eb17
@@ -22767,7 +22768,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         preflight_language_runner.py CHILD F c7242875b76d4282326ba37e0f878cebfc2939aa2780657c56bb3ef007fa0644
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
-        quick-guard.sh FIXED F d8100be22ceb20a97923b97a21adfaaa0260fffd1924a76b4c98c2960a0852b9
+        quick-guard.sh FIXED F 90ffbdb47a0c5fdbba57ddeb6598d8bdafa98eaf2481e38cd16a0684c20fb74c
         ref-holds.py OWN F 12b4bc426cc0dc4f0cb070fc94feb3398c0d0d420c091e3e343393a16feb4f7d
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
@@ -22775,7 +22776,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run-linter-regression.py FIXED F 2e97814644c614dc987df7139c5ff0ff9b875fb2c1ba0abb6ff0abc298282753
         run-pr-time-checks.sh FIXED F 149366a50976af26bf594757d03314a39f6c81d4054d1c4403457fe2fe37af3b
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
-        run_all_audits.sh FIXED F 5402b906a88e051de7a9c58cab674f360b3389046e637ba992657adb7a814f3e
+        run_all_audits.sh FIXED F 5be7a58f19d489b1a50eba5f340e65710207976c1a244d1940cda1f7fe080c3c
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
         session_facts.py PASSIVE F 0d4dcb545fcba5b1533d4aff1c3fedad69ca97d6e07f045b9976aee0ce07247a
@@ -39457,6 +39458,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         lint-todo-list-tag.py
         lint-todo-number-permanence.py
         lint-todo-staleness.py
+        lint-tooling-backlog-refs.py
         lint-tooling-provenance-freshness.py
         lint-ungated-dashes.py
         lint-version-date-consistency.py
@@ -57110,6 +57112,800 @@ class DirectRunTests(unittest.TestCase):
         for expression in ('__name__ == "__main__"', '"__main__" == __name__'):
             with self.subTest(expression=expression):
                 self.assertTrue(self._is_main_guard(ast.parse(f"if {expression}: pass").body[0]))
+
+
+class ToolingBacklogRefsTests(LinterTestCase):
+    """tools/lint-tooling-backlog-refs.py (the tooling backlog-reference gate)."""
+
+    GATE = "tools/lint-tooling-backlog-refs.py"
+
+    TODO_INDEX = (
+        "# TODO\n\n## Priority 1\n\n"
+        "| ID | Item | Tags |\n"
+        "| --- | --- | --- |\n"
+        "| 3.50 | Live fixture item | `[build]` |\n"
+    )
+
+    PRIVATE_MINIMAL = {"TODO-REFERENCE.md": "# reference detail\n"}
+
+    def make_repo(self, tool_text: str, *, private: dict[str, str] | None = None,
+                  hook_text: str = "", todo: str | None = None) -> Path:
+        """A fixture repo root (TODO.md, tools/, .claude/hooks/) with an optional
+        grc_library_private sibling next to it, matching the gate's --root layout."""
+        base = Path(tempfile.mkdtemp(prefix="tbr-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, base, ignore_errors=True)
+        root = base / "repo"
+        (root / "tools").mkdir(parents=True)
+        (root / ".claude" / "hooks").mkdir(parents=True)
+        if todo is None:
+            todo = self.TODO_INDEX
+        if todo:
+            (root / "TODO.md").write_text(todo, encoding="utf-8")
+        (root / "tools" / "sample.py").write_text(tool_text, encoding="utf-8")
+        if hook_text:
+            (root / ".claude" / "hooks" / "sample-hook.py").write_text(
+                hook_text, encoding="utf-8")
+        if private is not None:
+            priv = base / "grc_library_private"
+            priv.mkdir()
+            for name, content in private.items():
+                (priv / name).write_text(content, encoding="utf-8")
+        return root
+
+    def check(self, root: Path, *flags: str) -> subprocess.CompletedProcess:
+        return run_linter(self.GATE, "--root", root, *flags)
+
+    def test_stale_todo_ref_flagged_when_private_reachable(self) -> None:
+        root = self.make_repo(
+            "# Shaped by the apply plan (TODO 3.99): see the sweep record.\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertLinterFails(result, "3.99")
+
+    def test_live_public_id_not_flagged(self) -> None:
+        root = self.make_repo(
+            "# Adopter degradation shape (TODO 3.50) stays open.\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_live_private_heading_not_flagged(self) -> None:
+        # A redirect stub held only as a heading in the private reference file
+        # keeps its number live (the gate-90 pair's grammar).
+        root = self.make_repo(
+            "# Provenance (TODO 3.99) of the redirect stub.\n",
+            private={"TODO-REFERENCE.md": "## Priority 1\n\n### 3.99 Redirect stub\n"},
+        )
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_wrapped_reference_detected(self) -> None:
+        root = self.make_repo(
+            "# The scan shape was set by (TODO\n"
+            "# section 3.99) in the plan round.\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertLinterFails(result, "TODO section 3.99")
+
+    def test_quoted_and_backticked_literals_ignored(self) -> None:
+        root = self.make_repo(
+            'PROBE = "an example string holding TODO 3.99 for a self-test"\n'
+            "# A doc mention of `TODO 3.99` stays illustrative.\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_markdown_quoted_pointer_flagged(self) -> None:
+        # r26 D-4: a double-quoted span in Markdown prose is quotation, not an
+        # illustrative literal, so a quoted stale pointer in a scanned .md file
+        # is checked; a backticked span there stays illustrative.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        (root / "tools" / "notes.md").write_text(
+            'Provenance: "shaped by TODO 3.99" per the sweep record.\n'
+            "An illustrative `TODO 3.98` span stays silent.\n",
+            encoding="utf-8")
+        result = self.check(root)
+        self.assertLinterFails(result, "3.99")
+        self.assertNotIn("3.98", result.stdout + result.stderr)
+
+    def test_markdown_fenced_block_blanked_and_prose_after_fence_scanned(self) -> None:
+        # r2 F1: a fence delimiter's backtick run (here mispaired by a stray
+        # backtick inside the block) paired into the prose around the block,
+        # hiding a pointer after the fence. Fenced blocks are blanked first
+        # through the shared fence predicate, so the fence can never shift the
+        # inline pairing, and a pointer inside the fence is code, not prose.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        (root / "tools" / "notes.md").write_text(
+            "Intro prose for the fixture.\n\n"
+            "```\n"
+            "code with a stray ` backtick and TODO 3.98 inside\n"
+            "```\n\n"
+            "See `a` then TODO 3.99 then `b` in the sweep record.\n",
+            encoding="utf-8")
+        result = self.check(root)
+        self.assertLinterFails(result, "3.99")
+        self.assertNotIn("3.98", result.stdout + result.stderr)
+
+    def test_pr_anchored_reference_passes(self) -> None:
+        root = self.make_repo(
+            "# Shaped by TODO 3.99 (closing PR #1312) in the sweep.\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_marker_with_reason_clears(self) -> None:
+        root = self.make_repo(
+            "# Kept deliberately (TODO 3.99).  todo-ref-ok: historical narrative\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_reasonless_marker_does_not_clear(self) -> None:
+        root = self.make_repo(
+            "# Kept deliberately (TODO 3.99).  todo-ref-ok:\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertLinterFails(result, "without a reason")
+
+    def test_document_section_cue_not_flagged(self) -> None:
+        root = self.make_repo(
+            "# See specification-master-project.md section 9.99 for the CalVer rule.\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_degraded_skip_exits_zero_with_note(self) -> None:
+        # No private sibling: the unresolved id is skipped with the gate-78-style
+        # note, never failed (public CI / adopter clone behaviour).
+        root = self.make_repo("# Shaped by (TODO 3.99) back then.\n")
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("unreachable", result.stdout)
+        self.assertIn("3.99", result.stdout)
+
+    def test_partial_private_sibling_stays_enforcing(self) -> None:
+        # r2 R2-04 pin, the documented reading: only an ABSENT sibling selects
+        # the degraded path. A backlog list missing inside a present sibling
+        # contributes no ids and the run stays enforcing (extra findings, the
+        # safe direction), with no degraded-skip note.
+        root = self.make_repo(
+            "# Shaped by the apply plan (TODO 3.99).\n",
+            private=self.PRIVATE_MINIMAL,  # TODO-REFERENCE.md only
+        )
+        result = self.check(root)
+        self.assertLinterFails(result, "3.99")
+        self.assertNotIn("SKIPPED", result.stdout)
+
+    def test_report_mode_exits_zero(self) -> None:
+        root = self.make_repo(
+            "# Shaped by the apply plan (TODO 3.99).\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root, "--report")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("REPORT-ONLY", result.stdout)
+        self.assertIn("3.99", result.stdout)
+
+    def test_hooks_tree_scanned(self) -> None:
+        root = self.make_repo(
+            "# A clean tool file.\n",
+            hook_text="# Hook provenance (TODO section 3.99) from the plan.\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertLinterFails(result, "sample-hook.py")
+
+    def test_missing_todo_md_exits_two(self) -> None:
+        root = self.make_repo("# A clean tool file.\n", todo="")
+        result = self.check(root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_empty_root_refused(self) -> None:
+        # r26 G2: an explicitly empty --root must fail closed (exit 2), never
+        # silently rebase the scan onto the live repository.
+        for args in (("--root", ""), ("--root=",)):
+            with self.subTest(args=args):
+                result = run_linter(self.GATE, *args)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("needs a directory", result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+
+    def test_undecodable_scan_file_fails_closed(self) -> None:
+        # r1 QA-01 / F2: an invalid-UTF-8 scan file was silently skipped and
+        # the run reported OK. It must refuse (exit 2) naming the file.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        (root / "tools" / "latin1.py").write_bytes(
+            b"# Shaped by TODO 3.99.\n\xff\xfe\n")
+        result = self.check(root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("latin1.py", result.stderr)
+        self.assertIn("not valid UTF-8", result.stderr)
+        self.assertNotIn("OK:", result.stdout)
+
+    def test_undecodable_backlog_list_fails_closed(self) -> None:
+        # r1 QA-01: an invalid-UTF-8 TODO.md silently emptied the live set; in
+        # degraded mode every pointer was then skipped and the run reported OK.
+        root = self.make_repo("# Shaped by (TODO 3.99) back then.\n")
+        (root / "TODO.md").write_bytes(b"# TODO\xff\xfe\n")
+        result = self.check(root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("TODO.md", result.stderr)
+        self.assertIn("not valid UTF-8", result.stderr)
+
+    def test_unreadable_scan_file_exits_two_not_traceback(self) -> None:
+        # r1 F6: a permission-denied scan file crashed with a traceback and
+        # exit 1 (the FINDINGS code). It must refuse cleanly with exit 2.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        hidden = root / "tools" / "hidden.py"
+        hidden.write_text("# Shaped by TODO 3.99.\n", encoding="utf-8")
+        hidden.chmod(0)
+        self.addCleanup(hidden.chmod, 0o600)
+        result = self.check(root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("hidden.py", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_unreadable_subtree_fails_closed(self) -> None:
+        # r1 QA-02: rglob silently dropped a permission-denied subdirectory, so
+        # a stale pointer inside it was invisible and the run reported OK over
+        # a partial scan. The walk must surface it (exit 2).
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        hidden = root / "tools" / "hidden"
+        hidden.mkdir()
+        (hidden / "stale.py").write_text("# Shaped by TODO 3.99.\n", encoding="utf-8")
+        hidden.chmod(0)
+        self.addCleanup(hidden.chmod, 0o700)
+        result = self.check(root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("hidden", result.stderr)
+        self.assertNotIn("OK:", result.stdout)
+
+    def test_symlinked_subtree_refused(self) -> None:
+        # r2 R2-03 (wording r3 F5): os.walk lists a directory symlink in
+        # dirnames but does not descend into it, so a symlinked subtree
+        # holding a stale pointer was silently skipped and the run reported
+        # OK over a narrowed scan. It refuses (exit 2) instead.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        target = root.parent / "elsewhere"
+        target.mkdir()
+        (target / "stale.py").write_text("# Shaped by TODO 3.99.\n", encoding="utf-8")
+        (root / "tools" / "linked").symlink_to(target)
+        result = self.check(root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("symlink", result.stderr)
+        self.assertNotIn("OK:", result.stdout)
+
+    def test_empty_scan_set_refused(self) -> None:
+        # r1 QA-02 / F3: a --root holding TODO.md but no scannable file printed
+        # OK over a zero-file scan (the 3b50b1 class). It must refuse (exit 2).
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        (root / "tools" / "sample.py").unlink()
+        result = self.check(root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("empty scan set", result.stderr)
+
+    def test_inaccessible_private_sibling_fails_closed(self) -> None:
+        # r1 F10: a sibling entry that exists but cannot be examined (here a
+        # dangling symlink) silently took the degraded path and exited 0. The
+        # strict lookup must refuse (exit 2) instead.
+        root = self.make_repo("# Shaped by (TODO 3.99) back then.\n")
+        (root.parent / "grc_library_private").symlink_to(
+            root.parent / "no-such-checkout")
+        result = self.check(root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("sibling", result.stderr)
+
+    def test_short_docstring_pointer_flagged(self) -> None:
+        # r1 F1: the cross-line double-quote pairing read a docstring's first
+        # two quotes as an empty span and blanked short docstrings whole, so a
+        # stale pointer there was never scanned.
+        root = self.make_repo('"""Short module intro: TODO 3.99."""\n',
+                              private=self.PRIVATE_MINIMAL)
+        result = self.check(root)
+        self.assertLinterFails(result, "3.99")
+
+    def test_r3_01_single_quoted_example_flagged_until_backticked(self) -> None:
+        # r3 R3-01 class close: single quotes are interpreted nowhere, so a
+        # single-quoted illustrative literal is FLAGGED (ambiguity keeps real
+        # pointers flagged) and is cleared with backticks or the marker; the
+        # double-quoted twin stays blanked. Supersedes the r1 QA-03 reading,
+        # whose quote-span heuristics left shapes in which an apostrophe hid
+        # a genuine pointer in both r2 and r3.
+        root = self.make_repo(
+            "EXAMPLE = 'TODO 3.99'\n"
+            "# Example only: 'TODO 3.98'.\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertLinterFails(result, "3.99")
+        self.assertIn("3.98", result.stdout)
+        root2 = self.make_repo(
+            "EXAMPLE = 'TODO 3.99'  # todo-ref-ok: single-quoted self-test probe\n"
+            "# Example only: `'TODO 3.98'`.\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result2 = self.check(root2)
+        self.assertEqual(result2.returncode, 0, result2.stdout + result2.stderr)
+
+    def test_apostrophe_does_not_hide_pointer(self) -> None:
+        # r1 QA-03 guard, the chosen reading: a possessive or contraction
+        # apostrophe never opens a quote span over a genuine pointer.
+        root = self.make_repo(
+            "# The plan's probe left TODO 3.99 dangling; everyone's fix pends.\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertLinterFails(result, "3.99")
+
+    def test_elision_and_possessive_apostrophes_do_not_hide_pointer(self) -> None:
+        # r2 R2-01 / F3: an elision apostrophe, a prefixed literal's closing
+        # quote, or a blanked-backtick-adjacent apostrophe opened a span that
+        # a plural possessive closed, hiding a genuine pointer between them.
+        # Single quotes are now interpreted nowhere (r3 R3-01 closed the
+        # class), so no apostrophe shape can open or close a span and each
+        # pointer stays visible.
+        root = self.make_repo(
+            "# 'Twas TODO 3.99 that caused users' failures.\n"
+            "# `worker`'s implementation follows TODO 3.97 and callers' expectations.\n"
+            "x = f'{a}'  # Shaped by TODO 3.96; see the hooks' docs.\n"
+            "# Back in the '90s TODO 3.95 was the users' plan.\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        for item_id in ("3.99", "3.97", "3.96", "3.95"):
+            with self.subTest(item_id=item_id):
+                self.assertLinterFails(result, item_id)
+
+    def test_wrapped_quoted_example_is_flagged_until_backticked(self) -> None:
+        # r1 QA-03 residue, stated in design note 2: a quoted example that
+        # wraps across comment lines is NOT blanked (ambiguity keeps real
+        # pointers flagged); backticks clear it.
+        wrapped = ('# narration ("TODO\n'
+                   '# section 3.99 is CLOSED") in the lead.\n')
+        root = self.make_repo(wrapped, private=self.PRIVATE_MINIMAL)
+        self.assertLinterFails(self.check(root), "3.99")
+        root2 = self.make_repo(wrapped.replace('("', '(`"').replace('")', '"`)'),
+                               private=self.PRIVATE_MINIMAL)
+        result = self.check(root2)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_stray_backtick_cannot_blank_across_paragraphs(self) -> None:
+        # r2 F1: a stray backtick paired across blank lines with the next code
+        # span, blanking prose paragraphs away from where it opened. A span
+        # stops at a blank line, so the stray blanks at most its own
+        # paragraph.
+        root = self.make_repo(
+            "# A stray ` backtick mention sits in this paragraph.\n"
+            "\n"
+            "# Shaped by TODO 3.99 in the sweep; see `the record`.\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertLinterFails(result, "3.99")
+
+    def test_p_todo_qualifier_flagged(self) -> None:
+        # r1 F4: the hyphen lookbehind rejected the P-prefixed qualifier, so a
+        # stale private-list pointer was invisible.
+        root = self.make_repo("# moved from P-TODO 3.99 in the split.\n",
+                              private=self.PRIVATE_MINIMAL)
+        result = self.check(root)
+        self.assertLinterFails(result, "P-TODO 3.99")
+
+    def test_capital_section_after_qualifier_flagged(self) -> None:
+        # r1 F8: a capitalized Section AFTER the backlog qualifier carries no
+        # document-section ambiguity and must be detected.
+        root = self.make_repo("# per the plan TODO Section 3.99 rules.\n",
+                              private=self.PRIVATE_MINIMAL)
+        result = self.check(root)
+        self.assertLinterFails(result, "3.99")
+
+    def test_dotted_letter_child_id_checked_as_itself(self) -> None:
+        # r1 F11: a dotted-letter child pointer was read as its parent id, so
+        # a live child item raised a false finding.
+        todo = self.TODO_INDEX + "| 3.99.a | Live child item | `[build]` |\n"
+        root = self.make_repo("# Provenance (TODO 3.99.a) of the child.\n",
+                              private=self.PRIVATE_MINIMAL, todo=todo)
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_external_standard_cue_not_flagged(self) -> None:
+        # r1 F7: external-standard clauses outside the census cue list (RFC,
+        # PCI DSS) were flagged as stale pointers.
+        root = self.make_repo(
+            "# per RFC 9110 section 9.3, GET is safe to retry.\n",
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_suffixless_shebang_script_scanned(self) -> None:
+        # r1 F9: the suffix-less git hooks and nmw-actionable were never
+        # scanned. A shebang script is in scope; a suffix-less non-script
+        # stays out.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        (root / "tools" / "pre-push").write_text(
+            "#!/bin/sh\n# Provenance (TODO 3.99) from the plan.\n", encoding="utf-8")
+        (root / "tools" / "notes").write_text(
+            "no shebang here, and TODO 3.98 stays out of scope\n", encoding="utf-8")
+        result = self.check(root)
+        self.assertLinterFails(result, "pre-push")
+        self.assertIn("3.99", result.stdout)
+        self.assertNotIn("3.98", result.stdout + result.stderr)
+
+    def test_shebang_interpreter_families_selected(self) -> None:
+        # r2 R2-02: a suffix-less ash hook and a shebang whose interpreter sat
+        # past byte 120 were silently out of scope. The probe now matches the
+        # promised families against the interpreter basename within the
+        # supported 256-byte shebang budget; a resolved other interpreter
+        # stays out. Over-budget inputs are pinned by test_r4_f3_mode_shebang_budget_and_explicit_exemption.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        (root / "tools" / "hook-ash").write_text(
+            "#!/bin/ash\n# Provenance (TODO 3.99) from the plan.\n", encoding="utf-8")
+        long_prefix = "/opt" + "/padding-dir" * 12
+        (root / "tools" / "hook-long").write_text(
+            "#!" + long_prefix + "/python3\n# Provenance (TODO 3.98) from the plan.\n",
+            encoding="utf-8")
+        (root / "tools" / "hook-envs").write_text(
+            "#!/usr/bin/env -S bash -eu\n# Provenance (TODO 3.97) from the plan.\n",
+            encoding="utf-8")
+        (root / "tools" / "hook-perl").write_text(
+            "#!/usr/bin/perl\n# Provenance (TODO 3.96) from the plan.\n",
+            encoding="utf-8")
+        result = self.check(root)
+        for item_id in ("3.99", "3.98", "3.97"):
+            with self.subTest(item_id=item_id):
+                self.assertLinterFails(result, item_id)
+        self.assertNotIn("3.96", result.stdout + result.stderr)
+
+    def test_exempt_rows_suppress_their_lines(self) -> None:
+        # r1 F5 pin, widened to BOTH rows (r2 R2-05): with an id that is live
+        # NOWHERE, each EXEMPT row still suppresses exactly its keyed line,
+        # and the same sentence without the distinctive substring is NOT
+        # suppressed.
+        rows = (
+            ("lint-allowlist-spec-parity.py", "7.1",
+             "# the section 7.1 domain is admitted by the allow-list.\n",
+             "# a section 7.1 pointer with the key phrase reworded away.\n"),
+            ("lint-scan-scope-parity.py", "6.3",
+             "# listed under section-6.3 / full-corpus-audit-sweep scope.\n",
+             "# a section-6.3 pointer with the key phrase reworded away.\n"),
+        )
+        for fname, item_id, keyed, reworded in rows:
+            with self.subTest(row=fname):
+                root = self.make_repo("# A clean tool file.\n",
+                                      private=self.PRIVATE_MINIMAL)
+                (root / "tools" / fname).write_text(keyed, encoding="utf-8")
+                result = self.check(root)
+                self.assertEqual(result.returncode, 0,
+                                 result.stdout + result.stderr)
+                root2 = self.make_repo("# A clean tool file.\n",
+                                       private=self.PRIVATE_MINIMAL)
+                (root2 / "tools" / fname).write_text(reworded, encoding="utf-8")
+                self.assertLinterFails(self.check(root2), item_id)
+
+    def test_r3_01_apostrophes_and_stray_quotes_never_hide_pointer(self) -> None:
+        # r3 R3-01 (with r3 F1 and F3): the two-pass strip let a blanked
+        # backtick or quote span manufacture an apostrophe boundary, and an
+        # inch mark or a quote hugging a single-quoted literal could pair
+        # across prose. One pass, no single-quote spans, and the
+        # outside-abutment guards on the double quote keep every shape
+        # visible.
+        shapes = (
+            ("py-backtick-possessive", "sample.py",
+             "# `worker`'s implementation follows TODO 3.99 and callers' "
+             "`expectations`\n"),
+            ("py-elision-possessive", "sample.py",
+             "# 'Twas TODO 3.99 that caused users' \"failures\"\n"),
+            ("py-quoted-possessive", "sample.py",
+             '# the "cfg"\'s plan: TODO 3.99 per the users\'.\n'),
+            ("py-inch-marks", "sample.py",
+             '# a 5" pipe, TODO 3.99, and 6" too\n'),
+            ("sh-quote-in-single-quotes", "sample.sh",
+             "echo '\"'  # Shaped by TODO 3.99 then '\"'\n"),
+        )
+        for label, fname, text in shapes:
+            with self.subTest(shape=label):
+                root = self.make_repo("# A clean tool file.\n",
+                                      private=self.PRIVATE_MINIMAL)
+                (root / "tools" / fname).write_text(text, encoding="utf-8")
+                self.assertLinterFails(self.check(root), "3.99")
+
+    def test_r3_01_prefixed_double_quoted_literals_still_blanked(self) -> None:
+        # r3 R3-01 guard refinement: the outside-abutment guard must not
+        # expose prefixed literals; an r-string or f-string probe is still an
+        # illustrative literal (the live witness is the raw-string regex in
+        # check-todo-rotation-on-pr.py, whose embedded stray backtick a
+        # blanked r-string must keep consumed).
+        root = self.make_repo(
+            'A = re.compile(r"shaped by TODO 3.99 in the sweep")\n'
+            'B = f"probe TODO 3.98 for the self-test"\n',
+            private=self.PRIVATE_MINIMAL,
+        )
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_r3_02_unbalanced_markdown_fence_refused(self) -> None:
+        # r3 R3-02: a line-leading inline triple-backtick span, and a
+        # three-backtick line inside a four-backtick fence, both miscounted
+        # the shared fence toggle, which then read following prose as code
+        # and hid a pointer silently. An odd toggle count leaves the model
+        # inside a fence at end of file, which is undecidable, so the file
+        # is refused (exit 2), never silently blanked.
+        cases = (
+            ("inline-span-line",
+             "```example``` is inline code.\n\nImplements TODO 3.99.\n"),
+            ("unequal-fence-widths",
+             "````\ncode\n```\nmore\n````\n\nImplements TODO 3.99.\n"),
+        )
+        for label, text in cases:
+            with self.subTest(case=label):
+                root = self.make_repo("# A clean tool file.\n",
+                                      private=self.PRIVATE_MINIMAL)
+                (root / "tools" / "notes.md").write_text(text, encoding="utf-8")
+                result = self.check(root)
+                self.assertEqual(result.returncode, 2,
+                                 result.stdout + result.stderr)
+                self.assertIn("notes.md", result.stderr)
+                self.assertIn("fence", result.stderr)
+                self.assertNotIn("OK:", result.stdout)
+
+    def test_r3_03_env_shebang_grammar_selected_exactly(self) -> None:
+        # r3 R3-03 / F2: assignments, option operands and attached -S
+        # payloads were mistaken for the interpreter, so valid env shebangs
+        # were silently unselected. The documented grammar resolves each
+        # form; missing interpreters now refuse under the r4 F3 regression.
+        selected = (
+            ("hook-s-assign", "#!/usr/bin/env -S PYTHONUTF8=1 python3"),
+            ("hook-s-unset", "#!/usr/bin/env -S -u PYTHONPATH python3"),
+            ("hook-s-attached", "#!/usr/bin/env -Sbash"),
+            ("hook-s-attached-arg", "#!/usr/bin/env -Sbash -e"),
+            ("hook-split-long", "#!/usr/bin/env --split-string=bash -e"),
+            ("hook-unset-operand", "#!/usr/bin/env -u X python3"),
+            ("hook-assign", "#!/usr/bin/env PYTHONX=1 python3"),
+            ("hook-abs-path", "#!/usr/bin/env -S /usr/local/bin/python3"),
+        )
+        root = self.make_repo("# A clean tool file.\n",
+                              private=self.PRIVATE_MINIMAL)
+        for name, shebang in selected:
+            (root / "tools" / name).write_text(
+                shebang + "\n# Provenance (TODO 3.99) from the plan.\n",
+                encoding="utf-8")
+        result = self.check(root)
+        self.assertLinterFails(result, "3.99")
+        for name, _ in selected:
+            with self.subTest(hook=name):
+                self.assertIn(name, result.stdout)
+        self.assertNotIn("3.98", result.stdout + result.stderr)
+
+    def test_r3_04_inaccessible_symlink_target_refused(self) -> None:
+        # r3 R3-04: with the symlink's target directory unexaminable, the
+        # walk classifies the link among the filenames, and its non-scan
+        # suffix then skipped it before the symlink refusal could see it. A
+        # symlink in file position is examined BEFORE the suffix filter: an
+        # unexaminable target and a dangling link are refused (exit 2).
+        root = self.make_repo("# A clean tool file.\n",
+                              private=self.PRIVATE_MINIMAL)
+        hidden = root.parent / "hidden"
+        (hidden / "target").mkdir(parents=True)
+        (hidden / "target" / "stale.py").write_text(
+            "# Shaped by TODO 3.99.\n", encoding="utf-8")
+        (root / "tools" / "linked.assets").symlink_to(hidden / "target")
+        hidden.chmod(0)
+        self.addCleanup(hidden.chmod, 0o700)
+        result = self.check(root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("linked.assets", result.stderr)
+        self.assertNotIn("OK:", result.stdout)
+        root2 = self.make_repo("# A clean tool file.\n",
+                               private=self.PRIVATE_MINIMAL)
+        (root2 / "tools" / "dangling.assets").symlink_to(
+            root2.parent / "no-such-dir")
+        result2 = self.check(root2)
+        self.assertEqual(result2.returncode, 2, result2.stdout + result2.stderr)
+        self.assertIn("dangling.assets", result2.stderr)
+
+    def test_r4_f1_raw_markdown_fences(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_r4_f1")
+        from aiqt_corpus import is_fence_line
+        for heading in ("# ``` x", "## ```a", "#```"):
+            for count in (1, 2):
+                with self.subTest(heading=heading, count=count):
+                    text = heading + "\n\nImplements TODO 3.99.\n\n"
+                    if count == 2:
+                        text += heading + "\n"
+                    candidates = gate.candidate_refs(Path("notes.md"), text)
+                    self.assertEqual([c.item_id for c in candidates], ["3.99"])
+        self.assertIs(gate.is_fence_line, is_fence_line)
+        text = "```\n# ~~~ heading inside code\n```\n\nTODO 3.99.\n"
+        self.assertEqual([c.item_id for c in gate.candidate_refs(
+            Path("notes.md"), text)], ["3.99"])
+
+    def test_r4_f2_every_unclassifiable_entry_refused(self) -> None:
+        from unittest.mock import patch
+        gate = load_linter_module(self.GATE, "tbr_r4_f2")
+        root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
+        targets = [root / "tools" / name for name in
+                   ("opaque.assets", "ordinary.assets", "fixtures")]
+        targets[0].write_text("data", encoding="utf-8")
+        targets[1].mkdir()
+        targets[2].mkdir()
+        real_lstat = gate.os.lstat
+        for target in targets:
+            for error in (PermissionError, FileNotFoundError):
+                with self.subTest(target=target.name, error=error.__name__):
+                    def fail(path, *args, **kwargs):
+                        if Path(path) == target:
+                            raise error(13, "injected classification failure", str(path))
+                        return real_lstat(path, *args, **kwargs)
+                    # Emulate pathlib's error-suppressing predicate on all versions.
+                    with patch.object(gate.os, "lstat", side_effect=fail), patch.object(
+                            Path, "is_symlink", return_value=False):
+                        _, errors = gate.iter_scan_files(root)
+                    self.assertTrue(any(str(target) in e for e in errors), errors)
+
+    def test_r4_f2_non_scan_file_read_failure_refused(self) -> None:
+        from unittest.mock import patch
+        gate = load_linter_module(self.GATE, "tbr_r4_f2_read")
+        root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
+        target = root / "tools" / "opaque.assets"
+        target.write_text("data", encoding="utf-8")
+        real_open = Path.open
+        def fail(path, *args, **kwargs):
+            if path == target:
+                raise PermissionError(13, "injected read failure", str(path))
+            return real_open(path, *args, **kwargs)
+        with patch.object(Path, "open", fail):
+            _, errors = gate.iter_scan_files(root)
+        self.assertTrue(any(str(target) in e for e in errors), errors)
+
+    def test_r4_f3_r4_02_unknown_interpreters_refused(self) -> None:
+        tails = (
+            "-vSpython3", "-S -iu FOO python3", "-S -iC / python3",
+            "-S --uns FOO python3", "-S --ch / python3",
+            '-S "python3"', '-S FLAG="two words" python3',
+            "-S 'python3'", "-S python\\3", "-u python3", "-S",
+            "-S --unknown python3", "-S ${INTERPRETER}", "-S #comment python3",
+            "-S 9FLAG=value python3", "-S -u ${NAME} python3",
+        )
+        gate = load_linter_module(self.GATE, "tbr_r4_f3")
+        root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
+        for suffix in ("", ".assets", ".py"):
+            for tail in tails:
+                with self.subTest(suffix=suffix, tail=tail):
+                    path = root / "tools" / ("hook" + suffix)
+                    path.write_text("#!/usr/bin/env " + tail +
+                                    "\n# TODO 3.99.\n", encoding="utf-8")
+                    _, errors = gate.iter_scan_files(root)
+                    self.assertTrue(any(str(path) in e and
+                        "cannot determine interpreter; add a supported shebang "
+                        "or exempt it explicitly" in e for e in errors), errors)
+                    path.unlink()
+        path = root / "tools" / "hook.assets"
+        path.write_text("#!/usr/bin/env -S \"python3\"\n", encoding="utf-8")
+        result = self.check(root, "--report")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("hook.assets", result.stderr)
+        self.assertNotIn("OK:", result.stdout)
+
+    def test_r4_f3_mode_shebang_budget_and_explicit_exemption(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_r4_f3_mode")
+        root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
+        path = root / "tools" / "hook"
+        cases = (b"no shebang\n", b"#!\n", b"#!/usr/bin/env \xff\n",
+                 b"#!/bin/sh\x00\n", b"#!" + b"/padding" * 40 + b"/sh\n")
+        for content in cases:
+            with self.subTest(content=content):
+                path.write_bytes(content)
+                path.chmod(0o700)
+                _, errors = gate.iter_scan_files(root)
+                self.assertTrue(any(str(path) in e and
+                    "cannot determine interpreter" in e for e in errors), errors)
+        gate.INTERPRETER_EXEMPT = {"tools/hook": " "}
+        self.assertTrue(gate.iter_scan_files(root)[1])
+        gate.INTERPRETER_EXEMPT = {"tools/hook": "Reviewed binary fixture"}
+        self.assertEqual(gate.iter_scan_files(root)[1], [])
+        path.unlink()
+        selected = root / "tools" / "hook.py"
+        selected.write_text("# no shebang\n# TODO 3.99.\n", encoding="utf-8")
+        selected.chmod(0o700)
+        gate.INTERPRETER_EXEMPT = {"tools/hook.py": "Reviewed launcher"}
+        files, errors = gate.iter_scan_files(root)
+        self.assertEqual(errors, [])
+        self.assertIn(selected, files)
+        findings, _, errors = gate.run_scan(root, files, set(), False)
+        self.assertEqual(errors, [])
+        self.assertTrue(any(c.item_id == "3.99" for _, c in findings))
+
+    def test_r4_f3_supported_env_operands_and_other_interpreter(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_r4_f3_supported")
+        root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
+        for tail in ("-S -a label python3", "-S --argv0 label python3",
+                     "-S -i -u FOO -C / python3", "-S -- python3",
+                     "-S FLAG=value /usr/bin/python3"):
+            with self.subTest(tail=tail):
+                path = root / "tools" / "hook"
+                path.write_text("#!/usr/bin/env " + tail + "\n# TODO 3.99.\n",
+                                encoding="utf-8")
+                files, errors = gate.iter_scan_files(root)
+                self.assertEqual(errors, [])
+                self.assertIn(path, files)
+        path.write_text("#!/usr/bin/env perl\n", encoding="utf-8")
+        files, errors = gate.iter_scan_files(root)
+        self.assertEqual(errors, [])
+        self.assertNotIn(path, files)
+
+    def test_r4_01_html_marker_boundaries(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_r4_01")
+        cases = (
+            "TODO 3.99. <!-- todo-ref-ok: -->",
+            "TODO 3.99. <!-- todo-ref-ok: --> outside reason",
+            "<!-- todo-ref-ok: -->\nTODO 3.99.",
+            "TODO 3.99. <!-- todo-ref-ok: unfinished",
+            "<!-- todo-ref-ok: bad -- body --> TODO 3.99.",
+            "<!--> todo-ref-ok: malformed --> TODO 3.99.",
+            "<!-- todo-ref-ok: bad <!-- nested --> TODO 3.99.",
+            "<!-- todo-ref-ok: bad ---> TODO 3.99.",
+            "<!-- todo-ref-ok: \n--> TODO 3.99.",
+        )
+        for text in cases:
+            with self.subTest(text=text):
+                candidates = gate.candidate_refs(Path("notes.md"), text)
+                self.assertEqual([c.item_id for c in candidates], ["3.99"])
+        candidates = gate.candidate_refs(
+            Path("notes.md"), "TODO 3.99. <!-- todo-ref-ok: -->")
+        self.assertTrue(candidates[0].reasonless_marker)
+        for text in ("TODO 3.99. <!-- todo-ref-ok: deliberate example -->",
+                     "<!-- todo-ref-ok: deliberate example -->\nTODO 3.99."):
+            self.assertEqual(gate.candidate_refs(Path("notes.md"), text), [])
+        for text in ("<!-- ordinary --> TODO 3.99.",
+                     "<!-- unfinished\nTODO 3.99.",
+                     "<!-- ordinary --> TODO 3.99. <!-- unfinished"):
+            self.assertEqual([c.item_id for c in gate.candidate_refs(
+                Path("notes.md"), text)], ["3.99"])
+
+    def test_r4_03_complete_pr_anchor_required(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_r4_03")
+        for verb in ("closing", "introducing"):
+            for tail in ("#123garbage", "#123", "#123abc)", "#123.4)", "#１２３)", "#123`garbage`)"):
+                with self.subTest(verb=verb, tail=tail):
+                    text = "# TODO 3.99 (" + verb + " PR " + tail + "\n"
+                    self.assertEqual([c.item_id for c in gate.candidate_refs(
+                        Path("sample.py"), text)], ["3.99"])
+            for tail in ("#123)", "#123 )"):
+                text = "# TODO 3.99 (" + verb + " PR " + tail + "\n"
+                self.assertEqual(gate.candidate_refs(Path("sample.py"), text), [])
+
+    def test_r4_f4_inch_mark_residue_documented(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_r4_f4")
+        self.assertIn("it can close", gate.__doc__)
+        text = '# Use a " separator; TODO 3.99 asks for a 6" pipe.\n'
+        self.assertEqual(gate.candidate_refs(Path("sample.py"), text), [])
+
+    def test_r4_f5_both_double_quote_abutment_guards(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_r4_f5")
+        for text in ('# the "cfg""TODO 3.99" x\n',
+                     '# the "TODO 3.99""cfg" x\n'):
+            with self.subTest(text=text):
+                self.assertEqual([c.item_id for c in gate.candidate_refs(
+                    Path("sample.py"), text)], ["3.99"])
+
+    def test_live_repo_is_clean(self) -> None:
+        # Green on the real repo in both the maintainer environment and
+        # sibling-less public CI. The EXEMPT rows are pinned separately by
+        # test_exempt_rows_suppress_their_lines: both exempted ids collide
+        # with backlog ids live at adoption, so this run alone cannot prove
+        # the rows bind (it passes with or without them while those items
+        # stay open).
+        result = run_linter(self.GATE)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 if __name__ == "__main__":

@@ -199,8 +199,8 @@ CLOSURE_PATTERNS = (
     re.compile(r"(?<![Nn][Oo][Tt] )\brotated to (?:the DONE ledger|DONE\b|\[`?[^\]]*DONE)"),
     # (7) the space-separated TODO-section closure form: the literal token
     # "TODO section N.M" then (within one clause, forward-only) a
-    # closed/closure word. Added 2026-07-03 after #607's root lead ("TODO
-    # section 1.1 is CLOSED and rotated to [a linked path]") matched none of
+    # closed/closure word. Added 2026-07-03 after #607's root lead (`"TODO
+    # section 1.1 is CLOSED and rotated to [a linked path]"`) matched none of
     # the six forms: form 1 wants a `§`, form 4 wants the hyphenated
     # `section-N.M`, and the rotation clause's markdown link defeated form 6's
     # literal "rotated to DONE". The `TODO ` anchor is the FP guard that the
