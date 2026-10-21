@@ -330,6 +330,9 @@ jobs:
       - name: Startup character and core-line ceiling audit
         run: python3 tools/lint-startup-character-ceiling.py
 
+      - name: Tooling backlog-reference audit
+        run: python3 tools/lint-tooling-backlog-refs.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

@@ -243,6 +243,7 @@ run_gate "Hook-launcher isolation audit"                         python3 tools/l
 # core-line ceilings), so the ceilings the pre-push guard enforces are visible to a
 # corpus-gate run.
 run_gate "Startup character and core-line ceiling audit"        python3 tools/lint-startup-character-ceiling.py
+run_gate "Tooling backlog-reference audit"                       python3 tools/lint-tooling-backlog-refs.py
 
 # ----------------------------------------------------------------------
 # Summary

@@ -728,3 +728,9 @@ repos:
         pass_filenames: false
         always_run: true
         verbose: true
+      - id: lint-tooling-backlog-refs
+        name: Tooling backlog-reference audit
+        entry: python3 tools/lint-tooling-backlog-refs.py
+        language: system
+        pass_filenames: false
+        always_run: true
