@@ -51,12 +51,12 @@ If you see a hardcoded secret in existing code, treat it as compromised and flag
 | Purpose | Correct Choice | Prohibited |
 | --- | --- | --- |
 | Symmetric encryption | AES-256-GCM | DES, 3DES, RC4, Blowfish |
-| Asymmetric | RSA-4096, EC P-384 | RSA < 4096 |
-| Key exchange | ECDHE, DHE | Static RSA |
+| Asymmetric encryption | RSA-4096 | RSA < 4096 |
+| Key exchange | ECDHE (P-256, P-384, X25519), DHE (DH ≥ 3072, private exponent ≥ 256 bits) | Static RSA, DH < 3072, EC P-192, EC P-224 |
 | Integrity hashing | SHA-256, SHA-384, SHA-512 | MD5, SHA-1 |
 | Password hashing | Argon2id (preferred), scrypt, bcrypt (cost ≥12); PBKDF2 (HMAC-SHA-256/512, high iterations) for FIPS-140 contexts | MD5, SHA-anything unsalted (for passwords), plain storage |
 | TLS | TLS 1.3 (or stronger) | SSL, TLS 1.0, TLS 1.1, TLS 1.2 |
-| Certificates | SHA-256 RSA or ECDSA | SHA-1 |
+| Certificates | SHA-256 with RSA ≥ 3072 or ECDSA P-256 or stronger | SHA-1, RSA < 3072 |
 
 This table is the minimum baseline. Where the adopting organization's cryptography policy sets a stricter baseline (for example SHA-512 or BLAKE2b-512 for integrity hashing), that policy governs.
 

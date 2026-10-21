@@ -7,14 +7,16 @@
 | Purpose | Required Algorithm | Prohibited |
 | --- | --- | --- |
 | Symmetric encryption | AES-256-GCM (authenticated) | DES, 3DES, RC4, Blowfish, AES-ECB |
-| Asymmetric encryption | RSA-4096, EC P-384 | RSA < 4096, EC P-256, EC P-192 |
-| Key exchange | ECDHE, DHE (DH group ≥ 2048 bits) | Static RSA, DH < 2048 |
+| Asymmetric encryption | RSA-4096 (EC key agreement is under Key exchange and ECDSA under Digital signatures) | RSA < 4096 |
+| Key exchange | ECDHE (P-256, P-384 or X25519), DHE (DH group ≥ 3072 bits, private exponent ≥ 256 bits) | Static RSA, DH < 3072, EC P-192, EC P-224 |
 | Password hashing | Argon2id (preferred), scrypt, bcrypt (cost ≥ 12); PBKDF2 (HMAC-SHA-256/512, high iteration count) for FIPS-140 contexts | MD5, SHA-1, SHA-256 (unsalted), SHA-512 (unsalted) |
 | Integrity hashing | SHA-256, SHA-384, SHA-512 | MD5, SHA-1 |
-| Digital signatures | ECDSA P-256/P-384, RSA-PSS-4096 | RSA-PKCS1v1.5 < 2048, SHA-1 signatures |
+| Digital signatures | ECDSA P-256/P-384, RSA-PSS-4096 (TLS certificate signatures follow the TLS certificate row) | RSA < 3072 (PKCS1v1.5 or PSS), SHA-1 signatures, ECDSA P-192, ECDSA P-224 |
 | TLS version | TLS 1.3 (or stronger) | SSL 2.0, SSL 3.0, TLS 1.0, TLS 1.1, TLS 1.2 |
-| TLS certificate | SHA-256 RSA or ECDSA | SHA-1 signed certificates |
+| TLS certificate | SHA-256 with RSA ≥ 3072 or ECDSA P-256 or stronger | SHA-1 signed certificates, RSA < 3072 |
 | HMAC | HMAC-SHA-256, HMAC-SHA-384 | HMAC-MD5, HMAC-SHA-1 |
+
+The Asymmetric encryption, Key exchange, Digital signatures and TLS certificate rows target at least 128-bit security strength (NIST SP 800-57 Part 1 Rev. 5, Tables 2 and 4, for RSA, DH and the P-curves); the symmetric row is stricter at AES-256.
 
 This table is the pack's minimum baseline for any adopting project. An adopting organization may set a stricter baseline in its own cryptography policy, for example requiring SHA-512 or BLAKE2b-512 for integrity hashing and HMAC-SHA-512, HMAC-SHA-384 or KMAC256 for message authentication; where it does, the organization's policy governs and code follows it.
 
@@ -77,7 +79,7 @@ When configuring TLS in application code or infrastructure:
 
 ```
 Minimum version:   TLS 1.3 (TLS 1.2 and earlier prohibited)
-Certificate:       SHA-256 RSA or ECDSA; valid from approved CA; not self-signed in production
+Certificate:       SHA-256 with RSA ≥ 3072 or ECDSA P-256 or stronger; valid from approved CA; not self-signed in production
 Cipher suites:     Prefer ECDHE-based forward-secret suites
 Validation:        Always validate peer certificates; never disable certificate validation
 ```
