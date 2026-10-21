@@ -44,7 +44,10 @@ What it checks, per catalogue:
     ``standards/NIST/oscal/NIST_CSF_v2.0_catalog.json``: the live Categories (no
     ``status`` prop) against the ``CSF_CATEGORIES`` keyset; the withdrawn
     Categories (``status`` ``withdrawn``) against the ``CSF_1_1_RELOCATED``
-    keyset; the live Subcategories under the live Categories against
+    keyset, with each note rebuilt from the Category's ``title`` (quoted as the
+    CSF 1.1 name) and its own ``incorporated_into`` / ``moved_to`` links, or,
+    when it has none, the Categories its Subcategories link to, and compared
+    exactly; the live Subcategories under the live Categories against
     ``CSF_SUBCATEGORIES``; the withdrawn Subcategories under them against the
     ``CSF_WITHDRAWN_SUBCATEGORIES`` keyset, with each note rebuilt from the
     entry's ``incorporated_into`` / ``moved_to`` links and compared exactly. The
@@ -52,11 +55,17 @@ What it checks, per catalogue:
     class, status and depth checks but are not compared with either Subcategory
     keyset. A catalogue with no live Subcategory, a catalogue-level
     ``controls`` entry, a ``status`` value other than ``withdrawn`` (null
-    included), a control with more than one ``status`` prop, a live Category
-    whose ``class`` is not ``category``, a child of any Category whose ``class``
-    is not ``subcategory``, a nested group, a control below a Subcategory, a
-    duplicate control ID, or a shape this check cannot walk is refused (exit 2),
-    never a vacuous pass.
+    included), a control with more than one ``status`` prop, a live or
+    withdrawn Category whose ``class`` is not ``category``, a child of any
+    Category whose ``class`` is not ``subcategory``, a child with no ``status``
+    under a withdrawn Category, a withdrawn Category whose ``title`` is not a
+    non-empty string, a withdrawn Category or child whose ``links`` value is
+    not a list, a link on a withdrawn Category or its child
+    whose rel is not ``incorporated_into`` or ``moved_to`` or whose destination
+    is not a FUNCTION.CATEGORY or FUNCTION.CATEGORY-NN (a Category's own link
+    may also name a bare FUNCTION), a nested group, a control below a
+    Subcategory, a duplicate control ID, or a shape this check cannot walk is
+    refused (exit 2), never a vacuous pass.
   * **COBIT 2019** (both directions, plus range closure): the
     ``COBIT_OBJECTIVES`` keyset against the objective-code tokens of the
     Governance and Management Objectives extract, and the
@@ -78,10 +87,11 @@ Note the scope boundary: this aid validates *code existence* parity (does the
 module's code set match the source's). It does NOT validate semantic mapping
 fit (whether a given document belongs under a given control), which is the
 apply-time author-every-cell responsibility, nor control *titles* (a possible
-future extension). The discipline's prose half (verify a mapping's semantic
-fit against the source control *title*, not the code number) is the worker /
-orchestrator obligation the runbook records; this aid is the code-set parity
-backstop under it.
+future extension), except the CSF 1.1 names of the withdrawn CSF Categories,
+which the NIST CSF 2.0 OSCAL check compares. The discipline's prose half
+(verify a mapping's semantic fit against the source control *title*, not the
+code number) is the worker / orchestrator obligation the runbook records; this
+aid is the code-set parity backstop under it.
 
 Locating the reference source (first match wins). The resolved directory is the
 ``grc_library_ref`` ROOT (the buckets sit at it); a CLI path ending in a bucket
@@ -148,6 +158,10 @@ TSC_LINE_RE = re.compile(r"(?m)^[ \t]*((?:CC|PI|A|C|P)[1-9]\.[0-9])\b")
 
 CONTROL_ID_RE = re.compile(r"^[A-Z&]{2,4}-[0-9]{2}$")
 CSF_CATEGORY_RE = re.compile(r"\b(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}\b")
+# The relations and destinations a withdrawn Category's relocation links may carry.
+CSF_RELOCATION_RELS = ("incorporated_into", "moved_to")
+CSF_RELOCATION_DEST_RE = re.compile(r"(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}(?:-[0-9]{2})?")
+CSF_FUNCTION_DEST_RE = re.compile(r"GV|ID|PR|DE|RS|RC")
 COBIT_OBJECTIVE_RE = re.compile(r"\b(?:EDM|APO|BAI|DSS|MEA)\d{2}\b")
 COBIT_PRACTICE_RE = re.compile(r"\b((?:EDM|APO|BAI|DSS|MEA)\d{2})\.(\d{2})\b")
 
@@ -243,23 +257,72 @@ def _oscal_note(control: dict) -> str:
     return "; ".join(f"{rel.replace('_', ' ')} {', '.join(hrefs)}" for rel, hrefs in groups.items())
 
 
+def _relocation_links(control: dict, *, category: bool = False) -> list[dict]:
+    """Return the links of a withdrawn Category or of one of its children, each
+    checked: rel ``incorporated_into`` or ``moved_to``, and a FUNCTION.CATEGORY
+    or FUNCTION.CATEGORY-NN destination. A Category's own links may also name a
+    bare FUNCTION (the held ID.GV links to GV).
+
+    Raises ``ValueError`` on a ``links`` value that is not a list, a missing or
+    unsupported rel, or a missing or malformed destination. The children's
+    links are summarised by Category (deduplicated, the Subcategory suffix
+    dropped), so a removed or duplicated child link that names an
+    already-listed Category leaves the rebuilt note unchanged."""
+    links = control.get("links", [])
+    if not isinstance(links, list):
+        raise ValueError(f"{control['id']}: links {links!r}, expected a list")
+    for link in links:
+        if link.get("rel") not in CSF_RELOCATION_RELS:
+            raise ValueError(
+                f"{control['id']}: link rel {link.get('rel')!r}, expected 'incorporated_into' "
+                f"or 'moved_to'"
+            )
+        href = link.get("href")
+        if not isinstance(href, str) or not (
+            CSF_RELOCATION_DEST_RE.fullmatch(href)
+            or (category and CSF_FUNCTION_DEST_RE.fullmatch(href))
+        ):
+            shapes = "FUNCTION, FUNCTION.CATEGORY" if category else "FUNCTION.CATEGORY"
+            raise ValueError(
+                f"{control['id']}: link destination {href!r}, expected {shapes} "
+                f"or FUNCTION.CATEGORY-NN"
+            )
+    return links
+
+
+def _oscal_relocation(control: dict, destinations: list[str]) -> str:
+    """Rebuild the text a withdrawn Category's ``CSF_1_1_RELOCATED`` note ends with:
+    from the Category's own links when it has any, else from ``destinations``,
+    the Categories its children link to in catalogue order."""
+    if _relocation_links(control, category=True):
+        return f"withdrawn, {_oscal_note(control)} in 2.0"
+    if destinations:
+        return f"withdrawn, its Subcategories redistributed to {', '.join(destinations)} in 2.0"
+    return "withdrawn in 2.0"
+
+
 def csf_oscal_drift(path: Path) -> list[str]:
-    """Both directions: live and withdrawn Categories, live Subcategories and
-    withdrawn Subcategories (with their notes) against the held CSF 2.0 OSCAL
-    catalogue. The children of a withdrawn Category get the same checks as
-    those of a live one but stay out of both Subcategory sets.
+    """Both directions: live and withdrawn Categories (the withdrawn ones with
+    their relocation notes), live Subcategories and withdrawn Subcategories
+    (with their notes) against the held CSF 2.0 OSCAL catalogue. The children
+    of a withdrawn Category get the same checks as those of a live one, must
+    be withdrawn, and stay out of both Subcategory sets.
 
     Raises ``ValueError`` (handled with ``OSError`` by ``main``, exit 2) on JSON
     that does not parse, a shape the walk cannot read, a catalogue-level
     ``controls`` entry, a nested group, a ``status`` prop whose value is not
     ``withdrawn`` (null included), a control with more than one ``status``
-    prop, a live Category whose ``class`` is not ``category``, a child of a
-    live or withdrawn Category whose ``class`` is not ``subcategory``, a
-    control below a Subcategory, a control ID seen twice, or no live
-    Subcategory at all: fail closed, never a vacuous pass."""
+    prop, a live or withdrawn Category whose ``class`` is not ``category``, a
+    child of a live or withdrawn Category whose ``class`` is not
+    ``subcategory``, a child with no ``status`` under a withdrawn Category, a
+    withdrawn Category whose ``title`` is missing, null, empty or not a string,
+    a withdrawn Category or child whose ``links`` value, link rel or link
+    destination ``_relocation_links`` refuses, a control
+    below a Subcategory, a control ID seen twice, or no live Subcategory at
+    all: fail closed, never a vacuous pass."""
     data = json.loads(path.read_text(encoding="utf-8"))
     live_cats: set[str] = set()
-    withdrawn_cats: set[str] = set()
+    withdrawn_cats: dict[str, str] = {}
     live_subs: set[str] = set()
     withdrawn: dict[str, str] = {}
     seen: set[str] = set()
@@ -278,16 +341,19 @@ def csf_oscal_drift(path: Path) -> list[str]:
             for cat in group.get("controls", []):
                 claim(cat)
                 live = _oscal_status(cat) is None
-                if not live:
-                    withdrawn_cats.add(cat["id"])
-                elif cat.get("class") != "category":
+                state = "live" if live else "withdrawn"
+                if cat.get("class") != "category":
                     raise ValueError(
-                        f"{cat['id']}: class {cat.get('class')!r} on a live Category, "
+                        f"{cat['id']}: class {cat.get('class')!r} on a {state} Category, "
                         f"expected 'category'"
                     )
-                else:
-                    live_cats.add(cat["id"])
-                state = "live" if live else "withdrawn"
+                title = cat.get("title")
+                if not live and not (isinstance(title, str) and title):
+                    raise ValueError(
+                        f"{cat['id']}: title {title!r} on a withdrawn Category, "
+                        f"expected a non-empty string"
+                    )
+                destinations: list[str] = []
                 for sub in cat.get("controls", []):
                     claim(sub)
                     if sub.get("class") != "subcategory":
@@ -301,20 +367,43 @@ def csf_oscal_drift(path: Path) -> list[str]:
                         )
                     status = _oscal_status(sub)
                     if not live:
-                        # A withdrawn Category's children are checked, not compared.
+                        # A withdrawn Category's children are checked, not compared;
+                        # their links name the Categories its content went to.
+                        if status is None:
+                            raise ValueError(
+                                f"{sub['id']}: no status under withdrawn Category "
+                                f"{cat['id']}, expected 'withdrawn'"
+                            )
+                        for link in _relocation_links(sub):
+                            dest = link["href"].split("-")[0]
+                            if dest not in destinations:
+                                destinations.append(dest)
                         continue
                     if status is None:
                         live_subs.add(sub["id"])
                     else:
                         withdrawn[sub["id"]] = _oscal_note(sub)
+                if live:
+                    live_cats.add(cat["id"])
+                else:
+                    withdrawn_cats[cat["id"]] = (
+                        f"CSF 1.1 '{title}'; {_oscal_relocation(cat, destinations)}"
+                    )
     except (KeyError, TypeError, AttributeError) as exc:
         raise ValueError(f"unexpected OSCAL catalogue shape: {exc!r}") from exc
     if not live_subs:
         raise ValueError("no live Subcategory found in the OSCAL catalogue")
     msgs = compare("NIST CSF 2.0 OSCAL Categories", set(CSF_CATEGORIES), live_cats)
     msgs += compare(
-        "NIST CSF 2.0 OSCAL withdrawn Categories", set(CSF_1_1_RELOCATED), withdrawn_cats
+        "NIST CSF 2.0 OSCAL withdrawn Categories", set(CSF_1_1_RELOCATED), set(withdrawn_cats)
     )
+    for code in sorted(set(CSF_1_1_RELOCATED) & set(withdrawn_cats)):
+        if CSF_1_1_RELOCATED[code] != withdrawn_cats[code]:
+            msgs.append(
+                f"NIST CSF 2.0 OSCAL withdrawn Categories: {code} note "
+                f"{CSF_1_1_RELOCATED[code]!r} does not match the note rebuilt from "
+                f"the source title and links {withdrawn_cats[code]!r}"
+            )
     msgs += compare("NIST CSF 2.0 OSCAL Subcategories", set(CSF_SUBCATEGORIES), live_subs)
     msgs += compare(
         "NIST CSF 2.0 OSCAL withdrawn Subcategories",
@@ -509,7 +598,7 @@ def main(argv: list[str]) -> int:
             csf_oscal_drift,
             (
                 f"OK: NIST CSF 2.0 OSCAL parity ({len(CSF_CATEGORIES)} live "
-                f"Categories, {len(CSF_1_1_RELOCATED)} withdrawn Categories, "
+                f"Categories, {len(CSF_1_1_RELOCATED)} withdrawn Categories with notes, "
                 f"{len(CSF_SUBCATEGORIES)} live Subcategories, "
                 f"{len(CSF_WITHDRAWN_SUBCATEGORIES)} withdrawn Subcategories "
                 f"with notes) matches the source catalogue."
