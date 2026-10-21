@@ -18967,7 +18967,8 @@ class DocumentControlCodeTests(LinterTestCase):
     def test_engine_doubled_and_trailing_hyphens(self) -> None:
         # W (codex): one or more hyphens before a digit make a suffix, and any
         # suffix but one hyphen plus two ASCII digits is unknown; a bare trailing
-        # hyphen leaves the bare Category, as before.
+        # hyphen leaves the bare Category, as before. 3b444: the hint tries the ID
+        # built from the cited number first (DE.CM-09 for "DE.CM--09").
         mod = load_linter_module(self.SCRIPT, "_document_control_doubled")
         engine = mod._engine()
         kw = {"is_valid_subcategory": mod.is_valid_subcategory, "withdrawal_note": mod.withdrawal_note}
@@ -18975,12 +18976,28 @@ class DocumentControlCodeTests(LinterTestCase):
         def check(tok):
             return engine.check_code(tok, mod.is_valid_category, mod.relocation_note, **kw)
 
-        for code in ("DE.CM--07", "DE.CM--09", "DE.CM-‐07", "DE.CM---9"):
+        withdrawn = (
+            "CSF 2.0 IDs use one hyphen and two digits, but DE.CM-07 is withdrawn too "
+            "(incorporated into DE.CM-01, DE.CM-03, DE.CM-06, DE.CM-09)"
+        )
+        # Each code, the token the message quotes (its hyphens normalised), the hint.
+        cases = (
+            ("DE.CM--07", "DE.CM--07", withdrawn),
+            ("DE.CM-‐07", "DE.CM--07", withdrawn),
+            ("DE.CM--09", "DE.CM--09", "CSF 2.0 IDs use one hyphen and two digits, e.g. DE.CM-09"),
+            ("DE.CM---9", "DE.CM---9", "CSF 2.0 IDs use one hyphen and two digits, e.g. DE.CM-09"),
+            # DE.CM-10 is neither live nor withdrawn: the lowest live ID, as before.
+            ("DE.CM--10", "DE.CM--10", "CSF 2.0 IDs use one hyphen and two digits, e.g. DE.CM-01"),
+        )
+        for code, shown, hint in cases:
             with self.subTest(code=code):
                 self.assertEqual(engine.codes_in(code), [code])
                 rule, message = check(code)
                 self.assertEqual(rule, "nist-unknown-subcategory")
-                self.assertIn("CSF 2.0 IDs use one hyphen and two digits, e.g. DE.CM-01", message)
+                self.assertEqual(
+                    message,
+                    f"'{shown}' is not a CSF 2.0 Subcategory (no such ID in the CSF 2.0 Core; {hint})",
+                )
         for cell in ("DE.CM-", "DE.CM--", "DE.CM- 07", "DE.CM–"):
             with self.subTest(cell=cell):
                 self.assertEqual(engine.codes_in(cell), ["DE.CM"])
@@ -19007,7 +19024,11 @@ class DocumentControlCodeTests(LinterTestCase):
         self.assertIn("CSF 2.0 IDs use two digits, e.g. GV.OC-02", message("GV.OC-2"))
         # RC.CO-01 and RC.CO-02 are withdrawn; the lowest live RC.CO ID is RC.CO-03.
         self.assertIn("CSF 2.0 IDs use two digits, e.g. RC.CO-03", message("RC.CO-7"))
-        self.assertIn("CSF 2.0 IDs use two digits, e.g. RS.AN-03", message("RS.AN-007"))
+        self.assertEqual(
+            message("RS.AN-007"),
+            "'RS.AN-007' is not a CSF 2.0 Subcategory (no such ID in the CSF 2.0 Core; "
+            "CSF 2.0 IDs use two digits, e.g. RS.AN-07)",
+        )
         self.assertIn("CSF 2.0 IDs use two digits, e.g. PR.DS-01", message("PR.DS-01a"))
         self.assertIn("but RS.AN-01 is withdrawn too (incorporated into RS.MA-02)", message("RS.AN-1"))
         # A predicate that accepts no ID under the Category gives the hint without an example.
@@ -19032,9 +19053,11 @@ class DocumentControlCodeTests(LinterTestCase):
     )
 
     def _base_findings(self, mod, path: Path) -> list[tuple[int, str, str]]:
-        # The 378160e7 scan of one framework-as-column table (header on line 5,
-        # body from line 7): each distinct Category (suffix stripped) in the NIST
-        # CSF cell, checked at Category level with the 378160e7 messages.
+        # A reconstructed baseline, not the 378160e7 engine run: one
+        # framework-as-column table (header on line 5, body from line 7) scanned
+        # with the old 378160e7 token regex, each distinct Category (suffix
+        # stripped) in the NIST CSF cell checked at Category level with the
+        # current reference predicates and the 378160e7 messages.
         rows = path.read_text(encoding="utf-8").splitlines()
         nist_col = rows[4].split("|")[1:-1].index(" NIST CSF ")
         expected = []
@@ -19062,7 +19085,7 @@ class DocumentControlCodeTests(LinterTestCase):
 
     def test_e1_hyphen_followed_by_word_is_not_a_suffix(self) -> None:
         # E1: a hyphen plus a Category or a word is not a suffix. Without the
-        # predicates the findings equal the 378160e7 engine's; with them, the
+        # predicates the findings equal the reconstructed baseline's; with them, the
         # second Category or CSF 1.1 code is reported as before, prose reports
         # nothing, and DE.CM-07a is an unknown Subcategory.
         mod = load_linter_module(self.SCRIPT, "_document_control_e1")
@@ -19184,6 +19207,104 @@ class DocumentControlCodeTests(LinterTestCase):
         self.assertEqual(findings[0].rule, "nist-withdrawn-subcategory")
         self.assertIn("'DE.CM-07'", findings[0].message)
 
+    # 3b444: the dashes the 3b405 reviews found still cut back to the bare Category.
+    REVIEW_DASHES = "".join(map(chr, (0xFE58, 0x2E3A, 0x2E3B, 0x058A, 0x2043)))
+
+    def test_hyphen_set_covers_unicode_dash_punctuation(self) -> None:
+        # The set is a literal; it must hold every Pd character this interpreter
+        # knows (a newer Unicode version adding one fails here), the five review
+        # dashes, and the three non-Pd hyphens.
+        import unicodedata
+
+        engine = load_linter_module(self.SCRIPT, "_document_control_pd")._engine()
+        pd = {chr(c) for c in range(0x110000) if unicodedata.category(chr(c)) == "Pd"}
+        self.assertEqual(pd - set(engine._HYPHEN_CHARS), {"-"})
+        for dash in self.REVIEW_DASHES + self.EXTRA_HYPHENS:
+            with self.subTest(dash=hex(ord(dash))):
+                self.assertIn(dash, engine._HYPHEN_CHARS)
+        self.assertNotIn("-", engine._HYPHEN_CHARS)
+        self.assertEqual(len(set(engine._HYPHEN_CHARS)), len(engine._HYPHEN_CHARS))
+
+    def test_every_accepted_dash_keeps_the_suffix(self) -> None:
+        mod = load_linter_module(self.SCRIPT, "_document_control_all_dashes")
+        engine = mod._engine()
+        kw = {"is_valid_subcategory": mod.is_valid_subcategory, "withdrawal_note": mod.withdrawal_note}
+        for dash in engine._HYPHEN_CHARS:
+            with self.subTest(dash=hex(ord(dash))):
+                self.assertEqual(engine.codes_in(f"DE.CM{dash}07"), [f"DE.CM{dash}07"])
+                self.assertEqual(engine.codes_in(f"GV.OC{dash}PR.IP"), ["GV.OC", "PR.IP"])
+                rule, message = engine.check_code(
+                    f"DE.CM{dash}07", mod.is_valid_category, mod.relocation_note, **kw)
+                self.assertEqual(rule, "nist-withdrawn-subcategory")
+                self.assertIn("'DE.CM-07'", message)
+                self.assertIsNone(engine.check_code(
+                    f"DE.CM{dash}09", mod.is_valid_category, mod.relocation_note, **kw))
+
+    def test_review_dashes_unchanged_without_predicates(self) -> None:
+        # Without the predicates the findings still equal the reconstructed
+        # baseline's for every accepted dash; with them, DE.CM plus a dash plus 07
+        # is withdrawn.
+        mod = load_linter_module(self.SCRIPT, "_document_control_review_dashes")
+        engine = mod._engine()
+        cells = [
+            cell
+            for dash in engine._HYPHEN_CHARS
+            for cell in (f"DE.CM{dash}07", f"PR.AC{dash}01", f"GV.OC{dash}PR.IP")
+        ]
+        body = "".join(f"| Control {i} | {cell} | LOG-01 |\n" for i, cell in enumerate(cells))
+        fixture = self.make_fixture(
+            "fake-doc-review-dashes.md",
+            "# X\n\n## Control mapping\n\n"
+            "| Control Area | NIST CSF | CSA CCM v4.1 |\n| --- | --- | --- |\n" + body,
+        )
+        base = self._base_findings(mod, fixture)
+        self.assertEqual(len(base), 2 * len(engine._HYPHEN_CHARS))
+        findings = engine.scan_file(fixture, REPO_ROOT, mod.is_valid_category, mod.relocation_note)
+        self.assertEqual([(f.line, f.rule, f.message) for f in findings], base, findings)
+        withdrawn = [f for f in mod.scan_file(fixture) if f.rule == "nist-withdrawn-subcategory"]
+        self.assertEqual(len(withdrawn), len(engine._HYPHEN_CHARS), withdrawn)
+
+    def test_review_dashes_flagged_end_to_end(self) -> None:
+        for idx, dash in enumerate(self.REVIEW_DASHES):
+            with self.subTest(dash=hex(ord(dash))):
+                fixture = self.make_fixture(
+                    f"fake-doc-review-dash-{idx}.md", self._col_doc(f"Detect: DE.CM{dash}07")
+                )
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertLinterFails(result, "nist-withdrawn-subcategory")
+                self.assertIn("'DE.CM-07'", result.stdout)
+
+    def test_engine_hint_tries_the_cited_number_first(self) -> None:
+        # 3b444: the ID built from the cited number is the example when live and
+        # gives its withdrawal note when withdrawn; otherwise the lowest live ID.
+        mod = load_linter_module(self.SCRIPT, "_document_control_cited_number")
+        engine = mod._engine()
+        kw = {"is_valid_subcategory": mod.is_valid_subcategory, "withdrawal_note": mod.withdrawal_note}
+
+        def message(tok):
+            rule, text = engine.check_code(tok, mod.is_valid_category, mod.relocation_note, **kw)
+            self.assertEqual(rule, "nist-unknown-subcategory", tok)
+            return text
+
+        two = "CSF 2.0 IDs use two digits"
+        cases = {
+            "RS.AN-007": f"{two}, e.g. RS.AN-07",
+            "DE.CM-009": f"{two}, e.g. DE.CM-09",
+            "RS.AN-001": f"{two}, but RS.AN-01 is withdrawn too (incorporated into RS.MA-02)",
+            "GV.OC-0005": f"{two}, e.g. GV.OC-05",
+            "GV.OC-100": f"{two}, e.g. GV.OC-01",
+            "DE.CM-000": f"{two}, e.g. DE.CM-01",
+            "DE.CM-" + "0" * 5000 + "9": f"{two}, e.g. DE.CM-09",
+            "DE.CM-" + "1" * 5000: f"{two}, e.g. DE.CM-01",
+            "DE.CM-07a": f"{two}, e.g. DE.CM-01",
+        }
+        for tok, hint in cases.items():
+            with self.subTest(tok=tok[:20]):
+                self.assertEqual(
+                    message(tok),
+                    f"'{tok}' is not a CSF 2.0 Subcategory (no such ID in the CSF 2.0 Core; {hint})",
+                )
+
 
 class NistCsfReferenceSubcategoryTests(unittest.TestCase):
     """tools/nist_csf_reference.py Subcategory literals (3b405)."""
@@ -19219,6 +19340,27 @@ class NistCsfReferenceSubcategoryTests(unittest.TestCase):
     def test_id_rm_relocated(self) -> None:
         self.assertIn("incorporated into GV.RM", self.ref.relocation_note("ID.RM"))
         self.assertFalse(self.ref.is_valid_category("ID.RM"))
+
+    def test_relocation_notes_follow_the_oscal_form(self) -> None:
+        # 3b444: every note is the quoted CSF 1.1 name plus text rebuilt from the
+        # OSCAL links; PR.MA follows its link (ID.AM-08), not "mainly PR.PS".
+        self.assertEqual(
+            self.ref.relocation_note("PR.MA"),
+            "CSF 1.1 'Maintenance'; withdrawn, incorporated into ID.AM-08 in 2.0",
+        )
+        self.assertEqual(
+            self.ref.relocation_note("RS.RP"),
+            "CSF 1.1 'Response Planning'; withdrawn, its Subcategories redistributed to RS.MA in 2.0",
+        )
+        tail = (
+            r"withdrawn, (?:(?:incorporated into|moved to) [A-Z.0-9-]+(?:, [A-Z.0-9-]+)*"
+            r"|its Subcategories redistributed to [A-Z]{2}\.[A-Z]{2}(?:, [A-Z]{2}\.[A-Z]{2})*) in 2\.0"
+        )
+        for code, note in self.ref.CSF_1_1_RELOCATED.items():
+            with self.subTest(code=code):
+                self.assertRegex(note, rf"\ACSF 1\.1 '[^']+'; {tail}\Z")
+                self.assertNotIn("mainly", note)
+                self.assertFalse(self.ref.is_valid_category(code))
 
 
 class VerifyReferenceModulesOscalTests(unittest.TestCase):
@@ -19257,17 +19399,37 @@ class VerifyReferenceModulesOscalTests(unittest.TestCase):
             groups[cat[:2]]["controls"].append(
                 {"id": cat, "class": "category", "props": [], "controls": subs}
             )
+        # 3b444: each withdrawn Category's title and links are rebuilt from its
+        # note: the quoted name, then its own links, or one withdrawn child per
+        # Category its Subcategories went to.
+        redistributed = "withdrawn, its Subcategories redistributed to "
         for cat in sorted(ref.CSF_1_1_RELOCATED):
-            groups[cat[:2]]["controls"].append({
+            name, tail = ref.CSF_1_1_RELOCATED[cat].split("; ", 1)
+            tail = tail.removesuffix(" in 2.0")
+            control = {
                 "id": cat,
                 "class": "category",
+                "title": name.removeprefix("CSF 1.1 '").removesuffix("'"),
                 "props": [{"name": "status", "value": "withdrawn"}],
                 "controls": [{
                     "id": f"{cat}-01",
                     "class": "subcategory",
                     "props": [{"name": "status", "value": "withdrawn"}],
                 }] if cat == "ID.BE" else [],
-            })
+            }
+            if tail.startswith(redistributed):
+                control["controls"] = [{
+                    "id": f"{cat}-{n:02d}",
+                    "class": "subcategory",
+                    "props": [{"name": "status", "value": "withdrawn"}],
+                    "links": [{"href": f"{dest}-01", "rel": "incorporated_into"}],
+                } for n, dest in enumerate(tail[len(redistributed):].split(", "), start=1)]
+            else:
+                body = tail.removeprefix("withdrawn, ")
+                rel = "moved_to" if body.startswith("moved to ") else "incorporated_into"
+                hrefs = body.split(" into ", 1)[-1] if rel == "incorporated_into" else body[len("moved to "):]
+                control["links"] = [{"href": h, "rel": rel} for h in hrefs.split(", ")]
+            groups[cat[:2]]["controls"].append(control)
         return {"catalog": {"groups": list(groups.values())}}
 
     def _control(self, data: dict, control_id: str) -> dict:
@@ -19316,7 +19478,7 @@ class VerifyReferenceModulesOscalTests(unittest.TestCase):
         id_group = next(g for g in data["catalog"]["groups"] if g["id"] == "ID")
         id_group["controls"] = [c for c in id_group["controls"] if c["id"] != "ID.RM"]
         id_group["controls"].append({
-            "id": "ID.ZZ", "class": "category",
+            "id": "ID.ZZ", "class": "category", "title": "Unknown",
             "props": [{"name": "status", "value": "withdrawn"}], "controls": [],
         })
         msgs = "\n".join(self.mod.csf_oscal_drift(self._write(data)))
@@ -19449,36 +19611,231 @@ class VerifyReferenceModulesOscalTests(unittest.TestCase):
                 {"id": "ID.BE-01.a", "class": "subcategory", "props": []}
             ]
 
+        def live_child_under_withdrawn(data):
+            # 3b444: a child with no status under a withdrawn Category is refused.
+            self._control(data, "ID.BE-01")["props"] = []
+
+        def withdrawn_category_wrong_class(data):
+            # 3b444: a withdrawn Category's own class must be "category" too.
+            self._control(data, "ID.BE")["class"] = "subcategory"
+
+        def withdrawn_category_missing_class(data):
+            del self._control(data, "ID.BE")["class"]
+
+        def withdrawn_category_missing_title(data):
+            # 3b444 round 3: a withdrawn Category's title must be a non-empty string.
+            del self._control(data, "ID.RM")["title"]
+
+        def withdrawn_category_null_title(data):
+            self._control(data, "ID.RM")["title"] = None
+
+        def withdrawn_category_empty_title(data):
+            self._control(data, "ID.RM")["title"] = ""
+
+        # Each message is matched whole, so the control it names is pinned.
+        title = "on a withdrawn Category, expected a non-empty string"
         cases = {
-            root_level_control: "catalogue-level controls",
-            duplicate_under_withdrawn: "duplicate control ID",
-            wrong_class_under_withdrawn: "under withdrawn Category ID.BE, expected 'subcategory'",
-            draft_status_under_withdrawn: "unexpected status",
-            deeper_control_under_withdrawn: "below Subcategory level",
+            root_level_control: "catalogue-level controls, expected every control inside a group",
+            duplicate_under_withdrawn: "ID.BE-01: duplicate control ID",
+            wrong_class_under_withdrawn:
+                "ID.BE-01: class 'control' under withdrawn Category ID.BE, expected 'subcategory'",
+            draft_status_under_withdrawn: "ID.BE-01: unexpected status 'draft'",
+            deeper_control_under_withdrawn: "ID.BE-01: controls below Subcategory level, expected none",
+            live_child_under_withdrawn:
+                "ID.BE-01: no status under withdrawn Category ID.BE, expected 'withdrawn'",
+            withdrawn_category_wrong_class:
+                "ID.BE: class 'subcategory' on a withdrawn Category, expected 'category'",
+            withdrawn_category_missing_class:
+                "ID.BE: class None on a withdrawn Category, expected 'category'",
+            withdrawn_category_missing_title: f"ID.RM: title None {title}",
+            withdrawn_category_null_title: f"ID.RM: title None {title}",
+            withdrawn_category_empty_title: f"ID.RM: title '' {title}",
         }
         for mutate, expected in cases.items():
             with self.subTest(mutate.__name__):
                 data = self._catalogue()
                 mutate(data)
-                with self.assertRaisesRegex(ValueError, expected):
+                with self.assertRaises(ValueError) as caught:
                     self.mod.csf_oscal_drift(self._write(data))
+                self.assertEqual(str(caught.exception), expected)
 
     def test_held_withdrawn_category_shape_passes(self) -> None:
         # The held catalogue gives every withdrawn Category withdrawn children
         # with links and sort-id / label props; they are checked, not compared.
+        # A Category with its own links gets children whose links go elsewhere,
+        # since only a Category without links takes its note from its children.
         data = self._catalogue()
         for cat in self.mod.CSF_1_1_RELOCATED:
-            self._control(data, cat)["controls"] = [{
-                "id": f"{cat}-{n:02d}",
-                "class": "subcategory",
-                "props": [
+            control = self._control(data, cat)
+            if control.get("links"):
+                control["controls"] = [{
+                    "id": f"{cat}-{n:02d}",
+                    "class": "subcategory",
+                    "props": [{"name": "status", "value": "withdrawn"}],
+                    "links": [{"href": "GV.OC-05", "rel": "incorporated_into"}],
+                } for n in (1, 2)]
+            for n, sub in enumerate(control["controls"], start=1):
+                sub["props"] = [
                     {"name": "sort-id", "value": f"0000{n}"},
-                    {"name": "label", "value": f"{cat}-{n:02d}"},
+                    {"name": "label", "value": sub["id"]},
                     {"name": "status", "value": "withdrawn"},
-                ],
-                "links": [{"href": "GV.OC-05", "rel": "incorporated_into"}],
-            } for n in (1, 2)]
+                ]
         self.assertEqual(self.mod.csf_oscal_drift(self._write(data)), [])
+
+    def test_withdrawn_category_notes_compared(self) -> None:
+        # 3b444: each CSF_1_1_RELOCATED note is compared with the note rebuilt
+        # from the Category's title and links, or its children's links when it
+        # has none.
+        from unittest.mock import patch
+
+        def drift(data, **notes):
+            with patch.dict(self.mod.CSF_1_1_RELOCATED, notes):
+                return [m for m in self.mod.csf_oscal_drift(self._write(data))
+                        if "withdrawn Categories:" in m]
+
+        # Rebuilt by _catalogue() from the module literals, not the held JSON.
+        held = self._catalogue()
+        self.assertEqual(drift(held), [])
+        # The pre-3b444 PR.MA note against its held link (incorporated into ID.AM-08).
+        self.assertEqual(
+            drift(held, **{"PR.MA": "CSF 1.1 'Maintenance'; redistributed in 2.0 (mainly PR.PS)"}),
+            [
+                "NIST CSF 2.0 OSCAL withdrawn Categories: PR.MA note "
+                "\"CSF 1.1 'Maintenance'; redistributed in 2.0 (mainly PR.PS)\" does not match "
+                "the note rebuilt from the source title and links "
+                "\"CSF 1.1 'Maintenance'; withdrawn, incorporated into ID.AM-08 in 2.0\""
+            ],
+        )
+
+        moved = self._catalogue()
+        self._control(moved, "PR.MA")["links"] = [{"href": "PR.PS-03", "rel": "moved_to"}]
+        self.assertEqual(len(drift(moved)), 1)
+        self.assertIn("'Maintenance'; withdrawn, moved to PR.PS-03 in 2.0\"", drift(moved)[0])
+
+        child = self._catalogue()
+        self._control(child, "RS.RP-01")["links"] = [{"href": "RS.MI-01", "rel": "incorporated_into"}]
+        self.assertIn(
+            "; withdrawn, its Subcategories redistributed to RS.MI in 2.0\"", "".join(drift(child))
+        )
+
+        unlinked = self._catalogue()
+        del self._control(unlinked, "ID.RM")["links"]
+        self.assertIn("ID.RM note", "".join(drift(unlinked)))
+        self.assertIn("'Risk Management Strategy'; withdrawn in 2.0\"", "".join(drift(unlinked)))
+        # The quoted name is compared with the OSCAL title, verbatim.
+        self.assertIn(
+            "RS.IM note 'RS.IM; withdrawn, incorporated into ID.IM in 2.0' does not match",
+            "".join(drift(held, **{"RS.IM": "RS.IM; withdrawn, incorporated into ID.IM in 2.0"})),
+        )
+        # The round-1 PR.AC name against the held OSCAL title.
+        self.assertEqual(
+            drift(held, **{"PR.AC": "CSF 1.1 'Identity Management and Access Control'; "
+                                    "withdrawn, moved to PR.AA in 2.0"}),
+            [
+                "NIST CSF 2.0 OSCAL withdrawn Categories: PR.AC note "
+                "\"CSF 1.1 'Identity Management and Access Control'; withdrawn, moved to PR.AA "
+                "in 2.0\" does not match the note rebuilt from the source title and links "
+                "\"CSF 1.1 'Identity Management, Authentication and Access Control'; withdrawn, "
+                "moved to PR.AA in 2.0\""
+            ],
+        )
+        retitled = self._catalogue()
+        self._control(retitled, "RS.IM")["title"] = "Improvement"
+        self.assertEqual(len(drift(retitled)), 1)
+        self.assertIn("RS.IM note", drift(retitled)[0])
+        self.assertIn("\"CSF 1.1 'Improvement'; withdrawn, incorporated into ID.IM in 2.0\"",
+                      drift(retitled)[0])
+
+    def test_relocation_links_checked(self) -> None:
+        # 3b444 round 2: every link of a withdrawn Category or of its children
+        # must carry rel incorporated_into or moved_to and a FUNCTION.CATEGORY or
+        # FUNCTION.CATEGORY-NN destination (a bare FUNCTION only on a Category's
+        # own link, as the held ID.GV has), or the catalogue is refused: a
+        # missing or unsupported rel or a malformed destination is refused. The
+        # children's links are summarised by Category (deduplicated, the
+        # Subcategory suffix dropped), so a removed or duplicated child link that
+        # names an already-listed Category leaves the rebuilt note unchanged.
+        # Round 3: a links value that is not a list is refused too.
+        def category_missing_rel(data):
+            del self._control(data, "ID.RM")["links"][0]["rel"]
+
+        def category_unsupported_rel(data):
+            self._control(data, "ID.RM")["links"][0]["rel"] = "related"
+
+        def category_bad_destination(data):
+            self._control(data, "ID.RM")["links"][0]["href"] = "GV.RM-1"
+
+        def category_missing_destination(data):
+            del self._control(data, "ID.RM")["links"][0]["href"]
+
+        def child_missing_rel(data):
+            del self._control(data, "RS.RP-01")["links"][0]["rel"]
+
+        def child_unsupported_rel(data):
+            self._control(data, "RS.RP-01")["links"][0]["rel"] = "required"
+
+        def child_bare_function(data):
+            self._control(data, "RS.RP-01")["links"][0]["href"] = "RS"
+
+        def child_url_destination(data):
+            self._control(data, "RS.RP-01")["links"][0]["href"] = "#RS.MA-01"
+
+        def child_of_linked_category_unsupported_rel(data):
+            # ID.BE has its own links, so its children's links do not feed the note.
+            self._control(data, "ID.BE-01")["links"] = [{"href": "GV.OC-01", "rel": "related"}]
+
+        def category_links_object(data):
+            self._control(data, "ID.RM")["links"] = {}
+
+        def category_links_string(data):
+            self._control(data, "ID.RM")["links"] = ""
+
+        def child_links_object(data):
+            self._control(data, "RS.RP-01")["links"] = {}
+
+        def child_links_string(data):
+            self._control(data, "RS.RP-01")["links"] = ""
+
+        rels = "expected 'incorporated_into' or 'moved_to'"
+        own = "expected FUNCTION, FUNCTION.CATEGORY or FUNCTION.CATEGORY-NN"
+        child = "expected FUNCTION.CATEGORY or FUNCTION.CATEGORY-NN"
+        cases = {
+            category_missing_rel: f"ID.RM: link rel None, {rels}",
+            category_unsupported_rel: f"ID.RM: link rel 'related', {rels}",
+            category_bad_destination: f"ID.RM: link destination 'GV.RM-1', {own}",
+            category_missing_destination: f"ID.RM: link destination None, {own}",
+            child_missing_rel: f"RS.RP-01: link rel None, {rels}",
+            child_unsupported_rel: f"RS.RP-01: link rel 'required', {rels}",
+            child_bare_function: f"RS.RP-01: link destination 'RS', {child}",
+            child_url_destination: f"RS.RP-01: link destination '#RS.MA-01', {child}",
+            child_of_linked_category_unsupported_rel: f"ID.BE-01: link rel 'related', {rels}",
+            category_links_object: "ID.RM: links {}, expected a list",
+            category_links_string: "ID.RM: links '', expected a list",
+            child_links_object: "RS.RP-01: links {}, expected a list",
+            child_links_string: "RS.RP-01: links '', expected a list",
+        }
+        self.assertEqual(self._control(self._catalogue(), "ID.GV")["links"],
+                         [{"href": "GV", "rel": "incorporated_into"}])
+        for mutate, expected in cases.items():
+            with self.subTest(mutate.__name__):
+                data = self._catalogue()
+                mutate(data)
+                with self.assertRaises(ValueError) as caught:
+                    self.mod.csf_oscal_drift(self._write(data))
+                self.assertEqual(str(caught.exception), expected)
+
+    def test_cli_unsupported_relocation_rel_exits_2(self) -> None:
+        root = self.td / "ref"
+        for rel in (self.mod.CCM_CSV, self.mod.AICM_CSV, self.mod.CSF_MD, self.mod.CSF_OSCAL_JSON):
+            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (root / rel).write_text("", encoding="utf-8")
+        data = self._catalogue()
+        self._control(data, "RS.RP-01")["links"][0]["rel"] = "required"
+        (root / self.mod.CSF_OSCAL_JSON).write_text(json.dumps(data), encoding="utf-8")
+        result = run_linter(self.SCRIPT, root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("RS.RP-01: link rel 'required'", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
 
     def test_fails_closed(self) -> None:
         cases = {
@@ -23452,7 +23809,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F 928a1208c681aa3f34ccbf8d7821c3e8911137b2a779d228b0af9c5025ced3db
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
-        nist_csf_reference.py PASSIVE F 633f9002d6d75ff84298ff7f373e7a9f2235cc2e2b76b0db14c63067716f4b2a
+        nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 9c00bf9c44b922993da79bd9f1575d25aa824cb3012d39a48f7929ebe8c3985f
         pre-push-guard.sh FIXED F 6266fe435475157686c5382ecaea00cfb944859d66832ab6169e35d8ff9c4603
         preflight-changelog.py NO_FS F 6d7f57c4f725cc4f8b88b8497551875b645a1949bcb71dbfc6f9e6fbb1eedf52
@@ -23484,7 +23841,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         todo_index_rows.py PASSIVE F 6aba39ba20b4bbbe5ffab3fe94ef520ec95ce8d8e2510ea73696c17d196c2e4a
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4
         validate-review-artifacts.py OWN F 037b7cc690f09b3168dbc6ba22b908c5f7cccc0d47d4f6fe9f929e5e9a98a10d
-        verify-reference-modules.py OWN F 15373c102013145acd8efc2bdbe5f96d1f357da3fbd248013ee094f9f3d67245
+        verify-reference-modules.py OWN F de4fe2b4bf7f8c5de97372e087a1d3dfb86bda26cd24be1b1a77799865a4a3ff
     """
 
     # Repository-relative argument-handling dependencies outside tools/.
@@ -40225,7 +40582,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.16.0", "3b405 adds the document-control-codes engine's optional is_valid_subcategory and withdrawal_note parameters and the nist-withdrawn-subcategory and nist-unknown-subcategory rules, on top of 3b425's NIST SP part and volume grammar (MINOR, 0.15.2 to 0.16.0)")
+        self.assertEqual(man["pack"]["version"], "0.16.1", "3b444 widens the document-control-codes engine's accepted dashes and builds its two-digit hint from the cited number, on top of 3b405's optional is_valid_subcategory and withdrawal_note parameters (PATCH, 0.16.0 to 0.16.1)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")

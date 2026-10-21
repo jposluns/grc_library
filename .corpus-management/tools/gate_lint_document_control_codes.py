@@ -52,9 +52,18 @@ NIST_CSF_LABEL_RE = re.compile(r"\bNIST\s+(?:CSF|Cybersecurity\s+Framework)\b", 
 # "DE.CM-07" written with U+2011, is one token, never cut back to the bare
 # Category. A hyphen not followed by a digit ends the token, so a following
 # Category ("GV.OC-PR.IP") or word ("GV.OC-aligned") is never consumed.
-# _HYPHEN_CHARS: U+2010..U+2015, U+2212 minus sign, U+FE63 small hyphen-minus,
-# U+FF0D fullwidth hyphen-minus and U+00AD soft hyphen.
-_HYPHEN_CHARS = "".join(map(chr, (*range(0x2010, 0x2016), 0x2212, 0xFE63, 0xFF0D, 0x00AD)))
+# _HYPHEN_CHARS: every dash punctuation (category Pd) character of Unicode 16.0
+# but the ASCII "-" (U+058A, U+05BE, U+1400, U+1806, U+2010..U+2015, U+2E17,
+# U+2E1A, U+2E3A, U+2E3B, U+2E40, U+2E5D, U+301C, U+3030, U+30A0, U+FE31,
+# U+FE32, U+FE58, U+FE63, U+FF0D, U+10D6E, U+10EAD), plus three that are not Pd:
+# U+2212 minus sign, U+00AD soft hyphen and U+2043 hyphen bullet. The set is a
+# literal, not built from unicodedata at import, so the accepted dashes do not
+# change with the interpreter's Unicode version; a test checks it still covers Pd.
+_HYPHEN_CHARS = "".join(map(chr, (
+    0x058A, 0x05BE, 0x1400, 0x1806, *range(0x2010, 0x2016), 0x2E17, 0x2E1A, 0x2E3A,
+    0x2E3B, 0x2E40, 0x2E5D, 0x301C, 0x3030, 0x30A0, 0xFE31, 0xFE32, 0xFE58, 0xFE63,
+    0xFF0D, 0x10D6E, 0x10EAD, 0x2212, 0x00AD, 0x2043,
+)))
 NIST_CODE_RE = re.compile(
     r"\b((?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2})(?:[-" + _HYPHEN_CHARS + r"]+\d\w*)?\b"
 )
@@ -91,9 +100,10 @@ def check_code(
     returns a note) is a finding, and so is a suffix that is not exactly one
     hyphen plus two ASCII digits or an ID that is otherwise not live. Only a
     suffix that is not two ASCII digits gets the two-digit hint, whose example is
-    a live ID of the cited Category; for a one-digit suffix whose zero-padded ID
-    is withdrawn, the hint gives that ID's withdrawal note instead. Raises
-    TypeError when ``withdrawal_note`` is given without ``is_valid_subcategory``.
+    a live ID of the cited Category; when the ID built from the cited number
+    (``DE.CM-7``, ``DE.CM--09`` or ``RS.AN-007``) is withdrawn, the hint gives
+    that ID's withdrawal note instead. Raises TypeError when ``withdrawal_note``
+    is given without ``is_valid_subcategory``.
     """
     _require_subcategory_predicate(is_valid_subcategory, withdrawal_note)
     tok = tok.translate(_HYPHENS)
@@ -130,19 +140,23 @@ def check_code(
 def _two_digit_hint(category: str, suffix: str, is_valid_subcategory, withdrawal_note) -> str:
     """Return the two-digit hint for a malformed suffix under ``category``.
 
-    For a one-digit suffix the zero-padded ID is tried first: its withdrawal note
-    when withdrawn, else it is the example when live. Otherwise the example is
-    the lowest live ``category-NN`` the predicate accepts, if any."""
+    When the suffix is hyphens and ASCII digits whose number is 1 to 99 (a
+    one-digit "DE.CM-7", a doubled hyphen "DE.CM--09", a three-digit
+    "RS.AN-007"), the ID built from that number is tried first: its withdrawal
+    note when withdrawn, else it is the example when live. Otherwise the example
+    is the lowest live ``category-NN`` the predicate accepts, if any."""
     lead = "CSF 2.0 IDs use two digits"
     if suffix.startswith("-"):  # a doubled hyphen, as in "DE.CM--07"
         lead = "CSF 2.0 IDs use one hyphen and two digits"
     candidates = [f"{category}-{n:02d}" for n in range(1, 100)]
-    if re.fullmatch(r"[0-9]", suffix):
-        padded = f"{category}-0{suffix}"
-        padded_note = withdrawal_note(padded) if withdrawal_note is not None else None
-        if padded_note:
-            return f"{lead}, but {padded} is withdrawn too ({padded_note})"
-        candidates.insert(0, padded)
+    # Leading zeros are dropped by the pattern, so int() never sees a long run.
+    number = re.fullmatch(r"-*0*([0-9]{1,2})", suffix)
+    if number and int(number.group(1)) > 0:
+        built = f"{category}-{int(number.group(1)):02d}"
+        built_note = withdrawal_note(built) if withdrawal_note is not None else None
+        if built_note:
+            return f"{lead}, but {built} is withdrawn too ({built_note})"
+        candidates.insert(0, built)
     example = next((code for code in candidates if is_valid_subcategory(code)), None)
     return f"{lead}, e.g. {example}" if example else lead
 

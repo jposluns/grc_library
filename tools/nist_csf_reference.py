@@ -35,7 +35,9 @@ CSWP 29 is not the Subcategory source because the held full-text extract yields
 only 95 of the 106 live IDs under a token scan (its PDF layout loses some, for
 example DE.AE-02 and ID.RA-01) and records no withdrawn IDs or where they went.
 ``verify-reference-modules.py`` checks these literals against the OSCAL file in
-both directions, rebuilding each withdrawal note from the links.
+both directions, rebuilding each withdrawal note from the links, and checks the
+``CSF_1_1_RELOCATED`` notes against the withdrawn Categories' titles and links the
+same way.
 
 The 22 Categories across the six Functions (6 + 3 + 5 + 2 + 4 + 2 = 22):
 """
@@ -86,25 +88,32 @@ CSF_CATEGORIES: dict[str, str] = {
     "RC.CO": "Incident Recovery Communication",
 }
 
-# Common CSF 1.1 categories removed or relocated in CSF 2.0, mapped to a
-# short note on where the content went. Used to give a more helpful diagnostic
-# than "unknown category" when the matrix cites a 1.1-era code.
+# The CSF 1.1 Categories withdrawn in CSF 2.0 (the held OSCAL catalogue's
+# withdrawn Categories), mapped to a short note on where the content went. Used
+# to give a more helpful diagnostic than "unknown category" when a document
+# cites a 1.1-era code. Each note quotes the Category's OSCAL title verbatim as
+# the CSF 1.1 name; the rest is built from the OSCAL links: a Category with its
+# own incorporated_into / moved_to links reads "withdrawn, <links> in 2.0"; one
+# with none reads "withdrawn, its Subcategories redistributed to <Categories> in
+# 2.0", naming in catalogue order each Category its withdrawn Subcategories link
+# to. ``verify-reference-modules.py`` rebuilds the whole note from the OSCAL
+# title and links and compares it exactly.
 CSF_1_1_RELOCATED: dict[str, str] = {
-    "ID.BE": "CSF 1.1 'Business Environment'; folded into GV.OC in 2.0",
-    "ID.GV": "CSF 1.1 'Governance'; became the GV (Govern) Function in 2.0",
-    "ID.SC": "CSF 1.1 'Supply Chain Risk Management'; became GV.SC in 2.0",
-    "PR.IP": "CSF 1.1 'Information Protection Processes and Procedures'; "
-    "redistributed in 2.0 (mainly PR.PS / PR.DS / ID.AM)",
-    "PR.AC": "CSF 1.1 'Identity Management and Access Control'; became PR.AA in 2.0",
-    "PR.MA": "CSF 1.1 'Maintenance'; redistributed in 2.0 (mainly PR.PS)",
-    "PR.PT": "CSF 1.1 'Protective Technology'; redistributed in 2.0",
-    "DE.DP": "CSF 1.1 'Detection Processes'; redistributed in 2.0",
-    "RS.RP": "CSF 1.1 'Response Planning'; redistributed in 2.0 (mainly RS.MA)",
-    "RS.IM": "CSF 1.1 'Improvements'; became ID.IM in 2.0",
-    "RC.IM": "CSF 1.1 'Improvements'; became ID.IM in 2.0",
-    # OSCAL: {"id":"ID.RM","class":"category","title":"Risk Management Strategy",
-    # ...{"name":"status","value":"withdrawn"}],"links":[{"href":"GV.RM",
-    # "rel":"incorporated_into"}]
+    "ID.BE": "CSF 1.1 'Business Environment'; withdrawn, incorporated into GV.OC in 2.0",
+    "ID.GV": "CSF 1.1 'Governance'; withdrawn, incorporated into GV in 2.0",
+    "ID.SC": "CSF 1.1 'Supply Chain Risk Management'; withdrawn, incorporated into GV.SC in 2.0",
+    "PR.IP": "CSF 1.1 'Information Protection Processes and Procedures'; withdrawn, its "
+    "Subcategories redistributed to PR.PS, ID.AM, ID.RA, PR.DS, PR.IR, ID.IM, GV.RR in 2.0",
+    "PR.AC": "CSF 1.1 'Identity Management, Authentication and Access Control'; withdrawn, "
+    "moved to PR.AA in 2.0",
+    "PR.MA": "CSF 1.1 'Maintenance'; withdrawn, incorporated into ID.AM-08 in 2.0",
+    "PR.PT": "CSF 1.1 'Protective Technology'; withdrawn, its Subcategories "
+    "redistributed to PR.PS, PR.DS, PR.AA, PR.IR in 2.0",
+    "DE.DP": "CSF 1.1 'Detection Processes'; withdrawn, its Subcategories "
+    "redistributed to GV.RR, DE.AE, ID.IM in 2.0",
+    "RS.RP": "CSF 1.1 'Response Planning'; withdrawn, its Subcategories redistributed to RS.MA in 2.0",
+    "RS.IM": "CSF 1.1 'Improvements'; withdrawn, incorporated into ID.IM in 2.0",
+    "RC.IM": "CSF 1.1 'Improvements'; withdrawn, incorporated into ID.IM in 2.0",
     "ID.RM": "CSF 1.1 'Risk Management Strategy'; withdrawn, incorporated into GV.RM in 2.0",
 }
 
