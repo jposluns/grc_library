@@ -8450,7 +8450,7 @@ documents:
   domain: "privacy"
   type: "Procedure"
   title: "Data Subject Rights Management Procedure"
-  version: "1.6.45"
+  version: "1.6.46"
   date: "2026-10-21"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"
