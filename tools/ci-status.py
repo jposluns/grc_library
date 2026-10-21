@@ -11,7 +11,9 @@ GREEN requires a recognized, complete, nonempty page, all entries for the reques
 head, and completed/success for the selected run in every (workflow path, event) slot.
 PR mode additionally requires the workflows configured in REQUIRED_RUNS, looked up
 case-insensitively after removing a trailing .git (a trailing . is rejected);
-unlisted repositories and SHA mode have no required workflow set.
+unlisted repositories and SHA mode have no required workflow set. Before any gh call,
+--repo must be owner/name: one "/", nonempty parts of ASCII letters, digits, ".", "-" and
+"_", the owner starting with an ASCII letter, digit or "_", and neither part "." or "..".
 Missing required runs mean PENDING unless failure, unrecognized data, a name collision,
 a moved head, or an incomplete page requires NOT-GREEN. PR mode re-reads the head after
 the runs read; a read error exits 2.
@@ -66,7 +68,10 @@ import sys
 GREEN, PENDING, NOT_GREEN = "GREEN", "PENDING", "NOT-GREEN"
 _EXIT = {GREEN: 0, NOT_GREEN: 1, PENDING: 3}
 _HEX40 = re.compile(r"[0-9a-f]{40}")
-_REPO = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")
+# owner/name for the gh api URL path (3b435): the owner cannot start with "." or "-" (gh pr
+# view could read a leading "-" as a flag); the name may start with "." (owner/.github), and
+# main() rejects a "." or ".." part, the only URL dot-segments
+_REPO = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.-]*/[A-Za-z0-9_.-]+")
 _PR_NUMBER = re.compile(r"[0-9]+")  # ASCII only: str.isdigit accepts non-ASCII digits
 # The workflows this repository's merge gate requires of a PR, each top-level workflow name
 # bound to its file the way merge-when-green.py's ACTIONS_FALLBACK binds them (3b132): a
@@ -430,6 +435,7 @@ def main(argv: list[str]) -> int:
     if args.repo and args.repo.lower().endswith(".git"):
         args.repo = args.repo[:-4]
     if (not args.repo or not _REPO.fullmatch(args.repo)
+            or any(part in (".", "..") for part in args.repo.split("/"))
             or args.repo.endswith(".") or args.repo.lower().endswith(".git")):
         print("ERROR: --repo owner/name is required", file=sys.stderr)
         return 2

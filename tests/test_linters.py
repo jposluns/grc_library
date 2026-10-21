@@ -22641,7 +22641,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-todo-rotation-on-pr.py NO_FS F 4e8d01d2a96932b969a6e920601236eef9adf1725caf8db35412661b171ff2d9
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 12b0d498e274aebdac381f7db669315183ee64ba4e0be21a31041002c7a69854
-        ci-status.py NO_FS F 9200435745e88c1bd124a3d171974b0b69b3fcd8801ca3af3101d40899c10e2a
+        ci-status.py NO_FS F 068ed02eb5f5a81572dce604a4cb1965582dbc178c7c9715be3d37dd8e01e54b
         ci-status.sh NO_FS F 8c66fb625693e9099b040855a90e25dac7f78960eeb2ad660ac513f513287094
         citation_publishers.py PASSIVE F 8c9729132cfaa4f2705c023b4501872905a44dd76b996be8ea8c78ae4188d3e8
         cleanup-tmp-worker-output.py WRITE F 188d936e3dca47b40ec662a51670d04ee2e9cc6b98b706f4e876f489483c62f8
@@ -34721,6 +34721,54 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
             self.assertEqual(verdict, mod.NOT_GREEN)
             self.assertNotIn("UNRECOGNIZED", reason)
             self.assertIn("push a new commit with a new head", reason)
+
+    def test_ci_status_repo_must_be_owner_name(self) -> None:
+        # 3b435: --repo reaches the gh api URL path, so it must be exactly owner/name, the owner
+        # starting with a letter, digit or "_" and the name possibly with "." (owner/.github), with
+        # no "." or ".." part, rejected before any gh call.
+        import contextlib
+        import json
+        from unittest import mock
+        mod = load_linter_module("tools/ci-status.py", "_ci_status_repo")
+        head = "a" * 40
+        q = {"id": 100, "run_number": 10, "run_attempt": 1,
+             "name": "Repository quality checks", "path": ".github/workflows/quality.yml",
+             "event": "pull_request", "head_sha": head,
+             "status": "completed", "conclusion": "success"}
+        page = json.dumps({"total_count": 1, "workflow_runs": [q]})
+
+        def drive(repo, *argv):
+            out, err = io.StringIO(), io.StringIO()
+            # a value starting with "-" only reaches main() as --repo=VALUE
+            opt = [f"--repo={repo}"] if repo.startswith("-") else ["--repo", repo]
+            with mock.patch.object(mod, "gh", side_effect=[page]) as gh, \
+                    contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                rc = mod.main(["ci-status.py", *opt, *argv])
+            return rc, gh.call_args_list, err.getvalue()
+
+        for repo in ("../x", "./x", "a/..", "../..", ".x/y", "a/b/c", "a/", "/b", "a",
+                     "-x/y", "-/-", "x/.git", "x/.GIT", "x/y.git.git", "x/..git", "x/.", "x/.."):
+            for argv in (("--sha", head), ("--pr", "7")):
+                with self.subTest(repo=repo, argv=argv):
+                    rc, calls, err = drive(repo, *argv)
+                    self.assertEqual((rc, calls), (2, []))
+                    self.assertEqual(err, "ERROR: --repo owner/name is required\n")
+        for repo, want in (("jposluns/grc_library", "jposluns/grc_library"),
+                           ("jposluns/grc_library.git", "jposluns/grc_library"),
+                           ("a-b/c_d.e", "a-b/c_d.e"), ("owner/.github", "owner/.github"),
+                           ("x/.y", "x/.y"), ("x/y.GIT", "x/y")):
+            with self.subTest(repo=repo, argv="--sha"):
+                rc, calls, err = drive(repo, "--sha", head)
+                self.assertEqual(rc, 0, err)
+                self.assertEqual([c.args for c in calls],
+                                 [("api", f"repos/{want}/actions/runs?head_sha={head}&per_page=100")])
+            with self.subTest(repo=repo, argv="--pr"):
+                # the page stub is no usable PR head, so validation passed if gh pr view ran once
+                rc, calls, err = drive(repo, "--pr", "7")
+                self.assertEqual([c.args for c in calls],
+                                 [("pr", "view", "7", "--repo", want, "--json", "headRefOid,state")])
+                self.assertEqual(rc, 2)
+                self.assertTrue(err.startswith("ERROR: gh pr view failed: "), err)
 
     def test_ci_status_round3_documented_contract(self) -> None:
         readme = (REPO_ROOT / "tools/README.md").read_text()
