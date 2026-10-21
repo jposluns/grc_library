@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate `taxonomy.yml` from the metadata of every active document.
+"""Generate `taxonomy.yml` from the metadata and structure of every active document.
 
 The taxonomy is a single derived registry that captures the canonical
 metadata block of every active artefact plus its purpose, section outline,
@@ -527,10 +527,10 @@ def build() -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate taxonomy.yml from document metadata.")
+    parser = argparse.ArgumentParser(description="Generate taxonomy.yml from document metadata and document structure.")
     parser.add_argument("--check", action="store_true",
-                        help="Validate that taxonomy.yml is in sync with document metadata; "
-                             "do not write. Exits non-zero on drift.")
+                        help="Validate that taxonomy.yml is in sync with document metadata and "
+                             "document structure; do not write. Exits non-zero on drift.")
     args = parser.parse_args()
 
     new_content = build()
@@ -541,7 +541,7 @@ def main() -> int:
             return 1
         current = TAXONOMY.read_text(encoding="utf-8")
         if current != new_content:
-            print(f"FAIL: {TAXONOMY.name} is out of sync with document metadata.")
+            print(f"FAIL: {TAXONOMY.name} is out of sync with document metadata and document structure.")
             print("Run `python3 tools/build-taxonomy.py` to regenerate.")
             return 1
         print(f"OK: {TAXONOMY.name} is in sync.")

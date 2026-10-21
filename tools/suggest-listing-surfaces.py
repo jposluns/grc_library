@@ -80,7 +80,7 @@ NOT_TRIGGERED_BY_NEW_DOCUMENT = {
     "tools/build-reference-manifest.py": "advisory guard check over the grc_library_ref sibling; never blocks",
 }
 # Generators whose inputs are executive/ narrative pages only, and those whose
-# inputs are corpus metadata only (taxonomy.yml is corpus-only by construction).
+# inputs are corpus documents only (taxonomy.yml is corpus-only by construction).
 # Any other derived generator applies to both.
 NARRATIVE_ONLY = frozenset({"tools/build-narrative-registry.py"})
 CORPUS_ONLY = frozenset({"tools/build-taxonomy.py", "tools/build-portal.py"})

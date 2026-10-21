@@ -46,7 +46,8 @@ The narrative registry derives independently from `executive/` page metadata. Th
 generator depends on the taxonomy; always regenerate the taxonomy first.
 
 Further generated artefacts derive from their own source files rather than from
-document metadata, and are regenerated when that source changes:
+document metadata and document structure, and are regenerated when that source
+changes:
 
 ```
 python3 tools/build-relationship-model.py       # from governance/relationship-model-source.json

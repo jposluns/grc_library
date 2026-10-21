@@ -134,11 +134,11 @@ run_gate "Skill derives-from reference audit"            python3 tools/lint-skil
 
 # ----------------------------------------------------------------------
 # Generator-output drift gates (the first 2 of 7 generator --check gates).
-# These ensure the auto-generated taxonomy.yml / portal.md / maturity-
-# scorecard.md are in sync with the canonical metadata they derive from. The
-# other 5 generator --check gates (narrative registry, TODO number-allocation,
-# relationship model, corpus-management outputs, citation publishers) run in
-# later sections.
+# These ensure the auto-generated taxonomy.yml (from document metadata and
+# document structure) and portal.md / maturity-scorecard.md (from the
+# taxonomy) are in sync with their sources. The other 5 generator --check
+# gates (narrative registry, TODO number-allocation, relationship model,
+# corpus-management outputs, citation publishers) run in later sections.
 # ----------------------------------------------------------------------
 run_gate "Machine-readable taxonomy in sync"             python3 tools/build-taxonomy.py --check
 run_gate "Adopter portal and maturity scorecard in sync" python3 tools/build-portal.py --check

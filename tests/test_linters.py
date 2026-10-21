@@ -23267,7 +23267,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 6f1543dddc1af3199ce86c0358437915d0a99b819a6efe7e19774e7fcb621734
+        README.md DATA F 131975508456f41891ddc4e78f1b976cf447f00a970d6cbfcad83b5bcadb3ebd
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F c9596844ccf7a8146a7f1ad08a1d45c8575caae841323c827595f6069c564a86
@@ -23305,7 +23305,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-public-changelog.py OWN F 407a5b794ad8b51c495f9a2d98ec1f8908fac68500a12004c092e59bd8054d77
         build-reference-manifest.py NO_FS F 80b1c2bfc67f36d4705713fac0ce2c724a5638d1292fbd954767e1d59f2c134d
         build-relationship-model.py NO_FS F 6f4352a07d3aa1a1e991cde011e5f11c464776d58012701d17bc8ac5b43a6d14
-        build-taxonomy.py NO_FS F bce7fe0f04c2b12dbd62898d7fed0baaba0d79b0bc30d60cb2452ea20b616d55
+        build-taxonomy.py NO_FS F dc1c0549d33132cb87852e1729c530c5c607540f1317c968960ada44c1bd138b
         build-todo-number-allocation.py NO_FS F 8ad89e87b8a6df4a576935a21409cadc80ce0456784a22262ac3229b3f2dd99e
         ccm_aicm_reference.py PASSIVE F 1ed15d9b1bd4cfd1162df3e720b5aa6058c3cba3cb1f626fcf2e1ee605c17e71
         check-alignment-register-on-pr.py NO_FS F e9abf548bc7c19c3a22aa4c0eea55f792b72e45e9ebe697295ea33e7495072ee
@@ -23468,13 +23468,13 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run-linter-regression.py FIXED F 2e97814644c614dc987df7139c5ff0ff9b875fb2c1ba0abb6ff0abc298282753
         run-pr-time-checks.sh FIXED F 149366a50976af26bf594757d03314a39f6c81d4054d1c4403457fe2fe37af3b
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
-        run_all_audits.sh FIXED F 5be7a58f19d489b1a50eba5f340e65710207976c1a244d1940cda1f7fe080c3c
+        run_all_audits.sh FIXED F e008dc6ab77b4bd49c70306568baf38078b50dfeada3c2f1856fecc829397a85
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
         session_facts.py PASSIVE F 0d4dcb545fcba5b1533d4aff1c3fedad69ca97d6e07f045b9976aee0ce07247a
         skill-verdict-fields.json DATA F fba56d7e70141647fcad92824591d65a0208c6e6b623caaff82bfcb62bbd06aa
         statusline-next-pr.py NO_FS F 81db4327eb56260c362e61edbae2a7c7c2fd426df579fe21d57638cfd7b55223
-        suggest-listing-surfaces.py SKIP F 69a5d2c045bb2e66291c5892efe5b5bfa5777649964e2f9e8fe636430e262949
+        suggest-listing-surfaces.py SKIP F 5fc2bb9c52ffede72df029c5e8f05944e7a2176111f7e17bbd2e21a06bbb2d35
         sweep-preflight-exemptions.json DATA F 6912151cc3082699047edeba48f3092d50d7c21e8f8a22173372a4cda7146d7e
         sweep-preflight-scanner.py NO_FS F ae4ca7f95dffecb823ec3bc0fdf382ead32fd92a8b0c8b0c286f0b85b2b4dd6f
         sync-citation-worklist-baseline.py OWN F 9c465a8c77bafd52f7f3079f35346a11716a6f0bc8e91862706590e831af397b
