@@ -241,7 +241,7 @@ origin = "grc_library tools/lint-retention-consistency.py gate rationale (new cl
 id = "document-control-codes"
 title = "Per-document framework control-code validity (a NIST CSF code cited in a per-document framework table is a current CSF 2.0 Category)"
 source = "core/rules/document-control-codes.md"
-origin = "grc_library tools/lint-document-control-codes.py gate rationale (new clause in the Group-A content-generic transfer lane; check_code + codes_in + scan_file plus the NIST-CSF label/token regexes are the engine, with the CSF catalogue supplied as two predicates (is_valid_category, relocation_note) + repo_root passed in; the grc reference module nist_csf_reference.py (shared with gate 49) + the scan scope collect_targets + the matrix exclusion + reporting are wrapper config)"
+origin = "grc_library tools/lint-document-control-codes.py gate rationale (new clause in the Group-A content-generic transfer lane; check_code + codes_in + scan_file plus the NIST-CSF label/token regexes are the engine, with the CSF catalogue supplied as two predicates (is_valid_category, relocation_note) plus two optional keyword Subcategory predicates (is_valid_subcategory, withdrawal_note; omitted, the check stays at the Category level; supplied, a suffixed code under a valid Category must be a live two-digit CSF 2.0 Subcategory) + repo_root passed in; the grc reference module nist_csf_reference.py (shared with gate 49) + the scan scope collect_targets + the matrix exclusion + reporting are wrapper config)"
 
 [[clauses]]
 id = "document-iso-annex-a"

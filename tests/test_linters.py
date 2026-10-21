@@ -33,6 +33,7 @@ Stdlib-only Python 3.11 (unittest, tempfile, subprocess).
 from __future__ import annotations
 
 import io
+import json
 import os
 import re
 import shutil
@@ -18676,6 +18677,9 @@ class DocumentControlCodeTests(LinterTestCase):
 
     SCRIPT = "tools/lint-document-control-codes.py"
 
+    # 3b405 W2: minus sign, small and fullwidth hyphen-minus, soft hyphen.
+    EXTRA_HYPHENS = "".join(map(chr, (0x2212, 0xFE63, 0xFF0D, 0x00AD)))
+
     def test_runs_clean_on_corpus_at_head(self) -> None:
         # Smoke test: the live corpus carries no CSF-1.1-era NIST codes in
         # per-document framework tables (the DD-12 carriers were migrated in
@@ -18723,8 +18727,8 @@ class DocumentControlCodeTests(LinterTestCase):
         self.assertLinterFails(result, "nist-csf1-carrier")
 
     def test_framework_column_carrier_flagged(self) -> None:
-        # RS.RP-1 in a NIST CSF column cell: the -1 subcategory suffix is
-        # stripped and RS.RP (CSF 1.1 Response Planning) is flagged.
+        # RS.RP-1 in a NIST CSF column cell: the Category check runs first, so
+        # RS.RP (CSF 1.1 Response Planning) is flagged before any suffix check.
         fixture = self.make_fixture(
             "fake-doc-col-carrier.md",
             self._col_doc("Respond: RS.RP-1"),
@@ -18752,11 +18756,11 @@ class DocumentControlCodeTests(LinterTestCase):
         )
 
     def test_valid_codes_not_flagged(self) -> None:
-        # False-positive guard: valid CSF 2.0 Categories, including a
-        # subcategory-suffixed one (DE.CM-7 -> DE.CM), must all pass.
+        # False-positive guard: valid CSF 2.0 Categories, bare and as a live
+        # two-digit Subcategory (DE.CM-09), must all pass.
         fixture = self.make_fixture(
             "fake-doc-valid.md",
-            self._col_doc("Detect: DE.CM-7"),
+            self._col_doc("Detect: DE.CM; DE.CM-09"),
         )
         result = run_linter(self.SCRIPT, fixture)
         self.assertEqual(
@@ -18812,6 +18816,694 @@ class DocumentControlCodeTests(LinterTestCase):
             any(finding.rule == "nist-unknown-category" for finding in findings),
             findings,
         )
+
+    def test_withdrawn_subcategory_flagged(self) -> None:
+        # 3b405: DE.CM-07 is withdrawn in CSF 2.0 (OSCAL incorporated_into links);
+        # it used to pass because the suffix was stripped to the valid DE.CM.
+        fixture = self.make_fixture(
+            "fake-doc-withdrawn-sub.md",
+            self._col_doc("Detect: DE.CM-07"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "nist-withdrawn-subcategory")
+        self.assertIn("incorporated into DE.CM-01, DE.CM-03, DE.CM-06, DE.CM-09", result.stdout)
+
+    def test_withdrawn_subcategory_flagged_in_framework_row(self) -> None:
+        fixture = self.make_fixture(
+            "fake-doc-withdrawn-sub-row.md",
+            self._row_doc("NIST CSF 2.0", "PR.DS-04", "Moved in 2.0."),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "nist-withdrawn-subcategory")
+        self.assertIn("moved to PR.IR-04", result.stdout)
+
+    def test_one_digit_subcategory_flagged_unknown(self) -> None:
+        # The CSF 1.1 one-digit form is not a CSF 2.0 ID; the message says CSF
+        # 2.0 IDs use two digits.
+        fixture = self.make_fixture(
+            "fake-doc-one-digit-sub.md",
+            self._col_doc("Detect: DE.CM-1"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "nist-unknown-subcategory")
+        self.assertIn("CSF 2.0 IDs use two digits, e.g. DE.CM-01", result.stdout)
+
+    def test_one_digit_subcategory_padded_withdrawn_gives_note(self) -> None:
+        # N1: when the zero-padded ID is withdrawn too, the message gives its
+        # withdrawal note, so the author is not sent to another withdrawn ID.
+        fixture = self.make_fixture(
+            "fake-doc-one-digit-padded-withdrawn.md",
+            self._col_doc("Detect: DE.CM-7"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "nist-unknown-subcategory")
+        self.assertIn(
+            "but DE.CM-07 is withdrawn too (incorporated into DE.CM-01, DE.CM-03, DE.CM-06, DE.CM-09)",
+            result.stdout,
+        )
+        self.assertNotIn("e.g.", result.stdout)
+
+    def test_nonexistent_subcategory_flagged_unknown(self) -> None:
+        fixture = self.make_fixture(
+            "fake-doc-unknown-sub.md",
+            self._row_doc("NIST CSF 2.0", "GV.OC-99"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "nist-unknown-subcategory")
+
+    def test_category_check_runs_first_for_suffixed_carrier(self) -> None:
+        # ID.BE-01 is a withdrawn Subcategory of a withdrawn Category: the
+        # Category finding is reported, not a Subcategory one, and two suffixed
+        # codes of one bad Category in a cell report it once.
+        mod = load_linter_module(self.SCRIPT, "_document_control_category_first")
+        fixture = self.make_fixture(
+            "fake-doc-carrier-sub.md",
+            self._row_doc("NIST CSF 2.0", "ID.BE-01; ID.BE-02"),
+        )
+        findings = mod.scan_file(fixture)
+        self.assertEqual([f.rule for f in findings], ["nist-csf1-carrier"], findings)
+        self.assertIn("'ID.BE'", findings[0].message)
+
+    def test_engine_without_subcategory_predicates_keeps_category_level(self) -> None:
+        # Omitting the keyword predicates keeps scan_file's pre-3b405 findings: a
+        # suffixed code under a valid Category passes whatever its suffix or
+        # hyphen. check_code now accepts a suffixed token: before 3b405,
+        # check_code("DE.CM-07") returned nist-unknown-category; now it returns
+        # None without the predicates.
+        mod = load_linter_module(self.SCRIPT, "_document_control_engine_default")
+        engine = mod._engine()
+        fixture = self.make_fixture(
+            "fake-doc-engine-default.md",
+            self._col_doc("Detect: DE.CM-07, DE.CM-7, GV.OC-99, DE.CM-07a, DE.CM‑07, DE.CM–07"),
+        )
+        self.assertEqual(
+            engine.scan_file(fixture, REPO_ROOT, mod.is_valid_category, mod.relocation_note), []
+        )
+        self.assertIsNone(engine.check_code("DE.CM-07", mod.is_valid_category, mod.relocation_note))
+        self.assertEqual(
+            engine.check_code("ID.SC-01", mod.is_valid_category, mod.relocation_note)[0],
+            "nist-csf1-carrier",
+        )
+
+    def test_engine_codes_in_returns_full_tokens_deduplicated(self) -> None:
+        engine = load_linter_module(self.SCRIPT, "_document_control_codes_in")._engine()
+        self.assertEqual(
+            engine.codes_in("DE.CM-09, DE.CM-09; DE.CM; DE.CM-01 and SA-9"),
+            ["DE.CM-09", "DE.CM", "DE.CM-01"],
+        )
+
+    def test_engine_check_code_subcategory_rules(self) -> None:
+        mod = load_linter_module(self.SCRIPT, "_document_control_check_code")
+        engine = mod._engine()
+        kw = {"is_valid_subcategory": mod.is_valid_subcategory, "withdrawal_note": mod.withdrawal_note}
+
+        def rule(tok):
+            result = engine.check_code(tok, mod.is_valid_category, mod.relocation_note, **kw)
+            return result and result[0]
+
+        self.assertIsNone(rule("DE.CM-09"))
+        self.assertIsNone(rule("DE.CM"))
+        self.assertEqual(rule("DE.CM-07"), "nist-withdrawn-subcategory")
+        self.assertEqual(rule("DE.CM-7"), "nist-unknown-subcategory")
+        self.assertEqual(rule("DE.CM-009"), "nist-unknown-subcategory")
+        self.assertEqual(rule("DE.CM-10"), "nist-unknown-subcategory")
+        self.assertEqual(rule("GV.ZZ-01"), "nist-unknown-category")
+        self.assertEqual(rule("PR.AC-01"), "nist-csf1-carrier")
+
+    def test_engine_malformed_suffix_forms(self) -> None:
+        # W1: a suffix is one or more accepted hyphens, a digit and the whole word
+        # run after it, so a trailing letter or a non-ASCII hyphen can no longer
+        # shrink the match back to the valid Category DE.CM. 3b405 round 4 (W2)
+        # adds U+2212, U+FE63, U+FF0D and U+00AD to the accepted hyphens.
+        mod = load_linter_module(self.SCRIPT, "_document_control_malformed")
+        engine = mod._engine()
+        kw = {"is_valid_subcategory": mod.is_valid_subcategory, "withdrawal_note": mod.withdrawal_note}
+
+        def rule(tok):
+            result = engine.check_code(tok, mod.is_valid_category, mod.relocation_note, **kw)
+            return result and result[0]
+
+        for hyphen in "-‐‑‒–—―" + self.EXTRA_HYPHENS:
+            with self.subTest(hyphen=hex(ord(hyphen))):
+                self.assertEqual(engine.codes_in(f"DE.CM{hyphen}07a"), [f"DE.CM{hyphen}07a"])
+                self.assertEqual(engine.codes_in(f"DE.CM{hyphen}07"), [f"DE.CM{hyphen}07"])
+                self.assertEqual(rule(f"DE.CM{hyphen}07a"), "nist-unknown-subcategory")
+                self.assertEqual(rule(f"DE.CM{hyphen}07"), "nist-withdrawn-subcategory")
+                self.assertIsNone(rule(f"DE.CM{hyphen}09"))
+        self.assertEqual(rule("DE.CM-09a"), "nist-unknown-subcategory")
+        self.assertEqual(rule("DE.CM-0９"), "nist-unknown-subcategory")  # fullwidth digit
+        self.assertEqual(rule("DE.CM-٠٩"), "nist-unknown-subcategory")  # Arabic-Indic digits
+        # E1: a hyphen not followed by a digit is no suffix, so "DE.CM-_9" is the
+        # bare, valid Category DE.CM.
+        self.assertEqual(engine.codes_in("DE.CM-_9"), ["DE.CM"])
+        self.assertEqual(rule("PR.AC‑01x"), "nist-csf1-carrier")
+        self.assertIn("'DE.CM-07'", engine.check_code(
+            "DE.CM–07", mod.is_valid_category, mod.relocation_note, **kw)[1])
+        for hyphen in self.EXTRA_HYPHENS:
+            with self.subTest(hyphen=hex(ord(hyphen))):
+                self.assertIn("'DE.CM-07'", engine.check_code(
+                    f"DE.CM{hyphen}07", mod.is_valid_category, mod.relocation_note, **kw)[1])
+
+    def test_engine_doubled_and_trailing_hyphens(self) -> None:
+        # W (codex): one or more hyphens before a digit make a suffix, and any
+        # suffix but one hyphen plus two ASCII digits is unknown; a bare trailing
+        # hyphen leaves the bare Category, as before.
+        mod = load_linter_module(self.SCRIPT, "_document_control_doubled")
+        engine = mod._engine()
+        kw = {"is_valid_subcategory": mod.is_valid_subcategory, "withdrawal_note": mod.withdrawal_note}
+
+        def check(tok):
+            return engine.check_code(tok, mod.is_valid_category, mod.relocation_note, **kw)
+
+        for code in ("DE.CM--07", "DE.CM--09", "DE.CM-‐07", "DE.CM---9"):
+            with self.subTest(code=code):
+                self.assertEqual(engine.codes_in(code), [code])
+                rule, message = check(code)
+                self.assertEqual(rule, "nist-unknown-subcategory")
+                self.assertIn("CSF 2.0 IDs use one hyphen and two digits, e.g. DE.CM-01", message)
+        for cell in ("DE.CM-", "DE.CM--", "DE.CM- 07", "DE.CM–"):
+            with self.subTest(cell=cell):
+                self.assertEqual(engine.codes_in(cell), ["DE.CM"])
+                self.assertIsNone(check("DE.CM"))
+
+    def test_engine_two_digit_hint_only_for_malformed_suffix(self) -> None:
+        # N1: a two-ASCII-digit suffix that is not live gets no two-digit hint;
+        # a malformed one gets an example under the cited Category.
+        mod = load_linter_module(self.SCRIPT, "_document_control_hint")
+        engine = mod._engine()
+        kw = {"is_valid_subcategory": mod.is_valid_subcategory, "withdrawal_note": mod.withdrawal_note}
+
+        def message(tok):
+            rule, text = engine.check_code(tok, mod.is_valid_category, mod.relocation_note, **kw)
+            self.assertEqual(rule, "nist-unknown-subcategory", tok)
+            return text
+
+        for tok in ("GV.OC-99", "DE.CM-10", "RC.CO-07"):
+            with self.subTest(tok=tok):
+                self.assertEqual(
+                    message(tok), f"'{tok}' is not a CSF 2.0 Subcategory (no such ID in the CSF 2.0 Core)"
+                )
+        self.assertIn("CSF 2.0 IDs use two digits, e.g. GV.OC-01", message("GV.OC-1"))
+        self.assertIn("CSF 2.0 IDs use two digits, e.g. GV.OC-02", message("GV.OC-2"))
+        # RC.CO-01 and RC.CO-02 are withdrawn; the lowest live RC.CO ID is RC.CO-03.
+        self.assertIn("CSF 2.0 IDs use two digits, e.g. RC.CO-03", message("RC.CO-7"))
+        self.assertIn("CSF 2.0 IDs use two digits, e.g. RS.AN-03", message("RS.AN-007"))
+        self.assertIn("CSF 2.0 IDs use two digits, e.g. PR.DS-01", message("PR.DS-01a"))
+        self.assertIn("but RS.AN-01 is withdrawn too (incorporated into RS.MA-02)", message("RS.AN-1"))
+        # A predicate that accepts no ID under the Category gives the hint without an example.
+        rule, text = engine.check_code(
+            "DE.CM-7", mod.is_valid_category, mod.relocation_note,
+            is_valid_subcategory=lambda code: False,
+        )
+        self.assertEqual(rule, "nist-unknown-subcategory")
+        self.assertTrue(text.endswith("; CSF 2.0 IDs use two digits)"), text)
+
+    # The 378160e7 token regex, the reference for the omitted-predicate findings.
+    BASE_NIST_CODE_RE = re.compile(r"\b((?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2})(?:-\d+)?\b")
+
+    E1_CELLS = (
+        "GV.OC-PR.IP",
+        "GV.OC–PR.IP",
+        "DE.CM—ID.BE",
+        "DE.CM—continuous monitoring",
+        "GV.OC-aligned",
+        "DE.CM-07a",
+        "ID.AM-01–ID.AM-06",
+    )
+
+    def _base_findings(self, mod, path: Path) -> list[tuple[int, str, str]]:
+        # The 378160e7 scan of one framework-as-column table (header on line 5,
+        # body from line 7): each distinct Category (suffix stripped) in the NIST
+        # CSF cell, checked at Category level with the 378160e7 messages.
+        rows = path.read_text(encoding="utf-8").splitlines()
+        nist_col = rows[4].split("|")[1:-1].index(" NIST CSF ")
+        expected = []
+        for lineno, line in enumerate(rows[6:], start=7):
+            cell = line.split("|")[1:-1][nist_col]
+            codes: list[str] = []
+            for m in self.BASE_NIST_CODE_RE.finditer(cell):
+                if m.group(1) not in codes:
+                    codes.append(m.group(1))
+            for code in codes:
+                if mod.is_valid_category(code):
+                    continue
+                note = mod.relocation_note(code)
+                if note:
+                    expected.append((
+                        lineno, "nist-csf1-carrier",
+                        f"'{code}' is a CSF-1.1-era code, not a CSF 2.0 Category ({note})",
+                    ))
+                else:
+                    expected.append((
+                        lineno, "nist-unknown-category",
+                        f"'{code}' is not a CSF 2.0 Category (no such FUNCTION.CATEGORY in the CSF 2.0 Core)",
+                    ))
+        return expected
+
+    def test_e1_hyphen_followed_by_word_is_not_a_suffix(self) -> None:
+        # E1: a hyphen plus a Category or a word is not a suffix. Without the
+        # predicates the findings equal the 378160e7 engine's; with them, the
+        # second Category or CSF 1.1 code is reported as before, prose reports
+        # nothing, and DE.CM-07a is an unknown Subcategory.
+        mod = load_linter_module(self.SCRIPT, "_document_control_e1")
+        engine = mod._engine()
+        body = "".join(f"| Control {i} | {cell} | LOG-01 |\n" for i, cell in enumerate(self.E1_CELLS))
+        fixture = self.make_fixture(
+            "fake-doc-e1-cells.md",
+            "# X\n\n## Control mapping\n\n"
+            "| Control Area | NIST CSF | CSA CCM v4.1 |\n| --- | --- | --- |\n" + body,
+        )
+        first_row = 7
+        base = self._base_findings(mod, fixture)
+        self.assertEqual(
+            [(line - first_row, rule, message.split("'")[1]) for line, rule, message in base],
+            [
+                (0, "nist-csf1-carrier", "PR.IP"),
+                (1, "nist-csf1-carrier", "PR.IP"),
+                (2, "nist-csf1-carrier", "ID.BE"),
+            ],
+        )
+        findings = engine.scan_file(fixture, REPO_ROOT, mod.is_valid_category, mod.relocation_note)
+        self.assertEqual([(f.line, f.rule, f.message) for f in findings], base, findings)
+        findings = mod.scan_file(fixture)
+        got = [(f.line - first_row, f.rule, f.message.split("'")[1]) for f in findings]
+        self.assertEqual(
+            got,
+            [
+                (0, "nist-csf1-carrier", "PR.IP"),
+                (1, "nist-csf1-carrier", "PR.IP"),
+                (2, "nist-csf1-carrier", "ID.BE"),
+                (5, "nist-unknown-subcategory", "DE.CM-07a"),
+                (6, "nist-withdrawn-subcategory", "ID.AM-06"),
+            ],
+            findings,
+        )
+
+    def test_extra_hyphens_flagged_end_to_end(self) -> None:
+        # W2: the minus sign, small and fullwidth hyphen-minus and soft hyphen
+        # are hyphens, so a withdrawn ID written with one is reported.
+        for idx, hyphen in enumerate(self.EXTRA_HYPHENS):
+            with self.subTest(hyphen=hex(ord(hyphen))):
+                fixture = self.make_fixture(
+                    f"fake-doc-extra-hyphen-{idx}.md", self._col_doc(f"Detect: DE.CM{hyphen}07")
+                )
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertLinterFails(result, "nist-withdrawn-subcategory")
+                self.assertIn("'DE.CM-07'", result.stdout)
+
+    def test_malformed_suffix_forms_flagged_end_to_end(self) -> None:
+        cases = {
+            "DE.CM-07a": ("nist-unknown-subcategory", "'DE.CM-07a'"),
+            "DE.CM‑07": ("nist-withdrawn-subcategory", "'DE.CM-07'"),
+            "DE.CM–07": ("nist-withdrawn-subcategory", "'DE.CM-07'"),
+        }
+        for idx, (code, (expected_rule, expected_text)) in enumerate(cases.items()):
+            with self.subTest(code=code):
+                fixture = self.make_fixture(
+                    f"fake-doc-malformed-suffix-{idx}.md", self._col_doc(f"Detect: {code}")
+                )
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertLinterFails(result, expected_rule)
+                self.assertIn(expected_text, result.stdout)
+
+    def test_engine_one_digit_padded_withdrawn_note(self) -> None:
+        # N1: DE.CM-7 and PR.DS-4 name their padded IDs' withdrawal notes;
+        # DE.CM-1, whose padded ID is live, gets that ID as the example.
+        mod = load_linter_module(self.SCRIPT, "_document_control_padded")
+        engine = mod._engine()
+        kw = {"is_valid_subcategory": mod.is_valid_subcategory, "withdrawal_note": mod.withdrawal_note}
+
+        def check(tok):
+            return engine.check_code(tok, mod.is_valid_category, mod.relocation_note, **kw)
+
+        rule, message = check("DE.CM-7")
+        self.assertEqual(rule, "nist-unknown-subcategory")
+        self.assertIn(
+            "but DE.CM-07 is withdrawn too (incorporated into DE.CM-01, DE.CM-03, DE.CM-06, DE.CM-09)",
+            message,
+        )
+        rule, message = check("PR.DS-4")
+        self.assertEqual(rule, "nist-unknown-subcategory")
+        self.assertIn("but PR.DS-04 is withdrawn too (moved to PR.IR-04)", message)
+        rule, message = check("DE.CM-1")
+        self.assertEqual(rule, "nist-unknown-subcategory")
+        self.assertIn("CSF 2.0 IDs use two digits, e.g. DE.CM-01", message)
+        # Without withdrawal_note the padded ID cannot be looked up: the example
+        # is the lowest live ID of the Category.
+        rule, message = engine.check_code(
+            "DE.CM-7", mod.is_valid_category, mod.relocation_note,
+            is_valid_subcategory=mod.is_valid_subcategory,
+        )
+        self.assertEqual(rule, "nist-unknown-subcategory")
+        self.assertIn("e.g. DE.CM-01", message)
+
+    def test_engine_withdrawal_note_without_subcategory_predicate_raises(self) -> None:
+        # N2: withdrawal_note alone is a caller error, not a silent Category-level pass.
+        mod = load_linter_module(self.SCRIPT, "_document_control_typeerror")
+        engine = mod._engine()
+        fixture = self.make_fixture("fake-doc-typeerror.md", self._col_doc("Detect: DE.CM-07"))
+        with self.assertRaises(TypeError):
+            engine.check_code(
+                "DE.CM-07", mod.is_valid_category, mod.relocation_note,
+                withdrawal_note=mod.withdrawal_note,
+            )
+        with self.assertRaises(TypeError):
+            engine.scan_file(
+                fixture, REPO_ROOT, mod.is_valid_category, mod.relocation_note,
+                withdrawal_note=mod.withdrawal_note,
+            )
+
+    def test_cell_mixing_live_and_withdrawn_reports_one_finding(self) -> None:
+        mod = load_linter_module(self.SCRIPT, "_document_control_mixed_cell")
+        fixture = self.make_fixture(
+            "fake-doc-mixed-cell.md",
+            self._col_doc("Detect: DE.CM-01, DE.CM-07, DE.CM-09; DE.CM"),
+        )
+        findings = mod.scan_file(fixture)
+        self.assertEqual(len(findings), 1, findings)
+        self.assertEqual(findings[0].rule, "nist-withdrawn-subcategory")
+        self.assertIn("'DE.CM-07'", findings[0].message)
+
+
+class NistCsfReferenceSubcategoryTests(unittest.TestCase):
+    """tools/nist_csf_reference.py Subcategory literals (3b405)."""
+
+    def setUp(self) -> None:
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        import nist_csf_reference
+        self.ref = nist_csf_reference
+
+    def test_counts_and_shape(self) -> None:
+        self.assertEqual(len(self.ref.CSF_SUBCATEGORIES), 106)
+        self.assertEqual(len(self.ref.CSF_WITHDRAWN_SUBCATEGORIES), 26)
+        self.assertFalse(self.ref.CSF_SUBCATEGORIES & set(self.ref.CSF_WITHDRAWN_SUBCATEGORIES))
+        for code in (*self.ref.CSF_SUBCATEGORIES, *self.ref.CSF_WITHDRAWN_SUBCATEGORIES):
+            self.assertRegex(code, r"^(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}-\d{2}$")
+            self.assertIn(code[:5], self.ref.CSF_CATEGORIES, code)
+        self.assertEqual({c[:5] for c in self.ref.CSF_SUBCATEGORIES}, set(self.ref.CSF_CATEGORIES))
+        for code, note in self.ref.CSF_WITHDRAWN_SUBCATEGORIES.items():
+            self.assertRegex(note, r"^(?:incorporated into|moved to) ", code)
+
+    def test_predicates(self) -> None:
+        self.assertTrue(self.ref.is_valid_subcategory("DE.CM-09"))
+        self.assertFalse(self.ref.is_valid_subcategory("DE.CM-07"))
+        self.assertFalse(self.ref.is_valid_subcategory("DE.CM"))
+        self.assertEqual(
+            self.ref.withdrawal_note("DE.CM-07"),
+            "incorporated into DE.CM-01, DE.CM-03, DE.CM-06, DE.CM-09",
+        )
+        self.assertIsNone(self.ref.withdrawal_note("DE.CM-09"))
+
+    def test_id_rm_relocated(self) -> None:
+        self.assertIn("incorporated into GV.RM", self.ref.relocation_note("ID.RM"))
+        self.assertFalse(self.ref.is_valid_category("ID.RM"))
+
+
+class VerifyReferenceModulesOscalTests(unittest.TestCase):
+    """tools/verify-reference-modules.py NIST CSF 2.0 OSCAL parity check (3b405)."""
+
+    SCRIPT = "tools/verify-reference-modules.py"
+
+    def setUp(self) -> None:
+        self.mod = load_linter_module(self.SCRIPT, "_verify_reference_modules_oscal")
+        self.td = Path(tempfile.mkdtemp(prefix="oscal-"))
+        self.addCleanup(shutil.rmtree, self.td)
+
+    def _catalogue(self) -> dict:
+        # A synthetic catalogue built from the module literals, plus the
+        # withdrawn Categories (CSF_1_1_RELOCATED keys); ID.BE carries a withdrawn
+        # Subcategory that the Subcategory comparison must skip.
+        ref = sys.modules["nist_csf_reference"]
+        groups: dict[str, dict] = {}
+        for cat in ref.CSF_CATEGORIES:
+            groups.setdefault(cat[:2], {"id": cat[:2], "controls": []})
+            subs = [
+                {"id": s, "class": "subcategory", "props": []}
+                for s in sorted(ref.CSF_SUBCATEGORIES) if s[:5] == cat
+            ]
+            for code, note in ref.CSF_WITHDRAWN_SUBCATEGORIES.items():
+                if code[:5] != cat:
+                    continue
+                rel = "moved_to" if note.startswith("moved to ") else "incorporated_into"
+                hrefs = note.split(" into ", 1)[-1] if rel == "incorporated_into" else note[len("moved to "):]
+                subs.append({
+                    "id": code,
+                    "class": "subcategory",
+                    "props": [{"name": "status", "value": "withdrawn"}],
+                    "links": [{"href": h, "rel": rel} for h in hrefs.split(", ")],
+                })
+            groups[cat[:2]]["controls"].append(
+                {"id": cat, "class": "category", "props": [], "controls": subs}
+            )
+        for cat in sorted(ref.CSF_1_1_RELOCATED):
+            groups[cat[:2]]["controls"].append({
+                "id": cat,
+                "class": "category",
+                "props": [{"name": "status", "value": "withdrawn"}],
+                "controls": [{
+                    "id": f"{cat}-01",
+                    "class": "subcategory",
+                    "props": [{"name": "status", "value": "withdrawn"}],
+                }] if cat == "ID.BE" else [],
+            })
+        return {"catalog": {"groups": list(groups.values())}}
+
+    def _control(self, data: dict, control_id: str) -> dict:
+        for group in data["catalog"]["groups"]:
+            for cat in group["controls"]:
+                if cat["id"] == control_id:
+                    return cat
+                for sub in cat.get("controls", []):
+                    if sub["id"] == control_id:
+                        return sub
+        raise KeyError(control_id)
+
+    def _write(self, data) -> Path:
+        path = self.td / "catalog.json"
+        path.write_text(data if isinstance(data, str) else json.dumps(data), encoding="utf-8")
+        return path
+
+    def test_matching_catalogue_has_no_drift(self) -> None:
+        self.assertEqual(self.mod.csf_oscal_drift(self._write(self._catalogue())), [])
+
+    def test_drift_reported_both_directions_and_on_notes(self) -> None:
+        data = self._catalogue()
+        de_cm = next(c for g in data["catalog"]["groups"] for c in g["controls"] if c["id"] == "DE.CM")
+        de_cm["controls"] = [s for s in de_cm["controls"] if s["id"] != "DE.CM-09"]
+        de_cm["controls"].append({"id": "DE.CM-10", "class": "subcategory", "props": []})
+        for sub in de_cm["controls"]:
+            if sub["id"] == "DE.CM-07":
+                sub["links"] = sub["links"][:1]
+        msgs = "\n".join(self.mod.csf_oscal_drift(self._write(data)))
+        self.assertIn("in the in-repo module but NOT in the source extract: DE.CM-09", msgs)
+        self.assertIn("in the source extract but NOT in the in-repo module: DE.CM-10", msgs)
+        self.assertIn("DE.CM-07 note", msgs)
+
+    def test_live_categories_compared(self) -> None:
+        data = self._catalogue()
+        data["catalog"]["groups"][0]["controls"].append(
+            {"id": "GV.ZZ", "class": "category", "props": [], "controls": []}
+        )
+        msgs = "\n".join(self.mod.csf_oscal_drift(self._write(data)))
+        self.assertIn("OSCAL Categories", msgs)
+        self.assertIn("GV.ZZ", msgs)
+
+    def test_withdrawn_categories_compared_both_directions(self) -> None:
+        # N4: the withdrawn OSCAL Categories against the CSF_1_1_RELOCATED keys.
+        data = self._catalogue()
+        id_group = next(g for g in data["catalog"]["groups"] if g["id"] == "ID")
+        id_group["controls"] = [c for c in id_group["controls"] if c["id"] != "ID.RM"]
+        id_group["controls"].append({
+            "id": "ID.ZZ", "class": "category",
+            "props": [{"name": "status", "value": "withdrawn"}], "controls": [],
+        })
+        msgs = "\n".join(self.mod.csf_oscal_drift(self._write(data)))
+        self.assertIn(
+            "NIST CSF 2.0 OSCAL withdrawn Categories: 1 code(s) in the in-repo module "
+            "but NOT in the source extract: ID.RM",
+            msgs,
+        )
+        self.assertIn(
+            "NIST CSF 2.0 OSCAL withdrawn Categories: 1 code(s) in the source extract "
+            "but NOT in the in-repo module: ID.ZZ",
+            msgs,
+        )
+
+    def test_subcategory_class_and_single_status_required(self) -> None:
+        # N5: a child of a live Category must be class "subcategory", and a
+        # control may carry at most one status prop; anything else is refused.
+        def wrong_class(data):
+            self._control(data, "DE.CM-09")["class"] = "control"
+
+        def missing_class(data):
+            del self._control(data, "DE.CM-09")["class"]
+
+        def two_sub_statuses(data):
+            self._control(data, "DE.CM-07")["props"].append({"name": "status", "value": "withdrawn"})
+
+        def two_cat_statuses(data):
+            self._control(data, "ID.BE")["props"].append({"name": "status", "value": "withdrawn"})
+
+        for mutate in (wrong_class, missing_class, two_sub_statuses, two_cat_statuses):
+            with self.subTest(mutate.__name__):
+                data = self._catalogue()
+                mutate(data)
+                with self.assertRaises(ValueError):
+                    self.mod.csf_oscal_drift(self._write(data))
+
+    def test_status_other_than_withdrawn_refused(self) -> None:
+        # W (codex): a present status prop is withdrawn or refused; JSON null is
+        # not read as absent (live). Only an absent status prop means live.
+        def null_sub_status(data):
+            self._control(data, "DE.CM-07")["props"] = [{"name": "status", "value": None}]
+
+        def null_cat_status(data):
+            self._control(data, "ID.BE")["props"] = [{"name": "status", "value": None}]
+
+        def null_live_sub_status(data):
+            self._control(data, "DE.CM-09")["props"] = [{"name": "status", "value": None}]
+
+        def draft_sub_status(data):
+            self._control(data, "DE.CM-09")["props"] = [{"name": "status", "value": "draft"}]
+
+        for mutate in (null_sub_status, null_cat_status, null_live_sub_status, draft_sub_status):
+            with self.subTest(mutate.__name__):
+                data = self._catalogue()
+                mutate(data)
+                path = self._write(data)
+                if "null" in mutate.__name__:
+                    self.assertIn('"value": null', path.read_text(encoding="utf-8"))
+                with self.assertRaisesRegex(ValueError, "unexpected status"):
+                    self.mod.csf_oscal_drift(path)
+
+    def test_walk_shape_refused(self) -> None:
+        # N2: a live Category must be class "category"; nested groups, controls
+        # below Subcategory level and duplicate control IDs are refused.
+        def live_category_wrong_class(data):
+            self._control(data, "DE.CM")["class"] = "subcategory"
+
+        def live_category_missing_class(data):
+            del self._control(data, "DE.CM")["class"]
+
+        def nested_group(data):
+            data["catalog"]["groups"][0]["groups"] = [{"id": "GV-sub", "controls": []}]
+
+        def control_below_subcategory(data):
+            self._control(data, "DE.CM-09")["controls"] = [
+                {"id": "DE.CM-09.a", "class": "subcategory", "props": []}
+            ]
+
+        def duplicate_subcategory(data):
+            self._control(data, "DE.CM")["controls"].append(
+                {"id": "DE.CM-09", "class": "subcategory", "props": []}
+            )
+
+        def duplicate_across_categories(data):
+            self._control(data, "GV.OC")["controls"].append(
+                {"id": "DE.CM-09", "class": "subcategory", "props": []}
+            )
+
+        def duplicate_category(data):
+            de = next(g for g in data["catalog"]["groups"] if g["id"] == "DE")
+            de["controls"].append({"id": "ID.BE", "class": "category", "props": [
+                {"name": "status", "value": "withdrawn"}], "controls": []})
+
+        cases = {
+            live_category_wrong_class: "expected 'category'",
+            live_category_missing_class: "expected 'category'",
+            nested_group: "nested groups",
+            control_below_subcategory: "below Subcategory level",
+            duplicate_subcategory: "duplicate control ID",
+            duplicate_across_categories: "duplicate control ID",
+            duplicate_category: "duplicate control ID",
+        }
+        for mutate, expected in cases.items():
+            with self.subTest(mutate.__name__):
+                data = self._catalogue()
+                mutate(data)
+                with self.assertRaisesRegex(ValueError, expected):
+                    self.mod.csf_oscal_drift(self._write(data))
+
+    def test_root_controls_and_withdrawn_category_children_refused(self) -> None:
+        # Round 5: a catalogue-level control is refused, and the children of a
+        # withdrawn Category get the duplicate-ID, class, status and depth checks.
+        def root_level_control(data):
+            data["catalog"]["controls"] = [{"id": "GV.ZZ", "class": "category", "controls": []}]
+
+        def duplicate_under_withdrawn(data):
+            self._control(data, "ID.BE")["controls"].append({
+                "id": "ID.BE-01", "class": "subcategory",
+                "props": [{"name": "status", "value": "withdrawn"}],
+            })
+
+        def wrong_class_under_withdrawn(data):
+            self._control(data, "ID.BE-01")["class"] = "control"
+
+        def draft_status_under_withdrawn(data):
+            self._control(data, "ID.BE-01")["props"] = [{"name": "status", "value": "draft"}]
+
+        def deeper_control_under_withdrawn(data):
+            self._control(data, "ID.BE-01")["controls"] = [
+                {"id": "ID.BE-01.a", "class": "subcategory", "props": []}
+            ]
+
+        cases = {
+            root_level_control: "catalogue-level controls",
+            duplicate_under_withdrawn: "duplicate control ID",
+            wrong_class_under_withdrawn: "under withdrawn Category ID.BE, expected 'subcategory'",
+            draft_status_under_withdrawn: "unexpected status",
+            deeper_control_under_withdrawn: "below Subcategory level",
+        }
+        for mutate, expected in cases.items():
+            with self.subTest(mutate.__name__):
+                data = self._catalogue()
+                mutate(data)
+                with self.assertRaisesRegex(ValueError, expected):
+                    self.mod.csf_oscal_drift(self._write(data))
+
+    def test_held_withdrawn_category_shape_passes(self) -> None:
+        # The held catalogue gives every withdrawn Category withdrawn children
+        # with links and sort-id / label props; they are checked, not compared.
+        data = self._catalogue()
+        for cat in self.mod.CSF_1_1_RELOCATED:
+            self._control(data, cat)["controls"] = [{
+                "id": f"{cat}-{n:02d}",
+                "class": "subcategory",
+                "props": [
+                    {"name": "sort-id", "value": f"0000{n}"},
+                    {"name": "label", "value": f"{cat}-{n:02d}"},
+                    {"name": "status", "value": "withdrawn"},
+                ],
+                "links": [{"href": "GV.OC-05", "rel": "incorporated_into"}],
+            } for n in (1, 2)]
+        self.assertEqual(self.mod.csf_oscal_drift(self._write(data)), [])
+
+    def test_fails_closed(self) -> None:
+        cases = {
+            "no subcategories": {"catalog": {"groups": [{"controls": [
+                {"id": "GV.OC", "class": "category", "props": []}]}]}},
+            "bad shape": {"catalog": {}},
+            "bad json": "{not json",
+            "unknown status": {"catalog": {"groups": [{"controls": [
+                {"id": "GV.OC", "props": [{"name": "status", "value": "draft"}]}]}]}},
+        }
+        for label, data in cases.items():
+            with self.subTest(label):
+                with self.assertRaises(ValueError):
+                    self.mod.csf_oscal_drift(self._write(data))
+
+    def test_cli_unparseable_catalogue_exits_2(self) -> None:
+        root = self.td / "ref"
+        for rel in (self.mod.CCM_CSV, self.mod.AICM_CSV, self.mod.CSF_MD, self.mod.CSF_OSCAL_JSON):
+            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (root / rel).write_text("", encoding="utf-8")
+        (root / self.mod.CSF_OSCAL_JSON).write_text("{not json", encoding="utf-8")
+        result = run_linter(self.SCRIPT, root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("cannot read", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
 
 
 class BookkeepingParityTests(LinterTestCase):
@@ -22685,7 +23377,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-date-format.py CWD F 0c81353fdf02fe3678af5b048286c450eab4dc11e98e83a33d9afb330c8cc785
         lint-directional-dependency.py ROOT F 87a96f52dc6cda6fc97f3b1c85160c7e07b63dad53bee04a56a81b69021742f4
         lint-doctype-parity.py NO_FS F 457af4477b67f4f36665c9c3942ecf552925ca05f18c8c82e6eab1212c5f717e
-        lint-document-control-codes.py OWN F a76633bf3c991410f08d64bb441fa8b5b1de76ad4ff8879a81ca0ef429e0ad3a
+        lint-document-control-codes.py OWN F e2c89293d97c7c4e5f6e8d5e4ceda1f2be850718beecf7cd0323b5c6601fe2f9
         lint-document-date-staleness.py CWD F bd94e8055f86c3639fd11eb90712f9e63d353056de3754d2842e5b5908108e1b
         lint-document-iso-annex-a.py OWN F d15f9b9b9e0bad6ff5a943d950b3b58322293939f8ac496fe38d52c4183e64e5
         lint-external-link-domains.py CWD F 6705c76257afbdf86fffaeac0ed363a391899b9cb932594ea6870dcdcad5df52
@@ -22760,7 +23452,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F 928a1208c681aa3f34ccbf8d7821c3e8911137b2a779d228b0af9c5025ced3db
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
-        nist_csf_reference.py PASSIVE F 6ddcf1bace3d18bef9c4b181cedc22bd73a59a4b0c3fa32191fbf93ac4175baa
+        nist_csf_reference.py PASSIVE F 633f9002d6d75ff84298ff7f373e7a9f2235cc2e2b76b0db14c63067716f4b2a
         open-findings-row.py OWN F 9c00bf9c44b922993da79bd9f1575d25aa824cb3012d39a48f7929ebe8c3985f
         pre-push-guard.sh FIXED F 6266fe435475157686c5382ecaea00cfb944859d66832ab6169e35d8ff9c4603
         preflight-changelog.py NO_FS F 6d7f57c4f725cc4f8b88b8497551875b645a1949bcb71dbfc6f9e6fbb1eedf52
@@ -22792,7 +23484,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         todo_index_rows.py PASSIVE F 6aba39ba20b4bbbe5ffab3fe94ef520ec95ce8d8e2510ea73696c17d196c2e4a
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4
         validate-review-artifacts.py OWN F 037b7cc690f09b3168dbc6ba22b908c5f7cccc0d47d4f6fe9f929e5e9a98a10d
-        verify-reference-modules.py OWN F 893bd222b4fa1d6b17ee5d4a6b2bb276958f771c73c4cbd62a4bf95c287a1d0b
+        verify-reference-modules.py OWN F 15373c102013145acd8efc2bdbe5f96d1f357da3fbd248013ee094f9f3d67245
     """
 
     # Repository-relative argument-handling dependencies outside tools/.
@@ -39533,7 +40225,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.15.2", "3b425 reads an explicit NIST SP part or volume, and the SP 800-63 family's -N revision, in the standards-currency grammar (PATCH, 0.15.1 to 0.15.2)")
+        self.assertEqual(man["pack"]["version"], "0.16.0", "3b405 adds the document-control-codes engine's optional is_valid_subcategory and withdrawal_note parameters and the nist-withdrawn-subcategory and nist-unknown-subcategory rules, on top of 3b425's NIST SP part and volume grammar (MINOR, 0.15.2 to 0.16.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
