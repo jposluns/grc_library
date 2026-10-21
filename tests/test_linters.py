@@ -22760,7 +22760,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 6ddcf1bace3d18bef9c4b181cedc22bd73a59a4b0c3fa32191fbf93ac4175baa
-        open-findings-row.py OWN F fb6ea37f99d59f51a07280ff04d824cdb720354132e0b91f779a4ef995865f4b
+        open-findings-row.py OWN F 9c00bf9c44b922993da79bd9f1575d25aa824cb3012d39a48f7929ebe8c3985f
         pre-push-guard.sh FIXED F 6266fe435475157686c5382ecaea00cfb944859d66832ab6169e35d8ff9c4603
         preflight-changelog.py NO_FS F 6d7f57c4f725cc4f8b88b8497551875b645a1949bcb71dbfc6f9e6fbb1eedf52
         preflight-version-date.py NO_FS F aa321341106d02ab1dda9790bf571e70f6e35f744b467d66dbf865dc5fbc2f00
@@ -50532,6 +50532,148 @@ class OpenFindingsRowTests(unittest.TestCase):
         self.assertIsNone(cm.exception.cleanup)
         self.assertTrue(replaced)
         self.assertEqual(self.ledger.read_bytes(), b"x\n")
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_temp_close_failure_keeps_primary_error(self) -> None:
+        import contextlib
+        from unittest import mock
+
+        mod = load_linter_module(
+            "tools/open-findings-row.py", "_ofr_temp_close_fail")
+        data = self.ledger.read_bytes()
+        real_open, real_write, real_close = os.open, os.write, os.close
+        temp_fds, live, failed_closes = [], set(), []
+
+        def opener(path, flags, *args, **kwargs):
+            fd = real_open(path, flags, *args, **kwargs)
+            if flags & os.O_CREAT:
+                temp_fds.append(fd)
+                live.add(fd)
+            return fd
+
+        def write(fd, buf):
+            if fd in live:
+                raise OSError("injected write failure")
+            return real_write(fd, buf)
+
+        def close(fd):
+            real_close(fd)
+            if fd in live:
+                live.discard(fd)
+                failed_closes.append(fd)
+                raise OSError("injected temp close failure")
+
+        out, err = io.StringIO(), io.StringIO()
+        with mock.patch.object(mod.os, "open", side_effect=opener), \
+                mock.patch.object(mod.os, "write", side_effect=write), \
+                mock.patch.object(mod.os, "close", side_effect=close), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = mod.main(["--id", "NEW-1", "--append", "--ledger", str(self.ledger)],
+                          root=REPO_ROOT, stdin=self.row("ROUTED 3b330").encode("utf-8"))
+        self.assertEqual(rc, 2, out.getvalue() + err.getvalue())
+        self.assertEqual(len(temp_fds), 1)
+        self.assertEqual(failed_closes, temp_fds)
+        self.assertEqual(err.getvalue(), "error: write-failed\nerror: temp-cleanup-failed\n")
+        self.assertEqual(out.getvalue().splitlines()[-1], "result: ERROR")
+        self.assertEqual(self.ledger.read_bytes(), data)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_recheck_read_ledger_oserror_before_rename_reports_write_failed(self) -> None:
+        # Injected at the read_ledger boundary: read_ledger wraps its own open, read and stat
+        # failures in EnvError, so in practice only its fd close lets a raw OSError reach here.
+        import hashlib
+        from unittest import mock
+
+        mod = load_linter_module(
+            "tools/open-findings-row.py", "_ofr_recheck_fail")
+        data, st, acl = mod.read_ledger(self.ledger)
+        with mock.patch.object(mod, "read_ledger", side_effect=OSError("injected re-check failure")) as read, \
+                mock.patch.object(mod.os, "replace") as replace:
+            with self.assertRaises(mod.EnvError) as cm:
+                mod.atomic_replace(
+                    self.ledger, b"x\n", st, hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "write-failed")
+        self.assertIsInstance(cm.exception.__cause__, OSError)
+        read.assert_called_once()
+        replace.assert_not_called()
+        self.assertEqual(self.ledger.read_bytes(), data)
+        self.assertEqual(self.ledger.stat().st_ino, st.st_ino)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_directory_close_failure_keeps_primary_error(self) -> None:
+        import contextlib
+        import stat
+        from unittest import mock
+
+        mod = load_linter_module(
+            "tools/open-findings-row.py", "_ofr_dir_close_fail")
+        data = self.ledger.read_bytes()
+        real_close = os.close
+        armed = False
+        failed_closes = []
+
+        def replace(src, dst, **kwargs):
+            nonlocal armed
+            armed = True
+            raise OSError("injected rename failure")
+
+        def close(fd):
+            is_dir = stat.S_ISDIR(os.fstat(fd).st_mode)
+            real_close(fd)
+            if armed and is_dir:
+                failed_closes.append(fd)
+                raise OSError("injected directory close failure")
+
+        out, err = io.StringIO(), io.StringIO()
+        with mock.patch.object(mod.os, "replace", side_effect=replace), \
+                mock.patch.object(mod.os, "close", side_effect=close), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = mod.main(["--id", "NEW-1", "--append", "--ledger", str(self.ledger)],
+                          root=REPO_ROOT, stdin=self.row("ROUTED 3b330").encode("utf-8"))
+        self.assertEqual(rc, 2, out.getvalue() + err.getvalue())
+        self.assertEqual(len(failed_closes), 1)
+        self.assertEqual(err.getvalue(), "error: write-failed\n")
+        self.assertEqual(out.getvalue().splitlines()[-1], "result: ERROR")
+        self.assertEqual(self.ledger.read_bytes(), data)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_directory_close_failure_after_rename_reports_internal(self) -> None:
+        import contextlib
+        import stat
+        from unittest import mock
+
+        mod = load_linter_module(
+            "tools/open-findings-row.py", "_ofr_dir_close_fail_after_rename")
+        row = self.row("ROUTED 3b330")
+        expected = self.LEDGER.replace(self.OPEN_B, self.OPEN_B + row + "\n").encode("utf-8")
+        real_replace, real_close = os.replace, os.close
+        armed = False
+        failed_closes = []
+
+        def replace(src, dst, **kwargs):
+            nonlocal armed
+            real_replace(src, dst, **kwargs)
+            armed = True
+
+        def close(fd):
+            is_dir = stat.S_ISDIR(os.fstat(fd).st_mode)
+            real_close(fd)
+            if armed and is_dir:
+                failed_closes.append(fd)
+                raise OSError("injected directory close failure")
+
+        out, err = io.StringIO(), io.StringIO()
+        with mock.patch.object(mod.os, "replace", side_effect=replace), \
+                mock.patch.object(mod.os, "close", side_effect=close), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = mod.main(["--id", "NEW-1", "--append", "--ledger", str(self.ledger)],
+                          root=REPO_ROOT, stdin=row.encode("utf-8"))
+        self.assertEqual(rc, 2, out.getvalue() + err.getvalue())
+        self.assertTrue(armed)
+        self.assertEqual(len(failed_closes), 1)
+        self.assertEqual(err.getvalue(), "error: internal\n")
+        self.assertEqual(out.getvalue().splitlines()[-1], "result: ERROR")
+        self.assertEqual(self.ledger.read_bytes(), expected)
         self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
 
     def test_environment_doc_lists_write_failed_before_rename(self) -> None:
