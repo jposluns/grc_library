@@ -34,7 +34,7 @@ python3 tools/build-taxonomy.py --check        # regen-and-check
 
 Each script prints `OK: ...` on a clean run and exits zero. On findings it prints a grouped report and exits one (or two for environmental failure, e.g., a missing register).
 
-To regenerate the auto-generated artefacts after editing metadata, run without `--check`:
+To regenerate the auto-generated artefacts after editing document metadata or document structure, run without `--check`:
 
 ```
 python3 tools/build-taxonomy.py

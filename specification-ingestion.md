@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Ingestion and Transformation Specification\
 **Document Type:** Specification\
-**Version:** 1.7.15\
-**Date:** 2026-10-15\
+**Version:** 1.7.16\
+**Date:** 2026-10-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -140,7 +140,7 @@ SECURITY.md           Defect reporting path.
 .github/              GitHub Actions workflow.
 tools/                Audit scripts and taxonomy / narrative registry / portal generators.
 docs/                 Adopter documentation (not subject to canonical metadata; includes the auto-generated portal and maturity scorecard).
-taxonomy.yml          Auto-generated machine-readable registry of artefact metadata.
+taxonomy.yml          Auto-generated machine-readable registry of artefact metadata and document structure.
 narrative.yml         Auto-generated registry of executive narrative pages from executive/.
 guardrails/           Portable Claude Code governance pack (rules, skills, meta); not a governance-artefact domain.
 ```
