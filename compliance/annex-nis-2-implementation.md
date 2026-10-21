@@ -2,11 +2,11 @@
 
 **Document Title:** NIS 2 Implementation Annex\
 **Document Type:** Annex\
-**Version:** 1.2.11\
-**Date:** 2026-10-04\
+**Version:** 1.2.12\
+**Date:** 2026-10-21\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md)\
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`compliance/public-sector/annex-eidas-requirements.md`](public-sector/annex-eidas-requirements.md)\
 **Classification:** Public\
 **Category:** Compliance: Sector-Specific\
 **Review Frequency:** Annual and upon material national NIS 2 transposition, supervisory guidance, or sector designation change\
@@ -26,7 +26,7 @@ This annex does not reproduce NIS 2 article text or national transposition law. 
 
 ## Entity classification (Articles 2 to 3 and Annexes I to II)
 
-NIS 2 introduces a size-cap scope rule (Article 2) and two classes of in-scope entity, essential and important (Article 3). The class does not follow the sector annex. An entity of a type in Annex I is an essential entity where it exceeds the ceilings for medium-sized enterprises provided for in Article 2(1) of the Annex to Commission Recommendation 2003/361/EC (Article 3(1)(a)). Qualified trust service providers, top-level domain name registries, and DNS service providers are essential regardless of size (Article 3(1)(b)). Providers of public electronic communications networks or of publicly available electronic communications services are essential where they qualify as medium-sized enterprises (Article 3(1)(c)); larger providers are caught by Article 3(1)(a). Essential status also attaches to the public administration entities referred to in Article 2(2), point (f)(i), to entities a Member State identifies as essential under Article 2(2), points (b) to (e), to critical entities under Directive (EU) 2022/2557, and, where the Member State so provides, to entities it identified before 16 January 2023 as operators of essential services under NIS 1 or national law (Article 3(1)(d) to (g)). Every other in-scope entity of a type in Annex I or II is an important entity (Article 3(2)). Adopting entities first confirm whether they fall in scope, then derive their class from Article 3; the library is relevant where the entity is classified essential or important.
+NIS 2 introduces a size-cap scope rule (Article 2) and two classes of in-scope entity, essential and important (Article 3). The class does not follow the sector annex. An entity of a type in Annex I is an essential entity where it exceeds the ceilings for medium-sized enterprises provided for in Article 2(1) of the Annex to Commission Recommendation 2003/361/EC (Article 3(1)(a)). Qualified trust service providers (see the [eIDAS requirements annex](public-sector/annex-eidas-requirements.md)), top-level domain name registries, and DNS service providers are essential regardless of size (Article 3(1)(b)). Providers of public electronic communications networks or of publicly available electronic communications services are essential where they qualify as medium-sized enterprises (Article 3(1)(c)); larger providers are caught by Article 3(1)(a). Essential status also attaches to the public administration entities referred to in Article 2(2), point (f)(i), to entities a Member State identifies as essential under Article 2(2), points (b) to (e), to critical entities under Directive (EU) 2022/2557, and, where the Member State so provides, to entities it identified before 16 January 2023 as operators of essential services under NIS 1 or national law (Article 3(1)(d) to (g)). Every other in-scope entity of a type in Annex I or II is an important entity (Article 3(2)). Adopting entities first confirm whether they fall in scope, then derive their class from Article 3; the library is relevant where the entity is classified essential or important.
 
 | NIS 2 annex | Sectors (illustrative) |
 | --- | --- |
@@ -82,13 +82,13 @@ Library support: [`governance/framework-human-capital-and-ethical-conduct.md`](.
 
 ## Article 23 incident reporting
 
-NIS 2 mandates a tiered incident-notification regime to the competent authority or CSIRT.
+NIS 2 mandates a tiered incident-notification regime to the CSIRT or, where applicable, the competent authority.
 
 | Phase | Window | Content |
 | --- | --- | --- |
 | Early warning | Entities must submit without undue delay and in any event within 24 hours of becoming aware of the significant incident (Article 23(4)(a)) | Indication of whether the incident is suspected to be caused by unlawful or malicious acts and whether it could have cross-border impact |
 | Incident notification | Entities must submit without undue delay and in any event within 72 hours of becoming aware of the significant incident (Article 23(4)(b)); by derogation, without undue delay and in any event within 24 hours of becoming aware of the significant incident for a trust service provider, for significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph) | Initial assessment of severity, impact, indicators of compromise where available |
-| Intermediate report | Upon request of the competent authority or CSIRT | Update on the situation |
+| Intermediate report | Upon the request of a CSIRT or, where applicable, the competent authority | Update on the situation |
 | Final report | Within one month of submitting the incident notification | Detailed description, type of threat or root cause, applied and ongoing mitigation, where applicable cross-border impact |
 | Progress report, then deferred final report (Article 23(4)(e)) | Where the incident is still ongoing when the final report falls due: a progress report at that point, and the final report within one month of the entity's handling of the incident | Progress report on the state of the incident; the final report then carries the Article 23(4)(d) content above |
 

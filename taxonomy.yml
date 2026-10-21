@@ -4056,8 +4056,8 @@ documents:
   domain: "compliance"
   type: "Annex"
   title: "NIS 2 Implementation Annex"
-  version: "1.2.11"
-  date: "2026-10-04"
+  version: "1.2.12"
+  date: "2026-10-21"
   owner: "Chief Compliance Officer"
   approving_authority: "Governance Library Maintainer"
   classification: "Public"
@@ -4075,6 +4075,7 @@ documents:
     - "risk/standard-third-party-and-supply-chain-risk.md"
     - "security/procedure-security-incident-response.md"
     - "resilience/framework-business-continuity-and-resilience.md"
+    - "compliance/public-sector/annex-eidas-requirements.md"
   sections:
     - "Purpose"
     - "Entity classification (Articles 2 to 3 and Annexes I to II)"
