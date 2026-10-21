@@ -8,7 +8,8 @@ A maintainer dev-aid that confirms the in-repo control-reference modules
 still match the authoritative source
 extracts in the ``grc_library_ref`` reference repo (buckets at its root): the
 CSA CCM v4.1.0 / AICM v1.1.0 catalogue CSVs under ``frameworks/CSA/``, the
-NIST CSWP-29 CSF 2.0 full text under ``standards/NIST/``, the COBIT 2019
+NIST CSWP-29 CSF 2.0 full text and the NIST CSF 2.0 OSCAL catalogue under
+``standards/NIST/``, the COBIT 2019
 Governance and Management Objectives extract under ``frameworks/COBIT/``,
 the ISO 31000:2018 full text under ``standards/ISO/``, and the ISO/IEC
 27001:2022 full text (Annex A control table) under ``standards/ISO/``. The in-repo
@@ -39,6 +40,23 @@ What it checks, per catalogue:
   * **NIST CSF 2.0** (both directions): the ``CSF_CATEGORIES`` keyset against
     the ``FUNCTION.CATEGORY`` tokens in
     ``standards/NIST/NIST-CSF-2.0--CSWP-29--full-text.md``.
+  * **NIST CSF 2.0 OSCAL** (both directions), against the held catalogue
+    ``standards/NIST/oscal/NIST_CSF_v2.0_catalog.json``: the live Categories (no
+    ``status`` prop) against the ``CSF_CATEGORIES`` keyset; the withdrawn
+    Categories (``status`` ``withdrawn``) against the ``CSF_1_1_RELOCATED``
+    keyset; the live Subcategories under the live Categories against
+    ``CSF_SUBCATEGORIES``; the withdrawn Subcategories under them against the
+    ``CSF_WITHDRAWN_SUBCATEGORIES`` keyset, with each note rebuilt from the
+    entry's ``incorporated_into`` / ``moved_to`` links and compared exactly. The
+    children of a withdrawn Category are walked through the same duplicate-ID,
+    class, status and depth checks but are not compared with either Subcategory
+    keyset. A catalogue with no live Subcategory, a catalogue-level
+    ``controls`` entry, a ``status`` value other than ``withdrawn`` (null
+    included), a control with more than one ``status`` prop, a live Category
+    whose ``class`` is not ``category``, a child of any Category whose ``class``
+    is not ``subcategory``, a nested group, a control below a Subcategory, a
+    duplicate control ID, or a shape this check cannot walk is refused (exit 2),
+    never a vacuous pass.
   * **COBIT 2019** (both directions, plus range closure): the
     ``COBIT_OBJECTIVES`` keyset against the objective-code tokens of the
     Governance and Management Objectives extract, and the
@@ -81,7 +99,7 @@ workflow for an environment it cannot see.
 
 Exit codes: 0 = parity (or skipped, source absent), 1 = drift detected,
 2 = an explicitly-given source path does not resolve, or the source is
-present but a required file is missing or unreadable.
+present but a required file is missing, unreadable or unparseable.
 
 Usage:
     python3 tools/verify-reference-modules.py
@@ -92,6 +110,7 @@ Usage:
 from __future__ import annotations
 
 import csv
+import json
 import os
 import re
 import sys
@@ -103,7 +122,12 @@ from cobit_iso31000_reference import (
     COBIT_PRACTICE_COUNTS,
     ISO31000_CLAUSES,
 )
-from nist_csf_reference import CSF_CATEGORIES
+from nist_csf_reference import (
+    CSF_1_1_RELOCATED,
+    CSF_CATEGORIES,
+    CSF_SUBCATEGORIES,
+    CSF_WITHDRAWN_SUBCATEGORIES,
+)
 from iso27001_reference import ISO27001_2022_ANNEX_A
 from tsc_reference import TSC_CRITERIA, TSC_GROUP_HEADINGS
 
@@ -111,6 +135,7 @@ from tsc_reference import TSC_CRITERIA, TSC_GROUP_HEADINGS
 CCM_CSV = "frameworks/CSA/CCM/CSA-CCM-v4.1.0-catalogue__CCM.csv"
 AICM_CSV = "frameworks/CSA/AICM/CSA-AICM-v1.1.0-catalogue__AICM.csv"
 CSF_MD = "standards/NIST/NIST-CSF-2.0--CSWP-29--full-text.md"
+CSF_OSCAL_JSON = "standards/NIST/oscal/NIST_CSF_v2.0_catalog.json"
 COBIT_MD = (
     "frameworks/COBIT/"
     "COBIT-2019-Framework-Governance-and-Management-Objectives--full-text.md"
@@ -192,6 +217,118 @@ def csf_categories(path: Path) -> set[str]:
     """Extract the FUNCTION.CATEGORY tokens from the CSF 2.0 full-text extract."""
     text = path.read_text(encoding="utf-8")
     return set(CSF_CATEGORY_RE.findall(text))
+
+
+def _oscal_status(control: dict) -> str | None:
+    """Return ``"withdrawn"`` if a CSF OSCAL control's ``status`` prop says so, or
+    None (live) if it has no ``status`` prop.
+
+    Raises ``ValueError`` if the control carries more than one ``status`` prop, or
+    one whose value is anything but ``"withdrawn"`` (JSON null included)."""
+    values = [prop["value"] for prop in control.get("props", []) if prop["name"] == "status"]
+    if len(values) > 1:
+        raise ValueError(f"{control['id']}: {len(values)} status props, expected at most one")
+    if not values:
+        return None
+    if values[0] != "withdrawn":
+        raise ValueError(f"{control['id']}: unexpected status {values[0]!r}")
+    return values[0]
+
+
+def _oscal_note(control: dict) -> str:
+    """Rebuild a withdrawal note from the control's links, grouped by rel in order."""
+    groups: dict[str, list[str]] = {}
+    for link in control.get("links", []):
+        groups.setdefault(link["rel"], []).append(link["href"])
+    return "; ".join(f"{rel.replace('_', ' ')} {', '.join(hrefs)}" for rel, hrefs in groups.items())
+
+
+def csf_oscal_drift(path: Path) -> list[str]:
+    """Both directions: live and withdrawn Categories, live Subcategories and
+    withdrawn Subcategories (with their notes) against the held CSF 2.0 OSCAL
+    catalogue. The children of a withdrawn Category get the same checks as
+    those of a live one but stay out of both Subcategory sets.
+
+    Raises ``ValueError`` (handled with ``OSError`` by ``main``, exit 2) on JSON
+    that does not parse, a shape the walk cannot read, a catalogue-level
+    ``controls`` entry, a nested group, a ``status`` prop whose value is not
+    ``withdrawn`` (null included), a control with more than one ``status``
+    prop, a live Category whose ``class`` is not ``category``, a child of a
+    live or withdrawn Category whose ``class`` is not ``subcategory``, a
+    control below a Subcategory, a control ID seen twice, or no live
+    Subcategory at all: fail closed, never a vacuous pass."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    live_cats: set[str] = set()
+    withdrawn_cats: set[str] = set()
+    live_subs: set[str] = set()
+    withdrawn: dict[str, str] = {}
+    seen: set[str] = set()
+
+    def claim(control: dict) -> None:
+        if control["id"] in seen:
+            raise ValueError(f"{control['id']}: duplicate control ID")
+        seen.add(control["id"])
+
+    try:
+        if "controls" in data["catalog"]:
+            raise ValueError("catalogue-level controls, expected every control inside a group")
+        for group in data["catalog"]["groups"]:
+            if "groups" in group:
+                raise ValueError(f"group {group.get('id')!r}: nested groups, expected none")
+            for cat in group.get("controls", []):
+                claim(cat)
+                live = _oscal_status(cat) is None
+                if not live:
+                    withdrawn_cats.add(cat["id"])
+                elif cat.get("class") != "category":
+                    raise ValueError(
+                        f"{cat['id']}: class {cat.get('class')!r} on a live Category, "
+                        f"expected 'category'"
+                    )
+                else:
+                    live_cats.add(cat["id"])
+                state = "live" if live else "withdrawn"
+                for sub in cat.get("controls", []):
+                    claim(sub)
+                    if sub.get("class") != "subcategory":
+                        raise ValueError(
+                            f"{sub['id']}: class {sub.get('class')!r} under {state} Category "
+                            f"{cat['id']}, expected 'subcategory'"
+                        )
+                    if sub.get("controls"):
+                        raise ValueError(
+                            f"{sub['id']}: controls below Subcategory level, expected none"
+                        )
+                    status = _oscal_status(sub)
+                    if not live:
+                        # A withdrawn Category's children are checked, not compared.
+                        continue
+                    if status is None:
+                        live_subs.add(sub["id"])
+                    else:
+                        withdrawn[sub["id"]] = _oscal_note(sub)
+    except (KeyError, TypeError, AttributeError) as exc:
+        raise ValueError(f"unexpected OSCAL catalogue shape: {exc!r}") from exc
+    if not live_subs:
+        raise ValueError("no live Subcategory found in the OSCAL catalogue")
+    msgs = compare("NIST CSF 2.0 OSCAL Categories", set(CSF_CATEGORIES), live_cats)
+    msgs += compare(
+        "NIST CSF 2.0 OSCAL withdrawn Categories", set(CSF_1_1_RELOCATED), withdrawn_cats
+    )
+    msgs += compare("NIST CSF 2.0 OSCAL Subcategories", set(CSF_SUBCATEGORIES), live_subs)
+    msgs += compare(
+        "NIST CSF 2.0 OSCAL withdrawn Subcategories",
+        set(CSF_WITHDRAWN_SUBCATEGORIES),
+        set(withdrawn),
+    )
+    for code in sorted(set(CSF_WITHDRAWN_SUBCATEGORIES) & set(withdrawn)):
+        if CSF_WITHDRAWN_SUBCATEGORIES[code] != withdrawn[code]:
+            msgs.append(
+                f"NIST CSF 2.0 OSCAL withdrawn Subcategories: {code} note "
+                f"{CSF_WITHDRAWN_SUBCATEGORIES[code]!r} does not match the "
+                f"note rebuilt from the source links {withdrawn[code]!r}"
+            )
+    return msgs
 
 
 def compare(label: str, module_set: set[str], source_set: set[str]) -> list[str]:
@@ -368,6 +505,17 @@ def main(argv: list[str]) -> int:
 
     for filename, checker, ok_line in [
         (
+            CSF_OSCAL_JSON,
+            csf_oscal_drift,
+            (
+                f"OK: NIST CSF 2.0 OSCAL parity ({len(CSF_CATEGORIES)} live "
+                f"Categories, {len(CSF_1_1_RELOCATED)} withdrawn Categories, "
+                f"{len(CSF_SUBCATEGORIES)} live Subcategories, "
+                f"{len(CSF_WITHDRAWN_SUBCATEGORIES)} withdrawn Subcategories "
+                f"with notes) matches the source catalogue."
+            ),
+        ),
+        (
             COBIT_MD,
             cobit_drift,
             (
@@ -410,7 +558,7 @@ def main(argv: list[str]) -> int:
             return 2
         try:
             msgs = checker(path)
-        except OSError as exc:
+        except (OSError, ValueError) as exc:
             print(f"ERROR: cannot read {path}: {exc}", file=sys.stderr)
             return 2
         if msgs:
@@ -433,8 +581,8 @@ def main(argv: list[str]) -> int:
 
     print(
         f"\nOK: all reference modules match the grc_library_ref source "
-        f"extracts at {source} (CCM v4.1.0, AICM v1.1.0, NIST CSF 2.0, "
-        f"COBIT 2019, ISO 31000:2018, ISO/IEC 27001:2022, AICPA TSC 2017)."
+        f"extracts at {source} (CCM v4.1.0, AICM v1.1.0, NIST CSF 2.0 Categories "
+        f"and OSCAL Subcategories, COBIT 2019, ISO 31000:2018, ISO/IEC 27001:2022, AICPA TSC 2017)."
     )
     return 0
 

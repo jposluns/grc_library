@@ -4,14 +4,19 @@
 Validate NIST CSF 2.0 codes wherever they appear in per-document framework tables
 (the central compliance matrix is gate 49's target and is excluded here). The
 authoritative 22-Category CSF 2.0 set and the CSF-1.1 relocation map live in
-``nist_csf_reference.py`` (transcribed from NIST CSWP 29 Table 1), shared with gate 49.
+``nist_csf_reference.py`` (transcribed from NIST CSWP 29 Table 1), shared with gate 49,
+with the 106 live and 26 withdrawn Subcategory IDs (generated from the held NIST
+OSCAL catalogue). A code's Category is checked first; a suffixed code under a valid
+Category must then be a live two-digit CSF 2.0 Subcategory (``DE.CM-09``), so a
+withdrawn one (``DE.CM-07``) or an unknown or one-digit one (``DE.CM-7``) is flagged.
 
 Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
 (check_code, codes_in, scan_file) plus the NIST-CSF parsing patterns live in the
 pack-owned engine (.corpus-management/tools/gate_lint_document_control_codes.py,
 source of record); the engine takes the catalogue as two predicates
-(is_valid_category, relocation_note) and repo_root as params. This wrapper imports
-the shared reference, supplies those predicates, and keeps the grc scan scope
+(is_valid_category, relocation_note) plus two keyword Subcategory predicates
+(is_valid_subcategory, withdrawal_note) and repo_root as params. This wrapper imports
+the shared reference, supplies all four predicates, and keeps the grc scan scope
 (collect_targets, with the matrix exclusion) and the grouped reporting + exit codes.
 """
 
@@ -23,7 +28,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
-from nist_csf_reference import is_valid_category, relocation_note  # noqa: E402  # grc reference catalogue, shared with gate 49
+from nist_csf_reference import is_valid_category, is_valid_subcategory, relocation_note, withdrawal_note  # noqa: E402  # grc reference catalogue, shared with gate 49
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -66,7 +71,10 @@ def scan_file(path: Path) -> list:
     directly (and mutate ``mod.REPO_ROOT``); the shim reads ``REPO_ROOT`` at call time
     so a test override is honoured, and supplies the shared CSF reference predicates.
     """
-    return _engine().scan_file(path, REPO_ROOT, is_valid_category, relocation_note)
+    return _engine().scan_file(
+        path, REPO_ROOT, is_valid_category, relocation_note,
+        is_valid_subcategory=is_valid_subcategory, withdrawal_note=withdrawal_note,
+    )
 
 
 def main(argv: list[str]) -> int:
@@ -99,7 +107,7 @@ def main(argv: list[str]) -> int:
         )
         print(
             f"OK: NIST CSF 2.0 codes in per-document framework tables are valid "
-            f"({scope}; CSF 2.0 Category membership; matrix excluded)."
+            f"({scope}; CSF 2.0 Category and live Subcategory membership; matrix excluded)."
         )
         return 0
 
@@ -112,9 +120,10 @@ def main(argv: list[str]) -> int:
             print(f"  L{f.line} [{f.rule}] {f.message}")
     print(
         f"\nFAIL: {len(findings)} per-document NIST CSF 2.0 control-code issue(s) "
-        f"across {len(by_file)} file(s). Codes are validated at the Category level "
-        f"against the authoritative CSF 2.0 22-Category set; CSF-1.1-era codes are "
-        f"flagged with a relocation note.",
+        f"across {len(by_file)} file(s). Codes are validated against the authoritative "
+        f"CSF 2.0 22-Category set, then any Subcategory suffix against the 106 live "
+        f"two-digit Subcategory IDs; CSF-1.1-era codes are flagged with a relocation "
+        f"note and withdrawn Subcategories with where their content went.",
         file=sys.stderr,
     )
     return 1
