@@ -24634,6 +24634,44 @@ class ReferenceBreadthStateTests(unittest.TestCase):
                     "docs/long.md", "a" * length, self.DATES[0]).encode())
                 self._assert_refused(len(before.decode().split("\n")))
 
+    def test_unloaded_hex_cell_longer_than_200_characters_refuses(self):
+        # 3b321: the detector has no upper bound, so a hex cell past 200 characters is not loaded
+        # and refuses like a shorter one.
+        for length in (201, 4096):
+            with self.subTest(length=length):
+                before = self._seed()
+                self.state.write_bytes(before + self._row(
+                    "docs/long.md", "f" * length, self.DATES[0]).encode())
+                self.assertEqual(self.mod.load_state(self.state),
+                                 {doc: (self.old_sha, date)
+                                  for doc, date in zip(self.DOCS, self.DATES)})
+                self._assert_refused(len(before.decode().split("\n")))
+
+    def test_head_abbreviation_longer_than_twelve_is_recorded_unchanged(self):
+        # 3b321: rev-parse --short=12 prints more than 12 characters when 12 are ambiguous; the
+        # state records what git printed, not a 12-character truncation.
+        from unittest.mock import patch
+        longer = self._git("rev-parse", "HEAD")[:15]
+        original = subprocess.run
+        calls = []
+        def run(cmd, *args, **kwargs):
+            if list(cmd[-3:]) == ["rev-parse", "--short=12", "HEAD"]:
+                calls.append(cmd)
+                return subprocess.CompletedProcess(cmd, 0, longer + "\n", "")
+            return original(cmd, *args, **kwargs)
+        before = self._seed()
+        with patch.object(self.mod.subprocess, "run", run):
+            result = self._main("--docs", self.DOCS[-1], "--update-state")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(len(calls), 1)
+        self._assert_delta(result)
+        today = re.search(r", (\d{4}-\d{2}-\d{2})\)$", result.stdout.splitlines()[0]).group(1)
+        self.assertEqual(self.state.read_bytes(), before.replace(
+            self._row(self.DOCS[-1], self.old_sha, self.DATES[-1]).encode(),
+            self._row(self.DOCS[-1], longer, today).encode()))
+        self.assertEqual(self.mod.load_state(self.state)[self.DOCS[-1]], (longer, today))
+        self.assertIn(f" at ref {longer}: ", result.stdout)
+
     def test_valid_dates_before_2000_are_preserved(self):
         doc = self.DOCS[0]
         for value in ("0001-01-01", "1970-01-01", "1997-06-15", "1999-12-31"):
@@ -24660,7 +24698,9 @@ class ReferenceBreadthStateTests(unittest.TestCase):
             self._row(self.DOCS[-1], self.head, today).encode()))
 
     def test_form_feed_tab_and_vertical_tab_header_cells_are_recognized(self):
-        for whitespace in ("\f", "\t", "\v"):
+        # 3b321: header cells are compared after str.strip(), which also strips U+00A0 and U+2003,
+        # so a header padded with them is recognized too.
+        for whitespace in ("\f", "\t", "\v", "\N{NO-BREAK SPACE}", "\N{EM SPACE}"):
             with self.subTest(whitespace=repr(whitespace)):
                 before = self._seed()
                 self.state.write_bytes(before.replace(
