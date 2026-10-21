@@ -59,8 +59,9 @@ What it checks, per catalogue:
     withdrawn Category whose ``class`` is not ``category``, a child of any
     Category whose ``class`` is not ``subcategory``, a child with no ``status``
     under a withdrawn Category, a withdrawn Category whose ``title`` is not a
-    non-empty string, a withdrawn Category or child whose ``links`` value is
-    not a list, a link on a withdrawn Category or its child
+    non-empty string, a withdrawn Category, its child or a withdrawn
+    Subcategory under a live Category whose ``links`` value is not a list, a
+    link on a withdrawn Category or its child
     whose rel is not ``incorporated_into`` or ``moved_to`` or whose destination
     is not a FUNCTION.CATEGORY or FUNCTION.CATEGORY-NN (a Category's own link
     may also name a bare FUNCTION), a nested group, a control below a
@@ -249,10 +250,23 @@ def _oscal_status(control: dict) -> str | None:
     return values[0]
 
 
+def _links(control: dict) -> list:
+    """Return the control's ``links`` value (an empty list when absent).
+
+    Raises ``ValueError`` on a ``links`` value that is not a list."""
+    links = control.get("links", [])
+    if not isinstance(links, list):
+        raise ValueError(f"{control['id']}: links {links!r}, expected a list")
+    return links
+
+
 def _oscal_note(control: dict) -> str:
-    """Rebuild a withdrawal note from the control's links, grouped by rel in order."""
+    """Rebuild a withdrawal note from the control's links, grouped by rel in order.
+
+    Raises ``ValueError`` on a ``links`` value that is not a list (``_links``),
+    so a ``{}`` or ``""`` is refused rather than read as an empty note."""
     groups: dict[str, list[str]] = {}
-    for link in control.get("links", []):
+    for link in _links(control):
         groups.setdefault(link["rel"], []).append(link["href"])
     return "; ".join(f"{rel.replace('_', ' ')} {', '.join(hrefs)}" for rel, hrefs in groups.items())
 
@@ -265,12 +279,14 @@ def _relocation_links(control: dict, *, category: bool = False) -> list[dict]:
 
     Raises ``ValueError`` on a ``links`` value that is not a list, a missing or
     unsupported rel, or a missing or malformed destination. The children's
-    links are summarised by Category (deduplicated, the Subcategory suffix
-    dropped), so a removed or duplicated child link that names an
-    already-listed Category leaves the rebuilt note unchanged."""
-    links = control.get("links", [])
-    if not isinstance(links, list):
-        raise ValueError(f"{control['id']}: links {links!r}, expected a list")
+    links are checked either way, but feed the Category's note only when the
+    Category has no links of its own (8 of the 12 held withdrawn Categories
+    have their own), and then only as the deduplicated list of the Categories
+    they name (the Subcategory suffix dropped, the rel ignored). So a rel
+    switch, a move to another Subcategory of the same Category, or a
+    removed or duplicated child link that keeps that list the same leaves the
+    rebuilt note unchanged."""
+    links = _links(control)
     for link in links:
         if link.get("rel") not in CSF_RELOCATION_RELS:
             raise ValueError(
@@ -317,7 +333,8 @@ def csf_oscal_drift(path: Path) -> list[str]:
     ``subcategory``, a child with no ``status`` under a withdrawn Category, a
     withdrawn Category whose ``title`` is missing, null, empty or not a string,
     a withdrawn Category or child whose ``links`` value, link rel or link
-    destination ``_relocation_links`` refuses, a control
+    destination ``_relocation_links`` refuses, a withdrawn Subcategory under a
+    live Category whose ``links`` value is not a list, a control
     below a Subcategory, a control ID seen twice, or no live Subcategory at
     all: fail closed, never a vacuous pass."""
     data = json.loads(path.read_text(encoding="utf-8"))
