@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.27\
-**Date:** 2026-10-03\
+**Version:** 1.6.28\
+**Date:** 2026-10-21\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -129,8 +129,9 @@ Repository infrastructure directories and files that are not used for governance
                        artefact metadata block (adopter guide, worked example, auto-generated
                        portal and maturity scorecard).
 /taxonomy.yml          Auto-generated machine-readable registry of every active artefact's
-                       canonical metadata. Regenerated from document metadata by
-                       tools/build-taxonomy.py.
+                       canonical metadata, purpose, section outline, and framework
+                       alignment. Regenerated from document metadata and document
+                       structure by tools/build-taxonomy.py.
 /narrative.yml         Auto-generated registry of the executive narrative layer's pages.
                        Regenerated from the executive/ pages by
                        tools/build-narrative-registry.py.
