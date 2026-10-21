@@ -2,8 +2,8 @@
 
 **Document Title:** Subprocessor Register Template\
 **Document Type:** Register\
-**Version:** 1.0.4\
-**Date:** 2026-09-25\
+**Version:** 1.0.5\
+**Date:** 2026-10-21\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -147,11 +147,11 @@ Where customer contracts require subprocessor notification, the following minimu
 >
 > In accordance with our Data Processing Agreement, we are providing [X] days advance notice of our intent to engage the following new subprocessor:
 >
-> **Entity name:** [Legal name] 
-> **Processing purpose:** [Purpose] 
-> **Data categories:** [Categories] 
-> **Processing location:** [Country/countries] 
-> **Transfer mechanism:** [Mechanism, if cross-border] 
+> **Entity name:** [Legal name]\
+> **Processing purpose:** [Purpose]\
+> **Data categories:** [Categories]\
+> **Processing location:** [Country/countries]\
+> **Transfer mechanism:** [Mechanism, if cross-border]\
 > **Effective date:** [Date]
 >
 > You have the right to object to this engagement within [X] days of this notice. If no objection is received, we will proceed with the engagement as of the stated effective date.
