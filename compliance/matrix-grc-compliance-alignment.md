@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.12.5\
-**Date:** 2026-10-20\
+**Version:** 1.12.6\
+**Date:** 2026-10-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -60,7 +60,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Governance | Register: Document Index and Classification | [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) | GRC-01 | N/A | §7.5 | N/A | N/A | N/A | Norm §7.2 | N/A | Documentation security | N/A |
 | Governance | Framework: Continuous Assurance and Improvement | [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md) | A&A-01, A&A-05, A&A-02 | GRC-14, GRC-12 | §9.1, §9.2, §10.1 | ID.IM, DE.CM | N/A | N/A | Trade and customs assurance governance | Pillar II (Customs-to-Business) | IT controls review and testing | N/A |
 | Governance | Framework: Document Architecture and Interrelationship | [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md) | GRC-01, GRC-03 | N/A | §7.5, A.5.1 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
-| Governance | Framework: Governance Performance and Improvement | [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md) | GRC-06, A&A-03, GRC-03 | GRC-14, GRC-11 | §9.1, §9.3, §10.1 | ID.IM | N/A | N/A | N/A | N/A | N/A | N/A |
+| Governance | Framework: Governance Performance and Improvement | [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md) | GRC-06, GRC-03 | GRC-14, GRC-11 | §9.1, §9.3, §10.1 | ID.IM | N/A | N/A | N/A | N/A | N/A | N/A |
 | Governance | Framework: Human Capital and Ethical Conduct | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) | HRS-09, HRS-11, HRS-13 | HRS-14 | A.6.3, A.5.4 | PR.AT | N/A | N/A | N/A | N/A | N/A | N/A |
 | Governance | Framework: Metrics, Monitoring and Performance Reporting | [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../governance/framework-metrics-monitoring-and-performance-reporting.md) | GRC-02, LOG-03 | MDS-10, GRC-11, GRC-14 | §9.1, A.5.35 | ID.IM, DE.CM | N/A | N/A | Trade-security performance measurement | Pillar II (Customs-to-Business) | IT controls review and testing | N/A |
 | Governance | Framework: Sustainability and Responsible Technology | [`governance/framework-sustainability-and-responsible-technology.md`](../governance/framework-sustainability-and-responsible-technology.md) | STA-01 | GRC-10, GRC-11, GRC-12 | N/A | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
@@ -89,13 +89,13 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Risk | Procedure: Risk Acceptance | [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) | GRC-02, GRC-04 | N/A | §6.1.3, §8.3 | ID.RA | N/A | N/A | Norm §6.1; Norm §9.2 to §9.3 | N/A | Risk management | N/A |
 | Risk | Register: Assurance Map | [`risk/register-assurance-map.md`](../risk/register-assurance-map.md) | A&A-02, A&A-03, GRC-02 | N/A | §9.1, §9.2, A.5.35 | ID.IM | N/A | N/A | Norm §8.1; Norm §8.2 | N/A | IT controls review and testing | N/A |
 | Risk | Register: Key Risk Indicators | [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md) | GRC-02 | MDS-10, GRC-11, GRC-10 | §6.1, §9.1 | ID.RA, ID.IM | N/A | N/A | Norm §6.1; Norm §8.1 | N/A | IT controls review and testing | N/A |
-| Risk | Register: Scenario Risk Catalogue | [`risk/register-scenario-risk-catalogue.md`](../risk/register-scenario-risk-catalogue.md) | GRC-02, BCR-02, A&A-03 | MDS-11, AIS-11, DSP-21 | §6.1, §8.2 | ID.RA, RC.RP | N/A | N/A | Norm §6.1 | N/A | IT security risk management | N/A |
-| Risk | Guideline: Quantitative Risk Analysis | [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md) | GRC-02, A&A-03 | N/A | §6.1.2, §8.2 | ID.RA | N/A | N/A | N/A | N/A | IT security risk management | N/A |
+| Risk | Register: Scenario Risk Catalogue | [`risk/register-scenario-risk-catalogue.md`](../risk/register-scenario-risk-catalogue.md) | GRC-02, BCR-02 | MDS-11, AIS-11, DSP-21 | §6.1, §8.2 | ID.RA, RC.RP | N/A | N/A | Norm §6.1 | N/A | IT security risk management | N/A |
+| Risk | Guideline: Quantitative Risk Analysis | [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md) | GRC-02 | N/A | §6.1.2, §8.2 | ID.RA | N/A | N/A | N/A | N/A | IT security risk management | N/A |
 | Risk | Template: Enterprise Risk Register | [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md) | GRC-02, GRC-04 | N/A | §6.1.2, §6.1.3, §9.1 | ID.RA | N/A | N/A | Norm §6.1 | N/A | IT security risk management | N/A |
 | Risk | Template: Operational Risk Register | [`risk/template-operational-risk-register.md`](../risk/template-operational-risk-register.md) | GRC-02, GRC-04 | N/A | §6.1.2, §6.1.3, §9.1 | ID.RA | N/A | N/A | Norm §6.1 | N/A | IT security risk management | N/A |
 | Risk | Template: Risk Appetite Statement | [`risk/template-risk-appetite-statement.md`](../risk/template-risk-appetite-statement.md) | GRC-02 | N/A | §5.1, §6.1.1, §6.1.3 | N/A | N/A | N/A | N/A | N/A | Management commitment; Risk management | N/A |
 | Risk | Template: Board Risk Report | [`risk/template-board-risk-report.md`](../risk/template-board-risk-report.md) | GRC-02, GRC-06 | N/A | §5.1, §9.1, §9.3 | N/A | N/A | N/A | N/A | N/A | Management commitment | N/A |
-| Risk | Annex: AI-Specific Risk Methodology | [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) | GRC-02, AIS-01, A&A-03 | GRC-10, GRC-15, DSP-21 | §6.1.2, §6.1.3, §8.2 | ID.RA | N/A | N/A | N/A | N/A | IT security risk management | N/A |
+| Risk | Annex: AI-Specific Risk Methodology | [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) | GRC-02, AIS-01 | GRC-10, GRC-15, DSP-21 | §6.1.2, §6.1.3, §8.2 | ID.RA | N/A | N/A | N/A | N/A | IT security risk management | N/A |
 
 ---
 
