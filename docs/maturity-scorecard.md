@@ -50,7 +50,7 @@ _130 documents._
 | [ai/guide-ai-adversarial-test-reference.md](../ai/guide-ai-adversarial-test-reference.md) | AI Adversarial Test Reference | Guide | 1.3.6 | 2026-09-13 |
 | [ai/guide-ai-security-technical-implementation.md](../ai/guide-ai-security-technical-implementation.md) | AI Security Technical Implementation Guide | Guide | 1.3.10 | 2026-10-04 |
 | [ai/procedure-ai-audit.md](../ai/procedure-ai-audit.md) | AI Audit Procedure | Procedure | 1.1.10 | 2026-10-16 |
-| [ai/standard-ai-and-agentic-development-security.md](../ai/standard-ai-and-agentic-development-security.md) | AI and Agentic Development Security Standard | Standard | 1.8.47 | 2026-09-29 |
+| [ai/standard-ai-and-agentic-development-security.md](../ai/standard-ai-and-agentic-development-security.md) | AI and Agentic Development Security Standard | Standard | 1.8.48 | 2026-10-22 |
 | [ai/standard-ai-model-risk.md](../ai/standard-ai-model-risk.md) | AI Model Risk Standard | Standard | 1.1.5 | 2026-08-31 |
 | [ai/standard-ai-security-and-risk.md](../ai/standard-ai-security-and-risk.md) | AI Security and Risk Standard | Standard | 1.1.8 | 2026-09-13 |
 | [ai/template-ai-system-register.md](../ai/template-ai-system-register.md) | AI System Register Template | Template | 1.1.4 | 2026-08-31 |
@@ -66,7 +66,7 @@ _130 documents._
 | [compliance/procedure-control-testing.md](../compliance/procedure-control-testing.md) | Control Testing Procedure | Procedure | 1.1.9 | 2026-09-25 |
 | [compliance/standard-internal-audit.md](../compliance/standard-internal-audit.md) | Internal Audit Standard | Standard | 1.2.12 | 2026-10-13 |
 | [compliance/template-audit-evidence-package.md](../compliance/template-audit-evidence-package.md) | Audit Evidence Package Template | Template | 1.1.4 | 2026-09-29 |
-| [dev-security/guideline-ai-coding-assistant-security.md](../dev-security/guideline-ai-coding-assistant-security.md) | AI Coding Assistant Security Guideline | Guideline | 1.3.22 | 2026-09-25 |
+| [dev-security/guideline-ai-coding-assistant-security.md](../dev-security/guideline-ai-coding-assistant-security.md) | AI Coding Assistant Security Guideline | Guideline | 1.3.23 | 2026-10-22 |
 | [dev-security/standard-developer-security-requirements.md](../dev-security/standard-developer-security-requirements.md) | Developer Security Requirements | Standard | 1.1.37 | 2026-10-15 |
 | [dev-security/standard-mobile-application-security.md](../dev-security/standard-mobile-application-security.md) | Mobile Application Security Standard | Standard | 1.1.8 | 2026-09-23 |
 | [dev-security/standard-security-baseline-and-standards-reference.md](../dev-security/standard-security-baseline-and-standards-reference.md) | Security Baseline and Standards Reference | Standard | 1.1.34 | 2026-10-16 |

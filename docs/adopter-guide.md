@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.31\
-**Date:** 2026-10-16\
+**Version:** 1.3.32\
+**Date:** 2026-10-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -69,15 +69,15 @@ These modes describe a single organization adopting the library. A group, holdin
 
 **Audience.** A developer or team that is not building or adopting a GRC library, but wants a solid Claude Code baseline for any project: security rules, language-specific patterns, governance disciplines, and skills for the recurring failure modes an AI coding assistant exhibits.
 
-**What you take.** [`guardrails/`](../guardrails/) (the pack). Its own [`README.md`](../guardrails/README.md) is the front door and the [`setup-generator-prompt.md`](../guardrails/setup-generator-prompt.md) is the AI-assisted installer. The pack ships with its own version sequence (independent of the library's; see the pack README header for the current value) and is documented to operate standalone.
+**What you take.** [`guardrails/`](../guardrails/) (the pack) and [`vendor/aiqt/`](../vendor/aiqt/) ([`RULES.json`](../vendor/aiqt/RULES.json) and [`PIN.toml`](../vendor/aiqt/PIN.toml), the pinned snapshot's inventory, declared scope insertions, and upstream commit). Its own [`README.md`](../guardrails/README.md) is the front door and the [`setup-generator-prompt.md`](../guardrails/setup-generator-prompt.md) is the AI-assisted installer. The pack ships with its own version sequence (independent of the library's; see the pack README header for the current value) and is documented to operate standalone.
 
-**What you ignore.** Everything else in this repository. The pack does not require the GRC corpus to be present; the pack rules are written as project-agnostic disciplines that any Claude Code project benefits from.
+**What you ignore.** Everything else in this repository outside `guardrails/` and `vendor/aiqt/`. The pack does not require the GRC corpus to be present; the pack rules are written as project-agnostic disciplines that any Claude Code project benefits from.
 
 **Why this is supported.** This mode emerged in practice: developers found the pack useful as a Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. The provenance is what makes the pack credible as a standalone artefact: the pack's own provenance register, [`guardrails/rule-provenance.md`](../guardrails/rule-provenance.md), summarizes each rule's origin (a real maintenance event where one exists, an honest up-front codification where that is the truth), and the detailed lineage lives in this library's records.
 
-> **Moving to AIQT Guardrails.** The pack is being published as the standalone **AIQT Guardrails** project ([jposluns/guardrails](https://github.com/jposluns/guardrails), [aiqt.ai](https://aiqt.ai)); the upcoming **AIQT 1.1.0** release is the recommended install once available. The embedded `guardrails/` copy referenced here remains the library's dogfood and tracks the migration.
+> **Moving to AIQT Guardrails.** The pack is being published as the standalone **AIQT Guardrails** project ([jposluns/guardrails](https://github.com/jposluns/guardrails), [aiqt.ai](https://aiqt.ai)); the library currently adopts a pinned AIQT snapshot, recorded in [`vendor/aiqt/PIN.toml`](../vendor/aiqt/PIN.toml) and [`vendor/aiqt/RULES.json`](../vendor/aiqt/RULES.json), and [`guardrails/README.md`](../guardrails/README.md) describes how to adopt it. The embedded `guardrails/` copy referenced here remains the library's dogfood and tracks the migration.
 
-**Next step.** Either copy [`guardrails/`](../guardrails/) directly into your project (under `guardrails/` or wherever you want it), or use the pack's setup generator to produce a tailored Claude Code configuration for your specific project. The pack's own [`README.md`](../guardrails/README.md) section "How to use" walks both options.
+**Next step.** The pack's own [`README.md`](../guardrails/README.md) section "How to use" describes "Pinned runtime installation" (copy `guardrails/aiqt-rules/aiqt/` and `guardrails/aiqt-rules/security/` into your project's `.claude/rules/` using the inventory and scope insertions declared in [`vendor/aiqt/RULES.json`](../vendor/aiqt/RULES.json), which sits outside `guardrails/`; preserve upstream frontmatter, insert declared paths into the existing frontmatter block, keep the upstream LICENSE and NOTICE (Apache-2.0) beside the vendored snapshot, and do not fetch a moving head or install the snapshot README as a rule) and "Selective GRC security modules" (copy individual rule files into `.claude/rules/` and reference them from your project's `CLAUDE.md`). Its separate "Generate your files (AI-assisted setup)" section describes the setup generator, which analyzes your project and proposes a tailored Claude Code configuration before creating any file. As a standalone adopter, review the GRC-specific overlays and supply your own wiring; the README notes that the GRC compatibility output is not a portable export.
 
 ---
 

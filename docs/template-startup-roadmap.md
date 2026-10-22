@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Startup Roadmap Template\
 **Document Type:** Template\
-**Version:** 2.2.13\
-**Date:** 2026-09-29\
+**Version:** 2.2.14\
+**Date:** 2026-10-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -85,7 +85,7 @@ Adopt:
 - [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md): the floor for any internal development.
 - [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md): if the team operates pipelines.
 - [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md): if developers use Claude Code, Copilot, Cursor, or equivalent.
-- [`guardrails/`](../guardrails/) pack as project-loaded session context: if any AI coding assistant is used. (Moving to the standalone [AIQT Guardrails](https://github.com/jposluns/guardrails) project; the upcoming AIQT 1.1.0 release is the recommended install once available.)
+- [`guardrails/`](../guardrails/) pack as project-loaded session context: if any AI coding assistant is used. (Moving to the standalone [AIQT Guardrails](https://github.com/jposluns/guardrails) project; the library currently adopts a pinned AIQT snapshot, recorded in [`vendor/aiqt/PIN.toml`](../vendor/aiqt/PIN.toml) and [`vendor/aiqt/RULES.json`](../vendor/aiqt/RULES.json), and [`guardrails/README.md`](../guardrails/README.md) describes how to adopt it.)
 
 #### A2: We ship external-facing software (SaaS, downloadable, embedded)
 
