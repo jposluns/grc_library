@@ -10995,6 +10995,754 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         guard.git.assert_called()
 
 
+class NativePrePushGuardTests(unittest.TestCase):
+    """Real hook and guard, with deterministic fixture runners and local Git."""
+
+    def setUp(self):
+        import shutil
+        self.tmp = tempfile.TemporaryDirectory(prefix="native-push-")
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name) / "grc_library"
+        self.root.mkdir()
+        self.env = {k: v for k, v in os.environ.items()
+                    if not k.startswith("GIT_") and not k.startswith("PRE_PUSH_GUARD_")}
+        self.env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1",
+                        GRC_STORE=str(Path(self.tmp.name) / "private"))
+        for name in ("git-hooks/pre-push", "pre-push-guard.sh", "pre-push-hook.py",
+                     "check-dirty-tree-push.py", "install-git-hooks.sh", "lint_common.py"):
+            dest = self.root / "tools" / name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(REPO_ROOT / "tools" / name, dest)
+        for name in ("run_all_audits.sh", "run-pr-time-checks.sh"):
+            dest = self.root / "tools" / name
+            dest.write_text('#!/bin/sh\necho ' + name + '\n[ ! -f fail ]\n')
+            dest.chmod(0o755)
+        (self.root / ".web").mkdir()
+        (self.root / ".web/build.py").write_text("print('WEB CHECK')\n")
+        (self.root / "tools/build-reference-manifest.py").write_text("print('ADVISORY CHECK')\n")
+        self.run_cmd("git", "init", "-q")
+        self.run_cmd("git", "config", "user.email", "fixture@example.com")
+        self.run_cmd("git", "config", "user.name", "Hook fixture")
+        self.run_cmd("git", "add", ".")
+        self.run_cmd("git", "-c", "core.hooksPath=/dev/null", "commit", "-qm", "Fixture")
+        self.head = self.run_cmd("git", "rev-parse", "HEAD").stdout.strip()
+        self.record = f"HEAD {self.head} refs/heads/main {'0' * 40}\n"
+        self.run_cmd("sh", "tools/install-git-hooks.sh")
+
+    def run_cmd(self, *args, data=None, code=0):
+        result = subprocess.run(args, cwd=self.root, env=self.env, input=data,
+                                text=True, capture_output=True, timeout=30)
+        self.assertEqual(result.returncode, code, result.stdout + result.stderr)
+        return result
+
+    def push(self, code=0, remote="origin", data=None,
+             url="git@github.com:jposluns/grc_library.git"):
+        return self.run_cmd("sh", "tools/git-hooks/pre-push", remote,
+                            url,
+                            data=self.record if data is None else data, code=code)
+
+    def direct(self):
+        with tempfile.TemporaryFile(mode="w+") as log:
+            result = subprocess.run(["bash", "tools/pre-push-guard.sh"], cwd=self.root,
+                                    env=self.env, stdout=log, stderr=log, timeout=30)
+            log.seek(0)
+            self.assertEqual(result.returncode, 0, log.read())
+
+    def test_captured_hook_runs_every_check_and_blocks_failure(self):
+        allowed = self.push()
+        for marker in ("run_all_audits.sh", "run-pr-time-checks.sh", "WEB CHECK",
+                       "ADVISORY CHECK", "Safe to push"):
+            self.assertIn(marker, allowed.stdout)
+        (self.root / "fail").touch()
+        blocked = self.push(code=1)
+        self.assertIn("FAILED at run_all_audits.sh", blocked.stdout)
+        self.assertNotIn("WEB CHECK", blocked.stdout)
+        print("Fixture hook allowed (rc=0): all runners, web and advisory ran")
+        print("Fixture hook blocked (rc=1): FAILED at run_all_audits.sh")
+
+    def test_deletion_and_other_remote_skip_full_guard(self):
+        (self.root / "fail").touch()
+        self.assertNotIn("guard 1/3", self.push(remote="fork", url="/other/repo.git").stdout)
+        deletion = f"(delete) {'0' * 40} refs/heads/old {self.head}\n"
+        self.assertNotIn("guard 1/3", self.push(data=deletion).stdout)
+        self.push(code=1, data=deletion + self.record)
+
+    def test_direct_pass_does_not_skip_next_guard(self):
+        self.direct()
+        (self.root / "fail").touch()
+        self.push(code=1)
+
+    def test_dirty_tree_blocks_after_direct_pass(self):
+        self.direct()
+        (self.root / ".web/build.py").write_text("print('changed')\n")
+        result = self.push(code=1)
+        self.assertIn("REFUSING", result.stderr)
+
+    def test_installed_check_missing_altered_and_hooks_path(self):
+        Path(self.env["GRC_STORE"]).mkdir()
+        shim = self.root / ".git/hooks/pre-push"
+        original = shim.read_bytes()
+        self.run_cmd("sh", "tools/install-git-hooks.sh", "--check")
+        for body in (None, b"#!/bin/sh\nexit 0\n"):
+            if body is None:
+                shim.unlink()
+            else:
+                shim.write_bytes(body)
+                shim.chmod(0o755)
+            self.run_cmd("sh", "tools/install-git-hooks.sh", "--check", code=1)
+            self.push(code=1)
+        shim.write_bytes(original)
+        shim.chmod(0o755)
+        for value in ("", "other-hooks"):
+            self.run_cmd("git", "config", "core.hooksPath", value)
+            self.run_cmd("sh", "tools/install-git-hooks.sh", "--check", code=1)
+        self.run_cmd("git", "config", "--unset", "core.hooksPath")
+        self.run_cmd("sh", "tools/install-git-hooks.sh", "--check")
+
+    def test_no_store_check_is_read_only_skip(self):
+        (self.root / ".git/hooks/pre-push").unlink()
+        self.run_cmd("git", "config", "core.hooksPath", "")
+        result = self.run_cmd("sh", "tools/install-git-hooks.sh", "--check")
+        self.assertIn("SKIP", result.stdout)
+        self.assertFalse((self.root / ".git/hooks/pre-push").exists())
+
+    def real_remote(self, name="upstream", suffix="jposluns/grc_library.git"):
+        remote = Path(self.tmp.name) / suffix
+        remote.parent.mkdir(parents=True, exist_ok=True)
+        self.run_cmd("git", "init", "--bare", "-q", str(remote))
+        self.run_cmd("git", "remote", "add", name, str(remote))
+        return remote
+
+    def test_real_push_destinations_fail_and_pass(self):
+        remote = self.real_remote()
+        for target in ("upstream", str(remote), str(remote) + "/",
+                       remote.as_uri()):
+            with self.subTest(target=target):
+                (self.root / "fail").touch()
+                result = self.run_cmd("git", "push", target, "HEAD:refs/heads/test", code=1)
+                self.assertIn("FAILED at run_all_audits.sh", result.stdout)
+                (self.root / "fail").unlink()
+                self.run_cmd("git", "push", target, "HEAD:refs/heads/test")
+                self.assertEqual(self.run_cmd("git", "--git-dir", str(remote),
+                                             "rev-parse", "refs/heads/test").stdout.strip(), self.head)
+                self.run_cmd("git", "push", target, ":refs/heads/test")
+        upper = self.real_remote("mixed", "JPosluns/GRC_LIBRARY.GIT")
+        (self.root / "fail").touch()
+        self.run_cmd("git", "push", str(upper) + "/", "HEAD:refs/heads/test", code=1)
+
+    def test_real_push_streams_before_guard_finishes(self):
+        import time
+        self.real_remote()
+        runner = self.root / "tools/run_all_audits.sh"
+        runner.write_text("#!/bin/sh\necho STREAM_READY\n"
+                          "while [ ! -f release ]; do sleep 0.05; done\nexit 1\n")
+        self.run_cmd("git", "add", ".")
+        self.run_cmd("git", "-c", "core.hooksPath=/dev/null", "commit", "-qm", "Streaming runner")
+        with tempfile.TemporaryFile(mode="w+") as log:
+            child = subprocess.Popen(["git", "push", "upstream", "HEAD:refs/heads/stream"],
+                                     cwd=self.root, env=self.env, stdout=log, stderr=log)
+            try:
+                deadline = time.monotonic() + 10
+                output = ""
+                while time.monotonic() < deadline:
+                    log.seek(0)
+                    output = log.read()
+                    if "STREAM_READY" in output:
+                        break
+                    time.sleep(0.05)
+                self.assertIn("STREAM_READY", output)
+                self.assertIsNone(child.poll())
+            finally:
+                (self.root / "release").touch()
+                child.wait(timeout=10)
+            self.assertEqual(child.returncode, 1)
+
+    def test_url_normalization(self):
+        module = load_linter_module("tools/pre-push-hook.py", "push_hook_urls")
+        for url in ("https://GITHUB.COM/JPosluns/GRC_LIBRARY.git/",
+                    "ssh://git@GITHUB.COM/JPosluns/grc_library.git/",
+                    "git@github.com:JPosluns/GRC_LIBRARY.GIT",
+                    "https://github.com/jposluns/%67rc_library",
+                    "https://github.com/jposluns/grc_library/.git"):
+            self.assertTrue(module.guarded_destination(url), url)
+        self.assertFalse(module.guarded_destination("https://github.com/notjposluns/grc_library"))
+
+    def test_real_deletion_tags_and_other_repository(self):
+        self.real_remote()
+        self.run_cmd("git", "push", "upstream", "HEAD:refs/heads/test")
+        (self.root / "fail").touch()
+        self.run_cmd("git", "push", "upstream", ":refs/heads/test")
+        self.run_cmd("git", "tag", "fixture")
+        (self.root / ".web/build.py").write_text("print('dirty')\n")
+        self.run_cmd("git", "push", "upstream", "refs/tags/fixture")
+        self.run_cmd("git", "checkout", "--", ".web/build.py")
+        self.real_remote("fork", "other/repository.git")
+        self.run_cmd("git", "push", "fork", "HEAD:refs/heads/test")
+
+    def test_real_non_head_and_mixed_push_refused(self):
+        self.real_remote()
+        self.run_cmd("git", "branch", "older")
+        self.run_cmd("git", "-c", "core.hooksPath=/dev/null", "commit", "--allow-empty", "-qm", "New HEAD")
+        for refs in (("older:refs/heads/old",),
+                     ("HEAD:refs/heads/current", "older:refs/heads/old")):
+            result = self.run_cmd("git", "push", "upstream", *refs, code=1)
+            self.assertIn("checkout whose HEAD", result.stderr)
+
+    def test_real_linked_worktree_clean_environment_and_old_hook(self):
+        self.real_remote()
+        # The runner checks the exact environment that reaches the guard.
+        runner = self.root / "tools/run_all_audits.sh"
+        runner.write_text("#!/bin/sh\npython3 - <<'CHECK'\nimport os, pwd\n"
+                          "assert os.environ['GIT_CONFIG_GLOBAL'] == '/dev/null'\n"
+                          "assert 'GIT_CONFIG_NOSYSTEM' not in os.environ\n"
+                          "assert 'GIT_CONFIG_SYSTEM' not in os.environ\n"
+                          "assert os.environ['HOME'] == pwd.getpwuid(os.getuid()).pw_dir\n"
+                          "assert {k: v for k, v in os.environ.items() if k.startswith('PYTHON')} "
+                          "== {'PYTHONNOUSERSITE': '1'}\n"
+                          "assert not any(k != 'GIT_CONFIG_GLOBAL' "
+                          "and k.startswith(('GIT_', 'PRE_PUSH_GUARD_ALLOW_')) "
+                          "or k in ('BASE_REF', 'HEAD_REF') for k in os.environ)\n"
+                          "CHECK\n")
+        self.run_cmd("git", "add", ".")
+        self.run_cmd("git", "-c", "core.hooksPath=/dev/null", "commit", "-qm", "Environment runner")
+        main = self.root
+        wt = Path(self.tmp.name) / "linked"
+        self.run_cmd("git", "worktree", "add", "-qb", "linked", str(wt))
+        self.root = wt
+        self.env.update(BASE_REF="missing", HEAD_REF="missing",
+                        PRE_PUSH_GUARD_ALLOW_DIRTY="1", PRE_PUSH_GUARD_ALLOW_PIPE="1",
+                        PRE_PUSH_GUARD_ALLOW_FUTURE="1", GIT_TEST_SENTINEL="must not leak")
+        result = self.run_cmd("git", "push", "upstream", "HEAD:refs/heads/linked")
+        self.assertIn("Safe to push", result.stdout)
+        (wt / "fail").touch()
+        self.run_cmd("git", "push", "upstream", "HEAD:refs/heads/blocked", code=1)
+        (wt / "fail").unlink()
+        (wt / "tools/git-hooks/pre-push").write_text("#!/bin/sh\nexit 0\n")
+        result = self.run_cmd("git", "push", "upstream", "HEAD:refs/heads/old", code=1)
+        self.assertIn("rebase", result.stderr)
+        self.root = main
+        self.assertEqual(self.run_cmd("git", "config", "--get", "core.bare").stdout.strip(), "false")
+
+    def main_and_linked(self):
+        main = self.root
+        wt = Path(self.tmp.name) / "linked"
+        self.run_cmd("git", "worktree", "add", "-qb", "linked", str(wt))
+        try:
+            for root in (main, wt):
+                self.root = root
+                yield root.name
+        finally:
+            self.root = main
+
+    def commit_fixture(self):
+        self.run_cmd("git", "add", ".")
+        self.run_cmd("git", "-c", "core.hooksPath=/dev/null", "commit", "-qm", "Fixture update")
+
+    def test_real_hostile_environment_main_and_linked(self):
+        remote = self.real_remote()
+        runner = self.root / "tools/run_all_audits.sh"
+        runner.write_text("#!/bin/sh\npython3 - <<'CHECK'\nimport os\n"
+                          "assert not any(k in os.environ for k in "
+                          "('BASH_ENV', 'ENV', 'SHELLOPTS', 'PYTHONPATH', 'LD_PRELOAD', "
+                          "'PRE_PUSH_GUARD_ALLOW_DIRTY'))\n"
+                          "assert os.environ['PATH'] == '/usr/bin:/bin'\n"
+                          "CHECK\n")
+        self.commit_fixture()
+        poison = Path(self.tmp.name) / "startup"
+        poison.write_text("echo STARTUP_BYPASS\nexit 0\n")
+        modules = Path(self.tmp.name) / "modules"
+        modules.mkdir()
+        (modules / "sitecustomize.py").write_text("import os\nos._exit(0)\n")
+        values = dict(BASH_ENV=str(poison), ENV=str(poison), SHELLOPTS="errexit",
+                      PYTHONPATH=str(modules), LD_PRELOAD=str(modules / "absent.so"))
+        for checkout in self.main_and_linked():
+            for key, value in values.items():
+                with self.subTest(checkout=checkout, variable=key):
+                    saved = self.env.copy()
+                    self.env.update({key: value, "PRE_PUSH_GUARD_ALLOW_DIRTY": "1"})
+                    try:
+                        ref = "refs/heads/" + checkout + "-" + key.lower()
+                        result = self.run_cmd("git", "push", "upstream", "HEAD:" + ref)
+                        for marker in ("guard 1/3", "guard 2/3", "WEB CHECK", "ADVISORY CHECK"):
+                            self.assertIn(marker, result.stdout)
+                        self.assertNotIn("STARTUP_BYPASS", result.stdout + result.stderr)
+                        self.assertEqual(self.run_cmd("git", "--git-dir", str(remote),
+                                                     "rev-parse", ref).stdout.strip(),
+                                         self.run_cmd("git", "rev-parse", "HEAD").stdout.strip())
+                        (self.root / ".web/build.py").write_text("print('dirty')\n")
+                        blocked = self.run_cmd("git", "push", "upstream", "HEAD:" + ref + "-dirty", code=1)
+                        self.assertIn("REFUSING", blocked.stdout + blocked.stderr)
+                    finally:
+                        self.env = saved
+                        self.run_cmd("git", "checkout", "--", ".web/build.py")
+
+    def test_real_executable_paths_main_and_linked(self):
+        remote = self.real_remote()
+        fake = Path(self.tmp.name) / "fake-bin"
+        fake.mkdir()
+        python = fake / "python3"
+        python.write_text("#!/bin/sh\necho FAKE_PYTHON >&2\nexit 0\n")
+        python.chmod(0o755)
+        for checkout in self.main_and_linked():
+            (self.root / "fail").touch()
+            for key, value in (("PATH", str(fake) + ":/usr/bin:/bin"),
+                               ("GIT_EXEC_PATH", str(fake))):
+                with self.subTest(checkout=checkout, variable=key):
+                    saved = self.env.copy()
+                    self.env[key] = value
+                    try:
+                        ref = "refs/heads/" + checkout + "-" + key.lower()
+                        result = self.run_cmd("/usr/bin/git", "push", "upstream", "HEAD:" + ref, code=1)
+                        self.assertIn("FAILED at run_all_audits.sh", result.stdout)
+                        self.assertNotIn("FAKE_PYTHON", result.stdout + result.stderr)
+                    finally:
+                        self.env = saved
+                    self.run_cmd("git", "--git-dir", str(remote), "show-ref", "--verify", "--quiet", ref, code=1)
+
+    def test_real_redirected_worktree_main_and_linked(self):
+        remote = self.real_remote()
+        other = Path(self.tmp.name) / "other-checkout"
+        self.run_cmd("git", "clone", "-q", str(self.root), str(other))
+        (other / "tools/git-hooks/pre-push").write_text(
+            '#!/bin/sh\n# python3 -I tools/pre-push-hook.py "$@" < "$refs"\n'
+            'echo REDIRECTED_HOOK >&2\nexit 0\n')
+        for checkout in self.main_and_linked():
+            for via_env in (False, True):
+                with self.subTest(checkout=checkout, via_env=via_env):
+                    saved = self.env.copy()
+                    prefix = ["git"]
+                    if via_env:
+                        self.env["GIT_WORK_TREE"] = str(other)
+                    else:
+                        prefix += ["--work-tree", str(other)]
+                    ref = "refs/heads/" + checkout + "-" + str(via_env)
+                    try:
+                        result = self.run_cmd(*prefix, "push", "upstream", "HEAD:" + ref, code=1)
+                        self.assertIn("refusing redirected work tree", result.stderr)
+                        self.assertNotIn("REDIRECTED_HOOK", result.stderr)
+                    finally:
+                        self.env = saved
+                    self.run_cmd("git", "--git-dir", str(remote), "show-ref", "--verify", "--quiet", ref, code=1)
+
+    def plant_usercustomize(self, home):
+        saved = self.env
+        # The probe and control need the user site whatever the caller set; the
+        # installed hook runs this suite with PYTHONNOUSERSITE=1 (3b395).
+        self.env = {k: v for k, v in saved.items() if k != "PYTHONNOUSERSITE"}
+        self.env["HOME"] = str(home)
+        try:
+            # Ask the same interpreter the hook uses where this HOME's user site is.
+            site = Path(self.run_cmd(
+                "/usr/bin/python3", "-m", "site", "--user-site").stdout.strip())
+            self.assertTrue(site.is_relative_to(home))
+            site.mkdir(parents=True)
+            (site / "usercustomize.py").write_text(
+                "import os, sys\n"
+                "if sys.argv[0] == '.web/build.py':\n"
+                "    print('CALLER_HOME_CODE', flush=True)\n"
+                "    os._exit(0)\n")
+            # Control: the planted startup code really bypasses this failing script.
+            control = self.run_cmd("/usr/bin/python3", ".web/build.py")
+            self.assertIn("CALLER_HOME_CODE", control.stdout)
+        finally:
+            self.env = saved
+        return site
+
+    def test_usercustomize_probe_ignores_caller_nousersite(self):
+        # 3b395: the push hook's own environment must not break the probe.
+        self.env["PYTHONNOUSERSITE"] = "1"
+        home = Path(self.tmp.name) / "fake-home"
+        site = self.plant_usercustomize(home)
+        self.assertTrue((site / "usercustomize.py").is_file())
+        self.assertEqual(self.env["PYTHONNOUSERSITE"], "1")
+
+    def test_real_usercustomize_main_and_linked(self):
+        remote = self.real_remote()
+        (self.root / ".web/build.py").write_text("raise SystemExit(19)\n")
+        self.commit_fixture()
+        home = Path(self.tmp.name) / "fake-home"
+        self.plant_usercustomize(home)
+        saved = self.env.copy()
+        for checkout in self.main_and_linked():
+            for hostile in (False, True):
+                with self.subTest(checkout=checkout, hostile=hostile):
+                    self.env = saved.copy()
+                    if hostile:
+                        self.env.update(HOME=str(home), PYTHONNOUSERSITE="0")
+                    ref = "refs/heads/" + checkout + "-home-" + str(hostile)
+                    result = self.run_cmd("git", "push", "upstream", "HEAD:" + ref, code=1)
+                    self.assertIn("FAILED at .web/build.py --check (rc=19)", result.stdout)
+                    self.assertNotIn("CALLER_HOME_CODE", result.stdout + result.stderr)
+                    self.run_cmd("git", "--git-dir", str(remote), "show-ref",
+                                 "--verify", "--quiet", ref, code=1)
+        self.env = saved
+
+    def test_real_redirected_gitfile_main_and_linked(self):
+        remote = self.real_remote()
+        other = Path(self.tmp.name) / "gitfile-tree"
+        (other / "tools/git-hooks").mkdir(parents=True)
+        (other / "tools/git-hooks/pre-push").write_text(
+            '#!/bin/sh\necho REDIRECTED_HOOK >&2\nexit 0\n'
+            'python3 -I tools/pre-push-hook.py "$@" < "$refs"\n')
+        (other / "tools/pre-push-hook.py").touch()
+        for checkout in self.main_and_linked():
+            git_dir = self.run_cmd("git", "rev-parse", "--absolute-git-dir").stdout.strip()
+            (other / ".git").write_text("gitdir: " + git_dir + "\n")
+            for via_env in (False, True):
+                with self.subTest(checkout=checkout, via_env=via_env):
+                    saved = self.env.copy()
+                    prefix = ["git"]
+                    if via_env:
+                        self.env["GIT_WORK_TREE"] = str(other)
+                    else:
+                        prefix += ["--work-tree", str(other)]
+                    ref = "refs/heads/" + checkout + "-gitfile-" + str(via_env)
+                    try:
+                        result = self.run_cmd(*prefix, "push", "upstream", "HEAD:" + ref, code=1)
+                        self.assertIn("refusing redirected work tree", result.stderr)
+                        self.assertNotIn("REDIRECTED_HOOK", result.stderr)
+                    finally:
+                        self.env = saved
+                    self.run_cmd("git", "--git-dir", str(remote), "show-ref",
+                                 "--verify", "--quiet", ref, code=1)
+
+    def test_real_git_aliases_main_and_linked(self):
+        remote = self.real_remote()
+        (self.root / ".web/build.py").write_text("raise SystemExit(19)\n")
+        self.commit_fixture()
+        main = self.root
+        hook = main / ".git/hooks/pre-push"
+        installed = hook.read_bytes()
+        tracked = (main / "tools/git-hooks/pre-push").read_bytes()
+        other = Path(self.tmp.name) / "alias-tree"
+        (other / "tools/git-hooks").mkdir(parents=True)
+        (other / "tools/git-hooks/pre-push").write_text(
+            '#!/bin/sh\necho REDIRECTED_HOOK >&2\nexit 0\n'
+            'python3 -I tools/pre-push-hook.py "$@" < "$refs"\n')
+        (other / "tools/pre-push-hook.py").touch()
+        for checkout in self.main_and_linked():
+            root = self.root
+            for alias in ("symlink", "hardlink"):
+                # Directories cannot be hard linked. Use the linked gitfile
+                # for both entry points, including --work-tree from main.
+                source = root / ".git" if alias == "symlink" else Path(self.tmp.name) / "linked/.git"
+                if alias == "symlink":
+                    (other / ".git").symlink_to(source)
+                else:
+                    os.link(source, other / ".git")
+                try:
+                    for dispatcher, body in (("installed", installed), ("tracked", tracked)):
+                        hook.write_bytes(body)
+                        for entry in ("option", "environment", "cwd"):
+                            with self.subTest(checkout=checkout, alias=alias,
+                                              dispatcher=dispatcher, entry=entry):
+                                saved = self.env.copy()
+                                prefix = ["git"]
+                                if entry == "option":
+                                    prefix += ["--work-tree", str(other)]
+                                elif entry == "environment":
+                                    self.env["GIT_WORK_TREE"] = str(other)
+                                else:
+                                    self.root = other
+                                ref = "refs/heads/" + "-".join((checkout, alias, dispatcher, entry))
+                                try:
+                                    result = self.run_cmd(*prefix, "push", "upstream", "HEAD:" + ref, code=1)
+                                    self.assertIn("refusing redirected work tree", result.stderr)
+                                    self.assertNotIn("REDIRECTED_HOOK", result.stdout + result.stderr)
+                                finally:
+                                    self.env = saved
+                                    self.root = root
+                                self.run_cmd("git", "--git-dir", str(remote), "show-ref",
+                                             "--verify", "--quiet", ref, code=1)
+                finally:
+                    (other / ".git").unlink()
+                    hook.write_bytes(installed)
+
+    def assert_layout_pushes(self, remote, label):
+        ref = "refs/heads/" + label
+        result = self.run_cmd("git", "push", "upstream", "HEAD:" + ref)
+        self.assertIn("Safe to push", result.stdout)
+        self.assertEqual(self.run_cmd("git", "--git-dir", str(remote), "rev-parse", ref).stdout,
+                         self.run_cmd("git", "rev-parse", "HEAD").stdout)
+        (self.root / "fail").touch()
+        try:
+            result = self.run_cmd("git", "push", "upstream", "HEAD:" + ref + "-blocked", code=1)
+            self.assertIn("FAILED at run_all_audits.sh", result.stdout)
+            self.run_cmd("git", "--git-dir", str(remote), "show-ref",
+                         "--verify", "--quiet", ref + "-blocked", code=1)
+        finally:
+            (self.root / "fail").unlink()
+
+    def test_real_relative_backlink_main_and_linked(self):
+        remote = self.real_remote()
+        for checkout in self.main_and_linked():
+            if (self.root / ".git").is_file():
+                git_dir = Path(self.run_cmd("git", "rev-parse", "--absolute-git-dir").stdout.strip())
+                backlink = git_dir / "gitdir"
+                backlink.write_text(os.path.relpath(self.root / ".git", git_dir) + "\n")
+            self.assert_layout_pushes(remote, checkout + "-backlink")
+
+    def test_real_relative_worktree(self):
+        help_result = subprocess.run(["git", "worktree", "add", "-h"], cwd=self.root,
+                                     env=self.env, text=True, capture_output=True, timeout=30)
+        # Git prints the option as --[no-]relative-paths, so match the bare name.
+        if "relative-paths" not in help_result.stdout + help_result.stderr:
+            self.skipTest("installed git lacks worktree add --relative-paths")
+        remote = self.real_remote()
+        main = self.root
+        wt = Path(self.tmp.name) / "relative-linked"
+        self.run_cmd("git", "worktree", "add", "--relative-paths", "-qb", "relative", str(wt))
+        try:
+            for root in (main, wt):
+                self.root = root
+                if root == wt:
+                    git_dir = Path(self.run_cmd("git", "rev-parse", "--absolute-git-dir").stdout.strip())
+                    self.assertFalse(Path((git_dir / "gitdir").read_text().strip()).is_absolute())
+                self.assert_layout_pushes(remote, root.name)
+        finally:
+            self.root = main
+
+    def test_real_separate_git_dir_main_and_linked(self):
+        separate = Path(self.tmp.name) / "metadata"
+        self.run_cmd("git", "init", "--separate-git-dir", str(separate))
+        self.assertTrue((self.root / ".git").is_file())
+        self.assertFalse((separate / "gitdir").exists())
+        remote = self.real_remote()
+        main = self.root
+        for checkout in self.main_and_linked():
+            for setting in ("unset", "absolute", "relative"):
+                with self.subTest(checkout=checkout, setting=setting):
+                    if setting != "unset":
+                        value = str(main) if setting == "absolute" else os.path.relpath(main, separate)
+                        self.run_cmd("git", "config", "core.worktree", value)
+                    try:
+                        if setting == "unset" and self.root == main:
+                            # Without a backlink, only core.worktree names the checkout.
+                            ref = "refs/heads/" + checkout + "-" + setting
+                            result = self.run_cmd("git", "push", "upstream", "HEAD:" + ref, code=1)
+                            self.assertIn("separate git dir without core.worktree", result.stderr)
+                            self.assertIn("git config core.worktree", result.stderr)
+                            self.run_cmd("git", "--git-dir", str(remote), "show-ref",
+                                         "--verify", "--quiet", ref, code=1)
+                        else:
+                            self.assert_layout_pushes(remote, checkout + "-" + setting)
+                    finally:
+                        if setting != "unset":
+                            self.run_cmd("git", "config", "--unset", "core.worktree")
+        other = Path(self.tmp.name) / "wrong-worktree"
+        other.mkdir()
+        self.run_cmd("git", "config", "core.worktree", str(other))
+        result = self.run_cmd("git", "--work-tree", str(main), "push", "upstream",
+                              "HEAD:refs/heads/wrong-worktree", code=1)
+        self.assertIn("refusing redirected work tree", result.stderr)
+        self.run_cmd("git", "--git-dir", str(remote), "show-ref",
+                     "--verify", "--quiet", "refs/heads/wrong-worktree", code=1)
+
+    def test_real_separate_git_dir_aliases(self):
+        separate = Path(self.tmp.name) / "metadata"
+        self.run_cmd("git", "init", "--separate-git-dir", str(separate))
+        remote = self.real_remote()
+        main = self.root
+        self.run_cmd("git", "config", "core.worktree", str(main))
+        self.assert_layout_pushes(remote, "separate-legitimate")
+        (main / ".web/build.py").write_text("raise SystemExit(19)\n")
+        self.commit_fixture()
+        result = self.run_cmd("git", "push", "upstream", "HEAD:refs/heads/separate-failing", code=1)
+        self.assertIn("FAILED at .web/build.py --check (rc=19)", result.stdout)
+        hook = separate / "hooks/pre-push"
+        installed = hook.read_bytes()
+        tracked = (main / "tools/git-hooks/pre-push").read_bytes()
+        other = Path(self.tmp.name) / "alias-tree"
+        (other / "tools/git-hooks").mkdir(parents=True)
+        (other / "tools/git-hooks/pre-push").write_text(
+            '#!/bin/sh\necho REDIRECTED_HOOK >&2\nexit 0\n'
+            'python3 -I tools/pre-push-hook.py "$@" < "$refs"\n')
+        (other / "tools/pre-push-hook.py").touch()
+        overrides = {"plain": ([], {}),
+                     "command": (["-c", "core.worktree=" + str(other)], {}),
+                     "count": ([], {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "core.worktree",
+                                    "GIT_CONFIG_VALUE_0": str(other)})}
+        for setting in ("unset", "set"):
+            if setting == "unset":
+                self.run_cmd("git", "config", "--unset", "core.worktree")
+            else:
+                self.run_cmd("git", "config", "core.worktree", str(main))
+            for alias in ("copy", "hardlink"):
+                if alias == "copy":
+                    (other / ".git").write_text("gitdir: " + str(separate) + "\n")
+                else:
+                    os.link(main / ".git", other / ".git")
+                try:
+                    for dispatcher, body in (("installed", installed), ("tracked", tracked)):
+                        hook.write_bytes(body)
+                        for entry in ("option", "environment", "cwd"):
+                            for override, (options, variables) in overrides.items():
+                                with self.subTest(setting=setting, alias=alias, dispatcher=dispatcher,
+                                                  entry=entry, override=override):
+                                    saved = self.env.copy()
+                                    self.env.update(variables)
+                                    prefix = ["git", *options]
+                                    if entry == "option":
+                                        prefix += ["--work-tree", str(other)]
+                                    elif entry == "environment":
+                                        self.env["GIT_WORK_TREE"] = str(other)
+                                    else:
+                                        self.root = other
+                                    ref = "refs/heads/" + "-".join(
+                                        (setting, alias, dispatcher, entry, override))
+                                    try:
+                                        result = self.run_cmd(*prefix, "push", "upstream",
+                                                              "HEAD:" + ref, code=1)
+                                        output = result.stdout + result.stderr
+                                        self.assertNotIn("REDIRECTED_HOOK", output)
+                                        if setting == "unset":
+                                            self.assertIn("separate git dir without core.worktree", output)
+                                        elif entry == "cwd":
+                                            # Git itself selects the bound checkout, whose gate fails.
+                                            self.assertIn("FAILED at .web/build.py --check (rc=19)", output)
+                                        else:
+                                            self.assertIn("refusing redirected work tree", output)
+                                    finally:
+                                        self.env = saved
+                                        self.root = main
+                                    self.run_cmd("git", "--git-dir", str(remote), "show-ref",
+                                                 "--verify", "--quiet", ref, code=1)
+                finally:
+                    (other / ".git").unlink()
+                    hook.write_bytes(installed)
+
+    def test_real_config_credentials_and_fetch_main_and_linked(self):
+        self.real_remote()
+        runner = self.root / "tools/run_all_audits.sh"
+        runner.write_text(
+            "#!/bin/sh\npython3 - <<'CHECK'\nimport os, pwd, subprocess\n"
+            "assert os.environ['GIT_CONFIG_GLOBAL'] == '/dev/null'\n"
+            "assert 'GIT_CONFIG_NOSYSTEM' not in os.environ\n"
+            "assert 'GIT_CONFIG_SYSTEM' not in os.environ\n"
+            "assert os.environ['HOME'] == pwd.getpwuid(os.getuid()).pw_dir\n"
+            "assert {k: v for k, v in os.environ.items() if k.startswith('PYTHON')} "
+            "== {'PYTHONNOUSERSITE': '1'}\n"
+            "for key in ('SSH_AUTH_SOCK', 'http_proxy', 'https_proxy', 'ftp_proxy', "
+            "'all_proxy', 'no_proxy', 'HTTP_PROXY', 'HTTPS_PROXY', 'FTP_PROXY', 'ALL_PROXY', 'NO_PROXY'):\n"
+            "    assert os.environ[key] == 'fixture-value'\n"
+            "assert subprocess.run(['git', 'config', '--get', 'fixture.global']).returncode == 1\n"
+            "assert subprocess.check_output(['git', 'config', '--get', 'fixture.local']).strip() == b'kept'\n"
+            "CHECK\n")
+        self.commit_fixture()
+        self.run_cmd("git", "config", "fixture.local", "kept")
+        config = Path(self.tmp.name) / "global-config"
+        hooks = self.root / ".git/hooks"
+        original = (hooks / "pre-push").read_bytes()
+        self.env["GIT_CONFIG_GLOBAL"] = str(config)
+        self.env["GIT_CONFIG_SYSTEM"] = str(config)
+        for key in ("SSH_AUTH_SOCK", "http_proxy", "https_proxy", "ftp_proxy",
+                    "all_proxy", "no_proxy", "HTTP_PROXY", "HTTPS_PROXY", "FTP_PROXY", "ALL_PROXY", "NO_PROXY"):
+            self.env[key] = "fixture-value"
+        for checkout in self.main_and_linked():
+            # Keep the installed shim selected while testing config isolation.
+            config.write_text('[core]\n hooksPath = ' + str(hooks) + '\n[fixture]\n global = poison\n')
+            result = self.run_cmd("git", "push", "upstream", "HEAD:refs/heads/" + checkout)
+            self.assertIn("Safe to push", result.stdout)
+            self.assertIn("WARNING: fetch of origin failed", result.stdout)
+            self.assertIn("may be stale", result.stdout)
+            # Git can bypass an installed hook before it starts: documented residual.
+            config.write_text('[core]\n hooksPath = /dev/null\n')
+            (self.root / "fail").touch()
+            result = self.run_cmd("git", "push", "upstream", "HEAD:refs/heads/" + checkout + "-residual")
+            self.assertNotIn("guard 1/3", result.stdout)
+            self.assertEqual((hooks / "pre-push").read_bytes(), original)
+
+    def test_real_missing_hook_main_and_linked(self):
+        remote = self.real_remote()
+        fork = self.real_remote("fork", "other/repository.git")
+        (self.root / "tools/git-hooks/pre-push").unlink()
+        self.commit_fixture()
+        for checkout in self.main_and_linked():
+            ref = "refs/heads/" + checkout
+            result = self.run_cmd("git", "push", "upstream", "HEAD:" + ref, code=1)
+            self.assertIn("rebase", result.stderr)
+            self.run_cmd("git", "--git-dir", str(remote), "show-ref", "--verify", "--quiet", ref, code=1)
+            self.run_cmd("git", "push", "fork", "HEAD:" + ref)
+            self.assertEqual(self.run_cmd("git", "--git-dir", str(fork), "rev-parse", ref).stdout,
+                             self.run_cmd("git", "rev-parse", "HEAD").stdout)
+
+    def test_real_unicode_refs_main_and_linked(self):
+        self.real_remote()
+        for checkout in self.main_and_linked():
+            name = checkout + "\u00a0name"
+            branch = "refs/heads/" + name
+            tag = "refs/tags/" + name
+            result = self.run_cmd("git", "push", "upstream", "HEAD:" + branch)
+            self.assertIn("guard 3/3", result.stdout)
+            (self.root / "fail").touch()
+            self.run_cmd("git", "tag", name)
+            for ref in (tag, ":" + branch, ":" + tag):
+                result = self.run_cmd("git", "push", "upstream", ref)
+                self.assertNotIn("guard 1/3", result.stdout)
+
+    def test_real_post_guard_binding_main_and_linked(self):
+        remote = self.real_remote()
+        (self.root / "tools/run_all_audits.sh").write_text(
+            "#!/bin/sh\nif [ -f move-head ]; then git update-ref HEAD HEAD^; fi\n"
+            "if [ -f dirty-tree ]; then echo '# changed' >> .web/build.py; fi\n"
+            "if [ -f stage-tree ]; then echo '# staged' >> .web/build.py; git add .web/build.py; fi\n")
+        self.commit_fixture()
+        for checkout in self.main_and_linked():
+            head = self.run_cmd("git", "rev-parse", "HEAD").stdout.strip()
+            for change in ("move-head", "dirty-tree", "stage-tree"):
+                with self.subTest(checkout=checkout, change=change):
+                    trigger = self.root / change
+                    trigger.touch()
+                    ref = "refs/heads/" + checkout + "-" + change
+                    try:
+                        result = self.run_cmd("git", "push", "upstream", "HEAD:" + ref, code=1)
+                        self.assertIn("pre-push guard PASS", result.stdout)
+                        self.assertIn("HEAD or tracked tree changed", result.stderr)
+                        self.run_cmd("git", "--git-dir", str(remote), "show-ref", "--verify", "--quiet", ref, code=1)
+                    finally:
+                        trigger.unlink()
+                        self.run_cmd("git", "update-ref", "HEAD", head)
+                        self.run_cmd("git", "restore", "--source=HEAD", "--staged", "--worktree", ".web/build.py")
+
+    def test_real_older_hook_scope_main_and_linked(self):
+        self.real_remote()
+        self.real_remote("fork", "other/repository.git")
+        (self.root / "tools/git-hooks/pre-push").write_text(
+            '#!/bin/sh\necho OLDER_HOOK >&2\n'
+            'exec python3 "$(git rev-parse --show-toplevel)/tools/check-dirty-tree-push.py" --pre-push "$@"\n')
+        self.commit_fixture()
+        for checkout in self.main_and_linked():
+            result = self.run_cmd("git", "push", "upstream", "HEAD:refs/heads/" + checkout, code=1)
+            self.assertIn("rebase", result.stderr)
+            result = self.run_cmd("git", "push", "fork", "HEAD:refs/heads/" + checkout)
+            self.assertIn("OLDER_HOOK", result.stderr)
+            (self.root / ".web/build.py").write_text("print('dirty')\n")
+            result = self.run_cmd("git", "push", "fork", "HEAD:refs/heads/" + checkout + "-dirty", code=1)
+            self.assertIn("REFUSING", result.stderr)
+
+    def test_real_dot_git_component_main_and_linked(self):
+        remote = self.real_remote(suffix="jposluns/grc_library/.git")
+        for checkout in self.main_and_linked():
+            (self.root / "fail").touch()
+            result = self.run_cmd("git", "push", str(remote), "HEAD:refs/heads/" + checkout, code=1)
+            self.assertIn("FAILED at run_all_audits.sh", result.stdout)
+
+    def test_real_global_options_and_dry_run_main_and_linked(self):
+        self.real_remote()
+        pipe_hook = load_linter_module(".claude/hooks/block-verification-pipes.py", "push_pipe_options")
+        for checkout in self.main_and_linked():
+            git_dir = self.run_cmd("git", "rev-parse", "--absolute-git-dir").stdout.strip()
+            for prefix in (("git", "--git-dir", git_dir),
+                           ("git", "--work-tree", str(self.root), "--git-dir", git_dir),
+                           ("git", "--namespace", "fixture"),
+                           ("git", "-c", "color.ui=false"), ("git", "-p"), ("git", "-P"),
+                           ("env", "GIT_DIR=" + git_dir, "git")):
+                result = self.run_cmd(*prefix, "push", "-n", "upstream", "HEAD:refs/heads/options")
+                self.assertIn("guard 3/3", result.stdout)
+                self.assertTrue(pipe_hook.command_is_blocked(
+                    " ".join(prefix) + " push upstream HEAD:refs/heads/options | tail -1"))
+
+
 class PrePushGuardTests(unittest.TestCase):
     """tools/pre-push-guard.sh exit-code chain.
 
@@ -11015,6 +11763,8 @@ class PrePushGuardTests(unittest.TestCase):
         tools = tmp / "tools"
         tools.mkdir()
         shutil.copy(REPO_ROOT / "tools" / "pre-push-guard.sh", tools / "pre-push-guard.sh")
+        for name in ("install-git-hooks.sh", "lint_common.py"):
+            shutil.copy(REPO_ROOT / "tools" / name, tools / name)
         (tools / "run_all_audits.sh").write_text(
             f"#!/bin/bash\nexit {first_rc}\n", encoding="utf-8"
         )
@@ -23643,7 +24393,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 131975508456f41891ddc4e78f1b976cf447f00a970d6cbfcad83b5bcadb3ebd
+        README.md DATA F b8489583008e98de49a0198d44658de2b587cae032b05f17001b134137d22de9
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F c9596844ccf7a8146a7f1ad08a1d45c8575caae841323c827595f6069c564a86
@@ -23697,7 +24447,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-commit-on-main.py NO_FS F 6b32bd410a2fee3b4dbb3ff8e3677ee4c5278c9c3f0496fe429b12a25cc967e9
         check-daily-changelog-rollup.py SKIP F 096c9d8e8cf4741ca7fd9bb43ca5c4a5d08ead37c65559e291b44fb8af28da10
         check-date-cobump-on-pr.py NO_FS F 02741873379df2625536b436fc126cb5f6ce30d7dd593a0ab9657ec0d0c4758e
-        check-dirty-tree-push.py TRANSPORT F 3e155b2e0e6e3bd125c36611a3c76c1d426657f2363fb4d4462659f3234bafa4
+        check-dirty-tree-push.py TRANSPORT F e60cbafde1933c8bcc92410a997d41a6e5e89d97456ff2949aba0284ffb65713
         check-generated-commit.py NO_FS F 0966158af3a54dba6c55f7de8039ca21ff3658ffe98c4d341d6ad153e824697b
         check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 5c49cbef61d26c22b137d6118d478faee0ba47feda27f3aac3b4c134c772c9a5
         check-portability.sh FIXED F 47a3853e165ba918c0f4f5687904f662a0a9d805356428394fd724ff227756d5
@@ -23722,10 +24472,10 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         gate-scope-manifest.json DATA F 8f29caf3cd2485fab187579dcc95b18deb999df62d0853a6a7d3f717f271e497
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
-        git-hooks/pre-push TRANSPORT F 153637d865d22fd7f9a7a359a09fa4f468ad61d37ab070f6fb6ecd7fdc188b2c
+        git-hooks/pre-push TRANSPORT F b6be6bbf5e8319541b3903e86be287e4457667e037631882998bc772603bc94a
         handoff-snapshot.py NO_FS F c752b79fa8844d3b37fb8978b351cd55ad3c02e648cd0f37168f256a92154358
         historical_citation_register.py PASSIVE F deb457b7487c069a6f1602b6a4160e1ce922da6a82a523b288dfee151d3b0236
-        install-git-hooks.sh FIXED F d7e19f3e3e27e2691c1b5d67e7132153d6277839a8f0d4f1f41e9bd93b6d61bf
+        install-git-hooks.sh FIXED F 02e7278c3b66766a44d96c403950c243b877491d81572889b2a8d0bdae80f944
         iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
         iso_27001_reference.py PASSIVE F e8789346ac57b557de2f5c93c7fc2b31651b49be25bc8180e8bdc84310b21418
         lint-acronym-consistency.py CWD F 2608f2b4ef320586a895895235ce268e75dcca39f4a1e0618019ef8f1f59c3a9
@@ -23830,7 +24580,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 9c00bf9c44b922993da79bd9f1575d25aa824cb3012d39a48f7929ebe8c3985f
-        pre-push-guard.sh FIXED F 6266fe435475157686c5382ecaea00cfb944859d66832ab6169e35d8ff9c4603
+        pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
+        pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F 6d7f57c4f725cc4f8b88b8497551875b645a1949bcb71dbfc6f9e6fbb1eedf52
         preflight-version-date.py NO_FS F aa321341106d02ab1dda9790bf571e70f6e35f744b467d66dbf865dc5fbc2f00
         preflight_language_runner.py CHILD F c7242875b76d4282326ba37e0f878cebfc2939aa2780657c56bb3ef007fa0644

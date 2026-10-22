@@ -6,7 +6,7 @@ Shipped PR #620 (RM-10 hardening). Reads the PreToolUse JSON payload on stdin, i
 pipes a named verification command into a truncating filter, the RM-10
 failure shape whose pipeline exit code reports the FILTER, not the gate:
 
-    named commands:  pre-push-guard.sh, run_all_audits.sh,
+    named commands:  git push (including global options), pre-push-guard.sh, run_all_audits.sh,
                      run-pr-time-checks.sh, unittest, lint-*.py,
                      preflight-changelog.py
     truncating filters: tail, head, grep, sed, awk
@@ -126,7 +126,7 @@ def _load_sibling(name, _cache={}):
 
 VERIFICATION = (
     r'(?:pre-push-guard\.sh|run_all_audits\.sh|run-pr-time-checks\.sh'
-    r'|unittest\b|lint-[A-Za-z0-9_-]+\.py|preflight-changelog\.py'
+    r'''|git\s+(?:(?:(?:-[Cc]|--git-dir|--work-tree|--namespace)\s+(?:"[^"\n]*"|'[^'\n]*'|[^\s|;&]+)|-[pP]|--[^\s|;&]+)\s+)*push\b|unittest\b|lint-[A-Za-z0-9_-]+\.py|preflight-changelog\.py'''
     r'|run-linter-regression\.py|build-[A-Za-z0-9_-]+\.py(?=[^|]*--check(?![\w-])))'
 )
 FILTERS = r'(?:tail|head|grep|sed|awk|tee|wc)\b'
@@ -141,6 +141,7 @@ COMMAND_POS = (
     r'(?:^|[;&\n(]\s*|&&\s*|\|\|\s*|\{\s+)'
     r'(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*'          # env assignments
     r'(?:timeout\s+[\w.]+\s+|env\s+)?'             # common runners
+    r'(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*'          # assignments after env
     r'(?:python3?\s+(?:-m\s+)?|bash\s+|sh\s+)?'    # interpreter
     r'(?:[\w.~-]*/)*'                              # path prefix (tools/, ./)
 )
@@ -188,6 +189,15 @@ def main() -> int:
 
 def self_test() -> int:
     blocked = [
+        'git push -u origin br | tail -3',
+        'git -C repo -c color.ui=false push origin br | tail -3',
+        'git --git-dir=repo/.git push origin br | head -1',
+        'git --git-dir repo/.git push origin br | tail -1',
+        'git --work-tree "some tree" --git-dir g push origin br | tail -1',
+        'git --namespace space -c "color.ui=false" push origin br | tail -1',
+        'git -p push origin br | tail -1',
+        'git -P push origin br | tail -1',
+        'env GIT_DIR=x git push origin br | tail -1',
         './tools/pre-push-guard.sh | tail -3',
         'tools/run_all_audits.sh 2>&1 | tail -8',
         './tools/run-pr-time-checks.sh | head -20',
@@ -205,6 +215,7 @@ def self_test() -> int:
         './tools/pre-push-guard.sh | tee /tmp/guard.log',
     ]
     allowed = [
+        'git push -u origin br',
         './tools/run_all_audits.sh',
         './tools/pre-push-guard.sh && git push -u origin br',
         './tools/run_all_audits.sh > /tmp/a.log; echo $?',

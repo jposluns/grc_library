@@ -27,18 +27,22 @@ drive end-to-end on the maintainer's behalf:
    until its RETURNED `/validate-pr` row and its `/retro` row are written (steps 2-3);
    that one finding is expected until then, a concurrent-run artefact identified as such
    (step 2) is not a defect, and any other failure is a defect to fix before continuing.
-   Before pushing, run both runners as a single pre-push gate:
-   `tools/pre-push-guard.sh && git push -u origin <branch>`. The guard chains
+   Install once with `tools/install-git-hooks.sh`, then push:
+   `git push -u origin <branch>`. The guard chains
    `run_all_audits.sh` (corpus gates from HEAD) then `run-pr-time-checks.sh` (the per-PR
    D-numbered delta gates (D6 retired) plus the history-aware trio 45/40/31 against the merge base), then `.web/build.py --check` (web-generator health),
    stopping non-zero on the first failure, so a gate defect blocks the push instead of
    flipping CI red after the fact. The two runners plus the web-generator check together cover every gate CI runs. After them the guard prints one advisory that never blocks: `build-reference-manifest.py --check`, which reports reference-manifest drift against the reference sibling (P-TODO 3b62).
-   The guard runs as an `&&`-chained step, not from a git pre-push hook, because it was
-   written when git hooks did not fire in this environment. The per-clone hooks that
-   `tools/install-git-hooks.sh` installs do fire now (its pre-commit hook runs
-   `preflight-changelog.py --staged` in each `git commit` that stages `CHANGELOG.md`), but the
-   guard stays an explicit `&&` step so a push is gated even in a clone that never ran the
-   installer.
+   The installed pre-push hook runs the full guard on every branch update to the
+   maintainer repository, selected by normalized URL regardless of remote name.
+   Each branch commit must equal the active checkout's HEAD. Tags, deletions and
+   other repositories skip the full guard but retain the dirty-tree backstop.
+   Older checkouts without the current adapter refuse all pushes to the guarded
+   destination until updated; other destinations still run their older hook,
+   or succeed if the tracked hook is absent.
+   `tools/install-git-hooks.sh --check` verifies the shared shim. Direct guard runs
+   remain available; a later push always runs fresh checks. See `tools/README.md`
+   for worktree setup, environment clearing and Git's hook-bypass residuals.
 2. As the PR's FINALIZING QA step, on the committed branch BEFORE the guarded push (step 4)
    and so BEFORE merge, invoke `/validate-pr` (dispatches
    Subagent A on THIS PR's own diff plus a cross-reference check on files citing the
@@ -95,8 +99,7 @@ drive end-to-end on the maintainer's behalf:
    synchronous model retired the recursion-avoidance batching, so the row is never deferred
    to a later PR.
 4. Once THIS PR's RETURNED `/validate-pr` row and its `/retro` row are recorded (steps 2-3),
-   push with the pre-push guard: `tools/pre-push-guard.sh && git push -u origin
-   <branch>`. Run EVERY verification command (the guard, `run_all_audits.sh`,
+   push with the installed pre-push hook: `git push -u origin <branch>`. Run EVERY verification command (the guard, `run_all_audits.sh`,
    `run-pr-time-checks.sh`, the linter-regression runner, a generator `--check`)
    STANDALONE and UNPIPED (never `guard | tail && push`, never `audits | tail`, nor any
    other pipe or truncating sink): a pipe masks the exit code so the dependent action

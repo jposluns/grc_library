@@ -2,10 +2,15 @@
 #
 # pre-push-guard.sh
 #
-# The single pre-push QA gate. Run it (it must exit 0) immediately before
-# a push, as one command:
+# The single pre-push QA gate, run by the installed git pre-push hook:
 #
-#   tools/pre-push-guard.sh && git push -u origin <branch>
+#   tools/install-git-hooks.sh       # once per clone, shared by worktrees
+#   tools/install-git-hooks.sh --check
+#   git push -u origin <branch>
+#
+# A direct run remains available; every guarded push runs the full guard again.
+# Hook output streams through a regular file; direct pipes retain RM-10 refusal.
+# Git --no-verify and core.hooksPath can bypass hooks; see tools/README.md.
 #
 # It chains the two runners that PR-workflow step 4 mandates, plus a web-generator
 # health check, before any push, stopping on the first failure:
@@ -22,14 +27,6 @@
 # Together those two runners cover every gate the CI workflow runs, so a
 # green guard means the push will not flip CI red on a gate failure.
 #
-# Why a standalone &&-gated guard rather than a git pre-push hook: it was
-# written when git hooks did not fire in this execution environment. The
-# per-clone commit-time hooks installed by tools/install-git-hooks.sh do
-# fire now, but this guard stays an explicit &&-chained step so a push is
-# gated even in a clone that never ran the installer. The guard closes the
-# momentum-bypass gap where an "intermediate" push skipped the runner and
-# a delta gate flipped CI red after the fact (improvement-log #438).
-#
 # Scope boundary: this guard gates PUSHES (the two post-commit / pre-push
 # runners plus the conditional `.web/build.py --check`). The commit-time
 # hygiene gate, `preflight-changelog.py`, gates COMMITS, because it judges
@@ -42,10 +39,10 @@
 # commit-time gate. The two helpers are complementary, not redundant.
 #
 # Usage:
-#   tools/pre-push-guard.sh && git push -u origin <branch>
+#   git push -u origin <branch>
 #   BASE_REF=origin/develop tools/pre-push-guard.sh   # non-default base
 #
-# Exit codes: 0 only if both runners and the web check (when .web/build.py is present) pass; 3 if the guard REFUSES to run
+# Exit codes: 1 for an installed-hook check failure; 0 only if both runners and the web check (when .web/build.py is present) pass; 3 if the guard REFUSES to run
 # because stdout is piped (the RM-10 self-defence below, before any runner
 # starts); 4 if grc_library_private is required but absent (the _private check
 # below); 5 if the tracked working tree is dirty or its state cannot be read
@@ -126,13 +123,18 @@ else
   echo "pre-push-guard: NOTE: PRE_PUSH_GUARD_ALLOW_DIRTY is set; skipping the dirty-tracked-tree attestation check (deliberate override)." >&2
 fi
 
+# Validate the shared dispatcher even for a direct run. CI has no private store.
+sh tools/install-git-hooks.sh --check || exit $?
+
 # Best-effort refresh of the merge base so the delta gates in
 # run-pr-time-checks.sh compare against the true base ref (origin/main by
 # default; whatever BASE_REF names otherwise). Fetching all of origin keeps
 # the refresh correct under a BASE_REF override. Offline is tolerated:
 # run-pr-time-checks.sh falls back to whatever base ref exists locally, and a
 # stale base only risks a false PASS on the delta gates, which CI then catches.
-git fetch origin --quiet 2>/dev/null || true
+if ! git fetch origin --quiet 2>/dev/null; then
+  echo "pre-push-guard: WARNING: fetch of origin failed; delta gates use the locally available base, which may be stale." >&2
+fi
 
 # Capture each runner's exit code from the BARE command, not from inside an
 # `if ! cmd` test: `rc=$?` after `if ! cmd; then` would capture the negated
