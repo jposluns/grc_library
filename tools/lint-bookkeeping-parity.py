@@ -274,23 +274,30 @@ CI and adopter clones do not have, so they skip the whole check. That store-loca
 design is deliberate and unchanged.
 
 **Store scope (rows and Check 3; maintainer ruling 2026-09-30 17:07Z, option B,
-simplified 21:03Z).** The operational store is shared by every open branch, so the
+simplified 21:03Z; clean-base allowed 2026-10-22 01:29Z).** The operational store is
+shared by every open branch, so the
 per-PR row-integrity pass and Check 3 can see another open PR's in-flight rows and
-mirror entry. Those two passes defer an entry only after this branch DECLARES its own
+mirror entry. Those two passes defer an entry with a clean-base scope (see below)
+or after this branch DECLARES its own
 PR: the single new singular root ``CHANGELOG.md`` header naming a PR absent from the
 merge-base root headers, from origin/main's root headers and from origin/main's
 ``(#N)`` and ``Merge pull request #N`` commit subjects
 (``lint_common.own_pr_declaration``). No other ref is consulted. Historical header
 edits, roll-ups, a merged PR's header, a second new identity, a combined identity,
 an unparseable or unrecognized new header, and any fence or HTML-comment delimiter
-at or above the candidate declare nothing. No declaration, or an unreadable
-merge-base changelog, origin/main changelog or origin/main log, means no deferral
-and a printed note.
+at or above the candidate declare nothing. A clean-base scope declares no own PR:
+the root has a parseable PR ceiling, no new header-like line against the merge-base,
+and no delimiters. Historical milestone lines already in the merge-base are allowed.
+Its ceiling is the root maximum and its origin/main evidence must be readable.
+Because the own PR is unknown under clean-base, a trailer-only PR's own history
+rows and mirror entry defer like another open PR's until it merges, when its merge
+subject protects them. Neither basis, or an unreadable merge-base changelog,
+origin/main changelog or origin/main log, means no deferral and a printed note.
 
-The shared ``StoreScope`` always protects the own PR and every PR covered by this
+The shared ``StoreScope`` always protects the declared own PR and every PR covered by this
 branch's root headers, origin/main's root headers or origin/main's merge subjects,
 range interiors included, so a missing or wrong record for a merged PR or for the
-own PR is never deferred (a merged PR that took a D1 ``Changelog:`` trailer instead
+declared own PR is never deferred (a merged PR that took a D1 ``Changelog:`` trailer instead
 of a root entry is protected by its merge subject). Another entry can defer when
 every PR it names exceeds the ceiling ``max(declared own PR, highest root header
 PR)``, or when every named PR is another open PR absent from all of that evidence.

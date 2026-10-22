@@ -1328,13 +1328,21 @@ def dynamic_floor(present: Iterable[int], floor: int) -> int:
 
 
 # --- Store-scope ceiling (maintainer option B, 2026-09-30 17:07Z; simplified 21:03Z) ---
-# A declaration enables deferral: the single new singular root header whose PR is absent from
+# A declaration or a clean-base scope (maintainer "Allow clean-base", 2026-10-22 01:29Z) enables
+# deferral. A declaration is the single new singular root header whose PR is absent from
 # the merge-base root headers and from origin/main's root headers and merge subjects. No other
 # ref is consulted. Historical edits, roll-ups, a merged PR's header and example headers do not
 # declare an own PR. Read origin/main locally, without fetching or API calls. Readers retain
 # raw lines; uncertainty widens evaluation. The invariant: a missing or wrong record for a
-# merged PR or for the branch's own PR is never deferred, and ambiguity fails closed (no
-# deferral).
+# merged PR, or for the branch's own PR once declared, is never deferred, and ambiguity fails
+# closed (no deferral). A clean-base scope has no new header-like line against the merge-base,
+# a parseable root ceiling, and no root delimiters. Historical header-like lines already
+# in the merge-base (including milestones) do not invalidate it. It uses the same readable
+# origin/main evidence, protects merged PRs, and declares no own PR, so the own PR is unknown
+# and cannot be protected: a trailer-only PR (D1 `Changelog:` trailer, no root header) has its
+# own mirror and history entries deferred like any other open PR's until it merges, when
+# origin/main's merge subject protects it. A branch that adds its root header declares and
+# leaves clean-base, so its own entries are evaluated again.
 #
 # ONE shared, case-insensitive PR-identity grammar reads every identity (root and mirror header
 # cells and register rows alike) and, from the same matched text, every range, so identity and
@@ -1609,9 +1617,13 @@ class StoreScope(NamedTuple):
     """Declaration, numeric ceiling, and offline protected PR coverage.
 
     ``store_scope`` declares an own PR only when the merge-base changelog and
-    both origin/main readers are readable, so a scope it builds has
-    ``open_rule`` true exactly when it has a declaration, and ``merged_prs``
-    holds that origin/main evidence, which is always protected. A scope built
+    both origin/main readers are readable. The same evidence enables a
+    clean-base scope with no own PR when no new header-like line exists against
+    the merge-base; root delimiters disallow that scope. Historical milestone
+    lines already present in the merge-base do not invalidate it.
+    Both scopes set ``open_rule`` and protect all ``merged_prs`` evidence. A
+    clean-base scope has ``own_pr`` None, so an undeclared (trailer-only) own
+    PR's entries defer until it merges. A scope built
     without ``open_rule`` keeps only the ceiling rule.
     """
 
@@ -1642,6 +1654,22 @@ def store_scope(changelog_text: str | None, *, repo_root: Path | str | None = No
                           "store entry is evaluated.", branch_prs)
     own, why = own_pr_declaration(text, base, main, merged)
     if own is None:
+        # Clean-base: nothing new against the merge-base, so the own PR (if any) is unknown and
+        # its entries defer like another open PR's until merged; merged PRs stay protected.
+        base_headers = {line.strip() for line in base.splitlines()
+                        if changelog_header_like(line)}
+        clean_base = changelog_text is not None and root_max is not None and not any(
+            store_example_delimiter(line)
+            or (changelog_header_like(line) and line.strip() not in base_headers)
+            for line in text.splitlines()
+        )
+        if clean_base:
+            return StoreScope(
+                root_max, None, root_max,
+                "store scope: clean-base (no new root header against the merge-base; "
+                "origin/main headers and merge subjects readable); other open PRs may "
+                "defer. Offline origin/main may be stale until fetched.",
+                branch_prs, _changelog_ranges(main) + merged, True)
         return StoreScope(root_max, None, None,
                           f"store scope: no own-PR declaration ({why}); every store entry "
                           "is evaluated.", branch_prs)
@@ -1711,8 +1739,10 @@ def store_deferral_note(prs: Iterable[int], scope: StoreScope, source: str, line
     """One note per deferred entry, with its location, keys and reason."""
     reason = store_deferral_reason(prs, scope)
     keys = ", ".join(f"#{pr}" for pr in sorted(set(prs)))
+    basis = (f"declared own PR #{scope.own_pr}" if scope.own_pr is not None
+             else "clean-base scope (no declared own PR)")
     return (f"note: {source}:{lineno}: deferred {keys}: {reason}; "
-            f"declared own PR #{scope.own_pr}, ceiling #{scope.ceiling}.")
+            f"{basis}, ceiling #{scope.ceiling}.")
 
 
 def store_deferral_flags(lines: Iterable[str], ceiling: int | StoreScope | None) -> list[tuple[bool, list[int]]]:
