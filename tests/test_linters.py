@@ -3303,7 +3303,21 @@ class RefAbsenceClaimsTests(LinterTestCase):
     round-13 mutation survivors are killed here: the min claim end by
     test_shorter_reading_bounds_the_claim, the matching order and the
     reading union by test_reading_union_and_matching_order, and the fence
-    prefix break by the bullet-fence row of the fenced-code test.
+    prefix break by the bullet-fence row of the fenced-code test. The
+    round-14 and round-15 escapes (3b144) fire the blocking obfuscation
+    screen in test_obfuscation_screen_blocks_hidden_claims; the screen
+    fails closed on markup it cannot read exactly, stays silent on
+    detected claims and on plain-prose paraphrases, which remain
+    advisory, and the round-15 mutation survivors (the claim-span skip,
+    the invisible-character class and the exact junk and part budgets)
+    are killed in the screen tests. The round-16 escapes (the screen's
+    second review round) fire the permissive hidden-claim refusal in
+    test_permissive_reader_refuses_hidden_claims, and the round-16
+    mutation survivors (the between-word variation-selector,
+    grapheme-joiner and debris refusals, the bracket rule's junk arm,
+    the readable-gap letter-skip guard and the no-evidence anchor step)
+    are killed by that test's rows and the r16 pin rows of the screen
+    tests.
     """
     SCRIPT = 'tools/lint-ref-absence-claims.py'
     CLAIM = 'X is not held in the reference base.'
@@ -3791,6 +3805,308 @@ class RefAbsenceClaimsTests(LinterTestCase):
                 result = run_linter(self.SCRIPT, fixture)
                 self.assertLinterFails(result, expected)
                 self.assertIn('ADVISORY:', result.stdout)
+
+    def test_obfuscation_screen_blocks_hidden_claims(self):
+        # 3b144 round 14 (codex R14-1 to R14-3; claude F1 to F4): shapes
+        # that hide a canonical claim from every reading and stripped
+        # copy now fire the blocking obfuscation screen. Each row was
+        # HIDDEN (exit 0) before the screen shipped.
+        for label, body in (
+            # R14-1: HTML stripping hides a claim.
+            ('r14-attr-gt', 'X is not <span title="a>b">held</span> in the reference base.'),
+            ('r14-attr-lt', 'X is not <span title="a<b">held</span> in the reference base.'),
+            ('r14-tag-split-word', 'X is not he<ruby></ruby>ld in the reference base.'),
+            ('r14-br-split-word', 'X is not he<br>ld in the reference base.'),
+            ('r14-marker-split-word', 'The decree is not held. X is not he<!-- ref-absence: NONESUCH-99997 -->ld in the reference base.'),
+            # Entity-encoded or literal invisible characters split a word.
+            ('r14-soft-hyphen-entity', 'X is not he&shy;ld in the reference base.'),
+            ('r14-zero-width-entity', 'X is not he&#8203;ld in the reference base.'),
+            ('r14-word-joiner', 'X is not he\u2060ld in the reference base.'),
+            ('r14-grapheme-joiner', 'X is not he\u034fld in the reference base.'),
+            ('r14-variation-selector', 'X is not he\ufe0fld in the reference base.'),
+            # R14-2: an unmatched backtick shifts code-span pairing, so a
+            # code-span "](" goes live and swallows the later linked claim.
+            ('r14-unmatched-backtick-swallow', 'stray ` here. `see ](x for` X is [not](a) held in the reference base. )'),
+            # R14-3: unclosed constructs leave text between the claim words.
+            ('r14-unclosed-link-title', 'X is [not](d "foo held in the reference base.'),
+            ('r14-unclosed-tag-attribute', 'X is not <span title="foo held in the reference base.'),
+            # 3b144 round 15 (claude F1-F4, codex F1-F3, gemini F1): the
+            # screen fails closed on markup it cannot read exactly. Each
+            # row was HIDDEN (exit 0) before this round.
+            ('r15-angle-destination-swallows-prose', "See [a](x<y) and X is not [held](z) in the reference base, so a>b)."),
+            ('r15-quoted-title-swallows-prose', "See [a](x 'y) and X is not [held](z) in the reference base. It's ok)."),
+            ('r15-attr-debris-no-junk-token', 'X is not <span title="a>">held</span> in the reference base.'),
+            ('r15-unclosed-title-no-junk-token', 'X is [not](d " held in the reference base.'),
+            ('r15-unclosed-tail-erases-in', 'X is not [held](in the reference base.'),
+            ('r15-unclosed-tail-erases-held', 'X is [not](held in the reference base.'),
+            ('r15-word-joiner-beside-space', 'X is not \u2060held in the reference base.'),
+            ('r15-word-joiner-between-spaces', 'X is not \u2060 held in the reference base.'),
+            ('r15-braille-blank-for-space', 'X is not\u2800held in the reference base.'),
+            ('r15-hangul-filler-for-space', 'X is not\u3164held in the reference base.'),
+            ('r15-numeric-footnote', 'X is not held[^1] in the reference base.\n\n[^1]: A note.'),
+            ('r15-reference-digit', 'X is not held[1] in the reference base.\n\n[1]: https://example.invalid/'),
+            ('r15-sup-tag-digit', 'X is not held<sup>1</sup> in the reference base.'),
+            ('r15-bare-superscript-digit', 'X is not held\u00b9 in the reference base.'),
+            ('r15-entity-erased-letter', 'X is not h&#101;&shy;ld in the reference base.'),
+            ('r15-entity-erased-letter-tag', 'X is not h&#101;<ruby></ruby>ld in the reference base.'),
+            ('r15-optional-article-backtrack', 'X is not he&shy;ld in reference base, and the copy is lost.'),
+            ('r15-optional-currently-backtrack', 'X is not held in the <span title="a>currently">reference</span> base.'),
+            ('r15-exactly-three-junk-tokens', 'X is not <b>alpha beta gamma</b> held in the reference base.'),
+            ('r15-exactly-four-part-word', 'X is not h<x></x>e<x></x>l<x></x>d in the reference base.'),
+            # 3b144 round 16: mutation-survivor pins. Each row blocks
+            # through the screen; a mutant dropping its rule falls
+            # through to the permissive refusal, whose message differs,
+            # so this assertion still kills the mutant.
+            ('r16-pin-variation-selector-between-words', 'X is not \ufe0fheld in the reference base.'),
+            ('r16-pin-grapheme-joiner-between-words', 'X is not \u034f held in the reference base.'),
+            ('r16-pin-image-with-alt', 'X is not ![alt](p.png) held in the reference base.'),
+            ('r16-pin-debris-lt', 'X is not < held in the reference base.'),
+            ('r16-pin-debris-gt', 'X is not > held in the reference base.'),
+            ('r16-pin-debris-amp', 'X is not & held in the reference base.'),
+            ('r16-pin-debris-backslash', 'X is not \\ held in the reference base.'),
+            ('r16-pin-debris-caret', 'X is not ^ held in the reference base.'),
+            ('r16-pin-no-evidence-anchor-overlap', 'X is not held in our reference not base he\ufe0fld in the reference base.'),
+        ):
+            with self.subTest(label=label):
+                findings = self.blocking(body + '\n')
+                self.assertTrue(
+                    any('unreadable markup around a possible reference-absence '
+                        'claim; write the sentence plainly' in f for f in findings),
+                    (body, findings))
+
+    def test_obfuscation_screen_spares_detected_claims_and_paraphrases(self):
+        # The screen never fires where a reading already detects the
+        # claim (the marker machinery owns it), and it carries no
+        # evidence on plain prose, so near misses stay advisory under
+        # the 2026-09-30 00:57Z/14:05Z ruling. The R14-2 shape without
+        # the stray backtick keeps its code-span pairing, so the claim
+        # is detected and its marker satisfies it.
+        self.assertClean(self.CLAIM + ' ' + self.MARKER + '\n')
+        self.assertClean('X is not held ' + self.MARKER + ' in the reference base.\n')
+        self.assertClean('`see ](x for` X is [not](a) held in the reference base. ) ' + self.MARKER + '\n')
+        # Round 15: plain whitespace is not obfuscation (a split word
+        # joins only across a gap the screen cannot read), and a marked
+        # claim split by emphasis stays with the marker machinery (the
+        # claim-span skip), so neither row carries a screen finding.
+        self.assertClean('There is no T held in the reference base.\n')
+        self.assertClean('X is not h**e**ld in the reference base. ' + self.MARKER + '\n')
+        # Round 16: a letter skipped across a readable gap is still not
+        # evidence, and the permissive reading spells no claim through
+        # 'n t', so the row stays clean (kills the letter-skip-guard
+        # mutant, which would false-block it).
+        self.assertClean('X is n t held in the reference base.\n')
+        for body in (
+            'The implementing decree is not yet held in the reference base.',
+            'The decree is not yet held in the [reference base](x.md).',
+            "The recommendations are not held in this library's reference base.",
+        ):
+            with self.subTest(body=body):
+                findings = self.scan(body + '\n')
+                self.assertTrue(findings, body)
+                self.assertTrue(all(f.startswith('ADVISORY: ') for f in findings), findings)
+        for body in (
+            'This control is not applicable. Data held in the reference base stays encrypted.',
+            'The data can**not** be held in the reference base of record.',
+            # The budgets are exact: four junk tokens before a word or a
+            # five-part word stay outside the matcher (stated residue;
+            # the permissive reading reads a blanked tag as a word
+            # separator, so a tag-split word stays unread there too).
+            'X is not <b>alpha beta gamma delta</b> held in the reference base.',
+            'X is not held in the r<x></x>e<x></x>f<x></x>e<x></x>rence base.',
+        ):
+            with self.subTest(body=body):
+                self.assertEqual(
+                    [f for f in self.scan(body + '\n')
+                     if 'unreadable markup around a possible '
+                        'reference-absence claim' in f
+                     or 'possible hidden claim' in f],
+                    [])
+
+    def test_obfuscation_screen_cli_blocks(self):
+        # End to end: an obfuscated claim in a scanned file exits 1 with
+        # the screen's finding.
+        fixture = self.make_fixture(
+            'annex-absence-obfuscated.md',
+            '# T\n\nX is not <span title="a>b">held</span> in the reference base.\n')
+        self.assertLinterFails(
+            run_linter(self.SCRIPT, fixture),
+            'unreadable markup around a possible reference-absence claim')
+
+    def test_permissive_reader_refuses_hidden_claims(self):
+        # 3b144 round 16 (review round 2 of the screen: claude F1-F3,
+        # codex F1-F4, gemini F1-F2): a permissive reading of each
+        # paragraph (closed comments, images, closing link tails and
+        # well-formed tags blanked; entities decoded; invisible Mn, Cf
+        # and Cc characters deleted so split words rejoin; every other
+        # non-alphanumeric character a word separator) spells the
+        # canonical claim where no reading detects a claim and the
+        # screen raises nothing. Each row was HIDDEN (exit 0) or
+        # advisory-only before this round.
+        for label, body in (
+            # claude F1: an empty-alt or reference-style image between
+            # claim words renders no text.
+            ('r16-empty-alt-image', 'X is not ![](p.png) held in the reference base.'),
+            ('r16-empty-alt-emphasis', 'X is *not* ![](p.png) held in the reference base.'),
+            ('r16-empty-alt-late', 'X is not held in the reference ![](p.png) base.'),
+            ('r16-reference-image', 'X is not ![][p] held in the reference base.\n\n[p]: p.png'),
+            ('r16-empty-alt-was-advisory', 'X is not held ![](x.png) in the reference base.'),
+            # claude F2 / codex F3: invisible Mn characters outside
+            # U+FE00-U+FE0F beside a claim word.
+            ('r16-variation-selector-17', 'X is not \U000e0100held in the reference base.'),
+            ('r16-mongolian-selector', 'X is not \u180bheld in the reference base.'),
+            ('r16-mongolian-selector-after', 'X is not held\u180b in the reference base.'),
+            ('r16-khmer-inherent-vowel', 'X is not\u17b5 held in the reference base.'),
+            ('r16-selector-after-strike', 'X is not ~~held~~\U000e0100 in the reference base.'),
+            # claude F3: a malformed tag or an entity that does not
+            # decode renders as text, but the screen blanks it.
+            ('r16-malformed-tag-prose', '<b X is not he\u00adld in the reference base, really>'),
+            ("r16-malformed-tag-attr", "<i x='a' X is not he&shy;ld in the reference base.>"),
+            ('r16-fake-entity', 'X is not &held; in the reference base.'),
+            # codex F1: an invalid link tail renders as prose, but the
+            # screen blanks it up to its first whitespace; a bare tail
+            # with no link opener renders literally too.
+            ('r16-invalid-tail-swallows-held', 'X is [not](held in the reference base.)'),
+            ('r16-invalid-tail-swallows-in', 'X is not [held](in the reference base.)'),
+            ('r16-bare-tail-no-opener', 'X is not ](held) in the reference base.'),
+            # codex F2, and the closed round-15 residue: letters erased
+            # from a claim word's edges by entity blanking.
+            ('r16-erased-trailing-letter', 'X is not hel&#100;&shy; in the reference base.'),
+            ('r16-erased-leading-letters', 'X is not &#104;&shy;eld in the reference base.'),
+            # codex F4: a different detected claim inside an attribute
+            # no longer suppresses the refusal on the claim around it.
+            ('r16-attr-claim-overlap', 'X is not <span title="\nY is not held in the reference base. <!-- ref-absence: Y-NONESUCH -->\n">he\u2060ld</span> in the reference base.'),
+            # gemini F1-F2: visible separators the screen reads as
+            # plain prose while no reading matches the claim.
+            ('r16-slash-separators', 'X is not/held/in/the/reference/base.'),
+            ('r16-hyphen-joined', 'The decree is not-held in the reference base.'),
+            ('r16-comma-separator', 'The decree is not, held in the reference base.'),
+            # Review round 3, claude E1: a claim word in an image's alt
+            # text, read in the permissive reader's alt-text reading.
+            ('rev3-alt-inline', 'X is not ![held](x.png) in the reference base.'),
+            ('rev3-alt-reference', 'X is not ![held][i] in the reference base.\n\n[i]: x.png'),
+            ('rev3-alt-wholly-after-word', 'X is not ![held in the reference base](x.png).'),
+            ('rev3-alt-was-advisory', 'X is not held ![in the](x.png) reference base.'),
+            ('rev3-alt-html-img', 'X is not <img alt="held" src="x.png"> in the reference base.'),
+            # claude E2: default-ignorable code points, unassigned ones
+            # and the Hangul fillers included, split a word into five
+            # parts, past the screen's four-part budget.
+            ('rev3-cn-2065-five-part', 'X is not held in the r\u2065e\u2065f\u2065e\u2065rence base.'),
+            ('rev3-cn-fff0-five-part', 'X is not held in the r\ufff0e\ufff0f\ufff0e\ufff0rence base.'),
+            ('rev3-cn-e0080-five-part', 'X is not held in the r\U000e0080e\U000e0080f\U000e0080e\U000e0080rence base.'),
+            ('rev3-cn-e0fff-five-part', 'X is not held in the r\U000e0fffe\U000e0ffff\U000e0fffe\U000e0fffrence base.'),
+            ('rev3-hangul-filler-five-part', 'X is not held in the r\u1160e\u1160f\u1160e\u1160rence base.'),
+            ('rev3-halfwidth-filler', 'X is not he\uffa0ld in the reference base.'),
+            # claude W3: five-part Mn splits. U+180B and U+E0100 are
+            # also default-ignorable, so the U+0301 row is the one a
+            # mutant dropping "Mn" fails.
+            ('rev3-mongolian-selector-five-part', 'X is not held in the r\u180be\u180bf\u180be\u180brence base.'),
+            ('rev3-selector-17-five-part', 'X is not held in the r\U000e0100e\U000e0100f\U000e0100e\U000e0100rence base.'),
+            ('rev3-combining-mark-five-part', 'X is not held in the r\u0301e\u0301f\u0301e\u0301rence base.'),
+            # codex G104-R3-1 and claude W1: a claim split across a
+            # paragraph break, read with paragraph breaks as separators.
+            ('rev3-empty-alt-paragraph', 'X is not ![](p.png)\n\nheld in the reference base.'),
+            ('rev3-selector-paragraph', 'X is not \U000e0100\n\nheld in the reference base.'),
+            ('rev3-slash-paragraph', 'X is not\n\nheld/in the reference base.'),
+            ('rev3-hyphen-paragraph', 'X is not\n\nheld-in the reference base.'),
+            ('rev3-emoji-paragraph', 'X is not\n\n\U0001f512\n\nheld in the reference base.'),
+            ('rev3-thematic-break-paragraph', 'X is not\n\n---\n\nheld in the reference base.'),
+            # Review round 4, claude E2: letters inside a non-rendering
+            # element, deleted with the element in the hidden-content
+            # reading so the neighbours join.
+            ('rev4-rp-one-letter', 'X is not he<rp>x</rp>ld in the reference base.'),
+            ('rev4-rp-two-letters', 'X is not he<rp>xy</rp>ld in the reference base.'),
+            ('rev4-rp-junk-words', 'X is not <rp>a b c d</rp> held in the reference base.'),
+            ('rev4-hidden-attribute', 'X is not he<span hidden>x</span>ld in the reference base.'),
+            ('rev4-display-none', 'X is not he<span style="display:none">x</span>ld in the reference base.'),
+            ('rev4-template', 'X is not he<template>x</template>ld in the reference base.'),
+            ('rev4-script', 'X is not he<script>x</script>ld in the reference base.'),
+            ('rev4-style', 'X is not he<style>x</style>ld in the reference base.'),
+            ('rev4-noscript', 'X is not he<noscript>x</noscript>ld in the reference base.'),
+            ('rev4-hidden-junk-words', 'X is not <span hidden>a b c d</span> held in the reference base.'),
+            ('rev4-hidden-nested', 'X is not he<span hidden><span>x</span>y</span>ld in the reference base.'),
+            # codex G104-R4-1: emphasis inside image alt text, deleted
+            # as the strict readings delete it elsewhere.
+            ('rev4-alt-emphasis', 'X is not held in the ![r*e*f*e*rence](x.png) base.'),
+            ('rev4-alt-strong', 'X is not held in the ![r**e**f**e**rence](x.png) base.'),
+            ('rev4-alt-underscore', 'X is not held in the ![r_e_f_e_rence](x.png) base.'),
+            ('rev4-alt-strike-reference', 'X is not held in the ![r~~e~~f~~e~~rence][i] base.\n\n[i]: x.png'),
+            ('rev4-alt-code-span', 'X is not held in the ![r`e`f`e`rence](x.png) base.'),
+            # Fail closed: a plain sentence spelling the claim across
+            # sentence punctuation is refused and resolved by rewriting.
+            ('r16-sentence-boundary', 'The copy is not. Held in the reference base is the annex.'),
+        ):
+            with self.subTest(label=label):
+                findings = self.blocking(body + '\n')
+                self.assertTrue(
+                    any('possible hidden claim' in f for f in findings),
+                    (body, findings))
+        # The reader never fires on ordinary prose with emoji, curly
+        # quotes or accents, on detected claims, or where a really
+        # closed link tail swallows a claim word: the rendered text
+        # does not spell the claim (gemini F3, reviewed as not a hide).
+        for body in (
+            'X is not [held](in) the reference base.',
+            '[ X is not ](held) in the reference base.',
+            '\u26a0\ufe0f Warning: review the retention schedule before release.',
+            'Caf\u00e9 notes \U0001f512: the \u201cheld\u201d copy sits in the reference base.',
+            # Joining paragraphs spells no claim from unrelated prose.
+            'The copy is not lost.\n\nHeld texts live in the reference base.',
+            # Round 5: ruby annotations, hidden elements and alt text
+            # with emphasis that spell no claim stay clean, and escaped
+            # alt-text delimiters render literally, so they still split.
+            'The <ruby>\u6f22<rp>(</rp><rt>kan</rt><rp>)</rp></ruby> reading is held in the archive.',
+            '<span hidden>draft</span> notes are not lost; held texts live in the reference base.',
+            '![a *bold* figure](x.png) shows the retention flow.',
+            'X is not held in the ![r\\*e\\*f\\*e\\*rence](x.png) base.',
+        ):
+            with self.subTest(body=body):
+                self.assertClean(body + '\n')
+        self.assertClean(self.CLAIM + ' ' + self.MARKER + '\n')
+        findings = self.scan('The decree is not yet held in the reference base.\n')
+        self.assertTrue(findings)
+        self.assertTrue(all(f.startswith('ADVISORY: ') for f in findings), findings)
+        fixture = self.make_fixture(
+            'annex-absence-permissive.md',
+            '# T\n\nX is not/held/in/the/reference/base.\n')
+        self.assertLinterFails(run_linter(self.SCRIPT, fixture), 'possible hidden claim')
+
+    def test_bidi_controls_are_screen_findings(self):
+        # Review round 4, claude E1: a bidirectional override or isolate
+        # control, literal or entity-encoded, or a <bdo> element displays
+        # letters in an order no reading scans, so each is a blocking
+        # finding naming its line, whether or not a claim is spelled.
+        bidi = 'bidirectional override or isolate control'
+        for label, line in (
+            ('rev4-rlo-reversed-claim', 'X is \u202eesab ecnerefer eht ni dleh ton\u202c.'),
+            ('rev4-rlo-hex-entity', 'X is &#x202E;esab ecnerefer eht ni dleh ton&#x202C;.'),
+            ('rev4-rlo-decimal-entity', 'X is &#8238;esab ecnerefer eht ni dleh ton&#8236;.'),
+            ('rev4-bdo-reversed-claim', 'X is <bdo dir="rtl">esab ecnerefer eht ni dleh ton</bdo>.'),
+            ('rev4-rlo-reversed-word', 'X is not \u202edleh\u202c in the reference base.'),
+            ('rev4-bdo-reversed-word', 'X is not <BDO dir="rtl">dleh</BDO> in the reference base.'),
+            ('rev4-lre', 'Plain \u202atext\u202c here.'),
+            ('rev4-rli-isolate', 'X is \u2067esab ecnerefer eht ni dleh ton\u2069.'),
+            ('rev4-fsi-isolate', 'Plain \u2068text\u2069 here.'),
+        ):
+            with self.subTest(label=label):
+                findings = self.blocking('# T\n\n' + line + '\n')
+                self.assertTrue(
+                    any(f.startswith('t.md:3: ' + bidi) and 'on line 3' in f
+                        for f in findings),
+                    (line, findings))
+        # Ordinary text is unaffected: right-to-left script, a <bdi>
+        # isolate element, the marks U+200E and U+200F and tags whose
+        # names start with "bdo" raise no bidirectional finding.
+        for body in (
+            'Users write <bdi>\u05e9\u05dc\u05d5\u05dd</bdi> and \u0645\u0631\u062d\u0628\u0627\u200f here.',
+            'The \u200eLTR mark and the \u200fRTL mark are plain.',
+            'A <bdox>custom</bdox> element is not a bdo element.',
+        ):
+            with self.subTest(body=body):
+                self.assertClean(body + '\n')
+        fixture = self.make_fixture(
+            'annex-absence-bidi.md',
+            '# T\n\nX is \u202eesab ecnerefer eht ni dleh ton\u202c.\n')
+        self.assertLinterFails(run_linter(self.SCRIPT, fixture), bidi)
 
     def test_provenance_tools_are_examples(self) -> None:
         text = (REPO_ROOT / 'ai/guideline-ai-synthetic-content-provenance.md').read_text(encoding='utf-8')
@@ -24539,7 +24855,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
         lint-publication-manifest.py NO_FS F 4a017db9b2313865a406351d0d0d2fb2f0d4ffdaee4c79397b742d89965b21ad
-        lint-ref-absence-claims.py ROOT F 0afbfd4f9c61d32c9ae41af3cd54b62914990269734b1feafe60526168e580c4
+        lint-ref-absence-claims.py ROOT F dbedc9ecbed3126835c432d8cb24ae9cc116687ff4915bcd86a97b7568654ed5
         lint-required-sections.py CWD F e9a106626f65c3fc17abdb0c67d766ffd7dbb402995ebfb38edf5c65431fc283
         lint-retention-consistency.py OWN F 9ec3807a066221fc661f42245d0427ac6b76079e8ceff98946d9a6de5154a43f
         lint-roles.py ROOT F 7ab1670d3a4355951b6f0467114ea3e13af47f785a794aa4d1000436ff7489ac
