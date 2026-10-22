@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Register Template\
 **Document Type:** Template\
-**Version:** 1.1.7\
-**Date:** 2026-07-02\
+**Version:** 1.1.8\
+**Date:** 2026-10-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -158,7 +158,7 @@ The 5×5 rating matrix below matches the canonical scoring grid in [`risk/standa
 | Full register review for treatment progress | Quarterly | Chief Risk Officer |
 | Board / Risk Committee reporting pack | Quarterly | Chief Risk Officer |
 | Annual comprehensive register review | Annual | Chief Risk Officer |
-| Escalation of Critical risks to Board | Within 5 business days of identification | Chief Risk Officer |
+| Escalation of Critical risks to the ERC | Within 5 business days of identification | Chief Risk Officer |
 
 ---
 

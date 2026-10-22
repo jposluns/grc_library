@@ -2,11 +2,11 @@
 
 **Document Title:** Key Risk Indicator Catalogue\
 **Document Type:** Register\
-**Version:** 1.1.6\
-**Date:** 2026-10-12\
+**Version:** 1.1.7\
+**Date:** 2026-10-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`security/standard-soc-operating-model.md`](../security/standard-soc-operating-model.md)\
+**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/annex-ai-risk-methodology.md`](annex-ai-risk-methodology.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`security/standard-soc-operating-model.md`](../security/standard-soc-operating-model.md)\
 **Classification:** Public\
 **Category:** Risk Management: Monitoring\
 **Review Frequency:** Annual and upon material change to risk landscape or strategic objectives\
@@ -116,7 +116,7 @@ Each KRI is defined by the following fields.
 | KRI-AI-001 | AI Systems Missing Risk Assessment | Count of deployed AI systems without completed risk assessment | Count | 0 | 1 to 2 | >2 | AI Governance Lead | Quarterly |
 | KRI-AI-002 | AI Model Performance Drift | Count of AI systems with performance metrics outside acceptable thresholds | Count | 0 | 1 to 2 | >2 | AI Operations | Monthly |
 | KRI-AI-003 | AI Bias Alerts | Count of AI systems with active bias finding from fairness monitoring | Count | 0 | 1 | >1 | AI Governance Lead | Monthly |
-| KRI-AI-004 | Unreviewed High-Risk AI Deployments | Count of Tier 2 (high-risk) AI systems not reviewed by AIGC within 12 months | Count | 0 | 1 | >1 | AI Governance Lead | Quarterly |
+| KRI-AI-004 | Unreviewed High-Risk AI Deployments | Count of AI risk Tier 2 (High Risk) systems, per the AI risk methodology annex ([`risk/annex-ai-risk-methodology.md`](annex-ai-risk-methodology.md)), not reviewed by AIGC within 12 months | Count | 0 | 1 | >1 | AI Governance Lead | Quarterly |
 
 ---
 
