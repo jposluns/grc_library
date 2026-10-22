@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.72.7\
-**Date:** 2026-10-21\
+**Version:** 1.72.8\
+**Date:** 2026-10-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Parent-library related documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -46,9 +46,9 @@ This pack supports three adoption paths, all first-class:
 
 2. **Inside a fork of the parent GRC library.** Same as above, plus organization-specific overlays. An adopting organization forks, substitutes organization-specific values across the corpus, and inherits the pack as the operational discipline its Claude Code sessions apply. See the parent library's `docs/adopter-guide.md` for the full path (Mode A).
 
-3. **As a standalone Claude Code baseline pack, on any project.** A Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. Take this directory only and drop it into your project's Claude Code context. The setup generator at [`setup-generator-prompt.md`](setup-generator-prompt.md) automates this; the manual paths are documented in the "How to use" section below. The pack ships with its own version sequence so consumers in this mode can track pack updates without needing to track the parent library's version.
+3. **As a standalone Claude Code baseline pack, on any project.** A Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. Take this directory and drop it into your project's Claude Code context; the "Pinned runtime installation" path also needs `vendor/aiqt/RULES.json` (its upstream commit also recorded in `vendor/aiqt/PIN.toml`) from the parent repository (see "Parent-repo dependencies" below). The setup generator at [`setup-generator-prompt.md`](setup-generator-prompt.md) automates this; the manual paths are documented in the "How to use" section below. The pack ships with its own version sequence so consumers in this mode can track pack updates without needing to track the parent library's version.
 
-The third mode began as an emergent use adopted by developers in practice and is supported as a first-class path alongside the fork-the-whole-repo path; a standalone adopter needs nothing from the parent library. Provenance is what makes the pack credible as a standalone artefact: the pack's provenance register, [`rule-provenance.md`](rule-provenance.md), summarizes each rule's origin, a real maintenance event where one exists and an honest up-front codification where that is the truth, without the parent project's internal detail.
+The third mode began as an emergent use adopted by developers in practice and is supported as a first-class path alongside the fork-the-whole-repo path; a standalone adopter needs nothing from the parent library except, for the pinned runtime installation, `vendor/aiqt/` (`RULES.json` and `PIN.toml`). Provenance is what makes the pack credible as a standalone artefact: the pack's provenance register, [`rule-provenance.md`](rule-provenance.md), summarizes each rule's origin, a real maintenance event where one exists and an honest up-front codification where that is the truth, without the parent project's internal detail.
 
 ---
 
@@ -92,7 +92,7 @@ The honest caveat, stated so adopters do not mistake a preamble for a control: a
 ```text
 guardrails/
 ├── README.md                   This file
-├── CLAUDE.md                   Root file: copy the WHOLE guardrails/ dir (Option 1), not this file alone
+├── CLAUDE.md                   Root file: links into sibling ai/, governance/ and aiqt-rules/ files, so copying it alone breaks them; see "How to use"
 ├── setup-generator-prompt.md   AI-assisted setup generator prompt for downstream consumers
 ├── vetting-log.md              Maintainer vetting log for the external rule sources referenced below
 ├── rule-provenance.md          Per-rule provenance register: each governance rule's origin, incident-earned or up-front-codified, without parent-project internals
@@ -664,7 +664,7 @@ You still see the prompt content (you pasted it), with one fewer browser step.
 Fetch https://raw.githubusercontent.com/jposluns/grc_library/main/guardrails/setup-generator-prompt.md and follow the instructions exactly.
 ```
 
-Claude will WebFetch the prompt and start executing it. **Trade-off**: you do not see the prompt content before Claude begins acting on it; you are trusting the canonical URL only. Only use this form if you have made an informed decision to trust the GRC Library canonical URL (which is open-source, CC BY-SA 4.0, and version-controlled on GitHub).
+Claude will WebFetch the prompt and start executing it. **Trade-off**: you do not see the prompt content before Claude begins acting on it; you are trusting the canonical URL only. Only use this form if you have made an informed decision to trust the GRC Library canonical URL (which is open-source and version-controlled on GitHub; GRC-original material is CC BY-SA 4.0, and the pinned `aiqt-rules/` snapshot is Apache-2.0).
 
 ### Tip: avoid permission prompts during fetch
 
@@ -696,7 +696,7 @@ If you plan to use fetch mode often, add the canonical raw URL to your project's
 
 ### Prefer to do it entirely by hand?
 
-Use Options 1-4 above to copy specific rule files directly; no prompt required.
+Use "Pinned runtime installation", "Selective GRC security modules", "Option 3: add to existing claude.md", or "Option 4: path-scoped rules" under "How to use" above to copy rule files directly; no prompt required.
 
 ---
 
@@ -845,8 +845,9 @@ These rule files draw on and are aligned to the following external projects and 
 
 ## Parent-repo dependencies
 
-This pack is documentation and operational discipline; three things it references live in the parent grc_library repository, not inside `guardrails/`, and do not travel when the pack is dragged into another project as a standalone bundle. A standalone adopter should know:
+This pack is documentation and operational discipline; four things it references live in the parent grc_library repository, not inside `guardrails/`, and do not travel when the pack is dragged into another project as a standalone bundle. A standalone adopter should know:
 
+- **The AIQT pin records.** The "Pinned runtime installation" section uses the exact inventory and declared scope insertions in `vendor/aiqt/RULES.json`, and the pinned upstream commit is recorded in `vendor/aiqt/RULES.json` and `vendor/aiqt/PIN.toml`. Both files live in the parent repository's `vendor/aiqt/`, outside `guardrails/`; an adopter following the pinned installation takes them from the parent repository.
 - **The audit toolchain.** The gates this pack documents (the `tools/` linters and audits, run by the parent repository's CI and pre-commit config) are parent-repo tooling; they are named here for provenance but are not shipped in the pack. An adopter who wants the mechanical enforcement installs the parent repository or reimplements the gates; the rules themselves apply without them.
 - **The project slash commands.** The review cadences the pack refers to (for example validate, validate-pr, matrix-fit, claim-fit, reference-audit, screen-publications, deep-assessment, high-assurance, adopt, and the workflow commands) are project commands defined in the parent repository's `.claude/commands/`, with the corresponding skill bodies shipping in this pack under `skills/` (the `guardrails/skills/` tree), not Claude Code built-ins. Where a pack skill ships a `SKILL.md`, that skill body already provides the `/name` behaviour; the remaining command stubs are parent-only, and an adopter who wants them installs the parent repository.
 - **The private reference base.** The citation and control-code cadences (matrix-fit, claim-fit, reference-audit, screen-publications, and deep-assessment) check corpus claims against a held reference base that is not redistributable and does not ship with the pack. An adopter either builds a reference base of their own or runs those cadences in a structure-only mode that checks form without adjudicating against held source text.

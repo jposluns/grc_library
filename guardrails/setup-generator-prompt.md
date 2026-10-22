@@ -2,13 +2,13 @@
 
 Paste this entire file into a Claude Code session opened in your project's root. It analyzes your project, proposes a tailored security-rules setup using the pack, and creates files only after you approve. It does not act blindly.
 
-This prompt is CC BY-SA 4.0. GRC-original material retains CC BY-SA 4.0. The upstream-owned pinned snapshot in `guardrails/aiqt-rules/` and its local rule derivatives are separately licensed Apache-2.0; retain the verbatim upstream LICENSE and NOTICE in that directory. GRC owns its compatibility rule and the retained legacy procedures. Authority: maintainer decisions D1-D3, 2026-10-02 12:27Z. It works in two modes: **local mode** (when the `guardrails/` pack is available on disk) and **fetch mode** (when Claude Code reads pack content live from the library's canonical raw URL at runtime; no on-disk pack required). The mode is selected automatically per the "Source of truth and trust posture" section below.
+This prompt is GRC-original material under CC BY-SA 4.0. The upstream-owned pinned snapshot in `guardrails/aiqt-rules/` and its local rule derivatives are separately licensed Apache-2.0; retain the verbatim upstream LICENSE and NOTICE in that directory. GRC owns its compatibility rule and the retained legacy procedures. Authority: maintainer decisions D1-D3, 2026-10-02 12:27Z. It works in two modes: **local mode** (when the `guardrails/` pack is available on disk) and **fetch mode** (when Claude Code reads pack content live from the library's canonical raw URL at runtime; no on-disk pack required). The mode is selected automatically per the "Source of truth and trust posture" section below.
 
 ---
 
 ## What this prompt does
 
-You are running in the consumer's own Claude Code session, inside their project. The consumer wants a tailored CLAUDE.md plus selected rule modules for this specific project, drawn from the GRC Library (CC BY-SA 4.0) `guardrails/` pack. The consumer may have the pack on disk already (local mode) or may rely on you fetching it live from the library's canonical raw URL (fetch mode); the mode is selected later in this prompt.
+You are running in the consumer's own Claude Code session, inside their project. The consumer wants a tailored CLAUDE.md plus selected rule modules for this specific project, drawn from the GRC Library `guardrails/` pack (GRC-original material CC BY-SA 4.0; pinned `aiqt-rules/` snapshot Apache-2.0). The consumer may have the pack on disk already (local mode) or may rely on you fetching it live from the library's canonical raw URL (fetch mode); the mode is selected later in this prompt.
 
 You will:
 
@@ -40,7 +40,7 @@ This prompt reads the GRC Library security pack from one of two sources:
 https://raw.githubusercontent.com/jposluns/grc_library/main/guardrails/
 ```
 
-This is the GRC Library's first-party CC BY-SA 4.0 source. The library is organization-neutral; adopters who have forked it (for example, an enterprise that vendors the library under its own org) should substitute their fork's canonical URL.
+This is the GRC Library's first-party source: GRC-original material there is CC BY-SA 4.0, and the pinned `aiqt-rules/` snapshot is Apache-2.0. The library is organization-neutral; adopters who have forked it (for example, an enterprise that vendors the library under its own org) should substitute their fork's canonical URL.
 
 **Trust posture**:
 
@@ -194,7 +194,7 @@ After presenting the GRC Library pack proposal above, present a **single unified
 > | **TikiTribe** (`github.com/TikiTribe/claude-secure-coding-rules`) | 100+ rule sets across 12 languages, AI/ML frameworks, RAG tools, IaC, containers, CI/CD, OWASP Top 10, MITRE ATLAS, NIST AI RMF, Google SAIF | **MIT** | Use freely; keep TikiTribe's attribution notice when you redistribute. |
 > | **Kariedo** (`github.com/kariedo/claude-code-security-rules`) | Modular rules with `@`-syntax imports; broader language coverage (Python, JavaScript, Java, PHP, Ruby, Rust, C) | **MIT** | Use freely; keep Kariedo's attribution notice when you redistribute. |
 > | **addyosmani** (`github.com/addyosmani/agent-skills`) | 24 engineering-workflow skills (Define → Plan → Build → Verify → Review → Ship) in Claude Code Skills `SKILL.md` format; `security-and-hardening` skill (STRIDE-per-trust-boundary, Mandatory / Approval-Gated / Prohibited tier model), `code-review-and-quality`, `ci-cd-and-automation`, and 21 more. Scope is engineering workflow, not GRC governance. | **MIT** | Use freely; keep addyosmani's attribution notice when you redistribute. |
-> | **Wiz** (`github.com/wiz-sec-public/secure-rules-files`) | Baseline rules organized by language and framework | **CC-BY-NC-ND-4.0** | NonCommercial only. No modifications redistributed. NOT compatible with the GRC library's CC BY-SA 4.0; you would consume Wiz rules standalone in your project, not as part of a CC BY-SA 4.0 derivative you redistribute. |
+> | **Wiz** (`github.com/wiz-sec-public/secure-rules-files`) | Baseline rules organized by language and framework | **CC-BY-NC-ND-4.0** | NonCommercial only. No modifications redistributed. NOT compatible with the GRC library's GRC-original material (CC BY-SA 4.0; pinned `aiqt-rules/` snapshot Apache-2.0); you would consume Wiz rules standalone in your project, not as part of a CC BY-SA 4.0 derivative you redistribute. |
 >
 > TikiTribe, Kariedo, and Wiz were EXT-01-vetted by the library maintainer on 2026-05-31; addyosmani was EXT-01-vetted on 2026-06-19. No blocking concerns surfaced; the vetting log records the adjudicated scaffolding flags on the Wiz generator prompt and a significant Wiz licence caveat (CC-BY-NC-ND) that consumers weigh at the offer step.
 >
@@ -236,7 +236,7 @@ Step through the four sources in this order: TikiTribe, Kariedo, addyosmani, Wiz
 > **Wiz Secure Rules Files** is a vetted external source from Wiz Inc., released under **CC-BY-NC-ND-4.0** (Creative Commons Attribution-NonCommercial-NoDerivatives 4.0). What that means for you:
 > - **NonCommercial:** you cannot use Wiz's content for commercial purposes without their permission.
 > - **NoDerivatives:** you cannot modify Wiz's content and redistribute the modified version.
-> - **Incompatible with the GRC library's CC BY-SA 4.0:** if you redistribute your project as a CC BY-SA 4.0 derivative, you cannot include Wiz's content in it.
+> - **Incompatible with the GRC library's GRC-original CC BY-SA 4.0 material** (the pinned `aiqt-rules/` snapshot is Apache-2.0)**:** if you redistribute your project as a CC BY-SA 4.0 derivative, you cannot include Wiz's content in it.
 >
 > By accepting the default below, you are consuming Wiz rules **standalone in your own project** (you keep them as-is, you do not redistribute them as part of a BY-SA derivative). You are responsible for complying with Wiz's licence terms in your own use.
 >
@@ -388,6 +388,8 @@ Do not create or modify any file before the consumer approves the Phase 2 plan.
 ## Pinned AIQT installation override
 
 **Pinned AIQT runtime adoption.** This installation uses 132 pinned AIQT rules (83 AIQT principles + 49 security rules), 15 retained GRC compatibility procedures, and 24 skills. The exact upstream commit is `a3ff734ca855e4363f340eca52fbd87272c51854`, recorded in `vendor/aiqt/RULES.json` and `vendor/aiqt/PIN.toml`; it is not a tagged release. The legacy procedures remain mandatory at their activity boundary; none retires. GRC-original material retains CC BY-SA 4.0. The upstream-owned pinned snapshot in `guardrails/aiqt-rules/` and its local rule derivatives are separately licensed Apache-2.0; retain the verbatim upstream LICENSE and NOTICE in that directory. GRC owns its compatibility rule and the retained legacy procedures. Authority: maintainer decisions D1-D3, 2026-10-02 12:27Z.
+
+`vendor/aiqt/RULES.json` and `vendor/aiqt/PIN.toml` sit outside `guardrails/`, in the parent repository's `vendor/aiqt/`; an adopter following the pinned installation takes them from the parent repository. In fetch mode, confirm the parent repository's URL for `vendor/aiqt/RULES.json` and `vendor/aiqt/PIN.toml` with the consumer before fetching them, or stop the pinned installation and tell the consumer why.
 
 ### Pinned runtime installation
 
