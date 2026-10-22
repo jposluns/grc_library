@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.12.6\
-**Date:** 2026-10-21\
+**Version:** 1.12.7\
+**Date:** 2026-10-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -139,7 +139,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Compliance | Register: US CTPAT IT and Cybersecurity Compliance Controls | [`compliance/logistics/register-ctpat-united-states-it-controls.md`](logistics/register-ctpat-united-states-it-controls.md) | IAM-01, TVM-01, SEF-01, LOG-01 | N/A | A.5.15, A.8.8, A.5.24 | PR.AA, ID.RA, RS.MA, DE.CM | IT security requirements | N/A | N/A | Pillar II (Customs-to-Business) | All AEO-S IT requirement areas | N/A |
 | Compliance | Register: US CTPAT Full Minimum Security Criteria Controls | [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](logistics/register-ctpat-united-states-msc-controls.md) | DCS-01, IAM-01, HRS-01, STA-01 | N/A | A.7.1, A.6.1, A.5.19 | PR.AA, PR.IR, PR.AT | Programme governance; Physical access controls; Business partner requirements | Business partner requirements | N/A | Pillar II (Customs-to-Business) | Physical and access security; Personnel security; Business partners | N/A |
 | Compliance | Register: Canada PIP IT and Cybersecurity Compliance Controls | [`compliance/logistics/register-pip-canada-controls.md`](logistics/register-pip-canada-controls.md) | IAM-01, DSP-01, TVM-01, SEF-01 | N/A | A.5.15, A.8.24, A.8.8 | PR.AA, PR.DS, ID.RA, RS.MA | IT security requirements | IT security requirements | N/A | Pillar II (Customs-to-Business) | All AEO-S IT requirement areas | N/A |
-| Compliance | Template: Trade Compliance Programme Gap Assessment | [`compliance/logistics/template-trade-compliance-gap-assessment.md`](logistics/template-trade-compliance-gap-assessment.md) | A&A-03, A&A-04, GRC-07 | N/A | §9.1, §9.2, A.5.36 | ID.IM | Programme governance; Risk assessment | Risk assessment | N/A | Pillar II (Customs-to-Business) | Management commitment; Business partners; IT controls review and testing | N/A |
+| Compliance | Template: Trade Compliance Programme Gap Assessment | [`compliance/logistics/template-trade-compliance-gap-assessment.md`](logistics/template-trade-compliance-gap-assessment.md) | A&A-04, GRC-07 | N/A | §9.1, §9.2, A.5.36 | ID.IM | Programme governance; Risk assessment | Risk assessment | N/A | Pillar II (Customs-to-Business) | Management commitment; Business partners; IT controls review and testing | N/A |
 
 ---
 
