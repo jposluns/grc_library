@@ -2,11 +2,11 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.16\
-**Date:** 2026-10-13\
+**Version:** 1.8.17\
+**Date:** 2026-10-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
 **Classification:** Public\
 **Category:** Risk Management\
 **Review Frequency:** Annual or as required by regulatory or framework changes\
@@ -116,12 +116,14 @@ Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Sc
 
 #### Score thresholds and required response
 
-| Score Range | Rating | Required Response |
+The required response for each rating is set by the risk-assessment methodology ([`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md) Section 5.1) and each response is reproduced word for word below; if the two ever differ, the methodology governs. The methodology's Section 5.1 also lets the risk owner with the CISO (or the relevant domain executive) direct interim containment of a Critical risk pending ERC review, which is not acceptance, and states that "formal acceptance of a Critical risk remains with the Executive Committee or the Board". Risk Owner review cadences by rating are set in this standard's Section 8.1, and every risk records its owner per this standard's Section 5.1 and Section 7.1.
+
+| Residual Risk Score | Rating | Required Response |
 |---|---|---|
 | 1 to 4 | Low | Accept; monitor annually |
-| 5 to 9 | Medium | Mitigate and monitor; review quarterly |
-| 10 to 16 | High | Mitigate or transfer; assign owner; review monthly |
-| 17 to 25 | Critical | Immediate action required; ERC oversight; escalate to executive leadership |
+| 5 to 9 | Medium | Treat or formally accept with documented rationale |
+| 10 to 16 | High | Treat; corrective action required within 90 days |
+| 17 to 25 | Critical | Treat immediately; escalate to ERC within 5 business days |
 
 ---
 
@@ -194,7 +196,7 @@ When the AI Flag is set to Yes, the following additional fields are required:
 
 - Departmental risk reviews are conducted quarterly by process and system owners.
 - AI risk trends (bias recurrence, model drift, ethical deviations) are monitored on an ongoing basis and summarized quarterly.
-- Risk Owner review cadences by score band (Low / Medium / High cadences taken verbatim from the §5.2 "Score thresholds and required response" table; Critical's cadence is the existing monthly position from this section):
+- Risk Owner review cadences by score band are set here. They are consistent with the risk-assessment methodology: its Section 5.1 Low response is "monitor annually", its Section 7.4 reviews High and Critical risks monthly, and its Section 7.3 reviews the whole register quarterly:
   - Critical risks (score 17 to 25) are reviewed monthly by the Risk Owner and reported to the ERC.
   - High risks (score 10 to 16) are reviewed monthly by the Risk Owner.
   - Medium risks (score 5 to 9) are reviewed quarterly by the Risk Owner.
@@ -205,7 +207,7 @@ When the AI Flag is set to Yes, the following additional fields are required:
 - Aggregated departmental risk reports are escalated to the ERC quarterly.
 - The CIO and CISO present a consolidated Enterprise Risk Dashboard to executive leadership quarterly and annually.
 - The Enterprise Risk Dashboard includes: open risk counts by category and score band, KRI trends, overdue treatment actions, AI risk summary, and third-party risk exposure.
-- Material changes in risk posture or new critical risks are escalated outside the regular cycle within five business days of identification.
+- Material changes in risk posture or new critical risks are escalated to the ERC outside the regular cycle within five business days of identification.
 
 ---
 
