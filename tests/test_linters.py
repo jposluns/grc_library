@@ -24801,11 +24801,11 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-gate-parity.py OWN F 3cc8013f0d69f112498d69dd97629078f7852f911d0b689bb509b356165418e9
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
-        lint-bookkeeping-parity.py NO_FS F c94921cdb7086bc946dfd6d7f2469d9a697faf6147edc5dfa2b96fc774464c30
+        lint-bookkeeping-parity.py NO_FS F 418c1fc4dccff88fe4a32a8a3582c8110b7c53885facc1b661a2db48b829b841
         lint-ccm-aicm-citations.py CWD F b396ecc6a9544f00e5446f3d46235a64996340e46613fc75f21b39e74e97f306
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
         lint-changelog-link-coverage.py CWD F 0eb2c21687bcae9e697ab26d0273e766530ec144f1417ac04309badae1bd1bd2
-        lint-changelog-mirror-header-parity.py OWN F 061e2bd2ca2b95c789aeaf2697cbae580d6fa5450aeccc40f38d76113bf2f966
+        lint-changelog-mirror-header-parity.py OWN F 12cc2ea26f1b9d64721daef8c76d4c333f14006352ef8caabb890c121dc450d9
         lint-citation-currency-cadence.py NO_FS F 5dba5f4f0c3ec6482ca0e465d221fe1d44010bed5c47b2af235672069cf0cadd
         lint-citation-verification-freshness.py OWN F 057d0deb7b8442828df3042e47923cf1febf446ab77bf5f816f31bba9dc3949d
         lint-citations.py ROOT F 83bf87b4c7ab8d59c1835f4eee4bd75d9a55e5accb60b062463f6b74dc9d5437
@@ -24891,7 +24891,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 616ae8f4ea008cda21bcf2f663ed650f82f91b2467fddc75cc4a313ff61e32b1
-        lint_common.py PASSIVE F 928a1208c681aa3f34ccbf8d7821c3e8911137b2a779d228b0af9c5025ced3db
+        lint_common.py PASSIVE F 7161fd5d73e172b526356fff82320612754f59a77c061dc120a50e27d0049d8a
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -54248,7 +54248,9 @@ class StoreScopeCeilingTests(LinterTestCase):
     simplified 21:03Z).
 
     The invariant every test here serves: a missing or wrong record for a merged PR or for the
-    branch's own PR is never deferred, and ambiguity fails closed (no deferral). A branch declares
+    branch's declared own PR is never deferred, and ambiguity fails closed (no deferral). Under a
+    clean-base scope (3b217, maintainer 2026-10-22) no own PR is known, so an undeclared
+    (trailer-only) own PR's entries defer until it merges. A branch declares
     its own PR through the single new singular root header naming a PR absent from the merge-base
     root headers and from origin/main's root headers and merge subjects, all read offline; no
     other ref is consulted, and historical edits, roll-ups, a merged PR's header and fenced or
@@ -54785,8 +54787,11 @@ class StoreScopeCeilingTests(LinterTestCase):
         # parent's header is refused by origin/main's evidence (the squash `(#2653)` subject and
         # root header, or the `Merge pull request #2653` commit); a moved, still-open parent's
         # header beside the child's own entry is a second new identity. Either way the parent
-        # never declares, so the child's own #2662 is evaluated, never deferred. Kills: a
-        # declaration that ignores origin/main's root headers and merge subjects (round 7: #2653
+        # never declares. A merge commit can advance the merge-base to the parent's header:
+        # with no child header this now qualifies for clean-base scope (3b217, maintainer
+        # 2026-10-22), and the undeclared child's own #2662 defers like any open PR until it
+        # merges. The merged parent's #2653 remains protected. Kills: a declaration that ignores
+        # origin/main's root headers and merge subjects (round 7: #2653
         # declared and own #2662 deferred), and resolving two new identities to either one.
         cases = [("squash-merged", False, None), ("merge-committed", False, None),
                  ("advanced", True, None), ("squash-merged", True, 2662),
@@ -54798,6 +54803,11 @@ class StoreScopeCeilingTests(LinterTestCase):
                 text = self.stacked_child(root, own_entry=own_entry, parent=parent)
                 scope = self.lc.store_scope(text, repo_root=root)
                 self.assertEqual(scope.own_pr, expected, scope.note)
+                if parent == "merge-committed" and not own_entry:
+                    self.assertIn("clean-base", scope.note)
+                    self.assertTrue(self.lc.above_store_ceiling([2662], scope))
+                    self.assertFalse(self.lc.above_store_ceiling([2653], scope))
+                    continue
                 self.assertFalse(self.lc.above_store_ceiling([2662], scope), "own #2662")
                 if expected is None:
                     self.assertIn("no own-PR declaration", scope.note)
@@ -54824,8 +54834,8 @@ class StoreScopeCeilingTests(LinterTestCase):
                               self.lc.store_deferral_note([2662], scope, "h", 1))
 
     def test_store_scope_composes_ceiling_and_gates_deferral_on_the_declaration(self) -> None:
-        # Old 12, plus NOTE 4's M10. Kills: a no-declaration scope returning the root maximum as a
-        # ceiling or printing nothing; a headerless root turning None into 0; the fail-closed
+        # Old 12, plus NOTE 4's M10, revised for 3b217: a clean-base scope uses the root maximum
+        # without declaring an own PR. Kills: a headerless root turning None into 0; the fail-closed
         # branches (merge-base, origin/main headers, origin/main subjects) keeping a ceiling or
         # printing nothing; dropping the declaration from the tuple; and `ceiling = own` when an
         # older own PR sits below a higher root header (M10: #2658 would read as exceeding ceiling
@@ -54836,8 +54846,8 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertEqual((s.root_max, s.own_pr, s.ceiling, s.note, s.open_rule), (524, 524, 524, None, True))
         self.assertTrue(self.lc._contains_pr(s.merged_prs, 521))
         s2 = self.scope(base, base, base)
-        self.assertEqual((s2.own_pr, s2.ceiling), (None, None))
-        self.assertIn("no own-PR declaration", s2.note)
+        self.assertEqual((s2.own_pr, s2.ceiling, s2.open_rule), (None, 521, True))
+        self.assertIn("clean-base", s2.note)
         s4 = self.scope("# Changelog\n", "# Changelog\n", "# Changelog\n")
         self.assertEqual((s4.root_max, s4.ceiling), (None, None))
         s3 = self.scope(work, None, base)
@@ -54857,6 +54867,118 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertTrue(reason([2658], s6).startswith("every named PR is another open PR"))
         self.assertEqual(reason([2661], s6), "every named PR exceeds store-scope ceiling #2660")
         self.assertIsNone(reason([2659], s6))
+
+    # ---- 3b217 clean-base scope (maintainer "Allow clean-base", 2026-10-22 01:29Z) ----
+
+    def test_clean_base_open_entries_above_and_below_ceiling_defer(self) -> None:
+        base = self.header(2660) + self.header(2649)
+        mirror = self.header(2662) + self.header(2660) + self.header(2658) + self.header(2649)
+        r = self.run_mirror_gate(base, mirror, base_root_text=base)
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIn("deferred #2662", r.stdout)
+        self.assertIn("deferred #2658", r.stdout)
+        self.assertIn("clean-base", r.stdout)
+        self.assertNotIn("#None", r.stdout)
+
+    def test_clean_base_merged_pr_missing_root_entry_fails(self) -> None:
+        base = self.header(2660)
+        mirror = self.header(2662) + base
+        r = self.run_mirror_gate(base, mirror, base_root_text=base)
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIn("deferred #2662", r.stdout)
+        for subject in ("Fix (#2662)", "Merge pull request #2662 from a/topic"):
+            with self.subTest(subject=subject):
+                r = self.run_mirror_gate(base, mirror, base_root_text=base, subjects=(subject,))
+                self.assertEqual(r.returncode, 1, r.stdout)
+                self.assertIn("MISSING from root", r.stdout)
+                self.assertIn("#2662", r.stdout)
+                self.assertNotIn("deferred", r.stdout)
+
+    def test_clean_base_merged_pr_missing_mirror_entry_fails(self) -> None:
+        base = self.header(2661) + self.header(2660)
+        r = self.run_mirror_gate(base, self.header(2662) + base, base_root_text=base)
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIn("deferred #2662", r.stdout)
+        r = self.run_mirror_gate(base, self.header(2662) + self.header(2660),
+                                 base_root_text=base)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("MISSING from the detailed mirror", r.stdout)
+        self.assertIn("#2661", r.stdout)
+
+    def test_clean_base_main_header_ranges_protect_missing_root(self) -> None:
+        base = self.header(2660)
+        mirror = self.header(2662) + base
+        scope = self.scope(base, base, base)
+        rc, out, err = self.mirror_gate(base, mirror, scope)
+        self.assertEqual(rc, 0, out + err)
+        for main in (self.header(2662) + base,
+                     "**Week of 2026-09-21 (PRs #2661-2663)**\n" + base):
+            with self.subTest(main=main):
+                scope = self.scope(base, base, main)
+                rc, out, err = self.mirror_gate(base, mirror, scope)
+                self.assertEqual(rc, 1, out + err)
+                self.assertIn("MISSING from root", out)
+                self.assertNotIn("deferred", out)
+
+    def test_clean_base_historical_milestone_is_not_a_new_header(self) -> None:
+        base = self.header(2660) + "**2026-07-29 | MILESTONE:** Historical split.\n"
+        mirror = self.header(2662) + base
+        r = self.run_mirror_gate(base, mirror, base_root_text=base)
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIn("clean-base", r.stdout)
+        self.assertIn("deferred #2662", r.stdout)
+        r = self.run_mirror_gate("**2026-10-01 | MILESTONE:** New unexplained header.\n" + base,
+                                 mirror, base_root_text=base)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("no own-PR declaration", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+
+    def test_clean_base_all_evidence_readers_must_succeed(self) -> None:
+        base = self.header(2660)
+        scope = self.scope(base, base, base)
+        self.assertTrue(self.lc.above_store_ceiling([2662], scope))
+        for merge_base, main, merged in ((None, base, ()), (base, None, ()), (base, base, None)):
+            with self.subTest(merge_base=merge_base, main=main, merged=merged):
+                scope = self.scope(base, merge_base, main, merged)
+                self.assertEqual((scope.own_pr, scope.ceiling, scope.open_rule),
+                                 (None, None, False))
+                self.assertFalse(self.lc.above_store_ceiling([2662], scope))
+                self.assertIn("fail-closed", scope.note)
+
+    def test_clean_base_root_uncertainty_disables_deferral(self) -> None:
+        base = self.header(2660)
+        self.assertTrue(self.lc.above_store_ceiling([2662], self.scope(base, base, base)))
+        for text in (None, "", "# Changelog\n",
+                     base.rstrip() + " - corrected\n",
+                     "### 2026-09-30: unknown\n" + base,
+                     self.header(2661) + base,
+                     "**Week of 2026-09-21 (PRs #2659-2660)**\n" + base):
+            with self.subTest(text=text):
+                scope = self.scope(text, base, self.header(2661) + base)
+                self.assertFalse(scope.open_rule, scope)
+                self.assertFalse(self.lc.above_store_ceiling([2662], scope))
+        # Even unchanged delimiters are not a clean basis.
+        for prefix in (chr(96) * 3 + "\n", "~~~\n", "<!--\n", "-->\n"):
+            text = prefix + base
+            scope = self.scope(text, text, text)
+            self.assertFalse(scope.open_rule, scope)
+            self.assertFalse(self.lc.above_store_ceiling([2662], scope))
+
+    def test_clean_base_trailer_only_own_pr_rows_defer_until_merge(self) -> None:
+        # Planner caveat 2: under clean-base the own PR is unknown, so a trailer-only PR's own
+        # gate 50 history rows defer like any open PR's until it merges; its merge subject then
+        # protects them. Kills: a clean-base scope that still evaluates every row, and one that
+        # ignores origin/main's merge subjects once the PR has merged.
+        base = self.header(2660)
+        records = self.bp._history_row_records(self.pending_rows(2662))
+        scope = self.scope(base, base, base)
+        self.assertIsNone(scope.own_pr)
+        self.assertIn("clean-base", scope.note)
+        self.assertEqual(self.bp.row_integrity_findings(records, "h", ceiling=scope), [])
+        self.assertIn("clean-base scope (no declared own PR)",
+                      self.lc.store_deferral_note([2662], scope, "h", 1))
+        merged = self.scope(base, base, base, merged=(2662,))
+        self.assertEqual(len(self.bp.row_integrity_findings(records, "h", ceiling=merged)), 1)
 
     def test_git_reads_are_offline_and_fail_closed(self) -> None:
         # Round-6 replacement for old 13's mocked half. Every reader runs local git only, under
@@ -55251,17 +55373,18 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIn("#522", r.stdout)
         self.assertNotIn("deferred", r.stdout)
 
-    def test_mirror_gate_undeclared_own_pr_defers_nothing_and_notes(self) -> None:
-        # Old 16. Before the root entry lands nothing defers and a note says so; after it lands
-        # parity holds with no note. Kills: a root-maximum ceiling without a declaration, a
-        # silent no-declaration scope, and ignoring the declaration.
+    def test_mirror_gate_clean_base_defers_until_own_header_lands(self) -> None:
+        # Replaces old 16 (3b217, maintainer 2026-10-22). The 3b303 incident shape: the mirror
+        # carries #522 before the root entry lands. Under clean-base the own PR is unknown, so
+        # #522 (a trailer-only PR's own entry included) defers with a note until its root header
+        # lands; it then declares and parity is evaluated with no note. Kills: a no-declaration
+        # scope that still disables all deferral, and a note naming "#None".
         r = self.run_mirror_gate(self._BASE_ROOT, self._OWN_522_ROOT + self._BASE_ROOT,
                                  base_root_text=self._BASE_ROOT)
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("MISSING from root", r.stdout)
-        self.assertIn("#522", r.stdout)
-        self.assertIn("no own-PR declaration", r.stdout)
-        self.assertNotIn("deferred", r.stdout)
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIn("clean-base", r.stdout)
+        self.assertIn("deferred #522", r.stdout)
+        self.assertNotIn("#None", r.stdout)
         r = self.run_mirror_gate(self._OWN_522_ROOT + self._BASE_ROOT,
                                  self._OWN_522_ROOT + self._BASE_ROOT, base_root_text=self._BASE_ROOT)
         self.assertEqual(r.returncode, 0, r.stdout)

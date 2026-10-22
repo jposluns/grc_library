@@ -97,10 +97,12 @@ PR #170-#175 window, far below the cutoff, so the scoped assertion is
 false-positive-free by construction with no second baseline constant.
 
 Store scope (maintainer ruling 2026-09-30 17:07Z, option B, simplified 21:03Z;
-shared with gate 50 through ``lint_common.store_scope``). The detailed mirror lives
+clean-base allowed 2026-10-22 01:29Z; shared with gate 50 through
+``lint_common.store_scope``). The detailed mirror lives
 in the operational store every open branch shares, so another open PR's in-flight
 mirror entry would otherwise read as MISSING from this branch's root. A mirror
-record defers only when all of these hold: this branch declares its own PR (the
+record defers only when all of these hold: this branch has a clean-base scope (see
+below) or declares its own PR (the
 single new singular root header naming a PR absent from the merge-base root
 headers, from origin/main's root headers and from origin/main's ``(#N)`` and
 ``Merge pull request #N`` commit subjects; no other ref is consulted, and
@@ -112,10 +114,18 @@ permit deferral, because every named PR exceeds ``max(declared own PR, highest
 root header PR)`` or every named PR is another open PR absent from this branch's
 root headers and from all of that origin/main evidence. One shared,
 case-insensitive grammar reads every PR identity and range, and header ranges
-protect their interiors. The own PR and every PR covered by that evidence remain
+protect their interiors. The declared own PR and every PR covered by that evidence remain
 evaluated, so a merged PR's mirror entry missing its branch root line still fails.
 D1 can accept a ``Changelog: <one-line-reason>`` trailer instead of a root entry,
-so it does not guarantee a declaration before merge. No declaration, or an
+so it does not guarantee a declaration before merge. A clean-base scope declares
+no own PR: the root has a parseable PR ceiling, no new header-like line against the
+merge-base, and no delimiters. Historical milestone lines already in the
+merge-base are allowed. Its ceiling is the root maximum. It uses the same
+readable origin/main evidence and protects every merged PR. Because the own PR
+is unknown under clean-base, a trailer-only PR's own mirror entry defers like
+another open PR's until it merges; once origin/main carries its merge subject or
+root header it is evaluated again. A branch that adds its own root header
+declares instead, and its own entry is evaluated. Neither basis, or an
 unreadable merge-base changelog, origin/main changelog or origin/main log,
 disables all deferral and prints a note. origin/main is read offline from the
 local remote-tracking ref, so a PR merged after the last fetch reads as open; its
