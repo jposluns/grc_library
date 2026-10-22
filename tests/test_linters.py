@@ -25320,7 +25320,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-gate-count-consistency.py CWD F 075bd03b5434c09153bf1da8d0eb6a3c3130d18f8073122f565216557be80bf0
         lint-guardrail-cadence.py OWN F 5eb8669434b40f3dcaac9efe313684542bfc576b1d3b1883e0100d8e387631d2
         lint-hooks-syntax.py OWN F f271dc554bdc7afdd6883d9fcf727cea7f9da6b87170d79a6d98cb0d785b15cb
-        lint-index-header-parity.py OWN F b528ec567d2b1af998e521872768a0b2c7414b5adcc5929b4a4c218f4b437f3d
+        lint-index-header-parity.py OWN F 26ad2438853a5147cbd602fcd122e59fcef8c8b8f2fd6530edb07e74b1bcf3e5
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
@@ -43054,7 +43054,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.16.1", "3b444 widens the document-control-codes engine's accepted dashes and builds its two-digit hint from the cited number, on top of 3b405's optional is_valid_subcategory and withdrawal_note parameters (PATCH, 0.16.0 to 0.16.1)")
+        self.assertEqual(man["pack"]["version"], "0.17.0", "3b150 adds the index-header parity engine's optional Title comparator parameters and its four-value collect_findings return (MINOR, 0.16.1 to 0.17.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
@@ -44289,11 +44289,15 @@ class IndexHeaderParityTests(LinterTestCase):
                 rows=[self._gov_row(owner="Chief Risk Officer", freq="Annual")],
                 gov=("T", "Data Protection Officer", "Annual"),
             )
-            # Without --strict-owner: exit 0 but a WARNING line is present.
+            # Without --strict-owner: exit 0 but an owner-mismatch WARNING line is
+            # present (under --root the title-baseline warnings are WARNING lines
+            # too, so the bare word "WARNING" proves nothing about the owner check).
             r = run_linter(self.SCRIPT, "--root", d)
             self.assertEqual(r.returncode, 0, f"owner mismatch must not fail without strict.\n{r.stdout}")
-            self.assertIn("WARNING", r.stdout)
-            self.assertIn("owner mismatch", r.stdout)
+            self.assertTrue(
+                any(line.startswith("WARNING:") and "owner mismatch" in line
+                    for line in r.stdout.splitlines()),
+                f"expected an owner-mismatch WARNING line.\n{r.stdout}")
             # With --strict-owner: exit 1.
             r2 = run_linter(self.SCRIPT, "--root", d, "--strict-owner")
             self.assertLinterFails(r2, "owner mismatch")
@@ -44350,6 +44354,376 @@ class IndexHeaderParityTests(LinterTestCase):
             r = run_linter(self.SCRIPT, "--root", d)
             self.assertEqual(r.returncode, 2, f"missing register must exit 2.\n{r.stdout}\n{r.stderr}")
 
+
+class IndexTitleParityTests(LinterTestCase):
+    """Gate 92 title ratchet (3b150): the engine's third comparator.
+
+    Synthetic --root trees warn about unmatched baseline paths. The live run
+    requires all 44 pinned pairs, with 29 privacy shortenings and 15 drift
+    work items. Negative fixtures exercise both sides of the title pin. The
+    engine tests pin that the title options are off by default, that
+    collect_findings always returns four parts, and that check_row without
+    col_title keeps its 0.16.1 owner/cadence results.
+    """
+
+    SCRIPT = "tools/lint-index-header-parity.py"
+    HEADER = ("| Domain | Type | Title | Repository Path | Owner Role | "
+              "Review Frequency | Primary Alignment Families | Adoption Disposition |")
+    SEP = "|---|---|---|---|---|---|---|---|"
+    # One really-baselined path per class, pinned to TITLE_DIFF_BASELINE's exact pairs.
+    SHORT_PATH = "privacy/jurisdictions/annex-privacy-canada.md"
+    SHORT_INDEX = "Canada Privacy Requirements"
+    SHORT_HEADER = "Canada Privacy Regulatory Requirements"
+    DRIFT_PATH = "risk/guideline-quantitative-risk-analysis.md"
+    DRIFT_INDEX = "Quantitative Risk Analysis Guideline (FAIR-aligned)"
+    DRIFT_HEADER = "Quantitative Risk Analysis Guideline"
+
+    def _doc(self, title: str, *, with_title_field: bool = True) -> str:
+        title_line = f"**Document Title:** {title}\n" if with_title_field else ""
+        return (f"# {title}\n\n{title_line}"
+                "**Owner:** Chief Risk Officer\n"
+                "**Review Frequency:** Annual\n\n"
+                "Body.\n")
+
+    def _write_root(self, d: str, doc_rel: str, *, index_title: str, header_title: str,
+                    with_title_field: bool = True) -> None:
+        """One-row synthetic root whose owner and cadence agree on both sides,
+        so only the Title comparator can produce a finding."""
+        root = Path(d)
+        doc = root / doc_rel
+        doc.parent.mkdir(parents=True, exist_ok=True)
+        doc.write_text(self._doc(header_title, with_title_field=with_title_field), encoding="utf-8")
+        (root / "governance").mkdir(parents=True, exist_ok=True)
+        target = (Path(doc_rel).name if doc_rel.startswith("governance/")
+                  else str(Path("..") / doc_rel))
+        row = (f"| ops | Standard | {index_title} | [`{doc_rel}`]({target}) "
+               "| Chief Risk Officer | Annual | NIST CSF | template |")
+        (root / "governance/register-document-index-and-classification.md").write_text(
+            "# Document Index\n\n" + "\n".join([self.HEADER, self.SEP, row]) + "\n",
+            encoding="utf-8")
+
+    def _index(self, d):
+        return Path(d) / "governance/register-document-index-and-classification.md"
+
+    def _two_rows(self, d, first="T", second="Other"):
+        self._write_root(d, "governance/charter-test.md",
+                         index_title=first, header_title=first)
+        text = self._index(d).read_text()
+        row = text.splitlines()[-1]
+        later = row.replace("charter-test", "charter-other").replace(
+            f"| {first} |", f"| {second} |")
+        (Path(d) / "governance/charter-other.md").write_text(self._doc(second))
+        return text + later + "\n", row, later
+
+    def _collect(self, mod, text, root, baseline, *, title=True, partial=False):
+        """Call the engine's collect_findings with the wrapper's configuration."""
+        kwargs = dict(
+            index_rel=mod.INDEX_REL, header_cells=mod.INDEX_HEADER_CELLS,
+            num_cols=mod.NUM_COLS, col_path=mod.COL_PATH, col_owner=mod.COL_OWNER,
+            col_freq=mod.COL_FREQ, owner_field=mod.OWNER_FIELD, freq_field=mod.FREQ_FIELD,
+            strict_owner=True, base_cadence_allowlist=mod.BASE_CADENCE_EQUALITY_ALLOWLIST,
+        )
+        if title:
+            kwargs.update(
+                col_title=mod.COL_TITLE, title_field=mod.TITLE_FIELD, title_baseline=baseline,
+                title_classes=frozenset(mod.TITLE_DIFF_CLASSES),
+                title_worklist_classes=mod.TITLE_WORKLIST_CLASSES,
+                title_baseline_partial=partial,
+            )
+        return mod._engine().collect_findings(text, Path(root), **kwargs)
+
+    def test_equal_titles_pass(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write_root(d, "governance/charter-test.md", index_title="T", header_title="T")
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertEqual(r.returncode, 0, f"equal titles must pass.\n{r.stdout}\n{r.stderr}")
+            self.assertNotIn("DRIFT", r.stdout)
+
+    def test_unused_baseline_entries_warn_without_failing(self) -> None:
+        # A partial tree resolves none of the baselined paths: warnings, never findings,
+        # so synthetic --root fixtures (including IndexHeaderParityTests') keep working.
+        with tempfile.TemporaryDirectory() as d:
+            self._write_root(d, "governance/charter-test.md", index_title="T", header_title="T")
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertEqual(r.returncode, 0, f"unused baseline entries must not fail.\n{r.stdout}")
+            self.assertIn("WARNING: title-baseline entry", r.stdout)
+
+    def test_new_title_diff_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write_root(d, "governance/charter-test.md", index_title="T", header_title="T Prime")
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertLinterFails(r, "NEW index-vs-header title diff")
+
+    def test_baselined_shortening_passes_without_drift_line(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write_root(d, self.SHORT_PATH, index_title=self.SHORT_INDEX,
+                             header_title=self.SHORT_HEADER)
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertEqual(r.returncode, 0, f"baselined shortening must pass.\n{r.stdout}")
+            self.assertNotIn("DRIFT", r.stdout)
+
+    def test_baselined_real_drift_passes_and_is_listed(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write_root(d, self.DRIFT_PATH, index_title=self.DRIFT_INDEX,
+                             header_title=self.DRIFT_HEADER)
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertEqual(r.returncode, 0, f"baselined real drift must pass.\n{r.stdout}")
+            self.assertIn("DRIFT (baselined real drift", r.stdout)
+            self.assertIn(self.DRIFT_PATH, r.stdout)
+
+    def test_baselined_pair_change_fails_closed(self) -> None:
+        # The pinned path with a DIFFERENT header title: the exemption must not
+        # travel with the path (the cadence allow-list's fail-closed pinning, applied to titles).
+        with tempfile.TemporaryDirectory() as d:
+            self._write_root(d, self.SHORT_PATH, index_title=self.SHORT_INDEX,
+                             header_title=self.SHORT_HEADER + " v2")
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertLinterFails(r, "changed since it was baselined")
+
+    def test_stale_baseline_entry_fails_closed(self) -> None:
+        # A reconciled row whose baseline entry was left behind: the ratchet demands the prune.
+        with tempfile.TemporaryDirectory() as d:
+            self._write_root(d, self.SHORT_PATH, index_title=self.SHORT_HEADER,
+                             header_title=self.SHORT_HEADER)
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertLinterFails(r, "stale title-baseline entry")
+
+    def test_missing_document_title_field_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write_root(d, "governance/charter-test.md", index_title="T",
+                             header_title="T", with_title_field=False)
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertLinterFails(r, "has no Document Title field")
+
+    def test_live_corpus_title_ratchet_clean_and_drift_listed(self) -> None:
+        # The real tree passes the ratchet, and the baselined real-drift rows
+        # (the corpus-reconcile worklist) are listed on every run.
+        r = run_linter(self.SCRIPT, "--strict-owner")
+        self.assertEqual(r.returncode, 0,
+                         f"live corpus must be clean under the title ratchet.\n{r.stdout}\n{r.stderr}")
+        self.assertEqual(r.stdout.count("DRIFT (baselined real drift"), 15)
+        self.assertNotIn("WARNING:", r.stdout)
+        self.assertIn("355 rows checked (355 title cells ratcheted)", r.stdout)
+
+    def test_index_only_change_fails_closed(self):
+        with tempfile.TemporaryDirectory() as d:
+            self._write_root(d, self.SHORT_PATH, index_title=self.SHORT_INDEX + " v2",
+                             header_title=self.SHORT_HEADER)
+            self.assertLinterFails(run_linter(self.SCRIPT, "--root", d),
+                                   "changed since it was baselined")
+
+    def test_renamed_and_noncanonical_paths_do_not_inherit_baseline(self):
+        for path in ("privacy/jurisdictions/annex-privacy-renamed.md",
+                     "./privacy/jurisdictions/annex-privacy-canada.md"):
+            with self.subTest(path=path), tempfile.TemporaryDirectory() as d:
+                self._write_root(d, path, index_title=self.SHORT_INDEX,
+                                 header_title=self.SHORT_HEADER)
+                self.assertLinterFails(run_linter(self.SCRIPT, "--root", d),
+                                       "NEW index-vs-header title diff")
+
+    def test_empty_titles_on_either_side_fail(self):
+        for idx, hdr in (("", ""), ("", "T"), ("T", ""), ("   ", "   ")):
+            with self.subTest(index=idx, header=hdr), tempfile.TemporaryDirectory() as d:
+                self._write_root(d, "governance/charter-test.md", index_title=idx, header_title=hdr)
+                self.assertLinterFails(run_linter(self.SCRIPT, "--root", d), "empty")
+
+    def test_duplicate_metadata_titles_fail_even_when_identical(self):
+        for second in ("T", "Conflicting", ""):
+            with self.subTest(second=second), tempfile.TemporaryDirectory() as d:
+                rel = "governance/charter-test.md"
+                self._write_root(d, rel, index_title="T", header_title="T")
+                doc = Path(d) / rel
+                doc.write_text(doc.read_text().replace("**Owner:**",
+                               f"**Document Title:** {second}\n**Owner:**"))
+                self.assertLinterFails(run_linter(self.SCRIPT, "--root", d),
+                                       "duplicate Document Title fields")
+
+    def test_invalid_utf8_register_and_document_have_documented_exits(self):
+        for register in (True, False):
+            with self.subTest(register=register), tempfile.TemporaryDirectory() as d:
+                rel = "governance/charter-test.md"
+                self._write_root(d, rel, index_title="T", header_title="T")
+                (self._index(d) if register else Path(d) / rel).write_bytes(b"\xff")
+                r = run_linter(self.SCRIPT, "--root", d)
+                self.assertEqual(r.returncode, 2 if register else 1, r.stdout + r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+
+    def test_malformed_baselines_and_default_unmatched_entries_fail(self):
+        mod = load_linter_module(self.SCRIPT, "title_baseline_validation")
+        with tempfile.TemporaryDirectory() as d:
+            rel = "governance/charter-test.md"
+            self._write_root(d, rel, index_title="T", header_title="T")
+            text = self._index(d).read_text()
+            for entry in (("A", "B", "unknown", "why"),
+                          ("A", "A", "real-drift", "why"),
+                          ("A",), ("A", "B", "real-drift", None),
+                          ("", "B", "real-drift", "why")):
+                with self.subTest(entry=entry):
+                    result = self._collect(mod, text, d, {rel: entry})
+                    self.assertIn("malformed title-baseline entry", "\n".join(result[0]))
+            baseline = {"gone.md": ("A", "B", "real-drift", "why")}
+            result = self._collect(mod, text, d, baseline)
+            self.assertIn("matched no resolvable", "\n".join(result[0]))
+            self.assertFalse(result[1])
+
+    def test_frozen_classification_matches_family_evidence(self):
+        mod = load_linter_module(self.SCRIPT, "title_family_evidence")
+        engine = mod._engine()
+        lines = (REPO_ROOT / mod.INDEX_REL).read_text(encoding="utf-8").splitlines()
+        _start, data = engine.find_index_table(lines, mod.INDEX_HEADER_CELLS)
+        rows = [engine.split_row(raw) for _, raw in data]
+        self.assertTrue(all(len(c) == mod.NUM_COLS for c in rows))
+        by_path = {engine.LINK_TARGET_RE.fullmatch(c[mod.COL_PATH]).group(1): c for c in rows}
+        privacy = {p for p in by_path if p.startswith("privacy/jurisdictions/")}
+        shortening = {p for p, entry in mod.TITLE_DIFF_BASELINE.items()
+                      if entry[2] == "deliberate-shortening"}
+        self.assertEqual(shortening, privacy)
+        self.assertEqual(len(shortening), 29)
+        self.assertEqual(len(mod.TITLE_DIFF_BASELINE), 44)
+        abbreviations = {"EU": "European Union", "UK": "United Kingdom",
+                         "US": "United States", "UAE": "United Arab Emirates"}
+        for path in privacy:
+            index = by_path[path][mod.COL_TITLE]
+            jurisdiction = index.removesuffix(" Privacy Requirements")
+            expanded = abbreviations.get(jurisdiction, jurisdiction)
+            header = engine.parse_metadata_block(
+                (REPO_ROOT / path).read_text(encoding="utf-8")).fields[mod.TITLE_FIELD]
+            self.assertEqual(header, expanded + " Privacy Regulatory Requirements")
+        for kind, total, retained in (("Standard", 78, 71), ("Procedure", 58, 53)):
+            family = [c for c in by_path.values() if c[1] == kind]
+            self.assertEqual(len(family), total)
+            self.assertEqual(sum(c[mod.COL_TITLE].endswith(kind) for c in family), retained)
+
+    def test_broken_row_diagnostics_survive_a_clean_row(self):
+        mod = load_linter_module(self.SCRIPT, "title_row_diagnostics")
+        for defect, message in (
+            ("link", "Repository Path cell has no parseable code-span link"),
+            ("target", "disagrees with link target"),
+            ("missing", "linked document does not exist"),
+            ("utf8", "cannot read linked document"),
+            ("Owner", "header has no Owner field"),
+            ("Review Frequency", "header has no Review Frequency field"),
+        ):
+            with self.subTest(defect=defect), tempfile.TemporaryDirectory() as d:
+                text, row, _ = self._two_rows(d)
+                link = "[`governance/charter-test.md`](charter-test.md)"
+                doc = Path(d) / "governance/charter-test.md"
+                if defect in ("link", "target"):
+                    replacement = {
+                        "link": "not a link",
+                        "target": link.replace("](charter-test.md)", "](charter-other.md)"),
+                    }[defect]
+                    text = text.replace(row, row.replace(link, replacement), 1)
+                elif defect == "missing":
+                    doc.unlink()
+                elif defect == "utf8":
+                    doc.write_bytes(b"\xff")
+                else:
+                    doc.write_text("\n".join(
+                        line for line in doc.read_text().splitlines()
+                        if not line.startswith(f"**{defect}:**")))
+                result = self._collect(mod, text, d, {})
+                messages = "\n".join(result[0])
+                self.assertIn(message, messages)
+                self.assertIn(f"{mod.INDEX_REL}:5:", messages)
+                self.assertEqual(result[2], 2)
+                self.assertNotIn("zero title cells", messages)
+                self.assertNotIn(f"{mod.INDEX_REL}:6:", messages)
+
+    def test_baseline_keys_and_zero_title_guard(self):
+        mod = load_linter_module(self.SCRIPT, "title_baseline_guards")
+        with tempfile.TemporaryDirectory() as d:
+            text, _, _ = self._two_rows(d)
+            for key in (1, ""):
+                with self.subTest(key=key):
+                    result = self._collect(mod, text, d, {key: ("A", "B", "real-drift", "why")})
+                    self.assertIn("malformed title-baseline entry", "\n".join(result[0]))
+            result = self._collect(mod, self.HEADER + "\n" + self.SEP + "\n", d, {})
+            self.assertIn(f"{mod.INDEX_REL}: zero title cells checked", result[0])
+
+    def test_main_default_root_requires_all_baseline_paths(self):
+        from contextlib import redirect_stdout
+        from unittest.mock import patch
+
+        mod = load_linter_module(self.SCRIPT, "title_main_default_root")
+        with tempfile.TemporaryDirectory() as d:
+            self._write_root(d, "governance/charter-test.md", index_title="T", header_title="T")
+            baseline = {"gone.md": ("A", "B", "real-drift", "why")}
+            for args, expected, prefix in (([], 1, "FAIL:"),
+                                          (["--root", d], 0, "WARNING:")):
+                with self.subTest(args=args):
+                    out = io.StringIO()
+                    with patch.object(mod, "REPO_ROOT", Path(d)), \
+                            patch.object(mod, "TITLE_DIFF_BASELINE", baseline), redirect_stdout(out):
+                        self.assertEqual(mod.main([self.SCRIPT, *args]), expected)
+                    self.assertIn(prefix + " title-baseline entry for gone.md", out.getvalue())
+
+    def test_engine_title_comparator_off_by_default(self):
+        # Without col_title, differing titles produce no title finding, no
+        # title-baseline check and an empty work list (the 0.16.1 behaviour).
+        mod = load_linter_module(self.SCRIPT, "title_engine_default_off")
+        with tempfile.TemporaryDirectory() as d:
+            self._write_root(d, "governance/charter-test.md", index_title="T", header_title="T Prime")
+            text = self._index(d).read_text()
+            result = self._collect(mod, text, d, None, title=False)
+            self.assertEqual(result, ([], [], 1, []))
+            on = self._collect(mod, text, d, {})
+            self.assertIn("NEW index-vs-header title diff", "\n".join(on[0]))
+
+    def test_engine_collect_findings_returns_four_parts(self):
+        mod = load_linter_module(self.SCRIPT, "title_engine_four_parts")
+        with tempfile.TemporaryDirectory() as d:
+            self._write_root(d, self.DRIFT_PATH, index_title=self.DRIFT_INDEX,
+                             header_title=self.DRIFT_HEADER)
+            text = self._index(d).read_text()
+            for title in (False, True):
+                with self.subTest(title=title):
+                    result = self._collect(mod, text, d, mod.TITLE_DIFF_BASELINE,
+                                           title=title, partial=True)
+                    self.assertIsInstance(result, tuple)
+                    self.assertEqual(len(result), 4)
+                    findings, warnings, rows_checked, worklist = result
+                    self.assertEqual(findings, [])
+                    self.assertEqual(rows_checked, 1)
+                    self.assertEqual(len(worklist), 1 if title else 0)
+                    self.assertEqual(len(warnings), 43 if title else 0)
+            self.assertIsNone(self._collect(mod, "# no table\n", d, {}))
+
+    def test_engine_check_row_without_col_title_is_unchanged(self):
+        # The 0.16.1 owner/cadence results, pinned literally. The header title
+        # differs from the index title, so a leaking title check would show here.
+        mod = load_linter_module(self.SCRIPT, "title_engine_check_row")
+        engine = mod._engine()
+        base = dict(col_path=mod.COL_PATH, col_owner=mod.COL_OWNER, col_freq=mod.COL_FREQ,
+                    owner_field=mod.OWNER_FIELD, freq_field=mod.FREQ_FIELD,
+                    base_cadence_allowlist=mod.BASE_CADENCE_EQUALITY_ALLOWLIST)
+        idle_title = dict(title_field=mod.TITLE_FIELD, title_baseline=mod.TITLE_DIFF_BASELINE,
+                          title_worklist_classes=mod.TITLE_WORKLIST_CLASSES)
+        mismatch = "owner mismatch (index 'Chief Risk Officer' vs header 'Data Protection Officer')"
+        cases = (
+            ("Annual", "Chief Risk Officer", "Annual", False, []),
+            ("Annual", "Data Protection Officer", "Annual", False, ["WARNING:" + mismatch]),
+            ("Annual", "Data Protection Officer", "Annual", True, [mismatch]),
+            ("Annual", "Chief Risk Officer", "Quarterly", False,
+             ["base cadence set mismatch (index ['ANNUAL'] vs header ['QUARTERLY']); "
+              "exact base-set equality is required unless this document's expected "
+              "multi-cadence shape is allow-listed"]),
+            ("Annual", "Chief Risk Officer", "Upon material change", False,
+             ["cadence shape mismatch (index ['ANNUAL'] vs header ['EVENT']): "
+              "one side names a base cadence and the other is event-only"]),
+            ("Sometimes", "Chief Risk Officer", "Annual", False,
+             ["no recognized cadence token in index cell ('Sometimes')"]),
+        )
+        for freq, hdr_owner, hdr_freq, strict, expected in cases:
+            with self.subTest(freq=freq, owner=hdr_owner, header_freq=hdr_freq, strict=strict):
+                cells = ["governance", "Charter", "T",
+                         "[`governance/charter-test.md`](charter-test.md)",
+                         "Chief Risk Officer", freq, "NIST CSF", "Recommended"]
+                fields = {"Document Title": "T Prime", "Owner": hdr_owner,
+                          "Review Frequency": hdr_freq}
+                self.assertEqual(engine.check_row(cells, fields, strict, **base), expected)
+                self.assertEqual(
+                    engine.check_row(cells, fields, strict, **base, **idle_title), expected)
 
 
 class UnusedImportsGateTests(unittest.TestCase):

@@ -324,7 +324,7 @@ origin = "grc_library tools/lint-narrative-metadata.py gate rationale (new claus
 
 [[clauses]]
 id = "index-header-parity"
-title = "Index-header parity (the document-index register mirrors each active document's Owner and Review Frequency from that document's own header)"
+title = "Index-header parity (the document-index register mirrors each active document's Owner, Review Frequency and, subject to a pinned title baseline, Title from that document's own header)"
 source = "core/rules/index-header-parity.md"
 origin = "grc_library tools/lint-index-header-parity.py gate rationale (new clause in the Group-A content-generic transfer lane; cadence_tokens + find_index_table + check_row + collect_findings plus the generic review-cadence recognizer + the code-span-link regex are the engine; the grc index register schema (index rel path, 8-column header, column indices, Owner/Review Frequency metadata field names) + the per-document base-cadence allow-list + --root/--strict-owner handling + the environmental exits + reporting are wrapper config)"
 
