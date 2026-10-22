@@ -45,7 +45,7 @@ from `grc_library_ref/catalogue.yml`; regenerate on any reference-base change (t
 generator is maintainer-side, never a CI gate, so the public repo stays clonable
 without the private reference sibling).
 
-## Standards (272: 190 free, 82 licensed)
+## Standards (274: 192 free, 82 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -249,8 +249,10 @@ without the private reference sibling).
 | NIST SP 800-162, Guide to Attribute Based Access Control (ABAC) Definition and Considerations | SP 800-162 (January 2014, updates as of 08-02-2019) | NIST |  | FREE |
 | NIST SP 800-163 Rev. 1, Vetting the Security of Mobile Applications | SP 800-163 Rev. 1 (April 2019) | NIST |  | FREE |
 | NIST SP 800-171 Rev 3 (OSCAL) |  | NIST |  | FREE |
+| NIST SP 800-171A Rev. 3, Assessing Security Requirements for Controlled Unclassified Information | SP 800-171A Rev. 3 (NIST SP 800-171Ar3), May 2024 | NIST |  | FREE |
 | NIST SP 800-172 Rev 3 (OSCAL) |  | NIST |  | FREE |
 | NIST SP 800-172 Rev. 3, Enhanced Security Requirements for Protecting Controlled Unclassified Information | SP 800-172 Rev. 3 (Final, May 13 2026); base SP 800-172 (Feb 2021) withdrawn 2026-05-13 | NIST |  | FREE |
+| NIST SP 800-172A Rev. 3, Assessing Enhanced Security Requirements for Controlled Unclassified Information | SP 800-172A Rev. 3 (NIST SP 800-172Ar3), May 2026 | NIST |  | FREE |
 | NIST SP 800-175B Rev. 1, Guideline for Using Cryptographic Standards in the Federal Government: Cryptographic Mechanisms | SP 800-175B Rev. 1 (March 2020) | NIST |  | FREE |
 | NIST SP 800-177 Rev. 1, Trustworthy Email | SP 800-177 Rev. 1 (February 2019) | NIST |  | FREE |
 | NIST SP 800-18 Rev. 2, Developing Security, Privacy, and Cybersecurity Supply Chain Risk Management Plans for Systems | SP 800-18 Revision 2 (final, June 2026); confirmed current final at csrc.nist.gov/pubs/sp/800/18/r2/final on 2026-07-07 (supersedes Rev. 1, 2006) | NIST |  | FREE |
@@ -970,5 +972,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 905 sources (784 free, 121 licensed).**
+**Total: 907 sources (786 free, 121 licensed).**
 
