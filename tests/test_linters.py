@@ -19632,6 +19632,10 @@ class VerifyReferenceModulesOscalTests(unittest.TestCase):
         def withdrawn_category_empty_title(data):
             self._control(data, "ID.RM")["title"] = ""
 
+        def withdrawn_category_number_title(data):
+            # 3b448: a non-string title is refused too.
+            self._control(data, "ID.RM")["title"] = 5
+
         # Each message is matched whole, so the control it names is pinned.
         title = "on a withdrawn Category, expected a non-empty string"
         cases = {
@@ -19650,6 +19654,7 @@ class VerifyReferenceModulesOscalTests(unittest.TestCase):
             withdrawn_category_missing_title: f"ID.RM: title None {title}",
             withdrawn_category_null_title: f"ID.RM: title None {title}",
             withdrawn_category_empty_title: f"ID.RM: title '' {title}",
+            withdrawn_category_number_title: f"ID.RM: title 5 {title}",
         }
         for mutate, expected in cases.items():
             with self.subTest(mutate.__name__):
@@ -19752,10 +19757,16 @@ class VerifyReferenceModulesOscalTests(unittest.TestCase):
         # FUNCTION.CATEGORY-NN destination (a bare FUNCTION only on a Category's
         # own link, as the held ID.GV has), or the catalogue is refused: a
         # missing or unsupported rel or a malformed destination is refused. The
-        # children's links are summarised by Category (deduplicated, the
-        # Subcategory suffix dropped), so a removed or duplicated child link that
-        # names an already-listed Category leaves the rebuilt note unchanged.
-        # Round 3: a links value that is not a list is refused too.
+        # children's links are checked either way, but feed the Category's note
+        # only when the Category has no links of its own (8 of the 12 held
+        # withdrawn Categories have their own), and then only as the
+        # deduplicated list of the Categories they name (the Subcategory suffix
+        # dropped, the rel ignored), so a rel switch, a move to another
+        # Subcategory of the same Category, or a removed or duplicated
+        # child link that keeps that list the same leaves the rebuilt note
+        # unchanged. Round 3: a links value that is not a list is refused too;
+        # 3b448: on a withdrawn Subcategory under a live Category as well, not
+        # read as an empty note and reported as drift.
         def category_missing_rel(data):
             del self._control(data, "ID.RM")["links"][0]["rel"]
 
@@ -19796,6 +19807,12 @@ class VerifyReferenceModulesOscalTests(unittest.TestCase):
         def child_links_string(data):
             self._control(data, "RS.RP-01")["links"] = ""
 
+        def live_category_withdrawn_sub_links_object(data):
+            self._control(data, "DE.CM-07")["links"] = {}
+
+        def live_category_withdrawn_sub_links_string(data):
+            self._control(data, "DE.CM-07")["links"] = ""
+
         rels = "expected 'incorporated_into' or 'moved_to'"
         own = "expected FUNCTION, FUNCTION.CATEGORY or FUNCTION.CATEGORY-NN"
         child = "expected FUNCTION.CATEGORY or FUNCTION.CATEGORY-NN"
@@ -19813,6 +19830,8 @@ class VerifyReferenceModulesOscalTests(unittest.TestCase):
             category_links_string: "ID.RM: links '', expected a list",
             child_links_object: "RS.RP-01: links {}, expected a list",
             child_links_string: "RS.RP-01: links '', expected a list",
+            live_category_withdrawn_sub_links_object: "DE.CM-07: links {}, expected a list",
+            live_category_withdrawn_sub_links_string: "DE.CM-07: links '', expected a list",
         }
         self.assertEqual(self._control(self._catalogue(), "ID.GV")["links"],
                          [{"href": "GV", "rel": "incorporated_into"}])
@@ -23841,7 +23860,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         todo_index_rows.py PASSIVE F 6aba39ba20b4bbbe5ffab3fe94ef520ec95ce8d8e2510ea73696c17d196c2e4a
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4
         validate-review-artifacts.py OWN F 037b7cc690f09b3168dbc6ba22b908c5f7cccc0d47d4f6fe9f929e5e9a98a10d
-        verify-reference-modules.py OWN F de4fe2b4bf7f8c5de97372e087a1d3dfb86bda26cd24be1b1a77799865a4a3ff
+        verify-reference-modules.py OWN F 18e5a34453e336aecb569547c920d7d7112ae4fa8a5377fb860d7fcfd29151bd
     """
 
     # Repository-relative argument-handling dependencies outside tools/.
