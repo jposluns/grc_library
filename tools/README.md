@@ -64,7 +64,7 @@ pip install pre-commit
 pre-commit install
 ```
 
-Three git-native hooks are installed by `tools/install-git-hooks.sh`: a pre-push hook (`tools/git-hooks/pre-push`), a pre-commit hook (`tools/git-hooks/pre-commit`) that refuses a commit on a `main` or `master` checkout, a commit that changes a document's `**Version:**` or `**Date:**` line (or a generated output) while the staged `taxonomy.yml`, `docs/portal.md` or `docs/maturity-scorecard.md` is out of sync (`tools/check-generated-commit.py` runs the staged generators' `--check` on a copy of the index being committed; override `GRC_ALLOW_STALE_GENERATED_COMMIT=1`), and a commit that stages `CHANGELOG.md` while `python3 tools/preflight-changelog.py --staged` fails (override `GRC_ALLOW_FAILING_CHANGELOG_COMMIT=1`), and a commit-msg hook (`tools/git-hooks/commit-msg`) that refuses a commit whose staged versioned document changed its body without a Version change (a `VersionBump: none <reason>` message line opts out README.md only). A local commit-msg hook is kept by renaming it to `commit-msg-local`; the managed hook runs it first. Run it once per clone, BEFORE `pre-commit install`: the framework then chains the managed pre-commit hook as `pre-commit.legacy`. If the framework is already installed, run `pre-commit uninstall`, then this installer, then `pre-commit install`. A later re-run of the installer cannot verify the chain from file contents, so it reports the pre-commit half as unverified (non-zero) and names the behavioural check: on a `main` checkout, `git commit --allow-empty -m probe` must be refused. It refuses a `git push` when the tracked working tree is modified or staged AND the push includes the current HEAD, mirroring [`pre-push-guard.sh`](pre-push-guard.sh)'s dirty-tree attestation (override `PRE_PUSH_GUARD_ALLOW_DIRTY=1`), so a raw `git push` that skips the wrapper still gets the check. It is a raw git hook, not a pre-commit-framework hook, because the framework stashes unstaged edits before running hooks (which would defeat the check).
+Three git-native hooks are installed by `tools/install-git-hooks.sh`: a pre-push hook (`tools/git-hooks/pre-push`), a pre-commit hook (`tools/git-hooks/pre-commit`) that refuses a commit on a `main` or `master` checkout, a commit that changes a document's `**Version:**` or `**Date:**` line (or a generated output) while the staged `taxonomy.yml`, `docs/portal.md` or `docs/maturity-scorecard.md` is out of sync (`tools/check-generated-commit.py` runs the staged generators' `--check` on a copy of the index being committed; override `GRC_ALLOW_STALE_GENERATED_COMMIT=1`), and a commit that stages `CHANGELOG.md` while `python3 tools/preflight-changelog.py --staged` fails (override `GRC_ALLOW_FAILING_CHANGELOG_COMMIT=1`), and a commit-msg hook (`tools/git-hooks/commit-msg`) that refuses a commit whose staged versioned document changed its body without a Version change (a `VersionBump: none <reason>` message line opts out README.md only). A local commit-msg hook is kept by renaming it to `commit-msg-local`; the managed hook runs it first. Run it once per clone, BEFORE `pre-commit install`: the framework then chains the managed pre-commit hook as `pre-commit.legacy`. If the framework is already installed, run `pre-commit uninstall`, then this installer, then `pre-commit install`. A later re-run of the installer cannot verify the chain from file contents, so it reports the pre-commit half as unverified (non-zero) and names the behavioural check: on a `main` checkout, `git commit --allow-empty -m probe` must be refused. It refuses a `git push` when the tracked working tree is modified or staged AND the push includes the current HEAD, mirroring [`pre-push-guard.sh`](pre-push-guard.sh)'s dirty-tree attestation (override `PRE_PUSH_GUARD_ALLOW_DIRTY=1`), as a backstop on every destination; the full guard below clears this override. It is a raw git hook, not a pre-commit-framework hook, because the framework stashes unstaged edits before running hooks (which would defeat the check).
 
 Subsequent commits run the full audit programme before the commit is finalized. Run on demand against the entire corpus:
 
@@ -87,6 +87,68 @@ pre-commit run --all-files
 Some scripts in this directory are exploratory tools the maintainer runs on demand rather than verification gates wired into the audit programme. They exit 0 on every run (they surface findings; they do not fail). The set:
 
 - [`tools/detect-collection-candidates.py`](detect-collection-candidates.py): heuristic detector for new candidate collections that should be added to gate 41 (Collection-enumeration consistency audit). Walks candidate-source roots, scores each subdirectory's items against corpus markdown files for coverage, and surfaces candidates with rationale for the maintainer to triage one-by-one. Companion to gate 41's hard-coded configuration.
+
+The pre-push hook runs the full guard on every branch update to a destination
+whose normalized path ends in `jposluns/grc_library`, on any host or remote name.
+HTTPS, SSH, scp-like and local URLs are matched case-insensitively, ignoring a
+trailing slash and `.git` (including a `/.git` component). After installation,
+use plain `git push`.
+Every non-deletion `refs/heads/*` destination must carry a commit equal to the
+active checkout's HEAD; otherwise push from a checkout at that commit. Tags and
+other namespaces do not run the full guard, including tags pointing to commits.
+Deletion-only pushes and other repositories skip it. The dirty-tree backstop
+still receives every original ref record.
+
+`tools/install-git-hooks.sh --check` compares the shared pre-push shim byte for
+byte and rejects any `core.hooksPath` setting; without a private store it skips.
+Install once per clone; linked worktrees share the persistent shim, which resolves
+the active checkout. Older hooks are refused for guarded destinations (including
+tags and deletions), with a message to rebase; other destinations run the older
+tracked hook, or succeed if that hook is absent. An existing v1, v2, v3, v4 or v5 shim
+is deliberately treated as foreign:
+inspect and remove that old managed
+pre-push shim, then rerun the installer. Foreign hooks are never overwritten.
+
+Direct `tools/pre-push-guard.sh` runs remain available and retain pipe refusal.
+Every guarded push reruns all checks, even after a direct pass or transport
+failure. Output streams through a regular temporary file with the guard's exit
+status preserved. The guard environment allows only `LANG`, `LC_*`,
+`TMPDIR`, `TERM`, `GRC_STORE`, `SSH_AUTH_SOCK` and the lowercase and uppercase
+`http_proxy`, `https_proxy`, `ftp_proxy`, `all_proxy` and `no_proxy` variables.
+`GRC_STORE` is a deliberate caller-controlled store selection. Askpass settings
+and global Git credential helpers, URL rewrites and SSH command settings are
+not preserved. Helpers outside the fixed PATH are unavailable; a failed fetch
+prints a warning that delta gates may use a stale local base.
+Both hook entry points fix `PATH` to `/usr/bin:/bin` and unset shell startup,
+loader and Git executable-path variables before invoking commands. They verify
+that the selected toplevel is a registered work tree of the current repository
+before running its tracked hook. Symlinked `.git` entries are refused; canonical
+paths, not inode aliases, bind ordinary and linked checkouts. Relative linked
+worktree backlinks resolve from the Git directory. Separate Git directories
+outside the conventional parent-owned `.git` location are accepted only when the
+checkout gitfile names that directory and `core.worktree` is set to that checkout
+(relative values resolve from the Git directory). An unset `core.worktree` is
+refused with the command that sets it. The hooks read `core.worktree` only from
+the Git directory's own `config` file, so `-c` and `GIT_CONFIG_COUNT` overrides
+cannot change it.
+Hook Python entry points run with `-I`. The
+guard resets `HOME` to the account home from the password database, drops caller
+`PYTHON*` variables and sets `PYTHONNOUSERSITE=1` for child interpreters. It sets
+`GIT_CONFIG_GLOBAL=/dev/null`, retaining repository and administrator system
+config, including system `safe.directory` entries. Caller `GIT_CONFIG_SYSTEM`
+and `GIT_CONFIG_NOSYSTEM` settings are dropped. Other Git settings and
+direct-run overrides are excluded, including in linked worktrees. These overrides do
+not exempt guarded pushes. After the guard passes, HEAD must still match every
+pushed branch SHA and the tracked tree must still be clean.
+
+Residual: `git push --no-verify` and a command-level `core.hooksPath` override
+can skip the hook entirely, including overrides supplied through
+`GIT_CONFIG_COUNT` or `GIT_CONFIG_PARAMETERS`. A `core.hooksPath` selected before
+the hook runs through `HOME`, `GIT_CONFIG_GLOBAL`, `XDG_CONFIG_HOME` or
+`GIT_CONFIG_SYSTEM` is also a residual handled by the governance pack's guard.
+The hook cannot undo loader code already executed when Git or its initial shell
+starts. `git push -n` is a dry run and still runs the hook. Local hooks are not a
+server-side boundary.
 
 ## Operator tools (not gates)
 

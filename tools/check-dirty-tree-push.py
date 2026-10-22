@@ -3,7 +3,7 @@
 
 Runs at `git push` time as a RAW git `pre-push` hook (installed by
 tools/install-git-hooks.sh as a persistent shim that resolves the active checkout
-and invokes tools/git-hooks/pre-push, which execs this script with --pre-push).
+and invokes tools/git-hooks/pre-push, which invokes this script with --pre-push).
 It REFUSES a push when the tracked working tree is modified or staged AND the
 push updates a BRANCH to the current HEAD, so a commit
 that shipped an incomplete tree (the `git add <list>` that silently dropped a
@@ -30,12 +30,11 @@ stdin line forces a conservative check (fail closed).
 This MIRRORS the dirty-tracked-tree attestation in tools/pre-push-guard.sh
 (same `git status --porcelain --untracked-files=no`, same PRE_PUSH_GUARD_ALLOW_DIRTY
 override with the same set-and-non-empty semantics, same FAIL-CLOSED stance on an
-unreadable `git status`). pre-push-guard.sh is the sanctioned `pre-push-guard.sh
-&& git push` wrapper; this hook is the automatic backstop that also covers a raw
-`git push` which skips the wrapper. When pushing HEAD both run and agree (defence
-in depth); on a deletion or tag push the unconditional wrapper refuses on a dirty
-tree while this HEAD-scoped hook allows. Keep the shared dirty-tree check in
-lock-step: a change to one is a change to both.
+unreadable `git status`). The installed hook runs this backstop, then the full
+pre-push guard for protected branch destinations. Use plain `git push` after
+installation. The full guard clears overrides and requires each pushed branch
+commit to equal HEAD. Tags and deletions skip that full guard. Keep the shared
+dirty-tree check in lock-step: a change to one is a change to both.
 
 Untracked new files (`??`) are out of scope (same as pre-push-guard.sh):
 `--untracked-files=no`. Exit 0 = allow the push; exit 1 = refuse.
@@ -305,7 +304,7 @@ def _integration_self_test():
         (repo / "tools" / "git-hooks").mkdir(parents=True)
         for relative in (
             "check-dirty-tree-push.py", "install-git-hooks.sh",
-            "git-hooks/pre-push",
+            "git-hooks/pre-push", "pre-push-hook.py",
         ):
             shutil.copyfile(source_tools / relative, repo / "tools" / relative)
         tracked = repo / "tracked.txt"

@@ -22,6 +22,17 @@
 # race-safe redesign (exact-destination link that rejects an existing dest;
 # no pathname chmod after validation) is tracked as a follow-up.
 set -eu
+# Check mode is read-only and store-dependent, like the local QA gates.
+case "${1:-}" in
+  --check)
+    present="$(python3 -c 'import sys; sys.path.insert(0, "tools"); from lint_common import private_store_roots; print(int(bool(private_store_roots())))')"
+    if [ "$present" = 0 ]; then
+      echo "install-git-hooks: check SKIP (no private store)."
+      exit 0
+    fi ;;
+  "") ;;
+  *) echo "usage: tools/install-git-hooks.sh [--check]" >&2; exit 2 ;;
+esac
 root="$(git rev-parse --show-toplevel)"
 
 # core.hooksPath: detect PRESENCE by `git config --get` EXIT STATUS. A present-
@@ -40,7 +51,7 @@ case "$hooks_rel" in
   /*) dest="$hooks_rel" ;;
   *)  dest="$root/$hooks_rel" ;;
 esac
-mkdir -p "$dest"
+[ "${1:-}" = --check ] || mkdir -p "$dest"
 
 # A persistent file in the shared hooks dir survives removal of the worktree
 # that installed it. Resolve the active checkout on EACH invocation; the tracked
@@ -48,12 +59,89 @@ mkdir -p "$dest"
 emit_pre_push() {
   cat <<'HOOK'
 #!/bin/sh
-# Managed by tools/install-git-hooks.sh: dirty-tree pre-push dispatcher v1.
+# Managed by tools/install-git-hooks.sh: full-guard pre-push dispatcher v7.
+PATH=/usr/bin:/bin
+export PATH
+unset GIT_EXEC_PATH LD_PRELOAD LD_LIBRARY_PATH BASH_ENV ENV
 set -eu
 root="$(git rev-parse --show-toplevel)"
+current_git_dir="$(git rev-parse --absolute-git-dir)"
+own_git_dir="$(unset GIT_DIR GIT_WORK_TREE; cd "$root"; git rev-parse --absolute-git-dir)"
+# Compare canonical paths, not inodes: aliases are not registered trees.
+root="$(realpath "$root")"
+current_git_dir="$(realpath "$current_git_dir")"
+own_git_dir="$(realpath "$own_git_dir")"
+registered=false
+if [ ! -L "$root/.git" ]; then
+  if [ -d "$root/.git" ]; then
+    [ "$(realpath "$root/.git")" != "$current_git_dir" ] || registered=true
+  elif [ -f "$root/.git" ] && [ -f "$current_git_dir/gitdir" ]; then
+    linked_gitfile="$(cat "$current_git_dir/gitdir")"
+    case "$linked_gitfile" in
+      /*) ;;
+      *) linked_gitfile="$current_git_dir/$linked_gitfile" ;;
+    esac
+    if [ "$(realpath "$root/.git")" = "$(realpath "$linked_gitfile")" ]; then
+      registered=true
+    fi
+  elif [ -f "$root/.git" ] &&
+       [ "$current_git_dir" != "$(dirname "$current_git_dir")/.git" ]; then
+    # An ordinary .git directory belongs to its parent, not another gitfile.
+    # Separate git dirs have no backlink; require core.worktree, read only
+    # from their own config file so -c and GIT_CONFIG_* cannot change it.
+    worktree="$(git config --file "$current_git_dir/config" --get core.worktree || :)"
+    case "$worktree" in
+      "") echo "pre-push: separate git dir without core.worktree; in its checkout run: git config core.worktree \"\$PWD\"" >&2
+          exit 1 ;;
+      /*) ;;
+      *) worktree="$current_git_dir/$worktree" ;;
+    esac
+    if [ "$(realpath "$worktree")" = "$root" ] &&
+       [ "$own_git_dir" = "$current_git_dir" ]; then
+      registered=true
+    fi
+  fi
+fi
+if [ "$current_git_dir" != "$own_git_dir" ] || [ "$registered" != true ]; then
+  echo "pre-push: refusing redirected work tree; use the repository's own checkout." >&2
+  exit 1
+fi
+cd "$root"
+if [ ! -f tools/git-hooks/pre-push ] ||
+   ! grep -Fxq 'python3 -I tools/pre-push-hook.py "$@" < "$refs"' tools/git-hooks/pre-push ||
+   [ ! -f "$root/tools/pre-push-hook.py" ]; then
+  # Keep destination matching available even when the checkout predates it.
+  if ! python3 -I - "$2" <<'PY'
+import posixpath
+import sys
+from urllib.parse import unquote, urlsplit
+url = unquote(sys.argv[1]).casefold().rstrip("/")
+path = urlsplit(url).path if "://" in url else url.split(":", 1)[-1]
+path = posixpath.normpath(path).rstrip("/")
+if path.endswith(".git"):
+    path = path[:-4].rstrip("/")
+sys.exit(1 if path == "jposluns/grc_library" or path.endswith("/jposluns/grc_library") else 0)
+PY
+  then
+    echo "pre-push: this checkout lacks the full guard; rebase onto the hook update before pushing." >&2
+    exit 1
+  fi
+fi
+[ -f tools/git-hooks/pre-push ] || exit 0
 exec sh "$root/tools/git-hooks/pre-push" "$@"
 HOOK
 }
+
+# Compare against the SAME emitter used for installation, including line endings.
+if [ "${1:-}" = --check ]; then
+  hook="$dest/pre-push"
+  if [ ! -L "$hook" ] && [ -f "$hook" ] && [ -x "$hook" ] && emit_pre_push | cmp -s - "$hook"; then
+    echo "install-git-hooks: check PASS (pre-push shim)."
+    exit 0
+  fi
+  echo "install-git-hooks: check FAIL (missing, altered or non-executable pre-push shim); run tools/install-git-hooks.sh." >&2
+  exit 1
+fi
 
 # The pre-commit dispatcher FAILS OPEN when the active checkout has no tracked
 # pre-commit file (a branch older than the hook), so it never breaks a commit there.

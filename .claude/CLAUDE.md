@@ -166,7 +166,7 @@ No Claude or Anthropic attribution on any commit, push, or PR (2026-08-17; reaff
 1. Feature branch only, never `main` (`block-branch-to-main-edit.py`, git-native `check-commit-on-main.py` in every worktree).
 2. `/validate-pr` BEFORE guard, THIS PR's row in THIS PR (gate 50 Check 1; handoff fallback Findings marker `SKIPPED`+`handoff`).
 3. `/retro` immediately after, BEFORE guard, row in THIS PR (gate 50 Check 1).
-4. Before push/PR creation, finish the applicable checklist, impact map and bumps; before the final push, include THIS PR's returned QA/retro rows (the guard requires them from the first push). UNPIPED guarded push: `tools/pre-push-guard.sh && git push -u origin <branch>`. Never pipe a verification to a truncating sink (`block-verification-pipes.py`; `tools/tail-safe.sh` for volume).
+4. Before push/PR creation, finish the applicable checklist, impact map and bumps; before the final push, include THIS PR's returned QA/retro rows. Use `git push`; setup: `tools/README.md`. Never pipe a verification to a truncating sink; use `tools/tail-safe.sh`.
 5. Wait for `Lint markdown corpus` per PR activity subscription discipline.
 6. Refresh `session-handoff.md` from `python3 tools/handoff-snapshot.py`.
 7. Merge ONLY through `tools/merge-when-green.py <N> --repo jposluns/grc_library --admin` (fail-closed, confirmed-green, head-pinned); LOG every admin merge to merge-bypass log (gate 50 Check 6).

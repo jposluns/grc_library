@@ -1,11 +1,55 @@
 #!/bin/sh
-# git-native pre-push hook: dirty-tracked-tree backstop (Layer B).
-#
-# A persistent shim installed by tools/install-git-hooks.sh in the shared hooks
-# dir resolves the active checkout and execs THIS tracked file at push time.
-# Delegates to
-# the tested Python implementation, forwarding argv (remote name + url) and stdin
-# (the refs being pushed) so it can scope the check to HEAD-bearing pushes.
-# See tools/check-dirty-tree-push.py. NOT a pre-commit-framework hook (the
-# framework stashes unstaged edits, which would defeat this check).
-exec python3 "$(git rev-parse --show-toplevel)/tools/check-dirty-tree-push.py" --pre-push "$@"
+# Git-native pre-push: preserve every ref record for the dirty-tree backstop.
+PATH=/usr/bin:/bin
+export PATH
+unset GIT_EXEC_PATH LD_PRELOAD LD_LIBRARY_PATH BASH_ENV ENV
+set -eu
+root="$(git rev-parse --show-toplevel)"
+current_git_dir="$(git rev-parse --absolute-git-dir)"
+own_git_dir="$(unset GIT_DIR GIT_WORK_TREE; cd "$root"; git rev-parse --absolute-git-dir)"
+# Compare canonical paths, not inodes: aliases are not registered trees.
+root="$(realpath "$root")"
+current_git_dir="$(realpath "$current_git_dir")"
+own_git_dir="$(realpath "$own_git_dir")"
+registered=false
+if [ ! -L "$root/.git" ]; then
+  if [ -d "$root/.git" ]; then
+    [ "$(realpath "$root/.git")" != "$current_git_dir" ] || registered=true
+  elif [ -f "$root/.git" ] && [ -f "$current_git_dir/gitdir" ]; then
+    linked_gitfile="$(cat "$current_git_dir/gitdir")"
+    case "$linked_gitfile" in
+      /*) ;;
+      *) linked_gitfile="$current_git_dir/$linked_gitfile" ;;
+    esac
+    if [ "$(realpath "$root/.git")" = "$(realpath "$linked_gitfile")" ]; then
+      registered=true
+    fi
+  elif [ -f "$root/.git" ] &&
+       [ "$current_git_dir" != "$(dirname "$current_git_dir")/.git" ]; then
+    # An ordinary .git directory belongs to its parent, not another gitfile.
+    # Separate git dirs have no backlink; require core.worktree, read only
+    # from their own config file so -c and GIT_CONFIG_* cannot change it.
+    worktree="$(git config --file "$current_git_dir/config" --get core.worktree || :)"
+    case "$worktree" in
+      "") echo "pre-push: separate git dir without core.worktree; in its checkout run: git config core.worktree \"\$PWD\"" >&2
+          exit 1 ;;
+      /*) ;;
+      *) worktree="$current_git_dir/$worktree" ;;
+    esac
+    if [ "$(realpath "$worktree")" = "$root" ] &&
+       [ "$own_git_dir" = "$current_git_dir" ]; then
+      registered=true
+    fi
+  fi
+fi
+if [ "$current_git_dir" != "$own_git_dir" ] || [ "$registered" != true ]; then
+  echo "pre-push: refusing redirected work tree; use the repository's own checkout." >&2
+  exit 1
+fi
+cd "$root"
+refs="$(mktemp "$(git rev-parse --git-dir)/pre-push-refs.XXXXXX")"
+trap 'rm -f "$refs"' 0
+trap 'exit 1' HUP INT TERM
+cat > "$refs"
+python3 -I tools/check-dirty-tree-push.py --pre-push "$@" < "$refs"
+python3 -I tools/pre-push-hook.py "$@" < "$refs"
