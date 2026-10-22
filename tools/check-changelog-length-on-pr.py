@@ -30,9 +30,20 @@ single-purpose entry runs ~40-50 words; a legitimate multi-item batch entry runs
 ~90-100 with plain short sentences) and fail the paragraph-length / dense-chain
 drift (the historical drift ran 122-262 words with 50-95-word sentences).
 
+HOW IT READS THE DIFF (3b399). The added lines come from the pinned ``git diff``
+and hunk-count parser that tools/preflight-changelog.py uses (3b236), shared in
+``tools/changelog_diff.py`` (``added_line_diff``, ``parse_added_lines``). It read the diff
+with splitlines() and skipped every line starting "+++", so a CR, U+2028 or
+U+0085 inside an added entry cut its summary short and the rest escaped the
+ceiling. Each added line is now read whole, split on LF only, and an entry that
+starts after any ``str.splitlines()`` boundary inside it (CR, U+2028, U+0085 and
+the rest) is checked too. A diff the parser cannot read exactly is exit 2, not a
+pass. The diff names ``:(top)CHANGELOG.md``, so a run from a subdirectory reads
+the root file (3b399 round 3).
+
 The compact-entry regex and sentence split are the authoritative definitions
-for this defect class. The authoring preflight imports them directly rather than
-duplicating the length logic.
+for this defect class. The authoring preflight calls ``entries_in_added_line``
+and ``evaluate`` rather than duplicating the length logic.
 
 Scope: root CHANGELOG.md only. The maintainer-grade detailed mirror is maintainer working state,
 exempt from the corpus gates, and carries the full structured detail, so it is
@@ -51,7 +62,10 @@ Exit codes:
     0 : all added CHANGELOG.md entries are within the ceilings, or the diff does
         not add any compact entry line.
     1 : one or more added CHANGELOG.md entries exceed a length ceiling.
-    2 : invocation or environment error (cannot determine base/head, git failure).
+    2 : invocation or environment error (cannot determine base/head, git failure,
+        a diff the shared parser cannot read exactly, a CHANGELOG.md that is a
+        symbolic link or a submodule in the head or the diff, or git selecting
+        another repository or work tree than it finds by itself).
 """
 
 from __future__ import annotations
@@ -62,8 +76,10 @@ import subprocess
 import sys
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import git  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import PrRangeError, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
+from changelog_diff import (  # noqa: E402  # shared added-line diff reader (3b399)
+    ChangelogDiffUnreadable, GitQueryFailed, GitSelectsAnotherTree, added_line_diff,
+    check_git_selects_root, parse_added_lines, refuse_links)
 
 CHANGELOG_PATH = "CHANGELOG.md"
 DEFAULT_WORD_MAX = 100
@@ -98,14 +114,34 @@ def measure(summary: str) -> tuple[int, int]:
     return total, (max(counts) if counts else 0)
 
 
-def added_entries_from_diff(diff: str) -> list[tuple[str, str]]:
-    """Return (pr, summary) for every added compact-entry line in a unified diff."""
+def entries_in_added_line(text: str) -> list[tuple[str, str]]:
+    """Return (pr, summary) for every compact entry in one added line.
+
+    The line is whole (3b399): a CR, U+2028 or U+0085 inside it does not end it, so an entry
+    whose summary runs past such a character is measured to the end of the line. An entry may
+    also START after one of them (a CR is a markdown line ending, and splitlines() readers see
+    a new line there), so ENTRY_RE is tried at the start of the line and after every
+    splitlines() boundary; each match runs to the end of the added line. An entry followed by
+    another in the same added line is therefore measured with the later one included, which
+    can only over-count."""
     out: list[tuple[str, str]] = []
-    for line in diff.splitlines():
-        if line.startswith("+") and not line.startswith("+++"):
-            m = ENTRY_RE.match(line[1:])
-            if m:
-                out.append((m.group(1), m.group(2)))
+    start = 0
+    for part in text.splitlines(keepends=True):
+        m = ENTRY_RE.match(text[start:])
+        if m:
+            out.append((m.group(1), m.group(2)))
+        start += len(part)
+    return out
+
+
+def added_entries_from_diff(diff: bytes) -> list[tuple[str, str]]:
+    """Return (pr, summary) for every compact entry in the added lines of a ``git diff``'s
+    bytes, read by ``changelog_diff.parse_added_lines`` (3b399): hunks by their line counts, bytes
+    split on LF only, so an added line whose text starts with "++" is read, and a diff it
+    cannot read exactly raises ChangelogDiffUnreadable."""
+    out: list[tuple[str, str]] = []
+    for _path, text in parse_added_lines(diff):
+        out.extend(entries_in_added_line(text))
     return out
 
 
@@ -133,8 +169,25 @@ def run_git_mode(base: str | None, head: str, word_max: int, sentence_max: int) 
         print(str(exc), file=sys.stderr)
         return 2
 
+    # git must select the repository it finds by itself (a sibling GIT_DIR printed "not
+    # modified"), and the head's CHANGELOG.md must be a regular file even when the diff does not
+    # show it (3b399 round 5).
     try:
-        diff = git("diff", "--unified=0", merge_base, head, "--", CHANGELOG_PATH)
+        check_git_selects_root()
+        refuse_links([CHANGELOG_PATH], head)
+    except GitSelectsAnotherTree as exc:
+        print(f"ERROR: {exc}; unset GIT_DIR or GIT_WORK_TREE and rerun.", file=sys.stderr)
+        return 2
+    except GitQueryFailed as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    except ChangelogDiffUnreadable as exc:
+        print(f"ERROR: the {CHANGELOG_PATH} diff could not be read: {exc}", file=sys.stderr)
+        return 2
+    try:
+        # ":(top)" names the root CHANGELOG.md from any subdirectory (3b399 round 3); the runner
+        # drops GIT_LITERAL_PATHSPECS, which made git read it as a file name (round 4).
+        diff = added_line_diff([merge_base, head], [":(top)" + CHANGELOG_PATH])
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: git diff failed: {exc}", file=sys.stderr)
         return 2
@@ -143,7 +196,11 @@ def run_git_mode(base: str | None, head: str, word_max: int, sentence_max: int) 
         print(f"OK: {CHANGELOG_PATH} not modified between {merge_base[:8]} and {head}.")
         return 0
 
-    entries = added_entries_from_diff(diff)
+    try:
+        entries = added_entries_from_diff(diff)
+    except ChangelogDiffUnreadable as exc:
+        print(f"ERROR: the {CHANGELOG_PATH} diff could not be read: {exc}", file=sys.stderr)
+        return 2
     if not entries:
         print(f"OK: no compact root {CHANGELOG_PATH} entry added in this PR.")
         return 0
@@ -196,12 +253,25 @@ def _self_test() -> int:
         def test_added_entries_parsed_from_diff(self):
             diff = (
                 "+++ b/CHANGELOG.md\n"
+                "@@ -3 +3,2 @@\n"
                 "+**2026-07-17 | 2026.07.476 | PR #988** - A short summary.\n"
                 "+not an entry line\n"
                 "-**2026-01-01 | 1.0.0 | PR #1** - removed line ignored.\n"
-            )
+            ).encode("utf-8")
             got = added_entries_from_diff(diff)
             self.assertEqual(got, [("988", "A short summary.")])
+
+        def test_an_entry_across_a_line_break_is_measured_whole(self):
+            # 3b399: an entry before or after a CR, U+2028 or U+0085 is measured to the end of
+            # the added line, so no fragment of it escapes the ceiling.
+            long = " ".join(["word"] * 120) + "."
+            for sep in ("\r", "\u2028", "\u0085"):
+                for text in ("**2026-07-17 | 1.0.0 | PR #9** - Short." + sep + long,
+                             "Lead." + sep + "**2026-07-17 | 1.0.0 | PR #9** - " + long):
+                    got = entries_in_added_line(text)
+                    self.assertEqual(len(got), 1)
+                    self.assertEqual(
+                        len(evaluate(got, DEFAULT_WORD_MAX, DEFAULT_SENTENCE_MAX)), 1)
 
     suite = unittest.TestLoader().loadTestsFromTestCase(T)
     result = unittest.TextTestRunner(verbosity=2).run(suite)

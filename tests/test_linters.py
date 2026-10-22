@@ -1130,7 +1130,7 @@ class ChangelogLanguageTests(unittest.TestCase):
             git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.test",
                 "-c", "core.hooksPath=/dev/null", "commit", "-qm", "Fixture history")
 
-            def additions(staged):
+            def additions(staged, **_):
                 return mod._added_lines_from_repo(root, paths, staged)
 
             with patch.object(mod, "added_lines", side_effect=additions), \
@@ -1268,7 +1268,7 @@ class ChangelogLanguageTests(unittest.TestCase):
             path.write_text("# Changelog\nNew centralized controls.\n", encoding="utf-8")
             wrapper = root / "lint-language.py"
 
-            def additions(staged):
+            def additions(staged, **_):
                 self.assertTrue(staged)
                 return mod._added_lines_from_repo(root, ("CHANGELOG.md",), staged)
 
@@ -1305,6 +1305,7 @@ class ChangelogLanguageTests(unittest.TestCase):
             for rel in ("tools/preflight-changelog.py", "tools/preflight_language_runner.py",
                         "tools/lint-language.py",
                         "tools/check-changelog-length-on-pr.py", "tools/lint_common.py",
+                        "tools/changelog_diff.py",
                         "tools/aiqt_bootstrap.py", "tools/check-changelog-preflight-commit.py",
                         ".corpus-management/tools/gate_lint_language.py",
                         ".corpus-management/tools/profile_loader.py",
@@ -1907,6 +1908,7 @@ class ChangelogLanguageTests(unittest.TestCase):
                         "tools/preflight_language_runner.py",
                         "tools/lint-language.py",
                         "tools/check-changelog-length-on-pr.py", "tools/lint_common.py",
+                        "tools/changelog_diff.py",
                         "tools/aiqt_bootstrap.py",
                         ".corpus-management/tools/gate_lint_language.py",
                         ".corpus-management/tools/profile_loader.py",
@@ -6606,6 +6608,102 @@ class DeltaGateRepoTestCase(unittest.TestCase):
             capture_output=True, text=True, cwd=str(tmp),
         )
 
+    # notes.md in _run_gate_on_link: an added dash line and a 120-word compact entry.
+    LINKED_BODY = ("# Notes\n\nNew entry \u2014 dash.\n\n**2026-07-17 | 2026.07.476 | PR #988** - "
+                   + " ".join(["word"] * 120) + ".\n")
+
+    def _run_gate_on_link(self, script_name, kind, modified=False, config=()):
+        """Run ``script_name`` on a head whose CHANGELOG.md is a symbolic link to notes.md
+        (``kind`` "symlink") or a gitlink (``kind`` "gitlink"), notes.md holding LINKED_BODY.
+        With ``modified`` the base already holds a link and the head changes it, so the diff
+        gives the mode on its "index" line rather than "new file mode"."""
+        import subprocess as sp
+
+        tmp, base_sha, shutil = self._build_repo(
+            {"CHANGELOG.md": "# Changelog\n", "notes.md": "# Notes\n", "other.md": "# Other\n"},
+            {"notes.md": self.LINKED_BODY})
+
+        def git(*args):
+            return sp.run(["git", "-C", str(tmp), *args], check=True, capture_output=True,
+                          text=True).stdout.strip()
+
+        def link(target):
+            if kind == "symlink":
+                (tmp / "CHANGELOG.md").unlink()
+                os.symlink(target, tmp / "CHANGELOG.md")
+                git("add", "-A")
+            else:
+                git("rm", "-q", "--cached", "CHANGELOG.md")
+                git("update-index", "--add", "--cacheinfo",
+                    "160000," + git("rev-parse", target) + ",CHANGELOG.md")
+            git("commit", "-q", "-m", "link")
+
+        try:
+            if modified:
+                link("other.md" if kind == "symlink" else "HEAD~1")
+                base_sha = git("rev-parse", "HEAD")
+            link("notes.md" if kind == "symlink" else "HEAD")
+            for key, value in config:
+                git("config", key, value)
+            return self._run_gate(script_name, tmp, base_sha)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def _run_gate_on_unchanged_link(self, script_name, kind):
+        """Run ``script_name`` on a PR whose base already holds CHANGELOG.md as a symbolic link
+        to notes.md (``kind`` "symlink") or a gitlink (``kind`` "gitlink"), and whose head adds
+        LINKED_BODY to notes.md alone, so the CHANGELOG.md diff is empty."""
+        import subprocess as sp
+
+        tmp, _, shutil = self._build_repo(
+            {"CHANGELOG.md": "# Changelog\n", "notes.md": "# Notes\n"}, {"other.md": "# Other\n"})
+
+        def git(*args):
+            return sp.run(["git", "-C", str(tmp), *args], check=True, capture_output=True,
+                          text=True).stdout.strip()
+
+        try:
+            if kind == "symlink":
+                (tmp / "CHANGELOG.md").unlink()
+                os.symlink("notes.md", tmp / "CHANGELOG.md")
+                git("add", "-A")
+            else:
+                git("rm", "-q", "--cached", "CHANGELOG.md")
+                git("update-index", "--add", "--cacheinfo",
+                    "160000," + git("rev-parse", "HEAD") + ",CHANGELOG.md")
+            git("commit", "-q", "-m", "link")
+            base_sha = git("rev-parse", "HEAD")
+            (tmp / "notes.md").write_text(self.LINKED_BODY, encoding="utf-8")
+            git("add", "notes.md")
+            git("commit", "-q", "-m", "notes")
+            return self._run_gate(script_name, tmp, base_sha)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def _run_gate_with_git_dir(self, script_name, which):
+        """Run ``script_name`` on a PR whose head adds LINKED_BODY to CHANGELOG.md, with GIT_DIR
+        naming ``which``: "sibling" (a clone of the fixture reset to the base, so it holds both
+        commits), "own" (the fixture's repository), or None (CI's plain checkout)."""
+        import subprocess as sp
+
+        tmp, base_sha, shutil = self._build_repo(
+            {"CHANGELOG.md": "# Changelog\n"}, {"CHANGELOG.md": "# Changelog\n" + self.LINKED_BODY})
+        sibling = Path(str(tmp) + "-sibling")
+        try:
+            sp.run(["git", "clone", "-q", str(tmp), str(sibling)], check=True)
+            sp.run(["git", "-C", str(sibling), "reset", "-q", "--hard", base_sha], check=True)
+            env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+            if which == "sibling":
+                env["GIT_DIR"] = str(sibling / ".git")
+            elif which == "own":
+                env["GIT_DIR"] = str(tmp / ".git")
+            return sp.run(
+                [sys.executable, str(REPO_ROOT / "tools" / script_name), base_sha, "HEAD"],
+                capture_output=True, text=True, cwd=str(tmp), env=env)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+            shutil.rmtree(sibling, ignore_errors=True)
+
 
 class ChangelogOnPrTests(DeltaGateRepoTestCase):
     """tools/check-changelog-on-pr.py (delta gate D1)."""
@@ -9174,6 +9272,397 @@ class ChangelogDashOnPrTests(DeltaGateRepoTestCase):
             )
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+    def _assert_fails(self, added, env=None, config=(), subdir=False):
+        """D3 exits 1 on a head that adds the line ``added`` after a committed heading, run in
+        the fixture's root or, with ``subdir``, in a subdirectory of it."""
+        tmp, base_sha, shutil = self._build_repo(
+            {"CHANGELOG.md": "# Changelog\n\nx1\n\nx2\n"},
+            {"CHANGELOG.md": "# Changelog\n\ny1\n\n" + added + "\n"},
+        )
+        try:
+            for key, value in config:
+                subprocess.run(["git", "-C", str(tmp), "config", key, value], check=True)
+            (tmp / "sub").mkdir()
+            result = subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tools" / self.SCRIPT), base_sha, "HEAD"],
+                capture_output=True, text=True, cwd=str(tmp / "sub" if subdir else tmp),
+                env=None if env is None else {**os.environ, **env},
+            )
+            self.assertEqual(
+                result.returncode, 1,
+                f"D3 should FAIL on the added dash line {added!r}; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("contain an em dash or en dash", result.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_added_line_starting_plus_plus_flagged(self) -> None:
+        # 3b399: D3 skipped every diff line starting "+++", so an added line whose text starts
+        # with "++" (diff line "+++...") escaped the dash check, a forged "++ b/" header
+        # included. Fails on 3bdeb8a0 (exit 0).
+        for added in ("++ New entry \u2014 dash.", "++ b/New entry \u2014 dash."):
+            with self.subTest(added=added):
+                self._assert_fails(added)
+
+    def test_added_line_with_a_unicode_line_break_flagged(self) -> None:
+        # 3b399: D3 split the diff text with splitlines(), so a CR, U+2028 or U+0085 inside an
+        # added line split it and the fragment after it, which carries the dash, lost its "+"
+        # marker. Fails on 3bdeb8a0 (exit 0) for each separator.
+        for separator in ("\r", "\u2028", "\u0085"):
+            with self.subTest(separator=ascii(separator)):
+                self._assert_fails("Clean start." + separator + "New entry \u2014 dash.")
+
+    def test_git_diff_opts_in_the_environment_flagged(self) -> None:
+        # 3b399: GIT_DIFF_OPTS=--unified=3 in the caller's environment overrides --unified=0 and
+        # puts context lines in the diff; with diff.suppressBlankEmpty=true a blank one is an
+        # empty line. The shared runner drops GIT_DIFF_OPTS and pins the blank-line form, and the
+        # parser reads each hunk by its counts, so the later dash line is still read. A pin: it
+        # also passes on 3bdeb8a0; AddedLineDiffTests kills the GIT_DIFF_OPTS mutation.
+        self._assert_fails("New entry \u2014 dash.", env={"GIT_DIFF_OPTS": "--unified=3"},
+                           config=(("diff.suppressBlankEmpty", "true"),))
+
+    def test_a_run_from_a_subdirectory_reads_the_root_changelog(self) -> None:
+        # 3b399 round 3 (N5): the CHANGELOG.md pathspec was read against the working directory,
+        # so a run from a subdirectory printed "OK: CHANGELOG.md not modified" (exit 0); and
+        # diff.relative=true leaves out every file outside that directory. Both fail on 3231c303
+        # (exit 0). Mutations killed: dropping ":(top)", and dropping --no-relative.
+        for config in ((), (("diff.relative", "true"),)):
+            with self.subTest(config=config):
+                self._assert_fails("New entry \u2014 dash.", config=config, subdir=True)
+
+    def test_rename_and_copy_settings_cannot_hide_an_added_line(self) -> None:
+        # 3b399 round 3: a new CHANGELOG.md copied from, or renamed from, another file is read in
+        # full under diff.renames=copies, diff.renames=true and status.renames=copies. A pin: it
+        # also passes on 3231c303, because D3 diffs CHANGELOG.md alone, so git has no other path
+        # in the diff to pair it with; AddedLineDiffTests and PreflightChangelogGitDiffTests hold
+        # the regression tests for --no-renames.
+        body = "".join(f"Shared line {i}.\n" for i in range(20)) + "New entry \u2014 dash.\n"
+        settings = (("diff.renames", "copies"), ("diff.renames", "true"),
+                    ("status.renames", "copies"))
+        shapes = (({"notes.md": body + "More.\n", "CHANGELOG.md": body}, ()),
+                  ({"CHANGELOG.md": body}, ("notes.md",)))
+        for key, value in settings:
+            for head, deleted in shapes:
+                with self.subTest(setting=f"{key}={value}", deleted=deleted):
+                    tmp, base_sha, shutil = self._build_repo(
+                        {"notes.md": body}, head, head_deleted=deleted)
+                    try:
+                        subprocess.run(["git", "-C", str(tmp), "config", key, value], check=True)
+                        result = self._run_gate(self.SCRIPT, tmp, base_sha)
+                    finally:
+                        shutil.rmtree(tmp, ignore_errors=True)
+                    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                    self.assertIn("contain an em dash or en dash", result.stderr)
+
+    def test_literal_pathspecs_in_the_environment_flagged(self) -> None:
+        # 3b399 round 4 (3B399-LITERAL-PATHSPECS): with GIT_LITERAL_PATHSPECS=1 git read
+        # ":(top)CHANGELOG.md" as a file of that literal name, so D3 printed "OK: CHANGELOG.md not
+        # modified" (exit 0) from the root and from a subdirectory. Both fail on 54442fc2.
+        # Mutation killed: passing GIT_LITERAL_PATHSPECS through to git.
+        for subdir in (False, True):
+            with self.subTest(subdir=subdir):
+                self._assert_fails("New entry \u2014 dash.",
+                                   env={"GIT_LITERAL_PATHSPECS": "1"}, subdir=subdir)
+
+    def test_a_linked_changelog_exits_2(self) -> None:
+        # 3b399 round 4 (N2): git diffs a symbolic link's target path and a gitlink's commit id,
+        # so a CHANGELOG.md linked to a file holding a dash line passed ("OK", exit 0). Every row
+        # fails on 54442fc2. diff.submodule=log printed a "Submodule" line and no file header, and
+        # diff.ignoreSubmodules=all left a changed gitlink out; --submodule=short and
+        # --ignore-submodules=none pin them.
+        rows = (("symlink", False, ()), ("symlink", True, ()), ("gitlink", False, ()),
+                ("gitlink", False, (("diff.submodule", "log"),)),
+                ("gitlink", True, (("diff.ignoreSubmodules", "all"),)))
+        for kind, modified, config in rows:
+            with self.subTest(kind=kind, modified=modified, config=config):
+                result = self._run_gate_on_link(self.SCRIPT, kind, modified, config)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                mode = "120000" if kind == "symlink" else "160000"
+                self.assertIn(f"ERROR: the CHANGELOG.md diff could not be read: CHANGELOG.md "
+                              f"has mode {mode}", result.stderr)
+                self.assertEqual(len(result.stderr.splitlines()), 1, result.stderr)
+
+    def test_a_changelog_linked_at_the_base_and_unchanged_exits_2(self) -> None:
+        # 3b399 round 5 (3B399-UNCHANGED-LINK): a CHANGELOG.md that was already a link at the
+        # base and stayed one is not in the diff, so a dash line added to notes.md alone printed
+        # "OK: CHANGELOG.md not modified" (exit 0). The head's tree mode is now read directly.
+        # The review reproduced the symlink pass on 1a7ecf6e. Mutation killed (both rows):
+        # refuse_links returning without a check.
+        for kind, mode in (("symlink", "120000"), ("gitlink", "160000")):
+            with self.subTest(kind=kind):
+                result = self._run_gate_on_unchanged_link(self.SCRIPT, kind)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("ERROR: the CHANGELOG.md diff could not be read: CHANGELOG.md has "
+                              f"mode {mode} in the tree of HEAD", result.stderr)
+                self.assertEqual(len(result.stderr.splitlines()), 1, result.stderr)
+
+    def test_git_selecting_another_repository_exits_2(self) -> None:
+        # 3b399 round 5 (N2): with GIT_DIR naming a sibling clone at the base, D3 diffed the
+        # sibling and printed "OK: CHANGELOG.md not modified" (exit 0); it now shares the
+        # preflight's selection check. The review reproduced the pass on 1a7ecf6e. Mutation
+        # killed (sibling row): check_git_selects_root returning without a check. The controls
+        # (GIT_DIR naming the fixture's own repository, and CI's plain checkout) still find the
+        # dash.
+        for which in ("sibling", "own", None):
+            with self.subTest(git_dir=which):
+                result = self._run_gate_with_git_dir(self.SCRIPT, which)
+                if which == "sibling":
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertRegex(result.stderr, r"^ERROR: git selects the repository .*-sibling"
+                                     r"/\.git, not .*; unset GIT_DIR or GIT_WORK_TREE and "
+                                     r"rerun\.\n$")
+                else:
+                    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                    self.assertIn("contain an em dash or en dash", result.stderr)
+
+
+class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
+    """tools/check-changelog-length-on-pr.py (delta gate D7)."""
+
+    SCRIPT = "check-changelog-length-on-pr.py"
+    ENTRY = "**2026-07-17 | 2026.07.476 | PR #988** - "
+    LONG = " ".join(["word"] * 120) + "."
+
+    def _run(self, added, env=None, config=(), subdir=False):
+        tmp, base_sha, shutil = self._build_repo(
+            {"CHANGELOG.md": "# Changelog\n\nx1\n\nx2\n"},
+            {"CHANGELOG.md": "# Changelog\n\ny1\n\n" + added + "\n"},
+        )
+        try:
+            for key, value in config:
+                subprocess.run(["git", "-C", str(tmp), "config", key, value], check=True)
+            (tmp / "sub").mkdir()
+            return subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tools" / self.SCRIPT), base_sha, "HEAD"],
+                capture_output=True, text=True, cwd=str(tmp / "sub" if subdir else tmp),
+                env=None if env is None else {**os.environ, **env},
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def _assert_over_length(self, added, env=None, config=(), subdir=False):
+        result = self._run(added, env=env, config=config, subdir=subdir)
+        self.assertEqual(
+            result.returncode, 1,
+            f"D7 should FAIL on an over-length added entry; got {result.returncode}.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertRegex(result.stderr, r"PR #988: 12[01] words > 100")
+
+    def test_short_entry_passes_and_long_entry_fails(self) -> None:
+        # Controls: the fixture's verdict turns on the entry's length alone.
+        result = self._run(self.ENTRY + "A short summary.")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self._assert_over_length(self.ENTRY + self.LONG)
+
+    def test_an_entry_split_by_a_unicode_line_break_is_measured_whole(self) -> None:
+        # 3b399: D7 split the diff text with splitlines(), so a CR, U+2028 or U+0085 inside an
+        # added entry cut its summary short (the rest lost its "+" marker), and an entry that
+        # starts after one lost its "+" marker entirely. Both fail on 3bdeb8a0 (exit 0) for each
+        # separator.
+        for separator in ("\r", "\u2028", "\u0085"):
+            for added in (self.ENTRY + "Short." + separator + self.LONG,
+                          "Lead." + separator + self.ENTRY + self.LONG):
+                with self.subTest(separator=ascii(separator), added=added[:12]):
+                    self._assert_over_length(added)
+
+    def test_an_added_line_starting_plus_plus_is_read(self) -> None:
+        # 3b399: D7 skipped every diff line starting "+++". A line whose text starts with "++" is
+        # not itself a compact entry (ENTRY_RE starts at "**"), so the pure "++" escape is tested
+        # on D3; here the entry after a CR in such a line is checked. On 3bdeb8a0 that line was
+        # skipped whole (exit 0). Mutation killed: skipping "+++" lines inside a hunk.
+        self._assert_over_length("++ lead\r" + self.ENTRY + self.LONG)
+
+    def test_git_diff_opts_in_the_environment_cannot_hide_an_entry(self) -> None:
+        # 3b399: as for D3, GIT_DIFF_OPTS=--unified=3 with diff.suppressBlankEmpty=true puts an
+        # empty blank-context line before the entry; the entry is still measured. A pin: it also
+        # passes on 3bdeb8a0; AddedLineDiffTests kills the GIT_DIFF_OPTS mutation.
+        self._assert_over_length(self.ENTRY + self.LONG, env={"GIT_DIFF_OPTS": "--unified=3"},
+                                 config=(("diff.suppressBlankEmpty", "true"),))
+
+    def test_a_run_from_a_subdirectory_reads_the_root_changelog(self) -> None:
+        # 3b399 round 3 (N5): as for D3, a run from a subdirectory read no CHANGELOG.md (exit 0,
+        # "not modified"), with and without diff.relative=true. Both fail on 3231c303.
+        for config in ((), (("diff.relative", "true"),)):
+            with self.subTest(config=config):
+                self._assert_over_length(self.ENTRY + self.LONG, config=config, subdir=True)
+
+    def test_rename_and_copy_settings_cannot_hide_an_entry(self) -> None:
+        # 3b399 round 3: a new CHANGELOG.md copied or renamed from another file is measured under
+        # diff.renames=copies and diff.renames=true. A pin, as for D3: it also passes on 3231c303,
+        # because D7 diffs CHANGELOG.md alone.
+        body = "# Notes\n\n" + self.ENTRY + self.LONG + "\n"
+        for key, value in (("diff.renames", "copies"), ("diff.renames", "true")):
+            for head, deleted in (({"notes.md": body + "More.\n", "CHANGELOG.md": body}, ()),
+                                  ({"CHANGELOG.md": body}, ("notes.md",))):
+                with self.subTest(setting=f"{key}={value}", deleted=deleted):
+                    tmp, base_sha, shutil = self._build_repo(
+                        {"notes.md": body}, head, head_deleted=deleted)
+                    try:
+                        subprocess.run(["git", "-C", str(tmp), "config", key, value], check=True)
+                        result = self._run_gate(self.SCRIPT, tmp, base_sha)
+                    finally:
+                        shutil.rmtree(tmp, ignore_errors=True)
+                    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                    self.assertIn("PR #988: 120 words > 100", result.stderr)
+
+    def test_an_unreadable_diff_exits_2(self) -> None:
+        # 3b399: a diff the shared parser cannot read exactly is one ERROR line and exit 2, not a
+        # pass. An added line that is not UTF-8 is one such diff.
+        tmp, base_sha, shutil = self._build_repo(
+            {"CHANGELOG.md": "# Changelog\n"}, {"CHANGELOG.md": "# Changelog\nnew\n"})
+        try:
+            (tmp / "CHANGELOG.md").write_bytes(b"# Changelog\nbad \xff byte\n")
+            subprocess.run(["git", "-C", str(tmp), "commit", "-q", "-am", "Third"], check=True)
+            result = subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tools" / self.SCRIPT), base_sha, "HEAD"],
+                capture_output=True, text=True, cwd=str(tmp))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("ERROR: the CHANGELOG.md diff could not be read", result.stderr)
+
+    def test_literal_pathspecs_in_the_environment_cannot_hide_an_entry(self) -> None:
+        # 3b399 round 4: as for D3, GIT_LITERAL_PATHSPECS=1 made the ":(top)" pathspec name no
+        # file, so D7 printed "OK: CHANGELOG.md not modified" (exit 0) from the root and from a
+        # subdirectory. Both fail on 54442fc2.
+        for subdir in (False, True):
+            with self.subTest(subdir=subdir):
+                self._assert_over_length(self.ENTRY + self.LONG,
+                                         env={"GIT_LITERAL_PATHSPECS": "1"}, subdir=subdir)
+
+    def test_a_linked_changelog_exits_2(self) -> None:
+        # 3b399 round 4: as for D3, a CHANGELOG.md linked to a file holding an over-length entry
+        # passed (exit 0). Each row fails on 54442fc2.
+        for kind in ("symlink", "gitlink"):
+            with self.subTest(kind=kind):
+                result = self._run_gate_on_link(self.SCRIPT, kind)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("ERROR: the CHANGELOG.md diff could not be read: CHANGELOG.md has "
+                              "mode", result.stderr)
+                self.assertEqual(len(result.stderr.splitlines()), 1, result.stderr)
+
+    def test_a_changelog_linked_at_the_base_and_unchanged_exits_2(self) -> None:
+        # 3b399 round 5: as for D3, a CHANGELOG.md already linked at the base and unchanged was
+        # not in the diff, so an over-length entry added to notes.md alone passed (exit 0).
+        # Mutation killed (both rows): refuse_links returning without a check.
+        for kind, mode in (("symlink", "120000"), ("gitlink", "160000")):
+            with self.subTest(kind=kind):
+                result = self._run_gate_on_unchanged_link(self.SCRIPT, kind)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("ERROR: the CHANGELOG.md diff could not be read: CHANGELOG.md has "
+                              f"mode {mode} in the tree of HEAD", result.stderr)
+                self.assertEqual(len(result.stderr.splitlines()), 1, result.stderr)
+
+    def test_git_selecting_another_repository_exits_2(self) -> None:
+        # 3b399 round 5 (N2): as for D3, a GIT_DIR naming a sibling clone at the base printed
+        # "OK: CHANGELOG.md not modified" (exit 0). Mutation killed (sibling row):
+        # check_git_selects_root returning without a check. The controls still measure the entry.
+        for which in ("sibling", "own", None):
+            with self.subTest(git_dir=which):
+                result = self._run_gate_with_git_dir(self.SCRIPT, which)
+                if which == "sibling":
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertRegex(result.stderr, r"^ERROR: git selects the repository .*; "
+                                     r"unset GIT_DIR or GIT_WORK_TREE and rerun\.\n$")
+                else:
+                    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                    self.assertIn("PR #988: 120 words > 100", result.stderr)
+
+
+class AddedLineDiffTests(DeltaGateRepoTestCase):
+    """changelog_diff.added_line_diff: the pinned diff shared by D3, D7 and the preflight (3b399)."""
+
+    def test_git_diff_opts_in_the_environment_is_dropped(self) -> None:
+        # GIT_DIFF_OPTS=--unified=3 overrides --unified=0; the shared runner drops it, so the
+        # diff carries no context line. Mutation killed: passing GIT_DIFF_OPTS through to git.
+        import changelog_diff
+        tmp, base_sha, shutil = self._build_repo(
+            {"CHANGELOG.md": "# Changelog\n\nx1\n\nx2\n"},
+            {"CHANGELOG.md": "# Changelog\n\ny1\n\nx2\n"},
+        )
+        try:
+            env = {**os.environ, "GIT_DIFF_OPTS": "--unified=3"}
+            diff = changelog_diff.added_line_diff([base_sha, "HEAD"], ["CHANGELOG.md"],
+                                                  cwd=tmp, env=env)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+        self.assertIn(b"\n+y1\n", diff)
+        self.assertNotIn(b"\n x2\n", diff)
+        self.assertEqual(changelog_diff.parse_added_lines(diff), [("CHANGELOG.md", "y1")])
+
+    def test_a_rename_or_copy_in_the_same_diff_cannot_hide_added_lines(self) -> None:
+        # 3b399 round 3 (3B399-DIFF-COPIES): with two paths in one diff, as the preflight passes
+        # CHANGELOG.md and the detailed mirror, git paired a new CHANGELOG.md with the other path
+        # as a copy (diff.renames=copies) or a rename (diff.renames=true, git's default) and
+        # printed copy or rename metadata without its added lines. Fails on 3231c303 for each
+        # row. Mutation killed: dropping --no-renames.
+        import changelog_diff
+        body = "".join(f"Shared line {i}.\n" for i in range(20))
+        rows = (("diff.renames", "copies",
+                 {"notes.md": body + "More.\n", "CHANGELOG.md": body}, ()),
+                ("diff.renames", "true", {"CHANGELOG.md": body}, ("notes.md",)))
+        for key, value, head, deleted in rows:
+            with self.subTest(setting=f"{key}={value}", deleted=deleted):
+                tmp, base_sha, shutil = self._build_repo({"notes.md": body}, head,
+                                                         head_deleted=deleted)
+                try:
+                    subprocess.run(["git", "-C", str(tmp), "config", key, value], check=True)
+                    diff = changelog_diff.added_line_diff(
+                        [base_sha, "HEAD"], ["CHANGELOG.md", "notes.md"], cwd=tmp)
+                finally:
+                    shutil.rmtree(tmp, ignore_errors=True)
+                added = [text for path, text in changelog_diff.parse_added_lines(diff)
+                         if path == "CHANGELOG.md"]
+                self.assertEqual(added, body.splitlines())
+
+    def test_pathspec_variables_cannot_change_what_a_path_names(self) -> None:
+        # 3b399 round 4: ":(top)CHANGELOG.md" names the root CHANGELOG.md alone under each
+        # pathspec variable, from the root and from a subdirectory. Mutations killed: passing
+        # GIT_LITERAL_PATHSPECS (no file) or GIT_ICASE_PATHSPECS (changelog.md too) through to
+        # git. GIT_GLOB_PATHSPECS and GIT_NOGLOB_PATHSPECS are pins: the runner drops them too,
+        # but they changed nothing for these paths, which hold no glob character.
+        import changelog_diff
+        tmp, base_sha, shutil = self._build_repo(
+            {"CHANGELOG.md": "# Changelog\n", "sub/keep.md": "k\n"},
+            {"CHANGELOG.md": "# Changelog\ny1\n", "changelog.md": "other\n"},
+        )
+        try:
+            for var in ("GIT_LITERAL_PATHSPECS", "GIT_GLOB_PATHSPECS", "GIT_NOGLOB_PATHSPECS",
+                        "GIT_ICASE_PATHSPECS"):
+                for cwd in (tmp, tmp / "sub"):
+                    with self.subTest(var=var, cwd=cwd.name):
+                        diff = changelog_diff.added_line_diff(
+                            [base_sha, "HEAD"], [":(top)CHANGELOG.md"], cwd=cwd,
+                            env={**os.environ, var: "1"})
+                        self.assertEqual(changelog_diff.parse_added_lines(diff),
+                                         [("CHANGELOG.md", "y1")])
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_a_link_mode_on_the_new_side_is_unreadable(self) -> None:
+        # 3b399 round 4: a file whose new side has mode 120000 (symbolic link) or 160000 (gitlink)
+        # raises, wherever the header gives the mode, with or without a hunk. The old side's mode
+        # and a regular file's mode do not.
+        import changelog_diff
+        head = b"diff --git a/CHANGELOG.md b/CHANGELOG.md\n"
+        tail = b"--- /dev/null\n+++ b/CHANGELOG.md\n@@ -0,0 +1 @@\n+notes.md\n"
+        for header, mode in ((b"new file mode 120000\nindex 0000000..a9d34b8\n", "120000"),
+                             (b"index a9d34b8..6dc6235 120000\n", "120000"),
+                             (b"old mode 100644\nnew mode 160000\n", "160000")):
+            for body in (tail, b""):
+                with self.subTest(header=header, hunk=bool(body)):
+                    with self.assertRaises(changelog_diff.ChangelogDiffUnreadable) as caught:
+                        changelog_diff.parse_added_lines(head + header + body + head)
+                    self.assertIn(f"has mode {mode}", str(caught.exception))
+        for header in (b"new file mode 100644\nindex 0000000..a9d34b8\n",
+                       b"deleted file mode 120000\nindex a9d34b8..0000000\n"
+                       + head + b"new file mode 100755\n"):
+            with self.subTest(header=header):
+                self.assertEqual(changelog_diff.parse_added_lines(head + header + tail),
+                                 [("CHANGELOG.md", "notes.md")])
 
 
 class NarrativeCorpusMixedDiffOnPrTests(DeltaGateRepoTestCase):
@@ -24750,11 +25239,12 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-taxonomy.py NO_FS F dc1c0549d33132cb87852e1729c530c5c607540f1317c968960ada44c1bd138b
         build-todo-number-allocation.py NO_FS F 8ad89e87b8a6df4a576935a21409cadc80ce0456784a22262ac3229b3f2dd99e
         ccm_aicm_reference.py PASSIVE F 1ed15d9b1bd4cfd1162df3e720b5aa6058c3cba3cb1f626fcf2e1ee605c17e71
+        changelog_diff.py PASSIVE F d712d841faf46461535b17d083d012280d3df85c0182b526625f7d7199b301bd
         check-alignment-register-on-pr.py NO_FS F e9abf548bc7c19c3a22aa4c0eea55f792b72e45e9ebe697295ea33e7495072ee
-        check-changelog-dash-on-pr.py NO_FS F 16785d15796674651febd80a61ad7c974ee3f30fec1b969afb5cd4cc30275749
-        check-changelog-length-on-pr.py NO_FS F 6c0f192881acdc0484363c43d4a5b166ab11e25809667597a65a0e8a8eb4098d
+        check-changelog-dash-on-pr.py NO_FS F 274f4075191b94c29c775fbbd45809c3fbefdc6eb6c8783c43eff0f68e7b6768
+        check-changelog-length-on-pr.py NO_FS F 213b023f71e6b96cf1500eebf86dcf0e432610658c4a5651f331a379dbf7e23c
         check-changelog-on-pr.py NO_FS F 1c2e377a997e7e95bef19eb4d4fbdd994310b58b4b6d2476f9cdad2c789f549d
-        check-changelog-preflight-commit.py NO_FS F f125518cfecf9b175b117d05110876407193e7e4cac518abd1badbea9b35a37c
+        check-changelog-preflight-commit.py NO_FS F 87b92b4235420074c259a9b50e0ee72d5624a81be2b87420de3e01cc7e551fd2
         check-class-attestation-on-pr.py NO_FS F 8ef4e742c2610fa3c80598404991ee6aab9da409b9e95e2ad8b74ec202d40325
         check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
         check-claude-md-size.py NO_FS F 5cc9d9caba54c5c3be3cab015bf250454d8a704828b5e8dd93a636c1a6235c62
@@ -24898,7 +25388,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         open-findings-row.py OWN F 9c00bf9c44b922993da79bd9f1575d25aa824cb3012d39a48f7929ebe8c3985f
         pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
-        preflight-changelog.py NO_FS F 6d7f57c4f725cc4f8b88b8497551875b645a1949bcb71dbfc6f9e6fbb1eedf52
+        preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
         preflight-version-date.py NO_FS F aa321341106d02ab1dda9790bf571e70f6e35f744b467d66dbf865dc5fbc2f00
         preflight_language_runner.py CHILD F c7242875b76d4282326ba37e0f878cebfc2939aa2780657c56bb3ef007fa0644
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
@@ -34897,6 +35387,18 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
         self.assertEqual(
             mod.d7_length_findings([(mod.DETAILED_MIRROR_REL, long_line)]), [])
 
+    def test_d7_length_findings_reads_an_entry_after_a_line_break(self):
+        # 3b399: d7_length_findings matched ENTRY_RE only at the start of an added line, so an
+        # entry that starts after a CR, U+2028 or U+0085 inside that line escaped the ceiling. It
+        # now reads entries through D7's entries_in_added_line, as D7 does. Fails on 3bdeb8a0
+        # (no finding) for each separator.
+        mod = self._load("_pcl_d7_break")
+        entry = "**2026-08-01 | 2026.08.21 | PR #1324** - " + ("word " * 110).strip() + "."
+        for separator in ("\r", "\u2028", "\u0085"):
+            with self.subTest(separator=ascii(separator)):
+                found = mod.d7_length_findings([("CHANGELOG.md", "Lead." + separator + entry)])
+                self.assertTrue(found and "D7 length ceiling exceeded" in found[0][1], found)
+
 
 class AuditCrossRepoReferencesTests(unittest.TestCase):
     """Store containment and absolute links in the advisory audit."""
@@ -35186,7 +35688,8 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                         self.assertTrue(caught.exception.stderr.strip())
                         with mock.patch.object(
                                 mod, "added_lines",
-                                lambda s: mod._added_lines_from_repo(plain, ("CHANGELOG.md",), s)), \
+                                lambda s, **_: mod._added_lines_from_repo(
+                                    plain, ("CHANGELOG.md",), s)), \
                                 mock.patch("sys.stderr", new_callable=io.StringIO) as err, \
                                 mock.patch("sys.stdout", new_callable=io.StringIO) as out:
                             argv = ["preflight-changelog.py"] + (["--staged"] if staged else [])
@@ -35236,15 +35739,14 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
     # through its command line against the fixture's own repository.
     CLI_FILES = ("tools/preflight-changelog.py", "tools/preflight_language_runner.py",
                  "tools/lint-language.py", "tools/check-changelog-length-on-pr.py",
-                 "tools/lint_common.py", "tools/aiqt_bootstrap.py",
+                 "tools/lint_common.py", "tools/changelog_diff.py", "tools/aiqt_bootstrap.py",
                  ".corpus-management/tools/gate_lint_language.py",
                  ".corpus-management/tools/profile_loader.py",
                  ".corpus-management/defaults/grc/language.toml")
 
-    def _run_cli(self, td, added, replace=None):
-        """Run ``tools/preflight-changelog.py --staged`` in a fixture repository whose staged
-        CHANGELOG.md adds the line ``added`` (text, or bytes written as they are) after a committed
-        heading. ``replace`` maps a copied file to the source written over it before the run."""
+    def _cli_fixture(self, td, replace=None):
+        """A fixture repository holding the CLI_FILES, and its environment and git runner.
+        ``replace`` maps a copied file to the source written over it."""
         root = Path(td) / "cli"
         for rel in self.CLI_FILES:
             (root / rel).parent.mkdir(parents=True, exist_ok=True)
@@ -35261,14 +35763,897 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                            check=True, capture_output=True, env=env)
 
         git("init", "-q", "-b", "feature")
+        return root, env, git
+
+    def _run_cli(self, td, added, replace=None, config=(), subdir=False, extra_env=None,
+                 staged=True):
+        """Run ``tools/preflight-changelog.py --staged`` in a fixture repository whose staged
+        CHANGELOG.md adds the line ``added`` (text, or bytes written as they are) after a committed
+        heading. ``replace`` maps a copied file to the source written over it before the run;
+        ``config`` is set in the fixture, and ``subdir`` runs the aid from a subdirectory.
+        ``extra_env`` is added to the aid's environment, and ``staged`` False drops --staged."""
+        root, env, git = self._cli_fixture(td, replace)
         (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
         git("add", "-A")
         git("commit", "-q", "--no-verify", "-m", "init")
         body = added if isinstance(added, bytes) else added.encode("utf-8")
         (root / "CHANGELOG.md").write_bytes(b"# Changelog\n" + body + b"\n")
         git("add", "CHANGELOG.md")
-        return subprocess.run([sys.executable, "tools/preflight-changelog.py", "--staged"],
-                              cwd=root, env=env, capture_output=True, text=True)
+        for key, value in config:
+            git("config", key, value)
+        (root / "sub").mkdir()
+        return subprocess.run([sys.executable, str(root / "tools/preflight-changelog.py"),
+                               *(["--staged"] if staged else [])],
+                              cwd=root / "sub" if subdir else root,
+                              env={**env, **(extra_env or {})}, capture_output=True, text=True)
+
+    def test_a_new_changelog_paired_with_the_mirror_is_read_in_full(self):
+        # 3b399 round 3 (3B399-DIFF-COPIES): the aid diffs CHANGELOG.md and the in-repo detailed
+        # mirror together, so git paired a new CHANGELOG.md with the mirror and printed only copy
+        # or rename metadata: a copy under diff.renames=copies, and a staged `git mv` of the mirror
+        # under git's default diff.renames=true. The 120-word entry then passed ("OK", exit 0) in
+        # both modes. Each row fails on 3231c303. Mutation killed: dropping --no-renames.
+        mirror = ".working/changelog-details/CHANGELOG-detailed.md"
+        body = ("# Detailed\n\n**2026-07-17 | 2026.07.476 | PR #988** - "
+                + " ".join(["word"] * 120) + ".\n")
+        rows = (("copy", (("diff.renames", "copies"),)), ("rename", ()))
+        for shape, config in rows:
+            for staged in (True, False):
+                with self.subTest(shape=shape, staged=staged), \
+                        tempfile.TemporaryDirectory() as td:
+                    root, env, git = self._cli_fixture(os.path.realpath(td))
+                    (root / mirror).parent.mkdir(parents=True)
+                    (root / mirror).write_text(body, encoding="utf-8")
+                    git("add", "-A")
+                    git("commit", "-q", "--no-verify", "-m", "init")
+                    if shape == "copy":
+                        (root / "CHANGELOG.md").write_text(body, encoding="utf-8")
+                        (root / mirror).write_text(body + "A clean line.\n", encoding="utf-8")
+                        git("add", "-A")
+                    else:
+                        git("mv", mirror, "CHANGELOG.md")
+                        (root / mirror).write_text("# Detailed\n", encoding="utf-8")
+                    for key, value in config:
+                        git("config", key, value)
+                    result = subprocess.run(
+                        [sys.executable, "tools/preflight-changelog.py",
+                         *(["--staged"] if staged else [])],
+                        cwd=root, env=env, capture_output=True, text=True)
+                    report = result.stdout + result.stderr
+                    self.assertEqual(result.returncode, 1, report)
+                    self.assertIn("FAIL CHANGELOG.md: D7 length ceiling exceeded "
+                                  "(PR #988: 120 words", report)
+
+    def test_a_run_from_a_subdirectory_reads_the_root_changelog(self):
+        # 3b399 round 3 (N5): the aid runs git in its repository root, not in the caller's
+        # directory, so a run from a subdirectory, with diff.relative=true too, still reads the
+        # root CHANGELOG.md. A pin: it also passes on 3231c303; the D3 and D7 subdirectory tests
+        # hold the regression for the shared runner.
+        for config in ((), (("diff.relative", "true"),)):
+            with self.subTest(config=config), tempfile.TemporaryDirectory() as td:
+                result = self._run_cli(os.path.realpath(td), self.ADDED, config=config,
+                                       subdir=True)
+                report = result.stdout + result.stderr
+                self.assertEqual(result.returncode, 1, report)
+                self.assertIn("FAIL CHANGELOG.md: em/en dash in prose", report)
+
+    def test_git_selecting_another_work_tree_or_repository_exits_2(self):
+        # 3b399 round 4 (3B399-REPOSITORY-SELECTION): git ran in the aid's root but read the work
+        # tree or repository that GIT_WORK_TREE, core.worktree or GIT_DIR named. A subdirectory
+        # work tree made the working-tree mode report 0 added lines (exit 0), and a sibling
+        # repository made both modes pass. The aid now exits 2 with one ERROR line when git selects
+        # another work tree or repository. The control rows, a GIT_DIR naming this repository
+        # alone and with a hook's GIT_WORK_TREE and GIT_INDEX_FILE, still read the staged entry.
+        for staged in (True, False):
+            rows = (("GIT_WORK_TREE=sub", True), ("core.worktree=sub", True),
+                    ("sibling GIT_DIR and GIT_WORK_TREE", True), ("sibling GIT_DIR", True),
+                    ("own GIT_DIR", False), ("hook variables", False))
+            for name, refused in rows:
+                with self.subTest(row=name, staged=staged), tempfile.TemporaryDirectory() as td:
+                    td = os.path.realpath(td)
+                    root = Path(td) / "cli"
+                    sibling = Path(td) / "sibling"
+                    sibling.mkdir()
+                    (sibling / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+                    for args in (("init", "-q", "-b", "main"), ("add", "-A"),
+                                 ("-c", "user.name=t", "-c", "user.email=t@example.invalid",
+                                  "-c", "commit.gpgsign=false", "commit", "-q", "-m", "s")):
+                        subprocess.run(["git", "-C", str(sibling), *args], check=True,
+                                       capture_output=True, env=self._env(td))
+                    config, extra = (), {}
+                    if name == "GIT_WORK_TREE=sub":
+                        extra = {"GIT_WORK_TREE": str(root / "sub")}
+                    elif name == "core.worktree=sub":
+                        config = (("core.worktree", str(root / "sub")),)
+                    elif name == "sibling GIT_DIR and GIT_WORK_TREE":
+                        extra = {"GIT_DIR": str(sibling / ".git"), "GIT_WORK_TREE": str(sibling)}
+                    elif name == "sibling GIT_DIR":
+                        extra = {"GIT_DIR": str(sibling / ".git")}
+                    elif name == "own GIT_DIR":
+                        extra = {"GIT_DIR": str(root / ".git")}
+                    else:
+                        extra = {"GIT_DIR": ".git", "GIT_WORK_TREE": str(root),
+                                 "GIT_INDEX_FILE": str(root / ".git" / "index")}
+                    result = self._run_cli(td, self.ADDED, config=config, extra_env=extra,
+                                           staged=staged)
+                    report = result.stdout + result.stderr
+                    if refused:
+                        self.assertEqual(result.returncode, 2, report)
+                        self.assertRegex(result.stderr, r"^ERROR: git selects the (work tree|"
+                                         r"repository) .*; unset GIT_DIR, GIT_WORK_TREE or "
+                                         r"core\.worktree and rerun\.\n$")
+                    else:
+                        self.assertEqual(result.returncode, 1, report)
+                        self.assertIn("FAIL CHANGELOG.md: em/en dash in prose", report)
+
+    def test_a_linked_changelog_or_mirror_exits_2(self):
+        # 3b399 round 4 (N2): git diffs a symbolic link's target path and a gitlink's commit id,
+        # not the lines of the file they lead to, so a CHANGELOG.md or in-repo mirror linked to
+        # notes.md, which holds a dash line, was read as one line of link text. Now exit 2 with
+        # one ERROR line naming the file and its mode.
+        mirror = ".working/changelog-details/CHANGELOG-detailed.md"
+        rows = (("CHANGELOG.md", "symlink", True), ("CHANGELOG.md", "symlink", False),
+                (mirror, "symlink", True), (mirror, "symlink", False),
+                ("CHANGELOG.md", "gitlink", True))
+        for rel, kind, staged in rows:
+            with self.subTest(rel=rel, kind=kind, staged=staged), \
+                    tempfile.TemporaryDirectory() as td:
+                root, env, git = self._cli_fixture(os.path.realpath(td))
+                (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+                (root / mirror).parent.mkdir(parents=True)
+                (root / mirror).write_text("# Detailed\n", encoding="utf-8")
+                (root / "notes.md").write_text("# Notes\n", encoding="utf-8")
+                git("add", "-A")
+                git("commit", "-q", "--no-verify", "-m", "init")
+                (root / "notes.md").write_text("# Notes\n" + self.ADDED + "\n", encoding="utf-8")
+                if kind == "symlink":
+                    (root / rel).unlink()
+                    os.symlink(os.path.relpath(root / "notes.md", (root / rel).parent),
+                               root / rel)
+                    git("add", "-A")
+                else:
+                    git("add", "-A")
+                    head = subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"],
+                                          check=True, capture_output=True, text=True,
+                                          env=env).stdout.strip()
+                    git("rm", "-q", "--cached", rel)
+                    git("update-index", "--add", "--cacheinfo", f"160000,{head},{rel}")
+                result = subprocess.run(
+                    [sys.executable, "tools/preflight-changelog.py",
+                     *(["--staged"] if staged else [])],
+                    cwd=root, env=env, capture_output=True, text=True)
+                mode = "120000" if kind == "symlink" else "160000"
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertRegex(result.stderr, "^ERROR: the CHANGELOG diff could not be read: "
+                                 + re.escape(rel) + " has mode " + mode + r" .*\n$")
+
+    MIRROR = ".working/changelog-details/CHANGELOG-detailed.md"
+
+    @staticmethod
+    def _aid(root, env, staged, extra_env=None):
+        """Run the aid in the fixture ``root``, with --staged when ``staged``."""
+        return subprocess.run([sys.executable, "tools/preflight-changelog.py",
+                               *(["--staged"] if staged else [])],
+                              cwd=root, env={**env, **(extra_env or {})}, capture_output=True,
+                              text=True)
+
+    def _assert_link_refused(self, result, name, mode):
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertRegex(result.stderr, "^ERROR: the CHANGELOG diff could not be read: "
+                         + re.escape(name) + " has mode " + mode + r" .*\n$")
+
+    def test_the_in_repo_mirror_is_read_from_git_not_the_work_tree(self):
+        # 3b399 round 5 (3B399-MIRROR-SCOPE): the in-repo mirror joined the diff only when
+        # is_file() found it in the work tree, so a newly staged mirror gitlink or dangling
+        # symlink, and a staged mirror addition whose working-tree file was then deleted, passed
+        # with "OK: 0 added". The mirror is now always in the diff and its index mode is read
+        # directly. The review reproduced each staged pass on 1a7ecf6e. The deleted-file row in
+        # working-tree mode is a control: the work tree holds no mirror, so nothing is added.
+        # Mutations killed: restoring the is_file() condition (the staged deleted-file row), and
+        # refuse_links returning without a check (the working-tree gitlink row; the diff refuses
+        # the other link rows too).
+        for shape in ("gitlink", "dangling symlink", "deleted after staging"):
+            for staged in (True, False):
+                with self.subTest(shape=shape, staged=staged), \
+                        tempfile.TemporaryDirectory() as td:
+                    root, env, git = self._cli_fixture(os.path.realpath(td))
+                    (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+                    git("add", "-A")
+                    git("commit", "-q", "--no-verify", "-m", "init")
+                    mirror = root / self.MIRROR
+                    mirror.parent.mkdir(parents=True)
+                    if shape == "gitlink":
+                        head = subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"],
+                                              check=True, capture_output=True, text=True,
+                                              env=env).stdout.strip()
+                        git("update-index", "--add", "--cacheinfo", f"160000,{head},{self.MIRROR}")
+                    elif shape == "dangling symlink":
+                        os.symlink("missing.md", mirror)
+                        git("add", self.MIRROR)
+                    else:
+                        mirror.write_text("# Detailed\n" + self.ADDED + "\n", encoding="utf-8")
+                        git("add", self.MIRROR)
+                        mirror.unlink()
+                    result = self._aid(root, env, staged)
+                    report = result.stdout + result.stderr
+                    if shape != "deleted after staging":
+                        self._assert_link_refused(result, self.MIRROR,
+                                                  "160000" if shape == "gitlink" else "120000")
+                    elif staged:
+                        self.assertEqual(result.returncode, 1, report)
+                        self.assertIn(f"FAIL {self.MIRROR}: em/en dash in prose", report)
+                    else:
+                        self.assertEqual(result.returncode, 0, report)
+                        self.assertIn("OK: 0 added CHANGELOG line(s) (working-tree)", report)
+
+    def test_a_mirror_under_a_symlinked_directory_exits_2(self):
+        # 3b399 round 5 (claude N1): with .working, or .working/changelog-details, a symbolic
+        # link to notes-dir, is_file() followed the link but git prints nothing for a path beyond
+        # a link, so a staged dash line in the mirror passed with "OK: 0 added". A parent that is
+        # a link in the index or the work tree (the untracked row) is now refused. The review
+        # reproduced the tracked pass on 1a7ecf6e. Mutation killed (untracked rows): dropping the
+        # work-tree link check; the index check alone refuses the tracked rows.
+        rows = ((".working", True), (".working/changelog-details", True), (".working", False))
+        for link, tracked in rows:
+            for staged in (True, False):
+                with self.subTest(link=link, tracked=tracked, staged=staged), \
+                        tempfile.TemporaryDirectory() as td:
+                    root, env, git = self._cli_fixture(os.path.realpath(td))
+                    (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+                    target = root / "notes-dir" / "changelog-details" / "CHANGELOG-detailed.md"
+                    target.parent.mkdir(parents=True)
+                    target.write_text("# Detailed\n", encoding="utf-8")
+                    (root / link).parent.mkdir(parents=True, exist_ok=True)
+                    os.symlink(os.path.relpath(root / "notes-dir" / link[len(".working"):].lstrip("/"),
+                                               (root / link).parent), root / link)
+                    self.assertTrue((root / self.MIRROR).is_file())
+                    git("add", "CHANGELOG.md", "notes-dir", *([link] if tracked else []))
+                    git("commit", "-q", "--no-verify", "-m", "init")
+                    target.write_text("# Detailed\n" + self.ADDED + "\n", encoding="utf-8")
+                    git("add", "notes-dir")
+                    self._assert_link_refused(self._aid(root, env, staged), link, "120000")
+
+    def test_a_link_unchanged_since_head_exits_2(self):
+        # 3b399 round 5 (3B399-UNCHANGED-LINK): a CHANGELOG.md or in-repo mirror that HEAD
+        # already holds as a symbolic link to notes.md is not in the diff when only notes.md
+        # changes, so a staged dash line there passed with "OK: 0 added". The index mode is now
+        # read directly. The review reproduced the CHANGELOG.md pass on 1a7ecf6e. The index
+        # check and the work-tree check each refuse every row alone.
+        for rel in ("CHANGELOG.md", self.MIRROR):
+            for staged in (True, False):
+                with self.subTest(rel=rel, staged=staged), tempfile.TemporaryDirectory() as td:
+                    root, env, git = self._cli_fixture(os.path.realpath(td))
+                    (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+                    (root / self.MIRROR).parent.mkdir(parents=True)
+                    (root / self.MIRROR).write_text("# Detailed\n", encoding="utf-8")
+                    (root / "notes.md").write_text("# Notes\n", encoding="utf-8")
+                    (root / rel).unlink()
+                    os.symlink(os.path.relpath(root / "notes.md", (root / rel).parent), root / rel)
+                    git("add", "-A")
+                    git("commit", "-q", "--no-verify", "-m", "init")
+                    (root / "notes.md").write_text("# Notes\n" + self.ADDED + "\n",
+                                                   encoding="utf-8")
+                    git("add", "notes.md")
+                    self._assert_link_refused(self._aid(root, env, staged), rel, "120000")
+
+    def test_a_mirror_repository_selecting_another_work_tree_exits_2(self):
+        # 3b399 round 5 (3B399-MIRROR-WORKTREE): the store mirror's repository's own
+        # core.worktree, naming an empty sibling, made the working-tree diff read that directory,
+        # so a mirror addition passed with "OK: 0 added" (staged mode found it). Both modes now
+        # exit 2 when the work tree git selects for the mirror's repository does not hold the
+        # mirror. Mutation killed (both rows, with the exit 0 and exit 1 the review saw on
+        # 1a7ecf6e): dropping the work-tree check. The control, a store below a subdirectory of
+        # its repository, still finds the line in both modes.
+        for layout in ("core.worktree elsewhere", "below a subdirectory"):
+            for staged in (True, False):
+                with self.subTest(layout=layout, staged=staged), \
+                        tempfile.TemporaryDirectory() as td:
+                    td = os.path.realpath(td)
+                    root, env, git = self._cli_fixture(td)
+                    (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+                    git("add", "-A")
+                    git("commit", "-q", "--no-verify", "-m", "init")
+                    repo = Path(td) / "ops"
+                    store = repo / "store" if layout == "below a subdirectory" else repo
+                    mirror = store / "changelog-details" / "CHANGELOG-detailed.md"
+                    mirror.parent.mkdir(parents=True)
+                    mirror.write_text("# Detailed\n", encoding="utf-8")
+
+                    def store_git(*args):
+                        subprocess.run(["git", "-C", str(repo), "-c", "user.name=t", "-c",
+                                        "user.email=t@example.invalid", "-c",
+                                        "commit.gpgsign=false", *args],
+                                       check=True, capture_output=True, env=env)
+
+                    store_git("init", "-q", "-b", "store")
+                    store_git("add", "-A")
+                    store_git("commit", "-q", "-m", "store")
+                    mirror.write_text("# Detailed\n" + self.ADDED + "\n", encoding="utf-8")
+                    store_git("add", "-A")
+                    if layout == "core.worktree elsewhere":
+                        (Path(td) / "empty").mkdir()
+                        store_git("config", "core.worktree", str(Path(td) / "empty"))
+                    result = self._aid(root, env, staged, {"GRC_STORE": str(store)})
+                    report = result.stdout + result.stderr
+                    if layout == "core.worktree elsewhere":
+                        self.assertEqual(result.returncode, 2, report)
+                        self.assertRegex(result.stderr, r"^ERROR: git selects the work tree .*/empty "
+                                         r"for the mirror's repository, which does not hold .*/ops; "
+                                         r"unset GIT_DIR, GIT_WORK_TREE or core\.worktree and "
+                                         r"rerun\.\n$")
+                    else:
+                        self.assertEqual(result.returncode, 1, report)
+                        self.assertIn("changelog-details/CHANGELOG-detailed.md: em/en dash in "
+                                      "prose", report)
+
+    def _store(self, td, env, track=True):
+        """The operational store repository ``<td>/ops``: a committed detailed mirror, then ADDED
+        appended and staged. With ``track`` False only notes.md is committed and the mirror is
+        never added. Returns the store, its mirror and its git runner."""
+        store = Path(td) / "ops"
+        mirror = store / "changelog-details" / "CHANGELOG-detailed.md"
+        mirror.parent.mkdir(parents=True)
+        (store / "notes.md").write_text("# Notes\n", encoding="utf-8")
+        mirror.write_text("# Detailed\n", encoding="utf-8")
+
+        def store_git(*args):
+            subprocess.run(["git", "-C", str(store), "-c", "user.name=t", "-c",
+                            "user.email=t@example.invalid", "-c", "commit.gpgsign=false", *args],
+                           check=True, capture_output=True, env=env)
+
+        store_git("init", "-q", "-b", "store")
+        store_git("add", "-A" if track else "notes.md")
+        store_git("commit", "-q", "-m", "store")
+        mirror.write_text("# Detailed\n" + self.ADDED + "\n", encoding="utf-8")
+        if track:
+            store_git("add", "-A")
+        return store, mirror, store_git
+
+    def test_a_store_mirror_deleted_after_staging_is_read(self):
+        # 3b399 round 6 (codex 3B399-EXTERNAL-MIRROR-SCOPE, claude W2): the store's mirror was
+        # diffed only when is_file() found it in the work tree, so a staged store-mirror addition
+        # whose working-tree file was then deleted passed with "OK: 0 added" (staged). The store
+        # is now diffed whenever its directory exists. The working-tree row is a control: the
+        # store's work tree holds no mirror, so nothing is added. Mutation killed (staged row):
+        # restoring the is_file() condition for the store.
+        for staged in (True, False):
+            with self.subTest(staged=staged), tempfile.TemporaryDirectory() as td:
+                td = os.path.realpath(td)
+                root, env, git = self._cli_fixture(td)
+                (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+                git("add", "-A")
+                git("commit", "-q", "--no-verify", "-m", "init")
+                store, mirror, _ = self._store(td, env)
+                mirror.unlink()
+                result = self._aid(root, env, staged, {"GRC_STORE": str(store)})
+                report = result.stdout + result.stderr
+                if staged:
+                    self.assertEqual(result.returncode, 1, report)
+                    self.assertIn("FAIL changelog-details/CHANGELOG-detailed.md: em/en dash in "
+                                  "prose", report)
+                else:
+                    self.assertEqual(result.returncode, 0, report)
+                    self.assertIn("OK: 0 added CHANGELOG line(s) (working-tree)", report)
+
+    def test_a_store_mirror_its_repository_does_not_track_exits_2(self):
+        # 3b399 round 6 (claude W1 3B399-MIRROR-WORKTREE-ANCESTOR): the store repository's own
+        # core.worktree naming the store's parent passed the work-tree check (that tree holds the
+        # store), but git then read every path under the prefix ops/, which matched no entry, so a
+        # staged mirror dash passed with "OK: 0 added" in both modes. An untracked mirror passed
+        # the same way. Both now exit 2 unless the store repository's index or HEAD tree holds
+        # the mirror; the tracked control still finds the line. Mutation killed (refused rows):
+        # dropping the tracked check.
+        rows = (("core.worktree names its parent", True), ("untracked", True),
+                ("tracked", False))
+        for layout, refused in rows:
+            for staged in (True, False):
+                with self.subTest(layout=layout, staged=staged), \
+                        tempfile.TemporaryDirectory() as td:
+                    td = os.path.realpath(td)
+                    root, env, git = self._cli_fixture(td)
+                    (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+                    git("add", "-A")
+                    git("commit", "-q", "--no-verify", "-m", "init")
+                    store, _, store_git = self._store(td, env, track=layout != "untracked")
+                    if layout == "core.worktree names its parent":
+                        store_git("config", "core.worktree", td)
+                    result = self._aid(root, env, staged, {"GRC_STORE": str(store)})
+                    report = result.stdout + result.stderr
+                    if refused:
+                        self.assertEqual(result.returncode, 2, report)
+                        self.assertRegex(
+                            result.stderr, r"^ERROR: the CHANGELOG diff could not be read: "
+                            r"changelog-details/CHANGELOG-detailed\.md is in neither the index "
+                            r"nor the HEAD tree of the repository that git selects in .*/ops "
+                            r"\(.*\), so its diff would show no line\n$")
+                    else:
+                        self.assertEqual(result.returncode, 1, report)
+                        self.assertIn("FAIL changelog-details/CHANGELOG-detailed.md: em/en dash "
+                                      "in prose", report)
+
+    def test_a_changelog_path_that_cannot_be_examined_exits_2(self):
+        # 3b399 round 6 (claude N2 3B399-ISSYMLINK-DOC): the work-tree link check used
+        # Path.is_symlink(), which returns False when the path cannot be examined, so a symbolic
+        # link inside a directory this process cannot search went unreported. It now uses
+        # os.lstat, and that failure is exit 2. Mutation killed: restoring is_symlink().
+        if os.geteuid() == 0:
+            self.skipTest("root searches a mode 0 directory")
+        for staged in (True, False):
+            with self.subTest(staged=staged), tempfile.TemporaryDirectory() as td:
+                root, env, git = self._cli_fixture(os.path.realpath(td))
+                (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+                git("add", "-A")
+                git("commit", "-q", "--no-verify", "-m", "init")
+                working = root / ".working"
+                working.mkdir()
+                os.symlink("elsewhere", working / "changelog-details")
+                working.chmod(0)
+                try:
+                    result = self._aid(root, env, staged)
+                finally:
+                    working.chmod(0o755)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertRegex(result.stderr, r"^ERROR: the CHANGELOG diff could not be read: "
+                                 r"\[Errno 13\] Permission denied: '.*/\.working/"
+                                 r"changelog-details'\n$")
+
+    def _sibling(self, td, env, added=None):
+        """The private sibling repository ``<td>/grc_library_private``: a committed
+        ``.working`` detailed mirror, then ``added`` (default ADDED) appended and staged. Returns
+        the sibling and its mirror."""
+        sibling = Path(td) / "grc_library_private"
+        mirror = sibling / self.MIRROR
+        mirror.parent.mkdir(parents=True)
+        mirror.write_text("# Detailed\n", encoding="utf-8")
+        for args in (("init", "-q", "-b", "private"), ("add", "-A"), ("commit", "-q", "-m", "s")):
+            subprocess.run(["git", "-C", str(sibling), "-c", "user.name=t", "-c",
+                            "user.email=t@example.invalid", "-c", "commit.gpgsign=false", *args],
+                           check=True, capture_output=True, env=env)
+        mirror.write_text("# Detailed\n" + (self.ADDED if added is None else added) + "\n",
+                          encoding="utf-8")
+        subprocess.run(["git", "-C", str(sibling), "add", "-A"], check=True,
+                       capture_output=True, env=env)
+        return sibling, mirror
+
+    def test_a_sibling_mirror_is_read_when_the_store_mirror_file_is_gone(self):
+        # 3b399 round 7 (claude W1 3B399-SIBLING-SKIPPED-WITH-STORE): round 6 diffed the store's
+        # mirror alone whenever the store existed, so with the store's mirror deleted from its
+        # work tree (or removed by `git rm`), a staged dash in the private sibling's mirror was
+        # never read and passed with "OK: 0 added" in both modes, where main exited 1. Each
+        # external mirror is now chosen by its own repository's index. The working-tree rows are
+        # the control: the sibling's work tree holds the line, so both modes find it. Mutation
+        # killed: diffing the store alone when it exists.
+        for removal in ("deleted", "git rm"):
+            for staged in (True, False):
+                with self.subTest(removal=removal, staged=staged), \
+                        tempfile.TemporaryDirectory() as td:
+                    td = os.path.realpath(td)
+                    root, env, git = self._cli_fixture(td)
+                    (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+                    git("add", "-A")
+                    git("commit", "-q", "--no-verify", "-m", "init")
+                    store, store_mirror, store_git = self._store(td, env)
+                    store_git("reset", "-q", "--hard")
+                    if removal == "deleted":
+                        store_mirror.unlink()
+                    else:
+                        store_git("rm", "-q", "changelog-details/CHANGELOG-detailed.md")
+                    self._sibling(td, env)
+                    result = self._aid(root, env, staged, {"GRC_STORE": str(store)})
+                    report = result.stdout + result.stderr
+                    self.assertEqual(result.returncode, 1, report)
+                    self.assertIn(f"FAIL {self.MIRROR}: em/en dash in prose", report)
+
+    def test_a_sibling_mirror_deleted_after_staging_is_read(self):
+        # 3b399 round 7 (claude W2 3B399-SIBLING-MIRROR-SCOPE, codex 3B399-PRIVATE-SIBLING-SCOPE):
+        # with no store, the private sibling's mirror was found by its working-tree file, so a
+        # staged sibling-mirror dash whose file was then deleted passed with "OK: 0 added"
+        # (staged). The sibling is now chosen by `git ls-files` in its repository. The
+        # working-tree row is the control: the sibling's work tree holds no mirror, so nothing is
+        # added. Mutation killed (staged row): choosing the sibling by its working-tree file.
+        for staged in (True, False):
+            with self.subTest(staged=staged), tempfile.TemporaryDirectory() as td:
+                td = os.path.realpath(td)
+                root, env, git = self._cli_fixture(td)
+                (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+                git("add", "-A")
+                git("commit", "-q", "--no-verify", "-m", "init")
+                _, mirror = self._sibling(td, env)
+                mirror.unlink()
+                result = self._aid(root, env, staged)
+                report = result.stdout + result.stderr
+                if staged:
+                    self.assertEqual(result.returncode, 1, report)
+                    self.assertIn(f"FAIL {self.MIRROR}: em/en dash in prose", report)
+                else:
+                    self.assertEqual(result.returncode, 0, report)
+                    self.assertIn("OK: 0 added CHANGELOG line(s) (working-tree)", report)
+
+    def test_a_store_this_account_cannot_search_exits_2(self):
+        # 3b399 round 7 (codex 3B399-INACCESSIBLE-STORE-SCOPE, claude N1): store discovery read a
+        # store under a parent this account cannot search as absent, so a staged store-mirror
+        # dash passed with "OK: 0 added" in both modes. Discovery is now strict: a store that
+        # exists but cannot be examined, searched or read exits 2 naming the store. The mode 0
+        # store row was already exit 2 (git could not enter it) and pins the message. The
+        # accessible row is the control: both modes find the line. Mutation killed (parent
+        # row): _store_dir's default (non-strict) lookup.
+        if os.geteuid() == 0:
+            self.skipTest("root searches a mode 0 directory")
+        for locked in ("parent", "store", None):
+            for staged in (True, False):
+                with self.subTest(locked=locked, staged=staged), \
+                        tempfile.TemporaryDirectory() as td:
+                    td = os.path.realpath(td)
+                    root, env, git = self._cli_fixture(td)
+                    (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+                    git("add", "-A")
+                    git("commit", "-q", "--no-verify", "-m", "init")
+                    store, _, _ = self._store(td, env)
+                    if locked == "parent":
+                        (Path(td) / "locked").mkdir()
+                        store = store.rename(Path(td) / "locked" / "ops")
+                    target = {"parent": store.parent, "store": store, None: None}[locked]
+                    store_env = {"GRC_STORE": str(store)}
+                    if target is not None:
+                        target.chmod(0)
+                    try:
+                        result = self._aid(root, env, staged, store_env)
+                    finally:
+                        if target is not None:
+                            target.chmod(0o755)
+                    report = result.stdout + result.stderr
+                    if locked:
+                        self.assertEqual(result.returncode, 2, report)
+                        # 3b399 round 8 (claude N1): behind a locked parent the store's
+                        # existence is unknown, so that message says "may exist".
+                        self.assertRegex(result.stderr, r"^ERROR: the operational store .*/ops "
+                                         + {"parent": "may exist but this account cannot "
+                                                      "examine it",
+                                            "store": "exists but this account cannot search"}
+                                         [locked] + r" .*\n$")
+                    else:
+                        self.assertEqual(result.returncode, 1, report)
+                        self.assertIn("FAIL changelog-details/CHANGELOG-detailed.md: em/en dash "
+                                      "in prose", report)
+
+    def _init_fixture(self, td):
+        """``_cli_fixture`` with CHANGELOG.md committed; returns its root and environment."""
+        root, env, git = self._cli_fixture(td)
+        (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "--no-verify", "-m", "init")
+        return root, env
+
+    @staticmethod
+    def _repo_without_mirror(repo, env):
+        """A repository at ``repo`` that commits notes.md and holds no detailed mirror."""
+        repo.mkdir(parents=True)
+        (repo / "notes.md").write_text("# Notes\n", encoding="utf-8")
+        for args in (("init", "-q", "-b", "main"), ("add", "-A"), ("commit", "-q", "-m", "n")):
+            subprocess.run(["git", "-C", str(repo), "-c", "user.name=t", "-c",
+                            "user.email=t@example.invalid", "-c", "commit.gpgsign=false", *args],
+                           check=True, capture_output=True, env=env)
+
+    def test_a_dangling_link_added_to_the_sibling_mirror_is_found_beside_a_store(self):
+        # 3b399 round 8 (codex 3B399-SIBLING-LINK-SKIPPED, claude W2 3B399-R7-SIBLING-LINKSCAN):
+        # lines added to a .working mirror get no per-line link check, and the full-mirror scan
+        # read only resolve_working's first hit, the store's mirror whenever it exists. So with a
+        # clean store mirror, a dangling link added to the private sibling's mirror passed with
+        # "OK: 1 added" in both modes. Each external mirror whose added lines were diffed is now
+        # scanned from its own file; the working-tree row is the second mode, and the no-store
+        # row the control (the sibling is the first hit there). Mutation killed (store rows):
+        # scanning resolve_working's first hit alone.
+        link = "See [missing](../../missing-public.md) here."
+        for store_present in (True, False):
+            for staged in (True, False):
+                with self.subTest(store=store_present, staged=staged), \
+                        tempfile.TemporaryDirectory() as td:
+                    td = os.path.realpath(td)
+                    root, env = self._init_fixture(td)
+                    store_env = {}
+                    if store_present:
+                        store, _, store_git = self._store(td, env)
+                        store_git("reset", "-q", "--hard")
+                        store_env = {"GRC_STORE": str(store)}
+                    self._sibling(td, env, added=link)
+                    result = self._aid(root, env, staged, store_env)
+                    report = result.stdout + result.stderr
+                    self.assertEqual(result.returncode, 1, report)
+                    self.assertIn("dangling markdown-link target `../../missing-public.md` "
+                                  "(full-mirror scan", report)
+                    if store_present:
+                        self.assertIn(f"FAIL {self.MIRROR}: dangling markdown-link target "
+                                      "`../../missing-public.md` (full-mirror scan of "
+                                      f"{td}/grc_library_private/{self.MIRROR}, line 2)", report)
+
+    def test_a_wrongly_prefixed_repository_with_its_mirror_deleted_exits_2(self):
+        # 3b399 round 8 (claude W1 3B399-R7-PREFIX-SKIP): round 7 asked `git ls-files -- <rel>`
+        # from inside the external repository whether to diff it, so when its own core.worktree
+        # named its parent, git read <rel> under the prefix ops/ (or grc_library_private/),
+        # found nothing, and with the mirror file deleted the repository was skipped: a staged
+        # dash passed with "OK: 0 added" in both modes (round 6 refused the store). The index is now
+        # asked from its top too (round 8 at any depth; round 9 at the expected path only), so the
+        # tracked check refuses it. The working-tree rows are the second mode. Mutation killed:
+        # the round 7 ls-files query.
+        for kind in ("store", "sibling"):
+            for staged in (True, False):
+                with self.subTest(kind=kind, staged=staged), \
+                        tempfile.TemporaryDirectory() as td:
+                    td = os.path.realpath(td)
+                    root, env = self._init_fixture(td)
+                    store_env = {}
+                    if kind == "store":
+                        repo, mirror, _ = self._store(td, env)
+                        rel = "changelog-details/CHANGELOG-detailed.md"
+                        store_env = {"GRC_STORE": str(repo)}
+                    else:
+                        repo, mirror = self._sibling(td, env)
+                        rel = self.MIRROR
+                    subprocess.run(["git", "-C", str(repo), "config", "core.worktree", td],
+                                   check=True, capture_output=True, env=env)
+                    mirror.unlink()
+                    result = self._aid(root, env, staged, store_env)
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertRegex(
+                        result.stderr, r"^ERROR: the CHANGELOG diff could not be read: "
+                        + re.escape(rel) + r" is in neither the index nor the HEAD tree of the "
+                        r"repository that git selects in .*/" + re.escape(repo.name)
+                        + r" \(.*\), so its diff would show no line\n$")
+
+    def test_a_sibling_this_account_cannot_examine_exits_2(self):
+        # 3b399 round 8 (claude W3 3B399-R7-SIBLING-NONSTRICT): the sibling was found with
+        # Path.is_dir(), which on Python 3.14 reads a sibling linked into a directory this
+        # account cannot search as absent, so a staged sibling-mirror dash passed with "OK: 0
+        # added" in both modes. The sibling is now probed strictly, as the store is: one that
+        # cannot be examined, searched or read exits 2 naming the sibling. The accessible row
+        # is the control: both modes find the line. Mutation killed (linked row): the is_dir()
+        # lookup.
+        if os.geteuid() == 0:
+            self.skipTest("root searches a mode 0 directory")
+        for locked in ("linked", "sibling", None):
+            for staged in (True, False):
+                with self.subTest(locked=locked, staged=staged), \
+                        tempfile.TemporaryDirectory() as td:
+                    td = os.path.realpath(td)
+                    root, env = self._init_fixture(td)
+                    sibling, _ = self._sibling(td, env)
+                    target = None
+                    if locked == "linked":
+                        (Path(td) / "locked").mkdir()
+                        sibling.rename(Path(td) / "locked" / "real")
+                        os.symlink(Path("locked") / "real", sibling)
+                        target = Path(td) / "locked"
+                    elif locked == "sibling":
+                        target = sibling
+                    if target is not None:
+                        target.chmod(0)
+                    try:
+                        result = self._aid(root, env, staged)
+                    finally:
+                        if target is not None:
+                            target.chmod(0o755)
+                    report = result.stdout + result.stderr
+                    if locked:
+                        self.assertEqual(result.returncode, 2, report)
+                        self.assertRegex(result.stderr, r"^ERROR: the private sibling "
+                                         r".*/grc_library_private "
+                                         + {"linked": "may exist but this account cannot "
+                                                      "examine it",
+                                            "sibling": "exists but this account cannot search"}
+                                         [locked] + r" .*\n$")
+                    else:
+                        self.assertEqual(result.returncode, 1, report)
+                        self.assertIn(f"FAIL {self.MIRROR}: em/en dash in prose", report)
+
+    def test_an_external_repository_without_a_mirror_is_skipped(self):
+        # 3b399 round 8 (claude N4 3B399-R7-SKIP-UNTESTED): a store or sibling repository that
+        # holds no mirror is skipped, so the other repository's mirror alone decides: a staged
+        # dash there exits 1, and none exits 0, in both modes. Mutation killed: dropping the
+        # skip (the tracked check then refuses the empty repository, exit 2).
+        for empty in ("sibling", "store"):
+            for dash in (True, False):
+                for staged in (True, False):
+                    with self.subTest(empty=empty, dash=dash, staged=staged), \
+                            tempfile.TemporaryDirectory() as td:
+                        td = os.path.realpath(td)
+                        root, env = self._init_fixture(td)
+                        if empty == "sibling":
+                            self._repo_without_mirror(Path(td) / "grc_library_private", env)
+                            store, _, store_git = self._store(td, env)
+                            if not dash:
+                                store_git("reset", "-q", "--hard")
+                            label = "changelog-details/CHANGELOG-detailed.md"
+                        else:
+                            store = Path(td) / "ops"
+                            self._repo_without_mirror(store, env)
+                            sibling, _ = self._sibling(td, env)
+                            if not dash:
+                                subprocess.run(["git", "-C", str(sibling), "reset", "-q",
+                                                "--hard"], check=True, capture_output=True,
+                                               env=env)
+                            label = self.MIRROR
+                        result = self._aid(root, env, staged, {"GRC_STORE": str(store)})
+                        report = result.stdout + result.stderr
+                        if dash:
+                            self.assertEqual(result.returncode, 1, report)
+                            self.assertIn(f"FAIL {label}: em/en dash in prose", report)
+                        else:
+                            self.assertEqual(result.returncode, 0, report)
+                            self.assertIn("OK: 0 added CHANGELOG line(s)", report)
+
+    def test_a_sibling_that_is_not_a_repository_is_named(self):
+        # 3b399 round 8 (claude N2 3B399-R7-SIBLING-ERRNAME): a grc_library_private directory
+        # that is not a repository exits 2 (round 7), but git's error named only ".git". The
+        # message now names the directory.
+        for staged in (True, False):
+            with self.subTest(staged=staged), tempfile.TemporaryDirectory() as td:
+                td = os.path.realpath(td)
+                root, env = self._init_fixture(td)
+                (Path(td) / "grc_library_private").mkdir()
+                result = self._aid(root, env, staged)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertRegex(result.stderr, r"(?s)^ERROR: git rev-parse failed \(exit \d+\): .*"
+                                 r" \(in " + re.escape(td) + r"/grc_library_private\)\n$")
+
+    ARCHIVED = ("archive/retired-2026-09-26/deprecated/.working/changelog-details/"
+                "CHANGELOG-detailed.md")
+
+    def test_an_archived_sibling_mirror_copy_is_ignored(self):
+        # 3b399 round 9 (maintainer decision 2026-10-22, "Narrow round 9"): round 8 asked the
+        # sibling's index for the mirror at any depth, so a sibling tracking only an archived
+        # copy at ARCHIVED (as on the orchestrator's host) made the tracked check refuse every
+        # run, exit 2, in both modes. Only the expected path is asked now: the archived rows
+        # pass (the store's dash alone decides beside a store), and a mirror at the expected
+        # path that is untracked, or tracked but read under a prefix (core.worktree naming the
+        # parent, mirror file deleted), still exits 2. Mutation killed (archived rows): the
+        # round 8 any-depth query.
+        rows = ("archived", "archived beside a store", "untracked", "prefixed")
+        for layout in rows:
+            for staged in (True, False):
+                with self.subTest(layout=layout, staged=staged), \
+                        tempfile.TemporaryDirectory() as td:
+                    td = os.path.realpath(td)
+                    root, env = self._init_fixture(td)
+                    sibling = Path(td) / "grc_library_private"
+                    archived = sibling / self.ARCHIVED
+                    archived.parent.mkdir(parents=True)
+                    archived.write_text("# Detailed\n", encoding="utf-8")
+                    mirror = sibling / self.MIRROR
+                    if layout == "prefixed":
+                        mirror.parent.mkdir(parents=True)
+                        mirror.write_text("# Detailed\n", encoding="utf-8")
+                    for args in (("init", "-q", "-b", "private"), ("add", "-A"),
+                                 ("commit", "-q", "-m", "s")):
+                        subprocess.run(["git", "-C", str(sibling), "-c", "user.name=t", "-c",
+                                        "user.email=t@example.invalid", "-c",
+                                        "commit.gpgsign=false", *args],
+                                       check=True, capture_output=True, env=env)
+                    store_env = {}
+                    if layout == "archived beside a store":
+                        store, _, _ = self._store(td, env)
+                        store_env = {"GRC_STORE": str(store)}
+                    elif layout == "untracked":
+                        mirror.parent.mkdir(parents=True)
+                        mirror.write_text("# Detailed\n" + self.ADDED + "\n", encoding="utf-8")
+                    elif layout == "prefixed":
+                        mirror.write_text("# Detailed\n" + self.ADDED + "\n", encoding="utf-8")
+                        for args in (("add", "-A"), ("config", "core.worktree", td)):
+                            subprocess.run(["git", "-C", str(sibling), *args], check=True,
+                                           capture_output=True, env=env)
+                        mirror.unlink()
+                    result = self._aid(root, env, staged, store_env)
+                    report = result.stdout + result.stderr
+                    if layout == "archived":
+                        self.assertEqual(result.returncode, 0, report)
+                        self.assertIn("OK: 0 added CHANGELOG line(s)", report)
+                    elif layout == "archived beside a store":
+                        self.assertEqual(result.returncode, 1, report)
+                        self.assertIn("FAIL changelog-details/CHANGELOG-detailed.md: em/en dash "
+                                      "in prose", report)
+                    else:
+                        self.assertEqual(result.returncode, 2, report)
+                        self.assertRegex(
+                            result.stderr, r"^ERROR: the CHANGELOG diff could not be read: "
+                            + re.escape(self.MIRROR) + r" is in neither the index nor the HEAD "
+                            r"tree of the repository that git selects in .*/grc_library_private "
+                            r"\(.*\), so its diff would show no line\n$")
+
+    def test_a_sibling_mirror_is_scanned_in_full_only_when_its_diff_adds_a_line(self):
+        # 3b399 round 9 (claude W1 3B399-R8-SIBLING-FULLSCAN-STALE): beside a store with a clean
+        # mirror, round 8 scanned the sibling's mirror in full whenever it was diffed, so a
+        # dangling link already committed there failed every run, exit 1 in both modes, with
+        # nothing added (main scans only the store's mirror there). It is now scanned only when
+        # its diff added a line: the rows adding a clean line still find the committed link.
+        # Mutation killed (no-addition rows): appending every diffed mirror to the scan list.
+        link = "See [gone](../../moved-away.md) here."
+        for adds in (False, True):
+            for staged in (True, False):
+                with self.subTest(adds=adds, staged=staged), \
+                        tempfile.TemporaryDirectory() as td:
+                    td = os.path.realpath(td)
+                    root, env = self._init_fixture(td)
+                    store, _, store_git = self._store(td, env)
+                    store_git("reset", "-q", "--hard")
+                    sibling, mirror = self._sibling(td, env, added=link)
+                    subprocess.run(["git", "-C", str(sibling), "-c", "user.name=t", "-c",
+                                    "user.email=t@example.invalid", "-c", "commit.gpgsign=false",
+                                    "commit", "-q", "-m", "link"],
+                                   check=True, capture_output=True, env=env)
+                    if adds:
+                        mirror.write_text("# Detailed\n" + link + "\nA clean line.\n",
+                                          encoding="utf-8")
+                        subprocess.run(["git", "-C", str(sibling), "add", "-A"], check=True,
+                                       capture_output=True, env=env)
+                    result = self._aid(root, env, staged, {"GRC_STORE": str(store)})
+                    report = result.stdout + result.stderr
+                    if adds:
+                        self.assertEqual(result.returncode, 1, report)
+                        self.assertIn(f"FAIL {self.MIRROR}: dangling markdown-link target "
+                                      "`../../moved-away.md` (full-mirror scan of "
+                                      f"{td}/grc_library_private/{self.MIRROR}, line 2)", report)
+                    else:
+                        self.assertEqual(result.returncode, 0, report)
+                        self.assertIn("OK: 0 added CHANGELOG line(s)", report)
+
+    def test_a_mirror_the_full_scan_cannot_read_exits_2(self):
+        # 3b399 round 9 (claude N3 3B399-R8-SCAN-TRACEBACK): a sibling mirror this account cannot
+        # read, or one that is not valid UTF-8, crashed the full-mirror scan with a traceback
+        # (exit 1). Both scans now print one ERROR line naming the file and exit 2: beside a
+        # store the sibling is the extra scan, without one it is resolve_working's first hit.
+        # The mode 0 rows are staged only, where git reads the index, not the file. Mutation
+        # killed: dropping the guard.
+        for problem in ("unreadable", "undecodable"):
+            for store_present in (True, False):
+                for staged in ((True,) if problem == "unreadable" else (True, False)):
+                    with self.subTest(problem=problem, store=store_present, staged=staged), \
+                            tempfile.TemporaryDirectory() as td:
+                        if problem == "unreadable" and os.geteuid() == 0:
+                            self.skipTest("root reads a mode 0 file")
+                        td = os.path.realpath(td)
+                        root, env = self._init_fixture(td)
+                        store_env = {}
+                        if store_present:
+                            store, _, store_git = self._store(td, env)
+                            store_git("reset", "-q", "--hard")
+                            store_env = {"GRC_STORE": str(store)}
+                        sibling, mirror = self._sibling(td, env, added="A clean line.")
+                        if problem == "undecodable":
+                            # The undecodable line is committed, so only a clean line is added.
+                            mirror.write_bytes(b"# Detailed\n\xff\n")
+                            subprocess.run(["git", "-C", str(sibling), "-c", "user.name=t", "-c",
+                                            "user.email=t@example.invalid", "-c",
+                                            "commit.gpgsign=false", "commit", "-q", "-a", "-m",
+                                            "d"], check=True, capture_output=True, env=env)
+                            mirror.write_bytes(b"# Detailed\n\xff\nA clean line.\n")
+                            subprocess.run(["git", "-C", str(sibling), "add", "-A"], check=True,
+                                           capture_output=True, env=env)
+                        else:
+                            mirror.chmod(0)
+                        try:
+                            result = self._aid(root, env, staged, store_env)
+                        finally:
+                            mirror.chmod(0o644)
+                        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                        self.assertRegex(
+                            result.stderr, r"^ERROR: the full-mirror scan could not read the "
+                            r"CHANGELOG mirror " + re.escape(str(mirror)) + r": .*\n$")
+                        self.assertNotIn("Traceback", result.stderr)
+
+    def test_a_rev_parse_failure_is_named(self):
+        # 3b399 round 5 (claude N3): a GIT_DIR naming a bare repository made the selection
+        # check's `git rev-parse` fail, and the aid labelled it "git diff failed" (the review saw
+        # that label on 1a7ecf6e). The exit code was already 2.
+        for staged in (True, False):
+            with self.subTest(staged=staged), tempfile.TemporaryDirectory() as td:
+                td = os.path.realpath(td)
+                bare = Path(td) / "bare.git"
+                subprocess.run(["git", "init", "-q", "--bare", str(bare)], check=True,
+                               capture_output=True, env=self._env(td))
+                result = self._run_cli(td, self.ADDED, extra_env={"GIT_DIR": str(bare)},
+                                       staged=staged)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertRegex(result.stderr, r"^ERROR: git rev-parse failed \(exit \d+\): ")
+                self.assertNotIn("git diff failed", result.stderr)
 
     def test_an_added_line_starting_with_plus_plus_is_checked(self):
         # 3b236 (1): the parser skipped every line starting "+++" or "---" wherever it appeared,
@@ -35391,9 +36776,10 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
         # 3b236 round 2 (3): a checker that loaded without ENTRY_RE, evaluate, DEFAULT_WORD_MAX or
         # DEFAULT_SENTENCE_MAX failed later with a raw AttributeError traceback. _load_d7() now
         # checks the four names, so a missing one is the fixed D7 error, exit 2. The control row
-        # (every name present) passes, so each refusal is the missing name's.
+        # (every name present) passes, so each refusal is the missing name's. Since 3b399 the
+        # preflight reads entries through entries_in_added_line, not ENTRY_RE.
         parts = {
-            "ENTRY_RE": "ENTRY_RE = re.compile(r'^- (PR #\\d+): (.*)$')\n",
+            "entries_in_added_line": "def entries_in_added_line(text):\n    return []\n",
             "evaluate": "def evaluate(entries, word_max, sentence_max):\n    return []\n",
             "DEFAULT_WORD_MAX": "DEFAULT_WORD_MAX = 100\n",
             "DEFAULT_SENTENCE_MAX": "DEFAULT_SENTENCE_MAX = 45\n",
