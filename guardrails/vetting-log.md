@@ -1,8 +1,8 @@
 # Maintainer vetting log: external rule sources
 
 **Document Type:** Maintainer log\
-**Version:** 1.3.7\
-**Date:** 2026-08-08\
+**Version:** 1.3.8\
+**Date:** 2026-10-22\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`guardrails/vetting-log.md`](vetting-log.md)\
 **License:** CC BY-SA 4.0
@@ -71,7 +71,7 @@ Scanned for red-flag patterns (not read in full): the 19 remaining skill directo
 
 - **Scope is engineering workflows, not GRC.** addyosmani's collection is "production-grade engineering skills for AI coding agents", workflow processes spanning Define, Plan, Build, Verify, Review, and Ship phases. It is not a governance / risk / compliance pack. Adopters electing this overlay should know they are getting general engineering discipline (TDD, code review, debugging, etc.), not additional GRC content.
 - **Format diverges from the other three vetted sources.** addyosmani uses the Claude Skills `SKILL.md` format (YAML frontmatter with `name:` and `description:` for skill-tool discovery). TikiTribe, Wiz, and Kariedo use the rule / CLAUDE.md / `@`-import patterns. Consumers whose Claude Code session does not support the Skills discovery format may see addyosmani's content as static markdown without auto-invocation behaviour.
-- **License is MIT** (the GRC Library pack is CC BY-SA 4.0). Per the same logic as TikiTribe and Kariedo, adopters redistributing addyosmani content under their own terms must preserve the upstream attribution.
+- **License is MIT** (the GRC Library pack is GRC-original material CC BY-SA 4.0; pinned `aiqt-rules/` snapshot Apache-2.0). Per the same logic as TikiTribe and Kariedo, adopters redistributing addyosmani content under their own terms must preserve the upstream attribution.
 - **Tier model (Mandatory / Approval-Gated / Prohibited) and STRIDE-per-trust-boundary framing** in `security-and-hardening` are common taxonomies; cherry-picking these structures into our own content is independent synthesis (per `NOTICE.md`), not redistribution.
 - **Some workflow content overlaps existing pack rules.** `code-review-and-quality` overlaps `dev-security/procedure-secure-code-review.md`. `ci-cd-and-automation` overlaps [`guardrails/pipeline/cicd-gates.md`](pipeline/cicd-gates.md). `security-and-hardening` overlaps [`guardrails/core/owasp.md`](core/owasp.md) and adjacent rules. The pack remains the primary content; the overlay is supplementary.
 
@@ -161,7 +161,7 @@ The TikiTribe repository organizes 100+ rule sets across 12 language directories
 
 **Notable substantive observations (not vetting concerns, listed for the consumer's awareness):**
 
-- License is MIT (the GRC Library pack is CC BY-SA 4.0). Adopters redistributing TikiTribe content under their own terms must preserve TikiTribe attribution per the MIT license.
+- License is MIT (the GRC Library pack is GRC-original material CC BY-SA 4.0; pinned `aiqt-rules/` snapshot Apache-2.0). Adopters redistributing TikiTribe content under their own terms must preserve TikiTribe attribution per the MIT license.
 - The repository uses a `<category>/<subdir>/CLAUDE.md` pattern (one CLAUDE.md per category subdirectory), which differs from the GRC Library pack's `core/`, `ai/`, etc. flat-file layout. The overlay placement under `.claude/rules/external/tikitribe/` should preserve the upstream directory structure so the consumer can map fetched files back to upstream.
 - Coverage is broader than the GRC Library pack: 12 languages (including R, Julia, SQL), 16 backend / AI-ML frameworks (FastAPI, Express, Django, Flask, NestJS, LangChain, CrewAI, AutoGen, BentoML, MLflow, Modal, Ray Serve, TorchServe, Transformers, Triton, vLLM), plus dedicated `frontend/`, `iac/`, `containers/` categories. Consumers with stacks in those areas may benefit materially from the overlay.
 
@@ -225,7 +225,7 @@ A separate WebFetch review of `prompt.md` flagged four items: an opening "You ar
 
 ### Substantive observations (not vetting concerns, listed for the consumer's awareness)
 
-- **License is CC-BY-NC-ND-4.0** (Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International). This is a **significant caveat** relative to the GRC Library pack (CC BY-SA 4.0) and TikiTribe (MIT): adopters whose use case is commercial, or who want to modify the rule files for their stack, must obtain separate permission from Wiz Inc. or use the content under fair-use principles that vary by jurisdiction. The library does NOT recommend Wiz to commercial-adopter consumers without a license review. The overlay step's offer-message for Wiz should surface this prominently so the consumer makes an informed choice.
+- **License is CC-BY-NC-ND-4.0** (Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International). This is a **significant caveat** relative to the GRC Library pack (GRC-original material CC BY-SA 4.0; pinned `aiqt-rules/` snapshot Apache-2.0) and TikiTribe (MIT): adopters whose use case is commercial, or who want to modify the rule files for their stack, must obtain separate permission from Wiz Inc. or use the content under fair-use principles that vary by jurisdiction. The library does NOT recommend Wiz to commercial-adopter consumers without a license review. The overlay step's offer-message for Wiz should surface this prominently so the consumer makes an informed choice.
 - Per-leaf-directory multi-format pattern (CLAUDE.md alongside AGENTS.md, .clinerules, etc.) is a useful adoption convenience. The overlay step only needs to fetch one variant per directory (CLAUDE.md is the natural choice for Claude Code consumers).
 - Scope: Python (Flask, Django), JavaScript (React, Node.js), Java (Spring), .NET (ASP.NET Core), C, HCL (Terraform), YAML (CloudFormation). Narrower than TikiTribe but covers the major web stacks plus IaC.
 
