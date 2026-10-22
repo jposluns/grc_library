@@ -38,7 +38,10 @@ In addition to the added-line checks above, a FULL-MIRROR link-resolution pass
 whole detailed mirror (not only added lines), reusing the identical resolution
 and exclusion rules, and fails on any dangling target with its line number. This
 catches a link that went dangling by a later move of its TARGET, which the
-added-line pass (source line unchanged) cannot see. It runs unconditionally.
+added-line pass (source line unchanged) cannot see. It runs unconditionally, on the
+mirror ``resolve_working`` finds first and (3b399 round 8) on every other external
+mirror whose diff added a line (3b399 round 9), each read from its own file, since
+lines added to a ``.working/`` mirror get no per-line link check.
 
 This is a developer AID, not a new audit gate. The authoritative gates
 (D3, gate 51, the link-coverage gate) remain and run in CI and
@@ -74,7 +77,8 @@ Exit codes:
     0   no spelling, dash, unlinked-reference, dangling-link, or D7-over-length issue in the added CHANGELOG lines
     1   one or more issues (do not commit until fixed)
     2   git invocation error: a ``git diff`` that fails (an unborn HEAD, or a directory that is not
-        a repository, including the operational store or private-sibling fallback holding the mirror) exits 2
+        a repository, including the operational store or the private sibling, whenever its
+        directory exists) exits 2
         instead of reporting 0 added lines and passing (fail closed, 3b141 QA r1); or the gate-2
         language-engine child did not deliver a valid result (a load failure, an engine
         API violation, a crash, a timeout, exit 0 without the marked result line, or
@@ -82,11 +86,43 @@ Exit codes:
         Loading is checked even without added lines (3b201). KeyboardInterrupt raised
         in THIS process (a real Ctrl-C) propagates; one raised by engine code is an
         engine fault in the child, exit 2. A D7 length checker
-        (check-changelog-length-on-pr.py) that fails to load, or that lacks ENTRY_RE, evaluate,
-        DEFAULT_WORD_MAX or DEFAULT_SENTENCE_MAX, is also exit 2, reported as one fixed ERROR
-        line rather than a traceback (3b236). So is a diff the parser cannot read exactly: a
-        hunk whose lines do not match its header's line counts, or an added line that is not
-        valid UTF-8 (3b236 round 2).
+        (check-changelog-length-on-pr.py) that fails to load, or that lacks
+        entries_in_added_line, evaluate, DEFAULT_WORD_MAX or DEFAULT_SENTENCE_MAX,
+        is also exit 2, reported as one fixed ERROR line rather than a traceback (3b236).
+        So is a diff the parser cannot read exactly: a hunk whose lines do not match its
+        header's line counts, or an added line that is not valid UTF-8 (3b236 round 2), or a
+        CHANGELOG.md or mirror that the diff shows as a symbolic link or a submodule (3b399
+        round 4). So is a run where git selects a work tree other than this repository's
+        root, or a repository other than the one found there (``GIT_WORK_TREE``,
+        ``core.worktree`` or ``GIT_DIR`` naming elsewhere, 3b399 round 4). So is (3b399
+        rounds 5 and 6): a CHANGELOG.md or mirror, or a directory above one of them, that is a
+        symbolic link or a gitlink in the index or a symbolic link in the work tree; such a
+        path that cannot be examined (an ``OSError`` other than its absence, such as a parent
+        directory that cannot be searched); an external mirror whose repository's selected work
+        tree does not hold the mirror's directory; an external mirror present in its work tree
+        whose repository holds it in neither its index nor its HEAD tree (an untracked mirror,
+        or a ``core.worktree`` naming a directory above the store, which makes git read every
+        path under another prefix); and a failed ``git rev-parse``, ``ls-files`` or ``ls-tree``
+        that these checks run (a bare repository or none, for example), named as that command.
+        The external mirrors are the operational store's (``changelog-details/...`` at the
+        store root) and the private sibling's (``.working/changelog-details/...`` in
+        ``grc_library_private``); each is diffed when its repository's index holds it or its
+        work-tree file exists (3b399 round 7), so a store directory that is not a repository,
+        or a ``grc_library_private`` directory that is not one or that git cannot enter, exits
+        2 too, and a failed git query there names that directory (3b399 round 8). The index
+        is asked for the mirror at its expected path only (3b399 round 9): as git names it
+        from the store or sibling directory, or, when that directory holds its repository's
+        ``.git`` and git reads it under a prefix, at the top of the index, so a repository
+        whose ``core.worktree`` names a directory above it still exits 2 as untracked when its
+        mirror file is deleted, and a tracked copy at any other path (an archived copy, for
+        example) is ignored. So does (3b399 round 9) a detailed mirror that the full-mirror
+        scan cannot read or decode, named as that file. So does (3b399 round 7) an operational store
+        path that may exist but that this account cannot examine, search or read, or that is
+        not a directory, named as the store, and (3b399 round 8) such a
+        ``grc_library_private`` path, named as the private sibling: a committing account
+        without access to either is therefore refused (exit 2) whenever the aid runs, in the
+        commit hook too, rather than having that mirror skipped. An unknown command-line
+        argument is argparse's usage error, also exit 2.
 
 Engine isolation (3b201, /validate-pr round 5): every language-engine interaction
 (loading lint-language.py, engine API validation, compile_language,
@@ -168,6 +204,7 @@ read from this process's environment, which the caller already controls.
 from __future__ import annotations
 
 import argparse
+import errno
 import json
 import math
 import os
@@ -175,6 +212,7 @@ import re
 import secrets
 import selectors
 import signal
+import stat
 import subprocess
 import sys
 import time
@@ -185,12 +223,20 @@ if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import CODE_SPAN_RE  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, resolve_working  # noqa: E402  # grc-config/store, stays local
+from lint_common import (  # noqa: E402  # grc-config/store, stays local
+    REPO_ROOT, _SIBLING_REPO_DIRS, InaccessiblePath, _store_dir, _strict_is_dir, resolve_working)
+# The added-line diff, its parser and the repository-selection and link checks are shared with
+# the D3 and D7 delta gates (3b399); the parser and the foreign environment keep their earlier
+# private names here.
+from changelog_diff import (  # noqa: E402
+    ChangelogDiffUnreadable, GitQueryFailed, GitSelectsAnotherTree, _git_query, added_line_diff,
+    check_git_selects_root, foreign_repo_env as _foreign_repo_env, git_selection,
+    parse_added_lines as _parse_added_lines, refuse_links)
 
 # D7 length check reuse (P-1.4): import the authoritative per-PR length checker so the
 # 100-word / 45-word-sentence ceiling on a root-CHANGELOG compact entry is caught at
 # authoring (this aid) rather than only at the pre-push guard. The module name is
-# hyphenated, so load it via importlib; reusing its ENTRY_RE + evaluate keeps the two in
+# hyphenated, so load it via importlib; reusing its entry reader + evaluate keeps the two in
 # lock-step (no duplicated length logic to drift). It loads on first use, inside main()'s
 # fail-closed boundary, so a load failure is one named error (exit 2), not a traceback (3b236).
 import importlib.util as _ilu  # noqa: E402
@@ -206,7 +252,7 @@ class D7CheckerUnavailable(RuntimeError):
     """The D7 length checker failed to load; main() reports the fixed error and exits 2."""
 
 
-_D7_NAMES = ("ENTRY_RE", "evaluate", "DEFAULT_WORD_MAX", "DEFAULT_SENTENCE_MAX")
+_D7_NAMES = ("entries_in_added_line", "evaluate", "DEFAULT_WORD_MAX", "DEFAULT_SENTENCE_MAX")
 
 
 def _load_d7():
@@ -473,15 +519,15 @@ def spelling_findings(lines):
 def d7_length_findings(lines):
     """The D7 length-ceiling findings for the ROOT ``CHANGELOG.md`` compact entries in
     ``lines`` (a list of ``(path, added_text)``), reusing ``check-changelog-length-on-pr``'s
-    ENTRY_RE + evaluate so this aid and the D7 delta gate never drift (P-1.4). Only the root
-    file is length-gated; the detailed mirror is out of the D7 gate's scope."""
+    entries_in_added_line + evaluate so this aid and the D7 delta gate never drift (P-1.4). An
+    entry is read at the start of an added line and after any ``str.splitlines()`` boundary
+    inside it (CR, U+2028, U+0085 and the rest), as D7 reads it (3b399). Only the root file
+    is length-gated; the detailed mirror is out of the D7 gate's scope."""
     d7 = _load_d7()
     entries = []
     for path, text in lines:
         if path == "CHANGELOG.md":
-            m = d7.ENTRY_RE.match(text)
-            if m:
-                entries.append((m.group(1), m.group(2)))
+            entries.extend(d7.entries_in_added_line(text))
     return [
         ("CHANGELOG.md", f"D7 length ceiling exceeded ({offence})", "")
         for offence in d7.evaluate(entries, d7.DEFAULT_WORD_MAX, d7.DEFAULT_SENTENCE_MAX)
@@ -704,15 +750,24 @@ def unresolved_link_targets(
 DETAILED_MIRROR_REL = ".working/changelog-details/CHANGELOG-detailed.md"
 
 
-def unresolved_links_in_mirror(root: Path | None = None) -> list[tuple[int, str, str]]:
+def unresolved_links_in_mirror(root: Path | None = None, *,
+                               mirror: Path | None = None) -> list[tuple[int, str, str]]:
     """Every in-repo relative markdown-link target in the WHOLE detailed mirror
     that does NOT resolve. Returns ``(line_no, target, line_text)`` per dangling
     link. Reuses ``unresolved_link_targets`` (same rules). ``root=None`` (the
     default) resolves the mirror via ``resolve_working`` (operational store first,
     then private sibling, then in-repo); an explicit ``root`` preserves the temp-fixture behaviour. Link
     targets resolve against ``REPO_ROOT`` in the default case, since the mirror's
-    references are authored relative to the public corpus. Returns [] if absent."""
-    if root is None:
+    references are authored relative to the public corpus. ``mirror`` names the
+    physical mirror file to read instead, resolved as in the default case (3b399 round
+    8: ``main()`` scans each external mirror whose diff added a line, not only
+    ``resolve_working``'s first hit). Returns [] if absent; a file that cannot be read or
+    decoded raises ``OSError`` or ``UnicodeDecodeError`` (``main()`` exits 2, 3b399 round 9)."""
+    if mirror is not None:
+        if not mirror.is_file():
+            return []
+        resolution_root = REPO_ROOT
+    elif root is None:
         mirror = resolve_working(
             DETAILED_MIRROR_REL[len(".working/"):], repo_root=REPO_ROOT)
         if mirror is None or not mirror.is_file():
@@ -734,19 +789,157 @@ def unresolved_links_in_mirror(root: Path | None = None) -> list[tuple[int, str,
     return findings
 
 
-def _foreign_repo_env() -> dict[str, str]:
-    """This process's environment for a ``git diff`` in ANOTHER repository (the operational store or
-    private-sibling fallback holding the mirror): every variable that ``git rev-parse --local-env-vars``
-    names as local to one repository is dropped (GIT_INDEX_FILE, GIT_DIR, GIT_WORK_TREE,
-    GIT_OBJECT_DIRECTORY, GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_COMMON_DIR, GIT_CONFIG_PARAMETERS
-    and the rest; git drops the same list before it enters a submodule), and every other variable
-    is kept. A pre-commit hook inherits them for the PUBLIC repository (``git commit -a`` names its
-    temporary index in GIT_INDEX_FILE), and the mirror's ``git diff --cached`` read that index
-    through them: it found no staged mirror addition, so a commit the standalone aid refuses passed
-    (3b141 QA r2). A failure to list them raises ``CalledProcessError``, and ``main()`` exits 2."""
-    local = set(subprocess.run(["git", "rev-parse", "--local-env-vars"], capture_output=True,
-                               text=True, check=True).stdout.split())
-    return {k: v for k, v in os.environ.items() if k not in local}
+def _refuse_linked_paths(repo: Path, paths: tuple[str, ...],
+                         env: dict[str, str] | None = None) -> None:
+    """Raise ``ChangelogDiffUnreadable`` (``main()`` exits 2) when one of ``paths``, files named
+    from ``repo``, or a directory above one of them under ``repo``, is a symbolic link or a
+    gitlink in the index (``changelog_diff.refuse_links``, run with ``env``) or a symbolic link
+    in the work tree (3b399 round 5). git prints nothing for a path beyond a symbolic link, so
+    a mirror under a symlinked ``.working`` passed with "0 added"; and the diff shows a link's
+    mode only when the link changes, so a CHANGELOG.md already linked at HEAD passed too. The
+    work tree is checked in both modes, since the link targets and the full-mirror scan read
+    it. An absent path (``FileNotFoundError`` or ``NotADirectoryError``) is not a link; any other
+    failure to stat a path, such as a parent directory that cannot be searched, raises
+    ``OSError`` (3b399 round 6: ``Path.is_symlink()`` returned False there), and a git failure
+    raises ``GitQueryFailed``."""
+    names = sorted({"/".join(rel.split("/")[:depth])
+                    for rel in paths for depth in range(1, rel.count("/") + 2)})
+    refuse_links(names, cwd=repo, env=env)
+    for name in names:
+        try:
+            mode = os.lstat(repo / name).st_mode
+        except (FileNotFoundError, NotADirectoryError):
+            continue
+        if stat.S_ISLNK(mode):
+            raise ChangelogDiffUnreadable(
+                f"{name} has mode 120000 in the work tree, a symbolic link, not a regular file or "
+                "directory, so the diff does not show the lines of the file it leads to")
+
+
+def _check_mirror_work_tree(private_root: Path, env: dict[str, str]) -> None:
+    """Raise ``GitSelectsAnotherTree`` (``main()`` exits 2) unless the work tree that git selects
+    for the external mirror's repository, run in ``private_root`` with ``env`` (no local
+    variable of the public repository), holds ``private_root`` (3b399 round 5). The mirror's
+    repository's own ``core.worktree`` naming an empty sibling made the working-tree diff read
+    that directory, so a mirror addition passed with "0 added". ``private_root`` may be a
+    subdirectory of that work tree (the private sibling's ``.working``). A bare repository, or
+    none, raises ``GitQueryFailed``."""
+    top, _ = git_selection(private_root, env)
+    if not private_root.resolve().is_relative_to(top.resolve()):
+        raise GitSelectsAnotherTree(
+            f"git selects the work tree {top} for the mirror's repository, which does not hold "
+            f"{private_root}")
+
+
+def _check_mirror_tracked(private_root: Path, rel: str, env: dict[str, str]) -> None:
+    """Raise ``ChangelogDiffUnreadable`` (``main()`` exits 2) unless ``rel``, named from
+    ``private_root``, is in the index or the HEAD tree of the repository that git selects there
+    with ``env`` (3b399 round 6). git reads a pathspec relative to ``private_root``'s place in the
+    work tree, so a store whose own ``core.worktree`` names its parent made every path read as
+    ``<store>/<rel>``, which matched no entry, and a staged mirror addition passed with "0
+    added"; an untracked mirror passed the same way. The HEAD tree is read only when the index
+    has no entry. A git failure (an unborn HEAD included) raises ``GitQueryFailed``."""
+    for args in (["ls-files", "-z", "--", rel],
+                 ["ls-tree", "-z", "--name-only", "HEAD", "--", rel]):
+        if rel.encode("utf-8") in _git_query(args, cwd=private_root, env=env).split(b"\0"):
+            return
+    raise ChangelogDiffUnreadable(
+        f"{rel} is in neither the index nor the HEAD tree of the repository that git selects in "
+        f"{private_root} (an untracked mirror, or a core.worktree naming a directory above it), "
+        "so its diff would show no line")
+
+
+def _mirror_in_index(private_root: Path, rel: str, env: dict[str, str]) -> bool:
+    """True when the index of the repository that git selects in ``private_root`` with ``env``
+    tracks or stages the mirror at its expected path (3b399 round 7): ``rel`` named from
+    ``private_root`` (git's prefix there, then ``rel``), or, when ``private_root`` holds its
+    repository's ``.git`` and git reads it under a prefix, ``rel`` named from the top of the
+    index. Round 7 asked only for the first, so a repository whose ``core.worktree`` names a
+    directory above it read every path under a wrong prefix, found no entry, and with the mirror
+    file deleted was skipped ("OK: 0 added") before :func:`_check_mirror_tracked` could refuse
+    it. Round 8 asked for ``**/<rel>`` at any depth, so a tracked copy elsewhere (the private
+    sibling's archived ``archive/.../.working/changelog-details/CHANGELOG-detailed.md``) made the
+    tracked check refuse every run; a copy at any other path is now ignored (3b399 round 9). The
+    names are read with ``--full-name``. A git failure (no repository, for example) raises
+    ``GitQueryFailed``, and a ``.git`` that cannot be examined raises ``OSError``."""
+    prefix = _git_query(["rev-parse", "--show-prefix"], cwd=private_root,
+                        env=env).decode("utf-8", errors="surrogateescape").rstrip("\n")
+    expected = {prefix + rel}
+    if prefix:
+        try:
+            os.lstat(private_root / ".git")
+        except (FileNotFoundError, NotADirectoryError):
+            pass
+        else:
+            expected.add(rel)
+    names = _git_query(["ls-files", "--full-name", "-z", "--",
+                        *(f":(top,literal){name}" for name in sorted(expected))],
+                       cwd=private_root, env=env).decode("utf-8", errors="surrogateescape")
+    return any(name in expected for name in names.split("\0"))
+
+
+class StoreInaccessible(RuntimeError):
+    """The operational store may exist but this account cannot examine, search or read it; main()
+    prints the message and exits 2 (3b399 round 7)."""
+
+
+class SiblingInaccessible(RuntimeError):
+    """The private sibling ``grc_library_private`` may exist but this account cannot examine,
+    search or read it, or it is not a directory; main() prints the message and exits 2 (3b399
+    round 8)."""
+
+
+def _inaccessible_reason(exc: InaccessiblePath) -> str:
+    """Why a strict lookup refused a path, without claiming it exists (3b399 round 8, N1): only
+    ENOTDIR says what is there; any other error (a parent this account cannot search, for
+    example) leaves the path's existence unknown."""
+    if exc.errno == errno.ENOTDIR:
+        return f"is not a directory, or a path above it is not one ({exc.strerror})"
+    return f"may exist but this account cannot examine it ({exc.strerror})"
+
+
+def _operational_store(root: Path) -> Path | None:
+    """The operational store for ``root`` (``lint_common._store_dir`` in its strict mode), or None
+    when there is none. A store path that may exist but cannot be examined (a parent this account
+    cannot search) or is not a directory, or a store directory this account cannot search or
+    read, raises :class:`StoreInaccessible` (3b399 round 7): the default lookup read such a store
+    as absent, so a staged store-mirror addition passed with "OK: 0 added"."""
+    try:
+        store = _store_dir(root, strict=True)
+    except InaccessiblePath as exc:
+        raise StoreInaccessible(
+            f"the operational store {exc.filename} {_inaccessible_reason(exc)}, so its CHANGELOG "
+            "mirror cannot be checked") from None
+    if store is not None and not os.access(store, os.R_OK | os.X_OK,
+                                           effective_ids=os.access in os.supports_effective_ids):
+        raise StoreInaccessible(
+            f"the operational store {store} exists but this account cannot search or read it, so "
+            "its CHANGELOG mirror cannot be checked")
+    return store
+
+
+def _private_sibling(root: Path) -> Path | None:
+    """The private sibling ``<root's parent>/grc_library_private``, or None when no entry is there
+    (``lint_common._strict_is_dir``, as ``resolve_sibling(strict=True)`` probes it). A sibling
+    path that may exist but cannot be examined (a symbolic link into a directory this account
+    cannot search, for example) or is not a directory, or a sibling directory this account
+    cannot search or read, raises :class:`SiblingInaccessible` (3b399 round 8): round 7's
+    ``Path.is_dir()`` read a sibling linked into a directory this account cannot search as
+    absent on Python 3.14, so a staged sibling-mirror addition passed with "OK: 0 added"."""
+    sibling = root.parent / _SIBLING_REPO_DIRS["private"]
+    try:
+        if not _strict_is_dir(sibling):
+            return None
+    except InaccessiblePath as exc:
+        raise SiblingInaccessible(
+            f"the private sibling {exc.filename} {_inaccessible_reason(exc)}, so its CHANGELOG "
+            "mirror cannot be checked") from None
+    if not os.access(sibling, os.R_OK | os.X_OK,
+                     effective_ids=os.access in os.supports_effective_ids):
+        raise SiblingInaccessible(
+            f"the private sibling {sibling} exists but this account cannot search or read it, so "
+            "its CHANGELOG mirror cannot be checked")
+    return sibling
 
 
 def _added_lines_from_repo(
@@ -757,147 +950,97 @@ def _added_lines_from_repo(
     hook's GIT_INDEX_FILE names the index being committed; a mirror in another repository passes
     :func:`_foreign_repo_env`.
 
-    The flags override each setting known to reshape what the parser below reads (3b141 QA r1):
-    an external diff driver (``diff.external``, ``GIT_EXTERNAL_DIFF``, the ``command`` of a
-    ``diff=<driver>`` attribute), a ``textconv`` filter, a ``-diff`` or ``binary`` attribute (it
-    prints "Binary files ... differ"), colour (``color.diff``, ``color.ui``), and the ``+++ b/``
-    prefix (``diff.noprefix``, ``diff.mnemonicPrefix``, ``diff.dstPrefix``). Each leaves no
-    ``+++ b/`` header or ``+`` line, so the aid reported 0 added lines and passed. They also pin
-    the context (3b236 round 2): ``--inter-hunk-context=0`` (``diff.interHunkContext``),
-    ``-c diff.suppressBlankEmpty=false``, and no ``GIT_DIFF_OPTS`` in git's environment (its
-    ``--unified=<n>`` overrides ``--unified=0``), since a blank context line printed as an empty
-    line ended the round 1 hunk early and dropped every later added line. Not pinned: the source
-    prefix (only the ``---`` line carries it, and the parser skips that line), and
-    ``diff.relative`` (it changes a path, never whether a ``+`` line is read). The list is not
-    a proof that no other setting reshapes the diff; the parser therefore reads each hunk by
-    its header's line counts, and a diff it cannot read exactly raises ``ChangelogDiffUnreadable``
-    (``main()`` exits 2) rather than yielding fewer added lines.
+    The diff is ``changelog_diff.added_line_diff`` (shared with the D3 and D7 delta gates, 3b399),
+    whose docstring lists the settings its flags override: an external diff driver, a
+    ``textconv`` filter, a ``-diff`` attribute, colour and the ``+++ b/`` prefix each left no
+    ``+`` line, so the aid reported 0 added lines and passed (3b141 QA r1). It also pins the
+    context (3b236 round 2), since a blank context line printed as an empty line ended the round
+    1 hunk early and lost the added lines in the rest of that hunk. It also pins the file
+    pairing (3b399 round 3): a new CHANGELOG.md that git paired as a rename or copy of the
+    in-repo detailed mirror showed no added line. git runs in ``repo``, so the pathspecs name
+    files at that root whatever this process's working directory, provided git selects that
+    root as its work tree (:func:`added_lines` checks it for the public repository). The
+    runner also drops the pathspec-reading variables (3b399 round 4). Its parser,
+    ``changelog_diff.parse_added_lines``, reads each hunk by its header's line counts, and a diff it
+    cannot read exactly raises ``ChangelogDiffUnreadable`` (``main()`` exits 2) rather than
+    yielding fewer added lines.
 
     A git failure raises ``CalledProcessError`` carrying git's ``stderr``, and ``main()`` exits 2:
     an unread diff is not zero added lines. This replaces the 3.190 fail-open, which returned []
     for any git failure (a sibling that is not a git repository included), so a failed diff
     printed "OK: 0 added CHANGELOG line(s)" and exited 0."""
-    cmd = ["git", "-c", "diff.suppressBlankEmpty=false", "diff", "--no-ext-diff",
-           "--no-textconv", "--text", "--no-color", "--dst-prefix=b/", "--unified=0",
-           "--inter-hunk-context=0"]
-    if staged:
-        cmd.append("--cached")
-    cmd += ["HEAD", "--", *paths]
-    git_env = {k: v for k, v in (os.environ if env is None else env).items()
-               if k != "GIT_DIFF_OPTS"}
-    proc = subprocess.run(cmd, cwd=str(repo), capture_output=True, env=git_env)
-    if proc.returncode != 0:
-        raise subprocess.CalledProcessError(
-            proc.returncode, cmd, proc.stdout, proc.stderr.decode("utf-8", errors="replace"))
-    return _parse_added_lines(proc.stdout)
+    revs = ["--cached", "HEAD"] if staged else ["HEAD"]
+    return _parse_added_lines(added_line_diff(revs, paths, cwd=repo, env=env))
 
 
-class ChangelogDiffUnreadable(ValueError):
-    """The ``git diff`` output could not be read exactly; main() reports one ERROR line and
-    exits 2."""
-
-
-_HUNK_RE = re.compile(rb"@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@")
-
-
-def _parse_added_lines(diff: bytes) -> list[tuple[str, str]]:
-    """(file, added-line-text) for every added line in ``diff``, the bytes of a ``git diff``.
-
-    Each hunk is read by the old and new line counts in its ``@@ -a,b +c,d @@`` header (an
-    omitted count is 1): a "-" line takes one old line, a "+" line one new line, a " " line or
-    an EMPTY line (a blank context line under ``diff.suppressBlankEmpty``) one of each, and a
-    "\\" line ("No newline at end of file") none. So a "+" line is an added line even when its
-    text starts with "++" (3b236), and a hunk never ends before its counts are used up (3b236
-    round 2). Raises ChangelogDiffUnreadable, never yields fewer added lines, when a hunk
-    line does not fit the counts, the output ends inside a hunk, a hunk adds lines before any
-    ``+++ b/`` header, a "+" line appears outside a hunk, or an added line or a header path is
-    not valid UTF-8."""
-    lines = diff.split(b"\n")
-    # Split on LF only (3b236): a CR, U+2028 or U+0085 inside an added line is part of that
-    # line, so no fragment of it can lose its "+" marker and escape the checks.
-    if lines and lines[-1] == b"":
-        lines.pop()
-    results: list[tuple[str, str]] = []
-    current: str | None = None
-    old_left = new_left = 0
-    for number, line in enumerate(lines, start=1):
-        if old_left or new_left:
-            marker = line[:1]
-            if marker == b"+" and new_left:
-                new_left -= 1
-                try:
-                    text = line[1:].decode("utf-8")
-                except UnicodeDecodeError:
-                    raise ChangelogDiffUnreadable(
-                        f"an added line of {current} (diff line {number}) is not valid "
-                        "UTF-8") from None
-                results.append((current, text))
-            elif marker == b"-" and old_left:
-                old_left -= 1
-            elif marker in (b" ", b"") and old_left and new_left:
-                old_left -= 1
-                new_left -= 1
-            elif marker != b"\\":
-                raise ChangelogDiffUnreadable(
-                    f"diff line {number} does not fit its hunk's line counts")
-            continue
-        if line.startswith(b"@@"):
-            match = _HUNK_RE.match(line)
-            if match is None:
-                raise ChangelogDiffUnreadable(f"diff line {number} is not a hunk header")
-            old_left = 1 if match.group(1) is None else int(match.group(1))
-            new_left = 1 if match.group(2) is None else int(match.group(2))
-            if new_left and current is None:
-                raise ChangelogDiffUnreadable(
-                    f"the hunk at diff line {number} adds lines to no named file")
-        elif line.startswith(b"+++ "):
-            try:
-                header = line.decode("utf-8")
-            except UnicodeDecodeError:
-                raise ChangelogDiffUnreadable(
-                    f"the file header at diff line {number} is not valid UTF-8") from None
-            current = header[len("+++ b/"):] if header.startswith("+++ b/") else None
-        elif line.startswith(b"+"):
-            raise ChangelogDiffUnreadable(f"diff line {number} is an added line outside a hunk")
-    if old_left or new_left:
-        raise ChangelogDiffUnreadable("the diff ends inside a hunk")
-    return results
-
-
-def added_lines(staged: bool, root: Path = REPO_ROOT) -> list[tuple[str, str]]:
+def added_lines(staged: bool, root: Path = REPO_ROOT,
+                diffed: list[tuple[str, Path]] | None = None) -> list[tuple[str, str]]:
     """Added CHANGELOG lines across the public repo AND the (post-move) private
     detailed mirror. The public root CHANGELOG.md (and, pre-move, the in-repo
-    mirror) come from this repo's diff; a mirror in the operational store or private-sibling fallback gets its OWN
+    mirror) come from this repo's diff; a mirror in the operational store or the private sibling gets its OWN
     repository-local ``git diff`` so private additions still receive the dash and
     unlinked-path checks. That diff runs without this repository's local git
     variables (:func:`_foreign_repo_env`), so ``--staged`` reads THAT repository's
     index. The ``staged`` choice is applied separately in each repository,
-    preserving staged-only versus full-working-tree semantics."""
-    public_paths = ["CHANGELOG.md"]
-    if (root / DETAILED_MIRROR_REL).is_file():
-        public_paths.append(DETAILED_MIRROR_REL)
-    results = _added_lines_from_repo(root, tuple(public_paths), staged)
-    mirror = resolve_working(
-        DETAILED_MIRROR_REL[len(".working/"):], repo_root=root
-    )
-    if mirror is None or not mirror.is_file():
+    preserving staged-only versus full-working-tree semantics. The public diff
+    runs only when git selects ``root`` (``changelog_diff.check_git_selects_root``),
+    and the mirror's only when its repository's work tree holds the mirror
+    (:func:`_check_mirror_work_tree`) and that repository tracks the mirror at its
+    expected path (:func:`_check_mirror_tracked`); each diff's paths are first checked
+    for links (:func:`_refuse_linked_paths`). The in-repo mirror is always in the public
+    diff (3b399 round 5): it was added only when ``is_file()`` found it in the work tree,
+    so a staged mirror gitlink or dangling symlink, or a staged mirror whose
+    working-tree file was deleted, passed with "0 added". For the same reason each
+    external mirror is chosen by its repository's index, not by its working-tree file
+    (3b399 round 7): the operational store's mirror (``<store>/changelog-details/...``,
+    found by :func:`_operational_store`) and the private sibling's
+    (``grc_library_private/.working/changelog-details/...``, whenever that directory
+    exists) are EACH diffed when ``git ls-files`` there holds the mirror, or its
+    working-tree file exists. Round 6 diffed the store alone whenever it existed, so a
+    staged sibling-mirror addition was never read once the store's mirror file was
+    gone, and without a store the sibling was found by its working-tree file, so a
+    staged sibling addition whose file was then deleted passed with "0 added".
+
+    3b399 round 8: the sibling is found strictly (:func:`_private_sibling`), as the store
+    is; a ``GitQueryFailed`` in an external repository names that repository's directory;
+    and each external mirror diffed is appended to ``diffed``, when given, as its added
+    lines' file name and its physical file, for ``main()``'s full-mirror link scan. 3b399
+    round 9: the index is asked for the mirror at its expected path only
+    (:func:`_mirror_in_index`), so a tracked copy elsewhere is ignored, and a mirror is
+    appended to ``diffed`` only when its diff added a line."""
+    check_git_selects_root(root, cwd=root)
+    public_paths = ("CHANGELOG.md", DETAILED_MIRROR_REL)
+    _refuse_linked_paths(root, public_paths)
+    results = _added_lines_from_repo(root, public_paths, staged)
+    external = []
+    store = _operational_store(root.resolve())
+    if store is not None:
+        # The operational store (Option C): files live at its root, with no .working/ prefix.
+        external.append((store, DETAILED_MIRROR_REL[len(".working/"):]))
+    sibling = _private_sibling(root.resolve())
+    if sibling is not None:
+        # The private sibling's repository, at its root: the mirror is under its .working/.
+        external.append((sibling, DETAILED_MIRROR_REL))
+    if not external:
         return results
-    try:
-        mirror.relative_to(root.resolve())
-    except ValueError:
-        # The mirror lives outside this repo (the operational store, Option C, or a
-        # private sibling). resolve_working already located it; derive its OWN repo
-        # root from the stripped mirror-relative path's depth (store layout is
-        # changelog-details/<file> -> root is parents[1]) and diff it there with the
-        # stripped rel path, so the store (no .working/ prefix) and any sibling layout
-        # both resolve correctly. Fixes the prior parents[2]+".working/"-rel mismatch
-        # that silently no-op'd the store mirror's added-line checks.
-        stripped_rel = DETAILED_MIRROR_REL[len(".working/"):]
-        private_root = mirror.parents[stripped_rel.count("/")]
-        results.extend(
-            _added_lines_from_repo(private_root, (stripped_rel,), staged,
-                                   env=_foreign_repo_env())
-        )
+    env = _foreign_repo_env()
+    for private_root, rel in external:
+        try:
+            _check_mirror_work_tree(private_root, env)
+            if not (_mirror_in_index(private_root, rel, env)
+                    or os.path.lexists(private_root / rel)):
+                continue
+            _check_mirror_tracked(private_root, rel, env)
+            _refuse_linked_paths(private_root, (rel,), env)
+        except GitQueryFailed as exc:
+            raise GitQueryFailed(f"{exc} (in {private_root})") from None
+        added = _added_lines_from_repo(private_root, (rel,), staged, env=env)
+        results.extend(added)
+        if diffed is not None and added:
+            # 3b399 round 9 (claude W1 3B399-R8-SIBLING-FULLSCAN-STALE): only a mirror whose diff
+            # added a line is scanned in full, so a stale link already committed there does not
+            # refuse a run that adds nothing to it.
+            diffed.append((rel, private_root / rel))
     return results
 
 
@@ -922,8 +1065,9 @@ def main(argv: list[str]) -> int:
     except D7CheckerUnavailable:
         print(_D7_ERROR, file=sys.stderr)
         return 2
+    diffed: list[tuple[str, Path]] = []
     try:
-        lines = added_lines(args.staged)
+        lines = added_lines(args.staged, diffed=diffed)
     except subprocess.CalledProcessError as exc:
         # Fail closed (3b141 QA r1): a failed diff is not zero added lines.
         detail = (exc.stderr or "").strip()
@@ -931,6 +1075,15 @@ def main(argv: list[str]) -> int:
         return 2
     except (OSError, ChangelogDiffUnreadable) as exc:
         print(f"ERROR: the CHANGELOG diff could not be read: {exc}", file=sys.stderr)
+        return 2
+    except (GitQueryFailed, StoreInaccessible, SiblingInaccessible) as exc:
+        # 3b399 round 5 (N3): a rev-parse, ls-files or ls-tree failure is named as such; round 7:
+        # so is a store this account cannot examine, search or read; round 8: and such a sibling.
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    except GitSelectsAnotherTree as exc:
+        print(f"ERROR: {exc}; unset GIT_DIR, GIT_WORK_TREE or core.worktree and rerun.",
+              file=sys.stderr)
         return 2
     try:
         spelling = spelling_findings(lines)
@@ -956,16 +1109,40 @@ def main(argv: list[str]) -> int:
                     (path, f"dangling markdown-link target `{tgt}`", text.strip())
                 )
 
-    # Full-mirror scan (3.34 (closing PR #1084) remaining half): catch a link that went
-    # dangling by a later move of its target, which the added-line pass misses.
-    for lineno, tgt, evidence in unresolved_links_in_mirror():
-        findings.append(
-            (
-                DETAILED_MIRROR_REL[len(".working/"):],
-                f"dangling markdown-link target `{tgt}` (full-mirror scan, line {lineno})",
-                evidence,
+    # 3b399 round 9 (claude N3 3B399-R8-SCAN-TRACEBACK): a mirror the scans below cannot read
+    # (a file this account may not open) or decode is one ERROR line and exit 2, not a traceback.
+    scanning: Path | None = None
+    try:
+        first = resolve_working(DETAILED_MIRROR_REL[len(".working/"):], repo_root=REPO_ROOT)
+        scanning = first
+        # Full-mirror scan (3.34 (closing PR #1084) remaining half): catch a link that went
+        # dangling by a later move of its target, which the added-line pass misses.
+        for lineno, tgt, evidence in unresolved_links_in_mirror():
+            findings.append(
+                (
+                    DETAILED_MIRROR_REL[len(".working/"):],
+                    f"dangling markdown-link target `{tgt}` (full-mirror scan, line {lineno})",
+                    evidence,
+                )
             )
-        )
+        # 3b399 round 8 (codex 3B399-SIBLING-LINK-SKIPPED, claude W2): that scan reads only the
+        # mirror resolve_working finds first, the store's whenever it exists, so a dangling link
+        # added to the private sibling's mirror went unchecked. Every other external mirror whose
+        # diff added a line (round 9) is scanned too, from its own file.
+        for label, mirror in diffed:
+            if mirror == first:
+                continue
+            scanning = mirror
+            for lineno, tgt, evidence in unresolved_links_in_mirror(mirror=mirror):
+                findings.append(
+                    (label,
+                     f"dangling markdown-link target `{tgt}` (full-mirror scan of {mirror}, "
+                     f"line {lineno})",
+                     evidence))
+    except (OSError, UnicodeDecodeError) as exc:
+        print("ERROR: the full-mirror scan could not read the CHANGELOG mirror"
+              + (f" {scanning}" if scanning is not None else "") + f": {exc}", file=sys.stderr)
+        return 2
 
     findings.extend(spelling)
     findings.extend(d7_length_findings(lines))
