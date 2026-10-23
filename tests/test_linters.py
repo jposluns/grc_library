@@ -25238,7 +25238,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F c9596844ccf7a8146a7f1ad08a1d45c8575caae841323c827595f6069c564a86
         aiqt_rules.py NO_FS F d6b9c3d2a5107192024dbe7923ea0642dfb91e519652eb7936acef6e2f646c6b
-        alignment-register-aliases.json DATA F c55a6f1b42df5a6750adf54e027bb5c585f792d3d1c629038601a79d7f80d218
+        alignment-register-aliases.json DATA F d0fe2f032f630bda459726a0699f8c0c1bd461961bf551ad2a253dcfc19437c8
         alignment-register-exclusions.json DATA F ae28ec61a6a973f24a33af86957dff0d1f0d0740dc82b5aec393a5bb882c3df0
         alignment_citation_ids.json DATA F cfa3de2c52597f242d12bfce2d71756e897c173de8df9a1577aed4f42b571d56
         alignment_citation_reference.py PASSIVE F 4d26e0d5906e57bbe205f641575c6589d0afad3f60d8b4995aa07c26caf1db4b
@@ -25347,7 +25347,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-document-control-codes.py OWN F e2c89293d97c7c4e5f6e8d5e4ceda1f2be850718beecf7cd0323b5c6601fe2f9
         lint-document-date-staleness.py CWD F bd94e8055f86c3639fd11eb90712f9e63d353056de3754d2842e5b5908108e1b
         lint-document-iso-annex-a.py OWN F d15f9b9b9e0bad6ff5a943d950b3b58322293939f8ac496fe38d52c4183e64e5
-        lint-external-link-domains.py CWD F 6705c76257afbdf86fffaeac0ed363a391899b9cb932594ea6870dcdcad5df52
+        lint-external-link-domains.py CWD F 0932d94240c796c4eac299851879598463c21be08b11eb65f7eb9c6a2aaa9a97
         lint-external-overlay-license.py NO_FS F 274c40601ab51949646d3c7fdf115e35b9fa47af81646ec83547e352c10f781d
         lint-filename-title-alignment.py ROOT F 053875094e7cc520061a2dd3a0fa226f35c68834942cef0a168bbfdac5f9dcf3
         lint-followup-ageing.py CWD F 09496e12c77b9f28e0440cb50eb71dbaac90b896524196cb9fdd09156cb3c7d0
@@ -28911,7 +28911,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # OWASP MCP Top 10 and the GenAI Red Teaming Guide (no edition). Changing a list
         # changes these counts, so the change is reviewed here.
         expected = {
-            "templates/landing.html": {"match": 40, "no edition": 20},
+            "templates/landing.html": {"match": 43, "no edition": 20},
             "templates-v2/coverage.html": {"match": 43, "no edition": 17},
             "templates/for-ai.html": {"match": 2, "no edition": 2},
             "templates-v2/for-ai.html": {"match": 2, "no edition": 2},
@@ -28930,7 +28930,9 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                         (m.start() for m in re.finditer(r'<li><span class="id">', text))}
             read = {e.line for e in entries if e.source == f".web/{rel}"}
             self.assertEqual(id_lines - read, set(), rel)
-            self.assertEqual(len(id_lines), 58 if kind == "biblio" else 0, rel)
+            # 2.25.2 adds three AI-governance items to the landing list only.
+            self.assertEqual(len(id_lines), (61 if rel == "templates/landing.html" else 58) if kind == "biblio"
+                             else 0, rel)
 
     def _biblio_hits(self, old, new):
         return self.mod.stale_standard_editions(self._landing_with(old, new))
@@ -29782,7 +29784,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     def test_current_entries_keep_their_outcomes(self):
         from collections import Counter
         entries = self.mod.standard_edition_entries()
-        self.assertEqual(Counter(e.status for e in entries), Counter({"match": 89, "no edition": 43}))
+        self.assertEqual(Counter(e.status for e in entries), Counter({"match": 92, "no edition": 43}))
         self.assertEqual(self.mod.stale_standard_editions(), [])
 
     def test_unreadable_listed_text_fails(self):
@@ -30265,12 +30267,12 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                 used[branch].add(between)
             for _, name, _, problem in self.mod._hand_written_entries(rel, "for-ai", text):
                 self.assertEqual(problem, "", (rel, name))
-        self.assertEqual(items, 105)
+        self.assertEqual(items, 114)
         for branch, accepted in forms.items():
             self.assertEqual(used[branch], accepted - {""}, branch)
         self.assertEqual({branch: len(used[branch]) for branch in forms},
-                         {"OWASP": 1, self.mod.FOR_AI_EU_AI_ACT_ID: 1, "": 30})
-        self.assertEqual(len(set().union(*used.values())), 31)
+                         {"OWASP": 1, self.mod.FOR_AI_EU_AI_ACT_ID: 1, "": 33})
+        self.assertEqual(len(set().union(*used.values())), 34)
 
     def test_date_topic_is_a_calendar_date_in_any_ascii_case(self):
         # VPR3B393-R4 item 3: the same-year rule reads a calendar date, and date
@@ -30389,7 +30391,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         statuses = {}
         for e in self.mod.standard_edition_entries():
             statuses[e.status] = statuses.get(e.status, 0) + 1
-        self.assertEqual(statuses, {"match": 89, "no edition": 43})
+        self.assertEqual(statuses, {"match": 92, "no edition": 43})
 
     def test_for_ai_ext_span_text_is_inter_span_text(self):
         # VPR3B393-R5 item 2: only the exact external-link marker is dropped; any other
@@ -30524,7 +30526,8 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                 for row in rows:
                     used.setdefault(row, set()).add(self.mod._plain(desc["desc"]))
         self.assertEqual(used, {row: set(texts) for row, texts in self.mod.FOR_AI_DESCRIPTIONS.items()})
-        self.assertEqual((items, len(used), sum(len(t) for t in used.values())), (93, 37, 37))
+        # 2.25.2 adds the UNESCO, G7 and Council of Europe items (three per page, three rows).
+        self.assertEqual((items, len(used), sum(len(t) for t in used.values())), (102, 40, 40))
         self.assertEqual(len(set().union(*used.values())), 27)
         self.assertTrue(set(used) <= set(ids.values()))
         self.assertEqual(unchecked, {"NIST AI 100-2e2025": 3, "NIST AI 100-4": 3, "Model Cards": 3,
@@ -30613,7 +30616,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         })
         forms = self.mod.FOR_AI_INTER_SPAN_FORMS
         self.assertEqual({branch: len(accepted) for branch, accepted in forms.items()},
-                         {"OWASP": 2, self.mod.FOR_AI_EU_AI_ACT_ID: 2, "": 31})
+                         {"OWASP": 2, self.mod.FOR_AI_EU_AI_ACT_ID: 2, "": 34})
         self.assertNotIn("and NIST SP 800-53.", forms[""])
         self.assertIn("and NIST SP 800-53 Rev. 5.", forms[""])
         self.assertEqual(len(self.mod.TOPIC_WORDS), 94)
@@ -30632,7 +30635,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                 self.assertIn(f"list item for the register row {row!r} cannot be parsed: its description "
                               f"{old!r}", hits[0])
         statuses = Counter(e.status for e in self.mod.standard_edition_entries())
-        self.assertEqual(statuses, Counter({"match": 89, "no edition": 43}))
+        self.assertEqual(statuses, Counter({"match": 92, "no edition": 43}))
 
     def _for_ai_item(self, rel, old_name, new_name, desc=None):
         text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
@@ -31032,8 +31035,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                 ("Canada", "Canada (federal)", ["Canada (federal)"]),
                 ("United Kingdom", "UK", ["UK"]),
                 ("Australia", "Commonwealth of Australia", ["Commonwealth of Australia"]),
-                ("OECD Recommendation on AI", "OECD Recommendation on Artificial Intelligence",
-                 ["OECD Recommendation on Artificial Intelligence"]),
+                ("OECD Recommendation on AI", "OECD AI Recommendation", ["OECD AI Recommendation"]),
                 # A near-miss of an enumerated name.
                 ("Model Cards", "Model Card", ["Model Card"]),
                 ("Model Cards", "model cards", ["model cards"]),
@@ -31139,7 +31141,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # after a name enumerated there fails, as a label's already did.
         texts_by_name = self.mod.FOR_AI_NAME_TEXTS
         labels = self.mod.FOR_AI_LABEL_INSTRUMENTS
-        self.assertEqual(len(texts_by_name), 19)
+        self.assertEqual(len(texts_by_name), 22)
         self.assertFalse(set(texts_by_name) & set(labels))
         self.assertEqual(self.mod.FOR_AI_ITEM_TEXTS, {**labels, **texts_by_name})
         d15, resolver = self.mod._load_edition_resolver()
