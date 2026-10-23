@@ -2,8 +2,8 @@
 
 **Document Title:** Key Escrow and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.0\
-**Date:** 2026-10-15\
+**Version:** 1.3.1\
+**Date:** 2026-10-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-endpoint-hardening.md`](standard-endpoint-hardening.md), [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md)\
@@ -80,10 +80,10 @@ The category determines the escrow design, the recovery authority, and the audit
 | Trigger | Permitted categories | Authority |
 | --- | --- | --- |
 | User locked out of their own encrypted device | Category 1 | IT service desk per the documented self-service workflow |
-| Departed employee's encrypted device requires recovery of business-critical data | Category 1 | HR and IT Operations joint approval; legal counsel notified |
-| Investigation requires access to a specific user's encrypted material under documented lawful basis | Category 1 | Legal Counsel approval; Data Protection Officer notified; investigation per the security incident response procedure |
-| Service-account secret loss preventing automated workflow | Category 2 | Service owner approval; secret rotated rather than recovered where rotation is feasible |
-| Material customer-impacting outage where a known secret is the blocker | Category 2 | Incident Coordinator approval as part of the IR procedure |
+| Departed employee's encrypted device requires recovery of business-critical data | Category 1 | Request by HR or IT Operations; CISO or delegate approval; Legal Counsel notified |
+| Investigation requires access to a specific user's encrypted material under documented lawful basis | Category 1 | Legal Counsel approval; Data Protection Officer approval; investigation per the security incident response procedure |
+| Service-account secret loss preventing automated workflow | Category 2 | Request by the service owner; security operations lead approval; secret rotated rather than recovered where rotation is feasible |
+| Material customer-impacting outage where a known secret is the blocker | Category 2 | Request by the incident responder performing the recovery; approval by the Incident Commander or, for security P3 and P4 where no Incident Commander is assigned, the SOC lead, or, for security P1 and P2 before an Incident Commander is assigned, the interim technical authority (Security Incident Response Procedure §2.2), as part of the IR procedure; the approver must not be the same person as the requester; an Incident Coordinator, where appointed, coordinates only and does not approve the recovery |
 | Production payment-related key requires recovery (lost or corrupted) | Category 3 | Joint approval by CISO and CIO and Finance; PCI DSS implications reviewed |
 | CA root or code-signing root recovery | Category 3 | Joint approval by CISO and CIO; documented ceremony |
 | Disaster recovery testing | Categories 1, 2, and 3 | Per the resilience testing schedule; non-production keys preferred where possible |
@@ -100,8 +100,8 @@ Recovery is the exception; rotation is the default. Where rotation is feasible w
 | Category 1 departed-employee recovery | Two roles: requester (HR or IT Operations) and approver (CISO or delegate); logged action |
 | Category 1 investigation recovery | Three approvals: requester (investigator), Legal Counsel, Data Protection Officer; logged action |
 | Category 2 routine | Two roles: requester (service owner) and approver (security operations lead); logged action |
-| Category 2 incident | Documented within the incident timeline; Incident Coordinator authority |
-| Category 3 | Documented ceremony with at minimum three custodians and one independent observer; recorded and retained per the cryptographic policy |
+| Category 2 incident | Documented within the incident timeline; two roles: the incident responder performing the recovery as requester, and as approver the Incident Commander or, for security P3 and P4 where no Incident Commander is assigned, the SOC lead, or, for security P1 and P2 before an Incident Commander is assigned, the interim technical authority (Security Incident Response Procedure §2.2); the approver must not be the same person as the requester; logged action; an Incident Coordinator, where appointed, coordinates only and does not approve the recovery |
+| Category 3 | Joint approval by CISO and CIO, with Finance also approving a production payment-related key; documented ceremony with at minimum three custodians and one independent observer; recorded and retained per the cryptographic policy |
 
 No single role can complete a Category 2 or Category 3 recovery without separation of duties.
 
