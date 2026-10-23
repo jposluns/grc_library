@@ -712,7 +712,7 @@ without the private reference sibling).
 | Chile Ley 21.719, proteccion de datos personales y crea la Agencia (2024, deferred to 2026-12) |  | Chile |  | FREE |
 | China CAC Provisions on Promoting and Regulating Cross-Border Data Flows (CAC Order No. 16, 22 March 2024), Chinese original | CAC Order No. 16, published and effective 22 March 2024 | China |  | FREE |
 | China Data Security Law (2021), English translation (UNOFFICIAL) |  | China |  | FREE |
-| China Personal Information Protection Law (PIPL, 2021) | PIPL (adopted 20 Aug 2021, effective 1 Nov 2021) | China |  | FREE |
+| China Personal Information Protection Law (PIPL, 2021), Chinese text (UNOFFICIAL, Wikisource transcription) | PIPL (adopted 20 Aug 2021, effective 1 Nov 2021) | China |  | FREE |
 | China Personal Information Protection Law (PIPL, 2021), English translation (UNOFFICIAL) |  | China |  | FREE |
 | CISA BOD 26-04: Prioritizing Security Updates Based on Risk | BOD 26-04; issued June 10, 2026 | US | https://www.cisa.gov/news-events/directives/bod-26-04-prioritizing-security-updates-based-risk | FREE |
 | CJEU Case C-311/18, Data Protection Commissioner v Facebook Ireland and Schrems (Schrems II), judgment of 16 July 2020 |  | EU |  | FREE |
