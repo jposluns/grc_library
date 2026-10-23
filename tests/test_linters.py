@@ -27737,8 +27737,12 @@ class QuickGuardSeparatorTests(LinterTestCase):
 
     def test_dash_named_file_is_a_path_after_the_separator(self) -> None:
         # quick-guard's CHANGED paths are repo-relative, so only a ROOT-level file's argument begins
-        # with '-'; create one briefly (removed in cleanup).
-        dash = REPO_ROOT / "-qg-dash-3b50b2c.md"
+        # with '-'; create one briefly (removed in cleanup). The tools resolve a relative argument
+        # against the REPO_ROOT computed from their own __file__ (guard_explicit_paths, never the
+        # subprocess working directory), so a private root cannot be substituted here: the probe
+        # must live at the real repository root. A unique per-run basename (still leading '-')
+        # keeps concurrent runs from colliding on a fixed name.
+        dash = REPO_ROOT / f"-qg-dash-3b50b2c-{os.urandom(8).hex()}.md"
         dash.write_text("# Title\n\nPlain text.\n", encoding="utf-8")
         self.addCleanup(dash.unlink, missing_ok=True)
         rel = dash.name
@@ -44148,83 +44152,142 @@ class NarrativeScanScopeTests(LinterTestCase):
         self.assertTrue(any(p.relative_to(REPO_ROOT).parts[0] == "executive"
                             for p in files))
 
+    def _probe_root(self, prefix, files):
+        """A PRIVATE repository-shaped root holding ``files`` (relative path
+        to content), built under the self-cleaning ``_fixture_base`` dir so
+        no behavioural probe is ever written into the shared repository tree
+        (a concurrent repository scan used to see the fixed-name probes,
+        including the deliberately planted credential)."""
+        root = self._fixture_base(prefix)
+        for rel, content in files.items():
+            path = root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+        return root
+
+    def _run_gate_at_root(self, module, root, *paths):
+        """Run a loaded gate wrapper's ``main`` in process against a private
+        repository root: every root global the gate reads is pointed at
+        ``root`` and restored on exit (the wrapper's own ``REPO_ROOT`` and
+        ``DEFAULT_PATHS`` copies, and ``lint_common.REPO_ROOT``, which the
+        shared ``is_narrative_root`` / ``is_target`` / path-guard helpers
+        read at call time; the pack engines take ``repo_root`` as a call
+        parameter from the wrapper, so they need no patch). Returns a
+        CompletedProcess so assertions keep the ``run_linter`` result shape."""
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest.mock import patch
+
+        import lint_common
+
+        argv = [module.__file__, *map(str, paths)]
+        out, err = io.StringIO(), io.StringIO()
+        with patch.object(module, "REPO_ROOT", root), \
+                patch.object(module, "DEFAULT_PATHS", [str(root)]), \
+                patch.object(lint_common, "REPO_ROOT", root), \
+                redirect_stdout(out), redirect_stderr(err):
+            try:
+                code = module.main(argv)
+            except SystemExit as exc:
+                code = exc.code if isinstance(exc.code, int) else 1
+        return subprocess.CompletedProcess(argv, code, out.getvalue(), err.getvalue())
+
+    VIOLATION = (
+        "# Probe\n\n**Document Type:** Standard\\\n**Version:** 0.0.1\n\n"
+        "Body with none of the required sections.\n"
+    )
+
     def test_excluded_gate_behavioural_with_positive_control(self):
         """Behavioural both-ways WITH a positive control, so a gate that always
         returns 0 cannot pass: the SAME violating file flagged when passed at a
-        non-excluded path, and NOT flagged under executive/."""
-        violation = (
-            "# Probe\n\n**Document Type:** Standard\\\n**Version:** 0.0.1\n\n"
-            "Body with none of the required sections.\n"
+        non-excluded path, and NOT flagged under executive/. Runs against a
+        private repository root so no probe touches the shared tree."""
+        root = self._probe_root("narrative-scope-root-", {
+            "tests/tmp/narrative-positive-control.md": self.VIOLATION,
+            "executive/tmp-scan-scope-probe.md": self.VIOLATION,
+            "governance/executive/tmp-nested-scope-probe.md": self.VIOLATION,
+        })
+        gate = self._import_gate("lint-required-sections.py")
+        # positive control: gate DOES flag the violation at a non-excluded path
+        pos_result = self._run_gate_at_root(
+            gate, root, root / "tests" / "tmp" / "narrative-positive-control.md")
+        self.assertNotEqual(
+            pos_result.returncode,
+            0,
+            "positive control failed: the gate did not flag a real violation "
+            "at a non-excluded path (an always-pass gate would look 'excluded')",
         )
-        pos_dir = REPO_ROOT / "tests" / "tmp"
-        pos_dir.mkdir(parents=True, exist_ok=True)
-        pos = pos_dir / "narrative-positive-control.md"
-        exc = REPO_ROOT / "executive" / "tmp-scan-scope-probe.md"
-        pos.write_text(violation, encoding="utf-8")
-        exc.write_text(violation, encoding="utf-8")
-        try:
-            # positive control: gate DOES flag the violation at a non-excluded path
-            pos_result = run_linter("tools/lint-required-sections.py", pos)
-            self.assertNotEqual(
-                pos_result.returncode,
-                0,
-                "positive control failed: the gate did not flag a real violation "
-                "at a non-excluded path (an always-pass gate would look 'excluded')",
-            )
-            self.assertIn("narrative-positive-control", pos_result.stdout)
-            # exclusion: the SAME violation under executive/ is NOT flagged even
-            # when its path is passed explicitly (dir-based exemption); and it is
-            # skipped on a default whole-repo run too.
-            exc_result = run_linter("tools/lint-required-sections.py", exc)
-            self.assertEqual(
-                exc_result.returncode,
-                0,
-                "excluded gate flagged an explicit executive/ path:\n" + exc_result.stdout,
-            )
-            default_result = run_linter("tools/lint-required-sections.py")
-            self.assertNotIn("tmp-scan-scope-probe", default_result.stdout)
-            # anchoring positive control: a NESTED dir merely named executive/ is
-            # still scanned (a regression to the unanchored component match fails).
-            nested_dir = REPO_ROOT / "governance" / "executive"
-            nested_dir.mkdir(parents=True, exist_ok=True)
-            nested = nested_dir / "tmp-nested-scope-probe.md"
-            nested.write_text(violation, encoding="utf-8")
-            try:
-                nested_result = run_linter("tools/lint-required-sections.py", nested)
-                self.assertNotEqual(
-                    nested_result.returncode,
-                    0,
-                    "nested governance/executive/ was wrongly excluded (unanchored bug)",
-                )
-                self.assertIn("tmp-nested-scope-probe", nested_result.stdout)
-            finally:
-                nested.unlink()
-                try:
-                    nested_dir.rmdir()
-                except OSError:
-                    pass
-        finally:
-            pos.unlink()
-            exc.unlink()
+        self.assertIn("narrative-positive-control", pos_result.stdout)
+        # exclusion: the SAME violation under executive/ is NOT flagged even
+        # when its path is passed explicitly (dir-based exemption); and it is
+        # skipped on a default whole-root run too.
+        exc_result = self._run_gate_at_root(
+            gate, root, root / "executive" / "tmp-scan-scope-probe.md")
+        self.assertEqual(
+            exc_result.returncode,
+            0,
+            "excluded gate flagged an explicit executive/ path:\n" + exc_result.stdout,
+        )
+        default_result = self._run_gate_at_root(gate, root)
+        self.assertNotIn("tmp-scan-scope-probe", default_result.stdout)
+        # anchoring positive control: a NESTED dir merely named executive/ is
+        # still scanned (a regression to the unanchored component match fails),
+        # both as an explicit path and on the default whole-root run.
+        self.assertIn("tmp-nested-scope-probe", default_result.stdout)
+        nested_result = self._run_gate_at_root(
+            gate, root, root / "governance" / "executive" / "tmp-nested-scope-probe.md")
+        self.assertNotEqual(
+            nested_result.returncode,
+            0,
+            "nested governance/executive/ was wrongly excluded (unanchored bug)",
+        )
+        self.assertIn("tmp-nested-scope-probe", nested_result.stdout)
 
     def test_safety_gate_catches_executive_by_default(self):
         """Inclusion direction: a planted credential under executive/ MUST fail
-        the secrets gate on a default-scope run."""
-        probe = REPO_ROOT / "executive" / "tmp-secret-probe.md"
-        probe.write_text(
-            "# Probe\n\nExample key: AKIAIOSFODNN7EXAMPLE.\n",
-            encoding="utf-8",
+        the secrets gate on a default-scope run. The credential is planted in a
+        private repository root, never in the shared tree, so a concurrent
+        repository scan can never see it."""
+        root = self._probe_root("narrative-secret-root-", {
+            "executive/tmp-secret-probe.md":
+                "# Probe\n\nExample key: AKIAIOSFODNN7EXAMPLE.\n",
+        })
+        gate = self._import_gate("lint-secrets-in-content.py")
+        result = self._run_gate_at_root(gate, root)
+        self.assertNotEqual(
+            result.returncode,
+            0,
+            "secrets gate did NOT catch a planted credential under executive/",
         )
-        try:
-            result = run_linter("tools/lint-secrets-in-content.py")
-            self.assertNotEqual(
-                result.returncode,
-                0,
-                "secrets gate did NOT catch a planted credential under executive/",
-            )
-            self.assertIn("tmp-secret-probe", result.stdout + result.stderr)
-        finally:
-            probe.unlink()
+        self.assertIn("tmp-secret-probe", result.stdout + result.stderr)
+
+    def test_probe_roots_are_isolated(self):
+        """Two probes run with DISTINCT private roots do not see each other's
+        files: the credential planted in one root is invisible to a
+        default-scope run against the other. The former fixed-name probes
+        under the shared repository root exposed the planted secret to every
+        concurrent scan; private roots remove that interference channel."""
+        secret_root = self._probe_root("narrative-isolation-secret-", {
+            "executive/tmp-secret-probe.md":
+                "# Probe\n\nExample key: AKIAIOSFODNN7EXAMPLE.\n",
+        })
+        clean_root = self._probe_root("narrative-isolation-clean-", {
+            "executive/tmp-clean-probe.md": "# Probe\n\nNo credential here.\n",
+        })
+        gate = self._import_gate("lint-secrets-in-content.py")
+        planted = self._run_gate_at_root(gate, secret_root)
+        self.assertNotEqual(
+            planted.returncode,
+            0,
+            "the planted credential was not seen in its OWN root (vacuous isolation)",
+        )
+        self.assertIn("tmp-secret-probe", planted.stdout + planted.stderr)
+        other = self._run_gate_at_root(gate, clean_root)
+        self.assertEqual(
+            other.returncode,
+            0,
+            "a clean root saw another probe root's files:\n" + other.stdout + other.stderr,
+        )
+        self.assertNotIn("tmp-secret-probe", other.stdout + other.stderr)
 
 
 class IndexHeaderParityTests(LinterTestCase):
