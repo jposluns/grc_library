@@ -51,7 +51,8 @@ Reference defaults ship under `defaults/grc/` and are overridable by an adopter.
 The reference-dependent semantic audits (matrix-fit, claim-fit, reference-audit,
 publication-screening) are OPTIONAL add-ons that require an adopter to supply a reference base; they
 are listed in the manifest as available but disabled in the skeleton. The `[addons]` register is
-adopter availability only (no pack or project tooling acts on it; only the pack activation test asserts its contents); listing publication-screening there
+adopter availability only (no pack or project tooling acts on it; only the pack activation
+test asserts its contents); listing publication-screening there
 does not relax the parent project's own publication screening (`/screen-publications` in its
 CLAUDE.md), which stays required unconditionally.
 
