@@ -43794,9 +43794,10 @@ class CorpusManagementCompilerTests(LinterTestCase):
         )
         td = root / ".corpus-management" / "core" / "rules"
         td.mkdir(parents=True, exist_ok=True)
-        outside = root.parent / "cm-symlink-secret.md"
+        # Own mkdtemp dir beside the root, not a fixed name in the shared
+        # system temp dir; cleanup is registered before the write (P-1.86).
+        outside = self._fixture_base("cm-symlink-secret-") / "cm-symlink-secret.md"
         outside.write_text("secret\n", encoding="utf-8")
-        self.addCleanup(outside.unlink, True)
         os.symlink(outside, td / "leak.md")
         result = self._run(root, "--check")
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
@@ -43933,9 +43934,12 @@ class CorpusManagementCompilerTests(LinterTestCase):
         )
         self.assertEqual(self._run(root).returncode, 0)
         child = root / "generated" / "rules" / "a.md"
-        outside = root.parent / "cm-child-escape.md"
+        # Own mkdtemp dir beside the root, never a fixed name in the shared
+        # system temp dir, so two concurrent runs cannot overwrite or delete
+        # each other's escape target; _fixture_base registers cleanup before
+        # the write (P-1.86).
+        outside = self._fixture_base("cm-child-escape-") / "cm-child-escape.md"
         outside.write_bytes(child.read_bytes())
-        self.addCleanup(outside.unlink, True)
         child.unlink()
         os.symlink(outside, child)
         result = self._run(root, "--check")
