@@ -28741,6 +28741,16 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         self.assertIn(old, text)
         return {self.LANDING: text.replace(old, new)}
 
+    def _id_span(self, name, written=None):
+        # 2.25.2 links each landing-page name to its source: the "id" span holds a link
+        # whose text is the name and the external-link marker. The span of ``name``, with
+        # ``written`` as the link's name when given (the link itself unchanged).
+        text = (REPO_ROOT / ".web" / self.LANDING).read_text(encoding="utf-8")
+        marker = self.mod.EXT_LINK_MARKER
+        found = re.findall(r'(<span class="id"><a\b[^>]*>)' + re.escape(name + marker) + "</a></span>", text)
+        self.assertEqual(len(found), 1, name)
+        return f"{found[0]}{name if written is None else written}{marker}</a></span>"
+
     def _entry(self, entries, source, name):
         found = [e for e in entries if e.source == f".web/{source}" and e.name == name]
         self.assertEqual(len(found), 1, f"{name!r} not read once from {source}")
@@ -28789,7 +28799,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     def test_unresolved_name_with_an_edition_fails(self):
         hits = self.mod.stale_standard_editions(self._landing_with(
-            '<span class="id">Basel III</span>', '<span class="id">Basel IV 2023</span>'
+            self._id_span("Basel III"), self._id_span("Basel III", "Basel IV 2023")
         ))
         self.assertEqual(len(hits), 1, hits)
         self.assertIn("'Basel IV 2023' carries edition '2023' but names no register row", hits[0])
@@ -29333,8 +29343,8 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     def test_changed_biblio_markup_fails_instead_of_dropping_the_entry(self):
         hits = self.mod.stale_standard_editions(self._landing_with(
-            '<li><span class="id">OWASP SAMM 2.2.0</span>',
-            '<li><span class="id standard">OWASP SAMM 2.0</span>',
+            "<li>" + self._id_span("OWASP SAMM 2.2.0"),
+            "<li>" + self._id_span("OWASP SAMM 2.2.0", "OWASP SAMM 2.0").replace('"id"', '"id standard"', 1),
         ))
         self.assertEqual(len(hits), 1, hits)
         self.assertIn(".web/templates/landing.html:", hits[0])
@@ -29397,8 +29407,8 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     def test_unresolved_name_with_an_eu_instrument_number_fails(self):
         hits = self.mod.stale_standard_editions(self._landing_with(
-            '<span class="id">EU NIS2</span><span class="topic">Directive (EU) 2022/2555</span>',
-            '<span class="id">EU NIS Two</span><span class="topic">Directive (EU) 2016/1148</span>',
+            self._id_span("EU NIS2") + '<span class="topic">Directive (EU) 2022/2555</span>',
+            self._id_span("EU NIS2", "EU NIS Two") + '<span class="topic">Directive (EU) 2016/1148</span>',
         ))
         self.assertEqual(len(hits), 1, hits)
         self.assertIn("'EU NIS Two' carries edition 'Directive (EU) 2016/1148' but names no register row", hits[0])
@@ -29569,9 +29579,10 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             self.assertIn("is not among the entries the edition check read", hits[0])
         # Inside a column, an item in other case or with an unquoted class is read and,
         # not being in the strict item shape, fails as unparsed.
+        samm = self._id_span("OWASP SAMM 2.2.0")
         for old, new in (
-            ('<li><span class="id">OWASP SAMM 2.2.0</span>', '<LI><span class="id">OWASP SAMM 2.2.0</span>'),
-            ('<li><span class="id">OWASP SAMM 2.2.0</span>', '<li><span class=id>OWASP SAMM 2.2.0</span>'),
+            ("<li>" + samm, "<LI>" + samm),
+            ("<li>" + samm, "<li>" + samm.replace('class="id"', "class=id", 1)),
         ):
             hits = self._biblio_hits(old, new)
             self.assertEqual(len(hits), 1, (new, hits))
@@ -29666,8 +29677,8 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                 self.assertIsNone(self.mod.instrument_edition(listed, row), listed)
                 self.assertFalse(match(listed, current, row), listed)
                 hits = self.mod.stale_standard_editions(self._landing_with(
-                    f'<span class="id">{name}</span><span class="topic">{topic}</span>',
-                    f'<span class="id">{name}</span><span class="topic">{listed}</span>',
+                    f'{self._id_span(name)}<span class="topic">{topic}</span>',
+                    f'{self._id_span(name)}<span class="topic">{listed}</span>',
                 ))
                 self.assertEqual(len(hits), 1, (listed, hits))
                 self.assertIn(f"{name!r} lists edition {listed!r}", hits[0])
@@ -29814,10 +29825,10 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # that resolves to a register row fails instead of counting as "no edition".
         unreadable = "is not that name with an edition the check reads"
         for old, new, row in (
-            ('<span class="id">OWASP Top 10 (2025)</span>',
-             '<span class="id">OWASP Top 10 (2025) (repealed)</span>', "OWASP Top 10"),
-            ('<span class="id">EU GDPR</span>',
-             '<span class="id">General Data Protection Regulation (repealed)</span>', "EU GDPR"),
+            (self._id_span("OWASP Top 10 (2025)"),
+             self._id_span("OWASP Top 10 (2025)", "OWASP Top 10 (2025) (repealed)"), "OWASP Top 10"),
+            (self._id_span("EU GDPR"),
+             self._id_span("EU GDPR", "General Data Protection Regulation (repealed)"), "EU GDPR"),
             ('<span class="topic">Regulation (EU) 2016/679</span>',
              '<span class="topic">General Data Protection Regulation (repealed)</span>', "EU GDPR"),
             ('<span class="topic">Regulation (EU) 2016/679</span>',
@@ -29879,8 +29890,10 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         hits = self._with_register("| EU GDPR | Regulation 2016/679 |", "| EU GDPR | Directive 2016/679 |")
         self.assertEqual(len(hits), 2, hits)
 
-    STRIDE_ID = '<span class="id">STRIDE</span>'
     UNREADABLE = "is not that name with an edition the check reads"
+
+    def _stride_as(self, name):
+        return self._landing_with(self._id_span("STRIDE"), self._id_span("STRIDE", name))
 
     def test_row_name_ending_in_a_parenthesis_with_unreadable_text_fails(self):
         # VPR3B393-R1 item 1: a register ID ending in ")" is tried as a leading part.
@@ -29892,14 +29905,13 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             ("WP243 (Article 29 Working Party Guidelines on Data Protection Officers) (withdrawn)",
              "WP243 (Article 29 Working Party Guidelines on Data Protection Officers)"),
         ):
-            hits = self.mod.stale_standard_editions(
-                self._landing_with(self.STRIDE_ID, f'<span class="id">{name}</span>'))
+            hits = self.mod.stale_standard_editions(self._stride_as(name))
             self.assertEqual(len(hits), 1, (name, hits))
             self.assertIn(f"{name!r} names the register row {row!r}", hits[0])
             self.assertIn(self.UNREADABLE, hits[0])
         # The name alone still names no edition.
         name = "ICAO Annex 17 (Chicago Convention)"
-        texts = self._landing_with(self.STRIDE_ID, f'<span class="id">{name}</span>')
+        texts = self._stride_as(name)
         self.assertEqual(self.mod.stale_standard_editions(texts), [])
         self.assertEqual(self._entry(self.mod.standard_edition_entries(texts), self.LANDING, name).status,
                          "no edition")
@@ -29912,7 +29924,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     def test_compound_name_topic_is_validated(self):
         # VPR3B393-R1 item 2: a compound name's topic that is or holds an edition fails.
-        old = '<span class="id">EU GDPR</span><span class="topic">Regulation (EU) 2016/679</span>'
+        old = self._id_span("EU GDPR") + '<span class="topic">Regulation (EU) 2016/679</span>'
         for topic in (
             "Regulation (EU) 2016" + chr(0x2215) + "679 (repealed)",
             "Regulation (EU) 2016/679 (repealed)",
@@ -29920,7 +29932,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             "2018",
         ):
             hits = self.mod.stale_standard_editions(self._landing_with(
-                old, f'<span class="id">EU GDPR / EU NIS2</span><span class="topic">{topic}</span>'))
+                old, f'{self._id_span("EU GDPR", "EU GDPR / EU NIS2")}<span class="topic">{topic}</span>'))
             self.assertEqual(len(hits), 2, (topic, hits))
             for hit, row in zip(hits, ("EU GDPR", "EU NIS 2 Directive")):
                 self.assertIn(f"names the register row {row!r} but its listed text {topic!r}", hit)
@@ -29942,14 +29954,13 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             ("FooStandard v3 draft", "v3"),
             ("FooStandard Rev. 4 (superseded)", "Rev. 4"),
         ):
-            hits = self.mod.stale_standard_editions(
-                self._landing_with(self.STRIDE_ID, f'<span class="id">{name}</span>'))
+            hits = self.mod.stale_standard_editions(self._stride_as(name))
             self.assertEqual(len(hits), 1, (name, hits))
             self.assertIn(f"{name!r} carries edition {edition!r} but names no register row", hits[0])
         # Numbers that are part of a name are no edition; a name holding none that is not
         # enumerated in UNRESOLVED_LIST_NAMES fails as unresolved (VPR3B393-R5 item 4).
         for name in ("IEC 62443", "FooStandard 62443 (series)", "Foo 800-53 (draft)", "Foo 12025"):
-            texts = self._landing_with(self.STRIDE_ID, f'<span class="id">{name}</span>')
+            texts = self._stride_as(name)
             hits = self.mod.stale_standard_editions(texts)
             found = [e for e in self.mod.standard_edition_entries(texts) if e.name == name]
             self.assertTrue(found, name)
@@ -29962,12 +29973,10 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                 self.assertIn(f"{name!r} names no register row and is not among the names enumerated", hits[0])
                 self.assertTrue(all(e.status == "unresolved" for e in found), found)
 
-    OWASP_TOP_10_ITEM = ('<span class="id">OWASP Top 10 (2025)</span>'
-                         '<span class="topic">Web application risks</span>')
-
     def _owasp_top_10_as(self, name, topic):
-        return self._landing_with(self.OWASP_TOP_10_ITEM,
-                                  f'<span class="id">{name}</span><span class="topic">{topic}</span>')
+        old = self._id_span("OWASP Top 10 (2025)") + '<span class="topic">Web application risks</span>'
+        return self._landing_with(old, self._id_span("OWASP Top 10 (2025)", name)
+                                  + f'<span class="topic">{topic}</span>')
 
     def test_topic_of_a_name_resolved_by_its_trailing_edition_is_validated(self):
         # VPR3B393-R2 item 1: once a trailing edition is split off, the topic is checked.
@@ -30030,25 +30039,23 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         for name in (f"OWASP Top Ten ({fullwidth}) (repealed)", f"FooStandard {arabic_indic} (withdrawn)",
                      f"FooStandard {chr(0x0662)}.{chr(0x0660)} (withdrawn)", f"FooStandard {fullwidth}",
                      "FooStandard " + chr(0x2167)):
-            hits = self.mod.stale_standard_editions(
-                self._landing_with(self.STRIDE_ID, f'<span class="id">{name}</span>'))
+            hits = self.mod.stale_standard_editions(self._stride_as(name))
             self.assertEqual(len(hits), 1, (ascii(name), hits))
             self.assertIn(f"{name!r} names no register row and holds a numeric character outside ASCII",
                           hits[0])
         # A leading part that resolves still names its row.
         name = f"OWASP Top 10 ({fullwidth})"
-        hits = self.mod.stale_standard_editions(
-            self._landing_with(self.STRIDE_ID, f'<span class="id">{name}</span>'))
+        hits = self.mod.stale_standard_editions(self._stride_as(name))
         self.assertEqual(len(hits), 1, hits)
         self.assertIn(f"{name!r} names the register row 'OWASP Top 10'", hits[0])
         self.assertIn(self.UNREADABLE, hits[0])
 
     def test_unreadable_message_names_compound_and_spelled_out_rules(self):
         # VPR3B393-R2 item 3: the message says what a compound EU part and a number need.
-        old = '<span class="id">EU GDPR</span><span class="topic">Regulation (EU) 2016/679</span>'
+        old = self._id_span("EU GDPR") + '<span class="topic">Regulation (EU) 2016/679</span>'
         for name, topic in (("EU GDPR / EU NIS2", "Data protection"),
                             ("OWASP Top 10 (2025)", "Top 10 web application risks")):
-            new = f'<span class="id">{name}</span><span class="topic">{topic}</span>'
+            new = f'{self._id_span("EU GDPR", name)}<span class="topic">{topic}</span>'
             hits = self.mod.stale_standard_editions(self._landing_with(old, new))
             self.assertTrue(hits, name)
             for hit in hits:
@@ -30057,7 +30064,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                 self.assertIn("must be listed in TOPIC_WORDS", hit)
         # What the message asks for passes (round 4: with every topic word in TOPIC_WORDS).
         for name, topic in (("EU GDPR / EU NIS2", ""), ("OWASP Top 10 (2025)", "Web application risks")):
-            new = f'<span class="id">{name}</span><span class="topic">{topic}</span>'
+            new = f'{self._id_span("EU GDPR", name)}<span class="topic">{topic}</span>'
             self.assertEqual(self.mod.stale_standard_editions(self._landing_with(old, new)), [], name)
 
     # VPR3B393-R3 item 1: the ending shapes the word list missed, a Cyrillic look-alike
@@ -30131,8 +30138,8 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             self.assertIn("for a year edition, dates in that year", hits[0])
         # A name whose edition is not a year takes no date topic.
         hits = self.mod.stale_standard_editions(self._landing_with(
-            '<span class="id">OWASP SAMM 2.2.0</span><span class="topic">Software assurance maturity</span>',
-            '<span class="id">OWASP SAMM 2.2.0</span><span class="topic">2025-01</span>'))
+            self._id_span("OWASP SAMM 2.2.0") + '<span class="topic">Software assurance maturity</span>',
+            self._id_span("OWASP SAMM 2.2.0") + '<span class="topic">2025-01</span>'))
         self.assertEqual(len(hits), 1, hits)
         self.assertIn("'OWASP SAMM 2.2.0' names the register row 'OWASP SAMM' but its listed text '2025-01'",
                       hits[0])
@@ -30420,7 +30427,9 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # "ext" span's text is read, between the spans and in a bibliography item.
         marker = self.mod.EXT_LINK_MARKER
         self.assertEqual(marker, '<span class="ext">&#8599;</span>')
-        for rel, count in (("templates/landing.html", 0), ("templates-v2/coverage.html", 63),
+        # 2.25.2 links 60 landing-page names to their sources, "UK GDPR / DPA 2018" as two
+        # links, each with the marker (IEC 62443 stays unlinked).
+        for rel, count in (("templates/landing.html", 61), ("templates-v2/coverage.html", 63),
                            ("templates/for-ai.html", 0), ("templates-v2/for-ai.html", 0),
                            ("templates-v3/for-ai.html", 0)):
             text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
