@@ -2,7 +2,7 @@
 
 **Document Title:** Recovery Runbook Template\
 **Document Type:** Template\
-**Version:** 1.0.10\
+**Version:** 1.1.0\
 **Date:** 2026-10-23\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
