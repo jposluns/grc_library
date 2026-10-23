@@ -60,6 +60,13 @@
       "source_identifier": "Regulation (EU) 2016/679 Article 25"
     },
     {
+      "class": "policy",
+      "corpus_path": "ai/charter-ai-ethics-review-panel.md",
+      "display_name": "AI Ethics Review Panel Charter",
+      "id": "GRC-CHARTER-AI-ETHICS-REVIEW-PANEL",
+      "source_identifier": null
+    },
+    {
       "class": "framework",
       "corpus_path": "ai/framework-agentic-response-state-model.md",
       "display_name": "Agentic Response State Model Framework",
@@ -218,6 +225,13 @@
       "corpus_path": "security/framework-zero-trust-architecture.md",
       "display_name": "Zero Trust Architecture Framework",
       "id": "GRC-FW-ZERO-TRUST",
+      "source_identifier": null
+    },
+    {
+      "class": "guideline",
+      "corpus_path": "ai/guideline-ethical-ai-use.md",
+      "display_name": "Ethical AI Use Guideline",
+      "id": "GRC-GDL-ETHICAL-AI-USE",
       "source_identifier": null
     },
     {
@@ -16194,16 +16208,80 @@
       },
       "verb": "maps to",
       "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "UNESCO-AI-ETHICS"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0488",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-CHARTER-AI-ETHICS-REVIEW-PANEL"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "UNESCO-AI-ETHICS"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0489",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "guideline",
+        "id": "GRC-GDL-ETHICAL-AI-USE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 178,
-    "record_count": 467,
+    "node_count": 180,
+    "record_count": 469,
     "records_by_relationship_class": {
       "commitment": 1,
-      "correspondence": 439,
+      "correspondence": 441,
       "implementation": 19,
       "influence": 8
     }

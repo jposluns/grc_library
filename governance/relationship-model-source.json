@@ -1269,6 +1269,20 @@
       "class": "regulation or law",
       "source_identifier": "CETS No. 225",
       "corpus_path": null
+    },
+    {
+      "id": "GRC-CHARTER-AI-ETHICS-REVIEW-PANEL",
+      "display_name": "AI Ethics Review Panel Charter",
+      "class": "policy",
+      "source_identifier": null,
+      "corpus_path": "ai/charter-ai-ethics-review-panel.md"
+    },
+    {
+      "id": "GRC-GDL-ETHICAL-AI-USE",
+      "display_name": "Ethical AI Use Guideline",
+      "class": "guideline",
+      "source_identifier": null,
+      "corpus_path": "ai/guideline-ethical-ai-use.md"
     }
   ],
   "records": [
@@ -16193,6 +16207,70 @@
       "verb": "maps to",
       "destination": {
         "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0488",
+      "source": {
+        "id": "GRC-CHARTER-AI-ETHICS-REVIEW-PANEL",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "UNESCO-AI-ETHICS",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0489",
+      "source": {
+        "id": "GRC-GDL-ETHICAL-AI-USE",
+        "class": "guideline"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "UNESCO-AI-ETHICS",
         "class": "framework"
       },
       "relationship_class": "correspondence",

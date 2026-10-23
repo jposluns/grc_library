@@ -28905,14 +28905,14 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             {e.source for e in entries}, {f".web/{rel}" for rel, _ in self.EXPECTED_SOURCES}
         )
         self.assertEqual([e for e in entries if e.status in ("unparsed", "incomplete")], [])
-        # Pinned on 2026-10-18 (round 3): the landing and coverage lists each hold 58 <li>
-        # items, two of them compound "A / B" names read as two entries, so 60 entries;
+        # Pinned on 2026-10-18 (round 3): the landing and coverage lists each hold 61 <li>
+        # items, two of them compound "A / B" names read as two entries, so 63 entries;
         # each For-AI page compares its OWASP LLM Top 10 and EU AI Act entries and skips
         # OWASP MCP Top 10 and the GenAI Red Teaming Guide (no edition). Changing a list
         # changes these counts, so the change is reviewed here.
         expected = {
             "templates/landing.html": {"match": 43, "no edition": 20},
-            "templates-v2/coverage.html": {"match": 43, "no edition": 17},
+            "templates-v2/coverage.html": {"match": 46, "no edition": 17},
             "templates/for-ai.html": {"match": 2, "no edition": 2},
             "templates-v2/for-ai.html": {"match": 2, "no edition": 2},
             "templates-v3/for-ai.html": {"match": 2, "no edition": 2},
@@ -28930,9 +28930,8 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                         (m.start() for m in re.finditer(r'<li><span class="id">', text))}
             read = {e.line for e in entries if e.source == f".web/{rel}"}
             self.assertEqual(id_lines - read, set(), rel)
-            # 2.25.2 adds three AI-governance items to the landing list only.
-            self.assertEqual(len(id_lines), (61 if rel == "templates/landing.html" else 58) if kind == "biblio"
-                             else 0, rel)
+            # 2.25.2 adds three AI-governance items to the landing and coverage lists.
+            self.assertEqual(len(id_lines), 61 if kind == "biblio" else 0, rel)
 
     def _biblio_hits(self, old, new):
         return self.mod.stale_standard_editions(self._landing_with(old, new))
@@ -29784,7 +29783,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     def test_current_entries_keep_their_outcomes(self):
         from collections import Counter
         entries = self.mod.standard_edition_entries()
-        self.assertEqual(Counter(e.status for e in entries), Counter({"match": 92, "no edition": 43}))
+        self.assertEqual(Counter(e.status for e in entries), Counter({"match": 95, "no edition": 43}))
         self.assertEqual(self.mod.stale_standard_editions(), [])
 
     def test_unreadable_listed_text_fails(self):
@@ -30391,14 +30390,14 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         statuses = {}
         for e in self.mod.standard_edition_entries():
             statuses[e.status] = statuses.get(e.status, 0) + 1
-        self.assertEqual(statuses, {"match": 92, "no edition": 43})
+        self.assertEqual(statuses, {"match": 95, "no edition": 43})
 
     def test_for_ai_ext_span_text_is_inter_span_text(self):
         # VPR3B393-R5 item 2: only the exact external-link marker is dropped; any other
         # "ext" span's text is read, between the spans and in a bibliography item.
         marker = self.mod.EXT_LINK_MARKER
         self.assertEqual(marker, '<span class="ext">&#8599;</span>')
-        for rel, count in (("templates/landing.html", 0), ("templates-v2/coverage.html", 60),
+        for rel, count in (("templates/landing.html", 0), ("templates-v2/coverage.html", 63),
                            ("templates/for-ai.html", 0), ("templates-v2/for-ai.html", 0),
                            ("templates-v3/for-ai.html", 0)):
             text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
@@ -30502,7 +30501,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # VPR3B393-R5 item 3: FOR_AI_DESCRIPTIONS is exactly the descriptions of the
         # For-AI items whose names name a row, keyed by register Standard ID. 3b403: the
         # names joined with "and", those named by a leading part and those mapped in
-        # FOR_AI_NAME_ROWS are checked too, 93 of the 105 items; the 12 left unchecked
+        # FOR_AI_NAME_ROWS are checked too, 102 of the 114 items; the 12 left unchecked
         # name no register row.
         d15, resolver = self.mod._load_edition_resolver()
         ids = {e["identity_key"]: e["id"] for e in resolver.register.entries}
@@ -30635,7 +30634,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                 self.assertIn(f"list item for the register row {row!r} cannot be parsed: its description "
                               f"{old!r}", hits[0])
         statuses = Counter(e.status for e in self.mod.standard_edition_entries())
-        self.assertEqual(statuses, Counter({"match": 92, "no edition": 43}))
+        self.assertEqual(statuses, Counter({"match": 95, "no edition": 43}))
 
     def _for_ai_item(self, rel, old_name, new_name, desc=None):
         text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
