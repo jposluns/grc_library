@@ -28905,7 +28905,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             {e.source for e in entries}, {f".web/{rel}" for rel, _ in self.EXPECTED_SOURCES}
         )
         self.assertEqual([e for e in entries if e.status in ("unparsed", "incomplete")], [])
-        # Pinned on 2026-10-18 (round 3): the landing and coverage lists each hold 61 <li>
+        # Pinned on 2026-10-23 (2.25.2): the landing and coverage lists each hold 61 <li>
         # items, two of them compound "A / B" names read as two entries, so 63 entries;
         # each For-AI page compares its OWASP LLM Top 10 and EU AI Act entries and skips
         # OWASP MCP Top 10 and the GenAI Red Teaming Guide (no edition). Changing a list
