@@ -2817,6 +2817,13 @@ FOR_AI_DESCRIPTIONS = {
         "ISO/IEC 27701:2025 is documented in the privacy programme charter and the privacy and data "
         "governance policy; the GDPR is documented in the EU privacy annex.",
     }),
+    # The international AI-governance rows the For-AI pages name by their Standard IDs
+    # (backlog 2.25.2), each credited to the register as the OECD entry is.
+    "UNESCO Recommendation on the Ethics of AI": frozenset({"Cited in the canonical citations register."}),
+    "G7 Hiroshima Process International Code of Conduct": frozenset({
+        "Cited in the canonical citations register.",
+    }),
+    "Council of Europe Framework Convention on AI": frozenset({"Cited in the canonical citations register."}),
     # The rows of ``FOR_AI_NAME_ROWS``.
     "OECD AI Principles": frozenset({"Cited in the canonical citations register."}),
     "Colorado AI Act": frozenset({"Documented in the Colorado AI annex."}),
@@ -2956,6 +2963,10 @@ FOR_AI_NAME_TEXTS = {
     "NIST SP 800-218A": frozenset({", Secure Software Development for Generative AI."}),
     "MITRE ATLAS": frozenset({", adversarial threat landscape for AI systems."}),
     "OECD Recommendation on AI": frozenset({"(OECD/LEGAL/0449)."}),
+    # Added by backlog 2.25.2 (the names of three register rows, so not unchecked).
+    "UNESCO Recommendation on the Ethics of AI": frozenset({"(adopted 23 November 2021)."}),
+    "G7 Hiroshima Process International Code of Conduct": frozenset({"(30 October 2023)."}),
+    "Council of Europe Framework Convention on AI": frozenset({"(CETS No. 225)."}),
     "ISO/IEC 5259 series": frozenset({", data quality for analytics and machine learning."}),
     "Model Cards": frozenset({", from the 2019 research paper that introduced the practice."}),
     "Datasheets for Datasets": frozenset({", from the 2018 research paper that introduced it."}),

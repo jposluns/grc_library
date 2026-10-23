@@ -146,6 +146,10 @@ ALLOW_LIST = {
     "pcisecuritystandards.org",  # PCI Security Standards Council
     "oecd.ai", "oecd.org",  # OECD
     "wto.org",  # World Trade Organization
+    # Canonical-citations register international AI-governance Upstream check location URLs (register v1.6.7, 2.25.2)
+    "unesco.org",  # UNESCO (Recommendation on the Ethics of AI)
+    "coe.int",  # Council of Europe Treaty Office (Framework Convention on AI, CETS No. 225)
+    "soumu.go.jp",  # Japan Ministry of Internal Affairs and Communications (G7 Hiroshima AI Process site)
     # Canonical-citations register Upstream check location URLs (register v1.5.7)
     "govinfo.gov",  # US Government Publishing Office (public laws: HITECH, SOX)
     "ilga.gov",  # Illinois General Assembly (BIPA, HB 3773)

@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.6.6\
+**Version:** 1.6.7\
 **Date:** 2026-10-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -372,8 +372,10 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| OECD AI Principles | 2019 Recommendation as updated 2024 | 2019 (original); 2024 (update) | AI policy principles | - | https://oecd.ai/en/ai-principles | 2026-06-30 |
+| G7 Hiroshima Process International Code of Conduct | 2023 | 2023-10 | Hiroshima Process International Code of Conduct for Organizations Developing Advanced AI Systems, adopted by G7 Leaders 30 October 2023; voluntary; the OECD reporting framework (2025) monitors its application and does not supersede it | - | https://www.soumu.go.jp/hiroshimaaiprocess/en/ | needs-reconfirm |
+| OECD AI Principles | 2019 Recommendation as updated 2024 | 2019 (original); 2024 (update) | AI policy principles (Recommendation of the Council on Artificial Intelligence, OECD/LEGAL/0449: adopted 22 May 2019; revised 8 November 2023 and 3 May 2024) | - | https://oecd.ai/en/ai-principles | 2026-10-22 |
 | OECD Privacy Guidelines | 2013 (revised) | 2013 | Privacy and transborder data flows | 1980 | https://legalinstruments.oecd.org/en/instruments/OECD-LEGAL-0188 | verified 2026-07-09 |
+| UNESCO Recommendation on the Ethics of AI | 2021 | 2021-11 | Recommendation on the Ethics of Artificial Intelligence, adopted 23 November 2021 by the UNESCO General Conference at its 41st session | - | https://www.unesco.org/en/artificial-intelligence/recommendation-ethics | needs-reconfirm |
 | WTO TFA | 2017 | 2017 | Trade Facilitation Agreement | - | https://www.wto.org/english/tratop_e/tradfa_e/tradfa_e.htm | 2026-06-30 |
 
 ## ICAO and IMO
@@ -390,6 +392,7 @@ This section records international treaties and conventions, binding at the inte
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
+| Council of Europe Framework Convention on AI | 2024 | 2024-05 | Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225), adopted 17 May 2024 and opened for signature at Vilnius 5 September 2024; open for signature by "the member States of the Council of Europe, the non-member States which have participated in its elaboration and the European Union" and binding on those that become Parties; "This Convention is subject to ratification, acceptance or approval" (Article 30, paragraph 2); signature and ratification status not recorded here (confirm upstream) | - | https://www.coe.int/en/web/conventions/full-list?module=treaty-detail&treatynum=225 | needs-reconfirm |
 
 ## AI safety evaluation programmes
 

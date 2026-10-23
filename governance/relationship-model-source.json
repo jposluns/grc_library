@@ -1241,6 +1241,83 @@
       "class": "procedure",
       "source_identifier": null,
       "corpus_path": "supply-chain/procedure-supplier-due-diligence.md"
+    },
+    {
+      "id": "OECD-AI-PRINCIPLES",
+      "display_name": "OECD Recommendation of the Council on Artificial Intelligence (OECD AI Principles)",
+      "class": "framework",
+      "source_identifier": "OECD/LEGAL/0449 (revised 2024)",
+      "corpus_path": null
+    },
+    {
+      "id": "UNESCO-AI-ETHICS",
+      "display_name": "UNESCO Recommendation on the Ethics of Artificial Intelligence",
+      "class": "framework",
+      "source_identifier": "UNESCO Recommendation on the Ethics of AI (2021)",
+      "corpus_path": null
+    },
+    {
+      "id": "G7-HIROSHIMA-COC",
+      "display_name": "Hiroshima Process International Code of Conduct for Organizations Developing Advanced AI Systems",
+      "class": "framework",
+      "source_identifier": "G7 Hiroshima Process International Code of Conduct (2023)",
+      "corpus_path": null
+    },
+    {
+      "id": "COE-CETS-225",
+      "display_name": "Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law",
+      "class": "regulation or law",
+      "source_identifier": "CETS No. 225",
+      "corpus_path": null
+    },
+    {
+      "id": "GRC-CHARTER-AI-ETHICS-REVIEW-PANEL",
+      "display_name": "AI Ethics Review Panel Charter",
+      "class": "policy",
+      "source_identifier": null,
+      "corpus_path": "ai/charter-ai-ethics-review-panel.md"
+    },
+    {
+      "id": "GRC-GDL-ETHICAL-AI-USE",
+      "display_name": "Ethical AI Use Guideline",
+      "class": "guideline",
+      "source_identifier": null,
+      "corpus_path": "ai/guideline-ethical-ai-use.md"
+    },
+    {
+      "id": "GRC-CHARTER-AI-GOVERNANCE-COUNCIL",
+      "display_name": "AI Governance Council Charter",
+      "class": "policy",
+      "source_identifier": null,
+      "corpus_path": "ai/charter-ai-governance-council.md"
+    },
+    {
+      "id": "GRC-GUIDE-AI-BOARD-OVERSIGHT",
+      "display_name": "AI Board Oversight Guide",
+      "class": "guideline",
+      "source_identifier": null,
+      "corpus_path": "ai/guide-ai-board-oversight.md"
+    },
+    {
+      "id": "GRC-REGISTER-MODEL-REGISTRY",
+      "display_name": "Model Registry",
+      "class": "evidence",
+      "source_identifier": null,
+      "corpus_path": "ai/register-model-registry.md"
+    },
+    {
+      "id": "GRC-ANNEX-PUBLIC-SECTOR-REQUIREMENTS",
+      "display_name": "Public Sector GRC Requirements Annex",
+      "class": "policy",
+      "source_identifier": null,
+      "corpus_path": "compliance/public-sector/annex-public-sector-requirements.md"
+    },
+    {
+      "id": "GRC-GDL-ESG-AI-ETHICS-DISCLOSURE",
+      "display_name": "ESG and AI Ethics Disclosure Guideline",
+      "class": "guideline",
+      "source_identifier": null,
+      "corpus_path": "governance/guideline-esg-and-ai-ethics-disclosure.md"
     }
   ],
   "records": [
@@ -15877,6 +15954,646 @@
       "verb": "maps to",
       "destination": {
         "id": "CSA-AICM",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0479",
+      "source": {
+        "id": "GRC-PROC-FOUNDATION-MODEL-LIFECYCLE",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "G7-HIROSHIMA-COC",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0480",
+      "source": {
+        "id": "GRC-POL-AI-COMPLIANCE",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0481",
+      "source": {
+        "id": "GRC-FW-AI-MODEL-DOCUMENTATION",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0482",
+      "source": {
+        "id": "GRC-PROC-TRAINING-DATA-GOVERNANCE",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0483",
+      "source": {
+        "id": "GRC-PROC-FOUNDATION-MODEL-LIFECYCLE",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0484",
+      "source": {
+        "id": "GRC-FW-HUMAN-CAPITAL",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0485",
+      "source": {
+        "id": "GRC-POL-ACCEPTANCE-INTO-SERVICE",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0486",
+      "source": {
+        "id": "GRC-STD-ERM",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0487",
+      "source": {
+        "id": "GRC-POL-ENTERPRISE-GRM",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0488",
+      "source": {
+        "id": "GRC-CHARTER-AI-ETHICS-REVIEW-PANEL",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "UNESCO-AI-ETHICS",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0489",
+      "source": {
+        "id": "GRC-GDL-ETHICAL-AI-USE",
+        "class": "guideline"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "UNESCO-AI-ETHICS",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0490",
+      "source": {
+        "id": "GRC-CHARTER-AI-ETHICS-REVIEW-PANEL",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0491",
+      "source": {
+        "id": "GRC-CHARTER-AI-GOVERNANCE-COUNCIL",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0492",
+      "source": {
+        "id": "GRC-GUIDE-AI-BOARD-OVERSIGHT",
+        "class": "guideline"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0493",
+      "source": {
+        "id": "GRC-GDL-ETHICAL-AI-USE",
+        "class": "guideline"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0494",
+      "source": {
+        "id": "GRC-REGISTER-MODEL-REGISTRY",
+        "class": "evidence"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0495",
+      "source": {
+        "id": "GRC-POL-COMPLIANCE-AUDIT-MGMT",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0496",
+      "source": {
+        "id": "GRC-ANNEX-PUBLIC-SECTOR-REQUIREMENTS",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0497",
+      "source": {
+        "id": "GRC-POL-EXCEPTION-RISK-ACCEPTANCE",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0498",
+      "source": {
+        "id": "GRC-GDL-ESG-AI-ETHICS-DISCLOSURE",
+        "class": "guideline"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "OECD-AI-PRINCIPLES",
         "class": "framework"
       },
       "relationship_class": "correspondence",

@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.30\
-**Date:** 2026-09-25\
+**Version:** 1.2.31\
+**Date:** 2026-10-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -220,6 +220,9 @@ The fenced `json citation-publishers` block at the end of this section is the so
 | PCI SSC | `pcisecuritystandards.org` | PCI DSS. |
 | OECD | `oecd.org`, `oecd.ai` | OECD AI Principles and OECD Privacy Guidelines. |
 | WTO | `wto.org` | WTO Trade Facilitation Agreement. |
+| UNESCO | `unesco.org` | UNESCO Recommendation on the Ethics of Artificial Intelligence. |
+| Council of Europe | `coe.int` | Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225), via the Treaty Office. |
+| Japan (G7 Hiroshima AI Process) | `soumu.go.jp` | Hiroshima Process International Code of Conduct for Organizations Developing Advanced AI Systems (Ministry of Internal Affairs and Communications Hiroshima AI Process site). |
 | World BASC Organization | `wbasco.org` | BASC International Norm and Security Standard (Business Alliance for Secure Commerce). |
 | South Korea | `law.go.kr` | Korean legislation, including the AI Basic Act (Framework Act on the Development of Artificial Intelligence and the Establishment of Trust). |
 | OpenSSF / Linux Foundation | `openssf.org`, `slsa.dev`, `linuxfoundation.org`, `spdx.org`, `spdx.dev` | SLSA (Supply-chain Levels for Software Artifacts), an OpenSSF project of the Linux Foundation; the SPDX specification, a Linux Foundation project. |
@@ -590,6 +593,27 @@ The allow-list itself is subject to the same verification discipline as register
     "covers": "WTO Trade Facilitation Agreement."
   },
   {
+    "publisher": "UNESCO",
+    "domains": [
+      "unesco.org"
+    ],
+    "covers": "UNESCO Recommendation on the Ethics of Artificial Intelligence."
+  },
+  {
+    "publisher": "Council of Europe",
+    "domains": [
+      "coe.int"
+    ],
+    "covers": "Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225), via the Treaty Office."
+  },
+  {
+    "publisher": "Japan (G7 Hiroshima AI Process)",
+    "domains": [
+      "soumu.go.jp"
+    ],
+    "covers": "Hiroshima Process International Code of Conduct for Organizations Developing Advanced AI Systems (Ministry of Internal Affairs and Communications Hiroshima AI Process site)."
+  },
+  {
     "publisher": "World BASC Organization",
     "domains": [
       "wbasco.org"
@@ -687,6 +711,8 @@ A standard or regulation cited in the library that is not covered by an allow-li
 **2026-09-24 (3b32, SANS and Google SAIF register rows):** added the SANS Institute (`sans.org`) and Google (`saif.google`) publisher rows, now that their sources have Canonical Citations Register entries.
 
 **2026-09-24 (3b28, SPDX register row):** added `spdx.org` and `spdx.dev` (the project's current site, to which spdx.org redirects; the register row's upstream-check URL is on spdx.dev so that no fetch crosses a redirect to an unlisted domain) to the OpenSSF / Linux Foundation row, now that the SPDX specification has a Canonical Citations Register entry.
+
+**2026-10-23 (register v1.6.7, 2.25.2 international AI-governance authorities):** added three new rows: UNESCO (`unesco.org`), for the UNESCO Recommendation on the Ethics of AI row; Council of Europe (`coe.int`, via the Treaty Office), for the Council of Europe Framework Convention on AI (CETS No. 225) row; and Japan (G7 Hiroshima AI Process) (`soumu.go.jp`, the Ministry of Internal Affairs and Communications Hiroshima AI Process site), for the G7 Hiroshima Process International Code of Conduct row; each with the matching external-link allow-list entry.
 
 ---
 
