@@ -25283,7 +25283,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-corpus-management.py OWN F 5a8cdc9491b4565b783cc4de48a65a06f0abc48bc272c039bfc6e2edc104b671
         build-historical-citation-exceptions.py OWN F 442e33ccfd3d443d763e0576d908d0a27c74f59d5cda3d1fe53a919d074376d2
         build-narrative-registry.py NO_FS F 92ebf6bf91d8fdce637d835dcc031a3ddd2a60ed51fbce195de18e1c734107ad
-        build-portal.py NO_FS F 8373cabccc091b43819bc71d6288e7e862091449dbf60a6d2f6664c10f084bad
+        build-portal.py NO_FS F 5ec4891c1488822c6dc1d06ee08f27523d0f2766869578574bfbf96e3203fc2a
         build-provision-index.py ROOT F fe7e21ef073874b792080c23593e1d47e3e4f2702177860b06b67486a9cb46e1
         build-public-changelog.py OWN F 407a5b794ad8b51c495f9a2d98ec1f8908fac68500a12004c092e59bd8054d77
         build-reference-manifest.py NO_FS F 80b1c2bfc67f36d4705713fac0ce2c724a5638d1292fbd954767e1d59f2c134d
@@ -32704,6 +32704,53 @@ class PortalGeneratorCheckTests(unittest.TestCase):
                         self.assertEqual(self._run_check(mod), 1)
             finally:
                 mod.REPO_ROOT, mod.TAXONOMY, mod.PORTAL, mod.SCORECARD = old_paths
+
+
+class MaturityClassifierTests(unittest.TestCase):
+    """tools/build-portal.py classify_maturity: a major-version bump must
+    never demote the maturity signal, so 2.0.0 or later is never classed
+    below what 1.1.0 receives, while 1.0.x and 0.x.y keep their classes."""
+
+    @staticmethod
+    def _pre_fix_rule(version: str) -> str:
+        """The classifier rule before the major-bump fix, kept verbatim as
+        the counterexample: it demoted any x.0.y with x >= 2 to Baseline."""
+        m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version)
+        if not m:
+            return "Unknown"
+        major, minor, _patch = (int(x) for x in m.groups())
+        if major >= 1 and minor >= 1:
+            return "Mature"
+        if major >= 1:
+            return "Baseline"
+        return "Draft"
+
+    def setUp(self) -> None:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_maturity_classifier", REPO_ROOT / "tools/build-portal.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        self.classify = mod.classify_maturity
+
+    def test_major_bump_is_at_least_mature(self) -> None:
+        for version in ("2.0.0", "2.0.5", "3.0.0"):
+            with self.subTest(version=version):
+                self.assertEqual(self.classify({"version": version}), "Mature")
+                # Flip: the pre-fix rule classed these Baseline, so this
+                # test fails against the old rule.
+                self.assertEqual(self._pre_fix_rule(version), "Baseline")
+
+    def test_pre_major_classes_unchanged(self) -> None:
+        for version, expected in (("1.0.0", "Baseline"), ("1.0.9", "Baseline"),
+                                  ("0.9.0", "Draft"), ("0.1.3", "Draft"),
+                                  ("1.1.0", "Mature")):
+            with self.subTest(version=version):
+                self.assertEqual(self.classify({"version": version}), expected)
+                # Flip guard: the pre-fix rule agrees here, so the fix is
+                # confined to the major >= 2 branch.
+                self.assertEqual(self._pre_fix_rule(version), expected)
 
 
 class SiblingPlaceholderTests(LinterTestCase):
