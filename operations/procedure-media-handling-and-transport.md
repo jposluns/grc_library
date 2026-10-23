@@ -2,8 +2,8 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.10.0\
-**Date:** 2026-10-15\
+**Version:** 1.10.1\
+**Date:** 2026-10-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)\
@@ -166,7 +166,7 @@ Backup media (tapes or portable drives used for off-site backup) must be encrypt
 
 ### 7.1 Sanitization before reuse
 
-Before any storage media is reissued for a different user or purpose, it must be sanitized to remove all previous data. The sanitization method must be appropriate to the classification of the data previously held and consistent with the organization's media-sanitization programme (NIST SP 800-88 Rev. 2) and the sanitization-technique categories of IEEE 2883-2022 (NIST SP 800-88 Rev. 2 reframes around an enterprise sanitization programme and defers the technique detail to IEEE 2883, NSA specifications, or an organizationally-approved standard):
+Before any storage media is reissued for a different user or purpose, it must be sanitized to remove all previous data. The sanitization method must be appropriate to the classification of the data previously held and consistent with the organization's media-sanitization programme (NIST SP 800-88 Rev. 2) and the sanitization methods of IEEE 2883-2022, the edition this procedure relies on. NIST SP 800-88 Rev. 2 reframes around an enterprise sanitization programme and defers the technique detail to the latest IEEE 2883 (2022 at the time of writing), NSA specifications, or an organizationally-approved standard, retaining only cryptographic erase directly (its section 3.2). The required method by media type:
 
 | Media Type | Required Sanitization Method |
 | --- | --- |
@@ -219,7 +219,7 @@ Each Certificate of Destruction must include:
 | --- | --- |
 | Asset or media identifier | Asset tag, serial number, or batch reference |
 | Data classification | Highest classification of information held |
-| Destruction method | Method applied and sanitization category (e.g., Purge: cryptographic erasure; Destruct: disintegration, incineration) |
+| Destruction method | Technique applied and sanitization method (e.g., Purge: cryptographic erasure; Destruct: disintegration, incineration) |
 | Date of destruction | Date destruction was completed |
 | Location | Site or facility where destruction occurred |
 | Performed by | Individual or vendor name |
@@ -290,7 +290,7 @@ The following metrics are reported to the CISO quarterly and reviewed annually a
 | Physical transport and chain of custody | A.7.10, A.5.14 | N/A | DCS-05 | DSS05.06 |
 | Digital transfer controls | A.8.24, A.5.14 | N/A | DSP-10, CEK-03 | DSS05.02 |
 | Media storage | A.7.10, A.7.9 | N/A | DCS-04 | DSS05.05, DSS05.06 |
-| Sanitization and destruction | A.8.10, A.7.14 | IEEE 2883: Purge / Destruct | DSP-02 | DSS05.06 |
+| Sanitization and destruction | A.8.10, A.7.14 | IEEE 2883-2022: Purge / Destruct | DSP-02 | DSS05.06 |
 | Certificate of Destruction and records | A.5.33 | 800-88 Rev. 2: documentation | DSP-02 | DSS05.06 |
 
 This procedure also aligns with ISO/IEC 27040:2024 (Storage security) for the secure handling, storage, and sanitization of storage media.
