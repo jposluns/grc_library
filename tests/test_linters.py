@@ -124,38 +124,21 @@ def _force_rmtree(path) -> None:
 
 
 def setUpModule() -> None:
-    """Ensure the per-test fixture directory exists and is empty.
+    """Ensure the per-test fixture directory exists.
 
-    Run once before any test in this module. Removes any leftover
-    fixtures from a previously-crashed run so they cannot contaminate
-    the current test pass.
+    Run once before any test in this module. It creates tests/tmp and
+    deletes NOTHING (P-1.86 PR 1): every fixture lives in a unique
+    per-instance mkdtemp directory and is owned and cleaned by the test
+    that created it, so a module-level sweep of top-level *.md (or of
+    the retired fixed "synthetic-claude-rules-sync" name) could only
+    ever delete files a concurrently running instance owns. One suite
+    run already overlaps itself: DirectRunTests launches this very
+    module as a child process, whose module setup used to sweep its
+    parent's fixtures. Crash residue under tests/tmp is removed only by
+    an explicit cleanup while no run is active; see tests/README.md.
+    ModuleFixtureOwnershipTests pins this ownership contract.
     """
     FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
-    for f in FIXTURE_DIR.glob("*.md"):
-        try:
-            f.unlink()
-        except OSError:
-            pass
-    # One-time cleanup of the RETIRED fixed fixture path only: pre-#2292 runs
-    # shared a "synthetic-claude-rules-sync" dir whose chmod-0 secrets.md could
-    # survive a crash. Removing exactly that retired name is parallel-safe
-    # (post-#2292 runs use unique mkdtemp dirs, so nothing live is named this);
-    # a blanket iterdir sweep would race concurrent runs' unique dirs and
-    # reintroduce the very collision FIX 1a removes (codex/gemini vpr-2292 HOLD).
-    _force_rmtree(FIXTURE_DIR / "synthetic-claude-rules-sync")
-
-
-def tearDownModule() -> None:
-    """Belt-and-suspenders: remove any remaining fixtures after the run.
-
-    Individual tearDown methods already remove their fixtures; this
-    catches anything left behind by a crashed assertion.
-    """
-    for f in FIXTURE_DIR.glob("*.md"):
-        try:
-            f.unlink()
-        except OSError:
-            pass
 
 
 def run_linter(script: str, *paths: str | Path) -> subprocess.CompletedProcess:
@@ -27754,10 +27737,16 @@ class QuickGuardSeparatorTests(LinterTestCase):
 
     def test_dash_named_file_is_a_path_after_the_separator(self) -> None:
         # quick-guard's CHANGED paths are repo-relative, so only a ROOT-level file's argument begins
-        # with '-'; create one briefly (removed in cleanup).
-        dash = REPO_ROOT / "-qg-dash-3b50b2c.md"
-        dash.write_text("# Title\n\nPlain text.\n", encoding="utf-8")
+        # with '-'; create one briefly (removed in cleanup). The tools resolve a relative argument
+        # against the REPO_ROOT computed from their own __file__ (guard_explicit_paths, never the
+        # subprocess working directory), so a private root cannot be substituted here: the probe
+        # must live at the real repository root. A unique per-run basename (still leading '-')
+        # keeps concurrent runs from colliding on a fixed name. Stated residual: while this test
+        # runs, the root-level probe file IS visible to a concurrent repository scan; cleanup is
+        # registered BEFORE the write so a partial-write failure still leaves nothing behind.
+        dash = REPO_ROOT / f"-qg-dash-3b50b2c-{os.urandom(8).hex()}.md"
         self.addCleanup(dash.unlink, missing_ok=True)
+        dash.write_text("# Title\n\nPlain text.\n", encoding="utf-8")
         rel = dash.name
         for tool in ("lint-unbalanced-fences.py", "lint-nested-markdown-links.py"):
             r = run_linter(f"tools/{tool}", "--", rel)
@@ -44165,83 +44154,219 @@ class NarrativeScanScopeTests(LinterTestCase):
         self.assertTrue(any(p.relative_to(REPO_ROOT).parts[0] == "executive"
                             for p in files))
 
+    def _probe_root(self, prefix, files):
+        """A PRIVATE repository-shaped root holding ``files`` (relative path
+        to content), built under the self-cleaning ``_fixture_base`` dir so
+        no behavioural probe is ever written into the shared repository tree
+        (a concurrent repository scan used to see the fixed-name probes,
+        including the deliberately planted credential)."""
+        root = self._fixture_base(prefix)
+        for rel, content in files.items():
+            path = root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+        return root
+
+    def _run_gate_at_root(self, module, root, *paths):
+        """Run a loaded gate wrapper's ``main`` in process against a private
+        repository root: every root global the gate reads is pointed at
+        ``root`` and restored on exit (the wrapper's own ``REPO_ROOT`` and
+        ``DEFAULT_PATHS`` copies, and ``lint_common.REPO_ROOT``, which the
+        shared ``is_narrative_root`` / ``is_target`` / path-guard helpers
+        read at call time; the pack engines take ``repo_root`` as a call
+        parameter from the wrapper, so they need no patch). Returns a
+        CompletedProcess so assertions keep the ``run_linter`` result shape."""
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest.mock import patch
+
+        import lint_common
+
+        argv = [module.__file__, *map(str, paths)]
+        out, err = io.StringIO(), io.StringIO()
+        with patch.object(module, "REPO_ROOT", root), \
+                patch.object(module, "DEFAULT_PATHS", [str(root)]), \
+                patch.object(lint_common, "REPO_ROOT", root), \
+                redirect_stdout(out), redirect_stderr(err):
+            try:
+                code = module.main(argv)
+            except SystemExit as exc:
+                # Mirror process exit semantics (CPython sys.exit): None is
+                # success, an int is the status, and any other payload is
+                # printed to stderr (the redirected stream) with status 1.
+                if exc.code is None:
+                    code = 0
+                elif isinstance(exc.code, int):
+                    code = exc.code
+                else:
+                    print(exc.code, file=sys.stderr)
+                    code = 1
+        return subprocess.CompletedProcess(argv, code, out.getvalue(), err.getvalue())
+
+    def _assert_real_default_scope(self, gate):
+        """Pin the UNPATCHED default scope before ``_run_gate_at_root``
+        patches ``DEFAULT_PATHS`` to a private root: a gate whose shipped
+        default was narrowed (say to security/ or governance/ only) would
+        otherwise keep every behavioural test here green and be caught only
+        by the INVENTORY byte pin."""
+        self.assertEqual(
+            gate.DEFAULT_PATHS,
+            [str(REPO_ROOT)],
+            f"{Path(gate.__file__).name}: the real default scope is not the "
+            "whole repository root",
+        )
+
+    VIOLATION = (
+        "# Probe\n\n**Document Type:** Standard\\\n**Version:** 0.0.1\n\n"
+        "Body with none of the required sections.\n"
+    )
+
     def test_excluded_gate_behavioural_with_positive_control(self):
         """Behavioural both-ways WITH a positive control, so a gate that always
         returns 0 cannot pass: the SAME violating file flagged when passed at a
-        non-excluded path, and NOT flagged under executive/."""
-        violation = (
-            "# Probe\n\n**Document Type:** Standard\\\n**Version:** 0.0.1\n\n"
-            "Body with none of the required sections.\n"
+        non-excluded path, and NOT flagged under executive/. Runs against a
+        private repository root so no probe touches the shared tree."""
+        root = self._probe_root("narrative-scope-root-", {
+            "tests/tmp/narrative-positive-control.md": self.VIOLATION,
+            "executive/tmp-scan-scope-probe.md": self.VIOLATION,
+            "governance/executive/tmp-nested-scope-probe.md": self.VIOLATION,
+        })
+        gate = self._import_gate("lint-required-sections.py")
+        self._assert_real_default_scope(gate)
+        # positive control: gate DOES flag the violation at a non-excluded path
+        pos_result = self._run_gate_at_root(
+            gate, root, root / "tests" / "tmp" / "narrative-positive-control.md")
+        self.assertNotEqual(
+            pos_result.returncode,
+            0,
+            "positive control failed: the gate did not flag a real violation "
+            "at a non-excluded path (an always-pass gate would look 'excluded')",
         )
-        pos_dir = REPO_ROOT / "tests" / "tmp"
-        pos_dir.mkdir(parents=True, exist_ok=True)
-        pos = pos_dir / "narrative-positive-control.md"
-        exc = REPO_ROOT / "executive" / "tmp-scan-scope-probe.md"
-        pos.write_text(violation, encoding="utf-8")
-        exc.write_text(violation, encoding="utf-8")
-        try:
-            # positive control: gate DOES flag the violation at a non-excluded path
-            pos_result = run_linter("tools/lint-required-sections.py", pos)
-            self.assertNotEqual(
-                pos_result.returncode,
-                0,
-                "positive control failed: the gate did not flag a real violation "
-                "at a non-excluded path (an always-pass gate would look 'excluded')",
-            )
-            self.assertIn("narrative-positive-control", pos_result.stdout)
-            # exclusion: the SAME violation under executive/ is NOT flagged even
-            # when its path is passed explicitly (dir-based exemption); and it is
-            # skipped on a default whole-repo run too.
-            exc_result = run_linter("tools/lint-required-sections.py", exc)
-            self.assertEqual(
-                exc_result.returncode,
-                0,
-                "excluded gate flagged an explicit executive/ path:\n" + exc_result.stdout,
-            )
-            default_result = run_linter("tools/lint-required-sections.py")
-            self.assertNotIn("tmp-scan-scope-probe", default_result.stdout)
-            # anchoring positive control: a NESTED dir merely named executive/ is
-            # still scanned (a regression to the unanchored component match fails).
-            nested_dir = REPO_ROOT / "governance" / "executive"
-            nested_dir.mkdir(parents=True, exist_ok=True)
-            nested = nested_dir / "tmp-nested-scope-probe.md"
-            nested.write_text(violation, encoding="utf-8")
-            try:
-                nested_result = run_linter("tools/lint-required-sections.py", nested)
-                self.assertNotEqual(
-                    nested_result.returncode,
-                    0,
-                    "nested governance/executive/ was wrongly excluded (unanchored bug)",
-                )
-                self.assertIn("tmp-nested-scope-probe", nested_result.stdout)
-            finally:
-                nested.unlink()
-                try:
-                    nested_dir.rmdir()
-                except OSError:
-                    pass
-        finally:
-            pos.unlink()
-            exc.unlink()
+        self.assertIn("narrative-positive-control", pos_result.stdout)
+        # exclusion: the SAME violation under executive/ is NOT flagged even
+        # when its path is passed explicitly (dir-based exemption); and it is
+        # skipped on a default whole-root run too.
+        exc_result = self._run_gate_at_root(
+            gate, root, root / "executive" / "tmp-scan-scope-probe.md")
+        self.assertEqual(
+            exc_result.returncode,
+            0,
+            "excluded gate flagged an explicit executive/ path:\n" + exc_result.stdout,
+        )
+        default_result = self._run_gate_at_root(gate, root)
+        self.assertNotIn("tmp-scan-scope-probe", default_result.stdout)
+        # anchoring positive control: a NESTED dir merely named executive/ is
+        # still scanned (a regression to the unanchored component match fails),
+        # both as an explicit path and on the default whole-root run.
+        self.assertIn("tmp-nested-scope-probe", default_result.stdout)
+        nested_result = self._run_gate_at_root(
+            gate, root, root / "governance" / "executive" / "tmp-nested-scope-probe.md")
+        self.assertNotEqual(
+            nested_result.returncode,
+            0,
+            "nested governance/executive/ was wrongly excluded (unanchored bug)",
+        )
+        self.assertIn("tmp-nested-scope-probe", nested_result.stdout)
 
     def test_safety_gate_catches_executive_by_default(self):
         """Inclusion direction: a planted credential under executive/ MUST fail
-        the secrets gate on a default-scope run."""
-        probe = REPO_ROOT / "executive" / "tmp-secret-probe.md"
-        probe.write_text(
-            "# Probe\n\nExample key: AKIAIOSFODNN7EXAMPLE.\n",
-            encoding="utf-8",
+        the secrets gate on a default-scope run. The credential is planted in a
+        private repository root, never in the shared tree, so a concurrent
+        repository scan can never see it."""
+        root = self._probe_root("narrative-secret-root-", {
+            "executive/tmp-secret-probe.md":
+                "# Probe\n\nExample key: AKIAIOSFODNN7EXAMPLE.\n",
+        })
+        gate = self._import_gate("lint-secrets-in-content.py")
+        self._assert_real_default_scope(gate)
+        result = self._run_gate_at_root(gate, root)
+        self.assertNotEqual(
+            result.returncode,
+            0,
+            "secrets gate did NOT catch a planted credential under executive/",
         )
-        try:
-            result = run_linter("tools/lint-secrets-in-content.py")
-            self.assertNotEqual(
-                result.returncode,
-                0,
-                "secrets gate did NOT catch a planted credential under executive/",
+        self.assertIn("tmp-secret-probe", result.stdout + result.stderr)
+
+    def test_probe_roots_are_isolated(self):
+        """Two probes run with DISTINCT private roots do not see each other's
+        files: the credential planted in one root is invisible to a
+        default-scope run against the other. The former fixed-name probes
+        under the shared repository root exposed the planted secret to every
+        concurrent scan; private roots remove that interference channel."""
+        secret_root = self._probe_root("narrative-isolation-secret-", {
+            "executive/tmp-secret-probe.md":
+                "# Probe\n\nExample key: AKIAIOSFODNN7EXAMPLE.\n",
+        })
+        clean_root = self._probe_root("narrative-isolation-clean-", {
+            "executive/tmp-clean-probe.md": "# Probe\n\nNo credential here.\n",
+        })
+        # The isolation claim is structural first: the two resolved probe
+        # roots must be distinct AND outside the resolved repository root.
+        # Roots allocated under tests/tmp (inside the repository) would make
+        # the cross-root check below pass while every concurrent repository
+        # scan still saw the planted credential.
+        repo = REPO_ROOT.resolve()
+        resolved_secret = secret_root.resolve()
+        resolved_clean = clean_root.resolve()
+        self.assertNotEqual(
+            resolved_secret,
+            resolved_clean,
+            "the two probe roots must be distinct directories",
+        )
+        for probe in (resolved_secret, resolved_clean):
+            self.assertFalse(
+                probe.is_relative_to(repo),
+                f"probe root {probe} is inside the repository root {repo}",
             )
-            self.assertIn("tmp-secret-probe", result.stdout + result.stderr)
-        finally:
-            probe.unlink()
+        gate = self._import_gate("lint-secrets-in-content.py")
+        self._assert_real_default_scope(gate)
+        planted = self._run_gate_at_root(gate, secret_root)
+        self.assertNotEqual(
+            planted.returncode,
+            0,
+            "the planted credential was not seen in its OWN root (vacuous isolation)",
+        )
+        self.assertIn("tmp-secret-probe", planted.stdout + planted.stderr)
+        other = self._run_gate_at_root(gate, clean_root)
+        self.assertEqual(
+            other.returncode,
+            0,
+            "a clean root saw another probe root's files:\n" + other.stdout + other.stderr,
+        )
+        self.assertNotIn("tmp-secret-probe", other.stdout + other.stderr)
+
+    def test_run_gate_at_root_mirrors_process_exit_semantics(self):
+        """The in-process runner maps SystemExit exactly as a process exit
+        would (CPython sys.exit): None exits 0, an int is the status, and
+        any other payload is printed to stderr with status 1. The previous
+        mapping sent SystemExit(None) to 1 and silently dropped a string
+        payload's message."""
+        import types
+
+        root = self._fixture_base("narrative-exit-semantics-")
+        for payload, expected_code, expected_stderr in (
+            (None, 0, ""),
+            (3, 3, ""),
+            ("gate refused: bad path", 1, "gate refused: bad path"),
+        ):
+            stub = types.ModuleType("gate_probe_exit_semantics")
+            stub.__file__ = str(root / "stub-gate.py")
+            stub.REPO_ROOT = REPO_ROOT
+            stub.DEFAULT_PATHS = [str(REPO_ROOT)]
+
+            def _main(argv, _payload=payload):
+                raise SystemExit(_payload)
+
+            stub.main = _main
+            result = self._run_gate_at_root(stub, root)
+            self.assertEqual(
+                result.returncode,
+                expected_code,
+                (payload, result.stdout, result.stderr),
+            )
+            if expected_stderr:
+                self.assertIn(expected_stderr, result.stderr)
+            else:
+                self.assertEqual(result.stderr, "")
 
 
 class IndexHeaderParityTests(LinterTestCase):
@@ -61227,6 +61352,92 @@ class DirectRunTests(unittest.TestCase):
         for expression in ('__name__ == "__main__"', '"__main__" == __name__'):
             with self.subTest(expression=expression):
                 self.assertTrue(self._is_main_guard(ast.parse(f"if {expression}: pass").body[0]))
+
+
+class ModuleFixtureOwnershipTests(unittest.TestCase):
+    """setUpModule and tearDownModule never delete fixtures they do not own (P-1.86 PR 1).
+
+    Every fixture under tests/tmp belongs to the test instance that created it
+    (a unique mkdtemp directory removed by addCleanup), and DirectRunTests
+    launches this very module as a child process, so a module-level sweep of
+    top-level *.md, or a removal of the retired fixed
+    "synthetic-claude-rules-sync" name, could only ever delete another live
+    instance's files. This test holds a sentinel in each formerly-swept
+    location inside a private fixture root (a unique mkdtemp directory
+    outside the repository, so two live instances of this test never share
+    a directory and nothing is written under the real tests/tmp) while a
+    child process imports the module, points its FIXTURE_DIR at that root,
+    and calls setUpModule and (if present) tearDownModule, then asserts
+    both sentinels survive unchanged. Restoring either sweep or the
+    retired-name removal makes it fail."""
+
+    SENTINEL_BODY = "# foreign fixture owned by a concurrent run; must survive\n"
+
+    def _make_sentinel(self, directory: Path) -> Path:
+        fd, name = tempfile.mkstemp(
+            suffix=".md", prefix="ownership-sentinel-", dir=directory
+        )
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(self.SENTINEL_BODY)
+        return Path(name)
+
+    def test_module_setup_and_teardown_leave_foreign_fixtures_alone(self) -> None:
+        private_root = Path(tempfile.mkdtemp(prefix="ownership-root-"))
+        self.addCleanup(shutil.rmtree, private_root, ignore_errors=True)
+        top_sentinel = self._make_sentinel(private_root)
+        retired_dir = private_root / "synthetic-claude-rules-sync"
+        retired_dir.mkdir()
+        retired_sentinel = self._make_sentinel(retired_dir)
+        code = (
+            "import sys\n"
+            "from pathlib import Path\n"
+            "sys.path.insert(0, str(Path(sys.argv[1]) / 'tests'))\n"
+            "import test_linters\n"
+            "test_linters.FIXTURE_DIR = Path(sys.argv[2])\n"
+            "test_linters.setUpModule()\n"
+            "getattr(test_linters, 'tearDownModule', lambda: None)()\n"
+        )
+        with tempfile.TemporaryDirectory() as cwd:
+            result = subprocess.run(
+                [sys.executable, "-c", code, str(REPO_ROOT), str(private_root)],
+                cwd=cwd, env={}, capture_output=True, text=True, timeout=60,
+            )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for sentinel in (top_sentinel, retired_sentinel):
+            with self.subTest(sentinel=str(sentinel)):
+                self.assertTrue(
+                    sentinel.exists(),
+                    f"module setup/teardown deleted a fixture it does not own: {sentinel}",
+                )
+                self.assertEqual(
+                    sentinel.read_text(encoding="utf-8"), self.SENTINEL_BODY
+                )
+
+
+class MakeFixtureUniquenessTests(unittest.TestCase):
+    """make_fixture isolates instances: the same basename from two
+    LinterTestCase instances lands in two distinct unique directories, and
+    cleaning one instance leaves the other's fixture intact (P-1.86 PR 1)."""
+
+    def test_same_basename_from_two_instances_does_not_collide(self) -> None:
+        class Probe(LinterTestCase):
+            def test_placeholder(self) -> None:
+                pass
+
+        first = Probe("test_placeholder")
+        second = Probe("test_placeholder")
+        self.addCleanup(first.doCleanups)
+        self.addCleanup(second.doCleanups)
+        path_a = first.make_fixture("collision-probe.md", "first instance\n")
+        path_b = second.make_fixture("collision-probe.md", "second instance\n")
+        self.assertNotEqual(path_a, path_b)
+        self.assertEqual(path_a.name, path_b.name)
+        self.assertEqual(path_a.read_text(encoding="utf-8"), "first instance\n")
+        self.assertEqual(path_b.read_text(encoding="utf-8"), "second instance\n")
+        first.doCleanups()
+        self.assertFalse(path_a.exists())
+        self.assertTrue(path_b.exists())
+        self.assertEqual(path_b.read_text(encoding="utf-8"), "second instance\n")
 
 
 class ToolingBacklogRefsTests(LinterTestCase):
