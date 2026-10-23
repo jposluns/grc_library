@@ -394,6 +394,17 @@ sources = ["core/rules/doctype-parity.md"]
 target = ".claude/references/corpus-management/doctype-parity.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
+# provenance = false: a skill's discovery frontmatter must start at line 1,
+# so the compiler emits the source bytes verbatim; the source carries its own
+# generated-from note in the body instead.
+[[rules]]
+id = "corpus-management-skill"
+kind = "file"
+sources = ["core/skill/SKILL.md"]
+target = ".claude/skills/corpus-management/SKILL.md"
+provenance = false
+regenerate = ["python3", "tools/build-corpus-management.py"]
+
 [[rules]]
 id = "rule-index"
 kind = "index"

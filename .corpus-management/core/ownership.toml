@@ -280,6 +280,11 @@ kind = "file"
 target = ".claude/references/corpus-management/doctype-parity.md"
 
 [[owned_targets]]
+rule = "corpus-management-skill"
+kind = "file"
+target = ".claude/skills/corpus-management/SKILL.md"
+
+[[owned_targets]]
 rule = "rule-index"
 kind = "index"
 target = ".claude/rules/corpus-management/INDEX.md"
