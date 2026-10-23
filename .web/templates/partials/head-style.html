@@ -337,6 +337,10 @@
   .biblio-col li:last-child { border-bottom: none; }
   .biblio-col .id { font-family: var(--font-mono); font-size: 0.86rem; font-weight: 700; color: var(--ink); display: block; }
   .biblio-col .topic { font-size: 0.82rem; color: var(--ink-faint); }
+  .biblio-col .id a { color: inherit; text-decoration: none; }
+  .biblio-col .id a:hover { color: var(--brass); text-decoration: underline; text-underline-offset: 3px; }
+  .biblio-col .id .ext { font-weight: 400; font-size: 0.72rem; color: var(--ink-faint); margin-left: 0.35rem; }
+  .biblio-col .id a:hover .ext { color: var(--brass); }
 
   /* ---------- License ---------- */
   .licence-note { background: var(--surface-2); border: 1px solid var(--line); border-left: 3px solid var(--brass); border-radius: var(--radius); padding: clamp(1.4rem, 3.5vw, 2rem); margin-bottom: 2.4rem; max-width: 780px; }
