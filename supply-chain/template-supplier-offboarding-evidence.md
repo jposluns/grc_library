@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Offboarding Evidence Template\
 **Document Type:** Template\
-**Version:** 1.0.14\
-**Date:** 2026-10-17\
+**Version:** 1.0.15\
+**Date:** 2026-10-23\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md)\
@@ -82,7 +82,7 @@ Access revocation timing follows the governing supplier-exit procedure (step 5):
 | Logs and monitoring data | Retention per contract; destruction at end of retention | Supplier attestation | |
 | Documentation and configuration | Return or destruction | As above | |
 
-The certificate of destruction states: the items destroyed, the method (e.g. the IEEE 2883 Clear / Purge / Destruct categories that NIST SP 800-88 Rev. 2 directs technique detail to), the date, and the signing authority on the supplier side. For personal data, the certificate cites the GDPR Article 28(3)(g) obligation (or jurisdictional equivalent).
+The certificate of destruction states: the items destroyed, the method (e.g. the IEEE 2883-2022 clear / purge / destruct sanitization methods), the date, and the signing authority on the supplier side. NIST SP 800-88 Rev. 2 directs technique detail to the latest IEEE 2883 (2022 at the time of writing), NSA specifications, or an organizationally-approved standard, retaining only cryptographic erase directly. For personal data, the certificate cites the GDPR Article 28(3)(g) obligation (or jurisdictional equivalent).
 
 Returning data to the organization does not discharge the supplier's deletion obligation: where data is returned, the supplier must still securely delete all copies it retains (including personal, test, and backup data). The organization issues the formal deletion instruction upon completion of the return or at contract end (procedure step 4.1), and the deletion certificate for those retained copies is captured here regardless of the return. The "return or destruction" action above describes disposition of the primary data set, not a waiver of copy deletion.
 
@@ -180,7 +180,7 @@ The approval set confirms that the offboarding evidence record is complete, veri
 | ISO/IEC 27036 | Information security for supplier relationships | Termination |
 | ISO 28000:2022 | Security management for supply chains | Termination. The ISO 28000:2022 alignment is unverifiable. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 --> |
 | NIST SP 800-88 Rev. 2 | Guidelines for Media Sanitization | Destruction method (programme framing) |
-| IEEE 2883 | IEEE Standard for Sanitizing Storage | Destruction method (Clear / Purge / Destruct techniques) |
+| IEEE 2883-2022 | IEEE Standard for Sanitizing Storage | Destruction method (Clear / Purge / Destruct sanitization methods) |
 | CSA CCM v4.1 | IPY-04 (data portability contractual obligations) | Exit assistance |
 | ISO/IEC 27001:2022 | A.5.22 (monitoring, review and change management of supplier services) | Closure |
 

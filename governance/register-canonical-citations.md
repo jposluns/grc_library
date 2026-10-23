@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.6.5\
+**Version:** 1.6.6\
 **Date:** 2026-10-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -172,7 +172,8 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| IEEE 2883 | 2022 | 2022-08 | IEEE Standard for Sanitizing Storage (the Clear / Purge / Destruct sanitization categories and per-technology technique requirements; the technique standard NIST SP 800-88 Rev. 2 now defers to) | - | https://standards.ieee.org/ieee/2883/10277/ | verified 2026-06-30 |
+| IEEE 2883 | 2022 | 2022-08 | IEEE Standard for Sanitizing Storage (the clear / purge / destruct sanitization methods and technology-specific requirements; the technique standard NIST SP 800-88 Rev. 2 now defers to) | - | https://standards.ieee.org/ieee/2883/10277/ | verified 2026-10-23 |
+| IEEE 7000 | 2021 | 2021-09 | IEEE Standard Model Process for Addressing Ethical Concerns during System Design (processes for eliciting and prioritizing stakeholder ethical values and tracing them through the concept of operations, ethical requirements, and ethical risk-based design; also issued as ISO/IEC/IEEE 24748-7000:2022) | - | https://standards.ieee.org/ieee/7000/6781/ | verified 2026-10-23 |
 
 ## ETSI standards
 
