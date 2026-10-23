@@ -61221,10 +61221,13 @@ class ModuleFixtureOwnershipTests(unittest.TestCase):
     top-level *.md, or a removal of the retired fixed
     "synthetic-claude-rules-sync" name, could only ever delete another live
     instance's files. This test holds a sentinel in each formerly-swept
-    location while a child process imports the module and calls setUpModule
-    and (if present) tearDownModule, then asserts both sentinels survive
-    unchanged. Restoring either sweep or the retired-name removal makes it
-    fail."""
+    location inside a private fixture root (a unique mkdtemp directory
+    outside the repository, so two live instances of this test never share
+    a directory and nothing is written under the real tests/tmp) while a
+    child process imports the module, points its FIXTURE_DIR at that root,
+    and calls setUpModule and (if present) tearDownModule, then asserts
+    both sentinels survive unchanged. Restoring either sweep or the
+    retired-name removal makes it fail."""
 
     SENTINEL_BODY = "# foreign fixture owned by a concurrent run; must survive\n"
 
@@ -61237,34 +61240,24 @@ class ModuleFixtureOwnershipTests(unittest.TestCase):
         return Path(name)
 
     def test_module_setup_and_teardown_leave_foreign_fixtures_alone(self) -> None:
-        FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
-        top_sentinel = self._make_sentinel(FIXTURE_DIR)
-        self.addCleanup(top_sentinel.unlink, missing_ok=True)
-        retired_dir = FIXTURE_DIR / "synthetic-claude-rules-sync"
-        retired_dir.mkdir(exist_ok=True)
+        private_root = Path(tempfile.mkdtemp(prefix="ownership-root-"))
+        self.addCleanup(shutil.rmtree, private_root, ignore_errors=True)
+        top_sentinel = self._make_sentinel(private_root)
+        retired_dir = private_root / "synthetic-claude-rules-sync"
+        retired_dir.mkdir()
         retired_sentinel = self._make_sentinel(retired_dir)
-
-        def cleanup_retired() -> None:
-            # Remove only this test's own entries: the directory name is
-            # fixed, so a concurrent run may hold its own sentinel in it.
-            retired_sentinel.unlink(missing_ok=True)
-            try:
-                retired_dir.rmdir()
-            except OSError:
-                pass
-
-        self.addCleanup(cleanup_retired)
         code = (
             "import sys\n"
             "from pathlib import Path\n"
             "sys.path.insert(0, str(Path(sys.argv[1]) / 'tests'))\n"
             "import test_linters\n"
+            "test_linters.FIXTURE_DIR = Path(sys.argv[2])\n"
             "test_linters.setUpModule()\n"
             "getattr(test_linters, 'tearDownModule', lambda: None)()\n"
         )
         with tempfile.TemporaryDirectory() as cwd:
             result = subprocess.run(
-                [sys.executable, "-c", code, str(REPO_ROOT)],
+                [sys.executable, "-c", code, str(REPO_ROOT), str(private_root)],
                 cwd=cwd, env={}, capture_output=True, text=True, timeout=60,
             )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

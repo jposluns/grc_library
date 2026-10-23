@@ -88,20 +88,32 @@ Isolation is provided by two complementary mechanisms:
 2. **`.gitignore`**: `tests/tmp/` is gitignored so a leftover
    fixture from a crashed test never enters version control.
 
+Where fixtures actually live: `make_fixture` and most other helpers
+allocate a unique per-instance `mkdtemp` directory under `tests/tmp/`,
+and `_fixture_base` (for trees that hold permission-stripped entries)
+allocates one outside the repository, in the system temporary
+directory, which no gate walks. So `tests/tmp/` holds only uniquely
+named per-run directories, plus one remaining fixed-name
+positive-control file (`NarrativeScanScopeTests`, removed by its own
+test's `finally`).
+
 Linters themselves do NOT exempt `tests/tmp/` (it is not in
 `tools/lint_common.py`'s `DEFAULT_EXEMPT_DIRS`). If a fixture from a
 crashed test remains in the directory, the main
 `tools/run_all_audits.sh` sweep sees it and can trip a content gate.
-Crash residue under `tests/tmp/` is removed only by an explicit
-cleanup, run from the repository root while no test run is active:
+Crash residue is deliberately NOT removed by the next run: a sweep
+cannot tell a crashed run's files from a live run's, so an automatic
+sweep could only ever delete fixtures a concurrently running instance
+owns. Remove residue only by an explicit cleanup, run from the
+repository root while no test run is active:
 
 ```
 rm -rf tests/tmp
 ```
 
-Never run that cleanup while a suite may be running: every live
-fixture also lives under `tests/tmp/`, so the command would delete
-fixtures the running tests own.
+Never run that cleanup while a suite may be running: the live
+fixtures under `tests/tmp/` are the running tests' own uniquely named
+directories, so the command would delete fixtures those tests own.
 
 ## Global-state isolation
 
