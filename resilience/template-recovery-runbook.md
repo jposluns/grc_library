@@ -2,8 +2,8 @@
 
 **Document Title:** Recovery Runbook Template\
 **Document Type:** Template\
-**Version:** 1.0.9\
-**Date:** 2026-10-04\
+**Version:** 1.1.0\
+**Date:** 2026-10-23\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -46,7 +46,7 @@ Each runbook must include the following sections in this order.
 | System owner role | Role accountable for the system |
 | Service owner role | Role accountable for the customer-facing service this system supports |
 | Criticality tier | Tier classification from the BIA |
-| RTO | Recovery Time Objective (target time to restore service after declaration) |
+| RTO | Recovery Time Objective (target time to restore service, measured from the point at which the disruption occurs) |
 | RPO | Recovery Point Objective (maximum acceptable data loss measured in time) |
 | MTPD | Maximum Tolerable Period of Disruption (organization-level tolerance) |
 | Business impact summary | One paragraph describing the consequence of outage to customers, regulators, finances, safety |
@@ -74,6 +74,7 @@ Each runbook must include the following sections in this order.
 | Severity criteria | When to treat the event as P1, P2, P3, P4 per the incident severity matrix |
 | Declaration authority | Role authorized to declare a recovery event |
 | Declaration channel | Where the declaration is logged |
+| Declaration time | Date and time the recovery event is declared, recorded separately from the time the disruption occurred; the RTO is measured from the disruption, not from declaration |
 | Notification list | Roles to notify on declaration; expected notification times |
 
 ### Section 4: Pre-recovery checks
