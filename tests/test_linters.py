@@ -27741,10 +27741,12 @@ class QuickGuardSeparatorTests(LinterTestCase):
         # against the REPO_ROOT computed from their own __file__ (guard_explicit_paths, never the
         # subprocess working directory), so a private root cannot be substituted here: the probe
         # must live at the real repository root. A unique per-run basename (still leading '-')
-        # keeps concurrent runs from colliding on a fixed name.
+        # keeps concurrent runs from colliding on a fixed name. Stated residual: while this test
+        # runs, the root-level probe file IS visible to a concurrent repository scan; cleanup is
+        # registered BEFORE the write so a partial-write failure still leaves nothing behind.
         dash = REPO_ROOT / f"-qg-dash-3b50b2c-{os.urandom(8).hex()}.md"
-        dash.write_text("# Title\n\nPlain text.\n", encoding="utf-8")
         self.addCleanup(dash.unlink, missing_ok=True)
+        dash.write_text("# Title\n\nPlain text.\n", encoding="utf-8")
         rel = dash.name
         for tool in ("lint-unbalanced-fences.py", "lint-nested-markdown-links.py"):
             r = run_linter(f"tools/{tool}", "--", rel)
@@ -44188,8 +44190,30 @@ class NarrativeScanScopeTests(LinterTestCase):
             try:
                 code = module.main(argv)
             except SystemExit as exc:
-                code = exc.code if isinstance(exc.code, int) else 1
+                # Mirror process exit semantics (CPython sys.exit): None is
+                # success, an int is the status, and any other payload is
+                # printed to stderr (the redirected stream) with status 1.
+                if exc.code is None:
+                    code = 0
+                elif isinstance(exc.code, int):
+                    code = exc.code
+                else:
+                    print(exc.code, file=sys.stderr)
+                    code = 1
         return subprocess.CompletedProcess(argv, code, out.getvalue(), err.getvalue())
+
+    def _assert_real_default_scope(self, gate):
+        """Pin the UNPATCHED default scope before ``_run_gate_at_root``
+        patches ``DEFAULT_PATHS`` to a private root: a gate whose shipped
+        default was narrowed (say to security/ or governance/ only) would
+        otherwise keep every behavioural test here green and be caught only
+        by the INVENTORY byte pin."""
+        self.assertEqual(
+            gate.DEFAULT_PATHS,
+            [str(REPO_ROOT)],
+            f"{Path(gate.__file__).name}: the real default scope is not the "
+            "whole repository root",
+        )
 
     VIOLATION = (
         "# Probe\n\n**Document Type:** Standard\\\n**Version:** 0.0.1\n\n"
@@ -44207,6 +44231,7 @@ class NarrativeScanScopeTests(LinterTestCase):
             "governance/executive/tmp-nested-scope-probe.md": self.VIOLATION,
         })
         gate = self._import_gate("lint-required-sections.py")
+        self._assert_real_default_scope(gate)
         # positive control: gate DOES flag the violation at a non-excluded path
         pos_result = self._run_gate_at_root(
             gate, root, root / "tests" / "tmp" / "narrative-positive-control.md")
@@ -44252,6 +44277,7 @@ class NarrativeScanScopeTests(LinterTestCase):
                 "# Probe\n\nExample key: AKIAIOSFODNN7EXAMPLE.\n",
         })
         gate = self._import_gate("lint-secrets-in-content.py")
+        self._assert_real_default_scope(gate)
         result = self._run_gate_at_root(gate, root)
         self.assertNotEqual(
             result.returncode,
@@ -44273,7 +44299,26 @@ class NarrativeScanScopeTests(LinterTestCase):
         clean_root = self._probe_root("narrative-isolation-clean-", {
             "executive/tmp-clean-probe.md": "# Probe\n\nNo credential here.\n",
         })
+        # The isolation claim is structural first: the two resolved probe
+        # roots must be distinct AND outside the resolved repository root.
+        # Roots allocated under tests/tmp (inside the repository) would make
+        # the cross-root check below pass while every concurrent repository
+        # scan still saw the planted credential.
+        repo = REPO_ROOT.resolve()
+        resolved_secret = secret_root.resolve()
+        resolved_clean = clean_root.resolve()
+        self.assertNotEqual(
+            resolved_secret,
+            resolved_clean,
+            "the two probe roots must be distinct directories",
+        )
+        for probe in (resolved_secret, resolved_clean):
+            self.assertFalse(
+                probe.is_relative_to(repo),
+                f"probe root {probe} is inside the repository root {repo}",
+            )
         gate = self._import_gate("lint-secrets-in-content.py")
+        self._assert_real_default_scope(gate)
         planted = self._run_gate_at_root(gate, secret_root)
         self.assertNotEqual(
             planted.returncode,
@@ -44288,6 +44333,40 @@ class NarrativeScanScopeTests(LinterTestCase):
             "a clean root saw another probe root's files:\n" + other.stdout + other.stderr,
         )
         self.assertNotIn("tmp-secret-probe", other.stdout + other.stderr)
+
+    def test_run_gate_at_root_mirrors_process_exit_semantics(self):
+        """The in-process runner maps SystemExit exactly as a process exit
+        would (CPython sys.exit): None exits 0, an int is the status, and
+        any other payload is printed to stderr with status 1. The previous
+        mapping sent SystemExit(None) to 1 and silently dropped a string
+        payload's message."""
+        import types
+
+        root = self._fixture_base("narrative-exit-semantics-")
+        for payload, expected_code, expected_stderr in (
+            (None, 0, ""),
+            (3, 3, ""),
+            ("gate refused: bad path", 1, "gate refused: bad path"),
+        ):
+            stub = types.ModuleType("gate_probe_exit_semantics")
+            stub.__file__ = str(root / "stub-gate.py")
+            stub.REPO_ROOT = REPO_ROOT
+            stub.DEFAULT_PATHS = [str(REPO_ROOT)]
+
+            def _main(argv, _payload=payload):
+                raise SystemExit(_payload)
+
+            stub.main = _main
+            result = self._run_gate_at_root(stub, root)
+            self.assertEqual(
+                result.returncode,
+                expected_code,
+                (payload, result.stdout, result.stderr),
+            )
+            if expected_stderr:
+                self.assertIn(expected_stderr, result.stderr)
+            else:
+                self.assertEqual(result.stderr, "")
 
 
 class IndexHeaderParityTests(LinterTestCase):
