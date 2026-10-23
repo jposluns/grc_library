@@ -75,23 +75,33 @@ tree is removed after the test.
 
 Isolation is provided by two complementary mechanisms:
 
-1. **Per-test cleanup**: each test's `tearDown` deletes its
-   fixture file, and `tests/test_linters.py` has a module-level
-   `tearDownModule` that wipes any remaining `*.md` from `tests/tmp/`.
+1. **Per-test cleanup**: every fixture is owned and cleaned by the test
+   that created it. `make_fixture` writes into a unique per-instance
+   `mkdtemp` directory under `tests/tmp/` and registers its removal with
+   `addCleanup`, and the other fixture helpers use `mkdtemp` the same
+   way. The module-level `setUpModule` in `tests/test_linters.py` only
+   creates `tests/tmp/`; neither it nor any module-level teardown
+   deletes anything, because a sweep could only ever delete fixtures a
+   concurrently running instance owns (one run already overlaps itself:
+   `DirectRunTests` launches the module as a child process).
+   `ModuleFixtureOwnershipTests` pins this ownership contract.
 2. **`.gitignore`**: `tests/tmp/` is gitignored so a leftover
    fixture from a crashed test never enters version control.
 
-Linters themselves do NOT exempt `tests/tmp/`. If a fixture from a
-crashed test were to remain in the directory, the main
-`tools/run_all_audits.sh` sweep would see it. In practice
-`setUpModule` removes stale top-level `*.md` fixtures at the start of
-each run, and per-test fixtures use unique `mkdtemp` directories cleaned
-by `addCleanup`; a single-test crash without cleanup can leave a
-uniquely-named `tests/tmp/fixture-*` directory that the next `setUpModule`
-does not sweep. Because the linters do not exempt `tests/tmp/` (above),
-such a leaked fixture can still be seen by a later `tools/run_all_audits.sh`
-sweep and trip a content gate, so clear `tests/tmp/` manually after a
-crashed run.
+Linters themselves do NOT exempt `tests/tmp/` (it is not in
+`tools/lint_common.py`'s `DEFAULT_EXEMPT_DIRS`). If a fixture from a
+crashed test remains in the directory, the main
+`tools/run_all_audits.sh` sweep sees it and can trip a content gate.
+Crash residue under `tests/tmp/` is removed only by an explicit
+cleanup, run from the repository root while no test run is active:
+
+```
+rm -rf tests/tmp
+```
+
+Never run that cleanup while a suite may be running: every live
+fixture also lives under `tests/tmp/`, so the command would delete
+fixtures the running tests own.
 
 ## Global-state isolation
 

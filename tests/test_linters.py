@@ -124,38 +124,21 @@ def _force_rmtree(path) -> None:
 
 
 def setUpModule() -> None:
-    """Ensure the per-test fixture directory exists and is empty.
+    """Ensure the per-test fixture directory exists.
 
-    Run once before any test in this module. Removes any leftover
-    fixtures from a previously-crashed run so they cannot contaminate
-    the current test pass.
+    Run once before any test in this module. It creates tests/tmp and
+    deletes NOTHING (P-1.86 PR 1): every fixture lives in a unique
+    per-instance mkdtemp directory and is owned and cleaned by the test
+    that created it, so a module-level sweep of top-level *.md (or of
+    the retired fixed "synthetic-claude-rules-sync" name) could only
+    ever delete files a concurrently running instance owns. One suite
+    run already overlaps itself: DirectRunTests launches this very
+    module as a child process, whose module setup used to sweep its
+    parent's fixtures. Crash residue under tests/tmp is removed only by
+    an explicit cleanup while no run is active; see tests/README.md.
+    ModuleFixtureOwnershipTests pins this ownership contract.
     """
     FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
-    for f in FIXTURE_DIR.glob("*.md"):
-        try:
-            f.unlink()
-        except OSError:
-            pass
-    # One-time cleanup of the RETIRED fixed fixture path only: pre-#2292 runs
-    # shared a "synthetic-claude-rules-sync" dir whose chmod-0 secrets.md could
-    # survive a crash. Removing exactly that retired name is parallel-safe
-    # (post-#2292 runs use unique mkdtemp dirs, so nothing live is named this);
-    # a blanket iterdir sweep would race concurrent runs' unique dirs and
-    # reintroduce the very collision FIX 1a removes (codex/gemini vpr-2292 HOLD).
-    _force_rmtree(FIXTURE_DIR / "synthetic-claude-rules-sync")
-
-
-def tearDownModule() -> None:
-    """Belt-and-suspenders: remove any remaining fixtures after the run.
-
-    Individual tearDown methods already remove their fixtures; this
-    catches anything left behind by a crashed assertion.
-    """
-    for f in FIXTURE_DIR.glob("*.md"):
-        try:
-            f.unlink()
-        except OSError:
-            pass
 
 
 def run_linter(script: str, *paths: str | Path) -> subprocess.CompletedProcess:
@@ -61227,6 +61210,99 @@ class DirectRunTests(unittest.TestCase):
         for expression in ('__name__ == "__main__"', '"__main__" == __name__'):
             with self.subTest(expression=expression):
                 self.assertTrue(self._is_main_guard(ast.parse(f"if {expression}: pass").body[0]))
+
+
+class ModuleFixtureOwnershipTests(unittest.TestCase):
+    """setUpModule and tearDownModule never delete fixtures they do not own (P-1.86 PR 1).
+
+    Every fixture under tests/tmp belongs to the test instance that created it
+    (a unique mkdtemp directory removed by addCleanup), and DirectRunTests
+    launches this very module as a child process, so a module-level sweep of
+    top-level *.md, or a removal of the retired fixed
+    "synthetic-claude-rules-sync" name, could only ever delete another live
+    instance's files. This test holds a sentinel in each formerly-swept
+    location while a child process imports the module and calls setUpModule
+    and (if present) tearDownModule, then asserts both sentinels survive
+    unchanged. Restoring either sweep or the retired-name removal makes it
+    fail."""
+
+    SENTINEL_BODY = "# foreign fixture owned by a concurrent run; must survive\n"
+
+    def _make_sentinel(self, directory: Path) -> Path:
+        fd, name = tempfile.mkstemp(
+            suffix=".md", prefix="ownership-sentinel-", dir=directory
+        )
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(self.SENTINEL_BODY)
+        return Path(name)
+
+    def test_module_setup_and_teardown_leave_foreign_fixtures_alone(self) -> None:
+        FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
+        top_sentinel = self._make_sentinel(FIXTURE_DIR)
+        self.addCleanup(top_sentinel.unlink, missing_ok=True)
+        retired_dir = FIXTURE_DIR / "synthetic-claude-rules-sync"
+        retired_dir.mkdir(exist_ok=True)
+        retired_sentinel = self._make_sentinel(retired_dir)
+
+        def cleanup_retired() -> None:
+            # Remove only this test's own entries: the directory name is
+            # fixed, so a concurrent run may hold its own sentinel in it.
+            retired_sentinel.unlink(missing_ok=True)
+            try:
+                retired_dir.rmdir()
+            except OSError:
+                pass
+
+        self.addCleanup(cleanup_retired)
+        code = (
+            "import sys\n"
+            "from pathlib import Path\n"
+            "sys.path.insert(0, str(Path(sys.argv[1]) / 'tests'))\n"
+            "import test_linters\n"
+            "test_linters.setUpModule()\n"
+            "getattr(test_linters, 'tearDownModule', lambda: None)()\n"
+        )
+        with tempfile.TemporaryDirectory() as cwd:
+            result = subprocess.run(
+                [sys.executable, "-c", code, str(REPO_ROOT)],
+                cwd=cwd, env={}, capture_output=True, text=True, timeout=60,
+            )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for sentinel in (top_sentinel, retired_sentinel):
+            with self.subTest(sentinel=str(sentinel)):
+                self.assertTrue(
+                    sentinel.exists(),
+                    f"module setup/teardown deleted a fixture it does not own: {sentinel}",
+                )
+                self.assertEqual(
+                    sentinel.read_text(encoding="utf-8"), self.SENTINEL_BODY
+                )
+
+
+class MakeFixtureUniquenessTests(unittest.TestCase):
+    """make_fixture isolates instances: the same basename from two
+    LinterTestCase instances lands in two distinct unique directories, and
+    cleaning one instance leaves the other's fixture intact (P-1.86 PR 1)."""
+
+    def test_same_basename_from_two_instances_does_not_collide(self) -> None:
+        class Probe(LinterTestCase):
+            def test_placeholder(self) -> None:
+                pass
+
+        first = Probe("test_placeholder")
+        second = Probe("test_placeholder")
+        self.addCleanup(first.doCleanups)
+        self.addCleanup(second.doCleanups)
+        path_a = first.make_fixture("collision-probe.md", "first instance\n")
+        path_b = second.make_fixture("collision-probe.md", "second instance\n")
+        self.assertNotEqual(path_a, path_b)
+        self.assertEqual(path_a.name, path_b.name)
+        self.assertEqual(path_a.read_text(encoding="utf-8"), "first instance\n")
+        self.assertEqual(path_b.read_text(encoding="utf-8"), "second instance\n")
+        first.doCleanups()
+        self.assertFalse(path_a.exists())
+        self.assertTrue(path_b.exists())
+        self.assertEqual(path_b.read_text(encoding="utf-8"), "second instance\n")
 
 
 class ToolingBacklogRefsTests(LinterTestCase):
