@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.6.4\
-**Date:** 2026-10-22\
+**Version:** 1.6.5\
+**Date:** 2026-10-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -344,7 +344,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| NERC CIP | Standards family CIP-002 through CIP-015 (each standard has its own revision number; CIP-015 Internal Network Security Monitoring FERC-approved 2025-06-26, effective 2025-09-02) | various per individual standard | North American Electric Reliability Corporation Critical Infrastructure Protection standards family | - | https://www.nerc.com/pa/Stand/Reliability%20Standards/CIP-015-1.pdf | verified 2026-07-09 |
+| NERC CIP | Standards family CIP-002 through CIP-015 (each standard has its own revision number). CIP-015 Internal Network Security Monitoring: CIP-015-2, adopted by the NERC Board of Trustees 2026-06-17; FERC order issued 2026-08-10, Docket No. RD26-6-000. CIP-015-2 in-force status and final implementation plan not confirmed; phasing, and the retirement of CIP-015-1 in each jurisdiction immediately before CIP-015-2 becomes effective there, are from the February 2026 posted draft plan. Predecessor CIP-015-1: approved in FERC Order No. 907 (issued 2025-06-26); 2025-09-02 is that rule's effective date, not CIP-015-1's, which follows its 36-month implementation plan. | various per individual standard | North American Electric Reliability Corporation Critical Infrastructure Protection standards family | - | - | needs-reconfirm |
 | PCI DSS | 4.0.1 | 2024-06 | Payment Card Industry Data Security Standard | 3.2.1, 4.0 | https://www.pcisecuritystandards.org/document_library/ | 2026-06-30 |
 | IEC 62443-1-1 | 2009 | 2009 | Industrial communication networks: Security: Part 1-1: Concepts and models | - | https://webstore.iec.ch/publication/7029 | 2026-06-30 |
 | IEC 62443-2-1 | 2024 | 2024 | Security for industrial automation and control systems: Part 2-1: Establishing an IACS security programme | 2010 | https://webstore.iec.ch/en/publication/62883 | verified 2026-07-09 |
