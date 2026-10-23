@@ -11953,8 +11953,8 @@ documents:
   domain: "security"
   type: "Standard"
   title: "Email Security Standard"
-  version: "1.0.5"
-  date: "2026-08-05"
+  version: "1.1.0"
+  date: "2026-10-23"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
   classification: "Public"
@@ -11964,6 +11964,7 @@ documents:
   confidentiality: "Public"
   purpose: "This standard defines the minimum email security controls operated by the organization. It covers email authentication (SPF, DKIM, DMARC, BIMI), inbound anti-phishing and anti-malware controls, outbound controls, business email compromise (BEC) mitigations, user reporting, secure email gateway requirements, and the supplementary controls applicable to high-risk roles."
   related_documents:
+    - "security/framework-cryptographic-key-lifecycle.md"
     - "security/policy-information-security.md"
     - "security/policy-acceptable-use.md"
     - "security/standard-data-classification-and-handling.md"
