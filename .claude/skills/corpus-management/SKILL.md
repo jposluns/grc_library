@@ -18,7 +18,7 @@ never this copy.
 
 ## Rule discovery
 
-- `.claude/rules/corpus-management/INDEX.md` lists every corpus rule as
+- `.claude/rules/corpus-management/INDEX.md` lists every on-demand corpus rule as
   `id|purpose|tool|body`. Read a rule's body before creating or editing a file
   that its gate scans, before reviewing or auditing such files, when answering
   a question about that rule, and when its gate fails.

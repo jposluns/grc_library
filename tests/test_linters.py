@@ -25457,7 +25457,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Repository-relative argument-handling dependencies outside tools/.
     DEPENDENCIES = """
-        .corpus-management/tools/corpus_mgmt_compiler.py d5e69c551cf1de7e96431b3ee707331dd02eab881ce67ba9c2922c1eaef0dc14
+        .corpus-management/tools/corpus_mgmt_compiler.py db48a35936ebadb8449fdd51cf7f75df8809cc6d6240cbc1da95e74595dc1497
         .corpus-management/tools/pack_release_delta.py 9954156fab2677b2e68f665945703d834a704ab4374ae2eaf85010ba3a54c9ad
         .corpus-management/tools/profile_loader.py 0b61489bb735fce429c9103c814ec6b3ee3499b6ff0bea194ab6223bbd946697
         vendor/aiqt/tools/aiqt_corpus.py d263897ff93e84e73c509b373e59669a07767e5795618475a1628ea4657e2a47
