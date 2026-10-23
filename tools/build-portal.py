@@ -41,7 +41,7 @@ SCORECARD = REPO_ROOT / "docs" / "maturity-scorecard.md"
 # rewritten Overview, an audience added or removed) and capture the
 # bump in CHANGELOG.md.
 PORTAL_METADATA_VERSION = "1.3.1"
-SCORECARD_METADATA_VERSION = "1.0.0"
+SCORECARD_METADATA_VERSION = "1.0.1"
 
 # Fallback Date if the parsed taxonomy yields no usable date values
 # (defensive; production runs always have dates).
@@ -245,6 +245,8 @@ def classify_maturity(doc: dict) -> str:
     """Classify a document by maturity based on its semver.
 
     Heuristic:
+    - 2.0.0 or later: Mature (at least one major revision after baseline;
+      a major bump never demotes the maturity signal).
     - 1.x.y where x >= 1: Mature (post-baseline with structural revisions).
     - 1.0.x: Baseline (formally approved and stable).
     - 0.x.y: Draft.
@@ -254,7 +256,7 @@ def classify_maturity(doc: dict) -> str:
     if not m:
         return "Unknown"
     major, minor, _patch = (int(x) for x in m.groups())
-    if major >= 1 and minor >= 1:
+    if major >= 2 or (major == 1 and minor >= 1):
         return "Mature"
     if major >= 1:
         return "Baseline"
@@ -435,7 +437,7 @@ def build_scorecard(docs: list[dict]) -> str:
     out.append("")
     out.append("| Maturity | Version range | Adopter signal |")
     out.append("| --- | --- | --- |")
-    out.append("| Mature | 1.x.y where x >= 1 | The artefact has had at least one substantive revision after formal approval. Adopters should treat the artefact as stable and use it as a starting point for their own corpus. |")
+    out.append("| Mature | 2.0.0 or later, or 1.x.y where x >= 1 | The artefact has had at least one substantive revision after formal approval. Adopters should treat the artefact as stable and use it as a starting point for their own corpus. |")
     out.append("| Baseline | 1.0.x | The artefact has been formally approved and published. Adopters can use it; expect refinement on the next review cycle. |")
     out.append("| Draft | 0.x.y | The artefact is pre-formal-approval. Treat as a working draft; review carefully before adoption. |")
     out.append("")
