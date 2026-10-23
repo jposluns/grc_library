@@ -2,8 +2,8 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.1.20\
-**Date:** 2026-09-25\
+**Version:** 1.1.21\
+**Date:** 2026-10-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -47,10 +47,10 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 | Parameter | Requirement |
 | --- | --- |
 | Minimum length | 14 characters for standard accounts; 20 characters for privileged accounts |
-| Complexity | Must include characters from at least 3 of: uppercase, lowercase, numerals, special characters. Passphrases are preferred over complex short passwords. **Adopter awareness:** NIST SP 800-63B Rev. 4 §3.1.1 prohibits verifiers from imposing character-composition rules and instead emphasizes sufficient length, screening the full password against a blocklist of common, expected, or compromised values, and forced change when compromise is evidenced. The 3-of-4 requirement above is therefore a deliberate organizational divergence from NIST guidance. |
+| Complexity | Must include characters from at least 3 of: uppercase, lowercase, numerals, special characters. Passphrases are preferred over complex short passwords. **Adopter awareness:** NIST SP 800-63B Rev. 4 §3.1.1.2 prohibits verifiers from imposing character-composition rules and instead emphasizes sufficient length, screening the full password against a blocklist of common, expected, or compromised values, and forced change when compromise is evidenced. The 3-of-4 requirement above is therefore a deliberate organizational divergence from NIST guidance. |
 | Prohibited passwords | Banned via enterprise password protection service (common passwords, company name variants, sequential patterns). Dictionary words as sole content are prohibited. |
 | Password reuse | The last 12 passwords must not be reused. |
-| Maximum age | No mandatory periodic expiry per NIST SP 800-63B Rev. 4 §3.1.1 Passwords (the recommendation is not conditioned on MFA presence; Rev. 4 finalized 2025-07 reaffirms this and prohibits arbitrary rotation absent evidence of compromise). Passwords must be changed immediately upon suspected compromise. The no-periodic-expiry rule applies to human (interactive) account passwords; service account passwords follow section 7. |
+| Maximum age | No mandatory periodic expiry per NIST SP 800-63B Rev. 4 §3.1.1.2 rule 6 (the recommendation is not conditioned on MFA presence; Rev. 4 finalized 2025-07 reaffirms this and prohibits arbitrary rotation absent evidence of compromise). Passwords must be changed immediately upon suspected compromise. The no-periodic-expiry rule applies to human (interactive) account passwords; service account passwords follow section 7. |
 | Storage | Passwords must never be stored in plaintext. This prohibition is absolute and is not subject to the Section 8 exception process. All systems must use salted cryptographic hashing; the governing algorithm and parameter floor is the Password-based encryption entry in the Encryption and Key Management Policy (Argon2id preferred at the parameters stated there, with PBKDF2-HMAC as the alternative). Stored secrets are managed by the secrets management service. |
 
 ---

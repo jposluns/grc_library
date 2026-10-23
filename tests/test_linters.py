@@ -15315,6 +15315,40 @@ class PIIContentTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_section_sign_locator_not_flagged_as_ipv4(self) -> None:
+        # P-F5 backlog regression, end to end through the wrapper: a dotted
+        # four-part section locator directly after a section sign (the NIST
+        # SP 800-63B Rev. 4 shape restored in
+        # security/standard-authentication-and-password-management.md) is a
+        # citation, not a public IPv4 address. 3.1.1.2 parses as a public
+        # address and the line carries no version cue, so the citation rule
+        # alone suppresses it.
+        fixture = self.make_fixture(
+            "standard-section-sign-citation.md",
+            VALID_METADATA
+            + "\n\nNIST SP 800-63B Rev. 4 §3.1.1.2 prohibits verifier"
+            " composition rules (rule 5).\n",
+        )
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            "a §-prefixed section locator must not be reported as a "
+            f"public IPv4 address.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_ipv4_after_section_sign_locator_still_flagged(self) -> None:
+        # P-F5 backlog regression: the citation exemption is anchored to the
+        # text directly before the match, never widened to the whole line, so
+        # an address that merely shares a line with a §-locator stays
+        # reported.
+        fixture = self.make_fixture(
+            "standard-section-sign-with-ip.md",
+            VALID_METADATA + "\n\nPer §3.1 at 8.8.8.8 the resolver answers.\n",
+        )
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertLinterFails(result, "IPv4")
+
     def test_us_phone_number_flagged(self) -> None:
         # 10-digit phone number with separators.
         fixture = self.make_fixture(
@@ -50436,6 +50470,31 @@ class PiiInContentEngineTransferTests(unittest.TestCase):
                           ("See clause 5.1 and 8.8.8.8 here.\n", "8.8.8.8"),
                           ("Allow only §8.8.8.0/24.\n", "8.8.8.0"),
                           ("Permit section 8.8.8.0/24.\n", "8.8.8.0")):
+            found = [f[2] for f in self._scan(doc) if f[1] == "public IPv4 address"]
+            self.assertEqual(found, [addr], f"address must stay reported: {doc!r}")
+
+    def test_section_sign_locator_cases(self):
+        # P-F5 backlog regression, engine level. Exempt: a four-part locator
+        # directly after a section sign, with or without a space after the
+        # sign (CITATION_CUE_RE deliberately uses \s* after §, so the
+        # typographic spaced form "§ 3.1.1.2" stays a citation). 3.1.1.2
+        # parses as a public address, so the citation rule alone suppresses it.
+        self.assertFalse(self.engine.is_documentation_ip("3.1.1.2"))
+        for doc in ("NIST SP 800-63B Rev. 4 §3.1.1.2 prohibits verifier"
+                    " composition rules (rule 5).\n",
+                    "See §3.1.1.2 for the prohibition.\n",
+                    "See § 3.1.1.2 for the prohibition.\n"):
+            m = self.engine.IPV4_RE.search(doc)
+            self.assertFalse(self.engine.is_version_ip(doc, m.start()), doc)
+            self.assertTrue(self.engine.is_citation_ip(doc, m.start(), m.end()), doc)
+            self.assertEqual(
+                [f for f in self._scan(doc) if f[1] == "public IPv4 address"], [],
+                f"§-prefixed locator must not be reported: {doc!r}")
+        # Still flagged: a bare dotted quad in prose, and an address on the
+        # same line as (but not directly after) a §-locator: the cue is
+        # anchored to the text directly before the match, never the whole line.
+        for doc, addr in (("Bare 3.1.1.2 in prose stays reported.\n", "3.1.1.2"),
+                          ("Per §3.1 at 8.8.8.8 the resolver answers.\n", "8.8.8.8")):
             found = [f[2] for f in self._scan(doc) if f[1] == "public IPv4 address"]
             self.assertEqual(found, [addr], f"address must stay reported: {doc!r}")
 
