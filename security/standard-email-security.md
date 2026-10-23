@@ -2,11 +2,11 @@
 
 **Document Title:** Email Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.5\
-**Date:** 2026-08-05\
+**Version:** 1.1.0\
+**Date:** 2026-10-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md)\
+**Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md)\
 **Classification:** Public\
 **Category:** Information Security\
 **Review Frequency:** Annual and upon material change to email infrastructure, threat-pattern, or regulator-expected posture\
@@ -35,7 +35,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 | Control area | Requirement |
 | --- | --- |
 | SPF | A SPF record published for every domain capable of sending email; the record enumerates authorized senders and ends with `-all` (or `~all` only during a documented transition window) |
-| DKIM | DKIM signing enabled on every sending domain; key length at minimum 2048 bits; keys rotated at minimum annually |
+| DKIM | DKIM signing enabled on every sending domain; RSA-4096 keys only, the RSA size approved for asymmetric keys in the [Cryptographic Key Lifecycle Management Framework](framework-cryptographic-key-lifecycle.md); keys rotated at minimum annually |
 | DMARC | DMARC record published for every domain with policy at minimum `p=quarantine` for primary domains and `p=reject` as the target state; aggregate and failure reports collected and reviewed |
 | BIMI | BIMI deployed where DMARC `p=reject` is in force and brand-protection benefits the deployment |
 | Subdomain policy | Every sending subdomain has its own SPF and DKIM; DMARC inherits or specifies per subdomain |
