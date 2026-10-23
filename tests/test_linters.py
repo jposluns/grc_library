@@ -16965,18 +16965,20 @@ class SkillDerivesFromTests(LinterTestCase):
     """tools/lint-skill-derives-from.py
 
     The audit verifies that every ``SKILL.md`` under
-    ``guardrails/skills/`` declares a ``derives_from:``
+    ``guardrails/skills/`` or ``.claude/skills/corpus-management/``
+    declares a ``derives_from:``
     YAML frontmatter field whose value resolves to an existing file.
     Tests use ``--root`` to point the linter at a synthetic minimal
     source set with engineered errors so the detection logic can be
     exercised without touching the real corpus.
     """
 
-    def _build_synthetic_root(self, skill_frontmatter: str, target_exists: bool) -> Path:
+    def _build_synthetic_root(self, skill_frontmatter: str, target_exists: bool,
+                              skill_dir_rel: str = "guardrails/skills/test-skill") -> Path:
         import shutil
 
         synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-skill-derives-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86; #2439 follow-up)
-        skill_dir = synthetic_root / "guardrails" / "skills" / "test-skill"
+        skill_dir = synthetic_root / skill_dir_rel
         skill_dir.mkdir(parents=True)
         rules_dir = synthetic_root / "guardrails" / "governance"
         rules_dir.mkdir(parents=True)
@@ -17037,6 +17039,39 @@ class SkillDerivesFromTests(LinterTestCase):
             self.assertLinterFails(result, "does not exist")
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_corpus_management_skill_location_scanned(self) -> None:
+        # cm PR-1 (plan C9): the compiler-generated corpus-management skill
+        # lives under .claude/skills/, which this gate previously never saw.
+        import shutil
+
+        synthetic_root = self._build_synthetic_root(
+            skill_frontmatter=(
+                "---\n"
+                "name: corpus-management\n"
+                "description: A corpus-management skill with no derives_from field.\n"
+                "---\n\n"
+                "# Corpus-Management\n"
+            ),
+            target_exists=False,
+            skill_dir_rel=".claude/skills/corpus-management",
+        )
+        try:
+            result = run_linter(
+                "tools/lint-skill-derives-from.py",
+                "--root",
+                str(synthetic_root),
+            )
+            self.assertLinterFails(result, "missing `derives_from:`")
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_live_tree_scans_and_passes_the_generated_skill(self) -> None:
+        mod = load_linter_module("tools/lint-skill-derives-from.py", "_skill_derives_live")
+        files = mod.find_skill_files(REPO_ROOT)
+        self.assertIn(REPO_ROOT / ".claude/skills/corpus-management/SKILL.md", files)
+        result = run_linter("tools/lint-skill-derives-from.py")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 class LintCommonHelperTests(unittest.TestCase):
@@ -25357,7 +25392,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-session-state.py NO_FS F 4223723f25b14f825089bb08e130da48962431af53e2f32750fc52f180585b71
         lint-shall-near-uncertainty.py ROOT F 0df50c2b6826f9216f67addad8931f1eb35498d0e3862064bdb3fed317e64610
         lint-sibling-placeholders.py NO_FS F 2ae82222a589343521ebfbc12a3b9edbec0533203e02b3f7adf906f2b8ad1d2a
-        lint-skill-derives-from.py OWN F 647bad2c581c91563e3738fb588b065a1c03aa2df6d98ca1b57562e2092a1eef
+        lint-skill-derives-from.py OWN F 4bf6a78a42e9f8d8dff44035ac2320a67043006a133375e7cacdcd85dd5336f5
         lint-skill-internal-refs.py ROOT F b2b1fc4846ca52b298fe12ee712477bfac97e173e3ac6368e72c5edd6c28b50e
         lint-skill-verdict-carrier-completeness.py OWN F 7056be9141352daf10807f17e9941fb422a84cbf43eae4fff9549efd3684f5a3
         lint-ssdf-control-ids.py CWD F 54015e59cec3436d10f624771d7f0f44367bb6e37354e7468c3474866b32901e
@@ -25422,7 +25457,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Repository-relative argument-handling dependencies outside tools/.
     DEPENDENCIES = """
-        .corpus-management/tools/corpus_mgmt_compiler.py d5e69c551cf1de7e96431b3ee707331dd02eab881ce67ba9c2922c1eaef0dc14
+        .corpus-management/tools/corpus_mgmt_compiler.py db48a35936ebadb8449fdd51cf7f75df8809cc6d6240cbc1da95e74595dc1497
         .corpus-management/tools/pack_release_delta.py 9954156fab2677b2e68f665945703d834a704ab4374ae2eaf85010ba3a54c9ad
         .corpus-management/tools/profile_loader.py 0b61489bb735fce429c9103c814ec6b3ee3499b6ff0bea194ab6223bbd946697
         vendor/aiqt/tools/aiqt_corpus.py d263897ff93e84e73c509b373e59669a07767e5795618475a1628ea4657e2a47
@@ -43054,7 +43089,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.17.0", "3b150 adds the index-header parity engine's optional Title comparator parameters and its four-value collect_findings return (MINOR, 0.16.1 to 0.17.0)")
+        self.assertEqual(man["pack"]["version"], "0.18.0", "cm PR-1 adds the corpus-management-skill generation rule (a new ownership and id-history register identity; MINOR, 0.17.0 to 0.18.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
@@ -43398,8 +43433,13 @@ class CorpusManagementCompilerTests(LinterTestCase):
         for r in rules:
             if r["kind"] == "file":
                 body = (REPO_ROOT / r["target"]).read_bytes()
-                self.assertEqual(body.split(b"\n\n", 1)[1],
-                                 (REPO_ROOT / ".corpus-management" / r["sources"][0]).read_bytes())
+                source = (REPO_ROOT / ".corpus-management" / r["sources"][0]).read_bytes()
+                if r.get("provenance", True):
+                    self.assertEqual(body.split(b"\n\n", 1)[1], source)
+                else:
+                    # provenance = false renders the source verbatim (the
+                    # corpus-management skill: frontmatter must stay line 1).
+                    self.assertEqual(body, source)
         spec = importlib.util.spec_from_file_location("cm_sync", REPO_ROOT / "tools/lint-claude-rules-sync.py")
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
@@ -43407,6 +43447,58 @@ class CorpusManagementCompilerTests(LinterTestCase):
         self.assertEqual(findings, [])
         self.assertEqual(files, {p.relative_to(REPO_ROOT).as_posix() for p in always.iterdir()})
         self.assertEqual(trees, set())
+
+    def test_live_skill_scaffold_frontmatter_first(self):
+        import tomllib
+        rules = tomllib.loads((REPO_ROOT / ".corpus-management/gensrc.toml").read_text())["rules"]
+        skill = next(r for r in rules if r["id"] == "corpus-management-skill")
+        self.assertEqual(skill["kind"], "file")
+        self.assertIs(skill["provenance"], False)
+        self.assertEqual(skill["target"], ".claude/skills/corpus-management/SKILL.md")
+        rendered = (REPO_ROOT / skill["target"]).read_bytes()
+        lines = rendered.decode("utf-8").splitlines()
+        self.assertEqual(lines[0], "---",
+                         "skill discovery frontmatter must start at line 1")
+        self.assertEqual(rendered,
+                         (REPO_ROOT / ".corpus-management" / skill["sources"][0]).read_bytes())
+        self.assertEqual(lines[1], "name: corpus-management")
+        self.assertTrue(lines[2].startswith("description: ") and len(lines[2]) > 13)
+
+    def test_unprovenanced_file_rule_renders_source_verbatim(self):
+        # The compiler behaviour behind the live assertion above: a file rule
+        # with provenance = false outside the managed rule partition emits the
+        # source bytes with no provenance header, keeping `---` on line 1, and
+        # gate 99 still detects drift on the rendered skill.
+        gensrc = (
+            "schema_version = 1\n\n[[rules]]\n"
+            'id = "skill"\nkind = "file"\n'
+            'sources = ["core/skill/SKILL.md"]\n'
+            'target = ".claude/skills/corpus-management/SKILL.md"\n'
+            "provenance = false\n"
+        )
+        ownership = (
+            "schema_version = 1\n\n[[owned_targets]]\n"
+            'rule = "skill"\nkind = "file"\n'
+            'target = ".claude/skills/corpus-management/SKILL.md"\n'
+        )
+        source = ("---\nname: corpus-management\ndescription: Test skill.\n---\n\n"
+                  "# Skill\n\nBody.\n")
+        root = self._make_root(
+            gensrc=gensrc, ownership=ownership,
+            owned_targets='".claude/skills/corpus-management/SKILL.md"',
+            sources={"core/skill/SKILL.md": source},
+        )
+        result = self._run(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        target = root / ".claude/skills/corpus-management/SKILL.md"
+        rendered = target.read_bytes()
+        self.assertEqual(rendered, source.encode("utf-8"))
+        self.assertEqual(rendered.split(b"\n", 1)[0], b"---")
+        self.assertEqual(self._run(root, "--check").returncode, 0)
+        target.write_bytes(rendered + b"drift\n")
+        result = self._run(root, "--check")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("out of sync", result.stdout)
 
     def _block_root(self, handbook):
         return self._make_root(

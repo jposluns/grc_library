@@ -3,15 +3,23 @@
 
 Each `SKILL.md` file under `guardrails/skills/<name>/` is a
 workflow document that DERIVES from a canonical pack rule (typically
-under `guardrails/governance/`). The skill's YAML
+under `guardrails/governance/`). The compiler-generated
+Corpus-Management skill under `.claude/skills/corpus-management/`
+derives from its pack the same way (its canonical source is the
+Corpus-Management pack README). The skill's YAML
 frontmatter must declare the derivation explicitly via a
 ``derives_from:`` field whose value is a relative path from the skill
 file to the canonical rule's markdown file. This audit enforces that:
 
-  1. Every ``SKILL.md`` under ``guardrails/skills/`` has a
+  1. Every ``SKILL.md`` under ``guardrails/skills/`` or
+     ``.claude/skills/corpus-management/`` has a
      ``derives_from:`` field in its YAML frontmatter.
   2. The path named by ``derives_from:`` resolves to an existing file in
      the repository.
+
+Other ``.claude/skills/`` directories (external overlays and
+project trigger wrappers) declare no derivation and stay out of
+scope; only the two directories above are scanned.
 
 The audit does not perform a semantic check: it does not verify that the
 skill's Process steps match the rule's protocol, only that the rule
@@ -58,6 +66,10 @@ from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-
 from lint_common import REPO_ROOT, require_dir  # noqa: E402  # grc-config/store, stays local
 
 SKILLS_DIR_REL = "guardrails/skills"
+# The compiler-generated Corpus-Management skill (gate 99 owns its bytes)
+# declares a derivation too; the rest of .claude/skills/ does not.
+CM_SKILL_DIR_REL = ".claude/skills/corpus-management"
+SCANNED_DIRS_REL = (SKILLS_DIR_REL, CM_SKILL_DIR_REL)
 
 # Matches a YAML frontmatter ``derives_from:`` line. The path captured
 # group spans to end-of-line (after stripping leading whitespace), and
@@ -88,10 +100,12 @@ def extract_frontmatter(text: str) -> str | None:
 
 
 def find_skill_files(root: Path) -> list[Path]:
-    skills_dir = root / SKILLS_DIR_REL
-    if not skills_dir.is_dir():
-        return []
-    return sorted(skills_dir.rglob("SKILL.md"))
+    found: list[Path] = []
+    for rel in SCANNED_DIRS_REL:
+        skills_dir = root / rel
+        if skills_dir.is_dir():
+            found.extend(skills_dir.rglob("SKILL.md"))
+    return sorted(found)
 
 
 def check_skill(skill_path: Path, root: Path) -> list[str]:
@@ -145,9 +159,9 @@ def check_skill(skill_path: Path, root: Path) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Audit that every SKILL.md under guardrails/skills/ "
-            "declares a derives_from: frontmatter field pointing at an existing "
-            "pack rule."
+            "Audit that every SKILL.md under guardrails/skills/ and "
+            ".claude/skills/corpus-management/ declares a derives_from: "
+            "frontmatter field pointing at an existing pack rule."
         )
     )
     parser.add_argument(
@@ -167,7 +181,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if not skill_files:
         print(
-            f"OK: no SKILL.md files found under {SKILLS_DIR_REL}/; "
+            f"OK: no SKILL.md files found under "
+            f"{' or '.join(f'{rel}/' for rel in SCANNED_DIRS_REL)}; "
             f"nothing to verify."
         )
         return 0

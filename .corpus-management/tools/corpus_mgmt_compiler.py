@@ -17,7 +17,8 @@ Rule kinds (the generation contract):
   target; it only ever owns the span between the sentinels.
 - ``file``: one or more sources concatenated in listed order; the compiler
   owns the WHOLE file, including a first-line provenance comment it emits
-  itself (``provenance = false`` opts a non-markdown target out).
+  itself (``provenance = false`` opts a target out: a non-markdown target, or
+  a skill whose discovery frontmatter must start at line 1).
 - ``index``: the ruleset and gate register produce a compact rule directory;
   purposes come from source headings, tools from gate bindings, bodies stay
   outside auto-loaded rules. The index is limited to 6,000 UTF-8 bytes.
