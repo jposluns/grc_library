@@ -43089,7 +43089,11 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.19.0", "cm PR-7/D-4 declares the publication-screening add-on available in the [addons] register (a new literal accepted-value declaration; MINOR, 0.18.0 to 0.19.0)")
+        self.assertEqual(man["pack"]["version"], "0.19.0", "cm PR-7/D-4 declares the publication-screening add-on available in the [addons] register (MINOR by judgement, floor PATCH; 0.18.0 to 0.19.0)")
+        addons = man["addons"]
+        self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
+        self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
+        self.assertIs(addons["requires_reference_base"], True)
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")

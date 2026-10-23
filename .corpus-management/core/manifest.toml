@@ -54,9 +54,10 @@ owned_targets = [".claude/rules/corpus-management/INDEX.md", ".claude/CLAUDE.md"
 # Dual contract for publication-screening: this entry records adopter availability
 # of the add-on (declared available, disabled here), while the parent project's own
 # publication screening (/screen-publications in its CLAUDE.md) stays required
-# unconditionally. requires_reference_base applies to it because the add-on's
-# untrusted publications bucket, its SCREENING.md verdict register and its
-# enforcing validation gate live in the adopter's reference base.
+# unconditionally. requires_reference_base applies to it because the add-on
+# corroborates each claim through the project's configured trusted-source index
+# (publication-screening SKILL.md step 4) and screens an adopter-configured
+# untrusted collection with its own verdict register and enforcing gate.
 available = ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"]
 enabled = []
 requires_reference_base = true
