@@ -7,7 +7,7 @@ schema_version = 1
 
 [pack]
 id = "corpus-management"
-version = "0.18.0"
+version = "0.19.0"
 state = "active"
 source_root = "."
 
@@ -50,7 +50,14 @@ ruleset = "gensrc.toml"
 owned_targets = [".claude/rules/corpus-management/INDEX.md", ".claude/CLAUDE.md", ".claude/rules/corpus-management/language-convention.md", ".claude/references/corpus-management/authoring-conventions.md", ".claude/references/corpus-management/corpus-scan-integrity.md", ".claude/references/corpus-management/markdown-link-integrity.md", ".claude/rules/corpus-management/normative-wording.md", ".claude/references/corpus-management/markdown-link-resolution.md", ".claude/references/corpus-management/required-sections.md", ".claude/references/corpus-management/citation-denylist.md", ".claude/references/corpus-management/section-placement.md", ".claude/references/corpus-management/shall-near-uncertainty.md", ".claude/references/corpus-management/todo-forward-only.md", ".claude/references/corpus-management/positional-backlog-token.md", ".claude/references/corpus-management/no-stub-documents.md", ".claude/references/corpus-management/filename-title-alignment.md", ".claude/references/corpus-management/standards-currency.md", ".claude/references/corpus-management/directional-dependency.md", ".claude/references/corpus-management/role-authority.md", ".claude/references/corpus-management/placeholder-leakage.md", ".claude/references/corpus-management/gate-count-consistency.md", ".claude/references/corpus-management/date-format.md", ".claude/references/corpus-management/license-consistency.md", ".claude/references/corpus-management/section-anchor-resolution.md", ".claude/references/corpus-management/intra-doc-section-refs.md", ".claude/references/corpus-management/secret-content.md", ".claude/references/corpus-management/pii-content.md", ".claude/references/corpus-management/internal-reference.md", ".claude/references/corpus-management/external-link-domain.md", ".claude/references/corpus-management/acronym-consistency.md", ".claude/references/corpus-management/cross-doc-numbers.md", ".claude/references/corpus-management/cobit-iso31000-citations.md", ".claude/references/corpus-management/metadata-line-breaks.md", ".claude/references/corpus-management/orphan-documents.md", ".claude/references/corpus-management/cross-file-section-refs.md", ".claude/references/corpus-management/cross-file-section-names.md", ".claude/references/corpus-management/document-date-staleness.md", ".claude/references/corpus-management/structural-index-integrity.md", ".claude/references/corpus-management/document-metadata.md", ".claude/references/corpus-management/retention-consistency.md", ".claude/references/corpus-management/document-control-codes.md", ".claude/references/corpus-management/document-iso-annex-a.md", ".claude/references/corpus-management/ccm-aicm-citations.md", ".claude/references/corpus-management/matrix-control-codes.md", ".claude/references/corpus-management/ccm-provider-member-range.md", ".claude/references/corpus-management/alignment-citation-existence.md", ".claude/references/corpus-management/cobit-title-text.md", ".claude/references/corpus-management/ssdf-control-ids.md", ".claude/references/corpus-management/listing-surface-completeness.md", ".claude/references/corpus-management/narrative-disclaimer.md", ".claude/references/corpus-management/narrative-vocabulary.md", ".claude/references/corpus-management/narrative-authority-boundary.md", ".claude/references/corpus-management/narrative-boundary.md", ".claude/references/corpus-management/narrative-metadata.md", ".claude/references/corpus-management/index-header-parity.md", ".claude/references/corpus-management/doctype-parity.md", ".claude/skills/corpus-management/SKILL.md"]
 
 [addons]
-available = ["matrix-fit", "claim-fit", "reference-audit"]
+# Adopter-availability register ONLY: no pack or project code reads [addons].
+# Dual contract for publication-screening: this entry records adopter availability
+# of the add-on (declared available, disabled here), while the parent project's own
+# publication screening (/screen-publications in its CLAUDE.md) stays required
+# unconditionally. requires_reference_base applies to it because the add-on's
+# untrusted publications bucket, its SCREENING.md verdict register and its
+# enforcing validation gate live in the adopter's reference base.
+available = ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"]
 enabled = []
 requires_reference_base = true
 
