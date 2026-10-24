@@ -2,7 +2,7 @@
 
 **Document Title:** What the governing body should ask about the organization's AI inventory, risks, incidents, suppliers, and change\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.4\
+**Version:** 0.0.5\
 **Date:** 2026-10-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -87,7 +87,7 @@ Each item below is an evidence class the governing body can call for from manage
 
 - **The current AI system register extract and model registry extract**, as evidence of the inventory and ownership controls, in the structures the [AI system register template](../../ai/template-ai-system-register.md) and the [model registry](../../ai/register-model-registry.md) define.
 - **The AI risk register read against the approved appetite statement**, as evidence that material AI risk is tracked against the appetite the governing body approved, per the [AI risk register](../../ai/register-ai-risk.md) and the [risk appetite statement](../../risk/template-risk-appetite-statement.md).
-- **Impact assessment records with their approval decisions for the highest-tier systems**, as evidence that the assessment gate operated, per the [impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md) (its Steps 7 and 9).
+- **Impact assessment records with their approval decisions for the systems at the highest impact levels**, as evidence that the assessment gate operated, per the [impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md) (its Steps 7 and 9).
 - **Risk acceptance and exception records with owners, compensating controls, and expiries**, as evidence for the risk acceptance control, per the [risk acceptance procedure](../../risk/procedure-risk-acceptance.md) and the [exception and risk acceptance policy](../../governance/policy-exception-and-risk-acceptance-management.md).
 - **The periodic risk report's AI, incident, and supplier sections, with their delivery record**, as evidence for the reporting expectation the [board oversight guide](../../ai/guide-ai-board-oversight.md) sets (its section 7), in the structure of the [board risk report template](../../risk/template-board-risk-report.md).
 - **The defined AI incident classes and the most recent post-incident review output**, as evidence that the incident path is defined and has been exercised, per the [AI incident response plan](../../ai/plan-ai-incident-response.md).

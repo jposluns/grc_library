@@ -2,8 +2,8 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.18\
-**Date:** 2026-10-16\
+**Version:** 1.0.19\
+**Date:** 2026-10-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -55,7 +55,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
-| A1 | AI system registered in the AI System Register with complete metadata, including system name, version, deployment context, risk tier, intended use, and data categories | | | | |
+| A1 | AI system registered in the AI System Register with complete metadata, including system name, version, deployment context, risk classification, impact level, intended use, and data categories | | | | |
 | A2 | Risk tier classification documented for both the EU AI Act tier and the organization's own risk tier (informed by the NIST AI RMF, which prescribes no tier taxonomy); classification reviewed and approved by the AIGC | | | | |
 | A3 | Model card completed and current, reflecting the model version in production ([`ai/template-model-card.md`](template-model-card.md)) | | | | |
 | A4 | System card completed and current, reflecting the current deployment context, human oversight design, and known limitations ([`ai/template-system-card.md`](template-system-card.md)) | | | | |

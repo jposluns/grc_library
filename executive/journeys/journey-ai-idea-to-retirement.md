@@ -2,7 +2,7 @@
 
 **Document Title:** From AI idea to retirement: the governed life of an AI system\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.5\
+**Version:** 0.0.6\
 **Date:** 2026-10-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -97,7 +97,7 @@ The system no longer runs, and the intended evidence trail spans its life: the r
 Each item below is an evidence class the governing body can call for from management, and each is evidence for a named control or outcome. Judge each against the linked corpus document, which carries the specific requirements.
 
 - **The AI inventory entry for a sampled system**, as evidence for the recording control, per the [AI governance and risk framework](../../ai/framework-ai-governance-and-risk.md) and the structure in the [AI system register template](../../ai/template-ai-system-register.md).
-- **The completed impact assessment with its tier decision and required outputs**, as evidence for the classification and assessment controls in the [AI risk methodology annex](../../risk/annex-ai-risk-methodology.md) and the [AI system impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md).
+- **The risk classification record and the completed impact assessment with its impact-level decision and required outputs**, as evidence for the classification and assessment controls in the [AI risk methodology annex](../../risk/annex-ai-risk-methodology.md) and the [AI system impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md).
 - **Training-data approval records for a trained or fine-tuned system**, as evidence for the approval-to-train control in the [training data governance procedure](../../ai/procedure-training-data-governance.md).
 - **The architecture record, control design, and threat model**, as evidence for the design-stage controls in the [AI governance and risk framework](../../ai/framework-ai-governance-and-risk.md) and the control baseline in the [AI security and risk standard](../../ai/standard-ai-security-and-risk.md), including the agent surface in the [AI access and agent permissions standard](../../ai/standard-ai-access-and-agent-permissions.md) where the system invokes tools.
 - **Tier-matched test results and the evaluation report**, as evidence for the testing gates in the [AI testing, validation and documentation standard](../../ai/standard-ai-testing-validation-and-documentation.md) and the review in the [AI evaluation procedure](../../ai/procedure-ai-evaluation.md).
