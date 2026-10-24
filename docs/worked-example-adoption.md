@@ -2,8 +2,8 @@
 
 **Document Title:** Worked Example: Adopting the Library into a Running Programme\
 **Document Type:** Guide\
-**Version:** 1.0.1\
-**Date:** 2026-09-05\
+**Version:** 1.0.2\
+**Date:** 2026-10-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/worked-example.md`](worked-example.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md), [`docs/decision-tree.md`](decision-tree.md)\
@@ -51,7 +51,7 @@ With the six floor artefacts copied, the adopter sequences the first quarter usi
 
 ## Step 5: Phase 2 (days 91 to 180), operationalize and add AI
 
-In the second phase ([`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) phase 2, days 91 to 180 at the E2 pace) the artefacts move from existing to being used: the adopter stands up a review cadence with [`governance/template-document-review-record.md`](../governance/template-document-review-record.md), runs a full incident-response tabletop, and refreshes the maturity self-assessment. This is where the AI feature set is brought under governance. The adopter guide's Tier 2 growth set adds the `ai/` core artefacts once the starter set is operating reliably; the startup roadmap's AI-in-operations module names the concrete first files. The adopter adopts the AI compliance policy [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md), inventories each AI system with [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), documents its higher-tier systems with [`ai/template-system-card.md`](../ai/template-system-card.md), and reads the AI capability path in [`docs/decision-tree.md`](decision-tree.md) for the governance-council and AI-security artefacts. Because it uses AI for feature delivery rather than training its own models, it takes the AI-in-operations set, not the heavier model-development set. The acceptance criteria are the implementation roadmap's phase 2 list: a review-cadence schedule covering every adopted artefact, at least one completed review wave, measurable maturity movement, and a tabletop that produced an artefact-update list.
+In the second phase ([`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) phase 2, days 91 to 180 at the E2 pace) the artefacts move from existing to being used: the adopter stands up a review cadence with [`governance/template-document-review-record.md`](../governance/template-document-review-record.md), runs a full incident-response tabletop, and refreshes the maturity self-assessment. This is where the AI feature set is brought under governance. The adopter guide's Tier 2 growth set adds the `ai/` core artefacts once the starter set is operating reliably; the startup roadmap's AI-in-operations module names the concrete first files. The adopter adopts the AI compliance policy [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md), inventories each AI system with [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), documents each high-risk AI system with [`ai/template-system-card.md`](../ai/template-system-card.md), and reads the AI capability path in [`docs/decision-tree.md`](decision-tree.md) for the governance-council and AI-security artefacts. Because it uses AI for feature delivery rather than training its own models, it takes the AI-in-operations set, not the heavier model-development set. The acceptance criteria are the implementation roadmap's phase 2 list: a review-cadence schedule covering every adopted artefact, at least one completed review wave, measurable maturity movement, and a tabletop that produced an artefact-update list.
 
 ## Step 6: Year-1 close and tracking upstream
 

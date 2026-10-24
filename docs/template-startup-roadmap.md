@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Startup Roadmap Template\
 **Document Type:** Template\
-**Version:** 2.2.14\
-**Date:** 2026-10-22\
+**Version:** 2.2.15\
+**Date:** 2026-10-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -103,7 +103,7 @@ Triggered by use of AI in customer-facing or internal workflows: chat assistants
 Adopt:
 - [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md): the AI policy floor.
 - [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md): inventory each AI system in scope.
-- [`ai/template-system-card.md`](../ai/template-system-card.md): per-system documentation for high-tier systems.
+- [`ai/template-system-card.md`](../ai/template-system-card.md): per-system documentation for each high-risk AI system.
 - [`ai/checklist-ai-algorithmic-compliance.md`](../ai/checklist-ai-algorithmic-compliance.md): if the AI use case touches regulated decision-making.
 
 #### A4: We develop or train AI models
@@ -113,7 +113,7 @@ Triggered by training models in-house, fine-tuning, or building AI products that
 Adopt the A3 set plus:
 - [`ai/template-model-card.md`](../ai/template-model-card.md): per-model.
 - [`ai/template-dataset-datasheet.md`](../ai/template-dataset-datasheet.md): per-dataset.
-- [`ai/template-ai-red-team-report.md`](../ai/template-ai-red-team-report.md): for high-tier systems.
+- [`ai/template-ai-red-team-report.md`](../ai/template-ai-red-team-report.md): for each high-risk AI system.
 - [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md): the documentation discipline.
 
 #### A5: We have critical-availability operations

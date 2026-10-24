@@ -2,7 +2,7 @@
 
 **Document Title:** AI Model Risk Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-10-24\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -76,7 +76,7 @@ The accountable approval role must decide whether the model may proceed, proceed
 
 - **AI Governance Lead** coordinates and performs the assessment steps (Steps 1 to 10), drawing on the model owner and relevant subject-matter contributors for the evidence each step depends on.
 - **Model owner** supplies the model documentation, evaluation evidence, monitoring records, and supplier records the steps rely on, and owns the resulting treatment actions and residual-risk items.
-- **AI Governance Approver** makes the Step 10 decision (approve, proceed with conditions, pilot, remediate, reject, or retire). For models with a high inherent model-risk rating or unresolved high residual risk, the decision escalates to the **AI Governance Council**.
+- **AI Governance Approver** makes the Step 10 decision (approve, proceed with conditions, pilot, remediate, reject, or retire). For models in AI systems classified High under the organizational AI risk classification, or unresolved high residual risk, the decision escalates to the **AI Governance Council**.
 - **Independence**: the assessment of conceptual soundness and performance is conducted independently of the model's development; the reviewer is not the model's developer, and internal reviewers or objective third parties may perform it (adopted sector-neutrally from OSFI Guideline E-23).
 
 ---
