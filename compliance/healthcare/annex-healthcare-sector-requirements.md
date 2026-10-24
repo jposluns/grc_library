@@ -2,7 +2,7 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.22\
+**Version:** 1.1.23\
 **Date:** 2026-10-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -189,16 +189,16 @@ FDA's final guidance "Cybersecurity in Medical Devices: Quality Management Syste
 
 Section 524B applies to premarket submissions for cyber devices from 29 March 2023: a person who submits a 510(k), PMA, PDP, De Novo, or HDE for a device that meets the section 524B(c) definition of a cyber device must submit information to ensure that the device meets the cybersecurity requirements under section 524B(b).
 
-| Requirement | Detail | GRC Library Mapping |
+| Item | Basis and detail | GRC Library Mapping |
 |---|---|---|
-| **Cybersecurity management plan** | Plan demonstrating post-market cybersecurity management | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md): supplement with device-specific plan |
-| **SBOM** | Complete SBOM for all device software components | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
-| **Threat modelling** | Pre-market threat modelling documentation | Risk assessment methodology: supplement with threat modelling procedure |
-| **Vulnerability assessment** | Assessment of known vulnerabilities in SBOM components | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
-| **Penetration testing** | Recommended (not required) premarket submission content: testing that discovers and exploits security vulnerabilities in the product (software, hardware, and firmware), with reports covering tester independence and technical expertise, scope, duration, methods, and results, findings, and observations. After release, the guidance recommends cybersecurity testing at regular intervals commensurate with the risk (for example, annually) | [`security/standard-penetration-testing-and-red-team.md`](../../security/standard-penetration-testing-and-red-team.md): supplement with device product scope |
-| **Patch management plan** | Plan for timely security patch deployment post-clearance | [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) |
-| **Coordinated vulnerability disclosure** | Policy and process for accepting and responding to security reports | Supplement: vulnerability disclosure policy |
-| **Secure by design** | Implement security by design principles | [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md); [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
+| **Cybersecurity management plan** | Section 524B(b)(1) requirement: a plan to monitor, identify, and address, as appropriate, in a reasonable time, postmarket cybersecurity vulnerabilities and exploits | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md): supplement with device-specific plan |
+| **SBOM** | Section 524B(b)(3) requirement: a software bill of materials, including commercial, open-source, and off-the-shelf software components | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
+| **Threat modelling** | Recommended by the FDA guidance (not named in section 524B): threat modelling performed throughout the design process, covering all medical device system elements, to inform the risk analysis | Risk assessment methodology: supplement with threat modelling procedure |
+| **Vulnerability assessment** | Recommended by the FDA guidance (not named in section 524B): vulnerability assessments documented in the security risk management report, including known vulnerabilities in SBOM components | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
+| **Penetration testing** | Recommended by the FDA guidance (not named in section 524B) as premarket submission content: testing that discovers and exploits security vulnerabilities in the product (software, hardware, and firmware), with reports covering tester independence and technical expertise, scope, duration, methods, and results, findings, and observations. After release, the guidance recommends cybersecurity testing at regular intervals commensurate with the risk (for example, annually) | [`security/standard-penetration-testing-and-red-team.md`](../../security/standard-penetration-testing-and-red-team.md): supplement with device product scope |
+| **Patch management plan** | Section 524B(b)(2) requirement: postmarket updates and patches, on a reasonably justified regular cycle for known unacceptable vulnerabilities and as soon as possible out of cycle for critical vulnerabilities that could cause uncontrolled risks | [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) |
+| **Coordinated vulnerability disclosure** | Section 524B(b)(1) requirement, as part of the postmarket plan: coordinated vulnerability disclosure and related procedures | Supplement: vulnerability disclosure policy |
+| **Secure by design** | Section 524B(b)(2) requirement: processes and procedures that provide a reasonable assurance that the device and related systems are cybersecure | [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md); [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
 
 ### GDPR article 9: special category health data
 
