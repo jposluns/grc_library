@@ -52373,6 +52373,14 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'cmd |\ncat |\nsort; echo $?',
             'cmd <<EOF |\nbody\nEOF\ncat; echo $?',  # body is data; pipe continues
             '(a) |\ncat; echo $?',
+            # 3b513 round 6 (R5-1): a backslash-newline after the pipe,
+            # followed by blank lines, whitespace or a comment line, still
+            # continues the pipeline, exactly as in bash
+            'cmd | \\\n\ncat; echo $?',
+            'cmd | \\\n\n\ncat; echo $?',
+            'cmd | \\\n# note\ncat; echo $?',
+            'cmd | \\\n \t\ncat; echo $?',
+            'cmd | \\\n\\\n\ncat; echo $?',
         ], True)
         self.check([
             # the legacy named-verifier rule keeps catching its split forms
@@ -52384,6 +52392,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
         self.check([
             'a |\nb',                                # no status read
             'a |&\nb',
+            'a | \\\n\nb',                           # continued, no status read
             'a | # comment\nb',
             'set -o pipefail; cmd |\ncat; echo $?',
             "cat <<'EOF'\nfoo |\necho $?\nEOF\n",    # heredoc body text is data
@@ -52422,11 +52431,40 @@ class BlockVerificationPipesTests(unittest.TestCase):
             './tools/run_all_audits.sh --note "a \\\nb"',
             "echo 'a | \\\ntail'",
             'echo "run_all_audits.sh | \\\ntail"',
-            # the sanctioned forms stay allowed
-            './tools/run_all_audits.sh',
-            './tools/run_all_audits.sh 2>&1 > /tmp/a.log; echo $?',
-            'tools/tail-safe.sh -n 8 -- ./tools/run_all_audits.sh',
+            # the sanctioned forms stay allowed, each carrying the join
+            # under test so no case passes vacuously without one (R5-3)
+            './tools/run_all_audits.sh \\\n--verbose',
+            './tools/run_all_audits.sh 2>&1 \\\n> /tmp/a.log; echo $?',
+            'tools/tail-safe.sh -n 8 -- \\\n./tools/run_all_audits.sh',
         ], False)
+
+    def test_arithmetic_ampersands_are_not_background(self):
+        # 3b513 round 6 (R5-2): an ampersand inside a $(( )) expansion or a
+        # (( )) command is the arithmetic AND operator, not a background
+        # launch; nested parentheses stay inside the arithmetic region.
+        self.check([
+            'echo $(( 1 & 2 ))',
+            'echo $((1&2))',
+            '(( flags & 1 ))',
+            '((flags&1))',
+            'echo $(( (1 & 2) | 4 ))',
+            '(( (flags & 1) && (flags & 2) ))',
+            'x=$((a & b)); echo $x',
+            'if (( flags & 1 )); then echo set; fi',
+            'echo "$((1 & 2))"',
+            'echo $(( $(( 1 & 2 )) | 4 ))',
+        ], False)
+        self.check([
+            'echo $((1 & 2)) &',            # the real launch still blocks
+            '(( flags & 1 )) &',
+            'a & echo $(( 1 & 2 ))',        # launched before arithmetic
+            'echo $((x)) | tail; echo $?',  # arithmetic hides no pipeline
+            'cmd | cat; (( $? & 1 ))',      # arithmetic still reads status
+            'cmd | cat; echo $(( $? + 1 ))',
+            '(( 1 & 2 )) | cat; echo $?',
+        ], True)
+        # a (( with no closing )) is not arithmetic: subshell rules apply
+        self.check(['( (a | tail; echo $?) )', '((cmd | tail; echo $?) )'], True)
 
     def test_every_status_parameter_expansion_counts(self):
         # 3b513 round 3: every parameter expansion of ? reads the pipeline's

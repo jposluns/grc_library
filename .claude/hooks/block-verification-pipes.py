@@ -37,10 +37,12 @@ block, safe direction).
 
 The additional status-read guard covers ALL multi-stage pipelines, including
 filters followed by another stage; single-command status reads remain allowed.
-A newline directly after | or |& (optionally after whitespace or a comment)
-and a backslash-newline line continuation both continue the pipeline onto
-the next line, exactly as in bash, so a split pipeline is judged as one
-pipeline. It tracks literal set -o/+o pipefail
+After a | or |& the pipeline continues across ANY run of whitespace,
+comments, blank lines and backslash-newline line continuations (round 6:
+a bare backslash-newline yields no word at all, exactly as in bash, so a
+blank or comment line after a continued pipe no longer splits the
+pipeline), and a backslash-newline elsewhere joins its line onto the
+next, so a split pipeline is judged as one pipeline. It tracks literal set -o/+o pipefail
 (also short-option clusters ending in o) within a command list, and reads of
 the status parameter in the next command: $? and every parameter expansion
 of ? (${?}, ${?:-x}, ${?#0}, ${?%x}, ${?:+x}, ${#?} and similar), including
@@ -54,6 +56,15 @@ no misread quote or comment boundary can delete a real pipe before the
 rule sees it.
 Bare background & is refused unless an unconditional,
 foreground, argument-free wait in the same shell scope drains all jobs.
+Round 6: an ampersand (or pipe) inside a $(( )) arithmetic expansion or a
+(( )) arithmetic command is an operator of the arithmetic language, not of
+the shell. An unquoted $(( or a (( at a word boundary opens an arithmetic
+region when raw parenthesis counting (nesting included) closes it with a
+literal )); the whole region is one shell word, scanned only for reads of
+the status parameter ($?, $(($?)) and the ${?} forms). A (( with no
+closing )) falls back to ordinary subshell tokenization, and arithmetic
+parentheses nested beyond 64 deep refuse as shell-complexity, preserving
+the group-nesting contract.
 With exactly one prior launch in that scope, wait $! and wait -n also collect
 that job. Other targeted waits are not certified. Literal coproc launches
 are refused. Nesting beyond 64 groups or a RecursionError refuses with a
@@ -214,6 +225,34 @@ OPERATORS = re.compile(r"&&|\|\||\|&|&>>|&>|>>|<<-|<<<?|>&|<&|[;\n|&()<>{}]")
 STATUS_READ = re.compile(r"\$(?:\?|\{[#!]?\?)")
 
 
+class _ComplexityLimit(Exception):
+    """Tokenizer refusal: arithmetic parentheses nested beyond the limit."""
+
+
+def _arithmetic_end(command, i):
+    """End index just past the )) closing the (( at command[i], or None.
+
+    Parentheses are counted raw (bash arithmetic has no shell quoting), and
+    the region counts as arithmetic only when the counter reaches zero on a
+    literal )) pair, mirroring bash's own (( ... )) recognition; otherwise
+    the caller falls back to ordinary subshell tokenization. Nesting beyond
+    MAX_SHELL_NESTING raises _ComplexityLimit, which shell_violation turns
+    into the same fail-closed shell-complexity refusal as group nesting.
+    """
+    depth = 0
+    for j in range(i, len(command)):
+        c = command[j]
+        if c == "(":
+            depth += 1
+            if depth > MAX_SHELL_NESTING:
+                raise _ComplexityLimit(command[i:i + 32])
+        elif c == ")":
+            depth -= 1
+            if depth == 0:
+                return j + 1 if command[j - 1] == ")" else None
+    return None
+
+
 def shell_tokens(command, cuts=None):
     """Yield (kind, decoded word, start, end, expands_status), without execution.
 
@@ -234,6 +273,16 @@ def shell_tokens(command, cuts=None):
             end = len(command) if end < 0 else end
             i = end
             continue
+        if command.startswith("((", i):
+            # (( ... )) arithmetic command: & and | inside are arithmetic
+            # operators, not shell operators; the region is one word. With
+            # no closing )) this falls through to subshell tokenization.
+            end = _arithmetic_end(command, i)
+            if end is not None:
+                yield ("word", command[i:end], i, end,
+                       bool(STATUS_READ.search(command, i, end)))
+                i = end
+                continue
         op = OPERATORS.match(command, i)
         if op:
             yield ("op", op[0], i, op.end(), False)
@@ -254,6 +303,7 @@ def shell_tokens(command, cuts=None):
             continue
         start, word, status, quote = i, [], False, None
         parameter_depth = 0
+        quoted = False
         while i < len(command):
             c = command[i]
             if quote != "'" and c == "\\":
@@ -262,16 +312,31 @@ def shell_tokens(command, cuts=None):
                     if quote is None or nxt in '$`"\\\n':
                         if nxt != "\n":
                             word.append(nxt)
-                        elif cuts is not None:
+                            i += 2
+                            continue
+                        if cuts is not None:
                             cuts.append((i, i + 2))
                         i += 2
-                        continue
+                        if word or quoted:
+                            continue
+                        break  # bare continuation: no word yet; bash removes
+                               # it, so re-dispatch (comment, operator, space)
             if c in "\"'" and (quote is None or quote == c):
                 quote = c if quote is None else None
+                quoted = True
                 i += 1
                 continue
             if quote != "'" and STATUS_READ.match(command, i):
                 status = True
+            if quote is None and command.startswith("$((", i):
+                # $(( ... )) arithmetic expansion: one word, & is arithmetic.
+                end = _arithmetic_end(command, i + 1)
+                if end is not None:
+                    if STATUS_READ.search(command, i, end):
+                        status = True
+                    word.append(command[i:end])
+                    i = end
+                    continue
             # Keep parameter expansions in a word, but still notice nested $?.
             if quote != "'" and command.startswith("${", i):
                 parameter_depth += 1
@@ -289,6 +354,11 @@ def shell_tokens(command, cuts=None):
             word.append(c)
             i += 1
         decoded = "".join(word)
+        if not decoded and not quoted:
+            # Only bare backslash-newline continuations reach here: bash
+            # removes them outright, so no word existed. An empty word would
+            # otherwise split a pipeline continued across a blank line.
+            continue
         if delimiter is not None:
             heredocs.append((decoded, delimiter))
             delimiter = None
@@ -308,8 +378,11 @@ def legacy_view(command):
     that followed it). PIPED judges the raw text too; either match blocks.
     """
     cuts = []
-    for _token in shell_tokens(command, cuts):
-        pass
+    try:
+        for _token in shell_tokens(command, cuts):
+            pass
+    except _ComplexityLimit:
+        return command  # shell_violation already refuses this shape
     if not cuts:
         return command
     pieces, previous = [], 0
@@ -347,6 +420,8 @@ def shell_violation(command):
         return _shell_violation(command)
     except RecursionError:
         return ("shell-complexity", "recursion limit")
+    except _ComplexityLimit:
+        return ("shell-complexity", "arithmetic nesting limit")
 
 
 def _shell_violation(command):
@@ -587,6 +662,15 @@ def self_test() -> int:
         # line may block (accepted false block, safe direction)
         './tools/run_all_audits.sh # | tail',
         './tools/run_all_audits.sh # keep |\ntail -f log',
+        # round 6: blank and comment lines after a continued pipe are still
+        # the same pipeline (R5-1)
+        'cmd | \\\n\ncat; echo $?',
+        'cmd | \\\n\n\ncat; echo $?',
+        'cmd | \\\n# note\ncat; echo $?',
+        # round 6: a real background launch next to arithmetic still blocks
+        'echo $((1 & 2)) &',
+        '(( flags & 1 )) &',
+        'cmd | cat; echo $(( $? + 1 ))',
     ]
     allowed = [
         'set -euo pipefail; cmd | cat; echo $?',
@@ -640,6 +724,12 @@ def self_test() -> int:
         # round 4: a backslash-newline inside a quoted word is not a join
         './tools/run_all_audits.sh --note "a \\\nb"',
         "echo 'a | \\\ntail'",
+        # round 6: an ampersand inside arithmetic is the arithmetic AND
+        # operator, not a background launch (R5-2); nesting included
+        'echo $(( 1 & 2 ))',
+        '(( flags & 1 ))',
+        'echo $(( (1 & 2) | 4 ))',
+        'x=$((a & b)); echo $x',
     ]
     ok = True
     for c in blocked:
