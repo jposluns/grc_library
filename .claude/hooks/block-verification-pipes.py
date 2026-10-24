@@ -65,6 +65,10 @@ Rejected spans use round-5 shell tokenization, including their nested
 parentheses: an ampersand can then block valid complex arithmetic (accepted
 false block, safe direction), and shell syntax is not hidden in one word.
 This allowlist is lexical, not validation of an arithmetic expression.
+Round 8: a << or <<- inside a rejected span is refused (arithmetic-shift):
+a shift cannot be told from a heredoc there, and a heredoc reading would
+skip the commands after it. Complex arithmetic that shifts, or a real
+heredoc inside it, is a false block (safe direction).
 With exactly one prior launch in that scope, wait $! and wait -n also collect
 that job. Other targeted waits are not certified. Literal coproc launches
 are refused. Nesting beyond 64 groups or a RecursionError refuses with a
@@ -291,6 +295,11 @@ def shell_tokens(command, cuts=None):
                     arithmetic_fallback -= 1
                     if arithmetic_fallback == 0:
                         arithmetic_fallback = None
+            if arithmetic_fallback is not None and op[0] in ("<<", "<<-"):
+                # Round 8: never let a shift start heredoc skipping; refuse.
+                yield ("ambiguous-shift", op[0], i, op.end(), False)
+                i = op.end()
+                continue
             yield ("op", op[0], i, op.end(), False)
             i = op.end()
             if op[0] in ("<<", "<<-"):
@@ -430,6 +439,12 @@ def shell_violation(command):
 
 def _shell_violation(command):
     tokens = list(shell_tokens(command))
+    for kind, _text, start, end, _status in tokens:
+        if kind == "ambiguous-shift":
+            line_start = command.rfind("\n", 0, start) + 1
+            line_end = command.find("\n", end)
+            line_end = len(command) if line_end < 0 else line_end
+            return ("arithmetic-shift", command[line_start:line_end])
 
     def inspect(items, pipefail=False, pending=None, nesting=0):
         if nesting > MAX_SHELL_NESTING:
@@ -588,6 +603,13 @@ def main() -> int:
                 "WHY: coprocess completion is not tracked by this guard.\n"
                 "CONSIDER INSTEAD: use run_in_background for harness-tracked completion, "
                 "or run the command in the foreground.\n")
+        elif guard == "arithmetic-shift":
+            sys.stderr.write(
+                "BLOCKED (arithmetic-shift): << inside complex arithmetic in " + repr(span) + ".\n"
+                "WHY: the guard cannot tell this shift from a heredoc, which would hide "
+                "the commands after it.\n"
+                "CONSIDER INSTEAD: compute the value in simple arithmetic, e.g. "
+                "$((1 << n)) with n set first, or split the command.\n")
         else:
             sys.stderr.write(
                 "BLOCKED (shell-complexity): shell nesting exceeds the inspection limit.\n"

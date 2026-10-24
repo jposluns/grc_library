@@ -52494,6 +52494,25 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'false | cat; echo $? # ))',
         ], True)
 
+    def test_arithmetic_shift_never_starts_heredoc_skipping(self):
+        # R7 Codex R7-1: a rejected span's << registered a heredoc terminator
+        # and hid the commands after it. All these allowed on 235d80122.
+        self.check([
+            'echo $((1 << (2)))\n: &',
+            'echo $((1 << (2)))\nfalse | cat; echo $?',
+            '((1 << (2)))\n: &',
+            '((1 <<- (2)))\n: &',
+            'echo $((1 << (2)))',  # refused even with nothing after it
+        ], True)
+        self.assertEqual(self.hook.shell_violation('echo $((1 << (2)))')[0],
+                         'arithmetic-shift')
+        # Controls: a strict-interior shift and a real heredoc outside
+        # arithmetic keep their round-7 decisions.
+        self.check(['echo $((1 << 2))', '(( flags << 1 ))',
+                    'cat <<EOF\nx & y\nEOF', '(( (1) )); cat <<E\nz &\nE'],
+                   False)
+        self.check(['echo $((1 << 2))\n: &'], True)
+
     def test_arithmetic_rejected_interiors_use_shell_tokens(self):
         from unittest.mock import patch
         # Pin rejection even when ordinary shell quoting would hide an &.
