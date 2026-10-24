@@ -2,11 +2,11 @@
 
 **Document Title:** System Card Template\
 **Document Type:** Template\
-**Version:** 1.1.4\
-**Date:** 2026-08-31\
+**Version:** 1.1.5\
+**Date:** 2026-10-24\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** 6 to 12 months and upon material AI system, supplier, data, architecture, or control change\
@@ -40,7 +40,7 @@ Do not populate the public repository version with real system names, people nam
 | Lifecycle Status | Proposed, pilot, production, suspended, retired. |
 | Approved Purpose | |
 | Prohibited Uses | |
-| Risk Tier | Low, moderate, high, critical. |
+| Risk Tier | Minimal, Limited, High, Unacceptable (the organizational AI risk classification; [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md) Section 1). |
 
 ### 2. System boundary
 
