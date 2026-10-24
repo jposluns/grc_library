@@ -685,8 +685,11 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         that documented behaviour (it is NOT a skip): a change that
         closes the channel turns this exit 0 into a refusal and must
         update this test together with the three documentation
-        surfaces that state the residual (the runner's docstring,
-        tools/README.md and tests/README.md)."""
+        surfaces that state the residual: the runner's module
+        docstring (pinned below via the loaded module's __doc__, so
+        the driver-comment copy cannot stand in for it) and
+        tools/README.md and tests/README.md (each pinned as file
+        text)."""
         runner = self._runner()
         root = self._tmp_repo(["test_zz_fail.py"], body=FAILING_MODULE)
         (root / "tests" / "test_aa_forge.py").write_text(
@@ -712,8 +715,18 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         # "__main__": the runner's entry-point guard (its line
         # 'if __name__ == "__main__":') would satisfy the bare string
         # even with the disclosure deleted.
-        for rel in ("tools/run-linter-regression.py",
-                    "tools/README.md", "tests/README.md"):
+        # The runner surface is the module docstring alone, read as
+        # runner["__doc__"] from the runpy.run_path namespace already
+        # loaded above (which does not execute main): a driver comment
+        # in the same file carries a second copy of the recipe, so a
+        # file-wide search would stay green with the docstring
+        # disclosure deleted (3b525 round 6, N1).
+        self.assertIn(
+            "import __main__",
+            runner["__doc__"] or "",
+            "the runner's module docstring must document the "
+            "__main__.nonce accepted residual")
+        for rel in ("tools/README.md", "tests/README.md"):
             self.assertIn(
                 "import __main__",
                 (REPO_ROOT / rel).read_text(encoding="utf-8"),
