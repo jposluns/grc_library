@@ -30327,9 +30327,19 @@ class ReferenceBreadthStateTests(unittest.TestCase):
     DOCS = ("privacy/policy-privacy-and-data-governance.md", "risk/procedure-risk-register.md",
             "security/policy-information-security.md")
     DATES = ("2020-01-02", "2020-02-03", "2020-03-04")
-    # 3b529 round 3 (N2): HEAD of the two-commit fixture built in setUp, fixed
-    # by the identity, dates and per-user-config isolation in _git_env.
-    PINNED_HEAD = "b71a3a544a17de1260a223a596e0657281505d45"
+    # 3b529 rounds 3-5: HEAD of the two-commit fixture built in setUp, keyed
+    # by hash length because the git build on PATH picks the repository's
+    # object format at init (SHA-1 gives 40 hex digits, SHA-256 gives 64).
+    # Each value depends on every one of: the pinned identity and dates in
+    # _git_env; the per-user config, attribute and ignore isolation (empty
+    # HOME/XDG_CONFIG_HOME) and the system config and attributes isolation
+    # (GIT_CONFIG_NOSYSTEM, GIT_ATTR_NOSYSTEM) in _git_env and
+    # fixture_git_environment; the empty template in setUp's init; and the
+    # object format itself.
+    PINNED_HEADS = {
+        40: "b71a3a544a17de1260a223a596e0657281505d45",  # SHA-1
+        64: "1df27908673b0f5dd22dcd5690d326293d3957d21f88eee144947c71198303a0",  # SHA-256
+    }
 
     def setUp(self):
         import importlib.util
@@ -30407,10 +30417,12 @@ class ReferenceBreadthStateTests(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         return r.stdout.strip()
 
-    def _abbrev_diagnostics(self, short):
-        """Failure message for the configured-abbreviation-length assertion:
-        enough to tell a silently ignored core.abbrev from a prefix collision
-        or a git behaviour change (3b529 round 2)."""
+    def _abbrev_diagnostics(self, short, headline):
+        """Failure message for the pinned-HEAD and configured-abbreviation-length
+        assertions, opened by the headline naming the check that failed: enough
+        to tell a silently ignored core.abbrev from a prefix collision, a git
+        behaviour change, or an ambient input that moved the fixture hashes
+        (3b529 rounds 2 and 5)."""
         env = self._git_env()
 
         def run(*args):
@@ -30422,13 +30434,15 @@ class ReferenceBreadthStateTests(unittest.TestCase):
         head = run("rev-parse", "HEAD")
         objects = run("cat-file", "--batch-all-objects",
                       "--batch-check=%(objectname)").split()
+        pinned = self.PINNED_HEADS.get(len(head), "none for this length")
         return "\n".join([
+            headline,
             f"rev-parse --short HEAD gave {short!r} (length {len(short)}) "
             f"with core.abbrev configured to 4",
             f"git version: {run('version')}",
             f"effective core.abbrev and origin: "
             f"{run('config', '--show-origin', 'core.abbrev')}",
-            f"HEAD: {head} (expected pinned HEAD {self.PINNED_HEAD})",
+            f"HEAD: {head} (pinned HEAD for length {len(head)}: {pinned})",
             "prefix counts below include HEAD itself, so 1 means an unshared prefix",
             f"objects sharing HEAD prefix {head[:4]!r}: "
             f"{sum(o.startswith(head[:4]) for o in objects)} of {len(objects)}",
@@ -31109,26 +31123,40 @@ class ReferenceBreadthStateTests(unittest.TestCase):
     def test_short_core_abbrev_keeps_rows_across_two_updates(self):
         self._git("config", "core.abbrev", "4")
         self.assertEqual(self._git("config", "core.abbrev"), "4")
-        # 3b529 rounds 2-4: the fixture hashes are fixed because _git_env
-        # drops the caller's GIT_* variables, ignores the system and global
-        # config files (fixture_git_environment) and the system attributes
-        # file (GIT_ATTR_NOSYSTEM=1), points the per-user attribute and
-        # ignore files at an empty HOME/XDG_CONFIG_HOME, and pins identity
-        # and dates; setUp inits from an empty template and _git disables
-        # hooks. So the 4-character prefix is unshared and the configured
-        # length holds exactly; a longer answer means a real cause (ignored
-        # core.abbrev, a new prefix collision, a git behaviour change), and
-        # the message carries the diagnostics to find it. Round 3 (N1): the
-        # diagnostics spawn four git subprocesses, so build them only on
-        # failure.
+        # 3b529 rounds 2-5: per object format, the fixture hashes are fixed
+        # because _git_env drops the caller's GIT_* variables, ignores the
+        # system and global config files (fixture_git_environment) and the
+        # system attributes file (GIT_ATTR_NOSYSTEM=1), points the per-user
+        # attribute and ignore files at an empty HOME/XDG_CONFIG_HOME, and
+        # pins identity and dates; setUp inits from an empty template and
+        # _git disables hooks. So the 4-character prefix is unshared and the
+        # configured length holds exactly; a longer answer means a real cause
+        # (ignored core.abbrev, a new prefix collision, a git behaviour
+        # change), and the message carries the diagnostics to find it.
+        # Round 3 (N1): the diagnostics spawn four git subprocesses, so
+        # build them only on failure.
         short = self._git("rev-parse", "--short", "HEAD")
         # Round 4 (N2): pin the full HEAD before the length check, so an
         # ambient input that moves the hashes fails loudly even while the
-        # 4-character prefix happens to stay unshared.
-        if self._git("rev-parse", "HEAD") != self.PINNED_HEAD:
-            self.fail(self._abbrev_diagnostics(short))
+        # 4-character prefix happens to stay unshared. Round 5 (R4-W1): the
+        # pin is keyed by hash length, so the check holds whichever object
+        # format the git build defaults to; a length with no entry fails
+        # naming the length.
+        head = self._git("rev-parse", "HEAD")
+        pinned = self.PINNED_HEADS.get(len(head))
+        if pinned is None:
+            self.fail(self._abbrev_diagnostics(short, (
+                f"HEAD check failed: rev-parse HEAD gave a hash of length "
+                f"{len(head)}, which has no PINNED_HEADS entry (known lengths: "
+                f"{', '.join(str(k) for k in sorted(self.PINNED_HEADS))})")))
+        if head != pinned:
+            self.fail(self._abbrev_diagnostics(short, (
+                f"HEAD check failed: observed HEAD {head} differs from the "
+                f"pinned HEAD {pinned} for hash length {len(head)}")))
         if len(short) != 4:
-            self.fail(self._abbrev_diagnostics(short))
+            self.fail(self._abbrev_diagnostics(short, (
+                f"abbreviation check failed: rev-parse --short HEAD gave a "
+                f"length-{len(short)} abbreviation, not the configured 4")))
         for doc in self.DOCS[:2]:
             result = self._run_tool(doc)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
