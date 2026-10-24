@@ -60,12 +60,14 @@ def _rev_parse(ref):
     """The commit SHA ``ref`` resolves to (caller has verified it resolves).
     A ref vanishing between that check and this read (CalledProcessError) or
     git itself vanishing (OSError) raises _GitCallFailed for main()'s refusal
-    backstop, never a traceback (3b540 round 3)."""
+    backstop, never a traceback (3b540 round 3); so does output the locale
+    codec cannot decode (UnicodeDecodeError), as in _toplevel_strict and
+    _git_show (3b540 round 4)."""
     try:
         return subprocess.check_output(
             ["git", "rev-parse", "--verify", f"{ref}^{{commit}}"], text=True,
             stderr=subprocess.DEVNULL).strip()
-    except (subprocess.CalledProcessError, OSError) as exc:
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
         raise _GitCallFailed(f"git rev-parse --verify {ref} ({exc})")
 
 
@@ -91,7 +93,10 @@ def _path_at_ref(ref, path):
     git not running at all (OSError) raises _GitCallFailed for main()'s
     refusal backstop, never a traceback (3b540 round 3); a nonzero status IS
     the answer here, so CalledProcessError cannot arise (subprocess.run
-    without check)."""
+    without check). That status is nonzero both for an absent path and for
+    a ref that no longer resolves, so a caller acting on False re-checks
+    _ref_resolves first and refuses a ref that vanished after the gate
+    resolved it (3b540 round 4)."""
     try:
         return subprocess.run(
             ["git", "cat-file", "-e", f"{ref}:{path}"],
@@ -243,10 +248,13 @@ def main(argv):
     """_run() behind the one refusal backstop for _GitCallFailed: every git
     helper maps a call that fails outright (CalledProcessError where a status
     is not the documented answer, or OSError, e.g. FileNotFoundError when git
-    is missing) to _GitCallFailed naming the call, so the mapping lives once
-    in the helpers; call sites that can say WHAT was being evaluated catch it
-    with a tailored D12 CANNOT-EVALUATE, and every other site falls through
-    to this backstop -- the same refusal, never a traceback (3b540 round 3)."""
+    is missing) and, where it decodes git's output as text, a
+    UnicodeDecodeError (3b540 round 4) to _GitCallFailed naming the call, so
+    the mapping lives once in the helpers (only the message helper _toplevel
+    degrades to a placeholder instead, so composing a refusal cannot raise);
+    call sites that can say WHAT was being evaluated catch it with a tailored
+    D12 CANNOT-EVALUATE, and every other site falls through to this backstop
+    -- the same refusal, never a traceback (3b540 round 3)."""
     try:
         return _run(argv)
     except _GitCallFailed as exc:
@@ -255,6 +263,22 @@ def main(argv):
             f"repository state is undetermined, so nothing was evaluated. "
             f"Fix the git installation or repository state and re-run.\n")
         return 2
+
+
+def _refuse_vanished_ref(side, ref, base_sha):
+    """The refusal for a ``side`` ("base" or "head") ref that resolved when
+    the gate started but no longer resolves once _path_at_ref reports the
+    floor absent there: that absence cannot be told from the ref vanishing
+    (git cat-file -e is nonzero for both), so neither the head's
+    floor-removed FAIL nor the base's first-introduction OK applies
+    (3b540 round 4). Returns the exit status."""
+    sys.stderr.write(
+        f"D12 CANNOT-EVALUATE: {side} ref '{ref}' no longer resolves to a "
+        f"commit (it resolved when the gate started; repo={_toplevel()} "
+        f"base={base_sha}), so the floor's absence there cannot be told from "
+        f"the ref vanishing; nothing was evaluated. Re-run once the ref is "
+        f"stable.\n")
+    return 2
 
 
 def _run(argv):
@@ -324,6 +348,11 @@ def _run(argv):
                 f"worktree, or pass a base..head range that selects the change.\n")
             return 2
     if not _path_at_ref(base_ref, FLOOR_PATH):
+        if not _ref_resolves(base_ref):
+            # A base ref deleted after the guard above would otherwise read
+            # as the first-introduction OK below, a silent waiver (3b540
+            # round 4).
+            return _refuse_vanished_ref("base", base_ref, base_sha)
         # base is VALID but the floor did not exist there: first introduction, nothing to compare.
         print(f"OK: {FLOOR_PATH} is new at this base ({base_ref}); no prior floor to compare.")
         return 0
@@ -338,6 +367,11 @@ def _run(argv):
             f"nothing was evaluated. Fix the repository state and re-run.\n")
         return 2
     if head_ref and not _path_at_ref(head_ref, FLOOR_PATH):
+        if not _ref_resolves(head_ref):
+            # The same race on the head side: a head ref deleted after the
+            # guard above is a refusal, not the floor-removed FAIL below
+            # (3b540 round 4).
+            return _refuse_vanished_ref("head", head_ref, base_sha)
         # The explicit-head twin of the base _path_at_ref check above: the
         # floor-removed FAIL is decided by this path check, so a _git_show
         # that then fails (the blob vanishing, or git itself) is a refusal

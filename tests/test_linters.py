@@ -10533,6 +10533,73 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn("monotonic", r2.stdout)
         self.assertNotIn("CANNOT-EVALUATE", r2.stderr)
 
+    def _ref_vanishing_path(self, spec, refname):
+        """A PATH whose git shim deletes ``refname`` just before running the
+        ``git cat-file -e <spec>`` floor-existence check, the ref vanishing
+        between the gate's resolution and that check; every call delegates to
+        the real git. Returns the PATH value."""
+        real_git = shutil.which("git")
+        self.assertIsNotNone(real_git)
+        shim_dir = Path(tempfile.mkdtemp(prefix="gitshim-")).resolve()
+        self.addCleanup(shutil.rmtree, shim_dir, ignore_errors=True)
+        shim = shim_dir / "git"
+        shim.write_text(
+            "#!/bin/sh\n"
+            f'if [ "$1" = "cat-file" ] && [ "$3" = "{spec}" ]; then\n'
+            f'  "{real_git}" update-ref -d "{refname}"\n'
+            "fi\n"
+            f'exec "{real_git}" "$@"\n',
+            encoding="utf-8",
+        )
+        shim.chmod(0o755)
+        return f"{shim_dir}{os.pathsep}{os.environ['PATH']}"
+
+    def test_d12_head_ref_vanishing_refuses_not_floor_removed(self) -> None:
+        # 3b540 round 4 (r3 review, claude NOTE-1): git cat-file -e is
+        # nonzero both for an absent floor and for a ref that no longer
+        # resolves, so a head ref deleted after the gate resolved it would
+        # read as the floor-removed FAIL. The gate re-checks the ref and
+        # refuses as D12 CANNOT-EVALUATE (exit 2) naming it. The head's floor
+        # is present (raised), so the FAIL would be a misclassification.
+        tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+        git("checkout", "-q", "-b", "feat")
+        floor.write_text('{"2": 33}\n', encoding="utf-8")
+        git("add", "tools/todo-number-floor.json")
+        git("commit", "-q", "-m", "raise floor")
+        git("checkout", "-q", "main")
+        r = self._gate(
+            "check-todo-floor-monotonic-on-pr.py", tmp, "origin/main", "feat",
+            env={"PATH": self._ref_vanishing_path(
+                "feat:tools/todo-number-floor.json", "refs/heads/feat")})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn("head ref 'feat' no longer resolves", r.stderr)
+        self.assertNotIn("missing at HEAD", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_base_ref_vanishing_refuses_not_first_introduction(self) -> None:
+        # 3b540 round 4 (r3 review, claude NOTE-1): the base-side mirror. A
+        # base ref deleted after the gate resolved it would read as the
+        # first-introduction OK (exit 0, a silent waiver of the comparison
+        # against a base floor that exists); the gate re-checks the ref and
+        # refuses as D12 CANNOT-EVALUATE (exit 2) naming it. The genuine
+        # first-introduction OK (the ref still resolving) is pinned by
+        # test_d12_argless_untracked_file_still_evaluates.
+        tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+        r = self._gate(
+            "check-todo-floor-monotonic-on-pr.py", tmp,
+            env={"GITHUB_BASE_REF": "main",
+                 "PATH": self._ref_vanishing_path(
+                     "origin/main:tools/todo-number-floor.json",
+                     "refs/remotes/origin/main")})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn("base ref 'origin/main' no longer resolves", r.stderr)
+        self.assertNotIn("new at this base", r.stdout)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
     def test_d12_argless_git_call_failure_refuses(self) -> None:
         # Round 4 of 3b530 (review F5): a git diff or git ls-files call that
         # fails outright (nonzero beyond the documented difference status 1)
@@ -26125,7 +26192,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-retired-section-orphan-on-pr.py NO_FS F 94f89f3645e0e4dedbfe0a2d174ba60150b94bd7a0c734e25d5f96d148afe4ba
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
         check-stranded-control-code-on-pr.py NO_FS F 5c0890d697db2086c6a10fe3222b6a268ac04199a359b761e4d393aceaccde7d
-        check-todo-floor-monotonic-on-pr.py NO_FS F 0d0d31a03e95bfcb0fd52d69e1c92553425e169fbdd4ea67c3cccd3d150b2dde
+        check-todo-floor-monotonic-on-pr.py NO_FS F 02e7c8c19b38d36618fa860ebb48bf2f4f32d4de9710a5aee61b29aa1cc27f54
         check-todo-rotation-on-pr.py NO_FS F f4189bf15201c6ae8d228ac341f5c5c5dd859457be22275084e2e155751b5c96
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 520abe7d721553382768bf7c581cc0db91b1b6ac329404cc61416333246062b2
@@ -41641,6 +41708,29 @@ class FloorMonotonicityDeltaTests(unittest.TestCase):
         self.assertEqual(rc, 2, buf.getvalue())
         self.assertIn("D12 CANNOT-EVALUATE", buf.getvalue())
         self.assertIn(f"git show base-ref:{m.FLOOR_PATH}", buf.getvalue())
+        self.assertIn("can't decode", buf.getvalue())
+
+    def test_rev_parse_unicode_decode_error_refuses(self):
+        """3b540 round 4 (r3 review, claude NOTE-2): _rev_parse decodes git's
+        output as text like _toplevel_strict and _git_show, so a
+        UnicodeDecodeError is mapped to _GitCallFailed in the helper too, and
+        main()'s backstop refuses as D12 CANNOT-EVALUATE (exit 2) naming the
+        call, never a traceback."""
+        m = self._mod()
+        import io, contextlib
+        from unittest import mock
+        err = UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid start byte")
+        with mock.patch.object(m.subprocess, "check_output", side_effect=err):
+            with self.assertRaises(m._GitCallFailed):
+                m._rev_parse("origin/main")
+        with mock.patch.object(m, "_ref_resolves", return_value=True), \
+                mock.patch.object(m.subprocess, "check_output", side_effect=err):
+            buf = io.StringIO()
+            with contextlib.redirect_stderr(buf):
+                rc = m.main(["x", "base-ref", "head-ref"])
+        self.assertEqual(rc, 2, buf.getvalue())
+        self.assertIn("D12 CANNOT-EVALUATE", buf.getvalue())
+        self.assertIn("git rev-parse --verify base-ref", buf.getvalue())
         self.assertIn("can't decode", buf.getvalue())
 
 
