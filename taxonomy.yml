@@ -1913,7 +1913,7 @@ documents:
   domain: "ai"
   type: "Template"
   title: "Model Card Template"
-  version: "1.0.5"
+  version: "1.0.6"
   date: "2026-10-24"
   owner: "AI System Inventory Keeper"
   approving_authority: "Governance Library Maintainer"

@@ -2,7 +2,7 @@
 
 **Document Title:** Model Card Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-10-24\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
@@ -40,7 +40,7 @@ Do not populate the public repository version with real model names, system name
 | Lifecycle Status | Proposed, pilot, production, suspended, retired. |
 | Approved Purpose | |
 | Prohibited Uses | |
-| Risk Tier | Low, moderate, high, critical. |
+| Risk Tier | Minimal, Limited, High, Unacceptable (the organizational AI risk classification; [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md) Section 1). |
 
 ### 2. Functional description
 
