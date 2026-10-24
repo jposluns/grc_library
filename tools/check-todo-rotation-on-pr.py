@@ -320,6 +320,28 @@ def main(argv: list[str]) -> int:
         )
         return 2
 
+    # D5 keeps its own resolution flow (see lint_common's hoist note), so it
+    # carries its own copy of the collapsed-range refusal: a base and head
+    # resolving to the same commit is how a run from the wrong repository (a
+    # main clone while the change lives in a worktree) looks, and it must
+    # never read as a clean pass (orchestrator mistake 300).
+    try:
+        head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}")
+        toplevel = git("rev-parse", "--show-toplevel")
+    except subprocess.CalledProcessError as exc:
+        print(f"ERROR: could not resolve {head} to a commit: {exc}", file=sys.stderr)
+        return 2
+    if merge_base == head_sha:
+        print(
+            f"CANNOT-EVALUATE: base {base} and head {head} resolve to the same "
+            f"commit (repo={toplevel} base={merge_base} head={head_sha}); the "
+            f"named range is empty, so nothing was evaluated. If the change "
+            f"lives in a worktree, run from that worktree, or pass a "
+            f"base..head range that selects the change.",
+            file=sys.stderr,
+        )
+        return 2
+
     try:
         changed = [ln for ln in git("diff", "--name-only", merge_base, head).splitlines() if ln]
     except subprocess.CalledProcessError as exc:
@@ -327,8 +349,13 @@ def main(argv: list[str]) -> int:
         return 2
 
     if not changed:
-        print(f"OK: no files changed between {merge_base[:8]} and {head}.")
-        return 0
+        print(
+            f"CANNOT-EVALUATE: refs were named but no files changed in the range "
+            f"(repo={toplevel} base={merge_base} head={head} -> {head_sha}); "
+            f"nothing was evaluated.",
+            file=sys.stderr,
+        )
+        return 2
 
     closure_line = asserts_todo_closure(added_changelog_lines(merge_base, head))
     if closure_line is None:

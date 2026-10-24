@@ -73,12 +73,6 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv[1:])
 
-    try:
-        merge_base, head = resolve_pr_range(args.base, args.head)
-    except PrRangeError as exc:
-        print(str(exc), file=sys.stderr)
-        return 2
-
     # Unified diff of CHANGELOG.md only, zero context, read by the shared pinned
     # diff and hunk-count parser (3b399): each hunk by its header's line counts and
     # the bytes split on LF only, so an added line whose text starts with "++" is
@@ -87,10 +81,12 @@ def main(argv: list[str]) -> int:
     # the runner drops GIT_LITERAL_PATHSPECS, which made git read it as a file name (round 4).
     # git must select the repository it finds by itself (a sibling GIT_DIR printed "not
     # modified"), and the head's CHANGELOG.md must be a regular file even when the diff does
-    # not show it (round 5).
+    # not show it (round 5). Selection is checked BEFORE range resolution (3b530): a sibling
+    # GIT_DIR usually also collapses the range, and the precise wrong-repository diagnosis
+    # must win over the generic collapsed-range refusal.
     try:
         check_git_selects_root()
-        refuse_links([CHANGELOG_PATH], head)
+        refuse_links([CHANGELOG_PATH], args.head)
     except GitSelectsAnotherTree as exc:
         print(f"ERROR: {exc}; unset GIT_DIR or GIT_WORK_TREE and rerun.", file=sys.stderr)
         return 2
@@ -100,6 +96,13 @@ def main(argv: list[str]) -> int:
     except ChangelogDiffUnreadable as exc:
         print(f"ERROR: the {CHANGELOG_PATH} diff could not be read: {exc}", file=sys.stderr)
         return 2
+
+    try:
+        merge_base, head = resolve_pr_range(args.base, args.head)
+    except PrRangeError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
     try:
         diff = added_line_diff([merge_base, head], [":(top)" + CHANGELOG_PATH])
     except subprocess.CalledProcessError as exc:

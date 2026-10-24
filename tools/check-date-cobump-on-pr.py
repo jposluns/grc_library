@@ -90,7 +90,7 @@ import sys
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import git, head_version, parse_iso_date, parse_metadata_block  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import PrRangeError, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
+from lint_common import PrRangeError, empty_pr_range_message, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
 
 # B2: neutralise inherited pathspec-mode env vars so the :(top,literal) history pathspec below is
 # always honoured. GIT_LITERAL_PATHSPECS=1 would otherwise make :(top,literal) match literal
@@ -310,8 +310,8 @@ def main(argv: list[str]) -> int:
     changed = [p for p in changed_raw.split("\0") if p]
 
     if not changed:
-        print(f"OK: no files changed between {merge_base[:8]} and {head}.")
-        return 0
+        print(empty_pr_range_message(merge_base, head), file=sys.stderr)
+        return 2
 
     findings: list[tuple[str, str]] = []
     bumped_checked = 0

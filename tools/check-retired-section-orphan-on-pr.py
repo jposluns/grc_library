@@ -236,6 +236,8 @@ def run(base: str | None, head: str) -> int:
         base = f"origin/{target}"
     try:
         merge_base = git("merge-base", base, head).strip()
+        head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}").strip()
+        toplevel = git("rev-parse", "--show-toplevel").strip()
         ref_diff = git("diff", merge_base, head, "--", "TODO.md")
         try:
             head_ref = git("show", f"{head}:TODO.md")
@@ -243,6 +245,20 @@ def run(base: str | None, head: str) -> int:
             head_ref = ""
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: git failed (base={base}, head={head}): {exc}", file=sys.stderr)
+        return 2
+    # D9 anchors git to the script's own repository (-C REPO_ROOT), so a run of
+    # the WRONG CLONE's copy of this script still resolves that clone's HEAD;
+    # a base and head collapsing to one commit is that misrun's signature and
+    # must refuse, never pass clean (orchestrator mistake 300). The printed
+    # repo= top-level makes the wrong-clone case diagnosable.
+    if merge_base == head_sha:
+        print(
+            f"D9 CANNOT-EVALUATE: base {base} and head {head} resolve to the same "
+            f"commit (repo={toplevel} base={merge_base} head={head_sha}); the "
+            f"named range is empty, so nothing was evaluated. If the change "
+            f"lives in a worktree, run that worktree's copy of this script.",
+            file=sys.stderr,
+        )
         return 2
     base = merge_base
     # NOTE: retired ids come from the `head` git object (removed TODO.md INDEX rows), but the

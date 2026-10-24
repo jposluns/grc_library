@@ -163,15 +163,11 @@ def evaluate(
 
 
 def run_git_mode(base: str | None, head: str, word_max: int, sentence_max: int) -> int:
-    try:
-        merge_base, head = resolve_pr_range(base, head)
-    except PrRangeError as exc:
-        print(str(exc), file=sys.stderr)
-        return 2
-
     # git must select the repository it finds by itself (a sibling GIT_DIR printed "not
     # modified"), and the head's CHANGELOG.md must be a regular file even when the diff does not
-    # show it (3b399 round 5).
+    # show it (3b399 round 5). Selection is checked BEFORE range resolution (3b530): a sibling
+    # GIT_DIR usually also collapses the range, and the precise wrong-repository diagnosis must
+    # win over the generic collapsed-range refusal.
     try:
         check_git_selects_root()
         refuse_links([CHANGELOG_PATH], head)
@@ -184,6 +180,13 @@ def run_git_mode(base: str | None, head: str, word_max: int, sentence_max: int) 
     except ChangelogDiffUnreadable as exc:
         print(f"ERROR: the {CHANGELOG_PATH} diff could not be read: {exc}", file=sys.stderr)
         return 2
+
+    try:
+        merge_base, head = resolve_pr_range(base, head)
+    except PrRangeError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
     try:
         # ":(top)" names the root CHANGELOG.md from any subdirectory (3b399 round 3); the runner
         # drops GIT_LITERAL_PATHSPECS, which made git read it as a file name (round 4).

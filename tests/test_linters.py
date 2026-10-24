@@ -9850,6 +9850,300 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
+class CollapsedRangeRefusalTests(unittest.TestCase):
+    """3b530: the range-taking delta gates refuse a collapsed or net-empty named
+    range instead of printing a clean pass.
+
+    Incident (orchestrator mistake 300): the D15 gate, run from the main clone
+    while the change lived in a worktree, resolved HEAD to the branch point, so
+    base and head collapsed to one commit and it printed "D15 OK: 0 corpus
+    document(s) changed", a false clean. Strict gates now exit 2 with a
+    CANNOT-EVALUATE message naming the resolved repository top-level and both
+    SHAs; the advisory D15 prints a distinct NOTE stating nothing was evaluated
+    and keeps exit 0. A scoped-empty set over a REAL range (a PR that simply
+    does not touch a gate's files) stays legitimately clean.
+    """
+
+    # Strict gates on lint_common.resolve_pr_range. check-version-bump-on-pr.py
+    # (D2) shares the resolver too, so it inherits the same refusal.
+    STRICT_SHARED = (
+        "check-changelog-on-pr.py",                   # D1
+        "check-version-bump-on-pr.py",                # D2
+        "check-changelog-dash-on-pr.py",              # D3
+        "check-date-cobump-on-pr.py",                 # D4
+        "check-changelog-length-on-pr.py",            # D7
+        "check-narrative-corpus-mixed-diff-on-pr.py",  # D11
+    )
+    # Gates whose own diff is unscoped, so an empty changed set over a real
+    # (base != head) range is also a refusal, never "no files changed" clean.
+    UNSCOPED = (
+        "check-changelog-on-pr.py",                   # D1
+        "check-version-bump-on-pr.py",                # D2
+        "check-date-cobump-on-pr.py",                 # D4
+        "check-narrative-corpus-mixed-diff-on-pr.py",  # D11
+        "check-todo-rotation-on-pr.py",               # D5
+    )
+
+    REGISTER_REL = "governance/register-canonical-citations.md"
+    DOC_REL = "security/standard-example.md"
+    DOC_BASE = (
+        "# Example\n\n## Framework alignment\n\n"
+        "| Framework | Reference | Relevance |\n| --- | --- | --- |\n"
+        "| ISO/IEC 27001:2022 | A.5.1 | Policy |\n"
+    )
+    # The added row cites a standard the fixture register has no row for.
+    DOC_HEAD = DOC_BASE + "| NIST SP 800-57 Part 1 Rev. 5 | Key management | Keys |\n"
+
+    def _repo(self):
+        """One-commit fixture repo on main, refs/remotes/origin/main at its tip.
+        Returns (path, git runner)."""
+        import subprocess as sp
+
+        tmp = Path(tempfile.mkdtemp(prefix="collapsed-range-")).resolve()
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+
+        def git(*args, cwd=None):
+            return sp.run(
+                ["git", "-C", str(cwd or tmp), *args],
+                check=True, capture_output=True, text=True,
+            ).stdout.strip()
+
+        sp.run(["git", "init", "-q", "-b", "main", str(tmp)], check=True)
+        git("config", "user.email", "test@test")
+        git("config", "user.name", "Test")
+        register = AlignmentRegisterOnPrTests._register(AlignmentRegisterOnPrTests)
+        for rel, content in (
+            ("README.md", "# Repo\n"),
+            ("CHANGELOG.md", "# Changelog\n\nOld entry.\n"),
+            (self.REGISTER_REL, register),
+            (self.DOC_REL, self.DOC_BASE),
+        ):
+            path = tmp / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "-m", "Initial")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        return tmp, git
+
+    def _gate(self, script, cwd, *args, env=None):
+        import subprocess as sp
+
+        full_env = dict(os.environ)
+        full_env.update(env or {})
+        return sp.run(
+            [sys.executable, str(REPO_ROOT / "tools" / script), *args],
+            capture_output=True, text=True, cwd=str(cwd), env=full_env,
+        )
+
+    def test_resolve_pr_range_same_commit_raises(self) -> None:
+        import subprocess as sp
+
+        tmp, git = self._repo()
+        head_sha = git("rev-parse", "HEAD")
+        code = (
+            "import sys\n"
+            "sys.path.insert(0, sys.argv[1])\n"
+            "import lint_common\n"
+            "try:\n"
+            "    lint_common.resolve_pr_range('origin/main', 'HEAD')\n"
+            "except lint_common.PrRangeError as exc:\n"
+            "    print('RAISED:', exc)\n"
+            "    sys.exit(0)\n"
+            "sys.exit(1)\n"
+        )
+        r = sp.run([sys.executable, "-c", code, str(REPO_ROOT / "tools")],
+                   capture_output=True, text=True, cwd=str(tmp))
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("RAISED: CANNOT-EVALUATE", r.stdout)
+        self.assertIn(head_sha, r.stdout)
+        self.assertIn(str(tmp), r.stdout)
+
+    def test_strict_gate_same_commit_exit2(self) -> None:
+        tmp, git = self._repo()
+        head_sha = git("rev-parse", "HEAD")
+        for script in self.STRICT_SHARED:
+            with self.subTest(gate=script):
+                r = self._gate(script, tmp, "origin/main", "HEAD")
+                self.assertEqual(
+                    r.returncode, 2,
+                    f"{script} must refuse base==head.\nstdout:\n{r.stdout}\nstderr:\n{r.stderr}",
+                )
+                self.assertIn("CANNOT-EVALUATE", r.stderr)
+                self.assertIn(head_sha, r.stderr)
+                self.assertIn(str(tmp), r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
+    def test_unscoped_gate_named_refs_empty_changed_set_exit2(self) -> None:
+        # base != head but the named range selects nothing (an empty commit):
+        # still a refusal for the gates whose own diff is unscoped.
+        tmp, git = self._repo()
+        git("checkout", "-q", "-b", "feat-empty")
+        git("commit", "-q", "--allow-empty", "-m", "empty")
+        for script in self.UNSCOPED:
+            with self.subTest(gate=script):
+                r = self._gate(script, tmp, "origin/main", "feat-empty")
+                self.assertEqual(
+                    r.returncode, 2,
+                    f"{script} must refuse an empty changed set.\n"
+                    f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}",
+                )
+                self.assertIn("CANNOT-EVALUATE", r.stderr)
+                self.assertIn("no files changed", r.stderr)
+                self.assertNotIn("OK: no files changed", r.stdout)
+
+    def test_d15_same_commit_distinct_note(self) -> None:
+        tmp, git = self._repo()
+        r = self._gate("check-alignment-register-on-pr.py", tmp, "origin/main", "HEAD")
+        self.assertEqual(r.returncode, 0, f"D15 stays advisory.\nstderr:\n{r.stderr}")
+        self.assertIn("D15 NOTE: CANNOT-EVALUATE", r.stdout)
+        self.assertIn(str(tmp), r.stdout)
+        self.assertNotIn("D15 OK", r.stdout)
+        self.assertNotIn("corpus document(s) changed", r.stdout)
+
+    def test_d15_named_refs_empty_changed_set_is_note_not_ok(self) -> None:
+        tmp, git = self._repo()
+        git("checkout", "-q", "-b", "feat-empty")
+        git("commit", "-q", "--allow-empty", "-m", "empty")
+        r = self._gate("check-alignment-register-on-pr.py", tmp, "origin/main", "feat-empty")
+        self.assertEqual(r.returncode, 0, f"D15 stays advisory.\nstderr:\n{r.stderr}")
+        self.assertIn("D15 NOTE: CANNOT-EVALUATE", r.stdout)
+        self.assertIn("nothing was evaluated", r.stdout)
+        self.assertNotIn("D15 OK", r.stdout)
+
+    def test_worktree_incident_reproduction(self) -> None:
+        # The end-to-end incident: the change lives in a worktree; argless D15
+        # run from the MAIN CLONE collapses to base==head and must say so (and
+        # name the clone it resolved), while the same invocation from the
+        # worktree sees the real delta and warns.
+        tmp, git = self._repo()
+        wt = Path(str(tmp) + "-wt")
+        self.addCleanup(shutil.rmtree, wt, ignore_errors=True)
+        git("worktree", "add", "-q", "-b", "feat", str(wt))
+        (wt / self.DOC_REL).write_text(self.DOC_HEAD, encoding="utf-8")
+        git("add", self.DOC_REL, cwd=wt)
+        git("commit", "-q", "-m", "add citation", cwd=wt)
+
+        env = {"GITHUB_BASE_REF": "main"}
+        in_clone = self._gate("check-alignment-register-on-pr.py", tmp, env=env)
+        self.assertEqual(in_clone.returncode, 0, in_clone.stderr)
+        self.assertIn("D15 NOTE: CANNOT-EVALUATE", in_clone.stdout)
+        self.assertIn(str(tmp), in_clone.stdout)
+        self.assertNotIn("D15 OK", in_clone.stdout)
+
+        in_worktree = self._gate("check-alignment-register-on-pr.py", wt, env=env)
+        self.assertEqual(in_worktree.returncode, 0, in_worktree.stderr)
+        self.assertNotIn("CANNOT-EVALUATE", in_worktree.stdout)
+        self.assertIn("D15 WARN", in_worktree.stdout)
+
+    def test_scoped_gate_empty_set_still_clean(self) -> None:
+        # A REAL range that merely does not touch a gate's files stays clean:
+        # the refusal predicate is the collapsed/empty RANGE, not an empty
+        # SCOPED set (an overbroad guard would flag every non-changelog or
+        # tools-only PR).
+        import subprocess as sp
+
+        tmp, git = self._repo()
+        git("checkout", "-q", "-b", "feat2")
+        (tmp / "README.md").write_text("# Repo\n\nMore.\n", encoding="utf-8")
+        git("add", "README.md")
+        git("commit", "-q", "-m", "docs only")
+
+        d3 = self._gate("check-changelog-dash-on-pr.py", tmp, "origin/main", "feat2")
+        self.assertEqual(d3.returncode, 0, f"stdout:\n{d3.stdout}\nstderr:\n{d3.stderr}")
+        self.assertIn("not modified", d3.stdout)
+
+        # D13 anchors git to its own script's repository, so run a copy of it
+        # from inside the fixture (stdlib-only, self-contained).
+        tools = tmp / "tools"
+        tools.mkdir()
+        copy = tools / "check-stranded-control-code-on-pr.py"
+        copy.write_text(
+            (REPO_ROOT / "tools" / "check-stranded-control-code-on-pr.py").read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+        d13 = sp.run(
+            [sys.executable, str(copy), "origin/main", "feat2"],
+            capture_output=True, text=True, cwd=str(tmp),
+        )
+        self.assertEqual(d13.returncode, 0, f"stdout:\n{d13.stdout}\nstderr:\n{d13.stderr}")
+        self.assertIn("D13 OK: no corpus document changed", d13.stdout)
+
+    def test_d5_same_commit_exit2(self) -> None:
+        tmp, git = self._repo()
+        head_sha = git("rev-parse", "HEAD")
+        r = self._gate("check-todo-rotation-on-pr.py", tmp, "origin/main", "HEAD")
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("CANNOT-EVALUATE", r.stderr)
+        self.assertIn(head_sha, r.stderr)
+        self.assertIn(str(tmp), r.stderr)
+        self.assertNotIn("OK: no files changed", r.stdout)
+
+    def test_d9_d13_same_commit_exit2(self) -> None:
+        # D9 and D13 anchor to their own repository; HEAD..HEAD there is a
+        # collapsed range whichever repository that is.
+        for script, tag in (
+            ("check-retired-section-orphan-on-pr.py", "D9"),
+            ("check-stranded-control-code-on-pr.py", "D13"),
+        ):
+            with self.subTest(gate=script):
+                r = self._gate(script, REPO_ROOT, "HEAD", "HEAD")
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn(f"{tag} CANNOT-EVALUATE", r.stderr)
+                self.assertIn("repo=", r.stderr)
+                self.assertNotIn(f"{tag} OK", r.stdout)
+
+    def test_runner_same_sha_abort(self) -> None:
+        import subprocess as sp
+
+        env = dict(os.environ)
+        env.update(BASE_REF="HEAD", HEAD_REF="HEAD")
+        r = sp.run(
+            ["bash", str(REPO_ROOT / "tools" / "run-pr-time-checks.sh")],
+            capture_output=True, text=True, cwd=str(REPO_ROOT), env=env,
+        )
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("CANNOT-EVALUATE", r.stderr)
+        self.assertNotIn("D1", r.stdout)
+        self.assertNotIn("... OK", r.stdout)
+
+    def test_d13_diff_failure_not_clean(self) -> None:
+        # A failed enumeration diff must never print the clean "D13 OK: no
+        # corpus document changed" (the old changed_corpus_files returned []).
+        import contextlib
+        import importlib.util
+        import io
+        import subprocess as sp
+
+        spec = importlib.util.spec_from_file_location(
+            "d13_under_test", REPO_ROOT / "tools" / "check-stranded-control-code-on-pr.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        def fake_git(*args):
+            if args[0] == "merge-base":
+                return "a" * 40
+            if args[0] == "rev-parse" and args[1] == "--verify":
+                return "b" * 40
+            if args[0] == "rev-parse":
+                return "/fixture/top"
+            raise sp.CalledProcessError(128, ["git", *args])
+
+        mod.git = fake_git
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = mod.run("origin/main", "HEAD")
+        self.assertEqual(rc, 2, f"stdout:\n{out.getvalue()}\nstderr:\n{err.getvalue()}")
+        self.assertIn("git diff failed", err.getvalue())
+        self.assertNotIn("D13 OK", out.getvalue())
+
+    def test_tension_scan_same_commit_exit2(self) -> None:
+        r = self._gate("tension-scan.py", REPO_ROOT, "HEAD", "HEAD")
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("tension-scan: CANNOT-EVALUATE", r.stderr)
+        self.assertNotIn("rewritten block", r.stdout)
+
+
 from tests import test_session_facts
 
 SessionFactsTests = test_session_facts.SessionFactsTests
@@ -25292,10 +25586,10 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-todo-number-allocation.py NO_FS F 8ad89e87b8a6df4a576935a21409cadc80ce0456784a22262ac3229b3f2dd99e
         ccm_aicm_reference.py PASSIVE F 1ed15d9b1bd4cfd1162df3e720b5aa6058c3cba3cb1f626fcf2e1ee605c17e71
         changelog_diff.py PASSIVE F d712d841faf46461535b17d083d012280d3df85c0182b526625f7d7199b301bd
-        check-alignment-register-on-pr.py NO_FS F e9abf548bc7c19c3a22aa4c0eea55f792b72e45e9ebe697295ea33e7495072ee
-        check-changelog-dash-on-pr.py NO_FS F 274f4075191b94c29c775fbbd45809c3fbefdc6eb6c8783c43eff0f68e7b6768
-        check-changelog-length-on-pr.py NO_FS F 213b023f71e6b96cf1500eebf86dcf0e432610658c4a5651f331a379dbf7e23c
-        check-changelog-on-pr.py NO_FS F 1c2e377a997e7e95bef19eb4d4fbdd994310b58b4b6d2476f9cdad2c789f549d
+        check-alignment-register-on-pr.py NO_FS F 7d38155fe373f4e21c79ad1ef13c439f2dc6ee2b89f0e06fbf899a7fc038edb9
+        check-changelog-dash-on-pr.py NO_FS F ca13e80adc1268e25f9049e104d987cb2da30d1cedf2a5abb5aa35969008f883
+        check-changelog-length-on-pr.py NO_FS F ad8db4fb4f41cbe77f759cb70e293a070045fc82bfe6617e454c6d26a0151f4d
+        check-changelog-on-pr.py NO_FS F fac4d3416941e86ce7abee406af37d0d11398e60993b7a7b193fa70b53f98a59
         check-changelog-preflight-commit.py NO_FS F 87b92b4235420074c259a9b50e0ee72d5624a81be2b87420de3e01cc7e551fd2
         check-class-attestation-on-pr.py NO_FS F 8ef4e742c2610fa3c80598404991ee6aab9da409b9e95e2ad8b74ec202d40325
         check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
@@ -25304,19 +25598,19 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-clean-language-upstream.py NO_FS F 7732d2d2eceb44061d99e7c484aa83c93b0818091538ba7e3b95a0040acda6a2
         check-commit-on-main.py NO_FS F 6b32bd410a2fee3b4dbb3ff8e3677ee4c5278c9c3f0496fe429b12a25cc967e9
         check-daily-changelog-rollup.py SKIP F 096c9d8e8cf4741ca7fd9bb43ca5c4a5d08ead37c65559e291b44fb8af28da10
-        check-date-cobump-on-pr.py NO_FS F 02741873379df2625536b436fc126cb5f6ce30d7dd593a0ab9657ec0d0c4758e
+        check-date-cobump-on-pr.py NO_FS F 78d69dc738b630a1416eabb1c278007d8d4c4995775aa349ee191e113463546b
         check-dirty-tree-push.py TRANSPORT F e60cbafde1933c8bcc92410a997d41a6e5e89d97456ff2949aba0284ffb65713
         check-generated-commit.py NO_FS F 0966158af3a54dba6c55f7de8039ca21ff3658ffe98c4d341d6ad153e824697b
-        check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 5c49cbef61d26c22b137d6118d478faee0ba47feda27f3aac3b4c134c772c9a5
+        check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 9b8a49bc37aa820d292a2c27d843ad5c5cf4cc555a19b4df89e59b4c2fbaf006
         check-portability.sh FIXED F 47a3853e165ba918c0f4f5687904f662a0a9d805356428394fd724ff227756d5
         check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
-        check-retired-section-orphan-on-pr.py NO_FS F e88e6f7717c4059d89a284b4b049ab5b37958ac959a94b576ee5ada35f6ea09b
+        check-retired-section-orphan-on-pr.py NO_FS F 94f89f3645e0e4dedbfe0a2d174ba60150b94bd7a0c734e25d5f96d148afe4ba
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
-        check-stranded-control-code-on-pr.py NO_FS F 80830fb4cc3d11694504a10fed1abc21b5019cd08b01b388ffa1b2d1f9db95d7
+        check-stranded-control-code-on-pr.py NO_FS F 5c0890d697db2086c6a10fe3222b6a268ac04199a359b761e4d393aceaccde7d
         check-todo-floor-monotonic-on-pr.py NO_FS F e3c6f34a4fb62c07ce7938c0337cef4756e3628b044e2e73ac5a01b35d9e242d
-        check-todo-rotation-on-pr.py NO_FS F 1a8cd373d5527d73a5737049c22a21e332bddd79ab83b77580e5936728e364c3
+        check-todo-rotation-on-pr.py NO_FS F f4189bf15201c6ae8d228ac341f5c5c5dd859457be22275084e2e155751b5c96
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
-        check-version-bump-on-pr.py NO_FS F 12b0d498e274aebdac381f7db669315183ee64ba4e0be21a31041002c7a69854
+        check-version-bump-on-pr.py NO_FS F 520abe7d721553382768bf7c581cc0db91b1b6ac329404cc61416333246062b2
         ci-status.py NO_FS F 068ed02eb5f5a81572dce604a4cb1965582dbc178c7c9715be3d37dd8e01e54b
         ci-status.sh NO_FS F 8c66fb625693e9099b040855a90e25dac7f78960eeb2ad660ac513f513287094
         citation_publishers.py PASSIVE F 8c9729132cfaa4f2705c023b4501872905a44dd76b996be8ea8c78ae4188d3e8
@@ -25433,7 +25727,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 616ae8f4ea008cda21bcf2f663ed650f82f91b2467fddc75cc4a313ff61e32b1
-        lint_common.py PASSIVE F 7161fd5d73e172b526356fff82320612754f59a77c061dc120a50e27d0049d8a
+        lint_common.py PASSIVE F 86d38ffcedcc1412846d440756e078f6d93e4f588b7966d9839495e1d0026e9a
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -25451,7 +25745,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
         run-linter-regression.py FIXED F 2e97814644c614dc987df7139c5ff0ff9b875fb2c1ba0abb6ff0abc298282753
-        run-pr-time-checks.sh FIXED F 149366a50976af26bf594757d03314a39f6c81d4054d1c4403457fe2fe37af3b
+        run-pr-time-checks.sh FIXED F db35d781023b18dddcdae88a7ae8267b7174af46bec4030e5a050165d9991724
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
         run_all_audits.sh FIXED F e008dc6ab77b4bd49c70306568baf38078b50dfeada3c2f1856fecc829397a85
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
@@ -25464,7 +25758,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         sweep-preflight-scanner.py NO_FS F ae4ca7f95dffecb823ec3bc0fdf382ead32fd92a8b0c8b0c286f0b85b2b4dd6f
         sync-citation-worklist-baseline.py OWN F 9c465a8c77bafd52f7f3079f35346a11716a6f0bc8e91862706590e831af397b
         tail-safe.sh COMMAND F 07908bc54b40d06445f63a08f92526d22e4a030465ee235104a3ec41fbbb0b02
-        tension-scan.py NO_FS F 674d1e5b430b2799b220bdf9d074498321a5e2a84d2d4e12ffb22c1cd5102711
+        tension-scan.py NO_FS F acc2ca2f80d3f41397ea6e20eef3a8f704c5928105b1a77799eef121187cec7d
         todo-number-floor.json DATA F b5b684a17754dd265c1072f2342971befcc59b5a6e0b579f48eb21ea172f047b
         todo_index_rows.py PASSIVE F 6aba39ba20b4bbbe5ffab3fe94ef520ec95ce8d8e2510ea73696c17d196c2e4a
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4
@@ -45188,7 +45482,9 @@ class HookParserStrictnessTests(LinterTestCase):
             ("tools/check-generated-commit.py", "--self-test"),
             ("tools/check-commit-on-main.py", "--self-test"),
             ("tools/check-dirty-tree-push.py", "--self-test"),
-            ("tools/tension-scan.py", "HEAD", "HEAD"),
+            # HEAD~1..HEAD since 3b530: a collapsed (base==head) range is now a
+            # CANNOT-EVALUATE refusal, not an accepted documented form.
+            ("tools/tension-scan.py", "HEAD~1", "HEAD"),
             ("tools/check-todo-floor-monotonic-on-pr.py", "HEAD", "HEAD"),
             ("tools/check-pr-attribution.py", "--event", str(event)),
         ):

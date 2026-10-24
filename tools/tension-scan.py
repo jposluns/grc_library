@@ -164,6 +164,23 @@ def main(argv: list[str]) -> int:
               + ", ".join(skipped), file=sys.stderr)
     try:
         merge_base = git("merge-base", base, head).strip()
+        head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}").strip()
+        toplevel = git("rev-parse", "--show-toplevel").strip()
+    except (subprocess.CalledProcessError, OSError) as exc:
+        print(f"tension-scan: git failed: {exc}", file=sys.stderr)
+        return 2
+    # A collapsed range would read as the clean "0 rewritten block(s)" summary;
+    # refuse it instead (same wrong-repository signature the delta gates refuse,
+    # orchestrator mistake 300).
+    if merge_base == head_sha:
+        print(
+            f"tension-scan: CANNOT-EVALUATE: base {base} and head {head} resolve to "
+            f"the same commit (repo={toplevel} base={merge_base} head={head_sha}); "
+            f"the range is empty, so nothing was scanned.",
+            file=sys.stderr,
+        )
+        return 2
+    try:
         diff = git("diff", merge_base, head, "--", *scanned)
     except (subprocess.CalledProcessError, OSError) as exc:
         print(f"tension-scan: git failed: {exc}", file=sys.stderr)

@@ -459,7 +459,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import iter_non_code_lines  # noqa: E402  # the line model gate 6 reads
-from lint_common import AUDITED_DOMAIN_DIRS, PrRangeError, git, git_show, resolve_pr_range  # noqa: E402
+from lint_common import AUDITED_DOMAIN_DIRS, PrRangeError, git, git_show, pr_range_resolution, resolve_pr_range  # noqa: E402
 
 TOOLS = Path(__file__).resolve().parent
 REGISTER_REL = "governance/register-canonical-citations.md"
@@ -1832,6 +1832,18 @@ def run(base: str | None, head: str, register_ref: str | None) -> int:
     except subprocess.CalledProcessError as exc:
         print(f"D15 NOTE: git diff failed ({exc}); advisory check skipped (fail-open).")
         return 0
+    if not any(names):
+        # Refs were named but select nothing: the resolver already refuses
+        # base==head, so this is a net-empty range. Still advisory (exit 0),
+        # but the verdict says nothing was evaluated, never a clean "D15 OK"
+        # (orchestrator mistake 300).
+        head_sha, toplevel = pr_range_resolution(merge_base, head)
+        print(
+            f"D15 NOTE: CANNOT-EVALUATE: refs were named but no files changed in the "
+            f"range (repo={toplevel} base={merge_base} head={head} -> {head_sha}); "
+            f"nothing was evaluated. Advisory check skipped (fail-open)."
+        )
+        return 0
     probe = bool({ALIASES_REL, REGISTER_REL} & set(names))
     try:
         resolver = build_resolver(register_text)
@@ -1853,7 +1865,13 @@ def run(base: str | None, head: str, register_ref: str | None) -> int:
         for ln, surface, citation in scan_text(text, added_lines(diff), resolver):
             hits.append((rel, ln, surface, citation))
     if not hits:
-        print(f"D15 OK: {len(files)} corpus document(s) changed; no added citation lacks a register row.")
+        # Zero corpus files is phrased distinctly from the counted pass: the
+        # incident's false clean printed exactly "D15 OK: 0 corpus document(s)
+        # changed", and that string must never be reproducible.
+        if files:
+            print(f"D15 OK: {len(files)} corpus document(s) changed; no added citation lacks a register row.")
+        else:
+            print("D15 OK: no corpus document in this PR's diff; nothing in scope to evaluate.")
     for rel, ln, surface, citation in hits:
         print(f"D15 WARN {rel}:{ln}: {surface} {citation!r} has no row in {REGISTER_REL}")
     if hits:

@@ -68,6 +68,15 @@ BASE_SHA="$(git rev-parse "${BASE_REF}" 2>/dev/null || echo "${BASE_REF}")"
 HEAD_SHA="$(git rev-parse "${HEAD_REF}" 2>/dev/null || echo "${HEAD_REF}")"
 
 echo "PR-time checks: ${BASE_REF} (${BASE_SHA:0:8}) .. ${HEAD_REF} (${HEAD_SHA:0:8})"
+
+# A collapsed range evaluates nothing, and is exactly how a run from the wrong
+# repository looks (a main clone whose HEAD is the branch point while the change
+# lives in a worktree printed a false clean, orchestrator mistake 300). Refuse
+# before any gate can print a clean pass over the empty range.
+if [ "${BASE_SHA}" = "${HEAD_SHA}" ]; then
+    echo "CANNOT-EVALUATE: ${BASE_REF} and ${HEAD_REF} resolve to the same commit (repo=${REPO_ROOT} base=${BASE_SHA} head=${HEAD_SHA}); the range is empty, so no gate was run. If the change lives in a worktree, run this script from that worktree, or set BASE_REF/HEAD_REF to a range that selects the change." >&2
+    exit 2
+fi
 echo ""
 
 FAILED=0
