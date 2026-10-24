@@ -2,8 +2,8 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.21\
-**Date:** 2026-10-16\
+**Version:** 1.1.26\
+**Date:** 2026-10-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -41,7 +41,7 @@ This annex applies where an organization:
 | **HIPAA Breach Notification Rule** (45 CFR Part 164, Subpart D) | HHS OCR | Covered entities and business associates |
 | **HITECH Act** (42 U.S.C. §17921 et seq.) | HHS | Strengthens HIPAA; enhanced penalties; meaningful use |
 | **21st Century Cures Act** | HHS ONC | Information blocking prohibitions; FHIR interoperability |
-| **FDA Cybersecurity Guidance for Medical Devices** (2023) | FDA | Device manufacturers; 510(k) and PMA submissions |
+| **FDA guidance: Cybersecurity in Medical Devices: Quality Management System Considerations and Content of Premarket Submissions** (final, issued 3 February 2026; docket FDA-2021-D-1158) | FDA | Device manufacturers; premarket submissions (FD&C Act section 524B applies to 510(k), PMA, PDP, De Novo, and HDE submissions for cyber devices) |
 | **FedRAMP** (where applicable) | GSA | Health IT products used by federal healthcare programmes |
 | **42 CFR Part 2** | SAMHSA | Substance use disorder treatment records |
 | **State breach notification laws** | Varies | Many states have additional or stricter requirements |
@@ -183,20 +183,22 @@ The NHS Data Security and Protection Toolkit is mandatory for all organizations 
 
 DSPT submission is annual. Organizations must achieve at minimum "Standards Met" status to maintain NHS data access.
 
-### FDA cybersecurity for medical devices (2023 guidance)
+### FDA cybersecurity in medical devices (2026 guidance)
 
-For device manufacturers submitting 510(k), De Novo, or PMA applications after 2023-03-29:
+FDA's final guidance "Cybersecurity in Medical Devices: Quality Management System Considerations and Content of Premarket Submissions" was issued on 3 February 2026 (docket FDA-2021-D-1158) and supersedes the edition issued on 27 June 2025. The guidance contains nonbinding recommendations, intended to help manufacturers meet their obligations under section 524B of the FD&C Act, and covers all relevant cybersecurity considerations that may affect device safety and effectiveness, including software, hardware, and firmware.
 
-| Requirement | Detail | GRC Library Mapping |
+Section 524B applies to premarket submissions for cyber devices from 29 March 2023: a person who submits a 510(k), PMA, PDP, De Novo, or HDE for a device that meets the section 524B(c) definition of a cyber device must submit information to ensure that the device meets the cybersecurity requirements under section 524B(b).
+
+| Item | Basis and detail | GRC Library Mapping |
 |---|---|---|
-| **Cybersecurity management plan** | Plan demonstrating post-market cybersecurity management | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md): supplement with device-specific plan |
-| **SBOM** | Complete SBOM for all device software components | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
-| **Threat modelling** | Pre-market threat modelling documentation | Risk assessment methodology: supplement with threat modelling procedure |
-| **Vulnerability assessment** | Assessment of known vulnerabilities in SBOM components | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
-| **Penetration testing** | Pre-market security testing of device software | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md): supplement |
-| **Patch management plan** | Plan for timely security patch deployment post-clearance | [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) |
-| **Coordinated vulnerability disclosure** | Policy and process for accepting and responding to security reports | Supplement: vulnerability disclosure policy |
-| **Secure by design** | Implement security by design principles | [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md); [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
+| **Cybersecurity management plan** | Section 524B(b)(1) requirement: a plan to monitor, identify, and address, as appropriate, in a reasonable time, postmarket cybersecurity vulnerabilities and exploits | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md): supplement with device-specific plan |
+| **SBOM** | Section 524B(b)(3) requirement: a software bill of materials, including commercial, open-source, and off-the-shelf software components | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
+| **Threat modelling** | Recommended by the FDA guidance (not named in section 524B): threat modelling performed throughout the design process, covering all medical device system elements, to inform the risk analysis | Risk assessment methodology: supplement with threat modelling procedure |
+| **Vulnerability assessment** | Recommended by the FDA guidance (not named in section 524B): identification of all known vulnerabilities associated with the device and its software components (including those in CISA's Known Exploited Vulnerabilities Catalog), and, for components with known vulnerabilities, a safety and security risk assessment of each known vulnerability (including device and system impacts), as part of the security risk management report | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
+| **Penetration testing** | Recommended by the FDA guidance (not named in section 524B) as premarket submission content: testing that discovers and exploits security vulnerabilities in the product, with reports covering tester independence and technical expertise, scope, duration, methods, and results, findings, and observations. After release, the guidance recommends cybersecurity testing at regular intervals commensurate with the risk (for example, annually) | [`security/standard-penetration-testing-and-red-team.md`](../../security/standard-penetration-testing-and-red-team.md): supplement with device product scope |
+| **Patch management plan** | Section 524B(b)(2) requirement: postmarket updates and patches, on a reasonably justified regular cycle for known unacceptable vulnerabilities and as soon as possible out of cycle for critical vulnerabilities that could cause uncontrolled risks | [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) |
+| **Coordinated vulnerability disclosure** | Section 524B(b)(1) requirement, as part of the postmarket plan: coordinated vulnerability disclosure and related procedures | Supplement: vulnerability disclosure policy |
+| **Secure by design** | Section 524B(b)(2) requirement: processes and procedures that provide a reasonable assurance that the device and related systems are cybersecure | [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md); [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
 
 ### GDPR article 9: special category health data
 
@@ -237,7 +239,7 @@ Governance processes should document how each Caldicott Principle is applied to 
 | HIPAA breach notification procedure | HIPAA §164.400 to 414 | Create HIPAA-specific breach notification procedure including media notification for breaches affecting more than 500 residents of a state or jurisdiction |
 | NHS DSPT annual submission procedure | DSPT | Create DSPT submission procedure and evidence library |
 | Caldicott principle compliance documentation | Caldicott / NDG | Document Caldicott principle application to each processing activity |
-| Medical device SBOM and cybersecurity plan | FDA 2023 Guidance; MDR/IVDR | Supplement SCA standard with device-specific SBOM and patch management obligations |
+| Medical device SBOM and cybersecurity plan | FDA premarket cybersecurity guidance (2026); MDR/IVDR | Supplement SCA standard with device-specific SBOM and patch management obligations |
 | Clinical research data governance | Research ethics frameworks; ICH GCP | Create research data governance procedure |
 | ICD / SNOMED / HL7 FHIR data standards compliance | 21st Century Cures; EHDS | Supplement data architecture standards with health data interoperability requirements |
 | AI in healthcare high-risk classification | EU AI Act Article 6(1) with Annex I points 11-12 (a medical device or IVD requiring third-party conformity assessment; AI used solely for non-safety-related aspects is not a safety component (Article 6(1a)), though AI whose failure or malfunctioning would endanger health and safety is (Article 6(1b)), inserted by Regulation (EU) 2026/1744) and Annex III point 5(d) (emergency call-evaluation, dispatch, and patient triage, where a qualifying system may still be assessed as non-high-risk under Article 6(3) but is always high-risk where it profiles); FDA SaMD guidance | Supplement AI risk methodology with healthcare-specific AI risk considerations |
