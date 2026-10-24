@@ -155,7 +155,7 @@ Checks for:
   reported. Exempt files where the rule
   itself is described (the ingestion spec, the master spec, the AI
   ingestion instruction, and governance/template-document-review-record.md).
-  Verbatim external titles that carry a bare imperative 'Ensure'
+  Verbatim external text that contains the word 'ensure'
   (the `verbatim_ensure_titles` profile field, which lists each such title) are masked
   first, per the house-style verbatim-quote exemption.
 - Section headings (H2-H6) that start with a lowercase letter after
