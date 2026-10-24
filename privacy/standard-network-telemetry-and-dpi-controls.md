@@ -2,8 +2,8 @@
 
 **Document Title:** Network Telemetry and DPI Controls Standard\
 **Document Type:** Standard\
-**Version:** 0.1.1\
-**Date:** 2026-09-05\
+**Version:** 0.1.2\
+**Date:** 2026-10-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-workforce-network-monitoring.md`](../security/policy-workforce-network-monitoring.md), [`privacy/standard-presence-inference-limitations.md`](standard-presence-inference-limitations.md), [`security/policy-byod.md`](../security/policy-byod.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md), [`privacy/standard-pseudonymization-and-anonymization.md`](standard-pseudonymization-and-anonymization.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -133,6 +133,10 @@ Network flow and DPI telemetry is retained only for as long as necessary for its
 | CSA CCM v4.1 | DSP-08 Data Privacy by Design and Default; DSP-12 Limitation of Purpose in Personal Data Processing | Privacy-by-default in telemetry design and purpose limitation on telemetry. |
 | GDPR (EU) | Article 5 (data minimization, purpose limitation, storage limitation); Article 6 (lawful basis); Article 9 (prohibition on processing special-category data absent an Article 9(2) condition); Article 25 (data protection by design and by default) | Aligns the standard's minimization, exclusion-by-design, and special-category-exclusion requirements. These principles inform the standard; the standard does not assert that any single article prescribes a specific threshold or field-level control, and a purpose or legitimate aim is not itself an Article 6 basis or an Article 9 condition. |
 | UK GDPR | The UK retains an equivalent special-category prohibition; processing requires an Article 6 lawful basis, a UK GDPR Article 9 condition, and, for several of those conditions, an associated Data Protection Act 2018 Schedule 1 condition. The permitting conditions are set under the UK regime and are not identical to the EU conditions. | Do not conflate the EU and UK special-category regimes. |
+| Article 29 Working Party Opinion 2/2017 on data processing at work (WP 249) | §5.3, Monitoring ICT usage at the workplace (including data loss prevention tools and traffic-inspecting next-generation firewalls and unified threat management); §5.4, Monitoring ICT usage outside the workplace, including §5.4.2, Bring your own device (BYOD) | Proportionate, least intrusive configuration of traffic-inspection telemetry; keeping inspection away from private use on personal devices. |
+| UK ICO, Employment practices and data protection: Monitoring workers (June 2024) | Specific data protection considerations for different ways or methods of monitoring workers: What if we are monitoring to prevent data loss or detect malicious traffic?; Can we monitor device activity? | UK supervisory expectations for data-loss-prevention, malicious-traffic, and device-activity monitoring. |
+| ILO Code of Practice on the Protection of Workers' Personal Data (1997) | 5.4 (data collected through technical or organizational measures for the security and proper operation of automated information systems not used to control worker behaviour); 6.14(1) (advance notice and minimal intrusion) | Purpose limitation on security telemetry and minimal intrusion in its collection. |
+| Council of Europe Recommendation CM/Rec(2015)5 (processing of personal data in the context of employment) | Principle 14.2 (preference for preventive measures and for non-individual checks on anonymous or aggregated data); Principle 14.4 (no monitoring of the content of private electronic communications); Principle 15 (information systems not introduced to monitor as a direct and principal purpose) | Metadata-first and aggregate-first telemetry design and the exclusion of private communications content. |
 
 ---
 

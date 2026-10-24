@@ -172,6 +172,8 @@ ALLOW_LIST = {
     # Canonical-citations register Upstream check location URLs (register v1.5.17, 1.5 (closing PR #777) currency sweep)
     "ecfr.gov",  # US Electronic Code of Federal Regulations (CMMC 32 CFR 170 / 48 CFR DFARS acquisition rule)
     "pib.gov.in",  # India Press Information Bureau (DPDP Rules 2025 notification)
+    # Canonical-citations register workforce-monitoring soft-law Upstream check location URLs (register v1.6.10, 2.34.9)
+    "ilo.org",  # International Labour Organization (Code of Practice on the Protection of Workers' Personal Data)
 }
 
 

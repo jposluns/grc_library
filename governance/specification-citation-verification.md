@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.31\
-**Date:** 2026-10-23\
+**Version:** 1.2.32\
+**Date:** 2026-10-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -200,6 +200,7 @@ The fenced `json citation-publishers` block at the end of this section is the so
 | WCO | `wcoomd.org` | WCO SAFE Framework, AEO, customs. |
 | ICAO | `icao.int` | International civil aviation. |
 | IMO | `imo.org` | International maritime. |
+| ILO | `ilo.org` | International Labour Organization instruments, including the Code of Practice on the Protection of Workers' Personal Data (1997). |
 | BIS | `bis.org` | Basel framework. |
 | NERC | `nerc.com` | NERC CIP. |
 | AICPA | `aicpa.org`, `aicpa-cima.com` | SOC reporting standards. |
@@ -221,7 +222,7 @@ The fenced `json citation-publishers` block at the end of this section is the so
 | OECD | `oecd.org`, `oecd.ai` | OECD AI Principles and OECD Privacy Guidelines. |
 | WTO | `wto.org` | WTO Trade Facilitation Agreement. |
 | UNESCO | `unesco.org` | UNESCO Recommendation on the Ethics of Artificial Intelligence. |
-| Council of Europe | `coe.int` | Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225), via the Treaty Office. |
+| Council of Europe | `coe.int` | Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225), via the Treaty Office; Recommendation CM/Rec(2015)5 on the processing of personal data in the context of employment. |
 | Japan (G7 Hiroshima AI Process) | `soumu.go.jp` | Hiroshima Process International Code of Conduct for Organizations Developing Advanced AI Systems (Ministry of Internal Affairs and Communications Hiroshima AI Process site). |
 | World BASC Organization | `wbasco.org` | BASC International Norm and Security Standard (Business Alliance for Secure Commerce). |
 | South Korea | `law.go.kr` | Korean legislation, including the AI Basic Act (Framework Act on the Development of Artificial Intelligence and the Establishment of Trust). |
@@ -431,6 +432,13 @@ The allow-list itself is subject to the same verification discipline as register
     "covers": "International maritime."
   },
   {
+    "publisher": "ILO",
+    "domains": [
+      "ilo.org"
+    ],
+    "covers": "International Labour Organization instruments, including the Code of Practice on the Protection of Workers' Personal Data (1997)."
+  },
+  {
     "publisher": "BIS",
     "domains": [
       "bis.org"
@@ -604,7 +612,7 @@ The allow-list itself is subject to the same verification discipline as register
     "domains": [
       "coe.int"
     ],
-    "covers": "Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225), via the Treaty Office."
+    "covers": "Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225), via the Treaty Office; Recommendation CM/Rec(2015)5 on the processing of personal data in the context of employment."
   },
   {
     "publisher": "Japan (G7 Hiroshima AI Process)",
@@ -713,6 +721,8 @@ A standard or regulation cited in the library that is not covered by an allow-li
 **2026-09-24 (3b28, SPDX register row):** added `spdx.org` and `spdx.dev` (the project's current site, to which spdx.org redirects; the register row's upstream-check URL is on spdx.dev so that no fetch crosses a redirect to an unlisted domain) to the OpenSSF / Linux Foundation row, now that the SPDX specification has a Canonical Citations Register entry.
 
 **2026-10-23 (register v1.6.7, 2.25.2 international AI-governance authorities):** added three new rows: UNESCO (`unesco.org`), for the UNESCO Recommendation on the Ethics of AI row; Council of Europe (`coe.int`, via the Treaty Office), for the Council of Europe Framework Convention on AI (CETS No. 225) row; and Japan (G7 Hiroshima AI Process) (`soumu.go.jp`, the Ministry of Internal Affairs and Communications Hiroshima AI Process site), for the G7 Hiroshima Process International Code of Conduct row; each with the matching external-link allow-list entry.
+
+**2026-10-24 (register v1.6.10, 2.34.9 workforce-monitoring citations import):** added a new ILO row (`ilo.org`, International Labour Organization), for the ILO Code of Practice on the Protection of Workers' Personal Data (1997) register row, with the matching external-link allow-list entry; and extended the Council of Europe row's coverage note to Recommendation CM/Rec(2015)5 on the processing of personal data in the context of employment (`rm.coe.int`, already suffix-covered by `coe.int`). The WP249 and UK ICO Monitoring workers rows need no new domain (`europa.eu` and `ico.org.uk` are already listed).
 
 ---
 
