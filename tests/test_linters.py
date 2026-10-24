@@ -30327,11 +30327,19 @@ class ReferenceBreadthStateTests(unittest.TestCase):
     DOCS = ("privacy/policy-privacy-and-data-governance.md", "risk/procedure-risk-register.md",
             "security/policy-information-security.md")
     DATES = ("2020-01-02", "2020-02-03", "2020-03-04")
+    # 3b529 round 3 (N2): HEAD of the two-commit fixture built in setUp, fixed
+    # by the identity, dates and per-user-config isolation in _git_env.
+    PINNED_HEAD = "b71a3a544a17de1260a223a596e0657281505d45"
 
     def setUp(self):
         import importlib.util
         self.td = Path(tempfile.mkdtemp(prefix="reference-state-"))
         self.addCleanup(shutil.rmtree, self.td)
+        # 3b529 round 3 (W1): an empty directory that _git_env presents as
+        # HOME and XDG_CONFIG_HOME, so per-user attribute and ignore files
+        # cannot reach the fixture's git subprocesses.
+        self.home = self.td / "home"
+        self.home.mkdir()
         tools_dir = str(REPO_ROOT / "tools")
         if tools_dir not in sys.path:
             sys.path.insert(0, tools_dir)
@@ -30372,7 +30380,13 @@ class ReferenceBreadthStateTests(unittest.TestCase):
         # vary from run to run through chance prefix collisions. Built in one
         # place so _abbrev_diagnostics reports what the git subprocess saw.
         env = fixture_git_environment()
-        env.update(GIT_AUTHOR_NAME="Test", GIT_COMMITTER_NAME="Test",
+        # 3b529 round 3 (W1): fixture_git_environment already sets
+        # GIT_CONFIG_NOSYSTEM=1 and GIT_CONFIG_GLOBAL=/dev/null, but git still
+        # reads $XDG_CONFIG_HOME/git/{attributes,ignore} (falling back to
+        # ~/.config/git/...), and those can change the object hashes. Point
+        # both at the empty per-test directory so they resolve to nothing.
+        env.update(HOME=str(self.home), XDG_CONFIG_HOME=str(self.home),
+                   GIT_AUTHOR_NAME="Test", GIT_COMMITTER_NAME="Test",
                    GIT_AUTHOR_EMAIL="test@example.invalid",
                    GIT_COMMITTER_EMAIL="test@example.invalid",
                    GIT_AUTHOR_DATE="2026-10-12T00:00:00Z",
@@ -30408,7 +30422,8 @@ class ReferenceBreadthStateTests(unittest.TestCase):
             f"git version: {run('version')}",
             f"effective core.abbrev and origin: "
             f"{run('config', '--show-origin', 'core.abbrev')}",
-            f"HEAD: {head}",
+            f"HEAD: {head} (expected pinned HEAD {self.PINNED_HEAD})",
+            "prefix counts below include HEAD itself, so 1 means an unshared prefix",
             f"objects sharing HEAD prefix {head[:4]!r}: "
             f"{sum(o.startswith(head[:4]) for o in objects)} of {len(objects)}",
             f"objects sharing HEAD prefix {head[:5]!r}: "
@@ -31088,13 +31103,17 @@ class ReferenceBreadthStateTests(unittest.TestCase):
     def test_short_core_abbrev_keeps_rows_across_two_updates(self):
         self._git("config", "core.abbrev", "4")
         self.assertEqual(self._git("config", "core.abbrev"), "4")
-        # 3b529 round 2: with the identity and dates pinned in _git_env the
-        # fixture hashes are fixed and the 4-character prefix is unshared, so
-        # the configured length holds exactly; a longer answer means a real
-        # cause (ignored core.abbrev, a new prefix collision, a git behaviour
-        # change), and the message carries the diagnostics to find it.
+        # 3b529 round 2: with the identity and dates pinned in _git_env (and,
+        # round 3, per-user attribute and ignore files cut off by its HOME and
+        # XDG_CONFIG_HOME override) the fixture hashes are fixed and the
+        # 4-character prefix is unshared, so the configured length holds
+        # exactly; a longer answer means a real cause (ignored core.abbrev, a
+        # new prefix collision, a git behaviour change), and the message
+        # carries the diagnostics to find it. Round 3 (N1): the diagnostics
+        # spawn four git subprocesses, so build them only on failure.
         short = self._git("rev-parse", "--short", "HEAD")
-        self.assertEqual(len(short), 4, self._abbrev_diagnostics(short))
+        if len(short) != 4:
+            self.fail(self._abbrev_diagnostics(short))
         for doc in self.DOCS[:2]:
             result = self._run_tool(doc)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
