@@ -2,7 +2,7 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.19\
+**Version:** 1.0.20\
 **Date:** 2026-10-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -135,7 +135,7 @@ For Tier 1 systems, the auditor conducts a structured observation of the human o
 
 ### 5.5 Bias re-assessment
 
-At each Tier 1 audit, bias testing is re-run against the current production model. Results are compared with the baseline recorded in the training data provenance and original deployment documentation. Statistically significant increases in bias across protected characteristics are recorded as High findings; the statistical test, the organization-set significance level, and the minimum sample size are recorded before the audit run ([`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6).
+At each Tier 1 audit, bias testing is re-run against the current production model. Results are compared with the baseline recorded in the training data provenance and original deployment documentation. Statistically significant increases in bias across protected characteristics are recorded as High findings. The comparison reports its uncertainty at the organization-set confidence level recorded before the evaluation runs ([`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6), and the threshold decision follows its Section 5.7: the result is decided by where its whole reported uncertainty range lies, or by an organization-set decision rule recorded before the evaluation runs. As this framework's own additional requirement, the statistical test to be applied and the minimum sample size for the comparison are also recorded before the audit run.
 
 ### 5.6 Incident log review
 
