@@ -30356,7 +30356,9 @@ class ReferenceBreadthStateTests(unittest.TestCase):
         spec.loader.exec_module(self.mod)
         self.ref = self.td / "ref"
         self.ref.mkdir()
-        self._git("init", "-q")
+        # 3b529 round 4 (N1): an empty template, so the installed default
+        # templates (hooks, info/exclude) are never copied into the fixture.
+        self._git("init", "-q", "--template=")
         (self.ref / "catalogue.yml").write_text(
             'standards:\n  - title: "State fixture changed"\n'
             '    path: "standard.md"\n    topics: ["cybersecurity"]\n'
@@ -30385,7 +30387,11 @@ class ReferenceBreadthStateTests(unittest.TestCase):
         # reads $XDG_CONFIG_HOME/git/{attributes,ignore} (falling back to
         # ~/.config/git/...), and those can change the object hashes. Point
         # both at the empty per-test directory so they resolve to nothing.
+        # Round 4 (W1): GIT_CONFIG_NOSYSTEM does not cover the system-wide
+        # attributes file ($(prefix)/etc/gitattributes), which can change the
+        # hashes the same way; GIT_ATTR_NOSYSTEM=1 stops git opening it.
         env.update(HOME=str(self.home), XDG_CONFIG_HOME=str(self.home),
+                   GIT_ATTR_NOSYSTEM="1",
                    GIT_AUTHOR_NAME="Test", GIT_COMMITTER_NAME="Test",
                    GIT_AUTHOR_EMAIL="test@example.invalid",
                    GIT_COMMITTER_EMAIL="test@example.invalid",
@@ -31103,15 +31109,24 @@ class ReferenceBreadthStateTests(unittest.TestCase):
     def test_short_core_abbrev_keeps_rows_across_two_updates(self):
         self._git("config", "core.abbrev", "4")
         self.assertEqual(self._git("config", "core.abbrev"), "4")
-        # 3b529 round 2: with the identity and dates pinned in _git_env (and,
-        # round 3, per-user attribute and ignore files cut off by its HOME and
-        # XDG_CONFIG_HOME override) the fixture hashes are fixed and the
-        # 4-character prefix is unshared, so the configured length holds
-        # exactly; a longer answer means a real cause (ignored core.abbrev, a
-        # new prefix collision, a git behaviour change), and the message
-        # carries the diagnostics to find it. Round 3 (N1): the diagnostics
-        # spawn four git subprocesses, so build them only on failure.
+        # 3b529 rounds 2-4: the fixture hashes are fixed because _git_env
+        # drops the caller's GIT_* variables, ignores the system and global
+        # config files (fixture_git_environment) and the system attributes
+        # file (GIT_ATTR_NOSYSTEM=1), points the per-user attribute and
+        # ignore files at an empty HOME/XDG_CONFIG_HOME, and pins identity
+        # and dates; setUp inits from an empty template and _git disables
+        # hooks. So the 4-character prefix is unshared and the configured
+        # length holds exactly; a longer answer means a real cause (ignored
+        # core.abbrev, a new prefix collision, a git behaviour change), and
+        # the message carries the diagnostics to find it. Round 3 (N1): the
+        # diagnostics spawn four git subprocesses, so build them only on
+        # failure.
         short = self._git("rev-parse", "--short", "HEAD")
+        # Round 4 (N2): pin the full HEAD before the length check, so an
+        # ambient input that moves the hashes fails loudly even while the
+        # 4-character prefix happens to stay unshared.
+        if self._git("rev-parse", "HEAD") != self.PINNED_HEAD:
+            self.fail(self._abbrev_diagnostics(short))
         if len(short) != 4:
             self.fail(self._abbrev_diagnostics(short))
         for doc in self.DOCS[:2]:
