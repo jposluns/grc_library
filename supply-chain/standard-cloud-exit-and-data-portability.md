@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Exit and Data Portability Standard\
 **Document Type:** Standard\
-**Version:** 1.2.0\
-**Date:** 2026-10-13\
+**Version:** 1.2.1\
+**Date:** 2026-10-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -112,7 +112,7 @@ Where a cloud provider cannot meet the contract requirements in this standard, f
 | CSA CCM v4.1 | IPY-01, IPY-03 through IPY-04: Interoperability & Portability | Cloud exit and portability controls |
 | ISO/IEC 27001:2022 | Annex A.5.20: Addressing information security within supplier agreements | Supplier contract requirements |
 | NIST SP 800-53 Rev. 5 | SA-9: External System Services | Third-party cloud service controls |
-| GDPR (2018) | Article 20: Right to data portability | Personal data portability rights |
+| GDPR (2018) | Article 28(3)(g): return of personal data at the end of the provision of services | For personal data the provider processes on the organization's behalf, the Section 4 item 1 export right and post-termination export window give contractual effect to the controller's choice that the processor "returns all the personal data to the controller after the end of the provision of services relating to processing"; the article does not itself require item 1's machine-readable, non-proprietary formats or during-term export access, and Article 20 (a data subject's right to portability against a controller) is not implemented by this standard |
 | EDPB Guidelines 07/2020 on the concepts of controller and processor in the GDPR, Version 2.1 (adopted 7 July 2021) | Part II, section 1.3.7, paragraphs 139 to 142: Article 28(3)(g) GDPR (deletion or return of personal data at the end of processing) | For personal data held by a processor, supports the Section 4 item 2 deletion-confirmation requirement: secure deletion of all copies, confirmed to the controller within an agreed timescale and manner, with copies kept only where EU or Member State law requires further storage; item 2's corpus-retention exception and its legal-retention exceptions under law other than EU or Member State law are outside this reference |
 
 ---
