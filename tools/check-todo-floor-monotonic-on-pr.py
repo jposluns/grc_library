@@ -14,6 +14,10 @@ and FAILS if any series' floor DECREASED or a series was dropped. The floor may 
 Usage:
   python3 tools/check-todo-floor-monotonic-on-pr.py [BASE_REF] [HEAD_REF]
     BASE_REF defaults to origin/main; HEAD_REF omitted means the working tree.
+    In that argless form every working-tree read -- the tracked diff and the
+    untracked listing of the collapsed-range check, and the head floor read --
+    anchors to the repository top level, so a run from a subdirectory gives
+    the same verdict as a run from the root (3b530 rounds 4 and 5).
 
 A collapsed range (base and head resolving to the same commit, or the working
 tree holding the base's content in the argless form) is refused as
@@ -47,12 +51,17 @@ def _rev_parse(ref):
 
 def _toplevel():
     """The repository top level git selects from the current directory, so a
-    collapsed-range refusal can name the clone it resolved (wrong-clone diagnosis)."""
+    collapsed-range refusal can name the clone it resolved (wrong-clone diagnosis).
+    A message helper: git failing to run at all (OSError) degrades to the same
+    placeholder as a missing work tree instead of escaping the refusal being
+    composed as a traceback, and only git's terminating newline is removed, so
+    a top-level path whose final component ends in whitespace is named intact
+    (3b530 round 5)."""
     try:
         return subprocess.check_output(
             ["git", "rev-parse", "--show-toplevel"], text=True,
-            stderr=subprocess.DEVNULL).strip()
-    except subprocess.CalledProcessError:
+            stderr=subprocess.DEVNULL).removesuffix("\n")
+    except (subprocess.CalledProcessError, OSError):
         return "(no work tree)"
 
 
@@ -71,21 +80,36 @@ class _GitCallFailed(Exception):
     the failed call."""
 
 
-def _worktree_matches_base(base_sha):
+def _toplevel_strict():
+    """The repository top level for the argless form's working-tree reads.
+    Unlike ``_toplevel`` (a message helper that degrades to a placeholder),
+    a top level that cannot be resolved leaves the head state undetermined,
+    so any failure -- nonzero exit or git not running at all -- raises
+    _GitCallFailed for the caller to refuse on. Only git's terminating
+    newline is removed, so a top-level path whose final component ends in
+    whitespace is not altered (3b530 round 5)."""
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], text=True,
+            stderr=subprocess.DEVNULL).removesuffix("\n")
+    except (subprocess.CalledProcessError, OSError) as exc:
+        raise _GitCallFailed(f"git rev-parse --show-toplevel ({exc})")
+
+
+def _worktree_matches_base(base_sha, top):
     """True iff the working tree holds exactly the base's content: no tracked
     difference from ``base_sha`` AND no untracked, non-ignored file. An
     untracked file -- including an untracked brand-new floor file, which the
     argless head read below would evaluate -- is working-tree content, not an
     empty range (3b530 round 3). The untracked check is exact (a file whose
-    NAME is whitespace still counts), and both calls anchor to the repository
-    top level, so a run from a subdirectory sees root files (3b530 round 4).
+    NAME is whitespace still counts) and byte-level (a name that is not valid
+    UTF-8, surfaced raw under core.quotePath=false, cannot crash it; 3b530
+    round 5). Exactly two reads happen here and both anchor to ``top``, the
+    caller-resolved repository top level: the tracked diff and the untracked
+    listing each run as ``git -C top`` (3b530 round 4); the argless head
+    floor read in main() anchors to the same ``top`` (3b530 round 5), so a
+    run from a subdirectory gives the verdict a run from the root gives.
     A call that fails raises _GitCallFailed for the caller to refuse on."""
-    try:
-        top = subprocess.check_output(
-            ["git", "rev-parse", "--show-toplevel"], text=True,
-            stderr=subprocess.DEVNULL).strip()
-    except (subprocess.CalledProcessError, OSError) as exc:
-        raise _GitCallFailed(f"git rev-parse --show-toplevel ({exc})")
     try:
         diff_rc = subprocess.run(
             ["git", "-C", top, "diff", "--quiet", base_sha, "--"],
@@ -100,12 +124,12 @@ def _worktree_matches_base(base_sha):
     try:
         listing = subprocess.run(
             ["git", "-C", top, "ls-files", "--others", "--exclude-standard"],
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     except OSError as exc:
         raise _GitCallFailed(f"git ls-files --others (did not run: {exc})")
     if listing.returncode != 0:
         raise _GitCallFailed(f"git ls-files --others (exit {listing.returncode})")
-    return listing.stdout == ""
+    return listing.stdout == b""
 
 
 def _git_show(ref, path):
@@ -170,7 +194,8 @@ def main(argv):
             return 2
     else:
         try:
-            collapsed = _worktree_matches_base(base_sha)
+            top = _toplevel_strict()
+            collapsed = _worktree_matches_base(base_sha, top)
         except _GitCallFailed as exc:
             # A failed diff or ls-files call leaves the working-tree state
             # undetermined; refuse rather than evaluate on it (3b530 round 4).
@@ -200,8 +225,11 @@ def main(argv):
         return 0
     base_text = _git_show(base_ref, FLOOR_PATH)
     try:
+        # The argless head read anchors to the same resolved top level as the
+        # collapsed-range check above, so a run from a subdirectory reads the
+        # real floor instead of reporting it missing (3b530 round 5).
         head_text = _git_show(head_ref, FLOOR_PATH) if head_ref else \
-            open(FLOOR_PATH, encoding="utf-8").read()
+            open(os.path.join(top, FLOOR_PATH), encoding="utf-8").read()
     except (subprocess.CalledProcessError, FileNotFoundError):
         sys.stderr.write(f"FAIL: {FLOOR_PATH} is missing at HEAD but present at {base_ref} "
                          "(the floor must never be removed).\n")

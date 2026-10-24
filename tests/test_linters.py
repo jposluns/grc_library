@@ -10183,6 +10183,44 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("CANNOT-EVALUATE", r.stderr)
         self.assertIn("OK", r.stdout)
 
+    def test_d12_argless_from_subdirectory_with_floor_at_base_gets_real_verdict(self) -> None:
+        # Round 5 of 3b530 (review F1): every working-tree read in the argless
+        # form -- the head floor read included -- anchors to the repository
+        # top level. With a floor PRESENT at the base, an argless run from a
+        # subdirectory (which has no tools/ of its own) must reach the real
+        # monotonic OK, not a false "missing at HEAD" FAIL and not a refusal.
+        tmp, git = self._repo()
+        floor = tmp / "tools" / "todo-number-floor.json"
+        floor.parent.mkdir(parents=True, exist_ok=True)
+        floor.write_text('{"2": 32}\n', encoding="utf-8")
+        git("add", "tools/todo-number-floor.json")
+        git("commit", "-q", "-m", "floor")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        (tmp / "NEW.md").write_text("New.\n", encoding="utf-8")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp / "security",
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+        self.assertNotIn("missing at HEAD", r.stderr)
+        self.assertIn("monotonic", r.stdout)
+
+    def test_d12_argless_non_utf8_untracked_name_cannot_crash(self) -> None:
+        # Round 5 of 3b530 (review F2): with core.quotePath=false an untracked
+        # file whose NAME is not valid UTF-8 reaches the gate's ls-files
+        # output raw. The byte-level untracked check treats it as working-tree
+        # content and evaluates (here the first-introduction OK) instead of
+        # dying with a UnicodeDecodeError traceback.
+        tmp, git = self._repo()
+        git("config", "core.quotePath", "false")
+        with open(os.path.join(os.fsencode(tmp), b"\xff\xfe"), "wb") as fh:
+            fh.write(b"x\n")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+        self.assertIn("OK", r.stdout)
+
     def test_d12_argless_git_call_failure_refuses(self) -> None:
         # Round 4 of 3b530 (review F5): a git diff or git ls-files call that
         # fails outright (nonzero beyond the documented difference status 1)
@@ -25775,7 +25813,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-retired-section-orphan-on-pr.py NO_FS F 94f89f3645e0e4dedbfe0a2d174ba60150b94bd7a0c734e25d5f96d148afe4ba
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
         check-stranded-control-code-on-pr.py NO_FS F 5c0890d697db2086c6a10fe3222b6a268ac04199a359b761e4d393aceaccde7d
-        check-todo-floor-monotonic-on-pr.py NO_FS F 75873a6bfa8abd1cae4e972f20f746ec5faedab69fb5d16152936c8389b71248
+        check-todo-floor-monotonic-on-pr.py NO_FS F 193409c33cbf8eb4d7010c3f9acb40ef367cd33daa2d42933559bc03e9aa57df
         check-todo-rotation-on-pr.py NO_FS F f4189bf15201c6ae8d228ac341f5c5c5dd859457be22275084e2e155751b5c96
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 520abe7d721553382768bf7c581cc0db91b1b6ac329404cc61416333246062b2
@@ -41237,6 +41275,33 @@ class FloorMonotonicityDeltaTests(unittest.TestCase):
         self.assertTrue(m.find_violations(base, m._parse('{"2": 32, "TF": 3}')))            # 4 dropped
         self.assertFalse(m.find_violations(base, m._parse('{"2": 33, "4": 31, "TF": 3}')))  # increase
         self.assertFalse(m.find_violations(base, base))                                     # unchanged
+
+    def test_toplevel_oserror_degrades_in_message_helper_refuses_in_strict(self):
+        """3b530 round 5 (review F4a): _toplevel is a refusal-MESSAGE helper, so
+        git itself failing to run (OSError, e.g. git vanishing mid-run) must
+        degrade to the '(no work tree)' placeholder, never escape the refusal
+        being composed as a traceback; the strict argless resolver instead
+        raises _GitCallFailed for the caller's D12 CANNOT-EVALUATE."""
+        m = self._mod()
+        from unittest import mock
+        with mock.patch.object(m.subprocess, "check_output",
+                               side_effect=OSError("git vanished")):
+            self.assertEqual(m._toplevel(), "(no work tree)")
+            with self.assertRaises(m._GitCallFailed):
+                m._toplevel_strict()
+
+    def test_toplevel_strips_only_trailing_newline(self):
+        """3b530 round 5 (review F4b): only git's terminating newline is removed
+        from the resolved top level, so a repository path whose final component
+        ends in whitespace is reported (and anchored to) intact, in the message
+        helper and the strict argless resolver alike."""
+        m = self._mod()
+        from unittest import mock
+        weird = "/repos/name with trailing space "
+        with mock.patch.object(m.subprocess, "check_output",
+                               return_value=weird + "\n"):
+            self.assertEqual(m._toplevel(), weird)
+            self.assertEqual(m._toplevel_strict(), weird)
 
 
 class TodoNumberPermanenceTests(LinterTestCase):
