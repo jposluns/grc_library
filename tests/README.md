@@ -55,10 +55,30 @@ python3 tools/run-linter-regression.py
 ```
 
 It discovers and runs every top-level `tests/test_*.py` module in one
-`unittest` invocation, refuses (exit 2, naming the file) a module that
-cannot be imported or a test file nested in a `tests/` subdirectory,
-and believes a green child exit only when unittest's output carries a
-`Ran N tests` line with N at least 1.
+`unittest` invocation. It refuses (exit 2, naming the offender) each
+of the following, never softening one to green:
+
+- a run list that does not match an independent `os.walk` enumeration
+  of `tests/` (checked once in the parent and again by the child
+  driver against its own argv, so a filter on either side cannot drop
+  a module);
+- a test file nested in a `tests/` subdirectory, a `test_*/`
+  package directory, a symlinked subdirectory, or a subdirectory the
+  walk cannot inspect (all of which could hide test files);
+- finding no `tests/test_*.py` files at all;
+- a module that cannot be imported (any `BaseException`, so an
+  import-time `SystemExit(0)` cannot pass as green);
+- a module that contributes zero test cases;
+- a green child exit whose output lacks unittest's own `Ran N tests`
+  line with N at least 1; and
+- a green child exit whose LAST stderr line is not the child driver's
+  completion sentinel: a per-run nonce from the parent plus
+  `testsRun`, the per-module test counts (naming exactly the handed
+  modules, each at least 1, summing to `testsRun`) and
+  `wasSuccessful=True`. Completion is established from the executed
+  suite's own result, so a premature `SystemExit` from `load_tests`,
+  `setUpClass` or `setUpModule`, or a stray summary line written by a
+  grandchild that inherits stderr, is refused.
 
 A single module can still be run directly, for example:
 

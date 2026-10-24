@@ -18,23 +18,54 @@ the hand-maintained list ran two modules and covered the other test
 files only through such re-exports, which a new file or class silently
 misses). Only top-level ``tests/test_*.py`` files are in scope: a
 ``test_*.py`` file inside a ``tests/`` SUBDIRECTORY is a refusal (exit
-2, naming the nested file), never a silent omission.
+2, naming the nested file), never a silent omission, and so is a
+``tests/`` subdirectory that cannot be inspected at all (a symlinked
+subdirectory, an unreadable one, or a ``test_*`` package directory).
 
-Refusals never soften to green (the 3b525 round-1 findings):
+Refusals never soften to green (the 3b525 round-1 and round-2
+findings):
 
 * Before running anything, ``main`` re-enumerates ``tests/`` with
   ``os.walk`` (not the discovery glob) and refuses (exit 2) when the
   run list does not exactly match the on-disk top-level test files.
   This completeness self-check lives HERE, not in a test module, so a
   run-list regression that drops a test module (including
-  ``tests/test_linters.py`` itself) cannot also remove the check.
+  ``tests/test_linters.py`` itself) cannot also remove the check. The
+  walk uses an ``onerror`` handler and refuses a subdirectory it
+  cannot inspect, a symlinked subdirectory, and a ``test_*`` package
+  directory, so no test file can hide behind an unwalkable entry.
+* The child driver repeats the enumeration itself against its OWN
+  ``sys.argv`` and refuses (exit 2) when the two differ, so a filter
+  applied to the child's argv, or inside the driver, cannot drop a
+  module (the round-2 finding: the parent validated only its own
+  module list, not what the child ran).
 * A discovered file whose import raises ANYTHING, ``BaseException``
   included (an import-time ``SystemExit(0)`` must not become a green
   run), is a refusal: exit 2, naming the file.
-* A green child exit is believed only when unittest's own output
-  carries a ``Ran N tests`` line with N at least 1; otherwise the run
-  is refused with exit 2. The child's stderr is captured for that
-  check and replayed to this process's stderr.
+* The driver loads each module's suite and refuses (exit 2, naming
+  the file) a module that contributes zero test cases, so an empty
+  ``load_tests`` or a class moved off ``TestCase`` cannot hollow out
+  a module silently.
+* Completion is established from the child's own executed suite, not
+  from summary text: the driver runs with ``exit=False`` and emits a
+  final sentinel line carrying a per-run nonce from this parent plus
+  ``testsRun``, the per-module test counts and ``wasSuccessful``. A
+  green child exit is believed only when that sentinel is the LAST
+  stderr line, the nonce matches, the per-module counts name exactly
+  the handed modules with at least one test each, ``testsRun`` equals
+  their sum, and ``wasSuccessful`` is True; otherwise the run is
+  refused with exit 2. A premature ``SystemExit`` from ``load_tests``,
+  ``setUpClass`` or ``setUpModule`` ends the child before the sentinel
+  and is therefore refused, and a stray ``Ran N tests`` line written
+  by a grandchild that inherits stderr cannot stand in for it.
+* A green child exit additionally needs unittest's own ``Ran N
+  tests`` line with N at least 1 somewhere in its stderr.
+
+The child's stderr is streamed to this process's stderr line by line
+as it arrives (and accumulated for the checks above); stdout is
+flushed before the child starts, so the module list precedes the
+child's output even when stdout is a pipe, and a refusal message
+always starts on its own line.
 
 Exit code is otherwise forwarded from unittest: 0 if all tests pass,
 non-zero on failure.
@@ -46,23 +77,42 @@ from __future__ import annotations
 
 import os
 import re
+import secrets
 import subprocess
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# Child driver: import every discovered module first, refusing loud (exit 2,
-# naming the file) when one cannot be imported, then hand the whole module
-# list to a single unittest invocation. The import check catches
-# BaseException, not Exception: a module raising SystemExit(0) at import
-# time would otherwise end the child with exit 0 before any test runs.
+# Child driver: refuse (exit 2) when the argv module list differs from the
+# driver's own enumeration of top-level tests/test_*.py files, so a filtered
+# child argv (or a filter inside this driver) cannot drop a module. Then
+# import every module, refusing loud (exit 2, naming the file) when one
+# cannot be imported; the import check catches BaseException, not Exception:
+# a module raising SystemExit(0) at import time would otherwise end the
+# child with exit 0 before any test runs. Then load each module's suite and
+# refuse (exit 2, naming the file) a module contributing zero test cases.
+# Run with exit=False and emit the sentinel line the parent requires as the
+# last stderr line: the per-run nonce (sys.argv[1]), testsRun, wasSuccessful
+# and the per-module test counts.
 _DRIVER = """\
 import importlib
+import os
 import sys
 import unittest
 
-modules = sys.argv[1:]
+nonce = sys.argv[1]
+modules = sys.argv[2:]
+on_disk = sorted(
+    "tests." + entry.name[:-3]
+    for entry in os.scandir("tests")
+    if entry.is_file(follow_symlinks=False)
+    and entry.name.startswith("test_") and entry.name.endswith(".py"))
+if sorted(modules) != on_disk:
+    print("REFUSED: driver argv modules %s do not match on-disk "
+          "tests/test_*.py files %s" % (sorted(modules), on_disk),
+          file=sys.stderr)
+    sys.exit(2)
 failed = False
 for name in modules:
     try:
@@ -73,11 +123,38 @@ for name in modules:
         failed = True
 if failed:
     sys.exit(2)
-unittest.main(module=None, argv=["unittest"] + modules)
+loader = unittest.defaultTestLoader
+counts = {}
+for name in modules:
+    counts[name] = loader.loadTestsFromName(name).countTestCases()
+    if counts[name] < 1:
+        print("REFUSED: tests/%s.py contributes zero test cases"
+              % name.partition(".")[2], file=sys.stderr)
+        failed = True
+if failed:
+    sys.exit(2)
+program = unittest.main(module=None, argv=["unittest"] + modules,
+                        exit=False)
+result = program.result
+print("REGRESSION-GATE-RESULT %s testsRun=%d wasSuccessful=%s %s"
+      % (nonce, result.testsRun, result.wasSuccessful(),
+         " ".join("%s=%d" % (name, counts[name])
+                  for name in sorted(counts))),
+      file=sys.stderr)
+sys.exit(0 if result.wasSuccessful() else 1)
 """
 
-# unittest's summary: "Ran 1 test in 0.001s", "Ran 3302 tests in 651.6s".
+# unittest's summary: "Ran 1 test in 0.001s", "Ran 3310 tests in 786.1s"
+# (the count grows as tests are added; only N at least 1 is checked here).
 _SUMMARY_LINE = re.compile(r"^Ran (\d+) tests? in ", re.MULTILINE)
+
+# The driver's completion sentinel (see _DRIVER). The nonce is 32 hex
+# digits from secrets.token_hex(16); the per-module counts are
+# space-separated "tests.<name>=<count>" tokens.
+_SENTINEL = re.compile(
+    r"^REGRESSION-GATE-RESULT (?P<nonce>[0-9a-f]{32}) "
+    r"testsRun=(?P<ran>\d+) wasSuccessful=(?P<ok>True|False)"
+    r"(?P<counts>( [A-Za-z0-9_.]+=\d+)*)$")
 
 
 def discover_test_modules(repo_root: Path = REPO_ROOT) -> list[str]:
@@ -96,11 +173,27 @@ def completeness_refusal(modules: list[str],
     glob, so a narrowed glob or a filter applied to the run list no
     longer matches the walk. A test_*.py file in a tests/ subdirectory
     is a refusal: only top-level tests/test_*.py files are in scope.
-    Returns None when the run list is complete.
+    So is anything the walk cannot see through: a subdirectory that
+    raises on listing (onerror), a symlinked subdirectory (os.walk
+    does not follow links, so one could hide test files), and a
+    test_* package directory (its tests would be neither discovered
+    nor refused by the per-file check). Returns None when the run
+    list is complete.
     """
     tests_dir = repo_root / "tests"
+    walk_errors: list[OSError] = []
     on_disk = []
-    for dirpath, _dirnames, filenames in os.walk(tests_dir):
+    for dirpath, dirnames, filenames in os.walk(tests_dir,
+                                                onerror=walk_errors.append):
+        for dirname in dirnames:
+            subdir = Path(dirpath) / dirname
+            if subdir.is_symlink():
+                return ("symlinked subdirectory %s: tests/ must not "
+                        "contain directory symlinks, which could hide "
+                        "test files from this walk" % subdir)
+            if dirname.startswith("test_"):
+                return ("test package directory %s: only top-level "
+                        "tests/test_*.py files are in scope" % subdir)
         for filename in filenames:
             if filename.startswith("test_") and filename.endswith(".py"):
                 if Path(dirpath) != tests_dir:
@@ -108,6 +201,9 @@ def completeness_refusal(modules: list[str],
                             "tests/test_*.py files are in scope"
                             % (Path(dirpath) / filename))
                 on_disk.append("tests." + filename[:-3])
+    if walk_errors:
+        return ("cannot inspect %s: %s" % (
+            getattr(walk_errors[0], "filename", tests_dir), walk_errors[0]))
     if not on_disk:
         return "no tests/test_*.py files found under %s" % tests_dir
     if sorted(modules) != sorted(on_disk):
@@ -116,7 +212,39 @@ def completeness_refusal(modules: list[str],
     return None
 
 
-def main(repo_root: Path = REPO_ROOT, run=subprocess.run) -> int:
+def _sentinel_refusal(last_line: str, nonce: str,
+                      modules: list[str]) -> str | None:
+    """Refusal message when ``last_line`` is not a believable sentinel."""
+    match = _SENTINEL.match(last_line)
+    if match is None:
+        return ("the child's last stderr line is not the driver's "
+                "completion sentinel; completion is established only "
+                "from the executed suite's own result")
+    if match.group("nonce") != nonce:
+        return "the completion sentinel does not carry this run's nonce"
+    counts: dict[str, int] = {}
+    for token in match.group("counts").split():
+        name, _, value = token.partition("=")
+        counts[name] = int(value)
+    if sorted(counts) != sorted(modules):
+        return ("the completion sentinel's module counts %s do not name "
+                "exactly the handed modules %s"
+                % (sorted(counts), sorted(modules)))
+    if any(count < 1 for count in counts.values()):
+        return ("the completion sentinel reports a module with zero "
+                "test cases")
+    ran = int(match.group("ran"))
+    if ran < 1 or ran != sum(counts.values()):
+        return ("the completion sentinel's testsRun=%d does not equal "
+                "the per-module total %d (with at least one test)"
+                % (ran, sum(counts.values())))
+    if match.group("ok") != "True":
+        return ("the child exited 0 but its own result reports "
+                "wasSuccessful=False")
+    return None
+
+
+def main(repo_root: Path = REPO_ROOT, popen=subprocess.Popen) -> int:
     modules = discover_test_modules(repo_root)
     refusal = completeness_refusal(modules, repo_root)
     if refusal is not None:
@@ -125,21 +253,46 @@ def main(repo_root: Path = REPO_ROOT, run=subprocess.run) -> int:
     print("Running test modules:")
     for name in modules:
         print("  " + name)
-    result = run(
-        [sys.executable, "-c", _DRIVER, *modules],
+    # Flush before the child starts, so the module list precedes the
+    # child's output even when stdout is a block-buffered pipe.
+    sys.stdout.flush()
+    nonce = secrets.token_hex(16)
+    proc = popen(
+        [sys.executable, "-c", _DRIVER, nonce, *modules],
         cwd=str(repo_root),
         stderr=subprocess.PIPE,
     )
-    stderr = (result.stderr or b"").decode("utf-8", "replace")
-    sys.stderr.write(stderr)
-    sys.stderr.flush()
-    counts = _SUMMARY_LINE.findall(stderr)
-    if result.returncode == 0 and (not counts or int(counts[-1]) < 1):
-        print("REFUSED: unittest exited 0 without a 'Ran N tests' line "
-              "with N at least 1; not a believable green run",
-              file=sys.stderr)
+    # Stream the child's stderr through as it arrives (a hang or an
+    # interrupt must not swallow the progress seen so far), while
+    # accumulating it for the checks below.
+    lines: list[str] = []
+    for raw in proc.stderr:
+        line = raw.decode("utf-8", "replace")
+        sys.stderr.write(line)
+        sys.stderr.flush()
+        lines.append(line)
+    returncode = proc.wait()
+
+    def refuse(message: str) -> int:
+        # The child's progress dots may leave an unterminated line;
+        # a refusal always starts on its own line.
+        if lines and not lines[-1].endswith("\n"):
+            sys.stderr.write("\n")
+        print("REFUSED: " + message, file=sys.stderr)
         return 2
-    return result.returncode
+
+    if returncode == 0:
+        stderr_text = "".join(lines)
+        counts = _SUMMARY_LINE.findall(stderr_text)
+        if not counts or int(counts[-1]) < 1:
+            return refuse(
+                "unittest exited 0 without a 'Ran N tests' line "
+                "with N at least 1; not a believable green run")
+        last_line = lines[-1].rstrip("\n") if lines else ""
+        sentinel_refusal = _sentinel_refusal(last_line, nonce, modules)
+        if sentinel_refusal is not None:
+            return refuse(sentinel_refusal)
+    return returncode
 
 
 if __name__ == "__main__":

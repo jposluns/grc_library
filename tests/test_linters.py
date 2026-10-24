@@ -13338,19 +13338,59 @@ from tests import test_session_facts
 
 
 class RegressionGateGuardPinTests(unittest.TestCase):
-    """The gate 36 guard module exists on disk (3b525 round 2).
+    """The gate 36 guard module is on disk AND is handed to the child
+    (3b525 rounds 2 and 3).
 
     The completeness and refusal guards for the gate runner live in
     tests/test_regression_gate.py (plus the runner's own in-process
-    self-check), so a run-list regression that drops THIS module cannot
-    also drop them. This pin is the reciprocal: deleting
-    tests/test_regression_gate.py from disk fails here, in a module
-    whose presence does not depend on it.
+    self-check and the child driver's argv re-check), so a run-list
+    regression that drops THIS module cannot also drop them. These
+    tests are the reciprocal, in a module whose presence does not
+    depend on that one: deleting tests/test_regression_gate.py from
+    disk fails here, and so does a filter that keeps the file on disk
+    but drops it from the module list the runner's main() actually
+    hands to the child subprocess.
     """
 
     def test_regression_gate_guard_module_is_on_disk(self) -> None:
         self.assertTrue(
             (REPO_ROOT / "tests" / "test_regression_gate.py").is_file())
+
+    def test_runner_hands_guard_module_to_the_child(self) -> None:
+        """main()'s executed child argv (not discovery alone) covers
+        every on-disk tests/test_*.py, including the guard module, so
+        a filter applied at the child launch fails here as well as in
+        tests/test_regression_gate.py (each module guards the other)."""
+        import contextlib
+        import runpy
+        runner = runpy.run_path(
+            str(REPO_ROOT / "tools" / "run-linter-regression.py"))
+        commands = []
+
+        class _FakeProc:
+            def __init__(self, cmd):
+                commands.append(list(cmd))
+                self.stderr = io.BytesIO(b"")
+
+            def wait(self):
+                return 2
+
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            runner["main"](popen=lambda cmd, **kwargs: _FakeProc(cmd))
+        self.assertEqual(len(commands), 1)
+        # Command shape: [sys.executable, "-c", driver, nonce, *modules].
+        executed = commands[0][4:]
+        expected = sorted(
+            "tests." + path.name[:-3]
+            for path in (REPO_ROOT / "tests").iterdir()
+            if path.is_file() and path.name.startswith("test_")
+            and path.name.endswith(".py"))
+        self.assertEqual(executed, expected,
+                         "gate 36 runner's executed module list does not "
+                         "cover every tests/test_*.py file")
+        self.assertIn("tests.test_regression_gate", executed)
+        self.assertIn("tests.test_linters", executed)
 
 
 class VerificationGuardrailSelfTests(unittest.TestCase):
@@ -29441,7 +29481,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
-        run-linter-regression.py FIXED F 7c5528139352cf6d51f3222c330952a4db6f5be07540f5136f625907f01d77ee
+        run-linter-regression.py FIXED F f839472a923664ee3d3ffc648290edb392f0e21cecf6aba1289950f272c09d5b
         run-pr-time-checks.sh FIXED F 149366a50976af26bf594757d03314a39f6c81d4054d1c4403457fe2fe37af3b
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
         run_all_audits.sh FIXED F 694c1d154afa12f22f78cb4c2f75d96aea92bab4b6cb0919fe6eb2d32af5eff5

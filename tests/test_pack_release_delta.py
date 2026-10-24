@@ -75,7 +75,13 @@ class _Repo:
     def __init__(self, root, version="1.2.3"):
         self.root = root
         self.pack = root / ".corpus-management"
-        self.env = dict(os.environ, GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull)
+        # Drop every inherited GIT_* variable (a caller's GIT_INDEX_FILE or
+        # GIT_DIR would redirect this fixture's git commands outside its
+        # temporary directory), as tests/test_linters.py's
+        # fixture_git_environment() does.
+        self.env = {k: v for k, v in os.environ.items()
+                    if not k.startswith("GIT_")}
+        self.env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull)
         self.git("init", "-q", "-b", "main")
         self.git("config", "user.name", "Release Test")
         self.git("config", "user.email", "release@example.invalid")
@@ -498,6 +504,21 @@ class ReleaseDeltaTests(unittest.TestCase):
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
             COMPILER.main(["--base", "HEAD", "--check"])
         self.assertEqual(error.exception.code, 2)
+
+    def test_fixture_git_ignores_ambient_git_index_file(self):
+        # 3b525 round 2, VPR004: an inherited GIT_INDEX_FILE once made the
+        # fixture's `git add` write an index outside its temporary
+        # directory. The fixture environment drops every GIT_* variable.
+        with tempfile.TemporaryDirectory(prefix="release-delta-") as directory:
+            ambient = Path(directory) / "ambient-index"
+            with patch.dict(os.environ, {"GIT_INDEX_FILE": str(ambient)}):
+                with self.repo() as repo:
+                    self.assertNotIn("GIT_INDEX_FILE", repo.env)
+                    self.expect(repo, "NONE", 0)
+            self.assertFalse(
+                ambient.exists(),
+                "the fixture's git commands wrote to the ambient "
+                "GIT_INDEX_FILE instead of the fixture repository")
 
 
 if __name__ == "__main__":
