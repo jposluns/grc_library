@@ -13336,7 +13336,32 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
 
 from tests import test_session_facts
 
-SessionFactsTests = test_session_facts.SessionFactsTests
+
+class RegressionGateCompletenessTests(unittest.TestCase):
+    """Gate 36 runs every tests/test_*.py file (the 3b525 finding).
+
+    The runner discovers its module list itself, so this check guards
+    the DISCOVERY: it fails when the runner's run list misses any
+    on-disk tests/test_*.py file (a narrowed glob, a dropped directory
+    component, a filter that skips a module) or when discovery returns
+    an empty list. Before discovery, the runner ran a hand-maintained
+    two-module list and covered the other test files only through
+    per-class re-exports in this module, which a new test file or a new
+    class in a covered file silently missed.
+    """
+
+    def test_runner_run_list_covers_every_test_file(self) -> None:
+        import runpy
+        runner = runpy.run_path(
+            str(REPO_ROOT / "tools" / "run-linter-regression.py"))
+        run_list = runner["discover_test_modules"]()
+        expected = sorted(
+            "tests." + path.stem
+            for path in (REPO_ROOT / "tests").glob("test_*.py"))
+        self.assertTrue(expected, "no tests/test_*.py files found")
+        self.assertEqual(run_list, expected,
+                         "gate 36 runner's run list does not cover every "
+                         "tests/test_*.py file")
 
 
 class VerificationGuardrailSelfTests(unittest.TestCase):
@@ -29226,7 +29251,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F faae8620f7f5c13a9f12cfc461f5a21bb58669dc9c6b533fd3dbe293f92a9d0b
+        README.md DATA F 658c7eda40cce1dd27d9beefad1e23a02a0376c4e29e9fd69b4d6980555e1627
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F c9596844ccf7a8146a7f1ad08a1d45c8575caae841323c827595f6069c564a86
@@ -29427,8 +29452,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
-        run-linter-regression.py FIXED F 2e97814644c614dc987df7139c5ff0ff9b875fb2c1ba0abb6ff0abc298282753
-        run-pr-time-checks.sh FIXED F 7efe36d3fce0778df83e6f4578561b56d02bf15e389178c50b35053767c075ab
+        run-linter-regression.py FIXED F bbe10d431b26a3680459e62544361c708db8708e560f7081f9c68bc1b1b33dea
+        run-pr-time-checks.sh FIXED F 149366a50976af26bf594757d03314a39f6c81d4054d1c4403457fe2fe37af3b
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
         run_all_audits.sh FIXED F 694c1d154afa12f22f78cb4c2f75d96aea92bab4b6cb0919fe6eb2d32af5eff5
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
@@ -57521,8 +57546,6 @@ class FileArgRefusalTests(LinterTestCase):
             r = run_linter(script)
             self.assertEqual(r.returncode, 0, (script, r.stdout[-300:], r.stderr[-300:]))
 
-
-from tests.test_standards_currency_coverage import CitationCoverageTests, HistoricalContextTests, HistoricalContextRoundTwoTests  # noqa: F401  (imported so `-m unittest tests.test_linters` discovers them)
 
 class WorkerIdAnonymityTests(unittest.TestCase):
     """Gate 103: identifiers are assembled so fixtures cannot leak themselves."""

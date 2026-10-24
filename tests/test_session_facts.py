@@ -1164,3 +1164,7 @@ COMPACTION_CASES = (
     ("session_start", ROW.replace("| compaction | example", "| session-start | compaction"), 0),
     ("minute", ROW.replace(":30Z", "Z"), 1),
 )
+
+
+if __name__ == "__main__":
+    unittest.main()
