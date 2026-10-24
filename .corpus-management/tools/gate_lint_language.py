@@ -155,9 +155,9 @@ Checks for:
   reported. Exempt files where the rule
   itself is described (the ingestion spec, the master spec, the AI
   ingestion instruction, and governance/template-document-review-record.md).
-  Verbatim external titles that carry a bare imperative 'Ensure'
-  (the `verbatim_ensure_titles` profile field; currently the COBIT 2019 MEA01.05 practice
-  title and the Treasury Board Policy on Privacy Protection clause 4.2.16 text) are masked first, per the house-style verbatim-quote exemption.
+  Verbatim external text that contains the word 'ensure'
+  (the `verbatim_ensure_titles` profile field, which lists each such title) is masked
+  first, per the house-style verbatim-quote exemption.
 - Section headings (H2-H6) that start with a lowercase letter after
   stripping common numbering prefixes (A1., 1.1, Step 1:, Category 1:,
   Phase, Annex). Project-name allowlist (the `lowercase_project_names` profile field:
