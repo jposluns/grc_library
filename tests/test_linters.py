@@ -30334,7 +30334,8 @@ class ReferenceBreadthStateTests(unittest.TestCase):
     # _git_env; the per-user config, attribute and ignore isolation (empty
     # HOME/XDG_CONFIG_HOME) and the system config and attributes isolation
     # (GIT_CONFIG_NOSYSTEM, GIT_ATTR_NOSYSTEM) in _git_env and
-    # fixture_git_environment; the empty template in setUp's init; and the
+    # fixture_git_environment; the removal of the caller's GIT_* variables
+    # (fixture_git_environment); the empty template in setUp's init; and the
     # object format itself.
     PINNED_HEADS = {
         40: "b71a3a544a17de1260a223a596e0657281505d45",  # SHA-1
