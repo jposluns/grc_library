@@ -2,7 +2,7 @@
 
 **Document Title:** Model Card Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-10-24\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
@@ -89,9 +89,9 @@ Do not populate the public repository version with real model names, system name
 | Hyperparameters and Selection | Key hyperparameters and the procedure used to select their values (ISO/IEC 12792:2025 §9.4.5). |
 | Knowledge Limits | Conditions under which the model is designed to operate, and the confidence threshold below which it should abstain, defer, or flag that its output is unreliable (NIST IR 8312 §2.4). |
 | Sample Size and Uncertainty | Number of evaluated items and an uncertainty measure for each reported performance measure, with the derivation method and the organization-set confidence level recorded before the evaluation ran, as required for the system's risk tier ([`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6). |
-| Run Variance | For non-deterministic systems: number of evaluation runs, sampling or seed configuration, and spread of results across runs. |
+| Run Variance | For non-deterministic systems: number of evaluation runs, sampling or seed configuration, and spread of results across runs, as required for the system's risk tier ([`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6). |
 | Contamination Check | Result of the check for overlap between evaluation data and training or fine-tuning data; for third-party models, the provider's disclosure or a recorded gap. |
-| Evaluator Agreement | Where humans or a grading model score outputs: scoring rubric, number of raters, and an agreement measure. |
+| Evaluator Agreement | Where humans or a grading model score outputs: scoring rubric, number of raters, and an agreement measure, as required for the system's risk tier ([`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6). |
 
 ### 5. Interpretability and representation
 
