@@ -52614,15 +52614,21 @@ class BlockVerificationPipesTests(unittest.TestCase):
     def test_round10_data_emitter_pipeline_allows(self):
         # F1 (falseblocks-classification): a plain echo/printf data emitter
         # piped into one consumer (a writer or a hook under test) does not
-        # mask a status; $? reads the consumer. All blocked on 29b77da3d.
+        # mask a status; $? reads the consumer. These three DISCRIMINATE the
+        # round -- each was blocked on 29b77da3d (round 9) and is allowed now.
         self.check([
             'echo \'{"tool_name":"Bash"}\' | python3 -I '
             '.claude/hooks/block-on-open-findings.py; echo rc=$?',
             'printf \'%s\\n\' "$line" | python3 tools/open-findings-row.py; '
             'echo $?',
+            'LC_ALL=C echo x | tr a-z A-Z; echo $?',
+        ], False)
+        # Loop-body boundary that must keep allowing but does NOT discriminate
+        # the round: its pending warning is already cleared at `done` on
+        # 29b77da3d (round 9), so round 9 allowed it too (claude R10 NOTE 2).
+        self.check([
             'for f in a b; do printf \'%s\\n\' "$f" | python3 -I "$H"; done; '
             'rc=$?',
-            'LC_ALL=C echo x | tr a-z A-Z; echo $?',
         ], False)
         self.check([
             # a third stage masks the consumer's status (corpus row 70)
@@ -52636,6 +52642,37 @@ class BlockVerificationPipesTests(unittest.TestCase):
             # a non-emitter first stage stays guarded
             'cmd | cat; echo $?',
         ], True)
+
+    def test_round11_split_substitution_emitter_refuses(self):
+        # R10 Codex R10-1 / Claude R10 ERROR: the round-10 F1 check
+        # searched the RAW stage text for "$(" / backquote, so a
+        # backslash-newline splitting the opener hid a command
+        # substitution and the stage read as a plain emitter. Bash removes
+        # the continuation before it recognizes "$(", runs the
+        # substitution, and $? then reads the truncating filter. Each
+        # split emitter now refuses -- echo and printf, piped into a
+        # truncating filter and carrying a background launch -- and every
+        # one was allowed on 9faebb29d (round 10).
+        from unittest.mock import patch
+        split = [
+            'echo "$\\\n(printf \'x\'; false)" | head -1; echo rc=$?',
+            'printf \'%s\' "$\\\n(printf \'x\'; false)" | head -1; echo rc=$?',
+            'echo "$\\\n(: &)" | cat; echo rc=$?',
+            'printf \'%s\' "$\\\n(: &)" | cat; echo rc=$?',
+        ]
+        self.check(split, True)
+        for c in split:
+            self.assertEqual(
+                self.hook.shell_violation(c)[0], 'pipeline-status')
+        # Positive control: a plain unsplit echo pipeline stays allowed.
+        self.check(['echo plain | head -1; echo rc=$?'], False)
+        # Flip control: restoring the round-10 raw-text check (the pre-fix
+        # emitter_is_plain) re-admits every split case, proving this test
+        # pins the round-11 continuation-joining fix, not another guard.
+        raw_check = lambda raw: "$(" not in raw and "`" not in raw
+        with patch.object(self.hook, 'emitter_is_plain', raw_check):
+            for c in split:
+                self.assertFalse(self.hook.command_is_blocked(c))
 
     def test_round10_and_continuation_clears_pending(self):
         # F2 (falseblocks-classification row 67): an executed single-command

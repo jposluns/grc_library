@@ -35,8 +35,10 @@ control); (5) because the named-verifier rule judges the raw text too,
 a pipe inside a comment on a verifier line may block (accepted false
 block, safe direction).
 
-The additional status-read guard covers ALL multi-stage pipelines, including
-filters followed by another stage; single-command status reads remain allowed.
+The additional status-read guard covers multi-stage pipelines, including
+filters followed by another stage, EXCEPT the two round-10 narrowings
+documented below (a plain data-emitter first stage, and an executed &&
+continuation); single-command status reads remain allowed.
 After a | or |& the pipeline continues across ANY run of whitespace,
 comments, blank lines and backslash-newline line continuations (round 6:
 a bare backslash-newline yields no word at all, exactly as in bash, so a
@@ -91,8 +93,12 @@ check while bash had already ended the heredoc and run the lines in between
 line ends in a backslash also refuses (false block, safe direction).
 Round 10 also narrows the pipeline-status guard in two reviewed ways: a
 two-stage pipeline whose first stage is a plain echo or printf data emitter
-(no command substitution and no backquote in that stage; leading do, then,
-else and assignment words are skipped) feeds data into its consumer, whose
+(round 11: "plain" is an allow-list judged after backslash-newline
+continuations are removed, so only literal text, quoted literals and simple
+$name/${name} references pass; any command substitution, backquote, bash-5.3
+${ cmd; } / ${| cmd; } brace substitution or ${name@OP} parameter operator
+disqualifies it; leading do, then, else and assignment words are skipped)
+feeds data into its consumer, whose
 status is exactly what $? then reads, so it sets no pending warning; and an
 executed single-command && continuation replaces the guarded pipeline's
 status (a skipped one leaves the pipeline's own nonzero status), so it
@@ -512,6 +518,96 @@ def pipefail_changes(words):
         i += 1
 
 
+def _strip_line_continuations(raw):
+    """Remove backslash-newline continuations wherever bash removes them
+    before tokenizing: in unquoted and double-quoted text, but NOT inside
+    single quotes (there a backslash-newline is literal). This rejoins a
+    substitution opener that a line continuation split apart, e.g. a "$"
+    then backslash-newline then "(", so the plain-emitter check sees the
+    real opener. Single-quote regions are only entered outside double
+    quotes, so an apostrophe inside double quotes stays literal."""
+    out, i, n, in_dquote = [], 0, len(raw), False
+    while i < n:
+        c = raw[i]
+        if not in_dquote and c == "'":
+            end = raw.find("'", i + 1)
+            if end < 0:
+                out.append(raw[i:])
+                break
+            out.append(raw[i:end + 1])
+            i = end + 1
+            continue
+        if c == "\\" and i + 1 < n and raw[i + 1] == "\n":
+            i += 2  # line continuation: removed in bash before tokenizing
+            continue
+        if c == "\\" and i + 1 < n:
+            out.append(raw[i:i + 2])  # keep an escaped pair (e.g. \" \$ \\)
+            i += 2
+            continue
+        if c == '"':
+            in_dquote = not in_dquote
+        out.append(c)
+        i += 1
+    return "".join(out)
+
+
+def emitter_is_plain(raw):
+    """True when an echo/printf stage text can only emit data, never run code.
+
+    Judged after _strip_line_continuations, because bash removes a
+    backslash-newline before it recognizes a substitution, so an opener a
+    continuation split apart is a real opener. An ALLOW-LIST: only literal
+    text, single- and double-quoted literals and simple $name / ${name}
+    parameter references may appear. Anything that can run code or transform
+    disqualifies the stage: a $( command or arithmetic substitution, a
+    backquote substitution, a bash-5.3 ${ cmd; } or ${| cmd; } brace
+    substitution, and every ${name OP ...} parameter operator (including the
+    @P prompt transformation). Quote context matters: inside single quotes
+    nothing expands (an apostrophe in a double-quoted word is literal, not a
+    delimiter); inside double quotes $(, backquote and ${...} still expand.
+    An unbalanced single quote is not judged plain.
+    """
+    joined = _strip_line_continuations(raw)
+    i, n, in_dquote = 0, len(joined), False
+
+    def expansion_runs_code():
+        # Called with joined[i] == "$"; return (disqualified, next_index).
+        nxt = joined[i + 1:i + 2]
+        if nxt == "(":
+            return True, i + 1  # $( command or $(( arithmetic substitution
+        if nxt == "{":
+            m = re.match(r"\$\{[A-Za-z_][A-Za-z0-9_]*\}", joined[i:])
+            if not m:
+                return True, i + 1  # ${ cmd; }, ${| cmd; } or ${name OP ...}
+            return False, i + m.end()  # a simple ${name} only emits data
+        return False, i + 1  # a bare $name / $1 / $? only emits data
+
+    while i < n:
+        c = joined[i]
+        if not in_dquote and c == "'":
+            end = joined.find("'", i + 1)
+            if end < 0:
+                return False
+            i = end + 1
+            continue
+        if c == "\\":
+            i += 2  # the next character is an escaped literal
+            continue
+        if c == '"':
+            in_dquote = not in_dquote
+            i += 1
+            continue
+        if c == "`":
+            return False  # backquote command substitution
+        if c == "$":
+            disqualified, i = expansion_runs_code()
+            if disqualified:
+                return False
+            continue
+        i += 1
+    return True
+
+
 def shell_violation(command):
     """Return (guard, offending source span), or None; never run shell text."""
     try:
@@ -579,11 +675,14 @@ def _shell_violation(command):
                     return ("coproc-background", span)
 
             def emits_data(stage):
-                # Round 10 (F1): a plain echo or printf first stage with no
-                # command substitution only feeds data in; its consumer's
-                # status is then exactly what $? reads, so nothing is masked.
-                # Leading loop/branch words and assignments sit before the
-                # emitter in command position.
+                # Round 10 (F1), hardened round 11: a plain echo or printf
+                # first stage only feeds data in, so its consumer's status is
+                # exactly what $? reads and nothing is masked. "Plain" is an
+                # allow-list (emitter_is_plain) judged on the stage text with
+                # backslash-newline continuations removed first, so a
+                # substitution opener split by a continuation can no longer
+                # slip through a raw-text search. Leading loop/branch words and
+                # assignments sit before the emitter in command position.
                 stage_words = argv(stage)
                 while stage_words and (
                         stage_words[0] in ("do", "then", "else")
@@ -595,7 +694,7 @@ def _shell_violation(command):
                 if any(t[0] != "word" and t[0] != "op" for t in stage):
                     return False  # a compound group is not a plain emitter
                 raw = command[stage[0][2]:stage[-1][3]]
-                return "$(" not in raw and "`" not in raw
+                return emitter_is_plain(raw)
             # Only a standalone builtin in this shell can change its options
             # or collect its children. Conditional waits cannot prove collection.
             standalone = len(stages) == 1 and separator != "&" and not conditional
