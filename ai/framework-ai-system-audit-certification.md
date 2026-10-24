@@ -2,7 +2,7 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.20\
+**Version:** 1.0.21\
 **Date:** 2026-10-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,7 +20,7 @@
 
 ### 1.1 Purpose
 
-This framework defines the audit and certification approach for AI systems within the organization. It establishes the audit programme structure, evidence requirements, audit frequency by risk tier, the certification pathway to ISO/IEC 42001:2023, post-market monitoring obligations, conformity assessment requirements for EU AI Act high-risk systems, and the integration of audit findings into the corrective and preventive action (CAPA) process.
+This framework defines the audit and certification approach for AI systems within the organization. It establishes the audit programme structure, evidence requirements, audit frequency by audit tier, the certification pathway to ISO/IEC 42001:2023, post-market monitoring obligations, conformity assessment requirements for EU AI Act high-risk systems, and the integration of audit findings into the corrective and preventive action (CAPA) process.
 
 The framework draws on ISO/IEC 42001:2023 §9.2 to 9.3 (internal audit and management review), EU AI Act Chapter IX (post-market monitoring and serious incident reporting), NIST AI RMF Measure and Manage functions, ISO/IEC 42006:2025 (requirements for bodies providing third-party audit and certification of an AI management system), and the Cloud Security Alliance AI Controls Matrix (CSA AICM v1.1).
 

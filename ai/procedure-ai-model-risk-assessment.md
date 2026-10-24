@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
-**Date:** 2026-07-11\
+**Version:** 1.0.6\
+**Date:** 2026-10-24\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
@@ -32,7 +32,7 @@ This procedure applies to models and model-enabled systems developed, acquired, 
 
 ### Step 1: Prepare assessment
 
-Record model purpose, owner, risk tier, lifecycle stage, deployment context, data categories, supplier involvement, intended users, prohibited uses, and assessment trigger. Assign a provisional inherent model-risk rating at this step, to be confirmed at Step 10. The assessment trigger is one of: a new model, a material model modification, a performance breach, a significant data change, or a scheduled periodic review.
+Record model purpose, owner, organizational AI risk classification, lifecycle stage, deployment context, data categories, supplier involvement, intended users, prohibited uses, and assessment trigger. Assign a provisional inherent model-risk rating at this step, to be confirmed at Step 10. The assessment trigger is one of: a new model, a material model modification, a performance breach, a significant data change, or a scheduled periodic review.
 
 ### Step 2: Validate data provenance and lineage
 
@@ -40,7 +40,7 @@ Review training, tuning, retrieval, evaluation, prompt, inference, monitoring, a
 
 ### Step 3: Assess interpretability
 
-Determine interpretability requirements based on risk tier and use context. Record output drivers, known limitations, explanation method, reviewability, and suitability for human oversight.
+Determine interpretability requirements based on the organizational AI risk classification and use context. Record output drivers, known limitations, explanation method, reviewability, and suitability for human oversight.
 
 ### Step 4: Assess representation and bias risk
 
@@ -60,7 +60,7 @@ Confirm monitoring for drift, misuse, leakage, unsafe outputs, unsafe tool execu
 
 ### Step 8: Review documentation
 
-Confirm that model card, system card where applicable, evaluation record, data lineage record, supplier record, monitoring plan, exception record, and approval record are complete enough for the model risk tier.
+Confirm that model card, system card where applicable, evaluation record, data lineage record, supplier record, monitoring plan, exception record, and approval record are complete enough for the model's organizational AI risk classification.
 
 ### Step 9: Determine residual risk
 

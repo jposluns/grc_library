@@ -2,7 +2,7 @@
 
 **Document Title:** AI Evaluation Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.14\
+**Version:** 1.0.15\
 **Date:** 2026-10-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -101,7 +101,7 @@ An AI evaluation is required when:
 ### 2.6 Compliance
 
 - Verify alignment with applicable regulations: GDPR, EU AI Act, and the current Canadian AI instruments (the Treasury Board Directive on Automated Decision-Making, binding on Government of Canada institutions subject to the Policy on Service and Digital (Directive section 8.1), and the voluntary federal Code of Conduct on Generative AI; AIDA lapsed and is not in force).
-- Confirm risk tier classification is current and accurate.
+- Confirm the organizational AI risk classification is current and accurate.
 - Validate that required documentation (Model Card, AI-IA) is complete.
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** Digital Trust and Assurance Metrics Register\
 **Document Type:** Register\
-**Version:** 1.1.4\
-**Date:** 2026-10-16\
+**Version:** 1.1.5\
+**Date:** 2026-10-24\
 **Owner:** Assurance Metrics Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -80,7 +80,7 @@ The DTI is calculated annually as the weighted average of five dimensions, each 
 | Supplier Assurance Coverage | Percentage of critical suppliers with current assessment and contractual control review. | Tests external dependency governance. | Supplier register, assessment record. | Quarterly. |
 | Resilience Test Completion | Percentage of critical services tested against recovery objectives. | Tests recoverability. | BIA, test report, corrective action log. | Semi-annual or annual. |
 | Privacy Assessment Coverage | Percentage of high-risk processing activities with current impact assessment. | Tests privacy governance. | Data inventory, impact assessment. | Quarterly. |
-| AI System Inventory Coverage | Percentage of AI systems with assigned owner, risk tier, data classification, lifecycle status, and approval state. | Tests AI governance control boundary. | AI system register. | Monthly or quarterly. |
+| AI System Inventory Coverage | Percentage of AI systems with assigned owner, risk classification, data classification, lifecycle status, and approval state. | Tests AI governance control boundary. | AI system register. | Monthly or quarterly. |
 | AI Data Lineage Coverage | Percentage of AI systems with documented data provenance, lineage, retention, and deletion method. | Tests data-risk control. | Data lineage record, model documentation. | Quarterly. |
 | AI Security Testing Coverage | Percentage of AI systems tested for prompt injection, data leakage, unsafe tool use, and access-control failure. | Tests AI-specific control effectiveness. | Security test record, red-team record. | Release and periodic. |
 
@@ -135,7 +135,7 @@ The **per-control effectiveness metric** measures the sustained effectiveness of
 | --- | --- | --- |
 | Governance Status Report | Governance stakeholders | Review status, approval gaps, exceptions, overdue remediation, document changes. |
 | Assurance Report | Risk, compliance, security, privacy, audit | Control evidence coverage, test results, findings, residual risk. |
-| AI Governance Report | AI governance stakeholders | AI inventory, risk tiers, impact assessments, data lineage, security test status, exceptions. |
+| AI Governance Report | AI governance stakeholders | AI inventory, risk classifications, impact assessments, data lineage, security test status, exceptions. |
 | Resilience Report | Operations, security, risk, executive stakeholders | Recovery testing, critical supplier resilience, BIA coverage, corrective actions. |
 | Supplier Assurance Report | Procurement, legal, security, privacy, risk | Due diligence status, contract controls, assurance evidence, concentration risk, exit readiness. |
 

@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Lifecycle Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.10\
-**Date:** 2026-09-25\
+**Version:** 1.0.11\
+**Date:** 2026-10-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/standard-ai-model-succession-and-identity.md`](standard-ai-model-succession-and-identity.md), [`governance/standard-semantic-continuity-in-migration-and-retirement.md`](../governance/standard-semantic-continuity-in-migration-and-retirement.md)\
@@ -44,7 +44,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 1.1 The AI System Inventory Keeper owns and maintains the AI System Inventory, the authoritative system-of-record, covering all AI models in use or under development.
 
-1.2 Inventory records include: model name, version, owner, risk tier, deployment date, last review date, monitoring status, lifecycle stage, and the recorded performance thresholds (metric, floor value, and accountable owner) required at deployment by 4.5.
+1.2 Inventory records include: model name, version, owner, organizational AI risk classification, deployment date, last review date, monitoring status, lifecycle stage, and the recorded performance thresholds (metric, floor value, and accountable owner) required at deployment by 4.5.
 
 1.3 The inventory is reviewed and updated at minimum quarterly by the AI System Inventory Keeper.
 
@@ -60,7 +60,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 | Gate | Requirement |
 | --- | --- |
-| Risk Classification | AI risk tier assigned by AIGC or delegated owner |
+| Risk Classification | Organizational AI risk classification assigned by AIGC or delegated owner |
 | AI Impact Assessment | Completed and reviewed for High-risk systems |
 | Technical Validation | All testing requirements from the AI Standard passed |
 | Security Review | CISO sign-off on security test results |
