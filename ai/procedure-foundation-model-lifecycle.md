@@ -2,7 +2,7 @@
 
 **Document Title:** Foundation Model Lifecycle Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.16\
+**Version:** 0.0.17\
 **Date:** 2026-10-24\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -106,7 +106,7 @@ For open-source self-hosted models, the contractual layer is replaced by an inte
 
 | Monitoring activity | Cadence |
 | --- | --- |
-| Eval suite regression run | At minimum quarterly for production foundation models; monthly where the eval-suite cost and infrastructure permit; on every provider version notification regardless of base cadence. The eval scope, sample size, and the metrics evaluated are documented per model so the cadence is substantive rather than nominal; results carry the uncertainty statement of the testing standard Section 5.6. |
+| Eval suite regression run | At minimum quarterly for production foundation models; monthly where the eval-suite cost and infrastructure permit; on every provider version notification regardless of base cadence. The eval scope, sample size, and the metrics evaluated are documented per model so the cadence is substantive rather than nominal; results carry the uncertainty statement of the testing standard Section 5.6, as required for the system's risk tier. |
 | Safety classifier review | Quarterly |
 | Cost and capacity review | Monthly |
 | Supplier incident monitoring | Continuous; subscribe to the provider's security advisory channel |
@@ -122,7 +122,7 @@ Provider model version changes are managed through a defined transition window.
 | Step | Action |
 | --- | --- |
 | Notification | Receive provider notice; record in the model registry on the existing version |
-| Impact analysis | Run the eval suite on the new version; compare to the current version over the same evaluation items, reporting the difference with its uncertainty or an appropriate statistical test (testing standard Section 5.6) |
+| Impact analysis | Run the eval suite on the new version; compare to the current version over the same evaluation items, reporting the difference with its uncertainty or an appropriate statistical test, as required for the system's risk tier (testing standard Section 5.6) |
 | Risk assessment | Document material behaviour changes; reassess risk classification |
 | Stakeholder communication | Internal teams whose systems depend on the model; customers if material |
 | Staged rollout | Canary; ramp; full |

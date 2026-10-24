@@ -2,7 +2,7 @@
 
 **Document Title:** AI Evaluation Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.13\
+**Version:** 1.0.14\
 **Date:** 2026-10-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -68,7 +68,7 @@ An AI evaluation is required when:
 - Evaluate performance consistency across input subgroups.
 - Document performance degradation conditions and edge cases.
 - Apply the AI quality-evaluation methods of ISO/IEC TS 25058:2024 §6.2 (metamorphic testing, benchmarking, scenario and simulated-environment testing, field trials, and a back-testing phase on a held-out dataset); a residual error rate is expected and may trade off against robustness and performance efficiency (ISO/IEC 25059:2023 §5.4).
-- Report each quantitative result with the uncertainty statement required by [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6: sample size, an uncertainty measure at the organization-set confidence level recorded before the evaluation runs, the derivation method, run counts for non-deterministic systems, the contamination record, and evaluator agreement where applicable.
+- Report each quantitative result with the Section 5.6 reporting elements of [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) required for the system's risk tier: the uncertainty statement (sample size, an uncertainty measure at the organization-set confidence level recorded before the evaluation runs, and the derivation method), run counts for non-deterministic systems, the contamination record, and evaluator agreement where applicable.
 
 ### 2.2 Fairness and bias
 
@@ -123,7 +123,7 @@ An AI evaluation is required when:
 
 Report includes:
 - Executive summary.
-- Scores for each evaluation dimension, each carrying the Section 5.6 uncertainty statement of the testing standard (sample size, uncertainty measure, derivation method).
+- Scores for each evaluation dimension, each carrying the Section 5.6 reporting elements of the testing standard required for the system's risk tier, including the uncertainty statement (sample size, uncertainty measure, derivation method) where the tier requires it.
 - Pass, fail, or inconclusive status against defined thresholds; a result whose uncertainty range straddles its threshold is inconclusive and must not be reported as a pass (testing standard Section 5.7).
 - Identified risks and recommended mitigations.
 - Overall recommendation: Deploy / Deploy with conditions / Do not deploy.
