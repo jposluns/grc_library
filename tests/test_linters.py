@@ -30367,10 +30367,19 @@ class ReferenceBreadthStateTests(unittest.TestCase):
         self.state = self.td / "state.md"
 
     def _git(self, *args):
+        # 3b529: pin identity and dates so the fixture's object hashes do not
+        # depend on the wall clock; without this, rev-parse --short lengths
+        # vary from run to run through chance prefix collisions.
+        env = fixture_git_environment()
+        env.update(GIT_AUTHOR_NAME="Test", GIT_COMMITTER_NAME="Test",
+                   GIT_AUTHOR_EMAIL="test@example.invalid",
+                   GIT_COMMITTER_EMAIL="test@example.invalid",
+                   GIT_AUTHOR_DATE="2026-10-12T00:00:00Z",
+                   GIT_COMMITTER_DATE="2026-10-12T00:00:00Z")
         r = subprocess.run(
             ["git", "-C", str(self.ref), "-c", "user.name=Test",
              "-c", "user.email=test@example.invalid", "-c", "core.hooksPath=/dev/null",
-             *args], capture_output=True, text=True, env=fixture_git_environment())
+             *args], capture_output=True, text=True, env=env)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         return r.stdout.strip()
 
@@ -31042,7 +31051,15 @@ class ReferenceBreadthStateTests(unittest.TestCase):
     def test_short_core_abbrev_keeps_rows_across_two_updates(self):
         self._git("config", "core.abbrev", "4")
         self.assertEqual(self._git("config", "core.abbrev"), "4")
-        self.assertEqual(len(self._git("rev-parse", "--short", "HEAD")), 4)
+        # 3b529: an exact 4-character length is only a precondition, and git
+        # lengthens an abbreviation past core.abbrev when another object
+        # shares the prefix. The tool only needs the repository default to be
+        # a valid abbreviation shorter than the 12 characters it records, so
+        # assert that; prefix lengthening cannot fail it.
+        short = self._git("rev-parse", "--short", "HEAD")
+        self.assertTrue(self._git("rev-parse", "HEAD").startswith(short), short)
+        self.assertGreaterEqual(len(short), 4, short)
+        self.assertLess(len(short), 12, short)
         for doc in self.DOCS[:2]:
             result = self._run_tool(doc)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
