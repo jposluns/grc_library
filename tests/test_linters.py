@@ -52674,6 +52674,44 @@ class BlockVerificationPipesTests(unittest.TestCase):
             for c in split:
                 self.assertFalse(self.hook.command_is_blocked(c))
 
+    def test_round11_bash53_substitution_emitter_refuses(self):
+        # agy R11 NOTE 2: pin the bash-5.3 spellings the round-11
+        # allow-list disqualifies. A ${ cmd; } brace function
+        # substitution, a ${| cmd; } brace substitution and a ${name@P}
+        # prompt-expansion parameter operator each run or transform code
+        # inside an echo/printf emitter piped into a truncating filter,
+        # so the stage is no plain data emitter and the later $? read of
+        # the filter refuses. None of these contain "$(" or a backquote,
+        # so the round-10 raw-text check read every one as plain.
+        from unittest.mock import patch
+        funsub = [
+            'echo "${ printf \'x\'; false; }" | head -1; echo rc=$?',
+            'printf \'%s\' "${ true; }" | tail -1; echo rc=$?',
+            'echo "${| false; }" | head -1; echo rc=$?',
+            'printf \'%s\' "${| :; }" | cut -c1-160; echo rc=$?',
+            'echo "${PS1@P}" | head -1; echo rc=$?',
+            'printf \'%s\' "${msg@P}" | tail -3; echo rc=$?',
+        ]
+        self.check(funsub, True)
+        for c in funsub:
+            self.assertEqual(
+                self.hook.shell_violation(c)[0], 'pipeline-status')
+        # Positive controls: a plain quoted literal emitter stays
+        # allowed, even when the literal spells the refused forms inside
+        # single quotes, where nothing expands.
+        self.check([
+            'echo "plain ${name} literal" | head -1; echo rc=$?',
+            "echo '${ false; }' | head -1; echo rc=$?",
+            "printf '%s' '${| false; }${PS1@P}' | cat; echo rc=$?",
+        ], False)
+        # Flip control: restoring the round-10 raw-text check (the
+        # pre-fix emitter_is_plain) re-admits every bash-5.3 case, so
+        # this test pins the round-11 allow-list, not another guard.
+        raw_check = lambda raw: "$(" not in raw and "`" not in raw
+        with patch.object(self.hook, 'emitter_is_plain', raw_check):
+            for c in funsub:
+                self.assertFalse(self.hook.command_is_blocked(c))
+
     def test_round10_and_continuation_clears_pending(self):
         # F2 (falseblocks-classification row 67): an executed single-command
         # && continuation replaces the pipeline's status, and a skipped one
