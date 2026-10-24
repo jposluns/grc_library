@@ -2,8 +2,8 @@
 
 **Document Title:** AI Value and Decision-Governance Framework\
 **Document Type:** Framework\
-**Version:** 0.0.5\
-**Date:** 2026-10-01\
+**Version:** 0.0.6\
+**Date:** 2026-10-24\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-maturity-model.md`](framework-ai-maturity-model.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/standard-ai-inference-cost-governance.md`](standard-ai-inference-cost-governance.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`governance/standard-maturity-assessment-methodology.md`](../governance/standard-maturity-assessment-methodology.md), [`ai/standard-ai-total-cost-of-ownership-governance.md`](standard-ai-total-cost-of-ownership-governance.md)\
@@ -97,7 +97,7 @@ The idea-stage value hypothesis (Section 4) is not a one-time claim. Realized be
 
 ### Evidence confidence
 
-A net-value figure aggregated across several benefit and disbenefit claims can mask a weakly-evidenced claim behind well-evidenced ones, the way a median can mask a low outlier. To instrument the optimism bias named in the Limitations, each claimed benefit and disbenefit carries an **evidence-confidence rating** (for example high, medium, or low) reflecting the strength of its attribution (above) and its underlying measurement. Adapting the compensating floor-check that [`ai/framework-ai-maturity-model.md`](framework-ai-maturity-model.md) applies to maturity outliers, any benefit or disbenefit rated **low** confidence, and any material benefit or disbenefit that is unattributed, is surfaced explicitly rather than absorbed into the aggregate. The net-value figure reported to a governing body is therefore the aggregate **together with its low-confidence and unattributed exceptions**, not the aggregate alone, so a reviewer sees which parts of the case are firm and which rest on optimistic or unvalidated evidence.
+A net-value figure aggregated across several benefit and disbenefit claims can mask a weakly-evidenced claim behind well-evidenced ones, the way a median can mask a low outlier. To instrument the optimism bias named in the Limitations, each claimed benefit and disbenefit carries an **evidence-confidence rating** (for example high, medium, or low) reflecting the strength of its attribution (above) and its underlying measurement. Adapting the compensating floor-check that [`ai/framework-ai-maturity-model.md`](framework-ai-maturity-model.md) applies to maturity outliers, any benefit or disbenefit rated **low** confidence, and any material benefit or disbenefit that is unattributed, is surfaced explicitly rather than absorbed into the aggregate. The net-value figure reported to a governing body is therefore the aggregate **together with its low-confidence and unattributed exceptions**, not the aggregate alone, so a reviewer sees which parts of the case are firm and which rest on optimistic or unvalidated evidence. [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Sections 5.6 and 5.7 apply the same surface-rather-than-absorb discipline to quantitative evaluation results: an inconclusive result is reported as inconclusive, not folded into a pass.
 
 ## Framework alignment
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Foundation Model Lifecycle Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.15\
-**Date:** 2026-10-23\
+**Version:** 0.0.17\
+**Date:** 2026-10-24\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md), [`ai/standard-ai-model-succession-and-identity.md`](standard-ai-model-succession-and-identity.md), [`governance/standard-semantic-continuity-in-migration-and-retirement.md`](../governance/standard-semantic-continuity-in-migration-and-retirement.md)\
@@ -52,12 +52,12 @@ The AI System Inventory Keeper maintains a candidate list with the following per
 
 | Evaluation dimension | Required output |
 | --- | --- |
-| Capability evaluation | Pass against the candidate's intended use cases on the organization's eval suite |
+| Capability evaluation | Pass against the candidate's intended use cases on the organization's eval suite, judged per [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.7: an inconclusive result must not be reported as a pass |
 | Safety evaluation | Pass against the safety, refusal, and harmful-output evaluations including OWASP LLM Top 10 and MITRE ATLAS-aligned tests |
 | Adversarial evaluation | Pass against the adversarial test reference suite |
 | Fairness evaluation | Subgroup performance analysis appropriate to the use case |
 | Data-handling assessment | Provider's data-handling commitments per the AI vendor security questionnaire |
-| Training-data provenance | Provider's documented training data sources and any litigation or regulatory exposure |
+| Training-data provenance | Provider's documented training data sources and any litigation or regulatory exposure; the provider's test-set contamination disclosure, or its absence recorded as a gap (testing standard Section 5.6) |
 | Privacy assessment | Personal-data exposure profile; cross-reference to a DPIA if required |
 | Security assessment | Provider security questionnaire, supplier assurance evidence, threat model |
 | Cost and rate-limit assessment | Inference and training cost, latency, capacity guarantees |
@@ -106,7 +106,7 @@ For open-source self-hosted models, the contractual layer is replaced by an inte
 
 | Monitoring activity | Cadence |
 | --- | --- |
-| Eval suite regression run | At minimum quarterly for production foundation models; monthly where the eval-suite cost and infrastructure permit; on every provider version notification regardless of base cadence. The eval scope, sample size, and the metrics evaluated are documented per model so the cadence is substantive rather than nominal. |
+| Eval suite regression run | At minimum quarterly for production foundation models; monthly where the eval-suite cost and infrastructure permit; on every provider version notification regardless of base cadence. The eval scope, sample size, and the metrics evaluated are documented per model so the cadence is substantive rather than nominal; results carry the uncertainty statement of the testing standard Section 5.6, as required for the system's risk tier. |
 | Safety classifier review | Quarterly |
 | Cost and capacity review | Monthly |
 | Supplier incident monitoring | Continuous; subscribe to the provider's security advisory channel |
@@ -122,7 +122,7 @@ Provider model version changes are managed through a defined transition window.
 | Step | Action |
 | --- | --- |
 | Notification | Receive provider notice; record in the model registry on the existing version |
-| Impact analysis | Run the eval suite on the new version; compare to the current version |
+| Impact analysis | Run the eval suite on the new version; compare to the current version over the same evaluation items, reporting the difference with its uncertainty or an appropriate statistical test, as required for the system's risk tier (testing standard Section 5.6) |
 | Risk assessment | Document material behaviour changes; reassess risk classification |
 | Stakeholder communication | Internal teams whose systems depend on the model; customers if material |
 | Staged rollout | Canary; ramp; full |
@@ -148,7 +148,7 @@ If the version transition is involuntary (provider deprecates the prior version 
 
 Where a candidate foundation model is a general-purpose AI model with systemic risk under EU AI Act Article 51 (the classification article), the EU GPAI Code of Practice (Safety and Security Chapter, July 2025), the Article 56 co-regulatory instrument for demonstrating Article 55 compliance, sets the authoritative expectations an adopter can require of and interrogate in the provider. The Code applies to the provider, not the adopting deployer, and adherence is voluntary (though it is the primary co-regulatory route to demonstrate Article 55 compliance, and a non-adhering provider must show alternative adequate means); the adopter uses it as a due-diligence lens:
 
-- **Pre-engagement (Step 2):** obtain the provider's published summarized Safety and Security Framework and Model Report (Code Measure 10.2, Commitment 7) and its independent-external-evaluation results, to supplement the organization's own safety and adversarial evaluations.
+- **Pre-engagement (Step 2):** obtain the provider's published summarized Safety and Security Framework and Model Report (Code Measure 10.2, Commitment 7) and its independent-external-evaluation results, including any test-set contamination disclosure, to supplement the organization's own safety and adversarial evaluations.
 - **Contract (Step 3):** require that a systemic-risk provider maintains its Framework and Model Report (Commitments 1 and 7) and its serious-incident reporting to the AI Office (Commitment 9), tied to the incident-notification clause.
 - **Monitoring (Step 5):** treat the provider's post-market monitoring (Measure 3.5) and serious-incident reporting (Commitment 9) as the provider-side analogue of the organization's supplier-incident monitoring, and cross-reference them.
 - **Version transition (Steps 6 to 7):** track the provider's Model Report update cadence (Measure 7.6, at least every six months for the most capable models) and its Framework-assessment triggers (Measure 1.3) as authoritative signals for the organization's version-transition impact analysis.

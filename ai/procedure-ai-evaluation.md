@@ -2,8 +2,8 @@
 
 **Document Title:** AI Evaluation Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.12\
-**Date:** 2026-09-25\
+**Version:** 1.0.14\
+**Date:** 2026-10-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md)\
@@ -68,6 +68,7 @@ An AI evaluation is required when:
 - Evaluate performance consistency across input subgroups.
 - Document performance degradation conditions and edge cases.
 - Apply the AI quality-evaluation methods of ISO/IEC TS 25058:2024 §6.2 (metamorphic testing, benchmarking, scenario and simulated-environment testing, field trials, and a back-testing phase on a held-out dataset); a residual error rate is expected and may trade off against robustness and performance efficiency (ISO/IEC 25059:2023 §5.4).
+- Report each quantitative result with the Section 5.6 reporting elements of [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) required for the system's risk tier: the uncertainty statement (sample size, an uncertainty measure at the organization-set confidence level recorded before the evaluation runs, and the derivation method), run counts for non-deterministic systems, the contamination record, and evaluator agreement where applicable.
 
 ### 2.2 Fairness and bias
 
@@ -122,8 +123,8 @@ An AI evaluation is required when:
 
 Report includes:
 - Executive summary.
-- Scores for each evaluation dimension.
-- Pass/fail status against defined thresholds.
+- Scores for each evaluation dimension, each carrying the Section 5.6 reporting elements of the testing standard required for the system's risk tier, including the uncertainty statement (sample size, uncertainty measure, derivation method) where the tier requires it.
+- Pass, fail, or inconclusive status against defined thresholds; a result whose uncertainty range straddles its threshold is inconclusive and must not be reported as a pass (testing standard Section 5.7).
 - Identified risks and recommended mitigations.
 - Overall recommendation: Deploy / Deploy with conditions / Do not deploy.
 
@@ -132,6 +133,7 @@ Report includes:
 - Evaluation report submitted to AIGC for review.
 - AIGC reviews within 10 business days for High-risk systems.
 - AIGC issues approval, conditional approval, or rejection.
+- An inconclusive result (testing standard Section 5.7) may proceed to conditional approval only with a recorded rationale and recorded conditions; otherwise the AIGC returns it for further evaluation.
 
 ### Step 5: Deployment or remediation
 
@@ -158,7 +160,7 @@ Evaluation reports are retained in the compliance repository per the [Records Da
 | NIST IR 8312 | §2.2 to §2.4 explainability principles | Explanation accuracy and knowledge limits (Section 2.3) |
 | ISO/IEC TR 24027:2021 | Clause 7 fairness metrics | Fairness and bias evaluation (Section 2.2) |
 | EU AI Act (2024) | Article 9: Risk Management System | Evaluation obligations for high-risk AI |
-| NIST AI RMF (2023) | MAP and MEASURE functions | AI evaluation methodology |
+| NIST AI RMF (2023) | MAP function; §5.3 MEASURE function narrative (performance assessment with associated measures of uncertainty and formalized reporting of results) | AI evaluation methodology and uncertainty reporting (Sections 2.1, 3) |
 | OWASP LLM Top 10 | LLM-specific vulnerabilities | Generative AI security evaluation |
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** AI Red Team Report Template\
 **Document Type:** Template\
-**Version:** 1.0.6\
-**Date:** 2026-09-13\
+**Version:** 1.0.7\
+**Date:** 2026-10-24\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -61,7 +61,7 @@ This template applies to all adversarial-testing engagements against the organiz
 | Threat model | The threat model the engagement tested |
 | Attack frameworks consulted | OWASP LLM Top 10 (2026) categories, MITRE ATLAS tactics and techniques, the NIST AI 100-2e2025 adversarial machine-learning taxonomy, in-house threat library |
 | Tooling | Automated tools (e.g. red team automation frameworks, LLM scanners), manual techniques, social-engineering simulations where applicable |
-| Test cases executed | Reference to the test case library; coverage statement against the categories |
+| Test cases executed | Reference to the test case library; coverage statement against the categories; attempt counts and attack-success rates with the sample sizes behind them ([`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6) |
 | Attacker personas | The personas tested (e.g. unauthenticated external user, authenticated low-privilege user, malicious insider, compromised upstream supplier, malicious end customer) |
 | Realism boundaries | What the engagement did not simulate (e.g. multi-month patience, supply-chain compromise) |
 
