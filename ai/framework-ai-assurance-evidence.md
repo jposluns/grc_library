@@ -2,11 +2,11 @@
 
 **Document Title:** AI Assurance Evidence and Attestation Framework\
 **Document Type:** Framework\
-**Version:** 1.0.8\
-**Date:** 2026-10-24\
+**Version:** 1.0.9\
+**Date:** 2026-10-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/template-ai-red-team-report.md`](template-ai-red-team-report.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/matrix-etsi-sai-baseline-alignment.md`](matrix-etsi-sai-baseline-alignment.md)\
+**Related Documents:** [`ai/procedure-ai-assurance-case.md`](procedure-ai-assurance-case.md), [`ai/template-ai-assurance-case.md`](template-ai-assurance-case.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/template-ai-red-team-report.md`](template-ai-red-team-report.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/matrix-etsi-sai-baseline-alignment.md`](matrix-etsi-sai-baseline-alignment.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** 6 to 12 months and upon material AI governance or regulatory change\
@@ -30,7 +30,7 @@ The framework applies to every AI system recorded in the AI System Register, to 
 
 ### 2.1 AI System Owner: assurance-case custodian
 
-The AI System Owner produces and maintains the assurance case for each system they own: the claims-by-evidence record described in section 3.5, kept current across the lifecycle and marshalled into an evidence pack ahead of each approval or audit gate.
+The AI System Owner produces and maintains the assurance case for each system they own: the claims-by-evidence record described in section 3.5, kept current across the lifecycle and marshalled into an evidence pack ahead of each approval or audit gate. The activity of establishing, arguing, reviewing, and maintaining that case is defined in [`ai/procedure-ai-assurance-case.md`](procedure-ai-assurance-case.md).
 
 ### 2.2 CISO: evidence-model owner
 
@@ -95,7 +95,7 @@ Evidence supporting a claim is sufficient when it satisfies five dimensions:
 
 ### 3.5 The assurance case
 
-The assurance case for a system is a claims-by-evidence record maintained by the AI System Owner across the eleven lifecycle stages of the governance framework's lifecycle model (Intake through Retirement, reused as defined there). For each claim it records the supporting artefacts, their evidence class, their attestation tier, their currency, and any documented gap. The marshalled assurance case is the pack that satisfies the section 4 evidence catalogue of [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) and the evidence-collection step of [`ai/procedure-ai-audit.md`](procedure-ai-audit.md). The effectiveness of the employed TEVV metrics and processes is itself evaluated and documented (NIST AI RMF MEASURE 2.13); as an organizational practice extending that discipline, the assurance case is periodically tested against the activities that feed it, not only assembled from them.
+The assurance case for a system is a claims-by-evidence record maintained by the AI System Owner across the eleven lifecycle stages of the governance framework's lifecycle model (Intake through Retirement, reused as defined there). For each claim it records the supporting artefacts, their evidence class, their attestation tier, their currency, and any documented gap. The marshalled assurance case is the pack that satisfies the section 4 evidence catalogue of [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) and the evidence-collection step of [`ai/procedure-ai-audit.md`](procedure-ai-audit.md). The effectiveness of the employed TEVV metrics and processes is itself evaluated and documented (NIST AI RMF MEASURE 2.13); as an organizational practice extending that discipline, the assurance case is periodically tested against the activities that feed it, not only assembled from them. The procedure that builds and maintains the case is [`ai/procedure-ai-assurance-case.md`](procedure-ai-assurance-case.md), and its record format is [`ai/template-ai-assurance-case.md`](template-ai-assurance-case.md); this framework continues to define only the evidence model they organize.
 
 ## 4. Evidence-to-activity index
 

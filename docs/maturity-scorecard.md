@@ -37,7 +37,7 @@ The metadata block above carries a generator schema constant for `Version` and t
 
 ---
 
-_Summary as of last regeneration: Mature: 134, Baseline: 146, Draft: 77, Unknown: 0._
+_Summary as of last regeneration: Mature: 134, Baseline: 148, Draft: 77, Unknown: 0._
 
 ## Mature
 
@@ -85,7 +85,7 @@ _134 documents._
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.51 | 2026-10-01 |
 | [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.1.0 | 2026-10-14 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.5 | 2026-10-24 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.210 | 2026-10-24 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.211 | 2026-10-25 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.21 | 2026-10-16 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.2.0 | 2026-10-14 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.7.0 | 2026-10-15 |
@@ -184,13 +184,13 @@ _134 documents._
 
 ## Baseline
 
-_146 documents._
+_148 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
 | [ai/charter-ai-ethics-review-panel.md](../ai/charter-ai-ethics-review-panel.md) | AI Ethics Review Panel Charter | Charter | 1.0.5 | 2026-09-25 |
 | [ai/checklist-ai-algorithmic-compliance.md](../ai/checklist-ai-algorithmic-compliance.md) | AI Algorithmic Compliance Checklist | Checklist | 1.0.21 | 2026-10-25 |
-| [ai/framework-ai-assurance-evidence.md](../ai/framework-ai-assurance-evidence.md) | AI Assurance Evidence and Attestation Framework | Framework | 1.0.8 | 2026-10-24 |
+| [ai/framework-ai-assurance-evidence.md](../ai/framework-ai-assurance-evidence.md) | AI Assurance Evidence and Attestation Framework | Framework | 1.0.9 | 2026-10-25 |
 | [ai/framework-ai-model-documentation-and-transparency.md](../ai/framework-ai-model-documentation-and-transparency.md) | AI Model Documentation and Transparency Framework | Framework | 1.0.16 | 2026-10-24 |
 | [ai/framework-ai-model-risk.md](../ai/framework-ai-model-risk.md) | AI Model Risk Framework | Framework | 1.0.5 | 2026-10-24 |
 | [ai/framework-ai-system-audit-certification.md](../ai/framework-ai-system-audit-certification.md) | AI System Audit and Certification Framework | Framework | 1.0.21 | 2026-10-24 |
@@ -200,6 +200,7 @@ _146 documents._
 | [ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md](../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md) | AI Model Risk Control to Lifecycle Mapping Matrix | Matrix | 1.0.3 | 2026-08-31 |
 | [ai/plan-ai-incident-response.md](../ai/plan-ai-incident-response.md) | AI Incident Response Plan | Plan | 1.0.13 | 2026-10-13 |
 | [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.37 | 2026-10-16 |
+| [ai/procedure-ai-assurance-case.md](../ai/procedure-ai-assurance-case.md) | AI Assurance Case Procedure | Procedure | 1.0.1 | 2026-10-24 |
 | [ai/procedure-ai-evaluation.md](../ai/procedure-ai-evaluation.md) | AI Evaluation Procedure | Procedure | 1.0.15 | 2026-10-24 |
 | [ai/procedure-ai-model-lifecycle-management.md](../ai/procedure-ai-model-lifecycle-management.md) | AI Model Lifecycle Management Procedure | Procedure | 1.0.11 | 2026-10-24 |
 | [ai/procedure-ai-model-risk-assessment.md](../ai/procedure-ai-model-risk-assessment.md) | AI Model Risk Assessment Procedure | Procedure | 1.0.8 | 2026-10-24 |
@@ -207,6 +208,7 @@ _146 documents._
 | [ai/register-ai-risk.md](../ai/register-ai-risk.md) | AI Risk Register | Register | 1.0.11 | 2026-09-25 |
 | [ai/register-mcp-server.md](../ai/register-mcp-server.md) | Model Context Protocol Server Register | Register | 1.0.13 | 2026-09-29 |
 | [ai/standard-ai-testing-validation-and-documentation.md](../ai/standard-ai-testing-validation-and-documentation.md) | AI Testing, Validation and Documentation Standard | Standard | 1.0.14 | 2026-10-24 |
+| [ai/template-ai-assurance-case.md](../ai/template-ai-assurance-case.md) | AI Assurance Case Template | Template | 1.0.1 | 2026-10-24 |
 | [ai/template-ai-red-team-report.md](../ai/template-ai-red-team-report.md) | AI Red Team Report Template | Template | 1.0.8 | 2026-10-25 |
 | [ai/template-ai-vendor-security-questionnaire.md](../ai/template-ai-vendor-security-questionnaire.md) | AI Vendor Security Questionnaire Template | Template | 1.0.9 | 2026-10-24 |
 | [ai/template-dataset-datasheet.md](../ai/template-dataset-datasheet.md) | Dataset Datasheet Template | Template | 1.0.8 | 2026-10-24 |

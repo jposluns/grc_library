@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.29\
-**Date:** 2026-09-25\
+**Version:** 1.1.30\
+**Date:** 2026-10-25\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md)\
@@ -91,6 +91,8 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Standard | AI Inference Cost Governance Standard | [`ai/standard-ai-inference-cost-governance.md`](standard-ai-inference-cost-governance.md) |
 | Standard | AI Total Cost of Ownership Governance Standard | [`ai/standard-ai-total-cost-of-ownership-governance.md`](standard-ai-total-cost-of-ownership-governance.md) |
 | Template | AI Red Team Report Template | [`ai/template-ai-red-team-report.md`](template-ai-red-team-report.md) |
+| Procedure | AI Assurance Case Procedure | [`ai/procedure-ai-assurance-case.md`](procedure-ai-assurance-case.md) |
+| Template | AI Assurance Case Template | [`ai/template-ai-assurance-case.md`](template-ai-assurance-case.md) |
 
 ---
 

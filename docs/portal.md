@@ -407,6 +407,7 @@ Security architects need the dev-security standards, the AI security guides, the
 
 ### Procedure
 
+- [AI Assurance Case Procedure](../ai/procedure-ai-assurance-case.md) (maturity: Baseline)
 - [AI Audit Procedure](../ai/procedure-ai-audit.md) (maturity: Mature)
 - [AI Evaluation Procedure](../ai/procedure-ai-evaluation.md) (maturity: Baseline)
 - [AI Model Lifecycle Management Procedure](../ai/procedure-ai-model-lifecycle-management.md) (maturity: Baseline)
