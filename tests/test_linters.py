@@ -26821,7 +26821,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        open-findings-row.py OWN F 95a1c537cc8d2261cab965dc774d77a917361d8c369d75bf6d4ffa34dcdbcd29
+        open-findings-row.py OWN F b79ae47d834adab285eea15273a82c334d4636eee0682fc46fef7444721fa54c
         pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
@@ -57205,10 +57205,12 @@ class OpenFindingsRowTests(unittest.TestCase):
 
 class OpenFindingsRowDeliveryTests(unittest.TestCase):
     """tools/open-findings-row.py --delivery (3b544, mistakes register 312): one report-only line with
-    the delivery's last FINDINGS totals beside the ledger rows whose Source cell names its VPR-COMPLETE
-    item and sha. The two delivery fixtures keep the shapes of the staged 3b544 samples, abbreviated: a
-    markdown FINDINGS tail after fenced probe output and a table, and the same tail after a fenced SARIF
-    JSON block. Every ledger is a temp-dir file; the live ledger is never read.
+    the delivery's last FINDINGS totals beside the ledger rows whose Source cell leads with the
+    delivery's own review key (family, item, round and sha; round 2 narrowed it from item and sha).
+    The two delivery fixtures keep the shapes of the staged 3b544 samples, abbreviated: a markdown
+    FINDINGS tail after fenced probe output and a table, and the same tail after a fenced SARIF JSON
+    block (that sample carries no round heading). Every ledger is a temp-dir file; the live ledger is
+    never read.
 
     Mutation map, a killing test per clause: the line not wired into _run and a delivery fence that
     never closes by both sample-shape tests; WARN/NOTE swapped by the SARIF-shape test (the markdown
@@ -57216,8 +57218,17 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
     no fence skipping, the first FINDINGS line kept and the column order by
     test_last_findings_line_outside_fences_in_column_order; a silent zero, a fallback to an earlier
     parseable line and a dropped label check by test_findings_less_delivery_is_unverifiable_never_zero;
-    a substring item, no sha check, a narrower row scope, case-sensitive matching, counting the ledger
-    as read and with_row always true by test_row_count_against_fixture_ledger; a blocking open, a
+    the old item-and-sha match, a narrower row scope, counting the ledger as read and with_row always
+    true by test_row_count_against_fixture_ledger; a key without the family, a key without the round, a
+    case-folded match, a match not anchored at the cell's start and a dropped key-end check by
+    test_key_counts_only_the_delivery_own_review; a broad count when a part is missing, a dropped
+    disagreement check, a round heading not bound to the item and --source-key not passed on by _run by
+    test_key_needs_every_part_or_a_source_key; the last parseable VPR-COMPLETE line kept (r1 M22) and
+    its code renamed (r1 M24) by test_malformed_last_vpr_complete_line_is_unverifiable; a dropped
+    row-count catch-all (r1 M25) by test_row_count_failure_is_unverifiable; a backtick line holding a
+    backtick after its run opening a fence, and str.splitlines line ends, by
+    test_inline_code_line_and_non_lf_breaks_do_not_flip_the_tail; the reference's usage or delivery
+    bullet dropped by test_reference_documents_delivery_beside_class_count; a blocking open, a
     dropped missing or not-UTF-8 handler, and that plus a narrowed catch-all (which changes the exit
     code) by test_unreadable_delivery_is_unverifiable_and_the_write_lands; a dropped divergence check by
     test_source_cell_divergence_is_unverifiable_not_a_count; a dropped residue sentence by
@@ -57227,6 +57238,8 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
     CLAUDE_DELIVERY = (
         "WORKER_STATUS: PASS (account=a, rc=0, family=claude, advisory=true)\n"
         "All three hashes match. Reading inputs.\n"
+        "# /validate-pr round 2 (REFUTE): 3b540, commit f2a53df9f, branch tooling/3b540-d12-error-paths\n"
+        "\n"
         "## Scratch probes\n"
         "\n"
         "Brief probe (TMPDIR form):\n"
@@ -57279,8 +57292,10 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         "VERDICT: SHIP\n"
         "VPR-COMPLETE 3b546 2ba4b9847\n"
     )
-    # Rows naming 3b540 @ f2a53df9f: R2-W1, R2-N1 (a shorter sha), R2-W2 (upper case, an escaped pipe)
-    # and R2-N2 (the archive). Never FENCED-1, R1-N1 (another sha), OTHER-1 or OTHER-2 (another token).
+    # Rows leading with the claude round-2 key: R2-W1, R2-N1 (text after the key), R2-W2 (an escaped
+    # pipe after it) and R2-N2 (the archive). Never FENCED-1, G2-N1 (the gemini leg of the same round
+    # and sha, which round 1 counted), R1-N1 (another round at the same sha), SHORT-1 (a shorter sha),
+    # OTHER-1 (another item) or OTHER-2 (the item joined).
     LEDGER = (
         "# Open findings\n"
         "\n"
@@ -57294,16 +57309,18 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         "| Found | Severity | Finding | Source | Disposition |\n"
         "| --- | --- | --- | --- | --- |\n"
         f"| 2026-10-20 | warning | [R2-W1] named | {REVIEW} | ROUTED 3b330 |\n"
-        "| 2026-10-20 | note | [R2-N1] a shorter sha | gemini 3b540 /validate-pr round 2 @ f2a53df |  |\n"
-        "| 2026-10-20 | note | [R1-N1] an earlier round | claude 3b540 /validate-pr round 1 @ b0a2e71cf |  |\n"
+        f"| 2026-10-20 | note | [R2-N1] text after the key | {REVIEW} (NOTE-1) |  |\n"
+        "| 2026-10-20 | note | [G2-N1] another family | gemini 3b540 /validate-pr round 2 @ f2a53df9f |  |\n"
+        "| 2026-10-20 | note | [R1-N1] an earlier round | claude 3b540 /validate-pr round 1 @ f2a53df9f |  |\n"
+        "| 2026-10-20 | note | [SHORT-1] a shorter sha | claude 3b540 /validate-pr round 2 @ f2a53df |  |\n"
         "| 2026-10-20 | note | [OTHER-1] another item | claude 3b5400 /validate-pr round 2 @ f2a53df9f |  |\n"
-        "| 2026-10-21 | note | [OTHER-2] the item joined | claude 3b540-r2 @ f2a53df9f |  |\n"
+        "| 2026-10-21 | note | [OTHER-2] the item joined | claude 3b540-r2 /validate-pr round 2 @ f2a53df9f |  |\n"
         "\n"
         "## Closed today\n"
         "\n"
         "| Found | Severity | Finding | Source | Disposition |\n"
         "| --- | --- | --- | --- | --- |\n"
-        "| 2026-10-20 | warning | [R2-W2] closed | Claude 3B540 \\| round 2 @ F2A53DF9F "
+        f"| 2026-10-20 | warning | [R2-W2] closed | {REVIEW} \\| WARN-2 "
         "| FIXED #2700 [class-exempt: singleton] |\n"
         "\n"
         "## 2026-10-19 archive\n"
@@ -57344,13 +57361,18 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
 
     def test_totals_from_gemini_delivery_with_sarif_json(self) -> None:
         self.delivery.write_text(self.GEMINI_DELIVERY, encoding="utf-8")
+        head = "delivery-findings: reported 0 ERROR, 0 WARN, 6 NOTE (6 in all); "
         rc, out, lines = self.run_tool(self.delivery, "--dry-run")
         self.assertEqual(rc, 0, out)
-        # A parsed delivery whose review no row names is a counted zero, not UNVERIFIABLE.
+        # The sample carries no round heading, so without --source-key the count is UNVERIFIABLE.
+        self.assertEqual(lines, [head + "ledger rows UNVERIFIABLE (no-round-heading) (report only)"])
+        rc, out, lines = self.run_tool(self.delivery, "--dry-run", "--source-key",
+                                       "gemini 3b546 /validate-pr round 3 @ 2ba4b9847")
+        self.assertEqual(rc, 0, out)
+        # A key no row leads with is a counted zero, not UNVERIFIABLE.
         self.assertEqual(lines, [
-            "delivery-findings: reported 0 ERROR, 0 WARN, 6 NOTE (6 in all); 0 ledger row(s) name its "
-            "review (ledger with this row); WARNING fewer rows than reported findings (a combined row "
-            "counts once) (report only)"])
+            head + "0 ledger row(s) lead with its review key (key from --source-key; ledger with this "
+            "row); WARNING fewer rows than reported findings (a combined row counts once) (report only)"])
 
     def test_last_findings_line_outside_fences_in_column_order(self) -> None:
         mod = load_linter_module("tools/open-findings-row.py", "_ofr_delivery_parse")
@@ -57363,8 +57385,9 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                 "FINDINGS: 9 ERROR, 9 WARN, 9 NOTE\n"
                 "VPR-COMPLETE 9z999 999999999\n"
                 "~~~\n")
-        self.assertEqual(mod.parse_delivery(mod.load_hook(REPO_ROOT), text),
-                         ((3, 5, 7), ("3b540", "f2a53df9f")))
+        totals, parts = mod.parse_delivery(mod.load_hook(REPO_ROOT), text)
+        self.assertEqual((totals, parts["item"], parts["sha"], parts["bad"]),
+                         ((3, 5, 7), "3b540", "F2A53DF9F", None))
 
     def test_row_count_against_fixture_ledger(self) -> None:
         def findings(line):
@@ -57374,22 +57397,25 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         findings("FINDINGS: 1 ERROR, 2 WARN, 3 NOTE")
         rc, out, lines = self.run_tool(self.delivery, "--dry-run")
         self.assertEqual((rc, lines), (0, [
-            head + "1 ERROR, 2 WARN, 3 NOTE (6 in all); 5 ledger row(s) name its review (ledger with this "
-            "row); WARNING fewer rows than reported findings (a combined row counts once) (report only)"]), out)
+            head + "1 ERROR, 2 WARN, 3 NOTE (6 in all); 5 ledger row(s) lead with its review key (key from "
+            "the delivery; ledger with this row); WARNING fewer rows than reported findings (a combined "
+            "row counts once) (report only)"]), out)
         findings("FINDINGS: 0 ERROR, 2 WARN, 3 NOTE")
         rc, out, lines = self.run_tool(self.delivery)
         self.assertEqual((rc, lines), (0, [
-            head + "0 ERROR, 2 WARN, 3 NOTE (5 in all); 5 ledger row(s) name its review (ledger with this "
-            "row); rows equal the reported total (coverage, not faithfulness) (report only)"]), out)
+            head + "0 ERROR, 2 WARN, 3 NOTE (5 in all); 5 ledger row(s) lead with its review key (key from "
+            "the delivery; ledger with this row); rows equal the reported total (coverage, not "
+            "faithfulness) (report only)"]), out)
         self.assertIn("result: WROTE", out)
         self.assertIn(self.row("R2-N3"), self.ledger.read_text(encoding="utf-8").splitlines())
         findings("FINDINGS: 0 ERROR, 1 WARN, 1 NOTE")
         rc, out, lines = self.run_tool(self.delivery, "--dry-run")
         self.assertEqual((rc, lines), (1, [
-            head + "0 ERROR, 1 WARN, 1 NOTE (2 in all); 5 ledger row(s) name its review (ledger as read, "
-            "nothing written); more rows than reported findings (report only)"]), out)
+            head + "0 ERROR, 1 WARN, 1 NOTE (2 in all); 5 ledger row(s) lead with its review key (key from "
+            "the delivery; ledger as read, nothing written); more rows than reported findings (report "
+            "only)"]), out)
         self.assertIn("refused: duplicate-id", out)
-        for token in ("3b540", "f2a53df9f", "R2-N3"):
+        for token in ("3b540", "f2a53df9f", "R2-N3", "claude", "round 2"):
             self.assertNotIn(token, out)
 
     def test_unreadable_delivery_is_unverifiable_and_the_write_lands(self) -> None:
@@ -57451,8 +57477,8 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         self.delivery.write_text(self.CLAUDE_DELIVERY, encoding="utf-8")
         head = "delivery-findings: reported 0 ERROR, 1 WARN, 1 NOTE (2 in all); "
         self.assertEqual(mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False),
-                         head + "4 ledger row(s) name its review (ledger as read, nothing written); "
-                         "more rows than reported findings (report only)")
+                         head + "4 ledger row(s) lead with its review key (key from the delivery; ledger "
+                         "as read, nothing written); more rows than reported findings (report only)")
         self.assertEqual(mod.delivery_report(fake, self.LEDGER, self.delivery, with_row=False),
                          head + "ledger rows UNVERIFIABLE (source-cell-divergence) (report only)")
 
@@ -57460,16 +57486,164 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         import ast
         doc = ast.get_docstring(ast.parse(OpenFindingsRowTests.TOOL.read_text(encoding="utf-8")))
         usage = doc.split("Usage:", 1)[1].split("\n\nROW INPUT.", 1)[0]
-        self.assertEqual(usage.count("[--delivery PATH] < row"), 2)
+        self.assertEqual(usage.count("[--delivery PATH [--source-key KEY]] < row"), 2)
         section = " ".join(doc.split("DELIVERY FINDINGS (report only, 3b544).", 1)[1]
                            .split("\n\nENVIRONMENT (exit 2).", 1)[0].split())
         for phrase in ("MATCHING RULE:", "never changes the exit code", "never a zero",
                        "a row count shows coverage, not faithfulness",
-                       "a combined row recording several findings counts once"):
+                       "a combined row recording several findings counts once",
+                       "two deliveries with one key (the same family re-run for one item, round and sha) "
+                       "share their rows",
+                       "fence reading does not model container blocks or HTML blocks",
+                       "a lone CR or U+2028 starts no line"):
             self.assertIn(phrase, section)
         result = run_linter("tools/open-findings-row.py", "--help")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("--delivery PATH", result.stdout)
+        self.assertIn("--source-key KEY", result.stdout)
+
+    def tool(self, name: str):
+        mod = load_linter_module("tools/open-findings-row.py", name)
+        return mod, mod.load_hook(REPO_ROOT)
+
+    def test_key_counts_only_the_delivery_own_review(self) -> None:
+        # WARN-1 of round 1 (probes P3 and P4): rows of another leg or round at the same sha.
+        mod, hook = self.tool("_ofr_delivery_key")
+        key = self.REVIEW
+        for cell, counted in (
+                (key, True),
+                (key + "; WARN-1", True),
+                ("gemini 3b540 /validate-pr round 2 @ f2a53df9f", False),
+                ("3b540 /validate-pr round 2 @ f2a53df9f", False),
+                ("claude 3b540 /validate-pr round 4 @ f2a53df9f", False),
+                ("claude 3b540 /validate-pr @ f2a53df9f", False),
+                ("Claude 3B540 /validate-pr round 2 @ F2A53DF9F", False),
+                ("seen in " + key, False),
+                (key + "0", False),
+                (key + "-r3", False)):
+            with self.subTest(cell=cell):
+                text = ("## Open\n\n| Found | Severity | Finding | Source | Disposition |\n| --- | --- | --- | --- "
+                        f"| --- |\n| 2026-10-20 | note | [K-1] a row | {cell} |  |\n")
+                lines = text.splitlines()
+                self.assertEqual(mod.review_rows(hook, lines, mod.classify(hook, lines), key), int(counted))
+        for delivery, want in (
+                (self.CLAUDE_DELIVERY, "4 ledger row(s)"),
+                (self.CLAUDE_DELIVERY.replace("family=claude", "family=gemini"), "1 ledger row(s)"),
+                (self.CLAUDE_DELIVERY.replace("round 2 (REFUTE)", "round 1 (REFUTE)"), "1 ledger row(s)")):
+            with self.subTest(delivery=want):
+                self.delivery.write_text(delivery, encoding="utf-8")
+                got = mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False)
+                self.assertIn("; " + want + " lead with its review key (key from the delivery;", got)
+
+    def test_key_needs_every_part_or_a_source_key(self) -> None:
+        mod, hook = self.tool("_ofr_delivery_parts")
+        head = "delivery-findings: reported 0 ERROR, 1 WARN, 1 NOTE (2 in all); "
+        no_family = self.CLAUDE_DELIVERY.split("\n", 1)[1]
+        no_round = self.CLAUDE_DELIVERY.replace("# /validate-pr round 2", "# Review round 2")
+        other_item = self.CLAUDE_DELIVERY.replace(
+            "\n## Scratch probes", "# /validate-pr round 3 (REFUTE): 3b541, commit f2a53df9f\n\n## Scratch probes")
+        two_rounds = other_item.replace("3b541, commit", "3b540, commit")
+        given = "claude 3b540 /validate-pr round 2 @ f2a53df9f"
+        counted = head + "4 ledger row(s) lead with its review key (key from {}; ledger as read, nothing "
+        counted += "written); more rows than reported findings (report only)"
+        for name, delivery, key, want in (
+                ("no family", no_family, None, "no-worker-status-family"),
+                ("no round heading", no_round, None, "no-round-heading"),
+                ("two rounds", two_rounds, None, "round-heading-ambiguous"),
+                ("two rounds, with a key", two_rounds, given, "round-heading-ambiguous"),
+                ("a family without a value", self.CLAUDE_DELIVERY.replace("family=claude", "family="), given,
+                 "worker-status-family-unparseable"),
+                ("a key not in the form", self.CLAUDE_DELIVERY, "claude 3b540 round 2 @ f2a53df9f",
+                 "source-key-invalid"),
+                ("a key of another family", self.CLAUDE_DELIVERY, given.replace("claude", "gemini"),
+                 "source-key-disagrees"),
+                ("a key of another round", no_family, given.replace("round 2", "round 1"),
+                 "source-key-disagrees"),
+                ("a key of another sha", no_round, given.replace("f2a53df9f", "f2a53df9e"),
+                 "source-key-disagrees"),
+                ("a heading of another item is not its round", other_item, None, None),
+                ("the key supplies the family", no_family, given, None),
+                ("the key supplies the round", no_round, given, None)):
+            with self.subTest(case=name):
+                self.delivery.write_text(delivery, encoding="utf-8")
+                got = mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False, source_key=key)
+                if want is None:
+                    want_line = counted.format("the delivery" if key is None else "--source-key")
+                else:
+                    want_line = head + f"ledger rows UNVERIFIABLE ({want}) (report only)"
+                self.assertEqual(got, want_line)
+        self.delivery.write_text(no_round, encoding="utf-8")
+        rc, out, lines = self.run_tool(self.delivery, "--dry-run", "--source-key", given)
+        self.assertEqual((rc, lines), (0, [counted.format("--source-key").replace(
+            "4 ledger row(s)", "5 ledger row(s)").replace("ledger as read, nothing written", "ledger with this row")]),
+            out)
+        done = subprocess.run(
+            [sys.executable, "-I", str(OpenFindingsRowTests.TOOL), "--ledger", str(self.ledger), "--id", "R2-N3",
+             "--append", "--source-key", given], input=(self.row("R2-N3") + "\n").encode("utf-8"),
+            capture_output=True, cwd=str(REPO_ROOT), timeout=60)
+        self.assertEqual(done.returncode, 2)
+        self.assertIn(b"--source-key needs --delivery", done.stderr)
+        self.assertEqual(self.ledger.read_text(encoding="utf-8"), self.LEDGER)
+
+    def test_malformed_last_vpr_complete_line_is_unverifiable(self) -> None:
+        # Round 1 NOTE-2, mutations M22 and M24: an earlier parseable line never stands in for it.
+        tail = "VPR-COMPLETE 3b540 f2a53df9f\n"
+        quoted = self.CLAUDE_DELIVERY.replace("\n## What I ran", "\n" + tail + "\n## What I ran")
+        own = quoted.rindex(tail)
+        for name, line in (("not hex", "VPR-COMPLETE 3b540 f2a53dfzz\n"), ("no sha", "VPR-COMPLETE 3b540\n"),
+                           ("a short sha", "VPR-COMPLETE 3b540 f2a53d\n")):
+            for key in (None, self.REVIEW):
+                with self.subTest(case=name, source_key=key):
+                    self.delivery.write_text(quoted[:own] + line + quoted[own + len(tail):], encoding="utf-8")
+                    args = ["--dry-run"] + ([] if key is None else ["--source-key", key])
+                    rc, out, lines = self.run_tool(self.delivery, *args)
+                    self.assertEqual((rc, lines), (0, [
+                        "delivery-findings: reported 0 ERROR, 1 WARN, 1 NOTE (2 in all); ledger rows "
+                        "UNVERIFIABLE (vpr-complete-line-unparseable) (report only)"]), out)
+
+    def test_row_count_failure_is_unverifiable(self) -> None:
+        # Round 1 NOTE-2, mutation M25: an unexpected failure while counting is said, never raised.
+        import types
+        mod, hook = self.tool("_ofr_delivery_count_failure")
+        fake = types.SimpleNamespace(**vars(hook))
+
+        def broken(_text):
+            raise RuntimeError("probe")
+        fake.parse_open_rows_full = broken
+        self.delivery.write_text(self.CLAUDE_DELIVERY, encoding="utf-8")
+        self.assertEqual(mod.delivery_report(fake, self.LEDGER, self.delivery, with_row=True),
+                         "delivery-findings: reported 0 ERROR, 1 WARN, 1 NOTE (2 in all); ledger rows "
+                         "UNVERIFIABLE (row-count-failed) (report only)")
+
+    def test_inline_code_line_and_non_lf_breaks_do_not_flip_the_tail(self) -> None:
+        # Round 1 NOTE-1, probes P5 and P6.
+        mod, hook = self.tool("_ofr_delivery_fences")
+        quote = "```\nFINDINGS: 4 ERROR, 0 WARN, 0 NOTE\nVPR-COMPLETE 3b540 b0a2e71cf\n```\n"
+        own = "FINDINGS: 0 ERROR, 1 WARN, 1 NOTE\nVERDICT: HOLD\nVPR-COMPLETE 3b540 f2a53df9f\n"
+        for name, text in (
+                ("inline code at column 0", "```inline``` code, not a fence\n" + quote + own),
+                ("a four-backtick code span", "```` ``` ```` spans a run\n" + quote + own),
+                ("U+2028 after the tail", own + "prose FINDINGS: 7 ERROR, 0 WARN, 0 NOTE\n"),
+                ("a lone CR after the tail", own + "prose\rFINDINGS: 7 ERROR, 0 WARN, 0 NOTE\n"),
+                ("U+2028 before a VPR-COMPLETE", own + "prose VPR-COMPLETE 3b540 b0a2e71cf\n"),
+                ("CRLF line ends", (quote + own).replace("\n", "\r\n"))):
+            with self.subTest(case=name):
+                totals, parts = mod.parse_delivery(hook, text)
+                self.assertEqual((totals, parts["item"], parts["sha"]), ((0, 1, 1), "3b540", "f2a53df9f"))
+
+    def test_reference_documents_delivery_beside_class_count(self) -> None:
+        # Round 1 NOTE-3: the reference's Writing rows section, held to the tool.
+        reference = (REPO_ROOT / "references" / "hook-open-findings-guard.md").read_text(encoding="utf-8")
+        writing = reference.split("## Writing rows (`tools/open-findings-row.py`, 3b334)", 1)[1].split("\n## ", 1)[0]
+        usage = writing.split("```text\n", 1)[1].split("\n```", 1)[0]
+        self.assertIn("[--delivery PATH [--source-key KEY]] < row", usage)
+        normalized = " ".join(writing.split())
+        class_count = normalized.index("**Class count (report only).**")
+        delivery = normalized.index("**Delivery findings (report only, 3b544).**")
+        self.assertLess(class_count, delivery)
+        for phrase in ("`delivery-findings:`", "`<family> <item> /validate-pr round <n> @ <sha>`",
+                       "`--source-key`", "`UNVERIFIABLE`", "never changes the exit code"):
+            self.assertIn(phrase, normalized[delivery:])
 
 
 class ProvisionIndexTests(LinterTestCase):

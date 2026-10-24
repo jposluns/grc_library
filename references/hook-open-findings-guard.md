@@ -96,7 +96,7 @@ inserts the row in place atomically. It defines no grammar of its own, so it can
 this hook reads differently.
 
 ```text
-python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--ledger PATH] [--dry-run] [--open] < row
+python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--ledger PATH] [--dry-run] [--open] [--delivery PATH [--source-key KEY]] < row
 ```
 
 - **Input and output.** One table line on stdin, never in argv. The output carries line numbers,
@@ -124,6 +124,18 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   re-runs the `check-class-completeness.py` probe on the current checkout and warns when the count
   differs. It does not refuse, because an in-flight branch can differ from this tree; D14 remains the
   pre-push check.
+- **Delivery findings (report only, 3b544).** `--delivery PATH` names the review delivery the row
+  records (mistakes register 312). The tool prints one `delivery-findings:` line beside the class
+  count: the totals of the delivery's last `FINDINGS:` line and the number of ledger rows whose Source
+  cell starts with the delivery's own review key, `<family> <item> /validate-pr round <n> @ <sha>`,
+  with a warning when there are fewer rows than findings. The family comes from the delivery's
+  `WORKER_STATUS` first line, the item and sha from its `VPR-COMPLETE` line, and the round from its
+  copy of the brief heading. `--source-key` gives the whole key when the delivery lacks a part; a part
+  the delivery carries must agree with it. Without that, a missing, unreadable or conflicting part
+  prints `UNVERIFIABLE` with a code instead of a count, never a broader count or a zero. Rows of
+  another family, round or sha are not counted. A combined row counts once, and two deliveries with
+  one key share their rows. The line carries counts and codes only, never refuses, never blocks the
+  write and never changes the exit code.
 - **Environment (exit 2).** This hook cannot load; the ledger is missing, unreadable, a symlink,
   hard-linked or owned by another user; its line ends disagree with this hook's line model; or the file
   changed between read and write (including ctime, mode, uid, gid or access ACL). The write keeps
