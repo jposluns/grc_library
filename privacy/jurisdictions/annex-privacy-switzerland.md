@@ -2,7 +2,7 @@
 
 **Document Title:** Switzerland Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.12\
+**Version:** 1.0.13\
 **Date:** 2026-10-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
