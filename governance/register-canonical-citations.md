@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.6.7\
-**Date:** 2026-10-23\
+**Version:** 1.6.9\
+**Date:** 2026-10-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -392,7 +392,7 @@ This section records international treaties and conventions, binding at the inte
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| Council of Europe Framework Convention on AI | 2024 | 2024-05 | Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225), adopted 17 May 2024 and opened for signature at Vilnius 5 September 2024; open for signature by "the member States of the Council of Europe, the non-member States which have participated in its elaboration and the European Union" and binding on those that become Parties; "This Convention is subject to ratification, acceptance or approval" (Article 30, paragraph 2); signature and ratification status not recorded here (confirm upstream) | - | https://www.coe.int/en/web/conventions/full-list?module=treaty-detail&treatynum=225 | needs-reconfirm |
+| Council of Europe Framework Convention on AI | 2024 | 2024-05 | Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225), adopted 17 May 2024 and opened for signature at Vilnius 5 September 2024; open for signature by "the member States of the Council of Europe, the non-member States which have participated in its elaboration and the European Union" and binding on those that become Parties; "This Convention is subject to ratification, acceptance or approval" (Article 30, paragraph 2); as of 2026-10-23 the Treaty Office chart records 21 signatures and one consent to be bound (the European Union, 15 May 2026) and no entry into force, which needs five ratifications, acceptances or approvals including at least three Council of Europe member States (Article 30, paragraph 3) | - | https://www.coe.int/en/web/conventions/full-list?module=treaty-detail&treatynum=225 | verified 2026-10-23 |
 
 ## AI safety evaluation programmes
 
