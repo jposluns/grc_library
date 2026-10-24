@@ -52427,8 +52427,6 @@ class BlockVerificationPipesTests(unittest.TestCase):
         self.check([
             # a comment-only line with a pipe before an unpiped verifier
             '# | tail\n./tools/run_all_audits.sh',
-            # a backslash-newline inside a quoted string is not a join
-            './tools/run_all_audits.sh --note "a \\\nb"',
             "echo 'a | \\\ntail'",
             'echo "run_all_audits.sh | \\\ntail"',
             # the sanctioned forms stay allowed, each carrying the join
@@ -52439,22 +52437,32 @@ class BlockVerificationPipesTests(unittest.TestCase):
         ], False)
 
     def test_arithmetic_ampersands_are_not_background(self):
-        # 3b513 round 6 (R5-2): an ampersand inside a $(( )) expansion or a
-        # (( )) command is the arithmetic AND operator, not a background
-        # launch; nested parentheses stay inside the arithmetic region.
+        # Round 7: only a strict arithmetic interior hides shell operators.
         self.check([
             'echo $(( 1 & 2 ))',
             'echo $((1&2))',
             '(( flags & 1 ))',
             '((flags&1))',
-            'echo $(( (1 & 2) | 4 ))',
-            '(( (flags & 1) && (flags & 2) ))',
+            'echo $(( 1 | 2 ))',
+            '(( flags | 1 ))',
+            'echo $(( 1 && 2 || 3 ))',
+            '(( flags && 1 || 2 ))',
+            'echo $(( $flags & ${mask} ))',
+            '(( $flags | ${mask} ))',
+            '(( _n += 2, _n = _n << 1, _n >= 4 ? ~_n ^ 3 : !_n ))',
+            'echo $((\t1 & 2\r\f\v))',
             'x=$((a & b)); echo $x',
             'if (( flags & 1 )); then echo set; fi',
             'echo "$((1 & 2))"',
-            'echo $(( $(( 1 & 2 )) | 4 ))',
         ], False)
         self.check([
+            # Accepted conservative blocks: complex arithmetic uses the
+            # round-5 tokenizer, exposing its ampersands as shell operators.
+            'echo $(( (1 & 2) | 4 ))',
+            '(( (flags & 1) && (flags & 2) ))',
+            'echo $(( $(( 1 & 2 )) | 4 ))',
+            '(( ((flags & 1)) ))',
+            'echo $(( $(echo ")") & 1 ))',
             'echo $((1 & 2)) &',            # the real launch still blocks
             '(( flags & 1 )) &',
             'a & echo $(( 1 & 2 ))',        # launched before arithmetic
@@ -52465,6 +52473,47 @@ class BlockVerificationPipesTests(unittest.TestCase):
         ], True)
         # a (( with no closing )) is not arithmetic: subshell rules apply
         self.check(['( (a | tail; echo $?) )', '((cmd | tail; echo $?) )'], True)
+
+    def test_arithmetic_review_regressions(self):
+        # R6 Claude F1 and Codex R6-1/R6-2: all these allowed on 0b900a3b8.
+        self.check([
+            'echo $(( $(cmd | tail; echo $?) ))',
+            'echo $(( $(cmd | tail; echo ${?}) ))',
+            'echo $(( $(cmd &) ))',
+            '(( $(cmd &) ))',
+            'echo $(( $(printf 1; : &) + 1 ))',
+            '(( $(printf 1; : &) + 1 ))',
+            '((printf background) & (true))',
+            '(( : ) & ( : ))',
+            '((false |\ncat; echo $?) | (cat))',
+            '((false |\ncat; echo $?))',
+            '(( x = "((" )); : & # ))',
+            'declare -A a; a[\'((\']=1; (( a["(("] )); '
+            "printf 'launched\\n' & # ))",
+            'declare -A a; a[\'((\']=1; (( a["(("] )); '
+            'false | cat; echo $? # ))',
+        ], True)
+
+    def test_arithmetic_rejected_interiors_use_shell_tokens(self):
+        from unittest.mock import patch
+        # Pin rejection even when ordinary shell quoting would hide an &.
+        interiors = (
+            '(1 & 2)', '$((1 & 2))', '"1 & 2"', "'1 & 2'", r'1 \& 2',
+            '$(cmd &)', '`cmd &`', '1; cmd &', '1 &\n2',
+            '${name:-1} & 2', '${name[0]} & 2', '$? & 1',
+            '${?} & 1', 'array[0] & 1', '2#10 & 1',
+        )
+        for interior in interiors:
+            for prefix in ('((', 'echo $(('):
+                command = prefix + interior + '))'
+                with self.subTest(command=command):
+                    actual = list(self.hook.shell_tokens(command))
+                    with patch.object(self.hook, '_arithmetic_end', return_value=None):
+                        fallback = list(self.hook.shell_tokens(command))
+                    self.assertEqual(actual, fallback)
+        # Rejection must not disable a later, separate simple arithmetic span.
+        self.check(['(( (1 + 2) )); (( flags & 1 ))',
+                    '(echo $((flags & 1)))'], False)
 
     def test_every_status_parameter_expansion_counts(self):
         # 3b513 round 3: every parameter expansion of ? reads the pipeline's

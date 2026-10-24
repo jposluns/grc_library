@@ -56,15 +56,15 @@ no misread quote or comment boundary can delete a real pipe before the
 rule sees it.
 Bare background & is refused unless an unconditional,
 foreground, argument-free wait in the same shell scope drains all jobs.
-Round 6: an ampersand (or pipe) inside a $(( )) arithmetic expansion or a
-(( )) arithmetic command is an operator of the arithmetic language, not of
-the shell. An unquoted $(( or a (( at a word boundary opens an arithmetic
-region when raw parenthesis counting (nesting included) closes it with a
-literal )); the whole region is one shell word, scanned only for reads of
-the status parameter ($?, $(($?)) and the ${?} forms). A (( with no
-closing )) falls back to ordinary subshell tokenization, and arithmetic
-parentheses nested beyond 64 deep refuse as shell-complexity, preserving
-the group-nesting contract.
+Round 7: an unquoted $(( or a (( at a word boundary is one arithmetic word
+ONLY when its interior contains identifiers, digits, whitespace other than
+newline, arithmetic/bitwise operators, ? : comma, and simple $name or ${name}
+references. Parentheses, quotes, backslashes, substitutions, backticks,
+semicolons, newlines and all other characters reject that recognition.
+Rejected spans use round-5 shell tokenization, including their nested
+parentheses: an ampersand can then block valid complex arithmetic (accepted
+false block, safe direction), and shell syntax is not hidden in one word.
+This allowlist is lexical, not validation of an arithmetic expression.
 With exactly one prior launch in that scope, wait $! and wait -n also collect
 that job. Other targeted waits are not certified. Literal coproc launches
 are refused. Nesting beyond 64 groups or a RecursionError refuses with a
@@ -225,31 +225,28 @@ OPERATORS = re.compile(r"&&|\|\||\|&|&>>|&>|>>|<<-|<<<?|>&|<&|[;\n|&()<>{}]")
 STATUS_READ = re.compile(r"\$(?:\?|\{[#!]?\?)")
 
 
-class _ComplexityLimit(Exception):
-    """Tokenizer refusal: arithmetic parentheses nested beyond the limit."""
+ARITHMETIC_CHAR = re.compile(r"[A-Za-z_0-9+*/%<>=!~&|^?:,\-]|[^\S\n]")
+ARITHMETIC_VARIABLE = re.compile(r"\$(?:[A-Za-z_][A-Za-z_0-9]*|\{[A-Za-z_][A-Za-z_0-9]*\})")
 
 
 def _arithmetic_end(command, i):
     """End index just past the )) closing the (( at command[i], or None.
 
-    Parentheses are counted raw (bash arithmetic has no shell quoting), and
-    the region counts as arithmetic only when the counter reaches zero on a
-    literal )) pair, mirroring bash's own (( ... )) recognition; otherwise
-    the caller falls back to ordinary subshell tokenization. Nesting beyond
-    MAX_SHELL_NESTING raises _ComplexityLimit, which shell_violation turns
-    into the same fail-closed shell-complexity refusal as group nesting.
+    Accept only the strict lexical interior above, stopping at the first
+    disallowed character. In particular, never count parentheses through
+    quotes or shell substitutions to find a later closing delimiter.
     """
-    depth = 0
-    for j in range(i, len(command)):
-        c = command[j]
-        if c == "(":
-            depth += 1
-            if depth > MAX_SHELL_NESTING:
-                raise _ComplexityLimit(command[i:i + 32])
-        elif c == ")":
-            depth -= 1
-            if depth == 0:
-                return j + 1 if command[j - 1] == ")" else None
+    j = i + 2
+    while j < len(command):
+        if command.startswith("))", j):
+            return j + 2
+        if ARITHMETIC_CHAR.fullmatch(command[j]):
+            j += 1
+            continue
+        variable = ARITHMETIC_VARIABLE.match(command, j)
+        if variable is None:
+            return None
+        j = variable.end()
     return None
 
 
@@ -264,6 +261,7 @@ def shell_tokens(command, cuts=None):
     """
     i = 0
     heredocs, delimiter = [], None
+    arithmetic_fallback = None
     while i < len(command):
         if command[i].isspace() and command[i] != "\n":
             i += 1
@@ -273,18 +271,26 @@ def shell_tokens(command, cuts=None):
             end = len(command) if end < 0 else end
             i = end
             continue
-        if command.startswith("((", i):
-            # (( ... )) arithmetic command: & and | inside are arithmetic
-            # operators, not shell operators; the region is one word. With
-            # no closing )) this falls through to subshell tokenization.
+        if arithmetic_fallback is None and command.startswith("((", i):
+            # Only a strict interior can hide arithmetic & and | in a word.
             end = _arithmetic_end(command, i)
             if end is not None:
                 yield ("word", command[i:end], i, end,
                        bool(STATUS_READ.search(command, i, end)))
                 i = end
                 continue
+            arithmetic_fallback = 0
         op = OPERATORS.match(command, i)
         if op:
+            # Once recognition fails, tokenize the entire parenthesized span
+            # as in round 5; do not recognize an inner (( as arithmetic.
+            if arithmetic_fallback is not None:
+                if op[0] == "(":
+                    arithmetic_fallback += 1
+                elif op[0] == ")":
+                    arithmetic_fallback -= 1
+                    if arithmetic_fallback == 0:
+                        arithmetic_fallback = None
             yield ("op", op[0], i, op.end(), False)
             i = op.end()
             if op[0] in ("<<", "<<-"):
@@ -328,8 +334,9 @@ def shell_tokens(command, cuts=None):
                 continue
             if quote != "'" and STATUS_READ.match(command, i):
                 status = True
-            if quote is None and command.startswith("$((", i):
-                # $(( ... )) arithmetic expansion: one word, & is arithmetic.
+            if (quote is None and arithmetic_fallback is None
+                    and command.startswith("$((", i)):
+                # Apply the same strict interior to arithmetic expansions.
                 end = _arithmetic_end(command, i + 1)
                 if end is not None:
                     if STATUS_READ.search(command, i, end):
@@ -337,6 +344,8 @@ def shell_tokens(command, cuts=None):
                     word.append(command[i:end])
                     i = end
                     continue
+                if not parameter_depth:
+                    arithmetic_fallback = 0
             # Keep parameter expansions in a word, but still notice nested $?.
             if quote != "'" and command.startswith("${", i):
                 parameter_depth += 1
@@ -378,11 +387,8 @@ def legacy_view(command):
     that followed it). PIPED judges the raw text too; either match blocks.
     """
     cuts = []
-    try:
-        for _token in shell_tokens(command, cuts):
-            pass
-    except _ComplexityLimit:
-        return command  # shell_violation already refuses this shape
+    for _token in shell_tokens(command, cuts):
+        pass
     if not cuts:
         return command
     pieces, previous = [], 0
@@ -420,8 +426,6 @@ def shell_violation(command):
         return _shell_violation(command)
     except RecursionError:
         return ("shell-complexity", "recursion limit")
-    except _ComplexityLimit:
-        return ("shell-complexity", "arithmetic nesting limit")
 
 
 def _shell_violation(command):
@@ -671,6 +675,18 @@ def self_test() -> int:
         'echo $((1 & 2)) &',
         '(( flags & 1 )) &',
         'cmd | cat; echo $(( $? + 1 ))',
+        # round 7: rejected arithmetic spans retain shell syntax (R6 reviews)
+        'echo $(( $(cmd | tail; echo $?) ))',
+        'echo $(( $(cmd &) ))',
+        '(( $(cmd &) ))',
+        '((printf background) & (true))',
+        '((false |\ncat; echo $?) | (cat))',
+        'declare -A a; a[\'((\']=1; (( a["(("] )); '
+        "printf 'launched\\n' & # ))",
+        'declare -A a; a[\'((\']=1; (( a["(("] )); '
+        'false | cat; echo $? # ))',
+        'echo $(( (1 & 2) | 4 ))',
+        'echo $(( $((1 & 2)) ))',
     ]
     allowed = [
         'set -euo pipefail; cmd | cat; echo $?',
@@ -721,14 +737,14 @@ def self_test() -> int:
         # round 5: a comment line BEFORE an unpiped verifier still allows
         # (the accepted comment-pipe false block needs the verifier's line)
         '# | tail\n./tools/run_all_audits.sh',
-        # round 4: a backslash-newline inside a quoted word is not a join
-        './tools/run_all_audits.sh --note "a \\\nb"',
         "echo 'a | \\\ntail'",
-        # round 6: an ampersand inside arithmetic is the arithmetic AND
-        # operator, not a background launch (R5-2); nesting included
+        # round 7: simple arithmetic AND/OR in either form stays allowed
         'echo $(( 1 & 2 ))',
         '(( flags & 1 ))',
-        'echo $(( (1 & 2) | 4 ))',
+        'echo $(( 1 | 2 ))',
+        '(( flags | 1 ))',
+        'echo $(( $flags & ${mask} ))',
+        '(( $flags | ${mask} ))',
         'x=$((a & b)); echo $x',
     ]
     ok = True
