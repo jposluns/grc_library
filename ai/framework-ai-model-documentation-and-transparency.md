@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Documentation and Transparency Framework\
 **Document Type:** Framework\
-**Version:** 1.0.14\
-**Date:** 2026-10-16\
+**Version:** 1.0.15\
+**Date:** 2026-10-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)\
@@ -57,7 +57,7 @@ Every AI system must have a current Model Card. Model Cards are living documents
 | **Out-of-Scope Uses** | Uses the model is not designed for and should not be applied to |
 | **Inputs and Outputs** | Description of input data types and output format |
 | **Training Data** | Summary of training data sources, volume, and date range (detailed record maintained separately) |
-| **Performance Metrics** | Key accuracy, precision, recall, F1, or task-specific metrics with evaluation conditions |
+| **Performance Metrics** | Key accuracy, precision, recall, F1, or task-specific metrics with evaluation conditions, sample sizes, and uncertainty statements ([`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6) |
 | **Known Limitations** | Identified edge cases, failure modes, or performance degradation conditions |
 | **Bias and Fairness** | Fairness evaluation methodology and results; identified residual biases |
 | **Explainability** | Explainability method used; representative example explanations |

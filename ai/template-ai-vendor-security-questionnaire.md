@@ -2,8 +2,8 @@
 
 **Document Title:** AI Vendor Security Questionnaire Template\
 **Document Type:** Template\
-**Version:** 1.0.8\
-**Date:** 2026-09-25\
+**Version:** 1.0.9\
+**Date:** 2026-10-24\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/template-supplier-security-questionnaire.md`](../supply-chain/template-supplier-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md)\
@@ -129,6 +129,8 @@ This section applies where the provider offers agentic or tool-using capabilitie
 | Question | Expected response |
 | --- | --- |
 | Does the provider publish evaluation benchmarks for the offering | URL or document reference |
+| Does the provider disclose test-set contamination checks for its published benchmarks | Disclosure reference, or recorded as not disclosed |
+| Does the provider report sample sizes, run counts, and uncertainty measures for its published benchmark results | Disclosure reference, or recorded as not disclosed |
 | Does the provider publish safety evaluation results | URL or document reference |
 | Does the provider publish fairness evaluation results | URL or document reference |
 | Does the provider engage independent third-party evaluation | Frequency; reports available |

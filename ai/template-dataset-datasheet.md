@@ -2,8 +2,8 @@
 
 **Document Title:** Dataset Datasheet Template\
 **Document Type:** Template\
-**Version:** 1.0.7\
-**Date:** 2026-07-12\
+**Version:** 1.0.8\
+**Date:** 2026-10-24\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md), [`ai/standard-ai-data-quality-and-readiness-validation.md`](standard-ai-data-quality-and-readiness-validation.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md)\
@@ -104,7 +104,7 @@ This template applies to all datasets that influence model behaviour: training, 
 | --- | --- |
 | Tasks supported | Specific tasks the dataset has been used for |
 | Models or systems trained or fine-tuned on this dataset | Cross-reference to the AI System Register and the model registry |
-| Evaluation usage | Whether the dataset is used for evaluation; warning about train-test contamination if both |
+| Evaluation usage | Whether the dataset is used for evaluation; warning about train-test contamination if both; this entry feeds the contamination record of [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6 |
 | Restrictions on use | Contractual, ethical, or legal restrictions |
 | Downstream impact known | Documented downstream model behaviour traced to this dataset |
 | Restrictions on republication | Whether this dataset can be shared externally, with whom, under what terms |

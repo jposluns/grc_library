@@ -2,8 +2,8 @@
 
 **Document Title:** Quantitative Risk Analysis Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.10\
-**Date:** 2026-09-30\
+**Version:** 1.0.11\
+**Date:** 2026-10-24\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -217,6 +217,8 @@ Quantitative analysis is only as reliable as its inputs. Practitioners should:
 - Acknowledge where data is sparse and estimation uncertainty is high
 - Avoid false precision: a range of $1M to $10M is more honest than $4.7M
 - Review and update estimates as new internal and external data becomes available
+
+The same discipline against false precision applies to AI evaluation results; [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md) Section 5.6 carries the corresponding reporting requirements for AI testing.
 
 ---
 
