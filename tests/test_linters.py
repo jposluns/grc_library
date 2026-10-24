@@ -52392,9 +52392,11 @@ class BlockVerificationPipesTests(unittest.TestCase):
         ], False)
 
     def test_backslash_newline_splits_and_comment_pipes(self):
-        # 3b513 round 4: the legacy named-verifier rule judges the text model
-        # the tokenizer builds (legacy_view): a backslash-newline continuation
-        # joins the pipeline exactly as in bash, and comment text is data.
+        # 3b513 round 5: the legacy named-verifier rule blocks when PIPED
+        # matches EITHER the raw command text OR legacy_view, which removes
+        # only backslash-newline continuations (no comment stripping at all),
+        # so a backslash-split pipeline blocks and no misread quote or
+        # comment boundary can delete a real pipe (round-4 A1/A2).
         self.check([
             './tools/run_all_audits.sh 2>&1 | \\\ntail -8',
             './tools/run_all_audits.sh 2>&1 |\\\ntail -8',
@@ -52403,17 +52405,27 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'tools/run_all_audits.sh \\\n 2>&1 | tail -8',
             'python3 -m unittest \\\n| tail -2',
             './tools/run_all_audits.sh 2>&1 | \\\n\\\ntail -8',
-        ], True)
-        self.check([
-            # a | inside a trailing comment is not a pipe
+            # round-4 A1/A2 regressions: a quoted # inside $( ) was cut as a
+            # comment, deleting the real | tail; the raw text shows the pipe
+            'echo "$(./tools/run_all_audits.sh "a # b" | tail -8)"',
+            'x="$(git push "a # b" | tail -8)"',
+            # accepted residual: a pipe inside a comment on a verifier line
+            # may block (accepted false block, safe direction)
             './tools/run_all_audits.sh # | tail',
             './tools/run_all_audits.sh # keep |\ntail -f log',
+            './tools/run_all_audits.sh \\\n# | tail',
+        ], True)
+        self.check([
             # a comment-only line with a pipe before an unpiped verifier
             '# | tail\n./tools/run_all_audits.sh',
             # a backslash-newline inside a quoted string is not a join
             './tools/run_all_audits.sh --note "a \\\nb"',
             "echo 'a | \\\ntail'",
             'echo "run_all_audits.sh | \\\ntail"',
+            # the sanctioned forms stay allowed
+            './tools/run_all_audits.sh',
+            './tools/run_all_audits.sh 2>&1 > /tmp/a.log; echo $?',
+            'tools/tail-safe.sh -n 8 -- ./tools/run_all_audits.sh',
         ], False)
 
     def test_every_status_parameter_expansion_counts(self):
