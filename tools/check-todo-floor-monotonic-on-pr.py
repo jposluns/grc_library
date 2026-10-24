@@ -63,23 +63,49 @@ def _path_at_ref(ref, path):
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
 
 
+class _GitCallFailed(Exception):
+    """A git call the argless collapsed-range check depends on failed: a
+    nonzero status other than the documented difference status, or the call
+    did not run. The caller refuses as CANNOT-EVALUATE instead of guessing
+    collapsed or not-collapsed either way (3b530 round 4). ``str()`` names
+    the failed call."""
+
+
 def _worktree_matches_base(base_sha):
     """True iff the working tree holds exactly the base's content: no tracked
     difference from ``base_sha`` AND no untracked, non-ignored file. An
     untracked file -- including an untracked brand-new floor file, which the
     argless head read below would evaluate -- is working-tree content, not an
-    empty range (3b530 round 3). Only a clean equality is a match: a diff or
-    ls-files error falls through to the explicit comparison below."""
-    if subprocess.run(["git", "diff", "--quiet", base_sha, "--"],
-                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0:
-        return False
+    empty range (3b530 round 3). The untracked check is exact (a file whose
+    NAME is whitespace still counts), and both calls anchor to the repository
+    top level, so a run from a subdirectory sees root files (3b530 round 4).
+    A call that fails raises _GitCallFailed for the caller to refuse on."""
     try:
-        untracked = subprocess.check_output(
-            ["git", "ls-files", "--others", "--exclude-standard"], text=True,
-            stderr=subprocess.DEVNULL)
-    except subprocess.CalledProcessError:
+        top = subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], text=True,
+            stderr=subprocess.DEVNULL).strip()
+    except (subprocess.CalledProcessError, OSError) as exc:
+        raise _GitCallFailed(f"git rev-parse --show-toplevel ({exc})")
+    try:
+        diff_rc = subprocess.run(
+            ["git", "-C", top, "diff", "--quiet", base_sha, "--"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
+    except OSError as exc:
+        raise _GitCallFailed(f"git diff --quiet (did not run: {exc})")
+    if diff_rc == 1:
+        # The documented difference status: a real tracked change, not collapsed.
         return False
-    return untracked.strip() == ""
+    if diff_rc != 0:
+        raise _GitCallFailed(f"git diff --quiet (exit {diff_rc})")
+    try:
+        listing = subprocess.run(
+            ["git", "-C", top, "ls-files", "--others", "--exclude-standard"],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+    except OSError as exc:
+        raise _GitCallFailed(f"git ls-files --others (did not run: {exc})")
+    if listing.returncode != 0:
+        raise _GitCallFailed(f"git ls-files --others (exit {listing.returncode})")
+    return listing.stdout == ""
 
 
 def _git_show(ref, path):
@@ -142,19 +168,32 @@ def main(argv):
                 f"evaluated. If the change lives in a worktree, run from that "
                 f"worktree, or pass a base..head range that selects the change.\n")
             return 2
-    elif _worktree_matches_base(base_sha):
-        # Argless form: the head is the working tree; a tree whose content is
-        # exactly the base's (no tracked change, no untracked non-ignored
-        # file) is the same collapsed range.
-        head_sha = _rev_parse("HEAD") if _ref_resolves("HEAD") else "(unborn HEAD)"
-        sys.stderr.write(
-            f"D12 CANNOT-EVALUATE: the working tree (the default head) shows no "
-            f"tracked change against base {base_ref} and holds no untracked, "
-            f"non-ignored file (repo={_toplevel()} base={base_sha} "
-            f"head={head_sha}, working tree); the range is empty, so nothing was "
-            f"evaluated. If the change lives in a worktree, run from that "
-            f"worktree, or pass a base..head range that selects the change.\n")
-        return 2
+    else:
+        try:
+            collapsed = _worktree_matches_base(base_sha)
+        except _GitCallFailed as exc:
+            # A failed diff or ls-files call leaves the working-tree state
+            # undetermined; refuse rather than evaluate on it (3b530 round 4).
+            sys.stderr.write(
+                f"D12 CANNOT-EVALUATE: {exc} failed while comparing the working "
+                f"tree (the default head) against base {base_ref} "
+                f"(repo={_toplevel()} base={base_sha}); cannot tell a collapsed "
+                f"range from a real change, so nothing was evaluated. Fix the "
+                f"repository state and re-run.\n")
+            return 2
+        if collapsed:
+            # Argless form: the head is the working tree; a tree whose content
+            # is exactly the base's (no tracked change, no untracked
+            # non-ignored file) is the same collapsed range.
+            head_sha = _rev_parse("HEAD") if _ref_resolves("HEAD") else "(unborn HEAD)"
+            sys.stderr.write(
+                f"D12 CANNOT-EVALUATE: the working tree (the default head) shows no "
+                f"tracked change against base {base_ref} and holds no untracked, "
+                f"non-ignored file (repo={_toplevel()} base={base_sha} "
+                f"head={head_sha}, working tree); the range is empty, so nothing was "
+                f"evaluated. If the change lives in a worktree, run from that "
+                f"worktree, or pass a base..head range that selects the change.\n")
+            return 2
     if not _path_at_ref(base_ref, FLOOR_PATH):
         # base is VALID but the floor did not exist there: first introduction, nothing to compare.
         print(f"OK: {FLOOR_PATH} is new at this base ({base_ref}); no prior floor to compare.")

@@ -10157,6 +10157,68 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn("does not resolve", r.stderr)
         self.assertNotIn("OK", r.stdout)
 
+    def test_d12_argless_whitespace_named_untracked_file_still_evaluates(self) -> None:
+        # Round 4 of 3b530 (review F2): the untracked-file check is exact, not
+        # .strip() -- a file whose NAME is whitespace is still working-tree
+        # content, so the argless form evaluates it instead of refusing the
+        # range as empty.
+        tmp, git = self._repo()
+        (tmp / " ").write_text("x\n", encoding="utf-8")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+        self.assertIn("OK", r.stdout)
+
+    def test_d12_argless_from_subdirectory_sees_root_untracked_file(self) -> None:
+        # Round 4 of 3b530 (review F3): the collapsed-range check anchors its
+        # untracked listing and tracked diff to the repository top level, so
+        # an argless run from a subdirectory still sees an untracked file at
+        # the root and evaluates instead of refusing the range as empty.
+        tmp, git = self._repo()
+        (tmp / "NEW.md").write_text("New.\n", encoding="utf-8")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp / "security",
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+        self.assertIn("OK", r.stdout)
+
+    def test_d12_argless_git_call_failure_refuses(self) -> None:
+        # Round 4 of 3b530 (review F5): a git diff or git ls-files call that
+        # fails outright (nonzero beyond the documented difference status 1)
+        # leaves the working-tree state undetermined, so the argless form
+        # refuses with CANNOT-EVALUATE naming the failed call instead of
+        # falling through to evaluation (here that fall-through would reach
+        # the clean first-introduction OK). The PATH shim delegates to the
+        # real git except for the one failing subcommand.
+        real_git = shutil.which("git")
+        self.assertIsNotNone(real_git)
+        for subcommand, named in (("diff", "git diff --quiet"),
+                                  ("ls-files", "git ls-files --others")):
+            with self.subTest(call=subcommand):
+                tmp, git = self._repo()
+                shim_dir = Path(tempfile.mkdtemp(prefix="gitshim-")).resolve()
+                self.addCleanup(shutil.rmtree, shim_dir, ignore_errors=True)
+                shim = shim_dir / "git"
+                shim.write_text(
+                    "#!/bin/sh\n"
+                    'for a in "$@"; do\n'
+                    f'  if [ "$a" = "{subcommand}" ]; then exit 128; fi\n'
+                    "done\n"
+                    f'exec "{real_git}" "$@"\n',
+                    encoding="utf-8",
+                )
+                shim.chmod(0o755)
+                r = self._gate(
+                    "check-todo-floor-monotonic-on-pr.py", tmp,
+                    env={"GITHUB_BASE_REF": "main",
+                         "PATH": f"{shim_dir}{os.pathsep}{os.environ['PATH']}"})
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+                self.assertIn(named, r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
     def test_d12_real_range_still_evaluates(self) -> None:
         # The refusal predicate is the collapsed range, not the argless form:
         # a working tree that differs from the base still gets a real verdict
@@ -25713,7 +25775,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-retired-section-orphan-on-pr.py NO_FS F 94f89f3645e0e4dedbfe0a2d174ba60150b94bd7a0c734e25d5f96d148afe4ba
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
         check-stranded-control-code-on-pr.py NO_FS F 5c0890d697db2086c6a10fe3222b6a268ac04199a359b761e4d393aceaccde7d
-        check-todo-floor-monotonic-on-pr.py NO_FS F 9ff57316720ed7a70979034bb0cabc63a5c170fa2809cdbe4f07925e64ed65be
+        check-todo-floor-monotonic-on-pr.py NO_FS F 75873a6bfa8abd1cae4e972f20f746ec5faedab69fb5d16152936c8389b71248
         check-todo-rotation-on-pr.py NO_FS F f4189bf15201c6ae8d228ac341f5c5c5dd859457be22275084e2e155751b5c96
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 520abe7d721553382768bf7c581cc0db91b1b6ac329404cc61416333246062b2
