@@ -63,6 +63,25 @@ def _path_at_ref(ref, path):
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
 
 
+def _worktree_matches_base(base_sha):
+    """True iff the working tree holds exactly the base's content: no tracked
+    difference from ``base_sha`` AND no untracked, non-ignored file. An
+    untracked file -- including an untracked brand-new floor file, which the
+    argless head read below would evaluate -- is working-tree content, not an
+    empty range (3b530 round 3). Only a clean equality is a match: a diff or
+    ls-files error falls through to the explicit comparison below."""
+    if subprocess.run(["git", "diff", "--quiet", base_sha, "--"],
+                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0:
+        return False
+    try:
+        untracked = subprocess.check_output(
+            ["git", "ls-files", "--others", "--exclude-standard"], text=True,
+            stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError:
+        return False
+    return untracked.strip() == ""
+
+
 def _git_show(ref, path):
     return subprocess.check_output(["git", "show", f"{ref}:{path}"], text=True,
                                    stderr=subprocess.DEVNULL)
@@ -104,7 +123,18 @@ def main(argv):
     # mistake 300), BEFORE the first-introduction OK below can fire.
     base_sha = _rev_parse(base_ref)
     if head_ref is not None:
-        if _ref_resolves(head_ref) and _rev_parse(head_ref) == base_sha:
+        if not _ref_resolves(head_ref):
+            # An unresolvable NAMED head must not be read as 'the working tree'
+            # or reach the first-introduction OK below: like the base guard
+            # above, ignorance about the input is a refusal, not a waiver
+            # (3b530 round 3).
+            sys.stderr.write(
+                f"D12 CANNOT-EVALUATE: head ref '{head_ref}' does not resolve to "
+                f"a commit (repo={_toplevel()} base={base_sha}); cannot verify "
+                "floor monotonicity (fetch the head, or pass a valid ref). "
+                "Refusing rather than waiving the check.\n")
+            return 2
+        if _rev_parse(head_ref) == base_sha:
             sys.stderr.write(
                 f"D12 CANNOT-EVALUATE: base {base_ref} and head {head_ref} resolve "
                 f"to the same commit (repo={_toplevel()} base={base_sha} "
@@ -112,15 +142,15 @@ def main(argv):
                 f"evaluated. If the change lives in a worktree, run from that "
                 f"worktree, or pass a base..head range that selects the change.\n")
             return 2
-    elif subprocess.run(["git", "diff", "--quiet", base_sha, "--"],
-                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
-        # Argless form: the head is the working tree; a tree identical to the
-        # base is the same collapsed range (only exit 0 is equality; a diff
-        # error falls through to the explicit comparison below).
+    elif _worktree_matches_base(base_sha):
+        # Argless form: the head is the working tree; a tree whose content is
+        # exactly the base's (no tracked change, no untracked non-ignored
+        # file) is the same collapsed range.
         head_sha = _rev_parse("HEAD") if _ref_resolves("HEAD") else "(unborn HEAD)"
         sys.stderr.write(
-            f"D12 CANNOT-EVALUATE: the working tree (the default head) holds the "
-            f"same content as base {base_ref} (repo={_toplevel()} base={base_sha} "
+            f"D12 CANNOT-EVALUATE: the working tree (the default head) shows no "
+            f"tracked change against base {base_ref} and holds no untracked, "
+            f"non-ignored file (repo={_toplevel()} base={base_sha} "
             f"head={head_sha}, working tree); the range is empty, so nothing was "
             f"evaluated. If the change lives in a worktree, run from that "
             f"worktree, or pass a base..head range that selects the change.\n")

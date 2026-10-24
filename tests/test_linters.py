@@ -10121,6 +10121,42 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn(str(tmp), r.stderr)
         self.assertNotIn("OK", r.stdout)
 
+    def test_d12_argless_untracked_file_still_evaluates(self) -> None:
+        # Round 3 of 3b530 (review F1): an untracked, non-ignored file IS
+        # working-tree content, so the argless form evaluates it instead of
+        # refusing -- including an untracked brand-new floor file, which the
+        # gate's own head read (open(FLOOR_PATH)) evaluates. Here the fixture
+        # base has no floor, so the real verdict is the first-introduction OK.
+        for rel, content, label in (
+            ("NEW.md", "New.\n", "plain untracked file"),
+            ("tools/todo-number-floor.json", '{"2": 32}\n', "untracked floor file"),
+        ):
+            with self.subTest(shape=label):
+                tmp, git = self._repo()
+                path = tmp / rel
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(content, encoding="utf-8")
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, 0,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+                self.assertIn("OK", r.stdout)
+
+    def test_d12_unresolvable_head_exit2(self) -> None:
+        # Round 3 of 3b530 (review F2): an explicitly named head that does not
+        # resolve is refused the way an unresolvable base is, BEFORE any floor
+        # read (the fixture base has no floor, so without the guard this run
+        # reaches the clean first-introduction "new at this base" OK).
+        tmp, git = self._repo()
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       "origin/main", "no-such-ref")
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn("no-such-ref", r.stderr)
+        self.assertIn("does not resolve", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
     def test_d12_real_range_still_evaluates(self) -> None:
         # The refusal predicate is the collapsed range, not the argless form:
         # a working tree that differs from the base still gets a real verdict
@@ -25677,7 +25713,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-retired-section-orphan-on-pr.py NO_FS F 94f89f3645e0e4dedbfe0a2d174ba60150b94bd7a0c734e25d5f96d148afe4ba
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
         check-stranded-control-code-on-pr.py NO_FS F 5c0890d697db2086c6a10fe3222b6a268ac04199a359b761e4d393aceaccde7d
-        check-todo-floor-monotonic-on-pr.py NO_FS F 370d108f825bc8878a78e44f97086ce7c319584308a9f2a8a25a6775cc6757e6
+        check-todo-floor-monotonic-on-pr.py NO_FS F 9ff57316720ed7a70979034bb0cabc63a5c170fa2809cdbe4f07925e64ed65be
         check-todo-rotation-on-pr.py NO_FS F f4189bf15201c6ae8d228ac341f5c5c5dd859457be22275084e2e155751b5c96
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 520abe7d721553382768bf7c581cc0db91b1b6ac329404cc61416333246062b2
