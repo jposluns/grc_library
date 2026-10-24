@@ -190,7 +190,7 @@ _146 documents._
 | --- | --- | --- | --- | --- |
 | [ai/charter-ai-ethics-review-panel.md](../ai/charter-ai-ethics-review-panel.md) | AI Ethics Review Panel Charter | Charter | 1.0.5 | 2026-09-25 |
 | [ai/checklist-ai-algorithmic-compliance.md](../ai/checklist-ai-algorithmic-compliance.md) | AI Algorithmic Compliance Checklist | Checklist | 1.0.18 | 2026-10-16 |
-| [ai/framework-ai-assurance-evidence.md](../ai/framework-ai-assurance-evidence.md) | AI Assurance Evidence and Attestation Framework | Framework | 1.0.5 | 2026-10-24 |
+| [ai/framework-ai-assurance-evidence.md](../ai/framework-ai-assurance-evidence.md) | AI Assurance Evidence and Attestation Framework | Framework | 1.0.6 | 2026-10-24 |
 | [ai/framework-ai-model-documentation-and-transparency.md](../ai/framework-ai-model-documentation-and-transparency.md) | AI Model Documentation and Transparency Framework | Framework | 1.0.15 | 2026-10-24 |
 | [ai/framework-ai-model-risk.md](../ai/framework-ai-model-risk.md) | AI Model Risk Framework | Framework | 1.0.4 | 2026-09-20 |
 | [ai/framework-ai-system-audit-certification.md](../ai/framework-ai-system-audit-certification.md) | AI System Audit and Certification Framework | Framework | 1.0.20 | 2026-10-24 |
