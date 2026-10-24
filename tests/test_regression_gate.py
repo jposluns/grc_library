@@ -53,12 +53,14 @@ class FailingTests(unittest.TestCase):
 """
 
 # The round-3 review's forgery reproducer (3b525 F1): a load_tests that
-# scrapes everything in-child code can see (argv, stdin), prints a green
-# summary plus a sentinel forged from the best nonce candidate it found,
-# and exits 0 before a failing sibling can run. With the nonce delivered
+# scrapes the passive channels (argv, stdin), prints a green summary
+# plus a sentinel forged from the best nonce candidate it found, and
+# exits 0 before a failing sibling can run. With the nonce delivered
 # over stdin and consumed before any test module is imported, no 32-hex
-# candidate is visible, so the forged sentinel cannot carry this run's
-# nonce; with the nonce on argv (the flip), the forgery would succeed.
+# candidate is visible TO THIS SCRAPE, so the forged sentinel cannot
+# carry this run's nonce; with the nonce on argv (the flip), the
+# forgery would succeed. The nonce stays recoverable from the driver's
+# own __main__ globals: see MAIN_NONCE_FORGING_MODULE below.
 FORGING_MODULE = """\
 import sys
 import unittest
@@ -85,6 +87,38 @@ def load_tests(loader, tests, pattern):
         "REGRESSION-GATE-RESULT %s testsRun=%d notStarted=0 "
         "wasSuccessful=True %s\\n"
         % (token, len(modules),
+           " ".join("%s=1" % name for name in modules)))
+    raise SystemExit(0)
+"""
+
+# The round-4 review's forgery reproducer (3b525 round 4, F1): the
+# driver is a python -c script, so the nonce it reads from stdin is a
+# module-level global of __main__ for the life of the child. A
+# load_tests that imports __main__ recovers it and forges a complete
+# green sentinel, exiting 0 before a failing sibling runs. This is a
+# DOCUMENTED ACCEPTED RESIDUAL (in-process secrecy is unattainable; the
+# maintainer has a pending decision on whether gates must defend
+# against deliberately adversarial in-process code), asserted as such
+# by test_main_accepts_main_nonce_forgery_residual below.
+MAIN_NONCE_FORGING_MODULE = """\
+import sys
+import unittest
+
+
+class ForgeTests(unittest.TestCase):
+    def test_forge(self):
+        self.assertTrue(True)
+
+
+def load_tests(loader, tests, pattern):
+    import __main__
+    nonce = __main__.nonce
+    modules = sorted(s for s in sys.argv[1:] if s.startswith("tests."))
+    sys.stderr.write("Ran %d tests in 0.001s\\n\\nOK\\n" % len(modules))
+    sys.stderr.write(
+        "REGRESSION-GATE-RESULT %s testsRun=%d notStarted=0 "
+        "wasSuccessful=True %s\\n"
+        % (nonce, len(modules),
            " ".join("%s=1" % name for name in modules)))
     raise SystemExit(0)
 """
@@ -622,9 +656,11 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         argv and stdin, prints a green summary plus a forged completion
         sentinel and exits 0, beside a failing sibling that never runs.
         The nonce travels over the child's stdin and is consumed before
-        any test module is imported, so in-child code cannot see it (on
-        argv it could, and this forgery then passed as green); a
-        sentinel without this run's nonce is refused."""
+        any test module is imported, so a scrape of argv and stdin
+        cannot see it (on argv it could, and this forgery then passed
+        as green); a sentinel without this run's nonce is refused.
+        The __main__.nonce channel stays open: see the residual test
+        below."""
         runner = self._runner()
         root = self._tmp_repo(["test_zz_fail.py"], body=FAILING_MODULE)
         (root / "tests" / "test_aa_forge.py").write_text(FORGING_MODULE)
@@ -635,6 +671,46 @@ class RegressionGateCompletenessTests(unittest.TestCase):
                          "the nonce must be refused:\n" + err)
         self.assertIn("REFUSED", err)
         self.assertIn("sentinel", err)
+
+    def test_main_accepts_main_nonce_forgery_residual(self) -> None:
+        """DOCUMENTED ACCEPTED RESIDUAL (3b525 round 4, F1): the driver
+        is a python -c script, so the nonce is a module-level global of
+        __main__; a load_tests that imports __main__ recovers it,
+        forges a complete sentinel and exits 0, and the run passes as
+        green while the failing sibling never runs. This test asserts
+        that documented behaviour (it is NOT a skip): a change that
+        closes the channel turns this exit 0 into a refusal and must
+        update this test together with the three documentation
+        surfaces that state the residual (the runner's docstring,
+        tools/README.md and tests/README.md)."""
+        runner = self._runner()
+        root = self._tmp_repo(["test_zz_fail.py"], body=FAILING_MODULE)
+        (root / "tests" / "test_aa_forge.py").write_text(
+            MAIN_NONCE_FORGING_MODULE)
+        with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
+            code, _out, err = self._call_main(runner, repo_root=root)
+        self.assertEqual(
+            code, 0,
+            "the __main__.nonce forgery is a documented accepted "
+            "residual and currently passes as green; if it is now "
+            "refused, the channel was closed: update this test, the "
+            "runner docstring, tools/README.md and tests/README.md "
+            "together:\n" + err)
+        self.assertNotIn("REFUSED", err)
+        self.assertIn(_SENTINEL_PREFIX, err)
+        self.assertNotIn(
+            "this test must be reached", err,
+            "the forgery exits before the failing sibling runs; the "
+            "sibling's failure appearing means the behaviour changed")
+        # Every documentation surface names the residual's channel, so
+        # closing it (or renaming the channel) stales the docs loudly.
+        for rel in ("tools/run-linter-regression.py",
+                    "tools/README.md", "tests/README.md"):
+            self.assertIn(
+                "__main__",
+                (REPO_ROOT / rel).read_text(encoding="utf-8"),
+                "%s must document the __main__.nonce accepted "
+                "residual" % rel)
 
     def test_main_green_with_class_and_module_level_skips(self) -> None:
         """A SkipTest raised in setUpClass or setUpModule bypasses

@@ -44,8 +44,12 @@ findings):
   run), is a refusal: exit 2, naming the file.
 * The driver loads each module's suite and refuses (exit 2, naming
   the file) a module that contributes zero test cases, so an empty
-  ``load_tests`` or a class moved off ``TestCase`` cannot hollow out
-  a module silently.
+  ``load_tests`` or a class moved off ``TestCase`` cannot hollow a
+  module out to ZERO tests silently. A PARTIALLY hollowed module (a
+  ``load_tests`` that returns some but not all of a module's tests)
+  is NOT detected: the loaded suite is the gate's only ground truth,
+  so the sentinel's per-module counts match what was loaded, not what
+  the file defines.
 * Completion is established from the child's own executed suite, not
   from summary text: the driver runs with ``exit=False`` and emits a
   final sentinel line carrying a per-run nonce from this parent plus
@@ -62,17 +66,25 @@ findings):
 * The nonce travels over the child's STDIN (this parent writes it to
   a pipe; the driver reads it and rebinds its stdin to ``os.devnull``,
   closing the pipe, before importing any test module), never on argv
-  and never in the environment, so test code in the child cannot read
-  it from ``sys.argv``, ``os.environ`` or ``/proc/<pid>/cmdline`` and
-  forge a believable sentinel (the 3b525 round-3 finding: on argv,
-  a ``load_tests`` could read the nonce and forge the sentinel).
-  What the nonce does and does not defend against: the gate defends
-  against accidental early exits and dropped or hollowed-out modules,
-  and against sentinel forgery by code that cannot see the nonce. It
-  does NOT defend against arbitrary test code in the same process
-  interfering deliberately (such code can monkeypatch unittest or the
-  driver's globals, or replace the result object); no in-process
-  scheme is proof against that.
+  and never in the environment, so it never appears in ``sys.argv``,
+  ``os.environ`` or ``/proc/<pid>/cmdline`` (the 3b525 round-3
+  finding: on argv, a ``load_tests`` could read the nonce and forge
+  the sentinel). What the nonce and sentinel defend against:
+  accidental early exits (a premature ``SystemExit`` before the
+  sentinel), grandchild or stray output standing in for the summary
+  or the sentinel, dropped modules, and zero-test modules. What they
+  do NOT defend against: test code in the child process that
+  deliberately reads the driver's state and forges a complete
+  sentinel. The driver is a ``python -c`` script, so the nonce it
+  reads is a module-level global of ``__main__`` for the life of the
+  child, and one line of test code (``import __main__`` and then
+  ``__main__.nonce``) recovers it; this is a documented accepted
+  residual, pinned by a test in ``tests/test_regression_gate.py``
+  (such code could equally monkeypatch ``unittest``, patch the
+  driver's globals, or replace the result object; no in-process
+  scheme is proof against deliberately adversarial in-process code).
+  Nor do they defend against a partially hollowed module (see the
+  zero-test bullet above).
 * A ``SkipTest`` raised in ``setUpClass`` or ``setUpModule`` bypasses
   ``startTest`` for every test it covers, so ``testsRun`` legitimately
   undercounts the loaded suite. The driver counts those never-started
@@ -109,9 +121,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Child driver: FIRST consume the per-run nonce from stdin and rebind
 # stdin to os.devnull (closing the pipe), before any test module is
-# imported, so no test code in this process can recover the nonce (it is
-# never on argv or in the environment either; a load_tests reading
-# sys.argv or /proc/<pid>/cmdline finds only module names). Then refuse
+# imported; the nonce is never on argv or in the environment (a
+# load_tests reading sys.argv or /proc/<pid>/cmdline finds only module
+# names). The nonce binding below is a module-level global of __main__
+# (this driver runs as a python -c script), so test code in this process
+# CAN recover it via "import __main__" and forge the sentinel: a
+# documented accepted residual, pinned by tests/test_regression_gate.py
+# and stated in the module docstring above. Then refuse
 # (exit 2) when the argv module list differs from the driver's own
 # enumeration of top-level tests/test_*.py files, so a filtered child
 # argv (or a filter inside this driver) cannot drop a module. Then
@@ -329,10 +345,12 @@ def main(repo_root: Path = REPO_ROOT, popen=subprocess.Popen) -> int:
         stderr=subprocess.PIPE,
     )
     # The nonce travels over the child's stdin, never on argv or in the
-    # environment, so code inside the child (or reading its
-    # /proc/<pid>/cmdline) cannot see it and forge the sentinel; the
-    # driver consumes it before importing any test module. 33 bytes fit
-    # the pipe buffer, so this cannot deadlock against the stderr read.
+    # environment, so it never appears in /proc/<pid>/cmdline; the
+    # driver consumes it before importing any test module. Test code
+    # inside the child can still recover it from __main__.nonce and
+    # forge the sentinel (the documented accepted residual; see the
+    # module docstring). 33 bytes fit the pipe buffer, so this cannot
+    # deadlock against the stderr read.
     proc.stdin.write((nonce + "\n").encode("ascii"))
     proc.stdin.close()
     # Stream the child's stderr through as it arrives (a hang or an

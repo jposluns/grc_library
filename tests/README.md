@@ -87,14 +87,25 @@ of the following, never softening one to green:
 The nonce travels over the child's stdin (the parent writes it to a
 pipe; the driver consumes it and rebinds its stdin to `/dev/null`,
 closing the pipe, before importing any test module), never on argv and
-never in the environment, so test code in the child cannot read it from
-`sys.argv`, `os.environ` or `/proc/<pid>/cmdline`. What the nonce does
-and does not defend against: the gate defends against accidental early
-exits and dropped or hollowed-out modules, and against sentinel forgery
-by code that cannot see the nonce. It does NOT defend against arbitrary
-test code in the same process interfering deliberately (such code can
-monkeypatch `unittest` or the driver's globals); no in-process scheme
-is proof against that.
+never in the environment, so it never appears in `sys.argv`,
+`os.environ` or `/proc/<pid>/cmdline`. What the nonce and sentinel
+defend against: accidental early exits (a premature `SystemExit`
+before the sentinel), grandchild or stray output standing in for the
+summary or the sentinel, dropped modules, and zero-test modules (a
+module hollowed to zero tests). What they do NOT defend against: test
+code in the child process that deliberately reads the driver's state.
+The driver is a `python -c` script, so the nonce is a module-level
+global of `__main__`; one line of test code (`import __main__`)
+recovers it and can forge a complete sentinel. This is a documented
+accepted residual, pinned by
+`test_main_accepts_main_nonce_forgery_residual` in
+`tests/test_regression_gate.py`, so a change that closes the channel
+must update that test and this paragraph together. They also do not
+defend against a partially hollowed module (a `load_tests` that
+returns some but not all of a module's tests), because the loaded
+suite is the gate's only ground truth. Such code can equally
+monkeypatch `unittest` or the driver's globals; no in-process scheme
+is proof against deliberately adversarial in-process code.
 
 A single module can still be run directly, for example:
 
