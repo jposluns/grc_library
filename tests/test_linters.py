@@ -25255,7 +25255,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F c9596844ccf7a8146a7f1ad08a1d45c8575caae841323c827595f6069c564a86
         aiqt_rules.py NO_FS F d6b9c3d2a5107192024dbe7923ea0642dfb91e519652eb7936acef6e2f646c6b
-        alignment-register-aliases.json DATA F d0fe2f032f630bda459726a0699f8c0c1bd461961bf551ad2a253dcfc19437c8
+        alignment-register-aliases.json DATA F 7aba74ebc7e34d89145f754cc53763e03df0bbf7f366765bbd94df5e47fdb812
         alignment-register-exclusions.json DATA F ae28ec61a6a973f24a33af86957dff0d1f0d0740dc82b5aec393a5bb882c3df0
         alignment_citation_ids.json DATA F cfa3de2c52597f242d12bfce2d71756e897c173de8df9a1577aed4f42b571d56
         alignment_citation_reference.py PASSIVE F 4d26e0d5906e57bbe205f641575c6589d0afad3f60d8b4995aa07c26caf1db4b
@@ -25364,7 +25364,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-document-control-codes.py OWN F e2c89293d97c7c4e5f6e8d5e4ceda1f2be850718beecf7cd0323b5c6601fe2f9
         lint-document-date-staleness.py CWD F bd94e8055f86c3639fd11eb90712f9e63d353056de3754d2842e5b5908108e1b
         lint-document-iso-annex-a.py OWN F d15f9b9b9e0bad6ff5a943d950b3b58322293939f8ac496fe38d52c4183e64e5
-        lint-external-link-domains.py CWD F 0932d94240c796c4eac299851879598463c21be08b11eb65f7eb9c6a2aaa9a97
+        lint-external-link-domains.py CWD F 906b40aed419a66a1d49cff6473771ff89c9db494526bc020b1aea462d026485
         lint-external-overlay-license.py NO_FS F 274c40601ab51949646d3c7fdf115e35b9fa47af81646ec83547e352c10f781d
         lint-filename-title-alignment.py ROOT F 053875094e7cc520061a2dd3a0fa226f35c68834942cef0a168bbfdac5f9dcf3
         lint-followup-ageing.py CWD F 09496e12c77b9f28e0440cb50eb71dbaac90b896524196cb9fdd09156cb3c7d0
