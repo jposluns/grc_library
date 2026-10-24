@@ -52513,6 +52513,52 @@ class BlockVerificationPipesTests(unittest.TestCase):
                    False)
         self.check(['echo $((1 << 2))\n: &'], True)
 
+    def test_round9_crlf_heredoc_terminator_divergence_refuses(self):
+        # R8 Gemini ERROR 1 / Codex R8-2: a CRLF delimiter word kept its \r,
+        # so the "EOF\r" body line matched it (defence in depth) and the next
+        # line's bare & / status read is seen again; either way these block.
+        # Both allowed on c5d1df367 (the \r broke the delimiter word, so the
+        # heredoc looked unterminated and swallowed the rest).
+        self.check([
+            "cat <<EOF\r\nbody\r\nEOF\r\n: &\r\n",
+            "cat <<EOF\r\nbody\r\nEOF\r\nfalse | cat; echo $?\r\n",
+        ], True)
+
+    def test_round9_backslash_continued_terminator_refuses(self):
+        # R8 Codex R8-2: bash joins "E\<newline>OF" into the delimiter EOF and
+        # runs the next line; the hook compares physical lines, never matches,
+        # and would swallow ": &". A terminator never matched now refuses.
+        # Allowed on c5d1df367.
+        self.check(["cat <<EOF\nE\\\nOF\n: &"], True)
+        self.assertEqual(
+            self.hook.shell_violation("cat <<EOF\nE\\\nOF\n: &")[0],
+            'heredoc-unterminated')
+
+    def test_round9_case_arm_parentheses_keep_arithmetic_tracking(self):
+        # R8 Codex R8-1 / Gemini ERROR 2: two case pattern arms' ) dropped the
+        # arithmetic fallback counter to zero early, so a later << registered a
+        # heredoc and hid the next line. A lone ) now only decrements; the span
+        # closes only at the adjacent )). Both allowed on c5d1df367.
+        self.check([
+            'echo $(( $(case 1 in 1) echo 1;; 2) echo 2;; esac) + (1 << (2)) ))\n: &',
+            'echo $(( $(case 1 in 1) echo 1;; 2) echo 2;; esac) + (1 << (2)) ))\n'
+            'false | cat; echo $?',
+        ], True)
+        self.assertEqual(self.hook.shell_violation(
+            'echo $(( $(case 1 in 1) echo 1;; 2) echo 2;; esac) + (1 << (2)) ))\n: &'
+        )[0], 'arithmetic-shift')
+
+    def test_round9_terminated_heredoc_controls_still_allow(self):
+        # Controls that must keep allowing under the new refusal: an LF heredoc
+        # that terminates, a tab-stripped <<- heredoc, a quoted-delimiter
+        # heredoc, and arithmetic completed before a real heredoc.
+        self.check([
+            'cat <<EOF\nx & y\nEOF',
+            'cat <<-EOF\n\tx & y\n\tEOF',
+            "cat <<'EOF'\nx & y\nEOF",
+            '(( (1) )); cat <<E\nz &\nE',
+        ], False)
+
     def test_arithmetic_rejected_interiors_use_shell_tokens(self):
         from unittest.mock import patch
         # Pin rejection even when ordinary shell quoting would hide an &.
@@ -52614,7 +52660,6 @@ class BlockVerificationPipesTests(unittest.TestCase):
             "cat <<A <<'B'\na &\nA\ncoproc b; cmd | cat; echo $?\nB\n",
             "cat <<A # comment & $?\ncoproc a &\nA\n",
             "cat <<A\na &\nA\ngrep -q pat file; echo $?",
-            "cat <<A\na &\n",  # unterminated body is still data
             "cmd | cat <<EOF\necho $? &\nEOF\n",
             "cmd | cat; cat <<'$?'\na &\n$?\n",
             "echo '<<EOF'; echo ok",
@@ -52628,6 +52673,9 @@ class BlockVerificationPipesTests(unittest.TestCase):
             "cat <<A <<B\na &\nA\nb &\nB\nc &",
             "cat <<<word; a &",  # here-string is not a heredoc
             "cat <<A\ntools/run_all_audits.sh | tail\nA\n",
+            # round 9: a terminator never matched before the end of the command
+            # now refuses rather than swallowing the rest as body (R8 reviews)
+            "cat <<A\na &\n",
         ], True)  # the legacy regex still scans raw heredoc bodies
 
     def test_single_job_targeted_waits(self):
@@ -52941,7 +52989,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         ):
             add(name, message, evidence=("[2026-09-22 12:00Z]", "(session: 0h 5m)"))
 
-        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write(", 5))
+        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write(", 6))
         add("pipe", "tools/run_all_audits.sh | tail -8", evidence=("(RM-10)",))
         add("status", "cmd | tail; echo rc=$?", label="pipeline-status", verb="redirect",
             at=("main", "sys.stderr.write(", 0),
@@ -52959,9 +53007,13 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             at=("main", "sys.stderr.write(", 3),
             evidence=("echo $((1 << (2)))", "cannot tell this shift from a heredoc",
                       "simple arithmetic"))
+        add("heredoc-unterminated", "cat <<EOF\na &\n",
+            label="heredoc-unterminated", verb="close",
+            at=("main", "sys.stderr.write(", 4),
+            evidence=("'EOF'", "never matched before the end", "read as heredoc body"))
         add("complexity", "(" * 65 + "true" + ")" * 65,
             label="shell-complexity", verb="run",
-            at=("main", "sys.stderr.write(", 4),
+            at=("main", "sys.stderr.write(", 5),
             evidence=("inspection limit", "refusing it", "fewer nested groups"))
         add = group("block-wrong-repo-tool", "use")
         for name, command, guard, evidence in (

@@ -69,6 +69,12 @@ Round 8: a << or <<- inside a rejected span is refused (arithmetic-shift):
 a shift cannot be told from a heredoc there, and a heredoc reading would
 skip the commands after it. Complex arithmetic that shifts, or a real
 heredoc inside it, is a false block (safe direction).
+Round 9: a rejected arithmetic span closes only at the adjacent )) that
+always ends (( ... )) and $(( ... )); a lone ) (a case pattern arm) only
+decrements its depth and never ends the span, so it cannot drop tracking
+early and let a later << start heredoc skipping. Only space and tab (not
+\\r) separate words, so a CRLF heredoc delimiter keeps its \\r and matches
+its \\r terminator line instead of silently diverging.
 With exactly one prior launch in that scope, wait $! and wait -n also collect
 that job. Other targeted waits are not certified. Literal coproc launches
 are refused. Nesting beyond 64 groups or a RecursionError refuses with a
@@ -86,7 +92,10 @@ not flagged. Command substitutions, eval, shell strings, functions, aliases
 and here-strings are not interpreted; they can produce false positives or
 missed indirect commands. Heredoc expansions and executed heredoc scripts
 are not inspected; unusual delimiter syntax is not a full Bash grammar.
-An unterminated heredoc consumes the remaining input as body text. The legacy
+A heredoc whose terminator is never matched before the end of the command is
+refused (heredoc-unterminated, round 9), never read as body that would hide
+later commands; a divergent delimiter (CRLF or backslash-continued) refuses
+rather than swallowing the rest of the input. The legacy
 named-verifier regex still scans raw heredoc, comment and quoted text as
 disclosed above, both verbatim and with backslash-newline continuations
 removed; either match blocks.
@@ -267,7 +276,9 @@ def shell_tokens(command, cuts=None):
     heredocs, delimiter = [], None
     arithmetic_fallback = None
     while i < len(command):
-        if command[i].isspace() and command[i] != "\n":
+        if command[i] in " \t":
+            # Round 9: only space and tab (not \r, \f, \v) separate words,
+            # matching bash's blank metacharacters; a newline is an operator.
             i += 1
             continue
         if command[i] == "#":
@@ -293,7 +304,14 @@ def shell_tokens(command, cuts=None):
                     arithmetic_fallback += 1
                 elif op[0] == ")":
                     arithmetic_fallback -= 1
-                    if arithmetic_fallback == 0:
+                    # Round 9: a rejected arithmetic span closes only at the
+                    # adjacent )) that always ends a (( ... )) or $(( ... )),
+                    # i.e. a ) immediately preceded by another ). A lone )
+                    # (a case pattern arm like `1)`) only decrements and can
+                    # never end the span, so it cannot drop tracking early and
+                    # let a later << start heredoc skipping.
+                    if (arithmetic_fallback <= 0 and i > 0
+                            and command[i - 1] == ")"):
                         arithmetic_fallback = None
             if arithmetic_fallback is not None and op[0] in ("<<", "<<-"):
                 # Round 8: never let a shift start heredoc skipping; refuse.
@@ -306,13 +324,22 @@ def shell_tokens(command, cuts=None):
                 delimiter = op[0] == "<<-"
             elif op[0] == "\n":
                 for terminator, strip_tabs in heredocs:
+                    matched = False
                     while i < len(command):
                         end = command.find("\n", i)
                         end = len(command) if end < 0 else end
                         line = command[i:end]
                         i = min(end + 1, len(command))
                         if (line.lstrip("\t") if strip_tabs else line) == terminator:
+                            matched = True
                             break
+                    if not matched:
+                        # Round 9: a terminator that is never matched before the
+                        # end of the command (a CRLF or backslash-continued or
+                        # otherwise divergent delimiter) would otherwise swallow
+                        # every later command as body. Refuse, fail closed.
+                        yield ("heredoc-unterminated", terminator, op.start(), i,
+                               False)
                 heredocs.clear()
                 delimiter = None
             continue
@@ -367,7 +394,10 @@ def shell_tokens(command, cuts=None):
                 i += 1
                 continue
             if (quote is None and not parameter_depth
-                    and (c.isspace() or OPERATORS.match(command, i))):
+                    and (c in " \t" or OPERATORS.match(command, i))):
+                # Round 9: a word ends at space, tab, or an operator (newline
+                # included via OPERATORS); \r stays in the word, so a CRLF
+                # heredoc delimiter keeps its \r and matches its \r body line.
                 break
             word.append(c)
             i += 1
@@ -439,12 +469,14 @@ def shell_violation(command):
 
 def _shell_violation(command):
     tokens = list(shell_tokens(command))
-    for kind, _text, start, end, _status in tokens:
+    for kind, text, start, end, _status in tokens:
         if kind == "ambiguous-shift":
             line_start = command.rfind("\n", 0, start) + 1
             line_end = command.find("\n", end)
             line_end = len(command) if line_end < 0 else line_end
             return ("arithmetic-shift", command[line_start:line_end])
+        if kind == "heredoc-unterminated":
+            return ("heredoc-unterminated", text)
 
     def inspect(items, pipefail=False, pending=None, nesting=0):
         if nesting > MAX_SHELL_NESTING:
@@ -610,6 +642,16 @@ def main() -> int:
                 "the commands after it.\n"
                 "CONSIDER INSTEAD: compute the value in simple arithmetic, e.g. "
                 "$((1 << n)) with n set first, or split the command.\n")
+        elif guard == "heredoc-unterminated":
+            sys.stderr.write(
+                "BLOCKED (heredoc-unterminated): heredoc terminator " + repr(span)
+                + " is never matched before the end of the command.\n"
+                "WHY: the rest of the command would be read as heredoc body, hiding "
+                "any commands after a terminator bash would have matched (a CRLF or "
+                "backslash-continued delimiter diverges from the registered word).\n"
+                "CONSIDER INSTEAD: close the heredoc with its exact terminator alone "
+                "on a line with no trailing carriage return or line continuation, or "
+                "split the command.\n")
         else:
             sys.stderr.write(
                 "BLOCKED (shell-complexity): shell nesting exceeds the inspection limit.\n"
@@ -709,8 +751,23 @@ def self_test() -> int:
         'false | cat; echo $? # ))',
         'echo $(( (1 & 2) | 4 ))',
         'echo $(( $((1 & 2)) ))',
+        # round 9: a divergent heredoc terminator refuses rather than
+        # swallowing the commands after it (CRLF and backslash-continued)
+        'cat <<EOF\r\nbody\r\nEOF\r\n: &\r\n',
+        'cat <<EOF\r\nbody\r\nEOF\r\nfalse | cat; echo $?\r\n',
+        'cat <<EOF\nE\\\nOF\n: &',
+        # round 9: a case pattern arm's ) no longer drops arithmetic tracking
+        # early, so a later << inside the span still refuses (arithmetic-shift)
+        'echo $(( $(case 1 in 1) echo 1;; 2) echo 2;; esac) + (1 << (2)) ))\n: &',
+        'echo $(( $(case 1 in 1) echo 1;; 2) echo 2;; esac) + (1 << (2)) ))\n'
+        'false | cat; echo $?',
     ]
     allowed = [
+        # round 9: heredocs whose terminator IS matched keep allowing
+        'cat <<EOF\nx & y\nEOF',
+        'cat <<-EOF\n\tx & y\n\tEOF',
+        "cat <<'EOF'\nx & y\nEOF",
+        '(( (1) )); cat <<E\nz &\nE',
         'set -euo pipefail; cmd | cat; echo $?',
         "python3 <<'PY'\nprint(1 & 2)\nPY\n",
         'a & wait $!',
