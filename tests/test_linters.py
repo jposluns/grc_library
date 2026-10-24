@@ -10441,6 +10441,98 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("Traceback", r.stderr)
                 self.assertNotIn("OK", r.stdout)
 
+    def test_d12_git_missing_refuses_not_traceback(self) -> None:
+        # 3b540 round 3 (r2 review, claude F2 generalized): git missing from
+        # PATH entirely (FileNotFoundError, an OSError) at the very first
+        # helper call is mapped once in the helpers to _GitCallFailed and
+        # refused by main()'s backstop as D12 CANNOT-EVALUATE (exit 2) naming
+        # the call, never an escaping traceback.
+        tmp, git = self._repo()
+        empty_dir = Path(tempfile.mkdtemp(prefix="no-git-")).resolve()
+        self.addCleanup(shutil.rmtree, empty_dir, ignore_errors=True)
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       env={"GITHUB_BASE_REF": "main", "PATH": str(empty_dir)})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn("git rev-parse --verify --quiet origin/main", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_base_floor_show_failure_refuses(self) -> None:
+        # 3b540 round 3 (r2 review, claude F2): the base floor passing the
+        # _path_at_ref existence check but the git show read then failing
+        # (CalledProcessError; the repository mutating under the gate) is a
+        # D12 CANNOT-EVALUATE refusal (exit 2) naming the call, never a
+        # traceback. The PATH shim delegates to the real git except for show.
+        real_git = shutil.which("git")
+        self.assertIsNotNone(real_git)
+        tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+        shim_dir = Path(tempfile.mkdtemp(prefix="gitshim-")).resolve()
+        self.addCleanup(shutil.rmtree, shim_dir, ignore_errors=True)
+        shim = shim_dir / "git"
+        shim.write_text(
+            "#!/bin/sh\n"
+            'for a in "$@"; do\n'
+            '  if [ "$a" = "show" ]; then exit 128; fi\n'
+            "done\n"
+            f'exec "{real_git}" "$@"\n',
+            encoding="utf-8",
+        )
+        shim.chmod(0o755)
+        r = self._gate(
+            "check-todo-floor-monotonic-on-pr.py", tmp,
+            env={"GITHUB_BASE_REF": "main",
+                 "PATH": f"{shim_dir}{os.pathsep}{os.environ['PATH']}"})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn("git show origin/main:tools/todo-number-floor.json", r.stderr)
+        self.assertIn("reading the base floor", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_explicit_head_floor_removed_still_fails(self) -> None:
+        # 3b540 round 3: regression pin for the restructure above -- with the
+        # floor-removed FAIL now decided by the explicit-head _path_at_ref
+        # check (git show failures having become refusals), a head commit
+        # that genuinely DELETES the floor still fails (exit 1), not a
+        # refusal and not a pass.
+        tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+        git("checkout", "-q", "-b", "feat")
+        git("rm", "-q", "tools/todo-number-floor.json")
+        git("commit", "-q", "-m", "drop floor")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       "origin/main", "feat")
+        self.assertEqual(r.returncode, 1, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("missing at HEAD", r.stderr)
+        self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_negative_floor_value_refuses_zero_allowed(self) -> None:
+        # 3b540 round 3 (r2 review, gemini F1): a NEGATIVE floor value is no
+        # floor at all; on a brand-new series it would sail through the
+        # monotonicity comparison as a silent OK, so _parse refuses it as a
+        # shape defect (exit 2) naming the series. Zero stays allowed: it is
+        # the producer's no-allocation default (build-todo-number-allocation.py
+        # load_floor starts tf at 0 and compute reads floor.get(s, 0)).
+        tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+        floor.write_text('{"2": 32, "3": -1}\n', encoding="utf-8")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn("negative floor value", r.stderr)
+        self.assertIn("'3'", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+        # zero-valued floors on both sides still get the real monotonic OK
+        tmp2, git2, floor2 = self._repo_with_floor_at_base('{"2": 0, "TF": 0}\n')
+        floor2.write_text('{"2": 0, "3": 1, "TF": 0}\n', encoding="utf-8")
+        r2 = self._gate("check-todo-floor-monotonic-on-pr.py", tmp2,
+                        env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r2.returncode, 0, f"stdout:\n{r2.stdout}\nstderr:\n{r2.stderr}")
+        self.assertIn("monotonic", r2.stdout)
+        self.assertNotIn("CANNOT-EVALUATE", r2.stderr)
+
     def test_d12_argless_git_call_failure_refuses(self) -> None:
         # Round 4 of 3b530 (review F5): a git diff or git ls-files call that
         # fails outright (nonzero beyond the documented difference status 1)
@@ -26033,7 +26125,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-retired-section-orphan-on-pr.py NO_FS F 94f89f3645e0e4dedbfe0a2d174ba60150b94bd7a0c734e25d5f96d148afe4ba
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
         check-stranded-control-code-on-pr.py NO_FS F 5c0890d697db2086c6a10fe3222b6a268ac04199a359b761e4d393aceaccde7d
-        check-todo-floor-monotonic-on-pr.py NO_FS F 4b1c1e3e703a4bf6dd17393a206bf584b639e9337315870bcb10bb00c427bd43
+        check-todo-floor-monotonic-on-pr.py NO_FS F 0d0d31a03e95bfcb0fd52d69e1c92553425e169fbdd4ea67c3cccd3d150b2dde
         check-todo-rotation-on-pr.py NO_FS F f4189bf15201c6ae8d228ac341f5c5c5dd859457be22275084e2e155751b5c96
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 520abe7d721553382768bf7c581cc0db91b1b6ac329404cc61416333246062b2

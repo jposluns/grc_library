@@ -42,17 +42,31 @@ FLOOR_PATH = "tools/todo-number-floor.json"
 def _ref_resolves(ref):
     """True iff ``ref`` resolves to a commit. An invalid / unfetched base ref must NOT be
     read as 'the floor is new' (that would silently waive the monotonicity check): ignorance
-    about the input is a first-class REFUSE, not a permit (guard-input discipline)."""
-    return subprocess.run(
-        ["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"],
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+    about the input is a first-class REFUSE, not a permit (guard-input discipline).
+    git not running at all (OSError, e.g. git missing from PATH) raises
+    _GitCallFailed for main()'s refusal backstop, never a traceback (3b540
+    round 3); a nonzero status IS the answer here, so CalledProcessError
+    cannot arise (subprocess.run without check)."""
+    try:
+        return subprocess.run(
+            ["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+    except OSError as exc:
+        raise _GitCallFailed(
+            f"git rev-parse --verify --quiet {ref} (did not run: {exc})")
 
 
 def _rev_parse(ref):
-    """The commit SHA ``ref`` resolves to (caller has verified it resolves)."""
-    return subprocess.check_output(
-        ["git", "rev-parse", "--verify", f"{ref}^{{commit}}"], text=True,
-        stderr=subprocess.DEVNULL).strip()
+    """The commit SHA ``ref`` resolves to (caller has verified it resolves).
+    A ref vanishing between that check and this read (CalledProcessError) or
+    git itself vanishing (OSError) raises _GitCallFailed for main()'s refusal
+    backstop, never a traceback (3b540 round 3)."""
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--verify", f"{ref}^{{commit}}"], text=True,
+            stderr=subprocess.DEVNULL).strip()
+    except (subprocess.CalledProcessError, OSError) as exc:
+        raise _GitCallFailed(f"git rev-parse --verify {ref} ({exc})")
 
 
 def _toplevel():
@@ -73,10 +87,17 @@ def _toplevel():
 
 
 def _path_at_ref(ref, path):
-    """True iff ``path`` exists in ``ref``'s tree (base valid AND path present)."""
-    return subprocess.run(
-        ["git", "cat-file", "-e", f"{ref}:{path}"],
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+    """True iff ``path`` exists in ``ref``'s tree (ref valid AND path present).
+    git not running at all (OSError) raises _GitCallFailed for main()'s
+    refusal backstop, never a traceback (3b540 round 3); a nonzero status IS
+    the answer here, so CalledProcessError cannot arise (subprocess.run
+    without check)."""
+    try:
+        return subprocess.run(
+            ["git", "cat-file", "-e", f"{ref}:{path}"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+    except OSError as exc:
+        raise _GitCallFailed(f"git cat-file -e {ref}:{path} (did not run: {exc})")
 
 
 class _GitCallFailed(Exception):
@@ -144,12 +165,15 @@ def _git_show(ref, path):
     """``ref:path``'s text. A blob the locale codec cannot decode leaves that
     revision's floor undetermined, so a UnicodeDecodeError raises
     _GitCallFailed for the caller to refuse on instead of escaping as a
-    traceback (3b540); a missing path still raises CalledProcessError (the
-    caller's floor-removed FAIL)."""
+    traceback (3b540); a show that fails (CalledProcessError, e.g. the blob
+    vanishing between the caller's _path_at_ref check and this read) or git
+    not running at all (OSError) raises the same _GitCallFailed, so the
+    floor-removed FAIL belongs to the callers' explicit _path_at_ref / open
+    checks, never to a failed read (3b540 round 3)."""
     try:
         return subprocess.check_output(["git", "show", f"{ref}:{path}"], text=True,
                                        stderr=subprocess.DEVNULL)
-    except UnicodeDecodeError as exc:
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
         raise _GitCallFailed(f"git show {ref}:{path} ({exc})")
 
 
@@ -165,10 +189,14 @@ def _parse(text, source=FLOOR_PATH):
     ``text``. The shape validation lives HERE and only here, so no call site
     can parse a floor without it (3b540 round 2): the content must be valid
     JSON, the top level a JSON object, every non-comment key an integer
-    string or the TF series, and every value a JSON integer (true/false are
-    booleans, not integers). Underscore-prefixed keys are comments, skipped
-    before validation. Any defect raises _FloorParseError naming ``source``
-    for the caller to refuse on."""
+    string or the TF series, and every value a NON-NEGATIVE JSON integer
+    (true/false are booleans, not integers; a floor records the highest
+    ordinal ever allocated, so a negative value is no floor at all, while
+    zero is the producer's no-allocation default --
+    build-todo-number-allocation.py reads ``floor.get(s, 0)`` and
+    ``tf = 0`` -- and stays allowed) (3b540 round 3). Underscore-prefixed
+    keys are comments, skipped before validation. Any defect raises
+    _FloorParseError naming ``source`` for the caller to refuse on."""
     try:
         data = json.loads(text)
     except json.JSONDecodeError as exc:
@@ -190,6 +218,11 @@ def _parse(text, source=FLOOR_PATH):
             raise _FloorParseError(
                 f"{source} has a floor value that is not an integer "
                 f"(series {k!r}: {v!r})")
+        if v < 0:
+            raise _FloorParseError(
+                f"{source} has a negative floor value (series {k!r}: {v!r}); "
+                f"a floor records the highest ordinal ever allocated and is "
+                f"never below 0")
         floor[k] = v
     return floor
 
@@ -207,6 +240,24 @@ def find_violations(base, head):
 
 
 def main(argv):
+    """_run() behind the one refusal backstop for _GitCallFailed: every git
+    helper maps a call that fails outright (CalledProcessError where a status
+    is not the documented answer, or OSError, e.g. FileNotFoundError when git
+    is missing) to _GitCallFailed naming the call, so the mapping lives once
+    in the helpers; call sites that can say WHAT was being evaluated catch it
+    with a tailored D12 CANNOT-EVALUATE, and every other site falls through
+    to this backstop -- the same refusal, never a traceback (3b540 round 3)."""
+    try:
+        return _run(argv)
+    except _GitCallFailed as exc:
+        sys.stderr.write(
+            f"D12 CANNOT-EVALUATE: {exc} failed (repo={_toplevel()}); the "
+            f"repository state is undetermined, so nothing was evaluated. "
+            f"Fix the git installation or repository state and re-run.\n")
+        return 2
+
+
+def _run(argv):
     if len(argv) > 3 or any(a.startswith("-") for a in argv[1:]):  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
         sys.stderr.write("usage: check-todo-floor-monotonic-on-pr.py [<base-ref> [<head-ref>]]\n")
         return 2
@@ -286,6 +337,15 @@ def main(argv):
             f"{base_ref}:{FLOOR_PATH} (repo={_toplevel()} base={base_sha}); "
             f"nothing was evaluated. Fix the repository state and re-run.\n")
         return 2
+    if head_ref and not _path_at_ref(head_ref, FLOOR_PATH):
+        # The explicit-head twin of the base _path_at_ref check above: the
+        # floor-removed FAIL is decided by this path check, so a _git_show
+        # that then fails (the blob vanishing, or git itself) is a refusal
+        # via the helpers' _GitCallFailed, never read as a removed floor and
+        # never a traceback (3b540 round 3).
+        sys.stderr.write(f"FAIL: {FLOOR_PATH} is missing at HEAD but present at {base_ref} "
+                         "(the floor must never be removed).\n")
+        return 1
     head_desc = f"{head_ref}:{FLOOR_PATH}" if head_ref else os.path.join(top, FLOOR_PATH)
     try:
         # The argless head read anchors to the same resolved top level as the
@@ -299,7 +359,7 @@ def main(argv):
             head_text = _git_show(head_ref, FLOOR_PATH)
         else:
             head_text = open(head_desc, encoding="utf-8").read()
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except FileNotFoundError:
         sys.stderr.write(f"FAIL: {FLOOR_PATH} is missing at HEAD but present at {base_ref} "
                          "(the floor must never be removed).\n")
         return 1
