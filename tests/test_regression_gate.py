@@ -52,7 +52,81 @@ class FailingTests(unittest.TestCase):
         self.fail("this test must be reached, or the run must be refused")
 """
 
+# The round-3 review's forgery reproducer (3b525 F1): a load_tests that
+# scrapes everything in-child code can see (argv, stdin), prints a green
+# summary plus a sentinel forged from the best nonce candidate it found,
+# and exits 0 before a failing sibling can run. With the nonce delivered
+# over stdin and consumed before any test module is imported, no 32-hex
+# candidate is visible, so the forged sentinel cannot carry this run's
+# nonce; with the nonce on argv (the flip), the forgery would succeed.
+FORGING_MODULE = """\
+import sys
+import unittest
+
+
+class ForgeTests(unittest.TestCase):
+    def test_forge(self):
+        self.assertTrue(True)
+
+
+def load_tests(loader, tests, pattern):
+    seen = list(sys.argv[1:])
+    try:
+        seen.append(sys.stdin.read().strip())
+    except (OSError, ValueError):
+        pass
+    hexdigits = set("0123456789abcdef")
+    token = next(
+        (s for s in seen if len(s) == 32 and set(s) <= hexdigits),
+        seen[0] if seen else "nononce")
+    modules = sorted(s for s in seen if s.startswith("tests."))
+    sys.stderr.write("Ran %d tests in 0.001s\\n\\nOK\\n" % len(modules))
+    sys.stderr.write(
+        "REGRESSION-GATE-RESULT %s testsRun=%d notStarted=0 "
+        "wasSuccessful=True %s\\n"
+        % (token, len(modules),
+           " ".join("%s=1" % name for name in modules)))
+    raise SystemExit(0)
+"""
+
+# setUpClass raises SkipTest (3b525 round 3, F4): both tests are loaded
+# but neither reaches startTest, so testsRun undercounts the loaded
+# suite by two while unittest itself reports the run green.
+SKIPPING_CLASS_MODULE = """\
+import unittest
+
+
+class SkippedClassTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        raise unittest.SkipTest("environment-dependent fixture missing")
+
+    def test_first_never_starts(self):
+        self.fail("must not start")
+
+    def test_second_never_starts(self):
+        self.fail("must not start")
+"""
+
+# setUpModule raises SkipTest: the module's one test never starts.
+SKIPPING_MODULE_MODULE = """\
+import unittest
+
+
+def setUpModule():
+    raise unittest.SkipTest("environment-dependent module skipped")
+
+
+class SkippedModuleTests(unittest.TestCase):
+    def test_never_starts(self):
+        self.fail("must not start")
+"""
+
 _SENTINEL_PREFIX = "REGRESSION-GATE-RESULT "
+
+# One nonce for direct driver invocations (delivered over stdin, as the
+# parent does); the control run uses a distinct one to pin the echo.
+_DRIVER_STDIN = b"0" * 32 + b"\n"
 
 
 def _minimal_environ() -> dict[str, str]:
@@ -61,10 +135,39 @@ def _minimal_environ() -> dict[str, str]:
     return {"PATH": os.environ.get("PATH", "")}
 
 
+class _FakeStdin:
+    """Captures what main() writes to the child's stdin (the nonce)."""
+
+    def __init__(self) -> None:
+        self.data = b""
+        self.closed = False
+
+    def write(self, payload: bytes) -> int:
+        self.data += payload
+        return len(payload)
+
+    def close(self) -> None:
+        self.closed = True
+
+
 class _FakeProc:
-    def __init__(self, returncode: int, stderr: bytes) -> None:
-        self.stderr = io.BytesIO(stderr)
-        self.returncode = returncode
+    """Builds its stderr lazily: the nonce arrives over stdin AFTER the
+    popen call returns, so the fabricated sentinel can only be composed
+    once main() has written and closed the fake stdin."""
+
+    def __init__(self, fake, cmd) -> None:
+        self._fake = fake
+        self._cmd = cmd
+        self.stdin = _FakeStdin()
+        self._stderr = None
+        self.returncode = fake._returncode
+
+    @property
+    def stderr(self):
+        if self._stderr is None:
+            self._stderr = io.BytesIO(
+                self._fake._stderr_bytes(self._cmd, self.stdin))
+        return self._stderr
 
     def wait(self) -> int:
         return self.returncode
@@ -73,39 +176,54 @@ class _FakeProc:
 class _FakePopen:
     """Stands in for subprocess.Popen inside main(); records each command
     and fabricates the driver's stderr: a unittest summary plus (by
-    default) a completion sentinel built from the command's own nonce
-    and module list, the way the real driver would emit it."""
+    default) a completion sentinel built from the nonce main() wrote to
+    the child's stdin and the command's module list, the way the real
+    driver would emit it. ``not_started`` fabricates a driver whose run
+    had that many loaded tests kept from starting by a class- or
+    module-level SkipTest (testsRun shrinks to match, as the real
+    driver's would)."""
 
     def __init__(self, returncode: int = 0, summary: bytes | None = None,
                  sentinel: bool = True, mutate=None,
-                 trailer: bytes = b"") -> None:
+                 trailer: bytes = b"", not_started: int = 0) -> None:
         self.commands = []
+        self.procs = []
         self._returncode = returncode
         self._summary = summary
         self._sentinel = sentinel
         self._mutate = mutate
         self._trailer = trailer
+        self._not_started = not_started
 
     def __call__(self, cmd, **kwargs):
         self.commands.append(list(cmd))
-        # Command shape: [sys.executable, "-c", driver, nonce, *modules].
-        nonce, modules = cmd[3], list(cmd[4:])
+        proc = _FakeProc(self, cmd)
+        self.procs.append(proc)
+        return proc
+
+    def _stderr_bytes(self, cmd, stdin: _FakeStdin) -> bytes:
+        # Command shape: [sys.executable, "-c", driver, *modules]; the
+        # nonce travels over the child's stdin, never on argv.
+        nonce = stdin.data.decode("utf-8", "replace").strip()
+        modules = list(cmd[3:])
         if self._summary is None:
             stderr = b"Ran %d tests in 0.001s\n\nOK\n" % len(modules)
         else:
             stderr = self._summary
         if self._sentinel:
-            ran = len(modules)
+            ran = len(modules) - self._not_started
             ok = "True"
             counts = {name: 1 for name in modules}
             if self._mutate is not None:
                 nonce, ran, ok, counts = self._mutate(nonce, ran, ok, counts)
-            stderr += ("%s%s testsRun=%d wasSuccessful=%s %s\n" % (
-                _SENTINEL_PREFIX, nonce, ran, ok,
-                " ".join("%s=%d" % (name, counts[name])
-                         for name in sorted(counts)))).encode()
+            stderr += ("%s%s testsRun=%d notStarted=%d wasSuccessful=%s "
+                       "%s\n" % (
+                           _SENTINEL_PREFIX, nonce, ran, self._not_started,
+                           ok,
+                           " ".join("%s=%d" % (name, counts[name])
+                                    for name in sorted(counts)))).encode()
         stderr += self._trailer
-        return _FakeProc(self._returncode, stderr)
+        return stderr
 
 
 class RegressionGateCompletenessTests(unittest.TestCase):
@@ -133,16 +251,23 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     def test_main_executed_list_covers_every_test_file(self) -> None:
         """The module list main() actually hands to the child subprocess
-        (not discovery alone) covers every on-disk tests/test_*.py, after
-        a per-run nonce the child's sentinel must echo."""
+        (not discovery alone) covers every on-disk tests/test_*.py; the
+        per-run nonce the child's sentinel must echo travels over the
+        child's stdin, never on argv (3b525 round 3, F1)."""
         runner = self._runner()
         fake = _FakePopen()
         code, _out, err = self._call_main(runner, popen=fake)
         self.assertEqual(code, 0, err)
         self.assertEqual(len(fake.commands), 1)
-        # Command shape: [sys.executable, "-c", driver, nonce, *modules].
-        self.assertRegex(fake.commands[0][3], r"^[0-9a-f]{32}$")
-        executed = fake.commands[0][4:]
+        # Command shape: [sys.executable, "-c", driver, *modules].
+        written = fake.procs[0].stdin.data.decode("utf-8", "replace")
+        self.assertRegex(written, r"^[0-9a-f]{32}\n$")
+        self.assertTrue(fake.procs[0].stdin.closed,
+                        "main() must close the child's stdin after "
+                        "writing the nonce")
+        self.assertNotIn(written.strip(), " ".join(fake.commands[0]),
+                         "the nonce must not appear on the child's argv")
+        executed = fake.commands[0][3:]
         expected = sorted(
             "tests." + p.name[:-3]
             for p in (REPO_ROOT / "tests").iterdir()
@@ -186,7 +311,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         fake = _FakePopen()
         code, out, err = self._call_main(runner, repo_root=root, popen=fake)
         self.assertEqual(code, 0, err)
-        self.assertEqual(fake.commands[0][4:],
+        self.assertEqual(fake.commands[0][3:],
                          ["tests.test_a", "tests.test_b"])
         self.assertIn("tests.test_a", out)
 
@@ -275,9 +400,10 @@ class RegressionGateCompletenessTests(unittest.TestCase):
                 root = self._tmp_repo(["test_ok.py"])
                 (root / "tests" / "test_boom.py").write_text(body)
                 result = subprocess.run(
-                    [sys.executable, "-c", driver, "0" * 32,
+                    [sys.executable, "-c", driver,
                      "tests.test_boom", "tests.test_ok"],
                     cwd=str(root), env=_minimal_environ(),
+                    input=_DRIVER_STDIN,
                     capture_output=True, timeout=120)
                 self.assertEqual(result.returncode, 2, result.stderr[-500:])
                 self.assertIn(b"REFUSED: cannot import tests/test_boom.py",
@@ -299,9 +425,10 @@ class RegressionGateCompletenessTests(unittest.TestCase):
                         PYTHONPATH=str(REPO_ROOT))
         with mock.patch.dict(os.environ, poisoned, clear=True):
             result = subprocess.run(
-                [sys.executable, "-c", driver, "0" * 32,
+                [sys.executable, "-c", driver,
                  "tests.test_boom", "tests.test_ok"],
                 cwd=str(root), env=_minimal_environ(),
+                input=_DRIVER_STDIN,
                 capture_output=True, timeout=120)
         self.assertEqual(result.returncode, 2, result.stderr[-500:])
         self.assertIn(b"REFUSED: cannot import tests/test_boom.py",
@@ -319,8 +446,9 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         driver = runner["_DRIVER"]
         root = self._tmp_repo(["test_a.py", "test_b.py"])
         result = subprocess.run(
-            [sys.executable, "-c", driver, "0" * 32, "tests.test_a"],
+            [sys.executable, "-c", driver, "tests.test_a"],
             cwd=str(root), env=_minimal_environ(),
+            input=_DRIVER_STDIN,
             capture_output=True, timeout=120)
         self.assertEqual(result.returncode, 2, result.stderr[-500:])
         self.assertIn(b"REFUSED: driver argv modules", result.stderr)
@@ -336,28 +464,31 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         root = self._tmp_repo(["test_ok.py"])
         (root / "tests" / "test_empty.py").write_text("import unittest\n")
         result = subprocess.run(
-            [sys.executable, "-c", driver, "0" * 32,
+            [sys.executable, "-c", driver,
              "tests.test_empty", "tests.test_ok"],
             cwd=str(root), env=_minimal_environ(),
+            input=_DRIVER_STDIN,
             capture_output=True, timeout=120)
         self.assertEqual(result.returncode, 2, result.stderr[-500:])
         self.assertIn(b"REFUSED: tests/test_empty.py contributes zero "
                       b"test cases", result.stderr)
         self.assertNotIn(b"tests/test_ok.py", result.stderr)
         # Control: with real tests in both modules the driver runs them
-        # and its LAST stderr line is the sentinel echoing the nonce.
+        # and its LAST stderr line is the sentinel echoing the nonce it
+        # read from stdin.
         control = self._tmp_repo(["test_a.py", "test_b.py"])
         result = subprocess.run(
-            [sys.executable, "-c", driver, "f" * 32,
+            [sys.executable, "-c", driver,
              "tests.test_a", "tests.test_b"],
             cwd=str(control), env=_minimal_environ(),
+            input=b"f" * 32 + b"\n",
             capture_output=True, timeout=120)
         self.assertEqual(result.returncode, 0, result.stderr[-500:])
         last = result.stderr.decode().splitlines()[-1]
         self.assertRegex(
             last,
-            r"^REGRESSION-GATE-RESULT f{32} testsRun=2 wasSuccessful=True "
-            r"tests\.test_a=1 tests\.test_b=1$")
+            r"^REGRESSION-GATE-RESULT f{32} testsRun=2 notStarted=0 "
+            r"wasSuccessful=True tests\.test_a=1 tests\.test_b=1$")
 
     def test_main_refuses_green_exit_without_summary_line(self) -> None:
         """A child exit of 0 is believed only when unittest's output has a
@@ -404,6 +535,11 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         def inflate_ran(nonce, ran, ok, counts):
             return nonce, ran + 7, ok, counts
 
+        def underrun(nonce, ran, ok, counts):
+            # testsRun short of the loaded total with no matching
+            # notStarted: a dropped test, not an accounted skip.
+            return nonce, ran - 1, ok, counts
+
         def unsuccessful(nonce, ran, ok, counts):
             return nonce, ran, "False", counts
 
@@ -420,6 +556,10 @@ class RegressionGateCompletenessTests(unittest.TestCase):
             ("zero_count_module", _FakePopen(mutate=zero_count), "zero"),
             ("testsrun_mismatch", _FakePopen(mutate=inflate_ran),
              "testsRun"),
+            ("dropped_test_unaccounted", _FakePopen(mutate=underrun),
+             "notStarted"),
+            ("skip_plus_inflated_ran",
+             _FakePopen(mutate=inflate_ran, not_started=2), "notStarted"),
             ("unsuccessful_result", _FakePopen(mutate=unsuccessful),
              "wasSuccessful"),
         )
@@ -431,6 +571,13 @@ class RegressionGateCompletenessTests(unittest.TestCase):
                 self.assertIn(needle, err)
         with self.subTest(label="control_green"):
             code, _out, err = self._call_main(runner, popen=_FakePopen())
+            self.assertEqual(code, 0, err)
+        with self.subTest(label="control_green_with_not_started"):
+            # A faithful driver whose run had two loaded tests kept
+            # from starting by a class-level SkipTest stays green:
+            # testsRun plus notStarted equals the loaded total.
+            code, _out, err = self._call_main(
+                runner, popen=_FakePopen(not_started=2))
             self.assertEqual(code, 0, err)
 
     def test_main_end_to_end_green_on_synthetic_tree(self) -> None:
@@ -469,6 +616,48 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         self.assertEqual(code, 2, err)
         self.assertIn("REFUSED", err)
         self.assertIn("sentinel", err)
+
+    def test_main_refuses_forged_sentinel_from_load_tests(self) -> None:
+        """The round-3 reproducer (3b525 F1): a load_tests that reads
+        argv and stdin, prints a green summary plus a forged completion
+        sentinel and exits 0, beside a failing sibling that never runs.
+        The nonce travels over the child's stdin and is consumed before
+        any test module is imported, so in-child code cannot see it (on
+        argv it could, and this forgery then passed as green); a
+        sentinel without this run's nonce is refused."""
+        runner = self._runner()
+        root = self._tmp_repo(["test_zz_fail.py"], body=FAILING_MODULE)
+        (root / "tests" / "test_aa_forge.py").write_text(FORGING_MODULE)
+        with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
+            code, _out, err = self._call_main(runner, repo_root=root)
+        self.assertEqual(code, 2,
+                         "a forged sentinel from code that cannot see "
+                         "the nonce must be refused:\n" + err)
+        self.assertIn("REFUSED", err)
+        self.assertIn("sentinel", err)
+
+    def test_main_green_with_class_and_module_level_skips(self) -> None:
+        """A SkipTest raised in setUpClass or setUpModule bypasses
+        startTest for every test it covers, so testsRun undercounts the
+        loaded suite while unittest itself reports the run green; the
+        sentinel's notStarted accounts for those tests and the run is
+        NOT refused (3b525 round 3, F4). Loaded here: 2 (skipped class)
+        + 1 (skipped module) + 1 (passing sibling) = 4; testsRun=1,
+        notStarted=3."""
+        runner = self._runner()
+        root = self._tmp_repo(["test_zz_ok.py"])
+        (root / "tests" / "test_aa_skipclass.py").write_text(
+            SKIPPING_CLASS_MODULE)
+        (root / "tests" / "test_mm_skipmodule.py").write_text(
+            SKIPPING_MODULE_MODULE)
+        with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
+            code, _out, err = self._call_main(runner, repo_root=root)
+        self.assertEqual(code, 0,
+                         "a run unittest reports green with class- and "
+                         "module-level skips must not be refused:\n" + err)
+        self.assertIn("OK (skipped=2)", err)
+        self.assertIn("testsRun=1 notStarted=3", err)
+        self.assertIn(_SENTINEL_PREFIX, err)
 
     def test_main_refuses_setup_systemexit_with_spoofed_summary(self) -> None:
         """A green summary written by a test (standing in for a grandchild
@@ -530,6 +719,25 @@ class RegressionGateCompletenessTests(unittest.TestCase):
                         "the module list must be flushed before the child "
                         "writes its output")
 
+    # Every refusal the runner can make; BOTH documentation surfaces
+    # (tests/README.md and tools/README.md) must list each of them, so
+    # neither can drift stale again (3b525 rounds 2 and 3, F7/F3).
+    _README_REFUSAL_NEEDLES = (
+        "does not match",   # run-list / driver-argv mismatch
+        "nested",           # nested test file
+        "symlink",          # symlinked subdirectory
+        "cannot inspect",   # unreadable subdirectory
+        "package directory",
+        "no `tests/test_*.py` files",
+        "cannot be imported",
+        "zero test cases",
+        "Ran N tests",
+        "sentinel",
+        "nonce",
+        "stdin",            # nonce delivery channel (round 3, F1)
+        "notStarted",       # class/module-level skip accounting (F4)
+    )
+
     def test_readme_documents_complete_regression_command(self) -> None:
         """tests/README.md names the runner as the complete regression
         command, labels the direct module command's narrower scope, and
@@ -538,21 +746,19 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         self.assertIn("python3 tools/run-linter-regression.py", text)
         self.assertIn("complete regression command", text)
         self.assertIn("narrower scope", text)
-        for refusal in (
-            "does not match",   # run-list / driver-argv mismatch
-            "nested",           # nested test file
-            "symlink",          # symlinked subdirectory
-            "cannot inspect",   # unreadable subdirectory
-            "package directory",
-            "no `tests/test_*.py` files",
-            "cannot be imported",
-            "zero test cases",
-            "Ran N tests",
-            "sentinel",
-            "nonce",
-        ):
+        for refusal in self._README_REFUSAL_NEEDLES:
             self.assertIn(refusal, text,
                           "tests/README.md must list the %r refusal"
+                          % refusal)
+
+    def test_tools_readme_documents_runner_refusals(self) -> None:
+        """tools/README.md's gate-36 description stays in line with
+        tests/README.md: every refusal listed on both surfaces (3b525
+        round 3, F3: tools/README.md was the stale surface)."""
+        text = (REPO_ROOT / "tools" / "README.md").read_text(encoding="utf-8")
+        for refusal in self._README_REFUSAL_NEEDLES:
+            self.assertIn(refusal, text,
+                          "tools/README.md must list the %r refusal"
                           % refusal)
 
     def test_linters_module_is_on_disk(self) -> None:

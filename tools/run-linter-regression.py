@@ -49,15 +49,38 @@ findings):
 * Completion is established from the child's own executed suite, not
   from summary text: the driver runs with ``exit=False`` and emits a
   final sentinel line carrying a per-run nonce from this parent plus
-  ``testsRun``, the per-module test counts and ``wasSuccessful``. A
-  green child exit is believed only when that sentinel is the LAST
-  stderr line, the nonce matches, the per-module counts name exactly
-  the handed modules with at least one test each, ``testsRun`` equals
-  their sum, and ``wasSuccessful`` is True; otherwise the run is
+  ``testsRun``, ``notStarted`` (see below), the per-module test counts
+  and ``wasSuccessful``. A green child exit is believed only when that
+  sentinel is the LAST stderr line, the nonce matches, the per-module
+  counts name exactly the handed modules with at least one test each,
+  ``testsRun`` plus ``notStarted`` equals their sum (with ``testsRun``
+  at least 1), and ``wasSuccessful`` is True; otherwise the run is
   refused with exit 2. A premature ``SystemExit`` from ``load_tests``,
   ``setUpClass`` or ``setUpModule`` ends the child before the sentinel
   and is therefore refused, and a stray ``Ran N tests`` line written
   by a grandchild that inherits stderr cannot stand in for it.
+* The nonce travels over the child's STDIN (this parent writes it to
+  a pipe; the driver reads it and rebinds its stdin to ``os.devnull``,
+  closing the pipe, before importing any test module), never on argv
+  and never in the environment, so test code in the child cannot read
+  it from ``sys.argv``, ``os.environ`` or ``/proc/<pid>/cmdline`` and
+  forge a believable sentinel (the 3b525 round-3 finding: on argv,
+  a ``load_tests`` could read the nonce and forge the sentinel).
+  What the nonce does and does not defend against: the gate defends
+  against accidental early exits and dropped or hollowed-out modules,
+  and against sentinel forgery by code that cannot see the nonce. It
+  does NOT defend against arbitrary test code in the same process
+  interfering deliberately (such code can monkeypatch unittest or the
+  driver's globals, or replace the result object); no in-process
+  scheme is proof against that.
+* A ``SkipTest`` raised in ``setUpClass`` or ``setUpModule`` bypasses
+  ``startTest`` for every test it covers, so ``testsRun`` legitimately
+  undercounts the loaded suite. The driver counts those never-started
+  tests from the loaded suite (by skipped class and module) and
+  reports them as ``notStarted`` in the sentinel, so a run unittest
+  itself reports green with class- or module-level skips is not
+  refused, while a dropped test (which no skip record accounts for)
+  still is.
 * A green child exit additionally needs unittest's own ``Ran N
   tests`` line with N at least 1 somewhere in its stderr.
 
@@ -84,25 +107,36 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# Child driver: refuse (exit 2) when the argv module list differs from the
-# driver's own enumeration of top-level tests/test_*.py files, so a filtered
-# child argv (or a filter inside this driver) cannot drop a module. Then
+# Child driver: FIRST consume the per-run nonce from stdin and rebind
+# stdin to os.devnull (closing the pipe), before any test module is
+# imported, so no test code in this process can recover the nonce (it is
+# never on argv or in the environment either; a load_tests reading
+# sys.argv or /proc/<pid>/cmdline finds only module names). Then refuse
+# (exit 2) when the argv module list differs from the driver's own
+# enumeration of top-level tests/test_*.py files, so a filtered child
+# argv (or a filter inside this driver) cannot drop a module. Then
 # import every module, refusing loud (exit 2, naming the file) when one
 # cannot be imported; the import check catches BaseException, not Exception:
 # a module raising SystemExit(0) at import time would otherwise end the
 # child with exit 0 before any test runs. Then load each module's suite and
-# refuse (exit 2, naming the file) a module contributing zero test cases.
-# Run with exit=False and emit the sentinel line the parent requires as the
-# last stderr line: the per-run nonce (sys.argv[1]), testsRun, wasSuccessful
-# and the per-module test counts.
+# refuse (exit 2, naming the file) a module contributing zero test cases,
+# recording per-class loaded counts on the way. Run with exit=False and
+# emit the sentinel line the parent requires as the last stderr line: the
+# nonce, testsRun, notStarted (loaded tests a class- or module-level
+# SkipTest kept from reaching startTest, counted from the loaded suite via
+# the skip records' setUpClass/setUpModule holders), wasSuccessful and the
+# per-module test counts.
 _DRIVER = """\
 import importlib
 import os
 import sys
 import unittest
 
-nonce = sys.argv[1]
-modules = sys.argv[2:]
+nonce = sys.stdin.readline().strip()
+devnull = os.open(os.devnull, os.O_RDONLY)
+os.dup2(devnull, 0)
+os.close(devnull)
+modules = sys.argv[1:]
 on_disk = sorted(
     "tests." + entry.name[:-3]
     for entry in os.scandir("tests")
@@ -123,21 +157,47 @@ for name in modules:
         failed = True
 if failed:
     sys.exit(2)
+def flatten(suite):
+    for item in suite:
+        if isinstance(item, unittest.TestSuite):
+            yield from flatten(item)
+        else:
+            yield item
+
 loader = unittest.defaultTestLoader
 counts = {}
+class_counts = {}
 for name in modules:
-    counts[name] = loader.loadTestsFromName(name).countTestCases()
+    suite = loader.loadTestsFromName(name)
+    counts[name] = suite.countTestCases()
     if counts[name] < 1:
         print("REFUSED: tests/%s.py contributes zero test cases"
               % name.partition(".")[2], file=sys.stderr)
         failed = True
+    for case in flatten(suite):
+        key = "%s.%s" % (type(case).__module__, type(case).__qualname__)
+        class_counts[key] = class_counts.get(key, 0) + 1
 if failed:
     sys.exit(2)
 program = unittest.main(module=None, argv=["unittest"] + modules,
                         exit=False)
 result = program.result
-print("REGRESSION-GATE-RESULT %s testsRun=%d wasSuccessful=%s %s"
-      % (nonce, result.testsRun, result.wasSuccessful(),
+# A SkipTest from setUpClass/setUpModule is recorded as ONE skip on a
+# holder named "setUpClass (<module>.<Class>)" or "setUpModule
+# (<module>)" and none of the covered tests reaches startTest; count
+# those tests from the loaded suite so the parent can reconcile
+# testsRun against the loaded total. An unknown holder counts 0, so a
+# mismatch stays a refusal (fail closed).
+not_started = 0
+for skipped_test, _reason in result.skipped:
+    holder = skipped_test.id()
+    if holder.startswith("setUpClass (") and holder.endswith(")"):
+        not_started += class_counts.get(holder[len("setUpClass ("):-1], 0)
+    elif holder.startswith("setUpModule (") and holder.endswith(")"):
+        not_started += counts.get(holder[len("setUpModule ("):-1], 0)
+print("REGRESSION-GATE-RESULT %s testsRun=%d notStarted=%d "
+      "wasSuccessful=%s %s"
+      % (nonce, result.testsRun, not_started, result.wasSuccessful(),
          " ".join("%s=%d" % (name, counts[name])
                   for name in sorted(counts))),
       file=sys.stderr)
@@ -149,11 +209,13 @@ sys.exit(0 if result.wasSuccessful() else 1)
 _SUMMARY_LINE = re.compile(r"^Ran (\d+) tests? in ", re.MULTILINE)
 
 # The driver's completion sentinel (see _DRIVER). The nonce is 32 hex
-# digits from secrets.token_hex(16); the per-module counts are
-# space-separated "tests.<name>=<count>" tokens.
+# digits from secrets.token_hex(16), delivered to the child over stdin;
+# the per-module counts are space-separated "tests.<name>=<count>"
+# tokens.
 _SENTINEL = re.compile(
     r"^REGRESSION-GATE-RESULT (?P<nonce>[0-9a-f]{32}) "
-    r"testsRun=(?P<ran>\d+) wasSuccessful=(?P<ok>True|False)"
+    r"testsRun=(?P<ran>\d+) notStarted=(?P<notstarted>\d+) "
+    r"wasSuccessful=(?P<ok>True|False)"
     r"(?P<counts>( [A-Za-z0-9_.]+=\d+)*)$")
 
 
@@ -234,10 +296,13 @@ def _sentinel_refusal(last_line: str, nonce: str,
         return ("the completion sentinel reports a module with zero "
                 "test cases")
     ran = int(match.group("ran"))
-    if ran < 1 or ran != sum(counts.values()):
-        return ("the completion sentinel's testsRun=%d does not equal "
-                "the per-module total %d (with at least one test)"
-                % (ran, sum(counts.values())))
+    not_started = int(match.group("notstarted"))
+    if ran < 1 or ran + not_started != sum(counts.values()):
+        return ("the completion sentinel's testsRun=%d plus "
+                "notStarted=%d (loaded tests a class- or module-level "
+                "SkipTest kept from starting) does not equal the "
+                "per-module total %d (with at least one test run)"
+                % (ran, not_started, sum(counts.values())))
     if match.group("ok") != "True":
         return ("the child exited 0 but its own result reports "
                 "wasSuccessful=False")
@@ -258,10 +323,18 @@ def main(repo_root: Path = REPO_ROOT, popen=subprocess.Popen) -> int:
     sys.stdout.flush()
     nonce = secrets.token_hex(16)
     proc = popen(
-        [sys.executable, "-c", _DRIVER, nonce, *modules],
+        [sys.executable, "-c", _DRIVER, *modules],
         cwd=str(repo_root),
+        stdin=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
+    # The nonce travels over the child's stdin, never on argv or in the
+    # environment, so code inside the child (or reading its
+    # /proc/<pid>/cmdline) cannot see it and forge the sentinel; the
+    # driver consumes it before importing any test module. 33 bytes fit
+    # the pipe buffer, so this cannot deadlock against the stderr read.
+    proc.stdin.write((nonce + "\n").encode("ascii"))
+    proc.stdin.close()
     # Stream the child's stderr through as it arrives (a hang or an
     # interrupt must not swallow the progress seen so far), while
     # accumulating it for the checks below.

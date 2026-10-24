@@ -14,7 +14,17 @@ The library's audit programme is a set of linters, build-and-check generators, a
 
 To see the current gate set in one place, run [`tools/run_all_audits.sh`](run_all_audits.sh) or read the §6 table.
 
-Each individual linter is self-documenting via its module docstring (`python3 tools/<script>.py --help` where supported, or read the docstring directly). The shared helper module is [`tools/lint_common.py`](lint_common.py); the regression test suite is at [`tools/run-linter-regression.py`](run-linter-regression.py), which discovers every top-level `tests/test_*.py` file (sorted by module name; a test file nested in a `tests/` subdirectory is refused, not skipped), re-checks that run list against an independent `os.walk` enumeration before running, prints the module list it runs, runs them all in one `unittest` invocation, refuses (exit 2, naming the file) a discovered test file whose import raises anything (`BaseException` included, so an import-time `SystemExit(0)` cannot pass as green), and refuses a child exit of 0 whose output lacks a `Ran N tests` line with N at least 1; the linter fixtures live in [`tests/test_linters.py`](../tests/test_linters.py). [`tools/external_overlay.py`](external_overlay.py) declares the third-party skill directories shared by the external-overlay licence and ungated-surface dash audits.
+Each individual linter is self-documenting via its module docstring (`python3 tools/<script>.py --help` where supported, or read the docstring directly). The shared helper module is [`tools/lint_common.py`](lint_common.py); the regression test suite (gate 36) is at [`tools/run-linter-regression.py`](run-linter-regression.py), which discovers every top-level `tests/test_*.py` file (sorted by module name), prints the module list it runs, and runs all of the modules in one `unittest` invocation. It refuses (exit 2, naming the offender) each of the following, never softening one to green (this list matches [`tests/README.md`](../tests/README.md), and a regression test holds the two surfaces together):
+
+- a run list that does not match an independent `os.walk` enumeration of `tests/` (checked once in the parent and again by the child driver against its own argv, so a filter on either side cannot drop a module);
+- a test file nested in a `tests/` subdirectory, a `test_*/` package directory, a symlinked subdirectory, or a subdirectory the walk cannot inspect (all of which could hide test files);
+- finding no `tests/test_*.py` files at all;
+- a module that cannot be imported (any `BaseException`, so an import-time `SystemExit(0)` cannot pass as green);
+- a module that contributes zero test cases;
+- a green child exit whose output lacks unittest's own `Ran N tests` line with N at least 1; and
+- a green child exit whose LAST stderr line is not the child driver's completion sentinel, carrying the per-run nonce the parent delivered over the child's stdin (never on argv or in the environment, and consumed before any test module is imported, so in-child code cannot read it and forge the sentinel), `testsRun`, `notStarted` (loaded tests a class- or module-level `SkipTest` kept from starting, so a green run with such skips is not refused), the per-module test counts and `wasSuccessful=True`.
+
+The linter fixtures live in [`tests/test_linters.py`](../tests/test_linters.py). [`tools/external_overlay.py`](external_overlay.py) declares the third-party skill directories shared by the external-overlay licence and ungated-surface dash audits.
 
 ## Running
 

@@ -73,12 +73,28 @@ of the following, never softening one to green:
   line with N at least 1; and
 - a green child exit whose LAST stderr line is not the child driver's
   completion sentinel: a per-run nonce from the parent plus
-  `testsRun`, the per-module test counts (naming exactly the handed
-  modules, each at least 1, summing to `testsRun`) and
+  `testsRun`, `notStarted` (loaded tests a class- or module-level
+  `SkipTest` kept from starting, counted from the loaded suite, so a
+  green run with a `SkipTest` raised in `setUpClass` or `setUpModule`
+  is not refused), the per-module test counts (naming exactly the
+  handed modules, each at least 1, with `testsRun` plus `notStarted`
+  summing to their total and `testsRun` at least 1) and
   `wasSuccessful=True`. Completion is established from the executed
   suite's own result, so a premature `SystemExit` from `load_tests`,
   `setUpClass` or `setUpModule`, or a stray summary line written by a
   grandchild that inherits stderr, is refused.
+
+The nonce travels over the child's stdin (the parent writes it to a
+pipe; the driver consumes it and rebinds its stdin to `/dev/null`,
+closing the pipe, before importing any test module), never on argv and
+never in the environment, so test code in the child cannot read it from
+`sys.argv`, `os.environ` or `/proc/<pid>/cmdline`. What the nonce does
+and does not defend against: the gate defends against accidental early
+exits and dropped or hollowed-out modules, and against sentinel forgery
+by code that cannot see the nonce. It does NOT defend against arbitrary
+test code in the same process interfering deliberately (such code can
+monkeypatch `unittest` or the driver's globals); no in-process scheme
+is proof against that.
 
 A single module can still be run directly, for example:
 
