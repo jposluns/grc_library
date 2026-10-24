@@ -88,21 +88,30 @@ def _toplevel():
         return "(no work tree)"
 
 
-def _path_at_ref(ref, path):
-    """True iff ``path`` exists in ``ref``'s tree (ref valid AND path present).
-    git not running at all (OSError) raises _GitCallFailed for main()'s
-    refusal backstop, never a traceback (3b540 round 3); a nonzero status IS
-    the answer here, so CalledProcessError cannot arise (subprocess.run
-    without check). That status is nonzero both for an absent path and for
-    a ref that no longer resolves, so a caller acting on False re-checks
-    _ref_resolves first and refuses a ref that vanished after the gate
-    resolved it (3b540 round 4)."""
+def _path_at_sha(sha, path):
+    """True iff the tree of commit ``sha`` LISTS an entry at ``path``, as
+    ``git ls-tree --full-tree sha -- path`` reports it: empty output means
+    the path is absent there, a listed entry means it is present. This
+    decides presence in the tree only, not that the entry's object can be
+    read: a listed blob may be missing from the object store, so a caller
+    reads a listed entry with _git_show, whose failure refuses (3b540 round
+    5). ``sha`` is a commit SHA the gate resolved once, never a ref name, so
+    a ref that moves or vanishes mid-run cannot change the answer (3b540
+    round 5). --full-tree reads ``path`` from the repository top level, as
+    ``sha:path`` does, whatever the current directory. A nonzero status (the
+    commit or a tree on the path unreadable) or git not running at all
+    (OSError) raises _GitCallFailed for main()'s refusal backstop, never
+    read as absent and never a traceback (3b540 rounds 3 and 5)."""
     try:
-        return subprocess.run(
-            ["git", "cat-file", "-e", f"{ref}:{path}"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+        listing = subprocess.run(
+            ["git", "ls-tree", "--full-tree", sha, "--", path],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     except OSError as exc:
-        raise _GitCallFailed(f"git cat-file -e {ref}:{path} (did not run: {exc})")
+        raise _GitCallFailed(f"git ls-tree {sha} -- {path} (did not run: {exc})")
+    if listing.returncode != 0:
+        raise _GitCallFailed(
+            f"git ls-tree {sha} -- {path} (exit {listing.returncode})")
+    return listing.stdout != b""
 
 
 class _GitCallFailed(Exception):
@@ -170,11 +179,12 @@ def _git_show(ref, path):
     """``ref:path``'s text. A blob the locale codec cannot decode leaves that
     revision's floor undetermined, so a UnicodeDecodeError raises
     _GitCallFailed for the caller to refuse on instead of escaping as a
-    traceback (3b540); a show that fails (CalledProcessError, e.g. the blob
-    vanishing between the caller's _path_at_ref check and this read) or git
-    not running at all (OSError) raises the same _GitCallFailed, so the
-    floor-removed FAIL belongs to the callers' explicit _path_at_ref / open
-    checks, never to a failed read (3b540 round 3)."""
+    traceback (3b540); a show that fails (CalledProcessError, e.g. a blob
+    the caller's _path_at_sha check listed but the object store does not
+    hold; 3b540 round 5) or git not running at all (OSError) raises the
+    same _GitCallFailed, so the floor-removed FAIL belongs to the callers'
+    explicit _path_at_sha / open checks, never to a failed read (3b540
+    round 3)."""
     try:
         return subprocess.check_output(["git", "show", f"{ref}:{path}"], text=True,
                                        stderr=subprocess.DEVNULL)
@@ -265,22 +275,6 @@ def main(argv):
         return 2
 
 
-def _refuse_vanished_ref(side, ref, base_sha):
-    """The refusal for a ``side`` ("base" or "head") ref that resolved when
-    the gate started but no longer resolves once _path_at_ref reports the
-    floor absent there: that absence cannot be told from the ref vanishing
-    (git cat-file -e is nonzero for both), so neither the head's
-    floor-removed FAIL nor the base's first-introduction OK applies
-    (3b540 round 4). Returns the exit status."""
-    sys.stderr.write(
-        f"D12 CANNOT-EVALUATE: {side} ref '{ref}' no longer resolves to a "
-        f"commit (it resolved when the gate started; repo={_toplevel()} "
-        f"base={base_sha}), so the floor's absence there cannot be told from "
-        f"the ref vanishing; nothing was evaluated. Re-run once the ref is "
-        f"stable.\n")
-    return 2
-
-
 def _run(argv):
     if len(argv) > 3 or any(a.startswith("-") for a in argv[1:]):  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
         sys.stderr.write("usage: check-todo-floor-monotonic-on-pr.py [<base-ref> [<head-ref>]]\n")
@@ -299,7 +293,12 @@ def _run(argv):
     # A collapsed range would read as the clean monotonic-reflexive OK; refuse it
     # instead (the wrong-clone signature the delta gates refuse, orchestrator
     # mistake 300), BEFORE the first-introduction OK below can fire.
+    # Each ref is resolved to its commit SHA once, here, and every later git
+    # read -- the collapsed-range check, both floor-path checks, both floor
+    # reads -- uses those SHAs, never the ref names, so a ref that moves or
+    # vanishes mid-run cannot change what is evaluated (3b540 round 5).
     base_sha = _rev_parse(base_ref)
+    head_sha = None  # the argless head is the working tree, read by path below
     if head_ref is not None:
         if not _ref_resolves(head_ref):
             # An unresolvable NAMED head must not be read as 'the working tree'
@@ -312,11 +311,12 @@ def _run(argv):
                 "floor monotonicity (fetch the head, or pass a valid ref). "
                 "Refusing rather than waiving the check.\n")
             return 2
-        if _rev_parse(head_ref) == base_sha:
+        head_sha = _rev_parse(head_ref)
+        if head_sha == base_sha:
             sys.stderr.write(
                 f"D12 CANNOT-EVALUATE: base {base_ref} and head {head_ref} resolve "
                 f"to the same commit (repo={_toplevel()} base={base_sha} "
-                f"head={base_sha}); the named range is empty, so nothing was "
+                f"head={head_sha}); the named range is empty, so nothing was "
                 f"evaluated. If the change lives in a worktree, run from that "
                 f"worktree, or pass a base..head range that selects the change.\n")
             return 2
@@ -347,36 +347,29 @@ def _run(argv):
                 f"evaluated. If the change lives in a worktree, run from that "
                 f"worktree, or pass a base..head range that selects the change.\n")
             return 2
-    if not _path_at_ref(base_ref, FLOOR_PATH):
-        if not _ref_resolves(base_ref):
-            # A base ref deleted after the guard above would otherwise read
-            # as the first-introduction OK below, a silent waiver (3b540
-            # round 4).
-            return _refuse_vanished_ref("base", base_ref, base_sha)
+    if not _path_at_sha(base_sha, FLOOR_PATH):
         # base is VALID but the floor did not exist there: first introduction, nothing to compare.
         print(f"OK: {FLOOR_PATH} is new at this base ({base_ref}); no prior floor to compare.")
         return 0
     try:
-        base_text = _git_show(base_ref, FLOOR_PATH)
+        base_text = _git_show(base_sha, FLOOR_PATH)
     except _GitCallFailed as exc:
-        # The base floor exists (checked above) but could not be read back as
-        # text; refuse rather than evaluate on an undetermined base (3b540).
+        # The base tree lists the floor (checked above) but it could not be
+        # read back as text -- its blob missing from the object store, or
+        # undecodable; refuse rather than evaluate on an undetermined base,
+        # and never read it as the first-introduction OK (3b540, round 5).
         sys.stderr.write(
             f"D12 CANNOT-EVALUATE: {exc} failed while reading the base floor "
             f"{base_ref}:{FLOOR_PATH} (repo={_toplevel()} base={base_sha}); "
             f"nothing was evaluated. Fix the repository state and re-run.\n")
         return 2
-    if head_ref and not _path_at_ref(head_ref, FLOOR_PATH):
-        if not _ref_resolves(head_ref):
-            # The same race on the head side: a head ref deleted after the
-            # guard above is a refusal, not the floor-removed FAIL below
-            # (3b540 round 4).
-            return _refuse_vanished_ref("head", head_ref, base_sha)
-        # The explicit-head twin of the base _path_at_ref check above: the
+    if head_ref and not _path_at_sha(head_sha, FLOOR_PATH):
+        # The explicit-head twin of the base _path_at_sha check above: the
         # floor-removed FAIL is decided by this path check, so a _git_show
-        # that then fails (the blob vanishing, or git itself) is a refusal
-        # via the helpers' _GitCallFailed, never read as a removed floor and
-        # never a traceback (3b540 round 3).
+        # that then fails (a listed blob missing from the object store, or
+        # git itself) is a refusal via the helpers' _GitCallFailed, never
+        # read as a removed floor and never a traceback (3b540 rounds 3
+        # and 5).
         sys.stderr.write(f"FAIL: {FLOOR_PATH} is missing at HEAD but present at {base_ref} "
                          "(the floor must never be removed).\n")
         return 1
@@ -390,7 +383,7 @@ def _run(argv):
         # content defect (not JSON, or JSON of the wrong shape) can escape
         # as a traceback from any of the three forms (3b540 round 2).
         if head_ref:
-            head_text = _git_show(head_ref, FLOOR_PATH)
+            head_text = _git_show(head_sha, FLOOR_PATH)
         else:
             head_text = open(head_desc, encoding="utf-8").read()
     except FileNotFoundError:
