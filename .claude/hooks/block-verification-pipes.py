@@ -33,6 +33,26 @@ sinks to the named sets; a runner outside the widened set is still
 uncovered by design (the wrapper and the unpiped habit are the primary
 control).
 
+The additional status-read guard covers any final filter in STATUS_FILTERS,
+not just named verifiers. It tracks literal set -o/+o pipefail within a
+command list, and reads of $?/${?} in the next command (including double
+quotes, assignments and tests). Single quotes, escapes and comments do not
+count. The original named-verifier rule remains independent, including its
+pipefail policy. Bare background & is refused unless an unconditional,
+foreground, argument-free wait in the same shell scope drains all jobs.
+Targeted waits and wait -n do not establish that every job was collected.
+
+Additional residuals: this is a lexical guard, not a Bash interpreter.
+Literal parenthesized and brace groups are inspected with local pipefail/job
+state; brace-group state sharing and subshell exit-status propagation are
+not modeled. Command substitutions,
+eval, shell strings, functions, aliases, heredocs and here-strings are not
+interpreted; they can produce false positives or missed indirect commands.
+Conditional lists are conservative; loops/case/if and dynamic shell-option
+changes are not modeled. A literal wait is trusted to be the Bash builtin
+and to be reached (early exits/signals and overridden builtins are residuals).
+No completion is inferred for a child merely because it was launched.
+
 Self-test: `python3 .claude/hooks/block-verification-pipes.py --self-test`.
 """
 
@@ -153,13 +173,168 @@ PIPED = re.compile(COMMAND_POS + VERIFICATION + SEGMENT + r'\|[|&]?\s*' + FILTER
                    re.MULTILINE)
 
 
+STATUS_FILTERS = frozenset(
+    "tail head cut grep sed awk sort uniq wc tr fold column".split())
+OPERATORS = re.compile(r"&&|\|\||\|&|&>>|&>|>>|<<<?|>&|<&|[;\n|&()<>{}]")
+
+
+def shell_tokens(command):
+    """Yield (kind, decoded word, start, end, expands_status), without execution."""
+    i = 0
+    while i < len(command):
+        if command[i].isspace() and command[i] != "\n":
+            i += 1
+            continue
+        if command[i] == "#":
+            end = command.find("\n", i)
+            i = len(command) if end < 0 else end
+            continue
+        op = OPERATORS.match(command, i)
+        if op:
+            yield ("op", op[0], i, op.end(), False)
+            i = op.end()
+            continue
+        start, word, status, quote = i, [], False, None
+        parameter_depth = 0
+        while i < len(command):
+            c = command[i]
+            if quote != "'" and c == "\\":
+                if i + 1 < len(command):
+                    nxt = command[i + 1]
+                    if quote is None or nxt in '$`"\\\n':
+                        if nxt != "\n":
+                            word.append(nxt)
+                        i += 2
+                        continue
+            if c in "\"'" and (quote is None or quote == c):
+                quote = c if quote is None else None
+                i += 1
+                continue
+            if quote != "'" and (command.startswith("$?", i)
+                                  or command.startswith("${?}", i)):
+                status = True
+            # Keep parameter expansions in a word, but still notice nested $?.
+            if quote != "'" and command.startswith("${", i):
+                parameter_depth += 1
+                word.append("${")
+                i += 2
+                continue
+            if parameter_depth and c == "}":
+                parameter_depth -= 1
+                word.append(c)
+                i += 1
+                continue
+            if (quote is None and not parameter_depth
+                    and (c.isspace() or OPERATORS.match(command, i))):
+                break
+            word.append(c)
+            i += 1
+        yield ("word", "".join(word), start, i, status)
+
+
+def shell_violation(command):
+    """Return (guard, offending source span), or None; never run shell text."""
+    tokens = list(shell_tokens(command))
+
+    def inspect(items, pipefail=False, pending=None):
+        segment, jobs, conditional = [], [], False
+
+        def finish(separator):
+            nonlocal pipefail, pending, segment, conditional
+            if not segment:
+                return None
+            stages = [[]]
+            for token in segment:
+                if token[0] == "op" and token[1] in ("|", "|&"):
+                    stages.append([])
+                else:
+                    stages[-1].append(token)
+            if pending and any(t[4] for t in segment):
+                return ("pipeline-status", pending)
+
+            def argv(stage):
+                words, skip = [], False
+                for n, t in enumerate(stage):
+                    if skip:
+                        skip = False
+                        continue
+                    if t[0] == "op" and t[1] in (
+                            ">", "<", ">>", "<<", "<<<", ">&", "<&", "&>", "&>>"):
+                        if (n and stage[n - 1][0] == "word"
+                                and stage[n - 1][1].isdigit()
+                                and stage[n - 1][3] == t[2] and words):
+                            words.pop()  # adjacent IO number, not an argument
+                        skip = True
+                    elif t[0] == "word":
+                        words.append(t[1])
+                    else:
+                        words.append("<compound>")
+                return words
+
+            words = argv(segment)
+            # Only a standalone builtin in this shell can change its options
+            # or collect its children. Conditional waits cannot prove collection.
+            standalone = len(stages) == 1 and separator != "&" and not conditional
+            if len(stages) == 1 and separator != "&":
+                if words == ["set", "+o", "pipefail"]:
+                    pipefail = False  # even a conditional disable may execute
+                elif standalone and words == ["set", "-o", "pipefail"]:
+                    pipefail = True
+            if standalone and words == ["wait"]:
+                jobs.clear()
+            span = command[segment[0][2]:segment[-1][3]]
+            final = argv(stages[-1])
+            # Skip assignment prefixes; recognize absolute filter paths too.
+            while final and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", final[0]):
+                final.pop(0)
+            filtered = (len(stages) > 1 and final
+                        and final[0].rsplit("/", 1)[-1] in STATUS_FILTERS)
+            new_pending = span if filtered and not pipefail else None
+            pending = new_pending or (pending if conditional else None)
+            if separator == "&":
+                jobs.append(span)
+                pending = None  # an asynchronous list itself returns zero
+            conditional = separator in ("&&", "||")
+            segment = []
+            return None
+
+        i = 0
+        while i < len(items):
+            token = items[i]
+            if token[0] == "op" and token[1] in ("(", "{"):
+                closing = ")" if token[1] == "(" else "}"
+                depth, end = 1, i + 1
+                while end < len(items):
+                    if items[end][:2] == token[:2]:
+                        depth += 1
+                    elif items[end][:2] == ("op", closing):
+                        depth -= 1
+                        if depth == 0:
+                            break
+                    end += 1
+                found = inspect(items[i + 1:end], pipefail, pending)
+                if found:
+                    return found
+                stop = items[end][3] if end < len(items) else items[-1][3]
+                segment.append(("group", command[token[2]:stop], token[2], stop, False))
+                i = end + 1
+                continue
+            if token[0] == "op" and token[1] in (";", "\n", "&&", "||", "&"):
+                found = finish(token[1])
+                if found:
+                    return found
+            else:
+                segment.append(token)
+            i += 1
+        found = finish("")
+        return found or (("untracked-background", jobs[0]) if jobs else None)
+
+    return inspect(tokens)
+
+
 def command_is_blocked(command: str) -> bool:
-    # No whole-command exemption for tail-safe.sh: under the wrapper the
-    # verification name sits mid-segment (after `--`), not at command
-    # position, so wrapper invocations pass this regex naturally, and a
-    # wrapper mention elsewhere in a compound cannot whitelist a masked
-    # pipe in another segment.
-    return bool(PIPED.search(command))
+    # Keep the legacy command-position matcher and its existing exemptions.
+    return bool(shell_violation(command) or PIPED.search(command))
 
 
 def main() -> int:
@@ -168,12 +343,32 @@ def main() -> int:
         command = payload.get('tool_input', {}).get('command', '')
     except Exception:
         return 0  # fail-open on malformed payload (see docstring)
-    if not isinstance(command, str) or not command_is_blocked(command):
+    if not isinstance(command, str):
+        return 0
+    violation = shell_violation(command)
+    if not violation and not PIPED.search(command):
         return 0
     try:
         _load_sibling("_hook_state").record_block(command, "verification-pipes")
     except Exception:
         pass
+    if violation:
+        guard, span = violation
+        # repr keeps source newlines from impersonating message-contract sections.
+        if guard == "pipeline-status":
+            sys.stderr.write(
+                "BLOCKED (pipeline-status): status read after pipeline " + repr(span) + ".\n"
+                "WHY: $? is the filter's status, so a failing command can read as rc=0.\n"
+                "CONSIDER INSTEAD: redirect the command to a file, read $? immediately, "
+                "then read the file (cmd > log 2>&1; rc=$?; tail log); or use "
+                "tools/tail-safe.sh, ${PIPESTATUS[0]}/${PIPESTATUS[@]}, or set -o pipefail.\n")
+        else:
+            sys.stderr.write(
+                "BLOCKED (untracked-background): bare & detaches " + repr(span) + ".\n"
+                "WHY: the child's completion is untracked.\n"
+                "CONSIDER INSTEAD: use run_in_background for harness-tracked completion, "
+                "or wait for every launched job in this command (a & b & wait).\n")
+        return 2
     sys.stderr.write(
         "BLOCKED (verification-pipes): (RM-10) this command pipes a "
         "verification command into a truncating filter "
@@ -189,6 +384,10 @@ def main() -> int:
 
 def self_test() -> int:
     blocked = [
+        'timeout 60 tools/ci-status.sh --sha X 2>&1 | tail -8; echo rc=$?',
+        'python3 tools/lint-version-bump-recency.py ... 2>&1 | tail -3; echo rc=$?',
+        '... | cut -c1-160; echo "guard rc=$?"',
+        '(orch-verify ... ) > /dev/null 2>&1 &',
         'git push -u origin br | tail -3',
         'git -C repo -c color.ui=false push origin br | tail -3',
         'git --git-dir=repo/.git push origin br | head -1',
@@ -215,6 +414,15 @@ def self_test() -> int:
         './tools/pre-push-guard.sh | tee /tmp/guard.log',
     ]
     allowed = [
+        'cmd > f 2>&1; echo rc=$?',
+        'set -o pipefail; cmd | tail; echo $?',
+        'cmd | tail; echo ${PIPESTATUS[0]}',
+        "cmd | tail; echo '$?'",
+        'cmd | tail',
+        'a & b & wait',
+        'a && b',
+        'x 2>&1',
+        "echo '&'",
         'git push -u origin br',
         './tools/run_all_audits.sh',
         './tools/pre-push-guard.sh && git push -u origin br',

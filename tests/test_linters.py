@@ -52274,6 +52274,101 @@ class CitationWorklistSyncTests(unittest.TestCase):
 
 
 
+class BlockVerificationPipesTests(unittest.TestCase):
+    """3b513: lexical decisions, not execution of the supplied shell commands."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.hook = load_linter_module(
+            ".claude/hooks/block-verification-pipes.py", "_status_pipe_tests")
+
+    def check(self, commands, blocked):
+        for command in commands:
+            with self.subTest(command=command):
+                self.assertEqual(self.hook.command_is_blocked(command), blocked)
+
+    def test_requested_blocks(self):
+        self.check([
+            'timeout 60 tools/ci-status.sh --sha X 2>&1 | tail -8; echo rc=$?',
+            'python3 tools/lint-version-bump-recency.py ... 2>&1 | tail -3; echo rc=$?',
+            '... | cut -c1-160; echo "guard rc=$?"',
+            '(orch-verify ... ) > /dev/null 2>&1 &',
+        ], True)
+
+    def test_filter_status_consumers(self):
+        for name in "tail head cut grep sed awk sort uniq wc tr fold column".split():
+            self.check([
+                'cmd | ' + name + '; echo rc=$?',
+                'cmd | ' + name + '; printf "%s" "${?}"',
+                'cmd | ' + name + '; rc=$?',
+                'cmd | ' + name + '; test $? -eq 0',
+                'cmd | ' + name + '\n# status follows\necho $?',
+            ], True)
+        self.check([
+            'cmd | cat | /usr/bin/tail; echo $?',
+            'cmd | > out tail; echo $?',
+            'cmd | "tail"; echo $?',
+            'cmd |& tail && echo $?',
+            'cmd | tail || echo ${?}',
+            'cmd | tail && true; echo $?',  # true may be skipped
+            'cmd | tail; echo ${PIPESTATUS[0]} $?',
+            'cmd | tail; echo ${rc:-$?}',
+            'cmd | tail; echo ${rc:-${?}}',
+            'set -o pipefail; set +o pipefail; cmd | tail; echo $?',
+            'set -o pipefail; false || set +o pipefail; cmd | tail; echo $?',
+            '(set -o pipefail); cmd | tail; echo $?',
+            '(cmd | tail; echo $?)',
+            'echo "set -o pipefail"; cmd | tail; echo $?',
+            'set -o pipefail | cat; cmd | tail; echo $?',
+        ], True)
+
+    def test_status_allows_and_legacy_rule(self):
+        self.check([
+            'cmd > f 2>&1; echo rc=$?',
+            'set -o pipefail; cmd | tail; echo $?',
+            'set -o pipefail && cmd | tail; echo $?',
+            'set -o pipefail 2>/dev/null; cmd | tail; echo $?',
+            'set -o pipefail; (cmd | tail; echo $?)',
+            'cmd | tail; echo ${PIPESTATUS[0]}',
+            'cmd | tail; echo ${PIPESTATUS[@]}',
+            'cmd | tail',
+            "cmd | tail; echo '$?' '${?}'",
+            r'cmd | tail; echo \$? "\${?}"',
+            'cmd | tail; true; echo $?',
+            'cmd | tail; rc=0; echo $?',
+            'cmd | tail; echo done; echo $?',
+            'cmd | tail; # $? is just a comment',
+            'cmd | tail | cat; echo $?',
+            'echo "cmd | tail; echo $?"',
+            'cmd | tail; echo "single quote inside double: \'"',
+        ], False)
+        self.check([
+            'tools/run_all_audits.sh | tail',
+            'set -o pipefail; tools/run_all_audits.sh | tail; echo $?',
+            'tools/run_all_audits.sh | tail; echo ${PIPESTATUS[0]}',
+        ], True)  # existing named-verifier rule is intentionally independent
+
+    def test_background_jobs_require_collection_in_same_scope(self):
+        self.check([
+            'a &', 'a & b', 'a & b &', 'a & wait -n',
+            'a & wait 123', 'a & wait $!',  # targeted waits are not certified
+            'a & false && wait', 'a & true || wait',
+            'a & wait &', 'a & wait | cat', 'a & (wait)',
+            '(a &) ; wait', 'a & wait; b &',
+            'a & echo wait', 'a & echo "wait"',
+            'a & # wait', 'a & "echo" "&"',
+        ], True)
+        self.check([
+            'a & b & wait', 'a & wait; b & wait',
+            '(a & b & wait)', '(a) > /dev/null 2>&1 & wait',
+            'a & wait > /dev/null 2>&1',
+            'a && b', 'x 2>&1', 'x >&2', 'x &> f', 'x &>> f',
+            "echo '&'", 'echo "&"', r'echo \&',
+            'echo "a & b"', 'echo ok # a &',
+            "echo 'cmd | tail; echo $? & xyz'",
+        ], False)
+
+
 class BlockingHookMessageContractTests(unittest.TestCase):
     """P-1.95: per-rendered-message refusal inventory and contract."""
 
@@ -52507,8 +52602,16 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         ):
             add(name, message, evidence=("[2026-09-22 12:00Z]", "(session: 0h 5m)"))
 
-        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write("))
+        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write(", 2))
         add("pipe", "tools/run_all_audits.sh | tail -8", evidence=("(RM-10)",))
+        add("status", "cmd | tail; echo rc=$?", label="pipeline-status", verb="redirect",
+            at=("main", "sys.stderr.write(", 0),
+            evidence=("cmd | tail", "$? is the filter's status", "PIPESTATUS",
+                      "read $? immediately", "tools/tail-safe.sh"))
+        add("background", "(orch-verify x) > /dev/null 2>&1 &",
+            label="untracked-background", verb="use",
+            at=("main", "sys.stderr.write(", 1),
+            evidence=("orch-verify x", "completion is untracked", "run_in_background"))
         add = group("block-wrong-repo-tool", "use")
         for name, command, guard, evidence in (
             ("abspath", "cd /x && python3 tools/probe.py",
