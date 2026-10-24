@@ -156,7 +156,7 @@ Checks for:
   itself is described (the ingestion spec, the master spec, the AI
   ingestion instruction, and governance/template-document-review-record.md).
   Verbatim external text that contains the word 'ensure'
-  (the `verbatim_ensure_titles` profile field, which lists each such title) are masked
+  (the `verbatim_ensure_titles` profile field, which lists each such title) is masked
   first, per the house-style verbatim-quote exemption.
 - Section headings (H2-H6) that start with a lowercase letter after
   stripping common numbering prefixes (A1., 1.1, Step 1:, Category 1:,
