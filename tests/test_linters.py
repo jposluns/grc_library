@@ -10221,6 +10221,81 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("CANNOT-EVALUATE", r.stderr)
         self.assertIn("OK", r.stdout)
 
+    def test_d12_argless_unreadable_head_floor_refuses(self) -> None:
+        # 3b540 (round-5 review F1): with the floor present at the base, an
+        # argless head floor that EXISTS but cannot be read -- a directory in
+        # its place, a permission error, bytes that are not valid UTF-8 or
+        # not valid JSON -- is neither the floor-removed FAIL nor any clean
+        # verdict: the gate refuses with D12 CANNOT-EVALUATE (exit 2) naming
+        # the path and the error, instead of dying with a traceback.
+        cases = [
+            ("directory in place", "IsADirectoryError",
+             lambda p: (p.unlink(), p.mkdir())),
+            ("not valid UTF-8", "UnicodeDecodeError",
+             lambda p: p.write_bytes(b'{"2": 3\xff\xfe}\n')),
+            ("not valid JSON", "JSONDecodeError",
+             lambda p: p.write_text("not a floor\n", encoding="utf-8")),
+        ]
+        def _unreadable_target(p):
+            # chmod 0 on the floor itself would already fail git diff (exit
+            # 128, the round-4 refusal); a symlink to an unreadable target
+            # keeps the tracked diff readable (a typechange) so the EACCES
+            # surfaces at the gate's own head floor open().
+            secret = p.parent / "unreadable-target"
+            secret.write_text("{}\n", encoding="utf-8")
+            secret.chmod(0)
+            p.unlink()
+            p.symlink_to(secret)
+
+        if os.geteuid() != 0:  # root ignores mode bits, so the EACCES shape needs a non-root run
+            cases.append(("permission denied", "PermissionError", _unreadable_target))
+        for label, named_error, mangle in cases:
+            with self.subTest(shape=label):
+                tmp, git = self._repo()
+                floor = tmp / "tools" / "todo-number-floor.json"
+                floor.parent.mkdir(parents=True, exist_ok=True)
+                floor.write_text('{"2": 32}\n', encoding="utf-8")
+                git("add", "tools/todo-number-floor.json")
+                git("commit", "-q", "-m", "floor")
+                git("update-ref", "refs/remotes/origin/main", "HEAD")
+                # An untracked file keeps the range non-collapsed even when the
+                # mangling leaves the tracked floor bytes unchanged (chmod).
+                (tmp / "NEW.md").write_text("New.\n", encoding="utf-8")
+                mangle(floor)
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+                self.assertIn(str(floor), r.stderr)
+                self.assertIn(named_error, r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn("missing at HEAD", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
+    def test_d12_argless_nested_repo_refused_and_documented(self) -> None:
+        # 3b540 (round-5 review F3): an argless run from inside a NESTED git
+        # repository anchors to the nested repository (inherent git cwd
+        # discovery, shared by every cwd-launched gate), where the base ref
+        # does not resolve, so it is refused -- never evaluated against the
+        # outer repository -- and the usage docstring documents that refusal.
+        import subprocess as sp
+
+        tmp, git = self._repo()
+        nested = tmp / "vendor" / "inner"
+        nested.mkdir(parents=True)
+        sp.run(["git", "init", "-q", str(nested)], check=True, capture_output=True)
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", nested,
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("does not resolve", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+        tool = (REPO_ROOT / "tools" / "check-todo-floor-monotonic-on-pr.py").read_text(
+            encoding="utf-8")
+        self.assertIn("nested git repository", tool.lower(),
+                      "the usage docstring must document the nested-repository refusal")
+
     def test_d12_argless_git_call_failure_refuses(self) -> None:
         # Round 4 of 3b530 (review F5): a git diff or git ls-files call that
         # fails outright (nonzero beyond the documented difference status 1)
@@ -25813,7 +25888,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-retired-section-orphan-on-pr.py NO_FS F 94f89f3645e0e4dedbfe0a2d174ba60150b94bd7a0c734e25d5f96d148afe4ba
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
         check-stranded-control-code-on-pr.py NO_FS F 5c0890d697db2086c6a10fe3222b6a268ac04199a359b761e4d393aceaccde7d
-        check-todo-floor-monotonic-on-pr.py NO_FS F 193409c33cbf8eb4d7010c3f9acb40ef367cd33daa2d42933559bc03e9aa57df
+        check-todo-floor-monotonic-on-pr.py NO_FS F 59bb3811b83b16213f3c4d746178458f844c09b931acb322d4d549c4dd8d009c
         check-todo-rotation-on-pr.py NO_FS F f4189bf15201c6ae8d228ac341f5c5c5dd859457be22275084e2e155751b5c96
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 520abe7d721553382768bf7c581cc0db91b1b6ac329404cc61416333246062b2
@@ -41302,6 +41377,34 @@ class FloorMonotonicityDeltaTests(unittest.TestCase):
                                return_value=weird + "\n"):
             self.assertEqual(m._toplevel(), weird)
             self.assertEqual(m._toplevel_strict(), weird)
+
+    def test_unicode_decode_error_in_git_helpers_refuses(self):
+        """3b540 (round-5 review F2): git output the locale codec cannot decode
+        must refuse, never escape as a traceback: the message helper degrades
+        to its placeholder, the strict resolver and git show raise
+        _GitCallFailed, and main() turns a git show decode failure into the
+        D12 CANNOT-EVALUATE refusal (exit 2) naming the call and the error."""
+        m = self._mod()
+        import io, contextlib
+        from unittest import mock
+        err = UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid start byte")
+        with mock.patch.object(m.subprocess, "check_output", side_effect=err):
+            self.assertEqual(m._toplevel(), "(no work tree)")
+            with self.assertRaises(m._GitCallFailed):
+                m._toplevel_strict()
+            with self.assertRaises(m._GitCallFailed):
+                m._git_show("origin/main", m.FLOOR_PATH)
+        with mock.patch.object(m, "_ref_resolves", return_value=True), \
+                mock.patch.object(m, "_rev_parse", side_effect=["a" * 40, "b" * 40]), \
+                mock.patch.object(m, "_path_at_ref", return_value=True), \
+                mock.patch.object(m.subprocess, "check_output", side_effect=err):
+            buf = io.StringIO()
+            with contextlib.redirect_stderr(buf):
+                rc = m.main(["x", "base-ref", "head-ref"])
+        self.assertEqual(rc, 2, buf.getvalue())
+        self.assertIn("D12 CANNOT-EVALUATE", buf.getvalue())
+        self.assertIn(f"git show base-ref:{m.FLOOR_PATH}", buf.getvalue())
+        self.assertIn("can't decode", buf.getvalue())
 
 
 class TodoNumberPermanenceTests(LinterTestCase):
