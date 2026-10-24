@@ -52310,7 +52310,8 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'cmd | "tail"; echo $?',
             'cmd |& tail && echo $?',
             'cmd | tail || echo ${?}',
-            'cmd | tail && true; echo $?',  # true may be skipped
+            'cmd | tail || true; echo $?',  # true may be skipped, leaving
+                                            # the filter's zero readable
             'cmd | tail; echo ${PIPESTATUS[0]} $?',
             'cmd | tail; echo ${rc:-$?}',
             'cmd | tail; echo ${rc:-${?}}',
@@ -52507,11 +52508,14 @@ class BlockVerificationPipesTests(unittest.TestCase):
         self.assertEqual(self.hook.shell_violation('echo $((1 << (2)))')[0],
                          'arithmetic-shift')
         # Controls: a strict-interior shift and a real heredoc outside
-        # arithmetic keep their round-7 decisions.
+        # arithmetic keep their round-7 decisions. Round 10 moved the
+        # rejected-arithmetic-then-heredoc control to the blocked side: the
+        # fallback close cannot be trusted (R9X nested-pair), so any << in a
+        # command entering the fallback refuses (accepted false block).
         self.check(['echo $((1 << 2))', '(( flags << 1 ))',
-                    'cat <<EOF\nx & y\nEOF', '(( (1) )); cat <<E\nz &\nE'],
-                   False)
-        self.check(['echo $((1 << 2))\n: &'], True)
+                    'cat <<EOF\nx & y\nEOF'], False)
+        self.check(['echo $((1 << 2))\n: &',
+                    '(( (1) )); cat <<E\nz &\nE'], True)
 
     def test_round9_crlf_heredoc_terminator_divergence_refuses(self):
         # R8 Gemini ERROR 1 / Codex R8-2: a CRLF delimiter word kept its \r,
@@ -52527,12 +52531,13 @@ class BlockVerificationPipesTests(unittest.TestCase):
     def test_round9_backslash_continued_terminator_refuses(self):
         # R8 Codex R8-2: bash joins "E\<newline>OF" into the delimiter EOF and
         # runs the next line; the hook compares physical lines, never matches,
-        # and would swallow ": &". A terminator never matched now refuses.
-        # Allowed on c5d1df367.
+        # and would swallow ": &". Allowed on c5d1df367; round 9 refused it as
+        # heredoc-unterminated, and round 10 refuses the divergent body line
+        # itself, so a later matching line cannot rescue it (R9X).
         self.check(["cat <<EOF\nE\\\nOF\n: &"], True)
         self.assertEqual(
             self.hook.shell_violation("cat <<EOF\nE\\\nOF\n: &")[0],
-            'heredoc-unterminated')
+            'heredoc-divergence')
 
     def test_round9_case_arm_parentheses_keep_arithmetic_tracking(self):
         # R8 Codex R8-1 / Gemini ERROR 2: two case pattern arms' ) dropped the
@@ -52551,13 +52556,104 @@ class BlockVerificationPipesTests(unittest.TestCase):
     def test_round9_terminated_heredoc_controls_still_allow(self):
         # Controls that must keep allowing under the new refusal: an LF heredoc
         # that terminates, a tab-stripped <<- heredoc, a quoted-delimiter
-        # heredoc, and arithmetic completed before a real heredoc.
+        # heredoc, and STRICT arithmetic completed before a real heredoc
+        # (round 10: rejected arithmetic plus any << now refuses instead).
         self.check([
             'cat <<EOF\nx & y\nEOF',
             'cat <<-EOF\n\tx & y\n\tEOF',
             "cat <<'EOF'\nx & y\nEOF",
-            '(( (1) )); cat <<E\nz &\nE',
+            '(( 1 + 2 )); cat <<E\nz &\nE',
         ], False)
+
+    def test_round10_later_delimiter_divergence_refuses(self):
+        # R9 Codex R9-1 / ledger VPR3B513-R9X-later-delimiter: bash ends the
+        # heredoc at the joined "E\<newline>OF" (or at the $'EOF' delimiter's
+        # own expansion) and runs the hidden lines, while a LATER physical
+        # delimiter satisfied the round-9 unterminated check. A skipped body
+        # line ending in a backslash or holding a CR, or a delimiter that is
+        # not one plain [A-Za-z0-9_-] word after quote removal, now refuses.
+        # All four allowed on 29b77da3d (codex N01/N02/N11/N12).
+        self.check([
+            'cat <<EOF\nE\\\nOF\n: &\n: <<EOF\nEOF',
+            'cat <<EOF\nE\\\nOF\nfalse |\ncat; echo $?\n: <<EOF\nEOF',
+            'cat <<-EOF\n\tE\\\nOF\n: &\n: <<EOF\nEOF',
+            "cat <<$'EOF'\nEOF\n: &\n: <<'X'\n$EOF\nX",
+        ], True)
+        self.assertEqual(self.hook.shell_violation(
+            'cat <<EOF\nE\\\nOF\n: &\n: <<EOF\nEOF')[0], 'heredoc-divergence')
+        self.assertEqual(self.hook.shell_violation(
+            "cat <<$'EOF'\nEOF\n: &\n: <<'X'\n$EOF\nX")[0],
+            'heredoc-divergence')
+        # Terminated plain heredocs, including one whose BODY merely mentions
+        # a backslash mid-line, keep allowing.
+        self.check(['cat <<EOF\nx \\ y\nEOF', "cat <<'PY'\na | b\nPY"], False)
+
+    def test_round10_nested_pair_fallback_shift_refuses(self):
+        # R9 Codex R9-2 / Gemini ERROR / ledger VPR3B513-R9X-nested-pair: a
+        # nested adjacent )) (from ((2)) or esac)+) inside a rejected span
+        # drove the round-9 close early, so a later << registered a heredoc
+        # whose LATER matching delimiter hid the lines in between. Any command
+        # that enters the rejected-arithmetic fallback and contains << anywhere
+        # now refuses. All four allowed on 29b77da3d (codex N01-N04 family).
+        self.check([
+            '(( $(case 1 in 1) echo 0;; 2) echo 0;; esac) + ((1)) + '
+            '(1 << EOF) ))\n: &\nEOF',
+            'cmd | tail\n(( $(case 1 in 1) echo 0;; 2) echo 0;; esac) + ((1))'
+            ' + (1 << EOF) ))\necho rc=$?\nEOF',
+            '(( 1 + $(case x in x) printf 1;; y) :;; z) :;; esac) + ((2)) '
+            '<< (2) ))\n: &\n((\n2\n))',
+            '(( 1 + $(case x in x) printf 1;; y) :;; z) :;; esac) + ((2)) '
+            '<< (2) ))\nfalse |\ncat; echo $?\n((\n2\n))',
+        ], True)
+        self.assertEqual(self.hook.shell_violation(
+            '(( $(case 1 in 1) echo 0;; 2) echo 0;; esac) + ((1)) + '
+            '(1 << EOF) ))\n: &\nEOF')[0], 'arithmetic-shift')
+        # Strict arithmetic shifts never enter the fallback and keep allowing.
+        self.check(['echo $((1 << 2))', '(( flags << 1 ))'], False)
+
+    def test_round10_data_emitter_pipeline_allows(self):
+        # F1 (falseblocks-classification): a plain echo/printf data emitter
+        # piped into one consumer (a writer or a hook under test) does not
+        # mask a status; $? reads the consumer. All blocked on 29b77da3d.
+        self.check([
+            'echo \'{"tool_name":"Bash"}\' | python3 -I '
+            '.claude/hooks/block-on-open-findings.py; echo rc=$?',
+            'printf \'%s\\n\' "$line" | python3 tools/open-findings-row.py; '
+            'echo $?',
+            'for f in a b; do printf \'%s\\n\' "$f" | python3 -I "$H"; done; '
+            'rc=$?',
+            'LC_ALL=C echo x | tr a-z A-Z; echo $?',
+        ], False)
+        self.check([
+            # a third stage masks the consumer's status (corpus row 70)
+            'echo \'{"x":1}\' | python3 -I '
+            '.claude/hooks/block-on-open-findings.py | cut -c1-160; '
+            'echo "guard rc=$?"',
+            # an executable substitution makes the emitter's status meaningful
+            'echo "$(cmd)" | python3 tools/open-findings-row.py; echo rc=$?',
+            'printf \'%s\' `cmd` | python3 tools/open-findings-row.py; '
+            'echo $?',
+            # a non-emitter first stage stays guarded
+            'cmd | cat; echo $?',
+        ], True)
+
+    def test_round10_and_continuation_clears_pending(self):
+        # F2 (falseblocks-classification row 67): an executed single-command
+        # && continuation replaces the pipeline's status, and a skipped one
+        # leaves the pipeline's own nonzero status, so the later read is
+        # never the masking filter's. A || continuation keeps the warning.
+        # The allowed forms blocked on 29b77da3d.
+        self.check([
+            'git -C w status --short | wc -l && python3 '
+            'tools/lint-version-bump-recency.py >/dev/null 2>&1; '
+            'echo recency=$?',
+            'cmd | tail && true; echo $?',
+        ], False)
+        self.check([
+            'cmd | tail || true; echo $?',
+            'cmd | tail && echo $?',           # the read itself is guarded
+            'cmd | tail && a | b; echo $?',    # a new pipeline re-arms it
+        ], True)
 
     def test_arithmetic_rejected_interiors_use_shell_tokens(self):
         from unittest.mock import patch
@@ -52661,10 +52757,12 @@ class BlockVerificationPipesTests(unittest.TestCase):
             "cat <<A # comment & $?\ncoproc a &\nA\n",
             "cat <<A\na &\nA\ngrep -q pat file; echo $?",
             "cmd | cat <<EOF\necho $? &\nEOF\n",
-            "cmd | cat; cat <<'$?'\na &\n$?\n",
             "echo '<<EOF'; echo ok",
         ], False)
         self.check([
+            # round 10: a delimiter that is not one plain word after quote
+            # removal ('$?' here) refuses (heredoc-divergence, safe direction)
+            "cmd | cat; cat <<'$?'\na &\n$?\n",
             "python3 <<'PY' &\nprint(1 & 2)\nPY\n",
             "cat <<A\na &\nA\nb &",
             "cat <<A\na &\nA\ncmd | cat; echo $?",
@@ -52989,7 +53087,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         ):
             add(name, message, evidence=("[2026-09-22 12:00Z]", "(session: 0h 5m)"))
 
-        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write(", 6))
+        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write(", 7))
         add("pipe", "tools/run_all_audits.sh | tail -8", evidence=("(RM-10)",))
         add("status", "cmd | tail; echo rc=$?", label="pipeline-status", verb="redirect",
             at=("main", "sys.stderr.write(", 0),
@@ -53011,9 +53109,14 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             label="heredoc-unterminated", verb="close",
             at=("main", "sys.stderr.write(", 4),
             evidence=("'EOF'", "never matched before the end", "read as heredoc body"))
+        add("heredoc-divergence", "cat <<$'EOF'\nx & y\nEOF",
+            label="heredoc-divergence", verb="use",
+            at=("main", "sys.stderr.write(", 5),
+            evidence=("'$EOF'", "diverges from plain line reading",
+                      "plain [A-Za-z0-9_-] delimiter word"))
         add("complexity", "(" * 65 + "true" + ")" * 65,
             label="shell-complexity", verb="run",
-            at=("main", "sys.stderr.write(", 5),
+            at=("main", "sys.stderr.write(", 6),
             evidence=("inspection limit", "refusing it", "fewer nested groups"))
         add = group("block-wrong-repo-tool", "use")
         for name, command, guard, evidence in (

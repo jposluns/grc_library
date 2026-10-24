@@ -71,10 +71,33 @@ skip the commands after it. Complex arithmetic that shifts, or a real
 heredoc inside it, is a false block (safe direction).
 Round 9: a rejected arithmetic span closes only at the adjacent )) that
 always ends (( ... )) and $(( ... )); a lone ) (a case pattern arm) only
-decrements its depth and never ends the span, so it cannot drop tracking
-early and let a later << start heredoc skipping. Only space and tab (not
+decrements its depth and never ends the span. Only space and tab (not
 \\r) separate words, so a CRLF heredoc delimiter keeps its \\r and matches
 its \\r terminator line instead of silently diverging.
+Round 10: that close is no longer trusted to bound heredoc operators,
+because a nested adjacent )) inside the span (round-9 reviews, nested-pair)
+ends the tracking early while the outer arithmetic is still open. Any
+command that enters the rejected-arithmetic fallback and also contains <<
+anywhere now refuses (arithmetic-shift), even where the fallback seems
+closed; complex arithmetic in the same command as an unrelated heredoc,
+shift or here-string is a false block (safe direction). Heredoc skipping
+refuses (heredoc-divergence) when the delimiter is not one plain
+[A-Za-z0-9_-] word after quote removal, or when any skipped body line ends
+in a backslash or holds a carriage return: bash can join, continue or
+terminate such lines differently from this guard's physical-line reading,
+so a LATER physically matching line could satisfy the round-9 unterminated
+check while bash had already ended the heredoc and run the lines in between
+(round-9 reviews, later-delimiter). A quoted-delimiter heredoc whose body
+line ends in a backslash also refuses (false block, safe direction).
+Round 10 also narrows the pipeline-status guard in two reviewed ways: a
+two-stage pipeline whose first stage is a plain echo or printf data emitter
+(no command substitution and no backquote in that stage; leading do, then,
+else and assignment words are skipped) feeds data into its consumer, whose
+status is exactly what $? then reads, so it sets no pending warning; and an
+executed single-command && continuation replaces the guarded pipeline's
+status (a skipped one leaves the pipeline's own nonzero status), so it
+clears the pending warning, while a || continuation keeps it because a
+skipped || branch leaves the masking filter's zero status readable.
 With exactly one prior launch in that scope, wait $! and wait -n also collect
 that job. Other targeted waits are not certified. Literal coproc launches
 are refused. Nesting beyond 64 groups or a RecursionError refuses with a
@@ -94,8 +117,10 @@ missed indirect commands. Heredoc expansions and executed heredoc scripts
 are not inspected; unusual delimiter syntax is not a full Bash grammar.
 A heredoc whose terminator is never matched before the end of the command is
 refused (heredoc-unterminated, round 9), never read as body that would hide
-later commands; a divergent delimiter (CRLF or backslash-continued) refuses
-rather than swallowing the rest of the input. The legacy
+later commands; a divergent delimiter or skipped body line (a non-plain
+delimiter word, a CR-bearing line, or a backslash-continued line) refuses
+(heredoc-divergence, round 10) even when a later physical line would match,
+rather than swallowing the commands in between. The legacy
 named-verifier regex still scans raw heredoc, comment and quoted text as
 disclosed above, both verbatim and with backslash-newline continuations
 removed; either match blocks.
@@ -295,6 +320,13 @@ def shell_tokens(command, cuts=None):
                 i = end
                 continue
             arithmetic_fallback = 0
+            # Round 10: the adjacency close below cannot be trusted to bound
+            # heredoc operators (a nested adjacent )) inside the span ends
+            # the tracking early), so a command that enters the fallback and
+            # contains << anywhere is refused outright.
+            if "<<" in command:
+                shift = command.find("<<")
+                yield ("ambiguous-shift", "<<", shift, shift + 2, False)
         op = OPERATORS.match(command, i)
         if op:
             # Once recognition fails, tokenize the entire parenthesized span
@@ -324,6 +356,13 @@ def shell_tokens(command, cuts=None):
                 delimiter = op[0] == "<<-"
             elif op[0] == "\n":
                 for terminator, strip_tabs in heredocs:
+                    if not re.fullmatch(r"[A-Za-z0-9_-]+", terminator):
+                        # Round 10: only one plain word, after quote removal,
+                        # is matched exactly as bash matches it; any other
+                        # delimiter (CR, $'...', empty, operators) can end
+                        # the heredoc somewhere this guard does not look.
+                        yield ("heredoc-divergence", terminator, op.start(),
+                               i, False)
                     matched = False
                     while i < len(command):
                         end = command.find("\n", i)
@@ -333,6 +372,15 @@ def shell_tokens(command, cuts=None):
                         if (line.lstrip("\t") if strip_tabs else line) == terminator:
                             matched = True
                             break
+                        if line.endswith("\\") or "\r" in line:
+                            # Round 10: bash joins a backslash-continued body
+                            # line (unquoted delimiter) and treats a CR line
+                            # differently from this physical-line reading, so
+                            # it can terminate the heredoc EARLIER and run
+                            # the skipped lines; a later physical match would
+                            # defeat the round-9 unterminated refusal. Refuse.
+                            yield ("heredoc-divergence", line, op.start(), i,
+                                   False)
                     if not matched:
                         # Round 9: a terminator that is never matched before the
                         # end of the command (a CRLF or backslash-continued or
@@ -382,6 +430,11 @@ def shell_tokens(command, cuts=None):
                     continue
                 if not parameter_depth:
                     arithmetic_fallback = 0
+                    # Round 10: same outright refusal as the (( entry above.
+                    if "<<" in command:
+                        shift = command.find("<<")
+                        yield ("ambiguous-shift", "<<", shift, shift + 2,
+                               False)
             # Keep parameter expansions in a word, but still notice nested $?.
             if quote != "'" and command.startswith("${", i):
                 parameter_depth += 1
@@ -477,11 +530,13 @@ def _shell_violation(command):
             return ("arithmetic-shift", command[line_start:line_end])
         if kind == "heredoc-unterminated":
             return ("heredoc-unterminated", text)
+        if kind == "heredoc-divergence":
+            return ("heredoc-divergence", text)
 
     def inspect(items, pipefail=False, pending=None, nesting=0):
         if nesting > MAX_SHELL_NESTING:
             return ("shell-complexity", "nesting limit")
-        segment, jobs, conditional = [], [], False
+        segment, jobs, conditional = [], [], None
         launched = 0
 
         def finish(separator):
@@ -522,6 +577,25 @@ def _shell_violation(command):
                 stage_words = argv(stage)
                 if stage_words and stage_words[0] == "coproc":
                     return ("coproc-background", span)
+
+            def emits_data(stage):
+                # Round 10 (F1): a plain echo or printf first stage with no
+                # command substitution only feeds data in; its consumer's
+                # status is then exactly what $? reads, so nothing is masked.
+                # Leading loop/branch words and assignments sit before the
+                # emitter in command position.
+                stage_words = argv(stage)
+                while stage_words and (
+                        stage_words[0] in ("do", "then", "else")
+                        or re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*=.*",
+                                        stage_words[0], re.DOTALL)):
+                    stage_words.pop(0)
+                if not stage_words or stage_words[0] not in ("echo", "printf"):
+                    return False
+                if any(t[0] != "word" and t[0] != "op" for t in stage):
+                    return False  # a compound group is not a plain emitter
+                raw = command[stage[0][2]:stage[-1][3]]
+                return "$(" not in raw and "`" not in raw
             # Only a standalone builtin in this shell can change its options
             # or collect its children. Conditional waits cannot prove collection.
             standalone = len(stages) == 1 and separator != "&" and not conditional
@@ -535,13 +609,23 @@ def _shell_violation(command):
                 if (words == ["wait"] or (launched == 1 and len(jobs) == 1
                         and (words == ["wait", "-n"] or last_pid))):
                     jobs.clear()
-            new_pending = span if len(stages) > 1 and not pipefail else None
-            pending = new_pending or (pending if conditional else None)
+            new_pending = (span if len(stages) > 1 and not pipefail
+                           and not (len(stages) == 2 and emits_data(stages[0]))
+                           else None)
+            if conditional == "&&" and len(stages) == 1:
+                # Round 10 (F2): an executed && continuation replaces the
+                # guarded pipeline's status; a skipped one leaves the
+                # pipeline's own nonzero status. Either way $? no longer
+                # reads the masking filter. A || continuation keeps the
+                # warning: a skipped || branch leaves the filter's zero.
+                pending = new_pending
+            else:
+                pending = new_pending or (pending if conditional else None)
             if separator == "&":
                 jobs.append(span)
                 launched += 1
                 pending = None  # an asynchronous list itself returns zero
-            conditional = separator in ("&&", "||")
+            conditional = separator if separator in ("&&", "||") else None
             segment = []
             return None
 
@@ -652,6 +736,17 @@ def main() -> int:
                 "CONSIDER INSTEAD: close the heredoc with its exact terminator alone "
                 "on a line with no trailing carriage return or line continuation, or "
                 "split the command.\n")
+        elif guard == "heredoc-divergence":
+            sys.stderr.write(
+                "BLOCKED (heredoc-divergence): heredoc delimiter or body line "
+                + repr(span) + " diverges from plain line reading.\n"
+                "WHY: bash can join, continue or terminate a backslash-continued or "
+                "CR-bearing line, or a non-plain delimiter, differently from this "
+                "guard, hiding the commands between bash's real terminator and a "
+                "later matching line.\n"
+                "CONSIDER INSTEAD: use one plain [A-Za-z0-9_-] delimiter word, keep "
+                "skipped body lines free of trailing backslashes and carriage "
+                "returns, or split the command.\n")
         else:
             sys.stderr.write(
                 "BLOCKED (shell-complexity): shell nesting exceeds the inspection limit.\n"
@@ -761,13 +856,37 @@ def self_test() -> int:
         'echo $(( $(case 1 in 1) echo 1;; 2) echo 2;; esac) + (1 << (2)) ))\n: &',
         'echo $(( $(case 1 in 1) echo 1;; 2) echo 2;; esac) + (1 << (2)) ))\n'
         'false | cat; echo $?',
+        # round 10 (later-delimiter): a later physically matching delimiter
+        # no longer rescues a divergent heredoc; bash terminates these
+        # earlier and runs the hidden launch or status read
+        'cat <<EOF\nE\\\nOF\n: &\n: <<EOF\nEOF',
+        'cat <<EOF\nE\\\nOF\nfalse |\ncat; echo $?\n: <<EOF\nEOF',
+        'cat <<-EOF\n\tE\\\nOF\n: &\n: <<EOF\nEOF',
+        "cat <<$'EOF'\nEOF\n: &\n: <<'X'\n$EOF\nX",
+        # round 10 (nested-pair): a nested adjacent )) ends fallback tracking
+        # early; any << in a command entering the fallback refuses
+        '(( $(case 1 in 1) echo 0;; 2) echo 0;; esac) + ((1)) + (1 << EOF) ))'
+        '\n: &\nEOF',
+        '(( 1 + $(case x in x) printf 1;; y) :;; z) :;; esac) + ((2)) << (2) ))'
+        '\n: &\n((\n2\n))',
+        '(( 1 + $(case x in x) printf 1;; y) :;; z) :;; esac) + ((2)) << (2) ))'
+        '\nfalse |\ncat; echo $?\n((\n2\n))',
+        # round 10 accepted false block (safe direction): completed complex
+        # arithmetic no longer certifies a later heredoc in the same command
+        '(( (1) )); cat <<E\nz &\nE',
+        # round 10 F1/F2 boundaries that must keep refusing: a third stage,
+        # a substituting emitter, and a || continuation
+        "echo '{\"x\":1}' | python3 -I .claude/hooks/block-on-open-findings.py"
+        ' | cut -c1-160; echo "guard rc=$?"',
+        'echo "$(cmd)" | python3 tools/open-findings-row.py; echo rc=$?',
+        'git -C w status --short | wc -l || true; echo rc=$?',
     ]
     allowed = [
         # round 9: heredocs whose terminator IS matched keep allowing
         'cat <<EOF\nx & y\nEOF',
         'cat <<-EOF\n\tx & y\n\tEOF',
         "cat <<'EOF'\nx & y\nEOF",
-        '(( (1) )); cat <<E\nz &\nE',
+        '(( 1 + 2 )); cat <<E\nz &\nE',
         'set -euo pipefail; cmd | cat; echo $?',
         "python3 <<'PY'\nprint(1 & 2)\nPY\n",
         'a & wait $!',
@@ -825,6 +944,16 @@ def self_test() -> int:
         'echo $(( $flags & ${mask} ))',
         '(( $flags | ${mask} ))',
         'x=$((a & b)); echo $x',
+        # round 10 (F1): a plain data emitter feeding one consumer does not
+        # mask a status; $? reads the consumer (a writer or a hook under test)
+        'echo \'{"tool_name":"Bash"}\' | python3 -I '
+        '.claude/hooks/block-on-open-findings.py; echo rc=$?',
+        'printf \'%s\\n\' "$line" | python3 tools/open-findings-row.py; echo $?',
+        'for f in a b; do printf \'%s\\n\' "$f" | python3 -I "$H"; done; rc=$?',
+        # round 10 (F2): an executed && continuation replaces the pipeline's
+        # status, so the later read is the continuation's, not the filter's
+        'git -C w status --short | wc -l && python3 '
+        'tools/lint-version-bump-recency.py >/dev/null 2>&1; echo recency=$?',
     ]
     ok = True
     for c in blocked:
