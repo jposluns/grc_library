@@ -2,7 +2,7 @@
 
 **Document Title:** AI Assurance Evidence and Attestation Framework\
 **Document Type:** Framework\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-10-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -90,7 +90,7 @@ Evidence supporting a claim is sufficient when it satisfies five dimensions:
 - **Coverage**: the claim's scope is measured, and any risk or trustworthiness characteristic that will not or cannot be measured is documented (NIST AI RMF MEASURE 1.1).
 - **Currency**: the evidence was produced within the organization-set review window for the system's risk tier and re-produced on material change, the material-change thresholds being those in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md).
 - **Independence**: the attestation tier meets the minimum the system's risk tier requires (section 5).
-- **Method traceability**: the test sets, metrics, and tools are documented (NIST AI RMF MEASURE 2.1), and quantitative test and evaluation evidence states its measurement precision per [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6 (sample size, uncertainty measure, run counts for non-deterministic systems, contamination status, evaluator agreement); that standard owns the reporting requirement, this dimension only grades whether the evidence carries it.
+- **Method traceability**: the test sets, metrics, and tools are documented (NIST AI RMF MEASURE 2.1), and quantitative test and evaluation evidence states its measurement precision per [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6 (including sample size, uncertainty measure, run counts for non-deterministic systems, contamination status, evaluator agreement); that standard owns the reporting requirement, this dimension only grades whether the evidence carries it.
 - **Deployment-representative demonstration**: performance or assurance criteria are measured and demonstrated for conditions similar to the deployment setting, and the measures are documented (NIST AI RMF MEASURE 2.3).
 
 ### 3.5 The assurance case
