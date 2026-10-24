@@ -2,7 +2,7 @@
 
 **Document Title:** AI Assurance Evidence and Attestation Framework\
 **Document Type:** Framework\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-10-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -121,7 +121,7 @@ Each row maps a claim and evidence class to the corpus document whose activity p
 
 The framework adds only the small set of normative requirements below; every other requirement lives in the indexed documents.
 
-1. **Evidence-record minimum fields.** Each evidence record must carry: the AI System Register reference; the claim or claims it supports; its evidence class; its attestation tier where the evidence embodies an assessment or attestation (a source record is marked tier not-applicable); the producing activity (a corpus document reference); a method reference; for quantitative test and evaluation evidence, the Section 5.6 uncertainty statement of [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) or a recorded not-applicable; a production date and currency window; the lifecycle stage; the producer; a storage location and integrity control; and any documented gaps or unmeasured aspects.
+1. **Evidence-record minimum fields.** Each evidence record must carry: the AI System Register reference; the claim or claims it supports; its evidence class; its attestation tier where the evidence embodies an assessment or attestation (a source record is marked tier not-applicable); the producing activity (a corpus document reference); a method reference; for quantitative test and evaluation evidence, the Section 5.6 reporting elements of [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) required for the system's risk tier, or a recorded not-applicable; a production date and currency window; the lifecycle stage; the producer; a storage location and integrity control; and any documented gaps or unmeasured aspects.
 2. **Gap documentation.** A claim that lacks sufficient evidence must carry a documented gap in the assurance case, stating what is missing and the plan to close it; an undocumented gap on a material claim blocks the approval or audit gate.
 3. **Currency by risk tier.** Evidence for a high-risk system must be current within the review window the organization sets for that system's risk tier, and re-produced on material change per the material-change thresholds in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md). The organization sets the per-tier windows; this framework does not fix them, and they must be at least as frequent as the corresponding audit cadence in [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) section 3.
 4. **Independence minimum for high-risk security evidence.** Security and resilience evidence for a high-risk system must be produced by an independent security tester with technical skills relevant to the system (attestation Tier A or B). This is the organization's risk-based strengthening, for high-risk systems, of ETSI EN 304 223 provision 5.2.5-2.1, which recommends (should) that operators and developers use such independent security testers with system-relevant technical skills: the organization makes that recommendation a requirement for high-risk systems.
