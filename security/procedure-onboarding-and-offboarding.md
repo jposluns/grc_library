@@ -2,8 +2,8 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.0\
-**Date:** 2026-10-16\
+**Version:** 1.3.1\
+**Date:** 2026-10-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-byod.md`](policy-byod.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -330,7 +330,7 @@ The following checklist must be completed for every departure. IT Operations is 
 | VDA ISA 6.0.3 (TISAX, automotive sector) | 2.1.2, 4.1.3, 4.2.1 | Non-disclosure and policy-compliance obligations for staff (implemented in this procedure by the activation gate in item 4.2.4), account disabling on departure, and access adjustment on role change |
 | UK NCSC Cyber Essentials v3.3 | User access control | Account removal on departure and special access privilege removal on role change |
 | Canada CCCS Baseline Cyber Security Controls for Small and Medium Organizations V1.2 | BC.12.1, BC.12.3 | Least-privilege role profiles and account removal on departure or role change |
-| Council of Europe CM/Rec(2015)5 | Principle 14 (paragraphs 14.3, 14.4 and 14.5) | For mailbox business-content recovery, advance information and least intrusive review on voluntary departure (item 7.5.3) and after an involuntary termination (item 8.5.1); recovery before departure on voluntary departure (item 7.5.3); for any recovery (item 7.5.4), exclusion of private communications |
+| Council of Europe Recommendation CM/Rec(2015)5 (processing of personal data in the context of employment) | Principle 14 (paragraphs 14.3, 14.4 and 14.5) | For mailbox business-content recovery, advance information and least intrusive review on voluntary departure (item 7.5.3) and after an involuntary termination (item 8.5.1); recovery before departure on voluntary departure (item 7.5.3); for any recovery (item 7.5.4), exclusion of private communications |
 
 ---
 

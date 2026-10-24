@@ -2,8 +2,8 @@
 
 **Document Title:** Workforce Network Monitoring Policy\
 **Document Type:** Policy\
-**Version:** 0.1.3\
-**Date:** 2026-10-13\
+**Version:** 0.1.4\
+**Date:** 2026-10-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/framework-insider-risk-programme.md`](framework-insider-risk-programme.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`security/policy-byod.md`](policy-byod.md)\
@@ -157,6 +157,10 @@ All personnel are informed of this policy and acknowledge it on hire, annually, 
 | GDPR (EU) | Article 5 (principles: purpose limitation, data minimization, storage limitation); Article 6 (lawfulness of processing, legitimate interests); Article 22 (automated individual decision-making); Article 88 (processing in the context of employment) |
 | UK GDPR | Under the UK GDPR, Article 22 is replaced by Articles 22A to 22D and Article 88 is not adopted; see the [United Kingdom privacy annex](../privacy/jurisdictions/annex-privacy-united-kingdom.md) for the current UK position |
 | CSA CCM v4.1 | LOG-03: Security Monitoring and Alerting; DSP-08: Data Privacy by Design and Default; DSP-12: Limitation of Purpose in Personal Data Processing; HRS-13: Compliance User Responsibility |
+| Article 29 Working Party Opinion 2/2017 on data processing at work (WP 249) | §5.3, Monitoring ICT usage at the workplace; §5.4, Monitoring ICT usage outside the workplace; §5.5, Time and attendance: proportionality, least intrusive means, transparency, and the limits of employee consent as a lawful basis |
+| UK ICO, Employment practices and data protection: Monitoring workers (June 2024) | Data protection and monitoring workers: How do we lawfully monitor workers?; Do we need to do a data protection impact assessment (DPIA) before we start monitoring?; What must we tell workers about our monitoring?; Can we use covert monitoring? |
+| ILO Code of Practice on the Protection of Workers' Personal Data (1997) | 5.4 (security-measure data not used to control worker behaviour); 5.6 (electronic monitoring not the only factor in evaluating performance); 6.14 (advance notice of monitoring, minimal intrusion, and limits on secret and continuous monitoring) |
+| Council of Europe Recommendation CM/Rec(2015)5 (processing of personal data in the context of employment) | Principle 10 (transparency); Principle 14 (electronic communications); Principle 15 (monitoring not a direct and principal purpose of information systems); Principle 21 (additional safeguards, including advance information and consultation of employees' representatives) |
 
 ---
 
