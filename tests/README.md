@@ -48,11 +48,30 @@ The probe prints the binary SHA-256 and the result for each byte fixture.
 
 ## Running
 
+The complete regression command (audit-programme gate 36) is:
+
+```
+python3 tools/run-linter-regression.py
+```
+
+It discovers and runs every top-level `tests/test_*.py` module in one
+`unittest` invocation, refuses (exit 2, naming the file) a module that
+cannot be imported or a test file nested in a `tests/` subdirectory,
+and believes a green child exit only when unittest's output carries a
+`Ran N tests` line with N at least 1.
+
+A single module can still be run directly, for example:
+
 ```
 python3 -m unittest tests.test_linters -v
 ```
 
-or via the audit programme:
+but this direct command has a narrower scope: it runs only that one
+module and misses the other `tests/test_*.py` modules the gate runs
+(session facts, standards currency, release delta and the
+regression-gate guards).
+
+The whole audit programme runs with:
 
 ```
 tools/run_all_audits.sh

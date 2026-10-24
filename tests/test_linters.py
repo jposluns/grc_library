@@ -13337,31 +13337,20 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
 from tests import test_session_facts
 
 
-class RegressionGateCompletenessTests(unittest.TestCase):
-    """Gate 36 runs every tests/test_*.py file (the 3b525 finding).
+class RegressionGateGuardPinTests(unittest.TestCase):
+    """The gate 36 guard module exists on disk (3b525 round 2).
 
-    The runner discovers its module list itself, so this check guards
-    the DISCOVERY: it fails when the runner's run list misses any
-    on-disk tests/test_*.py file (a narrowed glob, a dropped directory
-    component, a filter that skips a module) or when discovery returns
-    an empty list. Before discovery, the runner ran a hand-maintained
-    two-module list and covered the other test files only through
-    per-class re-exports in this module, which a new test file or a new
-    class in a covered file silently missed.
+    The completeness and refusal guards for the gate runner live in
+    tests/test_regression_gate.py (plus the runner's own in-process
+    self-check), so a run-list regression that drops THIS module cannot
+    also drop them. This pin is the reciprocal: deleting
+    tests/test_regression_gate.py from disk fails here, in a module
+    whose presence does not depend on it.
     """
 
-    def test_runner_run_list_covers_every_test_file(self) -> None:
-        import runpy
-        runner = runpy.run_path(
-            str(REPO_ROOT / "tools" / "run-linter-regression.py"))
-        run_list = runner["discover_test_modules"]()
-        expected = sorted(
-            "tests." + path.stem
-            for path in (REPO_ROOT / "tests").glob("test_*.py"))
-        self.assertTrue(expected, "no tests/test_*.py files found")
-        self.assertEqual(run_list, expected,
-                         "gate 36 runner's run list does not cover every "
-                         "tests/test_*.py file")
+    def test_regression_gate_guard_module_is_on_disk(self) -> None:
+        self.assertTrue(
+            (REPO_ROOT / "tests" / "test_regression_gate.py").is_file())
 
 
 class VerificationGuardrailSelfTests(unittest.TestCase):
@@ -29251,7 +29240,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 658c7eda40cce1dd27d9beefad1e23a02a0376c4e29e9fd69b4d6980555e1627
+        README.md DATA F 5c66e1c8fa469b5d67f740a03465d62f7c87fe3534f4ff14af019839837f4b68
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F c9596844ccf7a8146a7f1ad08a1d45c8575caae841323c827595f6069c564a86
@@ -29452,7 +29441,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
-        run-linter-regression.py FIXED F bbe10d431b26a3680459e62544361c708db8708e560f7081f9c68bc1b1b33dea
+        run-linter-regression.py FIXED F 7c5528139352cf6d51f3222c330952a4db6f5be07540f5136f625907f01d77ee
         run-pr-time-checks.sh FIXED F 149366a50976af26bf594757d03314a39f6c81d4054d1c4403457fe2fe37af3b
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
         run_all_audits.sh FIXED F 694c1d154afa12f22f78cb4c2f75d96aea92bab4b6cb0919fe6eb2d32af5eff5
