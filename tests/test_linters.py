@@ -10296,6 +10296,151 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn("nested git repository", tool.lower(),
                       "the usage docstring must document the nested-repository refusal")
 
+    def test_d12_argless_nested_repo_with_resolving_base_evaluates_nested(self) -> None:
+        # 3b540 round 2: the complement of the fresh-nested refusal above.
+        # When the nested repository's OWN base ref resolves, the argless run
+        # is evaluated against the NESTED repository's base and head -- never
+        # the outer repository, whose base here holds no floor at all, so an
+        # outer evaluation would print the first-introduction "new at this
+        # base" OK instead of the real monotonic verdict -- and the usage
+        # docstring states this resolving case alongside the refusal case.
+        import subprocess as sp
+
+        tmp, git = self._repo()
+        nested = tmp / "vendor" / "inner"
+        nested.mkdir(parents=True)
+        sp.run(["git", "init", "-q", "-b", "main", str(nested)],
+               check=True, capture_output=True)
+
+        def ngit(*args):
+            return sp.run(["git", "-C", str(nested), *args],
+                          check=True, capture_output=True, text=True).stdout.strip()
+
+        ngit("config", "user.email", "test@test")
+        ngit("config", "user.name", "Test")
+        floor = nested / "tools" / "todo-number-floor.json"
+        floor.parent.mkdir(parents=True)
+        floor.write_text('{"2": 32}\n', encoding="utf-8")
+        ngit("add", "-A")
+        ngit("commit", "-q", "-m", "floor")
+        ngit("update-ref", "refs/remotes/origin/main", "HEAD")
+        # A tracked floor increase: the range is not collapsed and the real
+        # verdict against the NESTED base is the monotonic OK.
+        floor.write_text('{"2": 33}\n', encoding="utf-8")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", nested,
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("monotonic", r.stdout)
+        self.assertNotIn("new at this base", r.stdout)
+        self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+        tool = (REPO_ROOT / "tools" / "check-todo-floor-monotonic-on-pr.py").read_text(
+            encoding="utf-8")
+        self.assertIn("otherwise evaluated against the nested repository", tool,
+                      "the usage docstring must state the resolving-base nested case")
+
+    def _repo_with_floor_at_base(self, content):
+        """The one-commit fixture plus ``content`` committed as the floor,
+        origin/main at that commit, and an untracked file keeping the argless
+        range non-collapsed. Returns (path, git runner, floor path)."""
+        tmp, git = self._repo()
+        floor = tmp / "tools" / "todo-number-floor.json"
+        floor.parent.mkdir(parents=True, exist_ok=True)
+        floor.write_text(content, encoding="utf-8")
+        git("add", "tools/todo-number-floor.json")
+        git("commit", "-q", "-m", "floor")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        (tmp / "NEW.md").write_text("New.\n", encoding="utf-8")
+        return tmp, git, floor
+
+    def test_d12_base_floor_not_json_refuses(self) -> None:
+        # 3b540 round 2 (r1 reviews, claude F2 / gemini F1): a COMMITTED base
+        # floor that is not valid JSON leaves the base state undetermined, so
+        # the gate refuses with D12 CANNOT-EVALUATE (exit 2) naming the base
+        # source (ref:path), instead of dying with a JSONDecodeError traceback.
+        tmp, git, floor = self._repo_with_floor_at_base("not a floor\n")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn("origin/main:tools/todo-number-floor.json", r.stderr)
+        self.assertIn("JSONDecodeError", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_base_floor_wrong_shape_refuses(self) -> None:
+        # 3b540 round 2 (r1 reviews, claude F1 / gemini F2): a committed base
+        # floor that is VALID JSON of the wrong shape -- not an object, a key
+        # that is not an integer string (or the TF series), a value that is
+        # not an integer -- refuses the same way, never a traceback and never
+        # a verdict computed from garbage.
+        for label, content, named in (
+            ("not an object", "[1, 2]\n", "not a JSON object"),
+            ("non-integer-string key", '{"abc": 3}\n', "'abc'"),
+            ("string value", '{"2": "33"}\n', "not an integer"),
+            ("boolean value", '{"2": true}\n', "not an integer"),
+        ):
+            with self.subTest(shape=label):
+                tmp, git, floor = self._repo_with_floor_at_base(content)
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+                self.assertIn("origin/main:tools/todo-number-floor.json", r.stderr)
+                self.assertIn(named, r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
+    def test_d12_argless_head_floor_wrong_shape_refuses(self) -> None:
+        # 3b540 round 2 (r1 reviews, claude F1 / gemini F2): valid JSON of the
+        # WRONG SHAPE in the argless head floor (the working tree) is refused
+        # like the unreadable and non-JSON head shapes above, naming the
+        # path, through the one shape validation every parse shares.
+        for label, content, named in (
+            ("not an object", "[1, 2]\n", "not a JSON object"),
+            ("non-integer-string key", '{"abc": 3}\n', "'abc'"),
+            ("string value", '{"2": "33"}\n', "not an integer"),
+        ):
+            with self.subTest(shape=label):
+                tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+                floor.write_text(content, encoding="utf-8")
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+                self.assertIn(str(floor), r.stderr)
+                self.assertIn(named, r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn("missing at HEAD", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
+    def test_d12_explicit_head_floor_unparseable_refuses(self) -> None:
+        # 3b540 round 2 (r1 reviews, claude F1+F2 / gemini F1+F2): an EXPLICIT
+        # head ref whose floor blob is not valid JSON, or is valid JSON of
+        # the wrong shape, refuses with D12 CANNOT-EVALUATE naming the head
+        # source (ref:path), instead of a traceback.
+        for label, content, named in (
+            ("not valid JSON", "not a floor\n", "JSONDecodeError"),
+            ("not an object", "[1, 2]\n", "not a JSON object"),
+            ("string value", '{"2": "33"}\n', "not an integer"),
+        ):
+            with self.subTest(shape=label):
+                tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+                git("checkout", "-q", "-b", "feat")
+                floor.write_text(content, encoding="utf-8")
+                git("add", "tools/todo-number-floor.json")
+                git("commit", "-q", "-m", "bad floor")
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                               "origin/main", "feat")
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+                self.assertIn("feat:tools/todo-number-floor.json", r.stderr)
+                self.assertIn(named, r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
     def test_d12_argless_git_call_failure_refuses(self) -> None:
         # Round 4 of 3b530 (review F5): a git diff or git ls-files call that
         # fails outright (nonzero beyond the documented difference status 1)
@@ -25888,7 +26033,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-retired-section-orphan-on-pr.py NO_FS F 94f89f3645e0e4dedbfe0a2d174ba60150b94bd7a0c734e25d5f96d148afe4ba
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
         check-stranded-control-code-on-pr.py NO_FS F 5c0890d697db2086c6a10fe3222b6a268ac04199a359b761e4d393aceaccde7d
-        check-todo-floor-monotonic-on-pr.py NO_FS F 59bb3811b83b16213f3c4d746178458f844c09b931acb322d4d549c4dd8d009c
+        check-todo-floor-monotonic-on-pr.py NO_FS F 4b1c1e3e703a4bf6dd17393a206bf584b639e9337315870bcb10bb00c427bd43
         check-todo-rotation-on-pr.py NO_FS F f4189bf15201c6ae8d228ac341f5c5c5dd859457be22275084e2e155751b5c96
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 520abe7d721553382768bf7c581cc0db91b1b6ac329404cc61416333246062b2

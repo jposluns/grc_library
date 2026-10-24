@@ -19,9 +19,11 @@ Usage:
     anchors to the repository top level, so a run from a subdirectory gives
     the same verdict as a run from the root (3b530 rounds 4 and 5). A run
     from inside a NESTED git repository anchors to that nested repository,
-    not the outer one, so it is refused there (the base ref does not resolve
-    in a freshly initialised nested repository), never evaluated against the
-    outer repository; run from the outer repository instead (3b540).
+    not the outer one: it is refused when the base ref does not resolve in
+    the nested repository (a freshly initialised one carries no refs), and
+    otherwise evaluated against the nested repository's own base and head;
+    in both cases it is never evaluated against the outer repository, so
+    run from the outer repository to check the outer floor (3b540).
 
 A collapsed range (base and head resolving to the same commit, or the working
 tree holding the base's content in the argless form) is refused as
@@ -151,8 +153,45 @@ def _git_show(ref, path):
         raise _GitCallFailed(f"git show {ref}:{path} ({exc})")
 
 
-def _parse(text):
-    return {k: int(v) for k, v in json.loads(text).items() if not k.startswith("_")}
+class _FloorParseError(Exception):
+    """``text`` handed to ``_parse`` is not a floor document: not valid JSON,
+    or valid JSON of the wrong shape. ``str()`` names the source (ref:path or
+    path) and the defect; the caller refuses as CANNOT-EVALUATE instead of
+    letting the defect escape as a traceback (3b540 round 2)."""
+
+
+def _parse(text, source=FLOOR_PATH):
+    """The floor mapping (series -> highest ordinal ever allocated) in
+    ``text``. The shape validation lives HERE and only here, so no call site
+    can parse a floor without it (3b540 round 2): the content must be valid
+    JSON, the top level a JSON object, every non-comment key an integer
+    string or the TF series, and every value a JSON integer (true/false are
+    booleans, not integers). Underscore-prefixed keys are comments, skipped
+    before validation. Any defect raises _FloorParseError naming ``source``
+    for the caller to refuse on."""
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise _FloorParseError(
+            f"{source} is not valid JSON ({exc.__class__.__name__}: {exc})")
+    if not isinstance(data, dict):
+        raise _FloorParseError(
+            f"{source} is not a JSON object (the top level is "
+            f"{type(data).__name__}, expected series -> floor)")
+    floor = {}
+    for k, v in data.items():
+        if k.startswith("_"):
+            continue
+        if k != "TF" and not (k.isascii() and k.isdigit()):
+            raise _FloorParseError(
+                f"{source} has a series key that is not an integer string "
+                f"or TF: {k!r}")
+        if isinstance(v, bool) or not isinstance(v, int):
+            raise _FloorParseError(
+                f"{source} has a floor value that is not an integer "
+                f"(series {k!r}: {v!r})")
+        floor[k] = v
+    return floor
 
 
 def find_violations(base, head):
@@ -251,24 +290,25 @@ def main(argv):
     try:
         # The argless head read anchors to the same resolved top level as the
         # collapsed-range check above, so a run from a subdirectory reads the
-        # real floor instead of reporting it missing (3b530 round 5). The
-        # argless read also checks the floor parses as JSON here, so every
-        # unreadable-head shape refuses through one clause below (3b540).
+        # real floor instead of reporting it missing (3b530 round 5). What a
+        # read returns is then parsed through the guarded _parse calls below
+        # -- one refusal clause per floor, each naming its source -- so no
+        # content defect (not JSON, or JSON of the wrong shape) can escape
+        # as a traceback from any of the three forms (3b540 round 2).
         if head_ref:
             head_text = _git_show(head_ref, FLOOR_PATH)
         else:
             head_text = open(head_desc, encoding="utf-8").read()
-            json.loads(head_text)
     except (subprocess.CalledProcessError, FileNotFoundError):
         sys.stderr.write(f"FAIL: {FLOOR_PATH} is missing at HEAD but present at {base_ref} "
                          "(the floor must never be removed).\n")
         return 1
-    except (_GitCallFailed, OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+    except (_GitCallFailed, OSError, UnicodeDecodeError) as exc:
         # A head floor that exists but cannot be read -- a directory in its
-        # place, a permission error, bytes that are not valid UTF-8 or not
-        # valid JSON, or an undecodable git show -- leaves the head state
-        # undetermined: neither the floor-removed FAIL above nor any verdict
-        # applies, so refuse instead of escaping as a traceback (3b540).
+        # place, a permission error, bytes that are not valid UTF-8, or an
+        # undecodable git show -- leaves the head state undetermined: neither
+        # the floor-removed FAIL above nor any verdict applies, so refuse
+        # instead of escaping as a traceback (3b540).
         sys.stderr.write(
             f"D12 CANNOT-EVALUATE: cannot read the head floor {head_desc} "
             f"({exc.__class__.__name__}: {exc}) while comparing against base "
@@ -276,7 +316,28 @@ def main(argv):
             f"is undetermined, so nothing was evaluated. Fix the floor file "
             f"and re-run.\n")
         return 2
-    base, head = _parse(base_text), _parse(head_text)
+    try:
+        base = _parse(base_text, f"{base_ref}:{FLOOR_PATH}")
+    except _FloorParseError as exc:
+        # The base floor was read back but is not a floor document; the base
+        # state is undetermined, so no verdict applies (3b540 round 2).
+        sys.stderr.write(
+            f"D12 CANNOT-EVALUATE: the base floor {exc} "
+            f"(repo={_toplevel()} base={base_sha}); the base state is "
+            f"undetermined, so nothing was evaluated. Fix the floor at the "
+            f"base and re-run.\n")
+        return 2
+    try:
+        head = _parse(head_text, head_desc)
+    except _FloorParseError as exc:
+        # Same refusal for the head floor, whichever form supplied it (an
+        # explicit head ref or the argless working tree) (3b540 round 2).
+        sys.stderr.write(
+            f"D12 CANNOT-EVALUATE: the head floor {exc} "
+            f"(repo={_toplevel()} base={base_sha}); the head state is "
+            f"undetermined, so nothing was evaluated. Fix the floor file "
+            f"and re-run.\n")
+        return 2
     violations = find_violations(base, head)
     if violations:
         sys.stderr.write("FAIL: the public number floor is not monotonic vs "
