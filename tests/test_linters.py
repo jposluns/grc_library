@@ -43169,7 +43169,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.19.0", "cm PR-7/D-4 declares the publication-screening add-on available in the [addons] register (MINOR by judgement, floor PATCH; 0.18.0 to 0.19.0)")
+        self.assertEqual(man["pack"]["version"], "0.20.0", "3b533 adds the UK ICO heading 'How do we ensure accuracy?' to the language profile's verbatim_ensure_titles on top of cm PR-7/D-4 (MINOR: default correction to a profile value; 0.19.0 to 0.20.0)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
