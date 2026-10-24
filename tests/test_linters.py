@@ -52359,6 +52359,89 @@ class BlockVerificationPipesTests(unittest.TestCase):
         self.check(['grep -q pat file; echo $?', 'cmd; rc=$?',
                     'set -o pipefail; cmd | tail | cat; echo $?'], False)
 
+    def test_line_continued_pipelines(self):
+        # 3b513 round 3: a newline directly after | or |& (optionally after
+        # whitespace or a comment) continues the pipeline, exactly as in bash,
+        # so the split form is judged like the one-line form.
+        self.check([
+            './tools/run_all_audits.sh 2>&1 |\ncat; echo $?',
+            'cmd |\ncat; echo $?',
+            'cmd |\n\ncat; echo $?',
+            'cmd | \ncat; echo $?',
+            'cmd |&\ntail -3; echo rc=$?',
+            'cmd | # filtered below\ncat; echo $?',
+            'cmd |\ncat |\nsort; echo $?',
+            'cmd <<EOF |\nbody\nEOF\ncat; echo $?',  # body is data; pipe continues
+            '(a) |\ncat; echo $?',
+        ], True)
+        self.check([
+            # the legacy named-verifier rule keeps catching its split forms
+            'tools/run_all_audits.sh 2>&1 |\ntail -8',
+            'tools/run_all_audits.sh |\n tail -8',
+            './tools/run_all_audits.sh | # note\ntail -3',
+            'git push -u origin br |\ntail -3',
+        ], True)
+        self.check([
+            'a |\nb',                                # no status read
+            'a |&\nb',
+            'a | # comment\nb',
+            'set -o pipefail; cmd |\ncat; echo $?',
+            "cat <<'EOF'\nfoo |\necho $?\nEOF\n",    # heredoc body text is data
+            'echo "a |"\necho $?',                   # quoted pipe ends with the line
+            'cmd |\ncat; echo ${PIPESTATUS[0]}',
+        ], False)
+
+    def test_every_status_parameter_expansion_counts(self):
+        # 3b513 round 3: every parameter expansion of ? reads the pipeline's
+        # status, not only $? and ${?}.
+        expansions = ('${?}', '${?:-x}', '${?:=x}', '${?:?bad}', '${?:+x}',
+                      '${?-x}', '${?+x}', '${?#0}', '${?##0}', '${?%x}',
+                      '${?%%x}', '${?/0/ok}', '${?^}', '${?@Q}', '${#?}',
+                      '${!?}')
+        for expansion in expansions:
+            self.check([
+                'cmd | cat; echo ' + expansion,
+                'cmd | cat; rc=' + expansion,
+                'cmd | cat; echo "' + expansion + '"',
+                'cmd | cat; test ' + expansion + ' = 0',
+            ], True)
+            self.check([
+                'grep -q pat file; echo ' + expansion,  # single command
+                "cmd | cat; echo '" + expansion + "'",  # single-quoted: no read
+            ], False)
+        self.check(['cmd | cat; echo ${rc:-${?#0}}'], True)
+        self.check(['cmd | cat; echo ${PIPESTATUS[0]}',
+                    'cmd | cat; echo ${rc:-0}'], False)
+
+    def test_ordinary_commands_stay_allowed(self):
+        # 3b513 round 3: no new false block on ordinary commands.
+        self.check([
+            'git status',
+            'git log --oneline | head -5',
+            'ls -la',
+            'python3 tools/build-taxonomy.py',
+            'grep -rn TODO docs | head -20',
+            'cat README.md | head -40',
+            'wc -l tests/test_linters.py',
+            'git diff --stat | tail -3',
+            'sed -n 1,10p CHANGELOG.md',
+            'echo done',
+            'make build 2>&1 | tee build.log',
+            'cmd > log 2>&1; rc=$?; tail log',
+            'tools/tail-safe.sh -n 8 -- ./tools/run_all_audits.sh',
+            'git add file.md && git commit -m msg',
+            'python3 -m unittest tests.test_linters.BlockVerificationPipesTests',
+            'find . -name x -print | sort',
+            'du -sh . | cut -f1',
+            'ps aux | grep python3 | head -3',
+            'git push -u origin br',
+            'curl -s https://example.org | jq .x',
+            'tr a-z A-Z < f | fold -w 80',
+            'history | tail -5',
+            'echo $PATH',
+            'sort f | uniq -c | head',
+        ], False)
+
     def test_combined_pipefail_options(self):
         forms = ('-euo pipefail', '-e -o pipefail', '-o pipefail -o errexit',
                  '-eo pipefail', '-o errexit -o pipefail', '-o pipefail --')

@@ -35,10 +35,14 @@ control).
 
 The additional status-read guard covers ALL multi-stage pipelines, including
 filters followed by another stage; single-command status reads remain allowed.
-It tracks literal set -o/+o pipefail (also short-option clusters ending in o)
-within a command list, and reads of $?/${?} in the next command (including double
-quotes, assignments and tests). Single quotes, escapes and comments do not
-count. The original named-verifier rule remains independent, including its
+A newline directly after | or |& (optionally after whitespace or a comment)
+continues the pipeline onto the next line, exactly as in bash, so a split
+pipeline is judged as one pipeline. It tracks literal set -o/+o pipefail
+(also short-option clusters ending in o) within a command list, and reads of
+the status parameter in the next command: $? and every parameter expansion
+of ? (${?}, ${?:-x}, ${?#0}, ${?%x}, ${?:+x}, ${#?} and similar), including
+inside double quotes, assignments and tests. Single quotes, escapes and
+comments do not count. The original named-verifier rule remains independent, including its
 pipefail policy. Bare background & is refused unless an unconditional,
 foreground, argument-free wait in the same shell scope drains all jobs.
 With exactly one prior launch in that scope, wait $! and wait -n also collect
@@ -51,8 +55,10 @@ multiple heredocs on one line. The operator line is still inspected.
 
 Additional residuals: this is a lexical guard, not a Bash interpreter.
 Literal parenthesized and brace groups are inspected with local pipefail/job
-state; brace-group state sharing and subshell exit-status propagation are
-not modeled. Command substitutions, eval, shell strings, functions, aliases
+state; brace-group state sharing is not modeled, and exit-status propagation
+out of subshells, brace groups and command substitutions is not modeled: a
+status read after `(cmd | tail)`, `{ cmd | tail; }` or `x=$(cmd | tail)` is
+not flagged. Command substitutions, eval, shell strings, functions, aliases
 and here-strings are not interpreted; they can produce false positives or
 missed indirect commands. Heredoc expansions and executed heredoc scripts
 are not inspected; unusual delimiter syntax is not a full Bash grammar.
@@ -177,14 +183,20 @@ COMMAND_POS = (
 )
 # Then anything within the same pipeline segment (no |, ;, or newline; &
 # only as part of an fd redirect like 2>&1), then a pipe straight into a
-# truncating filter.
+# truncating filter. The filter may sit on a following line: \s* spans the
+# newline after a trailing | or |&, and a comment there is skipped too,
+# because bash continues the pipeline across that newline.
 SEGMENT = r'(?:[^|;&\n]|\d?>&\d?)*'
-PIPED = re.compile(COMMAND_POS + VERIFICATION + SEGMENT + r'\|[|&]?\s*' + FILTERS,
+PIPE_JOINT = r'\|[|&]?\s*(?:#[^\n]*\n\s*)*'
+PIPED = re.compile(COMMAND_POS + VERIFICATION + SEGMENT + PIPE_JOINT + FILTERS,
                    re.MULTILINE)
 
 
 MAX_SHELL_NESTING = 64
 OPERATORS = re.compile(r"&&|\|\||\|&|&>>|&>|>>|<<-|<<<?|>&|<&|[;\n|&()<>{}]")
+# $? and every parameter expansion of the ? status parameter: ${?}, ${?:-x},
+# ${?#0}, ${?%x}, ${?:+x}, ${#?} (length), ${!?} and similar all read it.
+STATUS_READ = re.compile(r"\$(?:\?|\{[#!]?\?)")
 
 
 def shell_tokens(command):
@@ -233,8 +245,7 @@ def shell_tokens(command):
                 quote = c if quote is None else None
                 i += 1
                 continue
-            if quote != "'" and (command.startswith("$?", i)
-                                  or command.startswith("${?}", i)):
+            if quote != "'" and STATUS_READ.match(command, i):
                 status = True
             # Keep parameter expansions in a word, but still notice nested $?.
             if quote != "'" and command.startswith("${", i):
@@ -381,6 +392,13 @@ def _shell_violation(command):
                 i = end + 1
                 continue
             if token[0] == "op" and token[1] in (";", "\n", "&&", "||", "&"):
+                # A newline directly after | or |& continues the pipeline, as
+                # in bash (the tokenizer already drops the whitespace and any
+                # comment between the pipe and the newline).
+                if (token[1] == "\n" and segment and segment[-1][0] == "op"
+                        and segment[-1][1] in ("|", "|&")):
+                    i += 1
+                    continue
                 found = finish(token[1])
                 if found:
                     return found
@@ -489,6 +507,17 @@ def self_test() -> int:
         'python3 tools/build-taxonomy.py --check | head -2',
         './tools/run_all_audits.sh | wc -l',
         './tools/pre-push-guard.sh | tee /tmp/guard.log',
+        # round 3: a pipeline continued after a trailing | or |& is ONE pipeline
+        './tools/run_all_audits.sh 2>&1 |\ncat; echo $?',
+        'cmd |\ncat; echo $?',
+        'cmd |&\ncat; echo $?',
+        'cmd | # filtered below\ncat; echo $?',
+        'tools/run_all_audits.sh 2>&1 |\ntail -8',
+        './tools/run_all_audits.sh | # note\ntail -3',
+        # round 3: every parameter expansion of ? is a status read
+        'cmd | cat; echo ${?:-x}',
+        'cmd | cat; rc=${?#0}',
+        'cmd | cat; test ${#?} -eq 1',
     ]
     allowed = [
         'set -euo pipefail; cmd | cat; echo $?',
@@ -529,6 +558,13 @@ def self_test() -> int:
         # flag boundary: --checkout is not --check (the lookahead requires a
         # non-word, non-hyphen character after the flag)
         'python3 tools/build-taxonomy.py --checkout main | head -2',
+        # round 3: a split pipeline with no status read stays allowed
+        'a |\nb',
+        # round 3: heredoc body text ending a line with | is data, not shell
+        "cat <<'EOF'\nfoo |\necho $?\nEOF\n",
+        # round 3: a single-command status read via a modified expansion
+        'grep -q pat file; echo ${?:-x}',
+        'set -o pipefail; cmd |\ncat; echo $?',
     ]
     ok = True
     for c in blocked:
