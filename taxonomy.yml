@@ -6510,7 +6510,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Canonical Citations Register"
-  version: "1.6.10"
+  version: "1.6.11"
   date: "2026-10-24"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
