@@ -8310,7 +8310,7 @@ documents:
   domain: "privacy"
   type: "Standard"
   title: "Presence Inference Limitations Standard"
-  version: "0.1.4"
+  version: "0.1.5"
   date: "2026-10-24"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"

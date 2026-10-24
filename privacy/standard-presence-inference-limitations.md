@@ -2,7 +2,7 @@
 
 **Document Title:** Presence Inference Limitations Standard\
 **Document Type:** Standard\
-**Version:** 0.1.4\
+**Version:** 0.1.5\
 **Date:** 2026-10-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -147,7 +147,7 @@ Presence and presence-derived data is retained only as long as necessary for its
 | GDPR (EU) | Article 5(1)(b) purpose limitation; Article 5(1)(d) accuracy; Article 22 automated individual decision-making; Article 88 processing in the context of employment | Aligns the standard's purpose-limitation, accuracy, no-automated-scoring, and employment-context requirements. These principles inform the standard; the standard does not assert that any single article prescribes the specific presence-use limits. |
 | UK GDPR | Article 22 replaced by Articles 22A to 22D; Article 88 not adopted; see the United Kingdom privacy annex | The UK position on automated decisions and employment-context processing differs from the EU; do not conflate the two regimes. |
 | Article 29 Working Party Opinion 2/2017 on data processing at work (WP 249) | §5.5, Time and attendance; §5.4.1, Monitoring of home and remote working | Continuous recording of entrance and exit frequency and times is not justified where the data are also used for employee performance evaluation; keystroke, mouse-movement, and screen-capture monitoring of remote workers is disproportionate. |
-| UK ICO, Employment practices and data protection: Monitoring workers (June 2024) | What do we need to do if we use monitoring tools that use solely automated processes?; Data protection and monitoring workers: How do we ensure accuracy? | Limits on solely automated monitoring outcomes and the accuracy expectations for monitoring-derived information. |
+| UK ICO, Employment practices and data protection: Monitoring workers (June 2024) | What do we need to do if we use monitoring tools that use solely automated processes?; Data protection and monitoring workers (the question heading on accuracy) | Limits on solely automated monitoring outcomes and the accuracy expectations for monitoring-derived information. |
 | ILO Code of Practice on the Protection of Workers' Personal Data (1997) | 5.5 (decisions concerning a worker not based solely on automated processing); 5.6 (data collected by electronic monitoring not the only factors in evaluating worker performance) | Presence-derived signals are never the sole basis for a judgement about an individual's work. |
 | Council of Europe Recommendation CM/Rec(2015)5 (processing of personal data in the context of employment) | Principle 11.4 (no decision significantly affecting an employee based solely on automated processing without their views being taken into consideration); Principle 15.1 (information systems not introduced for the direct and principal purpose of monitoring activity and behaviour) | No solely automated judgements from presence signals, and no monitoring of activity and behaviour as a principal purpose. |
 
