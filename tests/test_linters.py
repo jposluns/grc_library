@@ -10539,25 +10539,44 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
 
     def _ref_changing_path(self, *update_ref_args):
         """A PATH whose git shim runs ``git update-ref <update_ref_args>``
-        (moving or deleting a ref) just before every ``git ls-tree`` call, the
-        gate's first floor read after it resolved its refs; every call
-        delegates to the real git. Returns the PATH value."""
+        (moving or deleting a ref) once, just before the gate's first floor
+        read of ANY kind -- ``git ls-tree``, ``git cat-file`` or ``git show``
+        -- which comes after it resolved its refs, so the injection fires
+        whichever presence command the gate uses (3b540 round 6, r5 review
+        WARN-1); every call delegates to the real git. The caller checks the
+        ref afterwards (_resolved_or_none) to prove the injection happened.
+        Returns the PATH value."""
         real_git = shutil.which("git")
         self.assertIsNotNone(real_git)
         shim_dir = Path(tempfile.mkdtemp(prefix="gitshim-")).resolve()
         self.addCleanup(shutil.rmtree, shim_dir, ignore_errors=True)
         shim = shim_dir / "git"
+        fired = shim_dir / "fired"
         args = " ".join(f'"{a}"' for a in update_ref_args)
         shim.write_text(
             "#!/bin/sh\n"
-            'if [ "$1" = "ls-tree" ]; then\n'
-            f'  "{real_git}" update-ref {args} >/dev/null 2>&1\n'
-            "fi\n"
+            'case "$1" in\n'
+            "  ls-tree|cat-file|show)\n"
+            f'    if [ ! -e "{fired}" ]; then\n'
+            f'      : > "{fired}"\n'
+            f'      "{real_git}" update-ref {args} >/dev/null 2>&1\n'
+            "    fi\n"
+            "    ;;\n"
+            "esac\n"
             f'exec "{real_git}" "$@"\n',
             encoding="utf-8",
         )
         shim.chmod(0o755)
         return f"{shim_dir}{os.pathsep}{os.environ['PATH']}"
+
+    def _resolved_or_none(self, tmp, ref):
+        """``ref``'s SHA in the fixture at ``tmp``, or None if it does not
+        resolve (deleted)."""
+        import subprocess as sp
+
+        r = sp.run(["git", "-C", str(tmp), "rev-parse", "--verify", "--quiet", ref],
+                   capture_output=True, text=True)
+        return r.stdout.strip() if r.returncode == 0 else None
 
     def _repo_with_lowered_head(self):
         """The floor-at-base fixture plus a ``feat`` commit lowering the floor
@@ -10576,21 +10595,30 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # that SHA. A head ref moved onto the base commit after the
         # collapsed-range check, or deleted, therefore cannot turn the
         # genuine verdict at the resolved head (the floor lowered: FAIL, exit
-        # 1) into the reflexive monotonic OK or a refusal.
-        for label, update in (
-            ("moved onto the base", ("refs/heads/feat", "{base}")),
-            ("deleted", ("-d", "refs/heads/feat")),
+        # 1) into the reflexive monotonic OK or a refusal. The shim fires on
+        # the first floor read of any kind, and the ref's state after the run
+        # proves the change happened (3b540 round 6, r5 review WARN-1): the
+        # round-4 tool, whose presence check was git cat-file -e, fails here.
+        for label, update, after in (
+            ("moved onto the base", ("refs/heads/feat", "{base}"), "{base}"),
+            ("deleted", ("-d", "refs/heads/feat"), None),
         ):
             with self.subTest(ref=label):
                 tmp, git = self._repo_with_lowered_head()
                 base_sha = git("rev-parse", "origin/main")
+                head_sha = git("rev-parse", "feat")
                 r = self._gate(
                     "check-todo-floor-monotonic-on-pr.py", tmp, "origin/main", "feat",
                     env={"PATH": self._ref_changing_path(
                         *(a.format(base=base_sha) for a in update))})
+                self.assertEqual(
+                    self._resolved_or_none(tmp, "refs/heads/feat"),
+                    after.format(base=base_sha) if after else None,
+                    "the shim did not change refs/heads/feat during the run")
                 self.assertEqual(r.returncode, 1,
                                  f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
                 self.assertIn("floor decreased 32 -> 31", r.stderr)
+                self.assertIn(f"base={base_sha} head={head_sha}", r.stderr)
                 self.assertNotIn("CANNOT-EVALUATE", r.stderr)
                 self.assertNotIn("OK", r.stdout)
 
@@ -10601,14 +10629,17 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # commit without the floor after the collapsed-range check, or
         # deleted, therefore cannot turn the genuine verdict at the resolved
         # base (the working tree lowered the floor: FAIL, exit 1) into the
-        # first-introduction OK (a silent waiver) or a refusal.
-        for label, update in (
+        # first-introduction OK (a silent waiver) or a refusal. As above, the
+        # shim fires on the first floor read of any kind and the ref's state
+        # after the run proves the change happened (3b540 round 6).
+        for label, update, after in (
             ("moved onto a commit without the floor",
-             ("refs/remotes/origin/main", "{initial}")),
-            ("deleted", ("-d", "refs/remotes/origin/main")),
+             ("refs/remotes/origin/main", "{initial}"), "{initial}"),
+            ("deleted", ("-d", "refs/remotes/origin/main"), None),
         ):
             with self.subTest(ref=label):
                 tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+                base_sha = git("rev-parse", "origin/main")
                 initial = git("rev-parse", "origin/main~1")
                 floor.write_text('{"2": 31}\n', encoding="utf-8")
                 r = self._gate(
@@ -10616,9 +10647,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     env={"GITHUB_BASE_REF": "main",
                          "PATH": self._ref_changing_path(
                              *(a.format(initial=initial) for a in update))})
+                self.assertEqual(
+                    self._resolved_or_none(tmp, "refs/remotes/origin/main"),
+                    after.format(initial=initial) if after else None,
+                    "the shim did not change refs/remotes/origin/main during the run")
                 self.assertEqual(r.returncode, 1,
                                  f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
                 self.assertIn("floor decreased 32 -> 31", r.stderr)
+                self.assertIn(f"base={base_sha} head=working tree", r.stderr)
                 self.assertNotIn("new at this base", r.stdout)
                 self.assertNotIn("CANNOT-EVALUATE", r.stderr)
                 self.assertNotIn("OK", r.stdout)
@@ -10692,6 +10728,99 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
         self.assertIn("new at this base", r.stdout)
         self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+
+    def test_d12_pathspec_mode_env_keeps_real_verdict(self) -> None:
+        # 3b540 round 6 (r5 review NOTE-1): git ls-tree rejects pathspec
+        # magic, so with GIT_GLOB_PATHSPECS=1 or GIT_ICASE_PATHSPECS=1
+        # inherited it exited 128 and the presence check refused a monotonic
+        # range (exit 2). Its call now runs without those two, so an explicit
+        # range raising the floor (both presence calls) gets the monotonic OK.
+        # GIT_LITERAL_PATHSPECS and GIT_NOGLOB_PATHSPECS are pins: they pass
+        # through, and ls-tree already reads the path literally under them.
+        # Mutation killed: passing the glob or icase variable through.
+        for var in ("GIT_GLOB_PATHSPECS", "GIT_ICASE_PATHSPECS",
+                    "GIT_LITERAL_PATHSPECS", "GIT_NOGLOB_PATHSPECS"):
+            with self.subTest(env=var):
+                tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+                git("checkout", "-q", "-b", "feat")
+                floor.write_text('{"2": 33}\n', encoding="utf-8")
+                git("add", "tools/todo-number-floor.json")
+                git("commit", "-q", "-m", "raise floor")
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                               "origin/main", "feat", env={var: "1"})
+                self.assertEqual(r.returncode, 0,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("is monotonic vs origin/main", r.stdout)
+                self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+
+    def test_d12_verdict_and_head_floor_lines_name_pinned_shas(self) -> None:
+        # 3b540 round 6 (r5 review NOTE-2): every verdict line -- both OKs
+        # and all three FAILs -- and the head-floor read and parse refusals
+        # name the pinned base and head SHAs (the argless head as the working
+        # tree), as the refusals already named the base, so a ref that moves
+        # after the gate pinned it cannot point the reader at other content.
+        def explicit(content, drop_blob=False):
+            # feat commits ``content`` as the floor (None removes it).
+            tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+            git("checkout", "-q", "-b", "feat")
+            if content is None:
+                git("rm", "-q", "tools/todo-number-floor.json")
+            else:
+                floor.write_text(content, encoding="utf-8")
+                git("add", "tools/todo-number-floor.json")
+            git("commit", "-q", "-m", "floor change")
+            git("checkout", "-q", "main")
+            if drop_blob:
+                self._drop_floor_blob(tmp, git, "feat")
+            return tmp, git, ("origin/main", "feat"), git("rev-parse", "feat")
+
+        def introduced():
+            tmp, git = self._repo()
+            git("checkout", "-q", "-b", "feat")
+            floor = tmp / "tools" / "todo-number-floor.json"
+            floor.parent.mkdir(parents=True, exist_ok=True)
+            floor.write_text('{"2": 32}\n', encoding="utf-8")
+            git("add", "tools/todo-number-floor.json")
+            git("commit", "-q", "-m", "introduce floor")
+            return tmp, git, ("origin/main", "feat"), git("rev-parse", "feat")
+
+        def argless(content):
+            # the working tree holds ``content`` as the floor (None removes it).
+            tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+            if content is None:
+                floor.unlink()
+            else:
+                floor.write_text(content, encoding="utf-8")
+            return tmp, git, (), "working tree"
+
+        for label, build, rc, stream, phrase in (
+            ("first introduction", introduced, 0, "stdout", "new at this base"),
+            ("raised", lambda: explicit('{"2": 33}\n'), 0, "stdout", "is monotonic vs"),
+            ("lowered", lambda: explicit('{"2": 31}\n'), 1, "stderr", "not monotonic vs"),
+            ("removed", lambda: explicit(None), 1, "stderr", "missing at HEAD"),
+            ("head floor not JSON", lambda: explicit("not a floor\n"), 2, "stderr",
+             "the head floor"),
+            ("head floor blob missing", lambda: explicit('{"2": 33}\n', drop_blob=True),
+             2, "stderr", "cannot read the head floor"),
+            ("argless raised", lambda: argless('{"2": 33}\n'), 0, "stdout",
+             "is monotonic vs"),
+            ("argless lowered", lambda: argless('{"2": 31}\n'), 1, "stderr",
+             "not monotonic vs"),
+            ("argless removed", lambda: argless(None), 1, "stderr", "missing at HEAD"),
+            ("argless head floor not JSON", lambda: argless("not a floor\n"), 2,
+             "stderr", "the head floor"),
+        ):
+            with self.subTest(verdict=label):
+                tmp, git, args, head_pin = build()
+                base_sha = git("rev-parse", "origin/main")
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, *args,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, rc,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                out = getattr(r, stream)
+                line = next((ln for ln in out.splitlines() if phrase in ln), None)
+                self.assertIsNotNone(line, out)
+                self.assertIn(f"base={base_sha} head={head_pin}", line)
 
     def test_d12_argless_git_call_failure_refuses(self) -> None:
         # Round 4 of 3b530 (review F5): a git diff or git ls-files call that
@@ -26285,7 +26414,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-retired-section-orphan-on-pr.py NO_FS F 94f89f3645e0e4dedbfe0a2d174ba60150b94bd7a0c734e25d5f96d148afe4ba
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
         check-stranded-control-code-on-pr.py NO_FS F 5c0890d697db2086c6a10fe3222b6a268ac04199a359b761e4d393aceaccde7d
-        check-todo-floor-monotonic-on-pr.py NO_FS F 03ea22d8fa838b19637be2f51e2d25d2a622ab9ac7fe7711006cb6ee55f3747b
+        check-todo-floor-monotonic-on-pr.py NO_FS F 6e6451cd462e025af8cd3534e1b36561e201fd4b7d81aff74d93f4e2a8915cd3
         check-todo-rotation-on-pr.py NO_FS F f4189bf15201c6ae8d228ac341f5c5c5dd859457be22275084e2e155751b5c96
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 520abe7d721553382768bf7c581cc0db91b1b6ac329404cc61416333246062b2

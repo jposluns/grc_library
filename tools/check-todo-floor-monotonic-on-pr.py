@@ -38,6 +38,14 @@ import sys
 
 FLOOR_PATH = "tools/todo-number-floor.json"
 
+# git ls-tree supports no pathspec magic, so an inherited GIT_GLOB_PATHSPECS
+# or GIT_ICASE_PATHSPECS makes it exit 128 ("pathspec magic not supported by
+# this command") and the presence check would refuse a range it can
+# evaluate; _path_at_sha runs it without them (3b540 round 6).
+# GIT_LITERAL_PATHSPECS and GIT_NOGLOB_PATHSPECS stay: under them ls-tree
+# already reads the path literally and gives the real verdict.
+_LS_TREE_DROPPED_ENV = ("GIT_GLOB_PATHSPECS", "GIT_ICASE_PATHSPECS")
+
 
 def _ref_resolves(ref):
     """True iff ``ref`` resolves to a commit. An invalid / unfetched base ref must NOT be
@@ -101,11 +109,14 @@ def _path_at_sha(sha, path):
     ``sha:path`` does, whatever the current directory. A nonzero status (the
     commit or a tree on the path unreadable) or git not running at all
     (OSError) raises _GitCallFailed for main()'s refusal backstop, never
-    read as absent and never a traceback (3b540 rounds 3 and 5)."""
+    read as absent and never a traceback (3b540 rounds 3 and 5). The call
+    runs without _LS_TREE_DROPPED_ENV, so an inherited glob or icase
+    pathspec mode cannot turn that status nonzero (3b540 round 6)."""
+    env = {k: v for k, v in os.environ.items() if k not in _LS_TREE_DROPPED_ENV}
     try:
         listing = subprocess.run(
             ["git", "ls-tree", "--full-tree", sha, "--", path],
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env=env)
     except OSError as exc:
         raise _GitCallFailed(f"git ls-tree {sha} -- {path} (did not run: {exc})")
     if listing.returncode != 0:
@@ -347,9 +358,15 @@ def _run(argv):
                 f"evaluated. If the change lives in a worktree, run from that "
                 f"worktree, or pass a base..head range that selects the change.\n")
             return 2
+    # Every verdict line and both head-floor refusals name the SHAs evaluated,
+    # as the refusals above name the base, so a ref that moves after pinning
+    # cannot point the reader at other content; the argless head is the
+    # working tree, which has no SHA (3b540 round 6).
+    pins = f"base={base_sha} head={head_sha if head_ref else 'working tree'}"
     if not _path_at_sha(base_sha, FLOOR_PATH):
         # base is VALID but the floor did not exist there: first introduction, nothing to compare.
-        print(f"OK: {FLOOR_PATH} is new at this base ({base_ref}); no prior floor to compare.")
+        print(f"OK: {FLOOR_PATH} is new at this base ({base_ref}; {pins}); "
+              "no prior floor to compare.")
         return 0
     try:
         base_text = _git_show(base_sha, FLOOR_PATH)
@@ -371,7 +388,7 @@ def _run(argv):
         # read as a removed floor and never a traceback (3b540 rounds 3
         # and 5).
         sys.stderr.write(f"FAIL: {FLOOR_PATH} is missing at HEAD but present at {base_ref} "
-                         "(the floor must never be removed).\n")
+                         f"({pins}); the floor must never be removed.\n")
         return 1
     head_desc = f"{head_ref}:{FLOOR_PATH}" if head_ref else os.path.join(top, FLOOR_PATH)
     try:
@@ -388,7 +405,7 @@ def _run(argv):
             head_text = open(head_desc, encoding="utf-8").read()
     except FileNotFoundError:
         sys.stderr.write(f"FAIL: {FLOOR_PATH} is missing at HEAD but present at {base_ref} "
-                         "(the floor must never be removed).\n")
+                         f"({pins}); the floor must never be removed.\n")
         return 1
     except (_GitCallFailed, OSError, UnicodeDecodeError) as exc:
         # A head floor that exists but cannot be read -- a directory in its
@@ -399,7 +416,7 @@ def _run(argv):
         sys.stderr.write(
             f"D12 CANNOT-EVALUATE: cannot read the head floor {head_desc} "
             f"({exc.__class__.__name__}: {exc}) while comparing against base "
-            f"{base_ref} (repo={_toplevel()} base={base_sha}); the head state "
+            f"{base_ref} (repo={_toplevel()} {pins}); the head state "
             f"is undetermined, so nothing was evaluated. Fix the floor file "
             f"and re-run.\n")
         return 2
@@ -421,18 +438,18 @@ def _run(argv):
         # explicit head ref or the argless working tree) (3b540 round 2).
         sys.stderr.write(
             f"D12 CANNOT-EVALUATE: the head floor {exc} "
-            f"(repo={_toplevel()} base={base_sha}); the head state is "
+            f"(repo={_toplevel()} {pins}); the head state is "
             f"undetermined, so nothing was evaluated. Fix the floor file "
             f"and re-run.\n")
         return 2
     violations = find_violations(base, head)
     if violations:
         sys.stderr.write("FAIL: the public number floor is not monotonic vs "
-                         f"{base_ref}: {'; '.join(violations)}. The floor may only rise or "
-                         f"stay put; restore each decreased value in {FLOOR_PATH}.\n")
+                         f"{base_ref} ({pins}): {'; '.join(violations)}. The floor may only "
+                         f"rise or stay put; restore each decreased value in {FLOOR_PATH}.\n")
         return 1
     print(f"OK: {FLOOR_PATH} is monotonic vs {base_ref} "
-          f"({len(base)} series, none decreased or dropped).")
+          f"({pins}; {len(base)} series, none decreased or dropped).")
     return 0
 
 
