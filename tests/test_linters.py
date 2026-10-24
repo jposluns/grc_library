@@ -10539,13 +10539,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
 
     def _ref_changing_path(self, *update_ref_args):
         """A PATH whose git shim runs ``git update-ref <update_ref_args>``
-        (moving or deleting a ref) once, just before the gate's first floor
-        read of ANY kind -- ``git ls-tree``, ``git cat-file`` or ``git show``
-        -- which comes after it resolved its refs, so the injection fires
-        whichever presence command the gate uses (3b540 round 6, r5 review
-        WARN-1); every call delegates to the real git. The caller checks the
-        ref afterwards (_resolved_or_none) to prove the injection happened.
-        Returns the PATH value."""
+        (moving or deleting a ref) once, just before the gate's first
+        ``git ls-tree``, ``git cat-file`` or ``git show`` call, which comes
+        after it resolved its refs, so the injection fires whichever of those
+        three the presence check uses (3b540 round 6, r5 review WARN-1). A
+        floor read through any other git command (``rev-parse <ref>:<path>``,
+        say) does not trigger it. Every call delegates to the real git. The
+        caller checks the ref afterwards (_resolved_or_none) to prove the
+        injection happened. Returns the PATH value."""
         real_git = shutil.which("git")
         self.assertIsNotNone(real_git)
         shim_dir = Path(tempfile.mkdtemp(prefix="gitshim-")).resolve()
@@ -10735,8 +10736,8 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # inherited it exited 128 and the presence check refused a monotonic
         # range (exit 2). Its call now runs without those two, so an explicit
         # range raising the floor (both presence calls) gets the monotonic OK.
-        # GIT_LITERAL_PATHSPECS and GIT_NOGLOB_PATHSPECS are pins: they pass
-        # through, and ls-tree already reads the path literally under them.
+        # GIT_LITERAL_PATHSPECS and GIT_NOGLOB_PATHSPECS are verdict pins:
+        # the test pins the monotonic OK under each, not that they reach git.
         # Mutation killed: passing the glob or icase variable through.
         for var in ("GIT_GLOB_PATHSPECS", "GIT_ICASE_PATHSPECS",
                     "GIT_LITERAL_PATHSPECS", "GIT_NOGLOB_PATHSPECS"):
