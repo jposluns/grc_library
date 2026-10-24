@@ -52391,6 +52391,31 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'cmd |\ncat; echo ${PIPESTATUS[0]}',
         ], False)
 
+    def test_backslash_newline_splits_and_comment_pipes(self):
+        # 3b513 round 4: the legacy named-verifier rule judges the text model
+        # the tokenizer builds (legacy_view): a backslash-newline continuation
+        # joins the pipeline exactly as in bash, and comment text is data.
+        self.check([
+            './tools/run_all_audits.sh 2>&1 | \\\ntail -8',
+            './tools/run_all_audits.sh 2>&1 |\\\ntail -8',
+            './tools/run_all_audits.sh 2>&1 \\\n| tail -8',
+            'git push -u origin br 2>&1 | \\\ntail -3',
+            'tools/run_all_audits.sh \\\n 2>&1 | tail -8',
+            'python3 -m unittest \\\n| tail -2',
+            './tools/run_all_audits.sh 2>&1 | \\\n\\\ntail -8',
+        ], True)
+        self.check([
+            # a | inside a trailing comment is not a pipe
+            './tools/run_all_audits.sh # | tail',
+            './tools/run_all_audits.sh # keep |\ntail -f log',
+            # a comment-only line with a pipe before an unpiped verifier
+            '# | tail\n./tools/run_all_audits.sh',
+            # a backslash-newline inside a quoted string is not a join
+            './tools/run_all_audits.sh --note "a \\\nb"',
+            "echo 'a | \\\ntail'",
+            'echo "run_all_audits.sh | \\\ntail"',
+        ], False)
+
     def test_every_status_parameter_expansion_counts(self):
         # 3b513 round 3: every parameter expansion of ? reads the pipeline's
         # status, not only $? and ${?}.

@@ -36,14 +36,19 @@ control).
 The additional status-read guard covers ALL multi-stage pipelines, including
 filters followed by another stage; single-command status reads remain allowed.
 A newline directly after | or |& (optionally after whitespace or a comment)
-continues the pipeline onto the next line, exactly as in bash, so a split
-pipeline is judged as one pipeline. It tracks literal set -o/+o pipefail
+and a backslash-newline line continuation both continue the pipeline onto
+the next line, exactly as in bash, so a split pipeline is judged as one
+pipeline. It tracks literal set -o/+o pipefail
 (also short-option clusters ending in o) within a command list, and reads of
 the status parameter in the next command: $? and every parameter expansion
 of ? (${?}, ${?:-x}, ${?#0}, ${?%x}, ${?:+x}, ${#?} and similar), including
 inside double quotes, assignments and tests. Single quotes, escapes and
-comments do not count. The original named-verifier rule remains independent, including its
-pipefail policy. Bare background & is refused unless an unconditional,
+comments do not count. The original named-verifier rule remains independent,
+including its pipefail policy, but it judges the same text model the
+tokenizer builds: comments and backslash-newline line continuations are
+removed first (legacy_view), so a continuation-split verifier pipeline
+blocks and a | inside a comment does not.
+Bare background & is refused unless an unconditional,
 foreground, argument-free wait in the same shell scope drains all jobs.
 With exactly one prior launch in that scope, wait $! and wait -n also collect
 that job. Other targeted waits are not certified. Literal coproc launches
@@ -63,7 +68,8 @@ and here-strings are not interpreted; they can produce false positives or
 missed indirect commands. Heredoc expansions and executed heredoc scripts
 are not inspected; unusual delimiter syntax is not a full Bash grammar.
 An unterminated heredoc consumes the remaining input as body text. The legacy
-named-verifier regex still scans raw heredoc text as disclosed above.
+named-verifier regex still scans raw heredoc and quoted text as disclosed
+above, though with comment text and backslash-newline continuations removed.
 Conditional lists are conservative; loops/case/if and dynamic shell-option
 changes are not modeled. A literal wait is trusted to be the Bash builtin
 and to be reached (early exits/signals and overridden builtins are residuals).
@@ -184,8 +190,11 @@ COMMAND_POS = (
 # Then anything within the same pipeline segment (no |, ;, or newline; &
 # only as part of an fd redirect like 2>&1), then a pipe straight into a
 # truncating filter. The filter may sit on a following line: \s* spans the
-# newline after a trailing | or |&, and a comment there is skipped too,
-# because bash continues the pipeline across that newline.
+# newline after a trailing | or |&, because bash continues the pipeline
+# across that newline. PIPED matches legacy_view(command), which has already
+# joined backslash-newline continuations and removed comment text; the
+# comment alternative in PIPE_JOINT still covers raw heredoc text, which
+# legacy_view keeps verbatim.
 SEGMENT = r'(?:[^|;&\n]|\d?>&\d?)*'
 PIPE_JOINT = r'\|[|&]?\s*(?:#[^\n]*\n\s*)*'
 PIPED = re.compile(COMMAND_POS + VERIFICATION + SEGMENT + PIPE_JOINT + FILTERS,
@@ -199,8 +208,14 @@ OPERATORS = re.compile(r"&&|\|\||\|&|&>>|&>|>>|<<-|<<<?|>&|<&|[;\n|&()<>{}]")
 STATUS_READ = re.compile(r"\$(?:\?|\{[#!]?\?)")
 
 
-def shell_tokens(command):
-    """Yield (kind, decoded word, start, end, expands_status), without execution."""
+def shell_tokens(command, cuts=None):
+    """Yield (kind, decoded word, start, end, expands_status), without execution.
+
+    When ``cuts`` is a list, the (start, end) spans of source text that bash
+    removes before parsing any command word are appended to it in source
+    order: comment text and backslash-newline line continuations (which the
+    word loop below already consumes). legacy_view splices them out.
+    """
     i = 0
     heredocs, delimiter = [], None
     while i < len(command):
@@ -209,7 +224,10 @@ def shell_tokens(command):
             continue
         if command[i] == "#":
             end = command.find("\n", i)
-            i = len(command) if end < 0 else end
+            end = len(command) if end < 0 else end
+            if cuts is not None:
+                cuts.append((i, end))
+            i = end
             continue
         op = OPERATORS.match(command, i)
         if op:
@@ -239,6 +257,8 @@ def shell_tokens(command):
                     if quote is None or nxt in '$`"\\\n':
                         if nxt != "\n":
                             word.append(nxt)
+                        elif cuts is not None:
+                            cuts.append((i, i + 2))
                         i += 2
                         continue
             if c in "\"'" and (quote is None or quote == c):
@@ -269,6 +289,28 @@ def shell_tokens(command):
             delimiter = None
             status = False  # heredoc delimiter words do not expand $?
         yield ("word", decoded, start, i, status)
+
+
+def legacy_view(command):
+    """The text the legacy PIPED regex judges: the tokenizer's shell model.
+
+    Comment text and backslash-newline line continuations (the two ways bash
+    detaches one pipeline's text across source lines without new operators)
+    are spliced out exactly where the tokenizer consumes them; everything
+    else, including quotes and raw heredoc text, stays byte-for-byte, so the
+    quote-blind and raw-heredoc residuals disclosed above are unchanged.
+    """
+    cuts = []
+    for _token in shell_tokens(command, cuts):
+        pass
+    if not cuts:
+        return command
+    pieces, previous = [], 0
+    for start, end in cuts:
+        pieces.append(command[previous:start])
+        previous = end
+    pieces.append(command[previous:])
+    return "".join(pieces)
 
 
 def pipefail_changes(words):
@@ -412,8 +454,9 @@ def _shell_violation(command):
 
 
 def command_is_blocked(command: str) -> bool:
-    # Keep the legacy command-position matcher and its existing exemptions.
-    return bool(shell_violation(command) or PIPED.search(command))
+    # Keep the legacy command-position matcher and its existing exemptions,
+    # judged on the tokenizer's text model (legacy_view).
+    return bool(shell_violation(command) or PIPED.search(legacy_view(command)))
 
 
 def main() -> int:
@@ -425,7 +468,7 @@ def main() -> int:
     if not isinstance(command, str):
         return 0
     violation = shell_violation(command)
-    if not violation and not PIPED.search(command):
+    if not violation and not PIPED.search(legacy_view(command)):
         return 0
     try:
         _load_sibling("_hook_state").record_block(command, "verification-pipes")
@@ -518,6 +561,11 @@ def self_test() -> int:
         'cmd | cat; echo ${?:-x}',
         'cmd | cat; rc=${?#0}',
         'cmd | cat; test ${#?} -eq 1',
+        # round 4: a backslash-newline continuation is the same pipeline
+        './tools/run_all_audits.sh 2>&1 | \\\ntail -8',
+        './tools/run_all_audits.sh 2>&1 |\\\ntail -8',
+        './tools/run_all_audits.sh 2>&1 \\\n| tail -8',
+        'git push -u origin br 2>&1 | \\\ntail -3',
     ]
     allowed = [
         'set -euo pipefail; cmd | cat; echo $?',
@@ -565,6 +613,13 @@ def self_test() -> int:
         # round 3: a single-command status read via a modified expansion
         'grep -q pat file; echo ${?:-x}',
         'set -o pipefail; cmd |\ncat; echo $?',
+        # round 4: comment text is data to the named-verifier rule too
+        './tools/run_all_audits.sh # | tail',
+        './tools/run_all_audits.sh # keep |\ntail -f log',
+        '# | tail\n./tools/run_all_audits.sh',
+        # round 4: a backslash-newline inside a quoted word is not a join
+        './tools/run_all_audits.sh --note "a \\\nb"',
+        "echo 'a | \\\ntail'",
     ]
     ok = True
     for c in blocked:
