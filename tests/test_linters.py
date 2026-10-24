@@ -30366,22 +30366,56 @@ class ReferenceBreadthStateTests(unittest.TestCase):
         self.head = self._git("rev-parse", "--short=12", "HEAD")
         self.state = self.td / "state.md"
 
-    def _git(self, *args):
+    def _git_env(self):
         # 3b529: pin identity and dates so the fixture's object hashes do not
         # depend on the wall clock; without this, rev-parse --short lengths
-        # vary from run to run through chance prefix collisions.
+        # vary from run to run through chance prefix collisions. Built in one
+        # place so _abbrev_diagnostics reports what the git subprocess saw.
         env = fixture_git_environment()
         env.update(GIT_AUTHOR_NAME="Test", GIT_COMMITTER_NAME="Test",
                    GIT_AUTHOR_EMAIL="test@example.invalid",
                    GIT_COMMITTER_EMAIL="test@example.invalid",
                    GIT_AUTHOR_DATE="2026-10-12T00:00:00Z",
                    GIT_COMMITTER_DATE="2026-10-12T00:00:00Z")
+        return env
+
+    def _git(self, *args):
         r = subprocess.run(
             ["git", "-C", str(self.ref), "-c", "user.name=Test",
              "-c", "user.email=test@example.invalid", "-c", "core.hooksPath=/dev/null",
-             *args], capture_output=True, text=True, env=env)
+             *args], capture_output=True, text=True, env=self._git_env())
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         return r.stdout.strip()
+
+    def _abbrev_diagnostics(self, short):
+        """Failure message for the configured-abbreviation-length assertion:
+        enough to tell a silently ignored core.abbrev from a prefix collision
+        or a git behaviour change (3b529 round 2)."""
+        env = self._git_env()
+
+        def run(*args):
+            r = subprocess.run(["git", "-C", str(self.ref), *args],
+                               capture_output=True, text=True, env=env)
+            out = (r.stdout + r.stderr).strip()
+            return out if r.returncode == 0 else f"<rc={r.returncode}: {out}>"
+
+        head = run("rev-parse", "HEAD")
+        objects = run("cat-file", "--batch-all-objects",
+                      "--batch-check=%(objectname)").split()
+        return "\n".join([
+            f"rev-parse --short HEAD gave {short!r} (length {len(short)}) "
+            f"with core.abbrev configured to 4",
+            f"git version: {run('version')}",
+            f"effective core.abbrev and origin: "
+            f"{run('config', '--show-origin', 'core.abbrev')}",
+            f"HEAD: {head}",
+            f"objects sharing HEAD prefix {head[:4]!r}: "
+            f"{sum(o.startswith(head[:4]) for o in objects)} of {len(objects)}",
+            f"objects sharing HEAD prefix {head[:5]!r}: "
+            f"{sum(o.startswith(head[:5]) for o in objects)} of {len(objects)}",
+            f"environment variable names visible to the git subprocess: "
+            f"{' '.join(sorted(env))}",
+        ])
 
     def _seed(self, docs=None):
         docs = self.DOCS if docs is None else docs
@@ -30701,13 +30735,16 @@ class ReferenceBreadthStateTests(unittest.TestCase):
 
 
     def _main(self, *args):
-        from contextlib import redirect_stdout, redirect_stderr
+        from contextlib import chdir, redirect_stdout, redirect_stderr
         from types import SimpleNamespace
         from unittest.mock import patch
         import io
         out, err = io.StringIO(), io.StringIO()
+        # 3b529 round 2 (N2): guard_explicit_paths refuses a relative --docs
+        # unless the current directory is the repo root, so run the in-process
+        # main from there, as _run_tool already does with cwd=REPO_ROOT.
         with patch.dict(os.environ, self._tool_environment(), clear=True):
-            with redirect_stdout(out), redirect_stderr(err):
+            with chdir(REPO_ROOT), redirect_stdout(out), redirect_stderr(err):
                 rc = self.mod.main(["--ref-base", str(self.ref),
                                     "--state", str(self.state), *args])
         return SimpleNamespace(returncode=rc, stdout=out.getvalue(), stderr=err.getvalue())
@@ -31051,15 +31088,13 @@ class ReferenceBreadthStateTests(unittest.TestCase):
     def test_short_core_abbrev_keeps_rows_across_two_updates(self):
         self._git("config", "core.abbrev", "4")
         self.assertEqual(self._git("config", "core.abbrev"), "4")
-        # 3b529: an exact 4-character length is only a precondition, and git
-        # lengthens an abbreviation past core.abbrev when another object
-        # shares the prefix. The tool only needs the repository default to be
-        # a valid abbreviation shorter than the 12 characters it records, so
-        # assert that; prefix lengthening cannot fail it.
+        # 3b529 round 2: with the identity and dates pinned in _git_env the
+        # fixture hashes are fixed and the 4-character prefix is unshared, so
+        # the configured length holds exactly; a longer answer means a real
+        # cause (ignored core.abbrev, a new prefix collision, a git behaviour
+        # change), and the message carries the diagnostics to find it.
         short = self._git("rev-parse", "--short", "HEAD")
-        self.assertTrue(self._git("rev-parse", "HEAD").startswith(short), short)
-        self.assertGreaterEqual(len(short), 4, short)
-        self.assertLess(len(short), 12, short)
+        self.assertEqual(len(short), 4, self._abbrev_diagnostics(short))
         for doc in self.DOCS[:2]:
             result = self._run_tool(doc)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
