@@ -16,7 +16,7 @@ The sanctioned alternative is `tools/tail-safe.sh [-n LINES] -- <command>`
 capture (`cmd > log; CODE=$?`), both of which pass this hook.
 
 Exit protocol (Claude Code hooks): exit 0 allows the tool call; exit 2
-blocks it and feeds stderr back to the model as the reason. Any parse
+blocks it and feeds stderr back to the model as the reason. Any JSON parse
 failure allows (fail-open): this hook is a guardrail against one known
 mistake shape, not a security boundary, and a hook that could block all
 Bash on a malformed payload would be worse than the mistake it prevents.
@@ -33,21 +33,31 @@ sinks to the named sets; a runner outside the widened set is still
 uncovered by design (the wrapper and the unpiped habit are the primary
 control).
 
-The additional status-read guard covers any final filter in STATUS_FILTERS,
-not just named verifiers. It tracks literal set -o/+o pipefail within a
-command list, and reads of $?/${?} in the next command (including double
+The additional status-read guard covers ALL multi-stage pipelines, including
+filters followed by another stage; single-command status reads remain allowed.
+It tracks literal set -o/+o pipefail (also short-option clusters ending in o)
+within a command list, and reads of $?/${?} in the next command (including double
 quotes, assignments and tests). Single quotes, escapes and comments do not
 count. The original named-verifier rule remains independent, including its
 pipefail policy. Bare background & is refused unless an unconditional,
 foreground, argument-free wait in the same shell scope drains all jobs.
-Targeted waits and wait -n do not establish that every job was collected.
+With exactly one prior launch in that scope, wait $! and wait -n also collect
+that job. Other targeted waits are not certified. Literal coproc launches
+are refused. Nesting beyond 64 groups or a RecursionError refuses with a
+shell-complexity message, never an allow decision or an uncaught crash.
+Heredoc bodies and delimiter words are skipped by these additional guards:
+<<WORD, quoted delimiters and <<-WORD (tab stripping) are recognized, including
+multiple heredocs on one line. The operator line is still inspected.
 
 Additional residuals: this is a lexical guard, not a Bash interpreter.
 Literal parenthesized and brace groups are inspected with local pipefail/job
 state; brace-group state sharing and subshell exit-status propagation are
-not modeled. Command substitutions,
-eval, shell strings, functions, aliases, heredocs and here-strings are not
-interpreted; they can produce false positives or missed indirect commands.
+not modeled. Command substitutions, eval, shell strings, functions, aliases
+and here-strings are not interpreted; they can produce false positives or
+missed indirect commands. Heredoc expansions and executed heredoc scripts
+are not inspected; unusual delimiter syntax is not a full Bash grammar.
+An unterminated heredoc consumes the remaining input as body text. The legacy
+named-verifier regex still scans raw heredoc text as disclosed above.
 Conditional lists are conservative; loops/case/if and dynamic shell-option
 changes are not modeled. A literal wait is trusted to be the Bash builtin
 and to be reached (early exits/signals and overridden builtins are residuals).
@@ -173,14 +183,14 @@ PIPED = re.compile(COMMAND_POS + VERIFICATION + SEGMENT + r'\|[|&]?\s*' + FILTER
                    re.MULTILINE)
 
 
-STATUS_FILTERS = frozenset(
-    "tail head cut grep sed awk sort uniq wc tr fold column".split())
-OPERATORS = re.compile(r"&&|\|\||\|&|&>>|&>|>>|<<<?|>&|<&|[;\n|&()<>{}]")
+MAX_SHELL_NESTING = 64
+OPERATORS = re.compile(r"&&|\|\||\|&|&>>|&>|>>|<<-|<<<?|>&|<&|[;\n|&()<>{}]")
 
 
 def shell_tokens(command):
     """Yield (kind, decoded word, start, end, expands_status), without execution."""
     i = 0
+    heredocs, delimiter = [], None
     while i < len(command):
         if command[i].isspace() and command[i] != "\n":
             i += 1
@@ -193,6 +203,19 @@ def shell_tokens(command):
         if op:
             yield ("op", op[0], i, op.end(), False)
             i = op.end()
+            if op[0] in ("<<", "<<-"):
+                delimiter = op[0] == "<<-"
+            elif op[0] == "\n":
+                for terminator, strip_tabs in heredocs:
+                    while i < len(command):
+                        end = command.find("\n", i)
+                        end = len(command) if end < 0 else end
+                        line = command[i:end]
+                        i = min(end + 1, len(command))
+                        if (line.lstrip("\t") if strip_tabs else line) == terminator:
+                            break
+                heredocs.clear()
+                delimiter = None
             continue
         start, word, status, quote = i, [], False, None
         parameter_depth = 0
@@ -229,18 +252,54 @@ def shell_tokens(command):
                 break
             word.append(c)
             i += 1
-        yield ("word", "".join(word), start, i, status)
+        decoded = "".join(word)
+        if delimiter is not None:
+            heredocs.append((decoded, delimiter))
+            delimiter = None
+            status = False  # heredoc delimiter words do not expand $?
+        yield ("word", decoded, start, i, status)
+
+
+def pipefail_changes(words):
+    """Yield literal set option changes, stopping at positional arguments."""
+    if not words or words[0] != "set":
+        return
+    i = 1
+    while i < len(words):
+        option = words[i]
+        if not re.fullmatch(r"[-+][A-Za-z]+", option):
+            break
+        if "o" in option[1:]:
+            # -o consumes the following option name; o must end its cluster.
+            if option.count("o") != 1 or not option.endswith("o"):
+                break
+            i += 1
+            if i >= len(words):
+                break
+            if words[i] == "pipefail":
+                yield option[0] == "-"
+        i += 1
 
 
 def shell_violation(command):
     """Return (guard, offending source span), or None; never run shell text."""
+    try:
+        return _shell_violation(command)
+    except RecursionError:
+        return ("shell-complexity", "recursion limit")
+
+
+def _shell_violation(command):
     tokens = list(shell_tokens(command))
 
-    def inspect(items, pipefail=False, pending=None):
+    def inspect(items, pipefail=False, pending=None, nesting=0):
+        if nesting > MAX_SHELL_NESTING:
+            return ("shell-complexity", "nesting limit")
         segment, jobs, conditional = [], [], False
+        launched = 0
 
         def finish(separator):
-            nonlocal pipefail, pending, segment, conditional
+            nonlocal pipefail, pending, segment, conditional, launched
             if not segment:
                 return None
             stages = [[]]
@@ -252,47 +311,49 @@ def shell_violation(command):
             if pending and any(t[4] for t in segment):
                 return ("pipeline-status", pending)
 
-            def argv(stage):
+            def argv(stage, raw=False):
                 words, skip = [], False
                 for n, t in enumerate(stage):
                     if skip:
                         skip = False
                         continue
                     if t[0] == "op" and t[1] in (
-                            ">", "<", ">>", "<<", "<<<", ">&", "<&", "&>", "&>>"):
+                            ">", "<", ">>", "<<", "<<-", "<<<", ">&", "<&", "&>", "&>>"):
                         if (n and stage[n - 1][0] == "word"
                                 and stage[n - 1][1].isdigit()
                                 and stage[n - 1][3] == t[2] and words):
                             words.pop()  # adjacent IO number, not an argument
                         skip = True
                     elif t[0] == "word":
-                        words.append(t[1])
+                        words.append(command[t[2]:t[3]] if raw else t[1])
                     else:
                         words.append("<compound>")
                 return words
 
             words = argv(segment)
+            span = command[segment[0][2]:segment[-1][3]]
+            for stage in stages:
+                stage_words = argv(stage)
+                if stage_words and stage_words[0] == "coproc":
+                    return ("coproc-background", span)
             # Only a standalone builtin in this shell can change its options
             # or collect its children. Conditional waits cannot prove collection.
             standalone = len(stages) == 1 and separator != "&" and not conditional
             if len(stages) == 1 and separator != "&":
-                if words == ["set", "+o", "pipefail"]:
-                    pipefail = False  # even a conditional disable may execute
-                elif standalone and words == ["set", "-o", "pipefail"]:
-                    pipefail = True
-            if standalone and words == ["wait"]:
-                jobs.clear()
-            span = command[segment[0][2]:segment[-1][3]]
-            final = argv(stages[-1])
-            # Skip assignment prefixes; recognize absolute filter paths too.
-            while final and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", final[0]):
-                final.pop(0)
-            filtered = (len(stages) > 1 and final
-                        and final[0].rsplit("/", 1)[-1] in STATUS_FILTERS)
-            new_pending = span if filtered and not pipefail else None
+                for enabled in pipefail_changes(words):
+                    if not enabled or standalone:
+                        pipefail = enabled  # even a conditional disable may execute
+            if standalone:
+                last_pid = (words == ["wait", "$!"]
+                            and argv(segment, raw=True)[1] in ("$!", '"$!"'))
+                if (words == ["wait"] or (launched == 1 and len(jobs) == 1
+                        and (words == ["wait", "-n"] or last_pid))):
+                    jobs.clear()
+            new_pending = span if len(stages) > 1 and not pipefail else None
             pending = new_pending or (pending if conditional else None)
             if separator == "&":
                 jobs.append(span)
+                launched += 1
                 pending = None  # an asynchronous list itself returns zero
             conditional = separator in ("&&", "||")
             segment = []
@@ -312,7 +373,7 @@ def shell_violation(command):
                         if depth == 0:
                             break
                     end += 1
-                found = inspect(items[i + 1:end], pipefail, pending)
+                found = inspect(items[i + 1:end], pipefail, pending, nesting + 1)
                 if found:
                     return found
                 stop = items[end][3] if end < len(items) else items[-1][3]
@@ -358,16 +419,27 @@ def main() -> int:
         if guard == "pipeline-status":
             sys.stderr.write(
                 "BLOCKED (pipeline-status): status read after pipeline " + repr(span) + ".\n"
-                "WHY: $? is the filter's status, so a failing command can read as rc=0.\n"
+                "WHY: $? is the last stage's status, so an earlier failure can read as rc=0.\n"
                 "CONSIDER INSTEAD: redirect the command to a file, read $? immediately, "
                 "then read the file (cmd > log 2>&1; rc=$?; tail log); or use "
                 "tools/tail-safe.sh, ${PIPESTATUS[0]}/${PIPESTATUS[@]}, or set -o pipefail.\n")
-        else:
+        elif guard == "untracked-background":
             sys.stderr.write(
                 "BLOCKED (untracked-background): bare & detaches " + repr(span) + ".\n"
                 "WHY: the child's completion is untracked.\n"
                 "CONSIDER INSTEAD: use run_in_background for harness-tracked completion, "
                 "or wait for every launched job in this command (a & b & wait).\n")
+        elif guard == "coproc-background":
+            sys.stderr.write(
+                "BLOCKED (coproc-background): coproc launches a child in " + repr(span) + ".\n"
+                "WHY: coprocess completion is not tracked by this guard.\n"
+                "CONSIDER INSTEAD: use run_in_background for harness-tracked completion, "
+                "or run the command in the foreground.\n")
+        else:
+            sys.stderr.write(
+                "BLOCKED (shell-complexity): shell nesting exceeds the inspection limit.\n"
+                "WHY: the guard cannot safely inspect this command; refusing it.\n"
+                "CONSIDER INSTEAD: run simpler commands with fewer nested groups.\n")
         return 2
     sys.stderr.write(
         "BLOCKED (verification-pipes): (RM-10) this command pipes a "
@@ -384,6 +456,11 @@ def main() -> int:
 
 def self_test() -> int:
     blocked = [
+        'cmd | tail | cat; echo $?',
+        'cmd | cat; echo $?',
+        'set -euo pipefail; set +o pipefail; cmd | cat; echo $?',
+        'coproc cmd',
+        '(' * 65 + 'true' + ')' * 65,
         'timeout 60 tools/ci-status.sh --sha X 2>&1 | tail -8; echo rc=$?',
         'python3 tools/lint-version-bump-recency.py ... 2>&1 | tail -3; echo rc=$?',
         '... | cut -c1-160; echo "guard rc=$?"',
@@ -414,6 +491,12 @@ def self_test() -> int:
         './tools/pre-push-guard.sh | tee /tmp/guard.log',
     ]
     allowed = [
+        'set -euo pipefail; cmd | cat; echo $?',
+        "python3 <<'PY'\nprint(1 & 2)\nPY\n",
+        'a & wait $!',
+        'a & wait -n',
+        'cmd | tail & wait; echo $?',
+        'grep -q pat file; echo $?',
         'cmd > f 2>&1; echo rc=$?',
         'set -o pipefail; cmd | tail; echo $?',
         'cmd | tail; echo ${PIPESTATUS[0]}',

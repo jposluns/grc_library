@@ -52338,7 +52338,6 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'cmd | tail; rc=0; echo $?',
             'cmd | tail; echo done; echo $?',
             'cmd | tail; # $? is just a comment',
-            'cmd | tail | cat; echo $?',
             'echo "cmd | tail; echo $?"',
             'cmd | tail; echo "single quote inside double: \'"',
         ], False)
@@ -52348,10 +52347,124 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'tools/run_all_audits.sh | tail; echo ${PIPESTATUS[0]}',
         ], True)  # existing named-verifier rule is intentionally independent
 
+    def test_status_after_any_multistage_pipeline(self):
+        self.check([
+            'cmd | tail | cat; echo $?',
+            'cmd | grep pat | tee log; rc=$?',
+            'cmd | cut -c1 | xargs echo; test $? -eq 0',
+            'cmd | cat; echo $?',
+            'cmd | cat | other; echo ${?}',
+            'cmd |& cat; echo $?',
+        ], True)
+        self.check(['grep -q pat file; echo $?', 'cmd; rc=$?',
+                    'set -o pipefail; cmd | tail | cat; echo $?'], False)
+
+    def test_combined_pipefail_options(self):
+        forms = ('-euo pipefail', '-e -o pipefail', '-o pipefail -o errexit',
+                 '-eo pipefail', '-o errexit -o pipefail', '-o pipefail --')
+        for form in forms:
+            self.check(['set ' + form + '; cmd | cat; echo $?'], False)
+            self.check(['set ' + form + '; set +o pipefail; cmd | cat; echo $?'], True)
+        self.check([
+            'set -euo pipefail; set +eo pipefail; cmd | cat; echo $?',
+            'set -o pipefail +o pipefail; cmd | cat; echo $?',
+            'set -o pipefail; false || set +o pipefail -e; cmd | cat; echo $?',
+            'set -- -o pipefail; cmd | cat; echo $?',
+            'set positional -o pipefail; cmd | cat; echo $?',
+            'set -oe pipefail; cmd | cat; echo $?',
+            'false && set -euo pipefail; cmd | cat; echo $?',
+            'set -euo pipefail & wait; cmd | cat; echo $?',
+            'set -euo pipefail | cat; cmd | cat; echo $?',
+        ], True)
+        self.check(['set +o pipefail -eo pipefail; cmd | cat; echo $?'], False)
+
+    def test_heredoc_bodies_are_not_shell_commands(self):
+        self.check([
+            "python3 <<PY\nprint(1 & 2)\nPY\n",
+            "python3 <<'PY'\nprint(1 & 2)\nPY\n",
+            'python3 <<"PY"\nprint(1 & 2)\nPY\n',
+            "python3 <<-PY\n\tprint(1 & 2)\n\tPY\n",
+            "python3 <<-'PY'\n\tprint(1 & 2)\n\tPY\n",
+            "cat <<A <<'B'\na &\nA\ncoproc b; cmd | cat; echo $?\nB\n",
+            "cat <<A # comment & $?\ncoproc a &\nA\n",
+            "cat <<A\na &\nA\ngrep -q pat file; echo $?",
+            "cat <<A\na &\n",  # unterminated body is still data
+            "cmd | cat <<EOF\necho $? &\nEOF\n",
+            "cmd | cat; cat <<'$?'\na &\n$?\n",
+            "echo '<<EOF'; echo ok",
+        ], False)
+        self.check([
+            "python3 <<'PY' &\nprint(1 & 2)\nPY\n",
+            "cat <<A\na &\nA\nb &",
+            "cat <<A\na &\nA\ncmd | cat; echo $?",
+            "cmd | cat; cat <<EOF $?\nbody\nEOF\n",
+            "cmd | cat <<EOF\nbody\nEOF\necho $?",
+            "cat <<A <<B\na &\nA\nb &\nB\nc &",
+            "cat <<<word; a &",  # here-string is not a heredoc
+            "cat <<A\ntools/run_all_audits.sh | tail\nA\n",
+        ], True)  # the legacy regex still scans raw heredoc bodies
+
+    def test_single_job_targeted_waits(self):
+        self.check(['a & wait $!', 'a & wait "$!"', 'a & wait -n'], False)
+        self.check([
+            'a & b & wait $!', 'a & b & wait -n',
+            'a & wait; b & wait $!', 'a & wait; b & wait -n',
+            "a & wait '$!'", r'a & wait \$!',
+            "a & wait '$!' > \"$!\"",
+            'a & false && wait $!', 'a & true || wait -n',
+            'a & wait $! &', 'a & (wait $!)', 'a & wait -n | cat',
+        ], True)
+
+    def test_waited_pipeline_status_and_single_grep_status(self):
+        self.check([
+            'cmd | tail & wait; echo $?',
+            'cmd | tail & wait $!; echo $?',
+            'cmd | tail & wait -n; echo $?',
+            'grep -q pat file; echo $?',
+        ], False)
+
+    def test_coproc_launches(self):
+        self.check([
+            'coproc cmd', 'coproc { cmd; }', 'coproc NAME { cmd; }',
+            'coproc cmd; wait', 'coproc cmd | cat', '(coproc cmd)',
+            'true && coproc cmd',
+        ], True)
+        self.check(['echo coproc', "echo 'coproc cmd'"], False)
+
+    def test_deep_nesting_fails_closed_in_cli(self):
+        with tempfile.TemporaryDirectory() as td:
+            env = dict(os.environ, HOOK_STATE_FILE=str(Path(td) / 'state.jsonl'))
+            for opening, closing in (('(', ')'), ('{ ', '; }')):
+                for body in ('true', 'tools/run_all_audits.sh | tail'):
+                    command = opening * 1200 + body + closing * 1200
+                    with self.subTest(opening=opening, body=body):
+                        self.assertTrue(self.hook.command_is_blocked(command))
+                        result = subprocess.run(
+                            [sys.executable, '-B', self.hook.__file__],
+                            input=json.dumps({'tool_input': {'command': command}}),
+                            text=True, capture_output=True, env=env, timeout=20)
+                        self.assertEqual(result.returncode, 2, result.stderr)
+                        self.assertIn('BLOCKED (shell-complexity):', result.stderr)
+                        self.assertNotIn('Traceback', result.stderr)
+        limit = self.hook.MAX_SHELL_NESTING
+        self.check(['(' * limit + 'true' + ')' * limit], False)
+        self.check(['(' * (limit + 1) + 'true' + ')' * (limit + 1)], True)
+
+    def test_recursion_error_fallback_refuses(self):
+        from unittest.mock import Mock, patch
+        with patch.object(self.hook, '_shell_violation', side_effect=RecursionError):
+            self.assertEqual(self.hook.shell_violation('true')[0], 'shell-complexity')
+            payload = json.dumps({'tool_input': {'command': 'true'}})
+            with patch.object(sys, 'stdin', io.StringIO(payload)), \
+                    patch.object(sys, 'stderr', io.StringIO()) as stderr, \
+                    patch.object(self.hook, '_load_sibling', return_value=Mock()):
+                self.assertEqual(self.hook.main(), 2)
+                self.assertIn('BLOCKED (shell-complexity):', stderr.getvalue())
+
     def test_background_jobs_require_collection_in_same_scope(self):
         self.check([
-            'a &', 'a & b', 'a & b &', 'a & wait -n',
-            'a & wait 123', 'a & wait $!',  # targeted waits are not certified
+            'a &', 'a & b', 'a & b &',
+            'a & wait 123',  # an arbitrary PID is not certified
             'a & false && wait', 'a & true || wait',
             'a & wait &', 'a & wait | cat', 'a & (wait)',
             '(a &) ; wait', 'a & wait; b &',
@@ -52602,16 +52715,23 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         ):
             add(name, message, evidence=("[2026-09-22 12:00Z]", "(session: 0h 5m)"))
 
-        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write(", 2))
+        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write(", 4))
         add("pipe", "tools/run_all_audits.sh | tail -8", evidence=("(RM-10)",))
         add("status", "cmd | tail; echo rc=$?", label="pipeline-status", verb="redirect",
             at=("main", "sys.stderr.write(", 0),
-            evidence=("cmd | tail", "$? is the filter's status", "PIPESTATUS",
+            evidence=("cmd | tail", "$? is the last stage's status", "PIPESTATUS",
                       "read $? immediately", "tools/tail-safe.sh"))
         add("background", "(orch-verify x) > /dev/null 2>&1 &",
             label="untracked-background", verb="use",
             at=("main", "sys.stderr.write(", 1),
             evidence=("orch-verify x", "completion is untracked", "run_in_background"))
+        add("coproc", "coproc cmd", label="coproc-background", verb="use",
+            at=("main", "sys.stderr.write(", 2),
+            evidence=("coproc cmd", "coprocess completion", "run_in_background"))
+        add("complexity", "(" * 65 + "true" + ")" * 65,
+            label="shell-complexity", verb="run",
+            at=("main", "sys.stderr.write(", 3),
+            evidence=("inspection limit", "refusing it", "fewer nested groups"))
         add = group("block-wrong-repo-tool", "use")
         for name, command, guard, evidence in (
             ("abspath", "cd /x && python3 tools/probe.py",
