@@ -658,9 +658,13 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         The nonce travels over the child's stdin and is consumed before
         any test module is imported, so a scrape of argv and stdin
         cannot see it (on argv it could, and this forgery then passed
-        as green); a sentinel without this run's nonce is refused.
-        The __main__.nonce channel stays open: see the residual test
-        below."""
+        as green). With no 32-hex candidate in sight the scrape falls
+        back to a non-hex token, so what refuses this run is the
+        sentinel FORMAT check (the forged line never parses as the
+        driver's completion sentinel), not the nonce comparison; that
+        comparison is pinned by the wrong_nonce subtest of
+        test_main_requires_completion_sentinel. The __main__.nonce
+        channel stays open: see the residual test below."""
         runner = self._runner()
         root = self._tmp_repo(["test_zz_fail.py"], body=FAILING_MODULE)
         (root / "tests" / "test_aa_forge.py").write_text(FORGING_MODULE)
@@ -704,10 +708,14 @@ class RegressionGateCompletenessTests(unittest.TestCase):
             "sibling's failure appearing means the behaviour changed")
         # Every documentation surface names the residual's channel, so
         # closing it (or renaming the channel) stales the docs loudly.
+        # The needle is the disclosure's recovery recipe, not the bare
+        # "__main__": the runner's entry-point guard (its line
+        # 'if __name__ == "__main__":') would satisfy the bare string
+        # even with the disclosure deleted.
         for rel in ("tools/run-linter-regression.py",
                     "tools/README.md", "tests/README.md"):
             self.assertIn(
-                "__main__",
+                "import __main__",
                 (REPO_ROOT / rel).read_text(encoding="utf-8"),
                 "%s must document the __main__.nonce accepted "
                 "residual" % rel)
