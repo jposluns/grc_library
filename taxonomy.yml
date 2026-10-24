@@ -916,7 +916,7 @@ documents:
   domain: "ai"
   type: "Standard"
   title: "AI Total Cost of Ownership Governance Standard"
-  version: "0.0.5"
+  version: "0.0.6"
   date: "2026-10-24"
   owner: "AI Governance Approver"
   approving_authority: "Governance Library Maintainer"

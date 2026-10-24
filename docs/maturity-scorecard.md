@@ -372,7 +372,7 @@ _77 documents._
 | [ai/standard-ai-human-oversight.md](../ai/standard-ai-human-oversight.md) | AI Human-Oversight Standard | Standard | 0.0.8 | 2026-10-16 |
 | [ai/standard-ai-inference-cost-governance.md](../ai/standard-ai-inference-cost-governance.md) | AI Inference Cost Governance Standard | Standard | 0.0.10 | 2026-09-13 |
 | [ai/standard-ai-model-succession-and-identity.md](../ai/standard-ai-model-succession-and-identity.md) | AI Model Succession and Identity Continuity Standard | Standard | 0.0.4 | 2026-09-13 |
-| [ai/standard-ai-total-cost-of-ownership-governance.md](../ai/standard-ai-total-cost-of-ownership-governance.md) | AI Total Cost of Ownership Governance Standard | Standard | 0.0.5 | 2026-10-24 |
+| [ai/standard-ai-total-cost-of-ownership-governance.md](../ai/standard-ai-total-cost-of-ownership-governance.md) | AI Total Cost of Ownership Governance Standard | Standard | 0.0.6 | 2026-10-24 |
 | [architecture/standard-api-design.md](../architecture/standard-api-design.md) | API Design Standard | Standard | 0.0.4 | 2026-07-02 |
 | [architecture/standard-integration-architecture.md](../architecture/standard-integration-architecture.md) | Integration Architecture Standard | Standard | 0.0.6 | 2026-09-20 |
 | [compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | Energy and Utilities Sector Requirements Annex | Annex | 0.0.12 | 2026-10-17 |
