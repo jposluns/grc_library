@@ -2,7 +2,7 @@
 
 **Document Title:** Cloud Exit and Data Portability Standard\
 **Document Type:** Standard\
-**Version:** 1.2.1\
+**Version:** 1.2.2\
 **Date:** 2026-10-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
