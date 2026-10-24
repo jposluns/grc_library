@@ -14,6 +14,12 @@ and FAILS if any series' floor DECREASED or a series was dropped. The floor may 
 Usage:
   python3 tools/check-todo-floor-monotonic-on-pr.py [BASE_REF] [HEAD_REF]
     BASE_REF defaults to origin/main; HEAD_REF omitted means the working tree.
+
+A collapsed range (base and head resolving to the same commit, or the working
+tree holding the base's content in the argless form) is refused as
+CANNOT-EVALUATE (exit 2), never reported as a clean reflexive pass: a collapsed
+range is exactly how a gate run in the wrong clone presents (orchestrator
+mistake 300), the same refusal D5, D9 and D13 give.
 """
 import json
 import os
@@ -30,6 +36,24 @@ def _ref_resolves(ref):
     return subprocess.run(
         ["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"],
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+
+
+def _rev_parse(ref):
+    """The commit SHA ``ref`` resolves to (caller has verified it resolves)."""
+    return subprocess.check_output(
+        ["git", "rev-parse", "--verify", f"{ref}^{{commit}}"], text=True,
+        stderr=subprocess.DEVNULL).strip()
+
+
+def _toplevel():
+    """The repository top level git selects from the current directory, so a
+    collapsed-range refusal can name the clone it resolved (wrong-clone diagnosis)."""
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], text=True,
+            stderr=subprocess.DEVNULL).strip()
+    except subprocess.CalledProcessError:
+        return "(no work tree)"
 
 
 def _path_at_ref(ref, path):
@@ -74,6 +98,32 @@ def main(argv):
         sys.stderr.write(f"ERROR: base ref '{base_ref}' does not resolve to a commit; cannot "
                          "verify floor monotonicity (fetch the base, or pass a valid ref). "
                          "Refusing rather than waiving the check.\n")
+        return 2
+    # A collapsed range would read as the clean monotonic-reflexive OK; refuse it
+    # instead (the wrong-clone signature the delta gates refuse, orchestrator
+    # mistake 300), BEFORE the first-introduction OK below can fire.
+    base_sha = _rev_parse(base_ref)
+    if head_ref is not None:
+        if _ref_resolves(head_ref) and _rev_parse(head_ref) == base_sha:
+            sys.stderr.write(
+                f"D12 CANNOT-EVALUATE: base {base_ref} and head {head_ref} resolve "
+                f"to the same commit (repo={_toplevel()} base={base_sha} "
+                f"head={base_sha}); the named range is empty, so nothing was "
+                f"evaluated. If the change lives in a worktree, run from that "
+                f"worktree, or pass a base..head range that selects the change.\n")
+            return 2
+    elif subprocess.run(["git", "diff", "--quiet", base_sha, "--"],
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
+        # Argless form: the head is the working tree; a tree identical to the
+        # base is the same collapsed range (only exit 0 is equality; a diff
+        # error falls through to the explicit comparison below).
+        head_sha = _rev_parse("HEAD") if _ref_resolves("HEAD") else "(unborn HEAD)"
+        sys.stderr.write(
+            f"D12 CANNOT-EVALUATE: the working tree (the default head) holds the "
+            f"same content as base {base_ref} (repo={_toplevel()} base={base_sha} "
+            f"head={head_sha}, working tree); the range is empty, so nothing was "
+            f"evaluated. If the change lives in a worktree, run from that "
+            f"worktree, or pass a base..head range that selects the change.\n")
         return 2
     if not _path_at_ref(base_ref, FLOOR_PATH):
         # base is VALID but the floor did not exist there: first introduction, nothing to compare.

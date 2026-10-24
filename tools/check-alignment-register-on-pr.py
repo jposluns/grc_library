@@ -1837,7 +1837,7 @@ def run(base: str | None, head: str, register_ref: str | None) -> int:
         # base==head, so this is a net-empty range. Still advisory (exit 0),
         # but the verdict says nothing was evaluated, never a clean "D15 OK"
         # (orchestrator mistake 300).
-        head_sha, toplevel = pr_range_resolution(merge_base, head)
+        head_sha, toplevel = pr_range_resolution(head)
         print(
             f"D15 NOTE: CANNOT-EVALUATE: refs were named but no files changed in the "
             f"range (repo={toplevel} base={merge_base} head={head} -> {head_sha}); "

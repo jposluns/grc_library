@@ -10093,19 +10093,89 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertIn("repo=", r.stderr)
                 self.assertNotIn(f"{tag} OK", r.stdout)
 
-    def test_runner_same_sha_abort(self) -> None:
+    def test_d12_same_commit_exit2(self) -> None:
+        # D12 resolves its own two refs (no merge-base), so base==head is the
+        # same collapsed range and must refuse before the first-introduction
+        # "floor is new at this base" OK can fire (round 2 of 3b530).
+        tmp, git = self._repo()
+        head_sha = git("rev-parse", "HEAD")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, "origin/main", "HEAD")
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn(head_sha, r.stderr)
+        self.assertIn(str(tmp), r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_argless_worktree_equals_base_exit2(self) -> None:
+        # The argless form's head is the WORKING TREE; a tree identical to the
+        # base (the exact wrong-clone shape of orchestrator mistake 300, since
+        # the main clone sits clean at origin/main) is the same collapsed range.
+        tmp, git = self._repo()
+        head_sha = git("rev-parse", "HEAD")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn("working tree", r.stderr)
+        self.assertIn(head_sha, r.stderr)
+        self.assertIn(str(tmp), r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_real_range_still_evaluates(self) -> None:
+        # The refusal predicate is the collapsed range, not the argless form:
+        # a working tree that differs from the base still gets a real verdict
+        # (here the clean first-introduction OK, since the fixture has no floor
+        # file at the base).
+        tmp, git = self._repo()
+        (tmp / "README.md").write_text("# Repo\n\nMore.\n", encoding="utf-8")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+        self.assertIn("OK", r.stdout)
+
+    def test_runner_same_sha_runs_rangeless_gates_then_refuses(self) -> None:
+        # Round 2 of 3b530 (review F2): on a collapsed range the runner still
+        # runs the gates that take no range and reports their verdicts, then
+        # refuses the range-taking gates and exits 2 (fail closed), telling the
+        # operator of a no-commit branch to commit before pushing. The real
+        # runner script runs against a fixture clone with stub copies of the
+        # six range-free gate tools, so the test is hermetic and pins the
+        # runner's own tool wiring (a renamed tool breaks a stub's OK line).
         import subprocess as sp
 
+        tmp, git = self._repo()
+        tools = tmp / "tools"
+        tools.mkdir(exist_ok=True)
+        shutil.copy(REPO_ROOT / "tools" / "run-pr-time-checks.sh",
+                    tools / "run-pr-time-checks.sh")
+        for stub in (
+            "check-daily-changelog-rollup.py",      # D8
+            "check-claude-md-size.py",              # D10
+            "check-class-attestation-on-pr.py",     # D14
+            "lint-todo-staleness.py",               # gate 45
+            "lint-version-bump-recency.py",         # gate 40
+            "lint-document-date-staleness.py",      # gate 31
+        ):
+            # Silent exit-0 stub, so run_check's one-line "<name> ... OK"
+            # verdict stays intact and countable.
+            (tools / stub).write_text("raise SystemExit(0)\n", encoding="utf-8")
         env = dict(os.environ)
         env.update(BASE_REF="HEAD", HEAD_REF="HEAD")
         r = sp.run(
-            ["bash", str(REPO_ROOT / "tools" / "run-pr-time-checks.sh")],
-            capture_output=True, text=True, cwd=str(REPO_ROOT), env=env,
+            ["bash", str(tools / "run-pr-time-checks.sh")],
+            capture_output=True, text=True, cwd=str(tmp), env=env,
         )
         self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
         self.assertIn("CANNOT-EVALUATE", r.stderr)
-        self.assertNotIn("D1", r.stdout)
-        self.assertNotIn("... OK", r.stdout)
+        self.assertIn("commit the change first and push after", r.stderr)
+        self.assertIn("refused, not run", r.stderr)
+        for name in ("D8 ", "D10 ", "D14 ", "Gate 45", "Gate 40", "Gate 31"):
+            self.assertIn(name, r.stdout, f"range-free gate did not run.\n{r.stdout}")
+        self.assertEqual(r.stdout.count("... OK"), 6, r.stdout)
+        self.assertNotIn("D1 ", r.stdout)
+        self.assertNotIn("D12", r.stdout)
+        self.assertNotIn("D15", r.stdout)
 
     def test_d13_diff_failure_not_clean(self) -> None:
         # A failed enumeration diff must never print the clean "D13 OK: no
@@ -25586,7 +25656,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-todo-number-allocation.py NO_FS F 8ad89e87b8a6df4a576935a21409cadc80ce0456784a22262ac3229b3f2dd99e
         ccm_aicm_reference.py PASSIVE F 1ed15d9b1bd4cfd1162df3e720b5aa6058c3cba3cb1f626fcf2e1ee605c17e71
         changelog_diff.py PASSIVE F d712d841faf46461535b17d083d012280d3df85c0182b526625f7d7199b301bd
-        check-alignment-register-on-pr.py NO_FS F 7d38155fe373f4e21c79ad1ef13c439f2dc6ee2b89f0e06fbf899a7fc038edb9
+        check-alignment-register-on-pr.py NO_FS F b1774022adf437520a3b79930342002eea0493a91a91f6fcf0a823a02a7b3878
         check-changelog-dash-on-pr.py NO_FS F ca13e80adc1268e25f9049e104d987cb2da30d1cedf2a5abb5aa35969008f883
         check-changelog-length-on-pr.py NO_FS F ad8db4fb4f41cbe77f759cb70e293a070045fc82bfe6617e454c6d26a0151f4d
         check-changelog-on-pr.py NO_FS F fac4d3416941e86ce7abee406af37d0d11398e60993b7a7b193fa70b53f98a59
@@ -25607,7 +25677,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-retired-section-orphan-on-pr.py NO_FS F 94f89f3645e0e4dedbfe0a2d174ba60150b94bd7a0c734e25d5f96d148afe4ba
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
         check-stranded-control-code-on-pr.py NO_FS F 5c0890d697db2086c6a10fe3222b6a268ac04199a359b761e4d393aceaccde7d
-        check-todo-floor-monotonic-on-pr.py NO_FS F e3c6f34a4fb62c07ce7938c0337cef4756e3628b044e2e73ac5a01b35d9e242d
+        check-todo-floor-monotonic-on-pr.py NO_FS F 370d108f825bc8878a78e44f97086ce7c319584308a9f2a8a25a6775cc6757e6
         check-todo-rotation-on-pr.py NO_FS F f4189bf15201c6ae8d228ac341f5c5c5dd859457be22275084e2e155751b5c96
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 520abe7d721553382768bf7c581cc0db91b1b6ac329404cc61416333246062b2
@@ -25727,7 +25797,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 616ae8f4ea008cda21bcf2f663ed650f82f91b2467fddc75cc4a313ff61e32b1
-        lint_common.py PASSIVE F 86d38ffcedcc1412846d440756e078f6d93e4f588b7966d9839495e1d0026e9a
+        lint_common.py PASSIVE F 70d3271c41738c8a121bdf2f46d95867488bbe46b375cc581be9e83f2aa0938e
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -25745,7 +25815,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
         run-linter-regression.py FIXED F 2e97814644c614dc987df7139c5ff0ff9b875fb2c1ba0abb6ff0abc298282753
-        run-pr-time-checks.sh FIXED F db35d781023b18dddcdae88a7ae8267b7174af46bec4030e5a050165d9991724
+        run-pr-time-checks.sh FIXED F 7efe36d3fce0778df83e6f4578561b56d02bf15e389178c50b35053767c075ab
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
         run_all_audits.sh FIXED F e008dc6ab77b4bd49c70306568baf38078b50dfeada3c2f1856fecc829397a85
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
@@ -45483,9 +45553,10 @@ class HookParserStrictnessTests(LinterTestCase):
             ("tools/check-commit-on-main.py", "--self-test"),
             ("tools/check-dirty-tree-push.py", "--self-test"),
             # HEAD~1..HEAD since 3b530: a collapsed (base==head) range is now a
-            # CANNOT-EVALUATE refusal, not an accepted documented form.
+            # CANNOT-EVALUATE refusal, not an accepted documented form (D12
+            # since round 2; its refusal is pinned in CollapsedRangeRefusalTests).
             ("tools/tension-scan.py", "HEAD~1", "HEAD"),
-            ("tools/check-todo-floor-monotonic-on-pr.py", "HEAD", "HEAD"),
+            ("tools/check-todo-floor-monotonic-on-pr.py", "HEAD~1", "HEAD"),
             ("tools/check-pr-attribution.py", "--event", str(event)),
         ):
             r = run_linter(script, *args)

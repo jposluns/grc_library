@@ -1996,7 +1996,7 @@ class PrRangeError(Exception):
     """
 
 
-def pr_range_resolution(merge_base: str, head: str) -> tuple[str, str]:
+def pr_range_resolution(head: str) -> tuple[str, str]:
     """``(head commit SHA, repository top-level)`` the range resolves to, in
     the repository git selects from the current directory. Diagnostic only
     (never raises): a ref that no longer resolves is echoed back verbatim and
@@ -2020,7 +2020,7 @@ def empty_pr_range_message(merge_base: str, head: str) -> str:
     branch point while the change lives in a worktree printed a false clean,
     orchestrator mistake 300), so the delta gates refuse it instead of
     reporting a clean pass."""
-    head_sha, toplevel = pr_range_resolution(merge_base, head)
+    head_sha, toplevel = pr_range_resolution(head)
     return (
         f"CANNOT-EVALUATE: refs were named but no files changed in the range "
         f"(repo={toplevel} base={merge_base} head={head} -> {head_sha}); "
@@ -2057,7 +2057,7 @@ def resolve_pr_range(base: str | None, head: str = "HEAD") -> tuple[str, str]:
             f"ERROR: could not determine merge-base of {base}..{head}: {exc}. "
             f"In GitHub Actions, ensure that actions/checkout uses fetch-depth: 0."
         ) from exc
-    head_sha, toplevel = pr_range_resolution(merge_base, head)
+    head_sha, toplevel = pr_range_resolution(head)
     if merge_base == head_sha:
         raise PrRangeError(
             f"CANNOT-EVALUATE: base {base} and head {head} resolve to the same "

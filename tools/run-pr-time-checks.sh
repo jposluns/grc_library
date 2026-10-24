@@ -69,16 +69,6 @@ HEAD_SHA="$(git rev-parse "${HEAD_REF}" 2>/dev/null || echo "${HEAD_REF}")"
 
 echo "PR-time checks: ${BASE_REF} (${BASE_SHA:0:8}) .. ${HEAD_REF} (${HEAD_SHA:0:8})"
 
-# A collapsed range evaluates nothing, and is exactly how a run from the wrong
-# repository looks (a main clone whose HEAD is the branch point while the change
-# lives in a worktree printed a false clean, orchestrator mistake 300). Refuse
-# before any gate can print a clean pass over the empty range.
-if [ "${BASE_SHA}" = "${HEAD_SHA}" ]; then
-    echo "CANNOT-EVALUATE: ${BASE_REF} and ${HEAD_REF} resolve to the same commit (repo=${REPO_ROOT} base=${BASE_SHA} head=${HEAD_SHA}); the range is empty, so no gate was run. If the change lives in a worktree, run this script from that worktree, or set BASE_REF/HEAD_REF to a range that selects the change." >&2
-    exit 2
-fi
-echo ""
-
 FAILED=0
 
 run_check() {
@@ -93,6 +83,37 @@ run_check() {
         FAILED=$((FAILED + 1))
     fi
 }
+
+# A collapsed range evaluates nothing, and is exactly how a run from the wrong
+# repository looks (a main clone whose HEAD is the branch point while the change
+# lives in a worktree printed a false clean, orchestrator mistake 300). The
+# gates that take no range (D8, D10, D14, gates 45/40/31) read working-tree or
+# HEAD state, so they still run and report their verdicts; the range-taking
+# gates are refused before any can print a clean pass over the empty range, and
+# the runner exits 2 (fail closed) whatever the range-free verdicts said.
+if [ "${BASE_SHA}" = "${HEAD_SHA}" ]; then
+    echo ""
+    echo "Collapsed range: running only the gates that take no range; the range-taking gates are refused below."
+    run_check "D8 Daily-changelog-rollup reminder" \
+        python3 tools/check-daily-changelog-rollup.py
+    run_check "D10 CLAUDE.md-size ratchet" \
+        python3 tools/check-claude-md-size.py
+    run_check "D14 Class-completeness attestation check" \
+        python3 tools/check-class-attestation-on-pr.py
+    run_check "Gate 45 TODO staleness audit" \
+        python3 tools/lint-todo-staleness.py
+    run_check "Gate 40 version-bump-recency audit" \
+        python3 tools/lint-version-bump-recency.py
+    run_check "Gate 31 document-date-staleness audit" \
+        python3 tools/lint-document-date-staleness.py
+    echo ""
+    if [ "${FAILED}" -ne 0 ]; then
+        echo "${FAILED} range-free PR-time check(s) failed."
+    fi
+    echo "CANNOT-EVALUATE: ${BASE_REF} and ${HEAD_REF} resolve to the same commit (repo=${REPO_ROOT} base=${BASE_SHA} head=${HEAD_SHA}); the range is empty, so the range-taking gates (D1-D5, D7, D9, D11, D12, D13, D15) were refused, not run. If this branch has no commits yet, commit the change first and push after (an empty push has nothing to evaluate). If the change lives in a worktree, run this script from that worktree, or set BASE_REF/HEAD_REF to a range that selects the change." >&2
+    exit 2
+fi
+echo ""
 
 # Delta gate D1: CHANGELOG-on-PR check (dual-entry as of PR #125).
 # The check scripts accept `base` and `head` as positional arguments.
