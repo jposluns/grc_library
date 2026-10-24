@@ -52941,7 +52941,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         ):
             add(name, message, evidence=("[2026-09-22 12:00Z]", "(session: 0h 5m)"))
 
-        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write(", 4))
+        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write(", 5))
         add("pipe", "tools/run_all_audits.sh | tail -8", evidence=("(RM-10)",))
         add("status", "cmd | tail; echo rc=$?", label="pipeline-status", verb="redirect",
             at=("main", "sys.stderr.write(", 0),
@@ -52954,9 +52954,14 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         add("coproc", "coproc cmd", label="coproc-background", verb="use",
             at=("main", "sys.stderr.write(", 2),
             evidence=("coproc cmd", "coprocess completion", "run_in_background"))
+        add("arithmetic-shift", "echo $((1 << (2)))",
+            label="arithmetic-shift", verb="compute",
+            at=("main", "sys.stderr.write(", 3),
+            evidence=("echo $((1 << (2)))", "cannot tell this shift from a heredoc",
+                      "simple arithmetic"))
         add("complexity", "(" * 65 + "true" + ")" * 65,
             label="shell-complexity", verb="run",
-            at=("main", "sys.stderr.write(", 3),
+            at=("main", "sys.stderr.write(", 4),
             evidence=("inspection limit", "refusing it", "fewer nested groups"))
         add = group("block-wrong-repo-tool", "use")
         for name, command, guard, evidence in (
