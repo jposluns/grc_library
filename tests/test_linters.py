@@ -57258,6 +57258,10 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
     the part codes (P1), the headings matched against the delivery's item even with a key (P2 with a
     key) or against every heading when no item is known (P2), and the reference's ambiguity sentence
     or review_key's docstring not stating that order, r5 NOTE, by
+    test_quoted_round_heading_is_not_the_delivery_round, one subtest per case; the source-key-invalid
+    check moved before the part codes (r6 M4), a WORKER_STATUS first line with no family= value read as
+    no family (W1), the whole-line UNVERIFIABLE skipped beside a --source-key (F1), and the reference's
+    whole-line sentence or its narrowed no-WORKER_STATUS sentence dropped, 3b556, by
     test_quoted_round_heading_is_not_the_delivery_round, one subtest per case."""
 
     REVIEW = "claude 3b540 /validate-pr round 2 @ f2a53df9f"
@@ -57709,17 +57713,28 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                 self.assertEqual(got, head + want + " (report only)")
         # Round 5 NOTE (probes P1 and P2): beside two quoted rounds, a part that does not parse, a key not in
         # the form and, without --source-key, a missing VPR-COMPLETE line print their own code; a correct key
-        # supplies the item, so the ambiguity stands; a missing family does not change the code. Each case is
-        # held to the reference clause that states it.
+        # supplies the item, so the ambiguity stands; no WORKER_STATUS first line does not change the code. Each
+        # case is held to the reference clause that states it. 3b556 (claude 3b544 round-6 notes): the part code
+        # comes before a key not in the form (M4), and a WORKER_STATUS first line with no family= value is a part
+        # that does not parse (W1).
         bullet = self.delivery_bullet()
         part = ("a part the delivery carries that does not parse prints its code (for example "
                 "`worker-status-family-unparseable` for an empty `family=`), with or without `--source-key`")
+        no_value = ("a `WORKER_STATUS` first line without exactly one valid `family=` value (none, two, or an "
+                    "empty one) is a part that does not parse")
+        invalid_key = "claude 3b540 round 2 @ f2a53df9f"
         empty_family = two_quotes.replace("family=claude", "family=", 1)
+        no_family_value = two_quotes.replace("rc=0, family=claude, ", "rc=0, ", 1)
         no_vpr = two_quotes.replace("VPR-COMPLETE 3b540 f2a53df9f\n", "", 1)
         for name, delivery, key, code, clause in (
                 ("P1 an empty family=", empty_family, None, "worker-status-family-unparseable", part),
                 ("P1 an empty family=, with a correct key", empty_family, self.REVIEW,
                  "worker-status-family-unparseable", part),
+                ("P1 an empty family=, with a key not in the form", empty_family, invalid_key,
+                 "worker-status-family-unparseable", part),
+                ("no family= value", no_family_value, None, "worker-status-family-unparseable", no_value),
+                ("no family= value, with a key not in the form", no_family_value, invalid_key,
+                 "worker-status-family-unparseable", no_value),
                 ("P2 no VPR-COMPLETE line", no_vpr, None, "no-vpr-complete-line",
                  "without `--source-key`, a delivery with no `VPR-COMPLETE` line prints `no-vpr-complete-line`, "
                  "since no item is known"),
@@ -57728,12 +57743,37 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                 ("a key not in the form", two_quotes, "claude 3b540 round 2 @ f2a53df9f", "source-key-invalid",
                  "a `--source-key` not in the key's form prints `source-key-invalid`"),
                 ("no WORKER_STATUS line", two_quotes.split("\n", 1)[1], None, "round-heading-ambiguous",
-                 "A missing family or own round heading does not.")):
+                 "A delivery with no `WORKER_STATUS` first line, so no family, or with no own round heading does "
+                 "not;")):
             with self.subTest(precedence=name):
                 self.delivery.write_text(delivery, encoding="utf-8")
                 got = mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False, source_key=key)
                 self.assertEqual(got, head + f"ledger rows UNVERIFIABLE ({code}) (report only)")
                 self.assertIn(clause, bullet)
+        with self.subTest(precedence="the missing-family sentence narrowed"):
+            self.assertNotIn("A missing family or own round heading does not.", bullet)
+        # 3b556: an unreadable delivery or a missing or unparseable last FINDINGS line prints the whole-line
+        # UNVERIFIABLE and compares nothing, before every code above, even with a key not in the form (F1).
+        whole = ("A delivery that cannot be read (missing, unreadable, not a regular file or not UTF-8), that has "
+                 "no column-0 `FINDINGS:` line outside fences, or whose last such line does not parse prints "
+                 "`delivery-findings: UNVERIFIABLE (<code>)` and compares nothing, whatever its other parts and "
+                 "`--source-key`; the codes below apply only beside parsed totals.")
+        own_findings = "FINDINGS: 0 ERROR, 0 WARN, 1 NOTE\n"
+        for name, path, delivery, code in (
+                ("an unparseable last FINDINGS line", self.delivery,
+                 empty_family.replace(own_findings, "FINDINGS: <n> ERROR, <n> WARN, <n> NOTE\n", 1),
+                 "findings-line-unparseable"),
+                ("no FINDINGS line", self.delivery, empty_family.replace(own_findings, "", 1), "no-findings-line"),
+                ("a missing delivery", self.dir / "absent.md", None, "delivery-missing")):
+            for key in (None, invalid_key, self.REVIEW):
+                with self.subTest(precedence=name, source_key=key):
+                    if delivery is not None:
+                        self.delivery.write_text(delivery, encoding="utf-8")
+                    self.assertEqual(mod.delivery_report(hook, self.LEDGER, path, with_row=False, source_key=key),
+                                     f"delivery-findings: UNVERIFIABLE ({code}); nothing compared (report only)")
+        with self.subTest(precedence="the whole-line sentence before the three cases"):
+            self.assertIn(whole, bullet)
+            self.assertLess(bullet.index(whole), bullet.index("Three cases print another code instead"))
         with self.subTest(precedence="review_key docstring"):
             self.assertIn("so without --source-key a delivery with no VPR-COMPLETE line names no item and gets "
                           "no-vpr-complete-line", " ".join(mod.review_key.__doc__.split()))
