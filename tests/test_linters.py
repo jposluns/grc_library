@@ -52274,6 +52274,661 @@ class CitationWorklistSyncTests(unittest.TestCase):
 
 
 
+class BlockVerificationPipesTests(unittest.TestCase):
+    """3b513: lexical decisions, not execution of the supplied shell commands."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.hook = load_linter_module(
+            ".claude/hooks/block-verification-pipes.py", "_status_pipe_tests")
+
+    def check(self, commands, blocked):
+        for command in commands:
+            with self.subTest(command=command):
+                self.assertEqual(self.hook.command_is_blocked(command), blocked)
+
+    def test_requested_blocks(self):
+        self.check([
+            'timeout 60 tools/ci-status.sh --sha X 2>&1 | tail -8; echo rc=$?',
+            'python3 tools/lint-version-bump-recency.py ... 2>&1 | tail -3; echo rc=$?',
+            '... | cut -c1-160; echo "guard rc=$?"',
+            '(orch-verify ... ) > /dev/null 2>&1 &',
+        ], True)
+
+    def test_filter_status_consumers(self):
+        for name in "tail head cut grep sed awk sort uniq wc tr fold column".split():
+            self.check([
+                'cmd | ' + name + '; echo rc=$?',
+                'cmd | ' + name + '; printf "%s" "${?}"',
+                'cmd | ' + name + '; rc=$?',
+                'cmd | ' + name + '; test $? -eq 0',
+                'cmd | ' + name + '\n# status follows\necho $?',
+            ], True)
+        self.check([
+            'cmd | cat | /usr/bin/tail; echo $?',
+            'cmd | > out tail; echo $?',
+            'cmd | "tail"; echo $?',
+            'cmd |& tail && echo $?',
+            'cmd | tail || echo ${?}',
+            'cmd | tail || true; echo $?',  # true may be skipped, leaving
+                                            # the filter's zero readable
+            'cmd | tail; echo ${PIPESTATUS[0]} $?',
+            'cmd | tail; echo ${rc:-$?}',
+            'cmd | tail; echo ${rc:-${?}}',
+            'set -o pipefail; set +o pipefail; cmd | tail; echo $?',
+            'set -o pipefail; false || set +o pipefail; cmd | tail; echo $?',
+            '(set -o pipefail); cmd | tail; echo $?',
+            '(cmd | tail; echo $?)',
+            'echo "set -o pipefail"; cmd | tail; echo $?',
+            'set -o pipefail | cat; cmd | tail; echo $?',
+        ], True)
+
+    def test_status_allows_and_legacy_rule(self):
+        self.check([
+            'cmd > f 2>&1; echo rc=$?',
+            'set -o pipefail; cmd | tail; echo $?',
+            'set -o pipefail && cmd | tail; echo $?',
+            'set -o pipefail 2>/dev/null; cmd | tail; echo $?',
+            'set -o pipefail; (cmd | tail; echo $?)',
+            'cmd | tail; echo ${PIPESTATUS[0]}',
+            'cmd | tail; echo ${PIPESTATUS[@]}',
+            'cmd | tail',
+            "cmd | tail; echo '$?' '${?}'",
+            r'cmd | tail; echo \$? "\${?}"',
+            'cmd | tail; true; echo $?',
+            'cmd | tail; rc=0; echo $?',
+            'cmd | tail; echo done; echo $?',
+            'cmd | tail; # $? is just a comment',
+            'echo "cmd | tail; echo $?"',
+            'cmd | tail; echo "single quote inside double: \'"',
+        ], False)
+        self.check([
+            'tools/run_all_audits.sh | tail',
+            'set -o pipefail; tools/run_all_audits.sh | tail; echo $?',
+            'tools/run_all_audits.sh | tail; echo ${PIPESTATUS[0]}',
+        ], True)  # existing named-verifier rule is intentionally independent
+
+    def test_status_after_any_multistage_pipeline(self):
+        self.check([
+            'cmd | tail | cat; echo $?',
+            'cmd | grep pat | tee log; rc=$?',
+            'cmd | cut -c1 | xargs echo; test $? -eq 0',
+            'cmd | cat; echo $?',
+            'cmd | cat | other; echo ${?}',
+            'cmd |& cat; echo $?',
+        ], True)
+        self.check(['grep -q pat file; echo $?', 'cmd; rc=$?',
+                    'set -o pipefail; cmd | tail | cat; echo $?'], False)
+
+    def test_line_continued_pipelines(self):
+        # 3b513 round 3: a newline directly after | or |& (optionally after
+        # whitespace or a comment) continues the pipeline, exactly as in bash,
+        # so the split form is judged like the one-line form.
+        self.check([
+            './tools/run_all_audits.sh 2>&1 |\ncat; echo $?',
+            'cmd |\ncat; echo $?',
+            'cmd |\n\ncat; echo $?',
+            'cmd | \ncat; echo $?',
+            'cmd |&\ntail -3; echo rc=$?',
+            'cmd | # filtered below\ncat; echo $?',
+            'cmd |\ncat |\nsort; echo $?',
+            'cmd <<EOF |\nbody\nEOF\ncat; echo $?',  # body is data; pipe continues
+            '(a) |\ncat; echo $?',
+            # 3b513 round 6 (R5-1): a backslash-newline after the pipe,
+            # followed by blank lines, whitespace or a comment line, still
+            # continues the pipeline, exactly as in bash
+            'cmd | \\\n\ncat; echo $?',
+            'cmd | \\\n\n\ncat; echo $?',
+            'cmd | \\\n# note\ncat; echo $?',
+            'cmd | \\\n \t\ncat; echo $?',
+            'cmd | \\\n\\\n\ncat; echo $?',
+        ], True)
+        self.check([
+            # the legacy named-verifier rule keeps catching its split forms
+            'tools/run_all_audits.sh 2>&1 |\ntail -8',
+            'tools/run_all_audits.sh |\n tail -8',
+            './tools/run_all_audits.sh | # note\ntail -3',
+            'git push -u origin br |\ntail -3',
+        ], True)
+        self.check([
+            'a |\nb',                                # no status read
+            'a |&\nb',
+            'a | \\\n\nb',                           # continued, no status read
+            'a | # comment\nb',
+            'set -o pipefail; cmd |\ncat; echo $?',
+            "cat <<'EOF'\nfoo |\necho $?\nEOF\n",    # heredoc body text is data
+            'echo "a |"\necho $?',                   # quoted pipe ends with the line
+            'cmd |\ncat; echo ${PIPESTATUS[0]}',
+        ], False)
+
+    def test_backslash_newline_splits_and_comment_pipes(self):
+        # 3b513 round 5: the legacy named-verifier rule blocks when PIPED
+        # matches EITHER the raw command text OR legacy_view, which removes
+        # only backslash-newline continuations (no comment stripping at all),
+        # so a backslash-split pipeline blocks and no misread quote or
+        # comment boundary can delete a real pipe (round-4 A1/A2).
+        self.check([
+            './tools/run_all_audits.sh 2>&1 | \\\ntail -8',
+            './tools/run_all_audits.sh 2>&1 |\\\ntail -8',
+            './tools/run_all_audits.sh 2>&1 \\\n| tail -8',
+            'git push -u origin br 2>&1 | \\\ntail -3',
+            'tools/run_all_audits.sh \\\n 2>&1 | tail -8',
+            'python3 -m unittest \\\n| tail -2',
+            './tools/run_all_audits.sh 2>&1 | \\\n\\\ntail -8',
+            # round-4 A1/A2 regressions: a quoted # inside $( ) was cut as a
+            # comment, deleting the real | tail; the raw text shows the pipe
+            'echo "$(./tools/run_all_audits.sh "a # b" | tail -8)"',
+            'x="$(git push "a # b" | tail -8)"',
+            # accepted residual: a pipe inside a comment on a verifier line
+            # may block (accepted false block, safe direction)
+            './tools/run_all_audits.sh # | tail',
+            './tools/run_all_audits.sh # keep |\ntail -f log',
+            './tools/run_all_audits.sh \\\n# | tail',
+        ], True)
+        self.check([
+            # a comment-only line with a pipe before an unpiped verifier
+            '# | tail\n./tools/run_all_audits.sh',
+            "echo 'a | \\\ntail'",
+            'echo "run_all_audits.sh | \\\ntail"',
+            # the sanctioned forms stay allowed, each carrying the join
+            # under test so no case passes vacuously without one (R5-3)
+            './tools/run_all_audits.sh \\\n--verbose',
+            './tools/run_all_audits.sh 2>&1 \\\n> /tmp/a.log; echo $?',
+            'tools/tail-safe.sh -n 8 -- \\\n./tools/run_all_audits.sh',
+        ], False)
+
+    def test_arithmetic_ampersands_are_not_background(self):
+        # Round 7: only a strict arithmetic interior hides shell operators.
+        self.check([
+            'echo $(( 1 & 2 ))',
+            'echo $((1&2))',
+            '(( flags & 1 ))',
+            '((flags&1))',
+            'echo $(( 1 | 2 ))',
+            '(( flags | 1 ))',
+            'echo $(( 1 && 2 || 3 ))',
+            '(( flags && 1 || 2 ))',
+            'echo $(( $flags & ${mask} ))',
+            '(( $flags | ${mask} ))',
+            '(( _n += 2, _n = _n << 1, _n >= 4 ? ~_n ^ 3 : !_n ))',
+            'echo $((\t1 & 2\r\f\v))',
+            'x=$((a & b)); echo $x',
+            'if (( flags & 1 )); then echo set; fi',
+            'echo "$((1 & 2))"',
+        ], False)
+        self.check([
+            # Accepted conservative blocks: complex arithmetic uses the
+            # round-5 tokenizer, exposing its ampersands as shell operators.
+            'echo $(( (1 & 2) | 4 ))',
+            '(( (flags & 1) && (flags & 2) ))',
+            'echo $(( $(( 1 & 2 )) | 4 ))',
+            '(( ((flags & 1)) ))',
+            'echo $(( $(echo ")") & 1 ))',
+            'echo $((1 & 2)) &',            # the real launch still blocks
+            '(( flags & 1 )) &',
+            'a & echo $(( 1 & 2 ))',        # launched before arithmetic
+            'echo $((x)) | tail; echo $?',  # arithmetic hides no pipeline
+            'cmd | cat; (( $? & 1 ))',      # arithmetic still reads status
+            'cmd | cat; echo $(( $? + 1 ))',
+            '(( 1 & 2 )) | cat; echo $?',
+        ], True)
+        # a (( with no closing )) is not arithmetic: subshell rules apply
+        self.check(['( (a | tail; echo $?) )', '((cmd | tail; echo $?) )'], True)
+
+    def test_arithmetic_review_regressions(self):
+        # R6 Claude F1 and Codex R6-1/R6-2: all these allowed on 0b900a3b8.
+        self.check([
+            'echo $(( $(cmd | tail; echo $?) ))',
+            'echo $(( $(cmd | tail; echo ${?}) ))',
+            'echo $(( $(cmd &) ))',
+            '(( $(cmd &) ))',
+            'echo $(( $(printf 1; : &) + 1 ))',
+            '(( $(printf 1; : &) + 1 ))',
+            '((printf background) & (true))',
+            '(( : ) & ( : ))',
+            '((false |\ncat; echo $?) | (cat))',
+            '((false |\ncat; echo $?))',
+            '(( x = "((" )); : & # ))',
+            'declare -A a; a[\'((\']=1; (( a["(("] )); '
+            "printf 'launched\\n' & # ))",
+            'declare -A a; a[\'((\']=1; (( a["(("] )); '
+            'false | cat; echo $? # ))',
+        ], True)
+
+    def test_arithmetic_shift_never_starts_heredoc_skipping(self):
+        # R7 Codex R7-1: a rejected span's << registered a heredoc terminator
+        # and hid the commands after it. All these allowed on 235d80122.
+        self.check([
+            'echo $((1 << (2)))\n: &',
+            'echo $((1 << (2)))\nfalse | cat; echo $?',
+            '((1 << (2)))\n: &',
+            '((1 <<- (2)))\n: &',
+            'echo $((1 << (2)))',  # refused even with nothing after it
+        ], True)
+        self.assertEqual(self.hook.shell_violation('echo $((1 << (2)))')[0],
+                         'arithmetic-shift')
+        # Controls: a strict-interior shift and a real heredoc outside
+        # arithmetic keep their round-7 decisions. Round 10 moved the
+        # rejected-arithmetic-then-heredoc control to the blocked side: the
+        # fallback close cannot be trusted (R9X nested-pair), so any << in a
+        # command entering the fallback refuses (accepted false block).
+        self.check(['echo $((1 << 2))', '(( flags << 1 ))',
+                    'cat <<EOF\nx & y\nEOF'], False)
+        self.check(['echo $((1 << 2))\n: &',
+                    '(( (1) )); cat <<E\nz &\nE'], True)
+
+    def test_round9_crlf_heredoc_terminator_divergence_refuses(self):
+        # R8 Gemini ERROR 1 / Codex R8-2: a CRLF delimiter word kept its \r,
+        # so the "EOF\r" body line matched it (defence in depth) and the next
+        # line's bare & / status read is seen again; either way these block.
+        # Both allowed on c5d1df367 (the \r broke the delimiter word, so the
+        # heredoc looked unterminated and swallowed the rest).
+        self.check([
+            "cat <<EOF\r\nbody\r\nEOF\r\n: &\r\n",
+            "cat <<EOF\r\nbody\r\nEOF\r\nfalse | cat; echo $?\r\n",
+        ], True)
+
+    def test_round9_backslash_continued_terminator_refuses(self):
+        # R8 Codex R8-2: bash joins "E\<newline>OF" into the delimiter EOF and
+        # runs the next line; the hook compares physical lines, never matches,
+        # and would swallow ": &". Allowed on c5d1df367; round 9 refused it as
+        # heredoc-unterminated, and round 10 refuses the divergent body line
+        # itself, so a later matching line cannot rescue it (R9X).
+        self.check(["cat <<EOF\nE\\\nOF\n: &"], True)
+        self.assertEqual(
+            self.hook.shell_violation("cat <<EOF\nE\\\nOF\n: &")[0],
+            'heredoc-divergence')
+
+    def test_round9_case_arm_parentheses_keep_arithmetic_tracking(self):
+        # R8 Codex R8-1 / Gemini ERROR 2: two case pattern arms' ) dropped the
+        # arithmetic fallback counter to zero early, so a later << registered a
+        # heredoc and hid the next line. A lone ) now only decrements; the span
+        # closes only at the adjacent )). Both allowed on c5d1df367.
+        self.check([
+            'echo $(( $(case 1 in 1) echo 1;; 2) echo 2;; esac) + (1 << (2)) ))\n: &',
+            'echo $(( $(case 1 in 1) echo 1;; 2) echo 2;; esac) + (1 << (2)) ))\n'
+            'false | cat; echo $?',
+        ], True)
+        self.assertEqual(self.hook.shell_violation(
+            'echo $(( $(case 1 in 1) echo 1;; 2) echo 2;; esac) + (1 << (2)) ))\n: &'
+        )[0], 'arithmetic-shift')
+
+    def test_round9_terminated_heredoc_controls_still_allow(self):
+        # Controls that must keep allowing under the new refusal: an LF heredoc
+        # that terminates, a tab-stripped <<- heredoc, a quoted-delimiter
+        # heredoc, and STRICT arithmetic completed before a real heredoc
+        # (round 10: rejected arithmetic plus any << now refuses instead).
+        self.check([
+            'cat <<EOF\nx & y\nEOF',
+            'cat <<-EOF\n\tx & y\n\tEOF',
+            "cat <<'EOF'\nx & y\nEOF",
+            '(( 1 + 2 )); cat <<E\nz &\nE',
+        ], False)
+
+    def test_round10_later_delimiter_divergence_refuses(self):
+        # R9 Codex R9-1 / ledger VPR3B513-R9X-later-delimiter: bash ends the
+        # heredoc at the joined "E\<newline>OF" (or at the $'EOF' delimiter's
+        # own expansion) and runs the hidden lines, while a LATER physical
+        # delimiter satisfied the round-9 unterminated check. A skipped body
+        # line ending in a backslash or holding a CR, or a delimiter that is
+        # not one plain [A-Za-z0-9_-] word after quote removal, now refuses.
+        # All four allowed on 29b77da3d (codex N01/N02/N11/N12).
+        self.check([
+            'cat <<EOF\nE\\\nOF\n: &\n: <<EOF\nEOF',
+            'cat <<EOF\nE\\\nOF\nfalse |\ncat; echo $?\n: <<EOF\nEOF',
+            'cat <<-EOF\n\tE\\\nOF\n: &\n: <<EOF\nEOF',
+            "cat <<$'EOF'\nEOF\n: &\n: <<'X'\n$EOF\nX",
+        ], True)
+        self.assertEqual(self.hook.shell_violation(
+            'cat <<EOF\nE\\\nOF\n: &\n: <<EOF\nEOF')[0], 'heredoc-divergence')
+        self.assertEqual(self.hook.shell_violation(
+            "cat <<$'EOF'\nEOF\n: &\n: <<'X'\n$EOF\nX")[0],
+            'heredoc-divergence')
+        # Terminated plain heredocs, including one whose BODY merely mentions
+        # a backslash mid-line, keep allowing.
+        self.check(['cat <<EOF\nx \\ y\nEOF', "cat <<'PY'\na | b\nPY"], False)
+
+    def test_round10_nested_pair_fallback_shift_refuses(self):
+        # R9 Codex R9-2 / Gemini ERROR / ledger VPR3B513-R9X-nested-pair: a
+        # nested adjacent )) (from ((2)) or esac)+) inside a rejected span
+        # drove the round-9 close early, so a later << registered a heredoc
+        # whose LATER matching delimiter hid the lines in between. Any command
+        # that enters the rejected-arithmetic fallback and contains << anywhere
+        # now refuses. All four allowed on 29b77da3d (codex N01-N04 family).
+        self.check([
+            '(( $(case 1 in 1) echo 0;; 2) echo 0;; esac) + ((1)) + '
+            '(1 << EOF) ))\n: &\nEOF',
+            'cmd | tail\n(( $(case 1 in 1) echo 0;; 2) echo 0;; esac) + ((1))'
+            ' + (1 << EOF) ))\necho rc=$?\nEOF',
+            '(( 1 + $(case x in x) printf 1;; y) :;; z) :;; esac) + ((2)) '
+            '<< (2) ))\n: &\n((\n2\n))',
+            '(( 1 + $(case x in x) printf 1;; y) :;; z) :;; esac) + ((2)) '
+            '<< (2) ))\nfalse |\ncat; echo $?\n((\n2\n))',
+        ], True)
+        self.assertEqual(self.hook.shell_violation(
+            '(( $(case 1 in 1) echo 0;; 2) echo 0;; esac) + ((1)) + '
+            '(1 << EOF) ))\n: &\nEOF')[0], 'arithmetic-shift')
+        # Strict arithmetic shifts never enter the fallback and keep allowing.
+        self.check(['echo $((1 << 2))', '(( flags << 1 ))'], False)
+
+    def test_round10_data_emitter_pipeline_allows(self):
+        # F1 (falseblocks-classification): a plain echo/printf data emitter
+        # piped into one consumer (a writer or a hook under test) does not
+        # mask a status; $? reads the consumer. These three DISCRIMINATE the
+        # round -- each was blocked on 29b77da3d (round 9) and is allowed now.
+        self.check([
+            'echo \'{"tool_name":"Bash"}\' | python3 -I '
+            '.claude/hooks/block-on-open-findings.py; echo rc=$?',
+            'printf \'%s\\n\' "$line" | python3 tools/open-findings-row.py; '
+            'echo $?',
+            'LC_ALL=C echo x | tr a-z A-Z; echo $?',
+        ], False)
+        # Loop-body boundary that must keep allowing but does NOT discriminate
+        # the round: its pending warning is already cleared at `done` on
+        # 29b77da3d (round 9), so round 9 allowed it too (claude R10 NOTE 2).
+        self.check([
+            'for f in a b; do printf \'%s\\n\' "$f" | python3 -I "$H"; done; '
+            'rc=$?',
+        ], False)
+        self.check([
+            # a third stage masks the consumer's status (corpus row 70)
+            'echo \'{"x":1}\' | python3 -I '
+            '.claude/hooks/block-on-open-findings.py | cut -c1-160; '
+            'echo "guard rc=$?"',
+            # an executable substitution makes the emitter's status meaningful
+            'echo "$(cmd)" | python3 tools/open-findings-row.py; echo rc=$?',
+            'printf \'%s\' `cmd` | python3 tools/open-findings-row.py; '
+            'echo $?',
+            # a non-emitter first stage stays guarded
+            'cmd | cat; echo $?',
+        ], True)
+
+    def test_round11_split_substitution_emitter_refuses(self):
+        # R10 Codex R10-1 / Claude R10 ERROR: the round-10 F1 check
+        # searched the RAW stage text for "$(" / backquote, so a
+        # backslash-newline splitting the opener hid a command
+        # substitution and the stage read as a plain emitter. Bash removes
+        # the continuation before it recognizes "$(", runs the
+        # substitution, and $? then reads the truncating filter. Each
+        # split emitter now refuses -- echo and printf, piped into a
+        # truncating filter and carrying a background launch -- and every
+        # one was allowed on 9faebb29d (round 10).
+        from unittest.mock import patch
+        split = [
+            'echo "$\\\n(printf \'x\'; false)" | head -1; echo rc=$?',
+            'printf \'%s\' "$\\\n(printf \'x\'; false)" | head -1; echo rc=$?',
+            'echo "$\\\n(: &)" | cat; echo rc=$?',
+            'printf \'%s\' "$\\\n(: &)" | cat; echo rc=$?',
+        ]
+        self.check(split, True)
+        for c in split:
+            self.assertEqual(
+                self.hook.shell_violation(c)[0], 'pipeline-status')
+        # Positive control: a plain unsplit echo pipeline stays allowed.
+        self.check(['echo plain | head -1; echo rc=$?'], False)
+        # Flip control: restoring the round-10 raw-text check (the pre-fix
+        # emitter_is_plain) re-admits every split case, proving this test
+        # pins the round-11 continuation-joining fix, not another guard.
+        raw_check = lambda raw: "$(" not in raw and "`" not in raw
+        with patch.object(self.hook, 'emitter_is_plain', raw_check):
+            for c in split:
+                self.assertFalse(self.hook.command_is_blocked(c))
+
+    def test_round11_bash53_substitution_emitter_refuses(self):
+        # agy R11 NOTE 2: pin the bash-5.3 spellings the round-11
+        # allow-list disqualifies. A ${ cmd; } brace function
+        # substitution, a ${| cmd; } brace substitution and a ${name@P}
+        # prompt-expansion parameter operator each run or transform code
+        # inside an echo/printf emitter piped into a truncating filter,
+        # so the stage is no plain data emitter and the later $? read of
+        # the filter refuses. None of these contain "$(" or a backquote,
+        # so the round-10 raw-text check read every one as plain.
+        from unittest.mock import patch
+        funsub = [
+            'echo "${ printf \'x\'; false; }" | head -1; echo rc=$?',
+            'printf \'%s\' "${ true; }" | tail -1; echo rc=$?',
+            'echo "${| false; }" | head -1; echo rc=$?',
+            'printf \'%s\' "${| :; }" | cut -c1-160; echo rc=$?',
+            'echo "${PS1@P}" | head -1; echo rc=$?',
+            'printf \'%s\' "${msg@P}" | tail -3; echo rc=$?',
+        ]
+        self.check(funsub, True)
+        for c in funsub:
+            self.assertEqual(
+                self.hook.shell_violation(c)[0], 'pipeline-status')
+        # Positive controls: a plain quoted literal emitter stays
+        # allowed, even when the literal spells the refused forms inside
+        # single quotes, where nothing expands.
+        self.check([
+            'echo "plain ${name} literal" | head -1; echo rc=$?',
+            "echo '${ false; }' | head -1; echo rc=$?",
+            "printf '%s' '${| false; }${PS1@P}' | cat; echo rc=$?",
+        ], False)
+        # Flip control: restoring the round-10 raw-text check (the
+        # pre-fix emitter_is_plain) re-admits every bash-5.3 case, so
+        # this test pins the round-11 allow-list, not another guard.
+        raw_check = lambda raw: "$(" not in raw and "`" not in raw
+        with patch.object(self.hook, 'emitter_is_plain', raw_check):
+            for c in funsub:
+                self.assertFalse(self.hook.command_is_blocked(c))
+
+    def test_round10_and_continuation_clears_pending(self):
+        # F2 (falseblocks-classification row 67): an executed single-command
+        # && continuation replaces the pipeline's status, and a skipped one
+        # leaves the pipeline's own nonzero status, so the later read is
+        # never the masking filter's. A || continuation keeps the warning.
+        # The allowed forms blocked on 29b77da3d.
+        self.check([
+            'git -C w status --short | wc -l && python3 '
+            'tools/lint-version-bump-recency.py >/dev/null 2>&1; '
+            'echo recency=$?',
+            'cmd | tail && true; echo $?',
+        ], False)
+        self.check([
+            'cmd | tail || true; echo $?',
+            'cmd | tail && echo $?',           # the read itself is guarded
+            'cmd | tail && a | b; echo $?',    # a new pipeline re-arms it
+        ], True)
+
+    def test_arithmetic_rejected_interiors_use_shell_tokens(self):
+        from unittest.mock import patch
+        # Pin rejection even when ordinary shell quoting would hide an &.
+        interiors = (
+            '(1 & 2)', '$((1 & 2))', '"1 & 2"', "'1 & 2'", r'1 \& 2',
+            '$(cmd &)', '`cmd &`', '1; cmd &', '1 &\n2',
+            '${name:-1} & 2', '${name[0]} & 2', '$? & 1',
+            '${?} & 1', 'array[0] & 1', '2#10 & 1',
+        )
+        for interior in interiors:
+            for prefix in ('((', 'echo $(('):
+                command = prefix + interior + '))'
+                with self.subTest(command=command):
+                    actual = list(self.hook.shell_tokens(command))
+                    with patch.object(self.hook, '_arithmetic_end', return_value=None):
+                        fallback = list(self.hook.shell_tokens(command))
+                    self.assertEqual(actual, fallback)
+        # Rejection must not disable a later, separate simple arithmetic span.
+        self.check(['(( (1 + 2) )); (( flags & 1 ))',
+                    '(echo $((flags & 1)))'], False)
+
+    def test_every_status_parameter_expansion_counts(self):
+        # 3b513 round 3: every parameter expansion of ? reads the pipeline's
+        # status, not only $? and ${?}.
+        expansions = ('${?}', '${?:-x}', '${?:=x}', '${?:?bad}', '${?:+x}',
+                      '${?-x}', '${?+x}', '${?#0}', '${?##0}', '${?%x}',
+                      '${?%%x}', '${?/0/ok}', '${?^}', '${?@Q}', '${#?}',
+                      '${!?}')
+        for expansion in expansions:
+            self.check([
+                'cmd | cat; echo ' + expansion,
+                'cmd | cat; rc=' + expansion,
+                'cmd | cat; echo "' + expansion + '"',
+                'cmd | cat; test ' + expansion + ' = 0',
+            ], True)
+            self.check([
+                'grep -q pat file; echo ' + expansion,  # single command
+                "cmd | cat; echo '" + expansion + "'",  # single-quoted: no read
+            ], False)
+        self.check(['cmd | cat; echo ${rc:-${?#0}}'], True)
+        self.check(['cmd | cat; echo ${PIPESTATUS[0]}',
+                    'cmd | cat; echo ${rc:-0}'], False)
+
+    def test_ordinary_commands_stay_allowed(self):
+        # 3b513 round 3: no new false block on ordinary commands.
+        self.check([
+            'git status',
+            'git log --oneline | head -5',
+            'ls -la',
+            'python3 tools/build-taxonomy.py',
+            'grep -rn TODO docs | head -20',
+            'cat README.md | head -40',
+            'wc -l tests/test_linters.py',
+            'git diff --stat | tail -3',
+            'sed -n 1,10p CHANGELOG.md',
+            'echo done',
+            'make build 2>&1 | tee build.log',
+            'cmd > log 2>&1; rc=$?; tail log',
+            'tools/tail-safe.sh -n 8 -- ./tools/run_all_audits.sh',
+            'git add file.md && git commit -m msg',
+            'python3 -m unittest tests.test_linters.BlockVerificationPipesTests',
+            'find . -name x -print | sort',
+            'du -sh . | cut -f1',
+            'ps aux | grep python3 | head -3',
+            'git push -u origin br',
+            'curl -s https://example.org | jq .x',
+            'tr a-z A-Z < f | fold -w 80',
+            'history | tail -5',
+            'echo $PATH',
+            'sort f | uniq -c | head',
+        ], False)
+
+    def test_combined_pipefail_options(self):
+        forms = ('-euo pipefail', '-e -o pipefail', '-o pipefail -o errexit',
+                 '-eo pipefail', '-o errexit -o pipefail', '-o pipefail --')
+        for form in forms:
+            self.check(['set ' + form + '; cmd | cat; echo $?'], False)
+            self.check(['set ' + form + '; set +o pipefail; cmd | cat; echo $?'], True)
+        self.check([
+            'set -euo pipefail; set +eo pipefail; cmd | cat; echo $?',
+            'set -o pipefail +o pipefail; cmd | cat; echo $?',
+            'set -o pipefail; false || set +o pipefail -e; cmd | cat; echo $?',
+            'set -- -o pipefail; cmd | cat; echo $?',
+            'set positional -o pipefail; cmd | cat; echo $?',
+            'set -oe pipefail; cmd | cat; echo $?',
+            'false && set -euo pipefail; cmd | cat; echo $?',
+            'set -euo pipefail & wait; cmd | cat; echo $?',
+            'set -euo pipefail | cat; cmd | cat; echo $?',
+        ], True)
+        self.check(['set +o pipefail -eo pipefail; cmd | cat; echo $?'], False)
+
+    def test_heredoc_bodies_are_not_shell_commands(self):
+        self.check([
+            "python3 <<PY\nprint(1 & 2)\nPY\n",
+            "python3 <<'PY'\nprint(1 & 2)\nPY\n",
+            'python3 <<"PY"\nprint(1 & 2)\nPY\n',
+            "python3 <<-PY\n\tprint(1 & 2)\n\tPY\n",
+            "python3 <<-'PY'\n\tprint(1 & 2)\n\tPY\n",
+            "cat <<A <<'B'\na &\nA\ncoproc b; cmd | cat; echo $?\nB\n",
+            "cat <<A # comment & $?\ncoproc a &\nA\n",
+            "cat <<A\na &\nA\ngrep -q pat file; echo $?",
+            "cmd | cat <<EOF\necho $? &\nEOF\n",
+            "echo '<<EOF'; echo ok",
+        ], False)
+        self.check([
+            # round 10: a delimiter that is not one plain word after quote
+            # removal ('$?' here) refuses (heredoc-divergence, safe direction)
+            "cmd | cat; cat <<'$?'\na &\n$?\n",
+            "python3 <<'PY' &\nprint(1 & 2)\nPY\n",
+            "cat <<A\na &\nA\nb &",
+            "cat <<A\na &\nA\ncmd | cat; echo $?",
+            "cmd | cat; cat <<EOF $?\nbody\nEOF\n",
+            "cmd | cat <<EOF\nbody\nEOF\necho $?",
+            "cat <<A <<B\na &\nA\nb &\nB\nc &",
+            "cat <<<word; a &",  # here-string is not a heredoc
+            "cat <<A\ntools/run_all_audits.sh | tail\nA\n",
+            # round 9: a terminator never matched before the end of the command
+            # now refuses rather than swallowing the rest as body (R8 reviews)
+            "cat <<A\na &\n",
+        ], True)  # the legacy regex still scans raw heredoc bodies
+
+    def test_single_job_targeted_waits(self):
+        self.check(['a & wait $!', 'a & wait "$!"', 'a & wait -n'], False)
+        self.check([
+            'a & b & wait $!', 'a & b & wait -n',
+            'a & wait; b & wait $!', 'a & wait; b & wait -n',
+            "a & wait '$!'", r'a & wait \$!',
+            "a & wait '$!' > \"$!\"",
+            'a & false && wait $!', 'a & true || wait -n',
+            'a & wait $! &', 'a & (wait $!)', 'a & wait -n | cat',
+        ], True)
+
+    def test_waited_pipeline_status_and_single_grep_status(self):
+        self.check([
+            'cmd | tail & wait; echo $?',
+            'cmd | tail & wait $!; echo $?',
+            'cmd | tail & wait -n; echo $?',
+            'grep -q pat file; echo $?',
+        ], False)
+
+    def test_coproc_launches(self):
+        self.check([
+            'coproc cmd', 'coproc { cmd; }', 'coproc NAME { cmd; }',
+            'coproc cmd; wait', 'coproc cmd | cat', '(coproc cmd)',
+            'true && coproc cmd',
+        ], True)
+        self.check(['echo coproc', "echo 'coproc cmd'"], False)
+
+    def test_deep_nesting_fails_closed_in_cli(self):
+        with tempfile.TemporaryDirectory() as td:
+            env = dict(os.environ, HOOK_STATE_FILE=str(Path(td) / 'state.jsonl'))
+            for opening, closing in (('(', ')'), ('{ ', '; }')):
+                for body in ('true', 'tools/run_all_audits.sh | tail'):
+                    command = opening * 1200 + body + closing * 1200
+                    with self.subTest(opening=opening, body=body):
+                        self.assertTrue(self.hook.command_is_blocked(command))
+                        result = subprocess.run(
+                            [sys.executable, '-B', self.hook.__file__],
+                            input=json.dumps({'tool_input': {'command': command}}),
+                            text=True, capture_output=True, env=env, timeout=20)
+                        self.assertEqual(result.returncode, 2, result.stderr)
+                        self.assertIn('BLOCKED (shell-complexity):', result.stderr)
+                        self.assertNotIn('Traceback', result.stderr)
+        limit = self.hook.MAX_SHELL_NESTING
+        self.check(['(' * limit + 'true' + ')' * limit], False)
+        self.check(['(' * (limit + 1) + 'true' + ')' * (limit + 1)], True)
+
+    def test_recursion_error_fallback_refuses(self):
+        from unittest.mock import Mock, patch
+        with patch.object(self.hook, '_shell_violation', side_effect=RecursionError):
+            self.assertEqual(self.hook.shell_violation('true')[0], 'shell-complexity')
+            payload = json.dumps({'tool_input': {'command': 'true'}})
+            with patch.object(sys, 'stdin', io.StringIO(payload)), \
+                    patch.object(sys, 'stderr', io.StringIO()) as stderr, \
+                    patch.object(self.hook, '_load_sibling', return_value=Mock()):
+                self.assertEqual(self.hook.main(), 2)
+                self.assertIn('BLOCKED (shell-complexity):', stderr.getvalue())
+
+    def test_background_jobs_require_collection_in_same_scope(self):
+        self.check([
+            'a &', 'a & b', 'a & b &',
+            'a & wait 123',  # an arbitrary PID is not certified
+            'a & false && wait', 'a & true || wait',
+            'a & wait &', 'a & wait | cat', 'a & (wait)',
+            '(a &) ; wait', 'a & wait; b &',
+            'a & echo wait', 'a & echo "wait"',
+            'a & # wait', 'a & "echo" "&"',
+        ], True)
+        self.check([
+            'a & b & wait', 'a & wait; b & wait',
+            '(a & b & wait)', '(a) > /dev/null 2>&1 & wait',
+            'a & wait > /dev/null 2>&1',
+            'a && b', 'x 2>&1', 'x >&2', 'x &> f', 'x &>> f',
+            "echo '&'", 'echo "&"', r'echo \&',
+            'echo "a & b"', 'echo ok # a &',
+            "echo 'cmd | tail; echo $? & xyz'",
+        ], False)
+
+
 class BlockingHookMessageContractTests(unittest.TestCase):
     """P-1.95: per-rendered-message refusal inventory and contract."""
 
@@ -52507,8 +53162,37 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         ):
             add(name, message, evidence=("[2026-09-22 12:00Z]", "(session: 0h 5m)"))
 
-        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write("))
+        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write(", 7))
         add("pipe", "tools/run_all_audits.sh | tail -8", evidence=("(RM-10)",))
+        add("status", "cmd | tail; echo rc=$?", label="pipeline-status", verb="redirect",
+            at=("main", "sys.stderr.write(", 0),
+            evidence=("cmd | tail", "$? is the last stage's status", "PIPESTATUS",
+                      "read $? immediately", "tools/tail-safe.sh"))
+        add("background", "(orch-verify x) > /dev/null 2>&1 &",
+            label="untracked-background", verb="use",
+            at=("main", "sys.stderr.write(", 1),
+            evidence=("orch-verify x", "completion is untracked", "run_in_background"))
+        add("coproc", "coproc cmd", label="coproc-background", verb="use",
+            at=("main", "sys.stderr.write(", 2),
+            evidence=("coproc cmd", "coprocess completion", "run_in_background"))
+        add("arithmetic-shift", "echo $((1 << (2)))",
+            label="arithmetic-shift", verb="compute",
+            at=("main", "sys.stderr.write(", 3),
+            evidence=("echo $((1 << (2)))", "cannot tell this shift from a heredoc",
+                      "simple arithmetic"))
+        add("heredoc-unterminated", "cat <<EOF\na &\n",
+            label="heredoc-unterminated", verb="close",
+            at=("main", "sys.stderr.write(", 4),
+            evidence=("'EOF'", "never matched before the end", "read as heredoc body"))
+        add("heredoc-divergence", "cat <<$'EOF'\nx & y\nEOF",
+            label="heredoc-divergence", verb="use",
+            at=("main", "sys.stderr.write(", 5),
+            evidence=("'$EOF'", "diverges from plain line reading",
+                      "plain [A-Za-z0-9_-] delimiter word"))
+        add("complexity", "(" * 65 + "true" + ")" * 65,
+            label="shell-complexity", verb="run",
+            at=("main", "sys.stderr.write(", 6),
+            evidence=("inspection limit", "refusing it", "fewer nested groups"))
         add = group("block-wrong-repo-tool", "use")
         for name, command, guard, evidence in (
             ("abspath", "cd /x && python3 tools/probe.py",
