@@ -2,7 +2,7 @@
 
 **Document Title:** From AI idea to retirement: the governed life of an AI system\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.7\
+**Version:** 0.0.8\
 **Date:** 2026-10-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -44,7 +44,7 @@ Somewhere in the organization, a team has an idea for an AI system. The organiza
 
 **What changes.** The recorded system is given a risk classification and an impact assessment. The [AI risk methodology annex](../../risk/annex-ai-risk-methodology.md) requires each AI system to be assigned a risk tier on the basis its AI system risk classification section defines, before the risk assessment methodology is applied, and requires the tier classification to be documented; the tier set and its regulatory mapping live in the annex. The [AI system impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md) walks the registered system through its ten steps, assigns an impact level at its Step 7, defines required controls at its Step 8, and lists its required outputs; use the procedure for those steps. Where a training, fine-tuning, or reinforcement-learning pipeline will consume a dataset, the [training data governance procedure](../../ai/procedure-training-data-governance.md) owns **Step 4: Approval to train**; use that step for the pre-consumption approvals, their triggers, and the approver roles.
 
-**Why it matters.** The assigned risk classification is a dependency for Stage 4, where the corpus sets testing and approval requirements by risk tier. The completed assessment is evidence that the organization examined what the system is, whom it affects, and what risk it carries before any deployment decision.
+**Why it matters.** The assigned risk classification and impact level are dependencies for Stage 4, where the corpus sets testing requirements by risk tier and routes approval on both. The completed assessment is evidence that the organization examined what the system is, whom it affects, and what risk it carries before any deployment decision.
 
 **Signals of progress.** A documented risk classification, an assessment record, and a defined control set exist for the system, and training-data approvals are recorded before a pipeline consumes the data.
 

@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should ask about the organization's AI inventory, risks, incidents, suppliers, and change\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.5\
-**Date:** 2026-10-24\
+**Version:** 0.0.6\
+**Date:** 2026-10-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`ai/template-ai-system-register.md`](../../ai/template-ai-system-register.md), [`ai/register-ai-risk.md`](../../ai/register-ai-risk.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../../supply-chain/procedure-third-party-ai-due-diligence.md), [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md)\
