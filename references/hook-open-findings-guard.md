@@ -154,7 +154,10 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   and without `--source-key`, a delivery with no `VPR-COMPLETE` line prints `no-vpr-complete-line`,
   since no item is known. A delivery with no `WORKER_STATUS` first line, so no family, or with no
   own round heading does not; a `WORKER_STATUS` first line without exactly one valid `family=` value
-  (none, two, or an empty one) is a part that does not parse. A Source cell that states
+  (none, two, or an empty one) is a part that does not parse, and so is one whose envelope,
+  `WORKER_STATUS: <STATUS> (...)`, does not parse (no parentheses, or a status not in uppercase
+  letters), even with one valid `family=` value. A byte-order mark before `WORKER_STATUS` makes the
+  first line not a `WORKER_STATUS` first line, so such a delivery has no family. A Source cell that states
   the review in another form than the key (other case or spacing, prose before it, or a shorter sha)
   is not counted, so the count errs low, toward the warning. A combined row counts once, and two
   deliveries with one key share their rows. The line carries counts and codes only, never refuses,

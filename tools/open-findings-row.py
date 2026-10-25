@@ -72,10 +72,16 @@ UNVERIFIABLE (source-key-invalid). Without --source-key, a delivery that lacks a
 count as UNVERIFIABLE (no-vpr-complete-line, no-worker-status-family, no-round-heading), never a
 broader count; a part carried in a form that does not parse is UNVERIFIABLE either way
 (worker-status-family-unparseable, vpr-complete-line-unparseable, round-heading-ambiguous when
-headings naming the item state two rounds). FINDINGS, VPR-COMPLETE and heading lines count at column
-0 outside code fences: the hook's fence predicates, except that a backtick run whose remaining text
-holds a backtick opens no fence (CommonMark reads it as inline code); delivery lines end at LF only,
-a CR before it dropped, so a lone CR or U+2028 starts no line. MATCHING RULE: the Source cell starts
+headings naming the item state two rounds). A delivery with no `WORKER_STATUS` first line has no
+family; a `WORKER_STATUS` first line without exactly one valid `family=` value (none, two, or an
+empty one) is a part that does not parse, and so is one whose envelope,
+`WORKER_STATUS: <STATUS> (...)`, does not parse (no parentheses, or a status not in uppercase
+letters), even with one valid `family=` value. A byte-order mark before `WORKER_STATUS` makes the
+first line not a `WORKER_STATUS` first line, so such a delivery has no family. FINDINGS,
+VPR-COMPLETE and heading lines count at column 0 outside code fences: the hook's fence predicates,
+except that a backtick run whose remaining text holds a backtick opens no fence (CommonMark reads it
+as inline code); delivery lines end at LF only, a CR before it dropped, so a lone CR or U+2028
+starts no line. MATCHING RULE: the Source cell starts
 with the key exactly (case and spacing included) and the key is not followed by a letter, digit, `_`
 or `-`, so a row of another family, item, round or sha, or with a shorter or longer sha, is not
 counted. The rows counted are the duplicate-id scope above, in the ledger text with this row when the

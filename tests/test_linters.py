@@ -26821,7 +26821,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        open-findings-row.py OWN F 19ca088b55a6e3560b5013ac02c76f9d8524ee06fc244672452c9d839ec50e77
+        open-findings-row.py OWN F 60397237cfb5776dc692dfc225b8b9815d58ac568cf57a0346a3e24318e6ada7
         pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
@@ -57262,6 +57262,11 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
     check moved before the part codes (r6 M4), a WORKER_STATUS first line with no family= value read as
     no family (W1), the whole-line UNVERIFIABLE skipped beside a --source-key (F1), and the reference's
     whole-line sentence or its narrowed no-WORKER_STATUS sentence dropped, 3b556, by
+    test_quoted_round_heading_is_not_the_delivery_round, one subtest per case; a WORKER_STATUS envelope
+    read with optional parentheses (E1) or a status of any case (E2), a byte-order mark stripped before
+    the WORKER_STATUS test (E3), a first line holding WORKER_STATUS: anywhere read as a WORKER_STATUS
+    first line (E4), and the envelope or byte-order-mark wording dropped from the reference or the tool
+    docstring, 3b556 r2 (claude 3b556 round-1 NOTE-1), by
     test_quoted_round_heading_is_not_the_delivery_round, one subtest per case."""
 
     REVIEW = "claude 3b540 /validate-pr round 2 @ f2a53df9f"
@@ -57726,6 +57731,16 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         empty_family = two_quotes.replace("family=claude", "family=", 1)
         no_family_value = two_quotes.replace("rc=0, family=claude, ", "rc=0, ", 1)
         no_vpr = two_quotes.replace("VPR-COMPLETE 3b540 f2a53df9f\n", "", 1)
+        # 3b556 r2 (claude 3b556 round-1 NOTE-1): the reviewer's two envelope shapes, each with one valid
+        # family=, are parts that do not parse (E1, E2); a byte-order mark before WORKER_STATUS leaves no
+        # WORKER_STATUS first line, so no family (E3, E4).
+        envelope = ("and so is one whose envelope, `WORKER_STATUS: <STATUS> (...)`, does not parse (no parentheses, "
+                    "or a status not in uppercase letters), even with one valid `family=` value")
+        bom = ("A byte-order mark before `WORKER_STATUS` makes the first line not a `WORKER_STATUS` first line, so "
+               "such a delivery has no family")
+        no_parens = "WORKER_STATUS: PASS family=claude\n" + two_quotes.split("\n", 1)[1]
+        lower_status = "WORKER_STATUS: pass (family=claude)\n" + two_quotes.split("\n", 1)[1]
+        bom_status = "\ufeff" + one.replace("\n## Scratch probes", f"\n{self.ROUND_2_HEADING}\n\n## Scratch probes", 1)
         for name, delivery, key, code, clause in (
                 ("P1 an empty family=", empty_family, None, "worker-status-family-unparseable", part),
                 ("P1 an empty family=, with a correct key", empty_family, self.REVIEW,
@@ -57735,6 +57750,17 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                 ("no family= value", no_family_value, None, "worker-status-family-unparseable", no_value),
                 ("no family= value, with a key not in the form", no_family_value, invalid_key,
                  "worker-status-family-unparseable", no_value),
+                ("E1 no parentheses", no_parens, None, "worker-status-family-unparseable", envelope),
+                ("E1 no parentheses, with a correct key", no_parens, self.REVIEW, "worker-status-family-unparseable",
+                 envelope),
+                ("E1 no parentheses, with a key not in the form", no_parens, invalid_key,
+                 "worker-status-family-unparseable", envelope),
+                ("E2 a lowercase status", lower_status, None, "worker-status-family-unparseable", envelope),
+                ("E2 a lowercase status, with a correct key", lower_status, self.REVIEW,
+                 "worker-status-family-unparseable", envelope),
+                ("E2 a lowercase status, with a key not in the form", lower_status, invalid_key,
+                 "worker-status-family-unparseable", envelope),
+                ("E3 E4 a byte-order mark before WORKER_STATUS", bom_status, None, "no-worker-status-family", bom),
                 ("P2 no VPR-COMPLETE line", no_vpr, None, "no-vpr-complete-line",
                  "without `--source-key`, a delivery with no `VPR-COMPLETE` line prints `no-vpr-complete-line`, "
                  "since no item is known"),
@@ -57802,6 +57828,13 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
             with self.subTest(residue=name):
                 self.assertIn(residue, text)
                 self.assertNotIn("with no heading of its own", text)
+        # 3b556 r2: the docstring states the family rule in the reference's words, envelope and byte-order mark
+        # included.
+        family = ("a `WORKER_STATUS` first line without exactly one valid `family=` value (none, two, or an empty "
+                  "one) is a part that does not parse, " + envelope + ". " + bom)
+        for name, text in (("tool docstring", section), ("reference", bullet)):
+            with self.subTest(family=name):
+                self.assertIn(family, text)
 
     def test_staged_claude_shape_needs_a_source_key(self) -> None:
         # Round 2 NOTE-2: the staged Claude sample carries no round heading, so its own shape gets no count
