@@ -11,8 +11,10 @@ merge-when-green.py does), and writes it in place atomically. It defines no disp
 class or column grammar of its own, so it and the guard cannot disagree.
 
 Usage:
-    python3 -I tools/open-findings-row.py --id ID --after ANCHOR_ID [--ledger PATH] [--dry-run] [--open] < row
-    python3 -I tools/open-findings-row.py --id ID --append [--ledger PATH] [--dry-run] [--open] < row
+    python3 -I tools/open-findings-row.py --id ID --after ANCHOR_ID [--ledger PATH] [--dry-run] [--open]
+        [--delivery PATH [--source-key KEY]] < row
+    python3 -I tools/open-findings-row.py --id ID --append [--ledger PATH] [--dry-run] [--open]
+        [--delivery PATH [--source-key KEY]] < row
     python3 -I tools/open-findings-row.py --self-test
 
 ROW INPUT. Exactly one table line on stdin (UTF-8, at most one trailing LF), never in argv, so the row
@@ -51,6 +53,54 @@ check-class-completeness.py's probe over this checkout's git-tracked set and rep
 count against the attested one, as a WARNING when they differ. It never refuses on it: an in-flight
 branch can legitimately differ from this tree (the 2026-10-13 D14 cross-branch seed). D14 stays the
 pre-push check that fails on growth.
+
+DELIVERY FINDINGS (report only, 3b544). --delivery PATH names the review delivery the row records
+(mistakes register 312: a delivery reported FINDINGS 0E/1W/2N, only some of its findings got rows, and
+the gap went unseen for hours). The tool reads the delivery's last `FINDINGS: <n> ERROR, <n> WARN, <n>
+NOTE` line and prints one `delivery-findings:` line: the three totals beside the number of ledger rows
+whose Source cell leads with the delivery's own review key, `<family> <item> /validate-pr round <n> @
+<sha>`, with a WARNING when there are fewer rows than findings. THE KEY comes from the delivery: the
+family is the `family=` value of a `WORKER_STATUS:` first line (the wrapper's header), the item and
+sha are those of the last `VPR-COMPLETE <item> <sha>` line as written, and the round is that of a
+`# /validate-pr round <n>` heading naming the item as a whole token (the delivery's copy of the brief
+heading) only when it is the delivery's first heading (3b544 r3): a round heading after another
+heading is a quote, never the delivery's round. Many deliveries carry no such heading (neither sample
+delivery staged for 3b544 does), so the orchestrator should pass --source-key when it knows the
+round. --source-key KEY gives the whole key explicitly; every part the delivery also carries must
+equal the key's, else the count is UNVERIFIABLE (source-key-disagrees), and a key not in that form is
+UNVERIFIABLE (source-key-invalid). Without --source-key, a delivery that lacks a part prints the row
+count as UNVERIFIABLE (no-vpr-complete-line, no-worker-status-family, no-round-heading), never a
+broader count; a part carried in a form that does not parse is UNVERIFIABLE either way
+(worker-status-family-unparseable, vpr-complete-line-unparseable, round-heading-ambiguous when
+headings naming the item state two rounds). FINDINGS, VPR-COMPLETE and heading lines count at column
+0 outside code fences: the hook's fence predicates, except that a backtick run whose remaining text
+holds a backtick opens no fence (CommonMark reads it as inline code); delivery lines end at LF only,
+a CR before it dropped, so a lone CR or U+2028 starts no line. MATCHING RULE: the Source cell starts
+with the key exactly (case and spacing included) and the key is not followed by a letter, digit, `_`
+or `-`, so a row of another family, item, round or sha, or with a shorter or longer sha, is not
+counted. The rows counted are the duplicate-id scope above, in the ledger text with this row when the
+row is accepted, else in the ledger as read. The Source cell is split on unescaped pipes as the guard
+splits, and used only when the other four cells equal the guard's parse of the same line; otherwise
+the count is UNVERIFIABLE (source-cell-divergence). The option never refuses, never blocks the write
+and never changes the exit code. A delivery that is missing, unreadable, not a regular file (it is
+opened non-blocking, so a FIFO cannot stall the write) or not UTF-8, that has no FINDINGS line, or
+whose last FINDINGS line does not parse prints `delivery-findings: UNVERIFIABLE (<code>)`, never a
+zero. Like every other line it carries counts and codes, never the key, its parts or row text.
+RESIDUES, stated: a row count shows coverage, not faithfulness (a row that misstates its finding
+counts the same); a combined row recording several findings counts once, so fewer rows than findings
+is a prompt to look, not proof of a gap; two deliveries with one key (the same family re-run for one
+item, round and sha) share their rows, so either can read as covered by the other's; a Source cell
+that states the review in another form than the key (other case or spacing, prose before it, a
+shorter sha) is not counted, so the count errs low, toward the WARNING; the family is the wrapper's
+header, not proof of which model wrote the delivery, and --source-key is trusted for the parts the
+delivery lacks; the FINDINGS line is taken as written, so a delivery that miscounts its own findings
+is not caught; a delivery whose first heading quotes another round's heading for the same item at
+column 0 still takes that round's key, even when its own headings follow the quote (only an
+unfenced ATX heading before the quote stops it; a setext, HTML, block-quoted or list-item heading
+does not), and with --source-key that case is UNVERIFIABLE (source-key-disagrees) instead; fence
+reading does not model container blocks or HTML blocks, so a tail line quoted inside one can still
+be read, and an unclosed fence runs to the end, so a tail after it reads as absent (UNVERIFIABLE,
+not a count).
 
 ENVIRONMENT (exit 2). The hook cannot load or lacks a function used here; the ledger is missing,
 unresolvable, unreadable, not UTF-8, a symlink, not a regular file, has more than one hard link, or
@@ -138,6 +188,29 @@ HOOK_API = (
 )
 # The Found-date shape --append orders by (a date, not disposition grammar).
 ISO_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+# The guard's unescaped-pipe cell split, used for the Source cell only and cross-checked per line.
+CELL_SPLIT_RE = re.compile(r"(?<!\\)\|")
+# A review delivery's tail (3b544). The FINDINGS labels are compared as strings, not spelled in the
+# pattern: they are the delivery contract's words, not the ledger severity vocabulary the hook owns
+# (test_tool_defines_no_disposition_grammar holds every pattern here to that).
+FINDINGS_LINE_RE = re.compile(
+    r"FINDINGS:[ \t]*([0-9]+) ([A-Z]+), ([0-9]+) ([A-Z]+), ([0-9]+) ([A-Z]+)[ \t]*")
+FINDINGS_LABELS = ("ERROR", "WARN", "NOTE")
+VPR_COMPLETE_RE = re.compile(
+    r"VPR-COMPLETE ([A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?) ([0-9A-Fa-f]{7,40})[ \t]*")
+# The delivery's own review key (3b544 r2): the wrapper's first-line family, the brief heading's
+# round, and the explicit --source-key form the Source cell must lead with.
+WORKER_STATUS_RE = re.compile(r"WORKER_STATUS: [A-Z]+ \((.*)\)[ \t]*")
+FAMILY_RE = re.compile(r"[a-z][a-z0-9-]*")
+ROUND_HEADING_RE = re.compile(r"# /validate-pr round ([1-9][0-9]*)(?![0-9])(.*)")
+# Any ATX heading line (CommonMark: up to three spaces, one to six #, then a space, a tab or the end):
+# a round heading after one is a quote, not the delivery's own (3b544 r3).
+ATX_HEADING_RE = re.compile(r" {0,3}#{1,6}(?:[ \t]|$)")
+SOURCE_KEY_RE = re.compile(
+    r"([a-z][a-z0-9-]*) ([A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?) /validate-pr round ([1-9][0-9]*)"
+    r" @ ([0-9A-Fa-f]{7,40})")
+# What may not follow the key in a Source cell: a token character would make it another item, round or sha.
+KEY_END_RE = re.compile(r"[A-Za-z0-9_-]")
 _NO_XATTR = {e for e in (getattr(errno, "ENODATA", None), errno.ENOTSUP, errno.EOPNOTSUPP) if e is not None}
 
 
@@ -403,6 +476,205 @@ def class_count_report(hook, finding: str, disposition: str, probe) -> str:
     if count < attested:
         return f"class-count: WARNING reproduced {count} < attested {attested} on this checkout (report only)"
     return f"class-count: reproduced {count} = attested {attested}"
+
+
+def read_delivery(path) -> tuple[str | None, str | None]:
+    """(text, None), or (None, code) for a delivery the report cannot read: delivery-missing,
+    delivery-unreadable, delivery-not-regular or delivery-not-utf8. The open is non-blocking, so a
+    FIFO is refused as not regular instead of stalling the write."""
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK | os.O_CLOEXEC)
+    except FileNotFoundError:
+        return None, "delivery-missing"
+    except (OSError, ValueError):
+        return None, "delivery-unreadable"
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            return None, "delivery-not-regular"
+        chunks = []
+        while chunk := os.read(fd, 1 << 16):
+            chunks.append(chunk)
+    except OSError:
+        return None, "delivery-unreadable"
+    finally:
+        os.close(fd)
+    try:
+        return b"".join(chunks).decode("utf-8"), None
+    except UnicodeDecodeError:
+        return None, "delivery-not-utf8"
+
+
+def delivery_lines(text: str) -> list[str]:
+    """PURE. A delivery's lines, ended at LF only with a CR before it dropped, so a lone CR, U+2028 or
+    another character str.splitlines breaks on never starts a column-0 line mid-line (3b544 r2)."""
+    lines = text.split("\n")
+    if lines[-1] == "":
+        lines.pop()
+    return [ln[:-1] if ln.endswith("\r") else ln for ln in lines]
+
+
+def parse_delivery(hook, text: str) -> tuple[tuple[int, int, int] | str, dict]:
+    """PURE. (totals, parts) from a delivery. totals is (errors, warns, notes) from the last FINDINGS
+    line, or a code: no-findings-line, findings-line-unparseable. parts holds the review key's parts
+    the delivery carries, None where it carries none: family (the `family=` value of a WORKER_STATUS
+    first line), item and sha (the last VPR-COMPLETE line, as written), rounds (the round, the rest and
+    whether it is the delivery's first heading, of each `# /validate-pr round <n>` heading); bad is the
+    code of a part carried in a form that does not parse (worker-status-family-unparseable,
+    vpr-complete-line-unparseable), else None. FINDINGS, VPR-COMPLETE and heading lines count at
+    column 0 outside code fences: the hook's fence predicates, except that a backtick run whose
+    remaining text holds a backtick opens no fence (CommonMark reads that line as inline code). Any
+    unfenced ATX heading, indented up to three spaces, counts as a heading for the first-heading test."""
+    findings = complete = None
+    rounds = []
+    headed = False
+    fence = None
+    lines = delivery_lines(text)
+    for line in lines:
+        stripped = line.strip()
+        run = hook._fence_run(line, stripped)
+        if fence is not None:
+            if hook._fence_closes(run, fence, stripped):
+                fence = None
+            continue
+        if run is not None and not (run[0] == "`" and "`" in stripped[run[1]:]):
+            fence = run
+            continue
+        if line.startswith("FINDINGS:"):
+            findings = line
+        elif line.startswith("VPR-COMPLETE"):
+            complete = line
+        elif (m := ROUND_HEADING_RE.fullmatch(line)) is not None or ATX_HEADING_RE.match(line):
+            if m is not None:
+                rounds.append((m[1], m[2], not headed))
+            headed = True
+    totals: tuple[int, int, int] | str = "no-findings-line"
+    if findings is not None:
+        m = FINDINGS_LINE_RE.fullmatch(findings)
+        if m is None or (m[2], m[4], m[6]) != FINDINGS_LABELS:
+            totals = "findings-line-unparseable"
+        else:
+            totals = (int(m[1]), int(m[3]), int(m[5]))
+    parts = {"family": None, "item": None, "sha": None, "rounds": rounds, "bad": None}
+    if lines and lines[0].startswith("WORKER_STATUS:"):
+        m = WORKER_STATUS_RE.fullmatch(lines[0])
+        values = [] if m is None else [f.strip()[len("family="):] for f in m[1].split(",")
+                                       if f.strip().startswith("family=")]
+        if len(values) == 1 and FAMILY_RE.fullmatch(values[0]):
+            parts["family"] = values[0]
+        else:
+            parts["bad"] = "worker-status-family-unparseable"
+    if complete is not None:
+        m = VPR_COMPLETE_RE.fullmatch(complete)
+        if m is None:
+            parts["bad"] = parts["bad"] or "vpr-complete-line-unparseable"
+        else:
+            parts["item"], parts["sha"] = m[1], m[2]
+    return totals, parts
+
+
+def review_key(parts: dict, source_key: str | None) -> tuple[str | None, str | None]:
+    """PURE. (key, None) for the delivery's own review key `<family> <item> /validate-pr round <n> @
+    <sha>`, or (None, code), the first that applies in this order: a part the delivery carries but
+    cannot parse (its code); a --source-key that does not parse (source-key-invalid); headings naming
+    the item (the key's with --source-key, else the VPR-COMPLETE line's) with two rounds, wherever they
+    stand (round-heading-ambiguous), so without --source-key a delivery with no VPR-COMPLETE line names
+    no item and gets no-vpr-complete-line; with --source-key, a carried part that differs from the
+    key's (source-key-disagrees); without it, the first part the delivery lacks (no-vpr-complete-line,
+    no-worker-status-family, no-round-heading). The round is that of a heading naming the item as a
+    whole token only when it is the delivery's first heading (3b544 r3)."""
+    if parts["bad"] is not None:
+        return None, parts["bad"]
+    given = None
+    if source_key is not None:
+        given = SOURCE_KEY_RE.fullmatch(source_key)
+        if given is None:
+            return None, "source-key-invalid"
+    item = parts["item"] if given is None else given[2]
+    rounds, own = set(), None
+    if item is not None:
+        named = re.compile(r"(?<![A-Za-z0-9_-])" + re.escape(item) + r"(?![A-Za-z0-9_-])")
+        for rnd, rest, leads in parts["rounds"]:
+            if named.search(rest):
+                rounds.add(rnd)
+                if leads:
+                    own = rnd
+    if len(rounds) > 1:
+        return None, "round-heading-ambiguous"
+    carried = (parts["family"], parts["item"], own, parts["sha"])
+    if given is not None:
+        if any(c is not None and c != k for c, k in zip(carried, given.groups())):
+            return None, "source-key-disagrees"
+        return source_key, None
+    for value, code in ((parts["item"], "no-vpr-complete-line"), (parts["family"], "no-worker-status-family"),
+                        (carried[2], "no-round-heading")):
+        if value is None:
+            return None, code
+    family, item, rnd, sha = carried
+    return f"{family} {item} /validate-pr round {rnd} @ {sha}", None
+
+
+def source_cell(hook, line: str) -> str | None:
+    """The Source cell of one row line, or None where the guard reads no well-formed row. Raises
+    EnvError('source-cell-divergence') when the split's other four cells differ from the guard's parse
+    of the same line, so a hook change to the split stops the count instead of skewing it."""
+    parsed = single_row(hook, line)
+    if parsed is None or parsed[3] is None:
+        return None
+    cells = [c.strip() for c in CELL_SPLIT_RE.split(line.strip())]
+    if cells and cells[0] == "":
+        cells = cells[1:]
+    if cells and cells[-1] == "":
+        cells = cells[:-1]
+    if len(cells) != 5 or (cells[0], cells[1].lower(), cells[2], cells[4]) != parsed:
+        raise EnvError("source-cell-divergence")
+    return cells[3]
+
+
+def review_rows(hook, lines: list[str], kinds: list[str | None], key: str) -> int:
+    """The rows of the duplicate-id scope (id_lines) whose Source cell leads with ``key`` by the
+    docstring's matching rule."""
+    count = 0
+    for line, kind in zip(lines, kinds):
+        if kind in ("open", "closed") or (kind == "outside" and hook.MISFILED_ROW_RE.match(line)):
+            cell = source_cell(hook, line)
+            if cell is not None and cell.startswith(key) and not KEY_END_RE.match(cell, len(key)):
+                count += 1
+    return count
+
+
+def delivery_report(hook, ledger_text: str, path, *, with_row: bool, source_key: str | None = None) -> str:
+    """The report-only delivery-findings line (3b544). It never raises: what cannot be read, parsed or
+    counted is said as UNVERIFIABLE, never as a zero."""
+    try:
+        text, code = read_delivery(path)
+        totals, parts = (code, None) if text is None else parse_delivery(hook, text)
+        key, why = (None, None) if parts is None else review_key(parts, source_key)
+    except Exception:  # noqa: BLE001 - report only: never a refusal
+        totals, key, why = "delivery-report-failed", None, None
+    if isinstance(totals, str):
+        return f"delivery-findings: UNVERIFIABLE ({totals}); nothing compared (report only)"
+    errors, warns, notes = totals
+    total = errors + warns + notes
+    head = f"delivery-findings: reported {errors} ERROR, {warns} WARN, {notes} NOTE ({total} in all)"
+    if key is None:
+        return f"{head}; ledger rows UNVERIFIABLE ({why}) (report only)"
+    try:
+        lines, _eol, _final = split_lines(ledger_text)
+        rows = review_rows(hook, lines, classify(hook, lines), key)
+    except EnvError as exc:
+        return f"{head}; ledger rows UNVERIFIABLE ({exc.code}) (report only)"
+    except Exception:  # noqa: BLE001 - report only: never a refusal
+        return f"{head}; ledger rows UNVERIFIABLE (row-count-failed) (report only)"
+    if rows < total:
+        verdict = "WARNING fewer rows than reported findings (a combined row counts once)"
+    elif rows > total:
+        verdict = "more rows than reported findings"
+    else:
+        verdict = "rows equal the reported total (coverage, not faithfulness)"
+    where = "ledger with this row" if with_row else "ledger as read, nothing written"
+    origin = "the delivery" if source_key is None else "--source-key"
+    return (f"{head}; {rows} ledger row(s) lead with its review key (key from {origin}; {where}); "
+            f"{verdict} (report only)")
 
 
 def make_probe(root: Path):
@@ -674,6 +946,10 @@ def _run(args, root: Path, raw: bytes) -> int:
         raise EnvError("ledger-not-utf8") from exc
     refusals, report, new_text = evaluate(hook, text, row, args.id, after_id=args.after,
                                           allow_open=args.allow_open, probe=make_probe(root))
+    if args.delivery is not None:
+        # Report only (3b544): the line never refuses and never changes the exit code.
+        report.append(delivery_report(hook, text if new_text is None else new_text, args.delivery,
+                                      with_row=new_text is not None, source_key=args.source_key))
     for line in report:
         print(line)
     if refusals:
@@ -710,10 +986,18 @@ def main(argv: list[str] | None = None, *, root: Path | None = None, stdin: byte
                     help="check and report, running the write pre-flight; write nothing")
     ap.add_argument("--open", dest="allow_open", action="store_true",
                     help="admit an error or warning row with an empty disposition")
+    ap.add_argument("--delivery", metavar="PATH",
+                    help="report only: print this review delivery's FINDINGS totals beside the ledger "
+                         "rows whose Source cell leads with its own review key; never refuses")
+    ap.add_argument("--source-key", metavar="KEY",
+                    help='with --delivery: the review key "<family> <item> /validate-pr round <n> @ <sha>" '
+                         "for the parts the delivery does not carry; parts it carries must agree")
     ap.add_argument("--self-test", action="store_true", help="run the built-in self-test and exit")
     args = ap.parse_args(argv)
     if not args.self_test and (args.id is None or (args.after is None and not args.append)):
         ap.error("--id and one of --after or --append are required")
+    if args.source_key is not None and args.delivery is None:
+        ap.error("--source-key needs --delivery")
     if args.self_test:
         return self_test()
     try:
@@ -878,8 +1162,33 @@ def self_test() -> int:
     ck("class count: probe failure is a warning", class_count_report(hook, "[X] f", 'FIXED #1 [class: "t" @ 2]',
                                                                      broken).startswith("class-count: WARNING"), True)
 
+    tail = "FINDINGS: 0 ERROR, 1 WARN, 2 NOTE\nVERDICT: SHIP\nVPR-COMPLETE 3b540 f2a53df9f\n"
+    totals, parts = parse_delivery(
+        hook, "WORKER_STATUS: PASS (rc=0, family=claude)\n# /validate-pr round 2 (REFUTE): 3b540, commit x\n"
+        "FINDINGS: 1 ERROR, 0 WARN, 0 NOTE\n" + tail + "```\nFINDINGS: 9 ERROR, 9 WARN, 9 NOTE\n```\n")
+    ck("delivery: the last FINDINGS line outside a fence", totals, (0, 1, 2))
+    ck("delivery: the key from the delivery", review_key(parts, None),
+       ("claude 3b540 /validate-pr round 2 @ f2a53df9f", None))
+    ck("delivery: no round heading and no --source-key", review_key(parse_delivery(
+        hook, "WORKER_STATUS: PASS (family=claude)\n" + tail)[1], None), (None, "no-round-heading"))
+    ck("delivery: a round heading after another heading is a quote", review_key(parse_delivery(
+        hook, "WORKER_STATUS: PASS (family=claude)\n## Probes\n# /validate-pr round 1 (REFUTE): 3b540\n"
+        + tail)[1], None), (None, "no-round-heading"))
+    ck("delivery: a placeholder FINDINGS line does not parse",
+       parse_delivery(hook, "FINDINGS: <n> ERROR, <n> WARN, <n> NOTE\n")[0], "findings-line-unparseable")
+    totals, parts = parse_delivery(hook, "DRAFT-COMPLETE 3b544\n")
+    ck("delivery: no FINDINGS line", (totals, review_key(parts, None)),
+       ("no-findings-line", (None, "no-vpr-complete-line")))
+    src = led.replace("first open | probe |", "first open | claude 3b540 /validate-pr round 2 @ f2a53df9f |")
+    src = src.replace("an older note after it | probe |", "x | gemini 3b540 /validate-pr round 2 @ f2a53df9f |")
+    ck("delivery: rows leading with the key", review_rows(hook, src.splitlines(), classify(hook, src.splitlines()),
+                                                          "claude 3b540 /validate-pr round 2 @ f2a53df9f"), 1)
+
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
+        ck("delivery: a missing delivery is UNVERIFIABLE, not a zero",
+           delivery_report(hook, led, base / "absent.md", with_row=False),
+           "delivery-findings: UNVERIFIABLE (delivery-missing); nothing compared (report only)")
         path = base / "open-findings.md"
         path.write_text(led, encoding="utf-8")
         os.chmod(path, 0o640)

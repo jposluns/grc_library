@@ -96,7 +96,7 @@ inserts the row in place atomically. It defines no grammar of its own, so it can
 this hook reads differently.
 
 ```text
-python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--ledger PATH] [--dry-run] [--open] < row
+python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--ledger PATH] [--dry-run] [--open] [--delivery PATH [--source-key KEY]] < row
 ```
 
 - **Input and output.** One table line on stdin, never in argv. The output carries line numbers,
@@ -124,6 +124,35 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   re-runs the `check-class-completeness.py` probe on the current checkout and warns when the count
   differs. It does not refuse, because an in-flight branch can differ from this tree; D14 remains the
   pre-push check.
+- **Delivery findings (report only, 3b544).** `--delivery PATH` names the review delivery the row
+  records (mistakes register 312). The tool prints one `delivery-findings:` line beside the class
+  count: the totals of the delivery's last `FINDINGS:` line and the number of ledger rows whose Source
+  cell starts with the delivery's own review key, `<family> <item> /validate-pr round <n> @ <sha>`,
+  with a warning when there are fewer rows than findings. The family comes from the delivery's
+  `WORKER_STATUS` first line, and the item and sha from its `VPR-COMPLETE` line. The round is often
+  absent: it comes only from a `# /validate-pr round <n>` heading naming the item that is the
+  delivery's first heading, and neither sample delivery staged for 3b544 carries one, so such a
+  delivery prints `UNVERIFIABLE (no-round-heading)`. The orchestrator should pass `--source-key` when
+  it knows the round. `--source-key` gives the whole key; a part the delivery carries must agree with
+  it. Without that, a missing, unreadable or conflicting part prints `UNVERIFIABLE` with a code
+  instead of a count, never a broader count or a zero. Rows of another family, round or sha are not
+  counted, with one stated residue: a round heading after another heading is a quote and gives no
+  round, but a delivery whose first heading quotes another round's heading for the same item at
+  column 0 still takes that round's key, even when its own headings follow the quote (only an
+  unfenced ATX heading before the quote stops it; a setext, HTML, block-quoted or list-item heading
+  does not). With `--source-key` that case prints `UNVERIFIABLE (source-key-disagrees)` instead.
+  Outside fences, two column-0 `# /validate-pr round <n>` headings naming the item (the key's, with
+  `--source-key`) with different rounds, own or quoted, wherever they stand, make the count
+  `UNVERIFIABLE (round-heading-ambiguous)`, even with a correct `--source-key`. Three cases print
+  another code instead, the first that applies in this order: a part the delivery carries that does
+  not parse prints its code (for example `worker-status-family-unparseable` for an empty `family=`),
+  with or without `--source-key`; a `--source-key` not in the key's form prints `source-key-invalid`;
+  and without `--source-key`, a delivery with no `VPR-COMPLETE` line prints `no-vpr-complete-line`,
+  since no item is known. A missing family or own round heading does not. A Source cell that states
+  the review in another form than the key (other case or spacing, prose before it, or a shorter sha)
+  is not counted, so the count errs low, toward the warning. A combined row counts once, and two
+  deliveries with one key share their rows. The line carries counts and codes only, never refuses,
+  never blocks the write and never changes the exit code.
 - **Environment (exit 2).** This hook cannot load; the ledger is missing, unreadable, a symlink,
   hard-linked or owned by another user; its line ends disagree with this hook's line model; or the file
   changed between read and write (including ctime, mode, uid, gid or access ACL). The write keeps
