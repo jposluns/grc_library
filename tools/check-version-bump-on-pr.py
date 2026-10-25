@@ -48,8 +48,8 @@ import subprocess
 import sys
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import git, git_show, head_version  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import PrRangeError, empty_pr_range_message, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
+from aiqt_corpus import git, head_version  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from lint_common import PrRangeError, empty_pr_range_message, git_show_strict, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
 
 
 # Files exempt from the version-bump requirement.
@@ -122,9 +122,13 @@ def main(argv: list[str]) -> int:
         print(str(exc), file=sys.stderr)
         return 2
 
+    # The git reads below refuse with exit 2, never a traceback, when git
+    # cannot run at all (OSError) or prints output the locale codec cannot
+    # decode (UnicodeDecodeError), as the diff already did on a nonzero exit
+    # (3b577 round 4).
     try:
         changed_raw = git("diff", "--name-only", merge_base, head)
-    except subprocess.CalledProcessError as exc:
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
         print(f"ERROR: git diff failed: {exc}", file=sys.stderr)
         return 2
 
@@ -142,8 +146,17 @@ def main(argv: list[str]) -> int:
         if is_exempt(path):
             skipped_exempt += 1
             continue
-        base_content = git_show(merge_base, path)
-        head_content = git_show(head, path)
+        try:
+            # git_show_strict returns None only when git lists no entry at
+            # the path (it does not exist at that revision) or one that is
+            # not a blob (a gitlink, 3b577 round 6); a failed listing or
+            # read, git not running, or a blob that is not valid UTF-8
+            # refuses instead of reading as an absent file (3b577 round 5).
+            base_content = git_show_strict(merge_base, path)
+            head_content = git_show_strict(head, path)
+        except (subprocess.CalledProcessError, OSError, ValueError) as exc:
+            print(f"ERROR: git show failed for {path}: {exc}", file=sys.stderr)
+            return 2
         # File added in the PR (no base content): exempt; new files start
         # at their initial Version and need not "bump".
         if base_content is None:

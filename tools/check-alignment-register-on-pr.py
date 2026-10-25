@@ -459,7 +459,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import iter_non_code_lines  # noqa: E402  # the line model gate 6 reads
-from lint_common import AUDITED_DOMAIN_DIRS, PrRangeError, git, git_show, pr_range_resolution, resolve_pr_range  # noqa: E402
+from lint_common import AUDITED_DOMAIN_DIRS, PrRangeError, git, git_show_strict, pr_range_resolution, resolve_pr_range  # noqa: E402
 
 TOOLS = Path(__file__).resolve().parent
 REGISTER_REL = "governance/register-canonical-citations.md"
@@ -1796,16 +1796,28 @@ def sibling_report(texts: dict, register_text: str, docs) -> list[str]:
     return lines
 
 
+def git_show_listed(rev: str, rel: str) -> str:
+    """Content of ``rev:rel`` for a blob git already listed at ``rev``: a nonzero exit is a
+    failed read there, never an absent file, so it raises CalledProcessError (3b577 round 5)."""
+    return subprocess.check_output(["git", "show", f"{rev}:{rel}"], text=True, stderr=subprocess.DEVNULL)
+
+
 def run_sibling_probe(merge_base: str, head: str, register_text: str) -> None:
-    """The report-only whole-corpus sibling probe; prints only, never affects the exit."""
+    """The report-only whole-corpus sibling probe; prints only, never affects the exit.
+    Only a file git lists no entry for reads as absent: a failed read of the alias file, the
+    register or a listed corpus document skips the probe with its note, never compared as an
+    absent file or dropped from the scan (3b577 round 5). A listed entry that is not a blob (a
+    gitlink) is no document, so it reads as absent and is not scanned (3b577 round 6)."""
     try:
         texts = dict(
-            base_aliases=git_show(merge_base, ALIASES_REL), head_aliases=git_show(head, ALIASES_REL),
-            base_register=git_show(merge_base, REGISTER_REL), head_register=git_show(head, REGISTER_REL),
+            base_aliases=git_show_strict(merge_base, ALIASES_REL), head_aliases=git_show_strict(head, ALIASES_REL),
+            base_register=git_show_strict(merge_base, REGISTER_REL), head_register=git_show_strict(head, REGISTER_REL),
         )
-        names = git("ls-tree", "-r", "--name-only", "-z", head).split("\0")
-        docs = ((rel, git_show(head, rel)) for rel in sorted(n for n in names if n and in_scope(n)))
-        lines = sibling_report(texts, register_text, ((rel, text) for rel, text in docs if text is not None))
+        # Each entry is "<mode> <type> <object>\t<path>"; only a blob is read as a document.
+        listing = git("ls-tree", "-r", "-z", head).split("\0")
+        names = [entry.split("\t", 1)[1] for entry in listing if entry.split(" ", 2)[1:2] == ["blob"]]
+        docs = ((rel, git_show_listed(head, rel)) for rel in sorted(n for n in names if n and in_scope(n)))
+        lines = sibling_report(texts, register_text, docs)
     except (OSError, ValueError, subprocess.CalledProcessError) as exc:  # PolicyError, RegisterError, JSON
         print(f"D15 NOTE: sibling probe cannot read the alias file, the register or the corpus ({exc}); skipped.")
         return
@@ -1819,14 +1831,19 @@ def run(base: str | None, head: str, register_ref: str | None) -> int:
     except PrRangeError as exc:
         print(f"D15 NOTE: {exc} Advisory check skipped (fail-open).")
         return 0
+    # Only git listing no register entry at the ref (or one that is not a blob, 3b577 round 6)
+    # is an absent register; a failed listing or read is a note of its own, never reported as
+    # absent (3b577 round 5).
     try:
-        register_text = subprocess.check_output(
-            ["git", "show", f"{register_ref or head}:{REGISTER_REL}"],
-            text=True, stderr=subprocess.DEVNULL,
-        ).rstrip("\n")
-    except subprocess.CalledProcessError:
+        register_text = git_show_strict(register_ref or head, REGISTER_REL)
+    except (subprocess.CalledProcessError, OSError, ValueError) as exc:
+        print(f"D15 NOTE: cannot read {REGISTER_REL} at {register_ref or head} ({exc}); "
+              f"advisory check skipped (fail-open).")
+        return 0
+    if register_text is None:
         print(f"D15 NOTE: {REGISTER_REL} is absent at {register_ref or head}; nothing to check against.")
         return 0
+    register_text = register_text.rstrip("\n")
     try:
         names = git("diff", "--name-only", "--no-renames", "-z", merge_base, head).split("\0")
     except subprocess.CalledProcessError as exc:
@@ -1857,11 +1874,19 @@ def run(base: str | None, head: str, register_ref: str | None) -> int:
     files = sorted(n for n in names if n and in_scope(n))
     hits = []
     for rel in files:
+        # Only git listing no entry at the head (a file deleted in the PR) or one that is not
+        # a blob (a gitlink, which holds no file content; 3b577 round 6) has nothing
+        # added; a failed diff or read skips the check with a note, never read as a deletion,
+        # which left the file unscanned under a clean "D15 OK" (3b577 round 5).
         try:
             diff = git("diff", "-U0", "--no-renames", merge_base, head, "--", rel)
-            text = git("show", f"{head}:{rel}")
-        except subprocess.CalledProcessError:
-            continue  # deleted in the PR: nothing added
+            text = git_show_strict(head, rel)
+        except (subprocess.CalledProcessError, OSError, ValueError) as exc:
+            print(f"D15 NOTE: cannot read {rel} at {head} ({exc}); advisory check skipped (fail-open).")
+            return 0
+        if text is None:
+            continue  # deleted in the PR, or not a file: nothing added
+        text = text.rstrip("\n")
         for ln, surface, citation in scan_text(text, added_lines(diff), resolver):
             hits.append((rel, ln, surface, citation))
     if not hits:

@@ -238,7 +238,10 @@ def main(argv: list[str]) -> int:
         # raw paths, so a path containing a space, newline, or non-ASCII byte is
         # emitted verbatim rather than git-quoted and still classifies correctly.
         changed_raw = git("diff", "--name-only", "--no-renames", "-z", merge_base, head)
-    except subprocess.CalledProcessError as exc:
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
+        # git not running at all (OSError), or a raw -z path the locale codec
+        # cannot decode (UnicodeDecodeError), refuses as a nonzero exit does,
+        # never a traceback (3b577 round 4).
         print(f"ERROR: git diff failed: {exc}", file=sys.stderr)
         return 2
 
