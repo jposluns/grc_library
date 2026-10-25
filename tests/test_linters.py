@@ -26821,7 +26821,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        open-findings-row.py OWN F 3805c23da747106c0ea5260fa378de95d9dad64c99c2f8cdaa1b8d9c9998c93f
+        open-findings-row.py OWN F 09c35e71ed37c6cc0c7b5f9a05fab3afc048542c07df44a1823f8577c4020390
         pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
@@ -57248,6 +57248,12 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
     code (B11), r2 NOTE-3, by test_key_parts_parse_as_documented, one subtest each; heading levels 3 to
     6 not counted, no indent allowed, no space or tab needed after the #, fenced ATX lines counted and
     a round heading not counted as a heading, r3 NOTE-3, by
+    test_first_heading_rule_parses_as_documented, one subtest each; two rounds read as ambiguous only
+    beside a round heading of its own, the reference's ambiguity sentence narrowed back to that case
+    (r4 NOTE-1), the residue worded apart in the docstring and the reference (r4 NOTE-2) and either one
+    dropping its clause on the delivery's own later headings (r4 NOTE-3 U5) by
+    test_quoted_round_heading_is_not_the_delivery_round; no tab taken after the # (U1), a bare # run
+    not a heading (U2), any indent allowed (U3) and seven or more # taken (U4), r4 NOTE-3, by
     test_first_heading_rule_parses_as_documented, one subtest each."""
 
     REVIEW = "claude 3b540 /validate-pr round 2 @ f2a53df9f"
@@ -57676,6 +57682,9 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         one = self.CLAUDE_SAMPLE.replace("FINDINGS: 0 ERROR, 1 WARN, 1 NOTE", "FINDINGS: 0 ERROR, 0 WARN, 1 NOTE")
         quoted = one.replace("\n## What I ran", "\nThe round-1 review opened:\n" + quote + "\n## What I ran", 1)
         leading = one.replace("\n## Scratch probes", "\n" + quote + "\n## Scratch probes", 1)
+        # Round 4 NOTE-1: two quoted rounds and no round heading of its own (the reviewer's probe C).
+        round_3 = quote.replace("round 1", "round 3")
+        two_quotes = quoted.replace("\n## SARIF-lite", "\n" + round_3 + "\n## SARIF-lite", 1)
         head = "delivery-findings: reported 0 ERROR, 0 WARN, 1 NOTE (1 in all); "
         for name, delivery, key, want in (
                 ("a quote after another heading", quoted, None, "ledger rows UNVERIFIABLE (no-round-heading)"),
@@ -57686,7 +57695,10 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                  "1 ledger row(s) lead with its review key (key from the delivery; ledger as read, nothing "
                  "written); rows equal the reported total (coverage, not faithfulness)"),
                 ("--source-key catches that residue", leading, self.REVIEW,
-                 "ledger rows UNVERIFIABLE (source-key-disagrees)")):
+                 "ledger rows UNVERIFIABLE (source-key-disagrees)"),
+                ("two quoted rounds", two_quotes, None, "ledger rows UNVERIFIABLE (round-heading-ambiguous)"),
+                ("two quoted rounds, with a correct key", two_quotes, self.REVIEW,
+                 "ledger rows UNVERIFIABLE (round-heading-ambiguous)")):
             with self.subTest(case=name):
                 self.delivery.write_text(delivery, encoding="utf-8")
                 got = mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False, source_key=key)
@@ -57696,20 +57708,26 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         section = " ".join(doc.split("DELIVERY FINDINGS (report only, 3b544).", 1)[1]
                            .split("\n\nENVIRONMENT (exit 2).", 1)[0].split())
         for phrase in ("a round heading after another heading is a quote, never the delivery's round",
-                       "a delivery with no heading of its own whose first heading quotes another round's "
-                       "heading for the same item at column 0 still takes that round's key",
                        "the orchestrator should pass --source-key when it knows the round"):
             self.assertIn(phrase, section)
         bullet = self.delivery_bullet()
         for phrase in ("a round heading after another heading is a quote and gives no round",
-                       "whose first heading quotes another round's heading for the same item at column 0 "
-                       "still takes that round's key", "`UNVERIFIABLE (source-key-disagrees)`",
-                       "(only an unfenced ATX heading before the quote stops it; a setext, HTML, block-quoted or "
-                       "list-item heading does not)",
-                       "wherever it stands, makes the count `UNVERIFIABLE (round-heading-ambiguous)`, even with a "
-                       "correct `--source-key`"):
+                       "`UNVERIFIABLE (source-key-disagrees)`",
+                       "two column-0 `# /validate-pr round <n>` headings naming the item with different rounds, own "
+                       "or quoted, wherever they stand, make the count `UNVERIFIABLE (round-heading-ambiguous)`, "
+                       "even with a correct `--source-key`"):
             self.assertIn(phrase, bullet)
-        self.assertNotIn("with no heading of its own", bullet)
+        self.assertNotIn("other than the one in the delivery's own round heading", bullet)
+        # Round 4 NOTE-2: the docstring and the reference state the remaining first-heading residue in one
+        # wording, and round 4 NOTE-3 (U5): neither drops its clause on the delivery's own later headings.
+        residue = ("a delivery whose first heading quotes another round's heading for the same item at column 0 "
+                   "still takes that round's key, even when its own headings follow the quote (only an unfenced "
+                   "ATX heading before the quote stops it; a setext, HTML, block-quoted or list-item heading does "
+                   "not)")
+        for name, text in (("tool docstring", section), ("reference", bullet)):
+            with self.subTest(residue=name):
+                self.assertIn(residue, text)
+                self.assertNotIn("with no heading of its own", text)
 
     def test_staged_claude_shape_needs_a_source_key(self) -> None:
         # Round 2 NOTE-2: the staged Claude sample carries no round heading, so its own shape gets no count
@@ -57778,7 +57796,8 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                         mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False, source_key=key), want)
 
     def test_first_heading_rule_parses_as_documented(self) -> None:
-        # Round 3 NOTE-3: a killing subtest for each first-heading clause no test killed (its five survivors).
+        # Round 3 NOTE-3: a killing subtest for each first-heading clause no test killed (its five survivors);
+        # round 4 NOTE-3: the same for the four neighbouring ATX clauses (its U1 to U4).
         mod, hook = self.tool("_ofr_delivery_first_heading")
         head = "delivery-findings: reported 0 ERROR, 1 WARN, 1 NOTE (2 in all); "
         counted = head + ("4 ledger row(s) lead with its review key (key from the delivery; ledger as read, "
@@ -57804,7 +57823,11 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                     (own_led_by("#2959 merged\n"), counted)]),
                 ("a fenced ATX line is not a heading", [(own_led_by("```sh\n# comment\n```\n"), counted)]),
                 ("a first round heading naming another item stops a quote", [
-                    (led_by(other_item + round_1), stopped)])):
+                    (led_by(other_item + round_1), stopped)]),
+                ("a heading with a tab after its # stops a quote", [(led_by("##\tInputs\n" + round_1), stopped)]),
+                ("a bare # run stops a quote", [(led_by(run + "\n" + round_1), stopped) for run in ("#", "##")]),
+                ("a line indented four spaces is not a heading", [(own_led_by("    # Inputs\n"), counted)]),
+                ("a line with seven # is not a heading", [(own_led_by("####### Inputs\n"), counted)])):
             with self.subTest(clause=clause):
                 for delivery, want in runs:
                     self.delivery.write_text(delivery, encoding="utf-8")

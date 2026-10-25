@@ -94,12 +94,13 @@ that states the review in another form than the key (other case or spacing, pros
 shorter sha) is not counted, so the count errs low, toward the WARNING; the family is the wrapper's
 header, not proof of which model wrote the delivery, and --source-key is trusted for the parts the
 delivery lacks; the FINDINGS line is taken as written, so a delivery that miscounts its own findings
-is not caught; a delivery with no heading of its own whose first heading quotes another round's
-heading for the same item at column 0 still takes that round's key (only an unfenced ATX heading
-before the quote stops it; a setext, HTML, block-quoted or list-item heading does not), and with
---source-key that case is UNVERIFIABLE (source-key-disagrees) instead; fence reading does not model
-container blocks or HTML blocks, so a tail line quoted inside one can still be read, and an unclosed
-fence runs to the end, so a tail after it reads as absent (UNVERIFIABLE, not a count).
+is not caught; a delivery whose first heading quotes another round's heading for the same item at
+column 0 still takes that round's key, even when its own headings follow the quote (only an
+unfenced ATX heading before the quote stops it; a setext, HTML, block-quoted or list-item heading
+does not), and with --source-key that case is UNVERIFIABLE (source-key-disagrees) instead; fence
+reading does not model container blocks or HTML blocks, so a tail line quoted inside one can still
+be read, and an unclosed fence runs to the end, so a tail after it reads as absent (UNVERIFIABLE,
+not a count).
 
 ENVIRONMENT (exit 2). The hook cannot load or lacks a function used here; the ledger is missing,
 unresolvable, unreadable, not UTF-8, a symlink, not a regular file, has more than one hard link, or
