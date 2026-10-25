@@ -43379,7 +43379,14 @@ class FloorMonotonicityDeltaTests(unittest.TestCase):
         an integer, and its repr in that message is bounded (reprlib), so
         composing the message cannot overflow the stack either: at the
         deepest nesting the decoder accepts, a plain repr raised
-        RecursionError in a probe on Python 3.14."""
+        RecursionError in a probe on Python 3.14. Round 7 (CI on 3.11):
+        that value is now 500 deep, not 5000. On 3.11 the C scanner's
+        recursion check for each '[' or '{' draws on the same
+        sys.getrecursionlimit() budget (1000 by default) as the Python
+        frames already on the stack, so 5000 raised RecursionError there.
+        500 stays well inside that budget (3.14 decodes it too) and still
+        makes an unbounded repr 1000 characters long, so the length bound
+        below fails without reprlib."""
         m = self._mod()
         for label, text, cls in (
                 ("nesting deeper than the decoder's stack", "[" * 200000, "RecursionError"),
@@ -43390,7 +43397,7 @@ class FloorMonotonicityDeltaTests(unittest.TestCase):
                 self.assertIn(f"src:floor.json cannot be decoded as JSON ({cls}: ",
                               str(cm.exception))
         with self.assertRaises(m._FloorParseError) as cm:
-            m._parse('{"2": ' + "[" * 5000 + "]" * 5000 + "}", "src:floor.json")
+            m._parse('{"2": ' + "[" * 500 + "]" * 500 + "}", "src:floor.json")
         self.assertIn("src:floor.json has a floor value that is not an integer",
                       str(cm.exception))
         self.assertLess(len(str(cm.exception)), 300)
