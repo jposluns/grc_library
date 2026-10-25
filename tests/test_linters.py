@@ -46309,7 +46309,7 @@ class IndexTitleParityTests(LinterTestCase):
                          f"live corpus must be clean under the title ratchet.\n{r.stdout}\n{r.stderr}")
         self.assertEqual(r.stdout.count("DRIFT (baselined real drift"), 15)
         self.assertNotIn("WARNING:", r.stdout)
-        self.assertIn("355 rows checked (355 title cells ratcheted)", r.stdout)
+        self.assertIn("357 rows checked (357 title cells ratcheted)", r.stdout)
 
     def test_index_only_change_fails_closed(self):
         with tempfile.TemporaryDirectory() as d:
@@ -46395,7 +46395,7 @@ class IndexTitleParityTests(LinterTestCase):
             header = engine.parse_metadata_block(
                 (REPO_ROOT / path).read_text(encoding="utf-8")).fields[mod.TITLE_FIELD]
             self.assertEqual(header, expanded + " Privacy Regulatory Requirements")
-        for kind, total, retained in (("Standard", 78, 71), ("Procedure", 58, 53)):
+        for kind, total, retained in (("Standard", 78, 71), ("Procedure", 59, 54)):
             family = [c for c in by_path.values() if c[1] == kind]
             self.assertEqual(len(family), total)
             self.assertEqual(sum(c[mod.COL_TITLE].endswith(kind) for c in family), retained)

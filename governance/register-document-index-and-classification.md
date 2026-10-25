@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.210\
-**Date:** 2026-10-24\
+**Version:** 1.27.211\
+**Date:** 2026-10-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -238,6 +238,8 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Annex | California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-california.md`](../ai/jurisdictions/annex-ai-us-california.md) | Chief Information Security Officer | Annual | CCPA/CPRA (Cal. Civ. Code 1798.100 et seq.), CPPA CCPA Regulations 11 CCR Div 6 Ch 1 Art 11 (ADMT), NIST AI RMF, ISO/IEC 42001:2023 | template |
 | AI | Framework | AI System Audit and Certification Framework | [`ai/framework-ai-system-audit-certification.md`](../ai/framework-ai-system-audit-certification.md) | Chief Information Security Officer | 6 to 12 months | ISO/IEC 42001:2023, EU AI Act Chapter IX, NIST AI RMF, ISO/IEC 42006:2025, CSA AICM | template |
 | AI | Framework | AI Assurance Evidence and Attestation Framework | [`ai/framework-ai-assurance-evidence.md`](../ai/framework-ai-assurance-evidence.md) | Chief Information Security Officer | 6 to 12 months | NIST AI RMF, ETSI EN 304 223, ISO/IEC 42001:2023 | template |
+| AI | Procedure | AI Assurance Case Procedure | [`ai/procedure-ai-assurance-case.md`](../ai/procedure-ai-assurance-case.md) | Chief Information Security Officer | 6 to 12 months | ISO/IEC/IEEE 15026-1:2025, ISO/IEC/IEEE 15026-2:2022, ISO/IEC/IEEE 15026-4:2021, NIST AI RMF, EU AI Act (Regulation (EU) 2024/1689 as amended by Regulation (EU) 2026/1744), International AI Safety Report 2026 | template |
+| AI | Template | AI Assurance Case Template | [`ai/template-ai-assurance-case.md`](../ai/template-ai-assurance-case.md) | Chief Information Security Officer | 6 to 12 months | ISO/IEC/IEEE 15026-2:2022, ISO/IEC/IEEE 15026-1:2025, ISO/IEC/IEEE 15026-4:2021, NIST AI RMF | template |
 | AI | Checklist | AI Algorithmic Compliance Checklist | [`ai/checklist-ai-algorithmic-compliance.md`](../ai/checklist-ai-algorithmic-compliance.md) | Chief Information Security Officer | 6 to 12 months | EU AI Act, NIST AI RMF, OWASP LLM Top 10, MITRE ATLAS, ISO/IEC 42001:2023 | template |
 | Dev Security | Standard | Developer Security Requirements Standard | [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) | Chief Information Security Officer | 6 to 12 months | OWASP Top 10, ISO/IEC 27001:2022 Annex A.8.25 to 28, NIST SP 800-218 | template |
 | Dev Security | Standard | DevOps Security Requirements Standard | [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md) | Chief Information Security Officer | 6 to 12 months | NIST SP 800-218, SLSA | template |
