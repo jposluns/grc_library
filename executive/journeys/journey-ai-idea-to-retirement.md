@@ -2,8 +2,8 @@
 
 **Document Title:** From AI idea to retirement: the governed life of an AI system\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.6\
-**Date:** 2026-10-24\
+**Version:** 0.0.7\
+**Date:** 2026-10-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](../../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-model-lifecycle-management.md`](../../ai/procedure-ai-model-lifecycle-management.md)\
@@ -62,7 +62,7 @@ Somewhere in the organization, a team has an idea for an AI system. The organiza
 
 **Why it matters.** The testing gates are the standard's pre-production requirement; the standard defines what they cover. A recorded Step 9 decision is evidence that the decision gate operated; interpret its outcome and record through the impact-assessment procedure's Step 9, and route any beyond-appetite acceptance through the exception policy.
 
-**Signals of progress.** Test results exist for the gates the standard requires at the system's tier, a recorded Step 9 decision exists, and any beyond-appetite acceptance appears in the exception register as a time-bound entry.
+**Signals of progress.** Test results exist for the gates the standard requires at the system's risk tier, a recorded Step 9 decision exists, and any beyond-appetite acceptance appears in the exception register as a time-bound entry.
 
 ### Stage 5: governed release and life in production
 
@@ -90,7 +90,7 @@ Somewhere in the organization, a team has an idea for an AI system. The organiza
 
 ## Destination state
 
-The system no longer runs, and the intended evidence trail spans its life: the records the corpus defines are meant to show what tier it carried, what was tested, who approved it and on what conditions, how it behaved in production, what changed and who reassessed it, and how it ended. Whether that trail is complete for any given system is what the evidence classes below are used to test. Nothing about the destination depends on this particular system: the same recorded path is what the next idea enters at Stage 1. The destination is not an organization without AI risk; it is an organization whose AI risk is recorded, classified, tested, approved, monitored, and finally retired, with the records the corpus requires available to show it.
+The system no longer runs, and the intended evidence trail spans its life: the records the corpus defines are meant to show what risk classification and impact level it carried, what was tested, who approved it and on what conditions, how it behaved in production, what changed and who reassessed it, and how it ended. Whether that trail is complete for any given system is what the evidence classes below are used to test. Nothing about the destination depends on this particular system: the same recorded path is what the next idea enters at Stage 1. The destination is not an organization without AI risk; it is an organization whose AI risk is recorded, classified, tested, approved, monitored, and finally retired, with the records the corpus requires available to show it.
 
 ## Evidence to request
 
@@ -100,7 +100,7 @@ Each item below is an evidence class the governing body can call for from manage
 - **The risk classification record and the completed impact assessment with its impact-level decision and required outputs**, as evidence for the classification and assessment controls in the [AI risk methodology annex](../../risk/annex-ai-risk-methodology.md) and the [AI system impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md).
 - **Training-data approval records for a trained or fine-tuned system**, as evidence for the approval-to-train control in the [training data governance procedure](../../ai/procedure-training-data-governance.md).
 - **The architecture record, control design, and threat model**, as evidence for the design-stage controls in the [AI governance and risk framework](../../ai/framework-ai-governance-and-risk.md) and the control baseline in the [AI security and risk standard](../../ai/standard-ai-security-and-risk.md), including the agent surface in the [AI access and agent permissions standard](../../ai/standard-ai-access-and-agent-permissions.md) where the system invokes tools.
-- **Tier-matched test results and the evaluation report**, as evidence for the testing gates in the [AI testing, validation and documentation standard](../../ai/standard-ai-testing-validation-and-documentation.md) and the review in the [AI evaluation procedure](../../ai/procedure-ai-evaluation.md).
+- **Risk-tier-matched test results and the evaluation report**, as evidence for the testing gates in the [AI testing, validation and documentation standard](../../ai/standard-ai-testing-validation-and-documentation.md) and the review in the [AI evaluation procedure](../../ai/procedure-ai-evaluation.md).
 - **The Step 9 approval record**, as evidence that the approval control operated, per the [AI system impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md) and the authority defined in the oversight body's [corpus charter](../../ai/charter-ai-governance-council.md).
 - **Exception register entries touching AI systems that were determined to exceed risk appetite**, as evidence for the beyond-appetite acceptance route the [exception and risk acceptance management policy](../../governance/policy-exception-and-risk-acceptance-management.md) defines (its section 4.2).
 - **The deployment record and the associated change records**, as evidence for the governed-release controls in the [AI model lifecycle management procedure](../../ai/procedure-ai-model-lifecycle-management.md) and the [change management and configuration control procedure](../../operations/procedure-change-management-and-configuration-control.md).

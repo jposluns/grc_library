@@ -342,8 +342,8 @@ pages:
   title: "Choosing between human review, human oversight, and autonomous authority for AI-assisted work"
   narrative_type: "Decision Narrative"
   narrative_status: "Advisory"
-  version: "0.0.4"
-  date: "2026-10-24"
+  version: "0.0.5"
+  date: "2026-10-25"
   corpus_sources:
     - "ai/standard-ai-security-and-risk.md"
     - "ai/standard-ai-model-risk.md"
@@ -372,8 +372,8 @@ pages:
   title: "From AI idea to retirement: the governed life of an AI system"
   narrative_type: "Journey"
   narrative_status: "Explanatory"
-  version: "0.0.6"
-  date: "2026-10-24"
+  version: "0.0.7"
+  date: "2026-10-25"
   corpus_sources:
     - "ai/guide-ai-board-oversight.md"
     - "ai/framework-ai-governance-and-risk.md"
