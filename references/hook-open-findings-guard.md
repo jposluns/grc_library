@@ -141,6 +141,10 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   column 0 still takes that round's key, even when its own headings follow the quote (only an
   unfenced ATX heading before the quote stops it; a setext, HTML, block-quoted or list-item heading
   does not). With `--source-key` that case prints `UNVERIFIABLE (source-key-disagrees)` instead.
+  A delivery that cannot be read (missing, unreadable, not a regular file or not UTF-8), that has no
+  column-0 `FINDINGS:` line outside fences, or whose last such line does not parse prints
+  `delivery-findings: UNVERIFIABLE (<code>)` and compares nothing, whatever its other parts and
+  `--source-key`; the codes below apply only beside parsed totals.
   Outside fences, two column-0 `# /validate-pr round <n>` headings naming the item (the key's, with
   `--source-key`) with different rounds, own or quoted, wherever they stand, make the count
   `UNVERIFIABLE (round-heading-ambiguous)`, even with a correct `--source-key`. Three cases print
@@ -148,7 +152,18 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   not parse prints its code (for example `worker-status-family-unparseable` for an empty `family=`),
   with or without `--source-key`; a `--source-key` not in the key's form prints `source-key-invalid`;
   and without `--source-key`, a delivery with no `VPR-COMPLETE` line prints `no-vpr-complete-line`,
-  since no item is known. A missing family or own round heading does not. A Source cell that states
+  since no item is known. A delivery with no `WORKER_STATUS` first line, so no family, or with no
+  own round heading does not; a `WORKER_STATUS` first line without exactly one valid `family=` value
+  (none, two, or an empty one) is a part that does not parse, and so is one whose envelope,
+  `WORKER_STATUS: <STATUS> (...)`, does not parse, even with one valid `family=` value: for example
+  one with no parentheses, or one whose status is not one or more ASCII uppercase letters (A to Z),
+  such as an empty status or one holding a digit, `_`, or a letter outside A to Z (lowercase,
+  accented or full-width). A `WORKER_STATUS` first line is a first line that starts with
+  `WORKER_STATUS:` at column 0, case and colon exact: an indented first line, a lowercase one
+  (`worker_status:`), and one with no colon or a space before the colon (`WORKER_STATUS PASS`,
+  `WORKER_STATUS : PASS`) are not `WORKER_STATUS` first lines, whatever follows, so such a delivery
+  has no family. A byte-order mark before `WORKER_STATUS` makes the first line not a
+  `WORKER_STATUS` first line, so such a delivery has no family. A Source cell that states
   the review in another form than the key (other case or spacing, prose before it, or a shorter sha)
   is not counted, so the count errs low, toward the warning. A combined row counts once, and two
   deliveries with one key share their rows. The line carries counts and codes only, never refuses,

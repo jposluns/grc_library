@@ -26821,7 +26821,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        open-findings-row.py OWN F 19ca088b55a6e3560b5013ac02c76f9d8524ee06fc244672452c9d839ec50e77
+        open-findings-row.py OWN F 8476de99df536d03323bca7b6f87420afad1d8d2e98b3d5edba57c4d19bb1717
         pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
@@ -57258,6 +57258,24 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
     the part codes (P1), the headings matched against the delivery's item even with a key (P2 with a
     key) or against every heading when no item is known (P2), and the reference's ambiguity sentence
     or review_key's docstring not stating that order, r5 NOTE, by
+    test_quoted_round_heading_is_not_the_delivery_round, one subtest per case; the source-key-invalid
+    check moved before the part codes (r6 M4), a WORKER_STATUS first line with no family= value read as
+    no family (W1), the whole-line UNVERIFIABLE skipped beside a --source-key (F1), and the reference's
+    whole-line sentence or its narrowed no-WORKER_STATUS sentence dropped, 3b556, by
+    test_quoted_round_heading_is_not_the_delivery_round, one subtest per case; a WORKER_STATUS envelope
+    read with optional parentheses (E1) or a status of any case (E2), a byte-order mark stripped before
+    the WORKER_STATUS test (E3), a first line holding WORKER_STATUS: anywhere read as a WORKER_STATUS
+    first line (E4), and the envelope or byte-order-mark wording dropped from the reference or the tool
+    docstring, 3b556 r2 (claude 3b556 round-1 NOTE-1), by
+    test_quoted_round_heading_is_not_the_delivery_round, one subtest per case; a status of digits or
+    underscores (X1) or an empty status (X2) read as parsing, a first line starting WORKER_STATUS with
+    no colon (X3) or after leading whitespace (X4) read as a WORKER_STATUS first line, and the
+    first-line definition or the ASCII status wording dropped from the reference or the tool
+    docstring, 3b556 r3 (claude 3b556 round-2 NOTE-1 and NOTE-2), and a case-folded prefix read as a
+    WORKER_STATUS first line (X5), by test_quoted_round_heading_is_not_the_delivery_round, one subtest
+    per case; a tab indent stripped before the prefix and envelope tests (M1), a status of any letters
+    but a to z read as parsing, so an accented or full-width one (M2), and a one-letter status read as
+    not parsing (M3), 3b556 r4 (claude 3b556 round-3 NOTE-1), by
     test_quoted_round_heading_is_not_the_delivery_round, one subtest per case."""
 
     REVIEW = "claude 3b540 /validate-pr round 2 @ f2a53df9f"
@@ -57709,17 +57727,88 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                 self.assertEqual(got, head + want + " (report only)")
         # Round 5 NOTE (probes P1 and P2): beside two quoted rounds, a part that does not parse, a key not in
         # the form and, without --source-key, a missing VPR-COMPLETE line print their own code; a correct key
-        # supplies the item, so the ambiguity stands; a missing family does not change the code. Each case is
-        # held to the reference clause that states it.
+        # supplies the item, so the ambiguity stands; no WORKER_STATUS first line does not change the code. Each
+        # case is held to the reference clause that states it. 3b556 (claude 3b544 round-6 notes): the part code
+        # comes before a key not in the form (M4), and a WORKER_STATUS first line with no family= value is a part
+        # that does not parse (W1).
         bullet = self.delivery_bullet()
         part = ("a part the delivery carries that does not parse prints its code (for example "
                 "`worker-status-family-unparseable` for an empty `family=`), with or without `--source-key`")
+        no_value = ("a `WORKER_STATUS` first line without exactly one valid `family=` value (none, two, or an "
+                    "empty one) is a part that does not parse")
+        invalid_key = "claude 3b540 round 2 @ f2a53df9f"
         empty_family = two_quotes.replace("family=claude", "family=", 1)
+        no_family_value = two_quotes.replace("rc=0, family=claude, ", "rc=0, ", 1)
         no_vpr = two_quotes.replace("VPR-COMPLETE 3b540 f2a53df9f\n", "", 1)
+        # 3b556 r2 (claude 3b556 round-1 NOTE-1): the reviewer's two envelope shapes, each with one valid
+        # family=, are parts that do not parse (E1, E2); a byte-order mark before WORKER_STATUS leaves no
+        # WORKER_STATUS first line, so no family (E3, E4).
+        envelope = ("and so is one whose envelope, `WORKER_STATUS: <STATUS> (...)`, does not parse, even with one "
+                    "valid `family=` value: for example one with no parentheses, or one whose status is not one or "
+                    "more ASCII uppercase letters (A to Z)")
+        # 3b556 r3 (claude 3b556 round-2 NOTE-2): a digit, an underscore or no status at all does not parse
+        # either (X1, X2).
+        status = ("such as an empty status or one holding a digit, `_`, or a letter outside A to Z (lowercase, "
+                  "accented or full-width)")
+        bom = ("A byte-order mark before `WORKER_STATUS` makes the first line not a `WORKER_STATUS` first line, so "
+               "such a delivery has no family")
+        no_parens = "WORKER_STATUS: PASS family=claude\n" + two_quotes.split("\n", 1)[1]
+        lower_status = "WORKER_STATUS: pass (family=claude)\n" + two_quotes.split("\n", 1)[1]
+        digit_status = "WORKER_STATUS: PASS2 (family=claude)\n" + two_quotes.split("\n", 1)[1]
+        underscore_status = "WORKER_STATUS: NOT_RUN (family=claude)\n" + two_quotes.split("\n", 1)[1]
+        empty_status = "WORKER_STATUS:  (family=claude)\n" + two_quotes.split("\n", 1)[1]
+        # 3b556 r4 (claude 3b556 round-3 NOTE-1): nor does an accented status (a precomposed U+00C9) or a
+        # full-width one (U+FF30, U+FF21, U+FF33, U+FF33) (M2).
+        accented_status = "WORKER_STATUS: PASSÉ (family=claude)\n" + two_quotes.split("\n", 1)[1]
+        full_width_status = "WORKER_STATUS: ＰＡＳＳ (family=claude)\n" + two_quotes.split("\n", 1)[1]
+        own = one.replace("\n## Scratch probes", f"\n{self.ROUND_2_HEADING}\n\n## Scratch probes", 1)
+        bom_status = "\ufeff" + own
         for name, delivery, key, code, clause in (
                 ("P1 an empty family=", empty_family, None, "worker-status-family-unparseable", part),
                 ("P1 an empty family=, with a correct key", empty_family, self.REVIEW,
                  "worker-status-family-unparseable", part),
+                ("P1 an empty family=, with a key not in the form", empty_family, invalid_key,
+                 "worker-status-family-unparseable", part),
+                ("no family= value", no_family_value, None, "worker-status-family-unparseable", no_value),
+                ("no family= value, with a key not in the form", no_family_value, invalid_key,
+                 "worker-status-family-unparseable", no_value),
+                ("E1 no parentheses", no_parens, None, "worker-status-family-unparseable", envelope),
+                ("E1 no parentheses, with a correct key", no_parens, self.REVIEW, "worker-status-family-unparseable",
+                 envelope),
+                ("E1 no parentheses, with a key not in the form", no_parens, invalid_key,
+                 "worker-status-family-unparseable", envelope),
+                ("E2 a lowercase status", lower_status, None, "worker-status-family-unparseable", envelope),
+                ("E2 a lowercase status, with a correct key", lower_status, self.REVIEW,
+                 "worker-status-family-unparseable", envelope),
+                ("E2 a lowercase status, with a key not in the form", lower_status, invalid_key,
+                 "worker-status-family-unparseable", envelope),
+                ("X1 a status with a digit", digit_status, None, "worker-status-family-unparseable", status),
+                ("X1 a status with a digit, with a correct key", digit_status, self.REVIEW,
+                 "worker-status-family-unparseable", status),
+                ("X1 a status with a digit, with a key not in the form", digit_status, invalid_key,
+                 "worker-status-family-unparseable", status),
+                ("X1 a status with an underscore", underscore_status, None, "worker-status-family-unparseable",
+                 status),
+                ("X1 a status with an underscore, with a correct key", underscore_status, self.REVIEW,
+                 "worker-status-family-unparseable", status),
+                ("X1 a status with an underscore, with a key not in the form", underscore_status, invalid_key,
+                 "worker-status-family-unparseable", status),
+                ("X2 an empty status", empty_status, None, "worker-status-family-unparseable", status),
+                ("X2 an empty status, with a correct key", empty_status, self.REVIEW,
+                 "worker-status-family-unparseable", status),
+                ("X2 an empty status, with a key not in the form", empty_status, invalid_key,
+                 "worker-status-family-unparseable", status),
+                ("M2 an accented status", accented_status, None, "worker-status-family-unparseable", status),
+                ("M2 an accented status, with a correct key", accented_status, self.REVIEW,
+                 "worker-status-family-unparseable", status),
+                ("M2 an accented status, with a key not in the form", accented_status, invalid_key,
+                 "worker-status-family-unparseable", status),
+                ("M2 a full-width status", full_width_status, None, "worker-status-family-unparseable", status),
+                ("M2 a full-width status, with a correct key", full_width_status, self.REVIEW,
+                 "worker-status-family-unparseable", status),
+                ("M2 a full-width status, with a key not in the form", full_width_status, invalid_key,
+                 "worker-status-family-unparseable", status),
+                ("E3 E4 a byte-order mark before WORKER_STATUS", bom_status, None, "no-worker-status-family", bom),
                 ("P2 no VPR-COMPLETE line", no_vpr, None, "no-vpr-complete-line",
                  "without `--source-key`, a delivery with no `VPR-COMPLETE` line prints `no-vpr-complete-line`, "
                  "since no item is known"),
@@ -57728,12 +57817,76 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                 ("a key not in the form", two_quotes, "claude 3b540 round 2 @ f2a53df9f", "source-key-invalid",
                  "a `--source-key` not in the key's form prints `source-key-invalid`"),
                 ("no WORKER_STATUS line", two_quotes.split("\n", 1)[1], None, "round-heading-ambiguous",
-                 "A missing family or own round heading does not.")):
+                 "A delivery with no `WORKER_STATUS` first line, so no family, or with no own round heading does "
+                 "not;")):
             with self.subTest(precedence=name):
                 self.delivery.write_text(delivery, encoding="utf-8")
                 got = mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False, source_key=key)
                 self.assertEqual(got, head + f"ledger rows UNVERIFIABLE ({code}) (report only)")
                 self.assertIn(clause, bullet)
+        with self.subTest(precedence="the missing-family sentence narrowed"):
+            self.assertNotIn("A missing family or own round heading does not.", bullet)
+        # 3b556 r3 (claude 3b556 round-2 NOTE-1): a WORKER_STATUS first line starts with WORKER_STATUS: at column 0,
+        # case and colon exact, so a first line with no colon, a space before the colon, an indent or a lowercase
+        # prefix is no WORKER_STATUS first line: no family without a key, the key's count with a correct key and
+        # source-key-invalid with a key not in the form, never worker-status-family-unparseable (X3, X4).
+        first_line = ("A `WORKER_STATUS` first line is a first line that starts with `WORKER_STATUS:` at column 0, "
+                      "case and colon exact: an indented first line, a lowercase one (`worker_status:`), and one with "
+                      "no colon or a space before the colon (`WORKER_STATUS PASS`, `WORKER_STATUS : PASS`) are not "
+                      "`WORKER_STATUS` first lines, whatever follows, so such a delivery has no family")
+        status_line, rest = own.split("\n", 1)
+        counted = ("4 ledger row(s) lead with its review key (key from {}; ledger as read, nothing written); more "
+                   "rows than reported findings")
+        with self.subTest(first_line="the control"):
+            self.delivery.write_text(own, encoding="utf-8")
+            self.assertEqual(mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False, source_key=None),
+                             head + counted.format("the delivery") + " (report only)")
+        # 3b556 r4 (claude 3b556 round-3 NOTE-1): a one-letter status parses, so it counts like the control (M3).
+        one_letter = status_line.replace("WORKER_STATUS: PASS", "WORKER_STATUS: P", 1)
+        for key, want in ((None, counted.format("the delivery")), (self.REVIEW, counted.format("--source-key")),
+                          (invalid_key, "ledger rows UNVERIFIABLE (source-key-invalid)")):
+            with self.subTest(status="M3 a one-letter status", source_key=key):
+                self.delivery.write_text(one_letter + "\n" + rest, encoding="utf-8")
+                got = mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False, source_key=key)
+                self.assertEqual(got, head + want + " (report only)")
+                self.assertIn(envelope, bullet)
+        # 3b556 r4: a tab-indented first line is no WORKER_STATUS first line either (M1).
+        for name, line in (
+                ("X3 no colon", status_line.replace("WORKER_STATUS:", "WORKER_STATUS", 1)),
+                ("X3 a space before the colon", status_line.replace("WORKER_STATUS:", "WORKER_STATUS :", 1)),
+                ("X4 an indented first line", " " + status_line),
+                ("M1 a tab-indented first line", "\t" + status_line),
+                ("X5 a lowercase first line", status_line.replace("WORKER_STATUS: PASS", "worker_status: pass", 1))):
+            for key, want in ((None, "ledger rows UNVERIFIABLE (no-worker-status-family)"),
+                              (self.REVIEW, counted.format("--source-key")),
+                              (invalid_key, "ledger rows UNVERIFIABLE (source-key-invalid)")):
+                with self.subTest(first_line=name, source_key=key):
+                    self.delivery.write_text(line + "\n" + rest, encoding="utf-8")
+                    got = mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False, source_key=key)
+                    self.assertEqual(got, head + want + " (report only)")
+                    self.assertIn(first_line, bullet)
+        # 3b556: an unreadable delivery or a missing or unparseable last FINDINGS line prints the whole-line
+        # UNVERIFIABLE and compares nothing, before every code above, even with a key not in the form (F1).
+        whole = ("A delivery that cannot be read (missing, unreadable, not a regular file or not UTF-8), that has "
+                 "no column-0 `FINDINGS:` line outside fences, or whose last such line does not parse prints "
+                 "`delivery-findings: UNVERIFIABLE (<code>)` and compares nothing, whatever its other parts and "
+                 "`--source-key`; the codes below apply only beside parsed totals.")
+        own_findings = "FINDINGS: 0 ERROR, 0 WARN, 1 NOTE\n"
+        for name, path, delivery, code in (
+                ("an unparseable last FINDINGS line", self.delivery,
+                 empty_family.replace(own_findings, "FINDINGS: <n> ERROR, <n> WARN, <n> NOTE\n", 1),
+                 "findings-line-unparseable"),
+                ("no FINDINGS line", self.delivery, empty_family.replace(own_findings, "", 1), "no-findings-line"),
+                ("a missing delivery", self.dir / "absent.md", None, "delivery-missing")):
+            for key in (None, invalid_key, self.REVIEW):
+                with self.subTest(precedence=name, source_key=key):
+                    if delivery is not None:
+                        self.delivery.write_text(delivery, encoding="utf-8")
+                    self.assertEqual(mod.delivery_report(hook, self.LEDGER, path, with_row=False, source_key=key),
+                                     f"delivery-findings: UNVERIFIABLE ({code}); nothing compared (report only)")
+        with self.subTest(precedence="the whole-line sentence before the three cases"):
+            self.assertIn(whole, bullet)
+            self.assertLess(bullet.index(whole), bullet.index("Three cases print another code instead"))
         with self.subTest(precedence="review_key docstring"):
             self.assertIn("so without --source-key a delivery with no VPR-COMPLETE line names no item and gets "
                           "no-vpr-complete-line", " ".join(mod.review_key.__doc__.split()))
@@ -57762,6 +57915,13 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
             with self.subTest(residue=name):
                 self.assertIn(residue, text)
                 self.assertNotIn("with no heading of its own", text)
+        # 3b556 r2: the docstring states the family rule in the reference's words, envelope and byte-order mark
+        # included; 3b556 r3: the ASCII status examples and the first-line definition too.
+        family = ("a `WORKER_STATUS` first line without exactly one valid `family=` value (none, two, or an empty "
+                  "one) is a part that does not parse, " + envelope + ", " + status + ". " + first_line + ". " + bom)
+        for name, text in (("tool docstring", section), ("reference", bullet)):
+            with self.subTest(family=name):
+                self.assertIn(family, text)
 
     def test_staged_claude_shape_needs_a_source_key(self) -> None:
         # Round 2 NOTE-2: the staged Claude sample carries no round heading, so its own shape gets no count
