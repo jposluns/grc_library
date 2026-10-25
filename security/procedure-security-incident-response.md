@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.11.1\
-**Date:** 2026-10-16\
+**Version:** 1.11.2\
+**Date:** 2026-10-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md), [`security/standard-monitoring-integrity-and-coverage.md`](standard-monitoring-integrity-and-coverage.md), [`security/standard-soc-operating-model.md`](standard-soc-operating-model.md), [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md)\
@@ -117,7 +117,8 @@ Upon receipt of an alert or report, the SOC analyst must:
 3. **Preserve evidence immediately**: capture log snapshots, SIEM query results, endpoint telemetry, and network flows before any containment action is taken. Evidence preservation takes priority over service recovery in the first hour.
 4. **Assign an Incident ID** and open a formal incident record in the ticketing system.
 5. **Notify** the appropriate roles per Section 3.1 escalation requirements. A notification Section 3.1 requires immediately (for example, for a P1) is made without waiting for the incident record in step 4.
-6. **Brief the Incident Commander or, for P3 and P4 where no Incident Commander is assigned, the SOC lead, or, for P1 and P2 before an Incident Commander is assigned, the interim technical authority (section 2.2)** with: what is known, what systems and data are affected, what the suspected attack vector is, and what immediate containment options are available.
+6. **Refer to the Data Protection Officer (DPO)** any incident that involves or may involve personal data held or processed by the organization, its processors, or its sub-processors, whatever its severity, so that the DPO can assess whether it is a confirmed or suspected personal data breach within the scope of [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) section 1.2. This referral applies alongside the Section 3.1 escalation notifications and does not replace them. Where an incident is found to involve or possibly involve personal data only after triage, the SOC must make the referral as soon as that is known.
+7. **Brief the Incident Commander or, for P3 and P4 where no Incident Commander is assigned, the SOC lead, or, for P1 and P2 before an Incident Commander is assigned, the interim technical authority (section 2.2)** with: what is known, what systems and data are affected, what the suspected attack vector is, and what immediate containment options are available.
 
 ### 4.3 Triage record fields
 
@@ -292,6 +293,7 @@ This one-page checklist summarizes the time-phased actions for a declared P1 or 
 - Preserve evidence before any containment action: log snapshots, SIEM results, EDR telemetry, network flows (§4.2, §5.1).
 - Assign an Incident ID and open the formal incident record (§4.2).
 - Notify per §3.1: for a P1, the Incident Commander, CISO, and CIO immediately; the IR partner by the CISO. An immediate notification is made without waiting for the incident record (§4.2 step 5).
+- Refer the incident to the DPO for breach assessment if it involves or may involve personal data (§4.2 step 6).
 - Until an Incident Commander is assigned, the CISO or a pre-authorized duty delegate, delegated in writing and named in the IR Contact Register, acts as interim technical authority; record the handover in the incident record when the Incident Commander is assigned (§2.2).
 - Brief the Incident Commander or, until one is assigned, the interim technical authority (§2.2), on what is known, the affected systems and data, the suspected vector, and the containment options (§4.2).
 - Begin short-term containment under the direction of the Incident Commander or, until one is assigned, the interim technical authority (segmentation, block attacker IPs, disable compromised credentials, revoke sessions); do not isolate or reimage without that direction (§5.1, §5.2).
