@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.11.2\
+**Version:** 1.11.3\
 **Date:** 2026-10-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -117,7 +117,7 @@ Upon receipt of an alert or report, the SOC analyst must:
 3. **Preserve evidence immediately**: capture log snapshots, SIEM query results, endpoint telemetry, and network flows before any containment action is taken. Evidence preservation takes priority over service recovery in the first hour.
 4. **Assign an Incident ID** and open a formal incident record in the ticketing system.
 5. **Notify** the appropriate roles per Section 3.1 escalation requirements. A notification Section 3.1 requires immediately (for example, for a P1) is made without waiting for the incident record in step 4.
-6. **Refer to the Data Protection Officer (DPO)** any incident that involves or may involve personal data held or processed by the organization, its processors, or its sub-processors, whatever its severity, so that the DPO can assess whether it is a confirmed or suspected personal data breach within the scope of [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) section 1.2. This referral applies alongside the Section 3.1 escalation notifications and does not replace them. Where an incident is found to involve or possibly involve personal data only after triage, the SOC must make the referral as soon as that is known.
+6. **Refer without delay to the Data Protection Officer (DPO)** any incident that involves or may involve personal data held or processed by the organization, its processors, or its sub-processors, whatever its severity, so that the DPO can assess whether it is a confirmed or suspected personal data breach within the scope of [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) section 1.2. This referral applies alongside the Section 3.1 escalation notifications and does not replace them. Where an incident is found to involve or possibly involve personal data only after triage, the SOC must make the referral as soon as that is known.
 7. **Brief the Incident Commander or, for P3 and P4 where no Incident Commander is assigned, the SOC lead, or, for P1 and P2 before an Incident Commander is assigned, the interim technical authority (section 2.2)** with: what is known, what systems and data are affected, what the suspected attack vector is, and what immediate containment options are available.
 
 ### 4.3 Triage record fields

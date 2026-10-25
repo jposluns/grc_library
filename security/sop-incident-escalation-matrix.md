@@ -2,8 +2,8 @@
 
 **Document Title:** Incident Escalation Matrix\
 **Document Type:** SOP\
-**Version:** 1.4.0\
-**Date:** 2026-10-15\
+**Version:** 1.4.1\
+**Date:** 2026-10-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md), [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md)\
@@ -70,7 +70,8 @@ Actual contact details (names, numbers, emails) are maintained in the confidenti
 
 | Trigger | Additional Notifications Required |
 | --- | --- |
-| Confirmed or suspected PII data breach | Data Protection Officer (DPO); Legal Counsel; initiate regulatory notification assessment |
+| Incident that involves or may involve personal data held or processed by the organization, its processors, or its sub-processors, whatever its severity | Data Protection Officer (DPO), referred without delay for breach assessment, per the Security Incident Response Procedure ([`security/procedure-security-incident-response.md`](procedure-security-incident-response.md)) section 4.2 step 6 |
+| Confirmed or suspected personal data breach | Data Protection Officer (DPO); Legal Counsel; initiate regulatory notification assessment |
 | Ransomware deployment | CEO, CFO, Board notification pathway; external IR partner engaged immediately |
 | Threat actor present in production environment or active anywhere else in the environment | External IR partner activated; affected systems isolated immediately |
 | Customer system or data impacted | Legal Counsel for contract obligations review; customer notification assessment |
