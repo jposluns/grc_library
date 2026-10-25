@@ -26821,7 +26821,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        open-findings-row.py OWN F 09c35e71ed37c6cc0c7b5f9a05fab3afc048542c07df44a1823f8577c4020390
+        open-findings-row.py OWN F 19ca088b55a6e3560b5013ac02c76f9d8524ee06fc244672452c9d839ec50e77
         pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
@@ -57254,7 +57254,11 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
     dropping its clause on the delivery's own later headings (r4 NOTE-3 U5) by
     test_quoted_round_heading_is_not_the_delivery_round; no tab taken after the # (U1), a bare # run
     not a heading (U2), any indent allowed (U3) and seven or more # taken (U4), r4 NOTE-3, by
-    test_first_heading_rule_parses_as_documented, one subtest each."""
+    test_first_heading_rule_parses_as_documented, one subtest each; the ambiguity check moved before
+    the part codes (P1), the headings matched against the delivery's item even with a key (P2 with a
+    key) or against every heading when no item is known (P2), and the reference's ambiguity sentence
+    or review_key's docstring not stating that order, r5 NOTE, by
+    test_quoted_round_heading_is_not_the_delivery_round, one subtest per case."""
 
     REVIEW = "claude 3b540 /validate-pr round 2 @ f2a53df9f"
     CLAUDE_SAMPLE = (
@@ -57703,6 +57707,36 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                 self.delivery.write_text(delivery, encoding="utf-8")
                 got = mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False, source_key=key)
                 self.assertEqual(got, head + want + " (report only)")
+        # Round 5 NOTE (probes P1 and P2): beside two quoted rounds, a part that does not parse, a key not in
+        # the form and, without --source-key, a missing VPR-COMPLETE line print their own code; a correct key
+        # supplies the item, so the ambiguity stands; a missing family does not change the code. Each case is
+        # held to the reference clause that states it.
+        bullet = self.delivery_bullet()
+        part = ("a part the delivery carries that does not parse prints its code (for example "
+                "`worker-status-family-unparseable` for an empty `family=`), with or without `--source-key`")
+        empty_family = two_quotes.replace("family=claude", "family=", 1)
+        no_vpr = two_quotes.replace("VPR-COMPLETE 3b540 f2a53df9f\n", "", 1)
+        for name, delivery, key, code, clause in (
+                ("P1 an empty family=", empty_family, None, "worker-status-family-unparseable", part),
+                ("P1 an empty family=, with a correct key", empty_family, self.REVIEW,
+                 "worker-status-family-unparseable", part),
+                ("P2 no VPR-COMPLETE line", no_vpr, None, "no-vpr-complete-line",
+                 "without `--source-key`, a delivery with no `VPR-COMPLETE` line prints `no-vpr-complete-line`, "
+                 "since no item is known"),
+                ("P2 no VPR-COMPLETE line, with a correct key", no_vpr, self.REVIEW, "round-heading-ambiguous",
+                 "headings naming the item (the key's, with `--source-key`)"),
+                ("a key not in the form", two_quotes, "claude 3b540 round 2 @ f2a53df9f", "source-key-invalid",
+                 "a `--source-key` not in the key's form prints `source-key-invalid`"),
+                ("no WORKER_STATUS line", two_quotes.split("\n", 1)[1], None, "round-heading-ambiguous",
+                 "A missing family or own round heading does not.")):
+            with self.subTest(precedence=name):
+                self.delivery.write_text(delivery, encoding="utf-8")
+                got = mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False, source_key=key)
+                self.assertEqual(got, head + f"ledger rows UNVERIFIABLE ({code}) (report only)")
+                self.assertIn(clause, bullet)
+        with self.subTest(precedence="review_key docstring"):
+            self.assertIn("so without --source-key a delivery with no VPR-COMPLETE line names no item and gets "
+                          "no-vpr-complete-line", " ".join(mod.review_key.__doc__.split()))
         import ast
         doc = ast.get_docstring(ast.parse(OpenFindingsRowTests.TOOL.read_text(encoding="utf-8")))
         section = " ".join(doc.split("DELIVERY FINDINGS (report only, 3b544).", 1)[1]
@@ -57710,12 +57744,12 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         for phrase in ("a round heading after another heading is a quote, never the delivery's round",
                        "the orchestrator should pass --source-key when it knows the round"):
             self.assertIn(phrase, section)
-        bullet = self.delivery_bullet()
         for phrase in ("a round heading after another heading is a quote and gives no round",
                        "`UNVERIFIABLE (source-key-disagrees)`",
-                       "two column-0 `# /validate-pr round <n>` headings naming the item with different rounds, own "
-                       "or quoted, wherever they stand, make the count `UNVERIFIABLE (round-heading-ambiguous)`, "
-                       "even with a correct `--source-key`"):
+                       "two column-0 `# /validate-pr round <n>` headings naming the item (the key's, with "
+                       "`--source-key`) with different rounds, own or quoted, wherever they stand, make the count "
+                       "`UNVERIFIABLE (round-heading-ambiguous)`, even with a correct `--source-key`. Three cases "
+                       "print another code instead, the first that applies in this order:"):
             self.assertIn(phrase, bullet)
         self.assertNotIn("other than the one in the delivery's own round heading", bullet)
         # Round 4 NOTE-2: the docstring and the reference state the remaining first-heading residue in one

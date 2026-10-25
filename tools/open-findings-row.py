@@ -574,12 +574,14 @@ def parse_delivery(hook, text: str) -> tuple[tuple[int, int, int] | str, dict]:
 
 def review_key(parts: dict, source_key: str | None) -> tuple[str | None, str | None]:
     """PURE. (key, None) for the delivery's own review key `<family> <item> /validate-pr round <n> @
-    <sha>`, or (None, code). A part the delivery carries but cannot parse is its code, as is (with
-    --source-key) a key that does not parse (source-key-invalid) or a carried part that differs from
-    the key's (source-key-disagrees); without --source-key, the first part the delivery lacks
-    (no-vpr-complete-line, no-worker-status-family, no-round-heading). The round is that of a heading
-    naming the item as a whole token only when it is the delivery's first heading (3b544 r3); headings
-    naming the item with two rounds, wherever they stand, are round-heading-ambiguous."""
+    <sha>`, or (None, code), the first that applies in this order: a part the delivery carries but
+    cannot parse (its code); a --source-key that does not parse (source-key-invalid); headings naming
+    the item (the key's with --source-key, else the VPR-COMPLETE line's) with two rounds, wherever they
+    stand (round-heading-ambiguous), so without --source-key a delivery with no VPR-COMPLETE line names
+    no item and gets no-vpr-complete-line; with --source-key, a carried part that differs from the
+    key's (source-key-disagrees); without it, the first part the delivery lacks (no-vpr-complete-line,
+    no-worker-status-family, no-round-heading). The round is that of a heading naming the item as a
+    whole token only when it is the delivery's first heading (3b544 r3)."""
     if parts["bad"] is not None:
         return None, parts["bad"]
     given = None

@@ -141,13 +141,18 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   column 0 still takes that round's key, even when its own headings follow the quote (only an
   unfenced ATX heading before the quote stops it; a setext, HTML, block-quoted or list-item heading
   does not). With `--source-key` that case prints `UNVERIFIABLE (source-key-disagrees)` instead.
-  Outside fences, two column-0 `# /validate-pr round <n>` headings naming the item with different
-  rounds, own or quoted, wherever they stand, make the count `UNVERIFIABLE (round-heading-ambiguous)`,
-  even with a correct `--source-key`. A Source cell that states the review in another form than the
-  key (other case or spacing, prose before it, or a shorter sha) is not counted, so the count errs
-  low, toward the warning. A combined row counts once, and two deliveries with one key share their
-  rows. The line carries counts and codes only, never refuses, never blocks the write and never
-  changes the exit code.
+  Outside fences, two column-0 `# /validate-pr round <n>` headings naming the item (the key's, with
+  `--source-key`) with different rounds, own or quoted, wherever they stand, make the count
+  `UNVERIFIABLE (round-heading-ambiguous)`, even with a correct `--source-key`. Three cases print
+  another code instead, the first that applies in this order: a part the delivery carries that does
+  not parse prints its code (for example `worker-status-family-unparseable` for an empty `family=`),
+  with or without `--source-key`; a `--source-key` not in the key's form prints `source-key-invalid`;
+  and without `--source-key`, a delivery with no `VPR-COMPLETE` line prints `no-vpr-complete-line`,
+  since no item is known. A missing family or own round heading does not. A Source cell that states
+  the review in another form than the key (other case or spacing, prose before it, or a shorter sha)
+  is not counted, so the count errs low, toward the warning. A combined row counts once, and two
+  deliveries with one key share their rows. The line carries counts and codes only, never refuses,
+  never blocks the write and never changes the exit code.
 - **Environment (exit 2).** This hook cannot load; the ledger is missing, unreadable, a symlink,
   hard-linked or owned by another user; its line ends disagree with this hook's line model; or the file
   changed between read and write (including ctime, mode, uid, gid or access ACL). The write keeps
