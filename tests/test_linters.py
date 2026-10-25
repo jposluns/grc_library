@@ -26821,7 +26821,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        open-findings-row.py OWN F 8476de99df536d03323bca7b6f87420afad1d8d2e98b3d5edba57c4d19bb1717
+        open-findings-row.py OWN F 1e0adb85988274a3d7e9431845d10d69580a644ab6f0adadce96c037e6eb40d1
         pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
@@ -57292,7 +57292,44 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
     per case; a tab indent stripped before the prefix and envelope tests (M1), a status of any letters
     but a to z read as parsing, so an accented or full-width one (M2), and a one-letter status read as
     not parsing (M3), 3b556 r4 (claude 3b556 round-3 NOTE-1), by
-    test_quoted_round_heading_is_not_the_delivery_round, one subtest per case."""
+    test_quoted_round_heading_is_not_the_delivery_round, one subtest per case; a heading's item found
+    by searching its whole remainder (3b578 W1, codex 3b544 post-merge WARN), so that a first heading
+    of another item that mentions the item later gives its round, with or without a key, or a later
+    one makes the rounds ambiguous; a heading with no item field giving the delivery's round; the
+    ambiguity backstop dropped, so a column-0 quote of round 1 before the delivery's own round-2 heading
+    with no item field (S1) or a later round-3 heading with no item field (S2) counts, with or without
+    a key, 3b578 r2 (claude 3b578 round-1 W1); a first heading with no item field read as disagreeing
+    with a key of another round (S3), and a lowercase, comma-less, backticked, empty or no-break-space
+    field read as the item alone or left out of the ambiguity check after the own heading, 3b578 r2
+    (round-1 N2); and the item-field rule, its narrowings or the one wording dropped from the tool
+    docstring or the reference, or the looser round-1 sentence kept, 3b578 r2 (round-1 N3); and a
+    heading with no item field read as naming the item by a substring match (M3) or with the whole-token
+    lookbehind (M4) or lookahead (M5) dropped, the ambiguity backstop skipped for the delivery's first
+    heading (M13), text allowed before (REFUTE (M14), and the (REFUTE...) closed by its last ) instead of
+    its first (M15), 3b578 r3 (claude 3b578 round-2 N1), by
+    test_round_heading_names_only_its_leading_item, one subtest per case; and _ and - dropped from the
+    whole-token lookbehind (X1) or lookahead (X2), a ) allowed inside the (REFUTE parentheses (X3) and no space
+    or tab needed before (REFUTE (X4), 3b578 r4 (claude 3b578 round-3 N1), and the other survivors of the
+    round-4 clause table: a round heading read when indented, case-folded or after a lone CR or U+2028, a tab
+    or a second space refused before (REFUTE, a space allowed before the colon or required after it (LS3), the
+    item field case-folded, spaces and tabs around the item not stripped or a no-break space after it stripped,
+    a ., _ or - refused inside the item, an item starting or ending with punctuation or holding a non-ASCII
+    letter or digit, each letter case, digit, _ and - beside a whole token on either side, and a . beside it
+    stopping it, by test_round_heading_names_only_its_leading_item, and a setext, HTML, block-quoted or
+    list-item heading stopping a first-heading quote (the stated residue) by
+    test_first_heading_rule_parses_as_documented, one subtest per case; and the CR kept on heading lines only,
+    a ; ending the item field, the heading's literal spaces loosened (none, two or a tab at each), the item not
+    escaped (ESC) and the whole-token lookarounds widened to non-ASCII letters (UNI), 3b578 r5 (claude 3b578
+    round-4 W1 and N1, codex 3b578 round-4 ERROR), by test_round_heading_names_only_its_leading_item, one
+    subtest per case, and the tool docstring's column-0, CR and first-heading clauses or the reference's
+    first-heading clause dropped (round-4 N3) by test_usage_documents_delivery_and_its_residue and
+    test_quoted_round_heading_is_not_the_delivery_round; and a round number read with a leading zero (H9) or as 0, an
+    empty item read when there is no VPR-COMPLETE line (P2), a non-ASCII letter after the key stopping it, and the
+    tool docstring's two-rounds, inline-code and --source-key residue clauses (DT15, DT17, DT21), the round-number
+    wording or the ASCII key-end wording dropped, 3b578 r6 (the round-5 clause table), by
+    test_round_heading_names_only_its_leading_item, test_quoted_round_heading_is_not_the_delivery_round,
+    test_key_counts_only_the_delivery_own_review and test_usage_documents_delivery_and_its_residue, one subtest or
+    phrase per case."""
 
     REVIEW = "claude 3b540 /validate-pr round 2 @ f2a53df9f"
     CLAUDE_SAMPLE = (
@@ -57549,13 +57586,20 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         self.assertEqual(usage.count("[--delivery PATH [--source-key KEY]] < row"), 2)
         section = " ".join(doc.split("DELIVERY FINDINGS (report only, 3b544).", 1)[1]
                            .split("\n\nENVIRONMENT (exit 2).", 1)[0].split())
+        # 3b578 r5 (claude 3b578 round-4 N3): the line model's column-0 and CR clauses, not only its last words.
         for phrase in ("MATCHING RULE:", "never changes the exit code", "never a zero",
                        "a row count shows coverage, not faithfulness",
                        "a combined row recording several findings counts once",
                        "two deliveries with one key (the same family re-run for one item, round and sha) "
                        "share their rows",
                        "fence reading does not model container blocks or HTML blocks",
-                       "a lone CR or U+2028 starts no line"):
+                       "FINDINGS, VPR-COMPLETE and heading lines count at column 0 outside code fences",
+                       "delivery lines end at LF only, a CR before it dropped, so a lone CR or U+2028 starts no line",
+                       # 3b578 r6: the two-rounds, inline-code and --source-key residue clauses (DT15, DT17, DT21).
+                       "round-heading-ambiguous when headings naming the item state two rounds",
+                       "except that a backtick run whose remaining text holds a backtick opens no fence (CommonMark "
+                       "reads it as inline code)",
+                       "and with --source-key that case is UNVERIFIABLE (source-key-disagrees) instead"):
             self.assertIn(phrase, section)
         result = run_linter("tools/open-findings-row.py", "--help")
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -57580,7 +57624,10 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                 ("Claude 3B540 /validate-pr round 2 @ F2A53DF9F", False),
                 ("seen in " + key, False),
                 (key + "0", False),
-                (key + "-r3", False)):
+                (key + "-r3", False),
+                # 3b578 r6: only an ASCII letter or digit, _ or - after the key stops it, so a non-ASCII letter
+                # (U+00E9) does not.
+                (key + "\u00e9", True)):
             with self.subTest(cell=cell):
                 text = ("## Open\n\n| Found | Severity | Finding | Source | Disposition |\n| --- | --- | --- | --- "
                         f"| --- |\n| 2026-10-20 | note | [K-1] a row | {cell} |  |\n")
@@ -57594,6 +57641,13 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                 self.delivery.write_text(delivery, encoding="utf-8")
                 got = mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False)
                 self.assertIn("; " + want + " lead with its review key (key from the delivery;", got)
+        import ast
+        doc = ast.get_docstring(ast.parse(OpenFindingsRowTests.TOOL.read_text(encoding="utf-8")))
+        section = " ".join(doc.split("DELIVERY FINDINGS (report only, 3b544).", 1)[1]
+                           .split("\n\nENVIRONMENT (exit 2).", 1)[0].split())
+        for name, text in (("tool docstring", section), ("reference", self.delivery_bullet())):
+            with self.subTest(key_end=name):
+                self.assertIn("is not followed by an ASCII letter or digit, `_` or `-`", text)
 
     def test_key_needs_every_part_or_a_source_key(self) -> None:
         mod, hook = self.tool("_ofr_delivery_parts")
@@ -57756,6 +57810,9 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         empty_family = two_quotes.replace("family=claude", "family=", 1)
         no_family_value = two_quotes.replace("rc=0, family=claude, ", "rc=0, ", 1)
         no_vpr = two_quotes.replace("VPR-COMPLETE 3b540 f2a53df9f\n", "", 1)
+        # 3b578 r6: the same two quoted rounds as headings with no item field; with no VPR-COMPLETE line and no key no
+        # item is known, so neither names one (P2 read an empty item, which every heading holds); a key supplies it.
+        no_vpr_no_field = no_vpr.replace(" (REFUTE): 3b540,", ": 3b540,", 2)
         # 3b556 r2 (claude 3b556 round-1 NOTE-1): the reviewer's two envelope shapes, each with one valid
         # family=, are parts that do not parse (E1, E2); a byte-order mark before WORKER_STATUS leaves no
         # WORKER_STATUS first line, so no family (E3, E4).
@@ -57830,6 +57887,12 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                  "since no item is known"),
                 ("P2 no VPR-COMPLETE line, with a correct key", no_vpr, self.REVIEW, "round-heading-ambiguous",
                  "headings naming the item (the key's, with `--source-key`)"),
+                ("P2 no VPR-COMPLETE line, two headings with no item field", no_vpr_no_field, None,
+                 "no-vpr-complete-line",
+                 "without `--source-key`, a delivery with no `VPR-COMPLETE` line prints `no-vpr-complete-line`, "
+                 "since no item is known"),
+                ("P2 no VPR-COMPLETE line, two headings with no item field, with a correct key", no_vpr_no_field,
+                 self.REVIEW, "round-heading-ambiguous", "headings naming the item (the key's, with `--source-key`)"),
                 ("a key not in the form", two_quotes, "claude 3b540 round 2 @ f2a53df9f", "source-key-invalid",
                  "a `--source-key` not in the key's form prints `source-key-invalid`"),
                 ("no WORKER_STATUS line", two_quotes.split("\n", 1)[1], None, "round-heading-ambiguous",
@@ -57910,10 +57973,13 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         doc = ast.get_docstring(ast.parse(OpenFindingsRowTests.TOOL.read_text(encoding="utf-8")))
         section = " ".join(doc.split("DELIVERY FINDINGS (report only, 3b544).", 1)[1]
                            .split("\n\nENVIRONMENT (exit 2).", 1)[0].split())
-        for phrase in ("a round heading after another heading is a quote, never the delivery's round",
+        # 3b578 r5 (claude 3b578 round-4 N3): with the first-heading clause in the docstring and the reference.
+        for phrase in ("only when it is the delivery's first heading (3b544 r3): a round heading after another heading "
+                       "is a quote, never the delivery's round",
                        "the orchestrator should pass --source-key when it knows the round"):
             self.assertIn(phrase, section)
-        for phrase in ("a round heading after another heading is a quote and gives no round",
+        for phrase in ("heading whose item field is the item and that is the delivery's first heading",
+                       "a round heading after another heading is a quote and gives no round",
                        "`UNVERIFIABLE (source-key-disagrees)`",
                        "two column-0 `# /validate-pr round <n>` headings naming the item (the key's, with "
                        "`--source-key`) with different rounds, own or quoted, wherever they stand, make the count "
@@ -58042,6 +58108,232 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                 for delivery, want in runs:
                     self.delivery.write_text(delivery, encoding="utf-8")
                     self.assertEqual(mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False), want)
+        # 3b578 r4 (the round-4 clause table): the stated residue, a first-heading quote the delivery still takes,
+        # holds after a setext, HTML, block-quoted or list-item heading, none of which stops it (R1 to R4).
+        quoted = head + ("1 ledger row(s) lead with its review key (key from the delivery; ledger as read, nothing "
+                         "written); WARNING fewer rows than reported findings (a combined row counts once) "
+                         "(report only)")
+        for residue, lead in (("setext", "Inputs\n======\n"), ("HTML", "<h2>Inputs</h2>\n"),
+                              ("block-quoted", "> ## Inputs\n"), ("list-item", "- ## Inputs\n")):
+            with self.subTest(residue=residue):
+                self.delivery.write_text(led_by(lead + round_1), encoding="utf-8")
+                self.assertEqual(mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False), quoted)
+
+    def test_round_heading_names_only_its_leading_item(self) -> None:
+        # 3b578 W1 (codex 3b544 post-merge WARN): the heading's whole remainder was searched for the item, so a
+        # first heading of another item that mentions this one later gave its round, and a ledger row of that
+        # round read as this delivery's coverage.
+        mod, hook = self.tool("_ofr_delivery_leading_item")
+        head = "delivery-findings: reported 0 ERROR, 0 WARN, 1 NOTE (1 in all); "
+        one = self.CLAUDE_SAMPLE.replace("FINDINGS: 0 ERROR, 1 WARN, 1 NOTE", "FINDINGS: 0 ERROR, 0 WARN, 1 NOTE")
+
+        def led_by(lead: str) -> str:
+            # The staged Claude shape with one finding and ``lead`` as its first heading.
+            return one.replace("\n## Scratch probes", "\n" + lead + "\n\n## Scratch probes", 1)
+
+        # The reviewer's reproduction: a round-3 row for the item, which a round-3 key would count.
+        ledger = self.LEDGER.replace("\n\n## Closed today", "\n| 2026-10-21 | note | [R3-N1] round 3 | claude 3b540 "
+                                     "/validate-pr round 3 @ f2a53df9f |  |\n\n## Closed today", 1)
+        other = "# /validate-pr round 3 (REFUTE): 3b541, commit f2a53df9f, previous item 3b540"
+        own_2 = led_by(self.ROUND_2_HEADING).replace("\n## What I ran", "\n" + other + "\n\n## What I ran", 1)
+        item_leads = other.replace("3b541", "3b540").replace("item 3b540", "item 3b541")
+        stopped = "ledger rows UNVERIFIABLE (no-round-heading)"
+        round_3 = ("1 ledger row(s) lead with its review key (key from the delivery; ledger as read, nothing written); "
+                   "rows equal the reported total (coverage, not faithfulness)")
+        round_2 = ("4 ledger row(s) lead with its review key (key from {}; ledger as read, nothing written); more rows "
+                   "than reported findings")
+        # 3b578 r2 (claude 3b578 round-1 W1): a heading with no item field gives no round but still counts toward
+        # the ambiguity check, so a column-0 quote of round 1 before the delivery's own round-2 heading (S1), or a
+        # later round-3 heading after it (S2), is ambiguous with or without a key, as before 3b578.
+        bare_2 = "# /validate-pr round 2: 3b540, commit f2a53df9f"
+        bare_3 = bare_2.replace("round 2", "round 3")
+        s1 = led_by(self.ROUND_2_HEADING.replace("round 2", "round 1") + "\n\n" + bare_2)
+        s2 = led_by(self.ROUND_2_HEADING).replace("\n## What I ran", "\n" + bare_3 + "\n\n## What I ran", 1)
+        ambiguous = "ledger rows UNVERIFIABLE (round-heading-ambiguous)"
+        # 3b578 r3 (claude 3b578 round-2 N1): the documented clauses no subtest pinned, one delivery shape each. A
+        # heading with no item field names the item only as a whole token, so a later one holding 3b5400 (M3 a
+        # substring match, M5 no lookahead) or v3b540 (M3, M4 no lookbehind) leaves the own round 2; one that leads
+        # (a quote of round 1) still counts toward the ambiguity, so a round-1 key does not count (M13 the backstop
+        # skipped for the first heading); and text before (REFUTE (M14), or an item field after a later ) than the
+        # first (M15), gives no round.
+        digit_after = s2.replace(bare_3, "# /validate-pr round 3: 3b5400, commit f2a53df9f", 1)
+        letter_before = s2.replace(bare_3, "# /validate-pr round 3: v3b540, commit f2a53df9f", 1)
+        quote_first = led_by(bare_2.replace("round 2", "round 1") + "\n\n" + self.ROUND_2_HEADING)
+        text_before = led_by("# /validate-pr round 3 of 3b541 (REFUTE): 3b540, commit f2a53df9f")
+        closed_late = led_by("# /validate-pr round 3 (REFUTE): 3b541, then (REFUTE): 3b540")
+        for name, delivery, key, want in (
+                ("another item leads, this one later", led_by(other), None, stopped),
+                ("another item leads, this one later, with a correct key", led_by(other), self.REVIEW,
+                 round_2.format("--source-key")),
+                ("another item leads a later heading", own_2, None, round_2.format("the delivery")),
+                ("no (REFUTE...): field", led_by("# /validate-pr round 3: 3b540, commit f2a53df9f"), None, stopped),
+                ("a (REFUTE) field with no colon", led_by("# /validate-pr round 3 (REFUTE) 3b540, commit f2a53df9f"),
+                 None, stopped),
+                ("the item leads, another later", led_by(item_leads), None, round_3),
+                ("the item leads a longer (REFUTE...):", led_by("# /validate-pr round 3 (REFUTE, re-run): 3b540"), None,
+                 round_3),
+                ("S1 a quoted round 1 first, its own round 2 with no item field", s1, None, ambiguous),
+                ("S1 the same, with a correct key", s1, self.REVIEW, ambiguous),
+                ("S2 its own round 2 first, a round 3 with no item field later", s2, None, ambiguous),
+                ("S2 the same, with a correct key", s2, self.REVIEW, ambiguous),
+                # 3b578 r2 (round-1 N2): a first heading with no item field gives no round, so a key of another
+                # round supplies it instead of disagreeing (S3; source-key-disagrees before 3b578).
+                ("S3 no item field first, a key of another round", led_by(bare_3), self.REVIEW,
+                 round_2.format("--source-key")),
+                ("a later heading with no item field holding 3b5400", digit_after, None,
+                 round_2.format("the delivery")),
+                ("a later heading with no item field holding v3b540", letter_before, None,
+                 round_2.format("the delivery")),
+                ("a quoted round 1 with no item field first, its own round 2 later, a round-1 key", quote_first,
+                 self.REVIEW.replace("round 2", "round 1"), ambiguous),
+                ("text before (REFUTE", text_before, None, stopped),
+                ("the (REFUTE...) closed by its first )", closed_late, None, stopped)):
+            with self.subTest(case=name):
+                self.delivery.write_text(delivery, encoding="utf-8")
+                got = mod.delivery_report(hook, ledger, self.delivery, with_row=False, source_key=key)
+                self.assertEqual(got, head + want + " (report only)")
+        # 3b578 r2 (round-1 N2): the forms 3b578 stopped reading as the item give no round alone (no-round-heading,
+        # where 3b544 gave round 3), and after the delivery's own round-2 heading they count toward the ambiguity.
+        for form, lead in (
+                ("a lowercase (refute)", "# /validate-pr round 3 (refute): 3b540, commit f2a53df9f"),
+                ("no comma after the item", "# /validate-pr round 3 (REFUTE): 3b540 commit f2a53df9f"),
+                ("a backticked item", "# /validate-pr round 3 (REFUTE): `3b540`, commit f2a53df9f"),
+                ("an empty field", "# /validate-pr round 3 (REFUTE): , 3b540, commit f2a53df9f"),
+                ("a no-break space before the item", "# /validate-pr round 3 (REFUTE):\u00a03b540, commit f2a53df9f")):
+            later = led_by(self.ROUND_2_HEADING).replace("\n## What I ran", "\n" + lead + "\n\n## What I ran", 1)
+            for where, delivery, want in (("alone", led_by(lead), stopped),
+                                          ("after its own round 2", later, ambiguous)):
+                with self.subTest(form=form, where=where):
+                    self.delivery.write_text(delivery, encoding="utf-8")
+                    got = mod.delivery_report(hook, ledger, self.delivery, with_row=False)
+                    self.assertEqual(got, head + want + " (report only)")
+        # 3b578 r4 (claude 3b578 round-3 N1, then the round-4 clause table): subtests for the heading mutants that
+        # table found surviving, in this loop and the next (its residue rows are in
+        # test_first_heading_rule_parses_as_documented). That table did not reach every heading clause: the r5 block
+        # below adds subtests for five mutants the round-4 reviews found surviving (the CR kept on heading lines only,
+        # FE3, H8, ESC and UNI). Alone, a first heading gives no round with no space or tab before (REFUTE (X4), a )
+        # inside its parentheses (X3), a space before the colon, an item field or heading of another case, an indent,
+        # a lone CR or U+2028 before it, or a no-break space after the item; it gives its round with a tab or two
+        # spaces before (REFUTE, no space after the colon (LS3), or spaces and tabs around the item.
+        r3 = "# /validate-pr round 3"
+        for name, lead, want in (
+                ("X4 no space or tab before (REFUTE", r3 + "(REFUTE): 3b540, commit f2a53df9f", stopped),
+                ("X3 a ) inside the (REFUTE parentheses", r3 + " (REFUTE (scoped)): 3b540, commit f2a53df9f", stopped),
+                ("a space before the colon", r3 + " (REFUTE) : 3b540, commit f2a53df9f", stopped),
+                ("an item field of another case", r3 + " (REFUTE): 3B540, commit f2a53df9f", stopped),
+                ("a heading of another case", "# /Validate-PR Round 3 (REFUTE): 3b540, commit f2a53df9f", stopped),
+                ("an indented heading", " " + r3 + " (REFUTE): 3b540, commit f2a53df9f", stopped),
+                ("a lone CR before the heading", "Quoted:\r" + r3 + " (REFUTE): 3b540, commit f2a53df9f", stopped),
+                ("U+2028 before the heading", "Quoted:\u2028" + r3 + " (REFUTE): 3b540, commit f2a53df9f", stopped),
+                ("a no-break space after the item", r3 + " (REFUTE): 3b540\u00a0, commit f2a53df9f", stopped),
+                ("a tab before (REFUTE", r3 + "\t(REFUTE): 3b540, commit f2a53df9f", round_3),
+                ("two spaces before (REFUTE", r3 + "  (REFUTE): 3b540, commit f2a53df9f", round_3),
+                ("no space after the colon", r3 + " (REFUTE):3b540, commit f2a53df9f", round_3),
+                ("spaces and tabs around the item", r3 + " (REFUTE): \t3b540 \t, commit f2a53df9f", round_3)):
+            with self.subTest(r4_alone=name):
+                self.delivery.write_text(led_by(lead), encoding="utf-8")
+                got = mod.delivery_report(hook, ledger, self.delivery, with_row=False)
+                self.assertEqual(got, head + want + " (report only)")
+        # After the delivery's own round 2, a later field that is another item with a ., _ or - inside names no item,
+        # so the own round stands (T1 to T3); a field starting or ending with a - or holding a non-ASCII letter or digit
+        # is no item field, so its later mention makes the rounds ambiguous (T4 to T7). A heading with no item field
+        # holds the item as a whole token only with no letter of either case, digit, _ or - beside it (X1, X2), and a
+        # . beside it does not stop that.
+        own_round = round_2.format("the delivery")
+        later = r3 + " (REFUTE): {}, previous item 3b540"
+        for name, heading, want in (
+                ("T1 another item with a .", later.format("3b541.2"), own_round),
+                ("T2 another item with a _", later.format("3b541_2"), own_round),
+                ("T3 another item with a -", later.format("3b541-2"), own_round),
+                ("T4 a field starting with a -", later.format("-3b541"), ambiguous),
+                ("T5 a field ending with a -", later.format("3b541-"), ambiguous),
+                ("T6 a field with a non-ASCII letter", later.format("3b54\u00e91"), ambiguous),
+                ("T7 a field with a full-width digit", later.format("3b54\uff11"), ambiguous),
+                *((f"no item field holding {text}", f"{r3}: {text}, commit f2a53df9f", own_round)
+                  for text in ("V3b540", "13b540", "x_3b540", "x-3b540", "3b540x", "3b540X", "3b540_x", "3b540-x")),
+                *((f"no item field holding {text}", f"{r3}: {text}, commit f2a53df9f", ambiguous)
+                  for text in ("x.3b540", "3b540.x"))):
+            with self.subTest(r4_later=name):
+                self.delivery.write_text(s2.replace(bare_3, heading, 1), encoding="utf-8")
+                got = mod.delivery_report(hook, ledger, self.delivery, with_row=False)
+                self.assertEqual(got, head + want + " (report only)")
+        # 3b578 r5 (claude 3b578 round-4 W1 and N1, codex 3b578 round-4 ERROR): the shapes the round-4 reviews found
+        # unpinned. Alone, a first heading gives its round when CRLF ends every line and the item field ends the
+        # heading (the CR is dropped from heading lines too), and gives no round when a ; ends the item field where
+        # the documents say a comma, or when the heading has no space, two spaces or a tab in place of any of its
+        # three literal spaces.
+        words = ("#", "/validate-pr", "round", "3 (REFUTE): 3b540, commit f2a53df9f")
+        for name, delivery, want in (
+                ("CRLF line ends, the item field ending the heading",
+                 led_by(r3 + " (REFUTE): 3b540").replace("\n", "\r\n"), round_3),
+                ("a ; ending the item field", led_by(r3 + " (REFUTE): 3b540; commit f2a53df9f"), stopped),
+                *((f"the space after {words[n]} as {gap!r}",
+                   led_by(" ".join(words[:n + 1]) + gap + " ".join(words[n + 1:])), stopped)
+                  for n in range(3) for gap in ("", "  ", "\t"))):
+            with self.subTest(r5_alone=name):
+                self.delivery.write_bytes(delivery.encode("utf-8"))
+                got = mod.delivery_report(hook, ledger, self.delivery, with_row=False)
+                self.assertEqual(got, head + want + " (report only)")
+        # After the delivery's own round 2: for the dotted item 3b540.2 (its own heading, VPR-COMPLETE line and one
+        # ledger row), a later heading with no item field holding 3b540a2 does not hold the item, since a . in the
+        # item is matched literally, so the own round counts that one row (the line round_3 also reads); one
+        # holding 3b540.2 makes the rounds ambiguous. Only an ASCII letter or digit, _ or - beside the item stops a
+        # whole token, so a later heading with no item field holding 3b540 beside a non-ASCII letter (U+00E9) makes
+        # the rounds ambiguous.
+        dotted_ledger = ledger.replace("\n\n## Closed today", "\n| 2026-10-21 | note | [D2-N1] a dotted item | claude "
+                                       "3b540.2 /validate-pr round 2 @ f2a53df9f |  |\n\n## Closed today", 1)
+        dotted = s2.replace(" 3b540,", " 3b540.2,", 1).replace("VPR-COMPLETE 3b540 ", "VPR-COMPLETE 3b540.2 ", 1)
+        for name, delivery, rows, want in (
+                ("the dotted item, a later heading holding 3b540a2", dotted.replace(bare_3, f"{r3}: 3b540a2", 1),
+                 dotted_ledger, round_3),
+                ("the dotted item, a later heading holding 3b540.2", dotted.replace(bare_3, f"{r3}: 3b540.2", 1),
+                 dotted_ledger, ambiguous),
+                ("a non-ASCII letter before the item", s2.replace(bare_3, f"{r3}: \u00e93b540, commit f2a53df9f", 1),
+                 ledger, ambiguous),
+                ("a non-ASCII letter after the item", s2.replace(bare_3, f"{r3}: 3b540\u00e9, commit f2a53df9f", 1),
+                 ledger, ambiguous)):
+            with self.subTest(r5_later=name):
+                self.delivery.write_text(delivery, encoding="utf-8")
+                got = mod.delivery_report(hook, rows, self.delivery, with_row=False)
+                self.assertEqual(got, head + want + " (report only)")
+        # 3b578 r6: the round number is a positive integer with no leading zero, so alone, a first heading with round
+        # 03 (H9) or round 0 gives no round.
+        for name in ("round 03", "round 0"):
+            with self.subTest(r6_alone=name):
+                self.delivery.write_text(led_by(f"# /validate-pr {name} (REFUTE): 3b540, commit f2a53df9f"),
+                                         encoding="utf-8")
+                got = mod.delivery_report(hook, ledger, self.delivery, with_row=False)
+                self.assertEqual(got, head + stopped + " (report only)")
+        import ast
+        doc = ast.get_docstring(ast.parse(OpenFindingsRowTests.TOOL.read_text(encoding="utf-8")))
+        section = " ".join(doc.split("DELIVERY FINDINGS (report only, 3b544).", 1)[1]
+                           .split("\n\nENVIRONMENT (exit 2).", 1)[0].split())
+        # 3b578 r2 (round-1 N3): the rule as the code applies it and the narrowings it leaves, in one wording in the
+        # docstring and the reference (backticks aside); the looser round-1 sentence is gone.
+        rules = (
+            "A heading's item field is read exactly so (3b578): after the round number, one or more spaces or tabs, "
+            "then (REFUTE in uppercase, closed by its first ), which a : must follow; then the text up to the first "
+            "comma or the line end, spaces and tabs stripped, which must be one item token (ASCII letters, digits, "
+            "., _ or -, starting and ending with a letter or digit, as in VPR-COMPLETE).",
+            "A heading whose item field is another item names no item, even when it mentions the item later.",
+            "A heading with no item field (for example (refute), text before (REFUTE, a ) inside its parentheses, no "
+            "colon after them, or a field that is empty, backticked, or holds a space or a no-break space) gives no "
+            "round, but it names the item when it holds it as a whole token (not next to an ASCII letter or digit, _ "
+            "or -), so it still counts toward round-heading-ambiguous",
+            "item field narrows two checks (3b578): a heading whose item field is another item never counts toward "
+            "round-heading-ambiguous, even when it mentions the item later, and a heading with no item field gives "
+            "no round, so with --source-key it cannot disagree with the key's round and only counts toward "
+            "round-heading-ambiguous",
+            # 3b578 r6: the round number's shape (H9).
+            "The round number <n> is a positive integer in ASCII digits with no leading zero, so a heading with "
+            "round 0 or round 03 is not a round heading.")
+        for name, text in (("tool docstring", section), ("reference", self.delivery_bullet())):
+            plain = text.replace("`", "")
+            for n, rule in enumerate(rules, start=1):
+                with self.subTest(rule=name, sentence=n):
+                    self.assertIn(rule, plain)
+            with self.subTest(rule=name, sentence="the round-1 sentence gone"):
+                self.assertNotIn("A heading names the item only by the field right after its", plain)
 
 
 class ProvisionIndexTests(LinterTestCase):

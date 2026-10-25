@@ -62,10 +62,21 @@ whose Source cell leads with the delivery's own review key, `<family> <item> /va
 <sha>`, with a WARNING when there are fewer rows than findings. THE KEY comes from the delivery: the
 family is the `family=` value of a `WORKER_STATUS:` first line (the wrapper's header), the item and
 sha are those of the last `VPR-COMPLETE <item> <sha>` line as written, and the round is that of a
-`# /validate-pr round <n>` heading naming the item as a whole token (the delivery's copy of the brief
-heading) only when it is the delivery's first heading (3b544 r3): a round heading after another
-heading is a quote, never the delivery's round. Many deliveries carry no such heading (neither sample
-delivery staged for 3b544 does), so the orchestrator should pass --source-key when it knows the
+`# /validate-pr round <n> (REFUTE...): <item>, ...` heading whose item field is the item (the
+delivery's copy of the brief heading) only when it is the delivery's first heading (3b544 r3): a
+round heading after another heading is a quote, never the delivery's round. The round number `<n>` is a
+positive integer in ASCII digits with no leading zero, so a heading with `round 0` or `round 03` is not a
+round heading. A heading's item field is read exactly so (3b578): after the round number, one or more
+spaces or tabs, then `(REFUTE` in uppercase, closed by its first `)`, which a `:` must follow; then
+the text up to the first comma or the line end, spaces and tabs stripped, which must be one item
+token (ASCII letters, digits, `.`, `_` or `-`, starting and ending with a letter or digit, as in
+VPR-COMPLETE). A heading whose item field is another item names no item, even when it mentions the
+item later. A heading with no item field
+(for example `(refute)`, text before `(REFUTE`, a `)` inside its parentheses, no colon after them,
+or a field that is empty, backticked, or holds a space or a no-break space) gives no round, but it
+names the item when it holds it as a whole token (not next to an ASCII letter or digit, `_` or `-`), so it
+still counts toward round-heading-ambiguous (3b578 r2). Many deliveries carry no such heading (neither
+sample delivery staged for 3b544 does), so the orchestrator should pass --source-key when it knows the
 round. --source-key KEY gives the whole key explicitly; every part the delivery also carries must
 equal the key's, else the count is UNVERIFIABLE (source-key-disagrees), and a key not in that form is
 UNVERIFIABLE (source-key-invalid). Without --source-key, a delivery that lacks a part prints the row
@@ -88,9 +99,9 @@ VPR-COMPLETE and heading lines count at column 0 outside code fences: the hook's
 except that a backtick run whose remaining text holds a backtick opens no fence (CommonMark reads it
 as inline code); delivery lines end at LF only, a CR before it dropped, so a lone CR or U+2028
 starts no line. MATCHING RULE: the Source cell starts
-with the key exactly (case and spacing included) and the key is not followed by a letter, digit, `_`
-or `-`, so a row of another family, item, round or sha, or with a shorter or longer sha, is not
-counted. The rows counted are the duplicate-id scope above, in the ledger text with this row when the
+with the key exactly (case and spacing included) and the key is not followed by an ASCII letter or
+digit, `_` or `-`, so a row of another family, item, round or sha, or with a shorter or longer sha, is
+not counted. The rows counted are the duplicate-id scope above, in the ledger text with this row when the
 row is accepted, else in the ledger as read. The Source cell is split on unescaped pipes as the guard
 splits, and used only when the other four cells equal the guard's parse of the same line; otherwise
 the count is UNVERIFIABLE (source-cell-divergence). The option never refuses, never blocks the write
@@ -109,10 +120,13 @@ delivery lacks; the FINDINGS line is taken as written, so a delivery that miscou
 is not caught; a delivery whose first heading quotes another round's heading for the same item at
 column 0 still takes that round's key, even when its own headings follow the quote (only an
 unfenced ATX heading before the quote stops it; a setext, HTML, block-quoted or list-item heading
-does not), and with --source-key that case is UNVERIFIABLE (source-key-disagrees) instead; fence
-reading does not model container blocks or HTML blocks, so a tail line quoted inside one can still
-be read, and an unclosed fence runs to the end, so a tail after it reads as absent (UNVERIFIABLE,
-not a count).
+does not), and with --source-key that case is UNVERIFIABLE (source-key-disagrees) instead; the item
+field narrows two checks (3b578): a heading whose item field is another item never counts toward
+round-heading-ambiguous, even when it mentions the item later, and a heading with no item field
+gives no round, so with --source-key it cannot disagree with the key's round and only counts toward
+round-heading-ambiguous; fence reading does not model container blocks or HTML blocks, so a tail
+line quoted inside one can still be read, and an unclosed fence runs to the end, so a tail after it
+reads as absent (UNVERIFIABLE, not a count).
 
 ENVIRONMENT (exit 2). The hook cannot load or lacks a function used here; the ledger is missing,
 unresolvable, unreadable, not UTF-8, a symlink, not a regular file, has more than one hard link, or
@@ -215,6 +229,12 @@ VPR_COMPLETE_RE = re.compile(
 WORKER_STATUS_RE = re.compile(r"WORKER_STATUS: [A-Z]+ \((.*)\)[ \t]*")
 FAMILY_RE = re.compile(r"[a-z][a-z0-9-]*")
 ROUND_HEADING_RE = re.compile(r"# /validate-pr round ([1-9][0-9]*)(?![0-9])(.*)")
+# A round heading's item field (3b578), matched at the start of the text after the round number: an
+# uppercase `(REFUTE` up to its first `)`, a `:`, then one item token up to the first comma or the end,
+# never a later mention, so a heading of another item that cites this one gives no round. A heading with
+# no item field gives no round either, but its rest is still read for the ambiguity check (3b578 r2).
+ROUND_ITEM_RE = re.compile(
+    r"[ \t]+\(REFUTE[^)]*\):[ \t]*([A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?)[ \t]*(?:,|$)")
 # Any ATX heading line (CommonMark: up to three spaces, one to six #, then a space, a tab or the end):
 # a round heading after one is a quote, not the delivery's own (3b544 r3).
 ATX_HEADING_RE = re.compile(r" {0,3}#{1,6}(?:[ \t]|$)")
@@ -529,7 +549,8 @@ def parse_delivery(hook, text: str) -> tuple[tuple[int, int, int] | str, dict]:
     """PURE. (totals, parts) from a delivery. totals is (errors, warns, notes) from the last FINDINGS
     line, or a code: no-findings-line, findings-line-unparseable. parts holds the review key's parts
     the delivery carries, None where it carries none: family (the `family=` value of a WORKER_STATUS
-    first line), item and sha (the last VPR-COMPLETE line, as written), rounds (the round, the rest and
+    first line), item and sha (the last VPR-COMPLETE line, as written), rounds (the round, the item
+    field (the item token ROUND_ITEM_RE reads) or None, the text after the round number, and
     whether it is the delivery's first heading, of each `# /validate-pr round <n>` heading); bad is the
     code of a part carried in a form that does not parse (worker-status-family-unparseable,
     vpr-complete-line-unparseable), else None. FINDINGS, VPR-COMPLETE and heading lines count at
@@ -557,7 +578,8 @@ def parse_delivery(hook, text: str) -> tuple[tuple[int, int, int] | str, dict]:
             complete = line
         elif (m := ROUND_HEADING_RE.fullmatch(line)) is not None or ATX_HEADING_RE.match(line):
             if m is not None:
-                rounds.append((m[1], m[2], not headed))
+                named = ROUND_ITEM_RE.match(m[2])
+                rounds.append((m[1], None if named is None else named[1], m[2], not headed))
             headed = True
     totals: tuple[int, int, int] | str = "no-findings-line"
     if findings is not None:
@@ -592,8 +614,9 @@ def review_key(parts: dict, source_key: str | None) -> tuple[str | None, str | N
     stand (round-heading-ambiguous), so without --source-key a delivery with no VPR-COMPLETE line names
     no item and gets no-vpr-complete-line; with --source-key, a carried part that differs from the
     key's (source-key-disagrees); without it, the first part the delivery lacks (no-vpr-complete-line,
-    no-worker-status-family, no-round-heading). The round is that of a heading naming the item as a
-    whole token only when it is the delivery's first heading (3b544 r3)."""
+    no-worker-status-family, no-round-heading). A heading names the item when its item field is the
+    item, or when it has no item field but holds the item as a whole token (3b578 r2); the round is
+    only ever that of the delivery's first heading, when its item field is the item (3b544 r3, 3b578)."""
     if parts["bad"] is not None:
         return None, parts["bad"]
     given = None
@@ -604,12 +627,16 @@ def review_key(parts: dict, source_key: str | None) -> tuple[str | None, str | N
     item = parts["item"] if given is None else given[2]
     rounds, own = set(), None
     if item is not None:
-        named = re.compile(r"(?<![A-Za-z0-9_-])" + re.escape(item) + r"(?![A-Za-z0-9_-])")
-        for rnd, rest, leads in parts["rounds"]:
-            if named.search(rest):
+        token = re.compile(r"(?<![A-Za-z0-9_-])" + re.escape(item) + r"(?![A-Za-z0-9_-])")
+        for rnd, named, rest, leads in parts["rounds"]:
+            if named == item:
                 rounds.add(rnd)
                 if leads:
                     own = rnd
+            elif named is None and token.search(rest):
+                # The ambiguity backstop (3b578 r2): a heading with no item field gives no round, but one
+                # holding the item still states a round for it, so a quote first cannot hide a later own round.
+                rounds.add(rnd)
     if len(rounds) > 1:
         return None, "round-heading-ambiguous"
     carried = (parts["family"], parts["item"], own, parts["sha"])
