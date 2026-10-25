@@ -44665,6 +44665,22 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
         self.assertIs(addons["requires_reference_base"], True)
 
+    def test_language_profile_masks_the_ico_ensure_heading(self):
+        # 3b582: the 0.20.0 heading is listed in the profile and masked by the gate-2 engine,
+        # while an ordinary 'ensure' sentence (the positive control) is still flagged.
+        from unittest.mock import patch
+        heading = "How do we ensure accuracy?"
+        self.assertIn(heading,
+                      self._load("defaults/grc/language.toml")["language"]["verbatim_ensure_titles"])
+        wrapper = load_linter_module("tools/lint-language.py", "_pack_language_heading")
+        engine = wrapper._engine()
+        language = engine.compile_language(wrapper._language_config())
+        for line, expected in (("### " + heading, []),
+                               ("We ensure accuracy.", [("ensure", 1, "We ensure accuracy.")])):
+            with self.subTest(line=line), patch.object(engine, "read_text_safe", return_value=line):
+                self.assertEqual(engine.check_file(
+                    REPO_ROOT / "tests/tmp/language.md", REPO_ROOT, language=language), expected)
+
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
         self.assertTrue(man["generation"]["enabled"], "compile PR-2 enables generation")
