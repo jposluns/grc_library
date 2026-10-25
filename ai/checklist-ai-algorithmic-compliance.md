@@ -2,8 +2,8 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.19\
-**Date:** 2026-10-24\
+**Version:** 1.0.21\
+**Date:** 2026-10-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -20,7 +20,7 @@
 
 This checklist provides a structured assessment tool for evaluating AI system compliance before deployment and at periodic review intervals. It is used by the AIGC and CISO as part of the AI System Impact Assessment Procedure ([`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md)) and the AI System Audit and Certification Framework ([`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md)).
 
-The checklist is completed by the AI System Owner in the first instance, reviewed by the CISO, and reviewed by the Data Protection Officer for items in Section B. For high-risk AI systems (Tier 1), the completed checklist is submitted to the AIGC for approval before deployment.
+The checklist is completed by the AI System Owner in the first instance, reviewed by the CISO, and reviewed by the Data Protection Officer for items in Section B. For AI systems classified High under the organizational AI risk classification, the completed checklist is submitted to the AIGC for approval before deployment.
 
 ### Completion instructions
 
@@ -39,7 +39,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | AI System Name | |
 | AI System Register ID | |
 | Risk Tier (EU AI Act) | |
-| Organizational risk tier (informed by NIST AI RMF) | |
+| Organizational AI risk classification (informed by NIST AI RMF) | |
 | Assessment Type | Pre-deployment / Annual review / Post-incident review / Post-modification review |
 | Assessment Date | |
 | Assessed By | |
@@ -56,7 +56,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
 | A1 | AI system registered in the AI System Register with complete metadata, including system name, version, deployment context, risk classification, impact level, intended use, and data categories | | | | |
-| A2 | Risk tier classification documented for both the EU AI Act tier and the organization's own risk tier (informed by the NIST AI RMF, which prescribes no tier taxonomy); classification reviewed and approved by the AIGC | | | | |
+| A2 | Risk classification documented for both the EU AI Act tier and the organizational AI risk classification (Minimal, Limited, High, Unacceptable; informed by the NIST AI RMF, which prescribes no tier taxonomy), per the EU AI Act scoping in [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) Section 4; classification reviewed and approved by the AIGC | | | | |
 | A3 | Model card completed and current, reflecting the model version in production ([`ai/template-model-card.md`](template-model-card.md)) | | | | |
 | A4 | System card completed and current, reflecting the current deployment context, human oversight design, and known limitations ([`ai/template-system-card.md`](template-system-card.md)) | | | | |
 | A5 | AI system owner (technical accountability) and operational owner (business accountability) designated and documented in the AI System Register | | | | |
@@ -145,12 +145,12 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | Score | Disposition |
 |---|---|
 | 95% or above | Compliant: proceed to deployment or confirm continued deployment |
-| 80% to 94% | Conditional: CAPA records must be raised for all No and Partial items before deployment is approved for Tier 1 systems; for systems in production, remediation plan required within 60 days |
+| 80% to 94% | Conditional: CAPA records must be raised for all No and Partial items before deployment is approved for systems classified High under the organizational AI risk classification; for systems in production, remediation plan required within 60 days |
 | Below 80% | **High finding**: system must not be deployed until score reaches at least 80%; systems already in production require a formal remediation plan approved by the AIGC within 60 days; CISO reports to AIGC at next scheduled meeting |
 
-### Mandatory CAPA requirements for high-risk (tier 1) systems
+### Mandatory CAPA requirements for high-risk systems
 
-For any AI system classified as Tier 1 (High-Risk):
+For any AI system classified High under the organizational AI risk classification:
 
 - Any item in **Section A** with a status of **No** or **Partial** must generate a CAPA record before deployment is approved.
 - Any item in **Section C** with a status of **No** or **Partial** must generate a CAPA record before deployment is approved.
