@@ -2,8 +2,8 @@
 
 **Document Title:** AI Assurance Case Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-10-24\
+**Version:** 1.0.2\
+**Date:** 2026-10-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/procedure-ai-assurance-case.md`](procedure-ai-assurance-case.md), [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`compliance/template-audit-evidence-package.md`](../compliance/template-audit-evidence-package.md)\
@@ -26,7 +26,7 @@ A populated assurance case identifies real systems, their weaknesses, and their 
 
 ## Scope
 
-One assurance case is maintained per AI system in the AI System Register. Parts A, B, D, E, F, and G are completed for every system. Part C (the structured argument) is mandatory for systems at audit Tier 1 of [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) Section 3 and optional for Tiers 2 to 4.
+One assurance case is maintained per AI system in the AI System Register. Parts A, B, D, E, F, and G are completed for every system. Part C (the structured argument) is mandatory for systems at Audit Tier 1 of [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) Section 3 and optional for Audit Tiers 2 to 4.
 
 ---
 
@@ -64,7 +64,7 @@ Each context element the argument relies on (ISO/IEC/IEEE 15026-2:2022, Clause 5
 
 ## Part C: Argument table
 
-The structured argument layer (mandatory for Tier 1; optional below). Each row is a supported claim per ISO/IEC/IEEE 15026-2:2022, Clause 5.3.5. The nine claims of [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) Section 3.1 are entered by reference as the first decomposition level.
+The structured argument layer (mandatory for Audit Tier 1; optional below). Each row is a supported claim per ISO/IEC/IEEE 15026-2:2022, Clause 5.3.5. The nine claims of [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) Section 3.1 are entered by reference as the first decomposition level.
 
 | Field | Required content |
 | --- | --- |
