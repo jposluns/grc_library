@@ -33,10 +33,12 @@ Usage:
 
 Exit codes:
     0 : Every changed versioned document has a bumped Version field,
-        or the diff is empty, or only exempt files were touched.
+        or only exempt files were touched.
     1 : One or more versioned documents changed without a Version bump.
     2 : Invocation or environment error (cannot determine base/head,
-        git failure).
+        git failure), or CANNOT-EVALUATE: base and head resolve to the
+        same commit, or the range changes no file (an empty diff), so
+        nothing was evaluated.
 """
 
 from __future__ import annotations

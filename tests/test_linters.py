@@ -10597,9 +10597,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # collapsed-range check, or deleted, therefore cannot turn the
         # genuine verdict at the resolved head (the floor lowered: FAIL, exit
         # 1) into the reflexive monotonic OK or a refusal. The shim fires on
-        # the first floor read of any kind, and the ref's state after the run
-        # proves the change happened (3b540 round 6, r5 review WARN-1): the
-        # round-4 tool, whose presence check was git cat-file -e, fails here.
+        # the first ls-tree, cat-file or show call, and the ref's state after
+        # the run proves the change happened (3b540 round 6, r5 review
+        # WARN-1): the round-4 tool, whose presence check was
+        # git cat-file -e, fails here.
         for label, update, after in (
             ("moved onto the base", ("refs/heads/feat", "{base}"), "{base}"),
             ("deleted", ("-d", "refs/heads/feat"), None),
@@ -10631,8 +10632,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # deleted, therefore cannot turn the genuine verdict at the resolved
         # base (the working tree lowered the floor: FAIL, exit 1) into the
         # first-introduction OK (a silent waiver) or a refusal. As above, the
-        # shim fires on the first floor read of any kind and the ref's state
-        # after the run proves the change happened (3b540 round 6).
+        # shim fires on the first ls-tree, cat-file or show call and the
+        # ref's state after the run proves the change happened
+        # (3b540 round 6).
         for label, update, after in (
             ("moved onto a commit without the floor",
              ("refs/remotes/origin/main", "{initial}"), "{initial}"),
@@ -10950,6 +10952,86 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
         self.assertIn("tension-scan: CANNOT-EVALUATE", r.stderr)
         self.assertNotIn("rewritten block", r.stdout)
+
+    def test_non_utf8_toplevel_keeps_real_verdict_and_refusal(self) -> None:
+        # 3b540 round 8 (r7 review WARN-2): the top level a gate reads for
+        # its refusal's repo= field is diagnostic only. In a repository whose
+        # top-level path holds a byte that is not valid UTF-8 (0xff), that
+        # read raised UnicodeDecodeError and D1-D5, D7, D9, D11, D13 and
+        # tension-scan exited 1 with a traceback (D15 failed open); it now
+        # degrades to a placeholder as D12's _toplevel does, so a real range
+        # gets each gate's real verdict and a collapsed range its refusal.
+        # Mutation killed: dropping UnicodeDecodeError from the new except
+        # clause in lint_common.pr_range_resolution, D5, D9, D13 or
+        # tension-scan. Skipped where the filesystem refuses the name.
+        import subprocess as sp
+
+        parent = Path(tempfile.mkdtemp(prefix="non-utf8-top-")).resolve()
+        self.addCleanup(shutil.rmtree, parent, ignore_errors=True)
+        top = os.path.join(os.fsencode(parent), b"repo-\xff")
+        try:
+            os.mkdir(top)
+        except OSError as exc:
+            self.skipTest(f"the filesystem cannot hold a non-UTF-8 name: {exc}")
+
+        def git(*args):
+            sp.run([b"git", b"-C", top, *map(os.fsencode, args)],
+                   check=True, capture_output=True)
+
+        def write(rel, content):
+            with open(os.path.join(top, os.fsencode(rel)), "wb") as fh:
+                fh.write(content)
+
+        git("init", "-q", "-b", "main")
+        git("config", "user.email", "test@test")
+        git("config", "user.name", "Test")
+        write("README.md", b"# Repo\n")
+        write("CHANGELOG.md", b"# Changelog\n\nOld entry.\n")
+        git("add", "-A")
+        git("commit", "-q", "-m", "Initial")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        git("checkout", "-q", "-b", "feat")
+        write("CHANGELOG.md", b"# Changelog\n\nNew entry.\n\nOld entry.\n")
+        git("commit", "-q", "-am", "feat: a change")
+        # D9 and D13 anchor git to their own script's repository, so they run
+        # as untracked copies inside the fixture (with lint_common, which D9
+        # imports).
+        os.mkdir(os.path.join(top, b"tools"))
+        for name in ("lint_common.py", "check-retired-section-orphan-on-pr.py",
+                     "check-stranded-control-code-on-pr.py"):
+            write(f"tools/{name}", (REPO_ROOT / "tools" / name).read_bytes())
+
+        tools = os.fsencode(REPO_ROOT / "tools")
+        own = os.path.join(top, b"tools")
+        for directory, script, verdict in (
+            (tools, "check-changelog-on-pr.py", "OK: CHANGELOG.md is in the diff"),
+            (tools, "check-version-bump-on-pr.py", "OK: 0 changed versioned document(s)"),
+            (tools, "check-changelog-dash-on-pr.py", "OK: no em/en dashes"),
+            (tools, "check-date-cobump-on-pr.py", "OK: 0 document(s) bumped Version"),
+            (tools, "check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
+            (tools, "check-changelog-length-on-pr.py", "OK: no compact root CHANGELOG.md"),
+            (tools, "check-narrative-corpus-mixed-diff-on-pr.py", "neither surface touched"),
+            (tools, "tension-scan.py", "0 rewritten block(s) since"),
+            (tools, "check-alignment-register-on-pr.py", "is absent at feat; nothing to check"),
+            (own, "check-retired-section-orphan-on-pr.py", "D9 OK: no TODO section closed"),
+            (own, "check-stranded-control-code-on-pr.py", "D13 OK: no corpus document changed"),
+        ):
+            path = os.path.join(directory, os.fsencode(script))
+            advisory = script == "check-alignment-register-on-pr.py"  # D15 exits 0
+            for label, head, rc in (("real", "feat", 0),
+                                    ("collapsed", "origin/main", 0 if advisory else 2)):
+                with self.subTest(gate=script, range=label):
+                    r = sp.run([sys.executable, path, "origin/main", head],
+                               capture_output=True, cwd=top, encoding="utf-8",
+                               errors="backslashreplace")
+                    self.assertEqual(r.returncode, rc,
+                                     f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                    self.assertNotIn("Traceback", r.stderr)
+                    if label == "real":
+                        self.assertIn(verdict, r.stdout)
+                    else:
+                        self.assertIn("CANNOT-EVALUATE", r.stdout + r.stderr)
+                        self.assertIn("repo=(no work tree)", r.stdout + r.stderr)
 
 
 from tests import test_session_facts
@@ -26397,7 +26479,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-alignment-register-on-pr.py NO_FS F b1774022adf437520a3b79930342002eea0493a91a91f6fcf0a823a02a7b3878
         check-changelog-dash-on-pr.py NO_FS F ca13e80adc1268e25f9049e104d987cb2da30d1cedf2a5abb5aa35969008f883
         check-changelog-length-on-pr.py NO_FS F ad8db4fb4f41cbe77f759cb70e293a070045fc82bfe6617e454c6d26a0151f4d
-        check-changelog-on-pr.py NO_FS F fac4d3416941e86ce7abee406af37d0d11398e60993b7a7b193fa70b53f98a59
+        check-changelog-on-pr.py NO_FS F 965ec6500d8b640b43076292e5ee4158787c86f9332612cd273c34d3f79ac050
         check-changelog-preflight-commit.py NO_FS F 87b92b4235420074c259a9b50e0ee72d5624a81be2b87420de3e01cc7e551fd2
         check-class-attestation-on-pr.py NO_FS F 8ef4e742c2610fa3c80598404991ee6aab9da409b9e95e2ad8b74ec202d40325
         check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
@@ -26406,19 +26488,19 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-clean-language-upstream.py NO_FS F 7732d2d2eceb44061d99e7c484aa83c93b0818091538ba7e3b95a0040acda6a2
         check-commit-on-main.py NO_FS F 6b32bd410a2fee3b4dbb3ff8e3677ee4c5278c9c3f0496fe429b12a25cc967e9
         check-daily-changelog-rollup.py SKIP F 096c9d8e8cf4741ca7fd9bb43ca5c4a5d08ead37c65559e291b44fb8af28da10
-        check-date-cobump-on-pr.py NO_FS F 78d69dc738b630a1416eabb1c278007d8d4c4995775aa349ee191e113463546b
+        check-date-cobump-on-pr.py NO_FS F ed8a6f1b647ffd8e6f22f99d34920fe4b92bb7d37ab9f81ac1f04e6a04958188
         check-dirty-tree-push.py TRANSPORT F e60cbafde1933c8bcc92410a997d41a6e5e89d97456ff2949aba0284ffb65713
         check-generated-commit.py NO_FS F 0966158af3a54dba6c55f7de8039ca21ff3658ffe98c4d341d6ad153e824697b
-        check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 9b8a49bc37aa820d292a2c27d843ad5c5cf4cc555a19b4df89e59b4c2fbaf006
+        check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 3b8aef9b029585e955b4d646a38a50c043d532e58379d05dc6c6b68b4f3a937e
         check-portability.sh FIXED F 47a3853e165ba918c0f4f5687904f662a0a9d805356428394fd724ff227756d5
         check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
-        check-retired-section-orphan-on-pr.py NO_FS F 94f89f3645e0e4dedbfe0a2d174ba60150b94bd7a0c734e25d5f96d148afe4ba
+        check-retired-section-orphan-on-pr.py NO_FS F b556f2477f7754de7f79379acd8acc9d0534d7d262ca910db33b3ae61e456b7d
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
-        check-stranded-control-code-on-pr.py NO_FS F 5c0890d697db2086c6a10fe3222b6a268ac04199a359b761e4d393aceaccde7d
+        check-stranded-control-code-on-pr.py NO_FS F 8fff853fc2f0f53d5917400a422ca91fc7886312a2053c5ee3ace0d010726562
         check-todo-floor-monotonic-on-pr.py NO_FS F 6e6451cd462e025af8cd3534e1b36561e201fd4b7d81aff74d93f4e2a8915cd3
-        check-todo-rotation-on-pr.py NO_FS F f4189bf15201c6ae8d228ac341f5c5c5dd859457be22275084e2e155751b5c96
+        check-todo-rotation-on-pr.py NO_FS F a2690c36e2be15393cee27c19b465c9bee488ef0c9d20cbe694651636fa50984
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
-        check-version-bump-on-pr.py NO_FS F 520abe7d721553382768bf7c581cc0db91b1b6ac329404cc61416333246062b2
+        check-version-bump-on-pr.py NO_FS F a8598d3d9452c9e44b9c4d9f21ef2d3d9f8b81875429872d5823b9b76a9c7585
         ci-status.py NO_FS F 068ed02eb5f5a81572dce604a4cb1965582dbc178c7c9715be3d37dd8e01e54b
         ci-status.sh NO_FS F 8c66fb625693e9099b040855a90e25dac7f78960eeb2ad660ac513f513287094
         citation_publishers.py PASSIVE F 8c9729132cfaa4f2705c023b4501872905a44dd76b996be8ea8c78ae4188d3e8
@@ -26535,7 +26617,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 616ae8f4ea008cda21bcf2f663ed650f82f91b2467fddc75cc4a313ff61e32b1
-        lint_common.py PASSIVE F 70d3271c41738c8a121bdf2f46d95867488bbe46b375cc581be9e83f2aa0938e
+        lint_common.py PASSIVE F e58e1567dda043676dcbcb35d6ed54aebf577d34e1da2da2b6dde9c5999528e2
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -26566,7 +26648,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         sweep-preflight-scanner.py NO_FS F ae4ca7f95dffecb823ec3bc0fdf382ead32fd92a8b0c8b0c286f0b85b2b4dd6f
         sync-citation-worklist-baseline.py OWN F 9c465a8c77bafd52f7f3079f35346a11716a6f0bc8e91862706590e831af397b
         tail-safe.sh COMMAND F 07908bc54b40d06445f63a08f92526d22e4a030465ee235104a3ec41fbbb0b02
-        tension-scan.py NO_FS F acc2ca2f80d3f41397ea6e20eef3a8f704c5928105b1a77799eef121187cec7d
+        tension-scan.py NO_FS F 103e50ab78e80dc4453a351bb9a58f6076fe215055ac9df1dd5b5d0a8a4ca742
         todo-number-floor.json DATA F b5b684a17754dd265c1072f2342971befcc59b5a6e0b579f48eb21ea172f047b
         todo_index_rows.py PASSIVE F 6aba39ba20b4bbbe5ffab3fe94ef520ec95ce8d8e2510ea73696c17d196c2e4a
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4

@@ -60,10 +60,12 @@ Usage:
     python3 tools/check-narrative-corpus-mixed-diff-on-pr.py --self-test
 
 Exit codes:
-    0 : the diff does not touch both surfaces (or is empty).
+    0 : the diff does not touch both surfaces.
     1 : the diff touches BOTH a narrative content page and a corpus document.
     2 : invocation or environment error (cannot determine base/head, git failure),
-        or a self-test failure.
+        CANNOT-EVALUATE (base and head resolve to the same commit, or the range
+        changes no file: an empty diff, so nothing was evaluated), or a
+        self-test failure.
 """
 
 from __future__ import annotations

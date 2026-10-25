@@ -2001,14 +2001,18 @@ def pr_range_resolution(head: str) -> tuple[str, str]:
     the repository git selects from the current directory. Diagnostic only
     (never raises): a ref that no longer resolves is echoed back verbatim and
     a missing work tree is reported as such, so a refusal message can always
-    be composed."""
+    be composed. git failing to run at all (OSError) or printing output the
+    locale codec cannot decode (UnicodeDecodeError, a top-level path that is
+    not valid UTF-8) degrades the same way, as D12's _toplevel does, so
+    resolve_pr_range, which runs this on every call, keeps the gate's real
+    verdict instead of escaping as a traceback (3b540 round 8)."""
     try:
         head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}")
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError):
         head_sha = head
     try:
         toplevel = git("rev-parse", "--show-toplevel")
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError):
         toplevel = "(no work tree)"
     return head_sha, toplevel
 

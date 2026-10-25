@@ -49,8 +49,10 @@ Four FP guards:
    is a no-op in CI while working locally (a local-pass/CI-fail split, why that fix
    was reverted). The opt-out, with a reason naming the migration, is correct.
 
-Exit: 0 = no retired ids / no LIVE survivors / opt-out / empty diff; 1 = LIVE
-survivors found; 2 = git or environment error.
+Exit: 0 = no retired ids / no LIVE survivors / opt-out / an empty TODO.md diff
+over a real range; 1 = LIVE survivors found; 2 = git or environment error, or
+CANNOT-EVALUATE when base and head resolve to the same commit (a collapsed,
+empty range: nothing was evaluated).
 """
 from __future__ import annotations
 
@@ -237,7 +239,15 @@ def run(base: str | None, head: str) -> int:
     try:
         merge_base = git("merge-base", base, head).strip()
         head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}").strip()
-        toplevel = git("rev-parse", "--show-toplevel").strip()
+        try:
+            # Diagnostic only (the refusal's repo= field): a top level git
+            # cannot print, or one the locale codec cannot decode (a path that
+            # is not valid UTF-8), degrades to a placeholder as D12's
+            # _toplevel does, so the gate keeps its real verdict instead of a
+            # traceback (3b540 round 8).
+            toplevel = git("rev-parse", "--show-toplevel").strip()
+        except (subprocess.CalledProcessError, OSError, UnicodeDecodeError):
+            toplevel = "(no work tree)"
         ref_diff = git("diff", merge_base, head, "--", "TODO.md")
         try:
             head_ref = git("show", f"{head}:TODO.md")

@@ -215,10 +215,17 @@ def run(base: str | None, head: str) -> int:
     # is not in this repository's history; refuse rather than pass clean.
     try:
         head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}").strip()
-        toplevel = git("rev-parse", "--show-toplevel").strip()
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: git failed resolving {head} (base={base}): {exc}", file=sys.stderr)
         return 2
+    try:
+        # Diagnostic only (the refusal's repo= field): a top level git cannot
+        # print, or one the locale codec cannot decode (a path that is not
+        # valid UTF-8), degrades to a placeholder as D12's _toplevel does, so
+        # the gate keeps its real verdict instead of a traceback (3b540 round 8).
+        toplevel = git("rev-parse", "--show-toplevel").strip()
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError):
+        toplevel = "(no work tree)"
     if merge_base == head_sha:
         print(
             f"D13 CANNOT-EVALUATE: base {base} and head {head} resolve to the same "

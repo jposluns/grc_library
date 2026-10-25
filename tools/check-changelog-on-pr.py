@@ -33,10 +33,11 @@ Usage:
     python3 tools/check-changelog-on-pr.py origin/main HEAD
 
 Exit codes:
-    0 : CHANGELOG.md is in the diff, or an opt-out trailer is present, or the
-        diff is empty.
+    0 : CHANGELOG.md is in the diff, or an opt-out trailer is present.
     1 : CHANGELOG.md is not in the diff and no opt-out trailer is present.
-    2 : Invocation or environment error (cannot determine base/head, git failure).
+    2 : Invocation or environment error (cannot determine base/head, git failure),
+        or CANNOT-EVALUATE: base and head resolve to the same commit, or the
+        range changes no file (an empty diff), so nothing was evaluated.
 """
 
 from __future__ import annotations

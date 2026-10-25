@@ -72,12 +72,14 @@ Usage:
 
 Exit codes:
     0 : Every versioned document whose Version bumped in the PR carries a
-        Date equal to the bump commit's UTC date, or the diff is empty,
-        or no versioned document bumped.
+        Date equal to the bump commit's UTC date, or no versioned document
+        bumped.
     1 : One or more documents bumped Version without co-bumping Date.
     2 : Invocation or environment error (cannot determine base/head,
         git failure, or a partial clone whose base/head blobs may be
-        unavailable - declined to avoid a silent false-OK).
+        unavailable - declined to avoid a silent false-OK), or
+        CANNOT-EVALUATE: base and head resolve to the same commit, or the
+        range changes no file (an empty diff), so nothing was evaluated.
 """
 
 from __future__ import annotations
