@@ -57271,7 +57271,11 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
     underscores (X1) or an empty status (X2) read as parsing, a first line starting WORKER_STATUS with
     no colon (X3) or after leading whitespace (X4) read as a WORKER_STATUS first line, and the
     first-line definition or the ASCII status wording dropped from the reference or the tool
-    docstring, 3b556 r3 (claude 3b556 round-2 NOTE-1 and NOTE-2), by
+    docstring, 3b556 r3 (claude 3b556 round-2 NOTE-1 and NOTE-2), and a case-folded prefix read as a
+    WORKER_STATUS first line (X5), by test_quoted_round_heading_is_not_the_delivery_round, one subtest
+    per case; a tab indent stripped before the prefix and envelope tests (M1), a status of any letters
+    but a to z read as parsing, so an accented or full-width one (M2), and a one-letter status read as
+    not parsing (M3), 3b556 r4 (claude 3b556 round-3 NOTE-1), by
     test_quoted_round_heading_is_not_the_delivery_round, one subtest per case."""
 
     REVIEW = "claude 3b540 /validate-pr round 2 @ f2a53df9f"
@@ -57753,6 +57757,10 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         digit_status = "WORKER_STATUS: PASS2 (family=claude)\n" + two_quotes.split("\n", 1)[1]
         underscore_status = "WORKER_STATUS: NOT_RUN (family=claude)\n" + two_quotes.split("\n", 1)[1]
         empty_status = "WORKER_STATUS:  (family=claude)\n" + two_quotes.split("\n", 1)[1]
+        # 3b556 r4 (claude 3b556 round-3 NOTE-1): nor does an accented status (a precomposed U+00C9) or a
+        # full-width one (U+FF30, U+FF21, U+FF33, U+FF33) (M2).
+        accented_status = "WORKER_STATUS: PASSÉ (family=claude)\n" + two_quotes.split("\n", 1)[1]
+        full_width_status = "WORKER_STATUS: ＰＡＳＳ (family=claude)\n" + two_quotes.split("\n", 1)[1]
         own = one.replace("\n## Scratch probes", f"\n{self.ROUND_2_HEADING}\n\n## Scratch probes", 1)
         bom_status = "\ufeff" + own
         for name, delivery, key, code, clause in (
@@ -57790,6 +57798,16 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
                  "worker-status-family-unparseable", status),
                 ("X2 an empty status, with a key not in the form", empty_status, invalid_key,
                  "worker-status-family-unparseable", status),
+                ("M2 an accented status", accented_status, None, "worker-status-family-unparseable", status),
+                ("M2 an accented status, with a correct key", accented_status, self.REVIEW,
+                 "worker-status-family-unparseable", status),
+                ("M2 an accented status, with a key not in the form", accented_status, invalid_key,
+                 "worker-status-family-unparseable", status),
+                ("M2 a full-width status", full_width_status, None, "worker-status-family-unparseable", status),
+                ("M2 a full-width status, with a correct key", full_width_status, self.REVIEW,
+                 "worker-status-family-unparseable", status),
+                ("M2 a full-width status, with a key not in the form", full_width_status, invalid_key,
+                 "worker-status-family-unparseable", status),
                 ("E3 E4 a byte-order mark before WORKER_STATUS", bom_status, None, "no-worker-status-family", bom),
                 ("P2 no VPR-COMPLETE line", no_vpr, None, "no-vpr-complete-line",
                  "without `--source-key`, a delivery with no `VPR-COMPLETE` line prints `no-vpr-complete-line`, "
@@ -57823,11 +57841,22 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
             self.delivery.write_text(own, encoding="utf-8")
             self.assertEqual(mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False, source_key=None),
                              head + counted.format("the delivery") + " (report only)")
+        # 3b556 r4 (claude 3b556 round-3 NOTE-1): a one-letter status parses, so it counts like the control (M3).
+        one_letter = status_line.replace("WORKER_STATUS: PASS", "WORKER_STATUS: P", 1)
+        for key, want in ((None, counted.format("the delivery")), (self.REVIEW, counted.format("--source-key")),
+                          (invalid_key, "ledger rows UNVERIFIABLE (source-key-invalid)")):
+            with self.subTest(status="M3 a one-letter status", source_key=key):
+                self.delivery.write_text(one_letter + "\n" + rest, encoding="utf-8")
+                got = mod.delivery_report(hook, self.LEDGER, self.delivery, with_row=False, source_key=key)
+                self.assertEqual(got, head + want + " (report only)")
+                self.assertIn(envelope, bullet)
+        # 3b556 r4: a tab-indented first line is no WORKER_STATUS first line either (M1).
         for name, line in (
                 ("X3 no colon", status_line.replace("WORKER_STATUS:", "WORKER_STATUS", 1)),
                 ("X3 a space before the colon", status_line.replace("WORKER_STATUS:", "WORKER_STATUS :", 1)),
                 ("X4 an indented first line", " " + status_line),
-                ("a lowercase first line", status_line.replace("WORKER_STATUS: PASS", "worker_status: pass", 1))):
+                ("M1 a tab-indented first line", "\t" + status_line),
+                ("X5 a lowercase first line", status_line.replace("WORKER_STATUS: PASS", "worker_status: pass", 1))):
             for key, want in ((None, "ledger rows UNVERIFIABLE (no-worker-status-family)"),
                               (self.REVIEW, counted.format("--source-key")),
                               (invalid_key, "ledger rows UNVERIFIABLE (source-key-invalid)")):
