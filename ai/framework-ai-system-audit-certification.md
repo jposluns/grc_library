@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.21\
-**Date:** 2026-10-24\
+**Version:** 1.0.22\
+**Date:** 2026-10-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -65,10 +65,10 @@ All AI systems are assigned an audit tier at the time of classification (see [`a
 
 | Audit Tier | System Classification | Audit Frequency | Audit Type | Primary Evidence Required |
 |---|---|---|---|---|
-| **Tier 1: High-Risk** | systems high-risk under EU AI Act Article 6 (Annex III use cases after the Article 6(3) derogation, or products and safety components covered by Article 6(1) and Annex I); safety-critical AI; AI making or materially influencing decisions with significant impact on individuals | Annual | Full technical audit by independent auditor; includes conformity assessment alignment check | Model card; system card; training data provenance; bias and fairness test results; explainability documentation; human oversight records; incident register entries; post-market monitoring data; FRIA (where the Article 27(1) deployer test is met) |
-| **Tier 2: General-Purpose** | GPAI models integrated into products or operations; large language models; foundation models | Every 18 months | Internal audit with CISO lead; supplemented by provider's published transparency documentation | Model card; system card; provider transparency documentation; use case assessment; incident register entries; copyright and licensing records |
-| **Tier 3: Standard** | AI systems with limited decision-making impact; AI tools used for operational support without individual impact | Every 24 months (biennial) | Internal audit | AI System Register entry; model card (if applicable); access control review; incident log review |
-| **Tier 4: Low-Risk** | Minimal-risk AI tools; AI-assisted productivity tools without personal data processing or individual impact | Every 24 months (biennial); triggered review if risk profile changes | Desk-based review | AI System Register entry; confirmation of current classification; access log review |
+| **Audit Tier 1: High-Risk** | systems high-risk under EU AI Act Article 6 (Annex III use cases after the Article 6(3) derogation, or products and safety components covered by Article 6(1) and Annex I); safety-critical AI; AI making or materially influencing decisions with significant impact on individuals | Annual | Full technical audit by independent auditor; includes conformity assessment alignment check | Model card; system card; training data provenance; bias and fairness test results; explainability documentation; human oversight records; incident register entries; post-market monitoring data; FRIA (where the Article 27(1) deployer test is met) |
+| **Audit Tier 2: General-Purpose** | GPAI models integrated into products or operations; large language models; foundation models | Every 18 months | Internal audit with CISO lead; supplemented by provider's published transparency documentation | Model card; system card; provider transparency documentation; use case assessment; incident register entries; copyright and licensing records |
+| **Audit Tier 3: Standard** | AI systems with limited decision-making impact; AI tools used for operational support without individual impact | Every 24 months (biennial) | Internal audit | AI System Register entry; model card (if applicable); access control review; incident log review |
+| **Audit Tier 4: Low-Risk** | Minimal-risk AI tools; AI-assisted productivity tools without personal data processing or individual impact | Every 24 months (biennial); triggered review if risk profile changes | Desk-based review | AI System Register entry; confirmation of current classification; access log review |
 
 ---
 
@@ -76,7 +76,7 @@ All AI systems are assigned an audit tier at the time of classification (see [`a
 
 The following evidence must be available for each audit tier. Evidence gaps identified during the pre-audit documentation review are recorded as preliminary findings and must be remediated before the audit proceeds, unless the auditor determines a compensating assessment is adequate.
 
-### 4.1 Tier 1 (high-risk): full evidence requirements
+### 4.1 Audit tier 1 (high-risk): full evidence requirements
 
 | Evidence Item | Description | Responsible Party |
 |---|---|---|
@@ -91,11 +91,11 @@ The following evidence must be available for each audit tier. Evidence gaps iden
 | Post-market monitoring data | Monitoring plan; performance metrics including accuracy trend, drift metrics, and bias drift; alerts generated and resolved | AI System Owner |
 | Conformity assessment records | EU AI Act Annex IV technical documentation; prior conformity assessment report if applicable | CISO / Legal |
 
-### 4.2 Tier 2 (general-purpose): evidence requirements
+### 4.2 Audit tier 2 (general-purpose): evidence requirements
 
 Model card; system card; provider-published transparency and capability documentation; use case scope assessment; copyright and licensing records; incident register entries for the system for the preceding 18 months.
 
-### 4.3 Tier 3 (standard) and tier 4 (low-risk): evidence requirements
+### 4.3 Audit tier 3 (standard) and audit tier 4 (low-risk): evidence requirements
 
 AI System Register entry (current); model card if the system uses a trained model; access control configuration review output; incident log review for the system for the preceding audit period.
 
@@ -109,7 +109,7 @@ At least four weeks before the audit commences, the CISO confirms:
 
 - The AI system(s) to be audited.
 - The audit tier and applicable evidence requirements.
-- The audit team composition (internal auditors; independent auditor for Tier 1).
+- The audit team composition (internal auditors; independent auditor for Audit Tier 1).
 - The audit period covered.
 - The audit objectives and any specific focus areas identified from the previous audit, incident register, or post-market monitoring signals.
 
@@ -131,11 +131,11 @@ During the technical review phase, the auditor verifies:
 
 ### 5.4 Human oversight observation
 
-For Tier 1 systems, the auditor conducts a structured observation of the human oversight process, confirming that designated overseers understand the system's limitations, are capable of interpreting outputs, and can exercise the override capability documented in the system card.
+For Audit Tier 1 systems, the auditor conducts a structured observation of the human oversight process, confirming that designated overseers understand the system's limitations, are capable of interpreting outputs, and can exercise the override capability documented in the system card.
 
 ### 5.5 Bias re-assessment
 
-At each Tier 1 audit, bias testing is re-run against the current production model. Results are compared with the baseline recorded in the training data provenance and original deployment documentation. Statistically significant increases in bias across protected characteristics are recorded as High findings. The comparison reports its uncertainty at the organization-set confidence level recorded before the evaluation runs ([`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6), and the threshold decision follows its Section 5.7: the result is decided by where its whole reported uncertainty range lies, or by an organization-set decision rule recorded before the evaluation runs. As this framework's own additional requirement, the statistical test to be applied and the minimum sample size for the comparison are also recorded before the audit run.
+At each audit of an Audit Tier 1 system, bias testing is re-run against the current production model. Results are compared with the baseline recorded in the training data provenance and original deployment documentation. Statistically significant increases in bias across protected characteristics are recorded as High findings. The comparison reports its uncertainty at the organization-set confidence level recorded before the evaluation runs ([`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6), and the threshold decision follows its Section 5.7: the result is decided by where its whole reported uncertainty range lies, or by an organization-set decision rule recorded before the evaluation runs. As this framework's own additional requirement, the statistical test to be applied and the minimum sample size for the comparison are also recorded before the audit run.
 
 ### 5.6 Incident log review
 

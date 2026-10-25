@@ -2,8 +2,8 @@
 
 **Document Title:** AI Assurance Case Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-10-24\
+**Version:** 1.0.2\
+**Date:** 2026-10-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md), [`ai/template-ai-assurance-case.md`](template-ai-assurance-case.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`compliance/template-audit-evidence-package.md`](../compliance/template-audit-evidence-package.md)\
@@ -26,8 +26,8 @@ This procedure defines how an assurance case for an AI system is established, ar
 
 Applies to every AI system recorded in the AI System Register. The depth of the assurance case is proportionate to risk: ISO/IEC/IEEE 15026-2:2022 (Clause 4.1) ties how much validity and confidence an assurance case needs to supply to the risk reduction the system is expected to deliver. This procedure graduates depth by the audit tier assigned under [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) Section 3:
 
-- **Tier 1 (high-risk)**: the full structured argument layer of Section 3 is mandatory.
-- **Tiers 2 to 4**: the structured argument layer is optional; the claims-by-evidence record defined in [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) Section 3.5, completed per Sections 2 and 4 of this procedure, is the minimum.
+- **Audit Tier 1 (high-risk)**: the full structured argument layer of Section 3 is mandatory.
+- **Audit Tiers 2 to 4**: the structured argument layer is optional; the claims-by-evidence record defined in [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) Section 3.5, completed per Sections 2 and 4 of this procedure, is the minimum.
 
 ---
 
@@ -69,7 +69,7 @@ Applies to every AI system recorded in the AI System Register. The depth of the 
 
 ## 3. Develop the argument
 
-This section is mandatory for Tier 1 systems and optional for Tiers 2 to 4 (see Scope).
+This section is mandatory for Audit Tier 1 systems and optional for Audit Tiers 2 to 4 (see Scope).
 
 3.1 Decompose the top-level claim into the nine assurance claims of [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) Section 3.1, by reference and without restating them, and add any system-specific sub-claims the top-level claim needs.
 
@@ -95,10 +95,10 @@ This section is mandatory for Tier 1 systems and optional for Tiers 2 to 4 (see 
 
 | Audit tier | Minimum reviewer independence |
 | --- | --- |
-| Tier 1 (high-risk) | A reviewer from a function independent of the development team |
-| Tier 2 (general-purpose) | A peer outside the project |
-| Tier 3 (standard) | Documented self-review by the AI System Owner |
-| Tier 4 (low-risk) | Documented self-review by the AI System Owner |
+| Audit Tier 1 (high-risk) | A reviewer from a function independent of the development team |
+| Audit Tier 2 (general-purpose) | A peer outside the project |
+| Audit Tier 3 (standard) | Documented self-review by the AI System Owner |
+| Audit Tier 4 (low-risk) | Documented self-review by the AI System Owner |
 
 5.2 The review must weigh whether the claims are true in a balanced manner: ISO/IEC/IEEE 15026-2:2022 (Clause 4.1) advises assessing each claim so that unconscious bias is removed, for example by presenting the full extent of uncertainty that can be considered. The reviewer must look for counter-evidence, not only confirmation, and record the outcome in Part F of the template.
 
