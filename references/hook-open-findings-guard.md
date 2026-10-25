@@ -129,11 +129,17 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   count: the totals of the delivery's last `FINDINGS:` line and the number of ledger rows whose Source
   cell starts with the delivery's own review key, `<family> <item> /validate-pr round <n> @ <sha>`,
   with a warning when there are fewer rows than findings. The family comes from the delivery's
-  `WORKER_STATUS` first line, the item and sha from its `VPR-COMPLETE` line, and the round from its
-  copy of the brief heading. `--source-key` gives the whole key when the delivery lacks a part; a part
-  the delivery carries must agree with it. Without that, a missing, unreadable or conflicting part
-  prints `UNVERIFIABLE` with a code instead of a count, never a broader count or a zero. Rows of
-  another family, round or sha are not counted. A combined row counts once, and two deliveries with
+  `WORKER_STATUS` first line, and the item and sha from its `VPR-COMPLETE` line. The round is often
+  absent: it comes only from a `# /validate-pr round <n>` heading naming the item that is the
+  delivery's first heading, and neither sample delivery staged for 3b544 carries one, so such a
+  delivery prints `UNVERIFIABLE (no-round-heading)`. The orchestrator should pass `--source-key` when
+  it knows the round. `--source-key` gives the whole key; a part the delivery carries must agree with
+  it. Without that, a missing, unreadable or conflicting part prints `UNVERIFIABLE` with a code
+  instead of a count, never a broader count or a zero. Rows of another family, round or sha are not
+  counted, with one stated residue: a round heading after another heading is a quote and gives no
+  round, but a delivery with no heading of its own whose first heading quotes another round's heading
+  for the same item at column 0 still takes that round's key. With `--source-key` that case prints
+  `UNVERIFIABLE (source-key-disagrees)` instead. A combined row counts once, and two deliveries with
   one key share their rows. The line carries counts and codes only, never refuses, never blocks the
   write and never changes the exit code.
 - **Environment (exit 2).** This hook cannot load; the ledger is missing, unreadable, a symlink,

@@ -61,38 +61,45 @@ NOTE` line and prints one `delivery-findings:` line: the three totals beside the
 whose Source cell leads with the delivery's own review key, `<family> <item> /validate-pr round <n> @
 <sha>`, with a WARNING when there are fewer rows than findings. THE KEY comes from the delivery: the
 family is the `family=` value of a `WORKER_STATUS:` first line (the wrapper's header), the item and
-sha are those of the last `VPR-COMPLETE <item> <sha>` line as written, and the round is that of the
-`# /validate-pr round <n>` headings naming the item as a whole token (the delivery's copy of the
-brief heading). --source-key KEY gives the whole key explicitly; every part the delivery also carries
-must equal the key's, else the count is UNVERIFIABLE (source-key-disagrees), and a key not in that
-form is UNVERIFIABLE (source-key-invalid). Without --source-key, a delivery that lacks a part prints
-the row count as UNVERIFIABLE (no-vpr-complete-line, no-worker-status-family, no-round-heading),
-never a broader count; a part carried in a form that does not parse is UNVERIFIABLE either way
-(worker-status-family-unparseable, vpr-complete-line-unparseable, round-heading-ambiguous for two
-rounds). FINDINGS, VPR-COMPLETE and heading lines count at column 0 outside code fences: the hook's
-fence predicates, except that a backtick run whose remaining text holds a backtick opens no fence
-(CommonMark reads it as inline code); delivery lines end at LF only, a CR before it dropped, so a lone
-CR or U+2028 starts no line. MATCHING RULE: the Source cell starts with the key exactly (case and
-spacing included) and the key is not followed by a letter, digit, `_` or `-`, so a row of another
-family, item, round or sha, or with a shorter or longer sha, is not counted. The rows counted are the
-duplicate-id scope above, in the ledger text with this row when the row is accepted, else in the
-ledger as read. The Source cell is split on unescaped pipes as the guard splits, and used only when
-the other four cells equal the guard's parse of the same line; otherwise the count is UNVERIFIABLE
-(source-cell-divergence). The option never refuses, never blocks the write and never changes the exit
-code. A delivery that is missing, unreadable, not a regular file (it is opened non-blocking, so a
-FIFO cannot stall the write) or not UTF-8, that has no FINDINGS line, or whose last FINDINGS line does
-not parse prints `delivery-findings: UNVERIFIABLE (<code>)`, never a zero. Like every other line it
-carries counts and codes, never the key, its parts or row text. RESIDUES, stated: a row count shows
-coverage, not faithfulness (a row that misstates its finding counts the same); a combined row
-recording several findings counts once, so fewer rows than findings is a prompt to look, not proof of
-a gap; two deliveries with one key (the same family re-run for one item, round and sha) share their
-rows, so either can read as covered by the other's; a Source cell that states the review in another
-form than the key (other case or spacing, prose before it, a shorter sha) is not counted, so the
-count errs low, toward the WARNING; the family is the wrapper's header, not proof of which model
-wrote the delivery, and --source-key is trusted for the parts the delivery lacks; the FINDINGS line
-is taken as written, so a delivery that miscounts its own findings is not caught; fence reading does
-not model container blocks or HTML blocks, so a tail line quoted inside one can still be read, and an
-unclosed fence runs to the end, so a tail after it reads as absent (UNVERIFIABLE, not a count).
+sha are those of the last `VPR-COMPLETE <item> <sha>` line as written, and the round is that of a
+`# /validate-pr round <n>` heading naming the item as a whole token (the delivery's copy of the brief
+heading) only when it is the delivery's first heading (3b544 r3): a round heading after another
+heading is a quote, never the delivery's round. Many deliveries carry no such heading (neither sample
+delivery staged for 3b544 does), so the orchestrator should pass --source-key when it knows the
+round. --source-key KEY gives the whole key explicitly; every part the delivery also carries must
+equal the key's, else the count is UNVERIFIABLE (source-key-disagrees), and a key not in that form is
+UNVERIFIABLE (source-key-invalid). Without --source-key, a delivery that lacks a part prints the row
+count as UNVERIFIABLE (no-vpr-complete-line, no-worker-status-family, no-round-heading), never a
+broader count; a part carried in a form that does not parse is UNVERIFIABLE either way
+(worker-status-family-unparseable, vpr-complete-line-unparseable, round-heading-ambiguous when
+headings naming the item state two rounds). FINDINGS, VPR-COMPLETE and heading lines count at column
+0 outside code fences: the hook's fence predicates, except that a backtick run whose remaining text
+holds a backtick opens no fence (CommonMark reads it as inline code); delivery lines end at LF only,
+a CR before it dropped, so a lone CR or U+2028 starts no line. MATCHING RULE: the Source cell starts
+with the key exactly (case and spacing included) and the key is not followed by a letter, digit, `_`
+or `-`, so a row of another family, item, round or sha, or with a shorter or longer sha, is not
+counted. The rows counted are the duplicate-id scope above, in the ledger text with this row when the
+row is accepted, else in the ledger as read. The Source cell is split on unescaped pipes as the guard
+splits, and used only when the other four cells equal the guard's parse of the same line; otherwise
+the count is UNVERIFIABLE (source-cell-divergence). The option never refuses, never blocks the write
+and never changes the exit code. A delivery that is missing, unreadable, not a regular file (it is
+opened non-blocking, so a FIFO cannot stall the write) or not UTF-8, that has no FINDINGS line, or
+whose last FINDINGS line does not parse prints `delivery-findings: UNVERIFIABLE (<code>)`, never a
+zero. Like every other line it carries counts and codes, never the key, its parts or row text.
+RESIDUES, stated: a row count shows coverage, not faithfulness (a row that misstates its finding
+counts the same); a combined row recording several findings counts once, so fewer rows than findings
+is a prompt to look, not proof of a gap; two deliveries with one key (the same family re-run for one
+item, round and sha) share their rows, so either can read as covered by the other's; a Source cell
+that states the review in another form than the key (other case or spacing, prose before it, a
+shorter sha) is not counted, so the count errs low, toward the WARNING; the family is the wrapper's
+header, not proof of which model wrote the delivery, and --source-key is trusted for the parts the
+delivery lacks; the FINDINGS line is taken as written, so a delivery that miscounts its own findings
+is not caught; a delivery with no heading of its own whose first heading quotes another round's
+heading for the same item at column 0 still takes that round's key (only an unfenced ATX heading
+before the quote stops it; a setext, HTML, block-quoted or list-item heading does not), and with
+--source-key that case is UNVERIFIABLE (source-key-disagrees) instead; fence reading does not model
+container blocks or HTML blocks, so a tail line quoted inside one can still be read, and an unclosed
+fence runs to the end, so a tail after it reads as absent (UNVERIFIABLE, not a count).
 
 ENVIRONMENT (exit 2). The hook cannot load or lacks a function used here; the ledger is missing,
 unresolvable, unreadable, not UTF-8, a symlink, not a regular file, has more than one hard link, or
@@ -195,6 +202,9 @@ VPR_COMPLETE_RE = re.compile(
 WORKER_STATUS_RE = re.compile(r"WORKER_STATUS: [A-Z]+ \((.*)\)[ \t]*")
 FAMILY_RE = re.compile(r"[a-z][a-z0-9-]*")
 ROUND_HEADING_RE = re.compile(r"# /validate-pr round ([1-9][0-9]*)(?![0-9])(.*)")
+# Any ATX heading line (CommonMark: up to three spaces, one to six #, then a space, a tab or the end):
+# a round heading after one is a quote, not the delivery's own (3b544 r3).
+ATX_HEADING_RE = re.compile(r" {0,3}#{1,6}(?:[ \t]|$)")
 SOURCE_KEY_RE = re.compile(
     r"([a-z][a-z0-9-]*) ([A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?) /validate-pr round ([1-9][0-9]*)"
     r" @ ([0-9A-Fa-f]{7,40})")
@@ -506,14 +516,16 @@ def parse_delivery(hook, text: str) -> tuple[tuple[int, int, int] | str, dict]:
     """PURE. (totals, parts) from a delivery. totals is (errors, warns, notes) from the last FINDINGS
     line, or a code: no-findings-line, findings-line-unparseable. parts holds the review key's parts
     the delivery carries, None where it carries none: family (the `family=` value of a WORKER_STATUS
-    first line), item and sha (the last VPR-COMPLETE line, as written), rounds (the round and the rest
-    of each `# /validate-pr round <n>` heading); bad is the code of a part carried in a form that does
-    not parse (worker-status-family-unparseable, vpr-complete-line-unparseable), else None. FINDINGS,
-    VPR-COMPLETE and heading lines count at column 0 outside code fences: the hook's fence predicates,
-    except that a backtick run whose remaining text holds a backtick opens no fence (CommonMark reads
-    that line as inline code)."""
+    first line), item and sha (the last VPR-COMPLETE line, as written), rounds (the round, the rest and
+    whether it is the delivery's first heading, of each `# /validate-pr round <n>` heading); bad is the
+    code of a part carried in a form that does not parse (worker-status-family-unparseable,
+    vpr-complete-line-unparseable), else None. FINDINGS, VPR-COMPLETE and heading lines count at
+    column 0 outside code fences: the hook's fence predicates, except that a backtick run whose
+    remaining text holds a backtick opens no fence (CommonMark reads that line as inline code). Any
+    unfenced ATX heading, indented up to three spaces, counts as a heading for the first-heading test."""
     findings = complete = None
     rounds = []
+    headed = False
     fence = None
     lines = delivery_lines(text)
     for line in lines:
@@ -530,8 +542,10 @@ def parse_delivery(hook, text: str) -> tuple[tuple[int, int, int] | str, dict]:
             findings = line
         elif line.startswith("VPR-COMPLETE"):
             complete = line
-        elif (m := ROUND_HEADING_RE.fullmatch(line)) is not None:
-            rounds.append((m[1], m[2]))
+        elif (m := ROUND_HEADING_RE.fullmatch(line)) is not None or ATX_HEADING_RE.match(line):
+            if m is not None:
+                rounds.append((m[1], m[2], not headed))
+            headed = True
     totals: tuple[int, int, int] | str = "no-findings-line"
     if findings is not None:
         m = FINDINGS_LINE_RE.fullmatch(findings)
@@ -562,8 +576,9 @@ def review_key(parts: dict, source_key: str | None) -> tuple[str | None, str | N
     <sha>`, or (None, code). A part the delivery carries but cannot parse is its code, as is (with
     --source-key) a key that does not parse (source-key-invalid) or a carried part that differs from
     the key's (source-key-disagrees); without --source-key, the first part the delivery lacks
-    (no-vpr-complete-line, no-worker-status-family, no-round-heading). The round is that of every
-    heading naming the item as a whole token; two rounds are round-heading-ambiguous."""
+    (no-vpr-complete-line, no-worker-status-family, no-round-heading). The round is that of a heading
+    naming the item as a whole token only when it is the delivery's first heading (3b544 r3); headings
+    naming the item with two rounds, wherever they stand, are round-heading-ambiguous."""
     if parts["bad"] is not None:
         return None, parts["bad"]
     given = None
@@ -572,13 +587,17 @@ def review_key(parts: dict, source_key: str | None) -> tuple[str | None, str | N
         if given is None:
             return None, "source-key-invalid"
     item = parts["item"] if given is None else given[2]
-    rounds = set()
+    rounds, own = set(), None
     if item is not None:
         named = re.compile(r"(?<![A-Za-z0-9_-])" + re.escape(item) + r"(?![A-Za-z0-9_-])")
-        rounds = {r for r, rest in parts["rounds"] if named.search(rest)}
+        for rnd, rest, leads in parts["rounds"]:
+            if named.search(rest):
+                rounds.add(rnd)
+                if leads:
+                    own = rnd
     if len(rounds) > 1:
         return None, "round-heading-ambiguous"
-    carried = (parts["family"], parts["item"], next(iter(rounds), None), parts["sha"])
+    carried = (parts["family"], parts["item"], own, parts["sha"])
     if given is not None:
         if any(c is not None and c != k for c, k in zip(carried, given.groups())):
             return None, "source-key-disagrees"
@@ -1149,6 +1168,9 @@ def self_test() -> int:
        ("claude 3b540 /validate-pr round 2 @ f2a53df9f", None))
     ck("delivery: no round heading and no --source-key", review_key(parse_delivery(
         hook, "WORKER_STATUS: PASS (family=claude)\n" + tail)[1], None), (None, "no-round-heading"))
+    ck("delivery: a round heading after another heading is a quote", review_key(parse_delivery(
+        hook, "WORKER_STATUS: PASS (family=claude)\n## Probes\n# /validate-pr round 1 (REFUTE): 3b540\n"
+        + tail)[1], None), (None, "no-round-heading"))
     ck("delivery: a placeholder FINDINGS line does not parse",
        parse_delivery(hook, "FINDINGS: <n> ERROR, <n> WARN, <n> NOTE\n")[0], "findings-line-unparseable")
     totals, parts = parse_delivery(hook, "DRAFT-COMPLETE 3b544\n")
