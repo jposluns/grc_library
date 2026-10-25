@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-10-24\
+**Date:** 2026-10-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -324,7 +324,7 @@ without the private reference sibling).
 | NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems (IDPS) |  | NIST |  | FREE |
 | NIST SP 800-95, Guide to Secure Web Services | SP 800-95 (August 2007) | NIST |  | FREE |
 
-## Frameworks (336: 298 free, 38 licensed)
+## Frameworks (337: 299 free, 38 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -467,6 +467,7 @@ without the private reference sibling).
 | EU General-Purpose AI Code of Practice, Safety and Security Chapter (July 2025) | General-Purpose AI Code of Practice, final, published 10 July 2025, Safety and Security Chapter | European Commission / EU AI Office (facilitated); independent expert Working Groups 2 to 4 |  | FREE |
 | EU General-Purpose AI Code of Practice, Transparency Chapter (July 2025) | General-Purpose AI Code of Practice, final, published 10 July 2025, Transparency Chapter | European Commission / EU AI Office (facilitated); independent expert Working Group 1 |  | FREE |
 | EU General-Purpose AI Code of Practice, Transparency Chapter, Model Documentation Form (July 2025) | Model Documentation Form (DOCX) accompanying the GPAI Code of Practice Transparency Chapter, final 10 July 2025 | European Commission / EU AI Office |  | FREE |
+| European Commission Adequacy decisions web page: how the EU determines if a non-EU country has an adequate level of data protection (retrieved 2026-10-25) | commission.europa.eu page as retrieved 2026-10-25 (page metadata dateModified 2026-07-23; newest Documents entry dated 23 July 2026) | European Commission | https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/adequacy-decisions_en | FREE |
 | FATF Updated Guidance for a Risk-Based Approach to Virtual Assets and Virtual Asset Service Providers (October 2021) | October 2021 | FATF |  | FREE |
 | FFIEC IT Examination Handbook: Architecture, Infrastructure, and Operations |  | FFIEC |  | FREE |
 | FFIEC IT Examination Handbook: Audit |  | FFIEC |  | FREE |
@@ -975,5 +976,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 910 sources (789 free, 121 licensed).**
+**Total: 911 sources (790 free, 121 licensed).**
 
