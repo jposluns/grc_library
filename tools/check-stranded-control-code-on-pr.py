@@ -219,13 +219,19 @@ def run(base: str | None, head: str) -> int:
         print(f"ERROR: git failed resolving {head} (base={base}): {exc}", file=sys.stderr)
         return 2
     try:
-        # Diagnostic only (the refusal's repo= field): a top level git cannot
-        # print, or one the locale codec cannot decode (a path that is not
-        # valid UTF-8), degrades to a placeholder as D12's _toplevel does, so
-        # the gate keeps its real verdict instead of a traceback (3b540 round 8).
+        # Diagnostic only (the refusal's repo= field): git failing to run at
+        # all (OSError), or a top level the locale codec cannot decode (a path
+        # that is not valid UTF-8), degrades to a placeholder as D12's
+        # _toplevel does, so the gate keeps its real verdict instead of a
+        # traceback (3b540 round 8). git refusing to print one (no work tree,
+        # as with GIT_DIR naming a bare repository) still refuses with exit 2
+        # (3b540 round 9).
         toplevel = git("rev-parse", "--show-toplevel").strip()
-    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError):
+    except (OSError, UnicodeDecodeError):
         toplevel = "(no work tree)"
+    except subprocess.CalledProcessError as exc:
+        print(f"ERROR: git failed reading the top level (base={base}, head={head}): {exc}", file=sys.stderr)
+        return 2
     if merge_base == head_sha:
         print(
             f"D13 CANNOT-EVALUATE: base {base} and head {head} resolve to the same "

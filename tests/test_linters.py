@@ -11033,6 +11033,150 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                         self.assertIn("CANNOT-EVALUATE", r.stdout + r.stderr)
                         self.assertIn("repo=(no work tree)", r.stdout + r.stderr)
 
+    def _inject_oserror(self, script, cwd, tail, *args):
+        """Run ``script`` with ``args`` in-process, subprocess.check_output
+        raising OSError (EAGAIN) on each git call whose argv ends with
+        ``tail``; stderr carries one INJECTED line per raise. A simulation of
+        git failing to run, not a real fault (3b540 round 9)."""
+        import subprocess as sp
+
+        driver = (
+            "import errno, json, os, runpy, subprocess, sys\n"
+            "tail = json.loads(os.environ['INJECT_TAIL'])\n"
+            "real = subprocess.check_output\n"
+            "def check_output(cmd, *a, **k):\n"
+            "    if [str(c) for c in cmd][-len(tail):] == tail:\n"
+            "        print('INJECTED', file=sys.stderr)\n"
+            "        raise OSError(errno.EAGAIN, 'injected')\n"
+            "    return real(cmd, *a, **k)\n"
+            "subprocess.check_output = check_output\n"
+            "sys.argv = sys.argv[1:]\n"
+            "sys.path.insert(0, os.path.dirname(os.path.abspath(sys.argv[0])))\n"
+            "runpy.run_path(sys.argv[0], run_name='__main__')\n"
+        )
+        return sp.run(
+            [sys.executable, "-c", driver, str(script), *args],
+            capture_output=True, text=True, cwd=str(cwd),
+            env={**os.environ, "INJECT_TAIL": json.dumps(tail)},
+        )
+
+    def test_toplevel_oserror_keeps_real_verdict_and_refusal(self) -> None:
+        # 3b540 round 9 (r8 review NOTE-2): git failing to run at all
+        # (OSError) on the one top-level read a gate makes for its refusal's
+        # repo= field degrades to the placeholder, as UnicodeDecodeError does
+        # above, so a real range keeps each gate's real verdict and a
+        # collapsed range its refusal. The OSError is injected on that single
+        # git call. Mutation killed: dropping OSError from the top-level
+        # read's except clause in lint_common.pr_range_resolution (reached
+        # through D1), D5, D9, D13 or tension-scan, which then exits 1 with a
+        # traceback.
+        tmp, git = self._repo()
+        git("checkout", "-q", "-b", "feat")
+        (tmp / "CHANGELOG.md").write_text(
+            "# Changelog\n\nNew entry.\n\nOld entry.\n", encoding="utf-8")
+        git("commit", "-q", "-am", "feat: a change")
+        # D9 and D13 anchor git to their own script's repository, so they run
+        # as untracked copies inside the fixture (with lint_common, which D9
+        # imports).
+        (tmp / "tools").mkdir()
+        for name in ("lint_common.py", "check-retired-section-orphan-on-pr.py",
+                     "check-stranded-control-code-on-pr.py"):
+            (tmp / "tools" / name).write_bytes((REPO_ROOT / "tools" / name).read_bytes())
+        tools, own = REPO_ROOT / "tools", tmp / "tools"
+        for directory, script, verdict in (
+            (tools, "check-changelog-on-pr.py", "OK: CHANGELOG.md is in the diff"),
+            (tools, "check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
+            (tools, "tension-scan.py", "0 rewritten block(s) since"),
+            (own, "check-retired-section-orphan-on-pr.py", "D9 OK: no TODO section closed"),
+            (own, "check-stranded-control-code-on-pr.py", "D13 OK: no corpus document changed"),
+        ):
+            for label, head, rc in (("real", "feat", 0), ("collapsed", "origin/main", 2)):
+                with self.subTest(gate=script, range=label):
+                    r = self._inject_oserror(directory / script, tmp,
+                                             ["rev-parse", "--show-toplevel"],
+                                             "origin/main", head)
+                    self.assertEqual(r.returncode, rc,
+                                     f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                    self.assertEqual(r.stderr.count("INJECTED"), 1, r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
+                    if label == "real":
+                        self.assertIn(verdict, r.stdout)
+                    else:
+                        self.assertIn("CANNOT-EVALUATE", r.stderr)
+                        self.assertIn("repo=(no work tree)", r.stderr)
+
+    def test_head_sha_oserror_never_reads_collapsed_range_clean(self) -> None:
+        # 3b540 round 9 (r8 review NOTE-1): the head SHA pr_range_resolution
+        # reads decides the collapse, so that read catches CalledProcessError
+        # only. Had an OSError there degraded to the echoed ref name, the name
+        # would never equal the merge base and a collapsed range would read
+        # as a real one: D3 and D7 printed a clean "not modified" pass (exit
+        # 0) at round 8. The OSError, injected on that single git call, now
+        # escapes and the gate exits non-zero. Mutation killed: adding OSError
+        # back to that clause.
+        tmp, _git = self._repo()
+        for script in ("check-changelog-dash-on-pr.py", "check-changelog-length-on-pr.py"):
+            with self.subTest(gate=script):
+                r = self._inject_oserror(REPO_ROOT / "tools" / script, tmp,
+                                         ["rev-parse", "--verify", "HEAD^{commit}"],
+                                         "origin/main", "HEAD")
+                self.assertEqual(r.stderr.count("INJECTED"), 1, r.stderr)
+                self.assertNotEqual(r.returncode, 0,
+                                    f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertNotIn("OK", r.stdout)
+
+    def test_no_work_tree_refuses_exit2(self) -> None:
+        # 3b540 round 9 (r8 review WARN-1): git refusing the top-level read
+        # because there is no work tree (GIT_DIR naming a bare repository) is
+        # a refusal, exit 2, as before round 8, not a placeholder. D9's orphan
+        # scan reads the working tree, so without one it scanned this
+        # checkout instead of the head and printed "D9 OK" for a head that
+        # deletes TODO row 9.99 and commits a file citing it; the control, a
+        # normal checkout of the same head, FAILs. At round 8 D5, D9, D13 and
+        # tension-scan all exited 0 here.
+        import subprocess as sp
+
+        tmp, git = self._repo()
+        rows = "# TODO\n\n## Priority 1\n\n| 9.98 | Keep | x |\n"
+        (tmp / "TODO.md").write_text(rows + "| 9.99 | Retire | x |\n", encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "-m", "TODO rows")
+        git("checkout", "-q", "-b", "feat")
+        (tmp / "TODO.md").write_text(rows, encoding="utf-8")
+        (tmp / "tools").mkdir()
+        (tmp / "tools" / "x.py").write_text("# see §9.99 for detail\n", encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "-m", "retire 9.99 and cite it")
+
+        d9 = "check-retired-section-orphan-on-pr.py"
+        for name in ("lint_common.py", d9):
+            (tmp / "tools" / name).write_bytes((REPO_ROOT / "tools" / name).read_bytes())
+        r = sp.run([sys.executable, str(tmp / "tools" / d9), "main", "feat"],
+                   capture_output=True, text=True, cwd=str(tmp))
+        self.assertEqual(r.returncode, 1, f"control:\nstdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("LIVE orphan reference(s) to section(s) this PR retired (9.99)", r.stderr)
+
+        holder = Path(tempfile.mkdtemp(prefix="no-work-tree-")).resolve()
+        self.addCleanup(shutil.rmtree, holder, ignore_errors=True)
+        bare = holder / "repo.git"
+        sp.run(["git", "clone", "-q", "--bare", str(tmp), str(bare)],
+               check=True, capture_output=True)
+        env = {k: v for k, v in os.environ.items() if k != "GIT_WORK_TREE"}
+        env["GIT_DIR"] = str(bare)
+        for script, clean in (
+            ("check-todo-rotation-on-pr.py", "OK:"),
+            (d9, "D9 OK"),
+            ("check-stranded-control-code-on-pr.py", "D13 OK"),
+            ("tension-scan.py", "rewritten block"),
+        ):
+            with self.subTest(gate=script):
+                r = sp.run([sys.executable, str(REPO_ROOT / "tools" / script), "main", "feat"],
+                           capture_output=True, text=True, cwd=str(holder), env=env)
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("work tree", r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn(clean, r.stdout)
+
 
 from tests import test_session_facts
 
@@ -26477,8 +26621,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         ccm_aicm_reference.py PASSIVE F 1ed15d9b1bd4cfd1162df3e720b5aa6058c3cba3cb1f626fcf2e1ee605c17e71
         changelog_diff.py PASSIVE F d712d841faf46461535b17d083d012280d3df85c0182b526625f7d7199b301bd
         check-alignment-register-on-pr.py NO_FS F b1774022adf437520a3b79930342002eea0493a91a91f6fcf0a823a02a7b3878
-        check-changelog-dash-on-pr.py NO_FS F ca13e80adc1268e25f9049e104d987cb2da30d1cedf2a5abb5aa35969008f883
-        check-changelog-length-on-pr.py NO_FS F ad8db4fb4f41cbe77f759cb70e293a070045fc82bfe6617e454c6d26a0151f4d
+        check-changelog-dash-on-pr.py NO_FS F c4a4ed41c310deedab000b034124e1c08482c59da539907d9d22fd5faeb0089e
+        check-changelog-length-on-pr.py NO_FS F dd81f8c07f2ab5045bc492e1d59ebab939585c01355d1ca0d7baf0fed08c84a1
         check-changelog-on-pr.py NO_FS F 965ec6500d8b640b43076292e5ee4158787c86f9332612cd273c34d3f79ac050
         check-changelog-preflight-commit.py NO_FS F 87b92b4235420074c259a9b50e0ee72d5624a81be2b87420de3e01cc7e551fd2
         check-class-attestation-on-pr.py NO_FS F 8ef4e742c2610fa3c80598404991ee6aab9da409b9e95e2ad8b74ec202d40325
@@ -26494,11 +26638,11 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 3b8aef9b029585e955b4d646a38a50c043d532e58379d05dc6c6b68b4f3a937e
         check-portability.sh FIXED F 47a3853e165ba918c0f4f5687904f662a0a9d805356428394fd724ff227756d5
         check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
-        check-retired-section-orphan-on-pr.py NO_FS F b556f2477f7754de7f79379acd8acc9d0534d7d262ca910db33b3ae61e456b7d
+        check-retired-section-orphan-on-pr.py NO_FS F 19849d6cd9cf922470e41a3e9e5f54892180d6d079e32b7c2f822de71fabe221
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
-        check-stranded-control-code-on-pr.py NO_FS F 8fff853fc2f0f53d5917400a422ca91fc7886312a2053c5ee3ace0d010726562
+        check-stranded-control-code-on-pr.py NO_FS F 017287e6008535b2261347d86c2b460afe7e40c925e25f1279386a9e2076d9e4
         check-todo-floor-monotonic-on-pr.py NO_FS F 6e6451cd462e025af8cd3534e1b36561e201fd4b7d81aff74d93f4e2a8915cd3
-        check-todo-rotation-on-pr.py NO_FS F a2690c36e2be15393cee27c19b465c9bee488ef0c9d20cbe694651636fa50984
+        check-todo-rotation-on-pr.py NO_FS F b14fa2c4c170865eba570a9d5dcfabbfeaa9a3abe7f21983a4d17277a781557e
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F a8598d3d9452c9e44b9c4d9f21ef2d3d9f8b81875429872d5823b9b76a9c7585
         ci-status.py NO_FS F 068ed02eb5f5a81572dce604a4cb1965582dbc178c7c9715be3d37dd8e01e54b
@@ -26617,7 +26761,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 616ae8f4ea008cda21bcf2f663ed650f82f91b2467fddc75cc4a313ff61e32b1
-        lint_common.py PASSIVE F e58e1567dda043676dcbcb35d6ed54aebf577d34e1da2da2b6dde9c5999528e2
+        lint_common.py PASSIVE F 18c95ce46eefe28807f67fe23ee657c1eaf222e9cd7f37879e893c05dea5abac
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -26648,7 +26792,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         sweep-preflight-scanner.py NO_FS F ae4ca7f95dffecb823ec3bc0fdf382ead32fd92a8b0c8b0c286f0b85b2b4dd6f
         sync-citation-worklist-baseline.py OWN F 9c465a8c77bafd52f7f3079f35346a11716a6f0bc8e91862706590e831af397b
         tail-safe.sh COMMAND F 07908bc54b40d06445f63a08f92526d22e4a030465ee235104a3ec41fbbb0b02
-        tension-scan.py NO_FS F 103e50ab78e80dc4453a351bb9a58f6076fe215055ac9df1dd5b5d0a8a4ca742
+        tension-scan.py NO_FS F 3024b1d477a19bd6564a2e22734b24fa1519fc7c5e14d213d2492973820d0880
         todo-number-floor.json DATA F b5b684a17754dd265c1072f2342971befcc59b5a6e0b579f48eb21ea172f047b
         todo_index_rows.py PASSIVE F 6aba39ba20b4bbbe5ffab3fe94ef520ec95ce8d8e2510ea73696c17d196c2e4a
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4

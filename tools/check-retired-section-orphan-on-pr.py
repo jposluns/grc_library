@@ -240,13 +240,17 @@ def run(base: str | None, head: str) -> int:
         merge_base = git("merge-base", base, head).strip()
         head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}").strip()
         try:
-            # Diagnostic only (the refusal's repo= field): a top level git
-            # cannot print, or one the locale codec cannot decode (a path that
-            # is not valid UTF-8), degrades to a placeholder as D12's
-            # _toplevel does, so the gate keeps its real verdict instead of a
-            # traceback (3b540 round 8).
+            # Diagnostic only (the refusal's repo= field): git failing to run
+            # at all (OSError), or a top level the locale codec cannot decode
+            # (a path that is not valid UTF-8), degrades to a placeholder as
+            # D12's _toplevel does, so the gate keeps its real verdict instead
+            # of a traceback (3b540 round 8). git refusing to print one (no
+            # work tree, as with GIT_DIR naming a bare repository) reaches the
+            # refusal below: the orphan scan reads the working tree, so
+            # without one it would scan another tree and pass clean (3b540
+            # round 9).
             toplevel = git("rev-parse", "--show-toplevel").strip()
-        except (subprocess.CalledProcessError, OSError, UnicodeDecodeError):
+        except (OSError, UnicodeDecodeError):
             toplevel = "(no work tree)"
         ref_diff = git("diff", merge_base, head, "--", "TODO.md")
         try:
