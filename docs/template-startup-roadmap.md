@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Startup Roadmap Template\
 **Document Type:** Template\
-**Version:** 2.2.15\
-**Date:** 2026-10-24\
+**Version:** 2.2.16\
+**Date:** 2026-10-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -113,7 +113,7 @@ Triggered by training models in-house, fine-tuning, or building AI products that
 Adopt the A3 set plus:
 - [`ai/template-model-card.md`](../ai/template-model-card.md): per-model.
 - [`ai/template-dataset-datasheet.md`](../ai/template-dataset-datasheet.md): per-dataset.
-- [`ai/template-ai-red-team-report.md`](../ai/template-ai-red-team-report.md): for each high-risk AI system.
+- [`ai/template-ai-red-team-report.md`](../ai/template-ai-red-team-report.md): for each AI system handling Confidential data or capable of initiating actions with financial or operational impact (REDTEAM-SEC-01 in [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md)).
 - [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md): the documentation discipline.
 
 #### A5: We have critical-availability operations
