@@ -1996,13 +1996,49 @@ class PrRangeError(Exception):
     """
 
 
+def pr_range_resolution(head: str) -> tuple[str, str]:
+    """``(head commit SHA, repository top-level)`` the range resolves to, in
+    the repository git selects from the current directory. Diagnostic only
+    (never raises): a ref that no longer resolves is echoed back verbatim and
+    a missing work tree is reported as such, so a refusal message can always
+    be composed."""
+    try:
+        head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}")
+    except subprocess.CalledProcessError:
+        head_sha = head
+    try:
+        toplevel = git("rev-parse", "--show-toplevel")
+    except subprocess.CalledProcessError:
+        toplevel = "(no work tree)"
+    return head_sha, toplevel
+
+
+def empty_pr_range_message(merge_base: str, head: str) -> str:
+    """The CANNOT-EVALUATE message for a resolvable base..head whose changed
+    set is empty. A named range that selects nothing is indistinguishable from
+    a gate run against the wrong repository (a main clone whose HEAD is the
+    branch point while the change lives in a worktree printed a false clean,
+    orchestrator mistake 300), so the delta gates refuse it instead of
+    reporting a clean pass."""
+    head_sha, toplevel = pr_range_resolution(head)
+    return (
+        f"CANNOT-EVALUATE: refs were named but no files changed in the range "
+        f"(repo={toplevel} base={merge_base} head={head} -> {head_sha}); "
+        f"nothing was evaluated. If the change lives in a worktree, run from "
+        f"that worktree, or pass a base..head range that selects the change."
+    )
+
+
 def resolve_pr_range(base: str | None, head: str = "HEAD") -> tuple[str, str]:
     """Resolve the ``(merge_base, head)`` pair a PR-delta check diffs across.
 
     ``base`` is the check's optional positional base ref; when empty it
     falls back to ``origin/$GITHUB_BASE_REF`` (the GitHub Actions PR base).
-    Raises :class:`PrRangeError` when neither is available, or when
-    ``git merge-base`` fails (typically a shallow checkout in CI).
+    Raises :class:`PrRangeError` when neither is available, when
+    ``git merge-base`` fails (typically a shallow checkout in CI), or when
+    base and head resolve to the same commit: a collapsed range evaluates
+    nothing, and the main-clone-vs-worktree misrun it signals must surface
+    as a refusal, never as a clean pass (orchestrator mistake 300).
     """
     if not base:
         github_base = os.environ.get("GITHUB_BASE_REF")
@@ -2021,6 +2057,15 @@ def resolve_pr_range(base: str | None, head: str = "HEAD") -> tuple[str, str]:
             f"ERROR: could not determine merge-base of {base}..{head}: {exc}. "
             f"In GitHub Actions, ensure that actions/checkout uses fetch-depth: 0."
         ) from exc
+    head_sha, toplevel = pr_range_resolution(head)
+    if merge_base == head_sha:
+        raise PrRangeError(
+            f"CANNOT-EVALUATE: base {base} and head {head} resolve to the same "
+            f"commit (repo={toplevel} base={merge_base} head={head_sha}); the "
+            f"named range is empty, so nothing was evaluated. If the change "
+            f"lives in a worktree, run from that worktree, or pass a "
+            f"base..head range that selects the change."
+        )
     return merge_base, head
 
 

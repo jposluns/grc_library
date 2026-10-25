@@ -194,10 +194,10 @@ def opt_out_present(base: str, head: str) -> bool:
 
 
 def changed_corpus_files(merge_base: str, head: str) -> list[str]:
-    try:
-        names = git("diff", "--name-only", merge_base, head).splitlines()
-    except subprocess.CalledProcessError:
-        return []
+    # A failed diff PROPAGATES: returning [] here made a git error print the
+    # clean "D13 OK: no corpus document changed" (a false clean, the
+    # orchestrator-mistake-300 class); the caller refuses with exit 2 instead.
+    names = git("diff", "--name-only", merge_base, head).splitlines()
     return [n for n in names if in_scope(n)]
 
 
@@ -210,8 +210,30 @@ def run(base: str | None, head: str) -> int:
     except subprocess.CalledProcessError:
         print(f"D13 SKIP: no resolvable merge base (base={base}, head={head}); fail-open.")
         return 0
+    # Same wrong-clone signature as D9: this script anchors git to its own
+    # repository, so base and head collapsing to one commit means the change
+    # is not in this repository's history; refuse rather than pass clean.
+    try:
+        head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}").strip()
+        toplevel = git("rev-parse", "--show-toplevel").strip()
+    except subprocess.CalledProcessError as exc:
+        print(f"ERROR: git failed resolving {head} (base={base}): {exc}", file=sys.stderr)
+        return 2
+    if merge_base == head_sha:
+        print(
+            f"D13 CANNOT-EVALUATE: base {base} and head {head} resolve to the same "
+            f"commit (repo={toplevel} base={merge_base} head={head_sha}); the "
+            f"named range is empty, so nothing was evaluated. If the change "
+            f"lives in a worktree, run that worktree's copy of this script.",
+            file=sys.stderr,
+        )
+        return 2
 
-    files = changed_corpus_files(merge_base, head)
+    try:
+        files = changed_corpus_files(merge_base, head)
+    except subprocess.CalledProcessError as exc:
+        print(f"ERROR: git diff failed: {exc}; cannot enumerate the changed files.", file=sys.stderr)
+        return 2
     if not files:
         print("D13 OK: no corpus document changed in this PR.")
         return 0
