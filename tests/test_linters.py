@@ -10221,6 +10221,610 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("CANNOT-EVALUATE", r.stderr)
         self.assertIn("OK", r.stdout)
 
+    def test_d12_argless_unreadable_head_floor_refuses(self) -> None:
+        # 3b540 (round-5 review F1): with the floor present at the base, an
+        # argless head floor that EXISTS but cannot be read -- a directory in
+        # its place, a permission error, bytes that are not valid UTF-8 or
+        # not valid JSON -- is neither the floor-removed FAIL nor any clean
+        # verdict: the gate refuses with D12 CANNOT-EVALUATE (exit 2) naming
+        # the path and the error, instead of dying with a traceback.
+        cases = [
+            ("directory in place", "IsADirectoryError",
+             lambda p: (p.unlink(), p.mkdir())),
+            ("not valid UTF-8", "UnicodeDecodeError",
+             lambda p: p.write_bytes(b'{"2": 3\xff\xfe}\n')),
+            ("not valid JSON", "JSONDecodeError",
+             lambda p: p.write_text("not a floor\n", encoding="utf-8")),
+        ]
+        def _unreadable_target(p):
+            # chmod 0 on the floor itself would already fail git diff (exit
+            # 128, the round-4 refusal); a symlink to an unreadable target
+            # keeps the tracked diff readable (a typechange) so the EACCES
+            # surfaces at the gate's own head floor open().
+            secret = p.parent / "unreadable-target"
+            secret.write_text("{}\n", encoding="utf-8")
+            secret.chmod(0)
+            p.unlink()
+            p.symlink_to(secret)
+
+        if os.geteuid() != 0:  # root ignores mode bits, so the EACCES shape needs a non-root run
+            cases.append(("permission denied", "PermissionError", _unreadable_target))
+        for label, named_error, mangle in cases:
+            with self.subTest(shape=label):
+                tmp, git = self._repo()
+                floor = tmp / "tools" / "todo-number-floor.json"
+                floor.parent.mkdir(parents=True, exist_ok=True)
+                floor.write_text('{"2": 32}\n', encoding="utf-8")
+                git("add", "tools/todo-number-floor.json")
+                git("commit", "-q", "-m", "floor")
+                git("update-ref", "refs/remotes/origin/main", "HEAD")
+                # An untracked file keeps the range non-collapsed even when the
+                # mangling leaves the tracked floor bytes unchanged (chmod).
+                (tmp / "NEW.md").write_text("New.\n", encoding="utf-8")
+                mangle(floor)
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+                self.assertIn(str(floor), r.stderr)
+                self.assertIn(named_error, r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn("missing at HEAD", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
+    def test_d12_argless_nested_repo_refused_and_documented(self) -> None:
+        # 3b540 (round-5 review F3): an argless run from inside a NESTED git
+        # repository anchors to the nested repository (inherent git cwd
+        # discovery, shared by every cwd-launched gate), where the base ref
+        # does not resolve, so it is refused -- never evaluated against the
+        # outer repository -- and the usage docstring documents that refusal.
+        import subprocess as sp
+
+        tmp, git = self._repo()
+        nested = tmp / "vendor" / "inner"
+        nested.mkdir(parents=True)
+        sp.run(["git", "init", "-q", str(nested)], check=True, capture_output=True)
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", nested,
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("does not resolve", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+        tool = (REPO_ROOT / "tools" / "check-todo-floor-monotonic-on-pr.py").read_text(
+            encoding="utf-8")
+        self.assertIn("nested git repository", tool.lower(),
+                      "the usage docstring must document the nested-repository refusal")
+
+    def test_d12_argless_nested_repo_with_resolving_base_evaluates_nested(self) -> None:
+        # 3b540 round 2: the complement of the fresh-nested refusal above.
+        # When the nested repository's OWN base ref resolves, the argless run
+        # is evaluated against the NESTED repository's base and head -- never
+        # the outer repository, whose base here holds no floor at all, so an
+        # outer evaluation would print the first-introduction "new at this
+        # base" OK instead of the real monotonic verdict -- and the usage
+        # docstring states this resolving case alongside the refusal case.
+        import subprocess as sp
+
+        tmp, git = self._repo()
+        nested = tmp / "vendor" / "inner"
+        nested.mkdir(parents=True)
+        sp.run(["git", "init", "-q", "-b", "main", str(nested)],
+               check=True, capture_output=True)
+
+        def ngit(*args):
+            return sp.run(["git", "-C", str(nested), *args],
+                          check=True, capture_output=True, text=True).stdout.strip()
+
+        ngit("config", "user.email", "test@test")
+        ngit("config", "user.name", "Test")
+        floor = nested / "tools" / "todo-number-floor.json"
+        floor.parent.mkdir(parents=True)
+        floor.write_text('{"2": 32}\n', encoding="utf-8")
+        ngit("add", "-A")
+        ngit("commit", "-q", "-m", "floor")
+        ngit("update-ref", "refs/remotes/origin/main", "HEAD")
+        # A tracked floor increase: the range is not collapsed and the real
+        # verdict against the NESTED base is the monotonic OK.
+        floor.write_text('{"2": 33}\n', encoding="utf-8")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", nested,
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("monotonic", r.stdout)
+        self.assertNotIn("new at this base", r.stdout)
+        self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+        tool = (REPO_ROOT / "tools" / "check-todo-floor-monotonic-on-pr.py").read_text(
+            encoding="utf-8")
+        self.assertIn("otherwise evaluated against the nested repository", tool,
+                      "the usage docstring must state the resolving-base nested case")
+
+    def _repo_with_floor_at_base(self, content):
+        """The one-commit fixture plus ``content`` committed as the floor,
+        origin/main at that commit, and an untracked file keeping the argless
+        range non-collapsed. Returns (path, git runner, floor path)."""
+        tmp, git = self._repo()
+        floor = tmp / "tools" / "todo-number-floor.json"
+        floor.parent.mkdir(parents=True, exist_ok=True)
+        floor.write_text(content, encoding="utf-8")
+        git("add", "tools/todo-number-floor.json")
+        git("commit", "-q", "-m", "floor")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        (tmp / "NEW.md").write_text("New.\n", encoding="utf-8")
+        return tmp, git, floor
+
+    def test_d12_base_floor_not_json_refuses(self) -> None:
+        # 3b540 round 2 (r1 reviews, claude F2 / gemini F1): a COMMITTED base
+        # floor that is not valid JSON leaves the base state undetermined, so
+        # the gate refuses with D12 CANNOT-EVALUATE (exit 2) naming the base
+        # source (ref:path), instead of dying with a JSONDecodeError traceback.
+        tmp, git, floor = self._repo_with_floor_at_base("not a floor\n")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn("origin/main:tools/todo-number-floor.json", r.stderr)
+        self.assertIn("JSONDecodeError", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_base_floor_wrong_shape_refuses(self) -> None:
+        # 3b540 round 2 (r1 reviews, claude F1 / gemini F2): a committed base
+        # floor that is VALID JSON of the wrong shape -- not an object, a key
+        # that is not an integer string (or the TF series), a value that is
+        # not an integer -- refuses the same way, never a traceback and never
+        # a verdict computed from garbage.
+        for label, content, named in (
+            ("not an object", "[1, 2]\n", "not a JSON object"),
+            ("non-integer-string key", '{"abc": 3}\n', "'abc'"),
+            ("string value", '{"2": "33"}\n', "not an integer"),
+            ("boolean value", '{"2": true}\n', "not an integer"),
+        ):
+            with self.subTest(shape=label):
+                tmp, git, floor = self._repo_with_floor_at_base(content)
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+                self.assertIn("origin/main:tools/todo-number-floor.json", r.stderr)
+                self.assertIn(named, r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
+    def test_d12_argless_head_floor_wrong_shape_refuses(self) -> None:
+        # 3b540 round 2 (r1 reviews, claude F1 / gemini F2): valid JSON of the
+        # WRONG SHAPE in the argless head floor (the working tree) is refused
+        # like the unreadable and non-JSON head shapes above, naming the
+        # path, through the one shape validation every parse shares.
+        for label, content, named in (
+            ("not an object", "[1, 2]\n", "not a JSON object"),
+            ("non-integer-string key", '{"abc": 3}\n', "'abc'"),
+            ("string value", '{"2": "33"}\n', "not an integer"),
+        ):
+            with self.subTest(shape=label):
+                tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+                floor.write_text(content, encoding="utf-8")
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+                self.assertIn(str(floor), r.stderr)
+                self.assertIn(named, r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn("missing at HEAD", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
+    def test_d12_explicit_head_floor_unparseable_refuses(self) -> None:
+        # 3b540 round 2 (r1 reviews, claude F1+F2 / gemini F1+F2): an EXPLICIT
+        # head ref whose floor blob is not valid JSON, or is valid JSON of
+        # the wrong shape, refuses with D12 CANNOT-EVALUATE naming the head
+        # source (ref:path), instead of a traceback.
+        for label, content, named in (
+            ("not valid JSON", "not a floor\n", "JSONDecodeError"),
+            ("not an object", "[1, 2]\n", "not a JSON object"),
+            ("string value", '{"2": "33"}\n', "not an integer"),
+        ):
+            with self.subTest(shape=label):
+                tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+                git("checkout", "-q", "-b", "feat")
+                floor.write_text(content, encoding="utf-8")
+                git("add", "tools/todo-number-floor.json")
+                git("commit", "-q", "-m", "bad floor")
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                               "origin/main", "feat")
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+                self.assertIn("feat:tools/todo-number-floor.json", r.stderr)
+                self.assertIn(named, r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
+    def test_d12_git_missing_refuses_not_traceback(self) -> None:
+        # 3b540 round 3 (r2 review, claude F2 generalized): git missing from
+        # PATH entirely (FileNotFoundError, an OSError) at the very first
+        # helper call is mapped once in the helpers to _GitCallFailed and
+        # refused by main()'s backstop as D12 CANNOT-EVALUATE (exit 2) naming
+        # the call, never an escaping traceback.
+        tmp, git = self._repo()
+        empty_dir = Path(tempfile.mkdtemp(prefix="no-git-")).resolve()
+        self.addCleanup(shutil.rmtree, empty_dir, ignore_errors=True)
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       env={"GITHUB_BASE_REF": "main", "PATH": str(empty_dir)})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn("git rev-parse --verify --quiet origin/main", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_base_floor_show_failure_refuses(self) -> None:
+        # 3b540 round 3 (r2 review, claude F2): the base floor passing the
+        # _path_at_sha existence check but the git show read then failing
+        # (CalledProcessError; the repository mutating under the gate) is a
+        # D12 CANNOT-EVALUATE refusal (exit 2) naming the call, never a
+        # traceback. The PATH shim delegates to the real git except for show.
+        # The call names the pinned base SHA, not the ref (3b540 round 5).
+        real_git = shutil.which("git")
+        self.assertIsNotNone(real_git)
+        tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+        base_sha = git("rev-parse", "origin/main")
+        shim_dir = Path(tempfile.mkdtemp(prefix="gitshim-")).resolve()
+        self.addCleanup(shutil.rmtree, shim_dir, ignore_errors=True)
+        shim = shim_dir / "git"
+        shim.write_text(
+            "#!/bin/sh\n"
+            'for a in "$@"; do\n'
+            '  if [ "$a" = "show" ]; then exit 128; fi\n'
+            "done\n"
+            f'exec "{real_git}" "$@"\n',
+            encoding="utf-8",
+        )
+        shim.chmod(0o755)
+        r = self._gate(
+            "check-todo-floor-monotonic-on-pr.py", tmp,
+            env={"GITHUB_BASE_REF": "main",
+                 "PATH": f"{shim_dir}{os.pathsep}{os.environ['PATH']}"})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn(f"git show {base_sha}:tools/todo-number-floor.json", r.stderr)
+        self.assertIn("reading the base floor origin/main:tools/todo-number-floor.json",
+                      r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_explicit_head_floor_removed_still_fails(self) -> None:
+        # 3b540 round 3: regression pin for the restructure above -- with the
+        # floor-removed FAIL now decided by the explicit-head _path_at_sha
+        # check (git show failures having become refusals), a head commit
+        # that genuinely DELETES the floor still fails (exit 1), not a
+        # refusal and not a pass. Since 3b540 round 5 that check is an empty
+        # git ls-tree listing at the pinned head SHA (round-5 probe P1).
+        tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+        git("checkout", "-q", "-b", "feat")
+        git("rm", "-q", "tools/todo-number-floor.json")
+        git("commit", "-q", "-m", "drop floor")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       "origin/main", "feat")
+        self.assertEqual(r.returncode, 1, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("missing at HEAD", r.stderr)
+        self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_negative_floor_value_refuses_zero_allowed(self) -> None:
+        # 3b540 round 3 (r2 review, gemini F1): a NEGATIVE floor value is no
+        # floor at all; on a brand-new series it would sail through the
+        # monotonicity comparison as a silent OK, so _parse refuses it as a
+        # shape defect (exit 2) naming the series. Zero stays allowed: it is
+        # the producer's no-allocation default (build-todo-number-allocation.py
+        # load_floor starts tf at 0 and compute reads floor.get(s, 0)).
+        tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+        floor.write_text('{"2": 32, "3": -1}\n', encoding="utf-8")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn("negative floor value", r.stderr)
+        self.assertIn("'3'", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+        # zero-valued floors on both sides still get the real monotonic OK
+        tmp2, git2, floor2 = self._repo_with_floor_at_base('{"2": 0, "TF": 0}\n')
+        floor2.write_text('{"2": 0, "3": 1, "TF": 0}\n', encoding="utf-8")
+        r2 = self._gate("check-todo-floor-monotonic-on-pr.py", tmp2,
+                        env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r2.returncode, 0, f"stdout:\n{r2.stdout}\nstderr:\n{r2.stderr}")
+        self.assertIn("monotonic", r2.stdout)
+        self.assertNotIn("CANNOT-EVALUATE", r2.stderr)
+
+    def _ref_changing_path(self, *update_ref_args):
+        """A PATH whose git shim runs ``git update-ref <update_ref_args>``
+        (moving or deleting a ref) once, just before the gate's first
+        ``git ls-tree``, ``git cat-file`` or ``git show`` call, which comes
+        after it resolved its refs, so the injection fires whichever of those
+        three the presence check uses (3b540 round 6, r5 review WARN-1). A
+        floor read through any other git command (``rev-parse <ref>:<path>``,
+        say) does not trigger it. Every call delegates to the real git. The
+        caller checks the ref afterwards (_resolved_or_none) to prove the
+        injection happened. Returns the PATH value."""
+        real_git = shutil.which("git")
+        self.assertIsNotNone(real_git)
+        shim_dir = Path(tempfile.mkdtemp(prefix="gitshim-")).resolve()
+        self.addCleanup(shutil.rmtree, shim_dir, ignore_errors=True)
+        shim = shim_dir / "git"
+        fired = shim_dir / "fired"
+        args = " ".join(f'"{a}"' for a in update_ref_args)
+        shim.write_text(
+            "#!/bin/sh\n"
+            'case "$1" in\n'
+            "  ls-tree|cat-file|show)\n"
+            f'    if [ ! -e "{fired}" ]; then\n'
+            f'      : > "{fired}"\n'
+            f'      "{real_git}" update-ref {args} >/dev/null 2>&1\n'
+            "    fi\n"
+            "    ;;\n"
+            "esac\n"
+            f'exec "{real_git}" "$@"\n',
+            encoding="utf-8",
+        )
+        shim.chmod(0o755)
+        return f"{shim_dir}{os.pathsep}{os.environ['PATH']}"
+
+    def _resolved_or_none(self, tmp, ref):
+        """``ref``'s SHA in the fixture at ``tmp``, or None if it does not
+        resolve (deleted)."""
+        import subprocess as sp
+
+        r = sp.run(["git", "-C", str(tmp), "rev-parse", "--verify", "--quiet", ref],
+                   capture_output=True, text=True)
+        return r.stdout.strip() if r.returncode == 0 else None
+
+    def _repo_with_lowered_head(self):
+        """The floor-at-base fixture plus a ``feat`` commit lowering the floor
+        (32 -> 31), main checked out again. Returns (path, git runner)."""
+        tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+        git("checkout", "-q", "-b", "feat")
+        floor.write_text('{"2": 31}\n', encoding="utf-8")
+        git("add", "tools/todo-number-floor.json")
+        git("commit", "-q", "-m", "lower floor")
+        git("checkout", "-q", "main")
+        return tmp, git
+
+    def test_d12_head_ref_changing_mid_run_keeps_pinned_verdict(self) -> None:
+        # 3b540 round 5 (r4 review, claude NOTE-1, probes P3 and P5): the
+        # head ref is resolved to its SHA once, and both head floor reads use
+        # that SHA. A head ref moved onto the base commit after the
+        # collapsed-range check, or deleted, therefore cannot turn the
+        # genuine verdict at the resolved head (the floor lowered: FAIL, exit
+        # 1) into the reflexive monotonic OK or a refusal. The shim fires on
+        # the first ls-tree, cat-file or show call, and the ref's state after
+        # the run proves the change happened (3b540 round 6, r5 review
+        # WARN-1): the round-4 tool, whose presence check was
+        # git cat-file -e, fails here.
+        for label, update, after in (
+            ("moved onto the base", ("refs/heads/feat", "{base}"), "{base}"),
+            ("deleted", ("-d", "refs/heads/feat"), None),
+        ):
+            with self.subTest(ref=label):
+                tmp, git = self._repo_with_lowered_head()
+                base_sha = git("rev-parse", "origin/main")
+                head_sha = git("rev-parse", "feat")
+                r = self._gate(
+                    "check-todo-floor-monotonic-on-pr.py", tmp, "origin/main", "feat",
+                    env={"PATH": self._ref_changing_path(
+                        *(a.format(base=base_sha) for a in update))})
+                self.assertEqual(
+                    self._resolved_or_none(tmp, "refs/heads/feat"),
+                    after.format(base=base_sha) if after else None,
+                    "the shim did not change refs/heads/feat during the run")
+                self.assertEqual(r.returncode, 1,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("floor decreased 32 -> 31", r.stderr)
+                self.assertIn(f"base={base_sha} head={head_sha}", r.stderr)
+                self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
+    def test_d12_base_ref_changing_mid_run_keeps_pinned_verdict(self) -> None:
+        # 3b540 round 5 (r4 review, claude NOTE-1, probe P4): the base-side
+        # mirror. The base ref is resolved to its SHA once, and the base
+        # floor-path check and read use that SHA. A base ref moved onto a
+        # commit without the floor after the collapsed-range check, or
+        # deleted, therefore cannot turn the genuine verdict at the resolved
+        # base (the working tree lowered the floor: FAIL, exit 1) into the
+        # first-introduction OK (a silent waiver) or a refusal. As above, the
+        # shim fires on the first ls-tree, cat-file or show call and the
+        # ref's state after the run proves the change happened
+        # (3b540 round 6).
+        for label, update, after in (
+            ("moved onto a commit without the floor",
+             ("refs/remotes/origin/main", "{initial}"), "{initial}"),
+            ("deleted", ("-d", "refs/remotes/origin/main"), None),
+        ):
+            with self.subTest(ref=label):
+                tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+                base_sha = git("rev-parse", "origin/main")
+                initial = git("rev-parse", "origin/main~1")
+                floor.write_text('{"2": 31}\n', encoding="utf-8")
+                r = self._gate(
+                    "check-todo-floor-monotonic-on-pr.py", tmp,
+                    env={"GITHUB_BASE_REF": "main",
+                         "PATH": self._ref_changing_path(
+                             *(a.format(initial=initial) for a in update))})
+                self.assertEqual(
+                    self._resolved_or_none(tmp, "refs/remotes/origin/main"),
+                    after.format(initial=initial) if after else None,
+                    "the shim did not change refs/remotes/origin/main during the run")
+                self.assertEqual(r.returncode, 1,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("floor decreased 32 -> 31", r.stderr)
+                self.assertIn(f"base={base_sha} head=working tree", r.stderr)
+                self.assertNotIn("new at this base", r.stdout)
+                self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
+    def _drop_floor_blob(self, tmp, git, rev):
+        """Delete the loose object of ``rev``'s floor blob from the fixture's
+        object store, leaving every ref and tree intact."""
+        blob = git("rev-parse", f"{rev}:tools/todo-number-floor.json")
+        (tmp / ".git" / "objects" / blob[:2] / blob[2:]).unlink()
+
+    def test_d12_base_floor_blob_missing_refuses(self) -> None:
+        # 3b540 round 5 (r4 review, claude WARN-1, probe P6): the base tree
+        # LISTS the floor but its blob is missing from the object store
+        # while the base ref resolves. Presence is decided by git ls-tree
+        # (the entry is listed), and the failed read refuses as D12
+        # CANNOT-EVALUATE (exit 2), never the first-introduction OK (git
+        # cat-file -e is nonzero here, which read as "new at this base").
+        tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+        base_sha = git("rev-parse", "origin/main")
+        self._drop_floor_blob(tmp, git, "origin/main")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       env={"GITHUB_BASE_REF": "main"})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn(f"git show {base_sha}:tools/todo-number-floor.json", r.stderr)
+        self.assertIn("reading the base floor", r.stderr)
+        self.assertNotIn("new at this base", r.stdout)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_head_floor_blob_missing_refuses(self) -> None:
+        # 3b540 round 5 (r4 review, claude WARN-1, probe P7): the head-side
+        # mirror. The explicit head's tree lists the floor (raised) but its
+        # blob is missing from the object store: the failed read refuses as
+        # D12 CANNOT-EVALUATE (exit 2), never the floor-removed FAIL (git
+        # cat-file -e is nonzero here, which read as "missing at HEAD").
+        tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+        git("checkout", "-q", "-b", "feat")
+        floor.write_text('{"2": 33}\n', encoding="utf-8")
+        git("add", "tools/todo-number-floor.json")
+        git("commit", "-q", "-m", "raise floor")
+        git("checkout", "-q", "main")
+        head_sha = git("rev-parse", "feat")
+        self._drop_floor_blob(tmp, git, "feat")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       "origin/main", "feat")
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn("cannot read the head floor feat:tools/todo-number-floor.json",
+                      r.stderr)
+        self.assertIn(f"git show {head_sha}:tools/todo-number-floor.json", r.stderr)
+        self.assertNotIn("missing at HEAD", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_explicit_head_first_introduction_still_ok(self) -> None:
+        # 3b540 round 5 (probe P2): regression pin for the git ls-tree
+        # presence check -- a base whose tree does not list the floor (empty
+        # ls-tree output, exit 0) is the genuine first introduction, so an
+        # explicit head that adds the floor still gets the "new at this base"
+        # OK (exit 0), not a refusal.
+        tmp, git = self._repo()
+        git("checkout", "-q", "-b", "feat")
+        floor = tmp / "tools" / "todo-number-floor.json"
+        floor.parent.mkdir(parents=True, exist_ok=True)
+        floor.write_text('{"2": 32}\n', encoding="utf-8")
+        git("add", "tools/todo-number-floor.json")
+        git("commit", "-q", "-m", "introduce floor")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       "origin/main", "feat")
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("new at this base", r.stdout)
+        self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+
+    def test_d12_pathspec_mode_env_keeps_real_verdict(self) -> None:
+        # 3b540 round 6 (r5 review NOTE-1): git ls-tree rejects pathspec
+        # magic, so with GIT_GLOB_PATHSPECS=1 or GIT_ICASE_PATHSPECS=1
+        # inherited it exited 128 and the presence check refused a monotonic
+        # range (exit 2). Its call now runs without those two, so an explicit
+        # range raising the floor (both presence calls) gets the monotonic OK.
+        # GIT_LITERAL_PATHSPECS and GIT_NOGLOB_PATHSPECS are verdict pins:
+        # the test pins the monotonic OK under each, not that they reach git.
+        # Mutation killed: passing the glob or icase variable through.
+        for var in ("GIT_GLOB_PATHSPECS", "GIT_ICASE_PATHSPECS",
+                    "GIT_LITERAL_PATHSPECS", "GIT_NOGLOB_PATHSPECS"):
+            with self.subTest(env=var):
+                tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+                git("checkout", "-q", "-b", "feat")
+                floor.write_text('{"2": 33}\n', encoding="utf-8")
+                git("add", "tools/todo-number-floor.json")
+                git("commit", "-q", "-m", "raise floor")
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                               "origin/main", "feat", env={var: "1"})
+                self.assertEqual(r.returncode, 0,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("is monotonic vs origin/main", r.stdout)
+                self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+
+    def test_d12_verdict_and_head_floor_lines_name_pinned_shas(self) -> None:
+        # 3b540 round 6 (r5 review NOTE-2): every verdict line -- both OKs
+        # and all three FAILs -- and the head-floor read and parse refusals
+        # name the pinned base and head SHAs (the argless head as the working
+        # tree), as the refusals already named the base, so a ref that moves
+        # after the gate pinned it cannot point the reader at other content.
+        def explicit(content, drop_blob=False):
+            # feat commits ``content`` as the floor (None removes it).
+            tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+            git("checkout", "-q", "-b", "feat")
+            if content is None:
+                git("rm", "-q", "tools/todo-number-floor.json")
+            else:
+                floor.write_text(content, encoding="utf-8")
+                git("add", "tools/todo-number-floor.json")
+            git("commit", "-q", "-m", "floor change")
+            git("checkout", "-q", "main")
+            if drop_blob:
+                self._drop_floor_blob(tmp, git, "feat")
+            return tmp, git, ("origin/main", "feat"), git("rev-parse", "feat")
+
+        def introduced():
+            tmp, git = self._repo()
+            git("checkout", "-q", "-b", "feat")
+            floor = tmp / "tools" / "todo-number-floor.json"
+            floor.parent.mkdir(parents=True, exist_ok=True)
+            floor.write_text('{"2": 32}\n', encoding="utf-8")
+            git("add", "tools/todo-number-floor.json")
+            git("commit", "-q", "-m", "introduce floor")
+            return tmp, git, ("origin/main", "feat"), git("rev-parse", "feat")
+
+        def argless(content):
+            # the working tree holds ``content`` as the floor (None removes it).
+            tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+            if content is None:
+                floor.unlink()
+            else:
+                floor.write_text(content, encoding="utf-8")
+            return tmp, git, (), "working tree"
+
+        for label, build, rc, stream, phrase in (
+            ("first introduction", introduced, 0, "stdout", "new at this base"),
+            ("raised", lambda: explicit('{"2": 33}\n'), 0, "stdout", "is monotonic vs"),
+            ("lowered", lambda: explicit('{"2": 31}\n'), 1, "stderr", "not monotonic vs"),
+            ("removed", lambda: explicit(None), 1, "stderr", "missing at HEAD"),
+            ("head floor not JSON", lambda: explicit("not a floor\n"), 2, "stderr",
+             "the head floor"),
+            ("head floor blob missing", lambda: explicit('{"2": 33}\n', drop_blob=True),
+             2, "stderr", "cannot read the head floor"),
+            ("argless raised", lambda: argless('{"2": 33}\n'), 0, "stdout",
+             "is monotonic vs"),
+            ("argless lowered", lambda: argless('{"2": 31}\n'), 1, "stderr",
+             "not monotonic vs"),
+            ("argless removed", lambda: argless(None), 1, "stderr", "missing at HEAD"),
+            ("argless head floor not JSON", lambda: argless("not a floor\n"), 2,
+             "stderr", "the head floor"),
+        ):
+            with self.subTest(verdict=label):
+                tmp, git, args, head_pin = build()
+                base_sha = git("rev-parse", "origin/main")
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, *args,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, rc,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                out = getattr(r, stream)
+                line = next((ln for ln in out.splitlines() if phrase in ln), None)
+                self.assertIsNotNone(line, out)
+                self.assertIn(f"base={base_sha} head={head_pin}", line)
+
     def test_d12_argless_git_call_failure_refuses(self) -> None:
         # Round 4 of 3b530 (review F5): a git diff or git ls-files call that
         # fails outright (nonzero beyond the documented difference status 1)
@@ -10348,6 +10952,230 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
         self.assertIn("tension-scan: CANNOT-EVALUATE", r.stderr)
         self.assertNotIn("rewritten block", r.stdout)
+
+    def test_non_utf8_toplevel_keeps_real_verdict_and_refusal(self) -> None:
+        # 3b540 round 8 (r7 review WARN-2): the top level a gate reads for
+        # its refusal's repo= field is diagnostic only. In a repository whose
+        # top-level path holds a byte that is not valid UTF-8 (0xff), that
+        # read raised UnicodeDecodeError and D1-D5, D7, D9, D11, D13 and
+        # tension-scan exited 1 with a traceback (D15 failed open); it now
+        # degrades to a placeholder as D12's _toplevel does, so a real range
+        # gets each gate's real verdict and a collapsed range its refusal.
+        # Mutation killed: dropping UnicodeDecodeError from the new except
+        # clause in lint_common.pr_range_resolution, D5, D9, D13 or
+        # tension-scan. Skipped where the filesystem refuses the name.
+        import subprocess as sp
+
+        parent = Path(tempfile.mkdtemp(prefix="non-utf8-top-")).resolve()
+        self.addCleanup(shutil.rmtree, parent, ignore_errors=True)
+        top = os.path.join(os.fsencode(parent), b"repo-\xff")
+        try:
+            os.mkdir(top)
+        except OSError as exc:
+            self.skipTest(f"the filesystem cannot hold a non-UTF-8 name: {exc}")
+
+        def git(*args):
+            sp.run([b"git", b"-C", top, *map(os.fsencode, args)],
+                   check=True, capture_output=True)
+
+        def write(rel, content):
+            with open(os.path.join(top, os.fsencode(rel)), "wb") as fh:
+                fh.write(content)
+
+        git("init", "-q", "-b", "main")
+        git("config", "user.email", "test@test")
+        git("config", "user.name", "Test")
+        write("README.md", b"# Repo\n")
+        write("CHANGELOG.md", b"# Changelog\n\nOld entry.\n")
+        git("add", "-A")
+        git("commit", "-q", "-m", "Initial")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        git("checkout", "-q", "-b", "feat")
+        write("CHANGELOG.md", b"# Changelog\n\nNew entry.\n\nOld entry.\n")
+        git("commit", "-q", "-am", "feat: a change")
+        # D9 and D13 anchor git to their own script's repository, so they run
+        # as untracked copies inside the fixture (with lint_common, which D9
+        # imports).
+        os.mkdir(os.path.join(top, b"tools"))
+        for name in ("lint_common.py", "check-retired-section-orphan-on-pr.py",
+                     "check-stranded-control-code-on-pr.py"):
+            write(f"tools/{name}", (REPO_ROOT / "tools" / name).read_bytes())
+
+        tools = os.fsencode(REPO_ROOT / "tools")
+        own = os.path.join(top, b"tools")
+        for directory, script, verdict in (
+            (tools, "check-changelog-on-pr.py", "OK: CHANGELOG.md is in the diff"),
+            (tools, "check-version-bump-on-pr.py", "OK: 0 changed versioned document(s)"),
+            (tools, "check-changelog-dash-on-pr.py", "OK: no em/en dashes"),
+            (tools, "check-date-cobump-on-pr.py", "OK: 0 document(s) bumped Version"),
+            (tools, "check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
+            (tools, "check-changelog-length-on-pr.py", "OK: no compact root CHANGELOG.md"),
+            (tools, "check-narrative-corpus-mixed-diff-on-pr.py", "neither surface touched"),
+            (tools, "tension-scan.py", "0 rewritten block(s) since"),
+            (tools, "check-alignment-register-on-pr.py", "is absent at feat; nothing to check"),
+            (own, "check-retired-section-orphan-on-pr.py", "D9 OK: no TODO section closed"),
+            (own, "check-stranded-control-code-on-pr.py", "D13 OK: no corpus document changed"),
+        ):
+            path = os.path.join(directory, os.fsencode(script))
+            advisory = script == "check-alignment-register-on-pr.py"  # D15 exits 0
+            for label, head, rc in (("real", "feat", 0),
+                                    ("collapsed", "origin/main", 0 if advisory else 2)):
+                with self.subTest(gate=script, range=label):
+                    r = sp.run([sys.executable, path, "origin/main", head],
+                               capture_output=True, cwd=top, encoding="utf-8",
+                               errors="backslashreplace")
+                    self.assertEqual(r.returncode, rc,
+                                     f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                    self.assertNotIn("Traceback", r.stderr)
+                    if label == "real":
+                        self.assertIn(verdict, r.stdout)
+                    else:
+                        self.assertIn("CANNOT-EVALUATE", r.stdout + r.stderr)
+                        self.assertIn("repo=(no work tree)", r.stdout + r.stderr)
+
+    def _inject_oserror(self, script, cwd, tail, *args):
+        """Run ``script`` with ``args`` in-process, subprocess.check_output
+        raising OSError (EAGAIN) on each git call whose argv ends with
+        ``tail``; stderr carries one INJECTED line per raise. A simulation of
+        git failing to run, not a real fault (3b540 round 9)."""
+        import subprocess as sp
+
+        driver = (
+            "import errno, json, os, runpy, subprocess, sys\n"
+            "tail = json.loads(os.environ['INJECT_TAIL'])\n"
+            "real = subprocess.check_output\n"
+            "def check_output(cmd, *a, **k):\n"
+            "    if [str(c) for c in cmd][-len(tail):] == tail:\n"
+            "        print('INJECTED', file=sys.stderr)\n"
+            "        raise OSError(errno.EAGAIN, 'injected')\n"
+            "    return real(cmd, *a, **k)\n"
+            "subprocess.check_output = check_output\n"
+            "sys.argv = sys.argv[1:]\n"
+            "sys.path.insert(0, os.path.dirname(os.path.abspath(sys.argv[0])))\n"
+            "runpy.run_path(sys.argv[0], run_name='__main__')\n"
+        )
+        return sp.run(
+            [sys.executable, "-c", driver, str(script), *args],
+            capture_output=True, text=True, cwd=str(cwd),
+            env={**os.environ, "INJECT_TAIL": json.dumps(tail)},
+        )
+
+    def test_toplevel_oserror_keeps_real_verdict_and_refusal(self) -> None:
+        # 3b540 round 9 (r8 review NOTE-2): git failing to run at all
+        # (OSError) on the one top-level read a gate makes for its refusal's
+        # repo= field degrades to the placeholder, as UnicodeDecodeError does
+        # above, so a real range keeps each gate's real verdict and a
+        # collapsed range its refusal. The OSError is injected on that single
+        # git call. Mutation killed: dropping OSError from the top-level
+        # read's except clause in lint_common.pr_range_resolution (reached
+        # through D1), D5, D9, D13 or tension-scan, which then exits 1 with a
+        # traceback.
+        tmp, git = self._repo()
+        git("checkout", "-q", "-b", "feat")
+        (tmp / "CHANGELOG.md").write_text(
+            "# Changelog\n\nNew entry.\n\nOld entry.\n", encoding="utf-8")
+        git("commit", "-q", "-am", "feat: a change")
+        # D9 and D13 anchor git to their own script's repository, so they run
+        # as untracked copies inside the fixture (with lint_common, which D9
+        # imports).
+        (tmp / "tools").mkdir()
+        for name in ("lint_common.py", "check-retired-section-orphan-on-pr.py",
+                     "check-stranded-control-code-on-pr.py"):
+            (tmp / "tools" / name).write_bytes((REPO_ROOT / "tools" / name).read_bytes())
+        tools, own = REPO_ROOT / "tools", tmp / "tools"
+        for directory, script, verdict in (
+            (tools, "check-changelog-on-pr.py", "OK: CHANGELOG.md is in the diff"),
+            (tools, "check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
+            (tools, "tension-scan.py", "0 rewritten block(s) since"),
+            (own, "check-retired-section-orphan-on-pr.py", "D9 OK: no TODO section closed"),
+            (own, "check-stranded-control-code-on-pr.py", "D13 OK: no corpus document changed"),
+        ):
+            for label, head, rc in (("real", "feat", 0), ("collapsed", "origin/main", 2)):
+                with self.subTest(gate=script, range=label):
+                    r = self._inject_oserror(directory / script, tmp,
+                                             ["rev-parse", "--show-toplevel"],
+                                             "origin/main", head)
+                    self.assertEqual(r.returncode, rc,
+                                     f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                    self.assertEqual(r.stderr.count("INJECTED"), 1, r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
+                    if label == "real":
+                        self.assertIn(verdict, r.stdout)
+                    else:
+                        self.assertIn("CANNOT-EVALUATE", r.stderr)
+                        self.assertIn("repo=(no work tree)", r.stderr)
+
+    def test_head_sha_oserror_never_reads_collapsed_range_clean(self) -> None:
+        # 3b540 round 9 (r8 review NOTE-1): the head SHA pr_range_resolution
+        # reads decides the collapse, so that read catches CalledProcessError
+        # only. Had an OSError there degraded to the echoed ref name, the name
+        # would never equal the merge base and a collapsed range would read
+        # as a real one: D3 and D7 printed a clean "not modified" pass (exit
+        # 0) at round 8. The OSError, injected on that single git call, now
+        # escapes and the gate exits non-zero. Mutation killed: adding OSError
+        # back to that clause.
+        tmp, _git = self._repo()
+        for script in ("check-changelog-dash-on-pr.py", "check-changelog-length-on-pr.py"):
+            with self.subTest(gate=script):
+                r = self._inject_oserror(REPO_ROOT / "tools" / script, tmp,
+                                         ["rev-parse", "--verify", "HEAD^{commit}"],
+                                         "origin/main", "HEAD")
+                self.assertEqual(r.stderr.count("INJECTED"), 1, r.stderr)
+                self.assertNotEqual(r.returncode, 0,
+                                    f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertNotIn("OK", r.stdout)
+
+    def test_no_work_tree_refuses_exit2(self) -> None:
+        # 3b540 round 9 (r8 review WARN-1): git refusing the top-level read
+        # because there is no work tree (GIT_DIR naming a bare repository) is
+        # a refusal, exit 2, as before round 8, not a placeholder. D9's orphan
+        # scan reads the working tree, so without one it scanned this
+        # checkout instead of the head and printed "D9 OK" for a head that
+        # deletes TODO row 9.99 and commits a file citing it; the control, a
+        # normal checkout of the same head, FAILs. At round 8 D5, D9, D13 and
+        # tension-scan all exited 0 here.
+        import subprocess as sp
+
+        tmp, git = self._repo()
+        rows = "# TODO\n\n## Priority 1\n\n| 9.98 | Keep | x |\n"
+        (tmp / "TODO.md").write_text(rows + "| 9.99 | Retire | x |\n", encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "-m", "TODO rows")
+        git("checkout", "-q", "-b", "feat")
+        (tmp / "TODO.md").write_text(rows, encoding="utf-8")
+        (tmp / "tools").mkdir()
+        (tmp / "tools" / "x.py").write_text("# see §9.99 for detail\n", encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "-m", "retire 9.99 and cite it")
+
+        d9 = "check-retired-section-orphan-on-pr.py"
+        for name in ("lint_common.py", d9):
+            (tmp / "tools" / name).write_bytes((REPO_ROOT / "tools" / name).read_bytes())
+        r = sp.run([sys.executable, str(tmp / "tools" / d9), "main", "feat"],
+                   capture_output=True, text=True, cwd=str(tmp))
+        self.assertEqual(r.returncode, 1, f"control:\nstdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("LIVE orphan reference(s) to section(s) this PR retired (9.99)", r.stderr)
+
+        holder = Path(tempfile.mkdtemp(prefix="no-work-tree-")).resolve()
+        self.addCleanup(shutil.rmtree, holder, ignore_errors=True)
+        bare = holder / "repo.git"
+        sp.run(["git", "clone", "-q", "--bare", str(tmp), str(bare)],
+               check=True, capture_output=True)
+        env = {k: v for k, v in os.environ.items() if k != "GIT_WORK_TREE"}
+        env["GIT_DIR"] = str(bare)
+        for script, clean in (
+            ("check-todo-rotation-on-pr.py", "OK:"),
+            (d9, "D9 OK"),
+            ("check-stranded-control-code-on-pr.py", "D13 OK"),
+            ("tension-scan.py", "rewritten block"),
+        ):
+            with self.subTest(gate=script):
+                r = sp.run([sys.executable, str(REPO_ROOT / "tools" / script), "main", "feat"],
+                           capture_output=True, text=True, cwd=str(holder), env=env)
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("work tree", r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn(clean, r.stdout)
 
 
 from tests import test_session_facts
@@ -25793,9 +26621,9 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         ccm_aicm_reference.py PASSIVE F 1ed15d9b1bd4cfd1162df3e720b5aa6058c3cba3cb1f626fcf2e1ee605c17e71
         changelog_diff.py PASSIVE F d712d841faf46461535b17d083d012280d3df85c0182b526625f7d7199b301bd
         check-alignment-register-on-pr.py NO_FS F b1774022adf437520a3b79930342002eea0493a91a91f6fcf0a823a02a7b3878
-        check-changelog-dash-on-pr.py NO_FS F ca13e80adc1268e25f9049e104d987cb2da30d1cedf2a5abb5aa35969008f883
-        check-changelog-length-on-pr.py NO_FS F ad8db4fb4f41cbe77f759cb70e293a070045fc82bfe6617e454c6d26a0151f4d
-        check-changelog-on-pr.py NO_FS F fac4d3416941e86ce7abee406af37d0d11398e60993b7a7b193fa70b53f98a59
+        check-changelog-dash-on-pr.py NO_FS F c4a4ed41c310deedab000b034124e1c08482c59da539907d9d22fd5faeb0089e
+        check-changelog-length-on-pr.py NO_FS F dd81f8c07f2ab5045bc492e1d59ebab939585c01355d1ca0d7baf0fed08c84a1
+        check-changelog-on-pr.py NO_FS F 965ec6500d8b640b43076292e5ee4158787c86f9332612cd273c34d3f79ac050
         check-changelog-preflight-commit.py NO_FS F 87b92b4235420074c259a9b50e0ee72d5624a81be2b87420de3e01cc7e551fd2
         check-class-attestation-on-pr.py NO_FS F 8ef4e742c2610fa3c80598404991ee6aab9da409b9e95e2ad8b74ec202d40325
         check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
@@ -25804,19 +26632,19 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-clean-language-upstream.py NO_FS F 7732d2d2eceb44061d99e7c484aa83c93b0818091538ba7e3b95a0040acda6a2
         check-commit-on-main.py NO_FS F 6b32bd410a2fee3b4dbb3ff8e3677ee4c5278c9c3f0496fe429b12a25cc967e9
         check-daily-changelog-rollup.py SKIP F 096c9d8e8cf4741ca7fd9bb43ca5c4a5d08ead37c65559e291b44fb8af28da10
-        check-date-cobump-on-pr.py NO_FS F 78d69dc738b630a1416eabb1c278007d8d4c4995775aa349ee191e113463546b
+        check-date-cobump-on-pr.py NO_FS F ed8a6f1b647ffd8e6f22f99d34920fe4b92bb7d37ab9f81ac1f04e6a04958188
         check-dirty-tree-push.py TRANSPORT F e60cbafde1933c8bcc92410a997d41a6e5e89d97456ff2949aba0284ffb65713
         check-generated-commit.py NO_FS F 0966158af3a54dba6c55f7de8039ca21ff3658ffe98c4d341d6ad153e824697b
-        check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 9b8a49bc37aa820d292a2c27d843ad5c5cf4cc555a19b4df89e59b4c2fbaf006
+        check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 3b8aef9b029585e955b4d646a38a50c043d532e58379d05dc6c6b68b4f3a937e
         check-portability.sh FIXED F 47a3853e165ba918c0f4f5687904f662a0a9d805356428394fd724ff227756d5
         check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
-        check-retired-section-orphan-on-pr.py NO_FS F 94f89f3645e0e4dedbfe0a2d174ba60150b94bd7a0c734e25d5f96d148afe4ba
+        check-retired-section-orphan-on-pr.py NO_FS F 19849d6cd9cf922470e41a3e9e5f54892180d6d079e32b7c2f822de71fabe221
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
-        check-stranded-control-code-on-pr.py NO_FS F 5c0890d697db2086c6a10fe3222b6a268ac04199a359b761e4d393aceaccde7d
-        check-todo-floor-monotonic-on-pr.py NO_FS F 193409c33cbf8eb4d7010c3f9acb40ef367cd33daa2d42933559bc03e9aa57df
-        check-todo-rotation-on-pr.py NO_FS F f4189bf15201c6ae8d228ac341f5c5c5dd859457be22275084e2e155751b5c96
+        check-stranded-control-code-on-pr.py NO_FS F 017287e6008535b2261347d86c2b460afe7e40c925e25f1279386a9e2076d9e4
+        check-todo-floor-monotonic-on-pr.py NO_FS F 6e6451cd462e025af8cd3534e1b36561e201fd4b7d81aff74d93f4e2a8915cd3
+        check-todo-rotation-on-pr.py NO_FS F b14fa2c4c170865eba570a9d5dcfabbfeaa9a3abe7f21983a4d17277a781557e
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
-        check-version-bump-on-pr.py NO_FS F 520abe7d721553382768bf7c581cc0db91b1b6ac329404cc61416333246062b2
+        check-version-bump-on-pr.py NO_FS F a8598d3d9452c9e44b9c4d9f21ef2d3d9f8b81875429872d5823b9b76a9c7585
         ci-status.py NO_FS F 068ed02eb5f5a81572dce604a4cb1965582dbc178c7c9715be3d37dd8e01e54b
         ci-status.sh NO_FS F 8c66fb625693e9099b040855a90e25dac7f78960eeb2ad660ac513f513287094
         citation_publishers.py PASSIVE F 8c9729132cfaa4f2705c023b4501872905a44dd76b996be8ea8c78ae4188d3e8
@@ -25933,7 +26761,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 616ae8f4ea008cda21bcf2f663ed650f82f91b2467fddc75cc4a313ff61e32b1
-        lint_common.py PASSIVE F 70d3271c41738c8a121bdf2f46d95867488bbe46b375cc581be9e83f2aa0938e
+        lint_common.py PASSIVE F 18c95ce46eefe28807f67fe23ee657c1eaf222e9cd7f37879e893c05dea5abac
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -25964,7 +26792,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         sweep-preflight-scanner.py NO_FS F ae4ca7f95dffecb823ec3bc0fdf382ead32fd92a8b0c8b0c286f0b85b2b4dd6f
         sync-citation-worklist-baseline.py OWN F 9c465a8c77bafd52f7f3079f35346a11716a6f0bc8e91862706590e831af397b
         tail-safe.sh COMMAND F 07908bc54b40d06445f63a08f92526d22e4a030465ee235104a3ec41fbbb0b02
-        tension-scan.py NO_FS F acc2ca2f80d3f41397ea6e20eef3a8f704c5928105b1a77799eef121187cec7d
+        tension-scan.py NO_FS F 3024b1d477a19bd6564a2e22734b24fa1519fc7c5e14d213d2492973820d0880
         todo-number-floor.json DATA F b5b684a17754dd265c1072f2342971befcc59b5a6e0b579f48eb21ea172f047b
         todo_index_rows.py PASSIVE F 6aba39ba20b4bbbe5ffab3fe94ef520ec95ce8d8e2510ea73696c17d196c2e4a
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4
@@ -41302,6 +42130,85 @@ class FloorMonotonicityDeltaTests(unittest.TestCase):
                                return_value=weird + "\n"):
             self.assertEqual(m._toplevel(), weird)
             self.assertEqual(m._toplevel_strict(), weird)
+
+    def test_unicode_decode_error_in_git_helpers_refuses(self):
+        """3b540 (round-5 review F2): git output the locale codec cannot decode
+        must refuse, never escape as a traceback: the message helper degrades
+        to its placeholder, the strict resolver and git show raise
+        _GitCallFailed, and main() turns a git show decode failure into the
+        D12 CANNOT-EVALUATE refusal (exit 2) naming the call and the error."""
+        m = self._mod()
+        import io, contextlib
+        from unittest import mock
+        err = UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid start byte")
+        with mock.patch.object(m.subprocess, "check_output", side_effect=err):
+            self.assertEqual(m._toplevel(), "(no work tree)")
+            with self.assertRaises(m._GitCallFailed):
+                m._toplevel_strict()
+            with self.assertRaises(m._GitCallFailed):
+                m._git_show("origin/main", m.FLOOR_PATH)
+        with mock.patch.object(m, "_ref_resolves", return_value=True), \
+                mock.patch.object(m, "_rev_parse", side_effect=["a" * 40, "b" * 40]), \
+                mock.patch.object(m, "_path_at_sha", return_value=True), \
+                mock.patch.object(m.subprocess, "check_output", side_effect=err):
+            buf = io.StringIO()
+            with contextlib.redirect_stderr(buf):
+                rc = m.main(["x", "base-ref", "head-ref"])
+        self.assertEqual(rc, 2, buf.getvalue())
+        self.assertIn("D12 CANNOT-EVALUATE", buf.getvalue())
+        # the read runs on the pinned base SHA, not the ref (3b540 round 5)
+        self.assertIn(f"git show {'a' * 40}:{m.FLOOR_PATH}", buf.getvalue())
+        self.assertIn(f"reading the base floor base-ref:{m.FLOOR_PATH}", buf.getvalue())
+        self.assertIn("can't decode", buf.getvalue())
+
+    def test_path_at_sha_decides_presence_from_ls_tree_listing(self):
+        """3b540 round 5 (r4 review, claude WARN-1): the floor's presence at a
+        pinned SHA is the git ls-tree listing -- empty output (exit 0) is
+        absent, a listed entry is present whether or not its blob can be
+        read -- and a nonzero status or git not running refuses via
+        _GitCallFailed instead of reading as absent."""
+        m = self._mod()
+        from unittest import mock
+        entry = (b"100644 blob " + b"c" * 40 + b"\t" + m.FLOOR_PATH.encode() + b"\n")
+
+        def done(rc, out):
+            return mock.Mock(returncode=rc, stdout=out)
+
+        with mock.patch.object(m.subprocess, "run", return_value=done(0, b"")) as run:
+            self.assertFalse(m._path_at_sha("a" * 40, m.FLOOR_PATH))
+        self.assertEqual(run.call_args.args[0],
+                         ["git", "ls-tree", "--full-tree", "a" * 40, "--", m.FLOOR_PATH])
+        with mock.patch.object(m.subprocess, "run", return_value=done(0, entry)):
+            self.assertTrue(m._path_at_sha("a" * 40, m.FLOOR_PATH))
+        with mock.patch.object(m.subprocess, "run", return_value=done(128, b"")):
+            with self.assertRaises(m._GitCallFailed):
+                m._path_at_sha("a" * 40, m.FLOOR_PATH)
+        with mock.patch.object(m.subprocess, "run", side_effect=OSError("git vanished")):
+            with self.assertRaises(m._GitCallFailed):
+                m._path_at_sha("a" * 40, m.FLOOR_PATH)
+
+    def test_rev_parse_unicode_decode_error_refuses(self):
+        """3b540 round 4 (r3 review, claude NOTE-2): _rev_parse decodes git's
+        output as text like _toplevel_strict and _git_show, so a
+        UnicodeDecodeError is mapped to _GitCallFailed in the helper too, and
+        main()'s backstop refuses as D12 CANNOT-EVALUATE (exit 2) naming the
+        call, never a traceback."""
+        m = self._mod()
+        import io, contextlib
+        from unittest import mock
+        err = UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid start byte")
+        with mock.patch.object(m.subprocess, "check_output", side_effect=err):
+            with self.assertRaises(m._GitCallFailed):
+                m._rev_parse("origin/main")
+        with mock.patch.object(m, "_ref_resolves", return_value=True), \
+                mock.patch.object(m.subprocess, "check_output", side_effect=err):
+            buf = io.StringIO()
+            with contextlib.redirect_stderr(buf):
+                rc = m.main(["x", "base-ref", "head-ref"])
+        self.assertEqual(rc, 2, buf.getvalue())
+        self.assertIn("D12 CANNOT-EVALUATE", buf.getvalue())
+        self.assertIn("git rev-parse --verify base-ref", buf.getvalue())
+        self.assertIn("can't decode", buf.getvalue())
 
 
 class TodoNumberPermanenceTests(LinterTestCase):

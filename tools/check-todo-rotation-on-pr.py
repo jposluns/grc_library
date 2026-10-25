@@ -93,11 +93,12 @@ Usage:
 
 Exit codes:
     0 : no closure assertion in the added CHANGELOG lines, OR TODO.md is in the
-        diff (the public index rotated), OR an opt-out trailer is present, OR
-        empty diff.
+        diff (the public index rotated), OR an opt-out trailer is present.
     1 : a closure is asserted but TODO.md is missing from the diff (the public
         index row was not rotated).
-    2 : invocation or environment error (cannot determine base/head, git failure).
+    2 : invocation or environment error (cannot determine base/head, git failure),
+        or CANNOT-EVALUATE: base and head resolve to the same commit, or the
+        range changes no file (an empty diff), so nothing was evaluated.
 """
 
 from __future__ import annotations
@@ -327,9 +328,22 @@ def main(argv: list[str]) -> int:
     # never read as a clean pass (orchestrator mistake 300).
     try:
         head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}")
-        toplevel = git("rev-parse", "--show-toplevel")
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: could not resolve {head} to a commit: {exc}", file=sys.stderr)
+        return 2
+    try:
+        # Diagnostic only (the refusals' repo= field): git failing to run at
+        # all (OSError), or a top level the locale codec cannot decode (a path
+        # that is not valid UTF-8), degrades to a placeholder as D12's
+        # _toplevel does, so the gate keeps its real verdict instead of a
+        # traceback (3b540 round 8). git refusing to print one (no work tree,
+        # as with GIT_DIR naming a bare repository) still refuses with exit 2
+        # (3b540 round 9).
+        toplevel = git("rev-parse", "--show-toplevel")
+    except (OSError, UnicodeDecodeError):
+        toplevel = "(no work tree)"
+    except subprocess.CalledProcessError as exc:
+        print(f"ERROR: could not read the work tree top level: {exc}", file=sys.stderr)
         return 2
     if merge_base == head_sha:
         print(

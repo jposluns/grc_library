@@ -65,7 +65,9 @@ Exit codes:
     2 : invocation or environment error (cannot determine base/head, git failure,
         a diff the shared parser cannot read exactly, a CHANGELOG.md that is a
         symbolic link or a submodule in the head or the diff, or git selecting
-        another repository or work tree than it finds by itself).
+        another repository or work tree than it finds by itself), or
+        CANNOT-EVALUATE: base and head resolve to the same commit (a collapsed,
+        empty range), so nothing was evaluated.
 """
 
 from __future__ import annotations

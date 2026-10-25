@@ -38,7 +38,8 @@ a zero-false-positive census, the D5 precedent) is therefore unreachable for
 this class; the mechanizable half is the TRIGGER (a partial rewrite) and the
 CANDIDATE list (the pairs), with the contradiction judgment staying human. The
 aid prints candidates and always exits 0 on findings-for-judgment; it exits
-non-zero only for usage or git errors.
+non-zero only for usage or git errors, or to refuse a collapsed range (base and
+head resolving to the same commit: CANNOT-EVALUATE, exit 2).
 
 Usage:
     python3 tools/tension-scan.py origin/main          # blocks rewritten since base
@@ -50,7 +51,8 @@ lesson) and fix real contradictions, leaving honest narrative alone.
 
 Exit codes:
     0 : scan ran (with or without candidate pairs; the judgment is the reader's)
-    2 : usage or git error
+    2 : usage or git error, or CANNOT-EVALUATE: base and head resolve to the
+        same commit (an empty range), so nothing was scanned
 """
 
 from __future__ import annotations
@@ -165,8 +167,21 @@ def main(argv: list[str]) -> int:
     try:
         merge_base = git("merge-base", base, head).strip()
         head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}").strip()
-        toplevel = git("rev-parse", "--show-toplevel").strip()
     except (subprocess.CalledProcessError, OSError) as exc:
+        print(f"tension-scan: git failed: {exc}", file=sys.stderr)
+        return 2
+    try:
+        # Diagnostic only (the refusal's repo= field): git failing to run at
+        # all (OSError), or a top level the locale codec cannot decode (a path
+        # that is not valid UTF-8), degrades to a placeholder as D12's
+        # _toplevel does, so the scan keeps its real result instead of a
+        # traceback (3b540 round 8). git refusing to print one (no work tree,
+        # as with GIT_DIR naming a bare repository) still refuses with exit 2
+        # (3b540 round 9).
+        toplevel = git("rev-parse", "--show-toplevel").strip()
+    except (OSError, UnicodeDecodeError):
+        toplevel = "(no work tree)"
+    except subprocess.CalledProcessError as exc:
         print(f"tension-scan: git failed: {exc}", file=sys.stderr)
         return 2
     # A collapsed range would read as the clean "0 rewritten block(s)" summary;

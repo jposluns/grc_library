@@ -17,7 +17,13 @@ Usage:
     In that argless form every working-tree read -- the tracked diff and the
     untracked listing of the collapsed-range check, and the head floor read --
     anchors to the repository top level, so a run from a subdirectory gives
-    the same verdict as a run from the root (3b530 rounds 4 and 5).
+    the same verdict as a run from the root (3b530 rounds 4 and 5). A run
+    from inside a NESTED git repository anchors to that nested repository,
+    not the outer one: it is refused when the base ref does not resolve in
+    the nested repository (a freshly initialised one carries no refs), and
+    otherwise evaluated against the nested repository's own base and head;
+    in both cases it is never evaluated against the outer repository, so
+    run from the outer repository to check the outer floor (3b540).
 
 A collapsed range (base and head resolving to the same commit, or the working
 tree holding the base's content in the argless form) is refused as
@@ -32,44 +38,91 @@ import sys
 
 FLOOR_PATH = "tools/todo-number-floor.json"
 
+# git ls-tree supports no pathspec magic, so an inherited GIT_GLOB_PATHSPECS
+# or GIT_ICASE_PATHSPECS makes it exit 128 ("pathspec magic not supported by
+# this command") and the presence check would refuse a range it can
+# evaluate; _path_at_sha runs it without them (3b540 round 6).
+# GIT_LITERAL_PATHSPECS and GIT_NOGLOB_PATHSPECS stay: under them ls-tree
+# already reads the path literally and gives the real verdict.
+_LS_TREE_DROPPED_ENV = ("GIT_GLOB_PATHSPECS", "GIT_ICASE_PATHSPECS")
+
 
 def _ref_resolves(ref):
     """True iff ``ref`` resolves to a commit. An invalid / unfetched base ref must NOT be
     read as 'the floor is new' (that would silently waive the monotonicity check): ignorance
-    about the input is a first-class REFUSE, not a permit (guard-input discipline)."""
-    return subprocess.run(
-        ["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"],
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+    about the input is a first-class REFUSE, not a permit (guard-input discipline).
+    git not running at all (OSError, e.g. git missing from PATH) raises
+    _GitCallFailed for main()'s refusal backstop, never a traceback (3b540
+    round 3); a nonzero status IS the answer here, so CalledProcessError
+    cannot arise (subprocess.run without check)."""
+    try:
+        return subprocess.run(
+            ["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+    except OSError as exc:
+        raise _GitCallFailed(
+            f"git rev-parse --verify --quiet {ref} (did not run: {exc})")
 
 
 def _rev_parse(ref):
-    """The commit SHA ``ref`` resolves to (caller has verified it resolves)."""
-    return subprocess.check_output(
-        ["git", "rev-parse", "--verify", f"{ref}^{{commit}}"], text=True,
-        stderr=subprocess.DEVNULL).strip()
+    """The commit SHA ``ref`` resolves to (caller has verified it resolves).
+    A ref vanishing between that check and this read (CalledProcessError) or
+    git itself vanishing (OSError) raises _GitCallFailed for main()'s refusal
+    backstop, never a traceback (3b540 round 3); so does output the locale
+    codec cannot decode (UnicodeDecodeError), as in _toplevel_strict and
+    _git_show (3b540 round 4)."""
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--verify", f"{ref}^{{commit}}"], text=True,
+            stderr=subprocess.DEVNULL).strip()
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
+        raise _GitCallFailed(f"git rev-parse --verify {ref} ({exc})")
 
 
 def _toplevel():
     """The repository top level git selects from the current directory, so a
     collapsed-range refusal can name the clone it resolved (wrong-clone diagnosis).
-    A message helper: git failing to run at all (OSError) degrades to the same
-    placeholder as a missing work tree instead of escaping the refusal being
-    composed as a traceback, and only git's terminating newline is removed, so
-    a top-level path whose final component ends in whitespace is named intact
-    (3b530 round 5)."""
+    A message helper: git failing to run at all (OSError) or printing a top
+    level the locale codec cannot decode (UnicodeDecodeError; 3b540) degrades
+    to the same placeholder as a missing work tree instead of escaping the
+    refusal being composed as a traceback, and only git's terminating newline
+    is removed, so a top-level path whose final component ends in whitespace
+    is named intact (3b530 round 5)."""
     try:
         return subprocess.check_output(
             ["git", "rev-parse", "--show-toplevel"], text=True,
             stderr=subprocess.DEVNULL).removesuffix("\n")
-    except (subprocess.CalledProcessError, OSError):
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError):
         return "(no work tree)"
 
 
-def _path_at_ref(ref, path):
-    """True iff ``path`` exists in ``ref``'s tree (base valid AND path present)."""
-    return subprocess.run(
-        ["git", "cat-file", "-e", f"{ref}:{path}"],
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+def _path_at_sha(sha, path):
+    """True iff the tree of commit ``sha`` LISTS an entry at ``path``, as
+    ``git ls-tree --full-tree sha -- path`` reports it: empty output means
+    the path is absent there, a listed entry means it is present. This
+    decides presence in the tree only, not that the entry's object can be
+    read: a listed blob may be missing from the object store, so a caller
+    reads a listed entry with _git_show, whose failure refuses (3b540 round
+    5). ``sha`` is a commit SHA the gate resolved once, never a ref name, so
+    a ref that moves or vanishes mid-run cannot change the answer (3b540
+    round 5). --full-tree reads ``path`` from the repository top level, as
+    ``sha:path`` does, whatever the current directory. A nonzero status (the
+    commit or a tree on the path unreadable) or git not running at all
+    (OSError) raises _GitCallFailed for main()'s refusal backstop, never
+    read as absent and never a traceback (3b540 rounds 3 and 5). The call
+    runs without _LS_TREE_DROPPED_ENV, so an inherited glob or icase
+    pathspec mode cannot turn that status nonzero (3b540 round 6)."""
+    env = {k: v for k, v in os.environ.items() if k not in _LS_TREE_DROPPED_ENV}
+    try:
+        listing = subprocess.run(
+            ["git", "ls-tree", "--full-tree", sha, "--", path],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env=env)
+    except OSError as exc:
+        raise _GitCallFailed(f"git ls-tree {sha} -- {path} (did not run: {exc})")
+    if listing.returncode != 0:
+        raise _GitCallFailed(
+            f"git ls-tree {sha} -- {path} (exit {listing.returncode})")
+    return listing.stdout != b""
 
 
 class _GitCallFailed(Exception):
@@ -84,15 +137,16 @@ def _toplevel_strict():
     """The repository top level for the argless form's working-tree reads.
     Unlike ``_toplevel`` (a message helper that degrades to a placeholder),
     a top level that cannot be resolved leaves the head state undetermined,
-    so any failure -- nonzero exit or git not running at all -- raises
-    _GitCallFailed for the caller to refuse on. Only git's terminating
-    newline is removed, so a top-level path whose final component ends in
-    whitespace is not altered (3b530 round 5)."""
+    so any failure -- nonzero exit, git not running at all, or a top level
+    the locale codec cannot decode (3b540) -- raises _GitCallFailed for the
+    caller to refuse on. Only git's terminating newline is removed, so a
+    top-level path whose final component ends in whitespace is not altered
+    (3b530 round 5)."""
     try:
         return subprocess.check_output(
             ["git", "rev-parse", "--show-toplevel"], text=True,
             stderr=subprocess.DEVNULL).removesuffix("\n")
-    except (subprocess.CalledProcessError, OSError) as exc:
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
         raise _GitCallFailed(f"git rev-parse --show-toplevel ({exc})")
 
 
@@ -133,12 +187,70 @@ def _worktree_matches_base(base_sha, top):
 
 
 def _git_show(ref, path):
-    return subprocess.check_output(["git", "show", f"{ref}:{path}"], text=True,
-                                   stderr=subprocess.DEVNULL)
+    """``ref:path``'s text. A blob the locale codec cannot decode leaves that
+    revision's floor undetermined, so a UnicodeDecodeError raises
+    _GitCallFailed for the caller to refuse on instead of escaping as a
+    traceback (3b540); a show that fails (CalledProcessError, e.g. a blob
+    the caller's _path_at_sha check listed but the object store does not
+    hold; 3b540 round 5) or git not running at all (OSError) raises the
+    same _GitCallFailed, so the floor-removed FAIL belongs to the callers'
+    explicit _path_at_sha / open checks, never to a failed read (3b540
+    round 3)."""
+    try:
+        return subprocess.check_output(["git", "show", f"{ref}:{path}"], text=True,
+                                       stderr=subprocess.DEVNULL)
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
+        raise _GitCallFailed(f"git show {ref}:{path} ({exc})")
 
 
-def _parse(text):
-    return {k: int(v) for k, v in json.loads(text).items() if not k.startswith("_")}
+class _FloorParseError(Exception):
+    """``text`` handed to ``_parse`` is not a floor document: not valid JSON,
+    or valid JSON of the wrong shape. ``str()`` names the source (ref:path or
+    path) and the defect; the caller refuses as CANNOT-EVALUATE instead of
+    letting the defect escape as a traceback (3b540 round 2)."""
+
+
+def _parse(text, source=FLOOR_PATH):
+    """The floor mapping (series -> highest ordinal ever allocated) in
+    ``text``. The shape validation lives HERE and only here, so no call site
+    can parse a floor without it (3b540 round 2): the content must be valid
+    JSON, the top level a JSON object, every non-comment key an integer
+    string or the TF series, and every value a NON-NEGATIVE JSON integer
+    (true/false are booleans, not integers; a floor records the highest
+    ordinal ever allocated, so a negative value is no floor at all, while
+    zero is the producer's no-allocation default --
+    build-todo-number-allocation.py reads ``floor.get(s, 0)`` and
+    ``tf = 0`` -- and stays allowed) (3b540 round 3). Underscore-prefixed
+    keys are comments, skipped before validation. Any defect raises
+    _FloorParseError naming ``source`` for the caller to refuse on."""
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise _FloorParseError(
+            f"{source} is not valid JSON ({exc.__class__.__name__}: {exc})")
+    if not isinstance(data, dict):
+        raise _FloorParseError(
+            f"{source} is not a JSON object (the top level is "
+            f"{type(data).__name__}, expected series -> floor)")
+    floor = {}
+    for k, v in data.items():
+        if k.startswith("_"):
+            continue
+        if k != "TF" and not (k.isascii() and k.isdigit()):
+            raise _FloorParseError(
+                f"{source} has a series key that is not an integer string "
+                f"or TF: {k!r}")
+        if isinstance(v, bool) or not isinstance(v, int):
+            raise _FloorParseError(
+                f"{source} has a floor value that is not an integer "
+                f"(series {k!r}: {v!r})")
+        if v < 0:
+            raise _FloorParseError(
+                f"{source} has a negative floor value (series {k!r}: {v!r}); "
+                f"a floor records the highest ordinal ever allocated and is "
+                f"never below 0")
+        floor[k] = v
+    return floor
 
 
 def find_violations(base, head):
@@ -154,6 +266,27 @@ def find_violations(base, head):
 
 
 def main(argv):
+    """_run() behind the one refusal backstop for _GitCallFailed: every git
+    helper maps a call that fails outright (CalledProcessError where a status
+    is not the documented answer, or OSError, e.g. FileNotFoundError when git
+    is missing) and, where it decodes git's output as text, a
+    UnicodeDecodeError (3b540 round 4) to _GitCallFailed naming the call, so
+    the mapping lives once in the helpers (only the message helper _toplevel
+    degrades to a placeholder instead, so composing a refusal cannot raise);
+    call sites that can say WHAT was being evaluated catch it with a tailored
+    D12 CANNOT-EVALUATE, and every other site falls through to this backstop
+    -- the same refusal, never a traceback (3b540 round 3)."""
+    try:
+        return _run(argv)
+    except _GitCallFailed as exc:
+        sys.stderr.write(
+            f"D12 CANNOT-EVALUATE: {exc} failed (repo={_toplevel()}); the "
+            f"repository state is undetermined, so nothing was evaluated. "
+            f"Fix the git installation or repository state and re-run.\n")
+        return 2
+
+
+def _run(argv):
     if len(argv) > 3 or any(a.startswith("-") for a in argv[1:]):  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
         sys.stderr.write("usage: check-todo-floor-monotonic-on-pr.py [<base-ref> [<head-ref>]]\n")
         return 2
@@ -171,7 +304,12 @@ def main(argv):
     # A collapsed range would read as the clean monotonic-reflexive OK; refuse it
     # instead (the wrong-clone signature the delta gates refuse, orchestrator
     # mistake 300), BEFORE the first-introduction OK below can fire.
+    # Each ref is resolved to its commit SHA once, here, and every later git
+    # read -- the collapsed-range check, both floor-path checks, both floor
+    # reads -- uses those SHAs, never the ref names, so a ref that moves or
+    # vanishes mid-run cannot change what is evaluated (3b540 round 5).
     base_sha = _rev_parse(base_ref)
+    head_sha = None  # the argless head is the working tree, read by path below
     if head_ref is not None:
         if not _ref_resolves(head_ref):
             # An unresolvable NAMED head must not be read as 'the working tree'
@@ -184,11 +322,12 @@ def main(argv):
                 "floor monotonicity (fetch the head, or pass a valid ref). "
                 "Refusing rather than waiving the check.\n")
             return 2
-        if _rev_parse(head_ref) == base_sha:
+        head_sha = _rev_parse(head_ref)
+        if head_sha == base_sha:
             sys.stderr.write(
                 f"D12 CANNOT-EVALUATE: base {base_ref} and head {head_ref} resolve "
                 f"to the same commit (repo={_toplevel()} base={base_sha} "
-                f"head={base_sha}); the named range is empty, so nothing was "
+                f"head={head_sha}); the named range is empty, so nothing was "
                 f"evaluated. If the change lives in a worktree, run from that "
                 f"worktree, or pass a base..head range that selects the change.\n")
             return 2
@@ -219,30 +358,98 @@ def main(argv):
                 f"evaluated. If the change lives in a worktree, run from that "
                 f"worktree, or pass a base..head range that selects the change.\n")
             return 2
-    if not _path_at_ref(base_ref, FLOOR_PATH):
+    # Every verdict line and both head-floor refusals name the SHAs evaluated,
+    # as the refusals above name the base, so a ref that moves after pinning
+    # cannot point the reader at other content; the argless head is the
+    # working tree, which has no SHA (3b540 round 6).
+    pins = f"base={base_sha} head={head_sha if head_ref else 'working tree'}"
+    if not _path_at_sha(base_sha, FLOOR_PATH):
         # base is VALID but the floor did not exist there: first introduction, nothing to compare.
-        print(f"OK: {FLOOR_PATH} is new at this base ({base_ref}); no prior floor to compare.")
+        print(f"OK: {FLOOR_PATH} is new at this base ({base_ref}; {pins}); "
+              "no prior floor to compare.")
         return 0
-    base_text = _git_show(base_ref, FLOOR_PATH)
+    try:
+        base_text = _git_show(base_sha, FLOOR_PATH)
+    except _GitCallFailed as exc:
+        # The base tree lists the floor (checked above) but it could not be
+        # read back as text -- its blob missing from the object store, or
+        # undecodable; refuse rather than evaluate on an undetermined base,
+        # and never read it as the first-introduction OK (3b540, round 5).
+        sys.stderr.write(
+            f"D12 CANNOT-EVALUATE: {exc} failed while reading the base floor "
+            f"{base_ref}:{FLOOR_PATH} (repo={_toplevel()} base={base_sha}); "
+            f"nothing was evaluated. Fix the repository state and re-run.\n")
+        return 2
+    if head_ref and not _path_at_sha(head_sha, FLOOR_PATH):
+        # The explicit-head twin of the base _path_at_sha check above: the
+        # floor-removed FAIL is decided by this path check, so a _git_show
+        # that then fails (a listed blob missing from the object store, or
+        # git itself) is a refusal via the helpers' _GitCallFailed, never
+        # read as a removed floor and never a traceback (3b540 rounds 3
+        # and 5).
+        sys.stderr.write(f"FAIL: {FLOOR_PATH} is missing at HEAD but present at {base_ref} "
+                         f"({pins}); the floor must never be removed.\n")
+        return 1
+    head_desc = f"{head_ref}:{FLOOR_PATH}" if head_ref else os.path.join(top, FLOOR_PATH)
     try:
         # The argless head read anchors to the same resolved top level as the
         # collapsed-range check above, so a run from a subdirectory reads the
-        # real floor instead of reporting it missing (3b530 round 5).
-        head_text = _git_show(head_ref, FLOOR_PATH) if head_ref else \
-            open(os.path.join(top, FLOOR_PATH), encoding="utf-8").read()
-    except (subprocess.CalledProcessError, FileNotFoundError):
+        # real floor instead of reporting it missing (3b530 round 5). What a
+        # read returns is then parsed through the guarded _parse calls below
+        # -- one refusal clause per floor, each naming its source -- so no
+        # content defect (not JSON, or JSON of the wrong shape) can escape
+        # as a traceback from any of the three forms (3b540 round 2).
+        if head_ref:
+            head_text = _git_show(head_sha, FLOOR_PATH)
+        else:
+            head_text = open(head_desc, encoding="utf-8").read()
+    except FileNotFoundError:
         sys.stderr.write(f"FAIL: {FLOOR_PATH} is missing at HEAD but present at {base_ref} "
-                         "(the floor must never be removed).\n")
+                         f"({pins}); the floor must never be removed.\n")
         return 1
-    base, head = _parse(base_text), _parse(head_text)
+    except (_GitCallFailed, OSError, UnicodeDecodeError) as exc:
+        # A head floor that exists but cannot be read -- a directory in its
+        # place, a permission error, bytes that are not valid UTF-8, or an
+        # undecodable git show -- leaves the head state undetermined: neither
+        # the floor-removed FAIL above nor any verdict applies, so refuse
+        # instead of escaping as a traceback (3b540).
+        sys.stderr.write(
+            f"D12 CANNOT-EVALUATE: cannot read the head floor {head_desc} "
+            f"({exc.__class__.__name__}: {exc}) while comparing against base "
+            f"{base_ref} (repo={_toplevel()} {pins}); the head state "
+            f"is undetermined, so nothing was evaluated. Fix the floor file "
+            f"and re-run.\n")
+        return 2
+    try:
+        base = _parse(base_text, f"{base_ref}:{FLOOR_PATH}")
+    except _FloorParseError as exc:
+        # The base floor was read back but is not a floor document; the base
+        # state is undetermined, so no verdict applies (3b540 round 2).
+        sys.stderr.write(
+            f"D12 CANNOT-EVALUATE: the base floor {exc} "
+            f"(repo={_toplevel()} base={base_sha}); the base state is "
+            f"undetermined, so nothing was evaluated. Fix the floor at the "
+            f"base and re-run.\n")
+        return 2
+    try:
+        head = _parse(head_text, head_desc)
+    except _FloorParseError as exc:
+        # Same refusal for the head floor, whichever form supplied it (an
+        # explicit head ref or the argless working tree) (3b540 round 2).
+        sys.stderr.write(
+            f"D12 CANNOT-EVALUATE: the head floor {exc} "
+            f"(repo={_toplevel()} {pins}); the head state is "
+            f"undetermined, so nothing was evaluated. Fix the floor file "
+            f"and re-run.\n")
+        return 2
     violations = find_violations(base, head)
     if violations:
         sys.stderr.write("FAIL: the public number floor is not monotonic vs "
-                         f"{base_ref}: {'; '.join(violations)}. The floor may only rise or "
-                         f"stay put; restore each decreased value in {FLOOR_PATH}.\n")
+                         f"{base_ref} ({pins}): {'; '.join(violations)}. The floor may only "
+                         f"rise or stay put; restore each decreased value in {FLOOR_PATH}.\n")
         return 1
     print(f"OK: {FLOOR_PATH} is monotonic vs {base_ref} "
-          f"({len(base)} series, none decreased or dropped).")
+          f"({pins}; {len(base)} series, none decreased or dropped).")
     return 0
 
 
