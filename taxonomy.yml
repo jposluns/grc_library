@@ -9345,7 +9345,7 @@ documents:
   domain: "privacy"
   type: "Annex"
   title: "European Union Privacy Regulatory Requirements"
-  version: "1.1.21"
+  version: "1.1.22"
   date: "2026-10-25"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"

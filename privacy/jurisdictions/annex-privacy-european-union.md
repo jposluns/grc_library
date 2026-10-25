@@ -2,7 +2,7 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.21\
+**Version:** 1.1.22\
 **Date:** 2026-10-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -66,7 +66,7 @@ Where the organization monitors the network and device activity of workers locat
 
 ## Cross-border transfer mechanisms
 
-- **Adequacy decisions (Article 45):** Transfers to countries or international organizations with an EU adequacy decision require no additional safeguards. Current adequacy decisions (as of 2026-10-25, per the European Commission's *Adequacy decisions* web page, held in the reference base) include: Andorra, Argentina, Brazil (decision of 26 January 2026), Canada (commercial organizations), the European Patent Organization (decision of 15 July 2025), Faroe Islands, Guernsey, Israel, Isle of Man, Japan, Jersey, New Zealand, Republic of Korea, Switzerland, United Kingdom (under the GDPR and the Law Enforcement Directive, as amended by renewal decisions of 19 December 2025), United States (commercial organizations participating in the EU-US Data Privacy Framework), and Uruguay.
+- **Adequacy decisions (Article 45):** Transfers to countries or international organizations with an EU adequacy decision require no additional safeguards. Current adequacy decisions (as of 2026-10-25, per the European Commission's *Adequacy decisions* web page, held in the reference base) include: Andorra, Argentina, Brazil (decision listed on the page as dated 26 January 2026), Canada (commercial organizations), the European Patent Organization (decision listed on the page as dated 15 July 2025), Faroe Islands, Guernsey, Israel, Isle of Man, Japan, Jersey, New Zealand, Republic of Korea, Switzerland, United Kingdom (under the GDPR and the Law Enforcement Directive, as amended by renewal decisions listed on the page as dated 19 December 2025; the Law Enforcement Directive decision rests on Article 36 of Directive (EU) 2016/680, not on GDPR Article 45), United States (commercial organizations participating in the EU-US Data Privacy Framework), and Uruguay.
 - **Standard Contractual Clauses (SCCs) (Article 46(2)(c)):** The 2021 European Commission SCCs are the primary mechanism for transfers to non-adequate third countries. SCCs must be supplemented by a Transfer Impact Assessment (TIA); see the [TIA template](../template-transfer-impact-assessment.md).
 - **Binding Corporate Rules (BCRs) (Articles 46(2)(b) and 47):** Approved by a lead supervisory authority; permit intra-group international transfers. BCR approval is a multi-year process.
 - **Derogations (Article 49):** Narrow exceptions for explicit consent, contract performance, vital interests, public interest, or legal claims. Not suitable as routine transfer mechanisms.
