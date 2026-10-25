@@ -2,7 +2,7 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.20\
+**Version:** 1.0.21\
 **Date:** 2026-10-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -39,7 +39,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | AI System Name | |
 | AI System Register ID | |
 | Risk Tier (EU AI Act) | |
-| Organizational risk tier (informed by NIST AI RMF) | |
+| Organizational AI risk classification (informed by NIST AI RMF) | |
 | Assessment Type | Pre-deployment / Annual review / Post-incident review / Post-modification review |
 | Assessment Date | |
 | Assessed By | |
@@ -56,7 +56,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
 | A1 | AI system registered in the AI System Register with complete metadata, including system name, version, deployment context, risk classification, impact level, intended use, and data categories | | | | |
-| A2 | Risk tier classification documented for both the EU AI Act tier and the organization's own risk tier (informed by the NIST AI RMF, which prescribes no tier taxonomy); classification reviewed and approved by the AIGC | | | | |
+| A2 | Risk classification documented for both the EU AI Act tier and the organizational AI risk classification (Minimal, Limited, High, Unacceptable; informed by the NIST AI RMF, which prescribes no tier taxonomy), per the EU AI Act scoping in [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) Section 4; classification reviewed and approved by the AIGC | | | | |
 | A3 | Model card completed and current, reflecting the model version in production ([`ai/template-model-card.md`](template-model-card.md)) | | | | |
 | A4 | System card completed and current, reflecting the current deployment context, human oversight design, and known limitations ([`ai/template-system-card.md`](template-system-card.md)) | | | | |
 | A5 | AI system owner (technical accountability) and operational owner (business accountability) designated and documented in the AI System Register | | | | |

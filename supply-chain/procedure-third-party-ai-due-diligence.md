@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party AI Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.17\
-**Date:** 2026-09-25\
+**Version:** 1.0.18\
+**Date:** 2026-10-25\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -67,13 +67,13 @@ Before commencing due diligence, each AI supplier and the AI system being evalua
 
 ### 4.2 Organization-defined AI risk tier mapping
 
-The NIST AI RMF does not prescribe a risk-tier taxonomy; it directs each organization to define its own risk tolerance (AI RMF 1.0, Risk Tolerance). The tiers below are organization-defined, informed by the AI RMF's risk-management approach.
+The NIST AI RMF does not prescribe a risk-tier taxonomy; it directs each organization to define its own risk tolerance (AI RMF 1.0, Risk Tolerance). The tiers below are organization-defined, informed by the AI RMF's risk-management approach. They set the depth of supplier due diligence and are named, not numbered: they are not the organizational AI risk classification (Minimal, Limited, High, Unacceptable) recorded for each AI system in the AI System Register.
 
 | Risk tier (organization-defined) | Description | Assessment Depth |
 | --- | --- | --- |
-| Tier 1: High Risk | Significant likelihood of harm; consequential automated decisions affecting individuals. | Full pre-engagement checklist; semi-annual monitoring. |
-| Tier 2: Moderate Risk | Moderate automated decision support; human oversight present. | Standard pre-engagement checklist; annual monitoring. |
-| Tier 3: Low Risk | Minimal automation; decisions are advisory or informational only. | Abbreviated checklist; annual attestation. |
+| High Risk | Significant likelihood of harm; consequential automated decisions affecting individuals. | Full pre-engagement checklist; semi-annual monitoring. |
+| Moderate Risk | Moderate automated decision support; human oversight present. | Standard pre-engagement checklist; annual monitoring. |
+| Low Risk | Minimal automation; decisions are advisory or informational only. | Abbreviated checklist; annual attestation. |
 
 ---
 
