@@ -137,11 +137,17 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   it. Without that, a missing, unreadable or conflicting part prints `UNVERIFIABLE` with a code
   instead of a count, never a broader count or a zero. Rows of another family, round or sha are not
   counted, with one stated residue: a round heading after another heading is a quote and gives no
-  round, but a delivery with no heading of its own whose first heading quotes another round's heading
-  for the same item at column 0 still takes that round's key. With `--source-key` that case prints
-  `UNVERIFIABLE (source-key-disagrees)` instead. A combined row counts once, and two deliveries with
-  one key share their rows. The line carries counts and codes only, never refuses, never blocks the
-  write and never changes the exit code.
+  round, but a delivery whose first heading quotes another round's heading for the same item at
+  column 0 still takes that round's key, even when its own headings follow the quote (only an
+  unfenced ATX heading before the quote stops it; a setext, HTML, block-quoted or list-item heading
+  does not). With `--source-key` that case prints `UNVERIFIABLE (source-key-disagrees)` instead.
+  Outside fences, a column-0 `# /validate-pr round <n>` heading naming the item with a round other
+  than the one in the delivery's own round heading, wherever it stands, makes the count
+  `UNVERIFIABLE (round-heading-ambiguous)`, even with a correct `--source-key`. A Source cell that
+  states the review in another form than the key (other case or spacing, prose before it, or a
+  shorter sha) is not counted, so the count errs low, toward the warning. A combined row counts once,
+  and two deliveries with one key share their rows. The line carries counts and codes only, never
+  refuses, never blocks the write and never changes the exit code.
 - **Environment (exit 2).** This hook cannot load; the ledger is missing, unreadable, a symlink,
   hard-linked or owned by another user; its line ends disagree with this hook's line model; or the file
   changed between read and write (including ctime, mode, uid, gid or access ACL). The write keeps
