@@ -252,6 +252,14 @@ def run(base: str | None, head: str) -> int:
             toplevel = git("rev-parse", "--show-toplevel").strip()
         except (OSError, UnicodeDecodeError):
             toplevel = "(no work tree)"
+        if not toplevel:
+            # git older than 2.25 printed nothing and exited 0 outside a work
+            # tree instead of refusing, so an empty top level is the same
+            # missing work tree and refuses the same way on any git (3b559).
+            print(f"ERROR: git rev-parse --show-toplevel printed an empty top level "
+                  f"(no work tree) (base={base}, head={head}); the orphan scan reads "
+                  f"the working tree, so nothing was evaluated.", file=sys.stderr)
+            return 2
         ref_diff = git("diff", merge_base, head, "--", "TODO.md")
         try:
             head_ref = git("show", f"{head}:TODO.md")

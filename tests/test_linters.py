@@ -11125,15 +11125,18 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                                     f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
                 self.assertNotIn("OK", r.stdout)
 
-    def test_no_work_tree_refuses_exit2(self) -> None:
-        # 3b540 round 9 (r8 review WARN-1): git refusing the top-level read
-        # because there is no work tree (GIT_DIR naming a bare repository) is
-        # a refusal, exit 2, as before round 8, not a placeholder. D9's orphan
-        # scan reads the working tree, so without one it scanned this
-        # checkout instead of the head and printed "D9 OK" for a head that
-        # deletes TODO row 9.99 and commits a file citing it; the control, a
-        # normal checkout of the same head, FAILs. At round 8 D5, D9, D13 and
-        # tension-scan all exited 0 here.
+    NO_WORK_TREE_GATES = (
+        ("check-todo-rotation-on-pr.py", "OK:"),
+        ("check-retired-section-orphan-on-pr.py", "D9 OK"),
+        ("check-stranded-control-code-on-pr.py", "D13 OK"),
+        ("tension-scan.py", "rewritten block"),
+    )
+
+    def _no_work_tree_env(self):
+        """``(holder, env)`` for a run with no work tree: ``env`` names, in
+        GIT_DIR, a bare clone (in ``holder``) of a head that deletes TODO row
+        9.99 and commits a file citing it. The control, D9 run from a normal
+        checkout of that head, FAILs (3b540 round 9)."""
         import subprocess as sp
 
         tmp, git = self._repo()
@@ -11163,17 +11166,70 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                check=True, capture_output=True)
         env = {k: v for k, v in os.environ.items() if k != "GIT_WORK_TREE"}
         env["GIT_DIR"] = str(bare)
-        for script, clean in (
-            ("check-todo-rotation-on-pr.py", "OK:"),
-            (d9, "D9 OK"),
-            ("check-stranded-control-code-on-pr.py", "D13 OK"),
-            ("tension-scan.py", "rewritten block"),
-        ):
+        return holder, env
+
+    def test_no_work_tree_refuses_exit2(self) -> None:
+        # 3b540 round 9 (r8 review WARN-1): git refusing the top-level read
+        # because there is no work tree (GIT_DIR naming a bare repository) is
+        # a refusal, exit 2, as before round 8, not a placeholder. D9's orphan
+        # scan reads the working tree, so without one it scanned this
+        # checkout instead of the head and printed "D9 OK" for a head that
+        # deletes TODO row 9.99 and commits a file citing it; the control, a
+        # normal checkout of the same head, FAILs. At round 8 D5, D9, D13 and
+        # tension-scan all exited 0 here.
+        import subprocess as sp
+
+        holder, env = self._no_work_tree_env()
+        for script, clean in self.NO_WORK_TREE_GATES:
             with self.subTest(gate=script):
                 r = sp.run([sys.executable, str(REPO_ROOT / "tools" / script), "main", "feat"],
                            capture_output=True, text=True, cwd=str(holder), env=env)
                 self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
                 self.assertIn("work tree", r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn(clean, r.stdout)
+
+    def test_pre_2_25_empty_toplevel_refuses_exit2(self) -> None:
+        # 3b559: before git 2.25, rev-parse --show-toplevel printed nothing
+        # and exited 0 outside a work tree, so the refusal above held only on
+        # git 2.25 or later. The PATH shim delegates to the real git and, when
+        # the real --show-toplevel read fails, prints nothing and exits 0 as
+        # that older git did, marking that it fired. Without the empty-result
+        # check D5, D9, D13 and tension-scan each printed their clean verdict
+        # (exit 0) here, D9's "D9 OK" over the head the control FAILs; each
+        # now refuses with exit 2. Mutation killed: dropping the empty-result
+        # check from any one of the four.
+        import subprocess as sp
+
+        real_git = shutil.which("git")
+        self.assertIsNotNone(real_git)
+        holder, env = self._no_work_tree_env()
+        shim_dir = Path(tempfile.mkdtemp(prefix="gitshim-")).resolve()
+        self.addCleanup(shutil.rmtree, shim_dir, ignore_errors=True)
+        shim = shim_dir / "git"
+        fired = shim_dir / "fired"
+        shim.write_text(
+            "#!/bin/sh\n"
+            'for a in "$@"; do\n'
+            '  if [ "$a" = "--show-toplevel" ]; then\n'
+            f'    "{real_git}" "$@" 2>/dev/null && exit 0\n'
+            f'    : > "{fired}"\n'
+            "    exit 0\n"
+            "  fi\n"
+            "done\n"
+            f'exec "{real_git}" "$@"\n',
+            encoding="utf-8",
+        )
+        shim.chmod(0o755)
+        env["PATH"] = f"{shim_dir}{os.pathsep}{env['PATH']}"
+        for script, clean in self.NO_WORK_TREE_GATES:
+            with self.subTest(gate=script):
+                fired.unlink(missing_ok=True)
+                r = sp.run([sys.executable, str(REPO_ROOT / "tools" / script), "main", "feat"],
+                           capture_output=True, text=True, cwd=str(holder), env=env)
+                self.assertTrue(fired.exists(), "the shim never emulated the empty top level")
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("printed an empty top level (no work tree)", r.stderr)
                 self.assertNotIn("Traceback", r.stderr)
                 self.assertNotIn(clean, r.stdout)
 
@@ -26638,11 +26694,11 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 3b8aef9b029585e955b4d646a38a50c043d532e58379d05dc6c6b68b4f3a937e
         check-portability.sh FIXED F 47a3853e165ba918c0f4f5687904f662a0a9d805356428394fd724ff227756d5
         check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
-        check-retired-section-orphan-on-pr.py NO_FS F 19849d6cd9cf922470e41a3e9e5f54892180d6d079e32b7c2f822de71fabe221
+        check-retired-section-orphan-on-pr.py NO_FS F b44b8682e7a5166facceadf51b21ca8bda4826978d7f9945b126a0f453addeaa
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
-        check-stranded-control-code-on-pr.py NO_FS F 017287e6008535b2261347d86c2b460afe7e40c925e25f1279386a9e2076d9e4
+        check-stranded-control-code-on-pr.py NO_FS F a5df50628c12bce25313c359c7e772d054eefe603caa06aeded2454615a95541
         check-todo-floor-monotonic-on-pr.py NO_FS F 6e6451cd462e025af8cd3534e1b36561e201fd4b7d81aff74d93f4e2a8915cd3
-        check-todo-rotation-on-pr.py NO_FS F b14fa2c4c170865eba570a9d5dcfabbfeaa9a3abe7f21983a4d17277a781557e
+        check-todo-rotation-on-pr.py NO_FS F 8454ce779d770b219e95bb1048f2644333d35b11cd48b05490ec57b1fac8dad8
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F a8598d3d9452c9e44b9c4d9f21ef2d3d9f8b81875429872d5823b9b76a9c7585
         ci-status.py NO_FS F 068ed02eb5f5a81572dce604a4cb1965582dbc178c7c9715be3d37dd8e01e54b
@@ -26792,7 +26848,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         sweep-preflight-scanner.py NO_FS F ae4ca7f95dffecb823ec3bc0fdf382ead32fd92a8b0c8b0c286f0b85b2b4dd6f
         sync-citation-worklist-baseline.py OWN F 9c465a8c77bafd52f7f3079f35346a11716a6f0bc8e91862706590e831af397b
         tail-safe.sh COMMAND F 07908bc54b40d06445f63a08f92526d22e4a030465ee235104a3ec41fbbb0b02
-        tension-scan.py NO_FS F 3024b1d477a19bd6564a2e22734b24fa1519fc7c5e14d213d2492973820d0880
+        tension-scan.py NO_FS F 4bc6a3cb9afc90dff71f8f1713440472dd8de5c3da16452d71926d53123ed73e
         todo-number-floor.json DATA F b5b684a17754dd265c1072f2342971befcc59b5a6e0b579f48eb21ea172f047b
         todo_index_rows.py PASSIVE F 6aba39ba20b4bbbe5ffab3fe94ef520ec95ce8d8e2510ea73696c17d196c2e4a
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4
