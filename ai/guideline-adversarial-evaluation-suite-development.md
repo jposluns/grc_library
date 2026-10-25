@@ -2,8 +2,8 @@
 
 **Document Title:** Adversarial Evaluation Suite Development Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.4\
-**Date:** 2026-09-23\
+**Version:** 1.0.5\
+**Date:** 2026-10-24\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md)\
@@ -32,7 +32,7 @@ This guideline applies to predictive models, generative models, retrieval-augmen
 
 ### 1. Define evaluation objectives
 
-Define the evaluation purpose, model or system scope, approved use, prohibited use, risk tier, users, data classes, deployment model, and required evidence.
+Define the evaluation purpose, model or system scope, approved use, prohibited use, organizational AI risk classification, users, data classes, deployment model, and required evidence.
 
 ### 2. Identify attack surfaces
 

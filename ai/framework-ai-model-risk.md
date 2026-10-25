@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Framework\
 **Document Type:** Framework\
-**Version:** 1.0.4\
-**Date:** 2026-09-20\
+**Version:** 1.0.5\
+**Date:** 2026-10-24\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](matrix-ai-model-risk-control-to-lifecycle-mapping.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
@@ -58,7 +58,7 @@ The domains above characterize inherent model risk: the risk arising from a mode
 
 | Lifecycle Stage | Model Risk Focus | Evidence Class |
 | --- | --- | --- |
-| Design | Intended use, prohibited use, risk tier, oversight, and evaluation strategy. | Use case record, model risk classification. |
+| Design | Intended use, prohibited use, organizational AI risk classification, oversight, and evaluation strategy. | Use case record, model risk classification. |
 | Data Preparation | Provenance, lineage, classification, quality, representativeness, rights, retention, and deletion. | Data documentation, lineage record, rights review. |
 | Development | Model architecture, features, embeddings, prompts, retrieval design, and tool boundaries. | Development record, architecture record, threat model. |
 | Validation | Performance, robustness, interpretability, bias, misuse, security, privacy, and failure modes. | Validation report, adversarial evaluation, model card. |
@@ -95,7 +95,7 @@ Each model or model-enabled system should have:
 
 - Assigned owner.
 - Approved purpose.
-- Risk tier.
+- Organizational AI risk classification.
 - Data provenance and lineage record.
 - Model card or equivalent documentation.
 - System card or equivalent deployment context documentation where applicable.

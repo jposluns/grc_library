@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.5\
-**Date:** 2026-08-31\
+**Version:** 1.1.6\
+**Date:** 2026-10-24\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -36,7 +36,7 @@ It applies to internally developed models, externally supplied models, fine-tune
 
 1. Each model or model-enabled system must be recorded in an AI system or model inventory.
 2. Each model must have an assigned owner, data owner, control owner, and supplier owner where applicable.
-3. Each model must have an approved purpose, prohibited use conditions, risk tier, lifecycle status, and review date.
+3. Each model must have an approved purpose, prohibited use conditions, organizational AI risk classification, lifecycle status, and review date.
 4. Each model must carry an inherent model-risk rating derived from quantitative and qualitative criteria, assigned provisionally at registration and confirmed at model review or approval, and re-rated on trigger events or material change.
 5. An organization may define a negligible-risk rating category that exempts a model from the full lifecycle-governance requirements, provided the exemption is approved and tracked.
 6. Each non-negligible-risk model undergoes a model review independent of its developer, confirming conceptual soundness and performance before approval and on defined triggers (a new model, a material modification, a performance breach, a significant data change, or a scheduled periodic review). This inventory, rating, exemption, and independent-review approach is adopted sector-neutrally from OSFI Guideline E-23 (Model Risk Management).
@@ -52,7 +52,7 @@ It applies to internally developed models, externally supplied models, fine-tune
 
 1. Interpretability expectations must be proportionate to model risk and use context.
 2. High-impact models must maintain evidence explaining material output drivers, limitations, assumptions, and known failure conditions.
-3. Model cards or equivalent documentation must describe purpose, data, risk tier, evaluation results, limitations, intended use, prohibited use, monitoring, and approval status.
+3. Model cards or equivalent documentation must describe purpose, data, organizational AI risk classification, evaluation results, limitations, intended use, prohibited use, monitoring, and approval status.
 4. System cards or equivalent deployment-context documentation must describe integrations, users, data flows, access controls, tool access, logging, supplier dependencies, and human oversight.
 
 ### 3.4 Representation and bias review

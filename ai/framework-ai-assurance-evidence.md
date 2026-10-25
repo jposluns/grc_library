@@ -2,7 +2,7 @@
 
 **Document Title:** AI Assurance Evidence and Attestation Framework\
 **Document Type:** Framework\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-10-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -88,8 +88,8 @@ A Tier A certificate does not discharge a claim that has no underlying Tier C te
 Evidence supporting a claim is sufficient when it satisfies five dimensions:
 
 - **Coverage**: the claim's scope is measured, and any risk or trustworthiness characteristic that will not or cannot be measured is documented (NIST AI RMF MEASURE 1.1).
-- **Currency**: the evidence was produced within the organization-set review window for the system's risk tier and re-produced on material change, the material-change thresholds being those in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md).
-- **Independence**: the attestation tier meets the minimum the system's risk tier requires (section 5).
+- **Currency**: the evidence was produced within the organization-set review window for the system's organizational AI risk classification and re-produced on material change, the material-change thresholds being those in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md).
+- **Independence**: the attestation tier meets the minimum the system's organizational AI risk classification requires (section 5).
 - **Method traceability**: the test sets, metrics, and tools are documented (NIST AI RMF MEASURE 2.1), and quantitative test and evaluation evidence states its measurement precision, as required for the system's risk tier, per [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6 (including sample size, uncertainty measure, run counts for non-deterministic systems, contamination status, evaluator agreement); that standard owns the reporting requirement, this dimension only grades whether the evidence carries it.
 - **Deployment-representative demonstration**: performance or assurance criteria are measured and demonstrated for conditions similar to the deployment setting, and the measures are documented (NIST AI RMF MEASURE 2.3).
 
@@ -123,7 +123,7 @@ The framework adds only the small set of normative requirements below; every oth
 
 1. **Evidence-record minimum fields.** Each evidence record must carry: the AI System Register reference; the claim or claims it supports; its evidence class; its attestation tier where the evidence embodies an assessment or attestation (a source record is marked tier not-applicable); the producing activity (a corpus document reference); a method reference; for quantitative test and evaluation evidence, the Section 5.6 reporting elements of [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) required for the system's risk tier, or a recorded not-applicable; a production date and currency window; the lifecycle stage; the producer; a storage location and integrity control; and any documented gaps or unmeasured aspects.
 2. **Gap documentation.** A claim that lacks sufficient evidence must carry a documented gap in the assurance case, stating what is missing and the plan to close it; an undocumented gap on a material claim blocks the approval or audit gate.
-3. **Currency by risk tier.** Evidence for a high-risk system must be current within the review window the organization sets for that system's risk tier, and re-produced on material change per the material-change thresholds in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md). The organization sets the per-tier windows; this framework does not fix them, and they must be at least as frequent as the corresponding audit cadence in [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) section 3.
+3. **Currency by risk classification.** Evidence for a high-risk system must be current within the review window the organization sets for that system's organizational AI risk classification, and re-produced on material change per the material-change thresholds in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md). The organization sets the per-classification windows; this framework does not fix them, and they must be at least as frequent as the corresponding audit cadence in [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) section 3.
 4. **Independence minimum for high-risk security evidence.** Security and resilience evidence for a high-risk system must be produced by an independent security tester with technical skills relevant to the system (attestation Tier A or B). This is the organization's risk-based strengthening, for high-risk systems, of ETSI EN 304 223 provision 5.2.5-2.1, which recommends (should) that operators and developers use such independent security testers with system-relevant technical skills: the organization makes that recommendation a requirement for high-risk systems.
 5. **Marshalling obligation.** The AI System Owner must marshal the assurance case into an evidence pack before each deployment-approval and audit gate, so the demand-side catalogue of the audit-certification framework is satisfiable without ad-hoc collection.
 
@@ -139,4 +139,4 @@ The framework adds only the small set of normative requirements below; every oth
 
 ## 7. Limitations
 
-Organizing assurance evidence does not itself establish assurance: an assurance case is only as strong as the underlying activities that produce its evidence, and a complete index over weak evidence is not a strong claim. The framework does not reproduce the requirements, control text, or evidence catalogues of the documents it indexes, and it does not perform any assurance activity. It does not create legal or regulatory compliance by itself. Adopters validate applicability to their own AI systems, risk tiers, and regulatory context before relying on the model.
+Organizing assurance evidence does not itself establish assurance: an assurance case is only as strong as the underlying activities that produce its evidence, and a complete index over weak evidence is not a strong claim. The framework does not reproduce the requirements, control text, or evidence catalogues of the documents it indexes, and it does not perform any assurance activity. It does not create legal or regulatory compliance by itself. Adopters validate applicability to their own AI systems, risk classifications, and regulatory context before relying on the model.

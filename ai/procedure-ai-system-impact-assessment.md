@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Impact Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.8\
-**Date:** 2026-08-04\
+**Version:** 1.0.9\
+**Date:** 2026-10-24\
 **Owner:** AI Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`privacy/template-dpia.md`](../privacy/template-dpia.md), [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](procedure-integrated-ai-and-privacy-assessment.md)\
@@ -54,7 +54,7 @@ Create or update the AI System Register entry with:
 - Intended users.
 - Deployment model.
 - Data categories.
-- Initial risk tier.
+- Initial impact level.
 
 ### Step 2: Define the use case
 
@@ -129,27 +129,27 @@ For externally operated services, document:
 - Exit capability.
 - Availability and continuity commitments.
 
-### Step 7: Assign risk tier
+### Step 7: Assign impact level
 
-Assign a risk tier using criteria such as:
+Assign an impact level using criteria such as:
 
-| Tier | Description |
+| Impact level | Description |
 | --- | --- |
 | Low | Limited internal use, low sensitivity data, no material decision impact, no external exposure. |
 | Moderate | Business process support, controlled internal users, moderate sensitivity data, human review available. |
 | High | Sensitive data, external users, regulated context, material business or individual impact, supplier dependency, or tool execution. |
 | Critical | Safety, rights, access, employment, financial, security, legal, regulatory, or critical service impact with limited tolerance for failure. |
 
-Score the impact operationally along the axes of the Canada Treasury Board Algorithmic Impact Assessment (AIA), whose Directive on Automated Decision-Making (in force since 2019, with updated requirements phased in over a 24 June 2025 to 24 June 2026 compliance transition that has since ended) grades an automated decision into four impact levels. Assess, for each of five impact areas, the impact on: the rights and freedoms of individuals; their equality, dignity, privacy, and autonomy; their health and well-being; their economic interests; and the ongoing sustainability of an environmental ecosystem. Assess the reversibility of the impacts (reversible, likely reversible, difficult to reverse, irreversible) and their duration (brief, lasting months, lasting years, perpetual). The composite yields an impact level, which this procedure aligns to its tier:
+Score the impact operationally along the axes of the Canada Treasury Board Algorithmic Impact Assessment (AIA), whose Directive on Automated Decision-Making (in force since 2019, with updated requirements phased in over a 24 June 2025 to 24 June 2026 compliance transition that has since ended) grades an automated decision into four impact levels. Assess, for each of five impact areas, the impact on: the rights and freedoms of individuals; their equality, dignity, privacy, and autonomy; their health and well-being; their economic interests; and the ongoing sustainability of an environmental ecosystem. Assess the reversibility of the impacts (reversible, likely reversible, difficult to reverse, irreversible) and their duration (brief, lasting months, lasting years, perpetual). The composite yields a Treasury Board AIA impact level, which this procedure aligns to its own impact level:
 
-| Treasury Board AIA impact level | Character (severity, reversibility, duration) | This procedure's tier |
+| Treasury Board AIA impact level | Character (severity, reversibility, duration) | This procedure's impact level |
 | --- | --- | --- |
 | Level I | Little to no, easily reversible, brief impacts | Low |
 | Level II | Moderate, likely reversible, short-term impacts | Moderate |
 | Level III | High, difficult to reverse, potentially ongoing impacts | High |
 | Level IV | Very high, irreversible, perpetual impacts | Critical |
 
-Where the tier and the impact level differ, the higher of the two governs. ISO/IEC 42005:2025 §5.7 informs this tiering approach: it directs an organization to define its own impact thresholds and impact scales for sensitive and restricted uses (it does not prescribe a fixed set of tiers). The four-level model and its area, reversibility, and duration axes are the Treasury Board AIA's.
+Where this procedure's impact level and the Treasury Board AIA impact level differ, the higher of the two governs. ISO/IEC 42005:2025 §5.7 informs this impact-level approach: it directs an organization to define its own impact thresholds and impact scales for sensitive and restricted uses (it does not prescribe a fixed set of levels). The four-level model and its area, reversibility, and duration axes are the Treasury Board AIA's.
 
 ### Step 8: Define required controls
 
@@ -215,7 +215,7 @@ Record the material harms and benefits identified under each objective and carry
 | --- | --- | --- |
 | ISO/IEC 42005:2025 | §6.3: AI system information | System registration and use-case definition (Steps 1 to 2) |
 | ISO/IEC 42005:2025 | §6.4: Data information and quality | Data-lifecycle assessment (Step 3) |
-| ISO/IEC 42005:2025 | §5.7: Thresholds and impact scales | Risk-tiering approach (Step 7) |
+| ISO/IEC 42005:2025 | §5.7: Thresholds and impact scales | Impact-level approach (Step 7) |
 | ISO/IEC 42005:2025 | Annex C: Harms and benefits taxonomy | Harms and benefits analysis |
 | ISO/IEC 42005:2025 | §5.11 approval; §5.12 monitoring and review | Approval (Step 9); evidence retention and periodic review (Step 10) |
 | Canada Treasury Board Directive on Automated Decision-Making | Algorithmic Impact Assessment impact levels (Appendix B and C) | Operational impact scoring (Step 7) |
@@ -228,7 +228,7 @@ Record the material harms and benefits identified under each objective and carry
 - AI System Register entry.
 - AI impact assessment record.
 - Data lifecycle assessment.
-- Risk tiering decision.
+- Impact-level decision.
 - Control requirements.
 - Supplier assessment where applicable.
 - Approval or rejection decision.

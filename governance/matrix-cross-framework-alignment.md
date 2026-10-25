@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Framework Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.23\
-**Date:** 2026-10-17\
+**Version:** 1.1.24\
+**Date:** 2026-10-24\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md), [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md)\
@@ -43,7 +43,7 @@ This matrix provides an original, non-verbatim alignment structure for mapping r
 | Governance | Digital Trust and Assurance Metrics Register | Governance, assurance, cloud control, and continuous monitoring metrics families | Industry practice | Organization measures control performance. | KPI register, test results, audit findings, remediation log. |
 | Risk | Enterprise Risk Management Standard | ISO 31000:2018 risk management, NIST RMF, COBIT APO12, FAIR quantitative risk analysis | Architectural recommendation | Organization requires a documented risk methodology and register. | Risk register, treatment plan, acceptance record, KRI report. |
 | Compliance | Compliance and Audit Management Policy | ISO 37301:2021 compliance management, ISO 19011 auditing, COBIT MEA01, NIST SP 800-53 Rev. 5 CA family | Industry practice or regulatory interpretation | Organization operates under regulatory, contractual, or certification obligations. | Obligations register, audit plan, CAPA record, compliance evidence. |
-| AI | AI Governance and Risk Framework | ISO/IEC 23894:2023 AI risk, NIST AI RMF, OECD AI Principles, EU AI Act, AI management families | Industry practice | AI systems materially affect business, security, legal, operational, or human outcomes. | AI system inventory, risk tiering, lifecycle evidence, model documentation. |
+| AI | AI Governance and Risk Framework | ISO/IEC 23894:2023 AI risk, NIST AI RMF, OECD AI Principles, EU AI Act, AI management families | Industry practice | AI systems materially affect business, security, legal, operational, or human outcomes. | AI system inventory, risk classification, lifecycle evidence, model documentation. |
 | AI | AI Security and Risk Standard | OWASP LLM Top 10, MITRE ATLAS, AI control, cloud control, secure engineering, and adversarial AI references | Architectural recommendation | AI systems process sensitive data, invoke tools, use retrieval, or expose inference interfaces. | Threat model, data flow, prompt injection test, access review, monitoring record. |
 | AI | AI and Agentic Development Security Standard | OWASP LLM Top 10 (excessive agency), MITRE ATLAS, CSA AICM (agentic and autonomy domains), NIST AI RMF, ISO/IEC 42001:2023 operational families | Architectural recommendation | AI systems use agentic tools, autonomous or semi-autonomous actions, MCP servers, code execution, or production action capability. | Agent threat model, tool allow-list, reversibility classification, recovery-test result, production-authority evidence record, immutable audit trail. |
 | AI | AI System Impact Assessment Procedure | Privacy, security, human oversight, AI governance, and supplier risk families | Evidence category | AI system is proposed, changed, retired, or materially repurposed. | Impact assessment, risk decision, mitigation plan, approval record. |

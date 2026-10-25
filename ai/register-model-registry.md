@@ -2,8 +2,8 @@
 
 **Document Title:** Model Registry\
 **Document Type:** Register\
-**Version:** 0.0.8\
-**Date:** 2026-08-30\
+**Version:** 0.0.9\
+**Date:** 2026-10-24\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md)\
@@ -66,7 +66,7 @@ Each model entry is one row keyed by Model ID. Mandatory fields:
 | Model developer | Team or role that developed the model, or, for an external model, the supplier |
 | Model reviewer | Role that independently reviewed the model's conceptual soundness and performance, distinct from the developer |
 | Approving authority | Role that approved promotion to production |
-| Tier | AI system tier classification per the AI governance and risk framework |
+| Tier | AI system organizational AI risk classification (Minimal, Limited, High, Unacceptable), as recorded in the Risk Classification field of the AI System Register, per the organizational AI risk taxonomy ([`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md)) and its EU AI Act mapping in [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) |
 | Use cases | Cross-reference to AI System Register entries that depend on this model |
 | Deployment status | Research, evaluation, staging, production, deprecated, retired |
 | Deployment environments | Where the model is deployed (cloud, edge, embedded) |

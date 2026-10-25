@@ -2,8 +2,8 @@
 
 **Document Title:** AI Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.10\
-**Date:** 2026-10-16\
+**Version:** 1.1.12\
+**Date:** 2026-10-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -45,7 +45,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 1.1 The AI audit plan is prepared annually by Internal Audit in consultation with the AIGC.
 
 1.2 AI systems are prioritized for audit based on:
-- Risk tier (High-risk systems audited at minimum annually).
+- Audit tier, per [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) section 3 (Tier 1: High-Risk systems audited at minimum annually).
 - Prior audit findings.
 - Material changes since last audit.
 - Regulatory requirements.

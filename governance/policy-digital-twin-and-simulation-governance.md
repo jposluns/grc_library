@@ -2,8 +2,8 @@
 
 **Document Title:** Digital Twin and Simulation Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.9\
-**Date:** 2026-09-24\
+**Version:** 1.0.10\
+**Date:** 2026-10-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -78,7 +78,7 @@ Digital twin systems must meet the same security baseline requirements as produc
 ### 4.4 AI-enabled digital twins
 
 Digital twins incorporating AI or machine learning components are subject to the AI Governance and Risk Framework and the AI Testing, Validation and Documentation Standard. Requirements include:
-- AI risk tier classification before deployment.
+- Organizational AI risk classification before deployment.
 - Explainability validation for AI-driven predictions or recommendations.
 - Human oversight for AI outputs used in material operational decisions.
 

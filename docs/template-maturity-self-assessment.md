@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Maturity Self-Assessment Template\
 **Document Type:** Template\
-**Version:** 1.1.3\
-**Date:** 2026-09-05\
+**Version:** 1.1.5\
+**Date:** 2026-10-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`governance/standard-maturity-assessment-methodology.md`](../governance/standard-maturity-assessment-methodology.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
@@ -217,11 +217,11 @@ Per-statement scoring (apply to each statement above):
 | # | Statement | Your tier | Notes |
 | --- | --- | --- | --- |
 | AI1 | An AI policy and governance framework are in place. | _ | |
-| AI2 | An AI system register is current, classifying systems by risk tier. | _ | |
+| AI2 | An AI system register is current, recording each system's risk classification and impact level. | _ | |
 | AI3 | Each high-risk AI system has a system card; model cards exist for in-scope models. | _ | |
 | AI4 | Dataset datasheets exist for training and evaluation datasets in scope. | _ | |
 | AI5 | AI-specific risks (bias, hallucination, prompt injection, agent over-permission) are reflected in the risk register. | _ | |
-| AI6 | An AI red-team or adversarial-test programme runs on the highest-tier systems. | _ | |
+| AI6 | An AI red-team or adversarial-test programme runs on each high-risk AI system. | _ | |
 | AI7 | AI vendor due diligence is governed by a dedicated procedure. | _ | |
 
 **Domain AI score (median):** _

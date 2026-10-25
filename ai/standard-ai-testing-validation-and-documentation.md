@@ -2,7 +2,7 @@
 
 **Document Title:** AI Testing, Validation and Documentation Standard\
 **Document Type:** Standard\
-**Version:** 1.0.13\
+**Version:** 1.0.14\
 **Date:** 2026-10-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -49,7 +49,7 @@ All AI systems must maintain current documentation covering:
 | Document | Content Required |
 | --- | --- |
 | **Model Card** | Model purpose, inputs, outputs, intended use, out-of-scope uses, performance metrics |
-| **AI Impact Assessment** | Risk tier, bias analysis, fairness evaluation, privacy impact, affected stakeholders |
+| **AI Impact Assessment** | Impact level, bias analysis, fairness evaluation, privacy impact, affected stakeholders |
 | **Training Data Record** | Data sources, preprocessing steps, known limitations, consent and provenance |
 | **Validation Report** | Test methodology, performance benchmarks, bias test results, robustness evaluation, uncertainty statements and sample sizes (Section 5.6), run counts for non-deterministic systems, contamination record, evaluator agreement |
 | **Deployment Record** | Target environment, integration points, monitoring configuration, rollback plan |
