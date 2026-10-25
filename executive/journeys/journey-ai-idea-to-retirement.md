@@ -2,8 +2,8 @@
 
 **Document Title:** From AI idea to retirement: the governed life of an AI system\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.6\
-**Date:** 2026-10-24\
+**Version:** 0.0.4\
+**Date:** 2026-08-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](../../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-model-lifecycle-management.md`](../../ai/procedure-ai-model-lifecycle-management.md)\
@@ -42,11 +42,11 @@ Somewhere in the organization, a team has an idea for an AI system. The organiza
 
 ### Stage 2: the system is classified and assessed
 
-**What changes.** The recorded system is given a risk classification and an impact assessment. The [AI risk methodology annex](../../risk/annex-ai-risk-methodology.md) requires each AI system to be assigned a risk tier on the basis its AI system risk classification section defines, before the risk assessment methodology is applied, and requires the tier classification to be documented; the tier set and its regulatory mapping live in the annex. The [AI system impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md) walks the registered system through its ten steps, assigns an impact level at its Step 7, defines required controls at its Step 8, and lists its required outputs; use the procedure for those steps. Where a training, fine-tuning, or reinforcement-learning pipeline will consume a dataset, the [training data governance procedure](../../ai/procedure-training-data-governance.md) owns **Step 4: Approval to train**; use that step for the pre-consumption approvals, their triggers, and the approver roles.
+**What changes.** The recorded system is given a risk tier and an impact assessment. The [AI risk methodology annex](../../risk/annex-ai-risk-methodology.md) requires each AI system to be assigned a risk tier on the basis its AI system risk classification section defines, before the risk assessment methodology is applied, and requires the tier classification to be documented; the tier set and its regulatory mapping live in the annex. The [AI system impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md) walks the registered system through its ten steps, assigns a risk tier at its Step 7, defines required controls at its Step 8, and lists its required outputs; use the procedure for those steps. Where a training, fine-tuning, or reinforcement-learning pipeline will consume a dataset, the [training data governance procedure](../../ai/procedure-training-data-governance.md) owns **Step 4: Approval to train**; use that step for the pre-consumption approvals, their triggers, and the approver roles.
 
-**Why it matters.** The assigned risk classification is a dependency for Stage 4, where the corpus sets testing and approval requirements by risk tier. The completed assessment is evidence that the organization examined what the system is, whom it affects, and what risk it carries before any deployment decision.
+**Why it matters.** The assigned tier is a dependency for Stage 4, where the corpus sets testing and approval requirements by tier. The completed assessment is evidence that the organization examined what the system is, whom it affects, and what risk it carries before any deployment decision.
 
-**Signals of progress.** A documented risk classification, an assessment record, and a defined control set exist for the system, and training-data approvals are recorded before a pipeline consumes the data.
+**Signals of progress.** A documented tier, an assessment record, and a defined control set exist for the system, and training-data approvals are recorded before a pipeline consumes the data.
 
 ### Stage 3: controls are designed before the build completes
 
@@ -97,7 +97,7 @@ The system no longer runs, and the intended evidence trail spans its life: the r
 Each item below is an evidence class the governing body can call for from management, and each is evidence for a named control or outcome. Judge each against the linked corpus document, which carries the specific requirements.
 
 - **The AI inventory entry for a sampled system**, as evidence for the recording control, per the [AI governance and risk framework](../../ai/framework-ai-governance-and-risk.md) and the structure in the [AI system register template](../../ai/template-ai-system-register.md).
-- **The risk classification record and the completed impact assessment with its impact-level decision and required outputs**, as evidence for the classification and assessment controls in the [AI risk methodology annex](../../risk/annex-ai-risk-methodology.md) and the [AI system impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md).
+- **The completed impact assessment with its tier decision and required outputs**, as evidence for the classification and assessment controls in the [AI risk methodology annex](../../risk/annex-ai-risk-methodology.md) and the [AI system impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md).
 - **Training-data approval records for a trained or fine-tuned system**, as evidence for the approval-to-train control in the [training data governance procedure](../../ai/procedure-training-data-governance.md).
 - **The architecture record, control design, and threat model**, as evidence for the design-stage controls in the [AI governance and risk framework](../../ai/framework-ai-governance-and-risk.md) and the control baseline in the [AI security and risk standard](../../ai/standard-ai-security-and-risk.md), including the agent surface in the [AI access and agent permissions standard](../../ai/standard-ai-access-and-agent-permissions.md) where the system invokes tools.
 - **Tier-matched test results and the evaluation report**, as evidence for the testing gates in the [AI testing, validation and documentation standard](../../ai/standard-ai-testing-validation-and-documentation.md) and the review in the [AI evaluation procedure](../../ai/procedure-ai-evaluation.md).
