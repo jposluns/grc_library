@@ -345,6 +345,13 @@ def main(argv: list[str]) -> int:
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: could not read the work tree top level: {exc}", file=sys.stderr)
         return 2
+    if not toplevel:
+        # git older than 2.25 printed nothing and exited 0 outside a work tree
+        # instead of refusing, so an empty top level is the same missing work
+        # tree and refuses the same way on any git (3b559).
+        print("ERROR: could not read the work tree top level: git rev-parse "
+              "--show-toplevel printed an empty top level (no work tree).", file=sys.stderr)
+        return 2
     if merge_base == head_sha:
         print(
             f"CANNOT-EVALUATE: base {base} and head {head} resolve to the same "

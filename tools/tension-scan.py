@@ -184,6 +184,13 @@ def main(argv: list[str]) -> int:
     except subprocess.CalledProcessError as exc:
         print(f"tension-scan: git failed: {exc}", file=sys.stderr)
         return 2
+    if not toplevel:
+        # git older than 2.25 printed nothing and exited 0 outside a work tree
+        # instead of refusing, so an empty top level is the same missing work
+        # tree and refuses the same way on any git (3b559).
+        print("tension-scan: git rev-parse --show-toplevel printed an empty top "
+              "level (no work tree); nothing was scanned.", file=sys.stderr)
+        return 2
     # A collapsed range would read as the clean "0 rewritten block(s)" summary;
     # refuse it instead (same wrong-repository signature the delta gates refuse,
     # orchestrator mistake 300).
