@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-10-22\
+**Date:** 2026-10-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -665,7 +665,7 @@ without the private reference sibling).
 | VDA Information Security Assessment (ISA) catalogue ISA2027.1 (English) | Version 2027.1, 2026-09-30 (Cover sheet) | VDA |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (252: 252 free, 0 licensed)
+## Legislation (255: 255 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -711,9 +711,12 @@ without the private reference sibling).
 | Chile Ley 21.663, Ley Marco de Ciberseguridad (consolidated, status 2025-03-01) |  | Chile |  | FREE |
 | Chile Ley 21.719, proteccion de datos personales y crea la Agencia (2024, deferred to 2026-12) |  | Chile |  | FREE |
 | China CAC Provisions on Promoting and Regulating Cross-Border Data Flows (CAC Order No. 16, 22 March 2024), Chinese original | CAC Order No. 16, published and effective 22 March 2024 | China |  | FREE |
+| China Cybersecurity Law of the People's Republic of China (adopted 7 November 2016, amended 28 October 2025), CAC consolidated Chinese text | CAC consolidated Chinese text as amended by the NPC Standing Committee decision of 28 October 2025 (page published 29 December 2025) | China | https://www.cac.gov.cn/2025-12/29/c_1768735112911946.htm | FREE |
 | China Data Security Law (2021), English translation (UNOFFICIAL) |  | China |  | FREE |
+| China NPC Standing Committee Decision on Amending the Cybersecurity Law of the People's Republic of China (adopted 28 October 2025, in force 1 January 2026), State Council portal Chinese text | Decision as adopted at the 18th session of the 14th NPC Standing Committee, 28 October 2025 (Xinhua release on the State Council portal, published 29 October 2025) | China | https://www.gov.cn/yaowen/liebiao/202510/content_7046194.htm | FREE |
 | China Personal Information Protection Law (PIPL, 2021), Chinese text (UNOFFICIAL, Wikisource transcription) | PIPL (adopted 20 Aug 2021, effective 1 Nov 2021) | China |  | FREE |
 | China Personal Information Protection Law (PIPL, 2021), English translation (UNOFFICIAL) |  | China |  | FREE |
+| China Presidential Order No. 61, promulgating the NPC Standing Committee Decision on Amending the Cybersecurity Law (signed 28 October 2025), CAC Chinese text | Presidential Order No. 61, signed 28 October 2025 (Xinhua release published by the CAC 29 October 2025) | China | https://www.cac.gov.cn/2025-10/29/c_1763461514706581.htm | FREE |
 | CISA BOD 26-04: Prioritizing Security Updates Based on Risk | BOD 26-04; issued June 10, 2026 | US | https://www.cisa.gov/news-events/directives/bod-26-04-prioritizing-security-updates-based-risk | FREE |
 | CJEU Case C-311/18, Data Protection Commissioner v Facebook Ireland and Schrems (Schrems II), judgment of 16 July 2020 |  | EU |  | FREE |
 | Colombia Decreto 1377 de 2013 (por el cual se reglamenta parcialmente la Ley 1581 de 2012, protección de datos personales) | Decreto 1377 de 2013 (Diario Oficial 48.834, 27 June 2013), Función Pública Gestor Normativo maintained text; partially derogated by Decreto 1081 de 2015; content compiled into the Decreto Único Reglamentario 1074 de 2015 | Colombia |  | FREE |
@@ -972,5 +975,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 907 sources (786 free, 121 licensed).**
+**Total: 910 sources (789 free, 121 licensed).**
 
