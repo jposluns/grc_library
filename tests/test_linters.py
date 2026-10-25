@@ -10094,9 +10094,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn(f"{tag} OK", r.stdout)
 
     def test_d12_same_commit_exit2(self) -> None:
-        # D12 resolves its own two refs (no merge-base), so base==head is the
-        # same collapsed range and must refuse before the first-introduction
-        # "floor is new at this base" OK can fire (round 2 of 3b530).
+        # D12 resolves its own two refs (and, since 3b577 round 3, their merge
+        # base), so base==head is the same collapsed range and must refuse
+        # before the first-introduction "floor is new at this base" OK can
+        # fire (round 2 of 3b530).
         tmp, git = self._repo()
         head_sha = git("rev-parse", "HEAD")
         r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, "origin/main", "HEAD")
@@ -10105,6 +10106,60 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn(head_sha, r.stderr)
         self.assertIn(str(tmp), r.stderr)
         self.assertNotIn("OK", r.stdout)
+
+    def test_d12_net_empty_named_range_exit2(self) -> None:
+        # 3b577 round 2 (3b530 post-merge review WARN): distinct base and
+        # head commits that change no file -- an empty head commit, or a
+        # change and its revert -- select nothing, as base==head does, so D12
+        # refuses with exit 2 as the unscoped gates refuse an empty changed
+        # set. Before 3b577 round 2 each run printed the monotonic OK, or
+        # "new at this base" with no floor at the base (exit 0). A real
+        # change that leaves the floor untouched still gets the monotonic OK:
+        # the refusal predicate is the empty RANGE, not an unchanged floor.
+        def empty_commit(git, floor):
+            git("commit", "-q", "--allow-empty", "-m", "empty")
+
+        def change_and_revert(git, floor):
+            floor.write_text('{"2": 33}\n', encoding="utf-8")
+            git("add", "tools/todo-number-floor.json")
+            git("commit", "-q", "-m", "raise floor")
+            git("revert", "--no-edit", "HEAD")
+
+        for label, floor_at_base, build in (
+            ("empty commit, floor unchanged", True, empty_commit),
+            ("change and its revert", True, change_and_revert),
+            ("empty commit, no floor at the base", False, empty_commit),
+        ):
+            with self.subTest(range=label):
+                if floor_at_base:
+                    tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+                else:
+                    (tmp, git), floor = self._repo(), None
+                git("checkout", "-q", "-b", "feat")
+                build(git, floor)
+                base_sha = git("rev-parse", "origin/main")
+                head_sha = git("rev-parse", "feat")
+                self.assertNotEqual(base_sha, head_sha)
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                               "origin/main", "feat")
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+                self.assertIn("no files changed", r.stderr)
+                self.assertIn(f"base={base_sha} head={head_sha}", r.stderr)
+                self.assertIn(str(tmp), r.stderr)
+                self.assertNotIn("OK", r.stdout)
+        tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+        git("checkout", "-q", "-b", "feat")
+        (tmp / "README.md").write_text("# Repo\n\nMore.\n", encoding="utf-8")
+        git("add", "README.md")
+        git("commit", "-q", "-m", "docs only")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, "origin/main", "feat")
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        base_sha = git("rev-parse", "origin/main")
+        self.assertIn(f"is monotonic vs the floor at the merge base {base_sha} of "
+                      f"origin/main and feat", r.stdout)
+        self.assertNotIn("CANNOT-EVALUATE", r.stderr)
 
     def test_d12_argless_worktree_equals_base_exit2(self) -> None:
         # The argless form's head is the WORKING TREE; a tree identical to the
@@ -10331,7 +10386,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                        env={"GITHUB_BASE_REF": "main"})
         self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
         self.assertIn("monotonic", r.stdout)
-        self.assertNotIn("new at this base", r.stdout)
+        self.assertNotIn("is new since the merge base", r.stdout)
         self.assertNotIn("CANNOT-EVALUATE", r.stderr)
         tool = (REPO_ROOT / "tools" / "check-todo-floor-monotonic-on-pr.py").read_text(
             encoding="utf-8")
@@ -10357,12 +10412,16 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # floor that is not valid JSON leaves the base state undetermined, so
         # the gate refuses with D12 CANNOT-EVALUATE (exit 2) naming the base
         # source (ref:path), instead of dying with a JSONDecodeError traceback.
+        # Since 3b577 round 4 the source is the merge base SHA the floor was
+        # read at, here the base itself.
         tmp, git, floor = self._repo_with_floor_at_base("not a floor\n")
+        base_sha = git("rev-parse", "origin/main")
         r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
                        env={"GITHUB_BASE_REF": "main"})
         self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
         self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
-        self.assertIn("origin/main:tools/todo-number-floor.json", r.stderr)
+        self.assertIn(f"the merge-base floor {base_sha}:tools/todo-number-floor.json",
+                      r.stderr)
         self.assertIn("JSONDecodeError", r.stderr)
         self.assertNotIn("Traceback", r.stderr)
         self.assertNotIn("OK", r.stdout)
@@ -10381,12 +10440,13 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         ):
             with self.subTest(shape=label):
                 tmp, git, floor = self._repo_with_floor_at_base(content)
+                base_sha = git("rev-parse", "origin/main")
                 r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
                                env={"GITHUB_BASE_REF": "main"})
                 self.assertEqual(r.returncode, 2,
                                  f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
                 self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
-                self.assertIn("origin/main:tools/todo-number-floor.json", r.stderr)
+                self.assertIn(f"{base_sha}:tools/todo-number-floor.json", r.stderr)
                 self.assertIn(named, r.stderr)
                 self.assertNotIn("Traceback", r.stderr)
                 self.assertNotIn("OK", r.stdout)
@@ -10488,7 +10548,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
         self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
         self.assertIn(f"git show {base_sha}:tools/todo-number-floor.json", r.stderr)
-        self.assertIn("reading the base floor origin/main:tools/todo-number-floor.json",
+        self.assertIn(f"reading the merge-base floor {base_sha}:tools/todo-number-floor.json",
                       r.stderr)
         self.assertNotIn("Traceback", r.stderr)
         self.assertNotIn("OK", r.stdout)
@@ -10658,7 +10718,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                                  f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
                 self.assertIn("floor decreased 32 -> 31", r.stderr)
                 self.assertIn(f"base={base_sha} head=working tree", r.stderr)
-                self.assertNotIn("new at this base", r.stdout)
+                self.assertNotIn("is new since the merge base", r.stdout)
                 self.assertNotIn("CANNOT-EVALUATE", r.stderr)
                 self.assertNotIn("OK", r.stdout)
 
@@ -10683,8 +10743,8 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
         self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
         self.assertIn(f"git show {base_sha}:tools/todo-number-floor.json", r.stderr)
-        self.assertIn("reading the base floor", r.stderr)
-        self.assertNotIn("new at this base", r.stdout)
+        self.assertIn("reading the merge-base floor", r.stderr)
+        self.assertNotIn("is new since the merge base", r.stdout)
         self.assertNotIn("Traceback", r.stderr)
         self.assertNotIn("OK", r.stdout)
 
@@ -10729,8 +10789,76 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
                        "origin/main", "feat")
         self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
-        self.assertIn("new at this base", r.stdout)
+        self.assertIn("is new since the merge base", r.stdout)
         self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+
+    def test_d12_introduced_head_floor_malformed_refuses(self) -> None:
+        # 3b577 (3b540 post-merge review E1): a base without the floor leaves
+        # nothing to compare, but the floor the head introduces is still read
+        # and parsed before the first-introduction OK, so an introduced floor
+        # that is not valid JSON, or is JSON of the wrong shape, refuses with
+        # D12 CANNOT-EVALUATE (exit 2) naming the head source, from an
+        # explicit head and from the argless working tree alike. Before 3b577
+        # each run printed "new at this base" (exit 0) without reading the
+        # head floor.
+        for label, content, named in (
+            ("not valid JSON", "not a floor\n", "JSONDecodeError"),
+            ("not an object", "[1, 2]\n", "not a JSON object"),
+        ):
+            for form in ("explicit head", "argless"):
+                with self.subTest(shape=label, form=form):
+                    tmp, git = self._repo()
+                    floor = tmp / "tools" / "todo-number-floor.json"
+                    floor.parent.mkdir(parents=True, exist_ok=True)
+                    floor.write_text(content, encoding="utf-8")
+                    if form == "explicit head":
+                        git("checkout", "-q", "-b", "feat")
+                        git("add", "tools/todo-number-floor.json")
+                        git("commit", "-q", "-m", "introduce bad floor")
+                        args = ("origin/main", "feat")
+                        source = "feat:tools/todo-number-floor.json"
+                    else:
+                        # The untracked floor keeps the argless range non-collapsed.
+                        args, source = (), str(floor)
+                    r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, *args,
+                                   env={"GITHUB_BASE_REF": "main"})
+                    self.assertEqual(r.returncode, 2,
+                                     f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                    self.assertIn("D12 CANNOT-EVALUATE: the head floor", r.stderr)
+                    self.assertIn(source, r.stderr)
+                    self.assertIn(named, r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
+                    self.assertNotIn("is new since the merge base", r.stdout)
+                    self.assertNotIn("OK", r.stdout)
+
+    def test_d12_introduced_head_floor_blob_missing_refuses(self) -> None:
+        # 3b577 (3b540 post-merge review E1): the explicit head's tree lists
+        # the floor it introduces (the base has none) but the blob is missing
+        # from the object store. The failed read refuses as D12
+        # CANNOT-EVALUATE (exit 2) naming the call, as it does with a floor at
+        # the base (test_d12_head_floor_blob_missing_refuses above); before
+        # 3b577 the run printed "new at this base" (exit 0) without reading
+        # the head floor.
+        tmp, git = self._repo()
+        git("checkout", "-q", "-b", "feat")
+        floor = tmp / "tools" / "todo-number-floor.json"
+        floor.parent.mkdir(parents=True, exist_ok=True)
+        floor.write_text('{"2": 32}\n', encoding="utf-8")
+        git("add", "tools/todo-number-floor.json")
+        git("commit", "-q", "-m", "introduce floor")
+        git("checkout", "-q", "main")
+        head_sha = git("rev-parse", "feat")
+        self._drop_floor_blob(tmp, git, "feat")
+        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                       "origin/main", "feat")
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+        self.assertIn("cannot read the head floor feat:tools/todo-number-floor.json",
+                      r.stderr)
+        self.assertIn(f"git show {head_sha}:tools/todo-number-floor.json", r.stderr)
+        self.assertNotIn("is new since the merge base", r.stdout)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("OK", r.stdout)
 
     def test_d12_pathspec_mode_env_keeps_real_verdict(self) -> None:
         # 3b540 round 6 (r5 review NOTE-1): git ls-tree rejects pathspec
@@ -10753,7 +10881,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                                "origin/main", "feat", env={var: "1"})
                 self.assertEqual(r.returncode, 0,
                                  f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
-                self.assertIn("is monotonic vs origin/main", r.stdout)
+                self.assertIn("is monotonic vs the floor at the merge base", r.stdout)
                 self.assertNotIn("CANNOT-EVALUATE", r.stderr)
 
     def test_d12_verdict_and_head_floor_lines_name_pinned_shas(self) -> None:
@@ -10797,7 +10925,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
             return tmp, git, (), "working tree"
 
         for label, build, rc, stream, phrase in (
-            ("first introduction", introduced, 0, "stdout", "new at this base"),
+            ("first introduction", introduced, 0, "stdout", "is new since the merge base"),
             ("raised", lambda: explicit('{"2": 33}\n'), 0, "stdout", "is monotonic vs"),
             ("lowered", lambda: explicit('{"2": 31}\n'), 1, "stderr", "not monotonic vs"),
             ("removed", lambda: explicit(None), 1, "stderr", "missing at HEAD"),
@@ -10824,6 +10952,411 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 line = next((ln for ln in out.splitlines() if phrase in ln), None)
                 self.assertIsNotNone(line, out)
                 self.assertIn(f"base={base_sha} head={head_pin}", line)
+
+    def test_d12_argless_dangling_floor_link_refuses(self) -> None:
+        # 3b577 round 3 (r2 review, claude F1): open() follows links, so an
+        # argless head floor that is a dangling symlink raised the same
+        # FileNotFoundError as a missing floor: with no floor at the base the
+        # run printed the first-introduction OK (exit 0), and with one the
+        # floor-removed FAIL (exit 1). lstat finds the entry, so the gate now
+        # refuses with D12 CANNOT-EVALUATE (exit 2) naming the path, with or
+        # without a floor at the base, as the explicit form already refuses
+        # the same committed link. A floor genuinely absent still FAILs
+        # (test_d12_verdict_and_head_floor_lines_name_pinned_shas).
+        for label, floor_at_base in (("floor at the base", True),
+                                     ("no floor at the base", False)):
+            with self.subTest(base=label):
+                if floor_at_base:
+                    tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+                    floor.unlink()
+                else:
+                    tmp, git = self._repo()
+                    floor = tmp / "tools" / "todo-number-floor.json"
+                    floor.parent.mkdir(parents=True, exist_ok=True)
+                floor.symlink_to(tmp / "tools" / "no-such-target.json")
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("D12 CANNOT-EVALUATE: cannot read the head floor", r.stderr)
+                self.assertIn(str(floor), r.stderr)
+                self.assertIn("present but cannot be followed", r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn("missing at HEAD", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
+    def _stale_branch(self, build, main_raises_floor):
+        """The floor-at-base fixture (floor 32) with ``feat`` forked from it
+        and built by ``build(git, tmp, floor)``; main then moves on (raising
+        the floor to 33 when ``main_raises_floor``, else editing README.md)
+        and origin/main follows, so feat is stale. feat is checked out with
+        a clean working tree. Returns (path, git runner, fork-point SHA)."""
+        tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+        (tmp / "NEW.md").unlink()
+        fork = git("rev-parse", "HEAD")
+        git("checkout", "-q", "-b", "feat")
+        build(git, tmp, floor)
+        git("checkout", "-q", "main")
+        if main_raises_floor:
+            floor.write_text('{"2": 33}\n', encoding="utf-8")
+        else:
+            (tmp / "README.md").write_text("# Repo\n\nMain moved on.\n", encoding="utf-8")
+        git("commit", "-q", "-am", "main moves on")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        git("checkout", "-q", "feat")
+        return tmp, git, fork
+
+    def test_d12_stale_branch_judged_against_merge_base(self) -> None:
+        # 3b577 round 3 (r2 review, claude F3, probes P14a-P14d): D12
+        # compares against the PR's merge base, as the specification says,
+        # not against the base itself. Each fixture forks feat from a base
+        # whose floor is 32, then main moves on and origin/main follows, so
+        # feat is stale. A change and its revert (P14a) or an empty commit
+        # (P14b) changed nothing since the fork, and a head AT the fork point
+        # (P14c, the wrong-clone shape) selects nothing, so each refuses
+        # (exit 2), as D1 refuses the same ranges. A README-only branch after
+        # main raised the floor (P14d) did not lower it, so it gets the
+        # monotonic OK against the fork point's floor. Before 3b577 round 3
+        # every run compared with origin/main itself: P14a and P14c printed
+        # the monotonic OK (exit 0), and P14b and P14d the false FAIL "floor
+        # decreased 33 -> 32" (exit 1), in both forms.
+        def change_and_revert(git, tmp, floor):
+            floor.write_text('{"2": 33}\n', encoding="utf-8")
+            git("commit", "-q", "-am", "raise floor")
+            git("revert", "--no-edit", "HEAD")
+
+        def empty_commit(git, tmp, floor):
+            git("commit", "-q", "--allow-empty", "-m", "empty")
+
+        def at_fork(git, tmp, floor):
+            pass
+
+        def readme_only(git, tmp, floor):
+            (tmp / "README.md").write_text("# Repo\n\nBranch docs.\n", encoding="utf-8")
+            git("commit", "-q", "-am", "docs only")
+
+        argless_empty = "shows no tracked change against the merge base"
+        monotonic = "is monotonic vs the floor at the merge base"
+        for probe, build, main_raises_floor, rc, named_phrase, argless_phrase in (
+            ("P14a change and revert", change_and_revert, False, 2,
+             "no files changed", argless_empty),
+            ("P14b empty commit", empty_commit, True, 2,
+             "no files changed", argless_empty),
+            ("P14c head at the fork point", at_fork, False, 2,
+             "is an ancestor of base", argless_empty),
+            ("P14d README only", readme_only, True, 0, monotonic, monotonic),
+        ):
+            for form in ("named", "argless"):
+                with self.subTest(probe=probe, form=form):
+                    tmp, git, fork = self._stale_branch(build, main_raises_floor)
+                    args = ("origin/main", "feat") if form == "named" else ()
+                    r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, *args,
+                                   env={"GITHUB_BASE_REF": "main"})
+                    self.assertEqual(r.returncode, rc,
+                                     f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                    out = r.stdout + r.stderr
+                    self.assertIn(named_phrase if form == "named" else argless_phrase, out)
+                    self.assertIn(f"merge-base={fork}", out)
+                    self.assertNotIn("floor decreased", out)
+                    self.assertNotIn("Traceback", out)
+                    if rc == 2:
+                        self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+                        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_no_merge_base_refuses(self) -> None:
+        # 3b577 round 3: with no merge base there is no floor to compare
+        # against, so D12 refuses (exit 2) instead of falling back to the
+        # base itself: an argless run on an unborn branch, and an argless or
+        # named run whose head shares no history with the base. Before 3b577
+        # round 3 each run was evaluated against the base and printed the
+        # first-introduction "new at this base" OK (exit 0).
+        def unborn(git, tmp):
+            git("checkout", "-q", "--orphan", "fresh")
+            (tmp / "NEW.md").write_text("New.\n", encoding="utf-8")
+
+        def unrelated(git, tmp):
+            git("checkout", "-q", "--orphan", "other")
+            (tmp / "OTHER.md").write_text("Other.\n", encoding="utf-8")
+            git("add", "-A")
+            git("commit", "-q", "-m", "unrelated root")
+
+        for label, build, args, phrase in (
+            ("unborn HEAD, argless", unborn, (), "HEAD does not resolve to a commit"),
+            ("unrelated history, argless", unrelated, (), "have no merge base"),
+            ("unrelated history, named", unrelated, ("origin/main", "other"),
+             "have no merge base"),
+        ):
+            with self.subTest(case=label):
+                tmp, git = self._repo()
+                build(git, tmp)
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, *args,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("D12 CANNOT-EVALUATE", r.stderr)
+                self.assertIn(phrase, r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
+    def test_d12_no_floor_on_either_side_says_so(self) -> None:
+        # 3b577 round 3 (r2 review, claude F4): with no floor at the merge
+        # base and none at the head nothing was introduced, so the OK says
+        # "no floor on either side" instead of the first-introduction "new
+        # at this base" it printed before (exit 0 both ways), in the named
+        # and the argless form.
+        for form in ("named", "argless"):
+            with self.subTest(form=form):
+                tmp, git = self._repo()
+                args = ()
+                if form == "named":
+                    git("checkout", "-q", "-b", "feat")
+                (tmp / "README.md").write_text("# Repo\n\nMore.\n", encoding="utf-8")
+                if form == "named":
+                    git("commit", "-q", "-am", "docs only")
+                    args = ("origin/main", "feat")
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, *args,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, 0,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("OK: no floor on either side", r.stdout)
+                self.assertNotIn("is new since the merge base", r.stdout)
+                self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+
+    def _criss_cross(self, head_tree_is_b1, b1_later):
+        """A criss-cross history with two merge bases (3b577 round 4, r3
+        review claude F1). From a root whose floor is 30, main commits A1
+        (floor 33) and feat commits B1 (floor 32); each side then merges the
+        other's commit keeping its own tree (``-s ours``), so origin/main
+        (main's merge, floor 33) and feat (feat's merge, floor 32) have A1
+        and B1 as merge bases. Commits are one minute apart, B1 after A1
+        when ``b1_later``: ``git merge-base`` without --all prints one of
+        the two by commit date (git 2.53 printed the later one, B1, the base
+        whose floor feat does not lower), so of the two orderings one has
+        git's single pick at B1 whichever way git breaks the tie. Unless
+        ``head_tree_is_b1``, feat then edits README.md, so its tree differs
+        from both bases; otherwise feat's tree is B1's. feat is checked out
+        with a clean working tree. Returns (path, git runner, A1, B1)."""
+        import subprocess as sp
+
+        tmp, git = self._repo()
+        floor = tmp / "tools" / "todo-number-floor.json"
+        floor.parent.mkdir(parents=True, exist_ok=True)
+        floor.write_text('{"2": 30}\n', encoding="utf-8")
+        git("add", "tools/todo-number-floor.json")
+        git("commit", "-q", "-m", "root floor")
+        git("branch", "feat")
+        clock = [int(git("log", "-1", "--format=%ct"))]
+
+        def dated(*args):
+            clock[0] += 60
+            stamp = f"@{clock[0]} +0000"
+            sp.run(["git", "-C", str(tmp), *args], check=True, capture_output=True,
+                   env={**os.environ, "GIT_AUTHOR_DATE": stamp,
+                        "GIT_COMMITTER_DATE": stamp})
+
+        def side(branch, value, message):
+            git("checkout", "-q", branch)
+            floor.write_text(f'{{"2": {value}}}\n', encoding="utf-8")
+            dated("commit", "-q", "-am", message)
+            return git("rev-parse", "HEAD")
+
+        if b1_later:
+            a1 = side("main", 33, "A1: main raises the floor to 33")
+            b1 = side("feat", 32, "B1: feat raises the floor to 32")
+        else:
+            b1 = side("feat", 32, "B1: feat raises the floor to 32")
+            a1 = side("main", 33, "A1: main raises the floor to 33")
+        git("checkout", "-q", "main")
+        dated("merge", "-q", "-s", "ours", "--no-edit", b1)
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        git("checkout", "-q", "feat")
+        dated("merge", "-q", "-s", "ours", "--no-edit", a1)
+        if not head_tree_is_b1:
+            (tmp / "README.md").write_text("# Repo\n\nBranch docs.\n", encoding="utf-8")
+            dated("commit", "-q", "-am", "docs")
+        return tmp, git, a1, b1
+
+    def test_d12_criss_cross_compares_every_merge_base(self) -> None:
+        # 3b577 round 4 (r3 review, claude F1): in a criss-cross history git
+        # merge-base without --all prints one merge base, and e41b151b4
+        # compared the floor against that one only. When git's pick was B1
+        # (floor 32), a feat that lowers the floor below A1's 33 printed the
+        # monotonic OK (exit 0) in both forms; when feat's tree was B1's, the
+        # named form refused as a net-empty range and the argless form as a
+        # collapsed one (exit 2). D12 now reads every merge base: it FAILS
+        # on the decrease against A1 (exit 1), naming both merge bases, and
+        # the range is empty only when the head's tree is every merge
+        # base's. Both orderings of A1 and B1 run, so the test discriminates
+        # whichever merge base git's single pick is.
+        for variant, head_tree_is_b1 in (("feat edits README.md", False),
+                                         ("feat's tree is B1's", True)):
+            for b1_later in (True, False):
+                for form in ("named", "argless"):
+                    with self.subTest(variant=variant, b1_later=b1_later, form=form):
+                        tmp, git, a1, b1 = self._criss_cross(head_tree_is_b1, b1_later)
+                        self.assertEqual(
+                            sorted(git("merge-base", "--all", "origin/main", "feat").split()),
+                            sorted([a1, b1]), "the fixture must have two merge bases")
+                        args = ("origin/main", "feat") if form == "named" else ()
+                        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, *args,
+                                       env={"GITHUB_BASE_REF": "main"})
+                        self.assertEqual(r.returncode, 1,
+                                         f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                        self.assertIn("is not monotonic vs the floor at the merge bases",
+                                      r.stderr)
+                        self.assertIn(f"vs {a1}: series 2 floor decreased 33 -> 32",
+                                      r.stderr)
+                        self.assertNotIn(f"vs {b1}:", r.stderr)
+                        self.assertIn(b1, r.stderr)
+                        self.assertNotIn("Traceback", r.stderr)
+                        self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+                        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_floor_beyond_decoder_limits_refuses(self) -> None:
+        # 3b577 round 4 (r3 review, claude F2): text json.loads cannot hold
+        # raises RecursionError (nesting deeper than the decoder's stack) or
+        # a plain ValueError (an integer longer than the interpreter's
+        # 4300-digit limit), not JSONDecodeError, so it escaped _parse and
+        # every form exited 1 with a traceback, for a head floor with or
+        # without a floor at the merge base and for a merge-base floor
+        # alike. _parse now raises _FloorParseError naming the source, so the
+        # gate refuses with D12 CANNOT-EVALUATE (exit 2).
+        deep = "[" * 200000 + "\n"
+        long_int = '{"2": ' + "1" * 5000 + "}\n"
+
+        def head_defect_floor_at_base(form, content):
+            tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
+            floor.write_text(content, encoding="utf-8")
+            if form == "named":
+                git("checkout", "-q", "-b", "feat")
+                git("commit", "-q", "-am", "bad floor")
+                return tmp, ("origin/main", "feat"), "the head floor", \
+                    "feat:tools/todo-number-floor.json"
+            return tmp, (), "the head floor", str(floor)
+
+        def head_defect_no_floor_at_base(form, content):
+            tmp, git = self._repo()
+            floor = tmp / "tools" / "todo-number-floor.json"
+            floor.parent.mkdir(parents=True, exist_ok=True)
+            floor.write_text(content, encoding="utf-8")
+            if form == "named":
+                git("checkout", "-q", "-b", "feat")
+                git("add", "tools/todo-number-floor.json")
+                git("commit", "-q", "-m", "introduce bad floor")
+                return tmp, ("origin/main", "feat"), "the head floor", \
+                    "feat:tools/todo-number-floor.json"
+            # The untracked floor keeps the argless range non-collapsed.
+            return tmp, (), "the head floor", str(floor)
+
+        def merge_base_defect(form, content):
+            tmp, git, floor = self._repo_with_floor_at_base(content)
+            base_sha = git("rev-parse", "origin/main")
+            args = ()
+            if form == "named":
+                git("checkout", "-q", "-b", "feat")
+                (tmp / "README.md").write_text("# Repo\n\nMore.\n", encoding="utf-8")
+                git("commit", "-q", "-am", "docs only")
+                args = ("origin/main", "feat")
+            return tmp, args, "the merge-base floor", \
+                f"{base_sha}:tools/todo-number-floor.json"
+
+        for label, content, cls in (("200000 nested [", deep, "RecursionError"),
+                                    ("a 5000-digit integer", long_int, "ValueError")):
+            for where, build in (("head, floor at the merge base", head_defect_floor_at_base),
+                                 ("head, no floor at the merge base",
+                                  head_defect_no_floor_at_base),
+                                 ("merge base", merge_base_defect)):
+                for form in ("named", "argless"):
+                    with self.subTest(content=label, defect=where, form=form):
+                        tmp, args, phrase, source = build(form, content)
+                        r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, *args,
+                                       env={"GITHUB_BASE_REF": "main"})
+                        self.assertEqual(r.returncode, 2,
+                                         f"stdout:\n{r.stdout[:2000]}\nstderr:\n{r.stderr[:2000]}")
+                        self.assertIn(f"D12 CANNOT-EVALUATE: {phrase} {source} cannot be "
+                                      f"decoded as JSON ({cls}: ", r.stderr)
+                        self.assertNotIn("Traceback", r.stderr)
+                        self.assertNotIn("OK", r.stdout)
+
+    def test_d12_messages_name_the_merge_base_floor(self) -> None:
+        # 3b577 round 4 (r3 reviews, claude F4 and F6, codex WARN): a message
+        # that reads the merge-base floor names it by the merge base SHA, and
+        # each verdict line says what it compared. Two stale-branch probes,
+        # in the named and the argless form:
+        # - the fork point's floor is not JSON and main has since fixed it.
+        #   e41b151b4 labelled the floor origin/main:tools/todo-number-floor.json,
+        #   git revision syntax for the fixed blob, not the one read, and said
+        #   to fix the floor at the base. The refusal now names
+        #   <fork>:tools/todo-number-floor.json and says to bring the branch
+        #   up to date with origin/main if it has fixed its floor.
+        # - main and feat each introduce a floor after the fork (the r3
+        #   review's F5 probe). e41b151b4 printed "new at this base" although
+        #   the base has a floor; the OK now says the floor is new since the
+        #   merge base and names it.
+        def malformed_at_fork():
+            tmp, git, floor = self._repo_with_floor_at_base("not a floor\n")
+            (tmp / "NEW.md").unlink()
+            fork = git("rev-parse", "HEAD")
+            git("checkout", "-q", "-b", "feat")
+            (tmp / "README.md").write_text("# Repo\n\nBranch docs.\n", encoding="utf-8")
+            git("commit", "-q", "-am", "docs only")
+            git("checkout", "-q", "main")
+            floor.write_text('{"2": 32}\n', encoding="utf-8")
+            git("commit", "-q", "-am", "fix the floor")
+            git("update-ref", "refs/remotes/origin/main", "HEAD")
+            git("checkout", "-q", "feat")
+            self.assertEqual(git("show", "origin/main:tools/todo-number-floor.json"),
+                             '{"2": 32}')
+            return tmp, fork
+
+        def introduced_on_both_sides():
+            tmp, git = self._repo()
+            fork = git("rev-parse", "HEAD")
+            floor = tmp / "tools" / "todo-number-floor.json"
+            floor.parent.mkdir(parents=True, exist_ok=True)
+            git("checkout", "-q", "-b", "feat")
+            floor.write_text('{"2": 10}\n', encoding="utf-8")
+            git("add", "tools/todo-number-floor.json")
+            git("commit", "-q", "-m", "feat introduces a floor")
+            git("checkout", "-q", "main")
+            floor.parent.mkdir(parents=True, exist_ok=True)
+            floor.write_text('{"2": 50}\n', encoding="utf-8")
+            git("add", "tools/todo-number-floor.json")
+            git("commit", "-q", "-m", "main introduces a floor")
+            git("update-ref", "refs/remotes/origin/main", "HEAD")
+            git("checkout", "-q", "feat")
+            return tmp, fork
+
+        for form in ("named", "argless"):
+            args = ("origin/main", "feat") if form == "named" else ()
+            head_name = "feat" if form == "named" else "HEAD"
+            with self.subTest(probe="malformed floor at the fork point", form=form):
+                tmp, fork = malformed_at_fork()
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, *args,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn(f"D12 CANNOT-EVALUATE: the merge-base floor "
+                              f"{fork}:tools/todo-number-floor.json is not valid JSON",
+                              r.stderr)
+                self.assertIn(f"it is the floor at the merge base {fork} of origin/main "
+                              f"and {head_name}", r.stderr)
+                self.assertIn("bring the branch up to date with origin/main", r.stderr)
+                self.assertNotIn("origin/main:tools/todo-number-floor.json", r.stderr)
+                self.assertNotIn("Fix the floor at the base", r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+            with self.subTest(probe="floor introduced on both sides", form=form):
+                tmp, fork = introduced_on_both_sides()
+                r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, *args,
+                               env={"GITHUB_BASE_REF": "main"})
+                self.assertEqual(r.returncode, 0,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn(f"OK: tools/todo-number-floor.json is new since the merge "
+                              f"base: absent at the merge base {fork} of origin/main and "
+                              f"{head_name}", r.stdout)
+                self.assertNotIn("new at this base", r.stdout)
+                self.assertNotIn("CANNOT-EVALUATE", r.stderr)
 
     def test_d12_argless_git_call_failure_refuses(self) -> None:
         # Round 4 of 3b530 (review F5): a git diff or git ls-files call that
@@ -11033,21 +11566,26 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                         self.assertIn("CANNOT-EVALUATE", r.stdout + r.stderr)
                         self.assertIn("repo=(no work tree)", r.stdout + r.stderr)
 
-    def _inject_oserror(self, script, cwd, tail, *args):
+    def _inject_oserror(self, script, cwd, tail, *args, nth=None):
         """Run ``script`` with ``args`` in-process, subprocess.check_output
         raising OSError (EAGAIN) on each git call whose argv ends with
-        ``tail``; stderr carries one INJECTED line per raise. A simulation of
+        ``tail`` -- or, given ``nth``, on the nth such call only (3b577
+        round 3); stderr carries one INJECTED line per raise. A simulation of
         git failing to run, not a real fault (3b540 round 9)."""
         import subprocess as sp
 
         driver = (
             "import errno, json, os, runpy, subprocess, sys\n"
             "tail = json.loads(os.environ['INJECT_TAIL'])\n"
+            "nth = json.loads(os.environ['INJECT_NTH'])\n"
+            "seen = [0]\n"
             "real = subprocess.check_output\n"
             "def check_output(cmd, *a, **k):\n"
             "    if [str(c) for c in cmd][-len(tail):] == tail:\n"
-            "        print('INJECTED', file=sys.stderr)\n"
-            "        raise OSError(errno.EAGAIN, 'injected')\n"
+            "        seen[0] += 1\n"
+            "        if nth is None or seen[0] == nth:\n"
+            "            print('INJECTED', file=sys.stderr)\n"
+            "            raise OSError(errno.EAGAIN, 'injected')\n"
             "    return real(cmd, *a, **k)\n"
             "subprocess.check_output = check_output\n"
             "sys.argv = sys.argv[1:]\n"
@@ -11057,7 +11595,8 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         return sp.run(
             [sys.executable, "-c", driver, str(script), *args],
             capture_output=True, text=True, cwd=str(cwd),
-            env={**os.environ, "INJECT_TAIL": json.dumps(tail)},
+            env={**os.environ, "INJECT_TAIL": json.dumps(tail),
+                 "INJECT_NTH": json.dumps(nth)},
         )
 
     def test_toplevel_oserror_keeps_real_verdict_and_refusal(self) -> None:
@@ -11107,13 +11646,16 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
 
     def test_head_sha_oserror_never_reads_collapsed_range_clean(self) -> None:
         # 3b540 round 9 (r8 review NOTE-1): the head SHA pr_range_resolution
-        # reads decides the collapse, so that read catches CalledProcessError
-        # only. Had an OSError there degraded to the echoed ref name, the name
-        # would never equal the merge base and a collapsed range would read
-        # as a real one: D3 and D7 printed a clean "not modified" pass (exit
-        # 0) at round 8. The OSError, injected on that single git call, now
-        # escapes and the gate exits non-zero. Mutation killed: adding OSError
-        # back to that clause.
+        # reads decides the collapse, so that read degrades on a
+        # CalledProcessError only. Had an OSError there degraded to the echoed
+        # ref name, the name would never equal the merge base and a collapsed
+        # range would read as a real one: D3 and D7 printed a clean "not
+        # modified" pass (exit 0) at round 8. 3b577 (3b540 post-merge review
+        # W1): the OSError, injected on that single git call, raises
+        # PrRangeError, so the gate refuses with exit 2 instead of escaping
+        # as a traceback (exit 1, which the round-9 non-zero check accepted).
+        # Mutations killed: adding OSError back to the degrading clause, or
+        # dropping the PrRangeError clause.
         tmp, _git = self._repo()
         for script in ("check-changelog-dash-on-pr.py", "check-changelog-length-on-pr.py"):
             with self.subTest(gate=script):
@@ -11121,9 +11663,677 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                                          ["rev-parse", "--verify", "HEAD^{commit}"],
                                          "origin/main", "HEAD")
                 self.assertEqual(r.stderr.count("INJECTED"), 1, r.stderr)
-                self.assertNotEqual(r.returncode, 0,
-                                    f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertIn("CANNOT-EVALUATE", r.stderr)
                 self.assertNotIn("OK", r.stdout)
+
+    def test_empty_range_message_head_sha_failure_never_tracebacks(self) -> None:
+        # 3b577 round 3 (r2 reviews, codex E1 / claude F2): on a net-empty
+        # named range D1, D2, D4 and D11 compose their refusal with
+        # empty_pr_range_message, which reads the head SHA a second time,
+        # outside the gates' resolve_pr_range handler. The OSError, injected
+        # on that second read only (the first, in resolve_pr_range, succeeds),
+        # raised PrRangeError there and each gate exited 1 with a traceback;
+        # the SHA is diagnostic once the range is found empty, so it now
+        # degrades to a placeholder and the gate refuses with exit 2.
+        # Mutation killed: dropping the PrRangeError clause in
+        # empty_pr_range_message.
+        tmp, git = self._repo()
+        git("checkout", "-q", "-b", "feat-empty")
+        git("commit", "-q", "--allow-empty", "-m", "empty")
+        for script in ("check-changelog-on-pr.py", "check-version-bump-on-pr.py",
+                       "check-date-cobump-on-pr.py",
+                       "check-narrative-corpus-mixed-diff-on-pr.py"):
+            with self.subTest(gate=script):
+                r = self._inject_oserror(REPO_ROOT / "tools" / script, tmp,
+                                         ["rev-parse", "--verify", "feat-empty^{commit}"],
+                                         "origin/main", "feat-empty", nth=2)
+                self.assertEqual(r.stderr.count("INJECTED"), 1, r.stderr)
+                self.assertEqual(r.returncode, 2,
+                                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertIn("CANNOT-EVALUATE: refs were named but no files changed",
+                              r.stderr)
+                self.assertIn("head=feat-empty -> (head SHA unread)", r.stderr)
+                self.assertIn(f"repo={tmp}", r.stderr)
+                self.assertNotIn("OK", r.stdout)
+
+    def _run_with_git_fault(self, script, cwd, k, kind, *args, env=None):
+        """Run ``script`` with ``args`` in-process, subprocess.run (which
+        check_output also calls) failing the ``k``-th git call only: OSError
+        (EAGAIN) for ``oserror``; UnicodeDecodeError for ``decode``, injected
+        only into a call that decodes text, the one place it can arise; exit
+        status 128 for ``nonzero``; nothing for ``none``. stderr carries an
+        INJECTED line naming the faulted call and a final ``GIT-CALLS <n>``
+        line counting the run's git calls. A simulation of git failing, not
+        a real fault (3b577 round 4, the r3 review's harness)."""
+        import subprocess as sp
+
+        driver = (
+            "import errno, os, runpy, subprocess, sys\n"
+            "k, kind = int(os.environ['FAULT_K']), os.environ['FAULT_KIND']\n"
+            "seen = [0]\n"
+            "real = subprocess.run\n"
+            "def run(cmd, *a, **kw):\n"
+            "    argv = [os.fsdecode(c) for c in cmd]\n"
+            "    if argv[:1] != ['git']:\n"
+            "        return real(cmd, *a, **kw)\n"
+            "    seen[0] += 1\n"
+            "    text = any(kw.get(n) for n in ('text', 'universal_newlines',\n"
+            "                                   'encoding', 'errors'))\n"
+            "    if seen[0] != k or kind == 'none' or (kind == 'decode' and not text):\n"
+            "        return real(cmd, *a, **kw)\n"
+            "    print('INJECTED', kind, ' '.join(argv), file=sys.stderr)\n"
+            "    if kind == 'oserror':\n"
+            "        raise OSError(errno.EAGAIN, 'injected')\n"
+            "    if kind == 'decode':\n"
+            "        raise UnicodeDecodeError('utf-8', b'\\xff', 0, 1, 'injected')\n"
+            "    out = '' if text else b''\n"
+            "    if kw.get('check'):\n"
+            "        raise subprocess.CalledProcessError(128, cmd, output=out)\n"
+            "    return subprocess.CompletedProcess(cmd, 128, out, out)\n"
+            "subprocess.run = run\n"
+            "sys.argv = sys.argv[1:]\n"
+            "sys.path.insert(0, os.path.dirname(os.path.abspath(sys.argv[0])))\n"
+            "try:\n"
+            "    runpy.run_path(sys.argv[0], run_name='__main__')\n"
+            "finally:\n"
+            "    print('GIT-CALLS', seen[0], file=sys.stderr)\n"
+        )
+        return sp.run(
+            [sys.executable, "-c", driver, str(script), *args],
+            capture_output=True, text=True, cwd=str(cwd),
+            env={**os.environ, **(env or {}), "FAULT_K": str(k), "FAULT_KIND": kind},
+        )
+
+    def test_d1_d2_d4_d11_d12_never_traceback_on_any_git_call_fault(self) -> None:
+        # The gates whose git calls 3b577 changed are D1, D2, D4, D11 and D12,
+        # walked here, and D15, walked by
+        # test_d15_git_call_fault_never_reports_a_clean_or_altered_result; D3
+        # and D7 share only the resolver, and their own git calls are neither
+        # changed nor walked (backlog 3b591) (3b577 round 6).
+        # 3b577 round 4 (r3 review, claude F3, class-wide): the r3 review
+        # failed the k-th git call of D1, D2, D4 and D11 for every k and
+        # found tracebacks (exit 1) on OSError and UnicodeDecodeError at the
+        # merge-base call in lint_common.resolve_pr_range, each gate's git
+        # diff and D4's git config reads. Walking the paths below reached
+        # more at e41b151b4: D1's git log reads (the per-commit one on a
+        # nonzero exit too), D2's git show reads and D4's git cat-file and
+        # git log reads. Each now refuses with exit 2, never a traceback.
+        # This walks every git call of each gate, D12 included, on a real
+        # range (a versioned document bumped, the floor raised, CHANGELOG.md
+        # untouched, so D1 reaches its git log reads and D2 and D4 their
+        # blob reads), a
+        # net-empty range (the empty_pr_range_message reads) and D12's
+        # argless form, failing that one call with OSError, a decode error
+        # where text is decoded, or exit 128. No run may print a traceback.
+        # An OSError or a decode error must refuse (exit 2), except on the
+        # top-level read some refusals only quote, which may keep the run's
+        # real verdict; a nonzero exit is a documented answer at some sites
+        # (the head-SHA read, which then echoes the ref name, say), so its
+        # verdict is not pinned.
+        tmp, git = self._repo()
+        doc = tmp / "governance" / "doc.md"
+        doc.parent.mkdir(parents=True, exist_ok=True)
+        doc.write_text("# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-01-01\n\nBody.\n",
+                       encoding="utf-8")
+        floor = tmp / "tools" / "todo-number-floor.json"
+        floor.parent.mkdir(parents=True, exist_ok=True)
+        floor.write_text('{"2": 32}\n', encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "-m", "versioned doc and floor")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        git("checkout", "-q", "-b", "feat-real")
+        doc.write_text("# Doc\n\n**Version:** 1.0.1\\\n**Date:** 2026-01-02\n\nBody, more.\n",
+                       encoding="utf-8")
+        floor.write_text('{"2": 33}\n', encoding="utf-8")
+        git("commit", "-q", "-am", "bump the doc and raise the floor")
+        git("checkout", "-q", "-b", "feat-empty", "main")
+        git("commit", "-q", "--allow-empty", "-m", "empty")
+        git("checkout", "-q", "main")
+        # The untracked file keeps D12's argless range non-collapsed, so the
+        # run reaches the untracked listing and the floor reads.
+        (tmp / "NEW.md").write_text("New.\n", encoding="utf-8")
+        runs = [(script, args) for script in (
+            "check-changelog-on-pr.py", "check-version-bump-on-pr.py",
+            "check-date-cobump-on-pr.py", "check-narrative-corpus-mixed-diff-on-pr.py",
+            "check-todo-floor-monotonic-on-pr.py",
+        ) for args in (("origin/main", "feat-real"), ("origin/main", "feat-empty"))]
+        runs.append(("check-todo-floor-monotonic-on-pr.py", ()))
+        env = {"GITHUB_BASE_REF": "main"}
+        for script, args in runs:
+            path = REPO_ROOT / "tools" / script
+            base = self._run_with_git_fault(path, tmp, 0, "none", *args, env=env)
+            self.assertNotIn("Traceback", base.stderr, base.stderr)
+            self.assertIn(base.returncode, (0, 1, 2), base.stderr)
+            calls = int(base.stderr.rsplit("GIT-CALLS ", 1)[1].split()[0])
+            self.assertGreater(calls, 2, base.stderr)
+            for kind in ("oserror", "decode", "nonzero"):
+                for k in range(1, calls + 1):
+                    with self.subTest(gate=script, args=args, kind=kind, k=k):
+                        r = self._run_with_git_fault(path, tmp, k, kind, *args, env=env)
+                        out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                        self.assertNotIn("Traceback", r.stderr, out)
+                        injected = [line for line in r.stderr.splitlines()
+                                    if line.startswith("INJECTED ")]
+                        if not injected:
+                            # A decode fault only fits a call that decodes text.
+                            self.assertEqual(kind, "decode", out)
+                            self.assertEqual(r.returncode, base.returncode, out)
+                            continue
+                        self.assertEqual(len(injected), 1, out)
+                        if kind == "nonzero":
+                            self.assertIn(r.returncode, (0, 1, 2), out)
+                        elif injected[0].endswith(" rev-parse --show-toplevel"):
+                            self.assertIn(r.returncode, (base.returncode, 2), out)
+                        else:
+                            self.assertEqual(r.returncode, 2, out)
+
+    def _inject_git_exit(self, script, cwd, prefix, *args, nth=1, env=None, status=128):
+        """Run ``script`` with ``args`` in-process, subprocess.run (which
+        check_output also calls) answering the ``nth`` git call whose
+        arguments, after any leading ``-c <name>=<value>`` pairs, begin with
+        ``prefix`` with exit status ``status`` (128 unless given; 3b577 round
+        6) and no output instead of running it; stderr carries an INJECTED
+        line naming that call. A simulation of a git read failing, not a
+        real fault (3b577 round 5)."""
+        import subprocess as sp
+
+        driver = (
+            "import json, os, runpy, subprocess, sys\n"
+            "prefix = json.loads(os.environ['INJECT_PREFIX'])\n"
+            "nth = int(os.environ['INJECT_NTH'])\n"
+            "status = int(os.environ['INJECT_STATUS'])\n"
+            "seen = [0]\n"
+            "real = subprocess.run\n"
+            "def run(cmd, *a, **kw):\n"
+            "    argv = [os.fsdecode(c) for c in cmd]\n"
+            "    rest = argv[1:]\n"
+            "    while rest[:1] == ['-c']:\n"
+            "        rest = rest[2:]\n"
+            "    if argv[:1] != ['git'] or rest[:len(prefix)] != prefix:\n"
+            "        return real(cmd, *a, **kw)\n"
+            "    seen[0] += 1\n"
+            "    if seen[0] != nth:\n"
+            "        return real(cmd, *a, **kw)\n"
+            "    print('INJECTED', ' '.join(argv), file=sys.stderr)\n"
+            "    text = any(kw.get(n) for n in ('text', 'universal_newlines',\n"
+            "                                   'encoding', 'errors'))\n"
+            "    out = '' if text else b''\n"
+            "    if kw.get('check') and status:\n"
+            "        raise subprocess.CalledProcessError(status, cmd, output=out)\n"
+            "    return subprocess.CompletedProcess(cmd, status, out, out)\n"
+            "subprocess.run = run\n"
+            "sys.argv = sys.argv[1:]\n"
+            "sys.path.insert(0, os.path.dirname(os.path.abspath(sys.argv[0])))\n"
+            "runpy.run_path(sys.argv[0], run_name='__main__')\n"
+        )
+        return sp.run(
+            [sys.executable, "-c", driver, str(script), *args],
+            capture_output=True, text=True, cwd=str(cwd),
+            env={**os.environ, **(env or {}), "INJECT_PREFIX": json.dumps(prefix),
+                 "INJECT_NTH": str(nth), "INJECT_STATUS": str(status)},
+        )
+
+    def _criss_cross_range(self):
+        """A criss-cross history whose head makes a real change for every
+        gate family on lint_common.resolve_pr_range (3b577 round 5). On
+        _repo's root plus a versioned document, main commits A1 and feat
+        commits B1; each side then merges the other's commit, so
+        origin/main (main's merge) and feat have A1 and B1 as merge bases.
+        feat then adds a CHANGELOG.md entry (D1, D3, D7), bumps the versioned
+        document with its Date set to today's UTC date (D2, D4) and adds an
+        unregistered citation to the corpus document (D11, D15). Returns
+        (path, git runner, A1, B1)."""
+        import datetime
+
+        tmp, git = self._repo()
+        doc = tmp / "governance" / "doc.md"
+        doc.write_text("# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-01-01\n\nBody.\n",
+                       encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "-m", "versioned doc")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        git("branch", "feat")
+        (tmp / "README.md").write_text("# Repo\n\nA1.\n", encoding="utf-8")
+        git("commit", "-q", "-am", "A1")
+        a1 = git("rev-parse", "HEAD")
+        git("checkout", "-q", "feat")
+        (tmp / "notes.txt").write_text("B1.\n", encoding="utf-8")
+        git("add", "notes.txt")
+        git("commit", "-q", "-m", "B1")
+        b1 = git("rev-parse", "HEAD")
+        git("checkout", "-q", "main")
+        git("merge", "-q", "--no-edit", b1)
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        git("checkout", "-q", "feat")
+        git("merge", "-q", "--no-edit", a1)
+        today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+        doc.write_text(f"# Doc\n\n**Version:** 1.0.1\\\n**Date:** {today}\n\nBody, more.\n",
+                       encoding="utf-8")
+        (tmp / "CHANGELOG.md").write_text("# Changelog\n\nNew entry.\n\nOld entry.\n",
+                                          encoding="utf-8")
+        (tmp / self.DOC_REL).write_text(self.DOC_HEAD, encoding="utf-8")
+        git("commit", "-q", "-am", "feat: the change")
+        return tmp, git, a1, b1
+
+    def test_shared_resolver_refuses_a_criss_cross_range(self) -> None:
+        # 3b577 round 5 (r4 report, outside its brief): resolve_pr_range ran
+        # git merge-base without --all, so in a criss-cross history D1, D2,
+        # D3, D4, D7, D11 and D15 diffed the head against git's single pick
+        # of the two merge bases and gave that one's verdict (at 9255c0936
+        # every gate below printed its verdict here). Each of them diffs
+        # against one merge base, so the shared resolver now refuses more
+        # than one, naming both: the strict gates with exit 2 and the
+        # advisory D15 with its fail-open NOTE (exit 0). The control merges
+        # origin/main into feat, the remedy the refusal names: the range then
+        # has one merge base and every gate evaluates it.
+        tmp, git, a1, b1 = self._criss_cross_range()
+        self.assertEqual(sorted(git("merge-base", "--all", "origin/main", "feat").split()),
+                         sorted([a1, b1]), "the fixture must have two merge bases")
+        d15 = "check-alignment-register-on-pr.py"
+        for script in (*self.STRICT_SHARED, d15):
+            with self.subTest(gate=script):
+                r = self._gate(script, tmp, "origin/main", "feat")
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertNotIn("Traceback", r.stderr, out)
+                said = r.stdout if script == d15 else r.stderr
+                self.assertEqual(r.returncode, 0 if script == d15 else 2, out)
+                self.assertIn("origin/main and feat have 2 merge bases", said)
+                self.assertIn(a1, said)
+                self.assertIn(b1, said)
+                self.assertIn("a criss-cross history", said)
+                if script == d15:
+                    self.assertIn("D15 NOTE: CANNOT-EVALUATE", r.stdout)
+                    self.assertNotIn("D15 OK", r.stdout)
+                    self.assertNotIn("D15 WARN", r.stdout)
+                else:
+                    self.assertIn("CANNOT-EVALUATE", r.stderr)
+                    self.assertNotIn("OK", r.stdout)
+        git("merge", "-q", "--no-edit", "origin/main")
+        self.assertEqual(git("merge-base", "--all", "origin/main", "feat"),
+                         git("rev-parse", "origin/main"))
+        verdicts = {
+            "check-changelog-on-pr.py": "OK: CHANGELOG.md is in the diff",
+            "check-version-bump-on-pr.py": "OK: 1 changed versioned document(s)",
+            "check-narrative-corpus-mixed-diff-on-pr.py": "OK: corpus document(s) changed",
+            d15: "D15 WARN security/standard-example.md",
+        }
+        for script in (*self.STRICT_SHARED, d15):
+            with self.subTest(gate=script, control="one merge base"):
+                r = self._gate(script, tmp, "origin/main", "feat")
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertNotIn("Traceback", r.stderr, out)
+                self.assertIn(r.returncode, (0, 1), out)
+                self.assertNotIn("CANNOT-EVALUATE", r.stdout + r.stderr, out)
+                self.assertNotIn("merge bases", r.stdout + r.stderr, out)
+                if script in verdicts:
+                    self.assertIn(verdicts[script], r.stdout, out)
+
+    def test_shared_resolver_refuses_a_merge_base_run_that_prints_none(self) -> None:
+        # 3b577 round 6 (r5 report, an untested branch): git merge-base --all
+        # exits 1 with no output when base and head share no history, which
+        # the resolver's CalledProcessError clause refuses; a run that exits
+        # 0 and prints no merge base leaves the range just as undetermined,
+        # so the resolver refuses it too, never indexing an empty list (a
+        # traceback). The real git prints a merge base for this range, so
+        # the read is injected to exit 0 with no output. D1, D2, D3, D4, D7
+        # and D11 refuse with exit 2, and D15 with its fail-open NOTE (exit
+        # 0); the control, the same harness injecting nothing, evaluates the
+        # range in every gate.
+        import datetime
+
+        tmp, git = self._repo()
+        doc = tmp / "governance" / "doc.md"
+        doc.parent.mkdir(parents=True, exist_ok=True)
+        doc.write_text("# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-01-01\n\nBody.\n",
+                       encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "-m", "versioned doc")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        git("checkout", "-q", "-b", "feat")
+        today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+        doc.write_text(f"# Doc\n\n**Version:** 1.0.1\\\n**Date:** {today}\n\nBody, more.\n",
+                       encoding="utf-8")
+        (tmp / "CHANGELOG.md").write_text("# Changelog\n\nNew entry.\n\nOld entry.\n",
+                                          encoding="utf-8")
+        (tmp / self.DOC_REL).write_text(self.DOC_HEAD, encoding="utf-8")
+        git("commit", "-q", "-am", "feat: the change")
+        d15 = "check-alignment-register-on-pr.py"
+        verdicts = {
+            "check-changelog-on-pr.py": "OK: CHANGELOG.md is in the diff",
+            "check-version-bump-on-pr.py": "OK: 1 changed versioned document(s)",
+            "check-narrative-corpus-mixed-diff-on-pr.py": "OK: corpus document(s) changed",
+            d15: "D15 WARN security/standard-example.md",
+        }
+        for script in (*self.STRICT_SHARED, d15):
+            path = REPO_ROOT / "tools" / script
+            with self.subTest(gate=script, control=True):
+                r = self._inject_git_exit(path, tmp, ["no-such-call"], "origin/main", "feat")
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertNotIn("Traceback", r.stderr, out)
+                self.assertIn(r.returncode, (0, 1), out)
+                self.assertNotIn("CANNOT-EVALUATE", r.stdout + r.stderr, out)
+                if script in verdicts:
+                    self.assertIn(verdicts[script], r.stdout, out)
+            with self.subTest(gate=script):
+                r = self._inject_git_exit(path, tmp, ["merge-base", "--all"],
+                                          "origin/main", "feat", status=0)
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                said = r.stdout if script == d15 else r.stderr
+                self.assertEqual(r.stderr.count("INJECTED"), 1, out)
+                self.assertNotIn("Traceback", r.stderr, out)
+                self.assertEqual(r.returncode, 0 if script == d15 else 2, out)
+                self.assertIn("CANNOT-EVALUATE: git merge-base --all origin/main feat "
+                              "printed no merge base", said, out)
+                if script == d15:
+                    self.assertIn("D15 NOTE: CANNOT-EVALUATE", r.stdout, out)
+                    self.assertNotIn("D15 OK", r.stdout, out)
+                    self.assertNotIn("D15 WARN", r.stdout, out)
+                else:
+                    self.assertNotIn("OK", r.stdout, out)
+
+    def test_failed_blob_or_log_read_refuses_never_reads_absent(self) -> None:
+        # 3b577 round 5 (r4 report, outside its brief): D2's git_show, D4's
+        # blob_at and D4's bump-date git log read every nonzero git exit as
+        # "absent at that revision" or "no range commit touched the file"
+        # and skipped it, so a read that failed passed the file unchecked: at
+        # 9255c0936 each git show, cat-file and git log fault below gave a
+        # clean OK (exit 0), D4's over a stale Date its control FAILs. Absence
+        # is now git's own answer only -- git ls-tree listing no entry, git
+        # log exiting 0 with no output -- and any other failure, the listing's
+        # own included, refuses with exit 2. governance/new.md, which the head
+        # adds, is absent at the merge base by git's own answer, so it reads
+        # as an added file in the control and is never named.
+        tmp, git = self._repo()
+        doc = tmp / "governance" / "doc.md"
+        doc.write_text("# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-01-01\n\nBody.\n",
+                       encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "-m", "versioned doc")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        git("checkout", "-q", "-b", "feat")
+        # Version bumped with the Date left stale: D2 passes it, D4 FAILs it.
+        doc.write_text("# Doc\n\n**Version:** 1.0.1\\\n**Date:** 2026-01-01\n\nBody, more.\n",
+                       encoding="utf-8")
+        (tmp / "governance" / "new.md").write_text(
+            "# New\n\n**Version:** 1.0.0\\\n**Date:** 2026-01-01\n\nNew.\n", encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "-m", "bump doc.md, add new.md")
+        d2 = REPO_ROOT / "tools" / "check-version-bump-on-pr.py"
+        d4 = REPO_ROOT / "tools" / "check-date-cobump-on-pr.py"
+        for script, rc, verdict in ((d2, 0, "OK: 1 changed versioned document(s)"),
+                                    (d4, 1, "FAIL governance/doc.md: Version bumped")):
+            with self.subTest(gate=script.name, control=True):
+                r = self._gate(script.name, tmp, "origin/main", "feat")
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertEqual(r.returncode, rc, out)
+                self.assertIn(verdict, r.stdout + r.stderr, out)
+                self.assertNotIn("new.md", r.stdout + r.stderr, out)
+        for script, prefix, nth, phrase in (
+            (d2, ["ls-tree"], 1, "ERROR: git show failed for governance/doc.md"),
+            (d2, ["show"], 1, "ERROR: git show failed for governance/doc.md"),
+            (d2, ["show"], 2, "ERROR: git show failed for governance/doc.md"),
+            (d4, ["ls-tree"], 1, "ERROR: git cat-file failed for governance/doc.md"),
+            (d4, ["cat-file", "blob"], 1, "ERROR: git cat-file failed for governance/doc.md"),
+            (d4, ["cat-file", "blob"], 2, "ERROR: git cat-file failed for governance/doc.md"),
+            (d4, ["log", "-1"], 1, "ERROR: git log failed for governance/doc.md"),
+        ):
+            with self.subTest(gate=script.name, call=prefix, nth=nth):
+                r = self._inject_git_exit(script, tmp, prefix, "origin/main", "feat", nth=nth)
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertEqual(r.stderr.count("INJECTED"), 1, out)
+                self.assertEqual(r.returncode, 2, out)
+                self.assertIn(phrase, r.stderr, out)
+                self.assertNotIn("Traceback", r.stderr, out)
+                self.assertNotIn("OK", r.stdout, out)
+
+    def test_md_gitlink_reads_as_absent_never_as_a_failed_read(self) -> None:
+        # 3b577 round 6 (r5 reviews, codex ERROR and claude W1): round 5's
+        # git_show_strict ran git show on every entry git ls-tree listed, and
+        # git show cannot read a gitlink whose commit the repository does not
+        # hold (exit 128), so at 5741f435d D2 refused (exit 2) a PR that adds,
+        # updates, deletes or converts to a gitlink the .md path
+        # security/sub.md; D15 printed its fail-open NOTE in place of its
+        # WARN when the PR leaves that gitlink at the head, and its sibling
+        # probe skipped its listing over a .md gitlink the head keeps
+        # unchanged. A listed entry that is not a blob is no file, so it
+        # now reads as absent, as D4's blob_at reads it, and the probe lists
+        # only blobs: each PR below gets D2's OK and D15's WARN and probe
+        # listing (exit 0). A listed blob whose read fails still refuses in
+        # D2 (exit 2) and skips D15's check with a NOTE.
+        reg = AlignmentRegisterOnPrTests
+        sub = "security/sub.md"
+        g1, g2 = "1" * 40, "2" * 40
+        document = "# Sub\n\nA document before it became a submodule.\n"
+
+        def build(at_base, at_head):
+            tmp, git = self._repo()
+
+            def put(value):
+                # sub.md as absent (None), a document (text) or a gitlink to a
+                # commit the repository does not hold (an object id). git add
+                # -A never runs while a gitlink is staged: its path has no
+                # directory in the work tree, which would stage it as deleted.
+                git("rm", "-q", "--cached", "--ignore-unmatch", sub)
+                (tmp / sub).unlink(missing_ok=True)
+                if value is None:
+                    return
+                if value.startswith("#"):
+                    (tmp / sub).write_text(value, encoding="utf-8")
+                    git("add", sub)
+                else:
+                    git("update-index", "--add", "--cacheinfo", f"160000,{value},{sub}")
+
+            aliases = tmp / reg.ALIASES
+            aliases.parent.mkdir(parents=True, exist_ok=True)
+            doc = tmp / "governance" / "doc.md"
+            doc.parent.mkdir(parents=True, exist_ok=True)
+            (tmp / self.REGISTER_REL).write_text(reg._register(reg, reg.TSA_ROWS),
+                                                 encoding="utf-8")
+            aliases.write_text(reg._aliases("TSA Pipeline Security Directives"),
+                               encoding="utf-8")
+            (tmp / self.DOC_REL).write_text(reg._doc(*reg.SIBLING_DOC), encoding="utf-8")
+            doc.write_text("# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-01-01\n\nBody.\n",
+                           encoding="utf-8")
+            git("add", "-A")
+            put(at_base)
+            git("commit", "-q", "-m", "register, aliases, corpus and sub.md")
+            git("update-ref", "refs/remotes/origin/main", "HEAD")
+            git("checkout", "-q", "-b", "feat")
+            aliases.write_text(reg._aliases("TSA Pipeline Security Directives",
+                                            "US TSA Pipeline Security Directives"),
+                               encoding="utf-8")
+            (tmp / "security" / "other.md").write_text(
+                reg._doc("| NIST SP 800-57 Part 1 Rev. 5 | Key management | Keys |"),
+                encoding="utf-8")
+            doc.write_text("# Doc\n\n**Version:** 1.0.1\\\n**Date:** 2026-01-01\n\nBody, more.\n",
+                           encoding="utf-8")
+            git("add", reg.ALIASES, "security/other.md", "governance/doc.md")
+            put(at_head)
+            git("commit", "-q", "-m", "alias key, an unregistered citation, a bump and sub.md")
+            want = [] if at_head is None else ["blob" if at_head.startswith("#") else "commit"]
+            self.assertEqual(git("ls-tree", "feat", "--", sub).split()[1:2], want,
+                             "the fixture must list sub.md as built")
+            return tmp
+
+        def lines(out, start):
+            return [line for line in out.splitlines() if line.startswith(start)]
+
+        d2 = REPO_ROOT / "tools" / "check-version-bump-on-pr.py"
+        d15 = REPO_ROOT / "tools" / "check-alignment-register-on-pr.py"
+        for pr, at_base, at_head in (
+            ("adds a gitlink", None, g1),
+            ("updates a gitlink", g1, g2),
+            ("deletes a gitlink", g1, None),
+            ("converts a document to a gitlink", document, g1),
+            ("keeps a gitlink unchanged", g1, g1),
+        ):
+            tmp = build(at_base, at_head)
+            with self.subTest(pr=pr, gate="D2"):
+                r = self._gate(d2.name, tmp, "origin/main", "feat")
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertEqual(r.returncode, 0, out)
+                self.assertIn("OK: 1 changed versioned document(s)", r.stdout, out)
+                self.assertNotIn("ERROR", r.stderr, out)
+                self.assertNotIn("Traceback", r.stderr, out)
+            with self.subTest(pr=pr, gate="D15"):
+                r = self._gate(d15.name, tmp, "origin/main", "feat")
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertEqual(r.returncode, 0, out)
+                warns = lines(r.stdout, "D15 WARN ")
+                self.assertEqual(len(warns), 1, out)
+                self.assertIn("security/other.md", warns[0], out)
+                self.assertIn("D15 SIBLING-PROBE: 1 unregistered", r.stdout, out)
+                self.assertNotIn("D15 NOTE", r.stdout, out)
+                self.assertNotIn("D15 OK", r.stdout, out)
+            # A git show of a listed blob: D2's first, governance/doc.md at
+            # the merge base, and D15's second, after its register read,
+            # governance/doc.md at the head.
+            for script, nth, rc, phrase in (
+                (d2, 1, 2, "ERROR: git show failed for governance/doc.md"),
+                (d15, 2, 0, "D15 NOTE: cannot read governance/doc.md at feat"),
+            ):
+                with self.subTest(pr=pr, gate=script.name, failed_read=nth):
+                    r = self._inject_git_exit(script, tmp, ["show"], "origin/main", "feat",
+                                              nth=nth)
+                    out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                    self.assertEqual(r.stderr.count("INJECTED"), 1, out)
+                    self.assertEqual(r.returncode, rc, out)
+                    self.assertIn(phrase, r.stdout + r.stderr, out)
+                    self.assertNotIn("Traceback", r.stderr, out)
+                    self.assertNotIn("OK", r.stdout, out)
+                    self.assertNotIn("D15 WARN", r.stdout, out)
+
+    def test_partial_clone_config_read_failure_declines(self) -> None:
+        # 3b577 round 5 (the preflight aid's shared helper path):
+        # promisor_remote_reason, which D4 runs and preflight-version-date.py
+        # shares (passing its own git wrapper), read every nonzero git config
+        # exit as "not set", so a config read that failed passed as "not a
+        # partial clone" and both went on to read blobs (exit 0 here at
+        # 9255c0936). The failure is injected at the config read alone. With
+        # git 2.53, a config file git cannot parse (exit 128) reaches this
+        # read in the aid, whose MERGE_HEAD and unmerged-index reads pass
+        # over a failed read, but D4's merge-base read refuses on it first;
+        # and a bad value only some commands parse, such as
+        # log.showSignature=notabool, leaves git config at exit 1 and fails
+        # git log and git show instead (3b577 round 6).
+        # Exit 1 is git config's own "not set" answer, which the real git
+        # gives in each control; any other nonzero exit now declines (exit 2).
+        tmp, git = self._repo()
+        doc = tmp / "governance" / "doc.md"
+        doc.write_text("# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-01-01\n\nBody.\n",
+                       encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "-m", "versioned doc")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        git("checkout", "-q", "-b", "feat")
+        (tmp / "README.md").write_text("# Repo\n\nMore.\n", encoding="utf-8")
+        git("commit", "-q", "-am", "docs only")
+        # A staged bump dated "today" for the aid, which reads the index.
+        doc.write_text("# Doc\n\n**Version:** 1.0.1\\\n**Date:** 2026-06-26\n\nBody, more.\n",
+                       encoding="utf-8")
+        git("add", "-A")
+        d4 = (REPO_ROOT / "tools" / "check-date-cobump-on-pr.py", ("origin/main", "feat"),
+              "OK: 0 document(s) bumped Version")
+        aid = (REPO_ROOT / "tools" / "preflight-version-date.py", ("--base", "origin/main"),
+               "OK: every staged document")
+        env = {"PREFLIGHT_VD_TODAY": "2026-06-26"}
+        for script, args, verdict in (d4, aid):
+            with self.subTest(tool=script.name, control=True):
+                r = self._inject_git_exit(script, tmp, ["no-such-call"], *args, env=env)
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertEqual(r.returncode, 0, out)
+                self.assertIn(verdict, r.stdout, out)
+            for prefix, call in (
+                (["config", "--get", "extensions.partialClone"],
+                 "git config --get extensions.partialClone failed (exit 128)"),
+                (["config", "--get-regexp"],
+                 "git config --get-regexp remote.*.promisor failed (exit 128)"),
+            ):
+                with self.subTest(tool=script.name, call=prefix):
+                    r = self._inject_git_exit(script, tmp, prefix, *args, env=env)
+                    out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                    self.assertEqual(r.stderr.count("INJECTED"), 1, out)
+                    self.assertEqual(r.returncode, 2, out)
+                    self.assertIn(call, r.stderr, out)
+                    self.assertIn("cannot read partial-clone config reliably", r.stderr, out)
+                    self.assertNotIn("Traceback", r.stderr, out)
+                    self.assertNotIn("OK", r.stdout, out)
+
+    def test_d15_git_call_fault_never_reports_a_clean_or_altered_result(self) -> None:
+        # 3b577 round 5 (D15's own git call sites): main() turns any exception
+        # into the fail-open NOTE (exit 0), so no fault tracebacks, but four
+        # reads took a nonzero exit as an answer. The per-file diff and head
+        # read took it as "deleted in the PR" (at 9255c0936 that printed a
+        # clean "D15 OK" over a head whose added citation WARNs), the register
+        # read as "absent", and the sibling probe's reads as an absent alias
+        # file or register, or dropped a corpus document from its scan (an
+        # altered listing). This walks every git call D15 makes on a range
+        # that adds an unregistered citation and an alias key, failing that
+        # one call with OSError, a decode error where text is decoded, or exit
+        # 128. Every run exits 0 with no traceback, no "D15 OK" and no absent
+        # register; its WARN lines are the control's or a NOTE says the check
+        # was skipped; and its probe listing is the control's or a NOTE says
+        # the probe did not run.
+        reg = AlignmentRegisterOnPrTests
+        tmp, git = self._repo()
+        aliases = tmp / reg.ALIASES
+        aliases.parent.mkdir(parents=True, exist_ok=True)
+        (tmp / self.REGISTER_REL).write_text(reg._register(reg, reg.TSA_ROWS), encoding="utf-8")
+        aliases.write_text(reg._aliases("TSA Pipeline Security Directives"), encoding="utf-8")
+        (tmp / self.DOC_REL).write_text(reg._doc(*reg.SIBLING_DOC), encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "-m", "register, aliases and corpus")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        git("checkout", "-q", "-b", "feat")
+        aliases.write_text(reg._aliases("TSA Pipeline Security Directives",
+                                        "US TSA Pipeline Security Directives"), encoding="utf-8")
+        (tmp / "security" / "other.md").write_text(
+            reg._doc("| NIST SP 800-57 Part 1 Rev. 5 | Key management | Keys |"),
+            encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "-m", "alias key and an unregistered citation")
+        path = REPO_ROOT / "tools" / "check-alignment-register-on-pr.py"
+        args = ("origin/main", "feat")
+
+        def lines(out, start):
+            return [line for line in out.splitlines() if line.startswith(start)]
+
+        base = self._run_with_git_fault(path, tmp, 0, "none", *args)
+        self.assertEqual(base.returncode, 0, base.stderr)
+        warns = lines(base.stdout, "D15 WARN ")
+        siblings = lines(base.stdout, "D15 SIBLING")
+        self.assertEqual(len(warns), 1, base.stdout)
+        self.assertIn("security/other.md", warns[0])
+        self.assertIn("D15 SIBLING-PROBE: 1 unregistered", base.stdout)
+        self.assertNotIn("D15 OK", base.stdout)
+        self.assertNotIn("D15 NOTE", base.stdout)
+        calls = int(base.stderr.rsplit("GIT-CALLS ", 1)[1].split()[0])
+        self.assertGreater(calls, 10, base.stderr)
+        for kind in ("oserror", "decode", "nonzero"):
+            for k in range(1, calls + 1):
+                with self.subTest(kind=kind, k=k):
+                    r = self._run_with_git_fault(path, tmp, k, kind, *args)
+                    out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                    self.assertNotIn("Traceback", r.stderr, out)
+                    self.assertEqual(r.returncode, 0, out)
+                    if not any(line.startswith("INJECTED ") for line in r.stderr.splitlines()):
+                        # A decode fault only fits a call that decodes text.
+                        self.assertEqual(kind, "decode", out)
+                        self.assertEqual(r.stdout, base.stdout, out)
+                        continue
+                    self.assertNotIn("D15 OK", r.stdout, out)
+                    # The register is present at feat: a failed read is never "absent".
+                    self.assertNotIn("is absent at", r.stdout, out)
+                    noted = bool(lines(r.stdout, "D15 NOTE: "))
+                    if lines(r.stdout, "D15 WARN ") != warns:
+                        self.assertTrue(noted, out)
+                    if lines(r.stdout, "D15 SIBLING") != siblings:
+                        self.assertTrue(noted, out)
+                        self.assertNotIn("D15 SIBLING-PROBE:", r.stdout, out)
 
     NO_WORK_TREE_GATES = (
         ("check-todo-rotation-on-pr.py", "OK:"),
@@ -26676,10 +27886,10 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-todo-number-allocation.py NO_FS F 8ad89e87b8a6df4a576935a21409cadc80ce0456784a22262ac3229b3f2dd99e
         ccm_aicm_reference.py PASSIVE F 1ed15d9b1bd4cfd1162df3e720b5aa6058c3cba3cb1f626fcf2e1ee605c17e71
         changelog_diff.py PASSIVE F d712d841faf46461535b17d083d012280d3df85c0182b526625f7d7199b301bd
-        check-alignment-register-on-pr.py NO_FS F b1774022adf437520a3b79930342002eea0493a91a91f6fcf0a823a02a7b3878
+        check-alignment-register-on-pr.py NO_FS F 5fbd4716eccba374e4de0e1ff47bb97428ce753a033b8e4cc37cff390e6fcfa1
         check-changelog-dash-on-pr.py NO_FS F c4a4ed41c310deedab000b034124e1c08482c59da539907d9d22fd5faeb0089e
         check-changelog-length-on-pr.py NO_FS F dd81f8c07f2ab5045bc492e1d59ebab939585c01355d1ca0d7baf0fed08c84a1
-        check-changelog-on-pr.py NO_FS F 965ec6500d8b640b43076292e5ee4158787c86f9332612cd273c34d3f79ac050
+        check-changelog-on-pr.py NO_FS F e762e152f63d454d5915d219ce71329993c57b3bb780b860c0d3ec9938fdbd0e
         check-changelog-preflight-commit.py NO_FS F 87b92b4235420074c259a9b50e0ee72d5624a81be2b87420de3e01cc7e551fd2
         check-class-attestation-on-pr.py NO_FS F 8ef4e742c2610fa3c80598404991ee6aab9da409b9e95e2ad8b74ec202d40325
         check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
@@ -26688,19 +27898,19 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-clean-language-upstream.py NO_FS F 7732d2d2eceb44061d99e7c484aa83c93b0818091538ba7e3b95a0040acda6a2
         check-commit-on-main.py NO_FS F 6b32bd410a2fee3b4dbb3ff8e3677ee4c5278c9c3f0496fe429b12a25cc967e9
         check-daily-changelog-rollup.py SKIP F 096c9d8e8cf4741ca7fd9bb43ca5c4a5d08ead37c65559e291b44fb8af28da10
-        check-date-cobump-on-pr.py NO_FS F ed8a6f1b647ffd8e6f22f99d34920fe4b92bb7d37ab9f81ac1f04e6a04958188
+        check-date-cobump-on-pr.py NO_FS F ccf1be610cc379a0594fd052909cff7641bc3971e40d48fb6c8040cc6157558b
         check-dirty-tree-push.py TRANSPORT F e60cbafde1933c8bcc92410a997d41a6e5e89d97456ff2949aba0284ffb65713
         check-generated-commit.py NO_FS F 0966158af3a54dba6c55f7de8039ca21ff3658ffe98c4d341d6ad153e824697b
-        check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 3b8aef9b029585e955b4d646a38a50c043d532e58379d05dc6c6b68b4f3a937e
+        check-narrative-corpus-mixed-diff-on-pr.py NO_FS F d887f9c093699a558892270fda2810e744bfb55c1c9b4cbcae4ed6a666fefd5d
         check-portability.sh FIXED F 47a3853e165ba918c0f4f5687904f662a0a9d805356428394fd724ff227756d5
         check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
         check-retired-section-orphan-on-pr.py NO_FS F b44b8682e7a5166facceadf51b21ca8bda4826978d7f9945b126a0f453addeaa
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
         check-stranded-control-code-on-pr.py NO_FS F a5df50628c12bce25313c359c7e772d054eefe603caa06aeded2454615a95541
-        check-todo-floor-monotonic-on-pr.py NO_FS F 6e6451cd462e025af8cd3534e1b36561e201fd4b7d81aff74d93f4e2a8915cd3
+        check-todo-floor-monotonic-on-pr.py NO_FS F 2be7d8fc308974a0b99b60a2d40f02b93c21be83ca1837d0a40c55974c893d29
         check-todo-rotation-on-pr.py NO_FS F 8454ce779d770b219e95bb1048f2644333d35b11cd48b05490ec57b1fac8dad8
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
-        check-version-bump-on-pr.py NO_FS F a8598d3d9452c9e44b9c4d9f21ef2d3d9f8b81875429872d5823b9b76a9c7585
+        check-version-bump-on-pr.py NO_FS F 35a3896f610c90c1114d570720a0e152e57581ae2b67bda805ba14eda7866d5d
         ci-status.py NO_FS F 068ed02eb5f5a81572dce604a4cb1965582dbc178c7c9715be3d37dd8e01e54b
         ci-status.sh NO_FS F 8c66fb625693e9099b040855a90e25dac7f78960eeb2ad660ac513f513287094
         citation_publishers.py PASSIVE F 8c9729132cfaa4f2705c023b4501872905a44dd76b996be8ea8c78ae4188d3e8
@@ -26817,7 +28027,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 616ae8f4ea008cda21bcf2f663ed650f82f91b2467fddc75cc4a313ff61e32b1
-        lint_common.py PASSIVE F 18c95ce46eefe28807f67fe23ee657c1eaf222e9cd7f37879e893c05dea5abac
+        lint_common.py PASSIVE F 80a8bf7d929ea127ffea692a15bca20af636cdae6463c6f6833fbf8f5b7856a0
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -26825,7 +28035,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
-        preflight-version-date.py NO_FS F aa321341106d02ab1dda9790bf571e70f6e35f744b467d66dbf865dc5fbc2f00
+        preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
         preflight_language_runner.py CHILD F c7242875b76d4282326ba37e0f878cebfc2939aa2780657c56bb3ef007fa0644
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
@@ -42160,6 +43370,38 @@ class FloorMonotonicityDeltaTests(unittest.TestCase):
         self.assertFalse(m.find_violations(base, m._parse('{"2": 33, "4": 31, "TF": 3}')))  # increase
         self.assertFalse(m.find_violations(base, base))                                     # unchanged
 
+    def test_parse_decoder_limits_raise_floor_parse_error(self):
+        """3b577 round 4 (r3 review, claude F2): text the decoder cannot hold
+        raises not JSONDecodeError but RecursionError (nesting deeper than
+        its stack) or its superclass ValueError (an integer over the
+        4300-digit limit); _parse turns both into _FloorParseError naming
+        the source. A value nested shallowly enough to decode is still not
+        an integer, and its repr in that message is bounded (reprlib), so
+        composing the message cannot overflow the stack either: at the
+        deepest nesting the decoder accepts, a plain repr raised
+        RecursionError in a probe on Python 3.14. Round 7 (CI on 3.11):
+        that value is now 500 deep, not 5000. On 3.11 the C scanner's
+        recursion check for each '[' or '{' draws on the same
+        sys.getrecursionlimit() budget (1000 by default) as the Python
+        frames already on the stack, so 5000 raised RecursionError there.
+        500 stays well inside that budget (3.14 decodes it too) and still
+        makes an unbounded repr 1000 characters long, so the length bound
+        below fails without reprlib."""
+        m = self._mod()
+        for label, text, cls in (
+                ("nesting deeper than the decoder's stack", "[" * 200000, "RecursionError"),
+                ("an integer over the digit limit", '{"2": ' + "1" * 5000 + "}", "ValueError")):
+            with self.subTest(text=label):
+                with self.assertRaises(m._FloorParseError) as cm:
+                    m._parse(text, "src:floor.json")
+                self.assertIn(f"src:floor.json cannot be decoded as JSON ({cls}: ",
+                              str(cm.exception))
+        with self.assertRaises(m._FloorParseError) as cm:
+            m._parse('{"2": ' + "[" * 500 + "]" * 500 + "}", "src:floor.json")
+        self.assertIn("src:floor.json has a floor value that is not an integer",
+                      str(cm.exception))
+        self.assertLess(len(str(cm.exception)), 300)
+
     def test_toplevel_oserror_degrades_in_message_helper_refuses_in_strict(self):
         """3b530 round 5 (review F4a): _toplevel is a refusal-MESSAGE helper, so
         git itself failing to run (OSError, e.g. git vanishing mid-run) must
@@ -42203,8 +43445,13 @@ class FloorMonotonicityDeltaTests(unittest.TestCase):
                 m._toplevel_strict()
             with self.assertRaises(m._GitCallFailed):
                 m._git_show("origin/main", m.FLOOR_PATH)
+        # The merge base (3b577 round 3) is stubbed to the base and the
+        # net-empty range check (3b577 round 2) to a real change, so the
+        # decode failure surfaces at the base floor read.
         with mock.patch.object(m, "_ref_resolves", return_value=True), \
                 mock.patch.object(m, "_rev_parse", side_effect=["a" * 40, "b" * 40]), \
+                mock.patch.object(m, "_merge_base", return_value=("a" * 40,)), \
+                mock.patch.object(m, "_range_is_empty", return_value=False), \
                 mock.patch.object(m, "_path_at_sha", return_value=True), \
                 mock.patch.object(m.subprocess, "check_output", side_effect=err):
             buf = io.StringIO()
@@ -42214,7 +43461,9 @@ class FloorMonotonicityDeltaTests(unittest.TestCase):
         self.assertIn("D12 CANNOT-EVALUATE", buf.getvalue())
         # the read runs on the pinned base SHA, not the ref (3b540 round 5)
         self.assertIn(f"git show {'a' * 40}:{m.FLOOR_PATH}", buf.getvalue())
-        self.assertIn(f"reading the base floor base-ref:{m.FLOOR_PATH}", buf.getvalue())
+        # labelled with the merge base SHA it was read at (3b577 round 4)
+        self.assertIn(f"reading the merge-base floor {'a' * 40}:{m.FLOOR_PATH}",
+                      buf.getvalue())
         self.assertIn("can't decode", buf.getvalue())
 
     def test_path_at_sha_decides_presence_from_ls_tree_listing(self):
@@ -42265,6 +43514,120 @@ class FloorMonotonicityDeltaTests(unittest.TestCase):
         self.assertIn("D12 CANNOT-EVALUATE", buf.getvalue())
         self.assertIn("git rev-parse --verify base-ref", buf.getvalue())
         self.assertIn("can't decode", buf.getvalue())
+
+    def _git_output_faults(self, m, *malformed):
+        """``(label, mock.patch kwargs)`` for each way a text-decoding git
+        read can fail: a nonzero exit, git not running at all, output the
+        codec cannot decode, then each ``(label, output)`` in ``malformed``."""
+        faults = [
+            ("CalledProcessError",
+             {"side_effect": m.subprocess.CalledProcessError(128, ["git"])}),
+            ("OSError", {"side_effect": OSError("injected")}),
+            ("UnicodeDecodeError",
+             {"side_effect": UnicodeDecodeError("utf-8", b"\xff", 0, 1,
+                                                "invalid start byte")}),
+        ]
+        return faults + [(label, {"return_value": out}) for label, out in malformed]
+
+    def test_range_is_empty_failures_refuse(self):
+        """3b577 round 3 (r2 review, claude F5): the net-empty check's git
+        read fails closed on every branch -- a nonzero exit, git not
+        running (OSError), output the codec cannot decode, or output that is
+        not two tree names -- raising _GitCallFailed naming the call, and
+        main() refuses with exit 2, never a traceback. Mutation killed: the
+        r2 review's mutant E (the except clause narrowed to
+        CalledProcessError and the name-count check dropped), which exited 1
+        with a traceback for the OSError, decode and one-name faults."""
+        m = self._mod()
+        import io, contextlib
+        from unittest import mock
+        a, b = "a" * 40, "b" * 40
+        call = f"git rev-parse {a}^{{tree}} {b}^{{tree}}"
+        for label, kwargs in self._git_output_faults(
+                m, ("no names", ""), ("one name", "c" * 40 + "\n"),
+                ("three names", "c\nd\ne\n")):
+            with self.subTest(fault=label):
+                with mock.patch.object(m.subprocess, "check_output", **kwargs):
+                    with self.assertRaises(m._GitCallFailed) as cm:
+                        m._range_is_empty((a,), b)
+                self.assertIn(call, str(cm.exception))
+        # 3b577 round 4: with two merge bases (a criss-cross history) the
+        # range is empty only when the head's tree is BOTH bases' tree; a
+        # head whose tree is one base's still differs from the other.
+        c, t, u = "c" * 40, "1" * 40, "2" * 40
+        for label, out, empty in (
+                ("head tree equals both bases", f"{t}\n{t}\n{t}\n", True),
+                ("head tree equals the first base only", f"{t}\n{u}\n{t}\n", False),
+                ("head tree equals the second base only", f"{u}\n{t}\n{t}\n", False)):
+            with self.subTest(bases=label):
+                with mock.patch.object(m.subprocess, "check_output",
+                                       return_value=out) as run:
+                    self.assertIs(m._range_is_empty((a, c), b), empty)
+                self.assertEqual(run.call_args.args[0],
+                                 ["git", "rev-parse", f"{a}^{{tree}}", f"{c}^{{tree}}",
+                                  f"{b}^{{tree}}"])
+        with mock.patch.object(m.subprocess, "check_output", return_value=f"{t}\n{t}\n"):
+            with self.assertRaises(m._GitCallFailed) as cm:
+                m._range_is_empty((a, c), b)
+        self.assertIn("(printed 2 names, expected 3)", str(cm.exception))
+        with mock.patch.object(m, "_ref_resolves", return_value=True), \
+                mock.patch.object(m, "_rev_parse", side_effect=[a, b]), \
+                mock.patch.object(m, "_merge_base", return_value=(a,)), \
+                mock.patch.object(m.subprocess, "check_output",
+                                  return_value="c" * 40 + "\n"):
+            buf = io.StringIO()
+            with contextlib.redirect_stderr(buf):
+                rc = m.main(["x", "base-ref", "head-ref"])
+        self.assertEqual(rc, 2, buf.getvalue())
+        self.assertIn(f"D12 CANNOT-EVALUATE: {call} (printed 1 names, expected 2)",
+                      buf.getvalue())
+
+    def test_merge_base_failures_refuse(self):
+        """3b577 round 3: the merge-base read the comparison now depends on
+        fails closed the same way -- a nonzero exit (no common ancestor),
+        git not running, output the codec cannot decode, no name at all, or
+        (3b577 round 4, codex NOTE) any name that is not a full commit id --
+        raising _GitCallFailed naming the call, which main() refuses with
+        exit 2 naming the base and head, never a fallback to the base
+        itself and never a traceback. Since round 4 the call is
+        ``git merge-base --all``, and every full commit id it prints is
+        returned, so a criss-cross history's second merge base is not
+        dropped."""
+        m = self._mod()
+        import io, contextlib
+        from unittest import mock
+        a, b = "a" * 40, "b" * 40
+        call = f"git merge-base --all {a} {b}"
+        for label, kwargs in self._git_output_faults(
+                m, ("no names", ""), ("short names", "c\nd\n"),
+                ("one full id and one short name", "c" * 40 + "\nd\n"),
+                ("upper-case hex", "C" * 40 + "\n"),
+                ("41 digits", "c" * 41 + "\n")):
+            with self.subTest(fault=label):
+                with mock.patch.object(m.subprocess, "check_output", **kwargs):
+                    with self.assertRaises(m._GitCallFailed) as cm:
+                        m._merge_base(a, b)
+                self.assertIn(call, str(cm.exception))
+        for label, out, want in (
+                ("one SHA-1 id", "c" * 40 + "\n", ("c" * 40,)),
+                ("two SHA-1 ids", "c" * 40 + "\n" + "d" * 40 + "\n", ("c" * 40, "d" * 40)),
+                ("one SHA-256 id", "e" * 64 + "\n", ("e" * 64,))):
+            with self.subTest(output=label):
+                with mock.patch.object(m.subprocess, "check_output",
+                                       return_value=out) as run:
+                    self.assertEqual(m._merge_base(a, b), want)
+                self.assertEqual(run.call_args.args[0], ["git", "merge-base", "--all", a, b])
+        with mock.patch.object(m, "_ref_resolves", return_value=True), \
+                mock.patch.object(m, "_rev_parse", side_effect=[a, b]), \
+                mock.patch.object(m.subprocess, "check_output",
+                                  side_effect=OSError("injected")):
+            buf = io.StringIO()
+            with contextlib.redirect_stderr(buf):
+                rc = m.main(["x", "base-ref", "head-ref"])
+        self.assertEqual(rc, 2, buf.getvalue())
+        self.assertIn(f"D12 CANNOT-EVALUATE: {call} (injected) failed", buf.getvalue())
+        self.assertIn("base base-ref and head head-ref have no merge base",
+                      buf.getvalue())
 
 
 class TodoNumberPermanenceTests(LinterTestCase):
@@ -44499,7 +45862,8 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
                         stack.enter_context(self.patch.object(
                             m, "bump_commit_date_utc", return_value=datetime.date(2026, 1, 2)))
                     else:
-                        stack.enter_context(self.patch.object(m, "git_show", show))
+                        # D2 reads via git_show_strict (3b577 round 5), not git_show.
+                        stack.enter_context(self.patch.object(m, "git_show_strict", show))
                     stack.enter_context(redirect_stdout(io.StringIO()))
                     stack.enter_context(redirect_stderr(io.StringIO()))
                     self.assertEqual(m.main(["probe", "base", "head"]), expected)
@@ -47319,8 +48683,8 @@ def _rewrite_slot_share_fixture(test, source, path):
 
 
 class HookDescendantIsolationTests(unittest.TestCase):
-    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 1, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 17, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 4}
-    NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-c', 'core.warnAmbiguousRefs=false', '-c', 'trace2.normalTarget=', '-c', 'trace2.perfTarget=', '-c', 'trace2.eventTarget=', '-C', str(REPO), *args]", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', 'init', '-q', str(repo)]", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
+    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 1, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 17, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 6}
+    NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-c', 'core.warnAmbiguousRefs=false', '-c', 'trace2.normalTarget=', '-c', 'trace2.perfTarget=', '-c', 'trace2.eventTarget=', '-C', str(REPO), *args]", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', 'init', '-q', str(repo)]", "['git', 'ls-tree', '-z', '--full-tree', rev, '--', f':(literal){path}']", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
     PYTHON_TARGETS = {'block-idle-stop-with-actionable-backlog.py': {'str(script)'}, 'block-unbumped-version-commit.py': {"str(d5 / '.claude' / 'hooks' / 'hook.py')"}, 'clock-inject.py': {'code'}, 'future-stamp-write.py': {'code'}, 'stamp-truth-stop.py': {'code'}, 'nmw-actionable': {'TOOL'}, 'stop-guard-unattended.py': {'exe', 'hook', 'code', "os.path.join(r, '.claude', 'hooks', os.path.basename(__file__))"}}
 
     def test_every_python_descendant_is_isolated(self):

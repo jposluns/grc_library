@@ -1987,6 +1987,61 @@ def git_show(ref: str, path: str) -> str | None:
         return None
 
 
+# git ls-tree accepts only the top and literal pathspec magic, so an inherited
+# GIT_GLOB_PATHSPECS or GIT_ICASE_PATHSPECS makes it exit 128, and
+# GIT_LITERAL_PATHSPECS or GIT_NOGLOB_PATHSPECS would read the :(literal)
+# prefix git_tree_entry adds as part of the name; it runs without all four.
+_TREE_ENTRY_DROPPED_ENV = (
+    "GIT_GLOB_PATHSPECS", "GIT_ICASE_PATHSPECS", "GIT_LITERAL_PATHSPECS", "GIT_NOGLOB_PATHSPECS",
+)
+
+
+def git_tree_entry(rev: str, path: str) -> tuple[str, str] | None:
+    """``(type, object id)`` of the entry the tree of ``rev`` lists at
+    ``path``, or ``None`` when it lists none: git's own answer that the path
+    does not exist at that revision (``git ls-tree`` exits 0 and prints
+    nothing). --full-tree reads ``path`` from the repository top level, as
+    ``rev:path`` does, and the :(literal) prefix keeps a name that begins
+    with pathspec magic literal. Any other outcome is a failure, not that
+    answer, and raises for the caller to refuse on (3b577 round 5): a
+    nonzero exit (``rev`` or a tree on the path unreadable) as
+    CalledProcessError, git not running at all as OSError, and a listing
+    that is not an ls-tree entry as ValueError."""
+    env = {k: v for k, v in os.environ.items() if k not in _TREE_ENTRY_DROPPED_ENV}
+    listing = subprocess.check_output(
+        ["git", "ls-tree", "-z", "--full-tree", rev, "--", f":(literal){path}"],
+        stderr=subprocess.DEVNULL, env=env,
+    )
+    if not listing:
+        return None
+    fields = listing.split(b"\t", 1)[0].split()
+    if len(fields) != 3:
+        raise ValueError(f"git ls-tree {rev} -- {path} printed {listing[:80]!r}, not an entry")
+    return fields[1].decode("ascii", "replace"), fields[2].decode("ascii", "replace")
+
+
+def git_show_strict(ref: str, path: str) -> str | None:
+    """File content at ``ref:path``, or ``None`` only when git_tree_entry
+    finds no entry there (the path does not exist at that revision) or an
+    entry that is not a blob (a gitlink or a tree), which holds no file
+    content: ``git show`` exits 128 on a gitlink whose commit the repository
+    does not hold and prints a held commit's log or a tree's listing, so
+    neither is read (3b577 round 6), as D4's blob_at reads them. Unlike
+    git_show, which reads every nonzero exit as an absent file, a failure is
+    never read as absence (3b577 round 5): the listing's own failures, and a
+    listed blob whose ``git show`` read exits nonzero, raise
+    CalledProcessError; git not running at all raises OSError, and content
+    the locale codec cannot decode UnicodeDecodeError."""
+    entry = git_tree_entry(ref, path)
+    if entry is None or entry[0] != "blob":
+        return None
+    return subprocess.check_output(
+        ["git", "show", f"{ref}:{path}"],
+        text=True,
+        stderr=subprocess.DEVNULL,
+    )
+
+
 class PrRangeError(Exception):
     """A PR base/head range could not be resolved.
 
@@ -2000,7 +2055,7 @@ def pr_range_resolution(head: str) -> tuple[str, str]:
     """``(head commit SHA, repository top-level)`` the range resolves to, in
     the repository git selects from the current directory. A ref that no
     longer resolves is echoed back verbatim and a missing work tree is
-    reported as such, so a refusal message can always be composed. The top
+    reported as such, so a refusal message can still be composed. The top
     level is diagnostic only: git failing to run at all (OSError) or printing
     a top level the locale codec cannot decode (UnicodeDecodeError, a path
     that is not valid UTF-8) degrades it the same way, as D12's _toplevel
@@ -2008,12 +2063,28 @@ def pr_range_resolution(head: str) -> tuple[str, str]:
     gate's real verdict instead of escaping as a traceback (3b540 round 8).
     The head SHA is not: resolve_pr_range compares it with the merge base to
     detect a collapsed range, so its read degrades on a CalledProcessError
-    only, and an OSError there propagates instead of letting the echoed ref
-    name read a collapsed range as a real one (3b540 round 9)."""
+    only. Any other failure there leaves the SHA unread, and the echoed ref
+    name would then read a collapsed range as a real one (3b540 round 9), so
+    such a failure -- git failing to run at all (OSError), say -- raises
+    PrRangeError instead, the refusal every resolve_pr_range caller already
+    catches (exit 2 in the strict gates, D15's fail-open NOTE): never a
+    fallback to the ref name and never a traceback (3b577).
+    empty_pr_range_message runs this a second time, outside that handler,
+    once the changed set is already empty; there the head SHA is diagnostic
+    only, so it catches the PrRangeError and degrades the SHA to a
+    placeholder instead (3b577 round 3)."""
     try:
         head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}")
     except subprocess.CalledProcessError:
         head_sha = head
+    except Exception as exc:  # noqa: BLE001 - any other failure leaves the head SHA unread
+        raise PrRangeError(
+            f"CANNOT-EVALUATE: git rev-parse --verify {head}^{{commit}} failed "
+            f"({exc.__class__.__name__}: {exc}); without the head SHA a "
+            f"collapsed range cannot be told from a real one, so nothing was "
+            f"evaluated. Fix the git installation or repository state and "
+            f"re-run."
+        ) from exc
     try:
         toplevel = git("rev-parse", "--show-toplevel")
     except (subprocess.CalledProcessError, OSError, UnicodeDecodeError):
@@ -2027,8 +2098,23 @@ def empty_pr_range_message(merge_base: str, head: str) -> str:
     a gate run against the wrong repository (a main clone whose HEAD is the
     branch point while the change lives in a worktree printed a false clean,
     orchestrator mistake 300), so the delta gates refuse it instead of
-    reporting a clean pass."""
-    head_sha, toplevel = pr_range_resolution(head)
+    reporting a clean pass.
+
+    The callers run this outside their resolve_pr_range handler, after the
+    range is already found empty, so the head SHA and top level here are
+    diagnostic only: a head-SHA read that fails this second time (the
+    PrRangeError pr_range_resolution raises) degrades to a placeholder, and
+    the top level degrades as pr_range_resolution's own read does, so the
+    refusal is still composed and never escapes as a traceback (3b577
+    round 3)."""
+    try:
+        head_sha, toplevel = pr_range_resolution(head)
+    except PrRangeError:
+        head_sha = "(head SHA unread)"
+        try:
+            toplevel = git("rev-parse", "--show-toplevel")
+        except (subprocess.CalledProcessError, OSError, UnicodeDecodeError):
+            toplevel = "(no work tree)"
     return (
         f"CANNOT-EVALUATE: refs were named but no files changed in the range "
         f"(repo={toplevel} base={merge_base} head={head} -> {head_sha}); "
@@ -2043,10 +2129,21 @@ def resolve_pr_range(base: str | None, head: str = "HEAD") -> tuple[str, str]:
     ``base`` is the check's optional positional base ref; when empty it
     falls back to ``origin/$GITHUB_BASE_REF`` (the GitHub Actions PR base).
     Raises :class:`PrRangeError` when neither is available, when
-    ``git merge-base`` fails (typically a shallow checkout in CI), or when
+    ``git merge-base`` fails (typically a shallow checkout in CI), cannot
+    run at all (OSError) or prints a merge base the locale codec cannot
+    decode (UnicodeDecodeError; 3b577 round 4), when base and head have
+    more than one merge base, or when
     base and head resolve to the same commit: a collapsed range evaluates
     nothing, and the main-clone-vs-worktree misrun it signals must surface
     as a refusal, never as a clean pass (orchestrator mistake 300).
+
+    A criss-cross history gives base and head more than one merge base, and
+    ``git merge-base`` without --all prints only one of them, so a gate
+    diffing against that one alone judges a change the others would show
+    differently. Every caller diffs against a single merge base, so the
+    merge bases are read with --all and more than one refuses (3b577 round
+    5), as does a run that prints none; D12, whose floor comparison can be
+    made against each merge base in turn, reads them itself.
     """
     if not base:
         github_base = os.environ.get("GITHUB_BASE_REF")
@@ -2059,12 +2156,38 @@ def resolve_pr_range(base: str | None, head: str = "HEAD") -> tuple[str, str]:
         base = f"origin/{github_base}"
 
     try:
-        merge_base = git("merge-base", base, head)
+        merge_bases = git("merge-base", "--all", base, head).split()
     except subprocess.CalledProcessError as exc:
         raise PrRangeError(
             f"ERROR: could not determine merge-base of {base}..{head}: {exc}. "
             f"In GitHub Actions, ensure that actions/checkout uses fetch-depth: 0."
         ) from exc
+    except (OSError, UnicodeDecodeError) as exc:
+        # git not running at all, or a merge base that cannot be decoded,
+        # leaves the range unresolved: the same refusal every caller already
+        # catches, never a traceback (3b577 round 4).
+        raise PrRangeError(
+            f"CANNOT-EVALUATE: git merge-base --all {base} {head} failed "
+            f"({exc.__class__.__name__}: {exc}); the range is undetermined, so "
+            f"nothing was evaluated. Fix the git installation or repository "
+            f"state and re-run."
+        ) from exc
+    if not merge_bases:
+        raise PrRangeError(
+            f"CANNOT-EVALUATE: git merge-base --all {base} {head} printed no "
+            f"merge base; the range is undetermined, so nothing was evaluated. "
+            f"Fix the git installation or repository state and re-run."
+        )
+    if len(merge_bases) > 1:
+        raise PrRangeError(
+            f"CANNOT-EVALUATE: {base} and {head} have {len(merge_bases)} merge "
+            f"bases ({', '.join(merge_bases)}), a criss-cross history; this "
+            f"gate diffs the head against one merge base, and any one of them "
+            f"alone can hide the change against another, so nothing was "
+            f"evaluated. Merge {base} into the branch (its tip is then the only "
+            f"merge base), or rebase the branch onto {base}, and re-run."
+        )
+    merge_base = merge_bases[0]
     head_sha, toplevel = pr_range_resolution(head)
     if merge_base == head_sha:
         raise PrRangeError(

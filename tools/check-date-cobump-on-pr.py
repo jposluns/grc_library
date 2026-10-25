@@ -92,7 +92,7 @@ import sys
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import git, head_version, parse_iso_date, parse_metadata_block  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import PrRangeError, empty_pr_range_message, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
+from lint_common import PrRangeError, empty_pr_range_message, git_tree_entry, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
 
 # B2: neutralise inherited pathspec-mode env vars so the :(top,literal) history pathspec below is
 # always honoured. GIT_LITERAL_PATHSPECS=1 would otherwise make :(top,literal) match literal
@@ -165,27 +165,42 @@ def promisor_remote_reason(_git=git):
     # extensions.partialClone (naming the promisor remote) is git's canonical partial-clone
     # marker, set at clone time; a repo can carry it while remote.*.promisor is unset, so check
     # it first (else that config escapes detection and the harmful false-OK survives).
+    # git not running at all (OSError) leaves the config unread, so each read declines with
+    # a reason then too, never a traceback (3b577 round 4). Exit 1 is git config's own
+    # "not set" answer; any other nonzero exit (128 for a config file git cannot parse, say)
+    # left the config unread, so it declines too rather than read as "not a partial clone"
+    # (3b577 round 5).
     try:
         ext = _git("config", "--get", "extensions.partialClone")
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as exc:
+        if exc.returncode != 1:
+            return (f"git config --get extensions.partialClone failed (exit {exc.returncode}); "
+                    f"cannot read partial-clone config reliably")
         ext = ""  # not set -> fall through to the remote.*.promisor check
     except UnicodeDecodeError:
         return "extensions.partialClone is non-UTF-8; cannot read partial-clone config reliably"
+    except OSError as exc:
+        return f"git config could not run ({exc}); cannot read partial-clone config reliably"
     if ext.strip():
         return "this is a partial clone (extensions.partialClone set); base objects may be unavailable without a fetch"
     try:
         promisors = _git("config", "--get-regexp", r"^remote\..*\.promisor$")
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as exc:
+        if exc.returncode != 1:
+            return (f"git config --get-regexp remote.*.promisor failed (exit {exc.returncode}); "
+                    f"cannot read partial-clone config reliably")
         return None  # no promisor remote -> not a partial clone
     except UnicodeDecodeError:
         return "a remote name is non-UTF-8; cannot read partial-clone config reliably"
+    except OSError as exc:
+        return f"git config could not run ({exc}); cannot read partial-clone config reliably"
     for line in promisors.splitlines():
         key = line.split(None, 1)[0] if line.strip() else ""
         if not key:
             continue
         try:
             norm = _git("config", "--type=bool", "--get", key)
-        except (subprocess.CalledProcessError, UnicodeDecodeError):
+        except (subprocess.CalledProcessError, UnicodeDecodeError, OSError):
             return "cannot normalise a partial-clone config value; declining"
         if norm.strip() == "true":
             return "this is a partial clone; base objects may be unavailable without a fetch"
@@ -197,49 +212,57 @@ def blob_at(ref: str, path: str) -> str | None:
     cat-file returns the raw stored bytes and ERRORS on a non-blob (a gitlink) instead of
     rendering the referenced commit and running textconv (diff) drivers, so it writes no
     objects, notes, or refs and reads exactly the bytes preflight-version-date.py reads
-    (read-path parity). Returns None if the path is absent at ``ref`` or is a non-blob; an
-    undecodable blob raises UnicodeDecodeError, which the caller turns into exit 2."""
-    try:
-        return subprocess.check_output(
-            ["git", "cat-file", "blob", f"{ref}:{path}"],
-            text=True,
-            encoding="utf-8",
-            stderr=subprocess.DEVNULL,
-        )
-    except subprocess.CalledProcessError:
+    (read-path parity). Returns None only when lint_common.git_tree_entry finds no entry at
+    ``ref:path`` (git's own answer that the path does not exist at that revision) or a
+    non-blob entry there (a gitlink or a tree, which cat-file blob cannot read). Any other
+    failure is never read as absence (3b577 round 5): a failed listing, or a listed blob
+    whose read exits nonzero, raises CalledProcessError; an undecodable blob raises
+    UnicodeDecodeError, and git not running at all raises OSError; the caller turns each
+    into exit 2 (3b577 round 4)."""
+    entry = git_tree_entry(ref, path)
+    if entry is None or entry[0] != "blob":
         return None
+    return subprocess.check_output(
+        ["git", "cat-file", "blob", f"{ref}:{path}"],
+        text=True,
+        encoding="utf-8",
+        stderr=subprocess.DEVNULL,
+    )
 
 
 def bump_commit_date_utc(merge_base: str, head: str, path: str) -> datetime.date | None:
     """Return the UTC committer date of the most-recent commit in the
     range ``merge_base..head`` that touched ``path``, or ``None`` if no
     such commit exists (defensive; the path is in the diff, so one
-    normally does)."""
-    try:
-        stamp = git(
-            "log",
-            "-1",
-            # --no-show-signature: an inherited log.showSignature=true would prepend signature
-            # verification text before %cI and break the date parse (silently skipping the check).
-            "--no-show-signature",
-            # --encoding=UTF-8: force UTF-8 %cI output regardless of an inherited
-            # i18n.logOutputEncoding (e.g. UTF-16LE would embed NULs and break the date parse).
-            "--encoding=UTF-8",
-            "--format=%cI",
-            f"{merge_base}..{head}",
-            "--",
-            # :(top,literal) forces the filename to be a literal repository-root path, so a name
-            # beginning with pathspec magic (e.g. ":(literal)x.md") is not reinterpreted as a pathspec.
-            f":(top,literal){path}",
-        )
-    except subprocess.CalledProcessError:
-        return None
+    normally does): git's own answer for that is an exit 0 with no output.
+    git not running at all (OSError) or output the locale codec cannot
+    decode (UnicodeDecodeError) is not that answer, so it propagates for
+    main() to refuse with exit 2 (3b577 round 4); so does a nonzero exit
+    (CalledProcessError) and a stamp that is not an ISO 8601 date
+    (ValueError), which read as that answer before and skipped the file
+    unchecked (3b577 round 5)."""
+    stamp = git(
+        "log",
+        "-1",
+        # --no-show-signature: an inherited log.showSignature=true would prepend signature
+        # verification text before %cI and break the date parse (silently skipping the check).
+        "--no-show-signature",
+        # --encoding=UTF-8: force UTF-8 %cI output regardless of an inherited
+        # i18n.logOutputEncoding (e.g. UTF-16LE would embed NULs and break the date parse).
+        "--encoding=UTF-8",
+        "--format=%cI",
+        f"{merge_base}..{head}",
+        "--",
+        # :(top,literal) forces the filename to be a literal repository-root path, so a name
+        # beginning with pathspec magic (e.g. ":(literal)x.md") is not reinterpreted as a pathspec.
+        f":(top,literal){path}",
+    )
     if not stamp:
         return None
     try:
         dt = datetime.datetime.fromisoformat(stamp)
-    except ValueError:
-        return None
+    except ValueError as exc:
+        raise ValueError(f"git log printed {stamp[:80]!r}, not an ISO 8601 committer date") from exc
     return dt.astimezone(datetime.timezone.utc).date()
 
 
@@ -302,7 +325,7 @@ def main(argv: list[str]) -> int:
         # --no-renames: match the aid; rename detection would otherwise expose only a renamed
         # destination and hide an undecodable (non-UTF-8) source name from the scope-error guard.
         changed_raw = git("diff", "--name-only", "-z", "--no-relative", "--no-renames", merge_base, head)
-    except subprocess.CalledProcessError as exc:
+    except (subprocess.CalledProcessError, OSError) as exc:
         print(f"ERROR: git diff failed: {exc}", file=sys.stderr)
         return 2
     except UnicodeDecodeError as exc:
@@ -328,6 +351,11 @@ def main(argv: list[str]) -> int:
             head_content = blob_at(head, path)
         except UnicodeDecodeError as exc:
             print(f"ERROR: a tracked blob is not valid UTF-8; cannot inspect ({exc})", file=sys.stderr)
+            return 2
+        except (subprocess.CalledProcessError, OSError, ValueError) as exc:
+            # The path's tree entry or blob could not be read: never read as an absent
+            # (added or deleted) file, which would skip it unchecked (3b577 round 5).
+            print(f"ERROR: git cat-file failed for {path}: {exc}", file=sys.stderr)
             return 2
         # File added (no base) or deleted (no head) in the PR: not a bump event.
         if base_content is None or head_content is None:
@@ -362,7 +390,11 @@ def main(argv: list[str]) -> int:
                 )
             )
             continue
-        commit_date = bump_commit_date_utc(merge_base, head, path)
+        try:
+            commit_date = bump_commit_date_utc(merge_base, head, path)
+        except (subprocess.CalledProcessError, OSError, ValueError) as exc:
+            print(f"ERROR: git log failed for {path}: {exc}", file=sys.stderr)
+            return 2
         if commit_date is None:
             # Defensive: the file is in the diff but no range commit touched
             # it (e.g. a merge artefact). Nothing reliable to compare against.

@@ -39,11 +39,13 @@ Scope boundaries (D4 remains the post-commit authority):
   aid and D4 share that helper and behave identically; a CR/LF in a filename is pathological input the
   corpus never produces, and D4 remains the post-commit authority.
 - GITLINK CONVERSION: if a versioned ``.md`` is converted to a git submodule (gitlink) in the
-  staged change, both the aid and D4 read via ``git cat-file blob``, which errors on the non-blob
-  entry, so both skip it (converged). A documentation file becoming a submodule never occurs in
-  the corpus.
+  staged change, both the aid and D4 skip it (converged): D4 reads the entry type with
+  ``git ls-tree`` first and reads a non-blob entry as absent without reading it (3b577 round 5),
+  and the aid's ``git cat-file blob`` errors on the non-blob entry, which it reads as absent. A
+  documentation file becoming a submodule never occurs in the corpus.
 - INVALID GIT CONFIG: under an INVALID git configuration value (e.g. ``log.showSignature=<not-a-bool>``)
-  git commands fail and D4 can treat the failure as absent content. Predicting D4 exactly under a broken
+  git commands fail; D4 refuses such a failed read (exit 2) rather than treating it as absent content
+  (3b577 round 5), while this aid's own blob reads still skip it. Predicting D4 exactly under a broken
   git configuration is outside the aid's contract; the misconfiguration is the operator's to fix.
 - PARTIAL CLONE: in a partial clone (a promisor remote) a base blob may be unavailable;
   reading it would be misread as absent and silently clear a stale bump. Both the aid and D4

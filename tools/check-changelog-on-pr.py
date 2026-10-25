@@ -93,9 +93,12 @@ def main(argv: list[str]) -> int:
         print(str(exc), file=sys.stderr)
         return 2
 
+    # Every git read below refuses with exit 2 on any failure -- a nonzero
+    # exit, git not running at all (OSError), or output the locale codec
+    # cannot decode (UnicodeDecodeError) -- never a traceback (3b577 round 4).
     try:
         changed_raw = git("diff", "--name-only", merge_base, head)
-    except subprocess.CalledProcessError as exc:
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
         print(f"ERROR: git diff failed: {exc}", file=sys.stderr)
         return 2
 
@@ -115,12 +118,16 @@ def main(argv: list[str]) -> int:
     # Root CHANGELOG.md not changed; check for an opt-out trailer before failing.
     try:
         commit_shas = git("log", "--format=%H", f"{merge_base}..{head}").splitlines()
-    except subprocess.CalledProcessError as exc:
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
         print(f"ERROR: git log failed: {exc}", file=sys.stderr)
         return 2
 
     for sha in commit_shas:
-        body = git("log", "-1", "--format=%B", sha)
+        try:
+            body = git("log", "-1", "--format=%B", sha)
+        except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
+            print(f"ERROR: git log failed: {exc}", file=sys.stderr)
+            return 2
         match = TRAILER_PATTERN.search(body)
         if match:
             reason = match.group(1)
