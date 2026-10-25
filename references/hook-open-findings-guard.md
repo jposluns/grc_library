@@ -128,19 +128,35 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   records (mistakes register 312). The tool prints one `delivery-findings:` line beside the class
   count: the totals of the delivery's last `FINDINGS:` line and the number of ledger rows whose Source
   cell starts with the delivery's own review key, `<family> <item> /validate-pr round <n> @ <sha>`,
-  with a warning when there are fewer rows than findings. The family comes from the delivery's
+  with a warning when there are fewer rows than findings. A row counts only when the key in its Source
+  cell is not followed by an ASCII letter or digit, `_` or `-`. The family comes from the delivery's
   `WORKER_STATUS` first line, and the item and sha from its `VPR-COMPLETE` line. The round is often
-  absent: it comes only from a `# /validate-pr round <n>` heading naming the item that is the
-  delivery's first heading, and neither sample delivery staged for 3b544 carries one, so such a
-  delivery prints `UNVERIFIABLE (no-round-heading)`. The orchestrator should pass `--source-key` when
-  it knows the round. `--source-key` gives the whole key; a part the delivery carries must agree with
-  it. Without that, a missing, unreadable or conflicting part prints `UNVERIFIABLE` with a code
-  instead of a count, never a broader count or a zero. Rows of another family, round or sha are not
-  counted, with one stated residue: a round heading after another heading is a quote and gives no
-  round, but a delivery whose first heading quotes another round's heading for the same item at
-  column 0 still takes that round's key, even when its own headings follow the quote (only an
-  unfenced ATX heading before the quote stops it; a setext, HTML, block-quoted or list-item heading
-  does not). With `--source-key` that case prints `UNVERIFIABLE (source-key-disagrees)` instead.
+  absent: it comes only from a `# /validate-pr round <n> (REFUTE...): <item>, ...` heading whose item
+  field is the item and that is the delivery's first heading, and neither sample delivery staged for
+  3b544 carries one, so such a delivery prints `UNVERIFIABLE (no-round-heading)`. The round number
+  `<n>` is a positive integer in ASCII digits with no leading zero, so a heading with `round 0` or
+  `round 03` is not a round heading. A heading's item field is read exactly so (3b578): after the
+  round number, one or more spaces or tabs, then `(REFUTE` in uppercase, closed by its first `)`,
+  which a `:` must follow; then the text up to the first comma or the line end, spaces and tabs
+  stripped, which must be one item token (ASCII letters, digits, `.`, `_` or `-`, starting and ending
+  with a letter or digit, as in `VPR-COMPLETE`). A heading whose item field is another item names no
+  item, even when it mentions the item later. A heading with no item
+  field (for example `(refute)`, text before `(REFUTE`, a `)` inside its parentheses, no colon after
+  them, or a field that is empty, backticked, or holds a space or a no-break space) gives no round,
+  but it names the item when it holds it as a whole token (not next to an ASCII letter or digit, `_` or `-`),
+  so it still counts toward `round-heading-ambiguous` below (3b578 r2). The orchestrator should pass
+  `--source-key` when it knows the round. `--source-key` gives the whole key; a part the delivery
+  carries must agree with it. Without that, a missing, unreadable or conflicting part prints
+  `UNVERIFIABLE` with a code instead of a count, never a broader count or a zero. Rows of another
+  family, round or sha are not counted, with one stated residue: a round heading after another heading
+  is a quote and gives no round, but a delivery whose first heading quotes another round's heading for
+  the same item at column 0 still takes that round's key, even when its own headings follow the quote
+  (only an unfenced ATX heading before the quote stops it; a setext, HTML, block-quoted or list-item
+  heading does not). With `--source-key` that case prints `UNVERIFIABLE (source-key-disagrees)`
+  instead. The item field narrows two checks (3b578): a heading whose item field is another item never
+  counts toward `round-heading-ambiguous`, even when it mentions the item later, and a heading with no
+  item field gives no round, so with `--source-key` it cannot disagree with the key's round and only
+  counts toward `round-heading-ambiguous`.
   A delivery that cannot be read (missing, unreadable, not a regular file or not UTF-8), that has no
   column-0 `FINDINGS:` line outside fences, or whose last such line does not parse prints
   `delivery-findings: UNVERIFIABLE (<code>)` and compares nothing, whatever its other parts and
