@@ -75,9 +75,15 @@ broader count; a part carried in a form that does not parse is UNVERIFIABLE eith
 headings naming the item state two rounds). A delivery with no `WORKER_STATUS` first line has no
 family; a `WORKER_STATUS` first line without exactly one valid `family=` value (none, two, or an
 empty one) is a part that does not parse, and so is one whose envelope,
-`WORKER_STATUS: <STATUS> (...)`, does not parse (no parentheses, or a status not in uppercase
-letters), even with one valid `family=` value. A byte-order mark before `WORKER_STATUS` makes the
-first line not a `WORKER_STATUS` first line, so such a delivery has no family. FINDINGS,
+`WORKER_STATUS: <STATUS> (...)`, does not parse, even with one valid `family=` value: for example
+one with no parentheses, or one whose status is not one or more ASCII uppercase letters (A to Z),
+such as an empty status or one holding a digit, `_`, or a letter outside A to Z (lowercase,
+accented or full-width). A `WORKER_STATUS` first line is a first line that starts with
+`WORKER_STATUS:` at column 0, case and colon exact: an indented first line, a lowercase one
+(`worker_status:`), and one with no colon or a space before the colon (`WORKER_STATUS PASS`,
+`WORKER_STATUS : PASS`) are not `WORKER_STATUS` first lines, whatever follows, so such a delivery
+has no family. A byte-order mark before `WORKER_STATUS` makes the first line not a `WORKER_STATUS`
+first line, so such a delivery has no family. FINDINGS,
 VPR-COMPLETE and heading lines count at column 0 outside code fences: the hook's fence predicates,
 except that a backtick run whose remaining text holds a backtick opens no fence (CommonMark reads it
 as inline code); delivery lines end at LF only, a CR before it dropped, so a lone CR or U+2028
