@@ -1,8 +1,8 @@
 # Rule provenance register: the origin of each governance rule
 
 **Document Type:** Provenance register\
-**Version:** 1.2.7\
-**Date:** 2026-10-03\
+**Version:** 1.2.8\
+**Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`guardrails/rule-provenance.md`](rule-provenance.md)\
 **License:** CC BY-SA 4.0
@@ -812,7 +812,7 @@ Maintainer D3 (2026-10-02): no procedure retires. These are principle mappings w
 | `gate-discipline` | `10-INTEG-gate-discipline`; `10-INTEG-validation-gates-apply`; `10-INTEG-check-fails-closed-on-unreadable`; `10-INTEG-rerun-pass-is-still-failure` | GRC’s **no exception register: fix or descope** policy, diagnose workflow, and applicable tool examples. AIQT’s recorded reduction authorization is not a new local bypass. |
 | `high-assurance-verification` | `10-QUALI-high-assurance-verification`; `10-QUALI-verifier-diversity`; `10-ACCUR-evidence-grounded-completion` | Three-condition sensitive-change trigger; complete five-stage harness; negative-signal screening; independent false-positive/false-negative lenses; guard-first sequencing; dry-run/idempotent scripted apply and re-parse; persistent resume-visible register. |
 | `project-integrity` | `00-project-integrity`; `10-ACCUR-no-fabrication`; `10-INTEG-no-concealed-failure`; `10-INTEG-gate-discipline`; `10-QUALI-defence-in-depth-default` | Checkpoint emission at task/plan, persistence, completion and tradeoff boundaries; minimum per-PR cadence and concrete self-acknowledgement. |
-| `session-lifecycle` | `10-TRUST-session-resume-from-handoff`; `10-TRUST-reconcile-record-against-reality`; `10-TRUST-continue-by-default`; `10-TRUST-session-close-on-green`; `10-TRUST-concurrency-lease`; `10-TRUST-human-oversight-and-autonomy-threshold` | Operating-mode meanings and authorized transitions; timeout handling; handoff fields/retention; closing-QA compensating control; stalled-QA reissue and late-result consumption; lease lifecycle; bounded prequeue at closing merge SHA. **Superseded:** old fresh-session/session-depth wind-down permission, already overridden locally. |
+| `session-lifecycle` | `10-TRUST-session-resume-from-handoff`; `10-TRUST-reconcile-record-against-reality`; `10-TRUST-continue-by-default`; `10-TRUST-session-close-on-green`; `10-TRUST-concurrency-lease`; `10-TRUST-human-oversight-and-autonomy-threshold` | Operating-mode meanings and authorized transitions; timeout handling; handoff fields/retention; closing-QA compensating control; stalled-QA reissue and late-result consumption; lease lifecycle. **Superseded:** old fresh-session/session-depth wind-down permission, already overridden locally; the bounded prequeue at the closing merge SHA, which CLAUDE.md's wind-down pre-queue section replaces with queue-nothing cross-session (compatibility item 13). |
 | `surface-counterproductive-instructions` | `10-QUALI-surface-counterproductive-instructions`; `10-TRUST-clarify-before-acting` | Charitable interpretation; materiality threshold; surface once, respect informed authorized override, avoid repeated/trivial asks. |
 | `trust-recovery-escalation` | `10-TRUST-trust-recovery-escalation`; `10-TRUST-trust-recovery-ext` | Maintainer invocation; forensic-then-persona suite; full-clone check; verify/dedupe and severity-tier all findings; combined-set sign-off including zero findings; hold before remediation/lessons/substantive work. |
 | `validate-inference-before-action` | `10-ACCUR-validate-inference-before-action`; `10-ACCUR-guard-input-soundness`; `10-ACCUR-disclose-guard-residuals`; `20-PROGR-repeated-failure-triggers-premise-review`; `10-INTEG-explicit-binding-over-ambient-context`; `10-QUALI-absolute-paths` | Observer reality fixtures and observation/decision separation; mutation-harness positive/negative controls, semantic-effect screening and baseline proof; exact two-failure diagnosis protocol. |
