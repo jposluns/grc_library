@@ -486,6 +486,198 @@ class ErroringClassTests(unittest.TestCase):
         self.fail("must not start")
 """
 
+# One case OBJECT in two handed modules' suites (3b525 round-11 review,
+# codex E1): each module's occurrence starts, so each module is credited
+# for its own occurrence (crediting by case object credited only the
+# last module that loaded it, refusing the first).
+HELPER_SHARED_CASE = """\
+import unittest
+
+
+class SharedCaseTests(unittest.TestCase):
+    def test_shared(self):
+        self.assertTrue(True)
+
+
+SHARED = SharedCaseTests("test_shared")
+"""
+
+SHARED_CASE_MODULE = """\
+import unittest
+
+from tests.helper_sharedcase import SHARED
+
+
+def load_tests(loader, tests, pattern):
+    return unittest.TestSuite([SHARED])
+"""
+
+# One case object in two handed modules' suites whose class's setUpClass
+# skips on its second call (3b525 round-11 review, codex E2): the first
+# module's occurrence starts, the second's never does. Crediting by case
+# object gave the first module's start to the second module, and a
+# helper test that a setUpModule skip keeps from starting (counted by
+# no holder) offset the per-class notStarted overcount, so that run
+# reconciled and passed.
+HELPER_SHARED_ONCE = """\
+import unittest
+
+
+class SharedOnceTests(unittest.TestCase):
+    setups = 0
+
+    @classmethod
+    def setUpClass(cls):
+        cls.setups += 1
+        if cls.setups > 1:
+            raise unittest.SkipTest("second set-up skipped")
+
+    def test_shared(self):
+        self.assertTrue(True)
+
+
+SHARED = SharedOnceTests("test_shared")
+"""
+
+SHARED_ONCE_FIRST_MODULE = """\
+import unittest
+
+from tests.helper_moduleskip import HelperSkippedTests
+from tests.helper_sharedonce import SHARED
+
+
+class OwnTests(unittest.TestCase):
+    def test_own(self):
+        self.assertTrue(True)
+
+
+def load_tests(loader, tests, pattern):
+    return unittest.TestSuite([SHARED, OwnTests("test_own"),
+                               HelperSkippedTests("test_never_starts")])
+"""
+
+SHARED_ONCE_SECOND_MODULE = """\
+import unittest
+
+from tests.helper_sharedonce import SHARED
+
+
+def load_tests(loader, tests, pattern):
+    return unittest.TestSuite([SHARED])
+"""
+
+# A class whose setUpClass raises SkipTest, loaded twice in one module
+# around a running class (3b525 round-11 review, codex E3): setUpClass
+# runs, and skips, once per stretch, so counting the class's loaded
+# tests per skip record gave notStarted=4 for this three-case suite.
+SKIPPED_CLASS_LOADED_TWICE_MODULE = """\
+import unittest
+
+
+class SkippedClassTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        raise unittest.SkipTest("environment-dependent fixture missing")
+
+    def test_never_starts(self):
+        self.fail("must not start")
+
+
+class RunningTests(unittest.TestCase):
+    def test_runs(self):
+        self.assertTrue(True)
+
+
+def load_tests(loader, tests, pattern):
+    return unittest.TestSuite([SkippedClassTests("test_never_starts"),
+                               RunningTests("test_runs"),
+                               SkippedClassTests("test_never_starts")])
+"""
+
+# unittest reads the class skip flag from test.__class__, not type(test)
+# (3b525 round-11 review, claude N4). Here a __class__ property hides a
+# skip-decorated class behind a plain type: unittest skips the test,
+# so it is not a credited start.
+CLASS_PROPERTY_HIDES_SKIP_MODULE = """\
+import unittest
+
+
+@unittest.skip("whole class skipped by decorator")
+class HiddenSkippedTests(unittest.TestCase):
+    pass
+
+
+class DisguisedTests(unittest.TestCase):
+    @property
+    def __class__(self):
+        return HiddenSkippedTests
+
+    def test_never_runs(self):
+        self.fail("must not run")
+"""
+
+# The converse: the skip flag is on the type only, and __class__ names a
+# plain class, so unittest runs the test and it is a credited start.
+CLASS_PROPERTY_HIDES_PLAIN_MODULE = """\
+import unittest
+
+
+class PlainTests(unittest.TestCase):
+    pass
+
+
+@unittest.skip("flag on the type only; unittest reads __class__")
+class DecoratedTypeTests(unittest.TestCase):
+    @property
+    def __class__(self):
+        return PlainTests
+
+    def test_runs(self):
+        self.assertTrue(True)
+"""
+
+# A load_tests returning a bare BaseTestSuite (3b525 round-11 review,
+# claude W2): flatten must descend into any BaseTestSuite, not only
+# unittest.TestSuite, or the case inside is never matched to a start.
+BASE_TEST_SUITE_MODULE = """\
+import unittest
+
+
+class BaseSuiteTests(unittest.TestCase):
+    def test_runs(self):
+        self.assertTrue(True)
+
+
+def load_tests(loader, tests, pattern):
+    return unittest.suite.BaseTestSuite([BaseSuiteTests("test_runs")])
+"""
+
+# A test that starts many fresh case objects itself (3b525 round-11
+# review, claude W1). unittest frees a module's never-started cases
+# once their sub-suite has run, so a later fresh object can take a freed
+# case's id; looked up by id, such a start credited the module whose
+# only test a setUpModule SkipTest had stopped. The probes are kept
+# alive, so each takes a new address and the freed one is reached.
+DYNAMIC_START_MODULE = """\
+import unittest
+
+
+class DynamicStartTests(unittest.TestCase):
+    def run(self, result=None):
+        probe_class = type("Probe", (unittest.TestCase,),
+                           {"test_probe": lambda self: None})
+        probes = []
+        for _ in range(20000):
+            probe = probe_class("test_probe")
+            probes.append(probe)
+            result.startTest(probe)
+            result.stopTest(probe)
+        return super().run(result)
+
+    def test_runs(self):
+        self.assertTrue(True)
+"""
+
 # Passes plus one individually skipped test, for the output-shape pin.
 PASSING_WITH_SKIP_MODULE = """\
 import unittest
@@ -1176,6 +1368,111 @@ class RegressionGateCompletenessTests(unittest.TestCase):
             r"loaded 2 test cases, the driver's own load 1; ")
         self.assertNotIn("tests/test_zz_ok.py", err)
         self.assertNotIn("Ran ", err)
+        self.assertNotIn(_SENTINEL_PREFIX, err)
+
+    def test_main_credits_each_occurrence_of_a_shared_case(self) -> None:
+        """One case object in two modules' suites credits each module for
+        its own occurrence's start (3b525 round-11 review, codex E1:
+        crediting by case object refused the first module). Loaded
+        1 + 1 + 1; testsRun=3."""
+        code, _out, err = self._run_gate_with({
+            "helper_sharedcase.py": HELPER_SHARED_CASE,
+            "test_aa_first.py": SHARED_CASE_MODULE,
+            "test_ab_second.py": SHARED_CASE_MODULE,
+        })
+        self.assertEqual(code, 0, err)
+        self.assertNotIn("REFUSED", err)
+        self.assertIn("testsRun=3 notStarted=0", err)
+        self.assertIn(_SENTINEL_PREFIX, err)
+
+    def test_main_refuses_module_whose_shared_occurrence_never_starts(
+            self) -> None:
+        """A start of a shared case object in the first module's suite
+        does not credit the second module, whose own occurrence never
+        started (3b525 round-11 review, codex E2: that run passed). The
+        second module is refused by name; the first is not."""
+        code, _out, err = self._run_gate_with({
+            "helper_moduleskip.py": HELPER_MODULE_SKIP,
+            "helper_sharedonce.py": HELPER_SHARED_ONCE,
+            "test_aa_first.py": SHARED_ONCE_FIRST_MODULE,
+            "test_ab_second.py": SHARED_ONCE_SECOND_MODULE,
+        })
+        self.assertEqual(code, 2, err)
+        self.assertIn("OK (skipped=2)", err)
+        self.assertRegex(
+            err, r"(?m)^REFUSED: tests/test_ab_second\.py: 1 loaded, "
+            r"0 credited starts \(")
+        self.assertNotIn("tests/test_aa_first.py", err)
+        self.assertNotIn(_SENTINEL_PREFIX, err)
+
+    def test_main_counts_class_skip_per_occurrence(self) -> None:
+        """A setUpClass-skipped class loaded twice in one module, around
+        a running class, is set up (and skips) twice; notStarted counts
+        each never-started occurrence once (3b525 round-11 review, codex
+        E3: notStarted=4 for the three-case suite refused the run).
+        Loaded 3 + 1; testsRun=2, notStarted=2."""
+        code, _out, err = self._run_gate_with({
+            "test_aa_skiptwice.py": SKIPPED_CLASS_LOADED_TWICE_MODULE,
+        })
+        self.assertEqual(code, 0, err)
+        self.assertNotIn("REFUSED", err)
+        self.assertIn("OK (skipped=2)", err)
+        self.assertIn("testsRun=2 notStarted=2", err)
+
+    def test_main_reads_class_skip_flag_from_dunder_class(self) -> None:
+        """The class skip flag is read from test.__class__, as unittest
+        reads it (3b525 round-11 review, claude N4): a __class__
+        property hiding a skip-decorated class behind a plain type is
+        skipped by unittest and is not a credited start, and a skip flag
+        on the type alone, behind a __class__ naming a plain class, does
+        not stop unittest running the test, which is credited."""
+        with self.subTest(label="dunder_class_hides_skipped_class"):
+            code, _out, err = self._run_gate_with({
+                "test_aa_disguised.py": CLASS_PROPERTY_HIDES_SKIP_MODULE,
+            })
+            self.assertEqual(code, 2, err)
+            self.assertIn("OK (skipped=1)", err)
+            self.assertRegex(
+                err, r"(?m)^REFUSED: tests/test_aa_disguised\.py: 1 loaded, "
+                r"0 credited starts \(")
+            self.assertNotIn("tests/test_zz_ok.py", err)
+        with self.subTest(label="skip_flag_on_type_only"):
+            code, _out, err = self._run_gate_with({
+                "test_aa_typeflag.py": CLASS_PROPERTY_HIDES_PLAIN_MODULE,
+            })
+            self.assertEqual(code, 0, err)
+            self.assertNotIn("REFUSED", err)
+            self.assertIn("testsRun=2 notStarted=0", err)
+
+    def test_main_credits_case_inside_base_test_suite(self) -> None:
+        """A load_tests returning unittest.suite.BaseTestSuite([case]) is
+        credited: flatten descends into any BaseTestSuite (3b525
+        round-11 review, claude W2; with flatten limited to
+        unittest.TestSuite the case is never matched and the module is
+        refused)."""
+        code, _out, err = self._run_gate_with({
+            "test_aa_basesuite.py": BASE_TEST_SUITE_MODULE,
+        })
+        self.assertEqual(code, 0, err)
+        self.assertNotIn("REFUSED", err)
+        self.assertIn("testsRun=2 notStarted=0", err)
+
+    def test_driver_never_credits_a_freed_case_id(self) -> None:
+        """Every flattened case stays alive until the run ends, so a
+        fresh case object started later cannot take a freed case's id
+        and credit its module (3b525 round-11 review, claude W1). The
+        module whose only test a setUpModule SkipTest stopped is refused
+        by name, by the driver itself, before the parent's
+        reconciliation (which the probes' extra starts also fail)."""
+        code, _out, err = self._run_gate_with({
+            "test_ab_modskip.py": SKIPPING_MODULE_MODULE,
+            "test_ac_dynamic.py": DYNAMIC_START_MODULE,
+        })
+        self.assertEqual(code, 2, err)
+        self.assertRegex(
+            err, r"(?m)^REFUSED: tests/test_ab_modskip\.py: 1 loaded, "
+            r"0 credited starts \(")
+        self.assertNotIn("tests/test_ac_dynamic.py", err)
         self.assertNotIn(_SENTINEL_PREFIX, err)
 
     def _assert_refusal_names_no_cause(self, err: str) -> None:
