@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.2.18\
-**Date:** 2026-09-18\
+**Version:** 1.2.19\
+**Date:** 2026-10-26\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains privacy governance artefacts covering data protection policy, privacy impact assessment, cross-border transfer governance, privacy management programme accountability, and data subject rights. All content is released under CC BY-SA 4.0.
+This directory contains privacy governance artefacts covering data protection policy, privacy impact assessment, cross-border transfer governance, privacy management programme accountability, and data subject rights. All original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0.
 
 ---
 

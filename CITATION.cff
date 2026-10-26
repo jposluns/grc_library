@@ -12,13 +12,18 @@ abstract: >-
   Code baseline on any project regardless of whether it has a GRC
   corpus.
 message: >-
-  If you redistribute this library or derivative works, the CC BY-SA 4.0
-  licence requires you to attribute the library and to release your
-  derivative under CC BY-SA 4.0 as well. This CITATION file provides
-  the canonical citation metadata for attribution purposes. Adopters
-  using only the guardrails/ pack should still cite
+  The CC BY-SA 4.0 licence requires attribution of the library when
+  content is redistributed (in original or modified form). Its
+  "ShareAlike" condition requires an adopter who shares an adaptation
+  to license their own contributions to it under CC BY-SA 4.0, a later
+  CC BY-SA version, or a BY-SA-compatible licence. The library's own
+  text stays under CC BY-SA 4.0; quoted or vendored third-party
+  material keeps its own terms, as NOTICE.md records. This CITATION
+  file provides the canonical citation metadata for attribution
+  purposes. Adopters using only the guardrails/ pack should still cite
   the parent library, since the pack is a derivative artefact of the
-  library's maintenance experience and ships under the same licence.
+  library's maintenance experience and its GRC-original material ships
+  under the same licence.
 type: dataset
 authors:
   - family-names: "Posluns"

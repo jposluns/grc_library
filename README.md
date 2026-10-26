@@ -35,7 +35,7 @@ In modern programmes the boundaries between the three overlap with **security** 
 
 ## Purpose
 
-The Governance, Risk, and Compliance Documentation Library is a Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0; full licence text in [LICENSE](LICENSE)) reference set for building an organization-neutral governance, risk, compliance, security, privacy, resilience, supplier, and artificial intelligence governance programme.
+The Governance, Risk, and Compliance Documentation Library is an openly licensed reference set for building an organization-neutral governance, risk, compliance, security, privacy, resilience, supplier, and artificial intelligence governance programme. Its own text is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0; full licence text in [LICENSE](LICENSE)); vendored third-party material and quotations keep their own licences (see [`NOTICE.md`](NOTICE.md)).
 
 The library is designed to be adopted, adapted, or extended by any organization without retaining references to a specific company, individual, internal system, customer, vendor, geography, or operating environment.
 
@@ -56,9 +56,9 @@ The eight thematic areas above span 12 governance domain directories, and the li
 
 ## What this repository is
 
-This repository is, primarily, a **GRC documentation corpus**: organization-neutral, CC BY-SA 4.0 governance artefacts (charters, frameworks, policies, standards, procedures, registers, matrices, plans, guidelines, templates) across twelve governance domain directories. The corpus is the product an adopter takes away.
+This repository is, primarily, a **GRC documentation corpus**: organization-neutral governance artefacts (charters, frameworks, policies, standards, procedures, registers, matrices, plans, guidelines, templates) across twelve governance domain directories, whose own text is under CC BY-SA 4.0 while quotations keep their own licences (see [`NOTICE.md`](NOTICE.md)). The corpus is the product an adopter takes away.
 
-The corpus is maintained by a small team using Claude Code as an AI coding assistant, under documented governance and discipline. To keep the corpus internally consistent under that maintenance model, the project carries an audit toolchain ([`tools/`](tools/), the multi-gate audit programme under [`tools/run_all_audits.sh`](tools/run_all_audits.sh)) and a Claude Code rules-and-skills pack at [`guardrails/`](guardrails/). The audit toolchain is the maintainer's quality-assurance machinery, not an adopter dependency: adopters who only consume the corpus do not need it. Adopters who want the same maintenance discipline for their own fork can adopt the toolchain (it is permissively licensed and copy-paste portable), but doing so is optional. The pack distils the maintenance disciplines into reusable rules that ship under CC BY-SA 4.0 alongside the corpus: an adopter who is not building a GRC library can still take the pack for use on any project. The pack is a by-product of the corpus's maintenance, not a parallel deliverable.
+The corpus is maintained by a small team using Claude Code as an AI coding assistant, under documented governance and discipline. To keep the corpus internally consistent under that maintenance model, the project carries an audit toolchain ([`tools/`](tools/), the multi-gate audit programme under [`tools/run_all_audits.sh`](tools/run_all_audits.sh)) and a Claude Code rules-and-skills pack at [`guardrails/`](guardrails/). The audit toolchain is the maintainer's quality-assurance machinery, not an adopter dependency: adopters who only consume the corpus do not need it. Adopters who want the same maintenance discipline for their own fork can adopt the toolchain (it is permissively licensed and copy-paste portable), but doing so is optional. The pack distils the maintenance disciplines into reusable rules that ship alongside the corpus (GRC-original rules under CC BY-SA 4.0; the pinned AIQT snapshot separately Apache-2.0): an adopter who is not building a GRC library can still take the pack for use on any project. The pack is a by-product of the corpus's maintenance, not a parallel deliverable.
 
 The audit gates and the pack rules grew out of the corpus, not the other way around. Audit gates were added in response to specific drift modes observed in the corpus. Pack rules were extracted from real failure modes the maintainer encountered while keeping the corpus consistent (evidence-grounded completion came from a stale-claim incident; clarify-before-acting from "always confirm" feedback; action-before-explanation-of-inaction from a merge-blocked incident). The corpus is the headline; the maintenance discipline is the methodology that keeps the headline honest.
 
@@ -68,7 +68,7 @@ An adopter can engage with this repository at any of three levels:
 
 - **Fork the whole repo.** You want both the GRC corpus and the maintenance toolkit. Your organization forks, substitutes organization-specific values across the artefacts, and inherits the audit programme and the pack as the operational layer your AI coding assistant uses to keep the corpus consistent. See [`docs/adopter-guide.md`](docs/adopter-guide.md) for the full path.
 
-- **Adopt the corpus only.** You want the Markdown artefacts as a starting point and have your own maintenance workflow (or no AI assistance in the loop). Take the domain directories you need; ignore [`tools/`](tools/) and [`guardrails/`](guardrails/). The CC BY-SA 4.0 share-alike clause applies to derivatives you redistribute.
+- **Adopt the corpus only.** You want the Markdown artefacts as a starting point and have your own maintenance workflow (or no AI assistance in the loop). Take the domain directories you need; ignore [`tools/`](tools/) and [`guardrails/`](guardrails/). If you share an adaptation, the CC BY-SA 4.0 ShareAlike term requires you to license your own contributions to it under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence. The library's own text stays under CC BY-SA 4.0; quoted or vendored material keeps its own terms (see [`NOTICE.md`](NOTICE.md)).
 
 - **Adopt the pinned AIQT runtime and retained GRC procedures.** The exact snapshot and scope transformations are recorded in `vendor/aiqt/RULES.json`; read [`guardrails/README.md`](guardrails/README.md) for installation. The upstream snapshot is separately Apache-2.0 with its LICENSE and NOTICE retained; GRC-original compatibility and procedures remain CC BY-SA 4.0.
 
@@ -82,7 +82,7 @@ The third mode is an emergent use that has been adopted by developers in practic
 
 2. **Identify the documents relevant to your programme.** Begin with the Day-1 floor and the Tier 1 starter set (see [`docs/template-quickstart.md`](docs/template-quickstart.md) and [`docs/adopter-guide.md`](docs/adopter-guide.md)), then grow toward the Core reference set below and into domain-specific standards and procedures as the programme matures.
 
-3. **Copy and adapt.** GRC-original content is CC BY-SA 4.0; the pinned AIQT snapshot is separately Apache-2.0. Copy documents into your own repository (attributing the library per CC BY-SA 4.0) and substitute organization-specific values: role names, jurisdiction, sector, system names, risk appetite, and contact details. If you redistribute the resulting derivative, the CC BY-SA 4.0 "ShareAlike" condition requires you to release that derivative under CC BY-SA 4.0 as well.
+3. **Copy and adapt.** GRC-original content is CC BY-SA 4.0; the pinned AIQT snapshot is separately Apache-2.0. Copy documents into your own repository and substitute organization-specific values: role names, jurisdiction, sector, system names, risk appetite, and contact details. If you share the resulting adaptation, attribute the library and indicate your changes, and the CC BY-SA 4.0 "ShareAlike" condition requires you to license your own contributions to it under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence. The library's own text stays under CC BY-SA 4.0; quoted or vendored material keeps its own terms (see [`NOTICE.md`](NOTICE.md)).
 
 4. **Validate applicability.** Not every document applies to every organization. Validate that each document's scope, jurisdictional references, and control requirements match your operating environment, sector, and regulatory obligations before adoption.
 
@@ -92,7 +92,7 @@ The third mode is an emergent use that has been adopted by developers in practic
 
 ## Operating position
 
-This repository is intended to become an authoritative CC BY-SA 4.0 GRC library. Authoritative means that the repository maintains a coherent hierarchy, controlled document model, versioned artefacts, role-based accountability, traceable mappings, and clear boundaries between original library content and external reference materials.
+This repository is intended to become an authoritative, openly licensed GRC library, its own text under CC BY-SA 4.0. Authoritative means that the repository maintains a coherent hierarchy, controlled document model, versioned artefacts, role-based accountability, traceable mappings, and clear boundaries between original library content and external reference materials.
 
 This repository is not legal advice, audit certification, regulatory approval, or a substitute for organization-specific risk acceptance. Adopting organizations must validate applicability, control implementation, and evidence against their own jurisdiction, sector, contractual obligations, processing role, threat model, and risk appetite.
 
@@ -384,9 +384,9 @@ The developer security domain (`/dev-security/`) sets secure-development standar
 
 Contributions must satisfy the following conditions:
 
-1. Content must be original, CC BY-SA 4.0-licensable, and organization-neutral.
+1. Content must be original, CC BY-SA 4.0-licensable, and organization-neutral, apart from the short, attributed quotation in condition 3, which keeps its source licence and is not relicensed under CC BY-SA 4.0.
 2. Content must not include real company names, personal names, internal identifiers, customer details, vendor-specific implementation data, or proprietary evidence.
-3. Third-party materials may be used only for non-verbatim reference. The library does not copy external third-party content; it references and synthesizes.
+3. Third-party materials may be used only for non-verbatim reference, except the short, attributed quotation that [`NOTICE.md`](NOTICE.md) allows or its transition clause keeps. The library does not otherwise copy external third-party content; it references and synthesizes.
 4. Framework references must be accurate, version-aware, and scoped to the stated purpose.
 5. Regulatory content must separate obligation from interpretation and must identify where applicability depends on jurisdiction, sector, role, residency, or data category.
 6. Documents must maintain role-based ownership and approving authority.
@@ -404,11 +404,11 @@ AI, data security, privacy, and cloud assurance content should be reviewed on a 
 
 ## Licence and third-party reference boundary
 
-All original content committed to this repository is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0). Adopters who redistribute the content (in original or modified form) must attribute the library and must release their derivative under CC BY-SA 4.0 as well.
+All original content committed to this repository is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0). Adopters who redistribute the content (in original or modified form) must attribute the library. Adopters who share an adaptation must license their own contributions to it under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence. The library's own text stays under CC BY-SA 4.0; quoted or vendored third-party material keeps its own terms (see [`NOTICE.md`](NOTICE.md)).
 
-External standards, regulatory texts, control frameworks, questionnaires, implementation guides, audit guides, metrics catalogues, and similar materials remain subject to their own licence terms. This repository may use such materials only as reference inputs for independent synthesis, high-level alignment, terminology normalization, and non-verbatim mapping structures.
+External standards, regulatory texts, control frameworks, questionnaires, implementation guides, audit guides, metrics catalogues, and similar materials remain subject to their own licence terms. This repository may use such materials only as reference inputs for independent synthesis, high-level alignment, terminology normalization, and non-verbatim mapping structures, and may carry the short, attributed quotation that [`NOTICE.md`](NOTICE.md) allows or its transition clause keeps.
 
-Do not copy, redistribute, modify, or embed third-party copyrighted control text, questionnaire text, guidance text, tables, metrics catalogues, or implementation notes into this repository. The library's principle is that it does not copy external third-party content; it references external work by name and synthesizes original commentary. Where a contributor is uncertain whether material is original, the contributor must include only framework identifiers, domain names, high-level alignment notes, and original commentary, not the source text itself.
+Do not copy, redistribute, modify, or embed third-party copyrighted control text, questionnaire text, guidance text, tables, metrics catalogues, or implementation notes into this repository, beyond the short, attributed quotation that [`NOTICE.md`](NOTICE.md) allows or its transition clause keeps, and other than the vendored third-party material that [`NOTICE.md`](NOTICE.md) records as a separate carve-out under its own licence. The library's principle is that it does not copy external third-party content beyond such a quotation; it references external work by name and synthesizes original commentary. Where a contributor is uncertain whether material is original, the contributor must include only framework identifiers, domain names, high-level alignment notes, and original commentary, not the source text itself.
 
 See [`NOTICE.md`](NOTICE.md) for repository rules governing external reference materials.
 
@@ -418,7 +418,7 @@ See [`NOTICE.md`](NOTICE.md) for repository rules governing external reference m
 
 Originally created and maintained by **Jeffrey Posluns** ([@jposluns](https://github.com/jposluns), <jeff@posluns.ca>, [LinkedIn](https://linkedin.com/in/jposluns), [ORCID](https://orcid.org/0009-0000-7775-2233)).
 
-GRC-original material is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0); the pinned AIQT snapshot is separately Apache-2.0 with its upstream LICENSE and NOTICE retained. The CC licence requires attribution of the library when content is redistributed, and requires that derivatives be released under CC BY-SA 4.0 as well (the "ShareAlike" condition). For machine-readable citation metadata see [`CITATION.cff`](CITATION.cff); for full attribution context and acknowledgement of contributors see [`AUTHORS.md`](AUTHORS.md).
+GRC-original material is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0); the pinned AIQT snapshot is separately Apache-2.0 with its upstream LICENSE and NOTICE retained. The CC licence requires attribution of the library when content is redistributed. Its "ShareAlike" condition requires an adopter who shares an adaptation to license their own contributions to it under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence. The library's own text stays under CC BY-SA 4.0; quoted or vendored material keeps its own terms (see [`NOTICE.md`](NOTICE.md)). For machine-readable citation metadata see [`CITATION.cff`](CITATION.cff); for full attribution context and acknowledgement of contributors see [`AUTHORS.md`](AUTHORS.md).
 
 ---
 

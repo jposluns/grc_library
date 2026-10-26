@@ -2,8 +2,8 @@
 
 **Document Title:** Architecture Domain README\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-28\
+**Version:** 1.0.1\
+**Date:** 2026-10-26\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains the architecture governance artefacts for the library: the enterprise architecture framework, the architecture decision record standard, reference-architecture practice, technology selection practice, architecture review, API design, data architecture, and integration architecture. All content is released under CC BY-SA 4.0.
+This directory contains the architecture governance artefacts for the library: the enterprise architecture framework, the architecture decision record standard, reference-architecture practice, technology selection practice, architecture review, API design, data architecture, and integration architecture. Its original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0.
 
 The architecture domain complements (and does not duplicate) the security, dev-security, AI, operations, and risk domains. Security-, AI-, and operations-relevant architecture controls live in their primary domain; this domain governs the architecture practice itself.
 

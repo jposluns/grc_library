@@ -207,6 +207,14 @@ PAGES = [
     ("for-ai.html", "for-ai/index.html"),
 ]
 
+# The licence sentence closing every generated page description: CC BY-SA 4.0
+# covers the library's own text only, matching each document's License field,
+# and quoted third-party material keeps its own terms under NOTICE.md (3b550).
+LICENCE_SEO_SUFFIX = (
+    "Its own text is under CC BY-SA 4.0; quoted third-party material keeps "
+    "its own terms (see NOTICE.md)."
+)
+
 # AI and search crawlers explicitly welcomed in robots.txt (documenting intent;
 # a trailing wildcard group allows everyone, but naming the known AI/training
 # crawlers records that this openly-licensed corpus welcomes them and overrides
@@ -997,13 +1005,13 @@ def domain_page_values(dp, variant, generated_domains):
         "DOMAIN_TITLE": f"{_esc(name)} domain: GRC Library",
         "DOMAIN_SEO_DESC": _esc(
             f"{dp['scope']}. {dp['count']} governance documents in the {name} "
-            "domain of the open, CC BY-SA 4.0 GRC Library."
+            f"domain of the open GRC Library. {LICENCE_SEO_SUFFIX}"
         ),
         # Only v2 consumes this agreed description; keep the legacy token.
         "DOMAIN_SEO_DESC_AGREED": _esc(
             f"{dp['scope']}. {dp['count']} governance "
             f"{'document' if dp['count'] == 1 else 'documents'} in the {name} "
-            "domain of the open, CC BY-SA 4.0 GRC Library."
+            f"domain of the open GRC Library. {LICENCE_SEO_SUFFIX}"
         ),
         "DOMAIN_CANONICAL": _site_url_for(variant, f"{name}/index.html"),
     }
@@ -1055,14 +1063,14 @@ def type_page_values(tp, variant):
         "TYPE_DOC_ROWS": render_type_doc_rows(tp, variant),
         "TYPE_TITLE": f"{_esc(name)} documents: GRC Library",
         "TYPE_SEO_DESC": _esc(
-            f"{tp['scope']}. {tp['count']} {name}-type documents in the open, "
-            "CC BY-SA 4.0 GRC Library."
+            f"{tp['scope']}. {tp['count']} {name}-type documents in the open "
+            f"GRC Library. {LICENCE_SEO_SUFFIX}"
         ),
         # Only v2 consumes this agreed description; keep the legacy token.
         "TYPE_SEO_DESC_AGREED": _esc(
             f"{tp['scope']}. {tp['count']} {name}-type "
-            f"{'document' if tp['count'] == 1 else 'documents'} in the open, "
-            "CC BY-SA 4.0 GRC Library."
+            f"{'document' if tp['count'] == 1 else 'documents'} in the open "
+            f"GRC Library. {LICENCE_SEO_SUFFIX}"
         ),
         "TYPE_CANONICAL": _site_url_for(variant, f"types/{tp['slug']}/index.html"),
     }
@@ -2005,9 +2013,9 @@ def narrative_page_values(page, variant, out_rel, body_html, toc):
         "NARRATIVE_SOURCE_URL": _esc(narrative_source_blob_url(page)).replace("{", "&#123;"),
         "NARRATIVE_TITLE": f"{_esc(title)}: GRC Library",
         "NARRATIVE_SEO_DESC": _esc(
-            f"{page['narrative_type']}: {title}. A leadership page of the open, "
-            "CC BY-SA 4.0 GRC Library; every claim resolves to the governing "
-            "corpus documents."
+            f"{page['narrative_type']}: {title}. A leadership page of the open "
+            "GRC Library; every claim resolves to the governing corpus "
+            f"documents. {LICENCE_SEO_SUFFIX}"
         ),
         "NARRATIVE_CANONICAL": _site_url_for(variant, out_rel),
     }
@@ -2081,8 +2089,9 @@ def render_page(template_name, figures, variant, template_dir, partials, extra=N
 
 
 def render_robots_txt():
-    """robots.txt welcoming AI and search crawlers. This corpus is CC BY-SA 4.0
-    and intended to be widely read, cited, and learned from (including as AI
+    """robots.txt welcoming AI and search crawlers. This corpus's original
+    content is CC BY-SA 4.0 (quotations keep their own licences; see NOTICE.md)
+    and it is intended to be widely read, cited, and learned from (including as AI
     training data), so the file names the known AI/training crawlers explicitly
     with ``Allow: /`` and then allows everyone via a trailing wildcard group while disallowing the ``/v2``
     staging tree,
@@ -2090,7 +2099,9 @@ def render_robots_txt():
     platform-managed default that would restrict AI crawlers."""
     lines = [
         "# grclibrary.ai",
-        "# This is an open, CC BY-SA 4.0 governance, risk, and compliance corpus,",
+        "# This is an open governance, risk, and compliance corpus, its original",
+        "# content under CC BY-SA 4.0 (vendored third-party material and quotations",
+        "# keep their own licences; see NOTICE.md in the source repository),",
         "# intended to be widely read, cited, and learned from, including as",
         "# training data for AI systems. All crawlers are welcome on every public path (the /v2 staging tree is disallowed).",
         "",
@@ -2159,9 +2170,11 @@ def render_llms_txt(figures, variant):
     repo = "https://github.com/jposluns/grc_library"
     return f"""# GRC Library
 
-> An openly-licensed (CC BY-SA 4.0) corpus of organization-neutral governance,
+> An openly-licensed corpus of organization-neutral governance,
 > risk, and compliance documentation in Markdown, spanning {figures['domain_count']} domains including a
-> self-contained AI-governance sub-corpus. Descriptive reference material; not legal advice.
+> self-contained AI-governance sub-corpus. Its original content is under CC BY-SA 4.0;
+> vendored third-party material and quotations keep their own licences (see NOTICE.md).
+> Descriptive reference material; not legal advice.
 
 ## Core
 - [GitHub repository]({repo}): the raw Markdown corpus, the source material.
@@ -2193,23 +2206,29 @@ TEMPLATE_CORPUS_LINK_RE = re.compile(
 
 def render_static_template_links(variant):
     """Yield ``(target, location, link_text)`` for every corpus link hardcoded in
-    a static page template.
+    a static page template or a shared partial.
 
-    Only the templates in PAGES are scanned: `domain.html` and `type.html` render
-    from the taxonomy (already covered above) and the shared partials carry no
-    corpus links, so PAGES is the complete set of static-link sources for the indexable
-    root manifest. A staging variant's extra_pages templates carry their own hardcoded
+    The templates in PAGES and the shared PARTIALS are scanned: `domain.html` and
+    `type.html` render from the taxonomy (already covered above), and a partial
+    such as the footer, whose NOTICE.md link 3b550 added, is injected into every
+    page that carries its placeholder, so its links are recorded once, located at
+    the partial itself rather than repeated for each page. Together they are the
+    complete set of static-link sources for the indexable root manifest. A staging
+    variant's extra_pages templates carry their own hardcoded
     corpus links, intentionally excluded from the committed root manifest (verified at
     authoring time, folded in at promotion). The link
     text is the anchor's own text when it can be read, else the target's basename,
     since a template anchor's text is prose rather than a document title."""
     template_dir = template_dir_for(variant)
-    for template_name, out_rel in PAGES:
+    sources = [(template_name, _site_path_for(variant, out_rel))
+               for template_name, out_rel in PAGES]
+    sources += [(f"partials/{fname}", f"partial {fname}")
+                for fname in PARTIALS.values()]
+    for template_name, location in sources:
         path = template_dir / template_name
         if not path.is_file():
             continue
         text = path.read_text(encoding="utf-8")
-        location = _site_path_for(variant, out_rel)
         for match in TEMPLATE_CORPUS_LINK_RE.finditer(text):
             target = match.group(1)
             anchor = re.match(
@@ -2250,7 +2269,9 @@ def render_corpus_link_manifest(figures, variant):
         "Generated by `.web/build.py`; do not edit by hand. Every corpus/GitHub "
         "target the indexable root variant's pages link, with its website location and link text: the "
         "taxonomy-derived domain and type pages, the curated `llms.txt` map, and "
-        "the corpus links hardcoded in the static page templates. Gate 75 "
+        "the corpus links hardcoded in the static page templates and the shared "
+        "partials (a partial's link is located at the partial, which every page "
+        "that includes it carries). Gate 75 "
         "(`tools/lint-web-corpus-links.py`) resolves each target against the repo. "
         "Non-indexable staging variants (v2 and v3) may carry extra routes that "
         "link further corpus targets; those staging-only links are verified at "

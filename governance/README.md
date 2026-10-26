@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.10.18\
-**Date:** 2026-08-31\
+**Version:** 1.10.20\
+**Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains the enterprise-wide governance foundation of the GRC Documentation Library: the library charter, document architecture, cross-framework alignment, role authority, terminology, metrics, and the overarching policies for governance, risk, and exception management. All artefacts are released under CC BY-SA 4.0.
+This directory contains the enterprise-wide governance foundation of the GRC Documentation Library: the library charter, document architecture, cross-framework alignment, role authority, terminology, metrics, and the overarching policies for governance, risk, and exception management. Its original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0.
 
 ---
 
@@ -82,7 +82,7 @@ The governance and risk management policy and the exception management policy es
 
 ## Licence boundary
 
-All content in this directory is original and released under CC BY-SA 4.0. External framework identifiers and regulatory references are used for alignment purposes only and do not reproduce restricted third-party text.
+The original content in this directory is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0. External framework identifiers and regulatory references are used for alignment purposes only and do not reproduce restricted third-party text.
 
 ---
 

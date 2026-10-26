@@ -2,8 +2,8 @@
 
 **Document Title:** Key Terms and Definitions Register\
 **Document Type:** Register\
-**Version:** 1.2.0\
-**Date:** 2026-10-14\
+**Version:** 1.2.2\
+**Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/register-glossary.md`](register-glossary.md)\
@@ -86,7 +86,7 @@ When in doubt: external term or acronym → the glossary. Internal governance co
 ## Maintenance rules
 
 1. Definitions must be original and library-canonical.
-2. Definitions must not copy external standards text unless republication is explicitly compatible with the library's CC BY-SA 4.0.
+2. Definitions must not copy external text beyond the short, attributed quotation that [`NOTICE.md`](../NOTICE.md) allows or its transition clause keeps; any other external definition is paraphrased with a pinpoint citation.
 3. Definitions must remain organization-neutral.
 4. Terms specific to one domain should be added only when they materially improve consistency across documents.
 

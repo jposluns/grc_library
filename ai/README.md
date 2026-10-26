@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.30\
-**Date:** 2026-10-25\
+**Version:** 1.1.32\
+**Date:** 2026-10-26\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains organization-neutral AI governance, AI security, AI risk, lifecycle, documentation, evaluation, assurance, and register artefacts released under CC BY-SA 4.0.
+This directory contains organization-neutral AI governance, AI security, AI risk, lifecycle, documentation, evaluation, assurance, and register artefacts. Their original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0.
 
 AI documents in this repository treat data as the primary risk surface. They address collection, annotation, storage, processing, training, retrieval, inference, monitoring, retention, deletion, and decommissioning.
 
@@ -116,7 +116,7 @@ AI domain documents should explicitly consider:
 
 ## Licence boundary
 
-External AI standards, control frameworks, questionnaires, audit guidance, implementation guidance, and metrics catalogues must not be copied into this directory unless they are confirmed to permit library-canonical republication. Use non-verbatim synthesis, original control language, and high-level alignment only.
+External AI standards, control frameworks, questionnaires, audit guidance, implementation guidance, and metrics catalogues must not be copied into this directory beyond the short, attributed quotation that [`NOTICE.md`](../NOTICE.md) allows or its transition clause keeps. Otherwise use non-verbatim synthesis, original control language, and high-level alignment.
 
 ---
 

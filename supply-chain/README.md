@@ -2,8 +2,8 @@
 
 **Document Title:** Supply Chain Domain README\
 **Document Type:** Register\
-**Version:** 1.3.4\
-**Date:** 2026-10-17\
+**Version:** 1.3.6\
+**Date:** 2026-10-26\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains organization-neutral supplier governance, third-party risk, cloud governance, and supply-chain continuity artefacts. It covers the full lifecycle of supplier and partner relationships as well as trade security programme obligations. All content is released under CC BY-SA 4.0.
+This directory contains organization-neutral supplier governance, third-party risk, cloud governance, and supply-chain continuity artefacts. It covers the full lifecycle of supplier and partner relationships as well as trade security programme obligations. Its original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0.
 
 ---
 
@@ -88,7 +88,7 @@ Standards referenced for cross-programme alignment:
 
 ## Licence boundary
 
-Supplier questionnaires, proprietary assurance reports, third-party audit reports, and external framework text must not be copied into this directory unless confirmed library-canonical. Use non-verbatim synthesis and original control language only.
+Supplier questionnaires, proprietary assurance reports, third-party audit reports, and external framework text must not be copied into this directory beyond the short, attributed quotation that [`NOTICE.md`](../NOTICE.md) allows or its transition clause keeps. Otherwise use non-verbatim synthesis and original control language.
 
 ---
 

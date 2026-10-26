@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.28\
-**Date:** 2026-10-21\
+**Version:** 1.7.3\
+**Date:** 2026-10-26\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -43,7 +43,7 @@ This specification applies to every AI response within the project, including:
 4. Document-type rules (policy, standard, procedure, etc.).
 5. Any user-provided overrides.
 
-When conflict occurs, the highest item prevails. Exception: where any conflict concerns licence compatibility with the library's CC BY-SA 4.0 licence (for example, a proposal to incorporate external third-party content), the more restrictive rule prevails regardless of document position in this order.
+When conflict occurs, the highest item prevails. Exception: where any conflict concerns licence compatibility with the library's CC BY-SA 4.0 licence (for example, a proposal to incorporate external third-party content), the more restrictive rule prevails regardless of document position in this order. This exception does not override the transition clause for existing quotations that [`NOTICE.md`](NOTICE.md) and section 8 state: a quotation that clause keeps stays even where another rule is more restrictive.
 
 ---
 
@@ -310,8 +310,8 @@ The following rules apply:
 1. **"must" / "must not"** is the project's canonical requirement-language pair for absolute obligations and prohibitions. Use it by default in policies, standards, procedures, SOPs, and any document that states normative requirements.
 2. **"should" / "should not"** is the canonical recommendation pair. Use it for strong recommendations where a documented justification permits deviation. Do not use "should" as a softer synonym for "must"; the distinction is meaningful for audit and conformance purposes.
 3. **"may"** is the canonical permission verb. Do not use "may not" as a prohibition: a strict RFC 2119 reading of "may not" admits a permissible-negative-possibility interpretation that is ambiguous against MUST NOT. Where the intent is a prohibition, write "must not".
-4. **"shall" / "shall not"** is reserved for two narrow cases: (a) direct quotation of an external standard that uses "shall" in its normative text (ISO/IEC, NIST SP, IEC, and similar standards historically use "shall" as their requirement verb); and (b) legacy content that has not yet been harmonized to "must". New normative content authored within this library uses "must"; legacy "shall" usage is converted to "must" opportunistically as documents are revised.
-5. **Verb consistency within a document** outranks cross-file uniformity. A single document should use one of "must" or "shall" throughout its normative text, not both, unless the second verb is explicitly a quotation of an external standard. Where a document mixes the two, the predominant verb is the canonical form for that document and any normative additions follow it; the minority occurrences are converted opportunistically.
+4. **"shall" / "shall not"** is reserved for two narrow cases: (a) a short, attributed quotation that section 8 allows, or that its transition clause keeps, of a source that uses "shall" in its normative text (for example a statute, or a public-domain standard such as a NIST SP publication); and (b) legacy content that has not yet been harmonized to "must". New normative content authored within this library uses "must"; legacy "shall" usage is converted to "must" opportunistically as documents are revised.
+5. **Verb consistency within a document** outranks cross-file uniformity. A single document should use one of "must" or "shall" throughout its normative text, not both, unless the second verb appears only inside such a quotation. Where a document mixes the two, the predominant verb is the canonical form for that document and any normative additions follow it; the minority occurrences are converted opportunistically.
 
 The convention is documented at the library level so reviewers can cite it. A future audit gate may mechanize the rule (for example, flagging "may not" used as a prohibition, or flagging new "shall" introductions outside the carve-outs above); this specification is the source of truth for that future gate's policy.
 
@@ -392,7 +392,7 @@ References must be accurate and must not be invented. Do not reference framework
 
 ## 8. Governance document generation rules
 
-1. All content must be normalized to organization-neutral, original-authorship language. The library does not incorporate third-party verbatim text.
+1. All content must be normalized to organization-neutral, original-authorship language. The library does not incorporate third-party verbatim text, except a short, attributed quotation of (a) a government or regulatory text or (b) a standard or framework text that is in the public domain or openly licensed (for example a NIST SP or FIPS publication, the NIST CSF, or a framework under CC0 1.0, CC BY 4.0, or CC BY-SA 4.0), where the source licence permits quotation and is compatible with CC BY-SA 4.0, with a Licence basis statement as the licence compatibility rules of [`specification-ingestion.md`](specification-ingestion.md) define. Standards and frameworks under other licences are paraphrased with pinpoint citations. A quotation is at most one provision or passage and at most 100 words, and no longer than what the document relies on. Only a translation that the government itself publishes counts as a government text; any other translation (for example a KLRI English translation of a Korean statute) is a third-party translation, quoted only under its own publisher's terms where they permit quotation and are compatible with CC BY-SA 4.0, and otherwise paraphrased. Quoted text keeps its source licence and is not relicensed under CC BY-SA 4.0. Existing quotations stay under the transition clause that [`NOTICE.md`](NOTICE.md) and those rules state: quotations merged to `main` before the maintainer decision of 2026-10-24 23:52Z, and the pre-decision quotations on branch `content/3b546-osfi`, stay as they are until the publisher's terms are held (the event that [`NOTICE.md`](NOTICE.md) defines, which ends every ground at once), after which the rule for a new quotation applies to them, and editing one makes it a new quotation.
 2. Documents must adhere to the canonical structure:
  - Metadata
  - Purpose
@@ -428,7 +428,7 @@ References must be accurate and must not be invented. Do not reference framework
 ## 11. Conflict resolution rules
 
 1. If any project rule conflicts with user instructions, request clarification.
-2. If user intent is clear and conflicts with the Ingestion Specification, the Master Project Specification prevails unless the conflict concerns licence-compatibility constraints (the more restrictive rule prevails on licence-compatibility matters).
+2. If user intent is clear and conflicts with the Ingestion Specification, the Master Project Specification prevails unless the conflict concerns licence-compatibility constraints (the more restrictive rule prevails on licence-compatibility matters, but does not override the transition clause for existing quotations in section 8).
 3. If a conflict exists between this document and any generated content, this document prevails.
 
 ---

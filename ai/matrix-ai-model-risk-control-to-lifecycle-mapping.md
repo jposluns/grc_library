@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Control to Lifecycle Mapping Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.3\
-**Date:** 2026-08-31\
+**Version:** 1.0.5\
+**Date:** 2026-10-26\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md), [`ai/standard-ai-model-succession-and-identity.md`](standard-ai-model-succession-and-identity.md)\
@@ -48,7 +48,7 @@ This matrix maps AI model risk control areas to lifecycle stages and evidence cl
 
 ## Framework alignment notes
 
-External framework alignment should be recorded at a high level using framework names, domains, and evidence categories only. Do not reproduce third-party control statements, questionnaire text, implementation guidance, audit guidance, or metrics catalogues unless the material is confirmed library-canonical.
+External framework alignment should be recorded at a high level using framework names, domains, and evidence categories only. Do not reproduce third-party control statements, questionnaire text, implementation guidance, audit guidance, or metrics catalogues beyond the short, attributed quotation that [`NOTICE.md`](../NOTICE.md) allows or its transition clause keeps.
 
 Suggested alignment families include AI management, AI risk management, model risk management (MRM), information security, privacy, cloud controls, adversarial AI, LLM risk, secure engineering, supplier governance, and operational resilience. Where the mapping records model-review controls, a model review independent of the model's development is a distinct control area (aligned with model-risk-management practice, adopted sector-neutrally from OSFI Guideline E-23).
 

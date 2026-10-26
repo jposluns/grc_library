@@ -2,8 +2,8 @@
 
 **Document Title:** Logistics Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.2\
-**Date:** 2026-09-04\
+**Version:** 1.0.3\
+**Date:** 2026-10-26\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -109,7 +109,7 @@ Adopting organizations operating in the logistics sector consume:
 
 ## Licence boundary
 
-All content is original and released under CC BY-SA 4.0. Programme artefacts reference each programme's standards and criteria by name and section identifier; the underlying programme text itself is not reproduced.
+This directory's original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0. Programme artefacts reference each programme's standards and criteria by name and section identifier and reproduce the underlying programme text only in such quotations.
 
 ---
 

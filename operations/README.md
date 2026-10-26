@@ -2,8 +2,8 @@
 
 **Document Title:** Operations Domain README\
 **Document Type:** Register\
-**Version:** 1.2.6\
-**Date:** 2026-06-22\
+**Version:** 1.2.7\
+**Date:** 2026-10-26\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains production and infrastructure security standards, procedures, and operational governance artefacts. It covers the security and integrity of IT infrastructure, cloud environments, operational technology, monitoring operations, and change management. All content is released under CC BY-SA 4.0.
+This directory contains production and infrastructure security standards, procedures, and operational governance artefacts. It covers the security and integrity of IT infrastructure, cloud environments, operational technology, monitoring operations, and change management. Its original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0.
 
 ---
 

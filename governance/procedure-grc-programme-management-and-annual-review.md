@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Programme Management and Annual Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.11\
-**Date:** 2026-09-05\
+**Version:** 1.2.0\
+**Date:** 2026-10-26\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md)\
@@ -109,19 +109,19 @@ A triggered review is required outside the annual cycle when any of the followin
 
 ### 6.1 Version numbering convention
 
-All GRC library documents follow semantic versioning using the format MAJOR.MINOR.PATCH:
+All GRC library documents follow semantic versioning using the format MAJOR.MINOR.PATCH, under the per-document rule in the Version numbering section of [`specification-ingestion.md`](../specification-ingestion.md) (major = breaking, minor = additive, patch = correction):
 
 | Version Component | When Incremented | Example |
 | --- | --- | --- |
-| MAJOR (x.0.0) | Material change to scope, obligations, governance structure, or key requirements | 1.0.0 → 2.0.0 |
-| MINOR (x.y.0) | Minor addition, clarification, or update that does not alter core requirements | 1.0.0 → 1.1.0 |
-| PATCH (x.y.z) | Typographical correction, formatting fix, broken link update, minor reference correction | 1.0.0 → 1.0.1 |
+| MAJOR (x.0.0) | Breaking change: a change to scope, obligations, governance structure, or requirements that removes, reverses, or invalidates content or a requirement that existing documents or adopters rely on | 1.0.0 → 2.0.0 |
+| MINOR (x.y.0) | Additive change: a substantive addition, a structural change that breaks nothing, or a revision that adds a requirement or permission while leaving existing content valid | 1.0.0 → 1.1.0 |
+| PATCH (x.y.z) | Correction: a typographical correction, formatting fix, broken link update, minor reference correction, or clarification that changes no requirement | 1.0.0 → 1.0.1 |
 
 ### 6.2 Change approval requirements
 
 6.2.1 All version increments, including patch fixes, require sign-off from the document's approving authority before publication.
 
-6.2.2 MAJOR changes additionally require ERC notification (and ERC approval where they relate to policy-level or framework-level documents).
+6.2.2 A change that is material to scope, obligations, governance structure, or key requirements additionally requires ERC notification (and ERC approval where it relates to a policy-level or framework-level document), whichever version component it increments.
 
 ### 6.3 Version history
 

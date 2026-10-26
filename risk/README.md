@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Domain README\
 **Document Type:** Register\
-**Version:** 1.1.0\
-**Date:** 2026-05-28\
+**Version:** 1.1.1\
+**Date:** 2026-10-26\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains enterprise risk management standards, registers, and procedures covering risk identification, analysis, treatment, acceptance, and monitoring. All artefacts are released under CC BY-SA 4.0.
+This directory contains enterprise risk management standards, registers, and procedures covering risk identification, analysis, treatment, acceptance, and monitoring. Its original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0.
 
 ---
 

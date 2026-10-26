@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Quickstart Template\
 **Document Type:** Template\
-**Version:** 3.0.10\
-**Date:** 2026-09-05\
+**Version:** 3.0.11\
+**Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md), [`README.md`](../README.md)\
@@ -61,4 +61,4 @@ To plan the fuller composition (what to add beyond the floor), see **[`docs/temp
 
 ## Licence
 
-CC BY-SA 4.0. Adapt and share, including for commercial use; preserve the licence on derivative works.
+CC BY-SA 4.0. Adapt and share, including for commercial use. When you share this document or an adaptation of it, attribute the library and indicate any changes; when you share an adaptation, license your own contributions to it under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence. The library's own text stays under CC BY-SA 4.0.
