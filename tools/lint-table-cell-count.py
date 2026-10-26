@@ -170,14 +170,14 @@ readings check them (a possible false positive). The subtests of
 a tag name that matches only under Unicode case folding (``<ſcript>``,
 ``<dıv>`` and ``<ſtyle>``), and U+000B, U+000C, U+001C, U+001E, U+001F,
 U+00A0 or U+2003 where markdown-it-py's HTML block starts take ``\\s``.
-A residual not fixed in this change: a paragraph inside a nested block
-quote, then a line indented four or more columns that would otherwise start
-a block (an HTML block or an ATX heading, for example), then
-a table at a shallower quote depth than the paragraph, or outside the
-quote (for ``> > text``, ``    <!--`` and a quoted table with a short
-row, markdown-it-py 3.0.0 renders the indented line as indented code and
-then the table, whose short row this gate passes, as it did before
-backlog 3b617); table-shaped lines that one reading holds in an HTML
+A residual not fixed in this change, and not characterized exactly: a
+table after a paragraph inside a block quote (or inside a list item or
+further quote within one) that a following line indented four or more
+columns ends can have a short row this gate passes, in more than one
+arrangement of those containers (for ``> > text``, ``    <!--`` and a
+quoted table with a short row, markdown-it-py 3.0.0 renders the indented
+line as indented code and then the table; the gate before backlog 3b617
+misses it too, and backlog 3b640 tracks the fix); table-shaped lines that one reading holds in an HTML
 block, or reads as lazy text, while another renders them as a
 table, checked (a possible false positive for the renderer of the first
 reading: after ``<script>`` spelled with a long s, U+017F, markdown-it-py
