@@ -29479,7 +29479,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         preflight_language_runner.py CHILD F c7242875b76d4282326ba37e0f878cebfc2939aa2780657c56bb3ef007fa0644
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
-        quick-guard.sh FIXED F 58c16c46c0e50688bfd2da3d92ba38f8abe39c90ed9473fb0d28e38f226d8d18
+        quick-guard.sh FIXED F bbd7348bf1a3c2946c8b06f9bfa7f5b43a4cc1cc808f65a86e68b7d4d7b9722b
         ref-holds.py OWN F 12b4bc426cc0dc4f0cb070fc94feb3398c0d0d420c091e3e343393a16feb4f7d
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
@@ -72073,7 +72073,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
         # 3b647: with HEAD unborn, git diff HEAD failed with "bad revision 'HEAD'" after the
         # origin/main-absent note, a refusal that did not say why. HEAD is now read first, so
         # the refusal names it, with or without origin/main and with .md files staged or not.
-        # --quiet silences only git's no-such-revision report; any other fatal error passes through.
+        # --quiet silences git's report for a HEAD it cannot resolve; errors raised before resolving it pass through.
         import shlex
 
         def refused(repo, **env):

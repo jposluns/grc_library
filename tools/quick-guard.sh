@@ -27,10 +27,11 @@ cd "$(dirname "$0")/.." || exit 2
 # changed files" (3b551). A repository with no commits (an unborn HEAD) refuses
 # too, before origin/main is read: every listing diffs against HEAD or a merge
 # base with it, and rev-parse cannot tell an unborn HEAD from one git cannot read,
-# so it is not treated as having no prior state (3b647). --quiet silences only the
-# no-such-revision report an unborn HEAD gives; git's stderr for any other fatal error
-# (dubious ownership, a corrupt repository) passes through above the refusal, since it
-# says why HEAD could not be read.
+# so it is not treated as having no prior state (3b647). --quiet silences git's report
+# whenever HEAD, or the ref or commit it names, cannot be resolved (an unborn HEAD, a
+# garbage ref, a missing commit); errors git raises before resolving HEAD (dubious
+# ownership, a bad config) still pass through above the refusal, since they say why HEAD
+# could not be read.
 git_failed() {
   echo "quick-guard: ERROR: $1 failed; the changed .md files cannot be listed, so nothing was checked." >&2
   echo "(This is an iteration aid; tools/pre-push-guard.sh is still required before push.)" >&2
