@@ -91,8 +91,11 @@ def find_pack_tools() -> Path | None:
 
 
 def ensure_on_path() -> Path:
-    """Idempotently insert the AIQT pack's ``tools/`` on ``sys.path``; return it.
+    """Idempotently append the AIQT pack's ``tools/`` to ``sys.path``; return it.
 
+    The directory goes at the END, after the standard library and site-packages,
+    never at index 0, so a file planted in the pack's ``tools/`` cannot shadow a
+    standard-library module (the ``python3 -I`` launch convention).
     Raises ``ImportError`` (with the fix) if the pack cannot be located.
     """
     global _inserted_path
@@ -107,7 +110,7 @@ def ensure_on_path() -> Path:
         )
     p = str(tools)
     if p not in sys.path:
-        sys.path.insert(0, p)
+        sys.path.append(p)
     _inserted_path = p
     return tools
 

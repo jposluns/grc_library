@@ -165,10 +165,14 @@ HIGHEST_DELTA_GATE = 15
 # itself a verification gate.
 PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, maturity scorecard, relationship model, and number-allocation block"}
 
-# Regex to extract the tools/X.py portion of a `python3 tools/X.py ...`
-# style command. Captures the script's repository-relative path only,
-# discarding the `python3` prefix and any trailing arguments.
-SCRIPT_RE = re.compile(r"python3\s+(tools/[A-Za-z0-9_.\-]+\.py)")
+# Regex to extract the tools/X.py portion of a `python3 tools/X.py ...` or
+# `python3 -I tools/X.py ...` style command. Captures the script's
+# repository-relative path only, discarding the `python3` prefix, the optional
+# isolated-mode flag and any trailing arguments. `-I` is the only interpreter
+# option accepted; any other (`-B`, `-X ...`, a combined `-IB`) leaves the line
+# unmatched, which the surface parsers report as a parse error. Whether a gate
+# runs with `-I` is not compared across surfaces; only its script and flags are.
+SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(tools/[A-Za-z0-9_.\-]+\.py)")
 
 # Regex to extract the tools/X.py portion from a markdown link in the
 # inventory table's Script column.
@@ -486,7 +490,7 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
                         f"{path.relative_to(REPO_ROOT)}:{lineno}: "
                         f"step '{step_name}' has run command "
                         f"{m_run.group(1)!r} that does not match the "
-                        f"`python3 tools/X.py ...` pattern"
+                        f"`python3 [-I] tools/X.py ...` pattern"
                     )
                 entries.append((
                     step_lineno, step_name, script_match.group(1),
@@ -504,7 +508,7 @@ def parse_runner(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     """Return [(line_number, gate_name, script_path, argv), ...] from run_all_audits.sh.
 
     Matches lines of the form:
-        run_gate "<gate name>" python3 tools/<script>.py [...]
+        run_gate "<gate name>" python3 [-I] tools/<script>.py [...]
     Ignores the function-definition line (`run_gate() {`).
     """
     line_re = re.compile(r"^run_gate\s+\"([^\"]+)\"\s+(.+?)\s*$")
@@ -521,7 +525,7 @@ def parse_runner(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
                 raise ParseError(
                     f"{path.relative_to(REPO_ROOT)}:{lineno}: "
                     f"run_gate '{gate_name}' command {command!r} does not "
-                    f"match the `python3 tools/X.py ...` pattern"
+                    f"match the `python3 [-I] tools/X.py ...` pattern"
                 )
             entries.append((
                 lineno, gate_name, script_match.group(1),
@@ -566,7 +570,7 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
                     raise ParseError(
                         f"{path.relative_to(REPO_ROOT)}:{lineno}: "
                         f"hook '{hook_name}' entry {m_entry.group(1)!r} "
-                        f"does not match the `python3 tools/X.py ...` "
+                        f"does not match the `python3 [-I] tools/X.py ...` "
                         f"pattern"
                     )
                 entries.append((

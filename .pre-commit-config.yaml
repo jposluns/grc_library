@@ -740,3 +740,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-isolated-launch
+        name: Isolated-launch import audit
+        entry: python3 tools/lint-isolated-launch.py
+        language: system
+        pass_filenames: false
+        always_run: true

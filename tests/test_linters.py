@@ -18815,6 +18815,91 @@ class AuditGateParityTests(LinterTestCase):
             e(f"python3 {S} --x && y", S), e(f"python3 {S} --x && y", S)
         )
 
+    def test_script_re_accepts_an_optional_isolated_flag_only(self) -> None:
+        # The runners may switch a gate to `python3 -I tools/X.py` (isolated mode);
+        # -I is the only interpreter option the parser accepts before the script,
+        # and the flags after the script compare the same with or without it.
+        import importlib.util
+        tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
+        spec = importlib.util.spec_from_file_location("_agp_isolated", str(tool))
+        agp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agp)
+        S = "tools/x.py"
+        for command in (f"python3 {S} --check", f"python3 -I {S} --check",
+                        f"python3  -I\t{S} --check", f"run: python3 -I {S}"):
+            with self.subTest(command=command):
+                m = agp.SCRIPT_RE.search(command)
+                self.assertIsNotNone(m)
+                self.assertEqual(m.group(1), S)
+        self.assertEqual(agp._extract_argv(f"python3 -I {S} --check", S),
+                         agp._extract_argv(f"python3 {S} --check", S))
+        for command in (f"python3 -B {S}", f"python3 -IB {S}", f"python3 -I -B {S}",
+                        f"python3 -B -I {S}", f"python3 -Itools/x.py", f"python3 -i {S}",
+                        f"python3 -E {S}", f"python3 -X dev {S}", f"python3 -I -I {S}"):
+            with self.subTest(command=command):
+                self.assertIsNone(agp.SCRIPT_RE.search(command))
+
+    _ISOLATED_SURFACES = (
+        "governance/specification-audit-programme.md",
+        ".github/workflows/quality.yml",
+        "tools/run_all_audits.sh",
+        ".pre-commit-config.yaml",
+        "tools/run-pr-time-checks.sh",
+    )
+
+    def _run_isolated_fixture(self, flag: str, *surfaces: str) -> subprocess.CompletedProcess:
+        """Copy the real surfaces and put ``flag`` after ``python3`` on every gate
+        invocation of the named runtime surfaces (runner, workflow, pre-commit);
+        with no surface named, the copy is unchanged."""
+        prefixes = {"tools/run_all_audits.sh": "run_gate ",
+                    ".github/workflows/quality.yml": "run: python3 tools/",
+                    ".pre-commit-config.yaml": "entry: python3 tools/"}
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-isolated-", dir=FIXTURE_DIR))
+        try:
+            for name in self._ISOLATED_SURFACES:
+                lines = (REPO_ROOT / name).read_text(encoding="utf-8").splitlines(keepends=True)
+                if name in surfaces:
+                    changed = 0
+                    for i, line in enumerate(lines):
+                        if line.lstrip().startswith(prefixes[name]) and " python3 tools/" in line:
+                            lines[i] = line.replace(" python3 tools/", f" python3 {flag} tools/", 1)
+                            changed += 1
+                    self.assertGreater(changed, 100, f"fixture anchor in {name}")
+                target = synthetic_root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("".join(lines), encoding="utf-8")
+            return subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tools/lint-audit-gate-parity.py"),
+                 "--root", str(synthetic_root)],
+                cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300)
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_isolated_invocations_keep_parity(self) -> None:
+        # Every gate on every runtime surface switched to `python3 -I`, and the
+        # runner alone switched: each still parses, and the gate reports exactly
+        # what it reports for the unswitched copy (the -I flag is not compared).
+        unswitched = self._run_isolated_fixture("-I")
+        self.assertNotEqual(unswitched.returncode, 2, unswitched.stderr)
+        surfaces = ("tools/run_all_audits.sh", ".github/workflows/quality.yml",
+                    ".pre-commit-config.yaml")
+        for switched in (surfaces, surfaces[:1]):
+            with self.subTest(switched=switched):
+                result = self._run_isolated_fixture("-I", *switched)
+                self.assertEqual((result.returncode, result.stdout, result.stderr),
+                                 (unswitched.returncode, unswitched.stdout, unswitched.stderr))
+
+    def test_other_interpreter_flags_are_parse_errors(self) -> None:
+        # Only -I is accepted: any other interpreter option before the script leaves
+        # the invocation unparsed, which the gate refuses with exit 2.
+        for flag, surface in (("-B", "tools/run_all_audits.sh"),
+                              ("-I -B", ".github/workflows/quality.yml"),
+                              ("-IB", ".pre-commit-config.yaml")):
+            with self.subTest(flag=flag, surface=surface):
+                result = self._run_isolated_fixture(flag, surface)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("python3 [-I] tools/X.py ...", result.stderr)
+
     def test_current_surfaces_pass_parity(self) -> None:
         result = run_linter("tools/lint-audit-gate-parity.py")
         self.assertEqual(
@@ -28898,7 +28983,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F faae8620f7f5c13a9f12cfc461f5a21bb58669dc9c6b533fd3dbe293f92a9d0b
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
-        aiqt_bootstrap.py PASSIVE F c9596844ccf7a8146a7f1ad08a1d45c8575caae841323c827595f6069c564a86
+        aiqt_bootstrap.py PASSIVE F 84d8258877317f95464b1215ef6120481a29c23f28f565febfa0492c5c683d82
         aiqt_rules.py NO_FS F d060f25887a16d6e70009a243390ac246f23cf9dc164226e38bbc671648bcc83
         alignment-register-aliases.json DATA F 7aba74ebc7e34d89145f754cc53763e03df0bbf7f366765bbd94df5e47fdb812
         alignment-register-exclusions.json DATA F ae28ec61a6a973f24a33af86957dff0d1f0d0740dc82b5aec393a5bb882c3df0
@@ -28908,7 +28993,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         audit-backlog-actionability.py OWN F c089004a4e41f3a8c9273d7df9926331953635bc3133ba22023e1f2a7ffc1244
         audit-claim-precision.py ROOT F c2e537144efb7458cba00827577f959907263a7dfffcc75bab54c888f1e1d4b2
         audit-cross-repo-references.py OWN F f2eeb637b2a28b3d8995fe57609c231e1845dc139b4d8aa5f917433833abd83d
-        audit-gate-blindspots.py OWN F 7dbd907ece2720fce7b9fa8dfdac25bf37d94a2096e2aaba00dba10b3ac3f53b
+        audit-gate-blindspots.py OWN F 0d9ab070629b9da75e0bbc14f8bb2a4c3ca20144cf6836ecf40a270a6a9ce36e
         audit-gate-mutation.py OWN F db2e8a4e3255dfff96dc9a0f744a58508c1b88e689bea0af28fdc33062fb5716
         audit-held-branch-expiry.py NO_FS F 3255ff7873ca44e429b60011d733b90f6a65434f816a55f3f1be5a53f7a8d652
         audit-inbox-drops.py SKIP F a931ec3bf370c0e755637bcb2ff3238ea9e5337761de96a712b90027588a46bc
@@ -28972,7 +29057,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         detect-env.py WRITE F bb9b977f0a07a9d27b09dcd85d271bb1f31efc826c5f6cd860106f283144ebc6
         external_overlay.py PASSIVE F fcbdb23ea95b360fdb467d3d4b39a0b1fd9ac1113eb6b431aeee1de0fbcbe2f1
         gate-mutation-variants.json DATA F c6af7a3c12d4d56ccae611dd77676e8be2113c3fed0ae83638d3be8790e72549
-        gate-scope-manifest.json DATA F 12ae6d553aa8a6b794a763d41ec14766c7d790eea836205b7f871aebe57ef91e
+        gate-scope-manifest.json DATA F b2a3cd3834419d4e78891043c491e126623b916bccf4e7e283ec39b142d9e6a8
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
         git-hooks/pre-push TRANSPORT F 9d1300e3fc7e1dcea3986ea7015f839c2c821cd7be16263dadc04482089fc2b5
@@ -28985,7 +29070,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F 3cc8013f0d69f112498d69dd97629078f7852f911d0b689bb509b356165418e9
+        lint-audit-gate-parity.py OWN F df059632209bf52ba67faa9391d480b1f24bd17fd8ccdb96b9d9e357ed5d40b3
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-bookkeeping-parity.py NO_FS F 418c1fc4dccff88fe4a32a8a3582c8110b7c53885facc1b661a2db48b829b841
@@ -29020,6 +29105,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-index-header-parity.py OWN F 26ad2438853a5147cbd602fcd122e59fcef8c8b8f2fd6530edb07e74b1bcf3e5
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
+        lint-isolated-launch.py NO_FS F bf7e5ddc7344a6b1eb540e66492020dd53dbb88d47e4ffe2bd42b32361d0c9a9
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
         lint-library-version-monotonicity.py OWN F f6ecc98f3d36934a9d09a3fab8732d8352795ba5e7f6d1f02de8b7677aa0d03b
         lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
@@ -29091,7 +29177,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         preflight_language_runner.py CHILD F c7242875b76d4282326ba37e0f878cebfc2939aa2780657c56bb3ef007fa0644
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
-        quick-guard.sh FIXED F de282d169087134191af74a06d9b0e8b6c7886f38bba96be6190ad538fdd208d
+        quick-guard.sh FIXED F 6d7161a152ed4d8362387ca4da9b005bcaf8d3a4501df088a5caf8ab11c06cac
         ref-holds.py OWN F 12b4bc426cc0dc4f0cb070fc94feb3398c0d0d420c091e3e343393a16feb4f7d
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
@@ -29099,7 +29185,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run-linter-regression.py FIXED F 2e97814644c614dc987df7139c5ff0ff9b875fb2c1ba0abb6ff0abc298282753
         run-pr-time-checks.sh FIXED F 7efe36d3fce0778df83e6f4578561b56d02bf15e389178c50b35053767c075ab
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
-        run_all_audits.sh FIXED F 694c1d154afa12f22f78cb4c2f75d96aea92bab4b6cb0919fe6eb2d32af5eff5
+        run_all_audits.sh FIXED F 42538433b653fb5cb4df779d74ee541039bd0168d7c0fe42258800417a71cdb5
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
         session_facts.py PASSIVE F 0d4dcb545fcba5b1533d4aff1c3fedad69ca97d6e07f045b9976aee0ce07247a
@@ -47097,6 +47183,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         lint-guardrail-cadence.py
         lint-hooks-syntax.py
         lint-index-header-parity.py
+        lint-isolated-launch.py
         lint-listing-surface-completeness.py
         lint-matrix-control-codes.py
         lint-narrative-disclaimer.py
@@ -52416,6 +52503,38 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIsNotNone(tools, "shim must resolve the AIQT pack tools/ dir")
         # CI-safety: must find the IN-REPO vendored copy, not depend on a sibling pack
         self.assertEqual(Path(tools).resolve(), (REPO_ROOT / "vendor" / "aiqt" / "tools").resolve())
+
+    def test_shim_appends_pack_tools_so_a_planted_module_cannot_shadow_stdlib(self):
+        # The shim APPENDS the pack's tools/ (after the standard library), never inserts
+        # it at index 0: a json.py planted in the pack's tools/ is not what `import json`
+        # loads under python3 -I, while the pack's own aiqt_corpus still resolves.
+        with tempfile.TemporaryDirectory() as d:
+            pack = Path(d) / "pack"
+            (pack / "tools").mkdir(parents=True)
+            (pack / ".aiqt").write_text("", encoding="utf-8")
+            (pack / "tools" / "aiqt_corpus.py").write_text("FAKE = True\n", encoding="utf-8")
+            (pack / "tools" / "json.py").write_text(
+                "raise RuntimeError('planted json.py imported')\n", encoding="utf-8")
+            probe = (
+                "import sys\n"
+                f"sys.path.append({str(REPO_ROOT / 'tools')!r})\n"
+                "import aiqt_bootstrap, aiqt_corpus, json\n"
+                "print(json.__file__)\n"
+                "print(aiqt_corpus.__file__)\n"
+                f"print(sys.path[-1] == {str(pack / 'tools')!r}, sys.path.count({str(pack / 'tools')!r}))\n"
+                "aiqt_bootstrap.ensure_on_path()\n"
+                f"print(sys.path.count({str(pack / 'tools')!r}))\n")
+            env = {k: v for k, v in os.environ.items() if k not in ("AIQT_PACK_ROOT", "GRC_AIQT_PACK")}
+            env["AIQT_PACK_ROOT"] = str(pack)
+            result = subprocess.run([sys.executable, "-I", "-B", "-c", probe], cwd=d, env=env,
+                                    capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        json_file, corpus_file, placed, again = result.stdout.splitlines()
+        self.assertFalse(json_file.startswith(d), json_file)
+        self.assertEqual(Path(json_file).parent.name, "json")
+        self.assertEqual(corpus_file, str(pack / "tools" / "aiqt_corpus.py"))
+        self.assertEqual(placed, "True 1")
+        self.assertEqual(again, "1")
 
 class ProfileLoaderTests(unittest.TestCase):
     """.corpus-management/tools/profile_loader.py (Phase-4 PR-A).
@@ -67852,6 +67971,24 @@ class JoinUnderContainmentTests(unittest.TestCase):
             self.load("audit-gate-blindspots.py")
             self.assertEqual(sys.path.count(tools), 1)
 
+    def test_blindspots_runner_accepts_an_optional_isolated_flag_only(self):
+        # A runner line switched to `python3 -I tools/X.py` is still read as that gate;
+        # -I is the only interpreter option accepted (as gate 35 accepts), and any
+        # other leaves the line unread, as an unmatched line always was.
+        mod = self.load("audit-gate-blindspots.py")
+        (self.root / "tools").mkdir()
+        (self.root / "tools/run_all_audits.sh").write_text(
+            'run_gate "Plain" python3 tools/plain.py\n'
+            'run_gate "Isolated" python3 -I tools/isolated.py --check\n'
+            'run_gate "Spaced" python3   -I  tools/spaced.py\n'
+            'run_gate "Other flag" python3 -B tools/other.py\n'
+            'run_gate "Combined" python3 -IB tools/combined.py\n'
+            'run_gate "Two flags" python3 -I -B tools/two.py\n')
+        self.assertEqual(
+            [(g.name, g.script) for g in mod.load_gates(self.root)],
+            [("Plain", "tools/plain.py"), ("Isolated", "tools/isolated.py"),
+             ("Spaced", "tools/spaced.py")])
+
     def test_gate_runner_entry(self):
         import contextlib
         from unittest.mock import patch
@@ -71194,6 +71331,123 @@ class GitReadFailsClosedTests(unittest.TestCase):
                                           encoding="utf-8")
                 (shim / "git").chmod(0o755)
                 self.assert_guard_refuses(repo, PATH=f"{shim}{os.pathsep}{self.env['PATH']}")
+
+
+class IsolatedLaunchTests(LinterTestCase):
+    """tools/lint-isolated-launch.py (gate 109): every tools/*.py launches under
+    ``python3 -I`` up to its imports, except the tools on its BASELINE list.
+
+    Fixture tools live outside the repository and are probed in-process through
+    the gate's ``probe_all`` and ``findings_for``; each failing outcome is paired
+    with a passing control that differs only in the construct under test."""
+
+    GATE = "tools/lint-isolated-launch.py"
+    APPEND = ("import sys\nfrom pathlib import Path\n"
+              "sys.path.append(str(Path(__file__).resolve().parent))\n")
+
+    def gate(self):
+        return load_linter_module(self.GATE, "isolated_launch_under_test")
+
+    def fixture_tools(self, files: dict[str, str]) -> Path:
+        tools = self._fixture_base("isolated-launch-") / "tools"
+        tools.mkdir()
+        for name, text in files.items():
+            (tools / name).write_text(text, encoding="utf-8")
+        return tools
+
+    def test_self_test_passes(self) -> None:
+        result = subprocess.run([sys.executable, "-I", str(REPO_ROOT / self.GATE), "--self-test"],
+                                cwd=REPO_ROOT, capture_output=True, text=True, timeout=300)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("SELF-TEST OK", result.stdout)
+
+    def test_current_tools_pass_against_the_baseline(self) -> None:
+        result = subprocess.run([sys.executable, "-I", str(REPO_ROOT / self.GATE)],
+                                cwd=REPO_ROOT, capture_output=True, text=True, timeout=600)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("OK:", result.stdout)
+
+    def test_baseline_entries_are_existing_tools(self) -> None:
+        mod = self.gate()
+        self.assertTrue(mod.BASELINE)
+        for name in mod.BASELINE:
+            with self.subTest(name=name):
+                self.assertTrue((REPO_ROOT / "tools" / name).is_file())
+        self.assertNotIn("lint-isolated-launch.py", mod.BASELINE)
+
+    def test_sibling_miss_and_ratchet(self) -> None:
+        mod = self.gate()
+        tools = self.fixture_tools({
+            "helper_mod.py": "VALUE = 1\n",
+            "needs_sibling.py": "import helper_mod\n",
+            "anchored.py": self.APPEND + "import helper_mod\n",
+            "swallowed.py": "try:\n    import helper_mod\nexcept ImportError:\n    pass\n",
+            "lazy.py": "def main():\n    import helper_mod\n",
+        })
+        results = mod.probe_all(tools)
+        self.assertEqual({n: (r["status"], r["missed"]) for n, r in results.items()}, {
+            "helper_mod.py": ("ok", []), "needs_sibling.py": ("sibling", ["helper_mod"]),
+            "anchored.py": ("ok", []), "swallowed.py": ("sibling", ["helper_mod"]),
+            "lazy.py": ("ok", []),  # the documented lazy-import residue
+        })
+        self.assertEqual(mod.probe(tools / "needs_sibling.py", isolated=False)["status"], "ok")
+        self.assertEqual(
+            [f.split(":")[0] for f in mod.findings_for(results, frozenset())],
+            ["tools/needs_sibling.py", "tools/swallowed.py"])
+        self.assertEqual(mod.findings_for(results, frozenset({"needs_sibling.py", "swallowed.py"})), [])
+        self.assertEqual(
+            mod.findings_for(results, frozenset({"needs_sibling.py", "swallowed.py",
+                                                 "anchored.py", "gone.py"})),
+            ["tools/anchored.py: on BASELINE but now launches under -I; remove it from BASELINE",
+             "tools/gone.py: on BASELINE but there is no such tools/*.py; remove it"])
+
+    def test_audit_hook_refuses_side_effects(self) -> None:
+        mod = self.gate()
+        base = self._fixture_base("isolated-launch-effects-")
+        written, spawned = base / "written", base / "spawned"
+        spawn = f"open({str(spawned)!r}, 'w')"
+        tools = self.fixture_tools({
+            "writer.py": f"open({str(written)!r}, 'w')\n",
+            "reader.py": f"open({str(REPO_ROOT / 'README.md')!r}).read(1)\n",
+            "spawner.py": f"import subprocess, sys\nsubprocess.run([sys.executable, '-c', {spawn!r}])\n",
+            "execer.py": "import os, sys\nos.execv(sys.executable, [sys.executable, '-V'])\n",
+            "mkdirer.py": f"import os\nos.mkdir({str(base / 'made')!r})\n",
+        })
+        results = mod.probe_all(tools)
+        self.assertEqual({n: (r["status"], r["refused"]) for n, r in results.items()}, {
+            "writer.py": ("error", ["open"]), "reader.py": ("ok", []),
+            "spawner.py": ("error", ["subprocess.Popen"]), "execer.py": ("error", ["os.exec"]),
+            "mkdirer.py": ("error", ["os.mkdir"]),
+        })
+        self.assertFalse(written.exists())
+        self.assertFalse(spawned.exists())
+        self.assertFalse((base / "made").exists())
+        self.assertEqual(len(mod.findings_for(results, frozenset())), 4)
+
+    def test_planted_json_beside_a_copied_tool_is_not_imported(self) -> None:
+        # A real tool that already appends its own directory, copied with its siblings:
+        # under -I a json.py planted beside it is not what lint_common's `import json`
+        # loads. The same copy launched plain, or switched to insert(0), imports it.
+        from unittest import mock
+        mod = self.gate()
+        tools = self._fixture_base("isolated-launch-shadow-") / "tools"
+        tools.mkdir()
+        for path in (REPO_ROOT / "tools").glob("*.py"):
+            shutil.copy2(path, tools / path.name)
+        tool = tools / "suggest-listing-surfaces.py"
+        source = tool.read_text(encoding="utf-8")
+        self.assertEqual(source.count("sys.path.append(_TOOLS_DIR)"), 1)
+        planted = "RuntimeError: planted json.py imported"
+        with mock.patch.dict(os.environ, {"AIQT_PACK_ROOT": str(REPO_ROOT / "vendor" / "aiqt")}):
+            self.assertEqual(mod.probe(tool)["status"], "ok")
+            (tools / "json.py").write_text(
+                "raise RuntimeError('planted json.py imported')\n", encoding="utf-8")
+            self.assertEqual(mod.probe(tool), {"status": "ok", "missed": [], "error": None,
+                                               "refused": []})
+            self.assertEqual(mod.probe(tool, isolated=False)["error"], planted)
+            tool.write_text(source.replace("sys.path.append(_TOOLS_DIR)",
+                                           "sys.path.insert(0, _TOOLS_DIR)"), encoding="utf-8")
+            self.assertEqual(mod.probe(tool)["error"], planted)
 
 
 if __name__ == "__main__":

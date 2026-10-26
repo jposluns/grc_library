@@ -65,8 +65,9 @@ from lint_common import PathContainmentError, is_containment_refusal, join_under
 TOOL_ROOT = Path(__file__).resolve().parent.parent
 
 RUN_GATE_RE = re.compile(
-    r'^run_gate\s+"(?P<name>[^"]+)"\s+.*?python3\s+(?P<script>tools/\S+\.py)',
-)  # matches gate INVOCATIONS only; the run_gate() function definition does not match
+    r'^run_gate\s+"(?P<name>[^"]+)"\s+.*?python3\s+(?:-I\s+)?(?P<script>tools/\S+\.py)',
+)  # matches gate INVOCATIONS only; the run_gate() function definition does not match.
+# `-I` (isolated mode) is the only interpreter option accepted before the script, as gate 35 accepts.
 COMMON_DISCOVERY_TOKENS = (
     "iter_targets",
     "iter_markdown_targets",
