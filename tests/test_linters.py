@@ -21738,6 +21738,22 @@ class ClaudeRulesSyncCompilerOwnershipTests(LinterTestCase):
         self.assertEqual(rc, 1, out)
         self.assertIn("block-kind", out)
 
+    def test_index_kind_under_rules_fails(self):
+        # 3b607: the rule index ships in the corpus-management skill, so an
+        # index-kind entry under .claude/rules/ is a finding (the former
+        # INDEX.md path included); the skill-directory target is not ours.
+        for target, expected in ((".claude/rules/corpus-management/INDEX.md", 1),
+                                 (".claude/rules/corpus-management/generated-rule.md", 1),
+                                 (".claude/skills/corpus-management/rule-index.md", 0)):
+            with self.subTest(target=target):
+                entry = self.OWNED_FILE_ENTRY.replace(
+                    'kind = "file"', 'kind = "index"').replace(
+                    ".claude/rules/corpus-management/generated-rule.md", target)
+                rc, out = self._run_patched(entry, owned_local=False)
+                self.assertEqual(rc, expected, out)
+                if expected:
+                    self.assertIn("index-kind", out)
+
     def test_outside_reservation_fails(self):
         entry = self.OWNED_FILE_ENTRY.replace(
             ".claude/rules/corpus-management/generated-rule.md",
@@ -28879,11 +28895,11 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F b8489583008e98de49a0198d44658de2b587cae032b05f17001b134137d22de9
+        README.md DATA F faae8620f7f5c13a9f12cfc461f5a21bb58669dc9c6b533fd3dbe293f92a9d0b
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F c9596844ccf7a8146a7f1ad08a1d45c8575caae841323c827595f6069c564a86
-        aiqt_rules.py NO_FS F d6b9c3d2a5107192024dbe7923ea0642dfb91e519652eb7936acef6e2f646c6b
+        aiqt_rules.py NO_FS F d060f25887a16d6e70009a243390ac246f23cf9dc164226e38bbc671648bcc83
         alignment-register-aliases.json DATA F 7aba74ebc7e34d89145f754cc53763e03df0bbf7f366765bbd94df5e47fdb812
         alignment-register-exclusions.json DATA F ae28ec61a6a973f24a33af86957dff0d1f0d0740dc82b5aec393a5bb882c3df0
         alignment_citation_ids.json DATA F cfa3de2c52597f242d12bfce2d71756e897c173de8df9a1577aed4f42b571d56
@@ -28928,7 +28944,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-preflight-commit.py NO_FS F 87b92b4235420074c259a9b50e0ee72d5624a81be2b87420de3e01cc7e551fd2
         check-class-attestation-on-pr.py NO_FS F 8ef4e742c2610fa3c80598404991ee6aab9da409b9e95e2ad8b74ec202d40325
         check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
-        check-claude-md-size.py NO_FS F 5cc9d9caba54c5c3be3cab015bf250454d8a704828b5e8dd93a636c1a6235c62
+        check-claude-md-size.py NO_FS F e905945e9d35caa13122091dcb709f1acaf2d944455ab44b798b4dacca61472c
         check-clause-preservation.py OWN F 43d6804eccf05f9c2434da4ec879246d48cc80081b8c852e86437cf38c65c664
         check-clean-language-upstream.py NO_FS F 7732d2d2eceb44061d99e7c484aa83c93b0818091538ba7e3b95a0040acda6a2
         check-commit-on-main.py NO_FS F 65b09e20a245ce63b9be6415a517542797ffbad0bf32426c334f300068e7eee0
@@ -28980,7 +28996,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-citation-currency-cadence.py NO_FS F 5dba5f4f0c3ec6482ca0e465d221fe1d44010bed5c47b2af235672069cf0cadd
         lint-citation-verification-freshness.py OWN F 057d0deb7b8442828df3042e47923cf1febf446ab77bf5f816f31bba9dc3949d
         lint-citations.py ROOT F 83bf87b4c7ab8d59c1835f4eee4bd75d9a55e5accb60b062463f6b74dc9d5437
-        lint-claude-rules-sync.py OWN F 6ddec97bcc42f63d58f077104ba309ace4479c7c4072ed7923f436c216dd41a4
+        lint-claude-rules-sync.py OWN F 7c2807d3ef111efed279bd36466be37d4714d38d39370eccd2978447acb67179
         lint-cobit-iso31000-citations.py CWD F 8c8d47fd9bf0450ff39cac188c7ba96278fa8e6a85bf77ccefeb25cb4d36355f
         lint-cobit-title-text.py CWD F d625c961d7681ad55eba539e49ea12cfb79e2cf94c4e4682558485b8dec65384
         lint-collection-enumeration-consistency.py NO_FS F 2f347d07371bf789e139a27c8ff17dbf76eacd9253df0ba17f088d84b6edca61
@@ -29104,7 +29120,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Repository-relative argument-handling dependencies outside tools/.
     DEPENDENCIES = """
-        .corpus-management/tools/corpus_mgmt_compiler.py db48a35936ebadb8449fdd51cf7f75df8809cc6d6240cbc1da95e74595dc1497
+        .corpus-management/tools/corpus_mgmt_compiler.py aaf8b6228b0bbdb6977088deffbd7fcefb442db89f6a7da42a86d480b0b2ebd2
         .corpus-management/tools/pack_release_delta.py 9954156fab2677b2e68f665945703d834a704ab4374ae2eaf85010ba3a54c9ad
         .corpus-management/tools/profile_loader.py 0b61489bb735fce429c9103c814ec6b3ee3499b6ff0bea194ab6223bbd946697
         vendor/aiqt/tools/aiqt_corpus.py d263897ff93e84e73c509b373e59669a07767e5795618475a1628ea4657e2a47
@@ -47065,7 +47081,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.21.0", "the normative-wording rule reserves shall for a quotation that the adopting library's quotation policy allows or a transition clause of it keeps, on top of 3b533 (0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0: the rule withdraws a permission)")
+        self.assertEqual(man["pack"]["version"], "0.21.1", "3b607 retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan) on top of the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
@@ -47261,7 +47277,7 @@ class CorpusManagementCompilerTests(LinterTestCase):
     def _run(self, root, *flags):
         return run_linter("tools/build-corpus-management.py", *flags, "--root", root)
 
-    def _index_root(self):
+    def _index_root(self, skill=False):
         ids = ("zeta", "language-convention", "alpha", "normative-wording")
         sources = {f"core/rules/{rid}.md": f"# {rid.title()}\n\nBody for {rid}.\n"
                    for rid in ids}
@@ -47279,13 +47295,23 @@ class CorpusManagementCompilerTests(LinterTestCase):
                          f'source = "tools/{rid}.py"\nentry_point = "tools/{rid}.py"\n')
             sources[f"tools/{rid}.py"] = "# Engine\n"
             files[f"tools/{rid}.py"] = "# Wrapper\n"
-        target = ".claude/rules/corpus-management/INDEX.md"
+        target = ".claude/skills/corpus-management/rule-index.md"
         targets.append(target)
         rules.append('[[rules]]\nid = "rule-index"\nkind = "index"\n'
                      'sources = ["gensrc.toml", "core/gates.toml"]\n'
                      f'target = "{target}"\n')
         ownership.append('[[owned_targets]]\nrule = "rule-index"\nkind = "index"\n'
                          f'target = "{target}"\n')
+        if skill:
+            # The compiler-owned skill body shares the index's directory.
+            target = ".claude/skills/corpus-management/SKILL.md"
+            targets.append(target)
+            rules.append('[[rules]]\nid = "corpus-management-skill"\nkind = "file"\n'
+                         f'sources = ["core/skill/SKILL.md"]\ntarget = "{target}"\n'
+                         'provenance = false\n')
+            ownership.append('[[owned_targets]]\nrule = "corpus-management-skill"\n'
+                             f'kind = "file"\ntarget = "{target}"\n')
+            sources["core/skill/SKILL.md"] = "---\nname: corpus-management\n---\n\nRead rule-index.md.\n"
         return self._make_root(
             gensrc="schema_version = 1\n" + "\n".join(rules),
             ownership="schema_version = 1\n" + "\n".join(ownership),
@@ -47298,7 +47324,7 @@ class CorpusManagementCompilerTests(LinterTestCase):
     def test_index_rendering_order_and_determinism(self):
         root = self._index_root()
         self.assertEqual(self._run(root).returncode, 0)
-        index = root / ".claude/rules/corpus-management/INDEX.md"
+        index = root / ".claude/skills/corpus-management/rule-index.md"
         original = index.read_bytes()
         rows = [line for line in original.decode().splitlines() if line.startswith("- ")]
         self.assertEqual(rows, ["- alpha|Alpha|alpha.py|alpha.md",
@@ -47336,7 +47362,7 @@ class CorpusManagementCompilerTests(LinterTestCase):
         path.write_text("# Shared convention (details)\n\nBody.\n")
         result = self._run(root)
         self.assertEqual(result.returncode, 0, result.stdout)
-        index = (root / ".claude/rules/corpus-management/INDEX.md").read_text()
+        index = (root / ".claude/skills/corpus-management/rule-index.md").read_text()
         self.assertIn("- alpha|Shared convention|alpha.py,zeta.py|alpha.md\n", index)
 
     def test_index_fail_closed_inputs(self):
@@ -47354,7 +47380,10 @@ class CorpusManagementCompilerTests(LinterTestCase):
              '.claude/rules/corpus-management/alpha.md', "loading partition"),
             ('.claude/rules/corpus-management/language-convention.md',
              '.claude/references/corpus-management/language-convention.md', "loading partition"),
-            ('.claude/rules/corpus-management/INDEX.md', 'generated/INDEX.md', "canonical target"),
+            ('.claude/skills/corpus-management/rule-index.md', 'generated/INDEX.md', "canonical target"),
+            # 3b607: the former always-loaded location is no longer canonical.
+            ('.claude/skills/corpus-management/rule-index.md',
+             '.claude/rules/corpus-management/INDEX.md', "canonical target"),
         )
         for old, new, message in cases:
             with self.subTest(new=new):
@@ -47391,7 +47420,7 @@ class CorpusManagementCompilerTests(LinterTestCase):
                 self.assertFalse((root / ".claude").exists())
 
     def test_index_rejects_stale_files_and_symlinks_without_writes(self):
-        for directory in ("rules", "references"):
+        for directory in ("rules", "references", "skills"):
             with self.subTest(directory=directory):
                 root = self._index_root()
                 self.assertEqual(self._run(root).returncode, 0)
@@ -47412,15 +47441,68 @@ class CorpusManagementCompilerTests(LinterTestCase):
                 self.assertEqual(result.returncode, 2, result.stdout)
                 self.assertIn("symlinks", result.stdout)
 
+    def test_index_leftover_always_loaded_copy_fails_without_writes(self):
+        # 3b607: a copy of the index left in .claude/rules/ would still load
+        # at session start, so both modes refuse it until it is removed.
+        root = self._index_root()
+        self.assertEqual(self._run(root).returncode, 0)
+        index = root / ".claude/skills/corpus-management/rule-index.md"
+        self.assertEqual(index.read_bytes().count(b"\n- "), 2)
+        leftover = root / ".claude/rules/corpus-management/INDEX.md"
+        leftover.write_bytes(index.read_bytes())
+        before = {p: p.read_bytes() for p in (root / ".claude").rglob("*.md")}
+        for flags, code in ((("--check",), 1), ((), 2)):
+            result = self._run(root, *flags)
+            self.assertEqual(result.returncode, code, result.stdout)
+            self.assertIn(".claude/rules/corpus-management/INDEX.md: unexpected file",
+                          result.stdout)
+        self.assertEqual(before, {p: p.read_bytes() for p in before})
+        leftover.unlink()
+        self.assertEqual(self._run(root, "--check").returncode, 0)
+
+    def test_index_symlink_in_skill_directory_fails_without_writes(self):
+        # 3b607 round 3: before the move, a symlinked INDEX.md failed --check
+        # (1) and generation (2); the index now lives in the skill directory,
+        # so a same-bytes symlink there must fail the same way rather than
+        # pass the check and be silently replaced by the next generate.
+        root = self._index_root(skill=True)
+        self.assertEqual(self._run(root).returncode, 0)
+        self.assertEqual(self._run(root, "--check").returncode, 0,
+                         "the two compiler-owned skill-directory files are not findings")
+        index = root / ".claude/skills/corpus-management/rule-index.md"
+        (root / "linked-index.md").write_bytes(index.read_bytes())
+        index.unlink()
+        index.symlink_to("../../../linked-index.md")
+        before = {p: p.read_bytes() for p in (root / ".claude").rglob("*.md")}
+        for flags, code in ((("--check",), 1), ((), 2)):
+            result = self._run(root, *flags)
+            self.assertEqual(result.returncode, code, result.stdout)
+            self.assertIn(".claude/skills/corpus-management/rule-index.md: unexpected file or symlink",
+                          result.stdout)
+            self.assertNotIn("SKILL.md", result.stdout)
+        self.assertTrue(index.is_symlink(), "generation must refuse, not replace the link")
+        self.assertEqual(before, {p: p.read_bytes() for p in before})
+
     def test_live_index_partition_and_gate37_ownership(self):
         import importlib.util
         import tomllib
         rules = tomllib.loads((REPO_ROOT / ".corpus-management/gensrc.toml").read_text())["rules"]
         always = REPO_ROOT / ".claude/rules/corpus-management"
         self.assertEqual({p.name for p in always.iterdir()},
-                         {"INDEX.md", "language-convention.md", "normative-wording.md"})
-        index = (always / "INDEX.md").read_bytes()
+                         {"language-convention.md", "normative-wording.md"})
+        skill_dir = REPO_ROOT / ".claude/skills/corpus-management"
+        index = (skill_dir / "rule-index.md").read_bytes()
         self.assertLessEqual(len(index), 6000)
+        # 3b607: the skill body names the index and carries its leading
+        # instruction, so the instruction loads with the skill body and the
+        # index is read on it.
+        skill = " ".join((skill_dir / "SKILL.md").read_text().split())
+        self.assertIn("`.claude/skills/corpus-management/rule-index.md`", skill)
+        for trigger in ("before creating or editing a file that its gate scans",
+                        "before reviewing or auditing such files",
+                        "when answering a question about that rule", "when its gate fails"):
+            self.assertIn(trigger, skill)
+            self.assertIn(trigger, index.decode())
         rows = [line[2:].split("|") for line in index.decode().splitlines() if line.startswith("- ")]
         self.assertEqual(len(rows), 52)
         ids = [row[0] for row in rows]
@@ -58780,7 +58862,7 @@ class StartupCharacterCeilingGateTests(unittest.TestCase):
                      "d10.STARTUP_HEADROOM_WARNING"):
             self.assertIn(name, source)
         self.assertNotRegex(source, r"(CEILING|STARTUP_HEADROOM_WARNING)\s*=")
-        self.assertNotRegex(source, r"\b(250|468|233300)\b")
+        self.assertNotRegex(source, r"\b(250|468|228150)\b")
 
 
 class RepoRelativeDefaultPathTests(unittest.TestCase):

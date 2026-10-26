@@ -54,7 +54,8 @@ silent.
 
 Compiler-owned recognition (compile PR-2): the Corpus-Management pack's
 compiler (``tools/build-corpus-management.py``; gate 99) may generate
-rule files (including the index) under ``.claude/rules/corpus-management/``. The completeness
+rule files under ``.claude/rules/corpus-management/``; its rule index ships
+in the corpus-management skill instead (3b607). The completeness
 check recognizes those files through the pack's validated ownership
 register (``.corpus-management/core/ownership.toml``): a local rule file
 covered by a valid register entry (an exact file target, or inside a
@@ -62,15 +63,17 @@ tree target) is accepted as compiler-owned and skipped from the mapping
 requirement, because its byte-integrity is gate 99's stricter job.
 Recognition is keyed to the register, never to a directory skip, so a
 hand-dropped stray under the reserved subdirectory still fails loud.
-Three ownership defects are findings here (defence in depth with the
+Four ownership defects are findings here (defence in depth with the
 compiler's own validation): an entry that contests a MIRROR_MAP path
 (guardrails mirrors and compiler outputs can never contest a path), an
 entry under ``.claude/rules/`` outside the reserved
-``corpus-management/`` subdirectory, and a block-kind entry targeting
+``corpus-management/`` subdirectory, a block-kind entry targeting
 anything under ``.claude/rules/`` (a compiler-owned block inside a
-mirrored rule body would put two owners on one file). An absent register
-yields an empty owned set (fail-closed); an unparseable register is an
-internal error (exit 2).
+mirrored rule body would put two owners on one file), and an index-kind
+entry targeting anything under ``.claude/rules/`` (the rule index is read
+when the corpus-management skill loads, on the skill's instruction, never
+at session start). An absent register yields an empty owned set
+(fail-closed); an unparseable register is an internal error (exit 2).
 
 The ``--root`` argument overrides the repository root used to resolve
 both halves of every pair. Used by the regression test suite to point
@@ -162,8 +165,8 @@ def load_compiler_owned(root: Path) -> tuple[list[str], set[str], set[str]]:
     or malformed register raises ``OwnershipRegisterError`` (exit 2). An
     entry that contests a MIRROR_MAP path, sits under ``.claude/rules/``
     outside the reserved ``corpus-management/`` subdirectory, or claims a
-    block inside ``.claude/rules/`` yields a finding and contributes no
-    coverage.
+    block or an index inside ``.claude/rules/`` yields a finding and
+    contributes no coverage.
     """
     reg_path = root / OWNERSHIP_REGISTER_REL
     if not reg_path.is_file():
@@ -248,7 +251,7 @@ def load_compiler_owned(root: Path) -> tuple[list[str], set[str], set[str]]:
                 f"block-kind ownership entry {entry['rule']!r} targets "
                 f"{target} under {LOCAL_RULES_DIR_REL}/: a compiler-owned "
                 f"block inside a mirrored rule body would put two owners "
-                f"on one file; only file, tree, or index kinds may own rule files."
+                f"on one file; only file or tree kinds may own rule files."
             )
             continue
         if not (tposix == cm_rules or cm_rules in tposix.parents):
@@ -258,12 +261,16 @@ def load_compiler_owned(root: Path) -> tuple[list[str], set[str], set[str]]:
                 f"{CM_RULES_SUBDIR}/ subdirectory."
             )
             continue
-        if kind == "index" and target != f"{CM_RULES_SUBDIR}/INDEX.md":
-            findings.append(f"index ownership must target {CM_RULES_SUBDIR}/INDEX.md")
+        if kind == "index":
+            findings.append(
+                f"index-kind ownership entry {entry['rule']!r} targets "
+                f"{target} under {LOCAL_RULES_DIR_REL}/: the rule index ships "
+                f"in the corpus-management skill and never loads at session start."
+            )
             continue
         if kind == "tree":
             owned_trees.add(target)
-        elif kind in ("file", "index"):
+        elif kind == "file":
             owned_files.add(target)
         else:
             findings.append(

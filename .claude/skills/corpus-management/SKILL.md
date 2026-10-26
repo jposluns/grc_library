@@ -1,6 +1,6 @@
 ---
 name: corpus-management
-description: Corpus-Management umbrella skill for grc_library. Use when creating or editing corpus documents, when a corpus gate fails, when working on the pack source under .corpus-management/, and when regenerating or checking compiler-owned outputs (gate 99).
+description: Corpus-Management umbrella skill for grc_library. Use when creating, editing, reviewing or auditing corpus documents or any file a corpus gate scans, when answering a question about a corpus rule, when a corpus gate fails, when working on the pack source under .corpus-management/, and when regenerating or checking compiler-owned outputs (gate 99).
 derives_from: ../../../.corpus-management/README.md
 ---
 
@@ -18,10 +18,12 @@ never this copy.
 
 ## Rule discovery
 
-- `.claude/rules/corpus-management/INDEX.md` lists every on-demand corpus rule as
-  `id|purpose|tool|body`. Read a rule's body before creating or editing a file
-  that its gate scans, before reviewing or auditing such files, when answering
-  a question about that rule, and when its gate fails.
+- `rule-index.md` in this skill directory
+  (`.claude/skills/corpus-management/rule-index.md`, compiler-generated) lists
+  every on-demand corpus rule as `id|purpose|tool|body`; read it when this
+  skill loads. Read a rule's body before creating or editing a file that its
+  gate scans, before reviewing or auditing such files, when answering a
+  question about that rule, and when its gate fails.
 - Always-loaded bodies: `language-convention.md` and `normative-wording.md`
   under `.claude/rules/corpus-management/`; every other body lives under
   `.claude/references/corpus-management/` and loads on demand.

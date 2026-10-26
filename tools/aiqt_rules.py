@@ -57,7 +57,7 @@ OVERLAY_DIGESTS: dict[str, str] = {
     ".claude/references/governance/ai-assistant-workflow-disciplines.md":
         "d83251982f9ff4ec365d1d0208097d00429988ce28b80866e60012da89e0c413",
     ".claude/references/governance/artefact-and-branch-discipline.md":
-        "3a5f8301bebf5f2ec25971588acdfd0488e51f292e30bb0ab8e1058dffca9168",
+        "1413817589f0116a1350920f67c545a4a4b74207a97819e86b2367eba453dcde",
     ".claude/references/governance/change-tracking.md":
         "22a467ea46473a353d8ac9ad9f3b24d8b565fd1e7c8c898d59a27cd5eba9b67b",
     ".claude/references/governance/clarify-before-acting.md":
