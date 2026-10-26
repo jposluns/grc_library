@@ -90,9 +90,22 @@ findings):
   undercounts the loaded suite. The driver counts those never-started
   tests from the loaded suite (by skipped class and module) and
   reports them as ``notStarted`` in the sentinel, so a run unittest
-  itself reports green with class- or module-level skips is not
-  refused, while a dropped test (which no skip record accounts for)
-  still is.
+  itself reports green with class-level skips in a module that
+  otherwise ran is not refused, while a dropped test (which no skip
+  record accounts for) still is.
+* Every module must START at least one test (the 3b525 round-8 W1
+  finding: a file on the run list is not a file whose tests ran). The
+  driver records, per handed module, how many of its loaded tests
+  reach ``startTest`` and, after the run, refuses (exit 2, naming the
+  file) a module with none: a ``SkipTest`` raised in ``setUpModule``,
+  or in ``setUpClass`` for every class the module has, is a refusal
+  even when unittest itself reports the run green. A module that
+  defines no tests is refused earlier, before the run, by the
+  zero-test-cases check above. The rule for skips: a test skipped
+  individually (a skip decorator, or ``self.skipTest`` inside the
+  test) reaches ``startTest`` and counts as started, so per-test skips
+  stay normal; only tests a class- or module-level ``SkipTest`` kept
+  from ``startTest`` count as not started.
 * A green child exit additionally needs unittest's own ``Ran N
   tests`` line with N at least 1 somewhere in its stderr.
 
@@ -100,7 +113,11 @@ The child's stderr is streamed to this process's stderr line by line
 as it arrives (and accumulated for the checks above); stdout is
 flushed before the child starts, so the module list precedes the
 child's output even when stdout is a pipe, and a refusal message
-always starts on its own line.
+always starts on its own line. Passing output: stdout carries the
+module list ("Running test modules:" and one indented module name per
+line); stderr carries unittest's own output unchanged (progress, any
+failure detail, "Ran N tests" and "OK"), followed by the sentinel as
+its one extra, last line.
 
 Exit code is otherwise forwarded from unittest: 0 if all tests pass,
 non-zero on failure.
@@ -136,8 +153,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # a module raising SystemExit(0) at import time would otherwise end the
 # child with exit 0 before any test runs. Then load each module's suite and
 # refuse (exit 2, naming the file) a module contributing zero test cases,
-# recording per-class loaded counts on the way. Run with exit=False and
-# emit the sentinel line the parent requires as the last stderr line: the
+# recording per-class loaded counts on the way. Run with exit=False,
+# recording per module how many tests reach startTest, and refuse (exit 2,
+# naming the file) a module none of whose tests started. Then emit the
+# sentinel line the parent requires as the last stderr line: the
 # nonce, testsRun, notStarted (loaded tests a class- or module-level
 # SkipTest kept from reaching startTest, counted from the loaded suite via
 # the skip records' setUpClass/setUpModule holders), wasSuccessful and the
@@ -195,9 +214,44 @@ for name in modules:
         class_counts[key] = class_counts.get(key, 0) + 1
 if failed:
     sys.exit(2)
+# Record, per handed module, how many of its tests reach startTest. The
+# map from each loaded case to its module is built from the very suite
+# the runner is handed (one child suite per argv name, in argv order),
+# before the run frees its cases; a started case is popped, so an id is
+# only looked up while its case is alive.
+case_module = {}
+started = dict.fromkeys(modules, 0)
+class StartRecordingResult(unittest.TextTestResult):
+    def startTest(self, test):
+        name = case_module.pop(id(test), None)
+        if name is not None:
+            started[name] += 1
+        super().startTest(test)
+class StartRecordingRunner(unittest.TextTestRunner):
+    resultclass = StartRecordingResult
+    def run(self, test):
+        for name, module_suite in zip(modules, test):
+            for case in flatten(module_suite):
+                case_module[id(case)] = name
+        return super().run(test)
 program = unittest.main(module=None, argv=["unittest"] + modules,
-                        exit=False)
+                        testRunner=StartRecordingRunner, exit=False)
 result = program.result
+# A module none of whose tests started (a SkipTest from setUpModule, or
+# from setUpClass in every class it has) is a refusal naming the file,
+# whatever the rest of the run did: a file on the run list is not a file
+# whose tests ran. A test skipped individually (a skip decorator or
+# self.skipTest) reaches startTest and counts as started.
+for name in modules:
+    if started[name] < 1:
+        print("REFUSED: none of the %d loaded tests of tests/%s.py "
+              "started (a SkipTest raised in setUpModule, or in "
+              "setUpClass for every class); every module must start at "
+              "least one test" % (counts[name], name.partition(".")[2]),
+              file=sys.stderr)
+        failed = True
+if failed:
+    sys.exit(2)
 # A SkipTest from setUpClass/setUpModule is recorded as ONE skip on a
 # holder named "setUpClass (<module>.<Class>)" or "setUpModule
 # (<module>)" and none of the covered tests reaches startTest; count

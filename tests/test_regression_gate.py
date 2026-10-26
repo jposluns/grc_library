@@ -20,6 +20,7 @@ from __future__ import annotations
 import contextlib
 import io
 import os
+import re
 import runpy
 import shutil
 import subprocess
@@ -154,6 +155,49 @@ def setUpModule():
 class SkippedModuleTests(unittest.TestCase):
     def test_never_starts(self):
         self.fail("must not start")
+"""
+
+# A module that otherwise ran (3b525 round 8, W1): one class is skipped
+# in setUpClass (two tests never start), while the other class starts
+# both of its tests, one of which is skipped individually and so still
+# counts as started. Loaded 4, started 2, notStarted 2.
+PARTLY_SKIPPED_MODULE = """\
+import unittest
+
+
+class SkippedClassTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        raise unittest.SkipTest("environment-dependent fixture missing")
+
+    def test_first_never_starts(self):
+        self.fail("must not start")
+
+    def test_second_never_starts(self):
+        self.fail("must not start")
+
+
+class RunningTests(unittest.TestCase):
+    def test_runs(self):
+        self.assertTrue(True)
+
+    @unittest.skip("individually skipped: still started")
+    def test_individually_skipped(self):
+        self.fail("must not run")
+"""
+
+# Passes plus one individually skipped test, for the output-shape pin.
+PASSING_WITH_SKIP_MODULE = """\
+import unittest
+
+
+class MixedTests(unittest.TestCase):
+    def test_passes(self):
+        self.assertTrue(True)
+
+    @unittest.skip("individually skipped")
+    def test_skipped(self):
+        self.fail("must not run")
 """
 
 _SENTINEL_PREFIX = "REGRESSION-GATE-RESULT "
@@ -733,28 +777,118 @@ class RegressionGateCompletenessTests(unittest.TestCase):
                 "%s must document the __main__.nonce accepted "
                 "residual" % rel)
 
-    def test_main_green_with_class_and_module_level_skips(self) -> None:
-        """A SkipTest raised in setUpClass or setUpModule bypasses
-        startTest for every test it covers, so testsRun undercounts the
-        loaded suite while unittest itself reports the run green; the
-        sentinel's notStarted accounts for those tests and the run is
-        NOT refused (3b525 round 3, F4). Loaded here: 2 (skipped class)
-        + 1 (skipped module) + 1 (passing sibling) = 4; testsRun=1,
-        notStarted=3."""
+    def test_main_green_with_class_level_skip_in_module_that_ran(
+            self) -> None:
+        """A SkipTest raised in setUpClass bypasses startTest for every
+        test of that class, so testsRun undercounts the loaded suite
+        while unittest itself reports the run green; when the module
+        otherwise ran, the sentinel's notStarted accounts for those
+        tests and the run is NOT refused (3b525 round 3, F4). A test
+        skipped individually counts as started (3b525 round 8, W1
+        rule). Loaded here: 4 (partly skipped module) + 1 (passing
+        sibling) = 5; testsRun=3, notStarted=2."""
         runner = self._runner()
         root = self._tmp_repo(["test_zz_ok.py"])
-        (root / "tests" / "test_aa_skipclass.py").write_text(
-            SKIPPING_CLASS_MODULE)
-        (root / "tests" / "test_mm_skipmodule.py").write_text(
-            SKIPPING_MODULE_MODULE)
+        (root / "tests" / "test_aa_partlyskipped.py").write_text(
+            PARTLY_SKIPPED_MODULE)
         with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
             code, _out, err = self._call_main(runner, repo_root=root)
         self.assertEqual(code, 0,
-                         "a run unittest reports green with class- and "
-                         "module-level skips must not be refused:\n" + err)
+                         "a run unittest reports green with a class-level "
+                         "skip in a module that otherwise ran must not be "
+                         "refused:\n" + err)
+        self.assertNotIn("REFUSED", err)
         self.assertIn("OK (skipped=2)", err)
-        self.assertIn("testsRun=1 notStarted=3", err)
+        self.assertIn("testsRun=3 notStarted=2", err)
         self.assertIn(_SENTINEL_PREFIX, err)
+
+    def test_main_refuses_module_whose_tests_never_start(self) -> None:
+        """A module none of whose tests started (a SkipTest raised in
+        setUpModule, or in setUpClass for its only class) is refused by
+        name even though unittest reports the run green and the other
+        module ran (3b525 round 8, W1: before this check the run exited
+        0 with testsRun=1 notStarted=3)."""
+        runner = self._runner()
+        cases = (
+            ("setupmodule_skip", SKIPPING_MODULE_MODULE),
+            ("setupclass_skip_every_class", SKIPPING_CLASS_MODULE),
+        )
+        for label, body in cases:
+            with self.subTest(label=label):
+                root = self._tmp_repo(["test_zz_ok.py"])
+                (root / "tests" / "test_aa_neverstarts.py").write_text(body)
+                with mock.patch.dict(os.environ, _minimal_environ(),
+                                     clear=True):
+                    code, _out, err = self._call_main(runner, repo_root=root)
+                self.assertEqual(code, 2, err)
+                self.assertRegex(
+                    err, r"(?m)^REFUSED: none of the \d+ loaded tests of "
+                    r"tests/test_aa_neverstarts\.py started")
+                self.assertNotIn("tests/test_zz_ok.py", err,
+                                 "the module that ran was refused: the "
+                                 "refusal assertion is passing vacuously")
+                self.assertNotIn(_SENTINEL_PREFIX, err)
+
+    def test_main_refuses_module_that_defines_no_tests(self) -> None:
+        """A module that imports cleanly but defines no tests is refused
+        with a message naming it, beside a module that runs (3b525
+        round 8, W1). The driver's pre-run zero-test-cases check names
+        it first; the post-run zero-started check names it too when
+        that pre-run check is absent, so either layer alone keeps this
+        refusal naming the file (the parent's sentinel check would
+        still refuse, but without naming the module)."""
+        runner = self._runner()
+        root = self._tmp_repo(["test_zz_ok.py"])
+        (root / "tests" / "test_aa_notests.py").write_text(
+            "import unittest\n\n\n"
+            "class NotATestCase:\n"
+            "    def test_looks_like_a_test(self):\n"
+            "        pass\n")
+        with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
+            code, _out, err = self._call_main(runner, repo_root=root)
+        self.assertEqual(code, 2, err)
+        self.assertRegex(err, r"(?m)^REFUSED: .*tests/test_aa_notests\.py")
+        self.assertNotIn("tests/test_zz_ok.py", err)
+
+    def test_main_passing_output_forwards_unittest_output(self) -> None:
+        """The passing output contract (3b525 round 8, W2): stdout is the
+        module list alone; stderr is unittest's own output for the same
+        modules, unchanged, followed by the sentinel as its one extra,
+        last line. Compared against a direct `python -m unittest` run of
+        the same tree, with only the elapsed time normalised."""
+        root = self._tmp_repo(["test_a.py", "test_b.py"],
+                              body=PASSING_WITH_SKIP_MODULE)
+        wrapper = (
+            "import runpy, sys\n"
+            "from pathlib import Path\n"
+            "ns = runpy.run_path(sys.argv[1])\n"
+            "sys.exit(ns['main'](repo_root=Path(sys.argv[2])))\n")
+        gate = subprocess.run(
+            [sys.executable, "-c", wrapper, str(RUNNER_PATH), str(root)],
+            capture_output=True, env=_minimal_environ(), timeout=120)
+        direct = subprocess.run(
+            [sys.executable, "-m", "unittest", "tests.test_a", "tests.test_b"],
+            cwd=str(root), capture_output=True, env=_minimal_environ(),
+            timeout=120)
+        gate_err = gate.stderr.decode("utf-8", "replace")
+        self.assertEqual(gate.returncode, 0, gate_err[-500:])
+        self.assertEqual(direct.returncode, 0, direct.stderr[-500:])
+        self.assertEqual(
+            gate.stdout.decode("utf-8", "replace"),
+            "Running test modules:\n  tests.test_a\n  tests.test_b\n")
+        body, _, last = gate_err.rstrip("\n").rpartition("\n")
+        self.assertRegex(
+            last,
+            r"^REGRESSION-GATE-RESULT [0-9a-f]{32} testsRun=4 notStarted=0 "
+            r"wasSuccessful=True tests\.test_a=2 tests\.test_b=2$")
+
+        def normalise(text):
+            return re.sub(r" in \d+\.\d+s", " in Ts", text)
+
+        self.assertEqual(
+            normalise(body + "\n"),
+            normalise(direct.stderr.decode("utf-8", "replace")))
+        self.assertIn("OK (skipped=2)", body)
 
     def test_main_refuses_setup_systemexit_with_spoofed_summary(self) -> None:
         """A green summary written by a test (standing in for a grandchild
@@ -833,6 +967,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         "nonce",
         "stdin",            # nonce delivery channel (round 3, F1)
         "notStarted",       # class/module-level skip accounting (F4)
+        "starts no test",   # module none of whose tests started (W1)
     )
 
     def test_readme_documents_complete_regression_command(self) -> None:
