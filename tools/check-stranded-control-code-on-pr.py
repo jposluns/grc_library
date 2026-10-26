@@ -43,7 +43,8 @@ top-level read included (3b572 round 3), and every one but the top-level read
 and the git-directory reads refuses on output that is not valid UTF-8, naming
 the decoding error. The git-directory reads (require_own_git_dir in
 tools/lint_common.py) take git's output as bytes and compare real paths as
-bytes, so they never decode. The
+bytes, so output that is not valid UTF-8 never fails them (they decode only
+to format a refusal message). The
 top-level read feeds the own-repository top-level comparison (3b564) and
 decodes its output with os.fsdecode, so output that is not valid UTF-8 never
 fails the read; it reaches the comparison, which passes it only where it names
@@ -425,8 +426,10 @@ def run(base: str | None, head: str) -> int:
 # ---------------------------------------------------------------------------
 def _self_test() -> int:
     failures: list[str] = []
+    ran: list[str] = []
 
     def check(name: str, cond: bool) -> None:
+        ran.append(name)
         if not cond:
             failures.append(name)
 
@@ -509,7 +512,7 @@ def _self_test() -> int:
     if failures:
         print("D13 self-test FAILED: " + ", ".join(failures), file=sys.stderr)
         return 1
-    print("D13 self-test OK (31 cases: range expansion incl. 27701 4-level, Privacy -P, nested SSDF, through-form, cross-stem + suffix-collision + mid-token FP-safety, paren-cite, positives, negatives, scope).")
+    print(f"D13 self-test OK ({len(ran)} cases: range expansion incl. 27701 4-level, Privacy -P, nested SSDF, through-form, cross-stem + suffix-collision + mid-token FP-safety, paren-cite, positives, negatives, scope).")
     return 0
 
 
