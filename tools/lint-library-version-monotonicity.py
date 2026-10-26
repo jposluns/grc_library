@@ -203,7 +203,8 @@ def read_current(path: Path, rel: str, problems: list[tuple[str, str]]) -> str |
     descriptor (r5). r4 stat'ed the path and then opened it again by name, so a file swapped
     for a FIFO between the two calls was opened blocking and the gate hung. O_NONBLOCK makes
     opening a FIFO return at once; fstat then refuses anything but a regular file or a
-    directory (a FIFO, a socket, a device) without reading it. O_NOFOLLOW makes a symlink,
+    directory (a FIFO, a device) without reading it. Opening a Unix socket fails (ENXIO), so
+    a socket never reaches fstat and is refused as an open error. O_NOFOLLOW makes a symlink,
     dangling or not, fail the open (ELOOP), so it is refused as an open error, the way round 3
     refused a dangling one. A directory falls through to the read, which refuses it as round 3
     did (IsADirectoryError). The text is decoded as read_text() decoded it (UTF-8, universal
@@ -489,9 +490,10 @@ def read_current_documents(
     a missing one is a problem, otherwise it is read only when there is an entry by that name
     and its text is None when there is not. The walk yields every entry named *.md, so a
     symlink or a directory is opened and refused, not skipped: the walk never skipped one (its
-    read raised), and git can hold a document at that path in the prior state; a FIFO, a
-    socket or a device is opened without blocking and refused without being read, each from
-    the one descriptor read_current() opens. If any is not UTF-8, is not a
+    read raised), and git can hold a document at that path in the prior state; a FIFO or a
+    device is opened without blocking and refused without being read, each from the one
+    descriptor read_current() opens, and a socket, which cannot be opened (ENXIO), is
+    refused as an open error. If any is not UTF-8, is not a
     regular file or cannot be read, or a directory under the walk cannot be listed, this
     raises CurrentDocumentsUnreadable naming every one (3b624)."""
     documents: list[tuple[str, str]] = []

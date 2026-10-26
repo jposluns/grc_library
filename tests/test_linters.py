@@ -29409,7 +29409,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
-        lint-library-version-monotonicity.py OWN F 261525363c12e9ec01547c0d7c5440476b8718cf6b80c5be8445e7ea60e2c8af
+        lint-library-version-monotonicity.py OWN F e100ca134c856526224552e2a646f195d61708a2f32255d7cd254317735c6178
         lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
         lint-links.py ROOT F cf4b6ae1d2c76df65234323d94650ebc62db87bf24ed4f375d5386b4a75fb0b6
         lint-listing-surface-completeness.py NO_FS F 3dc1bb95c9133adec9f3af5640cf18a6c342118c972ab7cfb447fa6651ffe0f3
@@ -71402,6 +71402,26 @@ class GitReadFailsClosedTests(unittest.TestCase):
             "ERROR: risk/pipe.md is not a regular file (a FIFO), so it is not read; its version "
             "cannot be read, so monotonicity is unchecked.",
             "ERROR: risk/to-pipe.md cannot be read (OSError); its version cannot be read, so "
+            "monotonicity is unchecked."], err)
+
+    def test_library_version_monotonicity_refuses_a_symlink_to_a_regular_document(self) -> None:
+        # 3b624 r6: r5 opens each document with O_NOFOLLOW, so a symlink to a regular *.md
+        # fails the open (ELOOP) and is refused as an open error; without O_NOFOLLOW it was
+        # followed, read as the file it names, and the gate printed OK. The twin without the
+        # symlink passes.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.1\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 0, out + err)
+        self.assertIn("OK:", out)
+        (repo / "governance" / "link.md").symlink_to("d.md")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: governance/link.md cannot be read (OSError); its version cannot be read, so "
             "monotonicity is unchecked."], err)
 
     def test_library_version_monotonicity_reads_a_document_from_the_descriptor_it_checked(self) -> None:
