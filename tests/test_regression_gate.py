@@ -186,6 +186,95 @@ class RunningTests(unittest.TestCase):
         self.fail("must not run")
 """
 
+# Its own class is skipped in setUpClass, while it imports a passing
+# class defined in tests/test_zz_ok.py (3b525 round-8 review, W1): the
+# imported class's started test belongs to its defining module, so this
+# module starts none of its own (before crediting by defining module the
+# run exited 0 with testsRun=2 notStarted=1).
+BORROWING_MODULE = """\
+import unittest
+
+from tests.test_zz_ok import PassingTests
+
+
+class SkippedClassTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        raise unittest.SkipTest("environment-dependent fixture missing")
+
+    def test_never_starts(self):
+        self.fail("must not start")
+"""
+
+# The module's only class is skipped by a class decorator (3b525
+# round-8 review, N1): unittest calls startTest for each of its tests
+# before reading the class flag, yet the class is skipped as a whole.
+DECORATOR_SKIPPED_CLASS_MODULE = """\
+import unittest
+
+
+@unittest.skip("whole class skipped by decorator")
+class DecoratedSkipTests(unittest.TestCase):
+    def test_never_runs(self):
+        self.fail("must not run")
+"""
+
+DECORATOR_SKIPUNLESS_FALSE_MODULE = """\
+import unittest
+
+
+@unittest.skipUnless(False, "whole class skipped by skipUnless(False)")
+class DecoratedSkipUnlessTests(unittest.TestCase):
+    def test_never_runs(self):
+        self.fail("must not run")
+"""
+
+# A decorator-skipped class beside a class that runs: the module started
+# a test, so it is not refused; the decorated class's test still reaches
+# startTest, so testsRun counts it and notStarted stays 0.
+DECORATOR_SKIPPED_BESIDE_RUNNING_MODULE = """\
+import unittest
+
+
+@unittest.skip("whole class skipped by decorator")
+class DecoratedSkipTests(unittest.TestCase):
+    def test_never_runs(self):
+        self.fail("must not run")
+
+
+class RunningTests(unittest.TestCase):
+    def test_runs(self):
+        self.assertTrue(True)
+"""
+
+# A fixture that raises an error, not SkipTest (3b525 round-8 review,
+# N2): the run fails on unittest's own terms and keeps its exit 1.
+ERRORING_SETUPMODULE_MODULE = """\
+import unittest
+
+
+def setUpModule():
+    raise RuntimeError("module fixture broke")
+
+
+class ErroringModuleTests(unittest.TestCase):
+    def test_never_starts(self):
+        self.fail("must not start")
+"""
+
+ERRORING_SETUPCLASS_MODULE = """\
+import unittest
+
+
+class ErroringClassTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        raise RuntimeError("class fixture broke")
+
+    def test_never_starts(self):
+        self.fail("must not start")
+"""
+
 # Passes plus one individually skipped test, for the output-shape pin.
 PASSING_WITH_SKIP_MODULE = """\
 import unittest
@@ -257,9 +346,9 @@ class _FakePopen:
     default) a completion sentinel built from the nonce main() wrote to
     the child's stdin and the command's module list, the way the real
     driver would emit it. ``not_started`` fabricates a driver whose run
-    had that many loaded tests kept from starting by a class- or
-    module-level SkipTest (testsRun shrinks to match, as the real
-    driver's would)."""
+    had that many loaded tests kept from starting by a SkipTest in
+    setUpClass (testsRun shrinks to match, as the real driver's
+    would)."""
 
     def __init__(self, returncode: int = 0, summary: bytes | None = None,
                  sentinel: bool = True, mutate=None,
@@ -807,11 +896,16 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         setUpModule, or in setUpClass for its only class) is refused by
         name even though unittest reports the run green and the other
         module ran (3b525 round 8, W1: before this check the run exited
-        0 with testsRun=1 notStarted=3)."""
+        0 with testsRun=1 notStarted=3). A class skipped by a class
+        decorator (unittest.skip, skipUnless(False)) counts the same as
+        one skipped in setUpClass, although unittest calls startTest for
+        its tests (3b525 round-8 review, N1)."""
         runner = self._runner()
         cases = (
             ("setupmodule_skip", SKIPPING_MODULE_MODULE),
             ("setupclass_skip_every_class", SKIPPING_CLASS_MODULE),
+            ("class_skip_decorator", DECORATOR_SKIPPED_CLASS_MODULE),
+            ("class_skipunless_false", DECORATOR_SKIPUNLESS_FALSE_MODULE),
         )
         for label, body in cases:
             with self.subTest(label=label):
@@ -828,6 +922,71 @@ class RegressionGateCompletenessTests(unittest.TestCase):
                                  "the module that ran was refused: the "
                                  "refusal assertion is passing vacuously")
                 self.assertNotIn(_SENTINEL_PREFIX, err)
+
+    def test_main_refuses_module_that_only_borrows_started_tests(
+            self) -> None:
+        """A started test is credited to the module that defines its
+        class, not to the module whose suite holds it: a module whose own
+        class is skipped in setUpClass, but which imports a passing class
+        from another module, is refused by name (3b525 round-8 review,
+        W1: before this the run exited 0 with testsRun=2 notStarted=1)."""
+        runner = self._runner()
+        root = self._tmp_repo(["test_zz_ok.py"])
+        (root / "tests" / "test_aa_borrows.py").write_text(BORROWING_MODULE)
+        with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
+            code, _out, err = self._call_main(runner, repo_root=root)
+        self.assertEqual(code, 2, err)
+        self.assertRegex(
+            err, r"(?m)^REFUSED: none of the 2 loaded tests of "
+            r"tests/test_aa_borrows\.py started")
+        self.assertNotIn("tests/test_zz_ok.py", err,
+                         "the defining module of the imported class was "
+                         "refused: its started tests were not credited")
+        self.assertNotIn(_SENTINEL_PREFIX, err)
+
+    def test_main_green_with_decorator_skipped_class_beside_running_class(
+            self) -> None:
+        """Control for the class-decorator rule (3b525 round-8 review,
+        N1): a decorator-skipped class does not refuse a module that
+        starts a test of another class it defines. The decorated class's
+        test still reaches startTest, so testsRun counts it and
+        notStarted stays 0. Loaded: 2 + 1 = 3; testsRun=3."""
+        runner = self._runner()
+        root = self._tmp_repo(["test_zz_ok.py"])
+        (root / "tests" / "test_aa_decorated.py").write_text(
+            DECORATOR_SKIPPED_BESIDE_RUNNING_MODULE)
+        with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
+            code, _out, err = self._call_main(runner, repo_root=root)
+        self.assertEqual(code, 0, err)
+        self.assertNotIn("REFUSED", err)
+        self.assertIn("OK (skipped=1)", err)
+        self.assertIn("testsRun=3 notStarted=0", err)
+
+    def test_main_forwards_failure_when_fixture_errors(self) -> None:
+        """A setUpModule, or a module's only setUpClass, that raises an
+        error (not SkipTest) fails the run on unittest's own terms: the
+        exit stays unittest's 1 and no zero-started refusal names a
+        SkipTest cause the run did not have (3b525 round-8 review, N2:
+        before this the run printed that refusal and exited 2)."""
+        runner = self._runner()
+        cases = (
+            ("setupmodule_runtimeerror", ERRORING_SETUPMODULE_MODULE,
+             "module fixture broke"),
+            ("setupclass_runtimeerror", ERRORING_SETUPCLASS_MODULE,
+             "class fixture broke"),
+        )
+        for label, body, message in cases:
+            with self.subTest(label=label):
+                root = self._tmp_repo(["test_zz_ok.py"])
+                (root / "tests" / "test_aa_errors.py").write_text(body)
+                with mock.patch.dict(os.environ, _minimal_environ(),
+                                     clear=True):
+                    code, _out, err = self._call_main(runner, repo_root=root)
+                self.assertEqual(code, 1, err)
+                self.assertIn("FAILED (errors=1)", err)
+                self.assertIn(message, err)
+                self.assertNotIn("REFUSED", err)
+                self.assertIn("wasSuccessful=False", err)
 
     def test_main_refuses_module_that_defines_no_tests(self) -> None:
         """A module that imports cleanly but defines no tests is refused

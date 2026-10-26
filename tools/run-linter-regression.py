@@ -85,27 +85,43 @@ findings):
   scheme is proof against deliberately adversarial in-process code).
   Nor do they defend against a partially hollowed module (see the
   zero-test bullet above).
-* A ``SkipTest`` raised in ``setUpClass`` or ``setUpModule`` bypasses
-  ``startTest`` for every test it covers, so ``testsRun`` legitimately
-  undercounts the loaded suite. The driver counts those never-started
-  tests from the loaded suite (by skipped class and module) and
-  reports them as ``notStarted`` in the sentinel, so a run unittest
-  itself reports green with class-level skips in a module that
-  otherwise ran is not refused, while a dropped test (which no skip
-  record accounts for) still is.
-* Every module must START at least one test (the 3b525 round-8 W1
-  finding: a file on the run list is not a file whose tests ran). The
-  driver records, per handed module, how many of its loaded tests
-  reach ``startTest`` and, after the run, refuses (exit 2, naming the
-  file) a module with none: a ``SkipTest`` raised in ``setUpModule``,
-  or in ``setUpClass`` for every class the module has, is a refusal
-  even when unittest itself reports the run green. A module that
-  defines no tests is refused earlier, before the run, by the
-  zero-test-cases check above. The rule for skips: a test skipped
-  individually (a skip decorator, or ``self.skipTest`` inside the
-  test) reaches ``startTest`` and counts as started, so per-test skips
-  stay normal; only tests a class- or module-level ``SkipTest`` kept
-  from ``startTest`` count as not started.
+* A ``SkipTest`` raised in ``setUpClass`` bypasses ``startTest`` for
+  every test of that class, so ``testsRun`` legitimately undercounts
+  the loaded suite. The driver counts those never-started tests from
+  the loaded suite (by skipped class) and reports them as
+  ``notStarted`` in the sentinel, so a run unittest itself reports
+  green with class-level skips in a module that otherwise ran is not
+  refused, while a dropped test (which no skip record accounts for)
+  still is. A ``SkipTest`` raised in ``setUpModule`` is not counted
+  there: its module is refused by the next bullet.
+* Every module must START at least one test of a class it defines
+  (the 3b525 round-8 W1 finding: a file on the run list is not a file
+  whose tests ran). The driver credits each test that reaches
+  ``startTest`` to the module that DEFINES its class
+  (``type(test).__module__``), not to the module whose suite holds
+  it, so a module that imports another module's ``TestCase`` class
+  cannot borrow that class's started tests (the 3b525 round-8 review
+  W1). When unittest itself reports the run green, the driver then
+  refuses (exit 2, naming the file) a module credited with none. The
+  rule for skips, one rule for every class-level skip: a test counts
+  as not started when a ``SkipTest`` raised in ``setUpModule`` or
+  ``setUpClass`` kept it from ``startTest``, AND when its class is
+  skip-marked by a class decorator (``unittest.skip``, or ``skipIf``
+  or ``skipUnless`` whose condition skips, on the class or a base
+  class), even though unittest calls ``startTest`` for such a test
+  before it reads the class flag (the 3b525 round-8 review N1). So a
+  module whose every defined test is skipped at class level, by
+  either means, is a refusal. A test skipped individually (a skip
+  decorator on the test method, or ``self.skipTest`` inside the test
+  or its ``setUp``) counts as started, so per-test skips stay normal.
+  A module that defines no tests is refused earlier, before the run,
+  by the zero-test-cases check above.
+* A run unittest itself reports as failed (``wasSuccessful()`` False,
+  including an error, not a skip, raised by ``setUpModule`` or
+  ``setUpClass``) is never turned into that zero-started refusal: the
+  driver exits 1 with unittest's own failure report, and this script
+  forwards the 1 (the 3b525 round-8 review N2: such a run printed a
+  refusal naming a ``SkipTest`` cause it did not have and exited 2).
 * A green child exit additionally needs unittest's own ``Ran N
   tests`` line with N at least 1 somewhere in its stderr.
 
@@ -120,7 +136,7 @@ failure detail, "Ran N tests" and "OK"), followed by the sentinel as
 its one extra, last line.
 
 Exit code is otherwise forwarded from unittest: 0 if all tests pass,
-non-zero on failure.
+non-zero on failure (1 when unittest reports a failure or an error).
 
 Stdlib-only Python 3.11.
 """
@@ -154,13 +170,14 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # child with exit 0 before any test runs. Then load each module's suite and
 # refuse (exit 2, naming the file) a module contributing zero test cases,
 # recording per-class loaded counts on the way. Run with exit=False,
-# recording per module how many tests reach startTest, and refuse (exit 2,
-# naming the file) a module none of whose tests started. Then emit the
+# recording per defining module how many tests of classes not skipped at
+# class level reach startTest, and, when unittest reports the run green,
+# refuse (exit 2, naming the file) a module with none. Then emit the
 # sentinel line the parent requires as the last stderr line: the
-# nonce, testsRun, notStarted (loaded tests a class- or module-level
-# SkipTest kept from reaching startTest, counted from the loaded suite via
-# the skip records' setUpClass/setUpModule holders), wasSuccessful and the
-# per-module test counts.
+# nonce, testsRun, notStarted (loaded tests a SkipTest in setUpClass
+# kept from reaching startTest, counted from the loaded suite via the
+# skip records' setUpClass holders), wasSuccessful and the per-module
+# test counts.
 _DRIVER = """\
 import importlib
 import os
@@ -214,57 +231,72 @@ for name in modules:
         class_counts[key] = class_counts.get(key, 0) + 1
 if failed:
     sys.exit(2)
-# Record, per handed module, how many of its tests reach startTest. The
-# map from each loaded case to its module is built from the very suite
-# the runner is handed (one child suite per argv name, in argv order),
-# before the run frees its cases; a started case is popped, so an id is
-# only looked up while its case is alive.
+# Record, per handed module, how many tests from classes it DEFINES
+# (type(case).__module__) reach startTest, not how many its loaded suite
+# holds: a module that imports another module's TestCase class must not
+# borrow that class's started tests. A test whose class is skip-marked
+# (unittest.skip, or skipIf/skipUnless taking effect, on the class or a
+# base) reaches startTest before unittest reads the class flag, but is
+# not credited: a whole class skipped by decorator counts the same as
+# one skipped by a SkipTest in setUpClass. Only the defining modules of
+# loaded cases are recorded, before the run frees its cases; a started
+# case is popped, so an id is only looked up while its case is alive.
 case_module = {}
 started = dict.fromkeys(modules, 0)
 class StartRecordingResult(unittest.TextTestResult):
     def startTest(self, test):
         name = case_module.pop(id(test), None)
-        if name is not None:
+        if name is not None and not getattr(type(test), "__unittest_skip__",
+                                            False):
             started[name] += 1
         super().startTest(test)
 class StartRecordingRunner(unittest.TextTestRunner):
     resultclass = StartRecordingResult
     def run(self, test):
-        for name, module_suite in zip(modules, test):
-            for case in flatten(module_suite):
-                case_module[id(case)] = name
+        for case in flatten(test):
+            if type(case).__module__ in started:
+                case_module[id(case)] = type(case).__module__
         return super().run(test)
 program = unittest.main(module=None, argv=["unittest"] + modules,
                         testRunner=StartRecordingRunner, exit=False)
 result = program.result
-# A module none of whose tests started (a SkipTest from setUpModule, or
-# from setUpClass in every class it has) is a refusal naming the file,
-# whatever the rest of the run did: a file on the run list is not a file
-# whose tests ran. A test skipped individually (a skip decorator or
-# self.skipTest) reaches startTest and counts as started.
-for name in modules:
-    if started[name] < 1:
-        print("REFUSED: none of the %d loaded tests of tests/%s.py "
-              "started (a SkipTest raised in setUpModule, or in "
-              "setUpClass for every class); every module must start at "
-              "least one test" % (counts[name], name.partition(".")[2]),
-              file=sys.stderr)
-        failed = True
+# On a run unittest itself reports green, a module that started no test
+# of a class it defines (a SkipTest from setUpModule, or every class it
+# defines skipped at class level: by a SkipTest from setUpClass or by a
+# skip decorator on the class) is a refusal naming the file: a file on
+# the run list is not a file whose tests ran. A test skipped individually
+# (a skip decorator on the method, or self.skipTest) counts as started.
+# A run that already failed keeps unittest's exit 1 and its own error
+# report (a setUpModule or setUpClass that raised, not skipped, also
+# starts no test), so no refusal names a cause the run did not have.
+if result.wasSuccessful():
+    for name in modules:
+        if started[name] < 1:
+            print("REFUSED: none of the %d loaded tests of tests/%s.py "
+                  "started outside a class- or module-level skip (a "
+                  "SkipTest raised in setUpModule, or every class the "
+                  "module defines skipped by a SkipTest in setUpClass or "
+                  "a class skip decorator); every module must start at "
+                  "least one test of a class it defines"
+                  % (counts[name], name.partition(".")[2]),
+                  file=sys.stderr)
+            failed = True
 if failed:
     sys.exit(2)
-# A SkipTest from setUpClass/setUpModule is recorded as ONE skip on a
-# holder named "setUpClass (<module>.<Class>)" or "setUpModule
-# (<module>)" and none of the covered tests reaches startTest; count
-# those tests from the loaded suite so the parent can reconcile
-# testsRun against the loaded total. An unknown holder counts 0, so a
-# mismatch stays a refusal (fail closed).
+# A SkipTest from setUpClass is recorded as ONE skip on a holder named
+# "setUpClass (<module>.<Class>)" and none of the class's tests reaches
+# startTest; count those tests from the loaded suite so the parent can
+# reconcile testsRun against the loaded total. Any other holder counts
+# 0, so a mismatch stays a refusal (fail closed). A "setUpModule
+# (<module>)" holder is deliberately not counted, so it can only make
+# that reconciliation fail: a handed module whose setUpModule raised
+# SkipTest starts no test of a class it defines and is refused above,
+# and the parent reads this sentinel only after a green exit.
 not_started = 0
 for skipped_test, _reason in result.skipped:
     holder = skipped_test.id()
     if holder.startswith("setUpClass (") and holder.endswith(")"):
         not_started += class_counts.get(holder[len("setUpClass ("):-1], 0)
-    elif holder.startswith("setUpModule (") and holder.endswith(")"):
-        not_started += counts.get(holder[len("setUpModule ("):-1], 0)
 print("REGRESSION-GATE-RESULT %s testsRun=%d notStarted=%d "
       "wasSuccessful=%s %s"
       % (nonce, result.testsRun, not_started, result.wasSuccessful(),
@@ -369,8 +401,8 @@ def _sentinel_refusal(last_line: str, nonce: str,
     not_started = int(match.group("notstarted"))
     if ran < 1 or ran + not_started != sum(counts.values()):
         return ("the completion sentinel's testsRun=%d plus "
-                "notStarted=%d (loaded tests a class- or module-level "
-                "SkipTest kept from starting) does not equal the "
+                "notStarted=%d (loaded tests a SkipTest in setUpClass "
+                "kept from starting) does not equal the "
                 "per-module total %d (with at least one test run)"
                 % (ran, not_started, sum(counts.values())))
     if match.group("ok") != "True":

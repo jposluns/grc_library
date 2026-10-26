@@ -69,20 +69,29 @@ of the following, never softening one to green:
 - a module that cannot be imported (any `BaseException`, so an
   import-time `SystemExit(0)` cannot pass as green);
 - a module that contributes zero test cases;
-- a module that starts no test: none of its loaded tests reached
-  unittest's `startTest` (a `SkipTest` raised in `setUpModule`, or in
-  `setUpClass` for every class it has), even when unittest reports the
-  run green. A test skipped individually (a skip decorator or
-  `self.skipTest`) reaches `startTest` and counts as started, so
-  per-test skips stay normal;
+- a module that starts no test of a class it defines, on a run
+  unittest reports green. A started test is credited to the module
+  that defines its class, not to a module that only imports that
+  class. One rule covers every class-level skip: a test counts as not
+  started when a `SkipTest` raised in `setUpModule` or `setUpClass`
+  kept it from `startTest`, and when its class is skipped by a class
+  decorator (`unittest.skip`, or `skipIf`/`skipUnless` whose condition
+  skips), although unittest calls `startTest` for that test before it
+  reads the class flag. So a module whose every defined test is
+  skipped at class level, by either means, is refused. A test skipped
+  individually (a skip decorator on the test method, or
+  `self.skipTest`) counts as started, so per-test skips stay normal.
+  A run unittest reports as failed (including an error, not a skip,
+  raised by `setUpModule` or `setUpClass`) is not turned into this
+  refusal: it keeps unittest's failure report and exit 1;
 - a green child exit whose output lacks unittest's own `Ran N tests`
   line with N at least 1; and
 - a green child exit whose LAST stderr line is not the child driver's
   completion sentinel: a per-run nonce from the parent plus
-  `testsRun`, `notStarted` (loaded tests a class- or module-level
-  `SkipTest` kept from starting, counted from the loaded suite, so a
-  green run with a `SkipTest` raised in `setUpClass` in a module that
-  otherwise started a test is not refused), the per-module test counts (naming exactly the
+  `testsRun`, `notStarted` (loaded tests a `SkipTest` raised in
+  `setUpClass` kept from starting, counted from the loaded suite, so a
+  green run with such a skip in a module that otherwise started a
+  test is not refused), the per-module test counts (naming exactly the
   handed modules, each at least 1, with `testsRun` plus `notStarted`
   summing to their total and `testsRun` at least 1) and
   `wasSuccessful=True`. Completion is established from the executed
