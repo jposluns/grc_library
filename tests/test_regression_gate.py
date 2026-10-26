@@ -2442,7 +2442,11 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         "since the previous matched start",
         "arrived in that stretch",
         # round 16: a class cleanup's skip gives one run a second record
-        # (round 17: worded as at most one counted record per run)
+        # (round 17: worded as at most one counted record per run; round
+        # 19: this phrase replaced the old "never yields two records"
+        # clause in place, so restoring that clause drops it and fails
+        # here, and no negative check on the old words is kept, since it
+        # also fired on a correction quoting them)
         "one run contributes at most one counted record",
         "recorded under the same setUpClass name",
         "not credited to a later run",
@@ -2466,8 +2470,9 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         residual, the pairing-check wording and the per-run notStarted
         rule in the same words (markup and line breaks aside), and none
         still says a different suite on a second load fails the pairing
-        check (3b525 rounds 13, 14 and 15) or that one run never yields
-        two records (round 17: a class cleanup's skip yields one)."""
+        check (3b525 rounds 13, 14 and 15). The one-run rule is pinned
+        by its positive phrase alone (round 19: a negative check on the
+        old wording failed a correction that quoted it)."""
         surfaces = {"runner docstring": self._runner()["__doc__"] or ""}
         for rel in ("tools/README.md", "tests/README.md"):
             surfaces[rel] = (REPO_ROOT / rel).read_text(encoding="utf-8")
@@ -2478,8 +2483,6 @@ class RegressionGateCompletenessTests(unittest.TestCase):
                     self.assertIn(phrase, flat)
             with self.subTest(surface=label, phrase="different suite"):
                 self.assertNotIn("different suite on a second load", flat)
-            with self.subTest(surface=label, phrase="never yields"):
-                self.assertNotIn("one run never yields two records", flat)
 
     def test_readme_documents_complete_regression_command(self) -> None:
         """tests/README.md names the runner as the complete regression
