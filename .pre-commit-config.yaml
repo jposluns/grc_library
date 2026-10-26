@@ -734,3 +734,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-table-cell-count
+        name: Table cell-count audit
+        entry: python3 tools/lint-table-cell-count.py
+        language: system
+        pass_filenames: false
+        always_run: true

@@ -50,7 +50,7 @@ Adversarial documents in the corpus can instruct the model to take unintended ac
   <retrieved_context>
   [document content here]
   </retrieved_context>
- ```
+  ```
 - **Instruct the model** in the system prompt not to follow instructions found in retrieved content
 - **Monitor for anomalous outputs** that suggest the model is acting on retrieved instructions rather than user instructions
 - **Test with adversarial documents**: insert documents containing injection payloads into the test corpus and verify the model ignores them
