@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party and Supply Chain Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.15\
-**Date:** 2026-10-17\
+**Version:** 1.1.18\
+**Date:** 2026-10-26\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -69,9 +69,11 @@ All Tier 1 and Tier 2 third parties must complete a due diligence assessment bef
 | Privacy and data protection compliance | Full assessment | Full assessment | If applicable | Not required |
 | Business continuity and resilience capability | Full assessment | Full assessment | Abbreviated | Not required |
 | Trade compliance programme membership (CTPAT / AEO-S / PIP / BASC where applicable) | Mandatory where in-scope | Mandatory where in-scope | Where applicable | Not required |
-| AI systems in service delivery | Full AI due diligence | Assessment if AI-enabled | Not required | Not required |
+| AI systems in service delivery | Full AI due diligence per the AI due-diligence procedure | AI due diligence per the AI due-diligence procedure | Within the AI due-diligence procedure's scope, AI due diligence per that procedure; otherwise not required | Within the AI due-diligence procedure's scope, AI due diligence per that procedure; otherwise not required |
 | Sub-contractor and fourth-party dependencies | Required | Required | Where material | Not required |
 | Legal, regulatory, and sanctions compliance | Mandatory | Mandatory | Abbreviated | Not required |
+
+For the AI systems row, [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md) applies to every AI supplier within the scope of its Section 2, whatever its tier, and its Section 5 sets the mandatory evidence for each tier. For a third party that uses AI systems in service delivery but falls outside that scope, Tier 1 due diligence must assess those AI systems against every Core and Extended item in Section 5 of that procedure, Tier 2 due diligence must assess them against every Core item, and AI due diligence is not required at Tier 3 or Tier 4.
 
 Operational procedures: [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md)
 
@@ -118,7 +120,7 @@ For third parties providing AI models, inference services, training data, or oth
 - Cross-border data-transfer mechanism per the privacy framework.
 - Incident notification to the organization within 24 hours of discovery, uniform across AI suppliers and governing regardless of the supplier's criticality tier, per [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md) Section 6.3.
 
-This 24-hour AI-supplier incident-notification requirement applies to every AI supplier even where the AI due-diligence applicability matrix above scopes AI due diligence down (assessment-if-AI-enabled, or not-required) for a lower criticality tier; a lower tier does not waive it.
+This 24-hour AI-supplier incident-notification requirement applies to every AI supplier whatever its criticality tier; a lower tier does not waive it. For a third party within the scope of Section 2 of the AI due-diligence procedure, the AI due-diligence evidence for each tier is set by Section 5 of that procedure, to which the AI systems row of the Section 4.1 matrix defers; for a third party outside that scope, it is set by Section 4.1 of this standard.
 
 See [`ai/template-ai-vendor-security-questionnaire.md`](../ai/template-ai-vendor-security-questionnaire.md) and [`ai/procedure-foundation-model-lifecycle.md`](../ai/procedure-foundation-model-lifecycle.md) for the operational vehicle.
 

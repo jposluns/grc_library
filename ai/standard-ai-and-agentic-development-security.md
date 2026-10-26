@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.48\
-**Date:** 2026-10-22\
+**Version:** 1.8.52\
+**Date:** 2026-10-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -543,8 +543,8 @@ Log retention per Data Retention Schedule.
 | --- | --- | --- |
 | Prompt regression (promptfoo functional) | Every PR | Any change to system prompt, model, or tool definitions |
 | Injection resistance (promptfoo security) | Every PR | Any change to system prompt, model, or retrieval pipeline |
-| Garak scan | Pre-release | Model version change, major system prompt change |
-| PyRIT red team | Quarterly | Continuous operation; or major architecture change |
+| Garak scan | Pre-release gate; weekly against production endpoints | Model version change, major system prompt change |
+| PyRIT red team | Before each release gate; weekly in production for systems classified High under the organizational AI risk classification; at least quarterly for every system in scope, with or without a release | Continuous operation; or major architecture change |
 | Manual penetration test | Annually | Per Penetration Testing and Red Team Standard |
 
 **Framework anchors.** This schedule aligns with NIST SP 800-218A RV.1.2 (review, analyze, and/or test the software's code to identify or confirm the presence of previously undetected vulnerabilities), whose AI-specific recommendations are to scan and test AI models frequently, to rely mainly on automation with a human in the loop as needed, and to conduct periodic audits of AI models: the every-PR and pre-release rows are the frequent automated testing, and the quarterly red team and the annual manual test are the periodic audits.
@@ -565,7 +565,7 @@ The adversarial test suite must cover the categories defined in the AI Adversari
 
 ## 23. Red team requirements
 
-**REDTEAM-SEC-01:** All AI systems handling Confidential data or capable of initiating actions with financial or operational impact must undergo red team evaluation before production go-live and annually thereafter.
+**REDTEAM-SEC-01:** All AI systems handling Confidential data or capable of initiating actions with financial or operational impact must undergo red team evaluation before production go-live and annually thereafter. An AI system classified High under the organizational AI risk classification must also undergo red team evaluation, including manual testing by a qualified practitioner (REDTEAM-SEC-04), before each release, whether or not the first sentence applies to it.
 
 **REDTEAM-SEC-02:** Red team scope must include full kill chain exercise, multi-turn attack scenarios, RAG poisoning simulation, tool abuse, context contamination, and agent chain attacks where applicable. See AI Adversarial Test Reference for methodology.
 
@@ -746,7 +746,7 @@ AI-driven penetration testing and offensive security agents (PentestGPT, PentAGI
 
 ## 34. Verification and enforcement
 
-Compliance with this standard is verified through: CI/CD pipeline gate results (automated, per commit); pre-production security checklist gate (per deployment); quarterly security review of AI systems (manual); and annual red team evaluation per §23.
+Compliance with this standard is verified through: CI/CD pipeline gate results (automated, per commit); pre-production security checklist gate (per deployment); quarterly security review of AI systems (manual); red team evaluation per §23 before production go-live and annually thereafter; and red team evaluation per §23 before each release of an AI system classified High under the organizational AI risk classification.
 
 Any AI system found non-compliant with a Critical or High requirement must be remediated within the timeframes defined in the Production Security Requirements Standard. Continued operation requires an explicit risk acceptance per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) (approved by the acceptance authority for the residual risk level; High or Critical routes to the Executive Committee or Board Risk Committee), documented as a risk-acceptance record per that procedure and cross-referenced to any related exception register entry.
 
