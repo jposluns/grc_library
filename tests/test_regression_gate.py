@@ -187,10 +187,10 @@ class RunningTests(unittest.TestCase):
 """
 
 # Its own class is skipped in setUpClass, while it imports a passing
-# class defined in tests/test_zz_ok.py (3b525 round-8 review, W1): the
-# imported class's started test belongs to its defining module, so this
-# module starts none of its own (before crediting by defining module the
-# run exited 0 with testsRun=2 notStarted=1).
+# class defined in tests/test_zz_ok.py (3b525 round-8 review, W1). A
+# started test is credited to the module whose loaded suite contains it,
+# so this module earns credit for the imported class: the documented
+# borrowing residual (no current module does this).
 BORROWING_MODULE = """\
 import unittest
 
@@ -207,8 +207,8 @@ class SkippedClassTests(unittest.TestCase):
 """
 
 # Legitimate modules whose tests are not plain classes they define
-# (3b525 round-9 review, codex E / claude W): each started test comes
-# from code the module defines, so each module must be credited.
+# (3b525 round-9 and round-10 reviews): each started test is in the
+# module's own loaded suite, so each module must be credited.
 # FunctionTestCase's type is defined in unittest.case.
 FUNCTION_TEST_CASE_MODULE = """\
 import unittest
@@ -240,6 +240,85 @@ def load_tests(loader, tests, pattern):
     return tests
 """
 
+# Doctests of a library module outside tests/ (round-10 review: refused
+# under defining-code crediting, whose globals name the library).
+DOCTEST_LIBRARY = """\
+def triple(value):
+    \"\"\"
+    >>> triple(2)
+    6
+    \"\"\"
+    return value * 3
+"""
+
+DOCTEST_LIBRARY_MODULE = """\
+import doctest
+
+
+def load_tests(loader, tests, pattern):
+    tests.addTests(doctest.DocTestSuite("doctest_library"))
+    return tests
+"""
+
+# A doctest file found relative to a package (round-10 review: refused).
+DOCFILE_TEXT = """\
+>>> 1 + 1
+2
+"""
+
+DOCFILE_SUITE_MODULE = """\
+import doctest
+
+
+def load_tests(loader, tests, pattern):
+    tests.addTests(doctest.DocFileSuite("docfile_example.txt",
+                                        package="tests"))
+    return tests
+"""
+
+# A FunctionTestCase wrapping a functools.partial, which has no
+# __module__ of its own (round-10 review: refused). The partial is given
+# a __name__ only because unittest's own FunctionTestCase.__str__ reads
+# it (without one, unittest itself errors while recording the duration).
+PARTIAL_MODULE = """\
+import functools
+import unittest
+
+
+def check_double(value, expected):
+    assert value * 2 == expected
+
+
+def load_tests(loader, tests, pattern):
+    check = functools.partial(check_double, 2, 4)
+    check.__name__ = "check_double_2_4"
+    return unittest.TestSuite([unittest.FunctionTestCase(check)])
+"""
+
+# A load_tests that returns one test on the driver's own load and two on
+# unittest.main's load: the suites no longer pair with the loaded
+# counts, so the driver refuses rather than credit by guesswork.
+PAIRING_MISMATCH_MODULE = """\
+import unittest
+
+_loads = []
+
+
+class PairingTests(unittest.TestCase):
+    def test_one(self):
+        self.assertTrue(True)
+
+    def test_two(self):
+        self.assertTrue(True)
+
+
+def load_tests(loader, tests, pattern):
+    _loads.append(None)
+    if len(_loads) == 1:
+        return unittest.TestSuite([PairingTests("test_one")])
+    return tests
+"""
+
 # A class factory in a helper module outside the run list: the built
 # class's __module__ names the helper, its test method this module.
 HELPER_FACTORY = """\
@@ -262,8 +341,8 @@ FactoryTests = make_case("FactoryTests", test_runs=_test_runs)
 """
 
 # A helper outside the run list that defines its class's test methods
-# itself: a handed module importing that class borrows code it does not
-# define, so earns no credit.
+# itself: a handed module that only imports that class earns credit for
+# it (the borrowing residual).
 HELPER_SHARED = """\
 import unittest
 
@@ -278,8 +357,8 @@ from tests.helper_shared import SharedTests
 """
 
 # A test object of no known case type, defined in a helper outside the
-# run list and loaded by a handed module's load_tests: no defining
-# module can be read, so the loading module is credited.
+# run list and loaded by a handed module's load_tests: it is in that
+# module's loaded suite, so that module is credited.
 HELPER_PROBE = """\
 class ProbeCase:
     def countTestCases(self):
@@ -1056,26 +1135,47 @@ class RegressionGateCompletenessTests(unittest.TestCase):
                                  "refusal assertion is passing vacuously")
                 self.assertNotIn(_SENTINEL_PREFIX, err)
 
-    def test_main_refuses_module_that_only_borrows_started_tests(
-            self) -> None:
-        """A started test is credited to the module that defines its
-        class, not to the module whose suite holds it: a module whose own
-        class is skipped in setUpClass, but which imports a passing class
-        from another module, is refused by name (3b525 round-8 review,
-        W1: before this the run exited 0 with testsRun=2 notStarted=1)."""
-        runner = self._runner()
-        root = self._tmp_repo(["test_zz_ok.py"])
-        (root / "tests" / "test_aa_borrows.py").write_text(BORROWING_MODULE)
-        with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
-            code, _out, err = self._call_main(runner, repo_root=root)
+    def test_main_accepts_borrowing_residual(self) -> None:
+        """DOCUMENTED ACCEPTED RESIDUAL: a started test is credited to
+        the module whose loaded suite contains it, so a module that only
+        imports and loads another module's TestCase class earns credit
+        for it and is not refused (rounds 9 and 10 refused this by
+        crediting the defining code, and each variant broke legitimate
+        modules). Here: a module whose own class is skipped in
+        setUpClass beside a class imported from tests/test_zz_ok.py
+        (loaded 2 + 1; testsRun=2, notStarted=1), and a module that only
+        imports a class from a helper outside the run list."""
+        cases = (
+            ("handed_module_class",
+             {"test_aa_borrows.py": BORROWING_MODULE},
+             "testsRun=2 notStarted=1"),
+            ("helper_module_class",
+             {"helper_shared.py": HELPER_SHARED,
+              "test_aa_helperborrow.py": HELPER_BORROWING_MODULE},
+             "testsRun=2 notStarted=0"),
+        )
+        for label, files, counts in cases:
+            with self.subTest(label=label):
+                code, _out, err = self._run_gate_with(files)
+                self.assertEqual(code, 0, err)
+                self.assertNotIn("REFUSED", err)
+                self.assertIn(counts, err)
+                self.assertIn(_SENTINEL_PREFIX, err)
+
+    def test_main_refuses_unpaired_load(self) -> None:
+        """When unittest.main's suite for a module does not hold the case
+        count the driver's own load found (here a load_tests returning
+        one test on the first load and two on the second), the driver
+        refuses by name, naming the mismatch, before any test runs."""
+        code, _out, err = self._run_gate_with({
+            "test_aa_pairing.py": PAIRING_MISMATCH_MODULE,
+        })
         self.assertEqual(code, 2, err)
         self.assertRegex(
-            err, r"(?m)^REFUSED: tests/test_aa_borrows\.py: 2 loaded, "
-            r"0 credited starts \(")
-        self._assert_refusal_names_no_cause(err)
-        self.assertNotIn("tests/test_zz_ok.py", err,
-                         "the defining module of the imported class was "
-                         "refused: its started tests were not credited")
+            err, r"(?m)^REFUSED: tests/test_aa_pairing\.py: unittest\.main "
+            r"loaded 2 test cases, the driver's own load 1; ")
+        self.assertNotIn("tests/test_zz_ok.py", err)
+        self.assertNotIn("Ran ", err)
         self.assertNotIn(_SENTINEL_PREFIX, err)
 
     def _assert_refusal_names_no_cause(self, err: str) -> None:
@@ -1087,71 +1187,64 @@ class RegressionGateCompletenessTests(unittest.TestCase):
                               "none of"):
                     self.assertNotIn(cause, line)
 
-    def _run_gate_with(self, files: dict[str, str]):
+    def _run_gate_with(self, files: dict[str, str],
+                       root_files: dict[str, str] | None = None):
         """The real gate on a synthetic tree holding a passing
-        tests/test_zz_ok.py plus ``files`` (tests/-relative name: body)."""
+        tests/test_zz_ok.py plus ``files`` (tests/-relative name: body)
+        and ``root_files`` (repository-root-relative name: body)."""
         runner = self._runner()
         root = self._tmp_repo(["test_zz_ok.py"])
         for rel, body in files.items():
             (root / "tests" / rel).write_text(body)
+        for rel, body in (root_files or {}).items():
+            (root / rel).write_text(body)
         with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
             return self._call_main(runner, repo_root=root)
 
-    def test_main_credits_tests_by_their_own_defining_code(self) -> None:
-        """A started test is credited to the module that defines the
-        test's own code, whatever type holds it (3b525 round-9 review,
-        codex E / claude W: each of these exited 2 with unittest's OK
-        under class-module crediting): a FunctionTestCase wrapping the
-        module's own function, a doctest.DocTestSuite of the module, and
-        a class built by a factory in a helper module outside the run
-        list whose test method the module defines."""
+    def test_main_credits_tests_in_the_modules_loaded_suite(self) -> None:
+        """A started test is credited to the module whose loaded suite
+        contains it, whatever type holds it (3b525 round-9 and round-10
+        reviews: defining-code crediting refused several of these with
+        unittest's OK): a FunctionTestCase wrapping the module's own
+        function, one wrapping a functools.partial, a DocTestSuite of
+        the module itself, a DocTestSuite of a library module outside
+        tests/, a DocFileSuite found through a package, a class built by
+        a factory in a helper module outside the run list, and a test
+        object of no known case type."""
         cases = (
             ("function_test_case",
-             {"test_aa_function.py": FUNCTION_TEST_CASE_MODULE},
+             {"test_aa_function.py": FUNCTION_TEST_CASE_MODULE}, {},
              "testsRun=2 notStarted=0"),
-            ("doctest_suite",
-             {"test_aa_doctest.py": DOCTEST_SUITE_MODULE},
+            ("functools_partial",
+             {"test_aa_partial.py": PARTIAL_MODULE}, {},
+             "testsRun=2 notStarted=0"),
+            ("doctest_suite_own_module",
+             {"test_aa_doctest.py": DOCTEST_SUITE_MODULE}, {},
+             "testsRun=2 notStarted=0"),
+            ("doctest_suite_library_module",
+             {"test_aa_doclib.py": DOCTEST_LIBRARY_MODULE},
+             {"doctest_library.py": DOCTEST_LIBRARY},
+             "testsRun=2 notStarted=0"),
+            ("docfile_suite_package",
+             {"test_aa_docfile.py": DOCFILE_SUITE_MODULE,
+              "docfile_example.txt": DOCFILE_TEXT}, {},
              "testsRun=2 notStarted=0"),
             ("helper_factory_class",
              {"helper_factory.py": HELPER_FACTORY,
-              "test_aa_factory.py": HELPER_FACTORY_MODULE},
+              "test_aa_factory.py": HELPER_FACTORY_MODULE}, {},
+             "testsRun=2 notStarted=0"),
+            ("unknown_case_type",
+             {"helper_probe.py": HELPER_PROBE,
+              "test_aa_probe.py": UNKNOWN_CASE_TYPE_MODULE}, {},
              "testsRun=2 notStarted=0"),
         )
-        for label, files, counts in cases:
+        for label, files, root_files, counts in cases:
             with self.subTest(label=label):
-                code, _out, err = self._run_gate_with(files)
+                code, _out, err = self._run_gate_with(files, root_files)
                 self.assertEqual(code, 0, err)
                 self.assertNotIn("REFUSED", err)
                 self.assertIn(counts, err)
                 self.assertIn(_SENTINEL_PREFIX, err)
-
-    def test_main_refuses_class_borrowed_from_helper_module(self) -> None:
-        """A class from a helper module outside the run list earns its
-        loading module credit only when that module defines the test's
-        method; a class whose methods the helper defines earns none."""
-        code, _out, err = self._run_gate_with({
-            "helper_shared.py": HELPER_SHARED,
-            "test_aa_helperborrow.py": HELPER_BORROWING_MODULE,
-        })
-        self.assertEqual(code, 2, err)
-        self.assertRegex(
-            err, r"(?m)^REFUSED: tests/test_aa_helperborrow\.py: 1 loaded, "
-            r"0 credited starts \(")
-        self.assertNotIn("tests/test_zz_ok.py", err)
-        self.assertNotIn(_SENTINEL_PREFIX, err)
-
-    def test_main_credits_loading_module_for_unknown_case_type(self) -> None:
-        """When no defining module can be read for a case type (here a
-        test object that is not a TestCase, defined in a helper outside
-        the run list), the module whose suite loaded it is credited
-        rather than refused."""
-        code, _out, err = self._run_gate_with({
-            "helper_probe.py": HELPER_PROBE,
-            "test_aa_probe.py": UNKNOWN_CASE_TYPE_MODULE,
-        })
-        self.assertEqual(code, 0, err)
-        self.assertNotIn("REFUSED", err)
-        self.assertIn("testsRun=2 notStarted=0", err)
 
     def test_main_refuses_helper_setupmodule_skip_by_reconciliation(
             self) -> None:
@@ -1356,7 +1449,8 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         "nonce",
         "stdin",            # nonce delivery channel (round 3, F1)
         "notStarted",       # class/module-level skip accounting (F4)
-        "starts no test",   # module none of whose tests started (W1)
+        "0 credited starts",  # module with no credited start (W1)
+        "cannot be paired",  # unittest.main load not paired with modules
     )
 
     def test_readme_documents_complete_regression_command(self) -> None:
