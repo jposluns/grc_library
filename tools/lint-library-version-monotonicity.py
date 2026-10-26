@@ -61,11 +61,15 @@ Exit codes:
         current README.md, a current document under the walk, or a prior
         file the gate reads, is not valid UTF-8; or the current README.md
         or a current document under the walk is not a regular file other
-        than a directory (a FIFO, a socket, a character or block device,
-        itself or as a symlink's target), which is refused without being
-        opened; or the current README.md or a current document under the
-        walk cannot be read (an OSError: a dangling symlink, a directory
-        named *.md, no read permission); or there is no current README.md
+        than a directory (a FIFO, a socket, a character or block device),
+        which is refused without being read; or the current README.md or a
+        current document under the walk cannot be read (an OSError: a
+        symlink, dangling or not, which is not followed; a directory named
+        *.md; no read permission). Each one is opened once, non-blocking
+        and without following a symlink, its type is read from that
+        descriptor (fstat), and its text is read and decoded from that same
+        descriptor, so a file swapped for a FIFO after the walk listed it
+        is refused, not opened blocking; or there is no current README.md
         (no entry by that name), since it holds the Library Version; or a
         directory under the walk cannot be listed (os.scandir fails on it,
         for example for want of read permission), named by its path, since
@@ -98,8 +102,11 @@ Exit codes:
     does not list the exempt directories (.git, .claude, references and
     the rest of DEFAULT_EXEMPT_DIRS), so one of those that cannot be
     listed does not refuse; an exempt root (.corpus-management) is listed,
-    and a directory under it that cannot be listed refuses. A file
-    replaced by a FIFO between the type check and the read is not caught.
+    and a directory under it that cannot be listed refuses. O_NOFOLLOW
+    checks only the last path component, so a directory swapped for a
+    symlink after the walk listed it is still followed; where
+    the platform lacks O_NOFOLLOW or O_NONBLOCK, a symlink is followed or a
+    FIFO's open can block, as before.
 """
 
 from __future__ import annotations
@@ -169,7 +176,7 @@ def git_show(ref: str, path: str) -> str | None:
 
 class CurrentDocumentsUnreadable(Exception):
     """One or more current documents are not valid UTF-8, are not a regular file, or cannot be
-    read (an OSError: a dangling symlink, a directory, no permission), a directory under the
+    read (an OSError: a symlink, a directory, no permission), a directory under the
     walk cannot be listed, or README.md is missing, so versions cannot be read (3b624);
     ``problems`` holds (path, reason) pairs, and main() names each one and reports exit 2."""
 
@@ -183,32 +190,43 @@ UNREAD = "; its version cannot be read"
 SPECIAL_FILES = ((stat.S_ISFIFO, "a FIFO"), (stat.S_ISSOCK, "a socket"),
                  (stat.S_ISCHR, "a character device"), (stat.S_ISBLK, "a block device"))
 
+OPEN_FLAGS = (os.O_RDONLY | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_NOFOLLOW", 0)
+              | getattr(os, "O_CLOEXEC", 0))
+
 
 def read_current(path: Path, rel: str, problems: list[tuple[str, str]]) -> str | None:
     """Return the decoded text of the current file ``path``, or None after appending
     (``rel``, reason) to ``problems`` when it is not UTF-8, is not a regular file, or cannot
     be read (3b624).
 
-    ``path`` is stat'ed first, following a symlink, since a symlink to a regular file is read
-    as before: anything but a regular file or a directory (a FIFO, a socket, a device) is
-    refused without being opened, because opening a FIFO blocks until a writer appears (r4). A
-    stat that fails (a dangling symlink) and a directory fall through to the read, which
-    refuses them as round 3 did. A file swapped for a FIFO between the stat and the read is
-    not caught."""
+    ``path`` is opened once with OPEN_FLAGS, and its type and text both come from that
+    descriptor (r5). r4 stat'ed the path and then opened it again by name, so a file swapped
+    for a FIFO between the two calls was opened blocking and the gate hung. O_NONBLOCK makes
+    opening a FIFO return at once; fstat then refuses anything but a regular file or a
+    directory (a FIFO, a socket, a device) without reading it. O_NOFOLLOW makes a symlink,
+    dangling or not, fail the open (ELOOP), so it is refused as an open error, the way round 3
+    refused a dangling one. A directory falls through to the read, which refuses it as round 3
+    did (IsADirectoryError). The text is decoded as read_text() decoded it (UTF-8, universal
+    newlines)."""
     try:
-        mode: int | None = path.stat().st_mode
-    except OSError:
-        mode = None
-    if mode is not None and not stat.S_ISREG(mode) and not stat.S_ISDIR(mode):
-        kind = next((name for test, name in SPECIAL_FILES if test(mode)), "a special file")
-        problems.append((rel, f"is not a regular file ({kind}), so it is not opened{UNREAD}"))
+        fd = os.open(path, OPEN_FLAGS)
+    except OSError as exc:
+        problems.append((rel, f"cannot be read ({type(exc).__name__}){UNREAD}"))
         return None
     try:
-        return path.read_text(encoding="utf-8")
+        mode = os.fstat(fd).st_mode
+        if not stat.S_ISREG(mode) and not stat.S_ISDIR(mode):
+            kind = next((name for test, name in SPECIAL_FILES if test(mode)), "a special file")
+            problems.append((rel, f"is not a regular file ({kind}), so it is not read{UNREAD}"))
+            return None
+        with open(fd, encoding="utf-8", closefd=False) as handle:
+            return handle.read()
     except UnicodeDecodeError:
         problems.append((rel, f"is not valid UTF-8{UNREAD}"))
     except OSError as exc:
         problems.append((rel, f"cannot be read ({type(exc).__name__}){UNREAD}"))
+    finally:
+        os.close(fd)
     return None
 
 
@@ -470,9 +488,10 @@ def read_current_documents(
     which the walk skips, is decoded here too: when ``require_readme`` is set (main() sets it)
     a missing one is a problem, otherwise it is read only when there is an entry by that name
     and its text is None when there is not. The walk yields every entry named *.md, so a
-    dangling symlink or a directory is read and refused, not skipped: the walk never skipped
-    one (its read raised), and git can hold a document at that path in the prior state; a
-    FIFO, a socket or a device is refused without being opened. If any is not UTF-8, is not a
+    symlink or a directory is opened and refused, not skipped: the walk never skipped one (its
+    read raised), and git can hold a document at that path in the prior state; a FIFO, a
+    socket or a device is opened without blocking and refused without being read, each from
+    the one descriptor read_current() opens. If any is not UTF-8, is not a
     regular file or cannot be read, or a directory under the walk cannot be listed, this
     raises CurrentDocumentsUnreadable naming every one (3b624)."""
     documents: list[tuple[str, str]] = []

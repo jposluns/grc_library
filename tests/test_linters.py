@@ -29409,7 +29409,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
-        lint-library-version-monotonicity.py OWN F 6b725b75f248f41f5ab2810f5b3f31f325c9137a5a7b9396d8d925d14eb42bf9
+        lint-library-version-monotonicity.py OWN F 261525363c12e9ec01547c0d7c5440476b8718cf6b80c5be8445e7ea60e2c8af
         lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
         lint-links.py ROOT F cf4b6ae1d2c76df65234323d94650ebc62db87bf24ed4f375d5386b4a75fb0b6
         lint-listing-surface-completeness.py NO_FS F 3dc1bb95c9133adec9f3af5640cf18a6c342118c972ab7cfb447fa6651ffe0f3
@@ -71277,12 +71277,13 @@ class GitReadFailsClosedTests(unittest.TestCase):
         (root / "governance" / "broken.md").symlink_to("missing.md")
         self.git(root, "add", "-A")
         self.git(root, "commit", "-qm", "c", "--amend")
+        # r5: the document is opened with O_NOFOLLOW, so the symlink fails the open (ELOOP).
         for fixture in (repo, root):
             code, out, err = self.mono(fixture)
             self.assertEqual(code, 2, out + err)
             self.assertNotIn("OK:", out)
             self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
-                "ERROR: governance/broken.md cannot be read (FileNotFoundError); its version "
+                "ERROR: governance/broken.md cannot be read (OSError); its version "
                 "cannot be read, so monotonicity is unchecked."], err)
 
     def test_library_version_monotonicity_names_a_directory_named_md(self) -> None:
@@ -71358,17 +71359,16 @@ class GitReadFailsClosedTests(unittest.TestCase):
 
     def test_library_version_monotonicity_refuses_a_fifo_document_without_opening_it(self) -> None:
         # 3b624 r4: the walk opened a FIFO named *.md, which blocks until a writer appears, so
-        # the gate hung. It is now stat'ed first and refused without being opened, as is a
-        # symlink to one; a symlink to a regular file is still read. A thread here stands in for
-        # the writer, so the old code reads an empty file and prints OK instead of hanging; the
-        # thread never finds the FIFO open for reading now.
+        # the gate hung. A thread here stands in for the writer, so the old code reads an empty
+        # file and prints OK instead of hanging. r5: the FIFO is opened non-blocking and refused
+        # from its descriptor without being read; a symlink to it, like any symlink, fails the
+        # O_NOFOLLOW open and is refused as an open error.
         import threading
 
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
                            "governance/d.md": "**Version:** 1.0.0\n",
                            "risk/pipe.md": "**Version:** 2.0.0\n"})
-        (repo / "governance" / "link.md").symlink_to("d.md")
         self.commit(repo, {"governance/d.md": "**Version:** 1.0.1\n"})
         code, out, err = self.mono(repo)
         self.assertEqual(code, 0, out + err)
@@ -71396,14 +71396,68 @@ class GitReadFailsClosedTests(unittest.TestCase):
         finally:
             stop.set()
             thread.join()
-        self.assertEqual(opened, [])
         self.assertEqual(code, 2, out + err)
         self.assertNotIn("OK:", out)
         self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
-            "ERROR: risk/pipe.md is not a regular file (a FIFO), so it is not opened; its version "
+            "ERROR: risk/pipe.md is not a regular file (a FIFO), so it is not read; its version "
             "cannot be read, so monotonicity is unchecked.",
-            "ERROR: risk/to-pipe.md is not a regular file (a FIFO), so it is not opened; its "
-            "version cannot be read, so monotonicity is unchecked."], err)
+            "ERROR: risk/to-pipe.md cannot be read (OSError); its version cannot be read, so "
+            "monotonicity is unchecked."], err)
+
+    def test_library_version_monotonicity_reads_a_document_from_the_descriptor_it_checked(self) -> None:
+        # 3b624 r5: r4 stat'ed a document and then opened it again by name, so a regular file
+        # swapped for a FIFO between the two calls was opened blocking and the gate hung. Here
+        # the swap is deterministic: the child replaces governance/d.md with a FIFO right after
+        # its stat (r4's type check) or right before its open (r5's), whichever comes first. The
+        # child is bounded by a timeout, since r4 blocks in the open. The intact twin passes.
+        import stat
+
+        driver = (
+            "import importlib.util, os, sys\n"
+            "from pathlib import Path\n"
+            "tool, repo, target = sys.argv[1], Path(sys.argv[2]), sys.argv[3]\n"
+            "sys.path.insert(0, os.path.dirname(tool))\n"
+            "spec = importlib.util.spec_from_file_location('mono_swap_3b624', tool)\n"
+            "mono = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(mono)\n"
+            "mono.REPO_ROOT = repo\n"
+            "victim = [os.fspath(repo / target)] if target else []\n"
+            "real_stat, real_open = os.stat, os.open\n"
+            "def swap(path):\n"
+            "    if victim and os.fspath(path) == victim[0]:\n"
+            "        os.unlink(victim[0])\n"
+            "        os.mkfifo(victim.pop())\n"
+            "def checked(path, *args, **kwargs):\n"
+            "    result = real_stat(path, *args, **kwargs)\n"
+            "    swap(path)\n"
+            "    return result\n"
+            "def opened(path, *args, **kwargs):\n"
+            "    swap(path)\n"
+            "    return real_open(path, *args, **kwargs)\n"
+            "os.stat, os.open = checked, opened\n"
+            "sys.exit(mono.main([]))\n")
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.1\n"})
+        tool = str(REPO_ROOT / "tools" / "lint-library-version-monotonicity.py")
+        runs = (("", 0, []),
+                ("governance/d.md", 2, [
+                    "ERROR: governance/d.md is not a regular file (a FIFO), so it is not read; its "
+                    "version cannot be read, so monotonicity is unchecked."]))
+        for target, expected, lines in runs:
+            try:
+                result = subprocess.run([sys.executable, "-c", driver, tool, str(repo), target],
+                                        cwd=repo, env=self.env, capture_output=True, text=True,
+                                        timeout=60)
+            except subprocess.TimeoutExpired:
+                self.fail(f"the gate hung on a document swapped for a FIFO ({target!r})")
+            self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertEqual([x for x in result.stderr.splitlines() if x.startswith("ERROR: ")],
+                             lines, result.stderr)
+        self.assertTrue(stat.S_ISFIFO(os.lstat(repo / "governance" / "d.md").st_mode))
+        self.assertNotIn("OK:", result.stdout)
 
     def test_library_version_monotonicity_names_a_missing_readme_in_every_mode(self) -> None:
         # 3b624 r4: a missing README.md raised FileNotFoundError in the library check, a
