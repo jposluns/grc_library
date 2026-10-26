@@ -1814,7 +1814,8 @@ def run_sibling_probe(merge_base: str, head: str, register_text: str) -> None:
             base_register=git_show_strict(merge_base, REGISTER_REL), head_register=git_show_strict(head, REGISTER_REL),
         )
         # Each entry is "<mode> <type> <object>\t<path>"; only a blob is read as a document.
-        listing = git("ls-tree", "-r", "-z", head).split("\0")
+        # --full-tree: from a subdirectory, ls-tree lists only that subdirectory (3b551).
+        listing = git("ls-tree", "-r", "--full-tree", "-z", head).split("\0")
         names = [entry.split("\t", 1)[1] for entry in listing if entry.split(" ", 2)[1:2] == ["blob"]]
         docs = ((rel, git_show_listed(head, rel)) for rel in sorted(n for n in names if n and in_scope(n)))
         lines = sibling_report(texts, register_text, docs)

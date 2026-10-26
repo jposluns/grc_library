@@ -7,8 +7,8 @@ for the library as a whole, recorded in `README.md` as
 versioning of the form `x.y.z` in their metadata.
 
 This linter compares the working tree's versions to the prior committed
-state (`origin/main` if available, falling back to `HEAD~1`) and fails
-if any version went backwards or skipped to a lower value.
+state (`refs/remotes/origin/main` if available, falling back to `HEAD~1`)
+and fails if any version went backwards or skipped to a lower value.
 
 Catches:
 - A version going BACKWARDS (a rollback or collision). An unchanged value
@@ -30,18 +30,50 @@ logic without a git fixture. The document-versions check is skipped
 in this mode (it requires real git history).
 
 Exit codes:
-    0   versions are monotonic non-decreasing, OR the prior state is
-        unavailable (no git history, or no diff against the base ref).
-        Unavailable-prior-state is treated as a pass with a printed note
-        rather than a separate exit code.
+    0   versions are monotonic non-decreasing, OR there is no prior state:
+        no repository (git rev-parse --git-dir fails, REPO_ROOT has no .git
+        and GIT_DIR is unset), an unborn HEAD, or a HEAD commit with no parent
+        (a root commit or the boundary of a shallow clone) while origin/main
+        is absent or is HEAD. No prior state is treated as a pass with a
+        printed note rather than a separate exit code.
     1   one or more versions decreased.
     2   an explicit --prior-readme is missing, empty, not a regular file, or
-        cannot be read (nothing to compare against).
+        cannot be read (nothing to compare against); or git cannot read the
+        prior state (a bad ref, an unreadable tree, or a missing or corrupt
+        object), which is not the same as a file absent at the prior ref; or
+        REPO_ROOT has a .git entry, or GIT_DIR is set, and git does not open
+        a repository whose work tree is REPO_ROOT: git cannot open it (a HEAD
+        or config git cannot parse, an unknown repository extension, dubious
+        ownership, a .git file naming no repository, GIT_DIR naming a missing
+        or broken one), or skips a .git it cannot use (a garbage HEAD, no
+        refs/, an empty directory, a dangling symlink) for an enclosing
+        repository, or the repository it opens has no work tree or another
+        one, or GIT_DIR names a repository other than the one REPO_ROOT's
+        .git opens; that is not the same as no repository. Or HEAD or
+        origin/main, read by its exact name, exists but does not resolve to
+        a commit git can read (git cannot parse the ref, or the object it
+        names is missing, malformed or not a commit), or git skips a record
+        of it and reports it as absent (a malformed or unsorted packed-refs
+        line, a dangling loose symlink, a loose file shadowing a packed ref),
+        which is not the same as an unborn HEAD, a root commit or no
+        origin/main; an absent HEAD branch or origin/main also refuses when
+        git for-each-ref fails or warns, even about another ref. Or the
+        current README.md, or a prior file the gate reads, is not valid
+        UTF-8. It reads the prior README.md, and a document's prior copy
+        only when its current copy is UTF-8 and has a version; a current
+        document that is not UTF-8 is skipped, so its prior copy is not read.
+    Remaining: a REPO_ROOT with no .git, with GIT_DIR unset, inside another
+    work tree reads that work tree's history, as before, and inside a
+    repository git cannot open reads as no repository; with no .git, GIT_DIR
+    naming any non-bare repository with no work tree set is read as
+    REPO_ROOT's, because git takes REPO_ROOT as its work tree (see
+    find_prior_ref).
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import subprocess
 import sys
@@ -49,7 +81,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import iter_non_code_lines  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT, tree_entry_type  # noqa: E402  # grc-config/store, stays local
 
 
 CALVER_RE = re.compile(r"\*\*Library Version:\*\*\s+(\d+)\.(\d+)\.(\d+)")
@@ -83,38 +115,181 @@ def parse_semver(text: str) -> tuple[int, int, int] | None:
 
 
 def git_show(ref: str, path: str) -> str | None:
-    """Return file content at the given git ref, or None if unavailable."""
+    """Return file content at the given git ref, or None if ``ref`` holds no file at ``path``.
+
+    A failed read is None only when ``tree_entry_type`` establishes that no blob is there; a
+    bad ref, an unreadable tree or a missing or corrupt blob raises CalledProcessError, which
+    main() reports as exit 2, so a git failure cannot read as "no prior to compare" (3b551). A
+    blob that is not UTF-8 raises UnicodeDecodeError, which main() also reports as exit 2. The
+    trailing ``--`` makes git read ``ref:path`` only as an object name, so an absent path holding
+    a glob character is a failed read (then None), not a pathspec that prints nothing."""
     try:
         return subprocess.check_output(
-            ["git", "-C", str(REPO_ROOT), "show", f"{ref}:{path}"],
-            stderr=subprocess.DEVNULL,
+            ["git", "-C", str(REPO_ROOT), "show", f"{ref}:{path}", "--"],
+            stderr=subprocess.PIPE,
         ).decode("utf-8")
     except subprocess.CalledProcessError:
-        return None
+        if tree_entry_type(ref, path, repo=REPO_ROOT) != "blob":
+            return None
+        raise
+
+
+class GitStateUnreadable(Exception):
+    """git does not open REPO_ROOT's own repository, or HEAD or origin/main exists but does not
+    resolve to a commit git can read, or git skips a record of it (3b551); main() reports it as
+    exit 2."""
 
 
 def find_prior_ref() -> str | None:
-    """Return a git ref naming the prior committed state.
+    """Return a git ref naming the prior committed state, or None when there is none.
 
-    On a feature branch, prefer origin/main as the comparison point.
-    When HEAD matches origin/main (we're on main, or main is up to date),
-    fall through to HEAD~1. Local `main` is not used because it can be stale.
+    On a feature branch, prefer origin/main (``refs/remotes/origin/main``) as the comparison
+    point. When HEAD matches origin/main (we're on main, or main is up to date), fall through to
+    HEAD~1. Local `main` is not used because it can be stale.
+
+    The repository read must be REPO_ROOT's own (3b551). When REPO_ROOT has a ``.git`` entry (a
+    directory, a gitdir file, or a symlink, dangling or not) or GIT_DIR is set, git must open a
+    repository whose work tree (``rev-parse --show-toplevel``) is REPO_ROOT; otherwise this
+    raises GitStateUnreadable naming the repository git refused (REPO_ROOT's ``.git``, or the
+    one GIT_DIR names). That covers a repository git cannot open (a HEAD or config it cannot
+    parse, an unknown repository extension, dubious ownership, a ``.git`` file naming no
+    repository, GIT_DIR naming a missing or broken one); a ``.git`` git skips as unusable (a
+    garbage HEAD, no ``refs/``, an empty directory, a dangling symlink) while it opens an
+    enclosing repository instead; and a repository with no work tree or another one (a bare
+    GIT_DIR, GIT_WORK_TREE or ``core.worktree`` naming another directory or a missing one).
+    With GIT_DIR set beside a ``.git``, ``rev-parse --absolute-git-dir`` must name the same git
+    dir with and without GIT_DIR: a git hook exports GIT_DIR naming the repository it runs in,
+    the one discovery finds, but with no work tree set git takes REPO_ROOT as the work tree of
+    any non-bare repository GIT_DIR names. With no ``.git`` and GIT_DIR unset, a failed
+    ``rev-parse --git-dir`` is no repository. Residuals: such a REPO_ROOT inside another work
+    tree still reads that work tree's history, and inside a broken repository (one git cannot
+    open) fails that read too and still reads as no repository; and with no ``.git``, GIT_DIR
+    naming any non-bare repository with no work tree set, or one whose work tree is REPO_ROOT,
+    is read as REPO_ROOT's.
+
+    HEAD and origin/main are read by their exact names. ``symbolic-ref -q`` follows a symbolic
+    ref to the last name in its chain (exit 0), exits 1 for a name that is not symbolic or does
+    not exist, and 128 when git cannot parse a ref in the chain; ``show-ref --verify`` then
+    reads that one name. rev-parse's lookup also tries ``refs/<name>``, ``refs/tags/<name>``,
+    ``refs/heads/<name>``, ``refs/remotes/<name>`` and ``refs/remotes/<name>/HEAD`` and skips one
+    that is broken, so a ref by any of those names stood in for a broken or absent HEAD or
+    origin/main (and a short ``origin/main`` meant a local branch or tag first). The object the
+    name holds is read as ``<object>^{commit}``, which makes git parse the commit, so a missing
+    commit or a malformed parent line fails there, not at HEAD~1, where it would look like a
+    root commit. A ref is absent only when its chain ends at a ref that does not exist (an
+    unborn HEAD, no origin/main, a dangling symbolic origin/main); one git cannot parse, or
+    whose object is missing, malformed or not a commit, raises GitStateUnreadable. git also
+    reads some records it skips as a ref that does not exist (``show-ref --verify`` exits 1 and
+    ``symbolic-ref -q`` exits 1): a malformed or unsorted packed-refs line, a dangling loose
+    symlink, a loose file where a directory on the ref's path should be. So a ref reads as
+    absent only when ``for-each-ref``, which reads every record, exits 0, writes nothing to
+    stderr and does not list it, and its loose path (``rev-parse --git-path``) holds nothing or
+    a plain directory (a remote branch ``main/x`` keeps ``refs/remotes/origin/main/``);
+    otherwise it raises GitStateUnreadable. An unrelated ref that makes ``for-each-ref`` fail or
+    warn therefore refuses an absent HEAD branch or origin/main too: a false refusal, not a
+    pass. There is no prior state when there is no repository, when HEAD is unborn, or when
+    HEAD's commit has no parent (a root commit, or the boundary of a shallow clone) and
+    origin/main is absent or is HEAD. The plumbing predates ``show-ref --exists``.
+    ``show-ref --verify`` reads HEAD from git 2.12; an older git refuses a detached HEAD rather
+    than reading it as absent. The names returned are read again by git_show, whose lookup
+    tries the exact name first, and that name resolved here.
     """
-    def sha(ref: str) -> str | None:
-        try:
-            return subprocess.check_output(
-                ["git", "-C", str(REPO_ROOT), "rev-parse", "--verify", ref],
-                stderr=subprocess.DEVNULL,
-            ).decode().strip()
-        except subprocess.CalledProcessError:
-            return None
+    def git(*args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(["git", "-C", str(REPO_ROOT), *args],
+                              stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
 
-    head = sha("HEAD")
-    origin_main = sha("origin/main")
-    if origin_main and head and origin_main != head:
-        return "origin/main"
-    # Fallback: HEAD~1.
-    if sha("HEAD~1"):
+    def commit(name: str) -> str | None:
+        chain = git("symbolic-ref", "-q", name)
+        if chain.returncode not in (0, 1):
+            raise GitStateUnreadable(f"cannot read {name}: git cannot parse it or a ref it points "
+                                     f"to (git symbolic-ref -q exited {chain.returncode})")
+        ref = os.fsdecode(chain.stdout.strip()) if chain.returncode == 0 else name
+        label = name if ref == name else f"{name} ({ref})"
+        exact = git("show-ref", "--verify", "--hash", ref)
+        if exact.returncode == 0:
+            oid = exact.stdout.decode().strip()
+            read = git("rev-parse", "--verify", "--quiet", f"{oid}^{{commit}}")
+            if read.returncode == 0:
+                return read.stdout.decode().strip()
+            raise GitStateUnreadable(f"cannot read {label}: it names {oid}, which is not a commit "
+                                     f"git can read (git rev-parse --verify exited "
+                                     f"{read.returncode})")
+        listed = git("show-ref", "--verify", "--quiet", ref).returncode
+        # 1 is a ref that does not exist (symbolic-ref refused one git cannot parse). HEAD always
+        # exists in a repository git opens, so a detached HEAD read as absent is a git before
+        # 2.12, whose show-ref --verify does not read HEAD.
+        if listed != 1 or ref == "HEAD":
+            raise GitStateUnreadable(f"cannot read {label}: git cannot find the object it names, "
+                                     f"or cannot read the ref (git show-ref --verify exited "
+                                     f"{exact.returncode}, and {listed} with --quiet)")
+        # Iteration reads every ref record, so it reports one the exact read skipped as absent.
+        every = subprocess.run(["git", "-C", str(REPO_ROOT), "for-each-ref",
+                                "--format=%(refname)"], stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        if (every.returncode != 0 or every.stderr.strip()
+                or os.fsencode(ref) in every.stdout.splitlines()):
+            raise GitStateUnreadable(f"cannot read {label}: git lists it, or cannot list "
+                                     f"every ref (git for-each-ref exited {every.returncode})")
+        git_path = git("rev-parse", "--git-path", ref)
+        if git_path.returncode != 0:
+            raise GitStateUnreadable(f"cannot read {label}: git cannot name its loose path (git "
+                                     f"rev-parse --git-path exited {git_path.returncode})")
+        loose = os.fsdecode(git_path.stdout.rstrip(b"\n"))
+        path = os.path.join(REPO_ROOT, loose)
+        # A plain directory there holds other refs: a branch main/x keeps refs/remotes/origin/main/.
+        if os.path.lexists(path) and not (os.path.isdir(path) and not os.path.islink(path)):
+            raise GitStateUnreadable(f"cannot read {label}: {loose} exists")
+        return None
+
+    gitdir = os.environ.get("GIT_DIR")
+    repository = (str(REPO_ROOT / ".git") if gitdir is None
+                  else f"the repository GIT_DIR names ({gitdir})")
+    named = gitdir is not None or os.path.lexists(REPO_ROOT / ".git")
+    opened = git("rev-parse", "--git-dir")
+    if opened.returncode != 0:
+        if not named:
+            return None
+        raise GitStateUnreadable(f"git will not open {repository} (git rev-parse --git-dir exited "
+                                 f"{opened.returncode})")
+    if named:
+        top = git("rev-parse", "--show-toplevel")
+        refused = f"git will not open {repository} as {REPO_ROOT}'s repository"
+        if top.returncode != 0:
+            raise GitStateUnreadable(f"{refused}: the repository it opens has no work tree (git "
+                                     f"rev-parse --show-toplevel exited {top.returncode})")
+        work_tree = os.fsdecode(top.stdout.rstrip(b"\n"))
+        try:
+            own = os.path.samefile(work_tree, REPO_ROOT)
+        except OSError:
+            own = False
+        if not own:
+            raise GitStateUnreadable(f"{refused}: the repository it opens has its work tree at "
+                                     f"{work_tree}")
+    if gitdir is not None and os.path.lexists(REPO_ROOT / ".git"):
+        # A hook's GIT_DIR names the git dir discovery finds; with no work tree set, git takes
+        # REPO_ROOT as the work tree of any non-bare repository GIT_DIR names.
+        named_dir = git("rev-parse", "--absolute-git-dir")
+        found = subprocess.run(["git", "-C", str(REPO_ROOT), "rev-parse", "--absolute-git-dir"],
+                               stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                               env={k: v for k, v in os.environ.items() if k != "GIT_DIR"})
+        dirs = [os.fsdecode(r.stdout.rstrip(b"\n")) if r.returncode == 0
+                else f"nothing (exit {r.returncode})" for r in (found, named_dir)]
+        try:
+            same = found.returncode == named_dir.returncode == 0 and os.path.samefile(*dirs)
+        except OSError:
+            same = False
+        if not same:
+            raise GitStateUnreadable(f"{refused}: it is not {REPO_ROOT / '.git'} (git rev-parse "
+                                     f"--absolute-git-dir prints {dirs[0]} without GIT_DIR, "
+                                     f"{dirs[1]} with it)")
+    origin_main = "refs/remotes/origin/main"
+    head = commit("HEAD")
+    origin_main_commit = commit(origin_main)
+    if origin_main_commit and head and origin_main_commit != head:
+        return origin_main
+    # Fallback: HEAD~1. HEAD's commit parsed above, so this fails only when it has no parent.
+    # Unpeeled on purpose: HEAD~1^{commit} fails on a missing parent, reading as a root commit.
+    if head and git("rev-parse", "--verify", "--quiet", "HEAD~1").returncode == 0:
         return "HEAD~1"
     return None
 
@@ -235,12 +410,26 @@ def main(argv: list[str] | None = None) -> int:
         print(f"FAIL [library]: {lib_msg}")
         return 1
 
-    prior_ref = find_prior_ref()
+    try:
+        prior_ref = find_prior_ref()
+    except GitStateUnreadable as exc:
+        print(f"ERROR: {exc}. That is a git read failure, not no repository, an unborn HEAD, a "
+              f"root commit or no origin/main, so monotonicity is unchecked.", file=sys.stderr)
+        return 2
     if prior_ref is None:
         print("OK: no prior committed state available; monotonicity not checked.")
         return 0
-    lib_ok, lib_msg = check_library_version(prior_ref)
-    doc_findings = check_document_versions(prior_ref)
+    try:
+        lib_ok, lib_msg = check_library_version(prior_ref)
+        doc_findings = check_document_versions(prior_ref)
+    except subprocess.CalledProcessError as exc:
+        print(f"ERROR: cannot read the prior state at {prior_ref} ({exc}); a git read failure is "
+              f"not an absent prior version, so monotonicity is unchecked.", file=sys.stderr)
+        return 2
+    except UnicodeDecodeError as exc:
+        print(f"ERROR: README.md or a file at {prior_ref} is not valid UTF-8 ({exc}); its "
+              f"version cannot be read, so monotonicity is unchecked.", file=sys.stderr)
+        return 2
     if lib_ok and not doc_findings:
         print(f"OK: library and document versions are monotonic non-decreasing (vs {prior_ref}).")
         print(f"  Library: {lib_msg}")
