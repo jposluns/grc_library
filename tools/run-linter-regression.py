@@ -97,18 +97,24 @@ findings):
   counts once; a run with no record left counts as dropped, so a
   skipped class loaded twice is counted per occurrence, two classes
   sharing a module and qualname are two runs, and one skip record
-  never covers two runs; one run never yields two records either: a
-  class cleanup's ``SkipTest`` after a skipped ``setUpClass`` is
-  recorded under the same ``setUpClass`` name, and such further
-  records of one run, told apart from a later run's by arriving back
-  to back with the same ``_previousTestClass`` on the result, are
-  discarded, not credited to a later run) and reports them as
-  ``notStarted`` in the
+  never covers two runs; one run contributes at most one counted
+  record: a class cleanup's ``SkipTest`` after a skipped
+  ``setUpClass`` is recorded under the same ``setUpClass`` name, and
+  such further records of one run, told apart from a later run's by
+  arriving back to back (no start and no other skip record in
+  between) with the same holder and the same ``_previousTestClass``
+  on the result, are discarded, not credited to a later run) and
+  reports them as ``notStarted`` in the
   sentinel, so a run unittest itself reports green with such skips in
   a module that otherwise ran is not refused, while a dropped test
   (which no skip record accounts for) still is. Both hold only for a
   suite that runs its cases in its flattened order (see the
-  reordering-suite residual below). ``notStarted`` counts
+  reordering-suite residual below). The grouping of records into
+  runs depends on unittest's private _previousTestClass attribute
+  and its set-up order (set to a run's class only after that class's
+  set-up; read in CPython 3.14 and 3.11 ``suite.py``), which unittest
+  does not document, so a change there could misgroup records (an
+  accepted residual). ``notStarted`` counts
   only these ``setUpClass`` skips: a test of a skip-decorated class
   reaches ``startTest`` (``testsRun`` counts it), and a test a
   ``SkipTest`` in ``setUpModule`` kept from starting is not counted,
@@ -326,9 +332,9 @@ if failed:
 # start passes over never started; a run of consecutive occurrences of
 # one class object among them is notStarted when a setUpClass skip
 # record of that class, arrived since the previous matched start and not
-# yet taken by an earlier such run, accounts for it (one record per run;
-# a run's further records under the same holder, from a class cleanup
-# that skips after setUpClass skipped, are discarded on arrival).
+# yet taken by an earlier such run, accounts for it (one counted record
+# per run; a run's further records under the same holder, from a class
+# cleanup that skips after setUpClass skipped, are discarded on arrival).
 occurrences = []
 started = dict.fromkeys(modules, 0)
 class StartRecordingResult(unittest.TextTestResult):
@@ -365,9 +371,12 @@ class StartRecordingResult(unittest.TextTestResult):
         # failed setUpClass, under the same name). They arrive back to back
         # while unittest's _previousTestClass still holds the class before
         # the run (it is set to the run's class only after set-up), so a
-        # record continuing the previous one, with the same holder and
-        # that same previous class, is the same run's and is discarded:
-        # one run yields one record, never a spare for a later run.
+        # record continuing the previous one back to back (no start and
+        # no other skip record in between), with the same holder and that
+        # same previous class, is the same run's and is discarded: one
+        # run contributes at most one counted record, never a spare for a
+        # later run. _previousTestClass is private to unittest (an
+        # accepted residual; see the docstring).
         holder = test.id()
         if holder.startswith("setUpClass (") and holder.endswith(")"):
             holder = holder[len("setUpClass ("):-1]
@@ -377,9 +386,20 @@ class StartRecordingResult(unittest.TextTestResult):
                 self.class_skips[holder] = self.class_skips.get(holder, 0) + 1
             self.last_record = run
         else:
+            # Any other skip record ends "back to back". In a standard
+            # suite this changes no outcome: two runs of one class with
+            # the same previous class have an occurrence of that previous
+            # class between them, and on a run unittest reports green one
+            # with no start and no setUpClass skip record of its own was
+            # dropped by a skipping setUpModule; no record accounts for
+            # it, so the reconciliation refuses with or without this
+            # reset. Kept so the rule is the one documented.
             self.last_record = None
         super().addSkip(test, reason)
     def startTest(self, test):
+        # A start ends "back to back": a later run of the same class
+        # after the same previous class is a new run (pinned by
+        # test_main_green_with_cleanup_skips_around_starts).
         self.last_record = None
         for index in range(self.next_occurrence, len(occurrences)):
             case, name = occurrences[index]
@@ -459,10 +479,12 @@ if result.wasSuccessful():
             failed = True
 if failed:
     sys.exit(2)
-# A SkipTest from setUpClass is recorded as ONE skip on a holder named
+# A SkipTest from setUpClass is recorded as a skip on a holder named
 # "setUpClass (<module>.<Class>)" and none of the class's tests reaches
-# startTest; StartRecordingResult counts those occurrences (once each,
-# however often the class is loaded or set up) so the parent can
+# startTest; a class cleanup that then raises SkipTest adds a further
+# record under the same holder, and one run contributes at most one
+# counted record. StartRecordingResult counts those occurrences (once
+# each, however often the class is loaded or set up) so the parent can
 # reconcile testsRun against the loaded total. Any other holder counts
 # 0, so a mismatch stays a refusal (fail closed). A "setUpModule
 # (<module>)" holder is deliberately not counted. When that module is a

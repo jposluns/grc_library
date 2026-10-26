@@ -136,10 +136,18 @@ of the following, never softening one to green:
   since the previous matched start takes one skip record of its class
   arrived in that stretch and counts each of its occurrences once, two
   classes sharing a module and qualname are two runs, and one skip
-  record never covers two runs; one run never yields two records
-  either: a class cleanup's `SkipTest` after a skipped `setUpClass` is
-  recorded under the same `setUpClass` name, and such further records
-  of one run are discarded, not credited to a later run; so a green run
+  record never covers two runs; one run contributes at most one
+  counted record: a class cleanup's `SkipTest` after a skipped
+  `setUpClass` is recorded under the same `setUpClass` name, and such
+  further records of one run, told apart from a later run's by
+  arriving back to back (no start and no other skip record in between)
+  with the same holder and the same `_previousTestClass` on the
+  result, are discarded, not credited to a later run; the grouping of
+  records into runs depends on unittest's private `_previousTestClass`
+  attribute and its set-up order (set to a run's class only after that
+  class's set-up; read in CPython 3.14 and 3.11 `suite.py`), which
+  unittest does not document, so a change there could misgroup records
+  (an accepted residual); so a green run
   with such a skip in a module that otherwise started a test is not
   refused; it does not count tests of a skip-decorated
   class, which reach `startTest`, nor tests a `SkipTest` in

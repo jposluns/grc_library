@@ -1041,6 +1041,44 @@ class BothSkipTests(unittest.TestCase):
         self.fail("must not start")
 """
 
+# Own, C, Own, C: C's setUpClass and two class cleanups raise SkipTest,
+# so each of C's two runs gives three records under one holder, and both
+# runs have Own as unittest's _previousTestClass. Own's start between
+# them ends "back to back", so the second run's first record counts
+# (3b525 round-16 review, claude W1: without the reset in startTest the
+# second run's records continued the first's, notStarted=1, and this
+# legitimate run was refused). unittest reports OK (skipped=6).
+CLEANUP_SKIPS_AROUND_STARTS_MODULE = """\
+import unittest
+
+
+def skip_cleanup():
+    raise unittest.SkipTest("cleanup skipped")
+
+
+class CleanupSkipTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.addClassCleanup(skip_cleanup)
+        cls.addClassCleanup(skip_cleanup)
+        raise unittest.SkipTest("environment-dependent fixture missing")
+
+    def test_never_starts(self):
+        self.fail("must not start")
+
+
+class OwnTests(unittest.TestCase):
+    def test_own(self):
+        self.assertTrue(True)
+
+
+def load_tests(loader, tests, pattern):
+    return unittest.TestSuite([OwnTests("test_own"),
+                               CleanupSkipTests("test_never_starts"),
+                               OwnTests("test_own"),
+                               CleanupSkipTests("test_never_starts")])
+"""
+
 # Passes plus one individually skipped test, for the output-shape pin.
 PASSING_WITH_SKIP_MODULE = """\
 import unittest
@@ -1957,6 +1995,21 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         self.assertIn("OK (skipped=3)", err)
         self.assertIn("testsRun=2 notStarted=1", err)
 
+    def test_main_green_with_cleanup_skips_around_starts(self) -> None:
+        """Own, C, Own, C, where C's setUpClass and two class cleanups
+        raise SkipTest: both of C's runs follow Own, so their records
+        share holder and _previousTestClass, and only Own's start between
+        them separates the runs; each run counts one record (3b525
+        round-16 review, claude W1: the reset in startTest was untested).
+        Loaded 4 + 1; testsRun=3, notStarted=2."""
+        code, _out, err = self._run_gate_with({
+            "test_aa_aroundstarts.py": CLEANUP_SKIPS_AROUND_STARTS_MODULE,
+        })
+        self.assertEqual(code, 0, err)
+        self.assertNotIn("REFUSED", err)
+        self.assertIn("OK (skipped=6)", err)
+        self.assertIn("testsRun=3 notStarted=2", err)
+
     def test_main_reads_class_skip_flag_from_dunder_class(self) -> None:
         """The class skip flag is read from test.__class__, as unittest
         reads it (3b525 round-11 review, claude N4): a __class__
@@ -2332,9 +2385,18 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         "since the previous matched start",
         "arrived in that stretch",
         # round 16: a class cleanup's skip gives one run a second record
-        "one run never yields two records either",
+        # (round 17: worded as at most one counted record per run)
+        "one run contributes at most one counted record",
         "recorded under the same setUpClass name",
         "not credited to a later run",
+        # round 17: "back to back" defined as the code applies it
+        "arriving back to back (no start and no other skip record in "
+        "between) with the same holder and the same _previousTestClass",
+        # round 17: the rule relies on a private unittest attribute
+        "depends on unittest's private _previousTestClass attribute and "
+        "its set-up order",
+        "read in CPython 3.14 and 3.11 suite.py",
+        "a change there could misgroup records",
     )
 
     def test_docs_state_crediting_residuals_in_agreement(self) -> None:
@@ -2342,7 +2404,8 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         residual, the pairing-check wording and the per-run notStarted
         rule in the same words (markup and line breaks aside), and none
         still says a different suite on a second load fails the pairing
-        check (3b525 rounds 13, 14 and 15)."""
+        check (3b525 rounds 13, 14 and 15) or that one run never yields
+        two records (round 17: a class cleanup's skip yields one)."""
         surfaces = {"runner docstring": self._runner()["__doc__"] or ""}
         for rel in ("tools/README.md", "tests/README.md"):
             surfaces[rel] = (REPO_ROOT / rel).read_text(encoding="utf-8")
@@ -2353,6 +2416,8 @@ class RegressionGateCompletenessTests(unittest.TestCase):
                     self.assertIn(phrase, flat)
             with self.subTest(surface=label, phrase="different suite"):
                 self.assertNotIn("different suite on a second load", flat)
+            with self.subTest(surface=label, phrase="never yields"):
+                self.assertNotIn("one run never yields two records", flat)
 
     def test_readme_documents_complete_regression_command(self) -> None:
         """tests/README.md names the runner as the complete regression
