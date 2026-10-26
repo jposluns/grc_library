@@ -1079,6 +1079,44 @@ def load_tests(loader, tests, pattern):
                                CleanupSkipTests("test_never_starts")])
 """
 
+# Stands in for a Python that renames _previousTestClass or stops setting
+# it: at import, before the run, a data descriptor on unittest.TestResult
+# makes the attribute unreadable on every result (class and instance
+# lookup alike) and discards unittest's writes, so unittest itself sees
+# None throughout. SkippedClassTests' setUpClass raises SkipTest, so a
+# skip record arrives while the attribute is absent; RunningTests gives
+# the module a credited start, so read as None the run would be green
+# (3b525 round-16 review, agy: the getattr default None grouped such
+# records silently).
+HIDDEN_PREVIOUS_CLASS_MODULE = """\
+import unittest
+
+
+class _Hidden:
+    def __get__(self, instance, owner=None):
+        raise AttributeError("_previousTestClass")
+
+    def __set__(self, instance, value):
+        pass
+
+
+unittest.TestResult._previousTestClass = _Hidden()
+
+
+class SkippedClassTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        raise unittest.SkipTest("environment-dependent fixture missing")
+
+    def test_never_starts(self):
+        self.fail("must not start")
+
+
+class RunningTests(unittest.TestCase):
+    def test_runs(self):
+        self.assertTrue(True)
+"""
+
 # Passes plus one individually skipped test, for the output-shape pin.
 PASSING_WITH_SKIP_MODULE = """\
 import unittest
@@ -2010,6 +2048,25 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         self.assertIn("OK (skipped=6)", err)
         self.assertIn("testsRun=3 notStarted=2", err)
 
+    def test_main_refuses_absent_previous_test_class(self) -> None:
+        """A setUpClass skip record arriving while the result has no
+        _previousTestClass attribute at all is refused, naming the
+        attribute and the Python version, rather than grouped as if the
+        attribute were None (3b525 round-16 review, agy: getattr's
+        default turned an input that cannot answer into an answer). Read
+        as None, the run is green: loaded 2 + 1, testsRun=2,
+        notStarted=1."""
+        code, _out, err = self._run_gate_with({
+            "test_aa_hidden.py": HIDDEN_PREVIOUS_CLASS_MODULE,
+        })
+        self.assertEqual(code, 2, err)
+        refusal = [line for line in err.splitlines()
+                   if line.startswith("REFUSED: ")]
+        self.assertEqual(len(refusal), 1, err)
+        self.assertIn("_previousTestClass", refusal[0])
+        self.assertIn("Python %d.%d.%d" % sys.version_info[:3], refusal[0])
+        self.assertNotIn(_SENTINEL_PREFIX, err)
+
     def test_main_reads_class_skip_flag_from_dunder_class(self) -> None:
         """The class skip flag is read from test.__class__, as unittest
         reads it (3b525 round-11 review, claude N4): a __class__
@@ -2397,6 +2454,11 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         "its set-up order",
         "read in CPython 3.14 and 3.11 suite.py",
         "a change there could misgroup records",
+        # round 18: an absent attribute is refused, not read as None
+        "has no _previousTestClass attribute at all as a setUpClass skip "
+        "record arrives, the run is refused (exit 2, naming "
+        "_previousTestClass and the Python version), never grouped by a "
+        "default",
     )
 
     def test_docs_state_crediting_residuals_in_agreement(self) -> None:

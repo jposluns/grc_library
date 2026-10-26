@@ -114,7 +114,12 @@ findings):
   and its set-up order (set to a run's class only after that class's
   set-up; read in CPython 3.14 and 3.11 ``suite.py``), which unittest
   does not document, so a change there could misgroup records (an
-  accepted residual). ``notStarted`` counts
+  accepted residual). When the result object has no
+  ``_previousTestClass`` attribute at all as a ``setUpClass`` skip
+  record arrives, the run is refused (exit 2, naming
+  ``_previousTestClass`` and the Python version), never grouped by a
+  default; ``None``, its value before the first test, is an answer
+  (the 3b525 round-16 review, agy). ``notStarted`` counts
   only these ``setUpClass`` skips: a test of a skip-decorated class
   reaches ``startTest`` (``testsRun`` counts it), and a test a
   ``SkipTest`` in ``setUpModule`` kept from starting is not counted,
@@ -376,11 +381,22 @@ class StartRecordingResult(unittest.TextTestResult):
         # same previous class, is the same run's and is discarded: one
         # run contributes at most one counted record, never a spare for a
         # later run. _previousTestClass is private to unittest (an
-        # accepted residual; see the docstring).
+        # accepted residual; see the docstring). An absent attribute (a
+        # Python that renames it or stops setting it) cannot answer, so
+        # it is refused rather than read as None, the value TestResult
+        # gives it before the first test.
         holder = test.id()
         if holder.startswith("setUpClass (") and holder.endswith(")"):
             holder = holder[len("setUpClass ("):-1]
-            run = (holder, getattr(self, "_previousTestClass", None))
+            try:
+                previous = self._previousTestClass
+            except AttributeError:
+                print("\\nREFUSED: the unittest result has no "
+                      "_previousTestClass attribute (Python %d.%d.%d); "
+                      "setUpClass skip records cannot be grouped into runs"
+                      % sys.version_info[:3], file=sys.stderr)
+                sys.exit(2)
+            run = (holder, previous)
             last = self.last_record
             if last is None or last[0] != run[0] or last[1] is not run[1]:
                 self.class_skips[holder] = self.class_skips.get(holder, 0) + 1

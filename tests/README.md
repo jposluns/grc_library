@@ -147,7 +147,11 @@ of the following, never softening one to green:
   attribute and its set-up order (set to a run's class only after that
   class's set-up; read in CPython 3.14 and 3.11 `suite.py`), which
   unittest does not document, so a change there could misgroup records
-  (an accepted residual); so a green run
+  (an accepted residual); when the result object has no
+  `_previousTestClass` attribute at all as a `setUpClass` skip record
+  arrives, the run is refused (exit 2, naming `_previousTestClass` and
+  the Python version), never grouped by a default (`None`, its value
+  before the first test, is an answer); so a green run
   with such a skip in a module that otherwise started a test is not
   refused; it does not count tests of a skip-decorated
   class, which reach `startTest`, nor tests a `SkipTest` in
