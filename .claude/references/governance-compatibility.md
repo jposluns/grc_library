@@ -85,8 +85,9 @@ different models (versions count). Gate failures have no exception-register bypa
     Reconcile the bounded handoff, acquire/refresh/release the lease, honor
     decision-timeout reversibility, and obtain delivered/dispositioned QA before
     closing. Reissue stalled read-only QA, consume late results as cross-checks,
-    and preserve the documented closing-QA compensating control. Prequeue bounded
-    research at the closing merge SHA and record dispatches as pending work.
+    and preserve the documented closing-QA compensating control. Queue nothing
+    cross-session at wind-down: CLAUDE.md's wind-down pre-queue section
+    supersedes session-lifecycle.md's.
 14. Plan-bending decision: apply decision-classification-before-enacting.md.
     Write ACT/ASK/BLOCKED before enactment; use only the closed blocker
     vocabulary retained in that procedure's project overlay, ask reachable
