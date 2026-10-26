@@ -287,4 +287,4 @@ target = ".claude/skills/corpus-management/SKILL.md"
 [[owned_targets]]
 rule = "rule-index"
 kind = "index"
-target = ".claude/rules/corpus-management/INDEX.md"
+target = ".claude/skills/corpus-management/rule-index.md"

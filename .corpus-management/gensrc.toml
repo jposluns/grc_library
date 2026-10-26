@@ -405,8 +405,10 @@ target = ".claude/skills/corpus-management/SKILL.md"
 provenance = false
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
+# The rule index ships in the skill directory and is read when the skill
+# loads, on the skill's instruction, rather than at session start (3b607).
 [[rules]]
 id = "rule-index"
 kind = "index"
 sources = ["gensrc.toml", "core/gates.toml"]
-target = ".claude/rules/corpus-management/INDEX.md"
+target = ".claude/skills/corpus-management/rule-index.md"

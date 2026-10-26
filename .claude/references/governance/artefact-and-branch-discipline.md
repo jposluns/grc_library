@@ -189,7 +189,7 @@ The SLSA cells name the SLSA v1.2 Source-track requirement each control helps me
   `governance/specification-citation-verification.md` (generated from its `json citation-publishers`
   block), the generated table of `.project-governance/register-historical-citation-exceptions.md`
   (from its `.toml` data file via `tools/build-historical-citation-exceptions.py`; gate 6 refuses drift), and every compiler-owned
-  corpus-management output (the CLAUDE.md generated-artefacts block, the two prose rules and index in `.claude/rules/corpus-management/`, and the on-demand bodies in `.claude/references/corpus-management/`)
+  corpus-management output (the CLAUDE.md generated-artefacts block, the two prose rules in `.claude/rules/corpus-management/`, the skill and its rule index in `.claude/skills/corpus-management/`, and the on-demand bodies in `.claude/references/corpus-management/`)
   (regenerate via `tools/build-taxonomy.py`,
   `tools/build-narrative-registry.py`, `tools/build-portal.py`,
   `tools/build-relationship-model.py`, `tools/build-todo-number-allocation.py`,
