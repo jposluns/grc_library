@@ -54148,6 +54148,472 @@ class BlockVerificationPipesTests(unittest.TestCase):
             for c in funsub:
                 self.assertFalse(self.hook.command_is_blocked(c))
 
+    def _emitter_mutant(self, old, new):
+        # An in-memory copy of the hook with one exact edit of whole code
+        # lines (never comment text); the hook file and self.hook are never
+        # changed, so nothing needs restoring.
+        import types
+        path = REPO_ROOT / ".claude" / "hooks" / "block-verification-pipes.py"
+        source = path.read_text(encoding="utf-8")
+        self.assertEqual(source.count(old), 1)
+        module = types.ModuleType("_status_pipe_mutant")
+        module.__file__ = str(path)
+        exec(compile(source.replace(old, new), str(path), "exec",
+                     dont_inherit=True), module.__dict__)
+        return module
+
+    def _3b562_generated_expansions(self):
+        # The generator behind test_3b562_bash53_forms_beyond_exact_spellings
+        # (whose comment states its coverage): (expansion, shape) pairs, the
+        # shape naming the prefix, the parameter, the operator family and
+        # spelling, the operand position holding a command substitution
+        # (None when no operand holds one), and how the arithmetic
+        # operands are spelled: as literals (False), as names (True) or as
+        # $names ('$'). {slot} marks a position.
+        import collections
+        shape = collections.namedtuple(
+            'Shape', 'prefix parameter family operator slot named')
+        parameters = ('x', '@', '*', '1', 'arr[@]', 'arr[*]',
+                      'arr[{subscript}]', 'arr[{negsubscript}]')
+        families = {
+            'none': ('',),
+            'default': (':-{word}', '-{word}', ':={word}', '={word}',
+                        ':?{word}', '?{word}', ':+{word}', '+{word}',
+                        ':?', '?'),
+            'substring': (':{offset}', ':{offset}:{length}', ':{offset}:',
+                          ': {offset}', ': {offset}:{length}', ': {offset}:',
+                          ': {negative}', ': {negative}:{length}',
+                          ': {negative}:', '::{length}', '::',
+                          ':{offset}:{neglength}', ': {offset}:{neglength}',
+                          ': {negative}:{neglength}', '::{neglength}'),
+            'names': ('*', '@'),
+            'trim': ('#{word}', '##{word}', '%{word}', '%%{word}'),
+            'replace': tuple(operator + '{pattern}' + rest
+                             for rest in ('/{string}', '/', '')
+                             for operator in ('/', '//', '/#', '/%')),
+            'case': ('^{pattern}', '^^{pattern}', ',{pattern}',
+                     ',,{pattern}', '^', '^^', ',', ',,'),
+            'transform': tuple('@' + letter for letter in 'UuLQEPAKak'),
+        }
+        literals = {'word': 'y', 'pattern': 'a', 'string': 'b',
+                    'offset': '1', 'negative': '-1', 'length': '2',
+                    'neglength': '-1', 'subscript': '0',
+                    'negsubscript': '-1'}
+        names = {'offset': 'i', 'negative': '-i', 'length': 'n',
+                 'neglength': '-n', 'subscript': 'i',
+                 'negsubscript': '-i'}  # the arithmetic operands as names
+        dollars = {'offset': '$i', 'negative': '-$i', 'length': '$n',
+                   'neglength': '-$n', 'subscript': '$i',
+                   'negsubscript': '-$i'}  # and as $names
+        spellings = {False: {}, True: names, '$': dollars}
+
+        def spelled(prefix, parameter, family):
+            if prefix == '#':
+                return family == 'none'
+            if prefix == '!':
+                if parameter in ('@', '*'):
+                    return False
+                if parameter in ('arr[@]', 'arr[*]'):
+                    return family == 'none'
+                return family != 'names' or parameter == 'x'
+            return family != 'names' and (parameter, family) != ('x', 'none')
+
+        expansions = []
+        for prefix in ('', '!', '#'):
+            for parameter in parameters:
+                for family, operators in families.items():
+                    if not spelled(prefix, parameter, family):
+                        continue
+                    for operator in operators:
+                        body = prefix + parameter + operator
+                        slots = re.findall(r'\{(\w+)\}', body)
+                        rows = [(slot, False) for slot in [None] + slots]
+                        if set(slots) & set(names):
+                            rows += [(None, True), (None, '$')]
+                        for slot, named in rows:
+                            fill = dict(literals, **spellings[named])
+                            if slot:  # a negative operand keeps its minus
+                                fill[slot] = ('-' if slot.startswith('neg')
+                                              else '') + '$(false)'
+                            expansions.append((
+                                '${%s}' % re.sub(r'\{(\w+)\}',
+                                                 lambda m: fill[m[1]], body),
+                                shape(prefix, parameter, family, operator,
+                                      slot, named)))
+        return expansions
+
+    def test_3b562_bash53_forms_beyond_exact_spellings(self):
+        # 3b562: the round-11 cases spell each bash-5.3 form one way (a
+        # blank after "${" or "${|", a plain NAME before @P, no other
+        # operator) and always inside double quotes. A tab or a newline
+        # also opens a brace substitution, "${|" needs no blank, @P also
+        # transforms a positional or special parameter and a whole array,
+        # every other ${name OP ...} operator disqualifies too, and an
+        # unquoted substitution runs; each row refuses as pipeline-status.
+        # Each listed row names the mutants (below) that wrongly let it
+        # through, and a rule predicts them for each generated row; every
+        # other mutant must refuse the row.
+        cases = [
+            # round 11: every mutant refuses these
+            ('echo "${ printf \'x\'; false; }" | head -1; echo rc=$?', ''),
+            ('echo "${| false; }" | head -1; echo rc=$?', ''),
+            ('echo "${PS1@P}" | head -1; echo rc=$?', ''),
+            # double-quoted brace substitutions
+            ('echo "${\tprintf \'x\'; false; }" | head -1; echo rc=$?', 'M2'),
+            ('printf \'%s\' "${\tfalse; }" | tail -1; echo rc=$?', 'M2'),
+            ('echo "${\nprintf \'x\'; false\n}" | head -1; echo rc=$?', 'M2'),
+            ('printf \'%s\' "${\nfalse\n}" | cut -c1-160; echo rc=$?', 'M2'),
+            ('echo "${|false;}" | head -1; echo rc=$?', 'M2 M2h'),
+            ('printf \'%s\' "${|\tfalse; }" | tail -1; echo rc=$?', 'M2 M2h'),
+            # double-quoted @P beyond a plain NAME
+            ('echo "${1@P}" | head -1; echo rc=$?', 'M2'),
+            ('printf \'%s\' "${arr[0]@P}" | tail -3; echo rc=$?', 'M2'),
+            ('echo "${*@P}" | head -1; echo rc=$?', 'M2'),
+            ('echo "${@@P}" | head -1; echo rc=$?', 'M2'),
+            ('printf \'%s\' "${0@P}" | tail -1; echo rc=$?', 'M2'),
+            ('printf \'%s\' "${arr[@]@P}" | cut -c1-160; echo rc=$?', 'M2'),
+            # unquoted
+            ('echo ${ false; } | head -1; echo rc=$?', 'M3 M3p'),
+            ("echo ${\tprintf 'x'; false; } | head -1; echo rc=$?",
+             'M2 M3 M3p'),
+            ("printf '%s' ${\nfalse\n} | cut -c1-160; echo rc=$?",
+             'M2 M3 M3p'),
+            ('echo ${|false;} | head -1; echo rc=$?', 'M2 M2h M3 M3p'),
+            ("printf '%s' ${|\tfalse; } | tail -1; echo rc=$?",
+             'M2 M2h M3 M3p'),
+            ('echo ${1@P} | head -1; echo rc=$?', 'M2 M3 M3p'),
+            ("printf '%s' ${arr[@]@P} | tail -3; echo rc=$?", 'M2 M3 M3p'),
+            # a trim word and a replace pattern starting with a dot, which a
+            # widening for "${f%.md}" or "${f/.md}" keyed to the dot lets
+            # through (the round-6 Claude review's W5 and W11)
+            ('echo "${x%.$(false)}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o'),
+            ("printf '%s' ${x%.$(false)} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3 M3p M3g'),
+            ('echo "${x/.$(false)}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2r M2o'),
+            ("printf '%s' ${x/.$(false)} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2r M2o M3 M3p M3g'),
+            # a brace substitution nested in an operand: skipping to the
+            # first "}" unscanned swallows its opener (M2o), while scanning
+            # on past "${" finds it (M2on)
+            ('echo "${x-${ false; }}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2o'),
+        ]
+        # The generated rows (_3b562_generated_expansions) are, inside
+        # double quotes and unquoted, the cross-product of the operator
+        # spellings in the Parameter Expansion section of the bash 5.3 man
+        # page (roff source lines; .TH date 2025 April 7) and the
+        # parameters they follow:
+        #   - spellings: none, the bare ${parameter} (3638); :- - := = :?
+        #     ? :+ + with a word, and :? ? with none (3678-3724); a
+        #     substring at an offset, at an offset with a length, and at an
+        #     offset with the length left out after its colon (3728-3746),
+        #     each also at an offset and at a negative offset after a space
+        #     (the space 3761-3762 requires before a negative one), and
+        #     with the offset left out, with or without a length
+        #     (3742-3743), with every length also negative (3756-3760);
+        #     # ## % %% (3840-3883); / // /# /% with a string,
+        #     with an empty string, and with the string and its "/" left
+        #     out (3919-3925, 3947-3949); ^ ^^ , ,, with a pattern and with
+        #     none (4000-4006, 4033); and @ with each of its ten letters
+        #     (4054-4103);
+        #   - parameters: a NAME, @, *, the positional parameter 1, and an
+        #     array reference subscripted by @, by *, by an index or by a
+        #     negative index (3649-3650, 3269-3283, 3301-3307); and a
+        #     !-indirection of the NAME, of the 1 and of each indexed
+        #     element (3653-3670);
+        #   - spelled with no operator: the #-length of each of the eight
+        #     parameters (3815-3837), ${!arr[@]} and ${!arr[*]}
+        #     (3803-3805), and ${!x*} and ${!x@} (3789-3791).
+        # Each form has one row with a literal in every operand position
+        # (word y, pattern a, string b, offset 1, negative offset -1,
+        # length 2, negative length -1, subscript 0, negative subscript -1),
+        # one row per position with $(false) there instead (-$(false) at a
+        # negative operand), and, where it has an arithmetic operand (an
+        # offset, a length or a subscript, 3747, 3153), two more rows: one
+        # with each of those spelled as a name (i, -i, n, -n, i and -i;
+        # 5423-5427) and one with each spelled as a $name ($i, -$i, $n,
+        # -$n, $i and -$i; 5421-5422). Apart from its $(false), a row
+        # spells its arithmetic operands alike (all literals, all names or
+        # all $names), so a widening keyed to a mix (${x:0:$n},
+        # ${x:i:$(false)}) goes unseen. No other operand text is generated,
+        # so a widening keyed only to other text (a ## word starting with a
+        # dot, say) goes unseen unless a listed row holds that text, as the
+        # rows with ${x%.$(false)} and ${x/.$(false)} do.
+        # Left out on purpose:
+        #   - ${x}, the one form the allow-list takes;
+        #   - ${!@} and ${!*}, with or without an operator: they read as
+        #     ${!prefix@} and ${!prefix*} with an empty prefix as well as
+        #     an indirection (3653, 3789-3791), and the section does not
+        #     say which;
+        #   - an operator after a #-length, after ${!arr[@]} or ${!arr[*]}
+        #     or after ${!x*} or ${!x@}, a #-length of an indirection, and
+        #     ${!prefix*} or ${!prefix@} after anything but a NAME: the
+        #     section gives none of them;
+        #   - an empty operand the section does not single out (${x:-},
+        #     ${x#}, ${x///b});
+        #   - other special parameters, positional parameters past 9 and
+        #     associative-array keys, so a widening keyed only to those
+        #     goes unseen.
+        # The := and = rows of 1, @ and * test the hook's refusal only:
+        # bash never assigns those (3701-3702). The negative-length rows of
+        # @, * and an array subscripted by @ or * stay although bash makes
+        # such a length an expansion error (3769-3770, 3777-3778), and the
+        # man page does not say whether a substitution in that length runs
+        # first: the hook refuses the shape. No row is run in bash; that
+        # bash takes each spelling is read from the man page, not observed.
+        #
+        # A command substitution in an operand runs when bash expands the
+        # operand. The man page names command substitution for a word
+        # (3672-3673), for a replacement string (3935-3936) and for an
+        # indexed-array subscript (3164-3167). For a replace or case
+        # pattern it says only that the pattern is expanded (3928, 4010),
+        # and it makes offset and length arithmetic expressions (3747)
+        # before whose evaluation it names parameter expansion only
+        # (5421-5422; 4225-4226 names command substitution for $((...)),
+        # not here), so that a substitution runs in a pattern, an offset or
+        # a length is inferred, not cited. -, =, ? and + use their word in
+        # one branch only (3678-3724). The hook refuses each row by its
+        # shape either way.
+        expansions = self._3b562_generated_expansions()
+        quotings = ((True, 'echo "%s" | head -1; echo rc=$?'),
+                    (False, "printf '%%s' %s | tail -1; echo rc=$?"))
+        generated = [(template % expansion, shape, quoted)
+                     for expansion, shape in expansions
+                     for quoted, template in quotings]
+        # Positive controls: inside single quotes nothing expands.
+        controls = [
+            "echo '${\tfalse; }' | head -1; echo rc=$?",
+            "printf '%s' '${\nfalse\n}${1@P}${arr[0]@P}' | cat; echo rc=$?",
+            "printf '%s' '${|false;}${|\tfalse; }${*@P}${@@P}' | cat; "
+            "echo rc=$?",
+            "echo '${x-${ false; }}' | head -1; echo rc=$?",
+            "echo '${x%.$(false)}${x/.$(false)}' | head -1; echo rc=$?",
+        ] + ["echo '%s' | head -1; echo rc=$?" % expansion
+             for expansion, _ in expansions]
+        # Mutants, each the hook with one exact edit: M3 replaces two code
+        # lines, and M3p and M3g write the allow-list line as two.
+        #   M2   a deny-list of the round-11 spellings "${ ", "${| " and
+        #        ${NAME@P}; any other ${...} is skipped unscanned as data,
+        #        up to its first "}" only.
+        #   M2g  a deny-list of "${" before a space, tab, newline or "|",
+        #        and of any ${...@P}; anything else is skipped as in M2.
+        #   M2h  M2g, but "${|" only before a space, as round 11 spells it.
+        #   M2x  the allow-list also takes a # or % trim with any operand
+        #        before the first "}", as a fix for "${f%.md}" might.
+        #   M2r  the allow-list also takes a replace with the string and
+        #        its "/" left out, as a fix for "${f/.md}" might.
+        #   M2s  the allow-list also takes a substring at a numeric offset
+        #        with any length or none, as a fix for "${sha:0:7}" might.
+        #   M2n  the allow-list also takes a substring whose offset follows
+        #        a space, as a fix for "${s: -3}" might.
+        #   M2e  the allow-list also takes a substring with the offset left
+        #        out, as a fix for "${s::3}" might.
+        #   M2o  a deny-list of M2g's openers and of a ${...} holding @, :,
+        #        [ or ! before its first "}"; anything else is skipped as
+        #        in M2.
+        #   M2on M2o, but past an undenied "${" the scan goes on inside.
+        #   M3   an expansion disqualifies only inside double quotes.
+        #   M3p  M3 narrowed to ${...} forms, so $( and backquote still
+        #        disqualify unquoted; unlike M3, no unquoted $(( case
+        #        elsewhere in this class catches it.
+        #   M3g  the allow-list inside double quotes, M2g outside them.
+        # The round-4 reviews' widenings, under their names there:
+        #   P1   the allow-list also takes a // replace with the string and
+        #        its "/" left out, as a fix for "${f//-}" might (also the
+        #        Gemini review's replace variant).
+        #   P2   the allow-list also takes a /# or /% replace with the
+        #        string and its "/" left out, as a fix for "${f/%.md}"
+        #        might; P2p and P2s take /# alone and /% alone, as the
+        #        Gemini review spells them.
+        #   P4   the allow-list also takes a substring with the length left
+        #        out after its colon, as a fix for "${s:1:}" might.
+        #   P5   the allow-list also takes a substring at a numeric
+        #        negative offset after a space, then a colon and any length,
+        #        as a fix for "${s: -3:2}" might.
+        #   P6   the allow-list also takes @ or * before any ":" operator,
+        #        as a fix for "${@:2}" might.
+        #   P7   the allow-list also takes a # or % trim of an array
+        #        subscripted by @ or *, as a fix for "${files[@]%.md}"
+        #        might.
+        #   P8b  the allow-list also takes the #-length of any array
+        #        reference, as a fix for "${#arr[@]}" might.
+        #   P10  the allow-list also takes a :- default after a positional
+        #        parameter, as a fix for "${1:-}" might.
+        # The round-5 Claude review's widenings, under its names there (W1
+        # is also the widening of the Codex round-4 and round-5 reviews):
+        #   W1   the allow-list also takes a substring at a numeric offset
+        #        after a space, then a colon and any length, as a fix for
+        #        "${s: 0:7}" might.
+        #   W2   the allow-list also takes a substring at a numeric offset
+        #        whose length starts with a minus, as a fix for "${s:1:-1}"
+        #        might.
+        #   W3   the allow-list also takes a substring at a $name offset
+        #        with any length or none, as a fix for "${line:$i:1}" might.
+        #   W4   the allow-list also takes an array element whose subscript
+        #        starts with a minus, as a fix for "${arr[-1]}" might.
+        allow = (r'            m = re.match(r"\$\{[A-Za-z_][A-Za-z0-9_]*\}", '
+                 'joined[i:])\n')
+        skip = r're.match(r"\$\{[^}]*\}?", joined[i:])'
+        m2g = r'\$\{(?:[ \t\n|]|[^}]*@P\})'
+        m2o = r'\$\{(?:[ \t\n|]|[^}]*[@:\[!])'
+        name_re = r'[A-Za-z_][A-Za-z0-9_]*'
+
+        def deny(pattern, rest=skip):
+            return ('None if re.match(%r, joined[i:]) else %s'
+                    % (pattern, rest))
+
+        def deny_list(pattern, rest=skip):
+            return '            m = %s\n' % deny(pattern, rest)
+
+        def either(pattern):  # the allow-list takes a second form
+            return allow.replace(name_re, '(?:%s|%s)' % (name_re, pattern))
+        mutants = {
+            'M2': self._emitter_mutant(allow, deny_list(
+                r'\$\{(?: |\| |[A-Za-z_][A-Za-z0-9_]*@P\})')),
+            'M2g': self._emitter_mutant(allow, deny_list(m2g)),
+            'M2h': self._emitter_mutant(allow, deny_list(
+                r'\$\{(?:[ \t\n]|\| |[^}]*@P\})')),
+            'M2x': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:[#%]{1,2}[^}]*)?\}')),
+            'M2r': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/{1,2}[#%]?[^/}]*)?\}')),
+            'M2s': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?::[0-9]+(?::[^}]*)?)?\}')),
+            'M2n': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:: [^}]*)?\}')),
+            'M2e': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:::[^}]*)?\}')),
+            'M2o': self._emitter_mutant(allow, deny_list(m2o)),
+            'M2on': self._emitter_mutant(allow, deny_list(
+                m2o, r're.match(r"\$\{", joined[i:])')),
+            'M3': self._emitter_mutant(
+                '            disqualified, i = expansion_runs_code()\n'
+                '            if disqualified:\n',
+                '            disqualified, i = expansion_runs_code()\n'
+                '            if disqualified and in_dquote:\n'),
+            'M3p': self._emitter_mutant(allow, allow[:-1] + ' or (\n'
+                '                None if in_dquote else ' + skip + ')\n'),
+            'M3g': self._emitter_mutant(allow, allow[:-1] + ' if in_dquote '
+                'else (\n                ' + deny(m2g) + ')\n'),
+            'P1': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?://[^/}]*)?\}')),
+            'P2': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/[#%][^/}]*)?\}')),
+            'P2p': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/#[^/}]*)?\}')),
+            'P2s': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/%[^/}]*)?\}')),
+            'P4': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?::[^:}]*:)?\}')),
+            'P5': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:: -[0-9]+:[^}]*)?\}')),
+            'P6': self._emitter_mutant(allow, either(r'[@*]:[^}]*')),
+            'P7': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:\[[@*]\][#%][^}]*)?\}')),
+            'P8b': self._emitter_mutant(allow, either(
+                r'#[A-Za-z_][A-Za-z0-9_]*\[[^]]*\]')),
+            'P10': self._emitter_mutant(allow, either(r'[0-9]+:-[^}]*')),
+            'W1': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:: [0-9]+:[^}]*)?\}')),
+            'W2': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?::[0-9]+:-[^}]*)?\}')),
+            'W3': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?::\$[A-Za-z_][A-Za-z0-9_]*(?::[^}]*)?)?\}')),
+            'W4': self._emitter_mutant(allow, either(
+                r'[A-Za-z_][A-Za-z0-9_]*\[-[^]]*\]')),
+        }
+        # Each mutant's rule: the generated rows it lets through, from the
+        # row's shape s and whether the row is double-quoted (q).
+
+        def plain(s):  # the unprefixed NAME, the one the allow-list takes
+            return s.prefix == '' and s.parameter == 'x'
+        rules = {
+            'M2': lambda s, q: not (plain(s) and s.operator == '@P'),
+            'M2g': lambda s, q: s.operator != '@P',
+            'M2h': lambda s, q: s.operator != '@P',
+            'M2x': lambda s, q: plain(s) and s.family == 'trim',
+            'M2r': lambda s, q: (plain(s) and s.family == 'replace'
+                                 and s.operator.endswith('{pattern}')),
+            'M2s': lambda s, q: (plain(s) and s.slot != 'offset'
+                                 and not s.named
+                                 and s.operator.startswith(':{offset}')),
+            'M2n': lambda s, q: plain(s) and s.operator.startswith(': '),
+            'M2e': lambda s, q: plain(s) and s.operator.startswith('::'),
+            'M2o': lambda s, q: (s.prefix != '!'
+                                 and s.parameter in ('x', '*', '1')
+                                 and not set(s.operator) & set(':@')),
+            'M2on': lambda s, q: rules['M2o'](s, q) and s.slot is None,
+            'M3': lambda s, q: not q,
+            'M3p': lambda s, q: not q,
+            'M3g': lambda s, q: not q and s.operator != '@P',
+            'P1': lambda s, q: plain(s) and s.operator == '//{pattern}',
+            'P2': lambda s, q: (plain(s) and s.operator in (
+                '/#{pattern}', '/%{pattern}')),
+            'P2p': lambda s, q: plain(s) and s.operator == '/#{pattern}',
+            'P2s': lambda s, q: plain(s) and s.operator == '/%{pattern}',
+            'P4': lambda s, q: (plain(s) and s.family == 'substring'
+                                and s.operator.endswith(':')),
+            'P5': lambda s, q: (plain(s) and s.slot != 'negative'
+                                and not s.named
+                                and s.operator.startswith(': {negative}:')),
+            'P6': lambda s, q: (s.prefix == '' and s.parameter in ('@', '*')
+                                and s.operator.startswith(':')),
+            'P7': lambda s, q: (s.prefix == ''
+                                and s.parameter in ('arr[@]', 'arr[*]')
+                                and s.family == 'trim'),
+            'P8b': lambda s, q: (s.prefix == '#'
+                                 and s.parameter.startswith('arr[')),
+            'P10': lambda s, q: (s.prefix == '' and s.parameter == '1'
+                                 and s.operator == ':-{word}'),
+            'W1': lambda s, q: (plain(s) and s.slot != 'offset'
+                                and not s.named
+                                and s.operator.startswith(': {offset}:')),
+            'W2': lambda s, q: (plain(s) and s.slot != 'offset'
+                                and not s.named
+                                and s.operator == ':{offset}:{neglength}'),
+            'W3': lambda s, q: (plain(s) and s.named == '$'
+                                and s.operator.startswith(':{offset}')),
+            'W4': lambda s, q: (s.prefix == ''
+                                and s.parameter == 'arr[{negsubscript}]'
+                                and s.family == 'none'),
+        }
+        self.assertEqual(set(rules), set(mutants))
+        # No listed row names a mutant that does not exist, and a generated
+        # row that repeats a listed one predicts the same mutants.
+        self.assertLessEqual(
+            {name for _, admitted_by in cases for name in admitted_by.split()},
+            set(mutants))
+        expected = {command: set(admitted_by.split())
+                    for command, admitted_by in cases}
+        for command, s, q in generated:
+            admitted = {name for name, rule in rules.items() if rule(s, q)}
+            with self.subTest(command=command):
+                self.assertEqual(expected.setdefault(command, admitted),
+                                 admitted)
+        commands = list(expected)
+        self.check(commands, True)
+        for command in commands:
+            with self.subTest(command=command):
+                violation = self.hook.shell_violation(command)
+                self.assertEqual(violation[0] if violation else None,
+                                 'pipeline-status')
+        self.check(controls, False)
+        # Every mutant lets some row through, so each edit takes effect, and
+        # it lets through exactly the rows that name or predict it.
+        for name, mutant in mutants.items():
+            predicted = {command for command in commands
+                         if name in expected[command]}
+            with self.subTest(mutant=name):
+                self.assertTrue(predicted)
+                self.assertEqual(
+                    {command for command in commands
+                     if not mutant.command_is_blocked(command)}, predicted)
+                self.assertEqual([command for command in controls
+                                  if mutant.command_is_blocked(command)], [])
+        self.check(commands, True)  # the loaded hook is unchanged
+
     def test_round10_and_continuation_clears_pending(self):
         # F2 (falseblocks-classification row 67): an executed single-command
         # && continuation replaces the pipeline's status, and a skipped one
