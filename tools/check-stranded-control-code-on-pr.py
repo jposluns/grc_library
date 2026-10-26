@@ -40,7 +40,10 @@ git failure (dubious ownership, no repository, a missing base ref, a bad object)
 with git's message, never a skip or a clean pass (3b572). Every one also
 refuses on an OSError (git cannot be started), naming the OS error, the
 top-level read included (3b572 round 3), and every one but the top-level read
-refuses on output that is not valid UTF-8, naming the decoding error. The
+and the git-directory reads refuses on output that is not valid UTF-8, naming
+the decoding error. The git-directory reads (require_own_git_dir in
+tools/lint_common.py) take git's output as bytes and compare real paths as
+bytes, so they never decode. The
 top-level read feeds the own-repository top-level comparison (3b564) and
 decodes its output with os.fsdecode, so output that is not valid UTF-8 never
 fails the read; it reaches the comparison, which passes it only where it names
@@ -58,7 +61,7 @@ Exit codes:
         find the merge base for any reason other than its own no-merge-base
         answer, git that cannot be started on any call that bears on the
         verdict, output that is not valid UTF-8 on such a call other than
-        the top-level read, a failed read of a
+        the top-level read and the git-directory reads, a failed read of a
         changed document or of the commit messages (3b572), the head does not
         resolve to a commit, git reports no work tree top level, an empty
         one, or one that is not this script's own repository, REPO_ROOT, git
