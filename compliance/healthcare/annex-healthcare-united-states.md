@@ -2,8 +2,8 @@
 
 **Document Title:** United States HIPAA Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.2\
-**Date:** 2026-10-03\
+**Version:** 0.0.4\
+**Date:** 2026-10-26\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/healthcare/README.md`](README.md), [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md)\
@@ -87,12 +87,12 @@ A breach is an acquisition, access, use, or disclosure of PHI not permitted unde
 
 | Notification | Recipient | Timing |
 | --- | --- | --- |
-| Individual notice (164.404) | Each affected individual | Without unreasonable delay and no later than 60 calendar days after discovery |
-| Media notice (164.406) | Prominent media serving the State or jurisdiction, for a breach involving more than 500 residents of that State or jurisdiction | Same 60-day outer limit |
-| Secretary notice (164.408) | HHS, via the HHS website | For 500 or more individuals, contemporaneously with the individual notice; for fewer than 500, logged and reported no later than 60 days after the calendar year's end |
-| Business associate notice (164.410) | The covered entity | Without unreasonable delay and no later than 60 calendar days after discovery |
+| Individual notice (164.404) | Each affected individual | Without unreasonable delay and in no case later than 60 calendar days after discovery, subject to the law-enforcement delay below |
+| Media notice (164.406) | Prominent media serving the State or jurisdiction, for a breach involving more than 500 residents of that State or jurisdiction | Without unreasonable delay and in no case later than 60 calendar days after discovery, subject to the law-enforcement delay below |
+| Secretary notice (164.408) | HHS, via the HHS website | For 500 or more individuals, contemporaneously with the individual notice (164.408(b)); for fewer than 500, logged and reported not later than 60 days after the end of each calendar year, for breaches discovered during the preceding calendar year (164.408(c)); both subject to the law-enforcement delay below |
+| Business associate notice (164.410) | The covered entity | Without unreasonable delay and in no case later than 60 calendar days after discovery, subject to the law-enforcement delay below |
 
-A law-enforcement request can delay notification (164.412). The organization carries the burden of proof to show that the required notifications were made, or that the use or disclosure did not constitute a breach (164.414). The step-by-step application of the four-factor determination test that decides whether the notification clock starts is in the [HIPAA Operational Compliance Procedure](procedure-hipaa-operational-compliance.md).
+A law enforcement official's statement that a notification, notice, or posting would impede a criminal investigation or cause damage to national security delays every timing in the table (164.412). A written statement that specifies the time for which a delay is required delays it for the period the official specifies. An oral statement must be documented, including the identity of the official making it, and delays it temporarily and no longer than 30 days from the date of the oral statement, unless a written statement as described above is submitted during that time. The organization carries the burden of proof to show that the required notifications were made, or that the use or disclosure did not constitute a breach (164.414). The step-by-step application of the four-factor determination test that decides whether the notification clock starts is in the [HIPAA Operational Compliance Procedure](procedure-hipaa-operational-compliance.md).
 
 ---
 
@@ -138,7 +138,7 @@ Under 45 CFR 102.3, regulatory calendar-year caps for identical violations are t
 1. The organization completes and maintains a current HIPAA risk analysis (164.308(a)(1)) and drives its safeguard implementation from it; the library's risk-assessment methodology is the input, not a substitute.
 2. Each safeguard implementation traces to a library document and to any organization-specific extension, using the NIST SP 800-66r2 crosswalk as the bridge from the Security Rule standard to the control.
 3. Business associate agreements are executed before PHI is shared, and flow-down agreements are obtained from subcontractors (164.308(b), 164.314(a)).
-4. The incident-response process recognizes the HIPAA breach-determination test and the 60-day and 500-individual notification thresholds, layered on the library's incident lifecycle.
+4. The incident-response process recognizes the HIPAA breach-determination test and the 60-day and 500-individual notification thresholds, and the 164.412 law-enforcement delay, layered on the library's incident lifecycle.
 5. HIPAA documentation is retained for six years from creation or last-effective date, whichever is later (164.316(b), 164.530(j)).
 6. The organization tracks the status of the proposed Security Rule revision and does not implement to it as though it were in force until it is finalized.
 

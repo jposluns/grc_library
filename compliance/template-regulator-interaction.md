@@ -2,7 +2,7 @@
 
 **Document Title:** Regulator Interaction Templates\
 **Document Type:** Template\
-**Version:** 1.0.12\
+**Version:** 1.0.15\
 **Date:** 2026-10-26\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -58,7 +58,7 @@ Determined by the framework. Common patterns:
 
 - **GDPR Article 33**: without undue delay and, where feasible, not later than 72 hours after becoming aware.
 - **SEC Form 8-K cybersecurity item**: four business days after determination of materiality.
-- **HIPAA Breach Notification Rule**: 60 days from discovery (Secretary notification thresholds vary).
+- **HIPAA Breach Notification Rule**: notice to affected individuals, notice to prominent media for a breach involving more than 500 residents of a State or jurisdiction, and a business associate's notice to the covered entity are each due without unreasonable delay and in no case later than 60 calendar days after discovery of the breach (45 CFR 164.404(b), 164.406(b), 164.410(b)); notice to the Secretary for a breach involving 500 or more individuals is due contemporaneously with the notice to individuals (164.408(b)), and for a breach involving fewer than 500 individuals is logged and due not later than 60 days after the end of each calendar year for breaches discovered during the preceding calendar year (164.408(c)); all subject to the law-enforcement delay in 45 CFR 164.412, which applies only where a law enforcement official states that a notification, notice, or posting required under the subpart would impede a criminal investigation or cause damage to national security: a written statement that specifies the time for which a delay is required delays the notification, notice, or posting for the period the official specifies; an oral statement must be documented, including the identity of the official making it, and delays the notification, notice, or posting temporarily and no longer than 30 days from the date of the oral statement, unless a written statement is submitted during that time.
 - **NIS 2 (EU)**: Entities subject to Article 23 must submit to the CSIRT or, where applicable, the competent authority: early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident, incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph; Commission Implementing Regulation (EU) 2024/2690, Article 14, lists criteria under which a trust service provider's incident is considered significant), an intermediate report on relevant status updates upon request of a CSIRT or, where applicable, the competent authority (Article 23(4)(c)), final report within one month after submission of the incident notification; where the incident is still ongoing at that point, a progress report then and the final report within one month of handling of the incident (Article 23(4)(e)).
 - **DORA (EU financial)**: tiered reporting timelines depending on incident classification.
 
