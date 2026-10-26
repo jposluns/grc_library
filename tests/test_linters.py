@@ -29479,7 +29479,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         preflight_language_runner.py CHILD F c7242875b76d4282326ba37e0f878cebfc2939aa2780657c56bb3ef007fa0644
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
-        quick-guard.sh FIXED F de282d169087134191af74a06d9b0e8b6c7886f38bba96be6190ad538fdd208d
+        quick-guard.sh FIXED F 92c7edc55ea7301b0e78a6d339758d2ef2a3c26d43c8f7472353093ca81ecbb6
         ref-holds.py OWN F 12b4bc426cc0dc4f0cb070fc94feb3398c0d0d420c091e3e343393a16feb4f7d
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
@@ -70346,6 +70346,8 @@ class GitReadFailsClosedTests(unittest.TestCase):
     at an absent ref's loose path, and the files the gate reads as UTF-8.
     Round 9 has quick-guard.sh read refs/remotes/origin/main by its full name past a local
     branch origin/main, refuse a ref directory git cannot read, and pins each absence check.
+    Round 10 (3b647) has quick-guard.sh refuse a repository with no commits by name, and covers
+    its unreadable-origin/main refusals without directory permission bits, so also as root.
     The rule is .claude/rules/aiqt/10-INTEG-check-fails-closed-on-unreadable.md.
     """
 
@@ -72012,8 +72014,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
         # claude's fixture: origin/main under a mode-000 directory. rev-parse exits 1 silently,
         # for-each-ref lists nothing under it, and the loose path reads as no file, so at
         # a694c4626 the guard read origin/main as absent and exited 0; symbolic-ref -q exits 128.
-        # A dangling symbolic origin/main in a reftable repository leaves no loose path and no
-        # listing; symbolic-ref -q exits 0, which is not absent either.
+        # The sibling below covers these refusals without permission bits, so also as root.
         for locked in ("refs/remotes/origin", "refs/remotes"):
             for packed in (False, True):
                 with self.subTest(locked=locked, packed=packed):
@@ -72030,9 +72031,69 @@ class GitReadFailsClosedTests(unittest.TestCase):
                         directory.chmod(0o755)
                     result = self.run_in(repo, "bash", "tools/quick-guard.sh")
                     self.assertIn("fast-checking 1 changed .md file(s)", result.stdout, result.stderr)
-        repo, base = self.guard_fixture("reftable-dangling-symbolic-ref", ref_format="reftable")
-        self.git(repo, "symbolic-ref", "refs/remotes/origin/main", "refs/remotes/origin/nothing")
-        self.assert_guard_refuses(repo)
+
+    def test_quick_guard_refuses_an_origin_main_it_cannot_read_as_root(self) -> None:
+        # 3b647: the sibling above is skipped as root, which ignores directory permission bits.
+        # These need none. symbolic-ref -q exiting 128 (what the mode-000 directory caused) is
+        # injected by a git wrapper beside an absent origin/main. An origin/main naming a missing
+        # commit, loose, packed or in a reftable repository, fails show-ref and is still listed.
+        # A dangling symbolic origin/main in a reftable repository leaves no loose path and no
+        # listing; symbolic-ref -q exits 0, which is not absent either.
+        import shlex
+
+        real_git = shlex.quote(shutil.which("git", path=self.env.get("PATH")))
+        repo, _ = self.guard_fixture("symbolic-ref-exits-128")
+        result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+        self.assertIn("origin/main is absent", result.stdout, result.stderr)
+        shim = self.tmp / "shim-symbolic-ref"
+        shim.mkdir()
+        (shim / "git").write_text(
+            '#!/bin/sh\nif [ "$1" = symbolic-ref ] && [ "$2" = -q ]; then exit 128; fi\n'
+            f'exec {real_git} "$@"\n', encoding="utf-8")
+        (shim / "git").chmod(0o755)
+        self.assert_guard_refuses(repo, PATH=f"{shim}{os.pathsep}{self.env['PATH']}")
+        for name, ref_format, packed in (("missing-loose", None, False),
+                                         ("missing-packed", None, True),
+                                         ("missing-reftable", "reftable", False)):
+            with self.subTest(fixture=name):
+                repo, _ = self.guard_fixture(name, ref_format=ref_format)
+                gone = self.git(repo, "commit-tree", "HEAD^{tree}", "-m", "gone")
+                self.git(repo, "update-ref", "refs/remotes/origin/main", gone)
+                if packed:
+                    self.git(repo, "pack-refs", "--all")
+                self.drop_object(repo, gone)
+                self.assert_guard_refuses(repo)
+        with self.subTest(fixture="reftable-dangling-symbolic-ref"):
+            repo, base = self.guard_fixture("reftable-dangling-symbolic-ref", ref_format="reftable")
+            self.git(repo, "symbolic-ref", "refs/remotes/origin/main", "refs/remotes/origin/nothing")
+            self.assert_guard_refuses(repo)
+
+    def test_quick_guard_refuses_a_repository_with_no_commits(self) -> None:
+        # 3b647: with HEAD unborn, git diff HEAD failed with "bad revision 'HEAD'" after the
+        # origin/main-absent note, a refusal that did not say why. HEAD is now read first, so
+        # the refusal names it, with or without origin/main and with .md files staged or not.
+        def refused(repo):
+            result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertIn("ERROR: git rev-parse --verify HEAD (HEAD names no commit: a repository "
+                          "with no commits yet, or a HEAD git cannot read) failed", result.stderr)
+            self.assertNotIn("no changed corpus-content", result.stdout)
+            self.assertNotIn("origin/main is absent", result.stdout)
+
+        repo = self.repo("no-commits")
+        (repo / "tools").mkdir()
+        shutil.copy(REPO_ROOT / "tools" / "quick-guard.sh", repo / "tools")
+        refused(repo)
+        (repo / "governance").mkdir()
+        (repo / "governance" / "a.md").write_text("x\n", encoding="utf-8")
+        refused(repo)
+        self.git(repo, "add", "governance/a.md")
+        refused(repo)
+        # An orphan branch beside a real origin/main is unborn too.
+        repo, base = self.guard_fixture("orphan")
+        self.git(repo, "update-ref", "refs/remotes/origin/main", base)
+        self.git(repo, "checkout", "-q", "--orphan", "fresh")
+        refused(repo)
 
     def test_quick_guard_refuses_each_failed_absence_check(self) -> None:
         # The absence checks no real fixture tells apart, each failed alone by a git wrapper
