@@ -59,10 +59,16 @@ Exit codes:
         origin/main; an absent HEAD branch or origin/main also refuses when
         git for-each-ref fails or warns, even about another ref. Or the
         current README.md, a current document under the walk, or a prior
-        file the gate reads, is not valid UTF-8; the gate names every current
-        document that is not UTF-8, one stderr line each (3b624). It reads
-        the prior README.md, and a document's prior copy only when its
-        current copy is UTF-8 and has a version.
+        file the gate reads, is not valid UTF-8. Once the prior state is
+        found (or found absent), and before it reads any prior file and
+        before the no-prior pass, the gate reads and decodes the current
+        README.md and every current document under the walk; if any is not
+        UTF-8 it names every one, one stderr line each, and exits 2 without
+        comparing anything, so in that run a version that decreased and a
+        library FAIL are not reported (3b624). Otherwise it then reads the
+        prior README.md, and a document's prior copy only when its current
+        copy has a version; a prior file that is not UTF-8 is reported by
+        the generic message, unnamed.
     Remaining: a REPO_ROOT with no .git, with GIT_DIR unset, inside another
     work tree reads that work tree's history, as before, and inside a
     repository git cannot open reads as no repository; with no .git, GIT_DIR
@@ -328,13 +334,21 @@ def check_library_version(prior_ref: str) -> tuple[bool, str]:
     return (True, f"current {'.'.join(map(str, current))} >= prior {'.'.join(map(str, prior))}")
 
 
-def check_document_versions(prior_ref: str) -> list[tuple[str, str]]:
-    """Return list of (path, message) for documents whose version decreased.
+def read_current_documents() -> list[tuple[str, str]]:
+    """Read and decode every current document under the walk; return (path, text) pairs.
 
-    A current document that is not valid UTF-8 is collected, not skipped; after the walk this
-    raises CurrentDocumentsNotUtf8 naming every one (3b624)."""
-    findings: list[tuple[str, str]] = []
+    Every document is decoded before any prior blob is read, so a document that is not valid
+    UTF-8 is named even when a prior read would fail. The current README.md, which the walk
+    skips, is decoded here too when it exists. If any is not UTF-8, this raises
+    CurrentDocumentsNotUtf8 naming every one (3b624)."""
+    documents: list[tuple[str, str]] = []
     undecodable: list[str] = []
+    try:
+        (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        undecodable.append("README.md")
+    except OSError:
+        pass  # check_library_version reads it again and reports it as before.
     # Walk markdown files in artefact domains; skip non-artefact directories.
     skip_dirs = DEFAULT_EXEMPT_DIRS
     for path in REPO_ROOT.rglob("*.md"):
@@ -350,10 +364,24 @@ def check_document_versions(prior_ref: str) -> list[tuple[str, str]]:
         if rel == "CHANGELOG.md":
             continue
         try:
-            current_text = path.read_text(encoding="utf-8")
+            documents.append((rel, path.read_text(encoding="utf-8")))
         except UnicodeDecodeError:
             undecodable.append(rel)
-            continue
+    if undecodable:
+        raise CurrentDocumentsNotUtf8(sorted(undecodable))
+    return documents
+
+
+def check_document_versions(prior_ref: str,
+                            documents: list[tuple[str, str]] | None = None) -> list[tuple[str, str]]:
+    """Return list of (path, message) for documents whose version decreased.
+
+    ``documents`` is read_current_documents()'s result; when omitted it is read here, so a
+    current document that is not UTF-8 raises CurrentDocumentsNotUtf8 before any prior read."""
+    findings: list[tuple[str, str]] = []
+    if documents is None:
+        documents = read_current_documents()
+    for rel, current_text in documents:
         current = parse_semver(current_text)
         if current is None:
             continue
@@ -371,8 +399,6 @@ def check_document_versions(prior_ref: str) -> list[tuple[str, str]]:
                     f"< prior {'.'.join(map(str, prior))}",
                 )
             )
-    if undecodable:
-        raise CurrentDocumentsNotUtf8(sorted(undecodable))
     return findings
 
 
@@ -438,23 +464,27 @@ def main(argv: list[str] | None = None) -> int:
         print(f"ERROR: {exc}. That is a git read failure, not no repository, an unborn HEAD, a "
               f"root commit or no origin/main, so monotonicity is unchecked.", file=sys.stderr)
         return 2
-    if prior_ref is None:
-        print("OK: no prior committed state available; monotonicity not checked.")
-        return 0
+    # 3b624: every current document is decoded before any prior read and before the no-prior
+    # return, so each undecodable one is named, on a root commit too.
     try:
-        lib_ok, lib_msg = check_library_version(prior_ref)
-        doc_findings = check_document_versions(prior_ref)
-    except subprocess.CalledProcessError as exc:
-        print(f"ERROR: cannot read the prior state at {prior_ref} ({exc}); a git read failure is "
-              f"not an absent prior version, so monotonicity is unchecked.", file=sys.stderr)
-        return 2
+        documents = read_current_documents()
     except CurrentDocumentsNotUtf8 as exc:
         for rel in exc.paths:
             print(f"ERROR: {rel} is not valid UTF-8; its version cannot be read, so monotonicity "
                   f"is unchecked.", file=sys.stderr)
         return 2
+    if prior_ref is None:
+        print("OK: no prior committed state available; monotonicity not checked.")
+        return 0
+    try:
+        lib_ok, lib_msg = check_library_version(prior_ref)
+        doc_findings = check_document_versions(prior_ref, documents)
+    except subprocess.CalledProcessError as exc:
+        print(f"ERROR: cannot read the prior state at {prior_ref} ({exc}); a git read failure is "
+              f"not an absent prior version, so monotonicity is unchecked.", file=sys.stderr)
+        return 2
     except UnicodeDecodeError as exc:
-        print(f"ERROR: README.md or a file at {prior_ref} is not valid UTF-8 ({exc}); its "
+        print(f"ERROR: a file at {prior_ref} is not valid UTF-8 ({exc}); its "
               f"version cannot be read, so monotonicity is unchecked.", file=sys.stderr)
         return 2
     if lib_ok and not doc_findings:

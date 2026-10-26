@@ -29409,7 +29409,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
-        lint-library-version-monotonicity.py OWN F 0b073a92fb96f1f9bbd10b0ab0f8bba7e5e177362069ad37aa4944779af0b59c
+        lint-library-version-monotonicity.py OWN F 3d0cec8d17b275f13956d583d2d79eed3acb7648e989da0d4ff880610f6624eb
         lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
         lint-links.py ROOT F cf4b6ae1d2c76df65234323d94650ebc62db87bf24ed4f375d5386b4a75fb0b6
         lint-listing-surface-completeness.py NO_FS F 3dc1bb95c9133adec9f3af5640cf18a6c342118c972ab7cfb447fa6651ffe0f3
@@ -71199,6 +71199,64 @@ class GitReadFailsClosedTests(unittest.TestCase):
             "monotonicity is unchecked.",
             "ERROR: risk/f.md is not valid UTF-8; its version cannot be read, so monotonicity is "
             "unchecked."], err)
+
+    def test_library_version_monotonicity_names_a_non_utf8_current_document_before_a_prior(self) -> None:
+        # 3b624 r2: the walk collected the current documents while it read prior blobs, so an
+        # undecodable prior blob, or a git failure, raised first and only the generic message
+        # printed. Every current document is now decoded before any prior blob is read.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 2.0.0\n",
+                           "risk/p.md": b"**Version:** 1.0.0\n\xff\n"})
+        self.commit(repo, {"governance/d.md": b"**Version:** 2.0.0\n\xfe\n",
+                           "risk/p.md": "**Version:** 1.0.1\n"})
+        expected = ["ERROR: governance/d.md is not valid UTF-8; its version cannot be read, so "
+                    "monotonicity is unchecked."]
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")],
+                         expected, err)
+        self.drop_object(repo, "HEAD~1:risk/p.md")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")],
+                         expected, err)
+
+    def test_library_version_monotonicity_names_a_non_utf8_document_on_a_root_commit(self) -> None:
+        # 3b624 r2: with no prior state the gate printed OK before any walk, so an undecodable
+        # current document passed on a root commit. The intact twin still has no prior state.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 0, out + err)
+        self.assertIn("OK: no prior committed state", out)
+        (repo / "governance" / "d.md").write_bytes(b"**Version:** 1.0.0\n\xff\n")
+        self.git(repo, "commit", "-qam", "c", "--amend")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: governance/d.md is not valid UTF-8; its version cannot be read, so "
+            "monotonicity is unchecked."], err)
+
+    def test_library_version_monotonicity_names_a_non_utf8_readme(self) -> None:
+        # 3b624 r2: an undecodable README.md raised in check_library_version, before the walk,
+        # and printed the generic message; it is now named like any current document.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n"})
+        self.commit(repo, {"README.md": b"# R\n\n**Library Version:** 2026.06.2\n\xff\n",
+                           "governance/d.md": b"**Version:** 1.0.1\n\xfe\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: README.md is not valid UTF-8; its version cannot be read, so monotonicity "
+            "is unchecked.",
+            "ERROR: governance/d.md is not valid UTF-8; its version cannot be read, so "
+            "monotonicity is unchecked."], err)
 
     def test_date_cobump_refuses_an_unreadable_base_blob(self) -> None:
         repo = self.repo()
