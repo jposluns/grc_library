@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.11\
-**Date:** 2026-09-25\
+**Version:** 1.6.13\
+**Date:** 2026-10-26\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-transfer-impact-assessment.md`](template-transfer-impact-assessment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -100,19 +100,19 @@ For cross-border transfers, first apply the originating jurisdiction's own pre-t
 
 **For transfers from China (PIPL Articles 38 to 40).**
 
-PIPL governs outbound transfer of personal information from China through a three-mechanism gate (Article 38), a separate-consent requirement (Article 39), and special obligations for Critical Information Infrastructure Operators and processors handling personal information at regulated quantities (Article 40). The CAC **Provisions on Promoting and Regulating the Cross-Border Flow of Data** (effective 22 March 2024) revised thresholds and introduced safe-harbor exemptions; the workflow below reflects the post-March-2024 regime. Consult [`privacy/jurisdictions/annex-privacy-china.md`](jurisdictions/annex-privacy-china.md) for the authoritative thresholds and amendments.
+PIPL governs outbound transfer of personal information from China through a three-mechanism gate (Article 38), a separate-consent requirement (Article 39), and special obligations for Critical Information Infrastructure Operators and processors handling personal information at regulated quantities (Article 40). The CAC **Provisions on Promoting and Regulating the Cross-Border Flow of Data** (effective 22 March 2024) revised thresholds and introduced safe-harbor exemptions; the workflow below reflects the post-March-2024 regime. Consult [`privacy/jurisdictions/annex-privacy-china.md`](jurisdictions/annex-privacy-china.md) for the authoritative thresholds and amendments. Cybersecurity Law article numbers in this procedure follow the amended numbering in force 1 January 2026, under the NPC Standing Committee amending decision of 28 October 2025.
 
 **Step A: PIPL applicability and CIIO status assessment.**
 
 | Trigger | Determination |
 |---|---|
-| Is the controller (handler) a Critical Information Infrastructure Operator (CIIO) as designated by Chinese authorities? | Yes / No |
+| Is the controller (handler) a Critical Information Infrastructure Operator (CIIO)? Answer on the controller's confirmed CIIO status: the Cybersecurity Law does not say who identifies a particular operator as a CIIO (Cybersecurity Law Article 33; see Step D) | Yes / No |
 | Does the transfer involve "important data" under the Data Security Law (DSL)? | Yes / No |
 | Volume of non-sensitive personal information in the calendar year | Count |
 | Volume of sensitive personal information in the calendar year | Count |
 | Is the personal information collected as part of cross-border contract performance (employment, e-commerce, education, etc.)? | Yes / No, with contract reference |
 
-CIIO designation OR "important data" presence forces the CAC Security Assessment mechanism regardless of volume.
+The controller's confirmed CIIO status (Step A; Cybersecurity Law Article 33) OR "important data" presence forces the CAC Security Assessment mechanism regardless of volume.
 
 **Step B: Mechanism selection (PIPL Article 38).** Select the lowest-burden applicable mechanism:
 
@@ -142,7 +142,7 @@ Article 39 consent is **separate** from any general processing consent under Art
 | Outbound transfer is permitted only after passing a CAC security assessment | Article 40 sentence 2 |
 | Where international treaties or agreements provide otherwise, those provisions govern | Article 40 sentence 3 |
 
-CIIO designation is made by the relevant industry regulator under the Cybersecurity Law of China; the controller does NOT self-designate. The 2024 Provisions do not exempt CIIOs from Article 40's domestic-storage default.
+The Cybersecurity Law of China leaves the specific scope of, and the security protection measures for, critical information infrastructure to the State Council (关键信息基础设施的具体范围和安全保护办法由国务院制定, Cybersecurity Law Article 33; English rendering of the Chinese text, which is authoritative) and does not say who identifies a particular operator as a CIIO, so the controller confirms its CIIO status directly before relying on any non-CIIO threshold or exemption in Step B. The 2024 Provisions do not exempt CIIOs from Article 40's domestic-storage default.
 
 **Step E: PIA for the transfer.** Regardless of mechanism, conduct a personal-information impact assessment (PIPL Article 55) before the transfer. The PIA documents the lawful basis, the purposes, the categories, the volumes, the recipient's protection measures, and the risk to the data subject. The PIA is part of the Standard Contract filing under Step B and is retained for at least 3 years (PIPL Article 56).
 

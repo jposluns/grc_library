@@ -2,8 +2,8 @@
 
 **Document Title:** Incident Escalation Matrix\
 **Document Type:** SOP\
-**Version:** 1.4.1\
-**Date:** 2026-10-25\
+**Version:** 1.4.2\
+**Date:** 2026-10-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md), [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md)\
@@ -45,8 +45,8 @@ Where a case meets the criteria of more than one level, the more severe level ap
 | --- | --- | --- | --- | --- |
 | **P1, Critical** | SOC / any staff | SOC Manager, immediate | CISO / CIO: immediate (per the incident response procedure, which notifies both immediately for all P1 incidents) | CEO and ELT: within 1 hour |
 | **P2, High** | SOC | SOC Manager, within 30 minutes | CISO: within 1 hour | CIO: within 2 hours; CEO if significant |
-| **P3, Medium** | SOC | IR Coordinator, within 4 hours | CISO: within 24 hours if not resolved | CIO: if unresolved after 24 hours |
-| **P4, Low** | SOC | IR Coordinator, within 24 hours | None required unless escalation triggered | None unless pattern identified |
+| **P3, Medium** | SOC | IR Coordinator, within 4 hours; where the organization is a network operator under the China Cybersecurity Law and the incident endangers network security, also the CISO when the SOC classifies or reassesses the incident ([`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) section 6.2 step 1) | CISO: within 24 hours if not resolved | CIO: if unresolved after 24 hours |
+| **P4, Low** | SOC | IR Coordinator, within 24 hours; where the organization is a network operator under the China Cybersecurity Law and the incident endangers network security, also the CISO when the SOC classifies or reassesses the incident ([`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) section 6.2 step 1) | None required unless escalation triggered | None unless pattern identified |
 
 ---
 

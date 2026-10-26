@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Domain Incident Coordination Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.11\
-**Date:** 2026-09-20\
+**Version:** 1.1.15\
+**Date:** 2026-10-26\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -62,7 +62,7 @@ When two or more domains are participating, the coordination is run by an **Inci
 | Primary-domain Lead | Set by the domain procedure (e.g. CISO for security, Data Protection Officer for privacy, Supplier Risk Maintainer for supplier) | Runs the technical response within their domain. Reports status into each coordination call. |
 | Participating-domain Lead(s) | Same selection rule per participating domain | Runs parallel response within their domain. Hands off evidence and decisions to the Primary-domain Lead as needed. |
 | Communications Lead | Communications Owner | Owns external messaging, regulator-facing messaging, employee messaging, and customer messaging. Coordinates with Legal and primary-domain Leads on content approval. |
-| Legal Lead | Legal Counsel | Owns regulatory notification determinations, privilege decisions, litigation hold, and contractual notice obligations. |
+| Legal Lead | Legal Counsel | Owns regulatory notification determinations, privilege decisions, litigation hold, and contractual notice obligations, except that the CISO assesses a China Cybersecurity Law Article 27 report on an incident that involves no personal data, with Legal Counsel approving its content ([`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §6.2). |
 | Executive Sponsor | Designated by role per severity (CISO or Data Protection Officer for P2; CIO for P1 affecting multiple domains; CEO for crisis-level events) | Approves decisions that exceed Coordinator authority. Owns the executive briefing line. |
 | Evidence Custodian | SOC or domain-specific custodian | Owns the evidence index across all streams. Maintains chain of custody for forensic, legal, and audit purposes. |
 
@@ -81,7 +81,7 @@ The coordination lifecycle mirrors the domain procedures but layers cross-stream
 | Joint triage | Each participating domain confirms its own triage, severity, and immediate containment needs. Coordinator confirms domain assignments per the ownership decision rule. | Joint triage record, severity decision, ownership confirmation. |
 | Synchronized containment | Each domain executes containment per its own procedure; cross-stream decisions (e.g. service shutdown, supplier isolation, AI tool suspension) routed through the Coordinator. | Containment timeline, cross-stream decisions recorded. |
 | Investigation | Each domain investigates within its scope; Coordinator owns the consolidated timeline, the shared evidence index, and the cross-domain root cause draft. | Consolidated timeline, joint evidence index, root cause draft. |
-| Notification and communication | Privacy and Legal own regulatory notification streams; Communications owns external messaging. All public statements approved by Executive Sponsor. | Notification records, communication log, approval evidence. |
+| Notification and communication | Privacy and Legal own regulatory notification streams, except that Security (the CISO) owns a China Cybersecurity Law Article 27 report on an incident that involves no personal data ([`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §6.2); Communications owns external messaging. All public statements approved by Executive Sponsor. | Notification records, communication log, approval evidence. |
 | Recovery and validation | Each domain validates within its scope; Coordinator confirms cross-domain dependencies are satisfied before return to service. | Recovery validation by domain, joint return-to-service approval. |
 | Joint post-incident review | Multi-domain PIR within the per-severity deadline set in the Severity rules across streams table (P1 within 5 business days, P2 within 5, P3 within 15, of closure). Output is one consolidated PIR; per-domain PIRs feed into it. | Joint PIR report, corrective action register, lessons learned. |
 | Closure | All domains confirm independent closure criteria are met; Executive Sponsor signs joint closure. | Joint closure record, residual risk acceptance. |
@@ -248,8 +248,8 @@ Maintain joint declaration record, coordination roster snapshot, joint decision 
 | Incident management programme | ISO/IEC 27035-1:2023, ISO/IEC 27035-2:2023; ISO/IEC 27001:2022 Annex A.5.24 to A.5.28 |
 | Cross-organization incident coordination (supplier and affected-party engagement) | ISO/IEC 27035-4:2024 (Part 4: Coordination) |
 | Business continuity coordination | ISO 22301:2019 §8.4 |
-| Cybersecurity incident handling | NIST SP 800-61 Rev. 3 |
-| Personal data breach coordination | GDPR Articles 33 to 34; UK GDPR Articles 33 to 34; PIPL Article 57; LGPD Article 48 |
+| Cybersecurity incident handling | NIST SP 800-61 Rev. 3; China Cybersecurity Law Article 27 (amended numbering, in force 1 January 2026) |
+| Personal data breach coordination | GDPR Articles 33 to 34; UK GDPR Articles 33 to 34; PIPL Article 57; China Cybersecurity Law Articles 27 and 44 para. 2 (amended numbering, in force 1 January 2026); LGPD Article 48 |
 | Operational resilience incident coordination | DORA Articles 17 and 19; NIS 2 Article 23 |
 | Cloud incident management | CSA CCM v4.1 SEF-03, SEF-07, SEF-08, SEF-09 |
 | AI security incident response | NIST AI RMF MANAGE 4.3; ISO/IEC 42001:2023 A.8.4 (Communication of incidents) |
