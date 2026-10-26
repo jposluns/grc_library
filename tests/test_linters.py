@@ -29409,7 +29409,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
-        lint-library-version-monotonicity.py OWN F 3d0cec8d17b275f13956d583d2d79eed3acb7648e989da0d4ff880610f6624eb
+        lint-library-version-monotonicity.py OWN F b1bcd7923a1776aba3ff9445373c7e093e05cbfd846f622ebfc3fd1ef7616451
         lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
         lint-links.py ROOT F cf4b6ae1d2c76df65234323d94650ebc62db87bf24ed4f375d5386b4a75fb0b6
         lint-listing-surface-completeness.py NO_FS F 3dc1bb95c9133adec9f3af5640cf18a6c342118c972ab7cfb447fa6651ffe0f3
@@ -70377,8 +70377,8 @@ class GitReadFailsClosedTests(unittest.TestCase):
                 os.chdir(old)
         return ctx()
 
-    def mono(self, repo, **env):
-        """Run the monotonicity gate's main() in ``repo``; return (exit code, stdout, stderr)."""
+    def mono(self, repo, *argv, **env):
+        """Run the monotonicity gate's main(argv) in ``repo``; return (exit code, stdout, stderr)."""
         from contextlib import redirect_stderr, redirect_stdout
         from unittest import mock
 
@@ -70386,7 +70386,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
             mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_ref_3b551")
             with mock.patch.object(mono, "REPO_ROOT", repo), redirect_stdout(io.StringIO()) as out, \
                     redirect_stderr(io.StringIO()) as err:
-                code = mono.main([])
+                code = mono.main(list(argv))
         return code, out.getvalue(), err.getvalue()
 
     def test_lint_common_git_show_raises_on_a_git_failure(self) -> None:
@@ -71257,6 +71257,76 @@ class GitReadFailsClosedTests(unittest.TestCase):
             "is unchecked.",
             "ERROR: governance/d.md is not valid UTF-8; its version cannot be read, so "
             "monotonicity is unchecked."], err)
+
+    def test_library_version_monotonicity_names_a_dangling_symlink_document(self) -> None:
+        # 3b624 r3: the walk caught only UnicodeDecodeError, so a dangling *.md symlink raised
+        # FileNotFoundError, a traceback with exit 1 ("versions decreased"). It is now named,
+        # exit 2, with a prior state and on a root commit. The intact twin passes.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/broken.md": "**Version:** 2.0.0\n"})
+        self.commit(repo, {"governance/broken.md": "**Version:** 2.0.1\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 0, out + err)
+        (repo / "governance" / "broken.md").unlink()
+        (repo / "governance" / "broken.md").symlink_to("missing.md")
+        self.commit(repo, {})
+        root = self.repo("root")
+        self.commit(root, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
+        (root / "governance").mkdir()
+        (root / "governance" / "broken.md").symlink_to("missing.md")
+        self.git(root, "add", "-A")
+        self.git(root, "commit", "-qm", "c", "--amend")
+        for fixture in (repo, root):
+            code, out, err = self.mono(fixture)
+            self.assertEqual(code, 2, out + err)
+            self.assertNotIn("OK:", out)
+            self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+                "ERROR: governance/broken.md cannot be read (FileNotFoundError); its version "
+                "cannot be read, so monotonicity is unchecked."], err)
+
+    def test_library_version_monotonicity_names_a_directory_named_md(self) -> None:
+        # 3b624 r3: a directory named governance/dir.md raised IsADirectoryError, a traceback
+        # with exit 1. It is not skipped: the prior state holds a document at that path. It is
+        # named beside an undecodable document, one line each, exit 2.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/dir.md": "**Version:** 2.0.0\n",
+                           "risk/f.md": "**Version:** 1.0.0\n"})
+        (repo / "governance" / "dir.md").unlink()
+        self.commit(repo, {"governance/dir.md/keep.txt": "k\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: governance/dir.md cannot be read (IsADirectoryError); its version cannot be "
+            "read, so monotonicity is unchecked."], err)
+        (repo / "risk" / "f.md").write_bytes(b"**Version:** 1.0.0\n\xff\n")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: governance/dir.md cannot be read (IsADirectoryError); its version cannot be "
+            "read, so monotonicity is unchecked.",
+            "ERROR: risk/f.md is not valid UTF-8; its version cannot be read, so monotonicity is "
+            "unchecked."], err)
+
+    def test_library_version_monotonicity_prior_readme_names_a_non_utf8_readme(self) -> None:
+        # 3b624 r3: with --prior-readme the current README.md skipped the decode check, so one
+        # that is not UTF-8 raised UnicodeDecodeError, a traceback with exit 1. It is now named,
+        # exit 2. The intact twin passes against the same prior.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
+        prior = self.tmp / "prior.md"
+        prior.write_text("**Library Version:** 2026.06.0\n", encoding="utf-8")
+        code, out, err = self.mono(repo, "--prior-readme", str(prior))
+        self.assertEqual(code, 0, out + err)
+        (repo / "README.md").write_bytes(b"# R\n\n**Library Version:** 2026.06.1\n\xff\n")
+        code, out, err = self.mono(repo, "--prior-readme", str(prior))
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: README.md is not valid UTF-8; its version cannot be read, so monotonicity "
+            "is unchecked."], err)
 
     def test_date_cobump_refuses_an_unreadable_base_blob(self) -> None:
         repo = self.repo()

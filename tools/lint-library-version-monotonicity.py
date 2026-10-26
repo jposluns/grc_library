@@ -59,16 +59,21 @@ Exit codes:
         origin/main; an absent HEAD branch or origin/main also refuses when
         git for-each-ref fails or warns, even about another ref. Or the
         current README.md, a current document under the walk, or a prior
-        file the gate reads, is not valid UTF-8. Once the prior state is
-        found (or found absent), and before it reads any prior file and
-        before the no-prior pass, the gate reads and decodes the current
-        README.md and every current document under the walk; if any is not
-        UTF-8 it names every one, one stderr line each, and exits 2 without
-        comparing anything, so in that run a version that decreased and a
-        library FAIL are not reported (3b624). Otherwise it then reads the
-        prior README.md, and a document's prior copy only when its current
-        copy has a version; a prior file that is not UTF-8 is reported by
-        the generic message, unnamed.
+        file the gate reads, is not valid UTF-8; or the current README.md
+        or a current document under the walk cannot be read (an OSError: a
+        dangling symlink, a directory named *.md, no read permission). Once
+        the prior state is found (or found absent), and before it reads any
+        prior file and before the no-prior pass, the gate reads and decodes
+        the current README.md, when there is an entry by that name, and
+        every current document under the walk; it names every one that is
+        not UTF-8 or cannot be read, one stderr line each, and exits 2
+        without comparing anything, so in that run a version that decreased
+        and a library FAIL are not reported (3b624). Otherwise it then reads
+        the prior README.md, and a document's prior copy only when its
+        current copy has a version; a prior file that is not UTF-8 is
+        reported by the generic message, unnamed. With --prior-readme, once
+        the supplied file is read, the current README.md is read the same
+        way, and one that is not UTF-8 or cannot be read is named, exit 2.
     Remaining: a REPO_ROOT with no .git, with GIT_DIR unset, inside another
     work tree reads that work tree's history, as before, and inside a
     repository git cannot open reads as no repository; with no .git, GIT_DIR
@@ -79,7 +84,11 @@ Exit codes:
     not compared, and its prior copy is not read; a document that exists
     only at the prior ref (a deletion, or the old name of a rename) is not
     compared; and the walk reads untracked .md files too, so an untracked
-    one that is not UTF-8 also refuses.
+    one that is not UTF-8 or cannot be read also refuses. A missing
+    README.md (no entry by that name) is not an exit-2 case: the library
+    check, or the --prior-readme comparison, reads it and does not catch
+    the FileNotFoundError, a traceback with exit 1, and with no prior
+    state it is not read and the gate prints the no-prior OK.
 """
 
 from __future__ import annotations
@@ -146,13 +155,34 @@ def git_show(ref: str, path: str) -> str | None:
         raise
 
 
-class CurrentDocumentsNotUtf8(Exception):
-    """One or more current documents under the walk are not valid UTF-8, so their versions
-    cannot be read (3b624); main() names each one and reports exit 2."""
+class CurrentDocumentsUnreadable(Exception):
+    """One or more current documents are not valid UTF-8 or cannot be read (an OSError: a
+    dangling symlink, a directory, no permission), so their versions cannot be read (3b624);
+    ``problems`` holds (path, reason) pairs, and main() names each one and reports exit 2."""
 
-    def __init__(self, paths: list[str]) -> None:
-        super().__init__(", ".join(paths))
-        self.paths = paths
+    def __init__(self, problems: list[tuple[str, str]]) -> None:
+        super().__init__(", ".join(rel for rel, _ in problems))
+        self.problems = problems
+
+
+def read_current(path: Path, rel: str, problems: list[tuple[str, str]]) -> str | None:
+    """Return the decoded text of the current file ``path``, or None after appending
+    (``rel``, reason) to ``problems`` when it is not UTF-8 or cannot be read (3b624)."""
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        problems.append((rel, "is not valid UTF-8"))
+    except OSError as exc:
+        problems.append((rel, f"cannot be read ({type(exc).__name__})"))
+    return None
+
+
+def report_unreadable(problems: list[tuple[str, str]]) -> int:
+    """Print one stderr line per current document that cannot be read; return exit 2."""
+    for rel, reason in problems:
+        print(f"ERROR: {rel} {reason}; its version cannot be read, so monotonicity is "
+              f"unchecked.", file=sys.stderr)
+    return 2
 
 
 class GitStateUnreadable(Exception):
@@ -338,17 +368,20 @@ def read_current_documents() -> list[tuple[str, str]]:
     """Read and decode every current document under the walk; return (path, text) pairs.
 
     Every document is decoded before any prior blob is read, so a document that is not valid
-    UTF-8 is named even when a prior read would fail. The current README.md, which the walk
-    skips, is decoded here too when it exists. If any is not UTF-8, this raises
-    CurrentDocumentsNotUtf8 naming every one (3b624)."""
+    UTF-8 or cannot be read is named even when a prior read would fail. The current README.md,
+    which the walk skips, is decoded here too when there is an entry by that name. The walk
+    yields every entry named *.md, so a dangling symlink or a directory is read and refused,
+    not skipped: the walk never skipped one (its read raised), and git can hold a document at
+    that path in the prior state. If any is not UTF-8 or cannot be read, this raises
+    CurrentDocumentsUnreadable naming every one (3b624)."""
     documents: list[tuple[str, str]] = []
-    undecodable: list[str] = []
-    try:
-        (REPO_ROOT / "README.md").read_text(encoding="utf-8")
-    except UnicodeDecodeError:
-        undecodable.append("README.md")
-    except OSError:
-        pass  # check_library_version reads it again and reports it as before.
+    problems: list[tuple[str, str]] = []
+    readme = REPO_ROOT / "README.md"
+    if os.path.lexists(readme):
+        read_current(readme, "README.md", problems)
+    # No README.md entry: check_library_version reads it again and does not catch the
+    # FileNotFoundError, a traceback with exit 1; with no prior state it is never read and the
+    # gate prints the no-prior OK. --prior-readme's check_library_version_against_text likewise.
     # Walk markdown files in artefact domains; skip non-artefact directories.
     skip_dirs = DEFAULT_EXEMPT_DIRS
     for path in REPO_ROOT.rglob("*.md"):
@@ -363,12 +396,11 @@ def read_current_documents() -> list[tuple[str, str]]:
         # Skip CHANGELOG (no Version metadata field).
         if rel == "CHANGELOG.md":
             continue
-        try:
-            documents.append((rel, path.read_text(encoding="utf-8")))
-        except UnicodeDecodeError:
-            undecodable.append(rel)
-    if undecodable:
-        raise CurrentDocumentsNotUtf8(sorted(undecodable))
+        text = read_current(path, rel, problems)
+        if text is not None:
+            documents.append((rel, text))
+    if problems:
+        raise CurrentDocumentsUnreadable(sorted(problems))
     return documents
 
 
@@ -377,7 +409,8 @@ def check_document_versions(prior_ref: str,
     """Return list of (path, message) for documents whose version decreased.
 
     ``documents`` is read_current_documents()'s result; when omitted it is read here, so a
-    current document that is not UTF-8 raises CurrentDocumentsNotUtf8 before any prior read."""
+    current document that is not UTF-8 or cannot be read raises CurrentDocumentsUnreadable
+    before any prior read."""
     findings: list[tuple[str, str]] = []
     if documents is None:
         documents = read_current_documents()
@@ -450,6 +483,14 @@ def main(argv: list[str] | None = None) -> int:
             print(f"ERROR: --prior-readme {args.prior_readme}: cannot be read ({exc}).",
                   file=sys.stderr)
             return 2
+        # 3b624 r3: the current README.md is decoded as in read_current_documents, so one that
+        # is not UTF-8 or cannot be read is named with exit 2, not a traceback.
+        problems: list[tuple[str, str]] = []
+        readme = REPO_ROOT / "README.md"
+        if os.path.lexists(readme):
+            read_current(readme, "README.md", problems)
+        if problems:
+            return report_unreadable(problems)
         lib_ok, lib_msg = check_library_version_against_text(prior_text)
         if lib_ok:
             print(f"OK: library version is monotonic non-decreasing (vs supplied prior).")
@@ -465,14 +506,11 @@ def main(argv: list[str] | None = None) -> int:
               f"root commit or no origin/main, so monotonicity is unchecked.", file=sys.stderr)
         return 2
     # 3b624: every current document is decoded before any prior read and before the no-prior
-    # return, so each undecodable one is named, on a root commit too.
+    # return, so each one that is not UTF-8 or cannot be read is named, on a root commit too.
     try:
         documents = read_current_documents()
-    except CurrentDocumentsNotUtf8 as exc:
-        for rel in exc.paths:
-            print(f"ERROR: {rel} is not valid UTF-8; its version cannot be read, so monotonicity "
-                  f"is unchecked.", file=sys.stderr)
-        return 2
+    except CurrentDocumentsUnreadable as exc:
+        return report_unreadable(exc.problems)
     if prior_ref is None:
         print("OK: no prior committed state available; monotonicity not checked.")
         return 0
