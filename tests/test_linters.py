@@ -30327,11 +30327,30 @@ class ReferenceBreadthStateTests(unittest.TestCase):
     DOCS = ("privacy/policy-privacy-and-data-governance.md", "risk/procedure-risk-register.md",
             "security/policy-information-security.md")
     DATES = ("2020-01-02", "2020-02-03", "2020-03-04")
+    # 3b529 rounds 3-5: HEAD of the two-commit fixture built in setUp, keyed
+    # by hash length because the git build on PATH picks the repository's
+    # object format at init (SHA-1 gives 40 hex digits, SHA-256 gives 64).
+    # Each value depends on every one of: the pinned identity and dates in
+    # _git_env; the per-user config, attribute and ignore isolation (empty
+    # HOME/XDG_CONFIG_HOME) and the system attributes isolation
+    # (GIT_ATTR_NOSYSTEM) in _git_env; the removal of the caller's GIT_*
+    # variables and the system and global config isolation (GIT_CONFIG_NOSYSTEM,
+    # GIT_CONFIG_GLOBAL) in fixture_git_environment; the empty template in
+    # setUp's init; _git's core.hooksPath=/dev/null; and the object format itself.
+    PINNED_HEADS = {
+        40: "b71a3a544a17de1260a223a596e0657281505d45",  # SHA-1
+        64: "1df27908673b0f5dd22dcd5690d326293d3957d21f88eee144947c71198303a0",  # SHA-256
+    }
 
     def setUp(self):
         import importlib.util
         self.td = Path(tempfile.mkdtemp(prefix="reference-state-"))
         self.addCleanup(shutil.rmtree, self.td)
+        # 3b529 round 3 (W1): an empty directory that _git_env presents as
+        # HOME and XDG_CONFIG_HOME, so per-user attribute and ignore files
+        # cannot reach the fixture's git subprocesses.
+        self.home = self.td / "home"
+        self.home.mkdir()
         tools_dir = str(REPO_ROOT / "tools")
         if tools_dir not in sys.path:
             sys.path.insert(0, tools_dir)
@@ -30348,7 +30367,9 @@ class ReferenceBreadthStateTests(unittest.TestCase):
         spec.loader.exec_module(self.mod)
         self.ref = self.td / "ref"
         self.ref.mkdir()
-        self._git("init", "-q")
+        # 3b529 round 4 (N1): an empty template, so the installed default
+        # templates (hooks, info/exclude) are never copied into the fixture.
+        self._git("init", "-q", "--template=")
         (self.ref / "catalogue.yml").write_text(
             'standards:\n  - title: "State fixture changed"\n'
             '    path: "standard.md"\n    topics: ["cybersecurity"]\n'
@@ -30366,13 +30387,71 @@ class ReferenceBreadthStateTests(unittest.TestCase):
         self.head = self._git("rev-parse", "--short=12", "HEAD")
         self.state = self.td / "state.md"
 
+    def _git_env(self):
+        # 3b529: pin identity and dates so the fixture's object hashes do not
+        # depend on the wall clock; without this, rev-parse --short lengths
+        # vary from run to run through chance prefix collisions. Built in one
+        # place so _abbrev_diagnostics reports what the git subprocess saw.
+        env = fixture_git_environment()
+        # 3b529 round 3 (W1): fixture_git_environment already sets
+        # GIT_CONFIG_NOSYSTEM=1 and GIT_CONFIG_GLOBAL=/dev/null, but git still
+        # reads $XDG_CONFIG_HOME/git/{attributes,ignore} (falling back to
+        # ~/.config/git/...), and those can change the object hashes. Point
+        # both at the empty per-test directory so they resolve to nothing.
+        # Round 4 (W1): GIT_CONFIG_NOSYSTEM does not cover the system-wide
+        # attributes file ($(prefix)/etc/gitattributes), which can change the
+        # hashes the same way; GIT_ATTR_NOSYSTEM=1 stops git opening it.
+        env.update(HOME=str(self.home), XDG_CONFIG_HOME=str(self.home),
+                   GIT_ATTR_NOSYSTEM="1",
+                   GIT_AUTHOR_NAME="Test", GIT_COMMITTER_NAME="Test",
+                   GIT_AUTHOR_EMAIL="test@example.invalid",
+                   GIT_COMMITTER_EMAIL="test@example.invalid",
+                   GIT_AUTHOR_DATE="2026-10-12T00:00:00Z",
+                   GIT_COMMITTER_DATE="2026-10-12T00:00:00Z")
+        return env
+
     def _git(self, *args):
         r = subprocess.run(
             ["git", "-C", str(self.ref), "-c", "user.name=Test",
              "-c", "user.email=test@example.invalid", "-c", "core.hooksPath=/dev/null",
-             *args], capture_output=True, text=True, env=fixture_git_environment())
+             *args], capture_output=True, text=True, env=self._git_env())
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         return r.stdout.strip()
+
+    def _abbrev_diagnostics(self, short, headline):
+        """Failure message for the pinned-HEAD and configured-abbreviation-length
+        assertions, opened by the headline naming the check that failed: enough
+        to tell a silently ignored core.abbrev from a prefix collision, a git
+        behaviour change, or an ambient input that moved the fixture hashes
+        (3b529 rounds 2 and 5)."""
+        env = self._git_env()
+
+        def run(*args):
+            r = subprocess.run(["git", "-C", str(self.ref), *args],
+                               capture_output=True, text=True, env=env)
+            out = (r.stdout + r.stderr).strip()
+            return out if r.returncode == 0 else f"<rc={r.returncode}: {out}>"
+
+        head = run("rev-parse", "HEAD")
+        objects = run("cat-file", "--batch-all-objects",
+                      "--batch-check=%(objectname)").split()
+        pinned = self.PINNED_HEADS.get(len(head), "none for this length")
+        return "\n".join([
+            headline,
+            f"rev-parse --short HEAD gave {short!r} (length {len(short)}) "
+            f"with core.abbrev configured to 4",
+            f"git version: {run('version')}",
+            f"effective core.abbrev and origin: "
+            f"{run('config', '--show-origin', 'core.abbrev')}",
+            f"HEAD: {head} (pinned HEAD for length {len(head)}: {pinned})",
+            "prefix counts below include HEAD itself, so 1 means an unshared prefix",
+            f"objects sharing HEAD prefix {head[:4]!r}: "
+            f"{sum(o.startswith(head[:4]) for o in objects)} of {len(objects)}",
+            f"objects sharing HEAD prefix {head[:5]!r}: "
+            f"{sum(o.startswith(head[:5]) for o in objects)} of {len(objects)}",
+            f"environment variable names visible to the git subprocess: "
+            f"{' '.join(sorted(env))}",
+        ])
 
     def _seed(self, docs=None):
         docs = self.DOCS if docs is None else docs
@@ -30692,13 +30771,16 @@ class ReferenceBreadthStateTests(unittest.TestCase):
 
 
     def _main(self, *args):
-        from contextlib import redirect_stdout, redirect_stderr
+        from contextlib import chdir, redirect_stdout, redirect_stderr
         from types import SimpleNamespace
         from unittest.mock import patch
         import io
         out, err = io.StringIO(), io.StringIO()
+        # 3b529 round 2 (N2): guard_explicit_paths refuses a relative --docs
+        # unless the current directory is the repo root, so run the in-process
+        # main from there, as _run_tool already does with cwd=REPO_ROOT.
         with patch.dict(os.environ, self._tool_environment(), clear=True):
-            with redirect_stdout(out), redirect_stderr(err):
+            with chdir(REPO_ROOT), redirect_stdout(out), redirect_stderr(err):
                 rc = self.mod.main(["--ref-base", str(self.ref),
                                     "--state", str(self.state), *args])
         return SimpleNamespace(returncode=rc, stdout=out.getvalue(), stderr=err.getvalue())
@@ -31042,7 +31124,40 @@ class ReferenceBreadthStateTests(unittest.TestCase):
     def test_short_core_abbrev_keeps_rows_across_two_updates(self):
         self._git("config", "core.abbrev", "4")
         self.assertEqual(self._git("config", "core.abbrev"), "4")
-        self.assertEqual(len(self._git("rev-parse", "--short", "HEAD")), 4)
+        # 3b529 rounds 2-5: per object format, the fixture hashes are fixed
+        # because _git_env drops the caller's GIT_* variables, ignores the
+        # system and global config files (fixture_git_environment) and the
+        # system attributes file (GIT_ATTR_NOSYSTEM=1), points the per-user
+        # attribute and ignore files at an empty HOME/XDG_CONFIG_HOME, and
+        # pins identity and dates; setUp inits from an empty template and
+        # _git disables hooks. So the 4-character prefix is unshared and the
+        # configured length holds exactly; a longer answer means a real cause
+        # (ignored core.abbrev, a new prefix collision, a git behaviour
+        # change), and the message carries the diagnostics to find it.
+        # Round 3 (N1): the diagnostics spawn four git subprocesses, so
+        # build them only on failure.
+        short = self._git("rev-parse", "--short", "HEAD")
+        # Round 4 (N2): pin the full HEAD before the length check, so an
+        # ambient input that moves the hashes fails loudly even while the
+        # 4-character prefix happens to stay unshared. Round 5 (R4-W1): the
+        # pin is keyed by hash length, so the check holds whichever object
+        # format the git build defaults to; a length with no entry fails
+        # naming the length.
+        head = self._git("rev-parse", "HEAD")
+        pinned = self.PINNED_HEADS.get(len(head))
+        if pinned is None:
+            self.fail(self._abbrev_diagnostics(short, (
+                f"HEAD check failed: rev-parse HEAD gave a hash of length "
+                f"{len(head)}, which has no PINNED_HEADS entry (known lengths: "
+                f"{', '.join(str(k) for k in sorted(self.PINNED_HEADS))})")))
+        if head != pinned:
+            self.fail(self._abbrev_diagnostics(short, (
+                f"HEAD check failed: observed HEAD {head} differs from the "
+                f"pinned HEAD {pinned} for hash length {len(head)}")))
+        if len(short) != 4:
+            self.fail(self._abbrev_diagnostics(short, (
+                f"abbreviation check failed: rev-parse --short HEAD gave a "
+                f"length-{len(short)} abbreviation, not the configured 4")))
         for doc in self.DOCS[:2]:
             result = self._run_tool(doc)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
