@@ -42,6 +42,13 @@ Decision rule:
   raw HTML through the end of the file, as the renderer reads it, so no
   table is found after its opening line, and the block is itself a finding
   (below).
+  This fence model deliberately differs from the shared toggle predicate,
+  ``aiqt_corpus.is_fence_line``, that gates 66 and 107 use, which pairs
+  fences by neither character nor width: those gates keep a corpus scan's
+  fence state consistent, while this gate must find the tables a renderer
+  shows, so a four-backtick fence holding a three-backtick line, or a
+  backtick fence closed by tildes, can get opposite verdicts from this gate
+  and from gates 66 and 107.
   A block also ends with its container. Text after a file's last line end
   that holds only spaces and tabs is not a line, as markdown-it-py reads
   it, so it ends no container.
