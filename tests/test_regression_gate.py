@@ -2472,12 +2472,15 @@ class RegressionGateCompletenessTests(unittest.TestCase):
     def test_docs_state_crediting_residuals_in_agreement(self) -> None:
         """The runner docstring and both READMEs state every crediting
         residual, the pairing-check wording and the per-run notStarted
-        rule in the same words (markup and line breaks aside), and none
-        still says a different suite on a second load fails the pairing
-        check (3b525 rounds 13, 14 and 15). The one-run rule is pinned
-        by its positive phrase alone (round 19: a negative check on the
-        old wording failed a correction that quoted it), anchored to the
-        clause before it (round 20). These wording checks establish only
+        rule in the same words (markup and line breaks aside) (3b525
+        rounds 13, 14 and 15). The one-run rule is pinned by its
+        positive phrase alone (round 19: a negative check on the old
+        wording failed a correction that quoted it), anchored to the
+        clause before it (round 20). The pairing-check wording is also
+        pinned by its positive phrase alone (round 22: the last negative
+        check, on "different suite on a second load", was removed for
+        the same reason). Every check
+        here is an assertIn, so these wording checks establish only
         that the listed text is present; they cannot detect added text
         that contradicts it, before, after or elsewhere on a surface
         (round 20 showed both a negation placed before the anchored
@@ -2490,8 +2493,6 @@ class RegressionGateCompletenessTests(unittest.TestCase):
             for phrase in self._RESIDUAL_PHRASES:
                 with self.subTest(surface=label, phrase=phrase):
                     self.assertIn(phrase, flat)
-            with self.subTest(surface=label, phrase="different suite"):
-                self.assertNotIn("different suite on a second load", flat)
 
     def test_readme_documents_complete_regression_command(self) -> None:
         """tests/README.md names the runner as the complete regression
