@@ -2,8 +2,8 @@
 
 **Document Title:** AI Assurance Case Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-10-25\
+**Version:** 1.0.5\
+**Date:** 2026-10-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md), [`ai/template-ai-assurance-case.md`](template-ai-assurance-case.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`compliance/template-audit-evidence-package.md`](../compliance/template-audit-evidence-package.md)\
@@ -27,7 +27,7 @@ This procedure defines how an assurance case for an AI system is established, ar
 Applies to every AI system recorded in the AI System Register. The depth of the assurance case is proportionate to risk: ISO/IEC/IEEE 15026-2:2022 (Clause 4.1) ties how much validity and confidence an assurance case needs to supply to the risk reduction the system is expected to deliver. This procedure graduates depth by the audit tier assigned under [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) Section 3:
 
 - **Audit Tier 1 (high-risk)**: the full structured argument layer of Section 3 is mandatory.
-- **Audit Tiers 2 to 4**: the structured argument layer is optional; the claims-by-evidence record defined in [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) Section 3.5, completed per Sections 2 and 4 of this procedure, is the minimum.
+- **Audit Tiers 2 to 4**: the structured argument layer is optional; the claims-by-evidence record defined in [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) Section 3.5, completed per Sections 2 and 4 of this procedure (including the claim list of Section 2.3), is the minimum.
 
 ---
 
@@ -65,13 +65,15 @@ Applies to every AI system recorded in the AI System Register. The depth of the 
 
 2.2 The AI System Owner must record the context the case relies on in Part B of the template: definitions of terms and identifiers, the assumptions the argument depends on, and references to documents concerning the system (the context elements of ISO/IEC/IEEE 15026-2:2022, Clause 5.3.1).
 
+2.3 At every audit tier, the AI System Owner must record each claim the case makes in the claim list of Part C of the template, with a Claim ID unique within the case: the Part A top-level claim, which Part A cites by its Claim ID; the nine assurance claims of [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) Section 3.1, by reference; and any system-specific claims. The evidence index, the gap register, and, where completed, the argument table reference claims by these Claim IDs.
+
 ---
 
 ## 3. Develop the argument
 
 This section is mandatory for Audit Tier 1 systems and optional for Audit Tiers 2 to 4 (see Scope).
 
-3.1 Decompose the top-level claim into the nine assurance claims of [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) Section 3.1, by reference and without restating them, and add any system-specific sub-claims the top-level claim needs.
+3.1 Decompose the top-level claim into the nine assurance claims of [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) Section 3.1, by reference and without restating them, and add any system-specific sub-claims the top-level claim needs, entering each sub-claim in the claim list (step 2.3).
 
 3.2 Record each step of reasoning by which a claim is derived from supporting claims or from evidence, following the supported-claim structure of ISO/IEC/IEEE 15026-2:2022 (Clause 5.3.5): a claim, the argument that supports it, and the contexts that apply. Each inference must carry a stated justification of why its method of reasoning is valid or has merit (ISO/IEC/IEEE 15026-1:2025, Clause 6.2).
 
@@ -86,6 +88,8 @@ This section is mandatory for Audit Tier 1 systems and optional for Audit Tiers 
 4.2 For each evidence item, the case must additionally record its scope of applicability, its uncertainty (covering how credible the source is and how accurate the measurement is), and the assumptions it rests on (the evidence-item fields of ISO/IEC/IEEE 15026-2:2022, Clause 5.3.2).
 
 4.3 Evidence weight and sufficiency are judged by the attestation tiers and sufficiency criteria of [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) Sections 3.3 and 3.4, applied by reference. A claim that lacks sufficient evidence must carry a documented gap per that framework's Section 5, requirement 2.
+
+4.4 Each evidence item must reference, by Claim ID, the claims it supports (Part D of the template), and each documented gap must reference, by Claim ID, the claim it affects (Part E of the template).
 
 ---
 
@@ -106,7 +110,7 @@ This section is mandatory for Audit Tier 1 systems and optional for Audit Tiers 
 
 ## 6. Report and gate submission
 
-6.1 For each gate, the AI System Owner must produce an assurance case report: an introduction to the case with a full index of its claim, argument, and evidence, sufficient for the case to be reassembled from the index (the report concept of ISO/IEC/IEEE 15026-2:2022, Clause 3.1.2, whose notes observe that such reports serve decision gates when a life cycle stage is exited or entered). Part A of the template is the report.
+6.1 For each gate, the AI System Owner must produce an assurance case report: an introduction to the case with a full index of its claim, argument, and evidence, sufficient for the case to be reassembled from the index (the report concept of ISO/IEC/IEEE 15026-2:2022, Clause 3.1.2, whose notes observe that such reports serve decision gates when a life cycle stage is exited or entered). Part A of the template is the report; its case index field carries the index.
 
 6.2 The report and the marshalled evidence pack are submitted to the AIGC gate, and serve the audit evidence catalogue of [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) Section 4 and the evidence-collection step of [`ai/procedure-ai-audit.md`](procedure-ai-audit.md) Section 3. Using a structured, evidence-supported argument as the basis for deployment decisions is consistent with the safety-case practice for AI systems described in the International AI Safety Report 2026.
 

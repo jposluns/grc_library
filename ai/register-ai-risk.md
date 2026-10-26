@@ -2,8 +2,8 @@
 
 **Document Title:** AI Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.11\
-**Date:** 2026-09-25\
+**Version:** 1.0.12\
+**Date:** 2026-10-26\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -30,6 +30,7 @@ Each AI risk entry must contain the following fields:
 | --- | --- |
 | **Risk ID** | Unique identifier (format: AIR-YYYY-NNN) |
 | **AI System** | Name and version of the affected AI system |
+| **AI System Risk Classification** | Organizational AI risk classification of the affected AI system (Minimal / Limited / High / Unacceptable), as recorded in the Risk Classification field of the AI System Register, per the organizational AI risk taxonomy ([`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md)) and its EU AI Act mapping in [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) |
 | **Risk Category** | Bias / Explainability / Security / Privacy / Safety / Performance / Compliance / Governance / Environmental and Sustainability |
 | **Risk Description** | Clear statement of the risk event and its potential consequences |
 | **Threat Source** | Technical failure / Human error / External threat / Regulatory change |

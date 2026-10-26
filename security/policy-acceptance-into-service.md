@@ -2,8 +2,8 @@
 
 **Document Title:** Acceptance Into Service Policy\
 **Document Type:** Policy\
-**Version:** 1.0.17\
-**Date:** 2026-09-25\
+**Version:** 1.0.19\
+**Date:** 2026-10-26\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
@@ -79,7 +79,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 - Backout and recovery procedures have been validated.
 - Documentation, monitoring, and service support plans are in place.
 
-4.2.2 AI systems must include risk tier classification and AI Impact Assessment results prior to approval.
+4.2.2 AI systems must include the organizational AI risk classification (Section 4.4.1), the governing impact level assigned under the [AI System Impact Assessment Procedure](../ai/procedure-ai-system-impact-assessment.md) Step 7 (where the Treasury Board Algorithmic Impact Assessment level is higher than the level from the procedure's own criteria, the procedure level aligned to it in the Step 7 table, because the higher governs), and AI Impact Assessment results prior to approval.
 
 ### 4.3 Risk and compliance validation
 
