@@ -94,7 +94,9 @@ findings):
   occurrence, not per class) and reports them as ``notStarted`` in the
   sentinel, so a run unittest itself reports green with such skips in
   a module that otherwise ran is not refused, while a dropped test
-  (which no skip record accounts for) still is. ``notStarted`` counts
+  (which no skip record accounts for) still is. Both hold only for a
+  suite that runs its cases in its flattened order (see the
+  reordering-suite residual below). ``notStarted`` counts
   only these ``setUpClass`` skips: a test of a skip-decorated class
   reaches ``startTest`` (``testsRun`` counts it), and a test a
   ``SkipTest`` in ``setUpModule`` kept from starting is not counted,
@@ -112,11 +114,16 @@ findings):
   module, in argv order), contains it, whatever the test's type
   (``TestCase``, ``unittest.FunctionTestCase``, a doctest case, or any
   other test object). Credit is per suite OCCURRENCE, not per case
-  object: the driver lists every occurrence in run order (holding each
-  case alive until the run ends, so no id or identity is reused) and
-  matches each start to the next pending occurrence of that object, so
-  a case object loaded by two modules credits each module only for its
-  own occurrence's start (the 3b525 round-11 review, codex E1 and E2).
+  object: the driver lists every occurrence in flattened suite order
+  (holding each case alive until the run ends, so no id or identity
+  is reused) and matches each start, by identity, to the next pending
+  occurrence of that object. Before the run, a case object that
+  appears in more than one handed module's flattened suite is refused
+  (exit 2, naming the modules): with one object in two modules'
+  suites, forward matching plus a ``setUpClass``-skipped class between
+  the occurrences credited the wrong module, giving a false pass or a
+  false refusal (the 3b525 round-12 review, codex E1 and E2), so
+  every occurrence a start can match lies in one module's suite.
   The gate checks that each module's suite starts
   something, not who wrote the test's code (rounds 9 and 10 tried to
   credit the module defining the code, and every variant refused
@@ -147,7 +154,15 @@ findings):
   next pending occurrence in unittest's run order, so a test that
   itself starts another loaded case object (outside the suite's own
   iteration) can move the match (test code controlling the run is the
-  in-process residual below); a module that only imports and loads
+  in-process residual below); a ``TestSuite`` subclass that reorders,
+  drops or substitutes cases in its own ``run`` is outside what the
+  gate can account for, because crediting and the ``setUpClass``
+  skip reconciliation both assume a suite runs its cases in its
+  flattened order (the 3b525 round-12 review observed two effects: a
+  module whose reordering suite holds a ``setUpClass``-skipped class
+  can be falsely refused, and a false pass needed a case object shared
+  by two modules, which the shared-case refusal above now refuses; no
+  current module uses such a suite); a module that only imports and loads
   another module's ``TestCase`` classes earns credit for their
   started tests (borrowing; no current module does this; the gate
   checks that each module's suite starts something, not who wrote
@@ -211,7 +226,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # refuse (exit 2, naming the file) a module contributing zero test cases.
 # Run with exit=False,
 # refusing (exit 2) when unittest.main's suites do not pair one-to-one
-# with the handed modules and their loaded counts, recording per module
+# with the handed modules and their loaded counts, or when one case
+# object is in more than one module's suite (naming them), recording per module
 # its credited starts (occurrences in its loaded suite that reach
 # startTest outside a skip-decorated class), and, when
 # unittest reports the run green, refuse (exit 2, naming the file) a
@@ -282,10 +298,12 @@ if failed:
 # the class or a base) reaches startTest before unittest reads the
 # class flag (from test.__class__, read the same way here), but is not
 # credited. Credit is per suite occurrence, not per case object: every
-# occurrence is listed as (case, module) in run order, and a start is
-# matched to the next pending occurrence of that same object, so a case
-# object in two modules' suites credits each module for its own
-# occurrence only. The list holds every case alive until the run ends
+# occurrence is listed as (case, module) in flattened suite order, and a
+# start is matched to the next pending occurrence of that same object
+# (identity, not equality). A case object in more than one module's
+# suite is refused before the run, so a match never crosses modules;
+# a suite subclass that reorders its own run is a documented residual.
+# The list holds every case alive until the run ends
 # (unittest's suites drop each case or sub-suite once run, which frees
 # it), so matching by identity never meets a reused id. Occurrences a
 # start passes over never started; those of a class whose setUpClass
@@ -341,6 +359,25 @@ class StartRecordingRunner(unittest.TextTestRunner):
                 sys.exit(2)
             for case in flatten([suite]):
                 occurrences.append((case, loaded_by))
+        # Refuse, naming the modules, a case object in more than one
+        # handed module's suite: its starts cannot be credited to one
+        # module (every occurrence is held alive, so ids are not reused).
+        loaded_in = {}
+        for case, loaded_by in occurrences:
+            names = loaded_in.setdefault(id(case), [case])
+            if loaded_by not in names:
+                names.append(loaded_by)
+        shared = False
+        for case, *names in loaded_in.values():
+            if len(names) > 1:
+                print("REFUSED: test case object %r is in the loaded suites "
+                      "of more than one module (%s); its starts cannot be "
+                      "credited to one module"
+                      % (case, ", ".join("tests/%s.py" % name.partition(".")[2]
+                                         for name in names)), file=sys.stderr)
+                shared = True
+        if shared:
+            sys.exit(2)
         return super().run(test)
 program = unittest.main(module=None, argv=["unittest"] + modules,
                         testRunner=StartRecordingRunner, exit=False)
