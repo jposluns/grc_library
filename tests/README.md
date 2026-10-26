@@ -94,8 +94,9 @@ of the following, never softening one to green:
   (borrowing; no current module does this; the gate checks that each
   module's suite starts something, not who wrote it); a test skipped
   individually (a skip decorator on the test method, or
-  `self.skipTest`) is a credited start, so a module whose every test
-  is skipped individually is not refused; the pairing check compares
+  `self.skipTest` inside the test or its `setUp`) is a credited
+  start, so a module whose every test is skipped individually is not
+  refused; the pairing check compares
   case counts per suite, not case identity, so a second load that
   returns different cases in the same number passes it, and its cases
   are credited as `unittest.main` loaded them; a start is matched to
@@ -129,9 +130,14 @@ of the following, never softening one to green:
 - a green child exit whose LAST stderr line is not the child driver's
   completion sentinel: a per-run nonce from the parent plus
   `testsRun`, `notStarted` (loaded tests a `SkipTest` raised in
-  `setUpClass` kept from starting, counted from the loaded suite, so a
-  green run with such a skip in a module that otherwise started a
-  test is not refused; it does not count tests of a skip-decorated
+  `setUpClass` kept from starting, counted from the loaded suite:
+  unittest runs `setUpClass` once per run of consecutive cases of the
+  same class object, so each such run of never-started occurrences
+  takes one skip record of its class and counts each of its
+  occurrences once, two classes sharing a module and qualname are two
+  runs, and one skip record never covers two runs; so a green run
+  with such a skip in a module that otherwise started a test is not
+  refused; it does not count tests of a skip-decorated
   class, which reach `startTest`, nor tests a `SkipTest` in
   `setUpModule` kept from starting, which therefore fail this
   reconciliation), the per-module test counts (naming exactly the

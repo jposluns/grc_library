@@ -88,14 +88,16 @@ findings):
 * A ``SkipTest`` raised in ``setUpClass`` bypasses ``startTest`` for
   every test of that class, so ``testsRun`` legitimately undercounts
   the loaded suite. The driver counts those tests from the loaded
-  suite (among the occurrences the run passed over without a start
-  since the previous matched start, each run of consecutive
-  occurrences of one class, which unittest sets up once, takes one
-  ``setUpClass`` skip record of that class arrived in that stretch,
-  and each occurrence in a run that took a record counts once; a run
-  with no record left counts as dropped, so a skipped class loaded
-  twice is counted per occurrence, and one skip record never covers
-  two runs) and reports them as ``notStarted`` in the
+  suite (unittest runs ``setUpClass`` once per run of consecutive
+  cases of the same class object, so among the occurrences the run
+  passed over without a start since the previous matched start, each
+  such run takes one ``setUpClass`` skip record of that class arrived
+  in that stretch, matched by the ``module.qualname`` name unittest
+  gives the record, and each occurrence in a run that took a record
+  counts once; a run with no record left counts as dropped, so a
+  skipped class loaded twice is counted per occurrence, two classes
+  sharing a module and qualname are two runs, and one skip record
+  never covers two runs) and reports them as ``notStarted`` in the
   sentinel, so a run unittest itself reports green with such skips in
   a module that otherwise ran is not refused, while a dropped test
   (which no skip record accounts for) still is. Both hold only for a
@@ -315,10 +317,10 @@ if failed:
 # The list holds every case alive until the run ends
 # (unittest's suites drop each case or sub-suite once run, which frees
 # it), so matching by identity never meets a reused id. Occurrences a
-# start passes over never started; a run of one class's occurrences
-# among them is notStarted when a setUpClass skip record of that class,
-# arrived since the previous matched start and not yet taken by an
-# earlier such run, accounts for it (one record per run).
+# start passes over never started; a run of consecutive occurrences of
+# one class object among them is notStarted when a setUpClass skip
+# record of that class, arrived since the previous matched start and not
+# yet taken by an earlier such run, accounts for it (one record per run).
 occurrences = []
 started = dict.fromkeys(modules, 0)
 class StartRecordingResult(unittest.TextTestResult):
@@ -328,23 +330,22 @@ class StartRecordingResult(unittest.TextTestResult):
         self.class_skips = {}
         self.not_started = 0
     def settle(self, upto):
-        # A class occurrence is a run of consecutive occurrences of one
-        # class (unittest sets a class up once per such run); each takes
-        # one skip record of its class, and one with no record left is
-        # dropped, not notStarted. A run continuing the last matched
-        # start's class was set up before that start and takes none.
+        # unittest sets a class up once per run of consecutive cases of
+        # the same class object (not the same name: two classes a factory
+        # built with one module and qualname are two runs). Each such run
+        # among the passed-over occurrences takes one skip record of its
+        # class, looked up by strclass, the name unittest gives the
+        # record's holder; a run with no record left is dropped, not
+        # notStarted.
         previous = None
-        if self.next_occurrence > 0:
-            previous = unittest.util.strclass(
-                occurrences[self.next_occurrence - 1][0].__class__)
         covered = False
         for case, _name in occurrences[self.next_occurrence:upto]:
-            holder = unittest.util.strclass(case.__class__)
-            if holder != previous:
+            if case.__class__ is not previous:
+                holder = unittest.util.strclass(case.__class__)
                 covered = self.class_skips.get(holder, 0) > 0
                 if covered:
                     self.class_skips[holder] -= 1
-                previous = holder
+                previous = case.__class__
             if covered:
                 self.not_started += 1
         self.next_occurrence = upto

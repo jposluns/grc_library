@@ -854,6 +854,100 @@ def load_tests(loader, tests, pattern):
                                OwnTests("test_own")])
 """
 
+# Two distinct classes a factory built with one module and qualname,
+# loaded consecutively: the first runs, the second skips in setUpClass
+# (3b525 round-14 review, codex and claude). unittest sets a class up
+# once per run of consecutive cases of the same class OBJECT, so the
+# second class is set up and its skip recorded under the shared name;
+# split by name, the second occurrence continued the first's run, took
+# no record and was refused where plain unittest reports OK.
+FACTORY_SAME_QUALNAME_MODULE = """\
+import unittest
+
+
+def make_class(skip):
+    class FactoryTests(unittest.TestCase):
+        @classmethod
+        def setUpClass(cls):
+            if skip:
+                raise unittest.SkipTest("environment-dependent fixture missing")
+
+        def test_case(self):
+            self.assertFalse(skip)
+
+    return FactoryTests
+
+
+def load_tests(loader, tests, pattern):
+    return unittest.TestSuite([make_class(False)("test_case"),
+                               make_class(True)("test_case")])
+"""
+
+# The converse: two factory-built classes sharing one name, both skipping
+# in setUpClass, consecutive, then (after another setUpClass-skipped
+# class) the first class again, dropped by its helper's setUpModule
+# skipping on the second call (which no counted holder records). Split
+# by class object, the two consecutive classes are two runs and take
+# both records, so the dropped occurrence has none left; split by name,
+# they were one run taking one record, and the leftover record counted
+# the dropped occurrence (notStarted=4), a false pass.
+HELPER_FACTORY_SKIP = """\
+import unittest
+
+setups = 0
+
+
+def setUpModule():
+    global setups
+    setups += 1
+    if setups > 1:
+        raise unittest.SkipTest("second module set-up skipped")
+
+
+def make_class():
+    class FactoryTests(unittest.TestCase):
+        @classmethod
+        def setUpClass(cls):
+            raise unittest.SkipTest("environment-dependent fixture missing")
+
+        def test_never_starts(self):
+            self.fail("must not start")
+
+    return FactoryTests
+
+
+FIRST = make_class()
+SECOND = make_class()
+"""
+
+DROPPED_AFTER_SAME_NAME_SKIPS_MODULE = """\
+import unittest
+
+from tests.helper_factoryskip import FIRST, SECOND
+
+
+class SkipSetupTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        raise unittest.SkipTest("environment-dependent fixture missing")
+
+    def test_never_starts(self):
+        self.fail("must not start")
+
+
+class OwnTests(unittest.TestCase):
+    def test_own(self):
+        self.assertTrue(True)
+
+
+def load_tests(loader, tests, pattern):
+    return unittest.TestSuite([FIRST("test_never_starts"),
+                               SECOND("test_never_starts"),
+                               SkipSetupTests("test_never_starts"),
+                               FIRST("test_never_starts"),
+                               OwnTests("test_own")])
+"""
+
 # Passes plus one individually skipped test, for the output-shape pin.
 PASSING_WITH_SKIP_MODULE = """\
 import unittest
@@ -1695,6 +1789,44 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         self.assertIn("OK (skipped=2)", err)
         self.assertIn("testsRun=2 notStarted=2", err)
 
+    def test_main_groups_class_runs_by_class_object(self) -> None:
+        """Two distinct classes sharing a module and qualname (built by
+        a factory), consecutive in one suite, the first running and the
+        second skipping in setUpClass: unittest sets each up, as it
+        splits runs by class object, so the second's skip record counts
+        it (3b525 round-14 review: split by strclass name it continued
+        the first's run, testsRun=2 notStarted=0 of 3, and was refused).
+        Loaded 2 + 1; testsRun=2, notStarted=1."""
+        code, _out, err = self._run_gate_with({
+            "test_aa_factory.py": FACTORY_SAME_QUALNAME_MODULE,
+        })
+        self.assertEqual(code, 0, err)
+        self.assertNotIn("REFUSED", err)
+        self.assertIn("OK (skipped=1)", err)
+        self.assertIn("testsRun=2 notStarted=1", err)
+
+    def test_main_refuses_dropped_occurrence_after_same_name_skips(
+            self) -> None:
+        """Two distinct classes sharing a module and qualname, both
+        skipping in setUpClass, consecutive, are two runs taking two skip
+        records, so a later occurrence of the first class, dropped by
+        its helper's setUpModule skipping on the second call, has no
+        record left and the reconciliation refuses (3b525 round 15;
+        split by strclass name the two were one run, the leftover record
+        counted the dropped occurrence, notStarted=4, and the run
+        passed). Loaded 5 + 1; testsRun=2, notStarted=3."""
+        code, _out, err = self._run_gate_with({
+            "helper_factoryskip.py": HELPER_FACTORY_SKIP,
+            "test_aa_dropped.py": DROPPED_AFTER_SAME_NAME_SKIPS_MODULE,
+        })
+        self.assertEqual(code, 2, err)
+        self.assertIn("OK (skipped=4)", err)
+        self.assertIn("testsRun=2 notStarted=3", err)
+        refusal = [line for line in err.splitlines()
+                   if line.startswith("REFUSED: ")]
+        self.assertEqual(len(refusal), 1, err)
+        self.assertIn("does not equal the per-module total 6", refusal[0])
+
     def test_main_reads_class_skip_flag_from_dunder_class(self) -> None:
         """The class skip flag is read from test.__class__, as unittest
         reads it (3b525 round-11 review, claude N4): a __class__
@@ -2029,7 +2161,8 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     # The key phrase of each crediting residual and of the pairing-check
     # wording; the runner docstring and both READMEs must carry every one
-    # (3b525 round-13 review: agy W, codex W, claude N1 and N2).
+    # (3b525 round-13 review: agy W, codex W, claude N1 and N2; round 15:
+    # every residual, and the per-run notStarted rule).
     _RESIDUAL_PHRASES = (
         # the pairing check compares counts, not identity
         "compares case counts per suite, not case identity",
@@ -2047,13 +2180,31 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         "case object",
         # the pairing check itself: a different count fails it
         "returns a different case count on a second load fails this",
+        # borrowing another module's TestCase classes earns credit
+        "earns credit for their started tests (borrowing",
+        # individually skipped tests are credited starts
+        "a skip decorator on the test method, or self.skipTest inside "
+        "the test or its setUp) is a credited start",
+        "a module whose every test is skipped individually is not "
+        "refused",
+        # a partially hollowed module is not detected
+        "hollowed module (a load_tests that returns some but not all of "
+        "a module's tests)",
+        # in-process forgery
+        "test code can forge the result in-process",
+        # notStarted: one skip record per run of one class object
+        "setUpClass once per run of consecutive cases of the same class "
+        "object",
+        "two classes sharing a module and qualname are two runs",
+        "one skip record never covers two runs",
     )
 
     def test_docs_state_crediting_residuals_in_agreement(self) -> None:
         """The runner docstring and both READMEs state every crediting
-        residual and the pairing-check wording in the same words (markup
-        and line breaks aside), and none still says a different suite on
-        a second load fails the pairing check (3b525 rounds 13 and 14)."""
+        residual, the pairing-check wording and the per-run notStarted
+        rule in the same words (markup and line breaks aside), and none
+        still says a different suite on a second load fails the pairing
+        check (3b525 rounds 13, 14 and 15)."""
         surfaces = {"runner docstring": self._runner()["__doc__"] or ""}
         for rel in ("tools/README.md", "tests/README.md"):
             surfaces[rel] = (REPO_ROOT / rel).read_text(encoding="utf-8")
