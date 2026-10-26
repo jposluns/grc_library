@@ -2446,8 +2446,12 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         # 19: this phrase replaced the old "never yields two records"
         # clause in place, so restoring that clause drops it and fails
         # here, and no negative check on the old words is kept, since it
-        # also fired on a correction quoting them)
-        "one run contributes at most one counted record",
+        # also fired on a correction quoting them; round 20: anchored to
+        # the preceding clause and its colon, so a negation inserted
+        # between them, as "It is false that one run contributes ...",
+        # fails here)
+        "one skip record never covers two runs; one run contributes at "
+        "most one counted record:",
         "recorded under the same setUpClass name",
         "not credited to a later run",
         # round 17: "back to back" defined as the code applies it
@@ -2472,7 +2476,10 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         still says a different suite on a second load fails the pairing
         check (3b525 rounds 13, 14 and 15). The one-run rule is pinned
         by its positive phrase alone (round 19: a negative check on the
-        old wording failed a correction that quoted it)."""
+        old wording failed a correction that quoted it), anchored to the
+        clause before it (round 20). These wording checks establish that
+        the text is present, not that it is true: a negation placed
+        before the anchored clause is not caught."""
         surfaces = {"runner docstring": self._runner()["__doc__"] or ""}
         for rel in ("tools/README.md", "tests/README.md"):
             surfaces[rel] = (REPO_ROOT / rel).read_text(encoding="utf-8")
