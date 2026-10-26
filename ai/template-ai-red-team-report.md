@@ -2,7 +2,7 @@
 
 **Document Title:** AI Red Team Report Template\
 **Document Type:** Template\
-**Version:** 1.0.12\
+**Version:** 1.0.13\
 **Date:** 2026-10-26\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -28,7 +28,7 @@ A populated AI red team report identifies real systems and the specific weakness
 
 This template applies to all adversarial-testing engagements against the organization's AI systems including:
 
-1. Pre-release red team for new AI features, for each release of an AI system classified High under the organizational AI risk classification, for each release of an AI system handling Confidential data or capable of initiating actions with financial or operational impact (REDTEAM-SEC-01 in [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md)), and before production go-live for every AI system that REDTEAM-SEC-01 of the AI and Agentic Development Security Standard requires to undergo red team evaluation before go-live.
+1. Pre-release red team for new AI features, for each release of an AI system classified High under the organizational AI risk classification (REDTEAM-SEC-01 in [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md)), for each release of an AI system handling Confidential data or capable of initiating actions with financial or operational impact (the AI Adversarial Test Reference's own requirement, beyond what REDTEAM-SEC-01 requires), and before production go-live for every AI system that REDTEAM-SEC-01 of the AI and Agentic Development Security Standard requires to undergo red team evaluation before go-live.
 2. Annual red team for every production AI system in scope of the AI Adversarial Test Reference, which covers every production AI system handling Confidential data or capable of initiating actions with financial or operational impact (REDTEAM-SEC-01 in [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md)).
 3. Ad-hoc red team after material model, prompt, retrieval, or agent-capability changes.
 4. Supplier-commissioned third-party red team against the organization's customer-facing AI.
