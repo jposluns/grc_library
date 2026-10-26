@@ -29479,7 +29479,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         preflight_language_runner.py CHILD F c7242875b76d4282326ba37e0f878cebfc2939aa2780657c56bb3ef007fa0644
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
-        quick-guard.sh FIXED F 92c7edc55ea7301b0e78a6d339758d2ef2a3c26d43c8f7472353093ca81ecbb6
+        quick-guard.sh FIXED F 58c16c46c0e50688bfd2da3d92ba38f8abe39c90ed9473fb0d28e38f226d8d18
         ref-holds.py OWN F 12b4bc426cc0dc4f0cb070fc94feb3398c0d0d420c091e3e343393a16feb4f7d
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
@@ -72042,16 +72042,17 @@ class GitReadFailsClosedTests(unittest.TestCase):
         import shlex
 
         real_git = shlex.quote(shutil.which("git", path=self.env.get("PATH")))
-        repo, _ = self.guard_fixture("symbolic-ref-exits-128")
-        result = self.run_in(repo, "bash", "tools/quick-guard.sh")
-        self.assertIn("origin/main is absent", result.stdout, result.stderr)
-        shim = self.tmp / "shim-symbolic-ref"
-        shim.mkdir()
-        (shim / "git").write_text(
-            '#!/bin/sh\nif [ "$1" = symbolic-ref ] && [ "$2" = -q ]; then exit 128; fi\n'
-            f'exec {real_git} "$@"\n', encoding="utf-8")
-        (shim / "git").chmod(0o755)
-        self.assert_guard_refuses(repo, PATH=f"{shim}{os.pathsep}{self.env['PATH']}")
+        with self.subTest(fixture="symbolic-ref-exits-128"):
+            repo, _ = self.guard_fixture("symbolic-ref-exits-128")
+            result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+            self.assertIn("origin/main is absent", result.stdout, result.stderr)
+            shim = self.tmp / "shim-symbolic-ref"
+            shim.mkdir()
+            (shim / "git").write_text(
+                '#!/bin/sh\nif [ "$1" = symbolic-ref ] && [ "$2" = -q ]; then exit 128; fi\n'
+                f'exec {real_git} "$@"\n', encoding="utf-8")
+            (shim / "git").chmod(0o755)
+            self.assert_guard_refuses(repo, PATH=f"{shim}{os.pathsep}{self.env['PATH']}")
         for name, ref_format, packed in (("missing-loose", None, False),
                                          ("missing-packed", None, True),
                                          ("missing-reftable", "reftable", False)):
@@ -72072,18 +72073,23 @@ class GitReadFailsClosedTests(unittest.TestCase):
         # 3b647: with HEAD unborn, git diff HEAD failed with "bad revision 'HEAD'" after the
         # origin/main-absent note, a refusal that did not say why. HEAD is now read first, so
         # the refusal names it, with or without origin/main and with .md files staged or not.
-        def refused(repo):
-            result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+        # --quiet silences only git's no-such-revision report; any other fatal error passes through.
+        import shlex
+
+        def refused(repo, **env):
+            result = self.run_in(repo, "bash", "tools/quick-guard.sh", **env)
             self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-            self.assertIn("ERROR: git rev-parse --verify HEAD (HEAD names no commit: a repository "
-                          "with no commits yet, or a HEAD git cannot read) failed", result.stderr)
+            self.assertIn("ERROR: git rev-parse --verify --quiet HEAD^{commit} (HEAD names no "
+                          "commit: a repository with no commits yet, or a HEAD git cannot read) "
+                          "failed", result.stderr)
             self.assertNotIn("no changed corpus-content", result.stdout)
             self.assertNotIn("origin/main is absent", result.stdout)
+            return result
 
         repo = self.repo("no-commits")
         (repo / "tools").mkdir()
         shutil.copy(REPO_ROOT / "tools" / "quick-guard.sh", repo / "tools")
-        refused(repo)
+        self.assertNotIn("fatal:", refused(repo).stderr)
         (repo / "governance").mkdir()
         (repo / "governance" / "a.md").write_text("x\n", encoding="utf-8")
         refused(repo)
@@ -72094,6 +72100,18 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.git(repo, "update-ref", "refs/remotes/origin/main", base)
         self.git(repo, "checkout", "-q", "--orphan", "fresh")
         refused(repo)
+        # A HEAD git cannot read for another reason keeps git's own report above the refusal.
+        repo, _ = self.guard_fixture("rev-parse-fatal")
+        shim = self.tmp / "shim-rev-parse"
+        shim.mkdir()
+        (shim / "git").write_text(
+            '#!/bin/sh\nif [ "$1" = rev-parse ] && [ "$2" = --verify ]; then\n'
+            '  echo "fatal: detected dubious ownership in repository" >&2; exit 128\nfi\n'
+            f'exec {shlex.quote(shutil.which("git", path=self.env.get("PATH")))} "$@"\n',
+            encoding="utf-8")
+        (shim / "git").chmod(0o755)
+        result = refused(repo, PATH=f"{shim}{os.pathsep}{self.env['PATH']}")
+        self.assertIn("fatal: detected dubious ownership in repository", result.stderr)
 
     def test_quick_guard_refuses_each_failed_absence_check(self) -> None:
         # The absence checks no real fixture tells apart, each failed alone by a git wrapper
