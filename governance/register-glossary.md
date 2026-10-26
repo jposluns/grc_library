@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.21\
-**Date:** 2026-10-16\
+**Version:** 1.4.23\
+**Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md), [`README.md`](../README.md)\
@@ -91,7 +91,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **CDO** | Chief Data Officer. |
 | **CEK** | (CSA CCM domain) Cryptography, Encryption & Key Management. |
 | **CIA** | Confidentiality, Integrity, Availability. The classic information-security triad. |
-| **CIIO** | Critical Information Infrastructure Operator. Chinese-law designation under the Cybersecurity Law of China. Designated by the relevant industry regulator (not self-designated). Triggers mandatory CAC Security Assessment for outbound personal information transfers under PIPL Article 38 and a domestic-storage default under PIPL Article 40. |
+| **CIIO** | Critical Information Infrastructure Operator. Chinese-law category under the Cybersecurity Law of China, which leaves the specific scope of critical information infrastructure to the State Council (Cybersecurity Law Article 33, in the amended numbering in force 1 January 2026; English rendering of the Chinese text, which is authoritative) and does not say who identifies a particular operator as a CIIO; an adopter confirms its CIIO status directly. Triggers mandatory CAC Security Assessment for outbound personal information transfers under PIPL Article 38 and a domestic-storage default under PIPL Article 40. |
 | **CIAM** | Customer Identity and Access Management. |
 | **CIO** | Chief Information Officer. |
 | **CIP** | Critical Infrastructure Protection. NERC CIP is the canonical reference for North American electricity reliability. |

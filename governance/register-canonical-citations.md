@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.6.11\
-**Date:** 2026-10-24\
+**Version:** 1.6.13\
+**Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -264,6 +264,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Resolution CD/ANPD No. 4/2023 | 2023 | 2023-02-27 | ANPD Regulation on Dosimetry and Application of Sanctions: the parameters and criteria for calculating the base value of a fine sanction and applying the LGPD Article 52 administrative sanctions; amended the fiscalization-and-sanctioning-process regulation approved by Resolution CD/ANPD No. 1/2021 (enacted 24 February 2023; DOU-published 27 February 2023, the date in the Publication column) | - | https://www.gov.br/anpd/pt-br/acesso-a-informacao/institucional/atos-normativos/regulamentacoes_anpd | verified 2026-07-13 |
 | China PIPL | 2021 | 2021-11 | Personal Information Protection Law | - | https://www.cac.gov.cn/ | verified 2026-07-09 |
 | China Cross-Border Data Provisions (2024) | 2024-03-22 (immediate effect) | 2024-03-22 | Provisions on Promoting and Regulating the Cross-Border Flow of Data (CAC); revises personal-data export thresholds and exemptions; extends CAC security-assessment validity from two to three years | - | https://www.cac.gov.cn/2024-03/22/c_1712776611775634.htm | 2026-06-30 |
+| China Cybersecurity Law | 2016, as amended by the NPC Standing Committee decision of 28 October 2025, in force 1 January 2026 (the decision also renumbered the articles) | 2016-11 | Cybersecurity Law of the People's Republic of China (中华人民共和国网络安全法); the upstream page holds the CAC consolidated Chinese text as amended | - | https://www.cac.gov.cn/2025-12/29/c_1768735112911946.htm | 2026-10-25 |
 | Switzerland nFADP | 2023 | 2023-09 | New Federal Act on Data Protection (revDSG) | FADP 1992 | https://www.fedlex.admin.ch/eli/cc/2022/491/en | 2026-09-24 |
 | Saudi Arabia PDPL | 2023 | 2023-09 | Personal Data Protection Law | - | https://sdaia.gov.sa/en/SDAIA/about/Pages/RegulationsAndPolicies.aspx | verified 2026-07-09 |
 | Singapore PDPA | 2012 (with 2020 amendments) | 2012 | Personal Data Protection Act | - | https://www.pdpc.gov.sg/ | verified 2026-07-09 |

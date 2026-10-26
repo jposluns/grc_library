@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.220\
+**Version:** 1.27.221\
 **Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -146,7 +146,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Policy | Privacy and Data Governance Policy | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) | Data Protection Officer | 6 to 12 months | ISO/IEC 27701:2025, ISO 8000-8, GDPR, PIPEDA, PIPL, LGPD, EU Data Act (Regulation (EU) 2023/2854) | template |
 | Privacy | Procedure | Privacy Impact and Cross-Border Transfer Procedure | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Data Protection Officer | Annual | GDPR Art 35, ISO/IEC 27701:2025 Annex A.1.2.6, PIPL Arts 38 to 40, Quebec Law 25 §3.3/§12.1/§17 | template |
 | Privacy | Procedure | Data Subject Rights Management Procedure | [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) | Data Protection Officer | Annual | GDPR Arts 15 to 22, PIPEDA, PIPL Arts 44 to 47, ISO/IEC 27701:2025 | template |
-| Privacy | Procedure | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection Officer | Annual | GDPR Arts 33 to 34, PIPEDA, PIPL Art 57, LGPD, Quebec Law 25, breach assessment, notification | template |
+| Privacy | Procedure | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection Officer | Annual | GDPR Arts 33 to 34, PIPEDA, PIPL Art 57, China Cybersecurity Law Art 44 para. 2 and, where the incident also endangers network security, Art 27 (amended numbering, in force 1 January 2026), LGPD, Quebec Law 25, breach assessment, notification | template |
 | Privacy | Procedure | Works Council and Employee Representative Consultation Procedure | [`privacy/procedure-works-council-and-employee-representative-consultation.md`](../privacy/procedure-works-council-and-employee-representative-consultation.md) | Data Protection Officer | Annual | ISO/IEC 27001:2022 Annex A.5.31/A.5.34, NIST CSF GV.OC/GV.PO, CSA CCM GRC-07/A&A-04, EU GDPR Art 88/35(9)/5 (UK GDPR: no Art 88 equivalent) | template |
 | Privacy | Template | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md) | Data Protection Officer | Annual | GDPR Art 30, UK GDPR, LGPD Art 37, PIPEDA, PIPL Art 55, ISO/IEC 27701:2025 | template |
 | Privacy | Template | Privacy Notice Template | [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md) | Data Protection Officer | Annual | GDPR Arts 12 to 14, UK GDPR, LGPD Arts 6/9/18, PIPL Arts 17 to 21, CCPA/CPRA, ISO/IEC 29184 (not held in the reference base; adopter confirms the current edition and content directly) <!-- ref-absence: 29184 --> | template |
