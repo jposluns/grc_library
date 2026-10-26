@@ -21,9 +21,55 @@ cd "$(dirname "$0")/.." || exit 2
 # origin/main) + (working tree vs HEAD) + (untracked), minus deletions. ---
 # NOTE: if origin/main is absent, MB falls back to HEAD, so this reduces to a
 # working-tree-vs-HEAD diff and misses .md already COMMITTED on the branch. That is
-# a graceful degradation for an iteration aid; the full pre-push-guard.sh (which
-# runs the history-aware gates against the real merge base) is unaffected.
-MB="$(git merge-base HEAD origin/main 2>/dev/null || echo HEAD)"
+# a graceful degradation for an iteration aid, and it is announced; the full
+# pre-push-guard.sh (which runs the history-aware gates against the real merge
+# base) is unaffected. Any OTHER git failure exits 2 rather than reading as "no
+# changed files" (3b551).
+git_failed() {
+  echo "quick-guard: ERROR: $1 failed; the changed .md files cannot be listed, so nothing was checked." >&2
+  echo "(This is an iteration aid; tools/pre-push-guard.sh is still required before push.)" >&2
+  exit 2
+}
+# origin/main is read by its full name with show-ref --verify, which reads that one
+# name: rev-parse's short-name lookup also tries refs/heads/<name> and the other DWIM
+# names, so a local branch origin/main stood in for it; given the full name, rev-parse
+# still tries refs/heads/refs/remotes/origin/main, so only show-ref's exact read counts.
+# show-ref fails on a ref that does not exist, and also on one git skips: with an error
+# (a ref naming a missing object) or silently (a malformed loose ref, a dangling loose
+# symlink or symbolic ref, a malformed or unsorted packed-refs line, a loose file
+# shadowing a packed ref, a ref directory git cannot read). So origin/main is absent
+# only when symbolic-ref -q exits 1 (128 is a ref git cannot read or parse, such as one
+# under a mode-000 directory; 0 is a symbolic ref show-ref could not follow), show-ref
+# --verify --quiet exits 1 and prints nothing, for-each-ref (which reads every record)
+# exits 0, prints nothing to stderr and does not list it, and its loose path holds
+# nothing or a plain directory (a remote branch main/x keeps refs/remotes/origin/main/),
+# as lint-library-version-monotonicity.py reads it, except that it follows a symbolic ref.
+ORIGIN_MAIN=refs/remotes/origin/main
+origin_main_absent() {
+  local said listed loose
+  git symbolic-ref -q "$ORIGIN_MAIN" >/dev/null 2>&1
+  [ $? -eq 1 ] || return 1
+  said="$(git show-ref --verify --quiet "$ORIGIN_MAIN" 2>&1)"
+  [ $? -eq 1 ] && [ -z "$said" ] || return 1
+  said="$(git for-each-ref --format='%(refname)' 2>&1 >/dev/null)" && [ -z "$said" ] || return 1
+  listed="$(git for-each-ref --format='%(refname)')" || return 1
+  case $'\n'"$listed"$'\n' in *$'\n'"$ORIGIN_MAIN"$'\n'*) return 1 ;; esac
+  loose="$(git rev-parse --git-path "$ORIGIN_MAIN")" || return 1
+  if [ -e "$loose" ] || [ -L "$loose" ]; then
+    [ -d "$loose" ] && [ ! -L "$loose" ] || return 1
+  fi
+}
+if base="$(git show-ref --verify --hash "$ORIGIN_MAIN" 2>/dev/null)"; then
+  MB="$(git merge-base HEAD "$base")" || git_failed "git merge-base HEAD $ORIGIN_MAIN"
+elif ! origin_main_absent; then
+  git_failed "git show-ref --verify $ORIGIN_MAIN (git cannot read it, or holds a record of it that it skips)"
+else
+  echo "quick-guard: NOTE: origin/main is absent; checking only uncommitted and untracked .md changes."
+  MB=HEAD
+fi
+since_mb="$(git diff --name-only --diff-filter=d "$MB" -- '*.md')" || git_failed "git diff $MB"
+since_head="$(git diff --name-only --diff-filter=d HEAD -- '*.md')" || git_failed "git diff HEAD"
+untracked="$(git ls-files --others --exclude-standard -- '*.md')" || git_failed "git ls-files --others"
 # Restrict to CORPUS-CONTENT .md: files under an audited domain directory, minus
 # the guardrails/ pack subtree and README.md files. The fast-ready
 # gates scope to exactly this set in their default (no-argument) run, so passing
@@ -32,11 +78,7 @@ MB="$(git merge-base HEAD origin/main 2>/dev/null || echo HEAD)"
 # default mode would make the gate process it explicitly and spuriously FAIL. Such
 # files are checked only by the full tools/pre-push-guard.sh, never by this aid.
 mapfile -t CHANGED < <(
-  {
-    git diff --name-only --diff-filter=d "$MB" -- '*.md' 2>/dev/null
-    git diff --name-only --diff-filter=d HEAD -- '*.md' 2>/dev/null
-    git ls-files --others --exclude-standard -- '*.md' 2>/dev/null
-  } | sort -u | grep -E '^(ai|architecture|compliance|crypto|dev-security|governance|\.project-governance|operations|privacy|resilience|risk|security|supply-chain)/' | grep -vE '(^|/)README\.md$'
+  printf '%s\n' "$since_mb" "$since_head" "$untracked" | sort -u | grep -E '^(ai|architecture|compliance|crypto|dev-security|governance|\.project-governance|operations|privacy|resilience|risk|security|supply-chain)/' | grep -vE '(^|/)README\.md$'
 )
 
 if [ "${#CHANGED[@]}" -eq 0 ]; then

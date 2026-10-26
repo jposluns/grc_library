@@ -8671,6 +8671,31 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertIn("sharing no distinctive token", out)
         self.assertEqual(self._warned(out), [], out)
 
+    def test_sibling_probe_lists_the_whole_corpus_from_a_subdirectory(self) -> None:
+        # Without --full-tree, ls-tree lists only the invocation directory: run from
+        # governance/ or tools/, the probe listed no corpus document outside it (3b551).
+        import subprocess as sp
+
+        base = {self.DOC: self._doc(*self.SIBLING_DOC), self.REGISTER: self._register(self.TSA_ROWS),
+                self.ALIASES: self._aliases("TSA Pipeline Security Directives")}
+        head = {self.ALIASES: self._aliases(
+            "TSA Pipeline Security Directives", "US TSA Pipeline Security Directives",
+        )}
+        tmp, base_sha, shutil = self._build_repo(base, head)
+        try:
+            for sub in ("governance", "tools"):
+                result = sp.run(
+                    [sys.executable, str(REPO_ROOT / "tools" / self.SCRIPT), base_sha, "HEAD"],
+                    capture_output=True, text=True, cwd=str(tmp / sub),
+                )
+                self.assertEqual(result.returncode, 0, sub + ": " + result.stdout + result.stderr)
+                listed = self._siblings(result.stdout)
+                self.assertEqual(len(listed), 1, sub + ": " + result.stdout)
+                self.assertIn("security/standard-example.md:8:", listed[0])
+                self.assertIn("D15 SIBLING-PROBE: 1 unregistered", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
     def test_sibling_probe_runs_on_a_changed_register_standard_id(self) -> None:
         aliases = self._aliases("US TSA Pipeline Security Directives")
         out = self._probe(
@@ -28896,7 +28921,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-todo-number-allocation.py NO_FS F 8ad89e87b8a6df4a576935a21409cadc80ce0456784a22262ac3229b3f2dd99e
         ccm_aicm_reference.py PASSIVE F 1ed15d9b1bd4cfd1162df3e720b5aa6058c3cba3cb1f626fcf2e1ee605c17e71
         changelog_diff.py PASSIVE F d712d841faf46461535b17d083d012280d3df85c0182b526625f7d7199b301bd
-        check-alignment-register-on-pr.py NO_FS F 5fbd4716eccba374e4de0e1ff47bb97428ce753a033b8e4cc37cff390e6fcfa1
+        check-alignment-register-on-pr.py NO_FS F 66bcdc0724ea2394bd35e29b8f78fb7313a5c755493f914656ce376364a4c0d9
         check-changelog-dash-on-pr.py NO_FS F c4a4ed41c310deedab000b034124e1c08482c59da539907d9d22fd5faeb0089e
         check-changelog-length-on-pr.py NO_FS F dd81f8c07f2ab5045bc492e1d59ebab939585c01355d1ca0d7baf0fed08c84a1
         check-changelog-on-pr.py NO_FS F e762e152f63d454d5915d219ce71329993c57b3bb780b860c0d3ec9938fdbd0e
@@ -28906,7 +28931,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-claude-md-size.py NO_FS F 5cc9d9caba54c5c3be3cab015bf250454d8a704828b5e8dd93a636c1a6235c62
         check-clause-preservation.py OWN F 43d6804eccf05f9c2434da4ec879246d48cc80081b8c852e86437cf38c65c664
         check-clean-language-upstream.py NO_FS F 7732d2d2eceb44061d99e7c484aa83c93b0818091538ba7e3b95a0040acda6a2
-        check-commit-on-main.py NO_FS F 6b32bd410a2fee3b4dbb3ff8e3677ee4c5278c9c3f0496fe429b12a25cc967e9
+        check-commit-on-main.py NO_FS F 65b09e20a245ce63b9be6415a517542797ffbad0bf32426c334f300068e7eee0
         check-daily-changelog-rollup.py SKIP F 096c9d8e8cf4741ca7fd9bb43ca5c4a5d08ead37c65559e291b44fb8af28da10
         check-date-cobump-on-pr.py NO_FS F ccf1be610cc379a0594fd052909cff7641bc3971e40d48fb6c8040cc6157558b
         check-dirty-tree-push.py TRANSPORT F e60cbafde1933c8bcc92410a997d41a6e5e89d97456ff2949aba0284ffb65713
@@ -28937,7 +28962,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         git-hooks/pre-push TRANSPORT F 9d1300e3fc7e1dcea3986ea7015f839c2c821cd7be16263dadc04482089fc2b5
         handoff-snapshot.py NO_FS F c752b79fa8844d3b37fb8978b351cd55ad3c02e648cd0f37168f256a92154358
         historical_citation_register.py PASSIVE F deb457b7487c069a6f1602b6a4160e1ce922da6a82a523b288dfee151d3b0236
-        install-git-hooks.sh FIXED F 02e7278c3b66766a44d96c403950c243b877491d81572889b2a8d0bdae80f944
+        install-git-hooks.sh FIXED F a0010c29758bda7824fdd000e5400c5aa6c3dd13563c9cf3bc4c35acc53b286c
         iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
         iso_27001_reference.py PASSIVE F e8789346ac57b557de2f5c93c7fc2b31651b49be25bc8180e8bdc84310b21418
         lint-acronym-consistency.py CWD F 2608f2b4ef320586a895895235ce268e75dcca39f4a1e0618019ef8f1f59c3a9
@@ -28980,7 +29005,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
-        lint-library-version-monotonicity.py OWN F 7a31b639d0d9c162efed7ced217949e0558ad3c09bd6d1316e679a64cb1f43b5
+        lint-library-version-monotonicity.py OWN F f6ecc98f3d36934a9d09a3fab8732d8352795ba5e7f6d1f02de8b7677aa0d03b
         lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
         lint-links.py ROOT F cf4b6ae1d2c76df65234323d94650ebc62db87bf24ed4f375d5386b4a75fb0b6
         lint-listing-surface-completeness.py NO_FS F 3dc1bb95c9133adec9f3af5640cf18a6c342118c972ab7cfb447fa6651ffe0f3
@@ -29038,7 +29063,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 616ae8f4ea008cda21bcf2f663ed650f82f91b2467fddc75cc4a313ff61e32b1
-        lint_common.py PASSIVE F a014c5275cf07de0785be2cf2b41a001d3b4dce09393abc49e177f98e7d043e8
+        lint_common.py PASSIVE F 4d6a2c6de278e384e1880e7ff67291a4589956139effef6113ba94571d2ec8ec
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -29050,7 +29075,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         preflight_language_runner.py CHILD F c7242875b76d4282326ba37e0f878cebfc2939aa2780657c56bb3ef007fa0644
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
-        quick-guard.sh FIXED F a55ea4d680881c873795c50500b4cd40a8a7cec144b17c5f5d9d4d9c927460b4
+        quick-guard.sh FIXED F de282d169087134191af74a06d9b0e8b6c7886f38bba96be6190ad538fdd208d
         ref-holds.py OWN F 12b4bc426cc0dc4f0cb070fc94feb3398c0d0d420c091e3e343393a16feb4f7d
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
@@ -49696,7 +49721,7 @@ def _rewrite_slot_share_fixture(test, source, path):
 
 class HookDescendantIsolationTests(unittest.TestCase):
     COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 1, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 17, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 12}
-    NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(repo_root), 'rev-parse', '--absolute-git-dir']", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', '-c', 'core.warnAmbiguousRefs=false', '-c', 'trace2.normalTarget=', '-c', 'trace2.perfTarget=', '-c', 'trace2.eventTarget=', '-C', str(REPO), *args]", "['git', 'config', '--file', os.path.join(current, b'config'), '--get', 'core.worktree']", "['git', 'init', '-q', str(repo)]", "['git', 'ls-tree', '-z', '--full-tree', rev, '--', f':(literal){path}']", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['git', *here, 'rev-parse', '--absolute-git-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-common-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-path', 'index']", "['git', *here, 'rev-parse', '--show-toplevel']", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
+    NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(repo_root), 'rev-parse', '--absolute-git-dir']", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', '-c', 'core.warnAmbiguousRefs=false', '-c', 'trace2.normalTarget=', '-c', 'trace2.perfTarget=', '-c', 'trace2.eventTarget=', '-C', str(REPO), *args]", "['git', 'config', '--file', os.path.join(current, b'config'), '--get', 'core.worktree']", "['git', 'init', '-q', str(repo)]", "['git', 'ls-tree', '-z', '--full-tree', rev, '--', f':(literal){path}']", "['git', 'show', f'{ref}:{path}', '--']", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['git', *here, 'rev-parse', '--absolute-git-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-common-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-path', 'index']", "['git', *here, 'rev-parse', '--show-toplevel']", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
     PYTHON_TARGETS = {'block-idle-stop-with-actionable-backlog.py': {'str(script)'}, 'block-unbumped-version-commit.py': {"str(d5 / '.claude' / 'hooks' / 'hook.py')"}, 'clock-inject.py': {'code'}, 'future-stamp-write.py': {'code'}, 'stamp-truth-stop.py': {'code'}, 'nmw-actionable': {'TOOL'}, 'stop-guard-unattended.py': {'exe', 'hook', 'code', "os.path.join(r, '.claude', 'hooks', os.path.basename(__file__))"}}
 
     def test_every_python_descendant_is_isolated(self):
@@ -69666,6 +69691,1307 @@ class TableCellCountTests(LinterTestCase):
     def test_live_repo_is_clean(self) -> None:
         result = run_linter(self.GATE)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
+class GitReadFailsClosedTests(unittest.TestCase):
+    """3b551: a git read that fails is a failure, never the benign answer.
+
+    Each test breaks git one way (a missing object, an unreadable config file, a HEAD naming a
+    missing commit, a bad ref, a corrupt index) at one call site that read the failure as absent,
+    unset, detached or empty, and checks that the site now refuses or reports it. The intact twin
+    in each test keeps the site's real verdict on normal input. Round 2 also runs the absence
+    check from a subdirectory and beside a name that is not UTF-8, where an absent file must
+    still read as absent and a missing blob as a failure. Round 3 adds an absent name that is
+    itself not UTF-8 or holds a glob character, a range commit D4's history read cannot walk,
+    and a HEAD naming a missing commit beside a real root commit. Round 4 adds a HEAD or
+    origin/main ref git cannot parse and a HEAD commit whose parent line is malformed, beside
+    the cases that still have no prior state (an unborn HEAD, no repository, a root commit, a
+    shallow clone), and reads lint_common's non-UTF-8 absence in UTF-8 mode under any locale.
+    Round 5 adds a .git that git will not open beside a linked worktree, a missing HEAD~1
+    commit, and a local branch or tag named origin/main beside the remote-tracking ref.
+    Round 6 adds a .git git skips for an enclosing repository, a dangling .git symlink, a
+    broken .git file, a GIT_DIR naming a missing or broken repository, and the five names
+    rev-parse's lookup tries for HEAD and for refs/remotes/origin/main, each beside a broken
+    or absent ref.
+    Round 7 adds the ref records git skips and reports as absent (a malformed or unsorted
+    packed-refs line, a dangling loose symlink, a loose file shadowing a packed ref), a GIT_DIR
+    naming another repository beside REPO_ROOT's .git, and a work tree that is missing.
+    Round 8 adds the origin/main records quick-guard.sh's read skips, a directory of other refs
+    at an absent ref's loose path, and the files the gate reads as UTF-8.
+    Round 9 has quick-guard.sh read refs/remotes/origin/main by its full name past a local
+    branch origin/main, refuse a ref directory git cannot read, and pins each absence check.
+    The rule is .claude/rules/aiqt/10-INTEG-check-fails-closed-on-unreadable.md.
+    """
+
+    STEP = "      - name: Detect collection candidates on pack PRs (informational)"
+    ODD = "governance/" + os.fsdecode(b"\xff.md")  # a tracked name that is not UTF-8
+    ORIGIN_MAIN_REFUSED = ("ERROR: git show-ref --verify refs/remotes/origin/main (git cannot read "
+                           "it, or holds a record of it that it skips) failed")
+
+    @staticmethod
+    def doc(version):
+        return f"# Doc\n\n**Version:** {version}\\\n**Date:** 2026-06-25\\\n\n## Body\n\nx.\n"
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="git-fails-closed-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.env = fixture_git_environment()
+        self.env.pop("GRC_ALLOW_MAIN_COMMIT", None)
+        self.env.update(GIT_TERMINAL_PROMPT="0",
+                        GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@example.invalid",
+                        GIT_COMMITTER_NAME="t", GIT_COMMITTER_EMAIL="t@example.invalid",
+                        GIT_AUTHOR_DATE="2026-06-26T12:00:00+00:00",
+                        GIT_COMMITTER_DATE="2026-06-26T12:00:00+00:00")
+
+    def git(self, repo, *args):
+        return subprocess.run(["git", *args], cwd=repo, env=self.env, capture_output=True,
+                              text=True, check=True).stdout.strip()
+
+    def repo(self, name="r"):
+        repo = self.tmp / name
+        repo.mkdir()
+        self.git(repo, "init", "-q", "-b", "main")
+        self.git(repo, "config", "gc.auto", "0")
+        return repo
+
+    def commit(self, repo, files):
+        for rel, text in files.items():
+            (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+            if isinstance(text, bytes):
+                (repo / rel).write_bytes(text)
+            else:
+                (repo / rel).write_text(text, encoding="utf-8")
+        self.git(repo, "add", "-A")
+        self.git(repo, "commit", "-qm", "c")
+        return self.git(repo, "rev-parse", "HEAD")
+
+    def drop_object(self, repo, spec):
+        oid = self.git(repo, "rev-parse", spec)
+        (repo / ".git" / "objects" / oid[:2] / oid[2:]).unlink()
+
+    def run_in(self, repo, *args, **env):
+        return subprocess.run(list(args), cwd=repo, env={**self.env, **env}, capture_output=True,
+                              text=True, timeout=120)
+
+    def inside(self, repo, **env):
+        """In-process calls run git in ``repo`` with the fixture environment plus ``env``."""
+        import contextlib
+        from unittest import mock
+
+        @contextlib.contextmanager
+        def ctx():
+            old = os.getcwd()
+            os.chdir(repo)
+            try:
+                with mock.patch.dict(os.environ, {**self.env, **env}, clear=True):
+                    yield
+            finally:
+                os.chdir(old)
+        return ctx()
+
+    def mono(self, repo, **env):
+        """Run the monotonicity gate's main() in ``repo``; return (exit code, stdout, stderr)."""
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest import mock
+
+        with self.inside(repo, **env):
+            mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_ref_3b551")
+            with mock.patch.object(mono, "REPO_ROOT", repo), redirect_stdout(io.StringIO()) as out, \
+                    redirect_stderr(io.StringIO()) as err:
+                code = mono.main([])
+        return code, out.getvalue(), err.getvalue()
+
+    def test_lint_common_git_show_raises_on_a_git_failure(self) -> None:
+        lc = load_linter_module("tools/lint_common.py", "lc_git_show_3b551")
+        repo = self.repo()
+        self.commit(repo, {"a.md": "hello\n", "dir/b.md": "b\n"})
+        # A gitlink (submodule entry) whose commit is not in this repository is not a file.
+        self.git(repo, "update-index", "--add", "--cacheinfo", "160000," + "1" * 40 + ",sub")
+        self.git(repo, "commit", "-qm", "gitlink")
+        with self.inside(repo):
+            self.assertEqual(lc.git_show("HEAD", "a.md"), "hello\n")
+            self.assertEqual(lc.git_show("HEAD", "dir/b.md"), "b\n")
+            for absent in ("absent.md", "dir/absent.md", "a.md/below", "sub"):
+                self.assertIsNone(lc.git_show("HEAD", absent), absent)
+            self.drop_object(repo, "HEAD:a.md")
+            with self.assertRaises(subprocess.CalledProcessError):
+                lc.git_show("HEAD", "a.md")  # a missing blob is not an absent file
+            with self.assertRaises(subprocess.CalledProcessError):
+                lc.git_show("no-such-ref", "a.md")  # nor is a bad ref
+            self.assertEqual(lc.tree_entry_type("HEAD", "a.md"), "blob")
+            self.assertEqual(lc.tree_entry_type("HEAD", "sub"), "commit")
+            self.assertEqual(lc.tree_entry_type("HEAD", "dir"), "tree")
+            self.assertIsNone(lc.tree_entry_type("HEAD", "dir/absent.md"))
+
+    def test_tree_entry_type_lists_the_full_tree_from_a_subdirectory(self) -> None:
+        # Without --full-tree, ls-tree lists only the invocation directory, so from a
+        # subdirectory an entry outside it read as absent and a failed read became None.
+        lc = load_linter_module("tools/lint_common.py", "lc_full_tree_3b551")
+        repo = self.repo()
+        self.commit(repo, {"governance/doc.md": "d\n", "tools/keep.txt": "k\n"})
+        for sub in ("governance", "tools"):
+            with self.inside(repo / sub):
+                self.assertEqual(lc.tree_entry_type("HEAD", "governance/doc.md"), "blob", sub)
+                self.assertEqual(lc.tree_entry_type("HEAD", "tools"), "tree", sub)
+                self.assertIsNone(lc.tree_entry_type("HEAD", "governance/absent.md"), sub)
+        self.drop_object(repo, "HEAD:governance/doc.md")
+        for sub in ("governance", "tools"):
+            with self.inside(repo / sub):
+                with self.assertRaises(subprocess.CalledProcessError, msg=sub):
+                    lc.git_show("HEAD", "governance/doc.md")
+
+    def test_tree_entry_type_compares_names_as_bytes(self) -> None:
+        # A sibling name that is not UTF-8 made the text decode raise, so an absent file read
+        # as an error; an entry is still found beside it.
+        lc = load_linter_module("tools/lint_common.py", "lc_bytes_3b551")
+        repo = self.repo()
+        self.commit(repo, {self.ODD: "odd\n", "governance/doc.md": "d\n"})
+        with self.inside(repo):
+            self.assertIsNone(lc.tree_entry_type("HEAD", "governance/new.md"))
+            self.assertIsNone(lc.git_show("HEAD", "governance/new.md"))
+            self.assertEqual(lc.tree_entry_type("HEAD", self.ODD), "blob")
+            self.assertEqual(lc.git_show("HEAD", self.ODD), "odd\n")
+            self.drop_object(repo, "HEAD:governance/doc.md")
+            with self.assertRaises(subprocess.CalledProcessError):
+                lc.git_show("HEAD", "governance/doc.md")
+
+    def test_an_absent_non_utf8_name_reads_as_absent(self) -> None:
+        # git's error message names the path, so decoding a captured stderr as text raised
+        # UnicodeDecodeError before the absence check: an absent file whose own name is not
+        # UTF-8 read as a failure in both helpers that read stderr as text. lint_common.git_show
+        # decodes in the locale's encoding, and a single-byte locale decodes every byte, so its
+        # half runs in a child in UTF-8 mode (-X utf8), where a captured stderr fails to decode
+        # under any locale. D4's blob_at names UTF-8 itself.
+        repo = self.repo()
+        self.commit(repo, {"governance/doc.md": "d\n"})
+        absent = ("governance/" + os.fsdecode(b"\xff.md.absent"), os.fsdecode(b"\xfe dir/f.md.absent"))
+        child = ("import sys; sys.path.insert(0, sys.argv[1]); import lint_common as lc; "
+                 "print(ascii([lc.git_show('HEAD', name) for name in sys.argv[2:]]))")
+        result = self.run_in(repo, sys.executable, "-I", "-B", "-X", "utf8", "-c", child,
+                             str(REPO_ROOT / "tools"), "governance/doc.md", *absent)
+        self.assertEqual(result.stdout, "['d\\n', None, None]\n", result.stderr)
+        with self.inside(repo):
+            d4 = load_linter_module("tools/check-date-cobump-on-pr.py", "d4_odd_absent_3b551")
+            self.assertEqual(d4.blob_at("HEAD", "governance/doc.md"), "d\n")
+            for name in absent:
+                self.assertIsNone(d4.blob_at("HEAD", name), ascii(name))
+
+    def test_an_absent_name_with_a_glob_character_reads_as_absent(self) -> None:
+        # git show takes a ref:path that does not resolve but holds a wildcard as a pathspec,
+        # exits 0 and prints nothing, so both git_show helpers read an absent file as ''.
+        from unittest import mock
+
+        lc = load_linter_module("tools/lint_common.py", "lc_glob_3b551")
+        repo = self.repo()
+        self.commit(repo, {"governance/a*b.md": "glob\n", "governance/doc.md": "d\n"})
+        with self.inside(repo):
+            mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_glob_3b551")
+            with mock.patch.object(mono, "REPO_ROOT", repo):
+                for show in (lc.git_show, mono.git_show):
+                    self.assertEqual(show("HEAD", "governance/a*b.md"), "glob\n")
+                    for absent in ("*nope.md", "governance/*.absent", "governance/a?b.md", "[x].md"):
+                        self.assertIsNone(show("HEAD", absent), absent)
+                self.drop_object(repo, "HEAD:governance/a*b.md")
+                for show in (lc.git_show, mono.git_show):
+                    with self.assertRaises(subprocess.CalledProcessError):
+                        show("HEAD", "governance/a*b.md")
+
+    def test_library_version_monotonicity_refuses_an_unreadable_prior(self) -> None:
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest import mock
+
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.5\n",
+                           "governance/d.md": "**Version:** 2.0.0\n"})
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n"})
+        with self.inside(repo):
+            mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_3b551")
+            with mock.patch.object(mono, "REPO_ROOT", repo):
+                with redirect_stdout(io.StringIO()) as out:
+                    self.assertEqual(mono.main([]), 1, "an intact prior state must find the regression")
+                self.assertIn("Library Version decreased", out.getvalue())
+                self.drop_object(repo, "HEAD~1:README.md")
+                self.drop_object(repo, "HEAD~1:governance/d.md")
+                with redirect_stdout(io.StringIO()) as out, redirect_stderr(io.StringIO()) as err:
+                    self.assertEqual(mono.main([]), 2, out.getvalue())
+        self.assertNotIn("OK:", out.getvalue())
+        self.assertIn("cannot read the prior state", err.getvalue())
+
+    def test_library_version_monotonicity_reads_an_add_beside_a_non_utf8_name(self) -> None:
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest import mock
+
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           self.ODD: "**Version:** 1.0.0\n"})
+        self.commit(repo, {"governance/new.md": "**Version:** 1.0.0\n"})
+        with self.inside(repo):
+            mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_odd_3b551")
+            with mock.patch.object(mono, "REPO_ROOT", repo):
+                with redirect_stdout(io.StringIO()) as out, redirect_stderr(io.StringIO()) as err:
+                    self.assertEqual(mono.main([]), 0, out.getvalue() + err.getvalue())
+        self.assertIn("OK:", out.getvalue())
+
+    def test_library_version_monotonicity_refuses_a_non_utf8_prior_blob(self) -> None:
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest import mock
+
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.1\n"})
+        with self.inside(repo):
+            mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_utf8_3b551")
+            with mock.patch.object(mono, "REPO_ROOT", repo):
+                with redirect_stdout(io.StringIO()) as out:
+                    self.assertEqual(mono.main([]), 0, "an intact UTF-8 prior must compare")
+                # An undecodable prior blob is a refusal, not a traceback (whose exit 1 reads
+                # as "a version decreased").
+                self.commit(repo, {"governance/d.md": b"**Version:** 1.0.1\n\xff\n"})
+                self.commit(repo, {"governance/d.md": "**Version:** 1.0.2\n"})
+                with redirect_stdout(io.StringIO()) as out, redirect_stderr(io.StringIO()) as err:
+                    self.assertEqual(mono.main([]), 2, out.getvalue())
+        self.assertNotIn("OK:", out.getvalue())
+        self.assertIn("not valid UTF-8", err.getvalue())
+
+    def test_library_version_monotonicity_refuses_a_head_naming_a_missing_commit(self) -> None:
+        # The reviewer's fixture: HEAD~1 also fails when HEAD's own commit cannot be read, and
+        # that read as a first commit ("no prior committed state"). A root commit still does.
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest import mock
+
+        first = {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                 "governance/d.md": "**Version:** 1.0.1\n"}
+        root = self.repo("root")
+        self.commit(root, first)
+        repo = self.repo()
+        self.commit(repo, first)
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+        with self.inside(root):
+            mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_head_3b551")
+            with mock.patch.object(mono, "REPO_ROOT", root):
+                with redirect_stdout(io.StringIO()) as out:
+                    self.assertEqual(mono.main([]), 0, "a root commit has no prior state")
+                self.assertIn("OK: no prior committed state", out.getvalue())
+        with self.inside(repo):
+            with mock.patch.object(mono, "REPO_ROOT", repo):
+                with redirect_stdout(io.StringIO()) as out:
+                    self.assertEqual(mono.main([]), 1, "an intact HEAD~1 must find the regression")
+                self.assertIn("FAIL [documents]: 1 version regression(s) vs HEAD~1", out.getvalue())
+                self.drop_object(repo, "HEAD")
+                with redirect_stdout(io.StringIO()) as out, redirect_stderr(io.StringIO()) as err:
+                    self.assertEqual(mono.main([]), 2, out.getvalue())
+        self.assertNotIn("OK:", out.getvalue())
+        self.assertIn("cannot read HEAD", err.getvalue())
+
+    def test_library_version_monotonicity_reads_no_history_as_no_prior_state(self) -> None:
+        # The twins of the three refusals below: nothing there to read is still a pass.
+        readme = "# R\n\n**Library Version:** 2026.06.1\n"
+        self.env["GIT_CEILING_DIRECTORIES"] = str(self.tmp)  # git finds no repository above
+        unborn, plain = self.repo("unborn"), self.tmp / "no-repository"
+        plain.mkdir()
+        for tree in (unborn, plain):
+            (tree / "README.md").write_text(readme, encoding="utf-8")
+        root = self.repo("root")
+        self.commit(root, {"README.md": readme})
+        source = self.repo("source")
+        self.commit(source, {"README.md": readme})
+        self.commit(source, {"governance/d.md": "**Version:** 1.0.0\n"})
+        shallow = self.tmp / "shallow"
+        self.git(self.tmp, "clone", "-q", "--depth", "1", source.as_uri(), str(shallow))
+        for repo in (unborn, plain, root, shallow):
+            code, out, err = self.mono(repo)
+            self.assertEqual(code, 0, repo.name + ": " + out + err)
+            self.assertIn("OK: no prior committed state", out, repo.name)
+
+    def test_library_version_monotonicity_refuses_a_head_ref_git_cannot_parse(self) -> None:
+        # The reviewer's fixture: refs/heads/main holding garbage. rev-parse failed the same way
+        # as on an unborn branch, so it read as no prior state.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
+        (repo / ".git" / "refs" / "heads" / "main").write_text("garbage\n", encoding="ascii")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out)
+        self.assertNotIn("OK:", out)
+        self.assertIn("cannot read HEAD: git cannot parse it or a ref it points to", err)
+
+    def test_library_version_monotonicity_refuses_a_head_commit_git_cannot_parse(self) -> None:
+        # The reviewer's fixture: HEAD's commit has a malformed parent line. cat-file read the
+        # object without parsing it and HEAD~1 failed, so it read as a root commit.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 0, out + err)  # the intact twin: a root commit
+        tree = self.git(repo, "rev-parse", "HEAD^{tree}")
+        body = (f"tree {tree}\nparent not-a-commit\nauthor t <t@example.invalid> 0 +0000\n"
+                f"committer t <t@example.invalid> 0 +0000\n\nmalformed parent line\n")
+        bad = subprocess.run(["git", "hash-object", "--literally", "-t", "commit", "-w", "--stdin"],
+                             cwd=repo, env=self.env, input=body, capture_output=True, text=True,
+                             check=True).stdout.strip()
+        (repo / ".git" / "refs" / "heads" / "main").write_text(bad + "\n", encoding="ascii")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out)
+        self.assertNotIn("OK:", out)
+        self.assertIn(f"cannot read HEAD (refs/heads/main): it names {bad}, which is not a commit",
+                      err)
+
+    def test_library_version_monotonicity_refuses_an_origin_main_git_cannot_parse(self) -> None:
+        # The reviewer's fixture: a feature branch whose regression is before HEAD~1, with
+        # refs/remotes/origin/main holding garbage. It read as no origin/main, and the gate
+        # passed against HEAD~1. A missing origin/main still falls back to HEAD~1.
+        repo = self.repo()
+        base = self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                                  "governance/d.md": "**Version:** 2.0.0\n"})
+        self.git(repo, "checkout", "-q", "-b", "feature")
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+        self.commit(repo, {"governance/e.md": "**Version:** 1.0.0\n"})
+        self.git(repo, "update-ref", "refs/remotes/origin/main", base)
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 1, out + err)
+        self.assertIn("FAIL [documents]: 1 version regression(s) vs refs/remotes/origin/main", out)
+        self.git(repo, "update-ref", "-d", "refs/remotes/origin/main")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 0, out + err)
+        self.assertIn("monotonic non-decreasing (vs HEAD~1)", out)
+        ref = repo / ".git" / "refs" / "remotes" / "origin" / "main"
+        ref.parent.mkdir(parents=True, exist_ok=True)
+        ref.write_text("garbage\n", encoding="ascii")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out)
+        self.assertNotIn("OK:", out)
+        self.assertIn("cannot read refs/remotes/origin/main: git cannot parse it", err)
+
+    def test_library_version_monotonicity_reads_origin_main_by_its_full_name(self) -> None:
+        # The reviewer's fixtures: git's short-name lookup tries refs/heads/ and refs/tags/
+        # before refs/remotes/, so a local branch or tag named origin/main stood in for the
+        # remote-tracking ref. At 4c2f725e7 git skipped one holding garbage and read the local
+        # ref, and beside an intact one read the local ref first. That local ref was HEAD, so
+        # either way the gate fell back to HEAD~1 and passed (vs HEAD~1), missing the
+        # regression before it.
+        def feature(name, shadow, broken):
+            repo = self.repo(name)
+            base = self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                                      "governance/d.md": "**Version:** 2.0.0\n"})
+            self.git(repo, "checkout", "-q", "-b", "feature")
+            self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+            self.commit(repo, {"governance/e.md": "**Version:** 1.0.0\n"})
+            self.git(repo, "update-ref", "refs/remotes/origin/main", base)
+            self.git(repo, "update-ref", shadow, "HEAD")
+            if broken:
+                ref = repo / ".git" / "refs" / "remotes" / "origin" / "main"
+                ref.write_text("garbage\n", encoding="ascii")
+            return self.mono(repo)
+
+        with self.subTest(fixture="intact, local branch origin/main"):
+            code, out, err = feature("intact-branch", "refs/heads/origin/main", broken=False)
+            self.assertEqual(code, 1, out + err)
+            self.assertIn("FAIL [documents]: 1 version regression(s) vs refs/remotes/origin/main",
+                          out)
+        for shadow in ("refs/heads/origin/main", "refs/tags/origin/main"):
+            with self.subTest(fixture="garbage, " + shadow):
+                code, out, err = feature(shadow.split("/")[1] + "-garbage", shadow, broken=True)
+                self.assertEqual(code, 2, out)
+                self.assertNotIn("OK:", out)
+                self.assertIn("cannot read refs/remotes/origin/main: git cannot parse it", err)
+
+    # The five names rev-parse's lookup tries after the exact one, for HEAD and for origin/main.
+    LOOKUP = ("refs/{}", "refs/tags/{}", "refs/heads/{}", "refs/remotes/{}", "refs/remotes/{}/HEAD")
+
+    def test_library_version_monotonicity_reads_origin_main_by_its_exact_name(self) -> None:
+        # The reviewer's fixtures: rev-parse looked up refs/remotes/origin/main the same way as a
+        # short name, so at 2378bcef9 a ref under any of the five names it also tries stood in:
+        # for one holding garbage (the shadow was HEAD, so the gate passed vs HEAD~1 and missed
+        # the regression before it) and for an absent one (the shadow at the base was compared
+        # as origin/main). A garbage origin/main now refuses; an absent one falls back to HEAD~1.
+        def feature(name, shadow, state):
+            repo = self.repo(name)
+            base = self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                                      "governance/d.md": "**Version:** 2.0.0\n"})
+            self.git(repo, "checkout", "-q", "-b", "feature")
+            self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+            self.commit(repo, {"governance/e.md": "**Version:** 1.0.0\n"})
+            if state == "garbage":
+                self.git(repo, "update-ref", shadow, "HEAD")
+                ref = repo / ".git" / "refs" / "remotes" / "origin" / "main"
+                ref.parent.mkdir(parents=True, exist_ok=True)
+                ref.write_text("garbage\n", encoding="ascii")
+            else:
+                self.git(repo, "update-ref", shadow, base)
+            return self.mono(repo)
+
+        for number, form in enumerate(self.LOOKUP):
+            shadow = form.format("refs/remotes/origin/main")
+            with self.subTest(fixture="garbage, " + shadow):
+                code, out, err = feature(f"garbage-{number}", shadow, "garbage")
+                self.assertEqual(code, 2, out)
+                self.assertNotIn("OK:", out)
+                self.assertIn("cannot read refs/remotes/origin/main: git cannot parse it", err)
+            with self.subTest(fixture="absent, " + shadow):
+                code, out, err = feature(f"absent-{number}", shadow, "absent")
+                self.assertEqual(code, 0, out + err)
+                self.assertIn("monotonic non-decreasing (vs HEAD~1)", out)
+
+    def test_library_version_monotonicity_reads_head_by_its_exact_name(self) -> None:
+        # The reviewer's fixtures: rev-parse looked up HEAD the same way, so a ref under any of
+        # the five names it also tries stood in for HEAD. Beside a garbage refs/heads/main, one
+        # at the root commit passed as "no prior committed state" at 2378bcef9 with a regression
+        # in the history; beside an unborn HEAD, one at the regressed commit was read as HEAD.
+        def regressed(name, shadow, state):
+            repo = self.repo(name)
+            root = self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                                      "governance/d.md": "**Version:** 2.0.0\n"})
+            top = self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+            if state == "garbage":
+                self.git(repo, "update-ref", shadow, root)
+                (repo / ".git" / "refs" / "heads" / "main").write_text("garbage\n", encoding="ascii")
+            else:
+                self.git(repo, "update-ref", shadow, top)
+                self.git(repo, "checkout", "-q", "--orphan", "unborn")
+            return self.mono(repo)
+
+        for number, form in enumerate(self.LOOKUP):
+            shadow = form.format("HEAD")
+            with self.subTest(fixture="garbage refs/heads/main, " + shadow):
+                code, out, err = regressed(f"garbage-{number}", shadow, "garbage")
+                self.assertEqual(code, 2, out)
+                self.assertNotIn("OK:", out)
+                self.assertIn("cannot read HEAD: git cannot parse it or a ref it points to", err)
+            with self.subTest(fixture="unborn HEAD, " + shadow):
+                code, out, err = regressed(f"unborn-{number}", shadow, "unborn")
+                self.assertEqual(code, 0, out + err)
+                self.assertIn("OK: no prior committed state", out)
+
+    def test_library_version_monotonicity_refuses_a_detached_head_an_old_git_cannot_verify(self) -> None:
+        # show-ref --verify reads HEAD from git 2.12; an older one reports HEAD as not a valid
+        # ref, so a detached HEAD would read as absent ("no prior committed state"). A git
+        # wrapper answers that way: a detached HEAD refuses, and a HEAD on a branch is still
+        # read, through the branch's full name.
+        import shlex
+
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 2.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+        shim = self.tmp / "shim"
+        shim.mkdir()
+        real_git = shlex.quote(shutil.which("git", path=self.env.get("PATH")))
+        (shim / "git").write_text(
+            "#!/bin/sh\n"
+            'if [ "$3" = show-ref ] && [ "$4" = --verify ] && [ "$6" = HEAD ]; then\n'
+            '  [ "$5" = --quiet ] && exit 1\n'
+            "  echo \"fatal: 'HEAD' - not a valid ref\" >&2; exit 128\n"
+            "fi\n"
+            f'exec {real_git} "$@"\n', encoding="utf-8")
+        (shim / "git").chmod(0o755)
+        old_git = {"PATH": f"{shim}{os.pathsep}{self.env['PATH']}"}
+        code, out, err = self.mono(repo, **old_git)
+        self.assertEqual(code, 1, "a HEAD on a branch: " + out + err)
+        self.git(repo, "switch", "-q", "--detach")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 1, "the intact twin: " + out + err)
+        code, out, err = self.mono(repo, **old_git)
+        self.assertEqual(code, 2, out)
+        self.assertNotIn("OK:", out)
+        self.assertIn("cannot read HEAD: git cannot find the object it names", err)
+
+    def test_library_version_monotonicity_refuses_a_missing_head_parent_commit(self) -> None:
+        # HEAD~1 is read unpeeled, so a missing HEAD~1 commit reaches git_show, which refuses.
+        # Read as HEAD~1^{commit} it failed there and read as a root commit (no prior state).
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 2.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 1, out + err)  # the intact twin finds the regression
+        self.drop_object(repo, "HEAD~1")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out)
+        self.assertNotIn("OK:", out)
+        self.assertIn("cannot read the prior state at HEAD~1", err)
+
+    def test_library_version_monotonicity_refuses_a_repository_git_will_not_open(self) -> None:
+        # The reviewer's fixtures: git rev-parse --git-dir fails on a .git that git will not
+        # open, and every such failure read as no repository, so a real regression passed as
+        # "no prior committed state". Each repository holds a regression against HEAD~1. A
+        # linked worktree, whose .git is a file, still finds it; no .git at all is still no
+        # repository (test_library_version_monotonicity_reads_no_history_as_no_prior_state).
+        self.env["GIT_CEILING_DIRECTORIES"] = str(self.tmp)  # git finds no repository above
+
+        def regressed(name):
+            repo = self.repo(name)
+            self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                               "governance/d.md": "**Version:** 2.0.0\n"})
+            self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+            code, out, err = self.mono(repo)
+            self.assertEqual(code, 1, name + ": the intact twin finds the regression: " + out + err)
+            return repo
+
+        linked = self.tmp / "linked"
+        self.git(regressed("main-tree"), "worktree", "add", "-q", "--detach", str(linked))
+        code, out, err = self.mono(linked)
+        self.assertEqual(code, 1, "linked worktree: " + out + err)
+        self.assertIn("FAIL [documents]: 1 version regression(s) vs HEAD~1", out)
+        head = regressed("garbage-head")
+        (head / ".git" / "HEAD").write_text("garbage\n", encoding="ascii")
+        config = regressed("bad-config-line")
+        with (config / ".git" / "config").open("a", encoding="utf-8") as handle:
+            handle.write("[broken\n")
+        extension = regressed("unknown-extension")
+        self.git(extension, "config", "core.repositoryformatversion", "1")
+        self.git(extension, "config", "extensions.nosuchextension", "true")
+        no_refs = regressed("no-refs")
+        shutil.rmtree(no_refs / ".git" / "refs")
+        empty = regressed("empty-git-dir")
+        shutil.rmtree(empty / ".git")
+        (empty / ".git").mkdir()
+        # A dangling .git symlink and a .git file naming no repository (a worktree, submodule or
+        # separate git dir whose directory is gone): os.path.exists reads the first as no .git,
+        # and Path.is_dir both, so only os.path.lexists refuses them.
+        dangling = regressed("dangling-symlink")
+        shutil.rmtree(dangling / ".git")
+        (dangling / ".git").symlink_to(self.tmp / "no-such-git-dir")
+        gitfile = regressed("gitfile-naming-no-repository")
+        shutil.rmtree(gitfile / ".git")
+        (gitfile / ".git").write_text(f"gitdir: {self.tmp / 'no-such-git-dir'}\n", encoding="utf-8")
+        garbage = regressed("gitfile-holding-garbage")
+        shutil.rmtree(garbage / ".git")
+        (garbage / ".git").write_text("garbage\n", encoding="ascii")
+        owner = regressed("dubious-ownership")
+        for repo, env in ((head, {}), (config, {}), (extension, {}), (no_refs, {}), (empty, {}),
+                          (dangling, {}), (gitfile, {}), (garbage, {}),
+                          (owner, {"GIT_TEST_ASSUME_DIFFERENT_OWNER": "1"})):
+            with self.subTest(fixture=repo.name):
+                opened = self.run_in(repo, "git", "rev-parse", "--git-dir", **env)
+                if env and opened.returncode == 0:
+                    # GIT_TEST_ASSUME_DIFFERENT_OWNER is a knob from git's own test suite; a
+                    # git that ignores it opens the repository, so there is nothing to refuse.
+                    self.skipTest("this git ignores GIT_TEST_ASSUME_DIFFERENT_OWNER")
+                self.assertEqual(opened.returncode, 128, "git must refuse to open it")
+                code, out, err = self.mono(repo, **env)
+                self.assertEqual(code, 2, out)
+                self.assertNotIn("OK:", out)
+                self.assertIn(f"git will not open {repo / '.git'} (git rev-parse --git-dir exited 128)",
+                              err)
+
+    def test_library_version_monotonicity_refuses_a_git_dir_skipped_for_an_enclosing_one(self) -> None:
+        # The reviewer's fixtures: git skips a .git it cannot use (a garbage HEAD, no refs/, an
+        # empty directory, a dangling symlink) and opens the repository above it, so at
+        # 2378bcef9 rev-parse --git-dir succeeded and the gate read that unrelated history, a
+        # root commit: "no prior committed state" with a regression in REPO_ROOT's own. A
+        # nested repository git does open still finds its regression.
+        self.env["GIT_CEILING_DIRECTORIES"] = str(self.tmp)  # nothing above the enclosing one
+        outer = self.repo("outer")
+        self.commit(outer, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
+
+        def nested(name):
+            repo = self.repo("outer/" + name)
+            self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                               "governance/d.md": "**Version:** 2.0.0\n"})
+            self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+            code, out, err = self.mono(repo)
+            self.assertEqual(code, 1, name + ": git opens the nested repository: " + out + err)
+            return repo
+
+        nested("intact")
+        head = nested("garbage-head")
+        (head / ".git" / "HEAD").write_text("garbage\n", encoding="ascii")
+        no_refs = nested("no-refs")
+        shutil.rmtree(no_refs / ".git" / "refs")
+        empty = nested("empty-git-dir")
+        shutil.rmtree(empty / ".git")
+        (empty / ".git").mkdir()
+        dangling = nested("dangling-symlink")
+        shutil.rmtree(dangling / ".git")
+        (dangling / ".git").symlink_to(self.tmp / "no-such-git-dir")
+        for repo in (head, no_refs, empty, dangling):
+            with self.subTest(fixture=repo.name):
+                top = self.run_in(repo, "git", "rev-parse", "--show-toplevel")
+                self.assertEqual(top.returncode, 0, top.stderr)
+                self.assertTrue(os.path.samefile(top.stdout.strip(), outer),
+                                "git must open the enclosing repository")
+                code, out, err = self.mono(repo)
+                self.assertEqual(code, 2, out)
+                self.assertNotIn("OK:", out)
+                self.assertIn(f"git will not open {repo / '.git'} as {repo}'s repository: the "
+                              f"repository it opens has its work tree at ", err)
+
+    def test_library_version_monotonicity_refuses_a_git_dir_variable_naming_no_repository(self) -> None:
+        # The reviewer's fixtures: with GIT_DIR naming a missing path or a broken repository and
+        # no .git at REPO_ROOT, rev-parse --git-dir failed and read as no repository. With a .git
+        # present it refused, but the message named that .git. GIT_DIR naming REPO_ROOT's own
+        # repository, as a git hook exports it, still finds the regression; with no .git and
+        # GIT_DIR unset there is still no repository
+        # (test_library_version_monotonicity_reads_no_history_as_no_prior_state).
+        self.env["GIT_CEILING_DIRECTORIES"] = str(self.tmp)
+        repo = self.repo("regressed")
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 2.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+        for gitdir in (".git", str(repo / ".git")):
+            code, out, err = self.mono(repo, GIT_DIR=gitdir)
+            self.assertEqual(code, 1, gitdir + ": " + out + err)
+        plain = self.tmp / "no-repository"
+        plain.mkdir()
+        (plain / "README.md").write_text("# R\n\n**Library Version:** 2026.06.1\n", encoding="utf-8")
+        broken = self.repo("broken")
+        self.commit(broken, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
+        (broken / ".git" / "HEAD").write_text("garbage\n", encoding="ascii")
+        for gitdir in (str(self.tmp / "no-such-git-dir"), str(broken / ".git"), ""):
+            for tree in (plain, repo):
+                with self.subTest(gitdir=gitdir, tree=tree.name):
+                    code, out, err = self.mono(tree, GIT_DIR=gitdir, GIT_WORK_TREE=str(tree))
+                    self.assertEqual(code, 2, out)
+                    self.assertNotIn("OK:", out)
+                    self.assertIn(f"git will not open the repository GIT_DIR names ({gitdir}) "
+                                  f"(git rev-parse --git-dir exited 128)", err)
+        # A repository GIT_DIR names whose work tree is not REPO_ROOT is not REPO_ROOT's either.
+        bare = self.tmp / "bare.git"
+        self.git(self.tmp, "init", "-q", "--bare", str(bare))
+        for env, reason in (({"GIT_DIR": str(bare)}, "has no work tree"),
+                            ({"GIT_DIR": str(repo / ".git"), "GIT_WORK_TREE": str(repo)},
+                             "has its work tree at ")):
+            with self.subTest(**env):
+                code, out, err = self.mono(plain, **env)
+                self.assertEqual(code, 2, out)
+                self.assertNotIn("OK:", out)
+                self.assertIn(f"as {plain}'s repository: the repository it opens {reason}", err)
+
+    def test_library_version_monotonicity_refuses_a_ref_record_git_skips(self) -> None:
+        # The reviewer's fixtures: show-ref --verify reports some ref records git skips as a ref
+        # that does not exist, and symbolic-ref -q exits 1 on them, so at 8f0149e64 HEAD's
+        # branch read as unborn ("no prior committed state") and origin/main as absent (vs
+        # HEAD~1, missing the regression before it). for-each-ref reads every record, and the
+        # loose path of a record it does not list still exists. Each intact twin finds its
+        # regression; the twins of an absent HEAD branch and origin/main are in the tests above.
+        readme = {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"}
+
+        def regressed(name, branch="main"):
+            repo = self.repo(name)
+            if branch != "main":
+                self.git(repo, "checkout", "-q", "-b", branch)
+            self.commit(repo, {**readme, "governance/d.md": "**Version:** 2.0.0\n"})
+            self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+            code, out, err = self.mono(repo)
+            self.assertEqual(code, 1, name + ": the intact twin finds the regression: " + out + err)
+            return repo
+
+        def feature(name):
+            repo = self.repo(name)
+            base = self.commit(repo, {**readme, "governance/d.md": "**Version:** 2.0.0\n"})
+            self.git(repo, "checkout", "-q", "-b", "feature")
+            self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+            self.commit(repo, {"governance/e.md": "**Version:** 1.0.0\n"})
+            self.git(repo, "update-ref", "refs/remotes/origin/main", base)
+            code, out, err = self.mono(repo)
+            self.assertEqual(code, 1, name + ": the intact twin finds the regression: " + out + err)
+            self.assertIn("vs refs/remotes/origin/main", out)
+            return repo
+
+        def pack(repo, edit=None):
+            """Pack every ref, then rewrite packed-refs' lines through ``edit``."""
+            self.git(repo, "pack-refs", "--all")
+            path = repo / ".git" / "packed-refs"
+            if edit:
+                lines = path.read_text(encoding="ascii").splitlines(keepends=True)
+                path.write_text("".join(edit(lines)), encoding="ascii")
+
+        def line_of(ref, change):
+            return lambda lines: [change(line) if line.endswith(f" {ref}\n") else line
+                                  for line in lines]
+
+        def shadow(repo, rel):
+            """Replace the directory ``rel`` under .git with a loose file holding HEAD's object."""
+            oid = self.git(repo, "rev-parse", "HEAD")
+            shutil.rmtree(repo / ".git" / rel, ignore_errors=True)
+            (repo / ".git" / rel).write_text(oid + "\n", encoding="ascii")
+
+        def dangle(repo, rel):
+            path = repo / ".git" / rel
+            if path.exists():
+                path.unlink()
+            path.symlink_to(self.tmp / "no-such-target")
+
+        main, origin = "refs/heads/main", "refs/remotes/origin/main"
+        head_main, origin_main = f"cannot read HEAD ({main}): ", f"cannot read {origin}: "
+        listing = "git lists it, or cannot list every ref (git for-each-ref exited {})"
+        fixtures = []
+        repo = regressed("A4a-packed-head-39-hex")
+        pack(repo, line_of(main, lambda line: line[1:]))
+        fixtures.append((repo, head_main + listing.format(128)))
+        repo = regressed("A4b-packed-head-39-hex-no-header")
+        edit = line_of(main, lambda line: line[1:])
+        pack(repo, lambda lines: [line for line in edit(lines) if not line.startswith("#")])
+        fixtures.append((repo, head_main + listing.format(128)))
+        repo = feature("A4c-packed-origin-39-hex")
+        pack(repo, line_of(origin, lambda line: line[1:]))
+        fixtures.append((repo, origin_main + listing.format(128)))
+        repo = regressed("A4e-packed-unsorted")
+        self.git(repo, "tag", "a")
+        self.git(repo, "tag", "b")
+        # The header still claims sorted, so git's lookup bisects and misses the moved line.
+        pack(repo, lambda lines: ([line for line in lines if not line.endswith(f" {main}\n")]
+                                  + [line for line in lines if line.endswith(f" {main}\n")]))
+        self.assertIn("sorted", (repo / ".git" / "packed-refs").read_text(encoding="ascii"))
+        fixtures.append((repo, head_main + listing.format(0)))
+        repo = feature("A4f-packed-origin-trailing-junk")
+        pack(repo, line_of(origin, lambda line: line[:-1] + " junk\n"))
+        fixtures.append((repo, origin_main + listing.format(0)))
+        repo = regressed("A5a-dangling-head-symlink-over-packed")
+        pack(repo)
+        dangle(repo, main)
+        fixtures.append((repo, head_main + listing.format(0)))
+        repo = regressed("A5b-dangling-head-symlink")
+        dangle(repo, main)
+        fixtures.append((repo, head_main + os.path.join(".git", main) + " exists"))
+        repo = feature("A5c-dangling-origin-symlink")
+        dangle(repo, origin)
+        fixtures.append((repo, origin_main + os.path.join(".git", origin) + " exists"))
+        repo = feature("A6a-loose-file-over-packed-origin")
+        pack(repo)
+        shadow(repo, "refs/remotes/origin")
+        fixtures.append((repo, origin_main + listing.format(0)))
+        repo = regressed("A6b-loose-file-over-packed-head", branch="feature/x")
+        pack(repo)
+        shadow(repo, "refs/heads/feature")
+        fixtures.append((repo, "cannot read HEAD (refs/heads/feature/x): " + listing.format(0)))
+        self.assertEqual(len(fixtures), 10)
+        for repo, reason in fixtures:
+            with self.subTest(fixture=repo.name):
+                code, out, err = self.mono(repo)
+                self.assertEqual(code, 2, out)
+                self.assertNotIn("OK:", out)
+                self.assertIn(reason, err)
+
+    def test_library_version_monotonicity_refuses_a_git_dir_naming_another_repository(self) -> None:
+        # The reviewer's fixture: with no work tree set, git takes REPO_ROOT (the -C directory)
+        # as the work tree of any non-bare repository GIT_DIR names, so at 8f0149e64 a GIT_DIR
+        # naming an unrelated repository beside REPO_ROOT's .git passed the work-tree check and
+        # its root commit read as "no prior committed state". GIT_DIR naming the git dir that
+        # discovery finds, as a hook in a plain repository or a linked worktree exports it,
+        # still finds the regression.
+        self.env["GIT_CEILING_DIRECTORIES"] = str(self.tmp)
+        repo = self.repo("regressed")
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 2.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+        linked = self.tmp / "linked"
+        self.git(repo, "worktree", "add", "-q", "--detach", str(linked))
+        own = self.git(linked, "rev-parse", "--absolute-git-dir")
+        for tree, gitdir in ((repo, ".git"), (repo, str(repo / ".git")), (linked, own)):
+            with self.subTest(tree=tree.name, gitdir=gitdir):
+                code, out, err = self.mono(tree, GIT_DIR=gitdir)
+                self.assertEqual(code, 1, out + err)
+                self.assertIn("FAIL [documents]: 1 version regression(s) vs HEAD~1", out)
+        other = self.repo("other")
+        self.commit(other, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
+        for gitdir in (str(other / ".git"), os.path.join("..", "other", ".git")):
+            with self.subTest(gitdir=gitdir):
+                code, out, err = self.mono(repo, GIT_DIR=gitdir)
+                self.assertEqual(code, 2, out)
+                self.assertNotIn("OK:", out)
+                self.assertIn(f"git will not open the repository GIT_DIR names ({gitdir}) as "
+                              f"{repo}'s repository: it is not {repo / '.git'}", err)
+
+    def test_library_version_monotonicity_refuses_a_missing_work_tree(self) -> None:
+        # The reviewer's fixtures: with core.worktree or GIT_WORK_TREE naming a missing
+        # directory, rev-parse --git-dir and --show-toplevel both succeed, and the work tree
+        # they print cannot be compared with REPO_ROOT, so it is not REPO_ROOT's.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 2.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 1, "the intact twin finds the regression: " + out + err)
+        missing = self.tmp / "no-such-work-tree"
+        refused = (f"git will not open {repo / '.git'} as {repo}'s repository: the repository it "
+                   f"opens has its work tree at {missing}")
+        with self.subTest(fixture="GIT_WORK_TREE"):
+            code, out, err = self.mono(repo, GIT_WORK_TREE=str(missing))
+            self.assertEqual(code, 2, out)
+            self.assertNotIn("OK:", out)
+            self.assertIn(refused, err)
+        self.git(repo, "config", "core.worktree", str(missing))
+        with self.subTest(fixture="core.worktree"):
+            code, out, err = self.mono(repo)
+            self.assertEqual(code, 2, out)
+            self.assertNotIn("OK:", out)
+            self.assertIn(refused, err)
+
+    def test_library_version_monotonicity_reads_a_ref_directory_as_absent(self) -> None:
+        # The reviewer's fixture: a remote branch main/x and no main keeps the directory
+        # refs/remotes/origin/main/, which for-each-ref lists without a warning, so at 73c637e6a
+        # the loose-path check refused an absent origin/main. An unborn HEAD branch named like a
+        # directory of other branches is the same layout. A symlink to a directory there still
+        # refuses, as does a loose path git cannot name.
+        import shlex
+
+        readme = {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"}
+        repo = self.repo("origin-main-x")
+        self.commit(repo, {**readme, "governance/d.md": "**Version:** 2.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
+        self.git(repo, "update-ref", "refs/remotes/origin/main/x", "HEAD~1")
+        self.assertTrue((repo / ".git" / "refs" / "remotes" / "origin" / "main").is_dir())
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 1, out + err)
+        self.assertIn("FAIL [documents]: 1 version regression(s) vs HEAD~1", out)
+        unborn = self.repo("unborn-feature")
+        top = self.commit(unborn, {**readme, "governance/d.md": "**Version:** 2.0.0\n"})
+        self.git(unborn, "update-ref", "refs/heads/feature/x", top)
+        self.git(unborn, "symbolic-ref", "HEAD", "refs/heads/feature")
+        self.assertTrue((unborn / ".git" / "refs" / "heads" / "feature").is_dir())
+        code, out, err = self.mono(unborn)
+        self.assertEqual(code, 0, out + err)
+        self.assertIn("OK: no prior committed state", out)
+        linked = self.repo("origin-main-symlink-to-a-directory")
+        self.commit(linked, {**readme, "governance/d.md": "**Version:** 2.0.0\n"})
+        self.commit(linked, {"governance/d.md": "**Version:** 1.0.0\n"})
+        (self.tmp / "a-directory").mkdir()
+        origin = linked / ".git" / "refs" / "remotes" / "origin"
+        origin.mkdir(parents=True)
+        (origin / "main").symlink_to(self.tmp / "a-directory")
+        code, out, err = self.mono(linked)
+        self.assertEqual(code, 2, out)
+        self.assertNotIn("OK:", out)
+        self.assertIn("cannot read refs/remotes/origin/main: "
+                      + os.path.join(".git", "refs", "remotes", "origin", "main") + " exists", err)
+        shim = self.tmp / "shim"
+        shim.mkdir()
+        real_git = shlex.quote(shutil.which("git", path=self.env.get("PATH")))
+        (shim / "git").write_text(
+            "#!/bin/sh\n"
+            'if [ "$3" = rev-parse ] && [ "$4" = --git-path ]; then exit 128; fi\n'
+            f'exec {real_git} "$@"\n', encoding="utf-8")
+        (shim / "git").chmod(0o755)
+        code, out, err = self.mono(repo, PATH=f"{shim}{os.pathsep}{self.env['PATH']}")
+        self.assertEqual(code, 2, out)
+        self.assertNotIn("OK:", out)
+        self.assertIn("cannot read refs/remotes/origin/main: git cannot name its loose path (git "
+                      "rev-parse --git-path exited 128)", err)
+
+    def test_library_version_monotonicity_names_the_files_it_reads_as_utf8(self) -> None:
+        # Agy's claim, executed: the exit-2 clause said a prior file that is not UTF-8 refuses,
+        # but main's walk skips a current document that is not UTF-8, so its prior copy is never
+        # read (exit 0), nor is the prior copy of a document with no version. A prior copy that
+        # is read still refuses (test_library_version_monotonicity_refuses_a_non_utf8_prior_blob).
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": b"**Version:** 1.0.0\n\xff\n",
+                           "governance/e.md": b"**Version:** 1.0.0\n\xff\n"})
+        self.commit(repo, {"governance/d.md": b"**Version:** 1.0.0\n\xfe\n",
+                           "governance/e.md": "no version line\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 0, out + err)
+        self.assertIn("monotonic non-decreasing (vs HEAD~1)", out)
+        mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_utf8_doc_3b551")
+        doc = " ".join(mono.__doc__.split())
+        self.assertNotIn("current README.md or a prior file is not valid UTF-8", doc)
+        self.assertIn("a current document that is not UTF-8 is skipped, so its prior copy is not "
+                      "read", doc)
+
+    def test_date_cobump_refuses_an_unreadable_base_blob(self) -> None:
+        repo = self.repo()
+        first = self.commit(repo, {"doc.md": self.doc("1.0.0")})
+        self.commit(repo, {"doc.md": self.doc("1.0.1")})
+        gate = (sys.executable, str(REPO_ROOT / "tools" / "check-date-cobump-on-pr.py"), first, "HEAD")
+        result = self.run_in(repo, *gate)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)  # the stale Date
+        self.drop_object(repo, f"{first}:doc.md")
+        result = self.run_in(repo, *gate)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("git cat-file failed for doc.md", result.stderr)
+        self.assertNotIn("OK:", result.stdout)
+
+    def test_date_cobump_refuses_an_unreadable_base_blob_from_a_subdirectory(self) -> None:
+        # The subdirectory twin of the test above: D4 run from governance/ or tools/ must
+        # read the same tree as from the root.
+        repo = self.repo()
+        first = self.commit(repo, {"governance/doc.md": self.doc("1.0.0"), "tools/keep.txt": "k\n"})
+        self.commit(repo, {"governance/doc.md": self.doc("1.0.1")})
+        gate = (sys.executable, str(REPO_ROOT / "tools" / "check-date-cobump-on-pr.py"), first, "HEAD")
+        for sub in ("governance", "tools"):
+            result = self.run_in(repo / sub, *gate)
+            self.assertEqual(result.returncode, 1, sub + ": " + result.stdout + result.stderr)
+        self.drop_object(repo, f"{first}:governance/doc.md")
+        for sub in ("governance", "tools"):
+            result = self.run_in(repo / sub, *gate)
+            self.assertEqual(result.returncode, 2, sub + ": " + result.stdout + result.stderr)
+            self.assertIn("git cat-file failed for governance/doc.md", result.stderr)
+            self.assertNotIn("OK:", result.stdout)
+
+    def test_date_cobump_reads_an_add_beside_a_non_utf8_name(self) -> None:
+        # The reviewer's fixture: an unchanged name that is not UTF-8 beside an added file.
+        repo = self.repo()
+        base = self.commit(repo, {self.ODD: "odd\n", "governance/doc.md": self.doc("1.0.0")})
+        self.commit(repo, {"governance/new.md": self.doc("2.0.0")})
+        gate = (sys.executable, str(REPO_ROOT / "tools" / "check-date-cobump-on-pr.py"), base, "HEAD")
+        result = self.run_in(repo, *gate)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("OK:", result.stdout)
+        # Beside the same name, a stale bump still fails and a missing base blob still refuses.
+        self.commit(repo, {"governance/doc.md": self.doc("1.0.1")})
+        result = self.run_in(repo, *gate)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.drop_object(repo, f"{base}:governance/doc.md")
+        result = self.run_in(repo, *gate)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("git cat-file failed for governance/doc.md", result.stderr)
+
+    def test_date_cobump_refuses_an_unreadable_range_commit(self) -> None:
+        # The reviewer's fixture: a stale-Date bump in a middle commit, then a commit to
+        # another file. With the middle commit's root tree gone git log cannot walk the range,
+        # and that read as "no range commit touched the file", skipping the Date check.
+        repo = self.repo()
+        base = self.commit(repo, {"governance/doc.md": self.doc("1.0.0")})
+        self.commit(repo, {"governance/doc.md": self.doc("1.0.1")})
+        self.commit(repo, {"notes.txt": "n\n"})
+        gate = (sys.executable, str(REPO_ROOT / "tools" / "check-date-cobump-on-pr.py"), base, "HEAD")
+        result = self.run_in(repo, *gate)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("FAIL governance/doc.md", result.stderr)
+        self.drop_object(repo, "HEAD~1^{tree}")
+        result = self.run_in(repo, *gate)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("git log failed for governance/doc.md", result.stderr)
+        self.assertNotIn("OK:", result.stdout)
+
+    def test_date_cobump_partial_clone_probe_refuses_a_config_read_failure(self) -> None:
+        repo = self.repo()
+        self.commit(repo, {"a.md": "x\n"})
+        with self.inside(repo):
+            d4 = load_linter_module("tools/check-date-cobump-on-pr.py", "d4_promisor_3b551")
+
+            def failing(*codes):
+                """A git config stub failing with ``codes`` in turn, then the last code."""
+                calls = list(codes)
+
+                def _git(*args):
+                    code = calls.pop(0) if len(calls) > 1 else calls[0]
+                    raise subprocess.CalledProcessError(code, ["git", *args])
+                return _git
+
+            self.assertIsNone(d4.promisor_remote_reason(), "an intact full clone is not partial")
+            self.assertIsNone(d4.promisor_remote_reason(_git=failing(1)), "exit 1 is unset")
+            for codes, status in (((128,), "exit 128"), ((1, 3), "exit 3")):
+                reason = d4.promisor_remote_reason(_git=failing(*codes))
+                self.assertIsNotNone(reason, f"git config {status} is not unset")
+                self.assertIn(status, reason)
+            config = repo / ".git" / "config"
+            config.write_text(config.read_text() + "[broken\n")
+            self.assertIsNotNone(d4.promisor_remote_reason(), "a malformed config is not unset")
+
+    def test_install_git_hooks_refuses_an_unreadable_hooks_path(self) -> None:
+        repo = self.repo()
+        (repo / "tools").mkdir()
+        shutil.copy(REPO_ROOT / "tools" / "install-git-hooks.sh", repo / "tools")
+        self.git(repo, "config", "core.hooksPath", "elsewhere")
+        result = self.run_in(repo, "sh", "tools/install-git-hooks.sh")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("core.hooksPath is set", result.stderr)
+        # git config alone honours GIT_CONFIG, so this breaks only the core.hooksPath query.
+        bad = self.tmp / "bad.cfg"
+        bad.write_text("[core\nnot config\n", encoding="utf-8")
+        result = self.run_in(repo, "sh", "tools/install-git-hooks.sh", GIT_CONFIG=str(bad))
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("cannot read core.hooksPath", result.stderr)
+        self.assertFalse((repo / "elsewhere").exists(), "nothing may be installed")
+        self.git(repo, "config", "--unset", "core.hooksPath")
+        result = self.run_in(repo, "sh", "tools/install-git-hooks.sh")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue((repo / ".git" / "hooks" / "pre-commit").is_file())
+
+    def test_commit_on_main_refuses_a_head_naming_a_missing_commit(self) -> None:
+        repo = self.repo()
+        self.commit(repo, {"a.txt": "1\n"})
+        hook = (sys.executable, str(REPO_ROOT / "tools" / "check-commit-on-main.py"), "--pre-commit")
+        self.assertEqual(self.run_in(repo, *hook).returncode, 1, "a commit on main is refused")
+        self.git(repo, "switch", "-q", "--detach")
+        result = self.run_in(repo, *hook)
+        self.assertEqual(result.returncode, 0, "a real detached HEAD is allowed: " + result.stderr)
+        (repo / ".git" / "HEAD").write_text("1" * 40 + "\n", encoding="utf-8")
+        result = self.run_in(repo, *hook)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("HEAD could not be read", result.stderr)
+
+    def workflow_step_body(self):
+        lines = (REPO_ROOT / ".github" / "workflows" / "quality.yml").read_text(
+            encoding="utf-8").splitlines()
+        start = lines.index(self.STEP)
+        at = next(i for i in range(start, len(lines)) if lines[i].strip() == "run: |")
+        indent = len(lines[at]) - len(lines[at].lstrip()) + 2
+        body = []
+        for line in lines[at + 1:]:
+            if line.strip() and len(line) - len(line.lstrip()) < indent:
+                break
+            body.append(line[indent:])
+        return "\n".join(body) + "\n"
+
+    def test_workflow_collection_step_reports_a_git_diff_failure(self) -> None:
+        body = self.workflow_step_body()
+        repo = self.repo()
+        base = self.commit(repo, {"a.md": "x\n"})
+        corpus = self.commit(repo, {"governance/b.md": "y\n"})
+        pack = self.commit(repo, {"guardrails/p.md": "z\n"})
+        (repo / "tools").mkdir()
+        (repo / "tools" / "detect-collection-candidates.py").write_text("print('DETECTOR RAN')\n")
+        # GitHub's default run shell on Linux is `bash -e {0}`.
+        for head, marker in ((pack, "DETECTOR RAN"), (corpus, "No pack changes")):
+            result = self.run_in(repo, "bash", "-e", "-c", body, BASE_SHA=base, HEAD_SHA=head)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn(marker, result.stdout)
+        result = self.run_in(repo, "bash", "-e", "-c", body, BASE_SHA="1" * 40, HEAD_SHA=pack)
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("::error::", result.stdout)
+        self.assertNotIn("No pack changes", result.stdout)
+
+    def test_quick_guard_reports_a_git_failure(self) -> None:
+        repo = self.repo()
+        (repo / "tools").mkdir()
+        shutil.copy(REPO_ROOT / "tools" / "quick-guard.sh", repo / "tools")
+        self.commit(repo, {"governance/a.md": "x\n"})
+        clean = self.run_in(repo, "bash", "tools/quick-guard.sh")
+        self.assertEqual(clean.returncode, 0, clean.stdout + clean.stderr)
+        self.assertIn("no changed corpus-content .md files", clean.stdout)
+        # origin/main naming a blob: show-ref reads it, and merge-base fails.
+        ref = repo / ".git" / "refs" / "remotes" / "origin" / "main"
+        ref.parent.mkdir(parents=True)
+        ref.write_text(self.git(repo, "rev-parse", "HEAD:governance/a.md") + "\n", encoding="utf-8")
+        result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("git merge-base HEAD refs/remotes/origin/main failed", result.stderr)
+        # origin/main naming a missing commit: show-ref fails, and the ref is not absent.
+        ref.write_text("1" * 40 + "\n", encoding="utf-8")
+        result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(self.ORIGIN_MAIN_REFUSED, result.stderr)
+        ref.unlink()
+        (repo / ".git" / "index").write_bytes(b"garbage")  # a corrupt index: git diff fails
+        result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("ERROR", result.stderr)
+        self.assertNotIn("no changed corpus-content", result.stdout)
+        self.assertIn("origin/main is absent", clean.stdout)  # the degradation is announced
+
+    def test_quick_guard_reports_each_listing_failure(self) -> None:
+        # One listing command fails while the other two succeed, so each `|| git_failed` guard
+        # on the three listings has its own case. A dropped root tree breaks only the git diff
+        # that reads it; nothing real breaks only git ls-files, so a git wrapper fails that one.
+        import shlex
+
+        def fixture(name):
+            repo = self.repo(name)
+            (repo / "tools").mkdir()
+            shutil.copy(REPO_ROOT / "tools" / "quick-guard.sh", repo / "tools")
+            base = self.commit(repo, {"governance/a.md": "x\n"})
+            self.git(repo, "update-ref", "refs/remotes/origin/main", base)
+            self.commit(repo, {"notes.txt": "n\n"})
+            clean = self.run_in(repo, "bash", "tools/quick-guard.sh")
+            self.assertEqual(clean.returncode, 0, clean.stdout + clean.stderr)
+            self.assertIn("no changed corpus-content .md files", clean.stdout)
+            self.assertNotIn("origin/main is absent", clean.stdout)
+            return repo, base
+
+        def refused(repo, failed, **env):
+            result = self.run_in(repo, "bash", "tools/quick-guard.sh", **env)
+            self.assertEqual(result.returncode, 2, failed + ": " + result.stdout + result.stderr)
+            self.assertIn(f"ERROR: {failed} failed", result.stderr)
+            self.assertNotIn("no changed corpus-content", result.stdout)
+
+        repo, base = fixture("since-mb")
+        self.drop_object(repo, base + "^{tree}")  # only git diff $MB reads the merge base's tree
+        refused(repo, f"git diff {base}")
+        repo, _ = fixture("since-head")
+        self.drop_object(repo, "HEAD^{tree}")  # only git diff HEAD reads HEAD's tree
+        refused(repo, "git diff HEAD")
+        repo, _ = fixture("untracked")
+        shim = self.tmp / "shim"
+        shim.mkdir()
+        real_git = shlex.quote(shutil.which("git", path=self.env.get("PATH")))
+        (shim / "git").write_text(
+            "#!/bin/sh\n"
+            'if [ "$1" = ls-files ]; then echo "fatal: injected ls-files failure" >&2; exit 128; fi\n'
+            f'exec {real_git} "$@"\n', encoding="utf-8")
+        (shim / "git").chmod(0o755)
+        refused(repo, "git ls-files --others", PATH=f"{shim}{os.pathsep}{self.env['PATH']}")
+
+    def test_quick_guard_refuses_an_origin_main_git_skips(self) -> None:
+        # The reviewer's fixture: a committed governance/ delta with refs/remotes/origin/main
+        # holding garbage. rev-parse warned and exited 1, which read as an absent origin/main, so
+        # at 73c637e6a MB fell back to HEAD and quick-guard listed no changed files and exited 0.
+        # git skips the other records here with or without a warning; for-each-ref or the loose
+        # path shows each. An absent origin/main and a remote branch main/x still read as
+        # absent, and an intact origin/main finds the delta. Round 9 reads only the full name, so
+        # a dangling local branch origin/main symlink no longer refuses an absent origin/main.
+        fixture = self.guard_fixture
+
+        def loose(repo, rel="refs/remotes/origin/main"):
+            path = repo / ".git" / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            return path
+
+        def pack(repo, base, edit):
+            """Pack origin/main, then rewrite its packed-refs line through ``edit``."""
+            self.git(repo, "update-ref", "refs/remotes/origin/main", base)
+            self.git(repo, "pack-refs", "--all")
+            path = repo / ".git" / "packed-refs"
+            lines = path.read_text(encoding="ascii").splitlines(keepends=True)
+            path.write_text("".join(edit(line) if line.endswith(" refs/remotes/origin/main\n")
+                                    else line for line in lines), encoding="ascii")
+
+        def unsorted(repo, base):
+            """Pack origin/main after tags, then move its line last; the header still claims
+            sorted, so git's lookup bisects and misses it."""
+            for tag in ("a", "b", "c", "d"):
+                self.git(repo, "tag", tag)
+            pack(repo, base, lambda line: line)
+            path = repo / ".git" / "packed-refs"
+            lines = path.read_text(encoding="ascii").splitlines(keepends=True)
+            moved = [line for line in lines if line.endswith(" refs/remotes/origin/main\n")]
+            path.write_text("".join([line for line in lines if line not in moved] + moved),
+                            encoding="ascii")
+
+        def shadow(repo, base):
+            """Pack origin/main, then replace refs/remotes/origin with a loose file."""
+            self.git(repo, "update-ref", "refs/remotes/origin/main", base)
+            self.git(repo, "pack-refs", "--all")
+            shutil.rmtree(repo / ".git" / "refs" / "remotes" / "origin", ignore_errors=True)
+            (repo / ".git" / "refs" / "remotes" / "origin").write_text(base + "\n", encoding="ascii")
+
+        repo, base = fixture("intact")
+        self.git(repo, "update-ref", "refs/remotes/origin/main", base)
+        result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+        self.assertIn("fast-checking 1 changed .md file(s)", result.stdout, result.stderr)
+        for name, setup in (("absent", lambda repo, base: None),
+                            ("remote-branch-main-x", lambda repo, base: self.git(
+                                repo, "update-ref", "refs/remotes/origin/main/x", base)),
+                            ("dangling-local-branch-symlink", lambda repo, base: loose(
+                                repo, "refs/heads/origin/main").symlink_to(self.tmp / "no-such"))):
+            with self.subTest(fixture=name):
+                repo, base = fixture(name)
+                setup(repo, base)
+                result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn("origin/main is absent", result.stdout)
+        directory = self.tmp / "a-directory"
+        directory.mkdir()
+        refusals = (
+            ("garbage", lambda repo, base: loose(repo).write_text("garbage\n", encoding="ascii")),
+            ("dangling-symlink", lambda repo, base: loose(repo).symlink_to(self.tmp / "no-such")),
+            ("symlink-to-a-directory", lambda repo, base: loose(repo).symlink_to(directory)),
+            ("dangling-symbolic-ref", lambda repo, base: self.git(
+                repo, "symbolic-ref", "refs/remotes/origin/main", "refs/remotes/origin/nothing")),
+            ("packed-39-hex", lambda repo, base: pack(repo, base, lambda line: line[1:])),
+            ("packed-trailing-junk",
+             lambda repo, base: pack(repo, base, lambda line: line[:-1] + " junk\n")),
+            ("packed-unsorted", unsorted),
+            ("loose-file-over-packed", shadow),
+        )
+        for name, setup in refusals:
+            with self.subTest(fixture=name):
+                repo, base = fixture(name)
+                setup(repo, base)
+                self.assert_guard_refuses(repo)
+
+    def guard_fixture(self, name, ref_format=None):
+        """A repo holding quick-guard.sh: main at ``base`` and a feature branch that commits one
+        governance/ change, so a guard that finds the change lists it and one that misses it
+        prints "no changed corpus-content"."""
+        if ref_format is None:
+            repo = self.repo(name)
+        else:
+            repo = self.tmp / name
+            repo.mkdir()
+            made = subprocess.run(["git", "init", "-q", "-b", "main", f"--ref-format={ref_format}"],
+                                  cwd=repo, env=self.env, capture_output=True, text=True)
+            if made.returncode:
+                self.skipTest(f"--ref-format={ref_format} unavailable: {made.stderr.strip()}")
+            self.git(repo, "config", "gc.auto", "0")
+        (repo / "tools").mkdir()
+        shutil.copy(REPO_ROOT / "tools" / "quick-guard.sh", repo / "tools")
+        base = self.commit(repo, {"governance/a.md": "x\n"})
+        self.git(repo, "checkout", "-q", "-b", "feature")
+        self.commit(repo, {"governance/changed.md": "y\n"})
+        return repo, base
+
+    def assert_guard_refuses(self, repo, **env):
+        result = self.run_in(repo, "bash", "tools/quick-guard.sh", **env)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(self.ORIGIN_MAIN_REFUSED, result.stderr)
+        self.assertNotIn("no changed corpus-content", result.stdout)
+        self.assertNotIn("origin/main is absent", result.stdout)
+
+    def test_quick_guard_reads_origin_main_by_its_full_name(self) -> None:
+        # codex's fixture: a local branch origin/main at HEAD beside refs/remotes/origin/main at
+        # its parent. rev-parse's short-name lookup takes refs/heads/origin/main first, so at
+        # a694c4626 the guard diffed against HEAD and listed no changed files. Given the full
+        # name, rev-parse would still read a lone refs/heads/refs/remotes/origin/main, so a
+        # full-name rev-parse read is not exact either; only show-ref's exact name counts.
+        repo, base = self.guard_fixture("local-branch-origin-main")
+        self.git(repo, "update-ref", "refs/remotes/origin/main", base)
+        self.git(repo, "update-ref", "refs/heads/origin/main", "HEAD")
+        result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+        self.assertIn("fast-checking 1 changed .md file(s)", result.stdout, result.stderr)
+        repo, base = self.guard_fixture("dwim-full-name")
+        self.git(repo, "update-ref", "refs/heads/refs/remotes/origin/main", "HEAD")
+        result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("origin/main is absent", result.stdout)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
+    def test_quick_guard_refuses_an_origin_main_it_cannot_read(self) -> None:
+        # claude's fixture: origin/main under a mode-000 directory. rev-parse exits 1 silently,
+        # for-each-ref lists nothing under it, and the loose path reads as no file, so at
+        # a694c4626 the guard read origin/main as absent and exited 0; symbolic-ref -q exits 128.
+        # A dangling symbolic origin/main in a reftable repository leaves no loose path and no
+        # listing; symbolic-ref -q exits 0, which is not absent either.
+        for locked in ("refs/remotes/origin", "refs/remotes"):
+            for packed in (False, True):
+                with self.subTest(locked=locked, packed=packed):
+                    repo, base = self.guard_fixture(f"{locked.replace('/', '-')}-{packed}")
+                    self.git(repo, "update-ref", "refs/remotes/origin/main", base)
+                    if packed:
+                        self.git(repo, "pack-refs", "--all")
+                        (repo / ".git" / "refs" / "remotes" / "origin").mkdir(exist_ok=True)
+                    directory = repo / ".git" / locked
+                    directory.chmod(0)
+                    try:
+                        self.assert_guard_refuses(repo)
+                    finally:
+                        directory.chmod(0o755)
+                    result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+                    self.assertIn("fast-checking 1 changed .md file(s)", result.stdout, result.stderr)
+        repo, base = self.guard_fixture("reftable-dangling-symbolic-ref", ref_format="reftable")
+        self.git(repo, "symbolic-ref", "refs/remotes/origin/main", "refs/remotes/origin/nothing")
+        self.assert_guard_refuses(repo)
+
+    def test_quick_guard_refuses_each_failed_absence_check(self) -> None:
+        # The absence checks no real fixture tells apart, each failed alone by a git wrapper
+        # beside a truly absent origin/main: show-ref --verify --quiet exiting other than 1 or
+        # printing a warning, and rev-parse --git-path failing, which left the loose path empty
+        # and read as no file.
+        import shlex
+
+        real_git = shlex.quote(shutil.which("git", path=self.env.get("PATH")))
+        cases = (
+            ("show-ref-exits-128",
+             'if [ "$1" = show-ref ] && [ "$3" = --quiet ]; then exit 128; fi\n'),
+            ("show-ref-warns",
+             'if [ "$1" = show-ref ] && [ "$3" = --quiet ]; then echo "warning: injected" >&2; '
+             'exit 1; fi\n'),
+            ("git-path-fails",
+             'if [ "$1" = rev-parse ] && [ "$2" = --git-path ]; then exit 128; fi\n'),
+        )
+        for name, condition in cases:
+            with self.subTest(case=name):
+                repo, _ = self.guard_fixture(name)
+                result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+                self.assertIn("origin/main is absent", result.stdout, result.stderr)
+                shim = self.tmp / f"shim-{name}"
+                shim.mkdir()
+                (shim / "git").write_text(f"#!/bin/sh\n{condition}exec {real_git} \"$@\"\n",
+                                          encoding="utf-8")
+                (shim / "git").chmod(0o755)
+                self.assert_guard_refuses(repo, PATH=f"{shim}{os.pathsep}{self.env['PATH']}")
 
 
 if __name__ == "__main__":

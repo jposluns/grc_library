@@ -392,13 +392,19 @@ jobs:
         if: github.event_name == 'pull_request'
         run: python3 tools/check-alignment-register-on-pr.py
 
+      # The diff runs on its own so its exit status is checked: piped into grep, a git
+      # failure read as "no pack changes" (3b551).
       - name: Detect collection candidates on pack PRs (informational)
         if: github.event_name == 'pull_request'
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.sha }}
         run: |
-          if git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -q '^guardrails/'; then
+          if ! changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"; then
+            echo "::error::git diff $BASE_SHA $HEAD_SHA failed; cannot tell whether this PR changes the pack."
+            exit 1
+          fi
+          if grep -q '^guardrails/' <<< "$changed"; then
             echo "Pack changes detected. Running collection-candidate detector..."
             python3 tools/detect-collection-candidates.py
           else

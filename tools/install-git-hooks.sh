@@ -11,7 +11,8 @@
 # commit-msg per-commit Version-bump check (tools/git-hooks/commit-msg, P-TODO 3b25), which also runs
 # a local unmanaged hook kept as commit-msg-local.
 # Run once per clone, alongside `pre-commit install`. Idempotent; refuses rather
-# than clobbering an existing foreign hook, and refuses under a set core.hooksPath.
+# than clobbering an existing foreign hook, and refuses under a set core.hooksPath
+# (or when git config cannot read it).
 #
 # KNOWN LIMITATION (routed hardening, PR #2429): the check-then-link/compare
 # publish path has a residual TOCTOU window against a CONCURRENT adversarial
@@ -37,12 +38,21 @@ root="$(git rev-parse --show-toplevel)"
 
 # core.hooksPath: detect PRESENCE by `git config --get` EXIT STATUS. A present-
 # but-empty value still redirects git's hook lookup, so a `[ -n "$value" ]` test
-# would miss it.
-if git -C "$root" config --get core.hooksPath >/dev/null 2>&1; then
-  echo "install-git-hooks: core.hooksPath is set; install the hooks" >&2
-  echo "  there instead (this installer targets git's default hooks dir)." >&2
-  exit 1
-fi
+# would miss it. Exit 1 is unset; any other status is a config read failure (an
+# unreadable or malformed file), which refuses rather than reading as unset (3b551).
+hooks_path_rc=0
+git -C "$root" config --get core.hooksPath >/dev/null || hooks_path_rc=$?
+case "$hooks_path_rc" in
+  0)
+    echo "install-git-hooks: core.hooksPath is set; install the hooks" >&2
+    echo "  there instead (this installer targets git's default hooks dir)." >&2
+    exit 1 ;;
+  1) ;;
+  *)
+    echo "install-git-hooks: cannot read core.hooksPath (git config exit $hooks_path_rc); refusing," >&2
+    echo "  since an unread value may redirect git's hook lookup. Fix the git config, then re-run." >&2
+    exit 1 ;;
+esac
 
 # Worktree-safe hooks dir: in a linked worktree, .git is a FILE, not a dir, so
 # do not assume "$root/.git/hooks". Resolve it via git.

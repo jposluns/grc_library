@@ -1964,27 +1964,77 @@ CROSS_ADJACENCY_WINDOW = 40
 # origin/main default) keep their own resolution flow.
 
 
-def git(*args: str) -> str:
+def git(*args: str, raw: bool = False) -> str | bytes:
     """Run ``git <args>``; return stdout with only trailing newlines removed.
 
     Uses ``.rstrip(chr(10))`` NOT ``.strip()``: a ``-z`` caller gets NUL-delimited
     output whose paths may begin or end with whitespace, and stripping the whole
     string corrupts the first path leading whitespace; removing only trailing
     newlines still drops the trailing newline that non-``-z`` callers and
-    ``resolve_pr_range`` rely on. Raises on non-zero exit."""
-    return subprocess.check_output(["git", *args], text=True).rstrip("\n")
+    ``resolve_pr_range`` rely on. ``raw=True`` returns stdout as bytes, neither
+    decoded nor stripped, for output that need not be UTF-8 (tree entry names).
+    Raises on non-zero exit."""
+    out = subprocess.check_output(["git", *args], text=not raw)
+    return out if raw else out.rstrip("\n")
+
+
+def tree_entry_type(ref: str, path: str, *, repo: str | os.PathLike | None = None) -> str | None:
+    """Object type of the tree entry at ``ref:path`` (``"blob"``, ``"tree"``, or ``"commit"``
+    for a gitlink), or ``None`` when every tree on the way is readable and no entry is at
+    ``path`` (a name not found, or a component before the last that is not a tree).
+
+    Walks ``git ls-tree --full-tree -z`` from the root tree of ``ref``, one path component at a
+    time, so it reads only the objects ``ref^{tree}`` peels through and the trees on the way,
+    never the entry's own object, and passes no pathspec, so no pathspec magic applies to
+    ``path``: a missing or corrupt blob still has a type here. ``--full-tree`` lists every
+    entry wherever the caller runs; without it git lists only the part of each tree under the
+    current directory, and from a subdirectory an existing entry read as absent. Entry names
+    are compared as bytes with ``os.fsencode(path)``, the bytes git receives for
+    ``ref:path``, so a sibling name that is not UTF-8 is never decoded. Absence is therefore
+    established, never inferred from a failed read (3b551); a bad ref or an unreadable tree
+    raises ``CalledProcessError``. Runs through ``git`` above, so the hook import graph gains
+    no new subprocess call."""
+    prefix = () if repo is None else ("-C", str(repo))
+    tree = f"{ref}^{{tree}}"
+    parts = os.fsencode(path).split(b"/")
+    for depth, name in enumerate(parts):
+        for record in git(*prefix, "ls-tree", "--full-tree", "-z", tree, raw=True).split(b"\0"):
+            meta, _, entry = record.partition(b"\t")
+            if record and entry == name:
+                _mode, kind, oid = meta.decode("ascii").split()
+                break
+        else:
+            return None
+        if depth == len(parts) - 1:
+            return kind
+        if kind != "tree":
+            return None
+        tree = oid
+    return None
 
 
 def git_show(ref: str, path: str) -> str | None:
-    """Return file content at ``ref:path`` or ``None`` if the file is absent."""
+    """Return file content at ``ref:path`` or ``None`` if the file is absent.
+
+    A failed read is ``None`` only when ``tree_entry_type`` establishes that ``ref`` holds no
+    blob at ``path``: the path is absent, a gitlink, or a tree whose own object git cannot read.
+    An intact tree is not a failed read: git prints its listing, and that is returned. Any other
+    failure (a bad ref, an unreadable tree on the way to ``path``, a missing or corrupt blob)
+    raises ``CalledProcessError``, so a git failure can never make a file read as added or
+    deleted. The trailing ``--`` makes git read ``ref:path`` only as an object name: without it
+    an absent path holding a glob character is taken as a pathspec and reads as ``''``. stderr
+    is discarded, not decoded: git's message names the path, and a name that is not UTF-8
+    would raise before the absence check (3b551)."""
     try:
         return subprocess.check_output(
-            ["git", "show", f"{ref}:{path}"],
+            ["git", "show", f"{ref}:{path}", "--"],
             text=True,
             stderr=subprocess.DEVNULL,
         )
     except subprocess.CalledProcessError:
-        return None
+        if tree_entry_type(ref, path) != "blob":
+            return None
+        raise
 
 
 # git ls-tree accepts only the top and literal pathspec magic, so an inherited
@@ -2026,9 +2076,9 @@ def git_show_strict(ref: str, path: str) -> str | None:
     entry that is not a blob (a gitlink or a tree), which holds no file
     content: ``git show`` exits 128 on a gitlink whose commit the repository
     does not hold and prints a held commit's log or a tree's listing, so
-    neither is read (3b577 round 6), as D4's blob_at reads them. Unlike
-    git_show, which reads every nonzero exit as an absent file, a failure is
-    never read as absence (3b577 round 5): the listing's own failures, and a
+    neither is read (3b577 round 6), as D4's blob_at reads them. As in
+    git_show (3b551), a failure is never read as absence (3b577 round 5):
+    the listing's own failures, and a
     listed blob whose ``git show`` read exits nonzero, raise
     CalledProcessError; git not running at all raises OSError, and content
     the locale codec cannot decode UnicodeDecodeError."""

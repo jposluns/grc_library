@@ -18,7 +18,7 @@ The shim execs the ACTIVE checkout's ``tools/git-hooks/pre-commit``, which execs
 Decision (``decide``, pure):
   - override ``GRC_ALLOW_MAIN_COMMIT`` set and non-empty: allow, with a NOTE;
   - HEAD state unreadable (a git error): REFUSE (ignorance refuses, as in check-dirty-tree-push.py);
-  - HEAD detached: allow (not a branch commit);
+  - HEAD detached (not a symbolic ref, and resolving to a commit): allow (not a branch commit);
   - HEAD on ``main`` or ``master``: REFUSE;
   - otherwise allow.
 
@@ -72,17 +72,21 @@ def decide(allow, head_ok, branch):
 
 
 def read_head():
-    """Thin observer: (head_ok, branch). ``git symbolic-ref -q HEAD`` exits 1 (quietly) exactly when
-    HEAD is detached; any other failure (not a repository, a corrupt HEAD, git missing) is unreadable."""
+    """Thin observer: (head_ok, branch). ``git symbolic-ref -q HEAD`` exits 1 (quietly) when HEAD
+    is not a symbolic ref, which is also what a HEAD naming a missing or corrupt object gives, so
+    detachment is confirmed by ``git rev-parse --verify`` resolving HEAD to a commit (3b551). Any
+    other failure (not a repository, a corrupt HEAD, git missing) is unreadable."""
     try:
         cp = subprocess.run(["git", "symbolic-ref", "-q", "HEAD"],
                             capture_output=True, text=True, timeout=30)
+        if cp.returncode == 1 and not cp.stderr.strip():
+            detached = subprocess.run(["git", "rev-parse", "--verify", "--quiet", "HEAD^{commit}"],
+                                      capture_output=True, text=True, timeout=30)
+            return (detached.returncode == 0 and bool(detached.stdout.strip())), None
     except (OSError, subprocess.SubprocessError):
         return False, None
     if cp.returncode == 0:
         return True, cp.stdout.rstrip("\n") or None
-    if cp.returncode == 1 and not cp.stderr.strip():
-        return True, None
     return False, None
 
 
