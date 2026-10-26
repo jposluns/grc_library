@@ -333,6 +333,9 @@ jobs:
       - name: Tooling backlog-reference audit
         run: python3 tools/lint-tooling-backlog-refs.py
 
+      - name: Table cell-count audit
+        run: python3 tools/lint-table-cell-count.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

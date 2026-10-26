@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.21\
-**Date:** 2026-10-13\
+**Version:** 1.5.23\
+**Date:** 2026-10-26\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -96,9 +96,9 @@ This list is not exhaustive; the test is whether the secondary role results in t
 | Regime | DPO independence basis | Conflict-of-interest test |
 |---|---|---|
 | **UK GDPR** (UK) | Article 38(3) (same as EU GDPR) | Article 38(6) (same); ICO guidance mirrors EDPB |
-| **LGPD** (Brazil, Article 41) | DPO must have appropriate technical knowledge and act independently; ANPD guidance on conflict |
-| **PIPL** (China, Article 52) | Large-scale handlers must designate a personal information protection officer to supervise handling activities and protection measures, disclose the officer's contact method, and report the officer's name and contact to the authorities; Article 52 itself prescribes no professional-qualification or function-separation requirement for the officer (additional qualification and independence expectations derive from separate CAC provisions) |
-| **India DPDP 2023** | Data Protection Officer required for Significant Data Fiduciaries; no statutory independence requirement (the DPO represents the SDF, is based in India, and is responsible to its governing body, s. 10(2)(a)); Data Protection Board provides oversight |
+| **LGPD** (Brazil, Article 41) | DPO must have appropriate technical knowledge and act independently; ANPD guidance on conflict | Regulation on the encarregado's role annexed to Resolution CD/ANPD No. 18/2024, Arts. 18 to 21: the encarregado acts with ethics, integrity and technical autonomy, and may hold other functions or act for more than one processing agent only where it can fully perform its duties for each agent and no conflict of interest exists, a conflict being a situation that could improperly compromise, influence or affect the encarregado's objectivity and technical judgement (Art. 2(II) of the Regulation); a conflict can arise between functions inside one agent or across agents, or from combining the role with strategic decision-making on the controller's processing, other than operations inherent in the encarregado's own duties (Art. 19 paragraph 1); it is assessed case by case and can lead to a sanction on the processing agent under LGPD Article 52 (Art. 19 paragraph 2); the encarregado declares any possible conflict (Art. 20), and the processing agent sees that the encarregado holds no duties that create a conflict and, once a conflict is possible, does not appoint the person, applies measures to remove the risk, or replaces the encarregado (Art. 21) |
+| **PIPL** (China, Article 52) | Large-scale handlers must designate a personal information protection officer to supervise handling activities and protection measures, disclose the officer's contact method, and report the officer's name and contact to the authorities; Article 52 itself prescribes no professional-qualification or function-separation requirement for the officer (additional qualification and independence expectations derive from separate CAC provisions) | The PIPL sets no separate conflict-of-interest test for the personal information protection officer; Article 52 sets only the appointment, supervision, contact-disclosure and reporting duties |
+| **India DPDP 2023** | Data Protection Officer required for Significant Data Fiduciaries; no statutory independence requirement (the DPO represents the SDF, is based in India, and is responsible to its governing body, s. 10(2)(a)); Data Protection Board provides oversight | The Act sets no separate conflict-of-interest test for the Data Protection Officer (s. 10(2)(a) sets only whom the officer represents, where the officer is based, to whom the officer is responsible, and the grievance contact role); the Digital Personal Data Protection Rules 2025 place conflict-of-interest duties on Consent Managers (First Schedule, Part B, items 9 and 10) and on the Data Protection Board's Chairperson and Members (Fifth Schedule, paragraph 8(1)), not on the Data Protection Officer |
 
 For multi-regime non-EU controllers the strictest applicable independence regime governs.
 

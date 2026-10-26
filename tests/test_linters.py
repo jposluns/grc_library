@@ -28931,7 +28931,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         detect-env.py WRITE F bb9b977f0a07a9d27b09dcd85d271bb1f31efc826c5f6cd860106f283144ebc6
         external_overlay.py PASSIVE F fcbdb23ea95b360fdb467d3d4b39a0b1fd9ac1113eb6b431aeee1de0fbcbe2f1
         gate-mutation-variants.json DATA F c6af7a3c12d4d56ccae611dd77676e8be2113c3fed0ae83638d3be8790e72549
-        gate-scope-manifest.json DATA F 8f29caf3cd2485fab187579dcc95b18deb999df62d0853a6a7d3f717f271e497
+        gate-scope-manifest.json DATA F 12ae6d553aa8a6b794a763d41ec14766c7d790eea836205b7f871aebe57ef91e
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
         git-hooks/pre-push TRANSPORT F 9d1300e3fc7e1dcea3986ea7015f839c2c821cd7be16263dadc04482089fc2b5
@@ -29022,6 +29022,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
+        lint-table-cell-count.py OWN F d49d5ccd37eb4dc08936603c3520357b506f504225f5d17c0a479fb285b9368b
         lint-todo-index-reference-parity.py OWN F cf16944b198e3e919e7f2fd7ba6343363c8612e660879734585aaa48b4d99f41
         lint-todo-list-tag.py OWN F 867aa18964d3ae7c4031831d484c50eef4d24b8753207fb7e965441eb01206f9
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
@@ -29049,7 +29050,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         preflight_language_runner.py CHILD F c7242875b76d4282326ba37e0f878cebfc2939aa2780657c56bb3ef007fa0644
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
-        quick-guard.sh FIXED F 90ffbdb47a0c5fdbba57ddeb6598d8bdafa98eaf2481e38cd16a0684c20fb74c
+        quick-guard.sh FIXED F a55ea4d680881c873795c50500b4cd40a8a7cec144b17c5f5d9d4d9c927460b4
         ref-holds.py OWN F 12b4bc426cc0dc4f0cb070fc94feb3398c0d0d420c091e3e343393a16feb4f7d
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
@@ -29057,7 +29058,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run-linter-regression.py FIXED F 2e97814644c614dc987df7139c5ff0ff9b875fb2c1ba0abb6ff0abc298282753
         run-pr-time-checks.sh FIXED F 7efe36d3fce0778df83e6f4578561b56d02bf15e389178c50b35053767c075ab
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
-        run_all_audits.sh FIXED F e008dc6ab77b4bd49c70306568baf38078b50dfeada3c2f1856fecc829397a85
+        run_all_audits.sh FIXED F 694c1d154afa12f22f78cb4c2f75d96aea92bab4b6cb0919fe6eb2d32af5eff5
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
         session_facts.py PASSIVE F 0d4dcb545fcba5b1533d4aff1c3fedad69ca97d6e07f045b9976aee0ce07247a
@@ -46954,6 +46955,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         lint-skill-verdict-carrier-completeness.py
         lint-startup-character-ceiling.py
         lint-structure.py
+        lint-table-cell-count.py
         lint-todo-index-reference-parity.py
         lint-todo-list-tag.py
         lint-todo-number-permanence.py
@@ -68787,6 +68789,881 @@ class ToolingBacklogRefsTests(LinterTestCase):
         # with backlog ids live at adoption, so this run alone cannot prove
         # the rows bind (it passes with or without them while those items
         # stay open).
+        result = run_linter(self.GATE)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
+class TableCellCountTests(LinterTestCase):
+    """tools/lint-table-cell-count.py (the table cell-count gate, backlog 3b570).
+
+    Each refusal is paired with a positive control that differs only in the
+    refused construct, so a gate that refused everything would fail too."""
+
+    GATE = "tools/lint-table-cell-count.py"
+    HEAD3 = "| a | b | c |\n|---|---|---|\n"
+
+    def make_repo(self, files: dict[str, str | bytes], *, add: bool = True) -> Path:
+        """A git work tree outside the repository holding ``files``, staged so
+        ``git ls-files`` lists them."""
+        root = self._fixture_base("tcc-")
+        env = fixture_git_environment()
+        subprocess.run(["git", "init", "-q", str(root)], check=True, env=env)
+        for name, content in files.items():
+            path = root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if isinstance(content, bytes):
+                path.write_bytes(content)
+            else:
+                path.write_text(content, encoding="utf-8")
+        if add and files:
+            subprocess.run(["git", "-C", str(root), "add", "-A"], check=True, env=env)
+        return root
+
+    def check(self, root: Path, env: dict[str, str] | None = None) -> subprocess.CompletedProcess:
+        # No leaked GIT_* variable (a pre-commit GIT_INDEX_FILE) may redirect the
+        # fixture's listing, and git may not discover a repository above it.
+        if env is None:
+            env = fixture_git_environment()
+        env = {**env, "GIT_CEILING_DIRECTORIES": str(root.parent)}
+        return subprocess.run(
+            [sys.executable, str(REPO_ROOT / self.GATE), "--root", str(root)],
+            cwd=str(REPO_ROOT), capture_output=True, text=True, env=env,
+        )
+
+    def assertClean(self, root: Path) -> None:
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("OK:", result.stdout)
+
+    def assertFinding(self, root: Path, finding: str) -> None:
+        result = self.check(root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(finding, result.stdout.splitlines())
+
+    def assertRefused(self, root: Path, fragment: str, env=None) -> None:
+        result = self.check(root, env)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(fragment, result.stderr)
+        self.assertNotIn("OK:", result.stdout)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def finding_heads(self, text: str) -> list[str]:
+        """Exit 1 and the finding lines for a ``doc.md`` holding ``text``, each
+        cut before its hint."""
+        result = self.check(self.make_repo({"doc.md": text}))
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        return [line.partition(": ")[0] for line in result.stdout.splitlines()[:-1]]
+
+    def test_marker_pipe_in_row_flagged_single_query_passes(self) -> None:
+        # The incident: a ref-absence marker's bare query separator splits a cell.
+        root = self.make_repo({"doc.md": self.HEAD3 + (
+            "| 1 | 2 | text <!-- ref-absence: q1 | q2 --> |\n")})
+        self.assertFinding(root, "doc.md:3 header=3 row=4")
+        # The hint prescribes the single-query marker, not an escaped pipe, which
+        # gate 104 would keep inside the query and so stop matching it.
+        hint = self.check(root).stdout
+        self.assertIn("A ref-absence marker inside a table row takes a single query, "
+                      "<!-- ref-absence: query -->", hint)
+        self.assertIn("gate 104 splits marker queries on a bare pipe", hint)
+        self.assertClean(self.make_repo({"doc.md": self.HEAD3 + (
+            "| 1 | 2 | text <!-- ref-absence: q1 --> |\n")}))
+
+    def test_short_row_flagged_full_row_passes(self) -> None:
+        self.assertFinding(self.make_repo({"doc.md": self.HEAD3 + "| 1 | 2 |\n"}),
+                           "doc.md:3 header=3 row=2")
+        self.assertClean(self.make_repo({"doc.md": self.HEAD3 + "| 1 | 2 | 3 |\n"}))
+
+    def test_bare_pipe_in_code_span_flagged_escaped_passes(self) -> None:
+        # GFM splits a row into cells before parsing inline code.
+        self.assertFinding(self.make_repo({"doc.md": self.HEAD3 + "| `x | y` | 2 | 3 |\n"}),
+                           "doc.md:3 header=3 row=4")
+        for row in ("| `x \\| y` | 2 | 3 |\n", "| ``x \\| y`` | 2 | 3 |\n",
+                    "| x \\| y | 2 | 3 |\n", "| `x | 2 | 3 |\n"):
+            with self.subTest(row=row):
+                self.assertClean(self.make_repo({"doc.md": self.HEAD3 + row}))
+
+    def test_optional_trailing_pipe_and_two_widths_pass(self) -> None:
+        # A header without outer pipes still opens a table; a body row may omit
+        # its trailing pipe (a missing leading pipe is refused, see below).
+        self.assertClean(self.make_repo({"doc.md": (
+            self.HEAD3 + "| 1 | 2 | 3\n\n"
+            "a | b\n| :-- | --: |\n| 1 | 2 |\n")}))
+
+    def test_fenced_table_skipped(self) -> None:
+        fenced = "```text\n" + self.HEAD3 + "| 1 | 2 |\n```\n"
+        self.assertClean(self.make_repo({"doc.md": fenced}))
+        self.assertClean(self.make_repo({"doc.md": "  ~~~~\n" + self.HEAD3 + "| 1 |\n  ~~~~\n"}))
+
+    def test_unclosed_fence_or_html_block_holds_the_rest_of_the_file(self) -> None:
+        # Codex E1: a fence, or an HTML block of type 1 to 5, that never closes
+        # is code or raw HTML to the end of the file, so markdown-it-py renders
+        # no table after its opening line. The block is the only finding.
+        table = "| a | b |\n|---|---|\n| 1 |\n"
+        blocks = {"```": "```", "~~~~": "~~~~", "<!--": "-->", "<pre>": "</pre>",
+                  "<?php": "?>", "<!DOCTYPE html": ">", "<![CDATA[": "]]>"}
+        for opener, closer in blocks.items():
+            kind = "fence" if opener[0] in "`~" else "html-block"
+            with self.subTest(opener=opener):
+                self.assertEqual(self.finding_heads(opener + "\n" + table),
+                                 [f"doc.md:1 unclosed-{kind}"])
+                # Closed before the table, the block hides nothing.
+                self.assertFinding(self.make_repo({"doc.md": opener + "\n" + closer + "\n" + table}),
+                                   "doc.md:5 header=2 row=1")
+        # After paragraph text, holding a shorter fence pair, and inside a block
+        # quote (no final newline) or list item that runs to the end of the file.
+        cases = {"Text.\n```\n" + table: "doc.md:2 unclosed-fence",
+                 "Text.\n<!--\n" + table: "doc.md:2 unclosed-html-block",
+                 "````\n```\n```\n" + table: "doc.md:1 unclosed-fence",
+                 "> ```\n> | a | b |\n> |---|---|\n> | 1 |": "doc.md:1 unclosed-fence",
+                 "- <!--\n  | a | b |\n  |---|---|\n  | 1 |\n": "doc.md:1 unclosed-html-block"}
+        for text, finding in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(self.finding_heads(text), [finding])
+
+    def test_rendered_table_before_an_unclosed_block_is_reported_with_the_block(self) -> None:
+        # Codex W1: the short row of the table markdown-it-py renders is
+        # reported, then the unclosed block after it, and the table-shaped
+        # lines inside that block are not.
+        inner = "| a | b |\n|---|---|\n| 1 |\n"
+        cases = {
+            self.HEAD3 + "| 1 | 2 |\n\n```\n" + inner:
+                ["doc.md:3 header=3 row=2", "doc.md:5 unclosed-fence"],
+            self.HEAD3 + "| 1 | 2 |\n\n<!--\n" + inner:
+                ["doc.md:3 header=3 row=2", "doc.md:5 unclosed-html-block"],
+            # The first fence ends with its block quote; the second never closes.
+            "> ```\n> code\n\n" + inner + "\n```\n" + inner:
+                ["doc.md:6 header=2 row=1", "doc.md:8 unclosed-fence"],
+        }
+        for text, findings in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(self.finding_heads(text), findings)
+
+    def test_unclosed_fence_or_comment_is_a_finding_closed_one_is_not(self) -> None:
+        # Round 4: a fence or comment still open at the end of the file is
+        # reported at its opening line with the closer to add, and exits 1.
+        fence_hint = "close it with a line of ```, indented as its opening line"
+        cases = {
+            "Text.\n\n```text\ncode\n": f"doc.md:3 unclosed-fence: {fence_hint}",
+            "Text.\n\n<!-- note\nmore\n": ("doc.md:3 unclosed-html-block: close it with a line "
+                                           "holding -->, indented as its opening line"),
+            # The guardrails/ai/rag-security.md shape: a fence line indented short
+            # of its list item's content column ends the item and opens a fence.
+            "- item:\n  ```\n  code\n ```\n- next\n": f"doc.md:4 unclosed-fence: {fence_hint}",
+            # Spaces after the last LF are not a line, so they do not end the quote.
+            "> ```\n> code\n  ": f"doc.md:1 unclosed-fence: {fence_hint}",
+        }
+        for text, finding in cases.items():
+            with self.subTest(text=text):
+                result = self.check(self.make_repo({"doc.md": text}))
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertEqual(result.stdout.splitlines()[:-1], [finding])
+                self.assertIn("unclosed-fence: the fence opened on that line never closes",
+                              result.stdout)
+                self.assertIn("unclosed-html-block: the HTML block opened on that line ends, "
+                              "with the file or with its list item or block quote, before its "
+                              "closer appears", result.stdout)
+        # Closed, or a fence ended with its container, the block is no finding.
+        for text in ("Text.\n\n```text\ncode\n```\n", "Text.\n\n<!-- note\nmore -->\n",
+                     "- item:\n  ```\n  code\n  ```\n- next\n", "> ```\n> code\n\nText.\n",
+                     "> ```\n> code\n  \nText.\n"):
+            with self.subTest(text=text):
+                self.assertClean(self.make_repo({"doc.md": text}))
+
+    def test_html_block_ended_by_its_container_is_unclosed_a_fence_is_not(self) -> None:
+        # Codex round-4 W: unclosed-html-block means the HTML syntax. A block of
+        # type 1 to 5 whose closer never appears is reported even when its block
+        # quote or list item ends it first (or markdown-it-py ends it at the
+        # final blank line), as its raw opener still reaches the page.
+        table = "| a | b |\n|---|---|\n| 1 |\n"
+        cases = {"> <!--\n> a\n\nText\n": ["doc.md:1 unclosed-html-block"],
+                 "- <!--\n  a\nb\n": ["doc.md:1 unclosed-html-block"],
+                 "- <pre>\n  a\nb\n": ["doc.md:1 unclosed-html-block"],
+                 "- <!--\n  text\n\n": ["doc.md:1 unclosed-html-block"],
+                 "- <!-- a\n\n  text\n": ["doc.md:1 unclosed-html-block"],
+                 "> <!--\n\n" + table: ["doc.md:1 unclosed-html-block", "doc.md:5 header=2 row=1"]}
+        for text, findings in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(self.finding_heads(text), findings)
+        result = self.check(self.make_repo({"doc.md": "> <!--\n> a\n\nText\n"}))
+        self.assertEqual(result.stdout.splitlines()[0], "doc.md:1 unclosed-html-block: close it "
+                         "with a line holding -->, indented as its opening line")
+        for text in ("> <!--\n> a -->\n\nText\n", "> ```\n> code\n\nText.\n"):
+            with self.subTest(text=text):
+                self.assertClean(self.make_repo({"doc.md": text}))
+
+    def test_list_item_html_block_also_read_as_markdown_it_py_ends_it(self) -> None:
+        # Codex round-4 ERROR, claude TCC108-LIST-ITEM-HTML-RESIDUAL: markdown-it-py
+        # 3.0.0 ends an HTML block of type 1 to 5 in a list item at a blank line
+        # indented less than the item's content column, so the table after it
+        # renders, with the closer as one more lazy row. The row findings of both
+        # readings are reported.
+        layouts = {
+            "L1": ("- <!--\n\n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n", 5),
+            "L2": ("1. <?php\n\n   | a | b |\n   |---|---|\n   | 1 |\n   ?>\n", 5),
+            "L4": ("> - <!--\n>\n>   | a | b |\n>   |---|---|\n>   | 1 |\n>   -->\n", 5),
+            "L5": ("- a\n  - <!--\n  \n    | a | b |\n    |---|---|\n    | 1 |\n    -->\n", 6),
+            "L6": ("- <pre>\n\n  | a | b |\n  |---|---|\n  | 1 |\n  </pre>\n", 5),
+        }
+        for name, (text, line) in layouts.items():
+            with self.subTest(layout=name):
+                self.assertEqual(self.finding_heads(text),
+                                 [f"doc.md:{line} header=2 row=1",
+                                  f"doc.md:{line + 1} header=2 row=1 lazy-row"])
+        # L1b: a blank line indented to the content column ends the block in
+        # neither reading, and neither does one in a block quote inside the
+        # item or one outside any list item.
+        for text in ("- <!--\n  \n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n",
+                     "- > <!--\n  >\n  > | a | b |\n  > |---|---|\n  > | 1 |\n  > -->\n",
+                     "<!--\n\n| a | b |\n|---|---|\n| 1 |\n-->\n"):
+            with self.subTest(text=text):
+                self.assertClean(self.make_repo({"doc.md": text}))
+
+    def test_list_item_html_block_blank_line_measured_inside_the_quote(self) -> None:
+        # Claude round-5 TCC108-DUAL-READING-BOUNDARIES-UNPINNED: a blank line one
+        # column short of the content column ends the block in markdown-it-py
+        # (M4), and the blank line's indent counts from inside the innermost
+        # block quote, whether the quote marker is indented (M6) or spaces
+        # follow it (M6, other direction: no table renders).
+        rows = ["doc.md:5 header=2 row=1", "doc.md:6 header=2 row=1 lazy-row"]
+        for name, text in (
+                ("M4", "- <!--\n \n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n"),
+                ("M6", "   > - <!--\n   >\n   >   | a | b |\n   >   |---|---|\n   >   | 1 |\n"
+                       "   >   -->\n")):
+            with self.subTest(probe=name):
+                self.assertEqual(self.finding_heads(text), rows)
+        self.assertClean(self.make_repo({"doc.md": (
+            "> - <!--\n>   \n>   | a | b |\n>   |---|---|\n>   | 1 |\n>   -->\n")}))
+
+    def test_markdown_it_py_reading_adds_row_findings_only(self) -> None:
+        # Claude round-5 N1 (M1, M2 and M3) pins the documented choices. Under
+        # markdown-it-py's reading F2's comment opens after the blank line and
+        # never closes, but only the CommonMark reading's unclosed blocks are
+        # reported (M1); the table and row counts are the CommonMark reading's,
+        # in which the table-shaped lines stay inside the comment (M2); and a
+        # block of type 6 or 7 ends at a blank line, so it is never unclosed,
+        # even when its block quote ends it (M3).
+        self.assertClean(self.make_repo({"doc.md": "- <pre>\n\n  <!--\n  </pre>\n"}))
+        for text, counts in (("- <!--\n\n  | a | b |\n  |---|---|\n  | 1 | 2 |\n\n  -->\n",
+                              "(0 tables, 0 body rows)"),
+                             ("| a | b |\n|---|---|\n| 1 | 2 |\n", "(1 tables, 1 body rows)")):
+            with self.subTest(text=text):
+                result = self.check(self.make_repo({"doc.md": text}))
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn(counts, result.stdout)
+        self.assertClean(self.make_repo({"doc.md": "> <div>\n> x\nText\n"}))
+
+    def test_only_spaces_and_tabs_make_a_blank_line_or_a_closer_tail(self) -> None:
+        # Claude TCC108-UNICODE-WHITESPACE, N1, N1b and N1c: other whitespace
+        # after a closing fence makes the line text, so the next fence line
+        # closes the fence, the table renders and the last fence never closes.
+        n1 = "```\ncode\n```{}\n```\n| a | b |\n|---|---|\n| 1 |\n```\nx\n```\n```\n"
+        for tail in (" ", " ", "\u000c"):
+            with self.subTest(tail=repr(tail)):
+                self.assertEqual(self.finding_heads(n1.format(tail)),
+                                 ["doc.md:7 header=2 row=1", "doc.md:11 unclosed-fence"])
+        for tail in (" ", "\t"):
+            with self.subTest(tail=repr(tail)):
+                self.assertClean(self.make_repo({"doc.md": n1.format(tail)}))
+        # N2: a line holding an NBSP is not blank, so it ends the list item and
+        # the fence in it.
+        n2 = "- item\n  ```\n  code\n{}\n  | a | b |\n  |---|---|\n  | 1 |\n  ```\n"
+        self.assertEqual(self.finding_heads(n2.format(" ")),
+                         ["doc.md:7 header=2 row=1", "doc.md:8 unclosed-fence"])
+        self.assertClean(self.make_repo({"doc.md": n2.format("")}))
+        # N4: nor does it end an HTML block of type 6.
+        n4 = "<div>\n{}\n| a | b |\n|---|---|\n| 1 |\n"
+        self.assertClean(self.make_repo({"doc.md": n4.format(" ")}))
+        self.assertFinding(self.make_repo({"doc.md": n4.format(" ")}), "doc.md:5 header=2 row=1")
+        # Such a line is paragraph text, so "2. x" after it cannot interrupt
+        # the paragraph, and the four-column lines are no table.
+        tail = "2. x\n\n    | a | b |\n    |---|---|\n    | 1 |\n"
+        self.assertClean(self.make_repo({"doc.md": " \n" + tail}))
+        self.assertFinding(self.make_repo({"doc.md": "\n" + tail}), "doc.md:6 header=2 row=1")
+
+    def test_list_marker_digits_are_ascii(self) -> None:
+        # Claude round-5 TCC108-UNICODE-DIGIT-MARKER: CommonMark and markdown-it-py
+        # read only ASCII digits in an ordered list marker, so an Arabic-Indic
+        # "١." (U1) or a fullwidth "１." (U1f) is a lazy row, not a list item
+        # ending the table.
+        u1 = self.HEAD3 + "| 1 | 2 | 3 |\n{}. x\n| 4 |\n"
+        for digit in ("١", "１"):
+            with self.subTest(digit=digit):
+                self.assertEqual(self.finding_heads(u1.format(digit)),
+                                 ["doc.md:4 header=3 row=1 lazy-row", "doc.md:5 header=3 row=1"])
+        self.assertClean(self.make_repo({"doc.md": u1.format("1")}))
+        # U8: the line is text, so it opens no fence and the table after it renders.
+        u8 = "{}. ```\n   | a | b |\n   |---|---|\n   | 1 |\n"
+        self.assertEqual(self.finding_heads(u8.format("١")), ["doc.md:4 header=2 row=1"])
+        self.assertEqual(self.finding_heads(u8.format("1")), ["doc.md:1 unclosed-fence"])
+        # U2: the line is text, so with the delimiter it heads no table.
+        u2 = "{}. | a | b |\n   |---|---|\n   | 1 |\n"
+        self.assertClean(self.make_repo({"doc.md": u2.format("١")}))
+        self.assertFinding(self.make_repo({"doc.md": u2.format("1")}), "doc.md:3 header=2 row=1")
+
+    def test_delimiter_cells_trimmed_of_spaces_and_tabs_only(self) -> None:
+        # Codex round-5 W2: markdown-it-py admits only spaces and tabs beside a
+        # delimiter cell, so a no-break space in the row, or at either end of
+        # it, makes the line text and no table forms.
+        table = "| a | b |\n{}\n| 1 |\n"
+        for delimiter in ("|--- |---|", "|---|---| ", " |---|---|"):
+            with self.subTest(delimiter=repr(delimiter)):
+                self.assertClean(self.make_repo({"doc.md": table.format(delimiter)}))
+        for delimiter in ("|--- |---|", "|---\t|---|"):
+            with self.subTest(delimiter=repr(delimiter)):
+                self.assertFinding(self.make_repo({"doc.md": table.format(delimiter)}),
+                                   "doc.md:3 header=2 row=1")
+
+    def test_unquoted_attribute_value_holds_no_control_character(self) -> None:
+        # Claude round-5 N2, A1: markdown-it-py ends an unquoted attribute value
+        # before a C0 control character, so the line starts no HTML block of
+        # type 7 and the table after it renders; without the character the
+        # block holds the table.
+        table = "| a | b |\n|---|---|\n| 1 |\n"
+        self.assertFinding(self.make_repo({"doc.md": "<a href=x\x01>\n" + table}),
+                           "doc.md:4 header=2 row=1")
+        self.assertClean(self.make_repo({"doc.md": "<a href=x>\n" + table}))
+
+    def test_tag_names_fold_ascii_case_and_rows_start_after_spaces(self) -> None:
+        # The CommonMark reading ignores ASCII case only in a tag name, so a long
+        # s in "<ſcript>", or a Kelvin sign for the k of "<link>", starts no
+        # HTML block there and the table after it is checked, while "</ſcript>"
+        # ends a block in markdown-it-py's reading, so the table after it is
+        # checked too.
+        table = "| a | b |\n|---|---|\n| 1 |\n"
+        for opener in ("<ſcript>", "<linK>"):
+            with self.subTest(opener=opener):
+                self.assertFinding(self.make_repo({"doc.md": opener + "\n" + table}),
+                                   "doc.md:4 header=2 row=1")
+        for text in ("<SCRIPT>\n" + table + "</script>\n", "<LINK>\n" + table):
+            with self.subTest(text=text):
+                self.assertClean(self.make_repo({"doc.md": text}))
+        self.assertFinding(self.make_repo({"doc.md": "<script>\n</ſcript>\n" + table}),
+                           "doc.md:5 header=2 row=1")
+        # Only spaces indent a row, so one starting with a no-break space does
+        # not start with a pipe.
+        self.assertFinding(self.make_repo({"doc.md": "| a | b |\n|---|---|\n | 1 | 2 |\n"}),
+                           "doc.md:3 header=2 row=2 no-leading-pipe")
+        self.assertClean(self.make_repo({"doc.md": "| a | b |\n|---|---|\n   | 1 | 2 |\n"}))
+
+    def test_nul_is_read_as_a_replacement_character(self) -> None:
+        # Claude round-6 TCC108-ATTR-C0-RANGE-FAIL-OPEN (QL-nul, LL-nul and the
+        # minimised fuzz case) and codex round-6 TCC108-NUL-HTML-FALSE-FINDING:
+        # markdown-it-py reads U+0000 as U+FFFD, which an unquoted attribute
+        # value holds, so the line starts an HTML block. Its block quote or list
+        # item ends at the next line, and the table after it renders; at the
+        # top level the block holds the table, unless the next line starts no
+        # block in markdown-it-py ("<b x=" and U+0001), which then renders it.
+        table = "| a | b |\n|---|---|\n| 1 |\n"
+        for name, text, finding in (
+                ("QL-nul", "> <a href=x\x00>\n" + table, "doc.md:4 header=2 row=1"),
+                ("LL-nul", "- <a href=x\x00>\n" + table, "doc.md:4 header=2 row=1"),
+                ("fuzz", "><a f=\x00>\n-||\n-|-\n|", "doc.md:4 header=2 row=0"),
+                ("QL-nul-then-text", "> <a href=x\x00>\n<b x=\x01 y=z>\n" + table,
+                 "doc.md:5 header=2 row=1")):
+            with self.subTest(probe=name):
+                self.assertEqual(self.finding_heads(text), [finding])
+        self.assertClean(self.make_repo({"doc.md": "<a href=x\x00>\n" + table}))
+
+    def test_unquoted_attribute_value_read_both_ways(self) -> None:
+        # Claude round-6 TCC108-ATTR-C0-RANGE-FAIL-OPEN: markdown-it-py ends an
+        # unquoted value at U+000B, U+000C or U+001C to U+001F and reads the
+        # character as space before ">", so the line starts an HTML block that
+        # its block quote or list item ends; the CommonMark reading, whose value
+        # holds the character, finds the table after it. At the top level a
+        # value holding U+0002 (round-6 mutant h) starts a block only in the
+        # CommonMark reading, and a value of a space (mutant g) in neither, so
+        # markdown-it-py's reading finds the table.
+        table = "| a | b |\n|---|---|\n| 1 |\n"
+        for name, line in (("QL-1f", "> <a href=x\x1f>"), ("QL-vt", "> <a href=x\x0b>"),
+                           ("QL-ff", "> <a href=x\x0c>"), ("QL-1c", "> <a href=x\x1c>"),
+                           ("LL-1f", "- <a href=x\x1f>"), ("h", "<a href=x\x02>"),
+                           ("g", "<a href= >")):
+            with self.subTest(probe=name):
+                self.assertEqual(self.finding_heads(line + "\n" + table),
+                                 ["doc.md:4 header=2 row=1"])
+        # Behind a block that only the CommonMark reading holds open, each value
+        # range is markdown-it-py's alone: a space or U+0002 ends the value, so
+        # the line starts no HTML block and the table after it renders.
+        for line in ("<a href=x 1>", "<a href=x\x02>"):
+            with self.subTest(line=line):
+                text = "<script>\n</ſcript>\n\n" + line + "\n" + table
+                self.assertEqual(self.finding_heads(text),
+                                 ["doc.md:1 unclosed-html-block", "doc.md:7 header=2 row=1"])
+        self.assertEqual(self.finding_heads("<script>\n</ſcript>\n\n<a href=x>\n" + table),
+                         ["doc.md:1 unclosed-html-block"])
+
+    def test_tag_names_read_under_both_case_foldings(self) -> None:
+        # Claude round-6 TCC108-ASCII-TAG-FOLD-FAIL-OPEN: markdown-it-py starts an
+        # HTML block on a tag name that matches only under Unicode case folding
+        # (a dotless i, a long s or a Kelvin sign), so the block quote or list
+        # item it is in ends at the next line and the table after it renders, and
+        # a fence or comment after the block holds no table; the CommonMark
+        # reading reads the line as text. Both readings are scanned.
+        table = "| a | b |\n|---|---|\n| 1 |\n"
+        for name, text in (("QL-dotless-div", "> <dıv>\n"), ("QL-long-s", "> <ſcript>\n"),
+                           ("QL-kelvin", "> <linK>\n"), ("LL-dotless-div", "- <dıv>\n"),
+                           ("CF-list-script", "- <ſcript>\n")):
+            with self.subTest(probe=name):
+                self.assertEqual(self.finding_heads(text + table), ["doc.md:4 header=2 row=1"])
+        for name, text in (("CF-fence-script", "<ſcript>\n```\n</script>\n"),
+                           ("CF-fence-div", "<dıv>\n```\n\n"),
+                           ("CF-fence-kelvin", "<linK>\n```\n\n")):
+            with self.subTest(probe=name):
+                self.assertEqual(self.finding_heads(text + table + "```\n"),
+                                 ["doc.md:6 header=2 row=1"])
+        self.assertEqual(self.finding_heads("<dıv>\n<!--\n\n" + table + "-->\n"),
+                         ["doc.md:6 header=2 row=1", "doc.md:7 header=2 row=1 lazy-row"])
+        # The CommonMark reading's type-1 closer ignores ASCII case only, as a
+        # browser reads it, so "</ſcript>" leaves the block unclosed there.
+        self.assertEqual(self.finding_heads("<script>\n</ſcript>\nText\n"),
+                         ["doc.md:1 unclosed-html-block"])
+        self.assertEqual(self.finding_heads("<script>\n</ſcript>\n" + table),
+                         ["doc.md:1 unclosed-html-block", "doc.md:5 header=2 row=1"])
+        self.assertClean(self.make_repo({"doc.md": "<script>\n</SCRIPT>\nText\n"}))
+        # markdown-it-py's reading also ends a table, or a list item's lazy
+        # paragraph, at a start only it reads ("<dıv>"), so behind a block that
+        # only the CommonMark reading holds open no line after it is a row.
+        for text in ("<script>\n</ſcript>\n\n| a | b |\n|---|---|\n| 1 | 2 |\n<dıv>\n| 3 |\n",
+                     "<script>\n</ſcript>\n\n- text\n<dıv>\n  | a | b |\n  |---|---|\n  | 1 |\n"):
+            with self.subTest(text=text):
+                self.assertEqual(self.finding_heads(text), ["doc.md:1 unclosed-html-block"])
+
+    def test_round_six_surviving_mutants_are_pinned(self) -> None:
+        # Claude round-6 TCC108-R6-SURVIVING-MUTANTS k and c (g and h are in
+        # test_unquoted_attribute_value_read_both_ways): "<SCRIPT>" starts a
+        # type-1 block under either reading, which ends at "</script>", so the
+        # table renders and the fence after it never closes (k: the CommonMark
+        # reading's start without re.I); and "0." is a list item that cannot
+        # interrupt a paragraph, so the table after the text renders (c).
+        table = "| a | b |\n|---|---|\n| 1 |\n"
+        self.assertEqual(self.finding_heads("<SCRIPT>\n```\n</script>\n" + table + "```\n"),
+                         ["doc.md:6 header=2 row=1", "doc.md:7 unclosed-fence"])
+        self.assertEqual(self.finding_heads("Text\n0. x\n" + table), ["doc.md:5 header=2 row=1"])
+        # An uppercase type-6 start ends a table under either reading.
+        self.assertClean(self.make_repo({"doc.md": "| a | b |\n|---|---|\n| 1 | 2 |\n<DIV>\n"}))
+
+    def test_line_after_a_lazy_quoted_delimiter_row_is_lazy_text(self) -> None:
+        # Claude round-7 TCC108-R7-NUL-LAZY-TABLE-FAIL-OPEN (A2, A4 and the
+        # minimised form): a lazy line and a quoted delimiter row form no table
+        # in markdown-it-py, so its paragraph stays open and the next line, which
+        # leaves the quote and starts only an HTML block of type 7 (which cannot
+        # interrupt a paragraph), is lazy text too; the quoted table after it
+        # renders. markdown-it-py's reading reads it so, with U+0000 or "x"
+        # (A2-plain-x) in the attribute, while a type-6 start ends the paragraph
+        # and its block holds the table.
+        tail = "> | a | b |\n> |---|---|\n> | Z |\n"
+        for name, text, finding in (
+                ("A2", "> | x |\n| y |\n> |---|\n<a href=x\x00>\n" + tail,
+                 "doc.md:7 header=2 row=1"),
+                ("A2-plain-x", "> | x |\n| y |\n> |---|\n<a href=xx>\n" + tail,
+                 "doc.md:7 header=2 row=1"),
+                ("A4", "> Text | x\nmore | y\n> ---|---\n<i x=\x00>\n" + tail,
+                 "doc.md:7 header=2 row=1"),
+                ("minimised", ">|\n-||\n>-|-\n<a f=\x00>\n>a||\n>-|-\n>Z",
+                 "doc.md:7 header=2 row=1 lazy-row"),
+                # The quote's list item continues after the lazy line.
+                ("in-item", "> - | x |\n| y |\n>   |---|\n<a href=xx>\n>     | a | b |\n"
+                            ">     |---|---|\n>     | Z |\n", "doc.md:7 header=2 row=1"),
+                # A header line its list item does not continue is read again
+                # outside the item; only markdown-it-py's reading reaches it here.
+                ("item-header", "<a href=x\x01>\n- Text\n| a | b |\n  |---|---|\n| 1 |\n",
+                 "doc.md:5 header=2 row=1")):
+            with self.subTest(probe=name):
+                self.assertEqual(self.finding_heads(text), [finding])
+        self.assertClean(self.make_repo({"doc.md": "> | x |\n| y |\n> |---|\n<div>\n" + tail}))
+        # The CommonMark reading still checks a table inside the quote, where it
+        # reads "<dıv>" as a row and markdown-it-py's reading as an HTML block.
+        self.assertEqual(self.finding_heads("> | x |\n| y |\n> |---|\n> <dıv>\n> | 1 | 2 |\n"),
+                         ["doc.md:4 header=1 row=1 lazy-row", "doc.md:5 header=1 row=2"])
+
+    def test_commonmark_reading_checks_rows_after_a_unicode_folded_start(self) -> None:
+        # Claude round-7 TCC108-R7-SURVIVING-MUTANTS: "<dıv>" and "<ſcript>" end
+        # the table only in markdown-it-py's reading; the CommonMark reading
+        # reads each as a lazy row, so the short row after it is checked too.
+        rows = ["doc.md:4 header=2 row=1 lazy-row", "doc.md:5 header=2 row=1"]
+        for opener in ("<dıv>", "<ſcript>"):
+            with self.subTest(opener=opener):
+                self.assertEqual(self.finding_heads(
+                    "| a | b |\n|---|---|\n| 1 | 2 |\n" + opener + "\n| 3 |\n"), rows)
+        self.assertClean(self.make_repo({"doc.md": "| a | b |\n|---|---|\n| 1 | 2 |\n<div>\n| 3 |\n"}))
+
+    def test_unquoted_attribute_value_holds_u_0021_in_both_readings(self) -> None:
+        # Codex round-7 WARN: markdown-it-py's unquoted attribute value ends at
+        # U+0000 to U+0020 only, so "!" (U+0021) is part of it, the line starts
+        # an HTML block of type 7 under both readings and the block holds the
+        # table; U+0001 ends the value in markdown-it-py's reading, which then
+        # renders the table.
+        table = "| a | b |\n|---|---|\n| 1 |\n"
+        self.assertClean(self.make_repo({"doc.md": "<a href=x!>\n" + table}))
+        self.assertFinding(self.make_repo({"doc.md": "<a href=x\x01>\n" + table}),
+                           "doc.md:4 header=2 row=1")
+
+    def test_quoted_header_checks_only_quotes_the_line_leaves(self) -> None:
+        # Round-8 survivor of "quoted_header = width and QUOTE in stack[matched:]":
+        # a header line inside the quote's list item leaves only the item, so it
+        # heads the table the item's delimiter row continues; checking the whole
+        # stack for a quote makes it lazy text, as markdown-it-py reads it
+        # (CommonMark would count a row-less table), and reports nothing.
+        self.assertEqual(self.finding_heads("> - | x |\n> | y |\n>   |---|\n> | Z | Z |\n"),
+                         ["doc.md:4 header=1 row=2"])
+
+    def test_quoted_header_needs_a_table_width(self) -> None:
+        # Round-8 survivor of the same line without "width and": a line that
+        # heads no table is never a quoted header; reading a quoted paragraph
+        # line as one starts a table at a lazy line.
+        self.assertClean(self.make_repo({"doc.md": "> Text\nmore\n> a\n> b\n"}))
+
+    def test_unclosed_html_block_hint_names_its_closer(self) -> None:
+        # Claude round-4 survivor: each type's closer, not always "-->".
+        closers = {"<pre>": "</script>, </pre>, </style> or </textarea>", "<!--": "-->",
+                   "<?php": "?>", "<!DOCTYPE html": ">", "<![CDATA[": "]]>"}
+        for opener, closer in closers.items():
+            with self.subTest(opener=opener):
+                result = self.check(self.make_repo({"doc.md": opener + "\ntext\n"}))
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertEqual(result.stdout.splitlines()[:-1], [
+                    f"doc.md:1 unclosed-html-block: close it with a line holding {closer}, "
+                    f"indented as its opening line"])
+
+    def test_comment_block_skipped(self) -> None:
+        self.assertClean(self.make_repo({"doc.md": "<!--\n" + self.HEAD3 + "| 1 |\n-->\n"}))
+        self.assertFinding(self.make_repo({"doc.md": "<!-- note -->\n\n" + self.HEAD3 + "| 1 |\n"}),
+                           "doc.md:5 header=3 row=1")
+
+    def test_blockquote_table_checked(self) -> None:
+        quoted = "> | a | b |\n> |---|---|\n"
+        self.assertFinding(self.make_repo({"doc.md": quoted + "> | 1 | 2 | 3 |\n"}),
+                           "doc.md:3 header=2 row=3")
+        self.assertClean(self.make_repo({"doc.md": quoted + "> | 1 | 2 |\n"}))
+
+    def test_lazy_row_flagged_blank_line_and_block_start_pass(self) -> None:
+        body = self.HEAD3 + "| 1 | 2 | 3 |\n"
+        self.assertFinding(self.make_repo({"doc.md": body + "plain text\n"}),
+                           "doc.md:4 header=3 row=1 lazy-row")
+        self.assertClean(self.make_repo({"doc.md": body + "\nplain text\n"}))
+        # A line that starts another block ends the table, as GFM ends it.
+        for line in ("- item", "1. item", "## Heading", "---", "```\ncode\n```", "<!-- c -->",
+                     "<div>", "> quote", "    indented"):
+            with self.subTest(line=line):
+                self.assertClean(self.make_repo({"doc.md": body + line + "\n"}))
+
+    def test_no_leading_pipe_flagged_leading_pipe_passes(self) -> None:
+        # A house rule: GFM reads the row, but every body row here starts with '|'.
+        body = self.HEAD3 + "| 1 | 2 | 3 |\n"
+        self.assertFinding(self.make_repo({"doc.md": body + "4 | 5 | 6 |\n"}),
+                           "doc.md:4 header=3 row=3 no-leading-pipe")
+        self.assertClean(self.make_repo({"doc.md": body + "| 4 | 5 | 6 |\n"}))
+        # The table goes on after such a row, so the rows after it are checked.
+        result = self.check(self.make_repo({"doc.md": body + "4 | 5 | 6 |\n| 7 | 8 |\n"}))
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(result.stdout.splitlines()[:2],
+                         ["doc.md:4 header=3 row=3 no-leading-pipe", "doc.md:5 header=3 row=2"])
+
+    def test_header_delimiter_mismatch_is_not_a_table(self) -> None:
+        self.assertClean(self.make_repo({"doc.md": "| a | b |\n|---|\n| 1 | 2 | 3 |\n"}))
+
+    def test_only_tracked_markdown_scanned(self) -> None:
+        root = self.make_repo({"doc.md": self.HEAD3 + "| 1 | 2 | 3 |\n",
+                               "notes.txt": self.HEAD3 + "| 1 |\n"})
+        (root / "untracked.md").write_text(self.HEAD3 + "| 1 |\n", encoding="utf-8")
+        self.assertClean(root)
+
+    def test_undecodable_file_refused_valid_bytes_pass(self) -> None:
+        bad = self.make_repo({"doc.md": self.HEAD3 + "| 1 |\n", "bad.md": b"| a |\xff\n"})
+        result = self.check(bad)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("bad.md", result.stderr)
+        # The finding in the readable file is still reported, but no verdict of 1 or 0.
+        self.assertIn("doc.md:3 header=3 row=1", result.stdout)
+        self.assertClean(self.make_repo({"bad.md": "| a |\xe9\n".encode("utf-8")}))
+
+    def test_missing_tracked_file_refused_present_file_passes(self) -> None:
+        root = self.make_repo({"doc.md": self.HEAD3 + "| 1 | 2 | 3 |\n", "gone.md": "x\n"})
+        self.assertClean(root)
+        (root / "gone.md").unlink()
+        self.assertRefused(root, "gone.md")
+
+    def test_listing_failure_refused_git_tree_passes(self) -> None:
+        not_git = self._fixture_base("tcc-nogit-")
+        (not_git / "doc.md").write_text(self.HEAD3 + "| 1 | 2 | 3 |\n", encoding="utf-8")
+        self.assertRefused(not_git, "git ls-files failed")
+        git_tree = self.make_repo({"doc.md": self.HEAD3 + "| 1 | 2 | 3 |\n"})
+        self.assertRefused(git_tree, "cannot run git ls-files",
+                           env={**fixture_git_environment(), "PATH": "/nonexistent-3b570"})
+        self.assertClean(git_tree)
+
+    def test_empty_listing_refused_one_file_passes(self) -> None:
+        root = self.make_repo({"notes.txt": "plain\n"})
+        self.assertRefused(root, "lists no .md file")
+        (root / "doc.md").write_text("# Title\n", encoding="utf-8")
+        subprocess.run(["git", "-C", str(root), "add", "doc.md"], check=True,
+                       env=fixture_git_environment())
+        self.assertClean(root)
+
+    def test_empty_or_missing_root_refused(self) -> None:
+        for args in (("--root=",), ("--root", "/nonexistent-3b570")):
+            with self.subTest(args=args):
+                result = run_linter(self.GATE, *args)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("--root", result.stderr)
+
+    def test_split_cells_rule(self) -> None:
+        gate = load_linter_module(self.GATE, "tcc_split")
+        # A pipe after a backslash is escaped, however many backslashes come
+        # before it, as markdown-it-py 3.0.0 reads it.
+        cases = {"| a | b |": 2, "a | b": 2, "| a | b": 2, "| a | |": 2, "|||": 2, "||": 1, "|": 0,
+                 "| a \\| b |": 1, "| a \\\\| b |": 1, "| a \\\\\\| b |": 1,
+                 "| a \\\\\\\\| b |": 1, "| a\\b | c |": 2, "| `a | b` |": 2}
+        for row, count in cases.items():
+            with self.subTest(row=row):
+                self.assertEqual(len(gate.split_cells(row)), count)
+
+    def test_pipe_after_a_backslash_is_escaped_even_after_two(self) -> None:
+        # markdown-it-py 3.0.0 renders "| x \\| y |" as one cell, so under a
+        # two-cell header the row is short.
+        head = "| a | b |\n|---|---|\n"
+        for row in ("| x \\| y |\n", "| x \\\\| y |\n", "| x \\\\\\| y |\n"):
+            with self.subTest(row=row):
+                self.assertFinding(self.make_repo({"doc.md": head + row}),
+                                   "doc.md:3 header=2 row=1")
+        self.assertClean(self.make_repo({"doc.md": head + "| x \\\\| y | z |\n"}))
+        # A header pipe after two backslashes is escaped too.
+        self.assertFinding(self.make_repo({"doc.md": "| a \\\\| b |\n|---|\n| 1 | 2 |\n"}),
+                           "doc.md:3 header=1 row=2")
+
+    def test_fence_and_comment_end_with_their_container(self) -> None:
+        # Review probes A1, A2 and A1x2: a fence opened in a block quote or list
+        # item ends with that container, so a later fence line cannot close it
+        # and hide the broken table in between. A comment ends the same way.
+        cases = {
+            "> ```\n> code\n\n" + self.HEAD3 + "| 1 | 2 |\n\n```\nx\n```\n": 6,
+            "- item\n  ```\n  code\ndedented paragraph\n\n" + self.HEAD3 + "| 1 | 2 |\n\n```\n": 8,
+            "> ```\n\n" + self.HEAD3 + "| 1 | 2 |\n\n> ```\n": 5,
+            "> <!--\n\n" + self.HEAD3 + "| 1 | 2 |\n\n> -->\n": 5,
+        }
+        for text, line in cases.items():
+            with self.subTest(text=text):
+                self.assertFinding(self.make_repo({"doc.md": text}),
+                                   f"doc.md:{line} header=3 row=2")
+        # A fence closed inside its container still holds its lines.
+        for text in ("> ```\n> | a | b | c |\n> |---|---|---|\n> | 1 |\n> ```\n",
+                     "- ```\n  | a | b | c |\n  |---|---|---|\n  | 1 |\n  ```\n"):
+            with self.subTest(text=text):
+                self.assertClean(self.make_repo({"doc.md": text}))
+
+    def test_comment_opener_holding_its_closer_closes_on_its_line(self) -> None:
+        # Review probes A5 and A5b.
+        for opener in ("<!-->", "<!--->", "<!-- a -->"):
+            with self.subTest(opener=opener):
+                self.assertFinding(self.make_repo({"doc.md": (
+                    opener + "\n\n" + self.HEAD3 + "| 1 | 2 |\n\n-->\n")}),
+                    "doc.md:5 header=3 row=2")
+        self.assertClean(self.make_repo({"doc.md": (
+            "<!--\n\n" + self.HEAD3 + "| 1 | 2 |\n\n-->\n")}))
+
+    def test_line_indented_four_columns_opens_no_fence_or_comment(self) -> None:
+        # Review probe A6: indented code, not a fence; the same for a comment.
+        tail = "\n\n" + self.HEAD3 + "| 1 | 2 |\n\n"
+        self.assertFinding(self.make_repo({"doc.md": "Text.\n\n    ```" + tail + "```\nx\n```\n"}),
+                           "doc.md:7 header=3 row=2")
+        self.assertFinding(self.make_repo({"doc.md": "Text.\n\n    <!--" + tail + "-->\n"}),
+                           "doc.md:7 header=3 row=2")
+        # Three columns still open a fence.
+        self.assertClean(self.make_repo({"doc.md": "Text.\n\n   ```" + tail + "```\n"}))
+
+    def test_fence_closer_needs_char_length_bare_line_and_small_indent(self) -> None:
+        # Each line below fails to close the fence, so the broken table stays inside it.
+        for text in ("````\n```\n", "~~~\n```\n", "```\n```text\n", "```\n    ```\n"):
+            with self.subTest(text=text):
+                closer = text.split("\n")[0]
+                self.assertClean(self.make_repo({"doc.md": (
+                    text + self.HEAD3 + "| 1 |\n" + closer + "\n")}))
+        # A backtick in a backtick fence's info string makes the line text.
+        self.assertFinding(self.make_repo({"doc.md": "```x`y\n" + self.HEAD3 + "| 1 |\n```\n"}),
+                           "doc.md:4 header=3 row=1")
+
+    def test_quote_marker_indented_up_to_three_columns(self) -> None:
+        quoted = "   > | a | b |\n   > |---|---|\n   > | 1 | 2 | 3 |\n"
+        self.assertFinding(self.make_repo({"doc.md": quoted}), "doc.md:3 header=2 row=3")
+        # Four columns make indented code, not a block quote.
+        self.assertClean(self.make_repo({"doc.md": quoted.replace("   >", "    >")}))
+        # The delimiter row must continue the header's block quote.
+        self.assertClean(self.make_repo({"doc.md": "> | a | b |\n|---|---|\n> | 1 | 2 | 3 |\n"}))
+        # Once open, a quote continues on a '>' at any indentation, as
+        # markdown-it-py reads it, so the line is one more row.
+        self.assertFinding(self.make_repo({"doc.md": "> | 1 | 2 |\n > |---|---|\n      > q\n"}),
+                           "doc.md:3 header=2 row=1 lazy-row")
+
+    def test_rows_judged_in_the_enclosing_container(self) -> None:
+        # Review probes A3 and A3b: a line that leaves the table's list item, or
+        # is indented four columns past the container (not the header), ends
+        # the table.
+        item = "- item\n\n  | a | b |\n  |---|---|\n"
+        self.assertClean(self.make_repo({"doc.md": item + "  | 1 | 2 |\nunindented\n"}))
+        self.assertClean(self.make_repo({"doc.md": "  | a | b |\n  |---|---|\n  | 1 | 2 |\n"
+                                                   "    code\n"}))
+        self.assertFinding(self.make_repo({"doc.md": item + "  | 1 | 2 |\n  text\n"}),
+                           "doc.md:6 header=2 row=1 lazy-row")
+        self.assertFinding(self.make_repo({"doc.md": "  | a | b |\n  |---|---|\n  | 1 | 2 |\n"
+                                                     "   text\n"}),
+                           "doc.md:4 header=2 row=1 lazy-row")
+        # Indentation counts from the item's content column, with tab stops of four.
+        for row in ("    | 3 |\n", "\t| 3 |\n"):
+            with self.subTest(row=row):
+                self.assertFinding(self.make_repo({"doc.md": item + row}),
+                                   "doc.md:5 header=2 row=1")
+        self.assertFinding(self.make_repo({"doc.md": item.replace("  |", "\t|") + "\t| 3 |\n"}),
+                           "doc.md:5 header=2 row=1")
+        # Rows indented under four columns are rows, leading pipe found past the indent.
+        self.assertClean(self.make_repo({"doc.md": self.HEAD3 + "  | 1 | 2 | 3 |\n"
+                                                   "   | 4 | 5 | 6 |\n"}))
+        self.assertFinding(self.make_repo({"doc.md": self.HEAD3 + "   | 4 | 5 |\n"}),
+                           "doc.md:3 header=3 row=2")
+        self.assertFinding(self.make_repo({"doc.md": "| a | b |\n   |---|---|\n| 1 |\n"}),
+                           "doc.md:3 header=2 row=1")
+
+    def test_empty_list_item_ends_at_a_blank_line(self) -> None:
+        # The fence after the blank line is not in the item, so the dedented
+        # line does not end it, and the later fence line does not pair with
+        # its closer.
+        self.assertFinding(self.make_repo({"doc.md": (
+            "-\n\n  ```\ncode at col 0\n  ```\n\n" + self.HEAD3 + "| 1 |\n\n```\n")}),
+            "doc.md:9 header=3 row=1")
+        # An item whose first line holds only a no-break space is not empty, so
+        # the fence is in the item and the later fence lines pair up.
+        self.assertClean(self.make_repo({"doc.md": (
+            "-  \n\n  ```\ncode at col 0\n  ```\n\n" + self.HEAD3 + "| 1 |\n\n```\n")}))
+
+    def test_html_block_starts_end_a_table_type_7_does_not(self) -> None:
+        # Review probe A4 and CommonMark HTML block types 1 to 6. Types 1 to 5
+        # are closed, so none is left open at the end of the file.
+        body = self.HEAD3 + "| 1 | 2 | 3 |\n"
+        for line in ('<source src="a.mp4">', "<pre>\n</pre>", "<script>\n</script>",
+                     "<style>\n</style>", "<textarea>\n</textarea>", "<?php\n?>",
+                     "<!DOCTYPE html>", "<![CDATA[\n]]>", "<details>", "</table>", "<P>"):
+            with self.subTest(line=line):
+                self.assertClean(self.make_repo({"doc.md": body + line + "\n"}))
+        self.assertFinding(self.make_repo({"doc.md": body + "<span>\n"}),
+                           "doc.md:4 header=3 row=1 lazy-row")
+
+    def test_heading_list_and_break_variants_end_a_table(self) -> None:
+        body = self.HEAD3 + "| 1 | 2 | 3 |\n"
+        for line in ("#", "# h1", "###### h6", "+ item", "* item", "1) item", "2. item", "-",
+                     "***", "___", "* * *", "- - -", "~~~\ncode\n~~~"):
+            with self.subTest(line=line):
+                self.assertClean(self.make_repo({"doc.md": body + line + "\n"}))
+        for line in ("####### seven", "#hashtag", "===", "-item"):
+            with self.subTest(line=line):
+                self.assertFinding(self.make_repo({"doc.md": body + line + "\n"}),
+                                   "doc.md:4 header=3 row=1 lazy-row")
+
+    def test_line_ending_a_table_is_read_afresh(self) -> None:
+        body = self.HEAD3 + "| 1 | 2 | 3 |\n"
+        self.assertFinding(self.make_repo({"doc.md": body + "> | a | b |\n> |---|---|\n> | 1 |\n"}),
+                           "doc.md:6 header=2 row=1")
+        self.assertClean(self.make_repo({"doc.md": body + "```\n| a | b |\n|---|---|\n| 1 |\n```\n"}))
+
+    def test_header_needs_a_pipe_escaped_or_not(self) -> None:
+        self.assertClean(self.make_repo({"doc.md": "Title\n---\n| 1 | 2 |\n"}))
+        self.assertClean(self.make_repo({"doc.md": "a b\n|---|\n| 1 | 2 |\n"}))
+        self.assertFinding(self.make_repo({"doc.md": "| Title |\n---\n| 1 | 2 |\n"}),
+                           "doc.md:3 header=1 row=2")
+        # Claude TCC108-ESCAPED-ONLY-HEADER, E1 to E3: markdown-it-py opens a
+        # table on a header line whose only pipe is escaped.
+        for text, finding in (("a \\| b\n|---|\n| 1 | 2 |\n", "doc.md:3 header=1 row=2"),
+                              ("a \\| b\n---\n| 1 | 2 |\n", "doc.md:3 header=1 row=2"),
+                              ("a \\| b\n|---|\n|\n", "doc.md:3 header=1 row=0")):
+            with self.subTest(text=text):
+                self.assertFinding(self.make_repo({"doc.md": text}), finding)
+
+    def test_row_of_only_a_pipe_has_no_cells(self) -> None:
+        # Claude TCC108-LONE-PIPE-CELLS: H1, a header that is only a pipe, has
+        # no cells and opens no table; H2, such a body row, is short.
+        self.assertClean(self.make_repo({"doc.md": "|\n|---|\n| a | b |\n"}))
+        self.assertFinding(self.make_repo({"doc.md": "| a |\n|---|\n|\n"}),
+                           "doc.md:3 header=1 row=0")
+
+    def test_crlf_and_a_lone_cr_end_a_line(self) -> None:
+        # Claude TCC108-LONE-CR: markdown-it-py ends a line at CRLF and at a
+        # lone CR, so a closing fence line ending in either still closes.
+        table = "| a | b |\n|---|---|\n| 1 |\n"
+        for end in ("\r\n", "\r"):
+            with self.subTest(end=repr(end)):
+                self.assertFinding(self.make_repo({"doc.md": table.replace("\n", end).encode()}),
+                                   "doc.md:3 header=2 row=1")
+                fenced = "```\ncode\n```\n" + table
+                self.assertFinding(self.make_repo({"doc.md": fenced.replace("\n", end).encode()}),
+                                   "doc.md:6 header=2 row=1")
+
+    def test_html_block_start_needs_type_4_case_and_type_1_tag_boundary(self) -> None:
+        # Claude round-4 survivors: a lowercase "<!doctype" (as markdown-it-py
+        # 3.0.0 reads type 4) and "<prefix" start no HTML block.
+        table = "| a | b |\n|---|---|\n| 1 |\n"
+        self.assertEqual(self.finding_heads("<!doctype html\n" + table + ">\n"),
+                         ["doc.md:4 header=2 row=1"])
+        self.assertClean(self.make_repo({"doc.md": "<!DOCTYPE html\n" + table + ">\n"}))
+        rows = "| a | b |\n|---|---|\n| 1 |\n| 2 |\n\n</pre>\n"
+        self.assertEqual(self.finding_heads("<prefix\n" + rows),
+                         ["doc.md:4 header=2 row=1", "doc.md:5 header=2 row=1"])
+        self.assertClean(self.make_repo({"doc.md": "<pre\n" + rows}))
+
+    def test_list_item_content_column_counts_up_to_four_spaces(self) -> None:
+        # Claude round-4 survivor: four spaces after the marker set the content
+        # column; five make it one column past the marker.
+        tail = "\n\n      | a | b |\n      |---|---|\n      | 1 |\n"
+        self.assertFinding(self.make_repo({"doc.md": "-    x" + tail}), "doc.md:5 header=2 row=1")
+        self.assertClean(self.make_repo({"doc.md": "-     x" + tail}))
+
+    def test_setext_underline_ends_a_quoted_paragraph(self) -> None:
+        # Claude round-4 survivor: after the underline the unquoted line is no
+        # lazy paragraph text, so it heads a table.
+        table = "| a | b |\n|---|---|\n| 1 |\n"
+        self.assertFinding(self.make_repo({"doc.md": "> Text\n> ===\n" + table}),
+                           "doc.md:5 header=2 row=1")
+        self.assertClean(self.make_repo({"doc.md": "> Text\n> more\n" + table}))
+
+    def test_header_line_its_list_item_does_not_continue_heads_a_table(self) -> None:
+        # Claude round-4 survivor: the line is read again outside the item.
+        self.assertFinding(self.make_repo({"doc.md": "- Text\n| a | b |\n  |---|---|\n| 1 |\n"}),
+                           "doc.md:4 header=2 row=1")
+
+    def test_only_item_one_or_a_nonempty_item_interrupts_a_paragraph(self) -> None:
+        # Claude round-4 survivors: "2. x" and an empty "*" continue the
+        # paragraph, so the four-column lines after them are no table.
+        tail = "\n    | a | b |\n    |---|---|\n    | 1 |\n"
+        for item in ("2. x\n", "*"):
+            with self.subTest(item=item):
+                self.assertClean(self.make_repo({"doc.md": "Text\n" + item + tail}))
+        for item in ("1. x\n", "* x\n"):
+            with self.subTest(item=item):
+                self.assertFinding(self.make_repo({"doc.md": "Text\n" + item + tail}),
+                                   "doc.md:6 header=2 row=1")
+
+    def test_delimiter_row_is_no_list_item_or_indented_code(self) -> None:
+        # Claude round-4 survivors (and agy TCC108-DELIMITER-LIST-EDGE): markdown-it-py
+        # refuses "- | -" and a delimiter indented four columns.
+        for delimiter, table in (("- | -", False), ("    |---|---|", False),
+                                 ("-- | --", True), ("   |---|---|", True)):
+            with self.subTest(delimiter=delimiter):
+                root = self.make_repo({"doc.md": f"| a | b |\n{delimiter}\n| 1 |\n"})
+                if table:
+                    self.assertFinding(root, "doc.md:3 header=2 row=1")
+                else:
+                    self.assertClean(root)
+
+    def test_html_block_type_6_ends_only_at_a_blank_line(self) -> None:
+        # Claude round-4 survivor.
+        table = "| a | b |\n|---|---|\n| 1 |\n"
+        self.assertClean(self.make_repo({"doc.md": "<div>\nx\n" + table}))
+        self.assertFinding(self.make_repo({"doc.md": "<div>\n\n" + table}),
+                           "doc.md:5 header=2 row=1")
+
+    def test_uppercase_md_suffix_scanned(self) -> None:
+        self.assertFinding(self.make_repo({"NOTES.MD": self.HEAD3 + "| 1 |\n"}),
+                           "NOTES.MD:3 header=3 row=1")
+        self.assertClean(self.make_repo({"NOTES.MD": self.HEAD3 + "| 1 | 2 | 3 |\n"}))
+
+    def test_live_repo_is_clean(self) -> None:
         result = run_linter(self.GATE)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 

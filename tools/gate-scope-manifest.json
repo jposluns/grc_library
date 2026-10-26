@@ -32,6 +32,7 @@
       "lint-secrets-in-content.py",
       "lint-section-anchors.py",
       "lint-ssdf-control-ids.py",
+      "lint-table-cell-count.py",
       "lint-unbalanced-fences.py",
       "lint-version-bump-recency.py",
       "lint-worker-id-anonymity.py"

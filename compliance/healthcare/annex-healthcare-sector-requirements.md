@@ -2,7 +2,7 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.28\
+**Version:** 1.1.29\
 **Date:** 2026-10-26\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -75,7 +75,7 @@ This annex applies where an organization:
 | **Medical Device Regulation (MDR) 2017/745** | European Commission / national authorities | Medical device manufacturers and importers in EU |
 | **In Vitro Diagnostic Regulation (IVDR) 2017/746** | European Commission / national authorities | In vitro diagnostic device manufacturers |
 | **EU NIS 2 Directive** | National competent authorities | Healthcare entities in scope; essential or important depending on Article 3 classification |
-| **European Health Data Space (EHDS)** | European Commission / national authorities | Health data holders and processors: adopted as Regulation (EU) 2025/327, which is not held in the reference base, so an adopter confirms its application dates and obligations directly <!-- ref-absence: 2025/327 | European Health Data Space --> |
+| **European Health Data Space (EHDS)** | European Commission / national authorities | Health data holders and processors: adopted as Regulation (EU) 2025/327, which is not held in the reference base, so an adopter confirms its application dates and obligations directly <!-- ref-absence: 2025/327 --> |
 
 ### Global
 

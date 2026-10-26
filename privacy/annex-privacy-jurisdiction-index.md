@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.61\
-**Date:** 2026-10-21\
+**Version:** 1.0.62\
+**Date:** 2026-10-26\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -114,7 +114,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Latin America | Various (see jurisdiction file) | Varies by jurisdiction | Varies by jurisdiction | Varies by jurisdiction |
 | Singapore | PDPA | mandatory breach notification; voluntary PDPC Model AI Governance Framework | s. 26 prescribed comparable-protection requirements; Commission exemption (s. 26(2)) | SGD 1M, or 10% of SG turnover if it exceeds SGD 10M (s.48J) |
 | Australia | Privacy Act 1988 | AI Ethics Framework (voluntary); APP principles; Privacy Act 2024 reforms | APP 8 contractual safeguards | For serious interference with the privacy of an individual, the civil penalty for a body corporate is an amount not more than the greatest of the following (s. 13G(1), (3)): (a) AUD 50,000,000; (b) if the court can determine the value of the benefit that the body corporate, and any related body corporate, have obtained directly or indirectly and that is reasonably attributable to the conduct constituting the contravention, 3 times the value of that benefit; (c) if the court cannot determine the value of that benefit, 30% of the adjusted turnover of the body corporate during the breach turnover period for the contravention. |
-| Japan | APPI | APPI purpose limitation for AI training; PPC AI guidance (not held, adopter-verify) <!-- ref-absence: PPC AI guidance | PPC guidance on AI --> | Consent; PPC-designated equivalent countries; recipient conforming system | JPY 100M |
+| Japan | APPI | APPI purpose limitation for AI training; PPC AI guidance (not held, adopter-verify) <!-- ref-absence: PPC AI guidance --> | Consent; PPC-designated equivalent countries; recipient conforming system | JPY 100M |
 | South Korea | PIPA 2023 | Right to explanation; automated decision review; PIPC guidance | See [Article 28-8 transfer grounds, conditions and notice particulars](jurisdictions/annex-privacy-south-korea.md#cross-border-transfer-mechanisms). | 3% of total sales, net of sales unrelated to the violation (PIPA Art. 64-2, Act No. 19234 text); up to KRW 2 billion, in cases prescribed by Presidential Decree, where there are no sales or sales are impracticable to calculate (Art. 64-2(1) proviso) |
 | New Zealand | Privacy Act 2020 | IPP principles; mandatory breach notification | IPP 12 disclosure conditions; prescribed binding schemes / prescribed countries (ss. 213-214) | NZD 10,000 per offence |
 | UAE | PDPL, DIFC DPL, ADGM DPR | Sector-specific AI guidance; automated-decision objection right (Art 18) | Bureau-approved legislated jurisdictions, or a UAE bilateral/multilateral agreement (Art 22); the six Art 23(1)(a)-(f) cases (contract/consent/judicial cooperation/rights/public interest) | Cabinet decision under Art 26 (PDPL); USD 100,000 (DIFC) |
