@@ -2477,9 +2477,11 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         check (3b525 rounds 13, 14 and 15). The one-run rule is pinned
         by its positive phrase alone (round 19: a negative check on the
         old wording failed a correction that quoted it), anchored to the
-        clause before it (round 20). These wording checks establish that
-        the text is present, not that it is true: a negation placed
-        before the anchored clause is not caught."""
+        clause before it (round 20). These wording checks establish only
+        that the listed text is present; they cannot detect added text
+        that contradicts it, before, after or elsewhere on a surface
+        (round 20 showed both a negation placed before the anchored
+        clause and a "correction" sentence appended after it pass)."""
         surfaces = {"runner docstring": self._runner()["__doc__"] or ""}
         for rel in ("tools/README.md", "tests/README.md"):
             surfaces[rel] = (REPO_ROOT / rel).read_text(encoding="utf-8")
