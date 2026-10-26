@@ -957,7 +957,7 @@ documents:
   domain: "ai"
   type: "Procedure"
   title: "AI Assurance Case Procedure"
-  version: "1.0.4"
+  version: "1.0.5"
   date: "2026-10-26"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"

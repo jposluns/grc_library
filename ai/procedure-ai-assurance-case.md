@@ -2,7 +2,7 @@
 
 **Document Title:** AI Assurance Case Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-10-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -73,7 +73,7 @@ Applies to every AI system recorded in the AI System Register. The depth of the 
 
 This section is mandatory for Audit Tier 1 systems and optional for Audit Tiers 2 to 4 (see Scope).
 
-3.1 Decompose the top-level claim into the nine assurance claims of [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) Section 3.1, by reference and without restating them, and add any system-specific sub-claims the top-level claim needs, entering each sub-claim in the claim list (Section 2.3).
+3.1 Decompose the top-level claim into the nine assurance claims of [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) Section 3.1, by reference and without restating them, and add any system-specific sub-claims the top-level claim needs, entering each sub-claim in the claim list (step 2.3).
 
 3.2 Record each step of reasoning by which a claim is derived from supporting claims or from evidence, following the supported-claim structure of ISO/IEC/IEEE 15026-2:2022 (Clause 5.3.5): a claim, the argument that supports it, and the contexts that apply. Each inference must carry a stated justification of why its method of reasoning is valid or has merit (ISO/IEC/IEEE 15026-1:2025, Clause 6.2).
 
