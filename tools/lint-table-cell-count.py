@@ -171,7 +171,8 @@ a tag name that matches only under Unicode case folding (``<ſcript>``,
 ``<dıv>`` and ``<ſtyle>``), and U+000B, U+000C, U+001C, U+001E, U+001F,
 U+00A0 or U+2003 where markdown-it-py's HTML block starts take ``\\s``.
 A residual not fixed in this change: a paragraph inside a nested block
-quote, then a line indented four columns that starts an HTML block, then
+quote, then a line indented four or more columns that would otherwise start
+a block (an HTML block or an ATX heading, for example), then
 a table (for ``> > text``, ``    <!--`` and a quoted table with a short
 row, markdown-it-py 3.0.0 renders the indented line as indented code and
 then the table, whose short row this gate passes, as it did before
