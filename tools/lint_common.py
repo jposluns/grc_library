@@ -2200,6 +2200,220 @@ def resolve_pr_range(base: str | None, head: str = "HEAD") -> tuple[str, str]:
     return merge_base, head
 
 
+def _existing_realpath(path: bytes) -> bytes | None:
+    """realpath of ``path`` where it exists as spelled, else None (3b564 round
+    6). Python's realpath tidies a trailing slash on a file and a path through
+    a missing component (``missing/..``), and realpath(1) builds differ on a
+    file followed by ``/.`` or ``/..``, so here the kernel must resolve the
+    spelling first, as tools/git-hooks/pre-push's existing_realpath requires
+    with test -e (round 7)."""
+    try:
+        os.stat(path)
+    except OSError:
+        return None
+    return os.path.realpath(path)
+
+
+# git's repository-local variables (git rev-parse --local-env-vars) that move
+# the common directory, the object store or the history git reads, and that
+# git 2.53 exported to no pre-push or commit hook, so any value refuses (3b564
+# round 7). tools/git-hooks/pre-push refuses the same names.
+_GIT_REDIRECT_VARIABLES = ("GIT_COMMON_DIR", "GIT_OBJECT_DIRECTORY",
+                           "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_GRAFT_FILE",
+                           "GIT_SHALLOW_FILE")
+
+
+def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | None:
+    """A refusal message when git, under the inherited environment, reads a
+    repository other than ``repo_root``'s own, else None (3b564).
+
+    A gate that checks the work tree top level against ``repo_root`` still
+    printed a clean verdict over another repository's history wherever that
+    top level came out as ``repo_root`` while GIT_DIR named the other
+    repository: GIT_DIR alone (git then takes the current directory, or
+    ``-C repo_root``, as the top level), GIT_DIR plus GIT_WORK_TREE naming
+    ``repo_root``, a GIT_DIR whose own core.worktree names it, and the GIT_DIR
+    git exports to the hooks of a linked worktree, which reached the main
+    checkout's copy of a gate run there. This compares ``git rev-parse
+    --absolute-git-dir`` read the way the gate runs git (``-C repo_root``, or
+    the current directory with ``from_cwd``, as D5 and tension-scan run it)
+    with the value ``repo_root`` gives with GIT_DIR and GIT_WORK_TREE removed,
+    the comparison tools/git-hooks/pre-push makes. Both are canonicalized with
+    realpath and compared as bytes, so no path needs to decode. Either read
+    failing to run or exiting non-zero is a refusal too: the repository
+    cannot be confirmed. So is either read printing anything but an absolute
+    path, checked before realpath, which resolves a relative one against the
+    current directory: git rev-parse echoes an option it does not know and
+    exits 0, so a git without --absolute-git-dir would print the flag itself
+    for both reads, and a shim git doing that made the two compare equal
+    (3b564 round 3). Last, ``repo_root`` must be a work tree registered with
+    the git directory git reads, the check tools/git-hooks/pre-push makes,
+    ported here: a .git in ``repo_root`` that is a symbolic link refuses, and
+    so do objects or refs in the common directory (``git rev-parse
+    --path-format=absolute --git-common-dir``, read the way the gate runs git,
+    and absolute) that are symbolic links; a .git directory must be that git
+    directory and its own common directory; a .git file must be the one that
+    git directory's gitdir file names, with the git directory in its common
+    directory's worktrees directory (a linked worktree) or, where the git
+    directory has no gitdir file and is not its parent's .git (a separate git
+    directory, as a submodule's is), its own config file must give a
+    core.worktree that resolves to ``repo_root`` and it must be its own common
+    directory, so a separate git directory that sets no core.worktree, as git
+    init or git clone --separate-git-dir leaves one, refuses with that fix. A
+    main-tree alias whose .git file names another checkout's git directory
+    gave both reads that directory while git took the alias as the top level,
+    so it passed the comparison above and the gates' top-level check (r3
+    review W1); so did an alias whose .git directory, or the git directory its
+    .git file names, has a commondir file naming another checkout's git
+    directory, or objects and refs that are symbolic links into it, since git
+    then reports the alias's own git directory but reads that checkout's
+    objects and refs (r5 review W1). Objects, refs or reftable that are
+    symbolic links refuse wherever they point, so a repository whose own
+    objects directory was moved and linked back (a relocated objects
+    directory) and a git-new-workdir checkout, which links another
+    checkout's objects, refs and hooks, refuse too, and the message names
+    both (r6 review N2); reftable is checked because a reftable repository
+    keeps its refs there, not in refs (r6 review N3). Paths a .git file, a
+    gitdir file or core.worktree spells are compared canonically, as pre-push
+    compares them: each must exist as spelled (_existing_realpath), so a
+    trailing slash on a file, a path through a missing component and a file
+    followed by /. or /.. refuse, here and in pre-push, whichever realpath(1)
+    build it runs (round 7; r6 review W1 and N4: uutils realpath 0.10.0
+    resolves the last two, and pre-push passed them).
+
+    git's repository-local variables (``git rev-parse --local-env-vars``)
+    that move what git reads refuse too (round 7). GIT_COMMON_DIR,
+    GIT_OBJECT_DIRECTORY, GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_GRAFT_FILE and
+    GIT_SHALLOW_FILE (_GIT_REDIRECT_VARIABLES) refuse by name, whatever their
+    value, before any read: git 2.53 exported none of them to a pre-push or
+    commit hook in any layout tried (a checkout, a subdirectory, a linked
+    worktree, a separate git directory, a submodule, git -C, --git-dir,
+    --work-tree, -c and --no-replace-objects), so none is a value git chose,
+    and with GIT_OBJECT_DIRECTORY naming another repository's objects this
+    passed, as pre-push did, while git wrote objects there (r6 review E1). The
+    three git does export refuse only where they point away from
+    ``repo_root``: GIT_DIR (exported to the hooks of a linked worktree, a
+    submodule or a separate git directory) through the git-directory
+    comparison above; GIT_WORK_TREE (passed on from git --work-tree or the
+    caller) where ``git rev-parse --show-toplevel``, read the way the gate
+    runs git, is not ``repo_root``; and GIT_INDEX_FILE (exported to commit
+    hooks, naming index, index.lock or next-index-<pid>.lock in the git
+    directory git runs in) where the index ``git rev-parse
+    --path-format=absolute --git-path index`` gives is not directly in the
+    git directory git reads. The other seven moved nothing git reads when
+    set to values naming another repository (git 2.53): GIT_CONFIG affects
+    only git config, which is given --file here; GIT_CONFIG_PARAMETERS and
+    GIT_CONFIG_COUNT add runtime configuration, as git -c does, and
+    core.worktree is read from the git directory's own config file;
+    GIT_NO_REPLACE_OBJECTS and GIT_REPLACE_REF_BASE choose replace refs
+    within the repository; GIT_PREFIX names the caller's subdirectory; and
+    GIT_IMPLICIT_WORK_TREE=0 changed no read.
+
+    Known residuals, each passing here as it passes pre-push: a common
+    directory whose objects, refs and reftable are its own directories but
+    that takes another checkout's objects or refs from deeper inside them (a
+    symbolic link at refs/heads, a loose ref or a pack), through a
+    packed-refs file that is a symbolic or hard link, or through
+    objects/info/alternates; and a .git directory that is a bind mount of
+    another checkout's, which realpath does not reveal."""
+    redirect = next((name for name in _GIT_REDIRECT_VARIABLES if name in os.environ), None)
+    if redirect:
+        return (f"{redirect} in the environment moves what git reads (its common directory, "
+                f"objects, grafts or shallow file) away from this script's repository "
+                f"{repo_root}; unset it and run again")
+    here = [] if from_cwd else ["-C", str(repo_root)]
+    own_env = {k: v for k, v in os.environ.items() if k not in ("GIT_DIR", "GIT_WORK_TREE")}
+    try:
+        current = subprocess.check_output(["git", *here, "rev-parse", "--absolute-git-dir"])
+        own = subprocess.check_output(["git", "-C", str(repo_root), "rev-parse", "--absolute-git-dir"],
+                                      env=own_env)
+    except (subprocess.CalledProcessError, OSError) as exc:
+        return f"could not confirm that git reads this script's repository {repo_root}: {exc}"
+    current, own = current.rstrip(b"\n"), own.rstrip(b"\n")
+    if not (os.path.isabs(current) and os.path.isabs(own)):
+        return (f"could not confirm that git reads this script's repository {repo_root}: "
+                f"git rev-parse --absolute-git-dir printed {os.fsdecode(current)!r} and "
+                f"{os.fsdecode(own)!r}, not two absolute paths")
+    current = os.path.realpath(current)
+    own = os.path.realpath(own)
+    if current != own:
+        return (f"git reads the git directory {os.fsdecode(current)!r}, not this script's "
+                f"repository's own {os.fsdecode(own)!r} (GIT_DIR or GIT_WORK_TREE in the "
+                f"environment, or a core.worktree, points git at another repository)")
+    root = os.path.realpath(os.fsencode(repo_root))
+    dot_git = os.path.join(root, b".git")
+    registered = False
+    try:
+        # git passes GIT_WORK_TREE on to hooks and names a file in the git
+        # directory it runs in with GIT_INDEX_FILE, so each refuses only
+        # where it points away from repo_root (round 7).
+        if "GIT_WORK_TREE" in os.environ:
+            top = subprocess.check_output(["git", *here, "rev-parse", "--show-toplevel"]).rstrip(b"\n")
+            if not (os.path.isabs(top) and _existing_realpath(top) == root):
+                return (f"GIT_WORK_TREE in the environment gives git the work tree "
+                        f"{os.fsdecode(top)!r}, not this script's repository {repo_root}")
+        if "GIT_INDEX_FILE" in os.environ:
+            index = subprocess.check_output(
+                ["git", *here, "rev-parse", "--path-format=absolute", "--git-path", "index"]).rstrip(b"\n")
+            if not (os.path.isabs(index) and _existing_realpath(os.path.dirname(index)) == current):
+                return (f"GIT_INDEX_FILE in the environment gives git the index "
+                        f"{os.fsdecode(index)!r}, not one in the git directory "
+                        f"{os.fsdecode(current)!r} it reads; unset it and run again")
+        common = subprocess.check_output(
+            ["git", *here, "rev-parse", "--path-format=absolute", "--git-common-dir"]).rstrip(b"\n")
+        if not os.path.isabs(common):
+            return (f"could not confirm that git reads this script's repository {repo_root}: "
+                    f"git rev-parse --git-common-dir printed {os.fsdecode(common)!r}, not an "
+                    f"absolute path")
+        common = os.path.realpath(common)
+        # git reads objects and refs from the common directory: a commondir
+        # file naming another checkout's git directory, or objects or refs
+        # there as symbolic links into one, gives git that checkout's while it
+        # reports this git directory (r5 review W1). A reftable repository
+        # keeps its refs in reftable (r6 review N3).
+        if os.path.islink(dot_git) or any(os.path.islink(os.path.join(common, part))
+                                           for part in (b"objects", b"refs", b"reftable")):
+            pass
+        elif os.path.isdir(dot_git):
+            registered = _existing_realpath(dot_git) == current and common == current
+        elif os.path.isfile(dot_git) and os.path.isfile(os.path.join(current, b"gitdir")):
+            with open(os.path.join(current, b"gitdir"), "rb") as fh:
+                linked = _existing_realpath(os.path.join(current, fh.read().rstrip(b"\n")))
+            # A linked worktree's git directory sits in its common directory's
+            # worktrees directory, where git worktree add makes it.
+            registered = (linked is not None and linked == _existing_realpath(dot_git)
+                          and os.path.dirname(current)
+                          == _existing_realpath(os.path.join(common, b"worktrees")))
+        elif os.path.isfile(dot_git) and current != os.path.join(os.path.dirname(current), b".git"):
+            # Read from the git directory's own config file only, as pre-push
+            # reads it, so -c and GIT_CONFIG_* cannot supply one.
+            try:
+                worktree = subprocess.check_output(
+                    ["git", "config", "--file", os.path.join(current, b"config"), "--get", "core.worktree"])
+            except subprocess.CalledProcessError:
+                worktree = b""
+            worktree = worktree.rstrip(b"\n")
+            if not worktree:
+                return (f"git reads the separate git directory {os.fsdecode(current)!r}, which "
+                        f"sets no core.worktree, so this script's repository {repo_root} cannot "
+                        f"be confirmed as its work tree; in that checkout run: "
+                        f"git config core.worktree \"$PWD\"")
+            registered = (_existing_realpath(os.path.join(current, worktree)) == root
+                          and common == current)
+    except (subprocess.CalledProcessError, OSError) as exc:
+        return f"could not confirm that git reads this script's repository {repo_root}: {exc}"
+    if not registered:
+        return (f"this script's repository {repo_root} is not a work tree registered with the "
+                f"git directory {os.fsdecode(current)!r} that git reads (a .git symbolic link, "
+                f"a .git file naming another checkout's git directory, a git directory taking "
+                f"its common directory from another checkout, or objects, refs or reftable "
+                f"that are symbolic links, as in a relocated objects directory or a "
+                f"git-new-workdir checkout: keep them as directories in the git directory, "
+                f"or make the checkout with git worktree add); tools/git-hooks/pre-push "
+                f"refuses the same layout")
+    return None
+
+
 # --- TODO index-format parsing (PR-1 rework, 2026-08) -----------------------
 # TODO.md is an INDEX of ``| <id> | <title> | <tags> |`` rows under ``## Priority
 # N`` bands; the per-item detail lives in the PRIVATE sibling's TODO-REFERENCE.md
