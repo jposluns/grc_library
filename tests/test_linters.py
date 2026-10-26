@@ -9775,6 +9775,20 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
     }
     CLOSURE_LINE = "Closes the TODO §4.9 cleanup item.\n"
 
+    def _run_gate(self, script_name, tmp, base_sha):
+        # D5 refuses a top level or git directory other than its own
+        # REPO_ROOT's (3b564), so it runs as an untracked copy inside the
+        # fixture, with lint_common, which it imports.
+        import subprocess as sp
+
+        (tmp / "tools").mkdir(exist_ok=True)
+        for name in ("lint_common.py", script_name):
+            (tmp / "tools" / name).write_bytes((REPO_ROOT / "tools" / name).read_bytes())
+        return sp.run(
+            [sys.executable, str(tmp / "tools" / script_name), base_sha, "HEAD"],
+            capture_output=True, text=True, cwd=str(tmp),
+        )
+
     def test_closure_claim_without_rotation_flagged(self) -> None:
         tmp, base_sha, shutil = self._build_repo(
             self.BASE,
@@ -9936,6 +9950,41 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
             capture_output=True, text=True, cwd=str(cwd), env=full_env,
         )
 
+    # 3b564: the gates that refuse a work tree top level or git directory
+    # other than their own REPO_ROOT's, each with its real verdict on
+    # _retire_and_cite's range (D9's is the control FAIL, exit 1) and the
+    # marker of its clean pass.
+    OWN_TOP_GATES = (
+        ("check-todo-rotation-on-pr.py", 0, "OK: no TODO-item closure asserted", "OK:"),
+        ("check-retired-section-orphan-on-pr.py", 1,
+         "LIVE orphan reference(s) to section(s) this PR retired (9.99)", "D9 OK"),
+        ("check-stranded-control-code-on-pr.py", 0, "D13 OK: no corpus document changed", "D13 OK"),
+        ("tension-scan.py", 0, "0 rewritten block(s) since", "rewritten block"),
+    )
+
+    @staticmethod
+    def _own_copies(tools):
+        """Untracked copies of the OWN_TOP_GATES (with lint_common, which all
+        four import) in ``tools``, so each runs as its own repository's copy.
+        Returns ``tools``."""
+        tools.mkdir(exist_ok=True)
+        for name in ("lint_common.py", *(g[0] for g in CollapsedRangeRefusalTests.OWN_TOP_GATES)):
+            (tools / name).write_bytes((REPO_ROOT / "tools" / name).read_bytes())
+        return tools
+
+    def _own_gate(self, script, cwd, *args):
+        """``_gate`` for a gate that runs git from the current directory and
+        refuses a top level other than its own REPO_ROOT (D5, tension-scan;
+        3b564): it runs as an untracked copy inside the fixture at ``cwd``,
+        as D9 and D13 always did."""
+        import subprocess as sp
+
+        tools = self._own_copies(Path(cwd) / "tools")
+        return sp.run(
+            [sys.executable, str(tools / script), *args],
+            capture_output=True, text=True, cwd=str(cwd),
+        )
+
     def test_resolve_pr_range_same_commit_raises(self) -> None:
         import subprocess as sp
 
@@ -9982,7 +10031,8 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         git("commit", "-q", "--allow-empty", "-m", "empty")
         for script in self.UNSCOPED:
             with self.subTest(gate=script):
-                r = self._gate(script, tmp, "origin/main", "feat-empty")
+                run = self._own_gate if script == "check-todo-rotation-on-pr.py" else self._gate
+                r = run(script, tmp, "origin/main", "feat-empty")
                 self.assertEqual(
                     r.returncode, 2,
                     f"{script} must refuse an empty changed set.\n"
@@ -10054,14 +10104,13 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn("not modified", d3.stdout)
 
         # D13 anchors git to its own script's repository, so run a copy of it
-        # from inside the fixture (stdlib-only, self-contained).
+        # from inside the fixture (with lint_common, which it imports since
+        # 3b564).
         tools = tmp / "tools"
         tools.mkdir()
         copy = tools / "check-stranded-control-code-on-pr.py"
-        copy.write_text(
-            (REPO_ROOT / "tools" / "check-stranded-control-code-on-pr.py").read_text(encoding="utf-8"),
-            encoding="utf-8",
-        )
+        for name in ("lint_common.py", copy.name):
+            (tools / name).write_bytes((REPO_ROOT / "tools" / name).read_bytes())
         d13 = sp.run(
             [sys.executable, str(copy), "origin/main", "feat2"],
             capture_output=True, text=True, cwd=str(tmp),
@@ -10072,7 +10121,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
     def test_d5_same_commit_exit2(self) -> None:
         tmp, git = self._repo()
         head_sha = git("rev-parse", "HEAD")
-        r = self._gate("check-todo-rotation-on-pr.py", tmp, "origin/main", "HEAD")
+        r = self._own_gate("check-todo-rotation-on-pr.py", tmp, "origin/main", "HEAD")
         self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
         self.assertIn("CANNOT-EVALUATE", r.stderr)
         self.assertIn(head_sha, r.stderr)
@@ -11463,13 +11512,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
 
+        # The top-level read and the git-directory check (3b564) run the real
+        # git against the module's own REPO_ROOT, this checkout, so both pass
+        # and the run reaches the failing diff.
         def fake_git(*args):
             if args[0] == "merge-base":
                 return "a" * 40
             if args[0] == "rev-parse" and args[1] == "--verify":
                 return "b" * 40
-            if args[0] == "rev-parse":
-                return "/fixture/top"
             raise sp.CalledProcessError(128, ["git", *args])
 
         mod.git = fake_git
@@ -11494,9 +11544,15 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # tension-scan exited 1 with a traceback (D15 failed open); it now
         # degrades to a placeholder as D12's _toplevel does, so a real range
         # gets each gate's real verdict and a collapsed range its refusal.
-        # Mutation killed: dropping UnicodeDecodeError from the new except
-        # clause in lint_common.pr_range_resolution, D5, D9, D13 or
-        # tension-scan. Skipped where the filesystem refuses the name.
+        # Since 3b564, D5, D9, D13 and tension-scan decode the top level with
+        # os.fsdecode instead, so their refusal names the real top level and
+        # their top-level comparison always runs: they run as copies inside
+        # the fixture, their own REPO_ROOT. Mutation killed: dropping
+        # UnicodeDecodeError from the except clause in
+        # lint_common.pr_range_resolution, or reading the top level as
+        # strict text again in D5, D9, D13 or tension-scan (a traceback, or
+        # the placeholder where the real path belongs). Skipped where the
+        # filesystem refuses the name.
         import subprocess as sp
 
         parent = Path(tempfile.mkdtemp(prefix="non-utf8-top-")).resolve()
@@ -11526,25 +11582,29 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         git("checkout", "-q", "-b", "feat")
         write("CHANGELOG.md", b"# Changelog\n\nNew entry.\n\nOld entry.\n")
         git("commit", "-q", "-am", "feat: a change")
-        # D9 and D13 anchor git to their own script's repository, so they run
-        # as untracked copies inside the fixture (with lint_common, which D9
-        # imports).
+        # D5, D9, D13 and tension-scan refuse a top level other than their
+        # own script's repository (3b564), so they run as untracked copies
+        # inside the fixture (with lint_common, which they import).
         os.mkdir(os.path.join(top, b"tools"))
         for name in ("lint_common.py", "check-retired-section-orphan-on-pr.py",
-                     "check-stranded-control-code-on-pr.py"):
+                     "check-stranded-control-code-on-pr.py", "check-todo-rotation-on-pr.py",
+                     "tension-scan.py"):
             write(f"tools/{name}", (REPO_ROOT / "tools" / name).read_bytes())
 
         tools = os.fsencode(REPO_ROOT / "tools")
         own = os.path.join(top, b"tools")
+        # Their refusal names the decoded top level; stderr's
+        # backslashreplace prints the undecodable byte as \udcff.
+        own_repo = ("repo=" + os.fsdecode(top)).encode("utf-8", "backslashreplace").decode("utf-8")
         for directory, script, verdict in (
             (tools, "check-changelog-on-pr.py", "OK: CHANGELOG.md is in the diff"),
             (tools, "check-version-bump-on-pr.py", "OK: 0 changed versioned document(s)"),
             (tools, "check-changelog-dash-on-pr.py", "OK: no em/en dashes"),
             (tools, "check-date-cobump-on-pr.py", "OK: 0 document(s) bumped Version"),
-            (tools, "check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
+            (own, "check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
             (tools, "check-changelog-length-on-pr.py", "OK: no compact root CHANGELOG.md"),
             (tools, "check-narrative-corpus-mixed-diff-on-pr.py", "neither surface touched"),
-            (tools, "tension-scan.py", "0 rewritten block(s) since"),
+            (own, "tension-scan.py", "0 rewritten block(s) since"),
             (tools, "check-alignment-register-on-pr.py", "is absent at feat; nothing to check"),
             (own, "check-retired-section-orphan-on-pr.py", "D9 OK: no TODO section closed"),
             (own, "check-stranded-control-code-on-pr.py", "D13 OK: no corpus document changed"),
@@ -11564,7 +11624,8 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                         self.assertIn(verdict, r.stdout)
                     else:
                         self.assertIn("CANNOT-EVALUATE", r.stdout + r.stderr)
-                        self.assertIn("repo=(no work tree)", r.stdout + r.stderr)
+                        self.assertIn(own_repo if directory == own else "repo=(no work tree)",
+                                      r.stdout + r.stderr)
 
     def _inject_oserror(self, script, cwd, tail, *args, nth=None):
         """Run ``script`` with ``args`` in-process, subprocess.check_output
@@ -11608,24 +11669,20 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # git call. Mutation killed: dropping OSError from the top-level
         # read's except clause in lint_common.pr_range_resolution (reached
         # through D1), D5, D9, D13 or tension-scan, which then exits 1 with a
-        # traceback.
+        # traceback. Since 3b564 the placeholder skips only the top-level
+        # comparison of D5, D9, D13 and tension-scan (their git-directory
+        # check still runs), and they run as copies inside the fixture, their
+        # own REPO_ROOT.
         tmp, git = self._repo()
         git("checkout", "-q", "-b", "feat")
         (tmp / "CHANGELOG.md").write_text(
             "# Changelog\n\nNew entry.\n\nOld entry.\n", encoding="utf-8")
         git("commit", "-q", "-am", "feat: a change")
-        # D9 and D13 anchor git to their own script's repository, so they run
-        # as untracked copies inside the fixture (with lint_common, which D9
-        # imports).
-        (tmp / "tools").mkdir()
-        for name in ("lint_common.py", "check-retired-section-orphan-on-pr.py",
-                     "check-stranded-control-code-on-pr.py"):
-            (tmp / "tools" / name).write_bytes((REPO_ROOT / "tools" / name).read_bytes())
-        tools, own = REPO_ROOT / "tools", tmp / "tools"
+        tools, own = REPO_ROOT / "tools", self._own_copies(tmp / "tools")
         for directory, script, verdict in (
             (tools, "check-changelog-on-pr.py", "OK: CHANGELOG.md is in the diff"),
-            (tools, "check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
-            (tools, "tension-scan.py", "0 rewritten block(s) since"),
+            (own, "check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
+            (own, "tension-scan.py", "0 rewritten block(s) since"),
             (own, "check-retired-section-orphan-on-pr.py", "D9 OK: no TODO section closed"),
             (own, "check-stranded-control-code-on-pr.py", "D13 OK: no corpus document changed"),
         ):
@@ -12342,13 +12399,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         ("tension-scan.py", "rewritten block"),
     )
 
-    def _no_work_tree_env(self):
-        """``(holder, env)`` for a run with no work tree: ``env`` names, in
-        GIT_DIR, a bare clone (in ``holder``) of a head that deletes TODO row
-        9.99 and commits a file citing it. The control, D9 run from a normal
-        checkout of that head, FAILs (3b540 round 9)."""
-        import subprocess as sp
-
+    def _retire_and_cite(self):
+        """The fixture of _no_work_tree_env and the 3b564 tests: branch feat
+        deletes TODO row 9.99 and commits tools/x.py citing it, so D9's real
+        verdict on main..feat is FAIL. Returns (path, git runner), checked out
+        at feat."""
         tmp, git = self._repo()
         rows = "# TODO\n\n## Priority 1\n\n| 9.98 | Keep | x |\n"
         (tmp / "TODO.md").write_text(rows + "| 9.99 | Retire | x |\n", encoding="utf-8")
@@ -12360,7 +12415,16 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         (tmp / "tools" / "x.py").write_text("# see §9.99 for detail\n", encoding="utf-8")
         git("add", "-A")
         git("commit", "-q", "-m", "retire 9.99 and cite it")
+        return tmp, git
 
+    def _no_work_tree_env(self):
+        """``(holder, env)`` for a run with no work tree: ``env`` names, in
+        GIT_DIR, a bare clone (in ``holder``) of a head that deletes TODO row
+        9.99 and commits a file citing it. The control, D9 run from a normal
+        checkout of that head, FAILs (3b540 round 9)."""
+        import subprocess as sp
+
+        tmp, git = self._retire_and_cite()
         d9 = "check-retired-section-orphan-on-pr.py"
         for name in ("lint_common.py", d9):
             (tmp / "tools" / name).write_bytes((REPO_ROOT / "tools" / name).read_bytes())
@@ -12442,6 +12506,476 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertIn("printed an empty top level (no work tree)", r.stderr)
                 self.assertNotIn("Traceback", r.stderr)
                 self.assertNotIn(clean, r.stdout)
+
+    def _assert_real_verdicts(self, tools, cwd, base, head, env=None, label=""):
+        import subprocess as sp
+
+        for script, rc, verdict, _clean in self.OWN_TOP_GATES:
+            with self.subTest(gate=script, run=label):
+                r = sp.run([sys.executable, str(tools / script), base, head],
+                           capture_output=True, text=True, cwd=str(cwd), env=env)
+                self.assertEqual(r.returncode, rc, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn(verdict, r.stdout + r.stderr)
+                self.assertNotIn("not this script's repository", r.stderr)
+
+    def test_foreign_work_tree_refuses_exit2(self) -> None:
+        # 3b564: GIT_DIR naming a bare clone of the head plus GIT_WORK_TREE
+        # naming another directory gives git a work tree, so the top-level
+        # read succeeds, but it names that directory, not the script's
+        # repository. D9 then scanned this checkout and printed "D9 OK" over
+        # a head whose own control run FAILs (git 2.53); D5, D13 and
+        # tension-scan printed their clean passes. Each gate now refuses with
+        # exit 2 unless the top level resolves to its own REPO_ROOT. Mutation
+        # killed: dropping the REPO_ROOT comparison from any one gate.
+        import subprocess as sp
+
+        tmp, git = self._retire_and_cite()
+        self._assert_real_verdicts(self._own_copies(tmp / "tools"), tmp, "main", "feat",
+                                   label="control")
+        holder = Path(tempfile.mkdtemp(prefix="foreign-work-tree-")).resolve()
+        self.addCleanup(shutil.rmtree, holder, ignore_errors=True)
+        bare = holder / "repo.git"
+        sp.run(["git", "clone", "-q", "--bare", str(tmp), str(bare)],
+               check=True, capture_output=True)
+        elsewhere = holder / "elsewhere"
+        elsewhere.mkdir()
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env.update(GIT_DIR=str(bare), GIT_WORK_TREE=str(elsewhere))
+        for script, _rc, _verdict, clean in self.OWN_TOP_GATES:
+            with self.subTest(gate=script):
+                r = sp.run([sys.executable, str(REPO_ROOT / "tools" / script), "main", "feat"],
+                           capture_output=True, text=True, cwd=str(holder), env=env)
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("not this script's repository", r.stderr)
+                self.assertIn(str(elsewhere), r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn(clean, r.stdout)
+
+    def test_own_git_dir_other_work_tree_refuses_exit2(self) -> None:
+        # 3b564 (r1 review W1, W2): with GIT_DIR naming the gate's own
+        # repository, so the git-directory check passes, GIT_WORK_TREE at a
+        # subdirectory of REPO_ROOT, at its parent, at REPO_ROOT + "-x", or
+        # at a directory whose name is not valid UTF-8 is a top level other
+        # than REPO_ROOT, and each gate's own copy refuses it with exit 2. At
+        # round 1 the last skipped the comparison (a placeholder replaced a
+        # top level the strict decode refused), so all four exited 0.
+        # Mutations killed, in any one gate: also accepting a top level
+        # inside REPO_ROOT, an ancestor of it, or a path that merely starts
+        # with it; and reading the top level as strict text with the
+        # placeholder again.
+        import subprocess as sp
+
+        tmp, git = self._retire_and_cite()
+        tools = self._own_copies(tmp / "tools")
+        holder = Path(tempfile.mkdtemp(prefix="own-git-dir-")).resolve()
+        self.addCleanup(shutil.rmtree, holder, ignore_errors=True)
+        prefix = Path(str(tmp) + "-x")
+        self.addCleanup(shutil.rmtree, prefix, ignore_errors=True)
+        cases = [("subdirectory", tmp / "sub"), ("parent", tmp.parent), ("prefix", prefix)]
+        undecodable = os.path.join(os.fsencode(holder), b"elsewhere-\xff")
+        try:
+            os.mkdir(undecodable)
+        except OSError:
+            pass  # the filesystem refuses the name; the other cases still run
+        else:
+            cases.append(("not UTF-8", Path(os.fsdecode(undecodable))))
+        (tmp / "sub").mkdir()
+        prefix.mkdir()
+        base_env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        for label, work_tree in cases:
+            env = dict(base_env, GIT_DIR=str(tmp / ".git"), GIT_WORK_TREE=str(work_tree))
+            for script, _rc, _verdict, clean in self.OWN_TOP_GATES:
+                with self.subTest(gate=script, work_tree=label):
+                    r = sp.run([sys.executable, str(tools / script), "main", "feat"],
+                               capture_output=True, cwd=str(tmp), env=env,
+                               encoding="utf-8", errors="backslashreplace")
+                    self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                    self.assertIn("work tree top level", r.stderr)
+                    self.assertIn("not this script's repository", r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
+                    self.assertNotIn(clean, r.stdout)
+
+    def test_foreign_git_dir_refuses_exit2(self) -> None:
+        # 3b564 (r1 review E1): GIT_DIR naming another repository while git's
+        # top level is still the gate's own REPO_ROOT passes the top-level
+        # comparison: a non-bare foreign GIT_DIR alone (git takes the current
+        # directory, or -C REPO_ROOT, as the top level), a bare GIT_DIR plus
+        # GIT_WORK_TREE=REPO_ROOT, and a foreign GIT_DIR whose own
+        # core.worktree is REPO_ROOT. REPO_ROOT here is a checkout of main,
+        # without the citing file, so D9 read its range from the foreign
+        # repository, scanned REPO_ROOT and printed "D9 OK" over a head whose
+        # own control run FAILs; D5, D13 and tension-scan printed their clean
+        # passes. Run from REPO_ROOT, each gate now refuses with exit 2
+        # through lint_common.require_own_git_dir. Mutation killed: dropping
+        # that call from any one gate.
+        import subprocess as sp
+
+        tmp, git = self._retire_and_cite()
+        tools = self._own_copies(tmp / "tools")
+        self._assert_real_verdicts(tools, tmp, "main", "feat", label="control")
+        holder = Path(tempfile.mkdtemp(prefix="foreign-git-dir-")).resolve()
+        self.addCleanup(shutil.rmtree, holder, ignore_errors=True)
+        bare = holder / "repo.git"
+        sp.run(["git", "clone", "-q", "--bare", str(tmp), str(bare)],
+               check=True, capture_output=True)
+        for name in ("clone", "configured"):
+            sp.run(["git", "clone", "-q", str(tmp), str(holder / name)],
+                   check=True, capture_output=True)
+            git("branch", "-q", "main", "origin/main", cwd=holder / name)
+        git("config", "core.worktree", str(tmp), cwd=holder / "configured")
+        git("checkout", "-q", "main")
+        base_env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        for label, git_dir, extra in (
+            ("non-bare GIT_DIR alone", holder / "clone" / ".git", {}),
+            ("bare GIT_DIR plus GIT_WORK_TREE", bare, {"GIT_WORK_TREE": str(tmp)}),
+            ("GIT_DIR with core.worktree", holder / "configured" / ".git", {}),
+        ):
+            env = dict(base_env, GIT_DIR=str(git_dir), **extra)
+            for script, _rc, _verdict, clean in self.OWN_TOP_GATES:
+                with self.subTest(gate=script, setup=label):
+                    r = sp.run([sys.executable, str(tools / script), "main", "feat"],
+                               capture_output=True, text=True, cwd=str(tmp), env=env)
+                    self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                    self.assertIn(f"git reads the git directory {str(git_dir)!r}", r.stderr)
+                    self.assertNotIn("work tree top level", r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
+                    self.assertNotIn(clean, r.stdout)
+
+    def test_linked_worktree_hook_git_dir(self) -> None:
+        # 3b564 (r1 review E1): git exports GIT_DIR, naming the worktree's
+        # own git directory, to the hooks of a linked worktree. D9 and D13
+        # anchor git to their own REPO_ROOT with -C, so the main checkout's
+        # copies still read a top level of REPO_ROOT there while git read
+        # the worktree's refs, and the main checkout's D9 printed "D9 OK"
+        # over a head whose own control run FAILs. A real pre-commit hook in
+        # the worktree runs both trees' copies: the main checkout's refuse
+        # with exit 2 (D9 and D13 through require_own_git_dir; D5 and
+        # tension-scan run git from the hook's directory, the worktree, so
+        # their top-level comparison refuses too), and the worktree's own
+        # copies keep their real verdicts. Mutation killed: dropping the
+        # require_own_git_dir call from D9 or D13.
+        import subprocess as sp
+
+        tmp, git = self._retire_and_cite()
+        main_tools = self._own_copies(tmp / "tools")
+        wt = Path(str(tmp) + "-wt")
+        self.addCleanup(shutil.rmtree, wt, ignore_errors=True)
+        git("worktree", "add", "-q", "-b", "feat-wt", str(wt), "feat")
+        wt_tools = self._own_copies(wt / "tools")
+        git("checkout", "-q", "main")
+        holder = Path(tempfile.mkdtemp(prefix="worktree-hook-")).resolve()
+        self.addCleanup(shutil.rmtree, holder, ignore_errors=True)
+        results = holder / "results.json"
+        runs = [(where, str(tools / g[0])) for where, tools in
+                (("main checkout", main_tools), ("worktree", wt_tools)) for g in self.OWN_TOP_GATES]
+        hook = holder / "hooks" / "pre-commit"
+        hook.parent.mkdir()
+        hook.write_text(
+            f"#!{sys.executable} -I\n"
+            "import json, os, subprocess, sys\n"
+            "out = {'GIT_DIR': os.environ.get('GIT_DIR'), 'runs': []}\n"
+            f"for where, script in {runs!r}:\n"
+            "    r = subprocess.run([sys.executable, script, 'main', 'feat-wt'],\n"
+            "                       capture_output=True, text=True)\n"
+            "    out['runs'].append([where, os.path.basename(script), r.returncode,\n"
+            "                        r.stdout, r.stderr])\n"
+            f"with open({str(results)!r}, 'w', encoding='utf-8') as fh:\n"
+            "    json.dump(out, fh)\n",
+            encoding="utf-8",
+        )
+        hook.chmod(0o755)
+        git("config", "core.hooksPath", str(hook.parent))
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        sp.run(["git", "-C", str(wt), "commit", "-q", "--allow-empty", "-m", "hook run"],
+               check=True, capture_output=True, env=env)
+        out = json.loads(results.read_text(encoding="utf-8"))
+        self.assertIsNotNone(out["GIT_DIR"], "git exported no GIT_DIR to the worktree's hook")
+        self.assertEqual((wt / out["GIT_DIR"]).resolve(),
+                         Path(git("rev-parse", "--absolute-git-dir", cwd=wt)).resolve())
+        self.assertEqual(len(out["runs"]), 2 * len(self.OWN_TOP_GATES))
+        expected = {g[0]: g for g in self.OWN_TOP_GATES}
+        for where, script, rc, stdout, stderr in out["runs"]:
+            _script, real_rc, verdict, clean = expected[script]
+            with self.subTest(gate=script, copy=where):
+                if where == "main checkout":
+                    self.assertEqual(rc, 2, f"stdout:\n{stdout}\nstderr:\n{stderr}")
+                    self.assertNotIn(clean, stdout)
+                    self.assertNotIn("Traceback", stderr)
+                    if script in ("check-retired-section-orphan-on-pr.py",
+                                  "check-stranded-control-code-on-pr.py"):
+                        self.assertIn("git reads the git directory", stderr)
+                else:
+                    self.assertEqual(rc, real_rc, f"stdout:\n{stdout}\nstderr:\n{stderr}")
+                    self.assertIn(verdict, stdout + stderr)
+                    self.assertNotIn("not this script's repository", stderr)
+
+    def test_relative_or_empty_toplevel_refuses_exit2(self) -> None:
+        # 3b564: a top level that is relative was accepted as long as git
+        # exited 0. A shim git prints one for rev-parse --show-toplevel (and
+        # delegates every other call), with each gate run as its own copy
+        # from its own top level, so only the reported top level is wrong.
+        # "." and "elsewhere" resolve against the current directory, here
+        # the gate's own REPO_ROOT for ".", so the comparison alone would
+        # accept it; each gate also requires an absolute top level, as git
+        # always prints. An empty one is 3b559's missing work tree and keeps
+        # that refusal, which runs first. The absolute case is the shim's
+        # control. Mutation killed: dropping the comparison, or only its
+        # is_absolute half, from any one gate.
+        import subprocess as sp
+
+        tmp, git = self._retire_and_cite()
+        tools = self._own_copies(tmp / "tools")
+        shims = Path(tempfile.mkdtemp(prefix="toplevel-shim-")).resolve()
+        self.addCleanup(shutil.rmtree, shims, ignore_errors=True)
+        real_git = shutil.which("git")
+        for label, printed in (("relative", "elsewhere"), ("dot", "."), ("empty", ""),
+                               ("absolute", str(tmp))):
+            shim = shims / label / "git"
+            shim.parent.mkdir()
+            shim.write_text(
+                f"#!{sys.executable} -I\n"
+                "import os, sys\n"
+                "if '--show-toplevel' in sys.argv[1:]:\n"
+                f"    print({printed!r})\n"
+                "    sys.exit(0)\n"
+                f"os.execv({real_git!r}, [{real_git!r}, *sys.argv[1:]])\n",
+                encoding="utf-8",
+            )
+            shim.chmod(0o755)
+            env = dict(os.environ)
+            env["PATH"] = str(shim.parent) + os.pathsep + env.get("PATH", "")
+            if label == "absolute":
+                self._assert_real_verdicts(tools, tmp, "main", "feat", env=env, label=label)
+                continue
+            for script, rc, verdict, _clean in self.OWN_TOP_GATES:
+                with self.subTest(gate=script, top=label):
+                    r = sp.run([sys.executable, str(tools / script), "main", "feat"],
+                               capture_output=True, text=True, cwd=str(tmp), env=env)
+                    self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                    if label == "empty":
+                        self.assertIn("printed an empty top level (no work tree)", r.stderr)
+                    else:
+                        self.assertIn("not this script's repository", r.stderr)
+                        self.assertIn(repr(printed), r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
+                    self.assertNotIn(verdict, r.stdout + r.stderr)
+
+    def test_non_absolute_git_dir_refuses_exit2(self) -> None:
+        # 3b564 (r2 review W1): git rev-parse echoes an option it does not
+        # know and exits 0, so a git without --absolute-git-dir would print
+        # the flag itself for both of require_own_git_dir's reads. A shim git
+        # prints the flag for that one query (and delegates every other
+        # call, so the top level is the real one). realpath resolved both
+        # values against the current directory, they compared equal, and all
+        # four gates kept their verdicts with the git directory unconfirmed;
+        # each now refuses with exit 2 because neither read is an absolute
+        # path. Mutation killed: dropping that check from
+        # lint_common.require_own_git_dir.
+        import subprocess as sp
+
+        tmp, git = self._retire_and_cite()
+        tools = self._own_copies(tmp / "tools")
+        shims = Path(tempfile.mkdtemp(prefix="git-dir-shim-")).resolve()
+        self.addCleanup(shutil.rmtree, shims, ignore_errors=True)
+        real_git = shutil.which("git")
+        shim = shims / "git"
+        shim.write_text(
+            f"#!{sys.executable} -I\n"
+            "import os, sys\n"
+            "if '--absolute-git-dir' in sys.argv[1:]:\n"
+            "    print('--absolute-git-dir')\n"
+            "    sys.exit(0)\n"
+            f"os.execv({real_git!r}, [{real_git!r}, *sys.argv[1:]])\n",
+            encoding="utf-8",
+        )
+        shim.chmod(0o755)
+        env = dict(os.environ)
+        env["PATH"] = str(shims) + os.pathsep + env.get("PATH", "")
+        for script, _rc, verdict, _clean in self.OWN_TOP_GATES:
+            with self.subTest(gate=script):
+                r = sp.run([sys.executable, str(tools / script), "main", "feat"],
+                           capture_output=True, text=True, cwd=str(tmp), env=env)
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("could not confirm that git reads this script's repository",
+                              r.stderr)
+                self.assertIn("printed '--absolute-git-dir' and '--absolute-git-dir'", r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn(verdict, r.stdout + r.stderr)
+
+    def test_run_from_other_clone(self) -> None:
+        # 3b564 (r2 review W2): run from inside another clone whose top level
+        # is the gate's own REPO_ROOT, once through GIT_WORK_TREE=REPO_ROOT
+        # and once through that clone's own core.worktree naming it, with no
+        # GIT_DIR. D5 and tension-scan run git from the current directory,
+        # so they would read the other clone's refs; require_own_git_dir with
+        # from_cwd refuses them with exit 2, naming that clone's git
+        # directory. D9 and D13 run git with -C REPO_ROOT, so they read their
+        # own repository and keep their real verdicts. Mutations killed:
+        # require_own_git_dir ignoring from_cwd (always -C repo_root), D5 or
+        # tension-scan calling it without from_cwd, and D9 calling it with
+        # from_cwd.
+        import subprocess as sp
+
+        tmp, git = self._retire_and_cite()
+        tools = self._own_copies(tmp / "tools")
+        holder = Path(tempfile.mkdtemp(prefix="other-clone-")).resolve()
+        self.addCleanup(shutil.rmtree, holder, ignore_errors=True)
+        for name in ("clone", "configured"):
+            sp.run(["git", "clone", "-q", str(tmp), str(holder / name)],
+                   check=True, capture_output=True)
+            git("branch", "-q", "main", "origin/main", cwd=holder / name)
+        git("config", "core.worktree", str(tmp), cwd=holder / "configured")
+        base_env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        for label, cwd, extra in (
+            ("GIT_WORK_TREE", holder / "clone", {"GIT_WORK_TREE": str(tmp)}),
+            ("core.worktree", holder / "configured", {}),
+        ):
+            env = dict(base_env, **extra)
+            for script, rc, verdict, clean in self.OWN_TOP_GATES:
+                with self.subTest(gate=script, setup=label):
+                    r = sp.run([sys.executable, str(tools / script), "main", "feat"],
+                               capture_output=True, text=True, cwd=str(cwd), env=env)
+                    if script in ("check-todo-rotation-on-pr.py", "tension-scan.py"):
+                        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                        self.assertIn(f"git reads the git directory {str(cwd / '.git')!r}",
+                                      r.stderr)
+                        self.assertNotIn("work tree top level", r.stderr)
+                        self.assertNotIn(clean, r.stdout)
+                    else:
+                        self.assertEqual(r.returncode, rc, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                        self.assertIn(verdict, r.stdout + r.stderr)
+                        self.assertNotIn("not this script's repository", r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
+
+    def test_gitfile_alias_refuses_exit2(self) -> None:
+        # 3b564 (r3 review W1): a main-tree alias whose .git is a file naming
+        # the checkout's git directory. git takes the alias as the top level
+        # and reads that git directory, so the top-level comparison and both
+        # git-directory reads passed: run from the alias, D9 printed "D9 OK:
+        # 1 section(s) retired; no LIVE orphan references" over a head whose
+        # own control run FAILs, and D5, D13 and tension-scan printed their
+        # clean passes. tools/git-hooks/pre-push refuses the alias because it
+        # is not a work tree registered with that git directory; each gate
+        # now refuses it the same way, with exit 2, through
+        # lint_common.require_own_git_dir. A linked worktree of the same
+        # repository, whose .git file is registered, keeps its real
+        # verdicts. Mutations killed: dropping the registration check,
+        # accepting any .git file, and ignoring the linked worktree's gitdir
+        # file (the worktree then refuses). Round 6 (r5 review W1) adds aliases
+        # that take the checkout's objects and refs while git reports the
+        # alias's own git directory, each of which the gates and pre-push
+        # passed at 8f9b4b468: a .git directory whose commondir file names
+        # the checkout's git directory, a .git directory whose objects and
+        # refs are symbolic links into it, and a .git file naming a git
+        # directory with such a commondir file, either a separate one whose
+        # own config sets core.worktree to the alias or one whose gitdir file
+        # names the alias's .git (not in the checkout's worktrees directory).
+        # Mutations killed (helper and pre-push each): dropping the
+        # common-directory comparison from each layout's branch, and dropping
+        # the objects or refs symbolic-link check. Round 7 (r6 review N1)
+        # adds an alias linking objects alone and one linking refs alone, so
+        # dropping either half of that check is killed; f0da1931d refused
+        # both.
+        import subprocess as sp
+
+        tmp, git = self._retire_and_cite()
+        self._assert_real_verdicts(self._own_copies(tmp / "tools"), tmp, "main", "feat",
+                                   label="control")
+        holder = Path(tempfile.mkdtemp(prefix="gitfile-alias-")).resolve()
+        self.addCleanup(shutil.rmtree, holder, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        linked_parts = {"objects and refs symbolic links": ("objects", "refs"),
+                        "objects symbolic link": ("objects",), "refs symbolic link": ("refs",)}
+        for layout in ("gitfile", "commondir", *linked_parts,
+                       "gitfile to a separate commondir", "gitfile to a linked commondir"):
+            alias = holder / layout.replace(" ", "-")
+            sp.run(["git", "clone", "-q", "-b", "main", str(tmp), str(alias)],
+                   check=True, capture_output=True)
+            git_dir = alias / ".git"
+            if layout in linked_parts:
+                if "refs" not in linked_parts[layout]:
+                    # The alias keeps its own refs, so give it the range's head.
+                    git("branch", "-q", "feat", "origin/feat", cwd=alias)
+                for part in linked_parts[layout]:
+                    shutil.rmtree(git_dir / part)
+                    (git_dir / part).symlink_to(tmp / ".git" / part)
+                if "refs" in linked_parts[layout]:
+                    (git_dir / "packed-refs").unlink()
+            else:
+                shutil.rmtree(git_dir)
+            if layout == "gitfile":
+                git_dir = tmp / ".git"
+                (alias / ".git").write_text(f"gitdir: {git_dir}\n", encoding="utf-8")
+            elif layout not in linked_parts:
+                if layout != "commondir":
+                    git_dir = holder / f"{alias.name}.git"
+                    (alias / ".git").write_text(f"gitdir: {git_dir}\n", encoding="utf-8")
+                git_dir.mkdir()
+                (git_dir / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+                (git_dir / "commondir").write_text(f"{tmp / '.git'}\n", encoding="utf-8")
+                if layout == "gitfile to a separate commondir":
+                    (git_dir / "config").write_text(f"[core]\n\tworktree = {alias}\n",
+                                                    encoding="utf-8")
+                elif layout == "gitfile to a linked commondir":
+                    (git_dir / "gitdir").write_text(f"{alias / '.git'}\n", encoding="utf-8")
+            tools = self._own_copies(alias / "tools")
+            self.assertEqual(git("rev-parse", "--show-toplevel", cwd=alias), str(alias))
+            self.assertEqual(git("rev-parse", "--absolute-git-dir", cwd=alias), str(git_dir))
+            self.assertEqual(git("rev-parse", "main", cwd=alias), git("rev-parse", "main"))
+            with self.subTest(layout=layout, gate="pre-push"):
+                hook = sp.run(["sh", str(REPO_ROOT / "tools" / "git-hooks" / "pre-push"),
+                               "origin", "x"], capture_output=True, text=True, cwd=str(alias),
+                              env=env, stdin=sp.DEVNULL)
+                self.assertEqual(hook.returncode, 1, hook.stderr)
+                self.assertIn("pre-push: refusing redirected work tree", hook.stderr)
+            for script, _rc, _verdict, clean in self.OWN_TOP_GATES:
+                with self.subTest(layout=layout, gate=script):
+                    r = sp.run([sys.executable, str(tools / script), "main", "feat"],
+                               capture_output=True, text=True, cwd=str(alias), env=env)
+                    self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                    self.assertIn(f"is not a work tree registered with the git directory "
+                                  f"{str(git_dir)!r}", r.stderr)
+                    self.assertNotIn("work tree top level", r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
+                    self.assertNotIn(clean, r.stdout)
+        wt = Path(str(tmp) + "-wt")
+        self.addCleanup(shutil.rmtree, wt, ignore_errors=True)
+        git("worktree", "add", "-q", "-b", "feat-wt", str(wt), "feat")
+        self.assertTrue((wt / ".git").is_file())
+        self._assert_real_verdicts(self._own_copies(wt / "tools"), wt, "main", "feat-wt",
+                                   env=env, label="registered worktree")
+
+    def test_own_toplevel_keeps_real_verdicts(self) -> None:
+        # 3b564: the top-level and git-directory comparisons keep every real
+        # verdict where git reads the gate's own repository: a normal
+        # checkout, a run from a subdirectory (D5 and tension-scan run git
+        # from the current directory), a root reached through a symbolic
+        # link, and a linked worktree and a submodule each running their own
+        # copies.
+        import subprocess as sp
+
+        tmp, git = self._retire_and_cite()
+        tools = self._own_copies(tmp / "tools")
+        self._assert_real_verdicts(tools, tmp, "main", "feat", label="checkout")
+        self._assert_real_verdicts(tools, tmp / "tools", "main", "feat", label="subdirectory")
+        links = Path(tempfile.mkdtemp(prefix="own-root-link-")).resolve()
+        self.addCleanup(shutil.rmtree, links, ignore_errors=True)
+        link = links / "root"
+        link.symlink_to(tmp)
+        self._assert_real_verdicts(link / "tools", link, "main", "feat", label="symlinked root")
+        wt = Path(str(tmp) + "-wt")
+        self.addCleanup(shutil.rmtree, wt, ignore_errors=True)
+        git("worktree", "add", "-q", "-b", "feat-wt", str(wt), "feat")
+        self._assert_real_verdicts(self._own_copies(wt / "tools"), wt, "main", "feat-wt",
+                                   label="linked worktree")
+        sup = Path(tempfile.mkdtemp(prefix="own-superproject-")).resolve()
+        self.addCleanup(shutil.rmtree, sup, ignore_errors=True)
+        sp.run(["git", "init", "-q", "-b", "main", str(sup)], check=True, capture_output=True)
+        sp.run(["git", "-C", str(sup), "-c", "protocol.file.allow=always", "submodule", "add",
+                "-q", str(tmp), "sub"], check=True, capture_output=True)
+        sub = sup / "sub"
+        self._assert_real_verdicts(self._own_copies(sub / "tools"), sub, "origin/main",
+                                   "origin/feat", label="submodule")
 
 
 from tests import test_session_facts
@@ -14839,6 +15373,103 @@ class NativePrePushGuardTests(unittest.TestCase):
                 finally:
                     (other / ".git").unlink()
                     hook.write_bytes(installed)
+
+    def test_real_commondir_alias(self):
+        # 3b564 round 6 (r5 review W1): a tree whose .git directory has a
+        # commondir file naming this checkout's git directory pushes this
+        # checkout's refs, and git runs the hook in that common directory.
+        # The tracked hook refuses it; at 8f9b4b468 it accepted the alias and
+        # went on to run the alias's own tree. Only the tracked dispatcher is
+        # run here: the installed dispatcher (v7, tools/install-git-hooks.sh)
+        # keeps the earlier check, accepts the alias and runs the alias's
+        # own tracked hook (a disclosed residual). An alias that links only
+        # objects and refs has its own hooks directory, so no hook of this
+        # checkout runs there; a git-new-workdir checkout also links hooks
+        # (r6 review N5), so this checkout's hook runs from it and refuses,
+        # naming that layout (round 7; f0da1931d refused without naming it).
+        # The workdir is emulated (config, refs, objects, info, hooks and
+        # packed-refs linked): the contrib script is not installed here.
+        remote = self.real_remote()
+        main = self.root
+        hook = main / ".git/hooks/pre-push"
+        installed = hook.read_bytes()
+        hook.write_bytes((main / "tools/git-hooks/pre-push").read_bytes())
+        try:
+            for layout in ("commondir", "git-new-workdir"):
+                other = Path(self.tmp.name) / (layout + "-tree")
+                (other / "tools/git-hooks").mkdir(parents=True)
+                (other / "tools/git-hooks/pre-push").write_text(
+                    '#!/bin/sh\necho REDIRECTED_HOOK >&2\nexit 0\n'
+                    'python3 -I tools/pre-push-hook.py "$@" < "$refs"\n')
+                (other / "tools/pre-push-hook.py").touch()
+                (other / ".git").mkdir()
+                (other / ".git/HEAD").write_bytes((main / ".git/HEAD").read_bytes())
+                if layout == "commondir":
+                    (other / ".git/commondir").write_text(str(main / ".git") + "\n")
+                else:
+                    for part in ("config", "refs", "objects", "info", "hooks", "packed-refs"):
+                        if (main / ".git" / part).exists():
+                            (other / ".git" / part).symlink_to(main / ".git" / part)
+                ref = "refs/heads/" + layout
+                self.root = other
+                try:
+                    with self.subTest(layout=layout):
+                        result = self.run_cmd("git", "push", "upstream", "HEAD:" + ref, code=1)
+                        self.assertIn("refusing redirected work tree", result.stderr)
+                        self.assertNotIn("REDIRECTED_HOOK", result.stdout + result.stderr)
+                        if layout == "git-new-workdir":
+                            self.assertIn("a git-new-workdir checkout", result.stderr)
+                finally:
+                    self.root = main
+                self.run_cmd("git", "--git-dir", str(remote), "show-ref",
+                             "--verify", "--quiet", ref, code=1)
+        finally:
+            hook.write_bytes(installed)
+
+    def test_real_redirect_variables_main_and_linked(self):
+        # 3b564 round 7 (r6 review E1): with GIT_OBJECT_DIRECTORY naming a
+        # clone's objects, git pushed through the installed and tracked hooks
+        # while reading that clone's object store; so did
+        # GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_GRAFT_FILE and
+        # GIT_SHALLOW_FILE, which git 2.53 exported to no pre-push hook, and
+        # GIT_INDEX_FILE naming the clone's index. Each push now refuses in
+        # the tracked hook, naming the variable, and pushes nothing;
+        # f0da1931d pushed all five. GIT_INDEX_FILE naming the checkout's own
+        # index still pushes. GIT_COMMON_DIR is not pushed here: git then
+        # takes config and hooks from that common dir, so no hook of this
+        # checkout runs (LintCommonHelperTests runs the hook with it).
+        remote = self.real_remote()
+        clone = Path(self.tmp.name) / "objects-clone"
+        self.run_cmd("git", "clone", "-q", str(self.root), str(clone))
+        head = self.run_cmd("git", "rev-parse", "HEAD").stdout.strip()
+        for name in ("grafts", "shallow"):
+            (Path(self.tmp.name) / name).write_text(head + "\n")
+        values = {"GIT_OBJECT_DIRECTORY": clone / ".git/objects",
+                  "GIT_ALTERNATE_OBJECT_DIRECTORIES": clone / ".git/objects",
+                  "GIT_GRAFT_FILE": Path(self.tmp.name) / "grafts",
+                  "GIT_SHALLOW_FILE": Path(self.tmp.name) / "shallow",
+                  "GIT_INDEX_FILE": clone / ".git/index"}
+        for checkout in self.main_and_linked():
+            for name, value in values.items():
+                with self.subTest(checkout=checkout, variable=name):
+                    saved = self.env.copy()
+                    self.env[name] = str(value)
+                    ref = "refs/heads/" + checkout + "-" + name.lower()
+                    try:
+                        result = self.run_cmd("git", "push", "upstream", "HEAD:" + ref, code=1)
+                        self.assertIn("pre-push: refusing " + name, result.stderr)
+                        self.assertNotIn("guard 1/3", result.stdout)
+                    finally:
+                        self.env = saved
+                    self.run_cmd("git", "--git-dir", str(remote), "show-ref",
+                                 "--verify", "--quiet", ref, code=1)
+            git_dir = Path(self.run_cmd("git", "rev-parse", "--absolute-git-dir").stdout.strip())
+            saved = self.env.copy()
+            self.env["GIT_INDEX_FILE"] = str(git_dir / "index")
+            try:
+                self.assert_layout_pushes(remote, checkout + "-own-index")
+            finally:
+                self.env = saved
 
     def assert_layout_pushes(self, remote, label):
         ref = "refs/heads/" + label
@@ -19813,6 +20444,385 @@ class LintCommonHelperTests(unittest.TestCase):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return module
+
+    def test_require_own_git_dir(self) -> None:
+        """3b564: require_own_git_dir passes a repository's own git directory
+        and refuses, with a message, GIT_DIR naming another repository, and a
+        repo_root that is not a repository, whose git directory cannot be
+        confirmed (fail-closed). Run from inside another repository, it
+        reads git the way the gate does: with -C repo_root by default, so it
+        passes, and from the current directory with from_cwd, so it refuses
+        (r2 review W2). A read that prints a relative path refuses, whichever
+        read it is (r2 review W1). The gate-level cases are in
+        CollapsedRangeRefusalTests. Mutations killed: keeping GIT_DIR in the
+        own read, returning None when a read fails, ignoring from_cwd,
+        always reading from the current directory, and checking only one
+        read for an absolute path."""
+        import subprocess as sp
+        from unittest import mock
+
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="own-git-dir-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        own, other, plain = td / "own", td / "other", td / "plain"
+        for repo in (own, other):
+            sp.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        plain.mkdir()
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["GIT_CEILING_DIRECTORIES"] = str(td)
+        with mock.patch.dict(os.environ, env, clear=True):
+            self.assertIsNone(lc.require_own_git_dir(own))
+            previous = os.getcwd()
+            try:
+                os.chdir(other)
+                self.assertIsNone(lc.require_own_git_dir(own, from_cwd=False))
+                self.assertIn(f"git reads the git directory {str(other / '.git')!r}",
+                              lc.require_own_git_dir(own, from_cwd=True) or "")
+                os.chdir(own)
+                self.assertIsNone(lc.require_own_git_dir(own, from_cwd=True))
+                # Each read must print an absolute path (r2 review W1): ".git"
+                # here resolves to own's git directory, so only that check
+                # refuses it.
+                absolute = os.fsencode(own / ".git") + b"\n"
+                for reads in ((b".git\n", absolute), (absolute, b".git\n")):
+                    with mock.patch.object(lc.subprocess, "check_output", side_effect=reads):
+                        self.assertIn("not two absolute paths", lc.require_own_git_dir(own) or "")
+            finally:
+                os.chdir(previous)
+            os.environ["GIT_DIR"] = str(other / ".git")
+            self.assertIn(f"git reads the git directory {str(other / '.git')!r}",
+                          lc.require_own_git_dir(own) or "")
+            self.assertIn("could not confirm that git reads this script's repository",
+                          lc.require_own_git_dir(plain) or "")
+
+    def test_require_own_git_dir_registered_work_tree(self) -> None:
+        """3b564 (r3 review W1): require_own_git_dir also requires repo_root
+        to be a work tree registered with the git directory git reads, as
+        tools/git-hooks/pre-push does. It passes a checkout, a linked
+        worktree (its .git file is the one its git directory's gitdir file
+        names, by an absolute path or one relative to that directory) and a
+        submodule (a separate git directory whose own core.worktree names
+        it). It refuses an alias whose .git file names
+        the checkout's git directory or the linked worktree's, an alias
+        whose .git is a symbolic link to the checkout's, an alias of the
+        submodule's separate git directory, and a separate git directory
+        that sets no core.worktree. The gate-level case is in
+        CollapsedRangeRefusalTests. Mutations killed: dropping the check,
+        accepting a symbolic link, accepting any .git file, ignoring the
+        gitdir file, resolving a relative gitdir against the current
+        directory, accepting any core.worktree, and dropping the separate
+        git directory case (the submodule then refuses). Round 6: a backlink
+        with a trailing slash or through a missing component refuses, in
+        the helper and pre-push (r5 review N1; mutation killed: comparing
+        with os.path.realpath alone), and core.worktree supplied through
+        GIT_CONFIG_COUNT or GIT_CONFIG_PARAMETERS for an alias of the
+        separate git directory refuses (r5 review W2; mutation killed:
+        reading it with git --git-dir <dir> config). Round 7 (r6 review W1
+        and N4): a backlink spelled through the .git file and /., or through
+        a file and /.., and a core.worktree spelled through a file and /..
+        refuse in pre-push as in the helper; at f0da1931d pre-push passed all
+        three under uutils realpath 0.10.0 (mutation killed: pre-push's
+        existing_realpath without its test -e)."""
+        import subprocess as sp
+        from unittest import mock
+
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="registered-work-tree-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["GIT_CEILING_DIRECTORIES"] = str(td)
+
+        def git(*args):
+            sp.run(["git", *args], check=True, capture_output=True, env=env)
+
+        own, wt, sup, sep = td / "own", td / "wt", td / "sup", td / "sep"
+        git("init", "-q", str(own))
+        git("-C", str(own), "-c", "user.email=t@t", "-c", "user.name=t",
+            "commit", "-q", "--allow-empty", "-m", "x")
+        git("-C", str(own), "worktree", "add", "-q", "--detach", str(wt))
+        git("init", "-q", str(sup))
+        git("-C", str(sup), "-c", "protocol.file.allow=always", "submodule", "add", "-q",
+            str(own), "sub")
+        git("init", "-q", "--separate-git-dir", str(td / "sep.git"), str(sep))
+        wt_git_dir = own / ".git" / "worktrees" / "wt"
+        sub_git_dir = sup / ".git" / "modules" / "sub"
+        aliases = []
+        for name, git_dir in (("main", own / ".git"), ("worktree", wt_git_dir),
+                              ("submodule", sub_git_dir)):
+            alias = td / f"alias-{name}"
+            alias.mkdir()
+            (alias / ".git").write_text(f"gitdir: {git_dir}\n", encoding="utf-8")
+            aliases.append((f"gitfile to the {name}'s git directory", alias, git_dir))
+        link = td / "alias-link"
+        link.mkdir()
+        (link / ".git").symlink_to(own / ".git")
+        aliases.append(("symbolic link", link, own / ".git"))
+        with mock.patch.dict(os.environ, env, clear=True):
+            for label, root in (("checkout", own), ("linked worktree", wt),
+                                ("submodule", sup / "sub")):
+                with self.subTest(root=label):
+                    self.assertIsNone(lc.require_own_git_dir(root))
+            # A relative backlink, as git worktree add --relative-paths writes
+            # one, resolves against the git directory, as pre-push resolves it.
+            (wt_git_dir / "gitdir").write_text(os.path.relpath(wt / ".git", wt_git_dir) + "\n",
+                                               encoding="utf-8")
+            with self.subTest(root="linked worktree, relative gitdir"):
+                self.assertIsNone(lc.require_own_git_dir(wt))
+            # A backlink that does not exist as spelled refuses, here and in
+            # pre-push (r5 review N1, r6 review W1): a trailing slash on the
+            # .git file and a path through a missing component, which
+            # Python's realpath alone tidied into the worktree's .git, and the
+            # .git file or another file followed by /. or /.., which uutils
+            # realpath 0.10.0 resolves.
+            hook = REPO_ROOT / "tools" / "git-hooks" / "pre-push"
+            (wt / "f").write_text("x\n", encoding="utf-8")
+            for spelling in (f"{wt / '.git'}/", f"{wt / 'missing'}/../.git",
+                             f"{wt / '.git'}/.", f"{wt / 'f'}/../.git"):
+                (wt_git_dir / "gitdir").write_text(spelling + "\n", encoding="utf-8")
+                with self.subTest(root="linked worktree", backlink=spelling):
+                    self.assertIn(f"is not a work tree registered with the git directory "
+                                  f"{str(wt_git_dir)!r}", lc.require_own_git_dir(wt) or "")
+                    r = sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                               cwd=str(wt), env=env, stdin=sp.DEVNULL)
+                    self.assertEqual(r.returncode, 1, r.stderr)
+                    self.assertIn("pre-push: refusing redirected work tree", r.stderr)
+            (wt_git_dir / "gitdir").write_text(f"{wt / '.git'}\n", encoding="utf-8")
+            self.assertIsNone(lc.require_own_git_dir(wt))
+            # core.worktree comes from the separate git directory's own config
+            # file only (r5 review W2): supplied through GIT_CONFIG_COUNT or
+            # GIT_CONFIG_PARAMETERS for an alias whose .git file names sep.git,
+            # which sets none, it names the alias, which git takes as the top
+            # level, and the alias still refuses.
+            sep_alias = td / "alias-separate"
+            sep_alias.mkdir()
+            (sep_alias / ".git").write_text(f"gitdir: {td / 'sep.git'}\n", encoding="utf-8")
+            for label, extra in (
+                ("GIT_CONFIG_COUNT", {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "core.worktree",
+                                      "GIT_CONFIG_VALUE_0": str(sep_alias)}),
+                ("GIT_CONFIG_PARAMETERS", {"GIT_CONFIG_PARAMETERS": f"'core.worktree'='{sep_alias}'"}),
+            ):
+                with self.subTest(root="separate git directory alias", config=label), \
+                        mock.patch.dict(os.environ, extra):
+                    self.assertEqual(sp.run(["git", "-C", str(sep_alias), "config", "core.worktree"],
+                                            capture_output=True, text=True).stdout.strip(),
+                                     str(sep_alias))
+                    self.assertEqual(sp.run(["git", "-C", str(sep_alias), "rev-parse",
+                                             "--show-toplevel"],
+                                            capture_output=True, text=True).stdout.strip(),
+                                     str(sep_alias))
+                    self.assertIn(f"the separate git directory {str(td / 'sep.git')!r}, which "
+                                  f"sets no core.worktree", lc.require_own_git_dir(sep_alias) or "")
+            for label, root, git_dir in aliases:
+                with self.subTest(root=label):
+                    self.assertIn(f"is not a work tree registered with the git directory "
+                                  f"{str(git_dir)!r}", lc.require_own_git_dir(root) or "")
+            # A core.worktree spelled through a file and /.. refuses here and
+            # in pre-push (r6 review N4); spelled plainly, it passes.
+            (sep / "f").write_text("x\n", encoding="utf-8")
+            sep_config = str(td / "sep.git" / "config")
+            for spelling, refuses in ((f"{sep / 'f'}/..", True), (str(sep), False)):
+                git("config", "--file", sep_config, "core.worktree", spelling)
+                with self.subTest(root="separate git directory", core_worktree=spelling):
+                    if not refuses:
+                        self.assertIsNone(lc.require_own_git_dir(sep))
+                        continue
+                    self.assertIn(f"is not a work tree registered with the git directory "
+                                  f"{str(td / 'sep.git')!r}", lc.require_own_git_dir(sep) or "")
+                    r = sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                               cwd=str(sep), env=env, stdin=sp.DEVNULL)
+                    self.assertEqual(r.returncode, 1, r.stderr)
+                    self.assertIn("pre-push: refusing redirected work tree", r.stderr)
+            git("config", "--file", sep_config, "--unset", "core.worktree")
+            self.assertIn(f"the separate git directory {str(td / 'sep.git')!r}, which sets no "
+                          f"core.worktree", lc.require_own_git_dir(sep) or "")
+
+    def test_require_own_git_dir_environment(self) -> None:
+        """3b564 round 7 (r6 review E1): git's repository-local variables
+        (git rev-parse --local-env-vars) that move what git reads refuse, in
+        the helper and tools/git-hooks/pre-push. GIT_COMMON_DIR,
+        GIT_OBJECT_DIRECTORY, GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_GRAFT_FILE
+        and GIT_SHALLOW_FILE, which git 2.53 exported to no pre-push or
+        commit hook, refuse by name whatever their value; at f0da1931d each but
+        GIT_COMMON_DIR passed both with a value naming another repository.
+        GIT_WORK_TREE and GIT_INDEX_FILE, which git does export to hooks,
+        refuse only where they point away from the checkout: a work tree
+        other than repo_root (the helper passed one at f0da1931d), or an
+        index that is not in the git directory git reads, as another
+        repository's or another worktree's is. The values git gives a commit
+        hook's GIT_INDEX_FILE (.git/index, index.lock, next-index-<pid>.lock,
+        and in a linked worktree its own git directory's) pass. Every
+        variable git lists is classified here, so a git that adds one fails
+        this test until it is classified, and pre-push names the same five
+        as the helper."""
+        import subprocess as sp
+        from unittest import mock
+
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="own-git-env-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["GIT_CEILING_DIRECTORIES"] = str(td)
+
+        def git(*args):
+            return sp.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", *args], check=True,
+                          capture_output=True, text=True, env=env).stdout.strip()
+
+        own, other, wt = td / "own", td / "other", td / "wt"
+        for repo in (own, other):
+            git("init", "-q", str(repo))
+            (repo / "tools").mkdir()
+            (repo / "tools" / "check-dirty-tree-push.py").write_text("print('HOOK PASSED')\n",
+                                                                     encoding="utf-8")
+            (repo / "tools" / "pre-push-hook.py").write_text("", encoding="utf-8")
+            git("-C", str(repo), "add", "-A")
+            git("-C", str(repo), "commit", "-q", "-m", "x")
+        git("-C", str(own), "worktree", "add", "-q", "--detach", str(wt))
+        wt_git_dir = Path(git("-C", str(wt), "rev-parse", "--absolute-git-dir"))
+        head = git("-C", str(own), "rev-parse", "HEAD")
+        for name in ("grafts", "shallow"):
+            (td / name).write_text(head + "\n", encoding="utf-8")
+        hook = REPO_ROOT / "tools" / "git-hooks" / "pre-push"
+
+        def run_hook(cwd, extra):
+            return sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                          cwd=str(cwd), env={**env, **extra}, stdin=sp.DEVNULL)
+
+        foreign = {"GIT_COMMON_DIR": other / ".git", "GIT_OBJECT_DIRECTORY": other / ".git" / "objects",
+                   "GIT_ALTERNATE_OBJECT_DIRECTORIES": other / ".git" / "objects",
+                   "GIT_GRAFT_FILE": td / "grafts", "GIT_SHALLOW_FILE": td / "shallow"}
+        owned = {"GIT_COMMON_DIR": own / ".git", "GIT_OBJECT_DIRECTORY": own / ".git" / "objects",
+                 "GIT_ALTERNATE_OBJECT_DIRECTORIES": own / ".git" / "objects",
+                 "GIT_GRAFT_FILE": own / ".git" / "info" / "grafts",
+                 "GIT_SHALLOW_FILE": own / ".git" / "shallow"}
+        with mock.patch.dict(os.environ, env, clear=True):
+            self.assertIsNone(lc.require_own_git_dir(own))
+            self.assertIn("HOOK PASSED", run_hook(own, {}).stdout)
+            for name in lc._GIT_REDIRECT_VARIABLES:
+                for label, value in (("foreign", foreign[name]), ("own", owned[name])):
+                    with self.subTest(variable=name, value=label), \
+                            mock.patch.dict(os.environ, {name: str(value)}):
+                        self.assertIn(f"{name} in the environment moves what git reads",
+                                      lc.require_own_git_dir(own) or "")
+                        r = run_hook(own, {name: str(value)})
+                        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                        self.assertIn(f"pre-push: refusing {name} in the environment", r.stderr)
+            for label, extra, refusal in (
+                ("own work tree", {"GIT_WORK_TREE": str(own)}, None),
+                ("another work tree", {"GIT_WORK_TREE": str(other)},
+                 f"GIT_WORK_TREE in the environment gives git the work tree {str(other)!r}"),
+            ):
+                with self.subTest(work_tree=label), mock.patch.dict(os.environ, extra):
+                    if refusal is None:
+                        self.assertIsNone(lc.require_own_git_dir(own))
+                        self.assertIn("HOOK PASSED", run_hook(own, extra).stdout)
+                    else:
+                        self.assertIn(refusal, lc.require_own_git_dir(own) or "")
+                        self.assertIn("pre-push: refusing redirected work tree",
+                                      run_hook(own, extra).stderr)
+            for label, root, extra, refuses in (
+                ("commit hook, relative", own, {"GIT_INDEX_FILE": ".git/index"}, False),
+                ("commit hook, index.lock", own,
+                 {"GIT_INDEX_FILE": str(own / ".git" / "index.lock")}, False),
+                ("commit hook, partial commit", own,
+                 {"GIT_INDEX_FILE": str(own / ".git" / "next-index-1.lock")}, False),
+                ("commit hook, linked worktree", wt,
+                 {"GIT_DIR": str(wt_git_dir), "GIT_INDEX_FILE": str(wt_git_dir / "index.lock")}, False),
+                ("another repository's index", own,
+                 {"GIT_INDEX_FILE": str(other / ".git" / "index")}, True),
+                ("another worktree's index", own, {"GIT_INDEX_FILE": str(wt_git_dir / "index")}, True),
+            ):
+                with self.subTest(index=label), mock.patch.dict(os.environ, extra):
+                    r = run_hook(root, extra)
+                    if not refuses:
+                        self.assertIsNone(lc.require_own_git_dir(root))
+                        self.assertIn("HOOK PASSED", r.stdout, r.stderr)
+                        continue
+                    self.assertIn("GIT_INDEX_FILE in the environment gives git the index",
+                                  lc.require_own_git_dir(root) or "")
+                    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                    self.assertIn("pre-push: refusing GIT_INDEX_FILE", r.stderr)
+        compared = {"GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE"}
+        inert = {"GIT_CONFIG", "GIT_CONFIG_PARAMETERS", "GIT_CONFIG_COUNT", "GIT_NO_REPLACE_OBJECTS",
+                 "GIT_REPLACE_REF_BASE", "GIT_PREFIX", "GIT_IMPLICIT_WORK_TREE"}
+        self.assertEqual(set(git("rev-parse", "--local-env-vars").split()),
+                         set(lc._GIT_REDIRECT_VARIABLES) | compared | inert)
+        self.assertEqual(re.findall(r'"\$\{(GIT_[A-Z_]+)\+\1\}"', hook.read_text(encoding="utf-8")),
+                         list(lc._GIT_REDIRECT_VARIABLES))
+
+    def test_require_own_git_dir_symlinked_stores(self) -> None:
+        """3b564 round 7 (r6 review N2, N3): objects, refs or reftable that
+        are symbolic links refuse wherever they point, in the helper and
+        tools/git-hooks/pre-push, and both messages name the two layouts
+        round 6 newly refused, which f0da1931d refused without naming: a
+        relocated objects directory (a repository's own objects moved and
+        linked back) and a git-new-workdir checkout (emulated: config, refs,
+        objects, info, hooks and packed-refs linked to another checkout's;
+        the contrib script is not installed here). A reftable repository
+        passes, and an alias whose reftable is a symbolic link into another
+        reftable repository refuses; f0da1931d passed that alias in both, as
+        its refs directory is a stub."""
+        import subprocess as sp
+        from unittest import mock
+
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="symlinked-stores-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["GIT_CEILING_DIRECTORIES"] = str(td)
+
+        def git(*args):
+            return sp.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", *args], check=True,
+                          capture_output=True, text=True, env=env).stdout.strip()
+
+        own, table = td / "own", td / "table"
+        for repo, options in ((own, ()), (table, ("--ref-format=reftable",))):
+            git("init", "-q", *options, str(repo))
+            (repo / "tools").mkdir()
+            (repo / "tools" / "check-dirty-tree-push.py").write_text("print('HOOK PASSED')\n",
+                                                                     encoding="utf-8")
+            (repo / "tools" / "pre-push-hook.py").write_text("", encoding="utf-8")
+            git("-C", str(repo), "add", "-A")
+            git("-C", str(repo), "commit", "-q", "-m", "x")
+        relocated = td / "relocated"
+        git("clone", "-q", str(own), str(relocated))
+        shutil.move(relocated / ".git" / "objects", td / "relocated-objects")
+        (relocated / ".git" / "objects").symlink_to(td / "relocated-objects")
+        workdir = td / "workdir"
+        (workdir / ".git").mkdir(parents=True)
+        for part in ("config", "refs", "objects", "info", "hooks", "packed-refs"):
+            if (own / ".git" / part).exists():
+                (workdir / ".git" / part).symlink_to(own / ".git" / part)
+        shutil.copyfile(own / ".git" / "HEAD", workdir / ".git" / "HEAD")
+        git("-C", str(workdir), "checkout", "-q", "-f")
+        table_alias = td / "table-alias"
+        git("clone", "-q", "--ref-format=reftable", str(table), str(table_alias))
+        shutil.rmtree(table_alias / ".git" / "reftable")
+        (table_alias / ".git" / "reftable").symlink_to(table / ".git" / "reftable")
+        git("-C", str(table), "commit", "-q", "--allow-empty", "-m", "y")
+        self.assertEqual(git("-C", str(table_alias), "rev-parse", "HEAD"),
+                         git("-C", str(table), "rev-parse", "HEAD"))
+        hook = REPO_ROOT / "tools" / "git-hooks" / "pre-push"
+        with mock.patch.dict(os.environ, env, clear=True):
+            for label, root in (("checkout", own), ("reftable repository", table)):
+                with self.subTest(root=label):
+                    self.assertIsNone(lc.require_own_git_dir(root))
+                    r = sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                               cwd=str(root), env=env, stdin=sp.DEVNULL)
+                    self.assertIn("HOOK PASSED", r.stdout, r.stderr)
+            for label, root in (("relocated objects directory", relocated),
+                                ("git-new-workdir checkout", workdir),
+                                ("reftable symbolic link", table_alias)):
+                with self.subTest(root=label):
+                    refusal = lc.require_own_git_dir(root) or ""
+                    self.assertIn("is not a work tree registered with the git directory "
+                                  f"{str(root / '.git')!r}", refusal)
+                    r = sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                               cwd=str(root), env=env, stdin=sp.DEVNULL)
+                    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                    self.assertIn("pre-push: refusing redirected work tree", r.stderr)
+                    for message in (refusal, r.stderr):
+                        self.assertIn("a relocated objects directory", message)
+                        self.assertIn("a git-new-workdir checkout", message)
 
     def test_parse_metadata_block_fields_and_backslash(self) -> None:
         lc = self._lint_common()
@@ -27904,11 +28914,11 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-narrative-corpus-mixed-diff-on-pr.py NO_FS F d887f9c093699a558892270fda2810e744bfb55c1c9b4cbcae4ed6a666fefd5d
         check-portability.sh FIXED F 47a3853e165ba918c0f4f5687904f662a0a9d805356428394fd724ff227756d5
         check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
-        check-retired-section-orphan-on-pr.py NO_FS F b44b8682e7a5166facceadf51b21ca8bda4826978d7f9945b126a0f453addeaa
+        check-retired-section-orphan-on-pr.py NO_FS F 625d4037a2d598e6ab1eb5972a0b2c62dd25f02c90545d5a801795bdc021cfd3
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
-        check-stranded-control-code-on-pr.py NO_FS F a5df50628c12bce25313c359c7e772d054eefe603caa06aeded2454615a95541
+        check-stranded-control-code-on-pr.py NO_FS F c5d8a11052d1b2e1cea125aeed0f1836661995df0b89d192043cb4c3c16dce10
         check-todo-floor-monotonic-on-pr.py NO_FS F 2be7d8fc308974a0b99b60a2d40f02b93c21be83ca1837d0a40c55974c893d29
-        check-todo-rotation-on-pr.py NO_FS F 8454ce779d770b219e95bb1048f2644333d35b11cd48b05490ec57b1fac8dad8
+        check-todo-rotation-on-pr.py NO_FS F fa1b9a5954444ef8bf6e5666d5b717f1491883619bafbc67c6680736f918d93e
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 35a3896f610c90c1114d570720a0e152e57581ae2b67bda805ba14eda7866d5d
         ci-status.py NO_FS F 068ed02eb5f5a81572dce604a4cb1965582dbc178c7c9715be3d37dd8e01e54b
@@ -27924,7 +28934,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         gate-scope-manifest.json DATA F 8f29caf3cd2485fab187579dcc95b18deb999df62d0853a6a7d3f717f271e497
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
-        git-hooks/pre-push TRANSPORT F b6be6bbf5e8319541b3903e86be287e4457667e037631882998bc772603bc94a
+        git-hooks/pre-push TRANSPORT F 9d1300e3fc7e1dcea3986ea7015f839c2c821cd7be16263dadc04482089fc2b5
         handoff-snapshot.py NO_FS F c752b79fa8844d3b37fb8978b351cd55ad3c02e648cd0f37168f256a92154358
         historical_citation_register.py PASSIVE F deb457b7487c069a6f1602b6a4160e1ce922da6a82a523b288dfee151d3b0236
         install-git-hooks.sh FIXED F 02e7278c3b66766a44d96c403950c243b877491d81572889b2a8d0bdae80f944
@@ -28027,7 +29037,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 616ae8f4ea008cda21bcf2f663ed650f82f91b2467fddc75cc4a313ff61e32b1
-        lint_common.py PASSIVE F 80a8bf7d929ea127ffea692a15bca20af636cdae6463c6f6833fbf8f5b7856a0
+        lint_common.py PASSIVE F a014c5275cf07de0785be2cf2b41a001d3b4dce09393abc49e177f98e7d043e8
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -28058,7 +29068,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         sweep-preflight-scanner.py NO_FS F ae4ca7f95dffecb823ec3bc0fdf382ead32fd92a8b0c8b0c286f0b85b2b4dd6f
         sync-citation-worklist-baseline.py OWN F 9c465a8c77bafd52f7f3079f35346a11716a6f0bc8e91862706590e831af397b
         tail-safe.sh COMMAND F 07908bc54b40d06445f63a08f92526d22e4a030465ee235104a3ec41fbbb0b02
-        tension-scan.py NO_FS F 4bc6a3cb9afc90dff71f8f1713440472dd8de5c3da16452d71926d53123ed73e
+        tension-scan.py NO_FS F b49a801182538a004d973328235289a4f2bb23b5dbc034c34272619ca1d33511
         todo-number-floor.json DATA F b5b684a17754dd265c1072f2342971befcc59b5a6e0b579f48eb21ea172f047b
         todo_index_rows.py PASSIVE F 6aba39ba20b4bbbe5ffab3fe94ef520ec95ce8d8e2510ea73696c17d196c2e4a
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4
@@ -48683,8 +49693,8 @@ def _rewrite_slot_share_fixture(test, source, path):
 
 
 class HookDescendantIsolationTests(unittest.TestCase):
-    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 1, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 17, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 6}
-    NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-c', 'core.warnAmbiguousRefs=false', '-c', 'trace2.normalTarget=', '-c', 'trace2.perfTarget=', '-c', 'trace2.eventTarget=', '-C', str(REPO), *args]", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', 'init', '-q', str(repo)]", "['git', 'ls-tree', '-z', '--full-tree', rev, '--', f':(literal){path}']", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
+    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 1, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 17, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 12}
+    NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(repo_root), 'rev-parse', '--absolute-git-dir']", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', '-c', 'core.warnAmbiguousRefs=false', '-c', 'trace2.normalTarget=', '-c', 'trace2.perfTarget=', '-c', 'trace2.eventTarget=', '-C', str(REPO), *args]", "['git', 'config', '--file', os.path.join(current, b'config'), '--get', 'core.worktree']", "['git', 'init', '-q', str(repo)]", "['git', 'ls-tree', '-z', '--full-tree', rev, '--', f':(literal){path}']", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['git', *here, 'rev-parse', '--absolute-git-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-common-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-path', 'index']", "['git', *here, 'rev-parse', '--show-toplevel']", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
     PYTHON_TARGETS = {'block-idle-stop-with-actionable-backlog.py': {'str(script)'}, 'block-unbumped-version-commit.py': {"str(d5 / '.claude' / 'hooks' / 'hook.py')"}, 'clock-inject.py': {'code'}, 'future-stamp-write.py': {'code'}, 'stamp-truth-stop.py': {'code'}, 'nmw-actionable': {'TOOL'}, 'stop-guard-unattended.py': {'exe', 'hook', 'code', "os.path.join(r, '.claude', 'hooks', os.path.basename(__file__))"}}
 
     def test_every_python_descendant_is_isolated(self):

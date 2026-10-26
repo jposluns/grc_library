@@ -50,9 +50,26 @@ Four FP guards:
    was reverted). The opt-out, with a reason naming the migration, is correct.
 
 Exit: 0 = no retired ids / no LIVE survivors / opt-out / an empty TODO.md diff
-over a real range; 1 = LIVE survivors found; 2 = git or environment error, or
-CANNOT-EVALUATE when base and head resolve to the same commit (a collapsed,
-empty range: nothing was evaluated).
+over a real range; 1 = LIVE survivors found; 2 = git or environment error
+(including a work tree top level git reports that is not this script's own
+repository, REPO_ROOT: another directory, or a relative or empty one; a
+git directory other than REPO_ROOT's own, as GIT_DIR naming another
+repository gives; GIT_COMMON_DIR, GIT_OBJECT_DIRECTORY,
+GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_GRAFT_FILE or GIT_SHALLOW_FILE in the
+environment, or GIT_WORK_TREE or GIT_INDEX_FILE pointing away from REPO_ROOT;
+a REPO_ROOT that is not a work tree registered with the git directory git
+reads, as a .git file naming another checkout's gives, or a relocated
+objects directory or a git-new-workdir checkout (objects, refs or reftable
+that are symbolic links); and a separate git directory that sets no
+core.worktree, as git init or git clone --separate-git-dir leaves one: in
+that checkout run git config core.worktree "$PWD"), or CANNOT-EVALUATE when
+base and head resolve to the same commit (a collapsed, empty range: nothing
+was evaluated).
+
+Known residuals (3b564): git failing to run at all (OSError) on the one
+top-level read degrades to a placeholder and skips the top-level comparison;
+the git-directory checks still run. What the git-directory checks do not
+cover is disclosed in lint_common.require_own_git_dir.
 """
 from __future__ import annotations
 
@@ -63,7 +80,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import REPO_ROOT, classify  # noqa: E402
+from lint_common import REPO_ROOT, classify, require_own_git_dir  # noqa: E402
 
 
 # Post-2026-08 migration the per-item DETAIL (TODO-REFERENCE.md) is PRIVATE, so
@@ -240,25 +257,54 @@ def run(base: str | None, head: str) -> int:
         merge_base = git("merge-base", base, head).strip()
         head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}").strip()
         try:
-            # Diagnostic only (the refusal's repo= field): git failing to run
-            # at all (OSError), or a top level the locale codec cannot decode
-            # (a path that is not valid UTF-8), degrades to a placeholder as
-            # D12's _toplevel does, so the gate keeps its real verdict instead
-            # of a traceback (3b540 round 8). git refusing to print one (no
-            # work tree, as with GIT_DIR naming a bare repository) reaches the
-            # refusal below: the orphan scan reads the working tree, so
-            # without one it would scan another tree and pass clean (3b540
-            # round 9).
-            toplevel = git("rev-parse", "--show-toplevel").strip()
-        except (OSError, UnicodeDecodeError):
+            # The refusal's repo= field and the comparison below: git failing
+            # to run at all (OSError) degrades to a placeholder as D12's
+            # _toplevel does, so the gate keeps its real verdict instead of a
+            # traceback (3b540 round 8). The top level is read as bytes and
+            # decoded with os.fsdecode, so a path that is not valid UTF-8
+            # still reaches the comparison instead of the placeholder (3b564).
+            # git refusing to print one (no work tree, as with GIT_DIR naming
+            # a bare repository) reaches the refusal below: the orphan scan
+            # reads the working tree, so without one it would scan another
+            # tree and pass clean (3b540 round 9).
+            toplevel = os.fsdecode(subprocess.check_output(
+                ["git", "-C", str(REPO_ROOT), "rev-parse", "--show-toplevel"])).strip()
+        except OSError:
             toplevel = "(no work tree)"
-        if not toplevel:
-            # git older than 2.25 printed nothing and exited 0 outside a work
-            # tree instead of refusing, so an empty top level is the same
-            # missing work tree and refuses the same way on any git (3b559).
-            print(f"ERROR: git rev-parse --show-toplevel printed an empty top level "
-                  f"(no work tree) (base={base}, head={head}); the orphan scan reads "
-                  f"the working tree, so nothing was evaluated.", file=sys.stderr)
+        else:
+            if not toplevel:
+                # git older than 2.25 printed nothing and exited 0 outside a work
+                # tree instead of refusing, so an empty top level is the same
+                # missing work tree and refuses the same way on any git (3b559).
+                print(f"ERROR: git rev-parse --show-toplevel printed an empty top level "
+                      f"(no work tree) (base={base}, head={head}); the orphan scan reads "
+                      f"the working tree, so nothing was evaluated.", file=sys.stderr)
+                return 2
+            # The orphan scan reads REPO_ROOT's files, so the work tree git
+            # reports must be REPO_ROOT itself. GIT_DIR naming a bare clone
+            # plus GIT_WORK_TREE naming another directory printed "D9 OK" over
+            # a head whose own control run FAILs; a relative top level was
+            # accepted too, and Path resolves one against the current
+            # directory, so it must also be absolute, as git always prints it
+            # (3b564). The placeholder above skips this check (3b540 round 8).
+            top = Path(toplevel)
+            if not (top.is_absolute() and top.resolve() == REPO_ROOT.resolve()):
+                print(
+                    f"ERROR: git reports the work tree top level {toplevel!r}, not "
+                    f"this script's repository {REPO_ROOT} (base={base}, head={head}); "
+                    f"the orphan scan would read another tree. Run the copy of this "
+                    f"script inside the tree under test.",
+                    file=sys.stderr,
+                )
+                return 2
+        # A top level of REPO_ROOT does not show that git reads REPO_ROOT's
+        # repository: GIT_DIR naming another one, alone, with GIT_WORK_TREE
+        # or with its own core.worktree, still reports REPO_ROOT, as does the
+        # GIT_DIR git exports to a linked worktree's hooks (3b564).
+        refusal = require_own_git_dir(REPO_ROOT)
+        if refusal:
+            print(f"ERROR: {refusal} (base={base}, head={head}); the orphan scan would "
+                  f"read this tree against another repository's head.", file=sys.stderr)
             return 2
         ref_diff = git("diff", merge_base, head, "--", "TODO.md")
         try:

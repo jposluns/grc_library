@@ -96,9 +96,33 @@ Exit codes:
         diff (the public index rotated), OR an opt-out trailer is present.
     1 : a closure is asserted but TODO.md is missing from the diff (the public
         index row was not rotated).
-    2 : invocation or environment error (cannot determine base/head, git failure),
-        or CANNOT-EVALUATE: base and head resolve to the same commit, or the
+    2 : invocation or environment error (cannot determine base/head, git failure,
+        a work tree top level git reports that is not this script's own
+        repository, REPO_ROOT: another directory, or a relative or empty one,
+        a git directory other than REPO_ROOT's own, as GIT_DIR naming
+        another repository gives, GIT_COMMON_DIR, GIT_OBJECT_DIRECTORY,
+        GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_GRAFT_FILE or GIT_SHALLOW_FILE
+        in the environment, or GIT_WORK_TREE or GIT_INDEX_FILE pointing away
+        from REPO_ROOT, a REPO_ROOT that is not a work tree registered with
+        the git directory git reads, as a .git file naming another
+        checkout's gives, or a relocated objects directory or a
+        git-new-workdir checkout (objects, refs or reftable that are
+        symbolic links), or a separate git directory that sets no
+        core.worktree, as git init or git clone --separate-git-dir leaves
+        one: in that checkout run git config core.worktree "$PWD"), or
+        CANNOT-EVALUATE: base and head resolve to the same commit, or the
         range changes no file (an empty diff), so nothing was evaluated.
+
+Known residuals (3b564): git failing to run at all (OSError) on the one
+top-level read degrades to a placeholder and skips the top-level comparison
+(the git-directory checks still run). D5 runs git from the current
+directory, so it also refuses (fail-closed) where git's top level is not this
+copy's REPO_ROOT although nothing is misread: the main checkout's copy run
+from inside a linked worktree or a submodule, and this copy run from a
+subdirectory while GIT_DIR is exported (git then takes the current directory
+as the top level). The runner, CI and git hooks all run it from the top level.
+What the git-directory checks do not cover is disclosed in
+lint_common.require_own_git_dir.
 """
 
 from __future__ import annotations
@@ -108,6 +132,10 @@ import os
 import re
 import subprocess
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from lint_common import REPO_ROOT, require_own_git_dir  # noqa: E402
 
 CHANGELOG_PATHS = ("CHANGELOG.md",)
 TODO_PATH = "TODO.md"
@@ -332,25 +360,51 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: could not resolve {head} to a commit: {exc}", file=sys.stderr)
         return 2
     try:
-        # Diagnostic only (the refusals' repo= field): git failing to run at
-        # all (OSError), or a top level the locale codec cannot decode (a path
-        # that is not valid UTF-8), degrades to a placeholder as D12's
-        # _toplevel does, so the gate keeps its real verdict instead of a
-        # traceback (3b540 round 8). git refusing to print one (no work tree,
-        # as with GIT_DIR naming a bare repository) still refuses with exit 2
-        # (3b540 round 9).
-        toplevel = git("rev-parse", "--show-toplevel")
-    except (OSError, UnicodeDecodeError):
+        # The refusals' repo= field and the comparison below: git failing to
+        # run at all (OSError) degrades to a placeholder as D12's _toplevel
+        # does, so the gate keeps its real verdict instead of a traceback
+        # (3b540 round 8). The top level is read as bytes and decoded with
+        # os.fsdecode, so a path that is not valid UTF-8 still reaches the
+        # comparison instead of the placeholder (3b564). git refusing to
+        # print one (no work tree, as with GIT_DIR naming a bare repository)
+        # still refuses with exit 2 (3b540 round 9).
+        toplevel = os.fsdecode(subprocess.check_output(["git", "rev-parse", "--show-toplevel"])).strip()
+    except OSError:
         toplevel = "(no work tree)"
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: could not read the work tree top level: {exc}", file=sys.stderr)
         return 2
-    if not toplevel:
-        # git older than 2.25 printed nothing and exited 0 outside a work tree
-        # instead of refusing, so an empty top level is the same missing work
-        # tree and refuses the same way on any git (3b559).
-        print("ERROR: could not read the work tree top level: git rev-parse "
-              "--show-toplevel printed an empty top level (no work tree).", file=sys.stderr)
+    else:
+        if not toplevel:
+            # git older than 2.25 printed nothing and exited 0 outside a work tree
+            # instead of refusing, so an empty top level is the same missing work
+            # tree and refuses the same way on any git (3b559).
+            print("ERROR: could not read the work tree top level: git rev-parse "
+                  "--show-toplevel printed an empty top level (no work tree).", file=sys.stderr)
+            return 2
+        # A top level other than this script's own REPO_ROOT means git is
+        # reading another repository (GIT_DIR naming a bare clone plus
+        # GIT_WORK_TREE naming another directory, or a run of this copy from
+        # inside a different clone); refuse it, as D9 does. Path resolves a
+        # relative top level against the current directory, so it must also
+        # be absolute, as git always prints it (3b564). The placeholder above
+        # skips this check (3b540 round 8).
+        top = Path(toplevel)
+        if not (top.is_absolute() and top.resolve() == REPO_ROOT.resolve()):
+            print(
+                f"ERROR: git reports the work tree top level {toplevel!r}, not this "
+                f"script's repository {REPO_ROOT}; run the copy of this script inside "
+                f"the tree under test.",
+                file=sys.stderr,
+            )
+            return 2
+    # A top level of REPO_ROOT does not show that git reads REPO_ROOT's
+    # repository (GIT_DIR naming another one, with the current directory or
+    # GIT_WORK_TREE as the top level, still reports it), so compare the git
+    # directories too, as D9 does (3b564).
+    refusal = require_own_git_dir(REPO_ROOT, from_cwd=True)
+    if refusal:
+        print(f"ERROR: {refusal}.", file=sys.stderr)
         return 2
     if merge_base == head_sha:
         print(

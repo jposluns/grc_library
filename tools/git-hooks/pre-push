@@ -4,24 +4,65 @@ PATH=/usr/bin:/bin
 export PATH
 unset GIT_EXEC_PATH LD_PRELOAD LD_LIBRARY_PATH BASH_ENV ENV
 set -eu
+# Repository-local variables that move the common dir, objects, grafts or
+# shallow file; git exports none to this hook, so any value refuses. Keep in
+# step with lint_common._GIT_REDIRECT_VARIABLES.
+for name in "${GIT_COMMON_DIR+GIT_COMMON_DIR}" "${GIT_OBJECT_DIRECTORY+GIT_OBJECT_DIRECTORY}" \
+            "${GIT_ALTERNATE_OBJECT_DIRECTORIES+GIT_ALTERNATE_OBJECT_DIRECTORIES}" \
+            "${GIT_GRAFT_FILE+GIT_GRAFT_FILE}" "${GIT_SHALLOW_FILE+GIT_SHALLOW_FILE}"; do
+  if [ -n "$name" ]; then
+    echo "pre-push: refusing $name in the environment: it moves what git reads away from this checkout; unset it." >&2
+    exit 1
+  fi
+done
+# Resolve only a path that exists as spelled, as lint_common does:
+# realpath(1) builds differ on a file followed by /. or /..
+existing_realpath() {
+  [ -e "$1" ] && realpath "$1"
+}
 root="$(git rev-parse --show-toplevel)"
 current_git_dir="$(git rev-parse --absolute-git-dir)"
+common_git_dir="$(git rev-parse --path-format=absolute --git-common-dir)"
 own_git_dir="$(unset GIT_DIR GIT_WORK_TREE; cd "$root"; git rev-parse --absolute-git-dir)"
 # Compare canonical paths, not inodes: aliases are not registered trees.
 root="$(realpath "$root")"
 current_git_dir="$(realpath "$current_git_dir")"
+common_git_dir="$(realpath "$common_git_dir")"
 own_git_dir="$(realpath "$own_git_dir")"
+# Git gives commit hooks GIT_INDEX_FILE naming a file in the git dir it runs
+# in; an index anywhere else is not this checkout's.
+if [ -n "${GIT_INDEX_FILE+set}" ]; then
+  index="$(git rev-parse --path-format=absolute --git-path index)"
+  case "$index" in
+    /*) index_dir="$(existing_realpath "$(dirname "$index")" || :)" ;;
+    *) index_dir="" ;;
+  esac
+  if [ "$index_dir" != "$current_git_dir" ]; then
+    echo "pre-push: refusing GIT_INDEX_FILE naming an index outside the git dir git reads; unset it." >&2
+    exit 1
+  fi
+fi
 registered=false
-if [ ! -L "$root/.git" ]; then
+# Objects and refs come from the common dir (refs from reftable in a reftable
+# repository); a commondir file or symlinked objects, refs or reftable there
+# would read another checkout's under this git dir.
+if [ ! -L "$root/.git" ] && [ ! -L "$common_git_dir/objects" ] &&
+   [ ! -L "$common_git_dir/refs" ] && [ ! -L "$common_git_dir/reftable" ]; then
   if [ -d "$root/.git" ]; then
-    [ "$(realpath "$root/.git")" != "$current_git_dir" ] || registered=true
+    if [ "$(realpath "$root/.git")" = "$current_git_dir" ] &&
+       [ "$common_git_dir" = "$current_git_dir" ]; then
+      registered=true
+    fi
   elif [ -f "$root/.git" ] && [ -f "$current_git_dir/gitdir" ]; then
     linked_gitfile="$(cat "$current_git_dir/gitdir")"
     case "$linked_gitfile" in
       /*) ;;
       *) linked_gitfile="$current_git_dir/$linked_gitfile" ;;
     esac
-    if [ "$(realpath "$root/.git")" = "$(realpath "$linked_gitfile")" ]; then
+    backlink="$(existing_realpath "$linked_gitfile" || :)"
+    # A linked worktree's git dir sits in its common dir's worktrees dir.
+    if [ -n "$backlink" ] && [ "$(realpath "$root/.git")" = "$backlink" ] &&
+       [ "$(dirname "$current_git_dir")" = "$(existing_realpath "$common_git_dir/worktrees")" ]; then
       registered=true
     fi
   elif [ -f "$root/.git" ] &&
@@ -36,14 +77,15 @@ if [ ! -L "$root/.git" ]; then
       /*) ;;
       *) worktree="$current_git_dir/$worktree" ;;
     esac
-    if [ "$(realpath "$worktree")" = "$root" ] &&
-       [ "$own_git_dir" = "$current_git_dir" ]; then
+    if [ "$(existing_realpath "$worktree")" = "$root" ] &&
+       [ "$own_git_dir" = "$current_git_dir" ] &&
+       [ "$common_git_dir" = "$current_git_dir" ]; then
       registered=true
     fi
   fi
 fi
 if [ "$current_git_dir" != "$own_git_dir" ] || [ "$registered" != true ]; then
-  echo "pre-push: refusing redirected work tree; use the repository's own checkout." >&2
+  echo "pre-push: refusing redirected work tree; use the repository's own checkout. Symlinked objects, refs or reftable (a relocated objects directory, a git-new-workdir checkout) refuse too: keep them as directories in the git dir, or use git worktree add." >&2
   exit 1
 fi
 cd "$root"
