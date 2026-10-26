@@ -53911,6 +53911,289 @@ class BlockVerificationPipesTests(unittest.TestCase):
         # a (( with no closing )) is not arithmetic: subshell rules apply
         self.check(['( (a | tail; echo $?) )', '((cmd | tail; echo $?) )'], True)
 
+    def test_dollar_bracket_arithmetic_gets_the_dollar_paren_treatment(self):
+        # 3b569: bash reads the deprecated $[ ... ] as arithmetic, like $((.
+        # Each refusal below was allowed on 728cbbe47: an echo or printf
+        # stage holding $[ read as a plain emitter, and a << inside $[ ... ]
+        # registered a heredoc whose skipped body hid the lines bash runs.
+        refused = [
+            'echo $[x] | tail; echo $?',  # as 'echo $((x)) | tail; echo $?'
+            'echo "$[i]" | tail -1; echo rc=$?',
+            'printf \'%s\' "$[i]" | cut -c1-160; echo rc=$?',
+            'echo $[1 << x ]\nfalse | cat; echo $?\nx',
+            'echo $[1 << x ]\n: &\nx',
+            'echo $[ "$x" << x ]\n: &\nx',  # rejected interior: fallback
+            'echo $\\\n[1 << x ]\n: &\nx',  # opener split by a continuation
+        ]
+        self.check(refused, True)
+        guards = ('pipeline-status', 'pipeline-status', 'pipeline-status',
+                  'pipeline-status', 'untracked-background',
+                  'arithmetic-shift', 'arithmetic-shift')
+        for command, guard in zip(refused, guards):
+            with self.subTest(command=command):
+                self.assertEqual(self.hook.shell_violation(command)[0], guard)
+        # A strict $[ interior is one word, as for $((: its & is arithmetic.
+        # Both were refused on 728cbbe47 (false blocks there).
+        self.check(['echo $[1 & 2]', 'x=$[a & b]; echo $x'], False)
+        # Controls: single quotes and a backslash keep $[ literal, so the
+        # emitter stays plain data (allowed on 728cbbe47 and now).
+        self.check(["echo '$[i]' | tail; echo $?",
+                    'echo \\$[i] | tail; echo $?'], False)
+        # bash pairs $$ before the [, so these background "echo $$[1" and
+        # keep refusing, also when a continuation splits the pair.
+        self.check(['echo $$[1 & 2]', 'echo $\\\n$[1 & 2]'], True)
+
+    def test_dollar_bracket_backquote_escape_refuses(self):
+        # 3b569 round 2 (claude VPR-2): inside backquotes bash removes one
+        # backslash level before parsing, so the $ after a \\ or \$ escape
+        # there is literal or pairs into $$, and the & or | after it is a
+        # real operator, also across a line continuation. All four refused
+        # on 728cbbe47 and allowed on 89aab260e; the second, backquote
+        # reading refuses them again.
+        refused = [
+            'echo `echo \\\\$[1 & 2]`',
+            'echo `false \\\\$[1 | tail ]; echo $?`',
+            'echo `echo \\$$[1 & 2]`',
+            'echo `echo \\\\\\\n$[1 & 2]`',
+        ]
+        self.check(refused, True)
+        guards = ('untracked-background', 'pipeline-status',
+                  'untracked-background', 'untracked-background')
+        for command, guard in zip(refused, guards):
+            with self.subTest(command=command):
+                self.assertEqual(self.hook.shell_violation(command)[0], guard)
+        # Outside backquotes bash reads this $[ as arithmetic. Round 2
+        # refused it as an accepted false block; round 3 reads a command
+        # with no backquote only once, so it is allowed again (allowed on
+        # 89aab260e, refused on 728cbbe47 and 6e71da937).
+        self.check(['echo \\$$[1 & 2]'], False)
+        # Controls (allowed on 89aab260e and now): no backslash before the $,
+        # or nothing the ungrouped backquote reading exposes (it adds no
+        # group, so the later wait still collects the job).
+        self.check(['echo `echo $[1 & 2]`', 'echo \\\\$[1+1]',
+                    'a & echo \\\\$[1 ]; wait'], False)
+
+    def test_dollar_bracket_hides_no_separator_or_quoted_substitution(self):
+        # 3b569 round 2 (claude VPR-1, codex ERROR): each strict, grouped and
+        # quoted refusal below was allowed on 89aab260e. A subscript,
+        # parentheses or a strict nested $(( now stays inside the one $[
+        # word, so its && or || is no separator that clears the pending
+        # warning before the $? ...
+        strict = [
+            'false | cat; echo $[a[0] && 1] $?',
+            'false | cat; echo $[a[0] || 1] $?',
+            'false | cat; echo $[ (1) && 1 ] $?',
+            'false | cat; echo $[ $((1)) && 1 ] $?',
+        ]
+        # ... and a rejected interior groups the rest of the command, so a
+        # newline or && inside it splits nothing and a $? inside it counts.
+        grouped = [
+            'false | cat; echo $[1 +\n1] $?',
+            'false | cat; echo $[x[0] && $?]',
+            'false | cat; echo $[1 \\\n&& 1] $?',
+        ]
+        # The group runs past bash's ], so a $? in it can also follow the
+        # pipeline holding the $[ (refused on 89aab260e too; a group
+        # without that check allowed both).
+        own = ['false | cat $[ "$x" ]; echo $?',
+               'cmd | tail -n $[ "$n" ] && echo $?']
+        self.check(strict + grouped + own, True)
+        for command in strict + grouped + own:
+            with self.subTest(command=command):
+                self.assertEqual(self.hook.shell_violation(command)[0],
+                                 'pipeline-status')
+        # Double-quoted text is never tokenized, so a double-quoted $[ whose
+        # interior fails the check refuses outright.
+        quoted = ['echo "$[a[$(false | tail; echo $?)] ]"',
+                  'echo "$[a[$(: & echo 0)] ]"']
+        self.check(quoted, True)
+        for command in quoted:
+            with self.subTest(command=command):
+                self.assertEqual(self.hook.shell_violation(command)[0],
+                                 'quoted-arithmetic')
+        # Controls (allowed on 89aab260e and now): strict quoted interiors.
+        self.check(['echo "$[ ${#a[@]} ]"', 'echo "$[a[0] + 1]"'], False)
+
+    def test_dollar_bracket_wider_interior_allows(self):
+        # 3b569 round 2 (claude VPR-3, codex WARN): each refused on
+        # 89aab260e and allowed on 728cbbe47. These interiors pass the wider
+        # $[ check, so they take no fallback: no << refusal, and a later
+        # strict $(( is still recognized.
+        self.check([
+            'cat <<< $[a[0]]',
+            'x=$[a[0]+1]; cat <<EOF\nhi\nEOF',
+            ': <<x $[a[0]]\n: &\nx',
+            'v=$[ ${#a[@]} ]; cat <<E\nz\nE',
+            'y=$[a[0]]; echo $((1 & 2))',
+            'echo $[ $((1 & 2)) ]',
+            'echo $[1 + (2)]; cat <<<hello',
+        ], False)
+        # One word still exposes the line after it (arithmetic-shift on
+        # 89aab260e, which sent this interior to the fallback).
+        self.assertEqual(self.hook.shell_violation(
+            'echo $[a[0] << x ]\n: &\nx')[0], 'untracked-background')
+        # Kept refusals and disclosed false blocks (safe direction): a
+        # rejected interior with a heredoc (round-10 rule), a <( opener that
+        # rejects the interior, groups that run to the end of the command,
+        # and a double-quoted rejected interior.
+        self.check([
+            'echo $[ $(cmd) ]; cat <<E\nz\nE',
+            'echo $[ <(echo ]) << x ]\n: &\nx',
+            'false | cat; x=$[ "$y" + 1 ]; true; echo $?',
+            'false | cat && echo $[ "$x" ]; echo $?',
+            'echo "$[ $(cmd) ]"',
+        ], True)
+
+    def test_dollar_bracket_fallback_shift_refusal_is_pinned(self):
+        # 3b569 round 3 (codex NOTE): replaces the round-2 M5 pin, which
+        # 728cbbe47 also refused. The nested )) closes the shared arithmetic
+        # fallback before the <<, so only the $[ entry's << refusal keeps a
+        # heredoc from hiding the next line, which bash runs: mutant M5 (no
+        # such refusal) allows both, and so does 728cbbe47, which reads no
+        # $[ and skips that line as heredoc body.
+        for command in ['echo $[ "$x" + $((1)) << x ]\n: &\nx',
+                        'echo $[ "$x" + $((1)) << x ]\n'
+                        'false | cat; echo $?\nx']:
+            with self.subTest(command=command):
+                self.assertTrue(self.hook.command_is_blocked(command))
+                self.assertEqual(self.hook.shell_violation(command)[0],
+                                 'arithmetic-shift')
+
+    def test_dollar_bracket_escape_without_backquote_allows(self):
+        # 3b569 round 3 (codex WARN): with no backquote bash removes no
+        # backslash level, so the $[ after an escaped $ or backslash is
+        # arithmetic. Each was allowed on 728cbbe47 and refused on
+        # 6e71da937 by the backquote reading; a command with no backquote
+        # is now read once.
+        self.check(['echo \\$$[1 << 2]', 'echo \\$$[1 | 2]; echo $?',
+                    'echo \\\\$[1 << 2]', 'echo \\\\$[1 | 2]; echo $?'], False)
+        # Refused on 728cbbe47, which read the & as a launch, and on 6e71da937.
+        self.check(['echo \\\\$[1 & 2]'], False)
+        # One backquote anywhere still brings the backquote reading over the
+        # whole command, so an escaped $[ outside backquotes can still refuse
+        # (disclosed false block; allowed on 728cbbe47) ...
+        self.check(['echo \\`$[1 << 2]'], True)
+        # ... and must: the first reading takes both $[ as arithmetic words
+        # and sees no &, while bash runs the backquoted & on the next line
+        # (allowed on 728cbbe47).
+        self.assertEqual(self.hook.shell_violation(
+            'echo \\$$[1 << x ]\n`echo \\\\$[1 & 2]`\nx')[0], 'arithmetic-shift')
+
+    def test_dollar_bracket_wait_after_close_drains(self):
+        # 3b569 round 3 (claude WARN): a rejected $[ groups the rest of the
+        # command, and a wait in that group that starts after the ] bash
+        # pairs with the $[ now also drains the jobs launched before the $[,
+        # as a wait after a rejected $(( does. Each was allowed on 728cbbe47
+        # and refused (untracked-background) on 6e71da937. Round 5 (claude
+        # F3): each interior is valid arithmetic, so bash reaches the wait;
+        # the last line used to substitute a ), which bash rejects as
+        # arithmetic, so its wait never ran.
+        self.check([
+            'sleep 1 & echo $[ $(printf 0) ]; wait',
+            'worker & echo $[ $(date +%s) + 1 ]; wait',
+            ': & echo $[ $(b) + 1 ]; wait; echo $?',
+            'a & echo $[ "$x" ]; wait',
+            'a & x=$[ $(x) ]; wait',
+            'a & echo $[ $(x) ]\nwait',
+            'a & echo $[ $(x) ]; b & wait',
+            'a & echo $[ $(x) ] & wait',
+            '( a & echo $[ $(x) ]; wait )',
+            "a & echo $[ $(: ')') + a[$(echo 0)] ]; wait",
+        ], False)
+        # Kept refusals: the wait is inside bash's $[ ... ], in a subshell,
+        # conditional, or targeted (the last a disclosed false block) ...
+        refused = [
+            'a & echo $[ 1 ; wait ; ]',
+            'a & ( echo $[ $(x) ]; wait )',
+            'a & echo $[ $(x) ] && wait',
+            'a & echo $[ $(x) ]; wait $!',
+        ]
+        # ... an escape, quotes or a command substitution hide a ], so
+        # bash's ] comes after the wait ...
+        hidden = [
+            'a & echo $[ $(x) \\]; wait; ]',
+            "a & echo $[ $(x) ']'; wait; ]",
+            'a & echo $[ "]"; wait; ]',
+            'a & echo $[ $(echo ]) ; wait ; ]',
+        ]
+        # ... or the scan gives up on what it does not model: a backquote,
+        # a # (a comment for this hook, not for bash), $'...', ${...}, a
+        # substitution inside double quotes, and a case, $[ or [[ inside
+        # $( ... ). Round 5 (claude F1): it also gives up on a
+        # backslash-newline, which bash removes before reading, so one can
+        # split a $( it counts or any opener it watches, in double quotes
+        # too (a split $[ in double quotes refuses as quoted-arithmetic
+        # instead). Each split form below was allowed on 728cbbe47 and
+        # 442f9b1be and refused on 6e71da937. Round 6 (claude F1): it
+        # also gives up at any [ inside $( ... ): bash reads an array
+        # subscript there, in an assignment word or as a compound-assignment
+        # key, to its matching ], so the ) in x[)] or [)]= does not end the
+        # $( ... ) and the wait stays inside bash's $[ ... ] (bash 5.3 runs
+        # the subscript line's wait only in the substitution and fails to
+        # expand the compound-key line). Both were allowed on 32e755f9a.
+        unsure = [
+            'a & echo $[ `echo ]; wait; :` ]',
+            "a & echo $[ $(x) #]'\nwait\n'",
+            "a & echo $[ $'\\' ]; wait; :' ]",
+            'a & echo $[ ${x:-]} ; wait ; ]',
+            'a & echo $[ "$(echo "]")" ; wait ; ]',
+            'a & echo $[ $(case x in x) echo ];; esac; wait; ) ]',
+            'a & echo $[ $(echo $[ ) ] ]; wait; ) ]',
+            'a & echo $[ $( [[ x =~ ) ]]; wait; ) ]',
+            'a & echo $[ $\\\n(echo ]) ; wait ; ]',
+            "a & echo $[ $\\\n'\\' ]; wait; :' ]",
+            'a & echo $[ $\\\n{x:-]} ; wait ; ]',
+            'a & echo $[ "$\\\n(echo "]")" ; wait ; ]',
+            'a & echo $[ "$\\\n{x:-"]"}" ; wait ; ]',
+            'a & echo $[ $(ca\\\nse x in x) echo ];; esac; wait; ) ]',
+            'a & echo $[ $(echo $\\\n[ ) ] ]; wait; ) ]',
+            'a & echo $[ $( [\\\n[ x =~ ) ]]; wait; ) ]',
+            'a & echo $[ $(declare -A x; x[)]=1; wait; echo 0) ]',
+            'a & echo $[ $(declare -A x; x=([)]=1); : ]; wait; echo 0) ]',
+            # Round 7 (claude F1): inside backquotes bash first removes one
+            # backslash level, so \\] there is an escaped ] and bash's ]
+            # comes after the wait; the scan now gives up on a backquote
+            # anywhere in the command. Allowed on 7392b8b74.
+            'echo `a & echo $[ $(x) \\\\]; wait; ]`',
+        ]
+        # The same shape without backquotes is still read as drained.
+        self.check(['a & echo $[ $(x) ]; wait'], False)
+        self.check(refused + hidden + unsure, True)
+        for command in refused + hidden + unsure:
+            with self.subTest(command=command):
+                self.assertEqual(self.hook.shell_violation(command)[0],
+                                 'untracked-background')
+
+    def test_dollar_bracket_nested_wait_drains_outer(self):
+        # 3b569 round 4: a nested )) closes the arithmetic fallback, so a
+        # later $[ opens a second group inside the first. A wait after the
+        # ] bash pairs with each $[ now reaches the outer group too and
+        # drains the jobs launched before the first $[. Each was allowed on
+        # 728cbbe47 and refused (untracked-background) on 3d14fd711.
+        self.check([
+            'a & echo $[ $(x) + $(( (1) )) ] $[ $(y) ]; wait',
+            'a & echo $[ $(x) + $(( (1) )) ] $[ $(y) ]\nwait',
+            'a & echo $[ $(x) + $(( (1) )) ] $[ $(y) + $(( (2) )) ] $[ $(z) ]; wait',
+            'a & echo $[ $(x) + $(( (1) )) \\]; ] $[ $(y) ]; wait; ]',
+        ], False)
+        # Kept refusals: the wait is inside bash's outer or inner $[ ... ],
+        # conditional or targeted, a job follows it, or the scan gives up on
+        # either $[ (a backquote, a case inside $( ... )).
+        refused = [
+            'a & echo $[ $(x) + $(( (1) )) + $[ $(y) ] ; wait ; ]',
+            'a & echo $[ $(x) + $(( (1) )) ] $[ $(y) ; wait ; ]',
+            'a & echo $[ $(x) + $(( (1) )) ] $[ $(y) ] && wait',
+            'a & echo $[ $(x) + $(( (1) )) ] $[ $(y) ]; wait $!',
+            'a & echo $[ $(x) + $(( (1) )) ] $[ $(y) ]; wait; b &',
+            'a & echo $[ `x` + $(( (1) )) ] $[ $(y) ]; wait',
+            'a & echo $[ $(x) + $(( (1) )) ] $[ $(case y in y) echo ];; esac) ]; wait',
+        ]
+        self.check(refused, True)
+        for command in refused:
+            with self.subTest(command=command):
+                self.assertEqual(self.hook.shell_violation(command)[0],
+                                 'untracked-background')
+
     def test_arithmetic_review_regressions(self):
         # R6 Claude F1 and Codex R6-1/R6-2: all these allowed on 0b900a3b8.
         self.check([
@@ -55064,7 +55347,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         ):
             add(name, message, evidence=("[2026-09-22 12:00Z]", "(session: 0h 5m)"))
 
-        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write(", 7))
+        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write(", 8))
         add("pipe", "tools/run_all_audits.sh | tail -8", evidence=("(RM-10)",))
         add("status", "cmd | tail; echo rc=$?", label="pipeline-status", verb="redirect",
             at=("main", "sys.stderr.write(", 0),
@@ -55082,18 +55365,23 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             at=("main", "sys.stderr.write(", 3),
             evidence=("echo $((1 << (2)))", "cannot tell this shift from a heredoc",
                       "simple arithmetic"))
+        add("quoted-arithmetic", 'echo "$[ $(cmd) + 1 ]"',
+            label="quoted-arithmetic", verb="run",
+            at=("main", "sys.stderr.write(", 4),
+            evidence=('echo "$[ $(cmd) + 1 ]"', "does not tokenize double-quoted text",
+                      "run the substitution first"))
         add("heredoc-unterminated", "cat <<EOF\na &\n",
             label="heredoc-unterminated", verb="close",
-            at=("main", "sys.stderr.write(", 4),
+            at=("main", "sys.stderr.write(", 5),
             evidence=("'EOF'", "never matched before the end", "read as heredoc body"))
         add("heredoc-divergence", "cat <<$'EOF'\nx & y\nEOF",
             label="heredoc-divergence", verb="use",
-            at=("main", "sys.stderr.write(", 5),
+            at=("main", "sys.stderr.write(", 6),
             evidence=("'$EOF'", "diverges from plain line reading",
                       "plain [A-Za-z0-9_-] delimiter word"))
         add("complexity", "(" * 65 + "true" + ")" * 65,
             label="shell-complexity", verb="run",
-            at=("main", "sys.stderr.write(", 6),
+            at=("main", "sys.stderr.write(", 7),
             evidence=("inspection limit", "refusing it", "fewer nested groups"))
         add = group("block-wrong-repo-tool", "use")
         for name, command, guard, evidence in (

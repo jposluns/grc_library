@@ -104,6 +104,61 @@ executed single-command && continuation replaces the guarded pipeline's
 status (a skipped one leaves the pipeline's own nonzero status), so it
 clears the pending warning, while a || continuation keeps it because a
 skipped || branch leaves the masking filter's zero status readable.
+3b569: bash also reads the deprecated $[ ... ] as arithmetic, and ends it
+only at its matching ] (nested [ ] count, parentheses do not). An unquoted
+$[ is one arithmetic word when its interior up to that ] holds only the
+round-7 characters and $name / ${name} references, plus parentheses (no <(
+or >( opener), nested [ ] subscripts, ${#name} and ${name[...]} references
+with a plain subscript, and nested $(( ... )) spans that pass the round-7
+check; that is wider than the $(( allow-list. Otherwise, and whenever a
+backslash-newline splits the $ from the [, a $[ outside ${...} enters the
+rejected-arithmetic fallback with the round-10 << refusal (any << in the
+command, here-strings included), because bash reads << inside $[ ... ] as
+a shift, never a heredoc; that fallback has no )) of its own, so it stays
+open, recognizing no later ((, $(( or $[, until an adjacent )) or the end
+of the command. No trusted ] ends a rejected interior, so everything after
+that $[, to the end of the command or of its enclosing parenthesized or
+brace group, is inspected as one group with the pipefail state and pending
+warning in force at the $[, and a status read anywhere in that group
+refuses after a masking pipeline, whether that pipeline comes before the
+command holding the $[ or is that command itself (false blocks, safe
+direction). The group's jobs stay its own, but an unconditional,
+argument-free wait at the group's own level that starts after the ] bash
+pairs with that $[ also drains the jobs launched before the $[, as a wait
+after a rejected $(( ... )) does. A lexical scan finds that ]: it counts
+nested [ ] (not parentheses) and skips escapes, single quotes, double
+quotes and $( ... ) spans, whose parentheses it counts. A backquote
+anywhere in the command, #,
+$', ${, a substitution inside double quotes, a case or any [ inside
+$( ... ), or a backslash-newline after the [ and outside single quotes
+leaves the scan unsure (bash removes a backslash-newline before reading,
+so one can split a $( or any of those openers); that wait then drains
+nothing, nor does a wait $! or wait -n after a rejected $[ (false blocks,
+safe direction). Giving up at any [ inside $( ... ) covers [[, $[ and an
+array subscript in an assignment word or a compound-assignment key: bash
+reads a subscript to its matching ], so a ) inside one does not end the
+$( ... ).
+When a rejected $[ sits at an outer $[ group's own level, a wait that
+drains for it also counts at that outer group's own level.
+Inside ${...} a $[ stays part of the parameter word, unread,
+like a $( there. A double-quoted $[ outside ${...} whose interior fails
+that check, or whose opener a backslash-newline splits, refuses
+(quoted-arithmetic): double-quoted text is never tokenized, so a command
+substitution in it would stay hidden. Inside backquotes bash first removes
+one backslash level, so a $ right after a backslash-escaped backslash, $ or
+backquote can be literal there: a command holding a backslash and a
+backquote is judged twice, the second time with each such unquoted $[
+never one word and never grouped (the fallback, its interior tokenized in
+place), and either reading's refusal blocks. Without a backquote bash
+removes no backslash level, so a command with none is read once and an
+escaped $[ in it stays arithmetic. One backquote anywhere, even escaped or
+quoted, brings the second reading over the whole command, so an escaped
+$[ outside the backquotes can still refuse (false block, safe direction).
+A $ that bash pairs with the lone $ before it
+($$) opens no $[.
+An echo or printf stage holding $[, unquoted or double-quoted, is no plain
+emitter: like $((, it can run a command substitution stored in a variable
+(through an array subscript), and a failing expansion is masked by the filter.
 With exactly one prior launch in that scope, wait $! and wait -n also collect
 that job. Other targeted waits are not certified. Literal coproc launches
 are refused. Nesting beyond 64 groups or a RecursionError refuses with a
@@ -271,6 +326,12 @@ STATUS_READ = re.compile(r"\$(?:\?|\{[#!]?\?)")
 
 ARITHMETIC_CHAR = re.compile(r"[A-Za-z_0-9+*/%<>=!~&|^?:,\-]|[^\S\n]")
 ARITHMETIC_VARIABLE = re.compile(r"\$(?:[A-Za-z_][A-Za-z_0-9]*|\{[A-Za-z_][A-Za-z_0-9]*\})")
+# 3b569: a $[ opener, also when backslash-newline continuations split it.
+DOLLAR_BRACKET = re.compile(r"\$(?:\\\n)*\[")
+# 3b569: the references a $[ interior may hold: $name, ${name}, ${#name}
+# and ${name[...]} with a plain subscript.
+BRACKET_VARIABLE = re.compile(
+    r"\$(?:[A-Za-z_][A-Za-z_0-9]*|\{#?[A-Za-z_][A-Za-z_0-9]*(?:\[[A-Za-z_0-9@*]+\])?\})")
 
 
 def _arithmetic_end(command, i):
@@ -294,7 +355,93 @@ def _arithmetic_end(command, i):
     return None
 
 
-def shell_tokens(command, cuts=None):
+def _bracket_end(command, i):
+    """End index just past the ] closing the $[ opener at command[i], or None.
+
+    3b569: bash ends $[ ... ] only at its matching ], so besides the strict
+    interior above this accepts nested [ ] subscripts, parentheses (but no
+    <( or >( opener), BRACKET_VARIABLE references and nested $(( ... ))
+    spans that are strict themselves. Nothing accepted can hide shell
+    syntax or move the close; any other character rejects, as for ((.
+    """
+    j, depth = i + 2, 1
+    while j < len(command):
+        c = command[j]
+        if c in "[]":
+            depth += 1 if c == "[" else -1
+            j += 1
+            if not depth:
+                return j
+        elif ARITHMETIC_CHAR.fullmatch(c) or c == ")" or (
+                c == "(" and command[j - 1] not in "<>"):
+            j += 1
+        elif command.startswith("$((", j):
+            j = _arithmetic_end(command, j + 1)
+            if j is None:
+                return None
+        else:
+            variable = BRACKET_VARIABLE.match(command, j)
+            if variable is None:
+                return None
+            j = variable.end()
+    return None
+
+
+def _bracket_close(command, i):
+    """End index just past the ] bash pairs with the $[ at command[i], or None.
+
+    3b569: only lets a wait after a rejected $[ drain the jobs launched
+    before it. As bash does, count nested [ ] (parentheses do not count)
+    and skip escapes, single quotes, double quotes and $( ... ) spans,
+    counting the parentheses of those. Anything that could end a span
+    elsewhere for bash than for this count returns None: a backquote
+    anywhere in the command (inside backquotes bash first removes one
+    backslash level, so backquotes around the whole $[ ... ] can move
+    its ]), #, $', ${, a substitution inside double quotes, a case or any [ inside
+    $( ... ) (any [ covers [[, $[ and an array subscript in an assignment
+    word or a compound-assignment key, in which a ) does not end the
+    $( ... ) for bash), and a backslash-newline outside single quotes,
+    which bash removes before reading, so it can split a $( or any of
+    those openers.
+    A << never gets here: the fallback refuses it first.
+    """
+    if "`" in command:
+        return None
+    j, depth, parens = DOLLAR_BRACKET.match(command, i).end(), 1, 0
+    while j < len(command):
+        c = command[j]
+        if c in "`#" or command.startswith(("$'", "${", "\\\n"), j):
+            return None
+        if c == "\\":
+            j += 2
+        elif c == "'":
+            j = command.find("'", j + 1)
+            if j < 0:
+                return None
+            j += 1
+        elif c == '"':
+            j += 1
+            while j < len(command) and command[j] != '"':
+                if command[j] == "`" or command.startswith(("$(", "${", "$[", "\\\n"), j):
+                    return None
+                j += 2 if command[j] == "\\" else 1
+            j += 1  # past the closing quote; an unclosed one ends the loop
+        elif command.startswith("$(", j):
+            parens, j = parens + 1, j + 2
+        elif parens:
+            if c == "[" or command.startswith("case", j):
+                return None
+            parens += {"(": 1, ")": -1}.get(c, 0)
+            j += 1
+        else:
+            depth += {"[": 1, "]": -1}.get(c, 0)
+            j += 1
+            if not depth:
+                return j
+    return None
+
+
+def shell_tokens(command, cuts=None, backquoted=False):
     """Yield (kind, decoded word, start, end, expands_status), without execution.
 
     When ``cuts`` is a list, the (start, end) spans of backslash-newline
@@ -302,11 +449,23 @@ def shell_tokens(command, cuts=None):
     appended to it in source order. legacy_view splices them out. Comment
     spans are NOT recorded: 3b513 round 5 removed comment cutting entirely,
     because a quoted # misread as a comment deleted real pipeline text.
+    With ``backquoted`` (3b569), an unquoted $[ whose $ directly follows a
+    backslash-escaped backslash, $ or backquote is never one arithmetic
+    word and never grouped: inside backquotes bash removes that backslash
+    level first, so the $ there can be literal.
     """
     i = 0
     heredocs, delimiter = [], None
     arithmetic_fallback = None
+    bracket_group = None  # 3b569: the $ of a rejected, grouped $[
     while i < len(command):
+        if i == bracket_group:
+            # 3b569: no trusted ] ends a rejected $[ interior, so its opener
+            # starts a group that runs to the end of the enclosing items, as
+            # a rejected $(( groups by its own parentheses.
+            yield ("op", "$[", i, i + 1, False)
+            i += 1
+            continue
         if command[i] in " \t":
             # Round 9: only space and tab (not \r, \f, \v) separate words,
             # matching bash's blank metacharacters; a newline is an operator.
@@ -400,6 +559,10 @@ def shell_tokens(command, cuts=None):
         start, word, status, quote = i, [], False, None
         parameter_depth = 0
         quoted = False
+        # 3b569: bash reads an unquoted $$ as one token, so the $ at this
+        # index (right after a lone $) pairs with it and opens no $[.
+        dollar_pair = -1
+        escaped = -1  # 3b569: the index just past a \\, \$ or \` escape
         while i < len(command):
             c = command[i]
             if quote != "'" and c == "\\":
@@ -409,9 +572,15 @@ def shell_tokens(command, cuts=None):
                         if nxt != "\n":
                             word.append(nxt)
                             i += 2
+                            if nxt in '$`\\':
+                                escaped = i
                             continue
                         if cuts is not None:
                             cuts.append((i, i + 2))
+                        if dollar_pair == i:
+                            dollar_pair = i + 2  # bash pairs across the join
+                        if escaped == i:
+                            escaped = i + 2  # the escape still precedes the $
                         i += 2
                         if word or quoted:
                             continue
@@ -424,10 +593,29 @@ def shell_tokens(command, cuts=None):
                 continue
             if quote != "'" and STATUS_READ.match(command, i):
                 status = True
+            bracket = (c == "$" and quote != "'" and i != dollar_pair
+                       and DOLLAR_BRACKET.match(command, i))
+            # 3b569: inside backquotes the $ right after this escape can be
+            # literal, so that reading never recognizes or groups this $[.
+            literal = backquoted and i == escaped
+            if (bracket and quote == '"' and not parameter_depth
+                    and (bracket.end() != i + 2
+                         or _bracket_end(command, i) is None)):
+                # 3b569: double-quoted text is never tokenized, so a command
+                # substitution in this interior would stay hidden; refuse.
+                yield ("quoted-arithmetic", "$[", i, bracket.end(), False)
             if (quote is None and arithmetic_fallback is None
-                    and command.startswith("$((", i)):
-                # Apply the same strict interior to arithmetic expansions.
-                end = _arithmetic_end(command, i + 1)
+                    and (bracket or command.startswith("$((", i))):
+                # Apply the same strict interior to arithmetic expansions,
+                # including $[ with its wider interior (3b569); a $[ split by
+                # a line continuation is never recognized and takes the
+                # fallback below.
+                if not bracket:
+                    end = _arithmetic_end(command, i + 1)
+                elif bracket.end() == i + 2 and not literal:
+                    end = _bracket_end(command, i)
+                else:
+                    end = None
                 if end is not None:
                     if STATUS_READ.search(command, i, end):
                         status = True
@@ -441,6 +629,9 @@ def shell_tokens(command, cuts=None):
                         shift = command.find("<<")
                         yield ("ambiguous-shift", "<<", shift, shift + 2,
                                False)
+                    if bracket and not literal:
+                        bracket_group = i
+                        break  # end the word here; the opener is yielded next
             # Keep parameter expansions in a word, but still notice nested $?.
             if quote != "'" and command.startswith("${", i):
                 parameter_depth += 1
@@ -458,6 +649,8 @@ def shell_tokens(command, cuts=None):
                 # included via OPERATORS); \r stays in the word, so a CRLF
                 # heredoc delimiter keeps its \r and matches its \r body line.
                 break
+            if c == "$" and quote is None:
+                dollar_pair = -1 if dollar_pair == i else i + 1
             word.append(c)
             i += 1
         decoded = "".join(word)
@@ -559,12 +752,13 @@ def emitter_is_plain(raw):
     continuation split apart is a real opener. An ALLOW-LIST: only literal
     text, single- and double-quoted literals and simple $name / ${name}
     parameter references may appear. Anything that can run code or transform
-    disqualifies the stage: a $( command or arithmetic substitution, a
-    backquote substitution, a bash-5.3 ${ cmd; } or ${| cmd; } brace
-    substitution, and every ${name OP ...} parameter operator (including the
-    @P prompt transformation). Quote context matters: inside single quotes
-    nothing expands (an apostrophe in a double-quoted word is literal, not a
-    delimiter); inside double quotes $(, backquote and ${...} still expand.
+    disqualifies the stage: a $( command or arithmetic substitution, a $[
+    arithmetic substitution, a backquote substitution, a bash-5.3 ${ cmd; }
+    or ${| cmd; } brace substitution, and every ${name OP ...} parameter
+    operator (including the @P prompt transformation). Quote context matters:
+    inside single quotes nothing expands (an apostrophe in a double-quoted
+    word is literal, not a delimiter); inside double quotes $(, $[, backquote
+    and ${...} still expand.
     An unbalanced single quote is not judged plain.
     """
     joined = _strip_line_continuations(raw)
@@ -573,8 +767,8 @@ def emitter_is_plain(raw):
     def expansion_runs_code():
         # Called with joined[i] == "$"; return (disqualified, next_index).
         nxt = joined[i + 1:i + 2]
-        if nxt == "(":
-            return True, i + 1  # $( command or $(( arithmetic substitution
+        if nxt in ("(", "["):
+            return True, i + 1  # $( command, $(( or $[ arithmetic substitution
         if nxt == "{":
             m = re.match(r"\$\{[A-Za-z_][A-Za-z0-9_]*\}", joined[i:])
             if not m:
@@ -617,19 +811,31 @@ def shell_violation(command):
 
 
 def _shell_violation(command):
-    tokens = list(shell_tokens(command))
+    # 3b569: a command holding a backslash and a backquote is also judged in
+    # the backquote reading of shell_tokens; either reading's refusal blocks.
+    # Without a backquote bash removes no backslash level, so that reading
+    # could only add false blocks.
+    found = _reading_violation(command, list(shell_tokens(command)))
+    if found is None and "\\" in command and "`" in command:
+        found = _reading_violation(
+            command, list(shell_tokens(command, backquoted=True)))
+    return found
+
+
+def _reading_violation(command, tokens):
     for kind, text, start, end, _status in tokens:
-        if kind == "ambiguous-shift":
+        if kind in ("ambiguous-shift", "quoted-arithmetic"):
             line_start = command.rfind("\n", 0, start) + 1
             line_end = command.find("\n", end)
             line_end = len(command) if line_end < 0 else line_end
-            return ("arithmetic-shift", command[line_start:line_end])
+            guard = "arithmetic-shift" if kind == "ambiguous-shift" else kind
+            return (guard, command[line_start:line_end])
         if kind == "heredoc-unterminated":
             return ("heredoc-unterminated", text)
         if kind == "heredoc-divergence":
             return ("heredoc-divergence", text)
 
-    def inspect(items, pipefail=False, pending=None, nesting=0):
+    def inspect(items, pipefail=False, pending=None, nesting=0, waits=None):
         if nesting > MAX_SHELL_NESTING:
             return ("shell-complexity", "nesting limit")
         segment, jobs, conditional = [], [], None
@@ -708,9 +914,15 @@ def _shell_violation(command):
                 if (words == ["wait"] or (launched == 1 and len(jobs) == 1
                         and (words == ["wait", "-n"] or last_pid))):
                     jobs.clear()
+                if words == ["wait"] and waits is not None:
+                    waits.append(segment[0][2])  # 3b569: read by a $[ group
             new_pending = (span if len(stages) > 1 and not pipefail
                            and not (len(stages) == 2 and emits_data(stages[0]))
                            else None)
+            if new_pending and any(t[0] == "group" and t[4] for t in segment):
+                # 3b569: a $[ group runs past bash's ], so a status read in
+                # it can also follow this very pipeline.
+                return ("pipeline-status", new_pending)
             if conditional == "&&" and len(stages) == 1:
                 # Round 10 (F2): an executed && continuation replaces the
                 # guarded pipeline's status; a skipped one leaves the
@@ -731,8 +943,10 @@ def _shell_violation(command):
         i = 0
         while i < len(items):
             token = items[i]
-            if token[0] == "op" and token[1] in ("(", "{"):
-                closing = ")" if token[1] == "(" else "}"
+            if token[0] == "op" and token[1] in ("(", "{", "$["):
+                # 3b569: a rejected $[ opener has no closing token, so its
+                # group runs to the end of these items.
+                closing = {"(": ")", "{": "}"}.get(token[1])
                 depth, end = 1, i + 1
                 while end < len(items):
                     if items[end][:2] == token[:2]:
@@ -742,11 +956,26 @@ def _shell_violation(command):
                         if depth == 0:
                             break
                     end += 1
-                found = inspect(items[i + 1:end], pipefail, pending, nesting + 1)
+                group_waits = []
+                found = inspect(items[i + 1:end], pipefail, pending, nesting + 1,
+                                group_waits)
                 if found:
                     return found
+                if token[1] == "$[":
+                    # 3b569: a wait in the group after bash's ] runs in this
+                    # scope, so it also drains the jobs launched before the
+                    # $[, as a wait after a rejected $(( group does, and this
+                    # scope's record passes it on to an enclosing $[ group.
+                    close = _bracket_close(command, token[2])
+                    if close is not None and any(w >= close for w in group_waits):
+                        jobs.clear()
+                        if waits is not None:
+                            waits.extend(w for w in group_waits if w >= close)
                 stop = items[end][3] if end < len(items) else items[-1][3]
-                segment.append(("group", command[token[2]:stop], token[2], stop, False))
+                # 3b569: a status read inside a $[ group is read by the
+                # command holding the $[, as a strict word's would be.
+                reads = token[1] == "$[" and any(t[4] for t in items[i + 1:end])
+                segment.append(("group", command[token[2]:stop], token[2], stop, reads))
                 i = end + 1
                 continue
             if token[0] == "op" and token[1] in (";", "\n", "&&", "||", "&"):
@@ -825,6 +1054,16 @@ def main() -> int:
                 "the commands after it.\n"
                 "CONSIDER INSTEAD: compute the value in simple arithmetic, e.g. "
                 "$((1 << n)) with n set first, or split the command.\n")
+        elif guard == "quoted-arithmetic":
+            sys.stderr.write(
+                "BLOCKED (quoted-arithmetic): double-quoted $[ ... ] with a complex "
+                "interior in " + repr(span) + ".\n"
+                "WHY: the guard does not tokenize double-quoted text, so a command "
+                "substitution in that interior could hide a background job or a "
+                "masked pipeline status.\n"
+                "CONSIDER INSTEAD: run the substitution first and keep the quoted "
+                "arithmetic simple (v=$(cmd); echo \"$[v + 1]\"), or split the "
+                "command.\n")
         elif guard == "heredoc-unterminated":
             sys.stderr.write(
                 "BLOCKED (heredoc-unterminated): heredoc terminator " + repr(span)
