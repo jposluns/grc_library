@@ -2,8 +2,8 @@
 
 **Document Title:** Resilience Domain README\
 **Document Type:** Register\
-**Version:** 1.2.1\
-**Date:** 2026-07-02\
+**Version:** 1.2.2\
+**Date:** 2026-10-26\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains organization-neutral business continuity, disaster recovery, crisis management, incident coordination, emergency response, resilience testing, and recovery governance artefacts released under CC BY-SA 4.0.
+This directory contains organization-neutral business continuity, disaster recovery, crisis management, incident coordination, emergency response, resilience testing, and recovery governance artefacts. Their original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0.
 
 ---
 

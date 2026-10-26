@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.2\
-**Date:** 2026-09-04\
+**Version:** 1.0.3\
+**Date:** 2026-10-26\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -68,7 +68,7 @@ Adopting organizations operating as regulated financial-services entities consum
 
 ## Licence boundary
 
-All content is original and released under CC BY-SA 4.0. Annexes reference regulations and standards by name and section identifier; the underlying regulation text itself is not reproduced.
+All original content is released under CC BY-SA 4.0. Annexes reference regulations and standards by name and section identifier; the underlying regulation text itself is not reproduced, except the short, attributed quotations that [`NOTICE.md`](../../NOTICE.md) allows or keeps under its transition clause, with the Licence basis statements that the licence compatibility rules of [`specification-ingestion.md`](../../specification-ingestion.md) require. Quoted text keeps its source licence and is not relicensed under CC BY-SA 4.0.
 
 ---
 

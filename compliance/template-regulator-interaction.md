@@ -2,8 +2,8 @@
 
 **Document Title:** Regulator Interaction Templates\
 **Document Type:** Template\
-**Version:** 1.0.11\
-**Date:** 2026-10-21\
+**Version:** 1.0.12\
+**Date:** 2026-10-26\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -398,4 +398,4 @@ Per-framework specifics (GDPR Article 33 timing, SEC 8-K thresholds, etc.) live 
 
 ## Licence
 
-CC BY-SA 4.0. Adapt and share, including for commercial use; preserve the licence on derivative works.
+CC BY-SA 4.0. Adapt and share, including for commercial use. When you share this document or an adaptation of it, attribute the library and indicate any changes; when you share an adaptation, license your own contributions to it under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence. The library's own text stays under CC BY-SA 4.0.

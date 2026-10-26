@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.6.13\
+**Version:** 1.6.14\
 **Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -435,7 +435,7 @@ This section records open-source AI security projects referenced by library cont
 | TikiTribe claude-secure-coding-rules | continuous | 2024 | Claude Code secure-coding-rules repository with AI/agent/MCP/RAG security baselines | MIT | Referenced in dev-security CI gates | https://github.com/TikiTribe/claude-secure-coding-rules | 2026-09-29 |
 | Wiz secure-rules-files | continuous | 2024 | Language and framework baseline rules for AI coding assistants | MIT | - | https://github.com/wiz-sec-public/secure-rules-files | 2026-09-29 |
 | Kariedo claude-code-security-rules | continuous | 2024 | Modular Claude Code rules using @-syntax import | MIT | - | https://github.com/kariedo/claude-code-security-rules | 2026-09-29 |
-| awesome-ai-security | continuous | 2024 | Curated index of AI security, LLM security, prompt injection, red teaming, guardrail, and ML supply chain resources (approximately 20 categories) | CC0-1.0 | CC0; suitable for direct library reuse | https://github.com/brinhosa/awesome-ai-security | 2026-09-29 |
+| awesome-ai-security | continuous | 2024 | Curated index of AI security, LLM security, prompt injection, red teaming, guardrail, and ML supply chain resources (approximately 20 categories) | CC0-1.0 | CC0; compatible for quotation, quoted only as NOTICE.md allows, with attribution | https://github.com/brinhosa/awesome-ai-security | 2026-09-29 |
 
 ---
 

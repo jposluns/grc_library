@@ -290,7 +290,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Continuous Improvement Register Procedure](../governance/procedure-continuous-improvement-register.md) (maturity: Baseline)
 - [Control Testing Procedure](../compliance/procedure-control-testing.md) (maturity: Mature)
 - [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md) (maturity: Mature)
-- [GRC Programme Management and Annual Review Procedure](../governance/procedure-grc-programme-management-and-annual-review.md) (maturity: Baseline)
+- [GRC Programme Management and Annual Review Procedure](../governance/procedure-grc-programme-management-and-annual-review.md) (maturity: Mature)
 - [HIPAA Operational Compliance Procedure](../compliance/healthcare/procedure-hipaa-operational-compliance.md) (maturity: Draft)
 - [Library Quality and Review Cadence Procedure](../governance/procedure-library-quality-and-review-cadence.md) (maturity: Baseline)
 - [Mergers and Acquisitions Due Diligence Procedure](../compliance/procedure-mergers-acquisitions-due-diligence.md) (maturity: Baseline)

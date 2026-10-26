@@ -2,8 +2,8 @@
 
 **Document Title:** Authors and Acknowledgements\
 **Document Type:** Register\
-**Version:** 1.1.6\
-**Date:** 2026-10-03\
+**Version:** 1.1.8\
+**Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`NOTICE.md`](NOTICE.md)\
@@ -29,11 +29,11 @@ Jeffrey is the original creator and current maintainer of the Governance, Risk, 
 
 ## Attribution posture
 
-The library is released under [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE). CC BY-SA 4.0 **requires** attribution when content is redistributed (in original or modified form) and requires that derivatives be released under CC BY-SA 4.0 as well (the "ShareAlike" condition).
+The library is released under [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE). CC BY-SA 4.0 **requires** attribution of the library when content is redistributed (in original or modified form). Its "ShareAlike" condition requires an adopter who shares an adaptation to license their own contributions to it under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence. The library's own text stays under CC BY-SA 4.0; quoted or vendored third-party material keeps its own terms, as [`NOTICE.md`](NOTICE.md) records.
 
 GRC-original material retains CC BY-SA 4.0. The upstream-owned pinned snapshot in `guardrails/aiqt-rules/` and its local rule derivatives are separately licensed Apache-2.0; retain the verbatim upstream LICENSE and NOTICE in that directory. GRC owns its compatibility rule and the retained legacy procedures. Authority: maintainer decisions D1-D3, 2026-10-02 12:27Z.
 
-Required attribution forms (any of these satisfies the licence; the canonical machine-readable form is the [`CITATION.cff`](CITATION.cff) metadata):
+Attribution forms (when you share the library, any of these can meet the attribution requirement in a reasonable manner, together with indicating any changes and identifying the licence with its URI or a link to it; the canonical machine-readable form is the [`CITATION.cff`](CITATION.cff) metadata):
 
 - An acknowledgement line in an adopter's redistributed governance documents: "Derived from the Governance, Risk, and Compliance Documentation Library (Posluns, J., CC BY-SA 4.0, https://github.com/jposluns/grc_library)".
 - A reference in academic or industry publications using the citation metadata published in [`CITATION.cff`](CITATION.cff). GitHub renders a "Cite this repository" button on the repository sidebar that produces APA, BibTeX, and other formats.

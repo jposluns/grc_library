@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Domain README\
 **Document Type:** Register\
-**Version:** 1.2.5\
-**Date:** 2026-10-15\
+**Version:** 1.2.7\
+**Date:** 2026-10-26\
 **Owner:** Information Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](policy-information-security.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains organization-neutral information security governance artefacts released under CC BY-SA 4.0. The domain covers security governance, identity and access management, logging and monitoring, data classification, secure operations, incident response, vulnerability management, secure development, and technical control baselines.
+This directory contains organization-neutral information security governance artefacts. Their original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0. The domain covers security governance, identity and access management, logging and monitoring, data classification, secure operations, incident response, vulnerability management, secure development, and technical control baselines.
 
 ---
 
@@ -77,7 +77,7 @@ AI-enabled services, agents, model integrations, retrieval stores, prompt logs, 
 
 ## Licence boundary
 
-Security standards, implementation guides, benchmarks, audit guides, control catalogues, and vendor documentation must not be copied into this directory unless confirmed library-canonical. Use non-verbatim synthesis, original control language, and high-level alignment only.
+Security standards, implementation guides, benchmarks, audit guides, control catalogues, and vendor documentation must not be copied into this directory beyond the short, attributed quotation that [`NOTICE.md`](../NOTICE.md) allows or its transition clause keeps. Otherwise use non-verbatim synthesis, original control language, and high-level alignment.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.32\
-**Date:** 2026-10-22\
+**Version:** 1.3.33\
+**Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -63,7 +63,7 @@ These modes describe a single organization adopting the library. A group, holdin
 
 **What you ignore.** [`tools/`](../tools/) (the audit toolchain) and [`guardrails/`](../guardrails/) (the pack) unless you choose to opt into one or both later. Your maintenance workflow may be a word processor plus a collaboration platform, a wiki, a different toolchain, or human-only review; the library's content is portable to any of those.
 
-**Next step.** Copy the relevant domain directories. Substitute roles and jurisdiction-specific values per the Quick start. The CC BY-SA 4.0 share-alike clause applies to derivatives you redistribute.
+**Next step.** Copy the relevant domain directories. Substitute roles and jurisdiction-specific values per the Quick start. The CC BY-SA 4.0 share-alike clause applies to adaptations (Adapted Material) you share.
 
 ### Mode C: Adopt the pack only
 

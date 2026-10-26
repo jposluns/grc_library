@@ -2,8 +2,8 @@
 
 **Document Title:** AI Security Tooling Landscape Register\
 **Document Type:** Register\
-**Version:** 1.1.13\
-**Date:** 2026-09-29\
+**Version:** 1.1.14\
+**Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md)\
@@ -1166,9 +1166,9 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 
 - **Scope**: Curated index of AI security, LLM security, prompt injection, red teaming, guardrail, and ML supply chain resources.
 - **License (of this external index)**: CC0-1.0.
-- **Library reference status**: Cited in Phase 23.6 register; suitable for direct library reuse.
+- **Library reference status**: Cited in Phase 23.6 register; its text is quoted only as [`NOTICE.md`](../NOTICE.md) allows, with attribution, and is otherwise paraphrased or cited.
 - **Categories (21)**: About, AI Security Testing Tools, Prompt Injection Resources, Jailbreak Detection & Red Teaming, Deliberately Vulnerable AI Applications, Training/Labs/CTF Challenges, Books & Publications, Cheatsheets & Guides, Frameworks & Standards, Defense & Guardrails, Certifications & Courses, Conferences & Events, Research Papers & Datasets, Observability & Monitoring, Penetration Testing Tools, MCP Security, Awesome Lists, Podcasts & Newsletters, YouTube Channels, Other Resources, Thought Leaders.
-- **GRC concern surfaced**: The awesome-ai-security index is released under CC0 (public domain). CC0 content can be freely incorporated into the GRC library's CC BY-SA 4.0 work (CC0 is the most permissive Creative Commons option, so it composes with any downstream licence). Drove the Phase 23.6 awesome-ai-security entry. Notable omissions identified during Wave 2 research: PROMPTPurify, deepteam, fickling.
+- **GRC concern surfaced**: The awesome-ai-security index is released under CC0 (public domain). CC0 1.0 is compatible with CC BY-SA 4.0, but compatibility is only the licence test for a quotation: the index's text is quoted only as [`NOTICE.md`](../NOTICE.md) allows, short and with attribution, and is otherwise paraphrased or cited. Drove the Phase 23.6 awesome-ai-security entry. Notable omissions identified during Wave 2 research: PROMPTPurify, deepteam, fickling.
 - **Status notes**: Active. Continuously updated.
 
 ---

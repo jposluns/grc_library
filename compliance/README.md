@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Domain README\
 **Document Type:** Register\
-**Version:** 1.4.11\
-**Date:** 2026-09-04\
+**Version:** 1.4.12\
+**Date:** 2026-10-26\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/logistics/README.md`](logistics/README.md), [`compliance/financial-services/README.md`](financial-services/README.md), [`compliance/healthcare/README.md`](healthcare/README.md), [`compliance/energy-and-utilities/README.md`](energy-and-utilities/README.md), [`compliance/telecommunications/README.md`](telecommunications/README.md), [`compliance/public-sector/README.md`](public-sector/README.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains compliance management policies, registers, audit governance artefacts, cross-sector regulation annexes, and industry-sector compliance sub-directories. All content is released under CC BY-SA 4.0.
+This directory contains compliance management policies, registers, audit governance artefacts, cross-sector regulation annexes, and industry-sector compliance sub-directories. All original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0.
 
 ---
 

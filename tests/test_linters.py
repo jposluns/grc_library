@@ -43259,15 +43259,20 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
                             out_rel = f"{page['domain']}/index.html"
                             expected = (
                                 f"{page['scope']}. {count} governance {noun} "
-                                f"in the {page['domain']} domain of the open, "
-                                "CC BY-SA 4.0 GRC Library."
+                                f"in the {page['domain']} domain of the open "
+                                "GRC Library. Its own text is under CC BY-SA "
+                                "4.0; quoted third-party material keeps its "
+                                "own terms (see NOTICE.md)."
                             )
                         else:
                             values = self.mod.type_page_values(page, variant)
                             out_rel = f"types/{page['slug']}/index.html"
                             expected = (
                                 f"{page['scope']}. {count} {page['type']}-type "
-                                f"{noun} in the open, CC BY-SA 4.0 GRC Library."
+                                f"{noun} in the open GRC Library. Its own "
+                                "text is under CC BY-SA 4.0; quoted "
+                                "third-party material keeps its own terms "
+                                "(see NOTICE.md)."
                             )
                         html, _ = self.mod.render_page(
                             f"{kind}.html", figures, variant, template_dir,
@@ -47060,7 +47065,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.20.0", "3b533 adds the UK ICO heading 'How do we ensure accuracy?' to the language profile's verbatim_ensure_titles on top of cm PR-7/D-4 (MINOR: default correction to a profile value; 0.19.0 to 0.20.0)")
+        self.assertEqual(man["pack"]["version"], "0.21.0", "the normative-wording rule reserves shall for a quotation that the adopting library's quotation policy allows or a transition clause of it keeps, on top of 3b533 (0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0: the rule withdraws a permission)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")

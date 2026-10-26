@@ -2,8 +2,8 @@
 
 **Document Title:** Executive Narrative Authoring Specification\
 **Document Type:** Specification\
-**Version:** 0.0.18\
-**Date:** 2026-09-25\
+**Version:** 0.1.1\
+**Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-master-project.md`](specification-master-project.md), [`specification-ingestion.md`](specification-ingestion.md), [`README.md`](README.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)\
@@ -41,7 +41,7 @@ Six members of the narrative gate family that mechanically enforces the rules be
 
 This specification applies to every file under the top-level `executive/` directory, and to any content anywhere in the repository that carries the `Executive Narrative` document type or a narrative-extension metadata field.
 
-It operates under the Master Project Specification and, for language, organization-neutrality, and licence rules, inherits the Ingestion and Transformation Specification in full, except where the narrative layer deliberately differs (see the language and neutrality section). Where this specification is silent, the ingestion specification applies. Where the two conflict, the more restrictive rule prevails.
+It operates under the Master Project Specification and, for language, organization-neutrality, and licence rules, inherits the Ingestion and Transformation Specification in full, except where the narrative layer deliberately differs (see the language and neutrality section). Where this specification is silent, the ingestion specification applies. Where the two conflict, the more restrictive rule prevails. This does not override the transition clause for existing quotations that [`NOTICE.md`](NOTICE.md) and the ingestion specification state: a quotation that clause keeps stays even where another rule is more restrictive.
 
 ---
 
@@ -180,7 +180,7 @@ Narrative pages must not make likelihood, frequency, or statistical claims unles
 
 Narrative prose harmonizes normative verbs on `must`. An unqualified `shall` must not appear in narrative prose.
 
-A `shall` is permitted only when it is qualified, and a qualified `shall` is defined as a verbatim, attributed source quotation with visible source adjacency: the `shall` appears inside a direct quotation of a named external source, reproduced verbatim, with the source citation visibly adjacent to the quotation (inline, immediately before or after). A `shall` that is not inside such a quotation, or whose source is not visibly adjacent, is an unqualified `shall` and is a defect. This rule proves a string-level property only; it does not certify that the quotation is faithful, which is a review concern.
+A `shall` is permitted only when it is qualified, and a qualified `shall` is defined as a verbatim, attributed source quotation with visible source adjacency: the `shall` appears inside a short, attributed quotation that [`NOTICE.md`](NOTICE.md) allows, or that its transition clause keeps, of a named external source whose normative text uses that verb (the carve-out that rule 4 (a) of section 6.1 of [`specification-master-project.md`](specification-master-project.md) states), reproduced verbatim, with the source citation visibly adjacent to the quotation (inline, immediately before or after). A `shall` that is not inside such a quotation, or whose source is not visibly adjacent, is an unqualified `shall` and is a defect. This rule proves a string-level property only; it does not certify that the quotation is faithful or that [`NOTICE.md`](NOTICE.md) allows or keeps it, which are review concerns.
 
 ---
 
@@ -335,7 +335,7 @@ Every blocking narrative gate and the registry `--check` carries the standard fo
 
 ## Maintenance
 
-This specification is reviewed annually and upon any material change to the narrative layer, its metadata model, its subtype set, or its gate wiring. Changes to the subtype table, the status vocabulary, the claim classes, the causal vocabulary, the qualified-shall definition, or the disclaimer wording are breaking changes and take a major or minor version bump per the corpus version-numbering rules, with a matching update to every gate that encodes the changed vocabulary.
+This specification is reviewed annually and upon any material change to the narrative layer, its metadata model, its subtype set, or its gate wiring. Changes to the subtype table, the status vocabulary, the claim classes, the causal vocabulary, the qualified-shall definition, or the disclaimer wording are breaking changes. A breaking change takes a major version bump under the per-document rule in the Version numbering section of [`specification-ingestion.md`](specification-ingestion.md), or a minor bump while this specification's version is below 1.0.0, and comes with a matching update to every gate that encodes the changed vocabulary.
 
 ---
 

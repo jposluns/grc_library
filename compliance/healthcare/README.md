@@ -2,8 +2,8 @@
 
 **Document Title:** Healthcare Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-07-09\
+**Version:** 1.0.4\
+**Date:** 2026-10-26\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`compliance/healthcare/annex-healthcare-united-states.md`](annex-healthcare-united-states.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -66,7 +66,7 @@ Adopting organizations operating as healthcare entities consume:
 
 ## Licence boundary
 
-All content is original and released under CC BY-SA 4.0. Annexes reference regulations and standards by name and section identifier; the underlying regulation text itself is not reproduced.
+This directory's original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0. Annexes reference regulations and standards by name and section identifier and reproduce the underlying regulation text only in such quotations.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Contributing to the GRC Documentation Library\
 **Document Type:** Guideline\
-**Version:** 1.2.6\
-**Date:** 2026-09-21\
+**Version:** 1.2.11\
+**Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`specification-master-project.md`](specification-master-project.md), [`specification-ingestion.md`](specification-ingestion.md), [`SECURITY.md`](SECURITY.md), [`NOTICE.md`](NOTICE.md), [`AUTHORS.md`](AUTHORS.md), [`CHANGELOG.md`](CHANGELOG.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-Thank you for considering a contribution. This library is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0). By submitting a contribution, you license your contribution to the library and downstream adopters under the same CC BY-SA 4.0 terms (see Licence section below for full details). Before submitting a change, please read the two governing specifications:
+Thank you for considering a contribution. This library is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0). By submitting a contribution, you license your own work in it to the library and downstream adopters under the same CC BY-SA 4.0 terms; a short, attributed quotation that [`NOTICE.md`](NOTICE.md) allows keeps its source licence and is not relicensed (see Licence section below for full details). Before submitting a change, please read the two governing specifications:
 
 - [`specification-master-project.md`](specification-master-project.md): document model, type vocabulary, metadata block, formatting rules.
 - [`specification-ingestion.md`](specification-ingestion.md): how new content is ingested, licence-compatibility checks, organization-neutrality rules, filename rules.
@@ -44,7 +44,7 @@ The most common net-new artefact is an overlay for a sector or jurisdiction the 
 
 ## What contributions are not welcome
 
-- Verbatim third-party control text, questionnaire text, audit guidance text, or metrics catalogue text whose source licence restricts modification or redistribution. See [`NOTICE.md`](NOTICE.md).
+- Verbatim third-party text (control text, questionnaire text, audit guidance text, metrics catalogue text, or any other text) beyond the short, attributed quotation that [`NOTICE.md`](NOTICE.md) allows or its transition clause keeps.
 - Organization-specific identifiers (company names, personal names, tenant identifiers, internal system names, incident details, IP addresses, contract numbers, email addresses, phone numbers).
 - Translations of existing English artefacts.
 - Marketing language, certification claims, or statements implying that adopting the library makes an organization compliant with any regulation.
@@ -71,7 +71,7 @@ The most common net-new artefact is an overlay for a sector or jurisdiction the 
    Also run `tools/install-git-hooks.sh` once to install the git-native pre-push backstop: it refuses a `git push` with a dirty tracked tree when you are pushing your current HEAD (override `PRE_PUSH_GUARD_ALLOW_DIRTY=1`).
 
 4. **Update the index and domain README.** Every new active document must appear in [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) and in its domain's [`README.md`](README.md) Active Documents table.
-5. **Bump versions appropriately.** Patch (`x.y.z` increments the patch segment) for minor corrections; minor (`x.y.0`) for substantive content additions or structural changes; major (`x.0.0`) for breaking structural or material policy revisions. See [`specification-ingestion.md`](specification-ingestion.md) Version numbering.
+5. **Bump versions appropriately.** Patch (`x.y.z` increments the patch segment) for corrections; minor (`x.y.0`) for additive changes, including substantive content additions and policy revisions that add a requirement or permission; major (`x.0.0`) for breaking changes that remove, reverse, or invalidate content or a requirement others rely on (major = breaking, minor = additive, patch = correction), under the per-document rule in the Version numbering section of [`specification-ingestion.md`](specification-ingestion.md).
 6. **Open a pull request.** Reference the issue. Describe what changed and why. Note any version flags raised. List any new external framework references.
 7. **CI must pass.** The same audit programme runs in GitHub Actions.
 
@@ -118,7 +118,10 @@ Each value line ends with a trailing space and the line break is two spaces or a
 
 - **Language convention: Canadian English first, Commonwealth (UK / Australian) second, other dialects last.** Canadian English shares its `-ize` / `-ization` orthography with American English (the Oxford convention adopted in Canadian usage), so the linter-enforced `-ize` rule is the Canadian-orthography manifestation of the convention, not a generic American mandate. Where Canadian English has no opinion (vocabulary or grammar features that vary across other English dialects), Commonwealth forms are preferred; where neither has an opinion, other dialects' usage is acceptable.
 - Use `-ize` forms (e.g. organize, prioritize, recognize) per the Canadian-orthography rule above.
-- Pair `ensure` with `that` (e.g. "ensure that all logs are retained" rather than "ensure all logs are retained").
+- Write `ensure that` or `ensures that` for every use of the verb, in either form, never the verb without the conjunction (e.g. "ensure that all logs are retained", "the control ensures that all logs are retained"). The counter-example, which the language check reports in prose, is:
+  ```text
+  ensure all logs are retained
+  ```
 - No em dashes or en dashes; use commas, colons, or parentheses.
 - Use sentence case for H2 to H6 headings; first word capitalized, subsequent words lowercase except proper nouns and acronyms. Section identifiers like `A1.`, `Step 1:`, and `Category 1:` count as numbering, so the word that follows must be capitalized.
 - Document titles in H1 may use Title Case where they name a controlled artefact.
@@ -131,10 +134,12 @@ Each value line ends with a trailing space and the line break is two spaces or a
 
 ## Review
 
-A maintainer reviews each pull request for licence compliance (original authorship; no externally-sourced verbatim text), organization neutrality, accuracy of external framework references, and conformance to the specifications. Changes that touch core artefacts (charter, document architecture framework, document index register) or that introduce a new domain folder require explicit user approval beyond the standard review.
+A maintainer reviews each pull request for licence compliance (original authorship; no externally-sourced verbatim text beyond the short, attributed quotation that [`NOTICE.md`](NOTICE.md) allows or its transition clause keeps), organization neutrality, accuracy of external framework references, and conformance to the specifications. Changes that touch core artefacts (charter, document architecture framework, document index register) or that introduce a new domain folder require explicit user approval beyond the standard review.
 
 ## Licence
 
 By submitting a contribution to this repository, you license your contribution to the library and to all downstream recipients under [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/). You retain copyright in your contribution; the licence grants the library and downstream adopters the right to use, modify, and redistribute it under the same CC BY-SA 4.0 terms ("inbound = outbound").
 
-Contributions must be your own original work, or work for which you have the right to grant a CC BY-SA 4.0 licence. Do not contribute material whose original licence is incompatible with CC BY-SA 4.0 (for example: CC BY-NC, CC BY-ND, CC BY-NC-ND, or proprietary content). If you cannot grant a CC BY-SA 4.0 licence to the material you are submitting, do not submit it.
+Inbound = outbound covers your own work. A short, attributed quotation that [`NOTICE.md`](NOTICE.md) allows is not yours to license: it keeps its source licence, is not relicensed under CC BY-SA 4.0, and is accepted when it meets that exception and carries its Licence basis statement.
+
+Apart from such a quotation, contributions must be your own original work, or work for which you have the right to grant a CC BY-SA 4.0 licence. Do not contribute material whose original licence is incompatible with CC BY-SA 4.0 (for example: CC BY-NC, CC BY-ND, CC BY-NC-ND, or proprietary content). If you cannot grant a CC BY-SA 4.0 licence to the material you are submitting, and it is not such a quotation, do not submit it.

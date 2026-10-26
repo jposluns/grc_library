@@ -2,8 +2,8 @@
 
 **Document Title:** Global Regulatory Applicability Register\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-10-26\
 **Owner:** Compliance Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](financial-services/annex-financial-services-sector-requirements.md), [`compliance/healthcare/annex-healthcare-sector-requirements.md`](healthcare/annex-healthcare-sector-requirements.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](logistics/annex-logistics-sector-requirements.md)\
@@ -73,7 +73,7 @@ This register separates requirements as follows:
 2. Do not state that the repository proves compliance.
 3. Do not include legal advice.
 4. Do not include organization-specific facts.
-5. Do not copy statutory text unless the source is in the public domain (US government works, etc.) or is otherwise compatible with CC BY-SA 4.0 publication.
+5. Do not copy statutory, regulatory, or other third-party text beyond the short, attributed quotation that [`NOTICE.md`](../NOTICE.md) allows or its transition clause keeps.
 6. Record uncertainty explicitly where deployment model, data residency, processing role, sector, or jurisdiction is unknown.
 
 ---

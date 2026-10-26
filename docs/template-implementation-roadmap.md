@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Implementation Roadmap Template\
 **Document Type:** Template\
-**Version:** 1.0.8\
-**Date:** 2026-07-13\
+**Version:** 1.0.9\
+**Date:** 2026-10-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
@@ -280,4 +280,4 @@ Major version bumps to this template are warranted when the three-phase structur
 
 ## Licence
 
-CC BY-SA 4.0. Adapt and share, including for commercial use; preserve the licence on derivative works.
+CC BY-SA 4.0. Adapt and share, including for commercial use. When you share this document or an adaptation of it, attribute the library and indicate any changes; when you share an adaptation, license your own contributions to it under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence. The library's own text stays under CC BY-SA 4.0.
