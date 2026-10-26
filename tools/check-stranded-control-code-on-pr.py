@@ -37,8 +37,14 @@ cut above the base) it no-ops with a printed notice (fail-open, per the project'
 guard-malfunction stance): the pre-push runner supplies the base in every normal
 path. Otherwise every git call that bears on the verdict refuses with exit 2 on a
 git failure (dubious ownership, no repository, a missing base ref, a bad object),
-an OSError (git cannot be started) or output that is not valid UTF-8, with git's
-message, the OS error or the decoding error, never a skip or a clean pass (3b572).
+with git's message, never a skip or a clean pass (3b572). Every one but the
+top-level read also refuses on an OSError (git cannot be started) or output that
+is not valid UTF-8, naming the OS error or the decoding error. The top-level
+read feeds the own-repository top-level comparison (3b564): on an OSError it
+degrades to a placeholder that skips that comparison (a known residual, below),
+and it decodes its output with os.fsdecode, so output that is not valid UTF-8
+never fails the read; it reaches the comparison, which passes it only where it
+names this script's own repository.
 That SKIP runs before the own-repository checks below, so a base with no merge
 base passes even where git reads another repository (a known residual, 3b564).
 
@@ -51,7 +57,8 @@ Exit codes:
     2 : usage error (argparse), git or environment error (git failing to
         find the merge base for any reason other than its own no-merge-base
         answer, git that cannot be started or output that is not valid
-        UTF-8 on a call that bears on the verdict, a failed read of a
+        UTF-8 on a call that bears on the verdict other than the top-level
+        read, a failed read of a
         changed document or of the commit messages (3b572), the head does not
         resolve to a commit, git reports no work tree top level, an empty
         one, or one that is not this script's own repository, REPO_ROOT, git
@@ -70,7 +77,9 @@ Exit codes:
         (an empty range), so nothing was evaluated.
         Known residuals (3b564): git failing to run at all (OSError) on the
         top-level read degrades to a placeholder and skips the top-level
-        comparison; the git-directory checks still run. What the
+        comparison; the git-directory checks still run, so a top level only
+        that comparison refuses (a core.worktree in this repository's own git
+        directory naming another directory) then passes. What the
         git-directory checks do not cover is disclosed in
         lint_common.require_own_git_dir.
 """
@@ -275,9 +284,11 @@ def run(base: str | None, head: str) -> int:
     except OSError as exc:
         # git that cannot be started at all (not on PATH) exited 1, D13's own
         # stranded-codes FAIL code, with a traceback; it refuses too, naming
-        # the error, as every later git call that bears on the verdict does;
-        # only the diagnostic top-level read degrades to a placeholder
-        # (3b572 rounds 2 and 3).
+        # the error, as every later git call that bears on the verdict does
+        # except the top-level read: that read feeds the own-repository
+        # top-level comparison (3b564), and on an OSError it degrades to a
+        # placeholder that skips the comparison, a known residual (3b572
+        # rounds 2 and 3).
         print(f"ERROR: git could not be run to find the merge base (base={base}, head={head}): "
               f"{exc}", file=sys.stderr)
         return 2

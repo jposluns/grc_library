@@ -11595,7 +11595,8 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         """``(tmp, env, run)``: the one-commit fixture plus a ``feat`` branch
         that deletes the corpus document, an unrelated-history ``lonely``
         branch, and an untracked copy of D13 (it anchors git to its own
-        script's repository). ``env`` has no inherited GIT_* and no system or
+        script's repository) with lint_common, which it imports since 3b564.
+        ``env`` has no inherited GIT_* and no system or
         global config, so a global safe.directory cannot mask the ownership
         refusal; ``run(base, head, extra)`` runs the copy under it (3b572)."""
         import subprocess as sp
@@ -11607,9 +11608,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         git("checkout", "-q", "--orphan", "lonely")
         git("commit", "-q", "-m", "unrelated root")
         git("checkout", "-q", "-f", "feat")
-        (tmp / "tools").mkdir()
-        copy = tmp / "tools" / "check-stranded-control-code-on-pr.py"
-        copy.write_bytes((REPO_ROOT / "tools" / copy.name).read_bytes())
+        tools = tmp / "tools"
+        tools.mkdir()
+        copy = tools / "check-stranded-control-code-on-pr.py"
+        for name in ("lint_common.py", copy.name):
+            (tools / name).write_bytes((REPO_ROOT / "tools" / name).read_bytes())
         env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
         env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull)
 
@@ -29252,7 +29255,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
         check-retired-section-orphan-on-pr.py NO_FS F 625d4037a2d598e6ab1eb5972a0b2c62dd25f02c90545d5a801795bdc021cfd3
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
-        check-stranded-control-code-on-pr.py NO_FS F 319bc878024e86445e610471c29346f730078c0be8b7ece31f8d395d631dcb0d
+        check-stranded-control-code-on-pr.py NO_FS F 48a85ee407ec50349198287379a43669f3027b3e8788725dc83194fba4f63be3
         check-todo-floor-monotonic-on-pr.py NO_FS F 2be7d8fc308974a0b99b60a2d40f02b93c21be83ca1837d0a40c55974c893d29
         check-todo-rotation-on-pr.py NO_FS F fa1b9a5954444ef8bf6e5666d5b717f1491883619bafbc67c6680736f918d93e
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
