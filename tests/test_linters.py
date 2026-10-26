@@ -11548,12 +11548,310 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
             raise sp.CalledProcessError(128, ["git", *args])
 
         mod.git = fake_git
+        mod.merge_base_of = lambda base, head: "a" * 40
         out, err = io.StringIO(), io.StringIO()
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             rc = mod.run("origin/main", "HEAD")
         self.assertEqual(rc, 2, f"stdout:\n{out.getvalue()}\nstderr:\n{err.getvalue()}")
         self.assertIn("git diff failed", err.getvalue())
         self.assertNotIn("D13 OK", out.getvalue())
+
+    def test_d13_document_read_failure_not_clean(self) -> None:
+        # 3b572: a failed read of one changed corpus document (its diff or its
+        # HEAD text) must never print the clean "D13 OK: N corpus doc(s)
+        # changed" (the old loop skipped the document). Mutation killed:
+        # restoring the `continue` in that except clause.
+        import contextlib
+        import importlib.util
+        import io
+        import subprocess as sp
+
+        spec = importlib.util.spec_from_file_location(
+            "d13_under_test", REPO_ROOT / "tools" / "check-stranded-control-code-on-pr.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        def fake_git(*args):
+            if args[0] == "merge-base":
+                return "a" * 40
+            if args[0] == "rev-parse" and args[1] == "--verify":
+                return "b" * 40
+            if args[0] == "rev-parse":
+                return "/fixture/top"
+            if args[:2] == ("diff", "--name-only"):
+                return "" if "--diff-filter=D" in args else "security/standard-x.md\n"
+            raise sp.CalledProcessError(128, ["git", *args])
+
+        mod.git = fake_git
+        mod.merge_base_of = lambda base, head: "a" * 40
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = mod.run("origin/main", "HEAD")
+        self.assertEqual(rc, 2, f"stdout:\n{out.getvalue()}\nstderr:\n{err.getvalue()}")
+        self.assertIn("git failed reading security/standard-x.md", err.getvalue())
+        self.assertNotIn("D13 OK", out.getvalue())
+
+    def _d13_fixture(self):
+        """``(tmp, env, run)``: the one-commit fixture plus a ``feat`` branch
+        that deletes the corpus document, an unrelated-history ``lonely``
+        branch, and an untracked copy of D13 (it anchors git to its own
+        script's repository) with lint_common, which it imports since 3b564.
+        ``env`` has no inherited GIT_* and no system or
+        global config, so a global safe.directory cannot mask the ownership
+        refusal; ``run(base, head, extra)`` runs the copy under it (3b572)."""
+        import subprocess as sp
+
+        tmp, git = self._repo()
+        git("checkout", "-q", "-b", "feat")
+        git("rm", "-q", self.DOC_REL)
+        git("commit", "-q", "-m", "delete the corpus document")
+        git("checkout", "-q", "--orphan", "lonely")
+        git("commit", "-q", "-m", "unrelated root")
+        git("checkout", "-q", "-f", "feat")
+        tools = tmp / "tools"
+        tools.mkdir()
+        copy = tools / "check-stranded-control-code-on-pr.py"
+        for name in ("lint_common.py", copy.name):
+            (tools / name).write_bytes((REPO_ROOT / "tools" / name).read_bytes())
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull)
+
+        def run(base, head, extra=None):
+            return sp.run([sys.executable, str(copy), base, head], capture_output=True,
+                          text=True, cwd=str(tmp), env={**env, **(extra or {})})
+
+        return tmp, env, run
+
+    def test_d13_git_refusal_at_merge_base_refuses_exit2(self) -> None:
+        # 3b572: git merge-base failing for any reason other than "no merge
+        # base" (exit 1, no output) is git refusing to answer, not a skip. At
+        # the base both cases printed "D13 SKIP: no resolvable merge base
+        # ...; fail-open." with exit 0. Mutation killed: reading any
+        # CalledProcessError from merge-base as the SKIP again.
+        import subprocess as sp
+
+        tmp, env, run = self._d13_fixture()
+        owner = {"GIT_TEST_ASSUME_DIFFERENT_OWNER": "1"}
+        for label, base, extra, named in (
+            ("bad base object", "origin/no-such-branch", None, "origin/no-such-branch"),
+            ("dubious ownership", "origin/main", owner, "dubious ownership"),
+        ):
+            with self.subTest(case=label):
+                if extra and sp.run(["git", "-C", str(tmp), "rev-parse", "HEAD"],
+                                    capture_output=True, env={**env, **extra}).returncode == 0:
+                    self.skipTest("this git does not honour GIT_TEST_ASSUME_DIFFERENT_OWNER")
+                r = run(base, "feat", extra)
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("ERROR: git failed finding the merge base", r.stderr)
+                self.assertIn("git said: ", r.stderr)
+                self.assertIn(named, r.stderr.split("git said: ", 1)[1])
+                self.assertNotIn("D13 SKIP", r.stdout)
+                self.assertNotIn("D13 OK", r.stdout)
+
+    def test_d13_no_merge_base_still_skips_exit0(self) -> None:
+        # 3b572: git's own no-merge-base result (unrelated histories: exit 1,
+        # no output) keeps the documented fail-open SKIP; a deleted corpus
+        # document over a real range is still clean (it has no HEAD text).
+        # Mutation killed: refusing every merge-base failure, or dropping the
+        # deleted-document skip.
+        _tmp, _env, run = self._d13_fixture()
+        r = run("origin/main", "lonely")
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D13 SKIP: no resolvable merge base (base=origin/main, head=lonely); "
+                      "fail-open.", r.stdout)
+        self.assertEqual(r.stderr, "")
+        r = run("origin/main", "feat")
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D13 OK: 1 corpus doc(s) changed; no stranded body control-codes.", r.stdout)
+
+    def test_d13_merge_base_partial_no_base_shapes_refuse_exit2(self) -> None:
+        # 3b572 round 2 (r1 review N1): each half of merge_base_of's "exit 1
+        # with no output" test refuses on its own. Unrelated histories with a
+        # git warning on stderr (an ambiguous refname) and a nonzero exit
+        # other than 1 with no output at all (a PATH shim) both exit 2.
+        # Mutations killed: dropping `and not exc.stderr` (M6) or
+        # `exc.returncode == 1 and` (M7) from merge_base_of.
+        import subprocess as sp
+
+        real_git = shutil.which("git")
+        self.assertIsNotNone(real_git)
+        tmp, env, run = self._d13_fixture()
+        for kind in ("tag", "branch"):
+            sp.run(["git", "-C", str(tmp), kind, "amb", "main"], check=True, env=env)
+        shim_dir = Path(tempfile.mkdtemp(prefix="gitshim-")).resolve()
+        self.addCleanup(shutil.rmtree, shim_dir, ignore_errors=True)
+        shim = shim_dir / "git"
+        shim.write_text(
+            "#!/bin/sh\n"
+            'for a in "$@"; do\n'
+            '  if [ "$a" = "merge-base" ]; then exit 128; fi\n'
+            "done\n"
+            f'exec "{real_git}" "$@"\n',
+            encoding="utf-8",
+        )
+        shim.chmod(0o755)
+        silent = {"PATH": f"{shim_dir}{os.pathsep}{env['PATH']}"}
+        for label, base, head, extra, named in (
+            ("exit 1 with a git warning", "amb", "lonely", None, "refname 'amb' is ambiguous"),
+            ("exit 128 with no output", "origin/main", "feat", silent, "(nothing)"),
+        ):
+            with self.subTest(case=label):
+                r = run(base, head, extra)
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("ERROR: git failed finding the merge base", r.stderr)
+                self.assertIn(named, r.stderr.split("git said: ", 1)[1])
+                self.assertNotIn("D13 SKIP", r.stdout)
+                self.assertNotIn("D13 OK", r.stdout)
+
+    def test_d13_git_absent_refuses_exit2(self) -> None:
+        # 3b572 round 2 (r1 reviews: codex ERROR, claude W1): git missing from
+        # PATH (FileNotFoundError, an OSError) at the merge-base call exited
+        # 1, D13's own stranded-codes FAIL code, with a traceback; it refuses
+        # with exit 2 naming the error instead. Mutation killed: dropping the
+        # OSError clause at the merge-base call.
+        _tmp, _env, run = self._d13_fixture()
+        empty_dir = Path(tempfile.mkdtemp(prefix="no-git-")).resolve()
+        self.addCleanup(shutil.rmtree, empty_dir, ignore_errors=True)
+        r = run("origin/main", "feat", {"PATH": str(empty_dir)})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("ERROR: git could not be run to find the merge base", r.stderr)
+        self.assertIn("No such file or directory: 'git'", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("D13 SKIP", r.stdout)
+        self.assertNotIn("D13 OK", r.stdout)
+
+    def _d13_in_process(self, failing, exc):
+        """``(rc, stdout, stderr)`` of D13's run() in process over a fake git:
+        one changed corpus document whose table drops SA-11 while its body
+        still cites it (a stranded code), with ``exc`` raised by every git
+        call whose argument tuple ``failing`` accepts (3b572 round 2)."""
+        import contextlib
+        import importlib.util
+        import io
+
+        spec = importlib.util.spec_from_file_location(
+            "d13_under_test", REPO_ROOT / "tools" / "check-stranded-control-code-on-pr.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        def fake_git(*args):
+            if failing(args):
+                raise exc
+            if args[0] == "rev-parse" and args[1] == "--verify":
+                return "b" * 40
+            if args[0] == "rev-parse":
+                return "/fixture/top"
+            if args[:2] == ("diff", "--name-only"):
+                return "" if "--diff-filter=D" in args else "security/standard-x.md\n"
+            if args[0] == "diff":
+                return "-| Pentest programme | SA-11 | ... |\n+| Pentest programme | CA-8 | ... |\n"
+            if args[0] == "show":
+                return "| Pentest programme | CA-8 | ... |\n\nThis standard addresses SA-11.\n"
+            if args[0] == "log":
+                return "Correct the pentest row\n"
+            raise AssertionError(f"unexpected git call: {args}")
+
+        mod.git = fake_git
+        mod.merge_base_of = lambda base, head: "a" * 40
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = mod.run("origin/main", "HEAD")
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_d13_git_unstartable_at_later_call_refuses_exit2(self) -> None:
+        # 3b572 round 2: git that cannot be started at a call after the merge
+        # base (an OSError) refuses with exit 2 naming the error, never a
+        # traceback. Mutation killed: dropping OSError from the head
+        # resolution, changed-file, document-read or opt-out-read clause.
+        oserror = FileNotFoundError(2, "No such file or directory", "git")
+        for label, failing, named in (
+            ("head resolution", lambda a: a[:2] == ("rev-parse", "--verify"),
+             "git failed resolving HEAD"),
+            ("changed files", lambda a: a[:2] == ("diff", "--name-only"), "git diff failed"),
+            ("document read", lambda a: a[0] == "show", "git failed reading security/standard-x.md"),
+            ("opt-out read", lambda a: a[0] == "log", "git failed reading the commit messages"),
+        ):
+            with self.subTest(call=label):
+                rc, out, err = self._d13_in_process(failing, oserror)
+                self.assertEqual(rc, 2, f"stdout:\n{out}\nstderr:\n{err}")
+                self.assertIn(named, err)
+                self.assertIn("No such file or directory: 'git'", err)
+                self.assertNotIn("D13 OK", out)
+
+    def test_d13_opt_out_read_failure_refuses_exit2(self) -> None:
+        # 3b572 round 2 (r1 review N4): a failed git log read of the commit
+        # messages, over a range with a stranded code, printed the FAIL that
+        # tells the author to add a `StrandedCode:` trailer they may already
+        # have (exit 1); it refuses with exit 2 naming git's error instead.
+        # Mutation killed: restoring `return False` on a failed read.
+        import subprocess as sp
+
+        rc, out, err = self._d13_in_process(
+            lambda a: a[0] == "log", sp.CalledProcessError(128, ["git", "log"]))
+        self.assertEqual(rc, 2, f"stdout:\n{out}\nstderr:\n{err}")
+        self.assertIn("ERROR: git failed reading the commit messages", err)
+        self.assertIn("returned non-zero exit status 128", err)
+        self.assertNotIn("StrandedCode: <reason>", err)
+        self.assertNotIn("D13 OK", out)
+        # The same fixture with a readable log is the stranded-code FAIL.
+        rc, out, err = self._d13_in_process(lambda a: False, None)
+        self.assertEqual(rc, 1, f"stdout:\n{out}\nstderr:\n{err}")
+        self.assertIn("stranded `SA-11`", err)
+
+    def test_d13_undecodable_git_output_refuses_exit2(self) -> None:
+        # 3b572 round 3 (r2 claude review N1): git output that is not valid
+        # UTF-8 raised UnicodeDecodeError, a traceback with exit 1 (D13's own
+        # stranded-codes FAIL code), at the merge-base call (git's message
+        # echoing a base holding the byte 0xe9) and at the per-document diff
+        # (a changed corpus document holding it); both refuse with exit 2
+        # naming the decoding error instead. PYTHONUTF8 pins the codec, so the
+        # bytes are undecodable under any locale. Mutation killed: dropping
+        # the UnicodeDecodeError clause at the merge-base call, or dropping
+        # UnicodeDecodeError from the document-read clause.
+        import subprocess as sp
+
+        tmp, env, run = self._d13_fixture()
+        sp.run(["git", "-C", str(tmp), "checkout", "-q", "-b", "latin1", "main"],
+               check=True, env=env)
+        (tmp / self.DOC_REL).write_bytes(
+            self.DOC_BASE.encode("utf-8") + b"| Caf\xe9 keys | IAM-04 | Keys |\n")
+        sp.run(["git", "-C", str(tmp), "commit", "-q", "-am", "a Latin-1 row"],
+               check=True, env=env)
+        utf8 = {"PYTHONUTF8": "1"}
+        for label, base, head, named in (
+            ("merge base", b"origin/\xe9", "feat",
+             "ERROR: git's output could not be decoded finding the merge base"),
+            ("document diff", "origin/main", "latin1",
+             f"ERROR: git failed reading {self.DOC_REL}"),
+        ):
+            with self.subTest(call=label):
+                r = run(base, head, utf8)
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn(named, r.stderr)
+                self.assertIn("can't decode byte 0xe9", r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn("D13 SKIP", r.stdout)
+                self.assertNotIn("D13 OK", r.stdout)
+
+    def test_d13_undecodable_output_at_later_call_refuses_exit2(self) -> None:
+        # 3b572 round 3: git output that is not valid UTF-8 at a call after
+        # the merge base refuses with exit 2 naming the decoding error, never
+        # a traceback. Mutation killed: dropping UnicodeDecodeError from the
+        # head resolution, changed-file, document-read or opt-out-read clause.
+        undecodable = UnicodeDecodeError("utf-8", b"caf\xe9", 3, 4, "invalid continuation byte")
+        for label, failing, named in (
+            ("head resolution", lambda a: a[:2] == ("rev-parse", "--verify"),
+             "git failed resolving HEAD"),
+            ("changed files", lambda a: a[:2] == ("diff", "--name-only"), "git diff failed"),
+            ("document read", lambda a: a[0] == "show", "git failed reading security/standard-x.md"),
+            ("opt-out read", lambda a: a[0] == "log", "git failed reading the commit messages"),
+        ):
+            with self.subTest(call=label):
+                rc, out, err = self._d13_in_process(failing, undecodable)
+                self.assertEqual(rc, 2, f"stdout:\n{out}\nstderr:\n{err}")
+                self.assertIn(named, err)
+                self.assertIn("can't decode byte 0xe9 in position 3", err)
+                self.assertNotIn("D13 OK", out)
 
     def test_tension_scan_same_commit_exit2(self) -> None:
         r = self._gate("tension-scan.py", REPO_ROOT, "HEAD", "HEAD")
@@ -11695,9 +11993,17 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # read's except clause in lint_common.pr_range_resolution (reached
         # through D1), D5, D9, D13 or tension-scan, which then exits 1 with a
         # traceback. Since 3b564 the placeholder skips only the top-level
-        # comparison of D5, D9, D13 and tension-scan (their git-directory
-        # check still runs), and they run as copies inside the fixture, their
-        # own REPO_ROOT.
+        # comparison of D5, D9 and tension-scan (their git-directory check
+        # still runs), and they run as copies inside the fixture, their own
+        # REPO_ROOT. 3b572 round 3: D13 no longer degrades; its top-level
+        # read refuses with exit 2 naming the OSError on a real range, a
+        # collapsed range, and a core.worktree naming another directory,
+        # which only the skipped comparison refuses, so the degraded read
+        # passed it with "D13 OK" and exit 0. Mutation killed: restoring
+        # D13's placeholder.
+        import errno
+        import subprocess as sp
+
         tmp, git = self._repo()
         git("checkout", "-q", "-b", "feat")
         (tmp / "CHANGELOG.md").write_text(
@@ -11709,7 +12015,6 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
             (own, "check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
             (own, "tension-scan.py", "0 rewritten block(s) since"),
             (own, "check-retired-section-orphan-on-pr.py", "D9 OK: no TODO section closed"),
-            (own, "check-stranded-control-code-on-pr.py", "D13 OK: no corpus document changed"),
         ):
             for label, head, rc in (("real", "feat", 0), ("collapsed", "origin/main", 2)):
                 with self.subTest(gate=script, range=label):
@@ -11725,6 +12030,32 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     else:
                         self.assertIn("CANNOT-EVALUATE", r.stderr)
                         self.assertIn("repo=(no work tree)", r.stderr)
+        d13 = own / "check-stranded-control-code-on-pr.py"
+        elsewhere = Path(tempfile.mkdtemp(prefix="d13-elsewhere-")).resolve()
+        self.addCleanup(shutil.rmtree, elsewhere, ignore_errors=True)
+        for label, head, worktree in (("real", "feat", None), ("collapsed", "origin/main", None),
+                                      ("core.worktree elsewhere", "feat", elsewhere)):
+            with self.subTest(gate=d13.name, range=label):
+                if worktree is not None:
+                    git("config", "core.worktree", str(worktree))
+                    # Uninjected, the top-level comparison refuses this layout.
+                    plain = sp.run([sys.executable, str(d13), "origin/main", head],
+                                   capture_output=True, text=True, cwd=str(tmp))
+                    self.assertEqual(plain.returncode, 2,
+                                     f"stdout:\n{plain.stdout}\nstderr:\n{plain.stderr}")
+                    self.assertIn("ERROR: git reports the work tree top level", plain.stderr)
+                r = self._inject_oserror(d13, tmp, ["rev-parse", "--show-toplevel"],
+                                         "origin/main", head)
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertEqual(r.returncode, 2, out)
+                self.assertEqual(r.stderr.count("INJECTED"), 1, r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertIn("ERROR: git could not be run reading the top level "
+                              f"(base=origin/main, head={head}): [Errno {errno.EAGAIN}] injected",
+                              r.stderr)
+                self.assertNotIn("D13 OK", r.stdout)
+                self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+                self.assertNotIn("(no work tree)", r.stderr)
 
     def test_head_sha_oserror_never_reads_collapsed_range_clean(self) -> None:
         # 3b540 round 9 (r8 review NOTE-1): the head SHA pr_range_resolution
@@ -28957,7 +29288,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
         check-retired-section-orphan-on-pr.py NO_FS F 625d4037a2d598e6ab1eb5972a0b2c62dd25f02c90545d5a801795bdc021cfd3
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
-        check-stranded-control-code-on-pr.py NO_FS F c5d8a11052d1b2e1cea125aeed0f1836661995df0b89d192043cb4c3c16dce10
+        check-stranded-control-code-on-pr.py NO_FS F f9b60f8c5ed39b725f7f3bf0c9932107d91179ab94cb3aa920f92b487e3e27fd
         check-todo-floor-monotonic-on-pr.py NO_FS F 2be7d8fc308974a0b99b60a2d40f02b93c21be83ca1837d0a40c55974c893d29
         check-todo-rotation-on-pr.py NO_FS F fa1b9a5954444ef8bf6e5666d5b717f1491883619bafbc67c6680736f918d93e
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6

@@ -31,19 +31,39 @@ wrong NEW code (/matrix-fit semantic-fit territory), or (iv) prose naming a cont
 by title not code. It is a targeted tripwire under the triple-family QA, the
 defence-in-depth default at low marginal cost.
 
-FAIL DIRECTION. Needs a resolvable merge base; on a missing base ref it no-ops
-with a printed notice (fail-open, per the project's guard-malfunction stance): the
-pre-push runner supplies the base in every normal path. That SKIP runs before
-the own-repository checks below, so an unresolvable base passes even where git
-reads another repository (a known residual, 3b564).
+FAIL DIRECTION. Needs a resolvable merge base; when git reports there is none
+(`git merge-base` exits 1 with no output: unrelated histories, or a shallow clone
+cut above the base) it no-ops with a printed notice (fail-open, per the project's
+guard-malfunction stance): the pre-push runner supplies the base in every normal
+path. Otherwise every git call that bears on the verdict refuses with exit 2 on a
+git failure (dubious ownership, no repository, a missing base ref, a bad object),
+with git's message, never a skip or a clean pass (3b572). Every one also
+refuses on an OSError (git cannot be started), naming the OS error, the
+top-level read included (3b572 round 3), and every one but the top-level read
+and the git-directory reads refuses on output that is not valid UTF-8, naming
+the decoding error. The git-directory reads (require_own_git_dir in
+tools/lint_common.py) take git's output as bytes and compare real paths as
+bytes, so output that is not valid UTF-8 never fails them (they decode only
+to format a refusal message). The
+top-level read feeds the own-repository top-level comparison (3b564) and
+decodes its output with os.fsdecode, so output that is not valid UTF-8 never
+fails the read; it reaches the comparison, which passes it only where it names
+this script's own repository.
+That SKIP runs before the own-repository checks below, so a base with no merge
+base passes even where git reads another repository (a known residual, 3b564).
 
 Exit codes:
     0 : no corpus document changed, no stranded body control-code, a
-        `StrandedCode:` opt-out, or no resolvable merge base (the fail-open
-        D13 SKIP above); `--self-test` passing.
+        `StrandedCode:` opt-out, or no merge base (the fail-open D13 SKIP
+        above); `--self-test` passing.
     1 : a body control-code is stranded by a table edit in this PR, or a
         `--self-test` case failed.
-    2 : usage error (argparse), git or environment error (the head does not
+    2 : usage error (argparse), git or environment error (git failing to
+        find the merge base for any reason other than its own no-merge-base
+        answer, git that cannot be started on any call that bears on the
+        verdict, output that is not valid UTF-8 on such a call other than
+        the top-level read and the git-directory reads, a failed read of a
+        changed document or of the commit messages (3b572), the head does not
         resolve to a commit, git reports no work tree top level, an empty
         one, or one that is not this script's own repository, REPO_ROOT, git
         reads a git directory other than REPO_ROOT's own, GIT_COMMON_DIR,
@@ -59,11 +79,8 @@ Exit codes:
         git config core.worktree "$PWD"), or the changed-file diff
         fails), or CANNOT-EVALUATE: base and head resolve to the same commit
         (an empty range), so nothing was evaluated.
-        Known residuals (3b564): git failing to run at all (OSError) on the
-        top-level read degrades to a placeholder and skips the top-level
-        comparison; the git-directory checks still run. What the
-        git-directory checks do not cover is disclosed in
-        lint_common.require_own_git_dir.
+        Known residuals (3b564): what the git-directory checks do not cover
+        is disclosed in lint_common.require_own_git_dir.
 """
 
 from __future__ import annotations
@@ -196,6 +213,23 @@ def git(*args: str) -> str:
     return subprocess.check_output(["git", "-C", str(REPO_ROOT), *args], text=True)
 
 
+def merge_base_of(base: str, head: str) -> str | None:
+    """The merge base of `base` and `head`, or None when git reports there is none.
+    `git merge-base` exits 1 with no output exactly then (unrelated histories, or a
+    shallow clone cut above the base). Any other failure (git refusing to run at
+    all: dubious ownership, no repository, a bad or missing object) raises, git's
+    message captured on the exception, so the caller refuses instead of skipping."""
+    try:
+        return subprocess.check_output(
+            ["git", "-C", str(REPO_ROOT), "merge-base", base, head],
+            text=True, stderr=subprocess.PIPE,
+        ).strip()
+    except subprocess.CalledProcessError as exc:
+        if exc.returncode == 1 and not exc.output and not exc.stderr:
+            return None
+        raise
+
+
 def in_scope(rel: str) -> bool:
     """PURE: a corpus `.md` file this gate governs. Corpus domain dirs only; the
     master matrix and non-corpus trees are out."""
@@ -214,10 +248,10 @@ def in_scope(rel: str) -> bool:
 def opt_out_present(base: str, head: str) -> bool:
     """True if any commit in base..head carries a non-empty `StrandedCode:` trailer.
     A bare `StrandedCode:` must NOT disable the gate (a costless bypass is no guard)."""
-    try:
-        log = git("log", f"{base}..{head}", "--format=%B")
-    except subprocess.CalledProcessError:
-        return False
+    # A failed read PROPAGATES: returning False here made a git error print the
+    # FAIL that tells the author to add the trailer they may already have; the
+    # caller refuses with exit 2 instead (3b572 round 2).
+    log = git("log", f"{base}..{head}", "--format=%B")
     for line in log.splitlines():
         s = line.strip()
         if s.lower().startswith("strandedcode:") and s[len("strandedcode:"):].strip():
@@ -237,9 +271,30 @@ def run(base: str | None, head: str) -> int:
     if base is None:
         target = os.environ.get("GITHUB_BASE_REF", "").strip() or "main"
         base = f"origin/{target}"
+    # Only git's own no-merge-base result is the documented fail-open skip; git
+    # refusing to run at all (dubious ownership, no repository, a bad object)
+    # read as that skip and passed with exit 0, so it refuses instead (3b572).
     try:
-        merge_base = git("merge-base", base, head).strip()
-    except subprocess.CalledProcessError:
+        merge_base = merge_base_of(base, head)
+    except subprocess.CalledProcessError as exc:
+        print(f"ERROR: git failed finding the merge base (base={base}, head={head}): "
+              f"{exc} git said: {(exc.stderr or '').strip() or '(nothing)'}", file=sys.stderr)
+        return 2
+    except OSError as exc:
+        # git that cannot be started at all (not on PATH) exited 1, D13's own
+        # stranded-codes FAIL code, with a traceback; it refuses too, naming
+        # the error, as every later git call that bears on the verdict does.
+        print(f"ERROR: git could not be run to find the merge base (base={base}, head={head}): "
+              f"{exc}", file=sys.stderr)
+        return 2
+    except UnicodeDecodeError as exc:
+        # git output that is not valid UTF-8 (git's message echoing a base or
+        # head that holds such a byte) exited 1 with a traceback too; it
+        # refuses, naming the decoding error (3b572 round 3).
+        print(f"ERROR: git's output could not be decoded finding the merge base "
+              f"(base={base}, head={head}): {exc}", file=sys.stderr)
+        return 2
+    if merge_base is None:
         print(f"D13 SKIP: no resolvable merge base (base={base}, head={head}); fail-open.")
         return 0
     # Same wrong-clone signature as D9: this script anchors git to its own
@@ -247,22 +302,25 @@ def run(base: str | None, head: str) -> int:
     # is not in this repository's history; refuse rather than pass clean.
     try:
         head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}").strip()
-    except subprocess.CalledProcessError as exc:
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
         print(f"ERROR: git failed resolving {head} (base={base}): {exc}", file=sys.stderr)
         return 2
     try:
-        # The refusal's repo= field and the comparison below: git failing to
-        # run at all (OSError) degrades to a placeholder as D12's _toplevel
-        # does, so the gate keeps its real verdict instead of a traceback
-        # (3b540 round 8). The top level is read as bytes and decoded with
-        # os.fsdecode, so a path that is not valid UTF-8 still reaches the
-        # comparison instead of the placeholder (3b564). git refusing to
+        # The refusal's repo= field and the comparison below. The top level is
+        # read as bytes and decoded with os.fsdecode, so a path that is not
+        # valid UTF-8 still reaches the comparison (3b564). git refusing to
         # print one (no work tree, as with GIT_DIR naming a bare repository)
-        # still refuses with exit 2 (3b540 round 9).
+        # refuses with exit 2 (3b540 round 9).
         toplevel = os.fsdecode(subprocess.check_output(
             ["git", "-C", str(REPO_ROOT), "rev-parse", "--show-toplevel"])).strip()
-    except OSError:
-        toplevel = "(no work tree)"
+    except OSError as exc:
+        # git that cannot be started degraded to a placeholder that skipped
+        # the comparison below, so a core.worktree naming another directory
+        # passed with exit 0, the one case that comparison refuses; it
+        # refuses too, naming the error (3b572 round 3).
+        print(f"ERROR: git could not be run reading the top level (base={base}, head={head}): "
+              f"{exc}", file=sys.stderr)
+        return 2
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: git failed reading the top level (base={base}, head={head}): {exc}", file=sys.stderr)
         return 2
@@ -278,8 +336,7 @@ def run(base: str | None, head: str) -> int:
         # level other than REPO_ROOT means git is reading another
         # repository; refuse it, as D9 does. Path resolves a relative top
         # level against the current directory, so it must also be absolute,
-        # as git always prints it (3b564). The placeholder above skips this
-        # check (3b540 round 8).
+        # as git always prints it (3b564).
         top = Path(toplevel)
         if not (top.is_absolute() and top.resolve() == REPO_ROOT.resolve()):
             print(
@@ -308,7 +365,9 @@ def run(base: str | None, head: str) -> int:
 
     try:
         files = changed_corpus_files(merge_base, head)
-    except subprocess.CalledProcessError as exc:
+        # A document this PR deletes has no HEAD text to strand a body cite in.
+        deleted = set(git("diff", "--name-only", "--diff-filter=D", merge_base, head).splitlines())
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
         print(f"ERROR: git diff failed: {exc}; cannot enumerate the changed files.", file=sys.stderr)
         return 2
     if not files:
@@ -317,11 +376,17 @@ def run(base: str | None, head: str) -> int:
 
     all_hits: list[tuple[str, int, str, str]] = []
     for rel in files:
+        if rel in deleted:
+            continue
+        # A failed read PROPAGATES: skipping the document here made a git error
+        # print the clean "D13 OK: N corpus doc(s) changed" (3b572).
         try:
             diff = git("diff", merge_base, head, "--", rel)
             head_text = git("show", f"{head}:{rel}")
-        except subprocess.CalledProcessError:
-            continue
+        except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
+            print(f"ERROR: git failed reading {rel} (base={merge_base}, head={head}): {exc}; "
+                  f"cannot evaluate the changed document.", file=sys.stderr)
+            return 2
         removed = table_codes_from_diff(diff, "-") - table_codes_from_diff(diff, "+")
         if not removed:
             continue
@@ -334,7 +399,13 @@ def run(base: str | None, head: str) -> int:
     if not all_hits:
         print(f"D13 OK: {len(files)} corpus doc(s) changed; no stranded body control-codes.")
         return 0
-    if opt_out_present(merge_base, head):
+    try:
+        opted_out = opt_out_present(merge_base, head)
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
+        print(f"ERROR: git failed reading the commit messages (base={merge_base}, head={head}): "
+              f"{exc}; cannot tell whether a StrandedCode: opt-out is present.", file=sys.stderr)
+        return 2
+    if opted_out:
         print(f"D13 OK: {len(all_hits)} candidate(s); StrandedCode: opt-out present.")
         return 0
 
@@ -355,8 +426,10 @@ def run(base: str | None, head: str) -> int:
 # ---------------------------------------------------------------------------
 def _self_test() -> int:
     failures: list[str] = []
+    ran: list[str] = []
 
     def check(name: str, cond: bool) -> None:
+        ran.append(name)
         if not cond:
             failures.append(name)
 
@@ -439,7 +512,7 @@ def _self_test() -> int:
     if failures:
         print("D13 self-test FAILED: " + ", ".join(failures), file=sys.stderr)
         return 1
-    print("D13 self-test OK (31 cases: range expansion incl. 27701 4-level, Privacy -P, nested SSDF, through-form, cross-stem + suffix-collision + mid-token FP-safety, paren-cite, positives, negatives, scope).")
+    print(f"D13 self-test OK ({len(ran)} cases: range expansion incl. 27701 4-level, Privacy -P, nested SSDF, through-form, cross-stem + suffix-collision + mid-token FP-safety, paren-cite, positives, negatives, scope).")
     return 0
 
 
