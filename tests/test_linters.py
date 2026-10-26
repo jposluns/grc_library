@@ -29409,7 +29409,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
-        lint-library-version-monotonicity.py OWN F b1bcd7923a1776aba3ff9445373c7e093e05cbfd846f622ebfc3fd1ef7616451
+        lint-library-version-monotonicity.py OWN F 6b725b75f248f41f5ab2810f5b3f31f325c9137a5a7b9396d8d925d14eb42bf9
         lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
         lint-links.py ROOT F cf4b6ae1d2c76df65234323d94650ebc62db87bf24ed4f375d5386b4a75fb0b6
         lint-listing-surface-completeness.py NO_FS F 3dc1bb95c9133adec9f3af5640cf18a6c342118c972ab7cfb447fa6651ffe0f3
@@ -71327,6 +71327,156 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
             "ERROR: README.md is not valid UTF-8; its version cannot be read, so monotonicity "
             "is unchecked."], err)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
+    def test_library_version_monotonicity_names_a_directory_it_cannot_list(self) -> None:
+        # 3b624 r4: Path.rglob dropped a directory it could not list without a word, so a
+        # tracked document in one whose version went from 2.0.0 to 1.0.0 was never compared and
+        # the gate printed OK (exit 0). The directory is now named, exit 2. An exempt directory
+        # that cannot be listed is not walked, so it still does not refuse.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/sub/x.md": "**Version:** 2.0.0\n"})
+        self.commit(repo, {"governance/sub/x.md": "**Version:** 1.0.0\n"})
+        exempt = repo / ".claude" / "locked"
+        exempt.mkdir(parents=True)
+        (exempt / "y.md").write_text("**Version:** 1.0.0\n", encoding="utf-8")
+        locked = repo / "governance" / "sub"
+        for path in (exempt, locked):
+            self.addCleanup(path.chmod, 0o755)
+        exempt.chmod(0)
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 1, out + err)
+        self.assertIn("governance/sub/x.md: Version decreased: current 1.0.0 < prior 2.0.0", out)
+        locked.chmod(0)
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: governance/sub is a directory that cannot be listed (PermissionError); the "
+            "versions of the documents in it cannot be read, so monotonicity is unchecked."], err)
+
+    def test_library_version_monotonicity_refuses_a_fifo_document_without_opening_it(self) -> None:
+        # 3b624 r4: the walk opened a FIFO named *.md, which blocks until a writer appears, so
+        # the gate hung. It is now stat'ed first and refused without being opened, as is a
+        # symlink to one; a symlink to a regular file is still read. A thread here stands in for
+        # the writer, so the old code reads an empty file and prints OK instead of hanging; the
+        # thread never finds the FIFO open for reading now.
+        import threading
+
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n",
+                           "risk/pipe.md": "**Version:** 2.0.0\n"})
+        (repo / "governance" / "link.md").symlink_to("d.md")
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.1\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 0, out + err)
+        (repo / "risk" / "pipe.md").unlink()
+        fifos = [repo / "risk" / "pipe.md"]
+        os.mkfifo(fifos[0])
+        (repo / "risk" / "to-pipe.md").symlink_to("pipe.md")
+        stop, opened = threading.Event(), []
+
+        def writer():
+            while not stop.is_set():
+                for fifo in fifos:
+                    try:
+                        fd = os.open(fifo, os.O_WRONLY | os.O_NONBLOCK)
+                    except OSError:  # ENXIO: no reader has it open
+                        continue
+                    opened.append(fifo)
+                    os.close(fd)
+                stop.wait(0.05)
+
+        thread = threading.Thread(target=writer, daemon=True)
+        thread.start()
+        try:
+            code, out, err = self.mono(repo)
+        finally:
+            stop.set()
+            thread.join()
+        self.assertEqual(opened, [])
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: risk/pipe.md is not a regular file (a FIFO), so it is not opened; its version "
+            "cannot be read, so monotonicity is unchecked.",
+            "ERROR: risk/to-pipe.md is not a regular file (a FIFO), so it is not opened; its "
+            "version cannot be read, so monotonicity is unchecked."], err)
+
+    def test_library_version_monotonicity_names_a_missing_readme_in_every_mode(self) -> None:
+        # 3b624 r4: a missing README.md raised FileNotFoundError in the library check, a
+        # traceback with exit 1 ("versions decreased"), with a prior state and under
+        # --prior-readme, and on a root commit was never read and the gate printed OK. It holds
+        # the Library Version, so it is named, exit 2, in all three. The intact twins pass.
+        line = ("ERROR: README.md does not exist; the library version cannot be read, so "
+                "monotonicity is unchecked.")
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.1\n"})
+        root = self.repo("root")
+        self.commit(root, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
+        prior = self.tmp / "prior.md"
+        prior.write_text("**Library Version:** 2026.06.0\n", encoding="utf-8")
+        runs = ((repo,), (repo, "--prior-readme", str(prior)), (root,))
+        for fixture, *argv in runs:
+            code, out, err = self.mono(fixture, *argv)
+            self.assertEqual(code, 0, out + err)
+        for fixture in (repo, root):
+            (fixture / "README.md").unlink()
+        for fixture, *argv in runs:
+            code, out, err = self.mono(fixture, *argv)
+            self.assertEqual(code, 2, out + err)
+            self.assertNotIn("OK:", out)
+            self.assertNotIn("Traceback", err)
+            self.assertEqual([x for x in err.splitlines() if x.startswith("ERROR: ")], [line], err)
+
+    def test_library_version_monotonicity_walk_visits_the_rglob_document_set(self) -> None:
+        # 3b624 r4: the walk moved from Path.rglob("*.md") to os.walk so a directory it cannot
+        # list is reported. On an intact tree it must visit exactly the documents the rglob walk
+        # did, with the same filters: the real corpus, and a fixture with a symlinked directory
+        # (not descended), a directory and symlinks named *.md, hidden names and exempt trees.
+        from unittest import mock
+
+        mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_walk_3b624")
+
+        def rglob_set(root):
+            found = set()
+            for path in root.rglob("*.md"):
+                if mono.is_default_exempt_root(path, repo_root=root):
+                    continue
+                if any(part in mono.DEFAULT_EXEMPT_DIRS for part in path.parts):
+                    continue
+                rel = path.relative_to(root).as_posix()
+                if rel not in ("README.md", "CHANGELOG.md"):
+                    found.add(rel)
+            return found
+
+        fixture = self.tmp / "tree"
+        outside = self.tmp / "outside"
+        (outside / "deep").mkdir(parents=True)
+        (outside / "deep" / "o.md").write_text("o\n", encoding="utf-8")
+        for rel in ("README.md", "CHANGELOG.md", "a.md", ".hidden.md", "x.MD", "g/b.md",
+                    "g/.h/c.md", "g/dir.md/inner.md", "g/.git/x.md", "g/references/r.md",
+                    ".claude/c.md", ".corpus-management/z.md", "sub/CHANGELOG.md"):
+            (fixture / rel).parent.mkdir(parents=True, exist_ok=True)
+            (fixture / rel).write_text("x\n", encoding="utf-8")
+        (fixture / "g" / "linkdir").symlink_to(outside)
+        (fixture / "g" / "linkdir.md").symlink_to(outside)
+        (fixture / "g" / "linkfile.md").symlink_to(fixture / "a.md")
+        (fixture / "g" / "dangling.md").symlink_to(fixture / "missing")
+        (fixture / ".corpus-management" / "out.md").symlink_to(fixture / "a.md")
+        for root in (REPO_ROOT, fixture):
+            expected = rglob_set(root)
+            self.assertTrue(expected, root)
+            problems = []
+            with mock.patch.object(mono, "REPO_ROOT", root):
+                walked = [rel for _, rel in mono.walk_current_documents(problems)]
+            self.assertEqual(problems, [], root)
+            self.assertEqual(len(walked), len(set(walked)), root)
+            self.assertEqual(set(walked), expected, root)
 
     def test_date_cobump_refuses_an_unreadable_base_blob(self) -> None:
         repo = self.repo()
