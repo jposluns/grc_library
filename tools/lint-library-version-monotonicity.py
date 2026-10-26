@@ -58,16 +58,22 @@ Exit codes:
         which is not the same as an unborn HEAD, a root commit or no
         origin/main; an absent HEAD branch or origin/main also refuses when
         git for-each-ref fails or warns, even about another ref. Or the
-        current README.md, or a prior file the gate reads, is not valid
-        UTF-8. It reads the prior README.md, and a document's prior copy
-        only when its current copy is UTF-8 and has a version; a current
-        document that is not UTF-8 is skipped, so its prior copy is not read.
+        current README.md, a current document under the walk, or a prior
+        file the gate reads, is not valid UTF-8; the gate names every current
+        document that is not UTF-8, one stderr line each (3b624). It reads
+        the prior README.md, and a document's prior copy only when its
+        current copy is UTF-8 and has a version.
     Remaining: a REPO_ROOT with no .git, with GIT_DIR unset, inside another
     work tree reads that work tree's history, as before, and inside a
     repository git cannot open reads as no repository; with no .git, GIT_DIR
     naming any non-bare repository with no work tree set is read as
     REPO_ROOT's, because git takes REPO_ROOT as its work tree (see
-    find_prior_ref).
+    find_prior_ref). The document walk reads only *.md files, so a non-.md
+    document is not compared; a current document with no version line is
+    not compared, and its prior copy is not read; a document that exists
+    only at the prior ref (a deletion, or the old name of a rename) is not
+    compared; and the walk reads untracked .md files too, so an untracked
+    one that is not UTF-8 also refuses.
 """
 
 from __future__ import annotations
@@ -132,6 +138,15 @@ def git_show(ref: str, path: str) -> str | None:
         if tree_entry_type(ref, path, repo=REPO_ROOT) != "blob":
             return None
         raise
+
+
+class CurrentDocumentsNotUtf8(Exception):
+    """One or more current documents under the walk are not valid UTF-8, so their versions
+    cannot be read (3b624); main() names each one and reports exit 2."""
+
+    def __init__(self, paths: list[str]) -> None:
+        super().__init__(", ".join(paths))
+        self.paths = paths
 
 
 class GitStateUnreadable(Exception):
@@ -314,8 +329,12 @@ def check_library_version(prior_ref: str) -> tuple[bool, str]:
 
 
 def check_document_versions(prior_ref: str) -> list[tuple[str, str]]:
-    """Return list of (path, message) for documents whose version decreased."""
+    """Return list of (path, message) for documents whose version decreased.
+
+    A current document that is not valid UTF-8 is collected, not skipped; after the walk this
+    raises CurrentDocumentsNotUtf8 naming every one (3b624)."""
     findings: list[tuple[str, str]] = []
+    undecodable: list[str] = []
     # Walk markdown files in artefact domains; skip non-artefact directories.
     skip_dirs = DEFAULT_EXEMPT_DIRS
     for path in REPO_ROOT.rglob("*.md"):
@@ -333,6 +352,7 @@ def check_document_versions(prior_ref: str) -> list[tuple[str, str]]:
         try:
             current_text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
+            undecodable.append(rel)
             continue
         current = parse_semver(current_text)
         if current is None:
@@ -351,6 +371,8 @@ def check_document_versions(prior_ref: str) -> list[tuple[str, str]]:
                     f"< prior {'.'.join(map(str, prior))}",
                 )
             )
+    if undecodable:
+        raise CurrentDocumentsNotUtf8(sorted(undecodable))
     return findings
 
 
@@ -425,6 +447,11 @@ def main(argv: list[str] | None = None) -> int:
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: cannot read the prior state at {prior_ref} ({exc}); a git read failure is "
               f"not an absent prior version, so monotonicity is unchecked.", file=sys.stderr)
+        return 2
+    except CurrentDocumentsNotUtf8 as exc:
+        for rel in exc.paths:
+            print(f"ERROR: {rel} is not valid UTF-8; its version cannot be read, so monotonicity "
+                  f"is unchecked.", file=sys.stderr)
         return 2
     except UnicodeDecodeError as exc:
         print(f"ERROR: README.md or a file at {prior_ref} is not valid UTF-8 ({exc}); its "
