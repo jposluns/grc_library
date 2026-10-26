@@ -2,7 +2,7 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.29\
+**Version:** 1.1.31\
 **Date:** 2026-10-26\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -154,11 +154,13 @@ When the NPRM is finalized, the published Final Rule will take effect 60 days af
 
 | Obligation | Threshold | Timeline |
 |---|---|---|
-| Notification to affected individuals | Any breach of unsecured PHI | Without unreasonable delay; no later than 60 calendar days |
-| Notification to HHS | Breaches affecting fewer than 500 individuals | Within 60 days of year end |
-| Notification to HHS | Breaches affecting 500 or more individuals in total, with no per-state split (45 CFR 164.408(b)) | Contemporaneously with the individual notice, so without unreasonable delay and no later than 60 calendar days after discovery |
-| Notification to prominent media serving the state or jurisdiction | Breaches affecting more than 500 residents of a state or jurisdiction (45 CFR 164.406(a)) | Without unreasonable delay; no later than 60 calendar days after discovery |
-| Business associate breach notification to covered entity | Any breach of unsecured PHI (45 CFR 164.410(a)(1)) | Without unreasonable delay; no later than 60 calendar days after discovery (45 CFR 164.410(b)) |
+| Notification to affected individuals | Any breach of unsecured PHI | Without unreasonable delay and in no case later than 60 calendar days after discovery (45 CFR 164.404(b)); subject to the law-enforcement delay below |
+| Notification to HHS | Breaches affecting fewer than 500 individuals | Not later than 60 days after the end of each calendar year, for breaches discovered during the preceding calendar year (45 CFR 164.408(c)); subject to the law-enforcement delay below |
+| Notification to HHS | Breaches affecting 500 or more individuals in total, with no per-state split (45 CFR 164.408(b)) | Contemporaneously with the notice to affected individuals (45 CFR 164.408(b)); subject to the law-enforcement delay below |
+| Notification to prominent media serving the state or jurisdiction | Breaches affecting more than 500 residents of a state or jurisdiction (45 CFR 164.406(a)) | Without unreasonable delay and in no case later than 60 calendar days after discovery (45 CFR 164.406(b)); subject to the law-enforcement delay below |
+| Business associate breach notification to covered entity | Any breach of unsecured PHI (45 CFR 164.410(a)(1)) | Without unreasonable delay and in no case later than 60 calendar days after discovery (45 CFR 164.410(b)); subject to the law-enforcement delay below |
+
+**Law-enforcement delay (45 CFR 164.412):** where a law enforcement official states to a covered entity or business associate that a notification, notice, or posting in the table above "would impede a criminal investigation or cause damage to national security", the organization must delay it. A statement "in writing" that "specifies the time for which a delay is required" delays it "for the time period specified by the official" (164.412(a)). An oral statement must be documented, "including the identity of the official making the statement", and delays it "temporarily and no longer than 30 days from the date of the oral statement, unless a written statement as described in paragraph (a) of this section is submitted during that time" (164.412(b)).
 
 **HHS OCR investigation triggers:** Any breach affecting 500+ individuals will be investigated by OCR. Under 45 CFR 102.3, regulatory calendar-year caps for identical violations are the same across all four tiers; the 2019 enforcement-discretion annual caps rise by tier. See the [US privacy annex HIPAA section](../../privacy/jurisdictions/annex-privacy-united-states.md#hipaa) for amounts and the distinction between base and adjusted values.
 

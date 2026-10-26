@@ -2,8 +2,8 @@
 
 **Document Title:** HIPAA Operational Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.3\
-**Date:** 2026-08-28\
+**Version:** 0.0.5\
+**Date:** 2026-10-26\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/healthcare/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -97,9 +97,10 @@ The governing text is 45 CFR Part 164 (the HIPAA Privacy, Security, and Breach N
 ## 7. Breach determination and notification
 
 1. On discovery of an acquisition, access, use, or disclosure of PHI not permitted under the Privacy Rule, run the **breach-determination test**: the event is presumed to be a breach unless a risk assessment demonstrates a **low probability** that the PHI has been compromised, based on at least the four factors of 45 CFR 164.402: (i) the nature and extent of the PHI involved, including identifiers and the likelihood of re-identification; (ii) the unauthorized person who used the PHI or to whom the disclosure was made; (iii) whether the PHI was actually acquired or viewed; and (iv) the extent to which the risk to the PHI has been mitigated. PHI that was encrypted to the "unsecured PHI" safe-harbour standard is out of scope of the notification duty.
-2. Where notification is required, notify affected individuals without unreasonable delay and no later than **60 calendar days** after discovery (45 CFR 164.404(b)); provide the media notice for a breach affecting more than 500 residents of a state or jurisdiction (45 CFR 164.406); and, where the organization is a business associate, notify the covered entity within the same 60-day limit (45 CFR 164.410).
-3. For a breach affecting **500 or more** individuals, notify HHS contemporaneously with the individual notice; for breaches affecting **fewer than 500** individuals, maintain a log and notify HHS no later than 60 days after the end of the calendar year (45 CFR 164.408).
-4. The organization bears the burden of demonstrating that required notifications were made or that the event did not constitute a breach (45 CFR 164.414(b)). Coordinate the investigation with the incident-response procedure.
+2. Where notification is required, notify affected individuals (45 CFR 164.404(b)), provide the media notice for a breach affecting more than 500 residents of a state or jurisdiction (45 CFR 164.406(b)) and, where the organization is a business associate, notify the covered entity (45 CFR 164.410(b)), each without unreasonable delay and in no case later than **60 calendar days** after discovery of the breach. Each of these limits is subject to the law-enforcement delay in step 4.
+3. For a breach affecting **500 or more** individuals, notify HHS contemporaneously with the individual notice (45 CFR 164.408(b)); for breaches affecting **fewer than 500** individuals, maintain a log and notify HHS not later than 60 days after the end of each calendar year for breaches discovered during the preceding calendar year (45 CFR 164.408(c)). Both are subject to the law-enforcement delay in step 4.
+4. Where a law enforcement official states that a notification, notice, or posting under step 2 or 3 would impede a criminal investigation or cause damage to national security, delay it (45 CFR 164.412). For a written statement that specifies the time for which a delay is required, delay it for the period the official specifies. For an oral statement, document the statement, including the identity of the official making it, and delay the notification, notice, or posting temporarily and no longer than 30 days from the date of the oral statement, unless a written statement as described in this step is submitted during that time.
+5. The organization bears the burden of demonstrating that required notifications were made or that the event did not constitute a breach (45 CFR 164.414(b)). Coordinate the investigation with the incident-response procedure.
 
 ---
 
@@ -118,7 +119,7 @@ The governing text is 45 CFR Part 164 (the HIPAA Privacy, Security, and Breach N
 | Individual rights (access, amendment, accounting) | 164.524, 164.526, 164.528 | A.5.34 | SP 800-66r2 |
 | Notice and minimum necessary | 164.520, 164.502, 164.514 | A.5.34 | SP 800-66r2 |
 | Documentation and retention | 164.316(b)(2), 164.530(j) | A.5.33 | SP 800-66r2 |
-| Breach determination and notification | 164.402, 164.404, 164.406, 164.408, 164.410, 164.414 | A.5.26 | SP 800-66r2 |
+| Breach determination and notification | 164.402, 164.404, 164.406, 164.408, 164.410, 164.412, 164.414 | A.5.26 | SP 800-66r2 |
 | Business associate agreements | 164.502(e), 164.504(e), 164.314(a) | A.5.20 | SP 800-66r2 |
 
 NIST SP 800-66r2 (Implementing the HIPAA Security Rule) is the HHS-referenced implementation guide for the Security Rule safeguards this procedure depends on; consult it for risk-analysis and safeguard-implementation detail.
