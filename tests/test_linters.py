@@ -29451,7 +29451,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
-        lint-table-cell-count.py OWN F d49d5ccd37eb4dc08936603c3520357b506f504225f5d17c0a479fb285b9368b
+        lint-table-cell-count.py OWN F 6843f5a9a0ab0d4dc4255feef47b13f26aa96072aee486634e34c64a49054ac7
         lint-todo-index-reference-parity.py OWN F cf16944b198e3e919e7f2fd7ba6343363c8612e660879734585aaa48b4d99f41
         lint-todo-list-tag.py OWN F 867aa18964d3ae7c4031831d484c50eef4d24b8753207fb7e965441eb01206f9
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
@@ -69939,6 +69939,30 @@ class TableCellCountTests(LinterTestCase):
         # heads no table is never a quoted header; reading a quoted paragraph
         # line as one starts a table at a lazy line.
         self.assertClean(self.make_repo({"doc.md": "> Text\nmore\n> a\n> b\n"}))
+
+    def test_html_block_starts_read_with_python_whitespace(self) -> None:
+        # Backlog 3b617: markdown-it-py's HTML block starts take Python's \s,
+        # which also matches U+000B, U+000C, U+001C to U+001F and Unicode spaces,
+        # after a tag name, around an attribute and its "=", before ">" and to
+        # the end of the line. Such a line in a block quote or list item starts
+        # an HTML block the container ends at the next line, so the table after
+        # it renders; a third reading takes \s there. In the 3b570 Residue case
+        # a tag name that matches only under Unicode case folding comes first,
+        # and the table follows outside the block quote.
+        table = "| a | b |\n|---|---|\n{}\n"
+        cases = [(f"{name}-{ord(c):02x}", f"> - {opener}\n> <a href=x{c}>\n", 5)
+                 for name, opener in (("long-s-script", "<ſcript>"), ("dotless-div", "<dıv>"),
+                                      ("long-s-style", "<ſtyle>"))
+                 for c in ("\x1f", "\x0b", "\x0c")]
+        cases += [("LL-trailing-1e", "- <span>\x1e\n", 4), ("QL-div-1c", "> <div\x1c>\n", 4),
+                  ("QL-close-1c", "> </span\x1c>\n", 4), ("QL-attr-vt", "> <a\x0bhref=x>\n", 4),
+                  ("QL-equals-nbsp", "> <a href\xa0=x>\n", 4),
+                  ("LQ-em-space", "- > <a href=x>\n", 4)]
+        for name, lines, row in cases:
+            with self.subTest(probe=name):
+                self.assertEqual(self.finding_heads(lines + table.format("| 1 |")),
+                                 [f"doc.md:{row} header=2 row=1"])
+                self.assertClean(self.make_repo({"doc.md": lines + table.format("| 1 | 2 |")}))
 
     def test_unclosed_html_block_hint_names_its_closer(self) -> None:
         # Claude round-4 survivor: each type's closer, not always "-->".
