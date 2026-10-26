@@ -11993,9 +11993,17 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # read's except clause in lint_common.pr_range_resolution (reached
         # through D1), D5, D9, D13 or tension-scan, which then exits 1 with a
         # traceback. Since 3b564 the placeholder skips only the top-level
-        # comparison of D5, D9, D13 and tension-scan (their git-directory
-        # check still runs), and they run as copies inside the fixture, their
-        # own REPO_ROOT.
+        # comparison of D5, D9 and tension-scan (their git-directory check
+        # still runs), and they run as copies inside the fixture, their own
+        # REPO_ROOT. 3b572 round 3: D13 no longer degrades; its top-level
+        # read refuses with exit 2 naming the OSError on a real range, a
+        # collapsed range, and a core.worktree naming another directory,
+        # which only the skipped comparison refuses, so the degraded read
+        # passed it with "D13 OK" and exit 0. Mutation killed: restoring
+        # D13's placeholder.
+        import errno
+        import subprocess as sp
+
         tmp, git = self._repo()
         git("checkout", "-q", "-b", "feat")
         (tmp / "CHANGELOG.md").write_text(
@@ -12007,7 +12015,6 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
             (own, "check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
             (own, "tension-scan.py", "0 rewritten block(s) since"),
             (own, "check-retired-section-orphan-on-pr.py", "D9 OK: no TODO section closed"),
-            (own, "check-stranded-control-code-on-pr.py", "D13 OK: no corpus document changed"),
         ):
             for label, head, rc in (("real", "feat", 0), ("collapsed", "origin/main", 2)):
                 with self.subTest(gate=script, range=label):
@@ -12023,6 +12030,32 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     else:
                         self.assertIn("CANNOT-EVALUATE", r.stderr)
                         self.assertIn("repo=(no work tree)", r.stderr)
+        d13 = own / "check-stranded-control-code-on-pr.py"
+        elsewhere = Path(tempfile.mkdtemp(prefix="d13-elsewhere-")).resolve()
+        self.addCleanup(shutil.rmtree, elsewhere, ignore_errors=True)
+        for label, head, worktree in (("real", "feat", None), ("collapsed", "origin/main", None),
+                                      ("core.worktree elsewhere", "feat", elsewhere)):
+            with self.subTest(gate=d13.name, range=label):
+                if worktree is not None:
+                    git("config", "core.worktree", str(worktree))
+                    # Uninjected, the top-level comparison refuses this layout.
+                    plain = sp.run([sys.executable, str(d13), "origin/main", head],
+                                   capture_output=True, text=True, cwd=str(tmp))
+                    self.assertEqual(plain.returncode, 2,
+                                     f"stdout:\n{plain.stdout}\nstderr:\n{plain.stderr}")
+                    self.assertIn("ERROR: git reports the work tree top level", plain.stderr)
+                r = self._inject_oserror(d13, tmp, ["rev-parse", "--show-toplevel"],
+                                         "origin/main", head)
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertEqual(r.returncode, 2, out)
+                self.assertEqual(r.stderr.count("INJECTED"), 1, r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertIn("ERROR: git could not be run reading the top level "
+                              f"(base=origin/main, head={head}): [Errno {errno.EAGAIN}] injected",
+                              r.stderr)
+                self.assertNotIn("D13 OK", r.stdout)
+                self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+                self.assertNotIn("(no work tree)", r.stderr)
 
     def test_head_sha_oserror_never_reads_collapsed_range_clean(self) -> None:
         # 3b540 round 9 (r8 review NOTE-1): the head SHA pr_range_resolution
@@ -29255,7 +29288,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
         check-retired-section-orphan-on-pr.py NO_FS F 625d4037a2d598e6ab1eb5972a0b2c62dd25f02c90545d5a801795bdc021cfd3
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
-        check-stranded-control-code-on-pr.py NO_FS F 48a85ee407ec50349198287379a43669f3027b3e8788725dc83194fba4f63be3
+        check-stranded-control-code-on-pr.py NO_FS F 26614fa05d8bd45758b6b51bdaccd003a6260cb7f58c149e91d8a7afff4fb435
         check-todo-floor-monotonic-on-pr.py NO_FS F 2be7d8fc308974a0b99b60a2d40f02b93c21be83ca1837d0a40c55974c893d29
         check-todo-rotation-on-pr.py NO_FS F fa1b9a5954444ef8bf6e5666d5b717f1491883619bafbc67c6680736f918d93e
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
