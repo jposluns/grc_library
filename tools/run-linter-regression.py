@@ -88,10 +88,14 @@ findings):
 * A ``SkipTest`` raised in ``setUpClass`` bypasses ``startTest`` for
   every test of that class, so ``testsRun`` legitimately undercounts
   the loaded suite. The driver counts those tests from the loaded
-  suite (each loaded occurrence of a case the run passed over without
-  a start, inside the stretch a ``setUpClass`` skip record of its class
-  covers, counts once, so a skipped class loaded twice is counted per
-  occurrence, not per class) and reports them as ``notStarted`` in the
+  suite (among the occurrences the run passed over without a start
+  since the previous matched start, each run of consecutive
+  occurrences of one class, which unittest sets up once, takes one
+  ``setUpClass`` skip record of that class arrived in that stretch,
+  and each occurrence in a run that took a record counts once; a run
+  with no record left counts as dropped, so a skipped class loaded
+  twice is counted per occurrence, and one skip record never covers
+  two runs) and reports them as ``notStarted`` in the
   sentinel, so a run unittest itself reports green with such skips in
   a module that otherwise ran is not refused, while a dropped test
   (which no skip record accounts for) still is. Both hold only for a
@@ -132,7 +136,9 @@ findings):
   suite per handed module, each with the case count the driver's own
   load found for that module; otherwise it refuses (exit 2, naming
   the mismatch) rather than guess (a ``load_tests`` that returns a
-  different suite on a second load ends here). When unittest itself
+  different case count on a second load fails this; one that returns
+  different cases in the same number does not, see the residuals
+  below). When unittest itself
   reports the run green, the driver refuses (exit 2, naming the file)
   a module with no credited start, as "tests/X.py: N loaded, 0
   credited starts" plus the definition above; the refusal names no
@@ -148,21 +154,22 @@ findings):
   either means, is a refusal. A module whose loaded suite holds no
   cases is refused earlier, before the run, by the zero-test-cases
   check above. Accepted residuals: the pairing check compares case
-  COUNTS per suite, not case identity, so a second load that returns
+  counts per suite, not case identity, so a second load that returns
   different cases in the same number passes it, and its cases are
-  credited as unittest.main loaded them; a start is matched to the
+  credited as ``unittest.main`` loaded them; a start is matched to the
   next pending occurrence in unittest's run order, so a test that
   itself starts another loaded case object (outside the suite's own
   iteration) can move the match (test code controlling the run is the
-  in-process residual below); a ``TestSuite`` subclass that reorders,
-  drops or substitutes cases in its own ``run`` is outside what the
-  gate can account for, because crediting and the ``setUpClass``
-  skip reconciliation both assume a suite runs its cases in its
-  flattened order (the 3b525 round-12 review observed two effects: a
-  module whose reordering suite holds a ``setUpClass``-skipped class
-  can be falsely refused, and a false pass needed a case object shared
-  by two modules, which the shared-case refusal above now refuses; no
-  current module uses such a suite); a module that only imports and loads
+  in-process residual below); a suite that reorders, drops or
+  substitutes cases, in its own ``run`` or its ``__iter__``, and a
+  test object that is not a suite but runs inner cases, are outside
+  what the gate can account for, because crediting and the
+  ``setUpClass`` skip reconciliation both assume a suite runs its
+  cases in its flattened order (observed effects: a module whose
+  reordering suite holds a ``setUpClass``-skipped class can be falsely
+  refused, and a dropping suite can produce a false pass without a
+  shared case object; no current module uses such a suite or test
+  object); a module that only imports and loads
   another module's ``TestCase`` classes earns credit for their
   started tests (borrowing; no current module does this; the gate
   checks that each module's suite starts something, not who wrote
@@ -302,30 +309,51 @@ if failed:
 # start is matched to the next pending occurrence of that same object
 # (identity, not equality). A case object in more than one module's
 # suite is refused before the run, so a match never crosses modules;
-# a suite subclass that reorders its own run is a documented residual.
+# a suite that reorders, drops or substitutes cases (in its run or its
+# __iter__), or a non-suite test object running inner cases, is a
+# documented residual.
 # The list holds every case alive until the run ends
 # (unittest's suites drop each case or sub-suite once run, which frees
 # it), so matching by identity never meets a reused id. Occurrences a
-# start passes over never started; those of a class whose setUpClass
-# skip record arrived since the previous matched start are notStarted.
+# start passes over never started; a run of one class's occurrences
+# among them is notStarted when a setUpClass skip record of that class,
+# arrived since the previous matched start and not yet taken by an
+# earlier such run, accounts for it (one record per run).
 occurrences = []
 started = dict.fromkeys(modules, 0)
 class StartRecordingResult(unittest.TextTestResult):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.next_occurrence = 0
-        self.class_skips = set()
+        self.class_skips = {}
         self.not_started = 0
     def settle(self, upto):
+        # A class occurrence is a run of consecutive occurrences of one
+        # class (unittest sets a class up once per such run); each takes
+        # one skip record of its class, and one with no record left is
+        # dropped, not notStarted. A run continuing the last matched
+        # start's class was set up before that start and takes none.
+        previous = None
+        if self.next_occurrence > 0:
+            previous = unittest.util.strclass(
+                occurrences[self.next_occurrence - 1][0].__class__)
+        covered = False
         for case, _name in occurrences[self.next_occurrence:upto]:
-            if unittest.util.strclass(case.__class__) in self.class_skips:
+            holder = unittest.util.strclass(case.__class__)
+            if holder != previous:
+                covered = self.class_skips.get(holder, 0) > 0
+                if covered:
+                    self.class_skips[holder] -= 1
+                previous = holder
+            if covered:
                 self.not_started += 1
         self.next_occurrence = upto
         self.class_skips.clear()
     def addSkip(self, test, reason):
         holder = test.id()
         if holder.startswith("setUpClass (") and holder.endswith(")"):
-            self.class_skips.add(holder[len("setUpClass ("):-1])
+            holder = holder[len("setUpClass ("):-1]
+            self.class_skips[holder] = self.class_skips.get(holder, 0) + 1
         super().addSkip(test, reason)
     def startTest(self, test):
         for index in range(self.next_occurrence, len(occurrences)):
@@ -362,13 +390,15 @@ class StartRecordingRunner(unittest.TextTestRunner):
         # Refuse, naming the modules, a case object in more than one
         # handed module's suite: its starts cannot be credited to one
         # module (every occurrence is held alive, so ids are not reused).
+        # Keyed by identity, with the module names in a set of their own:
+        # a case is never compared with a string (its __eq__ could say
+        # equal).
         loaded_in = {}
         for case, loaded_by in occurrences:
-            names = loaded_in.setdefault(id(case), [case])
-            if loaded_by not in names:
-                names.append(loaded_by)
+            loaded_in.setdefault(id(case), (case, set()))[1].add(loaded_by)
         shared = False
-        for case, *names in loaded_in.values():
+        for case, loaded_by in loaded_in.values():
+            names = sorted(loaded_by)
             if len(names) > 1:
                 print("REFUSED: test case object %r is in the loaded suites "
                       "of more than one module (%s); its starts cannot be "

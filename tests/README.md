@@ -95,22 +95,31 @@ of the following, never softening one to green:
   module's suite starts something, not who wrote it); a test skipped
   individually (a skip decorator on the test method, or
   `self.skipTest`) is a credited start, so a module whose every test
-  is skipped individually is not refused; a `TestSuite` subclass that
-  reorders, drops or substitutes cases in its own `run` is outside
-  what the gate can account for, because crediting and the
-  `setUpClass` skip reconciliation both assume a suite runs its cases
-  in its flattened order (two observed effects: a module whose
-  reordering suite holds a `setUpClass`-skipped class can be falsely
-  refused, and a false pass needed a case object shared by two
-  modules, which the shared-case refusal below now refuses; no current
-  module uses such a suite); and test code can forge the result
-  in-process (the `__main__.nonce` residual below);
+  is skipped individually is not refused; the pairing check compares
+  case counts per suite, not case identity, so a second load that
+  returns different cases in the same number passes it, and its cases
+  are credited as `unittest.main` loaded them; a start is matched to
+  the next pending occurrence in unittest's run order, so a test that
+  itself starts another loaded case object (outside the suite's own
+  iteration) can move the match (test code controlling the run is the
+  in-process residual below); a suite that reorders, drops or
+  substitutes cases, in its own `run` or its `__iter__`, and a test
+  object that is not a suite but runs inner cases, are outside what
+  the gate can account for, because crediting and the `setUpClass`
+  skip reconciliation both assume a suite runs its cases in its
+  flattened order (observed effects: a module whose reordering suite
+  holds a `setUpClass`-skipped class can be falsely refused, and a
+  dropping suite can produce a false pass without a shared case
+  object; no current module uses such a suite or test object); and
+  test code can forge the result in-process (the `__main__.nonce`
+  residual below);
 - a load whose started tests cannot be paired with the handed
   modules: `unittest.main` must load exactly one suite per handed
   module, each with the case count the driver's own load found for
-  that module (a `load_tests` that returns a different suite on a
-  second load fails this), so started tests are never credited by
-  guesswork; the refusal names the mismatch;
+  that module (a `load_tests` that returns a different case count on
+  a second load fails this; one that returns different cases in the
+  same number does not, see the residuals above), so started tests
+  are never credited by guesswork; the refusal names the mismatch;
 - a test case object in the loaded suites of more than one module
   (for example a helper's module-level case loaded by two modules),
   refused before the run, naming the modules: its starts cannot be

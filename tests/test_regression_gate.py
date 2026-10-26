@@ -787,6 +787,73 @@ def load_tests(loader, tests, pattern):
                                ClassSkipTests("test_never_starts")])
 """
 
+# A shared case object whose __eq__ says equal to any string (3b525
+# round-13 review, codex E): kept in one list with the module names and
+# tested with "in", it matched each module name, so the shared-case
+# check saw one module and the run passed. The __hash__ is restored
+# because overriding __eq__ alone would make the case unhashable.
+HELPER_STRING_EQUAL_CASE = """\
+import unittest
+
+
+class StringEqualTests(unittest.TestCase):
+    __hash__ = unittest.TestCase.__hash__
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return True
+        return super().__eq__(other)
+
+    def test_shared(self):
+        self.assertTrue(True)
+
+
+SHARED = StringEqualTests("test_shared")
+"""
+
+STRING_EQUAL_CASE_MODULE = """\
+import unittest
+
+from tests.helper_stringequal import SHARED
+
+
+def load_tests(loader, tests, pattern):
+    return unittest.TestSuite([SHARED])
+"""
+
+# A plain suite in which a class skipped in setUpClass is loaded twice
+# around another setUpClass-skipped class, with no start between (3b525
+# round-13 review, claude W1): the helper's setUpModule skips on its
+# second call, so the class's second occurrence is dropped without a
+# record. Its one skip record covered both occurrences, so notStarted
+# was 3 and the run passed; one record covers one class occurrence.
+DROPPED_BETWEEN_CLASS_SKIPS_MODULE = """\
+import unittest
+
+from tests.helper_modskipsecond import ClassSkipTests
+
+
+class SkipSetupTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        raise unittest.SkipTest("environment-dependent fixture missing")
+
+    def test_never_starts(self):
+        self.fail("must not start")
+
+
+class OwnTests(unittest.TestCase):
+    def test_own(self):
+        self.assertTrue(True)
+
+
+def load_tests(loader, tests, pattern):
+    return unittest.TestSuite([ClassSkipTests("test_never_starts"),
+                               SkipSetupTests("test_never_starts"),
+                               ClassSkipTests("test_never_starts"),
+                               OwnTests("test_own")])
+"""
+
 # Passes plus one individually skipped test, for the output-shape pin.
 PASSING_WITH_SKIP_MODULE = """\
 import unittest
@@ -1522,6 +1589,22 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         self._assert_shared_case_refused(
             err, "tests.helper_sharedonce.SharedOnceTests")
 
+    def test_main_refuses_shared_case_equal_to_strings(self) -> None:
+        """A shared case object whose __eq__ says equal to any string is
+        still refused before the run, naming both modules: the check is
+        keyed by identity and keeps the module names in a set of their
+        own (3b525 round-13 review, codex E: compared with the module
+        names by equality, the case hid the second module and the run
+        exited 0)."""
+        code, _out, err = self._run_gate_with({
+            "helper_stringequal.py": HELPER_STRING_EQUAL_CASE,
+            "test_aa_first.py": STRING_EQUAL_CASE_MODULE,
+            "test_ab_second.py": STRING_EQUAL_CASE_MODULE,
+        })
+        self.assertEqual(code, 2, err)
+        self._assert_shared_case_refused(
+            err, "tests.helper_stringequal.StringEqualTests")
+
     def test_main_matches_starts_by_identity_not_equality(self) -> None:
         """Two distinct but equal case objects, one in each of two
         modules' suites, separated by a setUpClass-skipped class: each
@@ -1559,6 +1642,29 @@ class RegressionGateCompletenessTests(unittest.TestCase):
                    if line.startswith("REFUSED: ")]
         self.assertEqual(len(refusal), 1, err)
         self.assertIn("does not equal the per-module total 4", refusal[0])
+
+    def test_main_refuses_dropped_occurrence_with_no_skip_record_left(
+            self) -> None:
+        """In a plain suite, a class skipped in setUpClass is loaded
+        twice around another setUpClass-skipped class with no start
+        between, and its second occurrence is dropped (the helper's
+        setUpModule skips on its second call, which no counted holder
+        records). Its one skip record covers one class occurrence, so
+        the dropped one is not notStarted and the reconciliation refuses
+        (3b525 round-13 review, claude W1: the record covered both, so
+        notStarted was 3 and the run passed). Loaded 4 + 1; testsRun=2,
+        notStarted=2."""
+        code, _out, err = self._run_gate_with({
+            "helper_modskipsecond.py": HELPER_MODULE_SKIP_SECOND,
+            "test_aa_dropped.py": DROPPED_BETWEEN_CLASS_SKIPS_MODULE,
+        })
+        self.assertEqual(code, 2, err)
+        self.assertIn("OK (skipped=3)", err)
+        self.assertIn("testsRun=2 notStarted=2", err)
+        refusal = [line for line in err.splitlines()
+                   if line.startswith("REFUSED: ")]
+        self.assertEqual(len(refusal), 1, err)
+        self.assertIn("does not equal the per-module total 5", refusal[0])
 
     def test_main_counts_trailing_class_skip_in_last_module(self) -> None:
         """A setUpClass-skipped class at the end of the last module (it
@@ -1921,18 +2027,43 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         "more than one module",  # one case object in two modules' suites
     )
 
-    def test_docs_state_reordering_suite_residual(self) -> None:
-        """The runner docstring and both READMEs state that a TestSuite
-        subclass reordering, dropping or substituting cases in its own
-        run is outside what the gate can account for (3b525 round 13)."""
+    # The key phrase of each crediting residual and of the pairing-check
+    # wording; the runner docstring and both READMEs must carry every one
+    # (3b525 round-13 review: agy W, codex W, claude N1 and N2).
+    _RESIDUAL_PHRASES = (
+        # the pairing check compares counts, not identity
+        "compares case counts per suite, not case identity",
+        # a test starting another loaded case can move the match
+        "itself starts another loaded case object",
+        "can move the match",
+        # reordering, dropping or substituting suites, in run or __iter__
+        "a suite that reorders, drops or substitutes cases, in its own "
+        "run or its __iter__",
+        # non-suite test objects that run inner cases
+        "a test object that is not a suite but runs inner cases",
+        "flattened order",
+        # a dropping suite needs no shared object for a false pass
+        "a dropping suite can produce a false pass without a shared "
+        "case object",
+        # the pairing check itself: a different count fails it
+        "returns a different case count on a second load fails this",
+    )
+
+    def test_docs_state_crediting_residuals_in_agreement(self) -> None:
+        """The runner docstring and both READMEs state every crediting
+        residual and the pairing-check wording in the same words (markup
+        and line breaks aside), and none still says a different suite on
+        a second load fails the pairing check (3b525 rounds 13 and 14)."""
         surfaces = {"runner docstring": self._runner()["__doc__"] or ""}
         for rel in ("tools/README.md", "tests/README.md"):
             surfaces[rel] = (REPO_ROOT / rel).read_text(encoding="utf-8")
         for label, text in surfaces.items():
-            flat = " ".join(text.split())
-            with self.subTest(surface=label):
-                self.assertIn("reorders, drops or substitutes", flat)
-                self.assertIn("flattened order", flat)
+            flat = " ".join(text.replace("`", "").split())
+            for phrase in self._RESIDUAL_PHRASES:
+                with self.subTest(surface=label, phrase=phrase):
+                    self.assertIn(phrase, flat)
+            with self.subTest(surface=label, phrase="different suite"):
+                self.assertNotIn("different suite on a second load", flat)
 
     def test_readme_documents_complete_regression_command(self) -> None:
         """tests/README.md names the runner as the complete regression
