@@ -164,17 +164,19 @@ quote). Where markdown-it-py's block instead holds the table-shaped lines
 after such a line (at the top level, or inside the same block quote, as
 for ``<span``, U+00A0, ``>`` and a table, or for ``> - <ſcript>``,
 ``> <a href=x``, U+001F, ``>`` and a quoted table), the other two
-readings check them (a possible false positive). The third reading was
-compared with markdown-it-py 3.0.0 (the commonmark preset with tables) on
-randomized documents mixing Unicode-folded tags, ``\\s``-only controls and
-block quote and list item containers: no row of the wrong count that
-markdown-it-py renders and this gate passes remained in that class, and
-the false positives were unchanged, almost all of them tables that
-markdown-it-py hides inside an HTML block (listed above); the generator is
-not in the repository, so the subtests of
+readings check them (a possible false positive). The subtests of
 ``test_html_block_starts_read_with_python_whitespace`` in
-``tests/test_linters.py`` are the reproducible evidence; table-shaped
-lines that one reading holds in an HTML block, or reads as lazy text, while another renders them as a
+``tests/test_linters.py`` show that the starts named there are caught:
+a tag name that matches only under Unicode case folding (``<ſcript>``,
+``<dıv>`` and ``<ſtyle>``), and U+000B, U+000C, U+001C, U+001E, U+001F,
+U+00A0 or U+2003 where markdown-it-py's HTML block starts take ``\\s``.
+A residual not fixed in this change: a paragraph inside a nested block
+quote, then a line indented four columns that starts an HTML block, then
+a table (for ``> > text``, ``    <!--`` and a quoted table with a short
+row, markdown-it-py 3.0.0 renders the indented line as indented code and
+then the table, whose short row this gate passes, as it did before
+backlog 3b617); table-shaped lines that one reading holds in an HTML
+block, or reads as lazy text, while another renders them as a
 table, checked (a possible false positive for the renderer of the first
 reading: after ``<script>`` spelled with a long s, U+017F, markdown-it-py
 shows a table as raw HTML while this gate checks it); a line in a list item's
