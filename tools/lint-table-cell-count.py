@@ -164,9 +164,17 @@ quote). Where markdown-it-py's block instead holds the table-shaped lines
 after such a line (at the top level, or inside the same block quote, as
 for ``<span``, U+00A0, ``>`` and a table, or for ``> - <ſcript>``,
 ``> <a href=x``, U+001F, ``>`` and a quoted table), the other two
-readings check them (a possible false positive); table-shaped lines that
-one reading holds in
-an HTML block, or reads as lazy text, while another renders them as a
+readings check them (a possible false positive). The third reading was
+compared with markdown-it-py 3.0.0 (the commonmark preset with tables) on
+randomized documents mixing Unicode-folded tags, ``\\s``-only controls and
+block quote and list item containers: no row of the wrong count that
+markdown-it-py renders and this gate passes remained in that class, and
+the false positives were unchanged, almost all of them tables that
+markdown-it-py hides inside an HTML block (listed above); the generator is
+not in the repository, so the subtests of
+``test_html_block_starts_read_with_python_whitespace`` in
+``tests/test_linters.py`` are the reproducible evidence; table-shaped
+lines that one reading holds in an HTML block, or reads as lazy text, while another renders them as a
 table, checked (a possible false positive for the renderer of the first
 reading: after ``<script>`` spelled with a long s, U+017F, markdown-it-py
 shows a table as raw HTML while this gate checks it); a line in a list item's
