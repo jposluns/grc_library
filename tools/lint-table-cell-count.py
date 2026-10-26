@@ -173,7 +173,8 @@ U+00A0 or U+2003 where markdown-it-py's HTML block starts take ``\\s``.
 A residual not fixed in this change: a paragraph inside a nested block
 quote, then a line indented four or more columns that would otherwise start
 a block (an HTML block or an ATX heading, for example), then
-a table (for ``> > text``, ``    <!--`` and a quoted table with a short
+a table at a shallower quote depth than the paragraph, or outside the
+quote (for ``> > text``, ``    <!--`` and a quoted table with a short
 row, markdown-it-py 3.0.0 renders the indented line as indented code and
 then the table, whose short row this gate passes, as it did before
 backlog 3b617); table-shaped lines that one reading holds in an HTML
