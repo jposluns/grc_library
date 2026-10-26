@@ -18900,6 +18900,43 @@ class AuditGateParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
                 self.assertIn("python3 [-I] tools/X.py ...", result.stderr)
 
+    def test_every_interpreter_invocation_on_a_line_is_checked(self) -> None:
+        # SCRIPT_RE.search alone reads `python3 -B tools/x.py && python3 tools/x.py` at
+        # its second call; every python invocation on the line is checked, so any
+        # option other than -I on any of them is refused.
+        import importlib.util
+        tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
+        spec = importlib.util.spec_from_file_location("_agp_every_call", str(tool))
+        agp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agp)
+        S = "tools/x.py"
+        for command, bad in ((f"python3 -B {S} && python3 {S}", ["-B"]),
+                             (f"python3 -I {S}; /usr/bin/python3.11 -X dev {S}", ["-X"]),
+                             (f"python3 {S} | python -E {S}", ["-E"]),
+                             (f"python3 -I {S} && python3 -IB {S}", ["-IB"]),
+                             (f"python3 -I {S} --check", []), (f"python3 {S} -B", []),
+                             (f"python3 -I {S} && python3 {S}", [])):
+            with self.subTest(command=command):
+                self.assertEqual(agp._interpreter_options(command), bad)
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-every-call-", dir=FIXTURE_DIR))
+        try:
+            runner = root / "run_all_audits.sh"
+            runner.write_text(f'run_gate "Two calls" python3 -B {S} && python3 {S}\n',
+                              encoding="utf-8")
+            with self.assertRaisesRegex(agp.ParseError, r"interpreter option\(s\) \['-B'\]"):
+                agp.parse_runner(runner)
+            runner.write_text(f'run_gate "Two calls" python3 -I {S} && python3 {S}\n',
+                              encoding="utf-8")
+            self.assertEqual([e[2] for e in agp.parse_runner(runner)], [S])
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+        for surface in ("tools/run_all_audits.sh", ".github/workflows/quality.yml",
+                        ".pre-commit-config.yaml"):
+            with self.subTest(surface=surface):
+                result = self._run_isolated_fixture(f"-B tools/x.py && python3", surface)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("interpreter option(s) ['-B']", result.stderr)
+
     def test_current_surfaces_pass_parity(self) -> None:
         result = run_linter("tools/lint-audit-gate-parity.py")
         self.assertEqual(
@@ -28983,7 +29020,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F faae8620f7f5c13a9f12cfc461f5a21bb58669dc9c6b533fd3dbe293f92a9d0b
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
-        aiqt_bootstrap.py PASSIVE F 84d8258877317f95464b1215ef6120481a29c23f28f565febfa0492c5c683d82
+        aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
         aiqt_rules.py NO_FS F d060f25887a16d6e70009a243390ac246f23cf9dc164226e38bbc671648bcc83
         alignment-register-aliases.json DATA F 7aba74ebc7e34d89145f754cc53763e03df0bbf7f366765bbd94df5e47fdb812
         alignment-register-exclusions.json DATA F ae28ec61a6a973f24a33af86957dff0d1f0d0740dc82b5aec393a5bb882c3df0
@@ -28993,7 +29030,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         audit-backlog-actionability.py OWN F c089004a4e41f3a8c9273d7df9926331953635bc3133ba22023e1f2a7ffc1244
         audit-claim-precision.py ROOT F c2e537144efb7458cba00827577f959907263a7dfffcc75bab54c888f1e1d4b2
         audit-cross-repo-references.py OWN F f2eeb637b2a28b3d8995fe57609c231e1845dc139b4d8aa5f917433833abd83d
-        audit-gate-blindspots.py OWN F 0d9ab070629b9da75e0bbc14f8bb2a4c3ca20144cf6836ecf40a270a6a9ce36e
+        audit-gate-blindspots.py OWN F 53d58b30435c40fc4aaa112eb9859f74fb02499b00c224e2175b6efc357bf69d
         audit-gate-mutation.py OWN F db2e8a4e3255dfff96dc9a0f744a58508c1b88e689bea0af28fdc33062fb5716
         audit-held-branch-expiry.py NO_FS F 3255ff7873ca44e429b60011d733b90f6a65434f816a55f3f1be5a53f7a8d652
         audit-inbox-drops.py SKIP F a931ec3bf370c0e755637bcb2ff3238ea9e5337761de96a712b90027588a46bc
@@ -29070,7 +29107,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F df059632209bf52ba67faa9391d480b1f24bd17fd8ccdb96b9d9e357ed5d40b3
+        lint-audit-gate-parity.py OWN F a3481b2f0aebcc0c8bcd353e339c34268f2fbc8904810d5ca7435b0b2225d744
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-bookkeeping-parity.py NO_FS F 418c1fc4dccff88fe4a32a8a3582c8110b7c53885facc1b661a2db48b829b841
@@ -29105,7 +29142,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-index-header-parity.py OWN F 26ad2438853a5147cbd602fcd122e59fcef8c8b8f2fd6530edb07e74b1bcf3e5
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
-        lint-isolated-launch.py NO_FS F bf7e5ddc7344a6b1eb540e66492020dd53dbb88d47e4ffe2bd42b32361d0c9a9
+        lint-isolated-launch.py NO_FS F d407f4004fc7cb13356976b31daddf07aa88653c95c5430145801830ec9f8e4d
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
         lint-library-version-monotonicity.py OWN F f6ecc98f3d36934a9d09a3fab8732d8352795ba5e7f6d1f02de8b7677aa0d03b
         lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
@@ -29174,7 +29211,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
-        preflight_language_runner.py CHILD F c7242875b76d4282326ba37e0f878cebfc2939aa2780657c56bb3ef007fa0644
+        preflight_language_runner.py CHILD F 5022c1d1ea1b9d289710b26c96ba615ad303bee4850723fcf12d99a8e247d0c7
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
         quick-guard.sh FIXED F 6d7161a152ed4d8362387ca4da9b005bcaf8d3a4501df088a5caf8ab11c06cac
@@ -52536,6 +52573,56 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertEqual(placed, "True 1")
         self.assertEqual(again, "1")
 
+    def _run_shim_probe(self, probe: str, pack_files: dict[str, str]) -> tuple[subprocess.CompletedProcess, Path]:
+        """Run ``probe`` under python3 -I with AIQT_PACK_ROOT at a temporary pack; the
+        probe's ``{pack}`` and ``{other}`` placeholders name the pack's tools/ and a
+        second directory holding its own aiqt_corpus.py."""
+        with tempfile.TemporaryDirectory() as d:
+            pack, other = Path(d) / "pack", Path(d) / "other"
+            (pack / "tools").mkdir(parents=True)
+            other.mkdir()
+            (pack / ".aiqt").write_text("", encoding="utf-8")
+            for name, text in pack_files.items():
+                (pack / "tools" / name).write_text(text, encoding="utf-8")
+            (other / "aiqt_corpus.py").write_text("OTHER = True\n", encoding="utf-8")
+            env = {k: v for k, v in os.environ.items() if k not in ("AIQT_PACK_ROOT", "GRC_AIQT_PACK")}
+            env["AIQT_PACK_ROOT"] = str(pack)
+            source = (f"import sys\nsys.path.append({str(REPO_ROOT / 'tools')!r})\n"
+                      + probe.format(pack=repr(str(pack / "tools")), other=repr(str(other))))
+            result = subprocess.run([sys.executable, "-I", "-B", "-c", source], cwd=d, env=env,
+                                    capture_output=True, text=True, timeout=60)
+            return result, pack
+
+    def test_shim_moves_an_existing_index0_pack_entry_to_the_end(self):
+        # A caller that inserted the pack's tools/ at index 0 before importing the shim
+        # does not keep it there: the shim moves the one entry to the end.
+        result, _ = self._run_shim_probe(
+            "sys.path.insert(0, {pack})\nsys.path.insert(0, {pack})\nimport aiqt_bootstrap\n"
+            "print(sys.path[0] == {pack}, sys.path[-1] == {pack}, sys.path.count({pack}))\n",
+            {"aiqt_corpus.py": "FAKE = True\n"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), "False True 1")
+
+    def test_shim_refuses_an_aiqt_corpus_from_outside_the_pack(self):
+        # An aiqt_corpus that outranks the appended pack (an installed copy, here a
+        # directory ahead of it on sys.path) or that is already imported from elsewhere
+        # is refused with ImportError; the pack's own copy is accepted.
+        for label, probe in (
+                ("outranks", "sys.path.insert(0, {other})\nimport aiqt_bootstrap\n"),
+                ("already imported", "sys.path.insert(0, {other})\nimport aiqt_corpus\n"
+                                     "sys.path.remove({other})\nimport aiqt_bootstrap\n")):
+            with self.subTest(label):
+                result, _ = self._run_shim_probe(probe, {"aiqt_corpus.py": "FAKE = True\n"})
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+                self.assertIn("ImportError: aiqt_corpus resolves to", result.stderr)
+                self.assertIn("other", result.stderr)
+        result, pack = self._run_shim_probe(
+            "import aiqt_bootstrap, aiqt_corpus\nprint(aiqt_corpus.__file__)\n",
+            {"aiqt_corpus.py": "FAKE = True\n"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), str(pack / "tools" / "aiqt_corpus.py"))
+
+
 class ProfileLoaderTests(unittest.TestCase):
     """.corpus-management/tools/profile_loader.py (Phase-4 PR-A).
 
@@ -67973,21 +68060,29 @@ class JoinUnderContainmentTests(unittest.TestCase):
 
     def test_blindspots_runner_accepts_an_optional_isolated_flag_only(self):
         # A runner line switched to `python3 -I tools/X.py` is still read as that gate;
-        # -I is the only interpreter option accepted (as gate 35 accepts), and any
-        # other leaves the line unread, as an unmatched line always was.
+        # -I is the only interpreter option accepted (as gate 35 accepts), and a
+        # run_gate line passing any other option on any python invocation, the second
+        # call of `python3 -B tools/x.py && python3 tools/x.py` included, is refused.
         mod = self.load("audit-gate-blindspots.py")
         (self.root / "tools").mkdir()
-        (self.root / "tools/run_all_audits.sh").write_text(
-            'run_gate "Plain" python3 tools/plain.py\n'
-            'run_gate "Isolated" python3 -I tools/isolated.py --check\n'
-            'run_gate "Spaced" python3   -I  tools/spaced.py\n'
-            'run_gate "Other flag" python3 -B tools/other.py\n'
-            'run_gate "Combined" python3 -IB tools/combined.py\n'
-            'run_gate "Two flags" python3 -I -B tools/two.py\n')
+        runner = self.root / "tools/run_all_audits.sh"
+        good = ('run_gate "Plain" python3 tools/plain.py\n'
+                'run_gate "Isolated" python3 -I tools/isolated.py --check\n'
+                'run_gate "Spaced" python3   -I  tools/spaced.py\n')
+        runner.write_text(good, encoding="utf-8")
         self.assertEqual(
             [(g.name, g.script) for g in mod.load_gates(self.root)],
             [("Plain", "tools/plain.py"), ("Isolated", "tools/isolated.py"),
              ("Spaced", "tools/spaced.py")])
+        for line, bad in (('run_gate "Other flag" python3 -B tools/other.py', "['-B']"),
+                          ('run_gate "Combined" python3 -IB tools/combined.py', "['-IB']"),
+                          ('run_gate "Two flags" python3 -I -B tools/two.py', "['-B']"),
+                          ('run_gate "Two calls" python3 -B tools/x.py && python3 tools/x.py',
+                           "['-B']")):
+            with self.subTest(line=line):
+                runner.write_text(good + line + "\n", encoding="utf-8")
+                with self.assertRaisesRegex(RuntimeError, re.escape(f"option(s) {bad}")):
+                    mod.load_gates(self.root)
 
     def test_gate_runner_entry(self):
         import contextlib
@@ -71334,8 +71429,10 @@ class GitReadFailsClosedTests(unittest.TestCase):
 
 
 class IsolatedLaunchTests(LinterTestCase):
-    """tools/lint-isolated-launch.py (gate 109): every tools/*.py launches under
-    ``python3 -I`` up to its imports, except the tools on its BASELINE list.
+    """tools/lint-isolated-launch.py (gate 109): every tools/*.py completes its
+    module-level imports under ``python3 -I`` (not a full command launch), except
+    the tools on its BASELINE list, and never inserts into or assigns ``sys.path``,
+    except the tools on its INSERT_BASELINE list.
 
     Fixture tools live outside the repository and are probed in-process through
     the gate's ``probe_all`` and ``findings_for``; each failing outcome is paired
@@ -71366,14 +71463,113 @@ class IsolatedLaunchTests(LinterTestCase):
                                 cwd=REPO_ROOT, capture_output=True, text=True, timeout=600)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("OK:", result.stdout)
+        self.assertIn("not a full command launch", result.stdout)
 
     def test_baseline_entries_are_existing_tools(self) -> None:
         mod = self.gate()
         self.assertTrue(mod.BASELINE)
-        for name in mod.BASELINE:
+        self.assertTrue(mod.INSERT_BASELINE)
+        for name in mod.BASELINE | mod.INSERT_BASELINE:
             with self.subTest(name=name):
                 self.assertTrue((REPO_ROOT / "tools" / name).is_file())
-        self.assertNotIn("lint-isolated-launch.py", mod.BASELINE)
+        self.assertNotIn("lint-isolated-launch.py", mod.BASELINE | mod.INSERT_BASELINE)
+
+    def test_baselined_tool_that_also_raises_is_an_error(self) -> None:
+        # A sibling miss does not hide another exception: the outcome is error, and an
+        # error is a finding on BASELINE too. The control raises only the sibling's own
+        # ImportError, which stays the sibling outcome.
+        mod = self.gate()
+        tools = self.fixture_tools({
+            "helper_mod.py": "VALUE = 1\n",
+            "miss_only.py": "import helper_mod\n",
+            "miss_then_raises.py": "try:\n    import helper_mod\nexcept ImportError:\n    pass\n"
+                                   "raise RuntimeError('module-level failure')\n",
+            "miss_then_exits.py": "try:\n    import helper_mod\nexcept ImportError:\n"
+                                  "    raise SystemExit('helper_mod missing')\n",
+        })
+        results = mod.probe_all(tools)
+        self.assertEqual({n: (r["status"], r["missed"]) for n, r in results.items()}, {
+            "helper_mod.py": ("ok", []), "miss_only.py": ("sibling", ["helper_mod"]),
+            "miss_then_raises.py": ("error", ["helper_mod"]),
+            "miss_then_exits.py": ("error", ["helper_mod"]),
+        })
+        listed = frozenset({"miss_only.py", "miss_then_raises.py", "miss_then_exits.py"})
+        self.assertEqual([f.split(":")[0] for f in mod.findings_for(results, listed)],
+                         ["tools/miss_then_exits.py", "tools/miss_then_raises.py"])
+
+    def test_sys_path_inserts_are_a_separate_ratchet(self) -> None:
+        # A tool whose imports complete under -I is not counted as converted while it
+        # inserts into sys.path, at module level or inside a function (where the probe
+        # never reaches); the control appends and counts.
+        mod = self.gate()
+        tools = self.fixture_tools({
+            "appends.py": self.APPEND,
+            "inserts_own_dir.py": self.APPEND.replace("sys.path.append(", "sys.path.insert(0, "),
+            "lazy_pack_insert.py": "import sys as _sys\ndef _engine(pack_tools):\n"
+                                   "    if pack_tools not in _sys.path:\n"
+                                   "        _sys.path.insert(0, pack_tools)\n",
+            "assigns.py": "import sys\nsys.path = ['x'] + sys.path\n",
+        })
+        results = mod.probe_all(tools)
+        inserts = mod.inserts_all(tools)
+        self.assertEqual({n: r["status"] for n, r in results.items()},
+                         dict.fromkeys(results, "ok"))
+        self.assertEqual(inserts, {"appends.py": [], "assigns.py": [2],
+                                   "inserts_own_dir.py": [3], "lazy_pack_insert.py": [4]})
+        self.assertEqual(mod.converted_count(results, inserts), 1)
+        self.assertEqual([f.split(":")[0] for f in mod.findings_for(results, frozenset(), inserts)],
+                         ["tools/assigns.py", "tools/inserts_own_dir.py",
+                          "tools/lazy_pack_insert.py"])
+        listed = frozenset({"assigns.py", "inserts_own_dir.py", "lazy_pack_insert.py"})
+        self.assertEqual(mod.findings_for(results, frozenset(), inserts, listed), [])
+        self.assertEqual(mod.findings_for(results, frozenset(), inserts, listed | {"appends.py"}),
+                         ["tools/appends.py: on INSERT_BASELINE but no longer inserts into or "
+                          "assigns sys.path; remove it from INSERT_BASELINE"])
+
+    def test_insert_baseline_matches_the_tools(self) -> None:
+        mod = self.gate()
+        inserts = mod.inserts_all(REPO_ROOT / "tools")
+        self.assertEqual(sorted(n for n, lines in inserts.items() if lines),
+                         sorted(mod.INSERT_BASELINE))
+
+    def test_audit_hook_refuses_ctypes_sqlite3_and_fork_exec(self) -> None:
+        mod = self.gate()
+        base = self._fixture_base("isolated-launch-native-")
+        native, database = base / "native", base / "database"
+        tools = self.fixture_tools({
+            "native_caller.py": "import ctypes\nctypes.CDLL(None).system("
+                                f"{'touch ' + str(native)!r}.encode())\n",
+            "sqlite_user.py": f"import sqlite3\nsqlite3.connect({str(database)!r})\n",
+            "sqlite_reader.py": "import sqlite3\n",
+        })
+        results = mod.probe_all(tools)
+        self.assertEqual({n: (r["status"], r["refused"]) for n, r in results.items()}, {
+            "native_caller.py": ("error", ["ctypes.dlopen"]),
+            "sqlite_user.py": ("error", ["sqlite3.connect"]),
+            "sqlite_reader.py": ("ok", []),
+        })
+        self.assertFalse(native.exists())
+        self.assertFalse(database.exists())
+
+    @unittest.skipUnless(sys.version_info >= (3, 14),
+                         "the _posixsubprocess.fork_exec audit event was checked on 3.14 only")
+    def test_fork_exec_reached_past_the_popen_event_is_refused(self) -> None:
+        # The tool silences subprocess's own sys.audit call, so no subprocess.Popen
+        # event is raised; cwd= keeps subprocess off posix_spawn, so the child is
+        # started by _posixsubprocess.fork_exec, whose own audit event is refused.
+        mod = self.gate()
+        spawned = self._fixture_base("isolated-launch-forkexec-") / "spawned"
+        child = f"open({str(spawned)!r}, 'w')"
+        tools = self.fixture_tools({
+            "fork_execer.py": "import subprocess, sys, types\n"
+                              "subprocess.sys = types.SimpleNamespace(**{**vars(sys), "
+                              "'audit': lambda *a: None})\n"
+                              f"subprocess.run([sys.executable, '-c', {child!r}], cwd='/')\n",
+        })
+        result = mod.probe(tools / "fork_execer.py")
+        self.assertEqual((result["status"], result["refused"]),
+                         ("error", ["_posixsubprocess.fork_exec"]), result)
+        self.assertFalse(spawned.exists())
 
     def test_sibling_miss_and_ratchet(self) -> None:
         mod = self.gate()
@@ -71398,7 +71594,7 @@ class IsolatedLaunchTests(LinterTestCase):
         self.assertEqual(
             mod.findings_for(results, frozenset({"needs_sibling.py", "swallowed.py",
                                                  "anchored.py", "gone.py"})),
-            ["tools/anchored.py: on BASELINE but now launches under -I; remove it from BASELINE",
+            ["tools/anchored.py: on BASELINE but now imports under -I; remove it from BASELINE",
              "tools/gone.py: on BASELINE but there is no such tools/*.py; remove it"])
 
     def test_audit_hook_refuses_side_effects(self) -> None:

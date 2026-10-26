@@ -174,6 +174,22 @@ PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, ma
 # runs with `-I` is not compared across surfaces; only its script and flags are.
 SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(tools/[A-Za-z0-9_.\-]+\.py)")
 
+# SCRIPT_RE.search finds the FIRST acceptable invocation, so on its own it would read
+# `python3 -B tools/x.py && python3 tools/x.py` at its second call. Every python
+# interpreter invocation in a surface command (python, python3, python3.N, with or
+# without a directory) is therefore matched here with the options before its next
+# non-option word; any option other than -I makes the surface parsers raise a
+# ParseError. The same check guards tools/audit-gate-blindspots.py's runner reading.
+INTERPRETER_RE = re.compile(
+    r"(?:^|[\s;&|(`])(?:[^\s;&|(`]*/)?python(?:3(?:\.\d+)?)?(?=[\s;&|)`]|$)((?:\s+-\S*)*)"
+)
+
+
+def _interpreter_options(command: str) -> list[str]:
+    """Every interpreter option other than ``-I`` on any python invocation in ``command``."""
+    return [opt for m in INTERPRETER_RE.finditer(command)
+            for opt in m.group(1).split() if opt != "-I"]
+
 # Regex to extract the tools/X.py portion from a markdown link in the
 # inventory table's Script column.
 SPEC_SCRIPT_RE = re.compile(r"`(tools/[A-Za-z0-9_.\-]+\.py)`")
@@ -492,6 +508,14 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
                         f"{m_run.group(1)!r} that does not match the "
                         f"`python3 [-I] tools/X.py ...` pattern"
                     )
+                bad = _interpreter_options(m_run.group(1))
+                if bad:
+                    raise ParseError(
+                        f"{path.relative_to(REPO_ROOT)}:{lineno}: "
+                        f"step '{step_name}' has run command {m_run.group(1)!r} "
+                        f"passing interpreter option(s) {bad}; every python invocation "
+                        f"must match the `python3 [-I] tools/X.py ...` pattern"
+                    )
                 entries.append((
                     step_lineno, step_name, script_match.group(1),
                     _extract_argv(m_run.group(1), script_match.group(1)),
@@ -526,6 +550,14 @@ def parse_runner(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
                     f"{path.relative_to(REPO_ROOT)}:{lineno}: "
                     f"run_gate '{gate_name}' command {command!r} does not "
                     f"match the `python3 [-I] tools/X.py ...` pattern"
+                )
+            bad = _interpreter_options(command)
+            if bad:
+                raise ParseError(
+                    f"{path.relative_to(REPO_ROOT)}:{lineno}: "
+                    f"run_gate '{gate_name}' command {command!r} passes interpreter "
+                    f"option(s) {bad}; every python invocation must match the "
+                    f"`python3 [-I] tools/X.py ...` pattern"
                 )
             entries.append((
                 lineno, gate_name, script_match.group(1),
@@ -572,6 +604,14 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
                         f"hook '{hook_name}' entry {m_entry.group(1)!r} "
                         f"does not match the `python3 [-I] tools/X.py ...` "
                         f"pattern"
+                    )
+                bad = _interpreter_options(m_entry.group(1))
+                if bad:
+                    raise ParseError(
+                        f"{path.relative_to(REPO_ROOT)}:{lineno}: "
+                        f"hook '{hook_name}' entry {m_entry.group(1)!r} passes "
+                        f"interpreter option(s) {bad}; every python invocation must "
+                        f"match the `python3 [-I] tools/X.py ...` pattern"
                     )
                 entries.append((
                     hook_lineno, hook_name, script_match.group(1),

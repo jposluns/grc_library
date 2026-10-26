@@ -68,6 +68,13 @@ RUN_GATE_RE = re.compile(
     r'^run_gate\s+"(?P<name>[^"]+)"\s+.*?python3\s+(?:-I\s+)?(?P<script>tools/\S+\.py)',
 )  # matches gate INVOCATIONS only; the run_gate() function definition does not match.
 # `-I` (isolated mode) is the only interpreter option accepted before the script, as gate 35 accepts.
+# The lazy `.*?` would read `python3 -B tools/x.py && python3 tools/x.py` at its second
+# call, so every python invocation on every run_gate line is checked as gate 35's
+# INTERPRETER_RE does, and a line passing any option other than -I is refused (exit 2).
+RUN_GATE_LINE_RE = re.compile(r'^run_gate\s+"(?P<name>[^"]+)"\s+(?P<command>.*)$')
+INTERPRETER_RE = re.compile(
+    r"(?:^|[\s;&|(`])(?:[^\s;&|(`]*/)?python(?:3(?:\.\d+)?)?(?=[\s;&|)`]|$)((?:\s+-\S*)*)"
+)
 COMMON_DISCOVERY_TOKENS = (
     "iter_targets",
     "iter_markdown_targets",
@@ -183,6 +190,13 @@ def load_gates(root: Path) -> list[GateScope]:
         raise RuntimeError(f"runner not found: {runner}")
     gates: list[GateScope] = []
     for line in runner.read_text(encoding="utf-8", errors="replace").splitlines():
+        invocation = RUN_GATE_LINE_RE.match(line.strip())
+        if invocation:
+            bad = [opt for i in INTERPRETER_RE.finditer(invocation.group("command"))
+                   for opt in i.group(1).split() if opt != "-I"]
+            if bad:
+                raise RuntimeError(f"runner gate {invocation.group('name')!r} passes interpreter "
+                                   f"option(s) {bad}; only `python3 [-I] tools/X.py` is accepted")
         m = RUN_GATE_RE.match(line.strip())
         if m:
             gates.append(derive_scope(root, m.group("name"), m.group("script")))
