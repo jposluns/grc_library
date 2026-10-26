@@ -97,7 +97,13 @@ findings):
   counts once; a run with no record left counts as dropped, so a
   skipped class loaded twice is counted per occurrence, two classes
   sharing a module and qualname are two runs, and one skip record
-  never covers two runs) and reports them as ``notStarted`` in the
+  never covers two runs; one run never yields two records either: a
+  class cleanup's ``SkipTest`` after a skipped ``setUpClass`` is
+  recorded under the same ``setUpClass`` name, and such further
+  records of one run, told apart from a later run's by arriving back
+  to back with the same ``_previousTestClass`` on the result, are
+  discarded, not credited to a later run) and reports them as
+  ``notStarted`` in the
   sentinel, so a run unittest itself reports green with such skips in
   a module that otherwise ran is not refused, while a dropped test
   (which no skip record accounts for) still is. Both hold only for a
@@ -320,7 +326,9 @@ if failed:
 # start passes over never started; a run of consecutive occurrences of
 # one class object among them is notStarted when a setUpClass skip
 # record of that class, arrived since the previous matched start and not
-# yet taken by an earlier such run, accounts for it (one record per run).
+# yet taken by an earlier such run, accounts for it (one record per run;
+# a run's further records under the same holder, from a class cleanup
+# that skips after setUpClass skipped, are discarded on arrival).
 occurrences = []
 started = dict.fromkeys(modules, 0)
 class StartRecordingResult(unittest.TextTestResult):
@@ -328,6 +336,7 @@ class StartRecordingResult(unittest.TextTestResult):
         super().__init__(*args, **kwargs)
         self.next_occurrence = 0
         self.class_skips = {}
+        self.last_record = None
         self.not_started = 0
     def settle(self, upto):
         # unittest sets a class up once per run of consecutive cases of
@@ -351,12 +360,27 @@ class StartRecordingResult(unittest.TextTestResult):
         self.next_occurrence = upto
         self.class_skips.clear()
     def addSkip(self, test, reason):
+        # One run of a class can give several records under its setUpClass
+        # holder (unittest records a class cleanup's SkipTest, run after a
+        # failed setUpClass, under the same name). They arrive back to back
+        # while unittest's _previousTestClass still holds the class before
+        # the run (it is set to the run's class only after set-up), so a
+        # record continuing the previous one, with the same holder and
+        # that same previous class, is the same run's and is discarded:
+        # one run yields one record, never a spare for a later run.
         holder = test.id()
         if holder.startswith("setUpClass (") and holder.endswith(")"):
             holder = holder[len("setUpClass ("):-1]
-            self.class_skips[holder] = self.class_skips.get(holder, 0) + 1
+            run = (holder, getattr(self, "_previousTestClass", None))
+            last = self.last_record
+            if last is None or last[0] != run[0] or last[1] is not run[1]:
+                self.class_skips[holder] = self.class_skips.get(holder, 0) + 1
+            self.last_record = run
+        else:
+            self.last_record = None
         super().addSkip(test, reason)
     def startTest(self, test):
+        self.last_record = None
         for index in range(self.next_occurrence, len(occurrences)):
             case, name = occurrences[index]
             if case is test:

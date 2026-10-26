@@ -948,6 +948,99 @@ def load_tests(loader, tests, pattern):
                                OwnTests("test_own")])
 """
 
+# A class whose class cleanup raises SkipTest and whose setUpClass then
+# raises SkipTest: unittest records the cleanup's skip under the same
+# "setUpClass (<module>.<Class>)" holder, so one run yields two records
+# (3b525 round-15 review, claude). The helper's setUpModule skips on its
+# second call, so the class's second occurrence is dropped without a
+# record of its own. Counted one record per run, the spare record covered
+# the dropped occurrence, notStarted=3, and the run passed.
+HELPER_CLEANUP_SKIP = """\
+import unittest
+
+setups = 0
+
+
+def setUpModule():
+    global setups
+    setups += 1
+    if setups > 1:
+        raise unittest.SkipTest("second module set-up skipped")
+
+
+def skip_cleanup():
+    raise unittest.SkipTest("cleanup skipped")
+
+
+class CleanupSkipTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.addClassCleanup(skip_cleanup)
+        raise unittest.SkipTest("environment-dependent fixture missing")
+
+    def test_never_starts(self):
+        self.fail("must not start")
+"""
+
+DROPPED_AFTER_CLEANUP_SKIP_MODULE = """\
+import unittest
+
+from tests.helper_cleanupskip import CleanupSkipTests
+
+
+class SkipSetupTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        raise unittest.SkipTest("environment-dependent fixture missing")
+
+    def test_never_starts(self):
+        self.fail("must not start")
+
+
+class OwnTests(unittest.TestCase):
+    def test_own(self):
+        self.assertTrue(True)
+
+
+def load_tests(loader, tests, pattern):
+    return unittest.TestSuite([CleanupSkipTests("test_never_starts"),
+                               SkipSetupTests("test_never_starts"),
+                               CleanupSkipTests("test_never_starts"),
+                               OwnTests("test_own")])
+"""
+
+# Legitimate class cleanups that skip: one class's setUpClass succeeds
+# and its cleanup skips (unittest records that under a "tearDownClass"
+# holder, which notStarted does not count, and its test starts); another
+# class's setUpClass and cleanup both skip, giving two records from its
+# one run, which accounts for its one occurrence. unittest reports OK.
+CLEANUP_SKIP_MODULE = """\
+import unittest
+
+
+def skip_cleanup():
+    raise unittest.SkipTest("cleanup skipped")
+
+
+class SetUpOkCleanupSkipTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.addClassCleanup(skip_cleanup)
+
+    def test_runs(self):
+        self.assertTrue(True)
+
+
+class BothSkipTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.addClassCleanup(skip_cleanup)
+        raise unittest.SkipTest("environment-dependent fixture missing")
+
+    def test_never_starts(self):
+        self.fail("must not start")
+"""
+
 # Passes plus one individually skipped test, for the output-shape pin.
 PASSING_WITH_SKIP_MODULE = """\
 import unittest
@@ -1827,6 +1920,43 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         self.assertEqual(len(refusal), 1, err)
         self.assertIn("does not equal the per-module total 6", refusal[0])
 
+    def test_main_refuses_dropped_occurrence_after_cleanup_skip(
+            self) -> None:
+        """A class whose class cleanup and setUpClass both raise SkipTest
+        gives two records under one setUpClass holder from one run; one
+        run consumes at most one of them, so a later occurrence of the
+        class, dropped by its helper's setUpModule skipping on the second
+        call, has no record left and the reconciliation refuses (3b525
+        round-15 review, claude: the spare record covered the dropped
+        occurrence, notStarted=3, and the run passed). Loaded 4 + 1;
+        testsRun=2, notStarted=2."""
+        code, _out, err = self._run_gate_with({
+            "helper_cleanupskip.py": HELPER_CLEANUP_SKIP,
+            "test_aa_dropped.py": DROPPED_AFTER_CLEANUP_SKIP_MODULE,
+        })
+        self.assertEqual(code, 2, err)
+        self.assertIn("OK (skipped=4)", err)
+        self.assertIn("testsRun=2 notStarted=2", err)
+        refusal = [line for line in err.splitlines()
+                   if line.startswith("REFUSED: ")]
+        self.assertEqual(len(refusal), 1, err)
+        self.assertIn("does not equal the per-module total 5", refusal[0])
+
+    def test_main_green_with_class_cleanup_skips(self) -> None:
+        """A class cleanup that raises SkipTest while setUpClass succeeds
+        (recorded under a tearDownClass holder, not counted) and a class
+        whose setUpClass and cleanup both skip (two records from its one
+        run, accounting for its one occurrence) are a run unittest
+        reports OK, and the gate does not refuse it. Loaded 2 + 1;
+        testsRun=2, notStarted=1."""
+        code, _out, err = self._run_gate_with({
+            "test_aa_cleanupskip.py": CLEANUP_SKIP_MODULE,
+        })
+        self.assertEqual(code, 0, err)
+        self.assertNotIn("REFUSED", err)
+        self.assertIn("OK (skipped=3)", err)
+        self.assertIn("testsRun=2 notStarted=1", err)
+
     def test_main_reads_class_skip_flag_from_dunder_class(self) -> None:
         """The class skip flag is read from test.__class__, as unittest
         reads it (3b525 round-11 review, claude N4): a __class__
@@ -2162,7 +2292,8 @@ class RegressionGateCompletenessTests(unittest.TestCase):
     # The key phrase of each crediting residual and of the pairing-check
     # wording; the runner docstring and both READMEs must carry every one
     # (3b525 round-13 review: agy W, codex W, claude N1 and N2; round 15:
-    # every residual, and the per-run notStarted rule).
+    # every residual, and the per-run notStarted rule; round 16: its
+    # stretch limit and one run's further records discarded).
     _RESIDUAL_PHRASES = (
         # the pairing check compares counts, not identity
         "compares case counts per suite, not case identity",
@@ -2197,6 +2328,13 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         "object",
         "two classes sharing a module and qualname are two runs",
         "one skip record never covers two runs",
+        # the stretch limit: records since the previous matched start
+        "since the previous matched start",
+        "arrived in that stretch",
+        # round 16: a class cleanup's skip gives one run a second record
+        "one run never yields two records either",
+        "recorded under the same setUpClass name",
+        "not credited to a later run",
     )
 
     def test_docs_state_crediting_residuals_in_agreement(self) -> None:

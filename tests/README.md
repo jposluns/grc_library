@@ -133,9 +133,13 @@ of the following, never softening one to green:
   `setUpClass` kept from starting, counted from the loaded suite:
   unittest runs `setUpClass` once per run of consecutive cases of the
   same class object, so each such run of never-started occurrences
-  takes one skip record of its class and counts each of its
-  occurrences once, two classes sharing a module and qualname are two
-  runs, and one skip record never covers two runs; so a green run
+  since the previous matched start takes one skip record of its class
+  arrived in that stretch and counts each of its occurrences once, two
+  classes sharing a module and qualname are two runs, and one skip
+  record never covers two runs; one run never yields two records
+  either: a class cleanup's `SkipTest` after a skipped `setUpClass` is
+  recorded under the same `setUpClass` name, and such further records
+  of one run are discarded, not credited to a later run; so a green run
   with such a skip in a module that otherwise started a test is not
   refused; it does not count tests of a skip-decorated
   class, which reach `startTest`, nor tests a `SkipTest` in
