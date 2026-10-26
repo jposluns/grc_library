@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Documentation and Transparency Framework\
 **Document Type:** Framework\
-**Version:** 1.0.16\
-**Date:** 2026-10-24\
+**Version:** 1.0.17\
+**Date:** 2026-10-26\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)\
@@ -129,7 +129,7 @@ This realizes the traceability objective (ISO/IEC 12792:2025 §6.2) through the 
 
 ### 4.4 General-purpose AI model transparency (EU AI Act Article 53)
 
-Where the organization is a provider of a general-purpose AI model placed on the EU market, the AI Act Article 53(1)(a) and (b) documentation obligations apply (technical documentation for the model, and information and documentation for downstream providers). The EU AI Office's *General-Purpose AI Code of Practice, Transparency Chapter* (July 2025) is the Article 56 co-regulatory instrument for demonstrating that compliance, and its **Model Documentation Form** (Measure 1.1) is the recognized means of compiling the documentation; adherence is voluntary soft law and not conclusive evidence of compliance, with the binding provision remaining Article 53 itself. The regime framing lives in [`ai/jurisdictions/annex-ai-european-union.md`](jurisdictions/annex-ai-european-union.md); information intended for the AI Office or national competent authorities is disclosed only on request and is subject to the Article 78 confidentiality and trade-secret protections.
+Where the organization is a provider of a general-purpose AI model placed on the EU market, the AI Act Article 53(1)(a) and (b) documentation obligations apply (technical documentation for the model, and information and documentation for downstream providers). Under Article 53(2) those two obligations do not apply to a provider of a model released under a free and open-source licence that allows for the access, usage, modification, and distribution of the model, and whose parameters, including the weights, the information on the model architecture, and the information on model usage, are made publicly available; that exception does not apply to a general-purpose AI model with systemic risk. The EU AI Office's *General-Purpose AI Code of Practice, Transparency Chapter* (July 2025) is the Article 56 co-regulatory instrument for demonstrating that compliance, and its **Model Documentation Form** (Measure 1.1) is the recognized means of compiling the documentation; adherence is voluntary soft law and not conclusive evidence of compliance, with the binding provision remaining Article 53 itself. The regime framing lives in [`ai/jurisdictions/annex-ai-european-union.md`](jurisdictions/annex-ai-european-union.md); information intended for the AI Office or national competent authorities is disclosed only on request and is subject to the Article 78 confidentiality and trade-secret protections.
 
 The Model Documentation Form's fields, consolidated below by model-card affinity (the Form's own section structure is regrouped here, not mirrored one-to-one), map onto this framework's model-card model, so a GPAI provider satisfies the Form by maintaining an extended model card:
 

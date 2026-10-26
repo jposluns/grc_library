@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.17\
-**Date:** 2026-10-22\
+**Version:** 1.8.18\
+**Date:** 2026-10-26\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -185,7 +185,7 @@ When the AI Flag is set to Yes, the following additional fields are required:
 | Model or Dataset Reference ID | Identifier linking to the AI system or dataset inventory |
 | Bias Detection Outcome | Result of most recent bias assessment (Pass / Fail / In Progress) |
 | Explainability Confidence Score | Assessed confidence that model outputs can be explained (High / Medium / Low) |
-| AI System Classification | Minimal / Limited / High / Unacceptable per applicable AI regulatory classification |
+| AI System Risk Classification | Organizational AI risk classification of the affected AI system (Minimal / Limited / High / Unacceptable), as recorded in the AI System Risk Classification field of the AI Risk Register ([`ai/register-ai-risk.md`](../ai/register-ai-risk.md)), with its EU AI Act mapping in [`risk/annex-ai-risk-methodology.md`](annex-ai-risk-methodology.md) |
 | Human-in-the-Loop Requirement | Required / Recommended / Not Required |
 
 ---
