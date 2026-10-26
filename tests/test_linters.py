@@ -28944,7 +28944,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-preflight-commit.py NO_FS F 87b92b4235420074c259a9b50e0ee72d5624a81be2b87420de3e01cc7e551fd2
         check-class-attestation-on-pr.py NO_FS F 8ef4e742c2610fa3c80598404991ee6aab9da409b9e95e2ad8b74ec202d40325
         check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
-        check-claude-md-size.py NO_FS F 054bfa7ac00ab98cb3f940f32d28836deee67b69438e9a811ecd51f674e62279
+        check-claude-md-size.py NO_FS F e905945e9d35caa13122091dcb709f1acaf2d944455ab44b798b4dacca61472c
         check-clause-preservation.py OWN F 43d6804eccf05f9c2434da4ec879246d48cc80081b8c852e86437cf38c65c664
         check-clean-language-upstream.py NO_FS F 7732d2d2eceb44061d99e7c484aa83c93b0818091538ba7e3b95a0040acda6a2
         check-commit-on-main.py NO_FS F 65b09e20a245ce63b9be6415a517542797ffbad0bf32426c334f300068e7eee0
@@ -58862,7 +58862,7 @@ class StartupCharacterCeilingGateTests(unittest.TestCase):
                      "d10.STARTUP_HEADROOM_WARNING"):
             self.assertIn(name, source)
         self.assertNotRegex(source, r"(CEILING|STARTUP_HEADROOM_WARNING)\s*=")
-        self.assertNotRegex(source, r"\b(250|468|228000)\b")
+        self.assertNotRegex(source, r"\b(250|468|228150)\b")
 
 
 class RepoRelativeDefaultPathTests(unittest.TestCase):

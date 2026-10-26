@@ -73,14 +73,15 @@ CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 # 458 lines + 10 and 244289 + 1000; restored clauses since then still fit); downward ratchet continues.
 # 3b304 W1-b lowers the startup character ceiling 245289 -> 233300 (the overlay tails leave the
 # generated compatibility rule; measured 232696 plus a reserve of at least 600, rounded up to 50).
-# 3b607 PR 1 lowers the startup character ceiling 233300 -> 228000 (the corpus-management rule
+# 3b607 PR 1 lowers the startup character ceiling 233300 -> 228150 (the corpus-management rule
 # index moves into the corpus-management skill and .claude/CLAUDE.md points corpus work to it;
-# measured 227391 plus a reserve of at least 600, rounded up to 50).
+# measured 227529 after rebasing onto the quotation policy (227391 on the original base) plus a
+# reserve of at least 600, rounded up to 50).
 # Consumer: gate 106 (tools/lint-startup-character-ceiling.py) reads CLAUDE_MD, CEILING,
 # STARTUP_CHARACTER_CEILING and STARTUP_HEADROOM_WARNING by name, with line_count(),
 # evaluate() and census(); renaming any of them makes gate 106 exit 2.
 CEILING = 468
-STARTUP_CHARACTER_CEILING = 228000  # 3b607 PR 1; final backlog goal remains 150000
+STARTUP_CHARACTER_CEILING = 228150  # 3b607 PR 1; final backlog goal remains 150000
 # Startup headroom (ceiling minus measured characters) below which D10 and gate 106 warn.
 STARTUP_HEADROOM_WARNING = 250
 
