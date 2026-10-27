@@ -2,8 +2,8 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.27\
-**Date:** 2026-10-04\
+**Version:** 1.0.28\
+**Date:** 2026-10-27\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -220,6 +220,10 @@ The NIST SSDF v1.1 column maps the software development and maintenance activiti
 | EOL lifecycle management | SP 800-40r4 §3.5.4 (Maintenance plans for Scenario 4, unpatchable assets) | PW.4.4, RV.2.2 | A.8.8 | DCS-07 | 2.2 | BAI09.03, DSS05.07 |
 | Third-party / library patching | SP 800-40r4 §3.7 (Consider software maintenance in procurement) | RV.1.1, RV.2.2 | A.8.8 | TVM-06 | 16.4, 16.5, 7.7 | DSS05.07 |
 | Monitoring and reporting | SP 800-40r4 §2.3.4, §3.6 (Monitor deployed patches; actionable enterprise-level patching metrics) | N/A | A.8.8 | TVM-11 | Control 7.7 | MEA01.04 |
+
+The **Treasury Board of Canada Secretariat Patch Management Guidance** (held text marked as modified 2025-12-08) is the parallel Government of Canada reference, paraphrased here. Its §3 sets out a six-phase lifecycle (notification, assessment, acquisition, testing, deployment and validation). Table 3-1, in the §3 deployment schedule subsection that its §4 numbers 3.2.1, summarizes a CCCS suggested schedule: extreme priority as an emergency within 48 hours, high within two weeks, medium at the next major update or within three months, and low at the next major update or within one year. The guidance says the schedule only suggests timelines and that an organization weighs its risk tolerance, exposure and threat profile, and its Figure 3-2 flowchart keeps the 48-hour emergency schedule for extreme-impact vulnerabilities with a risk of significant collateral damage. Its priorities come from a risk assessment, while section 1 of this procedure classifies by CVSS score and exploitation status, so no classification here is claimed to be equivalent to a Table 3-1 priority. Its §4 (Emergency patch management) ties government-wide emergency patching to the GC Cyber Security Event Management Plan, starting from a CCCS Cyber Flash after which departments assess their exposure, and its §6 lists sample key performance indicators (for example, automated-patching coverage and the share of patches deployed within the suggested schedule) comparable to section 7.4. CCCS ITSB-96 (Security Vulnerabilities and Patches Explained), which the guidance names as the source of Table 3-1 and of its patch-priority factors, is not held in the reference base; confirm its timelines against the bulletin before relying on them. <!-- ref-absence: ITSB-96 | Security Vulnerabilities and Patches Explained -->
+
+The Treasury Board Directive on Security Management (held text marked as modified 2019-07-01), Appendix B, requires change management to consider the security impacts of proposed changes (B.2.3.3.1) and requires corrective actions, such as patches and updates, within defined timelines and on an emergency basis where required (B.2.3.7.3). For small and medium organizations, the CCCS Baseline Cyber Security Controls for Small and Medium Organizations (V1.2, February 2020) §3.2 recommends automatic patching for all software and hardware or a full vulnerability and patch management solution (BC.2.1), and a risk assessment on replacing anything that cannot update automatically, with a business process for regular manual updates of anything kept (BC.2.2). Vulnerability identification, risk assessment and time-limited risk acceptance under the Government of Canada Guideline on Vulnerability Management are mapped in the [Vulnerability Management Procedure](../security/procedure-vulnerability-management.md). A Government of Canada reference here does not establish implementation, conformity or compliance.
 
 ---
 
