@@ -348,7 +348,7 @@ _77 documents._
 | [ai/charter-ai-actor-role-and-forum-standing.md](../ai/charter-ai-actor-role-and-forum-standing.md) | AI Actor Role and Forum Standing Charter | Charter | 0.0.5 | 2026-10-27 |
 | [ai/framework-agentic-response-state-model.md](../ai/framework-agentic-response-state-model.md) | Agentic Response State Model Framework | Framework | 0.0.4 | 2026-09-20 |
 | [ai/framework-ai-maturity-model.md](../ai/framework-ai-maturity-model.md) | AI Maturity Model Framework | Framework | 0.0.3 | 2026-10-27 |
-| [ai/framework-ai-value-and-decision-governance.md](../ai/framework-ai-value-and-decision-governance.md) | AI Value and Decision-Governance Framework | Framework | 0.0.7 | 2026-10-27 |
+| [ai/framework-ai-value-and-decision-governance.md](../ai/framework-ai-value-and-decision-governance.md) | AI Value and Decision-Governance Framework | Framework | 0.0.8 | 2026-10-27 |
 | [ai/guide-ai-board-oversight.md](../ai/guide-ai-board-oversight.md) | AI Board Oversight Guide | Guide | 0.0.3 | 2026-10-27 |
 | [ai/guideline-ai-synthetic-content-provenance.md](../ai/guideline-ai-synthetic-content-provenance.md) | AI Synthetic-Content Provenance Guideline | Guideline | 0.0.11 | 2026-10-27 |
 | [ai/jurisdictions/annex-ai-australia.md](../ai/jurisdictions/annex-ai-australia.md) | Australia AI Regulatory Requirements | Annex | 0.0.4 | 2026-10-27 |

@@ -2,7 +2,7 @@
 
 **Document Title:** AI Value and Decision-Governance Framework\
 **Document Type:** Framework\
-**Version:** 0.0.7\
+**Version:** 0.0.8\
 **Date:** 2026-10-27\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
