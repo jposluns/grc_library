@@ -2,7 +2,7 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.14\
+**Version:** 1.0.15\
 **Date:** 2026-10-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -51,7 +51,7 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 ### Ecuador
 
-- **Ley Orgánica de Protección de Datos Personales (LOPDP, published 2021-05-26)** and its **Reglamento General (Decreto Ejecutivo 904, published 2023-11-13)**. Applies to processing in Ecuadorian territory and to controllers or processors not established in Ecuador that process the data of residents of Ecuador in connection with offering them goods or services or monitoring their behaviour there. See the dedicated [`Ecuador privacy annex`](annex-privacy-ecuador.md) for the operational per-regime view under the LOPDP and its Reglamento; this Latin America overview defers to it for Ecuador.
+- **Ley Orgánica de Protección de Datos Personales (LOPDP, published 2021-05-26)** and its **Reglamento General (Decreto Ejecutivo 904, published 2023-11-13)**. Without prejudice to the international instruments ratified by Ecuador that concern this matter, applies to processing anywhere in Ecuadorian territory; to controllers or processors domiciled in Ecuador; to controllers or processors not established in Ecuador that process the data of residents of Ecuador where the processing relates to offering them goods or services, whether or not payment is required, or to monitoring their behaviour in Ecuador; and to controllers or processors not domiciled in Ecuador to which Ecuadorian law applies by contract or by public international law (LOPDP Art. 3). See the dedicated [`Ecuador privacy annex`](annex-privacy-ecuador.md) for the operational per-regime view under the LOPDP and its Reglamento; this Latin America overview defers to it for Ecuador.
 - **Regulatory authority:** the Autoridad de Protección de Datos Personales, headed by the Superintendente de Protección de Datos Personales.
 
 ---
@@ -63,7 +63,7 @@ Most Latin American jurisdictions apply general data protection principles to AI
 - **Argentina:** The AAIP has issued guidance on AI and data protection, applying Law 25.326 to automated processing; that guidance is cited illustratively and is confirmed by adopters against current AAIP publications. Algorithmic transparency is an area of active regulatory development.
 - **Mexico:** under the 2025 LFPDPPP (administered by the Secretaría Anticorrupción y Buen Gobierno), the privacy-notice contents are fixed by Article 15 and do not include a specific automated-processing disclosure; the automated-decision provision is the Article 26(II) right to object where personal data are subject to automated processing that produces unwanted legal effects or significantly affects the person's interests, rights, or freedoms by evaluating personal aspects without human intervention. The law provides the access, rectification, cancellation, and objection (ARCO) rights. See the dedicated [`Mexico privacy annex`](annex-privacy-mexico.md).
 - **Colombia:** The SIC applies Law 1581 to AI systems. Data subjects may exercise ARCO rights against automated processing.
-- **Ecuador:** the LOPDP gives data subjects a right not to be subject to a decision based solely or partly on automated assessments, including profiling, with rights to an explanation, to present observations, and to challenge the decision (Article 20). See the dedicated [`Ecuador privacy annex`](annex-privacy-ecuador.md).
+- **Ecuador:** the LOPDP gives data subjects a right not to be subject to a decision based solely or partly on automated assessments, including profiling, that produces legal effects on them or infringes their fundamental rights and freedoms, with rights to a reasoned explanation, to present observations, and to challenge the decision (Article 20). See the dedicated [`Ecuador privacy annex`](annex-privacy-ecuador.md).
 - **Chile and Peru:** Both apply their data protection laws to AI processing. Chile has enacted Law 21.719 (in force 2026-12-01), which introduces explicit automated decision-making provisions; Peru applies its Law 29733.
 - **BASC regional context:** In jurisdictions where BASC certification is relevant, privacy controls should be aligned with BASC security management standards in addition to applicable local data protection laws.
 
@@ -89,7 +89,7 @@ Where the organization monitors the network and device activity of workers in th
 | Colombia | Express, unequivocal consent; the Article 26 statutory exceptions; SIC declaration of conformity; Binding Corporate Rules (Normas Corporativas Vinculantes, Decreto 1074/2015 art. 2.2.2.25.7) for intra-group transfers outside Colombia |
 | Chile | Law 19.628 (until 2026-11-30); Law 21.719 (from 2026-12-01) adopts GDPR-style transfer mechanisms |
 | Peru | Cross-border flow requires a sufficient (adequate) level of protection (Ley 29733 Art. 11); absent adequacy, the exporter guarantees compliance, subject to the Art. 15 exceptions (including consent), with the Reglamento's appropriate-guarantee/model-clause and registration requirements |
-| Ecuador | Adequacy resolution of the Autoridad de Protección de Datos Personales (LOPDP Art. 56); absent adequacy, adequate guarantees in a binding instrument, including Authority-approved Binding Corporate Rules (Arts. 57 and 58); otherwise prior Authority authorization (Art. 59), subject to the Art. 60 exceptional cases (including explicit consent); prior registration in the Registro Nacional |
+| Ecuador | Adequacy resolution of the Autoridad de Protección de Datos Personales (LOPDP Art. 56); absent adequacy, adequate guarantees in a binding legal instrument that contains the statutory standards and those the Authority sets, including Authority-approved Binding Corporate Rules (Arts. 57 and 58); otherwise prior Authority authorization (Art. 59), subject to the Art. 60 exceptional cases (including explicit consent after the data subject is informed of the risks); prior registration in the Registro Nacional |
 
 ---
 
@@ -102,7 +102,7 @@ Where the organization monitors the network and device activity of workers in th
 | Colombia | SIC | Fines up to 2,000 monthly minimum legal wages (approx. USD 600,000) |
 | Chile | Civil courts (juez de letras en lo civil) (Law 19.628; no dedicated authority); Agencia de Protección de Datos Personales (Law 21.719, from 2026-12-01) | Court-imposed fines of 1-10, 10-50, or 2-50 UTM (Law 19.628, Art. 16; no administrative regime); administrative fines under Law 21.719 |
 | Peru | DGTAIPD (MINJUS) | Fines up to 100 UIT for very serious violations (serious to 50 UIT); UIT is set annually, so convert to the current sol value |
-| Ecuador | Autoridad de Protección de Datos Personales | Fines on private entities of 0.1% to 0.7% (minor) and 0.7% to 1% (serious) of the prior financial year's business volume (LOPDP Arts. 71 and 72) |
+| Ecuador | Autoridad de Protección de Datos Personales | Fines on private-law entities and public companies of 0.1% to 0.7% (minor) and 0.7% to 1% (serious) of the prior financial year's business volume (LOPDP Arts. 71 and 72) |
 
 ---
 
