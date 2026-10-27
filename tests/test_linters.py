@@ -21357,6 +21357,27 @@ class MetadataLineBreaksTests(LinterTestCase):
         result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
         self.assertLinterFails(result, "missing-hard-break")
 
+    def test_indented_continuation_lines_stay_in_the_run(self) -> None:
+        # 3b146: a run is the rendered paragraph. A four-space-indented backtick pair is a
+        # paragraph continuation, not a fence or indented code, so the block below renders
+        # as ONE paragraph; before 3b146 each non-metadata line split the run and the
+        # missing breaks after A and B went unreported.
+        fixture = self.make_fixture(
+            "fake-indented-continuation.md",
+            "**A:** x\n    ``\n**B:** y\n    ``\n**C:** z\n",
+        )
+        result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
+        self.assertLinterFails(result, "missing-hard-break")
+        # A line that starts another block still ends the paragraph, so it ends the run.
+        for between in ("", "## Heading", "---", "- item", "<div>"):
+            with self.subTest(between=between):
+                fixture = self.make_fixture(
+                    "fake-block-split.md",
+                    "**A:** x\n%s\n**B:** y\n\nBody.\n" % between,
+                )
+                result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_code_fence_metadata_not_flagged(self) -> None:
         # Same metadata block, but inside a fenced code region: must NOT
         # be flagged (templates demonstrating proper format do not need
@@ -49483,7 +49504,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.21.3", "3b662 has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662)")
+        self.assertEqual(man["pack"]["version"], "0.21.4", "3b146 has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH) on top of 3b662, which has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662; then 0.21.3 to 0.21.4 for 3b146)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")

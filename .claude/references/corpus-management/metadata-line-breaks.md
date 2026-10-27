@@ -2,9 +2,14 @@
 
 # Metadata-block line breaks
 
-A run of two or more consecutive metadata lines (each of the
-`**Field:**` form) carries a Markdown hard-break marker on every line
-but its last. Without a hard break, GitHub renders the run as a single
+A run is the rendered paragraph: the lines that render into one
+paragraph form one run, whatever their indentation, and a run ends only
+at a blank line or a line that starts another block (a heading, a
+thematic break or setext underline, a block quote, a list item that can
+interrupt a paragraph, an HTML block, or a fence). In a run holding two
+or more metadata lines (each of the `**Field:**` form), every metadata
+line that another line of the run follows carries a Markdown hard-break
+marker. Without a hard break, GitHub renders the run as a single
 soft-wrapped paragraph rather than as the intended vertical list of
 labelled facts. Two hard-break markers are accepted: a trailing
 backslash (the library convention) or two or more trailing spaces. The

@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Metadata-block line-break audit (grc gate): pack-owned engine (source of record).
 
-Detect runs of consecutive ``**Field:**`` metadata lines that lack a Markdown
-hard-break marker on the non-last lines of the run. Without a hard-break, GitHub
-renders the metadata block as a single soft-wrapped paragraph rather than as a
+Detect runs of ``**Field:**`` metadata lines that lack a Markdown hard-break marker
+on the non-last lines of the run. A run is the rendered paragraph (3b146): lines that
+render into one paragraph form one run, whatever their indentation, so an indented
+continuation line between metadata lines does not split it. Without a hard-break,
+GitHub renders the metadata block as a single soft-wrapped paragraph rather than as a
 vertical list of labelled facts. Two hard-break markers are accepted: a trailing
 backslash (``\\``) or two-or-more trailing spaces. The last line of a run is exempt
 (the following blank line or ``---`` separator already breaks the paragraph).
@@ -50,22 +52,57 @@ def has_hard_break(line: str) -> bool:
     return False
 
 
+# 3b146: a run is the rendered paragraph, not a stretch of consecutive metadata lines. A
+# paragraph continues through any non-blank line, whatever its indentation, unless the line
+# starts another block (CommonMark 0.31): these leaf blocks end it and are not paragraph text.
+_HTML_BLOCK_TAGS = (
+    "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|"
+    "details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|"
+    "h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|"
+    "optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|"
+    "track|ul"
+)
+LEAF_BLOCK_START = re.compile(
+    r" {0,3}(?:"
+    r"#{1,6}(?:[ \t]|$)"  # ATX heading
+    r"|(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$"  # thematic break
+    r"|<(?:!--|\?|![A-Za-z]|!\[CDATA\[)"  # HTML blocks 2 to 5
+    r"|<(?:script|pre|style|textarea)(?:[ \t>]|$)"  # HTML block 1
+    r"|</?(?:" + _HTML_BLOCK_TAGS + r")(?:[ \t>]|/>|$)"  # HTML block 6
+    r")",
+    re.IGNORECASE,
+)
+# After paragraph text, a line of only ``=`` or ``-`` is a setext underline: it ends the paragraph.
+SETEXT_UNDERLINE = re.compile(r" {0,3}(?:=+|-+)[ \t]*$")
+# A block quote or a list item that may interrupt a paragraph (a bullet, or an ordered item
+# numbered 1, with content) ends the paragraph and opens a new one with its own text.
+CONTAINER_START = re.compile(r" {0,3}(?:>|[-+*][ \t]+\S|1[.)][ \t]+\S)")
+
+
+def _indent(line: str) -> int:
+    expanded = line.expandtabs(4)
+    return len(expanded) - len(expanded.lstrip(" "))
+
+
 def scan_file(path: Path) -> list[tuple[int, int]]:
     """Return ``[(block_start_line, missing_count), ...]`` for every offending block."""
     text = read_text_safe(path)
     if text is None:
         return []
     findings: list[tuple[int, int]] = []
-    block: list[tuple[int, str]] = []
+    para: list[tuple[int, str]] = []
 
     def flush() -> None:
-        nonlocal block
-        if len(block) >= 2:
-            non_last = block[:-1]
-            missing = sum(1 for _, ln in non_last if not has_hard_break(ln))
+        nonlocal para
+        meta = [i for i, (_, ln) in enumerate(para) if META_LINE.match(ln.lstrip(" \t"))]
+        if len(meta) >= 2:
+            # Every metadata line that another line of its paragraph follows needs a hard break.
+            missing = sum(
+                1 for i in meta if i < len(para) - 1 and not has_hard_break(para[i][1])
+            )
             if missing:
-                findings.append((block[0][0], missing))
-        block = []
+                findings.append((para[meta[0]][0], missing))
+        para = []
 
     prev = 0
     for lineno, line in iter_non_code_lines(text):
@@ -75,9 +112,19 @@ def scan_file(path: Path) -> list[tuple[int, int]]:
         if lineno != prev + 1:
             flush()
         prev = lineno
-        if META_LINE.match(line):
-            block.append((lineno, line))
-        else:
+        if not line.strip():
             flush()
+        elif para:
+            if LEAF_BLOCK_START.match(line) or SETEXT_UNDERLINE.match(line):
+                flush()
+            elif CONTAINER_START.match(line):
+                flush()
+                para.append((lineno, line))
+            else:
+                # A paragraph continuation line, at any indentation (3b146).
+                para.append((lineno, line))
+        elif _indent(line) < 4 and not LEAF_BLOCK_START.match(line):
+            # Four or more columns outside a paragraph is an indented code block.
+            para.append((lineno, line))
     flush()
     return findings
