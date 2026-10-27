@@ -2,11 +2,11 @@
 
 **Document Title:** Backup and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.1\
-**Date:** 2026-09-11\
+**Version:** 1.1.2\
+**Date:** 2026-10-27\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
+**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`compliance/public-sector/annex-canada-public-sector-requirements.md`](../compliance/public-sector/annex-canada-public-sector-requirements.md)\
 **Classification:** Public\
 **Category:** Resilience\
 **Review Frequency:** Annual and upon material backup, recovery, infrastructure, data, or supplier change\
@@ -78,9 +78,16 @@ Backups must be protected against unauthorized access, alteration, deletion, ran
 
 For organizations facing elevated ransomware risk, **NIST IR 8374 Rev. 1** (Ransomware Risk Management: A Cybersecurity Framework 2.0 Community Profile) is an optional supplementary control-prioritization overlay: it maps anti-ransomware safeguards to CSF 2.0 outcomes and can be used to prioritize the backup-protection controls in this section. It is a prioritization aid, not a baseline requirement of this procedure.
 
+For Canadian organizations, the Canadian Centre for Cyber Security **Baseline Cyber Security Controls for Small and Medium Organizations V1.2** (February 2020) is a reference point for backup protection, not an added requirement of this procedure. Its control BC.7.2 says organizations should store backups encrypted and restrict access to those who need it for testing or carrying out restoration, and that long-term backups must be stored offline while frequent backups may be stored online. The held edition is the one cited; its currency is to be confirmed upstream.
+
 ### 4. Recovery testing
 
 Recovery capability must be tested according to criticality. This section is the normative source for restore-test cadence across the library. Restore tests for production systems and other high-criticality systems (Tier 1 Mission Critical in the criticality classification used by the IT disaster recovery plan) must be performed at least weekly, and restore tests for all other systems (Tier 2 Business Essential, Tier 3 Standard, and Tier 4 Non-Critical) must be performed at least monthly, so no system falls below a monthly restore-test floor. Adopting organizations may define a more frequent cadence for a system, but must not set a less frequent cadence than this baseline. This cadence governs backup restore testing; cryptographic key-recovery and key-escrow ceremony testing follow their own schedules in [`security/procedure-key-escrow-and-recovery.md`](../security/procedure-key-escrow-and-recovery.md) and are not restore-test obligations under this section. Tests should validate data integrity, service restoration, authentication, application dependencies, supplier dependencies, and business acceptance criteria.
+
+Canadian reference points for recovery capability, which add no requirement to this procedure:
+
+- Control BC.7.1 of the CCCS small and medium organizations baseline cited in the Protection requirements section says organizations should back up systems holding essential business information and ensure that recovery mechanisms restore those systems effectively and efficiently, and should consider keeping backups offline at a secure offsite location or give the rationale for not doing so.
+- For the Canadian federal public sector, the Treasury Board **Directive on Security Management** (held edition: takes effect July 1, 2019), Appendix B, directs departments to set recovery strategies and restoration priorities for data and information systems in line with departmental business continuity requirements (B.2.3.10.1), to implement measures that meet them (B.2.3.10.2), and to test IT continuity mechanisms as part of departmental business continuity management (B.2.3.10.3). The [Canada public-sector annex](../compliance/public-sector/annex-canada-public-sector-requirements.md) carries that lane, and the [IT disaster recovery plan](plan-it-disaster-recovery.md) sets the recovery tiers and objectives this procedure supports. The held edition is the one cited; its currency is to be confirmed upstream.
 
 ### 5. Restoration procedure
 
