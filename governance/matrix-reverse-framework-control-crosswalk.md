@@ -2,7 +2,7 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.19\
+**Version:** 1.0.20\
 **Date:** 2026-10-27\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -41,7 +41,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 | --- | --- | --- |
 | A.5.1 to A.5.4 Organizational policies, roles, segregation of duties | [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/register-role-authority.md`](register-role-authority.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | Architectural recommendation |
 | A.5.7 Threat intelligence | [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md) | Architectural recommendation |
-| A.5.9 Inventory of assets | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) | Evidence category |
+| A.5.9 Inventory of information and other associated assets | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) | Evidence category |
 | A.5.10 Acceptable use | [`security/policy-acceptable-use.md`](../security/policy-acceptable-use.md) | Architectural recommendation |
 | A.5.12 to A.5.13 Classification and handling of information | [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md) | Architectural recommendation |
 | A.5.15 to A.5.18 Access control, identity, authentication, privileged access | [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/procedure-identity-management.md`](../security/procedure-identity-management.md) | Architectural recommendation |
