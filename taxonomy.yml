@@ -2202,7 +2202,7 @@ documents:
   domain: "ai"
   type: "Annex"
   title: "European Union AI Regulatory Requirements"
-  version: "0.0.23"
+  version: "0.0.24"
   date: "2026-10-27"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"

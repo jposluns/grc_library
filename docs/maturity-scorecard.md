@@ -352,7 +352,7 @@ _77 documents._
 | [ai/guide-ai-board-oversight.md](../ai/guide-ai-board-oversight.md) | AI Board Oversight Guide | Guide | 0.0.4 | 2026-10-27 |
 | [ai/guideline-ai-synthetic-content-provenance.md](../ai/guideline-ai-synthetic-content-provenance.md) | AI Synthetic-Content Provenance Guideline | Guideline | 0.0.11 | 2026-10-27 |
 | [ai/jurisdictions/annex-ai-australia.md](../ai/jurisdictions/annex-ai-australia.md) | Australia AI Regulatory Requirements | Annex | 0.0.4 | 2026-10-27 |
-| [ai/jurisdictions/annex-ai-european-union.md](../ai/jurisdictions/annex-ai-european-union.md) | European Union AI Regulatory Requirements | Annex | 0.0.23 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-european-union.md](../ai/jurisdictions/annex-ai-european-union.md) | European Union AI Regulatory Requirements | Annex | 0.0.24 | 2026-10-27 |
 | [ai/jurisdictions/annex-ai-malaysia.md](../ai/jurisdictions/annex-ai-malaysia.md) | Malaysia National Guidelines on AI Governance and Ethics (AIGE) | Annex | 0.0.10 | 2026-10-27 |
 | [ai/jurisdictions/annex-ai-singapore-agentic-ai.md](../ai/jurisdictions/annex-ai-singapore-agentic-ai.md) | Singapore IMDA Model AI Governance Framework for Agentic AI | Annex | 0.0.3 | 2026-10-27 |
 | [ai/jurisdictions/annex-ai-singapore.md](../ai/jurisdictions/annex-ai-singapore.md) | Singapore Model AI Governance Framework for Generative AI | Annex | 0.0.3 | 2026-10-27 |
