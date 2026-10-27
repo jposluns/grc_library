@@ -35,11 +35,28 @@ and it prints a ``DEGRADED:`` line naming the skipped pair.
 store. Under ``--root`` the gate never resolves the real private sibling: the
 private files come from ``--private-root`` when given and otherwise from the
 root itself, as gates 78 and 81 read ``P-TODO.md``, and no ``DEGRADED:`` line
-is printed; when that private pair is absent an informational ``OK:`` line says
-private parity was not checked, as gate 81 does. Stdlib-only.
+is printed. An explicit ``--private-root`` declares the private input, so a
+directory holding neither ``P-TODO.md`` nor ``P-TODO-REFERENCE.md`` fails with
+exit 2 naming the path (check-fails-closed-on-unreadable: a declared resource
+that is absent is a failure). Otherwise, when ``--root`` names the private
+directory and it holds no P-TODO pair, or either flag names one holding a legacy
+``### ``-block ``P-TODO.md`` alone, an informational ``OK:`` line says private
+parity was not checked, names the flag and directory, and says why, as gate 81
+says ``P-TODO.md`` is not present. Those cases pass: ``--root`` names a fixture
+repository that the private lookup only defaults to, and a legacy file is the
+accepted pre-split layout; a broken or half-converted pair still fails. A private
+directory that cannot be listed, or a candidate file in it that cannot be
+examined or opened, fails with exit 2 and names the path: an unreadable store is
+not one without the pair. Each file is read once and decoded as strict UTF-8;
+undecodable bytes fail with exit 2 naming the path. A present ``P-TODO.md`` must
+be positively one of the two forms the gate knows, an index (``| ID | Item |
+Tags |`` header) or a legacy file with at least one ``### <id> <title>`` block;
+an empty file or one in neither form fails with exit 2 naming the path and the
+reason, since the gate cannot tell what it holds. Stdlib-only.
 """
 from __future__ import annotations
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -50,7 +67,7 @@ if _TOOLS_DIR not in sys.path:
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import split_row, is_separator_row, is_fence_line  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, TODO_ID_RE, print_degraded, require_dir, resolve_sibling, has_todo_index_header  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, TODO_ID_RE, print_degraded, require_dir, resolve_sibling, has_todo_index_header, strict_kind  # noqa: E402  # grc-config/store, stays local
 
 TODO_REL = "TODO.md"
 REFERENCE_REL = "TODO-REFERENCE.md"
@@ -251,16 +268,15 @@ def find_malformed_index_rows(todo_text: str) -> list[str]:
     return out
 
 
-def _check_one(index_path: Path, reference_path: Path,
+def _check_one(todo_text: str, reference_text: str,
                index_label: str, reference_label: str) -> tuple[list[str], int, int]:
     """Parity + leak + malformed findings for one (index, reference) backlog pair.
 
-    Caller guarantees both files exist. Labels are the human-facing relative
-    names used in finding text (they differ per pair: TODO.md/TODO-REFERENCE.md
-    vs P-TODO.md/P-TODO-REFERENCE.md)."""
-    todo_text = index_path.read_text(encoding="utf-8")
+    The caller has already read both files (once, strict UTF-8). Labels are the
+    human-facing relative names used in finding text (they differ per pair:
+    TODO.md/TODO-REFERENCE.md vs P-TODO.md/P-TODO-REFERENCE.md)."""
     index = parse_index(todo_text)
-    reference = parse_reference(reference_path.read_text(encoding="utf-8"))
+    reference = parse_reference(reference_text)
     findings = find_findings(index, reference, index_label, reference_label)
     for leak in find_index_detail_leaks(todo_text):
         findings.append(f"INDEX DETAIL LEAK: {index_label} contains a detail block heading "
@@ -281,7 +297,84 @@ def _first_existing(*candidates: Path | None) -> Path | None:
     return None
 
 
-def _resolve_pairs(root: Path, private_dir: Path | None) -> tuple[list[tuple[Path, Path, str, str]], list[str]]:
+def _read_strict(path: Path) -> tuple[str | None, str | None]:
+    """``(text, None)`` for a file read once and decoded as strict UTF-8, else ``(None, reason)``.
+
+    3b641 r3 (VPR3B641-R2): invalid UTF-8 used to end in a UnicodeDecodeError
+    traceback (exit 1); it is now a reason naming the path, refused with exit 2
+    like an unreadable file. Every consumer splits with ``str.splitlines``, so
+    reading bytes (no newline translation) parses as ``read_text`` did."""
+    try:
+        with open(path, "rb") as fh:
+            data = fh.read()
+    except OSError as exc:
+        return None, f"cannot read {path} ({exc.strerror})"
+    try:
+        return data.decode("utf-8"), None
+    except UnicodeDecodeError as exc:
+        return None, f"cannot decode {path} as UTF-8 ({exc.reason} at byte {exc.start})"
+
+
+def _probe_private(private_dir: Path) -> tuple[dict[str, str | None], list[str]]:
+    """The private candidate files' text, telling ABSENT from UNREADABLE.
+
+    3b641 r2 (VPR3B641-R1): ``Path.is_file()`` returns False for a file in a
+    directory without search permission, so a mode-000 ``--private-root`` read as
+    a directory with no P-TODO pair and passed. The directory is listed and each
+    candidate probed with ``strict_kind`` (only ENOENT is absent) and read, so
+    any other OSError, or bytes that are not UTF-8 (r3), is an error naming the
+    path (check-fails-closed-on-unreadable). Returns ({relative name: text, or
+    None when absent}, errors)."""
+    try:
+        os.listdir(private_dir)
+    except OSError as exc:
+        return {}, [f"cannot read the private directory {private_dir} ({exc.strerror}); "
+                    "private index<->reference parity cannot be checked"]
+    texts: dict[str, str | None] = {}
+    errors: list[str] = []
+    for rel in (REFERENCE_REL, PTODO_INDEX_REL, PTODO_REFERENCE_REL):
+        path = private_dir / rel
+        try:
+            kind = strict_kind(path)
+        except OSError as exc:
+            errors.append(f"cannot read {path} ({exc.strerror}); "
+                          "private index<->reference parity cannot be checked")
+            continue
+        if kind is None:
+            texts[rel] = None
+            continue
+        if kind != "file":
+            errors.append(f"{path} is present but is not a regular file")
+            continue
+        text, why = _read_strict(path)
+        if why is not None:
+            errors.append(f"{why}; private index<->reference parity cannot be checked")
+            continue
+        texts[rel] = text
+    return texts, errors
+
+
+def _classify_ptodo(path: Path, text: str) -> tuple[str | None, str | None]:
+    """``("index" | "legacy", None)`` for a P-TODO.md the gate recognises, else ``(None, reason)``.
+
+    3b641 r3 (VPR3B641-R2): any P-TODO.md without an index header used to count
+    as legacy, so a file holding only ``garbage`` passed as a legacy ### -block
+    backlog. The form is now established positively: an index header
+    (``has_todo_index_header``) or at least one ``### <id> <title>`` block that
+    ``parse_reference`` recognises. Anything else is a file the gate cannot read
+    as a backlog, so it is refused rather than skipped."""
+    if not text.strip():
+        return None, (f"{path} is empty; it is neither an index-form nor a legacy "
+                      f"### -block {PTODO_INDEX_REL}")
+    if has_todo_index_header(text):
+        return "index", None
+    if parse_reference(text):
+        return "legacy", None
+    return None, (f"{path} is neither an index-form {PTODO_INDEX_REL} (no `| ID | Item | Tags |` "
+                  "header) nor a legacy one (no `### <id> <title>` block the gate recognises)")
+
+
+def _resolve_pairs(root: Path, private_dir: Path | None) -> tuple[list[tuple[str, str, str, str]], list[str], str | None]:
     """Backlog (index, reference) pairs whose BOTH files currently exist.
 
     Transitional (2026-08 migration): the public TODO detail file
@@ -295,9 +388,15 @@ def _resolve_pairs(root: Path, private_dir: Path | None) -> tuple[list[tuple[Pat
     adopter-graceful contract. ``private_dir`` is the private sibling root
     (``resolve_sibling('private')`` in production; ``--private-root`` or the
     ``--root`` directory under test); ``None`` means no private sibling (an adopter clone). Returns
-    (active_pairs, errors)."""
-    pairs: list[tuple[Path, Path, str, str]] = []
+    (active_pairs as (index text, reference text, labels), errors, the P-TODO.md form:
+    ``"index"``, ``"legacy"`` or None when absent)."""
+    pairs: list[tuple[str, str, str, str]] = []
     errors: list[str] = []
+    texts: dict[str, str | None] = {}
+    if private_dir is not None:
+        texts, errors = _probe_private(private_dir)
+        if errors:
+            return pairs, errors, None
 
     # Pair 1: public TODO. Index is required; reference resolves private-first
     # (post-move) then public (pre-move). Absent reference -> no-op.
@@ -305,57 +404,90 @@ def _resolve_pairs(root: Path, private_dir: Path | None) -> tuple[list[tuple[Pat
     if not todo_path.is_file():
         errors.append(f"required file missing: {todo_path}")
     else:
-        ref = _first_existing(
-            (private_dir / REFERENCE_REL) if private_dir else None,
-            root / REFERENCE_REL,
-        )
-        if ref is not None:
-            pairs.append((todo_path, ref, TODO_REL, REFERENCE_REL))
+        ref_text = texts.get(REFERENCE_REL)
+        if ref_text is None and (root / REFERENCE_REL).is_file():
+            ref_text, why = _read_strict(root / REFERENCE_REL)
+            if why is not None:
+                errors.append(f"{why}; index<->reference parity cannot be checked")
+        if ref_text is not None:
+            todo_text, why = _read_strict(todo_path)
+            if why is not None:
+                errors.append(f"{why}; index<->reference parity cannot be checked")
+            else:
+                pairs.append((todo_text, ref_text, TODO_REL, REFERENCE_REL))
 
     # Pair 2: private P-TODO. Only when the private sibling exists (adopters lack
     # it). Both index and reference must be present; pre-restructure P-TODO.md is
     # a legacy ### -block file with no P-TODO-REFERENCE.md -> no-op (skipped),
-    # which correctly avoids running the index-detail-leak check on it.
+    # which correctly avoids running the index-detail-leak check on it. A P-TODO.md
+    # in neither form is refused (3b641 r3), with or without its reference.
+    ptodo_kind: str | None = None
     if private_dir is not None:
-        p_index = private_dir / PTODO_INDEX_REL
-        p_ref = private_dir / PTODO_REFERENCE_REL
-        if p_index.is_file() and p_ref.is_file():
-            pairs.append((p_index, p_ref, PTODO_INDEX_REL, PTODO_REFERENCE_REL))
-        elif p_ref.is_file() and not p_index.is_file():
+        p_index_text = texts[PTODO_INDEX_REL]
+        p_ref_text = texts[PTODO_REFERENCE_REL]
+        if p_index_text is not None:
+            ptodo_kind, why = _classify_ptodo(private_dir / PTODO_INDEX_REL, p_index_text)
+            if why is not None:
+                errors.append(f"{why}; private index<->reference parity cannot be checked")
+                return pairs, errors, None
+        if p_index_text is not None and p_ref_text is not None:
+            pairs.append((p_index_text, p_ref_text, PTODO_INDEX_REL, PTODO_REFERENCE_REL))
+        elif p_ref_text is not None:
             errors.append(f"{PTODO_REFERENCE_REL} is present but {PTODO_INDEX_REL} is "
                           "missing (broken backlog pair)")
-        elif p_index.is_file() and not p_ref.is_file():
+        elif ptodo_kind == "index":
             # F1793-2: a legacy ### -block P-TODO.md with no reference is a no-op
             # (skipped); but a P-TODO.md already in INDEX form with no reference is
             # a half-converted / botched migration -> fail loud rather than skip.
-            if has_todo_index_header(p_index.read_text(encoding="utf-8")):
-                errors.append(f"{PTODO_INDEX_REL} is in index-row form but "
-                              f"{PTODO_REFERENCE_REL} is absent (half-converted backlog; "
-                              "every index row would be MISSING its detail block)")
+            errors.append(f"{PTODO_INDEX_REL} is in index-row form but "
+                          f"{PTODO_REFERENCE_REL} is absent (half-converted backlog; "
+                          "every index row would be MISSING its detail block)")
 
-    return pairs, errors
+    return pairs, errors, ptodo_kind
 
 
-def run(root: Path, private_dir: Path | None = None, explicit_root: bool = False) -> int:
-    pairs, errors = _resolve_pairs(root, private_dir)
+def run(root: Path, private_dir: Path | None = None, private_flag: str | None = None) -> int:
+    """``private_flag`` is the CLI flag that named ``private_dir`` (``--private-root``
+    or ``--root``), or None on the default sibling lookup."""
+    pairs, errors, ptodo_kind = _resolve_pairs(root, private_dir)
     if errors:
         for e in errors:
             print(f"ERROR: {e}", file=sys.stderr)
         return 2
-    if explicit_root and not any(p[2] == PTODO_INDEX_REL for p in pairs):
-        # 3b635 r4: a --root run with no private pair says so, as gate 81 says P-TODO.md is not
-        # present; informational, not DEGRADED (the explicit-root fixture contract).
-        print(f"OK: the {PTODO_INDEX_REL} pair ({PTODO_INDEX_REL} + {PTODO_REFERENCE_REL}) is not "
-              f"present in {private_dir}; private index<->reference parity not checked.")
+    if (private_flag and private_dir is not None
+            and not any(p[2] == PTODO_INDEX_REL for p in pairs)):
+        # 3b641 r4 (VPR3B641-R3): --private-root declares the private input, so a directory
+        # holding neither P-TODO file is an absent declared resource and fails with exit 2
+        # (check-fails-closed-on-unreadable). A recognised legacy P-TODO.md is not absent: it
+        # keeps the not-checked line below. --root only names a fixture repository that the
+        # private lookup defaults to, so it keeps the line too.
+        if private_flag == "--private-root" and ptodo_kind is None:
+            print(f"ERROR: no private P-TODO pair was found in the --private-root directory "
+                  f"{private_dir} (it holds neither {PTODO_INDEX_REL} nor {PTODO_REFERENCE_REL}); "
+                  "private index<->reference parity cannot be checked", file=sys.stderr)
+            return 2
+        # 3b635 r4 / 3b641: otherwise a named private directory with no P-TODO pair says so, as
+        # gate 81 says P-TODO.md is not present; informational, not DEGRADED, and exit 0 (the
+        # explicit-path fixture contract; a broken or half-converted pair already failed above).
+        # It keeps the OK: prefix of the gate's other pass lines: the directory was read and
+        # holds no pair, so nothing was skipped; an unreadable one failed above (3b641 r2), as did
+        # a P-TODO.md in neither form (r3), so a present one here is a recognised legacy file.
+        if ptodo_kind == "legacy":
+            why = (f"holds a legacy ### -block {PTODO_INDEX_REL} and no "
+                   f"{PTODO_REFERENCE_REL} (backlog not yet split)")
+        else:
+            why = f"holds neither {PTODO_INDEX_REL} nor {PTODO_REFERENCE_REL}"
+        print(f"OK: private index<->reference parity not checked: the {private_flag} "
+              f"directory {private_dir} {why}.")
     if not pairs:
         print("OK: no two-file backlog pair present (reference file(s) absent); no-op.")
         return 0
 
     all_findings: list[str] = []
     summary: list[str] = []
-    for index_path, reference_path, index_label, reference_label in pairs:
+    for index_text, reference_text, index_label, reference_label in pairs:
         findings, n_index, n_ref = _check_one(
-            index_path, reference_path, index_label, reference_label)
+            index_text, reference_text, index_label, reference_label)
         all_findings.extend(findings)
         summary.append(f"{index_label}: {n_index} index row(s) / {n_ref} detail block(s)")
 
@@ -413,10 +545,11 @@ def main(argv: list[str]) -> int:
     # The private pair comes from --private-root when given; under --root it otherwise comes
     # from the root itself, as gates 78 and 81 read P-TODO.md, so a fixture run never reads
     # the real sibling (3b635 r3). Only the DEFAULT lookup resolves the private sibling.
+    private_flag: str | None = None
     if have_private_override:
-        private_dir = private_override
+        private_dir, private_flag = private_override, "--private-root"
     elif "--root" in seen:
-        private_dir = root
+        private_dir, private_flag = root, "--root"
     else:
         private_dir = resolve_sibling("private")
     if private_dir is None:
@@ -430,7 +563,7 @@ def main(argv: list[str]) -> int:
                        f"gate 90 skipped the index<->reference parity check of "
                        f"{' and '.join(skipped)} (no private store supplies the reference); "
                        f"this pass attests nothing about it.")
-    return run(root, private_dir, explicit_root="--root" in seen)
+    return run(root, private_dir, private_flag)
 
 
 if __name__ == "__main__":

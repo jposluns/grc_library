@@ -29452,7 +29452,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
         lint-table-cell-count.py OWN F 908cb45af821e88f62f1dfb2cfeaa89a32bbb2031c7e1fb85f2c408ffd04541a
-        lint-todo-index-reference-parity.py OWN F aaf574ed15596211841f81d2bd78ef5afbfe067667449dfe214b98e2c1bbccdb
+        lint-todo-index-reference-parity.py OWN F ac4a2e762ae62e3b26b110d3a9445854d9773ad5a4a32b6d60008c1a9ff97054
         lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
         lint-todo-number-permanence.py OWN F 9d2bac985ff81dee359108091ca9b85f7e159c2ea079e74b46d6895ca2b70761
@@ -37778,8 +37778,96 @@ class StoreDegradedNoticeTests(unittest.TestCase):
                 self.assertIn("P-TODO.md: 2 index row(s) / 2 detail block(s)", out, label)
             else:
                 self.assertEqual(len(lines), 1, f"{label}: expected one not-checked line\n{out}")
-                self.assertTrue(lines[0].startswith("OK: the P-TODO.md pair "), lines[0])
+                self.assertEqual(lines[0], f"OK: {note}: the --root directory {root} holds "
+                                 "neither P-TODO.md nor P-TODO-REFERENCE.md.")
                 self.assertNotIn("P-TODO.md:", out, label)
+
+    def _gate90_dirs(self, *names: str) -> list[Path]:
+        dirs = [self.store / n for n in names]
+        for d in dirs:
+            d.mkdir()
+        return dirs
+
+    def test_gate90_private_root_without_pair_fails(self) -> None:
+        # 3b641: --private-root alone naming a directory with no P-TODO pair used to print
+        # nothing about private parity; r3 printed a not-checked line and passed. r4
+        # (VPR3B641-R3): the flag declares the private input, so a directory without the pair
+        # fails with exit 2 naming it; no not-checked line, no DEGRADED line, no sibling lookup.
+        from unittest.mock import Mock
+        repo, priv = self._gate90_dirs("repo", "priv")
+        (repo / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.REF,
+                                                encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        resolver = Mock(return_value=None)
+        rc, out, err = self._run(fname, lambda m: m.main([fname, "--private-root", str(priv)]),
+                                 True, True, REPO_ROOT=repo, resolve_sibling=resolver)
+        label = f"{fname} --private-root"
+        self.assertEqual(rc, 2, f"{label}\n{out}{err}")
+        self.assertEqual(resolver.call_count, 0, f"{label}: resolve_sibling was called")
+        self._assert_clean(label, out)
+        self.assertIn(f"ERROR: no private P-TODO pair was found in the --private-root directory "
+                      f"{priv}", err, label)
+        self.assertNotIn("parity not checked", out + err, label)
+
+    def test_gate90_root_with_private_root_reads_only_private_root(self) -> None:
+        # 3b641: with --root and --private-root both given, the private pair comes from
+        # --private-root only. A valid pair in the root is not read, so without the pair in
+        # --private-root the run fails naming that directory (r4); with it, the pair is checked.
+        root, priv = self._gate90_dirs("root", "priv")
+        for rel, text in (("TODO.md", TodoIndexReferenceParityTests.IDX),
+                          ("TODO-REFERENCE.md", TodoIndexReferenceParityTests.REF),
+                          ("P-TODO.md", TodoIndexReferenceParityTests.PIDX),
+                          ("P-TODO-REFERENCE.md", TodoIndexReferenceParityTests.PREF)):
+            (root / rel).write_text(text, encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        argv = [fname, "--root", str(root), "--private-root", str(priv)]
+        for present in (False, True):
+            if present:
+                (priv / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX,
+                                                encoding="utf-8")
+                (priv / "P-TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.PREF,
+                                                          encoding="utf-8")
+            rc, out, err = self._run(fname, lambda m: m.main(argv), True, False,
+                                     resolve_sibling=lambda name: None)
+            label = f"{fname} --root --private-root (pair in private root={present})"
+            self.assertEqual(rc, 0 if present else 2, f"{label}\n{out}{err}")
+            self._assert_clean(label, out)
+            lines = [ln for ln in out.splitlines() if "parity not checked" in ln]
+            self.assertEqual(lines, [], f"{label}\n{out}")
+            if present:
+                self.assertIn("P-TODO.md: 2 index row(s) / 2 detail block(s)", out, label)
+            else:
+                self.assertIn("ERROR: no private P-TODO pair was found in the --private-root "
+                              f"directory {priv}", err, label)
+                self.assertNotIn("P-TODO.md:", out, label)
+
+    def test_gate90_legacy_ptodo_without_reference_says_why(self) -> None:
+        # 3b641: a legacy ### -block P-TODO.md with no P-TODO-REFERENCE.md is skipped with exit 0;
+        # the not-checked line says the backlog is legacy rather than that the pair is absent,
+        # under --root and under --private-root alike.
+        legacy = "# P-TODO\n## Group A\n### P-1.1 ptask (H)\n\nbody\n"
+        root, priv = self._gate90_dirs("root", "priv")
+        for d in (root, priv):
+            (d / "P-TODO.md").write_text(legacy, encoding="utf-8")
+        (root / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.REF,
+                                                encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        for flag, argv, named in (
+                ("--root", [fname, "--root", str(root)], root),
+                ("--private-root", [fname, "--root", str(root), "--private-root", str(priv)], priv)):
+            rc, out, err = self._run(fname, lambda m: m.main(argv), True, False,
+                                     resolve_sibling=lambda name: None)
+            label = f"{fname} legacy P-TODO.md via {flag}"
+            self.assertEqual(rc, 0, f"{label}\n{out}{err}")
+            self._assert_clean(label, out)
+            lines = [ln for ln in out.splitlines() if "parity not checked" in ln]
+            self.assertEqual(lines, [
+                f"OK: private index<->reference parity not checked: the {flag} directory "
+                f"{named} holds a legacy ### -block P-TODO.md and no P-TODO-REFERENCE.md "
+                "(backlog not yet split)."], f"{label}\n{out}")
+            self.assertNotIn("INDEX DETAIL LEAK", out + err, label)
 
     def test_gate107_tooling_backlog_refs(self) -> None:
         root = self.store / "repo"
@@ -46187,6 +46275,9 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         # --private-root scopes the transitional private-first reference lookup
         # to the fixture, so these tests stay hermetic after the real
         # grc_library_private/TODO-REFERENCE.md exists (2026-08 migration).
+        # 3b641 r4: a named --private-root must hold a P-TODO pair, so the fixture carries a clean one.
+        (root / "P-TODO.md").write_text(self.PIDX, encoding="utf-8")
+        (root / "P-TODO-REFERENCE.md").write_text(self.PREF, encoding="utf-8")
         return run_linter("tools/lint-todo-index-reference-parity.py",
                           "--root", str(root), "--private-root", str(root)), root
 
@@ -46303,10 +46394,14 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         root = Path(tempfile.mkdtemp(prefix="bij-noref-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         root.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        # 3b641 r4: the named --private-root holds a P-TODO pair; only the TODO.md pair is absent.
+        (root / "P-TODO.md").write_text(self.PIDX, encoding="utf-8")
+        (root / "P-TODO-REFERENCE.md").write_text(self.PREF, encoding="utf-8")
         r = run_linter("tools/lint-todo-index-reference-parity.py",
                        "--root", str(root), "--private-root", str(root))
         try:
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("parity holds for P-TODO.md: 2 index row(s) / 2 detail block(s) (", r.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
@@ -46365,10 +46460,14 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
         (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        # 3b641 r4: a named --private-root must hold a P-TODO pair as well.
+        (priv / "P-TODO.md").write_text(self.PIDX, encoding="utf-8")
+        (priv / "P-TODO-REFERENCE.md").write_text(self.PREF, encoding="utf-8")
         r = run_linter("tools/lint-todo-index-reference-parity.py",
                        "--root", str(root), "--private-root", str(priv))
         try:
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("TODO.md: 2 index row(s) / 2 detail block(s);", r.stdout)
         finally:
             import shutil
             shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
@@ -46499,6 +46598,166 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         r, root = self._run("bij-indented-marker", idx, self.REF)
         try:
             self.assertLinterFails(r, "MISSING")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
+    def test_unreadable_private_root_fails_closed(self):
+        # 3b641 r2 (VPR3B641-R1): a mode-000 --private-root read as a directory with no P-TODO
+        # pair and passed with the not-checked line. It now fails with exit 2 naming the path.
+        root = Path(tempfile.mkdtemp(prefix="bij-priv000-", dir=FIXTURE_DIR))
+        priv = Path(tempfile.mkdtemp(prefix="bij-priv000-priv-", dir=FIXTURE_DIR))
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        priv.chmod(0)
+        try:
+            r = run_linter("tools/lint-todo-index-reference-parity.py",
+                           "--root", str(root), "--private-root", str(priv))
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn(f"ERROR: cannot read the private directory {priv}", r.stderr)
+            self.assertNotIn("parity not checked", r.stdout + r.stderr)
+        finally:
+            import shutil
+            priv.chmod(0o700)
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores file permission bits")
+    def test_unreadable_private_pair_file_fails_closed(self):
+        # 3b641 r2: an unreadable P-TODO.md or P-TODO-REFERENCE.md fails with exit 2 naming the
+        # file, alone or beside its partner (it used to raise a traceback or read as absent).
+        for rels in (("P-TODO.md",), ("P-TODO-REFERENCE.md",),
+                     ("P-TODO.md", "P-TODO-REFERENCE.md")):
+            for locked in rels:
+                with self.subTest(files=rels, locked=locked):
+                    root = Path(tempfile.mkdtemp(prefix="bij-pfile000-", dir=FIXTURE_DIR))
+                    priv = Path(tempfile.mkdtemp(prefix="bij-pfile000-priv-", dir=FIXTURE_DIR))
+                    (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+                    (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+                    texts = {"P-TODO.md": self.PIDX, "P-TODO-REFERENCE.md": self.PREF}
+                    for rel in rels:
+                        (priv / rel).write_text(texts[rel], encoding="utf-8")
+                    (priv / locked).chmod(0)
+                    try:
+                        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                                       "--root", str(root), "--private-root", str(priv))
+                        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                        self.assertIn(f"ERROR: cannot read {priv / locked}", r.stderr)
+                        self.assertNotIn("Traceback", r.stderr)
+                    finally:
+                        import shutil
+                        (priv / locked).chmod(0o600)
+                        shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def _run_bytes(self, name, root_files, priv_files):
+        """Write raw bytes (so a fixture may hold invalid UTF-8) under --root and --private-root."""
+        root = Path(tempfile.mkdtemp(prefix=name + "-", dir=FIXTURE_DIR))
+        priv = Path(tempfile.mkdtemp(prefix=name + "-priv-", dir=FIXTURE_DIR))
+        for d, files in ((root, root_files), (priv, priv_files)):
+            for rel, data in files.items():
+                (d / rel).write_bytes(data)
+        return run_linter("tools/lint-todo-index-reference-parity.py",
+                          "--root", str(root), "--private-root", str(priv)), root, priv
+
+    def test_unrecognised_ptodo_fails_closed(self):
+        # 3b641 r3 (VPR3B641-R2): a P-TODO.md without an index header counted as legacy, so
+        # one holding only garbage, or nothing, passed claiming a legacy ### -block file (or,
+        # beside its reference, failed with parity findings). It is now refused with exit 2
+        # naming the path and the reason, with or without P-TODO-REFERENCE.md.
+        for label, data, reason in (("garbage", b"garbage\n", "is neither an index-form P-TODO.md"),
+                                    ("empty", b"", "is empty"),
+                                    ("blank", b"\n  \n", "is empty")):
+            for with_ref in (False, True):
+                with self.subTest(content=label, with_ref=with_ref):
+                    priv_files = {"TODO-REFERENCE.md": self.REF.encode(), "P-TODO.md": data}
+                    if with_ref:
+                        priv_files["P-TODO-REFERENCE.md"] = self.PREF.encode()
+                    r, root, priv = self._run_bytes("bij-ptodo-" + label,
+                                                    {"TODO.md": self.IDX.encode()}, priv_files)
+                    try:
+                        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                        self.assertIn(f"ERROR: {priv / 'P-TODO.md'} {reason}", r.stderr)
+                        self.assertNotIn("parity not checked", r.stdout + r.stderr)
+                    finally:
+                        import shutil
+                        shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_invalid_utf8_backlog_file_fails_closed(self):
+        # 3b641 r3 (VPR3B641-R2): invalid UTF-8 in a backlog file ended in a UnicodeDecodeError
+        # traceback (exit 1). Each file is now read once, strictly, and refused with exit 2.
+        bad = b"# P-TODO\n## Group A\n### P-1.1 ptask (H)\n\n\xff\xfe body\n"
+        for where, rel in (("priv", "P-TODO.md"), ("priv", "P-TODO-REFERENCE.md"),
+                           ("priv", "TODO-REFERENCE.md"), ("root", "TODO.md")):
+            with self.subTest(where=where, file=rel):
+                root_files = {"TODO.md": self.IDX.encode()}
+                priv_files = {"TODO-REFERENCE.md": self.REF.encode(),
+                              "P-TODO.md": self.PIDX.encode(), "P-TODO-REFERENCE.md": self.PREF.encode()}
+                (root_files if where == "root" else priv_files)[rel] = bad
+                r, root, priv = self._run_bytes("bij-badutf8", root_files, priv_files)
+                try:
+                    self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                    path = (root if where == "root" else priv) / rel
+                    self.assertIn(f"ERROR: cannot decode {path} as UTF-8", r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
+                finally:
+                    import shutil
+                    shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_well_formed_legacy_ptodo_still_passes(self):
+        # 3b641 r3 negative control: positive classification keeps a recognised legacy ### -block
+        # P-TODO.md (no P-TODO-REFERENCE.md) passing with the not-checked line, as before.
+        legacy = b"# P-TODO\n## Group A\n### P-1.1 ptask (H)\n\nbody\n"
+        r, root, priv = self._run_bytes("bij-legacy-ok", {"TODO.md": self.IDX.encode()},
+                                        {"TODO-REFERENCE.md": self.REF.encode(), "P-TODO.md": legacy})
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("holds a legacy ### -block P-TODO.md and no P-TODO-REFERENCE.md", r.stdout)
+            self.assertNotIn("ERROR", r.stdout + r.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_private_root_without_pair_fails_closed(self):
+        # 3b641 r4 (VPR3B641-R3): an explicitly named --private-root holding neither P-TODO.md nor
+        # P-TODO-REFERENCE.md printed the not-checked line and exited 0. The flag declares the
+        # private input, so its absence is a failure (check-fails-closed-on-unreadable): exit 2
+        # naming the path, whether or not the directory supplies TODO-REFERENCE.md, and whether
+        # --private-root is the root itself or a separate directory.
+        for label, priv_files, same_dir in (
+                ("empty", {}, False),
+                ("todo-ref-only", {"TODO-REFERENCE.md": self.REF}, False),
+                ("same-as-root", {"TODO-REFERENCE.md": self.REF}, True)):
+            with self.subTest(case=label):
+                root = Path(tempfile.mkdtemp(prefix="bij-nopair-" + label + "-", dir=FIXTURE_DIR))
+                priv = Path(tempfile.mkdtemp(prefix="bij-nopair-" + label + "-priv-", dir=FIXTURE_DIR))
+                named = root if same_dir else priv
+                (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+                for rel, text in priv_files.items():
+                    (named / rel).write_text(text, encoding="utf-8")
+                r = run_linter("tools/lint-todo-index-reference-parity.py",
+                               "--root", str(root), "--private-root", str(named))
+                try:
+                    self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                    self.assertIn(f"ERROR: no private P-TODO pair was found in the --private-root "
+                                  f"directory {named}", r.stderr)
+                    self.assertNotIn("parity not checked", r.stdout + r.stderr)
+                    self.assertNotIn("parity holds", r.stdout)
+                finally:
+                    import shutil
+                    shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_root_without_pair_keeps_not_checked_notice(self):
+        # 3b641 r4 negative control: --root alone names a fixture repository, not a private input;
+        # the private directory defaults to it, so a root with no P-TODO pair keeps the
+        # informational not-checked line and exit 0.
+        root = Path(tempfile.mkdtemp(prefix="bij-root-nopair-", dir=FIXTURE_DIR))
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        r = run_linter("tools/lint-todo-index-reference-parity.py", "--root", str(root))
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn(f"OK: private index<->reference parity not checked: the --root directory "
+                          f"{root} holds neither P-TODO.md nor P-TODO-REFERENCE.md.", r.stdout)
+            self.assertNotIn("ERROR", r.stdout + r.stderr)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
