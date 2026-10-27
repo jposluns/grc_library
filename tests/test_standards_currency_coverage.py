@@ -618,6 +618,27 @@ class CitationCoverageTests(unittest.TestCase):
             [("nist sp 1900 series", ""), ("nist sp 1800 series", ""), ("nist sp 800-53", "")],
         )
 
+    # 3b652: a parenthesised programme name and its version is that citation's version.
+    SSDF = REGISTER + "| NIST SP 800-218 | 1.1 | 2022-02 | SSDF | 1.0 |\n"
+
+    def test_nist_parenthesised_programme_version(self):
+        for text in (
+            "| NIST SP 800-218 (SSDF 1.1) | PO.1, PW.4 | Secure development |",
+            "NIST SP 800-218 (SSDF 1.1)", "NIST SP 800-218 ( SSDF v1.1 )",
+        ):
+            self.assertEqual(self.kinds(text, self.SSDF), [], text)
+        self.assertEqual(self.identities("NIST SP 800-218 (SSDF 1.1)"), [("nist sp 800-218", "1.1")])
+        self.assertEqual(self.kinds("NIST SP 800-218 (SSDF 1.0)", self.SSDF), ["STALE"])
+        # Only one capitalised acronym, a dotted version and an immediate close are read.
+        for text in (
+            "NIST SP 800-218 (SSDF)", "NIST SP 800-218 (SSDF PW.4)",
+            "NIST SP 800-218 (SSDF 1.1 draft)", "NIST SP 800-218 (ssdf 1.1)",
+            "NIST SP 800-218 (SSDF 1)", "NIST SP 800-218 (Secure Software 1.1)",
+        ):
+            self.assertEqual(self.kinds(text, self.SSDF), ["UNPINNED"], text)
+        self.assertEqual(self.identities("NIST SP 800-218 (FIPS 140-3)")[0], ("nist sp 800-218", ""))
+        self.assertEqual(self.identities("ISO/IEC 27001 (ISMS 2.0)"), [("iso/iec 27001", "")])
+
 
 # 3b75: the sanctioned historical-context form (policy register + engine binding).
 HREG = (

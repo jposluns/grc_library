@@ -624,6 +624,15 @@ def version_after(text, end, family):
         )
         if m:
             return m[1], end + m.end()
+        # A parenthesised programme name and its version ("SP 800-218 (SSDF 1.1)") is
+        # that citation's version. The name is one capitalised acronym, the version is
+        # dotted and the paren closes at once, so "(FIPS 140-3)" or "(Part 1)" is not read (3b652).
+        m = re.match(
+            r"\s*\(\s*[A-Z]{2,}\s+((?:version\s+|v)?\d+(?:\.\d+)+)\s*\)",
+            tail,
+        )
+        if m:
+            return m[1], end + m.end()
 
     # A parenthesized edition "(2022)" is accepted like the colon and
     # whitespace forms, WITHOUT requiring an immediate close: a real edition
