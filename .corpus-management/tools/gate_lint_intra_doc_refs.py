@@ -87,7 +87,8 @@ def is_cross_doc_context(line: str, ref_start: int) -> bool:
       here yet unclaimed by gates 62 and 65 (an accepted heuristic band, the
       same shape as the pre-existing preceding-side window).
     - Doctype words and most external-framework names: whole-line scans (ISO,
-      NIST, OWASP, CSA, MITRE, COBIT, BASC, etc).
+      NIST, OWASP, CSA, MITRE, COBIT, BASC, the Canadian federal CCCS, ITSP.,
+      ITSAP., ITSG-, SPIN, TBS and Treasury Board markers, etc).
       Framework-mapping tables typically reference external framework
       section numbers in their cells; this scan catches that pattern.
     - GDPR, CPPA, PIPEDA, HIPAA, PCI DSS, and SOC 2 claim every mark on
@@ -153,6 +154,9 @@ def is_cross_doc_context(line: str, ref_start: int) -> bool:
         "EU AI Act", "EU NIS", "EU DORA", "FedRAMP", "FIPS",
         "Clause", "Article", "DSS", "ISM-", "CCC-", "CEK-", "I&S-",
         "Rev ", "SP 800",
+        # Canadian federal instruments (CCCS ITSP./ITSAP./ITSG- publications,
+        # TBS SPIN, Treasury Board directives and policies)
+        "CCCS", "ITSP.", "ITSAP.", "ITSG-", "SPIN ", "TBS ", "Treasury Board",
     )
     for w in external_frameworks:
         if w in line:

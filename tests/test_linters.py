@@ -4576,6 +4576,36 @@ class IntraDocRefTests(LinterTestCase):
                 result = run_linter("tools/lint-intra-doc-refs.py", fixture)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_canadian_federal_instrument_marks_pass(self) -> None:
+        # 3b662: one line per Canadian federal instrument marker; each cites
+        # that instrument's own section, not a heading of this document.
+        for line in (
+            "CCCS small and medium organizations baseline §3.10 applies.",
+            "ITSP.80.022 §2.1 defines seven zone types.",
+            "ITSAP.40.003 §4.2 lists the response phases.",
+            "ITSG-33 §3.2 sets the control profile.",
+            "SPIN 2017-01 §6.2.4 requires encryption in transit.",
+            "TBS direction §4.1 applies to cloud use.",
+            "Treasury Board Directive on Automated Decision-Making §6.3.1 applies.",
+        ):
+            with self.subTest(line=line):
+                body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
+                fixture = self.make_fixture("standard-canadian-instrument-ref.md", body)
+                result = run_linter("tools/lint-intra-doc-refs.py", fixture)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_unmarked_intra_ref_still_fails(self) -> None:
+        # 3b662: without a marker on the line, a stale §N is still reported;
+        # the markers match case-sensitively, so lowercase words do not count.
+        for line, ref in (
+            ("Zone interface points (§2.2) carry all inter-zone traffic.", "2.2"),
+            ("The spin §99.99 and tbs §99.99 rows are ours.", "99.99"),
+        ):
+            with self.subTest(line=line):
+                body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
+                fixture = self.make_fixture("standard-unmarked-ref.md", body)
+                self.assertLinterFails(run_linter("tools/lint-intra-doc-refs.py", fixture), ref)
+
 
 class CrossFileSectionRefTests(LinterTestCase):
     """tools/lint-cross-file-section-refs.py (gate 62)
@@ -55759,6 +55789,13 @@ class IntraDocRefsEngineTransferTests(unittest.TestCase):
     def test_cross_doc_framework_name_skipped(self):
         # an external-framework name on the line marks the ref as cross-doc
         self.assertEqual(self._scan("## 1. Intro\n\nNIST SP 800-53 §5.4 applies.\n"), [])
+
+    def test_cross_doc_canadian_instrument_skipped(self):
+        # 3b662: a Canadian federal instrument marker on the line marks the ref as cross-doc
+        for marker in ("CCCS", "ITSP.80.022", "ITSAP.40.003", "ITSG-33", "SPIN 2017-01",
+                       "TBS direction", "Treasury Board directive"):
+            with self.subTest(marker=marker):
+                self.assertEqual(self._scan(f"## 1. Intro\n\n{marker} §5.4 applies.\n"), [])
 
     def test_no_numbered_headings_no_findings(self):
         self.assertEqual(self._scan("# Plain\n\nSee §5.4 for details.\n"), [])
