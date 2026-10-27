@@ -29451,7 +29451,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
-        lint-table-cell-count.py OWN F b129236a3617968b368ee1353fb15c141b05b6adc2051920d7ee490d59de85fc
+        lint-table-cell-count.py OWN F 908cb45af821e88f62f1dfb2cfeaa89a32bbb2031c7e1fb85f2c408ffd04541a
         lint-todo-index-reference-parity.py OWN F cf16944b198e3e919e7f2fd7ba6343363c8612e660879734585aaa48b4d99f41
         lint-todo-list-tag.py OWN F 867aa18964d3ae7c4031831d484c50eef4d24b8753207fb7e965441eb01206f9
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
