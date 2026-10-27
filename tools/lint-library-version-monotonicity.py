@@ -106,7 +106,11 @@ Exit codes:
     checks only the last path component, so a directory swapped for a
     symlink after the walk listed it is still followed; where
     the platform lacks O_NOFOLLOW or O_NONBLOCK, a symlink is followed or a
-    FIFO's open can block, as before.
+    FIFO's open can block, as before; where it lacks O_NOCTTY, opening a
+    terminal device can still make it the controlling terminal. The
+    --prior-readme file is read with read_text(), which does not pass
+    O_NOCTTY; its is_file() check refuses a device first, but a path
+    swapped for one after that check is opened without O_NOCTTY.
 """
 
 from __future__ import annotations
@@ -191,7 +195,7 @@ SPECIAL_FILES = ((stat.S_ISFIFO, "a FIFO"), (stat.S_ISSOCK, "a socket"),
                  (stat.S_ISCHR, "a character device"), (stat.S_ISBLK, "a block device"))
 
 OPEN_FLAGS = (os.O_RDONLY | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_NOFOLLOW", 0)
-              | getattr(os, "O_CLOEXEC", 0))
+              | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOCTTY", 0))
 
 
 def read_current(path: Path, rel: str, problems: list[tuple[str, str]]) -> str | None:
@@ -207,7 +211,9 @@ def read_current(path: Path, rel: str, problems: list[tuple[str, str]]) -> str |
     a socket never reaches fstat and is refused as an open error. O_NOFOLLOW makes a symlink,
     dangling or not, fail the open (ELOOP), so it is refused as an open error, the way round 3
     refused a dangling one. A directory falls through to the read, which refuses it as round 3
-    did (IsADirectoryError). The text is decoded as read_text() decoded it (UTF-8, universal
+    did (IsADirectoryError). O_NOCTTY keeps a terminal device named *.md from becoming the
+    controlling terminal of a gate run as a session leader with none; fstat then refuses it as a
+    character device (3b643). The text is decoded as read_text() decoded it (UTF-8, universal
     newlines)."""
     try:
         fd = os.open(path, OPEN_FLAGS)

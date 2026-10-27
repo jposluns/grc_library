@@ -29409,7 +29409,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
-        lint-library-version-monotonicity.py OWN F e100ca134c856526224552e2a646f195d61708a2f32255d7cd254317735c6178
+        lint-library-version-monotonicity.py OWN F 39123cf79221de9b66016edb2e04ea474b72cb8d96618d7296a16ee70daed691
         lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
         lint-links.py ROOT F cf4b6ae1d2c76df65234323d94650ebc62db87bf24ed4f375d5386b4a75fb0b6
         lint-listing-surface-completeness.py NO_FS F 3dc1bb95c9133adec9f3af5640cf18a6c342118c972ab7cfb447fa6651ffe0f3
@@ -71437,6 +71437,29 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
             "ERROR: governance/link.md cannot be read (OSError); its version cannot be read, so "
             "monotonicity is unchecked."], err)
+
+    @unittest.skipUnless(hasattr(os, "O_NOCTTY"), "the platform has no O_NOCTTY")
+    def test_library_version_monotonicity_opens_a_document_with_o_noctty(self) -> None:
+        # 3b643: without O_NOCTTY a gate run as a session leader with no controlling terminal
+        # could acquire a terminal device named *.md as its controlling terminal on the open.
+        # read_current (which also reads README.md) opens a document once, with O_NOCTTY and the
+        # r5 flags; the twin read without the patch returns the same text.
+        from unittest import mock
+
+        mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_noctty_3b643")
+        doc = self.tmp / "d.md"
+        doc.write_text("**Version:** 1.0.0\n", encoding="utf-8")
+        problems = []
+        with mock.patch.object(mono.os, "open", wraps=os.open) as opened:
+            text = mono.read_current(doc, "d.md", problems)
+        self.assertEqual((text, problems), ("**Version:** 1.0.0\n", []))
+        self.assertEqual(opened.call_count, 1, opened.call_args_list)
+        (path, flags), kwargs = opened.call_args
+        self.assertEqual((path, kwargs), (doc, {}))
+        for name in ("O_NOCTTY", "O_NONBLOCK", "O_NOFOLLOW", "O_CLOEXEC"):
+            self.assertTrue(flags & getattr(os, name), name)
+        self.assertEqual(flags & os.O_ACCMODE, os.O_RDONLY)
+        self.assertEqual(mono.read_current(doc, "d.md", []), text)
 
     def test_library_version_monotonicity_reads_a_document_from_the_descriptor_it_checked(self) -> None:
         # 3b624 r5: r4 stat'ed a document and then opened it again by name, so a regular file
