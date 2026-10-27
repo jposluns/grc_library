@@ -363,7 +363,7 @@ _77 documents._
 | [ai/jurisdictions/annex-ai-us-federal.md](../ai/jurisdictions/annex-ai-us-federal.md) | United States Federal AI Policy (OMB M-25-21, M-25-22, and M-26-04) Regulatory Requirements | Annex | 0.0.6 | 2026-10-27 |
 | [ai/jurisdictions/annex-ai-us-illinois.md](../ai/jurisdictions/annex-ai-us-illinois.md) | Illinois AI in Employment (HB 3773) Regulatory Requirements | Annex | 0.0.4 | 2026-10-27 |
 | [ai/jurisdictions/annex-ai-us-new-york-city.md](../ai/jurisdictions/annex-ai-us-new-york-city.md) | New York City Automated Employment Decision Tool Regulatory Requirements | Annex | 0.0.8 | 2026-10-27 |
-| [ai/jurisdictions/annex-ai-us-texas.md](../ai/jurisdictions/annex-ai-us-texas.md) | Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements | Annex | 0.0.7 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-us-texas.md](../ai/jurisdictions/annex-ai-us-texas.md) | Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements | Annex | 0.0.8 | 2026-10-27 |
 | [ai/matrix-etsi-sai-baseline-alignment.md](../ai/matrix-etsi-sai-baseline-alignment.md) | ETSI Securing-AI Baseline Alignment Matrix | Matrix | 0.0.4 | 2026-09-21 |
 | [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.18 | 2026-10-27 |
 | [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.1.6 | 2026-09-05 |
