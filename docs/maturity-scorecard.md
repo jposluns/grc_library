@@ -412,7 +412,7 @@ _78 documents._
 | [privacy/annex-legitimate-interest-employment-monitoring.md](../privacy/annex-legitimate-interest-employment-monitoring.md) | Legitimate Interest Assessment for Employment Monitoring Annex | Annex | 0.1.4 | 2026-10-24 |
 | [privacy/jurisdictions/annex-privacy-chile.md](../privacy/jurisdictions/annex-privacy-chile.md) | Chile Privacy Regulatory Requirements | Annex | 0.0.1 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-colombia.md](../privacy/jurisdictions/annex-privacy-colombia.md) | Colombia Privacy Regulatory Requirements | Annex | 0.0.2 | 2026-09-04 |
-| [privacy/jurisdictions/annex-privacy-ecuador.md](../privacy/jurisdictions/annex-privacy-ecuador.md) | Ecuador Privacy Regulatory Requirements | Annex | 0.0.1 | 2026-10-27 |
+| [privacy/jurisdictions/annex-privacy-ecuador.md](../privacy/jurisdictions/annex-privacy-ecuador.md) | Ecuador Privacy Regulatory Requirements | Annex | 0.0.2 | 2026-10-27 |
 | [privacy/jurisdictions/annex-privacy-mexico.md](../privacy/jurisdictions/annex-privacy-mexico.md) | Mexico Privacy Regulatory Requirements | Annex | 0.0.4 | 2026-09-12 |
 | [privacy/jurisdictions/annex-privacy-peru.md](../privacy/jurisdictions/annex-privacy-peru.md) | Peru Privacy Regulatory Requirements | Annex | 0.0.3 | 2026-09-24 |
 | [privacy/procedure-works-council-and-employee-representative-consultation.md](../privacy/procedure-works-council-and-employee-representative-consultation.md) | Works Council and Employee Representative Consultation Procedure | Procedure | 0.1.2 | 2026-10-27 |

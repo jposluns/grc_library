@@ -50208,7 +50208,7 @@ class IndexTitleParityTests(LinterTestCase):
     """Gate 92 title ratchet (3b150): the engine's third comparator.
 
     Synthetic --root trees warn about unmatched baseline paths. The live run
-    requires all 44 pinned pairs, with 29 privacy shortenings and 15 drift
+    requires all 45 pinned pairs, with 30 privacy shortenings and 15 drift
     work items. Negative fixtures exercise both sides of the title pin. The
     engine tests pin that the title options are off by default, that
     collect_findings always returns four parts, and that check_row without
