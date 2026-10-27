@@ -19911,16 +19911,62 @@ class ListingSurfaceCompletenessTests(LinterTestCase):
 class ChangelogMirrorHeaderParityTests(LinterTestCase):
     """tools/lint-changelog-mirror-header-parity.py"""
 
+    def _run_on_checkout_changelog(self, mirror: str | None = None) -> subprocess.CompletedProcess:
+        # 3b656: hermetic. The checkout's root CHANGELOG.md is copied into a temp root the test
+        # owns and read through an explicit --root, which the linter reads verbatim and never
+        # through resolve_working, so the live store (GRC_STORE, <repo-parent>/private, the
+        # private sibling) cannot decide the verdict. The default mirror is the changelog itself:
+        # parity with the real mirror is store state, which gate 59 checks in run_all_audits;
+        # this pins what the checked-in file controls (its own ordering and duplicates).
+        changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_pair(root, changelog, changelog if mirror is None else mirror)
+            return run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+
     def test_runs_clean_on_corpus_at_head(self) -> None:
-        # Smoke test: the root CHANGELOG and its detailed mirror carry the
-        # same per-PR header set (at or above the cutoff) at HEAD.
-        result = run_linter("tools/lint-changelog-mirror-header-parity.py")
+        # Smoke test: the checked-in root CHANGELOG passes the gate at HEAD
+        # (per-PR headers unique and Library Versions strictly decreasing at or
+        # above the cutoff), independent of any private store.
+        result = self._run_on_checkout_changelog()
         self.assertEqual(
             result.returncode, 0,
-            f"linter exited {result.returncode} on HEAD; the root CHANGELOG "
-            f"and its detailed mirror should carry the same per-PR headers.\n"
+            f"linter exited {result.returncode} on HEAD's root CHANGELOG.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
+
+    def test_head_verdict_ignores_newer_store_mirror(self) -> None:
+        # 3b656 regression: a branch one merge behind main sees a store mirror carrying
+        # one header newer than its root CHANGELOG (the #3008 case). The pre-fix test read
+        # that store and failed a correct branch; the hermetic path must not read it.
+        from unittest import mock
+        mod = load_linter_module("tools/lint-changelog-mirror-header-parity.py", "_mp_3b656")
+        changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        _, pr, version, _ = mod.pr_headers(changelog, cutoff=0)[0]
+        newer = pr + 1
+        header = f"**2099-01-01 | {version[0]}.{version[1]}.{version[2] + 1} | PR #{newer}** - x\n\n"
+        with tempfile.TemporaryDirectory() as store:
+            mirror_dir = Path(store) / "changelog-details"
+            mirror_dir.mkdir()
+            (mirror_dir / "CHANGELOG-detailed.md").write_text(header + changelog, encoding="utf-8")
+            with mock.patch.dict(os.environ, {"GRC_STORE": store}):
+                result = self._run_on_checkout_changelog()
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertNotIn(f"#{newer}", result.stdout)
+
+    def test_head_path_still_flags_genuine_mismatch(self) -> None:
+        # The hermetic path keeps discriminating: a mirror missing the checkout's newest
+        # root header must fail and name it.
+        mod = load_linter_module("tools/lint-changelog-mirror-header-parity.py", "_mp_3b656_miss")
+        changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        lineno, pr, _, _ = mod.pr_headers(changelog, cutoff=0)[0]
+        lines = changelog.splitlines(keepends=True)
+        result = self._run_on_checkout_changelog("".join(lines[:lineno - 1] + lines[lineno:]))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("MISSING from the detailed mirror", result.stdout)
+        self.assertIn(f"#{pr}", result.stdout)
 
     def _write_pair(self, root: Path, root_headers: str, mirror_headers: str) -> None:
         (root / "CHANGELOG.md").write_text(root_headers, encoding="utf-8")
