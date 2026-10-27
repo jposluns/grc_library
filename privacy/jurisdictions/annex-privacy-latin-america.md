@@ -2,7 +2,7 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.15\
+**Version:** 1.0.16\
 **Date:** 2026-10-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -63,7 +63,7 @@ Most Latin American jurisdictions apply general data protection principles to AI
 - **Argentina:** The AAIP has issued guidance on AI and data protection, applying Law 25.326 to automated processing; that guidance is cited illustratively and is confirmed by adopters against current AAIP publications. Algorithmic transparency is an area of active regulatory development.
 - **Mexico:** under the 2025 LFPDPPP (administered by the Secretaría Anticorrupción y Buen Gobierno), the privacy-notice contents are fixed by Article 15 and do not include a specific automated-processing disclosure; the automated-decision provision is the Article 26(II) right to object where personal data are subject to automated processing that produces unwanted legal effects or significantly affects the person's interests, rights, or freedoms by evaluating personal aspects without human intervention. The law provides the access, rectification, cancellation, and objection (ARCO) rights. See the dedicated [`Mexico privacy annex`](annex-privacy-mexico.md).
 - **Colombia:** The SIC applies Law 1581 to AI systems. Data subjects may exercise ARCO rights against automated processing.
-- **Ecuador:** the LOPDP gives data subjects a right not to be subject to a decision based solely or partly on automated assessments, including profiling, that produces legal effects on them or infringes their fundamental rights and freedoms, with rights to a reasoned explanation, to present observations, and to challenge the decision (Article 20). See the dedicated [`Ecuador privacy annex`](annex-privacy-ecuador.md).
+- **Ecuador:** the LOPDP gives data subjects a right not to be subject to a decision based solely or partly on automated assessments, including profiling, that produces legal effects on them or infringes their fundamental rights and freedoms, with rights to a reasoned explanation, to present observations, and to challenge the decision (Article 20); the right does not apply in the cases Article 20 excludes. See the dedicated [`Ecuador privacy annex`](annex-privacy-ecuador.md).
 - **Chile and Peru:** Both apply their data protection laws to AI processing. Chile has enacted Law 21.719 (in force 2026-12-01), which introduces explicit automated decision-making provisions; Peru applies its Law 29733.
 - **BASC regional context:** In jurisdictions where BASC certification is relevant, privacy controls should be aligned with BASC security management standards in addition to applicable local data protection laws.
 

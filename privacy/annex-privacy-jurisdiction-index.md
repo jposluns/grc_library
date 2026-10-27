@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.65\
+**Version:** 1.0.66\
 **Date:** 2026-10-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -112,7 +112,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Chile | Ley 19.628 (transition to Ley 21.719 on 2026-12-01) | No ADM-specific regime under Ley 19.628; Ley 21.719 introduces one | No general cross-border regime under Ley 19.628 (Art 5 only) | UTM fines 1-50 via civil courts; no DPA under Ley 19.628 (Agencia under Ley 21.719) |
 | Peru | Ley 29733; DS 016-2024-JUS (2024) | Automated-decision rights; facultative DPIA (DS Art 40) | Adequacy-plus-safeguards; DGTAIPD model clauses (DS Arts 18-20) | Fines up to 100 UIT for very serious (serious to 50 UIT); capped at 10% prior-year gross income |
 | Colombia | Ley 1581 de 2012; Decreto 1074 de 2015 | ARCO-style rights; no ADM-specific regime | Adequacy determination + Normas Corporativas Vinculantes (BCR) | Fines up to 2,000 SMLMV (SIC) |
-| Ecuador | LOPDP (2021); Reglamento, Decreto Ejecutivo 904 (2023) | Right not to be subject to decisions based solely or partly on automated assessments that produce legal effects or infringe fundamental rights and freedoms (Art 20); mandatory DPIA for systematic and exhaustive automated evaluation on which decisions with legal effects are based (Art 42) | Adequacy resolution; adequate guarantees incl. Authority-approved BCRs; prior authorization; Art 60 exceptions | 0.7% to 1% of prior-year business volume for serious infractions (private-law entities and public companies; Art 72) |
+| Ecuador | LOPDP (2021); Reglamento, Decreto Ejecutivo 904 (2023) | Right not to be subject to decisions based solely or partly on automated assessments that produce legal effects or infringe fundamental rights and freedoms, with exceptions (Art 20); mandatory DPIA for systematic and exhaustive automated evaluation of personal aspects on which decisions with legal effects are based (Art 42) | Adequacy resolution; adequate guarantees incl. Authority-approved BCRs; prior authorization; Art 60 exceptions; prior registration of transfers in the Registro Nacional (Art 59) | 0.7% to 1% of prior-year business volume for serious infractions (private-law entities and public companies; Art 72) |
 | Latin America | Various (see jurisdiction file) | Varies by jurisdiction | Varies by jurisdiction | Varies by jurisdiction |
 | Singapore | PDPA | mandatory breach notification; voluntary PDPC Model AI Governance Framework | s. 26 prescribed comparable-protection requirements; Commission exemption (s. 26(2)) | SGD 1M, or 10% of SG turnover if it exceeds SGD 10M (s.48J) |
 | Australia | Privacy Act 1988 | AI Ethics Framework (voluntary); APP principles; Privacy Act 2024 reforms | APP 8 contractual safeguards | For serious interference with the privacy of an individual, the civil penalty for a body corporate is an amount not more than the greatest of the following (s. 13G(1), (3)): (a) AUD 50,000,000; (b) if the court can determine the value of the benefit that the body corporate, and any related body corporate, have obtained directly or indirectly and that is reasonably attributable to the conduct constituting the contravention, 3 times the value of that benefit; (c) if the court cannot determine the value of that benefit, 30% of the adjusted turnover of the body corporate during the breach turnover period for the contravention. |
