@@ -19911,36 +19911,62 @@ class ListingSurfaceCompletenessTests(LinterTestCase):
 class ChangelogMirrorHeaderParityTests(LinterTestCase):
     """tools/lint-changelog-mirror-header-parity.py"""
 
-    def _run_on_checkout_changelog(self, mirror: str | None = None) -> subprocess.CompletedProcess:
-        # 3b656: hermetic. The checkout's root CHANGELOG.md is copied into a temp root the test
-        # owns and read through an explicit --root, which the linter reads verbatim and never
-        # through resolve_working, so the live store (GRC_STORE, <repo-parent>/private, the
-        # private sibling) cannot decide the verdict. The default mirror is the changelog itself:
-        # parity with the real mirror is store state, which gate 59 checks in run_all_audits;
-        # this pins what the checked-in file controls (its own ordering and duplicates).
+    MIRROR_REL = "changelog-details/CHANGELOG-detailed.md"
+
+    def _head_parity_result(self) -> tuple[subprocess.CompletedProcess, int] | None:
+        """The checkout's root CHANGELOG against the real detailed mirror, bounded to its own head.
+
+        3b656 r2 (codex): the mirror is the one the linter's default run reads (resolve_working:
+        GRC_STORE, <repo-parent>/private, the private sibling, the in-repo .working), so parity
+        with it is still checked. The linter has no ceiling option (its only option is --root), so
+        the bound is applied here: mirror headers naming a PR above the checkout's newest root
+        header are dropped, and a branch one merge behind main (the #3008 case) passes, while a
+        mismatch at or below that header still fails. The pair is read through an explicit --root,
+        so the linter's store-scope deferral reads no branch git state (its note says so). None
+        when no mirror is present."""
+        mod = load_linter_module("tools/lint-changelog-mirror-header-parity.py", "_mp_3b656_head")
+        mirror_path = mod.resolve_working(self.MIRROR_REL)
+        if mirror_path is None:
+            return None
         changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        ceiling = max(pr for _, pr, _, _ in mod.pr_headers(changelog, cutoff=0))
+        mirror = mirror_path.read_text(encoding="utf-8")
+        above = {ln for ln, pr, _, _ in mod.pr_headers(mirror, cutoff=0) if pr > ceiling}
+        bounded = "".join(
+            line for n, line in enumerate(mirror.splitlines(keepends=True), 1) if n not in above
+        )
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            self._write_pair(root, changelog, changelog if mirror is None else mirror)
-            return run_linter(
+            self._write_pair(root, changelog, bounded)
+            result = run_linter(
                 "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
             )
+        return result, ceiling
+
+    def _store_mirror(self, store: str, text: str) -> None:
+        (Path(store) / "changelog-details").mkdir()
+        (Path(store) / self.MIRROR_REL).write_text(text, encoding="utf-8")
 
     def test_runs_clean_on_corpus_at_head(self) -> None:
-        # Smoke test: the checked-in root CHANGELOG passes the gate at HEAD
-        # (per-PR headers unique and Library Versions strictly decreasing at or
-        # above the cutoff), independent of any private store.
-        result = self._run_on_checkout_changelog()
+        # Smoke test: the root CHANGELOG and its detailed mirror carry the same per-PR header
+        # set (at or above the cutoff, at or below the checkout's newest root header) at HEAD.
+        outcome = self._head_parity_result()
+        if outcome is None:
+            self.skipTest(
+                "no detailed CHANGELOG mirror is present (no store supplies "
+                + self.MIRROR_REL + "); root/mirror header parity at HEAD is not checked"
+            )
+        result, ceiling = outcome
         self.assertEqual(
             result.returncode, 0,
-            f"linter exited {result.returncode} on HEAD's root CHANGELOG.\n"
+            f"linter exited {result.returncode} on HEAD; the root CHANGELOG and its detailed "
+            f"mirror (headers up to PR #{ceiling}) should carry the same per-PR headers.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
-    def test_head_verdict_ignores_newer_store_mirror(self) -> None:
+    def test_head_parity_passes_with_mirror_one_header_ahead(self) -> None:
         # 3b656 regression: a branch one merge behind main sees a store mirror carrying
-        # one header newer than its root CHANGELOG (the #3008 case). The pre-fix test read
-        # that store and failed a correct branch; the hermetic path must not read it.
+        # one header newer than its root CHANGELOG (the #3008 case); it must pass.
         from unittest import mock
         mod = load_linter_module("tools/lint-changelog-mirror-header-parity.py", "_mp_3b656")
         changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
@@ -19948,25 +19974,42 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         newer = pr + 1
         header = f"**2099-01-01 | {version[0]}.{version[1]}.{version[2] + 1} | PR #{newer}** - x\n\n"
         with tempfile.TemporaryDirectory() as store:
-            mirror_dir = Path(store) / "changelog-details"
-            mirror_dir.mkdir()
-            (mirror_dir / "CHANGELOG-detailed.md").write_text(header + changelog, encoding="utf-8")
+            self._store_mirror(store, header + changelog)
             with mock.patch.dict(os.environ, {"GRC_STORE": store}):
-                result = self._run_on_checkout_changelog()
+                result, ceiling = self._head_parity_result()
+        self.assertEqual(ceiling, pr)
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertNotIn(f"#{newer}", result.stdout)
 
-    def test_head_path_still_flags_genuine_mismatch(self) -> None:
-        # The hermetic path keeps discriminating: a mirror missing the checkout's newest
-        # root header must fail and name it.
+    def test_head_parity_flags_mismatch_at_or_below_the_head(self) -> None:
+        # The bound keeps discriminating: a store mirror missing the checkout's newest root
+        # header (the review's case, #3009 missing) must fail and name it.
+        from unittest import mock
         mod = load_linter_module("tools/lint-changelog-mirror-header-parity.py", "_mp_3b656_miss")
         changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
         lineno, pr, _, _ = mod.pr_headers(changelog, cutoff=0)[0]
         lines = changelog.splitlines(keepends=True)
-        result = self._run_on_checkout_changelog("".join(lines[:lineno - 1] + lines[lineno:]))
+        with tempfile.TemporaryDirectory() as store:
+            self._store_mirror(store, "".join(lines[:lineno - 1] + lines[lineno:]))
+            with mock.patch.dict(os.environ, {"GRC_STORE": store}):
+                result, _ = self._head_parity_result()
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn("MISSING from the detailed mirror", result.stdout)
         self.assertIn(f"#{pr}", result.stdout)
+
+    def test_head_parity_is_skipped_without_a_mirror(self) -> None:
+        # No store and no fallback supplies the mirror: the head test reports a skip, never a pass.
+        from unittest import mock
+        case = type(self)("test_runs_clean_on_corpus_at_head")
+        with mock.patch.object(type(self), "_head_parity_result", return_value=None):
+            outcome = unittest.TestResult()
+            case.run(outcome)
+        self.assertEqual(outcome.testsRun, 1)
+        self.assertEqual([r for _, r in outcome.skipped], [
+            "no detailed CHANGELOG mirror is present (no store supplies "
+            + self.MIRROR_REL + "); root/mirror header parity at HEAD is not checked"
+        ])
+        self.assertEqual((outcome.failures, outcome.errors), ([], []))
 
     def _write_pair(self, root: Path, root_headers: str, mirror_headers: str) -> None:
         (root / "CHANGELOG.md").write_text(root_headers, encoding="utf-8")
