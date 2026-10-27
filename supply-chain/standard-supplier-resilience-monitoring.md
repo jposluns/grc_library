@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Resilience Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-10-27\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -136,7 +136,7 @@ Five categories of signal are monitored. Each category contains specific signals
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| DORA | Monitoring that supports Article 28 (General principles) and Article 30 (Key contractual provisions); the contract terms and the exit strategy sit outside this standard (§5, §6). Article 28: signals that breach materially and durably feed the exit decision (§5), informing termination circumstances identified through monitoring, 28(7)(b), and exit strategies, 28(8). Article 30: SLA-breach signals are checked against contractual tolerance, 30(3)(a) (§3.2); supplier notifications and disclosures are signal sources, 30(3)(b) (§3.1, §3.2, §3.5); disclosed BCP and DR test results are reviewed, 30(3)(c) (§3.1); and ongoing monitoring by tier exercises the right to monitor performance, 30(3)(e) (§3, §4) | EU financial services |
+| DORA | Monitoring that supports Article 28 (General principles) and Article 30 (Key contractual provisions); the contract terms and the exit strategy sit outside this standard (§5, §6), and 28(8) and 30(3) apply to ICT services supporting critical or important functions. Article 28: signals that breach materially and durably feed the exit decision (§5), informing termination circumstances identified through monitoring, 28(7)(b), and exit strategies, 28(8). Article 30: SLA-breach signals are checked against contractual tolerance, 30(3)(a) (§3.2); supplier notifications and disclosures are signal sources, 30(3)(b) (§3.1, §3.2, §3.5); disclosed BCP and DR test results are reviewed, 30(3)(c) (§3.1); and ongoing monitoring by tier draws on the contractual right to monitor performance, 30(3)(e) (§3, §4), whose access, inspection and audit rights sit outside this standard | EU financial services |
 | EBA Guidelines on outsourcing arrangements | EBA/GL/2019/02 §82 to 95 | Banking monitoring |
 | NIST SP 800-161 Rev. 1 | SR-6 (supplier assessments and reviews) | US baseline |
 | ISO 28000:2022 | Security management for supply chains | International. The ISO 28000:2022 alignment is unverifiable. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 --> |
