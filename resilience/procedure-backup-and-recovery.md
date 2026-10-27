@@ -2,7 +2,7 @@
 
 **Document Title:** Backup and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.2\
+**Version:** 1.1.3\
 **Date:** 2026-10-27\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
@@ -87,7 +87,7 @@ Recovery capability must be tested according to criticality. This section is the
 Canadian reference points for recovery capability, which add no requirement to this procedure:
 
 - Control BC.7.1 of the CCCS small and medium organizations baseline cited in the Protection requirements section says organizations should back up systems holding essential business information and ensure that recovery mechanisms restore those systems effectively and efficiently, and should consider keeping backups offline at a secure offsite location or give the rationale for not doing so.
-- For the Canadian federal public sector, the Treasury Board **Directive on Security Management** (held edition: takes effect July 1, 2019), Appendix B, directs departments to set recovery strategies and restoration priorities for data and information systems in line with departmental business continuity requirements (B.2.3.10.1), to implement measures that meet them (B.2.3.10.2), and to test IT continuity mechanisms as part of departmental business continuity management (B.2.3.10.3). The [Canada public-sector annex](../compliance/public-sector/annex-canada-public-sector-requirements.md) carries that lane, and the [IT disaster recovery plan](plan-it-disaster-recovery.md) sets the recovery tiers and objectives this procedure supports. The held edition is the one cited; its currency is to be confirmed upstream.
+- For the Canadian federal public sector, the Treasury Board **Directive on Security Management** (held edition: takes effect July 1, 2019), Appendix B, directs departments to set recovery strategies and restoration priorities for data and information systems in line with departmental business continuity requirements (B.2.3.10.1), to implement measures that meet them (B.2.3.10.2), and to test IT continuity mechanisms as part of departmental business continuity management (B.2.3.10.3). The [Canada public-sector annex](../compliance/public-sector/annex-canada-public-sector-requirements.md) sets the applicability model for that lane, and the [IT disaster recovery plan](plan-it-disaster-recovery.md) sets the recovery tiers and objectives this procedure supports. The held edition is the one cited; its currency is to be confirmed upstream.
 
 ### 5. Restoration procedure
 
