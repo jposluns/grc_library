@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.31\
-**Date:** 2026-10-17\
+**Version:** 1.0.33\
+**Date:** 2026-10-27\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -71,7 +71,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 ## 6. Risk assessment and treatment
 
-6.1 Compliance risks must be assessed in line with ISO 31000:2018 and COBIT APO12, integrating legal, operational, and trade risks.
+6.1 Compliance risks must be assessed in line with ISO 31000:2018 and COBIT 2019 APO12, integrating legal, operational, and trade risks.
 
 6.2 High-risk obligations (such as customs reporting, data export, and AI bias mitigation) must have defined mitigation controls and response plans.
 
@@ -87,7 +87,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 7.3 Sector-programme controls (for example, BASC trade and customs controls including encryption validation, cargo integrity verification, personnel screening records, and customs data exchange logs) apply where the organization participates in a covered programme per the relevant sector annex; see [`compliance/`](./).
 
-7.4 AI governance controls must include organization-defined documentation for transparency, robustness, and conformity, informed by ISO/IEC 42001:2023 (clause 7.5 and Annex A.6.2.7) and NIST AI RMF.
+7.4 AI governance controls must include organization-defined documentation for transparency, robustness, and conformity, informed by ISO/IEC 42001:2023 (clause 7.5 and Annex A.6.2.7) and NIST AI RMF 1.0.
 
 ---
 

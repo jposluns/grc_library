@@ -2,8 +2,8 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.5.7\
-**Date:** 2026-09-25\
+**Version:** 1.5.9\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)\
@@ -51,7 +51,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 | **Chief Legal Officer / General Counsel (CLO/GC)** | Validates exceptions that could result in regulatory or contractual exposure; provides legal guidance on acceptance documentation. |
 | **Enterprise Risk Committee (ERC)** | Reviews aggregated exception metrics, expiry compliance, and exceptions exceeding defined risk appetite. Provides escalation guidance and oversight. |
 | **Internal Audit** | Reviews open exceptions, closure evidence, and process adherence. Reports systemic deficiencies and recurring patterns to the Audit Committee. |
-| **AI Governance Council** | Reviews exceptions involving AI systems, datasets, or model governance to ensure that alignment with ISO/IEC 23894:2023 and NIST AI RMF is maintained. Escalates high-risk AI exceptions to the Board Risk Committee. |
+| **AI Governance Council** | Reviews exceptions involving AI systems, datasets, or model governance to ensure that alignment with ISO/IEC 23894:2023 and NIST AI RMF 1.0 is maintained. Escalates high-risk AI exceptions to the Board Risk Committee. |
 
 
 
@@ -63,7 +63,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 4.1.3 Requests must use the approved template and be submitted via the governance portal or automated workflow.
 
 ### 4.2 Risk assessment and approval
-4.2.1 Exceptions must undergo risk assessment consistent with ISO 31000:2018 Clause 6.4 and COBIT APO12.02. 
+4.2.1 Exceptions must undergo risk assessment consistent with ISO 31000:2018 Clause 6.4 and COBIT 2019 APO12.02. 
 4.2.2 Approval levels: 
 - **Low risk:** Department Head or equivalent. 
 - **Medium risk:** CIO or delegate. 

@@ -2,8 +2,8 @@
 
 **Document Title:** AI Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.13\
-**Date:** 2026-10-25\
+**Version:** 1.1.14\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -59,7 +59,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 2.1 For each AI audit, the scope defines:
 - AI system(s) under review.
 - Audit objectives (ethics, accuracy, security, compliance, or full-scope).
-- Audit criteria: ISO/IEC 42001:2023, EU AI Act, NIST AI RMF, OWASP LLM Top 10, and/or internal standards.
+- Audit criteria: ISO/IEC 42001:2023, EU AI Act, NIST AI RMF 1.0, OWASP LLM Top 10, and/or internal standards.
 - Evidence required.
 - Audit timeline.
 
@@ -150,7 +150,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 | ISO 19011:2026 | Guidelines for auditing management systems | Audit methodology |
 | ISO/IEC 42006:2025 | Requirements for bodies certifying an AIMS | External third-party AIMS certification audits (not internal audit) |
 | EU AI Act (2024) | Article 43: Conformity assessment | High-risk AI audit obligations |
-| NIST AI RMF (2023) | MEASURE function | AI audit and measurement |
+| NIST AI RMF 1.0 (2023) | MEASURE function | AI audit and measurement |
 | COBIT 2019 | MEA04: Managed Assurance | Independent assurance over AI internal controls |
 
 ---

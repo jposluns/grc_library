@@ -2,8 +2,8 @@
 
 **Document Title:** AI Actor Role and Forum Standing Charter\
 **Document Type:** Charter\
-**Version:** 0.0.4\
-**Date:** 2026-08-31\
+**Version:** 0.0.5\
+**Date:** 2026-10-27\
 **Owner:** AI Governance Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`governance/principle-capability-is-not-authority.md`](../governance/principle-capability-is-not-authority.md), [`governance/standard-delegation-of-authority.md`](../governance/standard-delegation-of-authority.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/charter-ai-ethics-review-panel.md`](charter-ai-ethics-review-panel.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/principle-integrity-and-trustworthiness.md`](../governance/principle-integrity-and-trustworthiness.md)\
@@ -74,7 +74,7 @@ The AI actor reports to its accountable owner, and, where it advises a governanc
 
 The alignment below is analogical (each row aligns with or is informed by the cited reference) and at the control-family and category level, not a prescriptive crosswalk. Control identifiers are verified against the held source texts.
 
-| Requirement | CSA AICM v1.1.0 | ISO/IEC 42001:2023 | NIST AI RMF |
+| Requirement | CSA AICM v1.1.0 | ISO/IEC 42001:2023 | NIST AI RMF 1.0 |
 | --- | --- | --- | --- |
 | Roles and responsibilities for AI are defined and assigned | GRC-06 (Governance Responsibility Model) | Clause 5.3 (Organizational roles, responsibilities and authorities); A.3.2 (AI roles and responsibilities) | GOVERN 2.1; GOVERN 3.2 |
 | Human oversight and control of the AI system | GRC-15 (Human supervision) | A.3.2 (AI roles and responsibilities) | GOVERN 3.2 |

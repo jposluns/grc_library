@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.18\
-**Date:** 2026-09-18\
+**Version:** 1.0.19\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
@@ -56,7 +56,7 @@ It incorporates forward-looking controls for AI-generated code verification.
 | **Developers / Engineers** | Follow approved secure coding practices, maintain code integrity, and complete annual secure coding training. |
 | **QA and Testing Teams** | Conduct security testing, validate vulnerabilities, and confirm code meets ASVS v5 assurance levels. |
 | **AI Development Teams** | Verify accuracy and security of AI-generated code through human-in-the-loop review and static analysis. |
-| **Internal Audit** | Validates adherence to this policy and secure development metrics within COBIT BAI03 and MEA01 frameworks. |
+| **Internal Audit** | Validates adherence to this policy and secure development metrics within COBIT 2019 BAI03 and MEA01 frameworks. |
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** United States Federal AI Policy (OMB M-25-21, M-25-22, and M-26-04) Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.5\
-**Date:** 2026-09-25\
+**Version:** 0.0.6\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-texas.md`](annex-ai-us-texas.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-us-california.md`](annex-ai-us-california.md), [`ai/jurisdictions/annex-ai-us-illinois.md`](annex-ai-us-illinois.md), [`ai/jurisdictions/annex-ai-us-new-york-city.md`](annex-ai-us-new-york-city.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -104,7 +104,7 @@ America's AI Action Plan sets the national direction the memoranda operate withi
 
 The three memoranda govern agencies' own use and acquisition of AI; none of them purports to displace a state AI statute, so an organization that is both a federal vendor and subject to a state statute covered in the other `ai/jurisdictions/` US annexes plans to meet both. Executive Order 14365 is the federal instrument aimed at state AI laws. It directs the Attorney General to establish an AI Litigation Task Force whose sole responsibility is to challenge state AI laws inconsistent with the order's policy, including on the grounds that they unconstitutionally regulate interstate commerce, are preempted by existing federal regulations, or are otherwise unlawful in the Attorney General's judgment; directs the Secretary of Commerce to publish an evaluation of existing state AI laws and to issue a policy notice under which states with onerous AI laws identified in that evaluation are ineligible for non-deployment Broadband Equity Access and Deployment (BEAD) funds, to the maximum extent allowed by federal law; directs agencies to assess whether their discretionary grants may be conditioned on states not enacting a conflicting AI law, or, where one is enacted, agreeing not to enforce it during the funded period; directs the Federal Communications Commission to consider a federal AI reporting and disclosure standard that preempts conflicting state laws, and the Federal Trade Commission to issue a policy statement on applying its prohibition of unfair and deceptive practices to AI models, explaining when state laws that require alterations to the truthful outputs of AI models are preempted; and calls for a legislative recommendation for a uniform federal framework that preempts conflicting state AI laws, which is not to propose preempting otherwise lawful state AI laws on child safety protections, on AI compute and data-center infrastructure (other than generally applicable permitting reforms), on state government procurement and use of AI, or on other topics to be determined. The order names Colorado's algorithmic-discrimination law as an example. Whether any particular state law is displaced is a matter for litigation, rulemaking, or legislation, not for this annex; an adopter tracks the outcome before relying on a state annex's obligations falling away.
 
-The Texas annex records that TRAIGA's internal-review no-liability route is conditioned on substantial compliance with the NIST AI RMF Generative AI Profile or another recognized framework (see [`ai/jurisdictions/annex-ai-us-texas.md`](annex-ai-us-texas.md)); an adopter using the NIST AI RMF for both purposes records how the federal minimum practices map onto it.
+The Texas annex records that TRAIGA's internal-review no-liability route is conditioned on substantial compliance with the NIST AI RMF Generative AI Profile or another recognized framework (see [`ai/jurisdictions/annex-ai-us-texas.md`](annex-ai-us-texas.md)); an adopter using the NIST AI RMF 1.0 for both purposes records how the federal minimum practices map onto it.
 
 ## Limitations
 
@@ -116,9 +116,9 @@ The Texas annex records that TRAIGA's internal-review no-liability route is cond
 
 ## Framework alignment
 
-The federal-instrument column is the load-bearing, held-source-grounded content. The NIST AI RMF function tags and the ISO/IEC 42001:2023 clause and Annex A anchors are a crosswalk to help an adopter reuse its existing management-system controls; they are a mapping aid, partial for bundled rows, not an assertion that the memoranda and those standards impose the same obligations.
+The federal-instrument column is the load-bearing, held-source-grounded content. The NIST AI RMF 1.0 function tags and the ISO/IEC 42001:2023 clause and Annex A anchors are a crosswalk to help an adopter reuse its existing management-system controls; they are a mapping aid, partial for bundled rows, not an assertion that the memoranda and those standards impose the same obligations.
 
-| Requirement | US federal instrument | NIST AI RMF | ISO/IEC 42001:2023 |
+| Requirement | US federal instrument | NIST AI RMF 1.0 | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Chief AI Officer, governance board, strategy, and compliance plans | M-25-21 | Govern | Clause 5 |
 | High-impact determination and AI impact assessment with independent review | M-25-21 | Map, Measure | Annex A.5 |

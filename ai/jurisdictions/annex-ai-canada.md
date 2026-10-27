@@ -2,8 +2,8 @@
 
 **Document Title:** Canada AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.10\
-**Date:** 2026-10-16\
+**Version:** 1.0.11\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -90,7 +90,7 @@ Canadian AI governance intersects with federal and provincial privacy law (the P
 
 ## Framework alignment
 
-| Requirement | Canada instrument | NIST AI RMF | ISO/IEC 42001:2023 |
+| Requirement | Canada instrument | NIST AI RMF 1.0 | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Public-sector automated-decision governance and impact assessment | Treasury Board Directive on Automated Decision-Making; the Algorithmic Impact Assessment | Govern, Map, Measure | Clause 8 |
 | Generative-AI governance (federal institutions) | TBS Guide on the Use of Generative AI (FASTER) | Govern | Annex A.8 |

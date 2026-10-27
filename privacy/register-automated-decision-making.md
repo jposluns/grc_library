@@ -2,8 +2,8 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.19\
-**Date:** 2026-10-04\
+**Version:** 1.0.20\
+**Date:** 2026-10-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md), [`ai/standard-ai-human-oversight.md`](../ai/standard-ai-human-oversight.md)\
@@ -134,7 +134,7 @@ Where an ADM system is also an AI system (most modern cases), the AI System Regi
 | PIPL | Article 24 | Automated decision-making transparency and refusal |
 | CPPA (lapsed, not in force) | Section 63(3)-(4); Section 62(2)(c) (lapsed with Bill C-27) | Automated decision system explanation right; proactive transparency account |
 | CCPA / CPRA | Cal. Civ. Code s. 1798.185(a)(15); CCPA Regulations 11 CCR Article 11 (ss. 7200-7222) | ADMT pre-use notice, opt-out, and access rights (final regulations effective 2026-01-01; compliance by 2027-01-01) |
-| NIST AI RMF | MAP, MEASURE, MANAGE | AI risk management functions |
+| NIST AI RMF 1.0 | MAP, MEASURE, MANAGE | AI risk management functions |
 
 ---
 

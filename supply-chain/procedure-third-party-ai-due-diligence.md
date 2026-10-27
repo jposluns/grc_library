@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party AI Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.27\
-**Date:** 2026-10-26\
+**Version:** 1.0.28\
+**Date:** 2026-10-27\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -22,7 +22,7 @@ This procedure defines the AI-specific due diligence steps required before engag
 
 It complements the Supplier Due Diligence Procedure with controls that address the distinct risks presented by AI systems, including opacity in model behaviour, training data provenance, bias and fairness concerns, adversarial vulnerabilities, and the regulatory obligations imposed on deployers and importers of AI systems.
 
-This procedure is synthesized from NIST AI RMF (Govern 1.1 to 1.7, Map 5.1 to 5.2), ISO/IEC 42001:2023 Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers), EU AI Act Articles 2(2), 2(13), 6(1), 6(1a) to 6(1c), 6(3), 9, 13, 23, 26, 50, 51, 55(1)(b), 111(2), 111(4), and 113, as amended by Regulation (EU) 2026/1744, OWASP LLM Top 10, and CSA AI Controls Matrix (AICM) v1.1.
+This procedure is synthesized from NIST AI RMF 1.0 (Govern 1.1 to 1.7, Map 5.1 to 5.2), ISO/IEC 42001:2023 Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers), EU AI Act Articles 2(2), 2(13), 6(1), 6(1a) to 6(1c), 6(3), 9, 13, 23, 26, 50, 51, 55(1)(b), 111(2), 111(4), and 113, as amended by Regulation (EU) 2026/1744, OWASP LLM Top 10, and CSA AI Controls Matrix (AICM) v1.1.
 
 ---
 
@@ -69,7 +69,7 @@ Except for a high-risk AI system related to a product under Section B of Annex I
 
 ### 4.2 Organization-defined AI risk tier mapping
 
-The NIST AI RMF does not prescribe a risk-tier taxonomy; it directs each organization to define its own risk tolerance (AI RMF 1.0, Risk Tolerance). The tiers below are organization-defined, informed by the AI RMF's risk-management approach. They set the depth of supplier due diligence and are named, not numbered: they are not the organizational AI risk classification (Minimal, Limited, High, Unacceptable) recorded for each AI system in the AI System Register.
+The NIST AI RMF 1.0 does not prescribe a risk-tier taxonomy; it directs each organization to define its own risk tolerance (AI RMF 1.0, Risk Tolerance). The tiers below are organization-defined, informed by the AI RMF's risk-management approach. They set the depth of supplier due diligence and are named, not numbered: they are not the organizational AI risk classification (Minimal, Limited, High, Unacceptable) recorded for each AI system in the AI System Register.
 
 | Risk tier (organization-defined) | Description | Assessment Depth |
 | --- | --- | --- |

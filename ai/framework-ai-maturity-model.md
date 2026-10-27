@@ -2,8 +2,8 @@
 
 **Document Title:** AI Maturity Model Framework\
 **Document Type:** Framework\
-**Version:** 0.0.2\
-**Date:** 2026-09-13\
+**Version:** 0.0.3\
+**Date:** 2026-10-27\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`governance/standard-maturity-assessment-methodology.md`](../governance/standard-maturity-assessment-methodology.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md)\
@@ -83,7 +83,7 @@ The assessment is recorded in a scorecard that lists, per domain and practice, t
 | OWASP AI Maturity Assessment (AIMA) v1.0 | Eight domains, three practices, two streams (CC BY-SA 4.0) | The assessment structure, adapted with attribution and share-alike |
 | CMU SEI AI Adoption Maturity Model v1.0 | Five-level adoption ladder; eight dimensions | Cross-referenced adoption-maturity view (cited by reference) |
 | ISO/IEC 42001:2023 | §9.1, §10.1 | Management-system performance evaluation and improvement |
-| NIST AI RMF (2023) | GOVERN 1.5; MEASURE 1.1 | Governance maturity and measurement of AI risk |
+| NIST AI RMF 1.0 (2023) | GOVERN 1.5; MEASURE 1.1 | Governance maturity and measurement of AI risk |
 
 ## 9. Limitations
 

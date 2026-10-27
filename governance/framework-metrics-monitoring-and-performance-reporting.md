@@ -2,8 +2,8 @@
 
 **Document Title:** Metrics, Monitoring and Performance Reporting Framework\
 **Document Type:** Framework\
-**Version:** 1.1.11\
-**Date:** 2026-10-17\
+**Version:** 1.1.13\
+**Date:** 2026-10-27\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -26,11 +26,11 @@ This framework defines the governance metrics, Key Risk Indicators (KRIs), Key P
 
 | Domain | Primary Indicators | Framework Alignment |
 | --- | --- | --- |
-| **Governance and Risk** | Policy review completion rate, risk register updates, residual-risk reduction trend | ISO 31000:2018, COBIT APO12 |
-| **Compliance and Audit** | Percentage of CAPAs closed within SLA, audit finding recurrence rate, per-control effectiveness band (consumed under the three lines of defence) | ISO 37301:2021, COBIT MEA01 |
-| **Information Security** | Vulnerability closure rate, MTTR, MTTD, patch-compliance percentage, incident false-positive ratio | ISO/IEC 27004, NIST CSF |
-| **Business Continuity** | RTO/RPO compliance percentage, BCP testing frequency, continuity audit score | ISO 22301:2019, COBIT DSS04 |
-| **AI Governance** | Model explainability percentage, bias detection rate, retraining frequency, organization-defined AI governance maturity score | ISO/IEC 42001:2023 §9.1 (monitoring basis), NIST AI RMF |
+| **Governance and Risk** | Policy review completion rate, risk register updates, residual-risk reduction trend | ISO 31000:2018, COBIT 2019 APO12 |
+| **Compliance and Audit** | Percentage of CAPAs closed within SLA, audit finding recurrence rate, per-control effectiveness band (consumed under the three lines of defence) | ISO 37301:2021, COBIT 2019 MEA01 |
+| **Information Security** | Vulnerability closure rate, MTTR, MTTD, patch-compliance percentage, incident false-positive ratio | ISO/IEC 27004, NIST CSF 2.0 |
+| **Business Continuity** | RTO/RPO compliance percentage, BCP testing frequency, continuity audit score | ISO 22301:2019, COBIT 2019 DSS04 |
+| **AI Governance** | Model explainability percentage, bias detection rate, retraining frequency, organization-defined AI governance maturity score | ISO/IEC 42001:2023 §9.1 (monitoring basis), NIST AI RMF 1.0 |
 | **Digital Trust** | Transparency index, stakeholder confidence rating, service uptime, SLA adherence | ISACA DTEF (2024); organization-defined |
 | **BASC Trade Security** | Cargo integrity incidents (count), customs data validation accuracy percentage, BASC audit score, time-to-report customs incidents | BASC v6, WCO SAFE, ISO 28000:2022. The ISO 28000:2022 attribution is unverifiable. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 --> |
 
