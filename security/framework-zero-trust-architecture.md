@@ -2,8 +2,8 @@
 
 **Document Title:** Zero Trust Architecture Framework\
 **Document Type:** Framework\
-**Version:** 0.0.9\
-**Date:** 2026-09-23\
+**Version:** 0.0.10\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-network-communications-security.md`](policy-network-communications-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md), [`security/policy-byod.md`](policy-byod.md)\
@@ -198,6 +198,9 @@ The Chief Information Security Officer publishes an annual maturity assessment p
 | ISO/IEC 27036 | Information security for supplier relationships | Supplier integration |
 | CSA Software-Defined Perimeter | CSA | Network pillar |
 | NIST CSF 2.0 | All functions | Cross-walk |
+| CCCS ITSP.80.022 | §3.2.1, §4.3 | Canadian zone model for the Networks pillar's macro-segmentation |
+
+ITSP.80.022 presents network security zones as a way to build a defence-in-depth architecture (§3.2.1); it is a zoning model, not a zero trust model, and it informs macro-segmentation only. Its zone types, interface points, and zone authority are mapped in section 11 of the [Network Security and Segmentation Standard](../operations/standard-network-security-and-segmentation.md), which cites the held edition; its currency is to be confirmed upstream.
 
 ---
 
