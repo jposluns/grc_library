@@ -593,6 +593,13 @@
     },
     {
       "class": "procedure",
+      "corpus_path": "operations/ot/procedure-ot-incident-response.md",
+      "display_name": "OT Incident Response Procedure",
+      "id": "GRC-PROC-OT-INCIDENT-RESPONSE",
+      "source_identifier": null
+    },
+    {
+      "class": "procedure",
       "corpus_path": "operations/procedure-patch-management.md",
       "display_name": "Patch Management Procedure",
       "id": "GRC-PROC-PATCH-MGMT",
@@ -764,6 +771,13 @@
       "corpus_path": "governance/register-data-retention-schedule.md",
       "display_name": "Data Retention Schedule",
       "id": "GRC-REGISTER-DATA-RETENTION-SCHEDULE",
+      "source_identifier": null
+    },
+    {
+      "class": "evidence",
+      "corpus_path": "operations/register-it-operations-kpis.md",
+      "display_name": "IT Operations Key Performance Indicators Register",
+      "id": "GRC-REGISTER-IT-OPERATIONS-KPIS",
       "source_identifier": null
     },
     {
@@ -1318,6 +1332,13 @@
       "display_name": "ISO/IEC 42006 Requirements for bodies providing audit and certification of AI management systems",
       "id": "ISO-IEC-42006",
       "source_identifier": "ISO/IEC 42006:2025"
+    },
+    {
+      "class": "regulation or law",
+      "corpus_path": null,
+      "display_name": "NIS 2 Directive (Directive on measures for a high common level of cybersecurity across the Union)",
+      "id": "NIS2",
+      "source_identifier": "Directive (EU) 2022/2555"
     },
     {
       "class": "framework",
@@ -18599,16 +18620,176 @@
       },
       "verb": "maps to",
       "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "regulation or law",
+        "id": "NIS2"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0561",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-LEGAL-REG-COMPLIANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "regulation or law",
+        "id": "NIS2"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0562",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-ITSM"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "regulation or law",
+        "id": "NIS2"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0563",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-WHISTLEBLOWER-INCIDENT-REPORTING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "regulation or law",
+        "id": "NIS2"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0564",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-OT-INCIDENT-RESPONSE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "regulation or law",
+        "id": "NIS2"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0565",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "evidence",
+        "id": "GRC-REGISTER-IT-OPERATIONS-KPIS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 197,
-    "record_count": 538,
+    "node_count": 200,
+    "record_count": 543,
     "records_by_relationship_class": {
       "commitment": 1,
-      "correspondence": 510,
+      "correspondence": 515,
       "implementation": 19,
       "influence": 8
     }
