@@ -2,7 +2,7 @@
 
 **Document Title:** Cloud Security Configuration Baseline\
 **Document Type:** Standard\
-**Version:** 1.4.21\
+**Version:** 1.4.22\
 **Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -202,7 +202,7 @@ A workload built on a cloud provider must conform to both: the enterprise-tenant
 
 **Canadian cloud sources.** The four Canadian rows above are paraphrased from the held texts, with pinpoints. Each row cites the held edition; its currency is to be confirmed upstream before an adopter relies on it. The public-sector applicability model is in the [Canada Public Sector GRC Requirements Annex](../compliance/public-sector/annex-canada-public-sector-requirements.md), and network zoning is mapped in section 11 of the [Network Security and Segmentation Standard](standard-network-security-and-segmentation.md). A mapping row here does not establish implementation or compliance.
 
-- **SPIN 2017-01 (dated 1 November 2017 and modified 23 June 2022, per the held text).** The SPIN applies to departments within the meaning of Schedules I, I.1, II, IV, and V of the Financial Administration Act, unless excluded (SPIN section 4), and to information categorized Protected B, medium integrity, and medium availability; its requirements "should also be applied" to Protected A information where a risk assessment justifies it (section 2).
+- **SPIN 2017-01 (dated 1 November 2017 and modified 23 June 2022, per the held text's header; the held text's page footer shows a later web-page date, "Date modified: 2025-10-22").** The SPIN applies to departments within the meaning of Schedules I, I.1, II, IV, and V of the Financial Administration Act, unless excluded (SPIN section 4), and to information categorized Protected B, medium integrity, and medium availability; its requirements "should also be applied" to Protected A information where a risk assessment justifies it (section 2).
   - Before using cloud services, departments "must identify and categorize" information by the injury expected from a compromise of its confidentiality, integrity, and availability (6.1.1). The categorization method is in the ITSP.50.103 paragraph of the [Data Classification and Handling Standard](../security/standard-data-classification-and-handling.md).
   - Departments "must apply graduated safeguards" commensurate with the risk, and control profiles can support this (6.1.2). The held SPIN still names the earlier GC Security Control Profile for Cloud-Based GC IT Services as a starting point. The held text of that profile says its Appendix A control list has been replaced by the CCCS Medium Cloud Control Profile in ITSP.50.103 Annex B (its Note to Readers), so this baseline treats the earlier profile as historical and maps to Annex B.
   - Where physical inspection and audit are not feasible, departments "can leverage" independent reporting, such as ISO/IEC 27001, 27017, and 27018, FedRAMP, PCI DSS, CSA STAR, and AICPA SOC audit reports or certifications, to establish third-party assurance (6.1.3).
