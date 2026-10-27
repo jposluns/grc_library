@@ -30,6 +30,15 @@ as a measured one:
 - ``not-derivable``: neither signal. The gate is listed and excluded from the
   coverage inversion, and the report says so.
 
+Runner entries: a line that holds the word ``run_gate`` and is neither a comment nor
+the ``run_gate() {`` definition must be, from column 0,
+``run_gate "LABEL" python3 [-I] tools/X.py [plain arguments]`` (gate 35's closed
+allowlist, the same patterns); any other shape is a refused runner entry. The
+allowlist does not cover runner shell code outside run_gate lines (the function
+body, a redefinition of python3 or run_gate, PATH or BASH_ENV, and whether bash
+reaches a run_gate line inside a conditional, heredoc, loop or backslash
+continuation), which python3 is found on PATH, or what a gate script does.
+
 Honest limits: static inspection cannot see dynamically-computed scopes, so both
 the per-gate scope and the unscanned-file list are APPROXIMATE by construction.
 The report's purpose is triage (where to point manual review), never proof of
@@ -51,7 +60,6 @@ from __future__ import annotations
 import argparse
 import ast
 import re
-import shlex
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -65,66 +73,18 @@ from lint_common import PathContainmentError, is_containment_refusal, join_under
 
 TOOL_ROOT = Path(__file__).resolve().parent.parent
 
-RUN_GATE_RE = re.compile(
-    r'^run_gate\s+"(?P<name>[^"]+)"\s+.*?python3\s+(?:-I\s+)?(?P<script>tools/\S+\.py)',
-)  # matches gate INVOCATIONS only; the run_gate() function definition does not match.
-# `-I` (isolated mode) is the only interpreter option accepted before the script, as gate 35 accepts.
-# The lazy `.*?` would read `python3 -B tools/x.py && python3 tools/x.py` at its second
-# call, so every run_gate line is read as gate 35's _interpreter_options reads it (the
-# same shlex tokenizing, kept in step by a test), and a line passing any option other
-# than -I on a python invocation, or one that does not tokenize or can hide an
-# interpreter (a substitution, a shell, eval or a command wrapper as the command word),
-# is refused (exit 2).
-RUN_GATE_LINE_RE = re.compile(r'^run_gate\s+"(?P<name>[^"]+)"\s+(?P<command>.*)$')
-INTERPRETER_WORD_RE = re.compile(r"(?:.*/)?python(?:3(?:\.\d+)?)?")
-ASSIGNMENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=")
-SHELL_OPERATOR_CHARS = frozenset(";&|()\n")
-SHELL_PREFIX_WORDS = frozenset({"!", "{", "if", "then", "else", "elif", "while", "until", "do"})
-HIDING_WORDS = frozenset({"bash", "sh", "dash", "zsh", "ksh", "eval", "source", ".", "env",
-                          "exec", "command", "builtin", "nohup", "nice", "timeout", "time",
-                          "xargs", "sudo"})
-SUBSTITUTIONS = ("$(", "`", "<(", ">(")
-
-
-def _interpreter_options(command: str) -> list[str]:
-    """Every interpreter option other than ``-I`` on any python invocation in ``command``,
-    as gate 35 reads it. Raises ``ValueError`` for a command that does not tokenize or
-    that can hide an interpreter invocation."""
-    if any(s in command for s in SUBSTITUTIONS):
-        raise ValueError("contains a command or process substitution, which can run an "
-                         "interpreter this check cannot see")
-    lexer = shlex.shlex(command.replace("\\\n", ""), posix=True, punctuation_chars=";&|()<>\n")
-    lexer.whitespace = " \t\r"
-    lexer.whitespace_split = True
-    lexer.commenters = ""
-    commands: list[list[str]] = [[]]
-    try:
-        for token in lexer:
-            if token and set(token) <= SHELL_OPERATOR_CHARS:
-                commands.append([])
-            else:
-                commands[-1].append(token)
-    except ValueError as exc:
-        raise ValueError(f"does not tokenize as a shell command ({exc})") from None
-    bad = []
-    for words in (w for w in commands if w):
-        i = 0
-        while i < len(words) and (words[i] in SHELL_PREFIX_WORDS or ASSIGNMENT_RE.match(words[i])):
-            i += 1
-        if i == len(words):
-            continue
-        word = words[i]
-        if ("$" in word or word.rsplit("/", 1)[-1] in HIDING_WORDS
-                or any(c.isspace() for c in word) or set(word) <= set("<>&|")):
-            raise ValueError(f"runs {word!r}, which can hide a python invocation this check "
-                             f"cannot see")
-        if INTERPRETER_WORD_RE.fullmatch(word):
-            for opt in words[i + 1:]:
-                if not opt.startswith("-"):
-                    break
-                if opt != "-I":
-                    bad.append(opt)
-    return bad
+# Runner lines are matched against gate 35's closed allowlist (3b646 round 4, maintainer
+# option A), with the same pattern strings (a test keeps them equal): every line that is
+# not a comment and holds the word run_gate is the `run_gate() {` definition or, from
+# column 0, `run_gate "LABEL" python3 [-I] tools/X.py [plain arguments]`. Anything else is
+# refused (exit 2). See tools/lint-audit-gate-parity.py's GATE_COMMAND comment for the
+# grammar and for what it does not cover.
+GATE_COMMAND = (r"python3(?: -I)? (?P<script>tools/[a-z0-9][a-z0-9_-]*\.py)"
+                r"(?P<args>(?: [A-Za-z0-9_./=,+-]+)*)")
+RUNNER_LABEL = r"[A-Za-z0-9][A-Za-z0-9 ./-]*"
+RUNNER_LINE_RE = re.compile(rf'run_gate "(?P<name>{RUNNER_LABEL})" +{GATE_COMMAND}')
+RUN_GATE_WORD_RE = re.compile(r"\brun_gate\b")
+RUNNER_NON_GATE_LINES = frozenset({"run_gate() {"})
 
 
 COMMON_DISCOVERY_TOKENS = (
@@ -241,20 +201,18 @@ def load_gates(root: Path) -> list[GateScope]:
     if not runner.is_file():
         raise RuntimeError(f"runner not found: {runner}")
     gates: list[GateScope] = []
-    for line in runner.read_text(encoding="utf-8", errors="replace").splitlines():
-        invocation = RUN_GATE_LINE_RE.match(line.strip())
-        if invocation:
-            try:
-                bad = _interpreter_options(invocation.group("command"))
-            except ValueError as exc:
-                raise RuntimeError(f"runner gate {invocation.group('name')!r} command {exc}; "
-                                   f"only `python3 [-I] tools/X.py` is accepted") from None
-            if bad:
-                raise RuntimeError(f"runner gate {invocation.group('name')!r} passes interpreter "
-                                   f"option(s) {bad}; only `python3 [-I] tools/X.py` is accepted")
-        m = RUN_GATE_RE.match(line.strip())
-        if m:
-            gates.append(derive_scope(root, m.group("name"), m.group("script")))
+    # Split at LF only, as bash does: a universal-newline read would also split at CR.
+    for raw in runner.read_bytes().decode("utf-8", errors="replace").split("\n"):
+        line = raw.rstrip(" \t")
+        if (line.lstrip().startswith("#") or not RUN_GATE_WORD_RE.search(line)
+                or line in RUNNER_NON_GATE_LINES):
+            continue
+        m = RUNNER_LINE_RE.fullmatch(line)
+        if not m:
+            raise RuntimeError(f"runner line {line!r} is not an accepted gate line; only "
+                               f'`run_gate "LABEL" python3 [-I] tools/X.py [plain arguments]` '
+                               f"at column 0 is accepted")
+        gates.append(derive_scope(root, m.group("name"), m.group("script")))
     return gates
 
 

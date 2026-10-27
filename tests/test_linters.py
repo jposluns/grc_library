@@ -18734,8 +18734,8 @@ class AuditGateParityTests(LinterTestCase):
     synthetic-``--root`` negatives for each drift class the gate detects:
     a mismatched gate NAME; an invocation (argv) drift between the execution
     surfaces (a missing flag, a wrong flag value, a pre-commit-only
-    divergence now that argv-parity is 3-way, and a shlex-quoted-whitespace
-    difference a naive split would miss); section-5 grouped-list drift (a
+    divergence now that argv-parity is 3-way, and a quoted-whitespace value,
+    which the gate-line allowlist refuses); section-5 grouped-list drift (a
     missing, duplicated, unknown, or malformed number, or a comment or fence
     left open, with comment, fence,
     and prose numbers ignored; these copy the real surfaces, so they assert
@@ -18901,41 +18901,15 @@ class AuditGateParityTests(LinterTestCase):
                 self.assertIn("python3 [-I] tools/X.py ...", result.stderr)
 
     def test_every_interpreter_invocation_on_a_line_is_checked(self) -> None:
-        # SCRIPT_RE.search alone reads `python3 -B tools/x.py && python3 tools/x.py` at
-        # its second call; every python invocation on the line is checked, so any
-        # option other than -I on any of them is refused.
-        import importlib.util
-        tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
-        spec = importlib.util.spec_from_file_location("_agp_every_call", str(tool))
-        agp = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(agp)
-        S = "tools/x.py"
-        for command, bad in ((f"python3 -B {S} && python3 {S}", ["-B"]),
-                             (f"python3 -I {S}; /usr/bin/python3.11 -X dev {S}", ["-X"]),
-                             (f"python3 {S} | python -E {S}", ["-E"]),
-                             (f"python3 -I {S} && python3 -IB {S}", ["-IB"]),
-                             (f"python3 -I {S} --check", []), (f"python3 {S} -B", []),
-                             (f"python3 -I {S} && python3 {S}", [])):
-            with self.subTest(command=command):
-                self.assertEqual(agp._interpreter_options(command), bad)
-        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-every-call-", dir=FIXTURE_DIR))
-        try:
-            runner = root / "run_all_audits.sh"
-            runner.write_text(f'run_gate "Two calls" python3 -B {S} && python3 {S}\n',
-                              encoding="utf-8")
-            with self.assertRaisesRegex(agp.ParseError, r"interpreter option\(s\) \['-B'\]"):
-                agp.parse_runner(runner)
-            runner.write_text(f'run_gate "Two calls" python3 -I {S} && python3 {S}\n',
-                              encoding="utf-8")
-            self.assertEqual([e[2] for e in agp.parse_runner(runner)], [S])
-        finally:
-            shutil.rmtree(root, ignore_errors=True)
+        # Round 1: SCRIPT_RE.search read `python3 -B tools/x.py && python3 tools/x.py` at its
+        # second call. A gate line is now one GATE_COMMAND and nothing else, so a second
+        # call is refused on every surface, whatever its options.
         for surface in ("tools/run_all_audits.sh", ".github/workflows/quality.yml",
                         ".pre-commit-config.yaml"):
             with self.subTest(surface=surface):
-                result = self._run_isolated_fixture(f"-B tools/x.py && python3", surface)
+                result = self._run_isolated_fixture("-B tools/x.py && python3", surface)
                 self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-                self.assertIn("interpreter option(s) ['-B']", result.stderr)
+                self.assertIn("is not an accepted gate line", result.stderr)
 
     def _gate_parity_module(self, name: str):
         import importlib.util
@@ -18945,70 +18919,357 @@ class AuditGateParityTests(LinterTestCase):
         spec.loader.exec_module(agp)
         return agp
 
-    # (command, options other than -I, or None when the command is refused as a shape that
-    # can hide an interpreter). Shared with the blind-spot map's test, which reads the same.
-    TOKENIZED_SHAPES = (
-        ('python3 "-B" tools/x.py && python3 tools/x.py', ["-B"]),
-        ("python3 '-B' tools/x.py", ["-B"]),
-        ('"python3" -B tools/x.py', ["-B"]),
-        ("'python3' -B tools/x.py", ["-B"]),
-        ('"/usr/bin/python3" -X dev tools/x.py', ["-X"]),
-        ("FOO=1 python3 -B tools/x.py", ["-B"]),
-        ("python3 -I tools/x.py\npython3 -B tools/x.py", ["-B"]),
-        ("(python3 -B tools/x.py)", ["-B"]),
-        ("python3 tools/x.py 2>&1 | python3 -E tools/x.py", ["-E"]),
-        ("python3 tools/x.py||python3 -B tools/x.py", ["-B"]),
-        ('python3 tools/x.py --message "run python3 -B now"', []),
-        ("python3 -I tools/x.py --message 'python3 -B; python -E'", []),
-        ('python3 -I tools/x.py --check', []),
-        ("bash -c 'python3 -B tools/a.py'", None),
-        ("sh -c 'python3 tools/a.py'", None),
-        ("eval 'python3 -B tools/a.py'", None),
-        ("env python3 -B tools/x.py", None),
-        ("$(command -v python3) -B tools/x.py", None),
-        ("`command -v python3` -B tools/x.py", None),
-        ('python3 tools/x.py "$(python3 -B tools/y.py)"', None),
-        ('"$PYTHON" -B tools/x.py', None),
-        ('"python3 -B" tools/x.py', None),
-        ('python3 tools/x.py "unclosed', None),
+    def _blindspots_module(self):
+        import importlib.util
+        from unittest.mock import patch
+        tool = Path(__file__).resolve().parent.parent / "tools" / "audit-gate-blindspots.py"
+        spec = importlib.util.spec_from_file_location("_agp_blindspots", str(tool))
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        self.addCleanup(sys.modules.pop, spec.name, None)
+        with patch.object(sys, "path", list(sys.path)):
+            spec.loader.exec_module(module)
+        return module
+
+    # (command, accepted) on every surface: the allowlisted shapes, and shapes from the round
+    # 1 to 3 reviews and the option-A plan. Shared with the blind-spot map's test.
+    GATE_LINE_SHAPES = (
+        ("python3 tools/x.py", True),
+        ("python3 -I tools/x.py", True),
+        ("python3 tools/x.py --check", True),
+        ("python3 -I tools/x.py --check --release-delta", True),
+        ("python3 tools/x_y-2.py --root=a/b.c,d+e -v", True),
+        ("python3 tools/x.py -B", True),
+        ("python3 -B tools/x.py && python3 tools/x.py", False),
+        ('python3 "-B" tools/x.py', False),
+        ('"python3" -B tools/x.py', False),
+        ("/usr/bin/python3 tools/x.py", False),
+        ("python3   -I  tools/x.py", False),
+        ("python3 tools/x.py && /usr/bin/pyt?on3 -B tools/x.py", False),
+        ("python3 tools/x.py --message 'run python3 -B now'", False),
+        ("python3 tools/x.py --sep 'a b'", False),
+        ("python3 tools/x.py # note", False),
+        ("python3 tools/x.py\r", False),
+        ("python3 tools/sub/x.py", False),
+        ("python3 tools/X.py", False),
+        ("python3 tools/../../x.py", False),
     )
 
-    def test_interpreter_options_are_read_from_shell_tokens(self) -> None:
-        # Round-2 review: a quoted option ("-B"), a quoted interpreter, an interpreter
-        # behind bash -c, eval, env or a substitution were missed, and quoted argument
-        # text was read as an invocation. The command is now tokenized as the shell would;
-        # a shape that can hide an interpreter, or one that does not tokenize, is refused.
-        agp = self._gate_parity_module("_agp_tokenized")
-        for command, bad in self.TOKENIZED_SHAPES:
+    def test_gate_commands_match_a_closed_allowlist(self) -> None:
+        agp = self._gate_parity_module("_agp_allowlist")
+        for command, accepted in self.GATE_LINE_SHAPES:
             with self.subTest(command=command):
-                if bad is None:
-                    with self.assertRaises(ValueError):
-                        agp._interpreter_options(command)
-                    self.assertIsNotNone(agp._interpreter_finding(command))
-                else:
-                    self.assertEqual(agp._interpreter_options(command), bad)
+                self.assertEqual(agp._gate_command(command) is not None, accepted)
 
-    def test_runner_refuses_hidden_and_quoted_options_and_accepts_quoted_text(self) -> None:
-        agp = self._gate_parity_module("_agp_tokenized_runner")
-        S = "tools/x.py"
-        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-tokenized-", dir=FIXTURE_DIR))
+    def _gate_fixtures(self, root: Path, command: str) -> dict[str, Path]:
+        """``command`` as the one gate line of a runner, a workflow step and a pre-commit
+        hook under ``root``."""
+        (root / "tools").mkdir(exist_ok=True)
+        paths = {"runner": root / "tools" / "run_all_audits.sh",
+                 "workflow": root / "quality.yml", "precommit": root / "pre-commit.yaml"}
+        paths["runner"].write_text(f'run_gate() {{\n}}\nrun_gate "Shape" {command}\n',
+                                   encoding="utf-8")
+        paths["workflow"].write_text(f"    steps:\n      - name: Shape\n        run: {command}\n",
+                                     encoding="utf-8")
+        paths["precommit"].write_text(
+            f"  - repo: local\n    hooks:\n      - id: shape\n        name: Shape\n"
+            f"        entry: {command}\n        language: system\n", encoding="utf-8")
+        return paths
+
+    def _assert_refused_on_every_reader(self, *commands: str) -> None:
+        """Each command, as the gate line of each surface, is a ParseError in gate 35's
+        parser for that surface and a refused runner entry in the blind-spot map."""
+        agp = self._gate_parity_module("_agp_refused")
+        spots = self._blindspots_module()
+        for command in commands:
+            root = Path(tempfile.mkdtemp(prefix="synthetic-parity-refused-", dir=FIXTURE_DIR))
+            try:
+                paths = self._gate_fixtures(root, command)
+                for parse, path in ((agp.parse_runner, paths["runner"]),
+                                    (agp.parse_workflow, paths["workflow"]),
+                                    (agp.parse_precommit, paths["precommit"])):
+                    with self.subTest(command=command, parser=parse.__name__):
+                        with self.assertRaisesRegex(agp.ParseError, "is not an accepted gate line"):
+                            parse(path)
+                with self.subTest(command=command, parser="blind-spot load_gates"):
+                    with self.assertRaisesRegex(RuntimeError, "is not an accepted gate line"):
+                        spots.load_gates(root)
+            finally:
+                shutil.rmtree(root, ignore_errors=True)
+
+    def test_allowlisted_gate_lines_parse_on_every_reader(self) -> None:
+        agp = self._gate_parity_module("_agp_accepted")
+        spots = self._blindspots_module()
+        for command, accepted in self.GATE_LINE_SHAPES:
+            if not accepted:
+                continue
+            root = Path(tempfile.mkdtemp(prefix="synthetic-parity-accepted-", dir=FIXTURE_DIR))
+            try:
+                paths = self._gate_fixtures(root, command + " \t")
+                m = agp._gate_command(command)
+                expected = [("Shape", m.group("script"), tuple(m.group("args").split()))]
+                for parse, path in ((agp.parse_runner, paths["runner"]),
+                                    (agp.parse_workflow, paths["workflow"]),
+                                    (agp.parse_precommit, paths["precommit"])):
+                    with self.subTest(command=command, parser=parse.__name__):
+                        self.assertEqual([e[1:] for e in parse(path)], expected)
+                with self.subTest(command=command, parser="blind-spot load_gates"):
+                    self.assertEqual([(g.name, g.script) for g in spots.load_gates(root)],
+                                     [("Shape", m.group("script"))])
+            finally:
+                shutil.rmtree(root, ignore_errors=True)
+
+    # One test per bypass from the round 1 to 3 reviews and the option-A plan. Each passed,
+    # or was refused only by a different rule, at 9a8792dc8.
+
+    def test_r1_second_call_after_the_gate_is_refused(self) -> None:
+        self._assert_refused_on_every_reader("python3 -B tools/x.py && python3 tools/x.py",
+                                             "python3 -I tools/x.py && python3 tools/x.py")
+
+    def test_r2_quoted_option_is_refused(self) -> None:
+        self._assert_refused_on_every_reader('python3 "-B" tools/x.py && python3 tools/x.py',
+                                             "python3 '-B' tools/x.py")
+
+    def test_r2_quoted_or_pathed_interpreter_is_refused(self) -> None:
+        self._assert_refused_on_every_reader('"python3" -B tools/x.py', "'python3' -B tools/x.py",
+                                             '"/usr/bin/python3" -X dev tools/x.py')
+
+    def test_r2_interpreter_behind_a_shell_is_refused(self) -> None:
+        self._assert_refused_on_every_reader("python3 tools/x.py && bash -c 'python3 -B tools/x.py'",
+                                             "sh -c 'python3 tools/x.py'")
+
+    def test_r2_interpreter_behind_eval_is_refused(self) -> None:
+        self._assert_refused_on_every_reader("python3 tools/x.py; eval 'python3 -B tools/x.py'")
+
+    def test_r2_interpreter_behind_env_is_refused(self) -> None:
+        self._assert_refused_on_every_reader("python3 tools/x.py && env python3 -B tools/x.py")
+
+    def test_r2_substitution_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py && $(command -v python3) -B tools/x.py",
+            "python3 tools/x.py && `command -v python3` -B tools/x.py",
+            'python3 tools/x.py "$(python3 -B tools/y.py)"', '"$PYTHON" -B tools/x.py')
+
+    def test_r2_operator_joined_call_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "(python3 -B tools/x.py)", "python3 tools/x.py 2>&1 | python3 -E tools/x.py",
+            "python3 tools/x.py||python3 -B tools/x.py",
+            "python3 -I tools/x.py; /usr/bin/python3.11 -X dev tools/x.py")
+
+    def test_r3_glob_expanded_interpreter_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py && /usr/bin/pyt?on3 -B tools/x.py",
+            "python3 tools/x.py && pytho[n]3 -B tools/x.py",
+            "python3 tools/x.py && /usr/bin/pyth*3 -B tools/x.py")
+
+    def test_r3_brace_expanded_interpreter_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py && {/usr/bin/python3,-B,tools/x.py}")
+
+    def test_r3_redirection_prefix_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py; 2>/dev/null python3 -B tools/x.py")
+
+    def test_r3_unlisted_wrapper_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py && stdbuf -oL python3 -B tools/x.py",
+            "python3 tools/x.py && setsid python3 -B tools/x.py",
+            "python3 tools/x.py && uv run python3 -B tools/x.py",
+            "python3 tools/x.py && fish -c 'python3 -B tools/x.py'",
+            "python3 tools/x.py && busybox sh -c 'python3 -B tools/x.py'",
+            "python3 tools/x.py && find . -name x.py -exec python3 -B tools/x.py ;")
+
+    def test_r3_unlisted_keyword_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py; coproc python3 -B tools/x.py",
+            "python3 tools/x.py; function f { python3 -B tools/x.py; }")
+
+    def test_r3_other_interpreter_name_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py && python3.14t -B tools/x.py",
+            "python3 tools/x.py && python2 -B tools/x.py",
+            "python3 tools/x.py && pypy3 -B tools/x.py",
+            "python3 tools/x.py && python3-dbg -B tools/x.py",
+            "python3 tools/x.py && ./tools/x.py")
+
+    def test_r3_environment_assignment_is_refused(self) -> None:
+        self._assert_refused_on_every_reader("PYTHONDONTWRITEBYTECODE=1 python3 tools/x.py",
+                                             "PYTHONPATH=tools python3 tools/x.py")
+
+    def test_r3_trailing_comment_is_refused(self) -> None:
+        self._assert_refused_on_every_reader("python3 tools/x.py # note")
+
+    def test_r3_quoted_argument_text_is_refused(self) -> None:
+        # Round 3 accepted quoted text on purpose; under the allowlist an argument is a plain
+        # word, so quoting (and the operator characters it can carry) never reaches a gate line.
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py --message 'run python3 -B now'",
+            "python3 tools/x.py --label ';' python3 -B tools/x.py")
+
+    def test_r3_runner_label_substitution_is_refused(self) -> None:
+        agp = self._gate_parity_module("_agp_label")
+        spots = self._blindspots_module()
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-label-", dir=FIXTURE_DIR))
         try:
-            runner = root / "run_all_audits.sh"
-            for command, message in (
-                    (f'python3 "-B" {S} && python3 {S}', r"interpreter option\(s\) \['-B'\]"),
-                    (f"python3 {S} && bash -c 'python3 -B {S}'", r"runs 'bash'"),
-                    (f"python3 {S} && $(command -v python3) -B {S}", r"substitution"),
-                    (f'python3 {S} "unclosed', r"does not tokenize")):
-                with self.subTest(command=command):
-                    runner.write_text(f'run_gate "Shape" {command}\n', encoding="utf-8")
-                    with self.assertRaisesRegex(agp.ParseError, message):
+            (root / "tools").mkdir()
+            runner = root / "tools" / "run_all_audits.sh"
+            for label in ("$(python3 -B tools/y.py)", "`python3 -B tools/y.py`", "a\\b", "Gate!"):
+                with self.subTest(label=label):
+                    runner.write_text(f'run_gate "{label}" python3 tools/x.py\n', encoding="utf-8")
+                    with self.assertRaisesRegex(agp.ParseError, "is not an accepted gate line"):
                         agp.parse_runner(runner)
-            runner.write_text(f'run_gate "Quoted text" python3 {S} --message "run python3 -B now"\n',
-                              encoding="utf-8")
-            self.assertEqual([(e[2], e[3]) for e in agp.parse_runner(runner)],
-                             [(S, ("--message", "run python3 -B now"))])
+                    with self.assertRaisesRegex(RuntimeError, "is not an accepted gate line"):
+                        spots.load_gates(root)
         finally:
             shutil.rmtree(root, ignore_errors=True)
+
+    def test_r3_indented_or_prefixed_run_gate_is_refused(self) -> None:
+        # Gate 35 anchored run_gate at column 0 and skipped an indented line, which bash
+        # still runs; the blind-spot map stripped it first. Both now refuse it.
+        agp = self._gate_parity_module("_agp_indented")
+        spots = self._blindspots_module()
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-indented-", dir=FIXTURE_DIR))
+        try:
+            (root / "tools").mkdir()
+            runner = root / "tools" / "run_all_audits.sh"
+            for line in ('    run_gate "Hidden" python3 -B tools/x.py',
+                         'if true; then run_gate "Hidden" python3 -B tools/x.py; fi',
+                         'FOO=1 run_gate "Hidden" python3 tools/x.py'):
+                with self.subTest(line=line):
+                    runner.write_text(f'run_gate "Plain" python3 tools/x.py\n{line}\n',
+                                      encoding="utf-8")
+                    with self.assertRaisesRegex(agp.ParseError, "is not an accepted gate line"):
+                        agp.parse_runner(runner)
+                    with self.assertRaisesRegex(RuntimeError, "is not an accepted gate line"):
+                        spots.load_gates(root)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r3_yaml_continuation_is_refused(self) -> None:
+        # Round 3 read one physical line; a plain scalar continued on a deeper line was
+        # run whole by YAML but read only up to its first line.
+        agp = self._gate_parity_module("_agp_continued")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-continued-", dir=FIXTURE_DIR))
+        try:
+            workflow, precommit = root / "quality.yml", root / "pre-commit.yaml"
+            workflow.write_text("    steps:\n      - name: Continued\n"
+                                "        run: python3 tools/x.py\n"
+                                "          && python3 -B tools/x.py\n", encoding="utf-8")
+            precommit.write_text("    hooks:\n      - id: continued\n        name: Continued\n"
+                                 "        entry: python3 tools/x.py\n          -B\n"
+                                 "        language: system\n", encoding="utf-8")
+            for parse, path in ((agp.parse_workflow, workflow), (agp.parse_precommit, precommit)):
+                with self.subTest(parser=parse.__name__):
+                    with self.assertRaisesRegex(agp.ParseError, "deeper-indented line"):
+                        parse(path)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r3_workflow_gate_step_with_other_keys_is_refused(self) -> None:
+        agp = self._gate_parity_module("_agp_step_keys")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-step-keys-", dir=FIXTURE_DIR))
+        try:
+            workflow = root / "quality.yml"
+            for extra in ("        shell: bash -c 'python3 -B tools/x.py' {0}\n",
+                          "        env:\n          PYTHONDONTWRITEBYTECODE: 1\n",
+                          "        run: python3 -B tools/x.py\n"):
+                with self.subTest(extra=extra):
+                    workflow.write_text("    steps:\n      - name: Keys\n"
+                                        "        run: python3 tools/x.py\n" + extra,
+                                        encoding="utf-8")
+                    with self.assertRaisesRegex(agp.ParseError, r"not exactly \['name', 'run'\]"):
+                        agp.parse_workflow(workflow)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r3_precommit_gate_hook_with_args_or_another_language_is_refused(self) -> None:
+        agp = self._gate_parity_module("_agp_hook_keys")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-hook-keys-", dir=FIXTURE_DIR))
+        try:
+            precommit = root / "pre-commit.yaml"
+            head = "    hooks:\n      - id: keys\n        name: Keys\n        entry: python3 tools/x.py\n"
+            for tail, message in (("        language: system\n        args: [-B]\n", r"\['args'\]"),
+                                  ("        language: script\n", "language: system"),
+                                  ("        pass_filenames: false\n", "language: system")):
+                with self.subTest(tail=tail):
+                    precommit.write_text(head + tail, encoding="utf-8")
+                    with self.assertRaisesRegex(agp.ParseError, message):
+                        agp.parse_precommit(precommit)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r3_unnamed_step_or_hook_is_refused(self) -> None:
+        # A step or hook the parsers do not read as an item would run unchecked beside
+        # the read gate lines.
+        agp = self._gate_parity_module("_agp_unnamed")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-unnamed-", dir=FIXTURE_DIR))
+        try:
+            workflow, precommit = root / "quality.yml", root / "pre-commit.yaml"
+            workflow.write_text("    steps:\n      - name: Plain\n        run: python3 tools/x.py\n"
+                                "      - run: python3 -B tools/x.py\n", encoding="utf-8")
+            precommit.write_text("    hooks:\n      - id: plain\n        name: Plain\n"
+                                 "        entry: python3 tools/x.py\n        language: system\n"
+                                 "      - id: unnamed\n        entry: python3 -B tools/x.py\n"
+                                 "        language: system\n", encoding="utf-8")
+            with self.assertRaisesRegex(agp.ParseError, "outside a step"):
+                agp.parse_workflow(workflow)
+            with self.assertRaisesRegex(agp.ParseError, "exactly one name and one entry"):
+                agp.parse_precommit(precommit)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r4_carriage_return_is_refused(self) -> None:
+        # Found while writing this round: both readers split the runner at CR as well as LF,
+        # so `x.py\r&& python3 -B ...` read as a clean gate line and a line without run_gate,
+        # while bash runs it as one line, the second call included. A CR in a YAML comment
+        # hid the key YAML reads after it.
+        agp = self._gate_parity_module("_agp_cr")
+        spots = self._blindspots_module()
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-cr-", dir=FIXTURE_DIR))
+        try:
+            (root / "tools").mkdir()
+            runner = root / "tools" / "run_all_audits.sh"
+            runner.write_bytes(b'run_gate "Plain" python3 tools/x.py\r&& python3 -B tools/y.py\n')
+            with self.assertRaisesRegex(agp.ParseError, "is not an accepted gate line"):
+                agp.parse_runner(runner)
+            with self.assertRaisesRegex(RuntimeError, "is not an accepted gate line"):
+                spots.load_gates(root)
+            workflow = root / "quality.yml"
+            workflow.write_bytes(b"    steps:\n      - name: Plain\n        run: python3 tools/x.py\n"
+                                 b"        # note\r        shell: bash -c 'python3 -B {0}'\n")
+            with self.assertRaisesRegex(agp.ParseError, "line break other than LF"):
+                agp.parse_workflow(workflow)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r3_same_bypass_on_all_three_surfaces_is_refused(self) -> None:
+        # Argv parity cannot see a tail added identically to every surface; the allowlist
+        # refuses it on each.
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-every-surface-",
+                                               dir=FIXTURE_DIR))
+        try:
+            for name in self._ISOLATED_SURFACES:
+                lines = (REPO_ROOT / name).read_text(encoding="utf-8").splitlines()
+                if name in ("tools/run_all_audits.sh", ".github/workflows/quality.yml",
+                            ".pre-commit-config.yaml"):
+                    changed = 0
+                    for i, line in enumerate(lines):
+                        if (line.startswith('run_gate "') or line.lstrip().startswith(
+                                ("run: python3 tools/", "entry: python3 tools/"))):
+                            lines[i] = line + " && /usr/bin/pyt?on3 -B tools/x.py"
+                            changed += 1
+                    self.assertGreater(changed, 100, f"fixture anchor in {name}")
+                target = synthetic_root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tools/lint-audit-gate-parity.py"),
+                 "--root", str(synthetic_root)],
+                cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300)
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertIn("is not an accepted gate line", result.stderr)
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
 
     def test_current_surfaces_pass_parity(self) -> None:
         result = run_linter("tools/lint-audit-gate-parity.py")
@@ -19063,7 +19324,8 @@ class AuditGateParityTests(LinterTestCase):
                 "    hooks:\n"
                 "      - id: lint-metadata\n"
                 "        name: Wrong Name For Metadata Audit\n"
-                "        entry: python3 tools/lint-metadata.py\n",
+                "        entry: python3 tools/lint-metadata.py\n"
+                "        language: system\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19116,7 +19378,8 @@ class AuditGateParityTests(LinterTestCase):
                 "    hooks:\n"
                 "      - id: lint-metadata\n"
                 "        name: Metadata audit\n"
-                "        entry: python3 tools/lint-metadata.py\n",
+                "        entry: python3 tools/lint-metadata.py\n"
+                "        language: system\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19180,7 +19443,8 @@ class AuditGateParityTests(LinterTestCase):
                 "    hooks:\n"
                 "      - id: lint-metadata\n"
                 "        name: Metadata audit\n"
-                "        entry: python3 tools/lint-metadata.py --strict\n",
+                "        entry: python3 tools/lint-metadata.py --strict\n"
+                "        language: system\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19245,7 +19509,8 @@ class AuditGateParityTests(LinterTestCase):
                 "    hooks:\n"
                 "      - id: lint-metadata\n"
                 "        name: Metadata audit\n"
-                "        entry: python3 tools/lint-metadata.py --different-flag\n",
+                "        entry: python3 tools/lint-metadata.py --different-flag\n"
+                "        language: system\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19268,11 +19533,12 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
-    def test_synthetic_argv_quoted_whitespace_flagged(self) -> None:
-        # shlex quote-awareness: runner passes --sep with a DOUBLE-space
-        # quoted value, workflow a SINGLE-space one. A naive whitespace split
-        # would collapse both to the same tokens (a false PASS); shlex keeps
-        # the quoted argument as one token, so the drift is correctly flagged.
+    def test_synthetic_argv_quoted_whitespace_refused(self) -> None:
+        # Runner passes --sep with a DOUBLE-space quoted value, workflow a
+        # SINGLE-space one. A naive whitespace split would collapse both to the
+        # same tokens (a false PASS). A gate argument is a plain word under the
+        # closed allowlist (3b646), so the quoted value is refused before argv
+        # is compared.
         synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-argv-quoted-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86; #2439 follow-up)
         import shutil
         (synthetic_root / "governance").mkdir(parents=True)
@@ -19310,7 +19576,8 @@ class AuditGateParityTests(LinterTestCase):
                 "    hooks:\n"
                 "      - id: lint-metadata\n"
                 "        name: Metadata audit\n"
-                "        entry: python3 tools/lint-metadata.py --sep 'a b'\n",
+                "        entry: python3 tools/lint-metadata.py --sep 'a b'\n"
+                "        language: system\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19318,18 +19585,8 @@ class AuditGateParityTests(LinterTestCase):
                 "--root",
                 str(synthetic_root),
             )
-            # Fail-closed: require the specific finding, not just any nonzero
-            # exit (assertLinterFails accepts a crash whose traceback merely
-            # contains "argv", e.g. an _extract_argv frame).
-            self.assertEqual(
-                result.returncode, 1,
-                f"expected findings (rc=1), not a crash.\nstdout:\n{result.stdout}\n"
-                f"stderr:\n{result.stderr}",
-            )
-            self.assertIn(
-                "invocation (argv) drift", result.stdout,
-                f"expected an argv-drift finding.\nstdout:\n{result.stdout}",
-            )
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertIn("is not an accepted gate line", result.stderr)
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
@@ -29103,7 +29360,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         audit-backlog-actionability.py OWN F c089004a4e41f3a8c9273d7df9926331953635bc3133ba22023e1f2a7ffc1244
         audit-claim-precision.py ROOT F c2e537144efb7458cba00827577f959907263a7dfffcc75bab54c888f1e1d4b2
         audit-cross-repo-references.py OWN F f2eeb637b2a28b3d8995fe57609c231e1845dc139b4d8aa5f917433833abd83d
-        audit-gate-blindspots.py OWN F 18c2eb43896fc0822f4b00b21d06b95a3d6563204247cf474fdcad2b5b226318
+        audit-gate-blindspots.py OWN F 83fe12ff5b5977d5a1514f42ff751e6a8279118f93cdd364da456e1fd1db901e
         audit-gate-mutation.py OWN F db2e8a4e3255dfff96dc9a0f744a58508c1b88e689bea0af28fdc33062fb5716
         audit-held-branch-expiry.py NO_FS F 3255ff7873ca44e429b60011d733b90f6a65434f816a55f3f1be5a53f7a8d652
         audit-inbox-drops.py SKIP F a931ec3bf370c0e755637bcb2ff3238ea9e5337761de96a712b90027588a46bc
@@ -29180,7 +29437,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F ee1b4e615f6cd516fab854ce2405f42ee2eed7cfd246ffa3a0232fa6db95995d
+        lint-audit-gate-parity.py OWN F cfa759d9f1fdb52d7237fbacbadbb9422b831a557ac0a62668342df6e42f474d
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-bookkeeping-parity.py NO_FS F 418c1fc4dccff88fe4a32a8a3582c8110b7c53885facc1b661a2db48b829b841
@@ -68133,60 +68390,60 @@ class JoinUnderContainmentTests(unittest.TestCase):
 
     def test_blindspots_runner_accepts_an_optional_isolated_flag_only(self):
         # A runner line switched to `python3 -I tools/X.py` is still read as that gate;
-        # -I is the only interpreter option accepted (as gate 35 accepts), and a
-        # run_gate line passing any other option on any python invocation, the second
-        # call of `python3 -B tools/x.py && python3 tools/x.py` included, is refused.
+        # -I is the only interpreter option accepted (as gate 35 accepts), the label may
+        # be aligned with spaces, and any other runner line shape is refused: another
+        # option, a second call, or extra spaces inside the command.
         mod = self.load("audit-gate-blindspots.py")
         (self.root / "tools").mkdir()
         runner = self.root / "tools/run_all_audits.sh"
-        good = ('run_gate "Plain" python3 tools/plain.py\n'
-                'run_gate "Isolated" python3 -I tools/isolated.py --check\n'
-                'run_gate "Spaced" python3   -I  tools/spaced.py\n')
+        good = ('run_gate() {\n}\n'
+                'run_gate "Plain" python3 tools/plain.py\n'
+                'run_gate "Isolated"      python3 -I tools/isolated.py --check\n')
         runner.write_text(good, encoding="utf-8")
         self.assertEqual(
             [(g.name, g.script) for g in mod.load_gates(self.root)],
-            [("Plain", "tools/plain.py"), ("Isolated", "tools/isolated.py"),
-             ("Spaced", "tools/spaced.py")])
-        for line, bad in (('run_gate "Other flag" python3 -B tools/other.py', "['-B']"),
-                          ('run_gate "Combined" python3 -IB tools/combined.py', "['-IB']"),
-                          ('run_gate "Two flags" python3 -I -B tools/two.py', "['-B']"),
-                          ('run_gate "Two calls" python3 -B tools/x.py && python3 tools/x.py',
-                           "['-B']")):
+            [("Plain", "tools/plain.py"), ("Isolated", "tools/isolated.py")])
+        for line in ('run_gate "Other flag" python3 -B tools/other.py',
+                     'run_gate "Combined" python3 -IB tools/combined.py',
+                     'run_gate "Two flags" python3 -I -B tools/two.py',
+                     'run_gate "Two calls" python3 -B tools/x.py && python3 tools/x.py',
+                     'run_gate "Spaced" python3   -I  tools/spaced.py'):
             with self.subTest(line=line):
                 runner.write_text(good + line + "\n", encoding="utf-8")
-                with self.assertRaisesRegex(RuntimeError, re.escape(f"option(s) {bad}")):
+                with self.assertRaisesRegex(RuntimeError, "is not an accepted gate line"):
                     mod.load_gates(self.root)
 
-    def test_blindspots_runner_reads_shell_tokens_as_gate_35_does(self):
-        # The blind-spot map keeps its own copy of gate 35's tokenizing reader; on every
-        # shape of gate 35's test it reports the same options or refuses the same lines.
+    def test_blindspots_runner_uses_gate_35_allowlist(self):
+        # The blind-spot map keeps its own copy of gate 35's patterns; the strings are equal,
+        # and on every shape of gate 35's test it accepts or refuses the same runner line.
         mod = self.load("audit-gate-blindspots.py")
-        for command, bad in AuditGateParityTests.TOKENIZED_SHAPES:
-            with self.subTest(command=command):
-                if bad is None:
-                    with self.assertRaises(ValueError):
-                        mod._interpreter_options(command)
-                else:
-                    self.assertEqual(mod._interpreter_options(command), bad)
+        agp = self.load("lint-audit-gate-parity.py")
+        for name in ("GATE_COMMAND", "RUNNER_LABEL", "RUNNER_NON_GATE_LINES"):
+            with self.subTest(name=name):
+                self.assertEqual(getattr(mod, name), getattr(agp, name))
+        self.assertEqual(mod.RUNNER_LINE_RE.pattern, agp.RUNNER_LINE_RE.pattern)
+        self.assertEqual(mod.RUN_GATE_WORD_RE.pattern, agp.RUN_GATE_WORD_RE.pattern)
         (self.root / "tools").mkdir()
         runner = self.root / "tools/run_all_audits.sh"
-        runner.write_text('run_gate "Quoted text" python3 tools/x.py --message "run python3 -B now"\n',
-                          encoding="utf-8")
-        self.assertEqual([g.script for g in mod.load_gates(self.root)], ["tools/x.py"])
-        for line, message in (('run_gate "Quoted flag" python3 "-B" tools/x.py', "option(s) ['-B']"),
-                              ("run_gate \"Hidden\" bash -c 'python3 -B tools/x.py'", "runs 'bash'")):
-            with self.subTest(line=line):
-                runner.write_text(line + "\n", encoding="utf-8")
-                with self.assertRaisesRegex(RuntimeError, re.escape(message)):
-                    mod.load_gates(self.root)
+        for command, accepted in AuditGateParityTests.GATE_LINE_SHAPES:
+            with self.subTest(command=command):
+                runner.write_text(f'run_gate "Shape" {command}\n', encoding="utf-8")
+                if accepted:
+                    self.assertEqual([g.name for g in mod.load_gates(self.root)], ["Shape"])
+                else:
+                    with self.assertRaisesRegex(RuntimeError, "is not an accepted gate line"):
+                        mod.load_gates(self.root)
 
     def test_gate_runner_entry(self):
         import contextlib
         from unittest.mock import patch
         mod = self.load("audit-gate-blindspots.py")
         (self.root / "tools").mkdir()
+        # A gate script name cannot hold '..' under the allowlist; a link out of the root is
+        # the remaining escape, and it is refused when the scope is derived.
+        (self.root / "tools/outside.py").symlink_to(self.parent / "outside.py")
         (self.root / "tools/run_all_audits.sh").write_text(
-            'run_gate "fixture" python3 tools/../../outside.py\n')
+            'run_gate "fixture" python3 tools/outside.py\n')
         with patch.object(mod, "tracked_markdown", return_value=[]), \
                 contextlib.redirect_stdout(io.StringIO()) as out, \
                 contextlib.redirect_stderr(io.StringIO()) as err:

@@ -77,6 +77,20 @@ inventory, this linter confirms that:
     --strict / --enforce / --check present on one surface but not another
     is a finding); the spec §6 row carries no argv, so it is not compared.
 
+Each gate line is matched against a closed allowlist, not read as shell (3b646,
+maintainer option A): the command must be exactly ``python3 [-I] tools/X.py``
+followed by plain arguments (GATE_COMMAND), a runner line must be
+``run_gate "LABEL" <command>`` at column 0 or the ``run_gate() {`` definition, a
+gate workflow step has only the keys name and run, and a gate pre-commit hook has
+language system and no args; no gate value may continue on a deeper-indented line.
+Any other shape is a parse error (exit 2). The allowlist does NOT cover: the
+excluded setup, delta-gate and regeneration steps and hooks; runner shell code
+outside run_gate lines (the function body, a redefinition of python3 or run_gate,
+PATH or BASH_ENV, and whether bash reaches a run_gate line inside a conditional,
+heredoc, loop or backslash continuation); workflow- or job-level env: and defaults:,
+a step written as a flow mapping, and pre-commit top-level settings; which python3
+is found on PATH; and what the gate script does once started.
+
 Exit codes:
 
   0   parity clean.
@@ -168,94 +182,82 @@ PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, ma
 # Regex to extract the tools/X.py portion of a `python3 tools/X.py ...` or
 # `python3 -I tools/X.py ...` style command. Captures the script's
 # repository-relative path only, discarding the `python3` prefix, the optional
-# isolated-mode flag and any trailing arguments. `-I` is the only interpreter
-# option accepted; any other (`-B`, `-X ...`, a combined `-IB`) leaves the line
-# unmatched, which the surface parsers report as a parse error. Whether a gate
-# runs with `-I` is not compared across surfaces; only its script and flags are.
+# isolated-mode flag and any trailing arguments. It is used to find the script of
+# the excluded and delta-gate steps; a gate line itself must match GATE_COMMAND below.
+# Whether a gate runs with `-I` is not compared across surfaces; only its script and
+# flags are.
 SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(tools/[A-Za-z0-9_.\-]+\.py)")
 
-# SCRIPT_RE.search finds the FIRST acceptable invocation, so on its own it would read
-# `python3 -B tools/x.py && python3 tools/x.py` at its second call. A surface command
-# is therefore tokenized as the shell would (shlex, posix mode, punctuation_chars) and
-# split into simple commands at ; & && || | ( ) and newlines. A command whose first
-# word, after NAME=value assignments and the keywords in SHELL_PREFIX_WORDS, is a
-# python interpreter (python, python3 or python3.N, quoted or not, with or without a
-# directory) has its options read as tokens up to its first non-option word, so
-# `"-B"` counts as -B; any option other than -I makes the surface parsers raise a
-# ParseError. Quoted argument text is one word and is never read as an invocation.
-# The read fails closed: a command that does not tokenize, contains a command or
-# process substitution, or whose first word is a shell, eval, a command wrapper
-# (HIDING_WORDS), an expansion, a redirection or a word holding whitespace (a
-# YAML-quoted scalar) is refused, since it can run an interpreter this check cannot
-# see. No current gate invocation has any of these shapes. A quoted argument made
-# only of the operator characters is read as an operator, which can only refuse a
-# line. The same check guards tools/audit-gate-blindspots.py's runner reading.
-INTERPRETER_WORD_RE = re.compile(r"(?:.*/)?python(?:3(?:\.\d+)?)?")
-ASSIGNMENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=")
-SHELL_OPERATOR_CHARS = frozenset(";&|()\n")
-SHELL_PREFIX_WORDS = frozenset({"!", "{", "if", "then", "else", "elif", "while", "until", "do"})
-HIDING_WORDS = frozenset({"bash", "sh", "dash", "zsh", "ksh", "eval", "source", ".", "env",
-                          "exec", "command", "builtin", "nohup", "nice", "timeout", "time",
-                          "xargs", "sudo"})
-SUBSTITUTIONS = ("$(", "`", "<(", ">(")
+# Gate lines are matched against a closed allowlist (3b646 round 4, maintainer option A).
+# Rounds 1 to 3 read the shell grammar and refused the shapes known to hide an
+# interpreter; each round found a new one (a second call, a quoted option, a glob-expanded
+# interpreter). Now a gate command must be exactly GATE_COMMAND, from its first character
+# to its last after trailing spaces and tabs are dropped:
+#
+#   python3 [-I] tools/NAME.py [ARG ...]
+#
+# with one space between words, NAME made of lower-case letters, digits, '-' and '_'
+# (starting with a letter or digit), and each ARG a plain word of letters, digits and
+# _ . / = , + - only. Those characters have no meaning to the shell or to a YAML plain
+# scalar, so the shell's words, pre-commit's shlex split and a split on spaces agree, and
+# no quoting, variable, glob, brace, redirection, operator, comment or second command can
+# appear. Anything else is a ParseError. The same patterns guard
+# tools/audit-gate-blindspots.py's runner reading (a test keeps the strings equal).
+#
+# Per surface:
+#   - runner: every line that is not a comment and holds the word run_gate is either a
+#     line in RUNNER_NON_GATE_LINES (the function definition) or matches RUNNER_LINE_RE
+#     from column 0: run_gate "LABEL" GATE_COMMAND, LABEL in RUNNER_LABEL's characters.
+#   - workflow: a step whose first key is `- name:` and whose name is not excluded has
+#     exactly the keys name and run, each once, with no line indented deeper than its
+#     keys, and its run value matches GATE_COMMAND. A run key outside such a step is a
+#     finding.
+#   - pre-commit: a hook whose first key is `- id:` has one name and one entry; unless
+#     excluded, its keys are in PRECOMMIT_GATE_HOOK_KEYS (no args, which pre-commit
+#     appends to the command), its language is system, no line is indented deeper than
+#     its keys, and its entry matches GATE_COMMAND. An entry key outside a hook is a
+#     finding.
+# Every surface is split into lines at LF only, as bash splits it; a CR stays in its line
+# (and fails the pattern), and a YAML surface holding CR, NEL, LS or PS, which YAML reads
+# as a line break, is a finding.
+#
+# NOT COVERED by the allowlist (each runs what it runs, unread by this check):
+#   - the excluded steps and hooks (WORKFLOW_SETUP_STEPS, WORKFLOW_DELTA_GATE_STEPS,
+#     PRECOMMIT_NON_GATE_HOOKS), whose commands are checked only by the exclusion guards;
+#   - runner shell code outside run_gate lines: the run_gate function body, the preamble,
+#     a function, alias or PATH/BASH_ENV change that redefines python3 or run_gate, and
+#     whether bash runs a run_gate line at all (a conditional, a heredoc, a loop or a
+#     backslash continuation from the line before);
+#   - workflow- or job-level env: or defaults: (PYTHON* variables, defaults.run.shell), a
+#     step written as a flow mapping ({name: ..., run: ...}), and pre-commit top-level
+#     settings;
+#   - which python3 is found on PATH, and what the gate script itself does.
+GATE_COMMAND = (r"python3(?: -I)? (?P<script>tools/[a-z0-9][a-z0-9_-]*\.py)"
+                r"(?P<args>(?: [A-Za-z0-9_./=,+-]+)*)")
+GATE_COMMAND_RE = re.compile(GATE_COMMAND)
+RUNNER_LABEL = r"[A-Za-z0-9][A-Za-z0-9 ./-]*"
+RUNNER_LINE_RE = re.compile(rf'run_gate "(?P<name>{RUNNER_LABEL})" +{GATE_COMMAND}')
+RUN_GATE_WORD_RE = re.compile(r"\brun_gate\b")
+# The fixed list of non-interpreter lines that hold the word run_gate.
+RUNNER_NON_GATE_LINES = frozenset({"run_gate() {"})
+WORKFLOW_GATE_STEP_KEYS = ("name", "run")
+PRECOMMIT_GATE_HOOK_KEYS = frozenset({"id", "name", "entry", "language", "pass_filenames",
+                                      "always_run", "types", "types_or", "files", "verbose"})
+GATE_SHAPE = ("a gate line is exactly `python3 [-I] tools/X.py ...`: one space between "
+              "words, X in lower-case letters, digits, '-' and '_', and plain arguments of "
+              "letters, digits and _ . / = , + - only; no other interpreter or option, "
+              "quoting, variable, glob, redirection, wrapper, second command, comment or "
+              "continuation line (see GATE_COMMAND in tools/lint-audit-gate-parity.py)")
 
 
-def _shell_commands(command: str) -> list[list[str]]:
-    """The words of each simple command in ``command``, split at shell operators and
-    newlines. Raises ``ValueError`` for text that does not tokenize (an unclosed quote)."""
-    lexer = shlex.shlex(command.replace("\\\n", ""), posix=True, punctuation_chars=";&|()<>\n")
-    lexer.whitespace = " \t\r"
-    lexer.whitespace_split = True
-    lexer.commenters = ""
-    commands: list[list[str]] = [[]]
-    for token in lexer:
-        if token and set(token) <= SHELL_OPERATOR_CHARS:
-            commands.append([])
-        else:
-            commands[-1].append(token)
-    return [words for words in commands if words]
+def _gate_command(command: str) -> re.Match[str] | None:
+    """The GATE_COMMAND match of ``command`` (trailing spaces and tabs dropped), or None."""
+    return GATE_COMMAND_RE.fullmatch(command.rstrip(" \t"))
 
 
-def _interpreter_options(command: str) -> list[str]:
-    """Every interpreter option other than ``-I`` on any python invocation in ``command``.
-    Raises ``ValueError`` for a command that does not tokenize or that can hide an
-    interpreter invocation (see INTERPRETER_WORD_RE's comment)."""
-    if any(s in command for s in SUBSTITUTIONS):
-        raise ValueError("contains a command or process substitution, which can run an "
-                         "interpreter this check cannot see")
-    try:
-        commands = _shell_commands(command)
-    except ValueError as exc:
-        raise ValueError(f"does not tokenize as a shell command ({exc})") from None
-    bad = []
-    for words in commands:
-        i = 0
-        while i < len(words) and (words[i] in SHELL_PREFIX_WORDS or ASSIGNMENT_RE.match(words[i])):
-            i += 1
-        if i == len(words):
-            continue
-        word = words[i]
-        if ("$" in word or word.rsplit("/", 1)[-1] in HIDING_WORDS
-                or any(c.isspace() for c in word) or set(word) <= set("<>&|")):
-            raise ValueError(f"runs {word!r}, which can hide a python invocation this check "
-                             f"cannot see")
-        if INTERPRETER_WORD_RE.fullmatch(word):
-            for opt in words[i + 1:]:
-                if not opt.startswith("-"):
-                    break
-                if opt != "-I":
-                    bad.append(opt)
-    return bad
-
-
-def _interpreter_finding(command: str) -> str | None:
-    """Why ``command`` fails the interpreter check, or None when every python invocation
-    in it passes no option other than ``-I``."""
-    try:
-        bad = _interpreter_options(command)
-    except ValueError as exc:
-        return str(exc)
-    return f"passes interpreter option(s) {bad}" if bad else None
+def _gate_argv(match: re.Match[str]) -> tuple[str, ...]:
+    """The arguments after the script of a GATE_COMMAND match."""
+    return tuple(match.group("args").split())
 
 # Regex to extract the tools/X.py portion from a markdown link in the
 # inventory table's Script column.
@@ -540,54 +542,106 @@ def verify_category_coverage(path: Path, expected: set[int]) -> list[str]:
     return findings
 
 
+YAML_KEY_RE = re.compile(r"( *)(?:- +)?([A-Za-z_][A-Za-z0-9_-]*):(?: +(.*))?")
+# Characters YAML (1.1, as PyYAML reads it) takes as a line break besides LF.
+YAML_OTHER_BREAKS = ("\r", "\x85", "\u2028", "\u2029")
+
+
+def _lf_lines(path: Path) -> list[str]:
+    """The lines of ``path`` split at LF only. A universal-newline read would also split
+    at CR, which bash does not: `x.py\\r&& python3 -B ...` is one line to bash."""
+    return path.read_bytes().decode("utf-8").split("\n")
+
+
+class _YamlItem:
+    """A block-sequence item of a YAML surface: its keys at the item's key column as
+    (line, key, value), and the lines indented deeper than that column (a plain-scalar
+    continuation, a nested mapping or a block list), as (line, key they follow)."""
+
+    def __init__(self, lineno: int, dash: int, column: int, key: str, value: str) -> None:
+        self.lineno, self.dash, self.column = lineno, dash, column
+        self.keys: list[tuple[int, str, str]] = [(lineno, key, value)]
+        self.deeper: list[tuple[int, str]] = []
+
+    def values(self, key: str) -> list[tuple[int, str]]:
+        return [(n, v) for n, k, v in self.keys if k == key]
+
+
+def _yaml_items(path: Path, opener: str, watched: str) -> tuple[list[_YamlItem], list[int]]:
+    """The block-sequence items of ``path`` whose first key is ``opener``
+    (``- opener: value``), and the lines of a ``watched`` key outside such an item.
+    Blank and comment lines are skipped; trailing spaces and tabs are dropped. A line
+    indented no deeper than an item's dash ends it."""
+    item_re = re.compile(rf"( *)- +({re.escape(opener)}):(?: +(.*))?")
+    items: list[_YamlItem] = []
+    strays: list[int] = []
+    current: _YamlItem | None = None
+    for lineno, raw in enumerate(_lf_lines(path), 1):
+        if any(c in raw for c in YAML_OTHER_BREAKS):
+            raise ParseError(f"{path.relative_to(REPO_ROOT)}:{lineno}: holds a line break "
+                             f"other than LF, which YAML reads as a new line that this "
+                             f"check would not; only LF line endings are accepted")
+        line = raw.rstrip(" \t")
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        indent = len(line) - len(line.lstrip(" "))
+        m = item_re.fullmatch(line)
+        if m:
+            current = _YamlItem(lineno, indent, m.start(2), opener, m.group(3) or "")
+            items.append(current)
+            continue
+        if current is not None and indent > current.dash:
+            k = YAML_KEY_RE.fullmatch(line)
+            if indent == current.column and k and not line.lstrip().startswith("-"):
+                current.keys.append((lineno, k.group(2), k.group(3) or ""))
+            else:
+                current.deeper.append((lineno, current.keys[-1][1]))
+            continue
+        current = None
+        k = YAML_KEY_RE.fullmatch(line)
+        if k and k.group(2) == watched:
+            strays.append(lineno)
+    return items, strays
+
+
+def _not_a_gate_line(path: Path, lineno: int, what: str, problem: str) -> ParseError:
+    return ParseError(f"{path.relative_to(REPO_ROOT)}:{lineno}: {what} {problem}; {GATE_SHAPE}")
+
+
 def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     """Return [(line_number, step_name, script_path, argv), ...] from quality.yml.
 
-    Skips the setup steps named in WORKFLOW_SETUP_STEPS. Looks for
-    consecutive `- name: X` / `run: python3 tools/Y.py ...` pairs.
-    Indentation-tolerant: matches on the keyword content, not on column.
+    Reads each step whose first key is ``- name:``. Skips the setup steps named in
+    WORKFLOW_SETUP_STEPS and the delta-gate steps in WORKFLOW_DELTA_GATE_STEPS. Every
+    other step is a gate step: its keys must be exactly ``name`` and ``run``, each
+    once, with no line indented deeper than them, and its ``run`` value must match
+    GATE_COMMAND. A ``run`` key outside a named step is a ParseError. See
+    GATE_COMMAND's comment for what this does not cover.
     """
-    name_re = re.compile(r"^\s*-\s*name:\s*(.+?)\s*$")
-    run_re = re.compile(r"^\s*run:\s*(.+?)\s*$")
+    items, strays = _yaml_items(path, "name", "run")
+    if strays:
+        raise _not_a_gate_line(path, strays[0], "run key", "is outside a step whose first "
+                               "key is `- name:`, so no gate check reads it")
     entries: list[tuple[int, str, str, tuple[str, ...]]] = []
-    pending: tuple[int, str] | None = None
-    with path.open("r", encoding="utf-8") as fh:
-        for lineno, raw in enumerate(fh, 1):
-            line = raw.rstrip("\n")
-            m_name = name_re.match(line)
-            if m_name:
-                pending = (lineno, m_name.group(1))
-                continue
-            m_run = run_re.match(line)
-            if m_run and pending is not None:
-                step_lineno, step_name = pending
-                if step_name in WORKFLOW_SETUP_STEPS:
-                    pending = None
-                    continue
-                if step_name in WORKFLOW_DELTA_GATE_STEPS:
-                    pending = None
-                    continue
-                script_match = SCRIPT_RE.search(m_run.group(1))
-                if not script_match:
-                    raise ParseError(
-                        f"{path.relative_to(REPO_ROOT)}:{lineno}: "
-                        f"step '{step_name}' has run command "
-                        f"{m_run.group(1)!r} that does not match the "
-                        f"`python3 [-I] tools/X.py ...` pattern"
-                    )
-                finding = _interpreter_finding(m_run.group(1))
-                if finding:
-                    raise ParseError(
-                        f"{path.relative_to(REPO_ROOT)}:{lineno}: "
-                        f"step '{step_name}' run command {m_run.group(1)!r} "
-                        f"{finding}; every python invocation must match the "
-                        f"`python3 [-I] tools/X.py ...` pattern"
-                    )
-                entries.append((
-                    step_lineno, step_name, script_match.group(1),
-                    _extract_argv(m_run.group(1), script_match.group(1)),
-                ))
-                pending = None
+    for item in items:
+        step_name = item.keys[0][2]
+        if step_name in WORKFLOW_SETUP_STEPS or step_name in WORKFLOW_DELTA_GATE_STEPS:
+            continue
+        what = f"step '{step_name}'"
+        keys = tuple(k for _, k, _ in item.keys)
+        if keys != WORKFLOW_GATE_STEP_KEYS:
+            raise _not_a_gate_line(path, item.lineno, what, f"has keys {list(keys)}, not "
+                                   f"exactly {list(WORKFLOW_GATE_STEP_KEYS)}")
+        if item.deeper:
+            lineno, key = item.deeper[0]
+            raise _not_a_gate_line(path, lineno, what, f"continues its {key} value on a "
+                                   f"deeper-indented line")
+        lineno, command = item.values("run")[0]
+        m = _gate_command(command)
+        if not m:
+            raise _not_a_gate_line(path, lineno, what, f"run command {command!r} is not "
+                                   f"an accepted gate line")
+        entries.append((item.lineno, step_name, m.group("script"), _gate_argv(m)))
     if not entries:
         raise ParseError(
             f"{path.relative_to(REPO_ROOT)}: no audit-step entries found"
@@ -598,38 +652,25 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
 def parse_runner(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     """Return [(line_number, gate_name, script_path, argv), ...] from run_all_audits.sh.
 
-    Matches lines of the form:
-        run_gate "<gate name>" python3 [-I] tools/<script>.py [...]
-    Ignores the function-definition line (`run_gate() {`).
+    Every line that is not a comment and holds the word ``run_gate`` must be a line in
+    RUNNER_NON_GATE_LINES (the function definition ``run_gate() {``) or match, from
+    column 0, RUNNER_LINE_RE:
+        run_gate "<gate name>" python3 [-I] tools/<script>.py [plain arguments]
+    Anything else is a ParseError. See GATE_COMMAND's comment for what this does not
+    cover.
     """
-    line_re = re.compile(r"^run_gate\s+\"([^\"]+)\"\s+(.+?)\s*$")
     entries: list[tuple[int, str, str, tuple[str, ...]]] = []
-    with path.open("r", encoding="utf-8") as fh:
-        for lineno, raw in enumerate(fh, 1):
-            line = raw.rstrip("\n")
-            m = line_re.match(line)
-            if not m:
-                continue
-            gate_name, command = m.group(1), m.group(2)
-            script_match = SCRIPT_RE.search(command)
-            if not script_match:
-                raise ParseError(
-                    f"{path.relative_to(REPO_ROOT)}:{lineno}: "
-                    f"run_gate '{gate_name}' command {command!r} does not "
-                    f"match the `python3 [-I] tools/X.py ...` pattern"
-                )
-            finding = _interpreter_finding(command)
-            if finding:
-                raise ParseError(
-                    f"{path.relative_to(REPO_ROOT)}:{lineno}: "
-                    f"run_gate '{gate_name}' command {command!r} {finding}; every "
-                    f"python invocation must match the `python3 [-I] tools/X.py ...` "
-                    f"pattern"
-                )
-            entries.append((
-                lineno, gate_name, script_match.group(1),
-                _extract_argv(command, script_match.group(1)),
-            ))
+    for lineno, raw in enumerate(_lf_lines(path), 1):
+        line = raw.rstrip(" \t")
+        if (line.lstrip().startswith("#") or not RUN_GATE_WORD_RE.search(line)
+                or line in RUNNER_NON_GATE_LINES):
+            continue
+        m = RUNNER_LINE_RE.fullmatch(line)
+        if not m:
+            raise _not_a_gate_line(path, lineno, "run_gate line", f"{line!r} is not an "
+                                   f"accepted gate line (run_gate \"LABEL\" at column 0, "
+                                   f"LABEL in letters, digits, space, '.', '/' and '-')")
+        entries.append((lineno, m.group("name"), m.group("script"), _gate_argv(m)))
     if not entries:
         raise ParseError(
             f"{path.relative_to(REPO_ROOT)}: no run_gate entries found"
@@ -640,51 +681,45 @@ def parse_runner(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
 def parse_precommit(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     """Return [(line_number, hook_name, script_path, argv), ...] from .pre-commit-config.yaml.
 
-    Looks for blocks of `- id: ... / name: ... / entry: ...`. Captures
-    the (name, entry) pair, recording the line number of the name field.
+    Reads each hook whose first key is ``- id:``; it must have one ``name`` and one
+    ``entry``, and the line number of the name is recorded. Skips the hooks in
+    PRECOMMIT_NON_GATE_HOOKS. Every other hook is a gate hook: its keys must be in
+    PRECOMMIT_GATE_HOOK_KEYS, each once (no ``args``, which pre-commit appends to the
+    command), its ``language`` must be ``system``, no line may be indented deeper than
+    its keys, and its ``entry`` must match GATE_COMMAND. An ``entry`` key outside a hook
+    is a ParseError. See GATE_COMMAND's comment for what this does not cover.
     """
-    id_re = re.compile(r"^\s*-\s*id:\s*(.+?)\s*$")
-    name_re = re.compile(r"^\s*name:\s*(.+?)\s*$")
-    entry_re = re.compile(r"^\s*entry:\s*(.+?)\s*$")
+    items, strays = _yaml_items(path, "id", "entry")
+    if strays:
+        raise _not_a_gate_line(path, strays[0], "entry key", "is outside a hook whose "
+                               "first key is `- id:`, so no gate check reads it")
     entries: list[tuple[int, str, str, tuple[str, ...]]] = []
-    pending_name: tuple[int, str] | None = None
-    with path.open("r", encoding="utf-8") as fh:
-        for lineno, raw in enumerate(fh, 1):
-            line = raw.rstrip("\n")
-            if id_re.match(line):
-                pending_name = None
-                continue
-            m_name = name_re.match(line)
-            if m_name:
-                pending_name = (lineno, m_name.group(1))
-                continue
-            m_entry = entry_re.match(line)
-            if m_entry and pending_name is not None:
-                hook_lineno, hook_name = pending_name
-                if hook_name in PRECOMMIT_NON_GATE_HOOKS:
-                    pending_name = None
-                    continue
-                script_match = SCRIPT_RE.search(m_entry.group(1))
-                if not script_match:
-                    raise ParseError(
-                        f"{path.relative_to(REPO_ROOT)}:{lineno}: "
-                        f"hook '{hook_name}' entry {m_entry.group(1)!r} "
-                        f"does not match the `python3 [-I] tools/X.py ...` "
-                        f"pattern"
-                    )
-                finding = _interpreter_finding(m_entry.group(1))
-                if finding:
-                    raise ParseError(
-                        f"{path.relative_to(REPO_ROOT)}:{lineno}: "
-                        f"hook '{hook_name}' entry {m_entry.group(1)!r} {finding}; "
-                        f"every python invocation must match the "
-                        f"`python3 [-I] tools/X.py ...` pattern"
-                    )
-                entries.append((
-                    hook_lineno, hook_name, script_match.group(1),
-                    _extract_argv(m_entry.group(1), script_match.group(1)),
-                ))
-                pending_name = None
+    for item in items:
+        names, commands = item.values("name"), item.values("entry")
+        if len(names) != 1 or len(commands) != 1:
+            raise _not_a_gate_line(path, item.lineno, f"hook '{item.keys[0][2]}'",
+                                   "does not have exactly one name and one entry")
+        hook_lineno, hook_name = names[0]
+        if hook_name in PRECOMMIT_NON_GATE_HOOKS:
+            continue
+        what = f"hook '{hook_name}'"
+        keys = [k for _, k, _ in item.keys]
+        odd = sorted({k for k in keys if k not in PRECOMMIT_GATE_HOOK_KEYS or keys.count(k) > 1})
+        if odd:
+            raise _not_a_gate_line(path, item.lineno, what, f"has key(s) {odd} outside "
+                                   f"{sorted(PRECOMMIT_GATE_HOOK_KEYS)} or repeated")
+        if [v for _, v in item.values("language")] != ["system"]:
+            raise _not_a_gate_line(path, item.lineno, what, "does not have language: system")
+        if item.deeper:
+            lineno, key = item.deeper[0]
+            raise _not_a_gate_line(path, lineno, what, f"continues its {key} value on a "
+                                   f"deeper-indented line")
+        lineno, command = commands[0]
+        m = _gate_command(command)
+        if not m:
+            raise _not_a_gate_line(path, lineno, what, f"entry {command!r} is not an "
+                                   f"accepted gate line")
+        entries.append((hook_lineno, hook_name, m.group("script"), _gate_argv(m)))
     if not entries:
         raise ParseError(
             f"{path.relative_to(REPO_ROOT)}: no local hook entries found"
