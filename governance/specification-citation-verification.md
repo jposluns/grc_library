@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.39\
+**Version:** 1.2.40\
 **Date:** 2026-10-27\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -886,7 +886,7 @@ This specification does not address:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | Annex A.5.9 | Inventory of information and other assets (the canonical citations register is itself an information asset). |
+| ISO/IEC 27001:2022 | Annex A.5.9 | Inventory of information and other associated assets (the canonical citations register is itself an information asset). |
 | ISO 9001:2015 | Documented information control | Practice analogue for verifiable, dated, recorded factual claims. |
 | Library Charter | [`governance/charter-governance-library.md`](charter-governance-library.md) | Library quality and integrity obligations. |
 

@@ -2,8 +2,8 @@
 
 **Document Title:** OT Asset Inventory and Lifecycle Register\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-10-17\
+**Version:** 1.0.4\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`operations/ot/procedure-ot-incident-response.md`](procedure-ot-incident-response.md), [`operations/ot/procedure-ot-change-management.md`](procedure-ot-change-management.md), [`operations/register-asset-inventory.md`](../register-asset-inventory.md), [`operations/procedure-patch-management.md`](../procedure-patch-management.md), [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -308,7 +308,7 @@ Metric definitions feed into the IT Operations KPI register ([`operations/regist
 | IEC 62443-3-2 | Zone and conduit definition | Zone membership is an asset attribute. |
 | IEC 62443-3-3 | System security requirements | Asset SL-C tracking. |
 | NIST SP 800-82 Rev. 3 | OT security guide: inventory and asset management | Aligned. |
-| ISO/IEC 27001:2022 | Annex A.5.9 Inventory of information and other assets | Aligned, extended for OT. |
+| ISO/IEC 27001:2022 | Annex A.5.9 Inventory of information and other associated assets | Aligned, extended for OT. |
 | ISO/IEC 27019:2024 | Energy utility extensions (Edition 2; based on ISO/IEC 27002:2022 with 12 additional energy-sector controls) | Sector overlay where applicable. |
 | NERC CIP-002 | BES Cyber System categorization | North American electricity sector. |
 | NERC CIP-010 | Configuration change management and vulnerability assessments | Configuration baseline tracking. |
