@@ -29457,7 +29457,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
         lint-todo-number-permanence.py OWN F 9d2bac985ff81dee359108091ca9b85f7e159c2ea079e74b46d6895ca2b70761
         lint-todo-staleness.py NO_FS F 018d90235361c55d209d69c789ee08bbf752ac05613ce7e77991ee59a46b1491
-        lint-tooling-backlog-refs.py OWN F e93b99abe0245c2cf696294d9b05273f2bb59bef7438f0d826771fa6706e660c
+        lint-tooling-backlog-refs.py OWN F fb32e59535aa1fc191032c72eefdbfe1062bfe75210a6dbecf48ef969f2390e5
         lint-tooling-provenance-freshness.py OWN F 4cb6ed58b8cd47d727f7d198169661581b8e94a4a62cc6380a1a64e86b74ca5b
         lint-unbalanced-fences.py ROOT F f52bd3d3e92b3801ba454f3756c8ba76ff8518e18fd8d42ea2edf1ffc9ce2246
         lint-ungated-dashes.py NO_FS F 1a6bd1116eb14e8a97db17cc9c89ac715b008277e91584eae59a5295ae42eb17
@@ -69509,6 +69509,121 @@ class ToolingBacklogRefsTests(LinterTestCase):
         )
         result = self.check(root)
         self.assertLinterFails(result, "sample-hook.py")
+
+    def write_extra(self, root: Path, rel: str, text: str) -> None:
+        """One extra fixture file under the widened 3b636 roots."""
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+
+    def test_playbook_pointer_flagged(self) -> None:
+        # 3b636: the rest of .claude/ is in scope, so a positional pointer in a
+        # playbook fails like one in a hook.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".claude/playbooks/sample.md",
+                         "Relocated by TODO 3.99 / PR #1249 last round.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, ".claude/playbooks/sample.md")
+
+    def test_playbook_stale_pointer_fails_and_closing_pr_form_passes(self) -> None:
+        # The stale pointer beside the anchored one is in a playbook, which
+        # only the widened roots reach, so this fails against the
+        # pre-3b636 gate (it saw no finding at all).
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".claude/playbooks/sample.md",
+                         "Shaped by TODO 3.98 (closing PR #1250) as well.\n"
+                         "\n"
+                         "Relocated by TODO 3.99 last round.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, "line 3: 'TODO 3.99'")
+        self.assertNotIn("3.98", result.stdout)
+
+    def test_playbook_marker_clears(self) -> None:
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".claude/playbooks/sample.md",
+                         "<!-- todo-ref-ok: historical narrative -->\n"
+                         "Relocated by TODO 3.98 last round.\n"
+                         "\n"
+                         "Shaped by TODO 3.99 later.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, "line 4: 'TODO 3.99'")
+        self.assertNotIn("3.98", result.stdout)
+
+    def test_yaml_suffix_pointer_flagged(self) -> None:
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".github/sample.yaml",
+                         "# Key added by TODO 3.99.\nname: sample\n")
+        result = self.check(root)
+        self.assertLinterFails(result, ".github/sample.yaml")
+
+    def test_registered_provenance_txt_scanned_as_markdown(self) -> None:
+        # 3b636 r2: the rule-overlay records are project-authored Markdown
+        # under a .txt suffix. Exactly the registered paths are selected (read
+        # from external_overlay), as Markdown, so a backticked example clears;
+        # any other .txt file stays out of scope.
+        overlay = load_linter_module("tools/external_overlay.py",
+                                     "_tooling_backlog_refs_overlay")
+        self.assertTrue(overlay.RULE_PROVENANCE_PATHS)
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        for rel in (".claude/rules/external/kariedo/notes.txt",
+                    ".claude/playbooks/notes.txt"):
+            self.write_extra(root, rel, "Refreshed under TODO 3.99.\n")
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for rel in overlay.RULE_PROVENANCE_PATHS:
+            with self.subTest(rel=rel):
+                self.write_extra(root, rel,
+                                 "# Overlay provenance\n\n"
+                                 "An example reads `TODO 3.97`.\n"
+                                 "Pruned under TODO 3.99 last review.\n")
+                try:
+                    result = self.check(root)
+                    self.assertLinterFails(result, f"=== {rel} ===")
+                    self.assertIn("line 4: 'TODO 3.99'", result.stdout)
+                    self.assertNotIn("3.97", result.stdout)
+                finally:
+                    # Reset even on failure, so the next subtest sees one record.
+                    self.write_extra(root, rel, "# Overlay provenance\n")
+
+    def test_github_workflow_pointer_flagged(self) -> None:
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".github/workflows/sample.yml",
+                         "# Step added by TODO 3.99.\nname: sample\n")
+        result = self.check(root)
+        self.assertLinterFails(result, ".github/workflows/sample.yml")
+
+    def test_vendored_and_machine_local_paths_not_selected(self) -> None:
+        # 3b636 note 11: upstream-refreshed third-party content and
+        # gitignored machine-local state are out of scope; a vendored
+        # directory's first-party PROVENANCE.md stays scanned.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        for rel in (".claude/rules/external/vendor/rule.md",
+                    ".claude/skills/clean-language/SKILL.md",
+                    ".claude/skills/addyosmani-context-engineering/SKILL.md",
+                    ".claude/hooks/.state/history.json",
+                    ".claude/settings.local.json"):
+            self.write_extra(root, rel, "Upstream says TODO 3.99.\n")
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.write_extra(root, ".claude/skills/clean-language/PROVENANCE.md",
+                         "Vendored under TODO 3.99.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, "clean-language/PROVENANCE.md")
+
+    def test_nested_vendored_provenance_md_not_selected(self) -> None:
+        # 3b636 r3: only each vendored directory's OWN record, at its root, is
+        # first-party; a nested file that shares the basename is vendored
+        # content and stays out of scope, while the root record is scanned.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        for rel in (".claude/skills/clean-language/references/PROVENANCE.md",
+                    ".claude/skills/addyosmani-context-engineering/sub/PROVENANCE.md",
+                    ".claude/rules/external/vendor/PROVENANCE.md"):
+            self.write_extra(root, rel, "Upstream says TODO 3.98.\n")
+        self.write_extra(root, ".claude/skills/clean-language/PROVENANCE.md",
+                         "Vendored under TODO 3.99.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, "=== .claude/skills/clean-language/PROVENANCE.md ===")
+        self.assertNotIn("3.98", result.stdout + result.stderr)
 
     def test_missing_todo_md_exits_two(self) -> None:
         root = self.make_repo("# A clean tool file.\n", todo="")
