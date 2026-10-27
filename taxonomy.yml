@@ -3648,7 +3648,7 @@ documents:
   domain: "compliance"
   type: "Template"
   title: "Audit Evidence Package Template"
-  version: "1.1.10"
+  version: "1.1.11"
   date: "2026-10-27"
   owner: "Chief Compliance Officer"
   approving_authority: "Governance Library Maintainer"
@@ -3657,7 +3657,7 @@ documents:
   review_frequency: "Annual, and on material change to a covered framework's evidence-presentation expectations"
   license: "CC BY-SA 4.0"
   confidentiality: "Public"
-  purpose: "This template packages per-control evidence into an audit-ready bundle: a single navigable artefact that an external auditor, regulator, or independent assessor can walk through to evaluate control implementation and operating effectiveness over a defined period."
+  purpose: "This template packages per-control evidence into an audit-ready bundle: a single navigable artefact that an external auditor, regulator, or independent assessor can walk through to evaluate control implementation and operating effectiveness over a defined period, or, for a SOC 2 Type I package, the design and implementation of controls as of a point in time (the \"as of\" date)."
   related_documents:
     - "compliance/standard-internal-audit.md"
     - "compliance/procedure-control-testing.md"
