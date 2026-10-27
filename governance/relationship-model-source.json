@@ -21,7 +21,24 @@
     "generic topical phrase such as 'AI management families' does not name a standard). A",
     "compound 'X or Y' type takes the term that fits a standard, industry practice; a compound",
     "with no term fitting a standard falls to the default. Otherwise the default is industry",
-    "practice. The value is set per record, never inherited by template copy."
+    "practice. The value is set per record, never inherited by template copy.",
+    "Authority rule for maps-to records whose destination is a regulation or law (batch 14,",
+    "following the GDPR-ART-25 maps-to precedent): industry practice, because a corpus",
+    "document mapping to a provision records correspondence, not that the provision binds the",
+    "adopter; legal force is never inferred from the destination being legislation. An",
+    "implements record to a regulation carries legal obligation. The regulation-level GDPR node",
+    "and the GDPR-ART-25 node overlap in scope by design: a document may map to both.",
+    "Source-class boundary (batch 14 rounds 6 and 7, maintainer rulings 2026-10-24): a corpus document",
+    "qualifies as a maps-to source only when its Document Type maps to an existing node class",
+    "(Register maps to evidence per the rel-corpus-0494 precedent; Guideline and Guide map to",
+    "guideline per rel-corpus-0489 and rel-corpus-0492) and the document's own content corresponds",
+    "to the regulation: it records, implements or evidences the regulation's obligations. As ruled,",
+    "Document Type governs: a document whose Document Type maps to a node class qualifies whatever",
+    "its title or filename, and a document whose Document Type is Template stays out. As ruled, an",
+    "alignment, scope or citation row counts as correspondence only when the document's own body",
+    "implements or records the cited obligation; an index entry, glossary definition, role title,",
+    "example or sample value is not correspondence on its own. Principle documents stay out until a",
+    "node class exists for them."
   ],
   "nodes": [
     {
@@ -330,6 +347,13 @@
       "display_name": "GDPR Article 25 (Data protection by design and by default)",
       "class": "regulation or law",
       "source_identifier": "Regulation (EU) 2016/679 Article 25",
+      "corpus_path": null
+    },
+    {
+      "id": "GDPR",
+      "display_name": "GDPR (General Data Protection Regulation)",
+      "class": "regulation or law",
+      "source_identifier": "Regulation (EU) 2016/679",
       "corpus_path": null
     },
     {
@@ -1318,6 +1342,62 @@
       "class": "guideline",
       "source_identifier": null,
       "corpus_path": "governance/guideline-esg-and-ai-ethics-disclosure.md"
+    },
+    {
+      "id": "GRC-FW-CONSENT-MANAGEMENT",
+      "display_name": "Consent Management Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "privacy/framework-consent-management.md"
+    },
+    {
+      "id": "GRC-PROC-FOURTH-PARTY-NTH-PARTY-RISK",
+      "display_name": "Fourth-Party and Nth-Party Risk Procedure",
+      "class": "procedure",
+      "source_identifier": null,
+      "corpus_path": "supply-chain/procedure-fourth-party-and-nth-party-risk.md"
+    },
+    {
+      "id": "GRC-PROC-SUPPLIER-EXIT-DATA-RETURN",
+      "display_name": "Supplier Exit and Data Return Procedure",
+      "class": "procedure",
+      "source_identifier": null,
+      "corpus_path": "supply-chain/procedure-supplier-exit-and-data-return.md"
+    },
+    {
+      "id": "GRC-REGISTER-DATA-RETENTION-SCHEDULE",
+      "display_name": "Data Retention Schedule",
+      "class": "evidence",
+      "source_identifier": null,
+      "corpus_path": "governance/register-data-retention-schedule.md"
+    },
+    {
+      "id": "GRC-REGISTER-AUTOMATED-DECISION-MAKING",
+      "display_name": "Automated Decision-Making and Profiling Register",
+      "class": "evidence",
+      "source_identifier": null,
+      "corpus_path": "privacy/register-automated-decision-making.md"
+    },
+    {
+      "id": "GRC-REGISTER-COOKIE-TRACKER",
+      "display_name": "Cookie and Tracker Register",
+      "class": "evidence",
+      "source_identifier": null,
+      "corpus_path": "privacy/register-cookie-and-tracker.md"
+    },
+    {
+      "id": "GRC-REGISTER-CROSS-BORDER-DATA-FLOW",
+      "display_name": "Cross-Border Data Flow Register",
+      "class": "evidence",
+      "source_identifier": null,
+      "corpus_path": "privacy/register-cross-border-data-flow.md"
+    },
+    {
+      "id": "GRC-REGISTER-SUBPROCESSOR-TEMPLATE",
+      "display_name": "Subprocessor Register Template",
+      "class": "evidence",
+      "source_identifier": null,
+      "corpus_path": "supply-chain/register-subprocessor-template.md"
     }
   ],
   "records": [
@@ -17011,6 +17091,1158 @@
       "destination": {
         "id": "ISO-31000",
         "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0512",
+      "source": {
+        "id": "GRC-FW-AI-MODEL-DOCUMENTATION",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0513",
+      "source": {
+        "id": "GRC-POL-AI-COMPLIANCE",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0514",
+      "source": {
+        "id": "GRC-PROC-AI-SYSTEM-IMPACT-ASSESSMENT",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0515",
+      "source": {
+        "id": "GRC-PROC-FOUNDATION-MODEL-LIFECYCLE",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0516",
+      "source": {
+        "id": "GRC-PROC-INTEGRATED-AI-PRIVACY-ASSESSMENT",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0517",
+      "source": {
+        "id": "GRC-PROC-TRAINING-DATA-GOVERNANCE",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0518",
+      "source": {
+        "id": "GRC-STD-AI-HUMAN-OVERSIGHT",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0519",
+      "source": {
+        "id": "GRC-STD-DATA-ARCHITECTURE",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0520",
+      "source": {
+        "id": "GRC-POL-LEGAL-REG-COMPLIANCE",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0521",
+      "source": {
+        "id": "GRC-PROC-WHISTLEBLOWER-INCIDENT-REPORTING",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0522",
+      "source": {
+        "id": "GRC-FW-CHILDRENS-DATA",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0523",
+      "source": {
+        "id": "GRC-FW-CONSENT-MANAGEMENT",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0524",
+      "source": {
+        "id": "GRC-FW-PRIVACY-BY-DESIGN",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0525",
+      "source": {
+        "id": "GRC-POL-PRIVACY-DATA-GOV",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0526",
+      "source": {
+        "id": "GRC-PROC-DATA-PROTECTION-PRIVACY-BREACH-RESPONSE",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0527",
+      "source": {
+        "id": "GRC-PROC-DATA-SUBJECT-RIGHTS-MANAGEMENT",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0528",
+      "source": {
+        "id": "GRC-PROC-PRIVACY-IMPACT-CROSS-BORDER-TRANSFER",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0529",
+      "source": {
+        "id": "GRC-PROC-WORKS-COUNCIL-CONSULTATION",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0530",
+      "source": {
+        "id": "GRC-STD-NET-TELEMETRY-DPI",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0531",
+      "source": {
+        "id": "GRC-STD-PRESENCE-INFERENCE",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0532",
+      "source": {
+        "id": "GRC-STD-PSEUDONYMIZATION-ANONYMIZATION",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0533",
+      "source": {
+        "id": "GRC-PROC-CROSS-DOMAIN-INCIDENT-COORDINATION",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0534",
+      "source": {
+        "id": "GRC-FW-INSIDER-RISK",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0535",
+      "source": {
+        "id": "GRC-POL-WORKFORCE-NET-MON",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0536",
+      "source": {
+        "id": "GRC-PROC-SECURITY-INCIDENT-RESPONSE",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0537",
+      "source": {
+        "id": "GRC-STD-DATA-CLASSIFICATION",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0538",
+      "source": {
+        "id": "GRC-STD-LOGGING-MONITORING",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0539",
+      "source": {
+        "id": "GRC-PROC-FOURTH-PARTY-NTH-PARTY-RISK",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0540",
+      "source": {
+        "id": "GRC-PROC-SUPPLIER-EXIT-DATA-RETURN",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0541",
+      "source": {
+        "id": "GRC-STD-CLOUD-EXIT-DATA-PORTABILITY",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0542",
+      "source": {
+        "id": "GRC-STD-SUPPLIER-SEC-PRIVACY",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0543",
+      "source": {
+        "id": "GRC-REGISTER-DATA-RETENTION-SCHEDULE",
+        "class": "evidence"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0544",
+      "source": {
+        "id": "GRC-REGISTER-AUTOMATED-DECISION-MAKING",
+        "class": "evidence"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0545",
+      "source": {
+        "id": "GRC-REGISTER-COOKIE-TRACKER",
+        "class": "evidence"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0546",
+      "source": {
+        "id": "GRC-REGISTER-CROSS-BORDER-DATA-FLOW",
+        "class": "evidence"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0547",
+      "source": {
+        "id": "GRC-REGISTER-SUBPROCESSOR-TEMPLATE",
+        "class": "evidence"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "GDPR",
+        "class": "regulation or law"
       },
       "relationship_class": "correspondence",
       "layout_role": "associative",
