@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, guard_explicit_paths_cwd, iter_markdown_targets, positional_args  # noqa: E402  # grc-config/store, stays local
+from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, guard_explicit_paths_cwd, iter_markdown_targets, positional_args, refuse_vanished, scan_listed  # noqa: E402  # grc-config/store, stays local
 
 try:
     from cobit_iso31000_reference import COBIT_OBJECTIVES  # noqa: E402  # grc reference catalogue (shared with gate 61)
@@ -66,10 +66,14 @@ def main(argv: list[str]) -> int:
     args = positional_args(argv[1:], known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
     paths = guard_explicit_paths_cwd(args, repo_root=REPO_ROOT) if args else [str(REPO_ROOT)]
     targets = iter_markdown_targets(
-        paths, exempt_dirs=DEFAULT_EXEMPT_DIRS, exempt_files=EXEMPT_FILES)
+        paths, exempt_dirs=DEFAULT_EXEMPT_DIRS, exempt_files=EXEMPT_FILES,
+        skip_test_scratch=True)  # 3b653: tests/tmp fixtures vanish mid-walk
     findings: list[tuple[Path, int, str, str, str]] = []
+    vanished: list[Path] = []
     for path in targets:
-        findings.extend(scan_file(path))
+        findings.extend(scan_listed(lambda: scan_file(path), path, vanished))
+    if vanished:
+        return refuse_vanished(vanished)
 
     if not findings:
         print(f"OK: COBIT objective titles canonical across {len(targets)} "
