@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Public Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.27\
+**Version:** 0.0.28\
 **Date:** 2026-10-27\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -194,6 +194,7 @@ None of these sources has a row in the [Canonical Citations Register](../../gove
 - ITSB-96, the source the Patch Management Guidance gives for its Table 3-1 schedule, is not held in the reference base; that schedule is carried only as the guidance presents it, as a suggestion. <!-- ref-absence: ITSB-96 -->
 - ITSM.50.062, Cloud Security Risk Management, which ITSP.50.103 cites, and the GC Cloud Security Risk Management Approach and Procedures, which SPIN 2017-01 and the Security Playbook cite, are not held in the reference base. <!-- ref-absence: ITSM.50.062 | Cloud Security Risk Management Approach -->
 - The Directive on Service and Digital, to which SPIN 6.2.2 refers departments, is not held in the reference base; whether the SPIN's direction has since moved into another instrument is unconfirmed. The held Guideline on Service and Digital, which is guidance, sets out under the heading "Requirement for departments under the Directive" a data-residency requirement numbered section 4.4.1.10 (Guideline 4.4.1); the Directive's own text is not held, so that requirement is not stated here as the Directive's. <!-- ref-absence: Directive on Service and Digital -->
+- The Standard on Identity and Credential Assurance, to which the Directive on Security Management's identification and authentication management requirement refers, is not held in the reference base; the held Directive on Identity Management gives it as its Appendix A only by a pointer to the standard's own page, so no assurance level is attributed to it. <!-- ref-absence: Standard on Identity and Credential Assurance -->
 
 ---
 
@@ -605,7 +606,7 @@ Health-information rows remain source-gated until the exact official title, iden
 6. **Source-specific control mappings** for each fit authority, with no inference of implementation or compliance.
 7. **Canadian authority coverage register** retaining no-fit, duplicate, draft, historical, superseded, and source-gated evidence.
 8. **British Columbia FOIPPA subordinate instruments** (the regulations prescribing fees, the manner of consent and of privacy breach notification, and conditions for disclosure outside Canada, and the minister's directions on privacy management programs and privacy impact assessments), which the British Columbia baseline refers to but which are not held. <!-- ref-absence: Freedom of Information and Protection of Privacy Regulation | B.C. Reg. 155/2012 | FOIPPA subordinate instrument | Privacy Management Program Direction | Privacy Impact Assessment Direction -->
-9. **Federal security and cyber sources referred to but not carried**, listed at the end of the federal security and cyber baseline in domain cluster 3: the Standard on Security Event Reporting, the ITSG-33 control catalogue and profiles, ITSP.40.111, ITSP.40.062, ITSP.30.031, ITSB-96, ITSM.50.062, the GC Cloud Security Risk Management Approach and Procedures, and the Directive on Service and Digital. Each of these is not held in the reference base. <!-- ref-absence: Standard on Security Event Reporting | ITSG-33 Annex 3A | ITSG-33 Annex 4A | ITSP.40.111 | ITSP.40.062 | ITSP.30.031 | ITSB-96 | ITSM.50.062 | Cloud Security Risk Management Approach | Directive on Service and Digital -->
+9. **Federal security and cyber sources referred to but not carried**, listed at the end of the federal security and cyber baseline in domain cluster 3: the Standard on Security Event Reporting, the ITSG-33 control catalogue and profiles, ITSP.40.111, ITSP.40.062, ITSP.30.031, ITSB-96, ITSM.50.062, the GC Cloud Security Risk Management Approach and Procedures, and the Directive on Service and Digital; and the Standard on Identity and Credential Assurance, Appendix A of the held Directive on Identity Management, in accordance with which that Directive applies identity and credential assurance levels (4.1.6) and to which Directive on Security Management B.2.3.1 refers. Each of these is not held in the reference base. <!-- ref-absence: Standard on Security Event Reporting | ITSG-33 Annex 3A | ITSG-33 Annex 4A | ITSP.40.111 | ITSP.40.062 | ITSP.30.031 | ITSB-96 | ITSM.50.062 | Cloud Security Risk Management Approach | Directive on Service and Digital | Standard on Identity and Credential Assurance -->
 10. **Currency confirmation for the federal security and cyber baseline**, so that each source can receive a Canonical Citations Register row: the upstream status and date of each source, including ITSG-33 Annex 1 (held text dated November 2012), Appendix J (held text in effect 1 July 2019), ITSP.50.103 Annex B (held control table headed 31 May 2019) and ITSAP.40.003 (held text dated January 2026), and the commencement of Part 2 of S.C. 2026, c. 9.
 
 ---
