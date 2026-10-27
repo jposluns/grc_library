@@ -4659,7 +4659,7 @@ documents:
   domain: "dev-security"
   type: "Policy"
   title: "Secure Development and Engineering Policy"
-  version: "1.0.21"
+  version: "1.0.22"
   date: "2026-10-27"
   owner: "Chief Information Officer"
   approving_authority: "Chief Information Officer"
