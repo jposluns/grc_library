@@ -13336,7 +13336,64 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
 
 from tests import test_session_facts
 
-SessionFactsTests = test_session_facts.SessionFactsTests
+
+class RegressionGateGuardPinTests(unittest.TestCase):
+    """The gate 36 guard module is on disk AND is handed to the child
+    (3b525 rounds 2 and 3).
+
+    The completeness and refusal guards for the gate runner live in
+    tests/test_regression_gate.py (plus the runner's own in-process
+    self-check and the child driver's argv re-check), so a run-list
+    regression that drops THIS module cannot also drop them. These
+    tests are the reciprocal, in a module whose presence does not
+    depend on that one: deleting tests/test_regression_gate.py from
+    disk fails here, and so does a filter that keeps the file on disk
+    but drops it from the module list the runner's main() actually
+    hands to the child subprocess.
+    """
+
+    def test_regression_gate_guard_module_is_on_disk(self) -> None:
+        self.assertTrue(
+            (REPO_ROOT / "tests" / "test_regression_gate.py").is_file())
+
+    def test_runner_hands_guard_module_to_the_child(self) -> None:
+        """main()'s executed child argv (not discovery alone) covers
+        every on-disk tests/test_*.py, including the guard module, so
+        a filter applied at the child launch fails here as well as in
+        tests/test_regression_gate.py (each module guards the other)."""
+        import contextlib
+        import runpy
+        runner = runpy.run_path(
+            str(REPO_ROOT / "tools" / "run-linter-regression.py"))
+        commands = []
+
+        class _FakeProc:
+            def __init__(self, cmd):
+                commands.append(list(cmd))
+                # main() writes the per-run nonce to the child's stdin
+                # (3b525 round 3, F1: never on argv).
+                self.stdin = io.BytesIO()
+                self.stderr = io.BytesIO(b"")
+
+            def wait(self):
+                return 2
+
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            runner["main"](popen=lambda cmd, **kwargs: _FakeProc(cmd))
+        self.assertEqual(len(commands), 1)
+        # Command shape: [sys.executable, "-c", driver, *modules].
+        executed = commands[0][3:]
+        expected = sorted(
+            "tests." + path.name[:-3]
+            for path in (REPO_ROOT / "tests").iterdir()
+            if path.is_file() and path.name.startswith("test_")
+            and path.name.endswith(".py"))
+        self.assertEqual(executed, expected,
+                         "gate 36 runner's executed module list does not "
+                         "cover every tests/test_*.py file")
+        self.assertIn("tests.test_regression_gate", executed)
+        self.assertIn("tests.test_linters", executed)
 
 
 class VerificationGuardrailSelfTests(unittest.TestCase):
@@ -29226,7 +29283,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F faae8620f7f5c13a9f12cfc461f5a21bb58669dc9c6b533fd3dbe293f92a9d0b
+        README.md DATA F a286bae1556510cc3995fdded2c745403b79598b43551cb795f3f9a0d3dd433a
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F c9596844ccf7a8146a7f1ad08a1d45c8575caae841323c827595f6069c564a86
@@ -29427,7 +29484,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
-        run-linter-regression.py FIXED F 2e97814644c614dc987df7139c5ff0ff9b875fb2c1ba0abb6ff0abc298282753
+        run-linter-regression.py FIXED F 600fa27468c6f7b5371de09d5e646429017411a58ebdefff853b91dd965195e0
         run-pr-time-checks.sh FIXED F 7efe36d3fce0778df83e6f4578561b56d02bf15e389178c50b35053767c075ab
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
         run_all_audits.sh FIXED F 694c1d154afa12f22f78cb4c2f75d96aea92bab4b6cb0919fe6eb2d32af5eff5
@@ -57521,8 +57578,6 @@ class FileArgRefusalTests(LinterTestCase):
             r = run_linter(script)
             self.assertEqual(r.returncode, 0, (script, r.stdout[-300:], r.stderr[-300:]))
 
-
-from tests.test_standards_currency_coverage import CitationCoverageTests, HistoricalContextTests, HistoricalContextRoundTwoTests  # noqa: F401  (imported so `-m unittest tests.test_linters` discovers them)
 
 class WorkerIdAnonymityTests(unittest.TestCase):
     """Gate 103: identifiers are assembled so fixtures cannot leak themselves."""
