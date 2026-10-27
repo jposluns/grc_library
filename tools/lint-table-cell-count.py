@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Table cell-count audit (backlog 3b570).
+"""Table cell-count audit (gate 108, backlog 3b570).
 
 Every GitHub-flavoured Markdown table body row in a tracked ``.md`` file must
 split into as many cells as its header row. A renderer pads a short row with
@@ -8,8 +8,9 @@ mismatch silently loses or shifts content. The recurring cause was a
 ref-absence marker written with its bare-pipe query separator inside a table
 row: the marker's pipe split the cell.
 
-Scope: the files ``git ls-files -z`` lists whose names end in ``.md``, read
-from the working tree. No directory is exempt.
+Scope: the files ``git ls-files -z`` lists whose names, lowercased, end in
+``.md`` (so a name ending in ``.MD`` is scanned too), read from the working
+tree. No directory is exempt.
 
 Decision rule:
 
@@ -129,9 +130,11 @@ Exit codes:
 
   0   clean.
   1   one or more findings.
-  2   any input could not be read: the tracked-file listing failed, or a
-      listed ``.md`` file is missing, unreadable or not UTF-8. A refusal never
-      reports a clean verdict.
+  2   any input could not be read or was refused: a refused ``--root``
+      (an empty value, or a path that is not a directory as given or
+      cannot be resolved), the tracked-file listing failed or listed no
+      ``.md`` file, or a listed ``.md`` file is missing, unreadable or not
+      UTF-8. A refusal never reports a clean verdict.
 
 Residue: a row with the right count but content in the wrong column; a wrong
 header (every body row is then flagged instead); non-Markdown surfaces; a

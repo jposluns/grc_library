@@ -29332,7 +29332,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-preflight-commit.py NO_FS F 87b92b4235420074c259a9b50e0ee72d5624a81be2b87420de3e01cc7e551fd2
         check-class-attestation-on-pr.py NO_FS F bd15aaad43f488b824b69539041c1455de9208cbafebe725207a462210dae8fb
         check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
-        check-claude-md-size.py NO_FS F e905945e9d35caa13122091dcb709f1acaf2d944455ab44b798b4dacca61472c
+        check-claude-md-size.py NO_FS F 0c2c447fbeb2df2e88a61eca220cfd5f1a41ab8aca24b90936e832c1b52f1a95
         check-clause-preservation.py OWN F 43d6804eccf05f9c2434da4ec879246d48cc80081b8c852e86437cf38c65c664
         check-clean-language-upstream.py NO_FS F 7732d2d2eceb44061d99e7c484aa83c93b0818091538ba7e3b95a0040acda6a2
         check-commit-on-main.py NO_FS F 65b09e20a245ce63b9be6415a517542797ffbad0bf32426c334f300068e7eee0
@@ -29451,7 +29451,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
-        lint-table-cell-count.py OWN F 908cb45af821e88f62f1dfb2cfeaa89a32bbb2031c7e1fb85f2c408ffd04541a
+        lint-table-cell-count.py OWN F 10607704c9a594a1a9498f7850da70f136f046f6c5aea5a9c9225b1b4c6dc56e
         lint-todo-index-reference-parity.py OWN F fbd2edb9e2f06f930f43e7648eafdf87fd72830a458440976872025346038a97
         lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
