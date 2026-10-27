@@ -21,7 +21,8 @@ in the probe below: the process starts ``subprocess.Popen``,
 ``_posixsubprocess.fork_exec``, ``os.system``, ``os.exec*``, ``os.spawn*``,
 ``os.posix_spawn*`` and ``os.fork``; an ``open`` for writing and the listed
 file-system mutations (remove, rename, mkdir, chmod and the like); outbound
-sockets; ``os.kill``; every ``ctypes.*`` event (``ctypes.dlopen``, raised by
+sockets (``socket.connect``, ``socket.bind``, ``socket.sendto`` and
+``socket.sendmsg``; a name lookup is not refused, see the residue); ``os.kill``; every ``ctypes.*`` event (``ctypes.dlopen``, raised by
 ``import ctypes`` itself, ``ctypes.dlsym``, ``ctypes.call_function`` and the rest);
 and every ``sqlite3.*`` event (``sqlite3.connect`` and the extension loads). Reads
 are allowed. A finder appended to the end of ``sys.meta_path`` records each
@@ -41,15 +42,18 @@ Each tool gets one of three outcomes:
   whether or not a sibling was also missed. ``SystemExit`` counts as ``error`` too.
 
 Separately, each tool's source is read statically for a ``sys.path.insert(...)``
-call at any index, an assignment to an item or slice of ``sys.path``, or a
-rebinding of ``sys.path`` (``sys`` reached by name, by an ``import sys as`` alias
-or by ``from sys import path``), anywhere in the file, inside functions included.
+call at any index, a ``sys.path.__setitem__``, ``__iadd__``, ``sort`` or
+``reverse`` call, an assignment or augmented assignment (``+=``) to ``sys.path`` or
+to an item or slice of it, or a rebinding of ``sys.path`` (``sys`` reached by name,
+by an ``import sys as`` alias or by ``from sys import path``), anywhere in the file,
+inside functions included.
 Each of these can put the tool's own directory, or the corpus-management pack's
 ``.corpus-management/tools``, ahead of the standard library, which the append form
 forbids. The check is static because most such inserts run inside a function
 (the lazy engine import), which the module-level probe never reaches; it is
-conservative, so ``sys.path.insert(len(sys.path), ...)`` or
-``sys.path = sys.path + [...]`` is reported too (use ``append``).
+conservative, so ``sys.path.insert(len(sys.path), ...)``,
+``sys.path = sys.path + [...]`` or ``sys.path += [...]`` is reported too (use
+``append``).
 
 ``BASELINE`` lists the tools whose sibling import fails today; ``INSERT_BASELINE``
 lists the tools that insert into or assign ``sys.path`` today. A tool counts as
@@ -73,10 +77,20 @@ inherited descriptor) is not refused; ``_posixsubprocess.fork_exec`` raises its
 audit event on the Python 3.14 this was checked on and may not on an older
 interpreter; the probed tool runs in the child's process, so it can read the token
 and forge the result line on the inherited descriptor (the probed tools are
-repository-tracked code, reviewed like this gate); the static ``sys.path`` check
-does not see a mutation through ``getattr``, ``sys.modules["sys"]`` or a list
-reached under another name; and the probe imports ``importlib.util`` itself, so a
-planted module of that name is not exercised.
+repository-tracked code, reviewed like this gate); a name lookup
+(``socket.getaddrinfo``, ``socket.gethostbyname``), which can send a DNS query, is
+not refused; the static ``sys.path`` check does not see a mutation through
+``getattr`` or ``setattr``, through ``sys`` reached by ``__import__("sys")``,
+``importlib.import_module("sys")`` or ``sys.modules["sys"]``, through a list
+reached under another name, or through a method or operator it does not list
+(``del sys.path[...]``, ``remove`` and ``pop``, which drop entries, are not
+reported); a tool counted as converted can still run another tool's insert by
+loading that tool's source (``importlib`` ``exec_module``, ``runpy.run_path``):
+``check-generated-commit.py`` loads ``build-taxonomy.py`` and
+``adopt-bootstrap-ref.py`` loads ``build-reference-manifest.py``, both on
+``INSERT_BASELINE``, and the load targets are paths computed at run time, so the
+transitive case is not checked; and the probe imports ``importlib.util`` itself, so
+a planted module of that name is not exercised.
 
 Usage:
     python3 tools/lint-isolated-launch.py
@@ -427,12 +441,18 @@ def probe(script: Path, *, isolated: bool = True) -> dict:
     return {"status": status, "missed": missed, "error": error, "refused": refused}
 
 
+# sys.path methods that can put an entry ahead of the standard library: insert at any
+# index, the item-assignment and in-place-add dunders, and the two reorderings.
+REORDERING_METHODS = frozenset({"insert", "__setitem__", "__iadd__", "sort", "reverse"})
+
+
 def path_inserts(script: Path) -> list[int]:
-    """Line numbers in ``script`` of each ``sys.path.insert(...)`` call (any index),
-    assignment to an item or slice of ``sys.path``, or rebinding of ``sys.path``,
-    anywhere in the file. ``sys`` is recognised by name, by an ``import sys as``
-    alias, and ``path`` by ``from sys import path [as ...]``. Raises ``SyntaxError``
-    for a file that does not parse."""
+    """Line numbers in ``script`` of each call of a ``REORDERING_METHODS`` method on
+    ``sys.path`` (``sys.path.insert(...)`` at any index among them), assignment or
+    augmented assignment to ``sys.path`` or to an item or slice of it, or rebinding
+    of ``sys.path``, anywhere in the file. ``sys`` is recognised by name, by an
+    ``import sys as`` alias, and ``path`` by ``from sys import path [as ...]``.
+    Raises ``SyntaxError`` for a file that does not parse."""
     tree = ast.parse(script.read_bytes(), filename=str(script))
     sys_names, path_names = {"sys"}, set()
     for node in ast.walk(tree):
@@ -449,9 +469,9 @@ def path_inserts(script: Path) -> list[int]:
     lines = set()
     for node in ast.walk(tree):
         if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
-                and node.func.attr == "insert" and is_path(node.func.value)):
+                and node.func.attr in REORDERING_METHODS and is_path(node.func.value)):
             lines.add(node.lineno)
-        elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+        elif isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
             targets = node.targets if isinstance(node, ast.Assign) else [node.target]
             for target in targets:
                 for t in ast.walk(target):
@@ -520,8 +540,8 @@ def findings_for(results: dict[str, dict], baseline: frozenset[str],
 
 
 def converted_count(results: dict[str, dict], inserts: dict[str, list[int]]) -> int:
-    """Tools whose module-level imports complete under -I and that never insert into
-    or assign ``sys.path``."""
+    """Tools whose module-level imports complete under -I and whose own source has no
+    ``sys.path`` insert or assignment (a tool it loads by path is not read)."""
     return sum(1 for n, r in results.items() if r["status"] == "ok" and not inserts.get(n))
 
 
@@ -573,6 +593,9 @@ def _self_test() -> int:
             "lazy_insert.py": "import sys as _sys\ndef _engine():\n"
                               "    _sys.path.insert(0, 'x')\n",
             "slice_assign.py": "from sys import path\npath[:0] = ['x']\n",
+            # An augmented slice assignment and a reordering method.
+            "aug_assign.py": "import sys\nsys.path[:0] += ['x']\n",
+            "reorders.py": "import sys\nsys.path.reverse()\nsys.path.reverse()\n",
         }
         for name, text in fixtures.items():
             (tools / name).write_text(text, encoding="utf-8")
@@ -585,6 +608,7 @@ def _self_test() -> int:
             "json.py": "error", "uses_json_append.py": "ok", "uses_json_insert.py": "error",
             "miss_then_raises.py": "error", "native_caller.py": "error", "sqlite_user.py": "error",
             "fork_execer.py": "error", "lazy_insert.py": "ok", "slice_assign.py": "ok",
+            "aug_assign.py": "ok", "reorders.py": "ok",
         })
         check("needs_sibling missed", results["needs_sibling.py"]["missed"], ["helper_mod"])
         check("swallowed missed", results["swallowed.py"]["missed"], ["helper_mod"])
@@ -609,7 +633,8 @@ def _self_test() -> int:
 
         inserts = inserts_all(tools)
         check("inserts", {n: v for n, v in inserts.items() if v}, {
-            "uses_json_insert.py": [3], "lazy_insert.py": [3], "slice_assign.py": [2]})
+            "uses_json_insert.py": [3], "lazy_insert.py": [3], "slice_assign.py": [2],
+            "aug_assign.py": [2], "reorders.py": [2, 3]})
         check("converted", converted_count(results, inserts), 8)
 
         expected_unlisted = ["fork_execer.py", "json.py", "miss_then_raises.py",
@@ -635,11 +660,15 @@ def _self_test() -> int:
         only_ok = {n: results[n] for n in ("plain_ok.py", "lazy_insert.py", "slice_assign.py")}
         check("unlisted inserts flagged", findings_for(only_ok, frozenset(), inserts, frozenset({
             "uses_json_insert.py", "plain_ok.py", "ghost.py"})), [
+            "tools/aug_assign.py:2: inserts into or assigns sys.path (lines [2]), which can put "
+            "a directory ahead of the standard library; append to the end of sys.path instead",
             "tools/ghost.py: on INSERT_BASELINE but there is no such tools/*.py; remove it",
             "tools/lazy_insert.py:3: inserts into or assigns sys.path (lines [3]), which can put "
             "a directory ahead of the standard library; append to the end of sys.path instead",
             "tools/plain_ok.py: on INSERT_BASELINE but no longer inserts into or assigns "
             "sys.path; remove it from INSERT_BASELINE",
+            "tools/reorders.py:2: inserts into or assigns sys.path (lines [2, 3]), which can put "
+            "a directory ahead of the standard library; append to the end of sys.path instead",
             "tools/slice_assign.py:2: inserts into or assigns sys.path (lines [2]), which can put "
             "a directory ahead of the standard library; append to the end of sys.path instead",
         ])
@@ -677,7 +706,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\nFAIL: {len(findings)} isolated-launch finding(s) {scope}.")
         return 1
     print(f"OK: {converted_count(results, inserts)} of {len(results)} tools/*.py complete their "
-          f"module-level imports under python3 -I and never insert into sys.path; "
+          f"module-level imports under python3 -I and have no sys.path insert in their own "
+          f"source (a tool loaded by path is not read); "
           f"{len(BASELINE)} on BASELINE (sibling import fails), {len(INSERT_BASELINE)} on "
           f"INSERT_BASELINE (sys.path insert or assignment) {scope}.")
     return 0

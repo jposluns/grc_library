@@ -18937,6 +18937,79 @@ class AuditGateParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
                 self.assertIn("interpreter option(s) ['-B']", result.stderr)
 
+    def _gate_parity_module(self, name: str):
+        import importlib.util
+        tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
+        spec = importlib.util.spec_from_file_location(name, str(tool))
+        agp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agp)
+        return agp
+
+    # (command, options other than -I, or None when the command is refused as a shape that
+    # can hide an interpreter). Shared with the blind-spot map's test, which reads the same.
+    TOKENIZED_SHAPES = (
+        ('python3 "-B" tools/x.py && python3 tools/x.py', ["-B"]),
+        ("python3 '-B' tools/x.py", ["-B"]),
+        ('"python3" -B tools/x.py', ["-B"]),
+        ("'python3' -B tools/x.py", ["-B"]),
+        ('"/usr/bin/python3" -X dev tools/x.py', ["-X"]),
+        ("FOO=1 python3 -B tools/x.py", ["-B"]),
+        ("python3 -I tools/x.py\npython3 -B tools/x.py", ["-B"]),
+        ("(python3 -B tools/x.py)", ["-B"]),
+        ("python3 tools/x.py 2>&1 | python3 -E tools/x.py", ["-E"]),
+        ("python3 tools/x.py||python3 -B tools/x.py", ["-B"]),
+        ('python3 tools/x.py --message "run python3 -B now"', []),
+        ("python3 -I tools/x.py --message 'python3 -B; python -E'", []),
+        ('python3 -I tools/x.py --check', []),
+        ("bash -c 'python3 -B tools/a.py'", None),
+        ("sh -c 'python3 tools/a.py'", None),
+        ("eval 'python3 -B tools/a.py'", None),
+        ("env python3 -B tools/x.py", None),
+        ("$(command -v python3) -B tools/x.py", None),
+        ("`command -v python3` -B tools/x.py", None),
+        ('python3 tools/x.py "$(python3 -B tools/y.py)"', None),
+        ('"$PYTHON" -B tools/x.py', None),
+        ('"python3 -B" tools/x.py', None),
+        ('python3 tools/x.py "unclosed', None),
+    )
+
+    def test_interpreter_options_are_read_from_shell_tokens(self) -> None:
+        # Round-2 review: a quoted option ("-B"), a quoted interpreter, an interpreter
+        # behind bash -c, eval, env or a substitution were missed, and quoted argument
+        # text was read as an invocation. The command is now tokenized as the shell would;
+        # a shape that can hide an interpreter, or one that does not tokenize, is refused.
+        agp = self._gate_parity_module("_agp_tokenized")
+        for command, bad in self.TOKENIZED_SHAPES:
+            with self.subTest(command=command):
+                if bad is None:
+                    with self.assertRaises(ValueError):
+                        agp._interpreter_options(command)
+                    self.assertIsNotNone(agp._interpreter_finding(command))
+                else:
+                    self.assertEqual(agp._interpreter_options(command), bad)
+
+    def test_runner_refuses_hidden_and_quoted_options_and_accepts_quoted_text(self) -> None:
+        agp = self._gate_parity_module("_agp_tokenized_runner")
+        S = "tools/x.py"
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-tokenized-", dir=FIXTURE_DIR))
+        try:
+            runner = root / "run_all_audits.sh"
+            for command, message in (
+                    (f'python3 "-B" {S} && python3 {S}', r"interpreter option\(s\) \['-B'\]"),
+                    (f"python3 {S} && bash -c 'python3 -B {S}'", r"runs 'bash'"),
+                    (f"python3 {S} && $(command -v python3) -B {S}", r"substitution"),
+                    (f'python3 {S} "unclosed', r"does not tokenize")):
+                with self.subTest(command=command):
+                    runner.write_text(f'run_gate "Shape" {command}\n', encoding="utf-8")
+                    with self.assertRaisesRegex(agp.ParseError, message):
+                        agp.parse_runner(runner)
+            runner.write_text(f'run_gate "Quoted text" python3 {S} --message "run python3 -B now"\n',
+                              encoding="utf-8")
+            self.assertEqual([(e[2], e[3]) for e in agp.parse_runner(runner)],
+                             [(S, ("--message", "run python3 -B now"))])
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
     def test_current_surfaces_pass_parity(self) -> None:
         result = run_linter("tools/lint-audit-gate-parity.py")
         self.assertEqual(
@@ -29030,7 +29103,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         audit-backlog-actionability.py OWN F c089004a4e41f3a8c9273d7df9926331953635bc3133ba22023e1f2a7ffc1244
         audit-claim-precision.py ROOT F c2e537144efb7458cba00827577f959907263a7dfffcc75bab54c888f1e1d4b2
         audit-cross-repo-references.py OWN F f2eeb637b2a28b3d8995fe57609c231e1845dc139b4d8aa5f917433833abd83d
-        audit-gate-blindspots.py OWN F 53d58b30435c40fc4aaa112eb9859f74fb02499b00c224e2175b6efc357bf69d
+        audit-gate-blindspots.py OWN F 18c2eb43896fc0822f4b00b21d06b95a3d6563204247cf474fdcad2b5b226318
         audit-gate-mutation.py OWN F db2e8a4e3255dfff96dc9a0f744a58508c1b88e689bea0af28fdc33062fb5716
         audit-held-branch-expiry.py NO_FS F 3255ff7873ca44e429b60011d733b90f6a65434f816a55f3f1be5a53f7a8d652
         audit-inbox-drops.py SKIP F a931ec3bf370c0e755637bcb2ff3238ea9e5337761de96a712b90027588a46bc
@@ -29107,7 +29180,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F a3481b2f0aebcc0c8bcd353e339c34268f2fbc8904810d5ca7435b0b2225d744
+        lint-audit-gate-parity.py OWN F ee1b4e615f6cd516fab854ce2405f42ee2eed7cfd246ffa3a0232fa6db95995d
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-bookkeeping-parity.py NO_FS F 418c1fc4dccff88fe4a32a8a3582c8110b7c53885facc1b661a2db48b829b841
@@ -29142,7 +29215,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-index-header-parity.py OWN F 26ad2438853a5147cbd602fcd122e59fcef8c8b8f2fd6530edb07e74b1bcf3e5
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
-        lint-isolated-launch.py NO_FS F d407f4004fc7cb13356976b31daddf07aa88653c95c5430145801830ec9f8e4d
+        lint-isolated-launch.py NO_FS F 390f03ea3a68d117faf893733cc828a3c2a0fbf98cae51c54a21554d769d8bb2
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
         lint-library-version-monotonicity.py OWN F f6ecc98f3d36934a9d09a3fab8732d8352795ba5e7f6d1f02de8b7677aa0d03b
         lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
@@ -68084,6 +68157,29 @@ class JoinUnderContainmentTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, re.escape(f"option(s) {bad}")):
                     mod.load_gates(self.root)
 
+    def test_blindspots_runner_reads_shell_tokens_as_gate_35_does(self):
+        # The blind-spot map keeps its own copy of gate 35's tokenizing reader; on every
+        # shape of gate 35's test it reports the same options or refuses the same lines.
+        mod = self.load("audit-gate-blindspots.py")
+        for command, bad in AuditGateParityTests.TOKENIZED_SHAPES:
+            with self.subTest(command=command):
+                if bad is None:
+                    with self.assertRaises(ValueError):
+                        mod._interpreter_options(command)
+                else:
+                    self.assertEqual(mod._interpreter_options(command), bad)
+        (self.root / "tools").mkdir()
+        runner = self.root / "tools/run_all_audits.sh"
+        runner.write_text('run_gate "Quoted text" python3 tools/x.py --message "run python3 -B now"\n',
+                          encoding="utf-8")
+        self.assertEqual([g.script for g in mod.load_gates(self.root)], ["tools/x.py"])
+        for line, message in (('run_gate "Quoted flag" python3 "-B" tools/x.py', "option(s) ['-B']"),
+                              ("run_gate \"Hidden\" bash -c 'python3 -B tools/x.py'", "runs 'bash'")):
+            with self.subTest(line=line):
+                runner.write_text(line + "\n", encoding="utf-8")
+                with self.assertRaisesRegex(RuntimeError, re.escape(message)):
+                    mod.load_gates(self.root)
+
     def test_gate_runner_entry(self):
         import contextlib
         from unittest.mock import patch
@@ -71464,6 +71560,10 @@ class IsolatedLaunchTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("OK:", result.stdout)
         self.assertIn("not a full command launch", result.stdout)
+        # The count does not claim the converted tools never insert: one can load an
+        # inserting tool by path, which the static check does not follow.
+        self.assertIn("no sys.path insert in their own source", result.stdout)
+        self.assertNotIn("never insert", result.stdout)
 
     def test_baseline_entries_are_existing_tools(self) -> None:
         mod = self.gate()
@@ -71525,6 +71625,24 @@ class IsolatedLaunchTests(LinterTestCase):
         self.assertEqual(mod.findings_for(results, frozenset(), inserts, listed | {"appends.py"}),
                          ["tools/appends.py: on INSERT_BASELINE but no longer inserts into or "
                           "assigns sys.path; remove it from INSERT_BASELINE"])
+
+    def test_augmented_assignment_and_reordering_methods_are_inserts(self) -> None:
+        # Round-2 review: `sys.path[:0] += [...]` was missed (ast.AugAssign was not
+        # visited), as were the dunder and reordering methods. The controls append,
+        # extend and read sys.path.
+        mod = self.gate()
+        tools = self.fixture_tools({
+            "aug_slice.py": "import sys\nsys.path[:0] += ['x']\n",
+            "aug_whole.py": "from sys import path as p\np += ['x']\n",
+            "dunder.py": "import sys\nsys.path.__setitem__(slice(0, 0), ['x'])\n"
+                         "sys.path.__iadd__(['y'])\n",
+            "reorders.py": "import sys as s\ns.path.sort()\ns.path.reverse()\n",
+            "controls.py": "import sys\nsys.path.append('x')\nsys.path.extend(['y'])\n"
+                           "first = sys.path[0]\n",
+        })
+        self.assertEqual(mod.inserts_all(tools), {
+            "aug_slice.py": [2], "aug_whole.py": [2], "controls.py": [],
+            "dunder.py": [2, 3], "reorders.py": [2, 3]})
 
     def test_insert_baseline_matches_the_tools(self) -> None:
         mod = self.gate()

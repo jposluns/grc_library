@@ -175,20 +175,87 @@ PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, ma
 SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(tools/[A-Za-z0-9_.\-]+\.py)")
 
 # SCRIPT_RE.search finds the FIRST acceptable invocation, so on its own it would read
-# `python3 -B tools/x.py && python3 tools/x.py` at its second call. Every python
-# interpreter invocation in a surface command (python, python3, python3.N, with or
-# without a directory) is therefore matched here with the options before its next
-# non-option word; any option other than -I makes the surface parsers raise a
-# ParseError. The same check guards tools/audit-gate-blindspots.py's runner reading.
-INTERPRETER_RE = re.compile(
-    r"(?:^|[\s;&|(`])(?:[^\s;&|(`]*/)?python(?:3(?:\.\d+)?)?(?=[\s;&|)`]|$)((?:\s+-\S*)*)"
-)
+# `python3 -B tools/x.py && python3 tools/x.py` at its second call. A surface command
+# is therefore tokenized as the shell would (shlex, posix mode, punctuation_chars) and
+# split into simple commands at ; & && || | ( ) and newlines. A command whose first
+# word, after NAME=value assignments and the keywords in SHELL_PREFIX_WORDS, is a
+# python interpreter (python, python3 or python3.N, quoted or not, with or without a
+# directory) has its options read as tokens up to its first non-option word, so
+# `"-B"` counts as -B; any option other than -I makes the surface parsers raise a
+# ParseError. Quoted argument text is one word and is never read as an invocation.
+# The read fails closed: a command that does not tokenize, contains a command or
+# process substitution, or whose first word is a shell, eval, a command wrapper
+# (HIDING_WORDS), an expansion, a redirection or a word holding whitespace (a
+# YAML-quoted scalar) is refused, since it can run an interpreter this check cannot
+# see. No current gate invocation has any of these shapes. A quoted argument made
+# only of the operator characters is read as an operator, which can only refuse a
+# line. The same check guards tools/audit-gate-blindspots.py's runner reading.
+INTERPRETER_WORD_RE = re.compile(r"(?:.*/)?python(?:3(?:\.\d+)?)?")
+ASSIGNMENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=")
+SHELL_OPERATOR_CHARS = frozenset(";&|()\n")
+SHELL_PREFIX_WORDS = frozenset({"!", "{", "if", "then", "else", "elif", "while", "until", "do"})
+HIDING_WORDS = frozenset({"bash", "sh", "dash", "zsh", "ksh", "eval", "source", ".", "env",
+                          "exec", "command", "builtin", "nohup", "nice", "timeout", "time",
+                          "xargs", "sudo"})
+SUBSTITUTIONS = ("$(", "`", "<(", ">(")
+
+
+def _shell_commands(command: str) -> list[list[str]]:
+    """The words of each simple command in ``command``, split at shell operators and
+    newlines. Raises ``ValueError`` for text that does not tokenize (an unclosed quote)."""
+    lexer = shlex.shlex(command.replace("\\\n", ""), posix=True, punctuation_chars=";&|()<>\n")
+    lexer.whitespace = " \t\r"
+    lexer.whitespace_split = True
+    lexer.commenters = ""
+    commands: list[list[str]] = [[]]
+    for token in lexer:
+        if token and set(token) <= SHELL_OPERATOR_CHARS:
+            commands.append([])
+        else:
+            commands[-1].append(token)
+    return [words for words in commands if words]
 
 
 def _interpreter_options(command: str) -> list[str]:
-    """Every interpreter option other than ``-I`` on any python invocation in ``command``."""
-    return [opt for m in INTERPRETER_RE.finditer(command)
-            for opt in m.group(1).split() if opt != "-I"]
+    """Every interpreter option other than ``-I`` on any python invocation in ``command``.
+    Raises ``ValueError`` for a command that does not tokenize or that can hide an
+    interpreter invocation (see INTERPRETER_WORD_RE's comment)."""
+    if any(s in command for s in SUBSTITUTIONS):
+        raise ValueError("contains a command or process substitution, which can run an "
+                         "interpreter this check cannot see")
+    try:
+        commands = _shell_commands(command)
+    except ValueError as exc:
+        raise ValueError(f"does not tokenize as a shell command ({exc})") from None
+    bad = []
+    for words in commands:
+        i = 0
+        while i < len(words) and (words[i] in SHELL_PREFIX_WORDS or ASSIGNMENT_RE.match(words[i])):
+            i += 1
+        if i == len(words):
+            continue
+        word = words[i]
+        if ("$" in word or word.rsplit("/", 1)[-1] in HIDING_WORDS
+                or any(c.isspace() for c in word) or set(word) <= set("<>&|")):
+            raise ValueError(f"runs {word!r}, which can hide a python invocation this check "
+                             f"cannot see")
+        if INTERPRETER_WORD_RE.fullmatch(word):
+            for opt in words[i + 1:]:
+                if not opt.startswith("-"):
+                    break
+                if opt != "-I":
+                    bad.append(opt)
+    return bad
+
+
+def _interpreter_finding(command: str) -> str | None:
+    """Why ``command`` fails the interpreter check, or None when every python invocation
+    in it passes no option other than ``-I``."""
+    try:
+        bad = _interpreter_options(command)
+    except ValueError as exc:
+        return str(exc)
+    return f"passes interpreter option(s) {bad}" if bad else None
 
 # Regex to extract the tools/X.py portion from a markdown link in the
 # inventory table's Script column.
@@ -508,13 +575,13 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
                         f"{m_run.group(1)!r} that does not match the "
                         f"`python3 [-I] tools/X.py ...` pattern"
                     )
-                bad = _interpreter_options(m_run.group(1))
-                if bad:
+                finding = _interpreter_finding(m_run.group(1))
+                if finding:
                     raise ParseError(
                         f"{path.relative_to(REPO_ROOT)}:{lineno}: "
-                        f"step '{step_name}' has run command {m_run.group(1)!r} "
-                        f"passing interpreter option(s) {bad}; every python invocation "
-                        f"must match the `python3 [-I] tools/X.py ...` pattern"
+                        f"step '{step_name}' run command {m_run.group(1)!r} "
+                        f"{finding}; every python invocation must match the "
+                        f"`python3 [-I] tools/X.py ...` pattern"
                     )
                 entries.append((
                     step_lineno, step_name, script_match.group(1),
@@ -551,13 +618,13 @@ def parse_runner(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
                     f"run_gate '{gate_name}' command {command!r} does not "
                     f"match the `python3 [-I] tools/X.py ...` pattern"
                 )
-            bad = _interpreter_options(command)
-            if bad:
+            finding = _interpreter_finding(command)
+            if finding:
                 raise ParseError(
                     f"{path.relative_to(REPO_ROOT)}:{lineno}: "
-                    f"run_gate '{gate_name}' command {command!r} passes interpreter "
-                    f"option(s) {bad}; every python invocation must match the "
-                    f"`python3 [-I] tools/X.py ...` pattern"
+                    f"run_gate '{gate_name}' command {command!r} {finding}; every "
+                    f"python invocation must match the `python3 [-I] tools/X.py ...` "
+                    f"pattern"
                 )
             entries.append((
                 lineno, gate_name, script_match.group(1),
@@ -605,13 +672,13 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
                         f"does not match the `python3 [-I] tools/X.py ...` "
                         f"pattern"
                     )
-                bad = _interpreter_options(m_entry.group(1))
-                if bad:
+                finding = _interpreter_finding(m_entry.group(1))
+                if finding:
                     raise ParseError(
                         f"{path.relative_to(REPO_ROOT)}:{lineno}: "
-                        f"hook '{hook_name}' entry {m_entry.group(1)!r} passes "
-                        f"interpreter option(s) {bad}; every python invocation must "
-                        f"match the `python3 [-I] tools/X.py ...` pattern"
+                        f"hook '{hook_name}' entry {m_entry.group(1)!r} {finding}; "
+                        f"every python invocation must match the "
+                        f"`python3 [-I] tools/X.py ...` pattern"
                     )
                 entries.append((
                     hook_lineno, hook_name, script_match.group(1),

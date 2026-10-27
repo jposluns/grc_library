@@ -51,6 +51,7 @@ from __future__ import annotations
 import argparse
 import ast
 import re
+import shlex
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -69,12 +70,63 @@ RUN_GATE_RE = re.compile(
 )  # matches gate INVOCATIONS only; the run_gate() function definition does not match.
 # `-I` (isolated mode) is the only interpreter option accepted before the script, as gate 35 accepts.
 # The lazy `.*?` would read `python3 -B tools/x.py && python3 tools/x.py` at its second
-# call, so every python invocation on every run_gate line is checked as gate 35's
-# INTERPRETER_RE does, and a line passing any option other than -I is refused (exit 2).
+# call, so every run_gate line is read as gate 35's _interpreter_options reads it (the
+# same shlex tokenizing, kept in step by a test), and a line passing any option other
+# than -I on a python invocation, or one that does not tokenize or can hide an
+# interpreter (a substitution, a shell, eval or a command wrapper as the command word),
+# is refused (exit 2).
 RUN_GATE_LINE_RE = re.compile(r'^run_gate\s+"(?P<name>[^"]+)"\s+(?P<command>.*)$')
-INTERPRETER_RE = re.compile(
-    r"(?:^|[\s;&|(`])(?:[^\s;&|(`]*/)?python(?:3(?:\.\d+)?)?(?=[\s;&|)`]|$)((?:\s+-\S*)*)"
-)
+INTERPRETER_WORD_RE = re.compile(r"(?:.*/)?python(?:3(?:\.\d+)?)?")
+ASSIGNMENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=")
+SHELL_OPERATOR_CHARS = frozenset(";&|()\n")
+SHELL_PREFIX_WORDS = frozenset({"!", "{", "if", "then", "else", "elif", "while", "until", "do"})
+HIDING_WORDS = frozenset({"bash", "sh", "dash", "zsh", "ksh", "eval", "source", ".", "env",
+                          "exec", "command", "builtin", "nohup", "nice", "timeout", "time",
+                          "xargs", "sudo"})
+SUBSTITUTIONS = ("$(", "`", "<(", ">(")
+
+
+def _interpreter_options(command: str) -> list[str]:
+    """Every interpreter option other than ``-I`` on any python invocation in ``command``,
+    as gate 35 reads it. Raises ``ValueError`` for a command that does not tokenize or
+    that can hide an interpreter invocation."""
+    if any(s in command for s in SUBSTITUTIONS):
+        raise ValueError("contains a command or process substitution, which can run an "
+                         "interpreter this check cannot see")
+    lexer = shlex.shlex(command.replace("\\\n", ""), posix=True, punctuation_chars=";&|()<>\n")
+    lexer.whitespace = " \t\r"
+    lexer.whitespace_split = True
+    lexer.commenters = ""
+    commands: list[list[str]] = [[]]
+    try:
+        for token in lexer:
+            if token and set(token) <= SHELL_OPERATOR_CHARS:
+                commands.append([])
+            else:
+                commands[-1].append(token)
+    except ValueError as exc:
+        raise ValueError(f"does not tokenize as a shell command ({exc})") from None
+    bad = []
+    for words in (w for w in commands if w):
+        i = 0
+        while i < len(words) and (words[i] in SHELL_PREFIX_WORDS or ASSIGNMENT_RE.match(words[i])):
+            i += 1
+        if i == len(words):
+            continue
+        word = words[i]
+        if ("$" in word or word.rsplit("/", 1)[-1] in HIDING_WORDS
+                or any(c.isspace() for c in word) or set(word) <= set("<>&|")):
+            raise ValueError(f"runs {word!r}, which can hide a python invocation this check "
+                             f"cannot see")
+        if INTERPRETER_WORD_RE.fullmatch(word):
+            for opt in words[i + 1:]:
+                if not opt.startswith("-"):
+                    break
+                if opt != "-I":
+                    bad.append(opt)
+    return bad
+
+
 COMMON_DISCOVERY_TOKENS = (
     "iter_targets",
     "iter_markdown_targets",
@@ -192,8 +244,11 @@ def load_gates(root: Path) -> list[GateScope]:
     for line in runner.read_text(encoding="utf-8", errors="replace").splitlines():
         invocation = RUN_GATE_LINE_RE.match(line.strip())
         if invocation:
-            bad = [opt for i in INTERPRETER_RE.finditer(invocation.group("command"))
-                   for opt in i.group(1).split() if opt != "-I"]
+            try:
+                bad = _interpreter_options(invocation.group("command"))
+            except ValueError as exc:
+                raise RuntimeError(f"runner gate {invocation.group('name')!r} command {exc}; "
+                                   f"only `python3 [-I] tools/X.py` is accepted") from None
             if bad:
                 raise RuntimeError(f"runner gate {invocation.group('name')!r} passes interpreter "
                                    f"option(s) {bad}; only `python3 [-I] tools/X.py` is accepted")
