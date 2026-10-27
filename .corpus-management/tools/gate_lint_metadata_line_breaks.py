@@ -2,15 +2,31 @@
 """Metadata-block line-break audit (grc gate): pack-owned engine (source of record).
 
 Detect runs of ``**Field:**`` metadata lines that lack a Markdown hard-break marker
-on the non-last lines of the run. A run is the rendered paragraph (3b146): lines that
-render into one paragraph form one run, whatever their indentation, so an indented
-continuation line between metadata lines does not split it. Without a hard-break,
-GitHub renders the metadata block as a single soft-wrapped paragraph rather than as a
-vertical list of labelled facts. Two hard-break markers are accepted: a trailing
-backslash (``\\``) or two-or-more trailing spaces. The last line of a run is exempt
-(the following blank line or ``---`` separator already breaks the paragraph).
-Fenced code blocks are skipped via ``aiqt_corpus.iter_non_code_lines``, so a
-metadata-format example inside ``` ``` ``` is not a false positive.
+on the non-last lines of the run. A run is the rendered paragraph (3b146): the lines
+that render into one paragraph form one run, whatever their indentation, read without
+their block quote and list item markers, so an indented or lazy continuation line
+between metadata lines does not split it. ``scan_file`` follows the CommonMark 0.31
+block structure with GFM tables: block quotes, list items (a sibling item ends the
+paragraph whatever its number; an item that interrupts a paragraph needs content and,
+if ordered, the number 1, as ``1.`` or ``01.``), fenced code (closed only by a fence
+of the opening character at least as long, so a mixed backtick and tilde pair is not
+a pair and a backtick line whose info string holds a backtick is text), indented code,
+HTML blocks to their end condition (their content is never a run), setext headings and
+GFM tables (a table's header row and body rows are never part of a run). A setext
+heading's lines stay a run, because the heading shows them joined. Without a
+hard-break, GitHub renders the metadata block as a single soft-wrapped paragraph rather
+than as a vertical list of labelled facts. Two hard-break markers are accepted: a
+trailing backslash (``\\``) or two-or-more trailing spaces (a trailing tab is not one).
+The last line of a run is exempt (the following blank line or ``---`` separator
+already breaks the paragraph). A metadata-format example inside a fence is not a
+false positive.
+
+Residual (where renderers part, no finding): a lazy continuation line indented four or
+more columns that opens a block once unindented, after two or more nested block quotes,
+continues the paragraph under the CommonMark algorithm but ends the quotes under
+markdown-it. The engine checks only the paragraph's lines before it, and checks nothing
+after it until a blank line outside every container. Tabs are expanded to four-column
+stops before the structure is read, and lines are split at newlines only.
 
 Engine/wrapper split (SHARED/SAFETY lane, Pattern A): this engine carries the PURE
 check (``META_LINE``, ``has_hard_break``, ``scan_file``); the project wrapper
@@ -30,7 +46,7 @@ import re
 from pathlib import Path
 
 try:
-    from aiqt_corpus import iter_non_code_lines, read_text_safe
+    from aiqt_corpus import read_text_safe
 except ImportError as exc:  # fail loud: broken setup, never silently worked around
     raise SystemExit(
         "gate_lint_metadata_line_breaks: cannot import the AIQT generic core "
@@ -52,9 +68,11 @@ def has_hard_break(line: str) -> bool:
     return False
 
 
-# 3b146: a run is the rendered paragraph, not a stretch of consecutive metadata lines. A
-# paragraph continues through any non-blank line, whatever its indentation, unless the line
-# starts another block (CommonMark 0.31): these leaf blocks end it and are not paragraph text.
+# 3b146: a run is the rendered paragraph, not a stretch of consecutive metadata lines. The
+# scan follows the CommonMark 0.31 block structure, with GFM tables: block quote and list item
+# containers (so a quoted or list-item paragraph is a run, read without its markers), lazy
+# continuation lines, fenced code (a closing fence uses the opening character, at least as
+# many times), indented code, HTML blocks to their end condition, and tables.
 _HTML_BLOCK_TAGS = (
     "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|"
     "details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|"
@@ -62,26 +80,73 @@ _HTML_BLOCK_TAGS = (
     "optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|"
     "track|ul"
 )
-LEAF_BLOCK_START = re.compile(
-    r" {0,3}(?:"
-    r"#{1,6}(?:[ \t]|$)"  # ATX heading
-    r"|(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$"  # thematic break
-    r"|<(?:!--|\?|![A-Za-z]|!\[CDATA\[)"  # HTML blocks 2 to 5
-    r"|<(?:script|pre|style|textarea)(?:[ \t>]|$)"  # HTML block 1
-    r"|</?(?:" + _HTML_BLOCK_TAGS + r")(?:[ \t>]|/>|$)"  # HTML block 6
-    r")",
-    re.IGNORECASE,
+# HTML block kinds 1 to 6: (start, end). Kinds 1 to 5 end on the line holding the end marker,
+# the start line included; kind 6 (end None) ends before a blank line. All six can interrupt
+# a paragraph.
+HTML_BLOCK_STARTS = (
+    (re.compile(r" {0,3}<(?:script|pre|style|textarea)(?:[ \t>]|$)", re.IGNORECASE),
+     re.compile(r"</(?:script|pre|style|textarea)>", re.IGNORECASE)),
+    (re.compile(r" {0,3}<!--"), re.compile(r"-->")),
+    (re.compile(r" {0,3}<\?"), re.compile(r"\?>")),
+    (re.compile(r" {0,3}<![A-Za-z]"), re.compile(r">")),
+    (re.compile(r" {0,3}<!\[CDATA\["), re.compile(r"\]\]>")),
+    (re.compile(r" {0,3}</?(?:" + _HTML_BLOCK_TAGS + r")(?:[ \t>]|/>|$)", re.IGNORECASE), None),
 )
+# HTML block kind 7: a whole open or closing tag alone on its line. It cannot interrupt a
+# paragraph, so it only starts a block where no paragraph is open.
+HTML_BLOCK_7 = re.compile(
+    r" {0,3}(?:<[A-Za-z][A-Za-z0-9-]*"
+    r"(?:[ \t]+[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \t]*=[ \t]*(?:[^ \t\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)*"
+    r"[ \t]*/?>|</[A-Za-z][A-Za-z0-9-]*[ \t]*>)[ \t]*$"
+)
+ATX_HEADING = re.compile(r" {0,3}#{1,6}(?:[ \t]|$)")
+THEMATIC_BREAK = re.compile(r" {0,3}(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$")
 # After paragraph text, a line of only ``=`` or ``-`` is a setext underline: it ends the paragraph.
 SETEXT_UNDERLINE = re.compile(r" {0,3}(?:=+|-+)[ \t]*$")
-# A block quote or a list item that may interrupt a paragraph (a bullet, or an ordered item
-# numbered 1, with content) ends the paragraph and opens a new one with its own text.
-CONTAINER_START = re.compile(r" {0,3}(?:>|[-+*][ \t]+\S|1[.)][ \t]+\S)")
+FENCE_OPEN = re.compile(r" {0,3}(`{3,}|~{3,})(.*)$")
+BLOCK_QUOTE = re.compile(r" {0,3}> ?")
+LIST_MARKER = re.compile(r"( {0,3})([-+*]|([0-9]{1,9})[.)])(?= |$)")
+TABLE_DELIMITER = re.compile(r" {0,3}\|?[ \t]*:?-+:?[ \t]*(?:\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*$")
 
 
 def _indent(line: str) -> int:
-    expanded = line.expandtabs(4)
-    return len(expanded) - len(expanded.lstrip(" "))
+    return len(line) - len(line.lstrip(" "))
+
+
+def _table_cells(row: str) -> int:
+    """Count a GFM table row's cells: split on unescaped pipes, less one outer pipe a side."""
+    row = row.strip()
+    if row.startswith("|"):
+        row = row[1:]
+    if row.endswith("|") and not row.endswith("\\|"):
+        row = row[:-1]
+    return len(re.split(r"(?<!\\)\|", row))
+
+
+def _is_table_delimiter(row: str, header: str) -> bool:
+    """A GFM delimiter row under ``header`` whose cell count matches, with a pipe in either."""
+    return (
+        bool(TABLE_DELIMITER.match(row))
+        and ("|" in row or "|" in header)
+        and _table_cells(row) == _table_cells(header)
+    )
+
+
+def _leaf_interrupts(rest: str) -> bool:
+    """Whether ``rest`` opens a leaf block that ends a paragraph (lists and quotes aside)."""
+    return bool(
+        ATX_HEADING.match(rest)
+        or THEMATIC_BREAK.match(rest)
+        or _fence_open(rest)
+        or any(start.match(rest) for start, _ in HTML_BLOCK_STARTS)
+    )
+
+
+def _fence_open(rest: str) -> tuple[str, int] | None:
+    m = FENCE_OPEN.match(rest)
+    if not m or (m.group(1)[0] == "`" and "`" in m.group(2)):
+        return None
+    return m.group(1)[0], len(m.group(1))
 
 
 def scan_file(path: Path) -> list[tuple[int, int]]:
@@ -90,41 +155,177 @@ def scan_file(path: Path) -> list[tuple[int, int]]:
     if text is None:
         return []
     findings: list[tuple[int, int]] = []
-    para: list[tuple[int, str]] = []
+    # A paragraph line is (lineno, text without container markers, original line); the
+    # hard-break test reads the original line's end, so a trailing tab is not two spaces.
+    para: list[tuple[int, str, str]] = []
+    # Open containers, outermost first: ["quote"] or ["item", content indent, has content].
+    containers: list[list] = []
+    # The open non-paragraph leaf: None, ("fence", char, length), ("html", end), ("code",)
+    # or ("table",).
+    leaf: tuple | None = None
+    # Where renderers part on whether the paragraph continues, the index of the first line in
+    # doubt: only the lines before it are checked, as every reading renders them alike.
+    unsure: int | None = None
+    # After such a line the renderers' block structures differ, so no later paragraph is
+    # checked until a blank line outside every container.
+    doubt = False
 
     def flush() -> None:
-        nonlocal para
-        meta = [i for i, (_, ln) in enumerate(para) if META_LINE.match(ln.lstrip(" \t"))]
+        nonlocal para, unsure
+        checked = para if unsure is None else para[:unsure]
+        if doubt and unsure is None:
+            checked = []
+        meta = [i for i, (_, ln, _) in enumerate(checked) if META_LINE.match(ln.lstrip(" \t"))]
         if len(meta) >= 2:
             # Every metadata line that another line of its paragraph follows needs a hard break.
             missing = sum(
-                1 for i in meta if i < len(para) - 1 and not has_hard_break(para[i][1])
+                1 for i in meta if i < len(checked) - 1 and not has_hard_break(checked[i][2])
             )
             if missing:
-                findings.append((para[meta[0]][0], missing))
-        para = []
+                findings.append((checked[meta[0]][0], missing))
+        para, unsure = [], None
 
-    prev = 0
-    for lineno, line in iter_non_code_lines(text):
-        # The fence-aware scan omits fenced lines, so a gap in line numbers is a fenced block.
-        # A fence between metadata lines ends the run: the lines either side are not one
-        # paragraph, so the one before the fence needs no hard break (P-1.89(c)).
-        if lineno != prev + 1:
-            flush()
-        prev = lineno
-        if not line.strip():
-            flush()
-        elif para:
-            if LEAF_BLOCK_START.match(line) or SETEXT_UNDERLINE.match(line):
-                flush()
-            elif CONTAINER_START.match(line):
-                flush()
-                para.append((lineno, line))
+    # Markdown ends a line only at a newline (the read already folds CR and CRLF into one), so
+    # a form feed or U+2028 in a line does not shift the reported line numbers.
+    for lineno, raw in enumerate(text.split("\n"), start=1):
+        line = raw.expandtabs(4)
+        # Match the open containers: a quote needs its marker, an item its content indent (or
+        # a blank line once it has content).
+        pos, matched = 0, 0
+        for c in containers:
+            if c[0] == "quote":
+                m = BLOCK_QUOTE.match(line, pos)
+                if not m:
+                    break
+                pos = m.end()
+            elif not line[pos:].strip() and c[2]:
+                pos = len(line)
+            elif _indent(line[pos:]) >= c[1]:
+                pos += c[1]
             else:
+                break
+            matched += 1
+        all_matched = matched == len(containers)
+        rest = line[pos:]
+
+        # Inside a fence, an HTML block or indented code, a fully matched line is block content.
+        if all_matched and leaf is not None and leaf[0] == "fence":
+            m = re.match(r" {0,3}(%s{%d,})[ \t]*$" % (re.escape(leaf[1]), leaf[2]), rest)
+            if m:
+                leaf = None
+            continue
+        if all_matched and leaf is not None and leaf[0] == "html":
+            if leaf[1] is None and not rest.strip():
+                leaf = None
+            elif leaf[1] is not None and leaf[1].search(rest):
+                leaf = None
+            continue
+        if all_matched and leaf == ("code",) and (not rest.strip() or _indent(rest) >= 4):
+            continue
+
+        # Open new containers. A list item interrupts a paragraph of its own container only
+        # when it has content and, if ordered, starts at 1 (``1.``, ``01.``); in an enclosing
+        # list it starts a sibling item whatever its number.
+        para_tip = bool(para) and all_matched
+        opened = False
+        while _indent(rest) < 4:
+            m = BLOCK_QUOTE.match(rest)
+            if m:
+                if not opened:
+                    del containers[matched:]
+                    flush()
+                    leaf, opened = None, True
+                containers.append(["quote"])
+                matched += 1
+                pos += m.end()
+                rest = line[pos:]
+                continue
+            m = LIST_MARKER.match(rest)
+            if not m or THEMATIC_BREAK.match(rest):
+                break
+            after = rest[m.end():]
+            if para_tip and not opened and (
+                not after.strip() or (m.group(3) is not None and int(m.group(3)) != 1)
+            ):
+                break
+            gap = _indent(after)
+            width = m.end() + (gap if 1 <= gap <= 4 and after.strip() else 1)
+            if not opened:
+                del containers[matched:]
+                flush()
+                leaf, opened = None, True
+            for c in containers:
+                if c[0] == "item":
+                    c[2] = True
+            containers.append(["item", width, False])
+            matched += 1
+            pos += min(width, len(rest))
+            rest = line[pos:]
+        all_matched = matched == len(containers)
+
+        # A lazy continuation line: an unmatched container's paragraph continues through text
+        # that opens no block of its own.
+        if not all_matched and not opened and para and rest.strip() and not _leaf_interrupts(rest):
+            if (
+                _indent(rest) >= 4
+                and sum(c[0] == "quote" for c in containers[matched:]) >= 2
+                and (_leaf_interrupts(rest.lstrip(" ")) or BLOCK_QUOTE.match(rest.lstrip(" "))
+                     or LIST_MARKER.match(rest.lstrip(" ")))
+                and unsure is None
+            ):
+                # Renderers part on an indented block start after nested quotes (markdown-it
+                # ends the quotes; the CommonMark algorithm continues the paragraph), so the
+                # line and those after it are not checked: no finding one of them would not show.
+                unsure, doubt = len(para), True
+            para.append((lineno, rest, raw))
+            continue
+        if not all_matched:
+            del containers[matched:]
+            flush()
+            leaf = None
+
+        if not rest.strip():
+            flush()
+            if leaf is not None and leaf[0] == "table":
+                leaf = None
+            if not containers:
+                doubt = False
+            continue
+        for c in containers:
+            if c[0] == "item":
+                c[2] = True
+        if leaf is not None and leaf[0] == "table":
+            if _indent(rest) < 4 and not _leaf_interrupts(rest):
+                continue  # a table row, whatever it holds
+            leaf = None
+        if leaf == ("code",):
+            leaf = None
+        if para:
+            if SETEXT_UNDERLINE.match(rest):
+                flush()  # a setext heading still shows its lines joined, so it stays a run
+                continue
+            if _is_table_delimiter(rest, para[-1][1]):
+                # The paragraph's last line is the table's header row, not paragraph text.
+                para.pop()
+                flush()
+                leaf = ("table",)
+                continue
+            if not _leaf_interrupts(rest):
                 # A paragraph continuation line, at any indentation (3b146).
-                para.append((lineno, line))
-        elif _indent(line) < 4 and not LEAF_BLOCK_START.match(line):
-            # Four or more columns outside a paragraph is an indented code block.
-            para.append((lineno, line))
+                para.append((lineno, rest, raw))
+                continue
+            flush()
+        if _indent(rest) >= 4:
+            leaf = ("code",)
+        elif _fence_open(rest):
+            leaf = ("fence",) + _fence_open(rest)
+        elif ATX_HEADING.match(rest) or THEMATIC_BREAK.match(rest):
+            pass
+        elif any(start.match(rest) for start, _ in HTML_BLOCK_STARTS) or HTML_BLOCK_7.match(rest):
+            end = next((e for s, e in HTML_BLOCK_STARTS if s.match(rest)), None)
+            if end is None or not end.search(rest):
+                leaf = ("html", end)
+        else:
+            para.append((lineno, rest, raw))
     flush()
     return findings

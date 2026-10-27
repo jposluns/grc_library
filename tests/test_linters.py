@@ -21378,6 +21378,89 @@ class MetadataLineBreaksTests(LinterTestCase):
                 result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    # 3b146 round 2: one test per case where the round 1 run model disagreed with the
+    # renderer (CommonMark 0.31 with GFM tables). Each fails on the round 1 engine.
+
+    def _assert_clean(self, name: str, text: str) -> None:
+        result = run_linter("tools/lint-metadata-line-breaks.py", self.make_fixture(name, text))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def _assert_flagged(self, name: str, text: str, missing: int) -> None:
+        result = run_linter("tools/lint-metadata-line-breaks.py", self.make_fixture(name, text))
+        self.assertLinterFails(result, "missing-hard-break")
+        self.assertIn("has %d non-last line(s)" % missing, result.stdout)
+
+    def test_table_after_metadata_ends_the_run(self) -> None:
+        # The header row and the body rows of a GFM table are not paragraph text, so B is the
+        # last line of its paragraph and only A's missing break is a finding.
+        self._assert_flagged(
+            "fake-table-after.md", "**A:** x\n**B:** y\n| h |\n| - |\n**C:** z\n", 1
+        )
+
+    def test_metadata_line_in_a_table_body_is_not_a_run(self) -> None:
+        # Under GFM, B is a table row, so A stands alone (round 1 reported A).
+        self._assert_clean("fake-table-row.md", "**A:** x\n| h |\n| - |\n**B:** y\n")
+
+    def test_ordered_item_01_interrupts_the_paragraph(self) -> None:
+        # "01." starts at 1, so it interrupts the paragraph and A is the last line of its run.
+        self._assert_clean("fake-ol-01.md", "**A:** x\n01. item\n**B:** y\n")
+
+    def test_sibling_list_item_ends_the_run(self) -> None:
+        # Inside a list, "2." starts a sibling item whatever its number, so A and B are in
+        # two paragraphs.
+        self._assert_clean(
+            "fake-sibling-items.md", "1. item\n   **A:** x\n2. item\n   **B:** y\n"
+        )
+
+    def test_html_comment_content_is_not_a_run(self) -> None:
+        self._assert_clean(
+            "fake-html-comment.md", "<!--\n**A:** x\n**B:** y\n**C:** z\n-->\n"
+        )
+
+    def test_html_pre_block_content_is_not_a_run(self) -> None:
+        self._assert_clean("fake-html-pre.md", "<pre>\n**A:** x\n**B:** y\n</pre>\n**C:** z\n")
+
+    def test_html_div_block_content_is_not_a_run(self) -> None:
+        # A kind-6 HTML block runs to the next blank line, so B and C are raw HTML.
+        self._assert_clean("fake-html-div.md", "**A:** x\n<div>\n**B:** y\n**C:** z\n")
+
+    def test_html_tag_line_after_a_blank_starts_an_html_block(self) -> None:
+        # A kind-7 tag alone on its line cannot interrupt a paragraph, but after a blank line
+        # it opens an HTML block that runs to the next blank line.
+        self._assert_clean("fake-html-span.md", "<span>\n**A:** x\n**B:** y\n")
+
+    def test_block_quote_paragraph_is_a_run(self) -> None:
+        self._assert_flagged("fake-bq.md", "> **A:** x\n> **B:** y\n", 1)
+
+    def test_block_quote_lazy_continuation_is_in_the_run(self) -> None:
+        self._assert_flagged("fake-bq-lazy.md", "**A:** x\n> **B:** y\n**C:** z\n", 1)
+
+    def test_list_item_first_line_is_in_the_run(self) -> None:
+        self._assert_flagged("fake-li-first.md", "- **A:** x\n  **B:** y\n", 1)
+
+    def test_loose_list_item_paragraph_is_a_run(self) -> None:
+        # The four-space lines continue the item after a blank line; they are not indented code.
+        self._assert_flagged(
+            "fake-li-loose.md", "- item\n\n    **A:** x\n    **B:** y\n", 1
+        )
+
+    def test_backtick_line_with_backtick_info_string_is_not_a_fence(self) -> None:
+        self._assert_flagged("fake-not-fence.md", "**A:** x\n``` a`b\n**B:** y\n", 1)
+
+    def test_form_feed_does_not_shift_the_reported_line(self) -> None:
+        # Only a newline ends a Markdown line; str.splitlines() also split on the form feed.
+        result = run_linter(
+            "tools/lint-metadata-line-breaks.py",
+            self.make_fixture("fake-form-feed.md", "x\x0cy\n**A:** x\n**B:** y\n"),
+        )
+        self.assertLinterFails(result, "missing-hard-break")
+        self.assertIn("L2 [missing-hard-break]", result.stdout)
+
+    def test_tilde_line_does_not_close_a_backtick_fence(self) -> None:
+        self._assert_clean(
+            "fake-mixed-fence.md", "```\ncode\n~~~\n**A:** x\n**B:** y\n```\n"
+        )
+
     def test_code_fence_metadata_not_flagged(self) -> None:
         # Same metadata block, but inside a fenced code region: must NOT
         # be flagged (templates demonstrating proper format do not need
@@ -30553,7 +30636,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-links.py ROOT F cf4b6ae1d2c76df65234323d94650ebc62db87bf24ed4f375d5386b4a75fb0b6
         lint-listing-surface-completeness.py NO_FS F 3dc1bb95c9133adec9f3af5640cf18a6c342118c972ab7cfb447fa6651ffe0f3
         lint-matrix-control-codes.py OWN F db50722da09857af1b7331860449b5f928c2a14775323007c4a6c09caa0dc2ad
-        lint-metadata-line-breaks.py ROOT F c4cf5422425033ee4171b762756de7a06e7ef7c528ea92d0066d62b39ea9e6ce
+        lint-metadata-line-breaks.py ROOT F 601f5879213fc66a0d35a92dffa89b9865e392e0e0a4e5ed4537b87dae40bcf8
         lint-metadata.py ROOT F 4b598a5775c087c6cd29ee7de4d5989ce65f9d2f69bd7a2bf84792e999ad6eeb
         lint-narrative-authority-boundary.py ROOT F 30604b67d564825474d8d957291b2d7fef0fcffc7fbc9dc13b42ccf80986ad41
         lint-narrative-boundary.py OWN F 787e392e5612561e47a6cf581d7fad785f867351682b116d8b7db680d4890f9a
@@ -49504,7 +49587,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.21.4", "3b146 has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH) on top of 3b662, which has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662; then 0.21.3 to 0.21.4 for 3b146)")
+        self.assertEqual(man["pack"]["version"], "0.21.5", "3b146 has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of 3b662, which has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for 3b146)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")

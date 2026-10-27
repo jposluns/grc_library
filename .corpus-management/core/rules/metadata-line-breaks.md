@@ -1,23 +1,31 @@
 # Metadata-block line breaks
 
 A run is the rendered paragraph: the lines that render into one
-paragraph form one run, whatever their indentation, and a run ends only
-at a blank line or a line that starts another block (a heading, a
-thematic break or setext underline, a block quote, a list item that can
-interrupt a paragraph, an HTML block, or a fence). In a run holding two
-or more metadata lines (each of the `**Field:**` form), every metadata
-line that another line of the run follows carries a Markdown hard-break
+paragraph (CommonMark with GitHub tables) form one run, whatever their
+indentation, including a paragraph inside a block quote or list item,
+read without its markers, and a lazy continuation line. A run ends at a
+blank line or a line that starts another block: a heading, a thematic
+break or setext underline, a block quote, a list item that can
+interrupt the paragraph (or a sibling item of an enclosing list), an
+HTML block, a table, or a fence. A setext heading's lines are a run,
+because the heading shows them joined. In a run holding two or more
+metadata lines (each of the `**Field:**` form), every metadata line
+that another line of the run follows carries a Markdown hard-break
 marker. Without a hard break, GitHub renders the run as a single
 soft-wrapped paragraph rather than as the intended vertical list of
 labelled facts. Two hard-break markers are accepted: a trailing
 backslash (the library convention) or two or more trailing spaces. The
 last line of a run is exempt, because the following blank line or `---`
-separator already ends the paragraph. Metadata lines inside a fenced
-code block are documentation of the metadata-block format, not a file's
-own metadata, so the shared fence-aware scan skips them: a metadata
+separator already ends the paragraph. Metadata lines inside a code
+block, an HTML block or a table are not paragraph text: a metadata
 example inside a fence is not a finding, and a fenced block between
 metadata lines ends the run (the lines either side of it are not one
-paragraph). A field name starts with an ASCII letter and runs to its
+paragraph). A fence closes only on a fence of its own character at
+least as long as the opening one. Residual: where renderers disagree on
+whether a paragraph continues (an indented lazy line that opens a block
+once unindented, after nested block quotes), the gate checks only the
+lines before that line and nothing after it until a blank line outside
+every container. A field name starts with an ASCII letter and runs to its
 closing colon without an asterisk, so it may contain hyphens, slashes,
 parentheses and underscores. A run whose non-last lines all
 carry a marker, and a single isolated metadata line, are not flagged.
