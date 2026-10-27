@@ -2,7 +2,7 @@
 
 **Document Title:** Network Security and Segmentation Standard\
 **Document Type:** Standard\
-**Version:** 1.4.18\
+**Version:** 1.4.19\
 **Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -182,7 +182,7 @@ Sector-specific testing or inspection cadences (for example, sector-mandated tra
 | CCCS Baseline Cyber Security Controls for Small and Medium Organizations V1.2 | BC.9.1 to BC.9.8: Establish basic perimeter defences |
 | TBS Directive on Security Management, Appendix B | B.2.3.6.1 to B.2.3.6.3: System and communications protection |
 
-**Canadian network-zone sources.** The three Canadian rows above are paraphrased from the held texts, with pinpoints. Each row cites the held edition; its currency is to be confirmed upstream before an adopter relies on it. ITSP.80.022 is written for Government of Canada IT solutions at the Unclassified, Protected A, and Protected B levels (its Overview); the Directive on Security Management applies to the organizations listed in section 6.1 of the Policy on Government Security (Directive 6.1) and takes effect on 1 July 2019 per the held text; the small and medium organizations baseline is a CCCS publication for small and medium organizations. The public-sector applicability model is in the [Canada Public Sector GRC Requirements Annex](../compliance/public-sector/annex-canada-public-sector-requirements.md); a mapping row here does not establish implementation or compliance.
+**Canadian network-zone sources.** The three Canadian rows above are paraphrased from the held texts, with pinpoints. Each row cites the held edition; its currency is to be confirmed upstream before an adopter relies on it. ITSP.80.022 is written for IT solutions at the Unclassified, Protected A, and Protected B levels (its Overview); the Directive on Security Management applies to the organizations listed in section 6.1 of the Policy on Government Security (Directive 6.1) and takes effect on 1 July 2019 per the held text; the small and medium organizations baseline is a CCCS publication for small and medium organizations. The public-sector applicability model is in the [Canada Public Sector GRC Requirements Annex](../compliance/public-sector/annex-canada-public-sector-requirements.md); a mapping row here does not establish implementation or compliance.
 
 - **Zone types (ITSP.80.022 §2.1).** ITSP.80.022 defines seven zone types: public, public access, operations, restricted, highly restricted, restricted extranet, and management. The section 4 zone model is the organization's own. Read against the §2.1 descriptions, Internet / Untrusted is closest to the public zone (§2.1.1), DMZ to the public access zone (§2.1.2), User (Corporate) to the operations zone (§2.1.3), Production to the restricted zone (§2.1.4), and Management to the management zone (§2.1.7). This correspondence is an inference, not a statement in the source, and ITSP.80.022 has no separate test and development zone type.
 - **Zone interface points (§2.2).** All data communication between zones "must be through" a zone interface point that connects only those two zones by a unique path. This supports the default-deny inter-zone rule in section 4 and the perimeter rules in section 5.1.
