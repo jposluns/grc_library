@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.35\
+**Version:** 1.0.36\
 **Date:** 2026-10-27\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -130,7 +130,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 | Audit planning and execution | Clauses 8 to 9 Operation | Clauses 5 to 6 (audit programme; conducting an audit) | MEA04 Managed Assurance | A&A 01 to 04 | NIST SP 800-53 Rev. 5 CA-2 | AI Act, sectoral laws | WCO SAFE equivalence |
 | Findings and CAPA | Clause 10 Improvement | §6.4 audit findings; §6.7 audit follow-up | MEA01.05 Ensure the implementation of corrective actions | A&A 05, A&A 06 | NIST SP 800-53 Rev. 5 CA-5, CA-7 | CAPA regulations | WCO SAFE equivalence |
 | AI audit and algorithmic monitoring | [Adopted in CMS] | [Guidance] | MEA01.03 Collect and process performance and conformance data | AIS 01 to 03 | NIST AI RMF 1.0 Measure | EU AI Act; Treasury Board Directive (AIDA lapsed) | Not applicable |
-| Reporting and disclosure | Clause 9 Performance evaluation | §6.5 Preparing and distributing the audit report | MEA01.04 Analyze and report performance | GRC 06 | NIST CSF Communicate | All jurisdictions | WCO SAFE equivalence |
+| Reporting and disclosure | Clause 9 Performance evaluation | §6.5 Preparing and distributing the audit report | MEA01.04 Analyze and report performance | GRC 06 | NIST CSF 2.0 GV.OV (Oversight) | All jurisdictions | WCO SAFE equivalence |
 | Supplier and trade compliance auditing | Clauses 8 to 9 | Clause 6 Conducting an audit | APO10.05 Monitor vendor performance and compliance | STA 13 | NIST SP 800-161 Rev. 1 SCRM | Trade and customs laws | WCO SAFE equivalence |
 
 
