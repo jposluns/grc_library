@@ -211,7 +211,7 @@ _147 documents._
 | [ai/standard-ai-testing-validation-and-documentation.md](../ai/standard-ai-testing-validation-and-documentation.md) | AI Testing, Validation and Documentation Standard | Standard | 1.0.15 | 2026-10-27 |
 | [ai/template-ai-assurance-case.md](../ai/template-ai-assurance-case.md) | AI Assurance Case Template | Template | 1.0.4 | 2026-10-26 |
 | [ai/template-ai-red-team-report.md](../ai/template-ai-red-team-report.md) | AI Red Team Report Template | Template | 1.0.14 | 2026-10-27 |
-| [ai/template-ai-vendor-security-questionnaire.md](../ai/template-ai-vendor-security-questionnaire.md) | AI Vendor Security Questionnaire Template | Template | 1.0.10 | 2026-10-27 |
+| [ai/template-ai-vendor-security-questionnaire.md](../ai/template-ai-vendor-security-questionnaire.md) | AI Vendor Security Questionnaire Template | Template | 1.0.11 | 2026-10-27 |
 | [ai/template-dataset-datasheet.md](../ai/template-dataset-datasheet.md) | Dataset Datasheet Template | Template | 1.0.9 | 2026-10-27 |
 | [ai/template-model-card.md](../ai/template-model-card.md) | Model Card Template | Template | 1.0.7 | 2026-10-24 |
 | [architecture/framework-enterprise-architecture.md](../architecture/framework-enterprise-architecture.md) | Enterprise Architecture Framework | Framework | 1.0.4 | 2026-09-14 |
@@ -220,7 +220,7 @@ _147 documents._
 | [architecture/standard-data-architecture.md](../architecture/standard-data-architecture.md) | Data Architecture Standard | Standard | 1.0.3 | 2026-07-02 |
 | [architecture/standard-reference-architecture.md](../architecture/standard-reference-architecture.md) | Reference Architecture Standard | Standard | 1.0.4 | 2026-09-14 |
 | [architecture/standard-technology-radar.md](../architecture/standard-technology-radar.md) | Technology Radar Standard | Standard | 1.0.9 | 2026-10-27 |
-| [compliance/financial-services/annex-financial-services-sector-requirements.md](../compliance/financial-services/annex-financial-services-sector-requirements.md) | Financial Services Sector GRC Requirements Annex | Annex | 1.0.24 | 2026-10-04 |
+| [compliance/financial-services/annex-financial-services-sector-requirements.md](../compliance/financial-services/annex-financial-services-sector-requirements.md) | Financial Services Sector GRC Requirements Annex | Annex | 1.0.25 | 2026-10-27 |
 | [compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) | UK AEO-S IT and Cybersecurity Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [compliance/logistics/annex-logistics-sector-requirements.md](../compliance/logistics/annex-logistics-sector-requirements.md) | Logistics Sector GRC Requirements Annex | Annex | 1.0.34 | 2026-10-26 |
 | [compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md) | UK AEO IT Self-Assessment Procedure | Procedure | 1.0.2 | 2026-07-02 |
