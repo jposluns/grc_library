@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.72.9\
+**Version:** 1.72.11\
 **Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -774,14 +774,14 @@ These rule files draw on and are aligned to the following external projects and 
 
 ### NIST frameworks
 
-**NIST SSDF: Secure Software Development Framework (SP 800-218)**
+**NIST SSDF: Secure Software Development Framework (SP 800-218 Version 1.1)**
 - URL: `https://csrc.nist.gov/pubs/sp/800/218/final`
 - Coverage: Prepare the Organization (PO), Protect the Software (PS), Produce Well-Secured Software (PW), Respond to Vulnerabilities (RV)
 - Direct application: all rule files in `core/` and `pipeline/`
 
 **NIST SP 800-218A: Generative AI Profile**
 - URL: `https://csrc.nist.gov/pubs/sp/800/218/a/final`
-- Coverage: Augments SP 800-218 with AI model development practices; AI-specific secure development tasks
+- Coverage: Augments SP 800-218 Version 1.1 with AI model development practices; AI-specific secure development tasks
 - Direct application: all rule files in `ai/`
 
 **NIST AI Risk Management Framework (AI RMF 1.0)**

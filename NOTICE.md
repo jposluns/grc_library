@@ -2,7 +2,7 @@
 
 **Document Title:** Notice: External Reference Materials and Licence Boundaries\
 **Document Type:** Policy\
-**Version:** 1.6.3\
+**Version:** 1.6.4\
 **Date:** 2026-10-27\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -62,7 +62,7 @@ These prohibitions apply to every third-party source beyond the short, attribute
 
 | Pattern | Example |
 | --- | --- |
-| Framework identifier | Map a document to CSA CCM, ISO/IEC 27001:2022, NIST CSF, or NIST AI RMF 1.0 at a domain level. |
+| Framework identifier | Map a document to CSA CCM, ISO/IEC 27001:2022, NIST CSF 2.0, or NIST AI RMF 1.0 at a domain level. |
 | Control family | Reference identity, logging, data security, supplier governance, incident management, or resilience as control families. |
 | Original requirement | Write a new control requirement using original wording and role-neutral language. |
 | Applicability note | State that a document may be relevant where cloud services, AI systems, personal data, regulated operations, or critical services exist. |

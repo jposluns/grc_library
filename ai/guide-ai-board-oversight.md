@@ -2,7 +2,7 @@
 
 **Document Title:** AI Board Oversight Guide\
 **Document Type:** Guide\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-10-27\
 **Owner:** Board Risk Committee\
 **Approving Authority:** Board of Directors\
@@ -22,7 +22,7 @@ This guide supports the board, or the equivalent governing body, in exercising o
 
 It is guidance to the governing body, not a body-establishing charter. It does not create, re-charter, or reassign the authority of the [AI Governance Council](charter-ai-governance-council.md) (the executive body that governs AI risk and compliance) or the [AI Ethics Review Panel](charter-ai-ethics-review-panel.md); it describes the board's own oversight role and the receiving end of the reporting and escalation lines those bodies already define. It is jurisdiction-neutral: directors apply it within the specific duties their jurisdiction's law imposes.
 
-The guide draws on ISO/IEC 38507:2022 (the governance implications of the use of AI by organizations, written for the governing body), ISO/IEC 42001:2023 leadership requirements, and the NIST AI Risk Management Framework GOVERN function.
+The guide draws on ISO/IEC 38507:2022 (the governance implications of the use of AI by organizations, written for the governing body), ISO/IEC 42001:2023 leadership requirements, and the NIST AI RMF 1.0 GOVERN function.
 
 ## 2. Director duties and accountability
 

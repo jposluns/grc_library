@@ -2,7 +2,7 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.27\
+**Version:** 1.0.28\
 **Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -71,7 +71,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section b: data and privacy compliance
 
-*Synthesized from: GDPR Art. 5, 9, 22, 25, 35; EU AI Act Art. 10, 13; ISO/IEC 42001:2023 §8.4; ISO/IEC 27701*
+*Synthesized from: GDPR Art. 5, 9, 22, 25, 35; EU AI Act Art. 10, 13; ISO/IEC 42001:2023 §8.4; ISO/IEC 27701:2025*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
