@@ -333,7 +333,7 @@ _147 documents._
 | [supply-chain/register-sbom.md](../supply-chain/register-sbom.md) | Software Bill of Materials Register | Register | 1.0.8 | 2026-10-27 |
 | [supply-chain/register-subprocessor-template.md](../supply-chain/register-subprocessor-template.md) | Subprocessor Register Template | Register | 1.0.5 | 2026-10-21 |
 | [supply-chain/register-supplier-risk-template.md](../supply-chain/register-supplier-risk-template.md) | Supplier Risk Register Template | Register | 1.0.4 | 2026-09-25 |
-| [supply-chain/standard-supplier-resilience-monitoring.md](../supply-chain/standard-supplier-resilience-monitoring.md) | Supplier Resilience Monitoring Standard | Standard | 1.0.10 | 2026-10-27 |
+| [supply-chain/standard-supplier-resilience-monitoring.md](../supply-chain/standard-supplier-resilience-monitoring.md) | Supplier Resilience Monitoring Standard | Standard | 1.0.11 | 2026-10-27 |
 | [supply-chain/template-supplier-offboarding-evidence.md](../supply-chain/template-supplier-offboarding-evidence.md) | Supplier Offboarding Evidence Template | Template | 1.0.15 | 2026-10-23 |
 | [supply-chain/template-supplier-security-questionnaire.md](../supply-chain/template-supplier-security-questionnaire.md) | Supplier Security Questionnaire | Template | 1.0.8 | 2026-09-25 |
 
