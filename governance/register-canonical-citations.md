@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.6.14\
-**Date:** 2026-10-26\
+**Version:** 1.6.16\
+**Date:** 2026-10-27\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -104,7 +104,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | NIST SP 800-88 | Rev. 2 | 2025-09 | Media sanitization (Rev. 2 reframes around an enterprise media-sanitization programme and defers sanitization-technique detail to IEEE 2883, NSA specifications, or an organizationally-approved standard, retaining only cryptographic erase directly) | Rev. 1 | https://csrc.nist.gov/pubs/sp/800/88/r2/final | verified 2026-06-30 |
 | NIST SP 800-207 | 2020 | 2020-08 | Zero Trust Architecture | - | https://csrc.nist.gov/pubs/sp/800/207/final | 2026-06-30 |
 | NIST CSF | 2.0 | 2024-02 | Cybersecurity Framework | 1.1 | https://www.nist.gov/cyberframework | 2026-06-30 |
-| NIST AI RMF | 1.0 | 2023-01 | AI Risk Management Framework | - | https://www.nist.gov/itl/ai-risk-management-framework | 2026-06-30 |
+| NIST AI RMF | 1.0 | 2023-01 | AI Risk Management Framework (NIST announced a revision of AI RMF 1.0 under the White House AI Action Plan, with no version or date given; 1.0 remains current) | - | https://www.nist.gov/itl/ai-risk-management-framework | 2026-10-27 |
 | NIST Privacy Framework | 1.0 | 2020-01 | A Tool for Improving Privacy through Enterprise Risk Management (identifier NIST.CSWP.01162020; Version 1.1 is an Initial Public Draft, not yet finalized) | - | https://www.nist.gov/privacy-framework | 2026-09-04 |
 | NIST AI 600-1 | 1.0 | 2024-07 | Generative AI Profile for AI RMF | - | https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence | 2026-06-30 |
 | NIST SP 800-208 | 2020 | 2020-10 | Recommendation for Stateful Hash-Based Signature Schemes (stateful hash-based digital signatures: LMS and XMSS, with the HSS and XMSS-MT multi-tree variants) | - | https://csrc.nist.gov/pubs/sp/800/208/final | 2026-07-25 |

@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.52\
-**Date:** 2026-10-26\
+**Version:** 1.8.53\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -778,7 +778,7 @@ This section governs autonomous and semi-autonomous production action. It does n
 
 ## 36. Framework alignment
 
-| Control Area | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM v1.1.0 | NIST AI RMF | OWASP AI Exchange | SANS CAISG v1.4 | OWASP Top 10 for Agentic Applications (ASI) |
+| Control Area | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM v1.1.0 | NIST AI RMF 1.0 | OWASP AI Exchange | SANS CAISG v1.4 | OWASP Top 10 for Agentic Applications (ASI) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Prompt injection | LLM01:2026 | AML.T0051, AML.T0018.003 | AIS-15, AIS-09 | GOVERN 1.1 | Prompt injection I/O handling | Model I/O handling | ASI01 |
 | Supply chain | LLM04:2026 | AML.T0010, AML.T0110, AML.T0115 | STA-10, STA-09 | GOVERN 6.1, MANAGE 3.1 | Supply chain manage | AI supply chain management | ASI04 |

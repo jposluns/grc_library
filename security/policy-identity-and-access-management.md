@@ -2,8 +2,8 @@
 
 **Document Title:** Identity and Access Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.29\
-**Date:** 2026-10-15\
+**Version:** 1.3.30\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -106,7 +106,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 
 ### 4.10 Continual improvement
 
-4.10.1 IAM processes must be reviewed annually in conjunction with ISO/IEC 27001:2022 and COBIT DSS05 controls.
+4.10.1 IAM processes must be reviewed annually in conjunction with ISO/IEC 27001:2022 and COBIT 2019 DSS05 controls.
 4.10.2 Emerging technologies such as adaptive authentication, identity federation, and decentralized ID (DID) models must be evaluated for adoption.
 
 ---

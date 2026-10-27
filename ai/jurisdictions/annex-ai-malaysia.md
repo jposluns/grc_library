@@ -2,8 +2,8 @@
 
 **Document Title:** Malaysia National Guidelines on AI Governance and Ethics (AIGE)\
 **Document Type:** Annex\
-**Version:** 0.0.9\
-**Date:** 2026-09-25\
+**Version:** 0.0.10\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-singapore.md`](annex-ai-singapore.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`privacy/jurisdictions/annex-privacy-malaysia.md`](../../privacy/jurisdictions/annex-privacy-malaysia.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md)\
@@ -62,9 +62,9 @@ This annex is the per-framework view; it cross-references the operational substa
 
 ## Framework alignment
 
-The Malaysia-principle column is the load-bearing, held-source-grounded content. The NIST AI RMF function tags and the ISO/IEC 42001:2023 clause and Annex A anchors are a crosswalk to help an adopter reuse its existing management-system controls; they are a mapping aid, not an assertion that the voluntary Guidelines and those standards impose the same obligations.
+The Malaysia-principle column is the load-bearing, held-source-grounded content. The NIST AI RMF 1.0 function tags and the ISO/IEC 42001:2023 clause and Annex A anchors are a crosswalk to help an adopter reuse its existing management-system controls; they are a mapping aid, not an assertion that the voluntary Guidelines and those standards impose the same obligations.
 
-| Malaysia AIGE principle | Corpus AI-governance touchpoint | NIST AI RMF | ISO/IEC 42001:2023 |
+| Malaysia AIGE principle | Corpus AI-governance touchpoint | NIST AI RMF 1.0 | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Fairness | AI bias and fairness assessment | Map, Measure | Annex A.5 |
 | Reliability, Safety and Control | AI testing, monitoring, and human oversight | Measure, Manage | Annex A.6 |

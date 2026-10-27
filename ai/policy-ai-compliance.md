@@ -2,8 +2,8 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.44\
-**Date:** 2026-10-26\
+**Version:** 1.0.45\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md)\
@@ -75,7 +75,7 @@ The AI Governance Council is the organization's primary body for AI compliance o
 
 ## 4. AI system classification
 
-All AI systems must be classified before deployment. Classification determines the regulatory obligations and internal controls that apply. The organization uses the EU AI Act risk tier framework as the primary classification model; for systems not subject to EU AI Act jurisdiction, the organization applies its own risk-tiering informed by the NIST AI RMF, which provides risk-management functions (Govern, Map, Measure, Manage) rather than a prescribed risk-tier taxonomy or risk tolerance.
+All AI systems must be classified before deployment. Classification determines the regulatory obligations and internal controls that apply. The organization uses the EU AI Act risk tier framework as the primary classification model; for systems not subject to EU AI Act jurisdiction, the organization applies its own risk-tiering informed by the NIST AI RMF 1.0, which provides risk-management functions (Govern, Map, Measure, Manage) rather than a prescribed risk-tier taxonomy or risk tolerance.
 
 ### 4.1 Classification table
 
@@ -92,7 +92,7 @@ Article 50(3) requires the deployer of an emotion recognition or biometric categ
 
 ### 4.2 Classification process
 
-1. The AI System Owner completes an initial classification using the classification table above, informed by the risk identification and analysis of the NIST AI RMF Map function (the AI RMF organizes risk-management activities and does not itself prescribe risk tiers).
+1. The AI System Owner completes an initial classification using the classification table above, informed by the risk identification and analysis of the NIST AI RMF 1.0 Map function (the AI RMF organizes risk-management activities and does not itself prescribe risk tiers).
 2. The AIGC reviews and approves the classification before deployment.
 3. Classification is re-assessed when the system undergoes a substantial modification, is deployed in a new context, or when applicable regulations are updated.
 

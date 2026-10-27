@@ -2,8 +2,8 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.14\
-**Date:** 2026-09-14\
+**Version:** 0.0.15\
+**Date:** 2026-10-27\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md)\
@@ -210,7 +210,7 @@ Where a retrieval index materially shapes model output:
 | GDPR (EU) / UK GDPR | Articles 5, 6, 9, 17, 25, 30, 35; EU Art 22 / UK Arts 22A-22D | Lawful basis, subject rights, by design, ROPA, DPIA |
 | LGPD | Articles 7, 9, 18 | Brazilian lawful basis and rights |
 | PIPL | Articles 13, 14, 24, 44 to 50 | Chinese lawful basis and rights |
-| NIST AI RMF | MAP, MEASURE | AI risk management |
+| NIST AI RMF 1.0 | MAP, MEASURE | AI risk management |
 | ISO/IEC 5259-2:2024 | Data quality measures | Data-quality model, measures, and targets |
 | ISO/IEC 5259-3:2024 | Data quality management requirements | Data-quality plan, verification and validation, and supply chain |
 | ISO/IEC 5259-4:2024 | Data quality process framework | Plan, evaluate, improve, and validate loop and data-use approval |

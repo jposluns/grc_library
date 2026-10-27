@@ -105,7 +105,7 @@ A net-value figure aggregated across several benefit and disbenefit claims can m
 | --- | --- | --- |
 | CMU SEI AI Adoption Maturity Model v1.0 | Five-level adoption ladder (cited by reference) | Corroborates the value-maturity ladder (Section 3) as a governance signal; not reproduced |
 | ISO/IEC 42001:2023 | §5.1, §9.1 | Leadership and value-alignment; performance evaluation of the AI management system |
-| NIST AI RMF (2023) | GOVERN 1.4; MAP 1.4, MAP 3.1, MAP 3.2; MANAGE 1.1, MANAGE 2.2 | Governance of AI value and context; mapping intended business value and expected benefits (Map 1.4, Map 3); sustaining and reviewing the deployed system's realized value against stated objectives (Manage 1.1, 2.2) through attribution, re-forecasting, and post-implementation validation |
+| NIST AI RMF 1.0 (2023) | GOVERN 1.4; MAP 1.4, MAP 3.1, MAP 3.2; MANAGE 1.1, MANAGE 2.2 | Governance of AI value and context; mapping intended business value and expected benefits (Map 1.4, Map 3); sustaining and reviewing the deployed system's realized value against stated objectives (Manage 1.1, 2.2) through attribution, re-forecasting, and post-implementation validation |
 | [`ai/framework-ai-maturity-model.md`](framework-ai-maturity-model.md) | Whole document; floor-check | The process-and-capability maturity view this framework's value view sits beside (distinct axes); its compensating floor-check is adapted here for benefit evidence confidence (Section 6) |
 
 ## Limitations

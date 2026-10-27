@@ -2,8 +2,8 @@
 
 **Document Title:** AI Assurance Evidence and Attestation Framework\
 **Document Type:** Framework\
-**Version:** 1.0.9\
-**Date:** 2026-10-25\
+**Version:** 1.0.10\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/procedure-ai-assurance-case.md`](procedure-ai-assurance-case.md), [`ai/template-ai-assurance-case.md`](template-ai-assurance-case.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/template-ai-red-team-report.md`](template-ai-red-team-report.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/matrix-etsi-sai-baseline-alignment.md`](matrix-etsi-sai-baseline-alignment.md)\
@@ -44,9 +44,9 @@ The AI Governance Council consumes assurance cases at deployment-approval and pe
 
 ### 3.1 Assurance claims
 
-An assurance claim is a bounded assertion about an AI system that evidence can support or refute. The claim taxonomy is keyed to the NIST AI RMF (NIST AI 100-1) MEASURE 2 subcategories, with one organizational claim the corpus lifecycle adds. Each claim is discharged by evidence marshalled under sections 3.2 to 3.4, never by the presence of this framework.
+An assurance claim is a bounded assertion about an AI system that evidence can support or refute. The claim taxonomy is keyed to the NIST AI RMF 1.0 (NIST AI 100-1) MEASURE 2 subcategories, with one organizational claim the corpus lifecycle adds. Each claim is discharged by evidence marshalled under sections 3.2 to 3.4, never by the presence of this framework.
 
-| Claim | Assertion | NIST AI RMF anchor |
+| Claim | Assertion | NIST AI RMF 1.0 anchor |
 | --- | --- | --- |
 | Valid and reliable | The system is demonstrated to be valid and reliable, and the limitations of its generalizability are documented | MEASURE 2.5 |
 | Safe | The system is demonstrated to be safe, its residual negative risk does not exceed the risk tolerance, and it can fail safely | MEASURE 2.6 |
@@ -77,8 +77,8 @@ The attestation tier records evidence weight by the independence of its producer
 | Tier | Producer | Basis |
 | --- | --- | --- |
 | A | Independent third party: accredited certification body, external red team, or external auditor | Highest weight; fully independent of development and operation |
-| B | Internally independent assessor: an internal expert who did not serve as a front-line developer for the system | NIST AI RMF MEASURE 1.3 |
-| C | First-party test and evaluation by the developing or operating team, with method documentation | NIST AI RMF MEASURE 2.1 (test sets, metrics, and tools documented) |
+| B | Internally independent assessor: an internal expert who did not serve as a front-line developer for the system | NIST AI RMF 1.0 MEASURE 1.3 |
+| C | First-party test and evaluation by the developing or operating team, with method documentation | NIST AI RMF 1.0 MEASURE 2.1 (test sets, metrics, and tools documented) |
 | D | Self-attestation and declaration | Lowest weight; the producer asserts the fact without an assessment |
 
 A Tier A certificate does not discharge a claim that has no underlying Tier C test and evaluation evidence, and a Tier D attestation alone never discharges a high-risk claim.
@@ -87,15 +87,15 @@ A Tier A certificate does not discharge a claim that has no underlying Tier C te
 
 Evidence supporting a claim is sufficient when it satisfies five dimensions:
 
-- **Coverage**: the claim's scope is measured, and any risk or trustworthiness characteristic that will not or cannot be measured is documented (NIST AI RMF MEASURE 1.1).
+- **Coverage**: the claim's scope is measured, and any risk or trustworthiness characteristic that will not or cannot be measured is documented (NIST AI RMF 1.0 MEASURE 1.1).
 - **Currency**: the evidence was produced within the organization-set review window for the system's organizational AI risk classification and re-produced on material change, the material-change thresholds being those in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md).
 - **Independence**: the attestation tier meets the minimum the system's organizational AI risk classification requires (section 5).
-- **Method traceability**: the test sets, metrics, and tools are documented (NIST AI RMF MEASURE 2.1), and quantitative test and evaluation evidence states its measurement precision, as required for the system's risk tier, per [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6 (including sample size, uncertainty measure, run counts for non-deterministic systems, contamination status, evaluator agreement); that standard owns the reporting requirement, this dimension only grades whether the evidence carries it.
-- **Deployment-representative demonstration**: performance or assurance criteria are measured and demonstrated for conditions similar to the deployment setting, and the measures are documented (NIST AI RMF MEASURE 2.3).
+- **Method traceability**: the test sets, metrics, and tools are documented (NIST AI RMF 1.0 MEASURE 2.1), and quantitative test and evaluation evidence states its measurement precision, as required for the system's risk tier, per [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) Section 5.6 (including sample size, uncertainty measure, run counts for non-deterministic systems, contamination status, evaluator agreement); that standard owns the reporting requirement, this dimension only grades whether the evidence carries it.
+- **Deployment-representative demonstration**: performance or assurance criteria are measured and demonstrated for conditions similar to the deployment setting, and the measures are documented (NIST AI RMF 1.0 MEASURE 2.3).
 
 ### 3.5 The assurance case
 
-The assurance case for a system is a claims-by-evidence record maintained by the AI System Owner across the eleven lifecycle stages of the governance framework's lifecycle model (Intake through Retirement, reused as defined there). For each claim it records the supporting artefacts, their evidence class, their attestation tier, their currency, and any documented gap. The marshalled assurance case is the pack that satisfies the section 4 evidence catalogue of [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) and the evidence-collection step of [`ai/procedure-ai-audit.md`](procedure-ai-audit.md). The effectiveness of the employed TEVV metrics and processes is itself evaluated and documented (NIST AI RMF MEASURE 2.13); as an organizational practice extending that discipline, the assurance case is periodically tested against the activities that feed it, not only assembled from them. The procedure that builds and maintains the case is [`ai/procedure-ai-assurance-case.md`](procedure-ai-assurance-case.md), and its record format is [`ai/template-ai-assurance-case.md`](template-ai-assurance-case.md); this framework continues to define only the evidence model they organize.
+The assurance case for a system is a claims-by-evidence record maintained by the AI System Owner across the eleven lifecycle stages of the governance framework's lifecycle model (Intake through Retirement, reused as defined there). For each claim it records the supporting artefacts, their evidence class, their attestation tier, their currency, and any documented gap. The marshalled assurance case is the pack that satisfies the section 4 evidence catalogue of [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) and the evidence-collection step of [`ai/procedure-ai-audit.md`](procedure-ai-audit.md). The effectiveness of the employed TEVV metrics and processes is itself evaluated and documented (NIST AI RMF 1.0 MEASURE 2.13); as an organizational practice extending that discipline, the assurance case is periodically tested against the activities that feed it, not only assembled from them. The procedure that builds and maintains the case is [`ai/procedure-ai-assurance-case.md`](procedure-ai-assurance-case.md), and its record format is [`ai/template-ai-assurance-case.md`](template-ai-assurance-case.md); this framework continues to define only the evidence model they organize.
 
 ## 4. Evidence-to-activity index
 

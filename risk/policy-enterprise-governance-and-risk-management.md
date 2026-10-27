@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.21\
-**Date:** 2026-10-13\
+**Version:** 1.4.22\
+**Date:** 2026-10-27\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This policy establishes the enterprise governance and risk management framework, principles, roles, and control requirements that guide consistent identification, assessment, treatment, monitoring, and reporting of risk across the organization. It is aligned with ISO 31000:2018 Clauses 5 and 6, COBIT 2019 APO12, CSA CCM v4.1 GRC domain, NIST SP 800-39, ISO/IEC 23894:2023 for AI risk, and the NIST AI RMF. The policy integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
+This policy establishes the enterprise governance and risk management framework, principles, roles, and control requirements that guide consistent identification, assessment, treatment, monitoring, and reporting of risk across the organization. It is aligned with ISO 31000:2018 Clauses 5 and 6, COBIT 2019 APO12, CSA CCM v4.1 GRC domain, NIST SP 800-39, ISO/IEC 23894:2023 for AI risk, and the NIST AI RMF 1.0. The policy integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
 
 ---
 
@@ -37,7 +37,7 @@ This policy establishes the enterprise governance and risk management framework,
 |---|---|
 | Board Risk Committee | Approves risk appetite statements; receives enterprise risk reporting. |
 | Enterprise Risk Committee (ERC) | Meets quarterly to oversee risk posture, treatment progress, and escalated items. |
-| AI Governance Council (AIGC) | Approves AI risk appetite statements and co-approves AI-related exceptions (in addition to the risk-tier approver in the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), §4.2.2), under arrangements informed by ISO/IEC 23894:2023 and the NIST AI RMF Govern function; meets monthly (an organization-defined cadence). |
+| AI Governance Council (AIGC) | Approves AI risk appetite statements and co-approves AI-related exceptions (in addition to the risk-tier approver in the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), §4.2.2), under arrangements informed by ISO/IEC 23894:2023 and the NIST AI RMF 1.0 Govern function; meets monthly (an organization-defined cadence). |
 | Chief Risk Officer | Accountable for the enterprise risk management framework and its alignment with strategic objectives; owns risk strategy, risk-appetite stewardship, and ERM-programme outcomes; reports to the Board Risk Committee. |
 | Chief Information Officer | Provides executive support to the ERM programme on technology-risk integration; ensures that IT-strategy risk is reflected in the enterprise risk register. |
 | Chief Information Security Officer | Responsible for information security, privacy, and AI risk integration. |
@@ -88,7 +88,7 @@ Controls governing AI systems must address, at minimum:
 - Secure deployment and supply-chain integrity.
 - Continuous monitoring for model drift, bias recurrence, and ethical deviations.
 
-These requirements are aligned with ISO/IEC 23894:2023 and the NIST AI RMF (GOVERN 1.3, 1.5, 2.1; MAP 1.5; MEASURE 1.1; MANAGE 1.2, 1.3, 1.4).
+These requirements are aligned with ISO/IEC 23894:2023 and the NIST AI RMF 1.0 (GOVERN 1.3, 1.5, 2.1; MAP 1.5; MEASURE 1.1; MANAGE 1.2, 1.3, 1.4).
 
 ### 4.7 Risk monitoring and key risk indicators
 
@@ -136,7 +136,7 @@ Consolidated enterprise risk reporting must be presented to executive leadership
 | CSA CCM v4.1 | GRC-01, GRC-02, GRC-04, GRC-06, BCR-02, AIS-06 |
 | CSA AICM v1.1 | GRC-11 Bias and Fairness Assessment; GRC-15 Human supervision |
 | NIST SP 800-39 | Chapters 2 and 3 (multitiered fundamentals; framing, assessing, responding, monitoring) |
-| NIST AI RMF | GOVERN 1.3, 1.5, 2.1; MAP 1.5; MEASURE 1.1; MANAGE 1.2, 1.3, 1.4 |
+| NIST AI RMF 1.0 | GOVERN 1.3, 1.5, 2.1; MAP 1.5; MEASURE 1.1; MANAGE 1.2, 1.3, 1.4 |
 | OECD AI Principles | Principles 1.3 (transparency and explainability), 1.4 (robustness, security and safety), 1.5 (accountability) |
 | GDPR | As applicable to EU personal data |
 | PIPEDA | As applicable to Canadian personal information |

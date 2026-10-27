@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Obligations Register Template\
 **Document Type:** Register\
-**Version:** 1.0.20\
-**Date:** 2026-10-22\
+**Version:** 1.0.21\
+**Date:** 2026-10-27\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -114,7 +114,7 @@ Populate the register across the following obligation categories. Each category 
 | Category | Typical Sources | Priority |
 |---|---|---|
 | **Data Protection and Privacy** | GDPR, UK GDPR, PIPEDA, PIPL, LGPD, Quebec Law 25 | High |
-| **Information Security** | ISO/IEC 27001:2022, NIST CSF, sector-specific cybersecurity regulations | High |
+| **Information Security** | ISO/IEC 27001:2022, NIST CSF 2.0, sector-specific cybersecurity regulations | High |
 | **Trade and Customs Compliance** | CTPAT, PIP, AEO-S, BASC, NEEC, OEA, WCO SAFE, import/export regulations | High |
 | **AI and Algorithmic Systems** | EU AI Act, Canadian AI instruments (Treasury Board Directive on Automated Decision-Making; AIDA lapsed), proposed national AI regulations | High |
 | **Employment and Labour Law** | Employment standards legislation per jurisdiction | Medium |

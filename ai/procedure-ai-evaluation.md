@@ -2,8 +2,8 @@
 
 **Document Title:** AI Evaluation Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.15\
-**Date:** 2026-10-24\
+**Version:** 1.0.16\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md)\
@@ -160,7 +160,7 @@ Evaluation reports are retained in the compliance repository per the [Records Da
 | NIST IR 8312 | §2.2 to §2.4 explainability principles | Explanation accuracy and knowledge limits (Section 2.3) |
 | ISO/IEC TR 24027:2021 | Clause 7 fairness metrics | Fairness and bias evaluation (Section 2.2) |
 | EU AI Act (2024) | Article 9: Risk Management System | Evaluation obligations for high-risk AI |
-| NIST AI RMF (2023) | MAP function; §5.3 MEASURE function narrative (performance assessment with associated measures of uncertainty and formalized reporting of results) | AI evaluation methodology and uncertainty reporting (Sections 2.1, 3) |
+| NIST AI RMF 1.0 (2023) | MAP function; §5.3 MEASURE function narrative (performance assessment with associated measures of uncertainty and formalized reporting of results) | AI evaluation methodology and uncertainty reporting (Sections 2.1, 3) |
 | OWASP LLM Top 10 | LLM-specific vulnerabilities | Generative AI security evaluation |
 
 ---

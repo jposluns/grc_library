@@ -2,8 +2,8 @@
 
 **Document Title:** Foundation Model Lifecycle Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.17\
-**Date:** 2026-10-24\
+**Version:** 0.0.18\
+**Date:** 2026-10-27\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md), [`ai/standard-ai-model-succession-and-identity.md`](standard-ai-model-succession-and-identity.md), [`governance/standard-semantic-continuity-in-migration-and-retirement.md`](../governance/standard-semantic-continuity-in-migration-and-retirement.md)\
@@ -206,7 +206,7 @@ Beyond the supplier-facing risks above, a foundation model carries the generativ
 | ISO/IEC 42001:2023 | §8 operation; §7.5 documented information; §9 performance evaluation | AI management system |
 | EU AI Act | Articles 26 (deployer obligations), 50 (transparency), 53 (general-purpose AI obligations) | Foundation-model regulation |
 | EU GPAI Code of Practice (Safety and Security Chapter, July 2025) | Commitments 1 to 10 (systemic-risk Framework; risk identification, analysis, and acceptance; safety and security mitigations; Model Reports to the AI Office; serious-incident reporting) | Article 56 co-regulatory instrument for demonstrating Article 55 compliance; provider expectation for GPAI models with systemic risk |
-| NIST AI RMF | All four functions | AI risk management |
+| NIST AI RMF 1.0 | All four functions | AI risk management |
 | NIST AI 600-1 | Generative AI Profile: the generative-AI risk classes | Generative-AI risk taxonomy |
 | ISO/IEC 5338:2023 | §6.4.14 continuous validation | Automated rollback for continuous-learning deployments |
 | ISO/IEC 23894:2023 | AI risk management | Risk integration |

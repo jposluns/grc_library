@@ -2,8 +2,8 @@
 
 **Document Title:** Ethical AI Use Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.6\
-**Date:** 2026-08-31\
+**Version:** 1.0.7\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -142,7 +142,7 @@ These are absolute prohibitions. Requests to deploy AI for these purposes are es
 | CAN/DGSI 101:2025 | Ethical design and use of artificial intelligence by small and medium organizations (2nd edition) | Responsible AI design and use |
 | EU AI Act (2024) | Articles 5, 9: Prohibited practices and risk management | AI red lines and high-risk governance |
 | ISO/IEC 42001:2023 | §6, Planning; §8, Operation | AI ethics integration |
-| NIST AI RMF (2023) | GOVERN and MAP functions | AI risk governance and ethics |
+| NIST AI RMF 1.0 (2023) | GOVERN and MAP functions | AI risk governance and ethics |
 | ISO/IEC TR 24027:2021 | Bias in AI systems and AI aided decision making | Bias and fairness assessment |
 | NIST SP 1270 | Towards a Standard for Identifying and Managing Bias in Artificial Intelligence | Bias identification and management |
 

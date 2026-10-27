@@ -2,8 +2,8 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.29\
-**Date:** 2026-10-17\
+**Version:** 1.4.31\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/standard-monitoring-integrity-and-coverage.md`](standard-monitoring-integrity-and-coverage.md)\
@@ -96,7 +96,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 
 ### 4.5 Monitoring and alerting
 
-4.5.1 The SOC must define correlation rules for detecting anomalies, intrusion attempts, and unauthorized activities aligned with MITRE ATT&CK and NIST CSF Detect Function, including alerts for cargo data tampering, unauthorized customs-system access, and the trade-security controls of the applicable BASC International Security Standard (section 5.2).
+4.5.1 The SOC must define correlation rules for detecting anomalies, intrusion attempts, and unauthorized activities aligned with MITRE ATT&CK and NIST CSF 2.0 Detect Function, including alerts for cargo data tampering, unauthorized customs-system access, and the trade-security controls of the applicable BASC International Security Standard (section 5.2).
 4.5.2 Alerts must be triaged on the severity-tiered service levels defined in the [Security Monitoring and Alert Management Procedure](../operations/procedure-security-monitoring-and-alert-management.md): critical severity within 15 minutes, high severity within 1 hour, medium severity by the same business day, and low severity by the next scheduled review cycle.
 4.5.3 Automated incident tickets must be generated for all critical alerts.
 4.5.4 Dashboards must display real-time metrics on system health, event volume, and incident trends.
@@ -143,7 +143,7 @@ ISO 28000:2022 is not held in the reference base; confirm its requirements again
 | Central collection and retention | §8.15 | DE.AE-03, PR.PS-04 | DSS01.03 | LOG-02, LOG-09 | NIS 2 Directive |
 | Access and protection | §8.15 | SP 800-53 AC-6 | DSS05.04 | LOG-04 | Privacy laws |
 | AI system traceability | N/A | AI RMF | DSS01.03 | LOG-09 | EU AI Act Art. 12, 19, 26(6) |
-| Monitoring and alerting | §8.16 | CSF Detect (DE.CM, DE.AE) | DSS05.07 | LOG-03 | Incident reporting laws |
+| Monitoring and alerting | §8.16 | CSF 2.0 Detect (DE.CM, DE.AE) | DSS05.07 | LOG-03 | Incident reporting laws |
 | Trade-security monitoring and review | N/A | N/A | N/A | N/A | BASC International Security Standard 5.2(n),(t); WCO SAFE; ISO 28000:2022 |
 
 

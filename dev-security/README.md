@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Domain README\
 **Document Type:** Register\
-**Version:** 1.4.14\
-**Date:** 2026-10-13\
+**Version:** 1.4.16\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -89,7 +89,7 @@ This domain draws on and references the following external projects. These refer
 - **OWASP LLM Top 10**: Ten most critical risks for Large Language Model applications: `https://owasp.org/www-project-top-10-for-large-language-model-applications/`
 - **OWASP MCP Top 10**: Security risks for Model Context Protocol integrations: `https://owasp.org/www-project-mcp-top-10/`
 - **MITRE ATLAS**: Adversarial threat landscape for AI systems; attack technique taxonomy for AI-specific threats: `https://atlas.mitre.org/`
-- **NIST AI RMF**: AI risk management framework covering Govern, Map, Measure, and Manage functions: `https://www.nist.gov/itl/ai-risk-management-framework`
+- **NIST AI RMF 1.0**: AI risk management framework covering Govern, Map, Measure, and Manage functions: `https://www.nist.gov/itl/ai-risk-management-framework`
 - **NIST SP 800-218A**: Generative AI Profile augmenting SSDF with AI model development practices: `https://csrc.nist.gov/pubs/sp/800/218/a/final`
 - **Google SAIF**: Secure AI Framework for secure development, deployment, and monitoring: `https://saif.google/`
 
@@ -99,7 +99,7 @@ This domain draws on and references the following external projects. These refer
 - **TikiTribe**: Open-source rule sets for AI coding assistants; covers AI, agent, MCP, and RAG security; aligns to OWASP LLM Top 10, OWASP MCP Top 10, MITRE ATLAS, and NIST AI RMF: `https://github.com/TikiTribe/claude-secure-coding-rules`
 
 ### DevSecOps references
-- **NIST SP 800-218**: Secure Software Development Framework (SSDF); maps to NIST CSF and provides secure development practices: `https://csrc.nist.gov/pubs/sp/800/218/final`
+- **NIST SP 800-218 Version 1.1**: Secure Software Development Framework (SSDF); its practices reference NIST CSF Version 1.1 (2018) Subcategories, and it provides secure development practices: `https://csrc.nist.gov/pubs/sp/800/218/final`
 - **SLSA**: Supply-chain Levels for Software Artifacts; framework for software supply-chain integrity levels: `https://slsa.dev/`
 - **CIS Benchmarks**: Configuration security baselines for OS, container, cloud, and application platforms: `https://www.cisecurity.org/cis-benchmarks`
 - **CISA Secure by Design**: Principles for shifting security burden to manufacturers; secure default configuration: `https://www.cisa.gov/resources-tools/resources/secure-by-design`
