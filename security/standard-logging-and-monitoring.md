@@ -146,6 +146,13 @@ ISO 28000:2022 is not held in the reference base; confirm its requirements again
 | Monitoring and alerting | §8.16 | CSF 2.0 Detect (DE.CM, DE.AE) | DSS05.07 | LOG-03 | Incident reporting laws |
 | Trade-security monitoring and review | N/A | N/A | N/A | N/A | BASC International Security Standard 5.2(n),(t); WCO SAFE; ISO 28000:2022 |
 
+**Canadian federal public sector.** Where the adopter is a Government of Canada (GC) organization (see [`compliance/public-sector/annex-canada-public-sector-requirements.md`](../compliance/public-sector/annex-canada-public-sector-requirements.md)), the following held Treasury Board texts bear on this standard. Each is cited at the edition held, and its currency is to be confirmed upstream before reliance.
+
+- **Directive on Security Management** (held text: in effect since 1 July 2019). Its mandatory procedures for IT security control direct the department to create, protect and retain information system audit logs and records for each system, in accordance with departmental practices (Appendix B, B.2.3.8), and to analyze those logs and records as part of maintaining its IT security posture (B.2.7.2).
+- **Event Logging Guidance** (held text: date modified 2025-12-08). It states that event logging must be enabled on all IT assets and gives guidance on configuring it for forwarding to an approved GC centralized log system (§1.1); that GC organizations must collect, manage and analyze event logs (§1.2); and, within implementation guidance it says should be considered, that logging facilities and log information must be protected against tampering and unauthorized access (§1.5.3). Its §1.5.2 reports retention values for Protected B, medium integrity, medium availability (PBMM) systems: at least 90 days on the cloud service provider side, and on the GC side at least 3 months online and at least 6 months in storage, with events and logs associated with a security incident kept for at least 2 years. The guidance takes those values from the legacy GC cloud security control profile, whose control list the Canada public-sector annex treats as replaced by the CCCS Medium Cloud Control Profile (ITSP.50.103 Annex B), so reconfirm them against Annex B before adopting them. They are guidance and do not replace the retention periods set under §4.4.1.
+
+Security incidents that this monitoring detects are reported under [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) §11, which carries the corresponding federal incident-reporting references.
+
 
 
 **End of Document**
