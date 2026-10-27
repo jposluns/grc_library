@@ -45820,6 +45820,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            # 3b642: the live P-1.51 is only checked if P-TODO.md was read.
+            self.assertIn("OK: 2 live backlog item(s) (TODO.md + P-TODO.md),", result.stdout)
+            self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
@@ -45834,6 +45837,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            # 3b642: the live P-1.55 is only checked if P-TODO.md was read.
+            self.assertIn("OK: 2 live backlog item(s) (TODO.md + P-TODO.md),", result.stdout)
+            self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
@@ -45849,6 +45855,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            # 3b642: the exemption is only exercised if the live P-1.25 in P-TODO.md was read.
+            self.assertIn("OK: 2 live backlog item(s) (TODO.md + P-TODO.md),", result.stdout)
+            self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
@@ -46007,6 +46016,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            # 3b642: exit 0 alone also passes when P-TODO.md is not read, so assert both ids were counted.
+            self.assertIn("OK: 2 live backlog item(s) (TODO.md + P-TODO.md),", result.stdout)
+            self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil
             shutil.rmtree(root, ignore_errors=True)
@@ -46213,6 +46225,10 @@ class TodoNumberPermanenceTests(LinterTestCase):
         for name, (ptodo, done, want) in cases.items():
             rc, out = self._rc("perm-3b120", todo, done, ptodo)
             self.assertEqual(rc, want, f"{name}:\n{out}")
+            # 3b642: a clean case also passes when P-TODO.md is not read, so it must show the read-both label.
+            self.assertNotIn("OK: P-TODO.md not present (", out, name)
+            if want == 0:
+                self.assertIn("live backlog item(s) (TODO.md + P-TODO.md),", out, name)
         # A bullet id live in both lists is a cross-list duplicate.
         rc, out = self._rc("perm-3b120-cross", "# TODO\n- **3b7 [public] fix** x\n", "# DONE\n",
                            "## Q\n- **3b7 fix** x\n")
@@ -46244,6 +46260,8 @@ class TodoNumberPermanenceTests(LinterTestCase):
         rc, out = self._rc("perm-3b120-untagged", "# TODO\n- **RB-6 [public] fix** x\n", "# DONE\n",
                            "## Q\n- **RB-6 fix** x\n")
         self.assertEqual(rc, 0, out)
+        self.assertIn("OK: 1 live backlog item(s) (TODO.md + P-TODO.md),", out)  # 3b642: P-TODO.md read
+        self.assertNotIn("OK: P-TODO.md not present (", out)
 
     def test_bullet_ids_match_the_audit_tool(self) -> None:
         """3b120: gate 78's bullet ids are exactly the audit tool's bullet items on a mixed fixture."""
