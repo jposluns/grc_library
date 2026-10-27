@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.32\
+**Version:** 1.0.33\
 **Date:** 2026-10-27\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -71,7 +71,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ### 4.2 Audit planning and execution
 4.2.1 Annual audit plans must be risk-based, approved by the Audit Committee, and provide risk-prioritized coverage across the domains within the audit scope (the Internal Audit Standard, [`compliance/standard-internal-audit.md`](standard-internal-audit.md)), including trade-compliance audits where the organization's activities warrant them.
-4.2.2 Audit criteria must follow ISO 19011 principles of integrity, independence, evidence-based assessment, and risk orientation.
+4.2.2 Audit criteria must follow ISO 19011:2026 principles of integrity, independence, evidence-based assessment, and risk orientation.
 4.2.3 Each audit must document objective evidence, findings, severity, and recommendations.
 4.2.4 Audit evidence, process documentation, and system-specific procedures must be retained per the records retention and destruction standard ([`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)) and aligned with the operations domain's IT service management framework ([`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md)) so that testing and assurance activities remain traceable to governance artefacts.
 
@@ -123,7 +123,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ## 6. Compliance mapping table
 
-| Control Area | ISO 37301:2021 | ISO 19011 | COBIT 2019 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
+| Control Area | ISO 37301:2021 | ISO 19011:2026 | COBIT 2019 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
 |---------------|------------|------------|-------------|------|-------|--------------------|--------------------------------|
 | Compliance governance | Clauses 5 to 6 Leadership | Clause 5 Managing an audit programme | EDM01 Ensured Governance Framework Setting and Maintenance | GRC 01 to 03 | NIST CSF 2.0 Govern | GDPR, PIPEDA | WCO SAFE, ISO 28000:2022, BASC, PIP, CTPAT, AEO. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating this attribution as verified. <!-- ref-absence: ISO 28000:2022 --> |
 | Compliance risk and obligations register | Clauses 6 to 7 Planning | N/A | APO12 linkage | GRC 07 | NIST RMF Prepare | Multi-jurisdiction | WCO SAFE equivalence |
