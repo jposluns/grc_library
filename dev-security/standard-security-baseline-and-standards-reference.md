@@ -2,7 +2,7 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.36\
+**Version:** 1.1.37\
 **Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -36,7 +36,7 @@ In the event of conflict, higher layers take precedence.
 | Canada AI governance (Treasury Board Directive on Automated Decision-Making; Voluntary Code of Conduct on Generative AI; AIDA lapsed) | Canada | AI system governance; high-impact AI (AIDA not in force; the Treasury Board Directive on Automated Decision-Making is binding on federal institutions subject to the Policy on Service and Digital) |
 | Criminal Code of Canada (cybercrime provisions) | Canada | Unauthorized access, data destruction |
 | State and provincial breach notification laws | Multiple | Customer and partner data exposure |
-| GDPR (Article 3 extraterritorial scope) | EU | Where EU data subjects are processed |
+| GDPR (Article 3 extraterritorial scope) | EU | Processing in the context of an EU establishment of the controller or processor, wherever the processing takes place (Art. 3(1)); processing of personal data of data subjects who are in the Union by a controller or processor not established there, where it relates to offering them goods or services or monitoring their behaviour within the Union (Art. 3(2)) |
 | BASC International Standard | Latin America / Global | Customs and trade security for Latin American operations |
 | WCO SAFE Framework | Global | Customs data integrity and trade security |
 | CTPAT | USA | Cross-border trade security |
