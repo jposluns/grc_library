@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.36\
-**Date:** 2026-10-26\
+**Version:** 1.2.37\
+**Date:** 2026-10-27\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -130,7 +130,7 @@ The verification process must defend against:
 | **Tier 1: Publisher canonical** | The standard publisher's own canonical domain (see §7 for the allow-list). | The only source that counts as primary verification. |
 | **Tier 2: Authoritative secondary** | National standards bodies republishing publisher catalogue metadata (ANSI, BSI, DIN, AFNOR, SIS, CSA Group, etc.); official government catalogues (FedRAMP marketplace, EUR-Lex for EU regulations, Federal Register for US, gazettes for other jurisdictions). | Corroboration only. Cannot replace Tier 1. |
 | **Tier 3: Industry-credible secondary** | Reputable professional bodies' summary pages, peer-reviewed academic indexes, government regulator pages summarizing third-party standards. | Used only for orientation and triangulation. Not a verification of record. |
-| **Untrusted** | Wikipedia, blogs, security-vendor articles, AI-generated summaries, SEO content farms, social media, forums, lookalike domains. | Never cited as verification. May not contribute confidence. |
+| **Untrusted** | Wikipedia, blogs, security-vendor articles, AI-generated summaries, SEO content farms, social media, forums, lookalike domains. | Never cited as verification. Must not contribute confidence. |
 
 ### 6.2 Publisher-only primary rule
 

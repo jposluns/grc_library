@@ -62,7 +62,7 @@ _135 documents._
 | [compliance/logistics/register-basc-it-compliance-kpis.md](../compliance/logistics/register-basc-it-compliance-kpis.md) | BASC IT Compliance Monitoring and KPIs | Register | 1.2.9 | 2026-10-12 |
 | [compliance/logistics/register-basc-it-responsibilities.md](../compliance/logistics/register-basc-it-responsibilities.md) | BASC IT and Information Security Responsibilities | Register | 1.1.3 | 2026-09-01 |
 | [compliance/matrix-grc-compliance-alignment.md](../compliance/matrix-grc-compliance-alignment.md) | GRC Library Compliance Alignment Matrix | Matrix | 1.12.7 | 2026-10-22 |
-| [compliance/procedure-capa.md](../compliance/procedure-capa.md) | Corrective and Preventive Action (CAPA) Procedure | Procedure | 1.1.0 | 2026-10-13 |
+| [compliance/procedure-capa.md](../compliance/procedure-capa.md) | Corrective and Preventive Action (CAPA) Procedure | Procedure | 1.1.1 | 2026-10-27 |
 | [compliance/procedure-control-testing.md](../compliance/procedure-control-testing.md) | Control Testing Procedure | Procedure | 1.1.9 | 2026-09-25 |
 | [compliance/standard-internal-audit.md](../compliance/standard-internal-audit.md) | Internal Audit Standard | Standard | 1.2.12 | 2026-10-13 |
 | [compliance/template-audit-evidence-package.md](../compliance/template-audit-evidence-package.md) | Audit Evidence Package Template | Template | 1.1.5 | 2026-10-26 |
@@ -90,8 +90,8 @@ _135 documents._
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.23 | 2026-10-26 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.2.2 | 2026-10-26 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.7.0 | 2026-10-15 |
-| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.304 | 2026-10-27 |
-| [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.36 | 2026-10-26 |
+| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.305 | 2026-10-27 |
+| [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.37 | 2026-10-27 |
 | [governance/standard-maturity-assessment-methodology.md](../governance/standard-maturity-assessment-methodology.md) | Maturity Assessment Methodology Standard | Standard | 1.1.5 | 2026-10-13 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.8.0 | 2026-10-15 |
 | [operations/framework-it-service-management.md](../operations/framework-it-service-management.md) | IT Service Management Framework | Framework | 1.2.0 | 2026-10-15 |
@@ -127,7 +127,7 @@ _135 documents._
 | [privacy/jurisdictions/annex-privacy-vietnam.md](../privacy/jurisdictions/annex-privacy-vietnam.md) | Vietnam Privacy Regulatory Requirements | Annex | 1.2.4 | 2026-10-01 |
 | [privacy/policy-privacy-and-data-governance.md](../privacy/policy-privacy-and-data-governance.md) | Privacy and Data Governance Policy | Policy | 1.4.29 | 2026-10-20 |
 | [privacy/procedure-data-protection-and-privacy-breach-response.md](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection and Privacy Breach Response Procedure | Procedure | 1.10.11 | 2026-10-26 |
-| [privacy/procedure-data-subject-rights-management.md](../privacy/procedure-data-subject-rights-management.md) | Data Subject Rights Management Procedure | Procedure | 1.6.47 | 2026-10-21 |
+| [privacy/procedure-data-subject-rights-management.md](../privacy/procedure-data-subject-rights-management.md) | Data Subject Rights Management Procedure | Procedure | 1.6.48 | 2026-10-27 |
 | [privacy/procedure-privacy-impact-and-cross-border-transfer.md](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Privacy Impact and Cross-Border Transfer Procedure | Procedure | 1.6.13 | 2026-10-26 |
 | [privacy/template-dsar-workflow.md](../privacy/template-dsar-workflow.md) | Data Subject Access Request Workflow Template | Template | 1.1.16 | 2026-10-20 |
 | [privacy/template-privacy-notice.md](../privacy/template-privacy-notice.md) | Privacy Notice Template | Template | 1.1.5 | 2026-10-20 |
@@ -348,7 +348,7 @@ _77 documents._
 | [ai/charter-ai-actor-role-and-forum-standing.md](../ai/charter-ai-actor-role-and-forum-standing.md) | AI Actor Role and Forum Standing Charter | Charter | 0.0.4 | 2026-08-31 |
 | [ai/framework-agentic-response-state-model.md](../ai/framework-agentic-response-state-model.md) | Agentic Response State Model Framework | Framework | 0.0.4 | 2026-09-20 |
 | [ai/framework-ai-maturity-model.md](../ai/framework-ai-maturity-model.md) | AI Maturity Model Framework | Framework | 0.0.2 | 2026-09-13 |
-| [ai/framework-ai-value-and-decision-governance.md](../ai/framework-ai-value-and-decision-governance.md) | AI Value and Decision-Governance Framework | Framework | 0.0.6 | 2026-10-24 |
+| [ai/framework-ai-value-and-decision-governance.md](../ai/framework-ai-value-and-decision-governance.md) | AI Value and Decision-Governance Framework | Framework | 0.0.7 | 2026-10-27 |
 | [ai/guide-ai-board-oversight.md](../ai/guide-ai-board-oversight.md) | AI Board Oversight Guide | Guide | 0.0.2 | 2026-07-11 |
 | [ai/guideline-ai-synthetic-content-provenance.md](../ai/guideline-ai-synthetic-content-provenance.md) | AI Synthetic-Content Provenance Guideline | Guideline | 0.0.10 | 2026-10-26 |
 | [ai/jurisdictions/annex-ai-australia.md](../ai/jurisdictions/annex-ai-australia.md) | Australia AI Regulatory Requirements | Annex | 0.0.3 | 2026-09-25 |
@@ -374,7 +374,7 @@ _77 documents._
 | [ai/standard-ai-human-oversight.md](../ai/standard-ai-human-oversight.md) | AI Human-Oversight Standard | Standard | 0.0.8 | 2026-10-16 |
 | [ai/standard-ai-inference-cost-governance.md](../ai/standard-ai-inference-cost-governance.md) | AI Inference Cost Governance Standard | Standard | 0.0.10 | 2026-09-13 |
 | [ai/standard-ai-model-succession-and-identity.md](../ai/standard-ai-model-succession-and-identity.md) | AI Model Succession and Identity Continuity Standard | Standard | 0.0.4 | 2026-09-13 |
-| [ai/standard-ai-total-cost-of-ownership-governance.md](../ai/standard-ai-total-cost-of-ownership-governance.md) | AI Total Cost of Ownership Governance Standard | Standard | 0.0.6 | 2026-10-24 |
+| [ai/standard-ai-total-cost-of-ownership-governance.md](../ai/standard-ai-total-cost-of-ownership-governance.md) | AI Total Cost of Ownership Governance Standard | Standard | 0.0.7 | 2026-10-27 |
 | [architecture/standard-api-design.md](../architecture/standard-api-design.md) | API Design Standard | Standard | 0.0.4 | 2026-07-02 |
 | [architecture/standard-integration-architecture.md](../architecture/standard-integration-architecture.md) | Integration Architecture Standard | Standard | 0.0.6 | 2026-09-20 |
 | [compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | Energy and Utilities Sector Requirements Annex | Annex | 0.0.12 | 2026-10-17 |
@@ -414,7 +414,7 @@ _77 documents._
 | [privacy/jurisdictions/annex-privacy-colombia.md](../privacy/jurisdictions/annex-privacy-colombia.md) | Colombia Privacy Regulatory Requirements | Annex | 0.0.2 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-mexico.md](../privacy/jurisdictions/annex-privacy-mexico.md) | Mexico Privacy Regulatory Requirements | Annex | 0.0.4 | 2026-09-12 |
 | [privacy/jurisdictions/annex-privacy-peru.md](../privacy/jurisdictions/annex-privacy-peru.md) | Peru Privacy Regulatory Requirements | Annex | 0.0.3 | 2026-09-24 |
-| [privacy/procedure-works-council-and-employee-representative-consultation.md](../privacy/procedure-works-council-and-employee-representative-consultation.md) | Works Council and Employee Representative Consultation Procedure | Procedure | 0.1.1 | 2026-10-24 |
+| [privacy/procedure-works-council-and-employee-representative-consultation.md](../privacy/procedure-works-council-and-employee-representative-consultation.md) | Works Council and Employee Representative Consultation Procedure | Procedure | 0.1.2 | 2026-10-27 |
 | [privacy/standard-network-telemetry-and-dpi-controls.md](../privacy/standard-network-telemetry-and-dpi-controls.md) | Network Telemetry and DPI Controls Standard | Standard | 0.1.2 | 2026-10-24 |
 | [privacy/standard-presence-inference-limitations.md](../privacy/standard-presence-inference-limitations.md) | Presence Inference Limitations Standard | Standard | 0.1.6 | 2026-10-24 |
 | [privacy/template-employee-monitoring-notice.md](../privacy/template-employee-monitoring-notice.md) | Employee Monitoring Notice Template | Template | 0.1.1 | 2026-09-04 |

@@ -119,7 +119,7 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   matching the D14 pre-push check.
 - **`--open`.** Records an `error` or `warning` row with an empty disposition. Without the flag such a
   row is refused. With it, an empty error row makes the merge guard block the merge while an empty warning row is
-  surfaced without blocking. Either row may not land in `## Closed today`, which this hook does not scan.
+  surfaced without blocking. Either row must not land in `## Closed today`, which this hook does not scan.
 - **Class count (report only).** For a `FIXED` row with a `[class: "<token>" @ <count>]` clause, the tool
   re-runs the `check-class-completeness.py` probe on the current checkout and warns when the count
   differs. It does not refuse, because an in-flight branch can differ from this tree; D14 remains the
