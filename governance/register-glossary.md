@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.23\
-**Date:** 2026-10-26\
+**Version:** 1.4.24\
+**Date:** 2026-10-27\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md), [`README.md`](../README.md)\
@@ -118,7 +118,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **DORA** | Digital Operational Resilience Act (EU). Financial-services regulation. See [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md). |
 | **DPA** | Data Processing Agreement. |
 | **DPIA** | Data Protection Impact Assessment (GDPR Art 35). |
-| **DPO** | Data Protection Officer. Canonical privacy-lead role in the library, following the statutorily-mandated title in GDPR Article 37, LGPD Article 41, India DPDP Act 2023 §10, Malaysia PDPA (as amended), and similar regimes. See [`register-role-authority.md`](register-role-authority.md) for the role definition and adopter-customization guidance. The North American variant "Chief Privacy Officer (CPO)" is an acceptable adopter substitution; some adopters maintain both DPO and CPO as distinct roles. |
+| **DPO** | Data Protection Officer. Canonical privacy-lead role in the library, following the statutorily-mandated title in GDPR Article 37, India DPDP Act 2023 §10, Malaysia PDPA (as amended), and similar regimes. LGPD Article 41 does not use that title; it requires the controller to appoint an *encarregado pelo tratamento de dados pessoais*, the equivalent role that this library maps to DPO. See [`register-role-authority.md`](register-role-authority.md) for the role definition and adopter-customization guidance. The North American variant "Chief Privacy Officer (CPO)" is an acceptable adopter substitution; some adopters maintain both DPO and CPO as distinct roles. |
 | **DR** | Disaster Recovery. |
 | **DSAR** | Data Subject Access Request. |
 | **DSP** | (CSA CCM domain) Data Security and Privacy Lifecycle Management. Distinct from DCS (Datacenter Security) in CCM v4.1. |
