@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Reporting and Escalation Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
-**Date:** 2026-10-12\
+**Version:** 1.0.5\
+**Date:** 2026-10-27\
 **Owner:** Security Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md)\
@@ -42,6 +42,8 @@ Events should be reported when they involve or may involve:
 - Cloud control plane compromise or material misconfiguration.
 - AI prompt injection, indirect prompt injection, unsafe tool execution, data poisoning, retrieval leakage, model inversion, membership inference, unauthorized model use, or training data exposure.
 - Business service outage with security, privacy, legal, or customer impact.
+
+**Canadian federal public sector.** Where the adopter is a Government of Canada (GC) organization, the GC Cyber Security Event Management Plan (held text: date modified 2026-05-20; the held edition is the one cited, and its currency is to be confirmed upstream) states that GC organizations must report all cyber security incidents to the Canadian Centre for Cyber Security, that departments are expected to report within its Table 2-1 timeframes, and that over-reporting is better than under-reporting when in doubt (§2.3.1.2); it also sets four GC response levels (§2.3.2.1). Those timeframes and the related federal references are summarized in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §11; this procedure does not restate them.
 
 ---
 

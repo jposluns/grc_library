@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.10.11\
-**Date:** 2026-10-26\
+**Version:** 1.10.12\
+**Date:** 2026-10-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/policy-byod.md`](../security/policy-byod.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
@@ -401,6 +401,7 @@ This table lists the primary breach-notification regimes and the frameworks this
 | Privacy breach response programme | ISO/IEC 27701:2025 (privacy incident management); CSA CCM v4.1 SEF-08, SEF-03 |
 | Regulatory breach notification: EU/UK | GDPR Arts. 33 to 34 (Art. 33(1) notification to the supervisory authority; Art. 34(1) communication to the data subject); UK GDPR Arts. 33 to 34; EDPB Guidelines 9/2022 on personal data breach notification (Version 2.0; paragraph 118: the number of affected individuals as one risk factor, while a breach can severely affect even one individual, depending on the nature of the data and the context) |
 | Regulatory breach notification: Canada | PIPEDA Breach of Security Safeguards Regulations (successor Bill C-36/PPCDA proposed, not in force); Quebec Law 25; Ontario FIPPA s. 40.1 (in force since 2025-07-01); Ontario MFIPPA s. 30.1 (not yet in force; comes into force 2027-01-01) |
+| Cyber security incident involving personal information: Canada (federal public sector) | GC Cyber Security Event Management Plan §2.3.1.4 (held text: date modified 2026-05-20, cited at the edition held, currency to be confirmed upstream); [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §11; [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md) |
 | Regulatory breach notification: China | PIPL Art. 57; Cybersecurity Law Art. 44 para. 2 and, where the incident also endangers network security, Art. 27 (amended numbering, in force 1 January 2026) |
 | Regulatory breach notification: India | DPDPA 2023; Digital Personal Data Protection Rules 2025; DPBI |
 | Regulatory breach notification: Indonesia | UU PDP (Law No. 27 of 2022) Art. 46 |
@@ -414,6 +415,8 @@ This table lists the primary breach-notification regimes and the frameworks this
 | Record keeping and retention | ISO/IEC 27701:2025 §7.5.3, Annex A.3.14; [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |
 | AI training data leakage | ISO/IEC 27701:2025 Annex A.3.12; [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) |
 | BASC trade data | BASC International Standard v6; [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md) |
+
+**Canadian federal public sector.** The GC Cyber Security Event Management Plan (held text: date modified 2026-05-20; the held edition is the one cited, and its currency is to be confirmed upstream) expects the appropriate authorities to be notified where personal information may be involved in a cyber security incident. For Government of Canada organizations subject to the Privacy Act and the Policy on Privacy Protection, that includes notifying the departmental Access to Information and Privacy (ATIP) office immediately to determine whether a privacy breach has occurred, and the plan says the process should involve an assessment of whether personal information may be involved (§2.3.1.4). The plan points to privacy breach plans and procedures set out in the Directive on Privacy Practices, which is not held in the reference base, so an adopter confirms them against the official text. <!-- ref-absence: Directive on Privacy Practices --> Reporting the cyber security incident to the Canadian Centre for Cyber Security runs in parallel, under the security incident response procedure §11.
 
 ---
 
