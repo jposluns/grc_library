@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Resilience Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.0.9\
-**Date:** 2026-10-17\
+**Version:** 1.0.10\
+**Date:** 2026-10-27\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md)\
@@ -136,7 +136,7 @@ Five categories of signal are monitored. Each category contains specific signals
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| DORA | Articles 28, 30, 33 to 34 (monitoring, contractual provisions, risk assessments) | EU financial services |
+| DORA | Article 28 (General principles: termination circumstances identified through monitoring, 28(7)(b), and exit strategies, 28(8)); Article 30 (Key contractual provisions: service levels allowing effective monitoring, contingency-plan testing, and the right to monitor performance on an ongoing basis, 30(3)(a), (c) and (e)) | EU financial services |
 | EBA Guidelines on outsourcing arrangements | EBA/GL/2019/02 §82 to 95 | Banking monitoring |
 | NIST SP 800-161 Rev. 1 | SR-6 (supplier assessments and reviews) | US baseline |
 | ISO 28000:2022 | Security management for supply chains | International. The ISO 28000:2022 alignment is unverifiable. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 --> |
