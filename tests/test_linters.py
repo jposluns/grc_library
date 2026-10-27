@@ -4576,6 +4576,40 @@ class IntraDocRefTests(LinterTestCase):
                 result = run_linter("tools/lint-intra-doc-refs.py", fixture)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_canadian_federal_instrument_marks_pass(self) -> None:
+        # 3b662: one line per Canadian federal instrument marker; each cites
+        # that instrument's own section, not a heading of this document.
+        for line in (
+            "ITSP.80.022 §2.1 defines seven zone types.",
+            "ITSAP.40.003 §4.2 lists the response phases.",
+            "ITSG-33 §3.2 sets the control profile.",
+            "SPIN 2017-01 §6.2.4 requires encryption in transit.",
+            "Baseline Cyber Security Controls for Small and Medium Organizations V1.2 §3.10.",
+        ):
+            with self.subTest(line=line):
+                body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
+                fixture = self.make_fixture("standard-canadian-instrument-ref.md", body)
+                result = run_linter("tools/lint-intra-doc-refs.py", fixture)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_unmarked_intra_ref_still_fails(self) -> None:
+        # 3b662: without a marker on the line, a stale §N is still reported;
+        # the markers match case-sensitively, so lowercase words do not count.
+        # An issuer name (CCCS, TBS, Treasury Board) or a SPIN without its
+        # number is not a marker, so a stale mark beside one is reported.
+        for line, ref in (
+            ("Zone interface points (§2.2) carry all inter-zone traffic.", "2.2"),
+            ("The spin §99.99 and tbs §99.99 rows are ours.", "99.99"),
+            ("CCCS advice is met by the controls in §99.99.", "99.99"),
+            ("TBS direction is met by the controls in §99.99.", "99.99"),
+            ("Treasury Board direction is met by the controls in §99.99.", "99.99"),
+            ("The held SPIN is met by the controls in §99.99.", "99.99"),
+        ):
+            with self.subTest(line=line):
+                body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
+                fixture = self.make_fixture("standard-unmarked-ref.md", body)
+                self.assertLinterFails(run_linter("tools/lint-intra-doc-refs.py", fixture), ref)
+
 
 class CrossFileSectionRefTests(LinterTestCase):
     """tools/lint-cross-file-section-refs.py (gate 62)
@@ -48586,7 +48620,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.21.2", "3b652 has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH) on top of 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652)")
+        self.assertEqual(man["pack"]["version"], "0.21.3", "3b662 has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
@@ -55759,6 +55793,20 @@ class IntraDocRefsEngineTransferTests(unittest.TestCase):
     def test_cross_doc_framework_name_skipped(self):
         # an external-framework name on the line marks the ref as cross-doc
         self.assertEqual(self._scan("## 1. Intro\n\nNIST SP 800-53 §5.4 applies.\n"), [])
+
+    def test_cross_doc_canadian_instrument_skipped(self):
+        # 3b662: a Canadian federal instrument marker on the line marks the ref as cross-doc
+        for marker in ("ITSP.80.022", "ITSAP.40.003", "ITSG-33", "SPIN 2017-01",
+                       "Baseline Cyber Security Controls V1.2"):
+            with self.subTest(marker=marker):
+                self.assertEqual(self._scan(f"## 1. Intro\n\n{marker} §5.4 applies.\n"), [])
+
+    def test_canadian_issuer_name_not_a_marker(self):
+        # 3b662: an issuer name alone does not claim the ref; the stale §5.4 is reported
+        for issuer in ("CCCS", "TBS direction", "Treasury Board direction", "The held SPIN"):
+            with self.subTest(issuer=issuer):
+                found = self._scan(f"## 1. Intro\n\n{issuer} §5.4 applies.\n")
+                self.assertEqual([f[1] for f in found], ["5.4"])
 
     def test_no_numbered_headings_no_findings(self):
         self.assertEqual(self._scan("# Plain\n\nSee §5.4 for details.\n"), [])
