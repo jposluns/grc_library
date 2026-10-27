@@ -19921,7 +19921,10 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         with it is still checked. The linter has no ceiling option (its only option is --root), so
         the bound is applied here: mirror headers naming a PR above the checkout's newest root
         header are dropped, and a branch one merge behind main (the #3008 case) passes, while a
-        mismatch at or below that header still fails. The pair is read through an explicit --root,
+        mismatch at or below that header and above the mirror's oldest header still fails. A
+        mirror missing its oldest header is NOT caught: the gate's floor is the mirror's own
+        oldest header (its "Boundary limitation" note), so that root header leaves the window
+        (3b656 r3 pins this boundary). The pair is read through an explicit --root,
         so the linter's store-scope deferral reads no branch git state (its note says so). None
         when no mirror is present."""
         mod = load_linter_module("tools/lint-changelog-mirror-header-parity.py", "_mp_3b656_head")
@@ -19996,6 +19999,52 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn("MISSING from the detailed mirror", result.stdout)
         self.assertIn(f"#{pr}", result.stdout)
+
+    # A root header strictly inside the window: the newest-first index of a header neither the
+    # checkout's newest nor the mirror's oldest (the test asserts it is strictly inside).
+    MIDDLE = 2
+
+    def _head_parity_dropping(self, index: int, name: str):
+        """The head result for a store mirror one header ahead of the root (as in the #3008 case)
+        and missing the root header at INDEX (newest first); also the root header records."""
+        from unittest import mock
+        mod = load_linter_module("tools/lint-changelog-mirror-header-parity.py", name)
+        changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        records = mod.pr_headers(changelog, cutoff=0)
+        _, newest, version, _ = records[0]
+        bumped = f"{version[0]}.{version[1]}.{version[2] + 1}"
+        newer = f"**2099-01-01 | {bumped} | PR #{newest + 1}** - x\n\n"
+        lineno = records[index][0]
+        lines = changelog.splitlines(keepends=True)
+        with tempfile.TemporaryDirectory() as store:
+            self._store_mirror(store, newer + "".join(lines[:lineno - 1] + lines[lineno:]))
+            with mock.patch.dict(os.environ, {"GRC_STORE": store}):
+                result, ceiling = self._head_parity_result()
+        self.assertEqual(ceiling, newest)
+        return result, records
+
+    def test_head_parity_flags_a_header_missing_inside_the_window(self) -> None:
+        # 3b656 r3 (codex): a header missing strictly between the checkout's newest and the
+        # mirror's oldest must fail and be named, not only a missing newest header.
+        result, records = self._head_parity_dropping(self.MIDDLE, "_mp_3b656_mid")
+        pr = records[self.MIDDLE][1]
+        self.assertLess(records[-1][1], pr)
+        self.assertLess(pr, records[0][1])
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn(f"MISSING from the detailed mirror (>= #{records[-1][1]}): #{pr}\n",
+                      result.stdout)
+
+    def test_head_parity_does_not_catch_a_missing_oldest_header(self) -> None:
+        # 3b656 r3 (codex): BOUNDARY, not coverage. The gate's floor is max(CUTOFF_PR, the
+        # mirror's oldest header), so a mirror missing the root's oldest header raises its own
+        # floor past it and passes; from root and mirror alone that drop reads exactly like a
+        # sweep (the gate's "Boundary limitation" note). This pins that the head test does not
+        # cover it, so a gate change that starts catching it shows up here.
+        result, records = self._head_parity_dropping(-1, "_mp_3b656_floor")
+        oldest, next_oldest = records[-1][1], records[-2][1]
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn(f"at or above #{next_oldest},", result.stdout)
+        self.assertNotIn(f"#{oldest}", result.stdout)
 
     def test_head_parity_is_skipped_without_a_mirror(self) -> None:
         # No store and no fallback supplies the mirror: the head test reports a skip, never a pass.
