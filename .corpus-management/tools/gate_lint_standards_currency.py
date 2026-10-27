@@ -611,6 +611,27 @@ def text_blocks(source, suffix):
     return blocks
 
 
+# 3b652: a parenthesised programme name whose version is read as the version of the
+# citation it follows ("NIST SP 800-218 (SSDF 1.1)"), mapped to the single identity it
+# names. Residual: only a name listed here is read, and only after its own identity; any
+# other parenthesised name ("(ISO 2.0)", "(SLSA 1.0)", "(CMMC 2.0)", "(AC 2.1)") stays as
+# the engine read it before 3b652, so a version written that way is not read.
+PROGRAMME_VERSIONS = {"SSDF": "nist sp 800-218"}
+
+# The version is N.N or N.N.N, the forms the register uses, with the optional "v" or
+# "version" prefix of the other forms; a year-like "2022.02" is not read.
+_PROGRAMME_VERSION = re.compile(
+    r"\s*\(\s*([A-Z]+)\s+((?:version\s+|v)?\d{1,2}\.\d{1,2}(?:\.\d{1,2})?)\s*\)"
+)
+
+
+def _programme_version(text, end, observed):
+    m = _PROGRAMME_VERSION.match(text, end)
+    if m and PROGRAMME_VERSIONS.get(m[1]) == identity_key(observed):
+        return m[2], m.end()
+    return "", end
+
+
 def version_after(text, end, family):
     tail = text[end:]
     if family == "NIST":
@@ -677,6 +698,8 @@ def discover(source, suffix):
             version, end = version_after(
                 text, m.end(), family
             )
+            if family == "NIST" and not version:
+                version, end = _programme_version(text, end, m[0])
             # The publisher's own revision suffix wins over a date or edition written after
             # it ("SP 800-63-3 (2017)" is Rev. 3) (3b425).
             named, revision = (
