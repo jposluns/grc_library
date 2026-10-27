@@ -2,7 +2,7 @@
 
 **Document Title:** Concentration Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-10-27\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -133,7 +133,7 @@ Each row records one concentration finding.
 
 ## Coordination with the critical ICT third-party regime
 
-Under DORA, designated critical ICT third-party providers (CTPPs) are supervised by a Lead Overseer. Where one of the affected third parties is a CTPP, the concentration register cross-references the regulatory designation. Designation does not of itself add contractual or reporting requirements for the organization: the yearly report under DORA Article 28(3) covers new ICT arrangements generally, and the organization takes into account the risks identified in oversight recommendations addressed to the CTPP (Article 42(3)). Contractual measures, up to suspension or termination of the CTPP's service, follow only where a competent authority finds that the organization has not sufficiently addressed those risks (Article 42(4) and (6)).
+Under DORA, designated critical ICT third-party providers (CTPPs) are supervised by a Lead Overseer. Where one of the affected third parties is a CTPP, the concentration register cross-references the regulatory designation. Two duties follow for the organization: where the CTPP is established in a third country, the organization may use its services only if the CTPP has established a subsidiary in the Union within the 12 months following its designation (Article 31(12)); and, when managing ICT third-party risk, the organization takes into account the risks identified in oversight recommendations addressed to the CTPP (Article 42(3)). The yearly report under DORA Article 28(3) covers new ICT arrangements generally, not CTPPs alone. Where a competent authority deems that the organization has not sufficiently addressed those risks, it notifies the organization that a decision may be taken within 60 calendar days in the absence of appropriate contractual arrangements to address them (Article 42(4)); as a measure of last resort, following that notification, the authority may require the organization to suspend use of the CTPP's service, in part or completely, or to terminate the relevant contractual arrangements (Article 42(6)).
 
 Adopting financial entities populate per-CTPP fields including the designation date, the Lead Overseer, and the entity's contractual position with the CTPP.
 
