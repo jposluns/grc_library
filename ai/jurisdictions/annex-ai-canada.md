@@ -2,7 +2,7 @@
 
 **Document Title:** Canada AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -64,7 +64,7 @@ The **Office of the Superintendent of Financial Institutions (OSFI) Guideline E-
 
 ## Voluntary standard: CAN/DGSI 101:2025
 
-**CAN/DGSI 101:2025 (2nd edition), Ethical design and use of artificial intelligence by small and medium organizations**, is a voluntary national standard, oriented to small and medium organizations but broadly applicable, intended for conformity assessment. It adopts the OECD AI Principles frame and maps to the NIST AI Risk Management Framework, and it defines the human-in-the-loop, human-on-the-loop, and human-out-of-the-loop models, an ethical impact assessment, and diverse-reviewer inputs.
+**CAN/DGSI 101:2025 (2nd edition), Ethical design and use of artificial intelligence by small and medium organizations**, is a voluntary national standard, oriented to small and medium organizations but broadly applicable, intended for conformity assessment. It adopts the OECD AI Principles frame and maps to the NIST AI RMF 1.0, and it defines the human-in-the-loop, human-on-the-loop, and human-out-of-the-loop models, an ethical impact assessment, and diverse-reviewer inputs.
 
 ## Adopter-role framing
 

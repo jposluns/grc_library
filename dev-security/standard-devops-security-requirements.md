@@ -2,8 +2,8 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.30\
-**Date:** 2026-10-04\
+**Version:** 1.0.31\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md)\
@@ -45,7 +45,7 @@ The following gates are mandatory in every pipeline deploying to Test or Product
 
 Gate results are logged and retained as acceptance-into-service gate audit evidence.
 
-*CCM: CCC-01 through CCC-04, CCC-06 through CCC-09, AIS-04 / NIST SSDF PW.7.1, PW.7.2, PW.4.1, PW.4.4, PS.3.2, RV.1.1, RV.2.1, RV.2.2 / contributes toward SLSA v1.2 Build L2+*
+*CCM: CCC-01 through CCC-04, CCC-06 through CCC-09, AIS-04 / NIST SSDF Version 1.1 PW.7.1, PW.7.2, PW.4.1, PW.4.4, PS.3.2, RV.1.1, RV.2.1, RV.2.2 / contributes toward SLSA v1.2 Build L2+*
 
 ### 2.3 Pipeline identity
 

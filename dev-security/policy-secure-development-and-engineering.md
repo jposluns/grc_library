@@ -2,7 +2,7 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.19\
+**Version:** 1.0.20\
 **Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -22,7 +22,7 @@ This policy establishes mandatory requirements for secure software development, 
 
 It merges and replaces the Secure Software Development Lifecycle (SDLC) Policy, Code Management Policy, Open-Source Policy, Testing Standard, and Peer-Review Guideline into a unified framework for secure design, development, testing, and maintenance.
 
-The policy aligns with ISO/IEC 27034 (all parts), ISO/IEC 27002:2022 controls, NIST Secure Software Development Framework (SSDF), COBIT 2019 BAI03 and BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
+The policy aligns with ISO/IEC 27034 (all parts), ISO/IEC 27002:2022 controls, NIST Secure Software Development Framework (SSDF) Version 1.1, COBIT 2019 BAI03 and BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
 
 It incorporates forward-looking controls for AI-generated code verification.
 
@@ -50,7 +50,7 @@ It incorporates forward-looking controls for AI-generated code verification.
 
 | Role | Responsibility |
 | --- | --- |
-| **CISO** | Defines secure coding standards, oversees vulnerability remediation, and enforces compliance with NIST SSDF and ISO/IEC 27034. |
+| **CISO** | Defines secure coding standards, oversees vulnerability remediation, and enforces compliance with NIST SSDF Version 1.1 and ISO/IEC 27034. |
 | **CIO** | Oversees policy enforcement and ensures that secure design principles are embedded across all engineering teams. |
 | **Development Team Leads** | Implement secure SDLC controls, manage peer review workflows, and track remediation timelines. |
 | **Developers / Engineers** | Follow approved secure coding practices, maintain code integrity, and complete annual secure coding training. |
@@ -158,7 +158,7 @@ It incorporates forward-looking controls for AI-generated code verification.
 | --- | --- | --- |
 | ISO/IEC 27034 (all parts) | Information technology, Application security | Secure SDLC governance and assurance |
 | ISO/IEC 27002:2022 | 8.25, 8.26, 8.27, 8.28, 8.29, 8.30, 8.31, 8.32 | Secure coding and testing controls |
-| NIST SSDF | Secure Software Development Framework | Secure development lifecycle |
+| NIST SSDF Version 1.1 | Secure Software Development Framework | Secure development lifecycle |
 | OWASP ASVS v5 | V1 (encoding and sanitization), V2 (validation and business logic), V11 (cryptography), V13 (configuration and secret management), V15 (secure coding and architecture), V16 (security logging and error handling) | Secure coding requirements |
 | COBIT 2019 | BAI03: Managed Solutions Identification and Build | Solution design and build |
 | COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Release and deployment controls |

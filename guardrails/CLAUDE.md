@@ -159,7 +159,7 @@ These requirements implement controls from:
 - OWASP LLM Top 10 (2026)
 - OWASP MCP Top 10
 - OWASP ASVS v5.0.0
-- NIST SSDF (SP 800-218 and SP 800-218A: Generative AI Profile)
+- NIST SSDF (SP 800-218 Version 1.1 and SP 800-218A: Generative AI Profile)
 - CSA CCM v4.1 / AICM v1.1
 - ISO/IEC 27001:2022 Annex A
 - CISA Secure by Design principles

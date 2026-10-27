@@ -33091,9 +33091,10 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # items, two of them compound "A / B" names read as two entries, so 63 entries;
         # each For-AI page compares its OWASP LLM Top 10 and EU AI Act entries and skips
         # OWASP MCP Top 10 and the GenAI Red Teaming Guide (no edition). Changing a list
-        # changes these counts, so the change is reviewed here.
+        # changes these counts, so the change is reviewed here. Updated 2026-10-27 (3b650):
+        # the landing list's NIST SP 800-218 label now names its edition (1.1), one more match.
         expected = {
-            "templates/landing.html": {"match": 43, "no edition": 20},
+            "templates/landing.html": {"match": 44, "no edition": 19},
             "templates-v2/coverage.html": {"match": 46, "no edition": 17},
             "templates/for-ai.html": {"match": 2, "no edition": 2},
             "templates-v2/for-ai.html": {"match": 2, "no edition": 2},
@@ -33966,7 +33967,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     def test_current_entries_keep_their_outcomes(self):
         from collections import Counter
         entries = self.mod.standard_edition_entries()
-        self.assertEqual(Counter(e.status for e in entries), Counter({"match": 95, "no edition": 43}))
+        self.assertEqual(Counter(e.status for e in entries), Counter({"match": 96, "no edition": 42}))
         self.assertEqual(self.mod.stale_standard_editions(), [])
 
     def test_unreadable_listed_text_fails(self):
@@ -34569,7 +34570,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         statuses = {}
         for e in self.mod.standard_edition_entries():
             statuses[e.status] = statuses.get(e.status, 0) + 1
-        self.assertEqual(statuses, {"match": 95, "no edition": 43})
+        self.assertEqual(statuses, {"match": 96, "no edition": 42})
 
     def test_for_ai_ext_span_text_is_inter_span_text(self):
         # VPR3B393-R5 item 2: only the exact external-link marker is dropped; any other
@@ -34815,7 +34816,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                 self.assertIn(f"list item for the register row {row!r} cannot be parsed: its description "
                               f"{old!r}", hits[0])
         statuses = Counter(e.status for e in self.mod.standard_edition_entries())
-        self.assertEqual(statuses, Counter({"match": 95, "no edition": 43}))
+        self.assertEqual(statuses, Counter({"match": 96, "no edition": 42}))
 
     def _for_ai_item(self, rel, old_name, new_name, desc=None):
         text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")

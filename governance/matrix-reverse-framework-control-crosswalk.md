@@ -2,7 +2,7 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.18\
+**Version:** 1.0.19\
 **Date:** 2026-10-27\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -123,7 +123,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 
 ---
 
-## NIST AI RMF (Govern, Map, Measure, Manage)
+## NIST AI RMF 1.0 (Govern, Map, Measure, Manage)
 
 | NIST AI RMF 1.0 function | Library documents | Alignment type |
 | --- | --- | --- |

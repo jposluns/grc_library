@@ -2,7 +2,7 @@
 
 **Document Title:** Cross-Framework Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.27\
+**Version:** 1.1.28\
 **Date:** 2026-10-27\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -51,7 +51,7 @@ This matrix provides an original, non-verbatim alignment structure for mapping r
 | Supply Chain | Supplier and Cloud Governance Framework | Supplier risk, cloud assurance, NIST SP 800-161 SCRM, security, privacy, and resilience families | Industry practice or contractual requirement | External providers process data, host workloads, operate critical services, or provide AI capabilities. | Due diligence record, contractual control schedule, supplier risk register, exit plan. |
 | Supply Chain | Trade and Supply-Chain Continuity Controls Annex | WCO SAFE, ISO 28000:2022, CTPAT, BASC, PIP, AEO, AEO-S, NEEC, OEA. The ISO 28000:2022 alignment is unverifiable. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 --> | Regulatory interpretation or contractual requirement | Organization participates in customs, logistics, or trade-security programmes. | Programme audit record, gap assessment, corrective action evidence. |
 | Resilience | Business Continuity and Resilience Framework | ISO 22301:2019 continuity, NIST SP 800-34 continuity planning, COBIT 2019 DSS04, operational resilience families | Industry practice or regulatory interpretation | Services have recovery, availability, regulatory, or customer-impact obligations. | BIA, RTO/RPO register, test report, recovery plan, corrective action log. |
-| Dev Security | Developer Security Requirements Standard | OWASP Top 10, OWASP ASVS, OWASP LLM Top 10, NIST SSDF (SP 800-218), NIST SP 800-53 Rev. 5 SA/SI families, ISO/IEC 27001:2022 Annex A.8.25 to A.8.34, SLSA | Architectural recommendation | Organization develops or maintains software, AI systems, or automated pipelines. | Secure code review, SAST/DAST results, dependency scan, pipeline gate evidence. |
+| Dev Security | Developer Security Requirements Standard | OWASP Top 10, OWASP ASVS, OWASP LLM Top 10, NIST SSDF (SP 800-218 Version 1.1), NIST SP 800-53 Rev. 5 SA/SI families, ISO/IEC 27001:2022 Annex A.8.25 to A.8.34, SLSA | Architectural recommendation | Organization develops or maintains software, AI systems, or automated pipelines. | Secure code review, SAST/DAST results, dependency scan, pipeline gate evidence. |
 
 ---
 

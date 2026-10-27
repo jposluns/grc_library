@@ -2,7 +2,7 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.5.9\
+**Version:** 1.5.10\
 **Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -141,11 +141,11 @@ The renewal number and each reviewing or approving authority must be recorded on
 
 | Control Area | ISO/IEC 27001:2022 | COBIT 2019 | CSA | NIST | Legal and Regulatory | Trade and Supply Chain Programs |
 |---------------|----------------|-------------|-----|------|----------------------|---------------------------------|
-| Governance and oversight | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Authorize step | SOX, GDPR Articles 5(2), 24 (accountability) | WCO SAFE equivalence |
-| Risk assessment and approval | Clause 6 and ISO 31000:2018 Clauses 6.4 and 6.5 | APO12.02 | CCM GRC-02 | SP 800-30, SP 800-37 Assess and Authorize steps | PIPEDA, AIDA (lapsed) | WCO SAFE equivalence |
-| Time-bound authorization | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Authorize step | Contractual risk governance | WCO SAFE equivalence |
-| Exception tracking and reporting | Annex A.5.36 | MEA01 | CCM GRC-04 | SP 800-53 RA-7 | Audit transparency | WCO SAFE equivalence |
-| Closure and validation | Annex A.5.36 | MEA02 | CCM GRC-04 | SP 800-37 Assess step | Regulatory evidence requirements | WCO SAFE equivalence |
+| Governance and oversight | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Rev. 2 Authorize step | SOX, GDPR Articles 5(2), 24 (accountability) | WCO SAFE equivalence |
+| Risk assessment and approval | Clause 6 and ISO 31000:2018 Clauses 6.4 and 6.5 | APO12.02 | CCM GRC-02 | SP 800-30, SP 800-37 Rev. 2 Assess and Authorize steps | PIPEDA, AIDA (lapsed) | WCO SAFE equivalence |
+| Time-bound authorization | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Rev. 2 Authorize step | Contractual risk governance | WCO SAFE equivalence |
+| Exception tracking and reporting | Annex A.5.36 | MEA01 | CCM GRC-04 | SP 800-53 Rev. 5 RA-7 | Audit transparency | WCO SAFE equivalence |
+| Closure and validation | Annex A.5.36 | MEA02 | CCM GRC-04 | SP 800-37 Rev. 2 Assess step | Regulatory evidence requirements | WCO SAFE equivalence |
 | Machine-readable registry (recommended) | Annex A.5.36 (extension) | APO12.06 | CCM GRC-04 | N/A (library extension) | Future automation compliance | WCO SAFE equivalence |
 
 
