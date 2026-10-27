@@ -47,7 +47,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, guard_explicit_paths_cwd, iter_markdown_targets, positional_args  # noqa: E402  # grc-config/scope
+from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, guard_explicit_paths_cwd, iter_markdown_targets, positional_args, refuse_vanished, scan_listed  # noqa: E402  # grc-config/scope
 
 try:
     from cobit_iso31000_reference import (
@@ -118,10 +118,14 @@ def main(argv: list[str]) -> int:
     args = positional_args(argv[1:], known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
     paths = guard_explicit_paths_cwd(args, repo_root=REPO_ROOT, allow_outside=True) if args else [str(REPO_ROOT)]
     targets = iter_markdown_targets(
-        paths, exempt_dirs=DEFAULT_EXEMPT_DIRS, exempt_files=EXEMPT_FILES)
+        paths, exempt_dirs=DEFAULT_EXEMPT_DIRS, exempt_files=EXEMPT_FILES,
+        skip_test_scratch=True)  # 3b653: tests/tmp fixtures vanish mid-walk
     all_findings: list[Finding] = []
+    vanished: list[Path] = []
     for path in targets:
-        all_findings.extend(scan_file(path))
+        all_findings.extend(scan_listed(lambda: scan_file(path), path, vanished))
+    if vanished:
+        return refuse_vanished(vanished)
 
     if not all_findings:
         print(

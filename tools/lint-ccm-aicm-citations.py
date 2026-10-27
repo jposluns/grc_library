@@ -47,7 +47,7 @@ import types
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, guard_explicit_paths_cwd, is_fence_line, iter_markdown_targets, positional_args, read_text_safe  # noqa: E402  # grc-config/store, stays local
+from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, guard_explicit_paths_cwd, is_fence_line, iter_markdown_targets, positional_args, read_text_safe, refuse_vanished, scan_listed  # noqa: E402  # grc-config/store, stays local
 
 try:
     from ccm_aicm_reference import (  # noqa: E402  # grc reference catalogue (fair-use citation index)
@@ -224,9 +224,13 @@ def _name_issue(code: str, name: str) -> str | None:
     return f"{name!r} is not the canonical {want!r}"
 
 
-def scan_glossary(path: Path) -> list:
-    """Check the "(CSA CCM domain) <Name>" rows of a glossary file against DOMAIN_NAMES."""
-    if not path.is_file():
+def scan_glossary(path: Path, *, listed: bool = False) -> list:
+    """Check the "(CSA CCM domain) <Name>" rows of a glossary file against DOMAIN_NAMES.
+
+    ``listed`` (3b653): main() passes a file its walk listed, so a glossary gone
+    when read raises FileNotFoundError for scan_listed to refuse, never a pass.
+    """
+    if not listed and not path.is_file():
         return []  # adopter fork without the glossary: nothing to check
     text = read_text_safe(path)
     if text is None:
@@ -297,12 +301,16 @@ def main(argv: list[str]) -> int:
     args = positional_args(argv[1:], known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
     paths = guard_explicit_paths_cwd(args, repo_root=REPO_ROOT) if args else [str(REPO_ROOT)]
     targets = iter_markdown_targets(
-        paths, exempt_dirs=DEFAULT_EXEMPT_DIRS, exempt_files=EXEMPT_FILES)
+        paths, exempt_dirs=DEFAULT_EXEMPT_DIRS, exempt_files=EXEMPT_FILES,
+        skip_test_scratch=True)  # 3b653: tests/tmp fixtures vanish mid-walk
     all_findings: list = reference_findings()
+    vanished: list[Path] = []
     for path in targets:
-        all_findings.extend(scan_file(path))
-        if path.name == GLOSSARY_NAME:
-            all_findings.extend(scan_glossary(path))
+        all_findings.extend(scan_listed(lambda: scan_file(path), path, vanished))
+        if path.name == GLOSSARY_NAME and path not in vanished:
+            all_findings.extend(scan_listed(lambda: scan_glossary(path, listed=True), path, vanished))
+    if vanished:
+        return refuse_vanished(vanished)
 
     if not all_findings:
         print(

@@ -133,6 +133,80 @@ def is_default_exempt_root(
     return len(rel.parts) > 1 and rel.parts[0] in DEFAULT_EXEMPT_ROOTS
 
 
+# Root-relative test scratch tree (3b653): ``tests/tmp`` holds the regression
+# suite's transient per-run fixtures (gitignored; created and removed while a
+# sweep may be running), never corpus. The skip is OPT-IN (``skip_test_scratch``
+# on :func:`iter_targets`), set only by gates 48, 61, 73 and 79, which crashed on
+# a fixture the suite deleted mid-walk; every other caller, including the secrets
+# and PII gates that keep source-tree coverage, still walks ``tests/tmp``. With
+# the opt-in, a directory walk from outside it prunes the tree, so it is never
+# entered (:func:`_walk_files_pruned`). Root-anchored like
+# the default exempt roots (a nested ``tests/tmp`` elsewhere is still walked), and
+# an explicit argument naming a file or directory inside it is still scanned, so
+# the suite's own fixtures stay reachable. A symlink outside the tree whose target
+# is inside it is still listed; those gates refuse it by name if it is gone when
+# read (:func:`scan_listed`).
+TEST_SCRATCH_ROOT: tuple[str, ...] = ("tests", "tmp")
+
+
+def _test_scratch_dir(repo_root: Path | None = None) -> Path:
+    """Resolved ``tests/tmp`` under ``repo_root`` (default :data:`REPO_ROOT`)."""
+    return (REPO_ROOT if repo_root is None else Path(repo_root)).resolve().joinpath(*TEST_SCRATCH_ROOT)
+
+
+def _walk_files_pruned(top: Path, prune: Path) -> Iterator[Path]:
+    """Every non-directory entry under ``top``, never entering ``prune`` (3b653).
+
+    The same non-directory entries as ``top.rglob("*")`` (directory symlinks are
+    not followed), except that ``prune`` is dropped from the walk before it is
+    read: nothing under it is listed, and a scratch directory removed mid-walk is
+    never opened. A directory that vanishes elsewhere is skipped, as
+    :func:`os.walk` ignores ``scandir`` errors by default.
+    """
+    for dirpath, dirnames, filenames in os.walk(top):
+        base = Path(dirpath)
+        dirnames[:] = [d for d in dirnames if base / d != prune]
+        for name in filenames:
+            yield base / name
+
+
+def scan_listed(scan, path: Path, vanished: list[Path]) -> list:
+    """Run ``scan()`` for the listed file ``path``; record ``path`` if it vanished.
+
+    A file the discovery walk listed can be removed before the gate reads it (a
+    concurrent run deleting its scratch). That is neither a finding nor a pass:
+    the file is appended to ``vanished`` and ``[]`` returned, so the caller ends
+    with :func:`refuse_vanished` (fail closed, naming the file) instead of a
+    FileNotFoundError traceback or a silent skip. Any other FileNotFoundError
+    (a different file) still raises.
+    """
+    try:
+        return scan()
+    except FileNotFoundError as exc:
+        if exc.filename is None or Path(exc.filename) != path:
+            raise
+        vanished.append(path)
+        return []
+
+
+def refuse_vanished(vanished: Iterable[Path], *, repo_root: Path | None = None) -> int:
+    """Name each listed file that was gone when read, on stderr; return exit code 2.
+
+    The scan did not read these files, so the gate cannot pass; it refuses as an
+    environment error (2), distinct from findings (1). Rerun when the tree is quiet.
+    """
+    root = (REPO_ROOT if repo_root is None else Path(repo_root)).resolve()
+    for path in vanished:
+        try:
+            shown = path.resolve().relative_to(root).as_posix()
+        except (ValueError, OSError):
+            shown = path.as_posix()
+        print(f"ERROR: {shown}: listed for scanning but gone when read (removed "
+              f"mid-scan); the scan is incomplete, refusing to pass. Rerun when "
+              f"nothing is creating or deleting files in the tree.", file=sys.stderr)
+    return 2
+
+
 # The executive narrative layer (P-1.25, root ``executive/``) is OUTSIDE the
 # corpus document model but INSIDE the repository safety gates. Corpus-MODEL
 # gates that walk the repo root exclude it via the root-anchored
@@ -787,6 +861,7 @@ def iter_targets(
     exempt_files: Iterable[str] = (),
     repo_root: Path | None = None,
     exclude_default_roots: bool = True,
+    skip_test_scratch: bool = False,
 ) -> list[Path]:
     """Return deduplicated, ordered list of targets matching ``suffixes``.
 
@@ -794,7 +869,9 @@ def iter_targets(
       - if it is a file and matches :func:`is_target`, include it;
       - if it is a directory, walk it recursively and include every
         file whose suffix is in ``suffixes`` and that passes
-        :func:`is_target`.
+        :func:`is_target`; with ``skip_test_scratch`` (default off),
+        prune the ``tests/tmp`` scratch tree (:data:`TEST_SCRATCH_ROOT`)
+        from the walk, never entering it, unless the directory is inside it.
 
     Paths are resolved before deduplication. Order across the input is
     preserved. Relative input paths retain their current-working-directory
@@ -821,7 +898,14 @@ def iter_targets(
                     targets.append(p)
                     seen.add(p)
         elif p.is_dir():
-            for f in p.rglob("*"):
+            # 3b653: opt-in skip of tests/tmp scratch unless the walk starts inside it;
+            # the walk prunes it, so it never lists or enters that tree.
+            scratch = _test_scratch_dir(repo_root) if skip_test_scratch else None
+            if scratch is not None and not p.is_relative_to(scratch):
+                walk: Iterable[Path] = _walk_files_pruned(p, scratch)
+            else:
+                walk = p.rglob("*")
+            for f in walk:
                 if not f.is_file():
                     continue
                 if is_target(
@@ -845,6 +929,7 @@ def iter_markdown_targets(
     exempt_files: Iterable[str] = (),
     repo_root: Path | None = None,
     exclude_default_roots: bool = True,
+    skip_test_scratch: bool = False,
 ) -> list[Path]:
     """Return deduplicated, ordered list of markdown targets under ``paths``.
 
@@ -858,6 +943,7 @@ def iter_markdown_targets(
         exempt_files=exempt_files,
         repo_root=repo_root,
         exclude_default_roots=exclude_default_roots,
+        skip_test_scratch=skip_test_scratch,
     )
 
 

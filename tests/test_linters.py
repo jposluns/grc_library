@@ -22034,6 +22034,228 @@ class OverlapHazardTests(LinterTestCase):
                 self.assertEqual(Path(caught.exception.filename), entry)
 
 
+class VanishingScratchTests(LinterTestCase):
+    """3b653: a tests/tmp file removed mid-scan crashed gates 48, 61, 73 and 79.
+
+    Each listed a regression-suite fixture through iter_markdown_targets and the
+    suite deleted it before the gate read it: an uncaught FileNotFoundError. Those
+    four gates opt in (skip_test_scratch=True) to a walk that prunes the root
+    tests/tmp tree, never entering it (an explicit path inside it is still
+    scanned); the shared walk's default is off, so every other caller still scans
+    it. A listed file gone when read, including gate 48's glossary gone before its
+    second read, is refused by name with exit 2, never a traceback and never a
+    silent skip.
+    """
+
+    GATES = (
+        "tools/lint-ccm-aicm-citations.py",
+        "tools/lint-cobit-iso31000-citations.py",
+        "tools/lint-cobit-title-text.py",
+        "tools/lint-ssdf-control-ids.py",
+    )
+
+    def test_walk_skips_root_test_scratch_only(self) -> None:
+        import lint_common
+        root = self._fixture_base("vanish-walk-")
+        corpus = root / "governance" / "doc.md"
+        scratch = root / "tests" / "tmp" / "run-1" / "fixture.md"
+        nested = root / "governance" / "tests" / "tmp" / "kept.md"
+        for path in (corpus, scratch, nested):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("# Doc\n", encoding="utf-8")
+        resolved = root.resolve()
+        walked = lint_common.iter_markdown_targets([root], repo_root=root, skip_test_scratch=True)
+        self.assertEqual(sorted(walked), sorted([
+            resolved / "governance" / "doc.md",
+            resolved / "governance" / "tests" / "tmp" / "kept.md"]))
+        # An explicit file or directory inside the scratch tree is still scanned.
+        self.assertEqual(lint_common.iter_markdown_targets(
+            [scratch], repo_root=root, skip_test_scratch=True), [scratch.resolve()])
+        self.assertEqual(lint_common.iter_markdown_targets(
+            [scratch.parent], repo_root=root, skip_test_scratch=True), [scratch.resolve()])
+        # Without the opt-in the walk is unchanged: the scratch tree is listed.
+        self.assertEqual(sorted(lint_common.iter_markdown_targets([root], repo_root=root)), sorted([
+            resolved / "governance" / "doc.md",
+            resolved / "governance" / "tests" / "tmp" / "kept.md",
+            scratch.resolve()]))
+
+    def test_opt_in_walk_skips_live_test_scratch(self) -> None:
+        import lint_common
+        fixture = self.make_fixture("vanish-default-walk.md", "# Doc\n")
+        walked = lint_common.iter_markdown_targets([REPO_ROOT], skip_test_scratch=True)
+        self.assertFalse(fixture.resolve() in walked, f"{fixture} listed by the opt-in walk")
+        self.assertIn((REPO_ROOT / "governance" / "specification-audit-programme.md").resolve(), walked)
+        self.assertIn(fixture.resolve(), lint_common.iter_markdown_targets([REPO_ROOT]))
+        self.assertIn(fixture.resolve(), lint_common.iter_targets([REPO_ROOT]))
+
+    def test_opt_in_walk_never_enters_test_scratch(self) -> None:
+        """The opt-in walk prunes tests/tmp: no directory under it is ever opened.
+
+        Filtering the paths rglob yields still reads every directory below
+        tests/tmp, so a fixture directory removed mid-walk could reach the walk.
+        """
+        from unittest.mock import patch
+        import lint_common
+        root = self._fixture_base("vanish-prune-")
+        for rel in ("governance/doc.md", "tests/tmp/run-1/deep/fixture.md"):
+            path = root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("# Doc\n", encoding="utf-8")
+        resolved = root.resolve()
+        scratch = resolved / "tests" / "tmp"
+        opened: list[Path] = []
+        real = os.scandir
+
+        def spy(path=".", *args, **kwargs):
+            opened.append(Path(os.fsdecode(path)).resolve())
+            return real(path, *args, **kwargs)
+
+        with patch.object(os, "scandir", spy):
+            walked = lint_common.iter_markdown_targets([root], repo_root=root, skip_test_scratch=True)
+        self.assertEqual(walked, [resolved / "governance" / "doc.md"])
+        self.assertIn(resolved / "governance", opened)
+        self.assertEqual([p for p in opened if p.is_relative_to(scratch)], [])
+
+    def test_glossary_gone_between_its_two_reads_is_refused(self) -> None:
+        """Gate 48 reads register-glossary.md twice: scan_file, then scan_glossary.
+
+        A listed glossary removed after the first read is refused by name (exit 2),
+        never passed as if it were an adopter fork without a glossary.
+        """
+        from unittest.mock import patch
+        script = "tools/lint-ccm-aicm-citations.py"
+        glossary = self.make_fixture(
+            "register-glossary.md", "| **GRC** | Governance, Risk, and Compliance. |\n")
+        mod = load_linter_module(script, "_vanish_3b653_glossary")
+        real = mod.scan_file
+        read: list[Path] = []
+
+        def read_then_remove(path):
+            found = real(path)
+            read.append(path)
+            glossary.unlink()
+            return found
+
+        err = io.StringIO()
+        with patch.object(mod, "scan_file", read_then_remove), \
+                patch("sys.stderr", err), patch("sys.stdout", io.StringIO()):
+            rc = mod.main([script, str(glossary)])
+        self.assertEqual(read, [glossary.resolve()])
+        self.assertEqual(rc, 2, err.getvalue())
+        rel = glossary.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+        self.assertIn(f"ERROR: {rel}: listed for scanning but gone when read", err.getvalue())
+        self.assertNotIn("Traceback", err.getvalue())
+
+    def test_only_the_four_gates_opt_in(self) -> None:
+        """Each of the four passes skip_test_scratch=True on its default walk."""
+        from unittest.mock import patch
+        for script in self.GATES:
+            with self.subTest(gate=script):
+                mod = load_linter_module(script, f"_optin_3b653_{Path(script).stem.replace('-', '_')}")
+                seen: list[dict] = []
+
+                def record(*args, _seen=seen, **kwargs):
+                    _seen.append(kwargs)
+                    return []
+
+                with patch.object(mod, "iter_markdown_targets", record), \
+                        patch("sys.stderr", io.StringIO()), patch("sys.stdout", io.StringIO()):
+                    mod.main([script])
+                self.assertEqual([kw.get("skip_test_scratch") for kw in seen], [True])
+        # No other tool names the opt-in.
+        others = sorted(
+            p.name for p in (REPO_ROOT / "tools").glob("*.py")
+            if "skip_test_scratch" in p.read_text(encoding="utf-8")
+            and f"tools/{p.name}" not in self.GATES and p.name != "lint_common.py")
+        self.assertEqual(others, [])
+
+    def test_alias_outside_scratch_gone_when_read_is_refused(self) -> None:
+        """A symlink outside tests/tmp to a file inside it is listed by the opt-in walk.
+
+        The skip tests the listed path, not its target, so the alias is scanned; if
+        the target vanishes before the read, the gate refuses by name (exit 2).
+        Gate 61 accepts a directory outside the tree, which holds the alias here.
+        """
+        from unittest.mock import patch
+        script = "tools/lint-cobit-iso31000-citations.py"
+        target = self.make_fixture("vanish-alias-target.md", "# Doc\n\nAPO12\n")
+        outside = self._fixture_base("vanish-alias-")
+        alias = outside / "alias.md"
+        try:
+            alias.symlink_to(target)
+        except (OSError, NotImplementedError) as exc:
+            self.skipTest(f"symlinks unavailable: {exc}")
+        mod = load_linter_module(script, "_vanish_3b653_alias")
+        listed = mod.iter_markdown_targets
+        found: list[Path] = []
+
+        def list_then_remove(*args, **kwargs):
+            found.extend(listed(*args, **kwargs))
+            target.unlink()
+            return list(found)
+
+        err = io.StringIO()
+        with patch.object(mod, "iter_markdown_targets", list_then_remove), \
+                patch("sys.stderr", err), patch("sys.stdout", io.StringIO()):
+            rc = mod.main([script, str(outside)])
+        self.assertEqual(found, [outside.resolve() / "alias.md"])
+        self.assertEqual(rc, 2, err.getvalue())
+        rel = target.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+        self.assertIn(f"ERROR: {rel}: listed for scanning but gone when read", err.getvalue())
+        self.assertNotIn("Traceback", err.getvalue())
+
+    def test_secrets_gate_default_run_still_scans_test_scratch(self) -> None:
+        """The secrets gate keeps tests/tmp coverage: the opt-in default is off.
+
+        A synthetic GitHub-PAT-shaped token (the SecretsLinterTests pattern) planted
+        under tests/tmp is reported by a default run with no path arguments.
+        """
+        fake_token = "ghp_" + "A" * 36
+        fixture = self.make_fixture(
+            "vanish-secrets-residue.md", VALID_METADATA + f"\n\nExample token: {fake_token}.\n")
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools" / "lint-secrets-in-content.py")],
+            cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=600)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        rel = fixture.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+        self.assertIn(f"=== {rel} ===", result.stdout)
+
+    def test_listed_file_gone_when_read_is_refused_by_name(self) -> None:
+        from unittest.mock import patch
+        for script in self.GATES:
+            with self.subTest(gate=script):
+                fixture = self.make_fixture(
+                    f"vanish-{Path(script).stem}.md", "# Doc\n\nAPO12 PO.1.1\n")
+                mod = load_linter_module(script, f"_vanish_3b653_{Path(script).stem.replace('-', '_')}")
+                listed = mod.iter_markdown_targets
+
+                def list_then_remove(*args, _listed=listed, _fixture=fixture, **kwargs):
+                    found = _listed(*args, **kwargs)
+                    _fixture.unlink()
+                    return found
+
+                err = io.StringIO()
+                with patch.object(mod, "iter_markdown_targets", list_then_remove), \
+                        patch("sys.stderr", err), patch("sys.stdout", io.StringIO()):
+                    rc = mod.main([script, str(fixture)])
+                self.assertEqual(rc, 2, err.getvalue())
+                rel = fixture.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+                self.assertIn(f"ERROR: {rel}: listed for scanning but gone when read", err.getvalue())
+                self.assertNotIn("Traceback", err.getvalue())
+
+    def test_unrelated_missing_file_still_raises(self) -> None:
+        import lint_common
+        target = self.make_fixture("vanish-unrelated.md", "# Doc\n")
+        vanished: list[Path] = []
+
+        def scan():
+            return (target.parent / "other-missing.md").read_text(encoding="utf-8")
+
+        with self.assertRaises(FileNotFoundError):
+            lint_common.scan_listed(scan, target, vanished)
+        self.assertEqual(vanished, [])
+
+
 class ClaudeRulesSyncCompilerOwnershipTests(LinterTestCase):
     """tools/lint-claude-rules-sync.py: compiler-owned recognition (compile PR-2).
 
@@ -23423,7 +23645,7 @@ class CcmAicmCitationTests(LinterTestCase):
         scanned: list = []
         real = mod.scan_glossary
         with mock.patch.object(mod, "scan_glossary",
-                               side_effect=lambda p: scanned.append(p) or real(p)):
+                               side_effect=lambda p, **kw: scanned.append(p) or real(p, **kw)):
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(mod.main(["lint", str(other.parent)]), 0)
             self.assertEqual(scanned, [])
@@ -29377,7 +29599,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-bookkeeping-parity.py NO_FS F 43a25f9706516004b494a4ed6842b3fe06001f152cbedfa9ec1845cd88ba946b
-        lint-ccm-aicm-citations.py CWD F b396ecc6a9544f00e5446f3d46235a64996340e46613fc75f21b39e74e97f306
+        lint-ccm-aicm-citations.py CWD F 6a1eb4d255f76d35ed337441b0f7127ffd6d943d8c47730921e6f872491685a7
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
         lint-changelog-link-coverage.py CWD F 0eb2c21687bcae9e697ab26d0273e766530ec144f1417ac04309badae1bd1bd2
         lint-changelog-mirror-header-parity.py OWN F 6a56d8085fff041fc01f3e7f55ae2046feb41bf3c71ede186c6be469d6699cb2
@@ -29385,8 +29607,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-citation-verification-freshness.py OWN F 057d0deb7b8442828df3042e47923cf1febf446ab77bf5f816f31bba9dc3949d
         lint-citations.py ROOT F 83bf87b4c7ab8d59c1835f4eee4bd75d9a55e5accb60b062463f6b74dc9d5437
         lint-claude-rules-sync.py OWN F 7c2807d3ef111efed279bd36466be37d4714d38d39370eccd2978447acb67179
-        lint-cobit-iso31000-citations.py CWD F 8c8d47fd9bf0450ff39cac188c7ba96278fa8e6a85bf77ccefeb25cb4d36355f
-        lint-cobit-title-text.py CWD F d625c961d7681ad55eba539e49ea12cfb79e2cf94c4e4682558485b8dec65384
+        lint-cobit-iso31000-citations.py CWD F e905817c99da05c7d0e411ed5278093c18d338291ce97ac9c0990680c8a80313
+        lint-cobit-title-text.py CWD F 4e88e12e191fde543a6c859b47a095f455f5fe7a335e0df90ec84529fe784788
         lint-collection-enumeration-consistency.py NO_FS F 2f347d07371bf789e139a27c8ff17dbf76eacd9253df0ba17f088d84b6edca61
         lint-cross-doc-numbers.py CWD F 7f6bfb6e79043793e5a65a9511dfa9dce59330b4ae4fdf60e635a954b077162d
         lint-cross-file-section-names.py CWD F feb2fbe79f712472ab6da77235b707d7eb01a3a61e3ccc499afb35c28594bab4
@@ -29445,7 +29667,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-skill-derives-from.py OWN F 4bf6a78a42e9f8d8dff44035ac2320a67043006a133375e7cacdcd85dd5336f5
         lint-skill-internal-refs.py ROOT F b2b1fc4846ca52b298fe12ee712477bfac97e173e3ac6368e72c5edd6c28b50e
         lint-skill-verdict-carrier-completeness.py OWN F 7056be9141352daf10807f17e9941fb422a84cbf43eae4fff9549efd3684f5a3
-        lint-ssdf-control-ids.py CWD F 54015e59cec3436d10f624771d7f0f44367bb6e37354e7468c3474866b32901e
+        lint-ssdf-control-ids.py CWD F fc3326619bde8b0c6389a3ac7a4b5b79e06ab9e3195e471b6d766f067e06a60f
         lint-standards-currency.py OWN F 490bc1face5879a115890f543a68b0bdb5ef3dbf4f750b0a6e8bc94d4e537b6a
         lint-startup-character-ceiling.py NO_FS F aeaaf73e5efe319cb6881277ca5b7abef8db708826fe1bf0a241559d7d58a060
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
@@ -29467,7 +29689,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 5b8f07f67932e6a2e08b8de287bea230dd312d319654494f39b7c3349f6be1bb
-        lint_common.py PASSIVE F ccd0497400c11834b354f42410ccf452195c0f4ba96ac2274a3d1ff4feb1c638
+        lint_common.py PASSIVE F db844a6681b1436406a93780d4d99786bab273ede1a1b32a2d34f756c3c49ad3
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7

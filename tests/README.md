@@ -243,10 +243,57 @@ named per-run directories, plus one remaining fixed-name
 positive-control file (`NarrativeScanScopeTests`, removed by its own
 test's `finally`).
 
-Linters themselves do NOT exempt `tests/tmp/` (it is not in
-`tools/lint_common.py`'s `DEFAULT_EXEMPT_DIRS`). If a fixture from a
-crashed test remains in the directory, the main
-`tools/run_all_audits.sh` sweep sees it and can trip a content gate.
+`tools/lint_common.py`'s shared `iter_targets` walk (and its
+`iter_markdown_targets` wrapper) has 22 callers in `tools/`. Its
+`skip_test_scratch` switch is off by default, and only four gates turn
+it on (3b653): gate 48 (`tools/lint-ccm-aicm-citations.py`), gate 61
+(`tools/lint-cobit-iso31000-citations.py`), gate 73
+(`tools/lint-cobit-title-text.py`) and gate 79
+(`tools/lint-ssdf-control-ids.py`). Each walks the repository root by
+default and prunes the root `tests/tmp/` tree from that walk, so the
+walk never lists or enters it. The prune does not apply when the walk
+starts inside `tests/tmp/`, and an explicit path under it is still
+scanned. A file symlink outside `tests/tmp/` whose target is inside it
+is still listed; the walk does not follow directory symlinks. A file
+one of those four gates lists and then finds gone when it reads it is
+refused by name with exit 2, never a traceback and never skipped. That
+includes gate 48's `register-glossary.md` when it is gone before the
+gate's second read of it.
+
+The other 18 callers do not turn the switch on, and what they scan by
+default depends on their default roots:
+
+- Fourteen walk the repository root, so they scan `tests/tmp/`:
+  `tools/lint-acronym-consistency.py`,
+  `tools/lint-alignment-citation-existence.py`,
+  `tools/lint-ccm-provider-member-in-range.py`,
+  `tools/lint-cross-doc-numbers.py`,
+  `tools/lint-cross-file-section-names.py`,
+  `tools/lint-cross-file-section-refs.py`, `tools/lint-date-format.py`,
+  `tools/lint-external-link-domains.py`,
+  `tools/lint-internal-references.py`, `tools/lint-intra-doc-refs.py`,
+  `tools/lint-license-consistency.py`, `tools/lint-pii-in-content.py`,
+  `tools/lint-secrets-in-content.py` and
+  `tools/lint-section-anchors.py`. The secrets and PII gates keep this
+  source-tree coverage on purpose.
+- Four have narrower default roots that do not include `tests/tmp/`:
+  `tools/lint-document-control-codes.py` and
+  `tools/lint-document-iso-annex-a.py` walk the audited domain
+  directories plus `guardrails/`;
+  `tools/lint-document-date-staleness.py` walks its fixed list of
+  root-level documents, `docs/`, `guardrails/` and the audited domain
+  directories; and `tools/lint-working-prose-hygiene.py` walks the
+  `.working/` tree (the operational store first) and passes without
+  scanning anything when no such tree is present.
+
+`tests/tmp/` is not in `DEFAULT_EXEMPT_DIRS`. So a
+fixture left by a crashed test can trip one of the fourteen root
+walkers in the main `tools/run_all_audits.sh` sweep, and a fixture the
+suite deletes mid-walk can still stop one of them with a
+`FileNotFoundError`. Gates with their own walk are outside this
+switch; one of them, gate 50 (`tools/lint-bookkeeping-parity.py`),
+lists every `.md` file under the repository root and then drops those
+under `tests/tmp/` before reading them.
 Crash residue is deliberately NOT removed by the next run: a sweep
 cannot tell a crashed run's files from a live run's, so an automatic
 sweep could only ever delete fixtures a concurrently running instance
