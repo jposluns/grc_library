@@ -29452,7 +29452,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
         lint-table-cell-count.py OWN F 908cb45af821e88f62f1dfb2cfeaa89a32bbb2031c7e1fb85f2c408ffd04541a
-        lint-todo-index-reference-parity.py OWN F ac4a2e762ae62e3b26b110d3a9445854d9773ad5a4a32b6d60008c1a9ff97054
+        lint-todo-index-reference-parity.py OWN F fbd2edb9e2f06f930f43e7648eafdf87fd72830a458440976872025346038a97
         lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
         lint-todo-number-permanence.py OWN F 9d2bac985ff81dee359108091ca9b85f7e159c2ea079e74b46d6895ca2b70761
@@ -46760,6 +46760,121 @@ class TodoIndexReferenceParityTests(LinterTestCase):
             self.assertNotIn("ERROR", r.stdout + r.stderr)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    # --- 3b648: the DEFAULT lookup (neither --root nor --private-root) ---
+    NOT_CHECKED = "private index<->reference parity not checked"
+
+    def _run_default(self, label, sibling_files, sibling=True):
+        """Gate 90's default lookup in process. The repository root is a fixture holding TODO.md;
+        resolve_sibling returns a fixture sibling holding exactly ``sibling_files`` (relative name:
+        text), or None when ``sibling`` is False. Hermetic: nothing outside the fixture is read, and
+        r3 removed the gate's git calls, so no git runs."""
+        import contextlib
+        import io
+        from unittest.mock import patch
+        base = Path(tempfile.mkdtemp(prefix="bij-default-" + label + "-"))
+        self.addCleanup(shutil.rmtree, base, True)
+        repo, priv = base / "grc_library", base / "grc_library_private"
+        repo.mkdir(); priv.mkdir()
+        (repo / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        for rel, text in sibling_files.items():
+            (priv / rel).parent.mkdir(parents=True, exist_ok=True)
+            (priv / rel).write_text(text, encoding="utf-8")
+        mod = load_linter_module("tools/lint-todo-index-reference-parity.py", "_gate90_default_" + label)
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(patch.object(mod, "REPO_ROOT", repo))
+            stack.enter_context(patch.object(mod, "resolve_sibling", lambda name: priv if sibling else None))
+            stack.enter_context(contextlib.redirect_stdout(out))
+            stack.enter_context(contextlib.redirect_stderr(err))
+            rc = mod.main(["lint-todo-index-reference-parity.py"])
+        return rc, out.getvalue(), err.getvalue(), priv
+
+    def _assert_sibling_error(self, rc, out, err, message):
+        self.assertEqual(rc, 2, out + err)
+        self.assertIn(message, err)
+        # r4 (VPR3B648-R3): renaming a populated store would break the tools that read it.
+        self.assertNotIn("rename", out + err)
+        self.assertNotIn(self.NOT_CHECKED, out + err)
+        self.assertNotIn("parity holds", out)
+        self.assertNotIn("DEGRADED", out + err)
+
+    def test_default_empty_sibling_fails(self):
+        # 3b648 (VPR3B641-R4 note 4): a resolved sibling holding nothing passed (exit 0, "no
+        # two-file backlog pair present"). r4: an empty sibling is likely stray, so it fails with
+        # exit 2 naming it and saying to remove it or pass --private-root.
+        rc, out, err, priv = self._run_default("empty", {})
+        self._assert_sibling_error(rc, out, err,
+                                   f"ERROR: the private sibling {priv} is an empty directory, so no "
+                                   "private store supplies P-TODO.md and P-TODO-REFERENCE.md; it is "
+                                   "likely stray: remove it, or pass --private-root naming the private store")
+
+    def test_default_sibling_with_only_todo_reference_fails(self):
+        # 3b648: a sibling holding TODO-REFERENCE.md but neither P-TODO file passed with the public
+        # pair checked and the private pair silently skipped; it fails with exit 2. r4: it is a
+        # populated store, so the message says to restore the pair and never to remove or rename it.
+        rc, out, err, priv = self._run_default("refonly", {"TODO-REFERENCE.md": self.REF,
+                                                           "notes.md": "kept\n"})
+        self._assert_sibling_error(rc, out, err,
+                                   f"ERROR: no private P-TODO pair was found in the private sibling {priv} "
+                                   "(it holds TODO-REFERENCE.md but neither P-TODO.md nor "
+                                   "P-TODO-REFERENCE.md); restore the pair there;")
+        self.assertNotIn("remove it", err)
+
+    def test_default_sibling_half_pair_fails(self):
+        # 3b648 r4 control: half a P-TODO pair in the default sibling fails as before, whatever
+        # else the store holds.
+        for label, files, message in (
+                ("idxonly", {"P-TODO.md": self.PIDX},
+                 "P-TODO.md is in index-row form but P-TODO-REFERENCE.md is absent"),
+                ("prefonly", {"P-TODO-REFERENCE.md": self.PREF},
+                 "P-TODO-REFERENCE.md is present but P-TODO.md is missing")):
+            with self.subTest(label):
+                rc, out, err, _ = self._run_default(label, dict(files, **{"notes.md": "kept\n"}))
+                self._assert_sibling_error(rc, out, err, message)
+
+    def test_default_store_without_backlog_notes_not_checked(self):
+        # 3b648 r4 (VPR3B648-R3): r3 failed a sibling holding other content and none of the backlog
+        # files, advising its removal; that is the README's transitional fallback store for
+        # .working/ records, which other tools read. It passes with the not-checked line naming it.
+        rc, out, err, priv = self._run_default("store", {".working/handoff.md": "handoff\n"})
+        self.assertEqual(rc, 0, out + err)
+        lines = [ln for ln in out.splitlines() if self.NOT_CHECKED in ln]
+        self.assertEqual(lines, [f"OK: {self.NOT_CHECKED}: the private sibling {priv} holds none of "
+                                 "TODO-REFERENCE.md, P-TODO.md or P-TODO-REFERENCE.md (a private store "
+                                 "without a backlog)."], out)
+        self.assertNotIn("ERROR", out + err)
+        self.assertNotIn("DEGRADED", out + err)
+
+    def test_default_sibling_legacy_ptodo_notes_not_checked(self):
+        # 3b648: a recognised legacy ### -block P-TODO.md is the accepted pre-split layout, so it
+        # passes, with the not-checked line saying why.
+        legacy = "# P-TODO\n## Group A\n### P-1.1 ptask (H)\n\nbody\n"
+        rc, out, err, priv = self._run_default("legacy", {"TODO-REFERENCE.md": self.REF, "P-TODO.md": legacy})
+        self.assertEqual(rc, 0, out + err)
+        lines = [ln for ln in out.splitlines() if self.NOT_CHECKED in ln]
+        self.assertEqual(lines, [f"OK: {self.NOT_CHECKED}: the private sibling {priv} holds a legacy "
+                                 "### -block P-TODO.md and no P-TODO-REFERENCE.md (backlog not yet split)."],
+                         out)
+        self.assertNotIn("ERROR", out + err)
+
+    def test_default_sibling_with_pair_is_checked(self):
+        # 3b648 negative control: a sibling holding the pair is checked, with no not-checked line.
+        rc, out, err, _ = self._run_default("pair", {"TODO-REFERENCE.md": self.REF,
+                                                     "P-TODO.md": self.PIDX, "P-TODO-REFERENCE.md": self.PREF})
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("P-TODO.md: 2 index row(s) / 2 detail block(s)", out)
+        self.assertNotIn("ERROR", out + err)
+        self.assertNotIn(self.NOT_CHECKED, out + err)
+
+    def test_default_without_sibling_stays_degraded(self):
+        # 3b648 negative control: CI and most adopters have no private store; an absent sibling
+        # keeps the DEGRADED pass (exit 0).
+        rc, out, err, _ = self._run_default("ci", {}, sibling=False)
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("DEGRADED: gate 90 skipped", out)
+        self.assertNotIn("ERROR", out + err)
+        self.assertNotIn(self.NOT_CHECKED, out + err)
 
 class TagGateTests(LinterTestCase):
     """tools/lint-todo-list-tag.py (gate 81): every open TODO.md / P-TODO.md

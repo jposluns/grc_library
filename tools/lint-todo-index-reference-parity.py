@@ -29,7 +29,23 @@ reference are not a bijection with matching id, title, band, and position order:
 
 Adopter-graceful: if the private ``grc_library_private/TODO-REFERENCE.md`` is
 absent (an adopter clone without the private sibling), the gate is a no-op OK,
-and it prints a ``DEGRADED:`` line naming the skipped pair.
+and it prints a ``DEGRADED:`` line naming the skipped pair. When the default
+lookup does resolve the sibling but it holds neither ``P-TODO.md`` nor
+``P-TODO-REFERENCE.md``, it used to pass with no notice, so a mis-resolved or
+emptied store read as checked (3b648). The sibling is now classified by what it
+holds: an empty directory fails with exit 2 naming it, as likely stray, and says
+to remove it or pass ``--private-root``; one holding ``TODO-REFERENCE.md`` but no
+P-TODO file fails with exit 2 and says to restore the pair; one holding other
+content and none of the three backlog files is a private store without a backlog
+(the README's transitional fallback store for ``.working/`` records), so it passes
+with an ``OK:`` line naming it and saying private parity was not checked, and the
+message never advises renaming it (3b648 r4: the tools reading that store would
+break). A resolved sibling is the private store, whoever's checkout it is, so no other
+signal is consulted (3b648 r3: the repository origin was dropped as unsound).
+A recognised legacy ``P-TODO.md`` alone is the accepted pre-split layout: it
+passes with an ``OK:`` line saying private parity was not checked. CI and most
+adopters have no sibling, so they take the ``DEGRADED:`` path above and never
+reach this check.
 
 ``--root DIR`` names a fixture repository and ``--private-root DIR`` its private
 store. Under ``--root`` the gate never resolves the real private sibling: the
@@ -454,8 +470,35 @@ def run(root: Path, private_dir: Path | None = None, private_flag: str | None = 
         for e in errors:
             print(f"ERROR: {e}", file=sys.stderr)
         return 2
-    if (private_flag and private_dir is not None
-            and not any(p[2] == PTODO_INDEX_REL for p in pairs)):
+    if private_dir is not None and not any(p[2] == PTODO_INDEX_REL for p in pairs):
+        # 3b648 (VPR3B641-R4 note 4): the default lookup resolved a sibling with no P-TODO pair
+        # and used to pass with no notice. A resolved sibling is the private store, so one
+        # holding neither P-TODO file fails (exit 2, as --private-root does). r3: rounds 1-2 read
+        # the repository origin to excuse adopters; that signal was unsound and is removed. CI
+        # and most adopters have no sibling, so they take the DEGRADED path in main instead.
+        # r4 (VPR3B648-R3): a sibling holding other content and no backlog file is the README's
+        # transitional fallback store for .working/ records, which other tools read; it passes
+        # with the not-checked line below. Only an empty sibling (likely stray) or one holding
+        # TODO-REFERENCE.md without the P-TODO pair fails, and neither message says to rename it.
+        if private_flag is None and ptodo_kind is None:
+            try:
+                entries = os.listdir(private_dir)
+            except OSError as exc:
+                print(f"ERROR: cannot read the private directory {private_dir} ({exc.strerror}); "
+                      "private index<->reference parity cannot be checked", file=sys.stderr)
+                return 2
+            if not entries:
+                print(f"ERROR: the private sibling {private_dir} is an empty directory, so no private "
+                      f"store supplies {PTODO_INDEX_REL} and {PTODO_REFERENCE_REL}; it is likely "
+                      "stray: remove it, or pass --private-root naming the private store; private "
+                      "index<->reference parity cannot be checked", file=sys.stderr)
+                return 2
+            if REFERENCE_REL in entries:
+                print(f"ERROR: no private P-TODO pair was found in the private sibling {private_dir} "
+                      f"(it holds {REFERENCE_REL} but neither {PTODO_INDEX_REL} nor "
+                      f"{PTODO_REFERENCE_REL}); restore the pair there; private index<->reference "
+                      "parity cannot be checked", file=sys.stderr)
+                return 2
         # 3b641 r4 (VPR3B641-R3): --private-root declares the private input, so a directory
         # holding neither P-TODO file is an absent declared resource and fails with exit 2
         # (check-fails-closed-on-unreadable). A recognised legacy P-TODO.md is not absent: it
@@ -475,10 +518,13 @@ def run(root: Path, private_dir: Path | None = None, private_flag: str | None = 
         if ptodo_kind == "legacy":
             why = (f"holds a legacy ### -block {PTODO_INDEX_REL} and no "
                    f"{PTODO_REFERENCE_REL} (backlog not yet split)")
+        elif private_flag is None:
+            why = (f"holds none of {REFERENCE_REL}, {PTODO_INDEX_REL} or {PTODO_REFERENCE_REL} "
+                   "(a private store without a backlog)")
         else:
             why = f"holds neither {PTODO_INDEX_REL} nor {PTODO_REFERENCE_REL}"
-        print(f"OK: private index<->reference parity not checked: the {private_flag} "
-              f"directory {private_dir} {why}.")
+        where = f"the {private_flag} directory" if private_flag else "the private sibling"
+        print(f"OK: private index<->reference parity not checked: {where} {private_dir} {why}.")
     if not pairs:
         print("OK: no two-file backlog pair present (reference file(s) absent); no-op.")
         return 0
