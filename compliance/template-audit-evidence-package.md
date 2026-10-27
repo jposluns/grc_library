@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.1.6\
+**Version:** 1.1.7\
 **Date:** 2026-10-27\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -113,7 +113,7 @@ The cover page is followed by a flat index of all in-scope controls. The index i
 - *Ineffective*: the control did not operate as designed; remediation is in progress (named in the per-control section).
 - *Not yet assessed*: tests have not been completed for the period; package will be re-issued when the assessment closes.
 
-Frameworks differ on these axes. A SOC 2 Type I examination addresses whether the service organization's description presents the system as designed and implemented as of a point in time, and whether the controls were suitably designed as of that point in time. A SOC 2 Type II examination addresses the same description and suitability of design, and also whether the controls operated effectively throughout the period. Some control-attestation frameworks combine the two. Adapt the index columns to the framework before assembling.
+Frameworks differ on these axes. A SOC 2 Type I examination addresses whether the service organization's description presents the system as designed and implemented as of a point in time, and whether the controls were suitably designed as of that point in time. A SOC 2 Type II examination addresses the description and the suitability of design throughout the period rather than as of a point in time, and also whether the controls operated effectively throughout the period. Some control-attestation frameworks combine the two. Adapt the index columns to the framework before assembling.
 
 ---
 
@@ -162,7 +162,7 @@ Test 1: <e.g. Quarterly access review>
 - Frequency: <e.g. quarterly>
 - Test date(s) during the period: <YYYY-MM-DD list>
 - Test method: <e.g. sample of 25 user accounts reviewed against role definitions>
-- **Sampling justification** (mandatory when the test uses sampling): <statistical or judgemental basis for the chosen sample size; cite [`compliance/procedure-control-testing.md`](procedure-control-testing.md) sample-size table (e.g. "25-40 for high-risk per §2.2") or document the rationale for a different size. State the population size, the sample size, the selection method (random / stratified / judgemental), and confidence-level assumption if statistical. State how the selected items are representative of the population across the whole reporting period, not only part of it. If the test reviews 100% of the population, state "100% population review" and skip statistical fields.>
+- **Sampling justification** (mandatory when the test uses sampling): <statistical or judgemental basis for the chosen sample size. For a SOC 2 examination, the extent of testing is a judgement that considers factors such as the tolerable and expected rates of deviation, how often the control operates, the length of the testing period, and the control's significance; record those factors. The risk-tier ranges in [`compliance/procedure-control-testing.md`](procedure-control-testing.md) §2.2 are this library's internal starting points, not a rule set by the SOC 2 guide; where the test uses one, cite it (e.g. "25-40 for high-risk per §2.2") alongside the factors above. State the population size, the sample size, the selection method (random / stratified / judgemental), and confidence-level assumption if statistical. State how the selection can reasonably be expected to be representative of the population covering the whole reporting period, not only part of it. If the test reviews 100% of the population, state "100% population review" and skip statistical fields.>
 - Tester: <named role>
 - Result: <Pass / Pass with exception / Fail>
 - Test artefact: <link to test record>
@@ -272,7 +272,7 @@ Date: <YYYY-MM-DD>
 When assembling an evidence package, the following patterns weaken the package's defensibility:
 
 - **Evidence that is just a screenshot without a date or context.** Screenshots are point-in-time. An undated screenshot proves nothing about whether the control operated for the period covered. Include the date the screenshot was taken, the system, and (if relevant) the user role under which it was taken.
-- **Tests with a sample size of one.** A single test instance is anecdotal. Where a framework allows sample testing, the sample size follows from the tolerable rate of deviation the tester sets for the control, and the selected items should be representative of the population across the whole reporting period.
+- **Tests with a sample size of one.** For most controls, a single test instance is anecdotal. The exception is an automated control: because IT processing is generally consistent, a SOC 2 examination may limit testing to one or a few instances, provided further tests show the control continued to function (for example, that program changes went through change control and other relevant IT general controls were effective). Name that basis when a test relies on it. Where a SOC 2 test uses sampling, the extent of testing is a judgement that considers factors such as the tolerable and expected rates of deviation, how often the control operates, the length of the testing period, and the control's significance, and the selection should be reasonably expected to be representative of the population covering the reporting period.
 - **"See attached" without an attachment.** The package is the artefact; if evidence is attached separately, the per-control section names the attachment by name and version, and the attachment travels with the package.
 - **Compensating controls without a remediation plan.** A compensating control is acceptable for an audit period; an absent remediation plan signals the gap will persist. Most frameworks require remediation plans for ineffective controls; check the framework's specific requirements.
 - **Mixing "we will do this" with "we did this".** The package covers a period in the past. Future commitments belong in a remediation plan, not in the operating-evidence section. The auditor will treat any future-tense language in evidence sections as a finding.

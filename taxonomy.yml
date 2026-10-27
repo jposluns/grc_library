@@ -3648,7 +3648,7 @@ documents:
   domain: "compliance"
   type: "Template"
   title: "Audit Evidence Package Template"
-  version: "1.1.6"
+  version: "1.1.7"
   date: "2026-10-27"
   owner: "Chief Compliance Officer"
   approving_authority: "Governance Library Maintainer"
