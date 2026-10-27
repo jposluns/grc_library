@@ -47137,6 +47137,20 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
                 return m.find_artefacts() + m.find_all_markdown()
             if name == "lint-library-version-monotonicity.py":
                 stack.enter_context(self.patch.object(m, "git_show", return_value=None))
+                # 3b624: the gate reads each document through read_current (os.open, fstat and
+                # a read from that descriptor), which the in-memory tree above does not answer,
+                # so every virtual document was refused as unreadable. read_current is the
+                # content-read boundary: a virtual document is read from the tree and recorded,
+                # and any other path goes to the production reader and its refusals.
+                original_read_current = m.read_current
+
+                def read_current(path, rel, problems):
+                    if Path(path) in self.data:
+                        self.reads.append(Path(path))
+                        return self.data[Path(path)]
+                    return original_read_current(path, rel, problems)
+
+                stack.enter_context(self.patch.object(m, "read_current", read_current))
                 m.check_document_versions("baseline")
                 return list(self.reads)
             if name == "lint-bookkeeping-parity.py":
