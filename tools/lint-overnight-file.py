@@ -40,7 +40,7 @@ from __future__ import annotations
 import re
 import sys
 
-from lint_common import REPO_ROOT, resolve_working
+from lint_common import REPO_ROOT, print_degraded, resolve_working
 
 
 STATUS_PATTERN = re.compile(r"^\*\*Status:\*\*\s+(\S+)\s*$", re.MULTILINE)
@@ -59,6 +59,11 @@ def main() -> int:
         print(
             "OK: overnight-pr.md not present (maintainer-only working state; "
             "skipping in public CI / adopter clone)."
+        )
+        print_degraded(
+            "gate 46",
+            "gate 46 skipped the overnight-work file Status check "
+            "(no private store supplies overnight-pr.md); this pass attests nothing about it."
         )
         return 0
 

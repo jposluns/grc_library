@@ -76,7 +76,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import REPO_ROOT, resolve_working  # noqa: E402
+from lint_common import REPO_ROOT, print_degraded, resolve_working  # noqa: E402
 
 HOOK_REL = Path(".claude") / "hooks" / "block-on-open-findings.py"
 MATCHER_REL = Path("tools") / "check-class-completeness.py"
@@ -450,6 +450,10 @@ def main(argv: list[str]) -> int:
     if ledger is None:
         print("D14 class-completeness attestation: no open-findings ledger resolvable "
               "(public CI / adopter clone); nothing to check (exit 0).")
+        print_degraded("delta gate D14",
+                       "delta gate D14 skipped the class-completeness attestation check "
+                       "(no private store supplies open-findings.md); this pass attests nothing "
+                       "about it.")
         return 0
 
     try:

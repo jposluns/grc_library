@@ -28,8 +28,15 @@ reference are not a bijection with matching id, title, band, and position order:
     backlog id (a row missing its LEADING pipe is documented residue).
 
 Adopter-graceful: if the private ``grc_library_private/TODO-REFERENCE.md`` is
-absent (an adopter clone without the private sibling), the gate is a no-op OK.
-Stdlib-only.
+absent (an adopter clone without the private sibling), the gate is a no-op OK,
+and it prints a ``DEGRADED:`` line naming the skipped pair.
+
+``--root DIR`` names a fixture repository and ``--private-root DIR`` its private
+store. Under ``--root`` the gate never resolves the real private sibling: the
+private files come from ``--private-root`` when given and otherwise from the
+root itself, as gates 78 and 81 read ``P-TODO.md``, and no ``DEGRADED:`` line
+is printed; when that private pair is absent an informational ``OK:`` line says
+private parity was not checked, as gate 81 does. Stdlib-only.
 """
 from __future__ import annotations
 
@@ -43,7 +50,7 @@ if _TOOLS_DIR not in sys.path:
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import split_row, is_separator_row, is_fence_line  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, TODO_ID_RE, require_dir, resolve_sibling, has_todo_index_header  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, TODO_ID_RE, print_degraded, require_dir, resolve_sibling, has_todo_index_header  # noqa: E402  # grc-config/store, stays local
 
 TODO_REL = "TODO.md"
 REFERENCE_REL = "TODO-REFERENCE.md"
@@ -286,8 +293,8 @@ def _resolve_pairs(root: Path, private_dir: Path | None) -> tuple[list[tuple[Pat
     restructure. A pair whose reference file is absent is a no-op (the two-file
     format is not adopted for that backlog yet), matching the original
     adopter-graceful contract. ``private_dir`` is the private sibling root
-    (``resolve_sibling('private')`` in production, or a fixture root under
-    test); ``None`` means no private sibling (an adopter clone). Returns
+    (``resolve_sibling('private')`` in production; ``--private-root`` or the
+    ``--root`` directory under test); ``None`` means no private sibling (an adopter clone). Returns
     (active_pairs, errors)."""
     pairs: list[tuple[Path, Path, str, str]] = []
     errors: list[str] = []
@@ -329,12 +336,17 @@ def _resolve_pairs(root: Path, private_dir: Path | None) -> tuple[list[tuple[Pat
     return pairs, errors
 
 
-def run(root: Path, private_dir: Path | None = None) -> int:
+def run(root: Path, private_dir: Path | None = None, explicit_root: bool = False) -> int:
     pairs, errors = _resolve_pairs(root, private_dir)
     if errors:
         for e in errors:
             print(f"ERROR: {e}", file=sys.stderr)
         return 2
+    if explicit_root and not any(p[2] == PTODO_INDEX_REL for p in pairs):
+        # 3b635 r4: a --root run with no private pair says so, as gate 81 says P-TODO.md is not
+        # present; informational, not DEGRADED (the explicit-root fixture contract).
+        print(f"OK: the {PTODO_INDEX_REL} pair ({PTODO_INDEX_REL} + {PTODO_REFERENCE_REL}) is not "
+              f"present in {private_dir}; private index<->reference parity not checked.")
     if not pairs:
         print("OK: no two-file backlog pair present (reference file(s) absent); no-op.")
         return 0
@@ -398,10 +410,27 @@ def main(argv: list[str]) -> int:
             print(f"ERROR: unrecognized argument {args[i]!r} "
                   f"(usage: [--root DIR] [--private-root DIR]).", file=sys.stderr)
             return 2
-    # Default the private sibling to the real one; --private-root scopes it to a
-    # fixture so `--root` regression tests stay hermetic.
-    private_dir = private_override if have_private_override else resolve_sibling("private")
-    return run(root, private_dir)
+    # The private pair comes from --private-root when given; under --root it otherwise comes
+    # from the root itself, as gates 78 and 81 read P-TODO.md, so a fixture run never reads
+    # the real sibling (3b635 r3). Only the DEFAULT lookup resolves the private sibling.
+    if have_private_override:
+        private_dir = private_override
+    elif "--root" in seen:
+        private_dir = root
+    else:
+        private_dir = resolve_sibling("private")
+    if private_dir is None:
+        # 3b635: without the private sibling the private pair (and, once TODO-REFERENCE.md
+        # has moved there, the public pair) is skipped with exit 0; say so. Only on the
+        # DEFAULT lookup, as gates 78 and 81: a --root run is a fixture run, not CI.
+        skipped = [f"the {PTODO_INDEX_REL} pair"]
+        if _first_existing(root / REFERENCE_REL) is None:
+            skipped.insert(0, f"the {TODO_REL} pair")
+        print_degraded("gate 90",
+                       f"gate 90 skipped the index<->reference parity check of "
+                       f"{' and '.join(skipped)} (no private store supplies the reference); "
+                       f"this pass attests nothing about it.")
+    return run(root, private_dir, explicit_root="--root" in seen)
 
 
 if __name__ == "__main__":

@@ -39,6 +39,9 @@ Scope notes:
   inside a fenced code block (lines bounded by fence lines: ``` ``` ```
   or ``~~~`` after at most three spaces of indent). The fence-start and
   fence-end lines are also skipped.
+- ``print_degraded`` prints the ``DEGRADED:`` line of a gate that skips a
+  check because the private store is absent, plus a GitHub Actions warning
+  annotation when ``GITHUB_ACTIONS`` is ``true`` (3b635).
 """
 
 from __future__ import annotations
@@ -529,6 +532,29 @@ def resolve_working_for_write_private(relpath: str, *, repo_root: Path | None = 
     if private.is_dir():
         return private / WORKING_SUBDIR / relpath
     return None
+
+
+def _workflow_escape(text: str, *, prop: bool = False) -> str:
+    """Escape ``text`` for a GitHub Actions workflow command: message data, or a property value
+    when ``prop`` (which also escapes ``:`` and ``,``)."""
+    text = text.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+    return text.replace(":", "%3A").replace(",", "%2C") if prop else text
+
+
+def print_degraded(gate: str, text: str) -> None:
+    """Print the 3b635 store-degraded notice: ``DEGRADED: <text>`` on stdout, always.
+
+    ``gate`` names the gate (``"gate 43"``, ``"delta gate D14"``). When the environment variable
+    ``GITHUB_ACTIONS`` is ``"true"`` it also prints a warning annotation,
+    ``::warning title=<gate> degraded::DEGRADED: <text>``, so the skip shows on the run summary
+    rather than only inside a collapsed green step. Every gate that skips a check because the
+    private store is absent calls this, so the line and the annotation have one implementation.
+    """
+    line = f"DEGRADED: {text}"
+    print(line)
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        print(f"::warning title={_workflow_escape(gate + ' degraded', prop=True)}::"
+              f"{_workflow_escape(line)}")
 
 
 # Canonical list of audited-not-exempt top-level directories: the

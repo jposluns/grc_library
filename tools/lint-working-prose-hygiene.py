@@ -58,7 +58,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import CODE_SPAN_RE, iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, guard_explicit_paths_cwd, iter_markdown_targets, positional_args, resolve_working  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, guard_explicit_paths_cwd, iter_markdown_targets, positional_args, print_degraded, resolve_working  # noqa: E402  # grc-config/store, stays local
 
 
 def default_scan_root() -> Path | None:
@@ -151,6 +151,11 @@ def main(argv: list[str]) -> int:
                 "OK: the .working/ tree is not present (maintainer-only working "
                 "state; skipping the prose-hygiene audit in public CI / adopter "
                 "clone)."
+            )
+            print_degraded(
+                "gate 51",
+                "gate 51 skipped the .working/ prose em/en-dash scan (no private "
+                "store supplies the tree); this pass attests nothing about it."
             )
             return 0
         paths = [str(scan_root)]

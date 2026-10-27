@@ -106,7 +106,7 @@ import re
 import sys
 import unicodedata
 
-from lint_common import REPO_ROOT, resolve_working
+from lint_common import REPO_ROOT, print_degraded, resolve_working
 
 
 FIELD_PATTERNS = {
@@ -342,6 +342,11 @@ def main() -> int:
         print(
             "OK: session-state lease not present (maintainer-only working state; "
             "skipping in public CI / adopter clone)."
+        )
+        print_degraded(
+            "gate 63",
+            "gate 63 skipped the session-state lease well-formedness check "
+            "(no private store supplies session-state.md); this pass attests nothing about it."
         )
         return 0
 

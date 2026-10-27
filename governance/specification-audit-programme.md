@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.17.305\
+**Version:** 1.17.306\
 **Date:** 2026-10-27\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -58,6 +58,8 @@ The same audit-gate set runs on three surfaces:
 | Pre-commit hook | [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) | `pre-commit install` (one-time setup); automatic on `git commit` | Yes; commit blocked on failure |
 
 Of the three surfaces, only the GitHub Actions workflow is authoritative: a green CI run is the only signal a reviewer can rely on. The local runner and pre-commit hook exist to catch failures earlier in the loop so they never reach CI. When the three surfaces diverge, the workflow is the source of truth and the others are synchronized to it.
+
+Gates 43, 45, 46, 50, 51, 59, 60, 63, 78, 81, 90 and 107 and delta gate D14 resolve ledgers, backlog identifiers or history rows against the private store (the operational store or the `grc_library_private` sibling); when it is absent, as in public CI and adopter clones, each skips the dependent checks without changing its exit status, and prints a line beginning `DEGRADED:` naming what it skipped whenever it skips a check because the store is absent, so a green CI run of those gates attests nothing about the skipped checks. Gates 43, 78, 81 and 90 print the line only on their default lookup, not when `--root` or explicit paths name their input; under `--root`, gates 78, 81 and 90 read no private sibling and take their private input from the root (gate 90 from `--private-root` when given), and gate 107 prints it only when it skips at least one reference. When the environment variable `GITHUB_ACTIONS` is `true`, the shared helper in `tools/lint_common.py` that prints the line also prints it as a GitHub Actions warning annotation (a line beginning `::warning title=<gate> degraded::`), so it shows on the run summary rather than only inside a collapsed green step. The local runner (`tools/run_all_audits.sh`) is unchanged and shows neither line for a passing gate; the maintainer runs it with the store present, where no gate degrades, but the nightly-sweep workflow also runs it in GitHub Actions without the store, and there neither line of a passing gate is shown.
 
 ## 5. Gate categories
 

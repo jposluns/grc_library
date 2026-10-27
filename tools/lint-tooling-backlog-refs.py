@@ -234,6 +234,7 @@ from typing import NamedTuple
 from lint_common import (
     REPO_ROOT,
     InaccessiblePath,
+    print_degraded,
     require_dir,
     resolve_sibling,
     strict_kind,
@@ -785,6 +786,12 @@ def main(argv: list[str]) -> int:
         return 2
 
     if skipped:
+        # 3b635: the degraded skip exits 0, so a green CI run must not read as a pass for
+        # the references it could not check (a reference live in TODO.md was checked).
+        print_degraded("gate 107",
+                       f"gate 107 skipped the open-versus-deleted check of "
+                       f"{len(skipped)} positional reference(s) (no {PRIVATE_SIBLING_DIR} sibling "
+                       f"supplies the private backlog lists); this pass attests nothing about them.")
         print(f"NOTE: the private backlog lists are unreachable (no "
               f"{PRIVATE_SIBLING_DIR} sibling), so {len(skipped)} positional "
               f"reference(s) could not be checked open-versus-deleted and are "
