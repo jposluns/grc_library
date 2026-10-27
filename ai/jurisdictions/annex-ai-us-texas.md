@@ -2,7 +2,7 @@
 
 **Document Title:** Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.8\
+**Version:** 0.0.9\
 **Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -72,7 +72,7 @@ The controlling text is the enrolled bill as codified. Version-sensitive facts (
 - **Investigative authority (Sec. 552.103):** on a complaint, the Attorney General may issue a civil investigative demand and may request an enumerated set of materials, including a high-level description of the system's purpose, intended use, and deployment context; a description of the types of data used to train it; the categories of input data and the outputs produced; performance-evaluation metrics; known limitations; and post-deployment monitoring and user safeguards.
 - **Notice and 60-day cure (Sec. 552.104):** the Attorney General must give written notice identifying the provisions alleged to be violated and may not bring an action before the 60th day after notice; no action lies if, within that period, the person cures and provides a written statement of the cure, supporting documentation, and the internal-policy changes needed to reasonably prevent further violation.
 - **Civil penalties (Sec. 552.105):** curable violations or breach of a cure statement carry a penalty of not less than $10,000 and not more than $12,000 per violation; uncurable violations carry not less than $80,000 and not more than $200,000 per violation; continued violations carry not less than $2,000 and not more than $40,000 for each day the violation continues, alongside injunctive relief, attorney's fees, court costs, and investigative expenses. A rebuttable presumption of reasonable care applies, and a defendant is not liable where another person misuses the system or where the defendant discovers a violation through feedback, through testing (including adversarial or red-team testing), or by following applicable state-agency guidelines. The no-liability provision is conditional and nested: a defendant is not liable where it discovers a violation through one of the enumerated routes, one of which is an internal review process conditioned on substantial compliance with the most recent NIST "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile" or another nationally or internationally recognized AI risk-management framework. Framework compliance is thus a condition of that discovery route, not a standalone safe harbor. The Attorney General may not collect a civil penalty for a system that has not been deployed.
-- **State-agency sanctions (Sec. 552.106):** a licensing agency may sanction a licensee for a Subchapter B violation only after a Section 552.105 finding and an Attorney-General recommendation; sanctions include license suspension, probation, or revocation and a monetary penalty not to exceed $100,000.
+- **State-agency sanctions (Sec. 552.106):** a state agency may sanction a person licensed, registered, or certified by that agency for a Subchapter B violation only after a Section 552.105 finding and an Attorney-General recommendation; sanctions may include suspension, probation, or revocation of a license, registration, certificate, or other authorization, and a monetary penalty not to exceed $100,000.
 
 ## Regulatory sandbox and the Texas Artificial Intelligence Council
 
