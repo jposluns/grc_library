@@ -65,7 +65,14 @@ Decision rule:
   ends an unquoted attribute value at U+0000 to U+0020; and also ends an
   HTML block of type 1 to 5 in a list item at a blank line indented less
   than the content columns of the list items it is in (counted inside the
-  innermost block quote). Both readings take only a space (or a tab) as
+  innermost block quote); and also ends a paragraph at a lazy line that
+  does not continue two or more of the block quotes the paragraph is in
+  when the line, its indentation stripped, starts a list item, an ATX
+  heading, a fence, a thematic break or an HTML block of type 1 to 6
+  (markdown-it-py gives a lazy line indent -1, so a block quote nested in
+  another reads it at no indent; with one such quote, its paragraph rule
+  skips the line, which stays paragraph text).
+  Both readings take only a space (or a tab) as
   the separator after a tag name, around an attribute and its ``=``,
   before ``>`` and to the end of the line; a third reading, markdown-it-py
   3.0.0's with Python's ``\\s`` there as its HTML block starts take it
@@ -182,14 +189,7 @@ readings check them (a possible false positive). The subtests of
 a tag name that matches only under Unicode case folding (``<ſcript>``,
 ``<dıv>`` and ``<ſtyle>``), and U+000B, U+000C, U+001C, U+001E, U+001F,
 U+00A0 or U+2003 where markdown-it-py's HTML block starts take ``\\s``.
-A residual not fixed in this change, and not characterized exactly: a
-table after a paragraph inside a block quote (or inside a list item or
-further quote within one) that a following line indented four or more
-columns ends can have a short row this gate passes, in more than one
-arrangement of those containers (for ``> > text``, ``    <!--`` and a
-quoted table with a short row, markdown-it-py 3.0.0 renders the indented
-line as indented code and then the table; the gate before backlog 3b617
-misses it too, and backlog 3b640 tracks the fix); table-shaped lines that one reading holds in an HTML
+Further residue: table-shaped lines that one reading holds in an HTML
 block, or reads as lazy text, while another renders them as a
 table, checked (a possible false positive for the renderer of the first
 reading: after ``<script>`` spelled with a long s, U+017F, markdown-it-py
@@ -474,7 +474,13 @@ def scan_lines(lines: list[str], quirk: int) -> tuple[list[tuple[int, str]], int
                 tables, leaf = tables + 1, "table"
                 i += 1
                 continue
-            if (not width or quoted_header) and not opened(rest, False) and (
+            # markdown-it-py marks a line lazy in a block quote by giving it
+            # indent -1, so a block quote nested in that one reads it at no
+            # indent: a block start indented four or more columns ends it.
+            unindented = rest.lstrip(" ")
+            nested = (quirk and stack[matched:].count(QUOTE) >= 2
+                      and (opened(unindented, False) or starts_leaf(unindented, quirk)))
+            if (not width or quoted_header) and not opened(rest, False) and not nested and (
                     indent_of(rest) >= 4 or not starts_leaf(rest, quirk)):
                 continue
         if not whole:

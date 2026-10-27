@@ -29451,7 +29451,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
-        lint-table-cell-count.py OWN F 10607704c9a594a1a9498f7850da70f136f046f6c5aea5a9c9225b1b4c6dc56e
+        lint-table-cell-count.py OWN F 36c2ad714485c240903f8ecb55caefe3714ac0ebad81df90b2d52e87a10a3477
         lint-todo-index-reference-parity.py OWN F fbd2edb9e2f06f930f43e7648eafdf87fd72830a458440976872025346038a97
         lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
@@ -71118,6 +71118,78 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "<div>\nx\n" + table}))
         self.assertFinding(self.make_repo({"doc.md": "<div>\n\n" + table}),
                            "doc.md:5 header=2 row=1")
+
+    # Backlog 3b640: markdown-it-py 3.0.0 gives a line lazy in a block quote
+    # indent -1, so a block quote nested in that one reads a block start
+    # indented four or more columns as unindented and ends there; the line
+    # renders as indented code and the table after it is checked.
+    NESTED_QUOTE_ARRANGEMENTS = (("> > text", "    {}", "> "),
+                                 ("> > > text", ">     {}", "> "),
+                                 ("> - > text", "    {}", ""))
+
+    def assertNestedQuoteEnds(self, *lines: str) -> None:
+        table = "| a | b |", "|---|---|", "| 1 |"
+        for line in lines:
+            for para, middle, prefix in self.NESTED_QUOTE_ARRANGEMENTS:
+                text = "\n".join([para, middle.format(line)] + [prefix + t for t in table])
+                with self.subTest(text=text):
+                    self.assertEqual(self.finding_heads(text + "\n"), ["doc.md:5 header=2 row=1"])
+
+    def test_nested_quote_ends_at_indented_html_block_type_1(self) -> None:
+        self.assertNestedQuoteEnds("<script>", "<pre>")
+
+    def test_nested_quote_ends_at_indented_html_block_type_2(self) -> None:
+        self.assertNestedQuoteEnds("<!--")
+
+    def test_nested_quote_ends_at_indented_html_block_type_6(self) -> None:
+        self.assertNestedQuoteEnds("<div>", "</p>")
+
+    def test_nested_quote_ends_at_indented_atx_heading(self) -> None:
+        self.assertNestedQuoteEnds("# h")
+
+    def test_nested_quote_ends_at_indented_fence(self) -> None:
+        self.assertNestedQuoteEnds("```", "~~~")
+
+    def test_nested_quote_ends_at_indented_thematic_break(self) -> None:
+        self.assertNestedQuoteEnds("***", "- - -")
+
+    def test_nested_quote_ends_at_indented_list_item(self) -> None:
+        # In the block quote's own scan a list item need not be able to
+        # interrupt a paragraph: an empty item or one not numbered 1 ends it.
+        self.assertNestedQuoteEnds("- x", "1. x", "2) x", "-")
+
+    def test_nested_quote_kept_by_indented_text_type_7_quote_or_pipe(self) -> None:
+        # Negative controls: none of these ends the nested quote, so the
+        # table-shaped lines stay paragraph text, as markdown-it-py renders them.
+        table = "| a | b |", "|---|---|", "| 1 |"
+        for line in ("<span>", "> q", "| p |", "text"):
+            for para, middle, prefix in self.NESTED_QUOTE_ARRANGEMENTS:
+                text = "\n".join([para, middle.format(line)] + [prefix + t for t in table])
+                with self.subTest(text=text):
+                    self.assertClean(self.make_repo({"doc.md": text + "\n"}))
+
+    # The rule needs two block quotes the lazy line does not continue: with
+    # one, markdown-it-py 3.0.0's paragraph rule skips the indent -1 line, so
+    # the block start and the table-shaped lines after it stay paragraph text.
+    SINGLE_QUOTE_ARRANGEMENTS = (("> text", "    {}", ""),
+                                 ("> > text", ">     {}", "> "),
+                                 ("- > text", "      {}", "  "))
+
+    def test_single_quote_kept_by_indented_block_start(self) -> None:
+        table = "| a | b |", "|---|---|", "| 1 |"
+        for line in ("<script>", "<!--", "<div>", "# h", "```", "***", "- x", "1. x"):
+            for para, middle, prefix in self.SINGLE_QUOTE_ARRANGEMENTS:
+                text = "\n".join([para, middle.format(line)] + [prefix + t for t in table])
+                with self.subTest(text=text):
+                    self.assertClean(self.make_repo({"doc.md": text + "\n"}))
+
+    def test_two_quotes_end_at_indented_block_start(self) -> None:
+        # Exactly two quotes left, with the table outside both of them.
+        table = "| a | b |", "|---|---|", "| 1 |"
+        for line in ("<script>", "<!--", "<div>", "# h", "```", "***", "- x", "1. x"):
+            text = "\n".join(["> > text", "    " + line, *table])
+            with self.subTest(text=text):
+                self.assertEqual(self.finding_heads(text + "\n"), ["doc.md:5 header=2 row=1"])
 
     def test_uppercase_md_suffix_scanned(self) -> None:
         self.assertFinding(self.make_repo({"NOTES.MD": self.HEAD3 + "| 1 |\n"}),
