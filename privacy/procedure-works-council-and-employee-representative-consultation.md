@@ -2,8 +2,8 @@
 
 **Document Title:** Works Council and Employee Representative Consultation Procedure\
 **Document Type:** Procedure\
-**Version:** 0.1.1\
-**Date:** 2026-10-24\
+**Version:** 0.1.2\
+**Date:** 2026-10-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-workforce-network-monitoring.md`](../security/policy-workforce-network-monitoring.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/standard-presence-inference-limitations.md`](standard-presence-inference-limitations.md), [`privacy/standard-network-telemetry-and-dpi-controls.md`](standard-network-telemetry-and-dpi-controls.md), [`privacy/template-legitimate-interest-assessment.md`](template-legitimate-interest-assessment.md), [`privacy/annex-legitimate-interest-employment-monitoring.md`](annex-legitimate-interest-employment-monitoring.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
@@ -91,7 +91,7 @@ The information provided is accurate and complete for the purpose of the consult
 Conduct the consultation within the statutory timeline fixed in Step 1, and do not deploy or materially change the capability during the consultation period.
 
 1. **Information and consultation.** Where the regime is information and consultation, give the body the information and a genuine opportunity to examine it, respond to its questions, consider in good faith any opinion it gives (a reasoned opinion where the regime provides for one), and record that opinion or response and the organization's response. The organization is not bound to agree, but the consultation must be genuine, not a formality after a settled decision.
-2. **Co-determination (agreement required).** Where the regime is co-determination, the capability may not be introduced without the body's agreement. Negotiate in good faith toward a works agreement or collective agreement that governs the capability, and, where no agreement is reached, follow the jurisdiction's escalation mechanism (for example the conciliation committee, where the applicable regime provides one) rather than proceeding unilaterally.
+2. **Co-determination (agreement required).** Where the regime is co-determination, the capability must not be introduced without the body's agreement. Negotiate in good faith toward a works agreement or collective agreement that governs the capability, and, where no agreement is reached, follow the jurisdiction's escalation mechanism (for example the conciliation committee, where the applicable regime provides one) rather than proceeding unilaterally.
 3. **Strictness across jurisdictions.** Where the same capability affects personnel in more than one jurisdiction, each jurisdiction's duty is met on its own terms, and the design is held to the strictest applicable standard unless a documented, approved jurisdiction-specific carve-out applies (parent policy, Section 4, items 4 and 5).
 
 ### Step 5: Conclude, evidence, and sign off

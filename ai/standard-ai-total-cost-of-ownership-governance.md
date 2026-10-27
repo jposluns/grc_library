@@ -2,8 +2,8 @@
 
 **Document Title:** AI Total Cost of Ownership Governance Standard\
 **Document Type:** Standard\
-**Version:** 0.0.6\
-**Date:** 2026-10-24\
+**Version:** 0.0.7\
+**Date:** 2026-10-27\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-value-and-decision-governance.md`](framework-ai-value-and-decision-governance.md), [`ai/standard-ai-inference-cost-governance.md`](standard-ai-inference-cost-governance.md), [`operations/standard-it-financial-management.md`](../operations/standard-it-financial-management.md), [`ai/standard-ai-model-succession-and-identity.md`](standard-ai-model-succession-and-identity.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/register-model-registry.md`](register-model-registry.md)\
@@ -45,7 +45,7 @@ Out of scope, with the governing document named:
 | Principle | Statement |
 | --- | --- |
 | Lifecycle completeness | Every cost category is estimated; a category recorded as zero states why it is zero, rather than being omitted as unexamined. |
-| Single named owner | Each TCO record has one accountable owner (the owner of the initiative's decision record); production may be delegated, accountability may not. |
+| Single named owner | Each TCO record has one accountable owner (the owner of the initiative's decision record); production may be delegated; accountability must not be. |
 | Forecast before commitment | A capability is not procured or built without a TCO record forecast at the idea stage. |
 | Non-metered costs are first-class | Human oversight, governance overhead, and internal labour are estimated and carried, not treated as free because they carry no invoice. |
 | No double-counting with value | A cost carried in the TCO record and a disbenefit recorded in the value case do not both count the same effort against the initiative. |
