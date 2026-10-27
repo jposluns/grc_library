@@ -29409,7 +29409,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
-        lint-library-version-monotonicity.py OWN F 39123cf79221de9b66016edb2e04ea474b72cb8d96618d7296a16ee70daed691
+        lint-library-version-monotonicity.py OWN F dcd8b7a176032c053251f68060ef6b48085b30907e435646c72a6fd064cccff0
         lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
         lint-links.py ROOT F cf4b6ae1d2c76df65234323d94650ebc62db87bf24ed4f375d5386b4a75fb0b6
         lint-listing-surface-completeness.py NO_FS F 3dc1bb95c9133adec9f3af5640cf18a6c342118c972ab7cfb447fa6651ffe0f3
@@ -71460,6 +71460,52 @@ class GitReadFailsClosedTests(unittest.TestCase):
             self.assertTrue(flags & getattr(os, name), name)
         self.assertEqual(flags & os.O_ACCMODE, os.O_RDONLY)
         self.assertEqual(mono.read_current(doc, "d.md", []), text)
+
+    @unittest.skipUnless(hasattr(os, "O_NOCTTY"), "the platform has no O_NOCTTY")
+    def test_library_version_monotonicity_opens_the_prior_readme_once_with_o_noctty(self) -> None:
+        # 3b643 r2: --prior-readme was checked with is_file() and then opened again by
+        # read_text(), without O_NOCTTY, so a path swapped for a terminal device between the two
+        # calls was opened without it. It is now opened once, with OPEN_FLAGS, and its type read
+        # from that descriptor; a symlink, which is_file() followed, is refused. A directory is
+        # refused as before. The intact twin passes.
+        import contextlib
+        import io
+        from unittest import mock
+
+        mono = load_linter_module("tools/lint-library-version-monotonicity.py",
+                                  "mono_prior_noctty_3b643")
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
+        self.addCleanup(setattr, mono, "REPO_ROOT", mono.REPO_ROOT)
+        mono.REPO_ROOT = repo
+        prior = self.tmp / "prior.md"
+        prior.write_text("**Library Version:** 2026.06.0\n", encoding="utf-8")
+        link = self.tmp / "link.md"
+        link.symlink_to(prior)
+
+        def run(path):
+            out, err = io.StringIO(), io.StringIO()
+            with mock.patch.object(mono.os, "open", wraps=os.open) as opened, \
+                    contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                code = mono.main(["--prior-readme", str(path)])
+            calls = [c for c in opened.call_args_list if os.fspath(c.args[0]) == str(path)]
+            return code, out.getvalue(), err.getvalue(), calls
+
+        code, out, err, calls = run(prior)
+        self.assertEqual(code, 0, out + err)
+        self.assertIn("OK:", out)
+        self.assertEqual(len(calls), 1, calls)
+        (_, flags), kwargs = calls[0]
+        self.assertEqual(kwargs, {})
+        for name in ("O_NOCTTY", "O_NONBLOCK", "O_NOFOLLOW", "O_CLOEXEC"):
+            self.assertTrue(flags & getattr(os, name), name)
+        self.assertEqual(flags & os.O_ACCMODE, os.O_RDONLY)
+        for path, reason in ((link, "cannot be read"), (self.tmp, "not a regular file")):
+            code, out, err, calls = run(path)
+            self.assertEqual(code, 2, out + err)
+            self.assertNotIn("OK:", out)
+            self.assertIn(f"ERROR: --prior-readme {path}: {reason}", err)
+            self.assertEqual(len(calls), 1, calls)
 
     def test_library_version_monotonicity_reads_a_document_from_the_descriptor_it_checked(self) -> None:
         # 3b624 r5: r4 stat'ed a document and then opened it again by name, so a regular file

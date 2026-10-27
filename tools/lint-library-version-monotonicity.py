@@ -38,7 +38,8 @@ Exit codes:
         printed note rather than a separate exit code.
     1   one or more versions decreased.
     2   an explicit --prior-readme is missing, empty, not a regular file, or
-        cannot be read (nothing to compare against); or git cannot read the
+        cannot be read (a symlink, which is not followed; nothing to compare
+        against); or git cannot read the
         prior state (a bad ref, an unreadable tree, or a missing or corrupt
         object), which is not the same as a file absent at the prior ref; or
         REPO_ROOT has a .git entry, or GIT_DIR is set, and git does not open
@@ -108,9 +109,9 @@ Exit codes:
     the platform lacks O_NOFOLLOW or O_NONBLOCK, a symlink is followed or a
     FIFO's open can block, as before; where it lacks O_NOCTTY, opening a
     terminal device can still make it the controlling terminal. The
-    --prior-readme file is read with read_text(), which does not pass
-    O_NOCTTY; its is_file() check refuses a device first, but a path
-    swapped for one after that check is opened without O_NOCTTY.
+    --prior-readme file is opened once with the same flags, and its type is
+    read from that descriptor (3b643 r2), so a symlink passed as
+    --prior-readme is refused, not followed.
 """
 
 from __future__ import annotations
@@ -235,6 +236,28 @@ def read_current(path: Path, rel: str, problems: list[tuple[str, str]]) -> str |
     finally:
         os.close(fd)
     return None
+
+
+def read_prior_readme(path: Path) -> str | None:
+    """Return the decoded --prior-readme file ``path``, or None when there is no entry by that
+    name or it is not a regular file; another OSError or a UnicodeDecodeError propagates.
+
+    ``path`` is opened once with OPEN_FLAGS, as read_current opens a document, and fstat on that
+    descriptor refuses anything but a regular file without reading it (3b643 r2). It used to be
+    checked with is_file() and then opened again by read_text(), without O_NOCTTY, so a path
+    swapped for a terminal device between the two calls was opened without it. O_NOFOLLOW makes
+    a symlink fail the open (ELOOP), so it is refused as an open error; is_file() followed it."""
+    try:
+        fd = os.open(path, OPEN_FLAGS)
+    except FileNotFoundError:
+        return None
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            return None
+        with open(fd, encoding="utf-8", closefd=False) as handle:
+            return handle.read()
+    finally:
+        os.close(fd)
 
 
 def read_current_readme(problems: list[tuple[str, str]]) -> str | None:
@@ -584,16 +607,18 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.prior_readme is not None:
         # 3b50b2d2: a missing, empty or non-file --prior-readme used to raise a traceback.
-        if not str(args.prior_readme).strip() or str(args.prior_readme) == "." \
-                or not args.prior_readme.is_file():
+        # 3b643 r2: it is opened once, with O_NOCTTY, and its type read from that descriptor.
+        prior_text = None
+        if str(args.prior_readme).strip() and str(args.prior_readme) != ".":
+            try:
+                prior_text = read_prior_readme(args.prior_readme)
+            except (OSError, UnicodeDecodeError) as exc:
+                print(f"ERROR: --prior-readme {args.prior_readme}: cannot be read ({exc}).",
+                      file=sys.stderr)
+                return 2
+        if prior_text is None:
             print(f"ERROR: --prior-readme {args.prior_readme}: not a regular file; nothing to "
                   f"compare against.", file=sys.stderr)
-            return 2
-        try:
-            prior_text = args.prior_readme.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError) as exc:
-            print(f"ERROR: --prior-readme {args.prior_readme}: cannot be read ({exc}).",
-                  file=sys.stderr)
             return 2
         # 3b624 r3: the current README.md is decoded as in read_current_documents, so one that
         # is not UTF-8 or cannot be read is named with exit 2, not a traceback; r4: a missing
