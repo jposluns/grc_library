@@ -6543,7 +6543,7 @@ documents:
   domain: "governance"
   type: "Matrix"
   title: "Reverse Framework Control Crosswalk Matrix"
-  version: "1.0.19"
+  version: "1.0.20"
   date: "2026-10-27"
   owner: "Control Framework Maintainer"
   approving_authority: "Governance Library Maintainer"
