@@ -2,8 +2,8 @@
 
 **Document Title:** Concentration Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.10\
-**Date:** 2026-10-17\
+**Version:** 1.0.11\
+**Date:** 2026-10-27\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md), [`compliance/annex-nis-2-implementation.md`](../compliance/annex-nis-2-implementation.md)\
@@ -133,7 +133,7 @@ Each row records one concentration finding.
 
 ## Coordination with the critical ICT third-party regime
 
-Under DORA, designated critical ICT third-party providers (CTPPs) are supervised by a Lead Overseer. Where one of the affected third parties is a CTPP, the concentration register cross-references the regulatory designation and the organization's reliance becomes subject to additional contractual and reporting requirements.
+Under DORA, designated critical ICT third-party providers (CTPPs) are supervised by a Lead Overseer. Where one of the affected third parties is a CTPP, the concentration register cross-references the regulatory designation. Designation does not of itself add contractual or reporting requirements for the organization: the yearly report under DORA Article 28(3) covers new ICT arrangements generally, and the organization takes into account the risks identified in oversight recommendations addressed to the CTPP (Article 42(3)). Contractual measures, up to suspension or termination of the CTPP's service, follow only where a competent authority finds that the organization has not sufficiently addressed those risks (Article 42(4) and (6)).
 
 Adopting financial entities populate per-CTPP fields including the designation date, the Lead Overseer, and the entity's contractual position with the CTPP.
 
@@ -168,7 +168,7 @@ Adopting financial entities populate per-CTPP fields including the designation d
 
 ## Limitations
 
-This register is a CC BY-SA 4.0 structural baseline. Concentration identification depends on the quality of fourth-party and nth-party disclosure obtained from third parties, on public-record availability of vendor ownership data, and on the maturity of the organization's threat intelligence. The register is not a regulatory designation tool; CTPP designation is determined by competent authorities under the applicable regime.
+This register is a CC BY-SA 4.0 structural baseline. Concentration identification depends on the quality of fourth-party and nth-party disclosure obtained from third parties, on public-record availability of vendor ownership data, and on the maturity of the organization's threat intelligence. The register is not a regulatory designation tool; under DORA, the ESAs designate CTPPs through the Joint Committee (Article 31(1)(a)), not competent authorities.
 
 ---
 
