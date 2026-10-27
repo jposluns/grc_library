@@ -2,8 +2,8 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.13\
-**Date:** 2026-09-12\
+**Version:** 1.0.14\
+**Date:** 2026-10-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/jurisdictions/annex-privacy-brazil.md`](../jurisdictions/annex-privacy-brazil.md), [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This annex provides an overview of privacy regulatory requirements in key Latin American jurisdictions beyond Brazil: Argentina, Mexico, Colombia, Chile, and Peru. It supplements the Privacy and Data Governance Policy and the Privacy Impact and Cross-Border Transfer Procedure. For Brazil-specific requirements, see [`privacy/jurisdictions/annex-privacy-brazil.md`](../jurisdictions/annex-privacy-brazil.md).
+This annex provides an overview of privacy regulatory requirements in key Latin American jurisdictions beyond Brazil: Argentina, Mexico, Colombia, Chile, Peru, and Ecuador. It supplements the Privacy and Data Governance Policy and the Privacy Impact and Cross-Border Transfer Procedure. For Brazil-specific requirements, see [`privacy/jurisdictions/annex-privacy-brazil.md`](../jurisdictions/annex-privacy-brazil.md).
 
 ---
 
@@ -49,6 +49,11 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 - **Law No. 29733, Law on Personal Data Protection (2011).** Applies to personal data processing in Peru. Requires registration of databases. See the dedicated [`Peru privacy annex`](annex-privacy-peru.md) for the operational per-regime view under Ley 29733 and DS 016-2024-JUS; this Latin America overview defers to it for Peru.
 - **Regulatory authority:** the Autoridad Nacional de Protección de Datos Personales, exercised by the Dirección General de Transparencia, Acceso a la Información Pública y Protección de Datos Personales (DGTAIPD) within the Ministry of Justice.
 
+### Ecuador
+
+- **Ley Orgánica de Protección de Datos Personales (LOPDP, published 2021-05-26)** and its **Reglamento General (Decreto Ejecutivo 904, published 2023-11-13)**. Applies to processing in Ecuadorian territory and to controllers or processors not established in Ecuador that process the data of residents of Ecuador in connection with offering them goods or services or monitoring their behaviour there. See the dedicated [`Ecuador privacy annex`](annex-privacy-ecuador.md) for the operational per-regime view under the LOPDP and its Reglamento; this Latin America overview defers to it for Ecuador.
+- **Regulatory authority:** the Autoridad de Protección de Datos Personales, headed by the Superintendente de Protección de Datos Personales.
+
 ---
 
 ## AI and privacy obligations
@@ -58,6 +63,7 @@ Most Latin American jurisdictions apply general data protection principles to AI
 - **Argentina:** The AAIP has issued guidance on AI and data protection, applying Law 25.326 to automated processing; that guidance is cited illustratively and is confirmed by adopters against current AAIP publications. Algorithmic transparency is an area of active regulatory development.
 - **Mexico:** under the 2025 LFPDPPP (administered by the Secretaría Anticorrupción y Buen Gobierno), the privacy-notice contents are fixed by Article 15 and do not include a specific automated-processing disclosure; the automated-decision provision is the Article 26(II) right to object where personal data are subject to automated processing that produces unwanted legal effects or significantly affects the person's interests, rights, or freedoms by evaluating personal aspects without human intervention. The law provides the access, rectification, cancellation, and objection (ARCO) rights. See the dedicated [`Mexico privacy annex`](annex-privacy-mexico.md).
 - **Colombia:** The SIC applies Law 1581 to AI systems. Data subjects may exercise ARCO rights against automated processing.
+- **Ecuador:** the LOPDP gives data subjects a right not to be subject to a decision based solely or partly on automated assessments, including profiling, with rights to an explanation, to present observations, and to challenge the decision (Article 20). See the dedicated [`Ecuador privacy annex`](annex-privacy-ecuador.md).
 - **Chile and Peru:** Both apply their data protection laws to AI processing. Chile has enacted Law 21.719 (in force 2026-12-01), which introduces explicit automated decision-making provisions; Peru applies its Law 29733.
 - **BASC regional context:** In jurisdictions where BASC certification is relevant, privacy controls should be aligned with BASC security management standards in addition to applicable local data protection laws.
 
@@ -65,9 +71,9 @@ Most Latin American jurisdictions apply general data protection principles to AI
 
 ## Employment and workforce monitoring
 
-Where the organization monitors the network and device activity of workers in the Latin American jurisdictions this annex covers (Argentina, Mexico, Colombia, Chile, and Peru), the processing of their personal data is governed by each jurisdiction's general data protection law and, operationally, by the Workforce Network Monitoring Policy ([`security/policy-workforce-network-monitoring.md`](../../security/policy-workforce-network-monitoring.md)) and its supporting suite. None of these laws carries a dedicated employee-monitoring regime; monitoring is subject to the general principles, and the position varies by country, so adopters verify per jurisdiction.
+Where the organization monitors the network and device activity of workers in the Latin American jurisdictions this annex covers (Argentina, Mexico, Colombia, Chile, Peru, and Ecuador), the processing of their personal data is governed by each jurisdiction's general data protection law and, operationally, by the Workforce Network Monitoring Policy ([`security/policy-workforce-network-monitoring.md`](../../security/policy-workforce-network-monitoring.md)) and its supporting suite. None of these laws carries a dedicated employee-monitoring regime; monitoring is subject to the general principles, and the position varies by country, so adopters verify per jurisdiction.
 
-- **The region varies; verify per country.** Each jurisdiction applies its own lawful-basis, notice, and data-subject-rights framework to workforce monitoring, and several are in transition. Argentina applies Law 25.326 (its AAIP guidance on automated processing is cited illustratively and is confirmed by adopters against current AAIP publications); Colombia applies Statutory Law 1581/2012 with ARCO-style rights enforced by the SIC; Chile's modernized Law 21.719 (in force 1 December 2026) introduces GDPR-style automated-decision and lawful-basis provisions that will apply to monitoring once operative, while Law 19.628 governs in the interim; Peru applies Law 29733. Mexico's private-sector position is worked in the dedicated [`Mexico privacy annex`](annex-privacy-mexico.md), which this overview defers to.
+- **The region varies; verify per country.** Each jurisdiction applies its own lawful-basis, notice, and data-subject-rights framework to workforce monitoring, and several are in transition. Argentina applies Law 25.326 (its AAIP guidance on automated processing is cited illustratively and is confirmed by adopters against current AAIP publications); Colombia applies Statutory Law 1581/2012 with ARCO-style rights enforced by the SIC; Chile's modernized Law 21.719 (in force 1 December 2026) introduces GDPR-style automated-decision and lawful-basis provisions that will apply to monitoring once operative, while Law 19.628 governs in the interim; Peru applies Law 29733. Mexico's private-sector position is worked in the dedicated [`Mexico privacy annex`](annex-privacy-mexico.md), and Ecuador's in the dedicated [`Ecuador privacy annex`](annex-privacy-ecuador.md), which this overview defers to.
 - **Brazil's legitimate-interest position (cross-reference).** For workers in Brazil, the LGPD supplies ten lawful bases (Article 7), including legitimate interest, and a controller relying on legitimate interest for monitoring conducts a balancing test and may be required by the ANPD to provide a data protection impact assessment (Articles 10 and 38). The Brazil-specific analysis is in the [`Brazil privacy annex`](annex-privacy-brazil.md); this annex does not restate it.
 - **Purpose stated separately from basis; consent treated cautiously in employment.** Across the region, a legitimate security aim states the purpose the monitoring serves but does not by itself supply the lawful footing, and the corpus treats employment consent as presumptively not freely given; the necessity, proportionality, and balancing analysis is worked in the [Legitimate Interest Assessment for Employment Monitoring Annex](../annex-legitimate-interest-employment-monitoring.md), adapted to each jurisdiction's basis.
 - **Notice, consultation, telemetry, and presence.** Advance notice of the nature, purpose, and scope of monitoring is provided using the [Employee Monitoring Notice Template](../template-employee-monitoring-notice.md); where a representative-body or collective duty applies, it is determined through the [Works Council and Employee Representative Consultation Procedure](../procedure-works-council-and-employee-representative-consultation.md); connection metadata is governed by the [Network Telemetry and DPI Controls Standard](../standard-network-telemetry-and-dpi-controls.md) and presence signals by the [Presence Inference Limitations Standard](../standard-presence-inference-limitations.md). Monitoring signals do not drive automated employment decisions.
@@ -83,6 +89,7 @@ Where the organization monitors the network and device activity of workers in th
 | Colombia | Express, unequivocal consent; the Article 26 statutory exceptions; SIC declaration of conformity; Binding Corporate Rules (Normas Corporativas Vinculantes, Decreto 1074/2015 art. 2.2.2.25.7) for intra-group transfers outside Colombia |
 | Chile | Law 19.628 (until 2026-11-30); Law 21.719 (from 2026-12-01) adopts GDPR-style transfer mechanisms |
 | Peru | Cross-border flow requires a sufficient (adequate) level of protection (Ley 29733 Art. 11); absent adequacy, the exporter guarantees compliance, subject to the Art. 15 exceptions (including consent), with the Reglamento's appropriate-guarantee/model-clause and registration requirements |
+| Ecuador | Adequacy resolution of the Autoridad de Protección de Datos Personales (LOPDP Art. 56); absent adequacy, adequate guarantees in a binding instrument, including Authority-approved Binding Corporate Rules (Arts. 57 and 58); otherwise prior Authority authorization (Art. 59), subject to the Art. 60 exceptional cases (including explicit consent); prior registration in the Registro Nacional |
 
 ---
 
@@ -95,6 +102,7 @@ Where the organization monitors the network and device activity of workers in th
 | Colombia | SIC | Fines up to 2,000 monthly minimum legal wages (approx. USD 600,000) |
 | Chile | Civil courts (juez de letras en lo civil) (Law 19.628; no dedicated authority); Agencia de Protección de Datos Personales (Law 21.719, from 2026-12-01) | Court-imposed fines of 1-10, 10-50, or 2-50 UTM (Law 19.628, Art. 16; no administrative regime); administrative fines under Law 21.719 |
 | Peru | DGTAIPD (MINJUS) | Fines up to 100 UIT for very serious violations (serious to 50 UIT); UIT is set annually, so convert to the current sol value |
+| Ecuador | Autoridad de Protección de Datos Personales | Fines on private entities of 0.1% to 0.7% (minor) and 0.7% to 1% (serious) of the prior financial year's business volume (LOPDP Arts. 71 and 72) |
 
 ---
 
