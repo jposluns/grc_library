@@ -9366,7 +9366,7 @@ documents:
   domain: "privacy"
   type: "Annex"
   title: "Ecuador Privacy Regulatory Requirements"
-  version: "0.0.4"
+  version: "0.0.5"
   date: "2026-10-27"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"
