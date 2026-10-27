@@ -87,10 +87,18 @@ def is_cross_doc_context(line: str, ref_start: int) -> bool:
       here yet unclaimed by gates 62 and 65 (an accepted heuristic band, the
       same shape as the pre-existing preceding-side window).
     - Doctype words and most external-framework names: whole-line scans (ISO,
-      NIST, OWASP, CSA, MITRE, COBIT, BASC, the Canadian federal CCCS, ITSP.,
-      ITSAP., ITSG-, SPIN, TBS and Treasury Board markers, etc).
+      NIST, OWASP, CSA, MITRE, COBIT, BASC, etc).
       Framework-mapping tables typically reference external framework
       section numbers in their cells; this scan catches that pattern.
+      Canadian federal instruments are marked by identifier only: ``ITSP.``,
+      ``ITSAP.``, ``ITSG-``, ``SPIN 20`` and the held CCCS baseline title
+      ``Baseline Cyber Security Controls``. The issuer names CCCS, TBS and
+      Treasury Board are not markers, so a stale mark on a line that names
+      only an issuer is still checked. Residual: a mark on a line that names
+      one of these instruments is not checked, as for ISO and NIST; e.g.
+      security/standard-authentication-and-password-management.md line 104
+      names ITSP.30.031 (and the baseline title), so its own "Section 5"
+      (which resolves today) is not checked.
     - GDPR, CPPA, PIPEDA, HIPAA, PCI DSS, and SOC 2 claim every mark on
       their line unless the mark is immediately preceded by "see" (optionally
       "see also") or immediately followed by "above", "below", "here",
@@ -154,9 +162,11 @@ def is_cross_doc_context(line: str, ref_start: int) -> bool:
         "EU AI Act", "EU NIS", "EU DORA", "FedRAMP", "FIPS",
         "Clause", "Article", "DSS", "ISM-", "CCC-", "CEK-", "I&S-",
         "Rev ", "SP 800",
-        # Canadian federal instruments (CCCS ITSP./ITSAP./ITSG- publications,
-        # TBS SPIN, Treasury Board directives and policies)
-        "CCCS", "ITSP.", "ITSAP.", "ITSG-", "SPIN ", "TBS ", "Treasury Board",
+        # Canadian federal instrument identifiers only (CCCS ITSP./ITSAP./ITSG-
+        # publication numbers, the TBS SPIN number form, and the title of the
+        # held CCCS baseline, which the corpus pinpoints without a number); the
+        # issuer names CCCS, TBS and Treasury Board are not markers
+        "ITSP.", "ITSAP.", "ITSG-", "SPIN 20", "Baseline Cyber Security Controls",
     )
     for w in external_frameworks:
         if w in line:

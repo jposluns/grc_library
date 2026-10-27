@@ -4580,13 +4580,11 @@ class IntraDocRefTests(LinterTestCase):
         # 3b662: one line per Canadian federal instrument marker; each cites
         # that instrument's own section, not a heading of this document.
         for line in (
-            "CCCS small and medium organizations baseline §3.10 applies.",
             "ITSP.80.022 §2.1 defines seven zone types.",
             "ITSAP.40.003 §4.2 lists the response phases.",
             "ITSG-33 §3.2 sets the control profile.",
             "SPIN 2017-01 §6.2.4 requires encryption in transit.",
-            "TBS direction §4.1 applies to cloud use.",
-            "Treasury Board Directive on Automated Decision-Making §6.3.1 applies.",
+            "Baseline Cyber Security Controls for Small and Medium Organizations V1.2 §3.10.",
         ):
             with self.subTest(line=line):
                 body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
@@ -4597,9 +4595,15 @@ class IntraDocRefTests(LinterTestCase):
     def test_unmarked_intra_ref_still_fails(self) -> None:
         # 3b662: without a marker on the line, a stale §N is still reported;
         # the markers match case-sensitively, so lowercase words do not count.
+        # An issuer name (CCCS, TBS, Treasury Board) or a SPIN without its
+        # number is not a marker, so a stale mark beside one is reported.
         for line, ref in (
             ("Zone interface points (§2.2) carry all inter-zone traffic.", "2.2"),
             ("The spin §99.99 and tbs §99.99 rows are ours.", "99.99"),
+            ("CCCS advice is met by the controls in §99.99.", "99.99"),
+            ("TBS direction is met by the controls in §99.99.", "99.99"),
+            ("Treasury Board direction is met by the controls in §99.99.", "99.99"),
+            ("The held SPIN is met by the controls in §99.99.", "99.99"),
         ):
             with self.subTest(line=line):
                 body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
@@ -55792,10 +55796,17 @@ class IntraDocRefsEngineTransferTests(unittest.TestCase):
 
     def test_cross_doc_canadian_instrument_skipped(self):
         # 3b662: a Canadian federal instrument marker on the line marks the ref as cross-doc
-        for marker in ("CCCS", "ITSP.80.022", "ITSAP.40.003", "ITSG-33", "SPIN 2017-01",
-                       "TBS direction", "Treasury Board directive"):
+        for marker in ("ITSP.80.022", "ITSAP.40.003", "ITSG-33", "SPIN 2017-01",
+                       "Baseline Cyber Security Controls V1.2"):
             with self.subTest(marker=marker):
                 self.assertEqual(self._scan(f"## 1. Intro\n\n{marker} §5.4 applies.\n"), [])
+
+    def test_canadian_issuer_name_not_a_marker(self):
+        # 3b662: an issuer name alone does not claim the ref; the stale §5.4 is reported
+        for issuer in ("CCCS", "TBS direction", "Treasury Board direction", "The held SPIN"):
+            with self.subTest(issuer=issuer):
+                found = self._scan(f"## 1. Intro\n\n{issuer} §5.4 applies.\n")
+                self.assertEqual([f[1] for f in found], ["5.4"])
 
     def test_no_numbered_headings_no_findings(self):
         self.assertEqual(self._scan("# Plain\n\nSee §5.4 for details.\n"), [])
