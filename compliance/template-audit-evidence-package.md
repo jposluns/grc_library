@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.1.9\
+**Version:** 1.1.10\
 **Date:** 2026-10-27\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -102,12 +102,12 @@ The cover page is followed by a flat index of all in-scope controls. The index i
 
 ### Index status legend
 
-**Implementation status** (during the period):
-- *Implemented*: the control was in place during the entire period.
-- *Partially implemented*: the control was in place for part of the period, or had a documented limitation during the period.
-- *Not implemented*: the control was not in place during the period; a compensating control may exist (named in the per-control section).
+**Implementation status** (during the period, or as of the point in time for a SOC 2 Type I package):
+- *Implemented*: the control was in place during the entire period; for a SOC 2 Type I package, the control was in place as of the point in time.
+- *Partially implemented*: the control was in place for part of the period, or had a documented limitation during the period; for a SOC 2 Type I package, the control had a documented limitation as of the point in time.
+- *Not implemented*: the control was not in place during the period, or as of the point in time for a SOC 2 Type I package; a compensating control may exist (named in the per-control section).
 
-**Operating effectiveness** (over the period):
+**Operating effectiveness** (over the period; a SOC 2 Type I examination does not address operating effectiveness, so a Type I package omits this column):
 - *Effective*: the control operated as designed throughout the period; test results demonstrate this.
 - *Partially effective*: the control operated as designed but with documented deviations or exceptions.
 - *Ineffective*: the control did not operate as designed; remediation is in progress (named in the per-control section).
@@ -162,7 +162,7 @@ Test 1: <e.g. Quarterly access review>
 - Frequency: <e.g. quarterly>
 - Test date(s) during the period: <YYYY-MM-DD list>
 - Test method: <e.g. 100% population review of the quarterly access recertifications performed in the period, each checked against role definitions>
-- **Sampling justification** (mandatory when the test uses sampling): <statistical or judgemental basis for the chosen sample size. [`compliance/procedure-control-testing.md`](procedure-control-testing.md) §2.2 states: "Sample sizes for inspection-based tests follow a risk-based sampling methodology: High-risk controls: 25 to 40 samples or 100% population if feasible. Medium-risk controls: 15 to 25 samples. Low-risk controls: 5 to 15 samples." Cite the range that applies (e.g. "25-40 for high-risk per §2.2"). Choose the selection method per §2.3, which uses the full population (100%) for low-volume populations (broadly, 25 or fewer occurrences) and for any population for a control whose failure is individually consequential. Record, per §2.3: the population definition, its size, and the source from which it was drawn; the sample size; the selection method; the selection rationale; and any limitation on the conclusion the sample supports (for example, that a judgemental sample does not support a statistical projection across the population). For a SOC 2 examination, the extent of testing is a judgement that considers factors such as the tolerable and expected rates of deviation, how often the control operates, the length of the testing period, and the control's significance; record those factors as the basis for where the sample size falls within the applicable §2.2 range. State the confidence-level assumption if statistical, and how the selection can reasonably be expected to be representative of the population covering the whole reporting period, not only part of it. If the test reviews 100% of the population, state "100% population review", record the population definition, its size and its source, and skip statistical fields.>
+- **Sampling justification**: <statistical or judgemental basis for the chosen sample size. [`compliance/procedure-control-testing.md`](procedure-control-testing.md) §2.2 states: "Sample sizes for inspection-based tests follow a risk-based sampling methodology:", followed by "High-risk controls: 25 to 40 samples or 100% population if feasible.", "Medium-risk controls: 15 to 25 samples." and "Low-risk controls: 5 to 15 samples." §2.2 also states: "The chosen sample size and selection method are recorded in the test's "Sampling justification" field in the audit-evidence package". Choose the selection method from the §2.3 table; its **Full population (100%)** row reads: "Low-volume populations (broadly, 25 or fewer occurrences), and any population for a control whose failure is individually consequential". §2.3 states: "The population definition, its size, and the source from which it was drawn are recorded in the evidence package." It also states: "The tester records, in the evidence package, the population definition, the sample size, the selection method, the selection rationale, and any limitation on the conclusion the sample supports (for example, that a judgemental sample does not support a statistical projection across the population). A sample that surfaces one or more exceptions is not silently expanded to seek a clean result: the exception is evaluated on its merits under section 4, and any extension of the sample is documented with its rationale." If the test reviews 100% of the population, state "100% population review" and record the same §2.3 items, including the selection rationale.>
 - Tester: <named role>
 - Result: <Pass / Pass with exception / Fail>
 - Test artefact: <link to test record>
@@ -172,7 +172,7 @@ Test 2: <e.g. Annual policy review>
 - Frequency: <e.g. annual>
 - Test date(s): <YYYY-MM-DD list>
 - Test method: <e.g. policy reviewed by Owner and Approving Authority; review record signed>
-- **Sampling justification**: <"100% population review" for single-artefact controls like policy reviews; otherwise as above.>
+- **Sampling justification**: <as above; for single-artefact controls like policy reviews, state "100% population review" and record the §2.3 items listed above, including the selection rationale.>
 - Result: <Pass / Pass with exception / Fail>
 - Test artefact: <link to review record>
 
@@ -272,7 +272,7 @@ Date: <YYYY-MM-DD>
 When assembling an evidence package, the following patterns weaken the package's defensibility:
 
 - **Evidence that is just a screenshot without a date or context.** Screenshots are point-in-time. An undated screenshot proves nothing about whether the control operated for the period covered. Include the date the screenshot was taken, the system, and (if relevant) the user role under which it was taken.
-- **Tests with a sample size of one.** For most controls, a single test instance is anecdotal. One exception is an automated control: because IT processing is generally consistent, a SOC 2 examination may limit testing to one or a few instances, and once the control is determined to function as intended, the service auditor would generally perform tests to determine that it continues to function effectively (for example, that program changes are subject to the appropriate program-change controls and other relevant IT general controls are effective). Name that basis when a test relies on it; the §2.2 ranges in [`compliance/procedure-control-testing.md`](procedure-control-testing.md), as stated there, still apply to any inspection-based test of the control. A single instance is also sufficient when it is the whole population, such as a control that operates once in the period: record it as a "100% population review", as for single-artefact controls like policy reviews, under the procedure's §2.3 full-population (100%) selection method. Where a SOC 2 test uses sampling, the extent of testing is a judgement that considers factors such as the tolerable and expected rates of deviation, how often the control operates, the length of the testing period, and the control's significance, recorded as the basis for where the sample size falls within the applicable §2.2 range, and the selection should be reasonably expected to be representative of the population covering the reporting period.
+- **Tests with a sample size of one and no recorded basis.** Record the sample size and its basis in the test's Sampling justification field, as §2.2 and §2.3 of [`compliance/procedure-control-testing.md`](procedure-control-testing.md) state them (quoted in the per-control template above). Where a single instance is the whole population, such as a control that operates once in the period, record it as a "100% population review" under §2.3's **Full population (100%)** selection method, with the §2.3 items, including the selection rationale.
 - **"See attached" without an attachment.** The package is the artefact; if evidence is attached separately, the per-control section names the attachment by name and version, and the attachment travels with the package.
 - **Compensating controls without a remediation plan.** A compensating control is acceptable for an audit period; an absent remediation plan signals the gap will persist. Most frameworks require remediation plans for ineffective controls; check the framework's specific requirements.
 - **Mixing "we will do this" with "we did this".** The package covers a period in the past. Future commitments belong in a remediation plan, not in the operating-evidence section. The auditor will treat any future-tense language in evidence sections as a finding.
