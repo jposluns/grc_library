@@ -7,7 +7,7 @@ push/PR creation, merge, or wind-down, like a skill (the `pr-close-out` skill is
 `tools/merge-when-green.py`, this PR's own `/validate-pr` and `/retro` rows); this file carries
 the full PR workflow, the close-out checklist including the un-gated grep disciplines, the
 change-impact surface map and the version-bump enforcement detail. Relocated from CLAUDE.md by
-TODO 3.139.1 / PR #1249 and by 3b177-d; the disciplines are unchanged. Project-only operational
+3.139.1 (closing PR #1249) and by 3b177-d; the disciplines are unchanged. Project-only operational
 machinery (not pack material). D9 (`tools/check-retired-section-orphan-on-pr.py`, #1250) gates
 the anchored section-orphan key-forms (`§N.M`, `PN.M`, `TODO §N.M`) on operational surfaces;
 bare tokens, `§A-§B` ranges, `item N` and corpus `.md` surfaces remain manual (the grep

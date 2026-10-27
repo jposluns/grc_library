@@ -245,7 +245,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_working, resolve_sibling, require_dir
+from lint_common import print_degraded, resolve_working, resolve_sibling, require_dir
 # P-TODO 3b121: the one index-row and item-heading grammar the audit tool and the decision-log hook read.
 from todo_index_rows import index_rows, item_headings
 
@@ -1269,6 +1269,18 @@ def main(argv: list[str]) -> int:
         private = resolve_sibling("private")
         cand = (private / PTODO_REL) if private is not None else None
         ptodo_path = cand if (cand is not None and cand.is_file()) else None
+        # 3b635: the DEFAULT lookup's skips exit 0, so a green CI run must not read as a pass.
+        degraded = []
+        if done_path is None:
+            degraded.append("the recycled-number check (DONE.md)")
+        if ptodo_path is None:
+            degraded.append(f"the {PTODO_REL} live ids and cross-list duplicate check")
+        if degraded:
+            print_degraded(
+                "gate 78",
+                f"gate 78 skipped {' and '.join(degraded)} (no private store "
+                f"supplies the input); this pass attests nothing about them."
+            )
 
     try:
         todo_text = todo_path.read_text(encoding="utf-8")

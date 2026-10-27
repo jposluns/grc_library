@@ -71,7 +71,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, resolve_working, require_dir  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, print_degraded, resolve_working, require_dir  # noqa: E402  # grc-config/store, stays local
 
 HISTORY = ".working/guardrail-reviews/history.md"
 SPEC = "governance/specification-audit-programme.md"
@@ -183,6 +183,12 @@ def main(argv: list[str]) -> int:
                 "OK: guardrail-review history not present (maintainer-only "
                 "working state; skipping the machinery-drift cadence check in "
                 "public CI / adopter clone)."
+            )
+            print_degraded(
+                "gate 60",
+                "gate 60 skipped the guardrail-review machinery-drift cadence "
+                "check (no private store supplies the review history); this pass attests "
+                "nothing about it."
             )
             return 0
         history_path = resolved

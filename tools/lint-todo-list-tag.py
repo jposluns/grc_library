@@ -31,7 +31,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_sibling, parse_todo_index, has_todo_index_header, require_dir
+from lint_common import resolve_sibling, parse_todo_index, has_todo_index_header, print_degraded, require_dir
 
 REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 
@@ -120,6 +120,13 @@ def main(argv: list[str]) -> int:
             f"OK: {PTODO_REL} not present (no private sibling; public-only "
             f"clone / adopter checkout). Scanning {TODO_REL} only."
         )
+        if args.root is None:
+            # 3b635: the DEFAULT lookup's skip exits 0, so a green CI run must not read as a pass.
+            print_degraded(
+                "gate 81",
+                f"gate 81 skipped the {PTODO_REL} list-tag check (no private "
+                f"store supplies it); this pass attests nothing about it."
+            )
 
     total_items = 0
     all_findings: list[tuple[str, int, str, int]] = []

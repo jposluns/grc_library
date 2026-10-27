@@ -29330,9 +29330,9 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F dd81f8c07f2ab5045bc492e1d59ebab939585c01355d1ca0d7baf0fed08c84a1
         check-changelog-on-pr.py NO_FS F e762e152f63d454d5915d219ce71329993c57b3bb780b860c0d3ec9938fdbd0e
         check-changelog-preflight-commit.py NO_FS F 87b92b4235420074c259a9b50e0ee72d5624a81be2b87420de3e01cc7e551fd2
-        check-class-attestation-on-pr.py NO_FS F 8ef4e742c2610fa3c80598404991ee6aab9da409b9e95e2ad8b74ec202d40325
+        check-class-attestation-on-pr.py NO_FS F bd15aaad43f488b824b69539041c1455de9208cbafebe725207a462210dae8fb
         check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
-        check-claude-md-size.py NO_FS F e905945e9d35caa13122091dcb709f1acaf2d944455ab44b798b4dacca61472c
+        check-claude-md-size.py NO_FS F 0c2c447fbeb2df2e88a61eca220cfd5f1a41ab8aca24b90936e832c1b52f1a95
         check-clause-preservation.py OWN F 43d6804eccf05f9c2434da4ec879246d48cc80081b8c852e86437cf38c65c664
         check-clean-language-upstream.py NO_FS F 7732d2d2eceb44061d99e7c484aa83c93b0818091538ba7e3b95a0040acda6a2
         check-commit-on-main.py NO_FS F 65b09e20a245ce63b9be6415a517542797ffbad0bf32426c334f300068e7eee0
@@ -29376,11 +29376,11 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-gate-parity.py OWN F 3cc8013f0d69f112498d69dd97629078f7852f911d0b689bb509b356165418e9
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
-        lint-bookkeeping-parity.py NO_FS F 418c1fc4dccff88fe4a32a8a3582c8110b7c53885facc1b661a2db48b829b841
+        lint-bookkeeping-parity.py NO_FS F 43a25f9706516004b494a4ed6842b3fe06001f152cbedfa9ec1845cd88ba946b
         lint-ccm-aicm-citations.py CWD F b396ecc6a9544f00e5446f3d46235a64996340e46613fc75f21b39e74e97f306
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
         lint-changelog-link-coverage.py CWD F 0eb2c21687bcae9e697ab26d0273e766530ec144f1417ac04309badae1bd1bd2
-        lint-changelog-mirror-header-parity.py OWN F 12cc2ea26f1b9d64721daef8c76d4c333f14006352ef8caabb890c121dc450d9
+        lint-changelog-mirror-header-parity.py OWN F 6a56d8085fff041fc01f3e7f55ae2046feb41bf3c71ede186c6be469d6699cb2
         lint-citation-currency-cadence.py NO_FS F 5dba5f4f0c3ec6482ca0e465d221fe1d44010bed5c47b2af235672069cf0cadd
         lint-citation-verification-freshness.py OWN F 057d0deb7b8442828df3042e47923cf1febf446ab77bf5f816f31bba9dc3949d
         lint-citations.py ROOT F 83bf87b4c7ab8d59c1835f4eee4bd75d9a55e5accb60b062463f6b74dc9d5437
@@ -29400,10 +29400,10 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-external-link-domains.py CWD F 906b40aed419a66a1d49cff6473771ff89c9db494526bc020b1aea462d026485
         lint-external-overlay-license.py NO_FS F 274c40601ab51949646d3c7fdf115e35b9fa47af81646ec83547e352c10f781d
         lint-filename-title-alignment.py ROOT F 053875094e7cc520061a2dd3a0fa226f35c68834942cef0a168bbfdac5f9dcf3
-        lint-followup-ageing.py CWD F 09496e12c77b9f28e0440cb50eb71dbaac90b896524196cb9fdd09156cb3c7d0
+        lint-followup-ageing.py CWD F 20eedad44d3eb7a8237f0d3e8232f77d2566b4ec68d94631fb59012e2843f37f
         lint-gate-citation-inventory.py NO_FS F 104cdff1e3c6541f5de0705c6461fb2ee2c9e7f69eae82b714a9c9dccdbc3b47
         lint-gate-count-consistency.py CWD F 075bd03b5434c09153bf1da8d0eb6a3c3130d18f8073122f565216557be80bf0
-        lint-guardrail-cadence.py OWN F 5eb8669434b40f3dcaac9efe313684542bfc576b1d3b1883e0100d8e387631d2
+        lint-guardrail-cadence.py OWN F fafdcf88714513d9b2c67cfb91af27de93c7cd7f9da10870252c39ea2d60110f
         lint-hooks-syntax.py OWN F f271dc554bdc7afdd6883d9fcf727cea7f9da6b87170d79a6d98cb0d785b15cb
         lint-index-header-parity.py OWN F 26ad2438853a5147cbd602fcd122e59fcef8c8b8f2fd6530edb07e74b1bcf3e5
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
@@ -29423,7 +29423,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-narrative-vocabulary.py CWD F 8af41000aec9017b7bcc56dcdfd108075f678e3f5b359507c5cd4ab48e3bb2d3
         lint-nested-markdown-links.py ROOT F 0cc62cd79f607f71bfcb727df3915d8ef930683786c8ccb39a0ada0b4f022f8d
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
-        lint-overnight-file.py NO_FS F 34cc2994fbb9a2447eb6012f9241280793b14e05eb4aaca4c38e010e667a8065
+        lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
         lint-pii-in-content.py CWD F 3892a7ab7f09960df0bdeb187a3e2b61f406483620d6baa1eaa238ea91166d8e
         lint-placeholder-leakage.py CWD F e09ad286e82070d2f80453547f7b648d84f3f3ec46aed1c9c2af7c6c4d35929f
@@ -29439,7 +29439,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-secrets-in-content.py CWD F 868061fc0527d0843223825800fb75dd963d345d058a144b6ecc23ee8deb227b
         lint-section-anchors.py CWD F 4b540b4eb8480d1f4be16e1c51cc7c990d22a5b4ea8911244636d0aa1956726f
         lint-section-placement.py CWD F 936e351d52bcd0a0a4964b3ecd046c44ae057298aed6edde002687e8f4c17f98
-        lint-session-state.py NO_FS F 4223723f25b14f825089bb08e130da48962431af53e2f32750fc52f180585b71
+        lint-session-state.py NO_FS F b0c631b3f34ca1cd22c2023fb8eabd6cfdd8b2b9366e9812d9fa7d23c5e23bc5
         lint-shall-near-uncertainty.py ROOT F 0df50c2b6826f9216f67addad8931f1eb35498d0e3862064bdb3fed317e64610
         lint-sibling-placeholders.py NO_FS F 2ae82222a589343521ebfbc12a3b9edbec0533203e02b3f7adf906f2b8ad1d2a
         lint-skill-derives-from.py OWN F 4bf6a78a42e9f8d8dff44035ac2320a67043006a133375e7cacdcd85dd5336f5
@@ -29451,13 +29451,13 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
-        lint-table-cell-count.py OWN F 908cb45af821e88f62f1dfb2cfeaa89a32bbb2031c7e1fb85f2c408ffd04541a
-        lint-todo-index-reference-parity.py OWN F cf16944b198e3e919e7f2fd7ba6343363c8612e660879734585aaa48b4d99f41
-        lint-todo-list-tag.py OWN F 867aa18964d3ae7c4031831d484c50eef4d24b8753207fb7e965441eb01206f9
+        lint-table-cell-count.py OWN F 36c2ad714485c240903f8ecb55caefe3714ac0ebad81df90b2d52e87a10a3477
+        lint-todo-index-reference-parity.py OWN F fbd2edb9e2f06f930f43e7648eafdf87fd72830a458440976872025346038a97
+        lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
-        lint-todo-number-permanence.py OWN F 539dbf64916e39d6a0202071142970b674dea97c683a4ad2b86afa003c646139
-        lint-todo-staleness.py NO_FS F 83fd453559b91e9c9a8d6c5126d6962a3ac9dfdd2bf6f3dc21eded7379ba115f
-        lint-tooling-backlog-refs.py OWN F 431a444285d38b50b89b46c5be4b7736beb41017d0de3f8492b649ad5379f7a5
+        lint-todo-number-permanence.py OWN F 9d2bac985ff81dee359108091ca9b85f7e159c2ea079e74b46d6895ca2b70761
+        lint-todo-staleness.py NO_FS F 018d90235361c55d209d69c789ee08bbf752ac05613ce7e77991ee59a46b1491
+        lint-tooling-backlog-refs.py OWN F fb32e59535aa1fc191032c72eefdbfe1062bfe75210a6dbecf48ef969f2390e5
         lint-tooling-provenance-freshness.py OWN F 4cb6ed58b8cd47d727f7d198169661581b8e94a4a62cc6380a1a64e86b74ca5b
         lint-unbalanced-fences.py ROOT F f52bd3d3e92b3801ba454f3756c8ba76ff8518e18fd8d42ea2edf1ffc9ce2246
         lint-ungated-dashes.py NO_FS F 1a6bd1116eb14e8a97db17cc9c89ac715b008277e91584eae59a5295ae42eb17
@@ -29466,8 +29466,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-version-date-consistency.py OWN F f9956da5ff7492dc60c99939c1e10b650fc2ffbc51a00f28bf51e53ae863f472
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
-        lint-working-prose-hygiene.py CWD F 616ae8f4ea008cda21bcf2f663ed650f82f91b2467fddc75cc4a313ff61e32b1
-        lint_common.py PASSIVE F 4d6a2c6de278e384e1880e7ff67291a4589956139effef6113ba94571d2ec8ec
+        lint-working-prose-hygiene.py CWD F 5b8f07f67932e6a2e08b8de287bea230dd312d319654494f39b7c3349f6be1bb
+        lint_common.py PASSIVE F ccd0497400c11834b354f42410ccf452195c0f4ba96ac2274a3d1ff4feb1c638
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -37488,6 +37488,414 @@ class WorkingResolveNoOpTests(unittest.TestCase):
         self.assertEqual(mod.display_path(outside), outside.as_posix())
         inside = mod.REPO_ROOT / "README.md"
         self.assertEqual(mod.display_path(inside), "README.md")
+
+
+class StoreDegradedNoticeTests(unittest.TestCase):
+    """3b635: a gate that skips (exit 0) because the private store is absent prints exactly one
+    `DEGRADED:` line on stdout saying the pass attests nothing about what it skipped, and prints
+    none when a fixture store supplies the input. Only the GitHub Actions run is authoritative
+    (specification section 4), and these gates degrade there, so the line is what keeps a green
+    run from reading as a pass. Each case patches the module's own resolver names, the
+    WorkingResolveNoOpTests idiom, so neither the maintainer's real store nor its absence leaks
+    in; gate 107 uses its --root fixture layout, whose sibling slot is the degraded-path selector.
+    Every gate prints the line through lint_common.print_degraded, which also prints a GitHub
+    Actions warning annotation when GITHUB_ACTIONS is "true", so each case runs the absent store
+    with GITHUB_ACTIONS unset and set: the plain line appears either way, the annotation only
+    when set.
+    """
+
+    _load = WorkingResolveNoOpTests._load
+    ANNOTATION = "::warning title="
+
+    def setUp(self) -> None:
+        self.store = Path(tempfile.mkdtemp(prefix="degraded-store-"))
+        self.addCleanup(shutil.rmtree, self.store, True)
+
+    def _write(self, rel: str, text: str) -> Path:
+        path = self.store / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+        return path
+
+    def _present(self, rel: str) -> "Path | None":
+        cand = self.store / rel
+        return cand if cand.exists() else None
+
+    @staticmethod
+    def _github_env(github: bool):
+        """Patch os.environ so GITHUB_ACTIONS is "true" or absent (CI itself sets it)."""
+        from unittest.mock import patch
+        env = {k: v for k, v in os.environ.items() if k != "GITHUB_ACTIONS"}
+        if github:
+            env["GITHUB_ACTIONS"] = "true"
+        return patch.dict(os.environ, env, clear=True)
+
+    def _run(self, fname: str, call, absent: bool, github: bool = False,
+             **patches) -> tuple[int, str, str]:
+        import io
+        import contextlib
+        from unittest.mock import patch
+        mod = self._load(fname)
+        if "resolve_working" not in patches and hasattr(mod, "resolve_working"):
+            patches["resolve_working"] = (lambda rel: None) if absent else self._present
+        buf, err = io.StringIO(), io.StringIO()
+        with contextlib.ExitStack() as stack:
+            for name, value in patches.items():
+                stack.enter_context(patch.object(mod, name, value))
+            stack.enter_context(patch.object(sys, "argv", [fname]))
+            stack.enter_context(self._github_env(github))
+            stack.enter_context(contextlib.redirect_stdout(buf))
+            stack.enter_context(contextlib.redirect_stderr(err))
+            rc = call(mod)
+        return rc, buf.getvalue(), err.getvalue()
+
+    def _assert_degraded(self, gate: str, label: str, out: str, github: bool) -> None:
+        lines = [ln for ln in out.splitlines() if ln.startswith("DEGRADED:")]
+        notes = [ln for ln in out.splitlines() if ln.startswith(self.ANNOTATION)]
+        self.assertEqual(len(lines), 1, f"{label}: expected one DEGRADED line\n{out}")
+        self.assertIn("attests nothing", lines[0])
+        self.assertTrue(lines[0].startswith(f"DEGRADED: {gate} skipped "), lines[0])
+        if github:
+            self.assertEqual(notes, [f"::warning title={gate} degraded::{lines[0]}"],
+                             f"{label}: GITHUB_ACTIONS=true needs one annotation\n{out}")
+        else:
+            self.assertEqual(notes, [], f"{label}: no annotation outside GitHub Actions\n{out}")
+
+    def _assert_clean(self, label: str, out: str) -> None:
+        self.assertNotIn("DEGRADED:", out, f"{label}: a present store is not degraded\n{out}")
+        self.assertNotIn(self.ANNOTATION, out, f"{label}: a present store is not degraded\n{out}")
+
+    def _check(self, gate: str, fname: str, call, *, absent_patches=None,
+               present_patches=None) -> None:
+        for github in (False, True):
+            rc, out, err = self._run(fname, call, True, github, **(absent_patches or {}))
+            self.assertEqual(rc, 0, f"{fname}: the absent-store skip must still exit 0\n{out}{err}")
+            self._assert_degraded(gate, f"{fname} (GITHUB_ACTIONS={github})", out, github)
+        rc, out, err = self._run(fname, call, False, True, **(present_patches or {}))
+        self.assertEqual(rc, 0, f"{fname}: the fixture-store run must pass\n{out}{err}")
+        self._assert_clean(fname, out)
+
+    def test_helper_annotation_only_when_github_actions_is_true(self) -> None:
+        import io
+        import contextlib
+        from unittest.mock import patch
+        from lint_common import print_degraded
+        for value, annotated in ((None, False), ("false", False), ("1", False), ("true", True)):
+            buf = io.StringIO()
+            env = {k: v for k, v in os.environ.items() if k != "GITHUB_ACTIONS"}
+            if value is not None:
+                env["GITHUB_ACTIONS"] = value
+            with patch.dict(os.environ, env, clear=True), contextlib.redirect_stdout(buf):
+                print_degraded("gate 0", "gate 0 skipped x (100%); this pass attests nothing.")
+            expected = ["DEGRADED: gate 0 skipped x (100%); this pass attests nothing."]
+            if annotated:
+                # Workflow-command escaping: a % in the message is written %25.
+                expected.append("::warning title=gate 0 degraded::"
+                                "DEGRADED: gate 0 skipped x (100%25); this pass attests nothing.")
+            self.assertEqual(buf.getvalue().splitlines(), expected, f"GITHUB_ACTIONS={value!r}")
+
+    def test_flip_a_silent_helper_fails_the_check(self) -> None:
+        # Deliberate flip: the helper stops printing (print is shadowed in lint_common's own
+        # globals, the module every gate's print_degraded comes from). _check must then fail,
+        # so the cases above cannot pass with a helper that prints nothing.
+        from unittest.mock import patch
+        self._write("overnight-pr.md", "# Overnight\n\n**Status:** stub\n")
+        helper_globals = self._load("lint-overnight-file.py").print_degraded.__globals__
+        with patch.dict(helper_globals, {"print": lambda *a, **k: None}):
+            with self.assertRaises(AssertionError):
+                self._check("gate 46", "lint-overnight-file.py", lambda m: m.main())
+        self._check("gate 46", "lint-overnight-file.py", lambda m: m.main())
+
+    def test_gate43_followup_ageing(self) -> None:
+        self._write("validate-sweeps/history.md", "# Validation sweep history\n")
+        self._check("gate 43", "lint-followup-ageing.py", lambda m: m.main())
+
+    def test_gate45_todo_staleness(self) -> None:
+        self._write("validate-sweeps/history.md", "| 2026-01-01 | 1 iter 1 | x |\n")
+        self._write("session-handoff.md", "- **Last validation sweep**: Sweep 1 iteration 1.\n")
+        ref = self._write("TODO-REFERENCE.md", "# reference detail\n")
+        self._check("gate 45", "lint-todo-staleness.py", lambda m: m.main(),
+                    absent_patches={"resolve_todo_reference": lambda: None},
+                    present_patches={"resolve_todo_reference": lambda: ref})
+
+    def test_gate46_overnight_file(self) -> None:
+        self._write("overnight-pr.md", "# Overnight\n\n**Status:** stub\n")
+        self._check("gate 46", "lint-overnight-file.py", lambda m: m.main())
+
+    def test_gate50_bookkeeping_parity(self) -> None:
+        from unittest.mock import Mock
+        mod = self._load("lint-bookkeeping-parity.py")
+        # One changelog PR with its row and recorded floor in both registers (the
+        # _malformed_history_case shape), so the present-store run is clean.
+        pr = mod.INCEPTION + 1
+        register = (f"| 2026-10-03 | #{pr} | x | RETURNED | none |\n"
+                    f"<!-- gate50-floor: #{pr} -->\n")
+        self._write(mod.VALIDATE_PR_HISTORY, register)
+        self._write(mod.IMPROVEMENT_LOG, register)
+        for rel in ("changelog-details/CHANGELOG-detailed.md", "deep-assessment/register.md",
+                    "merge-bypass-log.md"):
+            self._write(rel, "# fixture\n")
+        files = {mod.CHANGELOG_PATH: f"**2026-10-03 | 2026.10.1 | PR #{pr}** - x\n",
+                 mod.TODO_PATH: ""}
+
+        def no_process(argv, *, timeout, env=None):
+            raise AssertionError(BookkeepingParityTests.GATE50_SEAM_REFUSAL)
+        offline = {"read": Mock(side_effect=files.__getitem__),
+                   "store_scope": Mock(return_value=mod.StoreScope(None, None, None, None)),
+                   "discover_version_history_files": Mock(return_value=[]),
+                   "_gh_runner": no_process}
+        self._check("gate 50", "lint-bookkeeping-parity.py", lambda m: m.main(),
+                    absent_patches=dict(offline), present_patches=dict(offline))
+
+    def test_gate51_working_prose_hygiene(self) -> None:
+        self._write("notes.md", "Plain working prose.\n")
+        self._check("gate 51", "lint-working-prose-hygiene.py",
+                    lambda m: m.main(["lint-working-prose-hygiene.py"]))
+
+    def test_gate59_changelog_mirror_header_parity(self) -> None:
+        from unittest.mock import Mock
+        mod = self._load("lint-changelog-mirror-header-parity.py")
+        self._write("changelog-details/CHANGELOG-detailed.md", "# Detailed changelog\n")
+        root = self.store / "root"
+        root.mkdir()
+        (root / mod.ROOT_CHANGELOG_REL).write_text("# Changelog\n", encoding="utf-8")
+        from lint_common import StoreScope
+        present = {"REPO_ROOT": root,
+                   "store_scope": Mock(return_value=StoreScope(None, None, None, None))}
+        self._check("gate 59", "lint-changelog-mirror-header-parity.py", lambda m: m.main([]),
+                    present_patches=present)
+
+    def test_gate60_guardrail_cadence(self) -> None:
+        mod = self._load("lint-guardrail-cadence.py")
+        live = mod.live_inventory(mod.REPO_ROOT)
+        token = " / ".join(f"{live[axis]} {axis}" for axis in ("gates", "rules", "skills", "commands"))
+        self._write("guardrail-reviews/history.md",
+                    "| Date | Summary |\n| --- | --- |\n"
+                    f"| 2026-10-26 | fixture review, inventory {token} |\n")
+        self._check("gate 60", "lint-guardrail-cadence.py",
+                    lambda m: m.main(["lint-guardrail-cadence.py"]))
+
+    def test_gate63_session_state(self) -> None:
+        self._write("session-state.md", SessionStateTests.VALID_LEASE)
+        self._check("gate 63", "lint-session-state.py", lambda m: m.main())
+
+    def test_gate78_todo_number_permanence(self) -> None:
+        self._write("DONE.md", "# DONE\n")
+        sibling = self.store / "grc_library_private"
+        sibling.mkdir()
+        (sibling / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX, encoding="utf-8")
+        self._check("gate 78", "lint-todo-number-permanence.py",
+                    lambda m: m.main(["lint-todo-number-permanence.py"]),
+                    absent_patches={"resolve_sibling": lambda name: None},
+                    present_patches={"resolve_sibling": lambda name: sibling})
+
+    def test_gate81_todo_list_tag(self) -> None:
+        sibling = self.store / "grc_library_private"
+        sibling.mkdir()
+        (sibling / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX, encoding="utf-8")
+        self._check("gate 81", "lint-todo-list-tag.py", lambda m: m.main(["lint-todo-list-tag.py"]),
+                    absent_patches={"resolve_sibling": lambda name: None},
+                    present_patches={"resolve_sibling": lambda name: sibling})
+
+    def test_gate90_todo_index_reference_parity(self) -> None:
+        sibling = self.store / "grc_library_private"
+        sibling.mkdir()
+        (sibling / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX, encoding="utf-8")
+        (sibling / "P-TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.PREF,
+                                                     encoding="utf-8")
+        self._check("gate 90", "lint-todo-index-reference-parity.py",
+                    lambda m: m.main(["lint-todo-index-reference-parity.py"]),
+                    absent_patches={"resolve_sibling": lambda name: None},
+                    present_patches={"resolve_sibling": lambda name: sibling})
+
+    def test_gate90_root_run_prints_no_degraded_line(self) -> None:
+        # Gate 90 is aligned with gates 78 and 81: a --root run is a fixture run, so an absent
+        # private sibling prints neither the line nor the annotation, even under GitHub Actions.
+        root = self.store / "root"
+        root.mkdir()
+        (root / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.REF,
+                                                encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        for github in (False, True):
+            rc, out, err = self._run(fname, lambda m: m.main([fname, "--root", str(root)]),
+                                     True, github, resolve_sibling=lambda name: None)
+            self.assertEqual(rc, 0, out + err)
+            self._assert_clean(f"{fname} --root (GITHUB_ACTIONS={github})", out)
+
+    def test_gate90_root_run_reads_no_sibling_store(self) -> None:
+        # 3b635 r3: under --root, gate 90 takes its private pair from the root, as gates 78 and
+        # 81 take P-TODO.md, and never calls resolve_sibling. The resolver here returns a real
+        # store whose P-TODO pair is broken (exit 2 if read), so a gate that consults it fails.
+        from unittest.mock import Mock
+        sibling = self.store / "grc_library_private"
+        sibling.mkdir()
+        (sibling / "P-TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.PREF,
+                                                     encoding="utf-8")
+        root = self.store / "root"
+        root.mkdir()
+        for rel, text in (("TODO.md", TodoIndexReferenceParityTests.IDX),
+                          ("TODO-REFERENCE.md", TodoIndexReferenceParityTests.REF),
+                          ("P-TODO.md", TodoIndexReferenceParityTests.PIDX),
+                          ("P-TODO-REFERENCE.md", TodoIndexReferenceParityTests.PREF)):
+            (root / rel).write_text(text, encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        for github in (False, True):
+            resolver = Mock(return_value=sibling)
+            rc, out, err = self._run(fname, lambda m: m.main([fname, "--root", str(root)]),
+                                     True, github, resolve_sibling=resolver)
+            label = f"{fname} --root (GITHUB_ACTIONS={github})"
+            self.assertEqual(resolver.call_count, 0, f"{label}: resolve_sibling was called")
+            self.assertEqual(rc, 0, f"{label}\n{out}{err}")
+            self.assertIn("P-TODO.md: 2 index row(s) / 2 detail block(s)", out, label)
+            self._assert_clean(label, out)
+
+    def test_gate90_root_run_says_when_private_parity_not_checked(self) -> None:
+        # 3b635 r4: under --root with no P-TODO pair in the root, gate 90 prints an explicit
+        # not-checked line, as gate 81 prints P-TODO.md not present; informational, not DEGRADED,
+        # and exit 0 either way. With the pair present the line is absent.
+        root = self.store / "root"
+        root.mkdir()
+        (root / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.REF,
+                                                encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        note = "private index<->reference parity not checked"
+        for present in (False, True):
+            if present:
+                (root / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX,
+                                                encoding="utf-8")
+                (root / "P-TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.PREF,
+                                                          encoding="utf-8")
+            rc, out, err = self._run(fname, lambda m: m.main([fname, "--root", str(root)]),
+                                     True, False, resolve_sibling=lambda name: None)
+            label = f"{fname} --root (P-TODO pair present={present})"
+            self.assertEqual(rc, 0, f"{label}\n{out}{err}")
+            self._assert_clean(label, out)
+            lines = [ln for ln in out.splitlines() if note in ln]
+            if present:
+                self.assertEqual(lines, [], f"{label}: the pair was checked\n{out}")
+                self.assertIn("P-TODO.md: 2 index row(s) / 2 detail block(s)", out, label)
+            else:
+                self.assertEqual(len(lines), 1, f"{label}: expected one not-checked line\n{out}")
+                self.assertEqual(lines[0], f"OK: {note}: the --root directory {root} holds "
+                                 "neither P-TODO.md nor P-TODO-REFERENCE.md.")
+                self.assertNotIn("P-TODO.md:", out, label)
+
+    def _gate90_dirs(self, *names: str) -> list[Path]:
+        dirs = [self.store / n for n in names]
+        for d in dirs:
+            d.mkdir()
+        return dirs
+
+    def test_gate90_private_root_without_pair_fails(self) -> None:
+        # 3b641: --private-root alone naming a directory with no P-TODO pair used to print
+        # nothing about private parity; r3 printed a not-checked line and passed. r4
+        # (VPR3B641-R3): the flag declares the private input, so a directory without the pair
+        # fails with exit 2 naming it; no not-checked line, no DEGRADED line, no sibling lookup.
+        from unittest.mock import Mock
+        repo, priv = self._gate90_dirs("repo", "priv")
+        (repo / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.REF,
+                                                encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        resolver = Mock(return_value=None)
+        rc, out, err = self._run(fname, lambda m: m.main([fname, "--private-root", str(priv)]),
+                                 True, True, REPO_ROOT=repo, resolve_sibling=resolver)
+        label = f"{fname} --private-root"
+        self.assertEqual(rc, 2, f"{label}\n{out}{err}")
+        self.assertEqual(resolver.call_count, 0, f"{label}: resolve_sibling was called")
+        self._assert_clean(label, out)
+        self.assertIn(f"ERROR: no private P-TODO pair was found in the --private-root directory "
+                      f"{priv}", err, label)
+        self.assertNotIn("parity not checked", out + err, label)
+
+    def test_gate90_root_with_private_root_reads_only_private_root(self) -> None:
+        # 3b641: with --root and --private-root both given, the private pair comes from
+        # --private-root only. A valid pair in the root is not read, so without the pair in
+        # --private-root the run fails naming that directory (r4); with it, the pair is checked.
+        root, priv = self._gate90_dirs("root", "priv")
+        for rel, text in (("TODO.md", TodoIndexReferenceParityTests.IDX),
+                          ("TODO-REFERENCE.md", TodoIndexReferenceParityTests.REF),
+                          ("P-TODO.md", TodoIndexReferenceParityTests.PIDX),
+                          ("P-TODO-REFERENCE.md", TodoIndexReferenceParityTests.PREF)):
+            (root / rel).write_text(text, encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        argv = [fname, "--root", str(root), "--private-root", str(priv)]
+        for present in (False, True):
+            if present:
+                (priv / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX,
+                                                encoding="utf-8")
+                (priv / "P-TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.PREF,
+                                                          encoding="utf-8")
+            rc, out, err = self._run(fname, lambda m: m.main(argv), True, False,
+                                     resolve_sibling=lambda name: None)
+            label = f"{fname} --root --private-root (pair in private root={present})"
+            self.assertEqual(rc, 0 if present else 2, f"{label}\n{out}{err}")
+            self._assert_clean(label, out)
+            lines = [ln for ln in out.splitlines() if "parity not checked" in ln]
+            self.assertEqual(lines, [], f"{label}\n{out}")
+            if present:
+                self.assertIn("P-TODO.md: 2 index row(s) / 2 detail block(s)", out, label)
+            else:
+                self.assertIn("ERROR: no private P-TODO pair was found in the --private-root "
+                              f"directory {priv}", err, label)
+                self.assertNotIn("P-TODO.md:", out, label)
+
+    def test_gate90_legacy_ptodo_without_reference_says_why(self) -> None:
+        # 3b641: a legacy ### -block P-TODO.md with no P-TODO-REFERENCE.md is skipped with exit 0;
+        # the not-checked line says the backlog is legacy rather than that the pair is absent,
+        # under --root and under --private-root alike.
+        legacy = "# P-TODO\n## Group A\n### P-1.1 ptask (H)\n\nbody\n"
+        root, priv = self._gate90_dirs("root", "priv")
+        for d in (root, priv):
+            (d / "P-TODO.md").write_text(legacy, encoding="utf-8")
+        (root / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.REF,
+                                                encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        for flag, argv, named in (
+                ("--root", [fname, "--root", str(root)], root),
+                ("--private-root", [fname, "--root", str(root), "--private-root", str(priv)], priv)):
+            rc, out, err = self._run(fname, lambda m: m.main(argv), True, False,
+                                     resolve_sibling=lambda name: None)
+            label = f"{fname} legacy P-TODO.md via {flag}"
+            self.assertEqual(rc, 0, f"{label}\n{out}{err}")
+            self._assert_clean(label, out)
+            lines = [ln for ln in out.splitlines() if "parity not checked" in ln]
+            self.assertEqual(lines, [
+                f"OK: private index<->reference parity not checked: the {flag} directory "
+                f"{named} holds a legacy ### -block P-TODO.md and no P-TODO-REFERENCE.md "
+                "(backlog not yet split)."], f"{label}\n{out}")
+            self.assertNotIn("INDEX DETAIL LEAK", out + err, label)
+
+    def test_gate107_tooling_backlog_refs(self) -> None:
+        root = self.store / "repo"
+        (root / "tools").mkdir(parents=True)
+        (root / ".claude" / "hooks").mkdir(parents=True)
+        (root / "TODO.md").write_text(ToolingBacklogRefsTests.TODO_INDEX, encoding="utf-8")
+        (root / "tools" / "sample.py").write_text("# Shaped by (TODO 3.99) back then.\n",
+                                                  encoding="utf-8")
+        gate = "tools/lint-tooling-backlog-refs.py"
+        for github in (False, True):
+            with self._github_env(github):  # the subprocess inherits os.environ
+                absent = run_linter(gate, "--root", root)
+            self.assertEqual(absent.returncode, 0, absent.stdout + absent.stderr)
+            self._assert_degraded("gate 107", f"{gate} (GITHUB_ACTIONS={github})",
+                                  absent.stdout, github)
+        sibling = self.store / "grc_library_private"
+        sibling.mkdir()
+        (sibling / "TODO-REFERENCE.md").write_text("## Priority 1\n\n### 3.99 Redirect stub\n",
+                                                   encoding="utf-8")
+        with self._github_env(True):
+            present = run_linter(gate, "--root", root)
+        self.assertEqual(present.returncode, 0, present.stdout + present.stderr)
+        self._assert_clean(gate, present.stdout)
+
+    def test_delta_gate_d14_class_attestation(self) -> None:
+        self._write("open-findings.md", "# Open findings\n\n## Open\n\n## Closed today\n")
+        self._check("delta gate D14", "check-class-attestation-on-pr.py",
+                    lambda m: m.main(["check-class-attestation-on-pr.py"]))
 
 
 class DetectEnvIdentityTests(unittest.TestCase):
@@ -45867,6 +46275,9 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         # --private-root scopes the transitional private-first reference lookup
         # to the fixture, so these tests stay hermetic after the real
         # grc_library_private/TODO-REFERENCE.md exists (2026-08 migration).
+        # 3b641 r4: a named --private-root must hold a P-TODO pair, so the fixture carries a clean one.
+        (root / "P-TODO.md").write_text(self.PIDX, encoding="utf-8")
+        (root / "P-TODO-REFERENCE.md").write_text(self.PREF, encoding="utf-8")
         return run_linter("tools/lint-todo-index-reference-parity.py",
                           "--root", str(root), "--private-root", str(root)), root
 
@@ -45983,10 +46394,14 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         root = Path(tempfile.mkdtemp(prefix="bij-noref-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         root.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        # 3b641 r4: the named --private-root holds a P-TODO pair; only the TODO.md pair is absent.
+        (root / "P-TODO.md").write_text(self.PIDX, encoding="utf-8")
+        (root / "P-TODO-REFERENCE.md").write_text(self.PREF, encoding="utf-8")
         r = run_linter("tools/lint-todo-index-reference-parity.py",
                        "--root", str(root), "--private-root", str(root))
         try:
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("parity holds for P-TODO.md: 2 index row(s) / 2 detail block(s) (", r.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
@@ -46045,10 +46460,14 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
         (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        # 3b641 r4: a named --private-root must hold a P-TODO pair as well.
+        (priv / "P-TODO.md").write_text(self.PIDX, encoding="utf-8")
+        (priv / "P-TODO-REFERENCE.md").write_text(self.PREF, encoding="utf-8")
         r = run_linter("tools/lint-todo-index-reference-parity.py",
                        "--root", str(root), "--private-root", str(priv))
         try:
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("TODO.md: 2 index row(s) / 2 detail block(s);", r.stdout)
         finally:
             import shutil
             shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
@@ -46181,6 +46600,281 @@ class TodoIndexReferenceParityTests(LinterTestCase):
             self.assertLinterFails(r, "MISSING")
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
+    def test_unreadable_private_root_fails_closed(self):
+        # 3b641 r2 (VPR3B641-R1): a mode-000 --private-root read as a directory with no P-TODO
+        # pair and passed with the not-checked line. It now fails with exit 2 naming the path.
+        root = Path(tempfile.mkdtemp(prefix="bij-priv000-", dir=FIXTURE_DIR))
+        priv = Path(tempfile.mkdtemp(prefix="bij-priv000-priv-", dir=FIXTURE_DIR))
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        priv.chmod(0)
+        try:
+            r = run_linter("tools/lint-todo-index-reference-parity.py",
+                           "--root", str(root), "--private-root", str(priv))
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn(f"ERROR: cannot read the private directory {priv}", r.stderr)
+            self.assertNotIn("parity not checked", r.stdout + r.stderr)
+        finally:
+            import shutil
+            priv.chmod(0o700)
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores file permission bits")
+    def test_unreadable_private_pair_file_fails_closed(self):
+        # 3b641 r2: an unreadable P-TODO.md or P-TODO-REFERENCE.md fails with exit 2 naming the
+        # file, alone or beside its partner (it used to raise a traceback or read as absent).
+        for rels in (("P-TODO.md",), ("P-TODO-REFERENCE.md",),
+                     ("P-TODO.md", "P-TODO-REFERENCE.md")):
+            for locked in rels:
+                with self.subTest(files=rels, locked=locked):
+                    root = Path(tempfile.mkdtemp(prefix="bij-pfile000-", dir=FIXTURE_DIR))
+                    priv = Path(tempfile.mkdtemp(prefix="bij-pfile000-priv-", dir=FIXTURE_DIR))
+                    (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+                    (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+                    texts = {"P-TODO.md": self.PIDX, "P-TODO-REFERENCE.md": self.PREF}
+                    for rel in rels:
+                        (priv / rel).write_text(texts[rel], encoding="utf-8")
+                    (priv / locked).chmod(0)
+                    try:
+                        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                                       "--root", str(root), "--private-root", str(priv))
+                        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                        self.assertIn(f"ERROR: cannot read {priv / locked}", r.stderr)
+                        self.assertNotIn("Traceback", r.stderr)
+                    finally:
+                        import shutil
+                        (priv / locked).chmod(0o600)
+                        shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def _run_bytes(self, name, root_files, priv_files):
+        """Write raw bytes (so a fixture may hold invalid UTF-8) under --root and --private-root."""
+        root = Path(tempfile.mkdtemp(prefix=name + "-", dir=FIXTURE_DIR))
+        priv = Path(tempfile.mkdtemp(prefix=name + "-priv-", dir=FIXTURE_DIR))
+        for d, files in ((root, root_files), (priv, priv_files)):
+            for rel, data in files.items():
+                (d / rel).write_bytes(data)
+        return run_linter("tools/lint-todo-index-reference-parity.py",
+                          "--root", str(root), "--private-root", str(priv)), root, priv
+
+    def test_unrecognised_ptodo_fails_closed(self):
+        # 3b641 r3 (VPR3B641-R2): a P-TODO.md without an index header counted as legacy, so
+        # one holding only garbage, or nothing, passed claiming a legacy ### -block file (or,
+        # beside its reference, failed with parity findings). It is now refused with exit 2
+        # naming the path and the reason, with or without P-TODO-REFERENCE.md.
+        for label, data, reason in (("garbage", b"garbage\n", "is neither an index-form P-TODO.md"),
+                                    ("empty", b"", "is empty"),
+                                    ("blank", b"\n  \n", "is empty")):
+            for with_ref in (False, True):
+                with self.subTest(content=label, with_ref=with_ref):
+                    priv_files = {"TODO-REFERENCE.md": self.REF.encode(), "P-TODO.md": data}
+                    if with_ref:
+                        priv_files["P-TODO-REFERENCE.md"] = self.PREF.encode()
+                    r, root, priv = self._run_bytes("bij-ptodo-" + label,
+                                                    {"TODO.md": self.IDX.encode()}, priv_files)
+                    try:
+                        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                        self.assertIn(f"ERROR: {priv / 'P-TODO.md'} {reason}", r.stderr)
+                        self.assertNotIn("parity not checked", r.stdout + r.stderr)
+                    finally:
+                        import shutil
+                        shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_invalid_utf8_backlog_file_fails_closed(self):
+        # 3b641 r3 (VPR3B641-R2): invalid UTF-8 in a backlog file ended in a UnicodeDecodeError
+        # traceback (exit 1). Each file is now read once, strictly, and refused with exit 2.
+        bad = b"# P-TODO\n## Group A\n### P-1.1 ptask (H)\n\n\xff\xfe body\n"
+        for where, rel in (("priv", "P-TODO.md"), ("priv", "P-TODO-REFERENCE.md"),
+                           ("priv", "TODO-REFERENCE.md"), ("root", "TODO.md")):
+            with self.subTest(where=where, file=rel):
+                root_files = {"TODO.md": self.IDX.encode()}
+                priv_files = {"TODO-REFERENCE.md": self.REF.encode(),
+                              "P-TODO.md": self.PIDX.encode(), "P-TODO-REFERENCE.md": self.PREF.encode()}
+                (root_files if where == "root" else priv_files)[rel] = bad
+                r, root, priv = self._run_bytes("bij-badutf8", root_files, priv_files)
+                try:
+                    self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                    path = (root if where == "root" else priv) / rel
+                    self.assertIn(f"ERROR: cannot decode {path} as UTF-8", r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
+                finally:
+                    import shutil
+                    shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_well_formed_legacy_ptodo_still_passes(self):
+        # 3b641 r3 negative control: positive classification keeps a recognised legacy ### -block
+        # P-TODO.md (no P-TODO-REFERENCE.md) passing with the not-checked line, as before.
+        legacy = b"# P-TODO\n## Group A\n### P-1.1 ptask (H)\n\nbody\n"
+        r, root, priv = self._run_bytes("bij-legacy-ok", {"TODO.md": self.IDX.encode()},
+                                        {"TODO-REFERENCE.md": self.REF.encode(), "P-TODO.md": legacy})
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("holds a legacy ### -block P-TODO.md and no P-TODO-REFERENCE.md", r.stdout)
+            self.assertNotIn("ERROR", r.stdout + r.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_private_root_without_pair_fails_closed(self):
+        # 3b641 r4 (VPR3B641-R3): an explicitly named --private-root holding neither P-TODO.md nor
+        # P-TODO-REFERENCE.md printed the not-checked line and exited 0. The flag declares the
+        # private input, so its absence is a failure (check-fails-closed-on-unreadable): exit 2
+        # naming the path, whether or not the directory supplies TODO-REFERENCE.md, and whether
+        # --private-root is the root itself or a separate directory.
+        for label, priv_files, same_dir in (
+                ("empty", {}, False),
+                ("todo-ref-only", {"TODO-REFERENCE.md": self.REF}, False),
+                ("same-as-root", {"TODO-REFERENCE.md": self.REF}, True)):
+            with self.subTest(case=label):
+                root = Path(tempfile.mkdtemp(prefix="bij-nopair-" + label + "-", dir=FIXTURE_DIR))
+                priv = Path(tempfile.mkdtemp(prefix="bij-nopair-" + label + "-priv-", dir=FIXTURE_DIR))
+                named = root if same_dir else priv
+                (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+                for rel, text in priv_files.items():
+                    (named / rel).write_text(text, encoding="utf-8")
+                r = run_linter("tools/lint-todo-index-reference-parity.py",
+                               "--root", str(root), "--private-root", str(named))
+                try:
+                    self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                    self.assertIn(f"ERROR: no private P-TODO pair was found in the --private-root "
+                                  f"directory {named}", r.stderr)
+                    self.assertNotIn("parity not checked", r.stdout + r.stderr)
+                    self.assertNotIn("parity holds", r.stdout)
+                finally:
+                    import shutil
+                    shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_root_without_pair_keeps_not_checked_notice(self):
+        # 3b641 r4 negative control: --root alone names a fixture repository, not a private input;
+        # the private directory defaults to it, so a root with no P-TODO pair keeps the
+        # informational not-checked line and exit 0.
+        root = Path(tempfile.mkdtemp(prefix="bij-root-nopair-", dir=FIXTURE_DIR))
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        r = run_linter("tools/lint-todo-index-reference-parity.py", "--root", str(root))
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn(f"OK: private index<->reference parity not checked: the --root directory "
+                          f"{root} holds neither P-TODO.md nor P-TODO-REFERENCE.md.", r.stdout)
+            self.assertNotIn("ERROR", r.stdout + r.stderr)
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    # --- 3b648: the DEFAULT lookup (neither --root nor --private-root) ---
+    NOT_CHECKED = "private index<->reference parity not checked"
+
+    def _run_default(self, label, sibling_files, sibling=True):
+        """Gate 90's default lookup in process. The repository root is a fixture holding TODO.md;
+        resolve_sibling returns a fixture sibling holding exactly ``sibling_files`` (relative name:
+        text), or None when ``sibling`` is False. Hermetic: nothing outside the fixture is read, and
+        r3 removed the gate's git calls, so no git runs."""
+        import contextlib
+        import io
+        from unittest.mock import patch
+        base = Path(tempfile.mkdtemp(prefix="bij-default-" + label + "-"))
+        self.addCleanup(shutil.rmtree, base, True)
+        repo, priv = base / "grc_library", base / "grc_library_private"
+        repo.mkdir(); priv.mkdir()
+        (repo / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        for rel, text in sibling_files.items():
+            (priv / rel).parent.mkdir(parents=True, exist_ok=True)
+            (priv / rel).write_text(text, encoding="utf-8")
+        mod = load_linter_module("tools/lint-todo-index-reference-parity.py", "_gate90_default_" + label)
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(patch.object(mod, "REPO_ROOT", repo))
+            stack.enter_context(patch.object(mod, "resolve_sibling", lambda name: priv if sibling else None))
+            stack.enter_context(contextlib.redirect_stdout(out))
+            stack.enter_context(contextlib.redirect_stderr(err))
+            rc = mod.main(["lint-todo-index-reference-parity.py"])
+        return rc, out.getvalue(), err.getvalue(), priv
+
+    def _assert_sibling_error(self, rc, out, err, message):
+        self.assertEqual(rc, 2, out + err)
+        self.assertIn(message, err)
+        # r4 (VPR3B648-R3): renaming a populated store would break the tools that read it.
+        self.assertNotIn("rename", out + err)
+        self.assertNotIn(self.NOT_CHECKED, out + err)
+        self.assertNotIn("parity holds", out)
+        self.assertNotIn("DEGRADED", out + err)
+
+    def test_default_empty_sibling_fails(self):
+        # 3b648 (VPR3B641-R4 note 4): a resolved sibling holding nothing passed (exit 0, "no
+        # two-file backlog pair present"). r4: an empty sibling is likely stray, so it fails with
+        # exit 2 naming it and saying to remove it or pass --private-root.
+        rc, out, err, priv = self._run_default("empty", {})
+        self._assert_sibling_error(rc, out, err,
+                                   f"ERROR: the private sibling {priv} is an empty directory, so no "
+                                   "private store supplies P-TODO.md and P-TODO-REFERENCE.md; it is "
+                                   "likely stray: remove it, or pass --private-root naming the private store")
+
+    def test_default_sibling_with_only_todo_reference_fails(self):
+        # 3b648: a sibling holding TODO-REFERENCE.md but neither P-TODO file passed with the public
+        # pair checked and the private pair silently skipped; it fails with exit 2. r4: it is a
+        # populated store, so the message says to restore the pair and never to remove or rename it.
+        rc, out, err, priv = self._run_default("refonly", {"TODO-REFERENCE.md": self.REF,
+                                                           "notes.md": "kept\n"})
+        self._assert_sibling_error(rc, out, err,
+                                   f"ERROR: no private P-TODO pair was found in the private sibling {priv} "
+                                   "(it holds TODO-REFERENCE.md but neither P-TODO.md nor "
+                                   "P-TODO-REFERENCE.md); restore the pair there;")
+        self.assertNotIn("remove it", err)
+
+    def test_default_sibling_half_pair_fails(self):
+        # 3b648 r4 control: half a P-TODO pair in the default sibling fails as before, whatever
+        # else the store holds.
+        for label, files, message in (
+                ("idxonly", {"P-TODO.md": self.PIDX},
+                 "P-TODO.md is in index-row form but P-TODO-REFERENCE.md is absent"),
+                ("prefonly", {"P-TODO-REFERENCE.md": self.PREF},
+                 "P-TODO-REFERENCE.md is present but P-TODO.md is missing")):
+            with self.subTest(label):
+                rc, out, err, _ = self._run_default(label, dict(files, **{"notes.md": "kept\n"}))
+                self._assert_sibling_error(rc, out, err, message)
+
+    def test_default_store_without_backlog_notes_not_checked(self):
+        # 3b648 r4 (VPR3B648-R3): r3 failed a sibling holding other content and none of the backlog
+        # files, advising its removal; that is the README's transitional fallback store for
+        # .working/ records, which other tools read. It passes with the not-checked line naming it.
+        rc, out, err, priv = self._run_default("store", {".working/handoff.md": "handoff\n"})
+        self.assertEqual(rc, 0, out + err)
+        lines = [ln for ln in out.splitlines() if self.NOT_CHECKED in ln]
+        self.assertEqual(lines, [f"OK: {self.NOT_CHECKED}: the private sibling {priv} holds none of "
+                                 "TODO-REFERENCE.md, P-TODO.md or P-TODO-REFERENCE.md (a private store "
+                                 "without a backlog)."], out)
+        self.assertNotIn("ERROR", out + err)
+        self.assertNotIn("DEGRADED", out + err)
+
+    def test_default_sibling_legacy_ptodo_notes_not_checked(self):
+        # 3b648: a recognised legacy ### -block P-TODO.md is the accepted pre-split layout, so it
+        # passes, with the not-checked line saying why.
+        legacy = "# P-TODO\n## Group A\n### P-1.1 ptask (H)\n\nbody\n"
+        rc, out, err, priv = self._run_default("legacy", {"TODO-REFERENCE.md": self.REF, "P-TODO.md": legacy})
+        self.assertEqual(rc, 0, out + err)
+        lines = [ln for ln in out.splitlines() if self.NOT_CHECKED in ln]
+        self.assertEqual(lines, [f"OK: {self.NOT_CHECKED}: the private sibling {priv} holds a legacy "
+                                 "### -block P-TODO.md and no P-TODO-REFERENCE.md (backlog not yet split)."],
+                         out)
+        self.assertNotIn("ERROR", out + err)
+
+    def test_default_sibling_with_pair_is_checked(self):
+        # 3b648 negative control: a sibling holding the pair is checked, with no not-checked line.
+        rc, out, err, _ = self._run_default("pair", {"TODO-REFERENCE.md": self.REF,
+                                                     "P-TODO.md": self.PIDX, "P-TODO-REFERENCE.md": self.PREF})
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("P-TODO.md: 2 index row(s) / 2 detail block(s)", out)
+        self.assertNotIn("ERROR", out + err)
+        self.assertNotIn(self.NOT_CHECKED, out + err)
+
+    def test_default_without_sibling_stays_degraded(self):
+        # 3b648 negative control: CI and most adopters have no private store; an absent sibling
+        # keeps the DEGRADED pass (exit 0).
+        rc, out, err, _ = self._run_default("ci", {}, sibling=False)
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("DEGRADED: gate 90 skipped", out)
+        self.assertNotIn("ERROR", out + err)
+        self.assertNotIn(self.NOT_CHECKED, out + err)
 
 class TagGateTests(LinterTestCase):
     """tools/lint-todo-list-tag.py (gate 81): every open TODO.md / P-TODO.md
@@ -68816,6 +69510,121 @@ class ToolingBacklogRefsTests(LinterTestCase):
         result = self.check(root)
         self.assertLinterFails(result, "sample-hook.py")
 
+    def write_extra(self, root: Path, rel: str, text: str) -> None:
+        """One extra fixture file under the widened 3b636 roots."""
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+
+    def test_playbook_pointer_flagged(self) -> None:
+        # 3b636: the rest of .claude/ is in scope, so a positional pointer in a
+        # playbook fails like one in a hook.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".claude/playbooks/sample.md",
+                         "Relocated by TODO 3.99 / PR #1249 last round.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, ".claude/playbooks/sample.md")
+
+    def test_playbook_stale_pointer_fails_and_closing_pr_form_passes(self) -> None:
+        # The stale pointer beside the anchored one is in a playbook, which
+        # only the widened roots reach, so this fails against the
+        # pre-3b636 gate (it saw no finding at all).
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".claude/playbooks/sample.md",
+                         "Shaped by TODO 3.98 (closing PR #1250) as well.\n"
+                         "\n"
+                         "Relocated by TODO 3.99 last round.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, "line 3: 'TODO 3.99'")
+        self.assertNotIn("3.98", result.stdout)
+
+    def test_playbook_marker_clears(self) -> None:
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".claude/playbooks/sample.md",
+                         "<!-- todo-ref-ok: historical narrative -->\n"
+                         "Relocated by TODO 3.98 last round.\n"
+                         "\n"
+                         "Shaped by TODO 3.99 later.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, "line 4: 'TODO 3.99'")
+        self.assertNotIn("3.98", result.stdout)
+
+    def test_yaml_suffix_pointer_flagged(self) -> None:
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".github/sample.yaml",
+                         "# Key added by TODO 3.99.\nname: sample\n")
+        result = self.check(root)
+        self.assertLinterFails(result, ".github/sample.yaml")
+
+    def test_registered_provenance_txt_scanned_as_markdown(self) -> None:
+        # 3b636 r2: the rule-overlay records are project-authored Markdown
+        # under a .txt suffix. Exactly the registered paths are selected (read
+        # from external_overlay), as Markdown, so a backticked example clears;
+        # any other .txt file stays out of scope.
+        overlay = load_linter_module("tools/external_overlay.py",
+                                     "_tooling_backlog_refs_overlay")
+        self.assertTrue(overlay.RULE_PROVENANCE_PATHS)
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        for rel in (".claude/rules/external/kariedo/notes.txt",
+                    ".claude/playbooks/notes.txt"):
+            self.write_extra(root, rel, "Refreshed under TODO 3.99.\n")
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for rel in overlay.RULE_PROVENANCE_PATHS:
+            with self.subTest(rel=rel):
+                self.write_extra(root, rel,
+                                 "# Overlay provenance\n\n"
+                                 "An example reads `TODO 3.97`.\n"
+                                 "Pruned under TODO 3.99 last review.\n")
+                try:
+                    result = self.check(root)
+                    self.assertLinterFails(result, f"=== {rel} ===")
+                    self.assertIn("line 4: 'TODO 3.99'", result.stdout)
+                    self.assertNotIn("3.97", result.stdout)
+                finally:
+                    # Reset even on failure, so the next subtest sees one record.
+                    self.write_extra(root, rel, "# Overlay provenance\n")
+
+    def test_github_workflow_pointer_flagged(self) -> None:
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".github/workflows/sample.yml",
+                         "# Step added by TODO 3.99.\nname: sample\n")
+        result = self.check(root)
+        self.assertLinterFails(result, ".github/workflows/sample.yml")
+
+    def test_vendored_and_machine_local_paths_not_selected(self) -> None:
+        # 3b636 note 11: upstream-refreshed third-party content and
+        # gitignored machine-local state are out of scope; a vendored
+        # directory's first-party PROVENANCE.md stays scanned.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        for rel in (".claude/rules/external/vendor/rule.md",
+                    ".claude/skills/clean-language/SKILL.md",
+                    ".claude/skills/addyosmani-context-engineering/SKILL.md",
+                    ".claude/hooks/.state/history.json",
+                    ".claude/settings.local.json"):
+            self.write_extra(root, rel, "Upstream says TODO 3.99.\n")
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.write_extra(root, ".claude/skills/clean-language/PROVENANCE.md",
+                         "Vendored under TODO 3.99.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, "clean-language/PROVENANCE.md")
+
+    def test_nested_vendored_provenance_md_not_selected(self) -> None:
+        # 3b636 r3: only each vendored directory's OWN record, at its root, is
+        # first-party; a nested file that shares the basename is vendored
+        # content and stays out of scope, while the root record is scanned.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        for rel in (".claude/skills/clean-language/references/PROVENANCE.md",
+                    ".claude/skills/addyosmani-context-engineering/sub/PROVENANCE.md",
+                    ".claude/rules/external/vendor/PROVENANCE.md"):
+            self.write_extra(root, rel, "Upstream says TODO 3.98.\n")
+        self.write_extra(root, ".claude/skills/clean-language/PROVENANCE.md",
+                         "Vendored under TODO 3.99.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, "=== .claude/skills/clean-language/PROVENANCE.md ===")
+        self.assertNotIn("3.98", result.stdout + result.stderr)
+
     def test_missing_todo_md_exits_two(self) -> None:
         root = self.make_repo("# A clean tool file.\n", todo="")
         result = self.check(root)
@@ -70309,6 +71118,78 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "<div>\nx\n" + table}))
         self.assertFinding(self.make_repo({"doc.md": "<div>\n\n" + table}),
                            "doc.md:5 header=2 row=1")
+
+    # Backlog 3b640: markdown-it-py 3.0.0 gives a line lazy in a block quote
+    # indent -1, so a block quote nested in that one reads a block start
+    # indented four or more columns as unindented and ends there; the line
+    # renders as indented code and the table after it is checked.
+    NESTED_QUOTE_ARRANGEMENTS = (("> > text", "    {}", "> "),
+                                 ("> > > text", ">     {}", "> "),
+                                 ("> - > text", "    {}", ""))
+
+    def assertNestedQuoteEnds(self, *lines: str) -> None:
+        table = "| a | b |", "|---|---|", "| 1 |"
+        for line in lines:
+            for para, middle, prefix in self.NESTED_QUOTE_ARRANGEMENTS:
+                text = "\n".join([para, middle.format(line)] + [prefix + t for t in table])
+                with self.subTest(text=text):
+                    self.assertEqual(self.finding_heads(text + "\n"), ["doc.md:5 header=2 row=1"])
+
+    def test_nested_quote_ends_at_indented_html_block_type_1(self) -> None:
+        self.assertNestedQuoteEnds("<script>", "<pre>")
+
+    def test_nested_quote_ends_at_indented_html_block_type_2(self) -> None:
+        self.assertNestedQuoteEnds("<!--")
+
+    def test_nested_quote_ends_at_indented_html_block_type_6(self) -> None:
+        self.assertNestedQuoteEnds("<div>", "</p>")
+
+    def test_nested_quote_ends_at_indented_atx_heading(self) -> None:
+        self.assertNestedQuoteEnds("# h")
+
+    def test_nested_quote_ends_at_indented_fence(self) -> None:
+        self.assertNestedQuoteEnds("```", "~~~")
+
+    def test_nested_quote_ends_at_indented_thematic_break(self) -> None:
+        self.assertNestedQuoteEnds("***", "- - -")
+
+    def test_nested_quote_ends_at_indented_list_item(self) -> None:
+        # In the block quote's own scan a list item need not be able to
+        # interrupt a paragraph: an empty item or one not numbered 1 ends it.
+        self.assertNestedQuoteEnds("- x", "1. x", "2) x", "-")
+
+    def test_nested_quote_kept_by_indented_text_type_7_quote_or_pipe(self) -> None:
+        # Negative controls: none of these ends the nested quote, so the
+        # table-shaped lines stay paragraph text, as markdown-it-py renders them.
+        table = "| a | b |", "|---|---|", "| 1 |"
+        for line in ("<span>", "> q", "| p |", "text"):
+            for para, middle, prefix in self.NESTED_QUOTE_ARRANGEMENTS:
+                text = "\n".join([para, middle.format(line)] + [prefix + t for t in table])
+                with self.subTest(text=text):
+                    self.assertClean(self.make_repo({"doc.md": text + "\n"}))
+
+    # The rule needs two block quotes the lazy line does not continue: with
+    # one, markdown-it-py 3.0.0's paragraph rule skips the indent -1 line, so
+    # the block start and the table-shaped lines after it stay paragraph text.
+    SINGLE_QUOTE_ARRANGEMENTS = (("> text", "    {}", ""),
+                                 ("> > text", ">     {}", "> "),
+                                 ("- > text", "      {}", "  "))
+
+    def test_single_quote_kept_by_indented_block_start(self) -> None:
+        table = "| a | b |", "|---|---|", "| 1 |"
+        for line in ("<script>", "<!--", "<div>", "# h", "```", "***", "- x", "1. x"):
+            for para, middle, prefix in self.SINGLE_QUOTE_ARRANGEMENTS:
+                text = "\n".join([para, middle.format(line)] + [prefix + t for t in table])
+                with self.subTest(text=text):
+                    self.assertClean(self.make_repo({"doc.md": text + "\n"}))
+
+    def test_two_quotes_end_at_indented_block_start(self) -> None:
+        # Exactly two quotes left, with the table outside both of them.
+        table = "| a | b |", "|---|---|", "| 1 |"
+        for line in ("<script>", "<!--", "<div>", "# h", "```", "***", "- x", "1. x"):
+            text = "\n".join(["> > text", "    " + line, *table])
+            with self.subTest(text=text):
+                self.assertEqual(self.finding_heads(text + "\n"), ["doc.md:5 header=2 row=1"])
 
     def test_uppercase_md_suffix_scanned(self) -> None:
         self.assertFinding(self.make_repo({"NOTES.MD": self.HEAD3 + "| 1 |\n"}),

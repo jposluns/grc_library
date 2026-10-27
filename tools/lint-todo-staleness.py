@@ -50,7 +50,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, resolve_working, resolve_todo_reference
+from lint_common import REPO_ROOT, print_degraded, resolve_working, resolve_todo_reference
 
 SWEEP_HISTORY_PATH = "validate-sweeps/history.md"
 # The sweep cursor lives in the session-handoff file (the canonical resume
@@ -191,9 +191,11 @@ def main() -> int:
     except subprocess.CalledProcessError:
         return 2
 
-    latest = latest_sweep_iteration(resolve_working("validate-sweeps/history.md"))
+    history_path = resolve_working("validate-sweeps/history.md")
+    latest = latest_sweep_iteration(history_path)
 
     all_findings: dict[str, list[str]] = {}
+    degraded: list[str] = []
     scanned = 0
     # Queued-PR check: the public index TODO.md is required; the DETAIL file
     # (TODO-REFERENCE.md) moved to the private sibling (2026-08 migration), so it
@@ -213,6 +215,8 @@ def main() -> int:
         rfindings = check_queued_pr(ref_path, merged)
         if rfindings:
             all_findings["TODO-REFERENCE.md"] = rfindings
+    else:
+        degraded.append("the TODO-REFERENCE.md queued-PR check")
     # Sweep-cursor check scans the session-handoff file (the resume cursor's home).
     cursor_path = resolve_working("session-handoff.md")
     if cursor_path is None:
@@ -228,9 +232,18 @@ def main() -> int:
         cursor_findings = []
     else:
         cursor_findings = check_sweep_cursor(cursor_path, latest)
+    if cursor_path is None or history_path is None:
+        degraded.append(f"the {SWEEP_CURSOR_FILE} sweep-cursor check")
     if cursor_findings:
         all_findings[SWEEP_CURSOR_FILE] = (
             all_findings.get(SWEEP_CURSOR_FILE, []) + cursor_findings
+        )
+    if degraded:
+        # 3b635: each skip above exits 0, so a green CI run must not read as a pass for them.
+        print_degraded(
+            "gate 45",
+            f"gate 45 skipped {' and '.join(degraded)} (no private store "
+            f"supplies the input); this pass attests nothing about them."
         )
 
     if not all_findings:
