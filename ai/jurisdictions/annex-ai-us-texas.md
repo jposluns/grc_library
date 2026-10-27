@@ -2,7 +2,7 @@
 
 **Document Title:** Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.9\
+**Version:** 0.0.10\
 **Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -23,7 +23,7 @@ This annex gives the adopter a single per-regime view of Texas's comprehensive s
 ## Applicable law and regulatory authority
 
 - **The Texas Responsible Artificial Intelligence Governance Act (TRAIGA)**, HB 149, 89th Legislature (2025), which adds Subtitle D, "Artificial Intelligence Protection", to Title 11 of the Business and Commerce Code, comprising Chapter 551 (general provisions), Chapter 552 (artificial intelligence protection), Chapter 553 (the regulatory sandbox program), and Chapter 554 (the Texas Artificial Intelligence Council).
-- **The Texas Attorney General** is the exclusive enforcer: the Attorney General has exclusive authority to enforce Chapter 552, except to the extent Section 552.106 provides for licensing-agency sanctions, and the chapter provides no private right of action (Sec. 552.101). The Texas Department of Information Resources (DIR) administers the Chapter 553 sandbox.
+- **The Texas Attorney General** is the exclusive enforcer: the Attorney General has exclusive authority to enforce Chapter 552, except to the extent Section 552.106 provides for state-agency sanctions, and the chapter provides no private right of action (Sec. 552.101). The Texas Department of Information Resources (DIR) administers the Chapter 553 sandbox.
 - **Local preemption (Sec. 552.003):** the chapter supersedes and preempts any ordinance, resolution, rule, or other regulation adopted by a political subdivision regarding the use of artificial intelligence systems.
 - **Construction limits (Sec. 552.002):** the chapter is not to be construed to impose a requirement that adversely affects rights or freedoms including free speech, nor to authorize any body other than the Department of Insurance to regulate the business of insurance.
 
