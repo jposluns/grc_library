@@ -2,7 +2,7 @@
 
 **Document Title:** Network Security and Segmentation Standard\
 **Document Type:** Standard\
-**Version:** 1.4.20\
+**Version:** 1.4.21\
 **Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -65,7 +65,7 @@ Sector-specific zone overlays (for example, dedicated zones for trade, customs, 
 
 ### 4.1 Key segmentation requirements
 
-- Non-production environments must be air-gapped from PROD. No direct network path between TEST/DEV and PROD is permitted without a change-controlled deployment process. This control prevents lateral movement, a common attack progression in major security incidents.
+- Non-production environments must be segregated from PROD, using physically separate networks or separate logical networks. The only permitted network path between TEST/DEV and PROD is a change-controlled deployment process. This control prevents lateral movement, a common attack progression in major security incidents.
 - Domain controllers must reside in a dedicated protected subnet. Inbound access is restricted to domain-joined systems on approved management protocols (LDAP/S, Kerberos, DNS).
 - RDP and SSH access to servers must originate from the Management zone or a designated jump host. Direct inbound RDP from user endpoints to production servers is prohibited.
 - All outbound internet traffic from servers must route through a proxy or firewall with application-layer inspection.
