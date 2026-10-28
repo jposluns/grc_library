@@ -18973,7 +18973,8 @@ class AuditGateParityTests(LinterTestCase):
                                      encoding="utf-8")
         paths["precommit"].write_text(
             f"  - repo: local\n    hooks:\n      - id: shape\n        name: Shape\n"
-            f"        entry: {command}\n        language: system\n", encoding="utf-8")
+            f"        entry: {command}\n        language: system\n"
+            f"        pass_filenames: false\n", encoding="utf-8")
         return paths
 
     def _assert_refused_on_every_reader(self, *commands: str) -> None:
@@ -19188,7 +19189,10 @@ class AuditGateParityTests(LinterTestCase):
         try:
             precommit = root / "pre-commit.yaml"
             head = "    hooks:\n      - id: keys\n        name: Keys\n        entry: python3 tools/x.py\n"
-            for tail, message in (("        language: system\n        args: [-B]\n", r"\['args'\]"),
+            # Since round 5 an args flow list is refused by the YAML line shape first.
+            for tail, message in (("        language: system\n        args: -B\n", r"\['args'\]"),
+                                  ("        language: system\n        args: [-B]\n",
+                                   "args value written as a flow collection"),
                                   ("        language: script\n", "language: system"),
                                   ("        pass_filenames: false\n", "language: system")):
                 with self.subTest(tail=tail):
@@ -19209,6 +19213,7 @@ class AuditGateParityTests(LinterTestCase):
                                 "      - run: python3 -B tools/x.py\n", encoding="utf-8")
             precommit.write_text("    hooks:\n      - id: plain\n        name: Plain\n"
                                  "        entry: python3 tools/x.py\n        language: system\n"
+                                 "        pass_filenames: false\n"
                                  "      - id: unnamed\n        entry: python3 -B tools/x.py\n"
                                  "        language: system\n", encoding="utf-8")
             with self.assertRaisesRegex(agp.ParseError, "outside a step"):
@@ -19239,6 +19244,114 @@ class AuditGateParityTests(LinterTestCase):
                                  b"        # note\r        shell: bash -c 'python3 -B {0}'\n")
             with self.assertRaisesRegex(agp.ParseError, "line break other than LF"):
                 agp.parse_workflow(workflow)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    # Round 5 (the maintainer's 23:20Z decision): the YAML surfaces accept only the block-
+    # mapping line shapes the current steps and hooks use. Each test below passed at
+    # 0b4738bc4: the fixture's extra step or hook was skipped, or the hook was accepted.
+    _R5_WORKFLOW = "    steps:\n      - name: A\n        run: python3 tools/a.py\n"
+    _R5_PRECOMMIT = ("  - repo: local\n    hooks:\n      - id: a\n        name: A\n"
+                     "        entry: python3 tools/a.py\n        language: system\n"
+                     "        pass_filenames: false\n")
+
+    def _assert_yaml_refused(self, parser: str, base: str, cases, message: str) -> None:
+        """``base`` parses to its one gate; ``base`` plus each case is a ParseError
+        matching ``message``."""
+        agp = self._gate_parity_module(f"_agp_r5_{parser}")
+        parse = getattr(agp, parser)
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
+        try:
+            path = root / "surface.yaml"
+            path.write_text(base, encoding="utf-8")
+            self.assertEqual([e[1:] for e in parse(path)], [("A", "tools/a.py", ())])
+            for case in cases:
+                with self.subTest(case=case):
+                    path.write_text(base + case, encoding="utf-8")
+                    with self.assertRaisesRegex(agp.ParseError, message):
+                        parse(path)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r5_quoted_key_is_refused(self) -> None:
+        not_plain = "is not an unquoted key directly followed by a colon"
+        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+            '      - "name": B\n        "run": python3 -B tools/b.py\n',
+            "      - 'name': B\n        'run': python3 -B tools/b.py\n",
+            '      - name: B\n        "run": python3 -B tools/b.py\n'), not_plain)
+        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+            '      - "id": b\n        "name": B\n        "entry": python3 -B tools/b.py\n'
+            '        "language": system\n',), not_plain)
+
+    def test_r5_space_before_colon_is_refused(self) -> None:
+        not_plain = "is not an unquoted key directly followed by a colon"
+        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+            "      - run : python3 -B tools/b.py\n",
+            "      - name: B\n        run : python3 -B tools/b.py\n"), not_plain)
+        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+            "      - id : b\n        name: B\n        entry : python3 -B tools/b.py\n"
+            "        language: system\n",), not_plain)
+
+    def test_r5_flow_mapping_is_refused(self) -> None:
+        not_plain = "is not an unquoted key directly followed by a colon"
+        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+            "      - {id: b, name: B, entry: python3 -B tools/b.py, language: system}\n",),
+            not_plain)
+        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+            "      - {name: B, run: python3 -B tools/b.py}\n",), not_plain)
+        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+            "      - name: Checkout\n        with: {run: python3 -B tools/b.py}\n",),
+            "with value written as a flow collection")
+
+    def test_r5_precommit_pass_filenames_must_be_false(self) -> None:
+        # pre-commit appends the staged file names to the entry unless pass_filenames is
+        # false, so the gate would run with arguments the other surfaces do not pass.
+        base = self._R5_PRECOMMIT
+        without = base.replace("        pass_filenames: false\n", "")
+        self._assert_yaml_refused("parse_precommit", base, (
+            "      - id: b\n        name: B\n        entry: python3 tools/b.py\n"
+            "        language: system\n        pass_filenames: true\n",
+            "      - id: b\n        name: B\n        entry: python3 tools/b.py\n"
+            "        language: system\n"), "does not have pass_filenames: false")
+        agp = self._gate_parity_module("_agp_r5_pass_filenames")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
+        try:
+            path = root / "surface.yaml"
+            for text in (without, without + "        pass_filenames: true\n"):
+                with self.subTest(text=text):
+                    path.write_text(text, encoding="utf-8")
+                    with self.assertRaisesRegex(agp.ParseError,
+                                                "does not have pass_filenames: false"):
+                        agp.parse_precommit(path)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r5_step_or_hook_with_another_first_key_is_refused(self) -> None:
+        # An item at the steps' or hooks' dash column that opens with another key is not
+        # read as a step or hook, so it would run unchecked.
+        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+            "      - uses: ./.github/actions/x\n        name: B\n",),
+            "step whose first key is 'uses'")
+        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+            "      - name: B\n        id: b\n",), "hook whose first key is 'name'")
+
+    def test_r5_current_yaml_line_shapes_are_accepted(self) -> None:
+        # The shapes the real surfaces use outside gate steps and hooks stay accepted.
+        agp = self._gate_parity_module("_agp_r5_accepted")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
+        try:
+            workflow, precommit = root / "quality.yml", root / "pre-commit.yaml"
+            workflow.write_text(
+                "on:\n  push:\n    branches:\n      - main\n  pull_request:\n"
+                "jobs:\n  lint:\n    steps:\n      - name: Checkout\n"
+                "        uses: actions/checkout@abc # v1\n        with:\n"
+                "          python-version: \"3.11\"\n"
+                "      - name: A\n        run: python3 tools/a.py\n", encoding="utf-8")
+            precommit.write_text(self._R5_PRECOMMIT + "        types_or: [markdown, python]\n"
+                                 "        files: '\\.md$'\n", encoding="utf-8")
+            for parse, path in ((agp.parse_workflow, workflow), (agp.parse_precommit, precommit)):
+                with self.subTest(parser=parse.__name__):
+                    self.assertEqual([e[1:] for e in parse(path)], [("A", "tools/a.py", ())])
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
@@ -19302,7 +19415,7 @@ class AuditGateParityTests(LinterTestCase):
             # Workflow: matches spec.
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
                 "name: Quality\n\n"
-                "on: [push]\n\n"
+                "on: push\n\n"
                 "jobs:\n"
                 "  lint:\n"
                 "    runs-on: ubuntu-latest\n"
@@ -19325,7 +19438,8 @@ class AuditGateParityTests(LinterTestCase):
                 "      - id: lint-metadata\n"
                 "        name: Wrong Name For Metadata Audit\n"
                 "        entry: python3 tools/lint-metadata.py\n"
-                "        language: system\n",
+                "        language: system\n"
+                "        pass_filenames: false\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19358,7 +19472,7 @@ class AuditGateParityTests(LinterTestCase):
             )
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
                 "name: Quality\n\n"
-                "on: [push]\n\n"
+                "on: push\n\n"
                 "jobs:\n"
                 "  lint:\n"
                 "    runs-on: ubuntu-latest\n"
@@ -19379,7 +19493,8 @@ class AuditGateParityTests(LinterTestCase):
                 "      - id: lint-metadata\n"
                 "        name: Metadata audit\n"
                 "        entry: python3 tools/lint-metadata.py\n"
-                "        language: system\n",
+                "        language: system\n"
+                "        pass_filenames: false\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19423,7 +19538,7 @@ class AuditGateParityTests(LinterTestCase):
             )
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
                 "name: Quality\n\n"
-                "on: [push]\n\n"
+                "on: push\n\n"
                 "jobs:\n"
                 "  lint:\n"
                 "    runs-on: ubuntu-latest\n"
@@ -19444,7 +19559,8 @@ class AuditGateParityTests(LinterTestCase):
                 "      - id: lint-metadata\n"
                 "        name: Metadata audit\n"
                 "        entry: python3 tools/lint-metadata.py --strict\n"
-                "        language: system\n",
+                "        language: system\n"
+                "        pass_filenames: false\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19489,7 +19605,7 @@ class AuditGateParityTests(LinterTestCase):
             )
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
                 "name: Quality\n\n"
-                "on: [push]\n\n"
+                "on: push\n\n"
                 "jobs:\n"
                 "  lint:\n"
                 "    runs-on: ubuntu-latest\n"
@@ -19510,7 +19626,8 @@ class AuditGateParityTests(LinterTestCase):
                 "      - id: lint-metadata\n"
                 "        name: Metadata audit\n"
                 "        entry: python3 tools/lint-metadata.py --different-flag\n"
-                "        language: system\n",
+                "        language: system\n"
+                "        pass_filenames: false\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19556,7 +19673,7 @@ class AuditGateParityTests(LinterTestCase):
             )
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
                 "name: Quality\n\n"
-                "on: [push]\n\n"
+                "on: push\n\n"
                 "jobs:\n"
                 "  lint:\n"
                 "    runs-on: ubuntu-latest\n"
@@ -19577,7 +19694,8 @@ class AuditGateParityTests(LinterTestCase):
                 "      - id: lint-metadata\n"
                 "        name: Metadata audit\n"
                 "        entry: python3 tools/lint-metadata.py --sep 'a b'\n"
-                "        language: system\n",
+                "        language: system\n"
+                "        pass_filenames: false\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -29360,7 +29478,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         audit-backlog-actionability.py OWN F c089004a4e41f3a8c9273d7df9926331953635bc3133ba22023e1f2a7ffc1244
         audit-claim-precision.py ROOT F c2e537144efb7458cba00827577f959907263a7dfffcc75bab54c888f1e1d4b2
         audit-cross-repo-references.py OWN F f2eeb637b2a28b3d8995fe57609c231e1845dc139b4d8aa5f917433833abd83d
-        audit-gate-blindspots.py OWN F 83fe12ff5b5977d5a1514f42ff751e6a8279118f93cdd364da456e1fd1db901e
+        audit-gate-blindspots.py OWN F 8e0f51a9d2f173d87742fc49dbf52460da4793c8a2553864b8acfdd883b518b8
         audit-gate-mutation.py OWN F db2e8a4e3255dfff96dc9a0f744a58508c1b88e689bea0af28fdc33062fb5716
         audit-held-branch-expiry.py NO_FS F 3255ff7873ca44e429b60011d733b90f6a65434f816a55f3f1be5a53f7a8d652
         audit-inbox-drops.py SKIP F a931ec3bf370c0e755637bcb2ff3238ea9e5337761de96a712b90027588a46bc
@@ -29437,7 +29555,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F cfa759d9f1fdb52d7237fbacbadbb9422b831a557ac0a62668342df6e42f474d
+        lint-audit-gate-parity.py OWN F 23b963621d6ea6120468fa952bc4268abf485a0824c80b37b4ba31b66dd214b1
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-bookkeeping-parity.py NO_FS F 418c1fc4dccff88fe4a32a8a3582c8110b7c53885facc1b661a2db48b829b841

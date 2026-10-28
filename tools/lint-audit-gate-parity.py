@@ -82,13 +82,21 @@ maintainer option A): the command must be exactly ``python3 [-I] tools/X.py``
 followed by plain arguments (GATE_COMMAND), a runner line must be
 ``run_gate "LABEL" <command>`` at column 0 or the ``run_gate() {`` definition, a
 gate workflow step has only the keys name and run, and a gate pre-commit hook has
-language system and no args; no gate value may continue on a deeper-indented line.
-Any other shape is a parse error (exit 2). The allowlist does NOT cover: the
-excluded setup, delta-gate and regeneration steps and hooks; runner shell code
-outside run_gate lines (the function body, a redefinition of python3 or run_gate,
-PATH or BASH_ENV, and whether bash reaches a run_gate line inside a conditional,
-heredoc, loop or backslash continuation); workflow- or job-level env: and defaults:,
-a step written as a flow mapping, and pre-commit top-level settings; which python3
+language system, pass_filenames false and no args; no gate value may continue on a
+deeper-indented line. The two YAML surfaces are read as block mappings only (3b646
+round 5, the maintainer's 23:20Z decision): every line, apart from the nested values
+of a step or hook, must be an unquoted key followed directly by its colon, one key per
+line, or a plain ``- word`` list item, with no flow mapping and no flow sequence other
+than a pre-commit ``types:`` or ``types_or:`` list of plain words; a step's first key
+is ``- name:`` and a hook's ``- id:``. Any other shape is a parse error (exit 2). The
+allowlist does NOT cover: the excluded setup, delta-gate and regeneration steps and
+hooks, including the nested values under their keys; runner shell code outside
+run_gate lines (the function body, a redefinition of python3 or run_gate, PATH or
+BASH_ENV, and whether bash reaches a run_gate line inside a conditional, heredoc,
+loop or backslash continuation); the values of workflow- or job-level keys such as
+env: and defaults:, and pre-commit top-level settings; YAML a real reader takes
+differently from these line shapes in ways the shapes do not exclude (a duplicate
+key outside a gate step or hook, such as a second steps: under the job); which python3
 is found on PATH; and what the gate script does once started.
 
 Exit codes:
@@ -210,27 +218,40 @@ SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(tools/[A-Za-z0-9_.\-]+\.py)")
 #     from column 0: run_gate "LABEL" GATE_COMMAND, LABEL in RUNNER_LABEL's characters.
 #   - workflow: a step whose first key is `- name:` and whose name is not excluded has
 #     exactly the keys name and run, each once, with no line indented deeper than its
-#     keys, and its run value matches GATE_COMMAND. A run key outside such a step is a
-#     finding.
+#     keys, and its run value matches GATE_COMMAND. A run key outside such a step, and a
+#     step whose first key is another key, are findings.
 #   - pre-commit: a hook whose first key is `- id:` has one name and one entry; unless
 #     excluded, its keys are in PRECOMMIT_GATE_HOOK_KEYS (no args, which pre-commit
-#     appends to the command), its language is system, no line is indented deeper than
-#     its keys, and its entry matches GATE_COMMAND. An entry key outside a hook is a
-#     finding.
+#     appends to the command), its language is system, its pass_filenames is false
+#     (pre-commit appends the file names otherwise), no line is indented deeper than its
+#     keys, and its entry matches GATE_COMMAND. An entry key outside a hook, and a hook
+#     at the hooks' dash column whose first key is another key, are findings.
+#   - both YAML surfaces (3b646 round 5): every line except the nested values of a step
+#     or hook (lines indented deeper than its keys) is in YAML_LINE_SHAPE: an unquoted key
+#     followed directly by its colon, one per line, or a plain `- word` list item. A
+#     quoted key ("run":), a space before the colon (run :), a flow mapping
+#     (- {id: ..., entry: ...}), a flow sequence other than a pre-commit types: or
+#     types_or: list of plain words, and an anchor, alias or tag are findings, so no key
+#     YAML reads is passed over. Round 4 matched only plain keys and skipped the rest.
 # Every surface is split into lines at LF only, as bash splits it; a CR stays in its line
 # (and fails the pattern), and a YAML surface holding CR, NEL, LS or PS, which YAML reads
 # as a line break, is a finding.
 #
 # NOT COVERED by the allowlist (each runs what it runs, unread by this check):
 #   - the excluded steps and hooks (WORKFLOW_SETUP_STEPS, WORKFLOW_DELTA_GATE_STEPS,
-#     PRECOMMIT_NON_GATE_HOOKS), whose commands are checked only by the exclusion guards;
+#     PRECOMMIT_NON_GATE_HOOKS), whose commands are checked only by the exclusion guards,
+#     and the nested values under their keys (a with: input or a run: | block), which
+#     are not shape-checked;
 #   - runner shell code outside run_gate lines: the run_gate function body, the preamble,
 #     a function, alias or PATH/BASH_ENV change that redefines python3 or run_gate, and
 #     whether bash runs a run_gate line at all (a conditional, a heredoc, a loop or a
 #     backslash continuation from the line before);
-#   - workflow- or job-level env: or defaults: (PYTHON* variables, defaults.run.shell), a
-#     step written as a flow mapping ({name: ..., run: ...}), and pre-commit top-level
-#     settings;
+#   - the values of workflow- or job-level keys such as env: or defaults: (PYTHON*
+#     variables, defaults.run.shell), and pre-commit top-level settings;
+#   - YAML that a real reader takes differently from these line shapes in ways the shapes
+#     do not exclude: a duplicate key outside a gate step or hook (a second steps: under
+#     the job, which a reader may take last-wins) and a line a real reader rejects (the
+#     check reads lines, it does not validate YAML);
 #   - which python3 is found on PATH, and what the gate script itself does.
 GATE_COMMAND = (r"python3(?: -I)? (?P<script>tools/[a-z0-9][a-z0-9_-]*\.py)"
                 r"(?P<args>(?: [A-Za-z0-9_./=,+-]+)*)")
@@ -543,8 +564,40 @@ def verify_category_coverage(path: Path, expected: set[int]) -> list[str]:
 
 
 YAML_KEY_RE = re.compile(r"( *)(?:- +)?([A-Za-z_][A-Za-z0-9_-]*):(?: +(.*))?")
+# A block-sequence item that is a plain word, not a mapping (`- main` under `branches:`).
+YAML_PLAIN_ITEM_RE = re.compile(r" *- +[A-Za-z0-9_./-]+")
+# The one flow collection the current surfaces use: a pre-commit `types: [markdown]` or
+# `types_or: [markdown, python, shell]` list of plain words, on one line.
+YAML_PLAIN_FLOW_LIST_RE = re.compile(r"\[[a-z0-9_+-]+(?:, [a-z0-9_+-]+)*\]")
+PRECOMMIT_FLOW_LIST_KEYS = frozenset({"types", "types_or"})
+# A value starting with one of these is a flow collection, an anchor, an alias or a tag.
+YAML_NODE_INDICATORS = ("{", "[", "&", "*", "!")
+YAML_LINE_SHAPE = ("each line of a gate surface outside a step's or hook's nested values "
+                   "is an unquoted key directly followed by a colon (one key per line) or "
+                   "a plain `- word` list item; no quoted or spaced key, flow mapping, flow "
+                   "sequence (other than a pre-commit `types:` or `types_or:` list of plain "
+                   "words), anchor, alias, tag or other YAML node syntax")
 # Characters YAML (1.1, as PyYAML reads it) takes as a line break besides LF.
 YAML_OTHER_BREAKS = ("\r", "\x85", "\u2028", "\u2029")
+
+
+def _yaml_line_problem(line: str, flow_list_keys: frozenset[str]) -> str | None:
+    """Why ``line`` (not blank, not a comment) is outside the block-mapping line shapes
+    of YAML_LINE_SHAPE, or None if it is inside them."""
+    k = YAML_KEY_RE.fullmatch(line)
+    if k is None:
+        if YAML_PLAIN_ITEM_RE.fullmatch(line):
+            return None
+        return "is not an unquoted key directly followed by a colon, nor a plain list item"
+    value = k.group(3) or ""
+    if value.startswith("[") and k.group(2) in flow_list_keys:
+        if YAML_PLAIN_FLOW_LIST_RE.fullmatch(value):
+            return None
+        return f"has a {k.group(2)} value that is not a one-line list of plain words"
+    if value.startswith(YAML_NODE_INDICATORS):
+        return (f"has a {k.group(2)} value written as a flow collection, anchor, alias "
+                f"or tag")
+    return None
 
 
 def _lf_lines(path: Path) -> list[str]:
@@ -567,14 +620,22 @@ class _YamlItem:
         return [(n, v) for n, k, v in self.keys if k == key]
 
 
-def _yaml_items(path: Path, opener: str, watched: str) -> tuple[list[_YamlItem], list[int]]:
+def _yaml_items(path: Path, opener: str, watched: str,
+                flow_list_keys: frozenset[str] = frozenset()
+                ) -> tuple[list[_YamlItem], list[int], list[tuple[int, str]]]:
     """The block-sequence items of ``path`` whose first key is ``opener``
-    (``- opener: value``), and the lines of a ``watched`` key outside such an item.
-    Blank and comment lines are skipped; trailing spaces and tabs are dropped. A line
-    indented no deeper than an item's dash ends it."""
+    (``- opener: value``), the lines of a ``watched`` key outside such an item, and the
+    ``- key:`` lines at an item's dash column whose key is not ``opener`` (an item this
+    check would not read), as (line, key). Blank and comment lines are skipped; trailing
+    spaces and tabs are dropped. A line indented no deeper than an item's dash ends it.
+    Every line except those indented deeper than an item's keys must be in
+    YAML_LINE_SHAPE, or it is a ParseError, so a quoted or spaced key, or a flow
+    mapping, is never read past; the lines deeper than an item's keys are its nested
+    values, which a gate step or hook may not have."""
     item_re = re.compile(rf"( *)- +({re.escape(opener)}):(?: +(.*))?")
     items: list[_YamlItem] = []
     strays: list[int] = []
+    other_dash_keys: list[tuple[int, int, str]] = []
     current: _YamlItem | None = None
     for lineno, raw in enumerate(_lf_lines(path), 1):
         if any(c in raw for c in YAML_OTHER_BREAKS):
@@ -585,23 +646,33 @@ def _yaml_items(path: Path, opener: str, watched: str) -> tuple[list[_YamlItem],
         if not line.strip() or line.lstrip().startswith("#"):
             continue
         indent = len(line) - len(line.lstrip(" "))
+        if current is not None and indent > current.dash and indent != current.column:
+            current.deeper.append((lineno, current.keys[-1][1]))
+            continue
+        problem = _yaml_line_problem(line, flow_list_keys)
+        if problem:
+            raise ParseError(f"{path.relative_to(REPO_ROOT)}:{lineno}: line {line.strip()!r} "
+                             f"{problem}; {YAML_LINE_SHAPE}")
         m = item_re.fullmatch(line)
         if m:
             current = _YamlItem(lineno, indent, m.start(2), opener, m.group(3) or "")
             items.append(current)
             continue
+        k = YAML_KEY_RE.fullmatch(line)
         if current is not None and indent > current.dash:
-            k = YAML_KEY_RE.fullmatch(line)
-            if indent == current.column and k and not line.lstrip().startswith("-"):
+            if k and not line.lstrip().startswith("-"):
                 current.keys.append((lineno, k.group(2), k.group(3) or ""))
             else:
                 current.deeper.append((lineno, current.keys[-1][1]))
             continue
         current = None
-        k = YAML_KEY_RE.fullmatch(line)
         if k and k.group(2) == watched:
             strays.append(lineno)
-    return items, strays
+        if k and line.lstrip().startswith("-"):
+            other_dash_keys.append((lineno, indent, k.group(2)))
+    dashes = {item.dash for item in items}
+    others = [(n, key) for n, indent, key in other_dash_keys if indent in dashes]
+    return items, strays, others
 
 
 def _not_a_gate_line(path: Path, lineno: int, what: str, problem: str) -> ParseError:
@@ -615,13 +686,18 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     WORKFLOW_SETUP_STEPS and the delta-gate steps in WORKFLOW_DELTA_GATE_STEPS. Every
     other step is a gate step: its keys must be exactly ``name`` and ``run``, each
     once, with no line indented deeper than them, and its ``run`` value must match
-    GATE_COMMAND. A ``run`` key outside a named step is a ParseError. See
-    GATE_COMMAND's comment for what this does not cover.
+    GATE_COMMAND. A ``run`` key outside a named step, a step whose first key is not
+    ``name``, and a line outside YAML_LINE_SHAPE are ParseErrors. See GATE_COMMAND's
+    comment for what this does not cover.
     """
-    items, strays = _yaml_items(path, "name", "run")
+    items, strays, others = _yaml_items(path, "name", "run")
     if strays:
         raise _not_a_gate_line(path, strays[0], "run key", "is outside a step whose first "
                                "key is `- name:`, so no gate check reads it")
+    if others:
+        lineno, key = others[0]
+        raise _not_a_gate_line(path, lineno, f"step whose first key is {key!r}",
+                               "is not read as a step (a step's first key is `- name:`)")
     entries: list[tuple[int, str, str, tuple[str, ...]]] = []
     for item in items:
         step_name = item.keys[0][2]
@@ -685,14 +761,20 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     ``entry``, and the line number of the name is recorded. Skips the hooks in
     PRECOMMIT_NON_GATE_HOOKS. Every other hook is a gate hook: its keys must be in
     PRECOMMIT_GATE_HOOK_KEYS, each once (no ``args``, which pre-commit appends to the
-    command), its ``language`` must be ``system``, no line may be indented deeper than
-    its keys, and its ``entry`` must match GATE_COMMAND. An ``entry`` key outside a hook
-    is a ParseError. See GATE_COMMAND's comment for what this does not cover.
+    command), its ``language`` must be ``system``, its ``pass_filenames`` must be
+    ``false``, no line may be indented deeper than its keys, and its ``entry`` must match
+    GATE_COMMAND. An ``entry`` key outside a hook, a hook whose first key is not ``id``,
+    and a line outside YAML_LINE_SHAPE are ParseErrors. See GATE_COMMAND's comment for
+    what this does not cover.
     """
-    items, strays = _yaml_items(path, "id", "entry")
+    items, strays, others = _yaml_items(path, "id", "entry", PRECOMMIT_FLOW_LIST_KEYS)
     if strays:
         raise _not_a_gate_line(path, strays[0], "entry key", "is outside a hook whose "
                                "first key is `- id:`, so no gate check reads it")
+    if others:
+        lineno, key = others[0]
+        raise _not_a_gate_line(path, lineno, f"hook whose first key is {key!r}",
+                               "is not read as a hook (a hook's first key is `- id:`)")
     entries: list[tuple[int, str, str, tuple[str, ...]]] = []
     for item in items:
         names, commands = item.values("name"), item.values("entry")
@@ -714,6 +796,10 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
             lineno, key = item.deeper[0]
             raise _not_a_gate_line(path, lineno, what, f"continues its {key} value on a "
                                    f"deeper-indented line")
+        if [v for _, v in item.values("pass_filenames")] != ["false"]:
+            raise _not_a_gate_line(path, item.lineno, what, "does not have pass_filenames: "
+                                   "false, so pre-commit would append file names to the "
+                                   "command")
         lineno, command = commands[0]
         m = _gate_command(command)
         if not m:
@@ -1009,8 +1095,8 @@ def main(argv: list[str]) -> int:
 
         # Invocation (argv) parity across the THREE execution surfaces
         # (workflow, runner, pre-commit). The spec §6 row carries no argv, so
-        # it is not argv-compared. All pre-commit hooks are pass_filenames:false,
-        # so their authored entry flags are directly comparable. Surfaces are
+        # it is not argv-compared. Every gate hook must be pass_filenames: false
+        # (parse_precommit), so its authored entry flags are directly comparable. Surfaces are
         # grouped by the script they run; within each group of two or more
         # surfaces that agree on the script, the flags must be identical, so a
         # --strict / --enforce / --check that lands on one surface but not the

@@ -37,7 +37,14 @@ allowlist, the same patterns); any other shape is a refused runner entry. The
 allowlist does not cover runner shell code outside run_gate lines (the function
 body, a redefinition of python3 or run_gate, PATH or BASH_ENV, and whether bash
 reaches a run_gate line inside a conditional, heredoc, loop or backslash
-continuation), which python3 is found on PATH, or what a gate script does.
+continuation), which python3 is found on PATH, or what a gate script does. This map
+reads no YAML: the block-mapping line shapes required of the workflow and pre-commit
+gate surfaces (unquoted keys followed directly by a colon, no flow mappings, and
+pass_filenames: false on a gate hook, 3b646 round 5) are checked by gate 35 alone, and
+that gate's module docstring states their residuals (the excluded steps and hooks with
+their nested values, workflow- and job-level values, pre-commit top-level settings, and
+YAML a real reader takes differently from the line shapes, such as a duplicate key
+outside a gate step or hook).
 
 Honest limits: static inspection cannot see dynamically-computed scopes, so both
 the per-gate scope and the unscanned-file list are APPROXIMATE by construction.
