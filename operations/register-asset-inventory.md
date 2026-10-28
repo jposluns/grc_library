@@ -2,8 +2,8 @@
 
 **Document Title:** Asset Inventory Register\
 **Document Type:** Register\
-**Version:** 1.1.2\
-**Date:** 2026-10-24\
+**Version:** 1.1.3\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md)\
@@ -118,7 +118,7 @@ Each asset record must contain the following fields:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | Annex A.5.9: Inventory of Information and Other Assets | Asset inventory requirement |
+| ISO/IEC 27001:2022 | Annex A.5.9: Inventory of Information and Other Associated Assets | Asset inventory requirement |
 | ISO/IEC 27002:2022 | §5.9 to 5.10 | Asset ownership and acceptable use |
 | NIST SP 800-53 Rev. 5 | CM-8: System Component Inventory | Asset inventory controls |
 | COBIT 2019 | BAI09: Managed Assets | IT asset lifecycle management |

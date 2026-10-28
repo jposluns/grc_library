@@ -2,8 +2,8 @@
 
 **Document Title:** Operational Technology Security Overview Annex\
 **Document Type:** Annex\
-**Version:** 1.0.5\
-**Date:** 2026-09-25\
+**Version:** 1.0.6\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/README.md`](../README.md), [`operations/standard-network-security-and-segmentation.md`](../standard-network-security-and-segmentation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](../../compliance/logistics/annex-logistics-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -219,7 +219,7 @@ Conceptually yes, but with OT-specific adaptations. NIST SP 800-207 Zero Trust p
 | IEC 62443-2-1 | Establishing an IACS security programme | OT security programme governance |
 | IEC 62443-3-2 | Security risk assessment for system design | OT risk assessment methodology |
 | IEC 62443-3-3 | System security requirements and security levels | Security level definitions (SL 1 to 4) |
-| NIST SP 800-82 Rev. 3 | Guide to Operational Technology (OT) Security | US federal guidance; OT-specific tailoring of SP 800-53 |
+| NIST SP 800-82 Rev. 3 | Guide to Operational Technology (OT) Security | US federal guidance; OT-specific tailoring of SP 800-53 Rev. 5 |
 | NIST SP 800-53 Rev. 5 | Security and Privacy Controls | Underlying control catalogue |
 | ISO/IEC 27001:2022 | Information security management systems | ISMS scope when extended to OT |
 | ISO/IEC 27019:2024 | Information security controls for the energy utility industry | Energy-sector ICS extension to ISO/IEC 27002:2022 |

@@ -2,11 +2,11 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.34\
-**Date:** 2026-10-17\
+**Version:** 1.3.36\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
+**Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/public-sector/annex-canada-public-sector-requirements.md`](../compliance/public-sector/annex-canada-public-sector-requirements.md)\
 **Classification:** Public\
 **Category:** Information Security\
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change\
@@ -118,7 +118,7 @@ Where the organization participates in a sector-specific security programme (for
 ### 4.9 Incident response and reporting
 
 4.9.1 All suspected or confirmed information security incidents must be reported immediately to the security operations team.
-4.9.2 Incident response must follow the NIST SP 800-61 Rev. 3 framework (Incident Response Recommendations and Considerations for Cybersecurity Risk Management, 2025) and COBIT DSS02.
+4.9.2 Incident response must follow the NIST SP 800-61 Rev. 3 framework (Incident Response Recommendations and Considerations for Cybersecurity Risk Management, 2025) and COBIT 2019 DSS02.
 4.9.3 Root cause analysis and lessons learned must be completed within ten business days of incident closure.
 
 ### 4.10 Monitoring and continuous improvement
@@ -147,6 +147,8 @@ Note: ISO/IEC 27002:2022 reorganized the previous 2013 edition's 14 control clau
 **Additional alignments:** ISO 28000:2022; PIPEDA; the Treasury Board Directive on Automated Decision-Making (AIDA lapsed). Sector-specific overlays including BASC International Standard (v6 2022) and WCO SAFE Framework (2025 edition) apply where the organization participates in those programmes; see [`compliance/`](../compliance/).
 
 ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 -->
+
+**Canadian federal public sector.** For a federal department or other entity to which the Treasury Board Policy on Government Security applies (Policy 6.1), section 3 also aligns with the following held Treasury Board instruments, paraphrased with their pinpoints. The Policy on Government Security (the held text, which records that it took effect on 1 July 2019 and was amended effective 6 January 2025) has the deputy head designate a chief security officer to lead and oversee departmental security management (4.1.1), set up the department's security governance, including who holds security risk management decisions (4.1.2), approve a three-year departmental security plan that is reviewed every year (4.1.5), and review any residual security risk that exceeds the established decision authorities (4.1.6). The Directive on Security Management (the held text, which records that it took effect on 1 July 2019) has senior officials see that the security practices and controls in its Appendices A to H are defined, documented, implemented, monitored and maintained for their area of responsibility (4.2.6); the held text's note to reader records that the Directive on Security Screening, which took effect on 6 January 2025, replaces Appendix A. The Policy places the chief security officer designation with the deputy head (4.1.1), so the CISO in section 3 holds that role only on the deputy head's designation. The force and applicability of these instruments, and the other federal security sources, are set out in the federal security and cyber baseline under domain cluster 3 of the [Canada public-sector annex](../compliance/public-sector/annex-canada-public-sector-requirements.md#federal-security-and-cyber-baseline). This shows alignment, not that meeting this policy meets the federal instruments.
 
 
 

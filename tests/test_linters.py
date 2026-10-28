@@ -4576,6 +4576,40 @@ class IntraDocRefTests(LinterTestCase):
                 result = run_linter("tools/lint-intra-doc-refs.py", fixture)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_canadian_federal_instrument_marks_pass(self) -> None:
+        # 3b662: one line per Canadian federal instrument marker; each cites
+        # that instrument's own section, not a heading of this document.
+        for line in (
+            "ITSP.80.022 §2.1 defines seven zone types.",
+            "ITSAP.40.003 §4.2 lists the response phases.",
+            "ITSG-33 §3.2 sets the control profile.",
+            "SPIN 2017-01 §6.2.4 requires encryption in transit.",
+            "Baseline Cyber Security Controls for Small and Medium Organizations V1.2 §3.10.",
+        ):
+            with self.subTest(line=line):
+                body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
+                fixture = self.make_fixture("standard-canadian-instrument-ref.md", body)
+                result = run_linter("tools/lint-intra-doc-refs.py", fixture)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_unmarked_intra_ref_still_fails(self) -> None:
+        # 3b662: without a marker on the line, a stale §N is still reported;
+        # the markers match case-sensitively, so lowercase words do not count.
+        # An issuer name (CCCS, TBS, Treasury Board) or a SPIN without its
+        # number is not a marker, so a stale mark beside one is reported.
+        for line, ref in (
+            ("Zone interface points (§2.2) carry all inter-zone traffic.", "2.2"),
+            ("The spin §99.99 and tbs §99.99 rows are ours.", "99.99"),
+            ("CCCS advice is met by the controls in §99.99.", "99.99"),
+            ("TBS direction is met by the controls in §99.99.", "99.99"),
+            ("Treasury Board direction is met by the controls in §99.99.", "99.99"),
+            ("The held SPIN is met by the controls in §99.99.", "99.99"),
+        ):
+            with self.subTest(line=line):
+                body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
+                fixture = self.make_fixture("standard-unmarked-ref.md", body)
+                self.assertLinterFails(run_linter("tools/lint-intra-doc-refs.py", fixture), ref)
+
 
 class CrossFileSectionRefTests(LinterTestCase):
     """tools/lint-cross-file-section-refs.py (gate 62)
@@ -11548,12 +11582,310 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
             raise sp.CalledProcessError(128, ["git", *args])
 
         mod.git = fake_git
+        mod.merge_base_of = lambda base, head: "a" * 40
         out, err = io.StringIO(), io.StringIO()
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             rc = mod.run("origin/main", "HEAD")
         self.assertEqual(rc, 2, f"stdout:\n{out.getvalue()}\nstderr:\n{err.getvalue()}")
         self.assertIn("git diff failed", err.getvalue())
         self.assertNotIn("D13 OK", out.getvalue())
+
+    def test_d13_document_read_failure_not_clean(self) -> None:
+        # 3b572: a failed read of one changed corpus document (its diff or its
+        # HEAD text) must never print the clean "D13 OK: N corpus doc(s)
+        # changed" (the old loop skipped the document). Mutation killed:
+        # restoring the `continue` in that except clause.
+        import contextlib
+        import importlib.util
+        import io
+        import subprocess as sp
+
+        spec = importlib.util.spec_from_file_location(
+            "d13_under_test", REPO_ROOT / "tools" / "check-stranded-control-code-on-pr.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        def fake_git(*args):
+            if args[0] == "merge-base":
+                return "a" * 40
+            if args[0] == "rev-parse" and args[1] == "--verify":
+                return "b" * 40
+            if args[0] == "rev-parse":
+                return "/fixture/top"
+            if args[:2] == ("diff", "--name-only"):
+                return "" if "--diff-filter=D" in args else "security/standard-x.md\n"
+            raise sp.CalledProcessError(128, ["git", *args])
+
+        mod.git = fake_git
+        mod.merge_base_of = lambda base, head: "a" * 40
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = mod.run("origin/main", "HEAD")
+        self.assertEqual(rc, 2, f"stdout:\n{out.getvalue()}\nstderr:\n{err.getvalue()}")
+        self.assertIn("git failed reading security/standard-x.md", err.getvalue())
+        self.assertNotIn("D13 OK", out.getvalue())
+
+    def _d13_fixture(self):
+        """``(tmp, env, run)``: the one-commit fixture plus a ``feat`` branch
+        that deletes the corpus document, an unrelated-history ``lonely``
+        branch, and an untracked copy of D13 (it anchors git to its own
+        script's repository) with lint_common, which it imports since 3b564.
+        ``env`` has no inherited GIT_* and no system or
+        global config, so a global safe.directory cannot mask the ownership
+        refusal; ``run(base, head, extra)`` runs the copy under it (3b572)."""
+        import subprocess as sp
+
+        tmp, git = self._repo()
+        git("checkout", "-q", "-b", "feat")
+        git("rm", "-q", self.DOC_REL)
+        git("commit", "-q", "-m", "delete the corpus document")
+        git("checkout", "-q", "--orphan", "lonely")
+        git("commit", "-q", "-m", "unrelated root")
+        git("checkout", "-q", "-f", "feat")
+        tools = tmp / "tools"
+        tools.mkdir()
+        copy = tools / "check-stranded-control-code-on-pr.py"
+        for name in ("lint_common.py", copy.name):
+            (tools / name).write_bytes((REPO_ROOT / "tools" / name).read_bytes())
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull)
+
+        def run(base, head, extra=None):
+            return sp.run([sys.executable, str(copy), base, head], capture_output=True,
+                          text=True, cwd=str(tmp), env={**env, **(extra or {})})
+
+        return tmp, env, run
+
+    def test_d13_git_refusal_at_merge_base_refuses_exit2(self) -> None:
+        # 3b572: git merge-base failing for any reason other than "no merge
+        # base" (exit 1, no output) is git refusing to answer, not a skip. At
+        # the base both cases printed "D13 SKIP: no resolvable merge base
+        # ...; fail-open." with exit 0. Mutation killed: reading any
+        # CalledProcessError from merge-base as the SKIP again.
+        import subprocess as sp
+
+        tmp, env, run = self._d13_fixture()
+        owner = {"GIT_TEST_ASSUME_DIFFERENT_OWNER": "1"}
+        for label, base, extra, named in (
+            ("bad base object", "origin/no-such-branch", None, "origin/no-such-branch"),
+            ("dubious ownership", "origin/main", owner, "dubious ownership"),
+        ):
+            with self.subTest(case=label):
+                if extra and sp.run(["git", "-C", str(tmp), "rev-parse", "HEAD"],
+                                    capture_output=True, env={**env, **extra}).returncode == 0:
+                    self.skipTest("this git does not honour GIT_TEST_ASSUME_DIFFERENT_OWNER")
+                r = run(base, "feat", extra)
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("ERROR: git failed finding the merge base", r.stderr)
+                self.assertIn("git said: ", r.stderr)
+                self.assertIn(named, r.stderr.split("git said: ", 1)[1])
+                self.assertNotIn("D13 SKIP", r.stdout)
+                self.assertNotIn("D13 OK", r.stdout)
+
+    def test_d13_no_merge_base_still_skips_exit0(self) -> None:
+        # 3b572: git's own no-merge-base result (unrelated histories: exit 1,
+        # no output) keeps the documented fail-open SKIP; a deleted corpus
+        # document over a real range is still clean (it has no HEAD text).
+        # Mutation killed: refusing every merge-base failure, or dropping the
+        # deleted-document skip.
+        _tmp, _env, run = self._d13_fixture()
+        r = run("origin/main", "lonely")
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D13 SKIP: no resolvable merge base (base=origin/main, head=lonely); "
+                      "fail-open.", r.stdout)
+        self.assertEqual(r.stderr, "")
+        r = run("origin/main", "feat")
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D13 OK: 1 corpus doc(s) changed; no stranded body control-codes.", r.stdout)
+
+    def test_d13_merge_base_partial_no_base_shapes_refuse_exit2(self) -> None:
+        # 3b572 round 2 (r1 review N1): each half of merge_base_of's "exit 1
+        # with no output" test refuses on its own. Unrelated histories with a
+        # git warning on stderr (an ambiguous refname) and a nonzero exit
+        # other than 1 with no output at all (a PATH shim) both exit 2.
+        # Mutations killed: dropping `and not exc.stderr` (M6) or
+        # `exc.returncode == 1 and` (M7) from merge_base_of.
+        import subprocess as sp
+
+        real_git = shutil.which("git")
+        self.assertIsNotNone(real_git)
+        tmp, env, run = self._d13_fixture()
+        for kind in ("tag", "branch"):
+            sp.run(["git", "-C", str(tmp), kind, "amb", "main"], check=True, env=env)
+        shim_dir = Path(tempfile.mkdtemp(prefix="gitshim-")).resolve()
+        self.addCleanup(shutil.rmtree, shim_dir, ignore_errors=True)
+        shim = shim_dir / "git"
+        shim.write_text(
+            "#!/bin/sh\n"
+            'for a in "$@"; do\n'
+            '  if [ "$a" = "merge-base" ]; then exit 128; fi\n'
+            "done\n"
+            f'exec "{real_git}" "$@"\n',
+            encoding="utf-8",
+        )
+        shim.chmod(0o755)
+        silent = {"PATH": f"{shim_dir}{os.pathsep}{env['PATH']}"}
+        for label, base, head, extra, named in (
+            ("exit 1 with a git warning", "amb", "lonely", None, "refname 'amb' is ambiguous"),
+            ("exit 128 with no output", "origin/main", "feat", silent, "(nothing)"),
+        ):
+            with self.subTest(case=label):
+                r = run(base, head, extra)
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("ERROR: git failed finding the merge base", r.stderr)
+                self.assertIn(named, r.stderr.split("git said: ", 1)[1])
+                self.assertNotIn("D13 SKIP", r.stdout)
+                self.assertNotIn("D13 OK", r.stdout)
+
+    def test_d13_git_absent_refuses_exit2(self) -> None:
+        # 3b572 round 2 (r1 reviews: codex ERROR, claude W1): git missing from
+        # PATH (FileNotFoundError, an OSError) at the merge-base call exited
+        # 1, D13's own stranded-codes FAIL code, with a traceback; it refuses
+        # with exit 2 naming the error instead. Mutation killed: dropping the
+        # OSError clause at the merge-base call.
+        _tmp, _env, run = self._d13_fixture()
+        empty_dir = Path(tempfile.mkdtemp(prefix="no-git-")).resolve()
+        self.addCleanup(shutil.rmtree, empty_dir, ignore_errors=True)
+        r = run("origin/main", "feat", {"PATH": str(empty_dir)})
+        self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("ERROR: git could not be run to find the merge base", r.stderr)
+        self.assertIn("No such file or directory: 'git'", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("D13 SKIP", r.stdout)
+        self.assertNotIn("D13 OK", r.stdout)
+
+    def _d13_in_process(self, failing, exc):
+        """``(rc, stdout, stderr)`` of D13's run() in process over a fake git:
+        one changed corpus document whose table drops SA-11 while its body
+        still cites it (a stranded code), with ``exc`` raised by every git
+        call whose argument tuple ``failing`` accepts (3b572 round 2)."""
+        import contextlib
+        import importlib.util
+        import io
+
+        spec = importlib.util.spec_from_file_location(
+            "d13_under_test", REPO_ROOT / "tools" / "check-stranded-control-code-on-pr.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        def fake_git(*args):
+            if failing(args):
+                raise exc
+            if args[0] == "rev-parse" and args[1] == "--verify":
+                return "b" * 40
+            if args[0] == "rev-parse":
+                return "/fixture/top"
+            if args[:2] == ("diff", "--name-only"):
+                return "" if "--diff-filter=D" in args else "security/standard-x.md\n"
+            if args[0] == "diff":
+                return "-| Pentest programme | SA-11 | ... |\n+| Pentest programme | CA-8 | ... |\n"
+            if args[0] == "show":
+                return "| Pentest programme | CA-8 | ... |\n\nThis standard addresses SA-11.\n"
+            if args[0] == "log":
+                return "Correct the pentest row\n"
+            raise AssertionError(f"unexpected git call: {args}")
+
+        mod.git = fake_git
+        mod.merge_base_of = lambda base, head: "a" * 40
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = mod.run("origin/main", "HEAD")
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_d13_git_unstartable_at_later_call_refuses_exit2(self) -> None:
+        # 3b572 round 2: git that cannot be started at a call after the merge
+        # base (an OSError) refuses with exit 2 naming the error, never a
+        # traceback. Mutation killed: dropping OSError from the head
+        # resolution, changed-file, document-read or opt-out-read clause.
+        oserror = FileNotFoundError(2, "No such file or directory", "git")
+        for label, failing, named in (
+            ("head resolution", lambda a: a[:2] == ("rev-parse", "--verify"),
+             "git failed resolving HEAD"),
+            ("changed files", lambda a: a[:2] == ("diff", "--name-only"), "git diff failed"),
+            ("document read", lambda a: a[0] == "show", "git failed reading security/standard-x.md"),
+            ("opt-out read", lambda a: a[0] == "log", "git failed reading the commit messages"),
+        ):
+            with self.subTest(call=label):
+                rc, out, err = self._d13_in_process(failing, oserror)
+                self.assertEqual(rc, 2, f"stdout:\n{out}\nstderr:\n{err}")
+                self.assertIn(named, err)
+                self.assertIn("No such file or directory: 'git'", err)
+                self.assertNotIn("D13 OK", out)
+
+    def test_d13_opt_out_read_failure_refuses_exit2(self) -> None:
+        # 3b572 round 2 (r1 review N4): a failed git log read of the commit
+        # messages, over a range with a stranded code, printed the FAIL that
+        # tells the author to add a `StrandedCode:` trailer they may already
+        # have (exit 1); it refuses with exit 2 naming git's error instead.
+        # Mutation killed: restoring `return False` on a failed read.
+        import subprocess as sp
+
+        rc, out, err = self._d13_in_process(
+            lambda a: a[0] == "log", sp.CalledProcessError(128, ["git", "log"]))
+        self.assertEqual(rc, 2, f"stdout:\n{out}\nstderr:\n{err}")
+        self.assertIn("ERROR: git failed reading the commit messages", err)
+        self.assertIn("returned non-zero exit status 128", err)
+        self.assertNotIn("StrandedCode: <reason>", err)
+        self.assertNotIn("D13 OK", out)
+        # The same fixture with a readable log is the stranded-code FAIL.
+        rc, out, err = self._d13_in_process(lambda a: False, None)
+        self.assertEqual(rc, 1, f"stdout:\n{out}\nstderr:\n{err}")
+        self.assertIn("stranded `SA-11`", err)
+
+    def test_d13_undecodable_git_output_refuses_exit2(self) -> None:
+        # 3b572 round 3 (r2 claude review N1): git output that is not valid
+        # UTF-8 raised UnicodeDecodeError, a traceback with exit 1 (D13's own
+        # stranded-codes FAIL code), at the merge-base call (git's message
+        # echoing a base holding the byte 0xe9) and at the per-document diff
+        # (a changed corpus document holding it); both refuse with exit 2
+        # naming the decoding error instead. PYTHONUTF8 pins the codec, so the
+        # bytes are undecodable under any locale. Mutation killed: dropping
+        # the UnicodeDecodeError clause at the merge-base call, or dropping
+        # UnicodeDecodeError from the document-read clause.
+        import subprocess as sp
+
+        tmp, env, run = self._d13_fixture()
+        sp.run(["git", "-C", str(tmp), "checkout", "-q", "-b", "latin1", "main"],
+               check=True, env=env)
+        (tmp / self.DOC_REL).write_bytes(
+            self.DOC_BASE.encode("utf-8") + b"| Caf\xe9 keys | IAM-04 | Keys |\n")
+        sp.run(["git", "-C", str(tmp), "commit", "-q", "-am", "a Latin-1 row"],
+               check=True, env=env)
+        utf8 = {"PYTHONUTF8": "1"}
+        for label, base, head, named in (
+            ("merge base", b"origin/\xe9", "feat",
+             "ERROR: git's output could not be decoded finding the merge base"),
+            ("document diff", "origin/main", "latin1",
+             f"ERROR: git failed reading {self.DOC_REL}"),
+        ):
+            with self.subTest(call=label):
+                r = run(base, head, utf8)
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn(named, r.stderr)
+                self.assertIn("can't decode byte 0xe9", r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn("D13 SKIP", r.stdout)
+                self.assertNotIn("D13 OK", r.stdout)
+
+    def test_d13_undecodable_output_at_later_call_refuses_exit2(self) -> None:
+        # 3b572 round 3: git output that is not valid UTF-8 at a call after
+        # the merge base refuses with exit 2 naming the decoding error, never
+        # a traceback. Mutation killed: dropping UnicodeDecodeError from the
+        # head resolution, changed-file, document-read or opt-out-read clause.
+        undecodable = UnicodeDecodeError("utf-8", b"caf\xe9", 3, 4, "invalid continuation byte")
+        for label, failing, named in (
+            ("head resolution", lambda a: a[:2] == ("rev-parse", "--verify"),
+             "git failed resolving HEAD"),
+            ("changed files", lambda a: a[:2] == ("diff", "--name-only"), "git diff failed"),
+            ("document read", lambda a: a[0] == "show", "git failed reading security/standard-x.md"),
+            ("opt-out read", lambda a: a[0] == "log", "git failed reading the commit messages"),
+        ):
+            with self.subTest(call=label):
+                rc, out, err = self._d13_in_process(failing, undecodable)
+                self.assertEqual(rc, 2, f"stdout:\n{out}\nstderr:\n{err}")
+                self.assertIn(named, err)
+                self.assertIn("can't decode byte 0xe9 in position 3", err)
+                self.assertNotIn("D13 OK", out)
 
     def test_tension_scan_same_commit_exit2(self) -> None:
         r = self._gate("tension-scan.py", REPO_ROOT, "HEAD", "HEAD")
@@ -11695,9 +12027,17 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # read's except clause in lint_common.pr_range_resolution (reached
         # through D1), D5, D9, D13 or tension-scan, which then exits 1 with a
         # traceback. Since 3b564 the placeholder skips only the top-level
-        # comparison of D5, D9, D13 and tension-scan (their git-directory
-        # check still runs), and they run as copies inside the fixture, their
-        # own REPO_ROOT.
+        # comparison of D5, D9 and tension-scan (their git-directory check
+        # still runs), and they run as copies inside the fixture, their own
+        # REPO_ROOT. 3b572 round 3: D13 no longer degrades; its top-level
+        # read refuses with exit 2 naming the OSError on a real range, a
+        # collapsed range, and a core.worktree naming another directory,
+        # which only the skipped comparison refuses, so the degraded read
+        # passed it with "D13 OK" and exit 0. Mutation killed: restoring
+        # D13's placeholder.
+        import errno
+        import subprocess as sp
+
         tmp, git = self._repo()
         git("checkout", "-q", "-b", "feat")
         (tmp / "CHANGELOG.md").write_text(
@@ -11709,7 +12049,6 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
             (own, "check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
             (own, "tension-scan.py", "0 rewritten block(s) since"),
             (own, "check-retired-section-orphan-on-pr.py", "D9 OK: no TODO section closed"),
-            (own, "check-stranded-control-code-on-pr.py", "D13 OK: no corpus document changed"),
         ):
             for label, head, rc in (("real", "feat", 0), ("collapsed", "origin/main", 2)):
                 with self.subTest(gate=script, range=label):
@@ -11725,6 +12064,32 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     else:
                         self.assertIn("CANNOT-EVALUATE", r.stderr)
                         self.assertIn("repo=(no work tree)", r.stderr)
+        d13 = own / "check-stranded-control-code-on-pr.py"
+        elsewhere = Path(tempfile.mkdtemp(prefix="d13-elsewhere-")).resolve()
+        self.addCleanup(shutil.rmtree, elsewhere, ignore_errors=True)
+        for label, head, worktree in (("real", "feat", None), ("collapsed", "origin/main", None),
+                                      ("core.worktree elsewhere", "feat", elsewhere)):
+            with self.subTest(gate=d13.name, range=label):
+                if worktree is not None:
+                    git("config", "core.worktree", str(worktree))
+                    # Uninjected, the top-level comparison refuses this layout.
+                    plain = sp.run([sys.executable, str(d13), "origin/main", head],
+                                   capture_output=True, text=True, cwd=str(tmp))
+                    self.assertEqual(plain.returncode, 2,
+                                     f"stdout:\n{plain.stdout}\nstderr:\n{plain.stderr}")
+                    self.assertIn("ERROR: git reports the work tree top level", plain.stderr)
+                r = self._inject_oserror(d13, tmp, ["rev-parse", "--show-toplevel"],
+                                         "origin/main", head)
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertEqual(r.returncode, 2, out)
+                self.assertEqual(r.stderr.count("INJECTED"), 1, r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertIn("ERROR: git could not be run reading the top level "
+                              f"(base=origin/main, head={head}): [Errno {errno.EAGAIN}] injected",
+                              r.stderr)
+                self.assertNotIn("D13 OK", r.stdout)
+                self.assertNotIn("CANNOT-EVALUATE", r.stderr)
+                self.assertNotIn("(no work tree)", r.stderr)
 
     def test_head_sha_oserror_never_reads_collapsed_range_clean(self) -> None:
         # 3b540 round 9 (r8 review NOTE-1): the head SHA pr_range_resolution
@@ -13005,7 +13370,64 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
 
 from tests import test_session_facts
 
-SessionFactsTests = test_session_facts.SessionFactsTests
+
+class RegressionGateGuardPinTests(unittest.TestCase):
+    """The gate 36 guard module is on disk AND is handed to the child
+    (3b525 rounds 2 and 3).
+
+    The completeness and refusal guards for the gate runner live in
+    tests/test_regression_gate.py (plus the runner's own in-process
+    self-check and the child driver's argv re-check), so a run-list
+    regression that drops THIS module cannot also drop them. These
+    tests are the reciprocal, in a module whose presence does not
+    depend on that one: deleting tests/test_regression_gate.py from
+    disk fails here, and so does a filter that keeps the file on disk
+    but drops it from the module list the runner's main() actually
+    hands to the child subprocess.
+    """
+
+    def test_regression_gate_guard_module_is_on_disk(self) -> None:
+        self.assertTrue(
+            (REPO_ROOT / "tests" / "test_regression_gate.py").is_file())
+
+    def test_runner_hands_guard_module_to_the_child(self) -> None:
+        """main()'s executed child argv (not discovery alone) covers
+        every on-disk tests/test_*.py, including the guard module, so
+        a filter applied at the child launch fails here as well as in
+        tests/test_regression_gate.py (each module guards the other)."""
+        import contextlib
+        import runpy
+        runner = runpy.run_path(
+            str(REPO_ROOT / "tools" / "run-linter-regression.py"))
+        commands = []
+
+        class _FakeProc:
+            def __init__(self, cmd):
+                commands.append(list(cmd))
+                # main() writes the per-run nonce to the child's stdin
+                # (3b525 round 3, F1: never on argv).
+                self.stdin = io.BytesIO()
+                self.stderr = io.BytesIO(b"")
+
+            def wait(self):
+                return 2
+
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            runner["main"](popen=lambda cmd, **kwargs: _FakeProc(cmd))
+        self.assertEqual(len(commands), 1)
+        # Command shape: [sys.executable, "-c", driver, *modules].
+        executed = commands[0][3:]
+        expected = sorted(
+            "tests." + path.name[:-3]
+            for path in (REPO_ROOT / "tests").iterdir()
+            if path.is_file() and path.name.startswith("test_")
+            and path.name.endswith(".py"))
+        self.assertEqual(executed, expected,
+                         "gate 36 runner's executed module list does not "
+                         "cover every tests/test_*.py file")
+        self.assertIn("tests.test_regression_gate", executed)
+        self.assertIn("tests.test_linters", executed)
 
 
 class VerificationGuardrailSelfTests(unittest.TestCase):
@@ -22507,6 +22929,228 @@ class OverlapHazardTests(LinterTestCase):
                 self.assertEqual(Path(caught.exception.filename), entry)
 
 
+class VanishingScratchTests(LinterTestCase):
+    """3b653: a tests/tmp file removed mid-scan crashed gates 48, 61, 73 and 79.
+
+    Each listed a regression-suite fixture through iter_markdown_targets and the
+    suite deleted it before the gate read it: an uncaught FileNotFoundError. Those
+    four gates opt in (skip_test_scratch=True) to a walk that prunes the root
+    tests/tmp tree, never entering it (an explicit path inside it is still
+    scanned); the shared walk's default is off, so every other caller still scans
+    it. A listed file gone when read, including gate 48's glossary gone before its
+    second read, is refused by name with exit 2, never a traceback and never a
+    silent skip.
+    """
+
+    GATES = (
+        "tools/lint-ccm-aicm-citations.py",
+        "tools/lint-cobit-iso31000-citations.py",
+        "tools/lint-cobit-title-text.py",
+        "tools/lint-ssdf-control-ids.py",
+    )
+
+    def test_walk_skips_root_test_scratch_only(self) -> None:
+        import lint_common
+        root = self._fixture_base("vanish-walk-")
+        corpus = root / "governance" / "doc.md"
+        scratch = root / "tests" / "tmp" / "run-1" / "fixture.md"
+        nested = root / "governance" / "tests" / "tmp" / "kept.md"
+        for path in (corpus, scratch, nested):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("# Doc\n", encoding="utf-8")
+        resolved = root.resolve()
+        walked = lint_common.iter_markdown_targets([root], repo_root=root, skip_test_scratch=True)
+        self.assertEqual(sorted(walked), sorted([
+            resolved / "governance" / "doc.md",
+            resolved / "governance" / "tests" / "tmp" / "kept.md"]))
+        # An explicit file or directory inside the scratch tree is still scanned.
+        self.assertEqual(lint_common.iter_markdown_targets(
+            [scratch], repo_root=root, skip_test_scratch=True), [scratch.resolve()])
+        self.assertEqual(lint_common.iter_markdown_targets(
+            [scratch.parent], repo_root=root, skip_test_scratch=True), [scratch.resolve()])
+        # Without the opt-in the walk is unchanged: the scratch tree is listed.
+        self.assertEqual(sorted(lint_common.iter_markdown_targets([root], repo_root=root)), sorted([
+            resolved / "governance" / "doc.md",
+            resolved / "governance" / "tests" / "tmp" / "kept.md",
+            scratch.resolve()]))
+
+    def test_opt_in_walk_skips_live_test_scratch(self) -> None:
+        import lint_common
+        fixture = self.make_fixture("vanish-default-walk.md", "# Doc\n")
+        walked = lint_common.iter_markdown_targets([REPO_ROOT], skip_test_scratch=True)
+        self.assertFalse(fixture.resolve() in walked, f"{fixture} listed by the opt-in walk")
+        self.assertIn((REPO_ROOT / "governance" / "specification-audit-programme.md").resolve(), walked)
+        self.assertIn(fixture.resolve(), lint_common.iter_markdown_targets([REPO_ROOT]))
+        self.assertIn(fixture.resolve(), lint_common.iter_targets([REPO_ROOT]))
+
+    def test_opt_in_walk_never_enters_test_scratch(self) -> None:
+        """The opt-in walk prunes tests/tmp: no directory under it is ever opened.
+
+        Filtering the paths rglob yields still reads every directory below
+        tests/tmp, so a fixture directory removed mid-walk could reach the walk.
+        """
+        from unittest.mock import patch
+        import lint_common
+        root = self._fixture_base("vanish-prune-")
+        for rel in ("governance/doc.md", "tests/tmp/run-1/deep/fixture.md"):
+            path = root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("# Doc\n", encoding="utf-8")
+        resolved = root.resolve()
+        scratch = resolved / "tests" / "tmp"
+        opened: list[Path] = []
+        real = os.scandir
+
+        def spy(path=".", *args, **kwargs):
+            opened.append(Path(os.fsdecode(path)).resolve())
+            return real(path, *args, **kwargs)
+
+        with patch.object(os, "scandir", spy):
+            walked = lint_common.iter_markdown_targets([root], repo_root=root, skip_test_scratch=True)
+        self.assertEqual(walked, [resolved / "governance" / "doc.md"])
+        self.assertIn(resolved / "governance", opened)
+        self.assertEqual([p for p in opened if p.is_relative_to(scratch)], [])
+
+    def test_glossary_gone_between_its_two_reads_is_refused(self) -> None:
+        """Gate 48 reads register-glossary.md twice: scan_file, then scan_glossary.
+
+        A listed glossary removed after the first read is refused by name (exit 2),
+        never passed as if it were an adopter fork without a glossary.
+        """
+        from unittest.mock import patch
+        script = "tools/lint-ccm-aicm-citations.py"
+        glossary = self.make_fixture(
+            "register-glossary.md", "| **GRC** | Governance, Risk, and Compliance. |\n")
+        mod = load_linter_module(script, "_vanish_3b653_glossary")
+        real = mod.scan_file
+        read: list[Path] = []
+
+        def read_then_remove(path):
+            found = real(path)
+            read.append(path)
+            glossary.unlink()
+            return found
+
+        err = io.StringIO()
+        with patch.object(mod, "scan_file", read_then_remove), \
+                patch("sys.stderr", err), patch("sys.stdout", io.StringIO()):
+            rc = mod.main([script, str(glossary)])
+        self.assertEqual(read, [glossary.resolve()])
+        self.assertEqual(rc, 2, err.getvalue())
+        rel = glossary.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+        self.assertIn(f"ERROR: {rel}: listed for scanning but gone when read", err.getvalue())
+        self.assertNotIn("Traceback", err.getvalue())
+
+    def test_only_the_four_gates_opt_in(self) -> None:
+        """Each of the four passes skip_test_scratch=True on its default walk."""
+        from unittest.mock import patch
+        for script in self.GATES:
+            with self.subTest(gate=script):
+                mod = load_linter_module(script, f"_optin_3b653_{Path(script).stem.replace('-', '_')}")
+                seen: list[dict] = []
+
+                def record(*args, _seen=seen, **kwargs):
+                    _seen.append(kwargs)
+                    return []
+
+                with patch.object(mod, "iter_markdown_targets", record), \
+                        patch("sys.stderr", io.StringIO()), patch("sys.stdout", io.StringIO()):
+                    mod.main([script])
+                self.assertEqual([kw.get("skip_test_scratch") for kw in seen], [True])
+        # No other tool names the opt-in.
+        others = sorted(
+            p.name for p in (REPO_ROOT / "tools").glob("*.py")
+            if "skip_test_scratch" in p.read_text(encoding="utf-8")
+            and f"tools/{p.name}" not in self.GATES and p.name != "lint_common.py")
+        self.assertEqual(others, [])
+
+    def test_alias_outside_scratch_gone_when_read_is_refused(self) -> None:
+        """A symlink outside tests/tmp to a file inside it is listed by the opt-in walk.
+
+        The skip tests the listed path, not its target, so the alias is scanned; if
+        the target vanishes before the read, the gate refuses by name (exit 2).
+        Gate 61 accepts a directory outside the tree, which holds the alias here.
+        """
+        from unittest.mock import patch
+        script = "tools/lint-cobit-iso31000-citations.py"
+        target = self.make_fixture("vanish-alias-target.md", "# Doc\n\nAPO12\n")
+        outside = self._fixture_base("vanish-alias-")
+        alias = outside / "alias.md"
+        try:
+            alias.symlink_to(target)
+        except (OSError, NotImplementedError) as exc:
+            self.skipTest(f"symlinks unavailable: {exc}")
+        mod = load_linter_module(script, "_vanish_3b653_alias")
+        listed = mod.iter_markdown_targets
+        found: list[Path] = []
+
+        def list_then_remove(*args, **kwargs):
+            found.extend(listed(*args, **kwargs))
+            target.unlink()
+            return list(found)
+
+        err = io.StringIO()
+        with patch.object(mod, "iter_markdown_targets", list_then_remove), \
+                patch("sys.stderr", err), patch("sys.stdout", io.StringIO()):
+            rc = mod.main([script, str(outside)])
+        self.assertEqual(found, [outside.resolve() / "alias.md"])
+        self.assertEqual(rc, 2, err.getvalue())
+        rel = target.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+        self.assertIn(f"ERROR: {rel}: listed for scanning but gone when read", err.getvalue())
+        self.assertNotIn("Traceback", err.getvalue())
+
+    def test_secrets_gate_default_run_still_scans_test_scratch(self) -> None:
+        """The secrets gate keeps tests/tmp coverage: the opt-in default is off.
+
+        A synthetic GitHub-PAT-shaped token (the SecretsLinterTests pattern) planted
+        under tests/tmp is reported by a default run with no path arguments.
+        """
+        fake_token = "ghp_" + "A" * 36
+        fixture = self.make_fixture(
+            "vanish-secrets-residue.md", VALID_METADATA + f"\n\nExample token: {fake_token}.\n")
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools" / "lint-secrets-in-content.py")],
+            cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=600)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        rel = fixture.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+        self.assertIn(f"=== {rel} ===", result.stdout)
+
+    def test_listed_file_gone_when_read_is_refused_by_name(self) -> None:
+        from unittest.mock import patch
+        for script in self.GATES:
+            with self.subTest(gate=script):
+                fixture = self.make_fixture(
+                    f"vanish-{Path(script).stem}.md", "# Doc\n\nAPO12 PO.1.1\n")
+                mod = load_linter_module(script, f"_vanish_3b653_{Path(script).stem.replace('-', '_')}")
+                listed = mod.iter_markdown_targets
+
+                def list_then_remove(*args, _listed=listed, _fixture=fixture, **kwargs):
+                    found = _listed(*args, **kwargs)
+                    _fixture.unlink()
+                    return found
+
+                err = io.StringIO()
+                with patch.object(mod, "iter_markdown_targets", list_then_remove), \
+                        patch("sys.stderr", err), patch("sys.stdout", io.StringIO()):
+                    rc = mod.main([script, str(fixture)])
+                self.assertEqual(rc, 2, err.getvalue())
+                rel = fixture.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+                self.assertIn(f"ERROR: {rel}: listed for scanning but gone when read", err.getvalue())
+                self.assertNotIn("Traceback", err.getvalue())
+
+    def test_unrelated_missing_file_still_raises(self) -> None:
+        import lint_common
+        target = self.make_fixture("vanish-unrelated.md", "# Doc\n")
+        vanished: list[Path] = []
+
+        def scan():
+            return (target.parent / "other-missing.md").read_text(encoding="utf-8")
+
+        with self.assertRaises(FileNotFoundError):
+            lint_common.scan_listed(scan, target, vanished)
+        self.assertEqual(vanished, [])
+
+
 class ClaudeRulesSyncCompilerOwnershipTests(LinterTestCase):
     """tools/lint-claude-rules-sync.py: compiler-owned recognition (compile PR-2).
 
@@ -23896,7 +24540,7 @@ class CcmAicmCitationTests(LinterTestCase):
         scanned: list = []
         real = mod.scan_glossary
         with mock.patch.object(mod, "scan_glossary",
-                               side_effect=lambda p: scanned.append(p) or real(p)):
+                               side_effect=lambda p, **kw: scanned.append(p) or real(p, **kw)):
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(mod.main(["lint", str(other.parent)]), 0)
             self.assertEqual(scanned, [])
@@ -29756,7 +30400,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F faae8620f7f5c13a9f12cfc461f5a21bb58669dc9c6b533fd3dbe293f92a9d0b
+        README.md DATA F a286bae1556510cc3995fdded2c745403b79598b43551cb795f3f9a0d3dd433a
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
@@ -29803,9 +30447,9 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F dd81f8c07f2ab5045bc492e1d59ebab939585c01355d1ca0d7baf0fed08c84a1
         check-changelog-on-pr.py NO_FS F e762e152f63d454d5915d219ce71329993c57b3bb780b860c0d3ec9938fdbd0e
         check-changelog-preflight-commit.py NO_FS F 87b92b4235420074c259a9b50e0ee72d5624a81be2b87420de3e01cc7e551fd2
-        check-class-attestation-on-pr.py NO_FS F 8ef4e742c2610fa3c80598404991ee6aab9da409b9e95e2ad8b74ec202d40325
+        check-class-attestation-on-pr.py NO_FS F bd15aaad43f488b824b69539041c1455de9208cbafebe725207a462210dae8fb
         check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
-        check-claude-md-size.py NO_FS F e905945e9d35caa13122091dcb709f1acaf2d944455ab44b798b4dacca61472c
+        check-claude-md-size.py NO_FS F 0c2c447fbeb2df2e88a61eca220cfd5f1a41ab8aca24b90936e832c1b52f1a95
         check-clause-preservation.py OWN F 43d6804eccf05f9c2434da4ec879246d48cc80081b8c852e86437cf38c65c664
         check-clean-language-upstream.py NO_FS F 7732d2d2eceb44061d99e7c484aa83c93b0818091538ba7e3b95a0040acda6a2
         check-commit-on-main.py NO_FS F 65b09e20a245ce63b9be6415a517542797ffbad0bf32426c334f300068e7eee0
@@ -29818,7 +30462,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
         check-retired-section-orphan-on-pr.py NO_FS F 625d4037a2d598e6ab1eb5972a0b2c62dd25f02c90545d5a801795bdc021cfd3
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
-        check-stranded-control-code-on-pr.py NO_FS F c5d8a11052d1b2e1cea125aeed0f1836661995df0b89d192043cb4c3c16dce10
+        check-stranded-control-code-on-pr.py NO_FS F f9b60f8c5ed39b725f7f3bf0c9932107d91179ab94cb3aa920f92b487e3e27fd
         check-todo-floor-monotonic-on-pr.py NO_FS F 2be7d8fc308974a0b99b60a2d40f02b93c21be83ca1837d0a40c55974c893d29
         check-todo-rotation-on-pr.py NO_FS F fa1b9a5954444ef8bf6e5666d5b717f1491883619bafbc67c6680736f918d93e
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
@@ -29849,17 +30493,17 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-gate-parity.py OWN F fab89440f44f35807c47d823e662919343bb9d3ad220e85887d300a229b80ab6
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
-        lint-bookkeeping-parity.py NO_FS F 418c1fc4dccff88fe4a32a8a3582c8110b7c53885facc1b661a2db48b829b841
-        lint-ccm-aicm-citations.py CWD F b396ecc6a9544f00e5446f3d46235a64996340e46613fc75f21b39e74e97f306
+        lint-bookkeeping-parity.py NO_FS F 43a25f9706516004b494a4ed6842b3fe06001f152cbedfa9ec1845cd88ba946b
+        lint-ccm-aicm-citations.py CWD F 6a1eb4d255f76d35ed337441b0f7127ffd6d943d8c47730921e6f872491685a7
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
         lint-changelog-link-coverage.py CWD F 0eb2c21687bcae9e697ab26d0273e766530ec144f1417ac04309badae1bd1bd2
-        lint-changelog-mirror-header-parity.py OWN F 12cc2ea26f1b9d64721daef8c76d4c333f14006352ef8caabb890c121dc450d9
+        lint-changelog-mirror-header-parity.py OWN F 6a56d8085fff041fc01f3e7f55ae2046feb41bf3c71ede186c6be469d6699cb2
         lint-citation-currency-cadence.py NO_FS F 5dba5f4f0c3ec6482ca0e465d221fe1d44010bed5c47b2af235672069cf0cadd
         lint-citation-verification-freshness.py OWN F 057d0deb7b8442828df3042e47923cf1febf446ab77bf5f816f31bba9dc3949d
         lint-citations.py ROOT F 83bf87b4c7ab8d59c1835f4eee4bd75d9a55e5accb60b062463f6b74dc9d5437
         lint-claude-rules-sync.py OWN F 7c2807d3ef111efed279bd36466be37d4714d38d39370eccd2978447acb67179
-        lint-cobit-iso31000-citations.py CWD F 8c8d47fd9bf0450ff39cac188c7ba96278fa8e6a85bf77ccefeb25cb4d36355f
-        lint-cobit-title-text.py CWD F d625c961d7681ad55eba539e49ea12cfb79e2cf94c4e4682558485b8dec65384
+        lint-cobit-iso31000-citations.py CWD F e905817c99da05c7d0e411ed5278093c18d338291ce97ac9c0990680c8a80313
+        lint-cobit-title-text.py CWD F 4e88e12e191fde543a6c859b47a095f455f5fe7a335e0df90ec84529fe784788
         lint-collection-enumeration-consistency.py NO_FS F 2f347d07371bf789e139a27c8ff17dbf76eacd9253df0ba17f088d84b6edca61
         lint-cross-doc-numbers.py CWD F 7f6bfb6e79043793e5a65a9511dfa9dce59330b4ae4fdf60e635a954b077162d
         lint-cross-file-section-names.py CWD F feb2fbe79f712472ab6da77235b707d7eb01a3a61e3ccc499afb35c28594bab4
@@ -29873,17 +30517,17 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-external-link-domains.py CWD F 906b40aed419a66a1d49cff6473771ff89c9db494526bc020b1aea462d026485
         lint-external-overlay-license.py NO_FS F 274c40601ab51949646d3c7fdf115e35b9fa47af81646ec83547e352c10f781d
         lint-filename-title-alignment.py ROOT F 053875094e7cc520061a2dd3a0fa226f35c68834942cef0a168bbfdac5f9dcf3
-        lint-followup-ageing.py CWD F 09496e12c77b9f28e0440cb50eb71dbaac90b896524196cb9fdd09156cb3c7d0
+        lint-followup-ageing.py CWD F 20eedad44d3eb7a8237f0d3e8232f77d2566b4ec68d94631fb59012e2843f37f
         lint-gate-citation-inventory.py NO_FS F 104cdff1e3c6541f5de0705c6461fb2ee2c9e7f69eae82b714a9c9dccdbc3b47
         lint-gate-count-consistency.py CWD F 075bd03b5434c09153bf1da8d0eb6a3c3130d18f8073122f565216557be80bf0
-        lint-guardrail-cadence.py OWN F 5eb8669434b40f3dcaac9efe313684542bfc576b1d3b1883e0100d8e387631d2
+        lint-guardrail-cadence.py OWN F fafdcf88714513d9b2c67cfb91af27de93c7cd7f9da10870252c39ea2d60110f
         lint-hooks-syntax.py OWN F f271dc554bdc7afdd6883d9fcf727cea7f9da6b87170d79a6d98cb0d785b15cb
-        lint-index-header-parity.py OWN F 26ad2438853a5147cbd602fcd122e59fcef8c8b8f2fd6530edb07e74b1bcf3e5
+        lint-index-header-parity.py OWN F 5e77c0ccd4664aa35ba22b1c09630dc0f4a9de56986e0d51535c311541eb0281
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
         lint-isolated-launch.py NO_FS F 390f03ea3a68d117faf893733cc828a3c2a0fbf98cae51c54a21554d769d8bb2
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
-        lint-library-version-monotonicity.py OWN F f6ecc98f3d36934a9d09a3fab8732d8352795ba5e7f6d1f02de8b7677aa0d03b
+        lint-library-version-monotonicity.py OWN F dcd8b7a176032c053251f68060ef6b48085b30907e435646c72a6fd064cccff0
         lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
         lint-links.py ROOT F cf4b6ae1d2c76df65234323d94650ebc62db87bf24ed4f375d5386b4a75fb0b6
         lint-listing-surface-completeness.py NO_FS F 3dc1bb95c9133adec9f3af5640cf18a6c342118c972ab7cfb447fa6651ffe0f3
@@ -29897,7 +30541,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-narrative-vocabulary.py CWD F 8af41000aec9017b7bcc56dcdfd108075f678e3f5b359507c5cd4ab48e3bb2d3
         lint-nested-markdown-links.py ROOT F 0cc62cd79f607f71bfcb727df3915d8ef930683786c8ccb39a0ada0b4f022f8d
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
-        lint-overnight-file.py NO_FS F 34cc2994fbb9a2447eb6012f9241280793b14e05eb4aaca4c38e010e667a8065
+        lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
         lint-pii-in-content.py CWD F 3892a7ab7f09960df0bdeb187a3e2b61f406483620d6baa1eaa238ea91166d8e
         lint-placeholder-leakage.py CWD F e09ad286e82070d2f80453547f7b648d84f3f3ec46aed1c9c2af7c6c4d35929f
@@ -29913,25 +30557,25 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-secrets-in-content.py CWD F 868061fc0527d0843223825800fb75dd963d345d058a144b6ecc23ee8deb227b
         lint-section-anchors.py CWD F 4b540b4eb8480d1f4be16e1c51cc7c990d22a5b4ea8911244636d0aa1956726f
         lint-section-placement.py CWD F 936e351d52bcd0a0a4964b3ecd046c44ae057298aed6edde002687e8f4c17f98
-        lint-session-state.py NO_FS F 4223723f25b14f825089bb08e130da48962431af53e2f32750fc52f180585b71
+        lint-session-state.py NO_FS F b0c631b3f34ca1cd22c2023fb8eabd6cfdd8b2b9366e9812d9fa7d23c5e23bc5
         lint-shall-near-uncertainty.py ROOT F 0df50c2b6826f9216f67addad8931f1eb35498d0e3862064bdb3fed317e64610
         lint-sibling-placeholders.py NO_FS F 2ae82222a589343521ebfbc12a3b9edbec0533203e02b3f7adf906f2b8ad1d2a
         lint-skill-derives-from.py OWN F 4bf6a78a42e9f8d8dff44035ac2320a67043006a133375e7cacdcd85dd5336f5
         lint-skill-internal-refs.py ROOT F b2b1fc4846ca52b298fe12ee712477bfac97e173e3ac6368e72c5edd6c28b50e
         lint-skill-verdict-carrier-completeness.py OWN F 7056be9141352daf10807f17e9941fb422a84cbf43eae4fff9549efd3684f5a3
-        lint-ssdf-control-ids.py CWD F 54015e59cec3436d10f624771d7f0f44367bb6e37354e7468c3474866b32901e
+        lint-ssdf-control-ids.py CWD F fc3326619bde8b0c6389a3ac7a4b5b79e06ab9e3195e471b6d766f067e06a60f
         lint-standards-currency.py OWN F 490bc1face5879a115890f543a68b0bdb5ef3dbf4f750b0a6e8bc94d4e537b6a
         lint-startup-character-ceiling.py NO_FS F aeaaf73e5efe319cb6881277ca5b7abef8db708826fe1bf0a241559d7d58a060
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
-        lint-table-cell-count.py OWN F d49d5ccd37eb4dc08936603c3520357b506f504225f5d17c0a479fb285b9368b
-        lint-todo-index-reference-parity.py OWN F cf16944b198e3e919e7f2fd7ba6343363c8612e660879734585aaa48b4d99f41
-        lint-todo-list-tag.py OWN F 867aa18964d3ae7c4031831d484c50eef4d24b8753207fb7e965441eb01206f9
+        lint-table-cell-count.py OWN F 36c2ad714485c240903f8ecb55caefe3714ac0ebad81df90b2d52e87a10a3477
+        lint-todo-index-reference-parity.py OWN F fbd2edb9e2f06f930f43e7648eafdf87fd72830a458440976872025346038a97
+        lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
-        lint-todo-number-permanence.py OWN F 539dbf64916e39d6a0202071142970b674dea97c683a4ad2b86afa003c646139
-        lint-todo-staleness.py NO_FS F 83fd453559b91e9c9a8d6c5126d6962a3ac9dfdd2bf6f3dc21eded7379ba115f
-        lint-tooling-backlog-refs.py OWN F 431a444285d38b50b89b46c5be4b7736beb41017d0de3f8492b649ad5379f7a5
+        lint-todo-number-permanence.py OWN F dedf0d73d69395a559061e0424d49ec92ccbcb3fef7e455adc41dd30708cdbea
+        lint-todo-staleness.py NO_FS F 018d90235361c55d209d69c789ee08bbf752ac05613ce7e77991ee59a46b1491
+        lint-tooling-backlog-refs.py OWN F fb32e59535aa1fc191032c72eefdbfe1062bfe75210a6dbecf48ef969f2390e5
         lint-tooling-provenance-freshness.py OWN F 4cb6ed58b8cd47d727f7d198169661581b8e94a4a62cc6380a1a64e86b74ca5b
         lint-unbalanced-fences.py ROOT F f52bd3d3e92b3801ba454f3756c8ba76ff8518e18fd8d42ea2edf1ffc9ce2246
         lint-ungated-dashes.py NO_FS F 1a6bd1116eb14e8a97db17cc9c89ac715b008277e91584eae59a5295ae42eb17
@@ -29940,8 +30584,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-version-date-consistency.py OWN F f9956da5ff7492dc60c99939c1e10b650fc2ffbc51a00f28bf51e53ae863f472
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
-        lint-working-prose-hygiene.py CWD F 616ae8f4ea008cda21bcf2f663ed650f82f91b2467fddc75cc4a313ff61e32b1
-        lint_common.py PASSIVE F 4d6a2c6de278e384e1880e7ff67291a4589956139effef6113ba94571d2ec8ec
+        lint-working-prose-hygiene.py CWD F 5b8f07f67932e6a2e08b8de287bea230dd312d319654494f39b7c3349f6be1bb
+        lint_common.py PASSIVE F db844a6681b1436406a93780d4d99786bab273ede1a1b32a2d34f756c3c49ad3
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -29953,12 +30597,12 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         preflight_language_runner.py CHILD F 5022c1d1ea1b9d289710b26c96ba615ad303bee4850723fcf12d99a8e247d0c7
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
-        quick-guard.sh FIXED F 6d7161a152ed4d8362387ca4da9b005bcaf8d3a4501df088a5caf8ab11c06cac
+        quick-guard.sh FIXED F df796e5fac359bad820044bce06be97b8f04b96aacb4b81d0454a3e94ffc94d5
         ref-holds.py OWN F 12b4bc426cc0dc4f0cb070fc94feb3398c0d0d420c091e3e343393a16feb4f7d
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
-        run-linter-regression.py FIXED F 2e97814644c614dc987df7139c5ff0ff9b875fb2c1ba0abb6ff0abc298282753
+        run-linter-regression.py FIXED F 600fa27468c6f7b5371de09d5e646429017411a58ebdefff853b91dd965195e0
         run-pr-time-checks.sh FIXED F 7efe36d3fce0778df83e6f4578561b56d02bf15e389178c50b35053767c075ab
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
         run_all_audits.sh FIXED F 42538433b653fb5cb4df779d74ee541039bd0168d7c0fe42258800417a71cdb5
@@ -33565,9 +34209,10 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # items, two of them compound "A / B" names read as two entries, so 63 entries;
         # each For-AI page compares its OWASP LLM Top 10 and EU AI Act entries and skips
         # OWASP MCP Top 10 and the GenAI Red Teaming Guide (no edition). Changing a list
-        # changes these counts, so the change is reviewed here.
+        # changes these counts, so the change is reviewed here. Updated 2026-10-27 (3b650):
+        # the landing list's NIST SP 800-218 label now names its edition (1.1), one more match.
         expected = {
-            "templates/landing.html": {"match": 43, "no edition": 20},
+            "templates/landing.html": {"match": 44, "no edition": 19},
             "templates-v2/coverage.html": {"match": 46, "no edition": 17},
             "templates/for-ai.html": {"match": 2, "no edition": 2},
             "templates-v2/for-ai.html": {"match": 2, "no edition": 2},
@@ -34440,7 +35085,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     def test_current_entries_keep_their_outcomes(self):
         from collections import Counter
         entries = self.mod.standard_edition_entries()
-        self.assertEqual(Counter(e.status for e in entries), Counter({"match": 95, "no edition": 43}))
+        self.assertEqual(Counter(e.status for e in entries), Counter({"match": 96, "no edition": 42}))
         self.assertEqual(self.mod.stale_standard_editions(), [])
 
     def test_unreadable_listed_text_fails(self):
@@ -35043,7 +35688,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         statuses = {}
         for e in self.mod.standard_edition_entries():
             statuses[e.status] = statuses.get(e.status, 0) + 1
-        self.assertEqual(statuses, {"match": 95, "no edition": 43})
+        self.assertEqual(statuses, {"match": 96, "no edition": 42})
 
     def test_for_ai_ext_span_text_is_inter_span_text(self):
         # VPR3B393-R5 item 2: only the exact external-link marker is dropped; any other
@@ -35289,7 +35934,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                 self.assertIn(f"list item for the register row {row!r} cannot be parsed: its description "
                               f"{old!r}", hits[0])
         statuses = Counter(e.status for e in self.mod.standard_edition_entries())
-        self.assertEqual(statuses, Counter({"match": 95, "no edition": 43}))
+        self.assertEqual(statuses, Counter({"match": 96, "no edition": 42}))
 
     def _for_ai_item(self, rel, old_name, new_name, desc=None):
         text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
@@ -37961,6 +38606,414 @@ class WorkingResolveNoOpTests(unittest.TestCase):
         self.assertEqual(mod.display_path(outside), outside.as_posix())
         inside = mod.REPO_ROOT / "README.md"
         self.assertEqual(mod.display_path(inside), "README.md")
+
+
+class StoreDegradedNoticeTests(unittest.TestCase):
+    """3b635: a gate that skips (exit 0) because the private store is absent prints exactly one
+    `DEGRADED:` line on stdout saying the pass attests nothing about what it skipped, and prints
+    none when a fixture store supplies the input. Only the GitHub Actions run is authoritative
+    (specification section 4), and these gates degrade there, so the line is what keeps a green
+    run from reading as a pass. Each case patches the module's own resolver names, the
+    WorkingResolveNoOpTests idiom, so neither the maintainer's real store nor its absence leaks
+    in; gate 107 uses its --root fixture layout, whose sibling slot is the degraded-path selector.
+    Every gate prints the line through lint_common.print_degraded, which also prints a GitHub
+    Actions warning annotation when GITHUB_ACTIONS is "true", so each case runs the absent store
+    with GITHUB_ACTIONS unset and set: the plain line appears either way, the annotation only
+    when set.
+    """
+
+    _load = WorkingResolveNoOpTests._load
+    ANNOTATION = "::warning title="
+
+    def setUp(self) -> None:
+        self.store = Path(tempfile.mkdtemp(prefix="degraded-store-"))
+        self.addCleanup(shutil.rmtree, self.store, True)
+
+    def _write(self, rel: str, text: str) -> Path:
+        path = self.store / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+        return path
+
+    def _present(self, rel: str) -> "Path | None":
+        cand = self.store / rel
+        return cand if cand.exists() else None
+
+    @staticmethod
+    def _github_env(github: bool):
+        """Patch os.environ so GITHUB_ACTIONS is "true" or absent (CI itself sets it)."""
+        from unittest.mock import patch
+        env = {k: v for k, v in os.environ.items() if k != "GITHUB_ACTIONS"}
+        if github:
+            env["GITHUB_ACTIONS"] = "true"
+        return patch.dict(os.environ, env, clear=True)
+
+    def _run(self, fname: str, call, absent: bool, github: bool = False,
+             **patches) -> tuple[int, str, str]:
+        import io
+        import contextlib
+        from unittest.mock import patch
+        mod = self._load(fname)
+        if "resolve_working" not in patches and hasattr(mod, "resolve_working"):
+            patches["resolve_working"] = (lambda rel: None) if absent else self._present
+        buf, err = io.StringIO(), io.StringIO()
+        with contextlib.ExitStack() as stack:
+            for name, value in patches.items():
+                stack.enter_context(patch.object(mod, name, value))
+            stack.enter_context(patch.object(sys, "argv", [fname]))
+            stack.enter_context(self._github_env(github))
+            stack.enter_context(contextlib.redirect_stdout(buf))
+            stack.enter_context(contextlib.redirect_stderr(err))
+            rc = call(mod)
+        return rc, buf.getvalue(), err.getvalue()
+
+    def _assert_degraded(self, gate: str, label: str, out: str, github: bool) -> None:
+        lines = [ln for ln in out.splitlines() if ln.startswith("DEGRADED:")]
+        notes = [ln for ln in out.splitlines() if ln.startswith(self.ANNOTATION)]
+        self.assertEqual(len(lines), 1, f"{label}: expected one DEGRADED line\n{out}")
+        self.assertIn("attests nothing", lines[0])
+        self.assertTrue(lines[0].startswith(f"DEGRADED: {gate} skipped "), lines[0])
+        if github:
+            self.assertEqual(notes, [f"::warning title={gate} degraded::{lines[0]}"],
+                             f"{label}: GITHUB_ACTIONS=true needs one annotation\n{out}")
+        else:
+            self.assertEqual(notes, [], f"{label}: no annotation outside GitHub Actions\n{out}")
+
+    def _assert_clean(self, label: str, out: str) -> None:
+        self.assertNotIn("DEGRADED:", out, f"{label}: a present store is not degraded\n{out}")
+        self.assertNotIn(self.ANNOTATION, out, f"{label}: a present store is not degraded\n{out}")
+
+    def _check(self, gate: str, fname: str, call, *, absent_patches=None,
+               present_patches=None) -> None:
+        for github in (False, True):
+            rc, out, err = self._run(fname, call, True, github, **(absent_patches or {}))
+            self.assertEqual(rc, 0, f"{fname}: the absent-store skip must still exit 0\n{out}{err}")
+            self._assert_degraded(gate, f"{fname} (GITHUB_ACTIONS={github})", out, github)
+        rc, out, err = self._run(fname, call, False, True, **(present_patches or {}))
+        self.assertEqual(rc, 0, f"{fname}: the fixture-store run must pass\n{out}{err}")
+        self._assert_clean(fname, out)
+
+    def test_helper_annotation_only_when_github_actions_is_true(self) -> None:
+        import io
+        import contextlib
+        from unittest.mock import patch
+        from lint_common import print_degraded
+        for value, annotated in ((None, False), ("false", False), ("1", False), ("true", True)):
+            buf = io.StringIO()
+            env = {k: v for k, v in os.environ.items() if k != "GITHUB_ACTIONS"}
+            if value is not None:
+                env["GITHUB_ACTIONS"] = value
+            with patch.dict(os.environ, env, clear=True), contextlib.redirect_stdout(buf):
+                print_degraded("gate 0", "gate 0 skipped x (100%); this pass attests nothing.")
+            expected = ["DEGRADED: gate 0 skipped x (100%); this pass attests nothing."]
+            if annotated:
+                # Workflow-command escaping: a % in the message is written %25.
+                expected.append("::warning title=gate 0 degraded::"
+                                "DEGRADED: gate 0 skipped x (100%25); this pass attests nothing.")
+            self.assertEqual(buf.getvalue().splitlines(), expected, f"GITHUB_ACTIONS={value!r}")
+
+    def test_flip_a_silent_helper_fails_the_check(self) -> None:
+        # Deliberate flip: the helper stops printing (print is shadowed in lint_common's own
+        # globals, the module every gate's print_degraded comes from). _check must then fail,
+        # so the cases above cannot pass with a helper that prints nothing.
+        from unittest.mock import patch
+        self._write("overnight-pr.md", "# Overnight\n\n**Status:** stub\n")
+        helper_globals = self._load("lint-overnight-file.py").print_degraded.__globals__
+        with patch.dict(helper_globals, {"print": lambda *a, **k: None}):
+            with self.assertRaises(AssertionError):
+                self._check("gate 46", "lint-overnight-file.py", lambda m: m.main())
+        self._check("gate 46", "lint-overnight-file.py", lambda m: m.main())
+
+    def test_gate43_followup_ageing(self) -> None:
+        self._write("validate-sweeps/history.md", "# Validation sweep history\n")
+        self._check("gate 43", "lint-followup-ageing.py", lambda m: m.main())
+
+    def test_gate45_todo_staleness(self) -> None:
+        self._write("validate-sweeps/history.md", "| 2026-01-01 | 1 iter 1 | x |\n")
+        self._write("session-handoff.md", "- **Last validation sweep**: Sweep 1 iteration 1.\n")
+        ref = self._write("TODO-REFERENCE.md", "# reference detail\n")
+        self._check("gate 45", "lint-todo-staleness.py", lambda m: m.main(),
+                    absent_patches={"resolve_todo_reference": lambda: None},
+                    present_patches={"resolve_todo_reference": lambda: ref})
+
+    def test_gate46_overnight_file(self) -> None:
+        self._write("overnight-pr.md", "# Overnight\n\n**Status:** stub\n")
+        self._check("gate 46", "lint-overnight-file.py", lambda m: m.main())
+
+    def test_gate50_bookkeeping_parity(self) -> None:
+        from unittest.mock import Mock
+        mod = self._load("lint-bookkeeping-parity.py")
+        # One changelog PR with its row and recorded floor in both registers (the
+        # _malformed_history_case shape), so the present-store run is clean.
+        pr = mod.INCEPTION + 1
+        register = (f"| 2026-10-03 | #{pr} | x | RETURNED | none |\n"
+                    f"<!-- gate50-floor: #{pr} -->\n")
+        self._write(mod.VALIDATE_PR_HISTORY, register)
+        self._write(mod.IMPROVEMENT_LOG, register)
+        for rel in ("changelog-details/CHANGELOG-detailed.md", "deep-assessment/register.md",
+                    "merge-bypass-log.md"):
+            self._write(rel, "# fixture\n")
+        files = {mod.CHANGELOG_PATH: f"**2026-10-03 | 2026.10.1 | PR #{pr}** - x\n",
+                 mod.TODO_PATH: ""}
+
+        def no_process(argv, *, timeout, env=None):
+            raise AssertionError(BookkeepingParityTests.GATE50_SEAM_REFUSAL)
+        offline = {"read": Mock(side_effect=files.__getitem__),
+                   "store_scope": Mock(return_value=mod.StoreScope(None, None, None, None)),
+                   "discover_version_history_files": Mock(return_value=[]),
+                   "_gh_runner": no_process}
+        self._check("gate 50", "lint-bookkeeping-parity.py", lambda m: m.main(),
+                    absent_patches=dict(offline), present_patches=dict(offline))
+
+    def test_gate51_working_prose_hygiene(self) -> None:
+        self._write("notes.md", "Plain working prose.\n")
+        self._check("gate 51", "lint-working-prose-hygiene.py",
+                    lambda m: m.main(["lint-working-prose-hygiene.py"]))
+
+    def test_gate59_changelog_mirror_header_parity(self) -> None:
+        from unittest.mock import Mock
+        mod = self._load("lint-changelog-mirror-header-parity.py")
+        self._write("changelog-details/CHANGELOG-detailed.md", "# Detailed changelog\n")
+        root = self.store / "root"
+        root.mkdir()
+        (root / mod.ROOT_CHANGELOG_REL).write_text("# Changelog\n", encoding="utf-8")
+        from lint_common import StoreScope
+        present = {"REPO_ROOT": root,
+                   "store_scope": Mock(return_value=StoreScope(None, None, None, None))}
+        self._check("gate 59", "lint-changelog-mirror-header-parity.py", lambda m: m.main([]),
+                    present_patches=present)
+
+    def test_gate60_guardrail_cadence(self) -> None:
+        mod = self._load("lint-guardrail-cadence.py")
+        live = mod.live_inventory(mod.REPO_ROOT)
+        token = " / ".join(f"{live[axis]} {axis}" for axis in ("gates", "rules", "skills", "commands"))
+        self._write("guardrail-reviews/history.md",
+                    "| Date | Summary |\n| --- | --- |\n"
+                    f"| 2026-10-26 | fixture review, inventory {token} |\n")
+        self._check("gate 60", "lint-guardrail-cadence.py",
+                    lambda m: m.main(["lint-guardrail-cadence.py"]))
+
+    def test_gate63_session_state(self) -> None:
+        self._write("session-state.md", SessionStateTests.VALID_LEASE)
+        self._check("gate 63", "lint-session-state.py", lambda m: m.main())
+
+    def test_gate78_todo_number_permanence(self) -> None:
+        self._write("DONE.md", "# DONE\n")
+        sibling = self.store / "grc_library_private"
+        sibling.mkdir()
+        (sibling / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX, encoding="utf-8")
+        self._check("gate 78", "lint-todo-number-permanence.py",
+                    lambda m: m.main(["lint-todo-number-permanence.py"]),
+                    absent_patches={"resolve_sibling": lambda name: None},
+                    present_patches={"resolve_sibling": lambda name: sibling})
+
+    def test_gate81_todo_list_tag(self) -> None:
+        sibling = self.store / "grc_library_private"
+        sibling.mkdir()
+        (sibling / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX, encoding="utf-8")
+        self._check("gate 81", "lint-todo-list-tag.py", lambda m: m.main(["lint-todo-list-tag.py"]),
+                    absent_patches={"resolve_sibling": lambda name: None},
+                    present_patches={"resolve_sibling": lambda name: sibling})
+
+    def test_gate90_todo_index_reference_parity(self) -> None:
+        sibling = self.store / "grc_library_private"
+        sibling.mkdir()
+        (sibling / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX, encoding="utf-8")
+        (sibling / "P-TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.PREF,
+                                                     encoding="utf-8")
+        self._check("gate 90", "lint-todo-index-reference-parity.py",
+                    lambda m: m.main(["lint-todo-index-reference-parity.py"]),
+                    absent_patches={"resolve_sibling": lambda name: None},
+                    present_patches={"resolve_sibling": lambda name: sibling})
+
+    def test_gate90_root_run_prints_no_degraded_line(self) -> None:
+        # Gate 90 is aligned with gates 78 and 81: a --root run is a fixture run, so an absent
+        # private sibling prints neither the line nor the annotation, even under GitHub Actions.
+        root = self.store / "root"
+        root.mkdir()
+        (root / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.REF,
+                                                encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        for github in (False, True):
+            rc, out, err = self._run(fname, lambda m: m.main([fname, "--root", str(root)]),
+                                     True, github, resolve_sibling=lambda name: None)
+            self.assertEqual(rc, 0, out + err)
+            self._assert_clean(f"{fname} --root (GITHUB_ACTIONS={github})", out)
+
+    def test_gate90_root_run_reads_no_sibling_store(self) -> None:
+        # 3b635 r3: under --root, gate 90 takes its private pair from the root, as gates 78 and
+        # 81 take P-TODO.md, and never calls resolve_sibling. The resolver here returns a real
+        # store whose P-TODO pair is broken (exit 2 if read), so a gate that consults it fails.
+        from unittest.mock import Mock
+        sibling = self.store / "grc_library_private"
+        sibling.mkdir()
+        (sibling / "P-TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.PREF,
+                                                     encoding="utf-8")
+        root = self.store / "root"
+        root.mkdir()
+        for rel, text in (("TODO.md", TodoIndexReferenceParityTests.IDX),
+                          ("TODO-REFERENCE.md", TodoIndexReferenceParityTests.REF),
+                          ("P-TODO.md", TodoIndexReferenceParityTests.PIDX),
+                          ("P-TODO-REFERENCE.md", TodoIndexReferenceParityTests.PREF)):
+            (root / rel).write_text(text, encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        for github in (False, True):
+            resolver = Mock(return_value=sibling)
+            rc, out, err = self._run(fname, lambda m: m.main([fname, "--root", str(root)]),
+                                     True, github, resolve_sibling=resolver)
+            label = f"{fname} --root (GITHUB_ACTIONS={github})"
+            self.assertEqual(resolver.call_count, 0, f"{label}: resolve_sibling was called")
+            self.assertEqual(rc, 0, f"{label}\n{out}{err}")
+            self.assertIn("P-TODO.md: 2 index row(s) / 2 detail block(s)", out, label)
+            self._assert_clean(label, out)
+
+    def test_gate90_root_run_says_when_private_parity_not_checked(self) -> None:
+        # 3b635 r4: under --root with no P-TODO pair in the root, gate 90 prints an explicit
+        # not-checked line, as gate 81 prints P-TODO.md not present; informational, not DEGRADED,
+        # and exit 0 either way. With the pair present the line is absent.
+        root = self.store / "root"
+        root.mkdir()
+        (root / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.REF,
+                                                encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        note = "private index<->reference parity not checked"
+        for present in (False, True):
+            if present:
+                (root / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX,
+                                                encoding="utf-8")
+                (root / "P-TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.PREF,
+                                                          encoding="utf-8")
+            rc, out, err = self._run(fname, lambda m: m.main([fname, "--root", str(root)]),
+                                     True, False, resolve_sibling=lambda name: None)
+            label = f"{fname} --root (P-TODO pair present={present})"
+            self.assertEqual(rc, 0, f"{label}\n{out}{err}")
+            self._assert_clean(label, out)
+            lines = [ln for ln in out.splitlines() if note in ln]
+            if present:
+                self.assertEqual(lines, [], f"{label}: the pair was checked\n{out}")
+                self.assertIn("P-TODO.md: 2 index row(s) / 2 detail block(s)", out, label)
+            else:
+                self.assertEqual(len(lines), 1, f"{label}: expected one not-checked line\n{out}")
+                self.assertEqual(lines[0], f"OK: {note}: the --root directory {root} holds "
+                                 "neither P-TODO.md nor P-TODO-REFERENCE.md.")
+                self.assertNotIn("P-TODO.md:", out, label)
+
+    def _gate90_dirs(self, *names: str) -> list[Path]:
+        dirs = [self.store / n for n in names]
+        for d in dirs:
+            d.mkdir()
+        return dirs
+
+    def test_gate90_private_root_without_pair_fails(self) -> None:
+        # 3b641: --private-root alone naming a directory with no P-TODO pair used to print
+        # nothing about private parity; r3 printed a not-checked line and passed. r4
+        # (VPR3B641-R3): the flag declares the private input, so a directory without the pair
+        # fails with exit 2 naming it; no not-checked line, no DEGRADED line, no sibling lookup.
+        from unittest.mock import Mock
+        repo, priv = self._gate90_dirs("repo", "priv")
+        (repo / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.REF,
+                                                encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        resolver = Mock(return_value=None)
+        rc, out, err = self._run(fname, lambda m: m.main([fname, "--private-root", str(priv)]),
+                                 True, True, REPO_ROOT=repo, resolve_sibling=resolver)
+        label = f"{fname} --private-root"
+        self.assertEqual(rc, 2, f"{label}\n{out}{err}")
+        self.assertEqual(resolver.call_count, 0, f"{label}: resolve_sibling was called")
+        self._assert_clean(label, out)
+        self.assertIn(f"ERROR: no private P-TODO pair was found in the --private-root directory "
+                      f"{priv}", err, label)
+        self.assertNotIn("parity not checked", out + err, label)
+
+    def test_gate90_root_with_private_root_reads_only_private_root(self) -> None:
+        # 3b641: with --root and --private-root both given, the private pair comes from
+        # --private-root only. A valid pair in the root is not read, so without the pair in
+        # --private-root the run fails naming that directory (r4); with it, the pair is checked.
+        root, priv = self._gate90_dirs("root", "priv")
+        for rel, text in (("TODO.md", TodoIndexReferenceParityTests.IDX),
+                          ("TODO-REFERENCE.md", TodoIndexReferenceParityTests.REF),
+                          ("P-TODO.md", TodoIndexReferenceParityTests.PIDX),
+                          ("P-TODO-REFERENCE.md", TodoIndexReferenceParityTests.PREF)):
+            (root / rel).write_text(text, encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        argv = [fname, "--root", str(root), "--private-root", str(priv)]
+        for present in (False, True):
+            if present:
+                (priv / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX,
+                                                encoding="utf-8")
+                (priv / "P-TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.PREF,
+                                                          encoding="utf-8")
+            rc, out, err = self._run(fname, lambda m: m.main(argv), True, False,
+                                     resolve_sibling=lambda name: None)
+            label = f"{fname} --root --private-root (pair in private root={present})"
+            self.assertEqual(rc, 0 if present else 2, f"{label}\n{out}{err}")
+            self._assert_clean(label, out)
+            lines = [ln for ln in out.splitlines() if "parity not checked" in ln]
+            self.assertEqual(lines, [], f"{label}\n{out}")
+            if present:
+                self.assertIn("P-TODO.md: 2 index row(s) / 2 detail block(s)", out, label)
+            else:
+                self.assertIn("ERROR: no private P-TODO pair was found in the --private-root "
+                              f"directory {priv}", err, label)
+                self.assertNotIn("P-TODO.md:", out, label)
+
+    def test_gate90_legacy_ptodo_without_reference_says_why(self) -> None:
+        # 3b641: a legacy ### -block P-TODO.md with no P-TODO-REFERENCE.md is skipped with exit 0;
+        # the not-checked line says the backlog is legacy rather than that the pair is absent,
+        # under --root and under --private-root alike.
+        legacy = "# P-TODO\n## Group A\n### P-1.1 ptask (H)\n\nbody\n"
+        root, priv = self._gate90_dirs("root", "priv")
+        for d in (root, priv):
+            (d / "P-TODO.md").write_text(legacy, encoding="utf-8")
+        (root / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.REF,
+                                                encoding="utf-8")
+        fname = "lint-todo-index-reference-parity.py"
+        for flag, argv, named in (
+                ("--root", [fname, "--root", str(root)], root),
+                ("--private-root", [fname, "--root", str(root), "--private-root", str(priv)], priv)):
+            rc, out, err = self._run(fname, lambda m: m.main(argv), True, False,
+                                     resolve_sibling=lambda name: None)
+            label = f"{fname} legacy P-TODO.md via {flag}"
+            self.assertEqual(rc, 0, f"{label}\n{out}{err}")
+            self._assert_clean(label, out)
+            lines = [ln for ln in out.splitlines() if "parity not checked" in ln]
+            self.assertEqual(lines, [
+                f"OK: private index<->reference parity not checked: the {flag} directory "
+                f"{named} holds a legacy ### -block P-TODO.md and no P-TODO-REFERENCE.md "
+                "(backlog not yet split)."], f"{label}\n{out}")
+            self.assertNotIn("INDEX DETAIL LEAK", out + err, label)
+
+    def test_gate107_tooling_backlog_refs(self) -> None:
+        root = self.store / "repo"
+        (root / "tools").mkdir(parents=True)
+        (root / ".claude" / "hooks").mkdir(parents=True)
+        (root / "TODO.md").write_text(ToolingBacklogRefsTests.TODO_INDEX, encoding="utf-8")
+        (root / "tools" / "sample.py").write_text("# Shaped by (TODO 3.99) back then.\n",
+                                                  encoding="utf-8")
+        gate = "tools/lint-tooling-backlog-refs.py"
+        for github in (False, True):
+            with self._github_env(github):  # the subprocess inherits os.environ
+                absent = run_linter(gate, "--root", root)
+            self.assertEqual(absent.returncode, 0, absent.stdout + absent.stderr)
+            self._assert_degraded("gate 107", f"{gate} (GITHUB_ACTIONS={github})",
+                                  absent.stdout, github)
+        sibling = self.store / "grc_library_private"
+        sibling.mkdir()
+        (sibling / "TODO-REFERENCE.md").write_text("## Priority 1\n\n### 3.99 Redirect stub\n",
+                                                   encoding="utf-8")
+        with self._github_env(True):
+            present = run_linter(gate, "--root", root)
+        self.assertEqual(present.returncode, 0, present.stdout + present.stderr)
+        self._assert_clean(gate, present.stdout)
+
+    def test_delta_gate_d14_class_attestation(self) -> None:
+        self._write("open-findings.md", "# Open findings\n\n## Open\n\n## Closed today\n")
+        self._check("delta gate D14", "check-class-attestation-on-pr.py",
+                    lambda m: m.main(["check-class-attestation-on-pr.py"]))
 
 
 class DetectEnvIdentityTests(unittest.TestCase):
@@ -45792,9 +46845,60 @@ class TodoNumberPermanenceTests(LinterTestCase):
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertIn("P-TODO.md", result.stdout)  # both lists counted
+            # 3b639: the not-present line also names P-TODO.md, so assert the label and count only a read gives.
+            self.assertIn("OK: 2 live backlog item(s) (TODO.md + P-TODO.md),", result.stdout)  # both lists counted
+            self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_ok_line_names_only_lists_read_3b639(self) -> None:
+        """3b639: the OK line names only the lists actually read. With no P-TODO.md (under --root, or on a
+        default run with no private sibling or no P-TODO.md in it) it says TODO.md alone and prints gate 81's
+        explicit not-present line; with P-TODO.md present it names both. Exit status is 0 throughout."""
+        import contextlib
+        todo = "# TODO\n\n## Priority 2\n\n### 2.3 A public item\n\nBody.\n"
+        both = "live backlog item(s) (TODO.md + P-TODO.md)"
+        only = "live backlog item(s) (TODO.md),"
+        absent = "OK: P-TODO.md not present ("
+        root, result = self._run("perm-3b639-todo-only", todo, "# DONE\n")
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn(only, result.stdout)
+            self.assertNotIn(both, result.stdout)
+            self.assertIn(absent, result.stdout)
+            self.assertIn("Scanning TODO.md only.", result.stdout)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+        root, result = self._run("perm-3b639-both", todo, "# DONE\n",
+                                 ptodo="# P-TODO\n\n### P-1.1 A private item\n\nBody.\n")
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn(both, result.stdout)
+            self.assertNotIn(absent, result.stdout)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+        # Default run (no --root): no private sibling, then a private sibling with no P-TODO.md in it.
+        root = Path(tempfile.mkdtemp(prefix="perm-3b639-default-", dir=FIXTURE_DIR))
+        try:
+            (root / "TODO.md").write_text(
+                "# TODO\n\n| ID | Item | Tags |\n| --- | --- | --- |\n| 2.3 | A public item | `[public]` |\n",
+                encoding="utf-8")
+            (root / "private").mkdir()
+            for sibling in (None, root / "private"):
+                m = self._perm_module()
+                m.REPO_ROOT = root
+                m.resolve_working = lambda _rel, **_kw: None
+                m.resolve_sibling = lambda _name, _s=sibling, **_kw: _s
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    rc = m.main(["lint-todo-number-permanence.py"])
+                out = buf.getvalue()
+                self.assertEqual(rc, 0, out)
+                self.assertIn(only, out)
+                self.assertNotIn(both, out)
+                self.assertIn(absent, out)
+        finally:
             shutil.rmtree(root, ignore_errors=True)
 
     def _perm_module(self):
@@ -45834,6 +46938,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            # 3b642: the live P-1.51 is only checked if P-TODO.md was read.
+            self.assertIn("OK: 2 live backlog item(s) (TODO.md + P-TODO.md),", result.stdout)
+            self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
@@ -45848,6 +46955,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            # 3b642: the live P-1.55 is only checked if P-TODO.md was read.
+            self.assertIn("OK: 2 live backlog item(s) (TODO.md + P-TODO.md),", result.stdout)
+            self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
@@ -45863,6 +46973,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            # 3b642: the exemption is only exercised if the live P-1.25 in P-TODO.md was read.
+            self.assertIn("OK: 2 live backlog item(s) (TODO.md + P-TODO.md),", result.stdout)
+            self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
@@ -45943,7 +47056,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertIn("P-TODO.md", result.stdout)  # index-format P-TODO counted
+            # 3b639: as in test_ptodo_id_parsed_as_live, only a read P-TODO.md gives this label and count.
+            self.assertIn("OK: 2 live backlog item(s) (TODO.md + P-TODO.md),", result.stdout)  # index-format P-TODO counted
+            self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil
             shutil.rmtree(root, ignore_errors=True)
@@ -46019,6 +47134,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            # 3b642: exit 0 alone also passes when P-TODO.md is not read, so assert both ids were counted.
+            self.assertIn("OK: 2 live backlog item(s) (TODO.md + P-TODO.md),", result.stdout)
+            self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil
             shutil.rmtree(root, ignore_errors=True)
@@ -46225,6 +47343,10 @@ class TodoNumberPermanenceTests(LinterTestCase):
         for name, (ptodo, done, want) in cases.items():
             rc, out = self._rc("perm-3b120", todo, done, ptodo)
             self.assertEqual(rc, want, f"{name}:\n{out}")
+            # 3b642: a clean case also passes when P-TODO.md is not read, so it must show the read-both label.
+            self.assertNotIn("OK: P-TODO.md not present (", out, name)
+            if want == 0:
+                self.assertIn("live backlog item(s) (TODO.md + P-TODO.md),", out, name)
         # A bullet id live in both lists is a cross-list duplicate.
         rc, out = self._rc("perm-3b120-cross", "# TODO\n- **3b7 [public] fix** x\n", "# DONE\n",
                            "## Q\n- **3b7 fix** x\n")
@@ -46256,6 +47378,8 @@ class TodoNumberPermanenceTests(LinterTestCase):
         rc, out = self._rc("perm-3b120-untagged", "# TODO\n- **RB-6 [public] fix** x\n", "# DONE\n",
                            "## Q\n- **RB-6 fix** x\n")
         self.assertEqual(rc, 0, out)
+        self.assertIn("OK: 1 live backlog item(s) (TODO.md + P-TODO.md),", out)  # 3b642: P-TODO.md read
+        self.assertNotIn("OK: P-TODO.md not present (", out)
 
     def test_bullet_ids_match_the_audit_tool(self) -> None:
         """3b120: gate 78's bullet ids are exactly the audit tool's bullet items on a mixed fixture."""
@@ -46340,6 +47464,9 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         # --private-root scopes the transitional private-first reference lookup
         # to the fixture, so these tests stay hermetic after the real
         # grc_library_private/TODO-REFERENCE.md exists (2026-08 migration).
+        # 3b641 r4: a named --private-root must hold a P-TODO pair, so the fixture carries a clean one.
+        (root / "P-TODO.md").write_text(self.PIDX, encoding="utf-8")
+        (root / "P-TODO-REFERENCE.md").write_text(self.PREF, encoding="utf-8")
         return run_linter("tools/lint-todo-index-reference-parity.py",
                           "--root", str(root), "--private-root", str(root)), root
 
@@ -46456,10 +47583,14 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         root = Path(tempfile.mkdtemp(prefix="bij-noref-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         root.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        # 3b641 r4: the named --private-root holds a P-TODO pair; only the TODO.md pair is absent.
+        (root / "P-TODO.md").write_text(self.PIDX, encoding="utf-8")
+        (root / "P-TODO-REFERENCE.md").write_text(self.PREF, encoding="utf-8")
         r = run_linter("tools/lint-todo-index-reference-parity.py",
                        "--root", str(root), "--private-root", str(root))
         try:
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("parity holds for P-TODO.md: 2 index row(s) / 2 detail block(s) (", r.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
@@ -46518,10 +47649,14 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
         (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        # 3b641 r4: a named --private-root must hold a P-TODO pair as well.
+        (priv / "P-TODO.md").write_text(self.PIDX, encoding="utf-8")
+        (priv / "P-TODO-REFERENCE.md").write_text(self.PREF, encoding="utf-8")
         r = run_linter("tools/lint-todo-index-reference-parity.py",
                        "--root", str(root), "--private-root", str(priv))
         try:
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("TODO.md: 2 index row(s) / 2 detail block(s);", r.stdout)
         finally:
             import shutil
             shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
@@ -46654,6 +47789,281 @@ class TodoIndexReferenceParityTests(LinterTestCase):
             self.assertLinterFails(r, "MISSING")
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
+    def test_unreadable_private_root_fails_closed(self):
+        # 3b641 r2 (VPR3B641-R1): a mode-000 --private-root read as a directory with no P-TODO
+        # pair and passed with the not-checked line. It now fails with exit 2 naming the path.
+        root = Path(tempfile.mkdtemp(prefix="bij-priv000-", dir=FIXTURE_DIR))
+        priv = Path(tempfile.mkdtemp(prefix="bij-priv000-priv-", dir=FIXTURE_DIR))
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        priv.chmod(0)
+        try:
+            r = run_linter("tools/lint-todo-index-reference-parity.py",
+                           "--root", str(root), "--private-root", str(priv))
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn(f"ERROR: cannot read the private directory {priv}", r.stderr)
+            self.assertNotIn("parity not checked", r.stdout + r.stderr)
+        finally:
+            import shutil
+            priv.chmod(0o700)
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores file permission bits")
+    def test_unreadable_private_pair_file_fails_closed(self):
+        # 3b641 r2: an unreadable P-TODO.md or P-TODO-REFERENCE.md fails with exit 2 naming the
+        # file, alone or beside its partner (it used to raise a traceback or read as absent).
+        for rels in (("P-TODO.md",), ("P-TODO-REFERENCE.md",),
+                     ("P-TODO.md", "P-TODO-REFERENCE.md")):
+            for locked in rels:
+                with self.subTest(files=rels, locked=locked):
+                    root = Path(tempfile.mkdtemp(prefix="bij-pfile000-", dir=FIXTURE_DIR))
+                    priv = Path(tempfile.mkdtemp(prefix="bij-pfile000-priv-", dir=FIXTURE_DIR))
+                    (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+                    (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+                    texts = {"P-TODO.md": self.PIDX, "P-TODO-REFERENCE.md": self.PREF}
+                    for rel in rels:
+                        (priv / rel).write_text(texts[rel], encoding="utf-8")
+                    (priv / locked).chmod(0)
+                    try:
+                        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                                       "--root", str(root), "--private-root", str(priv))
+                        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                        self.assertIn(f"ERROR: cannot read {priv / locked}", r.stderr)
+                        self.assertNotIn("Traceback", r.stderr)
+                    finally:
+                        import shutil
+                        (priv / locked).chmod(0o600)
+                        shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def _run_bytes(self, name, root_files, priv_files):
+        """Write raw bytes (so a fixture may hold invalid UTF-8) under --root and --private-root."""
+        root = Path(tempfile.mkdtemp(prefix=name + "-", dir=FIXTURE_DIR))
+        priv = Path(tempfile.mkdtemp(prefix=name + "-priv-", dir=FIXTURE_DIR))
+        for d, files in ((root, root_files), (priv, priv_files)):
+            for rel, data in files.items():
+                (d / rel).write_bytes(data)
+        return run_linter("tools/lint-todo-index-reference-parity.py",
+                          "--root", str(root), "--private-root", str(priv)), root, priv
+
+    def test_unrecognised_ptodo_fails_closed(self):
+        # 3b641 r3 (VPR3B641-R2): a P-TODO.md without an index header counted as legacy, so
+        # one holding only garbage, or nothing, passed claiming a legacy ### -block file (or,
+        # beside its reference, failed with parity findings). It is now refused with exit 2
+        # naming the path and the reason, with or without P-TODO-REFERENCE.md.
+        for label, data, reason in (("garbage", b"garbage\n", "is neither an index-form P-TODO.md"),
+                                    ("empty", b"", "is empty"),
+                                    ("blank", b"\n  \n", "is empty")):
+            for with_ref in (False, True):
+                with self.subTest(content=label, with_ref=with_ref):
+                    priv_files = {"TODO-REFERENCE.md": self.REF.encode(), "P-TODO.md": data}
+                    if with_ref:
+                        priv_files["P-TODO-REFERENCE.md"] = self.PREF.encode()
+                    r, root, priv = self._run_bytes("bij-ptodo-" + label,
+                                                    {"TODO.md": self.IDX.encode()}, priv_files)
+                    try:
+                        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                        self.assertIn(f"ERROR: {priv / 'P-TODO.md'} {reason}", r.stderr)
+                        self.assertNotIn("parity not checked", r.stdout + r.stderr)
+                    finally:
+                        import shutil
+                        shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_invalid_utf8_backlog_file_fails_closed(self):
+        # 3b641 r3 (VPR3B641-R2): invalid UTF-8 in a backlog file ended in a UnicodeDecodeError
+        # traceback (exit 1). Each file is now read once, strictly, and refused with exit 2.
+        bad = b"# P-TODO\n## Group A\n### P-1.1 ptask (H)\n\n\xff\xfe body\n"
+        for where, rel in (("priv", "P-TODO.md"), ("priv", "P-TODO-REFERENCE.md"),
+                           ("priv", "TODO-REFERENCE.md"), ("root", "TODO.md")):
+            with self.subTest(where=where, file=rel):
+                root_files = {"TODO.md": self.IDX.encode()}
+                priv_files = {"TODO-REFERENCE.md": self.REF.encode(),
+                              "P-TODO.md": self.PIDX.encode(), "P-TODO-REFERENCE.md": self.PREF.encode()}
+                (root_files if where == "root" else priv_files)[rel] = bad
+                r, root, priv = self._run_bytes("bij-badutf8", root_files, priv_files)
+                try:
+                    self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                    path = (root if where == "root" else priv) / rel
+                    self.assertIn(f"ERROR: cannot decode {path} as UTF-8", r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
+                finally:
+                    import shutil
+                    shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_well_formed_legacy_ptodo_still_passes(self):
+        # 3b641 r3 negative control: positive classification keeps a recognised legacy ### -block
+        # P-TODO.md (no P-TODO-REFERENCE.md) passing with the not-checked line, as before.
+        legacy = b"# P-TODO\n## Group A\n### P-1.1 ptask (H)\n\nbody\n"
+        r, root, priv = self._run_bytes("bij-legacy-ok", {"TODO.md": self.IDX.encode()},
+                                        {"TODO-REFERENCE.md": self.REF.encode(), "P-TODO.md": legacy})
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("holds a legacy ### -block P-TODO.md and no P-TODO-REFERENCE.md", r.stdout)
+            self.assertNotIn("ERROR", r.stdout + r.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_private_root_without_pair_fails_closed(self):
+        # 3b641 r4 (VPR3B641-R3): an explicitly named --private-root holding neither P-TODO.md nor
+        # P-TODO-REFERENCE.md printed the not-checked line and exited 0. The flag declares the
+        # private input, so its absence is a failure (check-fails-closed-on-unreadable): exit 2
+        # naming the path, whether or not the directory supplies TODO-REFERENCE.md, and whether
+        # --private-root is the root itself or a separate directory.
+        for label, priv_files, same_dir in (
+                ("empty", {}, False),
+                ("todo-ref-only", {"TODO-REFERENCE.md": self.REF}, False),
+                ("same-as-root", {"TODO-REFERENCE.md": self.REF}, True)):
+            with self.subTest(case=label):
+                root = Path(tempfile.mkdtemp(prefix="bij-nopair-" + label + "-", dir=FIXTURE_DIR))
+                priv = Path(tempfile.mkdtemp(prefix="bij-nopair-" + label + "-priv-", dir=FIXTURE_DIR))
+                named = root if same_dir else priv
+                (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+                for rel, text in priv_files.items():
+                    (named / rel).write_text(text, encoding="utf-8")
+                r = run_linter("tools/lint-todo-index-reference-parity.py",
+                               "--root", str(root), "--private-root", str(named))
+                try:
+                    self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                    self.assertIn(f"ERROR: no private P-TODO pair was found in the --private-root "
+                                  f"directory {named}", r.stderr)
+                    self.assertNotIn("parity not checked", r.stdout + r.stderr)
+                    self.assertNotIn("parity holds", r.stdout)
+                finally:
+                    import shutil
+                    shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_root_without_pair_keeps_not_checked_notice(self):
+        # 3b641 r4 negative control: --root alone names a fixture repository, not a private input;
+        # the private directory defaults to it, so a root with no P-TODO pair keeps the
+        # informational not-checked line and exit 0.
+        root = Path(tempfile.mkdtemp(prefix="bij-root-nopair-", dir=FIXTURE_DIR))
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        r = run_linter("tools/lint-todo-index-reference-parity.py", "--root", str(root))
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn(f"OK: private index<->reference parity not checked: the --root directory "
+                          f"{root} holds neither P-TODO.md nor P-TODO-REFERENCE.md.", r.stdout)
+            self.assertNotIn("ERROR", r.stdout + r.stderr)
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    # --- 3b648: the DEFAULT lookup (neither --root nor --private-root) ---
+    NOT_CHECKED = "private index<->reference parity not checked"
+
+    def _run_default(self, label, sibling_files, sibling=True):
+        """Gate 90's default lookup in process. The repository root is a fixture holding TODO.md;
+        resolve_sibling returns a fixture sibling holding exactly ``sibling_files`` (relative name:
+        text), or None when ``sibling`` is False. Hermetic: nothing outside the fixture is read, and
+        r3 removed the gate's git calls, so no git runs."""
+        import contextlib
+        import io
+        from unittest.mock import patch
+        base = Path(tempfile.mkdtemp(prefix="bij-default-" + label + "-"))
+        self.addCleanup(shutil.rmtree, base, True)
+        repo, priv = base / "grc_library", base / "grc_library_private"
+        repo.mkdir(); priv.mkdir()
+        (repo / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        for rel, text in sibling_files.items():
+            (priv / rel).parent.mkdir(parents=True, exist_ok=True)
+            (priv / rel).write_text(text, encoding="utf-8")
+        mod = load_linter_module("tools/lint-todo-index-reference-parity.py", "_gate90_default_" + label)
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(patch.object(mod, "REPO_ROOT", repo))
+            stack.enter_context(patch.object(mod, "resolve_sibling", lambda name: priv if sibling else None))
+            stack.enter_context(contextlib.redirect_stdout(out))
+            stack.enter_context(contextlib.redirect_stderr(err))
+            rc = mod.main(["lint-todo-index-reference-parity.py"])
+        return rc, out.getvalue(), err.getvalue(), priv
+
+    def _assert_sibling_error(self, rc, out, err, message):
+        self.assertEqual(rc, 2, out + err)
+        self.assertIn(message, err)
+        # r4 (VPR3B648-R3): renaming a populated store would break the tools that read it.
+        self.assertNotIn("rename", out + err)
+        self.assertNotIn(self.NOT_CHECKED, out + err)
+        self.assertNotIn("parity holds", out)
+        self.assertNotIn("DEGRADED", out + err)
+
+    def test_default_empty_sibling_fails(self):
+        # 3b648 (VPR3B641-R4 note 4): a resolved sibling holding nothing passed (exit 0, "no
+        # two-file backlog pair present"). r4: an empty sibling is likely stray, so it fails with
+        # exit 2 naming it and saying to remove it or pass --private-root.
+        rc, out, err, priv = self._run_default("empty", {})
+        self._assert_sibling_error(rc, out, err,
+                                   f"ERROR: the private sibling {priv} is an empty directory, so no "
+                                   "private store supplies P-TODO.md and P-TODO-REFERENCE.md; it is "
+                                   "likely stray: remove it, or pass --private-root naming the private store")
+
+    def test_default_sibling_with_only_todo_reference_fails(self):
+        # 3b648: a sibling holding TODO-REFERENCE.md but neither P-TODO file passed with the public
+        # pair checked and the private pair silently skipped; it fails with exit 2. r4: it is a
+        # populated store, so the message says to restore the pair and never to remove or rename it.
+        rc, out, err, priv = self._run_default("refonly", {"TODO-REFERENCE.md": self.REF,
+                                                           "notes.md": "kept\n"})
+        self._assert_sibling_error(rc, out, err,
+                                   f"ERROR: no private P-TODO pair was found in the private sibling {priv} "
+                                   "(it holds TODO-REFERENCE.md but neither P-TODO.md nor "
+                                   "P-TODO-REFERENCE.md); restore the pair there;")
+        self.assertNotIn("remove it", err)
+
+    def test_default_sibling_half_pair_fails(self):
+        # 3b648 r4 control: half a P-TODO pair in the default sibling fails as before, whatever
+        # else the store holds.
+        for label, files, message in (
+                ("idxonly", {"P-TODO.md": self.PIDX},
+                 "P-TODO.md is in index-row form but P-TODO-REFERENCE.md is absent"),
+                ("prefonly", {"P-TODO-REFERENCE.md": self.PREF},
+                 "P-TODO-REFERENCE.md is present but P-TODO.md is missing")):
+            with self.subTest(label):
+                rc, out, err, _ = self._run_default(label, dict(files, **{"notes.md": "kept\n"}))
+                self._assert_sibling_error(rc, out, err, message)
+
+    def test_default_store_without_backlog_notes_not_checked(self):
+        # 3b648 r4 (VPR3B648-R3): r3 failed a sibling holding other content and none of the backlog
+        # files, advising its removal; that is the README's transitional fallback store for
+        # .working/ records, which other tools read. It passes with the not-checked line naming it.
+        rc, out, err, priv = self._run_default("store", {".working/handoff.md": "handoff\n"})
+        self.assertEqual(rc, 0, out + err)
+        lines = [ln for ln in out.splitlines() if self.NOT_CHECKED in ln]
+        self.assertEqual(lines, [f"OK: {self.NOT_CHECKED}: the private sibling {priv} holds none of "
+                                 "TODO-REFERENCE.md, P-TODO.md or P-TODO-REFERENCE.md (a private store "
+                                 "without a backlog)."], out)
+        self.assertNotIn("ERROR", out + err)
+        self.assertNotIn("DEGRADED", out + err)
+
+    def test_default_sibling_legacy_ptodo_notes_not_checked(self):
+        # 3b648: a recognised legacy ### -block P-TODO.md is the accepted pre-split layout, so it
+        # passes, with the not-checked line saying why.
+        legacy = "# P-TODO\n## Group A\n### P-1.1 ptask (H)\n\nbody\n"
+        rc, out, err, priv = self._run_default("legacy", {"TODO-REFERENCE.md": self.REF, "P-TODO.md": legacy})
+        self.assertEqual(rc, 0, out + err)
+        lines = [ln for ln in out.splitlines() if self.NOT_CHECKED in ln]
+        self.assertEqual(lines, [f"OK: {self.NOT_CHECKED}: the private sibling {priv} holds a legacy "
+                                 "### -block P-TODO.md and no P-TODO-REFERENCE.md (backlog not yet split)."],
+                         out)
+        self.assertNotIn("ERROR", out + err)
+
+    def test_default_sibling_with_pair_is_checked(self):
+        # 3b648 negative control: a sibling holding the pair is checked, with no not-checked line.
+        rc, out, err, _ = self._run_default("pair", {"TODO-REFERENCE.md": self.REF,
+                                                     "P-TODO.md": self.PIDX, "P-TODO-REFERENCE.md": self.PREF})
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("P-TODO.md: 2 index row(s) / 2 detail block(s)", out)
+        self.assertNotIn("ERROR", out + err)
+        self.assertNotIn(self.NOT_CHECKED, out + err)
+
+    def test_default_without_sibling_stays_degraded(self):
+        # 3b648 negative control: CI and most adopters have no private store; an absent sibling
+        # keeps the DEGRADED pass (exit 0).
+        rc, out, err, _ = self._run_default("ci", {}, sibling=False)
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("DEGRADED: gate 90 skipped", out)
+        self.assertNotIn("ERROR", out + err)
+        self.assertNotIn(self.NOT_CHECKED, out + err)
 
 class TagGateTests(LinterTestCase):
     """tools/lint-todo-list-tag.py (gate 81): every open TODO.md / P-TODO.md
@@ -47611,6 +49021,20 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
                 return m.find_artefacts() + m.find_all_markdown()
             if name == "lint-library-version-monotonicity.py":
                 stack.enter_context(self.patch.object(m, "git_show", return_value=None))
+                # 3b624: the gate reads each document through read_current (os.open, fstat and
+                # a read from that descriptor), which the in-memory tree above does not answer,
+                # so every virtual document was refused as unreadable. read_current is the
+                # content-read boundary: a virtual document is read from the tree and recorded,
+                # and any other path goes to the production reader and its refusals.
+                original_read_current = m.read_current
+
+                def read_current(path, rel, problems):
+                    if Path(path) in self.data:
+                        self.reads.append(Path(path))
+                        return self.data[Path(path)]
+                    return original_read_current(path, rel, problems)
+
+                stack.enter_context(self.patch.object(m, "read_current", read_current))
                 m.check_document_versions("baseline")
                 return list(self.reads)
             if name == "lint-bookkeeping-parity.py":
@@ -48059,7 +49483,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.21.1", "3b607 retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan) on top of the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607)")
+        self.assertEqual(man["pack"]["version"], "0.21.3", "3b662 has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
@@ -49647,7 +51071,7 @@ class IndexTitleParityTests(LinterTestCase):
     """Gate 92 title ratchet (3b150): the engine's third comparator.
 
     Synthetic --root trees warn about unmatched baseline paths. The live run
-    requires all 44 pinned pairs, with 29 privacy shortenings and 15 drift
+    requires all 45 pinned pairs, with 30 privacy shortenings and 15 drift
     work items. Negative fixtures exercise both sides of the title pin. The
     engine tests pin that the title options are off by default, that
     collect_findings always returns four parts, and that check_row without
@@ -49791,7 +51215,7 @@ class IndexTitleParityTests(LinterTestCase):
                          f"live corpus must be clean under the title ratchet.\n{r.stdout}\n{r.stderr}")
         self.assertEqual(r.stdout.count("DRIFT (baselined real drift"), 15)
         self.assertNotIn("WARNING:", r.stdout)
-        self.assertIn("357 rows checked (357 title cells ratcheted)", r.stdout)
+        self.assertIn("358 rows checked (358 title cells ratcheted)", r.stdout)
 
     def test_index_only_change_fails_closed(self):
         with tempfile.TemporaryDirectory() as d:
@@ -49866,8 +51290,8 @@ class IndexTitleParityTests(LinterTestCase):
         shortening = {p for p, entry in mod.TITLE_DIFF_BASELINE.items()
                       if entry[2] == "deliberate-shortening"}
         self.assertEqual(shortening, privacy)
-        self.assertEqual(len(shortening), 29)
-        self.assertEqual(len(mod.TITLE_DIFF_BASELINE), 44)
+        self.assertEqual(len(shortening), 30)
+        self.assertEqual(len(mod.TITLE_DIFF_BASELINE), 45)
         abbreviations = {"EU": "European Union", "UK": "United Kingdom",
                          "US": "United States", "UAE": "United Arab Emirates"}
         for path in privacy:
@@ -49974,7 +51398,7 @@ class IndexTitleParityTests(LinterTestCase):
                     self.assertEqual(findings, [])
                     self.assertEqual(rows_checked, 1)
                     self.assertEqual(len(worklist), 1 if title else 0)
-                    self.assertEqual(len(warnings), 43 if title else 0)
+                    self.assertEqual(len(warnings), 44 if title else 0)
             self.assertIsNone(self._collect(mod, "# no table\n", d, {}))
 
     def test_engine_check_row_without_col_title_is_unchanged(self):
@@ -55315,6 +56739,20 @@ class IntraDocRefsEngineTransferTests(unittest.TestCase):
         # an external-framework name on the line marks the ref as cross-doc
         self.assertEqual(self._scan("## 1. Intro\n\nNIST SP 800-53 §5.4 applies.\n"), [])
 
+    def test_cross_doc_canadian_instrument_skipped(self):
+        # 3b662: a Canadian federal instrument marker on the line marks the ref as cross-doc
+        for marker in ("ITSP.80.022", "ITSAP.40.003", "ITSG-33", "SPIN 2017-01",
+                       "Baseline Cyber Security Controls V1.2"):
+            with self.subTest(marker=marker):
+                self.assertEqual(self._scan(f"## 1. Intro\n\n{marker} §5.4 applies.\n"), [])
+
+    def test_canadian_issuer_name_not_a_marker(self):
+        # 3b662: an issuer name alone does not claim the ref; the stale §5.4 is reported
+        for issuer in ("CCCS", "TBS direction", "Treasury Board direction", "The held SPIN"):
+            with self.subTest(issuer=issuer):
+                found = self._scan(f"## 1. Intro\n\n{issuer} §5.4 applies.\n")
+                self.assertEqual([f[1] for f in found], ["5.4"])
+
     def test_no_numbered_headings_no_findings(self):
         self.assertEqual(self._scan("# Plain\n\nSee §5.4 for details.\n"), [])
 
@@ -58135,8 +59573,6 @@ class FileArgRefusalTests(LinterTestCase):
             r = run_linter(script)
             self.assertEqual(r.returncode, 0, (script, r.stdout[-300:], r.stderr[-300:]))
 
-
-from tests.test_standards_currency_coverage import CitationCoverageTests, HistoricalContextTests, HistoricalContextRoundTwoTests  # noqa: F401  (imported so `-m unittest tests.test_linters` discovers them)
 
 class WorkerIdAnonymityTests(unittest.TestCase):
     """Gate 103: identifiers are assembled so fixtures cannot leak themselves."""
@@ -69409,6 +70845,121 @@ class ToolingBacklogRefsTests(LinterTestCase):
         result = self.check(root)
         self.assertLinterFails(result, "sample-hook.py")
 
+    def write_extra(self, root: Path, rel: str, text: str) -> None:
+        """One extra fixture file under the widened 3b636 roots."""
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+
+    def test_playbook_pointer_flagged(self) -> None:
+        # 3b636: the rest of .claude/ is in scope, so a positional pointer in a
+        # playbook fails like one in a hook.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".claude/playbooks/sample.md",
+                         "Relocated by TODO 3.99 / PR #1249 last round.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, ".claude/playbooks/sample.md")
+
+    def test_playbook_stale_pointer_fails_and_closing_pr_form_passes(self) -> None:
+        # The stale pointer beside the anchored one is in a playbook, which
+        # only the widened roots reach, so this fails against the
+        # pre-3b636 gate (it saw no finding at all).
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".claude/playbooks/sample.md",
+                         "Shaped by TODO 3.98 (closing PR #1250) as well.\n"
+                         "\n"
+                         "Relocated by TODO 3.99 last round.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, "line 3: 'TODO 3.99'")
+        self.assertNotIn("3.98", result.stdout)
+
+    def test_playbook_marker_clears(self) -> None:
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".claude/playbooks/sample.md",
+                         "<!-- todo-ref-ok: historical narrative -->\n"
+                         "Relocated by TODO 3.98 last round.\n"
+                         "\n"
+                         "Shaped by TODO 3.99 later.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, "line 4: 'TODO 3.99'")
+        self.assertNotIn("3.98", result.stdout)
+
+    def test_yaml_suffix_pointer_flagged(self) -> None:
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".github/sample.yaml",
+                         "# Key added by TODO 3.99.\nname: sample\n")
+        result = self.check(root)
+        self.assertLinterFails(result, ".github/sample.yaml")
+
+    def test_registered_provenance_txt_scanned_as_markdown(self) -> None:
+        # 3b636 r2: the rule-overlay records are project-authored Markdown
+        # under a .txt suffix. Exactly the registered paths are selected (read
+        # from external_overlay), as Markdown, so a backticked example clears;
+        # any other .txt file stays out of scope.
+        overlay = load_linter_module("tools/external_overlay.py",
+                                     "_tooling_backlog_refs_overlay")
+        self.assertTrue(overlay.RULE_PROVENANCE_PATHS)
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        for rel in (".claude/rules/external/kariedo/notes.txt",
+                    ".claude/playbooks/notes.txt"):
+            self.write_extra(root, rel, "Refreshed under TODO 3.99.\n")
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for rel in overlay.RULE_PROVENANCE_PATHS:
+            with self.subTest(rel=rel):
+                self.write_extra(root, rel,
+                                 "# Overlay provenance\n\n"
+                                 "An example reads `TODO 3.97`.\n"
+                                 "Pruned under TODO 3.99 last review.\n")
+                try:
+                    result = self.check(root)
+                    self.assertLinterFails(result, f"=== {rel} ===")
+                    self.assertIn("line 4: 'TODO 3.99'", result.stdout)
+                    self.assertNotIn("3.97", result.stdout)
+                finally:
+                    # Reset even on failure, so the next subtest sees one record.
+                    self.write_extra(root, rel, "# Overlay provenance\n")
+
+    def test_github_workflow_pointer_flagged(self) -> None:
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        self.write_extra(root, ".github/workflows/sample.yml",
+                         "# Step added by TODO 3.99.\nname: sample\n")
+        result = self.check(root)
+        self.assertLinterFails(result, ".github/workflows/sample.yml")
+
+    def test_vendored_and_machine_local_paths_not_selected(self) -> None:
+        # 3b636 note 11: upstream-refreshed third-party content and
+        # gitignored machine-local state are out of scope; a vendored
+        # directory's first-party PROVENANCE.md stays scanned.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        for rel in (".claude/rules/external/vendor/rule.md",
+                    ".claude/skills/clean-language/SKILL.md",
+                    ".claude/skills/addyosmani-context-engineering/SKILL.md",
+                    ".claude/hooks/.state/history.json",
+                    ".claude/settings.local.json"):
+            self.write_extra(root, rel, "Upstream says TODO 3.99.\n")
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.write_extra(root, ".claude/skills/clean-language/PROVENANCE.md",
+                         "Vendored under TODO 3.99.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, "clean-language/PROVENANCE.md")
+
+    def test_nested_vendored_provenance_md_not_selected(self) -> None:
+        # 3b636 r3: only each vendored directory's OWN record, at its root, is
+        # first-party; a nested file that shares the basename is vendored
+        # content and stays out of scope, while the root record is scanned.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
+        for rel in (".claude/skills/clean-language/references/PROVENANCE.md",
+                    ".claude/skills/addyosmani-context-engineering/sub/PROVENANCE.md",
+                    ".claude/rules/external/vendor/PROVENANCE.md"):
+            self.write_extra(root, rel, "Upstream says TODO 3.98.\n")
+        self.write_extra(root, ".claude/skills/clean-language/PROVENANCE.md",
+                         "Vendored under TODO 3.99.\n")
+        result = self.check(root)
+        self.assertLinterFails(result, "=== .claude/skills/clean-language/PROVENANCE.md ===")
+        self.assertNotIn("3.98", result.stdout + result.stderr)
+
     def test_missing_todo_md_exits_two(self) -> None:
         root = self.make_repo("# A clean tool file.\n", todo="")
         result = self.check(root)
@@ -70534,6 +72085,30 @@ class TableCellCountTests(LinterTestCase):
         # line as one starts a table at a lazy line.
         self.assertClean(self.make_repo({"doc.md": "> Text\nmore\n> a\n> b\n"}))
 
+    def test_html_block_starts_read_with_python_whitespace(self) -> None:
+        # Backlog 3b617: markdown-it-py's HTML block starts take Python's \s,
+        # which also matches U+000B, U+000C, U+001C to U+001F and Unicode spaces,
+        # after a tag name, around an attribute and its "=", before ">" and to
+        # the end of the line. Such a line in a block quote or list item starts
+        # an HTML block the container ends at the next line, so the table after
+        # it renders; a third reading takes \s there. In the 3b570 Residue case
+        # a tag name that matches only under Unicode case folding comes first,
+        # and the table follows outside the block quote.
+        table = "| a | b |\n|---|---|\n{}\n"
+        cases = [(f"{name}-{ord(c):02x}", f"> - {opener}\n> <a href=x{c}>\n", 5)
+                 for name, opener in (("long-s-script", "<ſcript>"), ("dotless-div", "<dıv>"),
+                                      ("long-s-style", "<ſtyle>"))
+                 for c in ("\x1f", "\x0b", "\x0c")]
+        cases += [("LL-trailing-1e", "- <span>\x1e\n", 4), ("QL-div-1c", "> <div\x1c>\n", 4),
+                  ("QL-close-1c", "> </span\x1c>\n", 4), ("QL-attr-vt", "> <a\x0bhref=x>\n", 4),
+                  ("QL-equals-nbsp", "> <a href\xa0=x>\n", 4),
+                  ("LQ-em-space", "- > <a\u2003href=x>\n", 4)]
+        for name, lines, row in cases:
+            with self.subTest(probe=name):
+                self.assertEqual(self.finding_heads(lines + table.format("| 1 |")),
+                                 [f"doc.md:{row} header=2 row=1"])
+                self.assertClean(self.make_repo({"doc.md": lines + table.format("| 1 | 2 |")}))
+
     def test_unclosed_html_block_hint_names_its_closer(self) -> None:
         # Claude round-4 survivor: each type's closer, not always "-->".
         closers = {"<pre>": "</script>, </pre>, </style> or </textarea>", "<!--": "-->",
@@ -70879,6 +72454,78 @@ class TableCellCountTests(LinterTestCase):
         self.assertFinding(self.make_repo({"doc.md": "<div>\n\n" + table}),
                            "doc.md:5 header=2 row=1")
 
+    # Backlog 3b640: markdown-it-py 3.0.0 gives a line lazy in a block quote
+    # indent -1, so a block quote nested in that one reads a block start
+    # indented four or more columns as unindented and ends there; the line
+    # renders as indented code and the table after it is checked.
+    NESTED_QUOTE_ARRANGEMENTS = (("> > text", "    {}", "> "),
+                                 ("> > > text", ">     {}", "> "),
+                                 ("> - > text", "    {}", ""))
+
+    def assertNestedQuoteEnds(self, *lines: str) -> None:
+        table = "| a | b |", "|---|---|", "| 1 |"
+        for line in lines:
+            for para, middle, prefix in self.NESTED_QUOTE_ARRANGEMENTS:
+                text = "\n".join([para, middle.format(line)] + [prefix + t for t in table])
+                with self.subTest(text=text):
+                    self.assertEqual(self.finding_heads(text + "\n"), ["doc.md:5 header=2 row=1"])
+
+    def test_nested_quote_ends_at_indented_html_block_type_1(self) -> None:
+        self.assertNestedQuoteEnds("<script>", "<pre>")
+
+    def test_nested_quote_ends_at_indented_html_block_type_2(self) -> None:
+        self.assertNestedQuoteEnds("<!--")
+
+    def test_nested_quote_ends_at_indented_html_block_type_6(self) -> None:
+        self.assertNestedQuoteEnds("<div>", "</p>")
+
+    def test_nested_quote_ends_at_indented_atx_heading(self) -> None:
+        self.assertNestedQuoteEnds("# h")
+
+    def test_nested_quote_ends_at_indented_fence(self) -> None:
+        self.assertNestedQuoteEnds("```", "~~~")
+
+    def test_nested_quote_ends_at_indented_thematic_break(self) -> None:
+        self.assertNestedQuoteEnds("***", "- - -")
+
+    def test_nested_quote_ends_at_indented_list_item(self) -> None:
+        # In the block quote's own scan a list item need not be able to
+        # interrupt a paragraph: an empty item or one not numbered 1 ends it.
+        self.assertNestedQuoteEnds("- x", "1. x", "2) x", "-")
+
+    def test_nested_quote_kept_by_indented_text_type_7_quote_or_pipe(self) -> None:
+        # Negative controls: none of these ends the nested quote, so the
+        # table-shaped lines stay paragraph text, as markdown-it-py renders them.
+        table = "| a | b |", "|---|---|", "| 1 |"
+        for line in ("<span>", "> q", "| p |", "text"):
+            for para, middle, prefix in self.NESTED_QUOTE_ARRANGEMENTS:
+                text = "\n".join([para, middle.format(line)] + [prefix + t for t in table])
+                with self.subTest(text=text):
+                    self.assertClean(self.make_repo({"doc.md": text + "\n"}))
+
+    # The rule needs two block quotes the lazy line does not continue: with
+    # one, markdown-it-py 3.0.0's paragraph rule skips the indent -1 line, so
+    # the block start and the table-shaped lines after it stay paragraph text.
+    SINGLE_QUOTE_ARRANGEMENTS = (("> text", "    {}", ""),
+                                 ("> > text", ">     {}", "> "),
+                                 ("- > text", "      {}", "  "))
+
+    def test_single_quote_kept_by_indented_block_start(self) -> None:
+        table = "| a | b |", "|---|---|", "| 1 |"
+        for line in ("<script>", "<!--", "<div>", "# h", "```", "***", "- x", "1. x"):
+            for para, middle, prefix in self.SINGLE_QUOTE_ARRANGEMENTS:
+                text = "\n".join([para, middle.format(line)] + [prefix + t for t in table])
+                with self.subTest(text=text):
+                    self.assertClean(self.make_repo({"doc.md": text + "\n"}))
+
+    def test_two_quotes_end_at_indented_block_start(self) -> None:
+        # Exactly two quotes left, with the table outside both of them.
+        table = "| a | b |", "|---|---|", "| 1 |"
+        for line in ("<script>", "<!--", "<div>", "# h", "```", "***", "- x", "1. x"):
+            text = "\n".join(["> > text", "    " + line, *table])
+            with self.subTest(text=text):
+                self.assertEqual(self.finding_heads(text + "\n"), ["doc.md:5 header=2 row=1"])
+
     def test_uppercase_md_suffix_scanned(self) -> None:
         self.assertFinding(self.make_repo({"NOTES.MD": self.HEAD3 + "| 1 |\n"}),
                            "NOTES.MD:3 header=3 row=1")
@@ -70916,6 +72563,8 @@ class GitReadFailsClosedTests(unittest.TestCase):
     at an absent ref's loose path, and the files the gate reads as UTF-8.
     Round 9 has quick-guard.sh read refs/remotes/origin/main by its full name past a local
     branch origin/main, refuse a ref directory git cannot read, and pins each absence check.
+    Round 10 (3b647) has quick-guard.sh refuse a repository with no commits by name, and covers
+    its unreadable-origin/main refusals without directory permission bits, so also as root.
     The rule is .claude/rules/aiqt/10-INTEG-check-fails-closed-on-unreadable.md.
     """
 
@@ -70985,8 +72634,8 @@ class GitReadFailsClosedTests(unittest.TestCase):
                 os.chdir(old)
         return ctx()
 
-    def mono(self, repo, **env):
-        """Run the monotonicity gate's main() in ``repo``; return (exit code, stdout, stderr)."""
+    def mono(self, repo, *argv, **env):
+        """Run the monotonicity gate's main(argv) in ``repo``; return (exit code, stdout, stderr)."""
         from contextlib import redirect_stderr, redirect_stdout
         from unittest import mock
 
@@ -70994,7 +72643,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
             mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_ref_3b551")
             with mock.patch.object(mono, "REPO_ROOT", repo), redirect_stdout(io.StringIO()) as out, \
                     redirect_stderr(io.StringIO()) as err:
-                code = mono.main([])
+                code = mono.main(list(argv))
         return code, out.getvalue(), err.getvalue()
 
     def test_lint_common_git_show_raises_on_a_git_failure(self) -> None:
@@ -71766,24 +73415,468 @@ class GitReadFailsClosedTests(unittest.TestCase):
                       "rev-parse --git-path exited 128)", err)
 
     def test_library_version_monotonicity_names_the_files_it_reads_as_utf8(self) -> None:
-        # Agy's claim, executed: the exit-2 clause said a prior file that is not UTF-8 refuses,
-        # but main's walk skips a current document that is not UTF-8, so its prior copy is never
-        # read (exit 0), nor is the prior copy of a document with no version. A prior copy that
-        # is read still refuses (test_library_version_monotonicity_refuses_a_non_utf8_prior_blob).
+        # 3b624: the walk used to skip a current document that is not UTF-8, so its prior copy
+        # (here a higher version) was never compared and the gate printed OK (exit 0). It now
+        # names the document and refuses. The prior copy of a document with no version is still
+        # not read. A prior copy that is read still refuses
+        # (test_library_version_monotonicity_refuses_a_non_utf8_prior_blob).
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
-                           "governance/d.md": b"**Version:** 1.0.0\n\xff\n",
+                           "governance/d.md": b"**Version:** 2.0.0\n",
                            "governance/e.md": b"**Version:** 1.0.0\n\xff\n"})
-        self.commit(repo, {"governance/d.md": b"**Version:** 1.0.0\n\xfe\n",
+        self.commit(repo, {"governance/d.md": b"**Version:** 1.0.0\n\xff\n",
                            "governance/e.md": "no version line\n"})
         code, out, err = self.mono(repo)
-        self.assertEqual(code, 0, out + err)
-        self.assertIn("monotonic non-decreasing (vs HEAD~1)", out)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertIn("ERROR: governance/d.md is not valid UTF-8; its version cannot be read, so "
+                      "monotonicity is unchecked.", err)
+        self.assertNotIn("governance/e.md", err)
         mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_utf8_doc_3b551")
         doc = " ".join(mono.__doc__.split())
         self.assertNotIn("current README.md or a prior file is not valid UTF-8", doc)
-        self.assertIn("a current document that is not UTF-8 is skipped, so its prior copy is not "
-                      "read", doc)
+        self.assertNotIn("is skipped, so its prior copy is not read", doc)
+        self.assertIn("a current document under the walk, or a prior file the gate reads, is not "
+                      "valid UTF-8", doc)
+
+    def test_library_version_monotonicity_names_every_non_utf8_current_document(self) -> None:
+        # 3b624: every current document that is not UTF-8 gets its own line, not only the first.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 2.0.0\n",
+                           "risk/f.md": "**Version:** 3.0.0\n"})
+        self.commit(repo, {"governance/d.md": b"**Version:** 2.0.0\n\xff\n",
+                           "risk/f.md": b"**Version:** 3.0.0\n\xfe\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        lines = [line for line in err.splitlines() if line.startswith("ERROR: ")]
+        self.assertEqual(lines, [
+            "ERROR: governance/d.md is not valid UTF-8; its version cannot be read, so "
+            "monotonicity is unchecked.",
+            "ERROR: risk/f.md is not valid UTF-8; its version cannot be read, so monotonicity is "
+            "unchecked."], err)
+
+    def test_library_version_monotonicity_names_a_non_utf8_current_document_before_a_prior(self) -> None:
+        # 3b624 r2: the walk collected the current documents while it read prior blobs, so an
+        # undecodable prior blob, or a git failure, raised first and only the generic message
+        # printed. Every current document is now decoded before any prior blob is read.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 2.0.0\n",
+                           "risk/p.md": b"**Version:** 1.0.0\n\xff\n"})
+        self.commit(repo, {"governance/d.md": b"**Version:** 2.0.0\n\xfe\n",
+                           "risk/p.md": "**Version:** 1.0.1\n"})
+        expected = ["ERROR: governance/d.md is not valid UTF-8; its version cannot be read, so "
+                    "monotonicity is unchecked."]
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")],
+                         expected, err)
+        self.drop_object(repo, "HEAD~1:risk/p.md")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")],
+                         expected, err)
+
+    def test_library_version_monotonicity_names_a_non_utf8_document_on_a_root_commit(self) -> None:
+        # 3b624 r2: with no prior state the gate printed OK before any walk, so an undecodable
+        # current document passed on a root commit. The intact twin still has no prior state.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 0, out + err)
+        self.assertIn("OK: no prior committed state", out)
+        (repo / "governance" / "d.md").write_bytes(b"**Version:** 1.0.0\n\xff\n")
+        self.git(repo, "commit", "-qam", "c", "--amend")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: governance/d.md is not valid UTF-8; its version cannot be read, so "
+            "monotonicity is unchecked."], err)
+
+    def test_library_version_monotonicity_names_a_non_utf8_readme(self) -> None:
+        # 3b624 r2: an undecodable README.md raised in check_library_version, before the walk,
+        # and printed the generic message; it is now named like any current document.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n"})
+        self.commit(repo, {"README.md": b"# R\n\n**Library Version:** 2026.06.2\n\xff\n",
+                           "governance/d.md": b"**Version:** 1.0.1\n\xfe\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: README.md is not valid UTF-8; its version cannot be read, so monotonicity "
+            "is unchecked.",
+            "ERROR: governance/d.md is not valid UTF-8; its version cannot be read, so "
+            "monotonicity is unchecked."], err)
+
+    def test_library_version_monotonicity_names_a_dangling_symlink_document(self) -> None:
+        # 3b624 r3: the walk caught only UnicodeDecodeError, so a dangling *.md symlink raised
+        # FileNotFoundError, a traceback with exit 1 ("versions decreased"). It is now named,
+        # exit 2, with a prior state and on a root commit. The intact twin passes.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/broken.md": "**Version:** 2.0.0\n"})
+        self.commit(repo, {"governance/broken.md": "**Version:** 2.0.1\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 0, out + err)
+        (repo / "governance" / "broken.md").unlink()
+        (repo / "governance" / "broken.md").symlink_to("missing.md")
+        self.commit(repo, {})
+        root = self.repo("root")
+        self.commit(root, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
+        (root / "governance").mkdir()
+        (root / "governance" / "broken.md").symlink_to("missing.md")
+        self.git(root, "add", "-A")
+        self.git(root, "commit", "-qm", "c", "--amend")
+        # r5: the document is opened with O_NOFOLLOW, so the symlink fails the open (ELOOP).
+        for fixture in (repo, root):
+            code, out, err = self.mono(fixture)
+            self.assertEqual(code, 2, out + err)
+            self.assertNotIn("OK:", out)
+            self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+                "ERROR: governance/broken.md cannot be read (OSError); its version "
+                "cannot be read, so monotonicity is unchecked."], err)
+
+    def test_library_version_monotonicity_names_a_directory_named_md(self) -> None:
+        # 3b624 r3: a directory named governance/dir.md raised IsADirectoryError, a traceback
+        # with exit 1. It is not skipped: the prior state holds a document at that path. It is
+        # named beside an undecodable document, one line each, exit 2.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/dir.md": "**Version:** 2.0.0\n",
+                           "risk/f.md": "**Version:** 1.0.0\n"})
+        (repo / "governance" / "dir.md").unlink()
+        self.commit(repo, {"governance/dir.md/keep.txt": "k\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: governance/dir.md cannot be read (IsADirectoryError); its version cannot be "
+            "read, so monotonicity is unchecked."], err)
+        (repo / "risk" / "f.md").write_bytes(b"**Version:** 1.0.0\n\xff\n")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: governance/dir.md cannot be read (IsADirectoryError); its version cannot be "
+            "read, so monotonicity is unchecked.",
+            "ERROR: risk/f.md is not valid UTF-8; its version cannot be read, so monotonicity is "
+            "unchecked."], err)
+
+    def test_library_version_monotonicity_prior_readme_names_a_non_utf8_readme(self) -> None:
+        # 3b624 r3: with --prior-readme the current README.md skipped the decode check, so one
+        # that is not UTF-8 raised UnicodeDecodeError, a traceback with exit 1. It is now named,
+        # exit 2. The intact twin passes against the same prior.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
+        prior = self.tmp / "prior.md"
+        prior.write_text("**Library Version:** 2026.06.0\n", encoding="utf-8")
+        code, out, err = self.mono(repo, "--prior-readme", str(prior))
+        self.assertEqual(code, 0, out + err)
+        (repo / "README.md").write_bytes(b"# R\n\n**Library Version:** 2026.06.1\n\xff\n")
+        code, out, err = self.mono(repo, "--prior-readme", str(prior))
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: README.md is not valid UTF-8; its version cannot be read, so monotonicity "
+            "is unchecked."], err)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
+    def test_library_version_monotonicity_names_a_directory_it_cannot_list(self) -> None:
+        # 3b624 r4: Path.rglob dropped a directory it could not list without a word, so a
+        # tracked document in one whose version went from 2.0.0 to 1.0.0 was never compared and
+        # the gate printed OK (exit 0). The directory is now named, exit 2. An exempt directory
+        # that cannot be listed is not walked, so it still does not refuse.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/sub/x.md": "**Version:** 2.0.0\n"})
+        self.commit(repo, {"governance/sub/x.md": "**Version:** 1.0.0\n"})
+        exempt = repo / ".claude" / "locked"
+        exempt.mkdir(parents=True)
+        (exempt / "y.md").write_text("**Version:** 1.0.0\n", encoding="utf-8")
+        locked = repo / "governance" / "sub"
+        for path in (exempt, locked):
+            self.addCleanup(path.chmod, 0o755)
+        exempt.chmod(0)
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 1, out + err)
+        self.assertIn("governance/sub/x.md: Version decreased: current 1.0.0 < prior 2.0.0", out)
+        locked.chmod(0)
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: governance/sub is a directory that cannot be listed (PermissionError); the "
+            "versions of the documents in it cannot be read, so monotonicity is unchecked."], err)
+
+    def test_library_version_monotonicity_refuses_a_fifo_document_without_opening_it(self) -> None:
+        # 3b624 r4: the walk opened a FIFO named *.md, which blocks until a writer appears, so
+        # the gate hung. A thread here stands in for the writer, so the old code reads an empty
+        # file and prints OK instead of hanging. r5: the FIFO is opened non-blocking and refused
+        # from its descriptor without being read; a symlink to it, like any symlink, fails the
+        # O_NOFOLLOW open and is refused as an open error.
+        import threading
+
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n",
+                           "risk/pipe.md": "**Version:** 2.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.1\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 0, out + err)
+        (repo / "risk" / "pipe.md").unlink()
+        fifos = [repo / "risk" / "pipe.md"]
+        os.mkfifo(fifos[0])
+        (repo / "risk" / "to-pipe.md").symlink_to("pipe.md")
+        stop, opened = threading.Event(), []
+
+        def writer():
+            while not stop.is_set():
+                for fifo in fifos:
+                    try:
+                        fd = os.open(fifo, os.O_WRONLY | os.O_NONBLOCK)
+                    except OSError:  # ENXIO: no reader has it open
+                        continue
+                    opened.append(fifo)
+                    os.close(fd)
+                stop.wait(0.05)
+
+        thread = threading.Thread(target=writer, daemon=True)
+        thread.start()
+        try:
+            code, out, err = self.mono(repo)
+        finally:
+            stop.set()
+            thread.join()
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: risk/pipe.md is not a regular file (a FIFO), so it is not read; its version "
+            "cannot be read, so monotonicity is unchecked.",
+            "ERROR: risk/to-pipe.md cannot be read (OSError); its version cannot be read, so "
+            "monotonicity is unchecked."], err)
+
+    def test_library_version_monotonicity_refuses_a_symlink_to_a_regular_document(self) -> None:
+        # 3b624 r6: r5 opens each document with O_NOFOLLOW, so a symlink to a regular *.md
+        # fails the open (ELOOP) and is refused as an open error; without O_NOFOLLOW it was
+        # followed, read as the file it names, and the gate printed OK. The twin without the
+        # symlink passes.
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.1\n"})
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 0, out + err)
+        self.assertIn("OK:", out)
+        (repo / "governance" / "link.md").symlink_to("d.md")
+        code, out, err = self.mono(repo)
+        self.assertEqual(code, 2, out + err)
+        self.assertNotIn("OK:", out)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("ERROR: ")], [
+            "ERROR: governance/link.md cannot be read (OSError); its version cannot be read, so "
+            "monotonicity is unchecked."], err)
+
+    @unittest.skipUnless(hasattr(os, "O_NOCTTY"), "the platform has no O_NOCTTY")
+    def test_library_version_monotonicity_opens_a_document_with_o_noctty(self) -> None:
+        # 3b643: without O_NOCTTY a gate run as a session leader with no controlling terminal
+        # could acquire a terminal device named *.md as its controlling terminal on the open.
+        # read_current (which also reads README.md) opens a document once, with O_NOCTTY and the
+        # r5 flags; the twin read without the patch returns the same text.
+        from unittest import mock
+
+        mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_noctty_3b643")
+        doc = self.tmp / "d.md"
+        doc.write_text("**Version:** 1.0.0\n", encoding="utf-8")
+        problems = []
+        with mock.patch.object(mono.os, "open", wraps=os.open) as opened:
+            text = mono.read_current(doc, "d.md", problems)
+        self.assertEqual((text, problems), ("**Version:** 1.0.0\n", []))
+        self.assertEqual(opened.call_count, 1, opened.call_args_list)
+        (path, flags), kwargs = opened.call_args
+        self.assertEqual((path, kwargs), (doc, {}))
+        for name in ("O_NOCTTY", "O_NONBLOCK", "O_NOFOLLOW", "O_CLOEXEC"):
+            self.assertTrue(flags & getattr(os, name), name)
+        self.assertEqual(flags & os.O_ACCMODE, os.O_RDONLY)
+        self.assertEqual(mono.read_current(doc, "d.md", []), text)
+
+    @unittest.skipUnless(hasattr(os, "O_NOCTTY"), "the platform has no O_NOCTTY")
+    def test_library_version_monotonicity_opens_the_prior_readme_once_with_o_noctty(self) -> None:
+        # 3b643 r2: --prior-readme was checked with is_file() and then opened again by
+        # read_text(), without O_NOCTTY, so a path swapped for a terminal device between the two
+        # calls was opened without it. It is now opened once, with OPEN_FLAGS, and its type read
+        # from that descriptor; a symlink, which is_file() followed, is refused. A directory is
+        # refused as before. The intact twin passes.
+        import contextlib
+        import io
+        from unittest import mock
+
+        mono = load_linter_module("tools/lint-library-version-monotonicity.py",
+                                  "mono_prior_noctty_3b643")
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
+        self.addCleanup(setattr, mono, "REPO_ROOT", mono.REPO_ROOT)
+        mono.REPO_ROOT = repo
+        prior = self.tmp / "prior.md"
+        prior.write_text("**Library Version:** 2026.06.0\n", encoding="utf-8")
+        link = self.tmp / "link.md"
+        link.symlink_to(prior)
+
+        def run(path):
+            out, err = io.StringIO(), io.StringIO()
+            with mock.patch.object(mono.os, "open", wraps=os.open) as opened, \
+                    contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                code = mono.main(["--prior-readme", str(path)])
+            calls = [c for c in opened.call_args_list if os.fspath(c.args[0]) == str(path)]
+            return code, out.getvalue(), err.getvalue(), calls
+
+        code, out, err, calls = run(prior)
+        self.assertEqual(code, 0, out + err)
+        self.assertIn("OK:", out)
+        self.assertEqual(len(calls), 1, calls)
+        (_, flags), kwargs = calls[0]
+        self.assertEqual(kwargs, {})
+        for name in ("O_NOCTTY", "O_NONBLOCK", "O_NOFOLLOW", "O_CLOEXEC"):
+            self.assertTrue(flags & getattr(os, name), name)
+        self.assertEqual(flags & os.O_ACCMODE, os.O_RDONLY)
+        for path, reason in ((link, "cannot be read"), (self.tmp, "not a regular file")):
+            code, out, err, calls = run(path)
+            self.assertEqual(code, 2, out + err)
+            self.assertNotIn("OK:", out)
+            self.assertIn(f"ERROR: --prior-readme {path}: {reason}", err)
+            self.assertEqual(len(calls), 1, calls)
+
+    def test_library_version_monotonicity_reads_a_document_from_the_descriptor_it_checked(self) -> None:
+        # 3b624 r5: r4 stat'ed a document and then opened it again by name, so a regular file
+        # swapped for a FIFO between the two calls was opened blocking and the gate hung. Here
+        # the swap is deterministic: the child replaces governance/d.md with a FIFO right after
+        # its stat (r4's type check) or right before its open (r5's), whichever comes first. The
+        # child is bounded by a timeout, since r4 blocks in the open. The intact twin passes.
+        import stat
+
+        driver = (
+            "import importlib.util, os, sys\n"
+            "from pathlib import Path\n"
+            "tool, repo, target = sys.argv[1], Path(sys.argv[2]), sys.argv[3]\n"
+            "sys.path.insert(0, os.path.dirname(tool))\n"
+            "spec = importlib.util.spec_from_file_location('mono_swap_3b624', tool)\n"
+            "mono = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(mono)\n"
+            "mono.REPO_ROOT = repo\n"
+            "victim = [os.fspath(repo / target)] if target else []\n"
+            "real_stat, real_open = os.stat, os.open\n"
+            "def swap(path):\n"
+            "    if victim and os.fspath(path) == victim[0]:\n"
+            "        os.unlink(victim[0])\n"
+            "        os.mkfifo(victim.pop())\n"
+            "def checked(path, *args, **kwargs):\n"
+            "    result = real_stat(path, *args, **kwargs)\n"
+            "    swap(path)\n"
+            "    return result\n"
+            "def opened(path, *args, **kwargs):\n"
+            "    swap(path)\n"
+            "    return real_open(path, *args, **kwargs)\n"
+            "os.stat, os.open = checked, opened\n"
+            "sys.exit(mono.main([]))\n")
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.1\n"})
+        tool = str(REPO_ROOT / "tools" / "lint-library-version-monotonicity.py")
+        runs = (("", 0, []),
+                ("governance/d.md", 2, [
+                    "ERROR: governance/d.md is not a regular file (a FIFO), so it is not read; its "
+                    "version cannot be read, so monotonicity is unchecked."]))
+        for target, expected, lines in runs:
+            try:
+                result = subprocess.run([sys.executable, "-c", driver, tool, str(repo), target],
+                                        cwd=repo, env=self.env, capture_output=True, text=True,
+                                        timeout=60)
+            except subprocess.TimeoutExpired:
+                self.fail(f"the gate hung on a document swapped for a FIFO ({target!r})")
+            self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertEqual([x for x in result.stderr.splitlines() if x.startswith("ERROR: ")],
+                             lines, result.stderr)
+        self.assertTrue(stat.S_ISFIFO(os.lstat(repo / "governance" / "d.md").st_mode))
+        self.assertNotIn("OK:", result.stdout)
+
+    def test_library_version_monotonicity_names_a_missing_readme_in_every_mode(self) -> None:
+        # 3b624 r4: a missing README.md raised FileNotFoundError in the library check, a
+        # traceback with exit 1 ("versions decreased"), with a prior state and under
+        # --prior-readme, and on a root commit was never read and the gate printed OK. It holds
+        # the Library Version, so it is named, exit 2, in all three. The intact twins pass.
+        line = ("ERROR: README.md does not exist; the library version cannot be read, so "
+                "monotonicity is unchecked.")
+        repo = self.repo()
+        self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
+                           "governance/d.md": "**Version:** 1.0.0\n"})
+        self.commit(repo, {"governance/d.md": "**Version:** 1.0.1\n"})
+        root = self.repo("root")
+        self.commit(root, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
+        prior = self.tmp / "prior.md"
+        prior.write_text("**Library Version:** 2026.06.0\n", encoding="utf-8")
+        runs = ((repo,), (repo, "--prior-readme", str(prior)), (root,))
+        for fixture, *argv in runs:
+            code, out, err = self.mono(fixture, *argv)
+            self.assertEqual(code, 0, out + err)
+        for fixture in (repo, root):
+            (fixture / "README.md").unlink()
+        for fixture, *argv in runs:
+            code, out, err = self.mono(fixture, *argv)
+            self.assertEqual(code, 2, out + err)
+            self.assertNotIn("OK:", out)
+            self.assertNotIn("Traceback", err)
+            self.assertEqual([x for x in err.splitlines() if x.startswith("ERROR: ")], [line], err)
+
+    def test_library_version_monotonicity_walk_visits_the_rglob_document_set(self) -> None:
+        # 3b624 r4: the walk moved from Path.rglob("*.md") to os.walk so a directory it cannot
+        # list is reported. On an intact tree it must visit exactly the documents the rglob walk
+        # did, with the same filters: the real corpus, and a fixture with a symlinked directory
+        # (not descended), a directory and symlinks named *.md, hidden names and exempt trees.
+        from unittest import mock
+
+        mono = load_linter_module("tools/lint-library-version-monotonicity.py", "mono_walk_3b624")
+
+        def rglob_set(root):
+            found = set()
+            for path in root.rglob("*.md"):
+                if mono.is_default_exempt_root(path, repo_root=root):
+                    continue
+                if any(part in mono.DEFAULT_EXEMPT_DIRS for part in path.parts):
+                    continue
+                rel = path.relative_to(root).as_posix()
+                if rel not in ("README.md", "CHANGELOG.md"):
+                    found.add(rel)
+            return found
+
+        fixture = self.tmp / "tree"
+        outside = self.tmp / "outside"
+        (outside / "deep").mkdir(parents=True)
+        (outside / "deep" / "o.md").write_text("o\n", encoding="utf-8")
+        for rel in ("README.md", "CHANGELOG.md", "a.md", ".hidden.md", "x.MD", "g/b.md",
+                    "g/.h/c.md", "g/dir.md/inner.md", "g/.git/x.md", "g/references/r.md",
+                    ".claude/c.md", ".corpus-management/z.md", "sub/CHANGELOG.md"):
+            (fixture / rel).parent.mkdir(parents=True, exist_ok=True)
+            (fixture / rel).write_text("x\n", encoding="utf-8")
+        (fixture / "g" / "linkdir").symlink_to(outside)
+        (fixture / "g" / "linkdir.md").symlink_to(outside)
+        (fixture / "g" / "linkfile.md").symlink_to(fixture / "a.md")
+        (fixture / "g" / "dangling.md").symlink_to(fixture / "missing")
+        (fixture / ".corpus-management" / "out.md").symlink_to(fixture / "a.md")
+        for root in (REPO_ROOT, fixture):
+            expected = rglob_set(root)
+            self.assertTrue(expected, root)
+            problems = []
+            with mock.patch.object(mono, "REPO_ROOT", root):
+                walked = [rel for _, rel in mono.walk_current_documents(problems)]
+            self.assertEqual(problems, [], root)
+            self.assertEqual(len(walked), len(set(walked)), root)
+            self.assertEqual(set(walked), expected, root)
 
     def test_date_cobump_refuses_an_unreadable_base_blob(self) -> None:
         repo = self.repo()
@@ -72138,8 +74231,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
         # claude's fixture: origin/main under a mode-000 directory. rev-parse exits 1 silently,
         # for-each-ref lists nothing under it, and the loose path reads as no file, so at
         # a694c4626 the guard read origin/main as absent and exited 0; symbolic-ref -q exits 128.
-        # A dangling symbolic origin/main in a reftable repository leaves no loose path and no
-        # listing; symbolic-ref -q exits 0, which is not absent either.
+        # The sibling below covers these refusals without permission bits, so also as root.
         for locked in ("refs/remotes/origin", "refs/remotes"):
             for packed in (False, True):
                 with self.subTest(locked=locked, packed=packed):
@@ -72156,9 +74248,87 @@ class GitReadFailsClosedTests(unittest.TestCase):
                         directory.chmod(0o755)
                     result = self.run_in(repo, "bash", "tools/quick-guard.sh")
                     self.assertIn("fast-checking 1 changed .md file(s)", result.stdout, result.stderr)
-        repo, base = self.guard_fixture("reftable-dangling-symbolic-ref", ref_format="reftable")
-        self.git(repo, "symbolic-ref", "refs/remotes/origin/main", "refs/remotes/origin/nothing")
-        self.assert_guard_refuses(repo)
+
+    def test_quick_guard_refuses_an_origin_main_it_cannot_read_as_root(self) -> None:
+        # 3b647: the sibling above is skipped as root, which ignores directory permission bits.
+        # These need none. symbolic-ref -q exiting 128 (what the mode-000 directory caused) is
+        # injected by a git wrapper beside an absent origin/main. An origin/main naming a missing
+        # commit, loose, packed or in a reftable repository, fails show-ref and is still listed.
+        # A dangling symbolic origin/main in a reftable repository leaves no loose path and no
+        # listing; symbolic-ref -q exits 0, which is not absent either.
+        import shlex
+
+        real_git = shlex.quote(shutil.which("git", path=self.env.get("PATH")))
+        with self.subTest(fixture="symbolic-ref-exits-128"):
+            repo, _ = self.guard_fixture("symbolic-ref-exits-128")
+            result = self.run_in(repo, "bash", "tools/quick-guard.sh")
+            self.assertIn("origin/main is absent", result.stdout, result.stderr)
+            shim = self.tmp / "shim-symbolic-ref"
+            shim.mkdir()
+            (shim / "git").write_text(
+                '#!/bin/sh\nif [ "$1" = symbolic-ref ] && [ "$2" = -q ]; then exit 128; fi\n'
+                f'exec {real_git} "$@"\n', encoding="utf-8")
+            (shim / "git").chmod(0o755)
+            self.assert_guard_refuses(repo, PATH=f"{shim}{os.pathsep}{self.env['PATH']}")
+        for name, ref_format, packed in (("missing-loose", None, False),
+                                         ("missing-packed", None, True),
+                                         ("missing-reftable", "reftable", False)):
+            with self.subTest(fixture=name):
+                repo, _ = self.guard_fixture(name, ref_format=ref_format)
+                gone = self.git(repo, "commit-tree", "HEAD^{tree}", "-m", "gone")
+                self.git(repo, "update-ref", "refs/remotes/origin/main", gone)
+                if packed:
+                    self.git(repo, "pack-refs", "--all")
+                self.drop_object(repo, gone)
+                self.assert_guard_refuses(repo)
+        with self.subTest(fixture="reftable-dangling-symbolic-ref"):
+            repo, base = self.guard_fixture("reftable-dangling-symbolic-ref", ref_format="reftable")
+            self.git(repo, "symbolic-ref", "refs/remotes/origin/main", "refs/remotes/origin/nothing")
+            self.assert_guard_refuses(repo)
+
+    def test_quick_guard_refuses_a_repository_with_no_commits(self) -> None:
+        # 3b647: with HEAD unborn, git diff HEAD failed with "bad revision 'HEAD'" after the
+        # origin/main-absent note, a refusal that did not say why. HEAD is now read first, so
+        # the refusal names it, with or without origin/main and with .md files staged or not.
+        # --quiet hides git's own report for some HEAD failures and not others; the guard refuses either way.
+        import shlex
+
+        def refused(repo, **env):
+            result = self.run_in(repo, "bash", "tools/quick-guard.sh", **env)
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertIn("ERROR: git rev-parse --verify --quiet HEAD^{commit} (HEAD names no "
+                          "commit: a repository with no commits yet, or a HEAD git cannot read) "
+                          "failed", result.stderr)
+            self.assertNotIn("no changed corpus-content", result.stdout)
+            self.assertNotIn("origin/main is absent", result.stdout)
+            return result
+
+        repo = self.repo("no-commits")
+        (repo / "tools").mkdir()
+        shutil.copy(REPO_ROOT / "tools" / "quick-guard.sh", repo / "tools")
+        self.assertNotIn("fatal:", refused(repo).stderr)
+        (repo / "governance").mkdir()
+        (repo / "governance" / "a.md").write_text("x\n", encoding="utf-8")
+        refused(repo)
+        self.git(repo, "add", "governance/a.md")
+        refused(repo)
+        # An orphan branch beside a real origin/main is unborn too.
+        repo, base = self.guard_fixture("orphan")
+        self.git(repo, "update-ref", "refs/remotes/origin/main", base)
+        self.git(repo, "checkout", "-q", "--orphan", "fresh")
+        refused(repo)
+        # A HEAD git cannot read for another reason keeps git's own report above the refusal.
+        repo, _ = self.guard_fixture("rev-parse-fatal")
+        shim = self.tmp / "shim-rev-parse"
+        shim.mkdir()
+        (shim / "git").write_text(
+            '#!/bin/sh\nif [ "$1" = rev-parse ] && [ "$2" = --verify ]; then\n'
+            '  echo "fatal: detected dubious ownership in repository" >&2; exit 128\nfi\n'
+            f'exec {shlex.quote(shutil.which("git", path=self.env.get("PATH")))} "$@"\n',
+            encoding="utf-8")
+        (shim / "git").chmod(0o755)
+        result = refused(repo, PATH=f"{shim}{os.pathsep}{self.env['PATH']}")
+        self.assertIn("fatal: detected dubious ownership in repository", result.stderr)
 
     def test_quick_guard_refuses_each_failed_absence_check(self) -> None:
         # The absence checks no real fixture tells apart, each failed alone by a git wrapper

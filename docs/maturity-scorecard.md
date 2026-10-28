@@ -37,7 +37,7 @@ The metadata block above carries a generator schema constant for `Version` and t
 
 ---
 
-_Summary as of last regeneration: Mature: 135, Baseline: 147, Draft: 77, Unknown: 0._
+_Summary as of last regeneration: Mature: 135, Baseline: 147, Draft: 78, Unknown: 0._
 
 ## Mature
 
@@ -45,14 +45,14 @@ _135 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
-| [ai/charter-ai-governance-council.md](../ai/charter-ai-governance-council.md) | AI Governance Council Charter | Charter | 1.2.10 | 2026-09-25 |
-| [ai/framework-ai-governance-and-risk.md](../ai/framework-ai-governance-and-risk.md) | AI Governance and Risk Framework | Framework | 1.1.8 | 2026-10-24 |
-| [ai/guide-ai-adversarial-test-reference.md](../ai/guide-ai-adversarial-test-reference.md) | AI Adversarial Test Reference | Guide | 1.3.18 | 2026-10-26 |
-| [ai/guide-ai-security-technical-implementation.md](../ai/guide-ai-security-technical-implementation.md) | AI Security Technical Implementation Guide | Guide | 1.3.17 | 2026-10-26 |
-| [ai/procedure-ai-audit.md](../ai/procedure-ai-audit.md) | AI Audit Procedure | Procedure | 1.1.13 | 2026-10-25 |
-| [ai/standard-ai-and-agentic-development-security.md](../ai/standard-ai-and-agentic-development-security.md) | AI and Agentic Development Security Standard | Standard | 1.8.52 | 2026-10-26 |
+| [ai/charter-ai-governance-council.md](../ai/charter-ai-governance-council.md) | AI Governance Council Charter | Charter | 1.2.11 | 2026-10-27 |
+| [ai/framework-ai-governance-and-risk.md](../ai/framework-ai-governance-and-risk.md) | AI Governance and Risk Framework | Framework | 1.1.9 | 2026-10-27 |
+| [ai/guide-ai-adversarial-test-reference.md](../ai/guide-ai-adversarial-test-reference.md) | AI Adversarial Test Reference | Guide | 1.3.19 | 2026-10-27 |
+| [ai/guide-ai-security-technical-implementation.md](../ai/guide-ai-security-technical-implementation.md) | AI Security Technical Implementation Guide | Guide | 1.3.18 | 2026-10-27 |
+| [ai/procedure-ai-audit.md](../ai/procedure-ai-audit.md) | AI Audit Procedure | Procedure | 1.1.14 | 2026-10-27 |
+| [ai/standard-ai-and-agentic-development-security.md](../ai/standard-ai-and-agentic-development-security.md) | AI and Agentic Development Security Standard | Standard | 1.8.53 | 2026-10-27 |
 | [ai/standard-ai-model-risk.md](../ai/standard-ai-model-risk.md) | AI Model Risk Standard | Standard | 1.1.6 | 2026-10-24 |
-| [ai/standard-ai-security-and-risk.md](../ai/standard-ai-security-and-risk.md) | AI Security and Risk Standard | Standard | 1.1.8 | 2026-09-13 |
+| [ai/standard-ai-security-and-risk.md](../ai/standard-ai-security-and-risk.md) | AI Security and Risk Standard | Standard | 1.1.9 | 2026-10-27 |
 | [ai/template-ai-system-register.md](../ai/template-ai-system-register.md) | AI System Register Template | Template | 1.1.5 | 2026-10-24 |
 | [ai/template-system-card.md](../ai/template-system-card.md) | System Card Template | Template | 1.1.5 | 2026-10-24 |
 | [compliance/annex-nis-2-implementation.md](../compliance/annex-nis-2-implementation.md) | NIS 2 Implementation Annex | Annex | 1.2.12 | 2026-10-21 |
@@ -61,51 +61,51 @@ _135 documents._
 | [compliance/logistics/policy-basc-information-security.md](../compliance/logistics/policy-basc-information-security.md) | BASC Information Security Policy | Policy | 1.2.13 | 2026-09-01 |
 | [compliance/logistics/register-basc-it-compliance-kpis.md](../compliance/logistics/register-basc-it-compliance-kpis.md) | BASC IT Compliance Monitoring and KPIs | Register | 1.2.9 | 2026-10-12 |
 | [compliance/logistics/register-basc-it-responsibilities.md](../compliance/logistics/register-basc-it-responsibilities.md) | BASC IT and Information Security Responsibilities | Register | 1.1.3 | 2026-09-01 |
-| [compliance/matrix-grc-compliance-alignment.md](../compliance/matrix-grc-compliance-alignment.md) | GRC Library Compliance Alignment Matrix | Matrix | 1.12.7 | 2026-10-22 |
-| [compliance/procedure-capa.md](../compliance/procedure-capa.md) | Corrective and Preventive Action (CAPA) Procedure | Procedure | 1.1.0 | 2026-10-13 |
-| [compliance/procedure-control-testing.md](../compliance/procedure-control-testing.md) | Control Testing Procedure | Procedure | 1.1.9 | 2026-09-25 |
-| [compliance/standard-internal-audit.md](../compliance/standard-internal-audit.md) | Internal Audit Standard | Standard | 1.2.12 | 2026-10-13 |
-| [compliance/template-audit-evidence-package.md](../compliance/template-audit-evidence-package.md) | Audit Evidence Package Template | Template | 1.1.5 | 2026-10-26 |
+| [compliance/matrix-grc-compliance-alignment.md](../compliance/matrix-grc-compliance-alignment.md) | GRC Library Compliance Alignment Matrix | Matrix | 1.12.8 | 2026-10-27 |
+| [compliance/procedure-capa.md](../compliance/procedure-capa.md) | Corrective and Preventive Action (CAPA) Procedure | Procedure | 1.1.1 | 2026-10-27 |
+| [compliance/procedure-control-testing.md](../compliance/procedure-control-testing.md) | Control Testing Procedure | Procedure | 1.1.10 | 2026-10-27 |
+| [compliance/standard-internal-audit.md](../compliance/standard-internal-audit.md) | Internal Audit Standard | Standard | 1.2.13 | 2026-10-27 |
+| [compliance/template-audit-evidence-package.md](../compliance/template-audit-evidence-package.md) | Audit Evidence Package Template | Template | 1.1.10 | 2026-10-27 |
 | [dev-security/guideline-ai-coding-assistant-security.md](../dev-security/guideline-ai-coding-assistant-security.md) | AI Coding Assistant Security Guideline | Guideline | 1.3.23 | 2026-10-22 |
-| [dev-security/standard-developer-security-requirements.md](../dev-security/standard-developer-security-requirements.md) | Developer Security Requirements | Standard | 1.1.38 | 2026-10-22 |
+| [dev-security/standard-developer-security-requirements.md](../dev-security/standard-developer-security-requirements.md) | Developer Security Requirements | Standard | 1.1.39 | 2026-10-27 |
 | [dev-security/standard-mobile-application-security.md](../dev-security/standard-mobile-application-security.md) | Mobile Application Security Standard | Standard | 1.1.8 | 2026-09-23 |
-| [dev-security/standard-security-baseline-and-standards-reference.md](../dev-security/standard-security-baseline-and-standards-reference.md) | Security Baseline and Standards Reference | Standard | 1.1.34 | 2026-10-16 |
+| [dev-security/standard-security-baseline-and-standards-reference.md](../dev-security/standard-security-baseline-and-standards-reference.md) | Security Baseline and Standards Reference | Standard | 1.1.39 | 2026-10-27 |
 | [dev-security/standard-security-quick-reference.md](../dev-security/standard-security-quick-reference.md) | Security Quick Reference | Standard | 1.1.30 | 2026-10-22 |
-| [dev-security/standard-software-composition-analysis.md](../dev-security/standard-software-composition-analysis.md) | Software Composition Analysis Standard | Standard | 1.1.20 | 2026-09-24 |
+| [dev-security/standard-software-composition-analysis.md](../dev-security/standard-software-composition-analysis.md) | Software Composition Analysis Standard | Standard | 1.1.21 | 2026-10-27 |
 | [governance/charter-governance-library.md](../governance/charter-governance-library.md) | Governance Library Charter | Charter | 1.2.6 | 2026-08-03 |
 | [governance/framework-continuous-assurance-and-improvement.md](../governance/framework-continuous-assurance-and-improvement.md) | Continuous Assurance and Improvement Framework | Framework | 1.1.10 | 2026-09-25 |
 | [governance/framework-document-architecture-and-interrelationship.md](../governance/framework-document-architecture-and-interrelationship.md) | Document Architecture and Interrelationship Framework | Framework | 1.1.6 | 2026-09-05 |
-| [governance/framework-metrics-monitoring-and-performance-reporting.md](../governance/framework-metrics-monitoring-and-performance-reporting.md) | Metrics, Monitoring and Performance Reporting Framework | Framework | 1.1.11 | 2026-10-17 |
+| [governance/framework-metrics-monitoring-and-performance-reporting.md](../governance/framework-metrics-monitoring-and-performance-reporting.md) | Metrics, Monitoring and Performance Reporting Framework | Framework | 1.1.13 | 2026-10-27 |
 | [governance/framework-sustainability-and-responsible-technology.md](../governance/framework-sustainability-and-responsible-technology.md) | Sustainability and Responsible Technology Framework | Framework | 1.2.6 | 2026-09-25 |
-| [governance/guideline-esg-and-ai-ethics-disclosure.md](../governance/guideline-esg-and-ai-ethics-disclosure.md) | ESG and AI Ethics Disclosure Guideline | Guideline | 1.1.11 | 2026-10-16 |
-| [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.24 | 2026-10-24 |
-| [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.5.7 | 2026-09-25 |
+| [governance/guideline-esg-and-ai-ethics-disclosure.md](../governance/guideline-esg-and-ai-ethics-disclosure.md) | ESG and AI Ethics Disclosure Guideline | Guideline | 1.1.12 | 2026-10-27 |
+| [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.28 | 2026-10-27 |
+| [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.5.10 | 2026-10-27 |
 | [governance/procedure-grc-programme-management-and-annual-review.md](../governance/procedure-grc-programme-management-and-annual-review.md) | GRC Programme Management and Annual Review Procedure | Procedure | 1.2.0 | 2026-10-26 |
 | [governance/register-ai-security-tooling-landscape.md](../governance/register-ai-security-tooling-landscape.md) | AI Security Tooling Landscape Register | Register | 1.1.14 | 2026-10-26 |
-| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.6.14 | 2026-10-26 |
-| [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.51 | 2026-10-01 |
-| [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.1.0 | 2026-10-14 |
+| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.6.17 | 2026-10-27 |
+| [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.52 | 2026-10-27 |
+| [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.1.2 | 2026-10-27 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.5 | 2026-10-24 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.221 | 2026-10-26 |
-| [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.23 | 2026-10-26 |
-| [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.2.2 | 2026-10-26 |
-| [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.7.0 | 2026-10-15 |
-| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.305 | 2026-10-28 |
-| [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.36 | 2026-10-26 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.229 | 2026-10-28 |
+| [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.24 | 2026-10-27 |
+| [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.2.3 | 2026-10-27 |
+| [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.7.1 | 2026-10-27 |
+| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.310 | 2026-10-28 |
+| [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.40 | 2026-10-27 |
 | [governance/standard-maturity-assessment-methodology.md](../governance/standard-maturity-assessment-methodology.md) | Maturity Assessment Methodology Standard | Standard | 1.1.5 | 2026-10-13 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.8.0 | 2026-10-15 |
-| [operations/framework-it-service-management.md](../operations/framework-it-service-management.md) | IT Service Management Framework | Framework | 1.2.0 | 2026-10-15 |
+| [operations/framework-it-service-management.md](../operations/framework-it-service-management.md) | IT Service Management Framework | Framework | 1.2.2 | 2026-10-27 |
 | [operations/ot/procedure-ot-incident-response.md](../operations/ot/procedure-ot-incident-response.md) | OT Incident Response Procedure | Procedure | 1.3.3 | 2026-10-17 |
-| [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.15 | 2026-09-23 |
+| [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.16 | 2026-10-27 |
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.7.1 | 2026-10-16 |
 | [operations/procedure-media-handling-and-transport.md](../operations/procedure-media-handling-and-transport.md) | Media Handling and Transport Procedure | Procedure | 1.10.1 | 2026-10-23 |
-| [operations/procedure-security-monitoring-and-alert-management.md](../operations/procedure-security-monitoring-and-alert-management.md) | Security Monitoring and Alert Management Procedure | Procedure | 1.4.0 | 2026-10-15 |
-| [operations/procedure-threat-intelligence-and-siem-operations.md](../operations/procedure-threat-intelligence-and-siem-operations.md) | Threat Intelligence and SIEM Operations Procedure | Procedure | 1.3.15 | 2026-10-13 |
-| [operations/register-asset-inventory.md](../operations/register-asset-inventory.md) | Asset Inventory Register | Register | 1.1.2 | 2026-10-24 |
+| [operations/procedure-security-monitoring-and-alert-management.md](../operations/procedure-security-monitoring-and-alert-management.md) | Security Monitoring and Alert Management Procedure | Procedure | 1.4.2 | 2026-10-27 |
+| [operations/procedure-threat-intelligence-and-siem-operations.md](../operations/procedure-threat-intelligence-and-siem-operations.md) | Threat Intelligence and SIEM Operations Procedure | Procedure | 1.3.16 | 2026-10-27 |
+| [operations/register-asset-inventory.md](../operations/register-asset-inventory.md) | Asset Inventory Register | Register | 1.1.3 | 2026-10-27 |
 | [operations/register-it-operations-kpis.md](../operations/register-it-operations-kpis.md) | IT Operations Key Performance Indicators Register | Register | 1.1.11 | 2026-10-21 |
 | [operations/standard-certificate-authority-management.md](../operations/standard-certificate-authority-management.md) | Certificate Authority Management Standard | Standard | 1.3.12 | 2026-09-16 |
-| [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.19 | 2026-10-13 |
-| [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.4.17 | 2026-10-17 |
+| [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.23 | 2026-10-27 |
+| [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.4.21 | 2026-10-27 |
 | [operations/standard-physical-security-of-it-infrastructure.md](../operations/standard-physical-security-of-it-infrastructure.md) | Physical Security of IT Infrastructure Standard | Standard | 1.3.10 | 2026-10-13 |
 | [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.32 | 2026-09-24 |
 | [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.5.23 | 2026-10-26 |
@@ -125,59 +125,59 @@ _135 documents._
 | [privacy/jurisdictions/annex-privacy-united-kingdom.md](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | United Kingdom Privacy Regulatory Requirements | Annex | 1.1.19 | 2026-10-20 |
 | [privacy/jurisdictions/annex-privacy-united-states.md](../privacy/jurisdictions/annex-privacy-united-states.md) | United States Privacy Regulatory Requirements | Annex | 1.2.14 | 2026-10-03 |
 | [privacy/jurisdictions/annex-privacy-vietnam.md](../privacy/jurisdictions/annex-privacy-vietnam.md) | Vietnam Privacy Regulatory Requirements | Annex | 1.2.4 | 2026-10-01 |
-| [privacy/policy-privacy-and-data-governance.md](../privacy/policy-privacy-and-data-governance.md) | Privacy and Data Governance Policy | Policy | 1.4.29 | 2026-10-20 |
-| [privacy/procedure-data-protection-and-privacy-breach-response.md](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection and Privacy Breach Response Procedure | Procedure | 1.10.11 | 2026-10-26 |
-| [privacy/procedure-data-subject-rights-management.md](../privacy/procedure-data-subject-rights-management.md) | Data Subject Rights Management Procedure | Procedure | 1.6.47 | 2026-10-21 |
+| [privacy/policy-privacy-and-data-governance.md](../privacy/policy-privacy-and-data-governance.md) | Privacy and Data Governance Policy | Policy | 1.4.30 | 2026-10-27 |
+| [privacy/procedure-data-protection-and-privacy-breach-response.md](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection and Privacy Breach Response Procedure | Procedure | 1.10.12 | 2026-10-27 |
+| [privacy/procedure-data-subject-rights-management.md](../privacy/procedure-data-subject-rights-management.md) | Data Subject Rights Management Procedure | Procedure | 1.6.48 | 2026-10-27 |
 | [privacy/procedure-privacy-impact-and-cross-border-transfer.md](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Privacy Impact and Cross-Border Transfer Procedure | Procedure | 1.6.13 | 2026-10-26 |
 | [privacy/template-dsar-workflow.md](../privacy/template-dsar-workflow.md) | Data Subject Access Request Workflow Template | Template | 1.1.16 | 2026-10-20 |
 | [privacy/template-privacy-notice.md](../privacy/template-privacy-notice.md) | Privacy Notice Template | Template | 1.1.5 | 2026-10-20 |
 | [resilience/plan-business-continuity-and-crisis-management.md](../resilience/plan-business-continuity-and-crisis-management.md) | Business Continuity and Crisis Management Plan | Plan | 1.1.2 | 2026-07-03 |
-| [resilience/plan-it-disaster-recovery.md](../resilience/plan-it-disaster-recovery.md) | IT Disaster Recovery Plan | Plan | 1.6.0 | 2026-10-15 |
-| [resilience/procedure-backup-and-recovery.md](../resilience/procedure-backup-and-recovery.md) | Backup and Recovery Procedure | Procedure | 1.1.1 | 2026-09-11 |
-| [resilience/procedure-cross-domain-incident-coordination.md](../resilience/procedure-cross-domain-incident-coordination.md) | Cross-Domain Incident Coordination Procedure | Procedure | 1.1.15 | 2026-10-26 |
+| [resilience/plan-it-disaster-recovery.md](../resilience/plan-it-disaster-recovery.md) | IT Disaster Recovery Plan | Plan | 1.6.1 | 2026-10-27 |
+| [resilience/procedure-backup-and-recovery.md](../resilience/procedure-backup-and-recovery.md) | Backup and Recovery Procedure | Procedure | 1.1.3 | 2026-10-27 |
+| [resilience/procedure-cross-domain-incident-coordination.md](../resilience/procedure-cross-domain-incident-coordination.md) | Cross-Domain Incident Coordination Procedure | Procedure | 1.1.16 | 2026-10-27 |
 | [resilience/register-eoc-contact-directory.md](../resilience/register-eoc-contact-directory.md) | Emergency Operations Contact Directory Register | Register | 1.1.1 | 2026-07-02 |
 | [resilience/register-resilience-metrics-and-testing-log.md](../resilience/register-resilience-metrics-and-testing-log.md) | Resilience Metrics and Testing Log Register | Register | 1.1.3 | 2026-08-26 |
 | [resilience/template-departmental-continuity-plan.md](../resilience/template-departmental-continuity-plan.md) | Departmental Continuity Plan Template | Template | 1.1.3 | 2026-09-25 |
 | [resilience/template-recovery-runbook.md](../resilience/template-recovery-runbook.md) | Recovery Runbook Template | Template | 1.1.0 | 2026-10-23 |
 | [resilience/template-tabletop-exercise.md](../resilience/template-tabletop-exercise.md) | Tabletop Exercise Template | Template | 1.1.0 | 2026-10-20 |
-| [risk/policy-enterprise-governance-and-risk-management.md](../risk/policy-enterprise-governance-and-risk-management.md) | Enterprise Governance and Risk Management Policy | Policy | 1.4.21 | 2026-10-13 |
+| [risk/policy-enterprise-governance-and-risk-management.md](../risk/policy-enterprise-governance-and-risk-management.md) | Enterprise Governance and Risk Management Policy | Policy | 1.4.22 | 2026-10-27 |
 | [risk/procedure-risk-acceptance.md](../risk/procedure-risk-acceptance.md) | Risk Acceptance Procedure | Procedure | 1.1.4 | 2026-08-24 |
 | [risk/procedure-risk-assessment-methodology.md](../risk/procedure-risk-assessment-methodology.md) | Risk Assessment Methodology Procedure | Procedure | 1.2.13 | 2026-09-25 |
 | [risk/procedure-risk-register.md](../risk/procedure-risk-register.md) | Risk Register Procedure | Procedure | 1.3.1 | 2026-07-02 |
 | [risk/register-assurance-map.md](../risk/register-assurance-map.md) | Assurance Map Register | Register | 1.1.7 | 2026-09-25 |
 | [risk/register-key-risk-indicators.md](../risk/register-key-risk-indicators.md) | Key Risk Indicator Catalogue | Register | 1.1.7 | 2026-10-22 |
-| [risk/standard-enterprise-risk-management.md](../risk/standard-enterprise-risk-management.md) | Enterprise Risk Management Standard | Standard | 1.8.18 | 2026-10-26 |
+| [risk/standard-enterprise-risk-management.md](../risk/standard-enterprise-risk-management.md) | Enterprise Risk Management Standard | Standard | 1.8.19 | 2026-10-27 |
 | [risk/standard-third-party-and-supply-chain-risk.md](../risk/standard-third-party-and-supply-chain-risk.md) | Third-Party and Supply Chain Risk Standard | Standard | 1.1.18 | 2026-10-26 |
 | [risk/template-enterprise-risk-register.md](../risk/template-enterprise-risk-register.md) | Enterprise Risk Register Template | Template | 1.1.8 | 2026-10-22 |
 | [security/framework-cryptographic-key-lifecycle.md](../security/framework-cryptographic-key-lifecycle.md) | Cryptographic Key Lifecycle Management Framework | Framework | 1.10.0 | 2026-10-15 |
 | [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.8 | 2026-10-13 |
 | [security/policy-byod.md](../security/policy-byod.md) | Bring Your Own Device (BYOD) Policy | Policy | 1.5.0 | 2026-10-16 |
 | [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.9.1 | 2026-10-17 |
-| [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.29 | 2026-10-15 |
-| [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.34 | 2026-10-17 |
+| [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.31 | 2026-10-27 |
+| [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.36 | 2026-10-27 |
 | [security/policy-network-communications-security.md](../security/policy-network-communications-security.md) | Network Communications Security Policy | Policy | 1.1.19 | 2026-10-17 |
-| [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.4.0 | 2026-10-15 |
+| [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.4.1 | 2026-10-27 |
 | [security/procedure-cryptographic-key-operations.md](../security/procedure-cryptographic-key-operations.md) | Cryptographic Key Operations Procedure | Procedure | 1.10.0 | 2026-10-15 |
 | [security/procedure-identity-management.md](../security/procedure-identity-management.md) | Identity Management Procedure | Procedure | 2.0.8 | 2026-10-13 |
 | [security/procedure-key-escrow-and-recovery.md](../security/procedure-key-escrow-and-recovery.md) | Key Escrow and Recovery Procedure | Procedure | 1.4.0 | 2026-10-23 |
 | [security/procedure-onboarding-and-offboarding.md](../security/procedure-onboarding-and-offboarding.md) | IT Onboarding and Offboarding Procedure | Procedure | 1.3.1 | 2026-10-24 |
-| [security/procedure-security-incident-response.md](../security/procedure-security-incident-response.md) | Security Incident Response Procedure | Procedure | 1.11.7 | 2026-10-26 |
-| [security/procedure-vulnerability-management.md](../security/procedure-vulnerability-management.md) | Vulnerability Management Procedure | Procedure | 1.3.24 | 2026-10-16 |
+| [security/procedure-security-incident-response.md](../security/procedure-security-incident-response.md) | Security Incident Response Procedure | Procedure | 1.11.8 | 2026-10-27 |
+| [security/procedure-vulnerability-management.md](../security/procedure-vulnerability-management.md) | Vulnerability Management Procedure | Procedure | 1.3.28 | 2026-10-27 |
 | [security/roadmap-post-quantum-cryptography.md](../security/roadmap-post-quantum-cryptography.md) | Post-Quantum Cryptography Readiness Roadmap | Roadmap | 1.1.11 | 2026-09-25 |
 | [security/sop-incident-escalation-matrix.md](../security/sop-incident-escalation-matrix.md) | Incident Escalation Matrix | SOP | 1.4.2 | 2026-10-26 |
 | [security/sop-security-ticket-reporting-scheme.md](../security/sop-security-ticket-reporting-scheme.md) | Security Ticket Reporting Scheme | SOP | 1.1.5 | 2026-10-12 |
-| [security/standard-authentication-and-password-management.md](../security/standard-authentication-and-password-management.md) | Authentication and Password Management Standard | Standard | 1.1.21 | 2026-10-23 |
-| [security/standard-data-classification-and-handling.md](../security/standard-data-classification-and-handling.md) | Data Classification and Handling Standard | Standard | 1.9.1 | 2026-10-17 |
+| [security/standard-authentication-and-password-management.md](../security/standard-authentication-and-password-management.md) | Authentication and Password Management Standard | Standard | 1.1.22 | 2026-10-27 |
+| [security/standard-data-classification-and-handling.md](../security/standard-data-classification-and-handling.md) | Data Classification and Handling Standard | Standard | 1.9.2 | 2026-10-27 |
 | [security/standard-data-loss-prevention.md](../security/standard-data-loss-prevention.md) | Data Loss Prevention Standard | Standard | 1.3.9 | 2026-10-13 |
 | [security/standard-email-security.md](../security/standard-email-security.md) | Email Security Standard | Standard | 1.1.0 | 2026-10-23 |
 | [security/standard-endpoint-hardening.md](../security/standard-endpoint-hardening.md) | Endpoint Hardening Standard | Standard | 1.2.1 | 2026-10-16 |
-| [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.4.29 | 2026-10-17 |
+| [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.4.34 | 2026-10-27 |
 | [security/standard-privileged-access-management.md](../security/standard-privileged-access-management.md) | Privileged Access Management Standard | Standard | 2.0.13 | 2026-10-21 |
 | [security/standard-remote-working-security.md](../security/standard-remote-working-security.md) | Remote Working Security Standard | Standard | 1.2.1 | 2026-10-16 |
 | [security/standard-soc-operating-model.md](../security/standard-soc-operating-model.md) | Security Operations Centre Operating Model Standard | Standard | 1.2.0 | 2026-10-15 |
 | [specification-ingestion.md](../specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.9.2 | 2026-10-26 |
-| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.7.3 | 2026-10-26 |
-| [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.1.16 | 2026-10-17 |
+| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.7.5 | 2026-10-27 |
+| [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.1.17 | 2026-10-27 |
 | [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.2.12 | 2026-10-26 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.15 | 2026-10-16 |
 
@@ -189,38 +189,38 @@ _147 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
-| [ai/charter-ai-ethics-review-panel.md](../ai/charter-ai-ethics-review-panel.md) | AI Ethics Review Panel Charter | Charter | 1.0.5 | 2026-09-25 |
-| [ai/checklist-ai-algorithmic-compliance.md](../ai/checklist-ai-algorithmic-compliance.md) | AI Algorithmic Compliance Checklist | Checklist | 1.0.26 | 2026-10-26 |
-| [ai/framework-ai-assurance-evidence.md](../ai/framework-ai-assurance-evidence.md) | AI Assurance Evidence and Attestation Framework | Framework | 1.0.9 | 2026-10-25 |
-| [ai/framework-ai-model-documentation-and-transparency.md](../ai/framework-ai-model-documentation-and-transparency.md) | AI Model Documentation and Transparency Framework | Framework | 1.0.17 | 2026-10-26 |
+| [ai/charter-ai-ethics-review-panel.md](../ai/charter-ai-ethics-review-panel.md) | AI Ethics Review Panel Charter | Charter | 1.0.6 | 2026-10-27 |
+| [ai/checklist-ai-algorithmic-compliance.md](../ai/checklist-ai-algorithmic-compliance.md) | AI Algorithmic Compliance Checklist | Checklist | 1.0.28 | 2026-10-27 |
+| [ai/framework-ai-assurance-evidence.md](../ai/framework-ai-assurance-evidence.md) | AI Assurance Evidence and Attestation Framework | Framework | 1.0.10 | 2026-10-27 |
+| [ai/framework-ai-model-documentation-and-transparency.md](../ai/framework-ai-model-documentation-and-transparency.md) | AI Model Documentation and Transparency Framework | Framework | 1.0.18 | 2026-10-27 |
 | [ai/framework-ai-model-risk.md](../ai/framework-ai-model-risk.md) | AI Model Risk Framework | Framework | 1.0.5 | 2026-10-24 |
-| [ai/framework-ai-system-audit-certification.md](../ai/framework-ai-system-audit-certification.md) | AI System Audit and Certification Framework | Framework | 1.0.22 | 2026-10-25 |
+| [ai/framework-ai-system-audit-certification.md](../ai/framework-ai-system-audit-certification.md) | AI System Audit and Certification Framework | Framework | 1.0.23 | 2026-10-27 |
 | [ai/guideline-adversarial-evaluation-suite-development.md](../ai/guideline-adversarial-evaluation-suite-development.md) | Adversarial Evaluation Suite Development Guideline | Guideline | 1.0.5 | 2026-10-24 |
-| [ai/guideline-ethical-ai-use.md](../ai/guideline-ethical-ai-use.md) | Ethical AI Use Guideline | Guideline | 1.0.6 | 2026-08-31 |
-| [ai/jurisdictions/annex-ai-canada.md](../ai/jurisdictions/annex-ai-canada.md) | Canada AI Regulatory Requirements | Annex | 1.0.10 | 2026-10-16 |
+| [ai/guideline-ethical-ai-use.md](../ai/guideline-ethical-ai-use.md) | Ethical AI Use Guideline | Guideline | 1.0.7 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-canada.md](../ai/jurisdictions/annex-ai-canada.md) | Canada AI Regulatory Requirements | Annex | 1.0.12 | 2026-10-27 |
 | [ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md](../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md) | AI Model Risk Control to Lifecycle Mapping Matrix | Matrix | 1.0.5 | 2026-10-26 |
 | [ai/plan-ai-incident-response.md](../ai/plan-ai-incident-response.md) | AI Incident Response Plan | Plan | 1.0.13 | 2026-10-13 |
-| [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.44 | 2026-10-26 |
-| [ai/procedure-ai-assurance-case.md](../ai/procedure-ai-assurance-case.md) | AI Assurance Case Procedure | Procedure | 1.0.5 | 2026-10-26 |
-| [ai/procedure-ai-evaluation.md](../ai/procedure-ai-evaluation.md) | AI Evaluation Procedure | Procedure | 1.0.15 | 2026-10-24 |
-| [ai/procedure-ai-model-lifecycle-management.md](../ai/procedure-ai-model-lifecycle-management.md) | AI Model Lifecycle Management Procedure | Procedure | 1.0.11 | 2026-10-24 |
+| [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.47 | 2026-10-27 |
+| [ai/procedure-ai-assurance-case.md](../ai/procedure-ai-assurance-case.md) | AI Assurance Case Procedure | Procedure | 1.0.6 | 2026-10-27 |
+| [ai/procedure-ai-evaluation.md](../ai/procedure-ai-evaluation.md) | AI Evaluation Procedure | Procedure | 1.0.16 | 2026-10-27 |
+| [ai/procedure-ai-model-lifecycle-management.md](../ai/procedure-ai-model-lifecycle-management.md) | AI Model Lifecycle Management Procedure | Procedure | 1.0.12 | 2026-10-27 |
 | [ai/procedure-ai-model-risk-assessment.md](../ai/procedure-ai-model-risk-assessment.md) | AI Model Risk Assessment Procedure | Procedure | 1.0.8 | 2026-10-24 |
 | [ai/procedure-ai-system-impact-assessment.md](../ai/procedure-ai-system-impact-assessment.md) | AI System Impact Assessment Procedure | Procedure | 1.0.9 | 2026-10-24 |
-| [ai/register-ai-risk.md](../ai/register-ai-risk.md) | AI Risk Register | Register | 1.0.12 | 2026-10-26 |
-| [ai/register-mcp-server.md](../ai/register-mcp-server.md) | Model Context Protocol Server Register | Register | 1.0.13 | 2026-09-29 |
-| [ai/standard-ai-testing-validation-and-documentation.md](../ai/standard-ai-testing-validation-and-documentation.md) | AI Testing, Validation and Documentation Standard | Standard | 1.0.14 | 2026-10-24 |
+| [ai/register-ai-risk.md](../ai/register-ai-risk.md) | AI Risk Register | Register | 1.0.13 | 2026-10-27 |
+| [ai/register-mcp-server.md](../ai/register-mcp-server.md) | Model Context Protocol Server Register | Register | 1.0.14 | 2026-10-27 |
+| [ai/standard-ai-testing-validation-and-documentation.md](../ai/standard-ai-testing-validation-and-documentation.md) | AI Testing, Validation and Documentation Standard | Standard | 1.0.15 | 2026-10-27 |
 | [ai/template-ai-assurance-case.md](../ai/template-ai-assurance-case.md) | AI Assurance Case Template | Template | 1.0.4 | 2026-10-26 |
-| [ai/template-ai-red-team-report.md](../ai/template-ai-red-team-report.md) | AI Red Team Report Template | Template | 1.0.13 | 2026-10-26 |
-| [ai/template-ai-vendor-security-questionnaire.md](../ai/template-ai-vendor-security-questionnaire.md) | AI Vendor Security Questionnaire Template | Template | 1.0.9 | 2026-10-24 |
-| [ai/template-dataset-datasheet.md](../ai/template-dataset-datasheet.md) | Dataset Datasheet Template | Template | 1.0.8 | 2026-10-24 |
+| [ai/template-ai-red-team-report.md](../ai/template-ai-red-team-report.md) | AI Red Team Report Template | Template | 1.0.14 | 2026-10-27 |
+| [ai/template-ai-vendor-security-questionnaire.md](../ai/template-ai-vendor-security-questionnaire.md) | AI Vendor Security Questionnaire Template | Template | 1.0.11 | 2026-10-27 |
+| [ai/template-dataset-datasheet.md](../ai/template-dataset-datasheet.md) | Dataset Datasheet Template | Template | 1.0.9 | 2026-10-27 |
 | [ai/template-model-card.md](../ai/template-model-card.md) | Model Card Template | Template | 1.0.7 | 2026-10-24 |
 | [architecture/framework-enterprise-architecture.md](../architecture/framework-enterprise-architecture.md) | Enterprise Architecture Framework | Framework | 1.0.4 | 2026-09-14 |
 | [architecture/procedure-architecture-review.md](../architecture/procedure-architecture-review.md) | Architecture Review Procedure | Procedure | 1.0.4 | 2026-09-14 |
-| [architecture/standard-architecture-decision-records.md](../architecture/standard-architecture-decision-records.md) | Architecture Decision Records Standard | Standard | 1.0.6 | 2026-09-23 |
+| [architecture/standard-architecture-decision-records.md](../architecture/standard-architecture-decision-records.md) | Architecture Decision Records Standard | Standard | 1.0.7 | 2026-10-27 |
 | [architecture/standard-data-architecture.md](../architecture/standard-data-architecture.md) | Data Architecture Standard | Standard | 1.0.3 | 2026-07-02 |
 | [architecture/standard-reference-architecture.md](../architecture/standard-reference-architecture.md) | Reference Architecture Standard | Standard | 1.0.4 | 2026-09-14 |
-| [architecture/standard-technology-radar.md](../architecture/standard-technology-radar.md) | Technology Radar Standard | Standard | 1.0.8 | 2026-09-23 |
-| [compliance/financial-services/annex-financial-services-sector-requirements.md](../compliance/financial-services/annex-financial-services-sector-requirements.md) | Financial Services Sector GRC Requirements Annex | Annex | 1.0.24 | 2026-10-04 |
+| [architecture/standard-technology-radar.md](../architecture/standard-technology-radar.md) | Technology Radar Standard | Standard | 1.0.9 | 2026-10-27 |
+| [compliance/financial-services/annex-financial-services-sector-requirements.md](../compliance/financial-services/annex-financial-services-sector-requirements.md) | Financial Services Sector GRC Requirements Annex | Annex | 1.0.27 | 2026-10-27 |
 | [compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) | UK AEO-S IT and Cybersecurity Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [compliance/logistics/annex-logistics-sector-requirements.md](../compliance/logistics/annex-logistics-sector-requirements.md) | Logistics Sector GRC Requirements Annex | Annex | 1.0.34 | 2026-10-26 |
 | [compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md) | UK AEO IT Self-Assessment Procedure | Procedure | 1.0.2 | 2026-07-02 |
@@ -228,25 +228,25 @@ _147 documents._
 | [compliance/logistics/register-ctpat-united-states-msc-controls.md](../compliance/logistics/register-ctpat-united-states-msc-controls.md) | US CTPAT Full Minimum Security Criteria Controls Register | Register | 1.0.5 | 2026-07-02 |
 | [compliance/logistics/register-pip-canada-controls.md](../compliance/logistics/register-pip-canada-controls.md) | Canada PIP IT and Cybersecurity Compliance Controls Register | Register | 1.0.6 | 2026-08-14 |
 | [compliance/logistics/template-trade-compliance-gap-assessment.md](../compliance/logistics/template-trade-compliance-gap-assessment.md) | Trade Compliance Programme Gap Assessment Template | Template | 1.0.7 | 2026-10-17 |
-| [compliance/policy-compliance-and-audit-management.md](../compliance/policy-compliance-and-audit-management.md) | Compliance, Audit, and CAPA Management Policy | Policy | 1.0.30 | 2026-10-17 |
-| [compliance/policy-legal-and-regulatory-compliance.md](../compliance/policy-legal-and-regulatory-compliance.md) | Legal and Regulatory Compliance Policy | Policy | 1.0.31 | 2026-10-17 |
+| [compliance/policy-compliance-and-audit-management.md](../compliance/policy-compliance-and-audit-management.md) | Compliance, Audit, and CAPA Management Policy | Policy | 1.0.40 | 2026-10-28 |
+| [compliance/policy-legal-and-regulatory-compliance.md](../compliance/policy-legal-and-regulatory-compliance.md) | Legal and Regulatory Compliance Policy | Policy | 1.0.33 | 2026-10-27 |
 | [compliance/procedure-audit-planning.md](../compliance/procedure-audit-planning.md) | Audit Planning Procedure | Procedure | 1.0.15 | 2026-10-13 |
 | [compliance/procedure-mergers-acquisitions-due-diligence.md](../compliance/procedure-mergers-acquisitions-due-diligence.md) | Mergers and Acquisitions Due Diligence Procedure | Procedure | 1.0.5 | 2026-10-16 |
-| [compliance/register-compliance-obligations-template.md](../compliance/register-compliance-obligations-template.md) | Compliance Obligations Register Template | Register | 1.0.20 | 2026-10-22 |
+| [compliance/register-compliance-obligations-template.md](../compliance/register-compliance-obligations-template.md) | Compliance Obligations Register Template | Register | 1.0.21 | 2026-10-27 |
 | [compliance/register-global-regulatory-applicability.md](../compliance/register-global-regulatory-applicability.md) | Global Regulatory Applicability Register | Register | 1.0.4 | 2026-10-26 |
 | [compliance/standard-sanctions-and-export-control-screening.md](../compliance/standard-sanctions-and-export-control-screening.md) | Sanctions and Export-Control Screening Standard | Standard | 1.0.4 | 2026-10-16 |
 | [compliance/template-regulator-interaction.md](../compliance/template-regulator-interaction.md) | Regulator Interaction Templates | Template | 1.0.15 | 2026-10-26 |
-| [dev-security/policy-secure-development-and-engineering.md](../dev-security/policy-secure-development-and-engineering.md) | Secure Development and Engineering Policy | Policy | 1.0.18 | 2026-09-18 |
+| [dev-security/policy-secure-development-and-engineering.md](../dev-security/policy-secure-development-and-engineering.md) | Secure Development and Engineering Policy | Policy | 1.0.22 | 2026-10-27 |
 | [dev-security/register-compliance-controls-and-gap-register.md](../dev-security/register-compliance-controls-and-gap-register.md) | Compliance Controls and Gap Register Template | Register | 1.0.7 | 2026-10-13 |
 | [dev-security/standard-container-and-image-security.md](../dev-security/standard-container-and-image-security.md) | Container and Image Security Standard | Standard | 1.0.4 | 2026-09-24 |
-| [dev-security/standard-devops-security-requirements.md](../dev-security/standard-devops-security-requirements.md) | DevOps Security Requirements | Standard | 1.0.30 | 2026-10-04 |
+| [dev-security/standard-devops-security-requirements.md](../dev-security/standard-devops-security-requirements.md) | DevOps Security Requirements | Standard | 1.0.31 | 2026-10-27 |
 | [dev-security/standard-quality-assurance-and-testing.md](../dev-security/standard-quality-assurance-and-testing.md) | Quality Assurance and Testing Standard | Standard | 1.0.7 | 2026-09-24 |
 | [dev-security/standard-software-evaluation-acceptance-and-lifecycle.md](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) | Software Evaluation, Acceptance and Lifecycle Management Standard | Standard | 1.0.13 | 2026-09-24 |
 | [governance/framework-governance-performance-and-improvement.md](../governance/framework-governance-performance-and-improvement.md) | Governance Performance and Improvement Framework | Framework | 1.0.16 | 2026-09-25 |
 | [governance/framework-governance-relationship-and-flow-modelling.md](../governance/framework-governance-relationship-and-flow-modelling.md) | Governance Relationship and Flow Modelling Framework | Framework | 1.0.8 | 2026-09-14 |
 | [governance/framework-human-capital-and-ethical-conduct.md](../governance/framework-human-capital-and-ethical-conduct.md) | Human Capital and Ethical Conduct Framework | Framework | 1.0.13 | 2026-09-25 |
 | [governance/guideline-minimum-viable-governance-structure.md](../governance/guideline-minimum-viable-governance-structure.md) | Minimum Viable Governance Structure Guideline | Guideline | 1.0.6 | 2026-10-16 |
-| [governance/matrix-reverse-framework-control-crosswalk.md](../governance/matrix-reverse-framework-control-crosswalk.md) | Reverse Framework Control Crosswalk Matrix | Matrix | 1.0.16 | 2026-10-13 |
+| [governance/matrix-reverse-framework-control-crosswalk.md](../governance/matrix-reverse-framework-control-crosswalk.md) | Reverse Framework Control Crosswalk Matrix | Matrix | 1.0.20 | 2026-10-27 |
 | [governance/policy-digital-twin-and-simulation-governance.md](../governance/policy-digital-twin-and-simulation-governance.md) | Digital Twin and Simulation Governance Policy | Policy | 1.0.10 | 2026-10-24 |
 | [governance/procedure-continuous-improvement-register.md](../governance/procedure-continuous-improvement-register.md) | Continuous Improvement Register Procedure | Procedure | 1.0.4 | 2026-08-13 |
 | [governance/procedure-library-quality-and-review-cadence.md](../governance/procedure-library-quality-and-review-cadence.md) | Library Quality and Review Cadence Procedure | Procedure | 1.0.27 | 2026-10-21 |
@@ -257,32 +257,32 @@ _147 documents._
 | [governance/template-document-review-record.md](../governance/template-document-review-record.md) | Document Review Record Template | Template | 1.0.10 | 2026-10-16 |
 | [governance/template-executive-narrative-subtypes.md](../governance/template-executive-narrative-subtypes.md) | Executive Narrative Subtype Templates | Template | 1.0.5 | 2026-09-25 |
 | [governance/template-library-health-report.md](../governance/template-library-health-report.md) | Library Health Report Template | Template | 1.0.10 | 2026-08-28 |
-| [operations/ot/annex-bms-overlay.md](../operations/ot/annex-bms-overlay.md) | Building Management Systems (BMS) Overlay Annex | Annex | 1.0.2 | 2026-07-02 |
-| [operations/ot/annex-ot-security-overview.md](../operations/ot/annex-ot-security-overview.md) | Operational Technology Security Overview Annex | Annex | 1.0.5 | 2026-09-25 |
+| [operations/ot/annex-bms-overlay.md](../operations/ot/annex-bms-overlay.md) | Building Management Systems (BMS) Overlay Annex | Annex | 1.0.4 | 2026-10-27 |
+| [operations/ot/annex-ot-security-overview.md](../operations/ot/annex-ot-security-overview.md) | Operational Technology Security Overview Annex | Annex | 1.0.6 | 2026-10-27 |
 | [operations/ot/procedure-ot-change-management.md](../operations/ot/procedure-ot-change-management.md) | OT Change Management Procedure | Procedure | 1.0.8 | 2026-10-04 |
-| [operations/ot/register-ot-asset-inventory-and-lifecycle.md](../operations/ot/register-ot-asset-inventory-and-lifecycle.md) | OT Asset Inventory and Lifecycle Register | Register | 1.0.3 | 2026-10-17 |
+| [operations/ot/register-ot-asset-inventory-and-lifecycle.md](../operations/ot/register-ot-asset-inventory-and-lifecycle.md) | OT Asset Inventory and Lifecycle Register | Register | 1.0.4 | 2026-10-27 |
 | [operations/ot/standard-ot-ics-security.md](../operations/ot/standard-ot-ics-security.md) | OT/ICS Security Standard | Standard | 1.0.10 | 2026-09-20 |
-| [operations/procedure-patch-management.md](../operations/procedure-patch-management.md) | Patch Management Procedure | Procedure | 1.0.27 | 2026-10-04 |
-| [operations/procedure-release-management.md](../operations/procedure-release-management.md) | Release Management Procedure | Procedure | 1.0.11 | 2026-09-24 |
+| [operations/procedure-patch-management.md](../operations/procedure-patch-management.md) | Patch Management Procedure | Procedure | 1.0.29 | 2026-10-27 |
+| [operations/procedure-release-management.md](../operations/procedure-release-management.md) | Release Management Procedure | Procedure | 1.0.13 | 2026-10-27 |
 | [operations/register-it-security-operations.md](../operations/register-it-security-operations.md) | IT Security Operations Register | Register | 1.0.4 | 2026-09-24 |
-| [operations/standard-capacity-and-performance-management.md](../operations/standard-capacity-and-performance-management.md) | Capacity and Performance Management Standard | Standard | 1.0.5 | 2026-07-14 |
-| [operations/standard-it-financial-management.md](../operations/standard-it-financial-management.md) | IT Financial Management Standard | Standard | 1.0.7 | 2026-09-07 |
+| [operations/standard-capacity-and-performance-management.md](../operations/standard-capacity-and-performance-management.md) | Capacity and Performance Management Standard | Standard | 1.0.6 | 2026-10-27 |
+| [operations/standard-it-financial-management.md](../operations/standard-it-financial-management.md) | IT Financial Management Standard | Standard | 1.0.8 | 2026-10-27 |
 | [operations/standard-service-level-management.md](../operations/standard-service-level-management.md) | Service Level Management Standard | Standard | 1.0.7 | 2026-09-14 |
-| [operations/standard-site-reliability-engineering.md](../operations/standard-site-reliability-engineering.md) | Site Reliability Engineering Standard | Standard | 1.0.5 | 2026-09-25 |
-| [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.62 | 2026-10-26 |
+| [operations/standard-site-reliability-engineering.md](../operations/standard-site-reliability-engineering.md) | Site Reliability Engineering Standard | Standard | 1.0.6 | 2026-10-27 |
+| [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.66 | 2026-10-27 |
 | [privacy/framework-childrens-data.md](../privacy/framework-childrens-data.md) | Children's Data Framework | Framework | 1.0.13 | 2026-10-01 |
 | [privacy/framework-consent-management.md](../privacy/framework-consent-management.md) | Consent Management Framework | Framework | 1.0.17 | 2026-10-16 |
 | [privacy/framework-privacy-by-design.md](../privacy/framework-privacy-by-design.md) | Privacy by Design Framework | Framework | 1.0.4 | 2026-08-04 |
 | [privacy/jurisdictions/annex-privacy-australia.md](../privacy/jurisdictions/annex-privacy-australia.md) | Australia Privacy Regulatory Requirements | Annex | 1.0.8 | 2026-10-03 |
 | [privacy/jurisdictions/annex-privacy-indonesia.md](../privacy/jurisdictions/annex-privacy-indonesia.md) | Indonesia Privacy Regulatory Requirements | Annex | 1.0.12 | 2026-10-01 |
-| [privacy/jurisdictions/annex-privacy-latin-america.md](../privacy/jurisdictions/annex-privacy-latin-america.md) | Latin America Privacy Regulatory Requirements | Annex | 1.0.13 | 2026-09-12 |
+| [privacy/jurisdictions/annex-privacy-latin-america.md](../privacy/jurisdictions/annex-privacy-latin-america.md) | Latin America Privacy Regulatory Requirements | Annex | 1.0.16 | 2026-10-27 |
 | [privacy/jurisdictions/annex-privacy-nigeria.md](../privacy/jurisdictions/annex-privacy-nigeria.md) | Nigeria Privacy Regulatory Requirements | Annex | 1.0.9 | 2026-10-01 |
 | [privacy/jurisdictions/annex-privacy-philippines.md](../privacy/jurisdictions/annex-privacy-philippines.md) | Philippines Privacy Regulatory Requirements | Annex | 1.0.6 | 2026-10-01 |
 | [privacy/jurisdictions/annex-privacy-saudi-arabia.md](../privacy/jurisdictions/annex-privacy-saudi-arabia.md) | Saudi Arabia Privacy Regulatory Requirements | Annex | 1.0.10 | 2026-10-01 |
 | [privacy/jurisdictions/annex-privacy-switzerland.md](../privacy/jurisdictions/annex-privacy-switzerland.md) | Switzerland Privacy Regulatory Requirements | Annex | 1.0.13 | 2026-10-24 |
 | [privacy/jurisdictions/annex-privacy-turkey.md](../privacy/jurisdictions/annex-privacy-turkey.md) | Turkey Privacy Regulatory Requirements | Annex | 1.0.12 | 2026-10-21 |
 | [privacy/jurisdictions/annex-privacy-uae.md](../privacy/jurisdictions/annex-privacy-uae.md) | United Arab Emirates Privacy Regulatory Requirements | Annex | 1.0.10 | 2026-10-01 |
-| [privacy/register-automated-decision-making.md](../privacy/register-automated-decision-making.md) | Automated Decision-Making and Profiling Register | Register | 1.0.19 | 2026-10-04 |
+| [privacy/register-automated-decision-making.md](../privacy/register-automated-decision-making.md) | Automated Decision-Making and Profiling Register | Register | 1.0.20 | 2026-10-27 |
 | [privacy/register-cookie-and-tracker.md](../privacy/register-cookie-and-tracker.md) | Cookie and Tracker Register | Register | 1.0.6 | 2026-07-16 |
 | [privacy/register-cross-border-data-flow.md](../privacy/register-cross-border-data-flow.md) | Cross-Border Data Flow Register | Register | 1.0.12 | 2026-09-30 |
 | [privacy/standard-pseudonymization-and-anonymization.md](../privacy/standard-pseudonymization-and-anonymization.md) | Pseudonymization and Anonymization Standard | Standard | 1.0.7 | 2026-07-10 |
@@ -302,7 +302,7 @@ _147 documents._
 | [resilience/procedure-business-impact-analysis.md](../resilience/procedure-business-impact-analysis.md) | Business Impact Analysis Procedure | Procedure | 1.0.3 | 2026-09-20 |
 | [resilience/procedure-continuity-and-recovery-testing.md](../resilience/procedure-continuity-and-recovery-testing.md) | Continuity and Recovery Testing Procedure | Procedure | 1.0.2 | 2026-07-02 |
 | [resilience/procedure-crisis-management-eoc-activation.md](../resilience/procedure-crisis-management-eoc-activation.md) | Crisis Management and Emergency Operations Activation Procedure | Procedure | 1.0.3 | 2026-07-02 |
-| [resilience/procedure-security-incident-reporting-and-escalation.md](../resilience/procedure-security-incident-reporting-and-escalation.md) | Security Incident Reporting and Escalation Procedure | Procedure | 1.0.4 | 2026-10-12 |
+| [resilience/procedure-security-incident-reporting-and-escalation.md](../resilience/procedure-security-incident-reporting-and-escalation.md) | Security Incident Reporting and Escalation Procedure | Procedure | 1.0.5 | 2026-10-27 |
 | [resilience/register-resilience-terms-and-definitions.md](../resilience/register-resilience-terms-and-definitions.md) | Resilience Terms and Definitions Register | Register | 1.0.3 | 2026-10-26 |
 | [resilience/standard-business-continuity-and-disaster-recovery.md](../resilience/standard-business-continuity-and-disaster-recovery.md) | Business Continuity and Disaster Recovery Standard | Standard | 1.0.2 | 2026-07-02 |
 | [resilience/template-lessons-learned.md](../resilience/template-lessons-learned.md) | Lessons Learned Template | Template | 1.0.8 | 2026-10-12 |
@@ -313,7 +313,7 @@ _147 documents._
 | [risk/template-operational-risk-register.md](../risk/template-operational-risk-register.md) | Operational Risk Register Template | Template | 1.0.6 | 2026-09-14 |
 | [risk/template-risk-appetite-statement.md](../risk/template-risk-appetite-statement.md) | Risk Appetite Statement Template | Template | 1.0.6 | 2026-09-29 |
 | [security/framework-insider-risk-programme.md](../security/framework-insider-risk-programme.md) | Insider Risk Programme Framework | Framework | 1.0.8 | 2026-10-24 |
-| [security/policy-acceptance-into-service.md](../security/policy-acceptance-into-service.md) | Acceptance Into Service Policy | Policy | 1.0.19 | 2026-10-26 |
+| [security/policy-acceptance-into-service.md](../security/policy-acceptance-into-service.md) | Acceptance Into Service Policy | Policy | 1.0.21 | 2026-10-27 |
 | [security/procedure-security-disciplinary-process.md](../security/procedure-security-disciplinary-process.md) | Security Disciplinary Process Procedure | Procedure | 1.0.6 | 2026-09-24 |
 | [security/standard-penetration-testing-and-red-team.md](../security/standard-penetration-testing-and-red-team.md) | Penetration Testing and Red Team Standard | Standard | 1.0.14 | 2026-09-24 |
 | [security/standard-personnel-security-screening.md](../security/standard-personnel-security-screening.md) | Personnel Security Screening Standard | Standard | 1.0.12 | 2026-09-24 |
@@ -324,16 +324,16 @@ _147 documents._
 | [supply-chain/framework-supplier-and-cloud-governance.md](../supply-chain/framework-supplier-and-cloud-governance.md) | Supplier and Cloud Governance Framework | Framework | 1.0.1 | 2026-07-02 |
 | [supply-chain/matrix-supply-chain-security-programme-alignment.md](../supply-chain/matrix-supply-chain-security-programme-alignment.md) | Supply Chain Security Programme Alignment Matrix | Matrix | 1.0.11 | 2026-10-17 |
 | [supply-chain/procedure-fourth-party-and-nth-party-risk.md](../supply-chain/procedure-fourth-party-and-nth-party-risk.md) | Fourth-Party and Nth-Party Risk Procedure | Procedure | 1.0.11 | 2026-10-17 |
-| [supply-chain/procedure-supplier-audit.md](../supply-chain/procedure-supplier-audit.md) | Supplier Audit Procedure | Procedure | 1.0.21 | 2026-10-17 |
+| [supply-chain/procedure-supplier-audit.md](../supply-chain/procedure-supplier-audit.md) | Supplier Audit Procedure | Procedure | 1.0.22 | 2026-10-27 |
 | [supply-chain/procedure-supplier-exit-and-data-return.md](../supply-chain/procedure-supplier-exit-and-data-return.md) | Supplier Exit and Data Return Procedure | Procedure | 1.0.5 | 2026-07-02 |
 | [supply-chain/procedure-supplier-onboarding-security-review.md](../supply-chain/procedure-supplier-onboarding-security-review.md) | Supplier Onboarding Security Review Procedure | Procedure | 1.0.10 | 2026-09-25 |
 | [supply-chain/procedure-supplier-ongoing-monitoring.md](../supply-chain/procedure-supplier-ongoing-monitoring.md) | Supplier Ongoing Monitoring Procedure | Procedure | 1.0.5 | 2026-08-31 |
-| [supply-chain/procedure-third-party-ai-due-diligence.md](../supply-chain/procedure-third-party-ai-due-diligence.md) | Third-Party AI Due Diligence Procedure | Procedure | 1.0.27 | 2026-10-26 |
-| [supply-chain/register-concentration-risk.md](../supply-chain/register-concentration-risk.md) | Concentration Risk Register | Register | 1.0.10 | 2026-10-17 |
-| [supply-chain/register-sbom.md](../supply-chain/register-sbom.md) | Software Bill of Materials Register | Register | 1.0.7 | 2026-09-23 |
+| [supply-chain/procedure-third-party-ai-due-diligence.md](../supply-chain/procedure-third-party-ai-due-diligence.md) | Third-Party AI Due Diligence Procedure | Procedure | 1.0.28 | 2026-10-27 |
+| [supply-chain/register-concentration-risk.md](../supply-chain/register-concentration-risk.md) | Concentration Risk Register | Register | 1.0.14 | 2026-10-27 |
+| [supply-chain/register-sbom.md](../supply-chain/register-sbom.md) | Software Bill of Materials Register | Register | 1.0.8 | 2026-10-27 |
 | [supply-chain/register-subprocessor-template.md](../supply-chain/register-subprocessor-template.md) | Subprocessor Register Template | Register | 1.0.5 | 2026-10-21 |
 | [supply-chain/register-supplier-risk-template.md](../supply-chain/register-supplier-risk-template.md) | Supplier Risk Register Template | Register | 1.0.4 | 2026-09-25 |
-| [supply-chain/standard-supplier-resilience-monitoring.md](../supply-chain/standard-supplier-resilience-monitoring.md) | Supplier Resilience Monitoring Standard | Standard | 1.0.9 | 2026-10-17 |
+| [supply-chain/standard-supplier-resilience-monitoring.md](../supply-chain/standard-supplier-resilience-monitoring.md) | Supplier Resilience Monitoring Standard | Standard | 1.0.12 | 2026-10-27 |
 | [supply-chain/template-supplier-offboarding-evidence.md](../supply-chain/template-supplier-offboarding-evidence.md) | Supplier Offboarding Evidence Template | Template | 1.0.15 | 2026-10-23 |
 | [supply-chain/template-supplier-security-questionnaire.md](../supply-chain/template-supplier-security-questionnaire.md) | Supplier Security Questionnaire | Template | 1.0.8 | 2026-09-25 |
 
@@ -341,49 +341,49 @@ _147 documents._
 
 ## Draft
 
-_77 documents._
+_78 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
-| [ai/charter-ai-actor-role-and-forum-standing.md](../ai/charter-ai-actor-role-and-forum-standing.md) | AI Actor Role and Forum Standing Charter | Charter | 0.0.4 | 2026-08-31 |
+| [ai/charter-ai-actor-role-and-forum-standing.md](../ai/charter-ai-actor-role-and-forum-standing.md) | AI Actor Role and Forum Standing Charter | Charter | 0.0.6 | 2026-10-27 |
 | [ai/framework-agentic-response-state-model.md](../ai/framework-agentic-response-state-model.md) | Agentic Response State Model Framework | Framework | 0.0.4 | 2026-09-20 |
-| [ai/framework-ai-maturity-model.md](../ai/framework-ai-maturity-model.md) | AI Maturity Model Framework | Framework | 0.0.2 | 2026-09-13 |
-| [ai/framework-ai-value-and-decision-governance.md](../ai/framework-ai-value-and-decision-governance.md) | AI Value and Decision-Governance Framework | Framework | 0.0.6 | 2026-10-24 |
-| [ai/guide-ai-board-oversight.md](../ai/guide-ai-board-oversight.md) | AI Board Oversight Guide | Guide | 0.0.2 | 2026-07-11 |
-| [ai/guideline-ai-synthetic-content-provenance.md](../ai/guideline-ai-synthetic-content-provenance.md) | AI Synthetic-Content Provenance Guideline | Guideline | 0.0.10 | 2026-10-26 |
-| [ai/jurisdictions/annex-ai-australia.md](../ai/jurisdictions/annex-ai-australia.md) | Australia AI Regulatory Requirements | Annex | 0.0.3 | 2026-09-25 |
-| [ai/jurisdictions/annex-ai-european-union.md](../ai/jurisdictions/annex-ai-european-union.md) | European Union AI Regulatory Requirements | Annex | 0.0.21 | 2026-10-26 |
-| [ai/jurisdictions/annex-ai-malaysia.md](../ai/jurisdictions/annex-ai-malaysia.md) | Malaysia National Guidelines on AI Governance and Ethics (AIGE) | Annex | 0.0.9 | 2026-09-25 |
-| [ai/jurisdictions/annex-ai-singapore-agentic-ai.md](../ai/jurisdictions/annex-ai-singapore-agentic-ai.md) | Singapore IMDA Model AI Governance Framework for Agentic AI | Annex | 0.0.2 | 2026-09-25 |
-| [ai/jurisdictions/annex-ai-singapore.md](../ai/jurisdictions/annex-ai-singapore.md) | Singapore Model AI Governance Framework for Generative AI | Annex | 0.0.2 | 2026-09-25 |
-| [ai/jurisdictions/annex-ai-south-korea.md](../ai/jurisdictions/annex-ai-south-korea.md) | South Korea AI Regulatory Requirements | Annex | 0.0.4 | 2026-10-01 |
-| [ai/jurisdictions/annex-ai-united-kingdom.md](../ai/jurisdictions/annex-ai-united-kingdom.md) | United Kingdom Pro-Innovation AI Regulation Framework (CP 815 and CP 1019) | Annex | 0.0.8 | 2026-10-01 |
-| [ai/jurisdictions/annex-ai-us-california.md](../ai/jurisdictions/annex-ai-us-california.md) | California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements | Annex | 0.0.5 | 2026-09-25 |
-| [ai/jurisdictions/annex-ai-us-colorado.md](../ai/jurisdictions/annex-ai-us-colorado.md) | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | Annex | 0.0.3 | 2026-09-25 |
-| [ai/jurisdictions/annex-ai-us-federal.md](../ai/jurisdictions/annex-ai-us-federal.md) | United States Federal AI Policy (OMB M-25-21, M-25-22, and M-26-04) Regulatory Requirements | Annex | 0.0.5 | 2026-09-25 |
-| [ai/jurisdictions/annex-ai-us-illinois.md](../ai/jurisdictions/annex-ai-us-illinois.md) | Illinois AI in Employment (HB 3773) Regulatory Requirements | Annex | 0.0.3 | 2026-10-01 |
-| [ai/jurisdictions/annex-ai-us-new-york-city.md](../ai/jurisdictions/annex-ai-us-new-york-city.md) | New York City Automated Employment Decision Tool Regulatory Requirements | Annex | 0.0.7 | 2026-10-01 |
-| [ai/jurisdictions/annex-ai-us-texas.md](../ai/jurisdictions/annex-ai-us-texas.md) | Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements | Annex | 0.0.4 | 2026-09-25 |
+| [ai/framework-ai-maturity-model.md](../ai/framework-ai-maturity-model.md) | AI Maturity Model Framework | Framework | 0.0.3 | 2026-10-27 |
+| [ai/framework-ai-value-and-decision-governance.md](../ai/framework-ai-value-and-decision-governance.md) | AI Value and Decision-Governance Framework | Framework | 0.0.8 | 2026-10-27 |
+| [ai/guide-ai-board-oversight.md](../ai/guide-ai-board-oversight.md) | AI Board Oversight Guide | Guide | 0.0.4 | 2026-10-27 |
+| [ai/guideline-ai-synthetic-content-provenance.md](../ai/guideline-ai-synthetic-content-provenance.md) | AI Synthetic-Content Provenance Guideline | Guideline | 0.0.11 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-australia.md](../ai/jurisdictions/annex-ai-australia.md) | Australia AI Regulatory Requirements | Annex | 0.0.4 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-european-union.md](../ai/jurisdictions/annex-ai-european-union.md) | European Union AI Regulatory Requirements | Annex | 0.0.24 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-malaysia.md](../ai/jurisdictions/annex-ai-malaysia.md) | Malaysia National Guidelines on AI Governance and Ethics (AIGE) | Annex | 0.0.10 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-singapore-agentic-ai.md](../ai/jurisdictions/annex-ai-singapore-agentic-ai.md) | Singapore IMDA Model AI Governance Framework for Agentic AI | Annex | 0.0.3 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-singapore.md](../ai/jurisdictions/annex-ai-singapore.md) | Singapore Model AI Governance Framework for Generative AI | Annex | 0.0.3 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-south-korea.md](../ai/jurisdictions/annex-ai-south-korea.md) | South Korea AI Regulatory Requirements | Annex | 0.0.5 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-united-kingdom.md](../ai/jurisdictions/annex-ai-united-kingdom.md) | United Kingdom Pro-Innovation AI Regulation Framework (CP 815 and CP 1019) | Annex | 0.0.9 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-us-california.md](../ai/jurisdictions/annex-ai-us-california.md) | California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements | Annex | 0.0.6 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-us-colorado.md](../ai/jurisdictions/annex-ai-us-colorado.md) | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | Annex | 0.0.4 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-us-federal.md](../ai/jurisdictions/annex-ai-us-federal.md) | United States Federal AI Policy (OMB M-25-21, M-25-22, and M-26-04) Regulatory Requirements | Annex | 0.0.6 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-us-illinois.md](../ai/jurisdictions/annex-ai-us-illinois.md) | Illinois AI in Employment (HB 3773) Regulatory Requirements | Annex | 0.0.5 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-us-new-york-city.md](../ai/jurisdictions/annex-ai-us-new-york-city.md) | New York City Automated Employment Decision Tool Regulatory Requirements | Annex | 0.0.8 | 2026-10-27 |
+| [ai/jurisdictions/annex-ai-us-texas.md](../ai/jurisdictions/annex-ai-us-texas.md) | Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements | Annex | 0.0.10 | 2026-10-27 |
 | [ai/matrix-etsi-sai-baseline-alignment.md](../ai/matrix-etsi-sai-baseline-alignment.md) | ETSI Securing-AI Baseline Alignment Matrix | Matrix | 0.0.4 | 2026-09-21 |
-| [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.17 | 2026-10-24 |
+| [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.18 | 2026-10-27 |
 | [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.1.6 | 2026-09-05 |
-| [ai/procedure-training-data-governance.md](../ai/procedure-training-data-governance.md) | Training Data Governance Procedure | Procedure | 0.0.14 | 2026-09-14 |
-| [ai/register-model-registry.md](../ai/register-model-registry.md) | Model Registry | Register | 0.0.9 | 2026-10-24 |
-| [ai/standard-ai-access-and-agent-permissions.md](../ai/standard-ai-access-and-agent-permissions.md) | AI Access and Agent Permissions Standard | Standard | 0.0.18 | 2026-09-20 |
+| [ai/procedure-training-data-governance.md](../ai/procedure-training-data-governance.md) | Training Data Governance Procedure | Procedure | 0.0.15 | 2026-10-27 |
+| [ai/register-model-registry.md](../ai/register-model-registry.md) | Model Registry | Register | 0.0.10 | 2026-10-27 |
+| [ai/standard-ai-access-and-agent-permissions.md](../ai/standard-ai-access-and-agent-permissions.md) | AI Access and Agent Permissions Standard | Standard | 0.0.19 | 2026-10-27 |
 | [ai/standard-ai-data-quality-and-readiness-validation.md](../ai/standard-ai-data-quality-and-readiness-validation.md) | AI Data Quality and Readiness Validation Standard | Standard | 0.0.4 | 2026-09-13 |
 | [ai/standard-ai-human-oversight.md](../ai/standard-ai-human-oversight.md) | AI Human-Oversight Standard | Standard | 0.0.8 | 2026-10-16 |
-| [ai/standard-ai-inference-cost-governance.md](../ai/standard-ai-inference-cost-governance.md) | AI Inference Cost Governance Standard | Standard | 0.0.10 | 2026-09-13 |
-| [ai/standard-ai-model-succession-and-identity.md](../ai/standard-ai-model-succession-and-identity.md) | AI Model Succession and Identity Continuity Standard | Standard | 0.0.4 | 2026-09-13 |
-| [ai/standard-ai-total-cost-of-ownership-governance.md](../ai/standard-ai-total-cost-of-ownership-governance.md) | AI Total Cost of Ownership Governance Standard | Standard | 0.0.6 | 2026-10-24 |
+| [ai/standard-ai-inference-cost-governance.md](../ai/standard-ai-inference-cost-governance.md) | AI Inference Cost Governance Standard | Standard | 0.0.11 | 2026-10-27 |
+| [ai/standard-ai-model-succession-and-identity.md](../ai/standard-ai-model-succession-and-identity.md) | AI Model Succession and Identity Continuity Standard | Standard | 0.0.5 | 2026-10-27 |
+| [ai/standard-ai-total-cost-of-ownership-governance.md](../ai/standard-ai-total-cost-of-ownership-governance.md) | AI Total Cost of Ownership Governance Standard | Standard | 0.0.7 | 2026-10-27 |
 | [architecture/standard-api-design.md](../architecture/standard-api-design.md) | API Design Standard | Standard | 0.0.4 | 2026-07-02 |
 | [architecture/standard-integration-architecture.md](../architecture/standard-integration-architecture.md) | Integration Architecture Standard | Standard | 0.0.6 | 2026-09-20 |
 | [compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | Energy and Utilities Sector Requirements Annex | Annex | 0.0.12 | 2026-10-17 |
-| [compliance/financial-services/annex-dora-implementation.md](../compliance/financial-services/annex-dora-implementation.md) | DORA Implementation Annex | Annex | 0.0.12 | 2026-09-24 |
+| [compliance/financial-services/annex-dora-implementation.md](../compliance/financial-services/annex-dora-implementation.md) | DORA Implementation Annex | Annex | 0.0.13 | 2026-10-27 |
 | [compliance/financial-services/annex-mica-implementation.md](../compliance/financial-services/annex-mica-implementation.md) | MiCA Implementation Annex | Annex | 0.3.8 | 2026-10-01 |
 | [compliance/financial-services/annex-sox-itgc.md](../compliance/financial-services/annex-sox-itgc.md) | SOX IT General Controls Annex | Annex | 0.0.6 | 2026-09-04 |
 | [compliance/healthcare/annex-healthcare-united-states.md](../compliance/healthcare/annex-healthcare-united-states.md) | United States HIPAA Sector Requirements Annex | Annex | 0.0.4 | 2026-10-26 |
 | [compliance/healthcare/procedure-hipaa-operational-compliance.md](../compliance/healthcare/procedure-hipaa-operational-compliance.md) | HIPAA Operational Compliance Procedure | Procedure | 0.0.5 | 2026-10-26 |
-| [compliance/public-sector/annex-canada-public-sector-requirements.md](../compliance/public-sector/annex-canada-public-sector-requirements.md) | Canada Public Sector GRC Requirements Annex | Annex | 0.0.24 | 2026-10-26 |
+| [compliance/public-sector/annex-canada-public-sector-requirements.md](../compliance/public-sector/annex-canada-public-sector-requirements.md) | Canada Public Sector GRC Requirements Annex | Annex | 0.0.28 | 2026-10-27 |
 | [compliance/public-sector/annex-eidas-requirements.md](../compliance/public-sector/annex-eidas-requirements.md) | eIDAS Sector Requirements Annex | Annex | 0.0.3 | 2026-09-24 |
 | [compliance/public-sector/annex-fedramp-requirements.md](../compliance/public-sector/annex-fedramp-requirements.md) | FedRAMP Sector Requirements Annex | Annex | 0.0.17 | 2026-09-24 |
 | [compliance/public-sector/annex-public-sector-requirements.md](../compliance/public-sector/annex-public-sector-requirements.md) | Public Sector GRC Requirements Annex | Annex | 0.0.6 | 2026-09-04 |
@@ -396,7 +396,7 @@ _77 documents._
 | [crypto/standard-crypto-asset-white-paper-disclosure.md](../crypto/standard-crypto-asset-white-paper-disclosure.md) | Crypto-Asset White-Paper Content and Disclosure Standard | Standard | 0.0.2 | 2026-09-24 |
 | [crypto/standard-digital-asset-custody.md](../crypto/standard-digital-asset-custody.md) | Digital Asset Custody Standard | Standard | 0.0.6 | 2026-09-05 |
 | [crypto/standard-smart-contract-and-oracle-risk.md](../crypto/standard-smart-contract-and-oracle-risk.md) | Smart-Contract and Oracle Risk Standard | Standard | 0.0.3 | 2026-09-29 |
-| [dev-security/procedure-secure-code-review.md](../dev-security/procedure-secure-code-review.md) | Secure Code Review Procedure | Procedure | 0.0.8 | 2026-09-24 |
+| [dev-security/procedure-secure-code-review.md](../dev-security/procedure-secure-code-review.md) | Secure Code Review Procedure | Procedure | 0.0.9 | 2026-10-27 |
 | [dev-security/standard-api-security.md](../dev-security/standard-api-security.md) | API Security Standard | Standard | 0.0.14 | 2026-10-15 |
 | [dev-security/standard-cloud-hardening-baseline-aws.md](../dev-security/standard-cloud-hardening-baseline-aws.md) | AWS Cloud Hardening Baseline Standard | Standard | 0.0.10 | 2026-09-24 |
 | [dev-security/standard-cloud-hardening-baseline-azure.md](../dev-security/standard-cloud-hardening-baseline-azure.md) | Azure Cloud Hardening Baseline Standard | Standard | 0.0.9 | 2026-07-06 |
@@ -404,21 +404,22 @@ _77 documents._
 | [dev-security/standard-jakarta-ee-application-security.md](../dev-security/standard-jakarta-ee-application-security.md) | Jakarta EE Application Security Standard | Standard | 0.0.6 | 2026-10-01 |
 | [governance/principle-capability-is-not-authority.md](../governance/principle-capability-is-not-authority.md) | Capability Is Not Authority Principle | Principle | 0.0.3 | 2026-08-30 |
 | [governance/principle-fail-closed-automation.md](../governance/principle-fail-closed-automation.md) | Fail-Closed Automation Principle | Principle | 0.0.4 | 2026-10-01 |
-| [governance/principle-integrity-and-trustworthiness.md](../governance/principle-integrity-and-trustworthiness.md) | Integrity and Trustworthiness Principle | Principle | 0.0.12 | 2026-09-25 |
+| [governance/principle-integrity-and-trustworthiness.md](../governance/principle-integrity-and-trustworthiness.md) | Integrity and Trustworthiness Principle | Principle | 0.0.14 | 2026-10-27 |
 | [governance/standard-delegation-of-authority.md](../governance/standard-delegation-of-authority.md) | Delegation-of-Authority Standard | Standard | 0.0.2 | 2026-08-31 |
 | [governance/standard-emergency-authority.md](../governance/standard-emergency-authority.md) | Emergency Authority Standard | Standard | 0.0.3 | 2026-08-31 |
-| [governance/standard-semantic-continuity-in-migration-and-retirement.md](../governance/standard-semantic-continuity-in-migration-and-retirement.md) | Semantic Continuity in Migration and Retirement Standard | Standard | 0.0.6 | 2026-09-25 |
-| [operations/standard-observability-and-telemetry.md](../operations/standard-observability-and-telemetry.md) | Observability and Telemetry Standard | Standard | 0.0.7 | 2026-09-03 |
+| [governance/standard-semantic-continuity-in-migration-and-retirement.md](../governance/standard-semantic-continuity-in-migration-and-retirement.md) | Semantic Continuity in Migration and Retirement Standard | Standard | 0.0.8 | 2026-10-27 |
+| [operations/standard-observability-and-telemetry.md](../operations/standard-observability-and-telemetry.md) | Observability and Telemetry Standard | Standard | 0.0.8 | 2026-10-27 |
 | [privacy/annex-legitimate-interest-employment-monitoring.md](../privacy/annex-legitimate-interest-employment-monitoring.md) | Legitimate Interest Assessment for Employment Monitoring Annex | Annex | 0.1.4 | 2026-10-24 |
 | [privacy/jurisdictions/annex-privacy-chile.md](../privacy/jurisdictions/annex-privacy-chile.md) | Chile Privacy Regulatory Requirements | Annex | 0.0.1 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-colombia.md](../privacy/jurisdictions/annex-privacy-colombia.md) | Colombia Privacy Regulatory Requirements | Annex | 0.0.2 | 2026-09-04 |
+| [privacy/jurisdictions/annex-privacy-ecuador.md](../privacy/jurisdictions/annex-privacy-ecuador.md) | Ecuador Privacy Regulatory Requirements | Annex | 0.0.5 | 2026-10-27 |
 | [privacy/jurisdictions/annex-privacy-mexico.md](../privacy/jurisdictions/annex-privacy-mexico.md) | Mexico Privacy Regulatory Requirements | Annex | 0.0.4 | 2026-09-12 |
 | [privacy/jurisdictions/annex-privacy-peru.md](../privacy/jurisdictions/annex-privacy-peru.md) | Peru Privacy Regulatory Requirements | Annex | 0.0.3 | 2026-09-24 |
-| [privacy/procedure-works-council-and-employee-representative-consultation.md](../privacy/procedure-works-council-and-employee-representative-consultation.md) | Works Council and Employee Representative Consultation Procedure | Procedure | 0.1.1 | 2026-10-24 |
+| [privacy/procedure-works-council-and-employee-representative-consultation.md](../privacy/procedure-works-council-and-employee-representative-consultation.md) | Works Council and Employee Representative Consultation Procedure | Procedure | 0.1.2 | 2026-10-27 |
 | [privacy/standard-network-telemetry-and-dpi-controls.md](../privacy/standard-network-telemetry-and-dpi-controls.md) | Network Telemetry and DPI Controls Standard | Standard | 0.1.2 | 2026-10-24 |
 | [privacy/standard-presence-inference-limitations.md](../privacy/standard-presence-inference-limitations.md) | Presence Inference Limitations Standard | Standard | 0.1.6 | 2026-10-24 |
 | [privacy/template-employee-monitoring-notice.md](../privacy/template-employee-monitoring-notice.md) | Employee Monitoring Notice Template | Template | 0.1.1 | 2026-09-04 |
-| [security/framework-zero-trust-architecture.md](../security/framework-zero-trust-architecture.md) | Zero Trust Architecture Framework | Framework | 0.0.9 | 2026-09-23 |
+| [security/framework-zero-trust-architecture.md](../security/framework-zero-trust-architecture.md) | Zero Trust Architecture Framework | Framework | 0.0.10 | 2026-10-27 |
 | [security/policy-workforce-network-monitoring.md](../security/policy-workforce-network-monitoring.md) | Workforce Network Monitoring Policy | Policy | 0.1.4 | 2026-10-24 |
 | [security/register-approved-key-agreement-protocols.md](../security/register-approved-key-agreement-protocols.md) | Approved Key-Agreement Protocols Register | Register | 0.0.1 | 2026-10-15 |
 | [security/standard-monitoring-integrity-and-coverage.md](../security/standard-monitoring-integrity-and-coverage.md) | Monitoring Integrity and Coverage Standard | Standard | 0.0.5 | 2026-09-20 |

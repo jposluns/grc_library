@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Domain Incident Coordination Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.15\
-**Date:** 2026-10-26\
+**Version:** 1.1.16\
+**Date:** 2026-10-27\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -252,7 +252,7 @@ Maintain joint declaration record, coordination roster snapshot, joint decision 
 | Personal data breach coordination | GDPR Articles 33 to 34; UK GDPR Articles 33 to 34; PIPL Article 57; China Cybersecurity Law Articles 27 and 44 para. 2 (amended numbering, in force 1 January 2026); LGPD Article 48 |
 | Operational resilience incident coordination | DORA Articles 17 and 19; NIS 2 Article 23 |
 | Cloud incident management | CSA CCM v4.1 SEF-03, SEF-07, SEF-08, SEF-09 |
-| AI security incident response | NIST AI RMF MANAGE 4.3; ISO/IEC 42001:2023 A.8.4 (Communication of incidents) |
+| AI security incident response | NIST AI RMF 1.0 MANAGE 4.3; ISO/IEC 42001:2023 A.8.4 (Communication of incidents) |
 
 ---
 

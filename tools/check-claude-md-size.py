@@ -25,10 +25,12 @@ not apply to an explicit-path read), so like D8 it needs no merge base.
 The startup census also enforces Unicode characters, independently of line count.
 It includes unscoped non-Markdown provenance and reports all CLAUDE files separately.
 
-PROXY NOTE (dual-family verify, #1250): LINE COUNT remains a proxy for
-the every-turn TOKEN load. Content packed into fewer, longer lines could evade the
-ratchet while preserving token load; in practice added prose adds lines, so the
-proxy tracks the load well enough. The ceiling itself is a CONVENTION the maintainer
+PROXY NOTE (dual-family verify, #1250): LINE COUNT and the startup CHARACTER count
+are proxies for the every-turn TOKEN load. Content packed into fewer, longer lines
+passes the line ratchet, but its characters still count against the startup
+character ceiling this gate enforces (gate 106,
+tools/lint-startup-character-ceiling.py, runs the same check), so packing no longer
+evades the gate. The ceiling itself is a CONVENTION the maintainer
 maintains (lowering it as CLAUDE.md shrinks): the gate enforces the current ceiling,
 and a change that RAISES the constant is a visible, reviewed diff, not a gate-enforced
 invariant.

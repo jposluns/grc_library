@@ -2,8 +2,8 @@
 
 **Document Title:** Integrity and Trustworthiness Principle\
 **Document Type:** Principle\
-**Version:** 0.0.12\
-**Date:** 2026-09-25\
+**Version:** 0.0.14\
+**Date:** 2026-10-27\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`guardrails/governance/project-integrity.md`](../guardrails/governance/project-integrity.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -68,15 +68,15 @@ The four facets align, at the concept level, with the trustworthiness vocabulari
 | AIQT facet | NIST AI RMF 1.0 characteristic | ISO/IEC 42001:2023 | ISO/IEC TR 24028:2020 | General assurance (corpus convention) |
 |---|---|---|---|---|
 | **Accuracy** | Valid and Reliable (the "accuracy"/validation measure) | A.6.2.4 verification and validation; A.7.4 data quality | §5.3 integrity attributes (accuracy, consistency); verification (3.47) | CSA CCM LOG-02; ISO/IEC 27001:2022 A.5.36, A.8.15 |
-| **Integrity** | (no direct characteristic; nearest is Accountable and Transparent, via disclosure and non-concealment) | A.8 information for interested parties; A.6.2.8 event-log record-keeping | §5.3 integrity ("respect of sound moral and ethical principles; information will not be manipulated in a malicious way") | NIST SSDF PW.7.2; CSA CCM A&A-04; ISO/IEC 27001:2022 A.5.36, A.5.33 |
+| **Integrity** | (no direct characteristic; nearest is Accountable and Transparent, via disclosure and non-concealment) | A.8 information for interested parties; A.6.2.8 event-log record-keeping | §5.3 integrity ("respect of sound moral and ethical principles; information will not be manipulated in a malicious way") | NIST SSDF Version 1.1 PW.7.2; CSA CCM A&A-04; ISO/IEC 27001:2022 A.5.36, A.5.33 |
 | **Quality** | Valid and Reliable (reliability, robustness) | A.6.2.2 requirements; A.6.2.3 design documentation; A.7.4 data quality | quality named as a trustworthiness characteristic (points to the SQuaRE series) | CSA CCM GRC-01; ISO/IEC 27001:2022 A.5.1, A.5.4 |
 | **Trust** | Accountable and Transparent ("trustworthy AI depends upon accountability; accountability presupposes transparency") | A.3 accountability; A.5 impact-assessment documentation; A.10.2 responsibility allocation | trust (3.41), trustworthiness as verifiability (3.42), accountability as traceability (3.1) | CSA CCM LOG-02, LOG-04, LOG-10, GRC-04; ISO/IEC 27001:2022 A.8.15, A.5.36 |
 
 **Alignment caveats (deliberate, source-verified):**
 - **Accuracy** aligns with the NIST *Valid and Reliable* characteristic only at the concept level: the RMF's "accuracy" measures an AI system's output closeness to true values (a model-performance property), whereas the AIQT Accuracy facet is claim-to-source fidelity in produced work. The shared idea is "correctness confirmed through objective evidence". ISO/IEC TR 24028 §5.3 (which lists accuracy and consistency among the attributes of integrity) is the stronger held-text anchor.
-- **Integrity** has **no direct NIST AI RMF characteristic**: the RMF has no work-product-honesty property. The nearest is *Accountable and Transparent* (via disclosure and non-concealment), an analogy, not a match. The precise held-text anchor is ISO/IEC TR 24028 **§5.3** ("respect of sound moral and ethical principles"), NOT the standard's clause-3.21 "integrity" (which is the confidentiality-integrity-availability sense, a false friend for this facet).
+- **Integrity** has **no direct NIST AI RMF 1.0 characteristic**: the RMF has no work-product-honesty property. The nearest is *Accountable and Transparent* (via disclosure and non-concealment), an analogy, not a match. The precise held-text anchor is ISO/IEC TR 24028 **§5.3** ("respect of sound moral and ethical principles"), NOT the standard's clause-3.21 "integrity" (which is the confidentiality-integrity-availability sense, a false friend for this facet).
 - **Quality** is native to ISO/IEC 42001:2023 (a management-system standard: requirements, design documentation, data quality) but only *listed*, not defined, in ISO/IEC TR 24028; treat 42001 as the primary anchor and TR 24028 as corroborating.
-- The NIST AI RMF characteristics not mapped (Safe; Secure and Resilient; Explainable and Interpretable; Privacy-Enhanced; Fair with Harmful Bias Managed) address AI-system output risk, outside the AIQT facets' scope (the integrity of the work product and its production), and are deliberately not force-fit.
+- The NIST AI RMF 1.0 characteristics not mapped (Safe; Secure and Resilient; Explainable and Interpretable; Privacy-Enhanced; Fair with Harmful Bias Managed) address AI-system output risk, outside the AIQT facets' scope (the integrity of the work product and its production), and are deliberately not force-fit.
 - **Progress and Speed are not mapped here.** They are the throughput tier below the four AIQT facets (how work is paced), not trustworthiness characteristics of a work product, so they are deliberately excluded from the alignment above, for the same reason the AI-system-output characteristics are (see section 1).
 
 ## 5. Adoption guidance

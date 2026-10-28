@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.2.19\
-**Date:** 2026-10-26\
+**Version:** 1.2.21\
+**Date:** 2026-10-28\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -74,6 +74,7 @@ This directory contains privacy governance artefacts covering data protection po
 | Chile | [`privacy/jurisdictions/annex-privacy-chile.md`](jurisdictions/annex-privacy-chile.md) |
 | Peru | [`privacy/jurisdictions/annex-privacy-peru.md`](jurisdictions/annex-privacy-peru.md) |
 | Colombia | [`privacy/jurisdictions/annex-privacy-colombia.md`](jurisdictions/annex-privacy-colombia.md) |
+| Ecuador | [`privacy/jurisdictions/annex-privacy-ecuador.md`](jurisdictions/annex-privacy-ecuador.md) |
 | Latin America | [`privacy/jurisdictions/annex-privacy-latin-america.md`](jurisdictions/annex-privacy-latin-america.md) |
 | Singapore | [`privacy/jurisdictions/annex-privacy-singapore.md`](jurisdictions/annex-privacy-singapore.md) |
 | Australia | [`privacy/jurisdictions/annex-privacy-australia.md`](jurisdictions/annex-privacy-australia.md) |
@@ -111,7 +112,7 @@ The privacy domain covers:
 
 ## Role terminology
 
-This domain uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title, following the statutorily-mandated term in GDPR (Article 37), LGPD (Article 41), India DPDP Act 2023 (§10), Malaysia PDPA (as amended), and similar regimes. Some adopters (typically in Canada and the United States) prefer **Chief Privacy Officer (CPO)** for the same accountability set; some adopters maintain both as distinct roles (e.g., DPO regulatory-facing, CPO strategic / executive). See [`governance/register-role-authority.md`](../governance/register-role-authority.md) for the canonical role definition and adopter-customization guidance; substitute or extend per your organization's convention.
+This domain uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title, following the statutorily-mandated term in GDPR (Article 37), India DPDP Act 2023 (§10), Malaysia PDPA (as amended), and similar regimes. LGPD (Article 41) does not use that title; it requires the controller to appoint an *encarregado pelo tratamento de dados pessoais*, the equivalent role that this library maps to DPO. Some adopters (typically in Canada and the United States) prefer **Chief Privacy Officer (CPO)** for the same accountability set; some adopters maintain both as distinct roles (e.g., DPO regulatory-facing, CPO strategic / executive). See [`governance/register-role-authority.md`](../governance/register-role-authority.md) for the canonical role definition and adopter-customization guidance; substitute or extend per your organization's convention.
 
 ---
 

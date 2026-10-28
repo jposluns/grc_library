@@ -2,8 +2,8 @@
 
 **Document Title:** Corrective and Preventive Action (CAPA) Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.0\
-**Date:** 2026-10-13\
+**Version:** 1.1.1\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -288,7 +288,7 @@ Approval authority for an extension does not, on its own, authorize an unbounded
 | **1st extension** | Per §6.3 (CISO for Critical; GRC Programme Manager for High / Moderate / Low) | Documented justification and revised target date |
 | **2nd extension** | Enterprise Risk Committee (ERC) review and approval | A written remediation-feasibility memo from the CAPA owner; an interim compensating control is mandatory for Critical and High findings if one is not already in place |
 | **3rd extension** | Board Risk Committee (or, where the organization has no Board Risk Committee, the highest governance body to which the ERC reports) review and approval | A written root-cause-revalidation memo (was the original root cause correct? has scope changed?) and an explicit determination by the Board Risk Committee that the residual risk of continued non-closure is acceptable; the Board Risk Committee may also require descope, acceptance, or transfer of the underlying risk in lieu of further extension |
-| **4th extension or beyond** | Not permitted under this procedure | The CAPA must be closed (with the residual gap formally accepted as a risk under the Risk Management Policy), descoped (with the underlying requirement re-scoped or waived through documented exception), or replaced by a fresh CAPA reflecting the revised scope. A 4th extension may not be granted by any authority. |
+| **4th extension or beyond** | Not permitted under this procedure | The CAPA must be closed (with the residual gap formally accepted as a risk under the Risk Management Policy), descoped (with the underlying requirement re-scoped or waived through documented exception), or replaced by a fresh CAPA reflecting the revised scope. A 4th extension must not be granted by any authority. |
 
 A CAPA whose root cause has materially changed (for example, a new contributing factor identified after the 1st extension is approved) is re-baselined: the count is reset, the revised root cause statement passes the §4.1.1 checklist, and a new initial target date is set. Re-baselining is approved by the ERC and recorded in the CAPA register as a re-baseline event with the prior history retained for audit; re-baselining is not an extension and does not consume an extension slot. Re-baselining cannot be used to bypass the ceiling: a re-baseline that does not rest on a materially-changed root cause is treated as the next extension in the sequence (the ERC declines the re-baseline and the count continues).
 

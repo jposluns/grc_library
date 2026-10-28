@@ -2,8 +2,8 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.1.21\
-**Date:** 2026-10-23\
+**Version:** 1.1.22\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -100,6 +100,10 @@ Exceptions to any requirement in this standard are approved through the §4.2.2 
 | MFA | SP 800-63B §2.2 (AAL2) | A.8.5 | IAM-13 | 6.3, 6.4, 6.5 (MFA safeguards) |
 | Session management | SP 800-63B §5 | A.8.5 | IAM-13 | 4.3 (Configure Automatic Session Locking on Enterprise Assets) |
 | Service account auth | N/A | A.8.5 | IAM-13 | 5.6 (Centralize Account Management) |
+
+**Canadian sources.** The Canadian Centre for Cyber Security Baseline Cyber Security Controls for Small and Medium Organizations (the held text, V1.2, dated February 2020) recommends two-factor authentication wherever possible, with each decision not to use it documented and with two-factor authentication required for important accounts such as system administrator, cloud administration and privileged accounts (BC.5.1); password changes on suspicion or evidence of compromise (BC.5.2); and clear policies on password length and reuse and on password managers (BC.5.3). Section 5 and the maximum-age row of section 4 are consistent with BC.5.1 and BC.5.2. These are voluntary recommendations written for small and medium organizations. The password selection guidance that the baseline refers to in its section 3.5, ITSP.30.031 (User Authentication Guidance for Information Technology Systems), is not held in the reference base, so no password parameter here is attributed to it. <!-- ref-absence: ITSP.30.031 | User Authentication Guidance -->
+
+For a Canadian federal department or other entity to which the Treasury Board Policy on Government Security applies (Policy 6.1), the Directive on Security Management requires measures so that individuals and devices are uniquely identified and authenticated to an appropriate level of assurance before they are given access to information in information systems (B.2.3.1), and measures that control accounts with administrative privileges, including limiting how many users hold them and what they can reach and do (B.2.3.2.4). B.2.3.1 sets the level of assurance by reference to the Standard on Identity and Credential Assurance (Appendix A of the Directive on Identity Management), and that standard is not held in the reference base, so no assurance level is attributed to it here. <!-- ref-absence: Standard on Identity and Credential Assurance --> The force and applicability of the federal instruments are set out in the federal security and cyber baseline under domain cluster 3 of the [Canada public-sector annex](../compliance/public-sector/annex-canada-public-sector-requirements.md#federal-security-and-cyber-baseline).
 
 
 

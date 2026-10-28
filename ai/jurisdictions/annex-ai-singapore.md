@@ -2,8 +2,8 @@
 
 **Document Title:** Singapore Model AI Governance Framework for Generative AI\
 **Document Type:** Annex\
-**Version:** 0.0.2\
-**Date:** 2026-09-25\
+**Version:** 0.0.3\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md)\
@@ -52,9 +52,9 @@ This annex is voluntary guidance, not legal advice and not a binding obligation;
 
 ## Framework alignment
 
-The Singapore-dimension column is the load-bearing, held-source-grounded content. The NIST AI RMF function tags and the ISO/IEC 42001:2023 clause and Annex A anchors are a crosswalk to help an adopter reuse its existing management-system controls; they are a mapping aid, not an assertion that the voluntary Framework and those standards impose the same obligations.
+The Singapore-dimension column is the load-bearing, held-source-grounded content. The NIST AI RMF 1.0 function tags and the ISO/IEC 42001:2023 clause and Annex A anchors are a crosswalk to help an adopter reuse its existing management-system controls; they are a mapping aid, not an assertion that the voluntary Framework and those standards impose the same obligations.
 
-| Singapore dimension | Corpus AI-governance touchpoint | NIST AI RMF | ISO/IEC 42001:2023 |
+| Singapore dimension | Corpus AI-governance touchpoint | NIST AI RMF 1.0 | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Accountability | AI compliance roles and responsibility | Govern | Clause 5.3, Annex A.3 |
 | Data | AI data governance and dataset documentation | Map, Measure | Annex A.7 |

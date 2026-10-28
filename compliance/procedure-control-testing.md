@@ -2,8 +2,8 @@
 
 **Document Title:** Control Testing Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.9\
-**Date:** 2026-09-25\
+**Version:** 1.1.10\
+**Date:** 2026-10-27\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)\
@@ -24,7 +24,7 @@ This procedure defines the processes for testing the design and operating effect
 
 ## Scope
 
-Applies to all controls defined in the organization's control frameworks including ISO/IEC 27001:2022 Annex A, COBIT 2019, CSA CCM v4.1, NIST SP 800-53, and any applicable regulatory control requirements. Encompasses preventive, detective, and corrective controls across all domains.
+Applies to all controls defined in the organization's control frameworks including ISO/IEC 27001:2022 Annex A, COBIT 2019, CSA CCM v4.1, NIST SP 800-53 Rev. 5, and any applicable regulatory control requirements. Encompasses preventive, detective, and corrective controls across all domains.
 
 ---
 

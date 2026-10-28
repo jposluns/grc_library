@@ -2,8 +2,8 @@
 
 **Document Title:** Access Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.0\
-**Date:** 2026-10-15\
+**Version:** 1.4.1\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-identity-management.md`](procedure-identity-management.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md)\
@@ -184,6 +184,8 @@ Access that does not meet all four criteria is treated as unjustified. The revie
 | CISA Zero Trust Maturity Model v2.0 (April 2023) | 5.1 Identity, Table 2: Identity Pillar, Access Management function | Just-in-time, time-limited privileged access in place of standing access |
 | ISO/IEC 27017:2026 | 8.2, Table 30: Guidance for privileged access rights | Strong (for example, multi-factor) authentication for cloud service administrators |
 | ISO/IEC 27036-2:2022 | 7.5.3, Table 24: Supplier termination management process activities | Timely removal of supplier access rights at termination |
+| Canada CCCS Baseline Cyber Security Controls for Small and Medium Organizations V1.2 | BC.12.1 to BC.12.4 | Least-privilege accounts with administrator privileges given only as required; administrator accounts kept to administrative activities; removal of accounts and functionality no longer required; consideration of a centralized authorization control system, or a rationale for not implementing one (voluntary guidance) |
+| Canada TBS Directive on Security Management (federal public sector) | B.2.3.2.1, B.2.3.2.2, B.2.3.2.4, B.2.3.2.6 | Account approval and lifecycle procedures; access privileges set by least privilege and segregation of duties; control of accounts with administrative privileges; periodic review of access privileges and removal when no longer required. Applies only where the Policy on Government Security applies (Policy 6.1); force and applicability are in the federal security and cyber baseline under domain cluster 3 of the [Canada public-sector annex](../compliance/public-sector/annex-canada-public-sector-requirements.md#federal-security-and-cyber-baseline) |
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** United Kingdom Pro-Innovation AI Regulation Framework (CP 815 and CP 1019)\
 **Document Type:** Annex\
-**Version:** 0.0.8\
-**Date:** 2026-10-01\
+**Version:** 0.0.9\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`ai/jurisdictions/annex-ai-singapore.md`](annex-ai-singapore.md), [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](../../privacy/jurisdictions/annex-privacy-united-kingdom.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md)\
@@ -59,9 +59,9 @@ This annex is the per-regime view; it cross-references the operational substance
 
 ## Framework alignment
 
-The UK-principle column is the load-bearing, held-source-grounded content. The NIST AI RMF function tags and the ISO/IEC 42001:2023 clause and Annex A anchors are a crosswalk to help an adopter reuse its existing management-system controls; they are a mapping aid, not an assertion that the non-statutory principles and those standards impose the same obligations.
+The UK-principle column is the load-bearing, held-source-grounded content. The NIST AI RMF 1.0 function tags and the ISO/IEC 42001:2023 clause and Annex A anchors are a crosswalk to help an adopter reuse its existing management-system controls; they are a mapping aid, not an assertion that the non-statutory principles and those standards impose the same obligations.
 
-| UK principle | Corpus AI-governance touchpoint | NIST AI RMF | ISO/IEC 42001:2023 |
+| UK principle | Corpus AI-governance touchpoint | NIST AI RMF 1.0 | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Safety, security and robustness | AI security, testing, and monitoring | Measure, Manage | Annex A.6 |
 | Appropriate transparency and explainability | AI model documentation and transparency | Govern, Map | Annex A.8 |

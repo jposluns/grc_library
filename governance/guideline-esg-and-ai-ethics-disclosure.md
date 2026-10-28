@@ -2,8 +2,8 @@
 
 **Document Title:** ESG and AI Ethics Disclosure Guideline\
 **Document Type:** Guideline\
-**Version:** 1.1.11\
-**Date:** 2026-10-16\
+**Version:** 1.1.12\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -80,7 +80,7 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 | Disclosure Item | Standard | Frequency |
 | --- | --- | --- |
 | Organization-defined AI governance maturity level | ISO/IEC 42001:2023 §9.1 (informs the organization's metric and annual disclosure); COBIT 2019 | Annual |
-| Number of AI systems by risk tier | EU AI Act (tiering); NIST AI RMF (informs the organization's own risk-management approach, prescribes no tiers) | Annual |
+| Number of AI systems by risk tier | EU AI Act (tiering); NIST AI RMF 1.0 (informs the organization's own risk-management approach, prescribes no tiers) | Annual |
 | Bias audit completion rate for production AI | ISO/IEC 42001:2023 §9.1 (informs the organization's metric and annual disclosure) | Annual |
 | Explainability compliance rate | EU AI Act Annex IV | Annual |
 | AI incidents reported and resolved | ISO/IEC 42001:2023 A.8.4 and §10.2 (inform the organization's metric and annual disclosure) | Annual |

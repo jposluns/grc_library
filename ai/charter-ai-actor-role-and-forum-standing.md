@@ -2,8 +2,8 @@
 
 **Document Title:** AI Actor Role and Forum Standing Charter\
 **Document Type:** Charter\
-**Version:** 0.0.4\
-**Date:** 2026-08-31\
+**Version:** 0.0.6\
+**Date:** 2026-10-27\
 **Owner:** AI Governance Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`governance/principle-capability-is-not-authority.md`](../governance/principle-capability-is-not-authority.md), [`governance/standard-delegation-of-authority.md`](../governance/standard-delegation-of-authority.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/charter-ai-ethics-review-panel.md`](charter-ai-ethics-review-panel.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/principle-integrity-and-trustworthiness.md`](../governance/principle-integrity-and-trustworthiness.md)\
@@ -20,7 +20,7 @@
 
 An AI actor is an action-capable AI agent or assistant that carries out work in the organization's processes. As such systems take on more of that work, an organization needs a stated role for the AI actor itself: what it may decide, what it must not, how it escalates, what evidence it owes, and what standing it holds in the governance forums that decide policy. Most governance roles in the corpus describe humans; this charter defines the AI-actor role and its forum standing, so an AI actor's participation is governed rather than assumed.
 
-The term is used narrowly here. In the NIST AI Risk Management Framework, "AI actors" are the organizations and individuals that play an active role across the AI system lifecycle, not only those that deploy or operate AI systems; this charter's "AI actor" is the AI agent itself, a distinct subject. Where this document says AI actor it means the chartered agent, not the human roles that govern it.
+The term is used narrowly here. In the NIST AI RMF 1.0, "AI actors" are the organizations and individuals that play an active role across the AI system lifecycle, not only those that deploy or operate AI systems; this charter's "AI actor" is the AI agent itself, a distinct subject. Where this document says AI actor it means the chartered agent, not the human roles that govern it.
 
 This charter is written to be adopted by any organization, and it is also self-referential: this library is itself maintained by an AI actor operating under the governance pack in [`guardrails/`](../guardrails/), so the rules below describe a live practice as much as a recommended one.
 
@@ -74,7 +74,7 @@ The AI actor reports to its accountable owner, and, where it advises a governanc
 
 The alignment below is analogical (each row aligns with or is informed by the cited reference) and at the control-family and category level, not a prescriptive crosswalk. Control identifiers are verified against the held source texts.
 
-| Requirement | CSA AICM v1.1.0 | ISO/IEC 42001:2023 | NIST AI RMF |
+| Requirement | CSA AICM v1.1.0 | ISO/IEC 42001:2023 | NIST AI RMF 1.0 |
 | --- | --- | --- | --- |
 | Roles and responsibilities for AI are defined and assigned | GRC-06 (Governance Responsibility Model) | Clause 5.3 (Organizational roles, responsibilities and authorities); A.3.2 (AI roles and responsibilities) | GOVERN 2.1; GOVERN 3.2 |
 | Human oversight and control of the AI system | GRC-15 (Human supervision) | A.3.2 (AI roles and responsibilities) | GOVERN 3.2 |

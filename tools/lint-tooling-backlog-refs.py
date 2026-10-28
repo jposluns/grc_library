@@ -8,13 +8,17 @@ backlog pointers in tool and hook provenance prose (``TODO N.M``,
 ``N.M (closing PR #X)`` form. Nothing mechanical stopped the class from
 recurring: gate 69 (lint-positional-backlog-tokens) scans corpus MARKDOWN only,
 and ``tools/`` / ``.claude/hooks/`` are outside its scope. This gate is the
-backstop (backlog item 3b151): it scans ``.py``, ``.sh``, ``.md`` and ``.json``
-files, plus suffix-less scripts whose shebang names a Python or Bourne-family
-shell interpreter (note 10; the ``tools/git-hooks/`` trio, the nmw-actionable
-hook), under ``tools/`` and ``.claude/hooks/`` for a qualified positional
-backlog pointer and fails when the pointer names an item that is no longer
-live, because a positional number is only a sound citation while its item is
-open; a closed item's number must be anchored to its closing PR.
+backstop (backlog item 3b151): it scans ``.py``, ``.sh``, ``.md``, ``.json``,
+``.yml`` and ``.yaml`` files, plus suffix-less scripts whose shebang names a
+Python or Bourne-family shell interpreter (note 10; the ``tools/git-hooks/``
+trio, the nmw-actionable hook) and the registered rule-overlay
+``PROVENANCE.txt`` records, under ``tools/``, ``.claude/`` and
+``.github/`` (note 11; backlog item 3b636 widened the roots from
+``.claude/hooks/`` after a live pointer survived in a playbook), for a
+qualified positional backlog pointer and fails when the pointer names an item
+that is no longer live, because a positional number is only a sound citation
+while its item is open; a closed item's number must be anchored to its
+closing PR.
 
 DETECTION, stated because each choice has a false-positive or false-negative
 cost (all measured against the repo at adoption; the raw census had ~95 hits
@@ -59,7 +63,8 @@ source):
      double quote. The raw census is dominated by self-test probes and
      docstring examples (the rotation-gate form examples, the hook
      disposition-grammar probes), and every one of them is double-quoted or
-     backticked. In ``.md`` files, fence state is computed FIRST on RAW
+     backticked. In ``.md`` files and the registered ``PROVENANCE.txt``
+     records (Markdown content, note 11), fence state is computed FIRST on RAW
      lines through the shared ``aiqt_corpus.is_fence_line`` predicate, then
      fenced lines are blanked. This is the same toggle model corpus gates
      use (a toggle is a toggle: fences
@@ -77,16 +82,20 @@ source):
      inside it is still checked. ``.json`` files are read raw, because
      their content is entirely quoted (the publication-manifest rationale
      strings are genuine prose); JSON escapes are not decoded, so an
-     escaped pointer can evade detection. RESIDUE: a genuine pointer inside a
+     escaped pointer can evade detection. ``.yml`` / ``.yaml`` files (the
+     workflows, the playbook manifest) are read raw the same way, only their
+     leading ``#`` comment leaders blanked: a quoted YAML scalar is prose
+     (a step name, a description), not an illustrative literal. RESIDUE: a genuine pointer inside a
      SAME-LINE double-quoted provenance string is stripped (a quoted
      pointer is read as a mention; silently missed); a pair of stray double
      quotes on one physical line, each end clear of word characters,
      apostrophes and double quotes on the outside, is read as a literal and
      hides what sits between them (including an inch-mark closer); a stray
      backtick, including one in a single-quoted literal, can blank
-     prose up to the end of its own paragraph; and in ``.md`` files an EVEN
-     number of miscounted fence-shaped prose lines hides the prose between
-     them, while an odd number is refused loudly. All remain accepted
+     prose up to the end of its own paragraph; and in ``.md`` files and the
+     registered ``PROVENANCE.txt`` records an EVEN number of miscounted
+     fence-shaped prose lines hides the prose between them, while an odd
+     number is refused loudly. All remain accepted
      FN-safety costs, each bounded as stated. On the false-positive side, a
      quoted example that wraps across lines, ANY single-quoted example, a
      double-quoted example abutting a word character or another quote, and
@@ -193,10 +202,34 @@ source):
       read even without -S, ignoring kernel tail packing; this can over-select
       a non-executing form, never silently omit one. A resolved basename
       matching python with a word-character/dot suffix, or sh/ash/dash/bash/
-      ksh/mksh/zsh, selects a suffix-less script. The .py/.sh/.md/.json suffixes
-      are always selected. Other resolved interpreters and other suffixes
-      remain outside prose scope. At adoption the suffix-less selection is
-      the tools/git-hooks trio and .claude/hooks/nmw-actionable.
+      ksh/mksh/zsh, selects a suffix-less script. The .py/.sh/.md/.json/.yml/
+      .yaml suffixes are always selected. Other resolved interpreters and
+      other suffixes remain outside prose scope. At adoption the suffix-less
+      selection is the tools/git-hooks trio and .claude/hooks/nmw-actionable.
+
+  11. ROOTS AND WHAT THEY LEAVE OUT (3b636). The roots are ``tools/``, the
+      whole of ``.claude/`` (hooks, playbooks, commands, references, rules,
+      skills, ``CLAUDE.md``, ``settings.json``) and ``.github/``. Two
+      ``.gitignore``-listed, machine-local paths are pruned after
+      classification, because they are runtime state, not reviewed prose:
+      ``.claude/hooks/.state/`` (self-guard block history) and
+      ``.claude/settings.local.json``. Third-party content refreshed from
+      upstream and never hand-edited is not selected: ``.claude/rules/
+      external/``, the five registered addyosmani skill directories
+      (``external_overlay.ADDYOSMANI_SKILLS``) and the vendored
+      ``.claude/skills/clean-language/``, whose ``FILES`` are pinned
+      byte-identical to upstream by its drift check. A dotted number there is
+      upstream's, and rewriting it would defeat the drift check. Files
+      there are still classified and read (note 9); only each directory's
+      own first-party ``PROVENANCE.md`` record, at the directory's root, is
+      selected (a nested file sharing that basename is vendored content and
+      is not), plus the rule
+      overlays' first-party records registered in
+      ``external_overlay.RULE_PROVENANCE_PATHS``: those keep a ``.txt``
+      suffix to leave Claude rule discovery but hold project-authored
+      Markdown, so exactly those paths are selected and read as Markdown;
+      no other ``.txt`` file is. RESIDUE: a backlog pointer pasted into
+      vendored content is not seen.
 
 Usage:
     python3 tools/lint-tooling-backlog-refs.py
@@ -234,12 +267,17 @@ from typing import NamedTuple
 from lint_common import (
     REPO_ROOT,
     InaccessiblePath,
+    print_degraded,
     require_dir,
     resolve_sibling,
     strict_kind,
 )
 import aiqt_bootstrap  # noqa: F401  # shared vendored core on sys.path
 from aiqt_corpus import is_fence_line
+# The registered third-party skill directories (the lint-ungated-dashes registry).
+from external_overlay import ADDYOSMANI_SKILLS
+# The registered rule-overlay records: Markdown under a .txt suffix (note 11).
+from external_overlay import RULE_PROVENANCE_PATHS
 
 # The one index-row and item-heading grammar the backlog readers share (P-TODO 3b121).
 from todo_index_rows import index_rows, item_headings
@@ -249,8 +287,27 @@ PRIVATE_SIBLING_DIR = "grc_library_private"
 # Backlog files held only by the private sibling; absent for public CI / adopter clones.
 PRIVATE_BACKLOG_FILES = ("TODO-REFERENCE.md", "P-TODO.md", "P-TODO-REFERENCE.md")
 
-SCAN_ROOTS = ("tools", ".claude/hooks")
-SCAN_SUFFIXES = frozenset({".py", ".sh", ".md", ".json"})
+SCAN_ROOTS = ("tools", ".claude", ".github")
+SCAN_SUFFIXES = frozenset({".py", ".sh", ".md", ".json", ".yml", ".yaml"})
+# Machine-local, never-committed paths (.gitignore) pruned after classification
+# (design note 11): they are runtime state, not reviewed provenance prose.
+SKIP_REL_PATHS = frozenset({".claude/hooks/.state", ".claude/settings.local.json"})
+# Third-party content refreshed FROM UPSTREAM, never hand-edited (design note
+# 11; the lint-ungated-dashes exemption plus the vendored clean-language
+# skill): its numbering is upstream's, not this backlog's, and a rewrite
+# would break the upstream drift checks. Files under these directories are
+# still classified and read, but only each directory's OWN first-party record
+# (THIRD_PARTY_RECORD_PATHS, at the directory's root) is selected: a nested
+# file that merely shares the basename is vendored content (3b636 r3).
+THIRD_PARTY_DIRS = (
+    (".claude/rules/external",)
+    + tuple(f".claude/skills/{name}" for name in ADDYOSMANI_SKILLS)
+    + (".claude/skills/clean-language",)
+)
+THIRD_PARTY_RECORD_PATHS = frozenset(f"{d}/PROVENANCE.md" for d in THIRD_PARTY_DIRS)
+# Exactly the registered rule-overlay PROVENANCE.txt records are selected and
+# read as Markdown, whatever their suffix (note 11); no other .txt file is.
+MARKDOWN_RECORD_PATHS = frozenset(RULE_PROVENANCE_PATHS)
 # A suffix-less file is scanned too when its shebang names an interpreter whose
 # comment and quote shapes the literal strip already handles (the git hooks and
 # nmw-actionable carried provenance prose no suffix rule reached, 3b151 QA r1).
@@ -445,15 +502,17 @@ def _marker_reasons(text: str) -> dict[int, list[str]]:
     return reasons
 
 
-def candidate_refs(path: Path, text: str) -> list[Candidate]:
+def candidate_refs(path: Path, text: str, markdown: bool = False) -> list[Candidate]:
     """All positional backlog pointers in one file, after the literal strip, the
     PR-anchor pass, the cue pass and the marker pass. PURE detection over one
     file's text (the EXEMPT rows and the open-versus-deleted check are
     ``run_scan``'s concern); raises :class:`GateInputError` for a Markdown
-    file whose fence toggling is unbalanced (note 9)."""
+    file whose fence toggling is unbalanced (note 9). ``markdown`` reads a
+    registered non-``.md`` record as Markdown (note 11)."""
     lines = text.split("\n")
     markers = _marker_reasons(text)
-    if path.suffix in BACKTICK_ONLY_SUFFIXES:
+    markdown = markdown or path.suffix in BACKTICK_ONLY_SUFFIXES
+    if markdown:
         fenceless, balanced = _blank_md_fences(text)
         if not balanced:
             raise GateInputError(
@@ -471,7 +530,7 @@ def candidate_refs(path: Path, text: str) -> list[Candidate]:
         # source context, so a span blanked earlier can never manufacture an
         # opener or closer for a later one.
         stripped = CODE_OR_STRING_SPAN.sub(_blank, cueview)
-    elif path.suffix in BACKTICK_ONLY_SUFFIXES:
+    elif markdown:
         stripped = BACKTICK_SPAN.sub(_blank, COMMENT_LEAD.sub(_blank, fenceless))
     else:
         stripped = cueview
@@ -657,6 +716,9 @@ def iter_scan_files(root: Path) -> tuple[list[Path], list[str]]:
                 entry_stat = os.lstat(path)
                 is_link = stat.S_ISLNK(entry_stat.st_mode)
                 mode = os.stat(path).st_mode if is_link else entry_stat.st_mode
+                rel = path.relative_to(root).as_posix()
+                if rel in SKIP_REL_PATHS:
+                    continue
                 if stat.S_ISDIR(mode):
                     if name in SKIP_DIR_PARTS:
                         continue
@@ -666,10 +728,14 @@ def iter_scan_files(root: Path) -> tuple[list[Path], list[str]]:
                     continue
                 if not stat.S_ISREG(mode):
                     raise GateInputError("entry is not a regular file or directory")
-                rel = path.relative_to(root).as_posix()
                 script = _shebang_scan_ok(
                     path, bool(mode & 0o111),
                     bool(INTERPRETER_EXEMPT.get(rel, "").strip()))
+                if rel in MARKDOWN_RECORD_PATHS or rel in THIRD_PARTY_RECORD_PATHS:
+                    files.append(path)
+                    continue
+                if any(rel.startswith(d + "/") for d in THIRD_PARTY_DIRS):
+                    continue
                 if path.suffix in SCAN_SUFFIXES or (not path.suffix and script):
                     files.append(path)
             except (OSError, GateInputError) as exc:
@@ -702,7 +768,7 @@ def run_scan(root: Path, files: list[Path], live: set[str], degraded: bool
             errors.append(f"{rel}: unreadable ({exc})")
             continue
         try:
-            cands = candidate_refs(path, text)
+            cands = candidate_refs(path, text, rel in MARKDOWN_RECORD_PATHS)
         except GateInputError as exc:
             errors.append(f"{rel}: {exc}")
             continue
@@ -785,6 +851,12 @@ def main(argv: list[str]) -> int:
         return 2
 
     if skipped:
+        # 3b635: the degraded skip exits 0, so a green CI run must not read as a pass for
+        # the references it could not check (a reference live in TODO.md was checked).
+        print_degraded("gate 107",
+                       f"gate 107 skipped the open-versus-deleted check of "
+                       f"{len(skipped)} positional reference(s) (no {PRIVATE_SIBLING_DIR} sibling "
+                       f"supplies the private backlog lists); this pass attests nothing about them.")
         print(f"NOTE: the private backlog lists are unreachable (no "
               f"{PRIVATE_SIBLING_DIR} sibling), so {len(skipped)} positional "
               f"reference(s) could not be checked open-versus-deleted and are "
@@ -793,8 +865,8 @@ def main(argv: list[str]) -> int:
             print(f"  {rel}:{cand.line}: {cand.token!r}")
 
     if not findings:
-        print("OK: no stale positional backlog references in tools/ and "
-              ".claude/hooks/ provenance prose.")
+        print("OK: no stale positional backlog references in tools/, "
+              ".claude/ and .github/ provenance prose.")
         return 0
 
     by_file: dict[str, list[Candidate]] = {}

@@ -2,8 +2,8 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.16\
-**Date:** 2026-10-13\
+**Version:** 1.0.20\
+**Date:** 2026-10-27\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`NOTICE.md`](../NOTICE.md)\
@@ -28,7 +28,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 
 ## Scope and limitations
 
-1. Coverage is partial. The matrix focuses on the framework control areas most frequently cited across the library: ISO/IEC 27001:2022 Annex A, ISO/IEC 42001:2023, NIST CSF 2.0, NIST SP 800-53 Rev. 5, NIST AI RMF, CSA CCM v4.1, EU AI Act, GDPR, DORA, NIS 2, OWASP LLM Top 10, MITRE ATLAS, CTPAT MSC, BASC v6, and WCO SAFE. It is intended to grow over time as adopter demand reveals gaps.
+1. Coverage is partial. The matrix focuses on the framework control areas most frequently cited across the library: ISO/IEC 27001:2022 Annex A, ISO/IEC 42001:2023, NIST CSF 2.0, NIST SP 800-53 Rev. 5, NIST AI RMF 1.0, CSA CCM v4.1, EU AI Act, GDPR, DORA, NIS 2, OWASP LLM Top 10, MITRE ATLAS, CTPAT MSC, BASC v6, and WCO SAFE. It is intended to grow over time as adopter demand reveals gaps.
 2. Alignment is architectural unless explicitly stated otherwise. The library artefacts establish baseline control structures; adopting organizations must validate implementation, evidence, and operating effectiveness against their own jurisdiction, sector, processing role, threat model, and risk appetite.
 3. External control identifiers and clause numbers are referenced for navigation only. The library does not reproduce control text, questionnaire text, audit guidance, or metrics catalogue text from proprietary or restricted frameworks.
 4. Mappings cite the most relevant library artefacts. A document may also be relevant to controls beyond those listed here; the inverse forward matrix and per-document `References and framework alignment` sections remain authoritative.
@@ -41,7 +41,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 | --- | --- | --- |
 | A.5.1 to A.5.4 Organizational policies, roles, segregation of duties | [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/register-role-authority.md`](register-role-authority.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | Architectural recommendation |
 | A.5.7 Threat intelligence | [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md) | Architectural recommendation |
-| A.5.9 Inventory of assets | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) | Evidence category |
+| A.5.9 Inventory of information and other associated assets | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) | Evidence category |
 | A.5.10 Acceptable use | [`security/policy-acceptable-use.md`](../security/policy-acceptable-use.md) | Architectural recommendation |
 | A.5.12 to A.5.13 Classification and handling of information | [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md) | Architectural recommendation |
 | A.5.15 to A.5.18 Access control, identity, authentication, privileged access | [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/procedure-identity-management.md`](../security/procedure-identity-management.md) | Architectural recommendation |
@@ -123,9 +123,9 @@ This matrix does not reproduce restricted third-party framework text, does not e
 
 ---
 
-## NIST AI RMF (Govern, Map, Measure, Manage)
+## NIST AI RMF 1.0 (Govern, Map, Measure, Manage)
 
-| AI RMF function | Library documents | Alignment type |
+| NIST AI RMF 1.0 function | Library documents | Alignment type |
 | --- | --- | --- |
 | GOVERN | [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) | Architectural recommendation |
 | MAP | [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) | Architectural recommendation |

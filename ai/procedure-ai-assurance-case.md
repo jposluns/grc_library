@@ -2,8 +2,8 @@
 
 **Document Title:** AI Assurance Case Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
-**Date:** 2026-10-26\
+**Version:** 1.0.6\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md), [`ai/template-ai-assurance-case.md`](template-ai-assurance-case.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`compliance/template-audit-evidence-package.md`](../compliance/template-audit-evidence-package.md)\
@@ -95,7 +95,7 @@ This section is mandatory for Audit Tier 1 systems and optional for Audit Tiers 
 
 ## 5. Review
 
-5.1 Before each gate submission, the assurance case must be reviewed by a reviewer whose independence is graduated by the system's audit tier under [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) Section 3. The graduation is informed by NIST AI RMF (NIST AI 100-1) MEASURE 1.3, under which internal experts who did not serve as front-line developers for the system and/or independent assessors are involved in regular assessments and updates, and domain experts, users, AI actors external to the team that developed or deployed the AI system, and affected communities are consulted in support of assessments as necessary per organizational risk tolerance:
+5.1 Before each gate submission, the assurance case must be reviewed by a reviewer whose independence is graduated by the system's audit tier under [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) Section 3. The graduation is informed by NIST AI RMF 1.0 (NIST AI 100-1) MEASURE 1.3, under which internal experts who did not serve as front-line developers for the system and/or independent assessors are involved in regular assessments and updates, and domain experts, users, AI actors external to the team that developed or deployed the AI system, and affected communities are consulted in support of assessments as necessary per organizational risk tolerance:
 
 | Audit tier | Minimum reviewer independence |
 | --- | --- |

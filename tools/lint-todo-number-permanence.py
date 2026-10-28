@@ -245,7 +245,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_working, resolve_sibling, require_dir
+from lint_common import print_degraded, resolve_working, resolve_sibling, require_dir
 # P-TODO 3b121: the one index-row and item-heading grammar the audit tool and the decision-log hook read.
 from todo_index_rows import index_rows, item_headings
 
@@ -1269,6 +1269,18 @@ def main(argv: list[str]) -> int:
         private = resolve_sibling("private")
         cand = (private / PTODO_REL) if private is not None else None
         ptodo_path = cand if (cand is not None and cand.is_file()) else None
+        # 3b635: the DEFAULT lookup's skips exit 0, so a green CI run must not read as a pass.
+        degraded = []
+        if done_path is None:
+            degraded.append("the recycled-number check (DONE.md)")
+        if ptodo_path is None:
+            degraded.append(f"the {PTODO_REL} live ids and cross-list duplicate check")
+        if degraded:
+            print_degraded(
+                "gate 78",
+                f"gate 78 skipped {' and '.join(degraded)} (no private store "
+                f"supplies the input); this pass attests nothing about them."
+            )
 
     try:
         todo_text = todo_path.read_text(encoding="utf-8")
@@ -1279,6 +1291,12 @@ def main(argv: list[str]) -> int:
     except OSError as exc:
         print(f"ERROR: cannot read a required file: {exc}", file=sys.stderr)
         return 2
+    # 3b639: name only the lists actually read, and say so explicitly when P-TODO.md is absent (gate 81's style).
+    lists_read = f"{TODO_REL} + {PTODO_REL}" if ptodo_path is not None else TODO_REL
+    if ptodo_path is None:
+        where = ("not in the --root directory" if args.root is not None
+                 else "no private sibling, or no P-TODO.md in it; public-only clone / adopter checkout")
+        print(f"OK: {PTODO_REL} not present ({where}). Scanning {TODO_REL} only.")
 
     # Each list is read for all three item forms the audit tool counts (design note 5, P-TODO 3b121): index rows
     # and '### <id>' headings through tools/todo_index_rows.py, bullets (3b120) through the tool's own parser. A
@@ -1305,7 +1323,7 @@ def main(argv: list[str]) -> int:
 
     if not recycled and not stale and not cross and not unclosed:
         print(
-            f"OK: {len(live)} live backlog item(s) (TODO.md + P-TODO.md), "
+            f"OK: {len(live)} live backlog item(s) ({lists_read}), "
             f"{len(retired)} recorded retired number(s), {len(counters)} counter(s); "
             f"no recycled number, no cross-list duplicate, no stale counter."
         )

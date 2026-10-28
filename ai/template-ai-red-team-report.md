@@ -2,8 +2,8 @@
 
 **Document Title:** AI Red Team Report Template\
 **Document Type:** Template\
-**Version:** 1.0.13\
-**Date:** 2026-10-26\
+**Version:** 1.0.14\
+**Date:** 2026-10-27\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -215,7 +215,7 @@ A summary of findings (without exploit detail) feeds the AI risk register and th
 | OWASP LLM Top 10 (2026) | Categories and prevention guidance | Threat taxonomy |
 | MITRE ATLAS | Tactics, techniques, case studies | Adversarial ML threat catalogue |
 | NIST AI 100-2e2025 | Adversarial machine-learning taxonomy (attacks and mitigations) | Threat taxonomy |
-| NIST AI RMF | MEASURE | Test, evaluation, validation, verification |
+| NIST AI RMF 1.0 | MEASURE | Test, evaluation, validation, verification |
 | ISO/IEC 42001:2023 | §9 performance evaluation | AI assurance |
 | EU AI Act | Article 15 (accuracy, robustness, cybersecurity); Article 17 (quality management) | High-risk AI obligations |
 | ISO/IEC 27001:2022 | A.8.29 | Security testing |

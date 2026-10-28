@@ -2,8 +2,8 @@
 
 **Document Title:** Illinois AI in Employment (HB 3773) Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.3\
-**Date:** 2026-10-01\
+**Version:** 0.0.5\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-new-york-city.md`](annex-ai-us-new-york-city.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-us-texas.md`](annex-ai-us-texas.md), [`ai/jurisdictions/annex-ai-us-california.md`](annex-ai-us-california.md), [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -56,7 +56,7 @@ The amendment adds one new subdivision to the IHRA employment civil-rights-viola
 ## Enforcement and rulemaking
 
 - Because the new AI provisions are IHRA employment civil-rights violations, they ride the IHRA's generally applicable enforcement machinery rather than a bespoke AI enforcement regime. This annex states the enforcement mechanism only at the level the corpus already establishes in [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md) ("enforced by the Illinois Department of Human Rights through the Human Rights Act charge process"); the specific charge process, adjudication route, and available remedies are not present within the two amended sections of the held text, and the adopter consults the IHRA's enforcement articles or the canonical register for those specifics rather than relying on this annex to reproduce them.
-- This is a different enforcement shape from the Colorado and Texas comprehensive statutes, where the state Attorney General is the exclusive enforcer and there is no private right of action; the IHRA instead routes these violations through its standard Human Rights Act charge process.
+- This is a different enforcement shape from the Colorado and Texas comprehensive statutes, where the state Attorney General is the exclusive enforcer (in Texas, except to the extent Section 552.106 provides for state-agency sanctions) and there is no private right of action; the IHRA instead routes these violations through its standard Human Rights Act charge process.
 - **Rulemaking is the operative layer for the notice duty.** The three rule topics the statute enumerates are all notice-mechanics ("the circumstances and conditions that require notice, the time period for providing notice, and the means for providing notice"), so an adopter deploying AI in Illinois employment decisions tracks the Illinois Department of Human Rights rules as the compliance-operative layer once they are adopted.
 
 ## Relationship to federal anti-discrimination law and the Illinois statutory layer
@@ -74,7 +74,7 @@ The amendment adds one new subdivision to the IHRA employment civil-rights-viola
 
 ## Framework alignment
 
-| Requirement | Illinois HB 3773 | NIST AI RMF | ISO/IEC 42001:2023 |
+| Requirement | Illinois HB 3773 | NIST AI RMF 1.0 | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Discriminatory-effect prohibition on AI use in employment decisions | 775 ILCS 5/2-102(L)(1) | Measure, Manage | Clause 8.3 |
 | Zip-code-as-proxy prohibition | 775 ILCS 5/2-102(L)(1) | Map, Measure | Clause 8.3 |

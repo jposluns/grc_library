@@ -122,7 +122,7 @@ Before any AI feature reaches production, adversarial testing must include:
 
 ## Framework alignment
 
-| Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
+| Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF 1.0 |
 | --- | --- | --- | --- | --- |
 | Prompt injection | LLM01:2026 | AML.T0051 | AIS-15, AIS-09 | Measure 2.5 |
 | Sensitive disclosure | LLM02:2026 | AML.T0057 | DSP-05 | Measure 2.7 |

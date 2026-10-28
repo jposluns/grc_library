@@ -2,8 +2,8 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.2.12\
-**Date:** 2026-10-13\
+**Version:** 1.2.13\
+**Date:** 2026-10-27\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/template-audit-evidence-package.md`](template-audit-evidence-package.md)\
@@ -394,7 +394,7 @@ Auditors must demonstrate competency aligned to the ISO 19011:2026 competency fr
 Lead auditors must hold at least one of the following, or must be operating under a structured supervised qualification programme:
 
 - Relevant professional certification in auditing, information security, risk management, or a cognate discipline (e.g., certified internal auditor, certified information systems auditor, or equivalent);
-- Documented completion of formal audit training that covers the ISO 19011 competency framework, with a minimum of three completed supervised audits as supporting lead auditor;
+- Documented completion of formal audit training that covers the ISO 19011:2026 competency framework, with a minimum of three completed supervised audits as supporting lead auditor;
 - For technical security audits: specialist technical certification or documented equivalent experience, reviewed and approved by the CAE/GRC Programme Manager.
 
 ### 9.3 Supervised qualification programme

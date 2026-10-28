@@ -2,8 +2,8 @@
 
 **Document Title:** AI Board Oversight Guide\
 **Document Type:** Guide\
-**Version:** 0.0.2\
-**Date:** 2026-07-11\
+**Version:** 0.0.4\
+**Date:** 2026-10-27\
 **Owner:** Board Risk Committee\
 **Approving Authority:** Board of Directors\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/charter-ai-ethics-review-panel.md`](charter-ai-ethics-review-panel.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-maturity-model.md`](framework-ai-maturity-model.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
@@ -22,17 +22,17 @@ This guide supports the board, or the equivalent governing body, in exercising o
 
 It is guidance to the governing body, not a body-establishing charter. It does not create, re-charter, or reassign the authority of the [AI Governance Council](charter-ai-governance-council.md) (the executive body that governs AI risk and compliance) or the [AI Ethics Review Panel](charter-ai-ethics-review-panel.md); it describes the board's own oversight role and the receiving end of the reporting and escalation lines those bodies already define. It is jurisdiction-neutral: directors apply it within the specific duties their jurisdiction's law imposes.
 
-The guide draws on ISO/IEC 38507:2022 (the governance implications of the use of AI by organizations, written for the governing body), ISO/IEC 42001:2023 leadership requirements, and the NIST AI Risk Management Framework GOVERN function.
+The guide draws on ISO/IEC 38507:2022 (the governance implications of the use of AI by organizations, written for the governing body), ISO/IEC 42001:2023 leadership requirements, and the NIST AI RMF 1.0 GOVERN function.
 
 ## 2. Director duties and accountability
 
-The governing body is accountable for the organization's use of AI, and this accountability cannot be delegated to the AI system or to management. Per ISO/IEC 38507:2022 (Clause 4.3), members of the governing body are responsible for the oversight and outcomes of the organization, including decisions made through the use of AI, and for the adequacy of governance and controls where AI is deployed; the governing body owns responsibility for the organization's AI use rather than treating the AI system as the responsible party, and directors can be held to account where a failure of diligence, care, guidance, training, oversight, or enforcement allowed an issue to arise. NIST AI RMF GOVERN 2.3 places responsibility for decisions about AI risk with executive leadership.
+The governing body is accountable for the organization's use of AI, and this accountability cannot be delegated to the AI system or to management. Per ISO/IEC 38507:2022 (Clause 4.3), members of the governing body are responsible for the oversight and outcomes of the organization, including decisions made through the use of AI, and for the adequacy of governance and controls where AI is deployed; the governing body owns responsibility for the organization's AI use rather than treating the AI system as the responsible party, and directors can be held to account where a failure of diligence, care, guidance, training, oversight, or enforcement allowed an issue to arise. NIST AI RMF 1.0 GOVERN 2.3 places responsibility for decisions about AI risk with executive leadership.
 
 Directors inform themselves about the possibilities and the risks of the organization's AI use to a degree sufficient to exercise oversight, without being required to hold engineering-level expertise.
 
 ## 3. Board AI literacy
 
-To oversee AI, directors need a general, not technical, understanding: what AI the organization uses and for what purposes, where it makes or materially influences decisions about people, what could go wrong, and how the organization controls those risks. ISO/IEC 38507:2022 frames this as the governing body informing itself about AI in general terms; NIST AI RMF GOVERN 2.2 addresses the training and competence that support it. The board confirms that its own members, and the executives who report to it, hold the literacy their roles require, and that AI literacy is refreshed as the technology and the regulatory environment change.
+To oversee AI, directors need a general, not technical, understanding: what AI the organization uses and for what purposes, where it makes or materially influences decisions about people, what could go wrong, and how the organization controls those risks. ISO/IEC 38507:2022 frames this as the governing body informing itself about AI in general terms; NIST AI RMF 1.0 GOVERN 2.2 addresses the training and competence that support it. The board confirms that its own members, and the executives who report to it, hold the literacy their roles require, and that AI literacy is refreshed as the technology and the regulatory environment change.
 
 ## 4. Setting AI risk appetite and policy direction
 
@@ -46,7 +46,7 @@ Structured interrogation is the board's primary oversight instrument. The follow
 - **Decision-making (Clause 6.3):** Where does AI make or materially influence decisions about individuals, and what human oversight applies to those decisions?
 - **Data use (Clause 6.4):** What data does the organization's AI use, under what authority, and how is data quality and provenance governed?
 - **Culture and values (Clause 6.5):** How does the organization ensure that its AI use aligns with its stated values, and how are ethical concerns raised and resolved?
-- **Compliance (Clause 6.6):** Against which legal and regulatory obligations is the AI portfolio assessed, and what is the status of compliance (NIST AI RMF GOVERN 1.1)?
+- **Compliance (Clause 6.6):** Against which legal and regulatory obligations is the AI portfolio assessed, and what is the status of compliance (NIST AI RMF 1.0 GOVERN 1.1)?
 - **Risk (Clause 6.7):** What are the material AI risks, are they within the board-approved appetite, and how is residual risk accepted?
 
 ## 6. Governance red flags
@@ -55,7 +55,7 @@ The board should treat the following as warning signs that AI oversight may be i
 
 ## 7. Board-reporting expectations
 
-The board defines what it receives on AI and how often. It should expect, on a regular cadence, a view of the AI system inventory and its risk profile, the AI maturity level (assessed against the [AI Maturity Model Framework](framework-ai-maturity-model.md)) with its exceptions, material AI risks against appetite, significant AI incidents and their resolution, and the status of compliance obligations. This is the receiving end of the reporting and escalation lines the executive bodies already operate: the AI Governance Council reports AI governance and maturity to the board and escalates critical AI risks to it, and the AI Ethics Review Panel escalates an unresolved ethical challenge to the board (or the highest governance authority). ISO/IEC 42001:2023 Clause 9 (performance evaluation) and NIST AI RMF GOVERN 1.5 (ongoing monitoring and periodic review) inform the cadence and content.
+The board defines what it receives on AI and how often. It should expect, on a regular cadence, a view of the AI system inventory and its risk profile, the AI maturity level (assessed against the [AI Maturity Model Framework](framework-ai-maturity-model.md)) with its exceptions, material AI risks against appetite, significant AI incidents and their resolution, and the status of compliance obligations. This is the receiving end of the reporting and escalation lines the executive bodies already operate: the AI Governance Council reports AI governance and maturity to the board and escalates critical AI risks to it, and the AI Ethics Review Panel escalates an unresolved ethical challenge to the board (or the highest governance authority). ISO/IEC 42001:2023 Clause 9 (performance evaluation) and NIST AI RMF 1.0 GOVERN 1.5 (ongoing monitoring and periodic review) inform the cadence and content.
 
 ## 8. Framework alignment
 
@@ -63,7 +63,7 @@ The board defines what it receives on AI and how often. It should expect, on a r
 | --- | --- | --- |
 | ISO/IEC 38507:2022 | Clause 4.3 (accountability when introducing AI); Clause 6.2 to 6.7 (governance oversight areas) | Governing-body AI oversight, the primary anchor |
 | ISO/IEC 42001:2023 | Clause 5.1 and 5.2 (leadership, AI policy); Clause 9 (performance evaluation) | Top-management leadership and board-reporting inputs |
-| NIST AI RMF (2023) | GOVERN 1.1, 1.5, 1.6, 2.1, 2.2, 2.3, 3.2 | Governance, accountability, literacy, and oversight structure |
+| NIST AI RMF 1.0 (2023) | GOVERN 1.1, 1.5, 1.6, 2.1, 2.2, 2.3, 3.2 | Governance, accountability, literacy, and oversight structure |
 | OECD AI Principles (2019, updated 2024) | Accountability | Board accountability for AI outcomes |
 
 ## 9. Limitations

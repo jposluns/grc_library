@@ -2,8 +2,8 @@
 
 **Document Title:** AI Adversarial Test Reference\
 **Document Type:** Guide\
-**Version:** 1.3.18\
-**Date:** 2026-10-26\
+**Version:** 1.3.19\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md)\
@@ -194,7 +194,7 @@ Relevant directories:
 | PyRIT | Open-source AI red team automation framework |
 | promptfoo | Open-source prompt testing and evaluation |
 | TikiTribe claude-secure-coding-rules | Defensive AI secure-coding rule files (preventive control, not adversarial test cases) |
-| NIST AI RMF | AI risk management framework |
+| NIST AI RMF 1.0 | AI risk management framework |
 
 
 

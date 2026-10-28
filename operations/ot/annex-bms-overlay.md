@@ -2,8 +2,8 @@
 
 **Document Title:** Building Management Systems (BMS) Overlay Annex\
 **Document Type:** Annex\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`operations/ot/procedure-ot-change-management.md`](procedure-ot-change-management.md), [`operations/ot/procedure-ot-incident-response.md`](procedure-ot-incident-response.md), [`operations/ot/register-ot-asset-inventory-and-lifecycle.md`](register-ot-asset-inventory-and-lifecycle.md), [`operations/standard-physical-security-of-it-infrastructure.md`](../standard-physical-security-of-it-infrastructure.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -205,7 +205,7 @@ The asset record schema in the OT Asset Inventory and Lifecycle Register applies
 | NFPA 72 | National Fire Alarm and Signaling Code | Fire alarm system integration constraints (US context; equivalent codes elsewhere). |
 | EN 54 series | Fire detection and fire alarm systems | European fire alarm equipment standards. |
 | ISO/IEC 27001:2022 | A.5.9, A.8.32 | Asset inventory and change management. |
-| ISO/IEC 27018 / 27701 | Privacy in cloud / privacy information management | Tenant and occupancy data where transferred to cloud or processed at scale. |
+| ISO/IEC 27018:2025 and ISO/IEC 27701:2025 | Privacy in cloud / privacy information management | Tenant and occupancy data where transferred to cloud or processed at scale. |
 | GDPR / UK GDPR / CCPA | Privacy regulation | Where personal data (badge events, identifiable presence) is processed. |
 | Applicable building codes | Jurisdiction-specific | Listing and acceptance constraints on fire and life-safety. |
 

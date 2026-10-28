@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.21\
-**Date:** 2026-10-17\
+**Version:** 1.0.22\
+**Date:** 2026-10-27\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -50,7 +50,7 @@ It is aligned with ISO/IEC 27036-4:2016, COBIT 2019 APO10.05, CSA CCM v4.1 STA-1
 
 | Audit Type | Objective | Frequency |
 | --- | --- | --- |
-| Tier 1 Critical Suppliers | Verify compliance with ISO/IEC 27036, BASC, data privacy obligations, and AI governance controls. | Semi-annual. |
+| Tier 1 Critical Suppliers | Verify compliance with ISO/IEC 27036-2:2022, BASC, data privacy obligations, and AI governance controls. | Semi-annual. |
 | Tier 2 High-Risk Suppliers | Assess cybersecurity posture, continuity readiness, and contractual performance. | Annual. |
 | Tier 3 Moderate Suppliers | Evaluate service delivery quality and SLA performance. | Biennial. |
 | Tier 4 Low-Risk Suppliers | Monitor via third-party attestations or self-assessment questionnaires. | Biennial. |

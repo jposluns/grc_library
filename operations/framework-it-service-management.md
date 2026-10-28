@@ -2,8 +2,8 @@
 
 **Document Title:** IT Service Management Framework\
 **Document Type:** Framework\
-**Version:** 1.2.0\
-**Date:** 2026-10-15\
+**Version:** 1.2.2\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md)\
@@ -38,7 +38,7 @@ Applies to all IT services, infrastructure, applications, cloud environments, an
 | **Service Owners** | Manage end-to-end service delivery, availability, and SLAs. |
 | **Process Owners** | Define and maintain policies, procedures, and metrics for their assigned ITIL processes. |
 | **Change Advisory Board (CAB)** | Reviews and authorizes change requests to mitigate operational risk. |
-| **Internal Audit** | Validates ISO/IEC 20000 compliance and governance effectiveness. |
+| **Internal Audit** | Validates ISO/IEC 20000-1:2018 compliance and governance effectiveness. For claims of conformity involving clauses 4.1 and 4.2, account for ISO/IEC 20000-1:2018/Amd 1:2024 (Climate action changes). |
 
 ---
 

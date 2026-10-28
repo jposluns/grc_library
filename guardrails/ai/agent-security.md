@@ -115,7 +115,7 @@ Exercise the categories above as part of pre-production red-teaming, using an ag
 
 ## Framework alignment
 
-| Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
+| Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF 1.0 |
 | --- | --- | --- | --- | --- |
 | Trust hierarchy | LLM03:2026, LLM09:2026 | AML.T0053 | IAM-04 | Govern 1.4 |
 | Tool validation | LLM03:2026 | AML.T0053 | AIS-02 | Manage 1.3 |

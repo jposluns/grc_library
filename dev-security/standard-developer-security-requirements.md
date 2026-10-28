@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.38\
-**Date:** 2026-10-22\
+**Version:** 1.1.39\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -49,7 +49,7 @@ Before production promotion, the following must be demonstrated:
 9. Privacy Impact Assessment completed where personal data is involved.
 10. Architecture sign-off from CIO or designated security architect for net-new systems.
 
-*CCM: AIS-06 / COBIT: BAI07*
+*CCM: AIS-06 / COBIT 2019: BAI07*
 
 ---
 

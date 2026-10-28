@@ -2,8 +2,8 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.26\
-**Date:** 2026-10-26\
+**Version:** 1.0.28\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -39,7 +39,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | AI System Name | |
 | AI System Register ID | |
 | Risk Tier (EU AI Act) | |
-| Organizational AI risk classification (informed by NIST AI RMF) | |
+| Organizational AI risk classification (informed by NIST AI RMF 1.0) | |
 | Assessment Type | Pre-deployment / Annual review / Post-incident review / Post-modification review |
 | Assessment Date | |
 | Assessed By | |
@@ -51,12 +51,12 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section a: governance and documentation
 
-*Synthesized from: EU AI Act Art. 11, 13; ISO/IEC 42001:2023 §8.4; ISO/IEC 42005:2025 §5.7, §6.3; NIST AI RMF Govern function; Canada Treasury Board Algorithmic Impact Assessment*
+*Synthesized from: EU AI Act Art. 11, 13; ISO/IEC 42001:2023 §8.4; ISO/IEC 42005:2025 §5.7, §6.3; NIST AI RMF 1.0 Govern function; Canada Treasury Board Algorithmic Impact Assessment*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
 | A1 | AI system registered in the AI System Register with complete metadata, including system name, version, deployment context, risk classification, impact level, intended use, and data categories | | | | |
-| A2 | Risk classification documented for both the EU AI Act tier and the organizational AI risk classification (Minimal, Limited, High, Unacceptable; informed by the NIST AI RMF, which prescribes no tier taxonomy), per the EU AI Act scoping in [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) Section 4; classification reviewed and approved by the AIGC | | | | |
+| A2 | Risk classification documented for both the EU AI Act tier and the organizational AI risk classification (Minimal, Limited, High, Unacceptable; informed by the NIST AI RMF 1.0, which prescribes no tier taxonomy), per the EU AI Act scoping in [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) Section 4; classification reviewed and approved by the AIGC | | | | |
 | A3 | Model card completed and current, reflecting the model version in production ([`ai/template-model-card.md`](template-model-card.md)) | | | | |
 | A4 | System card completed and current, reflecting the current deployment context, human oversight design, and known limitations ([`ai/template-system-card.md`](template-system-card.md)) | | | | |
 | A5 | AI system owner (technical accountability) and operational owner (business accountability) designated and documented in the AI System Register | | | | |
@@ -71,7 +71,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section b: data and privacy compliance
 
-*Synthesized from: GDPR Art. 5, 9, 22, 25, 35; EU AI Act Art. 10, 13; ISO/IEC 42001:2023 §8.4; ISO/IEC 27701*
+*Synthesized from: GDPR Art. 5, 9, 22, 25, 35; EU AI Act Art. 10, 13; ISO/IEC 42001:2023 §8.4; ISO/IEC 27701:2025*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
@@ -88,13 +88,13 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section c: security controls
 
-*Synthesized from: OWASP LLM Top 10 (2026); MITRE ATLAS adversarial ML evaluation; EU AI Act Art. 15; NIST AI RMF Measure 2.7; ISO/IEC 42001:2023 §8.3*
+*Synthesized from: OWASP LLM Top 10 (2026); MITRE ATLAS adversarial ML evaluation; EU AI Act Art. 15; NIST AI RMF 1.0 Measure 2.7; ISO/IEC 42001:2023 §8.3*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
 | C1 | Prompt injection attack resistance tested (OWASP LLM01:2026): system has been assessed for direct and indirect prompt injection; findings documented and remediated | | | | |
 | C2 | Training data poisoning controls in place (OWASP LLM05:2026 Data and Model Poisoning): data provenance validated; integrity controls applied; adversarial data injection tested | | | | |
-| C3 | Model inversion and membership inference risks assessed (NIST AI RMF Measure 2.7; not a distinct OWASP LLM Top 10:2026 category but related to LLM02:2026 Sensitive Information Disclosure): risk assessment documented; mitigations implemented where risk is material | | | | |
+| C3 | Model inversion and membership inference risks assessed (NIST AI RMF 1.0 Measure 2.7; not a distinct OWASP LLM Top 10:2026 category but related to LLM02:2026 Sensitive Information Disclosure): risk assessment documented; mitigations implemented where risk is material | | | | |
 | C4 | Output validation implemented before AI outputs are used in downstream decisions or communicated to users: validation logic documented and tested | | | | |
 | C5 | AI system access controls verified: principle of least privilege applied; service accounts are isolated; privileged access is logged and reviewed | | | | |
 | C6 | AI system logs (inputs, outputs, decisions, anomalies) forwarded to the SIEM platform and retained for a minimum of 7 years per the AI decision and detection logs row in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md) | | | | |
@@ -105,7 +105,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section d: operational controls
 
-*Synthesized from: EU AI Act Art. 14, 26; NIST AI RMF Manage function; IEEE 7000-2021; Canada Treasury Board Algorithmic Impact Assessment*
+*Synthesized from: EU AI Act Art. 14, 26; NIST AI RMF 1.0 Manage function; IEEE 7000-2021; Canada Treasury Board Algorithmic Impact Assessment*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
@@ -121,7 +121,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section e: regulatory compliance
 
-*Synthesized from: EU AI Act 2024 (Regulation (EU) 2024/1689); Canada TBS Directive on Automated Decision-Making and ISED Voluntary Code (AIDA lapsed with Bill C-27 at the January 2025 prorogation); UK AI regulation white paper (CP 815) and government response (CP 1019); ISO/IEC 42001:2023; NIST AI RMF Govern function*
+*Synthesized from: EU AI Act 2024 (Regulation (EU) 2024/1689); Canada TBS Directive on Automated Decision-Making and ISED Voluntary Code (AIDA lapsed with Bill C-27 at the January 2025 prorogation); UK AI regulation white paper (CP 815) and government response (CP 1019); ISO/IEC 42001:2023; NIST AI RMF 1.0 Govern function*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|

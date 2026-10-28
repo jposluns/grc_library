@@ -50,7 +50,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, guard_explicit_paths_cwd, resolve_working  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, guard_explicit_paths_cwd, print_degraded, resolve_working  # noqa: E402  # grc-config/store, stays local
 
 
 TARGET_FILES: list[str] = [
@@ -236,6 +236,7 @@ def main() -> int:
 
     expired: list[str] = []
     invalid: list[str] = []
+    degraded: list[str] = []
     scanned = 0
     for rel in targets:
         if not explicit and rel.startswith(".working/"):
@@ -250,6 +251,8 @@ def main() -> int:
             # Absent target: no-op (as a missing in-repo file already did).
             # Post-migration the default sweep history is maintainer-only
             # working state, absent in public CI and adopter clones.
+            if not explicit:
+                degraded.append(rel)
             continue
         text = read_text_safe(path)
         if text is None:
@@ -261,6 +264,14 @@ def main() -> int:
                 invalid.append(f"{path}:L{start_line}: {msg}")
             elif msg is not None:
                 expired.append(f"{path}:L{start_line}: {msg}")
+
+    if degraded:
+        # 3b635: the skip above exits 0, so a green CI run must not read as a pass here.
+        print_degraded(
+            "gate 43",
+            f"gate 43 skipped the follow-up ageing check of {', '.join(degraded)} "
+            f"(no private store supplies it); this pass attests nothing about it."
+        )
 
     if invalid:
         for line in invalid:

@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-10-25\
+**Date:** 2026-10-27\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\

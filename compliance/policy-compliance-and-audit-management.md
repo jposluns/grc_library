@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.30\
-**Date:** 2026-10-17\
+**Version:** 1.0.40\
+**Date:** 2026-10-28\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
@@ -71,7 +71,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ### 4.2 Audit planning and execution
 4.2.1 Annual audit plans must be risk-based, approved by the Audit Committee, and provide risk-prioritized coverage across the domains within the audit scope (the Internal Audit Standard, [`compliance/standard-internal-audit.md`](standard-internal-audit.md)), including trade-compliance audits where the organization's activities warrant them.
-4.2.2 Audit criteria must follow ISO 19011 principles of integrity, independence, evidence-based assessment, and risk orientation.
+4.2.2 Audits must apply the ISO 19011:2026 principles of integrity (4.2), independence (4.6), the evidence-based approach (4.7) and the risk-based approach (4.8).
 4.2.3 Each audit must document objective evidence, findings, severity, and recommendations.
 4.2.4 Audit evidence, process documentation, and system-specific procedures must be retained per the records retention and destruction standard ([`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)) and aligned with the operations domain's IT service management framework ([`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md)) so that testing and assurance activities remain traceable to governance artefacts.
 
@@ -87,7 +87,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ### 4.5 Algorithmic and AI compliance auditing
 4.5.1 AI systems must undergo algorithmic audits for transparency, bias, robustness, and ethical compliance.
-4.5.2 AI audit trails must include datasets, models, parameters, evaluation metrics, and risk classification. These fields are organization-defined; they support the risk recording and reporting described in ISO/IEC 23894:2023 clause 6.7 and the NIST AI RMF.
+4.5.2 AI audit trails must include datasets, models, parameters, evaluation metrics, and risk classification. These fields are organization-defined; they support the risk recording and reporting described in ISO/IEC 23894:2023 clause 6.7 and the NIST AI RMF 1.0.
 4.5.3 Where the cost-benefit profile justifies, automated monitoring may use algorithmic compliance checks and validation scripts integrated with audit workflows; automation is optional, not mandatory.
 
 ### 4.6 Reporting and escalation
@@ -100,7 +100,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 4.7.2 Records must be securely stored in compliance with data protection and evidentiary requirements.
 
 ### 4.8 Continual improvement
-4.8.1 Audit methodologies must be reviewed at least annually (the organization's chosen minimum cadence), informed by ISO 19011:2026 §5.7 (Reviewing and improving the audit programme, which calls for review and improvement without prescribing a frequency) and COBIT MEA01.
+4.8.1 Audit methodologies must be reviewed at least annually (the organization's chosen minimum cadence), informed by ISO 19011:2026 §5.7 (Reviewing and improving the audit programme, which calls for review and improvement without prescribing a frequency) and COBIT 2019 MEA01.
 4.8.2 Lessons learned and regulatory updates must inform training, control enhancement, and risk recalibration.
 4.8.3 Digital trust and algorithmic assurance metrics must be integrated in accordance with COBIT 2019 MEA01.
 
@@ -123,14 +123,14 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ## 6. Compliance mapping table
 
-| Control Area | ISO 37301:2021 | ISO 19011 | COBIT 2019 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
+| Control Area | ISO 37301:2021 | ISO 19011:2026 | COBIT 2019 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
 |---------------|------------|------------|-------------|------|-------|--------------------|--------------------------------|
-| Compliance governance | Clauses 5 to 6 Leadership | Clause 5 Managing an audit programme | EDM01 Ensured Governance Framework Setting and Maintenance | GRC 01 to 03 | NIST CSF Govern | GDPR, PIPEDA | WCO SAFE, ISO 28000:2022, BASC, PIP, CTPAT, AEO. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating this attribution as verified. <!-- ref-absence: ISO 28000:2022 --> |
+| Compliance governance | Clauses 5 to 6 Leadership | Clause 5 Managing an audit programme | EDM01 Ensured Governance Framework Setting and Maintenance | GRC 01 to 03 | NIST CSF 2.0 Govern | GDPR, PIPEDA | WCO SAFE, ISO 28000:2022, BASC, PIP, CTPAT, AEO. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating this attribution as verified. <!-- ref-absence: ISO 28000:2022 --> |
 | Compliance risk and obligations register | Clauses 6 to 7 Planning | N/A | APO12 linkage | GRC 07 | NIST RMF Prepare | Multi-jurisdiction | WCO SAFE equivalence |
 | Audit planning and execution | Clauses 8 to 9 Operation | Clauses 5 to 6 (audit programme; conducting an audit) | MEA04 Managed Assurance | A&A 01 to 04 | NIST SP 800-53 Rev. 5 CA-2 | AI Act, sectoral laws | WCO SAFE equivalence |
 | Findings and CAPA | Clause 10 Improvement | §6.4 audit findings; §6.7 audit follow-up | MEA01.05 Ensure the implementation of corrective actions | A&A 05, A&A 06 | NIST SP 800-53 Rev. 5 CA-5, CA-7 | CAPA regulations | WCO SAFE equivalence |
-| AI audit and algorithmic monitoring | [Adopted in CMS] | [Guidance] | MEA01.03 Collect and process performance and conformance data | AIS 01 to 03 | NIST AI RMF Measure | EU AI Act; Treasury Board Directive (AIDA lapsed) | Not applicable |
-| Reporting and disclosure | Clause 9 Performance evaluation | §6.5 Preparing and distributing the audit report | MEA01.04 Analyze and report performance | GRC 06 | NIST CSF Communicate | All jurisdictions | WCO SAFE equivalence |
+| AI audit and algorithmic monitoring | [Adopted in CMS] | [Guidance] | MEA01.03 Collect and process performance and conformance data | AIS 01 to 03 | NIST AI RMF 1.0 Measure | EU AI Act; Treasury Board Directive (AIDA lapsed) | Not applicable |
+| Reporting and disclosure | Clause 9 Performance evaluation | §6.5 Preparing and distributing the audit report | MEA01.04 Analyze and report performance | GRC 06 | NIST CSF 2.0 GV.OV (Oversight; the closest CSF 2.0 Category, as none is named for audit or compliance reporting) | All jurisdictions | WCO SAFE equivalence |
 | Supplier and trade compliance auditing | Clauses 8 to 9 | Clause 6 Conducting an audit | APO10.05 Monitor vendor performance and compliance | STA 13 | NIST SP 800-161 Rev. 1 SCRM | Trade and customs laws | WCO SAFE equivalence |
 
 

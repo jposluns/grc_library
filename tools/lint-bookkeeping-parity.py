@@ -362,7 +362,7 @@ from collections.abc import Callable
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import SIMPLE_CODE_SPAN_RE, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT, StoreScope, STORE_PR_IDENTITY_RE, changelog_entry_boundary, above_store_ceiling, store_deferral_note, store_history_prs, store_row_prs, dynamic_floor, resolve_working, store_deferral_flags, store_scope  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT, StoreScope, STORE_PR_IDENTITY_RE, changelog_entry_boundary, above_store_ceiling, store_deferral_note, store_history_prs, store_row_prs, dynamic_floor, print_degraded, resolve_working, store_deferral_flags, store_scope  # noqa: E402  # grc-config/store, stays local
 
 
 CHANGELOG_PATH = "CHANGELOG.md"
@@ -1961,6 +1961,11 @@ def main() -> int:
             f"OK: {len(skipped)} check(s) skipped, their input being maintainer-only "
             f"working state not present here ({'; '.join(skipped)}); public CI / "
             f"adopter clone."
+        )
+        print_degraded(
+            "gate 50",
+            f"gate 50 skipped {len(skipped)} check(s) ({'; '.join(skipped)}) "
+            f"(no private store supplies their input); this pass attests nothing about them."
         )
 
     if not all_findings:

@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.1.0\
-**Date:** 2026-10-14\
+**Version:** 1.1.2\
+**Date:** 2026-10-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`governance/standard-delegation-of-authority.md`](standard-delegation-of-authority.md)\
@@ -88,7 +88,7 @@ This register defines the mandatory retention periods for each category of organ
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
-| Internal audit reports | 7 years | Organizational retention floor (compliance evidence); ISO 19011 requires audit information to be retained or disposed of according to the audit programme and applicable requirements but prescribes no fixed period; matches [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md) §8.3 (Evidence retention) canonical 7-year mandate for audit working papers, evidence, draft findings, management responses, and final reports |
+| Internal audit reports | 7 years | Organizational retention floor (compliance evidence); ISO 19011:2026 (6.6) recommends that documented information pertaining to the audit be retained or disposed of as agreed between the participating parties and in accordance with the audit programme and applicable requirements, and prescribes no fixed period; the library's retention period is 7 years; matches [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md) §8.3 (Evidence retention) canonical 7-year mandate for audit working papers, evidence, draft findings, management responses, and final reports |
 | External audit and certification records | Certification period + 5 years | Organizational retention floor spanning the certification lifecycle; ISO/IEC 27001:2022 mandates documented-information retention controls but prescribes no fixed period |
 | Regulatory correspondence | 7 years | Legal and regulatory requirements |
 | Compliance attestations | 5 years | Compliance evidence |

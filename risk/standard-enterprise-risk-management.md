@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.18\
-**Date:** 2026-10-26\
+**Version:** 1.8.19\
+**Date:** 2026-10-27\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -256,7 +256,7 @@ The Risk Owner role's six accountability actions (defined in §3) map to specifi
 | NIST SP 800-39 | Chapters 2 and 3 (multitiered risk-management fundamentals; framing, assessing, responding, monitoring) |
 | NIST IR 8286 (Rev. 1; and 8286A/B/C/D) | Integrating Cybersecurity and Enterprise Risk Management |
 | NIST SP 800-221 / 800-221A | Enterprise Impact of ICT Risk; ICT Risk Outcomes |
-| NIST AI RMF | GOVERN 1.3, 1.4, 1.5, 2.1; MAP 5.1; MEASURE 2.4, 2.9, 2.11; MANAGE 1.2, 1.3, 1.4, 4.1 (risk-management process establishment, roles, impact scoring, production and bias/drift monitoring, AI explainability, treatment prioritization, residual risk) |
+| NIST AI RMF 1.0 | GOVERN 1.3, 1.4, 1.5, 2.1; MAP 5.1; MEASURE 2.4, 2.9, 2.11; MANAGE 1.2, 1.3, 1.4, 4.1 (risk-management process establishment, roles, impact scoring, production and bias/drift monitoring, AI explainability, treatment prioritization, residual risk) |
 | OECD AI Principles | Transparency, robustness, accountability |
 | GDPR | As applicable to EU personal data |
 | PIPEDA (Canada Personal Information Protection and Electronic Documents Act) | As applicable to Canadian personal information |

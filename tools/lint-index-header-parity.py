@@ -132,7 +132,7 @@ TITLE_DIFF_CLASSES = ("deliberate-shortening", "real-drift")
 TITLE_WORKLIST_CLASSES = frozenset({"real-drift"})  # pinned pairs printed as DRIFT work items
 _WHY_DOCTYPE = ("Real drift: 124 of 136 Standard/Procedure index titles retain their "
                 "doctype (71/78 Standards, 53/58 Procedures); this omission is not a family rule.")
-_WHY_JURISDICTION = ("Privacy-family shortening: all 29 jurisdiction annexes drop Regulatory; "
+_WHY_JURISDICTION = ("Privacy-family shortening: all 30 jurisdiction annexes drop Regulatory; "
                      "EU, UK, US and UAE also abbreviate the jurisdiction name.")
 TITLE_DIFF_BASELINE: dict[str, tuple[str, str, str, str]] = {
     "compliance/policy-compliance-and-audit-management.md": (
@@ -267,6 +267,12 @@ TITLE_DIFF_BASELINE: dict[str, tuple[str, str, str, str]] = {
     "privacy/jurisdictions/annex-privacy-colombia.md": (
         "Colombia Privacy Requirements",
         "Colombia Privacy Regulatory Requirements",
+        "deliberate-shortening",
+        _WHY_JURISDICTION,
+    ),
+    "privacy/jurisdictions/annex-privacy-ecuador.md": (
+        "Ecuador Privacy Requirements",
+        "Ecuador Privacy Regulatory Requirements",
         "deliberate-shortening",
         _WHY_JURISDICTION,
     ),

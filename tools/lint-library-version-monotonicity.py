@@ -38,7 +38,8 @@ Exit codes:
         printed note rather than a separate exit code.
     1   one or more versions decreased.
     2   an explicit --prior-readme is missing, empty, not a regular file, or
-        cannot be read (nothing to compare against); or git cannot read the
+        cannot be read (a symlink, which is not followed; nothing to compare
+        against); or git cannot read the
         prior state (a bad ref, an unreadable tree, or a missing or corrupt
         object), which is not the same as a file absent at the prior ref; or
         REPO_ROOT has a .git entry, or GIT_DIR is set, and git does not open
@@ -58,16 +59,59 @@ Exit codes:
         which is not the same as an unborn HEAD, a root commit or no
         origin/main; an absent HEAD branch or origin/main also refuses when
         git for-each-ref fails or warns, even about another ref. Or the
-        current README.md, or a prior file the gate reads, is not valid
-        UTF-8. It reads the prior README.md, and a document's prior copy
-        only when its current copy is UTF-8 and has a version; a current
-        document that is not UTF-8 is skipped, so its prior copy is not read.
+        current README.md, a current document under the walk, or a prior
+        file the gate reads, is not valid UTF-8; or the current README.md
+        or a current document under the walk is not a regular file other
+        than a directory (a FIFO, a socket, a character or block device),
+        which is refused without being read; or the current README.md or a
+        current document under the walk cannot be read (an OSError: a
+        symlink, dangling or not, which is not followed; a directory named
+        *.md; no read permission). Each one is opened once, non-blocking
+        and without following a symlink, its type is read from that
+        descriptor (fstat), and its text is read and decoded from that same
+        descriptor, so a file swapped for a FIFO after the walk listed it
+        is refused, not opened blocking; or there is no current README.md
+        (no entry by that name), since it holds the Library Version; or a
+        directory under the walk cannot be listed (os.scandir fails on it,
+        for example for want of read permission), named by its path, since
+        a document in it would not be compared. Once the prior state is found (or found absent), and
+        before it reads any prior file and before the no-prior pass, the
+        gate reads and decodes the current README.md and every current
+        document under the walk; it names every one that is missing, not a
+        regular file, not UTF-8 or cannot be read, and every directory the
+        walk cannot list, one stderr line each, sorted by path, and exits 2
+        without comparing anything, so in that run a version that decreased
+        and a library FAIL are not reported (3b624). Otherwise it then reads
+        the prior README.md, and a document's prior copy only when its
+        current copy has a version; a prior file that is not UTF-8 is
+        reported by the generic message, unnamed. With --prior-readme, once
+        the supplied file is read, the current README.md is read the same
+        way, and one that is missing, not a regular file, not UTF-8 or
+        cannot be read is named, exit 2; the walk is not run in that mode.
     Remaining: a REPO_ROOT with no .git, with GIT_DIR unset, inside another
     work tree reads that work tree's history, as before, and inside a
     repository git cannot open reads as no repository; with no .git, GIT_DIR
     naming any non-bare repository with no work tree set is read as
     REPO_ROOT's, because git takes REPO_ROOT as its work tree (see
-    find_prior_ref).
+    find_prior_ref). The document walk reads only *.md files, so a non-.md
+    document is not compared; a current document with no version line is
+    not compared, and its prior copy is not read; a document that exists
+    only at the prior ref (a deletion, or the old name of a rename) is not
+    compared; and the walk reads untracked .md files too, so an untracked
+    one that is not UTF-8, not a regular file or cannot be read also
+    refuses. The walk does not descend into a symlinked directory, and it
+    does not list the exempt directories (.git, .claude, references and
+    the rest of DEFAULT_EXEMPT_DIRS), so one of those that cannot be
+    listed does not refuse; an exempt root (.corpus-management) is listed,
+    and a directory under it that cannot be listed refuses. O_NOFOLLOW
+    checks only the last path component, so a directory swapped for a
+    symlink after the walk listed it is still followed; where
+    the platform lacks O_NOFOLLOW or O_NONBLOCK, a symlink is followed or a
+    FIFO's open can block, as before; where it lacks O_NOCTTY, opening a
+    terminal device can still make it the controlling terminal. The
+    --prior-readme file is opened once with the same flags, and its type is
+    read from that descriptor (3b643 r2), so a symlink passed as
+    --prior-readme is refused, not followed.
 """
 
 from __future__ import annotations
@@ -75,6 +119,7 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -132,6 +177,108 @@ def git_show(ref: str, path: str) -> str | None:
         if tree_entry_type(ref, path, repo=REPO_ROOT) != "blob":
             return None
         raise
+
+
+class CurrentDocumentsUnreadable(Exception):
+    """One or more current documents are not valid UTF-8, are not a regular file, or cannot be
+    read (an OSError: a symlink, a directory, no permission), a directory under the
+    walk cannot be listed, or README.md is missing, so versions cannot be read (3b624);
+    ``problems`` holds (path, reason) pairs, and main() names each one and reports exit 2."""
+
+    def __init__(self, problems: list[tuple[str, str]]) -> None:
+        super().__init__(", ".join(rel for rel, _ in problems))
+        self.problems = problems
+
+
+UNREAD = "; its version cannot be read"
+
+SPECIAL_FILES = ((stat.S_ISFIFO, "a FIFO"), (stat.S_ISSOCK, "a socket"),
+                 (stat.S_ISCHR, "a character device"), (stat.S_ISBLK, "a block device"))
+
+OPEN_FLAGS = (os.O_RDONLY | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_NOFOLLOW", 0)
+              | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOCTTY", 0))
+
+
+def read_current(path: Path, rel: str, problems: list[tuple[str, str]]) -> str | None:
+    """Return the decoded text of the current file ``path``, or None after appending
+    (``rel``, reason) to ``problems`` when it is not UTF-8, is not a regular file, or cannot
+    be read (3b624).
+
+    ``path`` is opened once with OPEN_FLAGS, and its type and text both come from that
+    descriptor (r5). r4 stat'ed the path and then opened it again by name, so a file swapped
+    for a FIFO between the two calls was opened blocking and the gate hung. O_NONBLOCK makes
+    opening a FIFO return at once; fstat then refuses anything but a regular file or a
+    directory (a FIFO, a device) without reading it. Opening a Unix socket fails (ENXIO), so
+    a socket never reaches fstat and is refused as an open error. O_NOFOLLOW makes a symlink,
+    dangling or not, fail the open (ELOOP), so it is refused as an open error, the way round 3
+    refused a dangling one. A directory falls through to the read, which refuses it as round 3
+    did (IsADirectoryError). O_NOCTTY keeps a terminal device named *.md from becoming the
+    controlling terminal of a gate run as a session leader with none; fstat then refuses it as a
+    character device (3b643). The text is decoded as read_text() decoded it (UTF-8, universal
+    newlines)."""
+    try:
+        fd = os.open(path, OPEN_FLAGS)
+    except OSError as exc:
+        problems.append((rel, f"cannot be read ({type(exc).__name__}){UNREAD}"))
+        return None
+    try:
+        mode = os.fstat(fd).st_mode
+        if not stat.S_ISREG(mode) and not stat.S_ISDIR(mode):
+            kind = next((name for test, name in SPECIAL_FILES if test(mode)), "a special file")
+            problems.append((rel, f"is not a regular file ({kind}), so it is not read{UNREAD}"))
+            return None
+        with open(fd, encoding="utf-8", closefd=False) as handle:
+            return handle.read()
+    except UnicodeDecodeError:
+        problems.append((rel, f"is not valid UTF-8{UNREAD}"))
+    except OSError as exc:
+        problems.append((rel, f"cannot be read ({type(exc).__name__}){UNREAD}"))
+    finally:
+        os.close(fd)
+    return None
+
+
+def read_prior_readme(path: Path) -> str | None:
+    """Return the decoded --prior-readme file ``path``, or None when there is no entry by that
+    name or it is not a regular file; another OSError or a UnicodeDecodeError propagates.
+
+    ``path`` is opened once with OPEN_FLAGS, as read_current opens a document, and fstat on that
+    descriptor refuses anything but a regular file without reading it (3b643 r2). It used to be
+    checked with is_file() and then opened again by read_text(), without O_NOCTTY, so a path
+    swapped for a terminal device between the two calls was opened without it. O_NOFOLLOW makes
+    a symlink fail the open (ELOOP), so it is refused as an open error; is_file() followed it."""
+    try:
+        fd = os.open(path, OPEN_FLAGS)
+    except FileNotFoundError:
+        return None
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            return None
+        with open(fd, encoding="utf-8", closefd=False) as handle:
+            return handle.read()
+    finally:
+        os.close(fd)
+
+
+def read_current_readme(problems: list[tuple[str, str]]) -> str | None:
+    """Return the decoded current README.md, or None after appending a problem (3b624 r4).
+
+    README.md holds the Library Version this gate compares, so a missing one is named like one
+    that cannot be read, in every mode (with a prior state, on a root commit, and under
+    --prior-readme); it used to raise FileNotFoundError later, a traceback with exit 1, or pass
+    unread with no prior state."""
+    readme = REPO_ROOT / "README.md"
+    if not os.path.lexists(readme):
+        problems.append(("README.md", "does not exist; the library version cannot be read"))
+        return None
+    return read_current(readme, "README.md", problems)
+
+
+def report_unreadable(problems: list[tuple[str, str]]) -> int:
+    """Print one stderr line per current document that cannot be read; return exit 2."""
+    for rel, reason in problems:
+        print(f"ERROR: {rel} {reason}, so monotonicity is unchecked.", file=sys.stderr)
+    return 2
 
 
 class GitStateUnreadable(Exception):
@@ -294,10 +441,12 @@ def find_prior_ref() -> str | None:
     return None
 
 
-def check_library_version(prior_ref: str) -> tuple[bool, str]:
-    """Return (ok, message). ok=True if current >= prior."""
-    current_path = REPO_ROOT / "README.md"
-    current = parse_calver(current_path.read_text(encoding="utf-8"))
+def check_library_version(prior_ref: str, current_text: str) -> tuple[bool, str]:
+    """Return (ok, message). ok=True if current >= prior.
+
+    ``current_text`` is the current README.md as read_current_documents() decoded it, so the
+    file is not read a second time."""
+    current = parse_calver(current_text)
     prior_text = git_show(prior_ref, "README.md")
     prior = parse_calver(prior_text) if prior_text else None
     if current is None:
@@ -313,27 +462,94 @@ def check_library_version(prior_ref: str) -> tuple[bool, str]:
     return (True, f"current {'.'.join(map(str, current))} >= prior {'.'.join(map(str, prior))}")
 
 
-def check_document_versions(prior_ref: str) -> list[tuple[str, str]]:
-    """Return list of (path, message) for documents whose version decreased."""
-    findings: list[tuple[str, str]] = []
-    # Walk markdown files in artefact domains; skip non-artefact directories.
+def walk_current_documents(problems: list[tuple[str, str]]) -> list[tuple[Path, str]]:
+    """Return (path, rel) for every current document under the walk, without reading any.
+
+    The walk lists every entry named *.md under REPO_ROOT, of any type, and does not descend
+    into a symlinked directory: the set Path.rglob("*.md") yields. It used rglob, which drops
+    a directory it cannot list without a word, so a document in one was never compared and the
+    gate printed OK (3b624 r4). os.walk reports that failure to ``onerror``, which appends the
+    directory to ``problems``. The exempt directories are pruned by name, so one of them that
+    cannot be listed is not reported; every path the walk yields is still filtered as before."""
     skip_dirs = DEFAULT_EXEMPT_DIRS
-    for path in REPO_ROOT.rglob("*.md"):
-        if is_default_exempt_root(path, repo_root=REPO_ROOT):
-            continue
-        if any(part in skip_dirs for part in path.parts):
-            continue
-        rel = path.relative_to(REPO_ROOT).as_posix()
-        # Skip README.md (covered by library version check above).
-        if rel == "README.md":
-            continue
-        # Skip CHANGELOG (no Version metadata field).
-        if rel == "CHANGELOG.md":
-            continue
+
+    def unlisted(exc: OSError) -> None:
+        where = Path(os.fsdecode(exc.filename)) if exc.filename is not None else REPO_ROOT
+        if any(part in skip_dirs for part in where.parts):
+            return
         try:
-            current_text = path.read_text(encoding="utf-8")
-        except UnicodeDecodeError:
-            continue
+            rel = where.relative_to(REPO_ROOT).as_posix()
+        except ValueError:
+            rel = str(where)
+        problems.append((rel, f"is a directory that cannot be listed ({type(exc).__name__}); "
+                              f"the versions of the documents in it cannot be read"))
+
+    found: list[tuple[Path, str]] = []
+    # Walk markdown files in artefact domains; skip non-artefact directories.
+    for dirpath, dirnames, filenames in os.walk(REPO_ROOT, onerror=unlisted):
+        names = [*dirnames, *filenames]
+        dirnames[:] = [name for name in dirnames if name not in skip_dirs]
+        for name in names:
+            if not name.endswith(".md"):
+                continue
+            path = Path(dirpath) / name
+            if is_default_exempt_root(path, repo_root=REPO_ROOT):
+                continue
+            if any(part in skip_dirs for part in path.parts):
+                continue
+            rel = path.relative_to(REPO_ROOT).as_posix()
+            # Skip README.md (covered by library version check above).
+            if rel == "README.md":
+                continue
+            # Skip CHANGELOG (no Version metadata field).
+            if rel == "CHANGELOG.md":
+                continue
+            found.append((path, rel))
+    return found
+
+
+def read_current_documents(
+        require_readme: bool = False) -> tuple[str | None, list[tuple[str, str]]]:
+    """Read and decode the current README.md and every current document under the walk;
+    return the README.md text and the documents' (path, text) pairs.
+
+    Every document is decoded before any prior blob is read, so a document that is not valid
+    UTF-8 or cannot be read is named even when a prior read would fail. The current README.md,
+    which the walk skips, is decoded here too: when ``require_readme`` is set (main() sets it)
+    a missing one is a problem, otherwise it is read only when there is an entry by that name
+    and its text is None when there is not. The walk yields every entry named *.md, so a
+    symlink or a directory is opened and refused, not skipped: the walk never skipped one (its
+    read raised), and git can hold a document at that path in the prior state; a FIFO or a
+    device is opened without blocking and refused without being read, each from the one
+    descriptor read_current() opens, and a socket, which cannot be opened (ENXIO), is
+    refused as an open error. If any is not UTF-8, is not a
+    regular file or cannot be read, or a directory under the walk cannot be listed, this
+    raises CurrentDocumentsUnreadable naming every one (3b624)."""
+    documents: list[tuple[str, str]] = []
+    problems: list[tuple[str, str]] = []
+    readme_text = None
+    if require_readme or os.path.lexists(REPO_ROOT / "README.md"):
+        readme_text = read_current_readme(problems)
+    for path, rel in walk_current_documents(problems):
+        text = read_current(path, rel, problems)
+        if text is not None:
+            documents.append((rel, text))
+    if problems:
+        raise CurrentDocumentsUnreadable(sorted(problems))
+    return readme_text, documents
+
+
+def check_document_versions(prior_ref: str,
+                            documents: list[tuple[str, str]] | None = None) -> list[tuple[str, str]]:
+    """Return list of (path, message) for documents whose version decreased.
+
+    ``documents`` is read_current_documents()'s list of documents; when omitted it is read
+    here, so a current document that is not UTF-8 or cannot be read raises
+    CurrentDocumentsUnreadable before any prior read."""
+    findings: list[tuple[str, str]] = []
+    if documents is None:
+        documents = read_current_documents()[1]
+    for rel, current_text in documents:
         current = parse_semver(current_text)
         if current is None:
             continue
@@ -354,14 +570,14 @@ def check_document_versions(prior_ref: str) -> list[tuple[str, str]]:
     return findings
 
 
-def check_library_version_against_text(prior_text: str) -> tuple[bool, str]:
+def check_library_version_against_text(prior_text: str, current_text: str) -> tuple[bool, str]:
     """Variant of check_library_version that takes prior README text directly.
 
     Used by the ``--prior-readme`` mode to exercise the version-comparison
-    logic without invoking git.
+    logic without invoking git. ``current_text`` is the current README.md as
+    read_current_readme() decoded it.
     """
-    current_path = REPO_ROOT / "README.md"
-    current = parse_calver(current_path.read_text(encoding="utf-8"))
+    current = parse_calver(current_text)
     prior = parse_calver(prior_text)
     if current is None:
         return (False, "Library Version not found in current README.md")
@@ -391,18 +607,27 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.prior_readme is not None:
         # 3b50b2d2: a missing, empty or non-file --prior-readme used to raise a traceback.
-        if not str(args.prior_readme).strip() or str(args.prior_readme) == "." \
-                or not args.prior_readme.is_file():
+        # 3b643 r2: it is opened once, with O_NOCTTY, and its type read from that descriptor.
+        prior_text = None
+        if str(args.prior_readme).strip() and str(args.prior_readme) != ".":
+            try:
+                prior_text = read_prior_readme(args.prior_readme)
+            except (OSError, UnicodeDecodeError) as exc:
+                print(f"ERROR: --prior-readme {args.prior_readme}: cannot be read ({exc}).",
+                      file=sys.stderr)
+                return 2
+        if prior_text is None:
             print(f"ERROR: --prior-readme {args.prior_readme}: not a regular file; nothing to "
                   f"compare against.", file=sys.stderr)
             return 2
-        try:
-            prior_text = args.prior_readme.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError) as exc:
-            print(f"ERROR: --prior-readme {args.prior_readme}: cannot be read ({exc}).",
-                  file=sys.stderr)
-            return 2
-        lib_ok, lib_msg = check_library_version_against_text(prior_text)
+        # 3b624 r3: the current README.md is decoded as in read_current_documents, so one that
+        # is not UTF-8 or cannot be read is named with exit 2, not a traceback; r4: a missing
+        # one too.
+        problems: list[tuple[str, str]] = []
+        current_text = read_current_readme(problems)
+        if problems or current_text is None:
+            return report_unreadable(problems)
+        lib_ok, lib_msg = check_library_version_against_text(prior_text, current_text)
         if lib_ok:
             print(f"OK: library version is monotonic non-decreasing (vs supplied prior).")
             print(f"  Library: {lib_msg}")
@@ -416,18 +641,26 @@ def main(argv: list[str] | None = None) -> int:
         print(f"ERROR: {exc}. That is a git read failure, not no repository, an unborn HEAD, a "
               f"root commit or no origin/main, so monotonicity is unchecked.", file=sys.stderr)
         return 2
+    # 3b624: every current document is decoded before any prior read and before the no-prior
+    # return, so each one that is not UTF-8 or cannot be read is named, on a root commit too;
+    # r4: so is a missing README.md and a directory the walk cannot list.
+    try:
+        readme_text, documents = read_current_documents(require_readme=True)
+    except CurrentDocumentsUnreadable as exc:
+        return report_unreadable(exc.problems)
+    assert readme_text is not None  # require_readme: a missing README.md raised above
     if prior_ref is None:
         print("OK: no prior committed state available; monotonicity not checked.")
         return 0
     try:
-        lib_ok, lib_msg = check_library_version(prior_ref)
-        doc_findings = check_document_versions(prior_ref)
+        lib_ok, lib_msg = check_library_version(prior_ref, readme_text)
+        doc_findings = check_document_versions(prior_ref, documents)
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: cannot read the prior state at {prior_ref} ({exc}); a git read failure is "
               f"not an absent prior version, so monotonicity is unchecked.", file=sys.stderr)
         return 2
     except UnicodeDecodeError as exc:
-        print(f"ERROR: README.md or a file at {prior_ref} is not valid UTF-8 ({exc}); its "
+        print(f"ERROR: a file at {prior_ref} is not valid UTF-8 ({exc}); its "
               f"version cannot be read, so monotonicity is unchecked.", file=sys.stderr)
         return 2
     if lib_ok and not doc_findings:

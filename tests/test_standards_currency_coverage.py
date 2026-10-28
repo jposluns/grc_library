@@ -618,6 +618,49 @@ class CitationCoverageTests(unittest.TestCase):
             [("nist sp 1900 series", ""), ("nist sp 1800 series", ""), ("nist sp 800-53", "")],
         )
 
+    # 3b652: an allowlisted parenthesised programme name and its version is the version of
+    # the citation that name maps to; any other name is read as before 3b652.
+    SSDF = (
+        REGISTER + "| NIST SP 800-218 | 1.1 | 2022-02 | SSDF | 1.0 |\n"
+        "| NIST CSF | 2.0 | 2024 | CSF | 1.1 |\n"
+    )
+
+    def test_nist_parenthesised_programme_version(self):
+        for text in (
+            "| NIST SP 800-218 (SSDF 1.1) | PO.1, PW.4 | Secure development |",
+            "NIST SP 800-218 (SSDF 1.1)", "NIST SP 800-218 ( SSDF v1.1 )",
+        ):
+            self.assertEqual(self.kinds(text, self.SSDF), [], text)
+        self.assertEqual(self.identities("NIST SP 800-218 (SSDF 1.1)"), [("nist sp 800-218", "1.1")])
+        self.assertEqual(self.kinds("NIST SP 800-218 (SSDF 1.0)", self.SSDF), ["STALE"])
+        self.assertEqual(E.PROGRAMME_VERSIONS, {"SSDF": "nist sp 800-218"})
+
+    def test_nist_parenthesised_name_not_allowlisted_reads_as_before(self):
+        # VPR3B652-R1 (claude, codex): another programme's version, a control, section or
+        # table number, a year-like token, or SSDF after an identity it does not name.
+        for cited, kind, names in (
+            ("NIST CSF", "UNPINNED", (
+                "ISO 2.0", "CMMC 2.0", "PCI 4.0.1", "AC 2.1", "SECTION 3.2",
+                "TABLE 3.1", "SSDF 1.1",
+            )),
+            ("NIST SP 800-218", "UNPINNED", (
+                "CMMC 2.0", "PCI 4.0.1", "AC 2.1", "SECTION 3.2", "TABLE 3.1",
+                "SSDF 2022.02", "SSDF", "SSDF PW.4", "SSDF 1.1 draft", "ssdf 1.1",
+                "SSDF 1", "Secure Software 1.1",
+            )),
+            ("NIST SP 800-218A", "UNREGISTERED", ("SSDF 1.1",)),
+            ("NIST SP 800-53", "UNREGISTERED", ("SSDF 1.1",)),
+        ):
+            for name in names:
+                text = "%s (%s)" % (cited, name)
+                self.assertEqual(self.identities(text), [(cited.casefold(), "")], text)
+                self.assertEqual(self.kinds(text, self.SSDF), [kind], text)
+        text = "NIST SP 800-218 (SLSA 1.0)"
+        self.assertEqual(self.identities(text), [("nist sp 800-218", ""), ("slsa", "1.0")])
+        self.assertEqual(self.kinds(text, self.SSDF), ["UNPINNED"])
+        self.assertEqual(self.identities("NIST SP 800-218 (FIPS 140-3)")[0], ("nist sp 800-218", ""))
+        self.assertEqual(self.identities("ISO/IEC 27001 (ISMS 2.0)"), [("iso/iec 27001", "")])
+
 
 # 3b75: the sanctioned historical-context form (policy register + engine binding).
 HREG = (

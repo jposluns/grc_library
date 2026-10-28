@@ -48,11 +48,157 @@ The probe prints the binary SHA-256 and the result for each byte fixture.
 
 ## Running
 
+The complete regression command (audit-programme gate 36) is:
+
+```
+python3 tools/run-linter-regression.py
+```
+
+It discovers and runs every top-level `tests/test_*.py` module in one
+`unittest` invocation. It refuses (exit 2, naming the offender) each
+of the following, never softening one to green:
+
+- a run list that does not match an independent `os.walk` enumeration
+  of `tests/` (checked once in the parent and again by the child
+  driver against its own argv, so a filter on either side cannot drop
+  a module);
+- a test file nested in a `tests/` subdirectory, a `test_*/`
+  package directory, a symlinked subdirectory, or a subdirectory the
+  walk cannot inspect (all of which could hide test files);
+- finding no `tests/test_*.py` files at all;
+- a module that cannot be imported (any `BaseException`, so an
+  import-time `SystemExit(0)` cannot pass as green);
+- a module that contributes zero test cases;
+- a module with no credited start, on a run unittest reports green,
+  refused as `tests/X.py: N loaded, 0 credited starts`. This
+  per-module rule is separate from the sentinel's `notStarted` count
+  below. A credited start is a test from this module's loaded suite
+  that reached `startTest` outside a skip-decorated class: a started
+  test is credited to the handed module whose suite, as
+  `unittest.main` loads it (one suite per module, in argv order),
+  contains it, whatever the test's type. The gate checks that each
+  module's suite starts something, not who wrote the test's code.
+  A test that a `SkipTest`
+  raised in `setUpModule` or `setUpClass` kept from `startTest` is not
+  a credited start, and neither is a test whose class is skipped by a
+  class decorator (`unittest.skip`, or `skipIf`/`skipUnless` whose
+  condition skips), although unittest calls `startTest` for that test
+  before it reads the class flag. So a module whose every loaded test
+  is skipped at class level, by either means, is refused. The refusal
+  states the loaded count and that no start was credited, not a
+  cause. A run unittest reports as failed (including an error, not a
+  skip, raised by `setUpModule` or `setUpClass`) is not turned into
+  this refusal: it keeps unittest's failure report and exit 1.
+  Accepted residuals: a module that only imports and loads another
+  module's `TestCase` classes earns credit for their started tests
+  (borrowing; no current module does this; the gate checks that each
+  module's suite starts something, not who wrote it); a test skipped
+  individually (a skip decorator on the test method, or
+  `self.skipTest` inside the test or its `setUp`) is a credited
+  start, so a module whose every test is skipped individually is not
+  refused; the pairing check compares
+  case counts per suite, not case identity, so a second load that
+  returns different cases in the same number passes it, and its cases
+  are credited as `unittest.main` loaded them; a start is matched to
+  the next pending occurrence in unittest's run order, so a test that
+  itself starts another loaded case object (outside the suite's own
+  iteration) can move the match (test code controlling the run is the
+  in-process residual below); a suite that reorders, drops or
+  substitutes cases, in its own `run` or its `__iter__`, and a test
+  object that is not a suite but runs inner cases, are outside what
+  the gate can account for, because crediting and the `setUpClass`
+  skip reconciliation both assume a suite runs its cases in its
+  flattened order (observed effects: a module whose reordering suite
+  holds a `setUpClass`-skipped class can be falsely refused, and a
+  dropping suite can produce a false pass without a shared case
+  object; no current module uses such a suite or test object); and
+  test code can forge the result in-process (the `__main__.nonce`
+  residual below);
+- a load whose started tests cannot be paired with the handed
+  modules: `unittest.main` must load exactly one suite per handed
+  module, each with the case count the driver's own load found for
+  that module (a `load_tests` that returns a different case count on
+  a second load fails this; one that returns different cases in the
+  same number does not, see the residuals above), so started tests
+  are never credited by guesswork; the refusal names the mismatch;
+- a test case object in the loaded suites of more than one module
+  (for example a helper's module-level case loaded by two modules),
+  refused before the run, naming the modules: its starts cannot be
+  credited to one module;
+- a green child exit whose output lacks unittest's own `Ran N tests`
+  line with N at least 1; and
+- a green child exit whose LAST stderr line is not the child driver's
+  completion sentinel: a per-run nonce from the parent plus
+  `testsRun`, `notStarted` (loaded tests a `SkipTest` raised in
+  `setUpClass` kept from starting, counted from the loaded suite:
+  unittest runs `setUpClass` once per run of consecutive cases of the
+  same class object, so each such run of never-started occurrences
+  since the previous matched start takes one skip record of its class
+  arrived in that stretch and counts each of its occurrences once, two
+  classes sharing a module and qualname are two runs, and one skip
+  record never covers two runs; one run contributes at most one
+  counted record: a class cleanup's `SkipTest` after a skipped
+  `setUpClass` is recorded under the same `setUpClass` name, and such
+  further records of one run, told apart from a later run's by
+  arriving back to back (no start and no other skip record in between)
+  with the same holder and the same `_previousTestClass` on the
+  result, are discarded, not credited to a later run; the grouping of
+  records into runs depends on unittest's private `_previousTestClass`
+  attribute and its set-up order (set to a run's class only after that
+  class's set-up; read in CPython 3.14 and 3.11 `suite.py`), which
+  unittest does not document, so a change there could misgroup records
+  (an accepted residual); when the result object has no
+  `_previousTestClass` attribute at all as a `setUpClass` skip record
+  arrives, the run is refused (exit 2, naming `_previousTestClass` and
+  the Python version), never grouped by a default (`None`, its value
+  before the first test, is an answer); so a green run
+  with such a skip in a module that otherwise started a test is not
+  refused; it does not count tests of a skip-decorated
+  class, which reach `startTest`, nor tests a `SkipTest` in
+  `setUpModule` kept from starting, which therefore fail this
+  reconciliation), the per-module test counts (naming exactly the
+  handed modules, each at least 1, with `testsRun` plus `notStarted`
+  summing to their total and `testsRun` at least 1) and
+  `wasSuccessful=True`. Completion is established from the executed
+  suite's own result, so a premature `SystemExit` from `load_tests`,
+  `setUpClass` or `setUpModule`, or a stray summary line written by a
+  grandchild that inherits stderr, is refused.
+
+The nonce travels over the child's stdin (the parent writes it to a
+pipe; the driver consumes it and rebinds its stdin to `/dev/null`,
+closing the pipe, before importing any test module), never on argv and
+never in the environment, so it never appears in `sys.argv`,
+`os.environ` or `/proc/<pid>/cmdline`. What the nonce and sentinel
+defend against: accidental early exits (a premature `SystemExit`
+before the sentinel), grandchild or stray output standing in for the
+summary or the sentinel, dropped modules, and zero-test modules (a
+module hollowed to zero tests). What they do NOT defend against: test
+code in the child process that deliberately reads the driver's state.
+The driver is a `python -c` script, so the nonce is a module-level
+global of `__main__`; one line of test code (`import __main__`)
+recovers it and can forge a complete sentinel. This is a documented
+accepted residual, pinned by
+`test_main_accepts_main_nonce_forgery_residual` in
+`tests/test_regression_gate.py`, so a change that closes the channel
+must update that test and this paragraph together. They also do not
+defend against a partially hollowed module (a `load_tests` that
+returns some but not all of a module's tests), because the loaded
+suite is the gate's only ground truth. Such code can equally
+monkeypatch `unittest` or the driver's globals; no in-process scheme
+is proof against deliberately adversarial in-process code.
+
+A single module can still be run directly, for example:
+
 ```
 python3 -m unittest tests.test_linters -v
 ```
 
-or via the audit programme:
+but this direct command has a narrower scope: it runs only that one
+module and misses the other `tests/test_*.py` modules the gate runs
+(session facts, standards currency, release delta and the
+regression-gate guards).
+
+The whole audit programme runs with:
 
 ```
 tools/run_all_audits.sh
@@ -97,10 +243,57 @@ named per-run directories, plus one remaining fixed-name
 positive-control file (`NarrativeScanScopeTests`, removed by its own
 test's `finally`).
 
-Linters themselves do NOT exempt `tests/tmp/` (it is not in
-`tools/lint_common.py`'s `DEFAULT_EXEMPT_DIRS`). If a fixture from a
-crashed test remains in the directory, the main
-`tools/run_all_audits.sh` sweep sees it and can trip a content gate.
+`tools/lint_common.py`'s shared `iter_targets` walk (and its
+`iter_markdown_targets` wrapper) has 22 callers in `tools/`. Its
+`skip_test_scratch` switch is off by default, and only four gates turn
+it on (3b653): gate 48 (`tools/lint-ccm-aicm-citations.py`), gate 61
+(`tools/lint-cobit-iso31000-citations.py`), gate 73
+(`tools/lint-cobit-title-text.py`) and gate 79
+(`tools/lint-ssdf-control-ids.py`). Each walks the repository root by
+default and prunes the root `tests/tmp/` tree from that walk, so the
+walk never lists or enters it. The prune does not apply when the walk
+starts inside `tests/tmp/`, and an explicit path under it is still
+scanned. A file symlink outside `tests/tmp/` whose target is inside it
+is still listed; the walk does not follow directory symlinks. A file
+one of those four gates lists and then finds gone when it reads it is
+refused by name with exit 2, never a traceback and never skipped. That
+includes gate 48's `register-glossary.md` when it is gone before the
+gate's second read of it.
+
+The other 18 callers do not turn the switch on, and what they scan by
+default depends on their default roots:
+
+- Fourteen walk the repository root, so they scan `tests/tmp/`:
+  `tools/lint-acronym-consistency.py`,
+  `tools/lint-alignment-citation-existence.py`,
+  `tools/lint-ccm-provider-member-in-range.py`,
+  `tools/lint-cross-doc-numbers.py`,
+  `tools/lint-cross-file-section-names.py`,
+  `tools/lint-cross-file-section-refs.py`, `tools/lint-date-format.py`,
+  `tools/lint-external-link-domains.py`,
+  `tools/lint-internal-references.py`, `tools/lint-intra-doc-refs.py`,
+  `tools/lint-license-consistency.py`, `tools/lint-pii-in-content.py`,
+  `tools/lint-secrets-in-content.py` and
+  `tools/lint-section-anchors.py`. The secrets and PII gates keep this
+  source-tree coverage on purpose.
+- Four have narrower default roots that do not include `tests/tmp/`:
+  `tools/lint-document-control-codes.py` and
+  `tools/lint-document-iso-annex-a.py` walk the audited domain
+  directories plus `guardrails/`;
+  `tools/lint-document-date-staleness.py` walks its fixed list of
+  root-level documents, `docs/`, `guardrails/` and the audited domain
+  directories; and `tools/lint-working-prose-hygiene.py` walks the
+  `.working/` tree (the operational store first) and passes without
+  scanning anything when no such tree is present.
+
+`tests/tmp/` is not in `DEFAULT_EXEMPT_DIRS`. So a
+fixture left by a crashed test can trip one of the fourteen root
+walkers in the main `tools/run_all_audits.sh` sweep, and a fixture the
+suite deletes mid-walk can still stop one of them with a
+`FileNotFoundError`. Gates with their own walk are outside this
+switch; one of them, gate 50 (`tools/lint-bookkeeping-parity.py`),
+lists every `.md` file under the repository root and then drops those
+under `tests/tmp/` before reading them.
 Crash residue is deliberately NOT removed by the next run: a sweep
 cannot tell a crashed run's files from a live run's, so an automatic
 sweep could only ever delete fixtures a concurrently running instance

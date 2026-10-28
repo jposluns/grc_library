@@ -162,7 +162,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, dynamic_floor, require_dir, resolve_working, store_deferral_note, store_deferral_flags, store_scope  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, dynamic_floor, print_degraded, require_dir, resolve_working, store_deferral_note, store_deferral_flags, store_scope  # noqa: E402  # grc-config/store, stays local
 
 # Paths of the two surfaces, relative to the repository root.
 ROOT_CHANGELOG_REL = "CHANGELOG.md"
@@ -373,6 +373,12 @@ def main(argv: list[str]) -> int:
                 "OK: the detailed CHANGELOG mirror is not present "
                 "(maintainer-only working state; skipping the header-parity "
                 "audit in public CI / adopter clone)."
+            )
+            print_degraded(
+                "gate 59",
+                "gate 59 skipped the root/detailed-mirror CHANGELOG header-parity "
+                "check (no private store supplies the detailed mirror); this pass attests "
+                "nothing about it."
             )
             return 0
         detailed_mirror = resolved

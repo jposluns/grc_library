@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Table cell-count audit (backlog 3b570).
+"""Table cell-count audit (gate 108, backlog 3b570).
 
 Every GitHub-flavoured Markdown table body row in a tracked ``.md`` file must
 split into as many cells as its header row. A renderer pads a short row with
@@ -8,8 +8,9 @@ mismatch silently loses or shifts content. The recurring cause was a
 ref-absence marker written with its bare-pipe query separator inside a table
 row: the marker's pipe split the cell.
 
-Scope: the files ``git ls-files -z`` lists whose names end in ``.md``, read
-from the working tree. No directory is exempt.
+Scope: the files ``git ls-files -z`` lists whose names, lowercased, end in
+``.md`` (so a name ending in ``.MD`` is scanned too), read from the working
+tree. No directory is exempt.
 
 Decision rule:
 
@@ -42,6 +43,15 @@ Decision rule:
   raw HTML through the end of the file, as the renderer reads it, so no
   table is found after its opening line, and the block is itself a finding
   (below).
+  This fence model deliberately differs from the shared toggle predicate,
+  ``aiqt_corpus.is_fence_line``, that gates 66 and 107 use, which toggles
+  on any fence line, pairing fences by neither character nor width and
+  modelling no container: gate 66 keeps a corpus scan's fence state
+  consistent and gate 107 follows the same toggle model, while this gate
+  must find the tables a renderer shows, so cases such as a four-backtick
+  fence holding a three-backtick line, a backtick fence closed by tildes, a
+  closing line with text after it, or a fence ended by its list item can get
+  opposite verdicts from this gate and from gates 66 and 107.
   A block also ends with its container. Text after a file's last line end
   that holds only spaces and tabs is not a line, as markdown-it-py reads
   it, so it ends no container.
@@ -55,14 +65,26 @@ Decision rule:
   ends an unquoted attribute value at U+0000 to U+0020; and also ends an
   HTML block of type 1 to 5 in a list item at a blank line indented less
   than the content columns of the list items it is in (counted inside the
-  innermost block quote). Neither reading alone checks more lines: a line
-  that one reading starts an HTML block on hides the table after it, which
-  the other reading renders after the line as text, and a line one reading
-  reads as text in a block quote or list item makes the table after it
-  lazy text, which the other renders after the HTML block ends the
-  container. The file is scanned under each reading, and the row findings
-  of both are reported; the unclosed-block findings and the table and row
-  counts are those of the CommonMark reading.
+  innermost block quote); and also ends a paragraph at a lazy line that
+  does not continue two or more of the block quotes the paragraph is in
+  when the line, its indentation stripped, starts a list item, an ATX
+  heading, a fence, a thematic break or an HTML block of type 1 to 6
+  (markdown-it-py gives a lazy line indent -1, so a block quote nested in
+  another reads it at no indent; with one such quote, its paragraph rule
+  skips the line, which stays paragraph text).
+  Both readings take only a space (or a tab) as
+  the separator after a tag name, around an attribute and its ``=``,
+  before ``>`` and to the end of the line; a third reading, markdown-it-py
+  3.0.0's with Python's ``\\s`` there as its HTML block starts take it
+  (also U+000B, U+000C, U+001C to U+001F and Unicode spaces such as
+  U+00A0), is otherwise markdown-it-py's reading. No reading alone checks
+  more lines: a line that one reading starts an HTML block on hides the
+  table after it, which another reading renders after the line as text,
+  and a line one reading reads as text in a block quote or list item makes
+  the table after it lazy text, which another renders after the HTML block
+  ends the container. The file is scanned under each reading, and the row
+  findings of all three are reported; the unclosed-block findings and the
+  table and row counts are those of the CommonMark reading.
 - A row's cells come from splitting on every ``|`` that is not directly
   preceded by a backslash, then dropping one empty leading cell and one
   empty trailing cell, so a row that is only a pipe has no cells. The row
@@ -115,9 +137,11 @@ Exit codes:
 
   0   clean.
   1   one or more findings.
-  2   any input could not be read: the tracked-file listing failed, or a
-      listed ``.md`` file is missing, unreadable or not UTF-8. A refusal never
-      reports a clean verdict.
+  2   any input could not be read or was refused: a refused ``--root``
+      (an empty value, or a path that is not a directory as given or
+      cannot be resolved), the tracked-file listing failed or listed no
+      ``.md`` file, or a listed ``.md`` file is missing, unreadable or not
+      UTF-8. A refusal never reports a clean verdict.
 
 Residue: a row with the right count but content in the wrong column; a wrong
 header (every body row is then flagged instead); non-Markdown surfaces; a
@@ -141,36 +165,32 @@ which markdown-it-py's table rule (trimming with ``str.strip()``) takes as
 the table's end, read as a body row and flagged ``lazy-row`` (a possible
 false positive; GFM's blank-line definition also makes it a row), and
 such whitespace wherever markdown-it-py's HTML block starts take Python's
-``\\s`` (which also matches U+000B, U+000C and U+001C to U+001F): after a
-type-1 or type-6 tag name, and in a type-7 tag before an attribute,
-around its ``=``, before the closing ``>`` or ``/>`` and after the tag to
-the end of the line, open or closing tag alike (such as a no-break space
-after ``<span>``, or in place of the space in ``<span >`` or
-``</span >``), which markdown-it-py accepts as the start of an HTML
-block, not read as one under this gate's markdown-it-py reading, and
-under the CommonMark reading only when it takes the whitespace into an
-unquoted attribute value (as in ``<a href=x``, U+001F, ``>``). The lines
-after such a line are then checked under markdown-it-py's reading (a
-possible false positive), except in a block quote or list item, where
-that reading reads the line as paragraph text and the table lines after
-it as its lazy continuation, so a table that markdown-it-py renders once
-the HTML block and its container end is checked only when the CommonMark
-reading reads the line as a start. Otherwise this fails open (for
-``> <span>`` and a no-break space, then a table, markdown-it-py renders a
-short row this gate passes), and it also fails open when the CommonMark
-reading reads the line as a start but reads the next line as one too,
-where markdown-it-py reads text (for ``1. <a href=x``, U+000B, ``>``,
-then ``<b x=``, U+0001, `` y=z>`` and a table, markdown-it-py renders a
-short row this gate passes), and when such a line, with the whitespace
-in an unquoted attribute value (such as U+000B, U+000C or U+001F),
-follows a tag name that matches only under Unicode case folding, which
-only markdown-it-py's reading starts an HTML block on: neither reading
-then checks a table after the two lines that markdown-it-py renders (for
-``> - <ſcript>`` or ``> - <dıv>``, then ``> <a href=x``, U+001F, ``>``
-and a table, markdown-it-py renders a short row this gate passes;
-follow-up item 3b617 addresses this class); table-shaped lines that one
-reading holds in
-an HTML block, or reads as lazy text, while the other renders them as a
+``\\s``: after a type-1 or type-6 tag name, and in a type-7 tag before an
+attribute, around its ``=``, before the closing ``>`` or ``/>`` and after
+the tag to the end of the line, open or closing tag alike (such as a
+no-break space after ``<span>``, or in place of the space in ``<span >``
+or ``</span >``). markdown-it-py accepts such a line as the start of an
+HTML block; only the third reading reads it so (the CommonMark reading
+also does when it takes the whitespace into an unquoted attribute value,
+as in ``<a href=x``, U+001F, ``>``), and its row findings are reported,
+so a table that markdown-it-py renders after the line once its block
+quote or list item ends the block is checked (for ``> <span>`` and a
+no-break space, then a table; for ``1. <a href=x``, U+000B, ``>``, then
+``<b x=``, U+0001, `` y=z>`` and a table; and, after a tag name that
+matches only under Unicode case folding, for ``> - <ſcript>`` or
+``> - <dıv>``, then ``> <a href=x``, U+001F, ``>`` and a table after the
+quote). Where markdown-it-py's block instead holds the table-shaped lines
+after such a line (at the top level, or inside the same block quote, as
+for ``<span``, U+00A0, ``>`` and a table, or for ``> - <ſcript>``,
+``> <a href=x``, U+001F, ``>`` and a quoted table), the other two
+readings check them (a possible false positive). The subtests of
+``test_html_block_starts_read_with_python_whitespace`` in
+``tests/test_linters.py`` show that the starts named there are caught:
+a tag name that matches only under Unicode case folding (``<ſcript>``,
+``<dıv>`` and ``<ſtyle>``), and U+000B, U+000C, U+001C, U+001E, U+001F,
+U+00A0 or U+2003 where markdown-it-py's HTML block starts take ``\\s``.
+Further residue: table-shaped lines that one reading holds in an HTML
+block, or reads as lazy text, while another renders them as a
 table, checked (a possible false positive for the renderer of the first
 reading: after ``<script>`` spelled with a long s, U+017F, markdown-it-py
 shows a table as raw HTML while this gate checks it); a line in a list item's
@@ -236,9 +256,9 @@ UNESCAPED_PIPE_RE = re.compile(r"(?<!\\)\|")
 # reading, keyed by scan_lines's quirk: CommonMark's ignores ASCII case only in
 # a tag name (re.A: markdown-it-py's Unicode re.I also takes U+017F for "s") and
 # ends an unquoted attribute value at a space, a quote, "=", "<", ">" or a
-# backtick; markdown-it-py's also ends the value at U+0000 to U+0020. Neither
+# backtick; markdown-it-py's also ends the value at U+0000 to U+0020. No
 # reading alone checks more lines: a start one reads as text, in a block quote
-# or list item, makes the lines after it lazy text, so both are scanned.
+# or list item, makes the lines after it lazy text, so all are scanned.
 HTML_BLOCK_TAGS = (
     "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|"
     "details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|"
@@ -248,27 +268,34 @@ HTML_BLOCK_TAGS = (
 )
 
 
-def html_blocks(flags: re.RegexFlag, unquoted: str
+def html_blocks(flags: re.RegexFlag, unquoted: str, space: str = " "
                 ) -> tuple[tuple[re.Pattern[str], re.Pattern[str] | None], ...]:
     """HTML block starts and end conditions whose tag names match under
-    ``flags`` and whose unquoted attribute values are runs of ``unquoted``."""
-    attribute = (r"""(?: +[A-Za-z_:][A-Za-z0-9_.:-]*"""
-                 rf"""(?: *= *(?:{unquoted}+|'[^']*'|"[^"]*"))?)""")
+    ``flags``, whose unquoted attribute values are runs of ``unquoted`` and
+    whose separators after a tag name, between attributes, around ``=`` and
+    before the end of the line are runs of ``space``."""
+    attribute = (rf"""(?:{space}+[A-Za-z_:][A-Za-z0-9_.:-]*"""
+                 rf"""(?:{space}*={space}*(?:{unquoted}+|'[^']*'|"[^"]*"))?)""")
     return (
-        (re.compile(r" {0,3}<(?:script|pre|style|textarea)(?:[ >]|$)", flags),
+        (re.compile(rf" {{0,3}}<(?:script|pre|style|textarea)(?:[{space}>]|$)", flags),
          re.compile(r"</(?:script|pre|style|textarea)>", flags)),
         (re.compile(r" {0,3}<!--"), re.compile(r"-->")),
         (re.compile(r" {0,3}<\?"), re.compile(r"\?>")),
         (re.compile(r" {0,3}<![A-Z]"), re.compile(r">")),
         (re.compile(r" {0,3}<!\[CDATA\["), re.compile(r"\]\]>")),
-        (re.compile(rf" {{0,3}}</?(?:{HTML_BLOCK_TAGS})(?:[ >]|/>|$)", flags), None),
-        (re.compile(rf" {{0,3}}(?:<[A-Za-z][A-Za-z0-9-]*{attribute}* */?>"
-                    r"|</[A-Za-z][A-Za-z0-9-]* *>) *$"), None),
+        (re.compile(rf" {{0,3}}</?(?:{HTML_BLOCK_TAGS})(?:[{space}>]|/>|$)", flags), None),
+        (re.compile(rf" {{0,3}}(?:<[A-Za-z][A-Za-z0-9-]*{attribute}*{space}*/?>"
+                    rf"|</[A-Za-z][A-Za-z0-9-]*{space}*>){space}*$"), None),
     )
 
 
+# The third reading, markdown-it-py's with Python's \s wherever its HTML block
+# starts take it (also U+000B, U+000C, U+001C to U+001F and Unicode spaces such
+# as U+00A0); scan_lines reads it as markdown-it-py's (a true quirk).
+WHITESPACE = 2
 HTML_BLOCKS = {False: html_blocks(re.I | re.A, r"""[^ "'=<>`]"""),
-               True: html_blocks(re.I, r"""[^"'=<>`\x00-\x20]""")}
+               True: html_blocks(re.I, r"""[^"'=<>`\x00-\x20]"""),
+               WHITESPACE: html_blocks(re.I, r"""[^"'=<>`\x00-\x20]""", r"\s")}
 # What ends an HTML block of types 1 to 5, for the unclosed-block hint.
 HTML_CLOSERS = ("</script>, </pre>, </style> or </textarea>", "-->", "?>", ">", "]]>")
 
@@ -342,7 +369,7 @@ def fence_opener(rest: str) -> re.Match[str] | None:
     return None
 
 
-def html_block(rest: str, interrupts: bool, quirk: bool) -> int | None:
+def html_block(rest: str, interrupts: bool, quirk: int) -> int | None:
     """Index into HTML_BLOCKS[quirk] of the HTML block ``rest`` starts; type 7
     cannot interrupt a paragraph."""
     for kind, (start, _end) in enumerate(HTML_BLOCKS[quirk]):
@@ -351,7 +378,7 @@ def html_block(rest: str, interrupts: bool, quirk: bool) -> int | None:
     return None
 
 
-def starts_leaf(rest: str, quirk: bool) -> bool:
+def starts_leaf(rest: str, quirk: int) -> bool:
     """True when ``rest`` starts a block that ends a table body or
     interrupts a paragraph (containers and indented code apart)."""
     return bool(fence_opener(rest) or ATX_RE.match(rest) or THEMATIC_RE.match(rest)
@@ -374,12 +401,13 @@ def header_width(rest: str, following: str | None, stack: list[int]) -> int:
     return width if len(split_cells(delimiter)) == width else 0
 
 
-def scan_lines(lines: list[str], quirk: bool) -> tuple[list[tuple[int, str]], int, int]:
+def scan_lines(lines: list[str], quirk: int) -> tuple[list[tuple[int, str]], int, int]:
     """(findings as (line, text) pairs, tables, body rows) for one file's
-    lines. ``quirk``: markdown-it-py 3.0.0's reading, in which an HTML block of
-    type 1 to 5 in a list item also ends at a blank line indented less than
-    the content columns of the list items inside the innermost block quote,
-    and HTML blocks start and end as HTML_BLOCKS[True] reads them."""
+    lines. ``quirk`` (True or WHITESPACE): markdown-it-py 3.0.0's reading, in
+    which an HTML block of type 1 to 5 in a list item also ends at a blank
+    line indented less than the content columns of the list items inside the
+    innermost block quote, and HTML blocks start and end as
+    HTML_BLOCKS[quirk] reads them."""
     findings: list[tuple[int, str]] = []
     tables = rows = width = 0
     stack: list[int] = []
@@ -446,7 +474,13 @@ def scan_lines(lines: list[str], quirk: bool) -> tuple[list[tuple[int, str]], in
                 tables, leaf = tables + 1, "table"
                 i += 1
                 continue
-            if (not width or quoted_header) and not opened(rest, False) and (
+            # markdown-it-py marks a line lazy in a block quote by giving it
+            # indent -1, so a block quote nested in that one reads it at no
+            # indent: a block start indented four or more columns ends it.
+            unindented = rest.lstrip(" ")
+            nested = (quirk and stack[matched:].count(QUOTE) >= 2
+                      and (opened(unindented, False) or starts_leaf(unindented, quirk)))
+            if (not width or quoted_header) and not opened(rest, False) and not nested and (
                     indent_of(rest) >= 4 or not starts_leaf(rest, quirk)):
                 continue
         if not whole:
@@ -516,8 +550,9 @@ def scan_lines(lines: list[str], quirk: bool) -> tuple[list[tuple[int, str]], in
 
 def scan_text(rel: str, text: str) -> tuple[list[str], int, int]:
     """(findings, tables, body rows) for one file's text: the row findings of
-    both readings, CommonMark's and markdown-it-py's, and the unclosed-block
-    findings and counts of the CommonMark reading."""
+    the three readings, CommonMark's, markdown-it-py's and markdown-it-py's
+    with \\s separators, and the unclosed-block findings and counts of the
+    CommonMark reading."""
     # U+0000 is read as U+FFFD, as CommonMark and markdown-it-py replace it.
     lines = LINE_END_RE.split(text.replace("\0", "\ufffd"))
     if not lines[-1].strip(" \t"):
@@ -525,7 +560,8 @@ def scan_text(rel: str, text: str) -> tuple[list[str], int, int]:
         # end of the file holds its fence to the end, with or without a final LF.
         lines.pop()
     found, tables, rows = scan_lines(lines, False)
-    quirk_rows = [f for f in scan_lines(lines, True)[0] if f[1].startswith("header=")]
+    quirk_rows = [f for quirk in (True, WHITESPACE) for f in scan_lines(lines, quirk)[0]
+                  if f[1].startswith("header=")]
     return [f"{rel}:{line} {what}" for line, what in sorted(set(found + quirk_rows))], tables, rows
 
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.16\
-**Date:** 2026-10-17\
+**Version:** 1.1.17\
+**Date:** 2026-10-27\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -90,7 +90,7 @@ ISO 28000:2022 is not held in the reference base; confirm its requirements again
 | --- | --- | --- |
 | Security Controls | Encryption, access control, incident response, vulnerability management. | ISO/IEC 27001:2022, SOC 2. |
 | Privacy Compliance | Data protection obligations, consent management, cross-border transfer controls. | GDPR, PIPEDA, LGPD, PIPL. |
-| Business Continuity | Recovery capabilities, resilience planning, dependency management. | ISO 22301:2019, COBIT DSS04. |
+| Business Continuity | Recovery capabilities, resilience planning, dependency management. | ISO 22301:2019, COBIT 2019 DSS04. |
 | AI Governance | Model transparency, bias controls, fairness, auditability. | ISO/IEC 42001:2023, CSA AICM. |
 | Trade Security | Supply chain security programme compliance (where the supplier is in scope). | WCO SAFE Framework 2025 edition, ISO 28000:2022; plus sector-specific overlays per [`compliance/`](../compliance/). |
 | Sustainability | Energy management and environmental responsibility. | ISO 50001. |

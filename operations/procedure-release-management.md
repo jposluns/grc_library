@@ -2,8 +2,8 @@
 
 **Document Title:** Release Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.11\
-**Date:** 2026-09-24\
+**Version:** 1.0.13\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md)\
@@ -213,9 +213,9 @@ The release class sets cadence and gates; it does not replace the change class. 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ITIL 4 | Release management; deployment management | Service management |
-| ISO/IEC 20000-1 | §8.5.3 Release and deployment management | Release and deployment management |
+| ISO/IEC 20000-1:2018 | §8.5.3 Release and deployment management | Release and deployment management |
 | ISO/IEC 27001:2022 | A.8.32 Change management | Information security |
-| NIST SP 800-218 | SSDF PS.2.1, PS.3.1, PS.3.2 (artefact signing, release archive, provenance and SBOM); PW.7.2, PW.8.2 (SAST, IaC and DAST gates); RV.1.1, RV.2.2 (dependency scanning and the vulnerability gate) | Secure software development |
+| NIST SP 800-218 Version 1.1 | SSDF PS.2.1, PS.3.1, PS.3.2 (artefact signing, release archive, provenance and SBOM); PW.7.2, PW.8.2 (SAST, IaC and DAST gates); RV.1.1, RV.2.2 (dependency scanning and the vulnerability gate) | Secure software development |
 | OWASP SAMM | Verification, Operations | Software assurance maturity |
 | Google SRE | Progressive rollouts; canary; error-budget gating | Reliability practice |
 | DORA accelerate metrics | Deployment frequency, lead time, change failure rate, MTTR | Performance baseline |

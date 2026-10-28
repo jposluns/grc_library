@@ -119,7 +119,7 @@ Before deploying any MCP server to production, conduct:
 
 ## Framework alignment
 
-| Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
+| Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF 1.0 |
 | --- | --- | --- | --- | --- |
 | Tool authentication | LLM03:2026 | AML.T0053 | IAM-13 | Govern 1.4 |
 | Tool-call injection | LLM01:2026, LLM03:2026 | AML.T0051 | AIS-15, AIS-09 | Measure 2.5 |

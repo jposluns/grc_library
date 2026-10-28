@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.0\
-**Date:** 2026-10-15\
+**Version:** 1.4.2\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/standard-monitoring-integrity-and-coverage.md`](../security/standard-monitoring-integrity-and-coverage.md)\
@@ -24,7 +24,7 @@ This procedure defines the operational processes for ingesting logs, triaging SI
 
 To ensure that security events from all production systems and environments are collected, normalized, correlated, and acted upon in a timely and consistent manner. This procedure operationalizes the control requirements established in the Logging and Monitoring Standard, providing the Security Operations Centre (SOC) with a clear and repeatable workflow from log ingestion through alert closure or escalation to the Incident Response Procedure.
 
-Effective security monitoring reduces mean time to detect (MTTD) threats, ensures that required alert categories are always active, and provides auditable evidence of continuous monitoring for compliance with ISO/IEC 27002:2022, NIST CSF Detect, and CSA CCM LOG/SEF domains.
+Effective security monitoring reduces mean time to detect (MTTD) threats, ensures that required alert categories are always active, and provides auditable evidence of continuous monitoring for compliance with ISO/IEC 27002:2022, NIST CSF 2.0 Detect, and CSA CCM LOG/SEF domains.
 
 ### 1.2 Scope
 
@@ -325,7 +325,7 @@ The following metrics are tracked by the SOC, reported to the CISO monthly, and 
 
 ## 12. Framework alignment
 
-| Control Area | ISO/IEC 27002:2022 | NIST CSF | COBIT 2019 | CSA CCM v4.1 |
+| Control Area | ISO/IEC 27002:2022 | NIST CSF 2.0 | COBIT 2019 | CSA CCM v4.1 |
 | --- | --- | --- | --- | --- |
 | Log ingestion and integrity | §8.15 | Protect: PR.PS-04; Detect: DE.CM-09 | DSS01.03 | LOG-01, LOG-02, LOG-07, LOG-09, LOG-10 |
 | Time synchronization | §8.17 | Detect: DE.CM | DSS01.03 | LOG-06 |

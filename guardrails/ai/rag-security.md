@@ -99,7 +99,7 @@ If the RAG system serves multiple tenants or user groups:
 
 ## Framework alignment
 
-| Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
+| Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF 1.0 |
 | --- | --- | --- | --- | --- |
 | Indirect prompt injection | LLM01:2026 | AML.T0051 | AIS-15, AIS-09 | Measure 2.5 |
 | Sensitive disclosure via retrieval | LLM02:2026 | AML.T0057 | DSP-05 | Measure 2.7 |

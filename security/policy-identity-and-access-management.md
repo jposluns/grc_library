@@ -2,8 +2,8 @@
 
 **Document Title:** Identity and Access Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.29\
-**Date:** 2026-10-15\
+**Version:** 1.3.31\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -106,7 +106,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 
 ### 4.10 Continual improvement
 
-4.10.1 IAM processes must be reviewed annually in conjunction with ISO/IEC 27001:2022 and COBIT DSS05 controls.
+4.10.1 IAM processes must be reviewed annually in conjunction with ISO/IEC 27001:2022 and COBIT 2019 DSS05 controls.
 4.10.2 Emerging technologies such as adaptive authentication, identity federation, and decentralized ID (DID) models must be evaluated for adoption.
 
 ---
@@ -117,9 +117,9 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 | --- | --- | --- | --- | --- | --- |
 | Identity Management | A.5.15 to A.5.18 | §5.16 to 5.17 | SP 800-63 | DSS05.04 | IAM-01 to 09 |
 | Authentication | A.8.5 | §8.5 | SP 800-63B | DSS05.04 | IAM-13 |
-| Privileged Access | A.8.2 | §8.2 | SP 800-53 AC-2, AC-6 | DSS05.04 | IAM-10, IAM-04 |
-| Access Review | A.5.18 | §5.18 | SP 800-53 AC-2 | DSS05.04 | IAM-08 |
-| AI/Automation Access | A.5.16, A.8.3, A.8.5 | 5.16 (identity management); 8.3 (information access restriction); 8.5 (secure authentication) | SP 800-53 IA-4, IA-5, AC-3 | DSS05.04 | IAM-12, IAM-13, IAM-14, IAM-15 |
+| Privileged Access | A.8.2 | §8.2 | SP 800-53 Rev. 5 AC-2, AC-6 | DSS05.04 | IAM-10, IAM-04 |
+| Access Review | A.5.18 | §5.18 | SP 800-53 Rev. 5 AC-2 | DSS05.04 | IAM-08 |
+| AI/Automation Access | A.5.16, A.8.3, A.8.5 | 5.16 (identity management); 8.3 (information access restriction); 8.5 (secure authentication) | SP 800-53 Rev. 5 IA-4, IA-5, AC-3 | DSS05.04 | IAM-12, IAM-13, IAM-14, IAM-15 |
 
 This policy further aligns with ISO/IEC 24760 (A framework for identity management, Parts 1 to 3, 2025) and ISO/IEC 29146:2024 (A framework for access management), the ISO identity-management and access-management framework standards.
 

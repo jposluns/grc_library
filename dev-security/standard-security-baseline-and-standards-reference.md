@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.34\
-**Date:** 2026-10-16\
+**Version:** 1.1.39\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -36,7 +36,7 @@ In the event of conflict, higher layers take precedence.
 | Canada AI governance (Treasury Board Directive on Automated Decision-Making; Voluntary Code of Conduct on Generative AI; AIDA lapsed) | Canada | AI system governance; high-impact AI (AIDA not in force; the Treasury Board Directive on Automated Decision-Making is binding on federal institutions subject to the Policy on Service and Digital) |
 | Criminal Code of Canada (cybercrime provisions) | Canada | Unauthorized access, data destruction |
 | State and provincial breach notification laws | Multiple | Customer and partner data exposure |
-| GDPR (Article 3 extraterritorial scope) | EU | Where EU data subjects are processed |
+| GDPR (Article 3 territorial scope) | EU | Processing in the context of an EU establishment of the controller or processor, wherever the processing takes place (Art. 3(1)); processing of personal data of data subjects who are in the Union by a controller or processor not established there, where it relates to offering them goods or services or monitoring their behaviour within the Union (Art. 3(2)); processing by a controller not established in the Union, in a place where Member State law applies by virtue of public international law (Art. 3(3)) |
 | BASC International Standard | Latin America / Global | Customs and trade security for Latin American operations |
 | WCO SAFE Framework | Global | Customs data integrity and trade security |
 | CTPAT | USA | Cross-border trade security |
@@ -50,7 +50,7 @@ In the event of conflict, higher layers take precedence.
 | COBIT | 2019 | IT governance framework. Process-level traceability for audit and board reporting. |
 | ISO/IEC 27001:2022 | 2022 | Information Security Management System (ISMS). |
 | ISO/IEC 27002:2022 | 2022 | Security controls implementation guidance. |
-| NIST SSDF | SP 800-218 and SP 800-218A (Generative AI Profile) | Secure-by-design development. Mandatory for all net-new development. SP 800-218A applies to all AI and ML workloads. |
+| NIST SSDF | SP 800-218 Version 1.1 and SP 800-218A (Generative AI Profile) | Secure-by-design development. Mandatory for all net-new development. SP 800-218A applies to all AI and ML workloads. |
 | OWASP ASVS | v5.0.0 | Application security testing baseline. |
 
 ### 2.3 Layer 3: internal governance documents
@@ -219,9 +219,9 @@ A runtime EOL tracking register is maintained by the DevOps lead and reviewed qu
 
 ## 12. Framework alignment
 
-| Control Area | ISO/IEC 27001:2022 / ISO/IEC 27002:2022 | CSA CCM v4.1 | NIST SP 800-218 | OWASP ASVS | Regulatory |
+| Control Area | ISO/IEC 27001:2022 / ISO/IEC 27002:2022 | CSA CCM v4.1 | NIST SP 800-218 Version 1.1 | OWASP ASVS | Regulatory |
 | --- | --- | --- | --- | --- | --- |
-| Security governance and principles | A.5 | GRC-01 to 06 | PO.1.1, PO.1.2 | N/A | ISO 37301:2021, COBIT |
+| Security governance and principles | A.5 | GRC-01 to 06 | PO.1.1, PO.1.2 | N/A | ISO 37301:2021, COBIT 2019 |
 | Data classification | A.5.10 to 5.13 | DSP-01 to 07 | N/A | V14 | PIPEDA, Law 25, GDPR |
 | Identity and access | A.5.15 to 5.18 | IAM-01 to 10, IAM-12 to 15 | N/A | V6, V8 | PIPEDA, BASC |
 | Network security | A.8.20 to 8.23 | I&S-03, I&S-09 | N/A | V12 | CTPAT |

@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Lifecycle Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.11\
-**Date:** 2026-10-24\
+**Version:** 1.0.12\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/standard-ai-model-succession-and-identity.md`](standard-ai-model-succession-and-identity.md), [`governance/standard-semantic-continuity-in-migration-and-retirement.md`](../governance/standard-semantic-continuity-in-migration-and-retirement.md)\
@@ -148,7 +148,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 | ISO/IEC 5338:2023 | AI system life cycle processes; §6.4.14 continuous validation | AI system lifecycle process model and automated rollback |
 | OSFI Guideline E-23 (2025, effective 2027) | Model risk management: inventory, review triggers, decommission retention, unavailability contingency | Model-risk lifecycle governance, adopted sector-neutrally |
 | EU AI Act (2024) | Article 9: Risk Management System | Ongoing AI risk management |
-| NIST AI RMF (2023) | GOVERN, MAP, MEASURE, MANAGE functions | End-to-end AI lifecycle |
+| NIST AI RMF 1.0 (2023) | GOVERN, MAP, MEASURE, MANAGE functions | End-to-end AI lifecycle |
 | COBIT 2019 | BAI09: Managed Assets | AI asset lifecycle management |
 
 ---

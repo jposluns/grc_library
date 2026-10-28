@@ -2,8 +2,8 @@
 
 **Document Title:** AI Value and Decision-Governance Framework\
 **Document Type:** Framework\
-**Version:** 0.0.6\
-**Date:** 2026-10-24\
+**Version:** 0.0.8\
+**Date:** 2026-10-27\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-maturity-model.md`](framework-ai-maturity-model.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/standard-ai-inference-cost-governance.md`](standard-ai-inference-cost-governance.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`governance/standard-maturity-assessment-methodology.md`](../governance/standard-maturity-assessment-methodology.md), [`ai/standard-ai-total-cost-of-ownership-governance.md`](standard-ai-total-cost-of-ownership-governance.md)\
@@ -65,7 +65,7 @@ Value from AI is realized only when the AI-enabled capability is embedded in an 
 
 - **A post-implementation value validation** per initiative: a comparison of realized value (attributed and baseline-adjusted per Section 6) against the idea-stage value hypothesis (Section 4). It carries four fixed attributes so that it is an inspectable control rather than an aspiration:
   - **Timing**: conducted once the initiative has operated long enough for value to be observable (a validation window set at the idea stage, and no later than the initiative's first review-frequency cycle), then repeated on the benefit re-forecast cadence (Section 6).
-  - **Owner**: the named accountable owner in the idea-stage decision record (Section 4) owns the validation; production may be delegated, accountability may not.
+  - **Owner**: the named accountable owner in the idea-stage decision record (Section 4) owns the validation; production may be delegated; accountability must not be.
   - **Output artefact**: a written post-implementation validation record stating the realized net value, its attribution and evidence confidence (Section 6), the variance to hypothesis, and a recommendation (continue, re-scope, or retire).
   - **Failure consequence**: where realized value is materially below the hypothesis, or the evidence does not support the claim, the record triggers a governed decision (re-scope, further investment, or retirement) recorded as decision-quality evidence per Section 4, rather than being left as an open shortfall. A missing or overdue validation is itself a governance finding, and the initiative cannot signal the Scaled or Transformation value tier (Section 3) without a current one.
 
@@ -105,7 +105,7 @@ A net-value figure aggregated across several benefit and disbenefit claims can m
 | --- | --- | --- |
 | CMU SEI AI Adoption Maturity Model v1.0 | Five-level adoption ladder (cited by reference) | Corroborates the value-maturity ladder (Section 3) as a governance signal; not reproduced |
 | ISO/IEC 42001:2023 | §5.1, §9.1 | Leadership and value-alignment; performance evaluation of the AI management system |
-| NIST AI RMF (2023) | GOVERN 1.4; MAP 1.4, MAP 3.1, MAP 3.2; MANAGE 1.1, MANAGE 2.2 | Governance of AI value and context; mapping intended business value and expected benefits (Map 1.4, Map 3); sustaining and reviewing the deployed system's realized value against stated objectives (Manage 1.1, 2.2) through attribution, re-forecasting, and post-implementation validation |
+| NIST AI RMF 1.0 (2023) | GOVERN 1.4; MAP 1.4, MAP 3.1, MAP 3.2; MANAGE 1.1, MANAGE 2.2 | Governance of AI value and context; mapping intended business value and expected benefits (Map 1.4, Map 3); sustaining and reviewing the deployed system's realized value against stated objectives (Manage 1.1, 2.2) through attribution, re-forecasting, and post-implementation validation |
 | [`ai/framework-ai-maturity-model.md`](framework-ai-maturity-model.md) | Whole document; floor-check | The process-and-capability maturity view this framework's value view sits beside (distinct axes); its compensating floor-check is adapted here for benefit evidence confidence (Section 6) |
 
 ## Limitations

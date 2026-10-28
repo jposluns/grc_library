@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.47\
-**Date:** 2026-10-21\
+**Version:** 1.6.48\
+**Date:** 2026-10-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -253,7 +253,7 @@ Where the controller elects to charge a reasonable fee (Article 12(5)(a)):
 | Hourly rate | Internal staff: salary-based cost-recovery rate (NOT a punitive markup). External counsel: actual rate charged to the controller |
 | Fee cap | The fee MUST be cost-recovery only; no profit margin |
 | Itemization | Fee communication to the subject MUST itemize the cost categories and time/rate applied |
-| Payment method | The controller may NOT require advance payment that effectively denies the right; payment-on-delivery is acceptable; instalment options should be offered for substantial fees |
+| Payment method | The controller MUST NOT require advance payment that effectively denies the right; payment-on-delivery is acceptable; instalment options should be offered for substantial fees |
 | Waiver | The controller MAY waive the fee in cases of demonstrated financial hardship without prejudice |
 
 The fee schedule should be documented as an internal cost-recovery policy reviewed annually.

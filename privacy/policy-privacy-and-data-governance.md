@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.29\
-**Date:** 2026-10-20\
+**Version:** 1.4.30\
+**Date:** 2026-10-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -140,7 +140,7 @@ This policy defines principles, governance structure, and control framework for 
 
 ## 5. Framework alignment
 
-| Policy Area | ISO/IEC 27701 | COBIT 2019 | CSA CCM v4.1 | CSA AICM v1.1.0 | Regulatory References |
+| Policy Area | ISO/IEC 27701:2025 | COBIT 2019 | CSA CCM v4.1 | CSA AICM v1.1.0 | Regulatory References |
 |---|---|---|---|---|---|
 | Governance and accountability | Clauses 5 to 7 | APO13.01 | GRC-06 | N/A | GDPR Art 5, PIPEDA Sch 1 Principle 1 (Accountability) |
 | Lawful processing and consent | Annex A.1.2.3 to A.1.2.5, A.2.2.2 to A.2.2.5 | DSS05 | DSP-12 | N/A | GDPR, PIPL, LGPD |

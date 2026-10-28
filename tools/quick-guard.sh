@@ -24,7 +24,14 @@ cd "$(dirname "$0")/.." || exit 2
 # a graceful degradation for an iteration aid, and it is announced; the full
 # pre-push-guard.sh (which runs the history-aware gates against the real merge
 # base) is unaffected. Any OTHER git failure exits 2 rather than reading as "no
-# changed files" (3b551).
+# changed files" (3b551). A repository with no commits (an unborn HEAD) refuses
+# too, before origin/main is read: every listing diffs against HEAD or a merge
+# base with it, and rev-parse cannot tell an unborn HEAD from one git cannot read,
+# so it is not treated as having no prior state (3b647). --quiet hides git's own report
+# for some of these failures (for example an unborn HEAD, a garbage or unreadable ref, or
+# a tag naming a missing commit) and not for others (for example dubious ownership, a bad
+# config or a corrupt object), whose report appears above the refusal; either way the
+# guard refuses with exit 2.
 git_failed() {
   echo "quick-guard: ERROR: $1 failed; the changed .md files cannot be listed, so nothing was checked." >&2
   echo "(This is an iteration aid; tools/pre-push-guard.sh is still required before push.)" >&2
@@ -59,6 +66,8 @@ origin_main_absent() {
     [ -d "$loose" ] && [ ! -L "$loose" ] || return 1
   fi
 }
+git rev-parse --verify --quiet 'HEAD^{commit}' >/dev/null ||
+  git_failed "git rev-parse --verify --quiet HEAD^{commit} (HEAD names no commit: a repository with no commits yet, or a HEAD git cannot read)"
 if base="$(git show-ref --verify --hash "$ORIGIN_MAIN" 2>/dev/null)"; then
   MB="$(git merge-base HEAD "$base")" || git_failed "git merge-base HEAD $ORIGIN_MAIN"
 elif ! origin_main_absent; then

@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.36\
-**Date:** 2026-10-26\
+**Version:** 1.2.40\
+**Date:** 2026-10-27\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -130,7 +130,7 @@ The verification process must defend against:
 | **Tier 1: Publisher canonical** | The standard publisher's own canonical domain (see §7 for the allow-list). | The only source that counts as primary verification. |
 | **Tier 2: Authoritative secondary** | National standards bodies republishing publisher catalogue metadata (ANSI, BSI, DIN, AFNOR, SIS, CSA Group, etc.); official government catalogues (FedRAMP marketplace, EUR-Lex for EU regulations, Federal Register for US, gazettes for other jurisdictions). | Corroboration only. Cannot replace Tier 1. |
 | **Tier 3: Industry-credible secondary** | Reputable professional bodies' summary pages, peer-reviewed academic indexes, government regulator pages summarizing third-party standards. | Used only for orientation and triangulation. Not a verification of record. |
-| **Untrusted** | Wikipedia, blogs, security-vendor articles, AI-generated summaries, SEO content farms, social media, forums, lookalike domains. | Never cited as verification. May not contribute confidence. |
+| **Untrusted** | Wikipedia, blogs, security-vendor articles, AI-generated summaries, SEO content farms, social media, forums, lookalike domains. | Never cited as verification. Must not contribute confidence. |
 
 ### 6.2 Publisher-only primary rule
 
@@ -162,7 +162,7 @@ Two constraints govern its use:
 - **The base is believed-current STORAGE, not the version authority.** Confirm a load-bearing version against the upstream `Upstream check location` per §12.3; the local holding records only what was believed current when it was ingested. Consult the `grc_library_ref/INDEX.md` (not a guessed path) for what is held and where.
 - **The source texts are NOT redistributed in this corpus, apart from the short, attributed quotation that [`NOTICE.md`](../NOTICE.md) allows or its transition clause keeps.** Many held texts are proprietary or licence-restricted, and the `grc_library_ref` base is the maintainer's own private reference base; do not copy source text into corpus documents (cite the metadata and the requirement, not the copyrighted body) beyond that quotation.
 
-For the `/matrix-fit` semantic-fit audit, the control-title reference base is the `grc_library_ref` CCM/AICM catalogue CSVs and the NIST CSF OSCAL, plus the COBIT 2019 objective titles and ISO 31000:2018 clause headings encoded in [`tools/cobit_iso31000_reference.py`](../tools/cobit_iso31000_reference.py) (the 2026-07-02 extension), so the cadence is reproducible against held ground truth rather than memory; an ISO/IEC 27001:2022 Annex A title map would extend it once a title-map extract is built (that extract is not yet available, so the ISO column is not yet in the matrix-fit reference base). The same semantic-layer pattern covers normative-value attribution claims via the cadenced `/claim-fit` audit (the `claim-fit` skill over the [`tools/audit-claim-precision.py`](../tools/audit-claim-precision.py) worklist): where this specification's scope sections note that what a standard REQUIRES is outside the mechanical gates' reach, that precision residual is instrumented by the claim-fit cadence rather than uninstrumented. The in-repo validator modules ([`tools/ccm_aicm_reference.py`](../tools/ccm_aicm_reference.py), [`tools/nist_csf_reference.py`](../tools/nist_csf_reference.py), [`tools/iso_27001_reference.py`](../tools/iso_27001_reference.py), [`tools/cobit_iso31000_reference.py`](../tools/cobit_iso31000_reference.py)) that gates 48/49/54/58/61 build on encode the control codes (and, for CCM/AICM, CSF, COBIT, and ISO 31000:2018, their titles or clause headings); the `grc_library_ref` extracts carry the full specification text.
+For the `/matrix-fit` semantic-fit audit, the control-title reference base is the `grc_library_ref` CCM/AICM catalogue CSVs and the NIST CSF 2.0 OSCAL, plus the COBIT 2019 objective titles and ISO 31000:2018 clause headings encoded in [`tools/cobit_iso31000_reference.py`](../tools/cobit_iso31000_reference.py) (the 2026-07-02 extension), so the cadence is reproducible against held ground truth rather than memory; an ISO/IEC 27001:2022 Annex A title map would extend it once a title-map extract is built (that extract is not yet available, so the ISO column is not yet in the matrix-fit reference base). The same semantic-layer pattern covers normative-value attribution claims via the cadenced `/claim-fit` audit (the `claim-fit` skill over the [`tools/audit-claim-precision.py`](../tools/audit-claim-precision.py) worklist): where this specification's scope sections note that what a standard REQUIRES is outside the mechanical gates' reach, that precision residual is instrumented by the claim-fit cadence rather than uninstrumented. The in-repo validator modules ([`tools/ccm_aicm_reference.py`](../tools/ccm_aicm_reference.py), [`tools/nist_csf_reference.py`](../tools/nist_csf_reference.py), [`tools/iso_27001_reference.py`](../tools/iso_27001_reference.py), [`tools/cobit_iso31000_reference.py`](../tools/cobit_iso31000_reference.py)) that gates 48/49/54/58/61 build on encode the control codes (and, for CCM/AICM, CSF 2.0, COBIT 2019, and ISO 31000:2018, their titles or clause headings); the `grc_library_ref` extracts carry the full specification text.
 
 ---
 
@@ -886,7 +886,7 @@ This specification does not address:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | Annex A.5.9 | Inventory of information and other assets (the canonical citations register is itself an information asset). |
+| ISO/IEC 27001:2022 | Annex A.5.9 | Inventory of information and other associated assets (the canonical citations register is itself an information asset). |
 | ISO 9001:2015 | Documented information control | Practice analogue for verifiable, dated, recorded factual claims. |
 | Library Charter | [`governance/charter-governance-library.md`](charter-governance-library.md) | Library quality and integrity obligations. |
 

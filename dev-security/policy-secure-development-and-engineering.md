@@ -2,11 +2,11 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.18\
-**Date:** 2026-09-18\
+**Version:** 1.0.22\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
-**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`security/standard-threat-modelling.md`](../security/standard-threat-modelling.md), [`compliance/public-sector/annex-canada-public-sector-requirements.md`](../compliance/public-sector/annex-canada-public-sector-requirements.md)\
 **Classification:** Public\
 **Category:** Developer Security\
 **Review Frequency:** Annual and upon material framework or regulatory change\
@@ -22,7 +22,7 @@ This policy establishes mandatory requirements for secure software development, 
 
 It merges and replaces the Secure Software Development Lifecycle (SDLC) Policy, Code Management Policy, Open-Source Policy, Testing Standard, and Peer-Review Guideline into a unified framework for secure design, development, testing, and maintenance.
 
-The policy aligns with ISO/IEC 27034 (all parts), ISO/IEC 27002:2022 controls, NIST Secure Software Development Framework (SSDF), COBIT 2019 BAI03 and BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
+The policy aligns with ISO/IEC 27034 (all parts), ISO/IEC 27002:2022 controls, NIST Secure Software Development Framework (SSDF) Version 1.1, COBIT 2019 BAI03 and BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
 
 It incorporates forward-looking controls for AI-generated code verification.
 
@@ -50,13 +50,13 @@ It incorporates forward-looking controls for AI-generated code verification.
 
 | Role | Responsibility |
 | --- | --- |
-| **CISO** | Defines secure coding standards, oversees vulnerability remediation, and enforces compliance with NIST SSDF and ISO/IEC 27034. |
+| **CISO** | Defines secure coding standards, oversees vulnerability remediation, and enforces compliance with NIST SSDF Version 1.1 and ISO/IEC 27034. |
 | **CIO** | Oversees policy enforcement and ensures that secure design principles are embedded across all engineering teams. |
 | **Development Team Leads** | Implement secure SDLC controls, manage peer review workflows, and track remediation timelines. |
 | **Developers / Engineers** | Follow approved secure coding practices, maintain code integrity, and complete annual secure coding training. |
 | **QA and Testing Teams** | Conduct security testing, validate vulnerabilities, and confirm code meets ASVS v5 assurance levels. |
 | **AI Development Teams** | Verify accuracy and security of AI-generated code through human-in-the-loop review and static analysis. |
-| **Internal Audit** | Validates adherence to this policy and secure development metrics within COBIT BAI03 and MEA01 frameworks. |
+| **Internal Audit** | Validates adherence to this policy and secure development metrics within COBIT 2019 BAI03 and MEA01 frameworks. |
 
 ---
 
@@ -158,13 +158,16 @@ It incorporates forward-looking controls for AI-generated code verification.
 | --- | --- | --- |
 | ISO/IEC 27034 (all parts) | Information technology, Application security | Secure SDLC governance and assurance |
 | ISO/IEC 27002:2022 | 8.25, 8.26, 8.27, 8.28, 8.29, 8.30, 8.31, 8.32 | Secure coding and testing controls |
-| NIST SSDF | Secure Software Development Framework | Secure development lifecycle |
+| NIST SSDF Version 1.1 | Secure Software Development Framework | Secure development lifecycle |
 | OWASP ASVS v5 | V1 (encoding and sanitization), V2 (validation and business logic), V11 (cryptography), V13 (configuration and secret management), V15 (secure coding and architecture), V16 (security logging and error handling) | Secure coding requirements |
 | COBIT 2019 | BAI03: Managed Solutions Identification and Build | Solution design and build |
 | COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Release and deployment controls |
 | CSA CCM v4.1 | AIS-04: Secure Application Development Lifecycle; AIS-05: Application Security Testing; AIS-06: Secure Application Deployment | Software engineering and security controls |
 | CSA AICM v1.1 | AIS-12: Source Code Management | Version control and code review |
 | EU AI Act | Art 11 / Annex IV | Technical documentation for a high-risk AI system |
+| Treasury Board of Canada Directive on Security Management (held edition: takes effect July 1, 2019), Appendix B (mandatory procedures for information technology security control) | B.2.4; B.2.5, B.2.5.1, B.2.5.2 | Canadian federal public-sector lane only; the directive applies to the organizations listed in section 6.1 of the Policy on Government Security (directive section 6.1), and [`compliance/public-sector/annex-canada-public-sector-requirements.md`](../compliance/public-sector/annex-canada-public-sector-requirements.md) sets the applicability model for that lane. B.2.4 directs departments to build security considerations into every phase of IT project management; B.2.5 to identify and address security requirements, activities and gating requirements throughout all stages of the information system life cycle, including definition, design, development and procurement, operations, maintenance and decommissioning; B.2.5.1 to integrate system security engineering and security design at the appropriate stages of the system development lifecycle; B.2.5.2 to apply supply chain security measures to establish and maintain reasonable confidence in the security of the sources of information systems and IT components, in accordance with applicable security requirements. Relates to sections 4.1 and 4.5. The held edition is the one cited; its currency is to be confirmed upstream |
+| Treasury Board of Canada Secretariat Security Playbook for Information System Solutions (held page: date modified 2025-10-22) | 2.3, 2.5, 3.7 | Canadian federal guidance for information system solutions deployed in cloud environments, offered as security tasks for consideration (Playbook 1.1). Section 2.3 supports adding security tasks throughout the system development lifecycle whatever the methodology, and says that, where personal information is involved, project teams must ensure that privacy requirements are identified and appropriately addressed in their solutions in consultation with their departmental access to information and privacy office. Section 2.5 says project teams need to perform threat modelling and should use a method they understand that fits their lifecycle; it says departmental security authorities may want to document residual risks, for which it names the Harmonized TRA Methodology (TRA-1) as the methodology of choice, and that risk assessments and threat modelling can work together to satisfy both project-level and department-level requirements; that methodology is not held in the reference base. <!-- ref-absence: Harmonized TRA --> Section 3.7 lists secure-development tasks, including session management, input validation, error messages that reveal nothing exploitable, and, before allowing production operations, a vulnerability scan of the solution environment and penetration testing or a run-time vulnerability assessment against publicly accessible interfaces, and refers to subsections 6.2.1 and 6.2.6 of SPIN 2017-01 (Direction on the Secure Use of Commercial Cloud Services). Relates to section 4.1.3 and [`security/standard-threat-modelling.md`](../security/standard-threat-modelling.md), and to sections 4.3 and 4.6. The held edition is the one cited; its currency is to be confirmed upstream |
+| Canada CCCS Baseline Cyber Security Controls for Small and Medium Organizations (held edition: V1.2, February 2020) | BC.11.1, BC.11.2 | Canadian baseline guidance for small and medium organizations, not a federal public-sector instrument. BC.11.1 says organizations should ensure that their websites address the OWASP Top 10 vulnerabilities; BC.11.2 says they should ensure that they understand the ASVS level each of their websites needs to meet. The baseline's reference list points to an earlier ASVS edition than the ASVS v5 this policy uses. Relates to section 4.3.1. The held edition is the one cited; its currency is to be confirmed upstream |
 
 ---
 

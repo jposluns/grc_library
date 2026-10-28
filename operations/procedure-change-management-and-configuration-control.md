@@ -2,8 +2,8 @@
 
 **Document Title:** Change Management and Configuration Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.15\
-**Date:** 2026-09-23\
+**Version:** 1.3.16\
+**Date:** 2026-10-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md), [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md)\
@@ -206,7 +206,7 @@ The following metrics are reported to the CISO and CIO monthly:
 
 ## Framework alignment
 
-| Control Area | ISO/IEC 20000-1 | ISO/IEC 27001:2022 | COBIT 2019 | CSA CCM v4.1 | NIST |
+| Control Area | ISO/IEC 20000-1:2018 | ISO/IEC 27001:2022 | COBIT 2019 | CSA CCM v4.1 | NIST |
 | --- | --- | --- | --- | --- | --- |
 | Change management | §8.5.1 | A.8.32 | BAI06.01, BAI06.03, BAI06.04 | CCC-01 to CCC-04, CCC-09 | SP 800-128 §3.3 |
 | Configuration management | §8.2.6 | A.8.9 | BAI10.01, BAI10.02, BAI10.03, BAI10.04, BAI10.05 | CCC-06 | SP 800-128 §3 |

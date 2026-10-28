@@ -136,7 +136,7 @@ The value of the single named tier is that a conflict is resolved by one rule wi
 | Escalation of authority-bound tradeoffs | N/A | GRC-04 | A.5.4 | V15.1 |
 | Failing states surfaced, not concealed | N/A | LOG-02, GRC-05 | A.8.15, A.5.36 | V16.2 |
 
-The AIQT facets also align, at the concept level, with the trustworthiness vocabularies of the AI-assurance frameworks (the NIST AI Risk Management Framework's trustworthiness characteristics and the ISO/IEC 42001 management-system requirements); a consuming project that needs that mapping in citable, source-verified form carries it in its own principles or corpus document (the parent GRC library's corpus principle document is one such carrier), and this rule deliberately does not restate it.
+The AIQT facets also align, at the concept level, with the trustworthiness vocabularies of the AI-assurance frameworks (the NIST AI RMF 1.0's trustworthiness characteristics and the ISO/IEC 42001 management-system requirements); a consuming project that needs that mapping in citable, source-verified form carries it in its own principles or corpus document (the parent GRC library's corpus principle document is one such carrier), and this rule deliberately does not restate it.
 
 <!-- PROJECT-OVERLAY: not part of the distributable pack -->
 
