@@ -4,10 +4,12 @@
 The pack engine owns citation extraction, comparison and reporting.
 This wrapper owns the canonical-register schema, roots, exclusions and CLI.
 
-PR1 defaults to report mode. Exactly three things block in that mode: the
-unchanged legacy Markdown stale check, a historical exception row that does not
-bind (INVALID_EXCEPTION, which blocks in every mode; 3b75 below), and the
-UNPINNED ratchet below. Every other finding is advisory. Explicit enforce
+PR1 defaults to report mode. Exactly two kinds of finding block in that mode:
+those of the unchanged legacy Markdown stale check and a historical exception
+row that does not bind (INVALID_EXCEPTION, which blocks in every mode; 3b75
+below). Every other finding is advisory. A run also exits non-zero on errors
+that are not findings: an UNPINNED ratchet failure below, and the register,
+input and ratchet-base errors listed under Exit at the end. Explicit enforce
 mode supports migration fixtures; no gate invocation enables it in PR1.
 
 3b75: a superseded edition cited as history passes only through a reviewed row
@@ -56,13 +58,14 @@ refs/remotes/origin/main. A --root that is not the top of a git work tree, a
 shallow repository (round 6), an Actions run whose event file is unset, missing,
 unreadable or not a JSON object, any other Actions event, a payload that names no
 valid commit, a pull_request base.sha that is neither HEAD^1 nor an ancestor of it,
-a HEAD that is not a merge commit in a pull_request run, a push "before" that is not
+a HEAD that does not have exactly two parents in a pull_request run, a push "before" that is not
 a proper ancestor of HEAD, a missing ref, zero or several merge bases, a failing git
 call, a base whose register or baseline cannot be read, or a base whose default-scope
 files cannot be read where its counts are needed exits 2 with an "UNPINNED ratchet
 base" message; so does a base with no baseline file, except the one bootstrap. The one bootstrap
 case is a base that predates the ratchet: no baseline file there, and the base's
-copy of this wrapper does not name RATCHET_MARKER. Such a run says so on a NOTE
+copy of this wrapper exists and does not name RATCHET_MARKER; a base with no
+baseline file and no copy of this wrapper fails closed. Such a run says so on a NOTE
 line and holds the seed to the live counts and to each standard's UNPINNED count
 at the base, computed with the same predicate and the head register from the
 base tree read through git, never the working tree, so seeding cannot raise a
@@ -114,11 +117,15 @@ before the closing verdict line, which tools/run_all_audits.sh shows on a pass
 through the runner-echo marker; a --format json run prints no NOTE line and
 carries the totals in its report's inventories instead.
 
-Exit: 0 no blocking findings; 1 blocking findings, an UNPINNED count off its
+Exit: 0 no blocking findings and no error; 1 blocking findings, an UNPINNED count off its
 baseline, a baseline entry above its base value or new without a new register
-row, a new row's entry or a bootstrap seed entry above its count at the base, a malformed or empty
+row, a new row's entry or a bootstrap seed entry above its count at the base, a register
+row removed while the base records its entry, a malformed or empty
 canonical register, a malformed baseline, malformed historical register data,
-or a historical register page out of step with its data; 2 missing/unreadable intended inputs (the baseline included) or an
+a historical register page out of step with its data, or (default run) a historical
+exception row naming a path outside the scan scope; 2 missing/unreadable intended
+inputs (the baseline included) or an out-of-root scan path, an empty --paths entry, a
+--root that is empty, unreadable or not a directory, a command-line usage error, or an
 undeterminable or unreadable ratchet base.
 """
 

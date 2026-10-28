@@ -17,11 +17,14 @@ Parts, publication kinds and issuer identities remain distinct.
 
 Report mode is the default during migration. Newly discovered stale forms,
 HTML findings, missing registrations, noncanonical identifiers and missing
-edition pins are advisory. In report mode exactly three things block: the
-established Markdown stale check, a historical exception declaration that does
-not bind (below), and the unpinned ratchet below where a project holds one;
-every other finding is advisory. Explicit enforce mode additionally blocks those
-recognized citation findings; PR1 gate invocations do not enable it.
+edition pins are advisory. In report mode exactly two kinds of finding block:
+those of the established Markdown stale check and a historical exception
+declaration that does not bind (below); every other finding is advisory. A run
+also fails on errors that are not findings: a failure of the unpinned ratchet
+below where a project holds one, a malformed input or a failed base read
+(below), and the register and input errors in the last paragraph. Explicit
+enforce mode additionally blocks those recognized citation findings; PR1 gate
+invocations do not enable it.
 
 A project may hold a per-standard ratchet on missing edition pins: a
 checked-in baseline of each standard's unpinned count, which may only fall.
@@ -49,12 +52,16 @@ closed on a project root that is not the top of a work tree, a shallow
 repository, a CI run whose event file is unset, missing, unreadable or not an
 object, a CI event with no base rule, an event that names no valid commit, a
 pull request base that is neither the first parent of the checked-out merge
-commit nor an ancestor of it, a checked-out commit that is not a merge commit
-in a pull request run, a push's previous tip that is not a proper ancestor of
+commit nor an ancestor of it, a checked-out commit that does not have exactly
+two parents in a pull request run, a push's previous tip that is not a proper ancestor of
 the pushed commit, a missing ref, zero or several merge bases, a failing git
 call, a base whose register or baseline cannot be read, and a base whose
 default-scope files cannot be read where its counts are needed; a base with no
-baseline fails too, except a base that predates the ratchet. That bootstrap holds the seeded baseline to the live
+baseline fails too, except the one bootstrap: a base that predates the ratchet,
+that is, one with no baseline whose copy of the gate exists and does not yet
+hold the ratchet. A base with no baseline and no copy of the gate fails
+closed, and so does a base with no baseline whose copy of the gate holds the
+ratchet. That bootstrap holds the seeded baseline to the live
 counts and to each standard's unpinned count at the base, read from the base
 revision's tree through version control with the same predicate, so seeding
 cannot raise a count. Every git call the ratchet makes (the work-tree and

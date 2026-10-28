@@ -32093,7 +32093,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-skill-internal-refs.py ROOT F b2b1fc4846ca52b298fe12ee712477bfac97e173e3ac6368e72c5edd6c28b50e
         lint-skill-verdict-carrier-completeness.py OWN F 7056be9141352daf10807f17e9941fb422a84cbf43eae4fff9549efd3684f5a3
         lint-ssdf-control-ids.py CWD F fc3326619bde8b0c6389a3ac7a4b5b79e06ab9e3195e471b6d766f067e06a60f
-        lint-standards-currency.py OWN F 2955a703674c7a9b63e382036a8852672a76b85504b53dddd925f7da4b272346
+        lint-standards-currency.py OWN F 6f6190fc452300ce5530bc09b375ba3828e11afc65ed061d61effe184025e55a
         lint-startup-character-ceiling.py NO_FS F aeaaf73e5efe319cb6881277ca5b7abef8db708826fe1bf0a241559d7d58a060
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1

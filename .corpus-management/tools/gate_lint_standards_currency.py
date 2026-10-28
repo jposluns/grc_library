@@ -5,9 +5,10 @@ The original compile_entry_patterns/check_file/run API remains available.
 coverage_report adds register-independent discovery and review inventories.
 The project wrapper supplies parsed entries, files, policy and CLI defaults.
 
-Report mode blocks only findings produced by the original Markdown
-check_file path. Newly discovered stale forms, HTML findings and coverage
-findings remain advisory. Explicit enforce mode additionally blocks
+In report mode coverage_report blocks exactly two kinds of finding: those
+produced by the original Markdown check_file path and a historical-context
+declaration that does not bind (INVALID_EXCEPTION, below). Newly discovered
+stale forms, HTML findings and coverage findings remain advisory. Explicit enforce mode additionally blocks
 recognized stale, unregistered, noncanonical and unpinned citations.
 Ambiguity, candidate forms and unresolved editions remain review inventories.
 coverage_report also accepts wrapper-validated historical-context declarations;
