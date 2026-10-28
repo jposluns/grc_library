@@ -19724,26 +19724,27 @@ class AuditGateParityTests(LinterTestCase):
     @staticmethod
     def _read_bypasses(source: str) -> list[str]:
         """Each use in ``source`` of a name that can read or decode a file outside the one
-        top-level _read_utf8 (3b675 round 3). This is a best-effort structural guard over
-        an open grammar, not a proof that every read goes through the helper. It finds, as
-        a name or an attribute, any use (called, aliased or passed) of open, io, codecs,
-        read_text, read_bytes or decode; os.read; str called with an encoding or errors
-        argument (two or more positional arguments, or the keyword); getattr, hasattr or
-        setattr with one of those names as a literal; any import of io or codecs (inside
-        _read_utf8 too), or of open or read from os; and any _read_utf8 other than the one
-        top-level definition.
+        top-level _read_utf8 (3b675 round 3). What it detects is exactly this list:
 
-        Its disclosed residual (3b675 round 4), forms the round 3 reviews found that it
-        does not catch: a read name imported under an alias from builtins, posix, _io,
-        _codecs or encodings; str bound to another name and called with an encoding, or
-        functools.partial(str, encoding=...); a read name taken by subscripting
-        __builtins__; operator.methodcaller with a read name; and os.pread and os.fdopen.
-        Nor can it see a name built from strings at run time: getattr with a computed name,
-        operator.attrgetter, vars() or __dict__ lookups, __import__ or importlib given a
-        string, and eval, exec or compile. Nor does it read the modules the tool imports,
-        so a read made on the tool's behalf by one of them is not found. Code review
-        remains the control for every form listed here; the guard is not extended to
-        them."""
+        - a source without exactly one top-level ``def _read_utf8``, and any def or async
+          def named _read_utf8 that is not that top-level one;
+        - anywhere in the source, the top-level _read_utf8 included: ``import io`` or
+          ``import codecs`` (or a submodule of either, with or without ``as``), ``from io``
+          or ``from codecs`` (or a submodule of either), and ``from os import`` of open,
+          read or ``*``;
+        - outside the top-level _read_utf8 only: a bare name (loaded, assigned or deleted)
+          open, io, codecs, read_text, read_bytes or decode; an attribute .open, .io,
+          .codecs, .read_text, .read_bytes or .decode on any object; the attribute os.read
+          where os is a bare name; a call of the bare name str with two or more positional
+          arguments or an encoding or errors keyword; and a call of the bare name getattr,
+          hasattr or setattr whose second positional argument is the string literal open,
+          io, codecs, read_text, read_bytes, decode or read.
+
+        It matches names, not what they refer to, so it fires on any .open attribute,
+        including one unrelated to reading a file, and likewise on the other names above.
+        Any other way of reading or decoding a file is not detected. It is a best-effort
+        structural guard, not a proof that every read goes through the helper; code review
+        remains the control."""
         import ast
         tree = ast.parse(source)
         helpers = [node for node in ast.walk(tree)
