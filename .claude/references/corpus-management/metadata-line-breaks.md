@@ -3,7 +3,7 @@
 # Metadata-block line breaks
 
 A run is the rendered paragraph: the lines that render into one
-paragraph (CommonMark with GitHub tables) form one run, whatever their
+paragraph (GitHub Flavored Markdown 0.29-gfm) form one run, whatever their
 indentation, including a paragraph inside a block quote or list item,
 read without its markers, and a lazy continuation line. A run ends at a
 blank line or a line that starts another block: a heading, a thematic

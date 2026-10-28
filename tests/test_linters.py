@@ -21469,6 +21469,65 @@ class MetadataLineBreaksTests(LinterTestCase):
             "fake-bq-html-script.md", "> <script/>\n> **A:** a\n> **B:** b\n", 1
         )
 
+    # 3b146 round 5: GFM 0.29's whitespace character includes U+000B and U+000C, its blank line
+    # holds only spaces and tabs, and its tag names are ASCII. Each case runs at top level, in a
+    # block quote and in a list item, and each fails on the round 4 engine.
+
+    def _assert_in_contexts(self, name: str, lines: list[str], missing: int) -> None:
+        contexts = {
+            "top": lines,
+            "bq": ["> " + line for line in lines],
+            "li": ["- " + lines[0]] + ["  " + line for line in lines[1:]],
+        }
+        for context, body in contexts.items():
+            with self.subTest(context=context):
+                text = "\n".join(body) + "\n"
+                if missing:
+                    self._assert_flagged("fake-%s-%s.md" % (context, name), text, missing)
+                else:
+                    self._assert_clean("fake-%s-%s.md" % (context, name), text)
+
+    def test_html_kind1_line_tabulation_after_tag_name(self) -> None:
+        # <pre followed by U+000B starts kind 1, which interrupts the paragraph.
+        self._assert_in_contexts("k1-vt", ["**A:** a", "<pre\x0b", "**B:** b"], 0)
+
+    def test_html_kind1_form_feed_after_tag_name(self) -> None:
+        self._assert_in_contexts("k1-ff", ["**A:** a", "<pre\x0c", "**B:** b"], 0)
+
+    def test_html_kind6_line_tabulation_after_tag_name(self) -> None:
+        self._assert_in_contexts("k6-vt", ["**A:** a", "<div\x0b", "**B:** b"], 0)
+
+    def test_html_kind6_form_feed_after_tag_name(self) -> None:
+        self._assert_in_contexts("k6-ff", ["**A:** a", "<div\x0c", "**B:** b"], 0)
+
+    def test_html_kind7_line_tabulation_in_tag(self) -> None:
+        # After an attribute name, after the tag and inside a closing tag, U+000B is whitespace,
+        # so each line is a whole tag that opens a kind 7 block holding the metadata lines.
+        for tag in ("<span\x0bid=a>", "<span>\x0b", "</span\x0b>"):
+            with self.subTest(tag=tag):
+                self._assert_in_contexts("k7-vt", [tag, "**A:** a", "**B:** b"], 0)
+
+    def test_html_kind7_form_feed_in_tag(self) -> None:
+        for tag in ("<span\x0cid=a>", "<span>\x0c", "</span\x0c>"):
+            with self.subTest(tag=tag):
+                self._assert_in_contexts("k7-ff", [tag, "**A:** a", "**B:** b"], 0)
+
+    def test_form_feed_line_does_not_end_a_kind6_block(self) -> None:
+        # A form-feed-only line is not blank, so the kind 6 block runs on over the metadata lines.
+        self._assert_in_contexts("k6-ff-line", ["<div>", "\x0c", "**A:** a", "**B:** b"], 0)
+
+    def test_form_feed_line_does_not_end_a_kind7_block(self) -> None:
+        self._assert_in_contexts("k7-ff-line", ["<span>", "\x0c", "**A:** a", "**B:** b"], 0)
+
+    def test_form_feed_line_does_not_split_the_run(self) -> None:
+        # A form-feed-only line is paragraph text, so A and B are one paragraph.
+        self._assert_in_contexts("para-ff-line", ["**A:** a", "\x0c", "**B:** b"], 1)
+
+    def test_kelvin_sign_is_not_a_tag_name_letter(self) -> None:
+        # U+212A folds to k under re.IGNORECASE, but a tag name is ASCII, so <K> is paragraph
+        # text and the metadata lines continue its paragraph.
+        self._assert_in_contexts("kelvin", ["<K>", "**A:** a", "**B:** b"], 1)
+
     def test_block_quote_paragraph_is_a_run(self) -> None:
         self._assert_flagged("fake-bq.md", "> **A:** x\n> **B:** y\n", 1)
 
