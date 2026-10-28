@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.228\
-**Date:** 2026-10-27\
+**Version:** 1.27.229\
+**Date:** 2026-10-28\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -378,7 +378,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Supply Chain | Register | Concentration Risk Register | [`supply-chain/register-concentration-risk.md`](../supply-chain/register-concentration-risk.md) | Supplier Risk Maintainer | Quarterly | DORA Arts 29/31/35-40, EBA/GL/2019/02 §76-80, FSB toolkit, NIS 2 Arts 21(2)(d)/22, NIST SP 800-161r1, ISO 28000:2022 | template |
 | Supply Chain | Register | Software Bill of Materials Register | [`supply-chain/register-sbom.md`](../supply-chain/register-sbom.md) | Supplier Risk Maintainer | Quarterly | NTIA Minimum Elements, US EO 14028, CISA SBOM guidance, EU CRA, NIST SSDF Version 1.1 PS.3.2, CycloneDX, SPDX, VEX, SLSA | template |
 | Supply Chain | Template | Supplier Offboarding Evidence Template | [`supply-chain/template-supplier-offboarding-evidence.md`](../supply-chain/template-supplier-offboarding-evidence.md) | Supplier Risk Maintainer | Annual | GDPR Art 28(3)(g), DORA Art 28, EBA/GL/2019/02, ISO/IEC 27036, ISO 28000:2022, NIST SP 800-88r2, IEEE 2883-2022, CSA CCM IPY-04 | template |
-| Supply Chain | Standard | Supplier Resilience Monitoring Standard | [`supply-chain/standard-supplier-resilience-monitoring.md`](../supply-chain/standard-supplier-resilience-monitoring.md) | Supplier Risk Maintainer | Annual | DORA Arts 28/30/33-34, EBA/GL/2019/02 §82-95, NIST SP 800-161r1, ISO 28000:2022, ISO/IEC 27036, FSB toolkit, CSA STAR | template |
+| Supply Chain | Standard | Supplier Resilience Monitoring Standard | [`supply-chain/standard-supplier-resilience-monitoring.md`](../supply-chain/standard-supplier-resilience-monitoring.md) | Supplier Risk Maintainer | Annual | DORA Arts 28/30, EBA/GL/2019/02 §82-95, NIST SP 800-161r1, ISO 28000:2022, ISO/IEC 27036, FSB toolkit, CSA STAR | template |
 | Privacy | Register | Cross-Border Data Flow Register | [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md) | Data Protection Officer | Annual | GDPR Chapter V, UK GDPR, PIPEDA, Quebec Law 25, LGPD, PIPL | template |
 | Dev Security | Standard | Software Composition Analysis Standard | [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md) | Chief Information Security Officer | 6 to 12 months | NIST SSDF SP 800-218 Version 1.1, NIST SP 800-53 Rev. 5 SR, SLSA, EU Cyber Resilience Act, EO 14028 SBOM | template |
 | Dev Security | Standard | API Security Standard | [`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md) | Chief Information Security Officer | Annual | OWASP API Top 10, OWASP ASVS v5, NIST SP 800-204, RFC 6749/7519/8725/9068, OpenID Connect, FAPI 2.0, CSA CCM v4.1 | template |
