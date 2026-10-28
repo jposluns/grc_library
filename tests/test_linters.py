@@ -31190,7 +31190,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
         lint-table-cell-count.py OWN F 36c2ad714485c240903f8ecb55caefe3714ac0ebad81df90b2d52e87a10a3477
-        lint-todo-index-reference-parity.py OWN F 28e91d2619dbcb67403794c98041b386483ed52fe603e01f5551aea1b07c4c63
+        lint-todo-index-reference-parity.py OWN F b0311e9ab96e7824f84ad3d13b8240caeefa22dc9605fdffcd3749cec1e35bab
         lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
         lint-todo-number-permanence.py OWN F dedf0d73d69395a559061e0424d49ec92ccbcb3fef7e455adc41dd30708cdbea
@@ -49125,6 +49125,32 @@ class TodoIndexReferenceParityTests(LinterTestCase):
                 self.assertEqual(rc, 2, out + err)
                 self.assertIn(private_only, out)
                 self.assertNotIn("the TODO.md pair", out)
+                error = [ln for ln in err.splitlines() if ln.startswith("ERROR: ")]
+                self.assertTrue(error and str(found["path"]) in error[0], err)
+
+    def test_default_degraded_line_classifies_todo_before_naming_it(self):
+        # 3b674 r4: with no private store and no root TODO-REFERENCE.md, the DEGRADED line was
+        # printed before TODO.md was read, so a present but broken TODO.md was first called skipped
+        # before the gate failed on it. The line is built after TODO.md is classified.
+        def dangling(path, base):
+            path.symlink_to(base / "missing")
+
+        def fifo(path, base):
+            os.mkfifo(path)
+
+        for label, build in (("dangling link", dangling), ("FIFO", fifo)):
+            with self.subTest(case=label):
+                found = {}
+
+                def setup(stack, mod, base, priv, build=build):
+                    found["path"] = base / "grc_library" / "TODO.md"
+                    found["path"].unlink()
+                    build(found["path"], base)
+                rc, out, err, _ = self._run_default("degraded-todo", {}, sibling=False, setup=setup)
+                self.assertEqual(rc, 2, out + err)
+                skipped = [ln for ln in (out + err).splitlines()
+                           if "skipped" in ln and "the TODO.md pair" in ln]
+                self.assertEqual(skipped, [], out + err)
                 error = [ln for ln in err.splitlines() if ln.startswith("ERROR: ")]
                 self.assertTrue(error and str(found["path"]) in error[0], err)
 

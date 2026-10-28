@@ -785,8 +785,11 @@ def main(argv: list[str]) -> int:
         # DEFAULT lookup, as gates 78 and 81: a --root run is a fixture run, not CI.
         # 3b674 r3: the public pair is called skipped only when its reference is absent; a
         # present but broken one is not skipped, and run() fails on it.
+        # r4: the line is built only after TODO.md is classified too, so a present but broken
+        # TODO.md (a dangling link, a FIFO) is not called skipped before run() fails on it.
+        _, why_todo = _probe_file(root / TODO_REL)
         skipped = [f"the {PTODO_INDEX_REL} pair"]
-        if _absent(root / REFERENCE_REL):
+        if why_todo is None and _absent(root / REFERENCE_REL):
             skipped.insert(0, f"the {TODO_REL} pair")
         print_degraded("gate 90",
                        f"gate 90 skipped the index<->reference parity check of "
