@@ -4,9 +4,10 @@
 The pack engine owns citation extraction, comparison and reporting.
 This wrapper owns the canonical-register schema, roots, exclusions and CLI.
 
-PR1 defaults to report mode. Only the unchanged legacy Markdown stale
-check, and the UNPINNED ratchet below, block in that mode. New findings are
-advisory. Explicit enforce
+PR1 defaults to report mode. Exactly three things block in that mode: the
+unchanged legacy Markdown stale check, a historical exception row that does not
+bind (INVALID_EXCEPTION, which blocks in every mode; 3b75 below), and the
+UNPINNED ratchet below. Every other finding is advisory. Explicit enforce
 mode supports migration fixtures; no gate invocation enables it in PR1.
 
 3b75: a superseded edition cited as history passes only through a reviewed row
@@ -52,10 +53,14 @@ proper ancestor of HEAD. A schedule or workflow_dispatch run (the nightly sweep,
 through tools/run_all_audits.sh), and every local run (tools/run_all_audits.sh,
 pre-commit, a direct run), takes the one merge base of HEAD and
 refs/remotes/origin/main. A --root that is not the top of a git work tree, a
-shallow repository (round 6), any other Actions event, a payload that cannot be read
-or names no valid commit, a HEAD that is not a merge commit in a pull_request run,
-a missing ref, zero or several merge bases, or a base whose register or baseline
-cannot be read exits 2 with an "UNPINNED ratchet base" message. The one bootstrap
+shallow repository (round 6), an Actions run whose event file is unset, missing,
+unreadable or not a JSON object, any other Actions event, a payload that names no
+valid commit, a pull_request base.sha that is neither HEAD^1 nor an ancestor of it,
+a HEAD that is not a merge commit in a pull_request run, a push "before" that is not
+a proper ancestor of HEAD, a missing ref, zero or several merge bases, a failing git
+call, a base whose register or baseline cannot be read, or a base whose default-scope
+files cannot be read where its counts are needed exits 2 with an "UNPINNED ratchet
+base" message; so does a base with no baseline file, except the one bootstrap. The one bootstrap
 case is a base that predates the ratchet: no baseline file there, and the base's
 copy of this wrapper does not name RATCHET_MARKER. Such a run says so on a NOTE
 line and holds the seed to the live counts and to each standard's UNPINNED count

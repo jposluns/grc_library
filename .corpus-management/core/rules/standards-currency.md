@@ -17,10 +17,11 @@ Parts, publication kinds and issuer identities remain distinct.
 
 Report mode is the default during migration. Newly discovered stale forms,
 HTML findings, missing registrations, noncanonical identifiers and missing
-edition pins are advisory. In report mode the established Markdown stale
-check blocks, and so does the unpinned ratchet below where a project holds
-one; nothing else does. Explicit enforce mode additionally blocks those recognized
-citation findings; PR1 gate invocations do not enable it.
+edition pins are advisory. In report mode exactly three things block: the
+established Markdown stale check, a historical exception declaration that does
+not bind (below), and the unpinned ratchet below where a project holds one;
+every other finding is advisory. Explicit enforce mode additionally blocks those
+recognized citation findings; PR1 gate invocations do not enable it.
 
 A project may hold a per-standard ratchet on missing edition pins: a
 checked-in baseline of each standard's unpinned count, which may only fall.
@@ -43,11 +44,17 @@ remote-tracking ref. A run is a CI run only when the CI flag
 (`GITHUB_EVENT_PATH`) names a readable file holding an object; when the flag
 is exactly `true` and the event file is unset, missing, unreadable or not an
 object, the run fails closed, and a run with any other flag value, or none, is
-local. A missing, unreadable or malformed baseline fails, and so does a
-project root that is not the top of a work tree, a shallow repository, a base
-that cannot be determined, an unset, unreadable or malformed event file, a
-missing ref or a base whose baseline cannot be read, except a base that
-predates the ratchet. That bootstrap holds the seeded baseline to the live
+local. A missing, unreadable or malformed baseline fails. The base read fails
+closed on a project root that is not the top of a work tree, a shallow
+repository, a CI run whose event file is unset, missing, unreadable or not an
+object, a CI event with no base rule, an event that names no valid commit, a
+pull request base that is neither the first parent of the checked-out merge
+commit nor an ancestor of it, a checked-out commit that is not a merge commit
+in a pull request run, a push's previous tip that is not a proper ancestor of
+the pushed commit, a missing ref, zero or several merge bases, a failing git
+call, a base whose register or baseline cannot be read, and a base whose
+default-scope files cannot be read where its counts are needed; a base with no
+baseline fails too, except a base that predates the ratchet. That bootstrap holds the seeded baseline to the live
 counts and to each standard's unpinned count at the base, read from the base
 revision's tree through version control with the same predicate, so seeding
 cannot raise a count. Every git call the ratchet makes (the work-tree and
