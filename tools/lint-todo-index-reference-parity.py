@@ -29,7 +29,17 @@ reference are not a bijection with matching id, title, band, and position order:
 
 Adopter-graceful: if the private ``grc_library_private/TODO-REFERENCE.md`` is
 absent (an adopter clone without the private sibling), the gate is a no-op OK,
-and it prints a ``DEGRADED:`` line naming the skipped pair. When the default
+and it prints a ``DEGRADED:`` line naming the skipped pair; the public pair is
+named as skipped only when the root ``TODO-REFERENCE.md`` is absent (``lstat``
+reports ENOENT), so a present but broken one is never called skipped (3b674 r3).
+The sibling is absent only when nothing is at the path the default lookup
+examines (``lstat`` reports ENOENT): the shared lookup reads anything that is not
+a usable directory as no sibling, so the gate examines that path itself and fails
+with exit 2 naming it when it holds a regular file, a FIFO, a socket or a device
+(named with its kind), a link that does not resolve or that loops, an entry that
+cannot be examined (a link to a directory under a directory without search
+permission), or a directory the lookup did not find (it changed during the
+lookup) (3b674 r3). When the default
 lookup does resolve the sibling but it holds neither ``P-TODO.md`` nor
 ``P-TODO-REFERENCE.md``, it used to pass with no notice, so a mis-resolved or
 emptied store read as checked (3b648). The sibling is now classified by what it
@@ -49,7 +59,8 @@ a directory (a regular file, a FIFO, a socket, a device), named with its kind;
 an entry in the tree that is neither a regular file nor a directory (a FIFO, a
 socket, a device), as an unexpected entry kind, never opened, since opening a
 FIFO would block; a link (``.working`` itself included) that resolves outside the
-store root, as an out-of-store link, not followed; a link whose target does not
+store root, as an out-of-store link, not followed, whatever its target is (its
+destination is checked before its kind; r3); a link whose target does not
 exist, or that loops, as a link that does not resolve; an entry listed and then
 gone, as an entry that vanished during the walk; and every other failure as an
 unreadable records tree: a directory that cannot be listed (a mode-000
@@ -108,6 +119,7 @@ if _TOOLS_DIR not in sys.path:
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import split_row, is_separator_row, is_fence_line  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT, TODO_ID_RE, print_degraded, require_dir, resolve_sibling, has_todo_index_header, strict_kind  # noqa: E402  # grc-config/store, stays local
+from lint_common import _SIBLING_REPO_DIRS  # noqa: E402  # the sibling directory names resolve_sibling joins to REPO_ROOT.parent
 
 TODO_REL = "TODO.md"
 REFERENCE_REL = "TODO-REFERENCE.md"
@@ -331,11 +343,50 @@ def _check_one(todo_text: str, reference_text: str,
     return findings, len(index), len(reference)
 
 
-def _first_existing(*candidates: Path | None) -> Path | None:
-    for c in candidates:
-        if c is not None and c.is_file():
-            return c
-    return None
+def _absent(path: Path) -> bool:
+    """True only when ``lstat`` reports ENOENT for ``path`` (``strict_kind``).
+
+    3b674 r3: the preliminary DEGRADED line used ``Path.is_file()``, so a present dangling,
+    unreachable or wrong-kind file was first called skipped before the gate failed on it. An
+    entry that cannot be examined is present, so it is not absent."""
+    try:
+        return strict_kind(path) is None
+    except OSError:
+        return False
+
+
+def _default_private_path() -> Path:
+    """The path the default ``resolve_sibling("private")`` lookup examines, joined as lint_common
+    joins it (``REPO_ROOT.parent / _SIBLING_REPO_DIRS[name]``), so the two never disagree."""
+    return REPO_ROOT.parent / _SIBLING_REPO_DIRS["private"]
+
+
+def _probe_default_sibling(path: Path) -> str | None:
+    """None when nothing is at the default private sibling path, else an error naming it.
+
+    3b674 r3: the non-strict ``resolve_sibling`` returns None for anything at the sibling path
+    that ``Path.is_dir()`` rejects, so a present but unusable store read as no store and the gate
+    passed DEGRADED. Only ENOENT from ``lstat`` (``strict_kind``) is absent. Each other case fails
+    with exit 2 naming the path: an entry that is not a directory (a regular file, a FIFO, a
+    socket, a device), named with its kind; a link whose target does not exist, or that loops, as
+    a link that does not resolve; an entry that cannot be examined (a link to a directory under a
+    directory without search permission, a parent without search permission), with the error; and
+    a directory found after the lookup found none, as one that changed during the lookup."""
+    tail = ("a present but unusable private store is not an absent one; private "
+            "index<->reference parity cannot be checked")
+    try:
+        kind = strict_kind(path)
+    except OSError as exc:
+        if os.path.islink(path) and exc.errno in (errno.ENOENT, errno.ELOOP):
+            return f"the private sibling {path} is a link that does not resolve ({exc.strerror}); {tail}"
+        return f"cannot examine the private sibling {path} ({exc.strerror}); {tail}"
+    if kind is None:
+        return None
+    if kind != "dir":
+        return (f"the private sibling {path} is present but is not a directory "
+                f"(it is a {_kind_name(path)}); {tail}")
+    return (f"the private sibling {path} is a directory, but the default lookup found no usable "
+            f"directory there (it changed during the lookup); {tail}")
 
 
 def _read_strict(path: Path) -> tuple[str | None, str | None]:
@@ -429,7 +480,9 @@ def _probe_records(private_dir: Path) -> str | None:
     device) is NOT A DIRECTORY, named with its kind; an entry in the tree that is neither a regular
     file nor a directory is an UNEXPECTED KIND and is never opened (opening a FIFO would block); a
     link (``.working`` included) that resolves outside the store root is OUT OF STORE and is not
-    followed; a link whose target is missing (ENOENT) or that loops (ELOOP) is UNRESOLVABLE; an
+    followed, whatever its target is (r3: the destination is checked before the kind, so a link out
+    of the store to a file, a FIFO or a missing path is out of store, not a wrong kind or an
+    unresolvable link); a link inside the store whose target is missing (ENOENT) or that loops (ELOOP) is UNRESOLVABLE; an
     entry listed and then gone (ENOENT) is VANISHED, since the walk is incomplete; every other
     failure (a directory that cannot be listed, a link that resolves but cannot be reached, a
     regular file that cannot be opened and read, an I/O error) is UNREADABLE. Every message names
@@ -444,6 +497,13 @@ def _probe_records(private_dir: Path) -> str | None:
     while pending:
         path = pending.pop()
         try:
+            # r3: a link's destination is checked before its kind, so a link out of the store fails
+            # as such whatever its target is (a file, a FIFO, a missing path).
+            if os.path.islink(path):
+                target = os.path.realpath(path)
+                if os.path.commonpath([store, target]) != store:
+                    return (f"{tree} holds a link that resolves outside the store {store}: {path} "
+                            f"-> {target}; the walk does not follow it; {tail}")
             kind = strict_kind(path)
             if kind is None:
                 if path == top:
@@ -453,11 +513,6 @@ def _probe_records(private_dir: Path) -> str | None:
             if path == top and kind != "dir":
                 return (f"{tree} is present but is not a directory (it is a {_kind_name(path)}); "
                         f"{tail}")
-            if os.path.islink(path):
-                target = os.path.realpath(path)
-                if os.path.commonpath([store, target]) != store:
-                    return (f"{tree} holds a link that resolves outside the store {store}: {path} "
-                            f"-> {target}; the walk does not follow it; {tail}")
             if kind == "dir":
                 st = os.stat(path)
                 if (st.st_dev, st.st_ino) in seen:
@@ -717,12 +772,21 @@ def main(argv: list[str]) -> int:
         private_dir, private_flag = root, "--root"
     else:
         private_dir = resolve_sibling("private")
+        if private_dir is None:
+            # 3b674 r3: the non-strict lookup returns None for anything that is not a usable
+            # directory, so the gate examines the same path; only nothing there is absent.
+            why_sibling = _probe_default_sibling(_default_private_path())
+            if why_sibling is not None:
+                print(f"ERROR: {why_sibling}", file=sys.stderr)
+                return 2
     if private_dir is None:
         # 3b635: without the private sibling the private pair (and, once TODO-REFERENCE.md
         # has moved there, the public pair) is skipped with exit 0; say so. Only on the
         # DEFAULT lookup, as gates 78 and 81: a --root run is a fixture run, not CI.
+        # 3b674 r3: the public pair is called skipped only when its reference is absent; a
+        # present but broken one is not skipped, and run() fails on it.
         skipped = [f"the {PTODO_INDEX_REL} pair"]
-        if _first_existing(root / REFERENCE_REL) is None:
+        if _absent(root / REFERENCE_REL):
             skipped.insert(0, f"the {TODO_REL} pair")
         print_degraded("gate 90",
                        f"gate 90 skipped the index<->reference parity check of "

@@ -31190,7 +31190,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
         lint-table-cell-count.py OWN F 36c2ad714485c240903f8ecb55caefe3714ac0ebad81df90b2d52e87a10a3477
-        lint-todo-index-reference-parity.py OWN F e56929c53e7277c29b57acd75bcb96ea2548ec3c8e00a96712e5693ad6841a8b
+        lint-todo-index-reference-parity.py OWN F 28e91d2619dbcb67403794c98041b386483ed52fe603e01f5551aea1b07c4c63
         lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
         lint-todo-number-permanence.py OWN F dedf0d73d69395a559061e0424d49ec92ccbcb3fef7e455adc41dd30708cdbea
@@ -39441,9 +39441,15 @@ class StoreDegradedNoticeTests(unittest.TestCase):
         (sibling / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX, encoding="utf-8")
         (sibling / "P-TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.PREF,
                                                      encoding="utf-8")
+        # 3b674 r3: with the lookup returning None the gate examines the sibling path beside
+        # REPO_ROOT, so the absent run uses a fixture repository with nothing beside it; the real
+        # checkout's sibling, if any, is never examined.
+        repo = self.store / "absent" / "grc_library"
+        repo.mkdir(parents=True)
+        (repo / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
         self._check("gate 90", "lint-todo-index-reference-parity.py",
                     lambda m: m.main(["lint-todo-index-reference-parity.py"]),
-                    absent_patches={"resolve_sibling": lambda name: None},
+                    absent_patches={"resolve_sibling": lambda name: None, "REPO_ROOT": repo},
                     present_patches={"resolve_sibling": lambda name: sibling})
 
     def test_gate90_root_run_prints_no_degraded_line(self) -> None:
@@ -48578,14 +48584,18 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         resolve_sibling returns a fixture sibling holding exactly ``sibling_files`` (relative name:
         text), or None when ``sibling`` is False. Hermetic: nothing outside the fixture is read, and
         r3 removed the gate's git calls, so no git runs. ``setup(stack, mod, base, priv)``, when
-        given, runs just before the gate to build links, lock entries or patch the module."""
+        given, runs just before the gate to build links, lock entries or patch the module.
+        3b674 r3: the gate examines the sibling path itself when the lookup returns None, so with
+        ``sibling`` False nothing is created there unless ``setup`` builds it."""
         import contextlib
         import io
         from unittest.mock import patch
         base = Path(tempfile.mkdtemp(prefix="bij-default-" + label + "-"))
         self.addCleanup(shutil.rmtree, base, True)
         repo, priv = base / "grc_library", base / "grc_library_private"
-        repo.mkdir(); priv.mkdir()
+        repo.mkdir()
+        if sibling:
+            priv.mkdir()
         (repo / "TODO.md").write_text(self.IDX, encoding="utf-8")
         for rel, text in sibling_files.items():
             (priv / rel).parent.mkdir(parents=True, exist_ok=True)
@@ -48697,8 +48707,10 @@ class TodoIndexReferenceParityTests(LinterTestCase):
             self._lock(priv / ".working" / "handoff.md")
             return priv / ".working" / "handoff.md", False
 
+        # r3: the missing target lies inside the store; a link out of the store fails as such
+        # whatever its target is (see the out-of-store tests).
         def dangling_link(stack, mod, base, priv):
-            (priv / ".working").symlink_to(base / "missing")
+            (priv / ".working").symlink_to(priv / "missing")
             return priv / ".working", True
 
         def looping_link(stack, mod, base, priv):
@@ -48784,11 +48796,15 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         finally:
             os.close(fd)
 
-    def _mkdevice_link(self, path):
-        """A link to /dev/null stands in for a device node, which only root may create."""
-        if not os.path.exists("/dev/null"):
-            self.skipTest("/dev/null is not present, so there is no character device to link to")
-        path.symlink_to("/dev/null")
+    def _mkdevice(self, path):
+        """A character device node (1, 3) at ``path``, or skip the subtest. r3: a link to /dev/null
+        used to stand in for one, but it resolves outside the store and now fails as an out-of-store
+        link (covered by the out-of-store test), so the node is made in place, which needs root."""
+        import stat
+        if os.geteuid() != 0:
+            self.skipTest("not run as root: only root may create a device node, and a link to "
+                          "/dev/null lies outside the store, so it fails as an out-of-store link")
+        os.mknod(path, stat.S_IFCHR | 0o600, os.makedev(1, 3))
 
     def test_default_records_tree_not_a_directory_fails(self):
         # 3b674 r2: _probe_records never checked that .working is a directory, so a regular file
@@ -48804,7 +48820,7 @@ class TodoIndexReferenceParityTests(LinterTestCase):
             self._mksock(priv / ".working")
 
         def device(priv):
-            self._mkdevice_link(priv / ".working")
+            self._mkdevice(priv / ".working")
 
         for label, build in (("regular file", regular_file), ("FIFO", fifo), ("socket", sock),
                              ("character device", device)):
@@ -48990,6 +49006,174 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         self.assertIn("DEGRADED: gate 90 skipped", out)
         self.assertNotIn("ERROR", out + err)
         self.assertNotIn(self.NOT_CHECKED, out + err)
+
+    def test_default_sibling_present_but_unusable_fails(self):
+        # 3b674 r3: the non-strict resolve_sibling returns None for anything at the sibling path that
+        # is not a usable directory, so each case below read as no store and passed DEGRADED (exit
+        # 0). The gate now examines that path and fails with exit 2 naming it. Except for the
+        # directory case, the gate runs the real non-strict lookup against the fixture, so each
+        # case is one that lookup reads as no sibling.
+        def regular_file(base, priv):
+            priv.write_text("store\n", encoding="utf-8")
+            return f"the private sibling {priv} is present but is not a directory (it is a regular file);"
+
+        def fifo(base, priv):
+            os.mkfifo(priv)
+            return f"the private sibling {priv} is present but is not a directory (it is a FIFO);"
+
+        def sock(base, priv):
+            self._mksock(priv)
+            return f"the private sibling {priv} is present but is not a directory (it is a socket);"
+
+        def device(base, priv):
+            if not os.path.exists("/dev/null"):
+                self.skipTest("/dev/null is not present, so there is no character device to link to")
+            priv.symlink_to("/dev/null")
+            return (f"the private sibling {priv} is present but is not a directory "
+                    "(it is a character device);")
+
+        def dangling_link(base, priv):
+            priv.symlink_to(base / "missing")
+            return f"the private sibling {priv} is a link that does not resolve ("
+
+        def looping_link(base, priv):
+            priv.symlink_to(priv.name)
+            return f"the private sibling {priv} is a link that does not resolve ("
+
+        def link_under_unreadable_parent(base, priv):
+            (base / "locked" / "store").mkdir(parents=True)
+            self._lock(base / "locked")
+            priv.symlink_to(base / "locked" / "store")
+            return f"cannot examine the private sibling {priv} ("
+
+        def parent_without_search(base, priv):
+            priv.mkdir()
+            self._lock(base)
+            return f"cannot examine the private sibling {priv} ("
+
+        def directory(base, priv):
+            priv.mkdir()
+            return (f"the private sibling {priv} is a directory, but the default lookup found no "
+                    "usable directory there (it changed during the lookup);")
+
+        for label, build, perm, real_lookup in (
+                ("regular file", regular_file, False, True),
+                ("FIFO", fifo, False, True),
+                ("socket", sock, False, True),
+                ("link to a character device", device, False, True),
+                ("dangling link", dangling_link, False, True),
+                ("looping link", looping_link, False, True),
+                ("link to a directory under an unreadable parent", link_under_unreadable_parent, True, True),
+                ("parent without search permission", parent_without_search, True, True),
+                ("directory the lookup did not find", directory, False, False)):
+            with self.subTest(case=label):
+                if perm and os.geteuid() == 0:
+                    self.skipTest("run as root: permission bits do not deny root's search, so the "
+                                  "sibling path would lead to a usable directory")
+                found = {}
+
+                def setup(stack, mod, base, priv, build=build, real_lookup=real_lookup):
+                    from unittest.mock import patch
+                    found["message"] = build(base, priv)
+                    if real_lookup:
+                        lc = sys.modules[mod.require_dir.__module__]
+                        stack.enter_context(patch.object(lc, "REPO_ROOT", base / "grc_library"))
+                        stack.enter_context(patch.object(mod, "resolve_sibling", lc.resolve_sibling))
+                        self.assertIsNone(lc.resolve_sibling("private"))
+                rc, out, err, priv = self._run_default("sibling-kind", {}, sibling=False, setup=setup)
+                self._assert_sibling_error(rc, out, err, "ERROR: " + found["message"])
+                self.assertIn("a present but unusable private store is not an absent one", err)
+                self.assertNotIn("Traceback", err)
+
+    def test_default_degraded_line_names_only_absent_pairs(self):
+        # 3b674 r3: the preliminary DEGRADED line tested the root TODO-REFERENCE.md with
+        # Path.is_file(), so a present but broken one was called skipped before the gate failed on
+        # it. It is now named as skipped only when absent; each case still fails with exit 2.
+        def dangling(path, base):
+            path.symlink_to(base / "missing")
+
+        def looping(path, base):
+            path.symlink_to(path.name)
+
+        def directory(path, base):
+            path.mkdir()
+
+        def fifo(path, base):
+            os.mkfifo(path)
+
+        def unreachable(path, base):
+            (base / "locked").mkdir()
+            (base / "locked" / "file.md").write_text("x\n", encoding="utf-8")
+            self._lock(base / "locked")
+            path.symlink_to(base / "locked" / "file.md")
+
+        private_only = ("DEGRADED: gate 90 skipped the index<->reference parity check of the "
+                        "P-TODO.md pair (no private store supplies the reference);")
+        for label, build, perm in (("dangling link", dangling, False), ("looping link", looping, False),
+                                   ("directory", directory, False), ("FIFO", fifo, False),
+                                   ("link that cannot be reached", unreachable, True)):
+            with self.subTest(case=label):
+                if perm and os.geteuid() == 0:
+                    self.skipTest("run as root: permission bits do not deny root's reads, so the "
+                                  "locked entry would still be read")
+                found = {}
+
+                def setup(stack, mod, base, priv, build=build):
+                    found["path"] = base / "grc_library" / "TODO-REFERENCE.md"
+                    build(found["path"], base)
+                rc, out, err, _ = self._run_default("degraded-wording", {}, sibling=False, setup=setup)
+                self.assertEqual(rc, 2, out + err)
+                self.assertIn(private_only, out)
+                self.assertNotIn("the TODO.md pair", out)
+                error = [ln for ln in err.splitlines() if ln.startswith("ERROR: ")]
+                self.assertTrue(error and str(found["path"]) in error[0], err)
+
+    def test_default_records_tree_out_of_store_link_checked_before_kind(self):
+        # 3b674 r3: _probe_records checked a link's kind before its destination, so a .working link
+        # out of the store to a file or a FIFO failed as not a directory, and a dangling one as a
+        # link that does not resolve. Each now fails as an out-of-store link, not followed.
+        def link_to_file(base, priv):
+            (base / "records.md").write_text("handoff\n", encoding="utf-8")
+            (priv / ".working").symlink_to(base / "records.md")
+            return priv / ".working"
+
+        def link_to_fifo(base, priv):
+            os.mkfifo(base / "pipe")
+            (priv / ".working").symlink_to(base / "pipe")
+            return priv / ".working"
+
+        def link_to_device(base, priv):
+            if not os.path.exists("/dev/null"):
+                self.skipTest("/dev/null is not present, so there is no character device to link to")
+            (priv / ".working").symlink_to("/dev/null")
+            return priv / ".working"
+
+        def dangling_top(base, priv):
+            (priv / ".working").symlink_to(base / "missing")
+            return priv / ".working"
+
+        def dangling_nested(base, priv):
+            (priv / ".working").mkdir()
+            (priv / ".working" / "store").symlink_to(base / "missing")
+            return priv / ".working" / "store"
+
+        for label, build in (("records tree links to a file", link_to_file),
+                             ("records tree links to a FIFO", link_to_fifo),
+                             ("records tree links to a character device", link_to_device),
+                             ("records tree is a dangling link", dangling_top),
+                             ("dangling link inside the tree", dangling_nested)):
+            with self.subTest(case=label):
+                found = {}
+
+                def setup(stack, mod, base, priv, build=build):
+                    found["path"] = build(base, priv)
+                rc, out, err, priv = self._run_default("records-out-kind", {}, setup=setup)
+                store = os.path.realpath(priv)
+                self._assert_sibling_error(rc, out, err,
+                                           f"ERROR: the private store's records tree {priv / '.working'} "
+                                           f"holds a link that resolves outside the store {store}: "
+                                           f"{found['path']} -> {os.path.realpath(found['path'])}; "
+                                           "the walk does not follow it;")
 
 class TagGateTests(LinterTestCase):
     """tools/lint-todo-list-tag.py (gate 81): every open TODO.md / P-TODO.md
