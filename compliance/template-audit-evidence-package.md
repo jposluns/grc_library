@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.1.14\
+**Version:** 1.1.15\
 **Date:** 2026-10-28\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -210,8 +210,8 @@ For larger packages (50+ controls), insert a per-domain summary between the inde
 ## Domain summary: <Domain name>
 
 Controls in scope from this domain: <count>
-Controls fully implemented with no gaps identified: <count> (SOC 2 Type II: suitably designed and operated effectively throughout the period; SOC 2 Type I: suitably designed as of the "as of" date, with the organization's own implementation evidence showing it fully implemented as of that date; operating effectiveness not assessed)
-Controls partially implemented or with an identified gap: <count> (SOC 2 Type II: with a design gap or an operating-effectiveness gap during the period; SOC 2 Type I: partially implemented, or with a design gap, as of the "as of" date)
+Controls fully implemented with no gaps identified: <count> (SOC 2 Type II: suitably designed and operated effectively throughout the period, with the organization's own implementation evidence showing it fully implemented throughout the period; SOC 2 Type I: suitably designed as of the "as of" date, with the organization's own implementation evidence showing it fully implemented as of that date; operating effectiveness not assessed)
+Controls partially implemented or with an identified gap: <count> (SOC 2 Type II: partially implemented, or with a design gap or an operating-effectiveness gap, during the period; SOC 2 Type I: partially implemented, or with a design gap, as of the "as of" date)
 Controls not implemented (with compensating control): <count>
 Controls not implemented (without compensating control): <count>
 
@@ -276,7 +276,7 @@ When assembling an evidence package, the following patterns weaken the package's
 - **Evidence that is just a screenshot without a date or context.** Screenshots are point-in-time. An undated screenshot proves nothing about whether the control operated for the period covered, or, for a SOC 2 Type I package, whether it was in place as of the "as of" date. Include the date the screenshot was taken, the system, and (if relevant) the user role under which it was taken.
 - **Tests with a sample size of one and no recorded basis.** Record the sample size and its basis in the test's Sampling justification field, as §2.2 and §2.3 of [`compliance/procedure-control-testing.md`](procedure-control-testing.md) state them (quoted in the per-control template above). Where a single instance is the whole population, such as a control that operates once in the period, record it as a "100% population review" under §2.3's **Full population (100%)** selection method, with the §2.3 items, including the selection rationale.
 - **"See attached" without an attachment.** The package is the artefact; if evidence is attached separately, the per-control section names the attachment by name and version, and the attachment travels with the package.
-- **Compensating controls without a remediation plan.** A compensating control without a remediation plan signals the gap will persist. Record a remediation plan for each ineffective control and, for a SOC 2 Type I package, for each control with a design deficiency or described but not implemented as of the "as of" date; check the framework's specific requirements.
+- **Compensating controls without a remediation plan.** A compensating control without a remediation plan signals the gap will persist. Record a remediation plan for each control marked with a gap under step 4: for a period-based or SOC 2 Type II package, a control that was ineffective, had a design gap, or was not implemented or only partially implemented during the period; for a SOC 2 Type I package, a control that had a design gap, or was not implemented or only partially implemented, as of the "as of" date. Check the framework's specific requirements.
 - **Mixing "we will do this" with "we did this".** The package covers a period in the past, or, for a SOC 2 Type I package, a past point in time. Future commitments belong in a remediation plan, not in the operating-evidence section (for a SOC 2 Type I package, not in the implementation-evidence section). The auditor will treat any future-tense language in evidence sections as a finding.
 - **Bundles that grow beyond practical navigability.** Above ~150 in-scope controls the per-domain summaries become load-bearing; below that, the index is enough. Plan navigation before the package crosses the threshold.
 - **Sign-off by the same person as the assembler.** The reviewer must be different from the assembler. Self-review is not review.
