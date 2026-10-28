@@ -18961,6 +18961,13 @@ class AuditGateParityTests(LinterTestCase):
             with self.subTest(command=command):
                 self.assertEqual(agp._gate_command(command) is not None, accepted)
 
+    # Since round 6 each YAML surface must have its file's fixed skeleton; a fixture's steps
+    # or hooks follow these heads at the real files' columns.
+    _WORKFLOW_HEAD = ("name: Quality\non:\n  push:\n    branches:\n      - main\n"
+                      "  pull_request:\npermissions:\n  contents: read\njobs:\n  lint:\n"
+                      "    name: Lint\n    runs-on: ubuntu-latest\n    steps:\n")
+    _PRECOMMIT_HEAD = "repos:\n  - repo: local\n    hooks:\n"
+
     def _gate_fixtures(self, root: Path, command: str) -> dict[str, Path]:
         """``command`` as the one gate line of a runner, a workflow step and a pre-commit
         hook under ``root``."""
@@ -18969,28 +18976,33 @@ class AuditGateParityTests(LinterTestCase):
                  "workflow": root / "quality.yml", "precommit": root / "pre-commit.yaml"}
         paths["runner"].write_text(f'run_gate() {{\n}}\nrun_gate "Shape" {command}\n',
                                    encoding="utf-8")
-        paths["workflow"].write_text(f"    steps:\n      - name: Shape\n        run: {command}\n",
-                                     encoding="utf-8")
+        paths["workflow"].write_text(self._WORKFLOW_HEAD + f"      - name: Shape\n"
+                                     f"        run: {command}\n", encoding="utf-8")
         paths["precommit"].write_text(
-            f"  - repo: local\n    hooks:\n      - id: shape\n        name: Shape\n"
+            self._PRECOMMIT_HEAD + f"      - id: shape\n        name: Shape\n"
             f"        entry: {command}\n        language: system\n"
-            f"        pass_filenames: false\n", encoding="utf-8")
+            f"        pass_filenames: false\n        always_run: true\n", encoding="utf-8")
         return paths
 
     def _assert_refused_on_every_reader(self, *commands: str) -> None:
         """Each command, as the gate line of each surface, is a ParseError in gate 35's
-        parser for that surface and a refused runner entry in the blind-spot map."""
+        parser for that surface and a refused runner entry in the blind-spot map. Since
+        round 6 a YAML value that begins with a quote is refused before the gate line is
+        read."""
         agp = self._gate_parity_module("_agp_refused")
         spots = self._blindspots_module()
         for command in commands:
             root = Path(tempfile.mkdtemp(prefix="synthetic-parity-refused-", dir=FIXTURE_DIR))
             try:
                 paths = self._gate_fixtures(root, command)
-                for parse, path in ((agp.parse_runner, paths["runner"]),
-                                    (agp.parse_workflow, paths["workflow"]),
-                                    (agp.parse_precommit, paths["precommit"])):
+                for parse, path, message in (
+                        (agp.parse_runner, paths["runner"], "is not an accepted gate line"),
+                        (agp.parse_workflow, paths["workflow"],
+                         "is not an accepted gate line|value that begins with a quote"),
+                        (agp.parse_precommit, paths["precommit"],
+                         "is not an accepted gate line|value that begins with a quote")):
                     with self.subTest(command=command, parser=parse.__name__):
-                        with self.assertRaisesRegex(agp.ParseError, "is not an accepted gate line"):
+                        with self.assertRaisesRegex(agp.ParseError, message):
                             parse(path)
                 with self.subTest(command=command, parser="blind-spot load_gates"):
                     with self.assertRaisesRegex(RuntimeError, "is not an accepted gate line"):
@@ -19148,37 +19160,50 @@ class AuditGateParityTests(LinterTestCase):
 
     def test_r3_yaml_continuation_is_refused(self) -> None:
         # Round 3 read one physical line; a plain scalar continued on a deeper line was
-        # run whole by YAML but read only up to its first line.
+        # run whole by YAML but read only up to its first line. Since round 6 a continuation
+        # line is refused as a line shape, or, shaped as a key, as a deeper line no key opens.
         agp = self._gate_parity_module("_agp_continued")
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-continued-", dir=FIXTURE_DIR))
         try:
             workflow, precommit = root / "quality.yml", root / "pre-commit.yaml"
-            workflow.write_text("    steps:\n      - name: Continued\n"
-                                "        run: python3 tools/x.py\n"
-                                "          && python3 -B tools/x.py\n", encoding="utf-8")
-            precommit.write_text("    hooks:\n      - id: continued\n        name: Continued\n"
-                                 "        entry: python3 tools/x.py\n          -B\n"
-                                 "        language: system\n", encoding="utf-8")
-            for parse, path in ((agp.parse_workflow, workflow), (agp.parse_precommit, precommit)):
-                with self.subTest(parser=parse.__name__):
-                    with self.assertRaisesRegex(agp.ParseError, "deeper-indented line"):
-                        parse(path)
+            for continued, message in (("&& python3 -B tools/x.py", "nor a plain list item"),
+                                       ("-B", "nor a plain list item"),
+                                       ("x: python3 -B tools/x.py",
+                                        "no key above it opens a nested value")):
+                workflow.write_text(self._WORKFLOW_HEAD + "      - name: Continued\n"
+                                    "        run: python3 tools/x.py\n"
+                                    f"          {continued}\n", encoding="utf-8")
+                precommit.write_text(self._PRECOMMIT_HEAD + "      - id: continued\n"
+                                     "        name: Continued\n"
+                                     f"        entry: python3 tools/x.py\n          {continued}\n"
+                                     "        language: system\n", encoding="utf-8")
+                for parse, path in ((agp.parse_workflow, workflow),
+                                    (agp.parse_precommit, precommit)):
+                    with self.subTest(continued=continued, parser=parse.__name__):
+                        with self.assertRaisesRegex(agp.ParseError, message):
+                            parse(path)
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
     def test_r3_workflow_gate_step_with_other_keys_is_refused(self) -> None:
+        # Since round 6 a key no step has, or a key repeated, is refused by the skeleton
+        # before the gate-step check.
         agp = self._gate_parity_module("_agp_step_keys")
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-step-keys-", dir=FIXTURE_DIR))
         try:
             workflow = root / "quality.yml"
-            for extra in ("        shell: bash -c 'python3 -B tools/x.py' {0}\n",
-                          "        env:\n          PYTHONDONTWRITEBYTECODE: 1\n",
-                          "        run: python3 -B tools/x.py\n"):
+            for extra, message in (
+                    ("        shell: bash -c 'python3 -B tools/x.py' {0}\n", "the key 'shell'"),
+                    ("        env:\n          PYTHONDONTWRITEBYTECODE: 1\n",
+                     "the key 'PYTHONDONTWRITEBYTECODE'"),
+                    ("        env:\n          BASE_SHA: x\n", r"not exactly \['name', 'run'\]"),
+                    ("        if: false\n", r"not exactly \['name', 'run'\]"),
+                    ("        run: python3 -B tools/x.py\n", "repeats the key 'run'")):
                 with self.subTest(extra=extra):
-                    workflow.write_text("    steps:\n      - name: Keys\n"
+                    workflow.write_text(self._WORKFLOW_HEAD + "      - name: Keys\n"
                                         "        run: python3 tools/x.py\n" + extra,
                                         encoding="utf-8")
-                    with self.assertRaisesRegex(agp.ParseError, r"not exactly \['name', 'run'\]"):
+                    with self.assertRaisesRegex(agp.ParseError, message):
                         agp.parse_workflow(workflow)
         finally:
             shutil.rmtree(root, ignore_errors=True)
@@ -19188,11 +19213,15 @@ class AuditGateParityTests(LinterTestCase):
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-hook-keys-", dir=FIXTURE_DIR))
         try:
             precommit = root / "pre-commit.yaml"
-            head = "    hooks:\n      - id: keys\n        name: Keys\n        entry: python3 tools/x.py\n"
-            # Since round 5 an args flow list is refused by the YAML line shape first.
-            for tail, message in (("        language: system\n        args: -B\n", r"\['args'\]"),
+            head = (self._PRECOMMIT_HEAD + "      - id: keys\n        name: Keys\n"
+                    "        entry: python3 tools/x.py\n")
+            # Since round 6 args is refused by the skeleton, and a value beginning with '-'
+            # or '[' by the value rule, before the gate-hook check.
+            for tail, message in (("        language: system\n        args: B\n", "the key 'args'"),
+                                  ("        language: system\n        args: -B\n",
+                                   "args value that begins with '-'"),
                                   ("        language: system\n        args: [-B]\n",
-                                   "args value written as a flow collection"),
+                                   "args value that begins with '\\['"),
                                   ("        language: script\n", "language: system"),
                                   ("        pass_filenames: false\n", "language: system")):
                 with self.subTest(tail=tail):
@@ -19209,14 +19238,15 @@ class AuditGateParityTests(LinterTestCase):
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-unnamed-", dir=FIXTURE_DIR))
         try:
             workflow, precommit = root / "quality.yml", root / "pre-commit.yaml"
-            workflow.write_text("    steps:\n      - name: Plain\n        run: python3 tools/x.py\n"
+            workflow.write_text(self._WORKFLOW_HEAD + "      - name: Plain\n"
+                                "        run: python3 tools/x.py\n"
                                 "      - run: python3 -B tools/x.py\n", encoding="utf-8")
-            precommit.write_text("    hooks:\n      - id: plain\n        name: Plain\n"
+            precommit.write_text(self._PRECOMMIT_HEAD + "      - id: plain\n        name: Plain\n"
                                  "        entry: python3 tools/x.py\n        language: system\n"
-                                 "        pass_filenames: false\n"
+                                 "        pass_filenames: false\n        always_run: true\n"
                                  "      - id: unnamed\n        entry: python3 -B tools/x.py\n"
                                  "        language: system\n", encoding="utf-8")
-            with self.assertRaisesRegex(agp.ParseError, "outside a step"):
+            with self.assertRaisesRegex(agp.ParseError, "step whose first key is 'run'"):
                 agp.parse_workflow(workflow)
             with self.assertRaisesRegex(agp.ParseError, "exactly one name and one entry"):
                 agp.parse_precommit(precommit)
@@ -19250,10 +19280,10 @@ class AuditGateParityTests(LinterTestCase):
     # Round 5 (the maintainer's 23:20Z decision): the YAML surfaces accept only the block-
     # mapping line shapes the current steps and hooks use. Each test below passed at
     # 0b4738bc4: the fixture's extra step or hook was skipped, or the hook was accepted.
-    _R5_WORKFLOW = "    steps:\n      - name: A\n        run: python3 tools/a.py\n"
-    _R5_PRECOMMIT = ("  - repo: local\n    hooks:\n      - id: a\n        name: A\n"
+    _R5_WORKFLOW = _WORKFLOW_HEAD + "      - name: A\n        run: python3 tools/a.py\n"
+    _R5_PRECOMMIT = (_PRECOMMIT_HEAD + "      - id: a\n        name: A\n"
                      "        entry: python3 tools/a.py\n        language: system\n"
-                     "        pass_filenames: false\n")
+                     "        pass_filenames: false\n        always_run: true\n")
 
     def _assert_yaml_refused(self, parser: str, base: str, cases, message: str) -> None:
         """``base`` parses to its one gate; ``base`` plus each case is a ParseError
@@ -19301,7 +19331,7 @@ class AuditGateParityTests(LinterTestCase):
             "      - {name: B, run: python3 -B tools/b.py}\n",), not_plain)
         self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
             "      - name: Checkout\n        with: {run: python3 -B tools/b.py}\n",),
-            "with value written as a flow collection")
+            "with value that begins with '{'")
 
     def test_r5_precommit_pass_filenames_must_be_false(self) -> None:
         # pre-commit appends the staged file names to the entry unless pass_filenames is
@@ -19310,9 +19340,10 @@ class AuditGateParityTests(LinterTestCase):
         without = base.replace("        pass_filenames: false\n", "")
         self._assert_yaml_refused("parse_precommit", base, (
             "      - id: b\n        name: B\n        entry: python3 tools/b.py\n"
-            "        language: system\n        pass_filenames: true\n",
+            "        language: system\n        pass_filenames: true\n        always_run: true\n",
             "      - id: b\n        name: B\n        entry: python3 tools/b.py\n"
-            "        language: system\n"), "does not have pass_filenames: false")
+            "        language: system\n        always_run: true\n"),
+            "does not have pass_filenames: false")
         agp = self._gate_parity_module("_agp_r5_pass_filenames")
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
         try:
@@ -19336,24 +19367,256 @@ class AuditGateParityTests(LinterTestCase):
             "      - name: B\n        id: b\n",), "hook whose first key is 'name'")
 
     def test_r5_current_yaml_line_shapes_are_accepted(self) -> None:
-        # The shapes the real surfaces use outside gate steps and hooks stay accepted.
+        # The shapes the real surfaces use outside gate steps and hooks stay accepted: a
+        # trailing comment on a uses: value, a with: mapping, comment lines between steps,
+        # an excluded step's `run: |` block (whose `#` and quoted lines are its text), and a
+        # gate hook's pinned types_or: list.
         agp = self._gate_parity_module("_agp_r5_accepted")
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
         try:
             workflow, precommit = root / "quality.yml", root / "pre-commit.yaml"
             workflow.write_text(
-                "on:\n  push:\n    branches:\n      - main\n  pull_request:\n"
-                "jobs:\n  lint:\n    steps:\n      - name: Checkout\n"
+                self._WORKFLOW_HEAD + "      - name: Checkout\n"
                 "        uses: actions/checkout@abc # v1\n        with:\n"
-                "          python-version: \"3.11\"\n"
-                "      - name: A\n        run: python3 tools/a.py\n", encoding="utf-8")
-            precommit.write_text(self._R5_PRECOMMIT + "        types_or: [markdown, python]\n"
-                                 "        files: '\\.md$'\n", encoding="utf-8")
+                "          python-version: 3.11\n\n      # A comment between steps.\n"
+                "      - name: A\n        run: python3 tools/a.py\n"
+                "      - name: Detect collection candidates on pack PRs (informational)\n"
+                "        if: github.event_name == 'pull_request'\n        run: |\n"
+                "          echo \"a\n\n          # text, not a comment\n"
+                "            echo 'b\n", encoding="utf-8")
+            precommit.write_text(self._R5_PRECOMMIT.replace(
+                "        always_run: true\n", "        types_or: [markdown, python, shell]\n"),
+                encoding="utf-8")
             for parse, path in ((agp.parse_workflow, workflow), (agp.parse_precommit, precommit)):
                 with self.subTest(parser=parse.__name__):
                     self.assertEqual([e[1:] for e in parse(path)], [("A", "tools/a.py", ())])
         finally:
             shutil.rmtree(root, ignore_errors=True)
+
+    # Round 6 (the maintainer's 22:12Z and 23:20Z decisions carried to structure): each YAML
+    # surface is accepted only in its fixed skeleton. One test per finding of the round-5
+    # review; each edits a copy of the real surfaces, and each case below exited 0 (or, where
+    # marked, 1) at f0dbdfe07.
+    def _run_yaml_edits(self, *edits: tuple[str, str, str]) -> subprocess.CompletedProcess:
+        """Gate 35 over a copy of the real surfaces, with each (surface, old, new) edit
+        replacing the one occurrence of ``old`` in that surface by ``new``."""
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r6-", dir=FIXTURE_DIR))
+        try:
+            for name in self._ISOLATED_SURFACES:
+                text = (REPO_ROOT / name).read_text(encoding="utf-8")
+                for surface, old, new in edits:
+                    if surface == name:
+                        self.assertEqual(text.count(old), 1, f"fixture anchor {old!r}")
+                        text = text.replace(old, new)
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(text, encoding="utf-8")
+            return subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tools/lint-audit-gate-parity.py"),
+                 "--root", str(root)],
+                cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def _assert_yaml_edits_refused(self, cases) -> None:
+        """Each (label, message, edits) case exits 2 with ``message`` in its error."""
+        for label, message, edits in cases:
+            with self.subTest(case=label):
+                result = self._run_yaml_edits(*edits)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn(message, result.stderr)
+
+    _WF = ".github/workflows/quality.yml"
+    _PC = ".pre-commit-config.yaml"
+    _WF_METADATA = "      - name: Metadata audit\n        run: python3 tools/lint-metadata.py\n"
+    # The workflow's last lines: the end of the excluded detector step's `run: |` block.
+    _WF_TAIL = ('            echo "(Run on demand: python3 tools/detect-collection-candidates.py)"\n'
+                "          fi\n")
+    _PC_LINKS = ("      - id: lint-links\n        name: Repository-internal link audit\n"
+                 "        entry: python3 tools/lint-links.py\n        language: system\n"
+                 "        pass_filenames: false\n        types: [markdown]\n")
+    _PC_LANGUAGE_FILES = ("        files: (\\.md$|^tools/build-(narrative-registry|portal|taxonomy)"
+                          "\\.py$|^tools/lint-language\\.py$|^\\.corpus-management/tools/"
+                          "gate_lint_language\\.py$)\n")
+
+    def test_r6_error1_quote_closed_on_a_comment_line_is_refused(self) -> None:
+        # Round-5 ERROR 1 (W38, W39, P28b): a quoted value left open was closed on a later
+        # comment line, which gate 35 skipped, so YAML read the gate steps or hooks between
+        # as part of the value. No value may begin with a quote now.
+        cases = []
+        for quote in ('"', "'"):
+            cases.append((f"workflow {quote}", "value that begins with a quote", (
+                (self._WF, "        run: python3 -m pip install -r requirements.txt\n",
+                 f"        run: {quote}echo ok\n"),
+                (self._WF, self._WF_METADATA, self._WF_METADATA + f"        # {quote}\n"))))
+        cases.append(("pre-commit '", "value that begins with a quote", (
+            (self._PC, self._PC_LANGUAGE_FILES, "        files: '\\.md$\n"),
+            (self._PC, self._PC_LINKS, self._PC_LINKS + "        # '\n"))))
+        cases.append(("closed quote", "value that begins with a quote", (
+            (self._WF, "          python-version: 3.11\n", '          python-version: "3.11"\n'),)))
+        self._assert_yaml_edits_refused(cases)
+
+    def test_r6_error2_step_or_hook_outside_its_list_is_refused(self) -> None:
+        # Round-5 ERROR 2 (P29, P31b, P30b, W41b): a `- name:` or `- id:` line was read as a
+        # step or hook at any column under any key, though YAML reads it as another key's
+        # value. A step is now only an item of jobs.lint.steps and a hook only an item of
+        # repos[].hooks, each at that list's column.
+        metadata_hook = ("      - id: lint-metadata\n        name: Metadata audit\n"
+                         "        entry: python3 tools/lint-metadata.py\n        language: system\n"
+                         "        pass_filenames: false\n        types: [markdown]\n")
+        parity_hook = ("      - id: lint-audit-gate-parity\n        name: Gate-name parity audit\n"
+                       "        entry: python3 tools/lint-audit-gate-parity.py\n"
+                       "        language: system\n        pass_filenames: false\n"
+                       "        always_run: true\n")
+        last_step = ("      - name: Isolated-launch import audit\n"
+                     "        run: python3 tools/lint-isolated-launch.py\n")
+        nested = lambda text, by: "".join(" " * by + line + "\n" for line in text.splitlines())
+        self._assert_yaml_edits_refused((
+            ("P29 repo key", "has the key 'x'", (
+                (self._PC, "    hooks:\n" + metadata_hook, "    x:\n" + metadata_hook + "    hooks:\n"),)),
+            ("P31b regen hook key", "is at column 8 below the key 'x' at column 8", (
+                (self._PC, "        types: [markdown]\n\n" + parity_hook,
+                 "        types: [markdown]\n        x:\n" + nested(parity_hook, 2)),)),
+            ("P30b top-level key", "is at column 6 below the key 'x' at column 0", (
+                (self._PC, "      - id: lint-isolated-launch\n",
+                 "x:\n      - id: lint-isolated-launch\n"),)),
+            ("W41b matrix list at its key's column", "is at column 8 below the key 'x' at column 8", (
+                (self._WF, last_step, ""),
+                (self._WF, self._WF_TAIL,
+                 self._WF_TAIL + "    strategy:\n      matrix:\n        x:\n" + nested(last_step, 2)))),
+            ("W41b matrix list two columns deeper", "has the key 'strategy'", (
+                (self._WF, last_step, ""),
+                (self._WF, self._WF_TAIL,
+                 self._WF_TAIL + "    strategy:\n      matrix:\n        x:\n" + nested(last_step, 4)))),
+            ("step at a deeper column", "is a list item at column 8", (
+                (self._WF, "\n" + last_step, nested(last_step, 2)),)),
+            ("hook at a deeper column", "is a list item at column 8", (
+                (self._PC, "\n" + parity_hook, nested(parity_hook, 2)),)),
+        ))
+
+    def test_r6_warn1_stated_residuals_match_the_structural_reader(self) -> None:
+        # Round-5 WARN 1: the residuals said the uncovered regions were "unread by this
+        # check" and that "no key YAML reads is passed over", while the gate counted gates
+        # inside other keys' values and skipped comment lines YAML read as value text. The
+        # residuals now name what the skeleton leaves unpinned, in both modules and the spec.
+        agp = self._gate_parity_module("_agp_r6_residuals")
+        spots = self._blindspots_module()
+        spec = (REPO_ROOT / "governance/specification-audit-programme.md").read_text(
+            encoding="utf-8")
+        texts = {"gate 35": " ".join(agp.__doc__.split()),
+                 "blind-spot map": " ".join(spots.__doc__.split()),
+                 "spec": " ".join(spec.split())}
+        for where, text in texts.items():
+            with self.subTest(where=where):
+                for stale in ("unread by this check", "block-mapping line shapes",
+                              "read as block mappings only",
+                              "YAML a real reader takes differently from the line shapes"):
+                    self.assertNotIn(stale, text)
+                for stated in ("fixed skeleton", "the values the skeletons leave free",
+                               "does not validate YAML"):
+                    self.assertIn(stated, text)
+        for name in ("WORKFLOW_SKELETON", "PRECOMMIT_SKELETON", "PRECOMMIT_GATE_SELECTORS"):
+            with self.subTest(name=name):
+                self.assertTrue(hasattr(agp, name))
+
+    def test_r6_warn2_step_under_an_excluded_steps_with_is_refused(self) -> None:
+        # Round-5 WARN 2 (W40): a gate step placed as the with: value of the excluded
+        # Checkout step. The last two cases exited 1 at f0dbdfe07 (the step went unread and
+        # the counts differed).
+        moved = self._WF_METADATA
+        self._assert_yaml_edits_refused((
+            ("with at its key's column", "is at column 8 below the key 'with' at column 8", (
+                (self._WF, "\n" + moved, ""),
+                (self._WF, "        with:\n          fetch-depth: 0\n",
+                 "        with:\n" + moved.replace("      ", "        ", 1).replace(
+                     "        run", "          run")))),
+            ("with as a list", "jobs.lint.steps[1].with is a list, not a mapping", (
+                (self._WF, "\n" + moved, ""),
+                (self._WF, "        with:\n          fetch-depth: 0\n",
+                 "        with:\n" + "".join("    " + line + "\n" for line in moved.splitlines())))),
+            ("with key", "has the key 'x'", (
+                (self._WF, "\n" + moved, ""),
+                (self._WF, "          fetch-depth: 0\n",
+                 "          fetch-depth: 0\n          x:\n"
+                 + "".join("      " + line + "\n" for line in moved.splitlines())))),
+        ))
+
+    def test_r6_warn3_gate_hook_run_deciding_values_are_pinned(self) -> None:
+        # Round-5 WARN 3 (P32, P33): files, types and types_or decide whether pre-commit runs
+        # a hook, and any value was accepted. A gate hook now has exactly one of always_run,
+        # files, types and types_or, with a value in PRECOMMIT_GATE_SELECTORS; keys such as
+        # exclude and stages, and the top-level settings, are outside the skeleton.
+        selectors = "not exactly one entry of PRECOMMIT_GATE_SELECTORS"
+        parity = ("        entry: python3 tools/lint-audit-gate-parity.py\n"
+                  "        language: system\n        pass_filenames: false\n")
+        self._assert_yaml_edits_refused((
+            ("P32 files", selectors, (
+                (self._PC, self._PC_LANGUAGE_FILES, "        files: ^$\n"),)),
+            ("P33 types", "has a types list other than [markdown]", (
+                (self._PC, self._PC_LINKS, self._PC_LINKS.replace("[markdown]", "[directory]")),)),
+            ("always_run false", selectors, (
+                (self._PC, parity + "        always_run: true\n",
+                 parity + "        always_run: false\n"),)),
+            ("second run-deciding key", selectors, (
+                (self._PC, self._PC_LINKS, self._PC_LINKS + "        files: ^$\n"),)),
+            ("no run-deciding key", selectors, (
+                (self._PC, self._PC_LINKS, self._PC_LINKS.replace("        types: [markdown]\n", "")),)),
+            ("verbose false", "verbose value other than true", (
+                (self._PC, parity + "        always_run: true\n",
+                 parity + "        always_run: true\n        verbose: false\n"),)),
+            ("exclude", "has the key 'exclude'", (
+                (self._PC, self._PC_LINKS, self._PC_LINKS + "        exclude: .*\n"),)),
+            ("top-level fail_fast", "has the key 'fail_fast'", (
+                (self._PC, "repos:\n", "fail_fast: true\nrepos:\n"),)),
+        ))
+
+    def test_r6_note1_yaml_specials_in_flow_lists_are_refused(self) -> None:
+        # Round-5 NOTE 1 (P08): `types_or: [yes, null]` passed the plain-word list check,
+        # though YAML reads a boolean and a null. Only the exact lists the hooks use remain.
+        gate_count = "        types_or: [markdown, python, shell]\n"
+        self._assert_yaml_edits_refused(tuple(
+            (value, f"list other than", ((self._PC, old, new),))
+            for value, old, new in (
+                ("[yes, null]", gate_count, "        types_or: [yes, null]\n"),
+                ("[markdown, python, no]", gate_count, "        types_or: [markdown, python, no]\n"),
+                ("[null]", self._PC_LINKS, self._PC_LINKS.replace("[markdown]", "[null]")),
+                ("[true]", self._PC_LINKS, self._PC_LINKS.replace("[markdown]", "[true]")))))
+
+    def test_r6_note2_job_values_and_duplicate_keys_are_refused(self) -> None:
+        # Round-5 NOTE 2 (W36, W37b), stated residuals in round 5: a job-level if: and a
+        # second steps: (a reader keeps the last). A duplicate key is now refused at every
+        # level, and the job holds only name, runs-on and steps.
+        hooks_split = "        types: [markdown]\n\n      # Gate 2 checks"
+        self._assert_yaml_edits_refused((
+            ("W36 job if", "has the key 'if'", (
+                (self._WF, "    runs-on: ubuntu-latest\n",
+                 "    runs-on: ubuntu-latest\n    if: false\n"),)),
+            ("W37b second steps", "repeats the key 'steps'", (
+                (self._WF, "\n" + self._WF_METADATA, ""),
+                (self._WF, "    steps:\n", "    steps:\n" + self._WF_METADATA + "    steps:\n"))),
+            ("second hooks", "repeats the key 'hooks'", (
+                (self._PC, hooks_split, hooks_split.replace("\n\n", "\n    hooks:\n")),)),
+            ("second on", "repeats the key 'on'", (
+                (self._WF, "permissions:\n", "on:\n  pull_request:\npermissions:\n"),)),
+            ("push branches", "is 'nowhere', not main", (
+                (self._WF, "      - main\n", "      - nowhere\n"),)),
+            # Found by a PyYAML mutation cross-check while writing round 6: the skeleton
+            # allowed a key to be missing, and without pull_request: no gate runs on a PR.
+            ("no pull_request trigger", "lacks the key(s) ['pull_request']", (
+                (self._WF, "  pull_request:\n", ""),)),
+            ("no runs-on", "lacks the key(s) ['runs-on']", (
+                (self._WF, "    runs-on: ubuntu-latest\n", ""),)),
+        ))
+
+    def test_r6_current_surfaces_read_every_gate(self) -> None:
+        # Every current gate step and hook is read, in the runner's order and count.
+        agp = self._gate_parity_module("_agp_r6_current")
+        runner = agp.parse_runner(REPO_ROOT / agp.RUNNER_PATH)
+        for parse, name in ((agp.parse_workflow, agp.WORKFLOW_PATH),
+                            (agp.parse_precommit, agp.PRECOMMIT_PATH)):
+            with self.subTest(surface=name):
+                self.assertEqual([e[1:] for e in parse(REPO_ROOT / name)],
+                                 [e[1:] for e in runner])
 
     def test_r3_same_bypass_on_all_three_surfaces_is_refused(self) -> None:
         # Argv parity cannot see a tail added identically to every surface; the allowlist
@@ -19414,12 +19677,7 @@ class AuditGateParityTests(LinterTestCase):
             )
             # Workflow: matches spec.
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
-                "name: Quality\n\n"
-                "on: push\n\n"
-                "jobs:\n"
-                "  lint:\n"
-                "    runs-on: ubuntu-latest\n"
-                "    steps:\n"
+                self._WORKFLOW_HEAD +
                 "      - name: Metadata audit\n"
                 "        run: python3 tools/lint-metadata.py\n",
                 encoding="utf-8",
@@ -19439,7 +19697,8 @@ class AuditGateParityTests(LinterTestCase):
                 "        name: Wrong Name For Metadata Audit\n"
                 "        entry: python3 tools/lint-metadata.py\n"
                 "        language: system\n"
-                "        pass_filenames: false\n",
+                "        pass_filenames: false\n"
+                "        always_run: true\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19471,12 +19730,7 @@ class AuditGateParityTests(LinterTestCase):
                 encoding="utf-8",
             )
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
-                "name: Quality\n\n"
-                "on: push\n\n"
-                "jobs:\n"
-                "  lint:\n"
-                "    runs-on: ubuntu-latest\n"
-                "    steps:\n"
+                self._WORKFLOW_HEAD +
                 "      - name: Metadata audit\n"
                 "        run: python3 tools/lint-metadata.py\n",
                 encoding="utf-8",
@@ -19494,7 +19748,8 @@ class AuditGateParityTests(LinterTestCase):
                 "        name: Metadata audit\n"
                 "        entry: python3 tools/lint-metadata.py\n"
                 "        language: system\n"
-                "        pass_filenames: false\n",
+                "        pass_filenames: false\n"
+                "        always_run: true\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19537,12 +19792,7 @@ class AuditGateParityTests(LinterTestCase):
                 encoding="utf-8",
             )
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
-                "name: Quality\n\n"
-                "on: push\n\n"
-                "jobs:\n"
-                "  lint:\n"
-                "    runs-on: ubuntu-latest\n"
-                "    steps:\n"
+                self._WORKFLOW_HEAD +
                 "      - name: Metadata audit\n"
                 "        run: python3 tools/lint-metadata.py --enforce\n",
                 encoding="utf-8",
@@ -19560,7 +19810,8 @@ class AuditGateParityTests(LinterTestCase):
                 "        name: Metadata audit\n"
                 "        entry: python3 tools/lint-metadata.py --strict\n"
                 "        language: system\n"
-                "        pass_filenames: false\n",
+                "        pass_filenames: false\n"
+                "        always_run: true\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19604,12 +19855,7 @@ class AuditGateParityTests(LinterTestCase):
                 encoding="utf-8",
             )
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
-                "name: Quality\n\n"
-                "on: push\n\n"
-                "jobs:\n"
-                "  lint:\n"
-                "    runs-on: ubuntu-latest\n"
-                "    steps:\n"
+                self._WORKFLOW_HEAD +
                 "      - name: Metadata audit\n"
                 "        run: python3 tools/lint-metadata.py --strict\n",
                 encoding="utf-8",
@@ -19627,7 +19873,8 @@ class AuditGateParityTests(LinterTestCase):
                 "        name: Metadata audit\n"
                 "        entry: python3 tools/lint-metadata.py --different-flag\n"
                 "        language: system\n"
-                "        pass_filenames: false\n",
+                "        pass_filenames: false\n"
+                "        always_run: true\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19672,12 +19919,7 @@ class AuditGateParityTests(LinterTestCase):
                 encoding="utf-8",
             )
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
-                "name: Quality\n\n"
-                "on: push\n\n"
-                "jobs:\n"
-                "  lint:\n"
-                "    runs-on: ubuntu-latest\n"
-                "    steps:\n"
+                self._WORKFLOW_HEAD +
                 "      - name: Metadata audit\n"
                 "        run: python3 tools/lint-metadata.py --sep 'a b'\n",
                 encoding="utf-8",
@@ -19695,7 +19937,8 @@ class AuditGateParityTests(LinterTestCase):
                 "        name: Metadata audit\n"
                 "        entry: python3 tools/lint-metadata.py --sep 'a b'\n"
                 "        language: system\n"
-                "        pass_filenames: false\n",
+                "        pass_filenames: false\n"
+                "        always_run: true\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -29478,7 +29721,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         audit-backlog-actionability.py OWN F c089004a4e41f3a8c9273d7df9926331953635bc3133ba22023e1f2a7ffc1244
         audit-claim-precision.py ROOT F c2e537144efb7458cba00827577f959907263a7dfffcc75bab54c888f1e1d4b2
         audit-cross-repo-references.py OWN F f2eeb637b2a28b3d8995fe57609c231e1845dc139b4d8aa5f917433833abd83d
-        audit-gate-blindspots.py OWN F 8e0f51a9d2f173d87742fc49dbf52460da4793c8a2553864b8acfdd883b518b8
+        audit-gate-blindspots.py OWN F f549a60d95dc522292e74af5ddcfda9db634a419ee1376a38dc13fe6637a629c
         audit-gate-mutation.py OWN F db2e8a4e3255dfff96dc9a0f744a58508c1b88e689bea0af28fdc33062fb5716
         audit-held-branch-expiry.py NO_FS F 3255ff7873ca44e429b60011d733b90f6a65434f816a55f3f1be5a53f7a8d652
         audit-inbox-drops.py SKIP F a931ec3bf370c0e755637bcb2ff3238ea9e5337761de96a712b90027588a46bc
@@ -29555,7 +29798,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F 23b963621d6ea6120468fa952bc4268abf485a0824c80b37b4ba31b66dd214b1
+        lint-audit-gate-parity.py OWN F 37e0fad5f05d92ce68d9cabaca74246f9b38121854de435caa70b5b2edcf917d
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-bookkeeping-parity.py NO_FS F 418c1fc4dccff88fe4a32a8a3582c8110b7c53885facc1b661a2db48b829b841
