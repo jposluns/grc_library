@@ -82,7 +82,7 @@ _135 documents._
 | [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.5.10 | 2026-10-27 |
 | [governance/procedure-grc-programme-management-and-annual-review.md](../governance/procedure-grc-programme-management-and-annual-review.md) | GRC Programme Management and Annual Review Procedure | Procedure | 1.2.0 | 2026-10-26 |
 | [governance/register-ai-security-tooling-landscape.md](../governance/register-ai-security-tooling-landscape.md) | AI Security Tooling Landscape Register | Register | 1.1.14 | 2026-10-26 |
-| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.6.17 | 2026-10-27 |
+| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.6.18 | 2026-10-28 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.52 | 2026-10-27 |
 | [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.1.2 | 2026-10-27 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.5 | 2026-10-24 |
@@ -90,7 +90,7 @@ _135 documents._
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.24 | 2026-10-27 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.2.3 | 2026-10-27 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.7.1 | 2026-10-27 |
-| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.311 | 2026-10-28 |
+| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.318 | 2026-10-28 |
 | [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.40 | 2026-10-27 |
 | [governance/standard-maturity-assessment-methodology.md](../governance/standard-maturity-assessment-methodology.md) | Maturity Assessment Methodology Standard | Standard | 1.1.5 | 2026-10-13 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.8.0 | 2026-10-15 |

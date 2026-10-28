@@ -5,7 +5,8 @@ The pack engine owns citation extraction, comparison and reporting.
 This wrapper owns the canonical-register schema, roots, exclusions and CLI.
 
 PR1 defaults to report mode. Only the unchanged legacy Markdown stale
-check blocks in that mode. New findings are advisory. Explicit enforce
+check, and the UNPINNED ratchet below, block in that mode. New findings are
+advisory. Explicit enforce
 mode supports migration fixtures; no gate invocation enables it in PR1.
 
 3b75: a superseded edition cited as history passes only through a reviewed row
@@ -14,16 +15,118 @@ everything else keeps blocking. The Markdown page of the same name is a generate
 never parsed for policy; this gate refuses a page whose generated table differs from the
 data (tools/build-historical-citation-exceptions.py regenerates it).
 
-Exit: 0 no blocking findings; 1 blocking findings, a malformed or empty
-canonical register, malformed historical register data, or a historical
-register page out of step with its data; 2 missing/unreadable intended inputs.
+P-3.213 ratchet (maintainer ruling 2026-10-27, option A): a default-scope run
+compares each standard's UNPINNED count with the checked-in baseline
+`tools/standards-currency-unpinned-baseline.json` (source, keyed by register
+Standard ID), which may only fall. A count above its baseline fails and names
+the standard and both counts. A baseline above its count also fails, so the
+recorded value is lowered in the PR that pins the citations; slack left in the
+baseline would let a later change add that many new unpinned citations
+unnoticed. A missing or unreadable baseline exits 2, a malformed one exits 1.
+
+The baseline itself ratchets (P-3.213 round 2): the same run reads the baseline
+as it stood at a base revision and fails when an entry is above its base value,
+or when an entry has no base entry although the base register already lists
+that standard (a standard registered at the base had no unpinned citation there,
+so a new entry is a rise). An entry with no base entry is allowed only for a
+standard whose register row is new in the same change, compared by identity
+key, so a renamed Standard ID is not new, and (P-3.213 round 4) only up to that
+standard's UNPINNED count at the base, measured as the bootstrap measures it
+below, so adding the row cannot raise the count. Conversely a register row whose
+standard has a base entry cannot be removed in the change, which would move
+its citations to the unratcheted UNREGISTERED count.
+
+One function, ratchet_base, selects the base revision (P-3.213 round 3). Every
+ref it uses (HEAD and refs/remotes/origin/main) is resolved exactly, by its full
+name, and only the resolved object id is passed to later git calls, so a branch
+or tag whose name imitates a ref cannot stand in for it (round 4). A run is a
+GitHub Actions run only when GITHUB_ACTIONS is exactly the string "true" and
+GITHUB_EVENT_PATH names a readable file holding a JSON object; when GITHUB_ACTIONS is
+exactly "true" and the event file is unset, missing, unreadable or not a JSON object,
+the run exits 2 (round 4), and a run with any other GITHUB_ACTIONS value, or none, is
+local. In a pull_request run the base is HEAD^1 of the checked-out
+merge commit, read from git, and the payload's pull_request.base.sha must be that
+commit or an ancestor of it (the base branch may have moved after the event;
+round 4). In a push run the base is the payload's "before", which must be a
+proper ancestor of HEAD. A schedule or workflow_dispatch run (the nightly sweep,
+through tools/run_all_audits.sh), and every local run (tools/run_all_audits.sh,
+pre-commit, a direct run), takes the one merge base of HEAD and
+refs/remotes/origin/main. A --root that is not the top of a git work tree, a
+shallow repository (round 6), any other Actions event, a payload that cannot be read
+or names no valid commit, a HEAD that is not a merge commit in a pull_request run,
+a missing ref, zero or several merge bases, or a base whose register or baseline
+cannot be read exits 2 with an "UNPINNED ratchet base" message. The one bootstrap
+case is a base that predates the ratchet: no baseline file there, and the base's
+copy of this wrapper does not name RATCHET_MARKER. Such a run says so on a NOTE
+line and holds the seed to the live counts and to each standard's UNPINNED count
+at the base, computed with the same predicate and the head register from the
+base tree read through git, never the working tree, so seeding cannot raise a
+count. A base with this wrapper's ratchet but no baseline file fails closed, so
+deleting or moving the file cannot reopen the bootstrap; a base that has the
+file is always compared as above.
+
+Every git call the ratchet makes (the work-tree and shallow checks, the refs, the base
+and the parent, the commit and ancestry checks, and the tree and blob reads) goes
+through one helper, _git, so git cannot substitute an object or a parent for the ones
+the object ids name (round 5). Its environment is an allowlist built from nothing
+(rebase revision): of the inherited variables only HOME, which git needs to find its
+global configuration, is passed on (_GIT_ENV_INHERITED), and every other one is absent,
+so no GIT_ variable can point git at another repository or substitute an object
+(GIT_DIR, GIT_INDEX_FILE, GIT_OBJECT_DIRECTORY, GIT_REPLACE_REF_BASE and GIT_GRAFT_FILE
+among them) and no LD_PRELOAD or LD_LIBRARY_PATH reaches git. To that it adds only
+GIT_NO_REPLACE_OBJECTS=1 (no replace ref substitutes an object), GIT_GRAFT_FILE=/dev/null
+(the repository's info/grafts, which git still honours, is not read),
+GIT_CONFIG_NOSYSTEM=1 (the system configuration is not read), LC_ALL=C and the fixed
+PATH below. Every call also passes
+-c core.commitGraph=false, so the commit-graph file cannot substitute a commit's
+parents. The helper runs git by absolute path (round 6): git is resolved once with
+shutil.which on the fixed GIT_SEARCH_PATH (/usr/local/bin:/usr/bin:/bin), never the
+inherited PATH, and the child's PATH is set to that same value, so a substitute git
+earlier on the caller's PATH is not run; no git there exits 2 naming the searched
+path. A shallow file is not harmless: it can hide a commit's parents and so move
+the merge base to an older commit. Before any base is computed the ratchet asks
+git, through the helper (rev-parse --is-shallow-repository), and a shallow
+repository exits 2 with a message that the base cannot be computed in a shallow
+clone and that full history must be fetched. A failing call's message shows git's
+stderr without its advisory hint lines ("hint: ..." and a bare "hint:", with or
+without a trailing space), so a deprecation hint cannot hide the real error.
+
+Disclosed residuals, in this order: a local process that controls the environment
+(GITHUB_ACTIONS, HOME and the global git configuration it locates, the variables the
+Python interpreter reads, or any other), the git executable on GIT_SEARCH_PATH, or the
+event payload (a GITHUB_EVENT_PATH file of its choosing) is not defended against,
+because with HEAD these choose the base and what git reports of it; CI is the defended
+path. A local caller can move or recreate refs/remotes/origin/main; edits to this
+wrapper, the workflows (.github/workflows/quality.yml, nightly-sweep.yml), the runner
+(tools/run_all_audits.sh) or the pre-commit invocation can change or remove the
+gate, and review of such a change is the control; and the base count (of the
+bootstrap and of a new register row's entry) uses the head register, so a
+register edit in the same change can change which citations count.
+
+An explicit --paths run scans a subset, so it skips the ratchet. Every text run
+prints a NOTE line of the UNPINNED and UNREGISTERED totals as the last line
+before the closing verdict line, which tools/run_all_audits.sh shows on a pass
+through the runner-echo marker; a --format json run prints no NOTE line and
+carries the totals in its report's inventories instead.
+
+Exit: 0 no blocking findings; 1 blocking findings, an UNPINNED count off its
+baseline, a baseline entry above its base value or new without a new register
+row, a new row's entry or a bootstrap seed entry above its count at the base, a malformed or empty
+canonical register, a malformed baseline, malformed historical register data,
+or a historical register page out of step with its data; 2 missing/unreadable intended inputs (the baseline included) or an
+undeterminable or unreadable ratchet base.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
+import os
 import re
+import shutil
+import subprocess
 import sys
+import tempfile
 import urllib.parse
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -80,6 +183,71 @@ HTML_ROOT = ".web/templates"
 
 # No evidence-backed bare-publication or series exceptions approved in PR1.
 BARE_EXCEPTIONS = {}
+
+# P-3.213: the per-standard UNPINNED baseline, a checked-in source file that may only fall.
+UNPINNED_BASELINE_REL = "tools/standards-currency-unpinned-baseline.json"
+UNPINNED_BASELINE = REPO_ROOT / UNPINNED_BASELINE_REL
+# Test seam only: the coverage-fixture tests in tests/test_standards_currency_coverage.py
+# patch this to False because their in-memory trees hold no baseline. No CLI flag reaches it.
+UNPINNED_RATCHET = True
+
+# P-3.213 round 2: the baseline is also compared with its copy at a base revision.
+# A base whose copy of this wrapper (at its fixed path) does not contain RATCHET_MARKER
+# predates the ratchet, and only such a base with no baseline file is the bootstrap.
+RATCHET_WRAPPER_REL = "tools/lint-standards-currency.py"
+RATCHET_MARKER = "UNPINNED_BASELINE_REL"
+CANONICAL_REGISTER_REL = "governance/register-canonical-citations.md"
+# Round 3: fully qualified. Round 4: resolved exactly (_ref), so a branch or tag whose
+# name is origin/main or refs/remotes/origin/main cannot stand in for it.
+MAIN_REF = "refs/remotes/origin/main"
+GIT_TIMEOUT = 60
+# Round 6: git is found by shutil.which on this fixed PATH, never the inherited one, so a
+# substitute git earlier on the caller's PATH is not run; the child's PATH is set to it too.
+GIT_SEARCH_PATH = "/usr/local/bin:/usr/bin:/bin"
+_GIT_EXECUTABLE = None  # resolved once, by _git_executable
+# Round 6: advisory lines git prints on stderr (with GIT_GRAFT_FILE set, git 2.53 prints a
+# deprecation hint); a failing call's message leaves them out so the real error shows.
+# Rebase revision (D21): a bare "hint:" line, with or without a trailing space, is one too.
+_GIT_HINT_PREFIX = "hint: "
+_GIT_HINT_BARE = "hint:"
+# Rebase revision (D21): the environment of every git call is built from nothing. These are
+# the only inherited variables passed on, because git needs them to run: HOME locates the
+# global configuration (where a CI checkout records safe.directory for the work tree). Every
+# other inherited variable, LD_PRELOAD, LD_LIBRARY_PATH and every GIT_ variable among them
+# (a pre-commit hook's GIT_DIR or GIT_INDEX_FILE, GIT_WORK_TREE, GIT_OBJECT_DIRECTORY,
+# GIT_REPLACE_REF_BASE, GIT_GRAFT_FILE and the rest), is absent.
+_GIT_ENV_INHERITED = ("HOME",)
+# Round 5: fixed values every git call gets, whatever the caller exported; PATH is
+# GIT_SEARCH_PATH (round 6) and LC_ALL is fixed (rebase revision) so git's messages are
+# untranslated and its hint lines are recognised.
+_GIT_ENV = {
+    # No replace ref, under refs/replace/ or any other base, substitutes an object.
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    # The repository's info/grafts, which git 2.53 still honours (GIT_NO_REPLACE_OBJECTS
+    # does not stop it), is not read; an empty graft file grafts nothing.
+    "GIT_GRAFT_FILE": os.devnull,
+    # The system configuration file is not read.
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "LC_ALL": "C",
+    "PATH": GIT_SEARCH_PATH,
+}
+# Passed to every git call, so the commit-graph file cannot substitute a commit's parents.
+_GIT_CONFIG = ("-c", "core.commitGraph=false")
+_SHA = re.compile(r"[0-9a-f]{40}|[0-9a-f]{64}")
+
+
+class RatchetBaseError(Exception):
+    """The ratchet base revision is undeterminable, or its register or baseline unreadable."""
+
+# tools/run_all_audits.sh hides a passing gate's output, but shows this gate's
+# WARN and NOTE lines when the output has this exact line followed by a space
+# and the token run_gate passed in RUNNER_ECHO_TOKEN_ENV (the gate 72 opt-in;
+# run_gate holds the same string). With the variable unset or empty (a direct
+# run, the pre-commit hook, the quality.yml gate step) the line is not printed.
+RUNNER_ECHO_MARKER = (
+    "runner-echo: tools/run_all_audits.sh shows this gate's advisory lines on a pass"
+)
+RUNNER_ECHO_TOKEN_ENV = "GRC_RUNNER_ECHO_TOKEN"
 
 # 3b75: the sanctioned historical-context form. A superseded edition cited
 # as HISTORY ("the 2019 edition of ISO/IEC 27701 extended ISO/IEC
@@ -330,6 +498,447 @@ def parse_canonical_register():
     )
 
 
+def parse_unpinned_baseline(text, entries):
+    """P-3.213: the UNPINNED baseline, as {identity key: count}.
+
+    Strict: a JSON object with an "unpinned" object and an optional "_comment"
+    string, nothing else; no repeated key at any level; each key exactly a
+    register Standard ID; each count an integer of at least 1 (a standard whose
+    count reaches 0 leaves the file). Anything else raises RegisterError."""
+    where = f"UNPINNED baseline {UNPINNED_BASELINE_REL}"
+
+    def pairs(items):
+        seen = {}
+        for key, value in items:
+            if key in seen:
+                raise RegisterError(f"{where}: repeated key {key!r}")
+            seen[key] = value
+        return seen
+
+    def constant(name):
+        raise RegisterError(f"{where}: {name} is not a count")
+
+    try:
+        data = json.loads(text, object_pairs_hook=pairs, parse_constant=constant)
+    except ValueError as exc:
+        raise RegisterError(f"{where}: not valid JSON: {exc}") from None
+    if not isinstance(data, dict) or not isinstance(data.get("unpinned"), dict):
+        raise RegisterError(f"{where}: needs an \"unpinned\" object")
+    extra = sorted(set(data) - {"unpinned", "_comment"})
+    if extra:
+        raise RegisterError(f"{where}: unknown key(s) {extra!r}")
+    if not isinstance(data.get("_comment", ""), str):
+        raise RegisterError(f"{where}: \"_comment\" must be a string")
+    ids = {e["id"]: e["identity_key"] for e in entries}
+    baseline = {}
+    for standard, count in data["unpinned"].items():
+        if standard not in ids:
+            raise RegisterError(
+                f"{where}: {standard!r} is not a Standard ID in the canonical register"
+            )
+        if type(count) is not int or count < 1:
+            raise RegisterError(
+                f"{where}: {standard!r} count {count!r} must be an integer of at least 1 "
+                "(remove the entry when the count reaches 0)"
+            )
+        baseline[ids[standard]] = count
+    return baseline
+
+
+def unpinned_ratchet_lines(report, entries, baseline):
+    """The FAIL lines of the P-3.213 UNPINNED ratchet (none when every count equals its baseline)."""
+    engine = _engine()
+    names = {e["identity_key"]: e["id"] for e in entries}
+    over, under = engine.ratchet(engine.identity_counts(report, "UNPINNED"), baseline)
+    lines = []
+    for key, live, recorded in over:
+        lines.append(
+            f"FAIL: UNPINNED ratchet: {names.get(key, key)} has {live} unpinned citation(s), "
+            f"above its baseline of {recorded} in {UNPINNED_BASELINE_REL}. Pin the edition "
+            "(the register's Standard ID plus Current version) on the new citations; "
+            "the baseline may only fall."
+        )
+    for key, live, recorded in under:
+        action = (
+            f"set its entry to {live}" if live else "remove its entry"
+        )
+        lines.append(
+            f"FAIL: UNPINNED ratchet: {names.get(key, key)} has {live} unpinned citation(s), "
+            f"below its baseline of {recorded}; lower the baseline: in "
+            f"{UNPINNED_BASELINE_REL}, {action} in this change."
+        )
+    return lines
+
+
+def _git_env():
+    """The environment of every git call, built from nothing (rebase revision): the
+    _GIT_ENV_INHERITED variables this process has, then _GIT_ENV (round 5), whose PATH is
+    GIT_SEARCH_PATH (round 6). No other inherited variable is passed."""
+    env = {k: os.environ[k] for k in _GIT_ENV_INHERITED if k in os.environ}
+    env.update(_GIT_ENV)
+    return env
+
+
+def _git_hint(line):
+    """True for an advisory line of git's stderr: "hint: ..." or a bare "hint:", with or
+    without a trailing space (rebase revision)."""
+    return line.startswith(_GIT_HINT_PREFIX) or line.rstrip(" ") == _GIT_HINT_BARE
+
+
+def _git_executable():
+    """The absolute path of git on GIT_SEARCH_PATH, resolved once (round 6); none there raises
+    RatchetBaseError naming the searched path."""
+    global _GIT_EXECUTABLE
+    if _GIT_EXECUTABLE is None:
+        found = shutil.which("git", path=GIT_SEARCH_PATH)
+        if found is None:
+            raise RatchetBaseError(f"no git executable found on {GIT_SEARCH_PATH}")
+        _GIT_EXECUTABLE = os.path.abspath(found)
+    return _GIT_EXECUTABLE
+
+
+def _git(*args, stdin=None):
+    """stdout bytes of ``<git> -C REPO_ROOT -c core.commitGraph=false <args>`` under
+    _git_env(), where <git> is _git_executable()'s absolute path; any failure raises
+    RatchetBaseError. Every git call the ratchet makes goes through here."""
+    git = _git_executable()
+    try:
+        proc = subprocess.run(
+            [git, "-C", str(REPO_ROOT), *_GIT_CONFIG, *args], capture_output=True,
+            env=_git_env(), timeout=GIT_TIMEOUT, input=stdin,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise RatchetBaseError(f"git {' '.join(args)} did not run: {exc}") from None
+    if proc.returncode:
+        stderr = proc.stderr.decode("utf-8", "replace")
+        detail = "\n".join(
+            line for line in stderr.splitlines() if not _git_hint(line)
+        ).strip() or stderr.strip()
+        raise RatchetBaseError(
+            f"git {' '.join(args)} exited {proc.returncode}: {detail or '(no message)'}"
+        )
+    return proc.stdout
+
+
+def _commit(rev, what):
+    try:
+        out = _git("rev-parse", "--verify", f"{rev}^{{commit}}")
+    except RatchetBaseError as exc:
+        raise RatchetBaseError(f"{what} {rev} is not a commit in this clone: {exc}") from None
+    sha = out.decode("ascii", "replace").strip()
+    if not _SHA.fullmatch(sha):
+        raise RatchetBaseError(f"{what} {rev!r} resolved to {sha!r}, not a commit")
+    return sha
+
+
+def _ref(name):
+    """The object id of the ref with exactly this full name (HEAD or refs/...), peeled to a
+    commit. Round 4: git's ref-name lookup tries several prefixes, so a tag or branch whose
+    name imitates the ref could stand in for a missing one; show-ref --verify does not."""
+    try:
+        out = _git("show-ref", "--verify", "--hash", name)
+    except RatchetBaseError as exc:
+        raise RatchetBaseError(f"the ref {name} does not exist in this clone: {exc}") from None
+    sha = out.decode("ascii", "replace").strip()
+    if not _SHA.fullmatch(sha):
+        raise RatchetBaseError(f"the ref {name} resolved to {sha!r}, not an object id")
+    return _commit(sha, f"the ref {name}")
+
+
+def _actions_event(environ):
+    """(event name, payload object) when GITHUB_ACTIONS is exactly "true", else None (a local run).
+    Round 4: an Actions run whose GITHUB_EVENT_PATH is unset, missing, unreadable or not a
+    JSON object raises RatchetBaseError; it never falls back to the local base."""
+    if environ.get("GITHUB_ACTIONS") != "true":
+        return None
+    path = environ.get("GITHUB_EVENT_PATH", "")
+    if not path:
+        raise RatchetBaseError(
+            "GITHUB_ACTIONS is true but GITHUB_EVENT_PATH is unset or empty, so the event "
+            "payload cannot be read"
+        )
+
+    def pairs(items):
+        seen = {}
+        for key, value in items:
+            if key in seen:
+                raise ValueError(f"repeated key {key!r}")
+            seen[key] = value
+        return seen
+
+    try:
+        with open(path, "rb") as fh:
+            payload = json.loads(fh.read().decode("utf-8"), object_pairs_hook=pairs)
+    except (OSError, ValueError) as exc:
+        raise RatchetBaseError(
+            f"GITHUB_ACTIONS is true but the event payload at GITHUB_EVENT_PATH={path!r} is "
+            f"unreadable ({exc.__class__.__name__}: {exc})"
+        ) from None
+    if not isinstance(payload, dict):
+        raise RatchetBaseError(
+            f"GITHUB_ACTIONS is true but the event payload at GITHUB_EVENT_PATH={path!r} is "
+            f"not a JSON object"
+        )
+    return environ.get("GITHUB_EVENT_NAME", ""), payload
+
+
+def _payload_sha(event, payload, *keys):
+    """The commit the event payload names under ``keys``; any failure raises."""
+    sha = payload
+    try:
+        for key in keys:
+            sha = sha[key]
+    except (KeyError, TypeError) as exc:
+        raise RatchetBaseError(
+            f"the {event} event payload names no {'.'.join(keys)} "
+            f"({exc.__class__.__name__}: {exc})"
+        ) from None
+    if not isinstance(sha, str) or not _SHA.fullmatch(sha) or not sha.strip("0"):
+        raise RatchetBaseError(
+            f"the {event} event payload's {'.'.join(keys)} {sha!r} is not a commit"
+        )
+    return sha
+
+
+def ratchet_base(environ=None):
+    """(base commit, how it was chosen) for the baseline's own ratchet; the one place the
+    base is selected (P-3.213 round 3).
+
+    A run is a GitHub Actions run only when GITHUB_ACTIONS is exactly "true" and its event
+    file is a readable JSON object; with GITHUB_ACTIONS exactly "true" and any other event
+    file it raises. A pull_request run's base is HEAD^1 of the merge commit
+    the checkout holds, read from git, and the payload's pull_request.base.sha must be that
+    commit or an ancestor of it. A push run's base is the payload's "before", which must be
+    a proper ancestor of HEAD. A schedule or workflow_dispatch run, and every local run,
+    takes the one merge base of HEAD and MAIN_REF. Refs are resolved exactly (_ref) and
+    only object ids reach later git calls. A REPO_ROOT that is not the top of a work tree, a
+    shallow repository (round 6), any other Actions event, an unreadable payload, a missing
+    ref or an unresolvable base raises RatchetBaseError; never falls back to the tree
+    itself."""
+    environ = os.environ if environ is None else environ
+    try:
+        top = Path(_git("rev-parse", "--show-toplevel").decode("utf-8").strip()).resolve()
+    except (RatchetBaseError, UnicodeDecodeError) as exc:
+        top = f"no work tree: {exc}"
+    if top != REPO_ROOT.resolve():
+        raise RatchetBaseError(
+            f"{REPO_ROOT} is not the top level of a git work tree (git reports {top}), "
+            "so no base revision can be read"
+        )
+    # Round 6: a shallow file can hide a parent and move the merge base to an older commit,
+    # so no base is computed in a shallow clone.
+    shallow = _git("rev-parse", "--is-shallow-repository").decode("ascii", "replace").strip()
+    if shallow != "false":
+        raise RatchetBaseError(
+            f"git reports the repository as shallow ({shallow!r}), and the base cannot be "
+            "computed in a shallow clone; fetch full history (git fetch --unshallow) and re-run"
+        )
+    actions = _actions_event(environ)
+    event = actions[0] if actions else None
+    head = _ref("HEAD")
+    if event == "pull_request":
+        claimed = _commit(_payload_sha(event, actions[1], "pull_request", "base", "sha"),
+                          "the pull_request payload's base.sha")
+        parents = _git("rev-list", "--parents", "-n", "1", head).decode("ascii").split()
+        if len(parents) != 3:
+            raise RatchetBaseError(
+                f"HEAD has {len(parents) - 1} parent(s), so it is not the merge commit a "
+                "pull_request run checks out and HEAD^1 is not the pull request base"
+            )
+        base = _commit(parents[1], "HEAD^1")
+        # Round 4: the base branch may move after the event, so base.sha need only be HEAD^1
+        # or an ancestor of it.
+        if claimed != base and claimed not in _git(
+            "merge-base", "--all", claimed, base
+        ).decode("ascii").split():
+            raise RatchetBaseError(
+                f"the pull_request payload's base.sha {claimed} is neither HEAD^1 {base}, the "
+                "first parent of the checked-out merge commit, nor an ancestor of it"
+            )
+        return base, "first parent of the pull request merge commit"
+    if event == "push":
+        before = _commit(_payload_sha(event, actions[1], "before"), "the push payload's before")
+        if before == head or before not in _git(
+            "merge-base", "--all", before, head
+        ).decode("ascii").split():
+            raise RatchetBaseError(
+                f"the push payload's before {before} is not a proper ancestor of HEAD {head}"
+            )
+        return before, "previous tip of the pushed branch"
+    if event is not None and event not in ("schedule", "workflow_dispatch"):
+        raise RatchetBaseError(
+            f"GitHub Actions event {event!r} has no base revision rule (pull_request, push, "
+            "schedule and workflow_dispatch have one)"
+        )
+    main = _ref(MAIN_REF)
+    merge_bases = _git("merge-base", "--all", main, head).decode("ascii").split()
+    if len(merge_bases) != 1:
+        raise RatchetBaseError(
+            f"{MAIN_REF} and HEAD have {len(merge_bases)} merge bases, not one"
+        )
+    return _commit(merge_bases[0], "merge base"), f"merge base with {MAIN_REF}"
+
+
+def _blob_at(rev, rel):
+    """Text of ``rev:rel``, or None when the tree of ``rev`` has no entry there. Anything
+    else (a tree or gitlink at that path, a git failure, bytes that are not UTF-8) raises."""
+    listing = _git("ls-tree", "-z", "--full-tree", rev, "--", f":(literal){rel}")
+    if not listing:
+        return None
+    fields = listing.split(b"\t", 1)[0].split()
+    if len(fields) != 3 or fields[1] != b"blob":
+        raise RatchetBaseError(f"{rel} at {rev} is not a file")
+    try:
+        return _git("cat-file", "blob", fields[2].decode("ascii")).decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise RatchetBaseError(f"{rel} at {rev} is not UTF-8: {exc}") from None
+
+
+def base_unpinned_counts(rev, entries):
+    """P-3.213 round 3: each standard's UNPINNED count at ``rev``, by identity key. The default
+    scope's .md and .html files (and symlinks) are read from rev's tree through git, never the
+    working tree, into a temporary directory and scanned with the same predicate and the head
+    register, so a standard whose row is new in the change counts its citations already at
+    rev (the cap on a bootstrap seed and, from round 4, on a new row's entry). Historical exceptions sanction only superseded editions, never an UNPINNED one, so
+    none are applied. Any failure raises RatchetBaseError."""
+    roots = [*DEFAULT_PATHS, HTML_ROOT]
+    listing = _git("ls-tree", "-r", "-z", "--full-tree", rev, "--",
+                   *(f":(literal){p}" for p in roots))
+    blobs, links = [], []
+    for record in filter(None, listing.split(b"\0")):
+        meta, _, raw = record.partition(b"\t")
+        mode, kind, sha = meta.decode("ascii").split()
+        rel = raw.decode("utf-8", "surrogateescape")
+        if any(part in {"", ".", ".."} for part in rel.split("/")):
+            raise RatchetBaseError(f"{rel!r} at {rev} is not a canonical path")
+        if kind == "blob" and mode == "120000":
+            links.append((rel, sha))
+        elif kind == "blob" and rel.endswith((".md", ".html")):
+            blobs.append((rel, sha))
+    wanted, link_paths = blobs + links, {rel for rel, _ in links}
+    out = _git("cat-file", "--batch", stdin="".join(f"{sha}\n" for _, sha in wanted).encode())
+    contents, at = [], 0
+    for rel, sha in wanted:
+        try:
+            end = out.index(b"\n", at)
+            header = out[at:end].split()
+            if len(header) != 3 or header[:2] != [sha.encode("ascii"), b"blob"]:
+                raise ValueError("unexpected header")
+            size = int(header[2])
+        except ValueError:
+            raise RatchetBaseError(
+                f"git cat-file did not return the blob of {rel} at {rev}"
+            ) from None
+        contents.append(out[end + 1:end + 1 + size])
+        at = end + 2 + size
+    with tempfile.TemporaryDirectory(prefix="gate6-base-") as tmp:
+        root = Path(tmp).resolve()
+        try:
+            for (rel, _sha), data in zip(wanted, contents):
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                if rel in link_paths:
+                    os.symlink(os.fsdecode(data), target)
+                else:
+                    target.write_bytes(data)
+            files = iter_files(roots, explicit=False, root=root)
+            report = _engine().coverage_report(
+                files, entries, repo_root=root, bare_exceptions=BARE_EXCEPTIONS,
+                historical_exceptions=[],
+            )
+        except (OSError, UnicodeError, ValueError) as exc:
+            raise RatchetBaseError(f"the default scope at {rev} cannot be scanned: {exc}") from None
+    return _engine().identity_counts(report, "UNPINNED")
+
+
+def base_ratchet_lines(entries, baseline, environ=None):
+    """P-3.213 round 2: (FAIL or NOTE lines, base record) comparing the tree's baseline
+    with the baseline at the base revision. Raises RatchetBaseError when the base is
+    undeterminable or its register or baseline cannot be read (fail closed)."""
+    base, how = ratchet_base(environ)
+    where = f"the base revision {base[:12]} ({how})"
+    record = dict(revision=base, chosen_by=how, bootstrap=False)
+    text = _blob_at(base, UNPINNED_BASELINE_REL)
+    if text is None:
+        wrapper = _blob_at(base, RATCHET_WRAPPER_REL)
+        if wrapper is None or RATCHET_MARKER in wrapper:
+            raise RatchetBaseError(
+                f"{where} has no {UNPINNED_BASELINE_REL}, but "
+                + ("no " + RATCHET_WRAPPER_REL if wrapper is None
+                   else f"its {RATCHET_WRAPPER_REL} already holds the ratchet")
+                + ", so the baseline cannot be compared and this is not the bootstrap"
+            )
+        record["bootstrap"] = True
+        # Round 3: the seed is also held to each standard's count at the base, so the
+        # seeding change cannot raise a count.
+        at_base = base_unpinned_counts(base, entries)
+        names = {e["identity_key"]: e["id"] for e in entries}
+        lines = [
+            f"NOTE: UNPINNED ratchet: {where} predates the ratchet (no baseline there), so "
+            "this change seeds the baseline, held to the live counts and to each "
+            "standard's UNPINNED count at the base."
+        ]
+        for key, count in sorted(baseline.items()):
+            if count > at_base.get(key, 0):
+                lines.append(
+                    f"FAIL: UNPINNED ratchet: the seed entry for {names.get(key, key)} is "
+                    f"{count}, above its {at_base.get(key, 0)} unpinned citation(s) at "
+                    f"{where}; seeding may not raise a count. Pin the edition on the new "
+                    "citations instead."
+                )
+        return lines, record
+    register = _blob_at(base, CANONICAL_REGISTER_REL)
+    if register is None:
+        raise RatchetBaseError(f"{where} has no {CANONICAL_REGISTER_REL}")
+    try:
+        base_entries = parse_register_text(register)
+        recorded = parse_unpinned_baseline(text, base_entries)
+    except RegisterError as exc:
+        raise RatchetBaseError(f"{where}: {exc}") from None
+    registered = {e["identity_key"] for e in base_entries}
+    names = {e["identity_key"]: e["id"] for e in entries}
+    lines, at_base = [], None
+    for key, count in sorted(baseline.items()):
+        if key in recorded:
+            if count > recorded[key]:
+                lines.append(
+                    f"FAIL: UNPINNED ratchet: the baseline entry for {names.get(key, key)} "
+                    f"rose from {recorded[key]} at {where} to {count}; the baseline may only "
+                    "fall. Pin the edition on the new citations instead."
+                )
+        elif key in registered:
+            lines.append(
+                f"FAIL: UNPINNED ratchet: {names.get(key, key)} has a baseline entry of "
+                f"{count} but none at {where}, whose register already lists it; a new "
+                "entry is allowed only with the standard's new register row in the same "
+                "change."
+            )
+        else:
+            # Round 4: the new row's entry is capped as a bootstrap seed is, at the
+            # standard's UNPINNED count at the base under the head register.
+            if at_base is None:
+                at_base = base_unpinned_counts(base, entries)
+            if count > at_base.get(key, 0):
+                lines.append(
+                    f"FAIL: UNPINNED ratchet: the new baseline entry for {names.get(key, key)} "
+                    f"is {count}, above its {at_base.get(key, 0)} unpinned citation(s) at "
+                    f"{where}; a new register row may not raise a count. Pin the edition on "
+                    "the new citations instead."
+                )
+    # Removing a register row with its entry would move the citations to the unratcheted
+    # UNREGISTERED count, so a row can leave only once its entry has fallen to 0.
+    current = {e["identity_key"] for e in entries}
+    for key, count in sorted(recorded.items()):
+        if key not in current:
+            name = next(e["id"] for e in base_entries if e["identity_key"] == key)
+            lines.append(
+                f"FAIL: UNPINNED ratchet: the register row for {name} is removed while "
+                f"{where} records {count} unpinned citation(s) of it; pin or remove those "
+                "citations, and its entry, in a change that keeps the row."
+            )
+    return lines, record
+
+
 def _engine():
     pack_tools = str(PACK_TOOLS)
     if pack_tools not in sys.path:
@@ -338,12 +947,13 @@ def _engine():
     return gate_lint_standards_currency
 
 
-def iter_files(paths, *, explicit=True):
+def iter_files(paths, *, explicit=True, root=None):
     # Preserve this wrapper API for the scan-scope regression ALLOW map.
     # The shared Markdown helper remains unchanged and Markdown-only.
+    # root (P-3.213 round 3) is the base revision's scope copy; None is REPO_ROOT.
     from lint_common import is_default_exempt_root, is_adopter_exempt
 
-    root = REPO_ROOT.resolve()
+    root = (REPO_ROOT if root is None else root).resolve()
     selected = set()
 
     def within(path):
@@ -414,6 +1024,7 @@ def iter_files(paths, *, explicit=True):
 
 def main(argv=None):
     global REPO_ROOT, CANONICAL_REGISTER, HISTORICAL_REGISTER, HISTORICAL_DATA
+    global UNPINNED_BASELINE
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--paths", nargs="+", default=None)
@@ -442,8 +1053,19 @@ def main(argv=None):
     )
     HISTORICAL_REGISTER = REPO_ROOT / HISTORICAL_REGISTER_REL
     HISTORICAL_DATA = REPO_ROOT / HISTORICAL_DATA_REL
+    UNPINNED_BASELINE = REPO_ROOT / UNPINNED_BASELINE_REL
     try:
         entries = parse_canonical_register()
+        # The ratchet compares default-scope counts, so only a default-scope run reads the
+        # baseline; it is read before the scan so a missing one fails closed at once.
+        ratchet = args.paths is None and UNPINNED_RATCHET
+        baseline = parse_unpinned_baseline(
+            UNPINNED_BASELINE.read_bytes().decode("utf-8"), entries
+        ) if ratchet else None
+        # The baseline may only fall relative to the base revision (P-3.213 round 2).
+        base_lines, base_record = (
+            base_ratchet_lines(entries, baseline) if ratchet else ([], None)
+        )
         # Read directly: only a missing file counts as absent, so a permission or other I/O
         # error reaches the exit-2 handler instead of reading as "no register" (3b75 QA, codex:
         # Path.exists() swallows OSError on Python 3.14).
@@ -497,10 +1119,27 @@ def main(argv=None):
                 "legacy stale checks retained."
             ),
         )
+        trailer = []
+        if ratchet:
+            trailer = base_lines + unpinned_ratchet_lines(report, entries, baseline)
+            report["unpinned_ratchet"] = list(trailer)
+            report["unpinned_ratchet_base"] = base_record
+            if any(line.startswith("FAIL:") for line in trailer):
+                report["exit"] = 1
+        token = os.environ.get(RUNNER_ECHO_TOKEN_ENV, "")
+        if token and args.format == "text":
+            print(RUNNER_ECHO_MARKER + " " + token)
+        # The summary line the runner shows on a pass; it never changes the exit status.
+        trailer.append(
+            "NOTE: standards-currency counts: " + _engine().count_summary(report)
+        )
         _engine().print_coverage(
-            report, as_json=args.format == "json"
+            report, as_json=args.format == "json", trailer=trailer
         )
         return report["exit"]
+    except RatchetBaseError as exc:
+        print("ERROR: UNPINNED ratchet base:", exc, file=sys.stderr)
+        return 2
     except RegisterError as exc:
         print("ERROR:", exc, file=sys.stderr)
         return 1

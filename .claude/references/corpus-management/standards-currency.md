@@ -19,9 +19,78 @@ Parts, publication kinds and issuer identities remain distinct.
 
 Report mode is the default during migration. Newly discovered stale forms,
 HTML findings, missing registrations, noncanonical identifiers and missing
-edition pins are advisory. Only the established Markdown stale check blocks
-in report mode. Explicit enforce mode additionally blocks those recognized
+edition pins are advisory. In report mode the established Markdown stale
+check blocks, and so does the unpinned ratchet below where a project holds
+one; nothing else does. Explicit enforce mode additionally blocks those recognized
 citation findings; PR1 gate invocations do not enable it.
+
+A project may hold a per-standard ratchet on missing edition pins: a
+checked-in baseline of each standard's unpinned count, which may only fall.
+A default-scope run fails when a standard's count is above its baseline,
+naming the standard and both counts, and when a baseline is above the count,
+so the baseline is lowered in the change that pins the citations. The same
+run compares the baseline with its copy at a base revision and fails when an
+entry is above its base value, or is new while the base register already lists
+that standard; a new entry comes only with that standard's new register row,
+and no higher than that standard's unpinned count at the base, and a row with
+a base entry is not removed in the same change. One function selects the base
+from authoritative inputs, resolving each ref by its exact full name and
+passing only the resolved object onward: for a pull request, the first parent
+of the checked-out merge commit, of which the event's stated base must be an
+ancestor or the commit itself; for a push, the event's previous tip, which
+must be a proper ancestor of the pushed commit; for a scheduled or manual run,
+and for every local run, the merge base with the fully qualified main-branch
+remote-tracking ref. A run is a CI run only when the CI flag
+(`GITHUB_ACTIONS`) is exactly the string `true` and the event file
+(`GITHUB_EVENT_PATH`) names a readable file holding an object; when the flag
+is exactly `true` and the event file is unset, missing, unreadable or not an
+object, the run fails closed, and a run with any other flag value, or none, is
+local. A missing, unreadable or malformed baseline fails, and so does a
+project root that is not the top of a work tree, a shallow repository, a base
+that cannot be determined, an unset, unreadable or malformed event file, a
+missing ref or a base whose baseline cannot be read, except a base that
+predates the ratchet. That bootstrap holds the seeded baseline to the live
+counts and to each standard's unpinned count at the base, read from the base
+revision's tree through version control with the same predicate, so seeding
+cannot raise a count. Every git call the ratchet makes (the work-tree and
+shallow checks, the refs, the base and the parent, the commit and ancestry
+checks, and the tree and blob reads) goes through one helper, so git cannot substitute an
+object or a parent for the ones the object ids name. Its environment is an
+allowlist built from nothing: of the inherited variables only `HOME`, which
+git needs to find its global configuration, is passed on, and every other one
+is absent, so no `GIT_` variable can point git at another repository or
+substitute an object (`GIT_DIR`, `GIT_INDEX_FILE`, `GIT_OBJECT_DIRECTORY`,
+`GIT_REPLACE_REF_BASE` and `GIT_GRAFT_FILE` among them) and no `LD_PRELOAD`
+or `LD_LIBRARY_PATH` reaches git. To that it adds only
+`GIT_NO_REPLACE_OBJECTS=1` (no replace ref substitutes an object),
+`GIT_GRAFT_FILE=/dev/null` (the repository's `info/grafts`, which git still
+honours, is not read), `GIT_CONFIG_NOSYSTEM=1` (the system configuration is
+not read), `LC_ALL=C` and the fixed search path below as `PATH`. Every
+call also passes `-c core.commitGraph=false`, so the commit-graph file cannot
+substitute a commit's parents. The helper runs git by absolute path: git is
+resolved once on the fixed search path `/usr/local/bin:/usr/bin:/bin`, never
+the inherited `PATH`, and the child's `PATH` is set to that same value, so a
+substitute git earlier on the caller's `PATH` is not run; no git there fails,
+naming the searched path. A shallow file is not harmless: it can hide a
+commit's parents and so move the merge base to an older commit. Before any
+base is computed the ratchet asks git, through the helper
+(`rev-parse --is-shallow-repository`), and a shallow repository fails with a
+message that the base cannot be computed in a shallow clone and that full
+history must be fetched. A failing call's message shows git's error output
+without its advisory hint lines (`hint: ...` and a bare `hint:`, with or
+without a trailing space), so a deprecation hint cannot hide the real error.
+Disclosed residuals, in this order: a local process that controls the
+environment (the CI flag, `HOME` and the global configuration it locates,
+the variables the interpreter reads, or any other), the git executable on the
+fixed search path, or the event file is not defended against, because with
+`HEAD` these choose the base and what git reports of it; CI is the defended
+path. A local caller can move or recreate the main-branch remote-tracking ref; edits
+to the gate, the CI workflows, the audit runner or the pre-commit invocation
+can change or remove the ratchet, and review of such an edit is the control;
+and the base count uses the head register, so a register edit in the same
+change can change which citations count. Each text run states its totals of
+unpinned and unregistered citations; a machine-readable run carries them in
+its report.
 
 Ambiguous identities, broader discovery candidates and unresolved editions
 remain explicit review inventories. An unrecognized edition is not declared

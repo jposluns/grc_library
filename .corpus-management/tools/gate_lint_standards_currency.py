@@ -13,6 +13,9 @@ Ambiguity, candidate forms and unresolved editions remain review inventories.
 coverage_report also accepts wrapper-validated historical-context declarations;
 the engine masks only the declared occurrences inside one bound sentence, and a
 declaration that does not bind blocks in every mode (3b75).
+identity_counts, ratchet and count_summary let a project hold a per-identity
+count that may only fall (the grc wrapper ratchets UNPINNED per standard);
+the baseline, its file and its failure policy are the wrapper's.
 
 Discovery reads a NIST SP 800-63 family revision suffix as an edition
 ("NIST SP 800-63B-4" is identity "NIST SP 800-63B" at "Rev. 4"), but
@@ -1266,7 +1269,44 @@ def coverage_report(
     )
 
 
-def print_coverage(report, *, as_json=False):
+def identity_counts(report, kind):
+    """Occurrences of one finding kind per identity key, sorted by key (P-3.213 ratchet)."""
+    return dict(sorted(Counter(
+        f["identity"] for f in report["findings"] if f["kind"] == kind
+    ).items()))
+
+
+def ratchet(live, baseline):
+    """Compare live per-identity counts with a recorded baseline that may only fall.
+
+    Both map an identity key to a count. A key missing from one map counts as 0
+    there, so an identity found live but not recorded is over, and a recorded
+    identity no longer found is under. Returns (over, under), each a sorted list of
+    (identity, live, recorded); an equal count is in neither."""
+    over, under = [], []
+    for key in sorted(set(live) | set(baseline)):
+        now, recorded = live.get(key, 0), baseline.get(key, 0)
+        if now > recorded:
+            over.append((key, now, recorded))
+        elif now < recorded:
+            under.append((key, now, recorded))
+    return over, under
+
+
+def count_summary(report, kinds=("UNPINNED", "UNREGISTERED")):
+    """One line of totals for the given kinds: occurrences and distinct identities."""
+    inventories = report["inventories"]
+    return "; ".join(
+        "%s %d occurrences of %d standards" % (
+            kind, inventories[kind]["occurrences"], inventories[kind]["identities"],
+        )
+        for kind in kinds
+    )
+
+
+def print_coverage(report, *, as_json=False, trailer=()):
+    """Print the report. ``trailer`` lines (project summary or ratchet lines) print in
+    text mode just before the closing verdict line, which follows ``report["exit"]``."""
     if as_json:
         print(json.dumps(
             report, ensure_ascii=False, indent=2, sort_keys=True
@@ -1306,6 +1346,8 @@ def print_coverage(report, *, as_json=False):
                 )
             )
 
+    for line in trailer:
+        print(line)
     if report["exit"]:
         print("FAIL: blocking findings remain.")
     elif report["findings"]:
