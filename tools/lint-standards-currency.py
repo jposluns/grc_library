@@ -10,8 +10,8 @@ row that does not bind (INVALID_EXCEPTION, which blocks in every mode; 3b75
 below). Every other finding is advisory. A run also exits non-zero on errors
 that are not findings: an UNPINNED ratchet failure below, and the register,
 input and ratchet-base errors. Explicit enforce mode supports migration
-fixtures; no gate invocation enables it in PR1. Every exit status, and every
-condition that produces it, is listed once, under "Exit codes" at the end.
+fixtures; no gate invocation enables it in PR1. Every exit status is listed once,
+under "Exit codes" at the end, by the handler or return in main() that produces it.
 
 3b75: a superseded edition cited as history passes only through a reviewed row
 of the TOML data file `.project-governance/register-historical-citation-exceptions.toml`;
@@ -57,9 +57,9 @@ proper ancestor of HEAD. A schedule or workflow_dispatch run (the nightly sweep,
 through tools/run_all_audits.sh), and every local run (tools/run_all_audits.sh,
 pre-commit, a direct run), takes the one merge base of HEAD and
 refs/remotes/origin/main. A base that cannot be determined or read fails closed,
-with an "UNPINNED ratchet base" message except for the few causes Exit codes lists
-under main's OSError and UnicodeError handler (each cause under Exit codes); so does a
-base with no baseline file, except the one bootstrap. The one bootstrap
+with an "UNPINNED ratchet base" message except for the causes Exit codes lists under
+main's OSError and UnicodeError handler and under the exceptions main does not catch;
+so does a base with no baseline file, except the one bootstrap. The one bootstrap
 case is a base that predates the ratchet: no baseline file there, and the base's
 copy of this wrapper exists and does not name RATCHET_MARKER; a base with no
 baseline file and no copy of this wrapper fails closed. Such a run says so on a NOTE
@@ -120,75 +120,55 @@ and carries the totals in its report's inventories instead.
 Exit codes. This is the one authoritative list of gate 6's exit statuses (P-3.213):
 the standards-currency rule, the audit programme specification, the pack README and
 the engine docstring point here (the rule and the README also name classes of exit),
-so a change to an exit path updates this list and no other. Each condition names the
-function it comes from. main() returns each status through the handler named, except
-the argparse and lint_common.require_dir statuses, which leave main as SystemExit raised
-inside it. Each listed condition is pinned by a test that asserts its status (tests/
-test_linters.py, StandardsCurrencyTests and the CLI refusal tests, and tests/
-test_standards_currency_coverage.py).
+so a change to an exit path updates this list and no other. It is organized by main()'s
+exits: each entry is one of its explicit status returns, one of the handlers of its try
+block, or one of the two calls that raise SystemExit inside it, and gives the status
+produced, the exception classes or condition handled, and the message prefix printed
+(on stderr unless stated). Under each entry, the known causes are examples, each naming
+the function it comes from; they are not exhaustive, and a cause not named has its
+entry's status. Every exit of main passes through one of these entries: main has no
+other return statement and no other handler that returns a status (the
+FileNotFoundError handler in its _read returns None, which reads as an absent file and
+produces no status), and an exception that none of E, F and G matches leaves main
+through entry H; that is what makes the list complete. The handlers are tried in the
+order E, F, G. RegisterError and UnicodeError are both ValueErrors, but any other
+ValueError, and a RuntimeError such as RecursionError, matches none of them. Each named
+cause is pinned by a test that asserts its status (tests/test_linters.py,
+StandardsCurrencyTests and the CLI refusal tests, and
+tests/test_standards_currency_coverage.py).
 
-0  --help (argparse prints this docstring). Otherwise a run with no blocking finding
-   (coverage_report's exit is 0), no "FAIL:" ratchet line and no error below; advisory
-   findings and NOTE lines never change the status.
+A  parser.parse_args (argparse), SystemExit raised inside main: status 0 for --help,
+   which prints this docstring on stdout; status 2 for a usage error, printed with a
+   "usage:" line and a "<prog>: error:" line. For example: an unknown option, --paths with
+   no value, a --coverage-mode or --format value outside its choices.
 
-1  Blocking findings, coverage_report's status (engine):
-   - a finding of the legacy Markdown stale check (check_text), in every mode;
-   - an INVALID_EXCEPTION (a historical exception row that does not bind), in every mode;
-   - with --coverage-mode enforce only, any other STALE, UNREGISTERED, NONCANONICAL_ID or
-     UNPINNED finding.
-   A "FAIL:" ratchet line (a default-scope run only; main sets report["exit"] to 1):
-   - unpinned_ratchet_lines: a standard's UNPINNED count above its baseline entry (0 when
-     it has none), or below it;
-   - base_ratchet_lines: an entry above its base value; a new entry for a standard the
-     base register already lists; a new register row's entry above that standard's
-     UNPINNED count at the base; a register row removed while the base baseline records
-     its entry; in the bootstrap, a seed entry above its count at the base.
-   A RegisterError (main's RegisterError handler):
-   - parse_register_text: a malformed or empty canonical register in the tree (a table
-     row without outer pipes, an unknown header, a bad separator, a wrong cell count, an
-     empty identifier or current version, a repeated identity, no entries);
-   - parse_unpinned_baseline: a malformed baseline in the tree (not JSON, a repeated key,
-     NaN or Infinity, no "unpinned" object, an unknown top-level key, a "_comment" that is
-     not a string, a key that is not a register Standard ID, a count that is not an
-     integer of at least 1);
-   - parse_historical_exceptions, through historical_citation_register.load: malformed
-     historical-citation exception data, or a row that fails a policy check;
-   - main, through historical_citation_register.sync_problem: a register page missing
-     while the data exists, or a page (with no data, one that exists) that fails the page
-     checks: a generated table that differs from the data (the empty table when there is
-     no data), missing or misordered sentinels, a line ending other than LF, or content
-     outside the table that sync_problem refuses;
-   - main: on a default run, a historical exception row naming a path outside the scan
-     scope.
-   Any exception main does not catch (a defect, a failed engine import, or git output of
-   an unexpected shape, such as an ls-tree record base_unpinned_counts cannot split into
-   three fields) ends in a Python traceback, status 1.
+B  lint_common.require_dir, SystemExit(2) raised inside main, prefix "ERROR: --root".
+   For example: a --root that is empty, unreadable or unresolvable, or not a directory as
+   given.
 
-2  argparse (parse_args, SystemExit): a command-line usage error (an unknown option,
-   --paths with no value, a --coverage-mode or --format value outside its choices).
-   lint_common.require_dir (SystemExit): a --root that is empty, unreadable or
-   unresolvable, or not a directory as given.
-   main: an empty --paths entry.
-   main's OSError and UnicodeError handler, with an "ERROR:" message and no "UNPINNED
-   ratchet base" prefix, even where the cause is in the ratchet base:
-   - parse_canonical_register: the canonical register missing, unreadable or not UTF-8;
-   - main: the baseline in the tree missing, unreadable or not UTF-8 (a default-scope run
-     only);
-   - main (_read): the historical data or page unreadable for any reason but absence, or
-     not UTF-8;
-   - iter_files: an out-of-root scan path (within, a symlink whose target is outside the
-     root included); a missing explicit path, checked before the exclusion filter; a
-     directory symlink in the scan scope, as a scan root or a descendant; an entry that is
-     neither a file nor a directory; an unreadable directory (os.scandir);
-   - coverage_report (engine): a scanned file that is unreadable or not UTF-8;
-   - ratchet_base, base_unpinned_counts: git output that is not ASCII where an object id
-     or listing is read;
-   - base_unpinned_counts (the bootstrap, or a new register row's entry): an OSError
-     creating the temporary directory the base scope is copied into
-     (tempfile.TemporaryDirectory), resolving it, or removing it afterwards; these steps
-     lie outside the try block that turns a scan failure into a RatchetBaseError.
-   main's RatchetBaseError handler, with an "UNPINNED ratchet base" message (a
-   default-scope run only):
+C  main's "return 2" for an empty --paths entry, prefix "ERROR: --paths:" (the one cause).
+
+D  main's "return report["exit"]", the run that completes the scan: status 0 or 1, no
+   "ERROR:" prefix; the report is on stdout (in text mode with any "FAIL:" ratchet lines
+   and a closing verdict line).
+   0  no blocking finding (coverage_report's exit is 0) and no "FAIL:" ratchet line;
+      advisory findings and NOTE lines never change the status.
+   1  for example, blocking findings, coverage_report's status (engine):
+      - a finding of the legacy Markdown stale check (check_text), in every mode;
+      - an INVALID_EXCEPTION (a historical exception row that does not bind), in every
+        mode;
+      - with --coverage-mode enforce only, any other STALE, UNREGISTERED, NONCANONICAL_ID
+        or UNPINNED finding;
+      or a "FAIL:" ratchet line (a default-scope run only; main sets report["exit"] to 1):
+      - unpinned_ratchet_lines: a standard's UNPINNED count above its baseline entry (0
+        when it has none), or below it;
+      - base_ratchet_lines: an entry above its base value; a new entry for a standard the
+        base register already lists; a new register row's entry above that standard's
+        UNPINNED count at the base; a register row removed while the base baseline
+        records its entry; in the bootstrap, a seed entry above its count at the base.
+
+E  except RatchetBaseError: status 2, prefix "ERROR: UNPINNED ratchet base:" (a
+   default-scope run only). For example:
    - _git_executable: no git on GIT_SEARCH_PATH;
    - _git: a git call that does not run, times out (GIT_TIMEOUT) or exits non-zero;
    - _ref, _commit: a missing ref (HEAD or refs/remotes/origin/main), or a revision that
@@ -200,19 +180,72 @@ test_standards_currency_coverage.py).
      workflow_dispatch; zero or several merge bases of HEAD and refs/remotes/origin/main;
    - _actions_event: GITHUB_ACTIONS exactly "true" with GITHUB_EVENT_PATH unset or empty,
      or naming a file that is missing, unreadable, not UTF-8 JSON, has a repeated key, or
-     is not a JSON object;
+     is not a JSON object (but see H for JSON nested too deeply);
    - _payload_sha: a payload with no value at the key the event needs, or a value that is
      not a full object id (or is all zeros);
-   - _blob_at: a base path that holds a tree or gitlink, or a blob that is not UTF-8;
+   - _blob_at: a base path that holds a tree or gitlink, or a git ls-tree record that does
+     not split into three fields (both "is not a file"); a blob that is not UTF-8, or an
+     object id in the ls-tree record that is not ASCII, decoded in the same try block
+     (both "is not UTF-8");
    - base_ratchet_lines: a base with no baseline file whose copy of this wrapper is
      missing or already names RATCHET_MARKER (only a copy without the marker is the
      bootstrap); a base with a baseline file but no canonical register; a malformed or
      empty base register or a malformed base baseline (parse_register_text and
-     parse_unpinned_baseline, the same checks that exit 1 in the tree);
+     parse_unpinned_baseline, the same checks that exit 1 through F in the tree; but see
+     H for JSON nested too deeply);
    - base_unpinned_counts (the bootstrap, or a new register row's entry): a path in the
      base tree that is not canonical, a blob git cat-file does not return, or a base scope
      that cannot be scanned (any OSError, UnicodeError or ValueError, iter_files's
-     refusals above included).
+     refusals under G included).
+
+F  except RegisterError: status 1, prefix "ERROR:". For example:
+   - parse_register_text: a malformed or empty canonical register in the tree (a table
+     row without outer pipes, an unknown header, a bad separator, a wrong cell count, an
+     empty identifier or current version, a repeated identity, no entries);
+   - parse_unpinned_baseline: a malformed baseline in the tree (not JSON, a repeated key,
+     NaN or Infinity, no "unpinned" object, an unknown top-level key, a "_comment" that is
+     not a string, a key that is not a register Standard ID, a count that is not an
+     integer of at least 1; but see H for JSON nested too deeply);
+   - parse_historical_exceptions, through historical_citation_register.load: malformed
+     historical-citation exception data, or a row that fails a policy check;
+   - main, through historical_citation_register.sync_problem: a register page missing
+     while the data exists, or a page (with no data, one that exists) that fails the page
+     checks: a generated table that differs from the data (the empty table when there is
+     no data), missing or misordered sentinels, a line ending other than LF, or content
+     outside the table that sync_problem refuses;
+   - main: on a default run, a historical exception row naming a path outside the scan
+     scope.
+
+G  except (OSError, UnicodeError): status 2, prefix "ERROR:", with no "UNPINNED ratchet
+   base" prefix even where the cause is in the ratchet base. For example:
+   - parse_canonical_register: the canonical register missing, unreadable or not UTF-8;
+   - main: the baseline in the tree missing, unreadable or not UTF-8 (a default-scope run
+     only);
+   - main (_read): the historical data or page unreadable for any reason but absence, or
+     not UTF-8;
+   - iter_files: an out-of-root scan path (within, a symlink whose target is outside the
+     root included); a missing explicit path, checked before the exclusion filter; a
+     directory symlink in the scan scope, as a scan root or a descendant; an entry that is
+     neither a file nor a directory; an unreadable directory (os.scandir);
+   - coverage_report (engine): a scanned file that is unreadable or not UTF-8;
+   - ratchet_base, base_unpinned_counts: git output that is not ASCII where an object id
+     or listing is read outside a try block (the _blob_at case is under E);
+   - base_unpinned_counts (the bootstrap, or a new register row's entry): an OSError
+     creating the temporary directory the base scope is copied into
+     (tempfile.TemporaryDirectory), resolving it, or removing it afterwards; these steps
+     lie outside the try block that turns a scan failure into a RatchetBaseError.
+
+H  No handler: any other exception propagates out of main, and Python prints a traceback
+   (prefix "Traceback (most recent call last):") and exits with status 1. For example:
+   - a defect, or a failed engine import;
+   - base_unpinned_counts: git output of an unexpected shape, such as an ls-tree record
+     it cannot split into three fields (a ValueError that is not a RegisterError);
+   - JSON nested more deeply than the json decoder allows, which raises RecursionError (a
+     RuntimeError, not a ValueError): the baseline in the tree (parse_unpinned_baseline,
+     from main), the base baseline (parse_unpinned_baseline, from base_ratchet_lines) and
+     the Actions event payload (_actions_event, which catches only OSError and
+     ValueError). A deep base baseline or event payload therefore exits 1, where the
+     malformed cases under E exit 2, and a deep tree baseline exits 1 here, not through F.
 
 The script exits with sys.exit(main()). This list does not cover statuses the wrapper
 does not choose: a SystemExit that argparse or lint_common.require_dir raises for a

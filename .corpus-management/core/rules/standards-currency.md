@@ -51,8 +51,9 @@ is exactly `true` and the event file is unset, missing, unreadable or not an
 object, the run fails closed, and a run with any other flag value, or none, is
 local. A missing, unreadable or malformed baseline fails. A base that cannot
 be determined, or whose register, baseline or default-scope files cannot be
-read or are malformed, fails closed (the wrapper's list names each cause); a
-base with no baseline fails too, except the one bootstrap: a base that predates the ratchet,
+read or are malformed, fails closed (the wrapper's list gives each exit path,
+with its known causes as examples); a base with no baseline fails too, except
+the one bootstrap: a base that predates the ratchet,
 that is, one with no baseline whose copy of the gate exists and does not yet
 hold the ratchet. A base with no baseline and no copy of the gate fails
 closed, and so does a base with no baseline whose copy of the gate holds the

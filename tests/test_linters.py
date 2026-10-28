@@ -4551,6 +4551,64 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertIn("Traceback", result.stderr)
         self.assertIn("ValueError: not enough values to unpack", result.stderr)
 
+    # P-3.213 exit-code list, organized by main()'s handlers: guards for the causes the
+    # reorganized list names for the first time. Behaviour is unchanged; each passes on
+    # 0ee959387.
+    def test_exit_list_base_ls_tree_record_malformed_or_non_ascii_id_exits_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: _blob_at on an ls-tree record
+        # that does not split into three fields ("is not a file"), or whose object id is not
+        # ASCII (decoded inside the try block that reports "is not UTF-8").
+        from unittest.mock import patch
+        for label, record, message in (
+            ("malformed", b"100644 blob\t" + self.BASELINE_REL.encode() + b"\0",
+             "is not a file"),
+            ("non_ascii_id", b"100644 blob \xff\t" + self.BASELINE_REL.encode() + b"\0",
+             "is not UTF-8"),
+        ):
+            with self.subTest(record=label):
+                mod = load_linter_module(self.WRAPPER_REL, "currency_exit_blob_at_" + label)
+                root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+                real = mod._git
+
+                def git(*args, stdin=None, record=record):
+                    if args[:1] == ("ls-tree",) and "-r" not in args:
+                        return record
+                    return real(*args, stdin=stdin)
+
+                with patch.object(mod, "_git", git):
+                    code, out, err = self._main_in_process(mod, root)
+                self.assertEqual(code, 2, out[-300:] + err)
+                self.assertIn("ERROR: UNPINNED ratchet base:", err)
+                self.assertIn(message, err)
+
+    def test_exit_list_deeply_nested_json_exits_1_with_a_traceback(self) -> None:
+        # Guard, exit 1 (no handler): JSON nested more deeply than the decoder allows raises
+        # RecursionError, which is not a ValueError, so the baseline in the tree, the base
+        # baseline and the Actions event payload each end in a traceback, not in the
+        # RegisterError or RatchetBaseError handler.
+        depth = 100000
+        deep = '{"unpinned": ' + "[" * depth + "]" * depth + "}"
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", deep,
+                                  base_baseline={"ISO/IEC 27001": 1})
+        base_root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1},
+                                       base_baseline=deep)
+        event_root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+        payload = self._event_payload(event_root)
+        payload.write_text("[" * depth + "]" * depth, encoding="utf-8")
+        event_env = {"GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "push",
+                     "GITHUB_EVENT_PATH": str(payload)}
+        for label, run_root, env in (
+            ("tree baseline", root, None),
+            ("base baseline", base_root, None),
+            ("event payload", event_root, event_env),
+        ):
+            with self.subTest(json=label):
+                result = self._run_ratchet(run_root, env=env)
+                self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+                self.assertIn("Traceback", result.stderr)
+                self.assertIn("RecursionError", result.stderr)
+                self.assertNotIn("ERROR:", result.stderr)
+
 
 class FilenameTitleTests(LinterTestCase):
     """tools/lint-filename-title-alignment.py"""
@@ -32562,7 +32620,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-skill-internal-refs.py ROOT F b2b1fc4846ca52b298fe12ee712477bfac97e173e3ac6368e72c5edd6c28b50e
         lint-skill-verdict-carrier-completeness.py OWN F 7056be9141352daf10807f17e9941fb422a84cbf43eae4fff9549efd3684f5a3
         lint-ssdf-control-ids.py CWD F fc3326619bde8b0c6389a3ac7a4b5b79e06ab9e3195e471b6d766f067e06a60f
-        lint-standards-currency.py OWN F 6ff83894c0add96cb59d4c3cc3b22f8065e4d0e3c704e03d0c13a8ff5c68b652
+        lint-standards-currency.py OWN F 516972e32ea7e9538afde01552edf24c2debb99f2e2a42d06258194210df3d17
         lint-startup-character-ceiling.py NO_FS F aeaaf73e5efe319cb6881277ca5b7abef8db708826fe1bf0a241559d7d58a060
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
