@@ -648,7 +648,7 @@ YAML_STRUCTURE = ("a gate YAML surface is accepted only in the fixed structure o
                   "excluded step's `run: |`), and at each level only the keys of "
                   "WORKFLOW_SKELETON or PRECOMMIT_SKELETON in tools/lint-audit-gate-parity.py")
 # Characters YAML (1.1, as PyYAML reads it) takes as a line break besides LF.
-YAML_OTHER_BREAKS = ("\r", "\x85", " ", " ")
+YAML_OTHER_BREAKS = ("\r", "\x85", "\u2028", "\u2029")
 
 # The fixed skeletons (3b646 round 6). A dict is a mapping that may hold only its keys, and
 # an _Exact one must hold every one of them; a one-item list is a list whose items match
@@ -702,8 +702,14 @@ def _yaml_value_problem(key: str, value: str, flow_lists: dict[str, frozenset[st
 
 def _lf_lines(path: Path) -> list[str]:
     """The lines of ``path`` split at LF only. A universal-newline read would also split
-    at CR, which bash does not: `x.py\\r&& python3 -B ...` is one line to bash."""
-    return path.read_bytes().decode("utf-8").split("\n")
+    at CR, which bash does not: `x.py\\r&& python3 -B ...` is one line to bash. A file
+    that is not valid UTF-8 (an invalid byte, or UTF-16) is a ParseError (exit 2)."""
+    try:
+        return path.read_bytes().decode("utf-8").split("\n")
+    except UnicodeDecodeError as exc:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: is not valid UTF-8 (byte "
+                         f"{exc.object[exc.start]:#04x} at offset {exc.start}); only UTF-8 "
+                         f"is accepted") from None
 
 
 class _YamlLine:

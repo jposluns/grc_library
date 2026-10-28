@@ -19699,6 +19699,42 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
+    def test_yaml_other_breaks_values_are_unchanged(self) -> None:
+        # 3b675: the tuple is written with escapes, so U+2028 and U+2029 no longer show as
+        # spaces in a diff; the values are the ones the literal characters held.
+        agp = self._gate_parity_module("_agp_other_breaks")
+        self.assertEqual(agp.YAML_OTHER_BREAKS, ("\r", "\x85", " ", " "))
+        self.assertEqual([ord(c) for c in agp.YAML_OTHER_BREAKS], [0x0D, 0x85, 0x2028, 0x2029])
+
+    def test_undecodable_surface_exits_2(self) -> None:
+        # 3b675: a runner or YAML surface with an invalid byte, or in UTF-16, exited 1 with
+        # a UnicodeDecodeError traceback at de3715476; the docstring promises exit 2 for a
+        # file that cannot be parsed.
+        encodings = {"invalid byte": lambda text: text.encode("utf-8") + b"# \xff\n",
+                     "UTF-16": lambda text: text.encode("utf-16")}
+        for surface in ("tools/run_all_audits.sh", ".github/workflows/quality.yml",
+                        ".pre-commit-config.yaml"):
+            for label, encode in encodings.items():
+                with self.subTest(surface=surface, encoding=label):
+                    root = Path(tempfile.mkdtemp(prefix="synthetic-parity-undecodable-",
+                                                 dir=FIXTURE_DIR))
+                    try:
+                        for name in self._ISOLATED_SURFACES:
+                            text = (REPO_ROOT / name).read_text(encoding="utf-8")
+                            target = root / name
+                            target.parent.mkdir(parents=True, exist_ok=True)
+                            target.write_bytes(encode(text) if name == surface
+                                               else text.encode("utf-8"))
+                        result = subprocess.run(
+                            [sys.executable, str(REPO_ROOT / "tools/lint-audit-gate-parity.py"),
+                             "--root", str(root)],
+                            cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300)
+                        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                        self.assertIn(f"{surface}: is not valid UTF-8", result.stderr)
+                        self.assertNotIn("Traceback", result.stderr)
+                    finally:
+                        shutil.rmtree(root, ignore_errors=True)
+
     # Round 5 (the maintainer's 23:20Z decision): the YAML surfaces accept only the block-
     # mapping line shapes the current steps and hooks use. Each test below passed at
     # 0b4738bc4: the fixture's extra step or hook was skipped, or the hook was accepted.
@@ -30742,7 +30778,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F fab89440f44f35807c47d823e662919343bb9d3ad220e85887d300a229b80ab6
+        lint-audit-gate-parity.py OWN F db1bb2b58ad10ddfebd9e293f39bae875ff5ae4336c74af7cee4870de8679b2f
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-bookkeeping-parity.py NO_FS F 43a25f9706516004b494a4ed6842b3fe06001f152cbedfa9ec1845cd88ba946b
