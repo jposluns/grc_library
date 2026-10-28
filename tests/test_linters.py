@@ -21445,6 +21445,30 @@ class MetadataLineBreaksTests(LinterTestCase):
             "fake-bq-html-search.md", "> **A:** a\n> <search>\n> **B:** b\n", 1
         )
 
+    # 3b146 round 4: kinds 1, 4 and 7 are GFM 0.29's too: kind 1 has no textarea, kind 4 needs
+    # an uppercase letter after <!, and kind 7 excludes an open tag named script, style or pre.
+
+    def test_html_textarea_tag_does_not_end_the_run(self) -> None:
+        # Under GFM, textarea is not a kind-1 tag; as a kind-7 tag it cannot interrupt a
+        # paragraph, so the line is paragraph text and A's missing break is a finding.
+        self._assert_flagged("fake-html-textarea.md", "**A:** a\n<textarea>\n**B:** b\n", 1)
+        self._assert_flagged(
+            "fake-bq-html-textarea.md", "> **A:** a\n> <textarea>\n> **B:** b\n", 1
+        )
+
+    def test_html_lowercase_declaration_does_not_end_the_run(self) -> None:
+        # Kind 4 needs an uppercase letter after <!, so <!x is paragraph text.
+        self._assert_flagged("fake-html-decl.md", "**A:** a\n<!x\n**B:** b\n", 1)
+        self._assert_flagged("fake-bq-html-decl.md", "> **A:** a\n> <!x\n> **B:** b\n", 1)
+
+    def test_html_lone_script_tag_does_not_open_a_block(self) -> None:
+        # <script/> is not kind 1 (no space, > or line end after the name) and kind 7 excludes
+        # it, so it opens a paragraph that the metadata lines continue.
+        self._assert_flagged("fake-html-script.md", "<script/>\n**A:** a\n**B:** b\n", 1)
+        self._assert_flagged(
+            "fake-bq-html-script.md", "> <script/>\n> **A:** a\n> **B:** b\n", 1
+        )
+
     def test_block_quote_paragraph_is_a_run(self) -> None:
         self._assert_flagged("fake-bq.md", "> **A:** x\n> **B:** y\n", 1)
 

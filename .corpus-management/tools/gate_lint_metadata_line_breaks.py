@@ -81,24 +81,28 @@ _HTML_BLOCK_TAGS = (
 )
 # The kind 6 tag list above is the GFM specification's (version 0.29-gfm, 2019-04-06), which
 # GitHub's renderer follows. CommonMark 0.31 differs on two tags: it drops source and adds search.
+# Kinds 1, 4 and 7 are also GFM 0.29's: kind 1 has no textarea, kind 4 needs an uppercase ASCII
+# letter after <!, and kind 7 excludes an open tag named script, style or pre; CommonMark 0.31
+# adds textarea, accepts any ASCII letter and has no kind 7 exclusion.
 # HTML block kinds 1 to 6: (start, end). Kinds 1 to 5 end on the line holding the end marker,
 # the start line included; kind 6 (end None) ends before a blank line. All six can interrupt
 # a paragraph.
 HTML_BLOCK_STARTS = (
-    (re.compile(r" {0,3}<(?:script|pre|style|textarea)(?:[ \t>]|$)", re.IGNORECASE),
-     re.compile(r"</(?:script|pre|style|textarea)>", re.IGNORECASE)),
+    (re.compile(r" {0,3}<(?:script|pre|style)(?:[ \t>]|$)", re.IGNORECASE),
+     re.compile(r"</(?:script|pre|style)>", re.IGNORECASE)),
     (re.compile(r" {0,3}<!--"), re.compile(r"-->")),
     (re.compile(r" {0,3}<\?"), re.compile(r"\?>")),
-    (re.compile(r" {0,3}<![A-Za-z]"), re.compile(r">")),
+    (re.compile(r" {0,3}<![A-Z]"), re.compile(r">")),
     (re.compile(r" {0,3}<!\[CDATA\["), re.compile(r"\]\]>")),
     (re.compile(r" {0,3}</?(?:" + _HTML_BLOCK_TAGS + r")(?:[ \t>]|/>|$)", re.IGNORECASE), None),
 )
 # HTML block kind 7: a whole open or closing tag alone on its line. It cannot interrupt a
 # paragraph, so it only starts a block where no paragraph is open.
 HTML_BLOCK_7 = re.compile(
-    r" {0,3}(?:<[A-Za-z][A-Za-z0-9-]*"
+    r" {0,3}(?:<(?!(?:script|style|pre)(?![A-Za-z0-9-]))[A-Za-z][A-Za-z0-9-]*"
     r"(?:[ \t]+[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \t]*=[ \t]*(?:[^ \t\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)*"
-    r"[ \t]*/?>|</[A-Za-z][A-Za-z0-9-]*[ \t]*>)[ \t]*$"
+    r"[ \t]*/?>|</[A-Za-z][A-Za-z0-9-]*[ \t]*>)[ \t]*$",
+    re.IGNORECASE,
 )
 ATX_HEADING = re.compile(r" {0,3}#{1,6}(?:[ \t]|$)")
 THEMATIC_BREAK = re.compile(r" {0,3}(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$")
