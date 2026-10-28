@@ -49119,9 +49119,10 @@ class TodoIndexReferenceParityTests(LinterTestCase):
                             stack.enter_context(patch.object(mod, "resolve_sibling", lc.resolve_sibling))
                             # r7: assertIsNone here errored on 3.11, whose lookup raises on EACCES.
                             raised = self._assert_lookup_finds_no_sibling(lc)
-                            # the imitation must reach the lookup, or the 3.11 run proves nothing
-                            self.assertEqual(raised is not None, perm and python == "3.11 imitated",
-                                             repr(raised))
+                            # the imitation must reach the lookup, or the 3.11 run proves nothing;
+                            # r8: only there, since on 3.11 (CI) this interpreter's lookup raises too
+                            if python == "3.11 imitated":
+                                self.assertEqual(raised is not None, perm, repr(raised))
                     rc, out, err, priv = self._run_default("sibling-kind", {}, sibling=False, setup=setup)
                     self._assert_sibling_error(rc, out, err, "ERROR: " + found["message"])
                     self.assertIn("a present but unusable private store is not an absent one", err)
