@@ -49,7 +49,11 @@ with exit 2 naming it when it holds a regular file, a FIFO, a socket or a device
 (named with its kind), a link that does not resolve or that loops, an entry that
 cannot be examined (a link to a directory under a directory without search
 permission), or a directory the lookup did not find (it changed during the
-lookup) (3b674 r3). When the default
+lookup) (3b674 r3). The path is examined BEFORE the shared lookup runs, which
+runs only when the path is absent or a usable directory, and again after it when
+it finds no sibling; an error the lookup raises (Python 3.11's ``Path.is_dir()``
+raises PermissionError on EACCES) fails with exit 2 naming the path, never a
+traceback (r5). When the default
 lookup does resolve the sibling but it holds neither ``P-TODO.md`` nor
 ``P-TODO-REFERENCE.md``, it used to pass with no notice, so a mis-resolved or
 emptied store read as checked (3b648). The sibling is now classified by what it
@@ -384,7 +388,11 @@ def _default_private_path() -> Path:
     return REPO_ROOT.parent / _SIBLING_REPO_DIRS["private"]
 
 
-def _probe_default_sibling(path: Path) -> str | None:
+_SIBLING_TAIL = ("a present but unusable private store is not an absent one; private "
+                 "index<->reference parity cannot be checked")
+
+
+def _probe_default_sibling(path: Path, lookup_found_none: bool = True) -> str | None:
     """None when nothing is at the default private sibling path, else an error naming it.
 
     3b674 r3: the non-strict ``resolve_sibling`` returns None for anything at the sibling path
@@ -394,16 +402,17 @@ def _probe_default_sibling(path: Path) -> str | None:
     socket, a device), named with its kind; a link whose target does not exist, or that loops, as
     a link that does not resolve; an entry that cannot be examined (a link to a directory under a
     directory without search permission, a parent without search permission), with the error; and
-    a directory found after the lookup found none, as one that changed during the lookup."""
-    tail = ("a present but unusable private store is not an absent one; private "
-            "index<->reference parity cannot be checked")
+    a directory found after the lookup found none, as one that changed during the lookup.
+    r5: ``main()`` also probes BEFORE the lookup (``lookup_found_none`` False), since Python 3.11's
+    ``Path.is_dir()`` raises PermissionError on EACCES; there a usable directory is None too."""
+    tail = _SIBLING_TAIL
     try:
         kind = strict_kind(path)
     except OSError as exc:
         if os.path.islink(path) and exc.errno in (errno.ENOENT, errno.ELOOP):
             return f"the private sibling {path} is a link that does not resolve ({exc.strerror}); {tail}"
         return f"cannot examine the private sibling {path} ({exc.strerror}); {tail}"
-    if kind is None:
+    if kind is None or (kind == "dir" and not lookup_found_none):
         return None
     if kind != "dir":
         return (f"the private sibling {path} is present but is not a directory "
@@ -797,11 +806,26 @@ def main(argv: list[str]) -> int:
     elif "--root" in seen:
         private_dir, private_flag = root, "--root"
     else:
-        private_dir = resolve_sibling("private")
+        # 3b674 r5: the path is probed BEFORE the non-strict lookup, whose Path.is_dir() raises
+        # PermissionError on EACCES under Python 3.11 (CI), so a present but unusable store fails
+        # with exit 2 here and the lookup runs only when the path is absent or a usable directory.
+        # An OSError the lookup still raises (the path changed after the probe) takes the same
+        # exit-2 path, so no Python version turns it into a traceback.
+        sibling_path = _default_private_path()
+        why_sibling = _probe_default_sibling(sibling_path, lookup_found_none=False)
+        if why_sibling is not None:
+            print(f"ERROR: {why_sibling}", file=sys.stderr)
+            return 2
+        try:
+            private_dir = resolve_sibling("private")
+        except OSError as exc:
+            print(f"ERROR: cannot examine the private sibling {sibling_path} ({exc.strerror}); "
+                  f"{_SIBLING_TAIL}", file=sys.stderr)
+            return 2
         if private_dir is None:
             # 3b674 r3: the non-strict lookup returns None for anything that is not a usable
             # directory, so the gate examines the same path; only nothing there is absent.
-            why_sibling = _probe_default_sibling(_default_private_path())
+            why_sibling = _probe_default_sibling(sibling_path)
             if why_sibling is not None:
                 print(f"ERROR: {why_sibling}", file=sys.stderr)
                 return 2

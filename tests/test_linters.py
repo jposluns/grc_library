@@ -31190,7 +31190,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
         lint-table-cell-count.py OWN F 36c2ad714485c240903f8ecb55caefe3714ac0ebad81df90b2d52e87a10a3477
-        lint-todo-index-reference-parity.py OWN F 0d52c4fd196656aad913d238b6806f17b81b4c882f5186fdc7036653f6b5f37d
+        lint-todo-index-reference-parity.py OWN F 89de97b11e04729aabaee5dbec86a26b5dcc48d79f43f5fc9b9da757b082060e
         lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
         lint-todo-number-permanence.py OWN F dedf0d73d69395a559061e0424d49ec92ccbcb3fef7e455adc41dd30708cdbea
@@ -49082,6 +49082,52 @@ class TodoIndexReferenceParityTests(LinterTestCase):
                         self.assertIsNone(lc.resolve_sibling("private"))
                 rc, out, err, priv = self._run_default("sibling-kind", {}, sibling=False, setup=setup)
                 self._assert_sibling_error(rc, out, err, "ERROR: " + found["message"])
+                self.assertIn("a present but unusable private store is not an absent one", err)
+                self.assertNotIn("Traceback", err)
+
+    def test_default_lookup_permission_error_fails_without_traceback(self):
+        # 3b674 r5: the gate called the non-strict resolve_sibling first, and Python 3.11's (CI)
+        # Path.is_dir() raises PermissionError on EACCES, so an inaccessible store ended in a
+        # traceback before the gate's own probe could fail with exit 2. Path.is_dir is patched to
+        # raise as 3.11 does, on any interpreter; the gate runs the real non-strict lookup.
+        import errno
+        from unittest.mock import patch
+
+        def parent_without_search(base, priv):
+            priv.mkdir()
+            self._lock(base)
+
+        def directory(base, priv):
+            # the probe sees a usable directory, so the lookup runs and raises: the exit-2 path
+            # for an OSError from the lookup itself
+            priv.mkdir()
+
+        for label, build, perm in (("inaccessible store", parent_without_search, True),
+                                   ("lookup that raises on a directory", directory, False)):
+            with self.subTest(case=label):
+                if perm and os.geteuid() == 0:
+                    self.skipTest("run as root: permission bits do not deny root's search, so the "
+                                  "sibling path would lead to a usable directory")
+
+                def setup(stack, mod, base, priv, build=build):
+                    build(base, priv)
+                    real_is_dir = Path.is_dir
+
+                    def is_dir_311(path, *args, **kwargs):
+                        if os.fspath(path) == os.fspath(priv):
+                            raise PermissionError(errno.EACCES, os.strerror(errno.EACCES), str(path))
+                        return real_is_dir(path, *args, **kwargs)
+
+                    lc = sys.modules[mod.require_dir.__module__]
+                    stack.enter_context(patch.object(lc, "REPO_ROOT", base / "grc_library"))
+                    stack.enter_context(patch.object(mod, "resolve_sibling", lc.resolve_sibling))
+                    stack.enter_context(patch.object(Path, "is_dir", is_dir_311))
+                try:
+                    rc, out, err, priv = self._run_default("sibling-eacces", {}, sibling=False,
+                                                           setup=setup)
+                except OSError as exc:
+                    self.fail(f"{label}: the default lookup raised {exc!r}, a traceback, not exit 2")
+                self._assert_sibling_error(rc, out, err, f"ERROR: cannot examine the private sibling {priv} (")
                 self.assertIn("a present but unusable private store is not an absent one", err)
                 self.assertNotIn("Traceback", err)
 
