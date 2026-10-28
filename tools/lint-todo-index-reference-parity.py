@@ -53,7 +53,8 @@ lookup) (3b674 r3). The path is examined BEFORE the shared lookup runs, which
 runs only when the path is absent or a usable directory, and again after it when
 it finds no sibling; an error the lookup raises (Python 3.11's ``Path.is_dir()``
 raises PermissionError on EACCES) fails with exit 2 naming the path, never a
-traceback (r5). When the default
+traceback (r5). Every link test in the gate uses ``lstat`` and reads an entry it
+cannot examine as not a link, so none raises either (r6). When the default
 lookup does resolve the sibling but it holds neither ``P-TODO.md`` nor
 ``P-TODO-REFERENCE.md``, it used to pass with no notice, so a mis-resolved or
 emptied store read as checked (3b648). The sibling is now classified by what it
@@ -382,6 +383,19 @@ def _absent(path: Path) -> bool:
         return False
 
 
+def _is_link(path: Path) -> bool:
+    """True only when ``lstat`` reports a symbolic link at ``path``; any OSError reads as False.
+
+    3b674 r6: ``_probe_records``' error handler called ``Path.is_symlink()``, which Python 3.11
+    (CI) raises PermissionError from on EACCES, so an entry under a ``.working/sub`` of mode 0600
+    (listable, not searchable) ended in a traceback, not exit 2. Every link test in the gate is
+    this one, so the gate calls no pathlib kind or existence method, nor an ``os.path`` one."""
+    try:
+        return stat.S_ISLNK(os.lstat(path).st_mode)
+    except (OSError, ValueError):
+        return False
+
+
 def _default_private_path() -> Path:
     """The path the default ``resolve_sibling("private")`` lookup examines, joined as lint_common
     joins it (``REPO_ROOT.parent / _SIBLING_REPO_DIRS[name]``), so the two never disagree."""
@@ -409,7 +423,7 @@ def _probe_default_sibling(path: Path, lookup_found_none: bool = True) -> str | 
     try:
         kind = strict_kind(path)
     except OSError as exc:
-        if os.path.islink(path) and exc.errno in (errno.ENOENT, errno.ELOOP):
+        if _is_link(path) and exc.errno in (errno.ENOENT, errno.ELOOP):
             return f"the private sibling {path} is a link that does not resolve ({exc.strerror}); {tail}"
         return f"cannot examine the private sibling {path} ({exc.strerror}); {tail}"
     if kind is None or (kind == "dir" and not lookup_found_none):
@@ -465,7 +479,7 @@ def _probe_file(path: Path) -> tuple[str | None, str | None]:
     try:
         kind = strict_kind(path)
     except OSError as exc:
-        if os.path.islink(path) and exc.errno in (errno.ENOENT, errno.ELOOP):
+        if _is_link(path) and exc.errno in (errno.ENOENT, errno.ELOOP):
             return None, f"{path} is a link that does not resolve ({exc.strerror})"
         return None, f"cannot read {path} ({exc.strerror})"
     if kind is None:
@@ -531,7 +545,7 @@ def _probe_records(private_dir: Path) -> str | None:
         try:
             # r3: a link's destination is checked before its kind, so a link out of the store fails
             # as such whatever its target is (a file, a FIFO, a missing path).
-            if os.path.islink(path):
+            if _is_link(path):
                 target = os.path.realpath(path)
                 if os.path.commonpath([store, target]) != store:
                     return (f"{tree} holds a link that resolves outside the store {store}: {path} "
@@ -558,7 +572,9 @@ def _probe_records(private_dir: Path) -> str | None:
                 return (f"{tree} holds an entry of unexpected kind: {path} is a {_kind_name(path)}, "
                         f"neither a regular file nor a directory, and was not opened; {tail}")
         except OSError as exc:
-            if path.is_symlink() and exc.errno in (errno.ENOENT, errno.ELOOP):
+            # r6: _is_link, not Path.is_symlink(), which raises on EACCES under Python 3.11, so
+            # this handler cannot raise; an entry it cannot examine is not a link.
+            if _is_link(path) and exc.errno in (errno.ENOENT, errno.ELOOP):
                 return (f"{tree} holds a link that does not resolve: {path} ({exc.strerror}); "
                         f"{tail}")
             if exc.errno == errno.ENOENT:

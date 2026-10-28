@@ -31190,7 +31190,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
         lint-table-cell-count.py OWN F 36c2ad714485c240903f8ecb55caefe3714ac0ebad81df90b2d52e87a10a3477
-        lint-todo-index-reference-parity.py OWN F 89de97b11e04729aabaee5dbec86a26b5dcc48d79f43f5fc9b9da757b082060e
+        lint-todo-index-reference-parity.py OWN F b15c9b865864abdab15851f91ee6deafb6a2be08b5a384dea76ba4275131a800
         lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
         lint-todo-number-permanence.py OWN F dedf0d73d69395a559061e0424d49ec92ccbcb3fef7e455adc41dd30708cdbea
@@ -49246,6 +49246,86 @@ class TodoIndexReferenceParityTests(LinterTestCase):
                                            f"holds a link that resolves outside the store {store}: "
                                            f"{found['path']} -> {os.path.realpath(found['path'])}; "
                                            "the walk does not follow it;")
+
+    @unittest.skipIf(os.geteuid() == 0, "run as root: permission bits do not deny root's search, so the "
+                                        "entry under the mode-0600 directory would still be examined")
+    def test_default_records_tree_unsearchable_subdir_fails_without_traceback(self):
+        # 3b674 r6: _probe_records' error handler called Path.is_symlink(), which Python 3.11 (CI)
+        # raises PermissionError from on EACCES, so an entry under a .working/sub of mode 0600
+        # (listable, not searchable) ended in a traceback, not exit 2. Path.is_symlink is patched to
+        # behave as 3.11's does (only ENOENT, ENOTDIR, EBADF and ELOOP read as False), on any
+        # interpreter.
+        import errno
+        import stat
+        from unittest.mock import patch
+        found = {}
+
+        def is_symlink_311(path):
+            try:
+                return stat.S_ISLNK(os.lstat(path).st_mode)
+            except OSError as exc:
+                if exc.errno in (errno.ENOENT, errno.ENOTDIR, errno.EBADF, errno.ELOOP):
+                    return False
+                raise
+
+        def setup(stack, mod, base, priv):
+            sub = priv / ".working" / "sub"
+            sub.mkdir(parents=True)
+            (sub / "handoff.md").write_text("handoff\n", encoding="utf-8")
+            sub.chmod(0o600)
+            self.addCleanup(sub.chmod, 0o700)
+            found["path"] = sub / "handoff.md"
+            stack.enter_context(patch.object(Path, "is_symlink", is_symlink_311))
+        try:
+            rc, out, err, priv = self._run_default("records-eacces", {}, setup=setup)
+        except OSError as exc:
+            self.fail(f"the records walk raised {exc!r}, a traceback, not exit 2")
+        self._assert_sibling_error(rc, out, err,
+                                   f"ERROR: cannot read the private store's records tree "
+                                   f"{priv / '.working'}: {found['path']} (")
+        self.assertIn("not an absent backlog", err)
+        self.assertNotIn("Traceback", err)
+
+    # 3b674 r6: the pathlib kind and existence methods and the os.path ones gate 90 must not call
+    # outside _is_link (Python 3.11's pathlib ones raise PermissionError on EACCES).
+    KIND_CALLS = frozenset({"is_file", "is_dir", "is_symlink", "exists", "is_fifo", "is_socket",
+                            "is_block_device", "is_char_device", "is_mount", "isfile", "isdir",
+                            "islink", "lexists"})
+    KIND_CALL_HELPERS = frozenset({"_is_link"})
+
+    def _kind_calls_outside_helpers(self, source):
+        """``(line, call)`` for each kind or existence call in ``source`` outside KIND_CALL_HELPERS:
+        an attribute call (``p.exists()``, ``os.path.islink(p)``, ``Path.is_dir(p)``), a bare-name
+        call (``islink(p)``) or a ``getattr`` naming one with a literal."""
+        import ast
+        tree = ast.parse(source)
+        allowed: set[int] = set()
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in self.KIND_CALL_HELPERS:
+                allowed.update(id(n) for n in ast.walk(node))
+        calls = []
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call) or id(node) in allowed:
+                continue
+            func = node.func
+            name = (func.attr if isinstance(func, ast.Attribute)
+                    else func.id if isinstance(func, ast.Name) else None)
+            if name == "getattr" and len(node.args) >= 2 and isinstance(node.args[1], ast.Constant):
+                name = node.args[1].value
+            if name in self.KIND_CALLS:
+                calls.append((node.lineno, ast.unparse(node)))
+        return sorted(calls)
+
+    def test_no_kind_or_existence_call_outside_helper(self):
+        # 3b674 r6: rounds 2 to 5 each found one more pathlib kind or existence call that Python
+        # 3.11 (CI) raises PermissionError from on EACCES, the last inside an error handler. The
+        # gate's source may call none outside _is_link, which tests with os.lstat and reads any
+        # OSError as False; the flip adds one, so the scan is shown to see it.
+        source = (REPO_ROOT / "tools" / "lint-todo-index-reference-parity.py").read_text(encoding="utf-8")
+        self.assertEqual(self._kind_calls_outside_helpers(source), [])
+        flipped = source + "\n\ndef _flip(path):\n    return path.is_symlink()\n"
+        self.assertEqual([call for _, call in self._kind_calls_outside_helpers(flipped)],
+                         ["path.is_symlink()"])
 
 class TagGateTests(LinterTestCase):
     """tools/lint-todo-list-tag.py (gate 81): every open TODO.md / P-TODO.md
