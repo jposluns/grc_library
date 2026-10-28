@@ -21357,6 +21357,258 @@ class MetadataLineBreaksTests(LinterTestCase):
         result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
         self.assertLinterFails(result, "missing-hard-break")
 
+    def test_indented_continuation_lines_stay_in_the_run(self) -> None:
+        # 3b146: a run is the rendered paragraph. A four-space-indented backtick pair is a
+        # paragraph continuation, not a fence or indented code, so the block below renders
+        # as ONE paragraph; before 3b146 each non-metadata line split the run and the
+        # missing breaks after A and B went unreported.
+        fixture = self.make_fixture(
+            "fake-indented-continuation.md",
+            "**A:** x\n    ``\n**B:** y\n    ``\n**C:** z\n",
+        )
+        result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
+        self.assertLinterFails(result, "missing-hard-break")
+        # A line that starts another block still ends the paragraph, so it ends the run.
+        for between in ("", "## Heading", "---", "- item", "<div>"):
+            with self.subTest(between=between):
+                fixture = self.make_fixture(
+                    "fake-block-split.md",
+                    "**A:** x\n%s\n**B:** y\n\nBody.\n" % between,
+                )
+                result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    # 3b146 round 2: one test per case where the round 1 run model disagreed with the
+    # renderer (CommonMark 0.31 with GFM tables). Each fails on the round 1 engine.
+
+    def _assert_clean(self, name: str, text: str) -> None:
+        result = run_linter("tools/lint-metadata-line-breaks.py", self.make_fixture(name, text))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def _assert_flagged(self, name: str, text: str, missing: int) -> None:
+        result = run_linter("tools/lint-metadata-line-breaks.py", self.make_fixture(name, text))
+        self.assertLinterFails(result, "missing-hard-break")
+        self.assertIn("has %d non-last line(s)" % missing, result.stdout)
+
+    def test_table_after_metadata_ends_the_run(self) -> None:
+        # The header row and the body rows of a GFM table are not paragraph text, so B is the
+        # last line of its paragraph and only A's missing break is a finding.
+        self._assert_flagged(
+            "fake-table-after.md", "**A:** x\n**B:** y\n| h |\n| - |\n**C:** z\n", 1
+        )
+
+    def test_metadata_line_in_a_table_body_is_not_a_run(self) -> None:
+        # Under GFM, B is a table row, so A stands alone (round 1 reported A).
+        self._assert_clean("fake-table-row.md", "**A:** x\n| h |\n| - |\n**B:** y\n")
+
+    def test_ordered_item_01_interrupts_the_paragraph(self) -> None:
+        # "01." starts at 1, so it interrupts the paragraph and A is the last line of its run.
+        self._assert_clean("fake-ol-01.md", "**A:** x\n01. item\n**B:** y\n")
+
+    def test_sibling_list_item_ends_the_run(self) -> None:
+        # Inside a list, "2." starts a sibling item whatever its number, so A and B are in
+        # two paragraphs.
+        self._assert_clean(
+            "fake-sibling-items.md", "1. item\n   **A:** x\n2. item\n   **B:** y\n"
+        )
+
+    def test_html_comment_content_is_not_a_run(self) -> None:
+        self._assert_clean(
+            "fake-html-comment.md", "<!--\n**A:** x\n**B:** y\n**C:** z\n-->\n"
+        )
+
+    def test_html_pre_block_content_is_not_a_run(self) -> None:
+        self._assert_clean("fake-html-pre.md", "<pre>\n**A:** x\n**B:** y\n</pre>\n**C:** z\n")
+
+    def test_html_div_block_content_is_not_a_run(self) -> None:
+        # A kind-6 HTML block runs to the next blank line, so B and C are raw HTML.
+        self._assert_clean("fake-html-div.md", "**A:** x\n<div>\n**B:** y\n**C:** z\n")
+
+    def test_html_tag_line_after_a_blank_starts_an_html_block(self) -> None:
+        # A kind-7 tag alone on its line cannot interrupt a paragraph, but after a blank line
+        # it opens an HTML block that runs to the next blank line.
+        self._assert_clean("fake-html-span.md", "<span>\n**A:** x\n**B:** y\n")
+
+    # 3b146 round 3: the kind 6 tag list is the GFM specification's (0.29-gfm), which has
+    # source and lacks search; CommonMark 0.31 has search and lacks source.
+
+    def test_html_source_tag_ends_the_run(self) -> None:
+        # A kind-6 tag interrupts the paragraph, so A is the last line of its run.
+        self._assert_clean("fake-html-source.md", "**A:** a\n<source>\n**B:** b\n")
+        self._assert_clean("fake-bq-html-source.md", "> **A:** a\n> <source>\n> **B:** b\n")
+
+    def test_html_search_tag_does_not_end_the_run(self) -> None:
+        # Under GFM, search is not a kind-6 tag; as a kind-7 tag it cannot interrupt a
+        # paragraph, so the line is paragraph text and A's missing break is a finding.
+        self._assert_flagged("fake-html-search.md", "**A:** a\n<search>\n**B:** b\n", 1)
+        self._assert_flagged(
+            "fake-bq-html-search.md", "> **A:** a\n> <search>\n> **B:** b\n", 1
+        )
+
+    # 3b146 round 4: kinds 1, 4 and 7 are GFM 0.29's too: kind 1 has no textarea, kind 4 needs
+    # an uppercase letter after <!, and kind 7 excludes an open tag named script, style or pre.
+
+    def test_html_textarea_tag_does_not_end_the_run(self) -> None:
+        # Under GFM, textarea is not a kind-1 tag; as a kind-7 tag it cannot interrupt a
+        # paragraph, so the line is paragraph text and A's missing break is a finding.
+        self._assert_flagged("fake-html-textarea.md", "**A:** a\n<textarea>\n**B:** b\n", 1)
+        self._assert_flagged(
+            "fake-bq-html-textarea.md", "> **A:** a\n> <textarea>\n> **B:** b\n", 1
+        )
+
+    def test_html_lowercase_declaration_does_not_end_the_run(self) -> None:
+        # Kind 4 needs an uppercase letter after <!, so <!x is paragraph text.
+        self._assert_flagged("fake-html-decl.md", "**A:** a\n<!x\n**B:** b\n", 1)
+        self._assert_flagged("fake-bq-html-decl.md", "> **A:** a\n> <!x\n> **B:** b\n", 1)
+
+    def test_html_lone_script_tag_does_not_open_a_block(self) -> None:
+        # <script/> is not kind 1 (no space, > or line end after the name) and kind 7 excludes
+        # it, so it opens a paragraph that the metadata lines continue.
+        self._assert_flagged("fake-html-script.md", "<script/>\n**A:** a\n**B:** b\n", 1)
+        self._assert_flagged(
+            "fake-bq-html-script.md", "> <script/>\n> **A:** a\n> **B:** b\n", 1
+        )
+
+    # 3b146 round 5: GFM 0.29's whitespace character includes U+000B and U+000C, its blank line
+    # holds only spaces and tabs, and its tag names are ASCII. Each case runs at top level, in a
+    # block quote and in a list item, and each fails on the round 4 engine.
+
+    def _assert_in_contexts(self, name: str, lines: list[str], missing: int) -> None:
+        contexts = {
+            "top": lines,
+            "bq": ["> " + line for line in lines],
+            "li": ["- " + lines[0]] + ["  " + line for line in lines[1:]],
+        }
+        for context, body in contexts.items():
+            with self.subTest(context=context):
+                text = "\n".join(body) + "\n"
+                if missing:
+                    self._assert_flagged("fake-%s-%s.md" % (context, name), text, missing)
+                else:
+                    self._assert_clean("fake-%s-%s.md" % (context, name), text)
+
+    def test_html_kind1_line_tabulation_after_tag_name(self) -> None:
+        # <pre followed by U+000B starts kind 1, which interrupts the paragraph.
+        self._assert_in_contexts("k1-vt", ["**A:** a", "<pre\x0b", "**B:** b"], 0)
+
+    def test_html_kind1_form_feed_after_tag_name(self) -> None:
+        self._assert_in_contexts("k1-ff", ["**A:** a", "<pre\x0c", "**B:** b"], 0)
+
+    def test_html_kind6_line_tabulation_after_tag_name(self) -> None:
+        self._assert_in_contexts("k6-vt", ["**A:** a", "<div\x0b", "**B:** b"], 0)
+
+    def test_html_kind6_form_feed_after_tag_name(self) -> None:
+        self._assert_in_contexts("k6-ff", ["**A:** a", "<div\x0c", "**B:** b"], 0)
+
+    def test_html_kind7_line_tabulation_in_tag(self) -> None:
+        # After an attribute name, after the tag and inside a closing tag, U+000B is whitespace,
+        # so each line is a whole tag that opens a kind 7 block holding the metadata lines.
+        for tag in ("<span\x0bid=a>", "<span>\x0b", "</span\x0b>"):
+            with self.subTest(tag=tag):
+                self._assert_in_contexts("k7-vt", [tag, "**A:** a", "**B:** b"], 0)
+
+    def test_html_kind7_form_feed_in_tag(self) -> None:
+        for tag in ("<span\x0cid=a>", "<span>\x0c", "</span\x0c>"):
+            with self.subTest(tag=tag):
+                self._assert_in_contexts("k7-ff", [tag, "**A:** a", "**B:** b"], 0)
+
+    def test_form_feed_line_does_not_end_a_kind6_block(self) -> None:
+        # A form-feed-only line is not blank, so the kind 6 block runs on over the metadata lines.
+        self._assert_in_contexts("k6-ff-line", ["<div>", "\x0c", "**A:** a", "**B:** b"], 0)
+
+    def test_form_feed_line_does_not_end_a_kind7_block(self) -> None:
+        self._assert_in_contexts("k7-ff-line", ["<span>", "\x0c", "**A:** a", "**B:** b"], 0)
+
+    def test_form_feed_line_does_not_split_the_run(self) -> None:
+        # A form-feed-only line is paragraph text, so A and B are one paragraph.
+        self._assert_in_contexts("para-ff-line", ["**A:** a", "\x0c", "**B:** b"], 1)
+
+    def test_kelvin_sign_is_not_a_tag_name_letter(self) -> None:
+        # U+212A folds to k under re.IGNORECASE, but a tag name is ASCII, so <K> is paragraph
+        # text and the metadata lines continue its paragraph.
+        self._assert_in_contexts("kelvin", ["<K>", "**A:** a", "**B:** b"], 1)
+
+    # 3b146 round 6: after the disclosed residual (an indented block start after two nested
+    # quotes), checking resumes at every blank line outside every container, including one that
+    # ends or sits in an HTML block, fence or indented code. Each case runs with the residual at
+    # top level and in a block quote, beside the plain blank line control, and each fails on the
+    # round 5 engine. A table cell is trimmed of GFM whitespace only, so a trailing NBSP is a cell.
+
+    def _assert_checking_resumes(self, name: str, between: list[str]) -> None:
+        heads = {
+            "top": ["> > **A:** a", "        > x"],
+            "bq": ["> > > **A:** a", ">         > x"],
+        }
+        for context, head in heads.items():
+            for case, lines in (("control", [""]), (name, between)):
+                with self.subTest(context=context, case=case):
+                    text = "\n".join(head + lines + ["**C:** c", "**D:** d"]) + "\n"
+                    result = run_linter(
+                        "tools/lint-metadata-line-breaks.py",
+                        self.make_fixture("fake-%s-%s.md" % (context, case), text),
+                    )
+                    self.assertLinterFails(result, "missing-hard-break")
+                    self.assertIn(
+                        "L%d [missing-hard-break] metadata block has 1 non-last line(s)"
+                        % (len(head) + len(lines) + 1),
+                        result.stdout,
+                    )
+
+    def test_blank_line_ending_a_kind6_block_resumes_checking(self) -> None:
+        self._assert_checking_resumes("k6-end", ["<div>", "x", ""])
+
+    def test_blank_line_ending_a_kind7_block_resumes_checking(self) -> None:
+        # The heading ends the paragraph, so the tag line after it opens a kind 7 block.
+        self._assert_checking_resumes("k7-end", ["# h", "<span>", "x", ""])
+
+    def test_blank_line_in_a_fence_resumes_checking(self) -> None:
+        self._assert_checking_resumes("fence-blank", ["```", "", "```"])
+
+    def test_blank_line_in_indented_code_resumes_checking(self) -> None:
+        self._assert_checking_resumes("code-blank", ["# h", "    a", "", "    b"])
+
+    def test_blank_line_in_an_html_comment_resumes_checking(self) -> None:
+        self._assert_checking_resumes("comment-blank", ["<!--", "", "-->"])
+
+    def test_table_row_trailing_nbsp_is_a_cell(self) -> None:
+        # NBSP is not GFM whitespace, so the header row has three cells against the delimiter
+        # row's two: there is no table, and the four lines are one paragraph.
+        self._assert_in_contexts(
+            "nbsp-cell", ["**A:** a", "| a | b |\xa0", "| - | - |", "**B:** b"], 1
+        )
+
+    def test_block_quote_paragraph_is_a_run(self) -> None:
+        self._assert_flagged("fake-bq.md", "> **A:** x\n> **B:** y\n", 1)
+
+    def test_block_quote_lazy_continuation_is_in_the_run(self) -> None:
+        self._assert_flagged("fake-bq-lazy.md", "**A:** x\n> **B:** y\n**C:** z\n", 1)
+
+    def test_list_item_first_line_is_in_the_run(self) -> None:
+        self._assert_flagged("fake-li-first.md", "- **A:** x\n  **B:** y\n", 1)
+
+    def test_loose_list_item_paragraph_is_a_run(self) -> None:
+        # The four-space lines continue the item after a blank line; they are not indented code.
+        self._assert_flagged(
+            "fake-li-loose.md", "- item\n\n    **A:** x\n    **B:** y\n", 1
+        )
+
+    def test_backtick_line_with_backtick_info_string_is_not_a_fence(self) -> None:
+        self._assert_flagged("fake-not-fence.md", "**A:** x\n``` a`b\n**B:** y\n", 1)
+
+    def test_form_feed_does_not_shift_the_reported_line(self) -> None:
+        # Only a newline ends a Markdown line; str.splitlines() also split on the form feed.
+        result = run_linter(
+            "tools/lint-metadata-line-breaks.py",
+            self.make_fixture("fake-form-feed.md", "x\x0cy\n**A:** x\n**B:** y\n"),
+        )
+        self.assertLinterFails(result, "missing-hard-break")
+        self.assertIn("L2 [missing-hard-break]", result.stdout)
+
+    def test_tilde_line_does_not_close_a_backtick_fence(self) -> None:
+        self._assert_clean(
+            "fake-mixed-fence.md", "```\ncode\n~~~\n**A:** x\n**B:** y\n```\n"
+        )
+
     def test_code_fence_metadata_not_flagged(self) -> None:
         # Same metadata block, but inside a fenced code region: must NOT
         # be flagged (templates demonstrating proper format do not need
@@ -30532,7 +30784,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-links.py ROOT F cf4b6ae1d2c76df65234323d94650ebc62db87bf24ed4f375d5386b4a75fb0b6
         lint-listing-surface-completeness.py NO_FS F 3dc1bb95c9133adec9f3af5640cf18a6c342118c972ab7cfb447fa6651ffe0f3
         lint-matrix-control-codes.py OWN F db50722da09857af1b7331860449b5f928c2a14775323007c4a6c09caa0dc2ad
-        lint-metadata-line-breaks.py ROOT F c4cf5422425033ee4171b762756de7a06e7ef7c528ea92d0066d62b39ea9e6ce
+        lint-metadata-line-breaks.py ROOT F 601f5879213fc66a0d35a92dffa89b9865e392e0e0a4e5ed4537b87dae40bcf8
         lint-metadata.py ROOT F 4b598a5775c087c6cd29ee7de4d5989ce65f9d2f69bd7a2bf84792e999ad6eeb
         lint-narrative-authority-boundary.py ROOT F 30604b67d564825474d8d957291b2d7fef0fcffc7fbc9dc13b42ccf80986ad41
         lint-narrative-boundary.py OWN F 787e392e5612561e47a6cf581d7fad785f867351682b116d8b7db680d4890f9a
@@ -49483,7 +49735,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.21.3", "3b662 has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662)")
+        self.assertEqual(man["pack"]["version"], "0.21.5", "3b146 has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of 3b662, which has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for 3b146)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")

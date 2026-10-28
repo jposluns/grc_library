@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Metadata-block line-break audit (grc wrapper over the pack-owned engine).
 
-Detect runs of consecutive ``**Field:**`` lines that lack a Markdown hard-break
-marker on the non-last lines of the run. Without a hard-break, GitHub renders the
-metadata block as a single soft-wrapped paragraph rather than as a vertical list
-of labelled facts. Two hard-break markers are accepted: a trailing backslash or
-two-or-more trailing spaces. Fenced code blocks are skipped, so a metadata-format
+Detect runs of ``**Field:**`` lines that lack a Markdown hard-break marker on the
+non-last lines of the run. A run is the rendered paragraph: the lines that render
+into one paragraph, including a block quote or list item paragraph, form one run
+(3b146). Without a hard-break, GitHub renders the metadata block as a single
+soft-wrapped paragraph rather than as a vertical list of labelled facts. Two
+hard-break markers are accepted: a trailing backslash or two-or-more trailing
+spaces. Code blocks, HTML blocks and tables are not runs, so a metadata-format
 example inside a fence is not a false positive; the last line of a run is exempt.
 
 Engine/wrapper split (SHARED/SAFETY lane, Pattern A): the PURE check (``META_LINE``,
