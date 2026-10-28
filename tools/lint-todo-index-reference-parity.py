@@ -40,7 +40,17 @@ content and none of the three backlog files is a private store without a backlog
 (the README's transitional fallback store for ``.working/`` records), so it passes
 with an ``OK:`` line naming it and saying private parity was not checked, and the
 message never advises renaming it (3b648 r4: the tools reading that store would
-break). A resolved sibling is the private store, whoever's checkout it is, so no other
+break). That pass rests on the store's records tree ``.working/``, so the tree is
+walked first, following links, and must be readable throughout (3b674): an
+unreadable tree used to read as an absent backlog. Only a ``.working`` with no
+entry at all is absent. A link in the tree (``.working`` itself included) whose
+target does not exist, or that loops, fails with exit 2 as a link that does not
+resolve, naming it. Every other failure fails with exit 2 as an unreadable
+records tree, naming the path: a directory that cannot be listed (a mode-000
+directory, or a link to one), a link that resolves but cannot be reached (its
+target lies under a directory without search permission), a regular file that
+cannot be opened and read, an entry that vanishes during the walk, and an I/O
+error. A resolved sibling is the private store, whoever's checkout it is, so no other
 signal is consulted (3b648 r3: the repository origin was dropped as unsound).
 A recognised legacy ``P-TODO.md`` alone is the accepted pre-split layout: it
 passes with an ``OK:`` line saying private parity was not checked. CI and most
@@ -72,6 +82,7 @@ reason, since the gate cannot tell what it holds. Stdlib-only.
 """
 from __future__ import annotations
 
+import errno
 import os
 import re
 import sys
@@ -90,6 +101,7 @@ REFERENCE_REL = "TODO-REFERENCE.md"
 INDEX_TABLE_HEADER = ("ID", "Item", "Tags")
 PTODO_INDEX_REL = "P-TODO.md"           # private backlog index (in grc_library_private)
 PTODO_REFERENCE_REL = "P-TODO-REFERENCE.md"  # private backlog detail (in grc_library_private)
+WORKING_REL = ".working"                # the private store's records tree (transitional fallback)
 
 BAND_RE = re.compile(r"^## (.+?)\s*$")  # any H2 section is a band (Priority N, Time-bounded follow-ups, ...)
 REF_HEADING_RE = re.compile(
@@ -370,6 +382,48 @@ def _probe_private(private_dir: Path) -> tuple[dict[str, str | None], list[str]]
     return texts, errors
 
 
+def _probe_records(private_dir: Path) -> str | None:
+    """None when the store's ``.working/`` records tree is absent or fully readable, else an error.
+
+    3b674: the store-without-a-backlog pass rested on the records tree without examining it, so a
+    mode-000 ``.working``, or a link to one, passed and an unreadable tree read as an absent
+    backlog. The tree is walked, following links (each directory once), and every entry probed
+    with ``strict_kind``: only ENOENT on ``.working`` itself is absent. A link whose target is
+    missing (ENOENT) or that loops (ELOOP) is UNRESOLVABLE; every other failure (a directory that
+    cannot be listed, a link that resolves but cannot be reached, a regular file that cannot be
+    opened and read, an I/O error) is UNREADABLE. Either message names the path."""
+    top = private_dir / WORKING_REL
+    pending = [top]
+    seen: set[tuple[int, int]] = set()
+    while pending:
+        path = pending.pop()
+        try:
+            kind = strict_kind(path)
+            if kind is None:
+                if path == top:
+                    return None
+                # listed a moment ago, gone now: the walk is incomplete, so it is not absent
+                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), str(path))
+            if kind == "dir":
+                st = os.stat(path)
+                if (st.st_dev, st.st_ino) in seen:
+                    continue
+                seen.add((st.st_dev, st.st_ino))
+                pending.extend(path / name for name in sorted(os.listdir(path), reverse=True))
+            elif kind == "file":
+                with open(path, "rb") as fh:
+                    fh.read(1)
+        except OSError as exc:
+            if path.is_symlink() and exc.errno in (errno.ENOENT, errno.ELOOP):
+                return (f"the private store's records tree {top} holds a link that does not "
+                        f"resolve: {path} ({exc.strerror}); a records tree that cannot be read is "
+                        "not an absent backlog; private index<->reference parity cannot be checked")
+            return (f"cannot read the private store's records tree {top}: {path} ({exc.strerror}); "
+                    "a records tree that cannot be read is not an absent backlog; private "
+                    "index<->reference parity cannot be checked")
+    return None
+
+
 def _classify_ptodo(path: Path, text: str) -> tuple[str | None, str | None]:
     """``("index" | "legacy", None)`` for a P-TODO.md the gate recognises, else ``(None, reason)``.
 
@@ -498,6 +552,12 @@ def run(root: Path, private_dir: Path | None = None, private_flag: str | None = 
                       f"(it holds {REFERENCE_REL} but neither {PTODO_INDEX_REL} nor "
                       f"{PTODO_REFERENCE_REL}); restore the pair there; private index<->reference "
                       "parity cannot be checked", file=sys.stderr)
+                return 2
+            # 3b674: a store without a backlog passes only when its records tree, if present,
+            # can be read; an unreadable or unresolvable one fails rather than reading as absent.
+            why_records = _probe_records(private_dir)
+            if why_records is not None:
+                print(f"ERROR: {why_records}", file=sys.stderr)
                 return 2
         # 3b641 r4 (VPR3B641-R3): --private-root declares the private input, so a directory
         # holding neither P-TODO file is an absent declared resource and fails with exit 2

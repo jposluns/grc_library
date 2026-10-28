@@ -31190,7 +31190,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
         lint-table-cell-count.py OWN F 36c2ad714485c240903f8ecb55caefe3714ac0ebad81df90b2d52e87a10a3477
-        lint-todo-index-reference-parity.py OWN F fbd2edb9e2f06f930f43e7648eafdf87fd72830a458440976872025346038a97
+        lint-todo-index-reference-parity.py OWN F dd0eef7697891fc0d5bc2ef281d259a52b7e815a1f30e7740455387ff39913f3
         lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
         lint-todo-number-permanence.py OWN F dedf0d73d69395a559061e0424d49ec92ccbcb3fef7e455adc41dd30708cdbea
@@ -48573,11 +48573,12 @@ class TodoIndexReferenceParityTests(LinterTestCase):
     # --- 3b648: the DEFAULT lookup (neither --root nor --private-root) ---
     NOT_CHECKED = "private index<->reference parity not checked"
 
-    def _run_default(self, label, sibling_files, sibling=True):
+    def _run_default(self, label, sibling_files, sibling=True, setup=None):
         """Gate 90's default lookup in process. The repository root is a fixture holding TODO.md;
         resolve_sibling returns a fixture sibling holding exactly ``sibling_files`` (relative name:
         text), or None when ``sibling`` is False. Hermetic: nothing outside the fixture is read, and
-        r3 removed the gate's git calls, so no git runs."""
+        r3 removed the gate's git calls, so no git runs. ``setup(stack, mod, base, priv)``, when
+        given, runs just before the gate to build links, lock entries or patch the module."""
         import contextlib
         import io
         from unittest.mock import patch
@@ -48596,6 +48597,8 @@ class TodoIndexReferenceParityTests(LinterTestCase):
             stack.enter_context(patch.object(mod, "resolve_sibling", lambda name: priv if sibling else None))
             stack.enter_context(contextlib.redirect_stdout(out))
             stack.enter_context(contextlib.redirect_stderr(err))
+            if setup is not None:
+                setup(stack, mod, base, priv)
             rc = mod.main(["lint-todo-index-reference-parity.py"])
         return rc, out.getvalue(), err.getvalue(), priv
 
@@ -48654,6 +48657,113 @@ class TodoIndexReferenceParityTests(LinterTestCase):
                                  "without a backlog)."], out)
         self.assertNotIn("ERROR", out + err)
         self.assertNotIn("DEGRADED", out + err)
+
+    def _lock(self, path):
+        """Mode 000 on ``path``, restored before the fixture is removed (cleanups run LIFO)."""
+        path.chmod(0)
+        self.addCleanup(path.chmod, 0o700)
+
+    def test_default_unreadable_records_tree_fails(self):
+        # 3b674: the store-without-a-backlog pass never examined the records tree, so a .working
+        # that cannot be listed or read passed (exit 0) as a store without a backlog. Each case now
+        # fails with exit 2 naming the path; ``perm`` cases rely on permission bits.
+        def mode000_dir(stack, mod, base, priv):
+            (priv / ".working").mkdir()
+            (priv / ".working" / "handoff.md").write_text("handoff\n", encoding="utf-8")
+            self._lock(priv / ".working")
+            return priv / ".working", False
+
+        def link_to_mode000_dir(stack, mod, base, priv):
+            (base / "records").mkdir()
+            self._lock(base / "records")
+            (priv / ".working").symlink_to(base / "records")
+            return priv / ".working", False
+
+        def link_resolves_unreachable(stack, mod, base, priv):
+            (base / "locked" / "records").mkdir(parents=True)
+            self._lock(base / "locked")
+            (priv / ".working").symlink_to(base / "locked" / "records")
+            return priv / ".working", False
+
+        def mode000_subdir(stack, mod, base, priv):
+            (priv / ".working" / "validate").mkdir(parents=True)
+            self._lock(priv / ".working" / "validate")
+            return priv / ".working" / "validate", False
+
+        def mode000_file(stack, mod, base, priv):
+            (priv / ".working").mkdir()
+            (priv / ".working" / "handoff.md").write_text("handoff\n", encoding="utf-8")
+            self._lock(priv / ".working" / "handoff.md")
+            return priv / ".working" / "handoff.md", False
+
+        def dangling_link(stack, mod, base, priv):
+            (priv / ".working").symlink_to(base / "missing")
+            return priv / ".working", True
+
+        def looping_link(stack, mod, base, priv):
+            (priv / ".working").symlink_to(".working")
+            return priv / ".working", True
+
+        def io_error(stack, mod, base, priv):
+            import errno
+            from unittest.mock import patch
+            (priv / ".working").mkdir()
+            real = os.listdir
+
+            def listdir(path="."):
+                if Path(path) == priv / ".working":
+                    raise OSError(errno.EIO, os.strerror(errno.EIO), str(path))
+                return real(path)
+            stack.enter_context(patch.object(mod.os, "listdir", listdir))
+            return priv / ".working", False
+
+        for label, build, perm in (
+                ("mode-000 directory", mode000_dir, True),
+                ("link to a mode-000 directory", link_to_mode000_dir, True),
+                ("link that resolves but cannot be reached", link_resolves_unreachable, True),
+                ("mode-000 subdirectory", mode000_subdir, True),
+                ("unreadable file", mode000_file, True),
+                ("dangling link", dangling_link, False),
+                ("looping link", looping_link, False),
+                ("I/O error", io_error, False)):
+            with self.subTest(case=label):
+                if perm and os.geteuid() == 0:
+                    self.skipTest("run as root: permission bits do not deny root's reads, so a "
+                                  "mode-000 entry would still be read")
+                found = {}
+
+                def setup(stack, mod, base, priv, build=build):
+                    found["path"], found["link"] = build(stack, mod, base, priv)
+                rc, out, err, priv = self._run_default("records", {}, setup=setup)
+                top = priv / ".working"
+                if found["link"]:
+                    message = (f"ERROR: the private store's records tree {top} holds a link that "
+                               f"does not resolve: {found['path']} (")
+                else:
+                    message = f"ERROR: cannot read the private store's records tree {top}: {found['path']} ("
+                self._assert_sibling_error(rc, out, err, message)
+                self.assertIn("not an absent backlog", err)
+                self.assertNotIn("Traceback", err)
+
+    def test_default_readable_or_absent_records_tree_passes(self):
+        # 3b674 negative control: a store whose records tree is absent, or readable throughout
+        # (links to readable directories included), keeps the not-checked pass.
+        def absent(stack, mod, base, priv):
+            (priv / "notes.md").write_text("kept\n", encoding="utf-8")
+
+        def readable_with_link(stack, mod, base, priv):
+            (base / "records").mkdir()
+            (base / "records" / "handoff.md").write_text("handoff\n", encoding="utf-8")
+            (priv / ".working" / "validate").mkdir(parents=True)
+            (priv / ".working" / "validate" / "store").symlink_to(base / "records")
+            (priv / ".working" / "validate" / "loop").symlink_to(priv / ".working")
+
+        for label, build in (("absent", absent), ("readable with links", readable_with_link)):
+            with self.subTest(case=label):
+                rc, out, err, priv = self._run_default("records-ok", {}, setup=build)
+                self.assertEqual(rc, 0, out + err)
+                self.assertIn(f"OK: {self.NOT_CHECKED}: the private sibling {priv} holds none of", out)
+                self.assertNotIn("ERROR", out + err)
 
     def test_default_sibling_legacy_ptodo_notes_not_checked(self):
         # 3b648: a recognised legacy ### -block P-TODO.md is the accepted pre-split layout, so it
