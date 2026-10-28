@@ -21528,6 +21528,55 @@ class MetadataLineBreaksTests(LinterTestCase):
         # text and the metadata lines continue its paragraph.
         self._assert_in_contexts("kelvin", ["<K>", "**A:** a", "**B:** b"], 1)
 
+    # 3b146 round 6: after the disclosed residual (an indented block start after two nested
+    # quotes), checking resumes at every blank line outside every container, including one that
+    # ends or sits in an HTML block, fence or indented code. Each case runs with the residual at
+    # top level and in a block quote, beside the plain blank line control, and each fails on the
+    # round 5 engine. A table cell is trimmed of GFM whitespace only, so a trailing NBSP is a cell.
+
+    def _assert_checking_resumes(self, name: str, between: list[str]) -> None:
+        heads = {
+            "top": ["> > **A:** a", "        > x"],
+            "bq": ["> > > **A:** a", ">         > x"],
+        }
+        for context, head in heads.items():
+            for case, lines in (("control", [""]), (name, between)):
+                with self.subTest(context=context, case=case):
+                    text = "\n".join(head + lines + ["**C:** c", "**D:** d"]) + "\n"
+                    result = run_linter(
+                        "tools/lint-metadata-line-breaks.py",
+                        self.make_fixture("fake-%s-%s.md" % (context, case), text),
+                    )
+                    self.assertLinterFails(result, "missing-hard-break")
+                    self.assertIn(
+                        "L%d [missing-hard-break] metadata block has 1 non-last line(s)"
+                        % (len(head) + len(lines) + 1),
+                        result.stdout,
+                    )
+
+    def test_blank_line_ending_a_kind6_block_resumes_checking(self) -> None:
+        self._assert_checking_resumes("k6-end", ["<div>", "x", ""])
+
+    def test_blank_line_ending_a_kind7_block_resumes_checking(self) -> None:
+        # The heading ends the paragraph, so the tag line after it opens a kind 7 block.
+        self._assert_checking_resumes("k7-end", ["# h", "<span>", "x", ""])
+
+    def test_blank_line_in_a_fence_resumes_checking(self) -> None:
+        self._assert_checking_resumes("fence-blank", ["```", "", "```"])
+
+    def test_blank_line_in_indented_code_resumes_checking(self) -> None:
+        self._assert_checking_resumes("code-blank", ["# h", "    a", "", "    b"])
+
+    def test_blank_line_in_an_html_comment_resumes_checking(self) -> None:
+        self._assert_checking_resumes("comment-blank", ["<!--", "", "-->"])
+
+    def test_table_row_trailing_nbsp_is_a_cell(self) -> None:
+        # NBSP is not GFM whitespace, so the header row has three cells against the delimiter
+        # row's two: there is no table, and the four lines are one paragraph.
+        self._assert_in_contexts(
+            "nbsp-cell", ["**A:** a", "| a | b |\xa0", "| - | - |", "**B:** b"], 1
+        )
+
     def test_block_quote_paragraph_is_a_run(self) -> None:
         self._assert_flagged("fake-bq.md", "> **A:** x\n> **B:** y\n", 1)
 

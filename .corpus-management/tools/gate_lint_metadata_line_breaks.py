@@ -136,7 +136,7 @@ def _indent(line: str) -> int:
 
 def _table_cells(row: str) -> int:
     """Count a GFM table row's cells: split on unescaped pipes, less one outer pipe a side."""
-    row = row.strip()
+    row = row.strip(" \t\n\x0b\x0c\r")  # GFM 0.29 section 2.1 whitespace, not str.strip()'s
     if row.startswith("|"):
         row = row[1:]
     if row.endswith("|") and not row.endswith("\\|"):
@@ -229,6 +229,10 @@ def scan_file(path: Path) -> list[tuple[int, int]]:
         all_matched = matched == len(containers)
         rest = line[pos:]
 
+        # Checking resumes at every blank line outside every container, wherever it is read: a
+        # fence, an HTML block or indented code may hold it, and no paragraph is open then.
+        if not containers and leaf is not None and _is_blank(rest):
+            doubt = False
         # Inside a fence, an HTML block or indented code, a fully matched line is block content.
         if all_matched and leaf is not None and leaf[0] == "fence":
             m = re.match(r" {0,3}(%s{%d,})[ \t]*$" % (re.escape(leaf[1]), leaf[2]), rest)
