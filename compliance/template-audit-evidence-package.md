@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.1.18\
+**Version:** 1.1.19\
 **Date:** 2026-10-28\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -210,7 +210,7 @@ For larger packages (50+ controls), insert a per-domain summary between the inde
 ## Domain summary: <Domain name>
 
 Controls in scope from this domain: <count>
-Count each control once, on the first of these that applies: not implemented, then not yet assessed, then partially implemented or with an identified gap, then fully implemented with no gaps identified.
+Count each control once, on the first of these that applies: not implemented (on the line for whether a compensating control exists), then partially implemented or with an identified gap, then not yet assessed, then fully implemented with no gaps identified. For a period-based package other than SOC 2 Type II, use each line's plain label; the bracketed SOC 2 Type II and Type I forms do not apply.
 Controls fully implemented with no gaps identified: <count> (SOC 2 Type II: suitably designed and operated effectively throughout the period, with the organization's own implementation evidence showing it fully implemented throughout the period; SOC 2 Type I: suitably designed as of the "as of" date, with the organization's own implementation evidence showing it fully implemented as of that date; operating effectiveness not assessed)
 Controls partially implemented or with an identified gap, other than controls not implemented: <count> (SOC 2 Type II: partially implemented, or with a design gap or an operating-effectiveness gap, during the period; SOC 2 Type I: partially implemented, or with a design gap, as of the "as of" date)
 Controls not yet assessed (a period-based package, including SOC 2 Type II, whose operating-effectiveness tests have not been completed): <count>
