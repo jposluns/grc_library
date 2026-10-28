@@ -123,8 +123,14 @@ Exit codes:
   1   one or more drift findings present.
   2   internal error parsing one of the files the gate reads: the four surfaces
       (the specification, quality.yml, run_all_audits.sh and .pre-commit-config.yaml)
-      and tools/run-pr-time-checks.sh. A file that is not valid UTF-8 (an invalid
-      byte, or UTF-16) is one of these errors, whichever of the five it is.
+      and tools/run-pr-time-checks.sh. Whichever of the five it is, a file that
+      cannot be read (for example mode 000) is one of these errors, and so is a
+      file that is not valid UTF-8 (an invalid byte, or UTF-16 with a byte-order
+      mark). A file in another encoding whose bytes happen to be valid UTF-8 (such
+      as BOM-less UTF-16 of ASCII text) is read as UTF-8 and fails, if at all, on
+      its content. tools/run-pr-time-checks.sh may be absent (nothing at the
+      path), which skips the D-number parity check; present but empty, or with
+      no ``run_check "D<n> ..."`` line, it is one of these errors.
 
 The linter is itself part of the audit programme and is added to
 .github/workflows/quality.yml, tools/run_all_audits.sh, and
@@ -401,7 +407,7 @@ SPEC_ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|\s*$")
 
 class ParseError(Exception):
     """Raised when one of the four surfaces or tools/run-pr-time-checks.sh cannot be
-    parsed."""
+    read or parsed."""
 
 
 def parse_spec_inventory(path: Path) -> list[tuple[int, int, str, str]]:
@@ -704,10 +710,19 @@ def _yaml_value_problem(key: str, value: str, flow_lists: dict[str, frozenset[st
 
 def _read_utf8(path: Path) -> str:
     """The text of ``path``, decoded as UTF-8 with no newline translation. Every file the
-    gate reads goes through here (3b675 round 2), so a file that is not valid UTF-8 (an
-    invalid byte, or UTF-16) is a ParseError (exit 2), never a decode traceback."""
+    gate reads goes through here (3b675 round 2), so a file that is not valid UTF-8 is a
+    ParseError (exit 2), never a decode traceback. UTF-16 with a byte-order mark is not
+    valid UTF-8; BOM-less UTF-16 of ASCII text is, so it is read as UTF-8 and fails, if at
+    all, on its content. A file that cannot be read (any OSError but FileNotFoundError,
+    such as a mode-000 file or a directory) is a ParseError too (3b675 round 3); a missing
+    file raises FileNotFoundError, for the caller to refuse or tolerate."""
     try:
         return path.read_bytes().decode("utf-8")
+    except FileNotFoundError:
+        raise
+    except OSError as exc:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: cannot be read "
+                         f"({type(exc).__name__}: {exc.strerror or exc})") from None
     except UnicodeDecodeError as exc:
         raise ParseError(f"{path.relative_to(REPO_ROOT)}: is not valid UTF-8 (byte "
                          f"{exc.object[exc.start]:#04x} at offset {exc.start}); only UTF-8 "
@@ -722,7 +737,7 @@ def _universal_newlines(text: str) -> str:
 def _lf_lines(path: Path) -> list[str]:
     """The lines of ``path`` split at LF only. A universal-newline read would also split
     at CR, which bash does not: `x.py\\r&& python3 -B ...` is one line to bash. A file
-    that is not valid UTF-8 (an invalid byte, or UTF-16) is a ParseError (exit 2)."""
+    that is not valid UTF-8, or cannot be read, is a ParseError (exit 2)."""
     return _read_utf8(path).split("\n")
 
 
@@ -1133,9 +1148,15 @@ def verify_exclusion_and_delta_guards(
     wf_names = {m.group(1) for m in (WF_NAME_RE.match(l) for l in wf_lines) if m}
     pc_lines = _read_utf8(root / PRECOMMIT_PATH).splitlines()
     prtime = (root / PRTIME_PATH)
-    prtime_lines = (
-        _read_utf8(prtime).splitlines() if prtime.is_file() else []
-    )
+    # Absent (nothing at the path) is tolerated for a portable clone. Anything present is
+    # read, so a directory or unreadable file is a ParseError (3b675 round 3).
+    prtime_present = prtime.exists() or prtime.is_symlink()
+    prtime_lines: list[str] = []
+    if prtime_present:
+        try:
+            prtime_lines = _read_utf8(prtime).splitlines()
+        except FileNotFoundError:
+            raise ParseError(f"{PRTIME_PATH}: is a symbolic link to nothing") from None
 
     # (i) WORKFLOW_SETUP_STEPS: must exist and invoke no gate script.
     for name in sorted(WORKFLOW_SETUP_STEPS):
@@ -1209,7 +1230,15 @@ def verify_exclusion_and_delta_guards(
                 scr = sm.group(1)
                 break
         dmap[num] = (nm, scr)
-    if prtime_lines:  # only if the runner is present (portable-clone tolerant)
+    # A present runner that is empty, or has no D-number line, would pass the check below
+    # with nothing checked (3b675 round 3).
+    if prtime_present and not prtime_lines:
+        raise ParseError(f"{PRTIME_PATH}: is present but empty, so the D-number "
+                         f"parity check has nothing to check")
+    if prtime_present and not dmap:
+        raise ParseError(f'{PRTIME_PATH}: has no run_check "D<n> ..." line, so the '
+                         f"D-number parity check has nothing to check")
+    if prtime_present:  # only if the runner is present (portable-clone tolerant)
         nums = sorted(dmap)
         expected = sorted(set(range(1, HIGHEST_DELTA_GATE + 1)) - RETIRED_DELTA_GATES)
         if nums != expected:
@@ -1281,6 +1310,9 @@ def main(argv: list[str]) -> int:
         precommit = parse_precommit(precommit_path)
     except ParseError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    except FileNotFoundError as exc:  # removed after the is_file check above
+        print(f"ERROR: required file not found: {exc.filename}", file=sys.stderr)
         return 2
 
     findings: list[str] = []
@@ -1408,6 +1440,9 @@ def main(argv: list[str]) -> int:
         findings.extend(verify_exclusion_and_delta_guards(REPO_ROOT, spec_scripts))
     except ParseError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    except FileNotFoundError as exc:  # removed after the is_file check above
+        print(f"ERROR: required file not found: {exc.filename}", file=sys.stderr)
         return 2
 
     if findings:
