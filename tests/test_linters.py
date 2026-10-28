@@ -48673,6 +48673,37 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         path.chmod(0)
         self.addCleanup(path.chmod, 0o700)
 
+    def _imitate_311_is_dir(self, stack):
+        """Patch Path.is_dir to behave as Python 3.11's (CI): it stats the path and returns False
+        only for ENOENT, ENOTDIR, EBADF and ELOOP, so EACCES raises PermissionError where 3.14
+        returns False. 3b674 r7: the CI failure was a 3.11 difference no 3.14 run reproduced."""
+        import errno
+        import stat
+        from unittest.mock import patch
+
+        def is_dir_311(path, *args, **kwargs):
+            try:
+                return stat.S_ISDIR(os.stat(path).st_mode)
+            except OSError as exc:
+                if exc.errno in (errno.ENOENT, errno.ENOTDIR, errno.EBADF, errno.ELOOP):
+                    return False
+                raise
+            except ValueError:
+                return False
+
+        stack.enter_context(patch.object(Path, "is_dir", is_dir_311))
+
+    def _assert_lookup_finds_no_sibling(self, lc):
+        """The non-strict resolve_sibling("private") hands back no usable sibling: None (3.14's
+        Path.is_dir() returns False on EACCES) or PermissionError (3.11's raises), nothing else.
+        Returns the PermissionError, or None when the lookup returned None."""
+        try:
+            found = lc.resolve_sibling("private")
+        except PermissionError as exc:
+            return exc
+        self.assertIsNone(found)
+        return None
+
     def test_default_unreadable_records_tree_fails(self):
         # 3b674: the store-without-a-backlog pass never examined the records tree, so a .working
         # that cannot be listed or read passed (exit 0) as a store without a backlog. Each case now
@@ -49012,7 +49043,8 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         # is not a usable directory, so each case below read as no store and passed DEGRADED (exit
         # 0). The gate now examines that path and fails with exit 2 naming it. Except for the
         # directory case, the gate runs the real non-strict lookup against the fixture, so each
-        # case is one that lookup reads as no sibling.
+        # case is one that lookup reads as no sibling. r7: in the two permission cases Python 3.11's
+        # (CI) lookup raises PermissionError instead of returning None; each case runs as 3.11 too.
         def regular_file(base, priv):
             priv.write_text("store\n", encoding="utf-8")
             return f"the private sibling {priv} is present but is not a directory (it is a regular file);"
@@ -49066,24 +49098,34 @@ class TodoIndexReferenceParityTests(LinterTestCase):
                 ("link to a directory under an unreadable parent", link_under_unreadable_parent, True, True),
                 ("parent without search permission", parent_without_search, True, True),
                 ("directory the lookup did not find", directory, False, False)):
-            with self.subTest(case=label):
-                if perm and os.geteuid() == 0:
-                    self.skipTest("run as root: permission bits do not deny root's search, so the "
-                                  "sibling path would lead to a usable directory")
-                found = {}
+            # r7: each case also runs with Path.is_dir behaving as Python 3.11's (CI), which raises
+            # PermissionError where 3.14 returns False.
+            for python in ("this interpreter", "3.11 imitated"):
+                with self.subTest(case=label, python=python):
+                    if perm and os.geteuid() == 0:
+                        self.skipTest("run as root: permission bits do not deny root's search, so the "
+                                      "sibling path would lead to a usable directory")
+                    found = {}
 
-                def setup(stack, mod, base, priv, build=build, real_lookup=real_lookup):
-                    from unittest.mock import patch
-                    found["message"] = build(base, priv)
-                    if real_lookup:
-                        lc = sys.modules[mod.require_dir.__module__]
-                        stack.enter_context(patch.object(lc, "REPO_ROOT", base / "grc_library"))
-                        stack.enter_context(patch.object(mod, "resolve_sibling", lc.resolve_sibling))
-                        self.assertIsNone(lc.resolve_sibling("private"))
-                rc, out, err, priv = self._run_default("sibling-kind", {}, sibling=False, setup=setup)
-                self._assert_sibling_error(rc, out, err, "ERROR: " + found["message"])
-                self.assertIn("a present but unusable private store is not an absent one", err)
-                self.assertNotIn("Traceback", err)
+                    def setup(stack, mod, base, priv, build=build, perm=perm, real_lookup=real_lookup,
+                              python=python):
+                        from unittest.mock import patch
+                        found["message"] = build(base, priv)
+                        if python == "3.11 imitated":
+                            self._imitate_311_is_dir(stack)
+                        if real_lookup:
+                            lc = sys.modules[mod.require_dir.__module__]
+                            stack.enter_context(patch.object(lc, "REPO_ROOT", base / "grc_library"))
+                            stack.enter_context(patch.object(mod, "resolve_sibling", lc.resolve_sibling))
+                            # r7: assertIsNone here errored on 3.11, whose lookup raises on EACCES.
+                            raised = self._assert_lookup_finds_no_sibling(lc)
+                            # the imitation must reach the lookup, or the 3.11 run proves nothing
+                            self.assertEqual(raised is not None, perm and python == "3.11 imitated",
+                                             repr(raised))
+                    rc, out, err, priv = self._run_default("sibling-kind", {}, sibling=False, setup=setup)
+                    self._assert_sibling_error(rc, out, err, "ERROR: " + found["message"])
+                    self.assertIn("a present but unusable private store is not an absent one", err)
+                    self.assertNotIn("Traceback", err)
 
     def test_default_lookup_permission_error_fails_without_traceback(self):
         # 3b674 r5: the gate called the non-strict resolve_sibling first, and Python 3.11's (CI)
