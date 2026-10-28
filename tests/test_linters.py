@@ -29661,7 +29661,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-gate-count-consistency.py CWD F 075bd03b5434c09153bf1da8d0eb6a3c3130d18f8073122f565216557be80bf0
         lint-guardrail-cadence.py OWN F fafdcf88714513d9b2c67cfb91af27de93c7cd7f9da10870252c39ea2d60110f
         lint-hooks-syntax.py OWN F f271dc554bdc7afdd6883d9fcf727cea7f9da6b87170d79a6d98cb0d785b15cb
-        lint-index-header-parity.py OWN F 26ad2438853a5147cbd602fcd122e59fcef8c8b8f2fd6530edb07e74b1bcf3e5
+        lint-index-header-parity.py OWN F 5e77c0ccd4664aa35ba22b1c09630dc0f4a9de56986e0d51535c311541eb0281
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
@@ -50208,7 +50208,7 @@ class IndexTitleParityTests(LinterTestCase):
     """Gate 92 title ratchet (3b150): the engine's third comparator.
 
     Synthetic --root trees warn about unmatched baseline paths. The live run
-    requires all 44 pinned pairs, with 29 privacy shortenings and 15 drift
+    requires all 45 pinned pairs, with 30 privacy shortenings and 15 drift
     work items. Negative fixtures exercise both sides of the title pin. The
     engine tests pin that the title options are off by default, that
     collect_findings always returns four parts, and that check_row without
@@ -50352,7 +50352,7 @@ class IndexTitleParityTests(LinterTestCase):
                          f"live corpus must be clean under the title ratchet.\n{r.stdout}\n{r.stderr}")
         self.assertEqual(r.stdout.count("DRIFT (baselined real drift"), 15)
         self.assertNotIn("WARNING:", r.stdout)
-        self.assertIn("357 rows checked (357 title cells ratcheted)", r.stdout)
+        self.assertIn("358 rows checked (358 title cells ratcheted)", r.stdout)
 
     def test_index_only_change_fails_closed(self):
         with tempfile.TemporaryDirectory() as d:
@@ -50427,8 +50427,8 @@ class IndexTitleParityTests(LinterTestCase):
         shortening = {p for p, entry in mod.TITLE_DIFF_BASELINE.items()
                       if entry[2] == "deliberate-shortening"}
         self.assertEqual(shortening, privacy)
-        self.assertEqual(len(shortening), 29)
-        self.assertEqual(len(mod.TITLE_DIFF_BASELINE), 44)
+        self.assertEqual(len(shortening), 30)
+        self.assertEqual(len(mod.TITLE_DIFF_BASELINE), 45)
         abbreviations = {"EU": "European Union", "UK": "United Kingdom",
                          "US": "United States", "UAE": "United Arab Emirates"}
         for path in privacy:
@@ -50535,7 +50535,7 @@ class IndexTitleParityTests(LinterTestCase):
                     self.assertEqual(findings, [])
                     self.assertEqual(rows_checked, 1)
                     self.assertEqual(len(worklist), 1 if title else 0)
-                    self.assertEqual(len(warnings), 43 if title else 0)
+                    self.assertEqual(len(warnings), 44 if title else 0)
             self.assertIsNone(self._collect(mod, "# no table\n", d, {}))
 
     def test_engine_check_row_without_col_title_is_unchanged(self):
