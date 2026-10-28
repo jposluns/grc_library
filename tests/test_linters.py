@@ -65708,6 +65708,8 @@ class OpenFindingsRowSetDispositionTests(unittest.TestCase):
     FIXED = "FIXED #2800 (f2a53df9f) [class-exempt: singleton]"
     OPEN_A = "| 2026-10-02 | warning | [OPEN-A] first open | probe | "
     UNBORDERED = LEDGER.replace(OPEN_A + "ROUTED 3b330 |", OPEN_A + "ROUTED 3b330")
+    # The target row with and without a trailing border pipe: every refusal is held to both (3b678 r3).
+    SHAPES = (("bordered", LEDGER), ("unbordered", UNBORDERED))
 
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
@@ -65716,14 +65718,15 @@ class OpenFindingsRowSetDispositionTests(unittest.TestCase):
         self.ledger = self.dir / "open-findings.md"
         self.ledger.write_text(self.LEDGER, encoding="utf-8")
 
-    def run_tool(self, cell: str, fid: str, *args: str) -> tuple[int, str, str]:
+    def run_tool(self, cell, fid: str, *args: str) -> tuple[int, str, str]:
+        data = cell if isinstance(cell, bytes) else (cell + "\n").encode("utf-8")
         done = subprocess.run(
             [sys.executable, "-I", str(OpenFindingsRowTests.TOOL), "--ledger", str(self.ledger),
              "--set-disposition", "--id", fid, *args],
-            input=(cell + "\n").encode("utf-8"), capture_output=True, cwd=str(REPO_ROOT), timeout=300)
+            input=data, capture_output=True, cwd=str(REPO_ROOT), timeout=300)
         return done.returncode, done.stdout.decode("utf-8", "replace"), done.stderr.decode("utf-8", "replace")
 
-    def assertRefused(self, cell: str, code: str, fid: str = "OPEN-A") -> None:
+    def assertRefused(self, cell, code: str, fid: str = "OPEN-A") -> None:
         before = (self.ledger.read_bytes(), os.stat(self.ledger).st_mtime_ns)
         rc, out, err = self.run_tool(cell, fid)
         self.assertEqual(rc, 1, out + err)
@@ -65781,22 +65784,94 @@ class OpenFindingsRowSetDispositionTests(unittest.TestCase):
         self.assertIn("class-count: reproduced 0 = attested 0", out)
 
     def test_refuses_no_matching_row(self) -> None:
-        for fid in ("NOPE-1", "FENCED-1", "ARCH-A"):
-            with self.subTest(fid=fid):
-                self.assertRefused(self.FIXED, "id-not-found", fid=fid)
+        for shape, text in self.SHAPES:
+            self.ledger.write_text(text, encoding="utf-8")
+            for fid in ("NOPE-1", "FENCED-1", "ARCH-A"):
+                with self.subTest(shape=shape, fid=fid):
+                    self.assertRefused(self.FIXED, "id-not-found", fid=fid)
 
     def test_refuses_two_matching_rows(self) -> None:
-        self.ledger.write_text(self.LEDGER.replace("[OPEN-C]", "[OPEN-A]"), encoding="utf-8")
-        self.assertRefused(self.FIXED, "id-ambiguous (line 14)")
+        for shape, text in self.SHAPES:
+            with self.subTest(shape=shape):
+                self.ledger.write_text(text.replace("[OPEN-C]", "[OPEN-A]"), encoding="utf-8")
+                self.assertRefused(self.FIXED, "id-ambiguous (line 14)")
+
+    def test_refuses_invalid_id(self) -> None:
+        for shape, text in self.SHAPES:
+            self.ledger.write_text(text, encoding="utf-8")
+            for fid in ("a b", "[OPEN-A]"):
+                with self.subTest(shape=shape, fid=fid):
+                    self.assertRefused(self.FIXED, "id-invalid", fid=fid)
 
     def test_refuses_invalid_disposition(self) -> None:
-        for cell in ("FIXED d44d9b2b", "FIXED (pending merge)", "ROUTED pending-decisions"):
-            with self.subTest(cell=cell):
-                self.assertRefused(cell, "disposition-invalid")
+        for shape, text in self.SHAPES:
+            self.ledger.write_text(text, encoding="utf-8")
+            for cell in ("FIXED d44d9b2b", "FIXED (pending merge)", "ROUTED pending-decisions"):
+                with self.subTest(shape=shape, cell=cell):
+                    self.assertRefused(cell, "disposition-invalid")
 
     def test_refuses_fixed_without_class_attestation(self) -> None:
-        self.assertRefused("FIXED #2800 (f2a53df9f)", "class-unattested")
-        self.assertRefused("FIXED #2800 [class-exempt: too-hard]", "class-bad-exempt")
+        for shape, text in self.SHAPES:
+            self.ledger.write_text(text, encoding="utf-8")
+            for cell, code in (("FIXED #2800 (f2a53df9f)", "class-unattested"),
+                               ("FIXED #2800 [class-exempt: too-hard]", "class-bad-exempt"),
+                               ("FIXED #2800 [class-exempt: singleton] [class-exempt: singleton]", "class-multi")):
+                with self.subTest(shape=shape, code=code):
+                    self.assertRefused(cell, code)
+
+    def test_refuses_target_row_the_tool_would_not_write(self) -> None:
+        # The whole changed row is checked (the RESIDUES): the target's own Found date, severity and
+        # column count, whatever the new cell says.
+        for shape, text in self.SHAPES:
+            for edit, code in (
+                    (("| 2026-10-02 | warning | [OPEN-A]", "| 2026-10-32 | warning | [OPEN-A]"), "found-not-iso"),
+                    (("| warning | [OPEN-A]", "| warn | [OPEN-A]"), "severity-unknown"),
+                    (("[OPEN-A] first open | probe |", "[OPEN-A] first open | probe | extra |"), "malformed-columns"),
+                    (("[OPEN-A] first open | probe |", "[OPEN-A] first open |"), "malformed-columns")):
+                with self.subTest(shape=shape, edit=edit[1]):
+                    self.assertIn(edit[0], text)
+                    self.ledger.write_text(text.replace(edit[0], edit[1]), encoding="utf-8")
+                    self.assertRefused(self.FIXED, code)
+
+    def test_backstops_on_each_row_shape(self) -> None:
+        # splice-mismatch, misfiled-grew and merge-guard-regressed are not reachable from a well-formed
+        # cell, so each is forced in process, as the row-adding modes' backstop tests force theirs.
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_sd_backstops")
+        hook = mod.load_hook(REPO_ROOT)
+        real_verify = mod.verify_replace
+        real_misfiled = hook.misfiled_finding_rows
+
+        def changed_parse(hook, before, after, lines, kinds, old, parsed, at, section):
+            parsed = (*parsed[:2], parsed[2] + " changed", parsed[3])
+            return real_verify(hook, before, after, lines, kinds, old, parsed, at, section)
+
+        def misfiled(text):
+            rows = list(real_misfiled(text))
+            if "#2800" in text:
+                rows.append((1, "error", "synthetic misfiled row"))
+            return rows
+
+        for shape, text in self.SHAPES:
+            with self.subTest(shape=shape, code="splice-mismatch"):
+                with mock.patch.object(mod, "verify_replace", side_effect=changed_parse):
+                    codes, _, new = mod.evaluate_disposition(hook, text, self.FIXED, "OPEN-A")
+                self.assertEqual(codes, ["splice-mismatch"])
+                self.assertIsNone(new)
+            with self.subTest(shape=shape, code="misfiled-grew"):
+                with mock.patch.object(hook, "misfiled_finding_rows", side_effect=misfiled), \
+                        mock.patch.object(hook, "decide_exit", return_value=0):
+                    codes, _, new = mod.evaluate_disposition(hook, text, self.FIXED, "OPEN-A")
+                self.assertEqual(codes, ["misfiled-grew"])
+                self.assertIsNone(new)
+            with self.subTest(shape=shape, code="merge-guard-regressed"):
+                with mock.patch.object(hook, "decide_exit",
+                                       side_effect=lambda rows, t: 2 if "#2800" in t else 0) as guard:
+                    codes, report, new = mod.evaluate_disposition(hook, text, self.FIXED, "OPEN-A")
+                self.assertEqual(guard.call_count, 2)
+                self.assertEqual(codes, ["merge-guard-regressed"])
+                self.assertIn("merge-guard: before allow, after block", report)
+                self.assertIsNone(new)
 
     def test_refuses_pipe_in_cell(self) -> None:
         # Checked before the row's shape is looked at: on a row with no trailing border pipe,
@@ -65814,8 +65889,9 @@ class OpenFindingsRowSetDispositionTests(unittest.TestCase):
     def test_stdin_refusals_on_each_row_shape(self) -> None:
         for shape, text in (("bordered", self.LEDGER), ("unbordered", self.UNBORDERED)):
             self.ledger.write_text(text, encoding="utf-8")
-            for cell, code in (("ROUTED 3b330\nx", "multiline"), ("ROUTED\r3b330", "bad-line-char"),
-                               ("ROUTED 3b330", "bad-line-char")):
+            for cell, code in ((b"ROUTED \xff 3b330\n", "not-utf8"),
+                               ("ROUTED 3b330\nx", "multiline"), ("ROUTED\r3b330", "bad-line-char"),
+                               ("ROUTED\u20283b330", "bad-line-char")):
                 with self.subTest(shape=shape, code=code):
                     self.assertRefused(cell, code)
 
@@ -65863,7 +65939,12 @@ class OpenFindingsRowSetDispositionTests(unittest.TestCase):
                 self.assertIn(phrase, bullet)
 
     def test_refuses_empty_cell_and_other_modes_flags(self) -> None:
-        self.assertRefused("  ", "disposition-empty")
+        for shape, text in self.SHAPES:
+            self.ledger.write_text(text, encoding="utf-8")
+            for cell in ("", "  "):
+                with self.subTest(shape=shape, cell=cell):
+                    self.assertRefused(cell, "disposition-empty")
+        self.ledger.write_text(self.LEDGER, encoding="utf-8")
         for extra in (("--open",), ("--append",), ("--after", "OPEN-B"), ("--delivery", "x.md")):
             with self.subTest(extra=extra):
                 rc, out, err = self.run_tool(self.FIXED, "OPEN-A", *extra)
