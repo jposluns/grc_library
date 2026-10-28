@@ -20,18 +20,28 @@ reference are not a bijection with matching id, title, band, and position order:
   - DUPLICATE: an id appearing twice in either file.
   - TITLE DRIFT: a row and its block disagree on the item title.
   - BAND MISMATCH: a row and its block sit under different ``## `` bands.
-  - ORDER MISMATCH: the id sequence differs between the two files.
+  - ORDER MISMATCH: the sequence of the ids present in both files differs
+    between the two files.
   - INDEX DETAIL LEAK: a ``### id`` detail-block heading appearing in the
     index file ([`TODO.md`](../TODO.md)) instead of only in the reference file.
   - MALFORMED INDEX ROW: a pipe-starting row inside an index table lacks its
-    terminal pipe or exactly three cells, or its first cell is not a valid
-    backlog id (a row missing its LEADING pipe is documented residue).
+    terminal pipe or exactly three cells, or (a separator row excepted) its
+    first cell is not a valid backlog id (a row missing its LEADING pipe is
+    documented residue).
 
-Adopter-graceful: if the private ``grc_library_private/TODO-REFERENCE.md`` is
-absent (an adopter clone without the private sibling), the gate is a no-op OK,
-and it prints a ``DEGRADED:`` line naming the skipped pair; the public pair is
-named as skipped only when the root ``TODO-REFERENCE.md`` is absent (``lstat``
-reports ENOENT), so a present but broken one is never called skipped (3b674 r3).
+Adopter-graceful: if the default lookup finds no private sibling
+``grc_library_private`` (an adopter clone), the private pair is skipped, the
+public pair is checked when the root ``TODO-REFERENCE.md`` is present and is
+otherwise skipped too (a no-op OK when nothing fails), and the gate prints a
+``DEGRADED:`` line naming the skipped pair or pairs. The line is built only after
+every input is classified (3b674 r4): the sibling path is examined first (below),
+the root ``TODO.md`` is probed and read, and the root ``TODO-REFERENCE.md`` is
+examined with ``lstat``. The public pair is named as skipped only when that
+``TODO-REFERENCE.md`` is absent (``lstat`` reports ENOENT; 3b674 r3) and
+``TODO.md`` is either absent or a readable regular file that decodes as UTF-8
+(r4), so a present but broken one of either is never called skipped. The line is
+printed before the check runs, so it also precedes a failure the check reports
+later (a missing ``TODO.md`` fails with exit 2 after it).
 The sibling is absent only when nothing is at the path the default lookup
 examines (``lstat`` reports ENOENT): the shared lookup reads anything that is not
 a usable directory as no sibling, so the gate examines that path itself and fails
@@ -89,8 +99,19 @@ repository that the private lookup only defaults to, and a legacy file is the
 accepted pre-split layout; a broken or half-converted pair still fails. A private
 directory that cannot be listed, or a candidate file in it that cannot be
 examined or opened, fails with exit 2 and names the path: an unreadable store is
-not one without the pair. Each file is read once and decoded as strict UTF-8;
-undecodable bytes fail with exit 2 naming the path. A present ``P-TODO.md`` must
+not one without the pair. Every read of a backlog file is a whole-file read
+decoded as strict UTF-8; undecodable bytes fail with exit 2 naming the path; a
+file that is absent or not a regular file is not opened. The check (``run()``)
+reads each private candidate (``TODO-REFERENCE.md``, ``P-TODO.md``,
+``P-TODO-REFERENCE.md``) once; it then reads ``TODO.md`` once (not at all when a
+private candidate failed), and the root
+``TODO-REFERENCE.md`` once only when ``TODO.md`` was read and no private
+``TODO-REFERENCE.md`` supplies the reference. On the default lookup with no
+private sibling, ``main()`` also reads ``TODO.md`` once before the check, to build
+the ``DEGRADED:`` line (it keeps only whether the read failed, and examines the
+root ``TODO-REFERENCE.md`` with ``lstat`` alone), so there ``TODO.md`` is read
+twice. The records-tree walk opens each regular file under ``.working/`` and
+reads one byte, which is not decoded. A present ``P-TODO.md`` must
 be positively one of the two forms the gate knows, an index (``| ID | Item |
 Tags |`` header) or a legacy file with at least one ``### <id> <title>`` block;
 an empty file or one in neither form fails with exit 2 naming the path and the
@@ -160,7 +181,7 @@ def _norm_title(t: str) -> str:
 
 
 def parse_index(text: str) -> list[tuple[str, str, str]]:
-    """Ordered ``(id, normalized-title, band)`` for each index row in TODO.md."""
+    """Ordered ``(id, normalized-title, band)`` for each index row in an index file (TODO.md or P-TODO.md)."""
     out: list[tuple[str, str, str]] = []
     band = ""
     for line in _non_fence_lines(text):
@@ -268,8 +289,9 @@ def find_malformed_index_rows(todo_text: str) -> list[str]:
     Once an index header is seen, every contiguous row that STARTS with a pipe
     (a table row) must also end with a pipe and hold exactly three cells;
     non-separator data rows must additionally carry a valid backlog id in cell
-    one. The scan ends at the first line that is not a pipe row, so unrelated
-    tables under later H2 sections are outside its scope. Return the complete
+    one. A table's scan ends at the first line that is not a pipe row (a later
+    index header starts a new one), so unrelated tables under later H2 sections
+    are outside its scope. Return the complete
     offending row strings.
 
     RESIDUE (dual-family QA of PR #1666, codex): detection is scoped to rows
@@ -325,7 +347,8 @@ def _check_one(todo_text: str, reference_text: str,
                index_label: str, reference_label: str) -> tuple[list[str], int, int]:
     """Parity + leak + malformed findings for one (index, reference) backlog pair.
 
-    The caller has already read both files (once, strict UTF-8). Labels are the
+    The caller has already read both files, decoded as strict UTF-8 (run() reads each once;
+    on the default lookup with no private sibling main() read TODO.md once before). Labels are the
     human-facing relative names used in finding text (they differ per pair:
     TODO.md/TODO-REFERENCE.md vs P-TODO.md/P-TODO-REFERENCE.md)."""
     index = parse_index(todo_text)
@@ -567,7 +590,9 @@ def _resolve_pairs(root: Path, private_dir: Path | None) -> tuple[list[tuple[str
     sibling), so PR-1 lands green on the old state and stays green after the
     restructure. A pair whose reference file is absent is a no-op (the two-file
     format is not adopted for that backlog yet), matching the original
-    adopter-graceful contract. ``private_dir`` is the private sibling root
+    adopter-graceful contract, except that an index-form P-TODO.md with no
+    P-TODO-REFERENCE.md is an error (half-converted, F1793-2), as is a P-TODO.md
+    in neither form (3b641 r3). ``private_dir`` is the private sibling root
     (``resolve_sibling('private')`` in production; ``--private-root`` or the
     ``--root`` directory under test); ``None`` means no private sibling (an adopter clone). Returns
     (active_pairs as (index text, reference text, labels), errors, the P-TODO.md form:
@@ -647,7 +672,8 @@ def run(root: Path, private_dir: Path | None = None, private_flag: str | None = 
         # r4 (VPR3B648-R3): a sibling holding other content and no backlog file is the README's
         # transitional fallback store for .working/ records, which other tools read; it passes
         # with the not-checked line below. Only an empty sibling (likely stray) or one holding
-        # TODO-REFERENCE.md without the P-TODO pair fails, and neither message says to rename it.
+        # TODO-REFERENCE.md without the P-TODO pair fails, and neither message says to rename it;
+        # 3b674 added a failure for an unlistable sibling and for an unreadable records tree.
         if private_flag is None and ptodo_kind is None:
             try:
                 entries = os.listdir(private_dir)
@@ -781,7 +807,7 @@ def main(argv: list[str]) -> int:
                 return 2
     if private_dir is None:
         # 3b635: without the private sibling the private pair (and, once TODO-REFERENCE.md
-        # has moved there, the public pair) is skipped with exit 0; say so. Only on the
+        # has moved there, the public pair) is skipped (exit 0 unless run() fails); say so. Only on the
         # DEFAULT lookup, as gates 78 and 81: a --root run is a fixture run, not CI.
         # 3b674 r3: the public pair is called skipped only when its reference is absent; a
         # present but broken one is not skipped, and run() fails on it.
