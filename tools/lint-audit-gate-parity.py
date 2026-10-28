@@ -88,8 +88,11 @@ current files use (3b646 round 6, the maintainer's 23:20Z rule carried from line
 to structure). Every line is blank, a comment, an unquoted ``key:`` or ``key: value``
 line or a plain ``- word`` list item, apart from the text lines of an excluded step's
 ``run: |`` block scalar; no value begins with a quote or another YAML indicator, apart
-from the exact pre-commit ``types:`` and ``types_or:`` lists the hooks use, so no quote
-or flow collection stays open across lines and a comment line is never inside a value;
+from the exact pre-commit ``types:`` and ``types_or:`` lists the hooks use and the one
+pinned quoted value, the workflow's ``python-version: "3.11"`` (exactly that text, quote
+opened and closed on the line with nothing after it, kept quoted because YAML reads an
+unquoted ``3.10`` as the number 3.1; WORKFLOW_PINNED_QUOTED_VALUES), so no quote or flow
+collection stays open across lines and a comment line is never inside a value;
 a nested value sits exactly two columns deeper than its key; no mapping repeats a key;
 and each level holds only the keys of the file's fixed skeleton (WORKFLOW_SKELETON,
 PRECOMMIT_SKELETON), the levels above the steps and hooks every one of them, so a step
@@ -239,8 +242,8 @@ SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(tools/[A-Za-z0-9_.\-]+\.py)")
 #       * _yaml_lines: every line is blank, a comment, an unquoted `key:` or `key: value`
 #         line (after an optional `- `) or a plain `- word` item; no value begins with a
 #         quote or another YAML indicator (YAML_VALUE_INDICATORS), apart from the exact
-#         PRECOMMIT_FLOW_LISTS values and the `|` of a block scalar, whose text lines are
-#         consumed as text; no line holds a tab.
+#         PRECOMMIT_FLOW_LISTS values, the one WORKFLOW_PINNED_QUOTED_VALUES value and the
+#         `|` of a block scalar, whose text lines are consumed as text; no line holds a tab.
 #       * _yaml_tree: a nested mapping or list is exactly two columns deeper than its key
 #         (so a list at its key's column, `x:` then `- name:`, is refused), a line deeper
 #         than a mapping's keys that no key above it opens is refused (a plain value never
@@ -252,7 +255,9 @@ SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(tools/[A-Za-z0-9_.\-]+\.py)")
 #         and its keys at column 8, and a hook only an item of repos[].hooks, likewise.
 #     A comment line is skipped only where no value is open: a value never opens a quote
 #     or a flow collection (both refused at their first character, except the one-line
-#     PRECOMMIT_FLOW_LISTS values), a plain value never continues on a later line, and
+#     PRECOMMIT_FLOW_LISTS values and the one-line WORKFLOW_PINNED_QUOTED_VALUES value,
+#     each of which closes on its own line), a plain value never continues on a later
+#     line, and
 #     the only multi-line value, a `run: |` block scalar, consumes its lines as text
 #     before comments are looked for (so a `#` line inside it is text, as YAML reads it).
 #   - workflow: a step whose first key is not `- name:` is a finding. A step whose name is
@@ -623,14 +628,24 @@ YAML_VALUE_INDICATORS = ("'", '"', "[", "]", "{", "}", "&", "*", "!", "|", ">", 
 # YAML reads each word as a string; yes, null and the other YAML specials are not in them.
 PRECOMMIT_FLOW_LISTS = {"types": frozenset({"[markdown]"}),
                         "types_or": frozenset({"[markdown, python, shell]"})}
+# The only quoted value, keyed by key name: the workflow's `python-version: "3.11"`. It stays
+# quoted because YAML reads an unquoted version as a number (`3.10` loads as the float 3.1),
+# a trap for any later version ending in zero. The value must be exactly this text after
+# trailing spaces and tabs are dropped: a double quote opened and closed on the same line,
+# with no quote, `#` or anything else after it. So the comment-line guarantee holds: the
+# quote never stays open past its own line, and a later comment line is never inside it.
+# `"3.12"`, `'3.11'`, `"3.11" # x`, an open `"3.11` and a quoted value of any other key stay
+# refused.
+WORKFLOW_PINNED_QUOTED_VALUES = {"python-version": '"3.11"'}
 # The value that opens a literal block scalar (an excluded step's `run: |`).
 YAML_BLOCK_SCALAR = "|"
 YAML_STRUCTURE = ("a gate YAML surface is accepted only in the fixed structure of the current "
                   "file: blank and comment lines, unquoted `key:` or `key: value` lines and "
                   "plain `- word` items, each nested value exactly two columns deeper than its "
                   "key, no key repeated in a mapping, no value beginning with a quote or other "
-                  "YAML indicator (apart from the exact pre-commit types: and types_or: lists "
-                  "and an excluded step's `run: |`), and at each level only the keys of "
+                  "YAML indicator (apart from the exact pre-commit types: and types_or: lists, "
+                  "the workflow's one pinned quoted value `python-version: \"3.11\"` and an "
+                  "excluded step's `run: |`), and at each level only the keys of "
                   "WORKFLOW_SKELETON or PRECOMMIT_SKELETON in tools/lint-audit-gate-parity.py")
 # Characters YAML (1.1, as PyYAML reads it) takes as a line break besides LF.
 YAML_OTHER_BREAKS = ("\r", "\x85", " ", " ")
@@ -664,11 +679,15 @@ _KIND_NAMES = {"mapping": "a mapping", "sequence": "a list", "scalar": "a plain 
                "block": "a `|` block scalar", "empty": "empty"}
 
 
-def _yaml_value_problem(key: str, value: str, flow_lists: dict[str, frozenset[str]]) -> str | None:
+def _yaml_value_problem(key: str, value: str, flow_lists: dict[str, frozenset[str]],
+                        pinned_quoted: dict[str, str]) -> str | None:
     """Why the ``value`` of ``key`` is refused, or None."""
     if value.startswith(("'", '"')):
-        return (f"has a {key} value that begins with a quote; no value is quoted, so a quote "
-                f"never stays open across lines")
+        if key in pinned_quoted and value == pinned_quoted[key]:
+            return None
+        return (f"has a {key} value that begins with a quote; no value is quoted apart from "
+                f"the workflow's python-version: \"3.11\" exactly, so a quote never stays open "
+                f"across lines")
     if key in flow_lists and value.startswith("["):
         if value in flow_lists[key]:
             return None
@@ -698,7 +717,8 @@ class _YamlLine:
         self.key, self.value, self.column = key, value, column
 
 
-def _yaml_lines(path: Path, flow_lists: dict[str, frozenset[str]]) -> list[_YamlLine]:
+def _yaml_lines(path: Path, flow_lists: dict[str, frozenset[str]],
+                pinned_quoted: dict[str, str]) -> list[_YamlLine]:
     """The key lines and plain list items of ``path``, split at LF only, trailing spaces
     and tabs dropped. Blank lines and comment lines are skipped, and so are the text lines
     of a ``key: |`` block scalar: the lines after it that are blank or indented deeper
@@ -750,7 +770,7 @@ def _yaml_lines(path: Path, flow_lists: dict[str, frozenset[str]]) -> list[_Yaml
             lines.append(_YamlLine(lineno, indent, True, None, item.group(2), item.start(2)))
             continue
         value = k.group(4) or ""
-        problem = _yaml_value_problem(k.group(3), value, flow_lists)
+        problem = _yaml_value_problem(k.group(3), value, flow_lists, pinned_quoted)
         if problem:
             raise ParseError(f"{rel}:{lineno}: line {line.strip()!r} {problem}; "
                              f"{YAML_STRUCTURE}")
@@ -891,9 +911,10 @@ def _check_skeleton(path: Path, node: _YamlNode, skeleton, where: str) -> None:
                                   f"{list(skeleton)}")
 
 
-def _yaml_surface(path: Path, skeleton, flow_lists: dict[str, frozenset[str]]) -> _YamlNode:
+def _yaml_surface(path: Path, skeleton, flow_lists: dict[str, frozenset[str]],
+                  pinned_quoted: dict[str, str]) -> _YamlNode:
     """The tree of the YAML surface ``path``, checked against ``skeleton``."""
-    root = _yaml_tree(path, _yaml_lines(path, flow_lists))
+    root = _yaml_tree(path, _yaml_lines(path, flow_lists, pinned_quoted))
     _check_skeleton(path, root, skeleton, "")
     return root
 
@@ -924,7 +945,8 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     GATE_COMMAND. Anything outside the skeleton is a ParseError. See GATE_COMMAND's
     comment for what this does not cover.
     """
-    steps = _yaml_list(path, _yaml_surface(path, WORKFLOW_SKELETON, {}), "jobs", "lint", "steps")
+    steps = _yaml_list(path, _yaml_surface(path, WORKFLOW_SKELETON, {},
+                                           WORKFLOW_PINNED_QUOTED_VALUES), "jobs", "lint", "steps")
     entries: list[tuple[int, str, str, tuple[str, ...]]] = []
     for step in steps.items:
         first = step.keys()[0]
@@ -995,7 +1017,7 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     outside the skeleton is a ParseError. See GATE_COMMAND's comment for what this does
     not cover.
     """
-    root = _yaml_surface(path, PRECOMMIT_SKELETON, PRECOMMIT_FLOW_LISTS)
+    root = _yaml_surface(path, PRECOMMIT_SKELETON, PRECOMMIT_FLOW_LISTS, {})
     entries: list[tuple[int, str, str, tuple[str, ...]]] = []
     for repo in _yaml_list(path, root, "repos").items:
         for hook in _yaml_list(path, repo, "hooks").items:

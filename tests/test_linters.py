@@ -19378,7 +19378,7 @@ class AuditGateParityTests(LinterTestCase):
             workflow.write_text(
                 self._WORKFLOW_HEAD + "      - name: Checkout\n"
                 "        uses: actions/checkout@abc # v1\n        with:\n"
-                "          python-version: 3.11\n\n      # A comment between steps.\n"
+                "          python-version: \"3.11\"\n\n      # A comment between steps.\n"
                 "      - name: A\n        run: python3 tools/a.py\n"
                 "      - name: Detect collection candidates on pack PRs (informational)\n"
                 "        if: github.event_name == 'pull_request'\n        run: |\n"
@@ -19442,7 +19442,8 @@ class AuditGateParityTests(LinterTestCase):
     def test_r6_error1_quote_closed_on_a_comment_line_is_refused(self) -> None:
         # Round-5 ERROR 1 (W38, W39, P28b): a quoted value left open was closed on a later
         # comment line, which gate 35 skipped, so YAML read the gate steps or hooks between
-        # as part of the value. No value may begin with a quote now.
+        # as part of the value. No value may begin with a quote now, apart from the one
+        # pinned python-version: "3.11" (test_r6b_python_version_is_one_pinned_quoted_value).
         cases = []
         for quote in ('"', "'"):
             cases.append((f"workflow {quote}", "value that begins with a quote", (
@@ -19453,8 +19454,55 @@ class AuditGateParityTests(LinterTestCase):
             (self._PC, self._PC_LANGUAGE_FILES, "        files: '\\.md$\n"),
             (self._PC, self._PC_LINKS, self._PC_LINKS + "        # '\n"))))
         cases.append(("closed quote", "value that begins with a quote", (
-            (self._WF, "          python-version: 3.11\n", '          python-version: "3.11"\n'),)))
+            (self._WF, "          fetch-depth: 0\n", '          fetch-depth: "0"\n'),)))
         self._assert_yaml_edits_refused(cases)
+
+    # Round 6b: e21ce16a0 refused every quoted value, so the workflow's python-version was
+    # unquoted, and YAML reads an unquoted `3.10` as the float 3.1. The line is quoted again
+    # and allowed as one exact pinned value, keyed by key name.
+    _WF_PYTHON = '          python-version: "3.11"\n'
+
+    def test_r6b_python_version_is_one_pinned_quoted_value(self) -> None:
+        # Fails at e21ce16a0, where the quoted line is refused as a value that begins with a
+        # quote.
+        agp = self._gate_parity_module("_agp_r6b_pinned")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r6b-", dir=FIXTURE_DIR))
+        try:
+            workflow = root / "quality.yml"
+            workflow.write_text(self._WORKFLOW_HEAD + "      - name: Set up Python\n"
+                                "        uses: actions/setup-python@abc # v1\n        with:\n"
+                                + self._WF_PYTHON + "\n      # A comment after the value.\n"
+                                "      - name: A\n        run: python3 tools/a.py\n",
+                                encoding="utf-8")
+            self.assertEqual([e[1:] for e in agp.parse_workflow(workflow)],
+                             [("A", "tools/a.py", ())])
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+        self.assertEqual((REPO_ROOT / self._WF).read_text(encoding="utf-8").count(
+            self._WF_PYTHON), 1)
+        result = self._run_yaml_edits()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(agp.WORKFLOW_PINNED_QUOTED_VALUES, {"python-version": '"3.11"'})
+
+    def test_r6b_other_quoted_python_versions_are_refused(self) -> None:
+        # Only the exact text "3.11", opened and closed on its line with nothing after it, is
+        # allowed; another version, single quotes, a trailing comment and an unclosed quote
+        # (which would leave a later comment line inside the value) are refused, and so is
+        # the same text under another key.
+        quote = "value that begins with a quote"
+        self._assert_yaml_edits_refused(tuple(
+            (label, quote, ((surface, old, new),))
+            for label, surface, old, new in (
+                ('"3.12"', self._WF, self._WF_PYTHON, '          python-version: "3.12"\n'),
+                ("'3.11'", self._WF, self._WF_PYTHON, "          python-version: '3.11'\n"),
+                ('"3.11" # x', self._WF, self._WF_PYTHON,
+                 '          python-version: "3.11" # x\n'),
+                ('"3.11 left open', self._WF, self._WF_PYTHON,
+                 '          python-version: "3.11\n'),
+                ('fetch-depth "3.11"', self._WF, "          fetch-depth: 0\n",
+                 '          fetch-depth: "3.11"\n'),
+                ('pre-commit "3.11"', self._PC, self._PC_LANGUAGE_FILES,
+                 '        files: "3.11"\n'))))
 
     def test_r6_error2_step_or_hook_outside_its_list_is_refused(self) -> None:
         # Round-5 ERROR 2 (P29, P31b, P30b, W41b): a `- name:` or `- id:` line was read as a
@@ -29721,7 +29769,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         audit-backlog-actionability.py OWN F c089004a4e41f3a8c9273d7df9926331953635bc3133ba22023e1f2a7ffc1244
         audit-claim-precision.py ROOT F c2e537144efb7458cba00827577f959907263a7dfffcc75bab54c888f1e1d4b2
         audit-cross-repo-references.py OWN F f2eeb637b2a28b3d8995fe57609c231e1845dc139b4d8aa5f917433833abd83d
-        audit-gate-blindspots.py OWN F f549a60d95dc522292e74af5ddcfda9db634a419ee1376a38dc13fe6637a629c
+        audit-gate-blindspots.py OWN F a20d49b67e8bfa12a01f69d2847053fd8dca4dc50cb0b56acdb5c05d0763be48
         audit-gate-mutation.py OWN F db2e8a4e3255dfff96dc9a0f744a58508c1b88e689bea0af28fdc33062fb5716
         audit-held-branch-expiry.py NO_FS F 3255ff7873ca44e429b60011d733b90f6a65434f816a55f3f1be5a53f7a8d652
         audit-inbox-drops.py SKIP F a931ec3bf370c0e755637bcb2ff3238ea9e5337761de96a712b90027588a46bc
@@ -29798,7 +29846,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F 37e0fad5f05d92ce68d9cabaca74246f9b38121854de435caa70b5b2edcf917d
+        lint-audit-gate-parity.py OWN F fab89440f44f35807c47d823e662919343bb9d3ad220e85887d300a229b80ab6
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-bookkeeping-parity.py NO_FS F 418c1fc4dccff88fe4a32a8a3582c8110b7c53885facc1b661a2db48b829b841

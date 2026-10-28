@@ -41,8 +41,8 @@ continuation), which python3 is found on PATH, or what a gate script does. This 
 reads no YAML: gate 35 alone checks the workflow and pre-commit gate surfaces against
 the fixed skeleton of each file (3b646 round 6: only the keys the current files use at
 each level, each nested value two columns deeper than its key, no repeated key, no
-quoted value, and a gate hook's run-deciding key pinned to the values the gate hooks
-use), and that gate's module docstring states their residuals: the values of the
+quoted value apart from the workflow's one pinned python-version: "3.11", and a gate
+hook's run-deciding key pinned to the values the gate hooks use), and that gate's module docstring states their residuals: the values of the
 excluded steps and hooks, the values the skeletons leave free (the workflow and job
 names and the step and hook names and ids), YAML a real reader takes differently in ways
 those rules do not exclude (the check does not validate YAML), and whether GitHub
