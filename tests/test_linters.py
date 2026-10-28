@@ -65708,7 +65708,10 @@ class OpenFindingsRowSetDispositionTests(unittest.TestCase):
     FIXED = "FIXED #2800 (f2a53df9f) [class-exempt: singleton]"
     OPEN_A = "| 2026-10-02 | warning | [OPEN-A] first open | probe | "
     UNBORDERED = LEDGER.replace(OPEN_A + "ROUTED 3b330 |", OPEN_A + "ROUTED 3b330")
-    # The target row with and without a trailing border pipe: every refusal is held to both (3b678 r3).
+    # The target row with and without a trailing border pipe: every refusal is held to both (3b678 r3),
+    # except check_row's id-not-in-row and id-invalid, which this mode cannot reach: the target row is the
+    # one whose Finding cell leads with the id, only the last cell is rewritten, and an invalid id is
+    # refused before check_row runs (test_refuses_invalid_id).
     SHAPES = (("bordered", LEDGER), ("unbordered", UNBORDERED))
 
     def setUp(self) -> None:
@@ -65718,7 +65721,7 @@ class OpenFindingsRowSetDispositionTests(unittest.TestCase):
         self.ledger = self.dir / "open-findings.md"
         self.ledger.write_text(self.LEDGER, encoding="utf-8")
 
-    def run_tool(self, cell, fid: str, *args: str) -> tuple[int, str, str]:
+    def run_tool(self, cell: str | bytes, fid: str, *args: str) -> tuple[int, str, str]:
         data = cell if isinstance(cell, bytes) else (cell + "\n").encode("utf-8")
         done = subprocess.run(
             [sys.executable, "-I", str(OpenFindingsRowTests.TOOL), "--ledger", str(self.ledger),
@@ -65726,7 +65729,7 @@ class OpenFindingsRowSetDispositionTests(unittest.TestCase):
             input=data, capture_output=True, cwd=str(REPO_ROOT), timeout=300)
         return done.returncode, done.stdout.decode("utf-8", "replace"), done.stderr.decode("utf-8", "replace")
 
-    def assertRefused(self, cell, code: str, fid: str = "OPEN-A") -> None:
+    def assertRefused(self, cell: str | bytes, code: str, fid: str = "OPEN-A") -> None:
         before = (self.ledger.read_bytes(), os.stat(self.ledger).st_mtime_ns)
         rc, out, err = self.run_tool(cell, fid)
         self.assertEqual(rc, 1, out + err)
