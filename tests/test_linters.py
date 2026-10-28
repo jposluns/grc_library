@@ -32629,7 +32629,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F b15c9b865864abdab15851f91ee6deafb6a2be08b5a384dea76ba4275131a800
         lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
-        lint-todo-number-permanence.py OWN F dedf0d73d69395a559061e0424d49ec92ccbcb3fef7e455adc41dd30708cdbea
+        lint-todo-number-permanence.py OWN F 43f912551f3025331da156630fcc7d6d3c67c2cd02017fec3685aaf45ef53e9b
         lint-todo-staleness.py NO_FS F 018d90235361c55d209d69c789ee08bbf752ac05613ce7e77991ee59a46b1491
         lint-tooling-backlog-refs.py OWN F fb32e59535aa1fc191032c72eefdbfe1062bfe75210a6dbecf48ef969f2390e5
         lint-tooling-provenance-freshness.py OWN F 4cb6ed58b8cd47d727f7d198169661581b8e94a4a62cc6380a1a64e86b74ca5b
