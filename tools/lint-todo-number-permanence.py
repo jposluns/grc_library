@@ -957,6 +957,13 @@ EXEMPT: dict[tuple[str, str], str] = {
         "'the umbrella stays OPEN (PR2/PR3 family migration, PR4 enforcement)'. Dated "
         "2026-09-23, after the 2026-07-15 rule."
     ),
+    ("P-3.213", "P-3.213 part (gate 6 ratchet) merged, item stays open"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #3035, 2026-10-28). PR #3035 "
+        "shipped gate 6's ratchet on each standard's UNPINNED citation count and its "
+        "complete exit-code list; the P-3.213 register-coverage umbrella stays live at "
+        "P-TODO.md. The DONE heading "
+        "says 'item stays open'. Dated 2026-10-28, after the 2026-07-15 rule."
+    ),
 }
 
 

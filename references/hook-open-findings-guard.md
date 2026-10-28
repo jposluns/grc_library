@@ -97,18 +97,19 @@ this hook reads differently.
 
 ```text
 python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--ledger PATH] [--dry-run] [--open] [--delivery PATH [--source-key KEY]] < row
+python3 -I tools/open-findings-row.py --set-disposition --id ID [--ledger PATH] [--dry-run] < cell
 ```
 
-- **Input and output.** One table line on stdin, never in argv. The output carries line numbers,
+- **Input and output.** One table line on stdin (for `--set-disposition`, the new Disposition cell instead; see below), never in argv. The output carries line numbers,
   verdict codes and counts, never row text or ids.
 - **Finding id.** The leading bracketed token of the Finding cell (`[VPR3B330-PR8-R1]`). `--id` is that
-  token without brackets and must be unique across `## Open`, `## Closed today`, and unfenced
+  token without brackets; for the row-adding modes it must be unique across `## Open`, `## Closed today`, and unfenced
   archive or mis-filed rows that the hook's `MISFILED_ROW_RE` matches. This hook reads the same token as a class token, so a `FIXED` row needs a
   `[class: ...]` or `[class-exempt: ...]` clause.
 - **Placement.** `--after ANCHOR_ID` inserts after the one `## Open` or `## Closed today` row led by that
   id. `--append` inserts after the newest dated `## Open` row (a tie goes to the last in file order),
   not blindly at end of file; an Open table with no dated row is refused.
-- **Refusals (exit 1).** A row this hook would parse as malformed; a severity outside `error`,
+- **Refusals (exit 1), row-adding modes** (`--set-disposition` has its own, below). A row this hook would parse as malformed; a severity outside `error`,
   `warning` and `note`; an `error` or `warning` disposition that fails the grammar (for example
   `FIXED (d44d9b2b)`, `ROUTED pending-decisions` or `FIXED d44d9b2b`); a `FIXED` class row without a
   valid clause; more than one clause on any row; a duplicate or mismatched id; a missing or ambiguous
@@ -213,6 +214,20 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   in the tool and in this hook. Closing it needs a hook grammar change. There is no shared lock: a write between the re-check and the rename, or by a writer
   holding the old inode open, is lost. Extended attributes other than the access ACL are not carried
   over; access ACL handling uses Linux xattrs.
+- **Setting a disposition (`--set-disposition`, 3b678).** Changes the Disposition cell of one
+  existing row in place, for example `ROUTED <id>` to `FIXED #N (sha) [class: ...]` once the fix merges,
+  which was done by hand. stdin carries the new cell text, never a row. The target is the one row in
+  `## Open` or `## Closed today` whose Finding cell leads with `[ID]`; fenced lines, the dated archive
+  and mis-filed rows are never targets. Only that row's last cell is replaced, written as one space,
+  the cell, one space before a trailing border pipe, and as one space and the cell with no space after
+  it on a row with no trailing border pipe (the hook strips the line, so it reads both the same); every
+  other byte is kept. The changed row is held to the same checks as a new row, plus a re-parse that the
+  hook reads the same rows with only that disposition changed and the merge guard's verdict before and
+  after. It refuses an empty cell (it never writes an undispositioned row), no matching row, more than
+  one, an unescaped pipe in the cell (`malformed-columns`, on every row shape, checked before the row
+  is looked at), and anything the row checks refuse; `--after`, `--append`, `--open`, `--delivery` and
+  `--source-key` are usage errors with it. The write and `--dry-run` use the same transaction and
+  pre-flight as the other modes. The tool's docstring (`SET DISPOSITION.`) states its residues.
 
 ## Why a hard block: the motivating incidents
 

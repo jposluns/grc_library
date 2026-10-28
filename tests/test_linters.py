@@ -32629,7 +32629,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F b15c9b865864abdab15851f91ee6deafb6a2be08b5a384dea76ba4275131a800
         lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
-        lint-todo-number-permanence.py OWN F dedf0d73d69395a559061e0424d49ec92ccbcb3fef7e455adc41dd30708cdbea
+        lint-todo-number-permanence.py OWN F 383817bb07d8395aed91ef2ebcaaef19f8d7ac07a9668dc26af172af19b0ea0c
         lint-todo-staleness.py NO_FS F 018d90235361c55d209d69c789ee08bbf752ac05613ce7e77991ee59a46b1491
         lint-tooling-backlog-refs.py OWN F fb32e59535aa1fc191032c72eefdbfe1062bfe75210a6dbecf48ef969f2390e5
         lint-tooling-provenance-freshness.py OWN F 4cb6ed58b8cd47d727f7d198169661581b8e94a4a62cc6380a1a64e86b74ca5b
@@ -32645,7 +32645,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        open-findings-row.py OWN F 1e0adb85988274a3d7e9431845d10d69580a644ab6f0adadce96c037e6eb40d1
+        open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
         pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
@@ -65697,6 +65697,300 @@ class OpenFindingsRowTests(unittest.TestCase):
                     "an empty error row blocks the merge guard",
                     normalized,
                 )
+
+
+class OpenFindingsRowSetDispositionTests(unittest.TestCase):
+    """tools/open-findings-row.py --set-disposition: one existing row's Disposition cell, changed in place
+    and checked with the guard's own functions as a new row is, so a hand edit from ROUTED to FIXED can no
+    longer write a disposition the guard rejects. Every ledger is a synthetic temp-dir file."""
+
+    LEDGER = OpenFindingsRowTests.LEDGER
+    FIXED = "FIXED #2800 (f2a53df9f) [class-exempt: singleton]"
+    OPEN_A = "| 2026-10-02 | warning | [OPEN-A] first open | probe | "
+    UNBORDERED = LEDGER.replace(OPEN_A + "ROUTED 3b330 |", OPEN_A + "ROUTED 3b330")
+    # The target row with and without a trailing border pipe: every refusal is held to both (3b678 r3),
+    # except check_row's id-not-in-row and id-invalid, which this mode cannot reach: the target row is the
+    # one whose Finding cell leads with the id, only the last cell is rewritten, and an invalid id is
+    # refused before check_row runs (test_refuses_invalid_id).
+    SHAPES = (("bordered", LEDGER), ("unbordered", UNBORDERED))
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.dir = Path(self._tmp.name)
+        self.ledger = self.dir / "open-findings.md"
+        self.ledger.write_text(self.LEDGER, encoding="utf-8")
+
+    def run_tool(self, cell: str | bytes, fid: str, *args: str) -> tuple[int, str, str]:
+        data = cell if isinstance(cell, bytes) else (cell + "\n").encode("utf-8")
+        done = subprocess.run(
+            [sys.executable, "-I", str(OpenFindingsRowTests.TOOL), "--ledger", str(self.ledger),
+             "--set-disposition", "--id", fid, *args],
+            input=data, capture_output=True, cwd=str(REPO_ROOT), timeout=300)
+        return done.returncode, done.stdout.decode("utf-8", "replace"), done.stderr.decode("utf-8", "replace")
+
+    def assertRefused(self, cell: str | bytes, code: str, fid: str = "OPEN-A") -> None:
+        before = (self.ledger.read_bytes(), os.stat(self.ledger).st_mtime_ns)
+        rc, out, err = self.run_tool(cell, fid)
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn(f"refused: {code}", err)
+        self.assertIn("result: REFUSED", out)
+        self.assertEqual((self.ledger.read_bytes(), os.stat(self.ledger).st_mtime_ns), before)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+        self.assertNotIn(fid, out + err)
+
+    def test_sets_open_row_and_reports_lines_only(self) -> None:
+        rc, out, err = self.run_tool(self.FIXED, "OPEN-A")
+        self.assertEqual(rc, 0, out + err)
+        self.assertEqual(out.splitlines()[1:2], ["target: line 12 (open)"])
+        self.assertIn("merge-guard: before allow, after allow", out)
+        self.assertEqual(out.splitlines()[-1], "result: WROTE")
+        self.assertEqual(self.ledger.read_text(encoding="utf-8"),
+                         self.LEDGER.replace(self.OPEN_A + "ROUTED 3b330 |", self.OPEN_A + self.FIXED + " |"))
+        self.assertNotIn("OPEN-A", out + err)
+        self.assertNotIn("2800", out + err)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_every_other_line_is_byte_identical(self) -> None:
+        # CRLF line ends, trailing spaces after the border pipe and a row with no trailing border pipe.
+        text = self.LEDGER.replace("| ROUTED TODO 3.73 |", "| ROUTED TODO 3.73 |  ")
+        text = text.replace("| probe | ROUTED 3b330 |", "| probe | ROUTED 3b330").replace("\n", "\r\n")
+        self.ledger.write_bytes(text.encode("utf-8"))
+        for fid, at in (("OPEN-B", 12), ("OPEN-A", 11), ("CLOSED-A", 19)):
+            with self.subTest(fid=fid):
+                before = self.ledger.read_bytes().split(b"\r\n")
+                rc, out, err = self.run_tool(self.FIXED, fid)
+                self.assertEqual(rc, 0, out + err)
+                after = self.ledger.read_bytes().split(b"\r\n")
+                self.assertEqual(len(after), len(before))
+                self.assertEqual(after[:at] + after[at + 1:], before[:at] + before[at + 1:])
+                body = before[at].rstrip()
+                stem = body[:-1] if body.endswith(b"|") else body
+                cell = b"| " + self.FIXED.encode("utf-8") + (b" |" if stem != body else b"")
+                self.assertEqual(after[at], stem[:stem.rfind(b"|")] + cell + before[at][len(body):])
+        self.assertNotIn(b"\n", self.ledger.read_bytes().replace(b"\r\n", b""))
+
+    def test_closed_today_row_dry_run_writes_nothing(self) -> None:
+        before = (self.ledger.read_bytes(), os.stat(self.ledger).st_mtime_ns)
+        rc, out, err = self.run_tool(self.FIXED, "CLOSED-A", "--dry-run")
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("target: line 20 (closed)", out)
+        self.assertEqual(out.splitlines()[-1], "result: WOULD-WRITE")
+        self.assertEqual((self.ledger.read_bytes(), os.stat(self.ledger).st_mtime_ns), before)
+
+    def test_attested_class_clause_goes_through_the_matcher(self) -> None:
+        import secrets
+        token = "zzq-" + secrets.token_hex(24)
+        rc, out, err = self.run_tool(f'FIXED #2800 [class: "{token}" @ 0]', "OPEN-A", "--dry-run")
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("class-attestation class", out)
+        self.assertIn("class-count: reproduced 0 = attested 0", out)
+
+    def test_refuses_no_matching_row(self) -> None:
+        for shape, text in self.SHAPES:
+            self.ledger.write_text(text, encoding="utf-8")
+            for fid in ("NOPE-1", "FENCED-1", "ARCH-A"):
+                with self.subTest(shape=shape, fid=fid):
+                    self.assertRefused(self.FIXED, "id-not-found", fid=fid)
+
+    def test_refuses_two_matching_rows(self) -> None:
+        for shape, text in self.SHAPES:
+            with self.subTest(shape=shape):
+                self.ledger.write_text(text.replace("[OPEN-C]", "[OPEN-A]"), encoding="utf-8")
+                self.assertRefused(self.FIXED, "id-ambiguous (line 14)")
+
+    def test_refuses_invalid_id(self) -> None:
+        for shape, text in self.SHAPES:
+            self.ledger.write_text(text, encoding="utf-8")
+            for fid in ("a b", "[OPEN-A]"):
+                with self.subTest(shape=shape, fid=fid):
+                    self.assertRefused(self.FIXED, "id-invalid", fid=fid)
+
+    def test_refuses_invalid_disposition(self) -> None:
+        for shape, text in self.SHAPES:
+            self.ledger.write_text(text, encoding="utf-8")
+            for cell in ("FIXED d44d9b2b", "FIXED (pending merge)", "ROUTED pending-decisions"):
+                with self.subTest(shape=shape, cell=cell):
+                    self.assertRefused(cell, "disposition-invalid")
+
+    def test_refuses_fixed_without_class_attestation(self) -> None:
+        for shape, text in self.SHAPES:
+            self.ledger.write_text(text, encoding="utf-8")
+            for cell, code in (("FIXED #2800 (f2a53df9f)", "class-unattested"),
+                               ("FIXED #2800 [class-exempt: too-hard]", "class-bad-exempt"),
+                               ("FIXED #2800 [class-exempt: singleton] [class-exempt: singleton]", "class-multi")):
+                with self.subTest(shape=shape, code=code):
+                    self.assertRefused(cell, code)
+
+    def test_refuses_target_row_the_tool_would_not_write(self) -> None:
+        # The whole changed row is checked (the RESIDUES): the target's own Found date, severity and
+        # column count, whatever the new cell says.
+        for shape, text in self.SHAPES:
+            for edit, code in (
+                    (("| 2026-10-02 | warning | [OPEN-A]", "| 2026-10-32 | warning | [OPEN-A]"), "found-not-iso"),
+                    (("| warning | [OPEN-A]", "| warn | [OPEN-A]"), "severity-unknown"),
+                    (("[OPEN-A] first open | probe |", "[OPEN-A] first open | probe | extra |"), "malformed-columns"),
+                    (("[OPEN-A] first open | probe |", "[OPEN-A] first open |"), "malformed-columns")):
+                with self.subTest(shape=shape, edit=edit[1]):
+                    self.assertIn(edit[0], text)
+                    self.ledger.write_text(text.replace(edit[0], edit[1]), encoding="utf-8")
+                    self.assertRefused(self.FIXED, code)
+
+    def test_backstops_on_each_row_shape(self) -> None:
+        # splice-mismatch, misfiled-grew and merge-guard-regressed are not reachable from a well-formed
+        # cell, so each is forced in process, as the row-adding modes' backstop tests force theirs.
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_sd_backstops")
+        hook = mod.load_hook(REPO_ROOT)
+        real_verify = mod.verify_replace
+        real_misfiled = hook.misfiled_finding_rows
+
+        def changed_parse(hook, before, after, lines, kinds, old, parsed, at, section):
+            parsed = (*parsed[:2], parsed[2] + " changed", parsed[3])
+            return real_verify(hook, before, after, lines, kinds, old, parsed, at, section)
+
+        def misfiled(text):
+            rows = list(real_misfiled(text))
+            if "#2800" in text:
+                rows.append((1, "error", "synthetic misfiled row"))
+            return rows
+
+        for shape, text in self.SHAPES:
+            with self.subTest(shape=shape, code="splice-mismatch"):
+                with mock.patch.object(mod, "verify_replace", side_effect=changed_parse):
+                    codes, _, new = mod.evaluate_disposition(hook, text, self.FIXED, "OPEN-A")
+                self.assertEqual(codes, ["splice-mismatch"])
+                self.assertIsNone(new)
+            with self.subTest(shape=shape, code="misfiled-grew"):
+                with mock.patch.object(hook, "misfiled_finding_rows", side_effect=misfiled), \
+                        mock.patch.object(hook, "decide_exit", return_value=0):
+                    codes, _, new = mod.evaluate_disposition(hook, text, self.FIXED, "OPEN-A")
+                self.assertEqual(codes, ["misfiled-grew"])
+                self.assertIsNone(new)
+            with self.subTest(shape=shape, code="merge-guard-regressed"):
+                with mock.patch.object(hook, "decide_exit",
+                                       side_effect=lambda rows, t: 2 if "#2800" in t else 0) as guard:
+                    codes, report, new = mod.evaluate_disposition(hook, text, self.FIXED, "OPEN-A")
+                self.assertEqual(guard.call_count, 2)
+                self.assertEqual(codes, ["merge-guard-regressed"])
+                self.assertIn("merge-guard: before allow, after block", report)
+                self.assertIsNone(new)
+
+    def test_splice_mismatch_from_read_back_on_each_row_shape(self) -> None:
+        # The first splice-mismatch source: the Disposition read back from the spliced row is not the
+        # requested cell. Only replace_last_cell is patched, to splice a different valid cell; verify_replace
+        # runs unpatched and agrees with the spliced row, so the code can come from the read-back alone.
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_sd_read_back")
+        hook = mod.load_hook(REPO_ROOT)
+        real_replace = mod.replace_last_cell
+        spliced = self.FIXED.replace("#2800", "#2801")
+
+        def other_cell(line, cell):
+            return real_replace(line, cell.replace("#2800", "#2801"))
+
+        for shape, text in self.SHAPES:
+            with self.subTest(shape=shape):
+                with mock.patch.object(mod, "replace_last_cell", side_effect=other_cell) as splice:
+                    codes, _, new = mod.evaluate_disposition(hook, text, self.FIXED, "OPEN-A")
+                self.assertEqual(splice.call_count, 1)
+                self.assertEqual(codes, ["splice-mismatch"])
+                self.assertIsNone(new)
+                with mock.patch.object(mod, "replace_last_cell", side_effect=other_cell):
+                    codes, _, new = mod.evaluate_disposition(hook, text, spliced, "OPEN-A")
+                self.assertEqual(codes, [])
+                self.assertIn(self.OPEN_A + spliced, new)
+
+    def test_refuses_pipe_in_cell(self) -> None:
+        # Checked before the row's shape is looked at: on a row with no trailing border pipe,
+        # `ROUTED 3b330 |` refused as splice-mismatch and `|` as disposition-empty (3b678 r2).
+        for shape, text in (("bordered", self.LEDGER), ("unbordered", self.UNBORDERED)):
+            self.ledger.write_text(text, encoding="utf-8")
+            for cell in ("ROUTED 3b330 | x", "ROUTED 3b330 |", "|", "| ROUTED 3b330"):
+                with self.subTest(shape=shape, cell=cell):
+                    self.assertRefused(cell, "malformed-columns")
+                    self.assertEqual(self.run_tool(cell, "OPEN-A")[2].count("refused: "), 1)
+            with self.subTest(shape=shape, cell="escaped"):
+                rc, out, err = self.run_tool("ROUTED 3b330 \\| x", "OPEN-A", "--dry-run")
+                self.assertEqual(rc, 0, out + err)
+
+    def test_stdin_refusals_on_each_row_shape(self) -> None:
+        for shape, text in (("bordered", self.LEDGER), ("unbordered", self.UNBORDERED)):
+            self.ledger.write_text(text, encoding="utf-8")
+            for cell, code in ((b"ROUTED \xff 3b330\n", "not-utf8"),
+                               ("ROUTED 3b330\nx", "multiline"), ("ROUTED\r3b330", "bad-line-char"),
+                               ("ROUTED\u20283b330", "bad-line-char")):
+                with self.subTest(shape=shape, code=code):
+                    self.assertRefused(cell, code)
+
+    def test_cell_spacing_on_each_row_shape(self) -> None:
+        # Bordered: one space, the cell, one space, the border pipe. Unbordered: one space and the cell,
+        # then the row's own trailing whitespace, with no space added.
+        old = self.OPEN_A + "ROUTED 3b330 |"
+        for shape, row, want in (
+                ("bordered", old, self.OPEN_A + self.FIXED + " |"),
+                ("bordered, trailing spaces", old + "  ", self.OPEN_A + self.FIXED + " |  "),
+                ("unbordered", self.OPEN_A + "ROUTED 3b330", self.OPEN_A + self.FIXED),
+                ("unbordered, trailing spaces", self.OPEN_A + "ROUTED 3b330  ", self.OPEN_A + self.FIXED + "  ")):
+            with self.subTest(shape=shape):
+                self.ledger.write_text(self.LEDGER.replace(old, row), encoding="utf-8")
+                rc, out, err = self.run_tool(self.FIXED, "OPEN-A")
+                self.assertEqual(rc, 0, out + err)
+                self.assertEqual(self.ledger.read_text(encoding="utf-8").splitlines()[11], want)
+
+    def test_docstring_and_reference_state_each_row_shape(self) -> None:
+        import ast
+        doc = ast.get_docstring(ast.parse(OpenFindingsRowTests.TOOL.read_text(encoding="utf-8")))
+        section = " ".join(doc.split("SET DISPOSITION.", 1)[1].split("\n\nREFUSALS (exit 1).", 1)[0].split())
+        for phrase in (
+                "before the target row's shape is looked at, so on every row shape it refuses as "
+                "malformed-columns",
+                "on a row with a trailing border pipe, the text between its last two unescaped pipes, "
+                "written as one space, the cell, one space;",
+                "on a row with no trailing border pipe, the text after its last unescaped pipe, written as "
+                "one space and the cell, then the row's own trailing whitespace, with no space added",
+                "Its refusals (exit 1) are the stdin ones listed under REFUSALS below (not-utf8, multiline, "
+                "bad-line-char)"):
+            with self.subTest(phrase=phrase[:40]):
+                self.assertIn(phrase, section)
+        for stale in ("the stdin ones above", "is replaced, written as one space, the cell, one space"):
+            with self.subTest(stale=stale):
+                self.assertNotIn(stale, section)
+        reference = (REPO_ROOT / "references" / "hook-open-findings-guard.md").read_text(encoding="utf-8")
+        bullet = " ".join(reference.split("- **Setting a disposition", 1)[1].split("\n- **", 1)[0]
+                          .split("\n## ", 1)[0].split())
+        for phrase in ("an unescaped pipe in the cell (`malformed-columns`, on every row shape, checked before "
+                       "the row is looked at)",
+                       "one space, the cell, one space before a trailing border pipe",
+                       "one space and the cell with no space after it on a row with no trailing border pipe"):
+            with self.subTest(reference=phrase[:40]):
+                self.assertIn(phrase, bullet)
+
+    def test_refuses_empty_cell_and_other_modes_flags(self) -> None:
+        for shape, text in self.SHAPES:
+            self.ledger.write_text(text, encoding="utf-8")
+            for cell in ("", "  "):
+                with self.subTest(shape=shape, cell=cell):
+                    self.assertRefused(cell, "disposition-empty")
+        self.ledger.write_text(self.LEDGER, encoding="utf-8")
+        for extra in (("--open",), ("--append",), ("--after", "OPEN-B"), ("--delivery", "x.md")):
+            with self.subTest(extra=extra):
+                rc, out, err = self.run_tool(self.FIXED, "OPEN-A", *extra)
+                self.assertEqual(rc, 2, out + err)
+                self.assertEqual(self.ledger.read_text(encoding="utf-8"), self.LEDGER)
+
+    def test_usage_and_help_document_the_mode(self) -> None:
+        import ast
+        doc = ast.get_docstring(ast.parse(OpenFindingsRowTests.TOOL.read_text(encoding="utf-8")))
+        usage = doc.split("Usage:", 1)[1].split("\n\n", 1)[0]
+        self.assertIn("--set-disposition --id ID [--ledger PATH] [--dry-run] < cell", usage)
+        section = " ".join(doc.split("SET DISPOSITION.", 1)[1].split("\n\nREFUSALS (exit 1).", 1)[0].split())
+        for phrase in ("id-not-found", "id-ambiguous", "disposition-empty", "malformed-columns",
+                       "the same atomic_replace transaction", "RESIDUES, stated:"):
+            self.assertIn(phrase, section)
+        result = run_linter("tools/open-findings-row.py", "--help")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("--set-disposition", result.stdout)
 
 
 class OpenFindingsRowDeliveryTests(unittest.TestCase):
