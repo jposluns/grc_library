@@ -97,9 +97,10 @@ path. A local caller can move or recreate the main-branch remote-tracking ref; e
 to the gate, the CI workflows, the audit runner or the pre-commit invocation
 can change or remove the ratchet, and review of such an edit is the control;
 and the base count uses the head register, so a register edit in the same
-change can change which citations count. Each text run states its totals of
-unpinned and unregistered citations; a machine-readable run carries them in
-its report.
+change can change which citations count. Each text run that completes its scan
+states its totals of unpinned and unregistered citations, and a run that stops
+earlier on a usage or input error, or on another error the wrapper's list names,
+states none; a machine-readable run carries them in its report.
 
 Ambiguous identities, broader discovery candidates and unresolved editions
 remain explicit review inventories. An unrecognized edition is not declared

@@ -4285,6 +4285,272 @@ class StandardsCurrencyTests(LinterTestCase):
         code, out, err = self._main_in_process(mod, self._bootstrap_root())
         self.assertEqual(code, 0, out[-300:] + err)
 
+    # P-3.213 exit-code list, second pass: guards for the listed conditions (and the listed
+    # alternatives within one) that still had no test asserting their status. Behaviour is
+    # unchanged; each passes on 0cfc96602.
+    def test_exit_list_argparse_value_errors_exit_2(self) -> None:
+        # Guard, exit 2 (argparse): --paths with no value, and a --coverage-mode or --format
+        # value outside its choices.
+        for args, message in (
+            (("--paths",), "argument --paths: expected at least one argument"),
+            (("--coverage-mode", "strict"), "argument --coverage-mode: invalid choice: 'strict'"),
+            (("--format", "xml"), "argument --format: invalid choice: 'xml'"),
+        ):
+            with self.subTest(args=args):
+                result = self._wrapper_cli(*args)
+                self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+                self.assertIn(message, result.stderr)
+                self.assertNotIn("standards-currency counts", result.stdout)
+
+    def test_exit_list_unreadable_or_unresolvable_root_exits_2(self) -> None:
+        # Guard, exit 2 (lint_common.require_dir, SystemExit): a --root whose probe raises (as
+        # Python 3.11's is_dir() does on EACCES) is refused as unreadable or unresolvable.
+        import contextlib
+        from unittest.mock import patch
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_root_unreadable")
+        err = io.StringIO()
+        with patch.object(Path, "is_dir", side_effect=PermissionError(13, "denied (fixture)")), \
+                contextlib.redirect_stderr(err), self.assertRaises(SystemExit) as caught:
+            mod.main(["--root", str(FIXTURE_DIR)])
+        self.assertEqual(caught.exception.code, 2)
+        self.assertIn("--root", err.getvalue())
+        self.assertIn("unreadable or unresolvable", err.getvalue())
+
+    def test_exit_list_register_unreadable_or_not_utf8_exits_2(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: parse_canonical_register
+        # on a register that cannot be read (here a directory) or is not UTF-8.
+        for label, value in (("unreadable", None), ("not UTF-8", b"\xff\xfe")):
+            with self.subTest(register=label):
+                root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1},
+                                          git=False)
+                (root / self.REGISTER_REL).unlink()
+                if value is None:
+                    (root / self.REGISTER_REL).mkdir()
+                else:
+                    (root / self.REGISTER_REL).write_bytes(value)
+                result = self._run_ratchet(root)
+                self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+                self.assertTrue(result.stderr.startswith("ERROR:"), result.stderr)
+                self.assertNotIn("UNPINNED ratchet base", result.stderr)
+
+    def test_exit_list_historical_data_or_page_unreadable_or_not_utf8_exits_2(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: main's _read of the
+        # historical data or page, unreadable (a directory) or not UTF-8.
+        data_rel = ".project-governance/register-historical-citation-exceptions.toml"
+        page_rel = ".project-governance/register-historical-citation-exceptions.md"
+        for rel in (data_rel, page_rel):
+            for label, value in (("unreadable", None), ("not UTF-8", b"\xff\xfe")):
+                with self.subTest(path=rel, case=label):
+                    root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1},
+                                              git=False)
+                    target = root / rel
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    if value is None:
+                        target.mkdir()
+                    else:
+                        target.write_bytes(value)
+                    result = self._run_ratchet(root, "--paths", "ai/doc.md")
+                    self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+                    self.assertTrue(result.stderr.startswith("ERROR:"), result.stderr)
+
+    def test_exit_list_scan_scope_refusals_exit_2(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: iter_files's refusals in
+        # the tree (an out-of-root path, as given or through a symlink inside the root; a
+        # directory symlink as a scan root or a descendant; an entry that is neither a file nor
+        # a directory) and coverage_report's scanned file that is not UTF-8.
+        outside = Path(tempfile.mkdtemp(prefix="currency-outside-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, outside, ignore_errors=True)
+        (outside / "x.md").write_text("ISO/IEC 27001 applies.\n", encoding="utf-8")
+
+        def link_out(root):
+            os.symlink(outside / "x.md", root / "ai/out.md")
+
+        def dir_root(root):
+            os.symlink(root / "ai", root / "linked")
+
+        def dir_descendant(root):
+            os.symlink(root / "tools", root / "ai/linked")
+
+        def fifo(root):
+            os.mkfifo(root / "ai/pipe.md")
+
+        def not_utf8(root):
+            (root / "ai/doc.md").write_bytes(b"ISO/IEC 27001 \xff\n")
+
+        for label, setup, paths, message in (
+            ("out of root", None, ["../" + outside.name + "/x.md"], "out-of-root scan path"),
+            ("symlink out of root", link_out, ["ai"], "out-of-root scan path"),
+            ("directory symlink as a scan root", dir_root, ["linked"],
+             "directory symlink in scan scope"),
+            ("directory symlink as a descendant", dir_descendant, ["ai"],
+             "directory symlink in scan scope"),
+            ("neither a file nor a directory", fifo, ["ai"], "missing/unreadable intended input"),
+            ("scanned file not UTF-8", not_utf8, ["ai"], "utf-8"),
+        ):
+            with self.subTest(case=label):
+                root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1},
+                                          git=False)
+                if setup is not None:
+                    setup(root)
+                result = self._run_ratchet(root, "--paths", *paths)
+                self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+                self.assertTrue(result.stderr.startswith("ERROR:"), result.stderr)
+                self.assertIn(message, result.stderr)
+
+    def test_exit_list_unreadable_directory_exits_2(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: iter_files's os.scandir
+        # on a directory that cannot be listed.
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1}, git=False)
+        locked = root / "ai/locked"
+        locked.mkdir()
+        locked.chmod(0)
+        self.addCleanup(locked.chmod, 0o700)
+        if os.access(locked, os.R_OK):
+            self.skipTest("running with permission to list a mode-000 directory")
+        result = self._run_ratchet(root, "--paths", "ai")
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertTrue(result.stderr.startswith("ERROR:"), result.stderr)
+        self.assertIn("Permission denied", result.stderr)
+
+    def test_exit_list_enforce_mode_blocks_unpinned_and_noncanonical_exits_1(self) -> None:
+        # Guard, exit 1 (coverage_report): with --coverage-mode enforce an UNPINNED or a
+        # NONCANONICAL_ID finding blocks; in report mode the same finding is advisory.
+        for label, doc in (("UNPINNED", "ISO/IEC 27001 applies.\n"),
+                           ("NONCANONICAL_ID", "ISO 27001:2022 applies.\n")):
+            with self.subTest(kind=label):
+                root = self._ratchet_root(doc, {"ISO/IEC 27001": 1}, git=False)
+                result = self._run_ratchet(root, "--paths", "ai/doc.md", "--format", "json")
+                self.assertEqual(result.returncode, 0, result.stdout[-300:] + result.stderr)
+                kinds = [f["kind"] for f in json.loads(result.stdout)["findings"]]
+                self.assertEqual(kinds, [label])
+                result = self._run_ratchet(root, "--paths", "ai/doc.md",
+                                           "--coverage-mode", "enforce")
+                self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+
+    def test_exit_list_zero_merge_bases_exit_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: HEAD and refs/remotes/origin/main
+        # with no common history. git merge-base exits 1 here, so the run stops in _git before
+        # ratchet_base counts the bases.
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+        tree = self._fixture_git(root, "rev-parse", "HEAD^{tree}")
+        unrelated = self._fixture_git(root, "commit-tree", tree, "-m", "unrelated")
+        self._fixture_git(root, "update-ref", "refs/remotes/origin/main", unrelated)
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("ERROR: UNPINNED ratchet base: git merge-base --all", result.stderr)
+
+    def test_exit_list_base_gitlink_or_non_utf8_blob_exits_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: _blob_at on a base path that holds
+        # a gitlink, or a base blob that is not UTF-8.
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+        head = self._fixture_git(root, "rev-parse", "HEAD")
+        self._fixture_git(root, "rm", "-q", "--cached", self.BASELINE_REL)
+        self._fixture_git(root, "update-index", "--add", "--cacheinfo",
+                          f"160000,{head},{self.BASELINE_REL}")
+        self._fixture_git(root, "commit", "-q", "-m", "a gitlink at the baseline path")
+        self._fixture_git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr)
+        self.assertIn("is not a file", result.stderr)
+        result = self._run_ratchet(self._ratchet_root(
+            "ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1}, base_baseline=b"\xff\xfe"))
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr)
+        self.assertIn("is not UTF-8", result.stderr)
+
+    def _bootstrap_with_git(self, label: str, answers: dict):
+        """mod.main on a bootstrap fixture whose _git calls starting with a key of answers
+        (a tuple of leading arguments) return that value instead of running git."""
+        from unittest.mock import patch
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_base_" + label)
+        root = self._bootstrap_root()
+        real = mod._git
+
+        def git(*args, stdin=None):
+            for lead, answer in answers.items():
+                if args[:len(lead)] == lead:
+                    return answer
+            return real(*args, stdin=stdin)
+
+        with patch.object(mod, "_git", git):
+            return self._main_in_process(mod, root)
+
+    def test_exit_list_base_scope_listing_refusals_exit_2(self) -> None:
+        # Guard, exit 2: base_unpinned_counts on a listing that is not ASCII (the OSError and
+        # UnicodeError handler, no base prefix), a base path that is not canonical, or a blob
+        # git cat-file does not return (the RatchetBaseError handler).
+        sha = b"0" * 40
+        for label, answers, prefixed, message in (
+            ("non_ascii", {("ls-tree", "-r"): b"100644 blob \xff\tai/doc.md\0"}, False,
+             "'ascii' codec can't decode"),
+            ("non_canonical", {("ls-tree", "-r"): b"100644 blob " + sha + b"\tai/../doc.md\0"},
+             True, "is not a canonical path"),
+            ("missing_blob", {("ls-tree", "-r"): b"100644 blob " + sha + b"\tai/doc.md\0",
+                              ("cat-file", "--batch"): sha + b" missing\n"},
+             True, "git cat-file did not return the blob of ai/doc.md"),
+        ):
+            with self.subTest(case=label):
+                code, out, err = self._bootstrap_with_git(label, answers)
+                self.assertEqual(code, 2, out[-300:] + err)
+                self.assertTrue(err.startswith("ERROR:"), err)
+                self.assertEqual("UNPINNED ratchet base" in err, prefixed, err)
+                self.assertIn(message, err)
+
+    def test_exit_list_temporary_directory_resolution_failure_exits_2(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: base_unpinned_counts
+        # resolves its temporary directory outside the try block that turns a scan failure
+        # into a RatchetBaseError, so a failed resolve carries no base prefix.
+        from unittest.mock import patch
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_tempdir_resolve")
+        real = mod.Path
+
+        class Unresolvable:
+            def __init__(self, path):
+                self.path = path
+
+            def resolve(self, strict=False):
+                raise OSError(40, "Too many levels of symbolic links (fixture)")
+
+        def path(*args):
+            made = real(*args)
+            return Unresolvable(made) if made.name.startswith("gate6-base-") else made
+
+        with patch.object(mod, "Path", path):
+            code, out, err = self._main_in_process(mod, self._bootstrap_root())
+        self.assertEqual(code, 2, out[-300:] + err)
+        self.assertTrue(err.startswith("ERROR:"), err)
+        self.assertNotIn("UNPINNED ratchet base", err)
+        self.assertIn("Too many levels of symbolic links (fixture)", err)
+
+    def test_exit_list_ls_tree_record_of_unexpected_shape_exits_1_with_a_traceback(self) -> None:
+        # Guard, exit 1: git output of an unexpected shape, here an ls-tree record that
+        # base_unpinned_counts cannot split into three fields, is an exception main does not
+        # catch.
+        root = self._bootstrap_root()
+        script = (
+            "import importlib.util, sys\n"
+            f"sys.path.insert(0, {str(REPO_ROOT / 'tools')!r})\n"
+            "spec = importlib.util.spec_from_file_location("
+            f"'currency_ls_tree_shape', {str(REPO_ROOT / self.WRAPPER_REL)!r})\n"
+            "mod = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(mod)\n"
+            "real = mod._git\n"
+            "def git(*args, stdin=None):\n"
+            "    if args[:2] == ('ls-tree', '-r'):\n"
+            "        return b'100644 blob\\tai/doc.md\\0'\n"
+            "    return real(*args, stdin=stdin)\n"
+            "mod._git = git\n"
+            f"sys.exit(mod.main(['--root', {str(root)!r}]))\n"
+        )
+        environ = {k: v for k, v in fixture_git_environment().items()
+                   if not k.startswith("GITHUB_") and k != "GRC_RUNNER_ECHO_TOKEN"}
+        result = subprocess.run([sys.executable, "-c", script], cwd=str(REPO_ROOT),
+                                capture_output=True, text=True, env=environ, timeout=300)
+        self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+        self.assertIn("Traceback", result.stderr)
+        self.assertIn("ValueError: not enough values to unpack", result.stderr)
+
 
 class FilenameTitleTests(LinterTestCase):
     """tools/lint-filename-title-alignment.py"""
@@ -32296,7 +32562,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-skill-internal-refs.py ROOT F b2b1fc4846ca52b298fe12ee712477bfac97e173e3ac6368e72c5edd6c28b50e
         lint-skill-verdict-carrier-completeness.py OWN F 7056be9141352daf10807f17e9941fb422a84cbf43eae4fff9549efd3684f5a3
         lint-ssdf-control-ids.py CWD F fc3326619bde8b0c6389a3ac7a4b5b79e06ab9e3195e471b6d766f067e06a60f
-        lint-standards-currency.py OWN F 6e3ae3ca09d2a81e9603e99c5ecc7ea3076c66b0e8cb24f78467139e9f11683f
+        lint-standards-currency.py OWN F 6ff83894c0add96cb59d4c3cc3b22f8065e4d0e3c704e03d0c13a8ff5c68b652
         lint-startup-character-ceiling.py NO_FS F aeaaf73e5efe319cb6881277ca5b7abef8db708826fe1bf0a241559d7d58a060
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1

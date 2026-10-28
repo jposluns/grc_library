@@ -108,11 +108,14 @@ gate, and review of such a change is the control; and the base count (of the
 bootstrap and of a new register row's entry) uses the head register, so a
 register edit in the same change can change which citations count.
 
-An explicit --paths run scans a subset, so it skips the ratchet. Every text run
-prints a NOTE line of the UNPINNED and UNREGISTERED totals as the last line
-before the closing verdict line, which tools/run_all_audits.sh shows on a pass
-through the runner-echo marker; a --format json run prints no NOTE line and
-carries the totals in its report's inventories instead.
+An explicit --paths run scans a subset, so it skips the ratchet. A text run that
+completes the scan (one whose status is the scan's: 0, or 1 for a blocking finding
+or a "FAIL:" ratchet line) prints a NOTE line of the UNPINNED and UNREGISTERED
+totals as the last line before the closing verdict line, which
+tools/run_all_audits.sh shows on a pass through the runner-echo marker. A run that
+stops earlier prints none: --help, a usage error, a refused --root or --paths, and
+every other error status under Exit codes. A --format json run prints no NOTE line
+and carries the totals in its report's inventories instead.
 
 Exit codes. This is the one authoritative list of gate 6's exit statuses (P-3.213):
 the standards-currency rule, the audit programme specification, the pack README and
@@ -215,8 +218,9 @@ The script exits with sys.exit(main()). This list does not cover statuses the wr
 does not choose: a SystemExit that argparse or lint_common.require_dir raises for a
 condition not listed above (their codes are theirs); a broken or closed stdout (a write
 that fails inside main reaches the OSError handler above, and a failed flush at
-interpreter exit makes Python exit 120); a signal (SIGINT, SIGTERM, SIGPIPE and others
-end the run with the signal's status or through Python's KeyboardInterrupt); and
+interpreter exit makes Python exit 120); a signal (SIGINT, SIGTERM and others end the
+run with the signal's status or through Python's KeyboardInterrupt; Python ignores
+SIGPIPE, so a broken pipe is the stdout case above); and
 interpreter-level failures (an interpreter that cannot start, an import this module makes
 before main runs, memory exhaustion).
 """
