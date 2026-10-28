@@ -19156,8 +19156,8 @@ class AuditGateParityTests(LinterTestCase):
     synthetic-``--root`` negatives for each drift class the gate detects:
     a mismatched gate NAME; an invocation (argv) drift between the execution
     surfaces (a missing flag, a wrong flag value, a pre-commit-only
-    divergence now that argv-parity is 3-way, and a shlex-quoted-whitespace
-    difference a naive split would miss); section-5 grouped-list drift (a
+    divergence now that argv-parity is 3-way, and a quoted-whitespace value,
+    which the gate-line allowlist refuses); section-5 grouped-list drift (a
     missing, duplicated, unknown, or malformed number, or a comment or fence
     left open, with comment, fence,
     and prose numbers ignored; these copy the real surfaces, so they assert
@@ -19237,6 +19237,886 @@ class AuditGateParityTests(LinterTestCase):
             e(f"python3 {S} --x && y", S), e(f"python3 {S} --x && y", S)
         )
 
+    def test_script_re_accepts_an_optional_isolated_flag_only(self) -> None:
+        # The runners may switch a gate to `python3 -I tools/X.py` (isolated mode);
+        # -I is the only interpreter option the parser accepts before the script,
+        # and the flags after the script compare the same with or without it.
+        import importlib.util
+        tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
+        spec = importlib.util.spec_from_file_location("_agp_isolated", str(tool))
+        agp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agp)
+        S = "tools/x.py"
+        for command in (f"python3 {S} --check", f"python3 -I {S} --check",
+                        f"python3  -I\t{S} --check", f"run: python3 -I {S}"):
+            with self.subTest(command=command):
+                m = agp.SCRIPT_RE.search(command)
+                self.assertIsNotNone(m)
+                self.assertEqual(m.group(1), S)
+        self.assertEqual(agp._extract_argv(f"python3 -I {S} --check", S),
+                         agp._extract_argv(f"python3 {S} --check", S))
+        for command in (f"python3 -B {S}", f"python3 -IB {S}", f"python3 -I -B {S}",
+                        f"python3 -B -I {S}", f"python3 -Itools/x.py", f"python3 -i {S}",
+                        f"python3 -E {S}", f"python3 -X dev {S}", f"python3 -I -I {S}"):
+            with self.subTest(command=command):
+                self.assertIsNone(agp.SCRIPT_RE.search(command))
+
+    _ISOLATED_SURFACES = (
+        "governance/specification-audit-programme.md",
+        ".github/workflows/quality.yml",
+        "tools/run_all_audits.sh",
+        ".pre-commit-config.yaml",
+        "tools/run-pr-time-checks.sh",
+    )
+
+    def _run_isolated_fixture(self, flag: str, *surfaces: str) -> subprocess.CompletedProcess:
+        """Copy the real surfaces and put ``flag`` after ``python3`` on every gate
+        invocation of the named runtime surfaces (runner, workflow, pre-commit);
+        with no surface named, the copy is unchanged."""
+        prefixes = {"tools/run_all_audits.sh": "run_gate ",
+                    ".github/workflows/quality.yml": "run: python3 tools/",
+                    ".pre-commit-config.yaml": "entry: python3 tools/"}
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-isolated-", dir=FIXTURE_DIR))
+        try:
+            for name in self._ISOLATED_SURFACES:
+                lines = (REPO_ROOT / name).read_text(encoding="utf-8").splitlines(keepends=True)
+                if name in surfaces:
+                    changed = 0
+                    for i, line in enumerate(lines):
+                        if line.lstrip().startswith(prefixes[name]) and " python3 tools/" in line:
+                            lines[i] = line.replace(" python3 tools/", f" python3 {flag} tools/", 1)
+                            changed += 1
+                    self.assertGreater(changed, 100, f"fixture anchor in {name}")
+                target = synthetic_root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("".join(lines), encoding="utf-8")
+            return subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tools/lint-audit-gate-parity.py"),
+                 "--root", str(synthetic_root)],
+                cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300)
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_isolated_invocations_keep_parity(self) -> None:
+        # Every gate on every runtime surface switched to `python3 -I`, and the
+        # runner alone switched: each still parses, and the gate reports exactly
+        # what it reports for the unswitched copy (the -I flag is not compared).
+        unswitched = self._run_isolated_fixture("-I")
+        self.assertNotEqual(unswitched.returncode, 2, unswitched.stderr)
+        surfaces = ("tools/run_all_audits.sh", ".github/workflows/quality.yml",
+                    ".pre-commit-config.yaml")
+        for switched in (surfaces, surfaces[:1]):
+            with self.subTest(switched=switched):
+                result = self._run_isolated_fixture("-I", *switched)
+                self.assertEqual((result.returncode, result.stdout, result.stderr),
+                                 (unswitched.returncode, unswitched.stdout, unswitched.stderr))
+
+    def test_other_interpreter_flags_are_parse_errors(self) -> None:
+        # Only -I is accepted: any other interpreter option before the script leaves
+        # the invocation unparsed, which the gate refuses with exit 2.
+        for flag, surface in (("-B", "tools/run_all_audits.sh"),
+                              ("-I -B", ".github/workflows/quality.yml"),
+                              ("-IB", ".pre-commit-config.yaml")):
+            with self.subTest(flag=flag, surface=surface):
+                result = self._run_isolated_fixture(flag, surface)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("python3 [-I] tools/X.py ...", result.stderr)
+
+    def test_every_interpreter_invocation_on_a_line_is_checked(self) -> None:
+        # Round 1: SCRIPT_RE.search read `python3 -B tools/x.py && python3 tools/x.py` at its
+        # second call. A gate line is now one GATE_COMMAND and nothing else, so a second
+        # call is refused on every surface, whatever its options.
+        for surface in ("tools/run_all_audits.sh", ".github/workflows/quality.yml",
+                        ".pre-commit-config.yaml"):
+            with self.subTest(surface=surface):
+                result = self._run_isolated_fixture("-B tools/x.py && python3", surface)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("is not an accepted gate line", result.stderr)
+
+    def _gate_parity_module(self, name: str):
+        import importlib.util
+        tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
+        spec = importlib.util.spec_from_file_location(name, str(tool))
+        agp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agp)
+        return agp
+
+    def _blindspots_module(self):
+        import importlib.util
+        from unittest.mock import patch
+        tool = Path(__file__).resolve().parent.parent / "tools" / "audit-gate-blindspots.py"
+        spec = importlib.util.spec_from_file_location("_agp_blindspots", str(tool))
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        self.addCleanup(sys.modules.pop, spec.name, None)
+        with patch.object(sys, "path", list(sys.path)):
+            spec.loader.exec_module(module)
+        return module
+
+    # (command, accepted) on every surface: the allowlisted shapes, and shapes from the round
+    # 1 to 3 reviews and the option-A plan. Shared with the blind-spot map's test.
+    GATE_LINE_SHAPES = (
+        ("python3 tools/x.py", True),
+        ("python3 -I tools/x.py", True),
+        ("python3 tools/x.py --check", True),
+        ("python3 -I tools/x.py --check --release-delta", True),
+        ("python3 tools/x_y-2.py --root=a/b.c,d+e -v", True),
+        ("python3 tools/x.py -B", True),
+        ("python3 -B tools/x.py && python3 tools/x.py", False),
+        ('python3 "-B" tools/x.py', False),
+        ('"python3" -B tools/x.py', False),
+        ("/usr/bin/python3 tools/x.py", False),
+        ("python3   -I  tools/x.py", False),
+        ("python3 tools/x.py && /usr/bin/pyt?on3 -B tools/x.py", False),
+        ("python3 tools/x.py --message 'run python3 -B now'", False),
+        ("python3 tools/x.py --sep 'a b'", False),
+        ("python3 tools/x.py # note", False),
+        ("python3 tools/x.py\r", False),
+        ("python3 tools/sub/x.py", False),
+        ("python3 tools/X.py", False),
+        ("python3 tools/../../x.py", False),
+    )
+
+    def test_gate_commands_match_a_closed_allowlist(self) -> None:
+        agp = self._gate_parity_module("_agp_allowlist")
+        for command, accepted in self.GATE_LINE_SHAPES:
+            with self.subTest(command=command):
+                self.assertEqual(agp._gate_command(command) is not None, accepted)
+
+    # Since round 6 each YAML surface must have its file's fixed skeleton; a fixture's steps
+    # or hooks follow these heads at the real files' columns.
+    _WORKFLOW_HEAD = ("name: Quality\non:\n  push:\n    branches:\n      - main\n"
+                      "  pull_request:\npermissions:\n  contents: read\njobs:\n  lint:\n"
+                      "    name: Lint\n    runs-on: ubuntu-latest\n    steps:\n")
+    _PRECOMMIT_HEAD = "repos:\n  - repo: local\n    hooks:\n"
+
+    def _gate_fixtures(self, root: Path, command: str) -> dict[str, Path]:
+        """``command`` as the one gate line of a runner, a workflow step and a pre-commit
+        hook under ``root``."""
+        (root / "tools").mkdir(exist_ok=True)
+        paths = {"runner": root / "tools" / "run_all_audits.sh",
+                 "workflow": root / "quality.yml", "precommit": root / "pre-commit.yaml"}
+        paths["runner"].write_text(f'run_gate() {{\n}}\nrun_gate "Shape" {command}\n',
+                                   encoding="utf-8")
+        paths["workflow"].write_text(self._WORKFLOW_HEAD + f"      - name: Shape\n"
+                                     f"        run: {command}\n", encoding="utf-8")
+        paths["precommit"].write_text(
+            self._PRECOMMIT_HEAD + f"      - id: shape\n        name: Shape\n"
+            f"        entry: {command}\n        language: system\n"
+            f"        pass_filenames: false\n        always_run: true\n", encoding="utf-8")
+        return paths
+
+    def _assert_refused_on_every_reader(self, *commands: str) -> None:
+        """Each command, as the gate line of each surface, is a ParseError in gate 35's
+        parser for that surface and a refused runner entry in the blind-spot map. Since
+        round 6 a YAML value that begins with a quote is refused before the gate line is
+        read."""
+        agp = self._gate_parity_module("_agp_refused")
+        spots = self._blindspots_module()
+        for command in commands:
+            root = Path(tempfile.mkdtemp(prefix="synthetic-parity-refused-", dir=FIXTURE_DIR))
+            try:
+                paths = self._gate_fixtures(root, command)
+                for parse, path, message in (
+                        (agp.parse_runner, paths["runner"], "is not an accepted gate line"),
+                        (agp.parse_workflow, paths["workflow"],
+                         "is not an accepted gate line|value that begins with a quote"),
+                        (agp.parse_precommit, paths["precommit"],
+                         "is not an accepted gate line|value that begins with a quote")):
+                    with self.subTest(command=command, parser=parse.__name__):
+                        with self.assertRaisesRegex(agp.ParseError, message):
+                            parse(path)
+                with self.subTest(command=command, parser="blind-spot load_gates"):
+                    with self.assertRaisesRegex(RuntimeError, "is not an accepted gate line"):
+                        spots.load_gates(root)
+            finally:
+                shutil.rmtree(root, ignore_errors=True)
+
+    def test_allowlisted_gate_lines_parse_on_every_reader(self) -> None:
+        agp = self._gate_parity_module("_agp_accepted")
+        spots = self._blindspots_module()
+        for command, accepted in self.GATE_LINE_SHAPES:
+            if not accepted:
+                continue
+            root = Path(tempfile.mkdtemp(prefix="synthetic-parity-accepted-", dir=FIXTURE_DIR))
+            try:
+                paths = self._gate_fixtures(root, command + " \t")
+                m = agp._gate_command(command)
+                expected = [("Shape", m.group("script"), tuple(m.group("args").split()))]
+                for parse, path in ((agp.parse_runner, paths["runner"]),
+                                    (agp.parse_workflow, paths["workflow"]),
+                                    (agp.parse_precommit, paths["precommit"])):
+                    with self.subTest(command=command, parser=parse.__name__):
+                        self.assertEqual([e[1:] for e in parse(path)], expected)
+                with self.subTest(command=command, parser="blind-spot load_gates"):
+                    self.assertEqual([(g.name, g.script) for g in spots.load_gates(root)],
+                                     [("Shape", m.group("script"))])
+            finally:
+                shutil.rmtree(root, ignore_errors=True)
+
+    # One test per bypass from the round 1 to 3 reviews and the option-A plan. Each passed,
+    # or was refused only by a different rule, at 9a8792dc8.
+
+    def test_r1_second_call_after_the_gate_is_refused(self) -> None:
+        self._assert_refused_on_every_reader("python3 -B tools/x.py && python3 tools/x.py",
+                                             "python3 -I tools/x.py && python3 tools/x.py")
+
+    def test_r2_quoted_option_is_refused(self) -> None:
+        self._assert_refused_on_every_reader('python3 "-B" tools/x.py && python3 tools/x.py',
+                                             "python3 '-B' tools/x.py")
+
+    def test_r2_quoted_or_pathed_interpreter_is_refused(self) -> None:
+        self._assert_refused_on_every_reader('"python3" -B tools/x.py', "'python3' -B tools/x.py",
+                                             '"/usr/bin/python3" -X dev tools/x.py')
+
+    def test_r2_interpreter_behind_a_shell_is_refused(self) -> None:
+        self._assert_refused_on_every_reader("python3 tools/x.py && bash -c 'python3 -B tools/x.py'",
+                                             "sh -c 'python3 tools/x.py'")
+
+    def test_r2_interpreter_behind_eval_is_refused(self) -> None:
+        self._assert_refused_on_every_reader("python3 tools/x.py; eval 'python3 -B tools/x.py'")
+
+    def test_r2_interpreter_behind_env_is_refused(self) -> None:
+        self._assert_refused_on_every_reader("python3 tools/x.py && env python3 -B tools/x.py")
+
+    def test_r2_substitution_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py && $(command -v python3) -B tools/x.py",
+            "python3 tools/x.py && `command -v python3` -B tools/x.py",
+            'python3 tools/x.py "$(python3 -B tools/y.py)"', '"$PYTHON" -B tools/x.py')
+
+    def test_r2_operator_joined_call_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "(python3 -B tools/x.py)", "python3 tools/x.py 2>&1 | python3 -E tools/x.py",
+            "python3 tools/x.py||python3 -B tools/x.py",
+            "python3 -I tools/x.py; /usr/bin/python3.11 -X dev tools/x.py")
+
+    def test_r3_glob_expanded_interpreter_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py && /usr/bin/pyt?on3 -B tools/x.py",
+            "python3 tools/x.py && pytho[n]3 -B tools/x.py",
+            "python3 tools/x.py && /usr/bin/pyth*3 -B tools/x.py")
+
+    def test_r3_brace_expanded_interpreter_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py && {/usr/bin/python3,-B,tools/x.py}")
+
+    def test_r3_redirection_prefix_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py; 2>/dev/null python3 -B tools/x.py")
+
+    def test_r3_unlisted_wrapper_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py && stdbuf -oL python3 -B tools/x.py",
+            "python3 tools/x.py && setsid python3 -B tools/x.py",
+            "python3 tools/x.py && uv run python3 -B tools/x.py",
+            "python3 tools/x.py && fish -c 'python3 -B tools/x.py'",
+            "python3 tools/x.py && busybox sh -c 'python3 -B tools/x.py'",
+            "python3 tools/x.py && find . -name x.py -exec python3 -B tools/x.py ;")
+
+    def test_r3_unlisted_keyword_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py; coproc python3 -B tools/x.py",
+            "python3 tools/x.py; function f { python3 -B tools/x.py; }")
+
+    def test_r3_other_interpreter_name_is_refused(self) -> None:
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py && python3.14t -B tools/x.py",
+            "python3 tools/x.py && python2 -B tools/x.py",
+            "python3 tools/x.py && pypy3 -B tools/x.py",
+            "python3 tools/x.py && python3-dbg -B tools/x.py",
+            "python3 tools/x.py && ./tools/x.py")
+
+    def test_r3_environment_assignment_is_refused(self) -> None:
+        self._assert_refused_on_every_reader("PYTHONDONTWRITEBYTECODE=1 python3 tools/x.py",
+                                             "PYTHONPATH=tools python3 tools/x.py")
+
+    def test_r3_trailing_comment_is_refused(self) -> None:
+        self._assert_refused_on_every_reader("python3 tools/x.py # note")
+
+    def test_r3_quoted_argument_text_is_refused(self) -> None:
+        # Round 3 accepted quoted text on purpose; under the allowlist an argument is a plain
+        # word, so quoting (and the operator characters it can carry) never reaches a gate line.
+        self._assert_refused_on_every_reader(
+            "python3 tools/x.py --message 'run python3 -B now'",
+            "python3 tools/x.py --label ';' python3 -B tools/x.py")
+
+    def test_r3_runner_label_substitution_is_refused(self) -> None:
+        agp = self._gate_parity_module("_agp_label")
+        spots = self._blindspots_module()
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-label-", dir=FIXTURE_DIR))
+        try:
+            (root / "tools").mkdir()
+            runner = root / "tools" / "run_all_audits.sh"
+            for label in ("$(python3 -B tools/y.py)", "`python3 -B tools/y.py`", "a\\b", "Gate!"):
+                with self.subTest(label=label):
+                    runner.write_text(f'run_gate "{label}" python3 tools/x.py\n', encoding="utf-8")
+                    with self.assertRaisesRegex(agp.ParseError, "is not an accepted gate line"):
+                        agp.parse_runner(runner)
+                    with self.assertRaisesRegex(RuntimeError, "is not an accepted gate line"):
+                        spots.load_gates(root)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r3_indented_or_prefixed_run_gate_is_refused(self) -> None:
+        # Gate 35 anchored run_gate at column 0 and skipped an indented line, which bash
+        # still runs; the blind-spot map stripped it first. Both now refuse it.
+        agp = self._gate_parity_module("_agp_indented")
+        spots = self._blindspots_module()
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-indented-", dir=FIXTURE_DIR))
+        try:
+            (root / "tools").mkdir()
+            runner = root / "tools" / "run_all_audits.sh"
+            for line in ('    run_gate "Hidden" python3 -B tools/x.py',
+                         'if true; then run_gate "Hidden" python3 -B tools/x.py; fi',
+                         'FOO=1 run_gate "Hidden" python3 tools/x.py'):
+                with self.subTest(line=line):
+                    runner.write_text(f'run_gate "Plain" python3 tools/x.py\n{line}\n',
+                                      encoding="utf-8")
+                    with self.assertRaisesRegex(agp.ParseError, "is not an accepted gate line"):
+                        agp.parse_runner(runner)
+                    with self.assertRaisesRegex(RuntimeError, "is not an accepted gate line"):
+                        spots.load_gates(root)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r3_yaml_continuation_is_refused(self) -> None:
+        # Round 3 read one physical line; a plain scalar continued on a deeper line was
+        # run whole by YAML but read only up to its first line. Since round 6 a continuation
+        # line is refused as a line shape, or, shaped as a key, as a deeper line no key opens.
+        agp = self._gate_parity_module("_agp_continued")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-continued-", dir=FIXTURE_DIR))
+        try:
+            workflow, precommit = root / "quality.yml", root / "pre-commit.yaml"
+            for continued, message in (("&& python3 -B tools/x.py", "nor a plain list item"),
+                                       ("-B", "nor a plain list item"),
+                                       ("x: python3 -B tools/x.py",
+                                        "no key above it opens a nested value")):
+                workflow.write_text(self._WORKFLOW_HEAD + "      - name: Continued\n"
+                                    "        run: python3 tools/x.py\n"
+                                    f"          {continued}\n", encoding="utf-8")
+                precommit.write_text(self._PRECOMMIT_HEAD + "      - id: continued\n"
+                                     "        name: Continued\n"
+                                     f"        entry: python3 tools/x.py\n          {continued}\n"
+                                     "        language: system\n", encoding="utf-8")
+                for parse, path in ((agp.parse_workflow, workflow),
+                                    (agp.parse_precommit, precommit)):
+                    with self.subTest(continued=continued, parser=parse.__name__):
+                        with self.assertRaisesRegex(agp.ParseError, message):
+                            parse(path)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r3_workflow_gate_step_with_other_keys_is_refused(self) -> None:
+        # Since round 6 a key no step has, or a key repeated, is refused by the skeleton
+        # before the gate-step check.
+        agp = self._gate_parity_module("_agp_step_keys")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-step-keys-", dir=FIXTURE_DIR))
+        try:
+            workflow = root / "quality.yml"
+            for extra, message in (
+                    ("        shell: bash -c 'python3 -B tools/x.py' {0}\n", "the key 'shell'"),
+                    ("        env:\n          PYTHONDONTWRITEBYTECODE: 1\n",
+                     "the key 'PYTHONDONTWRITEBYTECODE'"),
+                    ("        env:\n          BASE_SHA: x\n", r"not exactly \['name', 'run'\]"),
+                    ("        if: false\n", r"not exactly \['name', 'run'\]"),
+                    ("        run: python3 -B tools/x.py\n", "repeats the key 'run'")):
+                with self.subTest(extra=extra):
+                    workflow.write_text(self._WORKFLOW_HEAD + "      - name: Keys\n"
+                                        "        run: python3 tools/x.py\n" + extra,
+                                        encoding="utf-8")
+                    with self.assertRaisesRegex(agp.ParseError, message):
+                        agp.parse_workflow(workflow)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r3_precommit_gate_hook_with_args_or_another_language_is_refused(self) -> None:
+        agp = self._gate_parity_module("_agp_hook_keys")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-hook-keys-", dir=FIXTURE_DIR))
+        try:
+            precommit = root / "pre-commit.yaml"
+            head = (self._PRECOMMIT_HEAD + "      - id: keys\n        name: Keys\n"
+                    "        entry: python3 tools/x.py\n")
+            # Since round 6 args is refused by the skeleton, and a value beginning with '-'
+            # or '[' by the value rule, before the gate-hook check.
+            for tail, message in (("        language: system\n        args: B\n", "the key 'args'"),
+                                  ("        language: system\n        args: -B\n",
+                                   "args value that begins with '-'"),
+                                  ("        language: system\n        args: [-B]\n",
+                                   "args value that begins with '\\['"),
+                                  ("        language: script\n", "language: system"),
+                                  ("        pass_filenames: false\n", "language: system")):
+                with self.subTest(tail=tail):
+                    precommit.write_text(head + tail, encoding="utf-8")
+                    with self.assertRaisesRegex(agp.ParseError, message):
+                        agp.parse_precommit(precommit)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r3_unnamed_step_or_hook_is_refused(self) -> None:
+        # A step or hook the parsers do not read as an item would run unchecked beside
+        # the read gate lines.
+        agp = self._gate_parity_module("_agp_unnamed")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-unnamed-", dir=FIXTURE_DIR))
+        try:
+            workflow, precommit = root / "quality.yml", root / "pre-commit.yaml"
+            workflow.write_text(self._WORKFLOW_HEAD + "      - name: Plain\n"
+                                "        run: python3 tools/x.py\n"
+                                "      - run: python3 -B tools/x.py\n", encoding="utf-8")
+            precommit.write_text(self._PRECOMMIT_HEAD + "      - id: plain\n        name: Plain\n"
+                                 "        entry: python3 tools/x.py\n        language: system\n"
+                                 "        pass_filenames: false\n        always_run: true\n"
+                                 "      - id: unnamed\n        entry: python3 -B tools/x.py\n"
+                                 "        language: system\n", encoding="utf-8")
+            with self.assertRaisesRegex(agp.ParseError, "step whose first key is 'run'"):
+                agp.parse_workflow(workflow)
+            with self.assertRaisesRegex(agp.ParseError, "exactly one name and one entry"):
+                agp.parse_precommit(precommit)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r4_carriage_return_is_refused(self) -> None:
+        # Found while writing this round: both readers split the runner at CR as well as LF,
+        # so `x.py\r&& python3 -B ...` read as a clean gate line and a line without run_gate,
+        # while bash runs it as one line, the second call included. A CR in a YAML comment
+        # hid the key YAML reads after it.
+        agp = self._gate_parity_module("_agp_cr")
+        spots = self._blindspots_module()
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-cr-", dir=FIXTURE_DIR))
+        try:
+            (root / "tools").mkdir()
+            runner = root / "tools" / "run_all_audits.sh"
+            runner.write_bytes(b'run_gate "Plain" python3 tools/x.py\r&& python3 -B tools/y.py\n')
+            with self.assertRaisesRegex(agp.ParseError, "is not an accepted gate line"):
+                agp.parse_runner(runner)
+            with self.assertRaisesRegex(RuntimeError, "is not an accepted gate line"):
+                spots.load_gates(root)
+            workflow = root / "quality.yml"
+            workflow.write_bytes(b"    steps:\n      - name: Plain\n        run: python3 tools/x.py\n"
+                                 b"        # note\r        shell: bash -c 'python3 -B {0}'\n")
+            with self.assertRaisesRegex(agp.ParseError, "line break other than LF"):
+                agp.parse_workflow(workflow)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    # Round 5 (the maintainer's 23:20Z decision): the YAML surfaces accept only the block-
+    # mapping line shapes the current steps and hooks use. Each test below passed at
+    # 0b4738bc4: the fixture's extra step or hook was skipped, or the hook was accepted.
+    _R5_WORKFLOW = _WORKFLOW_HEAD + "      - name: A\n        run: python3 tools/a.py\n"
+    _R5_PRECOMMIT = (_PRECOMMIT_HEAD + "      - id: a\n        name: A\n"
+                     "        entry: python3 tools/a.py\n        language: system\n"
+                     "        pass_filenames: false\n        always_run: true\n")
+
+    def _assert_yaml_refused(self, parser: str, base: str, cases, message: str) -> None:
+        """``base`` parses to its one gate; ``base`` plus each case is a ParseError
+        matching ``message``."""
+        agp = self._gate_parity_module(f"_agp_r5_{parser}")
+        parse = getattr(agp, parser)
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
+        try:
+            path = root / "surface.yaml"
+            path.write_text(base, encoding="utf-8")
+            self.assertEqual([e[1:] for e in parse(path)], [("A", "tools/a.py", ())])
+            for case in cases:
+                with self.subTest(case=case):
+                    path.write_text(base + case, encoding="utf-8")
+                    with self.assertRaisesRegex(agp.ParseError, message):
+                        parse(path)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r5_quoted_key_is_refused(self) -> None:
+        not_plain = "is not an unquoted key directly followed by a colon"
+        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+            '      - "name": B\n        "run": python3 -B tools/b.py\n',
+            "      - 'name': B\n        'run': python3 -B tools/b.py\n",
+            '      - name: B\n        "run": python3 -B tools/b.py\n'), not_plain)
+        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+            '      - "id": b\n        "name": B\n        "entry": python3 -B tools/b.py\n'
+            '        "language": system\n',), not_plain)
+
+    def test_r5_space_before_colon_is_refused(self) -> None:
+        not_plain = "is not an unquoted key directly followed by a colon"
+        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+            "      - run : python3 -B tools/b.py\n",
+            "      - name: B\n        run : python3 -B tools/b.py\n"), not_plain)
+        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+            "      - id : b\n        name: B\n        entry : python3 -B tools/b.py\n"
+            "        language: system\n",), not_plain)
+
+    def test_r5_flow_mapping_is_refused(self) -> None:
+        not_plain = "is not an unquoted key directly followed by a colon"
+        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+            "      - {id: b, name: B, entry: python3 -B tools/b.py, language: system}\n",),
+            not_plain)
+        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+            "      - {name: B, run: python3 -B tools/b.py}\n",), not_plain)
+        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+            "      - name: Checkout\n        with: {run: python3 -B tools/b.py}\n",),
+            "with value that begins with '{'")
+
+    def test_r5_precommit_pass_filenames_must_be_false(self) -> None:
+        # pre-commit appends the staged file names to the entry unless pass_filenames is
+        # false, so the gate would run with arguments the other surfaces do not pass.
+        base = self._R5_PRECOMMIT
+        without = base.replace("        pass_filenames: false\n", "")
+        self._assert_yaml_refused("parse_precommit", base, (
+            "      - id: b\n        name: B\n        entry: python3 tools/b.py\n"
+            "        language: system\n        pass_filenames: true\n        always_run: true\n",
+            "      - id: b\n        name: B\n        entry: python3 tools/b.py\n"
+            "        language: system\n        always_run: true\n"),
+            "does not have pass_filenames: false")
+        agp = self._gate_parity_module("_agp_r5_pass_filenames")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
+        try:
+            path = root / "surface.yaml"
+            for text in (without, without + "        pass_filenames: true\n"):
+                with self.subTest(text=text):
+                    path.write_text(text, encoding="utf-8")
+                    with self.assertRaisesRegex(agp.ParseError,
+                                                "does not have pass_filenames: false"):
+                        agp.parse_precommit(path)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_r5_step_or_hook_with_another_first_key_is_refused(self) -> None:
+        # An item at the steps' or hooks' dash column that opens with another key is not
+        # read as a step or hook, so it would run unchecked.
+        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+            "      - uses: ./.github/actions/x\n        name: B\n",),
+            "step whose first key is 'uses'")
+        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+            "      - name: B\n        id: b\n",), "hook whose first key is 'name'")
+
+    def test_r5_current_yaml_line_shapes_are_accepted(self) -> None:
+        # The shapes the real surfaces use outside gate steps and hooks stay accepted: a
+        # trailing comment on a uses: value, a with: mapping, comment lines between steps,
+        # an excluded step's `run: |` block (whose `#` and quoted lines are its text), and a
+        # gate hook's pinned types_or: list.
+        agp = self._gate_parity_module("_agp_r5_accepted")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
+        try:
+            workflow, precommit = root / "quality.yml", root / "pre-commit.yaml"
+            workflow.write_text(
+                self._WORKFLOW_HEAD + "      - name: Checkout\n"
+                "        uses: actions/checkout@abc # v1\n        with:\n"
+                "          python-version: \"3.11\"\n\n      # A comment between steps.\n"
+                "      - name: A\n        run: python3 tools/a.py\n"
+                "      - name: Detect collection candidates on pack PRs (informational)\n"
+                "        if: github.event_name == 'pull_request'\n        run: |\n"
+                "          echo \"a\n\n          # text, not a comment\n"
+                "            echo 'b\n", encoding="utf-8")
+            precommit.write_text(self._R5_PRECOMMIT.replace(
+                "        always_run: true\n", "        types_or: [markdown, python, shell]\n"),
+                encoding="utf-8")
+            for parse, path in ((agp.parse_workflow, workflow), (agp.parse_precommit, precommit)):
+                with self.subTest(parser=parse.__name__):
+                    self.assertEqual([e[1:] for e in parse(path)], [("A", "tools/a.py", ())])
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    # Round 6 (the maintainer's 22:12Z and 23:20Z decisions carried to structure): each YAML
+    # surface is accepted only in its fixed skeleton. One test per finding of the round-5
+    # review; each edits a copy of the real surfaces, and each case below exited 0 (or, where
+    # marked, 1) at f0dbdfe07.
+    def _run_yaml_edits(self, *edits: tuple[str, str, str]) -> subprocess.CompletedProcess:
+        """Gate 35 over a copy of the real surfaces, with each (surface, old, new) edit
+        replacing the one occurrence of ``old`` in that surface by ``new``."""
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r6-", dir=FIXTURE_DIR))
+        try:
+            for name in self._ISOLATED_SURFACES:
+                text = (REPO_ROOT / name).read_text(encoding="utf-8")
+                for surface, old, new in edits:
+                    if surface == name:
+                        self.assertEqual(text.count(old), 1, f"fixture anchor {old!r}")
+                        text = text.replace(old, new)
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(text, encoding="utf-8")
+            return subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tools/lint-audit-gate-parity.py"),
+                 "--root", str(root)],
+                cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def _assert_yaml_edits_refused(self, cases) -> None:
+        """Each (label, message, edits) case exits 2 with ``message`` in its error."""
+        for label, message, edits in cases:
+            with self.subTest(case=label):
+                result = self._run_yaml_edits(*edits)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn(message, result.stderr)
+
+    _WF = ".github/workflows/quality.yml"
+    _PC = ".pre-commit-config.yaml"
+    _WF_METADATA = "      - name: Metadata audit\n        run: python3 tools/lint-metadata.py\n"
+    # The workflow's last lines: the end of the excluded detector step's `run: |` block.
+    _WF_TAIL = ('            echo "(Run on demand: python3 tools/detect-collection-candidates.py)"\n'
+                "          fi\n")
+    _PC_LINKS = ("      - id: lint-links\n        name: Repository-internal link audit\n"
+                 "        entry: python3 tools/lint-links.py\n        language: system\n"
+                 "        pass_filenames: false\n        types: [markdown]\n")
+    _PC_LANGUAGE_FILES = ("        files: (\\.md$|^tools/build-(narrative-registry|portal|taxonomy)"
+                          "\\.py$|^tools/lint-language\\.py$|^\\.corpus-management/tools/"
+                          "gate_lint_language\\.py$)\n")
+
+    def test_r6_error1_quote_closed_on_a_comment_line_is_refused(self) -> None:
+        # Round-5 ERROR 1 (W38, W39, P28b): a quoted value left open was closed on a later
+        # comment line, which gate 35 skipped, so YAML read the gate steps or hooks between
+        # as part of the value. No value may begin with a quote now, apart from the one
+        # pinned python-version: "3.11" (test_r6b_python_version_is_one_pinned_quoted_value).
+        cases = []
+        for quote in ('"', "'"):
+            cases.append((f"workflow {quote}", "value that begins with a quote", (
+                (self._WF, "        run: python3 -m pip install -r requirements.txt\n",
+                 f"        run: {quote}echo ok\n"),
+                (self._WF, self._WF_METADATA, self._WF_METADATA + f"        # {quote}\n"))))
+        cases.append(("pre-commit '", "value that begins with a quote", (
+            (self._PC, self._PC_LANGUAGE_FILES, "        files: '\\.md$\n"),
+            (self._PC, self._PC_LINKS, self._PC_LINKS + "        # '\n"))))
+        cases.append(("closed quote", "value that begins with a quote", (
+            (self._WF, "          fetch-depth: 0\n", '          fetch-depth: "0"\n'),)))
+        self._assert_yaml_edits_refused(cases)
+
+    # Round 6b: e21ce16a0 refused every quoted value, so the workflow's python-version was
+    # unquoted, and YAML reads an unquoted `3.10` as the float 3.1. The line is quoted again
+    # and allowed as one exact pinned value, keyed by key name.
+    _WF_PYTHON = '          python-version: "3.11"\n'
+
+    def test_r6b_python_version_is_one_pinned_quoted_value(self) -> None:
+        # Fails at e21ce16a0, where the quoted line is refused as a value that begins with a
+        # quote.
+        agp = self._gate_parity_module("_agp_r6b_pinned")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r6b-", dir=FIXTURE_DIR))
+        try:
+            workflow = root / "quality.yml"
+            workflow.write_text(self._WORKFLOW_HEAD + "      - name: Set up Python\n"
+                                "        uses: actions/setup-python@abc # v1\n        with:\n"
+                                + self._WF_PYTHON + "\n      # A comment after the value.\n"
+                                "      - name: A\n        run: python3 tools/a.py\n",
+                                encoding="utf-8")
+            self.assertEqual([e[1:] for e in agp.parse_workflow(workflow)],
+                             [("A", "tools/a.py", ())])
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+        self.assertEqual((REPO_ROOT / self._WF).read_text(encoding="utf-8").count(
+            self._WF_PYTHON), 1)
+        result = self._run_yaml_edits()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(agp.WORKFLOW_PINNED_QUOTED_VALUES, {"python-version": '"3.11"'})
+
+    def test_r6b_other_quoted_python_versions_are_refused(self) -> None:
+        # Only the exact text "3.11", opened and closed on its line with nothing after it, is
+        # allowed; another version, single quotes, a trailing comment and an unclosed quote
+        # (which would leave a later comment line inside the value) are refused, and so is
+        # the same text under another key.
+        quote = "value that begins with a quote"
+        self._assert_yaml_edits_refused(tuple(
+            (label, quote, ((surface, old, new),))
+            for label, surface, old, new in (
+                ('"3.12"', self._WF, self._WF_PYTHON, '          python-version: "3.12"\n'),
+                ("'3.11'", self._WF, self._WF_PYTHON, "          python-version: '3.11'\n"),
+                ('"3.11" # x', self._WF, self._WF_PYTHON,
+                 '          python-version: "3.11" # x\n'),
+                ('"3.11 left open', self._WF, self._WF_PYTHON,
+                 '          python-version: "3.11\n'),
+                ('fetch-depth "3.11"', self._WF, "          fetch-depth: 0\n",
+                 '          fetch-depth: "3.11"\n'),
+                ('pre-commit "3.11"', self._PC, self._PC_LANGUAGE_FILES,
+                 '        files: "3.11"\n'))))
+
+    def test_r6_error2_step_or_hook_outside_its_list_is_refused(self) -> None:
+        # Round-5 ERROR 2 (P29, P31b, P30b, W41b): a `- name:` or `- id:` line was read as a
+        # step or hook at any column under any key, though YAML reads it as another key's
+        # value. A step is now only an item of jobs.lint.steps and a hook only an item of
+        # repos[].hooks, each at that list's column.
+        metadata_hook = ("      - id: lint-metadata\n        name: Metadata audit\n"
+                         "        entry: python3 tools/lint-metadata.py\n        language: system\n"
+                         "        pass_filenames: false\n        types: [markdown]\n")
+        parity_hook = ("      - id: lint-audit-gate-parity\n        name: Gate-name parity audit\n"
+                       "        entry: python3 tools/lint-audit-gate-parity.py\n"
+                       "        language: system\n        pass_filenames: false\n"
+                       "        always_run: true\n")
+        last_step = ("      - name: Isolated-launch import audit\n"
+                     "        run: python3 tools/lint-isolated-launch.py\n")
+        nested = lambda text, by: "".join(" " * by + line + "\n" for line in text.splitlines())
+        self._assert_yaml_edits_refused((
+            ("P29 repo key", "has the key 'x'", (
+                (self._PC, "    hooks:\n" + metadata_hook, "    x:\n" + metadata_hook + "    hooks:\n"),)),
+            ("P31b regen hook key", "is at column 8 below the key 'x' at column 8", (
+                (self._PC, "        types: [markdown]\n\n" + parity_hook,
+                 "        types: [markdown]\n        x:\n" + nested(parity_hook, 2)),)),
+            ("P30b top-level key", "is at column 6 below the key 'x' at column 0", (
+                (self._PC, "      - id: lint-isolated-launch\n",
+                 "x:\n      - id: lint-isolated-launch\n"),)),
+            ("W41b matrix list at its key's column", "is at column 8 below the key 'x' at column 8", (
+                (self._WF, last_step, ""),
+                (self._WF, self._WF_TAIL,
+                 self._WF_TAIL + "    strategy:\n      matrix:\n        x:\n" + nested(last_step, 2)))),
+            ("W41b matrix list two columns deeper", "has the key 'strategy'", (
+                (self._WF, last_step, ""),
+                (self._WF, self._WF_TAIL,
+                 self._WF_TAIL + "    strategy:\n      matrix:\n        x:\n" + nested(last_step, 4)))),
+            ("step at a deeper column", "is a list item at column 8", (
+                (self._WF, "\n" + last_step, nested(last_step, 2)),)),
+            ("hook at a deeper column", "is a list item at column 8", (
+                (self._PC, "\n" + parity_hook, nested(parity_hook, 2)),)),
+        ))
+
+    def test_r6_warn1_stated_residuals_match_the_structural_reader(self) -> None:
+        # Round-5 WARN 1: the residuals said the uncovered regions were "unread by this
+        # check" and that "no key YAML reads is passed over", while the gate counted gates
+        # inside other keys' values and skipped comment lines YAML read as value text. The
+        # residuals now name what the skeleton leaves unpinned, in both modules and the spec.
+        agp = self._gate_parity_module("_agp_r6_residuals")
+        spots = self._blindspots_module()
+        spec = (REPO_ROOT / "governance/specification-audit-programme.md").read_text(
+            encoding="utf-8")
+        texts = {"gate 35": " ".join(agp.__doc__.split()),
+                 "blind-spot map": " ".join(spots.__doc__.split()),
+                 "spec": " ".join(spec.split())}
+        for where, text in texts.items():
+            with self.subTest(where=where):
+                for stale in ("unread by this check", "block-mapping line shapes",
+                              "read as block mappings only",
+                              "YAML a real reader takes differently from the line shapes"):
+                    self.assertNotIn(stale, text)
+                for stated in ("fixed skeleton", "the values the skeletons leave free",
+                               "does not validate YAML"):
+                    self.assertIn(stated, text)
+        for name in ("WORKFLOW_SKELETON", "PRECOMMIT_SKELETON", "PRECOMMIT_GATE_SELECTORS"):
+            with self.subTest(name=name):
+                self.assertTrue(hasattr(agp, name))
+
+    def test_r6_warn2_step_under_an_excluded_steps_with_is_refused(self) -> None:
+        # Round-5 WARN 2 (W40): a gate step placed as the with: value of the excluded
+        # Checkout step. The last two cases exited 1 at f0dbdfe07 (the step went unread and
+        # the counts differed).
+        moved = self._WF_METADATA
+        self._assert_yaml_edits_refused((
+            ("with at its key's column", "is at column 8 below the key 'with' at column 8", (
+                (self._WF, "\n" + moved, ""),
+                (self._WF, "        with:\n          fetch-depth: 0\n",
+                 "        with:\n" + moved.replace("      ", "        ", 1).replace(
+                     "        run", "          run")))),
+            ("with as a list", "jobs.lint.steps[1].with is a list, not a mapping", (
+                (self._WF, "\n" + moved, ""),
+                (self._WF, "        with:\n          fetch-depth: 0\n",
+                 "        with:\n" + "".join("    " + line + "\n" for line in moved.splitlines())))),
+            ("with key", "has the key 'x'", (
+                (self._WF, "\n" + moved, ""),
+                (self._WF, "          fetch-depth: 0\n",
+                 "          fetch-depth: 0\n          x:\n"
+                 + "".join("      " + line + "\n" for line in moved.splitlines())))),
+        ))
+
+    def test_r6_warn3_gate_hook_run_deciding_values_are_pinned(self) -> None:
+        # Round-5 WARN 3 (P32, P33): files, types and types_or decide whether pre-commit runs
+        # a hook, and any value was accepted. A gate hook now has exactly one of always_run,
+        # files, types and types_or, with a value in PRECOMMIT_GATE_SELECTORS; keys such as
+        # exclude and stages, and the top-level settings, are outside the skeleton.
+        selectors = "not exactly one entry of PRECOMMIT_GATE_SELECTORS"
+        parity = ("        entry: python3 tools/lint-audit-gate-parity.py\n"
+                  "        language: system\n        pass_filenames: false\n")
+        self._assert_yaml_edits_refused((
+            ("P32 files", selectors, (
+                (self._PC, self._PC_LANGUAGE_FILES, "        files: ^$\n"),)),
+            ("P33 types", "has a types list other than [markdown]", (
+                (self._PC, self._PC_LINKS, self._PC_LINKS.replace("[markdown]", "[directory]")),)),
+            ("always_run false", selectors, (
+                (self._PC, parity + "        always_run: true\n",
+                 parity + "        always_run: false\n"),)),
+            ("second run-deciding key", selectors, (
+                (self._PC, self._PC_LINKS, self._PC_LINKS + "        files: ^$\n"),)),
+            ("no run-deciding key", selectors, (
+                (self._PC, self._PC_LINKS, self._PC_LINKS.replace("        types: [markdown]\n", "")),)),
+            ("verbose false", "verbose value other than true", (
+                (self._PC, parity + "        always_run: true\n",
+                 parity + "        always_run: true\n        verbose: false\n"),)),
+            ("exclude", "has the key 'exclude'", (
+                (self._PC, self._PC_LINKS, self._PC_LINKS + "        exclude: .*\n"),)),
+            ("top-level fail_fast", "has the key 'fail_fast'", (
+                (self._PC, "repos:\n", "fail_fast: true\nrepos:\n"),)),
+        ))
+
+    def test_r6_note1_yaml_specials_in_flow_lists_are_refused(self) -> None:
+        # Round-5 NOTE 1 (P08): `types_or: [yes, null]` passed the plain-word list check,
+        # though YAML reads a boolean and a null. Only the exact lists the hooks use remain.
+        gate_count = "        types_or: [markdown, python, shell]\n"
+        self._assert_yaml_edits_refused(tuple(
+            (value, f"list other than", ((self._PC, old, new),))
+            for value, old, new in (
+                ("[yes, null]", gate_count, "        types_or: [yes, null]\n"),
+                ("[markdown, python, no]", gate_count, "        types_or: [markdown, python, no]\n"),
+                ("[null]", self._PC_LINKS, self._PC_LINKS.replace("[markdown]", "[null]")),
+                ("[true]", self._PC_LINKS, self._PC_LINKS.replace("[markdown]", "[true]")))))
+
+    def test_r6_note2_job_values_and_duplicate_keys_are_refused(self) -> None:
+        # Round-5 NOTE 2 (W36, W37b), stated residuals in round 5: a job-level if: and a
+        # second steps: (a reader keeps the last). A duplicate key is now refused at every
+        # level, and the job holds only name, runs-on and steps.
+        hooks_split = "        types: [markdown]\n\n      # Gate 2 checks"
+        self._assert_yaml_edits_refused((
+            ("W36 job if", "has the key 'if'", (
+                (self._WF, "    runs-on: ubuntu-latest\n",
+                 "    runs-on: ubuntu-latest\n    if: false\n"),)),
+            ("W37b second steps", "repeats the key 'steps'", (
+                (self._WF, "\n" + self._WF_METADATA, ""),
+                (self._WF, "    steps:\n", "    steps:\n" + self._WF_METADATA + "    steps:\n"))),
+            ("second hooks", "repeats the key 'hooks'", (
+                (self._PC, hooks_split, hooks_split.replace("\n\n", "\n    hooks:\n")),)),
+            ("second on", "repeats the key 'on'", (
+                (self._WF, "permissions:\n", "on:\n  pull_request:\npermissions:\n"),)),
+            ("push branches", "is 'nowhere', not main", (
+                (self._WF, "      - main\n", "      - nowhere\n"),)),
+            # Found by a PyYAML mutation cross-check while writing round 6: the skeleton
+            # allowed a key to be missing, and without pull_request: no gate runs on a PR.
+            ("no pull_request trigger", "lacks the key(s) ['pull_request']", (
+                (self._WF, "  pull_request:\n", ""),)),
+            ("no runs-on", "lacks the key(s) ['runs-on']", (
+                (self._WF, "    runs-on: ubuntu-latest\n", ""),)),
+        ))
+
+    def test_r6_current_surfaces_read_every_gate(self) -> None:
+        # Every current gate step and hook is read, in the runner's order and count.
+        agp = self._gate_parity_module("_agp_r6_current")
+        runner = agp.parse_runner(REPO_ROOT / agp.RUNNER_PATH)
+        for parse, name in ((agp.parse_workflow, agp.WORKFLOW_PATH),
+                            (agp.parse_precommit, agp.PRECOMMIT_PATH)):
+            with self.subTest(surface=name):
+                self.assertEqual([e[1:] for e in parse(REPO_ROOT / name)],
+                                 [e[1:] for e in runner])
+
+    def test_r3_same_bypass_on_all_three_surfaces_is_refused(self) -> None:
+        # Argv parity cannot see a tail added identically to every surface; the allowlist
+        # refuses it on each.
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-every-surface-",
+                                               dir=FIXTURE_DIR))
+        try:
+            for name in self._ISOLATED_SURFACES:
+                lines = (REPO_ROOT / name).read_text(encoding="utf-8").splitlines()
+                if name in ("tools/run_all_audits.sh", ".github/workflows/quality.yml",
+                            ".pre-commit-config.yaml"):
+                    changed = 0
+                    for i, line in enumerate(lines):
+                        if (line.startswith('run_gate "') or line.lstrip().startswith(
+                                ("run: python3 tools/", "entry: python3 tools/"))):
+                            lines[i] = line + " && /usr/bin/pyt?on3 -B tools/x.py"
+                            changed += 1
+                    self.assertGreater(changed, 100, f"fixture anchor in {name}")
+                target = synthetic_root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tools/lint-audit-gate-parity.py"),
+                 "--root", str(synthetic_root)],
+                cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300)
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertIn("is not an accepted gate line", result.stderr)
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
     def test_current_surfaces_pass_parity(self) -> None:
         result = run_linter("tools/lint-audit-gate-parity.py")
         self.assertEqual(
@@ -19267,12 +20147,7 @@ class AuditGateParityTests(LinterTestCase):
             )
             # Workflow: matches spec.
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
-                "name: Quality\n\n"
-                "on: [push]\n\n"
-                "jobs:\n"
-                "  lint:\n"
-                "    runs-on: ubuntu-latest\n"
-                "    steps:\n"
+                self._WORKFLOW_HEAD +
                 "      - name: Metadata audit\n"
                 "        run: python3 tools/lint-metadata.py\n",
                 encoding="utf-8",
@@ -19290,7 +20165,10 @@ class AuditGateParityTests(LinterTestCase):
                 "    hooks:\n"
                 "      - id: lint-metadata\n"
                 "        name: Wrong Name For Metadata Audit\n"
-                "        entry: python3 tools/lint-metadata.py\n",
+                "        entry: python3 tools/lint-metadata.py\n"
+                "        language: system\n"
+                "        pass_filenames: false\n"
+                "        always_run: true\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19322,12 +20200,7 @@ class AuditGateParityTests(LinterTestCase):
                 encoding="utf-8",
             )
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
-                "name: Quality\n\n"
-                "on: [push]\n\n"
-                "jobs:\n"
-                "  lint:\n"
-                "    runs-on: ubuntu-latest\n"
-                "    steps:\n"
+                self._WORKFLOW_HEAD +
                 "      - name: Metadata audit\n"
                 "        run: python3 tools/lint-metadata.py\n",
                 encoding="utf-8",
@@ -19343,7 +20216,10 @@ class AuditGateParityTests(LinterTestCase):
                 "    hooks:\n"
                 "      - id: lint-metadata\n"
                 "        name: Metadata audit\n"
-                "        entry: python3 tools/lint-metadata.py\n",
+                "        entry: python3 tools/lint-metadata.py\n"
+                "        language: system\n"
+                "        pass_filenames: false\n"
+                "        always_run: true\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19386,12 +20262,7 @@ class AuditGateParityTests(LinterTestCase):
                 encoding="utf-8",
             )
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
-                "name: Quality\n\n"
-                "on: [push]\n\n"
-                "jobs:\n"
-                "  lint:\n"
-                "    runs-on: ubuntu-latest\n"
-                "    steps:\n"
+                self._WORKFLOW_HEAD +
                 "      - name: Metadata audit\n"
                 "        run: python3 tools/lint-metadata.py --enforce\n",
                 encoding="utf-8",
@@ -19407,7 +20278,10 @@ class AuditGateParityTests(LinterTestCase):
                 "    hooks:\n"
                 "      - id: lint-metadata\n"
                 "        name: Metadata audit\n"
-                "        entry: python3 tools/lint-metadata.py --strict\n",
+                "        entry: python3 tools/lint-metadata.py --strict\n"
+                "        language: system\n"
+                "        pass_filenames: false\n"
+                "        always_run: true\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19451,12 +20325,7 @@ class AuditGateParityTests(LinterTestCase):
                 encoding="utf-8",
             )
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
-                "name: Quality\n\n"
-                "on: [push]\n\n"
-                "jobs:\n"
-                "  lint:\n"
-                "    runs-on: ubuntu-latest\n"
-                "    steps:\n"
+                self._WORKFLOW_HEAD +
                 "      - name: Metadata audit\n"
                 "        run: python3 tools/lint-metadata.py --strict\n",
                 encoding="utf-8",
@@ -19472,7 +20341,10 @@ class AuditGateParityTests(LinterTestCase):
                 "    hooks:\n"
                 "      - id: lint-metadata\n"
                 "        name: Metadata audit\n"
-                "        entry: python3 tools/lint-metadata.py --different-flag\n",
+                "        entry: python3 tools/lint-metadata.py --different-flag\n"
+                "        language: system\n"
+                "        pass_filenames: false\n"
+                "        always_run: true\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19495,11 +20367,12 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
-    def test_synthetic_argv_quoted_whitespace_flagged(self) -> None:
-        # shlex quote-awareness: runner passes --sep with a DOUBLE-space
-        # quoted value, workflow a SINGLE-space one. A naive whitespace split
-        # would collapse both to the same tokens (a false PASS); shlex keeps
-        # the quoted argument as one token, so the drift is correctly flagged.
+    def test_synthetic_argv_quoted_whitespace_refused(self) -> None:
+        # Runner passes --sep with a DOUBLE-space quoted value, workflow a
+        # SINGLE-space one. A naive whitespace split would collapse both to the
+        # same tokens (a false PASS). A gate argument is a plain word under the
+        # closed allowlist (3b646), so the quoted value is refused before argv
+        # is compared.
         synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-argv-quoted-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86; #2439 follow-up)
         import shutil
         (synthetic_root / "governance").mkdir(parents=True)
@@ -19516,12 +20389,7 @@ class AuditGateParityTests(LinterTestCase):
                 encoding="utf-8",
             )
             (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
-                "name: Quality\n\n"
-                "on: [push]\n\n"
-                "jobs:\n"
-                "  lint:\n"
-                "    runs-on: ubuntu-latest\n"
-                "    steps:\n"
+                self._WORKFLOW_HEAD +
                 "      - name: Metadata audit\n"
                 "        run: python3 tools/lint-metadata.py --sep 'a b'\n",
                 encoding="utf-8",
@@ -19537,7 +20405,10 @@ class AuditGateParityTests(LinterTestCase):
                 "    hooks:\n"
                 "      - id: lint-metadata\n"
                 "        name: Metadata audit\n"
-                "        entry: python3 tools/lint-metadata.py --sep 'a b'\n",
+                "        entry: python3 tools/lint-metadata.py --sep 'a b'\n"
+                "        language: system\n"
+                "        pass_filenames: false\n"
+                "        always_run: true\n",
                 encoding="utf-8",
             )
             result = run_linter(
@@ -19545,18 +20416,8 @@ class AuditGateParityTests(LinterTestCase):
                 "--root",
                 str(synthetic_root),
             )
-            # Fail-closed: require the specific finding, not just any nonzero
-            # exit (assertLinterFails accepts a crash whose traceback merely
-            # contains "argv", e.g. an _extract_argv frame).
-            self.assertEqual(
-                result.returncode, 1,
-                f"expected findings (rc=1), not a crash.\nstdout:\n{result.stdout}\n"
-                f"stderr:\n{result.stderr}",
-            )
-            self.assertIn(
-                "invocation (argv) drift", result.stdout,
-                f"expected an argv-drift finding.\nstdout:\n{result.stdout}",
-            )
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertIn("is not an accepted gate line", result.stderr)
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
@@ -29542,7 +30403,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F a286bae1556510cc3995fdded2c745403b79598b43551cb795f3f9a0d3dd433a
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
-        aiqt_bootstrap.py PASSIVE F c9596844ccf7a8146a7f1ad08a1d45c8575caae841323c827595f6069c564a86
+        aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
         aiqt_rules.py NO_FS F d060f25887a16d6e70009a243390ac246f23cf9dc164226e38bbc671648bcc83
         alignment-register-aliases.json DATA F 7aba74ebc7e34d89145f754cc53763e03df0bbf7f366765bbd94df5e47fdb812
         alignment-register-exclusions.json DATA F ae28ec61a6a973f24a33af86957dff0d1f0d0740dc82b5aec393a5bb882c3df0
@@ -29552,7 +30413,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         audit-backlog-actionability.py OWN F c089004a4e41f3a8c9273d7df9926331953635bc3133ba22023e1f2a7ffc1244
         audit-claim-precision.py ROOT F c2e537144efb7458cba00827577f959907263a7dfffcc75bab54c888f1e1d4b2
         audit-cross-repo-references.py OWN F f2eeb637b2a28b3d8995fe57609c231e1845dc139b4d8aa5f917433833abd83d
-        audit-gate-blindspots.py OWN F 7dbd907ece2720fce7b9fa8dfdac25bf37d94a2096e2aaba00dba10b3ac3f53b
+        audit-gate-blindspots.py OWN F a20d49b67e8bfa12a01f69d2847053fd8dca4dc50cb0b56acdb5c05d0763be48
         audit-gate-mutation.py OWN F db2e8a4e3255dfff96dc9a0f744a58508c1b88e689bea0af28fdc33062fb5716
         audit-held-branch-expiry.py NO_FS F 3255ff7873ca44e429b60011d733b90f6a65434f816a55f3f1be5a53f7a8d652
         audit-inbox-drops.py SKIP F a931ec3bf370c0e755637bcb2ff3238ea9e5337761de96a712b90027588a46bc
@@ -29616,7 +30477,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         detect-env.py WRITE F bb9b977f0a07a9d27b09dcd85d271bb1f31efc826c5f6cd860106f283144ebc6
         external_overlay.py PASSIVE F fcbdb23ea95b360fdb467d3d4b39a0b1fd9ac1113eb6b431aeee1de0fbcbe2f1
         gate-mutation-variants.json DATA F c6af7a3c12d4d56ccae611dd77676e8be2113c3fed0ae83638d3be8790e72549
-        gate-scope-manifest.json DATA F 12ae6d553aa8a6b794a763d41ec14766c7d790eea836205b7f871aebe57ef91e
+        gate-scope-manifest.json DATA F b2a3cd3834419d4e78891043c491e126623b916bccf4e7e283ec39b142d9e6a8
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
         git-hooks/pre-push TRANSPORT F 9d1300e3fc7e1dcea3986ea7015f839c2c821cd7be16263dadc04482089fc2b5
@@ -29629,7 +30490,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F 3cc8013f0d69f112498d69dd97629078f7852f911d0b689bb509b356165418e9
+        lint-audit-gate-parity.py OWN F fab89440f44f35807c47d823e662919343bb9d3ad220e85887d300a229b80ab6
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-bookkeeping-parity.py NO_FS F 43a25f9706516004b494a4ed6842b3fe06001f152cbedfa9ec1845cd88ba946b
@@ -29664,6 +30525,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-index-header-parity.py OWN F 5e77c0ccd4664aa35ba22b1c09630dc0f4a9de56986e0d51535c311541eb0281
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
+        lint-isolated-launch.py NO_FS F 390f03ea3a68d117faf893733cc828a3c2a0fbf98cae51c54a21554d769d8bb2
         lint-language.py ROOT F 0d34619c2213b8ebd9dc16e24ad6776ccdda2397346fd2295567e08cec582c68
         lint-library-version-monotonicity.py OWN F dcd8b7a176032c053251f68060ef6b48085b30907e435646c72a6fd064cccff0
         lint-license-consistency.py CWD F 2662d275ee682f05031dce8788cd37a36b3e3bbe0ae528ad19014e17966f3835
@@ -29732,10 +30594,10 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
-        preflight_language_runner.py CHILD F c7242875b76d4282326ba37e0f878cebfc2939aa2780657c56bb3ef007fa0644
+        preflight_language_runner.py CHILD F 5022c1d1ea1b9d289710b26c96ba615ad303bee4850723fcf12d99a8e247d0c7
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
-        quick-guard.sh FIXED F 24b369af95e2ae671eb7149bc3a2b09faf94ca879fb485e3d292441455274178
+        quick-guard.sh FIXED F df796e5fac359bad820044bce06be97b8f04b96aacb4b81d0454a3e94ffc94d5
         ref-holds.py OWN F 12b4bc426cc0dc4f0cb070fc94feb3398c0d0d420c091e3e343393a16feb4f7d
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
@@ -29743,7 +30605,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run-linter-regression.py FIXED F 600fa27468c6f7b5371de09d5e646429017411a58ebdefff853b91dd965195e0
         run-pr-time-checks.sh FIXED F 7efe36d3fce0778df83e6f4578561b56d02bf15e389178c50b35053767c075ab
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
-        run_all_audits.sh FIXED F 694c1d154afa12f22f78cb4c2f75d96aea92bab4b6cb0919fe6eb2d32af5eff5
+        run_all_audits.sh FIXED F 42538433b653fb5cb4df779d74ee541039bd0168d7c0fe42258800417a71cdb5
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
         session_facts.py PASSIVE F 0d4dcb545fcba5b1533d4aff1c3fedad69ca97d6e07f045b9976aee0ce07247a
@@ -48521,6 +49383,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         lint-guardrail-cadence.py
         lint-hooks-syntax.py
         lint-index-header-parity.py
+        lint-isolated-launch.py
         lint-listing-surface-completeness.py
         lint-matrix-control-codes.py
         lint-narrative-disclaimer.py
@@ -53840,6 +54703,88 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIsNotNone(tools, "shim must resolve the AIQT pack tools/ dir")
         # CI-safety: must find the IN-REPO vendored copy, not depend on a sibling pack
         self.assertEqual(Path(tools).resolve(), (REPO_ROOT / "vendor" / "aiqt" / "tools").resolve())
+
+    def test_shim_appends_pack_tools_so_a_planted_module_cannot_shadow_stdlib(self):
+        # The shim APPENDS the pack's tools/ (after the standard library), never inserts
+        # it at index 0: a json.py planted in the pack's tools/ is not what `import json`
+        # loads under python3 -I, while the pack's own aiqt_corpus still resolves.
+        with tempfile.TemporaryDirectory() as d:
+            pack = Path(d) / "pack"
+            (pack / "tools").mkdir(parents=True)
+            (pack / ".aiqt").write_text("", encoding="utf-8")
+            (pack / "tools" / "aiqt_corpus.py").write_text("FAKE = True\n", encoding="utf-8")
+            (pack / "tools" / "json.py").write_text(
+                "raise RuntimeError('planted json.py imported')\n", encoding="utf-8")
+            probe = (
+                "import sys\n"
+                f"sys.path.append({str(REPO_ROOT / 'tools')!r})\n"
+                "import aiqt_bootstrap, aiqt_corpus, json\n"
+                "print(json.__file__)\n"
+                "print(aiqt_corpus.__file__)\n"
+                f"print(sys.path[-1] == {str(pack / 'tools')!r}, sys.path.count({str(pack / 'tools')!r}))\n"
+                "aiqt_bootstrap.ensure_on_path()\n"
+                f"print(sys.path.count({str(pack / 'tools')!r}))\n")
+            env = {k: v for k, v in os.environ.items() if k not in ("AIQT_PACK_ROOT", "GRC_AIQT_PACK")}
+            env["AIQT_PACK_ROOT"] = str(pack)
+            result = subprocess.run([sys.executable, "-I", "-B", "-c", probe], cwd=d, env=env,
+                                    capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        json_file, corpus_file, placed, again = result.stdout.splitlines()
+        self.assertFalse(json_file.startswith(d), json_file)
+        self.assertEqual(Path(json_file).parent.name, "json")
+        self.assertEqual(corpus_file, str(pack / "tools" / "aiqt_corpus.py"))
+        self.assertEqual(placed, "True 1")
+        self.assertEqual(again, "1")
+
+    def _run_shim_probe(self, probe: str, pack_files: dict[str, str]) -> tuple[subprocess.CompletedProcess, Path]:
+        """Run ``probe`` under python3 -I with AIQT_PACK_ROOT at a temporary pack; the
+        probe's ``{pack}`` and ``{other}`` placeholders name the pack's tools/ and a
+        second directory holding its own aiqt_corpus.py."""
+        with tempfile.TemporaryDirectory() as d:
+            pack, other = Path(d) / "pack", Path(d) / "other"
+            (pack / "tools").mkdir(parents=True)
+            other.mkdir()
+            (pack / ".aiqt").write_text("", encoding="utf-8")
+            for name, text in pack_files.items():
+                (pack / "tools" / name).write_text(text, encoding="utf-8")
+            (other / "aiqt_corpus.py").write_text("OTHER = True\n", encoding="utf-8")
+            env = {k: v for k, v in os.environ.items() if k not in ("AIQT_PACK_ROOT", "GRC_AIQT_PACK")}
+            env["AIQT_PACK_ROOT"] = str(pack)
+            source = (f"import sys\nsys.path.append({str(REPO_ROOT / 'tools')!r})\n"
+                      + probe.format(pack=repr(str(pack / "tools")), other=repr(str(other))))
+            result = subprocess.run([sys.executable, "-I", "-B", "-c", source], cwd=d, env=env,
+                                    capture_output=True, text=True, timeout=60)
+            return result, pack
+
+    def test_shim_moves_an_existing_index0_pack_entry_to_the_end(self):
+        # A caller that inserted the pack's tools/ at index 0 before importing the shim
+        # does not keep it there: the shim moves the one entry to the end.
+        result, _ = self._run_shim_probe(
+            "sys.path.insert(0, {pack})\nsys.path.insert(0, {pack})\nimport aiqt_bootstrap\n"
+            "print(sys.path[0] == {pack}, sys.path[-1] == {pack}, sys.path.count({pack}))\n",
+            {"aiqt_corpus.py": "FAKE = True\n"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), "False True 1")
+
+    def test_shim_refuses_an_aiqt_corpus_from_outside_the_pack(self):
+        # An aiqt_corpus that outranks the appended pack (an installed copy, here a
+        # directory ahead of it on sys.path) or that is already imported from elsewhere
+        # is refused with ImportError; the pack's own copy is accepted.
+        for label, probe in (
+                ("outranks", "sys.path.insert(0, {other})\nimport aiqt_bootstrap\n"),
+                ("already imported", "sys.path.insert(0, {other})\nimport aiqt_corpus\n"
+                                     "sys.path.remove({other})\nimport aiqt_bootstrap\n")):
+            with self.subTest(label):
+                result, _ = self._run_shim_probe(probe, {"aiqt_corpus.py": "FAKE = True\n"})
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+                self.assertIn("ImportError: aiqt_corpus resolves to", result.stderr)
+                self.assertIn("other", result.stderr)
+        result, pack = self._run_shim_probe(
+            "import aiqt_bootstrap, aiqt_corpus\nprint(aiqt_corpus.__file__)\n",
+            {"aiqt_corpus.py": "FAKE = True\n"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), str(pack / "tools" / "aiqt_corpus.py"))
+
 
 class ProfileLoaderTests(unittest.TestCase):
     """.corpus-management/tools/profile_loader.py (Phase-4 PR-A).
@@ -69288,13 +70233,62 @@ class JoinUnderContainmentTests(unittest.TestCase):
             self.load("audit-gate-blindspots.py")
             self.assertEqual(sys.path.count(tools), 1)
 
+    def test_blindspots_runner_accepts_an_optional_isolated_flag_only(self):
+        # A runner line switched to `python3 -I tools/X.py` is still read as that gate;
+        # -I is the only interpreter option accepted (as gate 35 accepts), the label may
+        # be aligned with spaces, and any other runner line shape is refused: another
+        # option, a second call, or extra spaces inside the command.
+        mod = self.load("audit-gate-blindspots.py")
+        (self.root / "tools").mkdir()
+        runner = self.root / "tools/run_all_audits.sh"
+        good = ('run_gate() {\n}\n'
+                'run_gate "Plain" python3 tools/plain.py\n'
+                'run_gate "Isolated"      python3 -I tools/isolated.py --check\n')
+        runner.write_text(good, encoding="utf-8")
+        self.assertEqual(
+            [(g.name, g.script) for g in mod.load_gates(self.root)],
+            [("Plain", "tools/plain.py"), ("Isolated", "tools/isolated.py")])
+        for line in ('run_gate "Other flag" python3 -B tools/other.py',
+                     'run_gate "Combined" python3 -IB tools/combined.py',
+                     'run_gate "Two flags" python3 -I -B tools/two.py',
+                     'run_gate "Two calls" python3 -B tools/x.py && python3 tools/x.py',
+                     'run_gate "Spaced" python3   -I  tools/spaced.py'):
+            with self.subTest(line=line):
+                runner.write_text(good + line + "\n", encoding="utf-8")
+                with self.assertRaisesRegex(RuntimeError, "is not an accepted gate line"):
+                    mod.load_gates(self.root)
+
+    def test_blindspots_runner_uses_gate_35_allowlist(self):
+        # The blind-spot map keeps its own copy of gate 35's patterns; the strings are equal,
+        # and on every shape of gate 35's test it accepts or refuses the same runner line.
+        mod = self.load("audit-gate-blindspots.py")
+        agp = self.load("lint-audit-gate-parity.py")
+        for name in ("GATE_COMMAND", "RUNNER_LABEL", "RUNNER_NON_GATE_LINES"):
+            with self.subTest(name=name):
+                self.assertEqual(getattr(mod, name), getattr(agp, name))
+        self.assertEqual(mod.RUNNER_LINE_RE.pattern, agp.RUNNER_LINE_RE.pattern)
+        self.assertEqual(mod.RUN_GATE_WORD_RE.pattern, agp.RUN_GATE_WORD_RE.pattern)
+        (self.root / "tools").mkdir()
+        runner = self.root / "tools/run_all_audits.sh"
+        for command, accepted in AuditGateParityTests.GATE_LINE_SHAPES:
+            with self.subTest(command=command):
+                runner.write_text(f'run_gate "Shape" {command}\n', encoding="utf-8")
+                if accepted:
+                    self.assertEqual([g.name for g in mod.load_gates(self.root)], ["Shape"])
+                else:
+                    with self.assertRaisesRegex(RuntimeError, "is not an accepted gate line"):
+                        mod.load_gates(self.root)
+
     def test_gate_runner_entry(self):
         import contextlib
         from unittest.mock import patch
         mod = self.load("audit-gate-blindspots.py")
         (self.root / "tools").mkdir()
+        # A gate script name cannot hold '..' under the allowlist; a link out of the root is
+        # the remaining escape, and it is refused when the scope is derived.
+        (self.root / "tools/outside.py").symlink_to(self.parent / "outside.py")
         (self.root / "tools/run_all_audits.sh").write_text(
-            'run_gate "fixture" python3 tools/../../outside.py\n')
+            'run_gate "fixture" python3 tools/outside.py\n')
         with patch.object(mod, "tracked_markdown", return_value=[]), \
                 contextlib.redirect_stdout(io.StringIO()) as out, \
                 contextlib.redirect_stderr(io.StringIO()) as err:
@@ -73364,6 +74358,246 @@ class GitReadFailsClosedTests(unittest.TestCase):
                                           encoding="utf-8")
                 (shim / "git").chmod(0o755)
                 self.assert_guard_refuses(repo, PATH=f"{shim}{os.pathsep}{self.env['PATH']}")
+
+
+class IsolatedLaunchTests(LinterTestCase):
+    """tools/lint-isolated-launch.py (gate 109): every tools/*.py completes its
+    module-level imports under ``python3 -I`` (not a full command launch), except
+    the tools on its BASELINE list, and never inserts into or assigns ``sys.path``,
+    except the tools on its INSERT_BASELINE list.
+
+    Fixture tools live outside the repository and are probed in-process through
+    the gate's ``probe_all`` and ``findings_for``; each failing outcome is paired
+    with a passing control that differs only in the construct under test."""
+
+    GATE = "tools/lint-isolated-launch.py"
+    APPEND = ("import sys\nfrom pathlib import Path\n"
+              "sys.path.append(str(Path(__file__).resolve().parent))\n")
+
+    def gate(self):
+        return load_linter_module(self.GATE, "isolated_launch_under_test")
+
+    def fixture_tools(self, files: dict[str, str]) -> Path:
+        tools = self._fixture_base("isolated-launch-") / "tools"
+        tools.mkdir()
+        for name, text in files.items():
+            (tools / name).write_text(text, encoding="utf-8")
+        return tools
+
+    def test_self_test_passes(self) -> None:
+        result = subprocess.run([sys.executable, "-I", str(REPO_ROOT / self.GATE), "--self-test"],
+                                cwd=REPO_ROOT, capture_output=True, text=True, timeout=300)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("SELF-TEST OK", result.stdout)
+
+    def test_current_tools_pass_against_the_baseline(self) -> None:
+        result = subprocess.run([sys.executable, "-I", str(REPO_ROOT / self.GATE)],
+                                cwd=REPO_ROOT, capture_output=True, text=True, timeout=600)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("OK:", result.stdout)
+        self.assertIn("not a full command launch", result.stdout)
+        # The count does not claim the converted tools never insert: one can load an
+        # inserting tool by path, which the static check does not follow.
+        self.assertIn("no sys.path insert in their own source", result.stdout)
+        self.assertNotIn("never insert", result.stdout)
+
+    def test_baseline_entries_are_existing_tools(self) -> None:
+        mod = self.gate()
+        self.assertTrue(mod.BASELINE)
+        self.assertTrue(mod.INSERT_BASELINE)
+        for name in mod.BASELINE | mod.INSERT_BASELINE:
+            with self.subTest(name=name):
+                self.assertTrue((REPO_ROOT / "tools" / name).is_file())
+        self.assertNotIn("lint-isolated-launch.py", mod.BASELINE | mod.INSERT_BASELINE)
+
+    def test_baselined_tool_that_also_raises_is_an_error(self) -> None:
+        # A sibling miss does not hide another exception: the outcome is error, and an
+        # error is a finding on BASELINE too. The control raises only the sibling's own
+        # ImportError, which stays the sibling outcome.
+        mod = self.gate()
+        tools = self.fixture_tools({
+            "helper_mod.py": "VALUE = 1\n",
+            "miss_only.py": "import helper_mod\n",
+            "miss_then_raises.py": "try:\n    import helper_mod\nexcept ImportError:\n    pass\n"
+                                   "raise RuntimeError('module-level failure')\n",
+            "miss_then_exits.py": "try:\n    import helper_mod\nexcept ImportError:\n"
+                                  "    raise SystemExit('helper_mod missing')\n",
+        })
+        results = mod.probe_all(tools)
+        self.assertEqual({n: (r["status"], r["missed"]) for n, r in results.items()}, {
+            "helper_mod.py": ("ok", []), "miss_only.py": ("sibling", ["helper_mod"]),
+            "miss_then_raises.py": ("error", ["helper_mod"]),
+            "miss_then_exits.py": ("error", ["helper_mod"]),
+        })
+        listed = frozenset({"miss_only.py", "miss_then_raises.py", "miss_then_exits.py"})
+        self.assertEqual([f.split(":")[0] for f in mod.findings_for(results, listed)],
+                         ["tools/miss_then_exits.py", "tools/miss_then_raises.py"])
+
+    def test_sys_path_inserts_are_a_separate_ratchet(self) -> None:
+        # A tool whose imports complete under -I is not counted as converted while it
+        # inserts into sys.path, at module level or inside a function (where the probe
+        # never reaches); the control appends and counts.
+        mod = self.gate()
+        tools = self.fixture_tools({
+            "appends.py": self.APPEND,
+            "inserts_own_dir.py": self.APPEND.replace("sys.path.append(", "sys.path.insert(0, "),
+            "lazy_pack_insert.py": "import sys as _sys\ndef _engine(pack_tools):\n"
+                                   "    if pack_tools not in _sys.path:\n"
+                                   "        _sys.path.insert(0, pack_tools)\n",
+            "assigns.py": "import sys\nsys.path = ['x'] + sys.path\n",
+        })
+        results = mod.probe_all(tools)
+        inserts = mod.inserts_all(tools)
+        self.assertEqual({n: r["status"] for n, r in results.items()},
+                         dict.fromkeys(results, "ok"))
+        self.assertEqual(inserts, {"appends.py": [], "assigns.py": [2],
+                                   "inserts_own_dir.py": [3], "lazy_pack_insert.py": [4]})
+        self.assertEqual(mod.converted_count(results, inserts), 1)
+        self.assertEqual([f.split(":")[0] for f in mod.findings_for(results, frozenset(), inserts)],
+                         ["tools/assigns.py", "tools/inserts_own_dir.py",
+                          "tools/lazy_pack_insert.py"])
+        listed = frozenset({"assigns.py", "inserts_own_dir.py", "lazy_pack_insert.py"})
+        self.assertEqual(mod.findings_for(results, frozenset(), inserts, listed), [])
+        self.assertEqual(mod.findings_for(results, frozenset(), inserts, listed | {"appends.py"}),
+                         ["tools/appends.py: on INSERT_BASELINE but no longer inserts into or "
+                          "assigns sys.path; remove it from INSERT_BASELINE"])
+
+    def test_augmented_assignment_and_reordering_methods_are_inserts(self) -> None:
+        # Round-2 review: `sys.path[:0] += [...]` was missed (ast.AugAssign was not
+        # visited), as were the dunder and reordering methods. The controls append,
+        # extend and read sys.path.
+        mod = self.gate()
+        tools = self.fixture_tools({
+            "aug_slice.py": "import sys\nsys.path[:0] += ['x']\n",
+            "aug_whole.py": "from sys import path as p\np += ['x']\n",
+            "dunder.py": "import sys\nsys.path.__setitem__(slice(0, 0), ['x'])\n"
+                         "sys.path.__iadd__(['y'])\n",
+            "reorders.py": "import sys as s\ns.path.sort()\ns.path.reverse()\n",
+            "controls.py": "import sys\nsys.path.append('x')\nsys.path.extend(['y'])\n"
+                           "first = sys.path[0]\n",
+        })
+        self.assertEqual(mod.inserts_all(tools), {
+            "aug_slice.py": [2], "aug_whole.py": [2], "controls.py": [],
+            "dunder.py": [2, 3], "reorders.py": [2, 3]})
+
+    def test_insert_baseline_matches_the_tools(self) -> None:
+        mod = self.gate()
+        inserts = mod.inserts_all(REPO_ROOT / "tools")
+        self.assertEqual(sorted(n for n, lines in inserts.items() if lines),
+                         sorted(mod.INSERT_BASELINE))
+
+    def test_audit_hook_refuses_ctypes_sqlite3_and_fork_exec(self) -> None:
+        mod = self.gate()
+        base = self._fixture_base("isolated-launch-native-")
+        native, database = base / "native", base / "database"
+        tools = self.fixture_tools({
+            "native_caller.py": "import ctypes\nctypes.CDLL(None).system("
+                                f"{'touch ' + str(native)!r}.encode())\n",
+            "sqlite_user.py": f"import sqlite3\nsqlite3.connect({str(database)!r})\n",
+            "sqlite_reader.py": "import sqlite3\n",
+        })
+        results = mod.probe_all(tools)
+        self.assertEqual({n: (r["status"], r["refused"]) for n, r in results.items()}, {
+            "native_caller.py": ("error", ["ctypes.dlopen"]),
+            "sqlite_user.py": ("error", ["sqlite3.connect"]),
+            "sqlite_reader.py": ("ok", []),
+        })
+        self.assertFalse(native.exists())
+        self.assertFalse(database.exists())
+
+    @unittest.skipUnless(sys.version_info >= (3, 14),
+                         "the _posixsubprocess.fork_exec audit event was checked on 3.14 only")
+    def test_fork_exec_reached_past_the_popen_event_is_refused(self) -> None:
+        # The tool silences subprocess's own sys.audit call, so no subprocess.Popen
+        # event is raised; cwd= keeps subprocess off posix_spawn, so the child is
+        # started by _posixsubprocess.fork_exec, whose own audit event is refused.
+        mod = self.gate()
+        spawned = self._fixture_base("isolated-launch-forkexec-") / "spawned"
+        child = f"open({str(spawned)!r}, 'w')"
+        tools = self.fixture_tools({
+            "fork_execer.py": "import subprocess, sys, types\n"
+                              "subprocess.sys = types.SimpleNamespace(**{**vars(sys), "
+                              "'audit': lambda *a: None})\n"
+                              f"subprocess.run([sys.executable, '-c', {child!r}], cwd='/')\n",
+        })
+        result = mod.probe(tools / "fork_execer.py")
+        self.assertEqual((result["status"], result["refused"]),
+                         ("error", ["_posixsubprocess.fork_exec"]), result)
+        self.assertFalse(spawned.exists())
+
+    def test_sibling_miss_and_ratchet(self) -> None:
+        mod = self.gate()
+        tools = self.fixture_tools({
+            "helper_mod.py": "VALUE = 1\n",
+            "needs_sibling.py": "import helper_mod\n",
+            "anchored.py": self.APPEND + "import helper_mod\n",
+            "swallowed.py": "try:\n    import helper_mod\nexcept ImportError:\n    pass\n",
+            "lazy.py": "def main():\n    import helper_mod\n",
+        })
+        results = mod.probe_all(tools)
+        self.assertEqual({n: (r["status"], r["missed"]) for n, r in results.items()}, {
+            "helper_mod.py": ("ok", []), "needs_sibling.py": ("sibling", ["helper_mod"]),
+            "anchored.py": ("ok", []), "swallowed.py": ("sibling", ["helper_mod"]),
+            "lazy.py": ("ok", []),  # the documented lazy-import residue
+        })
+        self.assertEqual(mod.probe(tools / "needs_sibling.py", isolated=False)["status"], "ok")
+        self.assertEqual(
+            [f.split(":")[0] for f in mod.findings_for(results, frozenset())],
+            ["tools/needs_sibling.py", "tools/swallowed.py"])
+        self.assertEqual(mod.findings_for(results, frozenset({"needs_sibling.py", "swallowed.py"})), [])
+        self.assertEqual(
+            mod.findings_for(results, frozenset({"needs_sibling.py", "swallowed.py",
+                                                 "anchored.py", "gone.py"})),
+            ["tools/anchored.py: on BASELINE but now imports under -I; remove it from BASELINE",
+             "tools/gone.py: on BASELINE but there is no such tools/*.py; remove it"])
+
+    def test_audit_hook_refuses_side_effects(self) -> None:
+        mod = self.gate()
+        base = self._fixture_base("isolated-launch-effects-")
+        written, spawned = base / "written", base / "spawned"
+        spawn = f"open({str(spawned)!r}, 'w')"
+        tools = self.fixture_tools({
+            "writer.py": f"open({str(written)!r}, 'w')\n",
+            "reader.py": f"open({str(REPO_ROOT / 'README.md')!r}).read(1)\n",
+            "spawner.py": f"import subprocess, sys\nsubprocess.run([sys.executable, '-c', {spawn!r}])\n",
+            "execer.py": "import os, sys\nos.execv(sys.executable, [sys.executable, '-V'])\n",
+            "mkdirer.py": f"import os\nos.mkdir({str(base / 'made')!r})\n",
+        })
+        results = mod.probe_all(tools)
+        self.assertEqual({n: (r["status"], r["refused"]) for n, r in results.items()}, {
+            "writer.py": ("error", ["open"]), "reader.py": ("ok", []),
+            "spawner.py": ("error", ["subprocess.Popen"]), "execer.py": ("error", ["os.exec"]),
+            "mkdirer.py": ("error", ["os.mkdir"]),
+        })
+        self.assertFalse(written.exists())
+        self.assertFalse(spawned.exists())
+        self.assertFalse((base / "made").exists())
+        self.assertEqual(len(mod.findings_for(results, frozenset())), 4)
+
+    def test_planted_json_beside_a_copied_tool_is_not_imported(self) -> None:
+        # A real tool that already appends its own directory, copied with its siblings:
+        # under -I a json.py planted beside it is not what lint_common's `import json`
+        # loads. The same copy launched plain, or switched to insert(0), imports it.
+        from unittest import mock
+        mod = self.gate()
+        tools = self._fixture_base("isolated-launch-shadow-") / "tools"
+        tools.mkdir()
+        for path in (REPO_ROOT / "tools").glob("*.py"):
+            shutil.copy2(path, tools / path.name)
+        tool = tools / "suggest-listing-surfaces.py"
+        source = tool.read_text(encoding="utf-8")
+        self.assertEqual(source.count("sys.path.append(_TOOLS_DIR)"), 1)
+        planted = "RuntimeError: planted json.py imported"
+        with mock.patch.dict(os.environ, {"AIQT_PACK_ROOT": str(REPO_ROOT / "vendor" / "aiqt")}):
+            self.assertEqual(mod.probe(tool)["status"], "ok")
+            (tools / "json.py").write_text(
+                "raise RuntimeError('planted json.py imported')\n", encoding="utf-8")
+            self.assertEqual(mod.probe(tool), {"status": "ok", "missed": [], "error": None,
+                                               "refused": []})
+            self.assertEqual(mod.probe(tool, isolated=False)["error"], planted)
+            tool.write_text(source.replace("sys.path.append(_TOOLS_DIR)",
+                                           "sys.path.insert(0, _TOOLS_DIR)"), encoding="utf-8")
+            self.assertEqual(mod.probe(tool)["error"], planted)
 
 
 if __name__ == "__main__":

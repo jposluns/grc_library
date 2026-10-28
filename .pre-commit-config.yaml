@@ -29,7 +29,7 @@ repos:
         entry: python3 tools/lint-language.py
         language: system
         pass_filenames: false
-        files: '(\.md$|^tools/build-(narrative-registry|portal|taxonomy)\.py$|^tools/lint-language\.py$|^\.corpus-management/tools/gate_lint_language\.py$)'
+        files: (\.md$|^tools/build-(narrative-registry|portal|taxonomy)\.py$|^tools/lint-language\.py$|^\.corpus-management/tools/gate_lint_language\.py$)
 
       - id: lint-links
         name: Repository-internal link audit
@@ -162,28 +162,28 @@ repos:
         entry: python3 tools/lint-secrets-in-content.py
         language: system
         pass_filenames: false
-        files: '\.(md|py|yaml|yml|json|toml|txt)$'
+        files: \.(md|py|yaml|yml|json|toml|txt)$
 
       - id: lint-pii-in-content
         name: PII pattern audit
         entry: python3 tools/lint-pii-in-content.py
         language: system
         pass_filenames: false
-        files: '\.(md|py|yaml|yml|json|toml|txt|cff)$'
+        files: \.(md|py|yaml|yml|json|toml|txt|cff)$
 
       - id: lint-internal-references
         name: Internal references audit
         entry: python3 tools/lint-internal-references.py
         language: system
         pass_filenames: false
-        files: '\.(md|py|yaml|yml|json|toml|txt)$'
+        files: \.(md|py|yaml|yml|json|toml|txt)$
 
       - id: lint-external-link-domains
         name: External link domain audit
         entry: python3 tools/lint-external-link-domains.py
         language: system
         pass_filenames: false
-        files: '\.(md|py|yaml|yml|json|toml|txt|cff)$'
+        files: \.(md|py|yaml|yml|json|toml|txt|cff)$
 
       - id: lint-cross-doc-numbers
         name: Cross-document numerical coherence audit
@@ -737,6 +737,12 @@ repos:
       - id: lint-table-cell-count
         name: Table cell-count audit
         entry: python3 tools/lint-table-cell-count.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-isolated-launch
+        name: Isolated-launch import audit
+        entry: python3 tools/lint-isolated-launch.py
         language: system
         pass_filenames: false
         always_run: true

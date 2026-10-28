@@ -32,6 +32,7 @@ stable, exactly the point of a single shim).
 
 from __future__ import annotations
 
+import importlib.util
 import os
 import sys
 from pathlib import Path
@@ -91,9 +92,17 @@ def find_pack_tools() -> Path | None:
 
 
 def ensure_on_path() -> Path:
-    """Idempotently insert the AIQT pack's ``tools/`` on ``sys.path``; return it.
+    """Idempotently put the AIQT pack's ``tools/`` last on ``sys.path``; return it.
 
-    Raises ``ImportError`` (with the fix) if the pack cannot be located.
+    The directory goes at the END, after the standard library and site-packages,
+    never at index 0, so a file planted in the pack's ``tools/`` cannot shadow a
+    standard-library module (the ``python3 -I`` launch convention). An entry that
+    is already on the path (a caller's earlier insert at index 0) is moved to the
+    end rather than left where it is.
+    Raises ``ImportError`` (with the fix) if the pack cannot be located, or if
+    ``aiqt_corpus`` then resolves (or was already imported) from anywhere but the
+    located pack's ``tools/aiqt_corpus.py``, such as an installed copy in
+    site-packages that would now outrank the appended pack.
     """
     global _inserted_path
     tools = find_pack_tools()
@@ -106,9 +115,19 @@ def ensure_on_path() -> Path:
             "or place the pack beside this repo."
         )
     p = str(tools)
-    if p not in sys.path:
-        sys.path.insert(0, p)
+    while p in sys.path:
+        sys.path.remove(p)
+    sys.path.append(p)
     _inserted_path = p
+    expected = (tools / "aiqt_corpus.py").resolve()
+    spec = importlib.util.find_spec("aiqt_corpus")
+    origin = spec.origin if spec is not None else None
+    if origin is None or Path(origin).resolve() != expected:
+        raise ImportError(
+            f"aiqt_corpus resolves to {origin!r}, not the located pack's {str(expected)!r}: "
+            "an installed or planted aiqt_corpus outranks the pack appended to sys.path. "
+            "Remove it, or point AIQT_PACK_ROOT (or GRC_AIQT_PACK) at the pack that provides it."
+        )
     return tools
 
 

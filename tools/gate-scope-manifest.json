@@ -102,6 +102,7 @@
       "lint-gate-count-consistency.py",
       "lint-guardrail-cadence.py",
       "lint-hooks-syntax.py",
+      "lint-isolated-launch.py",
       "lint-overnight-file.py",
       "lint-paired-skill-step-parity.py",
       "lint-playbook-pointer-integrity.py",

@@ -30,6 +30,24 @@ as a measured one:
 - ``not-derivable``: neither signal. The gate is listed and excluded from the
   coverage inversion, and the report says so.
 
+Runner entries: a line that holds the word ``run_gate`` and is neither a comment nor
+the ``run_gate() {`` definition must be, from column 0,
+``run_gate "LABEL" python3 [-I] tools/X.py [plain arguments]`` (gate 35's closed
+allowlist, the same patterns); any other shape is a refused runner entry. The
+allowlist does not cover runner shell code outside run_gate lines (the function
+body, a redefinition of python3 or run_gate, PATH or BASH_ENV, and whether bash
+reaches a run_gate line inside a conditional, heredoc, loop or backslash
+continuation), which python3 is found on PATH, or what a gate script does. This map
+reads no YAML: gate 35 alone checks the workflow and pre-commit gate surfaces against
+the fixed skeleton of each file (3b646 round 6: only the keys the current files use at
+each level, each nested value two columns deeper than its key, no repeated key, no
+quoted value apart from the workflow's one pinned python-version: "3.11", and a gate
+hook's run-deciding key pinned to the values the gate hooks use), and that gate's module docstring states their residuals: the values of the
+excluded steps and hooks, the values the skeletons leave free (the workflow and job
+names and the step and hook names and ids), YAML a real reader takes differently in ways
+those rules do not exclude (the check does not validate YAML), and whether GitHub
+Actions or pre-commit runs at all.
+
 Honest limits: static inspection cannot see dynamically-computed scopes, so both
 the per-gate scope and the unscanned-file list are APPROXIMATE by construction.
 The report's purpose is triage (where to point manual review), never proof of
@@ -64,9 +82,20 @@ from lint_common import PathContainmentError, is_containment_refusal, join_under
 
 TOOL_ROOT = Path(__file__).resolve().parent.parent
 
-RUN_GATE_RE = re.compile(
-    r'^run_gate\s+"(?P<name>[^"]+)"\s+.*?python3\s+(?P<script>tools/\S+\.py)',
-)  # matches gate INVOCATIONS only; the run_gate() function definition does not match
+# Runner lines are matched against gate 35's closed allowlist (3b646 round 4, maintainer
+# option A), with the same pattern strings (a test keeps them equal): every line that is
+# not a comment and holds the word run_gate is the `run_gate() {` definition or, from
+# column 0, `run_gate "LABEL" python3 [-I] tools/X.py [plain arguments]`. Anything else is
+# refused (exit 2). See tools/lint-audit-gate-parity.py's GATE_COMMAND comment for the
+# grammar and for what it does not cover.
+GATE_COMMAND = (r"python3(?: -I)? (?P<script>tools/[a-z0-9][a-z0-9_-]*\.py)"
+                r"(?P<args>(?: [A-Za-z0-9_./=,+-]+)*)")
+RUNNER_LABEL = r"[A-Za-z0-9][A-Za-z0-9 ./-]*"
+RUNNER_LINE_RE = re.compile(rf'run_gate "(?P<name>{RUNNER_LABEL})" +{GATE_COMMAND}')
+RUN_GATE_WORD_RE = re.compile(r"\brun_gate\b")
+RUNNER_NON_GATE_LINES = frozenset({"run_gate() {"})
+
+
 COMMON_DISCOVERY_TOKENS = (
     "iter_targets",
     "iter_markdown_targets",
@@ -181,10 +210,18 @@ def load_gates(root: Path) -> list[GateScope]:
     if not runner.is_file():
         raise RuntimeError(f"runner not found: {runner}")
     gates: list[GateScope] = []
-    for line in runner.read_text(encoding="utf-8", errors="replace").splitlines():
-        m = RUN_GATE_RE.match(line.strip())
-        if m:
-            gates.append(derive_scope(root, m.group("name"), m.group("script")))
+    # Split at LF only, as bash does: a universal-newline read would also split at CR.
+    for raw in runner.read_bytes().decode("utf-8", errors="replace").split("\n"):
+        line = raw.rstrip(" \t")
+        if (line.lstrip().startswith("#") or not RUN_GATE_WORD_RE.search(line)
+                or line in RUNNER_NON_GATE_LINES):
+            continue
+        m = RUNNER_LINE_RE.fullmatch(line)
+        if not m:
+            raise RuntimeError(f"runner line {line!r} is not an accepted gate line; only "
+                               f'`run_gate "LABEL" python3 [-I] tools/X.py [plain arguments]` '
+                               f"at column 0 is accepted")
+        gates.append(derive_scope(root, m.group("name"), m.group("script")))
     return gates
 
 

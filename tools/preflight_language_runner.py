@@ -117,7 +117,7 @@ def main() -> None:
     gate_path = os.path.abspath(sys.argv[1])
     tools_dir = os.path.dirname(gate_path)
     if tools_dir not in sys.path:
-        sys.path.insert(0, tools_dir)
+        sys.path.append(tools_dir)  # after the standard library, never at index 0
     spec = importlib.util.spec_from_file_location("_changelog_language", gate_path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)

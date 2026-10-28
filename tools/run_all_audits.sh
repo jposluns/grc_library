@@ -245,6 +245,7 @@ run_gate "Hook-launcher isolation audit"                         python3 tools/l
 run_gate "Startup character and core-line ceiling audit"        python3 tools/lint-startup-character-ceiling.py
 run_gate "Tooling backlog-reference audit"                       python3 tools/lint-tooling-backlog-refs.py
 run_gate "Table cell-count audit"                                python3 tools/lint-table-cell-count.py
+run_gate "Isolated-launch import audit"                          python3 tools/lint-isolated-launch.py
 
 # ----------------------------------------------------------------------
 # Summary
