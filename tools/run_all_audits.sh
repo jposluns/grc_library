@@ -60,9 +60,10 @@ run_gate() {
         # shows lines that start with DUE-SOON (gate 72's due-soon band), so a
         # lapse shows at resume. A gate whose output has the exact marker line
         # below, followed by a space and this run's token, also shows lines that
-        # start with WARN or NOTE; only gates 72 and 106 print it (RUNNER_ECHO_MARKER
-        # in their scripts, printed only when GRC_RUNNER_ECHO_TOKEN is set), gate 72
-        # for its stale, future-dated and untiered lines and gate 106 for its
+        # start with WARN or NOTE; only gates 6, 72 and 106 print it (RUNNER_ECHO_MARKER
+        # in their scripts, printed only when GRC_RUNNER_ECHO_TOKEN is set), gate 6
+        # for its UNPINNED and UNREGISTERED count line, gate 72 for its stale,
+        # future-dated and untiered lines and gate 106 for its
         # low-headroom line. The key is a line the gate
         # declares in its own output, not its script path, so a rename, move or
         # other invocation path of the script cannot switch the echo off. The

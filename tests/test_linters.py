@@ -3173,6 +3173,1442 @@ class StandardsCurrencyTests(LinterTestCase):
             import shutil
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
+    # P-3.213 (maintainer ruling 2026-10-27, option A): the count line, the ISO/IEC
+    # 20000-1 register row and the per-standard UNPINNED ratchet.
+    RATCHET_REGISTER = (
+        "# Register\n\n## ISO / IEC standards\n\n"
+        "| Standard ID | Current version | Publication date | Topic | Superseded versions"
+        " | Upstream check location | Last verified (UTC) |\n"
+        "| --- | --- | --- | --- | --- | --- | --- |\n"
+        "| ISO/IEC 27001 | 2022 | 2022-10 | ISMS | 2013 | - | needs-reconfirm |\n"
+        "| ISO/IEC 27002 | 2022 | 2022-02 | Controls | 2013 | - | needs-reconfirm |\n"
+    )
+    BASELINE_REL = "tools/standards-currency-unpinned-baseline.json"
+    WRAPPER_REL = "tools/lint-standards-currency.py"
+    REGISTER_REL = "governance/register-canonical-citations.md"
+    # The base's copy of the wrapper: one that holds the ratchet names UNPINNED_BASELINE_REL.
+    RATCHET_WRAPPER = 'UNPINNED_BASELINE_REL = "tools/standards-currency-unpinned-baseline.json"\n'
+    PRE_RATCHET_WRAPPER = '"""Standards-currency audit, before P-3.213."""\n'
+    SAME = object()
+
+    @staticmethod
+    def _write_or_remove(target: Path, value) -> None:
+        """A dict of counts is written as {"unpinned": ...}; str or bytes are written raw;
+        None removes the file."""
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if isinstance(value, dict):
+            target.write_text(json.dumps({"unpinned": value}), encoding="utf-8")
+        elif isinstance(value, str):
+            target.write_text(value, encoding="utf-8")
+        elif isinstance(value, bytes):
+            target.write_bytes(value)
+        elif target.exists():
+            target.unlink()
+
+    def _fixture_git(self, root: Path, *args: str) -> str:
+        return subprocess.run(
+            ["git", "-C", str(root), "-c", "user.name=fixture",
+             "-c", "user.email=fixture@example.invalid", *args],
+            check=True, capture_output=True, text=True, env=fixture_git_environment(),
+            timeout=60,
+        ).stdout.strip()
+
+    def _ratchet_root(self, doc: str, baseline, *, base_baseline=SAME, base_register=SAME,
+                      base_wrapper=RATCHET_WRAPPER, base_doc="Base document.\n",
+                      git=True) -> Path:
+        """A --root tree: the fixture register, ai/doc.md and the baseline (see
+        _write_or_remove). Round 2: the tree is a git repository whose one commit, also
+        refs/remotes/origin/main, is the ratchet base. That commit holds base_register
+        (default the tree's register), base_wrapper (default a wrapper with the ratchet),
+        base_baseline (default the tree's baseline when it is a dict, else an empty
+        one) and base_doc as ai/doc.md; None leaves a file out of the base. The tree's
+        own files are then written over it, uncommitted. git=False gives a plain
+        directory with no repository."""
+        root = Path(tempfile.mkdtemp(prefix="currency-ratchet-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        if git:
+            if base_baseline is self.SAME:
+                base_baseline = baseline if isinstance(baseline, dict) else {}
+            if base_register is self.SAME:
+                base_register = self.RATCHET_REGISTER
+            self._write_or_remove(root / self.REGISTER_REL, base_register)
+            self._write_or_remove(root / self.WRAPPER_REL, base_wrapper)
+            self._write_or_remove(root / self.BASELINE_REL, base_baseline)
+            (root / "ai").mkdir()
+            (root / "ai/doc.md").write_text(base_doc, encoding="utf-8")
+            self._fixture_git(root, "init", "-q")
+            self._fixture_git(root, "add", "-A")
+            self._fixture_git(root, "commit", "-q", "-m", "base")
+            self._fixture_git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
+        self._write_or_remove(root / self.REGISTER_REL, self.RATCHET_REGISTER)
+        (root / "ai").mkdir(exist_ok=True)
+        (root / "ai/doc.md").write_text(doc, encoding="utf-8")
+        (root / "tools").mkdir(exist_ok=True)
+        self._write_or_remove(root / self.BASELINE_REL, baseline)
+        return root
+
+    def _run_ratchet(self, root: Path, *args: str, env: dict | None = None):
+        """The gate on a --root fixture, outside GitHub Actions unless env says otherwise:
+        no GITHUB_* or GIT_* variable or runner token is inherited."""
+        environ = {k: v for k, v in fixture_git_environment().items()
+                   if not k.startswith("GITHUB_") and k != "GRC_RUNNER_ECHO_TOKEN"}
+        environ.update(env or {})
+        return subprocess.run(
+            [sys.executable, str(REPO_ROOT / self.WRAPPER_REL), "--root", str(root), *args],
+            cwd=str(REPO_ROOT), capture_output=True, text=True, env=environ, timeout=900,
+        )
+
+    def _ratchet_history(self, doc: str, baseline, base_baseline, **kwargs):
+        """Round 3: a _ratchet_root whose tree is committed on top of the base, so HEAD is
+        the change and refs/remotes/origin/main stays at the base. Returns (root, base, tip)."""
+        root = self._ratchet_root(doc, baseline, base_baseline=base_baseline, **kwargs)
+        base = self._fixture_git(root, "rev-parse", "HEAD")
+        self._fixture_git(root, "add", "-A")
+        self._fixture_git(root, "commit", "-q", "-m", "change")
+        return root, base, self._fixture_git(root, "rev-parse", "HEAD")
+
+    def _ratchet_merge(self, root: Path, first: str, second: str) -> str:
+        """The merge commit a pull_request checkout holds: parents (first, second), left
+        checked out (detached). Returns its sha."""
+        self._fixture_git(root, "checkout", "-q", "--detach", first)
+        self._fixture_git(root, "merge", "-q", "--no-ff", "-m", "merge", second)
+        return self._fixture_git(root, "rev-parse", "HEAD")
+
+    def _event_payload(self, root: Path) -> Path:
+        payload = root.parent / (root.name + "-event.json")
+        self.addCleanup(lambda: payload.unlink(missing_ok=True))
+        return payload
+
+    def test_summary_line_carries_unpinned_and_unregistered_counts(self) -> None:
+        # The run ends with one NOTE line of the UNPINNED and UNREGISTERED totals, just
+        # before the verdict line, and the line changes no exit status: a run with only
+        # advisory findings still exits 0, and a legacy stale citation still exits 1.
+        doc = "Controls follow ISO/IEC 27001.\n\nThe annex maps ISO/IEC 27799:2016.\n"
+        root = self._ratchet_root(doc, {"ISO/IEC 27001": 1})
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        lines = result.stdout.splitlines()
+        self.assertEqual(lines[-2], "NOTE: standards-currency counts: UNPINNED 1 occurrences "
+                                    "of 1 standards; UNREGISTERED 1 occurrences of 1 standards")
+        self.assertEqual(lines[-1], "REPORT: no blocking findings; advisory review remains.")
+        stale = self._ratchet_root(doc + "\nCertified to ISO/IEC 27001:2013.\n",
+                                   {"ISO/IEC 27001": 1})
+        result = self._run_ratchet(stale)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("NOTE: standards-currency counts: UNPINNED 1 occurrences", result.stdout)
+        self.assertNotIn("UNPINNED ratchet", result.stdout)
+        self.assertEqual(result.stdout.splitlines()[-1], "FAIL: blocking findings remain.")
+
+    def test_runner_shows_gate_6_count_line_on_a_pass(self) -> None:
+        # The runner's own gate 6 line, under the shipped run_gate body, against the real
+        # repository: the gate passes (so the checked-in baseline equals the live counts)
+        # and the runner shows its NOTE count line, which a passing gate's output hides
+        # unless the gate prints the runner-echo marker with run_gate's token.
+        src = (REPO_ROOT / "tools/run_all_audits.sh").read_text(encoding="utf-8")
+        start = src.index("run_gate() {")
+        func = src[start:src.index("\n}\n", start) + 3]
+        gate_line = next(ln for ln in src.splitlines()
+                         if ln.startswith('run_gate "Standards-currency audit" '))
+        script = ("set -u\nTOTAL=0\nFAILED=0\nFAILED_LIST=()\nFAIL_FAST=0\n"
+                  + func + gate_line + "\n")
+        env = {k: v for k, v in os.environ.items() if k != "GRC_RUNNER_ECHO_TOKEN"}
+        r = subprocess.run(["bash", "-c", script], capture_output=True, text=True,
+                           cwd=str(REPO_ROOT), env=env, timeout=900)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("Standards-currency audit", r.stdout)
+        self.assertIn("... OK", r.stdout, r.stdout[-3000:])
+        self.assertRegex(r.stdout, r"(?m)^      NOTE: standards-currency counts: UNPINNED \d+ "
+                                   r"occurrences of \d+ standards; UNREGISTERED \d+ "
+                                   r"occurrences of \d+ standards$")
+        self.assertNotIn("runner-echo", r.stdout)
+        self.assertNotIn("ADVISORY", r.stdout)
+
+    def test_register_holds_iso_iec_20000_1_row(self) -> None:
+        # The held reference text is ISO/IEC 20000-1:2018, Third edition, 2018-09, whose
+        # foreword says it cancels and replaces the second edition (ISO/IEC 20000-1:2011).
+        # ISO's catalogue (checked 2026-10-28) lists the 2018 edition as current, with Amd 1:2024.
+        mod = load_linter_module("tools/lint-standards-currency.py", "currency_20000_1")
+        rows = [e for e in mod.parse_canonical_register() if e["id"] == "ISO/IEC 20000-1"]
+        self.assertEqual(len(rows), 1)
+        row = rows[0]
+        self.assertEqual((row["current"], row["cells"][2], row["superseded"]),
+                         ("2018", "2018-09", ["2011"]))
+        self.assertEqual((row["upstream"], row["verified"]),
+                         ("https://www.iso.org/standard/70636.html", "verified 2026-10-28"))
+
+    def test_unpinned_count_above_baseline_fails(self) -> None:
+        # A count above its baseline fails and names the standard and both counts; a
+        # standard the baseline omits has a baseline of 0, so its first unpinned
+        # citation fails too.
+        doc = "ISO/IEC 27001 applies.\n\nISO/IEC 27001 again.\n\nISO/IEC 27002 too.\n"
+        root = self._ratchet_root(doc, {"ISO/IEC 27001": 1})
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("FAIL: UNPINNED ratchet: ISO/IEC 27001 has 2 unpinned citation(s), "
+                      "above its baseline of 1 in " + self.BASELINE_REL, result.stdout)
+        self.assertIn("FAIL: UNPINNED ratchet: ISO/IEC 27002 has 1 unpinned citation(s), "
+                      "above its baseline of 0", result.stdout)
+        self.assertIn("the baseline may only fall", result.stdout)
+        self.assertEqual(result.stdout.splitlines()[-1], "FAIL: blocking findings remain.")
+        # Pinning the extra citations brings the run back to a pass.
+        pinned = self._ratchet_root(
+            "ISO/IEC 27001 applies.\n\nISO/IEC 27001:2022 again.\n\nISO/IEC 27002:2022 too.\n",
+            {"ISO/IEC 27001": 1})
+        result = self._run_ratchet(pinned)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_baseline_above_count_fails_with_lowering_instruction(self) -> None:
+        # A baseline above the live count fails (slack would let later changes add that
+        # many unpinned citations unnoticed) and says how to lower it: set the entry to
+        # the live count, or remove it at 0.
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n",
+                                  {"ISO/IEC 27001": 3, "ISO/IEC 27002": 2})
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("FAIL: UNPINNED ratchet: ISO/IEC 27001 has 1 unpinned citation(s), "
+                      "below its baseline of 3; lower the baseline: in " + self.BASELINE_REL
+                      + ", set its entry to 1 in this change.", result.stdout)
+        self.assertIn("FAIL: UNPINNED ratchet: ISO/IEC 27002 has 0 unpinned citation(s), "
+                      "below its baseline of 2; lower the baseline: in " + self.BASELINE_REL
+                      + ", remove its entry in this change.", result.stdout)
+
+    def test_missing_unreadable_or_malformed_baseline_fails_closed(self) -> None:
+        # A missing or unreadable baseline exits 2 (a missing intended input) and a
+        # malformed one exits 1; neither is read as "no ratchet". An explicit --paths run
+        # scans a subset, so it reads no baseline.
+        doc = "ISO/IEC 27001 applies.\n"
+        root = self._ratchet_root(doc, None)
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(self.BASELINE_REL, result.stderr)
+        result = self._run_ratchet(root, "--paths", "ai/doc.md")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        unreadable = self._ratchet_root(doc, None)
+        (unreadable / self.BASELINE_REL).mkdir()
+        self.assertEqual(self._run_ratchet(unreadable).returncode, 2)
+        self.assertEqual(self._run_ratchet(self._ratchet_root(doc, b"\xff\xfe")).returncode, 2)
+        for text in (
+            "", "not json", "[]", "{}", '{"unpinned": []}',
+            '{"unpinned": {"ISO/IEC 27001": 1}, "extra": 1}',
+            '{"unpinned": {"ISO/IEC 27001": 1}, "_comment": 7}',
+            '{"unpinned": {"ISO/IEC 27001": 1, "ISO/IEC 27001": 1}}',
+            '{"unpinned": {"ISO/IEC 27001": 1}, "unpinned": {"ISO/IEC 27001": 1}}',
+            '{"unpinned": {"ISO/IEC 27001": 0}}', '{"unpinned": {"ISO/IEC 27001": -1}}',
+            '{"unpinned": {"ISO/IEC 27001": true}}', '{"unpinned": {"ISO/IEC 27001": 1.0}}',
+            '{"unpinned": {"ISO/IEC 27001": "1"}}', '{"unpinned": {"ISO/IEC 27001": NaN}}',
+            '{"unpinned": {"ISO/IEC 27001": 1, "ISO 27001": 1}}',
+            '{"unpinned": {"iso/iec 27001": 1}}',
+        ):
+            result = self._run_ratchet(self._ratchet_root(doc, text))
+            self.assertEqual(result.returncode, 1, (text, result.stdout[-300:], result.stderr))
+            self.assertIn("UNPINNED baseline " + self.BASELINE_REL, result.stderr, text)
+
+    def test_malformed_base_baseline_or_register_exits_2_and_head_exits_1(self) -> None:
+        # The wrapper docstring's Exit codes list: a malformed baseline or register in the tree
+        # exits 1 (a RegisterError), but the same data at the ratchet base exits 2 with the
+        # "UNPINNED ratchet base" message (base_ratchet_lines turns the RegisterError into a
+        # RatchetBaseError). The tree's own baseline and register are well formed here.
+        doc, counts = "ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1}
+        for text in ("not json", '{"unpinned": []}', '{"unpinned": {"ISO/IEC 27001": 0}}',
+                     '{"unpinned": {"ISO/IEC 27001": 1}, "extra": 1}'):
+            with self.subTest(base_baseline=text):
+                result = self._run_ratchet(self._ratchet_root(doc, counts, base_baseline=text))
+                self.assertEqual(result.returncode, 2, (text, result.stdout[-300:], result.stderr))
+                self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr)
+                self.assertIn("UNPINNED baseline " + self.BASELINE_REL, result.stderr)
+            with self.subTest(head_baseline=text):
+                result = self._run_ratchet(self._ratchet_root(doc, text, base_baseline=counts))
+                self.assertEqual(result.returncode, 1, (text, result.stdout[-300:], result.stderr))
+                self.assertNotIn("UNPINNED ratchet base", result.stderr)
+                self.assertIn("UNPINNED baseline " + self.BASELINE_REL, result.stderr)
+        malformed = self.RATCHET_REGISTER.replace("| Standard ID |", "| Standard Id |", 1)
+        self.assertNotEqual(malformed, self.RATCHET_REGISTER)
+        result = self._run_ratchet(self._ratchet_root(doc, counts, base_register=malformed))
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr)
+        self.assertIn("malformed header", result.stderr)
+        head = self._ratchet_root(doc, counts)
+        (head / self.REGISTER_REL).write_text(malformed, encoding="utf-8")
+        result = self._run_ratchet(head)
+        self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+        self.assertIn("malformed header", result.stderr)
+
+    # P-3.213 round 2: the baseline itself may only fall relative to a base revision.
+    def test_baseline_entry_raised_above_its_base_value_fails(self) -> None:
+        # Adding an unpinned citation and raising its entry in the same change passes the
+        # live-count comparison, so the base comparison must fail it; an entry at or
+        # below its base value passes.
+        doc = "ISO/IEC 27001 applies.\n\nISO/IEC 27001 again.\n"
+        root = self._ratchet_root(doc, {"ISO/IEC 27001": 2},
+                                  base_baseline={"ISO/IEC 27001": 1})
+        base = self._fixture_git(root, "rev-parse", "HEAD")
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(f"FAIL: UNPINNED ratchet: the baseline entry for ISO/IEC 27001 rose "
+                      f"from 1 at the base revision {base[:12]} (merge base with "
+                      "refs/remotes/origin/main) to 2; the baseline may only fall.",
+                      result.stdout)
+        self.assertNotIn("above its baseline", result.stdout)
+        self.assertEqual(result.stdout.splitlines()[-1], "FAIL: blocking findings remain.")
+        lowered = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1},
+                                     base_baseline={"ISO/IEC 27001": 2})
+        result = self._run_ratchet(lowered)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("UNPINNED ratchet", result.stdout)
+
+    def test_new_baseline_entry_needs_its_new_register_row(self) -> None:
+        # A new entry for a standard the base register already lists is a rise from 0; a
+        # new entry is allowed only with the standard's new register row in the change.
+        doc = "ISO/IEC 27001 applies.\n\nISO/IEC 27002 applies.\n"
+        counts = {"ISO/IEC 27001": 1, "ISO/IEC 27002": 1}
+        root = self._ratchet_root(doc, counts, base_baseline={"ISO/IEC 27001": 1})
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("FAIL: UNPINNED ratchet: ISO/IEC 27002 has a baseline entry of 1 but "
+                      "none at the base revision", result.stdout)
+        self.assertIn("whose register already lists it; a new entry is allowed only with "
+                      "the standard's new register row in the same change.", result.stdout)
+        base_register = self.RATCHET_REGISTER.replace(
+            "| ISO/IEC 27002 | 2022 | 2022-02 | Controls | 2013 | - | needs-reconfirm |\n", "")
+        # Round 4: the new row's entry is capped at the count at the base, so the base
+        # already holds the citation the entry records.
+        new_row = self._ratchet_root(doc, counts, base_baseline={"ISO/IEC 27001": 1},
+                                     base_register=base_register, base_doc=doc)
+        result = self._run_ratchet(new_row)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("UNPINNED ratchet", result.stdout)
+
+    def test_register_row_with_a_base_entry_cannot_be_removed(self) -> None:
+        # Removing a row together with its entry would move its citations to the
+        # unratcheted UNREGISTERED count; the row can leave once its base entry is gone.
+        register = self.RATCHET_REGISTER.replace(
+            "| ISO/IEC 27002 | 2022 | 2022-02 | Controls | 2013 | - | needs-reconfirm |\n", "")
+        doc = "ISO/IEC 27001 applies.\n\nISO/IEC 27002 applies.\n"
+        root = self._ratchet_root(doc, {"ISO/IEC 27001": 1},
+                                  base_baseline={"ISO/IEC 27001": 1, "ISO/IEC 27002": 1})
+        (root / self.REGISTER_REL).write_text(register, encoding="utf-8")
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("FAIL: UNPINNED ratchet: the register row for ISO/IEC 27002 is removed "
+                      "while the base revision", result.stdout)
+        clean = self._ratchet_root(doc, {"ISO/IEC 27001": 1},
+                                   base_baseline={"ISO/IEC 27001": 1})
+        (clean / self.REGISTER_REL).write_text(register, encoding="utf-8")
+        result = self._run_ratchet(clean)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_undeterminable_or_unreadable_base_fails_closed(self) -> None:
+        # No base, or a base whose register or baseline cannot be read, exits 2 with the
+        # "UNPINNED ratchet base" message; it never passes, and never compares the tree
+        # with itself.
+        doc = "ISO/IEC 27001 applies.\n"
+        counts = {"ISO/IEC 27001": 1}
+
+        def refused(root, env=None, why=""):
+            result = self._run_ratchet(root, env=env)
+            self.assertEqual(result.returncode, 2, (why, result.stdout[-300:], result.stderr))
+            self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr, why)
+            self.assertIn(why, result.stderr)
+
+        refused(self._ratchet_root(doc, counts, git=False), why="not the top level")
+        no_origin = self._ratchet_root(doc, counts)
+        self._fixture_git(no_origin, "update-ref", "-d", "refs/remotes/origin/main")
+        refused(no_origin, why="origin/main")
+        refused(self._ratchet_root(doc, counts, base_baseline="not json"),
+                why="the base revision")
+        refused(self._ratchet_root(doc, counts, base_baseline={"ISO/IEC 27001": 1},
+                                   base_register=None), why=self.REGISTER_REL)
+        tree = self._ratchet_root(doc, counts, base_baseline=None)
+        (tree / self.BASELINE_REL).unlink()
+        self._write_or_remove(tree / self.BASELINE_REL / "x", "{}")
+        self._fixture_git(tree, "add", "-A")
+        self._fixture_git(tree, "commit", "-q", "-m", "a directory at the baseline path")
+        self._fixture_git(tree, "update-ref", "refs/remotes/origin/main", "HEAD")
+        shutil.rmtree(tree / self.BASELINE_REL)
+        self._write_or_remove(tree / self.BASELINE_REL, counts)
+        refused(tree, why="is not a file")
+        # In GitHub Actions the event payload must be readable and name a commit; a payload
+        # that names none, or a commit the clone lacks, is refused, as is an event with no
+        # base rule. Round 3: a pull_request run also needs a merge commit at HEAD.
+        root, base, tip = self._ratchet_history(doc, counts, counts)
+        merge = self._ratchet_merge(root, base, tip)
+        payload = self._event_payload(root)
+
+        def actions(event, body):
+            payload.write_text(body, encoding="utf-8")
+            return {"GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": event,
+                    "GITHUB_EVENT_PATH": str(payload)}
+
+        for event, body, why in (
+            ("pull_request", "{}", "names no pull_request.base.sha"),
+            ("pull_request", "not json", "is unreadable"),
+            ("pull_request", '{"pull_request": {"base": {"sha": "%s", "sha": "%s"}}}'
+             % (base, base), "repeated key"),
+            ("pull_request", '{"pull_request": {"base": {"sha": "%s"}}}' % ("1" * 40),
+             "pull_request payload's base.sha"),
+            ("pull_request", '{"pull_request": {"base": {"sha": "HEAD"}}}', "not a commit"),
+            ("push", '{"before": "%s"}' % ("0" * 40), "not a commit"),
+            ("push", "{}", "names no before"),
+            ("pull_request_target", "{}", "has no base revision rule"),
+        ):
+            refused(root, env=actions(event, body), why=why)
+        for event, body, how in (
+            ("pull_request", '{"pull_request": {"base": {"sha": "%s"}}}' % base,
+             "first parent of the pull request merge commit"),
+            ("push", '{"before": "%s"}' % base, "previous tip of the pushed branch"),
+        ):
+            self._fixture_git(root, "checkout", "-q", "--detach",
+                              merge if event == "pull_request" else tip)
+            result = self._run_ratchet(root, "--format", "json", env=actions(event, body))
+            self.assertEqual(result.returncode, 0, result.stdout[-300:] + result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["unpinned_ratchet_base"],
+                             dict(revision=base, chosen_by=how, bootstrap=False))
+
+    def test_bootstrap_only_for_a_base_that_predates_the_ratchet(self) -> None:
+        # A base with no baseline file whose wrapper predates the ratchet seeds the
+        # baseline: the run says so and holds the baseline to the live counts only. A
+        # base whose wrapper already holds the ratchet, or that has no wrapper, and no
+        # baseline file fails closed, so deleting or moving the file cannot reopen it.
+        doc = "ISO/IEC 27001 applies.\n\nISO/IEC 27002 applies.\n"
+        counts = {"ISO/IEC 27001": 1, "ISO/IEC 27002": 1}
+        root = self._ratchet_root(doc, counts, base_baseline=None,
+                                  base_wrapper=self.PRE_RATCHET_WRAPPER, base_doc=doc)
+        base = self._fixture_git(root, "rev-parse", "HEAD")
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        lines = result.stdout.splitlines()
+        self.assertEqual(lines[-3], f"NOTE: UNPINNED ratchet: the base revision {base[:12]} "
+                                    "(merge base with refs/remotes/origin/main) predates the "
+                                    "ratchet (no baseline there), so this change seeds the "
+                                    "baseline, held to the live counts and to each standard's "
+                                    "UNPINNED count at the base.")
+        self.assertTrue(lines[-2].startswith("NOTE: standards-currency counts:"), lines[-2])
+        slack = self._ratchet_root(doc, {"ISO/IEC 27001": 2, "ISO/IEC 27002": 1},
+                                   base_baseline=None, base_wrapper=self.PRE_RATCHET_WRAPPER,
+                                   base_doc=doc + "\nISO/IEC 27001 once more.\n")
+        result = self._run_ratchet(slack)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("below its baseline of 2", result.stdout)
+        for wrapper, why in ((self.RATCHET_WRAPPER, "already holds the ratchet"),
+                             (None, "no " + self.WRAPPER_REL)):
+            result = self._run_ratchet(self._ratchet_root(
+                doc, counts, base_baseline=None, base_wrapper=wrapper))
+            self.assertEqual(result.returncode, 2, (why, result.stdout[-300:], result.stderr))
+            self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr)
+            self.assertIn(why, result.stderr)
+            self.assertIn("this is not the bootstrap", result.stderr)
+
+    # P-3.213 round 3: one base-selection function, and a bootstrap that cannot raise a count.
+    RAISED_DOC = "ISO/IEC 27001 applies.\n\nISO/IEC 27001 again.\n"
+
+    def test_schedule_and_workflow_dispatch_runs_take_the_merge_base(self) -> None:
+        # Round 2 finding 1: the nightly sweep runs on schedule and workflow_dispatch, and
+        # the gate exited 2 for any Actions event but pull_request and push. Those runs now
+        # take the merge base of HEAD and refs/remotes/origin/main, as a local run does.
+        root, base, _ = self._ratchet_history("ISO/IEC 27001 applies.\n",
+                                              {"ISO/IEC 27001": 1}, {"ISO/IEC 27001": 1})
+        payload = self._event_payload(root)
+        payload.write_text("{}", encoding="utf-8")
+        for event in ("schedule", "workflow_dispatch"):
+            env = {"GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": event,
+                   "GITHUB_EVENT_PATH": str(payload)}
+            result = self._run_ratchet(root, "--format", "json", env=env)
+            self.assertEqual(result.returncode, 0, (event, result.stdout[-300:], result.stderr))
+            self.assertEqual(json.loads(result.stdout)["unpinned_ratchet_base"],
+                             dict(revision=base, bootstrap=False,
+                                  chosen_by="merge base with refs/remotes/origin/main"))
+        # The merge base still ratchets: a raised entry on the scheduled run fails.
+        raised, _, _ = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
+                                             {"ISO/IEC 27001": 1})
+        result = self._run_ratchet(raised, env={
+            "GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "schedule",
+            "GITHUB_EVENT_PATH": str(payload)})
+        self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+        self.assertIn("rose from 1", result.stdout)
+
+    def test_bootstrap_seed_cannot_raise_a_count_above_the_base(self) -> None:
+        # Round 2 finding 2: the bootstrap held the seed only to the live counts, so a
+        # change that adds a bare citation and seeds the raised count passed. The seed is
+        # now also held to each count at the base, read from the base tree through git.
+        root = self._ratchet_root(self.RAISED_DOC, {"ISO/IEC 27001": 2}, base_baseline=None,
+                                  base_wrapper=self.PRE_RATCHET_WRAPPER,
+                                  base_doc="ISO/IEC 27001 applies.\n")
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 1, result.stdout[-500:] + result.stderr)
+        self.assertIn("FAIL: UNPINNED ratchet: the seed entry for ISO/IEC 27001 is 2, above "
+                      "its 1 unpinned citation(s) at the base revision", result.stdout)
+        self.assertIn("seeding may not raise a count", result.stdout)
+        self.assertNotIn("above its baseline", result.stdout)
+        # A seed equal to the base count passes; a standard whose row is new in the change
+        # counts at the base under the live register, so its existing citation can be seeded.
+        base_register = self.RATCHET_REGISTER.replace(
+            "| ISO/IEC 27002 | 2022 | 2022-02 | Controls | 2013 | - | needs-reconfirm |\n", "")
+        doc = "ISO/IEC 27001 applies.\n\nISO/IEC 27002 applies.\n"
+        held = self._ratchet_root(doc, {"ISO/IEC 27001": 1, "ISO/IEC 27002": 1},
+                                  base_baseline=None, base_wrapper=self.PRE_RATCHET_WRAPPER,
+                                  base_register=base_register, base_doc=doc)
+        result = self._run_ratchet(held)
+        self.assertEqual(result.returncode, 0, result.stdout[-500:] + result.stderr)
+        self.assertNotIn("seed entry", result.stdout)
+
+    def test_inherited_actions_variables_cannot_name_head_as_the_base(self) -> None:
+        # Round 2 finding 3: a run that inherits GITHUB_ACTIONS and GITHUB_EVENT_PATH took
+        # its base from the payload alone, so a payload naming the modified HEAD compared
+        # the baseline with itself and passed. A push payload's before must now be a proper
+        # ancestor of HEAD, and a pull_request payload must match HEAD^1 of a merge commit.
+        root, _, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
+                                             {"ISO/IEC 27001": 1})
+        payload = self._event_payload(root)
+        for event, body, why in (
+            ("push", '{"before": "%s"}' % tip, "is not a proper ancestor of HEAD"),
+            ("pull_request", '{"pull_request": {"base": {"sha": "%s"}}}' % tip,
+             "is not the merge commit"),
+        ):
+            payload.write_text(body, encoding="utf-8")
+            result = self._run_ratchet(root, env={
+                "GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": event,
+                "GITHUB_EVENT_PATH": str(payload)})
+            self.assertEqual(result.returncode, 2, (event, result.stdout[-300:], result.stderr))
+            self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr)
+            self.assertIn(why, result.stderr)
+        # Round 4: GITHUB_ACTIONS without a readable event file exits 2; it no longer falls
+        # back to the merge base (test_actions_run_needs_a_readable_event_object).
+        result = self._run_ratchet(root, env={
+            "GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "push",
+            "GITHUB_EVENT_PATH": str(root / "no-such-event.json")})
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("GITHUB_ACTIONS is true but the event payload", result.stderr)
+
+    def test_pull_request_base_sha_must_be_head_first_parent(self) -> None:
+        # Round 2 finding 4: a pull_request run trusted pull_request.base.sha. The base is
+        # now HEAD^1 of the checked-out merge commit, and a payload naming any other commit
+        # (here the pull request's own head, which carries the raised entry) exits 2.
+        root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
+                                                {"ISO/IEC 27001": 1})
+        self._ratchet_merge(root, base, tip)
+        payload = self._event_payload(root)
+        env = {"GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "pull_request",
+               "GITHUB_EVENT_PATH": str(payload)}
+        payload.write_text('{"pull_request": {"base": {"sha": "%s"}}}' % tip, encoding="utf-8")
+        result = self._run_ratchet(root, env=env)
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn(f"the pull_request payload's base.sha {tip} is neither HEAD^1 {base}",
+                      result.stderr)
+        payload.write_text('{"pull_request": {"base": {"sha": "%s"}}}' % base, encoding="utf-8")
+        result = self._run_ratchet(root, env=env)
+        self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+        self.assertIn(f"rose from 1 at the base revision {base[:12]} (first parent of the "
+                      "pull request merge commit)", result.stdout)
+
+    def test_main_ref_is_fully_qualified(self) -> None:
+        # Round 2 note: a local branch named origin/main must not stand in for the
+        # remote-tracking ref; the base is the merge base with refs/remotes/origin/main.
+        root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
+                                                {"ISO/IEC 27001": 1})
+        self._fixture_git(root, "branch", "origin/main", tip)
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+        self.assertIn(f"rose from 1 at the base revision {base[:12]} (merge base with "
+                      "refs/remotes/origin/main)", result.stdout)
+
+    # P-3.213 round 4.
+    def test_new_register_row_entry_is_capped_at_the_base_count(self) -> None:
+        # Round 3 finding 1: a change that added a register row, more bare citations of
+        # that standard and a baseline entry of the raised count passed. The new row's
+        # entry is now held to the standard's UNPINNED count at the base, as a seed is.
+        base_register = self.RATCHET_REGISTER.replace(
+            "| ISO/IEC 27002 | 2022 | 2022-02 | Controls | 2013 | - | needs-reconfirm |\n", "")
+        base_doc = "ISO/IEC 27001 applies.\n\nISO/IEC 27002 applies.\n"
+        doc = base_doc + "\nISO/IEC 27002 again.\n\nISO/IEC 27002 once more.\n"
+        root = self._ratchet_root(doc, {"ISO/IEC 27001": 1, "ISO/IEC 27002": 3},
+                                  base_baseline={"ISO/IEC 27001": 1},
+                                  base_register=base_register, base_doc=base_doc)
+        base = self._fixture_git(root, "rev-parse", "HEAD")
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 1, result.stdout[-500:] + result.stderr)
+        self.assertIn(f"FAIL: UNPINNED ratchet: the new baseline entry for ISO/IEC 27002 is 3, "
+                      f"above its 1 unpinned citation(s) at the base revision {base[:12]} "
+                      "(merge base with refs/remotes/origin/main); a new register row may "
+                      "not raise a count.", result.stdout)
+        self.assertEqual(result.stdout.splitlines()[-1], "FAIL: blocking findings remain.")
+        # An entry below the base count passes (the change removed two of the three
+        # citations the base held).
+        held = self._ratchet_root(base_doc, {"ISO/IEC 27001": 1, "ISO/IEC 27002": 1},
+                                  base_baseline={"ISO/IEC 27001": 1},
+                                  base_register=base_register, base_doc=doc)
+        result = self._run_ratchet(held)
+        self.assertEqual(result.returncode, 0, result.stdout[-500:] + result.stderr)
+        self.assertNotIn("new baseline entry", result.stdout)
+
+    def test_main_ref_is_resolved_exactly(self) -> None:
+        # Round 3 finding 2: with refs/remotes/origin/main absent, git's ref-name lookup
+        # took a tag or branch literally named refs/remotes/origin/main in its place (here
+        # at the change itself, so the raised baseline was compared with itself and passed).
+        root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
+                                                {"ISO/IEC 27001": 1})
+        self._fixture_git(root, "update-ref", "-d", "refs/remotes/origin/main")
+        for imitation in ("refs/tags/refs/remotes/origin/main",
+                          "refs/heads/refs/remotes/origin/main"):
+            with self.subTest(imitation=imitation):
+                self._fixture_git(root, "update-ref", imitation, tip)
+                result = self._run_ratchet(root)
+                self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+                self.assertIn("ERROR: UNPINNED ratchet base: the ref refs/remotes/origin/main "
+                              "does not exist in this clone", result.stderr)
+                # With the real ref back at the base, the imitation is ignored.
+                self._fixture_git(root, "update-ref", "refs/remotes/origin/main", base)
+                result = self._run_ratchet(root)
+                self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+                self.assertIn(f"rose from 1 at the base revision {base[:12]} (merge base "
+                              "with refs/remotes/origin/main)", result.stdout)
+                self._fixture_git(root, "update-ref", "-d", "refs/remotes/origin/main")
+                self._fixture_git(root, "update-ref", "-d", imitation)
+
+    def test_actions_run_needs_a_readable_event_object(self) -> None:
+        # Round 3 finding 3: with GITHUB_ACTIONS=true and an unset, missing or unreadable
+        # GITHUB_EVENT_PATH the run fell back to the merge base. It now exits 2; only a run
+        # where GITHUB_ACTIONS is not "true" is local.
+        root, _, _ = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
+                                           {"ISO/IEC 27001": 1})
+        payload = self._event_payload(root)
+        directory = Path(tempfile.mkdtemp(prefix="currency-event-dir-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, directory, ignore_errors=True)
+        missing = str(root.parent / (root.name + "-no-such-event.json"))
+        for label, body, event_path, why in (
+            ("unset", None, None, "GITHUB_EVENT_PATH is unset or empty"),
+            ("empty", None, "", "GITHUB_EVENT_PATH is unset or empty"),
+            ("missing", None, missing, "is unreadable"),
+            ("directory", None, str(directory), "is unreadable"),
+            ("not JSON", "not json", str(payload), "is unreadable"),
+            ("not UTF-8", b"\xff\xfe", str(payload), "is unreadable"),
+            ("array", "[]", str(payload), "is not a JSON object"),
+            ("string", '"x"', str(payload), "is not a JSON object"),
+        ):
+            for event in ("push", "schedule"):
+                with self.subTest(case=label, event=event):
+                    if isinstance(body, bytes):
+                        payload.write_bytes(body)
+                    elif body is not None:
+                        payload.write_text(body, encoding="utf-8")
+                    env = {"GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": event}
+                    if event_path is not None:
+                        env["GITHUB_EVENT_PATH"] = event_path
+                    result = self._run_ratchet(root, env=env)
+                    self.assertEqual(result.returncode, 2,
+                                     result.stdout[-300:] + result.stderr)
+                    self.assertIn("ERROR: UNPINNED ratchet base: GITHUB_ACTIONS is true but",
+                                  result.stderr)
+                    self.assertIn(why, result.stderr)
+        # GITHUB_ACTIONS other than "true" is a local run, whatever GITHUB_EVENT_PATH says:
+        # the merge base applies and the raised entry fails.
+        for value in (None, "false", "1", "TRUE"):
+            with self.subTest(github_actions=value):
+                env = {"GITHUB_EVENT_NAME": "push", "GITHUB_EVENT_PATH": missing}
+                if value is not None:
+                    env["GITHUB_ACTIONS"] = value
+                result = self._run_ratchet(root, env=env)
+                self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+                self.assertIn("rose from 1 at the base revision", result.stdout)
+                self.assertIn("(merge base with refs/remotes/origin/main)", result.stdout)
+
+    def test_pull_request_base_sha_may_be_an_ancestor_of_head_first_parent(self) -> None:
+        # Round 3 finding 4: requiring base.sha to equal HEAD^1 failed a valid pull request
+        # whose base branch moved after the event. The base is HEAD^1 of the checked-out
+        # merge commit, and base.sha need only be that commit or an ancestor of it.
+        root, base, tip = self._ratchet_history("ISO/IEC 27001 applies.\n",
+                                                {"ISO/IEC 27001": 1}, {"ISO/IEC 27001": 1})
+        self._fixture_git(root, "checkout", "-q", "--detach", base)
+        (root / "notes.txt").write_text("The base branch moved.\n", encoding="utf-8")
+        self._fixture_git(root, "add", "notes.txt")
+        self._fixture_git(root, "commit", "-q", "-m", "base branch moved")
+        moved = self._fixture_git(root, "rev-parse", "HEAD")
+        self._ratchet_merge(root, moved, tip)
+        payload = self._event_payload(root)
+        env = {"GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "pull_request",
+               "GITHUB_EVENT_PATH": str(payload)}
+        for claimed in (base, moved):
+            with self.subTest(claimed=claimed):
+                payload.write_text('{"pull_request": {"base": {"sha": "%s"}}}' % claimed,
+                                   encoding="utf-8")
+                result = self._run_ratchet(root, "--format", "json", env=env)
+                self.assertEqual(result.returncode, 0, result.stdout[-300:] + result.stderr)
+                self.assertEqual(json.loads(result.stdout)["unpinned_ratchet_base"],
+                                 dict(revision=moved, bootstrap=False,
+                                      chosen_by="first parent of the pull request merge commit"))
+        # A base.sha that is not an ancestor of HEAD^1 (here the pull request's own head)
+        # still exits 2.
+        payload.write_text('{"pull_request": {"base": {"sha": "%s"}}}' % tip, encoding="utf-8")
+        result = self._run_ratchet(root, env=env)
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn(f"the pull_request payload's base.sha {tip} is neither HEAD^1 {moved}",
+                      result.stderr)
+
+    # P-3.213 round 5: git substitutes no object or parent for the base.
+    def _forged_base(self, root: Path, tip: str) -> str:
+        """A parentless commit holding tip's tree (the raised baseline), to stand in for the base."""
+        return self._fixture_git(root, "commit-tree", tip + "^{tree}", "-m", "forged base")
+
+    def _assert_rise_fails_at(self, result, base: str, how: str) -> None:
+        self.assertEqual(result.returncode, 1, result.stdout[-500:] + result.stderr)
+        self.assertIn(f"rose from 1 at the base revision {base[:12]} ({how})", result.stdout)
+
+    def test_replace_ref_cannot_substitute_the_base(self) -> None:
+        # Round 4 review: after git replace <base> <forged>, git read the forged commit's tree
+        # for the base object id, so the raised baseline was compared with itself and passed.
+        root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
+                                                {"ISO/IEC 27001": 1})
+        self._fixture_git(root, "replace", base, self._forged_base(root, tip))
+        self._assert_rise_fails_at(self._run_ratchet(root), base,
+                                   "merge base with refs/remotes/origin/main")
+
+    def test_inherited_replace_ref_base_cannot_substitute_the_base(self) -> None:
+        # Round 4 review: GIT_REPLACE_REF_BASE, inherited, named refs that hold a replacement
+        # outside refs/replace/, which the round 4 denylist did not drop.
+        root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
+                                                {"ISO/IEC 27001": 1})
+        self._fixture_git(root, "update-ref", "refs/elsewhere/" + base,
+                          self._forged_base(root, tip))
+        self._assert_rise_fails_at(
+            self._run_ratchet(root, env={"GIT_REPLACE_REF_BASE": "refs/elsewhere/"}), base,
+            "merge base with refs/remotes/origin/main")
+
+    def test_grafts_cannot_substitute_a_parent(self) -> None:
+        # refs/remotes/origin/main is a sibling of the change on the base. A graft giving it
+        # the change as its parent made the change itself the merge base, so the raised
+        # baseline was compared with itself and passed: from an inherited GIT_GRAFT_FILE (a
+        # GIT_ variable the round 4 denylist did not drop) and from the repository's own
+        # info/grafts, which git 2.53 still honours under GIT_NO_REPLACE_OBJECTS.
+        root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
+                                                {"ISO/IEC 27001": 1})
+        main = self._fixture_git(root, "commit-tree", base + "^{tree}", "-p", base,
+                                 "-m", "main moved")
+        self._fixture_git(root, "update-ref", "refs/remotes/origin/main", main)
+        how = "merge base with refs/remotes/origin/main"
+        self._assert_rise_fails_at(self._run_ratchet(root), base, how)
+        grafts = self._event_payload(root).with_suffix(".grafts")
+        self.addCleanup(lambda: grafts.unlink(missing_ok=True))
+        grafts.write_text(f"{main} {tip}\n", encoding="utf-8")
+        with self.subTest(surface="inherited GIT_GRAFT_FILE"):
+            self._assert_rise_fails_at(
+                self._run_ratchet(root, env={"GIT_GRAFT_FILE": str(grafts)}), base, how)
+        own = Path(self._fixture_git(root, "rev-parse", "--absolute-git-dir")) / "info/grafts"
+        own.parent.mkdir(exist_ok=True)
+        own.write_text(f"{main} {tip}\n", encoding="utf-8")
+        with self.subTest(surface="the repository's info/grafts"):
+            self._assert_rise_fails_at(self._run_ratchet(root), base, how)
+
+    @staticmethod
+    def _forge_commit_graph_parent(git_dir: Path, child: str, parent: str) -> None:
+        """Rewrite child's first parent in the commit-graph file (SHA-1, one layer) to parent,
+        with a recomputed trailing checksum."""
+        import hashlib
+        import struct
+        path = git_dir / "objects/info/commit-graph"
+        data = bytearray(path.read_bytes())
+        chunks = {}
+        for i in range(data[6] + 1):
+            cid, offset = struct.unpack(">4sQ", data[8 + 12 * i:20 + 12 * i])
+            chunks[cid] = offset
+        count = struct.unpack(">I", data[chunks[b"OIDF"] + 1020:chunks[b"OIDF"] + 1024])[0]
+        oids = [bytes(data[chunks[b"OIDL"] + 20 * i:chunks[b"OIDL"] + 20 * (i + 1)]).hex()
+                for i in range(count)]
+        struct.pack_into(">I", data, chunks[b"CDAT"] + 36 * oids.index(child) + 20,
+                         oids.index(parent))
+        data[-20:] = hashlib.sha1(bytes(data[:-20])).digest()
+        path.chmod(0o644)
+        path.write_bytes(bytes(data))
+
+    def test_commit_graph_cannot_substitute_a_parent(self) -> None:
+        # The pull_request base is HEAD^1, read with rev-list --parents, which git answers
+        # from the commit-graph file when one exists. A graph naming the change as the merge
+        # commit's first parent made the change its own base, and the raised baseline passed.
+        root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
+                                                {"ISO/IEC 27001": 1})
+        merge = self._ratchet_merge(root, base, tip)
+        self._fixture_git(root, "update-ref", "refs/heads/pull-merge", merge)
+        self._fixture_git(root, "commit-graph", "write", "--reachable")
+        self._forge_commit_graph_parent(
+            Path(self._fixture_git(root, "rev-parse", "--absolute-git-dir")), merge, tip)
+        self.assertEqual(self._fixture_git(root, "rev-list", "--parents", "-n", "1", merge),
+                         f"{merge} {tip} {tip}")  # the forged graph is read by default
+        payload = self._event_payload(root)
+        payload.write_text('{"pull_request": {"base": {"sha": "%s"}}}' % base, encoding="utf-8")
+        self._assert_rise_fails_at(
+            self._run_ratchet(root, env={"GITHUB_ACTIONS": "true",
+                                         "GITHUB_EVENT_NAME": "pull_request",
+                                         "GITHUB_EVENT_PATH": str(payload)}),
+            base, "first parent of the pull request merge commit")
+
+    def test_git_environment_is_an_allowlist(self) -> None:
+        # Every git call goes through _git, whose environment is built from nothing (rebase
+        # revision): HOME if inherited, then _GIT_ENV, whatever else the caller exported; it
+        # also disables the commit-graph.
+        from unittest.mock import patch
+        mod =load_linter_module("tools/lint-standards-currency.py", "currency_git_env")
+        self.assertEqual(mod._GIT_ENV, {"GIT_NO_REPLACE_OBJECTS": "1",
+                                        "GIT_GRAFT_FILE": os.devnull,
+                                        "GIT_CONFIG_NOSYSTEM": "1",
+                                        "LC_ALL": "C",
+                                        "PATH": "/usr/local/bin:/usr/bin:/bin"})
+        self.assertEqual(mod._GIT_ENV_INHERITED, ("HOME",))
+        source = (REPO_ROOT / self.WRAPPER_REL).read_text(encoding="utf-8")
+        self.assertEqual(re.findall(r"subprocess\.\w+|os\.(?:system|popen|exec\w*|spawn\w*)",
+                                    source), ["subprocess.run", "subprocess.TimeoutExpired"],
+                         "git is run only in _git")
+        inherited = {name: "/elsewhere" for name in (
+            "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR",
+            "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_REPLACE_REF_BASE",
+            "GIT_GRAFT_FILE", "GIT_SHALLOW_FILE", "GIT_CONFIG_GLOBAL", "GIT_CONFIG_PARAMETERS",
+            "GIT_CONFIG_COUNT", "GIT_NAMESPACE", "GIT_EXEC_PATH", "GIT_TRACE2_EVENT",
+            "GIT_TEST_COMMIT_GRAPH", "GIT_NO_LAZY_FETCH", "GIT_SOMETHING_NEW")}
+        inherited.update(GIT_NO_REPLACE_OBJECTS="0", GIT_CONFIG_NOSYSTEM="0",
+                         NOT_A_GIT_VARIABLE="dropped", LD_PRELOAD="/nonexistent/preload.so",
+                         LD_LIBRARY_PATH="/nonexistent", LC_ALL="xx_XX.UTF-8",
+                         HOME="/home/currency-fixture")
+        calls = []
+
+        def fake_run(argv, **kwargs):
+            calls.append((argv, kwargs["env"]))
+            return subprocess.CompletedProcess(argv, 0, b"", b"")
+
+        with patch.dict(os.environ, inherited), patch.object(mod.subprocess, "run", fake_run):
+            mod._git("rev-parse", "HEAD")
+        (argv, env), = calls
+        # Round 6: git by the absolute path found on the fixed search path.
+        self.assertEqual(argv, [mod._git_executable(), "-C", str(mod.REPO_ROOT),
+                                "-c", "core.commitGraph=false", "rev-parse", "HEAD"])
+        self.assertTrue(os.path.isabs(argv[0]), argv[0])
+        self.assertEqual(env, {**mod._GIT_ENV, "HOME": "/home/currency-fixture"})
+        for name in ("NOT_A_GIT_VARIABLE", "LD_PRELOAD", "LD_LIBRARY_PATH"):
+            self.assertNotIn(name, env)
+        self.assertEqual(env["PATH"], "/usr/local/bin:/usr/bin:/bin")
+        self.assertEqual(env["LC_ALL"], "C")
+        calls.clear()
+        no_home = {k: v for k, v in os.environ.items() if k != "HOME"}
+        with patch.dict(os.environ, no_home, clear=True), \
+                patch.object(mod.subprocess, "run", fake_run):
+            mod._git("rev-parse", "HEAD")
+        (_, env), = calls
+        self.assertEqual(env, mod._GIT_ENV)
+
+    def test_git_child_environment_lacks_inherited_variables(self) -> None:
+        # Rebase revision (D21): a real git child, through a shell alias that prints its
+        # environment, sees neither an inherited LD_PRELOAD (naming a nonexistent file, so the
+        # loader only warns) nor an arbitrary variable; HOME and _GIT_ENV's values reach it.
+        from unittest.mock import patch
+        mod = load_linter_module("tools/lint-standards-currency.py", "currency_git_child_env")
+        root = Path(tempfile.mkdtemp(prefix="currency-git-env-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        subprocess.run(["git", "init", "-q", str(root)], check=True, capture_output=True,
+                       env=fixture_git_environment(), timeout=60)
+        inherited = {"LD_PRELOAD": str(root / "nonexistent-preload.so"),
+                     "CURRENCY_ARBITRARY_VARIABLE": "inherited", "HOME": str(root)}
+        with patch.dict(os.environ, inherited), patch.object(mod, "REPO_ROOT", root):
+            out = mod._git("-c", "alias.currency-env=!env", "currency-env")
+        names = {line.split("=", 1)[0]: line.split("=", 1)[1]
+                 for line in out.decode("utf-8", "replace").splitlines() if "=" in line}
+        self.assertNotIn("LD_PRELOAD", names)
+        self.assertNotIn("CURRENCY_ARBITRARY_VARIABLE", names)
+        self.assertEqual(names.get("HOME"), str(root))
+        self.assertEqual(names.get("LC_ALL"), "C")
+        self.assertEqual(names.get("GIT_CONFIG_NOSYSTEM"), "1")
+
+    # P-3.213 round 6: no shallow repository, no substitute git, and git's real error shown.
+    def test_shallow_repository_exits_2(self) -> None:
+        # Round 5 review: a shallow file naming a commit on main's side hid its parent, so the
+        # merge base moved from the base (baseline 1) to an older commit (baseline 2) and the
+        # raised baseline passed. A shallow repository now exits 2 before any base is computed.
+        root, older, base = self._ratchet_history("ISO/IEC 27001 applies.\n",
+                                                  {"ISO/IEC 27001": 1}, {"ISO/IEC 27001": 2},
+                                                  base_doc=self.RAISED_DOC)
+        (root / "ai/doc.md").write_text(self.RAISED_DOC, encoding="utf-8")
+        self._write_or_remove(root / self.BASELINE_REL, {"ISO/IEC 27001": 2})
+        self._fixture_git(root, "add", "-A")
+        self._fixture_git(root, "commit", "-q", "-m", "raised")
+        # main: a child of the base, then a merge of that child and the older commit.
+        side = self._fixture_git(root, "commit-tree", base + "^{tree}", "-p", base, "-m", "side")
+        main = self._fixture_git(root, "commit-tree", base + "^{tree}", "-p", side, "-p", older,
+                                 "-m", "main")
+        self._fixture_git(root, "update-ref", "refs/remotes/origin/main", main)
+        self._assert_rise_fails_at(self._run_ratchet(root), base,
+                                   "merge base with refs/remotes/origin/main")
+        git_dir = Path(self._fixture_git(root, "rev-parse", "--absolute-git-dir"))
+        (git_dir / "shallow").write_text(side + "\n", encoding="utf-8")
+        self.assertEqual(self._fixture_git(root, "merge-base", "--all", main, "HEAD"),
+                         older)  # the shallow file moves the merge base
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 2, result.stdout[-500:] + result.stderr)
+        self.assertIn("ERROR: UNPINNED ratchet base: git reports the repository as shallow",
+                      result.stderr)
+        self.assertIn("the base cannot be computed in a shallow clone; fetch full history",
+                      result.stderr)
+
+    def test_substitute_git_on_the_inherited_path_is_not_run(self) -> None:
+        # Round 5 review: _git ran "git" through the inherited PATH, so a substitute git
+        # first on it (here one that answers merge-base with HEAD, comparing the raised
+        # baseline with itself) made the rise pass. git is now found on a fixed search path.
+        root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
+                                                {"ISO/IEC 27001": 1})
+        real = shutil.which("git", path="/usr/local/bin:/usr/bin:/bin")
+        self.assertIsNotNone(real)
+        bin_dir = Path(tempfile.mkdtemp(prefix="currency-fake-git-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, bin_dir, ignore_errors=True)
+        log = bin_dir / "invocations.log"
+        fake = bin_dir / "git"
+        fake.write_text(
+            "#!/bin/sh\n"
+            f'echo "$*" >> "{log}"\n'
+            f'case " $* " in *" merge-base "*) echo {tip}; exit 0;; esac\n'
+            f'exec "{real}" "$@"\n', encoding="utf-8")
+        fake.chmod(0o755)
+        path = str(bin_dir) + os.pathsep + os.environ.get("PATH", "")
+        self._assert_rise_fails_at(self._run_ratchet(root, env={"PATH": path}), base,
+                                   "merge base with refs/remotes/origin/main")
+        self.assertFalse(log.exists(), log.read_text(encoding="utf-8") if log.exists() else "")
+
+    def test_failing_git_call_shows_the_real_error_without_hints(self) -> None:
+        # Round 5 review: with GIT_GRAFT_FILE set, git 2.53 prints a deprecation hint that
+        # was the only detail a reader saw first; the message now leaves hint lines out.
+        from unittest.mock import patch
+        mod = load_linter_module("tools/lint-standards-currency.py", "currency_git_hint")
+        stderr = (b"hint: Support for <GIT_DIR>/info/grafts is deprecated\n"
+                  b"hint: Turn this message off by running\n"
+                  b"fatal: Not a valid object name deadbeef\n")
+
+        def fake_run(argv, **kwargs):
+            return subprocess.CompletedProcess(argv, 128, b"", stderr)
+
+        with patch.object(mod.subprocess, "run", fake_run):
+            with self.assertRaises(mod.RatchetBaseError) as caught:
+                mod._git("rev-parse", "deadbeef")
+        self.assertEqual(str(caught.exception),
+                         "git rev-parse deadbeef exited 128: "
+                         "fatal: Not a valid object name deadbeef")
+
+    def test_bare_hint_lines_are_dropped_from_the_error(self) -> None:
+        # Rebase revision (D21): git separates hint paragraphs with a bare "hint:" line, with
+        # or without a trailing space; neither may stand in the message ahead of the error.
+        from unittest.mock import patch
+        mod = load_linter_module("tools/lint-standards-currency.py", "currency_git_bare_hint")
+        stderr = (b"hint: Support for <GIT_DIR>/info/grafts is deprecated\n"
+                  b"hint:\n"
+                  b"hint: \n"
+                  b"hint: Turn this message off by running\n"
+                  b"hint:\r\n"
+                  b"fatal: Not a valid object name deadbeef\n")
+
+        def fake_run(argv, **kwargs):
+            return subprocess.CompletedProcess(argv, 128, b"", stderr)
+
+        with patch.object(mod.subprocess, "run", fake_run):
+            with self.assertRaises(mod.RatchetBaseError) as caught:
+                mod._git("rev-parse", "deadbeef")
+        self.assertEqual(str(caught.exception),
+                         "git rev-parse deadbeef exited 128: "
+                         "fatal: Not a valid object name deadbeef")
+        for line in ("hint:", "hint: ", "hint:  ", "hint: advice"):
+            self.assertTrue(mod._git_hint(line), line)
+        for line in ("hints: advice", "fatal: hint:", " hint:", "hint:advice"):
+            self.assertFalse(mod._git_hint(line), line)
+
+    # P-3.213 exit-code list (the wrapper docstring's "Exit codes"): guards for the listed
+    # conditions no other test pinned by status. Behaviour is unchanged; each passes on the
+    # code the list was derived from.
+    def _wrapper_cli(self, *args: str):
+        return subprocess.run(
+            [sys.executable, str(REPO_ROOT / self.WRAPPER_REL), *args],
+            cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300,
+        )
+
+    def _main_in_process(self, mod, root: Path, *args: str):
+        """mod.main on a --root fixture, outside GitHub Actions: (status, stdout, stderr)."""
+        import contextlib
+        from unittest.mock import patch
+        environ = {k: v for k, v in os.environ.items()
+                   if not k.startswith("GITHUB_") and k != "GRC_RUNNER_ECHO_TOKEN"}
+        out, err = io.StringIO(), io.StringIO()
+        with patch.dict(os.environ, environ, clear=True), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = mod.main(["--root", str(root), *args])
+        return code, out.getvalue(), err.getvalue()
+
+    def _bootstrap_root(self) -> Path:
+        """A base that predates the ratchet, so the run copies the base scope (base_unpinned_counts)."""
+        doc = "ISO/IEC 27001 applies.\n"
+        return self._ratchet_root(doc, {"ISO/IEC 27001": 1}, base_baseline=None,
+                                  base_wrapper=self.PRE_RATCHET_WRAPPER, base_doc=doc)
+
+    def test_exit_list_help_exits_0(self) -> None:
+        # Guard, exit 0: --help (argparse) prints the docstring, the exit-code list included.
+        result = self._wrapper_cli("--help")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Exit codes.", result.stdout)
+
+    def test_exit_list_usage_error_exits_2(self) -> None:
+        # Guard, exit 2: a command-line usage error (argparse).
+        result = self._wrapper_cli("--no-such-option")
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("unrecognized arguments: --no-such-option", result.stderr)
+
+    def test_exit_list_uncaught_exception_exits_1_with_a_traceback(self) -> None:
+        # Guard, exit 1: an exception main does not catch (here a failed engine import).
+        script = (
+            "import importlib.util, sys\n"
+            f"sys.path.insert(0, {str(REPO_ROOT / 'tools')!r})\n"
+            "spec = importlib.util.spec_from_file_location("
+            f"'currency_uncaught', {str(REPO_ROOT / self.WRAPPER_REL)!r})\n"
+            "mod = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(mod)\n"
+            "def broken():\n"
+            "    raise ImportError('engine import failed (fixture)')\n"
+            "mod._engine = broken\n"
+            "sys.exit(mod.main(['--paths', 'README.md']))\n"
+        )
+        result = subprocess.run([sys.executable, "-c", script], cwd=str(REPO_ROOT),
+                                capture_output=True, text=True, timeout=300)
+        self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+        self.assertIn("Traceback", result.stderr)
+        self.assertIn("ImportError: engine import failed (fixture)", result.stderr)
+
+    def test_exit_list_no_git_on_the_search_path_exits_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: _git_executable finds no git.
+        from unittest.mock import patch
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_no_git")
+        empty = Path(tempfile.mkdtemp(prefix="currency-no-git-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, empty, ignore_errors=True)
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+        with patch.object(mod, "GIT_SEARCH_PATH", str(empty)):
+            code, out, err = self._main_in_process(mod, root)
+        self.assertEqual(code, 2, out[-300:] + err)
+        self.assertIn("ERROR: UNPINNED ratchet base:", err)
+        self.assertIn(f"no git executable found on {empty}", err)
+
+    def test_exit_list_git_call_that_times_out_exits_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: a git call that does not finish
+        # (GIT_TIMEOUT) is a _git failure.
+        from unittest.mock import patch
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_git_timeout")
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+
+        def timed_out(argv, **kwargs):
+            raise subprocess.TimeoutExpired(argv, kwargs.get("timeout"))
+
+        with patch.object(mod.subprocess, "run", timed_out):
+            code, out, err = self._main_in_process(mod, root)
+        self.assertEqual(code, 2, out[-300:] + err)
+        self.assertIn("ERROR: UNPINNED ratchet base:", err)
+        self.assertIn("did not run", err)
+
+    def test_exit_list_several_merge_bases_exit_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: HEAD and refs/remotes/origin/main
+        # with more than one merge base (a criss-cross history) have no single base.
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+        tree = self._fixture_git(root, "rev-parse", "HEAD^{tree}")
+        x = self._fixture_git(root, "commit-tree", tree, "-p", "HEAD", "-m", "x")
+        y = self._fixture_git(root, "commit-tree", tree, "-p", "HEAD", "-m", "y")
+        head = self._fixture_git(root, "commit-tree", tree, "-p", x, "-p", y, "-m", "head")
+        main = self._fixture_git(root, "commit-tree", tree, "-p", y, "-p", x, "-m", "main")
+        self._fixture_git(root, "update-ref", "refs/remotes/origin/main", main)
+        self._fixture_git(root, "checkout", "-q", "--detach", head)
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("ERROR: UNPINNED ratchet base: refs/remotes/origin/main and HEAD have 2 "
+                      "merge bases, not one", result.stderr)
+
+    def test_exit_list_base_scope_that_cannot_be_scanned_exits_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: in the bootstrap the base scope
+        # holds a directory symlink, which iter_files refuses in the copied base tree.
+        root = self._bootstrap_root()
+        os.symlink(".", root / "ai/loop")
+        self._fixture_git(root, "add", "ai/loop")
+        self._fixture_git(root, "commit", "-q", "-m", "a directory symlink in the scan scope")
+        self._fixture_git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
+        (root / "ai/loop").unlink()
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr)
+        self.assertIn("cannot be scanned: directory symlink in scan scope", result.stderr)
+
+    def test_exit_list_non_ascii_git_output_exits_2_without_the_base_prefix(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: git output that is not
+        # ASCII where ratchet_base reads object ids (here the merge-base listing).
+        from unittest.mock import patch
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_non_ascii")
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+        real = mod._git
+
+        def git(*args, stdin=None):
+            return b"\xff\n" if args[:1] == ("merge-base",) else real(*args, stdin=stdin)
+
+        with patch.object(mod, "_git", git):
+            code, out, err = self._main_in_process(mod, root)
+        self.assertEqual(code, 2, out[-300:] + err)
+        self.assertTrue(err.startswith("ERROR:"), err)
+        self.assertNotIn("UNPINNED ratchet base", err)
+        self.assertIn("'ascii' codec can't decode", err)
+
+    def test_exit_list_temporary_directory_failure_exits_2_without_the_base_prefix(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: base_unpinned_counts
+        # creates and removes its temporary directory outside the try block that turns a scan
+        # failure into a RatchetBaseError, so neither failure carries the base prefix.
+        from unittest.mock import MagicMock, patch
+        real = tempfile.TemporaryDirectory
+
+        class CleanupFails:
+            def __init__(self, *args, **kwargs):
+                self._dir = real(*args, **kwargs)
+
+            def __enter__(self):
+                return self._dir.__enter__()
+
+            def __exit__(self, *exc):
+                self._dir.__exit__(*exc)
+                raise OSError(16, "Device or resource busy (fixture)")
+
+        for label, replacement, message in (
+            ("creation", MagicMock(side_effect=OSError(28, "No space left on device (fixture)")),
+             "No space left on device (fixture)"),
+            ("cleanup", CleanupFails, "Device or resource busy (fixture)"),
+        ):
+            with self.subTest(failure=label):
+                mod = load_linter_module(self.WRAPPER_REL, "currency_exit_tempdir_" + label)
+                root = self._bootstrap_root()
+                with patch.object(mod.tempfile, "TemporaryDirectory", replacement):
+                    code, out, err = self._main_in_process(mod, root)
+                self.assertEqual(code, 2, out[-300:] + err)
+                self.assertTrue(err.startswith("ERROR:"), err)
+                self.assertNotIn("UNPINNED ratchet base", err)
+                self.assertIn(message, err)
+        # Unpatched, the same bootstrap passes, so the patched step is what fails.
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_tempdir_control")
+        code, out, err = self._main_in_process(mod, self._bootstrap_root())
+        self.assertEqual(code, 0, out[-300:] + err)
+
+    # P-3.213 exit-code list, second pass: guards for the listed conditions (and the listed
+    # alternatives within one) that still had no test asserting their status. Behaviour is
+    # unchanged; each passes on 0cfc96602.
+    def test_exit_list_argparse_value_errors_exit_2(self) -> None:
+        # Guard, exit 2 (argparse): --paths with no value, and a --coverage-mode or --format
+        # value outside its choices.
+        for args, message in (
+            (("--paths",), "argument --paths: expected at least one argument"),
+            (("--coverage-mode", "strict"), "argument --coverage-mode: invalid choice: 'strict'"),
+            (("--format", "xml"), "argument --format: invalid choice: 'xml'"),
+        ):
+            with self.subTest(args=args):
+                result = self._wrapper_cli(*args)
+                self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+                self.assertIn(message, result.stderr)
+                self.assertNotIn("standards-currency counts", result.stdout)
+
+    def test_exit_list_unreadable_or_unresolvable_root_exits_2(self) -> None:
+        # Guard, exit 2 (lint_common.require_dir, SystemExit): a --root whose probe raises (as
+        # Python 3.11's is_dir() does on EACCES) is refused as unreadable or unresolvable.
+        import contextlib
+        from unittest.mock import patch
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_root_unreadable")
+        err = io.StringIO()
+        with patch.object(Path, "is_dir", side_effect=PermissionError(13, "denied (fixture)")), \
+                contextlib.redirect_stderr(err), self.assertRaises(SystemExit) as caught:
+            mod.main(["--root", str(FIXTURE_DIR)])
+        self.assertEqual(caught.exception.code, 2)
+        self.assertIn("--root", err.getvalue())
+        self.assertIn("unreadable or unresolvable", err.getvalue())
+
+    def test_exit_list_register_unreadable_or_not_utf8_exits_2(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: parse_canonical_register
+        # on a register that cannot be read (here a directory) or is not UTF-8.
+        for label, value in (("unreadable", None), ("not UTF-8", b"\xff\xfe")):
+            with self.subTest(register=label):
+                root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1},
+                                          git=False)
+                (root / self.REGISTER_REL).unlink()
+                if value is None:
+                    (root / self.REGISTER_REL).mkdir()
+                else:
+                    (root / self.REGISTER_REL).write_bytes(value)
+                result = self._run_ratchet(root)
+                self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+                self.assertTrue(result.stderr.startswith("ERROR:"), result.stderr)
+                self.assertNotIn("UNPINNED ratchet base", result.stderr)
+
+    def test_exit_list_historical_data_or_page_unreadable_or_not_utf8_exits_2(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: main's _read of the
+        # historical data or page, unreadable (a directory) or not UTF-8.
+        data_rel = ".project-governance/register-historical-citation-exceptions.toml"
+        page_rel = ".project-governance/register-historical-citation-exceptions.md"
+        for rel in (data_rel, page_rel):
+            for label, value in (("unreadable", None), ("not UTF-8", b"\xff\xfe")):
+                with self.subTest(path=rel, case=label):
+                    root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1},
+                                              git=False)
+                    target = root / rel
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    if value is None:
+                        target.mkdir()
+                    else:
+                        target.write_bytes(value)
+                    result = self._run_ratchet(root, "--paths", "ai/doc.md")
+                    self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+                    self.assertTrue(result.stderr.startswith("ERROR:"), result.stderr)
+
+    def test_exit_list_scan_scope_refusals_exit_2(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: iter_files's refusals in
+        # the tree (an out-of-root path, as given or through a symlink inside the root; a
+        # directory symlink as a scan root or a descendant; an entry that is neither a file nor
+        # a directory) and coverage_report's scanned file that is not UTF-8.
+        outside = Path(tempfile.mkdtemp(prefix="currency-outside-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, outside, ignore_errors=True)
+        (outside / "x.md").write_text("ISO/IEC 27001 applies.\n", encoding="utf-8")
+
+        def link_out(root):
+            os.symlink(outside / "x.md", root / "ai/out.md")
+
+        def dir_root(root):
+            os.symlink(root / "ai", root / "linked")
+
+        def dir_descendant(root):
+            os.symlink(root / "tools", root / "ai/linked")
+
+        def fifo(root):
+            os.mkfifo(root / "ai/pipe.md")
+
+        def not_utf8(root):
+            (root / "ai/doc.md").write_bytes(b"ISO/IEC 27001 \xff\n")
+
+        for label, setup, paths, message in (
+            ("out of root", None, ["../" + outside.name + "/x.md"], "out-of-root scan path"),
+            ("symlink out of root", link_out, ["ai"], "out-of-root scan path"),
+            ("directory symlink as a scan root", dir_root, ["linked"],
+             "directory symlink in scan scope"),
+            ("directory symlink as a descendant", dir_descendant, ["ai"],
+             "directory symlink in scan scope"),
+            ("neither a file nor a directory", fifo, ["ai"], "missing/unreadable intended input"),
+            ("scanned file not UTF-8", not_utf8, ["ai"], "utf-8"),
+        ):
+            with self.subTest(case=label):
+                root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1},
+                                          git=False)
+                if setup is not None:
+                    setup(root)
+                result = self._run_ratchet(root, "--paths", *paths)
+                self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+                self.assertTrue(result.stderr.startswith("ERROR:"), result.stderr)
+                self.assertIn(message, result.stderr)
+
+    def test_exit_list_unreadable_directory_exits_2(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: iter_files's os.scandir
+        # on a directory that cannot be listed.
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1}, git=False)
+        locked = root / "ai/locked"
+        locked.mkdir()
+        locked.chmod(0)
+        self.addCleanup(locked.chmod, 0o700)
+        if os.access(locked, os.R_OK):
+            self.skipTest("running with permission to list a mode-000 directory")
+        result = self._run_ratchet(root, "--paths", "ai")
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertTrue(result.stderr.startswith("ERROR:"), result.stderr)
+        self.assertIn("Permission denied", result.stderr)
+
+    def test_exit_list_enforce_mode_blocks_unpinned_and_noncanonical_exits_1(self) -> None:
+        # Guard, exit 1 (coverage_report): with --coverage-mode enforce an UNPINNED or a
+        # NONCANONICAL_ID finding blocks; in report mode the same finding is advisory.
+        for label, doc in (("UNPINNED", "ISO/IEC 27001 applies.\n"),
+                           ("NONCANONICAL_ID", "ISO 27001:2022 applies.\n")):
+            with self.subTest(kind=label):
+                root = self._ratchet_root(doc, {"ISO/IEC 27001": 1}, git=False)
+                result = self._run_ratchet(root, "--paths", "ai/doc.md", "--format", "json")
+                self.assertEqual(result.returncode, 0, result.stdout[-300:] + result.stderr)
+                kinds = [f["kind"] for f in json.loads(result.stdout)["findings"]]
+                self.assertEqual(kinds, [label])
+                result = self._run_ratchet(root, "--paths", "ai/doc.md",
+                                           "--coverage-mode", "enforce")
+                self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+
+    def test_exit_list_zero_merge_bases_exit_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: HEAD and refs/remotes/origin/main
+        # with no common history. git merge-base exits 1 here, so the run stops in _git before
+        # ratchet_base counts the bases.
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+        tree = self._fixture_git(root, "rev-parse", "HEAD^{tree}")
+        unrelated = self._fixture_git(root, "commit-tree", tree, "-m", "unrelated")
+        self._fixture_git(root, "update-ref", "refs/remotes/origin/main", unrelated)
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("ERROR: UNPINNED ratchet base: git merge-base --all", result.stderr)
+
+    def test_exit_list_base_gitlink_or_non_utf8_blob_exits_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: _blob_at on a base path that holds
+        # a gitlink, or a base blob that is not UTF-8.
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+        head = self._fixture_git(root, "rev-parse", "HEAD")
+        self._fixture_git(root, "rm", "-q", "--cached", self.BASELINE_REL)
+        self._fixture_git(root, "update-index", "--add", "--cacheinfo",
+                          f"160000,{head},{self.BASELINE_REL}")
+        self._fixture_git(root, "commit", "-q", "-m", "a gitlink at the baseline path")
+        self._fixture_git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr)
+        self.assertIn("is not a file", result.stderr)
+        result = self._run_ratchet(self._ratchet_root(
+            "ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1}, base_baseline=b"\xff\xfe"))
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr)
+        self.assertIn("is not UTF-8", result.stderr)
+
+    def _bootstrap_with_git(self, label: str, answers: dict):
+        """mod.main on a bootstrap fixture whose _git calls starting with a key of answers
+        (a tuple of leading arguments) return that value instead of running git."""
+        from unittest.mock import patch
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_base_" + label)
+        root = self._bootstrap_root()
+        real = mod._git
+
+        def git(*args, stdin=None):
+            for lead, answer in answers.items():
+                if args[:len(lead)] == lead:
+                    return answer
+            return real(*args, stdin=stdin)
+
+        with patch.object(mod, "_git", git):
+            return self._main_in_process(mod, root)
+
+    def test_exit_list_base_scope_listing_refusals_exit_2(self) -> None:
+        # Guard, exit 2: base_unpinned_counts on a listing that is not ASCII (the OSError and
+        # UnicodeError handler, no base prefix), a base path that is not canonical, or a blob
+        # git cat-file does not return (the RatchetBaseError handler).
+        sha = b"0" * 40
+        for label, answers, prefixed, message in (
+            ("non_ascii", {("ls-tree", "-r"): b"100644 blob \xff\tai/doc.md\0"}, False,
+             "'ascii' codec can't decode"),
+            ("non_canonical", {("ls-tree", "-r"): b"100644 blob " + sha + b"\tai/../doc.md\0"},
+             True, "is not a canonical path"),
+            ("missing_blob", {("ls-tree", "-r"): b"100644 blob " + sha + b"\tai/doc.md\0",
+                              ("cat-file", "--batch"): sha + b" missing\n"},
+             True, "git cat-file did not return the blob of ai/doc.md"),
+        ):
+            with self.subTest(case=label):
+                code, out, err = self._bootstrap_with_git(label, answers)
+                self.assertEqual(code, 2, out[-300:] + err)
+                self.assertTrue(err.startswith("ERROR:"), err)
+                self.assertEqual("UNPINNED ratchet base" in err, prefixed, err)
+                self.assertIn(message, err)
+
+    def test_exit_list_temporary_directory_resolution_failure_exits_2(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: base_unpinned_counts
+        # resolves its temporary directory outside the try block that turns a scan failure
+        # into a RatchetBaseError, so a failed resolve carries no base prefix.
+        from unittest.mock import patch
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_tempdir_resolve")
+        real = mod.Path
+
+        class Unresolvable:
+            def __init__(self, path):
+                self.path = path
+
+            def resolve(self, strict=False):
+                raise OSError(40, "Too many levels of symbolic links (fixture)")
+
+        def path(*args):
+            made = real(*args)
+            return Unresolvable(made) if made.name.startswith("gate6-base-") else made
+
+        with patch.object(mod, "Path", path):
+            code, out, err = self._main_in_process(mod, self._bootstrap_root())
+        self.assertEqual(code, 2, out[-300:] + err)
+        self.assertTrue(err.startswith("ERROR:"), err)
+        self.assertNotIn("UNPINNED ratchet base", err)
+        self.assertIn("Too many levels of symbolic links (fixture)", err)
+
+    def test_exit_list_ls_tree_record_of_unexpected_shape_exits_1_with_a_traceback(self) -> None:
+        # Guard, exit 1: git output of an unexpected shape, here an ls-tree record that
+        # base_unpinned_counts cannot split into three fields, is an exception main does not
+        # catch.
+        root = self._bootstrap_root()
+        script = (
+            "import importlib.util, sys\n"
+            f"sys.path.insert(0, {str(REPO_ROOT / 'tools')!r})\n"
+            "spec = importlib.util.spec_from_file_location("
+            f"'currency_ls_tree_shape', {str(REPO_ROOT / self.WRAPPER_REL)!r})\n"
+            "mod = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(mod)\n"
+            "real = mod._git\n"
+            "def git(*args, stdin=None):\n"
+            "    if args[:2] == ('ls-tree', '-r'):\n"
+            "        return b'100644 blob\\tai/doc.md\\0'\n"
+            "    return real(*args, stdin=stdin)\n"
+            "mod._git = git\n"
+            f"sys.exit(mod.main(['--root', {str(root)!r}]))\n"
+        )
+        environ = {k: v for k, v in fixture_git_environment().items()
+                   if not k.startswith("GITHUB_") and k != "GRC_RUNNER_ECHO_TOKEN"}
+        result = subprocess.run([sys.executable, "-c", script], cwd=str(REPO_ROOT),
+                                capture_output=True, text=True, env=environ, timeout=300)
+        self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+        self.assertIn("Traceback", result.stderr)
+        self.assertIn("ValueError: not enough values to unpack", result.stderr)
+
+    # P-3.213 exit-code list, organized by main()'s handlers: guards for the causes the
+    # reorganized list names for the first time. Behaviour is unchanged; each passes on
+    # 0ee959387.
+    def test_exit_list_base_ls_tree_record_malformed_or_non_ascii_id_exits_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: _blob_at on an ls-tree record
+        # that does not split into three fields ("is not a file"), or whose object id is not
+        # ASCII (decoded inside the try block that reports "is not UTF-8").
+        from unittest.mock import patch
+        for label, record, message in (
+            ("malformed", b"100644 blob\t" + self.BASELINE_REL.encode() + b"\0",
+             "is not a file"),
+            ("non_ascii_id", b"100644 blob \xff\t" + self.BASELINE_REL.encode() + b"\0",
+             "is not UTF-8"),
+        ):
+            with self.subTest(record=label):
+                mod = load_linter_module(self.WRAPPER_REL, "currency_exit_blob_at_" + label)
+                root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+                real = mod._git
+
+                def git(*args, stdin=None, record=record):
+                    if args[:1] == ("ls-tree",) and "-r" not in args:
+                        return record
+                    return real(*args, stdin=stdin)
+
+                with patch.object(mod, "_git", git):
+                    code, out, err = self._main_in_process(mod, root)
+                self.assertEqual(code, 2, out[-300:] + err)
+                self.assertIn("ERROR: UNPINNED ratchet base:", err)
+                self.assertIn(message, err)
+
+    def test_exit_list_deeply_nested_json_exits_1_with_a_traceback(self) -> None:
+        # Guard, exit 1 (no handler): JSON nested more deeply than the decoder allows raises
+        # RecursionError, which is not a ValueError, so the baseline in the tree, the base
+        # baseline and the Actions event payload each end in a traceback, not in the
+        # RegisterError or RatchetBaseError handler.
+        depth = 100000
+        deep = '{"unpinned": ' + "[" * depth + "]" * depth + "}"
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", deep,
+                                  base_baseline={"ISO/IEC 27001": 1})
+        base_root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1},
+                                       base_baseline=deep)
+        event_root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+        payload = self._event_payload(event_root)
+        payload.write_text("[" * depth + "]" * depth, encoding="utf-8")
+        event_env = {"GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "push",
+                     "GITHUB_EVENT_PATH": str(payload)}
+        for label, run_root, env in (
+            ("tree baseline", root, None),
+            ("base baseline", base_root, None),
+            ("event payload", event_root, event_env),
+        ):
+            with self.subTest(json=label):
+                result = self._run_ratchet(run_root, env=env)
+                self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+                self.assertIn("Traceback", result.stderr)
+                self.assertIn("RecursionError", result.stderr)
+                self.assertNotIn("ERROR:", result.stderr)
+
 
 class FilenameTitleTests(LinterTestCase):
     """tools/lint-filename-title-alignment.py"""
@@ -31184,7 +32620,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-skill-internal-refs.py ROOT F b2b1fc4846ca52b298fe12ee712477bfac97e173e3ac6368e72c5edd6c28b50e
         lint-skill-verdict-carrier-completeness.py OWN F 7056be9141352daf10807f17e9941fb422a84cbf43eae4fff9549efd3684f5a3
         lint-ssdf-control-ids.py CWD F fc3326619bde8b0c6389a3ac7a4b5b79e06ab9e3195e471b6d766f067e06a60f
-        lint-standards-currency.py OWN F 490bc1face5879a115890f543a68b0bdb5ef3dbf4f750b0a6e8bc94d4e537b6a
+        lint-standards-currency.py OWN F 516972e32ea7e9538afde01552edf24c2debb99f2e2a42d06258194210df3d17
         lint-startup-character-ceiling.py NO_FS F aeaaf73e5efe319cb6881277ca5b7abef8db708826fe1bf0a241559d7d58a060
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
@@ -31225,11 +32661,12 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run-linter-regression.py FIXED F 600fa27468c6f7b5371de09d5e646429017411a58ebdefff853b91dd965195e0
         run-pr-time-checks.sh FIXED F 7efe36d3fce0778df83e6f4578561b56d02bf15e389178c50b35053767c075ab
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
-        run_all_audits.sh FIXED F 42538433b653fb5cb4df779d74ee541039bd0168d7c0fe42258800417a71cdb5
+        run_all_audits.sh FIXED F 18466189b74841fdf67c087abd6ee880730f4fe3a8b395dbc9da38466a4d5c63
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
         session_facts.py PASSIVE F 0d4dcb545fcba5b1533d4aff1c3fedad69ca97d6e07f045b9976aee0ce07247a
         skill-verdict-fields.json DATA F fba56d7e70141647fcad92824591d65a0208c6e6b623caaff82bfcb62bbd06aa
+        standards-currency-unpinned-baseline.json DATA F e37c71336ad92904670c220de1d3e622a1e8e5b638c1dc0aac3829d99344ec79
         statusline-next-pr.py NO_FS F 81db4327eb56260c362e61edbae2a7c7c2fd426df579fe21d57638cfd7b55223
         suggest-listing-surfaces.py SKIP F 5fc2bb9c52ffede72df029c5e8f05944e7a2176111f7e17bbd2e21a06bbb2d35
         sweep-preflight-exemptions.json DATA F 6912151cc3082699047edeba48f3092d50d7c21e8f8a22173372a4cda7146d7e
@@ -50788,7 +52225,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.21.5", "3b146 has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of 3b662, which has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for 3b146)")
+        self.assertEqual(man["pack"]["version"], "0.22.0", "P-3.213 adds the standards-currency engine's identity_counts, ratchet and count_summary functions and print_coverage's trailer parameter for the per-standard UNPINNED ratchet (MINOR) on top of 3b146, which has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of 3b662, which has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for 3b146; then 0.21.5 to 0.22.0 for P-3.213)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")

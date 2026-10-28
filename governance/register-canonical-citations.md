@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.6.17\
-**Date:** 2026-10-27\
+**Version:** 1.6.18\
+**Date:** 2026-10-28\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -91,6 +91,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | ISO 37001 | 2025 | 2025-02 | Anti-bribery management systems - Requirements with guidance for use (Edition 2; transition deadline February 2027; changes from 2016 edition are not extensive) | 2016 | https://www.iso.org/standard/37001 | verified 2026-07-09 |
 | ISO/IEC 17021 | 2015 | 2015 | Conformity assessment: requirements for bodies providing audit and certification of management systems | - | https://www.iso.org/standard/61651.html | verified 2026-07-09 |
 | ISO 19011 | 2026 | 2026-05 | Guidelines for auditing management systems | 2018 | https://www.iso.org/standard/19011 | verified 2026-08-30 |
+| ISO/IEC 20000-1 | 2018 | 2018-09 | Service management, Part 1: Service management system requirements (Third edition; Amd 1:2024, climate action changes) | 2011 | https://www.iso.org/standard/70636.html | verified 2026-10-28 |
 
 ## NIST publications
 

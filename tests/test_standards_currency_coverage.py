@@ -155,7 +155,10 @@ class CitationCoverageTests(unittest.TestCase):
                 page = "# Register\n\n## Exceptions\n\n" + W.HCR.render(rows) + "\n"
         if page is not None and page is not False:  # page=False: the page file is absent
             values[W.HISTORICAL_REGISTER_REL] = page
+        # These fixture trees hold no UNPINNED baseline; the ratchet has its own tests
+        # in tests/test_linters.py (StandardsCurrencyTests).
         with memory_tree("/currency-fixture", values) as root, \
+             patch.object(W, "UNPINNED_RATCHET", False), \
              patch.object(W, "REPO_ROOT", root), \
              patch.object(
                  W, "CANONICAL_REGISTER",
