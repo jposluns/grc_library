@@ -19723,26 +19723,33 @@ class AuditGateParityTests(LinterTestCase):
 
     @staticmethod
     def _read_bypasses(source: str) -> list[str]:
-        """Each use in ``source`` of a name that can read or decode a file outside the one
-        top-level _read_utf8 (3b675 round 3). What it detects is exactly this list:
+        """What the checks below match in ``source`` (3b675 round 3); an empty list means
+        none matched. They look for ways to read or decode a file other than the top-level
+        _read_utf8, and every finding comes from one of them:
 
-        - a source without exactly one top-level ``def _read_utf8``, and any def or async
-          def named _read_utf8 that is not that top-level one;
-        - anywhere in the source, the top-level _read_utf8 included: ``import io`` or
-          ``import codecs`` (or a submodule of either, with or without ``as``), ``from io``
-          or ``from codecs`` (or a submodule of either), and ``from os import`` of open,
-          read or ``*``;
-        - outside the top-level _read_utf8 only: a bare name (loaded, assigned or deleted)
-          open, io, codecs, read_text, read_bytes or decode; an attribute .open, .io,
-          .codecs, .read_text, .read_bytes or .decode on any object; the attribute os.read
-          where os is a bare name; a call of the bare name str with two or more positional
-          arguments or an encoding or errors keyword; and a call of the bare name getattr,
-          hasattr or setattr whose second positional argument is the string literal open,
-          io, codecs, read_text, read_bytes, decode or read.
+        - a def or async def named _read_utf8 that is not a top-level statement (one in a
+          function or class, or under a top-level ``if``, for example);
+        - a count other than 1 of top-level defs and async defs named _read_utf8. In that
+          case the function returns after these first two checks; the checks below do not
+          run;
+        - anywhere in the source, the top-level _read_utf8 included: ``import`` of io,
+          codecs or a submodule of either (with or without ``as``); ``from`` io, codecs or
+          a submodule of either; and ``from os import`` of open, read or ``*``. The module
+          name is compared without its leading dots, so ``from .io import x`` and
+          ``from .os import open`` are reported, while ``from . import io`` is not;
+        - outside the top-level _read_utf8's definition (its decorators, defaults and
+          annotations count as inside): a bare name (an ``ast.Name`` in any context) open,
+          io, codecs, read_text, read_bytes or decode; an attribute with one of those names
+          on any object; the attribute read on the bare name os; a call of the bare name
+          str with more than one positional argument (a starred one counts as one) or an
+          ``encoding`` or ``errors`` keyword; and a call of the bare name getattr, hasattr
+          or setattr whose second positional argument is a string literal of one of those
+          six names or read.
 
-        It matches names, not what they refer to, so it fires on any .open attribute,
-        including one unrelated to reading a file, and likewise on the other names above.
-        Any other way of reading or decoding a file is not detected. It is a best-effort
+        It matches names, not what they refer to: an .open attribute unrelated to files is
+        reported, and ``o.read`` after ``import os as o`` is not. A def, class, parameter,
+        ``import ... as`` or ``except ... as`` binding of one of those names is not an
+        ``ast.Name`` and is not reported by the bare-name check. It is a best-effort
         structural guard, not a proof that every read goes through the helper; code review
         remains the control."""
         import ast
