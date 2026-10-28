@@ -228,7 +228,7 @@ _147 documents._
 | [compliance/logistics/register-ctpat-united-states-msc-controls.md](../compliance/logistics/register-ctpat-united-states-msc-controls.md) | US CTPAT Full Minimum Security Criteria Controls Register | Register | 1.0.5 | 2026-07-02 |
 | [compliance/logistics/register-pip-canada-controls.md](../compliance/logistics/register-pip-canada-controls.md) | Canada PIP IT and Cybersecurity Compliance Controls Register | Register | 1.0.6 | 2026-08-14 |
 | [compliance/logistics/template-trade-compliance-gap-assessment.md](../compliance/logistics/template-trade-compliance-gap-assessment.md) | Trade Compliance Programme Gap Assessment Template | Template | 1.0.7 | 2026-10-17 |
-| [compliance/policy-compliance-and-audit-management.md](../compliance/policy-compliance-and-audit-management.md) | Compliance, Audit, and CAPA Management Policy | Policy | 1.0.38 | 2026-10-28 |
+| [compliance/policy-compliance-and-audit-management.md](../compliance/policy-compliance-and-audit-management.md) | Compliance, Audit, and CAPA Management Policy | Policy | 1.0.39 | 2026-10-28 |
 | [compliance/policy-legal-and-regulatory-compliance.md](../compliance/policy-legal-and-regulatory-compliance.md) | Legal and Regulatory Compliance Policy | Policy | 1.0.33 | 2026-10-27 |
 | [compliance/procedure-audit-planning.md](../compliance/procedure-audit-planning.md) | Audit Planning Procedure | Procedure | 1.0.15 | 2026-10-13 |
 | [compliance/procedure-mergers-acquisitions-due-diligence.md](../compliance/procedure-mergers-acquisitions-due-diligence.md) | Mergers and Acquisitions Due Diligence Procedure | Procedure | 1.0.5 | 2026-10-16 |

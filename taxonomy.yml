@@ -2963,7 +2963,7 @@ documents:
   domain: "compliance"
   type: "Policy"
   title: "Compliance, Audit, and CAPA Management Policy"
-  version: "1.0.38"
+  version: "1.0.39"
   date: "2026-10-28"
   owner: "Chief Compliance Officer"
   approving_authority: "Governance Library Maintainer"
