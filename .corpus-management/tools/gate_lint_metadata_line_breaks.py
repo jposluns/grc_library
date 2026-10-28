@@ -21,11 +21,10 @@ The last line of a run is exempt (the following blank line or ``---`` separator
 already breaks the paragraph). A metadata-format example inside a fence is not a
 false positive.
 
-Residual (where renderers part, no finding): a lazy continuation line indented four or
-more columns that opens a block once unindented, after two or more nested block quotes,
-continues the paragraph under the CommonMark algorithm but ends the quotes under
-markdown-it. The engine checks only the paragraph's lines before it, and checks nothing
-after it until a blank line outside every container. Tabs are expanded to four-column
+Residual: when a lazy continuation line that omits the markers of two or more nested
+block quotes is indented four or more columns and would start a block once unindented,
+the gate checks only the lines of its paragraph before that line, and no line from that
+line to the next blank line outside every container. Tabs are expanded to four-column
 stops before the structure is read, and lines are split at newlines only.
 
 Engine/wrapper split (SHARED/SAFETY lane, Pattern A): this engine carries the PURE
@@ -77,9 +76,11 @@ _HTML_BLOCK_TAGS = (
     "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|"
     "details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|"
     "h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|"
-    "optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|"
+    "optgroup|option|p|param|section|source|summary|table|tbody|td|tfoot|th|thead|title|tr|"
     "track|ul"
 )
+# The kind 6 tag list above is the GFM specification's (version 0.29-gfm, 2019-04-06), which
+# GitHub's renderer follows. CommonMark 0.31 differs on two tags: it drops source and adds search.
 # HTML block kinds 1 to 6: (start, end). Kinds 1 to 5 end on the line holding the end marker,
 # the start line included; kind 6 (end None) ends before a blank line. All six can interrupt
 # a paragraph.
@@ -273,9 +274,8 @@ def scan_file(path: Path) -> list[tuple[int, int]]:
                      or LIST_MARKER.match(rest.lstrip(" ")))
                 and unsure is None
             ):
-                # Renderers part on an indented block start after nested quotes (markdown-it
-                # ends the quotes; the CommonMark algorithm continues the paragraph), so the
-                # line and those after it are not checked: no finding one of them would not show.
+                # The disclosed residual: an indented block start after nested quotes. The
+                # line and those after it are not checked, so it can miss, never over-report.
                 unsure, doubt = len(para), True
             para.append((lineno, rest, raw))
             continue

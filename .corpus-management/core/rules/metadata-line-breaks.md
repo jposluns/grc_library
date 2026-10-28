@@ -21,11 +21,12 @@ block, an HTML block or a table are not paragraph text: a metadata
 example inside a fence is not a finding, and a fenced block between
 metadata lines ends the run (the lines either side of it are not one
 paragraph). A fence closes only on a fence of its own character at
-least as long as the opening one. Residual: where renderers disagree on
-whether a paragraph continues (an indented lazy line that opens a block
-once unindented, after nested block quotes), the gate checks only the
-lines before that line and nothing after it until a blank line outside
-every container. A field name starts with an ASCII letter and runs to its
+least as long as the opening one. Residual: when a lazy continuation
+line that omits the markers of two or more nested block quotes is
+indented four or more columns and would start a block once unindented,
+the gate checks only the lines of its paragraph before that line, and
+no line from that line to the next blank line outside every container.
+A field name starts with an ASCII letter and runs to its
 closing colon without an asterisk, so it may contain hyphens, slashes,
 parentheses and underscores. A run whose non-last lines all
 carry a marker, and a single isolated metadata line, are not flagged.

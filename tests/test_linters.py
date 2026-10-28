@@ -21429,6 +21429,22 @@ class MetadataLineBreaksTests(LinterTestCase):
         # it opens an HTML block that runs to the next blank line.
         self._assert_clean("fake-html-span.md", "<span>\n**A:** x\n**B:** y\n")
 
+    # 3b146 round 3: the kind 6 tag list is the GFM specification's (0.29-gfm), which has
+    # source and lacks search; CommonMark 0.31 has search and lacks source.
+
+    def test_html_source_tag_ends_the_run(self) -> None:
+        # A kind-6 tag interrupts the paragraph, so A is the last line of its run.
+        self._assert_clean("fake-html-source.md", "**A:** a\n<source>\n**B:** b\n")
+        self._assert_clean("fake-bq-html-source.md", "> **A:** a\n> <source>\n> **B:** b\n")
+
+    def test_html_search_tag_does_not_end_the_run(self) -> None:
+        # Under GFM, search is not a kind-6 tag; as a kind-7 tag it cannot interrupt a
+        # paragraph, so the line is paragraph text and A's missing break is a finding.
+        self._assert_flagged("fake-html-search.md", "**A:** a\n<search>\n**B:** b\n", 1)
+        self._assert_flagged(
+            "fake-bq-html-search.md", "> **A:** a\n> <search>\n> **B:** b\n", 1
+        )
+
     def test_block_quote_paragraph_is_a_run(self) -> None:
         self._assert_flagged("fake-bq.md", "> **A:** x\n> **B:** y\n", 1)
 
