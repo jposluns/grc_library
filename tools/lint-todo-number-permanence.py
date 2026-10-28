@@ -961,7 +961,7 @@ EXEMPT: dict[tuple[str, str], str] = {
         "PARTIAL CLOSE against a still-open umbrella (DONE #3035, 2026-10-28). PR #3035 "
         "shipped gate 6's ratchet on each standard's UNPINNED citation count and its "
         "complete exit-code list; the P-3.213 register-coverage umbrella stays live at "
-        "P-TODO.md for its remaining family migrations and enforcement. The DONE heading "
+        "P-TODO.md. The DONE heading "
         "says 'item stays open'. Dated 2026-10-28, after the 2026-07-15 rule."
     ),
 }
