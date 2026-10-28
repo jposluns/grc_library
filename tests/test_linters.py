@@ -19699,6 +19699,368 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
+    def test_yaml_other_breaks_values_are_unchanged(self) -> None:
+        # 3b675: the tuple is written with escapes, so U+2028 and U+2029 no longer show as
+        # spaces in a diff; the values are the ones the literal characters held.
+        agp = self._gate_parity_module("_agp_other_breaks")
+        self.assertEqual(agp.YAML_OTHER_BREAKS, ("\r", "\x85", "\u2028", "\u2029"))
+        self.assertEqual([ord(c) for c in agp.YAML_OTHER_BREAKS], [0x0D, 0x85, 0x2028, 0x2029])
+
+    def test_undecodable_surface_exits_2(self) -> None:
+        # 3b675: a runner or YAML surface with an invalid byte, or in UTF-16, exited 1 with
+        # a UnicodeDecodeError traceback at de3715476; the docstring promises exit 2 for a
+        # file that cannot be parsed.
+        self._assert_undecodable_exits_2(("tools/run_all_audits.sh",
+                                          ".github/workflows/quality.yml",
+                                          ".pre-commit-config.yaml"))
+
+    def test_undecodable_spec_and_prtime_exit_2(self) -> None:
+        # 3b675 round 2: the specification (parse_spec_inventory's open()) and
+        # tools/run-pr-time-checks.sh (the delta guards' read_text) still exited 1 with a
+        # UnicodeDecodeError traceback at 159cd6a1f.
+        self._assert_undecodable_exits_2(("governance/specification-audit-programme.md",
+                                          "tools/run-pr-time-checks.sh"))
+
+    @staticmethod
+    def _read_bypasses(source: str) -> list[str]:
+        """What the checks below match in ``source`` (3b675 round 3); an empty list means
+        none matched. They look for ways to read or decode a file other than the top-level
+        _read_utf8, and every finding comes from one of them:
+
+        - a def or async def named _read_utf8 that is not a top-level statement (one in a
+          function or class, or under a top-level ``if``, for example);
+        - a count other than 1 of top-level defs and async defs named _read_utf8. In that
+          case the function returns after these first two checks; the checks below do not
+          run;
+        - anywhere in the source, the top-level _read_utf8 included: ``import`` of io,
+          codecs or a submodule of either (with or without ``as``); ``from`` io, codecs or
+          a submodule of either; and ``from os import`` of open, read or ``*``. The module
+          name is compared without its leading dots, so ``from .io import x`` and
+          ``from .os import open`` are reported, while ``from . import io`` is not;
+        - outside the top-level _read_utf8's definition (its decorators, defaults and
+          annotations count as inside): a bare name (an ``ast.Name`` in any context) open,
+          io, codecs, read_text, read_bytes or decode; an attribute with one of those names
+          on any object; the attribute read on the bare name os; a call of the bare name
+          str with more than one positional argument (a starred one counts as one) or an
+          ``encoding`` or ``errors`` keyword; and a call of the bare name getattr, hasattr
+          or setattr whose second positional argument is a string literal of one of those
+          six names or read.
+
+        It matches names, not what they refer to: an .open attribute unrelated to files is
+        reported, and ``o.read`` after ``import os as o`` is not. A def, class, parameter,
+        ``import ... as`` or ``except ... as`` binding of one of those names is not an
+        ``ast.Name`` and is not reported by the bare-name check. It is a best-effort
+        structural guard, not a proof that every read goes through the helper; code review
+        remains the control."""
+        import ast
+        tree = ast.parse(source)
+        helpers = [node for node in ast.walk(tree)
+                   if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                   and node.name == "_read_utf8"]
+        found = [f"line {node.lineno}: a _read_utf8 that is not the one top-level definition"
+                 for node in helpers if node not in tree.body]
+        top = [node for node in helpers if node in tree.body]
+        if len(top) != 1:
+            return found + [f"{len(top)} top-level _read_utf8 definitions, not 1"]
+        inside = {id(node) for node in ast.walk(top[0])}
+        names = {"open", "io", "codecs", "read_text", "read_bytes", "decode"}
+        for node in ast.walk(tree):
+            where = f"line {getattr(node, 'lineno', '?')}"
+            if isinstance(node, ast.Import):
+                found += [f"{where}: import {a.name}" for a in node.names
+                          if a.name.split(".")[0] in ("io", "codecs")]
+            elif isinstance(node, ast.ImportFrom):
+                if (node.module or "").split(".")[0] in ("io", "codecs"):
+                    found.append(f"{where}: from {node.module} import")
+                elif node.module == "os":
+                    found += [f"{where}: from os import {a.name}" for a in node.names
+                              if a.name in ("open", "read", "*")]
+            if id(node) in inside:
+                continue
+            if isinstance(node, ast.Name) and node.id in names:
+                found.append(f"{where}: {node.id}")
+            elif isinstance(node, ast.Attribute) and node.attr in names:
+                found.append(f"{where}: .{node.attr}")
+            elif (isinstance(node, ast.Attribute) and node.attr == "read"
+                  and isinstance(node.value, ast.Name) and node.value.id == "os"):
+                found.append(f"{where}: os.read")
+            elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                if node.func.id == "str" and (
+                        len(node.args) > 1
+                        or any(k.arg in ("encoding", "errors") for k in node.keywords)):
+                    found.append(f"{where}: str with an encoding")
+                elif node.func.id in ("getattr", "hasattr", "setattr") and any(
+                        isinstance(a, ast.Constant) and a.value in names | {"read"}
+                        for a in node.args[1:2]):
+                    found.append(f"{where}: {node.func.id} of a read name")
+        return found
+
+    def test_every_read_goes_through_read_utf8(self) -> None:
+        # 3b675 round 3: round 2's check matched only calls literally named open,
+        # read_text, read_bytes or decode, so an aliased open, getattr, str(bytes, 'utf-8')
+        # or io.FileIO passed it. _read_bypasses states what it still cannot see.
+        tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
+        source = tool.read_text(encoding="utf-8")
+        self.assertEqual(self._read_bypasses(source), [])
+        head = "def _read_utf8(path: Path) -> str:\n"
+        self.assertEqual(source.count(head), 1)
+        flips = {
+            "open called": "def _f(p):\n    return open(p)\n",
+            "open aliased": "_o = open\n",
+            "read_text": "def _f(p):\n    return p.read_text()\n",
+            "read_bytes": "def _f(p):\n    return p.read_bytes()\n",
+            "decode": "def _f(b):\n    return b.decode('utf-8')\n",
+            "Path.open": "def _f(p):\n    return Path.open(p)\n",
+            "str positional": "def _f(b):\n    return str(b, 'utf-8')\n",
+            "str encoding": "def _f(b):\n    return str(b, encoding='utf-8')\n",
+            "str errors": "def _f(b):\n    return str(b, errors='strict')\n",
+            "getattr": "def _f(p):\n    return getattr(p, 'read_bytes')()\n",
+            "hasattr": "def _f(p):\n    return hasattr(p, 'open')\n",
+            "io name": "def _f(p):\n    return io.FileIO(p)\n",
+            "codecs name": "def _f(p):\n    return codecs.decode(p)\n",
+            "import io": "import io\n",
+            "import io aliased": "import io as _x\n",
+            "import codecs": "import codecs\n",
+            "from io": "from io import FileIO\n",
+            "from codecs": "from codecs import open as _o\n",
+            "os.open": "import os\ndef _f(p):\n    return os.open(p, 0)\n",
+            "os.read": "import os\ndef _f(fd):\n    return os.read(fd, 1)\n",
+            "from os open": "from os import open as _o\n",
+            "from os read": "from os import read\n",
+            "nested _read_utf8": ("def _f():\n    def _read_utf8(p):\n"
+                                  "        return p.read_bytes()\n"),
+        }
+        for label, extra in flips.items():
+            with self.subTest(flip=label):
+                self.assertNotEqual(self._read_bypasses(source + "\n\n" + extra), [])
+        for label, extra in (("import io in _read_utf8", "    import io\n"),
+                             ("import codecs in _read_utf8", "    import codecs\n")):
+            with self.subTest(flip=label):
+                self.assertNotEqual(self._read_bypasses(source.replace(head, head + extra)), [])
+        with self.subTest(flip="second top-level _read_utf8"):
+            self.assertNotEqual(self._read_bypasses(source + "\n\n" + head + "    return ''\n"),
+                                [])
+        import ast
+        helper = next(node for node in ast.parse(source).body
+                      if isinstance(node, ast.FunctionDef) and node.name == "_read_utf8")
+        self.assertIn("read_bytes", {node.func.attr for node in ast.walk(helper)
+                                     if isinstance(node, ast.Call)
+                                     and isinstance(node.func, ast.Attribute)})
+
+    def _run_with_prtime(self, prepare) -> subprocess.CompletedProcess:
+        """The real surfaces copied to a fixture root, ``prepare(root / PRTIME)`` applied
+        to the PR-time runner's copy, then the gate run on the root; every mode is
+        restored before the root is removed."""
+        return self._run_with_surface("tools/run-pr-time-checks.sh", prepare, timeout=300)
+
+    def _run_with_surface(self, surface: str, prepare,
+                          timeout: int) -> subprocess.CompletedProcess:
+        """As _run_with_prtime, with ``prepare`` applied to ``surface``'s copy and the gate
+        under ``timeout`` seconds (subprocess.TimeoutExpired past it)."""
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-prtime-", dir=FIXTURE_DIR))
+        try:
+            for name in self._ISOLATED_SURFACES:
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes((REPO_ROOT / name).read_bytes())
+            prepare(root / surface)
+            return subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tools/lint-audit-gate-parity.py"),
+                 "--root", str(root)],
+                cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=timeout)
+        finally:
+            for path in root.rglob("*"):
+                if not path.is_symlink():
+                    path.chmod(0o755 if path.is_dir() else 0o644)
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_present_prtime_without_d_numbers_exits_2(self) -> None:
+        # 3b675 round 3: at 6ef10afc5 an empty run-pr-time-checks.sh, or one with no
+        # run_check "D<n> ..." line, skipped the D-number parity check and the gate passed
+        # with nothing checked; a directory at the path was skipped as absent.
+        unchanged = self._run_with_prtime(lambda path: None)
+        self.assertNotEqual(unchanged.returncode, 2, unchanged.stderr)
+
+        def absent(path: Path) -> None:
+            path.unlink()
+
+        result = self._run_with_prtime(absent)
+        self.assertEqual((result.returncode, result.stdout),
+                         (unchanged.returncode, unchanged.stdout), result.stderr)
+        self.assertNotIn("run-pr-time-checks.sh", result.stderr)
+
+        def directory(path: Path) -> None:
+            path.unlink()
+            path.mkdir()
+
+        cases = {
+            "empty": (lambda path: path.write_bytes(b""), "is present but empty"),
+            "no D-number line": (lambda path: path.write_bytes(b"#!/usr/bin/env bash\n"
+                                                                b"echo checks\n"),
+                                 'has no run_check "D<n> ..." line'),
+            "blank lines": (lambda path: path.write_bytes(b"\n\n"),
+                            'has no run_check "D<n> ..." line'),
+            "directory": (directory, "is not a regular file (a directory)"),
+        }
+        for label, (prepare, message) in cases.items():
+            with self.subTest(case=label):
+                result = self._run_with_prtime(prepare)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn(f"tools/run-pr-time-checks.sh: {message}", result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+
+    def _assert_not_regular_exits_2(self, surface: str, prepare, kind: str) -> None:
+        """The gate, with ``prepare`` applied to ``surface``'s copy, exits 2 within 30
+        seconds naming the path and ``kind``."""
+        try:
+            result = self._run_with_surface(surface, prepare, timeout=30)
+        except subprocess.TimeoutExpired:
+            self.fail(f"the gate blocked for 30 seconds on {kind} at {surface}")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(f"{surface}: is not a regular file ({kind})", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_non_regular_prtime_exits_2_without_blocking(self) -> None:
+        # 3b675 round 4: at 365e46d98 anything present at run-pr-time-checks.sh was read,
+        # so a FIFO there blocked the gate; a directory exited 2 as "cannot be read". Its
+        # kind is now taken from lstat, and nothing but a regular file is opened.
+        prtime = "tools/run-pr-time-checks.sh"
+
+        def fifo(path: Path) -> None:
+            path.unlink()
+            os.mkfifo(path)
+
+        def directory(path: Path) -> None:
+            path.unlink()
+            path.mkdir()
+
+        def fifo_link(path: Path) -> None:
+            path.unlink()
+            os.mkfifo(path.with_name("pipe"))
+            path.symlink_to("pipe")
+
+        for label, prepare, kind in (("FIFO", fifo, "a FIFO"),
+                                     ("directory", directory, "a directory"),
+                                     ("link to a FIFO", fifo_link, "a symbolic link to a FIFO")):
+            with self.subTest(case=label):
+                self._assert_not_regular_exits_2(prtime, prepare, kind)
+
+    def test_socket_prtime_exits_2_without_blocking(self) -> None:
+        # 3b675 round 4. A socket path is limited to about 108 bytes, which the fixture
+        # path exceeds, so the socket is bound at a short path and renamed into place.
+        import socket
+        if not hasattr(socket, "AF_UNIX"):
+            self.skipTest("this platform has no Unix sockets")
+        short = Path(tempfile.mkdtemp(prefix="s", dir=FIXTURE_DIR))
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        try:
+            try:
+                sock.bind(str(short / "s"))
+            except OSError as exc:
+                self.skipTest(f"binding a Unix socket is not permitted here ({exc})")
+
+            def place(path: Path) -> None:
+                path.unlink()
+                (short / "s").rename(path)
+
+            self._assert_not_regular_exits_2("tools/run-pr-time-checks.sh", place, "a socket")
+        finally:
+            sock.close()
+            shutil.rmtree(short, ignore_errors=True)
+
+    def test_non_regular_required_surface_exits_2(self) -> None:
+        # 3b675 round 4: at 365e46d98 a directory, link loop or link to a directory at a
+        # required surface was reported as "required file not found"; it is present, so
+        # it is now "is not a regular file" with its kind.
+        def directory(path: Path) -> None:
+            path.unlink()
+            path.mkdir()
+
+        def loop(path: Path) -> None:
+            path.unlink()
+            path.symlink_to(path.name)
+
+        def directory_link(path: Path) -> None:
+            path.unlink()
+            path.with_name("elsewhere").mkdir()
+            path.symlink_to("elsewhere")
+
+        def fifo(path: Path) -> None:
+            path.unlink()
+            os.mkfifo(path)
+
+        for surface in self._ISOLATED_SURFACES[:4]:
+            with self.subTest(surface=surface, case="directory"):
+                self._assert_not_regular_exits_2(surface, directory, "a directory")
+        for label, prepare, kind in (("link loop", loop, "a symbolic link loop"),
+                                     ("link to a directory", directory_link,
+                                      "a symbolic link to a directory"),
+                                     ("FIFO", fifo, "a FIFO")):
+            with self.subTest(surface="tools/run_all_audits.sh", case=label):
+                self._assert_not_regular_exits_2("tools/run_all_audits.sh", prepare, kind)
+
+    def test_unreadable_surface_exits_2(self) -> None:
+        # 3b675 round 3: at 6ef10afc5 a mode-000 surface exited 1 with a PermissionError
+        # traceback; _read_utf8 now refuses any OSError but FileNotFoundError with exit 2.
+        if hasattr(os, "geteuid") and os.geteuid() == 0:
+            self.skipTest("run as root, which reads a mode-000 file, so no surface can be "
+                          "made unreadable by its mode")
+        for surface in self._ISOLATED_SURFACES:
+            with self.subTest(surface=surface):
+                root = Path(tempfile.mkdtemp(prefix="synthetic-parity-unreadable-",
+                                             dir=FIXTURE_DIR))
+                target = root / surface
+                try:
+                    for name in self._ISOLATED_SURFACES:
+                        (root / name).parent.mkdir(parents=True, exist_ok=True)
+                        (root / name).write_bytes((REPO_ROOT / name).read_bytes())
+                    target.chmod(0o000)
+                    try:
+                        target.read_bytes()
+                    except PermissionError:
+                        pass
+                    else:
+                        self.skipTest("a mode-000 file is still readable here (a capability "
+                                      "or ACL grants it), so the case cannot be set up")
+                    result = subprocess.run(
+                        [sys.executable, str(REPO_ROOT / "tools/lint-audit-gate-parity.py"),
+                         "--root", str(root)],
+                        cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300)
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn(f"{surface}: cannot be read (PermissionError",
+                                  result.stderr)
+                    self.assertNotIn("Traceback", result.stderr)
+                finally:
+                    target.chmod(0o644)
+                    shutil.rmtree(root, ignore_errors=True)
+
+    def _assert_undecodable_exits_2(self, surfaces: tuple[str, ...]) -> None:
+        """Each of ``surfaces``, with an invalid byte and in UTF-16 with a byte-order mark,
+        the other files copied unchanged, exits 2 naming it as not valid UTF-8."""
+        encodings = {"invalid byte": lambda text: text.encode("utf-8") + b"# \xff\n",
+                     "UTF-16": lambda text: text.encode("utf-16")}
+        for surface in surfaces:
+            for label, encode in encodings.items():
+                with self.subTest(surface=surface, encoding=label):
+                    root = Path(tempfile.mkdtemp(prefix="synthetic-parity-undecodable-",
+                                                 dir=FIXTURE_DIR))
+                    try:
+                        for name in self._ISOLATED_SURFACES:
+                            text = (REPO_ROOT / name).read_text(encoding="utf-8")
+                            target = root / name
+                            target.parent.mkdir(parents=True, exist_ok=True)
+                            target.write_bytes(encode(text) if name == surface
+                                               else text.encode("utf-8"))
+                        result = subprocess.run(
+                            [sys.executable, str(REPO_ROOT / "tools/lint-audit-gate-parity.py"),
+                             "--root", str(root)],
+                            cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300)
+                        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                        self.assertIn(f"{surface}: is not valid UTF-8", result.stderr)
+                        self.assertNotIn("Traceback", result.stderr)
+                    finally:
+                        shutil.rmtree(root, ignore_errors=True)
+
     # Round 5 (the maintainer's 23:20Z decision): the YAML surfaces accept only the block-
     # mapping line shapes the current steps and hooks use. Each test below passed at
     # 0b4738bc4: the fixture's extra step or hook was skipped, or the hook was accepted.
@@ -20781,8 +21143,10 @@ class AuditGateParityTests(LinterTestCase):
             shutil.rmtree(work, ignore_errors=True)
 
     def test_category_unreadable_spec_exits_two(self) -> None:
-        # parse_spec_inventory reads the spec with open(); only the later
-        # section-5 read_text is made to fail, and must exit 2, not crash.
+        # parse_spec_inventory reads the spec first; only the later section-5
+        # read (the second read of the spec) is made to fail, and must exit 2,
+        # not crash. Both reads go through _read_utf8's read_bytes (3b675), which names
+        # the file and the error (3b675 round 3).
         import contextlib
         import importlib.util
         from unittest import mock
@@ -20791,21 +21155,25 @@ class AuditGateParityTests(LinterTestCase):
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         spec_path = (REPO_ROOT / mod.SPEC_PATH).resolve()
-        real_read_text = Path.read_text
+        real_read_bytes = Path.read_bytes
+        spec_reads = []
 
-        def read_text(path, *args, **kwargs):
+        def read_bytes(path, *args, **kwargs):
             if Path(path).resolve() == spec_path:
-                raise PermissionError("category spec unreadable")
-            return real_read_text(path, *args, **kwargs)
+                spec_reads.append(path)
+                if len(spec_reads) == 2:
+                    raise PermissionError("category spec unreadable")
+            return real_read_bytes(path, *args, **kwargs)
 
         stderr = io.StringIO()
-        with mock.patch.object(Path, "read_text", read_text), \
+        with mock.patch.object(Path, "read_bytes", read_bytes), \
                 contextlib.redirect_stderr(stderr), \
                 contextlib.redirect_stdout(io.StringIO()):
             rc = mod.main(["--root", str(REPO_ROOT)])
         self.assertEqual(rc, 2, stderr.getvalue())
         self.assertIn(
-            "ERROR: section-5 categories: category spec unreadable", stderr.getvalue()
+            f"ERROR: {mod.SPEC_PATH}: cannot be read (PermissionError: category spec "
+            f"unreadable)", stderr.getvalue()
         )
 
 class ChangelogLinkCoverageTests(LinterTestCase):
@@ -30742,7 +31110,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F fab89440f44f35807c47d823e662919343bb9d3ad220e85887d300a229b80ab6
+        lint-audit-gate-parity.py OWN F 48a5130538cf0e506226c7c47c8c2b98e8b8e5e6ba5df2177e8b02cdbdfb1545
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-bookkeeping-parity.py NO_FS F 43a25f9706516004b494a4ed6842b3fe06001f152cbedfa9ec1845cd88ba946b

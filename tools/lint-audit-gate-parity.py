@@ -121,7 +121,20 @@ Exit codes:
 
   0   parity clean.
   1   one or more drift findings present.
-  2   internal error parsing one of the four surfaces.
+  2   internal error parsing one of the files the gate reads: the four surfaces
+      (the specification, quality.yml, run_all_audits.sh and .pre-commit-config.yaml)
+      and tools/run-pr-time-checks.sh. Whichever of the five it is, a file that
+      cannot be read (for example mode 000) is one of these errors, and so is a
+      file that is not valid UTF-8 (an invalid byte, or UTF-16 with a byte-order
+      mark). A file in another encoding whose bytes happen to be valid UTF-8 (such
+      as BOM-less UTF-16 of ASCII text) is read as UTF-8 and fails, if at all, on
+      its content. Anything present at one of the five paths that is not a
+      regular file or a symbolic link to one (a directory, a FIFO, a socket, a
+      device, a symbolic link loop, a link to nothing or to any of those) is one
+      of these errors too, named with its kind and never opened.
+      tools/run-pr-time-checks.sh may be absent (nothing at the path), which
+      skips the D-number parity check; present but empty, or with no
+      ``run_check "D<n> ..."`` line, it is one of these errors.
 
 The linter is itself part of the audit programme and is added to
 .github/workflows/quality.yml, tools/run_all_audits.sh, and
@@ -140,8 +153,11 @@ repository root derived from this file's location.
 from __future__ import annotations
 
 import argparse
+import errno
+import os
 import re
 import shlex
+import stat
 import sys
 from pathlib import Path
 
@@ -397,7 +413,8 @@ SPEC_ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|\s*$")
 
 
 class ParseError(Exception):
-    """Raised when one of the four surfaces cannot be parsed."""
+    """Raised when one of the four surfaces or tools/run-pr-time-checks.sh cannot be
+    read or parsed."""
 
 
 def parse_spec_inventory(path: Path) -> list[tuple[int, int, str, str]]:
@@ -409,35 +426,33 @@ def parse_spec_inventory(path: Path) -> list[tuple[int, int, str, str]]:
     """
     rows: list[tuple[int, int, str, str]] = []
     in_section_6 = False
-    with path.open("r", encoding="utf-8") as fh:
-        for lineno, raw in enumerate(fh, 1):
-            line = raw.rstrip("\n")
-            if line.startswith("## 6."):
-                in_section_6 = True
-                continue
-            if in_section_6 and line.startswith("## ") and not line.startswith("## 6."):
-                break
-            if not in_section_6:
-                continue
-            m = SPEC_ROW_RE.match(line)
-            if not m:
-                continue
-            gate_num_str, gate_name, rest = m.group(1), m.group(2), m.group(3)
-            # Skip header divider rows ("---" content).
-            if gate_name.strip("- ") == "":
-                continue
-            try:
-                gate_num = int(gate_num_str)
-            except ValueError:
-                continue
-            script_match = SPEC_SCRIPT_RE.search(rest)
-            if not script_match:
-                raise ParseError(
-                    f"{path.relative_to(REPO_ROOT)}:{lineno}: "
-                    f"inventory row for gate {gate_num} has no recognizable "
-                    f"`tools/X.py` script link"
-                )
-            rows.append((lineno, gate_num, gate_name, script_match.group(1)))
+    for lineno, line in enumerate(_universal_newlines(_read_utf8(path)).split("\n"), 1):
+        if line.startswith("## 6."):
+            in_section_6 = True
+            continue
+        if in_section_6 and line.startswith("## ") and not line.startswith("## 6."):
+            break
+        if not in_section_6:
+            continue
+        m = SPEC_ROW_RE.match(line)
+        if not m:
+            continue
+        gate_num_str, gate_name, rest = m.group(1), m.group(2), m.group(3)
+        # Skip header divider rows ("---" content).
+        if gate_name.strip("- ") == "":
+            continue
+        try:
+            gate_num = int(gate_num_str)
+        except ValueError:
+            continue
+        script_match = SPEC_SCRIPT_RE.search(rest)
+        if not script_match:
+            raise ParseError(
+                f"{path.relative_to(REPO_ROOT)}:{lineno}: "
+                f"inventory row for gate {gate_num} has no recognizable "
+                f"`tools/X.py` script link"
+            )
+        rows.append((lineno, gate_num, gate_name, script_match.group(1)))
     if not rows:
         raise ParseError(
             f"{path.relative_to(REPO_ROOT)}: no §6 gate-inventory rows found"
@@ -563,7 +578,7 @@ def verify_category_coverage(path: Path, expected: set[int]) -> list[str]:
     fences differently from the CommonMark pairing checked here). A malformed
     category line or a missing section 5 is reported without the comparison,
     which would only repeat its numbers as missing."""
-    lines = path.read_text(encoding="utf-8").split("\n")
+    lines = _universal_newlines(_read_utf8(path)).split("\n")
     visible, findings = _scan_markup(lines)
     if findings:
         return findings
@@ -648,7 +663,7 @@ YAML_STRUCTURE = ("a gate YAML surface is accepted only in the fixed structure o
                   "excluded step's `run: |`), and at each level only the keys of "
                   "WORKFLOW_SKELETON or PRECOMMIT_SKELETON in tools/lint-audit-gate-parity.py")
 # Characters YAML (1.1, as PyYAML reads it) takes as a line break besides LF.
-YAML_OTHER_BREAKS = ("\r", "\x85", " ", " ")
+YAML_OTHER_BREAKS = ("\r", "\x85", "\u2028", "\u2029")
 
 # The fixed skeletons (3b646 round 6). A dict is a mapping that may hold only its keys, and
 # an _Exact one must hold every one of them; a one-item list is a list whose items match
@@ -700,10 +715,86 @@ def _yaml_value_problem(key: str, value: str, flow_lists: dict[str, frozenset[st
     return None
 
 
+REGULAR_FILE = "a regular file"
+
+SPECIAL_KINDS = ((stat.S_ISDIR, "a directory"), (stat.S_ISFIFO, "a FIFO"),
+                 (stat.S_ISSOCK, "a socket"), (stat.S_ISCHR, "a character device"),
+                 (stat.S_ISBLK, "a block device"))
+
+
+def _surface_kind(path: Path) -> str | None:
+    """What is at ``path``, from lstat and, for a symbolic link, stat of its target, so
+    that nothing is opened to find out (3b675 round 4: round 3 read whatever was present at
+    tools/run-pr-time-checks.sh, and a FIFO there blocked the gate). None when lstat finds
+    no entry (ENOENT); REGULAR_FILE for a regular file or a link to one; otherwise the
+    kind, such as "a FIFO", "a symbolic link loop" or "a symbolic link to a directory".
+    Any other lstat or stat failure (a parent without search permission, a parent that is
+    not a directory) is a ParseError, never read as absent."""
+    def unexaminable(exc: OSError) -> ParseError:
+        return ParseError(f"{path.relative_to(REPO_ROOT)}: cannot be examined "
+                          f"({type(exc).__name__}: {exc.strerror or exc})")
+
+    try:
+        mode = os.lstat(path).st_mode
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        raise unexaminable(exc) from None
+    link = stat.S_ISLNK(mode)
+    if link:
+        try:
+            mode = os.stat(path).st_mode
+        except FileNotFoundError:
+            return "a symbolic link to nothing"
+        except OSError as exc:
+            if exc.errno == errno.ELOOP:
+                return "a symbolic link loop"
+            raise unexaminable(exc) from None
+    if stat.S_ISREG(mode):
+        return REGULAR_FILE
+    kind = next((name for test, name in SPECIAL_KINDS if test(mode)), "a special file")
+    return f"a symbolic link to {kind}" if link else kind
+
+
+def _read_utf8(path: Path) -> str:
+    """The text of ``path``, decoded as UTF-8 with no newline translation. Every file the
+    gate reads goes through here (3b675 round 2), so a file that is not valid UTF-8 is a
+    ParseError (exit 2), never a decode traceback. UTF-16 with a byte-order mark is not
+    valid UTF-8; BOM-less UTF-16 of ASCII text is, so it is read as UTF-8 and fails, if at
+    all, on its content. Only a regular file, or a symbolic link to one, is opened: anything
+    else present is a ParseError naming its kind (3b675 round 4; see _surface_kind). A file
+    that cannot be read (any OSError but FileNotFoundError, such as a mode-000 file) is a
+    ParseError too (3b675 round 3); a missing file raises FileNotFoundError, for the caller
+    to refuse or tolerate. The kind is checked by name and the file then opened by name, so
+    a regular file replaced by a FIFO between the two is not caught."""
+    kind = _surface_kind(path)
+    if kind is None:
+        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), str(path))
+    if kind != REGULAR_FILE:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: is not a regular file ({kind})")
+    try:
+        return path.read_bytes().decode("utf-8")
+    except FileNotFoundError:
+        raise
+    except OSError as exc:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: cannot be read "
+                         f"({type(exc).__name__}: {exc.strerror or exc})") from None
+    except UnicodeDecodeError as exc:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: is not valid UTF-8 (byte "
+                         f"{exc.object[exc.start]:#04x} at offset {exc.start}); only UTF-8 "
+                         f"is accepted") from None
+
+
+def _universal_newlines(text: str) -> str:
+    """``text`` with CRLF and lone CR made LF, as a text-mode open() read gives it."""
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
 def _lf_lines(path: Path) -> list[str]:
     """The lines of ``path`` split at LF only. A universal-newline read would also split
-    at CR, which bash does not: `x.py\\r&& python3 -B ...` is one line to bash."""
-    return path.read_bytes().decode("utf-8").split("\n")
+    at CR, which bash does not: `x.py\\r&& python3 -B ...` is one line to bash. A file
+    that is not valid UTF-8, or cannot be read, is a ParseError (exit 2)."""
+    return _read_utf8(path).split("\n")
 
 
 class _YamlLine:
@@ -1109,13 +1200,17 @@ def verify_exclusion_and_delta_guards(
     delta gates. Returns a (possibly empty) list of findings. Never mutates the
     row-parity result; the caller appends these to its findings."""
     findings: list[str] = []
-    wf_lines = (root / WORKFLOW_PATH).read_text(encoding="utf-8").splitlines()
+    wf_lines = _read_utf8(root / WORKFLOW_PATH).splitlines()
     wf_names = {m.group(1) for m in (WF_NAME_RE.match(l) for l in wf_lines) if m}
-    pc_lines = (root / PRECOMMIT_PATH).read_text(encoding="utf-8").splitlines()
+    pc_lines = _read_utf8(root / PRECOMMIT_PATH).splitlines()
     prtime = (root / PRTIME_PATH)
-    prtime_lines = (
-        prtime.read_text(encoding="utf-8").splitlines() if prtime.is_file() else []
-    )
+    # Absent (lstat finds no entry) is tolerated for a portable clone. Anything present goes
+    # to _read_utf8, so an unreadable file is a ParseError (3b675 round 3) and anything but a
+    # regular file is one without being opened (round 4).
+    prtime_present = _surface_kind(prtime) is not None
+    prtime_lines: list[str] = []
+    if prtime_present:
+        prtime_lines = _read_utf8(prtime).splitlines()
 
     # (i) WORKFLOW_SETUP_STEPS: must exist and invoke no gate script.
     for name in sorted(WORKFLOW_SETUP_STEPS):
@@ -1189,7 +1284,15 @@ def verify_exclusion_and_delta_guards(
                 scr = sm.group(1)
                 break
         dmap[num] = (nm, scr)
-    if prtime_lines:  # only if the runner is present (portable-clone tolerant)
+    # A present runner that is empty, or has no D-number line, would pass the check below
+    # with nothing checked (3b675 round 3).
+    if prtime_present and not prtime_lines:
+        raise ParseError(f"{PRTIME_PATH}: is present but empty, so the D-number "
+                         f"parity check has nothing to check")
+    if prtime_present and not dmap:
+        raise ParseError(f'{PRTIME_PATH}: has no run_check "D<n> ..." line, so the '
+                         f"D-number parity check has nothing to check")
+    if prtime_present:  # only if the runner is present (portable-clone tolerant)
         nums = sorted(dmap)
         expected = sorted(set(range(1, HIGHEST_DELTA_GATE + 1)) - RETIRED_DELTA_GATES)
         if nums != expected:
@@ -1249,8 +1352,17 @@ def main(argv: list[str]) -> int:
     precommit_path = REPO_ROOT / PRECOMMIT_PATH
 
     for p in (spec_path, workflow_path, runner_path, precommit_path):
-        if not p.is_file():
+        try:
+            kind = _surface_kind(p)
+        except ParseError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 2
+        if kind is None:
             print(f"ERROR: required file not found: {p.relative_to(REPO_ROOT)}",
+                  file=sys.stderr)
+            return 2
+        if kind != REGULAR_FILE:  # 3b675 round 4: present, so not "not found"
+            print(f"ERROR: {p.relative_to(REPO_ROOT)}: is not a regular file ({kind})",
                   file=sys.stderr)
             return 2
 
@@ -1262,6 +1374,9 @@ def main(argv: list[str]) -> int:
     except ParseError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
+    except FileNotFoundError as exc:  # removed after the kind check above
+        print(f"ERROR: required file not found: {exc.filename}", file=sys.stderr)
+        return 2
 
     findings: list[str] = []
 
@@ -1270,6 +1385,9 @@ def main(argv: list[str]) -> int:
         findings.extend(verify_category_coverage(
             spec_path, {gate_num for (_, gate_num, _, _) in spec}
         ))
+    except ParseError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
     except (OSError, UnicodeError) as exc:
         print(f"ERROR: section-5 categories: {exc}", file=sys.stderr)
         return 2
@@ -1381,7 +1499,14 @@ def main(argv: list[str]) -> int:
     # Additive 3.99 (closing PR #1087) guards: cross-check the exclusion allow-lists against a
     # positive signal, and check the D-numbered delta gates' cross-surface parity.
     spec_scripts = {script for (_, _, _, script) in spec}
-    findings.extend(verify_exclusion_and_delta_guards(REPO_ROOT, spec_scripts))
+    try:
+        findings.extend(verify_exclusion_and_delta_guards(REPO_ROOT, spec_scripts))
+    except ParseError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    except FileNotFoundError as exc:  # removed after the kind check above
+        print(f"ERROR: required file not found: {exc.filename}", file=sys.stderr)
+        return 2
 
     if findings:
         for finding in findings:
