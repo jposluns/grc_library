@@ -32645,7 +32645,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        open-findings-row.py OWN F bb76637666e1b555366d2f1655808050c890affc6cbc3aed92486ee034d9506c
+        open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
         pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
@@ -65707,6 +65707,7 @@ class OpenFindingsRowSetDispositionTests(unittest.TestCase):
     LEDGER = OpenFindingsRowTests.LEDGER
     FIXED = "FIXED #2800 (f2a53df9f) [class-exempt: singleton]"
     OPEN_A = "| 2026-10-02 | warning | [OPEN-A] first open | probe | "
+    UNBORDERED = LEDGER.replace(OPEN_A + "ROUTED 3b330 |", OPEN_A + "ROUTED 3b330")
 
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
@@ -65798,7 +65799,68 @@ class OpenFindingsRowSetDispositionTests(unittest.TestCase):
         self.assertRefused("FIXED #2800 [class-exempt: too-hard]", "class-bad-exempt")
 
     def test_refuses_pipe_in_cell(self) -> None:
-        self.assertRefused("ROUTED 3b330 | x", "malformed-columns")
+        # Checked before the row's shape is looked at: on a row with no trailing border pipe,
+        # `ROUTED 3b330 |` refused as splice-mismatch and `|` as disposition-empty (3b678 r2).
+        for shape, text in (("bordered", self.LEDGER), ("unbordered", self.UNBORDERED)):
+            self.ledger.write_text(text, encoding="utf-8")
+            for cell in ("ROUTED 3b330 | x", "ROUTED 3b330 |", "|", "| ROUTED 3b330"):
+                with self.subTest(shape=shape, cell=cell):
+                    self.assertRefused(cell, "malformed-columns")
+                    self.assertEqual(self.run_tool(cell, "OPEN-A")[2].count("refused: "), 1)
+            with self.subTest(shape=shape, cell="escaped"):
+                rc, out, err = self.run_tool("ROUTED 3b330 \\| x", "OPEN-A", "--dry-run")
+                self.assertEqual(rc, 0, out + err)
+
+    def test_stdin_refusals_on_each_row_shape(self) -> None:
+        for shape, text in (("bordered", self.LEDGER), ("unbordered", self.UNBORDERED)):
+            self.ledger.write_text(text, encoding="utf-8")
+            for cell, code in (("ROUTED 3b330\nx", "multiline"), ("ROUTED\r3b330", "bad-line-char"),
+                               ("ROUTED 3b330", "bad-line-char")):
+                with self.subTest(shape=shape, code=code):
+                    self.assertRefused(cell, code)
+
+    def test_cell_spacing_on_each_row_shape(self) -> None:
+        # Bordered: one space, the cell, one space, the border pipe. Unbordered: one space and the cell,
+        # then the row's own trailing whitespace, with no space added.
+        old = self.OPEN_A + "ROUTED 3b330 |"
+        for shape, row, want in (
+                ("bordered", old, self.OPEN_A + self.FIXED + " |"),
+                ("bordered, trailing spaces", old + "  ", self.OPEN_A + self.FIXED + " |  "),
+                ("unbordered", self.OPEN_A + "ROUTED 3b330", self.OPEN_A + self.FIXED),
+                ("unbordered, trailing spaces", self.OPEN_A + "ROUTED 3b330  ", self.OPEN_A + self.FIXED + "  ")):
+            with self.subTest(shape=shape):
+                self.ledger.write_text(self.LEDGER.replace(old, row), encoding="utf-8")
+                rc, out, err = self.run_tool(self.FIXED, "OPEN-A")
+                self.assertEqual(rc, 0, out + err)
+                self.assertEqual(self.ledger.read_text(encoding="utf-8").splitlines()[11], want)
+
+    def test_docstring_and_reference_state_each_row_shape(self) -> None:
+        import ast
+        doc = ast.get_docstring(ast.parse(OpenFindingsRowTests.TOOL.read_text(encoding="utf-8")))
+        section = " ".join(doc.split("SET DISPOSITION.", 1)[1].split("\n\nREFUSALS (exit 1).", 1)[0].split())
+        for phrase in (
+                "before the target row's shape is looked at, so on every row shape it refuses as "
+                "malformed-columns",
+                "on a row with a trailing border pipe, the text between its last two unescaped pipes, "
+                "written as one space, the cell, one space;",
+                "on a row with no trailing border pipe, the text after its last unescaped pipe, written as "
+                "one space and the cell, then the row's own trailing whitespace, with no space added",
+                "Its refusals (exit 1) are the stdin ones listed under REFUSALS below (not-utf8, multiline, "
+                "bad-line-char)"):
+            with self.subTest(phrase=phrase[:40]):
+                self.assertIn(phrase, section)
+        for stale in ("the stdin ones above", "is replaced, written as one space, the cell, one space"):
+            with self.subTest(stale=stale):
+                self.assertNotIn(stale, section)
+        reference = (REPO_ROOT / "references" / "hook-open-findings-guard.md").read_text(encoding="utf-8")
+        bullet = " ".join(reference.split("- **Setting a disposition", 1)[1].split("\n- **", 1)[0]
+                          .split("\n## ", 1)[0].split())
+        for phrase in ("an unescaped pipe in the cell (`malformed-columns`, on every row shape, checked before "
+                       "the row is looked at)",
+                       "one space, the cell, one space before a trailing border pipe",
+                       "one space and the cell with no space after it on a row with no trailing border pipe"):
+            with self.subTest(reference=phrase[:40]):
+                self.assertIn(phrase, bullet)
 
     def test_refuses_empty_cell_and_other_modes_flags(self) -> None:
         self.assertRefused("  ", "disposition-empty")

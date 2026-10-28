@@ -45,19 +45,24 @@ stdin carries the new Disposition cell text, never a row: one line (UTF-8, at mo
 surrounding whitespace dropped as the guard's str.strip drops it. The target is the one row the guard
 reads in `## Open` or `## Closed today` whose Finding cell leads with [ID] (any severity; a header
 the guard parses as a row is a candidate, so it can make the id ambiguous); fenced lines, the dated
-archive and mis-filed rows outside both sections are never targets. Only the text of that row's
-last cell, between its last two unescaped pipes (or after the last one when the row has no
-trailing border pipe), is replaced, written as one space, the cell, one space; every other line,
+archive and mis-filed rows outside both sections are never targets. The cell is first checked for
+an unescaped pipe (the guard's split), before the target row's shape is looked at, so on every row
+shape it refuses as malformed-columns. Then only the text of that row's last cell is replaced: on a
+row with a trailing border pipe, the text between its last two unescaped pipes, written as one
+space, the cell, one space; on a row with no trailing border pipe, the text after its last
+unescaped pipe, written as one space and the cell, then the row's own trailing whitespace, with no
+space added (the guard's str.strip would drop it, so both shapes read the same). Every other line,
 the other cells, the line ends and the final line end are kept byte for byte. The changed row is
 then held to the same checks as a new row: check_row (columns, Found date, severity, disposition
 grammar, class clauses, the id), the splice re-parse (the guard must read the same rows with only
 this row's disposition changed, and the mis-filed list must not change), the merge guard's
 decide_exit before and after, and the report-only class count over this checkout's git-tracked
-set. Its refusals (exit 1) are the stdin ones above plus disposition-empty (an empty or blank cell;
---open is not accepted here, so this mode never writes an undispositioned row), id-invalid,
-id-not-found (no row leads with [ID] in those sections), id-ambiguous (more than one; the second's
-line is given), malformed-columns (an unescaped pipe in the cell, or a target row that already has
-the wrong column count), the row checks above, splice-mismatch, misfiled-grew and
+set. Its refusals (exit 1) are the stdin ones listed under REFUSALS below (not-utf8, multiline,
+bad-line-char) plus disposition-empty (an empty or blank cell; --open is not accepted here, so this
+mode never writes an undispositioned row), id-invalid, id-not-found (no row leads with [ID] in
+those sections), id-ambiguous (more than one; the second's line is given), malformed-columns (an
+unescaped pipe in the cell, on every row shape, or a target row that already has the wrong column
+count), the row checks above, splice-mismatch, misfiled-grew and
 merge-guard-regressed. The output is the ledger line, the target's line number and section, the
 row verdict, the class-count line and the merge-guard line: no cell text and no id. --after,
 --append, --open, --delivery and --source-key are usage errors with it (exit 2). The write is the
@@ -882,6 +887,9 @@ def evaluate_disposition(hook, text: str, cell: str, finding_id: str, *,
     kinds = classify(hook, lines)
     cross_check(hook, text, lines, kinds)
     report = [ledger_report(eol, kinds)]
+    # Before any row-shape logic, so a row with or without a trailing border pipe refuses it alike.
+    if CELL_SPLIT_RE.search(cell):
+        return ["malformed-columns"], report, None
     if hook.leading_class_token("[" + finding_id + "]") != finding_id:
         return ["id-invalid"], report, None
     try:
@@ -1366,7 +1374,10 @@ def self_test() -> int:
     ck("set-disposition: an id that is not token-shaped", sd(led, fixed, fid="a b")[0], ["id-invalid"])
     ck("set-disposition: an invalid disposition", sd(led, "FIXED d44d9b2b")[0], ["disposition-invalid"])
     ck("set-disposition: a FIXED class row with no clause", sd(led, "FIXED #2800")[0], ["class-unattested"])
-    ck("set-disposition: an unescaped pipe in the cell", sd(led, "ROUTED 3b330 | x")[0], ["malformed-columns"])
+    for shape, text in (("bordered", led), ("unbordered", bare)):
+        for cell in ("ROUTED 3b330 | x", "ROUTED 3b330 |", "|"):
+            ck(f"set-disposition: an unescaped pipe in the cell ({shape} row, {cell!r})", sd(text, cell)[0],
+               ["malformed-columns"])
     ck("set-disposition: an escaped pipe in the cell", sd(led, "ROUTED 3b330 \\| x")[0], [])
     refusals, _report, new = sd(crlf, fixed)
     ck("set-disposition: a CRLF ledger keeps CRLF", (refusals, new.count("\r\n")), ([], crlf.count("\r\n")))
