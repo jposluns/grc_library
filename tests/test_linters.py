@@ -65873,6 +65873,31 @@ class OpenFindingsRowSetDispositionTests(unittest.TestCase):
                 self.assertIn("merge-guard: before allow, after block", report)
                 self.assertIsNone(new)
 
+    def test_splice_mismatch_from_read_back_on_each_row_shape(self) -> None:
+        # The first splice-mismatch source: the Disposition read back from the spliced row is not the
+        # requested cell. Only replace_last_cell is patched, to splice a different valid cell; verify_replace
+        # runs unpatched and agrees with the spliced row, so the code can come from the read-back alone.
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_sd_read_back")
+        hook = mod.load_hook(REPO_ROOT)
+        real_replace = mod.replace_last_cell
+        spliced = self.FIXED.replace("#2800", "#2801")
+
+        def other_cell(line, cell):
+            return real_replace(line, cell.replace("#2800", "#2801"))
+
+        for shape, text in self.SHAPES:
+            with self.subTest(shape=shape):
+                with mock.patch.object(mod, "replace_last_cell", side_effect=other_cell) as splice:
+                    codes, _, new = mod.evaluate_disposition(hook, text, self.FIXED, "OPEN-A")
+                self.assertEqual(splice.call_count, 1)
+                self.assertEqual(codes, ["splice-mismatch"])
+                self.assertIsNone(new)
+                with mock.patch.object(mod, "replace_last_cell", side_effect=other_cell):
+                    codes, _, new = mod.evaluate_disposition(hook, text, spliced, "OPEN-A")
+                self.assertEqual(codes, [])
+                self.assertIn(self.OPEN_A + spliced, new)
+
     def test_refuses_pipe_in_cell(self) -> None:
         # Checked before the row's shape is looked at: on a row with no trailing border pipe,
         # `ROUTED 3b330 |` refused as splice-mismatch and `|` as disposition-empty (3b678 r2).
