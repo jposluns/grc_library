@@ -31190,7 +31190,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
         lint-table-cell-count.py OWN F 36c2ad714485c240903f8ecb55caefe3714ac0ebad81df90b2d52e87a10a3477
-        lint-todo-index-reference-parity.py OWN F dd0eef7697891fc0d5bc2ef281d259a52b7e815a1f30e7740455387ff39913f3
+        lint-todo-index-reference-parity.py OWN F e56929c53e7277c29b57acd75bcb96ea2548ec3c8e00a96712e5693ad6841a8b
         lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
         lint-todo-number-permanence.py OWN F dedf0d73d69395a559061e0424d49ec92ccbcb3fef7e455adc41dd30708cdbea
@@ -48673,16 +48673,17 @@ class TodoIndexReferenceParityTests(LinterTestCase):
             self._lock(priv / ".working")
             return priv / ".working", False
 
+        # r2: link targets lie inside the store, since a link out of the store now fails as such.
         def link_to_mode000_dir(stack, mod, base, priv):
-            (base / "records").mkdir()
-            self._lock(base / "records")
-            (priv / ".working").symlink_to(base / "records")
+            (priv / "records").mkdir()
+            self._lock(priv / "records")
+            (priv / ".working").symlink_to(priv / "records")
             return priv / ".working", False
 
         def link_resolves_unreachable(stack, mod, base, priv):
-            (base / "locked" / "records").mkdir(parents=True)
-            self._lock(base / "locked")
-            (priv / ".working").symlink_to(base / "locked" / "records")
+            (priv / "locked" / "records").mkdir(parents=True)
+            self._lock(priv / "locked")
+            (priv / ".working").symlink_to(priv / "locked" / "records")
             return priv / ".working", False
 
         def mode000_subdir(stack, mod, base, priv):
@@ -48752,10 +48753,11 @@ class TodoIndexReferenceParityTests(LinterTestCase):
             (priv / "notes.md").write_text("kept\n", encoding="utf-8")
 
         def readable_with_link(stack, mod, base, priv):
-            (base / "records").mkdir()
-            (base / "records" / "handoff.md").write_text("handoff\n", encoding="utf-8")
+            # r2: the link target lies inside the store; one outside it fails (see the out-of-store test)
+            (priv / "archive").mkdir()
+            (priv / "archive" / "handoff.md").write_text("handoff\n", encoding="utf-8")
             (priv / ".working" / "validate").mkdir(parents=True)
-            (priv / ".working" / "validate" / "store").symlink_to(base / "records")
+            (priv / ".working" / "validate" / "store").symlink_to(priv / "archive")
             (priv / ".working" / "validate" / "loop").symlink_to(priv / ".working")
 
         for label, build in (("absent", absent), ("readable with links", readable_with_link)):
@@ -48764,6 +48766,200 @@ class TodoIndexReferenceParityTests(LinterTestCase):
                 self.assertEqual(rc, 0, out + err)
                 self.assertIn(f"OK: {self.NOT_CHECKED}: the private sibling {priv} holds none of", out)
                 self.assertNotIn("ERROR", out + err)
+
+    def _mksock(self, path):
+        """Bind a Unix socket at ``path``, or skip the subtest. A fixture path is often longer than
+        AF_UNIX allows (about 108 bytes), so the socket binds through /proc/self/fd/N/<name>."""
+        import socket
+        sock = socket.socket(socket.AF_UNIX)
+        self.addCleanup(sock.close)
+        try:
+            fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+        except OSError as exc:
+            self.skipTest(f"cannot open {path.parent} to bind a socket in it ({exc.strerror})")
+        try:
+            sock.bind(f"/proc/self/fd/{fd}/{path.name}")
+        except OSError as exc:
+            self.skipTest(f"cannot bind a Unix socket at {path} ({exc.strerror})")
+        finally:
+            os.close(fd)
+
+    def _mkdevice_link(self, path):
+        """A link to /dev/null stands in for a device node, which only root may create."""
+        if not os.path.exists("/dev/null"):
+            self.skipTest("/dev/null is not present, so there is no character device to link to")
+        path.symlink_to("/dev/null")
+
+    def test_default_records_tree_not_a_directory_fails(self):
+        # 3b674 r2: _probe_records never checked that .working is a directory, so a regular file
+        # there had one byte read and passed (exit 0), and a FIFO, socket or device ("other") was
+        # never examined. Each fails with exit 2 naming the path and its kind.
+        def regular_file(priv):
+            (priv / ".working").write_text("handoff\n", encoding="utf-8")
+
+        def fifo(priv):
+            os.mkfifo(priv / ".working")
+
+        def sock(priv):
+            self._mksock(priv / ".working")
+
+        def device(priv):
+            self._mkdevice_link(priv / ".working")
+
+        for label, build in (("regular file", regular_file), ("FIFO", fifo), ("socket", sock),
+                             ("character device", device)):
+            with self.subTest(case=label):
+                rc, out, err, priv = self._run_default(
+                    "records-kind", {}, setup=lambda stack, mod, base, priv, build=build: build(priv))
+                self._assert_sibling_error(rc, out, err,
+                                           f"ERROR: the private store's records tree {priv / '.working'} "
+                                           f"is present but is not a directory (it is a {label});")
+                self.assertNotIn("Traceback", err)
+
+    def test_default_records_tree_unexpected_entry_kind_fails(self):
+        # 3b674 r2: an entry in the tree that is neither a regular file nor a directory passed
+        # silently. Opening a FIFO would block, so it is reported as an unexpected kind, unopened.
+        def fifo(priv):
+            (priv / ".working").mkdir()
+            os.mkfifo(priv / ".working" / "pipe")
+            return priv / ".working" / "pipe"
+
+        def sock(priv):
+            (priv / ".working").mkdir()
+            self._mksock(priv / ".working" / "pipe")
+            return priv / ".working" / "pipe"
+
+        for label, build in (("FIFO", fifo), ("socket", sock)):
+            with self.subTest(case=label):
+                found = {}
+
+                def setup(stack, mod, base, priv, build=build):
+                    found["path"] = build(priv)
+                rc, out, err, priv = self._run_default("records-entry", {}, setup=setup)
+                self._assert_sibling_error(rc, out, err,
+                                           f"ERROR: the private store's records tree {priv / '.working'} "
+                                           f"holds an entry of unexpected kind: {found['path']} is a "
+                                           f"{label}, neither a regular file nor a directory, and was "
+                                           "not opened;")
+
+    def test_default_records_tree_out_of_store_link_fails(self):
+        # 3b674 r2: the walk followed links out of the store with no bound. A link that resolves
+        # outside the store root fails as an out-of-store link naming it, and is not followed.
+        def top_link(base, priv):
+            (priv / ".working").symlink_to(base / "records")
+            return priv / ".working"
+
+        def nested_link(base, priv):
+            (priv / ".working").mkdir()
+            (priv / ".working" / "store").symlink_to(base / "records")
+            return priv / ".working" / "store"
+
+        for label, build in (("records tree is the link", top_link), ("link inside the tree", nested_link)):
+            with self.subTest(case=label):
+                found = {}
+
+                def setup(stack, mod, base, priv, build=build):
+                    (base / "records").mkdir()
+                    (base / "records" / "handoff.md").write_text("handoff\n", encoding="utf-8")
+                    found["path"] = build(base, priv)
+                rc, out, err, priv = self._run_default("records-out", {}, setup=setup)
+                store = os.path.realpath(priv)
+                self._assert_sibling_error(rc, out, err,
+                                           f"ERROR: the private store's records tree {priv / '.working'} "
+                                           f"holds a link that resolves outside the store {store}: "
+                                           f"{found['path']} -> ")
+                self.assertIn("the walk does not follow it", err)
+
+    def test_default_records_tree_vanished_entry_fails(self):
+        # 3b674 r2: an entry listed and then gone during the walk leaves the walk incomplete, so it
+        # fails naming the entry as vanished (no subtest covered the case the docstrings name).
+        def setup(stack, mod, base, priv):
+            from unittest.mock import patch
+            (priv / ".working").mkdir()
+            real = os.listdir
+
+            def listdir(path="."):
+                names = real(path)
+                return names + ["ghost.md"] if Path(path) == priv / ".working" else names
+            stack.enter_context(patch.object(mod.os, "listdir", listdir))
+        with self.subTest(case="vanished entry"):
+            rc, out, err, priv = self._run_default("records-vanished", {}, setup=setup)
+            self._assert_sibling_error(rc, out, err,
+                                       f"ERROR: cannot read the private store's records tree "
+                                       f"{priv / '.working'}: {priv / '.working' / 'ghost.md'} vanished "
+                                       "during the walk (")
+
+    def test_default_unreadable_or_wrong_kind_inputs_fail(self):
+        # 3b674 r2: TODO.md and the root TODO-REFERENCE.md were probed with Path.is_file(), so a
+        # present but unreadable, dangling or wrong-kind file read as absent (TODO.md as "required
+        # file missing", TODO-REFERENCE.md as no reference at all). Each now fails with exit 2
+        # naming the path. No private sibling, so the root TODO-REFERENCE.md is the one read.
+        def mode000(path, base):
+            path.write_text("x\n", encoding="utf-8")
+            self._lock(path)
+
+        def dangling(path, base):
+            path.symlink_to(base / "missing")
+
+        def directory(path, base):
+            path.mkdir()
+
+        def fifo(path, base):
+            os.mkfifo(path)
+
+        def unreachable(path, base):
+            (base / "locked").mkdir()
+            (base / "locked" / "file.md").write_text("x\n", encoding="utf-8")
+            self._lock(base / "locked")
+            path.symlink_to(base / "locked" / "file.md")
+
+        cases = (
+            ("TODO.md", "mode-000 file", mode000, True, "cannot read {p} ("),
+            ("TODO.md", "dangling link", dangling, False, "{p} is a link that does not resolve ("),
+            ("TODO.md", "directory", directory, False,
+             "{p} is present but is not a regular file (it is a directory)"),
+            ("TODO.md", "FIFO", fifo, False, "{p} is present but is not a regular file (it is a FIFO)"),
+            ("TODO-REFERENCE.md", "link that cannot be reached", unreachable, True, "cannot read {p} ("),
+            ("TODO-REFERENCE.md", "dangling link", dangling, False, "{p} is a link that does not resolve ("),
+            ("TODO-REFERENCE.md", "directory", directory, False,
+             "{p} is present but is not a regular file (it is a directory)"),
+            ("TODO-REFERENCE.md", "FIFO", fifo, False,
+             "{p} is present but is not a regular file (it is a FIFO)"))
+        for rel, label, build, perm, message in cases:
+            with self.subTest(file=rel, case=label):
+                if perm and os.geteuid() == 0:
+                    self.skipTest("run as root: permission bits do not deny root's reads, so the "
+                                  "locked entry would still be read")
+
+                found = {}
+
+                def setup(stack, mod, base, priv, rel=rel, build=build):
+                    path = found["path"] = base / "grc_library" / rel
+                    if path.exists():
+                        path.unlink()
+                    build(path, base)
+                rc, out, err, _ = self._run_default("inputs", {}, sibling=False, setup=setup)
+                self.assertEqual(rc, 2, out + err)
+                self.assertIn("ERROR: " + message.format(p=found["path"]), err)
+                if rel == "TODO.md":
+                    self.assertIn("required file TODO.md is present but unreadable, not missing", err)
+                self.assertNotIn("required file missing", err)
+                self.assertNotIn("Traceback", err)
+
+    def test_private_root_wrong_kind_names_kind(self):
+        # 3b674 r2: a private P-TODO file of the wrong kind failed without naming its kind; the
+        # message now names the path and the kind, and the FIFO is never opened.
+        base = Path(tempfile.mkdtemp(prefix="bij-private-kind-"))
+        self.addCleanup(shutil.rmtree, base, True)
+        (base / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        os.mkfifo(base / "P-TODO.md")
+        (base / "P-TODO-REFERENCE.md").write_text(self.PREF, encoding="utf-8")
+        with self.subTest(case="P-TODO.md is a FIFO"):
+            r = run_linter("tools/lint-todo-index-reference-parity.py",
+                           "--root", str(base), "--private-root", str(base))
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn(f"ERROR: {base / 'P-TODO.md'} is present but is not a regular file "
+                          "(it is a FIFO); private index<->reference parity cannot be checked", r.stderr)
 
     def test_default_sibling_legacy_ptodo_notes_not_checked(self):
         # 3b648: a recognised legacy ### -block P-TODO.md is the accepted pre-split layout, so it
