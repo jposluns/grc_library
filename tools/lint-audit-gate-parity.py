@@ -121,7 +121,10 @@ Exit codes:
 
   0   parity clean.
   1   one or more drift findings present.
-  2   internal error parsing one of the four surfaces.
+  2   internal error parsing one of the files the gate reads: the four surfaces
+      (the specification, quality.yml, run_all_audits.sh and .pre-commit-config.yaml)
+      and tools/run-pr-time-checks.sh. A file that is not valid UTF-8 (an invalid
+      byte, or UTF-16) is one of these errors, whichever of the five it is.
 
 The linter is itself part of the audit programme and is added to
 .github/workflows/quality.yml, tools/run_all_audits.sh, and
@@ -397,7 +400,8 @@ SPEC_ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|\s*$")
 
 
 class ParseError(Exception):
-    """Raised when one of the four surfaces cannot be parsed."""
+    """Raised when one of the four surfaces or tools/run-pr-time-checks.sh cannot be
+    parsed."""
 
 
 def parse_spec_inventory(path: Path) -> list[tuple[int, int, str, str]]:
@@ -409,35 +413,33 @@ def parse_spec_inventory(path: Path) -> list[tuple[int, int, str, str]]:
     """
     rows: list[tuple[int, int, str, str]] = []
     in_section_6 = False
-    with path.open("r", encoding="utf-8") as fh:
-        for lineno, raw in enumerate(fh, 1):
-            line = raw.rstrip("\n")
-            if line.startswith("## 6."):
-                in_section_6 = True
-                continue
-            if in_section_6 and line.startswith("## ") and not line.startswith("## 6."):
-                break
-            if not in_section_6:
-                continue
-            m = SPEC_ROW_RE.match(line)
-            if not m:
-                continue
-            gate_num_str, gate_name, rest = m.group(1), m.group(2), m.group(3)
-            # Skip header divider rows ("---" content).
-            if gate_name.strip("- ") == "":
-                continue
-            try:
-                gate_num = int(gate_num_str)
-            except ValueError:
-                continue
-            script_match = SPEC_SCRIPT_RE.search(rest)
-            if not script_match:
-                raise ParseError(
-                    f"{path.relative_to(REPO_ROOT)}:{lineno}: "
-                    f"inventory row for gate {gate_num} has no recognizable "
-                    f"`tools/X.py` script link"
-                )
-            rows.append((lineno, gate_num, gate_name, script_match.group(1)))
+    for lineno, line in enumerate(_universal_newlines(_read_utf8(path)).split("\n"), 1):
+        if line.startswith("## 6."):
+            in_section_6 = True
+            continue
+        if in_section_6 and line.startswith("## ") and not line.startswith("## 6."):
+            break
+        if not in_section_6:
+            continue
+        m = SPEC_ROW_RE.match(line)
+        if not m:
+            continue
+        gate_num_str, gate_name, rest = m.group(1), m.group(2), m.group(3)
+        # Skip header divider rows ("---" content).
+        if gate_name.strip("- ") == "":
+            continue
+        try:
+            gate_num = int(gate_num_str)
+        except ValueError:
+            continue
+        script_match = SPEC_SCRIPT_RE.search(rest)
+        if not script_match:
+            raise ParseError(
+                f"{path.relative_to(REPO_ROOT)}:{lineno}: "
+                f"inventory row for gate {gate_num} has no recognizable "
+                f"`tools/X.py` script link"
+            )
+        rows.append((lineno, gate_num, gate_name, script_match.group(1)))
     if not rows:
         raise ParseError(
             f"{path.relative_to(REPO_ROOT)}: no §6 gate-inventory rows found"
@@ -563,7 +565,7 @@ def verify_category_coverage(path: Path, expected: set[int]) -> list[str]:
     fences differently from the CommonMark pairing checked here). A malformed
     category line or a missing section 5 is reported without the comparison,
     which would only repeat its numbers as missing."""
-    lines = path.read_text(encoding="utf-8").split("\n")
+    lines = _universal_newlines(_read_utf8(path)).split("\n")
     visible, findings = _scan_markup(lines)
     if findings:
         return findings
@@ -700,16 +702,28 @@ def _yaml_value_problem(key: str, value: str, flow_lists: dict[str, frozenset[st
     return None
 
 
-def _lf_lines(path: Path) -> list[str]:
-    """The lines of ``path`` split at LF only. A universal-newline read would also split
-    at CR, which bash does not: `x.py\\r&& python3 -B ...` is one line to bash. A file
-    that is not valid UTF-8 (an invalid byte, or UTF-16) is a ParseError (exit 2)."""
+def _read_utf8(path: Path) -> str:
+    """The text of ``path``, decoded as UTF-8 with no newline translation. Every file the
+    gate reads goes through here (3b675 round 2), so a file that is not valid UTF-8 (an
+    invalid byte, or UTF-16) is a ParseError (exit 2), never a decode traceback."""
     try:
-        return path.read_bytes().decode("utf-8").split("\n")
+        return path.read_bytes().decode("utf-8")
     except UnicodeDecodeError as exc:
         raise ParseError(f"{path.relative_to(REPO_ROOT)}: is not valid UTF-8 (byte "
                          f"{exc.object[exc.start]:#04x} at offset {exc.start}); only UTF-8 "
                          f"is accepted") from None
+
+
+def _universal_newlines(text: str) -> str:
+    """``text`` with CRLF and lone CR made LF, as a text-mode open() read gives it."""
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def _lf_lines(path: Path) -> list[str]:
+    """The lines of ``path`` split at LF only. A universal-newline read would also split
+    at CR, which bash does not: `x.py\\r&& python3 -B ...` is one line to bash. A file
+    that is not valid UTF-8 (an invalid byte, or UTF-16) is a ParseError (exit 2)."""
+    return _read_utf8(path).split("\n")
 
 
 class _YamlLine:
@@ -1115,12 +1129,12 @@ def verify_exclusion_and_delta_guards(
     delta gates. Returns a (possibly empty) list of findings. Never mutates the
     row-parity result; the caller appends these to its findings."""
     findings: list[str] = []
-    wf_lines = (root / WORKFLOW_PATH).read_text(encoding="utf-8").splitlines()
+    wf_lines = _read_utf8(root / WORKFLOW_PATH).splitlines()
     wf_names = {m.group(1) for m in (WF_NAME_RE.match(l) for l in wf_lines) if m}
-    pc_lines = (root / PRECOMMIT_PATH).read_text(encoding="utf-8").splitlines()
+    pc_lines = _read_utf8(root / PRECOMMIT_PATH).splitlines()
     prtime = (root / PRTIME_PATH)
     prtime_lines = (
-        prtime.read_text(encoding="utf-8").splitlines() if prtime.is_file() else []
+        _read_utf8(prtime).splitlines() if prtime.is_file() else []
     )
 
     # (i) WORKFLOW_SETUP_STEPS: must exist and invoke no gate script.
@@ -1276,6 +1290,9 @@ def main(argv: list[str]) -> int:
         findings.extend(verify_category_coverage(
             spec_path, {gate_num for (_, gate_num, _, _) in spec}
         ))
+    except ParseError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
     except (OSError, UnicodeError) as exc:
         print(f"ERROR: section-5 categories: {exc}", file=sys.stderr)
         return 2
@@ -1387,7 +1404,11 @@ def main(argv: list[str]) -> int:
     # Additive 3.99 (closing PR #1087) guards: cross-check the exclusion allow-lists against a
     # positive signal, and check the D-numbered delta gates' cross-surface parity.
     spec_scripts = {script for (_, _, _, script) in spec}
-    findings.extend(verify_exclusion_and_delta_guards(REPO_ROOT, spec_scripts))
+    try:
+        findings.extend(verify_exclusion_and_delta_guards(REPO_ROOT, spec_scripts))
+    except ParseError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
 
     if findings:
         for finding in findings:

@@ -19703,17 +19703,55 @@ class AuditGateParityTests(LinterTestCase):
         # 3b675: the tuple is written with escapes, so U+2028 and U+2029 no longer show as
         # spaces in a diff; the values are the ones the literal characters held.
         agp = self._gate_parity_module("_agp_other_breaks")
-        self.assertEqual(agp.YAML_OTHER_BREAKS, ("\r", "\x85", " ", " "))
+        self.assertEqual(agp.YAML_OTHER_BREAKS, ("\r", "\x85", "\u2028", "\u2029"))
         self.assertEqual([ord(c) for c in agp.YAML_OTHER_BREAKS], [0x0D, 0x85, 0x2028, 0x2029])
 
     def test_undecodable_surface_exits_2(self) -> None:
         # 3b675: a runner or YAML surface with an invalid byte, or in UTF-16, exited 1 with
         # a UnicodeDecodeError traceback at de3715476; the docstring promises exit 2 for a
         # file that cannot be parsed.
+        self._assert_undecodable_exits_2(("tools/run_all_audits.sh",
+                                          ".github/workflows/quality.yml",
+                                          ".pre-commit-config.yaml"))
+
+    def test_undecodable_spec_and_prtime_exit_2(self) -> None:
+        # 3b675 round 2: the specification (parse_spec_inventory's open()) and
+        # tools/run-pr-time-checks.sh (the delta guards' read_text) still exited 1 with a
+        # UnicodeDecodeError traceback at 159cd6a1f.
+        self._assert_undecodable_exits_2(("governance/specification-audit-programme.md",
+                                          "tools/run-pr-time-checks.sh"))
+
+    def test_every_read_goes_through_read_utf8(self) -> None:
+        # 3b675 round 2: any open(), read_text, read_bytes or decode call outside _read_utf8
+        # is a read that can raise a decode traceback instead of exiting 2.
+        import ast
+        tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
+        tree = ast.parse(tool.read_text(encoding="utf-8"))
+        helper = [node for node in tree.body
+                  if isinstance(node, ast.FunctionDef) and node.name == "_read_utf8"]
+        self.assertEqual(len(helper), 1)
+        inside = {id(node) for node in ast.walk(helper[0])}
+        reads = {"open", "read_text", "read_bytes", "decode"}
+        bypasses = []
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call) or id(node) in inside:
+                continue
+            func = node.func
+            name = (func.attr if isinstance(func, ast.Attribute)
+                    else func.id if isinstance(func, ast.Name) else None)
+            if name in reads:
+                bypasses.append(f"line {node.lineno}: {name}")
+        self.assertEqual(bypasses, [])
+        self.assertIn("read_bytes", {node.func.attr for node in ast.walk(helper[0])
+                                     if isinstance(node, ast.Call)
+                                     and isinstance(node.func, ast.Attribute)})
+
+    def _assert_undecodable_exits_2(self, surfaces: tuple[str, ...]) -> None:
+        """Each of ``surfaces``, with an invalid byte and in UTF-16 with a byte-order mark,
+        the other files copied unchanged, exits 2 naming it as not valid UTF-8."""
         encodings = {"invalid byte": lambda text: text.encode("utf-8") + b"# \xff\n",
                      "UTF-16": lambda text: text.encode("utf-16")}
-        for surface in ("tools/run_all_audits.sh", ".github/workflows/quality.yml",
-                        ".pre-commit-config.yaml"):
+        for surface in surfaces:
             for label, encode in encodings.items():
                 with self.subTest(surface=surface, encoding=label):
                     root = Path(tempfile.mkdtemp(prefix="synthetic-parity-undecodable-",
@@ -20817,8 +20855,9 @@ class AuditGateParityTests(LinterTestCase):
             shutil.rmtree(work, ignore_errors=True)
 
     def test_category_unreadable_spec_exits_two(self) -> None:
-        # parse_spec_inventory reads the spec with open(); only the later
-        # section-5 read_text is made to fail, and must exit 2, not crash.
+        # parse_spec_inventory reads the spec first; only the later section-5
+        # read (the second read of the spec) is made to fail, and must exit 2,
+        # not crash. Both reads go through _read_utf8's read_bytes (3b675).
         import contextlib
         import importlib.util
         from unittest import mock
@@ -20827,15 +20866,18 @@ class AuditGateParityTests(LinterTestCase):
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         spec_path = (REPO_ROOT / mod.SPEC_PATH).resolve()
-        real_read_text = Path.read_text
+        real_read_bytes = Path.read_bytes
+        spec_reads = []
 
-        def read_text(path, *args, **kwargs):
+        def read_bytes(path, *args, **kwargs):
             if Path(path).resolve() == spec_path:
-                raise PermissionError("category spec unreadable")
-            return real_read_text(path, *args, **kwargs)
+                spec_reads.append(path)
+                if len(spec_reads) == 2:
+                    raise PermissionError("category spec unreadable")
+            return real_read_bytes(path, *args, **kwargs)
 
         stderr = io.StringIO()
-        with mock.patch.object(Path, "read_text", read_text), \
+        with mock.patch.object(Path, "read_bytes", read_bytes), \
                 contextlib.redirect_stderr(stderr), \
                 contextlib.redirect_stdout(io.StringIO()):
             rc = mod.main(["--root", str(REPO_ROOT)])
@@ -30778,7 +30820,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F db1bb2b58ad10ddfebd9e293f39bae875ff5ae4336c74af7cee4870de8679b2f
+        lint-audit-gate-parity.py OWN F a0c7ebbdd8424fab482321eaef4f4e7c24872660f325732a4347a6f2694fb309
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-bookkeeping-parity.py NO_FS F 43a25f9706516004b494a4ed6842b3fe06001f152cbedfa9ec1845cd88ba946b
