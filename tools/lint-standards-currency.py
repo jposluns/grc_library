@@ -56,8 +56,9 @@ round 4). In a push run the base is the payload's "before", which must be a
 proper ancestor of HEAD. A schedule or workflow_dispatch run (the nightly sweep,
 through tools/run_all_audits.sh), and every local run (tools/run_all_audits.sh,
 pre-commit, a direct run), takes the one merge base of HEAD and
-refs/remotes/origin/main. A base that cannot be determined or read fails closed
-with an "UNPINNED ratchet base" message (each cause under Exit codes); so does a
+refs/remotes/origin/main. A base that cannot be determined or read fails closed,
+with an "UNPINNED ratchet base" message except for the few causes Exit codes lists
+under main's OSError and UnicodeError handler (each cause under Exit codes); so does a
 base with no baseline file, except the one bootstrap. The one bootstrap
 case is a base that predates the ratchet: no baseline file there, and the base's
 copy of this wrapper exists and does not name RATCHET_MARKER; a base with no
@@ -115,9 +116,13 @@ carries the totals in its report's inventories instead.
 
 Exit codes. This is the one authoritative list of gate 6's exit statuses (P-3.213):
 the standards-currency rule, the audit programme specification, the pack README and
-the engine docstring summarize it and point here, so a change to an exit path updates
-this list and no other. Each condition names the function it comes from; main()
-returns every status, through the handler named.
+the engine docstring point here (the rule and the README also name classes of exit),
+so a change to an exit path updates this list and no other. Each condition names the
+function it comes from. main() returns each status through the handler named, except
+the argparse and lint_common.require_dir statuses, which leave main as SystemExit raised
+inside it. Each listed condition is pinned by a test that asserts its status (tests/
+test_linters.py, StandardsCurrencyTests and the CLI refusal tests, and tests/
+test_standards_currency_coverage.py).
 
 0  --help (argparse prints this docstring). Otherwise a run with no blocking finding
    (coverage_report's exit is 0), no "FAIL:" ratchet line and no error below; advisory
@@ -152,15 +157,17 @@ returns every status, through the handler named.
      outside the table that sync_problem refuses;
    - main: on a default run, a historical exception row naming a path outside the scan
      scope.
-   Any exception main does not catch (a defect, or a failed engine import) ends in a
-   Python traceback, status 1.
+   Any exception main does not catch (a defect, a failed engine import, or git output of
+   an unexpected shape, such as an ls-tree record base_unpinned_counts cannot split into
+   three fields) ends in a Python traceback, status 1.
 
-2  argparse (parse_args): a command-line usage error (an unknown option, --paths with no
-   value, a --coverage-mode or --format value outside its choices).
-   lint_common.require_dir: a --root that is empty, unreadable or unresolvable, or not a
-   directory as given.
+2  argparse (parse_args, SystemExit): a command-line usage error (an unknown option,
+   --paths with no value, a --coverage-mode or --format value outside its choices).
+   lint_common.require_dir (SystemExit): a --root that is empty, unreadable or
+   unresolvable, or not a directory as given.
    main: an empty --paths entry.
-   main's OSError and UnicodeError handler:
+   main's OSError and UnicodeError handler, with an "ERROR:" message and no "UNPINNED
+   ratchet base" prefix, even where the cause is in the ratchet base:
    - parse_canonical_register: the canonical register missing, unreadable or not UTF-8;
    - main: the baseline in the tree missing, unreadable or not UTF-8 (a default-scope run
      only);
@@ -172,7 +179,11 @@ returns every status, through the handler named.
      neither a file nor a directory; an unreadable directory (os.scandir);
    - coverage_report (engine): a scanned file that is unreadable or not UTF-8;
    - ratchet_base, base_unpinned_counts: git output that is not ASCII where an object id
-     or listing is read.
+     or listing is read;
+   - base_unpinned_counts (the bootstrap, or a new register row's entry): an OSError
+     creating the temporary directory the base scope is copied into
+     (tempfile.TemporaryDirectory), resolving it, or removing it afterwards; these steps
+     lie outside the try block that turns a scan failure into a RatchetBaseError.
    main's RatchetBaseError handler, with an "UNPINNED ratchet base" message (a
    default-scope run only):
    - _git_executable: no git on GIT_SEARCH_PATH;
@@ -200,7 +211,14 @@ returns every status, through the handler named.
      that cannot be scanned (any OSError, UnicodeError or ValueError, iter_files's
      refusals above included).
 
-No other status: main returns only these, and the script exits with sys.exit(main()).
+The script exits with sys.exit(main()). This list does not cover statuses the wrapper
+does not choose: a SystemExit that argparse or lint_common.require_dir raises for a
+condition not listed above (their codes are theirs); a broken or closed stdout (a write
+that fails inside main reaches the OSError handler above, and a failed flush at
+interpreter exit makes Python exit 120); a signal (SIGINT, SIGTERM, SIGPIPE and others
+end the run with the signal's status or through Python's KeyboardInterrupt); and
+interpreter-level failures (an interpreter that cannot start, an import this module makes
+before main runs, memory exhaustion).
 """
 
 from __future__ import annotations

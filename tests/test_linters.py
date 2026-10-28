@@ -4112,6 +4112,179 @@ class StandardsCurrencyTests(LinterTestCase):
         for line in ("hints: advice", "fatal: hint:", " hint:", "hint:advice"):
             self.assertFalse(mod._git_hint(line), line)
 
+    # P-3.213 exit-code list (the wrapper docstring's "Exit codes"): guards for the listed
+    # conditions no other test pinned by status. Behaviour is unchanged; each passes on the
+    # code the list was derived from.
+    def _wrapper_cli(self, *args: str):
+        return subprocess.run(
+            [sys.executable, str(REPO_ROOT / self.WRAPPER_REL), *args],
+            cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300,
+        )
+
+    def _main_in_process(self, mod, root: Path, *args: str):
+        """mod.main on a --root fixture, outside GitHub Actions: (status, stdout, stderr)."""
+        import contextlib
+        from unittest.mock import patch
+        environ = {k: v for k, v in os.environ.items()
+                   if not k.startswith("GITHUB_") and k != "GRC_RUNNER_ECHO_TOKEN"}
+        out, err = io.StringIO(), io.StringIO()
+        with patch.dict(os.environ, environ, clear=True), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = mod.main(["--root", str(root), *args])
+        return code, out.getvalue(), err.getvalue()
+
+    def _bootstrap_root(self) -> Path:
+        """A base that predates the ratchet, so the run copies the base scope (base_unpinned_counts)."""
+        doc = "ISO/IEC 27001 applies.\n"
+        return self._ratchet_root(doc, {"ISO/IEC 27001": 1}, base_baseline=None,
+                                  base_wrapper=self.PRE_RATCHET_WRAPPER, base_doc=doc)
+
+    def test_exit_list_help_exits_0(self) -> None:
+        # Guard, exit 0: --help (argparse) prints the docstring, the exit-code list included.
+        result = self._wrapper_cli("--help")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Exit codes.", result.stdout)
+
+    def test_exit_list_usage_error_exits_2(self) -> None:
+        # Guard, exit 2: a command-line usage error (argparse).
+        result = self._wrapper_cli("--no-such-option")
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("unrecognized arguments: --no-such-option", result.stderr)
+
+    def test_exit_list_uncaught_exception_exits_1_with_a_traceback(self) -> None:
+        # Guard, exit 1: an exception main does not catch (here a failed engine import).
+        script = (
+            "import importlib.util, sys\n"
+            f"sys.path.insert(0, {str(REPO_ROOT / 'tools')!r})\n"
+            "spec = importlib.util.spec_from_file_location("
+            f"'currency_uncaught', {str(REPO_ROOT / self.WRAPPER_REL)!r})\n"
+            "mod = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(mod)\n"
+            "def broken():\n"
+            "    raise ImportError('engine import failed (fixture)')\n"
+            "mod._engine = broken\n"
+            "sys.exit(mod.main(['--paths', 'README.md']))\n"
+        )
+        result = subprocess.run([sys.executable, "-c", script], cwd=str(REPO_ROOT),
+                                capture_output=True, text=True, timeout=300)
+        self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+        self.assertIn("Traceback", result.stderr)
+        self.assertIn("ImportError: engine import failed (fixture)", result.stderr)
+
+    def test_exit_list_no_git_on_the_search_path_exits_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: _git_executable finds no git.
+        from unittest.mock import patch
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_no_git")
+        empty = Path(tempfile.mkdtemp(prefix="currency-no-git-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, empty, ignore_errors=True)
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+        with patch.object(mod, "GIT_SEARCH_PATH", str(empty)):
+            code, out, err = self._main_in_process(mod, root)
+        self.assertEqual(code, 2, out[-300:] + err)
+        self.assertIn("ERROR: UNPINNED ratchet base:", err)
+        self.assertIn(f"no git executable found on {empty}", err)
+
+    def test_exit_list_git_call_that_times_out_exits_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: a git call that does not finish
+        # (GIT_TIMEOUT) is a _git failure.
+        from unittest.mock import patch
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_git_timeout")
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+
+        def timed_out(argv, **kwargs):
+            raise subprocess.TimeoutExpired(argv, kwargs.get("timeout"))
+
+        with patch.object(mod.subprocess, "run", timed_out):
+            code, out, err = self._main_in_process(mod, root)
+        self.assertEqual(code, 2, out[-300:] + err)
+        self.assertIn("ERROR: UNPINNED ratchet base:", err)
+        self.assertIn("did not run", err)
+
+    def test_exit_list_several_merge_bases_exit_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: HEAD and refs/remotes/origin/main
+        # with more than one merge base (a criss-cross history) have no single base.
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+        tree = self._fixture_git(root, "rev-parse", "HEAD^{tree}")
+        x = self._fixture_git(root, "commit-tree", tree, "-p", "HEAD", "-m", "x")
+        y = self._fixture_git(root, "commit-tree", tree, "-p", "HEAD", "-m", "y")
+        head = self._fixture_git(root, "commit-tree", tree, "-p", x, "-p", y, "-m", "head")
+        main = self._fixture_git(root, "commit-tree", tree, "-p", y, "-p", x, "-m", "main")
+        self._fixture_git(root, "update-ref", "refs/remotes/origin/main", main)
+        self._fixture_git(root, "checkout", "-q", "--detach", head)
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("ERROR: UNPINNED ratchet base: refs/remotes/origin/main and HEAD have 2 "
+                      "merge bases, not one", result.stderr)
+
+    def test_exit_list_base_scope_that_cannot_be_scanned_exits_2(self) -> None:
+        # Guard, exit 2 through the RatchetBaseError handler: in the bootstrap the base scope
+        # holds a directory symlink, which iter_files refuses in the copied base tree.
+        root = self._bootstrap_root()
+        os.symlink(".", root / "ai/loop")
+        self._fixture_git(root, "add", "ai/loop")
+        self._fixture_git(root, "commit", "-q", "-m", "a directory symlink in the scan scope")
+        self._fixture_git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
+        (root / "ai/loop").unlink()
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr)
+        self.assertIn("cannot be scanned: directory symlink in scan scope", result.stderr)
+
+    def test_exit_list_non_ascii_git_output_exits_2_without_the_base_prefix(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: git output that is not
+        # ASCII where ratchet_base reads object ids (here the merge-base listing).
+        from unittest.mock import patch
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_non_ascii")
+        root = self._ratchet_root("ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1})
+        real = mod._git
+
+        def git(*args, stdin=None):
+            return b"\xff\n" if args[:1] == ("merge-base",) else real(*args, stdin=stdin)
+
+        with patch.object(mod, "_git", git):
+            code, out, err = self._main_in_process(mod, root)
+        self.assertEqual(code, 2, out[-300:] + err)
+        self.assertTrue(err.startswith("ERROR:"), err)
+        self.assertNotIn("UNPINNED ratchet base", err)
+        self.assertIn("'ascii' codec can't decode", err)
+
+    def test_exit_list_temporary_directory_failure_exits_2_without_the_base_prefix(self) -> None:
+        # Guard, exit 2 through the OSError and UnicodeError handler: base_unpinned_counts
+        # creates and removes its temporary directory outside the try block that turns a scan
+        # failure into a RatchetBaseError, so neither failure carries the base prefix.
+        from unittest.mock import MagicMock, patch
+        real = tempfile.TemporaryDirectory
+
+        class CleanupFails:
+            def __init__(self, *args, **kwargs):
+                self._dir = real(*args, **kwargs)
+
+            def __enter__(self):
+                return self._dir.__enter__()
+
+            def __exit__(self, *exc):
+                self._dir.__exit__(*exc)
+                raise OSError(16, "Device or resource busy (fixture)")
+
+        for label, replacement, message in (
+            ("creation", MagicMock(side_effect=OSError(28, "No space left on device (fixture)")),
+             "No space left on device (fixture)"),
+            ("cleanup", CleanupFails, "Device or resource busy (fixture)"),
+        ):
+            with self.subTest(failure=label):
+                mod = load_linter_module(self.WRAPPER_REL, "currency_exit_tempdir_" + label)
+                root = self._bootstrap_root()
+                with patch.object(mod.tempfile, "TemporaryDirectory", replacement):
+                    code, out, err = self._main_in_process(mod, root)
+                self.assertEqual(code, 2, out[-300:] + err)
+                self.assertTrue(err.startswith("ERROR:"), err)
+                self.assertNotIn("UNPINNED ratchet base", err)
+                self.assertIn(message, err)
+        # Unpatched, the same bootstrap passes, so the patched step is what fails.
+        mod = load_linter_module(self.WRAPPER_REL, "currency_exit_tempdir_control")
+        code, out, err = self._main_in_process(mod, self._bootstrap_root())
+        self.assertEqual(code, 0, out[-300:] + err)
+
 
 class FilenameTitleTests(LinterTestCase):
     """tools/lint-filename-title-alignment.py"""
@@ -32123,7 +32296,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-skill-internal-refs.py ROOT F b2b1fc4846ca52b298fe12ee712477bfac97e173e3ac6368e72c5edd6c28b50e
         lint-skill-verdict-carrier-completeness.py OWN F 7056be9141352daf10807f17e9941fb422a84cbf43eae4fff9549efd3684f5a3
         lint-ssdf-control-ids.py CWD F fc3326619bde8b0c6389a3ac7a4b5b79e06ab9e3195e471b6d766f067e06a60f
-        lint-standards-currency.py OWN F 0f7d1fb53c43db89f2ae69112ecc226e138e512bd85adb6f277605e403a39dd3
+        lint-standards-currency.py OWN F 6e3ae3ca09d2a81e9603e99c5ecc7ea3076c66b0e8cb24f78467139e9f11683f
         lint-startup-character-ceiling.py NO_FS F aeaaf73e5efe319cb6881277ca5b7abef8db708826fe1bf0a241559d7d58a060
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
