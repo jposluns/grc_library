@@ -19724,17 +19724,26 @@ class AuditGateParityTests(LinterTestCase):
     @staticmethod
     def _read_bypasses(source: str) -> list[str]:
         """Each use in ``source`` of a name that can read or decode a file outside the one
-        top-level _read_utf8 (3b675 round 3). It finds, as a name or an attribute, any use
-        (called, aliased or passed) of open, io, codecs, read_text, read_bytes or decode;
-        os.read; str called with an encoding or errors argument (two or more positional
-        arguments, or the keyword); getattr, hasattr or setattr with one of those names as
-        a literal; any import of io or codecs (inside _read_utf8 too), or of open or read
-        from os; and any _read_utf8 other than the one top-level definition.
+        top-level _read_utf8 (3b675 round 3). This is a best-effort structural guard over
+        an open grammar, not a proof that every read goes through the helper. It finds, as
+        a name or an attribute, any use (called, aliased or passed) of open, io, codecs,
+        read_text, read_bytes or decode; os.read; str called with an encoding or errors
+        argument (two or more positional arguments, or the keyword); getattr, hasattr or
+        setattr with one of those names as a literal; any import of io or codecs (inside
+        _read_utf8 too), or of open or read from os; and any _read_utf8 other than the one
+        top-level definition.
 
-        It cannot see a name built from strings at run time: getattr with a computed name,
+        Its disclosed residual (3b675 round 4), forms the round 3 reviews found that it
+        does not catch: a read name imported under an alias from builtins, posix, _io,
+        _codecs or encodings; str bound to another name and called with an encoding, or
+        functools.partial(str, encoding=...); a read name taken by subscripting
+        __builtins__; operator.methodcaller with a read name; and os.pread and os.fdopen.
+        Nor can it see a name built from strings at run time: getattr with a computed name,
         operator.attrgetter, vars() or __dict__ lookups, __import__ or importlib given a
         string, and eval, exec or compile. Nor does it read the modules the tool imports,
-        so a read made on the tool's behalf by one of them is not found."""
+        so a read made on the tool's behalf by one of them is not found. Code review
+        remains the control for every form listed here; the guard is not extended to
+        them."""
         import ast
         tree = ast.parse(source)
         helpers = [node for node in ast.walk(tree)
@@ -19834,18 +19843,23 @@ class AuditGateParityTests(LinterTestCase):
         """The real surfaces copied to a fixture root, ``prepare(root / PRTIME)`` applied
         to the PR-time runner's copy, then the gate run on the root; every mode is
         restored before the root is removed."""
-        prtime = "tools/run-pr-time-checks.sh"
+        return self._run_with_surface("tools/run-pr-time-checks.sh", prepare, timeout=300)
+
+    def _run_with_surface(self, surface: str, prepare,
+                          timeout: int) -> subprocess.CompletedProcess:
+        """As _run_with_prtime, with ``prepare`` applied to ``surface``'s copy and the gate
+        under ``timeout`` seconds (subprocess.TimeoutExpired past it)."""
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-prtime-", dir=FIXTURE_DIR))
         try:
             for name in self._ISOLATED_SURFACES:
                 target = root / name
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes((REPO_ROOT / name).read_bytes())
-            prepare(root / prtime)
+            prepare(root / surface)
             return subprocess.run(
                 [sys.executable, str(REPO_ROOT / "tools/lint-audit-gate-parity.py"),
                  "--root", str(root)],
-                cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300)
+                cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=timeout)
         finally:
             for path in root.rglob("*"):
                 if not path.is_symlink():
@@ -19878,7 +19892,7 @@ class AuditGateParityTests(LinterTestCase):
                                  'has no run_check "D<n> ..." line'),
             "blank lines": (lambda path: path.write_bytes(b"\n\n"),
                             'has no run_check "D<n> ..." line'),
-            "directory": (directory, "cannot be read (IsADirectoryError"),
+            "directory": (directory, "is not a regular file (a directory)"),
         }
         for label, (prepare, message) in cases.items():
             with self.subTest(case=label):
@@ -19886,6 +19900,96 @@ class AuditGateParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
                 self.assertIn(f"tools/run-pr-time-checks.sh: {message}", result.stderr)
                 self.assertNotIn("Traceback", result.stderr)
+
+    def _assert_not_regular_exits_2(self, surface: str, prepare, kind: str) -> None:
+        """The gate, with ``prepare`` applied to ``surface``'s copy, exits 2 within 30
+        seconds naming the path and ``kind``."""
+        try:
+            result = self._run_with_surface(surface, prepare, timeout=30)
+        except subprocess.TimeoutExpired:
+            self.fail(f"the gate blocked for 30 seconds on {kind} at {surface}")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(f"{surface}: is not a regular file ({kind})", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_non_regular_prtime_exits_2_without_blocking(self) -> None:
+        # 3b675 round 4: at 365e46d98 anything present at run-pr-time-checks.sh was read,
+        # so a FIFO there blocked the gate; a directory exited 2 as "cannot be read". Its
+        # kind is now taken from lstat, and nothing but a regular file is opened.
+        prtime = "tools/run-pr-time-checks.sh"
+
+        def fifo(path: Path) -> None:
+            path.unlink()
+            os.mkfifo(path)
+
+        def directory(path: Path) -> None:
+            path.unlink()
+            path.mkdir()
+
+        def fifo_link(path: Path) -> None:
+            path.unlink()
+            os.mkfifo(path.with_name("pipe"))
+            path.symlink_to("pipe")
+
+        for label, prepare, kind in (("FIFO", fifo, "a FIFO"),
+                                     ("directory", directory, "a directory"),
+                                     ("link to a FIFO", fifo_link, "a symbolic link to a FIFO")):
+            with self.subTest(case=label):
+                self._assert_not_regular_exits_2(prtime, prepare, kind)
+
+    def test_socket_prtime_exits_2_without_blocking(self) -> None:
+        # 3b675 round 4. A socket path is limited to about 108 bytes, which the fixture
+        # path exceeds, so the socket is bound at a short path and renamed into place.
+        import socket
+        if not hasattr(socket, "AF_UNIX"):
+            self.skipTest("this platform has no Unix sockets")
+        short = Path(tempfile.mkdtemp(prefix="s", dir=FIXTURE_DIR))
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        try:
+            try:
+                sock.bind(str(short / "s"))
+            except OSError as exc:
+                self.skipTest(f"binding a Unix socket is not permitted here ({exc})")
+
+            def place(path: Path) -> None:
+                path.unlink()
+                (short / "s").rename(path)
+
+            self._assert_not_regular_exits_2("tools/run-pr-time-checks.sh", place, "a socket")
+        finally:
+            sock.close()
+            shutil.rmtree(short, ignore_errors=True)
+
+    def test_non_regular_required_surface_exits_2(self) -> None:
+        # 3b675 round 4: at 365e46d98 a directory, link loop or link to a directory at a
+        # required surface was reported as "required file not found"; it is present, so
+        # it is now "is not a regular file" with its kind.
+        def directory(path: Path) -> None:
+            path.unlink()
+            path.mkdir()
+
+        def loop(path: Path) -> None:
+            path.unlink()
+            path.symlink_to(path.name)
+
+        def directory_link(path: Path) -> None:
+            path.unlink()
+            path.with_name("elsewhere").mkdir()
+            path.symlink_to("elsewhere")
+
+        def fifo(path: Path) -> None:
+            path.unlink()
+            os.mkfifo(path)
+
+        for surface in self._ISOLATED_SURFACES[:4]:
+            with self.subTest(surface=surface, case="directory"):
+                self._assert_not_regular_exits_2(surface, directory, "a directory")
+        for label, prepare, kind in (("link loop", loop, "a symbolic link loop"),
+                                     ("link to a directory", directory_link,
+                                      "a symbolic link to a directory"),
+                                     ("FIFO", fifo, "a FIFO")):
+            with self.subTest(surface="tools/run_all_audits.sh", case=label):
+                self._assert_not_regular_exits_2("tools/run_all_audits.sh", prepare, kind)
 
     def test_unreadable_surface_exits_2(self) -> None:
         # 3b675 round 3: at 6ef10afc5 a mode-000 surface exited 1 with a PermissionError
@@ -30998,7 +31102,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F f9deb218186a303f0675281b450f68397d9c3f60f7196a2ad801063b1e229851
+        lint-audit-gate-parity.py OWN F 48a5130538cf0e506226c7c47c8c2b98e8b8e5e6ba5df2177e8b02cdbdfb1545
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-bookkeeping-parity.py NO_FS F 43a25f9706516004b494a4ed6842b3fe06001f152cbedfa9ec1845cd88ba946b

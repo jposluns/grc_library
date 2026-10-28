@@ -128,9 +128,13 @@ Exit codes:
       file that is not valid UTF-8 (an invalid byte, or UTF-16 with a byte-order
       mark). A file in another encoding whose bytes happen to be valid UTF-8 (such
       as BOM-less UTF-16 of ASCII text) is read as UTF-8 and fails, if at all, on
-      its content. tools/run-pr-time-checks.sh may be absent (nothing at the
-      path), which skips the D-number parity check; present but empty, or with
-      no ``run_check "D<n> ..."`` line, it is one of these errors.
+      its content. Anything present at one of the five paths that is not a
+      regular file or a symbolic link to one (a directory, a FIFO, a socket, a
+      device, a symbolic link loop, a link to nothing or to any of those) is one
+      of these errors too, named with its kind and never opened.
+      tools/run-pr-time-checks.sh may be absent (nothing at the path), which
+      skips the D-number parity check; present but empty, or with no
+      ``run_check "D<n> ..."`` line, it is one of these errors.
 
 The linter is itself part of the audit programme and is added to
 .github/workflows/quality.yml, tools/run_all_audits.sh, and
@@ -149,8 +153,11 @@ repository root derived from this file's location.
 from __future__ import annotations
 
 import argparse
+import errno
+import os
 import re
 import shlex
+import stat
 import sys
 from pathlib import Path
 
@@ -708,14 +715,63 @@ def _yaml_value_problem(key: str, value: str, flow_lists: dict[str, frozenset[st
     return None
 
 
+REGULAR_FILE = "a regular file"
+
+SPECIAL_KINDS = ((stat.S_ISDIR, "a directory"), (stat.S_ISFIFO, "a FIFO"),
+                 (stat.S_ISSOCK, "a socket"), (stat.S_ISCHR, "a character device"),
+                 (stat.S_ISBLK, "a block device"))
+
+
+def _surface_kind(path: Path) -> str | None:
+    """What is at ``path``, from lstat and, for a symbolic link, stat of its target, so
+    that nothing is opened to find out (3b675 round 4: round 3 read whatever was present at
+    tools/run-pr-time-checks.sh, and a FIFO there blocked the gate). None when lstat finds
+    no entry (ENOENT); REGULAR_FILE for a regular file or a link to one; otherwise the
+    kind, such as "a FIFO", "a symbolic link loop" or "a symbolic link to a directory".
+    Any other lstat or stat failure (a parent without search permission, a parent that is
+    not a directory) is a ParseError, never read as absent."""
+    def unexaminable(exc: OSError) -> ParseError:
+        return ParseError(f"{path.relative_to(REPO_ROOT)}: cannot be examined "
+                          f"({type(exc).__name__}: {exc.strerror or exc})")
+
+    try:
+        mode = os.lstat(path).st_mode
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        raise unexaminable(exc) from None
+    link = stat.S_ISLNK(mode)
+    if link:
+        try:
+            mode = os.stat(path).st_mode
+        except FileNotFoundError:
+            return "a symbolic link to nothing"
+        except OSError as exc:
+            if exc.errno == errno.ELOOP:
+                return "a symbolic link loop"
+            raise unexaminable(exc) from None
+    if stat.S_ISREG(mode):
+        return REGULAR_FILE
+    kind = next((name for test, name in SPECIAL_KINDS if test(mode)), "a special file")
+    return f"a symbolic link to {kind}" if link else kind
+
+
 def _read_utf8(path: Path) -> str:
     """The text of ``path``, decoded as UTF-8 with no newline translation. Every file the
     gate reads goes through here (3b675 round 2), so a file that is not valid UTF-8 is a
     ParseError (exit 2), never a decode traceback. UTF-16 with a byte-order mark is not
     valid UTF-8; BOM-less UTF-16 of ASCII text is, so it is read as UTF-8 and fails, if at
-    all, on its content. A file that cannot be read (any OSError but FileNotFoundError,
-    such as a mode-000 file or a directory) is a ParseError too (3b675 round 3); a missing
-    file raises FileNotFoundError, for the caller to refuse or tolerate."""
+    all, on its content. Only a regular file, or a symbolic link to one, is opened: anything
+    else present is a ParseError naming its kind (3b675 round 4; see _surface_kind). A file
+    that cannot be read (any OSError but FileNotFoundError, such as a mode-000 file) is a
+    ParseError too (3b675 round 3); a missing file raises FileNotFoundError, for the caller
+    to refuse or tolerate. The kind is checked by name and the file then opened by name, so
+    a regular file replaced by a FIFO between the two is not caught."""
+    kind = _surface_kind(path)
+    if kind is None:
+        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), str(path))
+    if kind != REGULAR_FILE:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: is not a regular file ({kind})")
     try:
         return path.read_bytes().decode("utf-8")
     except FileNotFoundError:
@@ -1148,15 +1204,13 @@ def verify_exclusion_and_delta_guards(
     wf_names = {m.group(1) for m in (WF_NAME_RE.match(l) for l in wf_lines) if m}
     pc_lines = _read_utf8(root / PRECOMMIT_PATH).splitlines()
     prtime = (root / PRTIME_PATH)
-    # Absent (nothing at the path) is tolerated for a portable clone. Anything present is
-    # read, so a directory or unreadable file is a ParseError (3b675 round 3).
-    prtime_present = prtime.exists() or prtime.is_symlink()
+    # Absent (lstat finds no entry) is tolerated for a portable clone. Anything present goes
+    # to _read_utf8, so an unreadable file is a ParseError (3b675 round 3) and anything but a
+    # regular file is one without being opened (round 4).
+    prtime_present = _surface_kind(prtime) is not None
     prtime_lines: list[str] = []
     if prtime_present:
-        try:
-            prtime_lines = _read_utf8(prtime).splitlines()
-        except FileNotFoundError:
-            raise ParseError(f"{PRTIME_PATH}: is a symbolic link to nothing") from None
+        prtime_lines = _read_utf8(prtime).splitlines()
 
     # (i) WORKFLOW_SETUP_STEPS: must exist and invoke no gate script.
     for name in sorted(WORKFLOW_SETUP_STEPS):
@@ -1298,8 +1352,17 @@ def main(argv: list[str]) -> int:
     precommit_path = REPO_ROOT / PRECOMMIT_PATH
 
     for p in (spec_path, workflow_path, runner_path, precommit_path):
-        if not p.is_file():
+        try:
+            kind = _surface_kind(p)
+        except ParseError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 2
+        if kind is None:
             print(f"ERROR: required file not found: {p.relative_to(REPO_ROOT)}",
+                  file=sys.stderr)
+            return 2
+        if kind != REGULAR_FILE:  # 3b675 round 4: present, so not "not found"
+            print(f"ERROR: {p.relative_to(REPO_ROOT)}: is not a regular file ({kind})",
                   file=sys.stderr)
             return 2
 
@@ -1311,7 +1374,7 @@ def main(argv: list[str]) -> int:
     except ParseError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
-    except FileNotFoundError as exc:  # removed after the is_file check above
+    except FileNotFoundError as exc:  # removed after the kind check above
         print(f"ERROR: required file not found: {exc.filename}", file=sys.stderr)
         return 2
 
@@ -1441,7 +1504,7 @@ def main(argv: list[str]) -> int:
     except ParseError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
-    except FileNotFoundError as exc:  # removed after the is_file check above
+    except FileNotFoundError as exc:  # removed after the kind check above
         print(f"ERROR: required file not found: {exc.filename}", file=sys.stderr)
         return 2
 
