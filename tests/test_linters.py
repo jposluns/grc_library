@@ -31190,7 +31190,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
         lint-table-cell-count.py OWN F 36c2ad714485c240903f8ecb55caefe3714ac0ebad81df90b2d52e87a10a3477
-        lint-todo-index-reference-parity.py OWN F fbd2edb9e2f06f930f43e7648eafdf87fd72830a458440976872025346038a97
+        lint-todo-index-reference-parity.py OWN F b15c9b865864abdab15851f91ee6deafb6a2be08b5a384dea76ba4275131a800
         lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
         lint-todo-number-permanence.py OWN F dedf0d73d69395a559061e0424d49ec92ccbcb3fef7e455adc41dd30708cdbea
@@ -39441,9 +39441,15 @@ class StoreDegradedNoticeTests(unittest.TestCase):
         (sibling / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX, encoding="utf-8")
         (sibling / "P-TODO-REFERENCE.md").write_text(TodoIndexReferenceParityTests.PREF,
                                                      encoding="utf-8")
+        # 3b674 r3: with the lookup returning None the gate examines the sibling path beside
+        # REPO_ROOT, so the absent run uses a fixture repository with nothing beside it; the real
+        # checkout's sibling, if any, is never examined.
+        repo = self.store / "absent" / "grc_library"
+        repo.mkdir(parents=True)
+        (repo / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
         self._check("gate 90", "lint-todo-index-reference-parity.py",
                     lambda m: m.main(["lint-todo-index-reference-parity.py"]),
-                    absent_patches={"resolve_sibling": lambda name: None},
+                    absent_patches={"resolve_sibling": lambda name: None, "REPO_ROOT": repo},
                     present_patches={"resolve_sibling": lambda name: sibling})
 
     def test_gate90_root_run_prints_no_degraded_line(self) -> None:
@@ -48573,18 +48579,23 @@ class TodoIndexReferenceParityTests(LinterTestCase):
     # --- 3b648: the DEFAULT lookup (neither --root nor --private-root) ---
     NOT_CHECKED = "private index<->reference parity not checked"
 
-    def _run_default(self, label, sibling_files, sibling=True):
+    def _run_default(self, label, sibling_files, sibling=True, setup=None):
         """Gate 90's default lookup in process. The repository root is a fixture holding TODO.md;
         resolve_sibling returns a fixture sibling holding exactly ``sibling_files`` (relative name:
         text), or None when ``sibling`` is False. Hermetic: nothing outside the fixture is read, and
-        r3 removed the gate's git calls, so no git runs."""
+        r3 removed the gate's git calls, so no git runs. ``setup(stack, mod, base, priv)``, when
+        given, runs just before the gate to build links, lock entries or patch the module.
+        3b674 r3: the gate examines the sibling path itself when the lookup returns None, so with
+        ``sibling`` False nothing is created there unless ``setup`` builds it."""
         import contextlib
         import io
         from unittest.mock import patch
         base = Path(tempfile.mkdtemp(prefix="bij-default-" + label + "-"))
         self.addCleanup(shutil.rmtree, base, True)
         repo, priv = base / "grc_library", base / "grc_library_private"
-        repo.mkdir(); priv.mkdir()
+        repo.mkdir()
+        if sibling:
+            priv.mkdir()
         (repo / "TODO.md").write_text(self.IDX, encoding="utf-8")
         for rel, text in sibling_files.items():
             (priv / rel).parent.mkdir(parents=True, exist_ok=True)
@@ -48596,6 +48607,8 @@ class TodoIndexReferenceParityTests(LinterTestCase):
             stack.enter_context(patch.object(mod, "resolve_sibling", lambda name: priv if sibling else None))
             stack.enter_context(contextlib.redirect_stdout(out))
             stack.enter_context(contextlib.redirect_stderr(err))
+            if setup is not None:
+                setup(stack, mod, base, priv)
             rc = mod.main(["lint-todo-index-reference-parity.py"])
         return rc, out.getvalue(), err.getvalue(), priv
 
@@ -48655,6 +48668,346 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         self.assertNotIn("ERROR", out + err)
         self.assertNotIn("DEGRADED", out + err)
 
+    def _lock(self, path):
+        """Mode 000 on ``path``, restored before the fixture is removed (cleanups run LIFO)."""
+        path.chmod(0)
+        self.addCleanup(path.chmod, 0o700)
+
+    def _imitate_311_is_dir(self, stack):
+        """Patch Path.is_dir to behave as Python 3.11's (CI): it stats the path and returns False
+        only for ENOENT, ENOTDIR, EBADF and ELOOP, so EACCES raises PermissionError where 3.14
+        returns False. 3b674 r7: the CI failure was a 3.11 difference no 3.14 run reproduced."""
+        import errno
+        import stat
+        from unittest.mock import patch
+
+        def is_dir_311(path, *args, **kwargs):
+            try:
+                return stat.S_ISDIR(os.stat(path).st_mode)
+            except OSError as exc:
+                if exc.errno in (errno.ENOENT, errno.ENOTDIR, errno.EBADF, errno.ELOOP):
+                    return False
+                raise
+            except ValueError:
+                return False
+
+        stack.enter_context(patch.object(Path, "is_dir", is_dir_311))
+
+    def _assert_lookup_finds_no_sibling(self, lc):
+        """The non-strict resolve_sibling("private") hands back no usable sibling: None (3.14's
+        Path.is_dir() returns False on EACCES) or PermissionError (3.11's raises), nothing else.
+        Returns the PermissionError, or None when the lookup returned None."""
+        try:
+            found = lc.resolve_sibling("private")
+        except PermissionError as exc:
+            return exc
+        self.assertIsNone(found)
+        return None
+
+    def test_default_unreadable_records_tree_fails(self):
+        # 3b674: the store-without-a-backlog pass never examined the records tree, so a .working
+        # that cannot be listed or read passed (exit 0) as a store without a backlog. Each case now
+        # fails with exit 2 naming the path; ``perm`` cases rely on permission bits.
+        def mode000_dir(stack, mod, base, priv):
+            (priv / ".working").mkdir()
+            (priv / ".working" / "handoff.md").write_text("handoff\n", encoding="utf-8")
+            self._lock(priv / ".working")
+            return priv / ".working", False
+
+        # r2: link targets lie inside the store, since a link out of the store now fails as such.
+        def link_to_mode000_dir(stack, mod, base, priv):
+            (priv / "records").mkdir()
+            self._lock(priv / "records")
+            (priv / ".working").symlink_to(priv / "records")
+            return priv / ".working", False
+
+        def link_resolves_unreachable(stack, mod, base, priv):
+            (priv / "locked" / "records").mkdir(parents=True)
+            self._lock(priv / "locked")
+            (priv / ".working").symlink_to(priv / "locked" / "records")
+            return priv / ".working", False
+
+        def mode000_subdir(stack, mod, base, priv):
+            (priv / ".working" / "validate").mkdir(parents=True)
+            self._lock(priv / ".working" / "validate")
+            return priv / ".working" / "validate", False
+
+        def mode000_file(stack, mod, base, priv):
+            (priv / ".working").mkdir()
+            (priv / ".working" / "handoff.md").write_text("handoff\n", encoding="utf-8")
+            self._lock(priv / ".working" / "handoff.md")
+            return priv / ".working" / "handoff.md", False
+
+        # r3: the missing target lies inside the store; a link out of the store fails as such
+        # whatever its target is (see the out-of-store tests).
+        def dangling_link(stack, mod, base, priv):
+            (priv / ".working").symlink_to(priv / "missing")
+            return priv / ".working", True
+
+        def looping_link(stack, mod, base, priv):
+            (priv / ".working").symlink_to(".working")
+            return priv / ".working", True
+
+        def io_error(stack, mod, base, priv):
+            import errno
+            from unittest.mock import patch
+            (priv / ".working").mkdir()
+            real = os.listdir
+
+            def listdir(path="."):
+                if Path(path) == priv / ".working":
+                    raise OSError(errno.EIO, os.strerror(errno.EIO), str(path))
+                return real(path)
+            stack.enter_context(patch.object(mod.os, "listdir", listdir))
+            return priv / ".working", False
+
+        for label, build, perm in (
+                ("mode-000 directory", mode000_dir, True),
+                ("link to a mode-000 directory", link_to_mode000_dir, True),
+                ("link that resolves but cannot be reached", link_resolves_unreachable, True),
+                ("mode-000 subdirectory", mode000_subdir, True),
+                ("unreadable file", mode000_file, True),
+                ("dangling link", dangling_link, False),
+                ("looping link", looping_link, False),
+                ("I/O error", io_error, False)):
+            with self.subTest(case=label):
+                if perm and os.geteuid() == 0:
+                    self.skipTest("run as root: permission bits do not deny root's reads, so a "
+                                  "mode-000 entry would still be read")
+                found = {}
+
+                def setup(stack, mod, base, priv, build=build):
+                    found["path"], found["link"] = build(stack, mod, base, priv)
+                rc, out, err, priv = self._run_default("records", {}, setup=setup)
+                top = priv / ".working"
+                if found["link"]:
+                    message = (f"ERROR: the private store's records tree {top} holds a link that "
+                               f"does not resolve: {found['path']} (")
+                else:
+                    message = f"ERROR: cannot read the private store's records tree {top}: {found['path']} ("
+                self._assert_sibling_error(rc, out, err, message)
+                self.assertIn("not an absent backlog", err)
+                self.assertNotIn("Traceback", err)
+
+    def test_default_readable_or_absent_records_tree_passes(self):
+        # 3b674 negative control: a store whose records tree is absent, or readable throughout
+        # (links to readable directories included), keeps the not-checked pass.
+        def absent(stack, mod, base, priv):
+            (priv / "notes.md").write_text("kept\n", encoding="utf-8")
+
+        def readable_with_link(stack, mod, base, priv):
+            # r2: the link target lies inside the store; one outside it fails (see the out-of-store test)
+            (priv / "archive").mkdir()
+            (priv / "archive" / "handoff.md").write_text("handoff\n", encoding="utf-8")
+            (priv / ".working" / "validate").mkdir(parents=True)
+            (priv / ".working" / "validate" / "store").symlink_to(priv / "archive")
+            (priv / ".working" / "validate" / "loop").symlink_to(priv / ".working")
+
+        for label, build in (("absent", absent), ("readable with links", readable_with_link)):
+            with self.subTest(case=label):
+                rc, out, err, priv = self._run_default("records-ok", {}, setup=build)
+                self.assertEqual(rc, 0, out + err)
+                self.assertIn(f"OK: {self.NOT_CHECKED}: the private sibling {priv} holds none of", out)
+                self.assertNotIn("ERROR", out + err)
+
+    def _mksock(self, path):
+        """Bind a Unix socket at ``path``, or skip the subtest. A fixture path is often longer than
+        AF_UNIX allows (about 108 bytes), so the socket binds through /proc/self/fd/N/<name>."""
+        import socket
+        sock = socket.socket(socket.AF_UNIX)
+        self.addCleanup(sock.close)
+        try:
+            fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+        except OSError as exc:
+            self.skipTest(f"cannot open {path.parent} to bind a socket in it ({exc.strerror})")
+        try:
+            sock.bind(f"/proc/self/fd/{fd}/{path.name}")
+        except OSError as exc:
+            self.skipTest(f"cannot bind a Unix socket at {path} ({exc.strerror})")
+        finally:
+            os.close(fd)
+
+    def _mkdevice(self, path):
+        """A character device node (1, 3) at ``path``, or skip the subtest. r3: a link to /dev/null
+        used to stand in for one, but it resolves outside the store and now fails as an out-of-store
+        link (covered by the out-of-store test), so the node is made in place, which needs root."""
+        import stat
+        if os.geteuid() != 0:
+            self.skipTest("not run as root: only root may create a device node, and a link to "
+                          "/dev/null lies outside the store, so it fails as an out-of-store link")
+        os.mknod(path, stat.S_IFCHR | 0o600, os.makedev(1, 3))
+
+    def test_default_records_tree_not_a_directory_fails(self):
+        # 3b674 r2: _probe_records never checked that .working is a directory, so a regular file
+        # there had one byte read and passed (exit 0), and a FIFO, socket or device ("other") was
+        # never examined. Each fails with exit 2 naming the path and its kind.
+        def regular_file(priv):
+            (priv / ".working").write_text("handoff\n", encoding="utf-8")
+
+        def fifo(priv):
+            os.mkfifo(priv / ".working")
+
+        def sock(priv):
+            self._mksock(priv / ".working")
+
+        def device(priv):
+            self._mkdevice(priv / ".working")
+
+        for label, build in (("regular file", regular_file), ("FIFO", fifo), ("socket", sock),
+                             ("character device", device)):
+            with self.subTest(case=label):
+                rc, out, err, priv = self._run_default(
+                    "records-kind", {}, setup=lambda stack, mod, base, priv, build=build: build(priv))
+                self._assert_sibling_error(rc, out, err,
+                                           f"ERROR: the private store's records tree {priv / '.working'} "
+                                           f"is present but is not a directory (it is a {label});")
+                self.assertNotIn("Traceback", err)
+
+    def test_default_records_tree_unexpected_entry_kind_fails(self):
+        # 3b674 r2: an entry in the tree that is neither a regular file nor a directory passed
+        # silently. Opening a FIFO would block, so it is reported as an unexpected kind, unopened.
+        def fifo(priv):
+            (priv / ".working").mkdir()
+            os.mkfifo(priv / ".working" / "pipe")
+            return priv / ".working" / "pipe"
+
+        def sock(priv):
+            (priv / ".working").mkdir()
+            self._mksock(priv / ".working" / "pipe")
+            return priv / ".working" / "pipe"
+
+        for label, build in (("FIFO", fifo), ("socket", sock)):
+            with self.subTest(case=label):
+                found = {}
+
+                def setup(stack, mod, base, priv, build=build):
+                    found["path"] = build(priv)
+                rc, out, err, priv = self._run_default("records-entry", {}, setup=setup)
+                self._assert_sibling_error(rc, out, err,
+                                           f"ERROR: the private store's records tree {priv / '.working'} "
+                                           f"holds an entry of unexpected kind: {found['path']} is a "
+                                           f"{label}, neither a regular file nor a directory, and was "
+                                           "not opened;")
+
+    def test_default_records_tree_out_of_store_link_fails(self):
+        # 3b674 r2: the walk followed links out of the store with no bound. A link that resolves
+        # outside the store root fails as an out-of-store link naming it, and is not followed.
+        def top_link(base, priv):
+            (priv / ".working").symlink_to(base / "records")
+            return priv / ".working"
+
+        def nested_link(base, priv):
+            (priv / ".working").mkdir()
+            (priv / ".working" / "store").symlink_to(base / "records")
+            return priv / ".working" / "store"
+
+        for label, build in (("records tree is the link", top_link), ("link inside the tree", nested_link)):
+            with self.subTest(case=label):
+                found = {}
+
+                def setup(stack, mod, base, priv, build=build):
+                    (base / "records").mkdir()
+                    (base / "records" / "handoff.md").write_text("handoff\n", encoding="utf-8")
+                    found["path"] = build(base, priv)
+                rc, out, err, priv = self._run_default("records-out", {}, setup=setup)
+                store = os.path.realpath(priv)
+                self._assert_sibling_error(rc, out, err,
+                                           f"ERROR: the private store's records tree {priv / '.working'} "
+                                           f"holds a link that resolves outside the store {store}: "
+                                           f"{found['path']} -> ")
+                self.assertIn("the walk does not follow it", err)
+
+    def test_default_records_tree_vanished_entry_fails(self):
+        # 3b674 r2: an entry listed and then gone during the walk leaves the walk incomplete, so it
+        # fails naming the entry as vanished (no subtest covered the case the docstrings name).
+        def setup(stack, mod, base, priv):
+            from unittest.mock import patch
+            (priv / ".working").mkdir()
+            real = os.listdir
+
+            def listdir(path="."):
+                names = real(path)
+                return names + ["ghost.md"] if Path(path) == priv / ".working" else names
+            stack.enter_context(patch.object(mod.os, "listdir", listdir))
+        with self.subTest(case="vanished entry"):
+            rc, out, err, priv = self._run_default("records-vanished", {}, setup=setup)
+            self._assert_sibling_error(rc, out, err,
+                                       f"ERROR: cannot read the private store's records tree "
+                                       f"{priv / '.working'}: {priv / '.working' / 'ghost.md'} vanished "
+                                       "during the walk (")
+
+    def test_default_unreadable_or_wrong_kind_inputs_fail(self):
+        # 3b674 r2: TODO.md and the root TODO-REFERENCE.md were probed with Path.is_file(), so a
+        # present but unreadable, dangling or wrong-kind file read as absent (TODO.md as "required
+        # file missing", TODO-REFERENCE.md as no reference at all). Each now fails with exit 2
+        # naming the path. No private sibling, so the root TODO-REFERENCE.md is the one read.
+        def mode000(path, base):
+            path.write_text("x\n", encoding="utf-8")
+            self._lock(path)
+
+        def dangling(path, base):
+            path.symlink_to(base / "missing")
+
+        def directory(path, base):
+            path.mkdir()
+
+        def fifo(path, base):
+            os.mkfifo(path)
+
+        def unreachable(path, base):
+            (base / "locked").mkdir()
+            (base / "locked" / "file.md").write_text("x\n", encoding="utf-8")
+            self._lock(base / "locked")
+            path.symlink_to(base / "locked" / "file.md")
+
+        cases = (
+            ("TODO.md", "mode-000 file", mode000, True, "cannot read {p} ("),
+            ("TODO.md", "dangling link", dangling, False, "{p} is a link that does not resolve ("),
+            ("TODO.md", "directory", directory, False,
+             "{p} is present but is not a regular file (it is a directory)"),
+            ("TODO.md", "FIFO", fifo, False, "{p} is present but is not a regular file (it is a FIFO)"),
+            ("TODO-REFERENCE.md", "link that cannot be reached", unreachable, True, "cannot read {p} ("),
+            ("TODO-REFERENCE.md", "dangling link", dangling, False, "{p} is a link that does not resolve ("),
+            ("TODO-REFERENCE.md", "directory", directory, False,
+             "{p} is present but is not a regular file (it is a directory)"),
+            ("TODO-REFERENCE.md", "FIFO", fifo, False,
+             "{p} is present but is not a regular file (it is a FIFO)"))
+        for rel, label, build, perm, message in cases:
+            with self.subTest(file=rel, case=label):
+                if perm and os.geteuid() == 0:
+                    self.skipTest("run as root: permission bits do not deny root's reads, so the "
+                                  "locked entry would still be read")
+
+                found = {}
+
+                def setup(stack, mod, base, priv, rel=rel, build=build):
+                    path = found["path"] = base / "grc_library" / rel
+                    if path.exists():
+                        path.unlink()
+                    build(path, base)
+                rc, out, err, _ = self._run_default("inputs", {}, sibling=False, setup=setup)
+                self.assertEqual(rc, 2, out + err)
+                self.assertIn("ERROR: " + message.format(p=found["path"]), err)
+                if rel == "TODO.md":
+                    self.assertIn("required file TODO.md is present but unreadable, not missing", err)
+                self.assertNotIn("required file missing", err)
+                self.assertNotIn("Traceback", err)
+
+    def test_private_root_wrong_kind_names_kind(self):
+        # 3b674 r2: a private P-TODO file of the wrong kind failed without naming its kind; the
+        # message now names the path and the kind, and the FIFO is never opened.
+        base = Path(tempfile.mkdtemp(prefix="bij-private-kind-"))
+        self.addCleanup(shutil.rmtree, base, True)
+        (base / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        os.mkfifo(base / "P-TODO.md")
+        (base / "P-TODO-REFERENCE.md").write_text(self.PREF, encoding="utf-8")
+        with self.subTest(case="P-TODO.md is a FIFO"):
+            r = run_linter("tools/lint-todo-index-reference-parity.py",
+                           "--root", str(base), "--private-root", str(base))
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn(f"ERROR: {base / 'P-TODO.md'} is present but is not a regular file "
+                          "(it is a FIFO); private index<->reference parity cannot be checked", r.stderr)
+
     def test_default_sibling_legacy_ptodo_notes_not_checked(self):
         # 3b648: a recognised legacy ### -block P-TODO.md is the accepted pre-split layout, so it
         # passes, with the not-checked line saying why.
@@ -48684,6 +49037,338 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         self.assertIn("DEGRADED: gate 90 skipped", out)
         self.assertNotIn("ERROR", out + err)
         self.assertNotIn(self.NOT_CHECKED, out + err)
+
+    def test_default_sibling_present_but_unusable_fails(self):
+        # 3b674 r3: the non-strict resolve_sibling returns None for anything at the sibling path that
+        # is not a usable directory, so each case below read as no store and passed DEGRADED (exit
+        # 0). The gate now examines that path and fails with exit 2 naming it. Except for the
+        # directory case, the gate runs the real non-strict lookup against the fixture, so each
+        # case is one that lookup reads as no sibling. r7: in the two permission cases Python 3.11's
+        # (CI) lookup raises PermissionError instead of returning None; each case runs as 3.11 too.
+        def regular_file(base, priv):
+            priv.write_text("store\n", encoding="utf-8")
+            return f"the private sibling {priv} is present but is not a directory (it is a regular file);"
+
+        def fifo(base, priv):
+            os.mkfifo(priv)
+            return f"the private sibling {priv} is present but is not a directory (it is a FIFO);"
+
+        def sock(base, priv):
+            self._mksock(priv)
+            return f"the private sibling {priv} is present but is not a directory (it is a socket);"
+
+        def device(base, priv):
+            if not os.path.exists("/dev/null"):
+                self.skipTest("/dev/null is not present, so there is no character device to link to")
+            priv.symlink_to("/dev/null")
+            return (f"the private sibling {priv} is present but is not a directory "
+                    "(it is a character device);")
+
+        def dangling_link(base, priv):
+            priv.symlink_to(base / "missing")
+            return f"the private sibling {priv} is a link that does not resolve ("
+
+        def looping_link(base, priv):
+            priv.symlink_to(priv.name)
+            return f"the private sibling {priv} is a link that does not resolve ("
+
+        def link_under_unreadable_parent(base, priv):
+            (base / "locked" / "store").mkdir(parents=True)
+            self._lock(base / "locked")
+            priv.symlink_to(base / "locked" / "store")
+            return f"cannot examine the private sibling {priv} ("
+
+        def parent_without_search(base, priv):
+            priv.mkdir()
+            self._lock(base)
+            return f"cannot examine the private sibling {priv} ("
+
+        def directory(base, priv):
+            priv.mkdir()
+            return (f"the private sibling {priv} is a directory, but the default lookup found no "
+                    "usable directory there (it changed during the lookup);")
+
+        for label, build, perm, real_lookup in (
+                ("regular file", regular_file, False, True),
+                ("FIFO", fifo, False, True),
+                ("socket", sock, False, True),
+                ("link to a character device", device, False, True),
+                ("dangling link", dangling_link, False, True),
+                ("looping link", looping_link, False, True),
+                ("link to a directory under an unreadable parent", link_under_unreadable_parent, True, True),
+                ("parent without search permission", parent_without_search, True, True),
+                ("directory the lookup did not find", directory, False, False)):
+            # r7: each case also runs with Path.is_dir behaving as Python 3.11's (CI), which raises
+            # PermissionError where 3.14 returns False.
+            for python in ("this interpreter", "3.11 imitated"):
+                with self.subTest(case=label, python=python):
+                    if perm and os.geteuid() == 0:
+                        self.skipTest("run as root: permission bits do not deny root's search, so the "
+                                      "sibling path would lead to a usable directory")
+                    found = {}
+
+                    def setup(stack, mod, base, priv, build=build, perm=perm, real_lookup=real_lookup,
+                              python=python):
+                        from unittest.mock import patch
+                        found["message"] = build(base, priv)
+                        if python == "3.11 imitated":
+                            self._imitate_311_is_dir(stack)
+                        if real_lookup:
+                            lc = sys.modules[mod.require_dir.__module__]
+                            stack.enter_context(patch.object(lc, "REPO_ROOT", base / "grc_library"))
+                            stack.enter_context(patch.object(mod, "resolve_sibling", lc.resolve_sibling))
+                            # r7: assertIsNone here errored on 3.11, whose lookup raises on EACCES.
+                            raised = self._assert_lookup_finds_no_sibling(lc)
+                            # the imitation must reach the lookup, or the 3.11 run proves nothing;
+                            # r8: only there, since on 3.11 (CI) this interpreter's lookup raises too
+                            if python == "3.11 imitated":
+                                self.assertEqual(raised is not None, perm, repr(raised))
+                    rc, out, err, priv = self._run_default("sibling-kind", {}, sibling=False, setup=setup)
+                    self._assert_sibling_error(rc, out, err, "ERROR: " + found["message"])
+                    self.assertIn("a present but unusable private store is not an absent one", err)
+                    self.assertNotIn("Traceback", err)
+
+    def test_default_lookup_permission_error_fails_without_traceback(self):
+        # 3b674 r5: the gate called the non-strict resolve_sibling first, and Python 3.11's (CI)
+        # Path.is_dir() raises PermissionError on EACCES, so an inaccessible store ended in a
+        # traceback before the gate's own probe could fail with exit 2. Path.is_dir is patched to
+        # raise as 3.11 does, on any interpreter; the gate runs the real non-strict lookup.
+        import errno
+        from unittest.mock import patch
+
+        def parent_without_search(base, priv):
+            priv.mkdir()
+            self._lock(base)
+
+        def directory(base, priv):
+            # the probe sees a usable directory, so the lookup runs and raises: the exit-2 path
+            # for an OSError from the lookup itself
+            priv.mkdir()
+
+        for label, build, perm in (("inaccessible store", parent_without_search, True),
+                                   ("lookup that raises on a directory", directory, False)):
+            with self.subTest(case=label):
+                if perm and os.geteuid() == 0:
+                    self.skipTest("run as root: permission bits do not deny root's search, so the "
+                                  "sibling path would lead to a usable directory")
+
+                def setup(stack, mod, base, priv, build=build):
+                    build(base, priv)
+                    real_is_dir = Path.is_dir
+
+                    def is_dir_311(path, *args, **kwargs):
+                        if os.fspath(path) == os.fspath(priv):
+                            raise PermissionError(errno.EACCES, os.strerror(errno.EACCES), str(path))
+                        return real_is_dir(path, *args, **kwargs)
+
+                    lc = sys.modules[mod.require_dir.__module__]
+                    stack.enter_context(patch.object(lc, "REPO_ROOT", base / "grc_library"))
+                    stack.enter_context(patch.object(mod, "resolve_sibling", lc.resolve_sibling))
+                    stack.enter_context(patch.object(Path, "is_dir", is_dir_311))
+                try:
+                    rc, out, err, priv = self._run_default("sibling-eacces", {}, sibling=False,
+                                                           setup=setup)
+                except OSError as exc:
+                    self.fail(f"{label}: the default lookup raised {exc!r}, a traceback, not exit 2")
+                self._assert_sibling_error(rc, out, err, f"ERROR: cannot examine the private sibling {priv} (")
+                self.assertIn("a present but unusable private store is not an absent one", err)
+                self.assertNotIn("Traceback", err)
+
+    def test_default_degraded_line_names_only_absent_pairs(self):
+        # 3b674 r3: the preliminary DEGRADED line tested the root TODO-REFERENCE.md with
+        # Path.is_file(), so a present but broken one was called skipped before the gate failed on
+        # it. It is now named as skipped only when absent; each case still fails with exit 2.
+        def dangling(path, base):
+            path.symlink_to(base / "missing")
+
+        def looping(path, base):
+            path.symlink_to(path.name)
+
+        def directory(path, base):
+            path.mkdir()
+
+        def fifo(path, base):
+            os.mkfifo(path)
+
+        def unreachable(path, base):
+            (base / "locked").mkdir()
+            (base / "locked" / "file.md").write_text("x\n", encoding="utf-8")
+            self._lock(base / "locked")
+            path.symlink_to(base / "locked" / "file.md")
+
+        private_only = ("DEGRADED: gate 90 skipped the index<->reference parity check of the "
+                        "P-TODO.md pair (no private store supplies the reference);")
+        for label, build, perm in (("dangling link", dangling, False), ("looping link", looping, False),
+                                   ("directory", directory, False), ("FIFO", fifo, False),
+                                   ("link that cannot be reached", unreachable, True)):
+            with self.subTest(case=label):
+                if perm and os.geteuid() == 0:
+                    self.skipTest("run as root: permission bits do not deny root's reads, so the "
+                                  "locked entry would still be read")
+                found = {}
+
+                def setup(stack, mod, base, priv, build=build):
+                    found["path"] = base / "grc_library" / "TODO-REFERENCE.md"
+                    build(found["path"], base)
+                rc, out, err, _ = self._run_default("degraded-wording", {}, sibling=False, setup=setup)
+                self.assertEqual(rc, 2, out + err)
+                self.assertIn(private_only, out)
+                self.assertNotIn("the TODO.md pair", out)
+                error = [ln for ln in err.splitlines() if ln.startswith("ERROR: ")]
+                self.assertTrue(error and str(found["path"]) in error[0], err)
+
+    def test_default_degraded_line_classifies_todo_before_naming_it(self):
+        # 3b674 r4: with no private store and no root TODO-REFERENCE.md, the DEGRADED line was
+        # printed before TODO.md was read, so a present but broken TODO.md was first called skipped
+        # before the gate failed on it. The line is built after TODO.md is classified.
+        def dangling(path, base):
+            path.symlink_to(base / "missing")
+
+        def fifo(path, base):
+            os.mkfifo(path)
+
+        for label, build in (("dangling link", dangling), ("FIFO", fifo)):
+            with self.subTest(case=label):
+                found = {}
+
+                def setup(stack, mod, base, priv, build=build):
+                    found["path"] = base / "grc_library" / "TODO.md"
+                    found["path"].unlink()
+                    build(found["path"], base)
+                rc, out, err, _ = self._run_default("degraded-todo", {}, sibling=False, setup=setup)
+                self.assertEqual(rc, 2, out + err)
+                skipped = [ln for ln in (out + err).splitlines()
+                           if "skipped" in ln and "the TODO.md pair" in ln]
+                self.assertEqual(skipped, [], out + err)
+                error = [ln for ln in err.splitlines() if ln.startswith("ERROR: ")]
+                self.assertTrue(error and str(found["path"]) in error[0], err)
+
+    def test_default_records_tree_out_of_store_link_checked_before_kind(self):
+        # 3b674 r3: _probe_records checked a link's kind before its destination, so a .working link
+        # out of the store to a file or a FIFO failed as not a directory, and a dangling one as a
+        # link that does not resolve. Each now fails as an out-of-store link, not followed.
+        def link_to_file(base, priv):
+            (base / "records.md").write_text("handoff\n", encoding="utf-8")
+            (priv / ".working").symlink_to(base / "records.md")
+            return priv / ".working"
+
+        def link_to_fifo(base, priv):
+            os.mkfifo(base / "pipe")
+            (priv / ".working").symlink_to(base / "pipe")
+            return priv / ".working"
+
+        def link_to_device(base, priv):
+            if not os.path.exists("/dev/null"):
+                self.skipTest("/dev/null is not present, so there is no character device to link to")
+            (priv / ".working").symlink_to("/dev/null")
+            return priv / ".working"
+
+        def dangling_top(base, priv):
+            (priv / ".working").symlink_to(base / "missing")
+            return priv / ".working"
+
+        def dangling_nested(base, priv):
+            (priv / ".working").mkdir()
+            (priv / ".working" / "store").symlink_to(base / "missing")
+            return priv / ".working" / "store"
+
+        for label, build in (("records tree links to a file", link_to_file),
+                             ("records tree links to a FIFO", link_to_fifo),
+                             ("records tree links to a character device", link_to_device),
+                             ("records tree is a dangling link", dangling_top),
+                             ("dangling link inside the tree", dangling_nested)):
+            with self.subTest(case=label):
+                found = {}
+
+                def setup(stack, mod, base, priv, build=build):
+                    found["path"] = build(base, priv)
+                rc, out, err, priv = self._run_default("records-out-kind", {}, setup=setup)
+                store = os.path.realpath(priv)
+                self._assert_sibling_error(rc, out, err,
+                                           f"ERROR: the private store's records tree {priv / '.working'} "
+                                           f"holds a link that resolves outside the store {store}: "
+                                           f"{found['path']} -> {os.path.realpath(found['path'])}; "
+                                           "the walk does not follow it;")
+
+    @unittest.skipIf(os.geteuid() == 0, "run as root: permission bits do not deny root's search, so the "
+                                        "entry under the mode-0600 directory would still be examined")
+    def test_default_records_tree_unsearchable_subdir_fails_without_traceback(self):
+        # 3b674 r6: _probe_records' error handler called Path.is_symlink(), which Python 3.11 (CI)
+        # raises PermissionError from on EACCES, so an entry under a .working/sub of mode 0600
+        # (listable, not searchable) ended in a traceback, not exit 2. Path.is_symlink is patched to
+        # behave as 3.11's does (only ENOENT, ENOTDIR, EBADF and ELOOP read as False), on any
+        # interpreter.
+        import errno
+        import stat
+        from unittest.mock import patch
+        found = {}
+
+        def is_symlink_311(path):
+            try:
+                return stat.S_ISLNK(os.lstat(path).st_mode)
+            except OSError as exc:
+                if exc.errno in (errno.ENOENT, errno.ENOTDIR, errno.EBADF, errno.ELOOP):
+                    return False
+                raise
+
+        def setup(stack, mod, base, priv):
+            sub = priv / ".working" / "sub"
+            sub.mkdir(parents=True)
+            (sub / "handoff.md").write_text("handoff\n", encoding="utf-8")
+            sub.chmod(0o600)
+            self.addCleanup(sub.chmod, 0o700)
+            found["path"] = sub / "handoff.md"
+            stack.enter_context(patch.object(Path, "is_symlink", is_symlink_311))
+        try:
+            rc, out, err, priv = self._run_default("records-eacces", {}, setup=setup)
+        except OSError as exc:
+            self.fail(f"the records walk raised {exc!r}, a traceback, not exit 2")
+        self._assert_sibling_error(rc, out, err,
+                                   f"ERROR: cannot read the private store's records tree "
+                                   f"{priv / '.working'}: {found['path']} (")
+        self.assertIn("not an absent backlog", err)
+        self.assertNotIn("Traceback", err)
+
+    # 3b674 r6: the pathlib kind and existence methods and the os.path ones gate 90 must not call
+    # outside _is_link (Python 3.11's pathlib ones raise PermissionError on EACCES).
+    KIND_CALLS = frozenset({"is_file", "is_dir", "is_symlink", "exists", "is_fifo", "is_socket",
+                            "is_block_device", "is_char_device", "is_mount", "isfile", "isdir",
+                            "islink", "lexists"})
+    KIND_CALL_HELPERS = frozenset({"_is_link"})
+
+    def _kind_calls_outside_helpers(self, source):
+        """``(line, call)`` for each kind or existence call in ``source`` outside KIND_CALL_HELPERS:
+        an attribute call (``p.exists()``, ``os.path.islink(p)``, ``Path.is_dir(p)``), a bare-name
+        call (``islink(p)``) or a ``getattr`` naming one with a literal."""
+        import ast
+        tree = ast.parse(source)
+        allowed: set[int] = set()
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in self.KIND_CALL_HELPERS:
+                allowed.update(id(n) for n in ast.walk(node))
+        calls = []
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call) or id(node) in allowed:
+                continue
+            func = node.func
+            name = (func.attr if isinstance(func, ast.Attribute)
+                    else func.id if isinstance(func, ast.Name) else None)
+            if name == "getattr" and len(node.args) >= 2 and isinstance(node.args[1], ast.Constant):
+                name = node.args[1].value
+            if name in self.KIND_CALLS:
+                calls.append((node.lineno, ast.unparse(node)))
+        return sorted(calls)
+
+    def test_no_kind_or_existence_call_outside_helper(self):
+        # 3b674 r6: rounds 2 to 5 each found one more pathlib kind or existence call that Python
+        # 3.11 (CI) raises PermissionError from on EACCES, the last inside an error handler. The
+        # gate's source may call none outside _is_link, which tests with os.lstat and reads any
+        # OSError as False; the flip adds one, so the scan is shown to see it.
+        source = (REPO_ROOT / "tools" / "lint-todo-index-reference-parity.py").read_text(encoding="utf-8")
+        self.assertEqual(self._kind_calls_outside_helpers(source), [])
+        flipped = source + "\n\ndef _flip(path):\n    return path.is_symlink()\n"
+        self.assertEqual([call for _, call in self._kind_calls_outside_helpers(flipped)],
+                         ["path.is_symlink()"])
 
 class TagGateTests(LinterTestCase):
     """tools/lint-todo-list-tag.py (gate 81): every open TODO.md / P-TODO.md

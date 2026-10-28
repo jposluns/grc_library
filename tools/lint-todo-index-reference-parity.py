@@ -20,16 +20,41 @@ reference are not a bijection with matching id, title, band, and position order:
   - DUPLICATE: an id appearing twice in either file.
   - TITLE DRIFT: a row and its block disagree on the item title.
   - BAND MISMATCH: a row and its block sit under different ``## `` bands.
-  - ORDER MISMATCH: the id sequence differs between the two files.
+  - ORDER MISMATCH: the sequence of the ids present in both files differs
+    between the two files.
   - INDEX DETAIL LEAK: a ``### id`` detail-block heading appearing in the
     index file ([`TODO.md`](../TODO.md)) instead of only in the reference file.
   - MALFORMED INDEX ROW: a pipe-starting row inside an index table lacks its
-    terminal pipe or exactly three cells, or its first cell is not a valid
-    backlog id (a row missing its LEADING pipe is documented residue).
+    terminal pipe or exactly three cells, or (a separator row excepted) its
+    first cell is not a valid backlog id (a row missing its LEADING pipe is
+    documented residue).
 
-Adopter-graceful: if the private ``grc_library_private/TODO-REFERENCE.md`` is
-absent (an adopter clone without the private sibling), the gate is a no-op OK,
-and it prints a ``DEGRADED:`` line naming the skipped pair. When the default
+Adopter-graceful: if the default lookup finds no private sibling
+``grc_library_private`` (an adopter clone), the private pair is skipped, the
+public pair is checked when the root ``TODO-REFERENCE.md`` is present and is
+otherwise skipped too (a no-op OK when nothing fails), and the gate prints a
+``DEGRADED:`` line naming the skipped pair or pairs. The line is built only after
+every input is classified (3b674 r4): the sibling path is examined first (below),
+the root ``TODO.md`` is probed and read, and the root ``TODO-REFERENCE.md`` is
+examined with ``lstat``. The public pair is named as skipped only when that
+``TODO-REFERENCE.md`` is absent (``lstat`` reports ENOENT; 3b674 r3) and
+``TODO.md`` is either absent or a readable regular file that decodes as UTF-8
+(r4), so a present but broken one of either is never called skipped. The line is
+printed before the check runs, so it also precedes a failure the check reports
+later (a missing ``TODO.md`` fails with exit 2 after it).
+The sibling is absent only when nothing is at the path the default lookup
+examines (``lstat`` reports ENOENT): the shared lookup reads anything that is not
+a usable directory as no sibling, so the gate examines that path itself and fails
+with exit 2 naming it when it holds a regular file, a FIFO, a socket or a device
+(named with its kind), a link that does not resolve or that loops, an entry that
+cannot be examined (a link to a directory under a directory without search
+permission), or a directory the lookup did not find (it changed during the
+lookup) (3b674 r3). The path is examined BEFORE the shared lookup runs, which
+runs only when the path is absent or a usable directory, and again after it when
+it finds no sibling; an error the lookup raises (Python 3.11's ``Path.is_dir()``
+raises PermissionError on EACCES) fails with exit 2 naming the path, never a
+traceback (r5). Every link test in the gate uses ``lstat`` and reads an entry it
+cannot examine as not a link, so none raises either (r6). When the default
 lookup does resolve the sibling but it holds neither ``P-TODO.md`` nor
 ``P-TODO-REFERENCE.md``, it used to pass with no notice, so a mis-resolved or
 emptied store read as checked (3b648). The sibling is now classified by what it
@@ -40,7 +65,23 @@ content and none of the three backlog files is a private store without a backlog
 (the README's transitional fallback store for ``.working/`` records), so it passes
 with an ``OK:`` line naming it and saying private parity was not checked, and the
 message never advises renaming it (3b648 r4: the tools reading that store would
-break). A resolved sibling is the private store, whoever's checkout it is, so no other
+break). That pass rests on the store's records tree ``.working/``, so the tree is
+walked first, following links that stay inside the store, and must be readable
+throughout (3b674): an unreadable tree used to read as an absent backlog. Only a
+``.working`` with no entry at all (``lstat`` reports ENOENT) is absent. Each of
+these fails with exit 2 naming the path: a ``.working`` that is present but not
+a directory (a regular file, a FIFO, a socket, a device), named with its kind;
+an entry in the tree that is neither a regular file nor a directory (a FIFO, a
+socket, a device), as an unexpected entry kind, never opened, since opening a
+FIFO would block; a link (``.working`` itself included) that resolves outside the
+store root, as an out-of-store link, not followed, whatever its target is (its
+destination is checked before its kind; r3); a link whose target does not
+exist, or that loops, as a link that does not resolve; an entry listed and then
+gone, as an entry that vanished during the walk; and every other failure as an
+unreadable records tree: a directory that cannot be listed (a mode-000
+directory, or a link to one), a link that resolves but cannot be reached (its
+target lies under a directory without search permission), a regular file that
+cannot be opened and read, and an I/O error. A resolved sibling is the private store, whoever's checkout it is, so no other
 signal is consulted (3b648 r3: the repository origin was dropped as unsound).
 A recognised legacy ``P-TODO.md`` alone is the accepted pre-split layout: it
 passes with an ``OK:`` line saying private parity was not checked. CI and most
@@ -63,17 +104,37 @@ repository that the private lookup only defaults to, and a legacy file is the
 accepted pre-split layout; a broken or half-converted pair still fails. A private
 directory that cannot be listed, or a candidate file in it that cannot be
 examined or opened, fails with exit 2 and names the path: an unreadable store is
-not one without the pair. Each file is read once and decoded as strict UTF-8;
-undecodable bytes fail with exit 2 naming the path. A present ``P-TODO.md`` must
+not one without the pair. Every read of a backlog file is a whole-file read
+decoded as strict UTF-8; undecodable bytes fail with exit 2 naming the path; a
+file that is absent or not a regular file is not opened. The check (``run()``)
+reads each private candidate (``TODO-REFERENCE.md``, ``P-TODO.md``,
+``P-TODO-REFERENCE.md``) once; it then reads ``TODO.md`` once (not at all when a
+private candidate failed), and the root
+``TODO-REFERENCE.md`` once only when ``TODO.md`` was read and no private
+``TODO-REFERENCE.md`` supplies the reference. On the default lookup with no
+private sibling, ``main()`` also reads ``TODO.md`` once before the check, to build
+the ``DEGRADED:`` line (it keeps only whether the read failed, and examines the
+root ``TODO-REFERENCE.md`` with ``lstat`` alone), so there ``TODO.md`` is read
+twice. The records-tree walk opens each regular file under ``.working/`` and
+reads one byte, which is not decoded. A present ``P-TODO.md`` must
 be positively one of the two forms the gate knows, an index (``| ID | Item |
 Tags |`` header) or a legacy file with at least one ``### <id> <title>`` block;
 an empty file or one in neither form fails with exit 2 naming the path and the
-reason, since the gate cannot tell what it holds. Stdlib-only.
+reason, since the gate cannot tell what it holds. Every file the gate reads
+(``TODO.md``, ``TODO-REFERENCE.md`` at the root or in the private store, and the
+P-TODO files) is absent only when ``lstat`` reports ENOENT; one that is present
+but cannot be read, a link that does not resolve, or an entry that is not a
+regular file (named with its kind) fails with exit 2 naming the path, and a
+present ``TODO.md`` that cannot be read is reported as unreadable, not missing
+(3b674 r2).
+Stdlib-only.
 """
 from __future__ import annotations
 
+import errno
 import os
 import re
+import stat
 import sys
 from pathlib import Path
 
@@ -84,12 +145,14 @@ if _TOOLS_DIR not in sys.path:
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import split_row, is_separator_row, is_fence_line  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT, TODO_ID_RE, print_degraded, require_dir, resolve_sibling, has_todo_index_header, strict_kind  # noqa: E402  # grc-config/store, stays local
+from lint_common import _SIBLING_REPO_DIRS  # noqa: E402  # the sibling directory names resolve_sibling joins to REPO_ROOT.parent
 
 TODO_REL = "TODO.md"
 REFERENCE_REL = "TODO-REFERENCE.md"
 INDEX_TABLE_HEADER = ("ID", "Item", "Tags")
 PTODO_INDEX_REL = "P-TODO.md"           # private backlog index (in grc_library_private)
 PTODO_REFERENCE_REL = "P-TODO-REFERENCE.md"  # private backlog detail (in grc_library_private)
+WORKING_REL = ".working"                # the private store's records tree (transitional fallback)
 
 BAND_RE = re.compile(r"^## (.+?)\s*$")  # any H2 section is a band (Priority N, Time-bounded follow-ups, ...)
 REF_HEADING_RE = re.compile(
@@ -123,7 +186,7 @@ def _norm_title(t: str) -> str:
 
 
 def parse_index(text: str) -> list[tuple[str, str, str]]:
-    """Ordered ``(id, normalized-title, band)`` for each index row in TODO.md."""
+    """Ordered ``(id, normalized-title, band)`` for each index row in an index file (TODO.md or P-TODO.md)."""
     out: list[tuple[str, str, str]] = []
     band = ""
     for line in _non_fence_lines(text):
@@ -231,8 +294,9 @@ def find_malformed_index_rows(todo_text: str) -> list[str]:
     Once an index header is seen, every contiguous row that STARTS with a pipe
     (a table row) must also end with a pipe and hold exactly three cells;
     non-separator data rows must additionally carry a valid backlog id in cell
-    one. The scan ends at the first line that is not a pipe row, so unrelated
-    tables under later H2 sections are outside its scope. Return the complete
+    one. A table's scan ends at the first line that is not a pipe row (a later
+    index header starts a new one), so unrelated tables under later H2 sections
+    are outside its scope. Return the complete
     offending row strings.
 
     RESIDUE (dual-family QA of PR #1666, codex): detection is scoped to rows
@@ -288,7 +352,8 @@ def _check_one(todo_text: str, reference_text: str,
                index_label: str, reference_label: str) -> tuple[list[str], int, int]:
     """Parity + leak + malformed findings for one (index, reference) backlog pair.
 
-    The caller has already read both files (once, strict UTF-8). Labels are the
+    The caller has already read both files, decoded as strict UTF-8 (run() reads each once;
+    on the default lookup with no private sibling main() read TODO.md once before). Labels are the
     human-facing relative names used in finding text (they differ per pair:
     TODO.md/TODO-REFERENCE.md vs P-TODO.md/P-TODO-REFERENCE.md)."""
     index = parse_index(todo_text)
@@ -306,11 +371,68 @@ def _check_one(todo_text: str, reference_text: str,
     return findings, len(index), len(reference)
 
 
-def _first_existing(*candidates: Path | None) -> Path | None:
-    for c in candidates:
-        if c is not None and c.is_file():
-            return c
-    return None
+def _absent(path: Path) -> bool:
+    """True only when ``lstat`` reports ENOENT for ``path`` (``strict_kind``).
+
+    3b674 r3: the preliminary DEGRADED line used ``Path.is_file()``, so a present dangling,
+    unreachable or wrong-kind file was first called skipped before the gate failed on it. An
+    entry that cannot be examined is present, so it is not absent."""
+    try:
+        return strict_kind(path) is None
+    except OSError:
+        return False
+
+
+def _is_link(path: Path) -> bool:
+    """True only when ``lstat`` reports a symbolic link at ``path``; any OSError reads as False.
+
+    3b674 r6: ``_probe_records``' error handler called ``Path.is_symlink()``, which Python 3.11
+    (CI) raises PermissionError from on EACCES, so an entry under a ``.working/sub`` of mode 0600
+    (listable, not searchable) ended in a traceback, not exit 2. Every link test in the gate is
+    this one, so the gate calls no pathlib kind or existence method, nor an ``os.path`` one."""
+    try:
+        return stat.S_ISLNK(os.lstat(path).st_mode)
+    except (OSError, ValueError):
+        return False
+
+
+def _default_private_path() -> Path:
+    """The path the default ``resolve_sibling("private")`` lookup examines, joined as lint_common
+    joins it (``REPO_ROOT.parent / _SIBLING_REPO_DIRS[name]``), so the two never disagree."""
+    return REPO_ROOT.parent / _SIBLING_REPO_DIRS["private"]
+
+
+_SIBLING_TAIL = ("a present but unusable private store is not an absent one; private "
+                 "index<->reference parity cannot be checked")
+
+
+def _probe_default_sibling(path: Path, lookup_found_none: bool = True) -> str | None:
+    """None when nothing is at the default private sibling path, else an error naming it.
+
+    3b674 r3: the non-strict ``resolve_sibling`` returns None for anything at the sibling path
+    that ``Path.is_dir()`` rejects, so a present but unusable store read as no store and the gate
+    passed DEGRADED. Only ENOENT from ``lstat`` (``strict_kind``) is absent. Each other case fails
+    with exit 2 naming the path: an entry that is not a directory (a regular file, a FIFO, a
+    socket, a device), named with its kind; a link whose target does not exist, or that loops, as
+    a link that does not resolve; an entry that cannot be examined (a link to a directory under a
+    directory without search permission, a parent without search permission), with the error; and
+    a directory found after the lookup found none, as one that changed during the lookup.
+    r5: ``main()`` also probes BEFORE the lookup (``lookup_found_none`` False), since Python 3.11's
+    ``Path.is_dir()`` raises PermissionError on EACCES; there a usable directory is None too."""
+    tail = _SIBLING_TAIL
+    try:
+        kind = strict_kind(path)
+    except OSError as exc:
+        if _is_link(path) and exc.errno in (errno.ENOENT, errno.ELOOP):
+            return f"the private sibling {path} is a link that does not resolve ({exc.strerror}); {tail}"
+        return f"cannot examine the private sibling {path} ({exc.strerror}); {tail}"
+    if kind is None or (kind == "dir" and not lookup_found_none):
+        return None
+    if kind != "dir":
+        return (f"the private sibling {path} is present but is not a directory "
+                f"(it is a {_kind_name(path)}); {tail}")
+    return (f"the private sibling {path} is a directory, but the default lookup found no usable "
+            f"directory there (it changed during the lookup); {tail}")
 
 
 def _read_strict(path: Path) -> tuple[str | None, str | None]:
@@ -331,6 +453,42 @@ def _read_strict(path: Path) -> tuple[str | None, str | None]:
         return None, f"cannot decode {path} as UTF-8 ({exc.reason} at byte {exc.start})"
 
 
+_KINDS = ((stat.S_ISDIR, "directory"), (stat.S_ISREG, "regular file"), (stat.S_ISFIFO, "FIFO"),
+          (stat.S_ISSOCK, "socket"), (stat.S_ISCHR, "character device"), (stat.S_ISBLK, "block device"))
+
+
+def _kind_name(path: Path) -> str:
+    """The kind of entry ``path`` resolves to, for messages; it stats the entry and never opens it."""
+    try:
+        mode = os.stat(path).st_mode
+    except OSError:
+        return "entry that cannot be examined"
+    for test, name in _KINDS:
+        if test(mode):
+            return name
+    return "entry of unknown kind"
+
+
+def _probe_file(path: Path) -> tuple[str | None, str | None]:
+    """``(text, None)`` for a readable regular file, ``(None, None)`` when ABSENT, else ``(None, reason)``.
+
+    3b674 r2: ``Path.is_file()`` read a present but unreadable, dangling or wrong-kind file as
+    absent. Only ENOENT from ``lstat`` (``strict_kind``) is absent; a link that does not resolve,
+    any other failure to examine the entry, an entry that is not a regular file (named with its
+    kind, and never opened) and one that cannot be read or decoded are reasons naming the path."""
+    try:
+        kind = strict_kind(path)
+    except OSError as exc:
+        if _is_link(path) and exc.errno in (errno.ENOENT, errno.ELOOP):
+            return None, f"{path} is a link that does not resolve ({exc.strerror})"
+        return None, f"cannot read {path} ({exc.strerror})"
+    if kind is None:
+        return None, None
+    if kind != "file":
+        return None, f"{path} is present but is not a regular file (it is a {_kind_name(path)})"
+    return _read_strict(path)
+
+
 def _probe_private(private_dir: Path) -> tuple[dict[str, str | None], list[str]]:
     """The private candidate files' text, telling ABSENT from UNREADABLE.
 
@@ -349,25 +507,81 @@ def _probe_private(private_dir: Path) -> tuple[dict[str, str | None], list[str]]
     texts: dict[str, str | None] = {}
     errors: list[str] = []
     for rel in (REFERENCE_REL, PTODO_INDEX_REL, PTODO_REFERENCE_REL):
-        path = private_dir / rel
-        try:
-            kind = strict_kind(path)
-        except OSError as exc:
-            errors.append(f"cannot read {path} ({exc.strerror}); "
-                          "private index<->reference parity cannot be checked")
-            continue
-        if kind is None:
-            texts[rel] = None
-            continue
-        if kind != "file":
-            errors.append(f"{path} is present but is not a regular file")
-            continue
-        text, why = _read_strict(path)
+        text, why = _probe_file(private_dir / rel)
         if why is not None:
             errors.append(f"{why}; private index<->reference parity cannot be checked")
             continue
         texts[rel] = text
     return texts, errors
+
+
+def _probe_records(private_dir: Path) -> str | None:
+    """None when the store's ``.working/`` records tree is absent or fully readable, else an error.
+
+    3b674: the store-without-a-backlog pass rested on the records tree without examining it, so a
+    mode-000 ``.working``, or a link to one, passed and an unreadable tree read as an absent
+    backlog. The tree is walked, following links that stay inside the store (each directory once),
+    and every entry probed with ``strict_kind``: only ENOENT from ``lstat`` on ``.working`` itself
+    is absent. r2: a ``.working`` present but not a directory (a regular file, a FIFO, a socket, a
+    device) is NOT A DIRECTORY, named with its kind; an entry in the tree that is neither a regular
+    file nor a directory is an UNEXPECTED KIND and is never opened (opening a FIFO would block); a
+    link (``.working`` included) that resolves outside the store root is OUT OF STORE and is not
+    followed, whatever its target is (r3: the destination is checked before the kind, so a link out
+    of the store to a file, a FIFO or a missing path is out of store, not a wrong kind or an
+    unresolvable link); a link inside the store whose target is missing (ENOENT) or that loops (ELOOP) is UNRESOLVABLE; an
+    entry listed and then gone (ENOENT) is VANISHED, since the walk is incomplete; every other
+    failure (a directory that cannot be listed, a link that resolves but cannot be reached, a
+    regular file that cannot be opened and read, an I/O error) is UNREADABLE. Every message names
+    the path."""
+    top = private_dir / WORKING_REL
+    tree = f"the private store's records tree {top}"
+    tail = ("a records tree that cannot be read is not an absent backlog; private "
+            "index<->reference parity cannot be checked")
+    store = os.path.realpath(private_dir)
+    pending = [top]
+    seen: set[tuple[int, int]] = set()
+    while pending:
+        path = pending.pop()
+        try:
+            # r3: a link's destination is checked before its kind, so a link out of the store fails
+            # as such whatever its target is (a file, a FIFO, a missing path).
+            if _is_link(path):
+                target = os.path.realpath(path)
+                if os.path.commonpath([store, target]) != store:
+                    return (f"{tree} holds a link that resolves outside the store {store}: {path} "
+                            f"-> {target}; the walk does not follow it; {tail}")
+            kind = strict_kind(path)
+            if kind is None:
+                if path == top:
+                    return None
+                # listed a moment ago, gone now: the walk is incomplete, so it is not absent
+                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), str(path))
+            if path == top and kind != "dir":
+                return (f"{tree} is present but is not a directory (it is a {_kind_name(path)}); "
+                        f"{tail}")
+            if kind == "dir":
+                st = os.stat(path)
+                if (st.st_dev, st.st_ino) in seen:
+                    continue
+                seen.add((st.st_dev, st.st_ino))
+                pending.extend(path / name for name in sorted(os.listdir(path), reverse=True))
+            elif kind == "file":
+                with open(path, "rb") as fh:
+                    fh.read(1)
+            else:
+                return (f"{tree} holds an entry of unexpected kind: {path} is a {_kind_name(path)}, "
+                        f"neither a regular file nor a directory, and was not opened; {tail}")
+        except OSError as exc:
+            # r6: _is_link, not Path.is_symlink(), which raises on EACCES under Python 3.11, so
+            # this handler cannot raise; an entry it cannot examine is not a link.
+            if _is_link(path) and exc.errno in (errno.ENOENT, errno.ELOOP):
+                return (f"{tree} holds a link that does not resolve: {path} ({exc.strerror}); "
+                        f"{tail}")
+            if exc.errno == errno.ENOENT:
+                return (f"cannot read {tree}: {path} vanished during the walk ({exc.strerror}); "
+                        f"{tail}")
+            return f"cannot read {tree}: {path} ({exc.strerror}); {tail}"
+    return None
 
 
 def _classify_ptodo(path: Path, text: str) -> tuple[str | None, str | None]:
@@ -401,7 +615,9 @@ def _resolve_pairs(root: Path, private_dir: Path | None) -> tuple[list[tuple[str
     sibling), so PR-1 lands green on the old state and stays green after the
     restructure. A pair whose reference file is absent is a no-op (the two-file
     format is not adopted for that backlog yet), matching the original
-    adopter-graceful contract. ``private_dir`` is the private sibling root
+    adopter-graceful contract, except that an index-form P-TODO.md with no
+    P-TODO-REFERENCE.md is an error (half-converted, F1793-2), as is a P-TODO.md
+    in neither form (3b641 r3). ``private_dir`` is the private sibling root
     (``resolve_sibling('private')`` in production; ``--private-root`` or the
     ``--root`` directory under test); ``None`` means no private sibling (an adopter clone). Returns
     (active_pairs as (index text, reference text, labels), errors, the P-TODO.md form:
@@ -416,21 +632,23 @@ def _resolve_pairs(root: Path, private_dir: Path | None) -> tuple[list[tuple[str
 
     # Pair 1: public TODO. Index is required; reference resolves private-first
     # (post-move) then public (pre-move). Absent reference -> no-op.
+    # 3b674 r2: both files are probed with _probe_file, so only an lstat ENOENT is absent; a present
+    # TODO.md that cannot be read is reported as unreadable, not missing.
     todo_path = root / TODO_REL
-    if not todo_path.is_file():
+    todo_text, why = _probe_file(todo_path)
+    if why is not None:
+        errors.append(f"{why}; required file {TODO_REL} is present but unreadable, not missing; "
+                      "index<->reference parity cannot be checked")
+    elif todo_text is None:
         errors.append(f"required file missing: {todo_path}")
     else:
         ref_text = texts.get(REFERENCE_REL)
-        if ref_text is None and (root / REFERENCE_REL).is_file():
-            ref_text, why = _read_strict(root / REFERENCE_REL)
+        if ref_text is None:
+            ref_text, why = _probe_file(root / REFERENCE_REL)
             if why is not None:
                 errors.append(f"{why}; index<->reference parity cannot be checked")
         if ref_text is not None:
-            todo_text, why = _read_strict(todo_path)
-            if why is not None:
-                errors.append(f"{why}; index<->reference parity cannot be checked")
-            else:
-                pairs.append((todo_text, ref_text, TODO_REL, REFERENCE_REL))
+            pairs.append((todo_text, ref_text, TODO_REL, REFERENCE_REL))
 
     # Pair 2: private P-TODO. Only when the private sibling exists (adopters lack
     # it). Both index and reference must be present; pre-restructure P-TODO.md is
@@ -479,7 +697,8 @@ def run(root: Path, private_dir: Path | None = None, private_flag: str | None = 
         # r4 (VPR3B648-R3): a sibling holding other content and no backlog file is the README's
         # transitional fallback store for .working/ records, which other tools read; it passes
         # with the not-checked line below. Only an empty sibling (likely stray) or one holding
-        # TODO-REFERENCE.md without the P-TODO pair fails, and neither message says to rename it.
+        # TODO-REFERENCE.md without the P-TODO pair fails, and neither message says to rename it;
+        # 3b674 added a failure for an unlistable sibling and for an unreadable records tree.
         if private_flag is None and ptodo_kind is None:
             try:
                 entries = os.listdir(private_dir)
@@ -498,6 +717,12 @@ def run(root: Path, private_dir: Path | None = None, private_flag: str | None = 
                       f"(it holds {REFERENCE_REL} but neither {PTODO_INDEX_REL} nor "
                       f"{PTODO_REFERENCE_REL}); restore the pair there; private index<->reference "
                       "parity cannot be checked", file=sys.stderr)
+                return 2
+            # 3b674: a store without a backlog passes only when its records tree, if present,
+            # can be read; an unreadable or unresolvable one fails rather than reading as absent.
+            why_records = _probe_records(private_dir)
+            if why_records is not None:
+                print(f"ERROR: {why_records}", file=sys.stderr)
                 return 2
         # 3b641 r4 (VPR3B641-R3): --private-root declares the private input, so a directory
         # holding neither P-TODO file is an absent declared resource and fails with exit 2
@@ -597,13 +822,40 @@ def main(argv: list[str]) -> int:
     elif "--root" in seen:
         private_dir, private_flag = root, "--root"
     else:
-        private_dir = resolve_sibling("private")
+        # 3b674 r5: the path is probed BEFORE the non-strict lookup, whose Path.is_dir() raises
+        # PermissionError on EACCES under Python 3.11 (CI), so a present but unusable store fails
+        # with exit 2 here and the lookup runs only when the path is absent or a usable directory.
+        # An OSError the lookup still raises (the path changed after the probe) takes the same
+        # exit-2 path, so no Python version turns it into a traceback.
+        sibling_path = _default_private_path()
+        why_sibling = _probe_default_sibling(sibling_path, lookup_found_none=False)
+        if why_sibling is not None:
+            print(f"ERROR: {why_sibling}", file=sys.stderr)
+            return 2
+        try:
+            private_dir = resolve_sibling("private")
+        except OSError as exc:
+            print(f"ERROR: cannot examine the private sibling {sibling_path} ({exc.strerror}); "
+                  f"{_SIBLING_TAIL}", file=sys.stderr)
+            return 2
+        if private_dir is None:
+            # 3b674 r3: the non-strict lookup returns None for anything that is not a usable
+            # directory, so the gate examines the same path; only nothing there is absent.
+            why_sibling = _probe_default_sibling(sibling_path)
+            if why_sibling is not None:
+                print(f"ERROR: {why_sibling}", file=sys.stderr)
+                return 2
     if private_dir is None:
         # 3b635: without the private sibling the private pair (and, once TODO-REFERENCE.md
-        # has moved there, the public pair) is skipped with exit 0; say so. Only on the
+        # has moved there, the public pair) is skipped (exit 0 unless run() fails); say so. Only on the
         # DEFAULT lookup, as gates 78 and 81: a --root run is a fixture run, not CI.
+        # 3b674 r3: the public pair is called skipped only when its reference is absent; a
+        # present but broken one is not skipped, and run() fails on it.
+        # r4: the line is built only after TODO.md is classified too, so a present but broken
+        # TODO.md (a dangling link, a FIFO) is not called skipped before run() fails on it.
+        _, why_todo = _probe_file(root / TODO_REL)
         skipped = [f"the {PTODO_INDEX_REL} pair"]
-        if _first_existing(root / REFERENCE_REL) is None:
+        if why_todo is None and _absent(root / REFERENCE_REL):
             skipped.insert(0, f"the {TODO_REL} pair")
         print_degraded("gate 90",
                        f"gate 90 skipped the index<->reference parity check of "
