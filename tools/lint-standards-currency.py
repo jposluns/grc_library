@@ -9,8 +9,9 @@ those of the unchanged legacy Markdown stale check and a historical exception
 row that does not bind (INVALID_EXCEPTION, which blocks in every mode; 3b75
 below). Every other finding is advisory. A run also exits non-zero on errors
 that are not findings: an UNPINNED ratchet failure below, and the register,
-input and ratchet-base errors listed under Exit at the end. Explicit enforce
-mode supports migration fixtures; no gate invocation enables it in PR1.
+input and ratchet-base errors. Explicit enforce mode supports migration
+fixtures; no gate invocation enables it in PR1. Every exit status, and every
+condition that produces it, is listed once, under "Exit codes" at the end.
 
 3b75: a superseded edition cited as history passes only through a reviewed row
 of the TOML data file `.project-governance/register-historical-citation-exceptions.toml`;
@@ -25,7 +26,8 @@ Standard ID), which may only fall. A count above its baseline fails and names
 the standard and both counts. A baseline above its count also fails, so the
 recorded value is lowered in the PR that pins the citations; slack left in the
 baseline would let a later change add that many new unpinned citations
-unnoticed. A missing or unreadable baseline exits 2, a malformed one exits 1.
+unnoticed. A missing, unreadable or malformed baseline fails (statuses under
+Exit codes).
 
 The baseline itself ratchets (P-3.213 round 2): the same run reads the baseline
 as it stood at a base revision and fails when an entry is above its base value,
@@ -46,23 +48,17 @@ or tag whose name imitates a ref cannot stand in for it (round 4). A run is a
 GitHub Actions run only when GITHUB_ACTIONS is exactly the string "true" and
 GITHUB_EVENT_PATH names a readable file holding a JSON object; when GITHUB_ACTIONS is
 exactly "true" and the event file is unset, missing, unreadable or not a JSON object,
-the run exits 2 (round 4), and a run with any other GITHUB_ACTIONS value, or none, is
-local. In a pull_request run the base is HEAD^1 of the checked-out
+the run fails closed (round 4), and a run with any other GITHUB_ACTIONS value, or none,
+is local. In a pull_request run the base is HEAD^1 of the checked-out
 merge commit, read from git, and the payload's pull_request.base.sha must be that
 commit or an ancestor of it (the base branch may have moved after the event;
 round 4). In a push run the base is the payload's "before", which must be a
 proper ancestor of HEAD. A schedule or workflow_dispatch run (the nightly sweep,
 through tools/run_all_audits.sh), and every local run (tools/run_all_audits.sh,
 pre-commit, a direct run), takes the one merge base of HEAD and
-refs/remotes/origin/main. A --root that is not the top of a git work tree, a
-shallow repository (round 6), an Actions run whose event file is unset, missing,
-unreadable or not a JSON object, any other Actions event, a payload that names no
-valid commit, a pull_request base.sha that is neither HEAD^1 nor an ancestor of it,
-a HEAD that does not have exactly two parents in a pull_request run, a push "before" that is not
-a proper ancestor of HEAD, a missing ref, zero or several merge bases, a failing git
-call, a base whose register or baseline cannot be read, or a base whose default-scope
-files cannot be read where its counts are needed exits 2 with an "UNPINNED ratchet
-base" message; so does a base with no baseline file, except the one bootstrap. The one bootstrap
+refs/remotes/origin/main. A base that cannot be determined or read fails closed
+with an "UNPINNED ratchet base" message (each cause under Exit codes); so does a
+base with no baseline file, except the one bootstrap. The one bootstrap
 case is a base that predates the ratchet: no baseline file there, and the base's
 copy of this wrapper exists and does not name RATCHET_MARKER; a base with no
 baseline file and no copy of this wrapper fails closed. Such a run says so on a NOTE
@@ -90,11 +86,11 @@ PATH below. Every call also passes
 parents. The helper runs git by absolute path (round 6): git is resolved once with
 shutil.which on the fixed GIT_SEARCH_PATH (/usr/local/bin:/usr/bin:/bin), never the
 inherited PATH, and the child's PATH is set to that same value, so a substitute git
-earlier on the caller's PATH is not run; no git there exits 2 naming the searched
-path. A shallow file is not harmless: it can hide a commit's parents and so move
+earlier on the caller's PATH is not run; no git there fails closed naming the
+searched path. A shallow file is not harmless: it can hide a commit's parents and so move
 the merge base to an older commit. Before any base is computed the ratchet asks
 git, through the helper (rev-parse --is-shallow-repository), and a shallow
-repository exits 2 with a message that the base cannot be computed in a shallow
+repository fails closed with a message that the base cannot be computed in a shallow
 clone and that full history must be fetched. A failing call's message shows git's
 stderr without its advisory hint lines ("hint: ..." and a bare "hint:", with or
 without a trailing space), so a deprecation hint cannot hide the real error.
@@ -117,16 +113,94 @@ before the closing verdict line, which tools/run_all_audits.sh shows on a pass
 through the runner-echo marker; a --format json run prints no NOTE line and
 carries the totals in its report's inventories instead.
 
-Exit: 0 no blocking findings and no error; 1 blocking findings, an UNPINNED count off its
-baseline, a baseline entry above its base value or new without a new register
-row, a new row's entry or a bootstrap seed entry above its count at the base, a register
-row removed while the base records its entry, a malformed or empty
-canonical register, a malformed baseline, malformed historical register data,
-a historical register page out of step with its data, or (default run) a historical
-exception row naming a path outside the scan scope; 2 missing/unreadable intended
-inputs (the baseline included) or an out-of-root scan path, an empty --paths entry, a
---root that is empty, unreadable or not a directory, a command-line usage error, or an
-undeterminable or unreadable ratchet base.
+Exit codes. This is the one authoritative list of gate 6's exit statuses (P-3.213):
+the standards-currency rule, the audit programme specification, the pack README and
+the engine docstring summarize it and point here, so a change to an exit path updates
+this list and no other. Each condition names the function it comes from; main()
+returns every status, through the handler named.
+
+0  --help (argparse prints this docstring). Otherwise a run with no blocking finding
+   (coverage_report's exit is 0), no "FAIL:" ratchet line and no error below; advisory
+   findings and NOTE lines never change the status.
+
+1  Blocking findings, coverage_report's status (engine):
+   - a finding of the legacy Markdown stale check (check_text), in every mode;
+   - an INVALID_EXCEPTION (a historical exception row that does not bind), in every mode;
+   - with --coverage-mode enforce only, any other STALE, UNREGISTERED, NONCANONICAL_ID or
+     UNPINNED finding.
+   A "FAIL:" ratchet line (a default-scope run only; main sets report["exit"] to 1):
+   - unpinned_ratchet_lines: a standard's UNPINNED count above its baseline entry (0 when
+     it has none), or below it;
+   - base_ratchet_lines: an entry above its base value; a new entry for a standard the
+     base register already lists; a new register row's entry above that standard's
+     UNPINNED count at the base; a register row removed while the base baseline records
+     its entry; in the bootstrap, a seed entry above its count at the base.
+   A RegisterError (main's RegisterError handler):
+   - parse_register_text: a malformed or empty canonical register in the tree (a table
+     row without outer pipes, an unknown header, a bad separator, a wrong cell count, an
+     empty identifier or current version, a repeated identity, no entries);
+   - parse_unpinned_baseline: a malformed baseline in the tree (not JSON, a repeated key,
+     NaN or Infinity, no "unpinned" object, an unknown top-level key, a "_comment" that is
+     not a string, a key that is not a register Standard ID, a count that is not an
+     integer of at least 1);
+   - parse_historical_exceptions, through historical_citation_register.load: malformed
+     historical-citation exception data, or a row that fails a policy check;
+   - main, through historical_citation_register.sync_problem: a register page missing
+     while the data exists, or a page (with no data, one that exists) that fails the page
+     checks: a generated table that differs from the data (the empty table when there is
+     no data), missing or misordered sentinels, a line ending other than LF, or content
+     outside the table that sync_problem refuses;
+   - main: on a default run, a historical exception row naming a path outside the scan
+     scope.
+   Any exception main does not catch (a defect, or a failed engine import) ends in a
+   Python traceback, status 1.
+
+2  argparse (parse_args): a command-line usage error (an unknown option, --paths with no
+   value, a --coverage-mode or --format value outside its choices).
+   lint_common.require_dir: a --root that is empty, unreadable or unresolvable, or not a
+   directory as given.
+   main: an empty --paths entry.
+   main's OSError and UnicodeError handler:
+   - parse_canonical_register: the canonical register missing, unreadable or not UTF-8;
+   - main: the baseline in the tree missing, unreadable or not UTF-8 (a default-scope run
+     only);
+   - main (_read): the historical data or page unreadable for any reason but absence, or
+     not UTF-8;
+   - iter_files: an out-of-root scan path (within, a symlink whose target is outside the
+     root included); a missing explicit path, checked before the exclusion filter; a
+     directory symlink in the scan scope, as a scan root or a descendant; an entry that is
+     neither a file nor a directory; an unreadable directory (os.scandir);
+   - coverage_report (engine): a scanned file that is unreadable or not UTF-8;
+   - ratchet_base, base_unpinned_counts: git output that is not ASCII where an object id
+     or listing is read.
+   main's RatchetBaseError handler, with an "UNPINNED ratchet base" message (a
+   default-scope run only):
+   - _git_executable: no git on GIT_SEARCH_PATH;
+   - _git: a git call that does not run, times out (GIT_TIMEOUT) or exits non-zero;
+   - _ref, _commit: a missing ref (HEAD or refs/remotes/origin/main), or a revision that
+     is not a commit in the clone;
+   - ratchet_base: a --root that is not the top of a git work tree; a shallow repository;
+     in a pull_request run, a HEAD without exactly two parents, or a base.sha that is
+     neither HEAD^1 nor an ancestor of it; in a push run, a "before" that is not a proper
+     ancestor of HEAD; an Actions event other than pull_request, push, schedule and
+     workflow_dispatch; zero or several merge bases of HEAD and refs/remotes/origin/main;
+   - _actions_event: GITHUB_ACTIONS exactly "true" with GITHUB_EVENT_PATH unset or empty,
+     or naming a file that is missing, unreadable, not UTF-8 JSON, has a repeated key, or
+     is not a JSON object;
+   - _payload_sha: a payload with no value at the key the event needs, or a value that is
+     not a full object id (or is all zeros);
+   - _blob_at: a base path that holds a tree or gitlink, or a blob that is not UTF-8;
+   - base_ratchet_lines: a base with no baseline file whose copy of this wrapper is
+     missing or already names RATCHET_MARKER (only a copy without the marker is the
+     bootstrap); a base with a baseline file but no canonical register; a malformed or
+     empty base register or a malformed base baseline (parse_register_text and
+     parse_unpinned_baseline, the same checks that exit 1 in the tree);
+   - base_unpinned_counts (the bootstrap, or a new register row's entry): a path in the
+     base tree that is not canonical, a blob git cat-file does not return, or a base scope
+     that cannot be scanned (any OSError, UnicodeError or ValueError, iter_files's
+     refusals above included).
+
+No other status: main returns only these, and the script exits with sys.exit(main()).
 """
 
 from __future__ import annotations

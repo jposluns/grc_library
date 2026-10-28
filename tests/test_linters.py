@@ -3403,6 +3403,36 @@ class StandardsCurrencyTests(LinterTestCase):
             self.assertEqual(result.returncode, 1, (text, result.stdout[-300:], result.stderr))
             self.assertIn("UNPINNED baseline " + self.BASELINE_REL, result.stderr, text)
 
+    def test_malformed_base_baseline_or_register_exits_2_and_head_exits_1(self) -> None:
+        # The wrapper docstring's Exit codes list: a malformed baseline or register in the tree
+        # exits 1 (a RegisterError), but the same data at the ratchet base exits 2 with the
+        # "UNPINNED ratchet base" message (base_ratchet_lines turns the RegisterError into a
+        # RatchetBaseError). The tree's own baseline and register are well formed here.
+        doc, counts = "ISO/IEC 27001 applies.\n", {"ISO/IEC 27001": 1}
+        for text in ("not json", '{"unpinned": []}', '{"unpinned": {"ISO/IEC 27001": 0}}',
+                     '{"unpinned": {"ISO/IEC 27001": 1}, "extra": 1}'):
+            with self.subTest(base_baseline=text):
+                result = self._run_ratchet(self._ratchet_root(doc, counts, base_baseline=text))
+                self.assertEqual(result.returncode, 2, (text, result.stdout[-300:], result.stderr))
+                self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr)
+                self.assertIn("UNPINNED baseline " + self.BASELINE_REL, result.stderr)
+            with self.subTest(head_baseline=text):
+                result = self._run_ratchet(self._ratchet_root(doc, text, base_baseline=counts))
+                self.assertEqual(result.returncode, 1, (text, result.stdout[-300:], result.stderr))
+                self.assertNotIn("UNPINNED ratchet base", result.stderr)
+                self.assertIn("UNPINNED baseline " + self.BASELINE_REL, result.stderr)
+        malformed = self.RATCHET_REGISTER.replace("| Standard ID |", "| Standard Id |", 1)
+        self.assertNotEqual(malformed, self.RATCHET_REGISTER)
+        result = self._run_ratchet(self._ratchet_root(doc, counts, base_register=malformed))
+        self.assertEqual(result.returncode, 2, result.stdout[-300:] + result.stderr)
+        self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr)
+        self.assertIn("malformed header", result.stderr)
+        head = self._ratchet_root(doc, counts)
+        (head / self.REGISTER_REL).write_text(malformed, encoding="utf-8")
+        result = self._run_ratchet(head)
+        self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
+        self.assertIn("malformed header", result.stderr)
+
     # P-3.213 round 2: the baseline itself may only fall relative to a base revision.
     def test_baseline_entry_raised_above_its_base_value_fails(self) -> None:
         # Adding an unpinned citation and raising its entry in the same change passes the
@@ -32093,7 +32123,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-skill-internal-refs.py ROOT F b2b1fc4846ca52b298fe12ee712477bfac97e173e3ac6368e72c5edd6c28b50e
         lint-skill-verdict-carrier-completeness.py OWN F 7056be9141352daf10807f17e9941fb422a84cbf43eae4fff9549efd3684f5a3
         lint-ssdf-control-ids.py CWD F fc3326619bde8b0c6389a3ac7a4b5b79e06ab9e3195e471b6d766f067e06a60f
-        lint-standards-currency.py OWN F 6f6190fc452300ce5530bc09b375ba3828e11afc65ed061d61effe184025e55a
+        lint-standards-currency.py OWN F 0f7d1fb53c43db89f2ae69112ecc226e138e512bd85adb6f277605e403a39dd3
         lint-startup-character-ceiling.py NO_FS F aeaaf73e5efe319cb6881277ca5b7abef8db708826fe1bf0a241559d7d58a060
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1

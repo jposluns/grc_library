@@ -24,7 +24,9 @@ also fails on errors that are not findings: a failure of the unpinned ratchet
 below where a project holds one, a malformed input or a failed base read
 (below), and the register and input errors in the last paragraph. Explicit
 enforce mode additionally blocks those recognized citation findings; PR1 gate
-invocations do not enable it.
+invocations do not enable it. This rule states classes only: the project
+wrapper's module docstring holds the one authoritative list of exit statuses
+and of every condition that produces each.
 
 A project may hold a per-standard ratchet on missing edition pins: a
 checked-in baseline of each standard's unpinned count, which may only fall.
@@ -47,17 +49,10 @@ remote-tracking ref. A run is a CI run only when the CI flag
 (`GITHUB_EVENT_PATH`) names a readable file holding an object; when the flag
 is exactly `true` and the event file is unset, missing, unreadable or not an
 object, the run fails closed, and a run with any other flag value, or none, is
-local. A missing, unreadable or malformed baseline fails. The base read fails
-closed on a project root that is not the top of a work tree, a shallow
-repository, a CI run whose event file is unset, missing, unreadable or not an
-object, a CI event with no base rule, an event that names no valid commit, a
-pull request base that is neither the first parent of the checked-out merge
-commit nor an ancestor of it, a checked-out commit that does not have exactly
-two parents in a pull request run, a push's previous tip that is not a proper ancestor of
-the pushed commit, a missing ref, zero or several merge bases, a failing git
-call, a base whose register or baseline cannot be read, and a base whose
-default-scope files cannot be read where its counts are needed; a base with no
-baseline fails too, except the one bootstrap: a base that predates the ratchet,
+local. A missing, unreadable or malformed baseline fails. A base that cannot
+be determined, or whose register, baseline or default-scope files cannot be
+read or are malformed, fails closed (the wrapper's list names each cause); a
+base with no baseline fails too, except the one bootstrap: a base that predates the ratchet,
 that is, one with no baseline whose copy of the gate exists and does not yet
 hold the ratchet. A base with no baseline and no copy of the gate fails
 closed, and so does a base with no baseline whose copy of the gate holds the
@@ -156,6 +151,8 @@ malformed or empty canonical register, or a malformed historical register,
 fails.
 
 The project wrapper owns the register schema, publication surfaces, exclusions
-and exception reasons. Malformed or empty registers fail; missing or unreadable
-intended inputs are environmental errors. Reports include counts and every
-finding location, and do not claim cleanliness while review items remain.
+and exception reasons. Malformed or empty registers fail; missing, unreadable or
+unsafe intended inputs (a scan path outside the root, a directory symlink in
+the scan scope) are environmental errors, as is a base that cannot be
+determined or read. Reports include counts and every finding location, and do
+not claim cleanliness while review items remain.

@@ -17,6 +17,10 @@ declaration that does not bind blocks in every mode (3b75).
 identity_counts, ratchet and count_summary let a project hold a per-identity
 count that may only fall (the grc wrapper ratchets UNPINNED per standard);
 the baseline, its file and its failure policy are the wrapper's.
+The report's exit is 1 exactly when a blocking finding remains; a file that
+cannot be read as UTF-8 raises to the caller. Every exit status of a run,
+error exits included, is the wrapper's: the grc wrapper's module docstring
+(tools/lint-standards-currency.py, "Exit codes") is the one list of them.
 
 Discovery reads a NIST SP 800-63 family revision suffix as an edition
 ("NIST SP 800-63B-4" is identity "NIST SP 800-63B" at "Rev. 4"), but
