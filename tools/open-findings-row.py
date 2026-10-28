@@ -15,6 +15,7 @@ Usage:
         [--delivery PATH [--source-key KEY]] < row
     python3 -I tools/open-findings-row.py --id ID --append [--ledger PATH] [--dry-run] [--open]
         [--delivery PATH [--source-key KEY]] < row
+    python3 -I tools/open-findings-row.py --set-disposition --id ID [--ledger PATH] [--dry-run] < cell
     python3 -I tools/open-findings-row.py --self-test
 
 ROW INPUT. Exactly one table line on stdin (UTF-8, at most one trailing LF), never in argv, so the row
@@ -37,6 +38,37 @@ PLACEMENT.
                      fenced lines and header rows are never candidates.
   --append           after the newest ISO-dated row the guard reads in `## Open` (the latest Found
                      date; a tie goes to the last in file order), not blindly at end of file.
+
+SET DISPOSITION. --set-disposition --id ID changes one existing row in place instead of adding one,
+for example ROUTED <id> to FIXED #N (sha) [class: ...] once the fix merges, which was done by hand.
+stdin carries the new Disposition cell text, never a row: one line (UTF-8, at most one trailing LF),
+surrounding whitespace dropped as the guard's str.strip drops it. The target is the one row the guard
+reads in `## Open` or `## Closed today` whose Finding cell leads with [ID] (any severity; a header
+the guard parses as a row is a candidate, so it can make the id ambiguous); fenced lines, the dated
+archive and mis-filed rows outside both sections are never targets. Only the text of that row's
+last cell, between its last two unescaped pipes (or after the last one when the row has no
+trailing border pipe), is replaced, written as one space, the cell, one space; every other line,
+the other cells, the line ends and the final line end are kept byte for byte. The changed row is
+then held to the same checks as a new row: check_row (columns, Found date, severity, disposition
+grammar, class clauses, the id), the splice re-parse (the guard must read the same rows with only
+this row's disposition changed, and the mis-filed list must not change), the merge guard's
+decide_exit before and after, and the report-only class count over this checkout's git-tracked
+set. Its refusals (exit 1) are the stdin ones above plus disposition-empty (an empty or blank cell;
+--open is not accepted here, so this mode never writes an undispositioned row), id-invalid,
+id-not-found (no row leads with [ID] in those sections), id-ambiguous (more than one; the second's
+line is given), malformed-columns (an unescaped pipe in the cell, or a target row that already has
+the wrong column count), the row checks above, splice-mismatch, misfiled-grew and
+merge-guard-regressed. The output is the ledger line, the target's line number and section, the
+row verdict, the class-count line and the merge-guard line: no cell text and no id. --after,
+--append, --open, --delivery and --source-key are usage errors with it (exit 2). The write is the
+same atomic_replace transaction, and --dry-run runs the same pre-flight. RESIDUES, stated: the
+whole changed row is checked, so a row the tool would not have written (a Found date that is not
+ISO, a severity outside the vocabulary) cannot be dispositioned with it until it is corrected by
+hand; a row with the same id in the archive or mis-filed outside the two sections is neither a
+target nor a conflict; the tool does not check that the new disposition is true (that #N merged,
+that the sha is on the default branch, that the attested class count is current), only that the
+guard reads it as the author intends; and a disposition that was valid before is replaced without
+comparison, so a FIXED row can be set back to ROUTED.
 
 REFUSALS (exit 1). not-utf8, multiline, bad-line-char (a CR or another character str.splitlines
 treats as a line break), malformed-columns, severity-unknown, disposition-invalid, disposition-empty
@@ -297,6 +329,18 @@ def decode_row(raw: bytes) -> tuple[str | None, list[str]]:
     if row.splitlines() != [row]:
         return None, ["bad-line-char"]
     return row, []
+
+
+def decode_cell(raw: bytes) -> tuple[str | None, list[str]]:
+    """PURE. (cell, refusal codes) from the --set-disposition stdin bytes: decode_row's checks, then the
+    guard's str.strip; an empty or blank cell is disposition-empty."""
+    if raw in (b"", b"\n"):
+        return None, ["disposition-empty"]
+    cell, codes = decode_row(raw)
+    if codes:
+        return None, codes
+    cell = cell.strip()
+    return (cell, []) if cell else (None, ["disposition-empty"])
 
 
 def split_lines(text: str) -> tuple[list[str], str, bool]:
@@ -736,8 +780,7 @@ def evaluate(hook, text: str, row: str, finding_id: str, *, after_id: str | None
     lines, eol, final = split_lines(text)
     kinds = classify(hook, lines)
     cross_check(hook, text, lines, kinds)
-    report = [f"ledger: line-model ok ({'CRLF' if eol == chr(13) + chr(10) else 'LF'}); "
-              f"{kinds.count('open')} open row(s), {kinds.count('closed')} closed-today row(s)"]
+    report = [ledger_report(eol, kinds)]
     codes, parsed = check_row(hook, row, finding_id, allow_open=allow_open)
     if codes:
         return codes, report, None
@@ -771,6 +814,99 @@ def evaluate(hook, text: str, row: str, finding_id: str, *, after_id: str | None
     report.append(f"merge-guard: before {'block' if code_b else 'allow'}, "
                   f"after {'block' if code_a else 'allow'}{note}")
     if code_a and not code_b and not expected_block:
+        refusals.append("merge-guard-regressed")
+    return refusals, report, (None if refusals else new_text)
+
+
+def ledger_report(eol: str, kinds: list[str | None]) -> str:
+    """The report's first line: the line model and the row counts per section."""
+    return (f"ledger: line-model ok ({'CRLF' if eol == chr(13) + chr(10) else 'LF'}); "
+            f"{kinds.count('open')} open row(s), {kinds.count('closed')} closed-today row(s)")
+
+
+def target_line(hook, lines: list[str], kinds: list[str | None], finding_id: str) -> tuple[int, str]:
+    """(0-based index, section) of the one row the guard reads in `## Open` or `## Closed today` whose
+    Finding cell leads with [finding_id]; no severity screen, so a parsed header can make it ambiguous.
+    Raises Refusal."""
+    hits = [(i, k) for i, (line, k) in enumerate(zip(lines, kinds))
+            if k in ("open", "closed") and hook.leading_class_token(single_row(hook, line)[2]) == finding_id]
+    if not hits:
+        raise Refusal("id-not-found")
+    if len(hits) > 1:
+        raise Refusal("id-ambiguous", hits[1][0] + 1)
+    return hits[0]
+
+
+def replace_last_cell(line: str, cell: str) -> str:
+    """PURE. ``line`` with the text of its last cell, by the guard's unescaped-pipe split, replaced by one
+    space, ``cell`` and (before a trailing border pipe) one space; all else is kept as it was."""
+    body = line.rstrip()
+    pipes = [m.start() for m in CELL_SPLIT_RE.finditer(body)]
+    if len(pipes) >= 2 and pipes[-1] == len(body) - 1:
+        return line[:pipes[-2] + 1] + " " + cell + " " + line[pipes[-1]:]
+    return line[:pipes[-1] + 1] + " " + cell + line[len(body):]
+
+
+def verify_replace(hook, before: str, after: str, lines: list[str], kinds: list[str | None],
+                   old: tuple, parsed: tuple, at: int, section: str) -> list[str]:
+    """Refusal codes from re-parsing the changed text: every other line is unchanged, every line keeps
+    its kind, the guard reads exactly the earlier rows with only this row's disposition changed, and the
+    mis-filed list does not change."""
+    out = []
+    a_lines, _eol, _final = split_lines(after)
+    a_kinds = classify(hook, a_lines)
+    cross_check(hook, after, a_lines, a_kinds)
+    k_open = kinds[:at].count("open")
+    k_both = k_open + kinds[:at].count("closed")
+    open_b = hook.parse_open_rows_full(before)
+    both_b = hook.parse_dispositioned_rows_full(before)
+    want_open = open_b[:k_open] + [parsed] + open_b[k_open + 1:] if section == "open" else open_b
+    want_both = both_b[:k_both] + [parsed] + both_b[k_both + 1:]
+    if (len(a_lines) != len(lines) or a_lines[:at] + a_lines[at + 1:] != lines[:at] + lines[at + 1:]
+            or a_kinds != kinds or parsed[:3] != old[:3] or single_row(hook, a_lines[at]) != parsed
+            or hook.parse_open_rows_full(after) != want_open
+            or hook.parse_dispositioned_rows_full(after) != want_both):
+        out.append("splice-mismatch")
+    if ([(s, ln) for (_n, s, ln) in hook.misfiled_finding_rows(after)]
+            != [(s, ln) for (_n, s, ln) in hook.misfiled_finding_rows(before)]):
+        out.append("misfiled-grew")
+    return out
+
+
+def evaluate_disposition(hook, text: str, cell: str, finding_id: str, *,
+                         probe=None) -> tuple[list[str], list[str], str | None]:
+    """--set-disposition: the whole decision for one Disposition cell against one ledger text, held to
+    evaluate()'s row checks: (refusals, report lines, new text or None). Pure apart from ``probe``.
+    Raises EnvError when the line model or row map cannot be trusted."""
+    lines, eol, final = split_lines(text)
+    kinds = classify(hook, lines)
+    cross_check(hook, text, lines, kinds)
+    report = [ledger_report(eol, kinds)]
+    if hook.leading_class_token("[" + finding_id + "]") != finding_id:
+        return ["id-invalid"], report, None
+    try:
+        at, section = target_line(hook, lines, kinds, finding_id)
+    except Refusal as exc:
+        return [str(exc)], report, None
+    report.append(f"target: line {at + 1} ({section})")
+    row = replace_last_cell(lines[at], cell)
+    codes, parsed = check_row(hook, row, finding_id, allow_open=False)
+    if codes:
+        return codes, report, None
+    _found, sev, finding, disp = parsed
+    new_text = eol.join(lines[:at] + [row] + lines[at + 1:]) + (eol if final else "")
+    refusals = [] if disp == cell else ["splice-mismatch"]
+    refusals += verify_replace(hook, text, new_text, lines, kinds, single_row(hook, lines[at]), parsed,
+                               at, section)
+    owed = hook.is_fixed_disposition(disp) and hook.leading_class_token(finding)
+    report.append(
+        "row: columns ok; severity ok; disposition " + ("not checked (note)" if sev == "note" else "ok")
+        + "; class-attestation " + (hook.class_attestation_state(disp) if owed else "not owed"))
+    report.append(class_count_report(hook, finding, disp, probe))
+    code_b, code_a = merge_guard_code(hook, text), merge_guard_code(hook, new_text)
+    report.append(f"merge-guard: before {'block' if code_b else 'allow'}, "
+                  f"after {'block' if code_a else 'allow'}{' (existing block, reported only)' if code_b else ''}")
+    if code_a and not code_b:
         refusals.append("merge-guard-regressed")
     return refusals, report, (None if refusals else new_text)
 
@@ -964,7 +1100,8 @@ def _refuse(codes: list[str]) -> int:
 
 def _run(args, root: Path, raw: bytes) -> int:
     hook = load_hook(root)
-    row, codes = decode_row(raw)
+    # stdin is the Disposition cell under --set-disposition, else the whole row.
+    value, codes = decode_cell(raw) if args.set_disposition else decode_row(raw)
     if codes:
         return _refuse(codes)
     path = args.ledger
@@ -983,8 +1120,11 @@ def _run(args, root: Path, raw: bytes) -> int:
         text = data.decode("utf-8")
     except UnicodeDecodeError as exc:
         raise EnvError("ledger-not-utf8") from exc
-    refusals, report, new_text = evaluate(hook, text, row, args.id, after_id=args.after,
-                                          allow_open=args.allow_open, probe=make_probe(root))
+    if args.set_disposition:
+        refusals, report, new_text = evaluate_disposition(hook, text, value, args.id, probe=make_probe(root))
+    else:
+        refusals, report, new_text = evaluate(hook, text, value, args.id, after_id=args.after,
+                                              allow_open=args.allow_open, probe=make_probe(root))
     if args.delivery is not None:
         # Report only (3b544): the line never refuses and never changes the exit code.
         report.append(delivery_report(hook, text if new_text is None else new_text, args.delivery,
@@ -1018,6 +1158,9 @@ def main(argv: list[str] | None = None, *, root: Path | None = None, stdin: byte
                        help="insert after the one Open or Closed-today row led by [ANCHOR_ID]")
     where.add_argument("--append", action="store_true",
                        help="insert after the newest dated row the guard reads as Open")
+    where.add_argument("--set-disposition", action="store_true",
+                       help="replace only the Disposition cell of the one Open or Closed-today row led by "
+                            "[ID] with the cell text on stdin")
     ap.add_argument("--ledger", type=ledger_path,
                     help="ledger path (default: resolve_working, strict); a value ending in / or /. "
                          "is refused (ledger-path-directory-suffix)")
@@ -1033,8 +1176,11 @@ def main(argv: list[str] | None = None, *, root: Path | None = None, stdin: byte
                          "for the parts the delivery does not carry; parts it carries must agree")
     ap.add_argument("--self-test", action="store_true", help="run the built-in self-test and exit")
     args = ap.parse_args(argv)
-    if not args.self_test and (args.id is None or (args.after is None and not args.append)):
-        ap.error("--id and one of --after or --append are required")
+    if not args.self_test and (args.id is None
+                               or (args.after is None and not args.append and not args.set_disposition)):
+        ap.error("--id and one of --after, --append or --set-disposition are required")
+    if args.set_disposition and (args.allow_open or args.delivery is not None or args.source_key is not None):
+        ap.error("--set-disposition takes no --open, --delivery or --source-key")
     if args.source_key is not None and args.delivery is None:
         ap.error("--source-key needs --delivery")
     if args.self_test:
@@ -1200,6 +1346,38 @@ def self_test() -> int:
         raise OSError("no git")
     ck("class count: probe failure is a warning", class_count_report(hook, "[X] f", 'FIXED #1 [class: "t" @ 2]',
                                                                      broken).startswith("class-count: WARNING"), True)
+
+    def sd(text, cell, fid="OPEN-A"):
+        return evaluate_disposition(hook, text, cell, fid)
+
+    fixed = "FIXED #2800 [class-exempt: singleton]"
+    refusals, report, new = sd(led, fixed)
+    ck("set-disposition: no refusal", (refusals, "target: line 12 (open)" in report), ([], True))
+    want = led.splitlines()
+    want[11] = "| 2026-10-02 | warning | [OPEN-A] first open | probe | " + fixed + " |"
+    ck("set-disposition: only the last cell of the target changes", new, "\n".join(want) + "\n")
+    ck("set-disposition: a Closed-today row", sd(led, fixed, fid="CLOSED-A")[1][1], "target: line 20 (closed)")
+    bare = led.replace("| probe | ROUTED 3b330 |", "| probe | ROUTED 3b330")
+    ck("set-disposition: a row with no trailing border pipe", sd(bare, fixed)[2].splitlines()[11],
+       "| 2026-10-02 | warning | [OPEN-A] first open | probe | " + fixed)
+    for fid in ("NOPE-1", "FENCED-1", "ARCH-A"):
+        ck(f"set-disposition: no target row ({fid})", sd(led, fixed, fid=fid)[0], ["id-not-found"])
+    ck("set-disposition: two target rows", sd(twice, fixed)[0], ["id-ambiguous (line 14)"])
+    ck("set-disposition: an id that is not token-shaped", sd(led, fixed, fid="a b")[0], ["id-invalid"])
+    ck("set-disposition: an invalid disposition", sd(led, "FIXED d44d9b2b")[0], ["disposition-invalid"])
+    ck("set-disposition: a FIXED class row with no clause", sd(led, "FIXED #2800")[0], ["class-unattested"])
+    ck("set-disposition: an unescaped pipe in the cell", sd(led, "ROUTED 3b330 | x")[0], ["malformed-columns"])
+    ck("set-disposition: an escaped pipe in the cell", sd(led, "ROUTED 3b330 \\| x")[0], [])
+    refusals, _report, new = sd(crlf, fixed)
+    ck("set-disposition: a CRLF ledger keeps CRLF", (refusals, new.count("\r\n")), ([], crlf.count("\r\n")))
+    for cell in ("FIXED (" + sentinel + ")", "ROUTED 3b330 " + sentinel):
+        refusals, report, _ = sd(led, cell)
+        ck(f"set-disposition: output carries no cell text or id ({len(refusals)} refusal(s))",
+           any(sentinel in s or "OPEN-A" in s for s in refusals + report), False)
+    ck("set-disposition stdin: empty", decode_cell(b"\n"), (None, ["disposition-empty"]))
+    ck("set-disposition stdin: blank", decode_cell(b" \t\n"), (None, ["disposition-empty"]))
+    ck("set-disposition stdin: two lines", decode_cell(b"ROUTED 3b330\nx\n"), (None, ["multiline"]))
+    ck("set-disposition stdin: stripped", decode_cell(b" ROUTED 3b330 \n"), ("ROUTED 3b330", []))
 
     tail = "FINDINGS: 0 ERROR, 1 WARN, 2 NOTE\nVERDICT: SHIP\nVPR-COMPLETE 3b540 f2a53df9f\n"
     totals, parts = parse_delivery(

@@ -32645,7 +32645,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        open-findings-row.py OWN F 1e0adb85988274a3d7e9431845d10d69580a644ab6f0adadce96c037e6eb40d1
+        open-findings-row.py OWN F bb76637666e1b555366d2f1655808050c890affc6cbc3aed92486ee034d9506c
         pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
@@ -65697,6 +65697,129 @@ class OpenFindingsRowTests(unittest.TestCase):
                     "an empty error row blocks the merge guard",
                     normalized,
                 )
+
+
+class OpenFindingsRowSetDispositionTests(unittest.TestCase):
+    """tools/open-findings-row.py --set-disposition: one existing row's Disposition cell, changed in place
+    and checked with the guard's own functions as a new row is, so a hand edit from ROUTED to FIXED can no
+    longer write a disposition the guard rejects. Every ledger is a synthetic temp-dir file."""
+
+    LEDGER = OpenFindingsRowTests.LEDGER
+    FIXED = "FIXED #2800 (f2a53df9f) [class-exempt: singleton]"
+    OPEN_A = "| 2026-10-02 | warning | [OPEN-A] first open | probe | "
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.dir = Path(self._tmp.name)
+        self.ledger = self.dir / "open-findings.md"
+        self.ledger.write_text(self.LEDGER, encoding="utf-8")
+
+    def run_tool(self, cell: str, fid: str, *args: str) -> tuple[int, str, str]:
+        done = subprocess.run(
+            [sys.executable, "-I", str(OpenFindingsRowTests.TOOL), "--ledger", str(self.ledger),
+             "--set-disposition", "--id", fid, *args],
+            input=(cell + "\n").encode("utf-8"), capture_output=True, cwd=str(REPO_ROOT), timeout=300)
+        return done.returncode, done.stdout.decode("utf-8", "replace"), done.stderr.decode("utf-8", "replace")
+
+    def assertRefused(self, cell: str, code: str, fid: str = "OPEN-A") -> None:
+        before = (self.ledger.read_bytes(), os.stat(self.ledger).st_mtime_ns)
+        rc, out, err = self.run_tool(cell, fid)
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn(f"refused: {code}", err)
+        self.assertIn("result: REFUSED", out)
+        self.assertEqual((self.ledger.read_bytes(), os.stat(self.ledger).st_mtime_ns), before)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+        self.assertNotIn(fid, out + err)
+
+    def test_sets_open_row_and_reports_lines_only(self) -> None:
+        rc, out, err = self.run_tool(self.FIXED, "OPEN-A")
+        self.assertEqual(rc, 0, out + err)
+        self.assertEqual(out.splitlines()[1:2], ["target: line 12 (open)"])
+        self.assertIn("merge-guard: before allow, after allow", out)
+        self.assertEqual(out.splitlines()[-1], "result: WROTE")
+        self.assertEqual(self.ledger.read_text(encoding="utf-8"),
+                         self.LEDGER.replace(self.OPEN_A + "ROUTED 3b330 |", self.OPEN_A + self.FIXED + " |"))
+        self.assertNotIn("OPEN-A", out + err)
+        self.assertNotIn("2800", out + err)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_every_other_line_is_byte_identical(self) -> None:
+        # CRLF line ends, trailing spaces after the border pipe and a row with no trailing border pipe.
+        text = self.LEDGER.replace("| ROUTED TODO 3.73 |", "| ROUTED TODO 3.73 |  ")
+        text = text.replace("| probe | ROUTED 3b330 |", "| probe | ROUTED 3b330").replace("\n", "\r\n")
+        self.ledger.write_bytes(text.encode("utf-8"))
+        for fid, at in (("OPEN-B", 12), ("OPEN-A", 11), ("CLOSED-A", 19)):
+            with self.subTest(fid=fid):
+                before = self.ledger.read_bytes().split(b"\r\n")
+                rc, out, err = self.run_tool(self.FIXED, fid)
+                self.assertEqual(rc, 0, out + err)
+                after = self.ledger.read_bytes().split(b"\r\n")
+                self.assertEqual(len(after), len(before))
+                self.assertEqual(after[:at] + after[at + 1:], before[:at] + before[at + 1:])
+                body = before[at].rstrip()
+                stem = body[:-1] if body.endswith(b"|") else body
+                cell = b"| " + self.FIXED.encode("utf-8") + (b" |" if stem != body else b"")
+                self.assertEqual(after[at], stem[:stem.rfind(b"|")] + cell + before[at][len(body):])
+        self.assertNotIn(b"\n", self.ledger.read_bytes().replace(b"\r\n", b""))
+
+    def test_closed_today_row_dry_run_writes_nothing(self) -> None:
+        before = (self.ledger.read_bytes(), os.stat(self.ledger).st_mtime_ns)
+        rc, out, err = self.run_tool(self.FIXED, "CLOSED-A", "--dry-run")
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("target: line 20 (closed)", out)
+        self.assertEqual(out.splitlines()[-1], "result: WOULD-WRITE")
+        self.assertEqual((self.ledger.read_bytes(), os.stat(self.ledger).st_mtime_ns), before)
+
+    def test_attested_class_clause_goes_through_the_matcher(self) -> None:
+        import secrets
+        token = "zzq-" + secrets.token_hex(24)
+        rc, out, err = self.run_tool(f'FIXED #2800 [class: "{token}" @ 0]', "OPEN-A", "--dry-run")
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("class-attestation class", out)
+        self.assertIn("class-count: reproduced 0 = attested 0", out)
+
+    def test_refuses_no_matching_row(self) -> None:
+        for fid in ("NOPE-1", "FENCED-1", "ARCH-A"):
+            with self.subTest(fid=fid):
+                self.assertRefused(self.FIXED, "id-not-found", fid=fid)
+
+    def test_refuses_two_matching_rows(self) -> None:
+        self.ledger.write_text(self.LEDGER.replace("[OPEN-C]", "[OPEN-A]"), encoding="utf-8")
+        self.assertRefused(self.FIXED, "id-ambiguous (line 14)")
+
+    def test_refuses_invalid_disposition(self) -> None:
+        for cell in ("FIXED d44d9b2b", "FIXED (pending merge)", "ROUTED pending-decisions"):
+            with self.subTest(cell=cell):
+                self.assertRefused(cell, "disposition-invalid")
+
+    def test_refuses_fixed_without_class_attestation(self) -> None:
+        self.assertRefused("FIXED #2800 (f2a53df9f)", "class-unattested")
+        self.assertRefused("FIXED #2800 [class-exempt: too-hard]", "class-bad-exempt")
+
+    def test_refuses_pipe_in_cell(self) -> None:
+        self.assertRefused("ROUTED 3b330 | x", "malformed-columns")
+
+    def test_refuses_empty_cell_and_other_modes_flags(self) -> None:
+        self.assertRefused("  ", "disposition-empty")
+        for extra in (("--open",), ("--append",), ("--after", "OPEN-B"), ("--delivery", "x.md")):
+            with self.subTest(extra=extra):
+                rc, out, err = self.run_tool(self.FIXED, "OPEN-A", *extra)
+                self.assertEqual(rc, 2, out + err)
+                self.assertEqual(self.ledger.read_text(encoding="utf-8"), self.LEDGER)
+
+    def test_usage_and_help_document_the_mode(self) -> None:
+        import ast
+        doc = ast.get_docstring(ast.parse(OpenFindingsRowTests.TOOL.read_text(encoding="utf-8")))
+        usage = doc.split("Usage:", 1)[1].split("\n\n", 1)[0]
+        self.assertIn("--set-disposition --id ID [--ledger PATH] [--dry-run] < cell", usage)
+        section = " ".join(doc.split("SET DISPOSITION.", 1)[1].split("\n\nREFUSALS (exit 1).", 1)[0].split())
+        for phrase in ("id-not-found", "id-ambiguous", "disposition-empty", "malformed-columns",
+                       "the same atomic_replace transaction", "RESIDUES, stated:"):
+            self.assertIn(phrase, section)
+        result = run_linter("tools/open-findings-row.py", "--help")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("--set-disposition", result.stdout)
 
 
 class OpenFindingsRowDeliveryTests(unittest.TestCase):

@@ -97,6 +97,7 @@ this hook reads differently.
 
 ```text
 python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--ledger PATH] [--dry-run] [--open] [--delivery PATH [--source-key KEY]] < row
+python3 -I tools/open-findings-row.py --set-disposition --id ID [--ledger PATH] [--dry-run] < cell
 ```
 
 - **Input and output.** One table line on stdin, never in argv. The output carries line numbers,
@@ -213,6 +214,17 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   in the tool and in this hook. Closing it needs a hook grammar change. There is no shared lock: a write between the re-check and the rename, or by a writer
   holding the old inode open, is lost. Extended attributes other than the access ACL are not carried
   over; access ACL handling uses Linux xattrs.
+- **Setting a disposition (`--set-disposition`, 3b678).** Changes the Disposition cell of one
+  existing row in place, for example `ROUTED <id>` to `FIXED #N (sha) [class: ...]` once the fix merges,
+  which was done by hand. stdin carries the new cell text, never a row. The target is the one row in
+  `## Open` or `## Closed today` whose Finding cell leads with `[ID]`; fenced lines, the dated archive
+  and mis-filed rows are never targets. Only that row's last cell is replaced; every other byte is kept.
+  The changed row is held to the same checks as a new row, plus a re-parse that the hook reads the same
+  rows with only that disposition changed and the merge guard's verdict before and after. It refuses an
+  empty cell (it never writes an undispositioned row), no matching row, more than one, an unescaped
+  pipe, and anything the row checks refuse; `--after`, `--append`, `--open`, `--delivery` and
+  `--source-key` are usage errors with it. The write and `--dry-run` use the same transaction and
+  pre-flight as the other modes. The tool's docstring (`SET DISPOSITION.`) states its residues.
 
 ## Why a hard block: the motivating incidents
 
