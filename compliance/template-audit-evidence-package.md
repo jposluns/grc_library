@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.1.13\
+**Version:** 1.1.14\
 **Date:** 2026-10-28\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template packages per-control evidence into an audit-ready bundle: a single navigable artefact that an external auditor, regulator, or independent assessor can walk through to evaluate the controls over a defined period or, for a SOC 2 Type I package, as of a point in time. For a SOC 2 Type II package, that covers whether the controls were suitably designed throughout the period and whether they operated effectively throughout the period. For a SOC 2 Type I package, it covers whether the service organization's description presents the system as designed and implemented as of a point in time (the "as of" date) and whether the controls were suitably designed as of that date, and not whether they operated effectively.
+This template packages per-control evidence into an audit-ready bundle: a single navigable artefact that an external auditor, regulator, or independent assessor can walk through to evaluate the controls over a defined period or, for a SOC 2 Type I package, as of a point in time. For a SOC 2 Type II package, that covers whether the service organization's description presents the system as designed and implemented throughout the period, whether the controls were suitably designed throughout the period, and whether they operated effectively throughout the period. For a SOC 2 Type I package, it covers whether the service organization's description presents the system as designed and implemented as of a point in time (the "as of" date) and whether the controls were suitably designed as of that date, and not whether they operated effectively.
 
 The library documents per-control evidence requirements across the compliance and risk domains. The packaging step (assembling that evidence into a bundle laid out for an outside reviewer to consume) is what this template covers.
 
@@ -43,10 +43,10 @@ Out of scope: the audit programme's design (covered by [`compliance/standard-int
 
 ## How to use this template
 
-1. **Confirm scope and period.** Identify the audit framework, the period covered (e.g., 1 January to 31 December) or, for a SOC 2 Type I package, the "as of" date (the point in time), and the in-scope systems, processes, or business units. Without these, the package cannot be assembled.
+1. **Confirm scope and period (or, for a SOC 2 Type I package, the "as of" date).** Identify the audit framework, the period covered (e.g., 1 January to 31 December) or, for a SOC 2 Type I package, the "as of" date (the point in time), and the in-scope systems, processes, or business units. Without these, the package cannot be assembled.
 2. **List the in-scope controls.** Extract from the relevant control register or framework crosswalk. Each in-scope control gets a row in the cover-page index and a per-control section in the bundle.
-3. **For each control, assemble the evidence.** Use the per-control template below. For a period-based package, evidence is the documentation that demonstrates the control was implemented AND operated as designed during the period. For a SOC 2 Type II package, evidence is the documentation that demonstrates the control was suitably designed throughout the period and operated effectively throughout the period. For a SOC 2 Type I package, evidence is the documentation that demonstrates the control was suitably designed as of the "as of" date, together with the organization's own implementation evidence supporting a description that presents the system as designed and implemented as of that date; the package leaves out operating evidence and its tests.
-4. **Mark gaps explicitly.** For a period-based package, controls that were not implemented, or were partially implemented, or had operating-effectiveness gaps during the period must be marked. For a SOC 2 Type II package, controls that had a design gap or an operating-effectiveness gap during the period must be marked. For a SOC 2 Type I package, controls that had a design gap as of the "as of" date must be marked, as must controls that the organization's own implementation evidence shows were not implemented, or were partially implemented, as of that date. Hidden gaps are worse than disclosed ones.
+3. **For each control, assemble the evidence.** Use the per-control template below. For a period-based package, evidence is the documentation that demonstrates the control was implemented AND operated as designed during the period. For a SOC 2 Type II package, evidence is the documentation that demonstrates the control was suitably designed throughout the period and operated effectively throughout the period, together with the organization's own implementation evidence supporting a description that presents the system as designed and implemented throughout the period. For a SOC 2 Type I package, evidence is the documentation that demonstrates the control was suitably designed as of the "as of" date, together with the organization's own implementation evidence supporting a description that presents the system as designed and implemented as of that date; the package leaves out operating evidence and its tests.
+4. **Mark gaps explicitly.** For a period-based package, controls that were not implemented, or were partially implemented, or had operating-effectiveness gaps during the period must be marked. For a SOC 2 Type II package, controls that had a design gap or an operating-effectiveness gap during the period must be marked, as must controls that the organization's own implementation evidence shows were not implemented, or were partially implemented, during the period. For a SOC 2 Type I package, controls that had a design gap as of the "as of" date must be marked, as must controls that the organization's own implementation evidence shows were not implemented, or were partially implemented, as of that date. Hidden gaps are worse than disclosed ones.
 5. **Cross-reference internally.** The bundle is meant to be navigable; from any per-control section, an auditor should be able to follow links to the source artefacts.
 6. **Sign off.** The package carries an internal sign-off before it goes to the external auditor or regulator. The sign-off names who assembled it, who reviewed it, and who approved it.
 7. **Preserve.** The package and its supporting artefacts are retained per the document-retention period the framework requires (commonly 7 years).
@@ -182,7 +182,7 @@ Test 2: <e.g. Annual policy review>
 
 ### Gaps and compensating controls
 
-<For a period-based package, if the control is fully implemented and fully effective, state "No gaps identified during the period" and proceed to sign-off. For a SOC 2 Type II package, state this only if the control was suitably designed throughout the period and operated effectively throughout the period. For a SOC 2 Type I package, if the control was suitably designed as of the "as of" date and the organization's own implementation evidence shows it fully implemented as of that date, state "No gaps identified as of <YYYY-MM-DD>" and proceed to sign-off.>
+<For a period-based package, if the control is fully implemented and fully effective, state "No gaps identified during the period" and proceed to sign-off. For a SOC 2 Type II package, state this only if the control was suitably designed throughout the period and operated effectively throughout the period, and the organization's own implementation evidence shows it fully implemented throughout the period. For a SOC 2 Type I package, if the control was suitably designed as of the "as of" date and the organization's own implementation evidence shows it fully implemented as of that date, state "No gaps identified as of <YYYY-MM-DD>" and proceed to sign-off.>
 
 <If there are gaps:>
 Gap 1: <one-line description>
@@ -210,8 +210,8 @@ For larger packages (50+ controls), insert a per-domain summary between the inde
 ## Domain summary: <Domain name>
 
 Controls in scope from this domain: <count>
-Controls fully implemented and effective: <count> (SOC 2 Type II: suitably designed and operated effectively throughout the period; SOC 2 Type I: suitably designed as of the "as of" date, with the organization's own implementation evidence showing it fully implemented as of that date; operating effectiveness not assessed)
-Controls partially implemented or partially effective: <count> (SOC 2 Type II: with a design gap or an operating-effectiveness gap during the period; SOC 2 Type I: partially implemented, or with a design gap, as of the "as of" date)
+Controls fully implemented with no gaps identified: <count> (SOC 2 Type II: suitably designed and operated effectively throughout the period; SOC 2 Type I: suitably designed as of the "as of" date, with the organization's own implementation evidence showing it fully implemented as of that date; operating effectiveness not assessed)
+Controls partially implemented or with an identified gap: <count> (SOC 2 Type II: with a design gap or an operating-effectiveness gap during the period; SOC 2 Type I: partially implemented, or with a design gap, as of the "as of" date)
 Controls not implemented (with compensating control): <count>
 Controls not implemented (without compensating control): <count>
 
@@ -276,7 +276,7 @@ When assembling an evidence package, the following patterns weaken the package's
 - **Evidence that is just a screenshot without a date or context.** Screenshots are point-in-time. An undated screenshot proves nothing about whether the control operated for the period covered, or, for a SOC 2 Type I package, whether it was in place as of the "as of" date. Include the date the screenshot was taken, the system, and (if relevant) the user role under which it was taken.
 - **Tests with a sample size of one and no recorded basis.** Record the sample size and its basis in the test's Sampling justification field, as §2.2 and §2.3 of [`compliance/procedure-control-testing.md`](procedure-control-testing.md) state them (quoted in the per-control template above). Where a single instance is the whole population, such as a control that operates once in the period, record it as a "100% population review" under §2.3's **Full population (100%)** selection method, with the §2.3 items, including the selection rationale.
 - **"See attached" without an attachment.** The package is the artefact; if evidence is attached separately, the per-control section names the attachment by name and version, and the attachment travels with the package.
-- **Compensating controls without a remediation plan.** A compensating control is acceptable for an audit period, or, for a SOC 2 Type I package, as of the "as of" date; an absent remediation plan signals the gap will persist. Most frameworks require remediation plans for ineffective controls; check the framework's specific requirements.
+- **Compensating controls without a remediation plan.** A compensating control without a remediation plan signals the gap will persist. Record a remediation plan for each ineffective control and, for a SOC 2 Type I package, for each control with a design deficiency or described but not implemented as of the "as of" date; check the framework's specific requirements.
 - **Mixing "we will do this" with "we did this".** The package covers a period in the past, or, for a SOC 2 Type I package, a past point in time. Future commitments belong in a remediation plan, not in the operating-evidence section (for a SOC 2 Type I package, not in the implementation-evidence section). The auditor will treat any future-tense language in evidence sections as a finding.
 - **Bundles that grow beyond practical navigability.** Above ~150 in-scope controls the per-domain summaries become load-bearing; below that, the index is enough. Plan navigation before the package crosses the threshold.
 - **Sign-off by the same person as the assembler.** The reviewer must be different from the assembler. Self-review is not review.
