@@ -866,6 +866,13 @@
     },
     {
       "class": "organizational standard",
+      "corpus_path": "architecture/standard-architecture-decision-records.md",
+      "display_name": "Architecture Decision Records Standard",
+      "id": "GRC-STD-ARCHITECTURE-DECISION-RECORDS",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
       "corpus_path": "security/standard-authentication-and-password-management.md",
       "display_name": "Authentication and Password Management Standard",
       "id": "GRC-STD-AUTHENTICATION-PASSWORD-MANAGEMENT",
@@ -995,6 +1002,13 @@
       "corpus_path": "operations/standard-it-financial-management.md",
       "display_name": "IT Financial Management Standard",
       "id": "GRC-STD-IT-FINANCIAL-MANAGEMENT",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "dev-security/standard-jakarta-ee-application-security.md",
+      "display_name": "Jakarta EE Application Security Standard",
+      "id": "GRC-STD-JAKARTA-EE-APPLICATION-SECURITY",
       "source_identifier": null
     },
     {
@@ -1325,6 +1339,13 @@
       "display_name": "NIST SP 800-207 Zero Trust Architecture",
       "id": "NIST-SP-800-207",
       "source_identifier": "NIST SP 800-207"
+    },
+    {
+      "class": "standard",
+      "corpus_path": null,
+      "display_name": "NIST SP 800-218 Secure Software Development Framework (SSDF)",
+      "id": "NIST-SP-800-218",
+      "source_identifier": "NIST SP 800-218 Version 1.1"
     },
     {
       "class": "standard",
@@ -18226,16 +18247,368 @@
       },
       "verb": "maps to",
       "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-218"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0549",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-SECURE-CODE-REVIEW"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-218"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0550",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-DEVELOPER-SECURITY-REQUIREMENTS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-218"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0551",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-DEVOPS-SECURITY-REQUIREMENTS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-218"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0552",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SECURITY-BASELINE-STANDARDS-REFERENCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-218"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0553",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SOFTWARE-COMPOSITION-ANALYSIS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-218"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0554",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-PATCH-MGMT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-218"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0555",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-RELEASE-MANAGEMENT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-218"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0557",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-VULN-MGMT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-218"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0558",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-THREAT-MODELLING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-218"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0559",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-ARCHITECTURE-DECISION-RECORDS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-218"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0560",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-JAKARTA-EE-APPLICATION-SECURITY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 194,
-    "record_count": 527,
+    "node_count": 197,
+    "record_count": 538,
     "records_by_relationship_class": {
       "commitment": 1,
-      "correspondence": 499,
+      "correspondence": 510,
       "implementation": 19,
       "influence": 8
     }
