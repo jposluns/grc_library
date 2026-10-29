@@ -62450,6 +62450,73 @@ class BlockVerificationPipesTests(unittest.TestCase):
                                       slot, named)))
         return expansions
 
+    def test_3b613_generated_dot_patterns(self):
+        # Cross the eight trim/replace operators, three ordinary dot
+        # prefixes, two substitution spellings and both quoting contexts.
+        # The fourth prefix contains a double quote and an early "}": it
+        # closes the expansion before a later substitution. Bash runs that
+        # substitution only in the unquoted form here. A scratch bash probe
+        # with `printf RUN >&2` and a nonempty x (x=file.md) confirmed every
+        # retained combination; with x unset bash skips the pattern word in
+        # most of them, and the hook must block them whatever x holds. The
+        # double-quoted quote-mismatch forms left RUN literal, so omit them.
+        operators = ('#', '##', '%', '%%', '/', '//', '/#', '/%')
+        substitutions = ('$(false)', '`false`')
+        rows = []
+        for operator in operators:
+            for prefix in ('.', '.md', '.*', '."}"'):
+                for substitution in substitutions:
+                    for quoted in (True, False):
+                        if prefix == '."}"' and quoted:
+                            continue
+                        if prefix == '."}"':
+                            expansion = ('${x' + operator + prefix + '} "\''
+                                         + substitution + '\'"')
+                        else:
+                            expansion = '${x' + operator + prefix + substitution + '}'
+                        operand = '"' + expansion + '"' if quoted else expansion
+                        command = ('echo ' + operand + ' | head -1; echo rc=$?')
+                        rows.append((operator, prefix, substitution, quoted,
+                                     command))
+
+        self.assertEqual(len(rows), 8 * (3 * 2 * 2 + 2))
+        for operator, prefix, substitution, quoted, command in rows:
+            with self.subTest(operator=operator, prefix=prefix,
+                              substitution=substitution, quoted=quoted):
+                violation = self.hook.shell_violation(command)
+                self.assertEqual(violation[0] if violation else None,
+                                 'pipeline-status')
+
+        allow = (r'            m = re.match(r"\$\{[A-Za-z_][A-Za-z0-9_]*\}", '
+                 'joined[i:])\n')
+        patterns = {
+            'Y1': r'*(?:##\.[^$`}]*)?\}',
+            'Y2': r'*(?:%%\.[^$`}]*)?\}',
+            'Y3': r'*(?:/%\.[^/$`}]*)?\}',
+            'D7b': r'*(?:##\.\*[^}]*)?\}',
+            'D8b': r'*(?:%%\.\*[^}]*)?\}',
+            'D9b': r'*(?:/%\.\*[^/}]*)?\}',
+        }
+        for name, pattern in patterns.items():
+            mutant = self._emitter_mutant(
+                allow, allow.replace(r'*\}', pattern))
+            escaped = [(op, prefix, sub, quoted) for op, prefix, sub,
+                       quoted, command in rows
+                       if not mutant.command_is_blocked(command)]
+            with self.subTest(mutant=name):
+                if name.startswith('Y'):
+                    expected_operator = {'Y1': '##', 'Y2': '%%',
+                                         'Y3': '/%'}[name]
+                    expected = [(expected_operator, '."}"', sub, False)
+                                for sub in substitutions]
+                else:
+                    expected_operator = {'D7b': '##', 'D8b': '%%',
+                                         'D9b': '/%'}[name]
+                    expected = [(expected_operator, '.*', sub, quoted)
+                                for sub in substitutions
+                                for quoted in (True, False)]
+                self.assertEqual(escaped, expected)
+
     def test_3b562_bash53_forms_beyond_exact_spellings(self):
         # 3b562: the round-11 cases spell each bash-5.3 form one way (a
         # blank after "${" or "${|", a plain NAME before @P, no other
@@ -62502,6 +62569,128 @@ class BlockVerificationPipesTests(unittest.TestCase):
              'M2 M2g M2h M2r M2o'),
             ("printf '%s' ${x/.$(false)} | tail -1; echo rc=$?",
              'M2 M2g M2h M2r M2o M3 M3p M3g'),
+            # 3b613: the same for a ## or %% trim word and a /% replace
+            # pattern starting with a dot, which a widening for "${f##.md}",
+            # "${f%%.md}" or "${f/%.md}" keyed to the dot lets through
+            ('echo "${x##.$(false)}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D1'),
+            ("printf '%s' ${x##.$(false)} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3 M3p M3g D1'),
+            ('echo "${x%%.$(false)}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D2'),
+            ("printf '%s' ${x%%.$(false)} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3 M3p M3g D2'),
+            ('echo "${x/%.$(false)}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2r M2o P2 P2s D3'),
+            ("printf '%s' ${x/%.$(false)} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2r M2o M3 M3p M3g P2 P2s D3'),
+            # 3b613 round 2: the same with a literal after the dot, which a
+            # widening keyed to ".md" lets through
+            ('echo "${x##.md$(false)}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D1 D4'),
+            ("printf '%s' ${x##.md$(false)} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3 M3p M3g D1 D4'),
+            ('echo "${x%%.md$(false)}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D2 D5'),
+            ("printf '%s' ${x%%.md$(false)} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3 M3p M3g D2 D5'),
+            ('echo "${x/%.md$(false)}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2r M2o P2 P2s D3 D6'),
+            ("printf '%s' ${x/%.md$(false)} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2r M2o M3 M3p M3g P2 P2s D3 D6'),
+            # with a glob ending the dot pattern, which a widening for
+            # "${f%%.*}" keyed to the final "*" lets through
+            ('echo "${x##.$(false)*}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D1 D7'),
+            ("printf '%s' ${x##.$(false)*} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3 M3p M3g D1 D7'),
+            ('echo "${x%%.$(false)*}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D2 D8'),
+            ("printf '%s' ${x%%.$(false)*} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3 M3p M3g D2 D8'),
+            ('echo "${x/%.$(false)*}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2r M2o P2 P2s D3 D9'),
+            ("printf '%s' ${x/%.$(false)*} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2r M2o M3 M3p M3g P2 P2s D3 D9'),
+            # with a nested expansion after the dot, which a widening for
+            # "${f%%.${ext}}" lets through up to the nested "}"
+            ('echo "${x##.${y-$(false)}}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D1 D10'),
+            ("printf '%s' ${x##.${y-$(false)}} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3 M3p M3g D1 D10'),
+            ('echo "${x%%.${y-$(false)}}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D2 D11'),
+            ("printf '%s' ${x%%.${y-$(false)}} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3 M3p M3g D2 D11'),
+            ('echo "${x/%.${y-$(false)}}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2r M2o P2 P2s D3 D12'),
+            ("printf '%s' ${x/%.${y-$(false)}} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2r M2o M3 M3p M3g P2 P2s D3 D12'),
+            # and a /% replace string after a dot pattern, which a widening
+            # for "${f/%.md/.txt}" lets through (D3 and D6 stop at the "/")
+            ('echo "${x/%.md/$(false)}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2o D13'),
+            ("printf '%s' ${x/%.md/$(false)} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2o M3 M3p M3g D13'),
+            # 3b613 round 3: a backquote substitution after the dot, which a
+            # dot-keyed widening that keeps "$" out of its pattern lets
+            # through; unquoted, M3 still meets the backquote and refuses
+            ('echo "${x##.`false`}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D1 X4'),
+            ("printf '%s' ${x##.`false`} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3p M3g D1 X4'),
+            ('echo "${x%%.`false`}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D2 X5'),
+            ("printf '%s' ${x%%.`false`} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3p M3g D2 X5'),
+            ('echo "${x/%.`false`}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2r M2o P2 P2s D3 X6'),
+            ("printf '%s' ${x/%.`false`} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2r M2o M3p M3g P2 P2s D3 X6'),
+            # 3b613 round 4: a backquote twin of each round-2 row, which the
+            # dollar-excluding form of its widening lets through
+            ('echo "${x##.md`false`}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D1 D4 X4 D4d'),
+            ("printf '%s' ${x##.md`false`} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3p M3g D1 D4 X4 D4d'),
+            ('echo "${x%%.md`false`}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D2 D5 X5 D5d'),
+            ("printf '%s' ${x%%.md`false`} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3p M3g D2 D5 X5 D5d'),
+            ('echo "${x/%.md`false`}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2r M2o P2 P2s D3 D6 X6 D6d'),
+            ("printf '%s' ${x/%.md`false`} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2r M2o M3p M3g P2 P2s D3 D6 X6 D6d'),
+            ('echo "${x##.`false`*}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D1 D7 X4 D7d'),
+            ("printf '%s' ${x##.`false`*} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3p M3g D1 D7 X4 D7d'),
+            ('echo "${x%%.`false`*}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D2 D8 X5 D8d'),
+            ("printf '%s' ${x%%.`false`*} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3p M3g D2 D8 X5 D8d'),
+            ('echo "${x/%.`false`*}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2r M2o P2 P2s D3 D9 X6 D9d'),
+            ("printf '%s' ${x/%.`false`*} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2r M2o M3p M3g P2 P2s D3 D9 X6 D9d'),
+            # (X4 to X6 stop at the nested "$", so only D10d to D12d take
+            # the nested twins)
+            ('echo "${x##.${y-`false`}}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D1 D10 D10d'),
+            ("printf '%s' ${x##.${y-`false`}} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3p M3g D1 D10 D10d'),
+            ('echo "${x%%.${y-`false`}}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2x M2o D2 D11 D11d'),
+            ("printf '%s' ${x%%.${y-`false`}} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2x M2o M3p M3g D2 D11 D11d'),
+            ('echo "${x/%.${y-`false`}}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2r M2o P2 P2s D3 D12 D12d'),
+            ("printf '%s' ${x/%.${y-`false`}} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2r M2o M3p M3g P2 P2s D3 D12 D12d'),
+            ('echo "${x/%.md/`false`}" | head -1; echo rc=$?',
+             'M2 M2g M2h M2o D13 D13d'),
+            ("printf '%s' ${x/%.md/`false`} | tail -1; echo rc=$?",
+             'M2 M2g M2h M2o M3p M3g D13 D13d'),
             # a brace substitution nested in an operand: skipping to the
             # first "}" unscanned swallows its opener (M2o), while scanning
             # on past "${" finds it (M2on)
@@ -62545,10 +62734,18 @@ class BlockVerificationPipesTests(unittest.TestCase):
         # -$n, $i and -$i; 5421-5422). Apart from its $(false), a row
         # spells its arithmetic operands alike (all literals, all names or
         # all $names), so a widening keyed to a mix (${x:0:$n},
-        # ${x:i:$(false)}) goes unseen. No other operand text is generated,
-        # so a widening keyed only to other text (a ## word starting with a
-        # dot, say) goes unseen unless a listed row holds that text, as the
-        # rows with ${x%.$(false)} and ${x/.$(false)} do.
+        # ${x:i:$(false)}) goes unseen. No other operand text is generated
+        # here. The listed 3b613 rows pin selected dot words, glob endings,
+        # nested expansions and a /% replacement string. The 3b613 matrix
+        # adds #, ##, %, %%, /, //, /# and /% with dot, .md, .* and a
+        # quote-bearing prefix, both substitution spellings, and each Bash-
+        # executing quote form. The earlier % and / dot rows remain in cases.
+        # A dollar-excluding pattern cannot take a nested ${...} twin merely
+        # because its inner substitution uses backquotes: the nested opener
+        # still contains a dollar sign. The matrix pins immediate .* and
+        # quote-boundary shapes, but finite rows do not cover arbitrary
+        # literal text (such as .txt), other operator/operand structures,
+        # or all ways of crossing a shell quote boundary.
         # Left out on purpose:
         #   - ${x}, the one form the allow-list takes;
         #   - ${!@} and ${!*}, with or without an operator: they read as
@@ -62598,6 +62795,26 @@ class BlockVerificationPipesTests(unittest.TestCase):
             "echo rc=$?",
             "echo '${x-${ false; }}' | head -1; echo rc=$?",
             "echo '${x%.$(false)}${x/.$(false)}' | head -1; echo rc=$?",
+            "echo '${x##.$(false)}${x%%.$(false)}${x/%.$(false)}' | head -1; "
+            "echo rc=$?",
+            "echo '${x##.md$(false)}${x%%.md$(false)}${x/%.md$(false)}' | "
+            "head -1; echo rc=$?",
+            "echo '${x##.$(false)*}${x%%.$(false)*}${x/%.$(false)*}' | "
+            "head -1; echo rc=$?",
+            "echo '${x##.${y-$(false)}}${x%%.${y-$(false)}}' | head -1; "
+            "echo rc=$?",
+            "echo '${x/%.${y-$(false)}}${x/%.md/$(false)}' | head -1; "
+            "echo rc=$?",
+            "echo '${x##.`false`}${x%%.`false`}${x/%.`false`}' | head -1; "
+            "echo rc=$?",
+            "echo '${x##.md`false`}${x%%.md`false`}${x/%.md`false`}' | "
+            "head -1; echo rc=$?",
+            "echo '${x##.`false`*}${x%%.`false`*}${x/%.`false`*}' | "
+            "head -1; echo rc=$?",
+            "echo '${x##.${y-`false`}}${x%%.${y-`false`}}' | head -1; "
+            "echo rc=$?",
+            "echo '${x/%.${y-`false`}}${x/%.md/`false`}' | head -1; "
+            "echo rc=$?",
         ] + ["echo '%s' | head -1; echo rc=$?" % expansion
              for expansion, _ in expansions]
         # Mutants, each the hook with one exact edit: M3 replaces two code
@@ -62661,6 +62878,41 @@ class BlockVerificationPipesTests(unittest.TestCase):
         #        with any length or none, as a fix for "${line:$i:1}" might.
         #   W4   the allow-list also takes an array element whose subscript
         #        starts with a minus, as a fix for "${arr[-1]}" might.
+        # 3b613's dot-keyed widenings, which no generated row holds:
+        #   D1   the allow-list also takes a ## trim whose word starts with
+        #        a dot, as a fix for "${f##.md}" might.
+        #   D2   the allow-list also takes a %% trim whose word starts with
+        #        a dot, as a fix for "${f%%.md}" might.
+        #   D3   the allow-list also takes a /% replace whose pattern starts
+        #        with a dot, with the string and its "/" left out, as a fix
+        #        for "${f/%.md}" might.
+        #   D4   D1 keyed to ".md", not to the dot alone.
+        #   D5   D2 keyed to ".md".
+        #   D6   D3 keyed to ".md".
+        #   D7   D1 with the word ending in "*", as a fix for "${f##.*}"
+        #        might.
+        #   D8   D2 with the word ending in "*", as a fix for "${f%%.*}"
+        #        might.
+        #   D9   D3 with the pattern ending in "*", as a fix for "${f/%.*}"
+        #        might.
+        #   D10  D1 with a ${...} after the dot, up to its first "}", as a
+        #        fix for "${f##.${ext}}" might.
+        #   D11  D2 with a ${...} after the dot, as a fix for
+        #        "${f%%.${ext}}" might.
+        #   D12  D3 with a ${...} after the dot, as a fix for
+        #        "${f/%.${ext}}" might.
+        #   D13  the allow-list also takes a /% replace whose pattern starts
+        #        with a dot, with a string, as a fix for "${f/%.md/.txt}"
+        #        might.
+        # The 3b613 round-1 Claude review's dollar-excluding widenings,
+        # under its names there:
+        #   X4   D1 with no "$" after the dot, as a fix for "${f##.md}" that
+        #        keeps a $( out might.
+        #   X5   D2 with no "$" after the dot.
+        #   X6   D3 with no "$" after the dot.
+        # 3b613 round 4: the same for the rest of the dot-keyed widenings:
+        #   Dnd  for n from 4 to 13, Dn with "$" added to each excluded
+        #        class, as X4 to X6 are D1 to D3 with it.
         allow = (r'            m = re.match(r"\$\{[A-Za-z_][A-Za-z0-9_]*\}", '
                  'joined[i:])\n')
         skip = r're.match(r"\$\{[^}]*\}?", joined[i:])'
@@ -62731,6 +62983,58 @@ class BlockVerificationPipesTests(unittest.TestCase):
                 r'*\}', r'*(?::\$[A-Za-z_][A-Za-z0-9_]*(?::[^}]*)?)?\}')),
             'W4': self._emitter_mutant(allow, either(
                 r'[A-Za-z_][A-Za-z0-9_]*\[-[^]]*\]')),
+            'D1': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:##\.[^}]*)?\}')),
+            'D2': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:%%\.[^}]*)?\}')),
+            'D3': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/%\.[^/}]*)?\}')),
+            'D4': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:##\.md[^}]*)?\}')),
+            'D5': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:%%\.md[^}]*)?\}')),
+            'D6': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/%\.md[^/}]*)?\}')),
+            'D7': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:##\.[^}]*\*)?\}')),
+            'D8': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:%%\.[^}]*\*)?\}')),
+            'D9': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/%\.[^/}]*\*)?\}')),
+            'D10': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:##\.\$\{[^}]*\})?\}')),
+            'D11': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:%%\.\$\{[^}]*\})?\}')),
+            'D12': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/%\.\$\{[^}]*\})?\}')),
+            'D13': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/%\.[^/}]*/[^}]*)?\}')),
+            'X4': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:##\.[^$}]*)?\}')),
+            'X5': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:%%\.[^$}]*)?\}')),
+            'X6': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/%\.[^/$}]*)?\}')),
+            'D4d': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:##\.md[^$}]*)?\}')),
+            'D5d': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:%%\.md[^$}]*)?\}')),
+            'D6d': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/%\.md[^/$}]*)?\}')),
+            'D7d': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:##\.[^$}]*\*)?\}')),
+            'D8d': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:%%\.[^$}]*\*)?\}')),
+            'D9d': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/%\.[^/$}]*\*)?\}')),
+            'D10d': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:##\.\$\{[^$}]*\})?\}')),
+            'D11d': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:%%\.\$\{[^$}]*\})?\}')),
+            'D12d': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/%\.\$\{[^$}]*\})?\}')),
+            'D13d': self._emitter_mutant(allow, allow.replace(
+                r'*\}', r'*(?:/%\.[^/$}]*/[^$}]*)?\}')),
         }
         # Each mutant's rule: the generated rows it lets through, from the
         # row's shape s and whether the row is double-quoted (q).
@@ -62786,6 +63090,32 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'W4': lambda s, q: (s.prefix == ''
                                 and s.parameter == 'arr[{negsubscript}]'
                                 and s.family == 'none'),
+            'D1': lambda s, q: False,  # no generated operand has a dot
+            'D2': lambda s, q: False,
+            'D3': lambda s, q: False,
+            'D4': lambda s, q: False,
+            'D5': lambda s, q: False,
+            'D6': lambda s, q: False,
+            'D7': lambda s, q: False,
+            'D8': lambda s, q: False,
+            'D9': lambda s, q: False,
+            'D10': lambda s, q: False,
+            'D11': lambda s, q: False,
+            'D12': lambda s, q: False,
+            'D13': lambda s, q: False,
+            'X4': lambda s, q: False,
+            'X5': lambda s, q: False,
+            'X6': lambda s, q: False,
+            'D4d': lambda s, q: False,
+            'D5d': lambda s, q: False,
+            'D6d': lambda s, q: False,
+            'D7d': lambda s, q: False,
+            'D8d': lambda s, q: False,
+            'D9d': lambda s, q: False,
+            'D10d': lambda s, q: False,
+            'D11d': lambda s, q: False,
+            'D12d': lambda s, q: False,
+            'D13d': lambda s, q: False,
         }
         self.assertEqual(set(rules), set(mutants))
         # No listed row names a mutant that does not exist, and a generated
