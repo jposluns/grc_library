@@ -2,8 +2,8 @@
 
 **Document Title:** Whistleblower and Incident Reporting Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.16\
-**Date:** 2026-10-03\
+**Version:** 1.0.17\
+**Date:** 2026-10-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md)\
@@ -80,7 +80,7 @@ Good faith is defined as a genuine belief that the reported concern may be true.
 
 ## 3. Incident reporting
 
-All staff are required to report actual or suspected:
+All staff must report actual or suspected:
 - Information security incidents (data breaches, malware, phishing, unauthorized access).
 - Privacy breaches or data loss events.
 - Physical security incidents.

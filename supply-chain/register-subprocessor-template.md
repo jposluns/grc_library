@@ -2,8 +2,8 @@
 
 **Document Title:** Subprocessor Register Template\
 **Document Type:** Register\
-**Version:** 1.0.5\
-**Date:** 2026-10-21\
+**Version:** 1.0.6\
+**Date:** 2026-10-29\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -141,7 +141,7 @@ This register forms the processor annex to the organization's Article 30 Records
 
 ## Notification template
 
-Where customer contracts require subprocessor notification, the following minimum information should be communicated:
+Where customer contracts require subprocessor notification, the following minimum information must be communicated:
 
 > **Subject: Notice of New Subprocessor Engagement**
 >
