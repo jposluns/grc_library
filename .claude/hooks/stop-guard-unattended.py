@@ -395,7 +395,7 @@ def _grc_lease_mode(root):
         # 3b679 r4: newline="" keeps every CR, so _grc_mode_value splits on LF only (a lone CR is no line end).
         with open(_GRC_STATE_FILE, encoding="utf-8", newline="") as fh:
             txt = fh.read()
-    except OSError:
+    except (OSError, UnicodeDecodeError):  # 3b679 r5: an undecodable lease is an unreadable one (fail open)
         return None
     value = _grc_mode_value(txt)
     if value is None:
@@ -2162,6 +2162,32 @@ def _self_test():
                             fh.write(head + text + b"<!-- note -->\n")
                         self.assertEqual(_grc_lease_mode(store), want, text)
             self.assertEqual(_grc_mode_value("Operating-mode: fully-attended\r\n"), "fully-attended")
+
+        def test_grc_undecodable_lease_is_an_unreadable_lease(self):
+            # 3b679 r5: a lease that is not valid UTF-8 fails open exactly as a missing or unreadable one
+            # does (mode None, the stop allowed); it used to raise UnicodeDecodeError out of run().
+            from unittest import mock
+            lease_bytes = b"# Session state: grc\n\nOperating-mode: overnight-unattended\n"
+            with tempfile.TemporaryDirectory() as store:
+                build(store, producer_lines="1\tFirst")
+                lease = os.path.join(store, "session-state.md")
+                patches = {"_GRC_STATE_FILE": lease, "_is_grc_main_checkout": lambda root: True,
+                           "_grc_is_worker": lambda: False}
+                with mock.patch.dict(globals(), patches):
+                    def outcome():
+                        return (_grc_lease_mode(store), read_operating_mode(store),
+                                run(store, {"stop_hook_active": False}))
+                    with open(lease, "wb") as fh:
+                        fh.write(lease_bytes)
+                    self.assertEqual(outcome(), ("unattended", "unattended", 2))
+                    os.unlink(lease)
+                    missing = outcome()
+                    os.mkdir(lease)  # open() raises IsADirectoryError, an OSError: an unreadable lease
+                    unreadable = outcome()
+                    os.rmdir(lease)
+                    with open(lease, "wb") as fh:
+                        fh.write(lease_bytes + b"note: \xff\n")
+                    self.assertEqual((missing, unreadable, outcome()), ((None, None, 0),) * 3)
 
         def test_grc_lease_arms_only_the_main_checkout_and_submodules(self):
             # 3b101 QA r2: the lease half of the scoping, on real hook copies: the main checkout and a
