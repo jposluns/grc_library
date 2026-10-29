@@ -1,7 +1,15 @@
 """Shared read-only lease facts. No log row ever selects a session start.
 
-Every LF-delimited line contributes field occurrences, regardless of context.
-Only a unique, column-zero bold field with one value token is usable.
+A field occurrence is an LF-delimited line that starts at column zero with the
+exact label, plain (Name:) or bold (**Name:**), and that does not start inside
+an HTML comment (3b679 round 3). Comments are tracked across lines: "<!--"
+opens one and "-->" closes it wherever either appears, including a comment
+that opens after prose on the same line; there is no nesting and an unclosed
+comment extends through EOF. Every other line, a mention in prose or a
+bullet, quoted, indented or commented copy included, is not an occurrence.
+Only a unique occurrence with one value token is usable, written
+plain (Name: value) or bold (**Name:** value) so a lease in either form reads;
+the label and value are separated by spaces or tabs only, never a line end.
 Duplicate or malformed fields make start and elapsed UNKNOWN; compactions
 are UNKNOWN with a log and reported as no log without one.
 Only the Active-session value can
@@ -69,7 +77,9 @@ ISO = r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z)"
 COMPACTION = re.compile(r"\|\s*" + ISO + r"\s*\|\s*compaction\s*\|")
 SECONDS = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z"
 NAMES = ("Active-session", "Status", "Last-heartbeat-UTC")
-FIELD = re.compile(r"\*\*(" + "|".join(NAMES) + r"):\*\*[ \t]+(\S+)[ \t]*")
+# Plain `Name: value` (gate 63's form since 3b679) or the earlier bold `**Name:** value`.
+FIELD = re.compile(r"(\*\*)?(" + "|".join(NAMES) + r"):(?(1)\*\*)[ \t]+(\S+)[ \t]*")
+COMMENT_DELIMITER = re.compile(r"<!--|-->")
 HEARTBEAT_MAX_AGE_SECONDS = 24 * 60 * 60
 
 
@@ -100,23 +110,27 @@ def _read(root, name, error):
 def _fields(text):
     occurrences = {name: [] for name in NAMES}
     first = {}
+    comment = False
     for index, raw in enumerate((text or "").split("\n")):
         line = raw.removesuffix("\r")
-        for name in NAMES:
-            if name + ":" in line:
-                first.setdefault(name, index)
-                occurrences[name].append(line)
+        if not comment:
+            for name in NAMES:
+                if line.startswith((name + ":", "**" + name + ":**")):
+                    first.setdefault(name, index)
+                    occurrences[name].append(line)
+        for delimiter in COMMENT_DELIMITER.finditer(line):
+            comment = delimiter.group() == "<!--"
     fields, ambiguous = {}, []
     for name, lines in occurrences.items():
         if not lines:
             continue
         match = FIELD.fullmatch(lines[0]) if len(lines) == 1 else None
-        if match is None or match[1] != name:
+        if match is None or match[2] != name:
             detail = (f"appears {len(lines)} times" if len(lines) > 1
                       else "has a malformed occurrence")
             ambiguous.append(name + " " + detail)
         else:
-            fields[name] = match[2]
+            fields[name] = match[3]
     return fields, ambiguous, first
 
 
@@ -140,7 +154,7 @@ def session_metrics(root: Path, now: datetime | None = None):
     if ambiguous:
         warnings.append("AMBIGUOUS LEASE FIELD: " + ", ".join(ambiguous))
     else:
-        if session and status in ("active", "winding-down"):
+        if session and status == "active":
             match = re.fullmatch("orch-(" + SECONDS + ")", session)
             dt = _parse(match[1]) if match else None
             source = ("derived from Active-session orch-<UTC start> convention" if dt else
@@ -152,7 +166,7 @@ def session_metrics(root: Path, now: datetime | None = None):
         else:
             warnings.append("SESSION_START_UNKNOWN: " + (
                 "the lease id does not record a start time" if session and
-                status in ("active", "winding-down") else "no usable live lease start"))
+                status == "active" else "no usable live lease start"))
     end = None
     stale_heartbeat = False
     if not ambiguous:

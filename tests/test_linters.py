@@ -25521,18 +25521,19 @@ class SessionStateTests(LinterTestCase):
     Well-formedness of the session-concurrency lease: six required
     field lines (incl. Operating-mode), a valid Status value, a valid
     Operating-mode value, a parseable UTC heartbeat, and status/branch
-    coherence. All three status values pass when coherent (the interlock
-    decision lives in the /orch step-0 procedure, not in CI).
+    coherence. Both status values (active and released) pass when coherent (the interlock
+    decision lives in the /orch step-0 procedure, not in CI). Since 3b679
+    every field is a plain `Field: value` line; the bold form is refused.
     """
 
     VALID_LEASE = (
-        "# Session State (concurrency lease)\n\n"
-        "**Active-session:** claude/example-branch\n\n"
-        "**Status:** active\n\n"
-        "**Operating-mode:** attended-autonomous\n\n"
-        "**Last-heartbeat-UTC:** 2026-07-03T12:00:00Z\n\n"
-        "**Current-task:** example task\n\n"
-        "**Worker-dispatches:** none\n"
+        "# Session state: grc\n\n"
+        "Active-session: claude/example-branch\n\n"
+        "Status: active\n\n"
+        "Operating-mode: attended-autonomous\n\n"
+        "Last-heartbeat-UTC: 2026-07-03T12:00:00Z\n\n"
+        "Current-task: example task\n\n"
+        "Worker-dispatches: none\n"
     )
 
     def test_runs_clean_on_corpus_at_head(self) -> None:
@@ -25568,9 +25569,9 @@ class SessionStateTests(LinterTestCase):
     def test_released_lease_with_none_session_passes(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Active-session:** claude/example-branch",
-            "**Active-session:** none",
-        ).replace("**Status:** active", "**Status:** released")
+            "Active-session: claude/example-branch",
+            "Active-session: none",
+        ).replace("Status: active", "Status: released")
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
         self.assertEqual(invalid, [])
@@ -25578,7 +25579,7 @@ class SessionStateTests(LinterTestCase):
     def test_missing_field_line_reported(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Worker-dispatches:** none\n", ""
+            "Worker-dispatches: none\n", ""
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(len(missing), 1)
@@ -25587,7 +25588,7 @@ class SessionStateTests(LinterTestCase):
     def test_invalid_status_value_flagged(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Status:** active", "**Status:** paused"
+            "Status: active", "Status: paused"
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
@@ -25596,8 +25597,8 @@ class SessionStateTests(LinterTestCase):
     def test_invalid_operating_mode_flagged(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Operating-mode:** attended-autonomous",
-            "**Operating-mode:** casual",
+            "Operating-mode: attended-autonomous",
+            "Operating-mode: casual",
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
@@ -25606,8 +25607,8 @@ class SessionStateTests(LinterTestCase):
     def test_unattended_operating_mode_passes(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Operating-mode:** attended-autonomous",
-            "**Operating-mode:** overnight-unattended",
+            "Operating-mode: attended-autonomous",
+            "Operating-mode: overnight-unattended",
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
@@ -25616,8 +25617,8 @@ class SessionStateTests(LinterTestCase):
     def test_malformed_heartbeat_flagged(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Last-heartbeat-UTC:** 2026-07-03T12:00:00Z",
-            "**Last-heartbeat-UTC:** yesterday",
+            "Last-heartbeat-UTC: 2026-07-03T12:00:00Z",
+            "Last-heartbeat-UTC: yesterday",
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
@@ -25626,7 +25627,7 @@ class SessionStateTests(LinterTestCase):
     def test_released_with_branch_incoherence_flagged(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Status:** active", "**Status:** released"
+            "Status: active", "Status: released"
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
@@ -25637,8 +25638,8 @@ class SessionStateTests(LinterTestCase):
     def test_active_with_none_session_incoherence_flagged(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Active-session:** claude/example-branch",
-            "**Active-session:** none",
+            "Active-session: claude/example-branch",
+            "Active-session: none",
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
@@ -25646,7 +25647,7 @@ class SessionStateTests(LinterTestCase):
 
     def test_duplicate_field_line_flagged(self) -> None:
         mod = self._load_module()
-        text = self.VALID_LEASE + "\n**Status:** released\n"
+        text = self.VALID_LEASE + "\nStatus: released\n"
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
         self.assertTrue(
@@ -25658,8 +25659,8 @@ class SessionStateTests(LinterTestCase):
         # (the #611 sweep's I-1: both classes report in one run).
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Worker-dispatches:** none\n", ""
-        ).replace("**Status:** active", "**Status:** paused")
+            "Worker-dispatches: none\n", ""
+        ).replace("Status: active", "Status: paused")
         missing, invalid = mod.check_text(text)
         self.assertEqual(len(missing), 1)
         self.assertTrue(any("paused" in message for message in invalid))
@@ -25680,7 +25681,7 @@ class SessionStateTests(LinterTestCase):
 
     def _shadow_lease(self, field, replacement, region):
         line = next(line for line in self.VALID_LEASE.splitlines()
-                    if line.startswith(f"**{field}:**"))
+                    if line.startswith(f"{field}:"))
         wrappers = {
             "comment": ("<!--\n", "\n-->\n"),
             "fence": ("```markdown\n", "\n```\n"),
@@ -25693,10 +25694,11 @@ class SessionStateTests(LinterTestCase):
     def test_shadowed_near_miss_labels(self) -> None:
         for field in ("Active-session", "Status", "Last-heartbeat-UTC"):
             line = next(line for line in self.VALID_LEASE.splitlines()
-                        if line.startswith(f"**{field}:**"))
+                        if line.startswith(f"{field}:"))
             shapes = [
                 ("wrong case", line.replace(field, field.upper())),
-                ("colon outside the bold", line.replace(":**", "**:")),
+                ("space before the colon", line.replace(":", " :", 1)),
+                ("bold or emphasis markers", "**" + line.replace(":", ":**", 1)),
                 ("leading whitespace", " " + line),
                 ("wrong value shape", line + " extra"),
             ]
@@ -25714,7 +25716,7 @@ class SessionStateTests(LinterTestCase):
                         self.assertEqual(code, 1)
                         self.assertEqual(missing, [])
                         self.assertEqual(len(invalid), 2, invalid)
-                        self.assertIn(f"**{field}:**", invalid[0])
+                        self.assertIn(f"`{field}:`", invalid[0])
                         self.assertIn(fault, invalid[0])
                         number = text.split("\n").index(near) + 1
                         self.assertIn(f"at line {number} ", invalid[0])
@@ -25731,7 +25733,7 @@ class SessionStateTests(LinterTestCase):
                     self.assertEqual(code, 1)
                     self.assertEqual(missing, [])
                     self.assertEqual(len(invalid), 1)
-                    self.assertIn(f"**{field}:**", invalid[0])
+                    self.assertIn(f"`{field}:`", invalid[0])
                     self.assertIn("outside the header region", invalid[0])
 
     def test_old_lease_below_history(self) -> None:
@@ -25749,13 +25751,13 @@ class SessionStateTests(LinterTestCase):
         self.assertEqual(stderr.count("FAIL:"), 12)
 
     def test_comment_copy_keeps_duplicate(self) -> None:
-        text = self.VALID_LEASE + "\n<!--\n**Status:** active\n-->\n"
+        text = self.VALID_LEASE + "\n<!--\nStatus: active\n-->\n"
         code, missing, invalid, _, _ = self._lease_result(text)
         self.assertEqual(code, 1)
         self.assertEqual(missing, [])
         self.assertEqual(invalid, [
-            "field line `**Status:**` appears 2 times; each field appears exactly once",
-            "field line `**Status:**` at line 16 is outside the header region (HTML comment)",
+            "field line `Status:` appears 2 times; each field appears exactly once",
+            "field line `Status:` at line 16 is outside the header region (HTML comment)",
         ])
 
     def test_label_boundaries(self) -> None:
@@ -25773,10 +25775,16 @@ class SessionStateTests(LinterTestCase):
         self.assertEqual(mod.check_text(text), ([], []))
         for prefix in ("", " ", "\t", "- ", "+ ", "* ", "1. ", "2) ",
                        "> ", ">>", "### ", " > - "):
-            for token in ("**STATUS:**", "**Status**:", "*Status:*", "**Status:"):
+            for token in ("**STATUS:**", "**Status**:", "*Status:*", "**Status:",
+                          "**Status:**", "STATUS:"):
                 with self.subTest(prefix=prefix, token=token):
                     missing, invalid = mod.check_text(text + prefix + token + " active\n")
                     self.assertEqual(missing, [])
+                    # 3b679 r2 rule 7: a list, heading or blockquote line is
+                    # free text that neither fleet tool reads.
+                    if prefix.strip():
+                        self.assertEqual(invalid, [])
+                        continue
                     self.assertEqual(len(invalid), 1)
                     self.assertIn("near-miss label", invalid[0])
 
@@ -25796,17 +25804,22 @@ class SessionStateTests(LinterTestCase):
                 self.assertIn("fenced code block", invalid[0])
 
     def test_crlf_and_tab_after_label(self) -> None:
-        mod = self._load_module()
-        text = self.VALID_LEASE.replace(":** ", ":**\t").replace("\n", "\r\n")
-        self.assertEqual(mod.check_text(text), ([], []))
-        self.assertEqual(self._lease_result(text)[0], 0)
-        text += "**STATUS:**\tactive\r\n"
+        # 3b679 r2: orch_store.py splits on LF only and keeps the CR, so a
+        # CRLF lease is refused (it passed before round 2).
+        text = self.VALID_LEASE.replace("\n", "\r\n")
         code, missing, invalid, _, _ = self._lease_result(text)
-        self.assertEqual((code, missing, len(invalid)), (1, [], 1))
-        self.assertIn("at line 14 ", invalid[0])
+        self.assertEqual(code, 2)
+        self.assertIn("a carriage return (CR) appears on 13 line(s), first at line 1",
+                      invalid[1])
+        # 3b679: orch_store.py parses only "<name>: " (one space), so a tab
+        # after the colon is not a field line.
+        text = self.VALID_LEASE.replace("Status: ", "Status:\t")
+        code, missing, invalid, _, _ = self._lease_result(text)
+        self.assertEqual((code, len(missing), len(invalid)), (2, 1, 1))
+        self.assertIn("wrong value shape", invalid[0])
 
     def test_two_near_misses_for_one_field(self) -> None:
-        text = self.VALID_LEASE + "**STATUS:** active\n**status:** active\n"
+        text = self.VALID_LEASE + "STATUS: active\nstatus: active\n"
         code, missing, invalid, _, _ = self._lease_result(text)
         self.assertEqual((code, missing, len(invalid)), (1, [], 2))
         self.assertIn("at line 14 ", invalid[0])
@@ -25816,23 +25829,29 @@ class SessionStateTests(LinterTestCase):
         mod = self._load_module()
         for field in mod.FIELD_PATTERNS:
             with self.subTest(field=field):
-                text = self.VALID_LEASE + f"**{field.swapcase()}:** none\n"
+                text = self.VALID_LEASE + f"{field.swapcase()}: none\n"
                 missing, invalid = mod.check_text(text)
                 self.assertEqual(missing, [])
                 self.assertEqual(len(invalid), 1)
-                self.assertIn(f"**{field}:**", invalid[0])
+                self.assertIn(f"`{field}:`", invalid[0])
 
     def test_scanner_boundaries(self) -> None:
         mod = self._load_module()
         for prefix in (
             "<!-- closed -->\n",
             "<!--\n## Not a section\n```\n-->\n",
-            "```\n<!--\n## Not a section\n```\n",
+            "```\n<!-- -->\n## Not a section\n```\n",
             "~~~ info\n## Not a section\n~~~\n",
         ):
             with self.subTest(prefix=prefix):
                 text = self.VALID_LEASE.replace("\n\n", "\n\n" + prefix, 1)
                 self.assertEqual(mod.check_text(text), ([], []))
+        # 3b679 r3: grc's readers track comments inside fences too, so an
+        # unclosed "<!--" in a fence comments out every field line below it.
+        text = self.VALID_LEASE.replace("\n\n", "\n\n```\n<!--\n```\n", 1)
+        missing, invalid = mod.check_text(text)
+        self.assertEqual(len(missing), 3, missing)
+        self.assertEqual(sum("(HTML comment)" in item for item in invalid), 3, invalid)
         for opener, middle, closer in (
             ("<!--", "--><!--", "-->"),
             ("```` info", "```", "````"),
@@ -25846,7 +25865,7 @@ class SessionStateTests(LinterTestCase):
                 self.assertEqual(missing, [])
                 self.assertEqual(len(invalid), 1)
                 self.assertIn("outside the header", invalid[0])
-        text = self.VALID_LEASE + "## Notes\n<!--\n**Status:** active\n-->\n"
+        text = self.VALID_LEASE + "## Notes\n<!--\nStatus: active\n-->\n"
         invalid = mod.check_text(text)[1]
         self.assertEqual(len(invalid), 2)
         self.assertIn("(HTML comment, later heading)", invalid[-1])
@@ -25854,12 +25873,15 @@ class SessionStateTests(LinterTestCase):
     def test_near_misses_inside_regions(self) -> None:
         for region in ("comment", "fence", "heading"):
             with self.subTest(region=region):
-                text = self._shadow_lease("Status", "**Status:** active\n", region)
-                tail = text.rfind("**Status:** active")
+                text = self._shadow_lease("Status", "Status: active\n", region)
+                tail = text.rfind("Status: active")
                 text = text[:tail] + text[tail:].replace("Status", "STATUS", 1)
                 code, missing, invalid, _, _ = self._lease_result(text)
                 self.assertEqual((code, missing, len(invalid)), (1, [], 1))
-                self.assertIn("near-miss label", invalid[0])
+                # 3b679 r2: a comment line is free text, but orch_store.py
+                # counts this one, so it is reported as a refused mention.
+                self.assertIn("mentions the `Status:` field" if region == "comment"
+                              else "near-miss label", invalid[0])
 
     def test_unicode_hyphens_and_dashes(self) -> None:
         mod = self._load_module()
@@ -25870,63 +25892,55 @@ class SessionStateTests(LinterTestCase):
                      "\u2e5d", "\u301c", "\u3030", "\u30a0", "\ufe31",
                      "\ufe32", "\ufe58", "\ufe63", "\uff0d", chr(0x10ead)):
             with self.subTest(dash=ascii(dash)):
-                text = self.VALID_LEASE + "**Active" + dash + "session:** none\n"
+                text = self.VALID_LEASE + "Active" + dash + "session: none\n"
                 missing, invalid = mod.check_text(text)
                 self.assertEqual(missing, [])
                 self.assertEqual(len(invalid), 1)
                 self.assertIn("non-ASCII hyphen", invalid[0])
 
     def test_missing_field_precedence_with_near_miss(self) -> None:
-        text = self.VALID_LEASE.replace("**Status:** active", "**STATUS:** active")
+        text = self.VALID_LEASE.replace("Status: active", "STATUS: active")
         code, missing, invalid, _, stderr = self._lease_result(text)
         self.assertEqual((code, len(missing), len(invalid)), (2, 1, 1))
         self.assertEqual(stderr.count("ERROR:"), 1)
         self.assertEqual(stderr.count("FAIL:"), 1)
 
     def test_value_cannot_move_to_next_line(self) -> None:
-        text = self.VALID_LEASE.replace("**Status:** active", "**Status:**\nactive")
+        text = self.VALID_LEASE.replace("Status: active", "Status:\nactive")
         code, missing, invalid, _, _ = self._lease_result(text)
-        self.assertEqual((code, missing, len(invalid)), (1, [], 1))
+        # 3b679: the plain pattern needs ": " on the label's line, so the
+        # field is also absent (the bold pattern's \s+ crossed the newline).
+        self.assertEqual((code, len(missing), len(invalid)), (2, 1, 1))
         self.assertIn("wrong value shape", invalid[0])
 
-    def _mention(self, field, number):
-        return (
-            f"field label `{field}:` also appears at line {number}, which the "
-            f"session-start reader counts as a second field line "
-            f"(drop the colon from a mention)"
-        )
-
     def test_reader_field_label_mentions(self) -> None:
-        # tools/session_facts.py counts every line containing "<name>:",
-        # so each such line besides the field line is a second field line.
+        # 3b679 r3: tools/session_facts.py reads only column-zero field lines
+        # outside comments, so a field label in prose is not a second field
+        # line and is not a finding; the reader reads the lease unchanged.
+        import runpy
         lease = self.VALID_LEASE
         shapes = {
-            "status in current-task": (
-                lease.replace("example task", "fix Status: active"), "Status", 11),
-            "session in current-task": (
-                lease.replace("example task", "example **Active-session:** old"),
-                "Active-session", 11),
-            "comment mention": (
-                lease + "<!-- on close set `Status: released` -->\n", "Status", 14),
-            "plain label": (lease + "Status: active\n", "Status", 14),
+            "status in current-task": lease.replace("example task", "fix Status: active"),
+            "session in current-task": lease.replace(
+                "example task", "example **Active-session:** old"),
+            "label after a word": lease + "note Status: active\n",
             "inline code under a later heading": (
-                lease + "## Notes\nThe lease says `Active-session: none`.\n",
-                "Active-session", 15),
-            "plain heartbeat in a fence": (
-                lease + "```\nLast-heartbeat-UTC: 2026-07-03T12:00:00Z\n```\n",
-                "Last-heartbeat-UTC", 15),
-            "near-miss of another field": (
-                lease + "**CURRENT-TASK:** set Status: active\n", "Status", 14),
+                lease + "## Notes\nThe lease says `Active-session: none`.\n"),
+            "heartbeat after a word in a fence": (
+                lease + "```\nsee Last-heartbeat-UTC: 2026-07-03T12:00:00Z\n```\n"),
         }
-        for name, (text, field, number) in shapes.items():
+        facts = runpy.run_path(str(REPO_ROOT / "tools/session_facts.py"))
+        expected = facts["_fields"](lease)[:2]
+        for name, text in shapes.items():
             with self.subTest(shape=name):
                 code, missing, invalid, stdout, stderr = self._lease_result(text)
-                self.assertEqual(code, 1)
-                self.assertEqual(missing, [])
-                self.assertIn(self._mention(field, number), invalid)
-                expected = 2 if name == "near-miss of another field" else 1
-                self.assertEqual(len(invalid), expected, invalid)
-                self.assertEqual(stdout, "")
+                self.assertEqual((code, missing, invalid), (0, [], []))
+                self.assertEqual(facts["_fields"](text)[:2], expected)
+        # A near miss of another field is still that field's finding only.
+        code, missing, invalid, _, _ = self._lease_result(
+            lease + "CURRENT-TASK: set Status: active\n")
+        self.assertEqual((code, missing, len(invalid)), (1, [], 1))
+        self.assertIn("`Current-task:` at line 14 has a near-miss label", invalid[0])
 
     def test_sanctioned_mention_spelling_passes(self) -> None:
         mod = self._load_module()
@@ -25940,35 +25954,301 @@ class SessionStateTests(LinterTestCase):
         self.assertEqual(self._lease_result(text)[0], 0)
 
     def test_reader_fields_match_session_facts(self) -> None:
+        # 3b679 r3: every non-exact occurrence the reader counts is a refused
+        # store-field mention or a near miss, so its fields are the store's.
         import runpy
         mod = self._load_module()
         names = runpy.run_path(str(REPO_ROOT / "tools/session_facts.py"))["NAMES"]
-        self.assertEqual(mod.READER_FIELDS, names)
+        self.assertEqual(mod.STORE_FIELDS, names)
 
     def test_underscore_emphasis_labels(self) -> None:
         mod = self._load_module()
+        emphasis = "bold or emphasis markers, write the plain form `Status: <value>`"
         for token, faults in (
-            ("__STATUS:__", ("wrong case", "underscore emphasis")),
-            ("__Status:__", ("underscore emphasis",)),
-            ("__Status__:", ("colon outside the bold", "underscore emphasis")),
-            ("_Status:_", ("underscore emphasis",)),
-            ("**Status:__", ("underscore emphasis",)),
+            ("__STATUS:__", ("wrong case", emphasis)),
+            ("__Status:__", (emphasis,)),
+            ("__Status__:", (emphasis,)),
+            ("_Status:_", (emphasis,)),
+            ("**Status:__", (emphasis,)),
         ):
             with self.subTest(token=token):
                 missing, invalid = mod.check_text(
                     self.VALID_LEASE + token + " active\n")
                 self.assertEqual(missing, [])
                 self.assertEqual(invalid, [
-                    "field line `**Status:**` at line 14 has a near-miss label "
+                    "field line `Status:` at line 14 has a near-miss label "
                     f"({', '.join(faults)})"
                 ])
         text = self.VALID_LEASE.replace(
-            "**Status:** active", "__Status:__ active"
-        ) + "<!--\n**Status:** active\n-->\n"
+            "Status: active", "__Status:__ active"
+        ) + "<!--\nStatus: active\n-->\n"
         code, missing, invalid, _, _ = self._lease_result(text)
         self.assertEqual((code, missing, len(invalid)), (1, [], 2))
-        self.assertIn("underscore emphasis", invalid[0])
+        self.assertIn("bold or emphasis markers", invalid[0])
         self.assertIn("outside the header region (HTML comment)", invalid[1])
+
+    def test_bold_field_refused_naming_plain_form(self) -> None:
+        # 3b679: orch_store.py parses only "<name>: " at column zero, so the
+        # Markdown bold form of every field is a finding naming the plain form.
+        mod = self._load_module()
+        for field in mod.FIELD_PATTERNS:
+            with self.subTest(field=field):
+                text = self.VALID_LEASE.replace(f"{field}: ", f"**{field}:** ", 1)
+                code, missing, invalid, stdout, stderr = self._lease_result(text)
+                self.assertEqual(code, 2)
+                self.assertEqual(missing, [
+                    f"required field line `{field}: <value>` is absent"])
+                self.assertEqual(len(invalid), 1, invalid)
+                self.assertIn(f"write the plain form `{field}: <value>`", invalid[0])
+                self.assertEqual(stdout, "")
+        bold = re.sub(r"(?m)^([A-Za-z-]+): ", r"**\1:** ", self.VALID_LEASE)
+        code, missing, invalid, _, _ = self._lease_result(bold)
+        self.assertEqual((code, len(missing), len(invalid)), (2, 6, 6))
+        self.assertTrue(all("write the plain form" in item for item in invalid))
+
+    def test_plain_lease_has_no_findings(self) -> None:
+        # Guards the 3b679 plain FIELD_PATTERNS: before them every plain
+        # field line was absent (exit 2) and this lease was refused.
+        mod = self._load_module()
+        self.assertEqual(mod.check_text(self.VALID_LEASE), ([], []))
+        code, missing, invalid, stdout, stderr = self._lease_result(self.VALID_LEASE)
+        self.assertEqual((code, missing, invalid, stderr), (0, [], [], ""))
+        self.assertIn("lease is well-formed", stdout)
+
+    def test_r2_orch_store_refusals_are_findings(self) -> None:
+        # 3b679 r2: each lease orch_store.py's lease() refuses is refused here.
+        mod = self._load_module()
+        lease = self.VALID_LEASE
+        shapes = {
+            "title suffix": lease.replace("grc\n", "grc (concurrency lease)\n", 1),
+            "second title in a comment": lease + "<!--\n# Session state: grc\n-->\n",
+            "winding-down": lease.replace("Status: active", "Status: winding-down"),
+            "Active": lease.replace("Status: active", "Status: Active"),
+            "ACTIVE": lease.replace("Status: active", "Status: ACTIVE"),
+            "trailing space": lease.replace("Status: active", "Status: active "),
+            "trailing NBSP": lease.replace("example task", "example task "),
+            "lone CR": lease.replace("example task", "example\rtask"),
+            "fullwidth digit": lease.replace("2026-07-03", "２026-07-03"),
+            "impossible stamp": lease.replace("2026-07-03T12:00:00Z", "2026-02-30T25:61:61Z"),
+            "future stamp": lease.replace("2026-07-03T12:00:00Z", "2999-01-01T00:00:00Z"),
+            "non-ASCII session": lease.replace("claude/example-branch", "claude/exämple"),
+            "129-byte session": lease.replace("claude/example-branch", "x" * 129),
+            "dotless-i mention in a comment": lease + "<!--\nActıve-session: old\n-->\n",
+            "indented mention in a comment": lease + "<!--\n  status : old\n-->\n",
+            "oversized": lease + ("<!-- " + "x" * 1000 + " -->\n") * 70,
+        }
+        for name, text in shapes.items():
+            with self.subTest(shape=name):
+                missing, invalid = mod.check_text(text)
+                self.assertTrue(missing or invalid, name)
+        self.assertEqual(mod.check_text(lease.replace("x" * 0 + "claude/example-branch",
+                                                      "x" * 128)), ([], []))
+
+    def test_r2_free_text_is_never_flagged(self) -> None:
+        # 3b679 r3: each line is a near miss or a duplicate field line unless
+        # the free-text rule decides it (a bullet, or a line that starts inside
+        # an HTML comment, wherever the comment opened).
+        mod = self._load_module()
+        for text in ("- Status: pending\n", "* Last-heartbeat-UTC: yesterday\n",
+                     "- Current-task: x\n", "* Worker-dispatches: y\n",
+                     "- Operating-mode: overnight-unattended\n",
+                     "<!--\nOperating-mode : fully-attended\n-->\n",
+                     "note <!-- earlier\n  Current-task: old\n-->\n",
+                     "<!--\n**Worker-dispatches:** two\n-->\n"):
+            with self.subTest(text=text):
+                self.assertEqual(mod.check_text(self.VALID_LEASE + text), ([], []))
+                code, missing, invalid, _, _ = self._lease_result(self.VALID_LEASE + text)
+                self.assertEqual((code, missing, invalid), (0, [], []))
+
+    def test_r3_commented_exact_mode_line_is_not_a_field(self) -> None:
+        # 3b679 r3: an exact Operating-mode, Current-task or Worker-dispatches
+        # line inside a comment (multi-line, or opened after prose) is not read
+        # by grc's readers, so it is neither a duplicate nor misplaced, and
+        # the field line below it supplies the value.
+        mod = self._load_module()
+        for above in ("<!--\nOperating-mode: fully-attended\n-->\n",
+                      "note <!-- was\nOperating-mode: fully-attended\n-->\n",
+                      "<!--\nCurrent-task: old\nWorker-dispatches: two\n-->\n"):
+            with self.subTest(above=above):
+                text = self.VALID_LEASE.replace(
+                    "Status: active\n\n", "Status: active\n\n" + above)
+                self.assertEqual(mod.check_text(text), ([], []))
+                bad = text.replace("Operating-mode: attended-autonomous",
+                                   "Operating-mode: casual")
+                self.assertEqual(mod.check_text(bad)[1], [
+                    "Operating-mode value `casual` is invalid; permitted values: "
+                    "fully-attended, attended-autonomous, overnight-unattended, "
+                    "daytime-unattended"])
+        text = self.VALID_LEASE.replace("Operating-mode: attended-autonomous\n",
+                                        "<!--\nOperating-mode: attended-autonomous\n-->\n")
+        self.assertEqual(mod.check_text(text)[0],
+                         ["required field line `Operating-mode: <value>` is absent"])
+
+    def test_r3_prose_and_inline_comments_are_not_findings(self) -> None:
+        # 3b679 r3: orch_store.py's mention rule needs the name at the start
+        # of the line after optional whitespace, so none of these is counted
+        # (checked against /usr/local/bin/orch_store.py lease()), and grc's
+        # readers read only column-zero field lines outside comments.
+        mod = self._load_module()
+        for line in ("note <!-- Status: old -->", "<!-- Status: old -->",
+                     "<!-- Active-session: none -->", "> **Status:** active",
+                     "- 2026-10-29 Status: released", "note Status: active",
+                     "1. Operating-mode: x", "## Current task: notes",
+                     "The lease says `Active-session: none`."):
+            with self.subTest(line=line):
+                self.assertEqual(mod.check_text(self.VALID_LEASE + line + "\n"), ([], []))
+        self.assertEqual(mod.check_text(self.VALID_LEASE.replace(
+            "example task", "fix Status: active")), ([], []))
+
+    def test_r3_refused_mentions_in_comments_stay_findings(self) -> None:
+        # The kept exception: orch_store.py counts these lines, so they are findings.
+        mod = self._load_module()
+        for text in ("<!--\nStatus: old\n-->\n", "note <!-- x\n  status : old\n-->\n",
+                     "<!--\nLast-heartbeat-UTC:\n-->\n", "<!-- a -->\nACTIVE-SESSION: x\n"):
+            with self.subTest(text=text):
+                invalid = mod.check_text(self.VALID_LEASE + text)[1]
+                self.assertTrue(invalid, text)
+
+    def test_r3_symlinked_or_fifo_lease_is_refused(self) -> None:
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest.mock import patch
+        mod = self._load_module()
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as td:
+            real = Path(td) / "real.md"
+            real.write_text(self.VALID_LEASE, encoding="utf-8")
+            link = Path(td) / "session-state.md"
+            link.symlink_to(real)
+            fifo = Path(td) / "fifo.md"
+            os.mkfifo(fifo)
+            for path, reason in ((link, "it is a symlink, which orch_store.py refuses"),
+                                 (fifo, "not a regular file, which orch_store.py refuses"),
+                                 (Path(td), "not a regular file, which orch_store.py refuses")):
+                with self.subTest(path=path.name):
+                    stdout, stderr = io.StringIO(), io.StringIO()
+                    with patch.object(mod, "resolve_working", return_value=path):
+                        with redirect_stdout(stdout), redirect_stderr(stderr):
+                            code = mod.main()
+                    self.assertEqual(code, 2)
+                    self.assertIn(reason, stderr.getvalue())
+                    self.assertEqual(stdout.getvalue(), "")
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with patch.object(mod, "resolve_working", return_value=real):
+                with redirect_stdout(stdout), redirect_stderr(stderr):
+                    self.assertEqual(mod.main(), 0, stderr.getvalue())
+
+    def test_r2_label_split_is_linear(self) -> None:
+        import time
+        mod = self._load_module()
+        lengths = []
+        real = mod.label_token
+
+        def recording(line):
+            lengths.append(len(line))
+            return real(line)
+
+        mod.label_token = recording
+        text = (self.VALID_LEASE + "a" * 20000 + ": x\n" + "*" * 20000 + "Status:** x\n"
+                + "_" * 10000 + " " * 10000 + ":\n")
+        start = time.monotonic()
+        mod.check_text(text)
+        self.assertLess(time.monotonic() - start, 0.5)
+        self.assertGreaterEqual(sorted(lengths)[-3], 20000)
+
+    def test_r2_main_reads_bytes(self) -> None:
+        # A lone CR must survive the read (read_text would translate it).
+        code, missing, invalid, _, stderr = self._lease_result(
+            self.VALID_LEASE.replace("example task", "example\rtask"))
+        self.assertEqual(code, 1)
+        self.assertIn("carriage return", stderr)
+
+    def test_r4_oversized_lease_is_refused_unread(self) -> None:
+        # 3b679 r4: main() reads at most MAX_BYTES + 1 bytes, so a lease over
+        # the limit is refused with the size finding (exit 1) without reading
+        # it whole, even when the limit splits a UTF-8 sequence.
+        # 3b679 r6: the bound must be observed, not merely unviolated (a
+        # buffered whole-file read made no os.read call and passed). At least
+        # one os.read of the lease is required and its totals bounded, the
+        # lease offset at os.close is bounded, and any buffered or whole-file
+        # read interface called on the lease fails the test.
+        import builtins
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest.mock import patch
+        mod = self._load_module()
+        limit = mod.MAX_BYTES
+        pad = limit - len((self.VALID_LEASE + "<!--  -->\n").encode("utf-8"))
+        at_limit = self.VALID_LEASE + "<!-- " + "x" * pad + " -->\n"
+        self.assertEqual(len(at_limit.encode("utf-8")), limit)
+
+        def observed_main(text):
+            reads, offsets, refused = [], [], []
+            real_read, real_close = os.read, os.close
+            with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as td:
+                lease = Path(td) / "session-state.md"
+                lease.write_bytes(text.encode("utf-8"))
+                identity = (lease.stat().st_dev, lease.stat().st_ino)
+
+                def is_lease(target):
+                    try:
+                        st = (os.fstat(target) if isinstance(target, int)
+                              else os.stat(target))
+                    except (OSError, TypeError, ValueError):
+                        return False
+                    return (st.st_dev, st.st_ino) == identity
+
+                def counting_read(fd, n):
+                    data = real_read(fd, n)
+                    if is_lease(fd):
+                        reads.append((n, len(data)))
+                    return data
+
+                def offset_close(fd):
+                    if is_lease(fd):
+                        offsets.append(os.lseek(fd, 0, os.SEEK_CUR))
+                    return real_close(fd)
+
+                def refuse(name, real):
+                    def guarded(target, *args, **kwargs):
+                        if is_lease(target):
+                            refused.append(name)
+                            raise AssertionError(f"{name} called on the lease")
+                        return real(target, *args, **kwargs)
+                    return guarded
+
+                stdout, stderr = io.StringIO(), io.StringIO()
+                with patch.object(mod, "resolve_working", return_value=lease), \
+                        patch.object(mod.os, "read", counting_read), \
+                        patch.object(mod.os, "close", offset_close), \
+                        patch.object(mod.os, "fdopen", refuse("os.fdopen", os.fdopen)), \
+                        patch.object(mod.os, "pread", refuse("os.pread", os.pread)), \
+                        patch.object(io, "open", refuse("io.open", io.open)), \
+                        patch.object(builtins, "open", refuse("open", builtins.open)), \
+                        patch.multiple(Path, **{name: refuse("Path." + name, getattr(Path, name))
+                                                for name in ("open", "read_bytes", "read_text")}):
+                    with redirect_stdout(stdout), redirect_stderr(stderr):
+                        code = mod.main()
+            return code, reads, offsets, refused, stdout.getvalue(), stderr.getvalue()
+
+        code, reads, offsets, refused, _, stderr = observed_main(at_limit)
+        self.assertEqual((code, refused), (0, []), stderr)
+        self.assertEqual(sum(got for _, got in reads), limit)
+        self.assertEqual(offsets, [limit])
+        for text in (at_limit + "\n", self.VALID_LEASE + "<!-- " + "é" * limit + " -->\n",
+                     self.VALID_LEASE + "<!-- a" + "é" * limit + " -->\n"):
+            with self.subTest(size=len(text.encode("utf-8"))):
+                code, reads, offsets, refused, stdout, stderr = observed_main(text)
+                self.assertEqual(refused, [])
+                self.assertEqual(code, 1, stderr)
+                self.assertTrue(stderr.startswith("FAIL: "), stderr)
+                self.assertTrue(stderr.endswith(
+                    f"session-state.md: the lease is over {limit} bytes; "
+                    f"orch_store.py refuses more than {limit}\n"), stderr)
+                self.assertEqual(stderr.count("\n"), 1, stderr)
+                self.assertEqual(stdout, "")
+                self.assertTrue(reads, "no os.read of the lease was observed")
+                self.assertLessEqual(sum(n for n, _ in reads), limit + 1)
+                self.assertLessEqual(sum(got for _, got in reads), limit + 1)
+                self.assertEqual(len(offsets), 1, offsets)
+                self.assertLessEqual(offsets[0], limit + 1)
 
     def test_compatibility_letters_in_label(self) -> None:
         mod = self._load_module()
@@ -25984,13 +26264,13 @@ class SessionStateTests(LinterTestCase):
         ):
             with self.subTest(label=ascii(label)):
                 missing, invalid = mod.check_text(
-                    self.VALID_LEASE + f"**{label}:** none\n")
+                    self.VALID_LEASE + f"{label}: none\n")
                 self.assertEqual(missing, [])
                 self.assertEqual(len(invalid), 1, invalid)
                 self.assertIn(f"at line 14 has a near-miss label ({faults})",
                               invalid[0])
         text = self._shadow_lease(
-            "Status", "**" + wide("Status") + ":** released\n", "fence")
+            "Status", wide("Status") + ": released\n", "fence")
         code, missing, invalid, _, _ = self._lease_result(text)
         self.assertEqual((code, missing, len(invalid)), (1, [], 2))
         self.assertIn("compatibility character", invalid[0])
@@ -25999,19 +26279,26 @@ class SessionStateTests(LinterTestCase):
     def test_heading_without_title_starts_later_section(self) -> None:
         mod = self._load_module()
         body = self.VALID_LEASE.split("\n", 2)[2]
-        text = body.replace("**Status:** active\n", "") + "\n## History\n**Status:** active\n"
-        number = text.split("\n").index("**Status:** active") + 1
+        text = body.replace("Status: active\n", "") + "\n## History\nStatus: active\n"
+        number = text.split("\n").index("Status: active") + 1
+        untitled = ("line 1 must be exactly `# Session state: grc`, found "
+                    "'Active-session: claude/example-branch'")
         self.assertEqual(mod.check_text(text), ([], [
-            f"field line `**Status:**` at line {number} "
+            untitled,
+            "0 lines start with `# Session state:` (lines none); exactly one may",
+            f"field line `Status:` at line {number} "
             f"is outside the header region (later heading)"
         ]))
-        self.assertEqual(mod.check_text(body), ([], []))
+        self.assertEqual(mod.check_text(body), ([], [
+            untitled,
+            "0 lines start with `# Session state:` (lines none); exactly one may",
+        ]))
 
     def test_three_reader_fields_fenced_at_end(self) -> None:
         mod = self._load_module()
         lines = [line for line in self.VALID_LEASE.split("\n")
-                 if line.startswith(("**Active-session:**", "**Status:**",
-                                     "**Last-heartbeat-UTC:**"))]
+                 if line.startswith(("Active-session:", "Status:",
+                                     "Last-heartbeat-UTC:"))]
         text = self.VALID_LEASE
         for line in lines:
             text = text.replace(line + "\n", "")
@@ -26027,11 +26314,11 @@ class SessionStateTests(LinterTestCase):
         for prefix in ("\x85", "\x0b", "\x0c", chr(0x2028), chr(0xA0)):
             with self.subTest(prefix=ascii(prefix)):
                 missing, invalid = mod.check_text(
-                    self.VALID_LEASE + prefix + "**Active-session:** old\n")
+                    self.VALID_LEASE + prefix + "Active-session: old\n")
                 self.assertEqual(missing, [])
                 self.assertEqual(len(invalid), 1, invalid)
                 self.assertIn("at line 14 has a near-miss label "
-                              "(leading whitespace or Markdown marker)", invalid[0])
+                              "(leading whitespace)", invalid[0])
 
     def test_reader_shapes_refused(self) -> None:
         # Every lease the reader reports ambiguous, and every solitary copy
@@ -26045,25 +26332,38 @@ class SessionStateTests(LinterTestCase):
             "solitary fenced copy": (
                 live.replace(current, "") + fence + "\n" + old + fence + "\n"),
             "mixed case and comment copy": (
-                live.replace("**Active-session:**", "**Active-Session:**")
+                live.replace("Active-session:", "Active-Session:")
                 + "<!--\n" + old + "-->\n"),
-            "colon outside and history copy": (
-                live.replace("**Active-session:**", "**Active-session**:")
+            "space before colon and history copy": (
+                live.replace("Active-session:", "Active-session :")
                 + "## History\n" + old),
             "non-ASCII hyphen and fenced copy": (
-                live.replace("**Active-session:**",
-                             "**Active" + chr(0x2011) + "session:**")
+                live.replace("Active-session:",
+                             "Active" + chr(0x2011) + "session:")
                 + fence + "\n" + old + fence + "\n"),
             "upper case and fenced copy": (
-                live.replace("**Status:** active", "**STATUS:** released")
-                + fence + "\n**Status:** active\n" + fence + "\n"),
+                live.replace("Status: active", "STATUS: released")
+                + fence + "\nStatus: active\n" + fence + "\n"),
             "mixed case and copy above Status": live.replace(
-                current, "**Active-Session:** orch-2026-10-04T13:36:00Z\n" + old),
+                current, "Active-Session: orch-2026-10-04T13:36:00Z\n" + old),
+            # 3b679: the reader reads a solitary bold field; the gate refuses it.
+            "solitary bold copy": (
+                live.replace(current, "") + "**" + old.replace(":", ":**", 1)),
+            "bold header": live.replace(current, "**" + current.replace(":", ":**", 1)),
         })
-        for line in (current, "**Status:** active\n", facts.HBLINE):
-            for replacement in ("", line.replace(":**", "**:")):
+        for line in (current, "Status: active\n", facts.HBLINE):
+            for replacement in ("", line.replace(":", " :", 1)):
                 shapes[f"substituted {line[:12]} {bool(replacement)}"] = (
                     live.replace(line, replacement + "<!--\n" + line + "-->\n"))
+        # 3b679 r3: a copy the reader does not read (a comment, prefix or
+        # prose copy) is refused exactly when orch_store.py counts it.
+        for name, copy in facts.NOT_READ.items():
+            with self.subTest(shape=name):
+                result = mod.check_text(facts.BASE + copy)
+                if name in facts.NOT_READ_GATE_ACCEPTS:
+                    self.assertEqual(result, ([], []))
+                else:
+                    self.assertTrue(result[0] or result[1])
         for name, lease in shapes.items():
             with self.subTest(shape=name):
                 missing, invalid = mod.check_text(lease)
@@ -32528,6 +32828,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         citation_publishers.py PASSIVE F 8c9729132cfaa4f2705c023b4501872905a44dd76b996be8ea8c78ae4188d3e8
         cleanup-tmp-worker-output.py WRITE F 188d936e3dca47b40ec662a51670d04ee2e9cc6b98b706f4e876f489483c62f8
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
+        convert-session-state-lease.py OWN F 9d9d39588909856d83d904e7fbeae7a451981c6b9f92296a8e61965c07a3cea4
         decisions-search.py NO_FS F a6f83f23008ed1a78383293f3e685e67bc8af59d1ad79cad5832bc792a111eca
         detect-collection-candidates.py NO_FS F 4abd7344bc3bda8933daaa560e4479dea08a856f5503e6a4122f495923a6f21b
         detect-env.py WRITE F bb9b977f0a07a9d27b09dcd85d271bb1f31efc826c5f6cd860106f283144ebc6
@@ -32537,7 +32838,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
         git-hooks/pre-push TRANSPORT F 9d1300e3fc7e1dcea3986ea7015f839c2c821cd7be16263dadc04482089fc2b5
-        handoff-snapshot.py NO_FS F c752b79fa8844d3b37fb8978b351cd55ad3c02e648cd0f37168f256a92154358
+        handoff-snapshot.py NO_FS F 70e30d65f7eeca3ae03ed36b3556e73a468272804f67cf38bfe16d988b2e3de2
         historical_citation_register.py PASSIVE F deb457b7487c069a6f1602b6a4160e1ce922da6a82a523b288dfee151d3b0236
         install-git-hooks.sh FIXED F a0010c29758bda7824fdd000e5400c5aa6c3dd13563c9cf3bc4c35acc53b286c
         iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
@@ -32613,7 +32914,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-secrets-in-content.py CWD F 868061fc0527d0843223825800fb75dd963d345d058a144b6ecc23ee8deb227b
         lint-section-anchors.py CWD F 4b540b4eb8480d1f4be16e1c51cc7c990d22a5b4ea8911244636d0aa1956726f
         lint-section-placement.py CWD F 936e351d52bcd0a0a4964b3ecd046c44ae057298aed6edde002687e8f4c17f98
-        lint-session-state.py NO_FS F b0c631b3f34ca1cd22c2023fb8eabd6cfdd8b2b9366e9812d9fa7d23c5e23bc5
+        lint-session-state.py NO_FS F 35adde65a445770b605cad7fb087bf82de70afdf6cf6ca677c3b7a562a20c5cb
         lint-shall-near-uncertainty.py ROOT F 0df50c2b6826f9216f67addad8931f1eb35498d0e3862064bdb3fed317e64610
         lint-sibling-placeholders.py NO_FS F 2ae82222a589343521ebfbc12a3b9edbec0533203e02b3f7adf906f2b8ad1d2a
         lint-skill-derives-from.py OWN F 4bf6a78a42e9f8d8dff44035ac2320a67043006a133375e7cacdcd85dd5336f5
@@ -32664,7 +32965,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run_all_audits.sh FIXED F 18466189b74841fdf67c087abd6ee880730f4fe3a8b395dbc9da38466a4d5c63
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
-        session_facts.py PASSIVE F 0d4dcb545fcba5b1533d4aff1c3fedad69ca97d6e07f045b9976aee0ce07247a
+        session_facts.py PASSIVE F b4fc9c2f87ed95dd52a717bf07913c942777e1aae5ec902c595f10e5ed2ad77b
         skill-verdict-fields.json DATA F fba56d7e70141647fcad92824591d65a0208c6e6b623caaff82bfcb62bbd06aa
         standards-currency-unpinned-baseline.json DATA F e37c71336ad92904670c220de1d3e622a1e8e5b638c1dc0aac3829d99344ec79
         statusline-next-pr.py NO_FS F 81db4327eb56260c362e61edbae2a7c7c2fd426df579fe21d57638cfd7b55223

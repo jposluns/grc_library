@@ -357,7 +357,7 @@ def read_operating_mode(root):
     (indeterminate), fails open (allows the stop).
 
     One source per checkout (3b113 QA r2):
-      - the primary grc checkout: the store lease only (_grc_lease_mode: '**Operating-mode:**' from
+      - the primary grc checkout: the store lease only (_grc_lease_mode: 'Operating-mode:', plain or bold, from
         GRC_STORE, else <repo-parent>/private, then session-state.md, mapped via _grc_map_mode); a
         MODE_FILE there is ignored, so a stray file never shadows the lease.
       - any other root (the bundled --self-test, a file-based adopter): the repo-relative single-word
@@ -378,7 +378,7 @@ def read_operating_mode(root):
         return val or None
     except FileNotFoundError:
         pass  # no file-based mode record
-    except OSError:
+    except (OSError, UnicodeDecodeError):  # 3b679 r6: an undecodable MODE_FILE is an unreadable one (fail open)
         return None
     # Not the grc checkout, so _grc_lease_mode returns None here; the call is kept as a defensive default.
     return _grc_lease_mode(root)
@@ -392,14 +392,37 @@ def _grc_lease_mode(root):
     if not _is_grc_main_checkout(root) or _grc_is_worker():
         return None
     try:
-        with open(_GRC_STATE_FILE, encoding="utf-8") as fh:
+        # 3b679 r4: newline="" keeps every CR, so _grc_mode_value splits on LF only (a lone CR is no line end).
+        with open(_GRC_STATE_FILE, encoding="utf-8", newline="") as fh:
             txt = fh.read()
-    except OSError:
+    except (OSError, UnicodeDecodeError):  # 3b679 r5: an undecodable lease is an unreadable one (fail open)
         return None
-    m = re.search(r"(?im)^\*\*Operating-mode:\*\*\s*(.+?)\s*$", txt)
-    if not m:
+    value = _grc_mode_value(txt)
+    if value is None:
         return None
-    return _grc_map_mode(m.group(1))
+    return _grc_map_mode(value)
+
+# 3b679: the lease's plain `Operating-mode: <mode>` line (gate 63's form) or the earlier bold form.
+# 3b679 r3: the exact label at column zero, the value separated by spaces or tabs only (never a line
+# end), on a line that does not start inside an HTML comment.
+_GRC_MODE_RE = re.compile(r"(?:\*\*Operating-mode:\*\*|Operating-mode:)[ \t]+(.+?)[ \t]*")
+_GRC_COMMENT_DELIMITER = re.compile(r"<!--|-->")
+
+
+def _grc_mode_value(txt):
+    """The first exact `Operating-mode:` line's value, skipping every line that starts inside an HTML
+    comment ("<!--" opens and "-->" closes one wherever either appears, across lines; no nesting; an
+    unclosed comment runs to EOF), or None. Lines split on LF only, as block-askuserquestion-unattended.py
+    and tools/session_facts.py split them; one trailing CR is dropped (3b679 r4)."""
+    comment = False
+    for line in txt.split("\n"):
+        if not comment:
+            m = _GRC_MODE_RE.fullmatch(line[:-1] if line.endswith("\r") else line)
+            if m:
+                return m.group(1)
+        for delimiter in _GRC_COMMENT_DELIMITER.finditer(line):
+            comment = delimiter.group() == "<!--"
+    return None
 
 def actionable_items(root):
     """DEFAULT (minimal file-based) adapter. Run the OPTIONAL Python executable at ACTIONABLE_PRODUCER and parse
@@ -2065,6 +2088,107 @@ def _self_test():
             # 3b101 QA r2 (codex): the refusal's touch path is the path the escape reader consumes.
             self.assertIn(_grc_escape_file(), MODE_SET_HINT)
 
+        def test_grc_lease_mode_plain_and_bold(self):
+            # 3b679: the lease moves from **Operating-mode:** to the plain line; both read.
+            for line in ("Operating-mode: overnight-unattended", "**Operating-mode:** overnight-unattended"):
+                value = _grc_mode_value("# Session state: grc\n\n" + line + "\n<!-- note -->\n")
+                self.assertEqual(value, "overnight-unattended", line)
+            for line in ("**Operating-mode**: overnight-unattended", " Operating-mode: overnight-unattended"):
+                self.assertIsNone(_grc_mode_value("# Session state: grc\n\n" + line + "\n"), line)
+
+        def test_grc_commented_mode_lines_are_not_read(self):
+            # 3b679 r3: only a column-zero field line outside every HTML comment is read, and the value
+            # never crosses a line end (an empty commented label used to read "-->").
+            head = "# Session state: grc\n\n"
+            for text in ("<!-- Operating-mode: overnight-unattended -->\n",
+                         "<!--\nOperating-mode: overnight-unattended\n-->\n",
+                         "note <!-- was\nOperating-mode: overnight-unattended\n-->\n",
+                         "<!--\n**Operating-mode:** overnight-unattended\n-->\n",
+                         "<!--\nOperating-mode:\n-->\n", "Operating-mode:\n-->\n"):
+                self.assertIsNone(_grc_mode_value(head + text), text)
+            for line in ("Operating-mode: fully-attended", "**Operating-mode:** fully-attended"):
+                for above in ("<!--\nOperating-mode: overnight-unattended\n-->\n",
+                              "note <!-- x\nOperating-mode: overnight-unattended\n-->\n",
+                              "<!-- Operating-mode: overnight-unattended -->\n"):
+                    value = _grc_mode_value(head + above + line + "\n<!-- note -->\n")
+                    self.assertEqual(value, "fully-attended", (above, line))
+            from unittest import mock
+            with tempfile.TemporaryDirectory() as store:
+                lease = os.path.join(store, "session-state.md")
+                patches = {"_GRC_STATE_FILE": lease, "_is_grc_main_checkout": lambda root: True,
+                           "_grc_is_worker": lambda: False}
+                with mock.patch.dict(globals(), patches):
+                    for text in ("<!--\nOperating-mode:\n-->\n",
+                                 "note <!-- was\nOperating-mode: overnight-unattended\n-->\n"):
+                        with open(lease, "w", encoding="utf-8") as fh:
+                            fh.write(head + text)
+                        self.assertIsNone(_grc_lease_mode(store), text)
+
+        def test_grc_lease_mode_end_to_end_plain_and_bold(self):
+            # 3b679 r2: both forms through _grc_lease_mode() itself, reading a real lease file.
+            from unittest import mock
+            with tempfile.TemporaryDirectory() as store:
+                lease = os.path.join(store, "session-state.md")
+                patches = {"_GRC_STATE_FILE": lease, "_is_grc_main_checkout": lambda root: True,
+                           "_grc_is_worker": lambda: False}
+                with mock.patch.dict(globals(), patches):
+                    for mode in ("overnight-unattended", "fully-attended"):
+                        for line in ("Operating-mode: " + mode, "**Operating-mode:** " + mode):
+                            with open(lease, "w", encoding="utf-8") as fh:
+                                fh.write("# Session state: grc\n\nStatus: active\n\n" + line
+                                         + "\n<!-- note -->\n")
+                            self.assertEqual(_grc_lease_mode(store), _grc_map_mode(mode), line)
+                    self.assertNotEqual(_grc_map_mode("overnight-unattended"),
+                                        _grc_map_mode("fully-attended"))
+                    os.unlink(lease)
+                    self.assertIsNone(_grc_lease_mode(store))
+
+        def test_grc_lease_lone_cr_is_not_a_line_end(self):
+            # 3b679 r4: the lease is split on LF only, so a lone CR never starts a field line (text-mode
+            # universal newlines read the note's overnight-unattended); one trailing CR is dropped.
+            from unittest import mock
+            head = b"# Session state: grc\n\n"
+            with tempfile.TemporaryDirectory() as store:
+                lease = os.path.join(store, "session-state.md")
+                patches = {"_GRC_STATE_FILE": lease, "_is_grc_main_checkout": lambda root: True,
+                           "_grc_is_worker": lambda: False}
+                with mock.patch.dict(globals(), patches):
+                    for text, want in ((b"note\rOperating-mode: overnight-unattended\n"
+                                        b"Operating-mode: fully-attended\n", "attended"),
+                                       (b"note\rOperating-mode: overnight-unattended\n", None),
+                                       (b"Operating-mode: overnight-unattended\r\n", "unattended"),
+                                       (b"Operating-mode: fully-attended\r\n", "attended")):
+                        with open(lease, "wb") as fh:
+                            fh.write(head + text + b"<!-- note -->\n")
+                        self.assertEqual(_grc_lease_mode(store), want, text)
+            self.assertEqual(_grc_mode_value("Operating-mode: fully-attended\r\n"), "fully-attended")
+
+        def test_grc_undecodable_lease_is_an_unreadable_lease(self):
+            # 3b679 r5: a lease that is not valid UTF-8 fails open exactly as a missing or unreadable one
+            # does (mode None, the stop allowed); it used to raise UnicodeDecodeError out of run().
+            from unittest import mock
+            lease_bytes = b"# Session state: grc\n\nOperating-mode: overnight-unattended\n"
+            with tempfile.TemporaryDirectory() as store:
+                build(store, producer_lines="1\tFirst")
+                lease = os.path.join(store, "session-state.md")
+                patches = {"_GRC_STATE_FILE": lease, "_is_grc_main_checkout": lambda root: True,
+                           "_grc_is_worker": lambda: False}
+                with mock.patch.dict(globals(), patches):
+                    def outcome():
+                        return (_grc_lease_mode(store), read_operating_mode(store),
+                                run(store, {"stop_hook_active": False}))
+                    with open(lease, "wb") as fh:
+                        fh.write(lease_bytes)
+                    self.assertEqual(outcome(), ("unattended", "unattended", 2))
+                    os.unlink(lease)
+                    missing = outcome()
+                    os.mkdir(lease)  # open() raises IsADirectoryError, an OSError: an unreadable lease
+                    unreadable = outcome()
+                    os.rmdir(lease)
+                    with open(lease, "wb") as fh:
+                        fh.write(lease_bytes + b"note: \xff\n")
+                    self.assertEqual((missing, unreadable, outcome()), ((None, None, 0),) * 3)
+
         def test_grc_lease_arms_only_the_main_checkout_and_submodules(self):
             # 3b101 QA r2: the lease half of the scoping, on real hook copies: the main checkout and a
             # submodule read the lease; a linked worktree does not.
@@ -2072,7 +2196,7 @@ def _self_test():
             with tempfile.TemporaryDirectory() as parent:
                 os.makedirs(os.path.join(parent, "private"))
                 with open(os.path.join(parent, "private", "session-state.md"), "w", encoding="utf-8") as fh:
-                    fh.write("# Session state: grc\n\n**Operating-mode:** overnight-unattended\n")
+                    fh.write("# Session state: grc\n\nOperating-mode: overnight-unattended\n")
                 # Real admin directories (3b101 QA r3): a linked worktree's holds `commondir`, a submodule's
                 # does not. wt-alias reaches the worktree admin through a relative symlinked path; sub-deep
                 # is a submodule whose admin path has an ancestor named worktrees.
@@ -2209,6 +2333,27 @@ def _self_test():
             with tempfile.TemporaryDirectory() as d:
                 build(d, mode="attended")
                 self.assertEqual(read_operating_mode(d), "attended")
+
+        def test_undecodable_mode_file_is_an_unreadable_mode_file(self):
+            # 3b679 r6: a MODE_FILE that is not valid UTF-8 takes the unreadable branch (mode None, the stop
+            # allowed) as any OSError but FileNotFoundError does; it used to raise UnicodeDecodeError out of
+            # run(). An absent MODE_FILE falls through to _grc_lease_mode, stubbed to arm so the two differ.
+            from unittest import mock
+            with tempfile.TemporaryDirectory() as d:
+                build(d, mode="unattended", producer_lines="1\tFirst")
+                mode_file = os.path.join(d, MODE_FILE)
+                with mock.patch.dict(globals(), {"_grc_lease_mode": lambda root: "unattended"}):
+                    def outcome():
+                        return read_operating_mode(d), run(d, {"stop_hook_active": False})
+                    self.assertEqual(outcome(), ("unattended", 2))
+                    os.unlink(mode_file)
+                    self.assertEqual(outcome(), ("unattended", 2))  # absent: the lease fallback
+                    os.mkdir(mode_file)  # open() raises IsADirectoryError, an OSError: an unreadable MODE_FILE
+                    unreadable = outcome()
+                    os.rmdir(mode_file)
+                    with open(mode_file, "wb") as fh:
+                        fh.write(b"unattended\n\xff\n")
+                    self.assertEqual((unreadable, outcome()), ((None, 0),) * 2)
 
         # ---- default file-based actionable producer adapter ----
         def test_actionable_absent_producer_is_none(self):

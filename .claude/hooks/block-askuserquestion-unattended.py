@@ -46,7 +46,25 @@ import stat
 import sys
 from pathlib import Path
 
-MODE_RE = re.compile(r"^\*\*Operating-mode:\*\*\s+(\S+)\s*$", re.MULTILINE)
+# The plain `Operating-mode: <mode>` line (gate 63's form since 3b679) or the earlier bold form,
+# at column zero; the value is separated by spaces or tabs only, never a line end (3b679 r3).
+MODE_RE = re.compile(r"(?:\*\*Operating-mode:\*\*|Operating-mode:)[ \t]+(\S+)[ \t]*")
+COMMENT_DELIMITER = re.compile(r"<!--|-->")
+
+
+def lease_mode_value(text: str) -> str | None:
+    """The first exact `Operating-mode:` line's value, skipping every line that starts inside an
+    HTML comment ("<!--" opens and "-->" closes one wherever either appears, across lines; no
+    nesting; an unclosed comment runs to EOF). Lines split on LF; one trailing CR is dropped."""
+    comment = False
+    for raw in text.split("\n"):
+        if not comment:
+            m = MODE_RE.fullmatch(raw.removesuffix("\r"))
+            if m:
+                return m.group(1)
+        for delimiter in COMMENT_DELIMITER.finditer(raw):
+            comment = delimiter.group() == "<!--"
+    return None
 
 
 # `.working/` -> `_private` migration: resolve the (maintainer-only) working-state file through
@@ -227,8 +245,8 @@ def read_lease_mode(project_dir: str) -> str | None:
         text = _read_regular(ss).decode("utf-8", errors="replace")
     except Exception:  # noqa: BLE001 (a bad project dir or unreadable lease is "no lease mode")
         return None
-    m = MODE_RE.search(text)
-    return m.group(1).lower() if m else None
+    value = lease_mode_value(text)
+    return value.lower() if value else None
 
 
 def read_mode(project_dir: str, canonical_path: str = CANONICAL_MODE_FILE) -> tuple[str | None, str]:
@@ -313,15 +331,48 @@ def _self_test() -> int:
 
     os.environ.pop("GRC_STORE", None)  # the lease fixtures must not resolve to a real store
 
-    def lease_root(d: str, mode: str | None) -> str:
+    def lease_root(d: str, mode: str | None, label: str = "Operating-mode:") -> str:
         root = Path(d) / "proj"
         (root / ".working").mkdir(parents=True)
         if mode is not None:
             (root / ".working" / "session-state.md").write_text(
-                f"**Operating-mode:** {mode}\n", encoding="utf-8")
+                f"{label} {mode}\n", encoding="utf-8")
         return str(root)
 
     class T(unittest.TestCase):
+        def test_plain_and_bold_lease_labels(self):
+            # 3b679: the lease moves from **Operating-mode:** to the plain line; both read.
+            for label in ("Operating-mode:", "**Operating-mode:**"):
+                with tempfile.TemporaryDirectory() as d:
+                    root = lease_root(d, "overnight-unattended", label)
+                    self.assertEqual(read_lease_mode(root), "overnight-unattended", label)
+            for label in ("**Operating-mode**:", " Operating-mode:", "Operating-mode :"):
+                with tempfile.TemporaryDirectory() as d:
+                    self.assertIsNone(read_lease_mode(lease_root(d, "overnight-unattended", label)), label)
+
+        def test_commented_mode_lines_are_not_read(self):
+            # 3b679 r3: only a column-zero field line outside every HTML comment is read, and the
+            # value never crosses a line end (an empty commented label used to read "-->").
+            head = "# Session state: grc\n\n"
+            for text in ("<!-- Operating-mode: overnight-unattended -->\n",
+                         "<!--\nOperating-mode: overnight-unattended\n-->\n",
+                         "note <!-- was\nOperating-mode: overnight-unattended\n-->\n",
+                         "<!--\n**Operating-mode:** overnight-unattended\n-->\n",
+                         "<!--\nOperating-mode:\n-->\n", "Operating-mode:\n-->\n",
+                         "Operating-mode: \noverall\n"):
+                self.assertIsNone(lease_mode_value(head + text), text)
+                with tempfile.TemporaryDirectory() as d:
+                    root = Path(d) / "proj"
+                    (root / ".working").mkdir(parents=True)
+                    (root / ".working" / "session-state.md").write_text(head + text, encoding="utf-8")
+                    self.assertIsNone(read_lease_mode(str(root)), text)
+            for line in ("Operating-mode: fully-attended", "**Operating-mode:** fully-attended"):
+                for above in ("<!--\nOperating-mode: overnight-unattended\n-->\n",
+                              "note <!-- x\nOperating-mode: overnight-unattended\n-->\n",
+                              "<!-- Operating-mode: overnight-unattended -->\n"):
+                    text = head + above + line + "\n<!-- note -->\n"
+                    self.assertEqual(lease_mode_value(text), "fully-attended", (above, line))
+
         def test_exact_modes(self):
             self.assertTrue(decide("overnight-unattended")[0])
             self.assertTrue(decide("daytime-unattended")[0])

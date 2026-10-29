@@ -13,37 +13,39 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 # Shape and timestamps copied from the supplied 2026-10-06 14:06Z live snapshot.
-# Operational prose is removed; no private-store access is needed.
-LIVE = """# Session state: grc (concurrency lease)
+# Operational prose is removed; no private-store access is needed. Since 3b679
+# the fields use the plain `Name: value` form (the snapshot was bold).
+LIVE = """# Session state: grc
 
-**Active-session:** orch-2026-10-04T13:36:00Z
+Active-session: orch-2026-10-04T13:36:00Z
 
-**Status:** active
+Status: active
 
-**Operating-mode:** attended-autonomous
+Operating-mode: attended-autonomous
 <!-- mode source -->
 
-**Last-heartbeat-UTC:** 2026-10-06T14:02:31Z
+Last-heartbeat-UTC: 2026-10-06T14:02:31Z
 
-**Current-task:** /orch resume (2026-10-04)
+Current-task: /orch resume (2026-10-04)
 
-**Worker-dispatches:** none
+Worker-dispatches: none
 """
 # Historical lease a57b45539449b3ee7b97bf4bbfb862b10d7d9125:
-# .working/session-state.md (2026-07-28). Operational prose is scrubbed.
-RELEASED = """# Session State (concurrency lease)
+# .working/session-state.md (2026-07-28). Operational prose is scrubbed;
+# fields converted to the plain form (3b679).
+RELEASED = """# Session state: grc
 
-**Active-session:** none
+Active-session: none
 
-**Status:** released
+Status: released
 
-**Operating-mode:** attended-autonomous
+Operating-mode: attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-28T22:35:58Z
+Last-heartbeat-UTC: 2026-07-28T22:35:58Z
 
-**Current-task:** SESSION CLOSED
+Current-task: SESSION CLOSED
 
-**Worker-dispatches:** none
+Worker-dispatches: none
 """
 
 
@@ -131,14 +133,16 @@ class SessionFactsTests(unittest.TestCase):
         self.assertIn("start UNKNOWN, elapsed UNKNOWN", self.cli().stdout)
 
     def test_status_case_release_and_only_live_statuses(self):
-        for status in ("Active", "WINDING-DOWN"):
-            self.lease.write_text(LIVE.replace("**Status:** active", "**Status:** " + status))
-            self.assertEqual(self.metrics()["start"], "2026-10-04T13:36:00Z")
+        self.lease.write_text(LIVE.replace("Status: active", "Status: Active"))
+        self.assertEqual(self.metrics()["start"], "2026-10-04T13:36:00Z")
+        # 3b679 r2: orch_store.py refuses winding-down, so it is no live status.
+        self.lease.write_text(LIVE.replace("Status: active", "Status: WINDING-DOWN"))
+        self.assertEqual(self.metrics()["start"], "UNKNOWN")
         self.lease.write_text(RELEASED.replace("released", "Released"))
         self.error("SESSION_START_RELEASED")
         self.lease.write_text(LIVE.replace("orch-2026-10-04T13:36:00Z", "NONE"))
         self.error("SESSION_START_RELEASED")
-        self.lease.write_text(LIVE.replace("**Status:** active", "**Status:** idle"))
+        self.lease.write_text(LIVE.replace("Status: active", "Status: idle"))
         self.assertEqual(self.metrics()["start"], "UNKNOWN")
 
     def test_future_start_snapshot_unknown(self):
@@ -292,7 +296,7 @@ class SessionFactsTests(unittest.TestCase):
 
     def assert_heartbeat(self, kind):
         value, warning, elapsed, count = HEARTBEATS[kind]
-        line = "" if value is None else "**Last-heartbeat-UTC:** " + value + "\n"
+        line = "" if value is None else "Last-heartbeat-UTC: " + value + "\n"
         self.lease.write_text(LIVE.replace(HBLINE, line))
         self.log.write_text("| 2026-10-04T13:36:00Z | compaction | start |\n"
                             "| 2026-10-05T14:00:00Z | compaction | boundary |\n"
@@ -310,7 +314,7 @@ class SessionFactsTests(unittest.TestCase):
         elif context == "unknown":
             self.change("orch-2026-10-04T13:36:00Z", "hex-id")
         elif context == "ambiguous":
-            self.lease.write_text(LIVE + "**Status:** active\n")
+            self.lease.write_text(LIVE + "Status: active\n")
         self.log.write_text("| " + value + " | compaction | bad |\n"
                             "| 2026-10-06T14:05:00Z | compaction | valid |\n")
         facts = self.metrics()
@@ -363,13 +367,24 @@ class SessionFactsTests(unittest.TestCase):
                 self.assertEqual((proc.returncode, proc.stdout), (0, ""), proc.stderr)
 
     def test_gate_parity_for_usable_fixtures(self):
-        fixtures = {"live": LIVE, "crlf": LIVE.replace("\n", "\r\n"),
-                    "tabs": LIVE.replace(":** ", ":**\t").replace("\n", " \t\n"),
-                    "winding": LIVE.replace("**Status:** active", "**Status:** WINDING-DOWN")}
+        # 3b679 r2: the reader still uses CRLF, trailing-blank and other-title
+        # leases, but orch_store.py refuses them, so gate 63 must too.
+        refused = {"crlf": LIVE.replace("\n", "\r\n"),
+                   "trailing": LIVE.replace("\n", " \t\n"),
+                   "old_title": LIVE.replace("# Session state: grc\n",
+                                             "# Session state: grc (concurrency lease)\n")}
+        for name, lease in refused.items():
+            with self.subTest(name=name):
+                self.lease.write_bytes(lease.encode("utf-8"))
+                self.assertNotEqual(self.metrics()["start"], "UNKNOWN")
+                proc = subprocess.run([sys.executable, "tools/lint-session-state.py"],
+                                      cwd=self.root, env=self.env, capture_output=True, text=True)
+                self.assertNotEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        fixtures = {"live": LIVE}
         fixtures.update({"ignored_" + name: lease for name, lease in ignored_placements(LIVE).items()})
         for name, (value, _, elapsed, _) in HEARTBEATS.items():
             if elapsed != "UNKNOWN":
-                fixtures[name] = LIVE.replace(HBLINE, "**Last-heartbeat-UTC:** " + value + "\n")
+                fixtures[name] = LIVE.replace(HBLINE, "Last-heartbeat-UTC: " + value + "\n")
         for name, lease in fixtures.items():
             with self.subTest(name=name):
                 self.lease.write_bytes(lease.encode("utf-8"))
@@ -382,14 +397,18 @@ class SessionFactsTests(unittest.TestCase):
                 self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
 
     def test_lf_only_and_one_trailing_cr(self):
+        # 3b679 round 3: a prefixed copy is not at column zero, so it is not read.
         for prefix in ("\x85", "\x0c", "\u2028", "\r"):
             with self.subTest(prefix=repr(prefix)):
-                self.lease.write_text(LIVE + prefix + "**Active-session:** orch-2020-01-01T00:00:00Z\n")
-                self.assertIn("AMBIGUOUS LEASE FIELD: Active-session",
-                              self.metrics()["lease_warning"])
+                self.lease.write_text(LIVE + prefix + "Active-session: orch-2020-01-01T00:00:00Z\n")
+                facts = self.metrics()
+                self.assertEqual(facts["start"], "2026-10-04T13:36:00Z")
+                self.assertEqual(facts["lease_warning"], "")
+        self.lease.write_text(LIVE + "Active-session: orch-2020-01-01T00:00:00Z\n")
+        self.assertIn("AMBIGUOUS LEASE FIELD: Active-session", self.metrics()["lease_warning"])
         self.lease.write_bytes(LIVE.replace("\n", "\r\n").encode())
         self.assertEqual(self.metrics()["elapsed"], "48h30m")
-        self.lease.write_bytes(LIVE.replace("**Status:** active\n", "**Status:** active\r\r\n").encode())
+        self.lease.write_bytes(LIVE.replace("Status: active\n", "Status: active\r\r\n").encode())
         self.assertIn("AMBIGUOUS LEASE FIELD: Status", self.metrics()["lease_warning"])
 
     def test_ambiguity_four_backticks(self):
@@ -407,38 +426,11 @@ class SessionFactsTests(unittest.TestCase):
     def test_ambiguity_indent3(self):
         self.assert_ambiguous("indent3")
 
-    def test_ambiguity_two_comments(self):
-        self.assert_ambiguous("two_comments")
-
-    def test_ambiguity_multiline_comment(self):
-        self.assert_ambiguous("multiline_comment")
-
     def test_ambiguity_history(self):
         self.assert_ambiguous("history")
 
-    def test_ambiguity_nel(self):
-        self.assert_ambiguous("nel")
-
-    def test_ambiguity_formfeed(self):
-        self.assert_ambiguous("formfeed")
-
-    def test_ambiguity_u2028(self):
-        self.assert_ambiguous("u2028")
-
     def test_ambiguity_crlf(self):
         self.assert_ambiguous("crlf")
-
-    def test_ambiguity_bullet(self):
-        self.assert_ambiguous("bullet")
-
-    def test_ambiguity_indented_copy(self):
-        self.assert_ambiguous("indented_copy")
-
-    def test_ambiguity_quoted_copy(self):
-        self.assert_ambiguous("quoted_copy")
-
-    def test_ambiguity_current_task(self):
-        self.assert_ambiguous("current_task")
 
     def test_ambiguity_status_copy(self):
         self.assert_ambiguous("status_copy")
@@ -446,17 +438,49 @@ class SessionFactsTests(unittest.TestCase):
     def test_ambiguity_heartbeat_copy(self):
         self.assert_ambiguous("heartbeat_copy")
 
-    def test_ambiguity_single_indented(self):
-        self.assert_ambiguous("single_indented")
-
-    def test_ambiguity_single_bullet(self):
-        self.assert_ambiguous("single_bullet")
-
     def test_ambiguity_single_trailing(self):
         self.assert_ambiguous("single_trailing")
 
-    def test_ambiguity_single_plain(self):
-        self.assert_ambiguous("single_plain")
+    def test_r3_copies_outside_field_lines_are_not_read(self):
+        # 3b679 round 3: commented (single-line, multi-line, opened after
+        # prose), prefixed and prose copies are not occurrences, so the live
+        # header alone is read; without it the field is absent, not ambiguous.
+        for name, copy in NOT_READ.items():
+            with self.subTest(name=name):
+                self.lease.write_bytes((LIVE + copy).encode("utf-8"))
+                facts = self.metrics()
+                self.assertEqual(facts["start"], "2026-10-04T13:36:00Z", name)
+                self.assertEqual(facts["lease_warning"], "", name)
+                self.lease.write_bytes((LIVE.replace(CURRENT, "") + copy).encode("utf-8"))
+                facts = self.metrics()
+                self.assertEqual(facts["start"], "UNKNOWN", name)
+                self.assertNotIn("AMBIGUOUS", facts["lease_warning"], name)
+                self.assertIn("no usable live lease start", facts["lease_warning"], name)
+
+    def test_r3_comment_tracking_unit(self):
+        # The three forms of a commented field line, the exact line in both
+        # forms, and a value that never crosses a line end.
+        sys.path.insert(0, str(ROOT / "tools"))
+        try:
+            facts = importlib.import_module("session_facts")
+        finally:
+            sys.path.remove(str(ROOT / "tools"))
+        head = "Active-session: orch-x\n"
+        for text in ("<!-- Status: active -->\n", "<!--\nStatus: active\n-->\n",
+                     "note <!-- old\nStatus: active\n-->\n", "x --> <!--\nStatus: active\n",
+                     "<!--\n**Status:** active\n-->\n"):
+            with self.subTest(text=text):
+                fields, ambiguous, _ = facts._fields(head + text)
+                self.assertEqual((fields, ambiguous), ({"Active-session": "orch-x"}, []))
+        for line in ("Status: active", "**Status:** active", "Status: active\r"):
+            with self.subTest(line=line):
+                text = head + "<!-- a -->\n" + line + "\n<!--\nStatus: released\n-->\n"
+                self.assertEqual(facts._fields(text)[:2],
+                                 ({"Active-session": "orch-x", "Status": "active"}, []))
+        for line in ("Status:\nactive", "Status: \n-->", "**Status:**\nactive"):
+            with self.subTest(line=line):
+                self.assertEqual(facts._fields(head + line + "\n")[1],
+                                 ["Status has a malformed occurrence"])
 
     def test_ambiguity_two_fields(self):
         self.assert_ambiguous("two_fields")
@@ -579,7 +603,7 @@ hook['main']()
         for field in ("Current-task", "Worker-dispatches", "Other-start"):
             with self.subTest(field=field):
                 base = LIVE.replace("orch-2026-10-04T13:36:00Z", "69556d8c")
-                self.lease.write_text(base + "**" + field + ":** 2026-10-04T13:36:00Z\n")
+                self.lease.write_text(base + field + ": 2026-10-04T13:36:00Z\n")
                 facts = self.metrics()
                 self.assertEqual(facts["start"], "UNKNOWN")
                 self.assertEqual(facts["elapsed"], "UNKNOWN")
@@ -588,10 +612,12 @@ hook['main']()
     def test_each_used_field_whole_file_rule(self):
         for name, value in (("Active-session", "orch-2026-10-04T13:36:00Z"),
                             ("Status", "active"), ("Last-heartbeat-UTC", "2026-10-06T14:02:31Z")):
-            line = "**" + name + ":** " + value + "\n"
-            for malformed in (" " + line, "- " + line, line.rstrip("\n") + " extra\n",
-                              line.replace("**", "")):
-                for duplicate in (False, True):
+            line = name + ": " + value + "\n"
+            bold = "**" + name + ":** " + value + "\n"
+            for malformed in (line.rstrip("\n") + " extra\n", bold):
+                # 3b679: a solitary bold field is read (both forms are), so the bold
+                # copy is a second occurrence only beside the plain line.
+                for duplicate in ((True,) if malformed == bold else (False, True)):
                     with self.subTest(field=name, malformed=malformed, duplicate=duplicate):
                         base = LIVE if duplicate else LIVE.replace(line, "")
                         self.lease.write_text(base + malformed)
@@ -599,11 +625,46 @@ hook['main']()
                         for key in ("start", "elapsed", "compaction_rows"):
                             self.assertEqual(facts[key], "UNKNOWN")
                         self.assertIn("AMBIGUOUS LEASE FIELD: " + name, facts["lease_warning"])
+            # 3b679 round 3: a line not at column zero is not an occurrence.
+            for prefixed in (" " + line, "- " + line, " " + bold):
+                with self.subTest(field=name, prefixed=prefixed):
+                    self.lease.write_text(LIVE + prefixed)
+                    self.assertEqual(self.metrics()["lease_warning"], "")
 
+
+    def test_3b679_plain_and_bold_leases_read_alike(self):
+        # The reader accepts both forms, so a hook between the gate change and
+        # the live lease's conversion reads the same facts; the gate refuses bold.
+        self.env["GRC_STORE"] = str(self.store)
+        bold = re.sub(r"(?m)^([A-Za-z-]+): ", r"**\1:** ", LIVE)
+        mixed = LIVE.replace(CURRENT, "**" + CURRENT.replace(":", ":**", 1))
+        self.assertNotEqual(bold, LIVE)
+        for form, lease, code in (("plain", LIVE, 0), ("bold", bold, 2), ("mixed", mixed, 2)):
+            with self.subTest(form=form):
+                self.lease.write_text(lease)
+                facts = self.metrics()
+                self.assertEqual(facts, dict(
+                    start="2026-10-04T13:36:00Z", elapsed="48h30m", compaction_rows=0,
+                    lease_warning="", start_source="derived from Active-session "
+                    "orch-<UTC start> convention"))
+                proc = subprocess.run([sys.executable, "tools/lint-session-state.py"],
+                                      cwd=self.root, env=self.env, capture_output=True, text=True)
+                self.assertEqual(proc.returncode, code, proc.stdout + proc.stderr)
+                self.assertEqual("write the plain form" in proc.stderr, bool(code))
+
+    def test_3b679_tab_separator_read_but_refused(self):
+        # orch_store.py needs "<name>: " (one space); the reader keeps reading a tab.
+        self.env["GRC_STORE"] = str(self.store)
+        self.lease.write_text(LIVE.replace("Status: ", "Status:\t"))
+        self.assertEqual(self.metrics()["start"], "2026-10-04T13:36:00Z")
+        proc = subprocess.run([sys.executable, "tools/lint-session-state.py"],
+                              cwd=self.root, env=self.env, capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
+        self.assertIn("wrong value shape", proc.stderr)
 
     def test_r11_all_other_field_orders(self):
         from itertools import permutations
-        lines = (CURRENT, "**Status:** active\n", HBLINE)
+        lines = (CURRENT, "Status: active\n", HBLINE)
         for order in permutations(range(3)):
             if order == (0, 1, 2):
                 continue
@@ -624,14 +685,14 @@ hook['main']()
     def test_r11_solitary_copies_below_header(self):
         copies = (
             LIVE.replace(CURRENT, "") + FENCE + "\n" + OLD + FENCE + "\n",
-            LIVE.replace("**Active-session:**", "**Active-Session:**")
-            + "<!--\n" + OLD + "-->\n",
-            LIVE.replace("**Active-session:**", "**Active-session**:")
+            LIVE.replace("Active-session:", "Active-session :")
             + "## History\n" + OLD,
-            LIVE.replace("**Active-session:**", "**Active\u2011session:**")
+            LIVE.replace("Active-session:", "Active\u2011session:")
             + FENCE + "\n" + OLD + FENCE + "\n",
-            LIVE.replace("**Status:** active", "**STATUS:** released")
-            + FENCE + "\n**Status:** active\n" + FENCE + "\n",
+            LIVE.replace("Status: active", "STATUS: released")
+            + FENCE + "\nStatus: active\n" + FENCE + "\n",
+            # 3b679: a solitary bold copy below the header is read like a plain one.
+            LIVE.replace(CURRENT, "") + "**" + OLD.replace(":", ":**", 1),
         )
         for index, lease in enumerate(copies):
             with self.subTest(shape=index):
@@ -641,9 +702,16 @@ hook['main']()
                     self.assertEqual(facts[key], "UNKNOWN")
                 self.assertIn("AMBIGUOUS LEASE FIELD: fields are out of order",
                               facts["lease_warning"])
+        # 3b679 round 3: a commented copy is not read, so the field is absent.
+        self.lease.write_text(LIVE.replace("Active-session:", "Active-Session:")
+                              + "<!--\n" + OLD + "-->\n")
+        facts = self.metrics()
+        self.assertEqual(facts["start"], "UNKNOWN")
+        self.assertEqual(facts["lease_warning"],
+                         "SESSION_START_UNKNOWN: no usable live lease start")
 
     def test_r11_absent_fields_keep_existing_handling(self):
-        self.lease.write_text(LIVE.replace("**Status:** active\n", ""))
+        self.lease.write_text(LIVE.replace("Status: active\n", ""))
         facts = self.metrics()
         self.assertEqual(facts, dict(
             start="UNKNOWN", elapsed="UNKNOWN", compaction_rows="UNKNOWN",
@@ -662,16 +730,16 @@ hook['main']()
             with self.subTest(lease=lease):
                 self.lease.write_text(lease)
                 self.error("SESSION_START_RELEASED")
-                self.lease.write_text(lease + "**Status:** active\n")
+                self.lease.write_text(lease + "Status: active\n")
                 self.assertIn("AMBIGUOUS LEASE FIELD: Status", self.metrics()["lease_warning"])
         for session, status in (("orch-2026-10-04T13:36:00Z", "released"), ("none", "active")):
-            self.lease.write_text(HBLINE + "**Status:** " + status + "\n"
-                                 + "**Active-session:** " + session + "\n")
+            self.lease.write_text(HBLINE + "Status: " + status + "\n"
+                                 + "Active-session: " + session + "\n")
             self.error("SESSION_START_RELEASED")
 
     def test_r11_known_limit_copy_above_status(self):
         self.lease.write_text(LIVE.replace(
-            CURRENT, "**Active-Session:** orch-2026-10-04T13:36:00Z\n" + OLD))
+            CURRENT, "Active-Session: orch-2026-10-04T13:36:00Z\n" + OLD))
         facts = self.metrics()
         self.assertEqual(facts["start"], "2020-01-01T00:00:00Z")
         self.assertEqual(facts["elapsed"], "59294h6m")
@@ -691,16 +759,16 @@ hook['main']()
         self.assertIn("has a near-miss label (" + faults + ")", proc.stderr)
 
     def test_r11_known_limit_space_separator_refused(self):
-        self.assert_r11_near_miss_separator("**Active session:**", "wrong separators")
+        self.assert_r11_near_miss_separator("Active session:", "wrong separators")
 
     def test_r11_known_limit_space_before_colon_refused(self):
-        self.assert_r11_near_miss_separator("**Active-session :**", "space before the colon")
+        self.assert_r11_near_miss_separator("Active-session :", "space before the colon")
 
     def test_r11_known_limit_underscore_separator_refused(self):
-        self.assert_r11_near_miss_separator("**Active_session:**", "wrong separators")
+        self.assert_r11_near_miss_separator("Active_session:", "wrong separators")
 
     def test_r11_known_limit_case_and_separator_refused(self):
-        self.assert_r11_near_miss_separator("**active session:**",
+        self.assert_r11_near_miss_separator("active session:",
                                             "wrong case, wrong separators")
 
     def test_hash_todo_between_fields_is_not_heading(self):
@@ -713,14 +781,14 @@ hook['main']()
 
     def test_r11_out_of_order_without_log(self):
         self.log.unlink()
-        self.lease.write_text(HBLINE + CURRENT + "**Status:** active\n")
+        self.lease.write_text(HBLINE + CURRENT + "Status: active\n")
         facts = self.metrics()
         for key in ("start", "elapsed", "compaction_rows"):
             self.assertEqual(facts[key], "UNKNOWN")
         self.assertIn("fields are out of order", facts["lease_warning"])
 
     def test_r11_heartbeat_equal_start(self):
-        self.lease.write_text(LIVE.replace(HBLINE, "**Last-heartbeat-UTC:** 2026-10-04T13:36:00Z\n"))
+        self.lease.write_text(LIVE.replace(HBLINE, "Last-heartbeat-UTC: 2026-10-04T13:36:00Z\n"))
         self.log.write_text("| 2026-10-04T13:35:59Z | compaction | before |\n"
                             "| 2026-10-04T13:36:00Z | compaction | start |\n"
                             "| 2026-10-04T13:36:01Z | compaction | after |\n")
@@ -781,7 +849,7 @@ hook['main']()
                 self.log.write_text("")
                 error = "SESSION_START_UNREADABLE"
                 if kind == "released":
-                    self.change("**Status:** active", "**Status:** released")
+                    self.change("Status: active", "Status: released")
                     error = "SESSION_START_RELEASED"
                 elif kind == "none":
                     self.change("orch-2026-10-04T13:36:00Z", "none")
@@ -823,12 +891,17 @@ hook['main']()
     def test_absent_or_uncounted_header_substitution(self):
         self.env["GRC_STORE"] = str(self.store)
         expected = self.metrics()
-        lines = (CURRENT, "**Status:** active\n", HBLINE)
+        lines = (CURRENT, "Status: active\n", HBLINE)
         for line in lines:
-            for replacement in ("", line.replace(":**", "**:")):
+            for replacement in ("", line.replace(":", " :", 1)):
                 with self.subTest(field=line, replacement=replacement):
+                    # 3b679 round 3: the commented copy is not read, so the facts
+                    # are those of the lease without it.
+                    self.lease.write_text(LIVE.replace(line, replacement))
+                    uncommented = self.metrics()
+                    self.assertNotEqual(uncommented, expected)
                     self.lease.write_text(LIVE.replace(line, replacement + "<!--\n" + line + "-->\n"))
-                    self.assertEqual(self.metrics(), expected)
+                    self.assertEqual(self.metrics(), uncommented)
                     proc = subprocess.run([sys.executable, "tools/lint-session-state.py"],
                                           cwd=self.root, env=self.env, capture_output=True, text=True)
                     # 3b328: gate 63 refuses the copy and any near-miss header.
@@ -846,7 +919,7 @@ hook['main']()
     def test_duplicate_without_log_reports_no_log(self):
         self.env["GRC_STORE"] = str(self.store)
         self.log.unlink()
-        self.lease.write_text(LIVE + "**Status:** active\n")
+        self.lease.write_text(LIVE + "Status: active\n")
         facts = self.metrics()
         self.assertEqual(facts["start"], "UNKNOWN")
         self.assertEqual(facts["elapsed"], "UNKNOWN")
@@ -1069,7 +1142,7 @@ hook['main']()
         self.log.unlink()
         for value in (None, "not-a-date", "2020-01-01T00:00:00Z", "2099-01-01T00:00:00Z"):
             with self.subTest(heartbeat=value):
-                line = "" if value is None else "**Last-heartbeat-UTC:** " + value + "\n"
+                line = "" if value is None else "Last-heartbeat-UTC: " + value + "\n"
                 self.lease.write_text(LIVE.replace(HBLINE, line))
                 facts = self.metrics()
                 self.assertEqual(facts["start"], "2026-10-04T13:36:00Z")
@@ -1081,9 +1154,9 @@ hook['main']()
                 self.assertIn("compactions: no log", proc.stdout)
 
 
-HBLINE = "**Last-heartbeat-UTC:** 2026-10-06T14:02:31Z\n"
-CURRENT = "**Active-session:** orch-2026-10-04T13:36:00Z\n"
-OLD = "**Active-session:** orch-2020-01-01T00:00:00Z\n"
+HBLINE = "Last-heartbeat-UTC: 2026-10-06T14:02:31Z\n"
+CURRENT = "Active-session: orch-2026-10-04T13:36:00Z\n"
+OLD = "Active-session: orch-2020-01-01T00:00:00Z\n"
 BASE = LIVE
 FENCE = chr(96) * 3
 COPIES = {
@@ -1092,30 +1165,38 @@ COPIES = {
     "indent1": " " + FENCE + "\n" + OLD + " " + FENCE + "\n",
     "indent2": "  " + FENCE + "\n" + OLD + "  " + FENCE + "\n",
     "indent3": "   " + FENCE + "\n" + OLD + "   " + FENCE + "\n",
-    "two_comments": "<!-- a --> <!-- b\n" + OLD + "-->\n",
-    "multiline_comment": "<!--\n" + OLD + "-->\n",
     "history": "## History\n" + OLD,
-    "nel": "\x85" + OLD,
-    "formfeed": "\x0c" + OLD,
-    "u2028": "\u2028" + OLD,
     "crlf": FENCE + "\n" + OLD + FENCE + "\n",
-    "bullet": "- " + OLD,
-    "indented_copy": "    " + OLD,
-    "quoted_copy": "> " + OLD,
-    "current_task": "**Current-task:** example " + OLD,
 }
 AMBIGUOUS = {name: (BASE + copy, "Active-session") for name, copy in COPIES.items()}
 AMBIGUOUS["crlf"] = ((BASE + COPIES["crlf"]).replace("\n", "\r\n"), "Active-session")
 AMBIGUOUS.update({
-    "active_copy": (LIVE + "**Active-session:** orch-2020-01-01T00:00:00Z\n", "Active-session"),
-    "status_copy": (LIVE + "**Status:** released\n", "Status"),
+    "active_copy": (LIVE + "Active-session: orch-2020-01-01T00:00:00Z\n", "Active-session"),
+    "status_copy": (LIVE + "Status: released\n", "Status"),
     "heartbeat_copy": (LIVE + HBLINE, "Last-heartbeat-UTC"),
-    "single_indented": (LIVE.replace(CURRENT, "") + " " + OLD, "Active-session"),
-    "single_bullet": (LIVE.replace(CURRENT, "") + "- " + OLD, "Active-session"),
     "single_trailing": (LIVE.replace(CURRENT, "") + OLD.rstrip("\n") + " extra\n", "Active-session"),
-    "single_plain": (LIVE.replace(CURRENT, "") + OLD.replace("**", ""), "Active-session"),
-    "two_fields": (LIVE + "**Status:** active\n" + HBLINE, "Status"),
+    "two_fields": (LIVE + "Status: active\n" + HBLINE, "Status"),
 })
+# 3b679 round 3: a copy that is not a column-zero field line outside an HTML
+# comment is not an occurrence, so the header is read as if it were absent.
+NOT_READ = {
+    "two_comments": "<!-- a --> <!-- b\n" + OLD + "-->\n",
+    "multiline_comment": "<!--\n" + OLD + "-->\n",
+    "comment_after_prose": "note <!-- was\n" + OLD + "-->\n",
+    "single_line_comment": "<!-- " + OLD.rstrip("\n") + " -->\n",
+    "bold_in_comment": "<!--\n**" + OLD.replace(":", ":**", 1) + "-->\n",
+    "nel": "\x85" + OLD,
+    "formfeed": "\x0c" + OLD,
+    "u2028": "\u2028" + OLD,
+    "bullet": "- " + OLD,
+    "indented_copy": "    " + OLD,
+    "quoted_copy": "> " + OLD,
+    "current_task": "Current-task: example " + OLD,
+}
+# The copies orch_store.py does not count either (no line starts with optional
+# whitespace, the name and a colon), so gate 63 accepts these leases
+# (current_task is refused only as a second Current-task line).
+NOT_READ_GATE_ACCEPTS = ("bullet", "quoted_copy", "single_line_comment", "bold_in_comment")
 def ignored_placements(base):
     """Opaque extra text must not affect either metrics or consumer bytes."""
     line = "**Session-start-UTC:** 2020-01-01T00:00:00Z\n"
