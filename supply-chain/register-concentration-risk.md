@@ -2,8 +2,8 @@
 
 **Document Title:** Concentration Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.14\
-**Date:** 2026-10-27\
+**Version:** 1.0.23\
+**Date:** 2026-10-29\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md), [`compliance/annex-nis-2-implementation.md`](../compliance/annex-nis-2-implementation.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register records the concentration of supplier dependencies across the supplier portfolio. It identifies single points of failure, shared dependencies, geographical clusters, and regulatory or geopolitical concentrations that would cause cross-portfolio impact if a concentrated dependency fails. It supports DORA's critical-ICT-third-party designation and the broader supplier risk programme.
+This register records the concentration of supplier dependencies across the supplier portfolio. It identifies single points of failure, shared dependencies, geographical clusters, and regulatory or geopolitical concentrations that would cause cross-portfolio impact if a concentrated dependency fails. For DORA, it supplies connected-provider and single-supplier concentration indicators as an input to the financial entity's Article 29(1) consideration, which the entity performs outside the register, and, where a concentration subject is a designated critical ICT third-party provider, it records a link to that designation, without applying the designation criteria; it also supports the broader supplier risk programme.
 
 A populated concentration register identifies specific suppliers and is sensitive operational data. This CC BY-SA 4.0 template contains no example values.
 
@@ -133,9 +133,9 @@ Each row records one concentration finding.
 
 ## Coordination with the critical ICT third-party regime
 
-Under DORA, designated critical ICT third-party providers (CTPPs) are supervised by a Lead Overseer. Where one of the affected third parties is a CTPP, the concentration register cross-references the regulatory designation. Two duties follow for the organization: where the CTPP is established in a third country, the organization may use its services only if the CTPP has established a subsidiary in the Union within the 12 months following its designation (Article 31(12)); and, when managing ICT third-party risk, the organization takes into account the risks identified in oversight recommendations addressed to the CTPP (Article 42(3)). The yearly report under DORA Article 28(3) covers new ICT arrangements generally, not CTPPs alone. Where a competent authority deems that the organization fails to take into account or to sufficiently address within its management of ICT third-party risk the specific risks identified in those recommendations, it notifies the organization of the possibility of a decision being taken, within 60 calendar days of the receipt of that notification, pursuant to Article 42(6), in the absence of appropriate contractual arrangements aiming to address such risks (Article 42(4)). As a measure of last resort, following the notification and, if appropriate, the consultation as set out in Article 42(4) and (5), in accordance with Article 50, the competent authority may take a decision requiring the organization to temporarily suspend, either in part or completely, the use or deployment of the CTPP's service until the risks identified in the recommendations addressed to CTPPs have been addressed; where necessary, it may require the organization to terminate, in part or completely, the relevant contractual arrangements concluded with the CTPP (Article 42(6)).
+Under DORA, designated critical ICT third-party providers (CTPPs) are supervised by a Lead Overseer. Where the concentration subject is a designated CTPP, the register records the link to that designation in the Linked regulatory designation field; the template does not link a CTPP that appears only as an affected third party. Two duties follow for the organization: where the CTPP is established in a third country, the organization may use its services only if the CTPP has established a subsidiary in the Union within the 12 months following its designation (Article 31(12)); and, when managing ICT third-party risk, the organization takes into account the risks identified in oversight recommendations addressed to the CTPP (Article 42(3)). The yearly report under DORA Article 28(3) covers the number of new ICT arrangements generally, not arrangements with CTPPs alone. Where a competent authority deems that the organization fails to take into account or to sufficiently address within its management of ICT third-party risk the specific risks identified in those recommendations, it notifies the organization of the possibility of a decision being taken, within 60 calendar days of the receipt of that notification, pursuant to Article 42(6), in the absence of appropriate contractual arrangements aiming to address such risks (Article 42(4)). As a measure of last resort, following the notification and, if appropriate, the consultation as set out in Article 42(4) and (5), in accordance with Article 50, the competent authority may take a decision requiring the organization to temporarily suspend, either in part or completely, the use or deployment of the CTPP's service until the risks identified in the recommendations addressed to CTPPs have been addressed; where necessary, it may require the organization to terminate, in part or completely, the relevant contractual arrangements concluded with the CTPP (Article 42(6)).
 
-Adopting financial entities populate per-CTPP fields including the designation date, the Lead Overseer, and the entity's contractual position with the CTPP.
+The template defines no per-CTPP fields beyond the Linked regulatory designation field. An adopting financial entity that tracks the designation date, the Lead Overseer, or its contractual position with the CTPP does so as its own extension; the template does not define these as fields.
 
 ---
 
@@ -148,7 +148,7 @@ Adopting financial entities populate per-CTPP fields including the designation d
 | Cross-portfolio cloud concentration | Percentage of Tier 1 suppliers running on the most-relied-upon cloud platform | Trend-monitored; tolerance per appetite |
 | Single-IdP exposure | Percentage of critical authentication flows depending on a single IdP | Trend-monitored |
 | Geopolitical concentration in restricted-list countries | Percentage of Tier 1 supplier operations in countries on the organization's restricted list | Per policy |
-| Designated CTPP reliance | Count of relied-upon DORA-designated critical ICT third-party providers | Trend-monitored |
+| Designated CTPP reliance | Count of concentration subjects linked to a DORA-designated critical ICT third-party provider in the Linked regulatory designation field | Trend-monitored |
 
 ---
 
@@ -156,7 +156,7 @@ Adopting financial entities populate per-CTPP fields including the designation d
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| DORA | Article 29 (concentration risk assessment); Article 31 (CTPP designation criteria); Articles 35 to 40 (Oversight Framework) | EU financial services |
+| DORA | Article 29(1), as an input only: the vendor-family and intra-group dimensions supply connected-provider concentration indicators (several suppliers sharing a parent company or controlling shareholder, or several critical services coming from entities of the same group), and the service-class dimension supplies single-supplier concentration indicators (reliance on a single supplier in a critical service class); Article 31(12) (third-country CTPP subsidiary condition) and Article 42(3) (taking oversight-recommendation risks into account), as duties stated in the CTPP coordination section | EU financial services; where a concentration subject is a designated CTPP, the register records a link to that designation (Linked regulatory designation field) but does not apply the designation criteria or exercise oversight powers. The register does not perform or record the Article 29(1) consideration; the financial entity performs it outside the register, including its conditions that the consideration concerns an envisaged contractual arrangement for ICT services supporting critical or important functions, the substitutability of the provider (point (a)), multiple arrangements with the same or closely connected providers (point (b)), and the weighing of alternative solutions (second subparagraph). The register holds no fields for the Article 31(12) or Article 42(3) duties |
 | EBA Guidelines on outsourcing arrangements | EBA/GL/2019/02 §76 to 80 | Banking concentration |
 | FSB Cyber Lexicon and Third-Party Risk Toolkit | FSB | International financial-sector practice |
 | NIS 2 | Article 21(2)(d); Article 22 (coordinated risk assessments at Union level) | EU essential and important entities |

@@ -2,8 +2,8 @@
 
 **Document Title:** Fourth-Party and Nth-Party Risk Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.11\
-**Date:** 2026-10-17\
+**Version:** 1.0.18\
+**Date:** 2026-10-29\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure defines how the organization identifies, monitors, and escalates risk arising from suppliers beyond the direct third-party relationship: fourth-party (the supplier's supplier) and nth-party (any subsequent tier). It supports DORA's critical-ICT-third-party regime, GDPR Article 28 sub-processor obligations, NIS 2 supply-chain security obligations, and the organization's broader supplier governance.
+This procedure defines how the organization identifies, monitors, and escalates risk arising from suppliers beyond the direct third-party relationship: fourth-party (the supplier's supplier) and nth-party (any subsequent tier). It supports a financial entity's DORA ICT third-party risk management, limited to the Article 29(2) and Article 30(2)(a) parts named in the Framework alignment section, GDPR Article 28 sub-processor obligations, NIS 2 supply-chain security obligations, and the organization's broader supplier governance.
 
 ---
 
@@ -164,8 +164,8 @@ Sub-tier risk findings are reported to the Supplier Risk Maintainer at minimum q
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| DORA | Articles 28 to 44 (third-party ICT risk including subcontracting) | EU financial services |
-| DORA RTS (EU) 2025/532 | Subcontracting ICT services supporting critical or important functions (Delegated Regulation, 24 March 2025) | Elements to assess across the full ICT subcontracting chain; nth-party risk for EU financial entities |
+| DORA | Article 29(2), first subparagraph, sub-tier failure risk only (assessing whether the failure of a critical sub-tier supplier would interrupt the third party's service and whether the third party has documented contingency for that failure); Article 30(2)(a), inputs to the subcontracting conditions only (the contractual sub-tier disclosure and change-notification requirements, which an entity can include among the conditions applying to subcontracting, and the Step 1 record of whether contractual flow-down is confirmed) | EU financial services; Step 2 assesses the failure risk and contingency of each critical sub-tier supplier, and the contractual disclosure and Step 1 record each sub-tier supplier and whether contractual flow-down is confirmed; the procedure does not weigh the benefits of subcontracting, assess the risks of subcontractors established in a third country, or assess how long or complex chains affect monitoring or supervision, and does not record the point (a) description of all functions and ICT services the ICT third-party service provider is to provide (the Step 1 "Service provided" field describes only what a sub-tier supplier does for the third party), whether subcontracting is permitted, or the complete conditions applying to subcontracting; Step 1 records each sub-tier supplier's country of operation, not the contractual locations where services are provided or data is processed or stored, or advance notice of location changes (Article 30(2)(b)) |
+| DORA RTS (EU) 2025/532 | Subcontracting ICT services supporting critical or important functions (Delegated Regulation, 24 March 2025) | EU financial services; inputs only: the contractual disclosure and change notification, the Step 1 record of each disclosed sub-tier supplier (tier, service provided, country of operation, critical-sub-tier designation, personal data processed, and whether contractual flow-down is confirmed), and the Step 2 assessment of whether a critical sub-tier supplier's failure would interrupt the third party's service and whether the third party has documented contingency for that failure; the financial entity performs the RTS assessment itself, and visibility beyond the fourth tier is best effort |
 | GDPR / UK GDPR | Article 28 (sub-processor obligations) | Personal data processing |
 | NIS 2 | Article 21(2)(d) (supply chain security) | EU essential and important entities |
 | NIST CSF 2.0 | GV.SC subcategories | Supply chain risk management |
