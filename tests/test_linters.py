@@ -26161,6 +26161,40 @@ class SessionStateTests(LinterTestCase):
         self.assertEqual(code, 1)
         self.assertIn("carriage return", stderr)
 
+    def test_r4_oversized_lease_is_refused_unread(self) -> None:
+        # 3b679 r4: main() reads at most MAX_BYTES + 1 bytes, so a lease over
+        # the limit is refused with the size finding (exit 1) without reading
+        # it whole, even when the limit splits a UTF-8 sequence.
+        from unittest.mock import patch
+        mod = self._load_module()
+        limit = mod.MAX_BYTES
+        pad = limit - len((self.VALID_LEASE + "<!--  -->\n").encode("utf-8"))
+        at_limit = self.VALID_LEASE + "<!-- " + "x" * pad + " -->\n"
+        self.assertEqual(len(at_limit.encode("utf-8")), limit)
+        code, _, _, _, stderr = self._lease_result(at_limit)
+        self.assertEqual(code, 0, stderr)
+        requested = []
+        real_read = os.read
+
+        def counting_read(fd, n):
+            requested.append(n)
+            return real_read(fd, n)
+
+        for text in (at_limit + "\n", self.VALID_LEASE + "<!-- " + "é" * limit + " -->\n",
+                     self.VALID_LEASE + "<!-- a" + "é" * limit + " -->\n"):
+            with self.subTest(size=len(text.encode("utf-8"))):
+                requested.clear()
+                with patch.object(mod.os, "read", counting_read):
+                    code, _, _, stdout, stderr = self._lease_result(text)
+                self.assertEqual(code, 1, stderr)
+                self.assertTrue(stderr.startswith("FAIL: "), stderr)
+                self.assertTrue(stderr.endswith(
+                    f"session-state.md: the lease is over {limit} bytes; "
+                    f"orch_store.py refuses more than {limit}\n"), stderr)
+                self.assertEqual(stderr.count("\n"), 1, stderr)
+                self.assertEqual(stdout, "")
+                self.assertLessEqual(sum(requested), limit + 1)
+
     def test_compatibility_letters_in_label(self) -> None:
         mod = self._load_module()
 
@@ -32825,7 +32859,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-secrets-in-content.py CWD F 868061fc0527d0843223825800fb75dd963d345d058a144b6ecc23ee8deb227b
         lint-section-anchors.py CWD F 4b540b4eb8480d1f4be16e1c51cc7c990d22a5b4ea8911244636d0aa1956726f
         lint-section-placement.py CWD F 936e351d52bcd0a0a4964b3ecd046c44ae057298aed6edde002687e8f4c17f98
-        lint-session-state.py NO_FS F ddb37fe2384bea278e52b6a497e807aeb5f6e4db1b79b98490073f69b242cbbd
+        lint-session-state.py NO_FS F 35adde65a445770b605cad7fb087bf82de70afdf6cf6ca677c3b7a562a20c5cb
         lint-shall-near-uncertainty.py ROOT F 0df50c2b6826f9216f67addad8931f1eb35498d0e3862064bdb3fed317e64610
         lint-sibling-placeholders.py NO_FS F 2ae82222a589343521ebfbc12a3b9edbec0533203e02b3f7adf906f2b8ad1d2a
         lint-skill-derives-from.py OWN F 4bf6a78a42e9f8d8dff44035ac2320a67043006a133375e7cacdcd85dd5336f5

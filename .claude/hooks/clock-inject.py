@@ -24,7 +24,7 @@ session-state.md derived from the payload cwd (or the process cwd) when that lie
 Without ORCH_LEASE_FILE or a CLAUDE_PROJECT_DIR lease the lease therefore FOLLOWS THE CWD: a session working
 in another project's tree, or outside /opt, reads that tree's lease or none. The fleet should set
 ORCH_LEASE_FILE (absolute) per orchestrator. The lease start is read ONLY from the FIRST line beginning
-`Active-session:` (or the Markdown-bold `**Active-session:**`); when its value is not exactly `<label>-YYYYMMDDTHHMMSSZ`, where <label> is 1 to 32
+`Active-session:`; when its value is not exactly `<label>-YYYYMMDDTHHMMSSZ`, where <label> is 1 to 32
 characters of [A-Za-z0-9] (for example `sess-` or `S88-`), elapsed is unknown (for example for `none` or a
 malformed id) and no later line is consulted. The file is opened non-blocking, must be a regular file, and at
 most 1 MiB is read. When the file is absent, unreadable,
@@ -111,21 +111,16 @@ def lease_file(cwd=None):
     return None
 
 
-# The plain field line and the earlier Markdown-bold form both start the lease (3b679).
-LEASE_LABELS = ("Active-session:", "**Active-session:**")
-
-
 def lease_start(path):
-    """UTC start from the FIRST plain or bold `Active-session:` line of `path`, or None (never searches past it)."""
+    """UTC start from the FIRST `Active-session:` line of `path`, or None (never searches past it)."""
     if not path:
         return None
     data = read_regular(path, LEASE_MAX_BYTES)
     if data is None:
         return None
     for line in data.decode("utf-8", "replace").splitlines():
-        label = next((p for p in LEASE_LABELS if line.startswith(p)), None)
-        if label:
-            m = _SESS_RE.fullmatch(line[len(label):].strip())
+        if line.startswith("Active-session:"):
+            m = _SESS_RE.fullmatch(line[len("Active-session:"):].strip())
             if not m:
                 return None
             try:
@@ -245,18 +240,6 @@ def _self_test():
                 f.write("Status: active\nActive-session: sess-20260923T141710Z\n"
                         "Active-session: sess-20200101T000000Z\n")
             self.assertEqual(lease_start(self.lease), datetime.datetime(2026, 9, 23, 14, 17, 10, tzinfo=utc))
-
-        def test_lease_plain_and_bold_labels(self):
-            # 3b679: grc's lease moves from **Active-session:** to the plain line; both read.
-            want = datetime.datetime(2026, 9, 23, 14, 17, 10, tzinfo=utc)
-            for label in ("Active-session:", "**Active-session:**"):
-                with open(self.lease, "w") as f:
-                    f.write(f"# Session state: grc\n\n{label} sess-20260923T141710Z\n\nStatus: active\n")
-                self.assertEqual(lease_start(self.lease), want, label)
-            for label in ("**Active-session**:", "*Active-session:*", " Active-session:"):
-                with open(self.lease, "w") as f:
-                    f.write(f"{label} sess-20260923T141710Z\n")
-                self.assertIsNone(lease_start(self.lease), label)
 
         def test_inactive_lease_never_reads_history(self):
             # finding: `none` followed by a history line used to resolve to the historical id

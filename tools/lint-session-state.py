@@ -532,6 +532,8 @@ def main() -> int:
     # splits the raw bytes on LF and keeps every CR in the line. Opened without
     # following a symlink and refused unless a regular file, as orch_store.py
     # and the standard reader open it (O_NONBLOCK: a FIFO cannot hang the gate).
+    # At most MAX_BYTES + 1 bytes are read (3b679 r4): a longer lease is refused
+    # with the size finding alone, since a prefix is not the lease.
     try:
         fd = os.open(session_state, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
                      | os.O_CLOEXEC)
@@ -545,8 +547,17 @@ def main() -> int:
             print(f"ERROR: cannot read {rel}: not a regular file, which "
                   f"orch_store.py refuses", file=sys.stderr)
             return 2
-        with os.fdopen(fd, "rb", closefd=False) as stream:
-            text = stream.read().decode("utf-8")
+        data = b""
+        while len(data) <= MAX_BYTES:
+            chunk = os.read(fd, MAX_BYTES + 1 - len(data))
+            if not chunk:
+                break
+            data += chunk
+        if len(data) > MAX_BYTES:
+            print(f"FAIL: {rel}: the lease is over {MAX_BYTES} bytes; "
+                  f"orch_store.py refuses more than {MAX_BYTES}", file=sys.stderr)
+            return 1
+        text = data.decode("utf-8")
     except (OSError, UnicodeDecodeError) as exc:
         print(f"ERROR: cannot read {rel}: {exc}", file=sys.stderr)
         return 2

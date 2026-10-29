@@ -392,7 +392,8 @@ def _grc_lease_mode(root):
     if not _is_grc_main_checkout(root) or _grc_is_worker():
         return None
     try:
-        with open(_GRC_STATE_FILE, encoding="utf-8") as fh:
+        # 3b679 r4: newline="" keeps every CR, so _grc_mode_value splits on LF only (a lone CR is no line end).
+        with open(_GRC_STATE_FILE, encoding="utf-8", newline="") as fh:
             txt = fh.read()
     except OSError:
         return None
@@ -411,11 +412,12 @@ _GRC_COMMENT_DELIMITER = re.compile(r"<!--|-->")
 def _grc_mode_value(txt):
     """The first exact `Operating-mode:` line's value, skipping every line that starts inside an HTML
     comment ("<!--" opens and "-->" closes one wherever either appears, across lines; no nesting; an
-    unclosed comment runs to EOF), or None."""
+    unclosed comment runs to EOF), or None. Lines split on LF only, as block-askuserquestion-unattended.py
+    and tools/session_facts.py split them; one trailing CR is dropped (3b679 r4)."""
     comment = False
     for line in txt.split("\n"):
         if not comment:
-            m = _GRC_MODE_RE.fullmatch(line)
+            m = _GRC_MODE_RE.fullmatch(line[:-1] if line.endswith("\r") else line)
             if m:
                 return m.group(1)
         for delimiter in _GRC_COMMENT_DELIMITER.finditer(line):
@@ -2140,6 +2142,26 @@ def _self_test():
                                         _grc_map_mode("fully-attended"))
                     os.unlink(lease)
                     self.assertIsNone(_grc_lease_mode(store))
+
+        def test_grc_lease_lone_cr_is_not_a_line_end(self):
+            # 3b679 r4: the lease is split on LF only, so a lone CR never starts a field line (text-mode
+            # universal newlines read the note's overnight-unattended); one trailing CR is dropped.
+            from unittest import mock
+            head = b"# Session state: grc\n\n"
+            with tempfile.TemporaryDirectory() as store:
+                lease = os.path.join(store, "session-state.md")
+                patches = {"_GRC_STATE_FILE": lease, "_is_grc_main_checkout": lambda root: True,
+                           "_grc_is_worker": lambda: False}
+                with mock.patch.dict(globals(), patches):
+                    for text, want in ((b"note\rOperating-mode: overnight-unattended\n"
+                                        b"Operating-mode: fully-attended\n", "attended"),
+                                       (b"note\rOperating-mode: overnight-unattended\n", None),
+                                       (b"Operating-mode: overnight-unattended\r\n", "unattended"),
+                                       (b"Operating-mode: fully-attended\r\n", "attended")):
+                        with open(lease, "wb") as fh:
+                            fh.write(head + text + b"<!-- note -->\n")
+                        self.assertEqual(_grc_lease_mode(store), want, text)
+            self.assertEqual(_grc_mode_value("Operating-mode: fully-attended\r\n"), "fully-attended")
 
         def test_grc_lease_arms_only_the_main_checkout_and_submodules(self):
             # 3b101 QA r2: the lease half of the scoping, on real hook copies: the main checkout and a
