@@ -228,7 +228,21 @@ Exit codes:
       "required" only under an EXPLICIT ``--root``; on the DEFAULT lookup it
       resolves via ``lint_common.resolve_working`` (operational store preferred)
       and an ABSENT ledger downgrades the recycled-number check to a reported
-      skip, exit 0.
+      skip, exit 0. A default-lookup private sibling that is present but
+      unusable (not a directory, a dangling link, or one that cannot be
+      examined) is not absent: it fails with exit 2 naming it. So does a
+      sibling whose contents cannot be listed, or whose ``P-TODO.md`` cannot
+      be examined or is not a regular file; and so does a ``DONE.md`` lookup
+      that meets a store, sibling, ``.working`` directory or ledger that is
+      present but cannot be examined (a dangling link, an unsearchable
+      directory), a ``GRC_STORE`` path with a missing intermediate component
+      (its message names the component, 3b677 r7), or a ledger that is not a
+      regular file (3b677). A
+      ``P-TODO.md``, ``DONE.md`` or ``TODO.md`` that is not valid UTF-8
+      exits 2 naming it. Only a sibling, ``P-TODO.md`` or ledger that is
+      genuinely absent (no entry at the path) is skipped. The lookups probe
+      with ``os.lstat``/``os.stat``, so the verdict is the same on Python
+      3.11 and 3.12+.
 
 Usage:
 
@@ -241,11 +255,12 @@ Stdlib-only Python 3.11.
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 from pathlib import Path
 
-from lint_common import print_degraded, resolve_working, resolve_sibling, require_dir
+from lint_common import InaccessiblePath, print_degraded, resolve_working, resolve_sibling, require_dir, strict_kind
 # P-TODO 3b121: the one index-row and item-heading grammar the audit tool and the decision-log hook read.
 from todo_index_rows import index_rows, item_headings
 
@@ -1246,7 +1261,22 @@ def main(argv: list[str]) -> int:
             print(f"ERROR: required file missing: {done_path}", file=sys.stderr)
             return 2
     else:
-        done_path = resolve_working("DONE.md")
+        # Strict (3b677): only an ABSENT ledger takes the skip below. A store, sibling, .working
+        # directory or DONE.md that is present but cannot be examined (a dangling link, an
+        # unsearchable directory, a non-directory where a directory belongs) refuses, under 3.11,
+        # whose pathlib raises PermissionError there, as under 3.12+, whose pathlib reads absent.
+        try:
+            done_path = resolve_working("DONE.md", strict=True)
+            done_kind = strict_kind(done_path) if done_path is not None else None
+        except InaccessiblePath as exc:
+            # 3b677 r7: the exception names the cause (a missing component is not "present").
+            print(f"ERROR: cannot look up DONE.md in the private store ({exc}); "
+                  f"refusing the skip an absent ledger takes.", file=sys.stderr)
+            return 2
+        if done_path is not None and done_kind != "file":
+            print(f"ERROR: the private store holding DONE.md is present but unusable: {done_path} "
+                  f"is present but is not a regular file.", file=sys.stderr)
+            return 2
         if done_path is None:
             # `.working/DONE.md` is the maintainer-only retirement ledger. When
             # the operational store is absent, the ledger is absent in public CI
@@ -1269,40 +1299,76 @@ def main(argv: list[str]) -> int:
     # both lists (a migrated item keeps its N.M id in P-TODO.md; gate 78 must still see
     # it). Adopter-graceful: absent private sibling / absent P-TODO.md -> "" -> no-op.
     ptodo_path: Path | None
+    private: Path | None = None
     if args.root is not None:
         cand = REPO_ROOT / PTODO_REL   # verbatim under an explicit synthetic root
         ptodo_path = cand if cand.is_file() else None
     else:
-        private = resolve_sibling("private")
+        # Strict (3b74): an ABSENT sibling still takes the degraded path below, but one that is
+        # present and unusable (a file, a FIFO, a dangling link, an unsearchable parent) refuses.
+        try:
+            private = resolve_sibling("private", strict=True)
+        except InaccessiblePath as exc:
+            print(f"ERROR: the private sibling is present but unusable ({exc}); refusing "
+                  f"the degraded path it would silently select.", file=sys.stderr)
+            return 2
         cand = (private / PTODO_REL) if private is not None else None
-        ptodo_path = cand if (cand is not None and cand.is_file()) else None
+        ptodo_path = None
+        if cand is not None:
+            # 3b677: probe as gate 90 does (list the sibling, then strict_kind), not with
+            # Path.is_file, which reads a file in an unsearchable sibling as absent (3.12+) or
+            # raises PermissionError (3.11). Only ENOENT in a readable sibling is absent.
+            try:
+                os.listdir(private)
+                kind = strict_kind(cand)
+            except OSError as exc:
+                print(f"ERROR: the private sibling is present but unusable: cannot examine "
+                      f"{exc.filename or cand} ({exc.strerror}).", file=sys.stderr)
+                return 2
+            if kind not in (None, "file"):
+                print(f"ERROR: the private sibling is present but unusable: {cand} is present "
+                      f"but is not a regular file.", file=sys.stderr)
+                return 2
+            ptodo_path = cand if kind == "file" else None
         # 3b635: the DEFAULT lookup's skips exit 0, so a green CI run must not read as a pass.
+        # 3b677: each skip names its own cause; P-TODO.md is skipped for an absent sibling AND for
+        # a usable sibling with no P-TODO.md in it, so the notice says which.
         degraded = []
         if done_path is None:
-            degraded.append("the recycled-number check (DONE.md)")
+            degraded.append("the recycled-number check (DONE.md: no private store supplies it)")
         if ptodo_path is None:
-            degraded.append(f"the {PTODO_REL} live ids and cross-list duplicate check")
+            why = ("no private sibling supplies it" if private is None
+                   else f"the private sibling has no {PTODO_REL}")
+            degraded.append(f"the {PTODO_REL} live ids and cross-list duplicate check ({why})")
         if degraded:
             print_degraded(
                 "gate 78",
-                f"gate 78 skipped {' and '.join(degraded)} (no private store "
-                f"supplies the input); this pass attests nothing about them."
+                f"gate 78 skipped {' and '.join(degraded)}; this pass attests nothing about them."
             )
 
+    # 3b677: a file that is not valid UTF-8 exits 2 naming it, as gate 90 does, not a traceback.
+    reading = todo_path
     try:
         todo_text = todo_path.read_text(encoding="utf-8")
+        reading = done_path
         done_text = (
             done_path.read_text(encoding="utf-8") if done_path is not None else ""
         )
+        reading = ptodo_path
         ptodo_text = ptodo_path.read_text(encoding="utf-8") if ptodo_path is not None else ""
     except OSError as exc:
         print(f"ERROR: cannot read a required file: {exc}", file=sys.stderr)
+        return 2
+    except UnicodeDecodeError as exc:
+        print(f"ERROR: cannot decode {reading} as UTF-8 ({exc.reason} at byte {exc.start}).",
+              file=sys.stderr)
         return 2
     # 3b639: name only the lists actually read, and say so explicitly when P-TODO.md is absent (gate 81's style).
     lists_read = f"{TODO_REL} + {PTODO_REL}" if ptodo_path is not None else TODO_REL
     if ptodo_path is None:
         where = ("not in the --root directory" if args.root is not None
-                 else "no private sibling, or no P-TODO.md in it; public-only clone / adopter checkout")
+                 else "no private sibling; public-only clone / adopter checkout" if private is None
+                 else f"the private sibling {private} has no {PTODO_REL}")
         print(f"OK: {PTODO_REL} not present ({where}). Scanning {TODO_REL} only.")
 
     # Each list is read for all three item forms the audit tool counts (design note 5, P-TODO 3b121): index rows

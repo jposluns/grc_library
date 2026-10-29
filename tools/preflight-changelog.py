@@ -891,10 +891,16 @@ class SiblingInaccessible(RuntimeError):
 
 def _inaccessible_reason(exc: InaccessiblePath) -> str:
     """Why a strict lookup refused a path, without claiming it exists (3b399 round 8, N1): only
-    ENOTDIR says what is there; any other error (a parent this account cannot search, for
-    example) leaves the path's existence unknown."""
+    ENOTDIR and a store directory that is "present but not searchable" say what is there; ENOENT
+    (a missing or dangling component, which lint_common's message names, 3b677 r7) says only that
+    it cannot be used; any other error (a parent this account cannot search, for example) leaves
+    the path's existence unknown."""
     if exc.errno == errno.ENOTDIR:
         return f"is not a directory, or a path above it is not one ({exc.strerror})"
+    if exc.errno == errno.ENOENT:
+        return f"cannot be used ({exc.strerror})"
+    if (exc.strerror or "").startswith("present but not searchable"):
+        return f"exists but this account cannot search it ({exc.strerror})"
     return f"may exist but this account cannot examine it ({exc.strerror})"
 
 

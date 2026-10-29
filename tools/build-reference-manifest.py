@@ -14,8 +14,13 @@ it NEVER reads the held `--full-text` files nor the catalogue `notes`/`extract` 
 never reproduces source prose. The manifest is a bibliography, never the texts.
 
 **Sibling-independence:** this is an ORCHESTRATOR/maintainer tool. It locates the real
-`grc_library_ref` sibling via `lint_common.resolve_sibling("ref")` and NO-OPS (exit 0) when
-that sibling is absent (an adopter's portable clone), so it is NEVER a CI gate and
+`grc_library_ref` sibling via `lint_common.resolve_sibling("ref", strict=True)` and NO-OPS
+(exit 0) only when that sibling is absent (an adopter's portable clone). A sibling that is
+present but unusable (not a directory, a dangling link, or one that cannot be examined) is not
+absent: it fails with exit 2 naming it, as does a `catalogue.yml` in it that cannot be examined,
+is not a regular file, cannot be read or is not valid UTF-8 (3b677). A `catalogue.yml` genuinely
+absent from a usable sibling exits 2 as not found. The probes use `os.lstat`/`os.stat`, so the
+verdict is the same on Python 3.11 and 3.12+. It is NEVER a CI gate, and
 `check-portability.sh` stays green. The maintainer-side `_ref`-required loud gate lives at
 `/orch` (detect-env `ref_availability`), not here. The committed manifest ships statically,
 so an adopter gets it without any sibling.
@@ -288,7 +293,13 @@ def main() -> int:
     # 3b50b2a: parse strictly first, so a mistyped --check can never fall through to the WRITE
     # below (and is refused even in an adopter clone, before the no-op branch).
     check = "--check" in lint_common.strict_flags(sys.argv[1:], ("--check",))
-    ref = lint_common.resolve_sibling("ref")
+    try:
+        # Strict (3b74): only an ABSENT sibling takes the no-op; a present but unusable one refuses.
+        ref = lint_common.resolve_sibling("ref", strict=True)
+    except lint_common.InaccessiblePath as exc:
+        print(f"build-reference-manifest: the grc_library_ref sibling is present but unusable "
+              f"({exc}); refusing the no-op an absent sibling takes.", file=sys.stderr)
+        return 2
     if ref is None:
         # Adopter / portable clone: no reference sibling. No-op (exit 0); the committed
         # manifest is used as-is. (Maintainer-side absence is caught loud at /orch.)
@@ -297,10 +308,30 @@ def main() -> int:
         print(note)
         return 0
     catalogue_path = ref / "catalogue.yml"
-    if not catalogue_path.is_file():
+    # 3b677: strict_kind, not Path.is_file, which reads a catalogue in an unsearchable sibling
+    # as absent (3.12+) or raises PermissionError (3.11). Only ENOENT is "not found".
+    try:
+        kind = lint_common.strict_kind(catalogue_path)
+        if kind == "file":
+            text = catalogue_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        print(f"build-reference-manifest: the grc_library_ref sibling is present but unusable "
+              f"(cannot read {exc.filename or catalogue_path}: {exc.strerror}).", file=sys.stderr)
+        return 2
+    except UnicodeDecodeError as exc:
+        # 3b677: a catalogue that is not valid UTF-8 exits 2 naming it, not exit 3 with a traceback.
+        print(f"build-reference-manifest: the grc_library_ref sibling is present but unusable "
+              f"(cannot decode {catalogue_path} as UTF-8: {exc.reason} at byte {exc.start}).",
+              file=sys.stderr)
+        return 2
+    if kind is None:
         print(f"build-reference-manifest: {catalogue_path} not found", file=sys.stderr)
         return 2
-    catalogue = _parse_catalogue(catalogue_path.read_text(encoding="utf-8"))
+    if kind != "file":
+        print(f"build-reference-manifest: the grc_library_ref sibling is present but unusable "
+              f"({catalogue_path} is present but is not a regular file).", file=sys.stderr)
+        return 2
+    catalogue = _parse_catalogue(text)
     rendered = render(catalogue)
     if check:
         current = MANIFEST.read_text(encoding="utf-8") if MANIFEST.exists() else ""
@@ -318,8 +349,9 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    # Exit codes: 0 in sync, written, or no sibling; 1 --check DRIFT only; 2 catalogue missing or a
-    # bad flag; 3 an unexpected internal error. Python's own uncaught-exception exit is 1, the same
+    # Exit codes: 0 in sync, written, or no sibling; 1 --check DRIFT only; 2 catalogue missing, a
+    # present but unusable sibling or catalogue (including one not valid UTF-8), or a bad flag; 3 an
+    # unexpected internal error. Python's own uncaught-exception exit is 1, the same
     # as DRIFT, so an unexpected error is mapped to 3 to keep 1 meaning drift (P-TODO 3b62: the
     # pre-push guard reports drift from this code and must not misreport a crash as drift).
     try:

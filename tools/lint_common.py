@@ -282,35 +282,88 @@ _SIBLING_REPO_DIRS: dict[str, str] = {
 
 
 class InaccessiblePath(OSError):
-    """A path that is, or may be, present but cannot be examined: a parent without search
-    permission (EACCES), a symlink loop (ELOOP), a non-directory parent (ENOTDIR), an entry that
-    cannot be followed (a dangling link, a link into a locked directory), or an entry of the wrong
-    kind. The strict lookups raise it rather than read such a path as absent (3b74)."""
+    """A path the strict lookups refuse rather than read as absent (3b74): one that is, or may be,
+    present but cannot be examined (a parent without search permission (EACCES), a symlink loop
+    (ELOOP), a non-directory parent (ENOTDIR), an entry that cannot be followed (a dangling link, a
+    link into a locked directory), or an entry of the wrong kind), and one behind a missing
+    intermediate component (ENOENT), where nothing is present; the message names which (3b677 r7)."""
+
+
+def _strict_blame_parent(p: str) -> "InaccessiblePath | None":
+    """The :class:`InaccessiblePath` for ``p`` whose message names the first component before its
+    last that is not a usable directory when followed (as the kernel follows it on lookup):
+    missing, a dangling or looping symlink, not a directory, or not examinable or searchable. Its
+    ``filename`` stays ``p``, the path probed, as callers report it. ``None`` when every such
+    component is a usable directory (3b677 r6)."""
+    trimmed = p.rstrip(os.sep) or os.sep
+    parent = os.path.dirname(trimmed)
+    prefix = os.sep if os.path.isabs(trimmed) else ""
+    for part in [c for c in parent.split(os.sep) if c]:
+        prefix = os.path.join(prefix, part) if prefix else part
+        where = f"at {prefix}, a path component of {p}"
+        try:
+            st = os.stat(prefix)
+        except FileNotFoundError:
+            try:
+                os.lstat(prefix)
+            except FileNotFoundError:
+                return InaccessiblePath(errno.ENOENT, f"missing intermediate component ({where})", p)
+            except OSError as exc:
+                return InaccessiblePath(exc.errno, f"{exc.strerror} ({where})", p)
+            return InaccessiblePath(errno.ENOENT, f"dangling symbolic link ({where})", p)
+        except OSError as exc:
+            return InaccessiblePath(exc.errno, f"{exc.strerror} ({where})", p)
+        if not _stat.S_ISDIR(st.st_mode):
+            return InaccessiblePath(errno.ENOTDIR, f"present but not a directory ({where})", p)
+        if not os.access(prefix, os.X_OK):
+            return InaccessiblePath(errno.EACCES, f"directory not searchable ({where})", p)
+    return None
 
 
 def strict_kind(path) -> "str | None":
     """``"dir"``, ``"file"`` or ``"other"`` for ``path``; ``None`` only when it is genuinely ABSENT.
 
-    ABSENT means ``lstat`` reports ENOENT (no entry for the path or for a parent). Any other failure
-    raises :class:`InaccessiblePath`. The probe calls ``os.lstat``/``os.stat`` directly, so the
-    verdict is the same on Python 3.11, whose pathlib ``exists()``/``is_file()``/``is_dir()`` raise
-    PermissionError on EACCES, and on 3.12+, whose versions return False and so read an unreadable
-    path as absent. It does not test read permission on a directory's contents.
+    ABSENT means exactly this: ``lstat`` of the path reports ENOENT, AND every component before the
+    last (its parent directory, followed through symlinks as the kernel follows them on lookup)
+    exists, is a directory and is searchable by this account (``os.access(component, os.X_OK)``),
+    so only the LAST component is missing. A parent that is missing, a dangling or looping symlink,
+    not a directory, not searchable, or cannot be examined is not absence: it raises
+    :class:`InaccessiblePath` whose message names that component ("at <component>, a path
+    component of <path>"; ``filename`` stays the path probed) (3b677 r6). A last component
+    that is a dangling symlink is present (``lstat`` finds it) and raises too. Any other failure
+    raises :class:`InaccessiblePath`. Trailing separators are dropped before the probe, so
+    ``"<dir>/link/"`` gets the verdict of ``"<dir>/link"``: the last component is probed as named
+    (``lstat``, then ``stat``), not followed first, and the kind reported is that of the entry
+    (``"file"`` for ``"<dir>/afile/"``) (3b677 r7). A caller probing a deeper path whose
+    intermediate directories may legitimately be absent probes each level in turn. The probe calls
+    ``os.lstat``/``os.stat`` directly, so the verdict is the same on Python 3.11, whose pathlib
+    ``exists()``/``is_file()``/``is_dir()`` raise PermissionError on EACCES, and on 3.12+, whose
+    versions return False and so read an unreadable path as absent. It does not test read
+    permission on a directory's contents, nor search permission on the last component.
     """
     p = os.fspath(path)
+    # 3b677 r7: os.lstat("link/") follows the link, so a dangling last component read as absent
+    # with a trailing separator; probe the name without it ("/" stays "/").
+    probe = p.rstrip(os.sep) or p
     try:
-        os.lstat(p)
-    except FileNotFoundError:
+        os.lstat(probe)
+    except FileNotFoundError as exc:
+        # Absent only when the LAST component is the one missing (3b677 r6).
+        blame = _strict_blame_parent(p)
+        if blame is not None:
+            raise blame from exc
         return None
     except OSError as exc:
-        raise InaccessiblePath(exc.errno, exc.strerror, p) from exc
+        # An intermediate component is named where one is to blame (ENOTDIR, ELOOP, EACCES).
+        raise (_strict_blame_parent(p) or InaccessiblePath(exc.errno, exc.strerror, p)) from exc
     except ValueError as exc:  # an embedded NUL byte
         raise InaccessiblePath(errno.EINVAL, str(exc), p) from exc
     try:
-        st = os.stat(p)
+        st = os.stat(probe)
     except OSError as exc:
         # lstat found an entry that stat cannot follow: present but unusable, never absent.
-        raise InaccessiblePath(exc.errno, exc.strerror, p) from exc
+        why = "dangling symbolic link" if exc.errno == errno.ENOENT else exc.strerror
+        raise InaccessiblePath(exc.errno, why, p) from exc
     if _stat.S_ISDIR(st.st_mode):
         return "dir"
     return "file" if _stat.S_ISREG(st.st_mode) else "other"
@@ -435,10 +488,20 @@ def _store_dir(root: "Path", *, strict: bool = False) -> "Path | None":
     in-repo ``.working/`` (reads) or refuse (private writes).
 
     ``strict=True`` (3b74) keeps both fallbacks (an ABSENT store and an in-repo store return None)
-    but raises :class:`InaccessiblePath` for a store path that cannot be examined or is not a
-    directory, which the default reads as absent. Both modes also catch the RuntimeError that
-    Python 3.11's ``resolve()`` raises on a relative ``GRC_STORE`` symlink loop (it escaped as a
-    traceback, since ``_store_root`` ran outside the ``try``)."""
+    but raises :class:`InaccessiblePath` for a store path that cannot be examined, is not a
+    directory, or is a directory this account cannot search (``os.access(store, os.X_OK)``; its
+    message is "present but not searchable", 3b677 r7), which the default reads as absent. Both
+    modes also catch the RuntimeError that Python 3.11's ``resolve()`` raises on a relative
+    ``GRC_STORE`` symlink loop (it escaped as a traceback, since ``_store_root`` ran outside the
+    ``try``).
+
+    With ``GRC_STORE`` unset the store is identified by its NAME alone (``<repo-parent>/private``,
+    the fleet-standard ``/opt/<project>/private``): no marker file or other signal is consulted, so
+    under ``strict=True`` any present but unusable entry of that name refuses, whoever put it
+    there. An error from probing that entry itself (any of the shapes above) then names that
+    convention and the ``GRC_STORE`` override (3b677 r5); a store directory that passes is
+    returned, and an error from an entry beneath it (raised by a caller such as
+    :func:`resolve_working`) names only that entry."""
     try:
         if strict:
             # Probe the configured store AS GIVEN (a relative GRC_STORE joined to the root, not yet
@@ -447,7 +510,21 @@ def _store_dir(root: "Path", *, strict: bool = False) -> "Path | None":
             # away first. Only a store that is a real directory is resolved.
             env = os.environ.get("GRC_STORE")
             given = (Path(env) if Path(env).is_absolute() else root / env) if env else root.parent / "private"
-            if not _strict_is_dir(given):
+            try:
+                usable = _strict_is_dir(given)
+                # 3b677 r7: an unsearchable store directory refuses here, with the convention
+                # text below, not later from resolve_working's probe of a file inside it.
+                if usable and not os.access(given, os.X_OK):
+                    raise InaccessiblePath(errno.EACCES, "present but not searchable", os.fspath(given))
+            except InaccessiblePath as exc:
+                if env:
+                    raise
+                raise InaccessiblePath(
+                    exc.errno, f"{exc.strerror}; with GRC_STORE unset, <repo-parent>/private is "
+                    "the operational store by name, whatever the entry holds: make it a usable "
+                    "store directory, remove it, or set GRC_STORE to select the store",
+                    exc.filename) from exc
+            if not usable:
                 return None
             store = _store_root(root)
             present = True
@@ -492,34 +569,57 @@ def resolve_working(relpath: str, *, repo_root: Path | None = None, strict: bool
 
     ``strict=True`` (3b74) raises :class:`InaccessiblePath` where the default falls through: a
     location that cannot be examined (an unsearchable parent, a symlink loop, a non-directory where
-    a directory belongs). An ABSENT location still falls through, so a public or adopter clone still
-    gets None. The default is unchanged.
+    a directory belongs), or a store path (``GRC_STORE``) behind a missing intermediate component
+    (3b677 r6). An ABSENT location still falls through, so a public or adopter clone still gets
+    None; below a usable store or ``.working`` root a missing directory is absent, probed level by
+    level (:func:`strict_kind_under`). The default is unchanged.
     """
     root = (repo_root or REPO_ROOT).resolve()
     if strict:
-        def present(p: Path) -> bool:
-            return strict_kind(p) is not None
+        def present(base: Path, rel: str) -> bool:
+            return _strict_present_under(base, rel)
         is_dir = _strict_is_dir
     else:
-        def present(p: Path) -> bool:
-            return p.exists()
+        def present(base: Path, rel: str) -> bool:
+            return (base / rel).exists()
 
         def is_dir(p: Path) -> bool:
             return p.is_dir()
     store = _store_dir(root, strict=strict)
     if store is not None:
-        cand = store / relpath
-        if present(cand):
-            return cand
+        if present(store, relpath):
+            return store / relpath
     private = root.parent / _SIBLING_REPO_DIRS["private"]
     if is_dir(private):
-        cand = private / WORKING_SUBDIR / relpath
-        if present(cand):
-            return cand
-    local = root / WORKING_SUBDIR / relpath
-    if present(local):
-        return local
+        if present(private, f"{WORKING_SUBDIR}/{relpath}"):
+            return private / WORKING_SUBDIR / relpath
+    if present(root, f"{WORKING_SUBDIR}/{relpath}"):
+        return root / WORKING_SUBDIR / relpath
     return None
+
+
+def strict_kind_under(base, rel) -> "str | None":
+    """:func:`strict_kind` of ``base / rel`` for a directory ``base``, probing each level of the
+    relative path ``rel`` in turn (3b677 r6). strict_kind reads only a missing LAST component as
+    absent, so a missing intermediate directory below ``base`` (an absent ``.working`` or
+    subdirectory) is absent here too (``None``), while one that is a dangling or looping link, a
+    non-directory or unexaminable raises :class:`InaccessiblePath` naming it."""
+    cur = Path(base)
+    parts = [c for c in Path(rel).parts if c != "."]
+    if not parts:
+        return strict_kind(cur)
+    for i, part in enumerate(parts):
+        cur = cur / part
+        kind = strict_kind(cur)
+        if kind is None or i == len(parts) - 1:
+            return kind
+        if kind != "dir":
+            raise InaccessiblePath(errno.ENOTDIR, "present but not a directory", os.fspath(cur))
+    return None
+
+
+def _strict_present_under(base: Path, rel: str) -> bool:
+    return strict_kind_under(base, rel) is not None
 
 
 def resolve_working_dir(*, repo_root: Path | None = None, strict: bool = False) -> Path | None:
