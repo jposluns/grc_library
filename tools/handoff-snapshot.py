@@ -220,14 +220,18 @@ def _self_test() -> int:
             failures.append("  session_metrics: missing lease must be UNKNOWN")
         lease = resolve_working_for_write("session-state.md", repo_root=root)
         lease.parent.mkdir(parents=True, exist_ok=True)
-        lease.write_text("**Active-session:** orch-2026-07-29T15:30:45Z\n"
-                         "**Status:** active\n"
-                         "**Operating-mode:** attended-autonomous\n"
-                         "**Last-heartbeat-UTC:** 2026-07-29T15:30:45Z\n"
-                         "**Current-task:** self-test\n"
-                         "**Worker-dispatches:** none\n", encoding="utf-8")
-        if session_metrics(root)["start"] != "2026-07-29T15:30:45Z":
-            failures.append("  session_metrics: lease must work without a log")
+        plain = ("Active-session: orch-2026-07-29T15:30:45Z\n"
+                 "Status: active\n"
+                 "Operating-mode: attended-autonomous\n"
+                 "Last-heartbeat-UTC: 2026-07-29T15:30:45Z\n"
+                 "Current-task: self-test\n"
+                 "Worker-dispatches: none\n")
+        # 3b679: the plain form is canonical; a bold lease still reads.
+        bold = re.sub(r"(?m)^([A-Za-z-]+):", r"**\1:**", plain)
+        for form, text in (("bold", bold), ("plain", plain)):
+            lease.write_text(text, encoding="utf-8")
+            if session_metrics(root)["start"] != "2026-07-29T15:30:45Z":
+                failures.append(f"  session_metrics: {form} lease must work without a log")
 
         # session_metrics: lease start + fixed-clock elapsed; log compactions only
         dw = resolve_working_for_write("degradation-watch-log.md", repo_root=root)

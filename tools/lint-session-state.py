@@ -8,23 +8,34 @@ record, "Session-concurrency safety"; the
 `/orch` command's step 0 reads this file before anything else).
 
 The lease declares which orchestrator session, if any, currently holds
-the shared ``main`` state surfaces. Required fields, one per line:
+the shared ``main`` state surfaces. Required fields, one per line, each
+a plain ``Field: value`` line (the field name at column zero, a colon and
+one space, then the value). The fleet lease tool (orch_store.py) parses
+``Active-session``, ``Status`` and ``Last-heartbeat-UTC`` only from lines
+that begin with the name and ": ", so the Markdown bold form
+(``**Status:** active``) is a finding naming the plain form (maintainer
+ruling 2026-10-29 01:10Z); the other three fields use the same form so
+the file has one style:
 
-- ``**Active-session:**`` the active session's branch name, or
+- ``Active-session:`` the active session's branch name, or
   ``none`` when no session holds the lease.
-- ``**Status:**`` ``active`` (a session holds the lease),
+- ``Status:`` ``active`` (a session holds the lease),
   ``winding-down`` (a session is landing its closing handoff PR), or
   ``released`` (no session holds the lease; the clean-close state).
-- ``**Operating-mode:**`` ``fully-attended``, ``attended-autonomous``,
+- ``Operating-mode:`` ``fully-attended``, ``attended-autonomous``,
   ``overnight-unattended``, or ``daytime-unattended``. The
   AskUserQuestion-blocking hook reads this and refuses a blocking prompt when
   the mode is unattended, so the value must always be present and current.
-- ``**Last-heartbeat-UTC:**`` a ``YYYY-MM-DDTHH:MM:SSZ`` stamp
+- ``Last-heartbeat-UTC:`` a ``YYYY-MM-DDTHH:MM:SSZ`` stamp
   (``date -u +%Y-%m-%dT%H:%M:%SZ``), refreshed at each PR close-out.
-- ``**Current-task:**`` one line of free text.
-- ``**Worker-dispatches:**`` ``none`` or a free-text summary of the
+- ``Current-task:`` one line of free text.
+- ``Worker-dispatches:`` ``none`` or a free-text summary of the
   in-flight worker fan-out (cross-referencing the scratch
   ``claims-ledger.md`` when parallel work is running).
+
+Known limit: the value checks still allow trailing whitespace after a
+value, and the lease is read with universal newlines, so a CR before LF
+is not seen; orch_store.py reads both into the value and refuses it.
 
 Coherence rules: ``released`` requires ``Active-session: none``;
 ``active`` and ``winding-down`` require a non-``none`` branch name.
@@ -41,20 +52,23 @@ Near-miss detection examines each LF-delimited line, including comments
 and fences, after optional whitespace and repeated Markdown markers:
 a bullet (-, + or *), or digits plus "." or ")", requires following
 whitespace; ">" permits none; one or more "#" requires whitespace.
-A candidate then starts with one or two stars or underscores, a nonempty
+A candidate then starts with zero to two stars or underscores, a nonempty
 label without stars or colons (internal spaces and underscores are allowed),
 zero to two stars or underscores, optional whitespace, a colon, and zero
 to two stars or underscores. It is a
 near miss if its normalized label casefolds to a required field name but
-that field's exact pattern does not fullmatch the line. Normalization
+that field's exact pattern does not fullmatch the line (so a bold
+``**Status:** active`` is a near miss of ``Status: active``). Normalization
 maps Unicode category Pd, names containing HYPHEN or the word DASH, and
 superscript, subscript and ordinary minus signs to "-", and folds
 compatibility forms such as fullwidth letters (NFKC). Comparison removes
 whitespace, underscores and dashes before casefolding.
 Each near-miss line gets one finding listing every applicable label fault:
-its spelling or prefix faults, a space before the colon, a colon outside
-the bold, underscore emphasis or incomplete bold delimiters; wrong value
-shape is reported only when no label fault applies.
+its spelling or prefix faults, a space before the colon, and bold or
+emphasis markers (stars or underscores anywhere around the label, with
+the plain form to write); wrong value shape, which includes a separator
+other than one space after the colon, is reported only when no label
+fault applies.
 Prose and inline code before a token prevent candidate recognition.
 
 Field labels: the session-start reader counts every LF-delimited line
@@ -109,22 +123,18 @@ import unicodedata
 from lint_common import REPO_ROOT, print_degraded, resolve_working
 
 
+# Plain `Field: value` lines: the name at column zero, then ": " (one space),
+# the form the fleet lease tool (orch_store.py) parses.
 FIELD_PATTERNS = {
-    "Active-session": re.compile(
-        r"^\*\*Active-session:\*\*\s+(\S+)\s*$", re.MULTILINE
-    ),
-    "Status": re.compile(r"^\*\*Status:\*\*\s+(\S+)\s*$", re.MULTILINE),
-    "Operating-mode": re.compile(
-        r"^\*\*Operating-mode:\*\*\s+(\S+)\s*$", re.MULTILINE
-    ),
+    "Active-session": re.compile(r"^Active-session: (\S+)\s*$", re.MULTILINE),
+    "Status": re.compile(r"^Status: (\S+)\s*$", re.MULTILINE),
+    "Operating-mode": re.compile(r"^Operating-mode: (\S+)\s*$", re.MULTILINE),
     "Last-heartbeat-UTC": re.compile(
-        r"^\*\*Last-heartbeat-UTC:\*\*\s+(\S+)\s*$", re.MULTILINE
+        r"^Last-heartbeat-UTC: (\S+)\s*$", re.MULTILINE
     ),
-    "Current-task": re.compile(
-        r"^\*\*Current-task:\*\*\s+(.+?)\s*$", re.MULTILINE
-    ),
+    "Current-task": re.compile(r"^Current-task: (\S.*?)\s*$", re.MULTILINE),
     "Worker-dispatches": re.compile(
-        r"^\*\*Worker-dispatches:\*\*\s+(.+?)\s*$", re.MULTILINE
+        r"^Worker-dispatches: (\S.*?)\s*$", re.MULTILINE
     ),
 }
 
@@ -162,7 +172,7 @@ def normalize_label(label: str) -> str:
 
 LABEL_RE = re.compile(
     r"^(?P<prefix>\s*(?:(?:[-+*]|\d+[.)])\s+|>\s*|#+\s+)*)"
-    r"(?P<open>[*_]{1,2})(?P<label>[^*:]+?)"
+    r"(?P<open>[*_]{0,2})(?P<label>[^*:]+?)"
     r"(?P<close>[*_]{0,2})(?P<space>\s*):(?P<after>[*_]{0,2})"
 )
 FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
@@ -207,21 +217,17 @@ def field_line_errors(text: str) -> list[str]:
                     faults.append("compatibility character")
                 if token.group("prefix"):
                     faults.append("leading whitespace or Markdown marker")
-                if token.group("close"):
-                    faults.append("colon outside the bold")
                 if token.group("space"):
                     faults.append("space before the colon")
-                delimiters = "".join(token.group("open", "close", "after"))
-                if "_" in delimiters:
-                    faults.append("underscore emphasis")
-                elif token.group("open") != "**" or (
-                    not token.group("close") and token.group("after") != "**"
-                ):
-                    faults.append("incomplete bold delimiters")
+                if "".join(token.group("open", "close", "after")):
+                    faults.append(
+                        f"bold or emphasis markers, write the plain form "
+                        f"`{near}: <value>`"
+                    )
                 if not faults:
                     faults.append("wrong value shape")
                 invalid.append(
-                    f"field line `**{near}:**` at line {number} "
+                    f"field line `{near}:` at line {number} "
                     f"has a near-miss label ({', '.join(faults)})"
                 )
         for name in READER_FIELDS:
@@ -246,7 +252,7 @@ def field_line_errors(text: str) -> list[str]:
                 regions.append("later heading")
             if regions:
                 invalid.append(
-                    f"field line `**{exact}:**` at line {number} "
+                    f"field line `{exact}:` at line {number} "
                     f"is outside the header region ({', '.join(regions)})"
                 )
             else:
@@ -282,12 +288,12 @@ def check_text(text: str) -> tuple[list[str], list[str]]:
         matches = list(pattern.finditer(text))
         if not matches:
             missing.append(
-                f"required field line `**{field}:** <value>` is absent"
+                f"required field line `{field}: <value>` is absent"
             )
             continue
         if len(matches) > 1:
             invalid.append(
-                f"field line `**{field}:**` appears {len(matches)} times; "
+                f"field line `{field}:` appears {len(matches)} times; "
                 f"each field appears exactly once"
             )
         values[field] = matches[0].group(1)

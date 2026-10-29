@@ -357,7 +357,7 @@ def read_operating_mode(root):
     (indeterminate), fails open (allows the stop).
 
     One source per checkout (3b113 QA r2):
-      - the primary grc checkout: the store lease only (_grc_lease_mode: '**Operating-mode:**' from
+      - the primary grc checkout: the store lease only (_grc_lease_mode: 'Operating-mode:', plain or bold, from
         GRC_STORE, else <repo-parent>/private, then session-state.md, mapped via _grc_map_mode); a
         MODE_FILE there is ignored, so a stray file never shadows the lease.
       - any other root (the bundled --self-test, a file-based adopter): the repo-relative single-word
@@ -396,10 +396,13 @@ def _grc_lease_mode(root):
             txt = fh.read()
     except OSError:
         return None
-    m = re.search(r"(?im)^\*\*Operating-mode:\*\*\s*(.+?)\s*$", txt)
+    m = _GRC_MODE_RE.search(txt)
     if not m:
         return None
     return _grc_map_mode(m.group(1))
+
+# 3b679: the lease's plain `Operating-mode: <mode>` line (gate 63's form) or the earlier bold form.
+_GRC_MODE_RE = re.compile(r"(?im)^(?:\*\*Operating-mode:\*\*|Operating-mode:)\s*(.+?)\s*$")
 
 def actionable_items(root):
     """DEFAULT (minimal file-based) adapter. Run the OPTIONAL Python executable at ACTIONABLE_PRODUCER and parse
@@ -2065,6 +2068,14 @@ def _self_test():
             # 3b101 QA r2 (codex): the refusal's touch path is the path the escape reader consumes.
             self.assertIn(_grc_escape_file(), MODE_SET_HINT)
 
+        def test_grc_lease_mode_plain_and_bold(self):
+            # 3b679: the lease moves from **Operating-mode:** to the plain line; both read.
+            for line in ("Operating-mode: overnight-unattended", "**Operating-mode:** overnight-unattended"):
+                m = _GRC_MODE_RE.search("# Session state: grc\n\n" + line + "\n<!-- note -->\n")
+                self.assertEqual(m.group(1) if m else None, "overnight-unattended", line)
+            for line in ("**Operating-mode**: overnight-unattended", " Operating-mode: overnight-unattended"):
+                self.assertIsNone(_GRC_MODE_RE.search("# Session state: grc\n\n" + line + "\n"), line)
+
         def test_grc_lease_arms_only_the_main_checkout_and_submodules(self):
             # 3b101 QA r2: the lease half of the scoping, on real hook copies: the main checkout and a
             # submodule read the lease; a linked worktree does not.
@@ -2072,7 +2083,7 @@ def _self_test():
             with tempfile.TemporaryDirectory() as parent:
                 os.makedirs(os.path.join(parent, "private"))
                 with open(os.path.join(parent, "private", "session-state.md"), "w", encoding="utf-8") as fh:
-                    fh.write("# Session state: grc\n\n**Operating-mode:** overnight-unattended\n")
+                    fh.write("# Session state: grc\n\nOperating-mode: overnight-unattended\n")
                 # Real admin directories (3b101 QA r3): a linked worktree's holds `commondir`, a submodule's
                 # does not. wt-alias reaches the worktree admin through a relative symlinked path; sub-deep
                 # is a submodule whose admin path has an ancestor named worktrees.

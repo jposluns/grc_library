@@ -46,7 +46,8 @@ import stat
 import sys
 from pathlib import Path
 
-MODE_RE = re.compile(r"^\*\*Operating-mode:\*\*\s+(\S+)\s*$", re.MULTILINE)
+# The plain `Operating-mode: <mode>` line (gate 63's form since 3b679) or the earlier bold form.
+MODE_RE = re.compile(r"^(?:\*\*Operating-mode:\*\*|Operating-mode:)\s+(\S+)\s*$", re.MULTILINE)
 
 
 # `.working/` -> `_private` migration: resolve the (maintainer-only) working-state file through
@@ -313,15 +314,25 @@ def _self_test() -> int:
 
     os.environ.pop("GRC_STORE", None)  # the lease fixtures must not resolve to a real store
 
-    def lease_root(d: str, mode: str | None) -> str:
+    def lease_root(d: str, mode: str | None, label: str = "Operating-mode:") -> str:
         root = Path(d) / "proj"
         (root / ".working").mkdir(parents=True)
         if mode is not None:
             (root / ".working" / "session-state.md").write_text(
-                f"**Operating-mode:** {mode}\n", encoding="utf-8")
+                f"{label} {mode}\n", encoding="utf-8")
         return str(root)
 
     class T(unittest.TestCase):
+        def test_plain_and_bold_lease_labels(self):
+            # 3b679: the lease moves from **Operating-mode:** to the plain line; both read.
+            for label in ("Operating-mode:", "**Operating-mode:**"):
+                with tempfile.TemporaryDirectory() as d:
+                    root = lease_root(d, "overnight-unattended", label)
+                    self.assertEqual(read_lease_mode(root), "overnight-unattended", label)
+            for label in ("**Operating-mode**:", " Operating-mode:", "Operating-mode :"):
+                with tempfile.TemporaryDirectory() as d:
+                    self.assertIsNone(read_lease_mode(lease_root(d, "overnight-unattended", label)), label)
+
         def test_exact_modes(self):
             self.assertTrue(decide("overnight-unattended")[0])
             self.assertTrue(decide("daytime-unattended")[0])

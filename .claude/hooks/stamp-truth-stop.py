@@ -108,7 +108,7 @@ Elapsed resolution (same as clock-inject.py). Lease file = env ORCH_LEASE_FILE; 
 <CLAUDE_PROJECT_DIR>/.working/session-state.md when CLAUDE_PROJECT_DIR is absolute and that file exists; else
 <ORCH_PROJECT_ROOT>/private/session-state.md; else /opt/<project>/private/session-state.md from the payload
 cwd (or process cwd). Without ORCH_LEASE_FILE or a CLAUDE_PROJECT_DIR lease the lease FOLLOWS THE CWD; the
-fleet should set ORCH_LEASE_FILE. Start = the FIRST line beginning `Active-session:` only; a value other than
+fleet should set ORCH_LEASE_FILE. Start = the FIRST line beginning `Active-session:` (or bold `**Active-session:**`) only; a value other than
 <label>-YYYYMMDDTHHMMSSZ, where <label> is 1 to 32 characters of [A-Za-z0-9] (for example `sess-` or
 `S88-`), means unknown (for example `none` or a malformed id), and no later line is consulted.
 
@@ -280,16 +280,21 @@ def lease_file(cwd=None):
     return None
 
 
+# The plain field line and the earlier Markdown-bold form both start the lease (3b679).
+LEASE_LABELS = ("Active-session:", "**Active-session:**")
+
+
 def lease_start(path):
-    """UTC start from the FIRST `Active-session:` line of `path`, or None (never searches past it)."""
+    """UTC start from the FIRST plain or bold `Active-session:` line of `path`, or None (never searches past it)."""
     if not path:
         return None
     data = read_regular(path, LEASE_MAX_BYTES)
     if data is None:
         return None
     for line in data.decode("utf-8", "replace").splitlines():
-        if line.startswith("Active-session:"):
-            m = _SESS_RE.fullmatch(line[len("Active-session:"):].strip())
+        label = next((p for p in LEASE_LABELS if line.startswith(p)), None)
+        if label:
+            m = _SESS_RE.fullmatch(line[len(label):].strip())
             if not m:
                 return None
             try:
@@ -1626,6 +1631,19 @@ def _self_test():
                 with open(lease, "w") as f:
                     f.write(f"Active-session: {bad}\nActive-session: sess-20200101T000000Z\n")
                 self.assertIsNone(lease_start(lease), bad)
+
+        def test_lease_plain_and_bold_labels(self):
+            # 3b679: grc's lease moves from **Active-session:** to the plain line; both read.
+            lease = os.path.join(self.tmp, "session-state.md")
+            want = datetime.datetime(2026, 9, 23, 14, 17, 10, tzinfo=UTC)
+            for label in ("Active-session:", "**Active-session:**"):
+                with open(lease, "w") as f:
+                    f.write(f"# Session state: grc\n\n{label} sess-20260923T141710Z\n\nStatus: active\n")
+                self.assertEqual(lease_start(lease), want, label)
+            for label in ("**Active-session**:", "*Active-session:*", " Active-session:"):
+                with open(lease, "w") as f:
+                    f.write(f"{label} sess-20260923T141710Z\n")
+                self.assertIsNone(lease_start(lease), label)
 
         def test_lease_discovery_precedence(self):
             proj = os.path.join(self.tmp, "proj")

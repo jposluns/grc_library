@@ -1,7 +1,8 @@
 """Shared read-only lease facts. No log row ever selects a session start.
 
 Every LF-delimited line contributes field occurrences, regardless of context.
-Only a unique, column-zero bold field with one value token is usable.
+Only a unique, column-zero field with one value token is usable, written
+plain (Name: value) or bold (**Name:** value) so a lease in either form reads.
 Duplicate or malformed fields make start and elapsed UNKNOWN; compactions
 are UNKNOWN with a log and reported as no log without one.
 Only the Active-session value can
@@ -69,7 +70,8 @@ ISO = r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z)"
 COMPACTION = re.compile(r"\|\s*" + ISO + r"\s*\|\s*compaction\s*\|")
 SECONDS = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z"
 NAMES = ("Active-session", "Status", "Last-heartbeat-UTC")
-FIELD = re.compile(r"\*\*(" + "|".join(NAMES) + r"):\*\*[ \t]+(\S+)[ \t]*")
+# Plain `Name: value` (gate 63's form since 3b679) or the earlier bold `**Name:** value`.
+FIELD = re.compile(r"(\*\*)?(" + "|".join(NAMES) + r"):(?(1)\*\*)[ \t]+(\S+)[ \t]*")
 HEARTBEAT_MAX_AGE_SECONDS = 24 * 60 * 60
 
 
@@ -111,12 +113,12 @@ def _fields(text):
         if not lines:
             continue
         match = FIELD.fullmatch(lines[0]) if len(lines) == 1 else None
-        if match is None or match[1] != name:
+        if match is None or match[2] != name:
             detail = (f"appears {len(lines)} times" if len(lines) > 1
                       else "has a malformed occurrence")
             ambiguous.append(name + " " + detail)
         else:
-            fields[name] = match[2]
+            fields[name] = match[3]
     return fields, ambiguous, first
 
 

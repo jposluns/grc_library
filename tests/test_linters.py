@@ -25522,17 +25522,18 @@ class SessionStateTests(LinterTestCase):
     field lines (incl. Operating-mode), a valid Status value, a valid
     Operating-mode value, a parseable UTC heartbeat, and status/branch
     coherence. All three status values pass when coherent (the interlock
-    decision lives in the /orch step-0 procedure, not in CI).
+    decision lives in the /orch step-0 procedure, not in CI). Since 3b679
+    every field is a plain `Field: value` line; the bold form is refused.
     """
 
     VALID_LEASE = (
         "# Session State (concurrency lease)\n\n"
-        "**Active-session:** claude/example-branch\n\n"
-        "**Status:** active\n\n"
-        "**Operating-mode:** attended-autonomous\n\n"
-        "**Last-heartbeat-UTC:** 2026-07-03T12:00:00Z\n\n"
-        "**Current-task:** example task\n\n"
-        "**Worker-dispatches:** none\n"
+        "Active-session: claude/example-branch\n\n"
+        "Status: active\n\n"
+        "Operating-mode: attended-autonomous\n\n"
+        "Last-heartbeat-UTC: 2026-07-03T12:00:00Z\n\n"
+        "Current-task: example task\n\n"
+        "Worker-dispatches: none\n"
     )
 
     def test_runs_clean_on_corpus_at_head(self) -> None:
@@ -25568,9 +25569,9 @@ class SessionStateTests(LinterTestCase):
     def test_released_lease_with_none_session_passes(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Active-session:** claude/example-branch",
-            "**Active-session:** none",
-        ).replace("**Status:** active", "**Status:** released")
+            "Active-session: claude/example-branch",
+            "Active-session: none",
+        ).replace("Status: active", "Status: released")
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
         self.assertEqual(invalid, [])
@@ -25578,7 +25579,7 @@ class SessionStateTests(LinterTestCase):
     def test_missing_field_line_reported(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Worker-dispatches:** none\n", ""
+            "Worker-dispatches: none\n", ""
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(len(missing), 1)
@@ -25587,7 +25588,7 @@ class SessionStateTests(LinterTestCase):
     def test_invalid_status_value_flagged(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Status:** active", "**Status:** paused"
+            "Status: active", "Status: paused"
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
@@ -25596,8 +25597,8 @@ class SessionStateTests(LinterTestCase):
     def test_invalid_operating_mode_flagged(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Operating-mode:** attended-autonomous",
-            "**Operating-mode:** casual",
+            "Operating-mode: attended-autonomous",
+            "Operating-mode: casual",
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
@@ -25606,8 +25607,8 @@ class SessionStateTests(LinterTestCase):
     def test_unattended_operating_mode_passes(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Operating-mode:** attended-autonomous",
-            "**Operating-mode:** overnight-unattended",
+            "Operating-mode: attended-autonomous",
+            "Operating-mode: overnight-unattended",
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
@@ -25616,8 +25617,8 @@ class SessionStateTests(LinterTestCase):
     def test_malformed_heartbeat_flagged(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Last-heartbeat-UTC:** 2026-07-03T12:00:00Z",
-            "**Last-heartbeat-UTC:** yesterday",
+            "Last-heartbeat-UTC: 2026-07-03T12:00:00Z",
+            "Last-heartbeat-UTC: yesterday",
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
@@ -25626,7 +25627,7 @@ class SessionStateTests(LinterTestCase):
     def test_released_with_branch_incoherence_flagged(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Status:** active", "**Status:** released"
+            "Status: active", "Status: released"
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
@@ -25637,8 +25638,8 @@ class SessionStateTests(LinterTestCase):
     def test_active_with_none_session_incoherence_flagged(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Active-session:** claude/example-branch",
-            "**Active-session:** none",
+            "Active-session: claude/example-branch",
+            "Active-session: none",
         )
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
@@ -25646,7 +25647,7 @@ class SessionStateTests(LinterTestCase):
 
     def test_duplicate_field_line_flagged(self) -> None:
         mod = self._load_module()
-        text = self.VALID_LEASE + "\n**Status:** released\n"
+        text = self.VALID_LEASE + "\nStatus: released\n"
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
         self.assertTrue(
@@ -25658,8 +25659,8 @@ class SessionStateTests(LinterTestCase):
         # (the #611 sweep's I-1: both classes report in one run).
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
-            "**Worker-dispatches:** none\n", ""
-        ).replace("**Status:** active", "**Status:** paused")
+            "Worker-dispatches: none\n", ""
+        ).replace("Status: active", "Status: paused")
         missing, invalid = mod.check_text(text)
         self.assertEqual(len(missing), 1)
         self.assertTrue(any("paused" in message for message in invalid))
@@ -25680,7 +25681,7 @@ class SessionStateTests(LinterTestCase):
 
     def _shadow_lease(self, field, replacement, region):
         line = next(line for line in self.VALID_LEASE.splitlines()
-                    if line.startswith(f"**{field}:**"))
+                    if line.startswith(f"{field}:"))
         wrappers = {
             "comment": ("<!--\n", "\n-->\n"),
             "fence": ("```markdown\n", "\n```\n"),
@@ -25693,10 +25694,11 @@ class SessionStateTests(LinterTestCase):
     def test_shadowed_near_miss_labels(self) -> None:
         for field in ("Active-session", "Status", "Last-heartbeat-UTC"):
             line = next(line for line in self.VALID_LEASE.splitlines()
-                        if line.startswith(f"**{field}:**"))
+                        if line.startswith(f"{field}:"))
             shapes = [
                 ("wrong case", line.replace(field, field.upper())),
-                ("colon outside the bold", line.replace(":**", "**:")),
+                ("space before the colon", line.replace(":", " :", 1)),
+                ("bold or emphasis markers", "**" + line.replace(":", ":**", 1)),
                 ("leading whitespace", " " + line),
                 ("wrong value shape", line + " extra"),
             ]
@@ -25714,7 +25716,7 @@ class SessionStateTests(LinterTestCase):
                         self.assertEqual(code, 1)
                         self.assertEqual(missing, [])
                         self.assertEqual(len(invalid), 2, invalid)
-                        self.assertIn(f"**{field}:**", invalid[0])
+                        self.assertIn(f"`{field}:`", invalid[0])
                         self.assertIn(fault, invalid[0])
                         number = text.split("\n").index(near) + 1
                         self.assertIn(f"at line {number} ", invalid[0])
@@ -25731,7 +25733,7 @@ class SessionStateTests(LinterTestCase):
                     self.assertEqual(code, 1)
                     self.assertEqual(missing, [])
                     self.assertEqual(len(invalid), 1)
-                    self.assertIn(f"**{field}:**", invalid[0])
+                    self.assertIn(f"`{field}:`", invalid[0])
                     self.assertIn("outside the header region", invalid[0])
 
     def test_old_lease_below_history(self) -> None:
@@ -25749,13 +25751,13 @@ class SessionStateTests(LinterTestCase):
         self.assertEqual(stderr.count("FAIL:"), 12)
 
     def test_comment_copy_keeps_duplicate(self) -> None:
-        text = self.VALID_LEASE + "\n<!--\n**Status:** active\n-->\n"
+        text = self.VALID_LEASE + "\n<!--\nStatus: active\n-->\n"
         code, missing, invalid, _, _ = self._lease_result(text)
         self.assertEqual(code, 1)
         self.assertEqual(missing, [])
         self.assertEqual(invalid, [
-            "field line `**Status:**` appears 2 times; each field appears exactly once",
-            "field line `**Status:**` at line 16 is outside the header region (HTML comment)",
+            "field line `Status:` appears 2 times; each field appears exactly once",
+            "field line `Status:` at line 16 is outside the header region (HTML comment)",
         ])
 
     def test_label_boundaries(self) -> None:
@@ -25773,7 +25775,8 @@ class SessionStateTests(LinterTestCase):
         self.assertEqual(mod.check_text(text), ([], []))
         for prefix in ("", " ", "\t", "- ", "+ ", "* ", "1. ", "2) ",
                        "> ", ">>", "### ", " > - "):
-            for token in ("**STATUS:**", "**Status**:", "*Status:*", "**Status:"):
+            for token in ("**STATUS:**", "**Status**:", "*Status:*", "**Status:",
+                          "**Status:**", "STATUS:"):
                 with self.subTest(prefix=prefix, token=token):
                     missing, invalid = mod.check_text(text + prefix + token + " active\n")
                     self.assertEqual(missing, [])
@@ -25797,16 +25800,22 @@ class SessionStateTests(LinterTestCase):
 
     def test_crlf_and_tab_after_label(self) -> None:
         mod = self._load_module()
-        text = self.VALID_LEASE.replace(":** ", ":**\t").replace("\n", "\r\n")
+        text = self.VALID_LEASE.replace("\n", "\r\n")
         self.assertEqual(mod.check_text(text), ([], []))
         self.assertEqual(self._lease_result(text)[0], 0)
-        text += "**STATUS:**\tactive\r\n"
+        text += "STATUS:\tactive\r\n"
         code, missing, invalid, _, _ = self._lease_result(text)
         self.assertEqual((code, missing, len(invalid)), (1, [], 1))
         self.assertIn("at line 14 ", invalid[0])
+        # 3b679: orch_store.py parses only "<name>: " (one space), so a tab
+        # after the colon is not a field line.
+        text = self.VALID_LEASE.replace("Status: ", "Status:\t")
+        code, missing, invalid, _, _ = self._lease_result(text)
+        self.assertEqual((code, len(missing), len(invalid)), (2, 1, 1))
+        self.assertIn("wrong value shape", invalid[0])
 
     def test_two_near_misses_for_one_field(self) -> None:
-        text = self.VALID_LEASE + "**STATUS:** active\n**status:** active\n"
+        text = self.VALID_LEASE + "STATUS: active\nstatus: active\n"
         code, missing, invalid, _, _ = self._lease_result(text)
         self.assertEqual((code, missing, len(invalid)), (1, [], 2))
         self.assertIn("at line 14 ", invalid[0])
@@ -25816,11 +25825,11 @@ class SessionStateTests(LinterTestCase):
         mod = self._load_module()
         for field in mod.FIELD_PATTERNS:
             with self.subTest(field=field):
-                text = self.VALID_LEASE + f"**{field.swapcase()}:** none\n"
+                text = self.VALID_LEASE + f"{field.swapcase()}: none\n"
                 missing, invalid = mod.check_text(text)
                 self.assertEqual(missing, [])
                 self.assertEqual(len(invalid), 1)
-                self.assertIn(f"**{field}:**", invalid[0])
+                self.assertIn(f"`{field}:`", invalid[0])
 
     def test_scanner_boundaries(self) -> None:
         mod = self._load_module()
@@ -25846,7 +25855,7 @@ class SessionStateTests(LinterTestCase):
                 self.assertEqual(missing, [])
                 self.assertEqual(len(invalid), 1)
                 self.assertIn("outside the header", invalid[0])
-        text = self.VALID_LEASE + "## Notes\n<!--\n**Status:** active\n-->\n"
+        text = self.VALID_LEASE + "## Notes\n<!--\nStatus: active\n-->\n"
         invalid = mod.check_text(text)[1]
         self.assertEqual(len(invalid), 2)
         self.assertIn("(HTML comment, later heading)", invalid[-1])
@@ -25854,8 +25863,8 @@ class SessionStateTests(LinterTestCase):
     def test_near_misses_inside_regions(self) -> None:
         for region in ("comment", "fence", "heading"):
             with self.subTest(region=region):
-                text = self._shadow_lease("Status", "**Status:** active\n", region)
-                tail = text.rfind("**Status:** active")
+                text = self._shadow_lease("Status", "Status: active\n", region)
+                tail = text.rfind("Status: active")
                 text = text[:tail] + text[tail:].replace("Status", "STATUS", 1)
                 code, missing, invalid, _, _ = self._lease_result(text)
                 self.assertEqual((code, missing, len(invalid)), (1, [], 1))
@@ -25870,23 +25879,25 @@ class SessionStateTests(LinterTestCase):
                      "\u2e5d", "\u301c", "\u3030", "\u30a0", "\ufe31",
                      "\ufe32", "\ufe58", "\ufe63", "\uff0d", chr(0x10ead)):
             with self.subTest(dash=ascii(dash)):
-                text = self.VALID_LEASE + "**Active" + dash + "session:** none\n"
+                text = self.VALID_LEASE + "Active" + dash + "session: none\n"
                 missing, invalid = mod.check_text(text)
                 self.assertEqual(missing, [])
                 self.assertEqual(len(invalid), 1)
                 self.assertIn("non-ASCII hyphen", invalid[0])
 
     def test_missing_field_precedence_with_near_miss(self) -> None:
-        text = self.VALID_LEASE.replace("**Status:** active", "**STATUS:** active")
+        text = self.VALID_LEASE.replace("Status: active", "STATUS: active")
         code, missing, invalid, _, stderr = self._lease_result(text)
         self.assertEqual((code, len(missing), len(invalid)), (2, 1, 1))
         self.assertEqual(stderr.count("ERROR:"), 1)
         self.assertEqual(stderr.count("FAIL:"), 1)
 
     def test_value_cannot_move_to_next_line(self) -> None:
-        text = self.VALID_LEASE.replace("**Status:** active", "**Status:**\nactive")
+        text = self.VALID_LEASE.replace("Status: active", "Status:\nactive")
         code, missing, invalid, _, _ = self._lease_result(text)
-        self.assertEqual((code, missing, len(invalid)), (1, [], 1))
+        # 3b679: the plain pattern needs ": " on the label's line, so the
+        # field is also absent (the bold pattern's \s+ crossed the newline).
+        self.assertEqual((code, len(missing), len(invalid)), (2, 1, 1))
         self.assertIn("wrong value shape", invalid[0])
 
     def _mention(self, field, number):
@@ -25908,15 +25919,15 @@ class SessionStateTests(LinterTestCase):
                 "Active-session", 11),
             "comment mention": (
                 lease + "<!-- on close set `Status: released` -->\n", "Status", 14),
-            "plain label": (lease + "Status: active\n", "Status", 14),
+            "label after a word": (lease + "note Status: active\n", "Status", 14),
             "inline code under a later heading": (
                 lease + "## Notes\nThe lease says `Active-session: none`.\n",
                 "Active-session", 15),
-            "plain heartbeat in a fence": (
-                lease + "```\nLast-heartbeat-UTC: 2026-07-03T12:00:00Z\n```\n",
+            "heartbeat after a word in a fence": (
+                lease + "```\nsee Last-heartbeat-UTC: 2026-07-03T12:00:00Z\n```\n",
                 "Last-heartbeat-UTC", 15),
             "near-miss of another field": (
-                lease + "**CURRENT-TASK:** set Status: active\n", "Status", 14),
+                lease + "CURRENT-TASK: set Status: active\n", "Status", 14),
         }
         for name, (text, field, number) in shapes.items():
             with self.subTest(shape=name):
@@ -25947,28 +25958,57 @@ class SessionStateTests(LinterTestCase):
 
     def test_underscore_emphasis_labels(self) -> None:
         mod = self._load_module()
+        emphasis = "bold or emphasis markers, write the plain form `Status: <value>`"
         for token, faults in (
-            ("__STATUS:__", ("wrong case", "underscore emphasis")),
-            ("__Status:__", ("underscore emphasis",)),
-            ("__Status__:", ("colon outside the bold", "underscore emphasis")),
-            ("_Status:_", ("underscore emphasis",)),
-            ("**Status:__", ("underscore emphasis",)),
+            ("__STATUS:__", ("wrong case", emphasis)),
+            ("__Status:__", (emphasis,)),
+            ("__Status__:", (emphasis,)),
+            ("_Status:_", (emphasis,)),
+            ("**Status:__", (emphasis,)),
         ):
             with self.subTest(token=token):
                 missing, invalid = mod.check_text(
                     self.VALID_LEASE + token + " active\n")
                 self.assertEqual(missing, [])
                 self.assertEqual(invalid, [
-                    "field line `**Status:**` at line 14 has a near-miss label "
+                    "field line `Status:` at line 14 has a near-miss label "
                     f"({', '.join(faults)})"
                 ])
         text = self.VALID_LEASE.replace(
-            "**Status:** active", "__Status:__ active"
-        ) + "<!--\n**Status:** active\n-->\n"
+            "Status: active", "__Status:__ active"
+        ) + "<!--\nStatus: active\n-->\n"
         code, missing, invalid, _, _ = self._lease_result(text)
         self.assertEqual((code, missing, len(invalid)), (1, [], 2))
-        self.assertIn("underscore emphasis", invalid[0])
+        self.assertIn("bold or emphasis markers", invalid[0])
         self.assertIn("outside the header region (HTML comment)", invalid[1])
+
+    def test_bold_field_refused_naming_plain_form(self) -> None:
+        # 3b679: orch_store.py parses only "<name>: " at column zero, so the
+        # Markdown bold form of every field is a finding naming the plain form.
+        mod = self._load_module()
+        for field in mod.FIELD_PATTERNS:
+            with self.subTest(field=field):
+                text = self.VALID_LEASE.replace(f"{field}: ", f"**{field}:** ", 1)
+                code, missing, invalid, stdout, stderr = self._lease_result(text)
+                self.assertEqual(code, 2)
+                self.assertEqual(missing, [
+                    f"required field line `{field}: <value>` is absent"])
+                self.assertEqual(len(invalid), 1, invalid)
+                self.assertIn(f"write the plain form `{field}: <value>`", invalid[0])
+                self.assertEqual(stdout, "")
+        bold = re.sub(r"(?m)^([A-Za-z-]+): ", r"**\1:** ", self.VALID_LEASE)
+        code, missing, invalid, _, _ = self._lease_result(bold)
+        self.assertEqual((code, len(missing), len(invalid)), (2, 6, 6))
+        self.assertTrue(all("write the plain form" in item for item in invalid))
+
+    def test_plain_lease_has_no_findings(self) -> None:
+        # Guards the 3b679 plain FIELD_PATTERNS: before them every plain
+        # field line was absent (exit 2) and this lease was refused.
+        mod = self._load_module()
+        self.assertEqual(mod.check_text(self.VALID_LEASE), ([], []))
+        code, missing, invalid, stdout, stderr = self._lease_result(self.VALID_LEASE)
+        self.assertEqual((code, missing, invalid, stderr), (0, [], [], ""))
+        self.assertIn("lease is well-formed", stdout)
 
     def test_compatibility_letters_in_label(self) -> None:
         mod = self._load_module()
@@ -25984,13 +26024,13 @@ class SessionStateTests(LinterTestCase):
         ):
             with self.subTest(label=ascii(label)):
                 missing, invalid = mod.check_text(
-                    self.VALID_LEASE + f"**{label}:** none\n")
+                    self.VALID_LEASE + f"{label}: none\n")
                 self.assertEqual(missing, [])
                 self.assertEqual(len(invalid), 1, invalid)
                 self.assertIn(f"at line 14 has a near-miss label ({faults})",
                               invalid[0])
         text = self._shadow_lease(
-            "Status", "**" + wide("Status") + ":** released\n", "fence")
+            "Status", wide("Status") + ": released\n", "fence")
         code, missing, invalid, _, _ = self._lease_result(text)
         self.assertEqual((code, missing, len(invalid)), (1, [], 2))
         self.assertIn("compatibility character", invalid[0])
@@ -25999,10 +26039,10 @@ class SessionStateTests(LinterTestCase):
     def test_heading_without_title_starts_later_section(self) -> None:
         mod = self._load_module()
         body = self.VALID_LEASE.split("\n", 2)[2]
-        text = body.replace("**Status:** active\n", "") + "\n## History\n**Status:** active\n"
-        number = text.split("\n").index("**Status:** active") + 1
+        text = body.replace("Status: active\n", "") + "\n## History\nStatus: active\n"
+        number = text.split("\n").index("Status: active") + 1
         self.assertEqual(mod.check_text(text), ([], [
-            f"field line `**Status:**` at line {number} "
+            f"field line `Status:` at line {number} "
             f"is outside the header region (later heading)"
         ]))
         self.assertEqual(mod.check_text(body), ([], []))
@@ -26010,8 +26050,8 @@ class SessionStateTests(LinterTestCase):
     def test_three_reader_fields_fenced_at_end(self) -> None:
         mod = self._load_module()
         lines = [line for line in self.VALID_LEASE.split("\n")
-                 if line.startswith(("**Active-session:**", "**Status:**",
-                                     "**Last-heartbeat-UTC:**"))]
+                 if line.startswith(("Active-session:", "Status:",
+                                     "Last-heartbeat-UTC:"))]
         text = self.VALID_LEASE
         for line in lines:
             text = text.replace(line + "\n", "")
@@ -26027,7 +26067,7 @@ class SessionStateTests(LinterTestCase):
         for prefix in ("\x85", "\x0b", "\x0c", chr(0x2028), chr(0xA0)):
             with self.subTest(prefix=ascii(prefix)):
                 missing, invalid = mod.check_text(
-                    self.VALID_LEASE + prefix + "**Active-session:** old\n")
+                    self.VALID_LEASE + prefix + "Active-session: old\n")
                 self.assertEqual(missing, [])
                 self.assertEqual(len(invalid), 1, invalid)
                 self.assertIn("at line 14 has a near-miss label "
@@ -26045,23 +26085,27 @@ class SessionStateTests(LinterTestCase):
             "solitary fenced copy": (
                 live.replace(current, "") + fence + "\n" + old + fence + "\n"),
             "mixed case and comment copy": (
-                live.replace("**Active-session:**", "**Active-Session:**")
+                live.replace("Active-session:", "Active-Session:")
                 + "<!--\n" + old + "-->\n"),
-            "colon outside and history copy": (
-                live.replace("**Active-session:**", "**Active-session**:")
+            "space before colon and history copy": (
+                live.replace("Active-session:", "Active-session :")
                 + "## History\n" + old),
             "non-ASCII hyphen and fenced copy": (
-                live.replace("**Active-session:**",
-                             "**Active" + chr(0x2011) + "session:**")
+                live.replace("Active-session:",
+                             "Active" + chr(0x2011) + "session:")
                 + fence + "\n" + old + fence + "\n"),
             "upper case and fenced copy": (
-                live.replace("**Status:** active", "**STATUS:** released")
-                + fence + "\n**Status:** active\n" + fence + "\n"),
+                live.replace("Status: active", "STATUS: released")
+                + fence + "\nStatus: active\n" + fence + "\n"),
             "mixed case and copy above Status": live.replace(
-                current, "**Active-Session:** orch-2026-10-04T13:36:00Z\n" + old),
+                current, "Active-Session: orch-2026-10-04T13:36:00Z\n" + old),
+            # 3b679: the reader reads a solitary bold field; the gate refuses it.
+            "solitary bold copy": (
+                live.replace(current, "") + "**" + old.replace(":", ":**", 1)),
+            "bold header": live.replace(current, "**" + current.replace(":", ":**", 1)),
         })
-        for line in (current, "**Status:** active\n", facts.HBLINE):
-            for replacement in ("", line.replace(":**", "**:")):
+        for line in (current, "Status: active\n", facts.HBLINE):
+            for replacement in ("", line.replace(":", " :", 1)):
                 shapes[f"substituted {line[:12]} {bool(replacement)}"] = (
                     live.replace(line, replacement + "<!--\n" + line + "-->\n"))
         for name, lease in shapes.items():
@@ -32537,7 +32581,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
         git-hooks/pre-push TRANSPORT F 9d1300e3fc7e1dcea3986ea7015f839c2c821cd7be16263dadc04482089fc2b5
-        handoff-snapshot.py NO_FS F c752b79fa8844d3b37fb8978b351cd55ad3c02e648cd0f37168f256a92154358
+        handoff-snapshot.py NO_FS F 70e30d65f7eeca3ae03ed36b3556e73a468272804f67cf38bfe16d988b2e3de2
         historical_citation_register.py PASSIVE F deb457b7487c069a6f1602b6a4160e1ce922da6a82a523b288dfee151d3b0236
         install-git-hooks.sh FIXED F a0010c29758bda7824fdd000e5400c5aa6c3dd13563c9cf3bc4c35acc53b286c
         iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
@@ -32613,7 +32657,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-secrets-in-content.py CWD F 868061fc0527d0843223825800fb75dd963d345d058a144b6ecc23ee8deb227b
         lint-section-anchors.py CWD F 4b540b4eb8480d1f4be16e1c51cc7c990d22a5b4ea8911244636d0aa1956726f
         lint-section-placement.py CWD F 936e351d52bcd0a0a4964b3ecd046c44ae057298aed6edde002687e8f4c17f98
-        lint-session-state.py NO_FS F b0c631b3f34ca1cd22c2023fb8eabd6cfdd8b2b9366e9812d9fa7d23c5e23bc5
+        lint-session-state.py NO_FS F 66dbbd016cf9d9fcd259c0f0236717072f4f5fc8c0752ccfe74fd4e965311962
         lint-shall-near-uncertainty.py ROOT F 0df50c2b6826f9216f67addad8931f1eb35498d0e3862064bdb3fed317e64610
         lint-sibling-placeholders.py NO_FS F 2ae82222a589343521ebfbc12a3b9edbec0533203e02b3f7adf906f2b8ad1d2a
         lint-skill-derives-from.py OWN F 4bf6a78a42e9f8d8dff44035ac2320a67043006a133375e7cacdcd85dd5336f5
@@ -32664,7 +32708,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run_all_audits.sh FIXED F 18466189b74841fdf67c087abd6ee880730f4fe3a8b395dbc9da38466a4d5c63
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
-        session_facts.py PASSIVE F 0d4dcb545fcba5b1533d4aff1c3fedad69ca97d6e07f045b9976aee0ce07247a
+        session_facts.py PASSIVE F fb97c337e6ad53b848a1e3ce661e0263af89f83663e09fadefefe62ea41ba54b
         skill-verdict-fields.json DATA F fba56d7e70141647fcad92824591d65a0208c6e6b623caaff82bfcb62bbd06aa
         standards-currency-unpinned-baseline.json DATA F e37c71336ad92904670c220de1d3e622a1e8e5b638c1dc0aac3829d99344ec79
         statusline-next-pr.py NO_FS F 81db4327eb56260c362e61edbae2a7c7c2fd426df579fe21d57638cfd7b55223
