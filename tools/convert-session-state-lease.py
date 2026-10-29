@@ -58,7 +58,8 @@ class Refused(Exception):
 
 def _gate():
     path = Path(__file__).resolve().parent / "lint-session-state.py"
-    sys.path.insert(0, str(path.parent))
+    if str(path.parent) not in sys.path:
+        sys.path.append(str(path.parent))
     spec = importlib.util.spec_from_file_location("_lint_session_state", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

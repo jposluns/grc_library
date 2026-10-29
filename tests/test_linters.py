@@ -32828,7 +32828,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         citation_publishers.py PASSIVE F 8c9729132cfaa4f2705c023b4501872905a44dd76b996be8ea8c78ae4188d3e8
         cleanup-tmp-worker-output.py WRITE F 188d936e3dca47b40ec662a51670d04ee2e9cc6b98b706f4e876f489483c62f8
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
-        convert-session-state-lease.py OWN F 12ed77222ac7d55c1cdd8578df4f536b8de46bf98225fd734ba46fac38379887
+        convert-session-state-lease.py OWN F 9d9d39588909856d83d904e7fbeae7a451981c6b9f92296a8e61965c07a3cea4
         decisions-search.py NO_FS F a6f83f23008ed1a78383293f3e685e67bc8af59d1ad79cad5832bc792a111eca
         detect-collection-candidates.py NO_FS F 4abd7344bc3bda8933daaa560e4479dea08a856f5503e6a4122f495923a6f21b
         detect-env.py WRITE F bb9b977f0a07a9d27b09dcd85d271bb1f31efc826c5f6cd860106f283144ebc6
