@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.6\
-**Date:** 2026-10-24\
+**Version:** 1.1.7\
+**Date:** 2026-10-29\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -129,7 +129,7 @@ Across all model classes, testing must address out-of-distribution behaviour, in
 ### 3.7 Monitoring and re-evaluation
 
 1. Deployed models must have monitoring proportionate to risk.
-2. Monitoring should address performance, drift, misuse, leakage, prompt injection attempts, anomalous retrieval, unsafe tool activity, incidents, and control exceptions.
+2. Monitoring must address performance, drift, misuse, leakage, incidents and control exceptions, and, where the system's design makes them possible, prompt injection attempts, anomalous retrieval and unsafe tool activity.
 3. Re-evaluation must occur at defined cadence and upon material change to model, data, supplier, deployment context, threat pattern, or legal or regulatory context.
 4. Deployments that apply automated continuous learning without human interaction must include an automated rollback process at defined performance thresholds, defaulting to a safe alternative model on a threshold breach (ISO/IEC 5338:2023 Section 6.4.14, continuous validation).
 
@@ -147,7 +147,7 @@ Retirement must address model endpoint removal, access removal, service account 
 
 ## 4. Evidence requirements
 
-Evidence should include inventory entry, model card, system card where applicable, data provenance record, lineage record, evaluation report, adversarial test summary, access review, monitoring plan, incident records, exception records, approval record, and retirement or deletion record.
+Evidence must include inventory entry, model card, system card where applicable, data provenance record, lineage record, evaluation report, adversarial test summary, access review, monitoring plan and approval record, and, where the event has occurred, incident records, exception records and the retirement or deletion record.
 
 ---
 

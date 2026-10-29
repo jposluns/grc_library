@@ -2,8 +2,8 @@
 
 **Document Title:** Backup and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.3\
-**Date:** 2026-10-27\
+**Version:** 1.1.4\
+**Date:** 2026-10-29\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`compliance/public-sector/annex-canada-public-sector-requirements.md`](../compliance/public-sector/annex-canada-public-sector-requirements.md)\
@@ -74,7 +74,7 @@ Recovery time objectives and recovery point objectives must be documented for cr
 
 ### 3. Protection requirements
 
-Backups must be protected against unauthorized access, alteration, deletion, ransomware, corruption, and inappropriate retention. Protection should include encryption, access control, separation of duties, immutability or deletion resistance where appropriate, monitoring, and restoration access review.
+Backups must be protected against unauthorized access, alteration, deletion, ransomware, corruption, and inappropriate retention. Protection must include encryption, access control, separation of duties, immutability or deletion resistance where appropriate, monitoring, and restoration access review.
 
 For organizations facing elevated ransomware risk, **NIST IR 8374 Rev. 1** (Ransomware Risk Management: A Cybersecurity Framework 2.0 Community Profile) is an optional supplementary control-prioritization overlay: it maps anti-ransomware safeguards to CSF 2.0 outcomes and can be used to prioritize the backup-protection controls in this section. It is a prioritization aid, not a baseline requirement of this procedure.
 
@@ -82,7 +82,7 @@ For Canadian organizations, the Canadian Centre for Cyber Security **Baseline Cy
 
 ### 4. Recovery testing
 
-Recovery capability must be tested according to criticality. This section is the normative source for restore-test cadence across the library. Restore tests for production systems and other high-criticality systems (Tier 1 Mission Critical in the criticality classification used by the IT disaster recovery plan) must be performed at least weekly, and restore tests for all other systems (Tier 2 Business Essential, Tier 3 Standard, and Tier 4 Non-Critical) must be performed at least monthly, so no system falls below a monthly restore-test floor. Adopting organizations may define a more frequent cadence for a system, but must not set a less frequent cadence than this baseline. This cadence governs backup restore testing; cryptographic key-recovery and key-escrow ceremony testing follow their own schedules in [`security/procedure-key-escrow-and-recovery.md`](../security/procedure-key-escrow-and-recovery.md) and are not restore-test obligations under this section. Tests should validate data integrity, service restoration, authentication, application dependencies, supplier dependencies, and business acceptance criteria.
+Recovery capability must be tested according to criticality. This section is the normative source for restore-test cadence across the library. Restore tests for production systems and other high-criticality systems (Tier 1 Mission Critical in the criticality classification used by the IT disaster recovery plan) must be performed at least weekly, and restore tests for all other systems (Tier 2 Business Essential, Tier 3 Standard, and Tier 4 Non-Critical) must be performed at least monthly, so no system falls below a monthly restore-test floor. Adopting organizations may define a more frequent cadence for a system, but must not set a less frequent cadence than this baseline. This cadence governs backup restore testing; cryptographic key-recovery and key-escrow ceremony testing follow their own schedules in [`security/procedure-key-escrow-and-recovery.md`](../security/procedure-key-escrow-and-recovery.md) and are not restore-test obligations under this section. Tests must validate data integrity, service restoration, authentication, application dependencies, supplier dependencies, and business acceptance criteria.
 
 Canadian reference points for recovery capability, which add no requirement to this procedure:
 
@@ -110,7 +110,7 @@ AI system recovery must consider retrieval stores, embeddings, model configurati
 
 ### 7. Supplier recovery
 
-Where backup or recovery is provided by a supplier, contractual and assurance evidence should address restoration commitments, retention, encryption, access controls, subprocessor exposure, incident notification, deletion capability, and exit support.
+Where backup or recovery is provided by a supplier, contractual and assurance evidence must address restoration commitments, retention, encryption, access controls, subprocessor exposure, incident notification, deletion capability, and exit support.
 
 ---
 
