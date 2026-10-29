@@ -633,6 +633,47 @@ def parse_historical_exceptions(text, entries):
     return out
 
 
+def uncovered_standards(entries):
+    """3b655: what this gate reads of the register rows no citation grammar reads, at run time.
+
+    A row is read by the grammar only when the engine's discovery grammar, given the row's own
+    Standard ID, yields a grammar occurrence with that row's identity. Every other row is sorted by
+    what the gate still does with it (disclose-guard-residuals):
+
+    - ``superseded_matched``: the row lists a superseded edition, so the legacy pattern for that
+      edition matches (and blocks unless a historical exception covers it).
+    - ``not_covered``: the row lists no superseded edition and the broad channel draws nothing,
+      so this gate matches no citation of it.
+    - ``broad_channel_candidate``: the broad channel draws an advisory CANDIDATE (never blocking)
+      from the Standard ID alone or followed by its current or a listed superseded edition.
+
+    The first and third lists overlap on purpose: a row that lists a superseded edition and also
+    draws a CANDIDATE is in both, and each list's printed line is worded to be true of it (3b655
+    r3: WCO SAFE Framework printed under "only a superseded edition the row lists is matched"
+    while it also drew a CANDIDATE). ``not_covered`` is disjoint from both by construction."""
+    engine = _engine()
+    out = dict(superseded_matched=[], not_covered=[], broad_channel_candidate=[])
+    for e in entries:
+        if any(
+            o["channel"] == "grammar" and o["identity"] == e["identity_key"]
+            for o in engine.discover(e["id"], ".md")
+        ):
+            continue
+        forms = [
+            e["id"], e["id"] + " " + e["current"], *(e["id"] + " " + v for v in e["superseded"])
+        ]
+        drawn = any(
+            o["channel"] == "candidate" for form in forms for o in engine.discover(form, ".md")
+        )
+        if drawn:
+            out["broad_channel_candidate"].append(e["id"])
+        if engine.compile_entry_patterns([e]):
+            out["superseded_matched"].append(e["id"])
+        elif not drawn:
+            out["not_covered"].append(e["id"])
+    return out
+
+
 def parse_canonical_register():
     return parse_register_text(
         CANONICAL_REGISTER.read_text(encoding="utf-8")
@@ -1260,6 +1301,9 @@ def main(argv=None):
                 "legacy stale checks retained."
             ),
         )
+        # 3b655: advisory only; never a finding and never the exit code.
+        residual = uncovered_standards(entries)
+        report.update(residual)
         trailer = []
         if ratchet:
             trailer = base_lines + unpinned_ratchet_lines(report, entries, baseline)
@@ -1274,6 +1318,35 @@ def main(argv=None):
         trailer.append(
             "NOTE: standards-currency counts: " + _engine().count_summary(report)
         )
+        if args.format == "text":
+            # 3b655's lines lead the trailer, so the ratchet lines, the count line and the
+            # verdict stay last (P-3.213).
+            coverage_lines = []
+            for label, ids in (
+                (
+                    "Superseded editions matched (no citation grammar reads these register "
+                    "Standard IDs; a superseded edition the row lists is matched by the legacy "
+                    "stale check; a row the broad channel also draws is listed again under "
+                    "Advisory CANDIDATE)",
+                    residual["superseded_matched"],
+                ),
+                (
+                    "Not covered by this gate (no citation grammar reads these register Standard "
+                    "IDs, the row lists no superseded edition, and the broad channel draws "
+                    "nothing)",
+                    residual["not_covered"],
+                ),
+                (
+                    "Advisory CANDIDATE from the broad channel (no citation grammar reads these "
+                    "register Standard IDs; the Standard ID, alone or with its current or a "
+                    "listed superseded edition, draws a CANDIDATE in at least one of those forms, "
+                    "and a CANDIDATE never blocks; a row that lists a superseded edition is also "
+                    "under Superseded editions matched)",
+                    residual["broad_channel_candidate"],
+                ),
+            ):
+                coverage_lines.append(label + ": " + (", ".join(ids) or "(none)"))
+            trailer[:0] = coverage_lines
         _engine().print_coverage(
             report, as_json=args.format == "json", trailer=trailer
         )
