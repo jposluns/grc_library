@@ -6,16 +6,30 @@ Usage: convert-session-state-lease.py --lease PATH [--dry-run]
 Rewrites only the six ``**Field:** value`` lines (Active-session, Status,
 Operating-mode, Last-heartbeat-UTC, Current-task, Worker-dispatches) as
 ``Field: value``. The file is opened read-write without truncation and
-without following a link, an exclusive flock is taken on that descriptor,
-the bytes are re-read under the lock, written back over the same inode,
+without following a link, an exclusive flock is taken on that descriptor
+non-blocking with a bounded retry (5 seconds in all, as orch_store.py
+takes its lock), the path is re-checked to still name the locked inode
+(st_dev, st_ino) immediately after the lock is held and before any read or
+write, the bytes are read under the lock, written back over the same inode,
 truncated and fsynced, and the inode is confirmed unchanged.
 
 Refused (exit 2, nothing written): a path that is not a regular non-symlink
-file, a first line other than ``# Session state: grc``, any of the six
-fields missing or present more than once (plain or bold), or converted text
-that gate 63 (tools/lint-session-state.py) would not pass. A lease already
-in the plain form is a no-op (exit 0). --dry-run prints the line changes
-and writes nothing.
+file, a lock not acquired within 5 seconds, a path that no longer names the
+locked inode, a first line other than ``# Session state: grc``, any of the
+six fields missing or present more than once (plain or bold), or converted
+text that gate 63 (tools/lint-session-state.py) would not pass. A lease
+already in the plain form is a no-op (exit 0). --dry-run prints the line
+changes and writes nothing.
+
+Crash residual: the write is in place, write then truncate, not an atomic
+replace. The converted text is never longer than the original (each
+converted line loses four stars), so a crash between the write and the
+truncate leaves the converted text followed by the old file's last four
+bytes per converted line. Gate 63 refuses that file only when those
+leftover bytes form a line it flags (for example a field-line fragment); a
+leftover fragment of a trailing free-text line, such as part of the last
+"- 2026-..." bullet, passes gate 63. After a crash, compare the lease's
+tail with the expected text before relying on it.
 """
 
 from __future__ import annotations
@@ -27,9 +41,11 @@ import os
 import re
 import stat
 import sys
+import time
 from pathlib import Path
 
-FIELDS = ("Active-session", "Status", "Operating-mode", "Last-heartbeat-UTC",
+LOCK_SECONDS = 5.0
+FIELDS =("Active-session", "Status", "Operating-mode", "Last-heartbeat-UTC",
           "Current-task", "Worker-dispatches")
 TITLE = b"# Session state: grc"
 BOLD = re.compile(rb"\*\*(" + b"|".join(f.encode() for f in FIELDS) + rb"):\*\* (.*)")
@@ -83,6 +99,20 @@ def convert(data: bytes) -> tuple[bytes, list[tuple[int, bytes, bytes]]]:
     return converted, changes
 
 
+def lock(fd: int) -> None:
+    """Take an exclusive flock without blocking, retrying for LOCK_SECONDS in all."""
+    deadline = time.monotonic() + LOCK_SECONDS
+    while True:
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return
+        except BlockingIOError:
+            if time.monotonic() >= deadline:
+                raise Refused("the lease lock was not acquired within %g seconds"
+                              % LOCK_SECONDS)
+            time.sleep(0.01)
+
+
 def run(path: str, dry_run: bool) -> int:
     try:
         fd = os.open(path, (os.O_RDONLY if dry_run else os.O_RDWR)
@@ -95,7 +125,13 @@ def run(path: str, dry_run: bool) -> int:
         before = os.fstat(fd)
         if not stat.S_ISREG(before.st_mode):
             raise Refused("%s is not a regular file" % path)
-        fcntl.flock(fd, fcntl.LOCK_EX)
+        lock(fd)
+        try:
+            named = os.stat(path, follow_symlinks=False)
+        except OSError as exc:
+            raise Refused("%s cannot be re-checked under the lock: %s" % (path, exc.strerror))
+        if (named.st_dev, named.st_ino) != (before.st_dev, before.st_ino):
+            raise Refused("%s no longer names the locked inode" % path)
         data = b""
         while True:
             chunk = os.pread(fd, 65536, len(data))

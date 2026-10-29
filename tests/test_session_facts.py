@@ -397,11 +397,15 @@ class SessionFactsTests(unittest.TestCase):
                 self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
 
     def test_lf_only_and_one_trailing_cr(self):
+        # 3b679 round 3: a prefixed copy is not at column zero, so it is not read.
         for prefix in ("\x85", "\x0c", "\u2028", "\r"):
             with self.subTest(prefix=repr(prefix)):
                 self.lease.write_text(LIVE + prefix + "Active-session: orch-2020-01-01T00:00:00Z\n")
-                self.assertIn("AMBIGUOUS LEASE FIELD: Active-session",
-                              self.metrics()["lease_warning"])
+                facts = self.metrics()
+                self.assertEqual(facts["start"], "2026-10-04T13:36:00Z")
+                self.assertEqual(facts["lease_warning"], "")
+        self.lease.write_text(LIVE + "Active-session: orch-2020-01-01T00:00:00Z\n")
+        self.assertIn("AMBIGUOUS LEASE FIELD: Active-session", self.metrics()["lease_warning"])
         self.lease.write_bytes(LIVE.replace("\n", "\r\n").encode())
         self.assertEqual(self.metrics()["elapsed"], "48h30m")
         self.lease.write_bytes(LIVE.replace("Status: active\n", "Status: active\r\r\n").encode())
@@ -422,38 +426,11 @@ class SessionFactsTests(unittest.TestCase):
     def test_ambiguity_indent3(self):
         self.assert_ambiguous("indent3")
 
-    def test_ambiguity_two_comments(self):
-        self.assert_ambiguous("two_comments")
-
-    def test_ambiguity_multiline_comment(self):
-        self.assert_ambiguous("multiline_comment")
-
     def test_ambiguity_history(self):
         self.assert_ambiguous("history")
 
-    def test_ambiguity_nel(self):
-        self.assert_ambiguous("nel")
-
-    def test_ambiguity_formfeed(self):
-        self.assert_ambiguous("formfeed")
-
-    def test_ambiguity_u2028(self):
-        self.assert_ambiguous("u2028")
-
     def test_ambiguity_crlf(self):
         self.assert_ambiguous("crlf")
-
-    def test_ambiguity_bullet(self):
-        self.assert_ambiguous("bullet")
-
-    def test_ambiguity_indented_copy(self):
-        self.assert_ambiguous("indented_copy")
-
-    def test_ambiguity_quoted_copy(self):
-        self.assert_ambiguous("quoted_copy")
-
-    def test_ambiguity_current_task(self):
-        self.assert_ambiguous("current_task")
 
     def test_ambiguity_status_copy(self):
         self.assert_ambiguous("status_copy")
@@ -461,14 +438,49 @@ class SessionFactsTests(unittest.TestCase):
     def test_ambiguity_heartbeat_copy(self):
         self.assert_ambiguous("heartbeat_copy")
 
-    def test_ambiguity_single_indented(self):
-        self.assert_ambiguous("single_indented")
-
-    def test_ambiguity_single_bullet(self):
-        self.assert_ambiguous("single_bullet")
-
     def test_ambiguity_single_trailing(self):
         self.assert_ambiguous("single_trailing")
+
+    def test_r3_copies_outside_field_lines_are_not_read(self):
+        # 3b679 round 3: commented (single-line, multi-line, opened after
+        # prose), prefixed and prose copies are not occurrences, so the live
+        # header alone is read; without it the field is absent, not ambiguous.
+        for name, copy in NOT_READ.items():
+            with self.subTest(name=name):
+                self.lease.write_bytes((LIVE + copy).encode("utf-8"))
+                facts = self.metrics()
+                self.assertEqual(facts["start"], "2026-10-04T13:36:00Z", name)
+                self.assertEqual(facts["lease_warning"], "", name)
+                self.lease.write_bytes((LIVE.replace(CURRENT, "") + copy).encode("utf-8"))
+                facts = self.metrics()
+                self.assertEqual(facts["start"], "UNKNOWN", name)
+                self.assertNotIn("AMBIGUOUS", facts["lease_warning"], name)
+                self.assertIn("no usable live lease start", facts["lease_warning"], name)
+
+    def test_r3_comment_tracking_unit(self):
+        # The three forms of a commented field line, the exact line in both
+        # forms, and a value that never crosses a line end.
+        sys.path.insert(0, str(ROOT / "tools"))
+        try:
+            facts = importlib.import_module("session_facts")
+        finally:
+            sys.path.remove(str(ROOT / "tools"))
+        head = "Active-session: orch-x\n"
+        for text in ("<!-- Status: active -->\n", "<!--\nStatus: active\n-->\n",
+                     "note <!-- old\nStatus: active\n-->\n", "x --> <!--\nStatus: active\n",
+                     "<!--\n**Status:** active\n-->\n"):
+            with self.subTest(text=text):
+                fields, ambiguous, _ = facts._fields(head + text)
+                self.assertEqual((fields, ambiguous), ({"Active-session": "orch-x"}, []))
+        for line in ("Status: active", "**Status:** active", "Status: active\r"):
+            with self.subTest(line=line):
+                text = head + "<!-- a -->\n" + line + "\n<!--\nStatus: released\n-->\n"
+                self.assertEqual(facts._fields(text)[:2],
+                                 ({"Active-session": "orch-x", "Status": "active"}, []))
+        for line in ("Status:\nactive", "Status: \n-->", "**Status:**\nactive"):
+            with self.subTest(line=line):
+                self.assertEqual(facts._fields(head + line + "\n")[1],
+                                 ["Status has a malformed occurrence"])
 
     def test_ambiguity_two_fields(self):
         self.assert_ambiguous("two_fields")
@@ -602,8 +614,7 @@ hook['main']()
                             ("Status", "active"), ("Last-heartbeat-UTC", "2026-10-06T14:02:31Z")):
             line = name + ": " + value + "\n"
             bold = "**" + name + ":** " + value + "\n"
-            for malformed in (" " + line, "- " + line, line.rstrip("\n") + " extra\n",
-                              " " + bold, bold):
+            for malformed in (line.rstrip("\n") + " extra\n", bold):
                 # 3b679: a solitary bold field is read (both forms are), so the bold
                 # copy is a second occurrence only beside the plain line.
                 for duplicate in ((True,) if malformed == bold else (False, True)):
@@ -614,6 +625,11 @@ hook['main']()
                         for key in ("start", "elapsed", "compaction_rows"):
                             self.assertEqual(facts[key], "UNKNOWN")
                         self.assertIn("AMBIGUOUS LEASE FIELD: " + name, facts["lease_warning"])
+            # 3b679 round 3: a line not at column zero is not an occurrence.
+            for prefixed in (" " + line, "- " + line, " " + bold):
+                with self.subTest(field=name, prefixed=prefixed):
+                    self.lease.write_text(LIVE + prefixed)
+                    self.assertEqual(self.metrics()["lease_warning"], "")
 
 
     def test_3b679_plain_and_bold_leases_read_alike(self):
@@ -669,8 +685,6 @@ hook['main']()
     def test_r11_solitary_copies_below_header(self):
         copies = (
             LIVE.replace(CURRENT, "") + FENCE + "\n" + OLD + FENCE + "\n",
-            LIVE.replace("Active-session:", "Active-Session:")
-            + "<!--\n" + OLD + "-->\n",
             LIVE.replace("Active-session:", "Active-session :")
             + "## History\n" + OLD,
             LIVE.replace("Active-session:", "Active\u2011session:")
@@ -688,6 +702,13 @@ hook['main']()
                     self.assertEqual(facts[key], "UNKNOWN")
                 self.assertIn("AMBIGUOUS LEASE FIELD: fields are out of order",
                               facts["lease_warning"])
+        # 3b679 round 3: a commented copy is not read, so the field is absent.
+        self.lease.write_text(LIVE.replace("Active-session:", "Active-Session:")
+                              + "<!--\n" + OLD + "-->\n")
+        facts = self.metrics()
+        self.assertEqual(facts["start"], "UNKNOWN")
+        self.assertEqual(facts["lease_warning"],
+                         "SESSION_START_UNKNOWN: no usable live lease start")
 
     def test_r11_absent_fields_keep_existing_handling(self):
         self.lease.write_text(LIVE.replace("Status: active\n", ""))
@@ -874,8 +895,13 @@ hook['main']()
         for line in lines:
             for replacement in ("", line.replace(":", " :", 1)):
                 with self.subTest(field=line, replacement=replacement):
+                    # 3b679 round 3: the commented copy is not read, so the facts
+                    # are those of the lease without it.
+                    self.lease.write_text(LIVE.replace(line, replacement))
+                    uncommented = self.metrics()
+                    self.assertNotEqual(uncommented, expected)
                     self.lease.write_text(LIVE.replace(line, replacement + "<!--\n" + line + "-->\n"))
-                    self.assertEqual(self.metrics(), expected)
+                    self.assertEqual(self.metrics(), uncommented)
                     proc = subprocess.run([sys.executable, "tools/lint-session-state.py"],
                                           cwd=self.root, env=self.env, capture_output=True, text=True)
                     # 3b328: gate 63 refuses the copy and any near-miss header.
@@ -1139,17 +1165,8 @@ COPIES = {
     "indent1": " " + FENCE + "\n" + OLD + " " + FENCE + "\n",
     "indent2": "  " + FENCE + "\n" + OLD + "  " + FENCE + "\n",
     "indent3": "   " + FENCE + "\n" + OLD + "   " + FENCE + "\n",
-    "two_comments": "<!-- a --> <!-- b\n" + OLD + "-->\n",
-    "multiline_comment": "<!--\n" + OLD + "-->\n",
     "history": "## History\n" + OLD,
-    "nel": "\x85" + OLD,
-    "formfeed": "\x0c" + OLD,
-    "u2028": "\u2028" + OLD,
     "crlf": FENCE + "\n" + OLD + FENCE + "\n",
-    "bullet": "- " + OLD,
-    "indented_copy": "    " + OLD,
-    "quoted_copy": "> " + OLD,
-    "current_task": "Current-task: example " + OLD,
 }
 AMBIGUOUS = {name: (BASE + copy, "Active-session") for name, copy in COPIES.items()}
 AMBIGUOUS["crlf"] = ((BASE + COPIES["crlf"]).replace("\n", "\r\n"), "Active-session")
@@ -1157,11 +1174,29 @@ AMBIGUOUS.update({
     "active_copy": (LIVE + "Active-session: orch-2020-01-01T00:00:00Z\n", "Active-session"),
     "status_copy": (LIVE + "Status: released\n", "Status"),
     "heartbeat_copy": (LIVE + HBLINE, "Last-heartbeat-UTC"),
-    "single_indented": (LIVE.replace(CURRENT, "") + " " + OLD, "Active-session"),
-    "single_bullet": (LIVE.replace(CURRENT, "") + "- " + OLD, "Active-session"),
     "single_trailing": (LIVE.replace(CURRENT, "") + OLD.rstrip("\n") + " extra\n", "Active-session"),
     "two_fields": (LIVE + "Status: active\n" + HBLINE, "Status"),
 })
+# 3b679 round 3: a copy that is not a column-zero field line outside an HTML
+# comment is not an occurrence, so the header is read as if it were absent.
+NOT_READ = {
+    "two_comments": "<!-- a --> <!-- b\n" + OLD + "-->\n",
+    "multiline_comment": "<!--\n" + OLD + "-->\n",
+    "comment_after_prose": "note <!-- was\n" + OLD + "-->\n",
+    "single_line_comment": "<!-- " + OLD.rstrip("\n") + " -->\n",
+    "bold_in_comment": "<!--\n**" + OLD.replace(":", ":**", 1) + "-->\n",
+    "nel": "\x85" + OLD,
+    "formfeed": "\x0c" + OLD,
+    "u2028": "\u2028" + OLD,
+    "bullet": "- " + OLD,
+    "indented_copy": "    " + OLD,
+    "quoted_copy": "> " + OLD,
+    "current_task": "Current-task: example " + OLD,
+}
+# The copies orch_store.py does not count either (no line starts with optional
+# whitespace, the name and a colon), so gate 63 accepts these leases
+# (current_task is refused only as a second Current-task line).
+NOT_READ_GATE_ACCEPTS = ("bullet", "quoted_copy", "single_line_comment", "bold_in_comment")
 def ignored_placements(base):
     """Opaque extra text must not affect either metrics or consumer bytes."""
     line = "**Session-start-UTC:** 2020-01-01T00:00:00Z\n"

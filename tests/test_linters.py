@@ -25521,7 +25521,7 @@ class SessionStateTests(LinterTestCase):
     Well-formedness of the session-concurrency lease: six required
     field lines (incl. Operating-mode), a valid Status value, a valid
     Operating-mode value, a parseable UTC heartbeat, and status/branch
-    coherence. All three status values pass when coherent (the interlock
+    coherence. Both status values (active and released) pass when coherent (the interlock
     decision lives in the /orch step-0 procedure, not in CI). Since 3b679
     every field is a plain `Field: value` line; the bold form is refused.
     """
@@ -25840,12 +25840,18 @@ class SessionStateTests(LinterTestCase):
         for prefix in (
             "<!-- closed -->\n",
             "<!--\n## Not a section\n```\n-->\n",
-            "```\n<!--\n## Not a section\n```\n",
+            "```\n<!-- -->\n## Not a section\n```\n",
             "~~~ info\n## Not a section\n~~~\n",
         ):
             with self.subTest(prefix=prefix):
                 text = self.VALID_LEASE.replace("\n\n", "\n\n" + prefix, 1)
                 self.assertEqual(mod.check_text(text), ([], []))
+        # 3b679 r3: grc's readers track comments inside fences too, so an
+        # unclosed "<!--" in a fence comments out every field line below it.
+        text = self.VALID_LEASE.replace("\n\n", "\n\n```\n<!--\n```\n", 1)
+        missing, invalid = mod.check_text(text)
+        self.assertEqual(len(missing), 3, missing)
+        self.assertEqual(sum("(HTML comment)" in item for item in invalid), 3, invalid)
         for opener, middle, closer in (
             ("<!--", "--><!--", "-->"),
             ("```` info", "```", "````"),
@@ -25907,42 +25913,34 @@ class SessionStateTests(LinterTestCase):
         self.assertEqual((code, len(missing), len(invalid)), (2, 1, 1))
         self.assertIn("wrong value shape", invalid[0])
 
-    def _mention(self, field, number):
-        return (
-            f"field label `{field}:` also appears at line {number}, which the "
-            f"session-start reader counts as a second field line "
-            f"(drop the colon from a mention)"
-        )
-
     def test_reader_field_label_mentions(self) -> None:
-        # tools/session_facts.py counts every line containing "<name>:",
-        # so each such line besides the field line is a second field line.
+        # 3b679 r3: tools/session_facts.py reads only column-zero field lines
+        # outside comments, so a field label in prose is not a second field
+        # line and is not a finding; the reader reads the lease unchanged.
+        import runpy
         lease = self.VALID_LEASE
         shapes = {
-            "status in current-task": (
-                lease.replace("example task", "fix Status: active"), "Status", 11),
-            "session in current-task": (
-                lease.replace("example task", "example **Active-session:** old"),
-                "Active-session", 11),
-            "label after a word":(lease + "note Status: active\n", "Status", 14),
+            "status in current-task": lease.replace("example task", "fix Status: active"),
+            "session in current-task": lease.replace(
+                "example task", "example **Active-session:** old"),
+            "label after a word": lease + "note Status: active\n",
             "inline code under a later heading": (
-                lease + "## Notes\nThe lease says `Active-session: none`.\n",
-                "Active-session", 15),
+                lease + "## Notes\nThe lease says `Active-session: none`.\n"),
             "heartbeat after a word in a fence": (
-                lease + "```\nsee Last-heartbeat-UTC: 2026-07-03T12:00:00Z\n```\n",
-                "Last-heartbeat-UTC", 15),
-            "near-miss of another field": (
-                lease + "CURRENT-TASK: set Status: active\n", "Status", 14),
+                lease + "```\nsee Last-heartbeat-UTC: 2026-07-03T12:00:00Z\n```\n"),
         }
-        for name, (text, field, number) in shapes.items():
+        facts = runpy.run_path(str(REPO_ROOT / "tools/session_facts.py"))
+        expected = facts["_fields"](lease)[:2]
+        for name, text in shapes.items():
             with self.subTest(shape=name):
                 code, missing, invalid, stdout, stderr = self._lease_result(text)
-                self.assertEqual(code, 1)
-                self.assertEqual(missing, [])
-                self.assertIn(self._mention(field, number), invalid)
-                expected = 2 if name == "near-miss of another field" else 1
-                self.assertEqual(len(invalid), expected, invalid)
-                self.assertEqual(stdout, "")
+                self.assertEqual((code, missing, invalid), (0, [], []))
+                self.assertEqual(facts["_fields"](text)[:2], expected)
+        # A near miss of another field is still that field's finding only.
+        code, missing, invalid, _, _ = self._lease_result(
+            lease + "CURRENT-TASK: set Status: active\n")
+        self.assertEqual((code, missing, len(invalid)), (1, [], 1))
+        self.assertIn("`Current-task:` at line 14 has a near-miss label", invalid[0])
 
     def test_sanctioned_mention_spelling_passes(self) -> None:
         mod = self._load_module()
@@ -25956,10 +25954,12 @@ class SessionStateTests(LinterTestCase):
         self.assertEqual(self._lease_result(text)[0], 0)
 
     def test_reader_fields_match_session_facts(self) -> None:
+        # 3b679 r3: every non-exact occurrence the reader counts is a refused
+        # store-field mention or a near miss, so its fields are the store's.
         import runpy
         mod = self._load_module()
         names = runpy.run_path(str(REPO_ROOT / "tools/session_facts.py"))["NAMES"]
-        self.assertEqual(mod.READER_FIELDS, names)
+        self.assertEqual(mod.STORE_FIELDS, names)
 
     def test_underscore_emphasis_labels(self) -> None:
         mod = self._load_module()
@@ -26045,24 +26045,114 @@ class SessionStateTests(LinterTestCase):
                                                       "x" * 128)), ([], []))
 
     def test_r2_free_text_is_never_flagged(self) -> None:
-        # Each line would be flagged without rule 7 (a near miss or a reader label).
+        # 3b679 r3: each line is a near miss or a duplicate field line unless
+        # the free-text rule decides it (a bullet, or a line that starts inside
+        # an HTML comment, wherever the comment opened).
         mod = self._load_module()
-        for line in ("- Status: pending", "1. Operating-mode: x",
-                     "<!-- Current-task: old -->", "## Current task: notes",
-                     "> **Status:** active", "* Last-heartbeat-UTC: yesterday",
-                     "- 2026-10-29 Status: released"):
+        for text in ("- Status: pending\n", "* Last-heartbeat-UTC: yesterday\n",
+                     "- Current-task: x\n", "* Worker-dispatches: y\n",
+                     "- Operating-mode: overnight-unattended\n",
+                     "<!--\nOperating-mode : fully-attended\n-->\n",
+                     "note <!-- earlier\n  Current-task: old\n-->\n",
+                     "<!--\n**Worker-dispatches:** two\n-->\n"):
+            with self.subTest(text=text):
+                self.assertEqual(mod.check_text(self.VALID_LEASE + text), ([], []))
+                code, missing, invalid, _, _ = self._lease_result(self.VALID_LEASE + text)
+                self.assertEqual((code, missing, invalid), (0, [], []))
+
+    def test_r3_commented_exact_mode_line_is_not_a_field(self) -> None:
+        # 3b679 r3: an exact Operating-mode, Current-task or Worker-dispatches
+        # line inside a comment (multi-line, or opened after prose) is not read
+        # by grc's readers, so it is neither a duplicate nor misplaced, and
+        # the field line below it supplies the value.
+        mod = self._load_module()
+        for above in ("<!--\nOperating-mode: fully-attended\n-->\n",
+                      "note <!-- was\nOperating-mode: fully-attended\n-->\n",
+                      "<!--\nCurrent-task: old\nWorker-dispatches: two\n-->\n"):
+            with self.subTest(above=above):
+                text = self.VALID_LEASE.replace(
+                    "Status: active\n\n", "Status: active\n\n" + above)
+                self.assertEqual(mod.check_text(text), ([], []))
+                bad = text.replace("Operating-mode: attended-autonomous",
+                                   "Operating-mode: casual")
+                self.assertEqual(mod.check_text(bad)[1], [
+                    "Operating-mode value `casual` is invalid; permitted values: "
+                    "fully-attended, attended-autonomous, overnight-unattended, "
+                    "daytime-unattended"])
+        text = self.VALID_LEASE.replace("Operating-mode: attended-autonomous\n",
+                                        "<!--\nOperating-mode: attended-autonomous\n-->\n")
+        self.assertEqual(mod.check_text(text)[0],
+                         ["required field line `Operating-mode: <value>` is absent"])
+
+    def test_r3_prose_and_inline_comments_are_not_findings(self) -> None:
+        # 3b679 r3: orch_store.py's mention rule needs the name at the start
+        # of the line after optional whitespace, so none of these is counted
+        # (checked against /usr/local/bin/orch_store.py lease()), and grc's
+        # readers read only column-zero field lines outside comments.
+        mod = self._load_module()
+        for line in ("note <!-- Status: old -->", "<!-- Status: old -->",
+                     "<!-- Active-session: none -->", "> **Status:** active",
+                     "- 2026-10-29 Status: released", "note Status: active",
+                     "1. Operating-mode: x", "## Current task: notes",
+                     "The lease says `Active-session: none`."):
             with self.subTest(line=line):
                 self.assertEqual(mod.check_text(self.VALID_LEASE + line + "\n"), ([], []))
-                code, missing, invalid, _, _ = self._lease_result(self.VALID_LEASE + line + "\n")
-                self.assertEqual((code, missing, invalid), (0, [], []))
+        self.assertEqual(mod.check_text(self.VALID_LEASE.replace(
+            "example task", "fix Status: active")), ([], []))
+
+    def test_r3_refused_mentions_in_comments_stay_findings(self) -> None:
+        # The kept exception: orch_store.py counts these lines, so they are findings.
+        mod = self._load_module()
+        for text in ("<!--\nStatus: old\n-->\n", "note <!-- x\n  status : old\n-->\n",
+                     "<!--\nLast-heartbeat-UTC:\n-->\n", "<!-- a -->\nACTIVE-SESSION: x\n"):
+            with self.subTest(text=text):
+                invalid = mod.check_text(self.VALID_LEASE + text)[1]
+                self.assertTrue(invalid, text)
+
+    def test_r3_symlinked_or_fifo_lease_is_refused(self) -> None:
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest.mock import patch
+        mod = self._load_module()
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as td:
+            real = Path(td) / "real.md"
+            real.write_text(self.VALID_LEASE, encoding="utf-8")
+            link = Path(td) / "session-state.md"
+            link.symlink_to(real)
+            fifo = Path(td) / "fifo.md"
+            os.mkfifo(fifo)
+            for path, reason in ((link, "it is a symlink, which orch_store.py refuses"),
+                                 (fifo, "not a regular file, which orch_store.py refuses"),
+                                 (Path(td), "not a regular file, which orch_store.py refuses")):
+                with self.subTest(path=path.name):
+                    stdout, stderr = io.StringIO(), io.StringIO()
+                    with patch.object(mod, "resolve_working", return_value=path):
+                        with redirect_stdout(stdout), redirect_stderr(stderr):
+                            code = mod.main()
+                    self.assertEqual(code, 2)
+                    self.assertIn(reason, stderr.getvalue())
+                    self.assertEqual(stdout.getvalue(), "")
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with patch.object(mod, "resolve_working", return_value=real):
+                with redirect_stdout(stdout), redirect_stderr(stderr):
+                    self.assertEqual(mod.main(), 0, stderr.getvalue())
 
     def test_r2_label_split_is_linear(self) -> None:
         import time
         mod = self._load_module()
-        text = self.VALID_LEASE + "- " * 10000 + "\n" + " " * 20000 + "\n"
+        lengths = []
+        real = mod.label_token
+
+        def recording(line):
+            lengths.append(len(line))
+            return real(line)
+
+        mod.label_token = recording
+        text = (self.VALID_LEASE + "a" * 20000 + ": x\n" + "*" * 20000 + "Status:** x\n"
+                + "_" * 10000 + " " * 10000 + ":\n")
         start = time.monotonic()
         mod.check_text(text)
         self.assertLess(time.monotonic() - start, 0.5)
+        self.assertGreaterEqual(sorted(lengths)[-3], 20000)
 
     def test_r2_main_reads_bytes(self) -> None:
         # A lone CR must survive the read (read_text would translate it).
@@ -26176,12 +26266,15 @@ class SessionStateTests(LinterTestCase):
             for replacement in ("", line.replace(":", " :", 1)):
                 shapes[f"substituted {line[:12]} {bool(replacement)}"] = (
                     live.replace(line, replacement + "<!--\n" + line + "-->\n"))
-        # 3b679 r2 rule 7: a bullet or blockquote copy is free text that
-        # neither fleet tool reads, so the gate passes it (the docstring's
-        # known limit: the session-start reader reports UNKNOWN instead).
-        for name in ("bullet", "quoted_copy"):
+        # 3b679 r3: a copy the reader does not read (a comment, prefix or
+        # prose copy) is refused exactly when orch_store.py counts it.
+        for name, copy in facts.NOT_READ.items():
             with self.subTest(shape=name):
-                self.assertEqual(mod.check_text(shapes.pop(name)), ([], []))
+                result = mod.check_text(facts.BASE + copy)
+                if name in facts.NOT_READ_GATE_ACCEPTS:
+                    self.assertEqual(result, ([], []))
+                else:
+                    self.assertTrue(result[0] or result[1])
         for name, lease in shapes.items():
             with self.subTest(shape=name):
                 missing, invalid = mod.check_text(lease)
@@ -32646,7 +32739,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         citation_publishers.py PASSIVE F 8c9729132cfaa4f2705c023b4501872905a44dd76b996be8ea8c78ae4188d3e8
         cleanup-tmp-worker-output.py WRITE F 188d936e3dca47b40ec662a51670d04ee2e9cc6b98b706f4e876f489483c62f8
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
-        convert-session-state-lease.py OWN F 2ca8a0de4eb611fa76e3572bf4f0c04b55547923a28a6583b1fb4c54ed562f3a
+        convert-session-state-lease.py OWN F 12ed77222ac7d55c1cdd8578df4f536b8de46bf98225fd734ba46fac38379887
         decisions-search.py NO_FS F a6f83f23008ed1a78383293f3e685e67bc8af59d1ad79cad5832bc792a111eca
         detect-collection-candidates.py NO_FS F 4abd7344bc3bda8933daaa560e4479dea08a856f5503e6a4122f495923a6f21b
         detect-env.py WRITE F bb9b977f0a07a9d27b09dcd85d271bb1f31efc826c5f6cd860106f283144ebc6
@@ -32732,7 +32825,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-secrets-in-content.py CWD F 868061fc0527d0843223825800fb75dd963d345d058a144b6ecc23ee8deb227b
         lint-section-anchors.py CWD F 4b540b4eb8480d1f4be16e1c51cc7c990d22a5b4ea8911244636d0aa1956726f
         lint-section-placement.py CWD F 936e351d52bcd0a0a4964b3ecd046c44ae057298aed6edde002687e8f4c17f98
-        lint-session-state.py NO_FS F 9c6aa0a4607d2b0d016e1e3e9b84d14c29e7d5cf8f1575dfa8534c9a16a46df3
+        lint-session-state.py NO_FS F ddb37fe2384bea278e52b6a497e807aeb5f6e4db1b79b98490073f69b242cbbd
         lint-shall-near-uncertainty.py ROOT F 0df50c2b6826f9216f67addad8931f1eb35498d0e3862064bdb3fed317e64610
         lint-sibling-placeholders.py NO_FS F 2ae82222a589343521ebfbc12a3b9edbec0533203e02b3f7adf906f2b8ad1d2a
         lint-skill-derives-from.py OWN F 4bf6a78a42e9f8d8dff44035ac2320a67043006a133375e7cacdcd85dd5336f5
@@ -32783,7 +32876,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run_all_audits.sh FIXED F 18466189b74841fdf67c087abd6ee880730f4fe3a8b395dbc9da38466a4d5c63
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
-        session_facts.py PASSIVE F 53340eca4ec1c25292ba11c0d6d6466d422112bf25943d8756469da8d0789869
+        session_facts.py PASSIVE F b4fc9c2f87ed95dd52a717bf07913c942777e1aae5ec902c595f10e5ed2ad77b
         skill-verdict-fields.json DATA F fba56d7e70141647fcad92824591d65a0208c6e6b623caaff82bfcb62bbd06aa
         standards-currency-unpinned-baseline.json DATA F e37c71336ad92904670c220de1d3e622a1e8e5b638c1dc0aac3829d99344ec79
         statusline-next-pr.py NO_FS F 81db4327eb56260c362e61edbae2a7c7c2fd426df579fe21d57638cfd7b55223

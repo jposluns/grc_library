@@ -51,24 +51,39 @@ that matches ``\\s*Name\\s*:`` for ``Active-session``, ``Status`` or
 ``Last-heartbeat-UTC`` under Python's ``re.IGNORECASE`` (Unicode
 whitespace and case folding, so ``Actıve-session:`` with a dotless i
 counts), and accept only one, the exact field line. Each such line other
-than an exact field line is a finding, wherever it is.
+than an exact field line is a finding, wherever it is, comments included.
 
-Free text: a line inside an HTML comment (or starting with ``<!--``), a
-bullet line (-, + or * then whitespace), a numbered-list line (ASCII
-digits, "." or ")", then whitespace), a heading line (one to six "#"
-then whitespace or end of line) or a blockquote line (">"), each after
-optional spaces or tabs, is never a near miss and never a session-start
-reader label. The only such lines the gate reports are the mentions
-above, and the only free-text lines that can be mentions are lines
-inside a multi-line HTML comment whose text starts with optional
-whitespace, a store field name in any case and a colon; such a line is
-reported unless it is the exact field line, which is then reported as a
-duplicate and as outside the header region.
+grc's readers (tools/session_facts.py for its three fields, and the
+AskUserQuestion-blocking and stop-guard hooks for ``Operating-mode``) read
+a field only from a line that starts at column zero with the exact label,
+plain ``Name: `` or bold ``**Name:** ``, matching the value with spaces and
+tabs only, and only when the line does not start inside an HTML comment
+(3b679 round 3).
 
-Known limit: tools/session_facts.py still counts every line containing
-``Name:`` for its three fields, so a free-text line the gate accepts
-(``- Status: pending``) makes that reader report its session metrics
-UNKNOWN; it never makes it report a released lease.
+Free text (3b679 round 3): a line, or the part of a line, inside an HTML
+comment (wherever the comment opens, after prose on an earlier line
+included), a bullet line (-, + or * then whitespace), a numbered-list line
+(ASCII digits, "." or ")", then whitespace), a heading line (one to six
+"#" then whitespace or end of line), a blockquote line (">"), each after
+optional spaces or tabs, and prose that contains a field name with a
+colon, raise no finding. grc's readers do not read those lines, so a
+``Current-task``, ``Worker-dispatches`` or ``Operating-mode`` line inside
+a comment, even an exact one, is never a finding and never counts as that
+field's line. One exception is kept exactly: a line the mention rule
+above counts for a store field (``Active-session``, ``Status``,
+``Last-heartbeat-UTC``) is still a finding unless it is the exact field
+line, because orch_store.py refuses the lease; such a line starts, after
+optional Unicode whitespace, with the field name in any letter case and a
+colon, so only a column-zero or indented line (in a multi-line comment, a
+fence or the body) can be one, never a bullet, quote or prose line or a
+line opening a comment (``note <!-- Status: old -->`` and
+``<!-- Status: old -->`` are not findings). An exact store field line in
+a comment is counted as orch_store counts it: it is a duplicate and is
+outside the header region.
+
+The findings that remain on lines other than the exact field lines are
+therefore: the title rules, a CR, a refused mention of a store field, and
+a near-miss label on a line that is not free text.
 
 Coherence rules: ``released`` requires ``Active-session: none``;
 ``active`` requires a non-``none`` session id.
@@ -103,25 +118,24 @@ shape (which includes a separator other than one space after the colon),
 is reported only when no label fault applies.
 Prose and inline code before a token prevent candidate recognition.
 
-Field labels: the session-start reader counts every LF-delimited line
-that contains ``Active-session:``, ``Status:`` or
-``Last-heartbeat-UTC:`` (case-sensitive, anywhere in the line) and reads
-none of them when it finds two. Each such line that is not free text,
-other than that field's exact field line, therefore gets one finding,
-unless it already has a near-miss finding for the same field. The
-sanctioned spelling for a mention in prose is the field name without a
-colon directly after it (for example "the Status field" or
-"Status `active`").
+Field labels: every line grc's readers count as an occurrence of a store
+field (column zero, ``Name:`` or ``**Name:**``, outside a comment) is the
+exact field line, a refused mention or a near miss, so it is reported
+under one of those rules; the gate has no separate reader-label rule
+since 3b679 round 3. A mention in prose never needs rewording.
 
 Exact field lines get one location finding if their start is in an HTML
-comment, a fenced block, or a later section, combining reasons.
-The scanner recognizes literal "<!--" and "-->" with no nesting; an
-unclosed comment extends through EOF. Fences use at least three identical
+comment, a fenced block, or a later section, combining reasons (an exact
+``Current-task``, ``Worker-dispatches`` or ``Operating-mode`` line in a
+comment is not a field line; see Free text).
+The scanner recognizes literal "<!--" and "-->" with no nesting on every
+line, inside fences too, exactly as grc's readers do; an unclosed comment
+extends through EOF. Fences use at least three identical
 backticks or tildes after at most three ASCII spaces, with arbitrary info
 text except backticks in backtick info. Closing fences use the same
 character, at least the opening length, and only trailing whitespace.
-An unclosed fence extends through EOF. Comments inside fences and fence
-markers inside comments are inert. Outside both, a column-zero ATX heading
+An unclosed fence extends through EOF. Fence markers inside comments are
+inert. Outside both, a column-zero ATX heading
 (one to six "#" followed by a space, tab or end of line) starts a later
 section when an earlier such line or a header-region field line precedes
 it; otherwise it is the title.
@@ -139,17 +153,26 @@ live lease or a recent unmerged sibling branch) lives in the `/orch`
 step-0 procedure, not in CI. A malformed lease would silently disable
 that procedure, which is the failure this gate exists to catch.
 
+The lease is opened without following a symlink (O_NOFOLLOW) and must be
+a regular file (fstat), as orch_store.py and the standard reader open it;
+a symlinked lease, or a FIFO, directory or device, is refused naming the
+reason.
+
 Exit codes:
     0: a well-formed lease, or an absent operational store (skip).
     1: a title, CR, size, invalid value, incoherence, duplicate,
-       near-miss label, extra field label, refused mention, trailing
-       whitespace, or field line outside the header region.
-    2: an unreadable or non-UTF-8 lease, or a required field line absent.
+       near-miss label, refused mention, trailing whitespace, or field
+       line outside the header region.
+    2: an unreadable, symlinked, non-regular or non-UTF-8 lease, or a
+       required field line absent.
 """
 
 from __future__ import annotations
 
+import errno
+import os
 import re
+import stat
 import sys
 import unicodedata
 from datetime import datetime, timezone
@@ -253,26 +276,46 @@ FREE_TEXT_RE = re.compile(
     r"[ \t]*(?:[-+*](?:[ \t]|$)|[0-9]+[.)](?:[ \t]|$)|#{1,6}(?:[ \t]|$)|>|<!--)"
 )
 FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+# HTML comment delimiters, recognized on every line (inside fences too) exactly
+# as tools/session_facts.py and the two mode-reading hooks track them.
+COMMENT_DELIMITER = re.compile(r"<!--|-->")
 
-# The fields tools/session_facts.py reads (its NAMES): it counts every line
-# containing "<name>:" as an occurrence and reads none when there are two.
-READER_FIELDS = ("Active-session", "Status", "Last-heartbeat-UTC")
+
+def comment_starts(lines: list[str]) -> list[bool]:
+    """Return, for each line, whether it starts inside an HTML comment."""
+    states: list[bool] = []
+    comment = False
+    for line in lines:
+        states.append(comment)
+        for delimiter in COMMENT_DELIMITER.finditer(line):
+            comment = delimiter.group() == "<!--"
+    return states
+
+
+def exact_field(line: str, commented: bool) -> str | None:
+    """Return the field whose exact field line LINE is, if any.
+
+    A line that starts inside an HTML comment is never a field line for the
+    fields orch_store.py does not read: grc's readers skip it.
+    """
+    return next(
+        (field for field, pattern in FIELD_PATTERNS.items()
+         if pattern.fullmatch(line) and (field in STORE_FIELDS or not commented)),
+        None,
+    )
 
 
 def field_line_errors(text: str) -> list[str]:
-    """Find near-miss labels, extra field labels and misplaced field lines."""
+    """Find near-miss labels, refused mentions and misplaced field lines."""
     invalid: list[str] = []
-    comment = False
     fence = ""
     title_seen = False
     header_field_seen = False
     later_heading = False
-    for number, line in enumerate(text.split("\n"), 1):
-        exact = next(
-            (field for field, pattern in FIELD_PATTERNS.items()
-             if pattern.fullmatch(line)), None
-        )
-        free = (comment and not fence) or FREE_TEXT_RE.match(line) is not None
+    lines = text.split("\n")
+    for number, (line, comment) in enumerate(zip(lines, comment_starts(lines)), 1):
+        exact = exact_field(line, comment)
+        free = comment or FREE_TEXT_RE.match(line) is not None
         near = None
         token = None if free else label_token(line)
         if token and exact is None:
@@ -314,13 +357,6 @@ def field_line_errors(text: str) -> list[str]:
             invalid.append(
                 f"field line `{exact}:` at line {number} has trailing whitespace"
             )
-        for name in READER_FIELDS:
-            if not free and name + ":" in line and name not in (exact, near):
-                invalid.append(
-                    f"field label `{name}:` also appears at line {number}, "
-                    f"which the session-start reader counts as a second "
-                    f"field line (drop the colon from a mention)"
-                )
         for name, mention in MENTION_PATTERNS.items():
             if name not in (exact, near) and mention.match(line):
                 invalid.append(
@@ -356,17 +392,10 @@ def field_line_errors(text: str) -> list[str]:
                 len(marker.group(1)) >= len(fence) and not marker.group(2).strip()
             ):
                 fence = ""
-            continue
-        if not comment and marker and (
+        elif not comment and marker and (
             marker.group(1)[0] == "~" or "`" not in marker.group(2)
         ):
             fence = marker.group(1)
-            continue
-        for delimiter in re.finditer(r"<!--|-->", line):
-            if delimiter.group() == "<!--":
-                comment = True
-            else:
-                comment = False
     return invalid
 
 
@@ -401,8 +430,10 @@ def check_text(
             f"the lease is {size} bytes; orch_store.py refuses more than {MAX_BYTES}"
         )
 
+    commented = comment_starts(lines)
     for field, pattern in FIELD_PATTERNS.items():
-        matches = list(pattern.finditer(text))
+        matches = [pattern.fullmatch(line) for line, note in zip(lines, commented)
+                   if exact_field(line, note) == field]
         if not matches:
             missing.append(
                 f"required field line `{field}: <value>` is absent"
@@ -498,12 +529,29 @@ def main() -> int:
         rel = session_state.as_posix()
 
     # Bytes, decoded strictly and never newline-translated: orch_store.py
-    # splits the raw bytes on LF and keeps every CR in the line.
+    # splits the raw bytes on LF and keeps every CR in the line. Opened without
+    # following a symlink and refused unless a regular file, as orch_store.py
+    # and the standard reader open it (O_NONBLOCK: a FIFO cannot hang the gate).
     try:
-        text = session_state.read_bytes().decode("utf-8")
+        fd = os.open(session_state, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
+                     | os.O_CLOEXEC)
+    except OSError as exc:
+        reason = ("it is a symlink, which orch_store.py refuses"
+                  if exc.errno == errno.ELOOP else exc.strerror or str(exc))
+        print(f"ERROR: cannot read {rel}: {reason}", file=sys.stderr)
+        return 2
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            print(f"ERROR: cannot read {rel}: not a regular file, which "
+                  f"orch_store.py refuses", file=sys.stderr)
+            return 2
+        with os.fdopen(fd, "rb", closefd=False) as stream:
+            text = stream.read().decode("utf-8")
     except (OSError, UnicodeDecodeError) as exc:
         print(f"ERROR: cannot read {rel}: {exc}", file=sys.stderr)
         return 2
+    finally:
+        os.close(fd)
 
     missing, invalid = check_text(text)
 

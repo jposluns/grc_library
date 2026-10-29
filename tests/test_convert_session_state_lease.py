@@ -86,6 +86,54 @@ class ConvertLeaseTests(unittest.TestCase):
         self.lease.mkdir()
         self.assertEqual(self.run_tool().returncode, 2)
 
+    def test_r3_fifo_reaches_the_regular_file_check(self):
+        # 3b679 r3: O_RDWR | O_NONBLOCK opens a FIFO, so the fstat branch refuses it.
+        os.mkfifo(str(self.lease))
+        proc = self.run_tool()
+        self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
+        self.assertIn("is not a regular file; nothing written", proc.stderr)
+
+    def test_r3_lock_timeout_refuses(self):
+        import fcntl
+        import time
+        self.lease.write_text(BOLD)
+        with open(self.lease, "rb") as held:
+            fcntl.flock(held.fileno(), fcntl.LOCK_EX)
+            start = time.monotonic()
+            proc = self.run_tool()
+            elapsed = time.monotonic() - start
+        self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
+        self.assertIn("lock was not acquired within 5 seconds", proc.stderr)
+        self.assertGreaterEqual(elapsed, 5)
+        self.assertLess(elapsed, 30)
+        self.assertEqual(self.lease.read_text(), BOLD)
+
+    def test_r3_inode_recheck_after_lock(self):
+        # The path is swapped to another inode while the lock is taken: refused,
+        # and neither file is written.
+        import importlib.util
+        import io
+        from contextlib import redirect_stderr, redirect_stdout
+        spec = importlib.util.spec_from_file_location("_convert_lease", TOOL)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.lease.write_text(BOLD)
+        other = Path(self.dir.name) / "other.md"
+        other.write_text(BOLD)
+        real_lock = module.lock
+
+        def swapping_lock(fd):
+            real_lock(fd)
+            os.replace(other, self.lease)
+
+        module.lock = swapping_lock
+        stderr = io.StringIO()
+        with redirect_stdout(io.StringIO()), redirect_stderr(stderr):
+            code = module.run(str(self.lease), False)
+        self.assertEqual(code, 2)
+        self.assertIn("no longer names the locked inode; nothing written", stderr.getvalue())
+        self.assertEqual(self.lease.read_text(), BOLD)
+
     def test_lease_is_required(self):
         proc = subprocess.run([sys.executable, str(TOOL)], capture_output=True, text=True,
                               timeout=60)

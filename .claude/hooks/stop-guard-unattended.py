@@ -396,13 +396,31 @@ def _grc_lease_mode(root):
             txt = fh.read()
     except OSError:
         return None
-    m = _GRC_MODE_RE.search(txt)
-    if not m:
+    value = _grc_mode_value(txt)
+    if value is None:
         return None
-    return _grc_map_mode(m.group(1))
+    return _grc_map_mode(value)
 
 # 3b679: the lease's plain `Operating-mode: <mode>` line (gate 63's form) or the earlier bold form.
-_GRC_MODE_RE = re.compile(r"(?im)^(?:\*\*Operating-mode:\*\*|Operating-mode:)\s*(.+?)\s*$")
+# 3b679 r3: the exact label at column zero, the value separated by spaces or tabs only (never a line
+# end), on a line that does not start inside an HTML comment.
+_GRC_MODE_RE = re.compile(r"(?:\*\*Operating-mode:\*\*|Operating-mode:)[ \t]+(.+?)[ \t]*")
+_GRC_COMMENT_DELIMITER = re.compile(r"<!--|-->")
+
+
+def _grc_mode_value(txt):
+    """The first exact `Operating-mode:` line's value, skipping every line that starts inside an HTML
+    comment ("<!--" opens and "-->" closes one wherever either appears, across lines; no nesting; an
+    unclosed comment runs to EOF), or None."""
+    comment = False
+    for line in txt.split("\n"):
+        if not comment:
+            m = _GRC_MODE_RE.fullmatch(line)
+            if m:
+                return m.group(1)
+        for delimiter in _GRC_COMMENT_DELIMITER.finditer(line):
+            comment = delimiter.group() == "<!--"
+    return None
 
 def actionable_items(root):
     """DEFAULT (minimal file-based) adapter. Run the OPTIONAL Python executable at ACTIONABLE_PRODUCER and parse
@@ -2071,10 +2089,38 @@ def _self_test():
         def test_grc_lease_mode_plain_and_bold(self):
             # 3b679: the lease moves from **Operating-mode:** to the plain line; both read.
             for line in ("Operating-mode: overnight-unattended", "**Operating-mode:** overnight-unattended"):
-                m = _GRC_MODE_RE.search("# Session state: grc\n\n" + line + "\n<!-- note -->\n")
-                self.assertEqual(m.group(1) if m else None, "overnight-unattended", line)
+                value = _grc_mode_value("# Session state: grc\n\n" + line + "\n<!-- note -->\n")
+                self.assertEqual(value, "overnight-unattended", line)
             for line in ("**Operating-mode**: overnight-unattended", " Operating-mode: overnight-unattended"):
-                self.assertIsNone(_GRC_MODE_RE.search("# Session state: grc\n\n" + line + "\n"), line)
+                self.assertIsNone(_grc_mode_value("# Session state: grc\n\n" + line + "\n"), line)
+
+        def test_grc_commented_mode_lines_are_not_read(self):
+            # 3b679 r3: only a column-zero field line outside every HTML comment is read, and the value
+            # never crosses a line end (an empty commented label used to read "-->").
+            head = "# Session state: grc\n\n"
+            for text in ("<!-- Operating-mode: overnight-unattended -->\n",
+                         "<!--\nOperating-mode: overnight-unattended\n-->\n",
+                         "note <!-- was\nOperating-mode: overnight-unattended\n-->\n",
+                         "<!--\n**Operating-mode:** overnight-unattended\n-->\n",
+                         "<!--\nOperating-mode:\n-->\n", "Operating-mode:\n-->\n"):
+                self.assertIsNone(_grc_mode_value(head + text), text)
+            for line in ("Operating-mode: fully-attended", "**Operating-mode:** fully-attended"):
+                for above in ("<!--\nOperating-mode: overnight-unattended\n-->\n",
+                              "note <!-- x\nOperating-mode: overnight-unattended\n-->\n",
+                              "<!-- Operating-mode: overnight-unattended -->\n"):
+                    value = _grc_mode_value(head + above + line + "\n<!-- note -->\n")
+                    self.assertEqual(value, "fully-attended", (above, line))
+            from unittest import mock
+            with tempfile.TemporaryDirectory() as store:
+                lease = os.path.join(store, "session-state.md")
+                patches = {"_GRC_STATE_FILE": lease, "_is_grc_main_checkout": lambda root: True,
+                           "_grc_is_worker": lambda: False}
+                with mock.patch.dict(globals(), patches):
+                    for text in ("<!--\nOperating-mode:\n-->\n",
+                                 "note <!-- was\nOperating-mode: overnight-unattended\n-->\n"):
+                        with open(lease, "w", encoding="utf-8") as fh:
+                            fh.write(head + text)
+                        self.assertIsNone(_grc_lease_mode(store), text)
 
         def test_grc_lease_mode_end_to_end_plain_and_bold(self):
             # 3b679 r2: both forms through _grc_lease_mode() itself, reading a real lease file.
