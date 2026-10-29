@@ -3173,6 +3173,160 @@ class StandardsCurrencyTests(LinterTestCase):
             import shutil
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
+    # 3b655: every run names the register standards no citation grammar reads, derived from the
+    # register at run time (disclose-guard-residuals); the lines are advisory and never a finding.
+    # r2 (both families): one list per thing the gate still does with such a row, so a row with no
+    # superseded edition is not said to have one matched, and a CANDIDATE row is not "nothing".
+    SUPERSEDED_MATCHED = "Superseded editions matched"
+    NOT_COVERED = "Not covered by this gate"
+    BROAD_CANDIDATE = "Advisory CANDIDATE from the broad channel"
+    RESIDUAL_KEYS = ("superseded_matched", "not_covered", "broad_channel_candidate")
+
+    def _not_covered_root(self, *rows: str) -> Path:
+        root = Path(tempfile.mkdtemp(prefix="synthetic-root-not-covered-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, root, True)
+        (root / "governance").mkdir()
+        (root / "governance" / "register-canonical-citations.md").write_text(
+            "# Register\n\n## Standards\n\n"
+            "| Standard ID | Current version | Publication date | Topic | Superseded versions |\n"
+            "| --- | --- | --- | --- | --- |\n" + "".join(r + "\n" for r in rows),
+            encoding="utf-8",
+        )
+        # P-3.213: a default-scope run reads the UNPINNED baseline and its copy at the ratchet
+        # base, so the tree holds an empty baseline and is its own base.
+        self._write_or_remove(root / self.BASELINE_REL, {})
+        self._fixture_git(root, "init", "-q")
+        self._fixture_git(root, "add", "-A")
+        self._fixture_git(root, "commit", "-q", "-m", "base")
+        self._fixture_git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
+        return root
+
+    COVERED_ROW = "| ISO/IEC 27001 | 2022 | 2022-10 | Security | 2013 |"
+    UNCOVERED_ROW = "| Example Widget Norm | 3.0 | 2026-01 | Widgets | 2.0 |"
+    UNMATCHED_ROW = "| Example Gadget Rule | 1.0 | 2026-01 | Gadgets | - |"
+    CANDIDATE_ROW = "| Example Gizmo Framework | 2026 | 2026-01 | Gizmos | - |"
+    # r3 (both families): like WCO SAFE Framework, a row that lists a superseded edition and also
+    # draws a CANDIDATE; the first and third lists overlap on it by design.
+    BOTH_ROW = "| Example Doohickey Framework | 2026 | 2026-01 | Doohickeys | 2021 |"
+
+    def _residual_line(self, output: str, prefix: str) -> str:
+        lines = [ln for ln in output.splitlines() if ln.startswith(prefix)]
+        self.assertEqual(len(lines), 1, output)
+        return lines[0]
+
+    def _residual_report(self, root: Path) -> tuple[str, dict]:
+        result = self._run_ratchet(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("OK: no findings", result.stdout)
+        report = json.loads(self._run_ratchet(root, "--format", "json").stdout)
+        return result.stdout, report
+
+    def _assert_only_in(self, output: str, report: dict, name: str, own: str) -> None:
+        """NAME is listed under OWN (text line and JSON key) and under no other residual list."""
+        for prefix, key in zip(
+            (self.SUPERSEDED_MATCHED, self.NOT_COVERED, self.BROAD_CANDIDATE), self.RESIDUAL_KEYS
+        ):
+            listed = self._residual_line(output, prefix).split(": ", 1)[1].split(", ")
+            if key == own:
+                self.assertIn(name, listed, output)
+                self.assertIn(name, report[key])
+            else:
+                self.assertNotIn(name, listed, output)
+                self.assertNotIn(name, report[key])
+
+    def test_uncovered_register_standard_is_named(self) -> None:
+        root = self._not_covered_root(self.COVERED_ROW, self.UNCOVERED_ROW)
+        output, report = self._residual_report(root)
+        line = self._residual_line(output, self.SUPERSEDED_MATCHED)
+        self.assertTrue(line.endswith(": Example Widget Norm"), line)
+        for prefix in (self.SUPERSEDED_MATCHED, self.NOT_COVERED, self.BROAD_CANDIDATE):
+            self.assertNotIn("ISO/IEC 27001", self._residual_line(output, prefix))
+        # P-3.213: the lines precede the count line, and the verdict line stays last.
+        lines = output.splitlines()
+        self.assertTrue(lines[-2].startswith("NOTE: standards-currency counts:"), output)
+        self.assertTrue(lines[-1].startswith("OK: no findings"), output)
+        self.assertEqual(report["superseded_matched"], ["Example Widget Norm"])
+        self.assertEqual(report["not_covered"], [])
+
+    def test_row_with_a_superseded_edition_is_listed_as_superseded_matched(self) -> None:
+        root = self._not_covered_root(
+            self.COVERED_ROW, self.UNCOVERED_ROW, self.UNMATCHED_ROW, self.CANDIDATE_ROW
+        )
+        output, report = self._residual_report(root)
+        self._assert_only_in(output, report, "Example Widget Norm", "superseded_matched")
+
+    def test_row_with_no_superseded_edition_is_listed_as_not_covered(self) -> None:
+        root = self._not_covered_root(
+            self.COVERED_ROW, self.UNCOVERED_ROW, self.UNMATCHED_ROW, self.CANDIDATE_ROW
+        )
+        output, report = self._residual_report(root)
+        self._assert_only_in(output, report, "Example Gadget Rule", "not_covered")
+
+    def test_row_the_broad_channel_draws_is_listed_as_candidate(self) -> None:
+        root = self._not_covered_root(
+            self.COVERED_ROW, self.UNCOVERED_ROW, self.UNMATCHED_ROW, self.CANDIDATE_ROW
+        )
+        output, report = self._residual_report(root)
+        self._assert_only_in(output, report, "Example Gizmo Framework", "broad_channel_candidate")
+
+    def test_superseded_row_the_broad_channel_draws_is_in_both_lists(self) -> None:
+        root = self._not_covered_root(
+            self.COVERED_ROW, self.UNCOVERED_ROW, self.UNMATCHED_ROW, self.CANDIDATE_ROW,
+            self.BOTH_ROW,
+        )
+        output, report = self._residual_report(root)
+        for prefix, key, listed in zip(
+            (self.SUPERSEDED_MATCHED, self.NOT_COVERED, self.BROAD_CANDIDATE),
+            self.RESIDUAL_KEYS,
+            (True, False, True),
+        ):
+            names = self._residual_line(output, prefix).split(": ", 1)[1].split(", ")
+            self.assertEqual("Example Doohickey Framework" in names, listed, output)
+            self.assertEqual("Example Doohickey Framework" in report[key], listed, report)
+        # Each line that names it says it may be in the other list, so neither line is false of it.
+        superseded = self._residual_line(output, self.SUPERSEDED_MATCHED)
+        self.assertIn("listed again under Advisory CANDIDATE", superseded)
+        candidate = self._residual_line(output, self.BROAD_CANDIDATE)
+        self.assertIn("also under Superseded editions matched", candidate)
+
+    def test_not_covered_line_drops_a_standard_the_gate_gains_a_reader_for(self) -> None:
+        import contextlib
+        from unittest import mock
+
+        root = self._not_covered_root(self.COVERED_ROW, self.UNCOVERED_ROW)
+        mod = load_linter_module("tools/lint-standards-currency.py", "currency_3b655")
+        engine = mod._engine()
+        original = engine.discover
+
+        def with_widget_reader(source, suffix):
+            found = original(source, suffix)
+            if source == "Example Widget Norm":
+                found.append(dict(channel="grammar", identity=engine.identity_key(source)))
+            return found
+
+        def run(*patches):
+            with contextlib.ExitStack() as stack:
+                for p in patches:
+                    stack.enter_context(p)
+                code, out, _ = self._main_in_process(mod, root)
+            return code, out
+
+        code, before = run()
+        self.assertEqual(code, 0, before)
+        self.assertTrue(
+            self._residual_line(before, self.SUPERSEDED_MATCHED).endswith(": Example Widget Norm")
+        )
+        code, after = run(mock.patch.object(engine, "discover", with_widget_reader))
+        self.assertEqual(code, 0, after)
+        for prefix in (self.SUPERSEDED_MATCHED, self.NOT_COVERED, self.BROAD_CANDIDATE):
+            self.assertTrue(self._residual_line(after, prefix).endswith(": (none)"), after)
+
+        only_covered = self._not_covered_root(self.COVERED_ROW)
+        result = self._run_ratchet(only_covered)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for prefix in (self.SUPERSEDED_MATCHED, self.NOT_COVERED, self.BROAD_CANDIDATE):
+            self.assertTrue(self._residual_line(result.stdout, prefix).endswith(": (none)"))
+
     # P-3.213 (maintainer ruling 2026-10-27, option A): the count line, the ISO/IEC
     # 20000-1 register row and the per-standard UNPINNED ratchet.
     RATCHET_REGISTER = (
@@ -32924,7 +33078,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-skill-internal-refs.py ROOT F b2b1fc4846ca52b298fe12ee712477bfac97e173e3ac6368e72c5edd6c28b50e
         lint-skill-verdict-carrier-completeness.py OWN F 7056be9141352daf10807f17e9941fb422a84cbf43eae4fff9549efd3684f5a3
         lint-ssdf-control-ids.py CWD F fc3326619bde8b0c6389a3ac7a4b5b79e06ab9e3195e471b6d766f067e06a60f
-        lint-standards-currency.py OWN F 516972e32ea7e9538afde01552edf24c2debb99f2e2a42d06258194210df3d17
+        lint-standards-currency.py OWN F 527cd1e8a3ce360e3404acc9bb1c77e91830c071a8deb468b68768a2cf2395af
         lint-startup-character-ceiling.py NO_FS F aeaaf73e5efe319cb6881277ca5b7abef8db708826fe1bf0a241559d7d58a060
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
