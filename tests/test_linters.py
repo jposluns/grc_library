@@ -26165,27 +26165,78 @@ class SessionStateTests(LinterTestCase):
         # 3b679 r4: main() reads at most MAX_BYTES + 1 bytes, so a lease over
         # the limit is refused with the size finding (exit 1) without reading
         # it whole, even when the limit splits a UTF-8 sequence.
+        # 3b679 r6: the bound must be observed, not merely unviolated (a
+        # buffered whole-file read made no os.read call and passed). At least
+        # one os.read of the lease is required and its totals bounded, the
+        # lease offset at os.close is bounded, and any buffered or whole-file
+        # read interface called on the lease fails the test.
+        import builtins
+        from contextlib import redirect_stderr, redirect_stdout
         from unittest.mock import patch
         mod = self._load_module()
         limit = mod.MAX_BYTES
         pad = limit - len((self.VALID_LEASE + "<!--  -->\n").encode("utf-8"))
         at_limit = self.VALID_LEASE + "<!-- " + "x" * pad + " -->\n"
         self.assertEqual(len(at_limit.encode("utf-8")), limit)
-        code, _, _, _, stderr = self._lease_result(at_limit)
-        self.assertEqual(code, 0, stderr)
-        requested = []
-        real_read = os.read
 
-        def counting_read(fd, n):
-            requested.append(n)
-            return real_read(fd, n)
+        def observed_main(text):
+            reads, offsets, refused = [], [], []
+            real_read, real_close = os.read, os.close
+            with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as td:
+                lease = Path(td) / "session-state.md"
+                lease.write_bytes(text.encode("utf-8"))
+                identity = (lease.stat().st_dev, lease.stat().st_ino)
 
+                def is_lease(target):
+                    try:
+                        st = (os.fstat(target) if isinstance(target, int)
+                              else os.stat(target))
+                    except (OSError, TypeError, ValueError):
+                        return False
+                    return (st.st_dev, st.st_ino) == identity
+
+                def counting_read(fd, n):
+                    data = real_read(fd, n)
+                    if is_lease(fd):
+                        reads.append((n, len(data)))
+                    return data
+
+                def offset_close(fd):
+                    if is_lease(fd):
+                        offsets.append(os.lseek(fd, 0, os.SEEK_CUR))
+                    return real_close(fd)
+
+                def refuse(name, real):
+                    def guarded(target, *args, **kwargs):
+                        if is_lease(target):
+                            refused.append(name)
+                            raise AssertionError(f"{name} called on the lease")
+                        return real(target, *args, **kwargs)
+                    return guarded
+
+                stdout, stderr = io.StringIO(), io.StringIO()
+                with patch.object(mod, "resolve_working", return_value=lease), \
+                        patch.object(mod.os, "read", counting_read), \
+                        patch.object(mod.os, "close", offset_close), \
+                        patch.object(mod.os, "fdopen", refuse("os.fdopen", os.fdopen)), \
+                        patch.object(mod.os, "pread", refuse("os.pread", os.pread)), \
+                        patch.object(io, "open", refuse("io.open", io.open)), \
+                        patch.object(builtins, "open", refuse("open", builtins.open)), \
+                        patch.multiple(Path, **{name: refuse("Path." + name, getattr(Path, name))
+                                                for name in ("open", "read_bytes", "read_text")}):
+                    with redirect_stdout(stdout), redirect_stderr(stderr):
+                        code = mod.main()
+            return code, reads, offsets, refused, stdout.getvalue(), stderr.getvalue()
+
+        code, reads, offsets, refused, _, stderr = observed_main(at_limit)
+        self.assertEqual((code, refused), (0, []), stderr)
+        self.assertEqual(sum(got for _, got in reads), limit)
+        self.assertEqual(offsets, [limit])
         for text in (at_limit + "\n", self.VALID_LEASE + "<!-- " + "é" * limit + " -->\n",
                      self.VALID_LEASE + "<!-- a" + "é" * limit + " -->\n"):
             with self.subTest(size=len(text.encode("utf-8"))):
-                requested.clear()
-                with patch.object(mod.os, "read", counting_read):
-                    code, _, _, stdout, stderr = self._lease_result(text)
+                code, reads, offsets, refused, stdout, stderr = observed_main(text)
+                self.assertEqual(refused, [])
                 self.assertEqual(code, 1, stderr)
                 self.assertTrue(stderr.startswith("FAIL: "), stderr)
                 self.assertTrue(stderr.endswith(
@@ -26193,7 +26244,11 @@ class SessionStateTests(LinterTestCase):
                     f"orch_store.py refuses more than {limit}\n"), stderr)
                 self.assertEqual(stderr.count("\n"), 1, stderr)
                 self.assertEqual(stdout, "")
-                self.assertLessEqual(sum(requested), limit + 1)
+                self.assertTrue(reads, "no os.read of the lease was observed")
+                self.assertLessEqual(sum(n for n, _ in reads), limit + 1)
+                self.assertLessEqual(sum(got for _, got in reads), limit + 1)
+                self.assertEqual(len(offsets), 1, offsets)
+                self.assertLessEqual(offsets[0], limit + 1)
 
     def test_compatibility_letters_in_label(self) -> None:
         mod = self._load_module()

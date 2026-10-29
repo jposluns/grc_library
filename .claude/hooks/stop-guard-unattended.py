@@ -378,7 +378,7 @@ def read_operating_mode(root):
         return val or None
     except FileNotFoundError:
         pass  # no file-based mode record
-    except OSError:
+    except (OSError, UnicodeDecodeError):  # 3b679 r6: an undecodable MODE_FILE is an unreadable one (fail open)
         return None
     # Not the grc checkout, so _grc_lease_mode returns None here; the call is kept as a defensive default.
     return _grc_lease_mode(root)
@@ -2333,6 +2333,27 @@ def _self_test():
             with tempfile.TemporaryDirectory() as d:
                 build(d, mode="attended")
                 self.assertEqual(read_operating_mode(d), "attended")
+
+        def test_undecodable_mode_file_is_an_unreadable_mode_file(self):
+            # 3b679 r6: a MODE_FILE that is not valid UTF-8 takes the unreadable branch (mode None, the stop
+            # allowed) as any OSError but FileNotFoundError does; it used to raise UnicodeDecodeError out of
+            # run(). An absent MODE_FILE falls through to _grc_lease_mode, stubbed to arm so the two differ.
+            from unittest import mock
+            with tempfile.TemporaryDirectory() as d:
+                build(d, mode="unattended", producer_lines="1\tFirst")
+                mode_file = os.path.join(d, MODE_FILE)
+                with mock.patch.dict(globals(), {"_grc_lease_mode": lambda root: "unattended"}):
+                    def outcome():
+                        return read_operating_mode(d), run(d, {"stop_hook_active": False})
+                    self.assertEqual(outcome(), ("unattended", 2))
+                    os.unlink(mode_file)
+                    self.assertEqual(outcome(), ("unattended", 2))  # absent: the lease fallback
+                    os.mkdir(mode_file)  # open() raises IsADirectoryError, an OSError: an unreadable MODE_FILE
+                    unreadable = outcome()
+                    os.rmdir(mode_file)
+                    with open(mode_file, "wb") as fh:
+                        fh.write(b"unattended\n\xff\n")
+                    self.assertEqual((unreadable, outcome()), ((None, 0),) * 2)
 
         # ---- default file-based actionable producer adapter ----
         def test_actionable_absent_producer_is_none(self):
