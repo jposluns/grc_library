@@ -543,7 +543,8 @@ def main(argv: list[str]) -> int:
         # being read as absent, which reported clean without auditing the store.
         wd = resolve_working_dir(repo_root=root, strict=True)
     except OSError as exc:
-        print(f"ERROR: the working store is present but cannot be examined ({exc}); "
+        # 3b677 r7: the exception names the cause (a missing component is not "present").
+        print(f"ERROR: cannot look up the working store ({exc}); "
               f"the audit would be incomplete.", file=sys.stderr)
         return 2
     if wd is not None:

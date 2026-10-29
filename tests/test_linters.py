@@ -17853,7 +17853,7 @@ class PrePushGuardTests(unittest.TestCase):
             code = (
                 "import sys; sys.path.insert(0, 'tools')\n"
                 "import lint_common\n"
-                "def _boom(name):\n"
+                "def _boom(name, **_kw):\n"
                 "    raise RuntimeError('injected')\n"
                 "lint_common.resolve_sibling = _boom\n"
                 "import runpy\n"
@@ -31143,22 +31143,25 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
         # An absolute and a relative (resolved against --root) symlink-loop store; the relative one
         # raised RuntimeError from _store_root on Python 3.11, and both read as absent elsewhere.
         for store in (str(loop), "../storeloop"):
-            self._refused(audit(store), "working store is present but cannot be examined", store)
+            self._refused(audit(store), "cannot look up the working store", store)
         # 3b74 QA: a dangling relative store is probed as given, not after resolve() normalized it
         # into a missing target read as absent; its absolute spelling was already refused.
         (td / "storelink").symlink_to(td / "missing-store")
         for store in (str(td / "storelink"), "../storelink"):
-            self._refused(audit(store), "working store is present but cannot be examined", store)
-        # 3b74 QA r2: relative and absolute spellings of the same path get the same verdict; a path
-        # through a missing component is absent to the kernel, so both fall through (exit 0) rather
-        # than the relative one raising from resolve() first (Python 3.11 RuntimeError on the loop).
+            self._refused(audit(store), "cannot look up the working store", store)
+        # 3b74 QA r2: relative and absolute spellings of the same path get the same verdict, the
+        # relative one not raising from resolve() first (Python 3.11 RuntimeError on the loop).
+        # 3b677 r6: a path through a missing INTERMEDIATE component is no longer absent (only a
+        # missing last component is), so both spellings now refuse, naming that component.
         for store in ("../missing/../storeloop", str(root) + "/../missing/../storeloop"):
             r = audit(store)
-            self.assertEqual(r.returncode, 0, (store, r.stderr[-300:]))
-            self.assertNotIn("Traceback", r.stderr)
+            self._refused(r, "cannot look up the working store", store)
+            self.assertIn("missing intermediate component", r.stderr, store)
+            # 3b677 r7: nothing is present there, so the refusal must not say it is.
+            self.assertNotIn("present", r.stderr, store)
         # A regular file named as the store.
         (td / "store-file").write_text("x\n", encoding="utf-8")
-        self._refused(audit(str(td / "store-file")), "working store is present but cannot be examined",
+        self._refused(audit(str(td / "store-file")), "cannot look up the working store",
                       "store-file")
         if not (hasattr(os, "geteuid") and os.geteuid() == 0):
             locked = td / "locked"
@@ -31166,7 +31169,7 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
             locked.chmod(0)
             self.addCleanup(locked.chmod, 0o700)
             self._refused(audit(str(locked / "store")),
-                          "working store is present but cannot be examined", "locked parent")
+                          "cannot look up the working store", "locked parent")
 
     def test_dotdot_explicit_paths_checked_as_given(self) -> None:
         td = Path(tempfile.mkdtemp(prefix="aiddotdot-"))
@@ -32768,7 +32771,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         audit-activity-timing.py SKIP F e80df37531885836146bc027bc25e2c9afbeab6359b343f957d16449603e92b0
         audit-backlog-actionability.py OWN F c089004a4e41f3a8c9273d7df9926331953635bc3133ba22023e1f2a7ffc1244
         audit-claim-precision.py ROOT F c2e537144efb7458cba00827577f959907263a7dfffcc75bab54c888f1e1d4b2
-        audit-cross-repo-references.py OWN F f2eeb637b2a28b3d8995fe57609c231e1845dc139b4d8aa5f917433833abd83d
+        audit-cross-repo-references.py OWN F f29ff55d094366575fcf45011fa08ab358f561519093248d1f37f8f4d79b3428
         audit-gate-blindspots.py OWN F a20d49b67e8bfa12a01f69d2847053fd8dca4dc50cb0b56acdb5c05d0763be48
         audit-gate-mutation.py OWN F db2e8a4e3255dfff96dc9a0f744a58508c1b88e689bea0af28fdc33062fb5716
         audit-held-branch-expiry.py NO_FS F 3255ff7873ca44e429b60011d733b90f6a65434f816a55f3f1be5a53f7a8d652
@@ -32784,7 +32787,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         audit-token-spend.py SKIP F f2ddc8690680ddeb190433e7264f077b7e2c969e320b7b6c9c1fb70f2f6a34ba
         audit-validation-coverage.py NO_FS F 53684c943e2d4b72c55b38d1549e48bd4189160aee83b0ae1f7717eb8cb22942
         audit-worklist-register-drift.py OWN F 1e3f854f86468706c311cd0484b6f2efa7b308f67eefd1aa66e7369bb8680146
-        build-alignment-citation-registry.py NO_FS F f94e4d0b1798d3b56714e21813f9598b250e3c7080b25b672f86f5848a894487
+        build-alignment-citation-registry.py NO_FS F d8d9b038b7fd902a57743bfce4cfaeecf42b1a4bcde22fb9a714d769dc0fda80
         build-citation-publishers.py NO_FS F 300b9b1816f512275e61ee2027e2930f800dae47f6b59695e5c72e3ac01e6423
         build-corpus-management.py OWN F 5a8cdc9491b4565b783cc4de48a65a06f0abc48bc272c039bfc6e2edc104b671
         build-historical-citation-exceptions.py OWN F 442e33ccfd3d443d763e0576d908d0a27c74f59d5cda3d1fe53a919d074376d2
@@ -32792,7 +32795,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-portal.py NO_FS F 5ec4891c1488822c6dc1d06ee08f27523d0f2766869578574bfbf96e3203fc2a
         build-provision-index.py ROOT F fe7e21ef073874b792080c23593e1d47e3e4f2702177860b06b67486a9cb46e1
         build-public-changelog.py OWN F 407a5b794ad8b51c495f9a2d98ec1f8908fac68500a12004c092e59bd8054d77
-        build-reference-manifest.py NO_FS F 80b1c2bfc67f36d4705713fac0ce2c724a5638d1292fbd954767e1d59f2c134d
+        build-reference-manifest.py NO_FS F fdf4d1211bd09e6e1afdf2437b5b291ec5bc0cbc3d632d588af5bcb0091a387d
         build-relationship-model.py NO_FS F 6f4352a07d3aa1a1e991cde011e5f11c464776d58012701d17bc8ac5b43a6d14
         build-taxonomy.py NO_FS F dc1c0549d33132cb87852e1729c530c5c607540f1317c968960ada44c1bd138b
         build-todo-number-allocation.py NO_FS F 8ad89e87b8a6df4a576935a21409cadc80ce0456784a22262ac3229b3f2dd99e
@@ -32928,9 +32931,9 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-stub-documents.py CWD F 1205d50291b24c95b29b1ab4d0d91341ce53afc3652e1e57986eb46272b35b8a
         lint-table-cell-count.py OWN F 36c2ad714485c240903f8ecb55caefe3714ac0ebad81df90b2d52e87a10a3477
         lint-todo-index-reference-parity.py OWN F b15c9b865864abdab15851f91ee6deafb6a2be08b5a384dea76ba4275131a800
-        lint-todo-list-tag.py OWN F 1f2fff72d614e2adf92ca4f6c7a19bd716392d6999707a294554354cb31d44c2
+        lint-todo-list-tag.py OWN F eebe796aec8a0af3bab1d8727b1ceb392fedb72467c454b13186d380544964fd
         lint-todo-marked-done.py ROOT F 20b941b3677d2f555495e3e51f6e2124a1fa40a67874a999baf39a11c79d82c4
-        lint-todo-number-permanence.py OWN F 383817bb07d8395aed91ef2ebcaaef19f8d7ac07a9668dc26af172af19b0ea0c
+        lint-todo-number-permanence.py OWN F 8180513ae2b4fc4b356aa3f56064849303a8511690ea75a00eb8a26f84e0b355
         lint-todo-staleness.py NO_FS F 018d90235361c55d209d69c789ee08bbf752ac05613ce7e77991ee59a46b1491
         lint-tooling-backlog-refs.py OWN F fb32e59535aa1fc191032c72eefdbfe1062bfe75210a6dbecf48ef969f2390e5
         lint-tooling-provenance-freshness.py OWN F 4cb6ed58b8cd47d727f7d198169661581b8e94a4a62cc6380a1a64e86b74ca5b
@@ -32942,14 +32945,14 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 5b8f07f67932e6a2e08b8de287bea230dd312d319654494f39b7c3349f6be1bb
-        lint_common.py PASSIVE F db844a6681b1436406a93780d4d99786bab273ede1a1b32a2d34f756c3c49ad3
+        lint_common.py PASSIVE F 30a62d8dfde2f60310cec7314179301c6091ca0cef8482a9b43c79be68dc49bc
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
         pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
-        preflight-changelog.py NO_FS F 046a0ea8830d5a92d4f24d4f371f67c0b95570aa16012f6da01c6996a5a14db1
+        preflight-changelog.py NO_FS F 0396f470e26a529723c3d4e9a5de3c7eddb1fdd6db98e87cb1f58b3ee967598c
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
         preflight_language_runner.py CHILD F 5022c1d1ea1b9d289710b26c96ba615ad303bee4850723fcf12d99a8e247d0c7
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
@@ -40483,6 +40486,859 @@ class SiblingPlaceholderTests(LinterTestCase):
         self.assertTrue(any("cap" in f or "exceeds" in f for f in findings), findings)
 
 
+class ResolveSiblingStrictTests(unittest.TestCase):
+    """lint_common.resolve_sibling(strict=True) tells a present but unusable sibling from an
+    absent one (3b74): None only when no entry exists, InaccessiblePath for a regular file, a
+    FIFO, a dangling link or an entry that cannot be examined. The default (non-strict) call is
+    unchanged: it reads every unusable sibling as absent. Each case points lint_common.REPO_ROOT
+    at a temp tree, so neither the maintainer's real siblings nor their absence leaks in."""
+
+    def setUp(self) -> None:
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        import lint_common
+        from unittest.mock import patch
+        self.lc = lint_common
+        base = Path(tempfile.mkdtemp(prefix="resolvesib-"))
+        self.addCleanup(shutil.rmtree, base, True)
+        self.repo = base / "grc_library"
+        self.repo.mkdir()
+        self.sibling = base / "grc_library_ref"
+        p = patch.object(lint_common, "REPO_ROOT", self.repo)
+        p.start()
+        self.addCleanup(p.stop)
+
+    def _assert_unusable(self, label: str) -> None:
+        with self.assertRaises(self.lc.InaccessiblePath, msg=label) as ctx:
+            self.lc.resolve_sibling("ref", strict=True)
+        self.assertIn(str(self.sibling), str(ctx.exception), label)
+        self.assertIsNone(self.lc.resolve_sibling("ref"), f"{label}: the default call is unchanged")
+
+    def test_absent_is_none_in_both_modes(self) -> None:
+        self.assertIsNone(self.lc.resolve_sibling("ref", strict=True))
+        self.assertIsNone(self.lc.resolve_sibling("ref"))
+
+    def test_usable_directory_is_returned_in_both_modes(self) -> None:
+        self.sibling.mkdir()
+        self.assertEqual(self.lc.resolve_sibling("ref", strict=True), self.sibling)
+        self.assertEqual(self.lc.resolve_sibling("ref"), self.sibling)
+
+    def test_regular_file_is_unusable(self) -> None:
+        self.sibling.write_text("not a checkout\n", encoding="utf-8")
+        self._assert_unusable("regular file")
+
+    def test_dangling_link_is_unusable(self) -> None:
+        self.sibling.symlink_to(self.repo.parent / "no-such-target")
+        self._assert_unusable("dangling link")
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "os.mkfifo is unavailable")
+    def test_fifo_is_unusable(self) -> None:
+        os.mkfifo(self.sibling)
+        self._assert_unusable("FIFO")
+
+    def test_permission_error_from_is_dir(self) -> None:
+        # Python 3.11's pathlib is_dir raises PermissionError on EACCES (3.12+ returns False).
+        # The default call keeps that behaviour; the strict call never consults pathlib, and an
+        # EACCES from its own probe is InaccessiblePath, not absent.
+        import errno
+        from unittest.mock import patch
+        self.sibling.mkdir()
+
+        def denied(_self, *a, **k):
+            raise PermissionError(errno.EACCES, "Permission denied", str(_self))
+        with patch.object(Path, "is_dir", denied):
+            with self.assertRaises(PermissionError):
+                self.lc.resolve_sibling("ref")
+            self.assertEqual(self.lc.resolve_sibling("ref", strict=True), self.sibling)
+        real_lstat = os.lstat
+
+        def lstat_denied(path, *a, **k):
+            if os.fspath(path) == str(self.sibling):
+                raise PermissionError(errno.EACCES, "Permission denied", os.fspath(path))
+            return real_lstat(path, *a, **k)
+        with patch.object(self.lc.os, "lstat", lstat_denied):
+            with self.assertRaises(self.lc.InaccessiblePath) as ctx:
+                self.lc.resolve_sibling("ref", strict=True)
+        self.assertEqual(ctx.exception.errno, errno.EACCES)
+
+
+class StrictKindAbsenceTests(unittest.TestCase):
+    """lint_common.strict_kind reports ABSENT only when the LAST component is missing and every
+    component before it is a usable directory (3b677 r6). A dangling, non-directory or missing
+    intermediate component raises InaccessiblePath naming that component, where ENOENT from lstat
+    used to read as absent; the strict resolvers built on it (resolve_working, _store_dir) refuse
+    those shapes and still return None for a genuinely absent path. The py311 variants make
+    pathlib's exists, is_file and is_dir raise PermissionError, as Python 3.11's do, to show the
+    strict probes never consult them."""
+
+    def setUp(self) -> None:
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        import lint_common
+        from unittest import mock
+        self.lc = lint_common
+        self.base = Path(tempfile.mkdtemp(prefix="strictkind-"))
+        self.addCleanup(shutil.rmtree, self.base, True)
+        self.repo = self.base / "grc_library"
+        self.repo.mkdir()
+        p = mock.patch.object(lint_common, "REPO_ROOT", self.repo)
+        p.start()
+        self.addCleanup(p.stop)
+        env = mock.patch.dict(os.environ)
+        env.start()
+        self.addCleanup(env.stop)
+        os.environ.pop("GRC_STORE", None)
+
+    def _py311(self):
+        import contextlib
+        import errno
+        from unittest import mock
+
+        def deny(p, *a, **k):
+            raise PermissionError(errno.EACCES, "Permission denied", str(p))
+        stack = contextlib.ExitStack()
+        for name in ("exists", "is_file", "is_dir"):
+            stack.enter_context(mock.patch.object(Path, name, deny))
+        return stack
+
+    def _assert_names(self, path: Path, component: Path, *, py311: bool = False) -> None:
+        import contextlib
+        with (self._py311() if py311 else contextlib.nullcontext()):
+            with self.assertRaises(self.lc.InaccessiblePath) as ctx:
+                self.lc.strict_kind(path)
+        self.assertEqual(ctx.exception.filename, str(path))
+        self.assertIn(f"at {component}, a path component of {path}", str(ctx.exception))
+
+    def _dangling_working(self) -> Path:
+        private = self.base / "grc_library_private"
+        private.mkdir()
+        working = private / ".working"
+        working.symlink_to(self.base / "no-such-working")
+        return working
+
+    def test_dangling_working_in_usable_sibling(self) -> None:
+        working = self._dangling_working()
+        self._assert_names(working / "DONE.md", working)
+
+    def test_dangling_working_in_usable_sibling_py311(self) -> None:
+        working = self._dangling_working()
+        self._assert_names(working / "DONE.md", working, py311=True)
+        with self._py311(), self.assertRaises(self.lc.InaccessiblePath) as ctx:
+            self.lc.resolve_working("DONE.md", strict=True)
+        # The resolver probes level by level, so it meets .working itself as a dangling entry.
+        self.assertIn(f"dangling symbolic link: '{working}'", str(ctx.exception))
+
+    def test_dangling_parent_in_grc_store(self) -> None:
+        broken = self.base / "broken-parent"
+        broken.symlink_to(self.base / "no-such-parent")
+        self._assert_names(broken / "store", broken)
+        os.environ["GRC_STORE"] = str(broken / "store")
+        with self.assertRaises(self.lc.InaccessiblePath) as ctx:
+            self.lc._store_dir(self.repo, strict=True)
+        self.assertIn(f"at {broken}, a path component", str(ctx.exception))
+        with self._py311(), self.assertRaises(self.lc.InaccessiblePath):
+            self.lc.resolve_working("DONE.md", strict=True)
+        # The default (non-strict) lookup is unchanged: it reads the store as absent.
+        self.assertIsNone(self.lc._store_dir(self.repo))
+
+    def test_non_directory_intermediate_component(self) -> None:
+        afile = self.base / "afile"
+        afile.write_text("not a directory\n", encoding="utf-8")
+        self._assert_names(afile / "store", afile)
+        self._assert_names(afile / "store", afile, py311=True)
+
+    def test_missing_intermediate_component(self) -> None:
+        missing = self.base / "no-such-dir"
+        self._assert_names(missing / "store", missing)
+
+    def test_absent_last_component_is_still_absent(self) -> None:
+        private = self.base / "grc_library_private"
+        (private / ".working").mkdir(parents=True)
+        with self._py311():
+            self.assertIsNone(self.lc.strict_kind(self.base / "no-such-store"))
+            self.assertIsNone(self.lc.strict_kind(private / ".working" / "DONE.md"))
+            self.assertFalse(self.lc._strict_is_dir(self.base / "no-such-store"))
+            os.environ["GRC_STORE"] = str(self.base / "no-such-store")
+            self.assertIsNone(self.lc._store_dir(self.repo, strict=True))
+            self.assertIsNone(self.lc.resolve_working("DONE.md", strict=True))
+            self.assertIsNone(self.lc.resolve_sibling("ref", strict=True))
+
+    def test_absent_working_tree_falls_through_level_by_level(self) -> None:
+        # A usable sibling with no .working, and a repo with no .working: the resolver probes each
+        # level, so the missing .working directory is absent rather than an unusable component.
+        (self.base / "grc_library_private").mkdir()
+        self.assertIsNone(self.lc.resolve_working("DONE.md", strict=True))
+        self.assertIsNone(self.lc.resolve_working("validate-pr/history.md", strict=True))
+        self.assertIsNone(self.lc.strict_kind_under(self.base, "no-such-dir/deeper/x"))
+
+    # 3b677 r7: a trailing separator no longer changes the verdict. os.lstat("link/") follows
+    # the link, so a dangling last component read as absent with one; the docstring says a
+    # dangling last component is present and raises, so both spellings now raise.
+    def test_trailing_separator_gives_the_same_verdict(self) -> None:
+        dang = self.base / "dang"
+        dang.symlink_to(self.base / "no-such-target")
+        for spelling in (str(dang), str(dang) + os.sep, str(dang) + os.sep + os.sep):
+            with self.assertRaises(self.lc.InaccessiblePath, msg=spelling) as ctx:
+                self.lc.strict_kind(spelling)
+            self.assertIn("dangling symbolic link", str(ctx.exception), spelling)
+            self.assertEqual(ctx.exception.filename, spelling)
+        adir, afile = self.base / "adir", self.base / "afile"
+        adir.mkdir()
+        afile.write_text("x\n", encoding="utf-8")
+        (self.base / "dirlink").symlink_to(adir)
+        for name, kind in (("adir", "dir"), ("dirlink", "dir"), ("afile", "file"), ("absent", None)):
+            path = str(self.base / name)
+            self.assertEqual(self.lc.strict_kind(path + os.sep), self.lc.strict_kind(path), name)
+            self.assertEqual(self.lc.strict_kind(path + os.sep), kind, name)
+        self.assertEqual(self.lc.strict_kind(os.sep), "dir")
+
+    # 3b677 r7 GUARD (behaviour unchanged): the docstring now says what the code already did, an
+    # earlier component must also be searchable (os.access X_OK) for the last to read as absent.
+    @unittest.skipIf(os.geteuid() == 0, "root searches a mode-000 directory")
+    def test_unsearchable_intermediate_component_is_not_absence(self) -> None:
+        locked = self.base / "locked"
+        locked.mkdir()
+        locked.chmod(0)
+        self.addCleanup(locked.chmod, 0o700)
+        self._assert_names(locked / "store", locked)
+        with self.assertRaises(self.lc.InaccessiblePath) as ctx:
+            self.lc.strict_kind(locked / "store")
+        self.assertIn("directory not searchable", str(ctx.exception))
+
+    # 3b677 r7: a store directory this account cannot search refuses in _store_dir itself, so the
+    # by-name store's error names the convention and the GRC_STORE override, where it used to be
+    # returned and refused later, by resolve_working, without that text.
+    @unittest.skipIf(os.geteuid() == 0, "root searches a mode-000 directory")
+    def test_unsearchable_store_directory_refuses_in_store_dir(self) -> None:
+        store = self.base / "private"
+        store.mkdir()
+        (store / "DONE.md").write_text("not read\n", encoding="utf-8")
+        store.chmod(0)
+        self.addCleanup(store.chmod, 0o700)
+        for call in (lambda: self.lc._store_dir(self.repo, strict=True),
+                     lambda: self.lc.resolve_working("DONE.md", strict=True)):
+            with self.assertRaises(self.lc.InaccessiblePath) as ctx:
+                call()
+            self.assertIn("present but not searchable", str(ctx.exception))
+            self.assertIn("<repo-parent>/private is the operational store by name", str(ctx.exception))
+            self.assertEqual(ctx.exception.filename, str(store))
+        os.environ["GRC_STORE"] = str(store)
+        with self.assertRaises(self.lc.InaccessiblePath) as ctx:
+            self.lc._store_dir(self.repo, strict=True)
+        self.assertIn("present but not searchable", str(ctx.exception))
+        self.assertNotIn("operational store by name", str(ctx.exception))
+        # The default (non-strict) lookup is unchanged.
+        self.assertEqual(self.lc._store_dir(self.repo), store)
+
+
+class BrokenSiblingCallerTests(unittest.TestCase):
+    """Each converted caller of resolve_sibling refuses a present but unusable sibling with exit 2
+    and a named message, rather than taking the absent-sibling skip or no-op (gates 78, 81 and 90)
+    or reporting the sibling or its first file absent (the two builders). Every caller meets each
+    shape: a regular file and a dangling link in the sibling's place, a mode-000 directory, and a
+    directory whose entries cannot be examined (os.lstat, os.stat and open denied beneath it) as
+    Python 3.11 reports it, where pathlib's is_file raises PermissionError, and as 3.12+ reports
+    it, where is_file returns False (3b677). The real resolvers run against a temp tree, gate 78's
+    DONE.md lookup (resolve_working) included: lint_common.REPO_ROOT and the module's own
+    REPO_ROOT point at a fixture repository, and GRC_STORE is cleared so the store default is the
+    fixture's absent <base>/private.
+
+    Round 3 (3b677): the py311 shape imitates Python 3.11 throughout, with pathlib's exists, is_file
+    and is_dir raising PermissionError beneath the sibling; gate 78 meets a dangling and an
+    unsearchable DONE.md ledger inside a usable sibling; and each caller that reads a P-TODO.md,
+    DONE.md, catalogue or held source meets one that is not valid UTF-8. Each refuses with exit 2
+    naming the path and no traceback. Every py311 case fails on main; the gate 81 and builder
+    py311 cases pass on round 2 (ec25c21b3), so they pin round 2's change, while gate 78's py311
+    case and the ledger and UTF-8 cases fail on round 2 and pin round 3's."""
+
+    UNUSABLE = "present but unusable"
+    # The file each caller reads first inside its sibling.
+    FIRST_READ = {"grc_library_private": "P-TODO.md", "grc_library_ref": "catalogue.yml"}
+    CALLERS = {
+        "gate78": ("lint-todo-number-permanence.py", "grc_library_private"),
+        "gate81": ("lint-todo-list-tag.py", "grc_library_private"),
+        "gate90": ("lint-todo-index-reference-parity.py", "grc_library_private"),
+        "manifest": ("build-reference-manifest.py", "grc_library_ref"),
+        "registry": ("build-alignment-citation-registry.py", "grc_library_ref"),
+    }
+
+    def setUp(self) -> None:
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        import lint_common
+        self.lc = lint_common
+        self.base = Path(tempfile.mkdtemp(prefix="brokensib-"))
+        self.addCleanup(shutil.rmtree, self.base, True)
+        self.repo = self.base / "grc_library"
+        self.repo.mkdir()
+        (self.repo / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
+        prev = os.environ.pop("GRC_STORE", None)
+        if prev is not None:
+            self.addCleanup(os.environ.__setitem__, "GRC_STORE", prev)
+
+    def _sibling(self, sibling: str, shape: str) -> Path:
+        path = self.base / sibling
+        if shape == "file":
+            path.write_text("not a checkout\n", encoding="utf-8")
+        elif shape == "dangling":
+            path.symlink_to(self.base / "no-such-target")
+        else:
+            path.mkdir()
+            (path / self.FIRST_READ[sibling]).write_text("not read\n", encoding="utf-8")
+            if shape == "mode000":
+                path.chmod(0)
+                # Runs before the rmtree cleanup registered in setUp (cleanups are LIFO).
+                self.addCleanup(path.chmod, 0o700)
+        return path
+
+    def _denied_beneath(self, root: Path, *, is_file_raises: bool, py311: bool = False):
+        """Deny every probe of a path beneath ``root``, as an unsearchable directory does.
+        ``py311`` also makes pathlib's exists, is_file and is_dir raise PermissionError there, as
+        Python 3.11's do (3.12+ return False)."""
+        import builtins
+        import contextlib
+        import errno
+        import io
+        from unittest.mock import patch
+        prefix = str(root) + os.sep
+        real_lstat, real_stat, real_open, real_is_file = os.lstat, os.stat, io.open, Path.is_file
+        real_exists, real_is_dir = Path.exists, Path.is_dir
+
+        def beneath(p) -> bool:
+            try:
+                return os.fspath(p).startswith(prefix)
+            except TypeError:  # a file descriptor
+                return False
+
+        def deny(p):
+            raise PermissionError(errno.EACCES, "Permission denied", os.fspath(p))
+
+        def lstat(p, *a, **k):
+            return deny(p) if beneath(p) else real_lstat(p, *a, **k)
+
+        def stat(p, *a, **k):
+            return deny(p) if beneath(p) else real_stat(p, *a, **k)
+
+        def open_(p, *a, **k):
+            return deny(p) if beneath(p) else real_open(p, *a, **k)
+
+        def is_file(p, *a, **k):
+            if not beneath(p):
+                return real_is_file(p, *a, **k)
+            if is_file_raises or py311:
+                deny(p)
+            return False
+
+        def exists(p, *a, **k):
+            return deny(p) if beneath(p) else real_exists(p, *a, **k)
+
+        def is_dir(p, *a, **k):
+            return deny(p) if beneath(p) else real_is_dir(p, *a, **k)
+        stack = contextlib.ExitStack()
+        stack.enter_context(patch.object(os, "lstat", lstat))
+        stack.enter_context(patch.object(os, "stat", stat))
+        stack.enter_context(patch.object(io, "open", open_))
+        stack.enter_context(patch.object(builtins, "open", open_))
+        stack.enter_context(patch.object(Path, "is_file", is_file))
+        if py311:
+            stack.enter_context(patch.object(Path, "exists", exists))
+            stack.enter_context(patch.object(Path, "is_dir", is_dir))
+        return stack
+
+    def _run(self, fname: str, call, context=None, **patches) -> tuple[int, str, str]:
+        import io
+        import contextlib
+        from unittest.mock import patch
+        mod = load_linter_module(f"tools/{fname}", "_brokensib_" + fname.replace("-", "_")[:-3])
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(patch.object(self.lc, "REPO_ROOT", self.repo))
+            for name, value in patches.items():
+                stack.enter_context(patch.object(mod, name, value))
+            stack.enter_context(patch.object(sys, "argv", [fname]))
+            stack.enter_context(contextlib.redirect_stdout(out))
+            stack.enter_context(contextlib.redirect_stderr(err))
+            if context is not None:
+                stack.enter_context(context)
+            rc = call(mod)
+        return rc, out.getvalue(), err.getvalue()
+
+    def _call(self, key: str, context=None) -> tuple[int, str, str]:
+        fname = self.CALLERS[key][0]
+        if key in ("gate78", "gate81", "gate90"):
+            return self._run(fname, lambda m: m.main([fname]), context, REPO_ROOT=self.repo)
+        if key == "manifest":
+            return self._run(fname, lambda m: m.main(), context)
+        return self._run(fname, lambda m: m.main([fname, "--check"]), context)
+
+    def _assert_refused(self, key: str, rc: int, out: str, err: str, phrase: str) -> None:
+        fname, sibling = self.CALLERS[key]
+        self.assertEqual(rc, 2, f"{fname}\n{out}{err}")
+        self.assertIn(phrase, err, f"{fname}\n{err}")
+        self.assertIn(str(self.base / sibling), err, fname)
+        self.assertNotIn("Traceback", out + err, fname)
+        self.assertNotIn("DEGRADED:", out, fname)
+        self.assertNotIn(f"{self.FIRST_READ[sibling]} not present", out + err, fname)
+        self.assertNotIn("not found", err, fname)
+        self.assertNotIn("no-op", out, fname)
+
+    def _check(self, key: str, shape: str) -> None:
+        sibling = self._sibling(self.CALLERS[key][1], shape)
+        context = None
+        if shape in ("raises", "false", "py311"):
+            context = self._denied_beneath(sibling, is_file_raises=shape == "raises",
+                                           py311=shape == "py311")
+        rc, out, err = self._call(key, context)
+        # Gate 90 reads an unexaminable sibling through its own probe (3b641 r2), which says
+        # it cannot read the path rather than calling the sibling unusable.
+        # Gate 78 meets the sibling first in its DONE.md lookup, whose refusal lets the lookup's
+        # own message through (3b677 r7).
+        phrase = "cannot read" if key == "gate90" and shape not in ("file", "dangling") \
+            else self.LEDGER_REFUSED if key == "gate78" else self.UNUSABLE
+        self._assert_refused(key, rc, out, err, phrase)
+
+    ROOT_SKIP = "root ignores directory permission bits, so a mode-000 directory stays usable"
+
+    def test_gate78_regular_file(self) -> None:
+        self._check("gate78", "file")
+
+    def test_gate78_dangling_link(self) -> None:
+        self._check("gate78", "dangling")
+
+    @unittest.skipIf(os.geteuid() == 0, ROOT_SKIP)
+    def test_gate78_unreadable_directory(self) -> None:
+        self._check("gate78", "mode000")
+
+    def test_gate78_is_file_raises(self) -> None:
+        self._check("gate78", "raises")
+
+    def test_gate78_is_file_false(self) -> None:
+        self._check("gate78", "false")
+
+    def test_gate78_py311_pathlib_raises(self) -> None:
+        self._check("gate78", "py311")
+
+    def test_gate81_regular_file(self) -> None:
+        self._check("gate81", "file")
+
+    def test_gate81_dangling_link(self) -> None:
+        self._check("gate81", "dangling")
+
+    @unittest.skipIf(os.geteuid() == 0, ROOT_SKIP)
+    def test_gate81_unreadable_directory(self) -> None:
+        self._check("gate81", "mode000")
+
+    def test_gate81_is_file_raises(self) -> None:
+        self._check("gate81", "raises")
+
+    def test_gate81_is_file_false(self) -> None:
+        self._check("gate81", "false")
+
+    def test_gate81_py311_pathlib_raises(self) -> None:
+        self._check("gate81", "py311")
+
+    def test_gate90_regular_file(self) -> None:
+        self._check("gate90", "file")
+
+    def test_gate90_dangling_link(self) -> None:
+        self._check("gate90", "dangling")
+
+    # The next three guard PRE-EXISTING behaviour: gate 90's own probe (3b641 r2) already refused
+    # these shapes before 3b677, and they pass on main. They are regression guards, not tests of
+    # this branch's change.
+    @unittest.skipIf(os.geteuid() == 0, ROOT_SKIP)
+    def test_gate90_preexisting_unreadable_directory(self) -> None:
+        self._check("gate90", "mode000")
+
+    def test_gate90_preexisting_is_file_raises(self) -> None:
+        self._check("gate90", "raises")
+
+    def test_gate90_preexisting_is_file_false(self) -> None:
+        self._check("gate90", "false")
+
+    def test_build_reference_manifest_regular_file(self) -> None:
+        self._check("manifest", "file")
+
+    def test_build_reference_manifest_dangling_link(self) -> None:
+        self._check("manifest", "dangling")
+
+    @unittest.skipIf(os.geteuid() == 0, ROOT_SKIP)
+    def test_build_reference_manifest_unreadable_directory(self) -> None:
+        self._check("manifest", "mode000")
+
+    def test_build_reference_manifest_is_file_raises(self) -> None:
+        self._check("manifest", "raises")
+
+    def test_build_reference_manifest_is_file_false(self) -> None:
+        self._check("manifest", "false")
+
+    def test_build_reference_manifest_py311_pathlib_raises(self) -> None:
+        self._check("manifest", "py311")
+
+    def test_build_alignment_citation_registry_regular_file(self) -> None:
+        self._check("registry", "file")
+
+    def test_build_alignment_citation_registry_dangling_link(self) -> None:
+        self._check("registry", "dangling")
+
+    @unittest.skipIf(os.geteuid() == 0, ROOT_SKIP)
+    def test_build_alignment_citation_registry_unreadable_directory(self) -> None:
+        self._check("registry", "mode000")
+
+    def test_build_alignment_citation_registry_is_file_raises(self) -> None:
+        self._check("registry", "raises")
+
+    def test_build_alignment_citation_registry_is_file_false(self) -> None:
+        self._check("registry", "false")
+
+    def test_build_alignment_citation_registry_py311_pathlib_raises(self) -> None:
+        self._check("registry", "py311")
+
+    def _ledger(self) -> Path:
+        """A usable private sibling holding a .working directory, for gate 78's DONE.md lookup."""
+        working = self.base / "grc_library_private" / ".working"
+        working.mkdir(parents=True)
+        return working
+
+    # 3b677 r7: gate 78 lets the lookup's own message through, which names the cause, rather
+    # than calling every refused store "present" (a missing component is not).
+    LEDGER_REFUSED = "cannot look up DONE.md in the private store"
+
+    def _assert_ledger_refused(self, rc: int, out: str, err: str, path: Path) -> None:
+        self.assertEqual(rc, 2, out + err)
+        self.assertIn(self.LEDGER_REFUSED, err)
+        self.assertIn(str(path), err)
+        self.assertNotIn("Traceback", out + err)
+        self.assertNotIn("DEGRADED:", out)
+        self.assertNotIn("DONE.md not present", out)
+
+    def test_gate78_dangling_ledger(self) -> None:
+        done = self._ledger() / "DONE.md"
+        done.symlink_to(self.base / "no-such-ledger")
+        self._assert_ledger_refused(*self._call("gate78"), done)
+
+    @unittest.skipIf(os.geteuid() == 0, ROOT_SKIP)
+    def test_gate78_unsearchable_ledger_directory(self) -> None:
+        working = self._ledger()
+        (working / "DONE.md").write_text("not read\n", encoding="utf-8")
+        working.chmod(0)
+        self.addCleanup(working.chmod, 0o700)
+        self._assert_ledger_refused(*self._call("gate78"), working)
+
+    def test_gate78_unsearchable_ledger_is_file_false(self) -> None:
+        # As Python 3.12+ reports an unsearchable .working: pathlib's probes return False.
+        working = self._ledger()
+        context = self._denied_beneath(working, is_file_raises=False)
+        self._assert_ledger_refused(*self._call("gate78", context), working)
+
+    def test_gate78_unsearchable_ledger_py311(self) -> None:
+        # As Python 3.11 reports it: pathlib's exists, is_file and is_dir raise PermissionError.
+        working = self._ledger()
+        context = self._denied_beneath(working, is_file_raises=True, py311=True)
+        self._assert_ledger_refused(*self._call("gate78", context), working)
+
+    BAD_UTF8 = b"| ID | Item | Tags |\n\xff\xfe not UTF-8\n"
+
+    def _assert_undecodable(self, key: str, path: Path) -> None:
+        rc, out, err = self._call(key)
+        self.assertEqual(rc, 2, f"{key}\n{out}{err}")
+        self.assertIn("cannot decode", err, key)
+        self.assertIn(str(path), err, key)
+        self.assertNotIn("Traceback", out + err, key)
+        # No DEGRADED assertion: gate 78 rightly reports the OTHER, genuinely absent input
+        # (DONE.md or P-TODO.md) as skipped before it reads this one; exit 2 is the verdict.
+
+    def test_gate78_undecodable_ptodo(self) -> None:
+        private = self.base / "grc_library_private"
+        private.mkdir()
+        (private / "P-TODO.md").write_bytes(self.BAD_UTF8)
+        self._assert_undecodable("gate78", private / "P-TODO.md")
+
+    def test_gate78_undecodable_ledger(self) -> None:
+        done = self._ledger() / "DONE.md"
+        done.write_bytes(self.BAD_UTF8)
+        self._assert_undecodable("gate78", done)
+
+    def test_gate81_undecodable_ptodo(self) -> None:
+        private = self.base / "grc_library_private"
+        private.mkdir()
+        (private / "P-TODO.md").write_bytes(self.BAD_UTF8)
+        self._assert_undecodable("gate81", private / "P-TODO.md")
+
+    def test_build_reference_manifest_undecodable_catalogue(self) -> None:
+        ref = self.base / "grc_library_ref"
+        ref.mkdir()
+        (ref / "catalogue.yml").write_bytes(b"entries:\n  - id: \xff\xfe\n")
+        self._assert_undecodable("manifest", ref / "catalogue.yml")
+
+    def test_build_alignment_citation_registry_undecodable_source(self) -> None:
+        mod = load_linter_module("tools/build-alignment-citation-registry.py", "_brokensib_registry_src")
+        src = self.base / "grc_library_ref" / mod.ASVS_SRC
+        src.parent.mkdir(parents=True)
+        src.write_bytes(b"chapter_id,section_id,req_id\n\xff\xfe,1,1\n")
+        self._assert_undecodable("registry", src)
+
+    def test_absent_first_read_keeps_its_behaviour(self) -> None:
+        # A usable sibling without the file is not unusable: gates 78 and 81 still scan TODO.md
+        # only, gate 78 still skips the recycled-number check for an absent DONE.md (the real
+        # lookup runs), and the manifest still reports the catalogue missing.
+        for sibling in ("grc_library_private", "grc_library_ref"):
+            (self.base / sibling).mkdir()
+        for key in ("gate78", "gate81"):
+            rc, out, err = self._call(key)
+            self.assertEqual(rc, 0, f"{key}\n{out}{err}")
+            self.assertIn("P-TODO.md not present", out, key)
+        rc, out, err = self._call("gate78")
+        self.assertIn("DONE.md not present", out)
+        rc, out, err = self._call("manifest")
+        self.assertEqual(rc, 2, out + err)
+        self.assertIn("not found", err)
+        self.assertNotIn(self.UNUSABLE, err)
+
+    # 3b677 r5: with GRC_STORE unset, <repo-parent>/private is the operational store by name alone
+    # (lint_common._store_root), so an unrelated `private` entry beside a clone with no sibling is
+    # the store and gate 78 still refuses it; the error now names that convention and the override.
+    STORE_CONVENTION = "<repo-parent>/private is the operational store by name"
+
+    def _assert_store_refused(self, rc: int, out: str, err: str, store: Path, *, by_name: bool) -> None:
+        self.assertEqual(rc, 2, out + err)
+        self.assertIn(self.LEDGER_REFUSED, err)
+        self.assertIn(str(store), err)
+        self.assertNotIn("Traceback", out + err)
+        self.assertNotIn("DONE.md not present", out)
+        if by_name:
+            self.assertIn(self.STORE_CONVENTION, err)
+            self.assertIn("GRC_STORE", err)
+        else:
+            self.assertNotIn(self.STORE_CONVENTION, err)
+
+    def test_gate78_unrelated_private_file_beside_clone_names_convention(self) -> None:
+        store = self.base / "private"
+        store.write_text("an adopter's unrelated file\n", encoding="utf-8")
+        self.assertFalse((self.base / "grc_library_private").exists())
+        self._assert_store_refused(*self._call("gate78"), store, by_name=True)
+
+    def test_gate78_dangling_private_link_beside_clone_names_convention(self) -> None:
+        store = self.base / "private"
+        store.symlink_to(self.base / "no-such-store")
+        self._assert_store_refused(*self._call("gate78"), store, by_name=True)
+
+    def test_gate78_grc_store_elsewhere_leaves_unrelated_private_file(self) -> None:
+        # The override the error names: GRC_STORE selects the store, so an absent selected store
+        # takes the absent-ledger skip and the unrelated `private` file is not probed.
+        from unittest import mock
+        (self.base / "private").write_text("unrelated\n", encoding="utf-8")
+        env = mock.patch.dict(os.environ, {"GRC_STORE": str(self.base / "no-store")})
+        rc, out, err = self._call("gate78", env)
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("DONE.md not present", out)
+
+    def test_gate78_configured_store_unusable_refuses(self) -> None:
+        # A store selected by GRC_STORE that is present but unusable still refuses, naming the
+        # configured path rather than the by-name convention.
+        from unittest import mock
+        store = self.base / "configured-store"
+        store.write_text("not a directory\n", encoding="utf-8")
+        env = mock.patch.dict(os.environ, {"GRC_STORE": str(store)})
+        self._assert_store_refused(*self._call("gate78", env), store, by_name=False)
+
+    def test_gate78_default_store_with_unusable_ledger_refuses(self) -> None:
+        # A usable default store whose DONE.md is a dangling link is a genuine store that is
+        # unusable: gate 78 refuses with exit 2 naming the ledger.
+        store = self.base / "private"
+        store.mkdir()
+        done = store / "DONE.md"
+        done.symlink_to(self.base / "no-such-ledger")
+        self._assert_ledger_refused(*self._call("gate78"), done)
+
+    # 3b677 r6: strict_kind reads only a missing LAST component as absent, so a dangling,
+    # non-directory or missing intermediate component refuses, naming that component.
+    def _py311_pathlib(self, root: Path):
+        """Python 3.11's pathlib exists, is_file and is_dir, raising PermissionError at or beneath
+        ``root`` (3.12+ return False); every other path keeps the real call."""
+        import contextlib
+        import errno
+        from unittest import mock
+        stack = contextlib.ExitStack()
+        for name in ("exists", "is_file", "is_dir"):
+            def probe(p, *a, _real=getattr(Path, name), **k):
+                if str(p) == str(root) or str(p).startswith(str(root) + os.sep):
+                    raise PermissionError(errno.EACCES, "Permission denied", str(p))
+                return _real(p, *a, **k)
+            stack.enter_context(mock.patch.object(Path, name, probe))
+        return stack
+
+    def _assert_component_refused(self, rc: int, out: str, err: str, component: Path) -> None:
+        self._assert_ledger_refused(rc, out, err, component)
+        self.assertIn(f"at {component}, a path component", err)
+
+    def test_gate78_dangling_working_in_usable_sibling(self) -> None:
+        private = self.base / "grc_library_private"
+        private.mkdir()
+        working = private / ".working"
+        working.symlink_to(self.base / "no-such-working")
+        self._assert_dangling_working_refused(*self._call("gate78"), working)
+
+    def _assert_dangling_working_refused(self, rc: int, out: str, err: str, working: Path) -> None:
+        # resolve_working probes level by level, so it names .working itself as a dangling entry.
+        self._assert_ledger_refused(rc, out, err, working)
+        self.assertIn(f"dangling symbolic link: '{working}'", err)
+
+    def test_gate78_dangling_working_in_usable_sibling_py311(self) -> None:
+        private = self.base / "grc_library_private"
+        private.mkdir()
+        working = private / ".working"
+        working.symlink_to(self.base / "no-such-working")
+        self._assert_dangling_working_refused(
+            *self._call("gate78", self._py311_pathlib(private)), working)
+
+    def _grc_store(self, value: Path):
+        from unittest import mock
+        return mock.patch.dict(os.environ, {"GRC_STORE": str(value)})
+
+    def test_gate78_grc_store_dangling_parent(self) -> None:
+        broken = self.base / "broken-parent"
+        broken.symlink_to(self.base / "no-such-parent")
+        self._assert_component_refused(*self._call("gate78", self._grc_store(broken / "store")),
+                                       broken)
+
+    def test_gate78_grc_store_dangling_parent_py311(self) -> None:
+        import contextlib
+        broken = self.base / "broken-parent"
+        broken.symlink_to(self.base / "no-such-parent")
+        context = contextlib.ExitStack()
+        context.enter_context(self._grc_store(broken / "store"))
+        context.enter_context(self._py311_pathlib(broken))
+        self._assert_component_refused(*self._call("gate78", context), broken)
+
+    def test_gate78_grc_store_non_directory_parent(self) -> None:
+        afile = self.base / "afile"
+        afile.write_text("not a directory\n", encoding="utf-8")
+        self._assert_component_refused(*self._call("gate78", self._grc_store(afile / "store")),
+                                       afile)
+
+    def test_gate78_grc_store_missing_parent_is_not_called_present(self) -> None:
+        # 3b677 r7: nothing is present behind a missing intermediate component, so the refusal
+        # lets lint_common's message through instead of calling the store "present but unusable".
+        missing = self.base / "no-such-dir"
+        rc, out, err = self._call("gate78", self._grc_store(missing / "store"))
+        self._assert_component_refused(rc, out, err, missing)
+        self.assertIn("missing intermediate component", err)
+        self.assertNotIn("present", err)
+
+    @unittest.skipIf(os.geteuid() == 0, ROOT_SKIP)
+    def test_gate78_unsearchable_default_store_names_convention(self) -> None:
+        # 3b677 r7: a mode-000 <repo-parent>/private passed _strict_is_dir and was refused later,
+        # from inside it, without the by-name convention text the _store_dir docstring promises.
+        store = self.base / "private"
+        store.mkdir()
+        (store / "DONE.md").write_text("not read\n", encoding="utf-8")
+        store.chmod(0)
+        self.addCleanup(store.chmod, 0o700)
+        rc, out, err = self._call("gate78")
+        self._assert_store_refused(rc, out, err, store, by_name=True)
+        self.assertIn("present but not searchable", err)
+
+    def test_gate78_absent_last_component_still_skips(self) -> None:
+        # Genuinely absent: a configured store whose last component is missing, and a usable
+        # sibling whose .working holds no DONE.md, keep the absent-ledger skip (exit 0).
+        (self.base / "grc_library_private" / ".working").mkdir(parents=True)
+        rc, out, err = self._call("gate78", self._grc_store(self.base / "no-such-store"))
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("DONE.md not present", out)
+        self.assertNotIn("Traceback", out + err)
+
+
+class AlignmentCitationRegistryCsvErrorTests(unittest.TestCase):
+    """tools/build-alignment-citation-registry.py refuses a source the csv module refuses with exit
+    2, no traceback, and one stderr line naming the file, the physical line the csv module was
+    parsing and its error (3b677 r7, r8). A field over the csv module's limit is the only csv.Error
+    found there: the default (non-strict) dialect raised no other on fuzzed input. Each case asserts the whole message, so a wrong line number
+    fails: reader.line_num, which r7 printed, is the end of the last completed record, one too low
+    for a one-line record and further off when a quoted field spans lines. The real resolver runs
+    against a temp tree (lint_common.REPO_ROOT points at a fixture repository beside it)."""
+
+    SCRIPT = "build-alignment-citation-registry.py"
+    HEADER = "chapter_id,section_id,req_id"
+
+    def setUp(self) -> None:
+        import csv
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        import lint_common
+        self.lc = lint_common
+        self.base = Path(tempfile.mkdtemp(prefix="registrycsv-"))
+        self.addCleanup(shutil.rmtree, self.base, True)
+        self.repo = self.base / "grc_library"
+        self.repo.mkdir()
+        prev = os.environ.pop("GRC_STORE", None)
+        if prev is not None:
+            self.addCleanup(os.environ.__setitem__, "GRC_STORE", prev)
+        self.limit = csv.field_size_limit()
+        self.big = "x" * (self.limit + 1)
+        self.mod = load_linter_module(f"tools/{self.SCRIPT}", "_registrycsv_registry")
+        self.src = self.base / "grc_library_ref" / self.mod.ASVS_SRC
+        self.src.parent.mkdir(parents=True)
+
+    def _refused_at(self, text: str, line: int) -> None:
+        import contextlib
+        import io
+        from unittest.mock import patch
+        # newline="" keeps each fixture's own line endings (CRLF and lone CR included).
+        with self.src.open("w", encoding="utf-8", newline="") as fh:
+            fh.write(text)
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(patch.object(self.lc, "REPO_ROOT", self.repo))
+            stack.enter_context(patch.object(sys, "argv", [self.SCRIPT]))
+            stack.enter_context(contextlib.redirect_stdout(out))
+            stack.enter_context(contextlib.redirect_stderr(err))
+            rc = self.mod.main([self.SCRIPT, "--check"])
+        out, err = out.getvalue(), err.getvalue()
+        self.assertEqual(rc, 2, out + err)
+        self.assertEqual(err, f"build-alignment-citation-registry: {self.src}: malformed CSV at line "
+                              f"{line} (field larger than field limit ({self.limit}))\n")
+        self.assertEqual(out, "")
+
+    def test_field_over_limit_in_header(self) -> None:
+        self._refused_at(f"chapter_id,section_id,{self.big}\nV1,V1.1,V1.1.1\n", 1)
+
+    def test_field_over_limit_on_first_data_line(self) -> None:
+        # The reviewed case: r7 printed line 1.
+        self._refused_at(f"{self.HEADER}\nV1,V1.1,{self.big}\n", 2)
+
+    def test_field_over_limit_on_later_line(self) -> None:
+        self._refused_at(f"{self.HEADER}\nV1,V1.1,V1.1.1\nV1,V1.1,V1.1.2\nV1,V1.1,{self.big}\n"
+                         "V1,V1.1,V1.1.4\n", 4)
+
+    def test_field_over_limit_after_blank_line(self) -> None:
+        self._refused_at(f"{self.HEADER}\nV1,V1.1,V1.1.1\n\nV1,V1.1,{self.big}\n", 4)
+
+    def test_field_over_limit_on_last_line_without_newline(self) -> None:
+        self._refused_at(f"{self.HEADER}\nV1,V1.1,V1.1.1\nV1,V1.1,{self.big}", 3)
+
+    def test_quoted_field_crossing_limit_on_a_later_physical_line(self) -> None:
+        # The record starts on line 3; its quoted field passes the limit on line 5, where the csv
+        # module raises (r7 printed line 2, the end of the last completed record).
+        third = self.limit // 3
+        self._refused_at(f'{self.HEADER}\nV1,V1.1,V1.1.1\nV1,V1.1,"{"y" * third}\n{"y" * third}\n'
+                         f'{"y" * self.limit}"\nV1,V1.1,V1.1.4\n', 5)
+
+    def test_quoted_field_unterminated_at_end_of_file(self) -> None:
+        third = self.limit // 3
+        self._refused_at(f'{self.HEADER}\nV1,V1.1,"{"y" * third}\n{"y" * self.limit}', 3)
+
+    def test_field_over_limit_with_crlf_and_cr_line_endings(self) -> None:
+        for eol in ("\r\n", "\r"):
+            with self.subTest(eol=repr(eol)):
+                self._refused_at(eol.join([self.HEADER, "V1,V1.1,V1.1.1", f"V1,V1.1,{self.big}",
+                                           ""]), 3)
+
+
 class ResolveSiblingStoreIsolationTests(unittest.TestCase):
     """The resolver tests must ignore a caller's external store."""
 
@@ -40896,7 +41752,7 @@ class WorkingResolveNoOpTests(unittest.TestCase):
         orig_argv = sys.argv
         buf = io.StringIO()
         try:
-            mod.resolve_working = lambda rel: None
+            mod.resolve_working = lambda rel, **_kw: None  # gate 78 passes strict=True (3b677)
             sys.argv = [fname]
             with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
                 rc = call(mod)
@@ -40993,7 +41849,7 @@ class StoreDegradedNoticeTests(unittest.TestCase):
         path.write_text(text, encoding="utf-8")
         return path
 
-    def _present(self, rel: str) -> "Path | None":
+    def _present(self, rel: str, **_kw) -> "Path | None":
         cand = self.store / rel
         return cand if cand.exists() else None
 
@@ -41013,7 +41869,7 @@ class StoreDegradedNoticeTests(unittest.TestCase):
         from unittest.mock import patch
         mod = self._load(fname)
         if "resolve_working" not in patches and hasattr(mod, "resolve_working"):
-            patches["resolve_working"] = (lambda rel: None) if absent else self._present
+            patches["resolve_working"] = (lambda rel, **_kw: None) if absent else self._present
         buf, err = io.StringIO(), io.StringIO()
         with contextlib.ExitStack() as stack:
             for name, value in patches.items():
@@ -41162,16 +42018,16 @@ class StoreDegradedNoticeTests(unittest.TestCase):
         (sibling / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX, encoding="utf-8")
         self._check("gate 78", "lint-todo-number-permanence.py",
                     lambda m: m.main(["lint-todo-number-permanence.py"]),
-                    absent_patches={"resolve_sibling": lambda name: None},
-                    present_patches={"resolve_sibling": lambda name: sibling})
+                    absent_patches={"resolve_sibling": lambda name, **_kw: None},
+                    present_patches={"resolve_sibling": lambda name, **_kw: sibling})
 
     def test_gate81_todo_list_tag(self) -> None:
         sibling = self.store / "grc_library_private"
         sibling.mkdir()
         (sibling / "P-TODO.md").write_text(TodoIndexReferenceParityTests.PIDX, encoding="utf-8")
         self._check("gate 81", "lint-todo-list-tag.py", lambda m: m.main(["lint-todo-list-tag.py"]),
-                    absent_patches={"resolve_sibling": lambda name: None},
-                    present_patches={"resolve_sibling": lambda name: sibling})
+                    absent_patches={"resolve_sibling": lambda name, **_kw: None},
+                    present_patches={"resolve_sibling": lambda name, **_kw: sibling})
 
     def test_gate90_todo_index_reference_parity(self) -> None:
         sibling = self.store / "grc_library_private"
@@ -41187,8 +42043,8 @@ class StoreDegradedNoticeTests(unittest.TestCase):
         (repo / "TODO.md").write_text(TodoIndexReferenceParityTests.IDX, encoding="utf-8")
         self._check("gate 90", "lint-todo-index-reference-parity.py",
                     lambda m: m.main(["lint-todo-index-reference-parity.py"]),
-                    absent_patches={"resolve_sibling": lambda name: None, "REPO_ROOT": repo},
-                    present_patches={"resolve_sibling": lambda name: sibling})
+                    absent_patches={"resolve_sibling": lambda name, **_kw: None, "REPO_ROOT": repo},
+                    present_patches={"resolve_sibling": lambda name, **_kw: sibling})
 
     def test_gate90_root_run_prints_no_degraded_line(self) -> None:
         # Gate 90 is aligned with gates 78 and 81: a --root run is a fixture run, so an absent
@@ -41662,7 +42518,7 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
         # the finally so this test does not pollute later tests (e.g.
         # ResolveSiblingTests) that rely on the real function.
         old_resolve = mod.lint_common.resolve_sibling
-        mod.lint_common.resolve_sibling = lambda name: None
+        mod.lint_common.resolve_sibling = lambda name, **_kw: None
         old_argv = sys.argv
         try:
             sys.argv = ["build-reference-manifest.py"]
@@ -44470,6 +45326,30 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                         self.assertEqual(result.returncode, 1, report)
                         self.assertIn("FAIL changelog-details/CHANGELOG-detailed.md: em/en dash "
                                       "in prose", report)
+
+    def test_a_store_behind_a_missing_component_is_not_called_may_exist(self):
+        # 3b677 r7: _inaccessible_reason said "may exist but this account cannot examine it" for
+        # every errno but ENOTDIR, so a GRC_STORE behind a missing (or dangling) intermediate
+        # component, which strict_kind refuses with ENOENT naming it, got a misleading message.
+        with tempfile.TemporaryDirectory() as td:
+            td = os.path.realpath(td)
+            root, env, git = self._cli_fixture(td)
+            (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+            git("add", "-A")
+            git("commit", "-q", "--no-verify", "-m", "init")
+            (Path(td) / "dangling").symlink_to(Path(td) / "no-such-target")
+            for parent, why in (("no-such-dir", "missing intermediate component"),
+                                ("dangling", "dangling symbolic link")):
+                for staged in (True, False):
+                    with self.subTest(parent=parent, staged=staged):
+                        store = Path(td) / parent / "ops"
+                        result = self._aid(root, env, staged, {"GRC_STORE": str(store)})
+                        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                        self.assertRegex(result.stderr, r"^ERROR: the operational store "
+                                         + re.escape(str(store)) + r" cannot be used \(" + why
+                                         + r" \(at " + re.escape(str(Path(td) / parent))
+                                         + r", a path component .*\n$")
+                        self.assertNotIn("may exist", result.stderr)
 
     def _init_fixture(self, td):
         """``_cli_fixture`` with CHANGELOG.md committed; returns its root and environment."""
@@ -49265,6 +50145,49 @@ class TodoNumberPermanenceTests(LinterTestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
+    def test_skip_and_degraded_name_which_absence_3b677(self) -> None:
+        """3b677: the default run skips P-TODO.md for an absent private sibling AND for a usable
+        sibling with no P-TODO.md in it. The skip line and the DEGRADED notice each name the case
+        that applies, so the second never reads as "no private sibling". Exit status is 0 in both."""
+        import contextlib
+        root = Path(tempfile.mkdtemp(prefix="perm-3b677-why-", dir=FIXTURE_DIR))
+        try:
+            (root / "TODO.md").write_text(
+                "# TODO\n\n| ID | Item | Tags |\n| --- | --- | --- |\n| 2.3 | A public item | `[public]` |\n",
+                encoding="utf-8")
+            sibling = root / "private"
+            sibling.mkdir()
+            cases = (
+                (None,
+                 "OK: P-TODO.md not present (no private sibling; public-only clone / adopter checkout). "
+                 "Scanning TODO.md only.",
+                 "the P-TODO.md live ids and cross-list duplicate check (no private sibling supplies it)",
+                 "has no P-TODO.md"),
+                (sibling,
+                 f"OK: P-TODO.md not present (the private sibling {sibling} has no P-TODO.md). "
+                 f"Scanning TODO.md only.",
+                 "the P-TODO.md live ids and cross-list duplicate check "
+                 "(the private sibling has no P-TODO.md)",
+                 "no private sibling"),
+            )
+            for resolved, skip, degraded, wrong in cases:
+                m = self._perm_module()
+                m.REPO_ROOT = root
+                m.resolve_working = lambda _rel, **_kw: None
+                m.resolve_sibling = lambda _name, _s=resolved, **_kw: _s
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    rc = m.main(["lint-todo-number-permanence.py"])
+                out = buf.getvalue()
+                self.assertEqual(rc, 0, out)
+                self.assertIn(skip, out.splitlines())
+                notice = [ln for ln in out.splitlines() if ln.startswith("DEGRADED: gate 78 skipped ")]
+                self.assertEqual(len(notice), 1, out)
+                self.assertIn(degraded, notice[0])
+                self.assertNotIn(wrong, out)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
     def _perm_module(self):
         import importlib.util
         spec = importlib.util.spec_from_file_location(
@@ -50342,7 +51265,7 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         out, err = io.StringIO(), io.StringIO()
         with contextlib.ExitStack() as stack:
             stack.enter_context(patch.object(mod, "REPO_ROOT", repo))
-            stack.enter_context(patch.object(mod, "resolve_sibling", lambda name: priv if sibling else None))
+            stack.enter_context(patch.object(mod, "resolve_sibling", lambda name, **_kw: priv if sibling else None))
             stack.enter_context(contextlib.redirect_stdout(out))
             stack.enter_context(contextlib.redirect_stderr(err))
             if setup is not None:
@@ -51138,6 +52061,51 @@ class TagGateTests(LinterTestCase):
             (root / "P-TODO.md").write_text(ptodo, encoding="utf-8")
         result = run_linter("tools/lint-todo-list-tag.py", "--root", str(root))
         return root, result
+
+    def test_skip_and_degraded_name_which_absence_3b677(self):
+        """3b677: the default run skips P-TODO.md for an absent private sibling AND for a usable
+        sibling with no P-TODO.md in it. The skip line and the DEGRADED notice each name the case
+        that applies, so the second never reads as "no private sibling". Exit status is 0 in both."""
+        import contextlib
+        import importlib.util
+        root = Path(tempfile.mkdtemp(prefix="tag-3b677-why-", dir=FIXTURE_DIR))
+        try:
+            (root / "TODO.md").write_text(
+                "# TODO\n\n| ID | Item | Tags |\n| --- | --- | --- |\n| 2.3 | A public item | `[public]` |\n",
+                encoding="utf-8")
+            sibling = root / "private"
+            sibling.mkdir()
+            cases = (
+                (None,
+                 "OK: P-TODO.md not present (no private sibling; public-only clone / adopter checkout). "
+                 "Scanning TODO.md only.",
+                 "DEGRADED: gate 81 skipped the P-TODO.md list-tag check (no private sibling supplies "
+                 "it); this pass attests nothing about it.",
+                 "has no P-TODO.md"),
+                (sibling,
+                 f"OK: P-TODO.md not present (the private sibling {sibling} has no P-TODO.md). "
+                 f"Scanning TODO.md only.",
+                 "DEGRADED: gate 81 skipped the P-TODO.md list-tag check (the private sibling has no "
+                 "P-TODO.md); this pass attests nothing about it.",
+                 "no private sibling"),
+            )
+            for resolved, skip, degraded, wrong in cases:
+                spec = importlib.util.spec_from_file_location(
+                    "tag_3b677", REPO_ROOT / "tools" / "lint-todo-list-tag.py")
+                m = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(m)
+                m.REPO_ROOT = root
+                m.resolve_sibling = lambda _name, _s=resolved, **_kw: _s
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    rc = m.main(["lint-todo-list-tag.py"])
+                out = buf.getvalue()
+                self.assertEqual(rc, 0, out)
+                self.assertIn(skip, out.splitlines())
+                self.assertIn(degraded, out.splitlines())
+                self.assertNotIn(wrong, out)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
 
     def test_one_tag_passes(self):
         root, result = self._run(

@@ -22,16 +22,24 @@ off the captured id could hide two untagged siblings behind one tagged one.
 
 Adopter-graceful: when the private sibling is absent (public-only clone /
 adopter checkout) the private list is simply not scanned; that is a no-op,
-not an error.
+not an error. A default-lookup sibling that is present but unusable (not a
+directory, a dangling link, or one that cannot be examined) is not absent: it
+fails with exit 2 naming it. So does a sibling whose contents cannot be listed,
+or whose ``P-TODO.md`` cannot be examined or is not a regular file, and so does
+a ``P-TODO.md`` or ``TODO.md`` that is not valid UTF-8 (3b677). Only a sibling,
+or a ``P-TODO.md`` in a readable sibling, that is genuinely absent (no entry at
+the path) is skipped. The lookups probe with ``os.lstat``/``os.stat``, so the
+verdict is the same on Python 3.11 and 3.12+.
 """
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_sibling, parse_todo_index, has_todo_index_header, print_degraded, require_dir
+from lint_common import InaccessiblePath, resolve_sibling, parse_todo_index, has_todo_index_header, print_degraded, require_dir, strict_kind
 
 REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 
@@ -97,35 +105,71 @@ def main(argv: list[str]) -> int:
         return 2
 
     ptodo_path: Path | None
+    private: Path | None = None
     if args.root is not None:
         cand = REPO_ROOT / PTODO_REL
         ptodo_path = cand if cand.is_file() else None
     else:
-        private = resolve_sibling("private")
+        # Strict (3b74): an ABSENT sibling still takes the degraded path below, but one that is
+        # present and unusable (a file, a FIFO, a dangling link, an unsearchable parent) refuses.
+        try:
+            private = resolve_sibling("private", strict=True)
+        except InaccessiblePath as exc:
+            print(f"ERROR: the private sibling is present but unusable ({exc}); refusing "
+                  f"the degraded path it would silently select.", file=sys.stderr)
+            return 2
         cand = (private / PTODO_REL) if private is not None else None
-        ptodo_path = cand if (cand is not None and cand.is_file()) else None
+        ptodo_path = None
+        if cand is not None:
+            # 3b677: probe as gate 90 does (list the sibling, then strict_kind), not with
+            # Path.is_file, which reads a file in an unsearchable sibling as absent (3.12+) or
+            # raises PermissionError (3.11). Only ENOENT in a readable sibling is absent.
+            try:
+                os.listdir(private)
+                kind = strict_kind(cand)
+            except OSError as exc:
+                print(f"ERROR: the private sibling is present but unusable: cannot examine "
+                      f"{exc.filename or cand} ({exc.strerror}).", file=sys.stderr)
+                return 2
+            if kind not in (None, "file"):
+                print(f"ERROR: the private sibling is present but unusable: {cand} is present "
+                      f"but is not a regular file.", file=sys.stderr)
+                return 2
+            ptodo_path = cand if kind == "file" else None
 
+    # 3b677: a file that is not valid UTF-8 exits 2 naming it, as gate 90 does, not a traceback.
+    reading = todo_path
     try:
         todo_text = todo_path.read_text(encoding="utf-8")
+        reading = ptodo_path
         ptodo_text = ptodo_path.read_text(encoding="utf-8") if ptodo_path is not None else None
     except OSError as exc:
         print(f"ERROR: cannot read a required file: {exc}", file=sys.stderr)
+        return 2
+    except UnicodeDecodeError as exc:
+        print(f"ERROR: cannot decode {reading} as UTF-8 ({exc.reason} at byte {exc.start}).",
+              file=sys.stderr)
         return 2
 
     sources: list[tuple[str, str]] = [(TODO_REL, todo_text)]
     if ptodo_text is not None:
         sources.append((PTODO_REL, ptodo_text))
     else:
-        print(
-            f"OK: {PTODO_REL} not present (no private sibling; public-only "
-            f"clone / adopter checkout). Scanning {TODO_REL} only."
-        )
+        # 3b677: the default lookup skips for an absent sibling AND for a usable sibling with no
+        # P-TODO.md in it; name the one that applies (a --root run keeps the first wording).
+        if private is None:
+            where = "no private sibling; public-only clone / adopter checkout"
+            why = "no private sibling supplies it"
+        else:
+            where = f"the private sibling {private} has no {PTODO_REL}"
+            why = f"the private sibling has no {PTODO_REL}"
+        print(f"OK: {PTODO_REL} not present ({where}). Scanning {TODO_REL} only.")
         if args.root is None:
             # 3b635: the DEFAULT lookup's skip exits 0, so a green CI run must not read as a pass.
             print_degraded(
                 "gate 81",
-                f"gate 81 skipped the {PTODO_REL} list-tag check (no private "
-                f"store supplies it); this pass attests nothing about it."
+                f"gate 81 skipped the {PTODO_REL} list-tag check ({why}); "
+                f"this pass attests nothing about it."
             )
 
     total_items = 0
