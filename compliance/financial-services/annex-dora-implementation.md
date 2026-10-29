@@ -2,8 +2,8 @@
 
 **Document Title:** DORA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.0.13\
-**Date:** 2026-10-27\
+**Version:** 0.0.16\
+**Date:** 2026-10-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -105,11 +105,11 @@ This pillar materially extends standard third-party risk management. The library
 | ICT third-party register | [`supply-chain/register-supplier-risk-template.md`](../../supply-chain/register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](../../supply-chain/register-subprocessor-template.md) |
 | Pre-contractual analysis | [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](../../supply-chain/procedure-supplier-onboarding-security-review.md) |
 | Mandatory contract clauses (Article 30) | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) provides the structure; entities must verify all Article 30 minimum clauses are present including audit rights, exit strategy, subcontracting conditions, service-level descriptions, and incident notification commitments |
-| Concentration risk assessment | [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md) |
+| Concentration risk assessment | [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md) supplies concentration information as an input to the entity's Article 29(1) consideration; the entity performs that consideration outside the register |
 | Exit strategies | [`supply-chain/procedure-supplier-exit-and-data-return.md`](../../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../../supply-chain/standard-cloud-exit-and-data-portability.md) |
 | Ongoing monitoring | [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../../supply-chain/procedure-supplier-ongoing-monitoring.md) |
 
-**Register of information (Article 28(3)).** In-scope financial entities maintain and update a register of all contractual arrangements for the use of ICT services, at entity, sub-consolidated, and consolidated levels, documented so as to distinguish arrangements that support critical or important functions from those that do not, and report at least yearly to the competent authority on new arrangements, the categories of ICT third-party service providers, the types of contractual arrangement, and the ICT services and functions provided. The library's supplier and concentration registers ([`supply-chain/register-supplier-risk-template.md`](../../supply-chain/register-supplier-risk-template.md), [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md)) are the operational inputs; the DORA register itself is a supervisory artefact the entity maintains at the regulation's granularity and produces to the competent authority on request.
+**Register of information (Article 28(3)).** In-scope financial entities maintain and update a register of all contractual arrangements for the use of ICT services, at entity, sub-consolidated, and consolidated levels, documented so as to distinguish arrangements that support critical or important functions from those that do not, and report at least yearly to the competent authority on the number of new arrangements, the categories of ICT third-party service providers, the types of contractual arrangement, and the ICT services and functions provided. The library's supplier risk register template ([`supply-chain/register-supplier-risk-template.md`](../../supply-chain/register-supplier-risk-template.md)) records per-supplier details (supplier identification, services provided, geographic scope, and contract reference, dates, and key SLAs) that an entity can draw on when populating that register; it does not record every element the register requires. The concentration risk register ([`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md)) records concentration findings, not contractual arrangements, and is not an input to the register of contractual arrangements. The DORA register itself is a supervisory artefact the entity maintains at the regulation's granularity and produces to the competent authority on request.
 
 ### Critical ICT third-party service providers
 
@@ -131,7 +131,7 @@ Voluntary; DORA encourages financial entities to share cyber threat information 
 ## Library gaps requiring additional documentation
 
 1. **Register of all contractual arrangements** in the format and granularity DORA requires (Article 28(3)); financial entities maintain and update it using the templates in Annexes I to IV of Commission Implementing Regulation (EU) 2024/2956, the applicable implementing technical standards. Entities maintain this in a regulatory-compliant register beyond the library's supplier risk template.
-2. **Concentration risk register** specific to critical ICT third-party providers and intra-group concentrations.
+2. **Per-CTPP concentration fields.** The concentration risk register has an intra-group dimension and links a concentration subject to a CTPP designation, but defines no fields for the designation date, the Lead Overseer, or the entity's contractual position with the CTPP; entities that need these add them as their own extension.
 3. **Incident reporting templates** matching the EBA/EIOPA/ESMA-published forms.
 4. **TLPT scoping documentation** under TIBER-EU.
 5. **Management body annual review evidence** of the ICT risk management framework.
