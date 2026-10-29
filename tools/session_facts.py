@@ -142,7 +142,7 @@ def session_metrics(root: Path, now: datetime | None = None):
     if ambiguous:
         warnings.append("AMBIGUOUS LEASE FIELD: " + ", ".join(ambiguous))
     else:
-        if session and status in ("active", "winding-down"):
+        if session and status == "active":
             match = re.fullmatch("orch-(" + SECONDS + ")", session)
             dt = _parse(match[1]) if match else None
             source = ("derived from Active-session orch-<UTC start> convention" if dt else
@@ -154,7 +154,7 @@ def session_metrics(root: Path, now: datetime | None = None):
         else:
             warnings.append("SESSION_START_UNKNOWN: " + (
                 "the lease id does not record a start time" if session and
-                status in ("active", "winding-down") else "no usable live lease start"))
+                status == "active" else "no usable live lease start"))
     end = None
     stale_heartbeat = False
     if not ambiguous:

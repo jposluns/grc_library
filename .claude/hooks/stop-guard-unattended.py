@@ -2076,6 +2076,25 @@ def _self_test():
             for line in ("**Operating-mode**: overnight-unattended", " Operating-mode: overnight-unattended"):
                 self.assertIsNone(_GRC_MODE_RE.search("# Session state: grc\n\n" + line + "\n"), line)
 
+        def test_grc_lease_mode_end_to_end_plain_and_bold(self):
+            # 3b679 r2: both forms through _grc_lease_mode() itself, reading a real lease file.
+            from unittest import mock
+            with tempfile.TemporaryDirectory() as store:
+                lease = os.path.join(store, "session-state.md")
+                patches = {"_GRC_STATE_FILE": lease, "_is_grc_main_checkout": lambda root: True,
+                           "_grc_is_worker": lambda: False}
+                with mock.patch.dict(globals(), patches):
+                    for mode in ("overnight-unattended", "fully-attended"):
+                        for line in ("Operating-mode: " + mode, "**Operating-mode:** " + mode):
+                            with open(lease, "w", encoding="utf-8") as fh:
+                                fh.write("# Session state: grc\n\nStatus: active\n\n" + line
+                                         + "\n<!-- note -->\n")
+                            self.assertEqual(_grc_lease_mode(store), _grc_map_mode(mode), line)
+                    self.assertNotEqual(_grc_map_mode("overnight-unattended"),
+                                        _grc_map_mode("fully-attended"))
+                    os.unlink(lease)
+                    self.assertIsNone(_grc_lease_mode(store))
+
         def test_grc_lease_arms_only_the_main_checkout_and_submodules(self):
             # 3b101 QA r2: the lease half of the scoping, on real hook copies: the main checkout and a
             # submodule read the lease; a linked worktree does not.

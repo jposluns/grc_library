@@ -25527,7 +25527,7 @@ class SessionStateTests(LinterTestCase):
     """
 
     VALID_LEASE = (
-        "# Session State (concurrency lease)\n\n"
+        "# Session state: grc\n\n"
         "Active-session: claude/example-branch\n\n"
         "Status: active\n\n"
         "Operating-mode: attended-autonomous\n\n"
@@ -25780,6 +25780,11 @@ class SessionStateTests(LinterTestCase):
                 with self.subTest(prefix=prefix, token=token):
                     missing, invalid = mod.check_text(text + prefix + token + " active\n")
                     self.assertEqual(missing, [])
+                    # 3b679 r2 rule 7: a list, heading or blockquote line is
+                    # free text that neither fleet tool reads.
+                    if prefix.strip():
+                        self.assertEqual(invalid, [])
+                        continue
                     self.assertEqual(len(invalid), 1)
                     self.assertIn("near-miss label", invalid[0])
 
@@ -25799,14 +25804,13 @@ class SessionStateTests(LinterTestCase):
                 self.assertIn("fenced code block", invalid[0])
 
     def test_crlf_and_tab_after_label(self) -> None:
-        mod = self._load_module()
+        # 3b679 r2: orch_store.py splits on LF only and keeps the CR, so a
+        # CRLF lease is refused (it passed before round 2).
         text = self.VALID_LEASE.replace("\n", "\r\n")
-        self.assertEqual(mod.check_text(text), ([], []))
-        self.assertEqual(self._lease_result(text)[0], 0)
-        text += "STATUS:\tactive\r\n"
         code, missing, invalid, _, _ = self._lease_result(text)
-        self.assertEqual((code, missing, len(invalid)), (1, [], 1))
-        self.assertIn("at line 14 ", invalid[0])
+        self.assertEqual(code, 2)
+        self.assertIn("a carriage return (CR) appears on 13 line(s), first at line 1",
+                      invalid[1])
         # 3b679: orch_store.py parses only "<name>: " (one space), so a tab
         # after the colon is not a field line.
         text = self.VALID_LEASE.replace("Status: ", "Status:\t")
@@ -25868,7 +25872,10 @@ class SessionStateTests(LinterTestCase):
                 text = text[:tail] + text[tail:].replace("Status", "STATUS", 1)
                 code, missing, invalid, _, _ = self._lease_result(text)
                 self.assertEqual((code, missing, len(invalid)), (1, [], 1))
-                self.assertIn("near-miss label", invalid[0])
+                # 3b679 r2: a comment line is free text, but orch_store.py
+                # counts this one, so it is reported as a refused mention.
+                self.assertIn("mentions the `Status:` field" if region == "comment"
+                              else "near-miss label", invalid[0])
 
     def test_unicode_hyphens_and_dashes(self) -> None:
         mod = self._load_module()
@@ -25917,9 +25924,7 @@ class SessionStateTests(LinterTestCase):
             "session in current-task": (
                 lease.replace("example task", "example **Active-session:** old"),
                 "Active-session", 11),
-            "comment mention": (
-                lease + "<!-- on close set `Status: released` -->\n", "Status", 14),
-            "label after a word": (lease + "note Status: active\n", "Status", 14),
+            "label after a word":(lease + "note Status: active\n", "Status", 14),
             "inline code under a later heading": (
                 lease + "## Notes\nThe lease says `Active-session: none`.\n",
                 "Active-session", 15),
@@ -26010,6 +26015,62 @@ class SessionStateTests(LinterTestCase):
         self.assertEqual((code, missing, invalid, stderr), (0, [], [], ""))
         self.assertIn("lease is well-formed", stdout)
 
+    def test_r2_orch_store_refusals_are_findings(self) -> None:
+        # 3b679 r2: each lease orch_store.py's lease() refuses is refused here.
+        mod = self._load_module()
+        lease = self.VALID_LEASE
+        shapes = {
+            "title suffix": lease.replace("grc\n", "grc (concurrency lease)\n", 1),
+            "second title in a comment": lease + "<!--\n# Session state: grc\n-->\n",
+            "winding-down": lease.replace("Status: active", "Status: winding-down"),
+            "Active": lease.replace("Status: active", "Status: Active"),
+            "ACTIVE": lease.replace("Status: active", "Status: ACTIVE"),
+            "trailing space": lease.replace("Status: active", "Status: active "),
+            "trailing NBSP": lease.replace("example task", "example task "),
+            "lone CR": lease.replace("example task", "example\rtask"),
+            "fullwidth digit": lease.replace("2026-07-03", "２026-07-03"),
+            "impossible stamp": lease.replace("2026-07-03T12:00:00Z", "2026-02-30T25:61:61Z"),
+            "future stamp": lease.replace("2026-07-03T12:00:00Z", "2999-01-01T00:00:00Z"),
+            "non-ASCII session": lease.replace("claude/example-branch", "claude/exämple"),
+            "129-byte session": lease.replace("claude/example-branch", "x" * 129),
+            "dotless-i mention in a comment": lease + "<!--\nActıve-session: old\n-->\n",
+            "indented mention in a comment": lease + "<!--\n  status : old\n-->\n",
+            "oversized": lease + ("<!-- " + "x" * 1000 + " -->\n") * 70,
+        }
+        for name, text in shapes.items():
+            with self.subTest(shape=name):
+                missing, invalid = mod.check_text(text)
+                self.assertTrue(missing or invalid, name)
+        self.assertEqual(mod.check_text(lease.replace("x" * 0 + "claude/example-branch",
+                                                      "x" * 128)), ([], []))
+
+    def test_r2_free_text_is_never_flagged(self) -> None:
+        # Each line would be flagged without rule 7 (a near miss or a reader label).
+        mod = self._load_module()
+        for line in ("- Status: pending", "1. Operating-mode: x",
+                     "<!-- Current-task: old -->", "## Current task: notes",
+                     "> **Status:** active", "* Last-heartbeat-UTC: yesterday",
+                     "- 2026-10-29 Status: released"):
+            with self.subTest(line=line):
+                self.assertEqual(mod.check_text(self.VALID_LEASE + line + "\n"), ([], []))
+                code, missing, invalid, _, _ = self._lease_result(self.VALID_LEASE + line + "\n")
+                self.assertEqual((code, missing, invalid), (0, [], []))
+
+    def test_r2_label_split_is_linear(self) -> None:
+        import time
+        mod = self._load_module()
+        text = self.VALID_LEASE + "- " * 10000 + "\n" + " " * 20000 + "\n"
+        start = time.monotonic()
+        mod.check_text(text)
+        self.assertLess(time.monotonic() - start, 0.5)
+
+    def test_r2_main_reads_bytes(self) -> None:
+        # A lone CR must survive the read (read_text would translate it).
+        code, missing, invalid, _, stderr = self._lease_result(
+            self.VALID_LEASE.replace("example task", "example\rtask"))
+        self.assertEqual(code, 1)
+        self.assertIn("carriage return", stderr)
+
     def test_compatibility_letters_in_label(self) -> None:
         mod = self._load_module()
 
@@ -26041,11 +26102,18 @@ class SessionStateTests(LinterTestCase):
         body = self.VALID_LEASE.split("\n", 2)[2]
         text = body.replace("Status: active\n", "") + "\n## History\nStatus: active\n"
         number = text.split("\n").index("Status: active") + 1
+        untitled = ("line 1 must be exactly `# Session state: grc`, found "
+                    "'Active-session: claude/example-branch'")
         self.assertEqual(mod.check_text(text), ([], [
+            untitled,
+            "0 lines start with `# Session state:` (lines none); exactly one may",
             f"field line `Status:` at line {number} "
             f"is outside the header region (later heading)"
         ]))
-        self.assertEqual(mod.check_text(body), ([], []))
+        self.assertEqual(mod.check_text(body), ([], [
+            untitled,
+            "0 lines start with `# Session state:` (lines none); exactly one may",
+        ]))
 
     def test_three_reader_fields_fenced_at_end(self) -> None:
         mod = self._load_module()
@@ -26071,7 +26139,7 @@ class SessionStateTests(LinterTestCase):
                 self.assertEqual(missing, [])
                 self.assertEqual(len(invalid), 1, invalid)
                 self.assertIn("at line 14 has a near-miss label "
-                              "(leading whitespace or Markdown marker)", invalid[0])
+                              "(leading whitespace)", invalid[0])
 
     def test_reader_shapes_refused(self) -> None:
         # Every lease the reader reports ambiguous, and every solitary copy
@@ -26108,6 +26176,12 @@ class SessionStateTests(LinterTestCase):
             for replacement in ("", line.replace(":", " :", 1)):
                 shapes[f"substituted {line[:12]} {bool(replacement)}"] = (
                     live.replace(line, replacement + "<!--\n" + line + "-->\n"))
+        # 3b679 r2 rule 7: a bullet or blockquote copy is free text that
+        # neither fleet tool reads, so the gate passes it (the docstring's
+        # known limit: the session-start reader reports UNKNOWN instead).
+        for name in ("bullet", "quoted_copy"):
+            with self.subTest(shape=name):
+                self.assertEqual(mod.check_text(shapes.pop(name)), ([], []))
         for name, lease in shapes.items():
             with self.subTest(shape=name):
                 missing, invalid = mod.check_text(lease)
@@ -32572,6 +32646,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         citation_publishers.py PASSIVE F 8c9729132cfaa4f2705c023b4501872905a44dd76b996be8ea8c78ae4188d3e8
         cleanup-tmp-worker-output.py WRITE F 188d936e3dca47b40ec662a51670d04ee2e9cc6b98b706f4e876f489483c62f8
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
+        convert-session-state-lease.py OWN F 2ca8a0de4eb611fa76e3572bf4f0c04b55547923a28a6583b1fb4c54ed562f3a
         decisions-search.py NO_FS F a6f83f23008ed1a78383293f3e685e67bc8af59d1ad79cad5832bc792a111eca
         detect-collection-candidates.py NO_FS F 4abd7344bc3bda8933daaa560e4479dea08a856f5503e6a4122f495923a6f21b
         detect-env.py WRITE F bb9b977f0a07a9d27b09dcd85d271bb1f31efc826c5f6cd860106f283144ebc6
@@ -32657,7 +32732,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-secrets-in-content.py CWD F 868061fc0527d0843223825800fb75dd963d345d058a144b6ecc23ee8deb227b
         lint-section-anchors.py CWD F 4b540b4eb8480d1f4be16e1c51cc7c990d22a5b4ea8911244636d0aa1956726f
         lint-section-placement.py CWD F 936e351d52bcd0a0a4964b3ecd046c44ae057298aed6edde002687e8f4c17f98
-        lint-session-state.py NO_FS F 66dbbd016cf9d9fcd259c0f0236717072f4f5fc8c0752ccfe74fd4e965311962
+        lint-session-state.py NO_FS F 9c6aa0a4607d2b0d016e1e3e9b84d14c29e7d5cf8f1575dfa8534c9a16a46df3
         lint-shall-near-uncertainty.py ROOT F 0df50c2b6826f9216f67addad8931f1eb35498d0e3862064bdb3fed317e64610
         lint-sibling-placeholders.py NO_FS F 2ae82222a589343521ebfbc12a3b9edbec0533203e02b3f7adf906f2b8ad1d2a
         lint-skill-derives-from.py OWN F 4bf6a78a42e9f8d8dff44035ac2320a67043006a133375e7cacdcd85dd5336f5
@@ -32708,7 +32783,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run_all_audits.sh FIXED F 18466189b74841fdf67c087abd6ee880730f4fe3a8b395dbc9da38466a4d5c63
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
-        session_facts.py PASSIVE F fb97c337e6ad53b848a1e3ce661e0263af89f83663e09fadefefe62ea41ba54b
+        session_facts.py PASSIVE F 53340eca4ec1c25292ba11c0d6d6466d422112bf25943d8756469da8d0789869
         skill-verdict-fields.json DATA F fba56d7e70141647fcad92824591d65a0208c6e6b623caaff82bfcb62bbd06aa
         standards-currency-unpinned-baseline.json DATA F e37c71336ad92904670c220de1d3e622a1e8e5b638c1dc0aac3829d99344ec79
         statusline-next-pr.py NO_FS F 81db4327eb56260c362e61edbae2a7c7c2fd426df579fe21d57638cfd7b55223

@@ -8,37 +8,70 @@ record, "Session-concurrency safety"; the
 `/orch` command's step 0 reads this file before anything else).
 
 The lease declares which orchestrator session, if any, currently holds
-the shared ``main`` state surfaces. Required fields, one per line, each
-a plain ``Field: value`` line (the field name at column zero, a colon and
-one space, then the value). The fleet lease tool (orch_store.py) parses
+the shared ``main`` state surfaces. Gate 63 accepts a lease only if the
+fleet lease tool (/usr/local/bin/orch_store.py, ``lease()``) and the
+fleet's standard reader (/usr/local/bin/orch_session_lease.py,
+``decide()``) would also accept it, for everything they check (3b679
+round 2). The file is read as bytes, must be UTF-8 and at most 65536
+bytes (orch_store's MAX_FILE), and is split on LF only, as both tools
+split it. Line 1 is exactly ``# Session state: grc``, and no other line
+starts with ``# Session state:``. A CR anywhere (CRLF or a lone CR) is a
+finding, and so is trailing whitespace on a field line.
+
+Required fields, one per line, each a plain ``Field: value`` line (the
+field name at column zero, a colon and one space, then the value; values
+are matched with ASCII-only patterns). orch_store.py parses
 ``Active-session``, ``Status`` and ``Last-heartbeat-UTC`` only from lines
 that begin with the name and ": ", so the Markdown bold form
 (``**Status:** active``) is a finding naming the plain form (maintainer
 ruling 2026-10-29 01:10Z); the other three fields use the same form so
 the file has one style:
 
-- ``Active-session:`` the active session's branch name, or
-  ``none`` when no session holds the lease.
-- ``Status:`` ``active`` (a session holds the lease),
-  ``winding-down`` (a session is landing its closing handoff PR), or
-  ``released`` (no session holds the lease; the clean-close state).
+- ``Active-session:`` 1 to 128 printable ASCII bytes (0x21 to 0x7E, as
+  orch_store requires): the active session's id, or ``none`` when no
+  session holds the lease.
+- ``Status:`` exactly ``active`` (a session holds the lease) or
+  ``released`` (no session holds the lease; the clean-close state),
+  case-sensitive; orch_store refuses every other value.
 - ``Operating-mode:`` ``fully-attended``, ``attended-autonomous``,
   ``overnight-unattended``, or ``daytime-unattended``. The
   AskUserQuestion-blocking hook reads this and refuses a blocking prompt when
   the mode is unattended, so the value must always be present and current.
-- ``Last-heartbeat-UTC:`` a ``YYYY-MM-DDTHH:MM:SSZ`` stamp
-  (``date -u +%Y-%m-%dT%H:%M:%SZ``), refreshed at each PR close-out.
+- ``Last-heartbeat-UTC:`` a ``YYYY-MM-DDTHH:MM:SSZ`` stamp in ASCII digits
+  (``date -u +%Y-%m-%dT%H:%M:%SZ``) that is a real UTC date and time no
+  later than now (the standard reader refuses a later one), refreshed at
+  each PR close-out.
 - ``Current-task:`` one line of free text.
 - ``Worker-dispatches:`` ``none`` or a free-text summary of the
   in-flight worker fan-out (cross-referencing the scratch
   ``claims-ledger.md`` when parallel work is running).
 
-Known limit: the value checks still allow trailing whitespace after a
-value, and the lease is read with universal newlines, so a CR before LF
-is not seen; orch_store.py reads both into the value and refuses it.
+Mentions: orch_store.py and the standard reader count every LF-split line
+that matches ``\\s*Name\\s*:`` for ``Active-session``, ``Status`` or
+``Last-heartbeat-UTC`` under Python's ``re.IGNORECASE`` (Unicode
+whitespace and case folding, so ``Actıve-session:`` with a dotless i
+counts), and accept only one, the exact field line. Each such line other
+than an exact field line is a finding, wherever it is.
+
+Free text: a line inside an HTML comment (or starting with ``<!--``), a
+bullet line (-, + or * then whitespace), a numbered-list line (ASCII
+digits, "." or ")", then whitespace), a heading line (one to six "#"
+then whitespace or end of line) or a blockquote line (">"), each after
+optional spaces or tabs, is never a near miss and never a session-start
+reader label. The only such lines the gate reports are the mentions
+above, and the only free-text lines that can be mentions are lines
+inside a multi-line HTML comment whose text starts with optional
+whitespace, a store field name in any case and a colon; such a line is
+reported unless it is the exact field line, which is then reported as a
+duplicate and as outside the header region.
+
+Known limit: tools/session_facts.py still counts every line containing
+``Name:`` for its three fields, so a free-text line the gate accepts
+(``- Status: pending``) makes that reader report its session metrics
+UNKNOWN; it never makes it report a released lease.
 
 Coherence rules: ``released`` requires ``Active-session: none``;
-``active`` and ``winding-down`` require a non-``none`` branch name.
+``active`` requires a non-``none`` session id.
 Each field line appears exactly once (a duplicate is a finding), and
 the coherence check runs unconditionally alongside the per-field value
 checks, so coexisting defects are all reported in one run.
@@ -48,11 +81,10 @@ Field order: ``Active-session``, then ``Status``, then
 (``tools/session_facts.py``) reports every session metric UNKNOWN when
 those three appear in another order; this gate does not check the order.
 
-Near-miss detection examines each LF-delimited line, including comments
-and fences, after optional whitespace and repeated Markdown markers:
-a bullet (-, + or *), or digits plus "." or ")", requires following
-whitespace; ">" permits none; one or more "#" requires whitespace.
-A candidate then starts with zero to two stars or underscores, a nonempty
+Near-miss detection examines each LF-delimited line that is not free
+text, including fences, after optional whitespace. The label is split
+in one linear pass at the first colon (no backtracking pattern).
+A candidate starts with zero to two stars or underscores, a nonempty
 label without stars or colons (internal spaces and underscores are allowed),
 zero to two stars or underscores, optional whitespace, a colon, and zero
 to two stars or underscores. It is a
@@ -66,20 +98,20 @@ whitespace, underscores and dashes before casefolding.
 Each near-miss line gets one finding listing every applicable label fault:
 its spelling or prefix faults, a space before the colon, and bold or
 emphasis markers (stars or underscores anywhere around the label, with
-the plain form to write); wrong value shape, which includes a separator
-other than one space after the colon, is reported only when no label
-fault applies.
+the plain form to write); trailing whitespace, or else wrong value
+shape (which includes a separator other than one space after the colon),
+is reported only when no label fault applies.
 Prose and inline code before a token prevent candidate recognition.
 
 Field labels: the session-start reader counts every LF-delimited line
 that contains ``Active-session:``, ``Status:`` or
-``Last-heartbeat-UTC:`` (case-sensitive, anywhere in the line, including
-comments, fences and inline code) and reads none of them when it finds
-two. Each such line other than that field's exact field line therefore
-gets one finding, unless it already has a near-miss finding for the same
-field. The sanctioned spelling for a mention in a comment or in free text
-is the field name without a colon directly after it (for example
-"the Status field" or "Status `active`").
+``Last-heartbeat-UTC:`` (case-sensitive, anywhere in the line) and reads
+none of them when it finds two. Each such line that is not free text,
+other than that field's exact field line, therefore gets one finding,
+unless it already has a near-miss finding for the same field. The
+sanctioned spelling for a mention in prose is the field name without a
+colon directly after it (for example "the Status field" or
+"Status `active`").
 
 Exact field lines get one location finding if their start is in an HTML
 comment, a fenced block, or a later section, combining reasons.
@@ -100,8 +132,8 @@ Labels are checked independently of those scanner limits. Existing
 whole-text field counts, value checks and missing-field exit precedence
 remain unchanged.
 
-This gate guards the file's SHAPE only. It deliberately passes on all
-three status values: CI runs per-branch and cannot see across
+This gate guards the file's SHAPE only. It deliberately passes on both
+status values: CI runs per-branch and cannot see across
 concurrent sessions, so the interlock itself (HOLD-and-surface on a
 live lease or a recent unmerged sibling branch) lives in the `/orch`
 step-0 procedure, not in CI. A malformed lease would silently disable
@@ -109,9 +141,10 @@ that procedure, which is the failure this gate exists to catch.
 
 Exit codes:
     0: a well-formed lease, or an absent operational store (skip).
-    1: an invalid value, incoherence, duplicate, near-miss label, extra
-       field label, or field line outside the header region.
-    2: an unreadable lease or a required field line absent.
+    1: a title, CR, size, invalid value, incoherence, duplicate,
+       near-miss label, extra field label, refused mention, trailing
+       whitespace, or field line outside the header region.
+    2: an unreadable or non-UTF-8 lease, or a required field line absent.
 """
 
 from __future__ import annotations
@@ -119,26 +152,42 @@ from __future__ import annotations
 import re
 import sys
 import unicodedata
+from datetime import datetime, timezone
 
 from lint_common import REPO_ROOT, print_degraded, resolve_working
 
 
 # Plain `Field: value` lines: the name at column zero, then ": " (one space),
-# the form the fleet lease tool (orch_store.py) parses.
+# the form the fleet lease tool (orch_store.py) parses. ASCII-only classes, and
+# no trailing whitespace (orch_store reads it into the value).
 FIELD_PATTERNS = {
-    "Active-session": re.compile(r"^Active-session: (\S+)\s*$", re.MULTILINE),
-    "Status": re.compile(r"^Status: (\S+)\s*$", re.MULTILINE),
-    "Operating-mode": re.compile(r"^Operating-mode: (\S+)\s*$", re.MULTILINE),
+    "Active-session": re.compile(r"^Active-session: (\S+)$", re.MULTILINE | re.ASCII),
+    "Status": re.compile(r"^Status: (\S+)$", re.MULTILINE | re.ASCII),
+    "Operating-mode": re.compile(r"^Operating-mode: (\S+)$", re.MULTILINE | re.ASCII),
     "Last-heartbeat-UTC": re.compile(
-        r"^Last-heartbeat-UTC: (\S+)\s*$", re.MULTILINE
+        r"^Last-heartbeat-UTC: (\S+)$", re.MULTILINE | re.ASCII
     ),
-    "Current-task": re.compile(r"^Current-task: (\S.*?)\s*$", re.MULTILINE),
+    "Current-task": re.compile(
+        r"^Current-task: (\S(?:.*\S)?)$", re.MULTILINE | re.ASCII
+    ),
     "Worker-dispatches": re.compile(
-        r"^Worker-dispatches: (\S.*?)\s*$", re.MULTILINE
+        r"^Worker-dispatches: (\S(?:.*\S)?)$", re.MULTILINE | re.ASCII
     ),
 }
 
-VALID_STATUSES = {"active", "winding-down", "released"}
+# orch_store.py: the exact first line, one title line, MAX_FILE, the field
+# names its lease() reads (FIELDS) and its Active-session value rule.
+TITLE = "# Session state: grc"
+TITLE_PREFIX = "# Session state:"
+MAX_BYTES = 65536
+STORE_FIELDS = ("Active-session", "Status", "Last-heartbeat-UTC")
+SESSION_RE = re.compile(r"[!-~]{1,128}")
+MENTION_PATTERNS = {
+    name: re.compile(r"\s*%s\s*:" % re.escape(name), re.IGNORECASE)
+    for name in STORE_FIELDS
+}
+
+VALID_STATUSES = {"active", "released"}
 
 # Operating mode (the AskUserQuestion-blocking hook reads this: it blocks a blocking
 # prompt when the mode contains "unattended", so the value must be reliably present).
@@ -149,7 +198,8 @@ VALID_MODES = {
     "daytime-unattended",
 }
 
-HEARTBEAT_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+HEARTBEAT_RE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z")
+HEARTBEAT_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 
 def map_dashes(label: str) -> str:
@@ -170,10 +220,37 @@ def normalize_label(label: str) -> str:
     return map_dashes(unicodedata.normalize("NFKC", map_dashes(label)))
 
 
-LABEL_RE = re.compile(
-    r"^(?P<prefix>\s*(?:(?:[-+*]|\d+[.)])\s+|>\s*|#+\s+)*)"
-    r"(?P<open>[*_]{0,2})(?P<label>[^*:]+?)"
-    r"(?P<close>[*_]{0,2})(?P<space>\s*):(?P<after>[*_]{0,2})"
+def label_token(line: str) -> dict[str, str] | None:
+    """Split LINE's leading label at its first colon in one linear pass.
+
+    The parts are prefix (leading whitespace), open and close (zero to two
+    stars or underscores), label (nonempty, no star), space (whitespace
+    before the colon) and after (zero to two stars or underscores).
+    """
+    colon = line.find(":")
+    if colon < 0:
+        return None
+    head = line[:colon]
+    body = head.lstrip()
+    core = body.rstrip()
+    stripped = core.lstrip("*_")
+    open_ = core[:min(2, len(core) - len(stripped))]
+    rest = core[len(open_):]
+    trimmed = rest.rstrip("*_")
+    close = rest[len(rest) - min(2, len(rest) - len(trimmed)):] if rest != trimmed else ""
+    label = rest[:len(rest) - len(close)]
+    if not label or "*" in label:
+        return None
+    tail = line[colon + 1:colon + 3]
+    after = tail[:len(tail) - len(tail.lstrip("*_"))]
+    return {"prefix": head[:len(head) - len(body)], "open": open_, "label": label,
+            "close": close, "space": body[len(core):], "after": after}
+
+
+# Free text (never a field and never a near miss): a bullet, a numbered-list
+# item, a heading, a blockquote, or a line that opens an HTML comment.
+FREE_TEXT_RE = re.compile(
+    r"[ \t]*(?:[-+*](?:[ \t]|$)|[0-9]+[.)](?:[ \t]|$)|#{1,6}(?:[ \t]|$)|>|<!--)"
 )
 FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 
@@ -195,10 +272,11 @@ def field_line_errors(text: str) -> list[str]:
             (field for field, pattern in FIELD_PATTERNS.items()
              if pattern.fullmatch(line)), None
         )
+        free = (comment and not fence) or FREE_TEXT_RE.match(line) is not None
         near = None
-        token = LABEL_RE.match(line)
+        token = None if free else label_token(line)
         if token and exact is None:
-            label = token.group("label")
+            label = token["label"]
             normalized = normalize_label(label)
             near = next(
                 (name for name in FIELD_PATTERNS
@@ -215,27 +293,41 @@ def field_line_errors(text: str) -> list[str]:
                     faults.append("non-ASCII hyphen")
                 if normalized != map_dashes(label):
                     faults.append("compatibility character")
-                if token.group("prefix"):
-                    faults.append("leading whitespace or Markdown marker")
-                if token.group("space"):
+                if token["prefix"]:
+                    faults.append("leading whitespace")
+                if token["space"]:
                     faults.append("space before the colon")
-                if "".join(token.group("open", "close", "after")):
+                if token["open"] + token["close"] + token["after"]:
                     faults.append(
                         f"bold or emphasis markers, write the plain form "
                         f"`{near}: <value>`"
                     )
+                if not faults and FIELD_PATTERNS[near].fullmatch(line.rstrip()):
+                    faults.append("trailing whitespace")
                 if not faults:
                     faults.append("wrong value shape")
                 invalid.append(
                     f"field line `{near}:` at line {number} "
                     f"has a near-miss label ({', '.join(faults)})"
                 )
+        if exact is not None and line != line.rstrip():
+            invalid.append(
+                f"field line `{exact}:` at line {number} has trailing whitespace"
+            )
         for name in READER_FIELDS:
-            if name + ":" in line and name not in (exact, near):
+            if not free and name + ":" in line and name not in (exact, near):
                 invalid.append(
                     f"field label `{name}:` also appears at line {number}, "
                     f"which the session-start reader counts as a second "
                     f"field line (drop the colon from a mention)"
+                )
+        for name, mention in MENTION_PATTERNS.items():
+            if name not in (exact, near) and mention.match(line):
+                invalid.append(
+                    f"line {number} mentions the `{name}:` field in a form "
+                    f"orch_store.py refuses (it counts every line that starts "
+                    f"with the name and a colon, in any letter case, and "
+                    f"accepts only the exact `{name}: <value>` line)"
                 )
 
         if not comment and not fence and re.match(r"#{1,6}(?:[ \t]|$)", line):
@@ -278,11 +370,36 @@ def field_line_errors(text: str) -> list[str]:
     return invalid
 
 
-def check_text(text: str) -> tuple[list[str], list[str]]:
+def check_text(
+    text: str, now: datetime | None = None
+) -> tuple[list[str], list[str]]:
     """Validate lease text; return (missing_field_errors, value_errors)."""
     missing: list[str] = []
     invalid: list[str] = []
     values: dict[str, str] = {}
+
+    lines = text.split("\n")
+    if lines[0] != TITLE:
+        invalid.append(f"line 1 must be exactly `{TITLE}`, found {lines[0]!r}")
+    titles = [number for number, line in enumerate(lines, 1)
+              if line.startswith(TITLE_PREFIX)]
+    if len(titles) != 1:
+        invalid.append(
+            f"{len(titles)} lines start with `{TITLE_PREFIX}` "
+            f"(lines {', '.join(map(str, titles)) or 'none'}); exactly one may"
+        )
+    returns = [number for number, line in enumerate(lines, 1) if "\r" in line]
+    if returns:
+        invalid.append(
+            f"a carriage return (CR) appears on {len(returns)} line(s), first "
+            f"at line {returns[0]}; the lease is split on LF only, so write "
+            f"LF line endings and no other CR"
+        )
+    size = len(text.encode("utf-8", "surrogatepass"))
+    if size > MAX_BYTES:
+        invalid.append(
+            f"the lease is {size} bytes; orch_store.py refuses more than {MAX_BYTES}"
+        )
 
     for field, pattern in FIELD_PATTERNS.items():
         matches = list(pattern.finditer(text))
@@ -299,10 +416,10 @@ def check_text(text: str) -> tuple[list[str], list[str]]:
         values[field] = matches[0].group(1)
 
     status = values.get("Status")
-    if status is not None and status.lower() not in VALID_STATUSES:
+    if status is not None and status not in VALID_STATUSES:
         invalid.append(
-            f"Status value `{status}` is invalid; permitted values: "
-            f"active, winding-down, released"
+            f"Status value `{status}` is invalid; permitted values "
+            f"(case-sensitive): active, released"
         )
 
     mode = values.get("Operating-mode")
@@ -313,21 +430,40 @@ def check_text(text: str) -> tuple[list[str], list[str]]:
         )
 
     heartbeat = values.get("Last-heartbeat-UTC")
-    if heartbeat is not None and not HEARTBEAT_RE.match(heartbeat):
+    if heartbeat is not None and not HEARTBEAT_RE.fullmatch(heartbeat):
         invalid.append(
             f"Last-heartbeat-UTC value `{heartbeat}` is not a "
             f"YYYY-MM-DDTHH:MM:SSZ stamp (use `date -u +%Y-%m-%dT%H:%M:%SZ`)"
         )
+    elif heartbeat is not None:
+        try:
+            stamp = datetime.strptime(heartbeat, HEARTBEAT_FORMAT).replace(
+                tzinfo=timezone.utc)
+        except ValueError:
+            invalid.append(
+                f"Last-heartbeat-UTC value `{heartbeat}` is not a real UTC "
+                f"date and time"
+            )
+        else:
+            if stamp > (now or datetime.now(timezone.utc)):
+                invalid.append(
+                    f"Last-heartbeat-UTC value `{heartbeat}` is later than now; "
+                    f"the standard reader refuses it"
+                )
 
     session = values.get("Active-session")
+    if session is not None and not SESSION_RE.fullmatch(session):
+        invalid.append(
+            f"Active-session value {session!r} is not 1 to 128 printable "
+            f"ASCII characters (0x21 to 0x7E)"
+        )
     if status is not None and session is not None:
-        status_lc = status.lower()
-        if status_lc == "released" and session.lower() != "none":
+        if status == "released" and session.lower() != "none":
             invalid.append(
                 f"Status `released` requires `Active-session: none`, "
                 f"found `{session}`"
             )
-        if status_lc in {"active", "winding-down"} and session.lower() == "none":
+        if status == "active" and session.lower() == "none":
             invalid.append(
                 f"Status `{status}` requires a branch name in "
                 f"Active-session, found `none`"
@@ -361,9 +497,11 @@ def main() -> int:
     except ValueError:
         rel = session_state.as_posix()
 
+    # Bytes, decoded strictly and never newline-translated: orch_store.py
+    # splits the raw bytes on LF and keeps every CR in the line.
     try:
-        text = session_state.read_text(encoding="utf-8")
-    except OSError as exc:
+        text = session_state.read_bytes().decode("utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
         print(f"ERROR: cannot read {rel}: {exc}", file=sys.stderr)
         return 2
 

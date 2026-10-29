@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # Shape and timestamps copied from the supplied 2026-10-06 14:06Z live snapshot.
 # Operational prose is removed; no private-store access is needed. Since 3b679
 # the fields use the plain `Name: value` form (the snapshot was bold).
-LIVE = """# Session state: grc (concurrency lease)
+LIVE = """# Session state: grc
 
 Active-session: orch-2026-10-04T13:36:00Z
 
@@ -33,7 +33,7 @@ Worker-dispatches: none
 # Historical lease a57b45539449b3ee7b97bf4bbfb862b10d7d9125:
 # .working/session-state.md (2026-07-28). Operational prose is scrubbed;
 # fields converted to the plain form (3b679).
-RELEASED = """# Session State (concurrency lease)
+RELEASED = """# Session state: grc
 
 Active-session: none
 
@@ -133,9 +133,11 @@ class SessionFactsTests(unittest.TestCase):
         self.assertIn("start UNKNOWN, elapsed UNKNOWN", self.cli().stdout)
 
     def test_status_case_release_and_only_live_statuses(self):
-        for status in ("Active", "WINDING-DOWN"):
-            self.lease.write_text(LIVE.replace("Status: active", "Status: " + status))
-            self.assertEqual(self.metrics()["start"], "2026-10-04T13:36:00Z")
+        self.lease.write_text(LIVE.replace("Status: active", "Status: Active"))
+        self.assertEqual(self.metrics()["start"], "2026-10-04T13:36:00Z")
+        # 3b679 r2: orch_store.py refuses winding-down, so it is no live status.
+        self.lease.write_text(LIVE.replace("Status: active", "Status: WINDING-DOWN"))
+        self.assertEqual(self.metrics()["start"], "UNKNOWN")
         self.lease.write_text(RELEASED.replace("released", "Released"))
         self.error("SESSION_START_RELEASED")
         self.lease.write_text(LIVE.replace("orch-2026-10-04T13:36:00Z", "NONE"))
@@ -365,9 +367,20 @@ class SessionFactsTests(unittest.TestCase):
                 self.assertEqual((proc.returncode, proc.stdout), (0, ""), proc.stderr)
 
     def test_gate_parity_for_usable_fixtures(self):
-        fixtures = {"live": LIVE, "crlf": LIVE.replace("\n", "\r\n"),
-                    "trailing": LIVE.replace("\n", " \t\n"),
-                    "winding": LIVE.replace("Status: active", "Status: WINDING-DOWN")}
+        # 3b679 r2: the reader still uses CRLF, trailing-blank and other-title
+        # leases, but orch_store.py refuses them, so gate 63 must too.
+        refused = {"crlf": LIVE.replace("\n", "\r\n"),
+                   "trailing": LIVE.replace("\n", " \t\n"),
+                   "old_title": LIVE.replace("# Session state: grc\n",
+                                             "# Session state: grc (concurrency lease)\n")}
+        for name, lease in refused.items():
+            with self.subTest(name=name):
+                self.lease.write_bytes(lease.encode("utf-8"))
+                self.assertNotEqual(self.metrics()["start"], "UNKNOWN")
+                proc = subprocess.run([sys.executable, "tools/lint-session-state.py"],
+                                      cwd=self.root, env=self.env, capture_output=True, text=True)
+                self.assertNotEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        fixtures = {"live": LIVE}
         fixtures.update({"ignored_" + name: lease for name, lease in ignored_placements(LIVE).items()})
         for name, (value, _, elapsed, _) in HEARTBEATS.items():
             if elapsed != "UNKNOWN":
