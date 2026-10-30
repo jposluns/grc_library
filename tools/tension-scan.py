@@ -89,7 +89,7 @@ from pathlib import Path
 _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
-from lint_common import REPO_ROOT, require_own_git_dir, resolve_working  # noqa: E402
+from lint_common import REPO_ROOT, require_own_git_dir, resolve_base_ref, resolve_working  # noqa: E402
 
 # The surfaces whose blocks the GR-P3 class lives in: the backlog and the
 # working ledgers whose rows are rewritten in place. The `.working/`
@@ -184,6 +184,13 @@ def main(argv: list[str]) -> int:
         print("usage: tension-scan.py <base-ref> [head-ref]", file=sys.stderr)
         return 2
     base, head = argv[1], (argv[2] if len(argv) > 2 else "HEAD")
+    # A short name such as origin/main is read from <git-dir>/origin/main
+    # before refs/remotes, so it is resolved unambiguously first (3b620
+    # round 8).
+    base, refusal = resolve_base_ref(base, REPO_ROOT, from_cwd=True)
+    if refusal:
+        print(f"tension-scan: {refusal}; nothing was scanned.", file=sys.stderr)
+        return 2
     scanned, skipped = git_diffable_targets()
     if skipped:
         print("tension-scan: NOTE: skipping surfaces not visible to the public "
