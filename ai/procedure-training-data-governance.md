@@ -2,8 +2,8 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.15\
-**Date:** 2026-10-27\
+**Version:** 0.0.16\
+**Date:** 2026-10-30\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md)\
@@ -208,7 +208,7 @@ Where a retrieval index materially shapes model output:
 | EU GPAI Code of Practice (Copyright Chapter, July 2025) | Commitment 1 / Measures 1.1 to 1.3 (copyright policy; lawful-access crawling; identify and comply with text-and-data-mining rights reservations under Article 4(3) of Directive (EU) 2019/790) | Article 56 co-regulatory instrument for demonstrating AI Act Article 53(1)(c) compliance; applies where the organization is a GPAI provider |
 | ISO/IEC 42001:2023 | §7.5 documented information | AI management system |
 | GDPR (EU) / UK GDPR | Articles 5, 6, 9, 17, 25, 30, 35; EU Art 22 / UK Arts 22A-22D | Lawful basis, subject rights, by design, ROPA, DPIA |
-| LGPD | Articles 7, 9, 18 | Brazilian lawful basis and rights |
+| LGPD | Articles 7, 9, 18 | Brazilian lawful basis (Art 7), information to data subjects through the Step 3 privacy notice (Art 9) and rights (Art 18) |
 | PIPL | Articles 13, 14, 24, 44 to 50 | Chinese lawful basis and rights |
 | NIST AI RMF 1.0 | MAP, MEASURE | AI risk management |
 | ISO/IEC 5259-2:2024 | Data quality measures | Data-quality model, measures, and targets |
