@@ -3485,7 +3485,7 @@ def resolve_base_ref(base: str, repo_root: Path, *, from_cwd: bool = False) -> t
     try:
         proc = subprocess.run(["git", *here, "-c", "core.warnAmbiguousRefs=true", "rev-parse",
                                "--symbolic-full-name", name],
-                              capture_output=True)
+                              stdin=subprocess.DEVNULL, capture_output=True)
     except (FileNotFoundError, PermissionError):
         return base, None
     except OSError as exc:
