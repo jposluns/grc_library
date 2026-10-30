@@ -2,8 +2,8 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.20\
-**Date:** 2026-10-27\
+**Version:** 1.0.21\
+**Date:** 2026-10-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md), [`ai/standard-ai-human-oversight.md`](../ai/standard-ai-human-oversight.md)\
@@ -93,8 +93,8 @@ A system is registered when any of the following is true:
 
 ## Subject rights and operating expectations
 
-1. Subjects affected by a registered ADM activity are informed in the privacy notice in plain language, including the existence of the activity, the logic, the significance, and the right to human review.
-2. Subjects can request human review through the channel declared on the register row. Requests are handled per the data subject rights workflow.
+1. Subjects affected by a registered ADM activity are informed in the privacy notice in plain language, including the existence of the activity, the logic, the significance, and the human review this register offers (item 2).
+2. Subjects can request human review through the channel declared on the register row. Requests are handled per the data subject rights workflow. Human review is the organization's own control and applies whether or not the governing regime requires review by a natural person.
 3. Subjects can request a meaningful explanation of the logic. The explanation is provided in plain language, with examples where helpful, within the regulatory window.
 4. Subjects can request rectification of input data that influenced the decision.
 5. The system's bias and fairness assessment is refreshed at least annually and after any material model or data change.

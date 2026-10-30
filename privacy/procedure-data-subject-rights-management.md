@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.48\
-**Date:** 2026-10-27\
+**Version:** 1.6.49\
+**Date:** 2026-10-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -263,7 +263,7 @@ The fee schedule should be documented as an internal cost-recovery policy review
 | Regime | Equivalent provision | Notable variations |
 |---|---|---|
 | **UK GDPR** (UK) | Article 12(5) (same as EU GDPR) | Apply the administrative-cost and evidence requirements in sections 7.2.4 to 7.2.6. Under UK GDPR Article 12A (inserted by the DUAA 2025, in force from 5 February 2026; see the [UK annex](jurisdictions/annex-privacy-united-kingdom.md)), the one-month period runs from the latest of receipt of the request, receipt of any identity information requested under Article 12(6), and payment of any Article 12(5) fee. Confirm the current right-of-access guidance directly with the Information Commission |
-| **LGPD** (Brazil, Article 18) | Free of charge by default; ANPD may establish exceptions in regulation | No explicit "manifestly unfounded or excessive" exception in primary law |
+| **LGPD** (Brazil, Article 18) | Free of charge to the data subject; regulation sets only the deadlines and terms (Art 18 §5) | No explicit "manifestly unfounded or excessive" exception in primary law |
 | **PIPL** (China, Article 50) | Requires a convenient mechanism to receive and handle individuals' rights requests; reasons must be given for rejection, and the individual may bring proceedings in a people's court | Article 50 prescribes no fee rule or repeated-request fee exception; do not cite it as authority for charging |
 | **PIPEDA** (Canada) | Minimal or no cost (Sch 1 clause 4.9.4; also OPC guidance); where a cost applies, the organization notifies the individual of the approximate cost before proceeding (s. 8(6)(a)) | Organization may proceed at a cost only after the individual advises that the request is not withdrawn following approximate-cost notice (s. 8(6)(a)-(b)) |
 | **CCPA / CPRA** (California) | Generally free (Cal. Civ. Code s. 1798.130(a)(2)(A)); "manifestly unfounded or excessive, in particular because of their repetitive character" exception (s. 1798.145(h)(3)); business may charge reasonable fee or decline | Fee accounts for administrative costs; refusal requires notice of the reason; business bears the burden of showing a request is manifestly unfounded or excessive (s. 1798.145(h)(3)) |

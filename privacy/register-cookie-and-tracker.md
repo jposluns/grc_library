@@ -2,8 +2,8 @@
 
 **Document Title:** Cookie and Tracker Register\
 **Document Type:** Register\
-**Version:** 1.0.6\
-**Date:** 2026-07-16\
+**Version:** 1.0.7\
+**Date:** 2026-10-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md)\
@@ -113,7 +113,7 @@ Each entry is one row. Mandatory fields:
 | ePrivacy Directive 2002/58/EC (and national transpositions) | Article 5(3) | Prior consent for non-essential storage and access |
 | GDPR | Articles 6, 7, 13, 14 | Lawful basis, consent, transparency where personal data is involved |
 | UK PECR | Regulation 6 | Cookie consent |
-| LGPD | Articles 7, 8, 18 | Consent and information rights where personal data is involved |
+| LGPD | Articles 7, 8 | Consent and its withdrawal where personal data is involved |
 | PIPL | Articles 13, 24 | Consent and automated behaviour analysis |
 | CCPA / CPRA | Cal. Civ. Code s. 1798.135; CCPA Regs 11 CCR ss. 7025-7026 | Opt-out of sale or sharing; opt-out preference signals (s. 7025, the Global Privacy Control) and requests to opt out of sale/sharing (s. 7026) |
 | Brazil ANPD Guidance | Cookies and similar technologies guidance | Local interpretation |
