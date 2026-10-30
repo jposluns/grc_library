@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-10-27\
+**Date:** 2026-10-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -324,7 +324,7 @@ without the private reference sibling).
 | NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems (IDPS) |  | NIST |  | FREE |
 | NIST SP 800-95, Guide to Secure Web Services | SP 800-95 (August 2007) | NIST |  | FREE |
 
-## Frameworks (337: 299 free, 38 licensed)
+## Frameworks (338: 300 free, 38 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -353,6 +353,7 @@ without the private reference sibling).
 | BASC International Security Standard 6.0.3 (2022, companies implementing basic security operational controls) |  | BASC |  | LICENSED |
 | BASC International Standards Implementation Guide V6-2022 (CSMS) |  | BASC |  | LICENSED |
 | Basel Framework SCO, Scope and definitions (includes SCO60 Cryptoasset exposures), generated 27 September 2026 from the BIS Basel Framework data | BIS-generated standard PDF, 27/09/2026, 67 pages; SCO60 Cryptoasset exposures at page contents entry 60 | Basel Committee on Banking Supervision |  | FREE |
+| Brazil ANPD Guia orientativo: Cookies e protecao de dados pessoais (Versao 1.0, October 2022) | Guia orientativo Cookies e protecao de dados pessoais, Versao 1.0, publicacao digital outubro/2022 (ANPD) | Autoridade Nacional de Protecao de Dados (ANPD), Brazil |  | FREE |
 | Canada CCCS Baseline Cyber Security Controls for Small and Medium Organizations (V1.2) | V1.2, February 2020 (third release) | Canadian Centre for Cyber Security |  | FREE |
 | Canada CCCS Baseline Security Requirements for Network Security Zones (ITSP.80.022) | version 2.0, effective 2021-01-12 (confirmed current upstream 2026-07-15) | Canadian Centre for Cyber Security |  | FREE |
 | Canada CCCS Developing Your Incident Response Plan (ITSAP.40.003) | ITSAP.40.003, 2026-01 | Canadian Centre for Cyber Security |  | FREE |
@@ -976,5 +977,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 911 sources (790 free, 121 licensed).**
+**Total: 912 sources (791 free, 121 licensed).**
 
