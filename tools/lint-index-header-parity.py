@@ -20,8 +20,9 @@ register-missing/unreadable/table-not-found environmental exits + the
 WARNING/DRIFT/FAIL/summary reporting.
 
 Title ratchet (3b150): titles are compared by stripped equality. The frozen
-2026-10-01 baseline pins 44 exact index/header pairs: 29 deliberate-shortening
-privacy jurisdiction annexes and 15 real-drift rows. A pinned pair passes; a
+2026-10-01 baseline, extended 2026-10-27 by #3025 with the Ecuador pair, pins 45
+exact index/header pairs: 30 deliberate-shortening privacy jurisdiction annexes
+and 15 real-drift rows. A pinned pair passes; a
 real-drift pair also prints a DRIFT work item. A NEW or CHANGED difference, a
 stale entry whose titles now agree, an empty title, a missing or repeated
 Document Title field and a malformed baseline entry are findings. A baseline path
@@ -118,14 +119,16 @@ BASE_CADENCE_EQUALITY_ALLOWLIST: dict[
 }
 
 
-# Frozen 2026-10-01 title evidence: 44 exact pairs, classified as 29
-# deliberate-shortening privacy annexes and 15 real-drift rows. All 29 privacy
+# Frozen 2026-10-01 title evidence, extended 2026-10-27 by #3025 with the
+# Ecuador pair: 45 exact pairs, classified as 30 deliberate-shortening privacy
+# annexes and 15 real-drift rows. All 30 privacy
 # jurisdiction annexes drop Regulatory; EU, UK, US and UAE also abbreviate the
 # jurisdiction. Drift: 8 index doctype omissions, 2 header doctype omissions,
 # 1 CAPA omission, 1 IT scope omission, 1 DPIA acronym omission, 1 OT expansion
 # mismatch and 1 FAIR annotation. No family-wide convention supports those 15.
 # Every drift pair is a work item; every pair remains pinned until reconciled.
-# Re-checked against main 0375cb3a6 on 2026-10-22: 44 of 44 pairs still exact.
+# Re-checked against main 0375cb3a6 on 2026-10-22: 44 of 44 pairs still exact;
+# against main f209672b3 on 2026-10-30: 45 of 45 pairs still exact.
 # Tuple shape: (index title, header title, class, one-line rationale).
 TITLE_FIELD = "Document Title"
 TITLE_DIFF_CLASSES = ("deliberate-shortening", "real-drift")

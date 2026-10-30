@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.22\
-**Date:** 2026-10-27\
+**Version:** 1.0.23\
+**Date:** 2026-10-30\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -20,7 +20,7 @@
 
 This procedure defines the process for conducting periodic audits of suppliers, vendors, and third-party service providers to verify adherence to contractual obligations, security standards, regulatory requirements, and ethical conduct principles.
 
-It is aligned with ISO/IEC 27036-4:2016, COBIT 2019 APO10.05, CSA CCM v4.1 STA-16, BASC International Security Standard v6 (2022), and ENISA's ongoing AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
+It is aligned with ISO/IEC 27036-2:2022, ISO/IEC 27036-4:2016, COBIT 2019 APO10.05, CSA CCM v4.1 STA-16, BASC International Security Standard v6 (2022), and ENISA's ongoing AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
 
 ---
 
@@ -172,6 +172,7 @@ Sector-programme compliance metrics must be reported to the sector-conditional r
 
 ## References
 
+- ISO/IEC 27036-2:2022: Cybersecurity - Supplier relationships - Part 2: Requirements (second edition, June 2022; cancels and replaces the 2014 first edition).
 - ISO/IEC 27036-4:2016: Information security for supplier relationships - Part 4: Guidelines for security of cloud services (first edition, October 2016; the "2013" date previously used in this document was incorrect).
 - COBIT 2019 APO10.05: Monitor vendor performance and compliance.
 - CSA Cloud Controls Matrix v4.1, STA-16: Supply Chain Data Security Assessment.
