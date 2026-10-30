@@ -27598,6 +27598,27 @@ class LintCommonHelperTests(unittest.TestCase):
                         # 40 digits of a sha256 object's name abbreviate it.
                         self.assertIn(refused, lc.resolve_base_ref(sha[:other], ours)[1] or "")
 
+    def test_base_and_symref_git_calls_close_stdin(self) -> None:
+        """3b707: every subprocess.run call in resolve_base_ref and
+        _symref_link_text (the six git calls 3b620 added) passes
+        stdin=subprocess.DEVNULL, so none of them reads stdin inherited from
+        its caller (the pre-push hook path receives ref lines on stdin);
+        rev-parse --symbolic-full-name in
+        resolve_base_ref did not."""
+        import ast
+
+        tree = ast.parse((REPO_ROOT / "tools" / "lint_common.py").read_text(encoding="utf-8"))
+        functions = {node.name: node for node in tree.body if isinstance(node, ast.FunctionDef)}
+        for name in ("resolve_base_ref", "_symref_link_text"):
+            with self.subTest(function=name):
+                calls = [node for node in ast.walk(functions[name])
+                         if isinstance(node, ast.Call) and ast.unparse(node.func) == "subprocess.run"]
+                self.assertTrue(calls)
+                for call in calls:
+                    stdin = [kw.value for kw in call.keywords if kw.arg == "stdin"]
+                    self.assertEqual([ast.unparse(value) for value in stdin], ["subprocess.DEVNULL"],
+                                     f"line {call.lineno}: {ast.unparse(call)}")
+
     def test_pr_gates_resolve_base_unambiguously(self) -> None:
         """3b620 round 8 (r7 review E1): D5, D9, D13 and tension-scan, as
         copies inside a fixture, refuse (exit 2) a base git reads from a
@@ -36491,7 +36512,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 5b8f07f67932e6a2e08b8de287bea230dd312d319654494f39b7c3349f6be1bb
-        lint_common.py PASSIVE F 82f35387a39a2ada3768e8bae5f374a6bdb6574c2a0997acc21373bead986555
+        lint_common.py PASSIVE F 3e71e7edd87001c9ed62e6adfb498779db1938c99af6799d34f277efbff592fe
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
