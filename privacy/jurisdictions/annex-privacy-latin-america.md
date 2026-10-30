@@ -2,8 +2,8 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.16\
-**Date:** 2026-10-27\
+**Version:** 1.0.17\
+**Date:** 2026-10-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/jurisdictions/annex-privacy-brazil.md`](../jurisdictions/annex-privacy-brazil.md), [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -65,7 +65,7 @@ Most Latin American jurisdictions apply general data protection principles to AI
 - **Colombia:** The SIC applies Law 1581 to AI systems. Data subjects may exercise ARCO rights against automated processing.
 - **Ecuador:** the LOPDP gives data subjects a right not to be subject to a decision based solely or partly on automated assessments, including profiling, that produces legal effects on them or infringes their fundamental rights and freedoms, with rights to a reasoned explanation, to present observations, and to challenge the decision (Article 20); the right does not apply in the cases Article 20 excludes. See the dedicated [`Ecuador privacy annex`](annex-privacy-ecuador.md).
 - **Chile and Peru:** Both apply their data protection laws to AI processing. Chile has enacted Law 21.719 (in force 2026-12-01), which introduces explicit automated decision-making provisions; Peru applies its Law 29733.
-- **BASC regional context:** In jurisdictions where BASC certification is relevant, privacy controls should be aligned with BASC security management standards in addition to applicable local data protection laws.
+- **BASC regional context:** In jurisdictions where BASC certification is relevant, the BASC International Norm commits the organization to promote security in the use of information technologies (5.2.1(e)) and lists information security elements in its infrastructure clause (7.1.3); the information-security controls themselves are in chapter 5 of BASC International Security Standard 6.0.3, which [`policy-basc-information-security.md`](../../compliance/logistics/policy-basc-information-security.md) maps to the organization's control areas. These controls can serve as supporting controls for the organization's privacy programme, as this library recommends; the privacy controls themselves rest on the applicable local data protection laws.
 
 ---
 
