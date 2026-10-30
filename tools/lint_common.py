@@ -1224,7 +1224,8 @@ def require_git_worktree_at(root: Path) -> str | None:
 
     try:
         inside = subprocess.run(["git", "-C", str(root), "rev-parse", "--is-inside-work-tree"],
-                                capture_output=True, text=True, check=True).stdout.strip()
+                                stdin=subprocess.DEVNULL, capture_output=True, text=True,
+                                check=True).stdout.strip()
     except (subprocess.CalledProcessError, OSError) as exc:
         return f"{root} is not inside a git work tree ({exc}); nothing can be checked."
     if inside != "true":
@@ -1734,7 +1735,7 @@ def _store_git_text(args: list[str], repo_root: Path | str | None) -> str | None
     root = Path(repo_root) if repo_root is not None else REPO_ROOT
     try:
         result = subprocess.run(["git", "-C", str(root), *args],
-                                capture_output=True, text=True, check=True)
+                                stdin=subprocess.DEVNULL, capture_output=True, text=True, check=True)
     except (subprocess.CalledProcessError, OSError):
         return None
     return result.stdout
@@ -2186,7 +2187,7 @@ def git(*args: str, raw: bool = False) -> str | bytes:
     ``resolve_pr_range`` rely on. ``raw=True`` returns stdout as bytes, neither
     decoded nor stripped, for output that need not be UTF-8 (tree entry names).
     Raises on non-zero exit."""
-    out = subprocess.check_output(["git", *args], text=not raw)
+    out = subprocess.check_output(["git", *args], stdin=subprocess.DEVNULL, text=not raw)
     return out if raw else out.rstrip("\n")
 
 
@@ -2240,6 +2241,7 @@ def git_show(ref: str, path: str) -> str | None:
     try:
         return subprocess.check_output(
             ["git", "show", f"{ref}:{path}", "--"],
+            stdin=subprocess.DEVNULL,
             text=True,
             stderr=subprocess.DEVNULL,
         )
@@ -2272,7 +2274,7 @@ def git_tree_entry(rev: str, path: str) -> tuple[str, str] | None:
     env = {k: v for k, v in os.environ.items() if k not in _TREE_ENTRY_DROPPED_ENV}
     listing = subprocess.check_output(
         ["git", "ls-tree", "-z", "--full-tree", rev, "--", f":(literal){path}"],
-        stderr=subprocess.DEVNULL, env=env,
+        stdin=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env=env,
     )
     if not listing:
         return None
@@ -2299,6 +2301,7 @@ def git_show_strict(ref: str, path: str) -> str | None:
         return None
     return subprocess.check_output(
         ["git", "show", f"{ref}:{path}"],
+        stdin=subprocess.DEVNULL,
         text=True,
         stderr=subprocess.DEVNULL,
     )
@@ -3117,9 +3120,10 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
     here = [] if from_cwd else ["-C", str(repo_root)]
     own_env = {k: v for k, v in os.environ.items() if k not in ("GIT_DIR", "GIT_WORK_TREE")}
     try:
-        current = subprocess.check_output(["git", *here, "rev-parse", "--absolute-git-dir"])
+        current = subprocess.check_output(["git", *here, "rev-parse", "--absolute-git-dir"],
+                                          stdin=subprocess.DEVNULL)
         own = subprocess.check_output(["git", "-C", str(repo_root), "rev-parse", "--absolute-git-dir"],
-                                      env=own_env)
+                                      stdin=subprocess.DEVNULL, env=own_env)
     except (subprocess.CalledProcessError, OSError) as exc:
         return f"could not confirm that git reads this script's repository {repo_root}: {exc}"
     current, own = current.rstrip(b"\n"), own.rstrip(b"\n")
@@ -3141,19 +3145,22 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
         # directory it runs in with GIT_INDEX_FILE, so each refuses only
         # where it points away from repo_root (round 7).
         if "GIT_WORK_TREE" in os.environ:
-            top = subprocess.check_output(["git", *here, "rev-parse", "--show-toplevel"]).rstrip(b"\n")
+            top = subprocess.check_output(["git", *here, "rev-parse", "--show-toplevel"],
+                                          stdin=subprocess.DEVNULL).rstrip(b"\n")
             if not (os.path.isabs(top) and _existing_realpath(top) == root):
                 return (f"GIT_WORK_TREE in the environment gives git the work tree "
                         f"{os.fsdecode(top)!r}, not this script's repository {repo_root}")
         if "GIT_INDEX_FILE" in os.environ:
             index = subprocess.check_output(
-                ["git", *here, "rev-parse", "--path-format=absolute", "--git-path", "index"]).rstrip(b"\n")
+                ["git", *here, "rev-parse", "--path-format=absolute", "--git-path", "index"],
+                stdin=subprocess.DEVNULL).rstrip(b"\n")
             if not (os.path.isabs(index) and _existing_realpath(os.path.dirname(index)) == current):
                 return (f"GIT_INDEX_FILE in the environment gives git the index "
                         f"{os.fsdecode(index)!r}, not one in the git directory "
                         f"{os.fsdecode(current)!r} it reads; unset it and run again")
         common = subprocess.check_output(
-            ["git", *here, "rev-parse", "--path-format=absolute", "--git-common-dir"]).rstrip(b"\n")
+            ["git", *here, "rev-parse", "--path-format=absolute", "--git-common-dir"],
+            stdin=subprocess.DEVNULL).rstrip(b"\n")
         if not os.path.isabs(common):
             return (f"could not confirm that git reads this script's repository {repo_root}: "
                     f"git rev-parse --git-common-dir printed {os.fsdecode(common)!r}, not an "
@@ -3291,7 +3298,8 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
             # reads it, so -c and GIT_CONFIG_* cannot supply one.
             try:
                 worktree = subprocess.check_output(
-                    ["git", "config", "--file", os.path.join(current, b"config"), "--get", "core.worktree"])
+                    ["git", "config", "--file", os.path.join(current, b"config"), "--get", "core.worktree"],
+                    stdin=subprocess.DEVNULL)
             except subprocess.CalledProcessError:
                 worktree = b""
             worktree = worktree.rstrip(b"\n")
