@@ -355,6 +355,20 @@ def main(argv: list[str]) -> int:
             file=sys.stderr,
         )
         return 2
+    except OSError as exc:
+        # git that cannot be started at all (not on PATH, or not executable)
+        # exited 1, D5's own missing-rotation FAIL code, with a traceback; it
+        # refuses instead, naming the error, as D13 does (3b697).
+        print(f"ERROR: git could not be run to find the merge base (base={base}, head={head}): "
+              f"{exc}", file=sys.stderr)
+        return 2
+    except UnicodeDecodeError as exc:
+        # Defence in depth (3b697): git() captures only standard output and
+        # merge-base prints object names, so no known input reaches this; if
+        # git's output ever fails to decode, refuse, naming the error, as D13 does.
+        print(f"ERROR: git's output could not be decoded finding the merge base "
+              f"(base={base}, head={head}): {exc}", file=sys.stderr)
+        return 2
 
     # D5 keeps its own resolution flow (see lint_common's hoist note), so it
     # carries its own copy of the collapsed-range refusal: a base and head
