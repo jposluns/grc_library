@@ -13351,6 +13351,143 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("D13 SKIP", r.stdout)
         self.assertNotIn("D13 OK", r.stdout)
 
+    # 3b697: D5 and D9, with the marker of each one's clean pass.
+    D5_D9_GATES = (
+        ("check-todo-rotation-on-pr.py", "OK:"),
+        ("check-retired-section-orphan-on-pr.py", "D9 OK"),
+    )
+
+    def test_d5_d9_git_absent_refuses_exit2(self) -> None:
+        # 3b697: git missing from PATH (FileNotFoundError, an OSError) at
+        # the merge-base call exited 1, D5's and D9's own FAIL code, with a
+        # traceback; each refuses with exit 2 naming the error instead, as
+        # D13 does (test_d13_git_absent_refuses_exit2). Each runs as its own
+        # copy inside the fixture. Mutation killed: dropping the OSError
+        # clause at either gate's merge-base call.
+        import subprocess as sp
+
+        tmp, _git = self._repo()
+        tools = self._own_copies(tmp / "tools")
+        empty_dir = Path(tempfile.mkdtemp(prefix="no-git-")).resolve()
+        self.addCleanup(shutil.rmtree, empty_dir, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["PATH"] = str(empty_dir)
+        for script, ok in self.D5_D9_GATES:
+            with self.subTest(gate=script):
+                r = sp.run([sys.executable, str(tools / script), "origin/main", "HEAD"],
+                           capture_output=True, text=True, cwd=str(tmp), env=env)
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("ERROR: git could not be run to find the merge base "
+                              "(base=origin/main, head=HEAD)", r.stderr)
+                self.assertIn("No such file or directory: 'git'", r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn(ok, r.stdout)
+
+    def _d5_d9_in_process(self, script, exc):
+        """``(rc, stdout, stderr)`` of D5's main() or D9's run() in process
+        over origin/main..HEAD, ``exc`` raised by the merge-base git call
+        and every other git call an AssertionError; the base passes
+        resolve_base_ref unchanged, so the merge-base call is the first
+        git call (3b697)."""
+        import contextlib
+        import importlib.util
+        import io
+
+        spec = importlib.util.spec_from_file_location(
+            "d5_d9_under_test", REPO_ROOT / "tools" / script)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        def fake_git(*args):
+            if args[0] == "merge-base":
+                raise exc
+            raise AssertionError(f"unexpected git call: {args}")
+
+        mod.git = fake_git
+        mod.resolve_base_ref = lambda base, root, **kw: (base, None)
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            if script == "check-todo-rotation-on-pr.py":
+                rc = mod.main([script, "origin/main", "HEAD"])
+            else:
+                rc = mod.run("origin/main", "HEAD")
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_d5_d9_git_not_executable_at_merge_base_refuses_exit2(self) -> None:
+        # 3b697: git that is present but cannot be executed (PermissionError,
+        # an OSError) at the merge-base call raised out of D5's main() and
+        # D9's run(); each returns 2 naming the error instead. Mutation
+        # killed: dropping the OSError clause at either gate's merge-base call.
+        denied = PermissionError(13, "Permission denied", "git")
+        for script, ok in self.D5_D9_GATES:
+            with self.subTest(gate=script):
+                rc, out, err = self._d5_d9_in_process(script, denied)
+                self.assertEqual(rc, 2, f"stdout:\n{out}\nstderr:\n{err}")
+                self.assertIn("ERROR: git could not be run to find the merge base "
+                              "(base=origin/main, head=HEAD): [Errno 13] Permission denied: "
+                              "'git'", err)
+                self.assertNotIn(ok, out)
+
+    def test_d5_d9_undecodable_git_output_at_merge_base_refuses_exit2(self) -> None:
+        # 3b697 round 2: git output that is not valid UTF-8 (UnicodeDecodeError)
+        # at the merge-base call raised out of D5's main() and D9's run(), a
+        # traceback with exit 1; each returns 2 naming the decoding error
+        # instead, in D13's wording (test_d13_undecodable_git_output_refuses_exit2).
+        # The error is the one test_d13_undecodable_output_at_later_call_refuses_exit2
+        # injects. Mutation killed: dropping the UnicodeDecodeError clause at
+        # either gate's merge-base call.
+        undecodable = UnicodeDecodeError("utf-8", b"caf\xe9", 3, 4, "invalid continuation byte")
+        for script, ok in self.D5_D9_GATES:
+            with self.subTest(gate=script):
+                try:
+                    rc, out, err = self._d5_d9_in_process(script, undecodable)
+                except UnicodeDecodeError as exc:
+                    self.fail(f"the merge-base call raised {exc!r}, a traceback, not exit 2")
+                self.assertEqual(rc, 2, f"stdout:\n{out}\nstderr:\n{err}")
+                self.assertIn("ERROR: git's output could not be decoded finding the merge base "
+                              "(base=origin/main, head=HEAD): 'utf-8' codec can't decode byte "
+                              "0xe9 in position 3: invalid continuation byte", err)
+                self.assertNotIn("Traceback", err)
+                self.assertNotIn(ok, out)
+
+    def test_d5_d9_git_refusal_at_merge_base_refuses_exit2(self) -> None:
+        # 3b697 round 3 (r2 review): git refusing the merge-base call
+        # (CalledProcessError; here exit 128 on a base git does not know,
+        # which resolve_base_ref passes unchanged) refuses with exit 2 in each
+        # gate's existing message naming the base and head, and no traceback.
+        # D9's merge-base call has its own try since round 1, so its clause
+        # is the only one that catches it. Each runs as its own copy inside
+        # the fixture. Mutation killed: dropping the CalledProcessError
+        # clause at either gate's merge-base call.
+        import subprocess as sp
+
+        tmp, _git = self._repo()
+        tools = self._own_copies(tmp / "tools")
+        base = "refs/heads/no-such-branch"
+        # Each refusal in full, ending with the CalledProcessError of each
+        # gate's own git call (D5 runs git from the current directory, D9
+        # with -C REPO_ROOT). D5's message adds ". " after the error's own
+        # closing period.
+        failed = "' returned non-zero exit status 128."
+        refusals = {
+            "check-todo-rotation-on-pr.py":
+                f"ERROR: could not determine merge-base of {base}..HEAD: Command '"
+                f"{['git', 'merge-base', base, 'HEAD']}{failed}. In GitHub Actions, ensure "
+                f"that actions/checkout uses fetch-depth: 0.\n",
+            "check-retired-section-orphan-on-pr.py":
+                f"ERROR: git failed (base={base}, head=HEAD): Command '"
+                f"{['git', '-C', str(tmp), 'merge-base', base, 'HEAD']}{failed}\n",
+        }
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        for script, ok in self.D5_D9_GATES:
+            with self.subTest(gate=script):
+                r = sp.run([sys.executable, str(tools / script), base, "HEAD"],
+                           capture_output=True, text=True, cwd=str(tmp), env=env)
+                self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn(refusals[script], r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertNotIn(ok, r.stdout)
+
     # The two git calls resolve_base_ref validates a base with: the argument
     # that marks each, and the call its refusal names (3b620 round 17).
     D13_BASE_VALIDATION_CALLS = (
@@ -36418,11 +36555,11 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-narrative-corpus-mixed-diff-on-pr.py NO_FS F d887f9c093699a558892270fda2810e744bfb55c1c9b4cbcae4ed6a666fefd5d
         check-portability.sh FIXED F 47a3853e165ba918c0f4f5687904f662a0a9d805356428394fd724ff227756d5
         check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
-        check-retired-section-orphan-on-pr.py NO_FS F aa039c437a563f4a88cf540c9cd8e0ea15e37edfce292f19fcb134443a8ea87c
+        check-retired-section-orphan-on-pr.py NO_FS F 6ea9e98018ab593c92a9a4e6166bfa5e5574588d4181fe0a54ccb0bd19e212cb
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
         check-stranded-control-code-on-pr.py NO_FS F 2c853cb450d2a00fe25290a3fce5284f0284c49560e7e23694fe25c0779301f6
         check-todo-floor-monotonic-on-pr.py NO_FS F 2be7d8fc308974a0b99b60a2d40f02b93c21be83ca1837d0a40c55974c893d29
-        check-todo-rotation-on-pr.py NO_FS F 2b0c8ae01f02d2267d741656e99dbff257ec7407a4debbd5cf9d1812302c9844
+        check-todo-rotation-on-pr.py NO_FS F d1bc001ef8b9f6af09d17fcdfbf7a87c26babc84bb6264d1de54f8a3596db155
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 35a3896f610c90c1114d570720a0e152e57581ae2b67bda805ba14eda7866d5d
         ci-status.py NO_FS F 068ed02eb5f5a81572dce604a4cb1965582dbc178c7c9715be3d37dd8e01e54b

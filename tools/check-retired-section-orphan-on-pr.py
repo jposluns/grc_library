@@ -260,8 +260,28 @@ def run(base: str | None, head: str) -> int:
     if refusal:
         print(f"ERROR: {refusal} (head={head}); nothing was evaluated.", file=sys.stderr)
         return 2
+    # The merge-base read has its own try so that git that cannot be run
+    # refuses here without widening the handler of the reads below (3b697).
     try:
         merge_base = git("merge-base", base, head).strip()
+    except subprocess.CalledProcessError as exc:
+        print(f"ERROR: git failed (base={base}, head={head}): {exc}", file=sys.stderr)
+        return 2
+    except OSError as exc:
+        # git that cannot be started at all (not on PATH, or not executable)
+        # exited 1, D9's own orphan FAIL code, with a traceback; it refuses
+        # instead, naming the error, as D13 does (3b697).
+        print(f"ERROR: git could not be run to find the merge base (base={base}, head={head}): "
+              f"{exc}", file=sys.stderr)
+        return 2
+    except UnicodeDecodeError as exc:
+        # Defence in depth (3b697): git() captures only standard output and
+        # merge-base prints object names, so no known input reaches this; if
+        # git's output ever fails to decode, refuse, naming the error, as D13 does.
+        print(f"ERROR: git's output could not be decoded finding the merge base "
+              f"(base={base}, head={head}): {exc}", file=sys.stderr)
+        return 2
+    try:
         head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}").strip()
         try:
             # The refusal's repo= field and the comparison below: git failing
