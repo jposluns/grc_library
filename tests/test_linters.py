@@ -13251,14 +13251,18 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # base" (exit 1, no output) is git refusing to answer, not a skip. At
         # the base both cases printed "D13 SKIP: no resolvable merge base
         # ...; fail-open." with exit 0. Mutation killed: reading any
-        # CalledProcessError from merge-base as the SKIP again.
+        # CalledProcessError from merge-base as the SKIP again. 3b620 round
+        # 18: git's dubious-ownership exit 128 at rev-parse --verify is not
+        # its unknown-name answer, so resolve_base_ref refuses it first.
         import subprocess as sp
 
         tmp, env, run = self._d13_fixture()
         owner = {"GIT_TEST_ASSUME_DIFFERENT_OWNER": "1"}
-        for label, base, extra, named in (
-            ("bad base object", "origin/no-such-branch", None, "origin/no-such-branch"),
-            ("dubious ownership", "origin/main", owner, "dubious ownership"),
+        for label, base, extra, refusal, named in (
+            ("bad base object", "origin/no-such-branch", None,
+             "ERROR: git failed finding the merge base", "origin/no-such-branch"),
+            ("dubious ownership", "origin/main", owner,
+             "ERROR: git failed validating the base", "dubious ownership"),
         ):
             with self.subTest(case=label):
                 if extra and sp.run(["git", "-C", str(tmp), "rev-parse", "HEAD"],
@@ -13266,7 +13270,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     self.skipTest("this git does not honour GIT_TEST_ASSUME_DIFFERENT_OWNER")
                 r = run(base, "feat", extra)
                 self.assertEqual(r.returncode, 2, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
-                self.assertIn("ERROR: git failed finding the merge base", r.stderr)
+                self.assertIn(refusal, r.stderr)
                 self.assertIn("git said: ", r.stderr)
                 self.assertIn(named, r.stderr.split("git said: ", 1)[1])
                 self.assertNotIn("D13 SKIP", r.stdout)
@@ -13277,12 +13281,13 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # no output) keeps the documented fail-open SKIP; a deleted corpus
         # document over a real range is still clean (it has no HEAD text).
         # Mutation killed: refusing every merge-base failure, or dropping the
-        # deleted-document skip.
+        # deleted-document skip. The base prints fully qualified, as
+        # resolve_base_ref hands it back (3b620).
         _tmp, _env, run = self._d13_fixture()
         r = run("origin/main", "lonely")
         self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
-        self.assertIn("D13 SKIP: no resolvable merge base (base=origin/main, head=lonely); "
-                      "fail-open.", r.stdout)
+        self.assertIn("D13 SKIP: no resolvable merge base "
+                      "(base=refs/remotes/origin/main, head=lonely); fail-open.", r.stdout)
         self.assertEqual(r.stderr, "")
         r = run("origin/main", "feat")
         self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
@@ -13294,14 +13299,16 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # git warning on stderr (an ambiguous refname) and a nonzero exit
         # other than 1 with no output at all (a PATH shim) both exit 2.
         # Mutations killed: dropping `and not exc.stderr` (M6) or
-        # `exc.returncode == 1 and` (M7) from merge_base_of.
+        # `exc.returncode == 1 and` (M7) from merge_base_of. The ambiguous
+        # refname is the head, on lonely's unrelated history: resolve_base_ref
+        # refuses an ambiguous base before merge-base runs (3b620).
         import subprocess as sp
 
         real_git = shutil.which("git")
         self.assertIsNotNone(real_git)
         tmp, env, run = self._d13_fixture()
         for kind in ("tag", "branch"):
-            sp.run(["git", "-C", str(tmp), kind, "amb", "main"], check=True, env=env)
+            sp.run(["git", "-C", str(tmp), kind, "amb", "lonely"], check=True, env=env)
         shim_dir = Path(tempfile.mkdtemp(prefix="gitshim-")).resolve()
         self.addCleanup(shutil.rmtree, shim_dir, ignore_errors=True)
         shim = shim_dir / "git"
@@ -13316,7 +13323,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         shim.chmod(0o755)
         silent = {"PATH": f"{shim_dir}{os.pathsep}{env['PATH']}"}
         for label, base, head, extra, named in (
-            ("exit 1 with a git warning", "amb", "lonely", None, "refname 'amb' is ambiguous"),
+            ("exit 1 with a git warning", "origin/main", "amb", None, "refname 'amb' is ambiguous"),
             ("exit 128 with no output", "origin/main", "feat", silent, "(nothing)"),
         ):
             with self.subTest(case=label):
@@ -13343,6 +13350,391 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("Traceback", r.stderr)
         self.assertNotIn("D13 SKIP", r.stdout)
         self.assertNotIn("D13 OK", r.stdout)
+
+    # The two git calls resolve_base_ref validates a base with: the argument
+    # that marks each, and the call its refusal names (3b620 round 17).
+    D13_BASE_VALIDATION_CALLS = (
+        ("--allow-onelevel", "check-ref-format"),
+        ("--symbolic-full-name", "rev-parse --symbolic-full-name"),
+    )
+
+    def _d13_validation_oserror(self, tmp, env, marker):
+        """Run the fixture's D13 copy over origin/main..feat in-process,
+        subprocess.run raising OSError (EAGAIN) on the git call whose argv
+        holds ``marker`` and running every other git call for real; stderr
+        carries one INJECTED line per raise. A simulation of a transient
+        spawn failure, not a real fault (3b620 round 17)."""
+        import subprocess as sp
+
+        driver = (
+            "import errno, os, runpy, subprocess, sys\n"
+            "marker = os.environ['INJECT_MARKER']\n"
+            "real = subprocess.run\n"
+            "def run(cmd, *a, **kw):\n"
+            "    argv = [os.fsdecode(c) for c in cmd]\n"
+            "    if argv[:1] == ['git'] and marker in argv:\n"
+            "        print('INJECTED', ' '.join(argv), file=sys.stderr)\n"
+            "        raise OSError(errno.EAGAIN, 'injected')\n"
+            "    return real(cmd, *a, **kw)\n"
+            "subprocess.run = run\n"
+            "sys.argv = sys.argv[1:]\n"
+            "sys.path.insert(0, os.path.dirname(os.path.abspath(sys.argv[0])))\n"
+            "runpy.run_path(sys.argv[0], run_name='__main__')\n"
+        )
+        return sp.run(
+            [sys.executable, "-c", driver,
+             str(tmp / "tools" / "check-stranded-control-code-on-pr.py"), "origin/main", "feat"],
+            capture_output=True, text=True, cwd=str(tmp), env={**env, "INJECT_MARKER": marker})
+
+    def _assert_d13_base_validation_refusal(self, r, call) -> None:
+        import errno
+
+        out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+        self.assertEqual(r.stderr.count("INJECTED"), 1, out)
+        self.assertEqual(r.returncode, 2, out)
+        self.assertIn(f"ERROR: git could not be run validating the base 'origin/main' "
+                      f"(git {call}): [Errno {errno.EAGAIN}] injected", r.stderr)
+        self.assertNotIn("merge base", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("D13 SKIP", r.stdout)
+        self.assertNotIn("D13 OK", r.stdout)
+
+    def test_d13_base_validation_oserror_refuses_exit2(self) -> None:
+        # 3b620 round 17 (r16 reviews): an OSError other than git being
+        # absent (EAGAIN, ENOMEM, EMFILE) on either git call resolve_base_ref
+        # validates the base with passed the base unchanged, so an
+        # unvalidated base reached the merge-base call while git otherwise
+        # ran; D13 now refuses with exit 2 naming the call and the error,
+        # before merge-base runs. git absent (FileNotFoundError) still passes
+        # the base to the merge-base handling
+        # (test_d13_git_absent_refuses_exit2). Mutation killed:
+        # test_d13_base_validation_oserror_mutant_passes_base.
+        tmp, env, _run = self._d13_fixture()
+        for marker, call in self.D13_BASE_VALIDATION_CALLS:
+            with self.subTest(call=call):
+                self._assert_d13_base_validation_refusal(
+                    self._d13_validation_oserror(tmp, env, marker), call)
+
+    def test_d13_base_validation_oserror_mutant_passes_base(self) -> None:
+        # 3b620 round 17: the mutant of lint_common whose two OSError
+        # branches pass the base unchanged again (round 16) fails
+        # test_d13_base_validation_oserror_refuses_exit2's assertions: the
+        # unvalidated base reaches merge-base and D13 passes clean (exit 0).
+        tmp, env, _run = self._d13_fixture()
+        lc = tmp / "tools" / "lint_common.py"
+        text = lc.read_text(encoding="utf-8")
+        for refusing in (
+            '            return base, _base_validation_refusal(base, repo_root, '
+            '"check-ref-format", exc)\n',
+            '        return base, _base_validation_refusal(base, repo_root, '
+            '"rev-parse --symbolic-full-name",\n'
+            '                                              exc)\n',
+        ):
+            self.assertEqual(text.count(refusing), 1, refusing)
+            indent = refusing[:len(refusing) - len(refusing.lstrip(" "))]
+            text = text.replace(refusing, f"{indent}return base, None\n")
+        lc.write_text(text, encoding="utf-8")
+        for marker, call in self.D13_BASE_VALIDATION_CALLS:
+            with self.subTest(call=call):
+                r = self._d13_validation_oserror(tmp, env, marker)
+                with self.assertRaises(self.failureException):
+                    self._assert_d13_base_validation_refusal(r, call)
+                self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("D13 OK", r.stdout)
+
+    # A marker no git argv holds: _base_validation_fault then faults no call
+    # and only traces merge-base (3b620 round 19).
+    NO_FAULT = "--3b620-no-fault"
+
+    def _base_validation_fault(self, script, cwd, env, marker, kind, said="",
+                               base="origin/main"):
+        """Run ``script`` over ``base``..feat in-process, subprocess.run
+        faulting the git call whose argv holds ``marker`` and running every
+        other git call for real: OSError (EAGAIN) for ``oserror``, else a
+        return of ``int(kind)`` with no stdout and ``said`` on stderr. stderr
+        carries one INJECTED line per fault and a MERGE-BASE line per git
+        merge-base call. A simulation, not a real fault (3b620 round 18)."""
+        import subprocess as sp
+
+        driver = (
+            "import errno, os, runpy, subprocess, sys\n"
+            "marker, kind = os.environ['INJECT_MARKER'], os.environ['INJECT_KIND']\n"
+            "real = subprocess.run\n"
+            "def run(cmd, *a, **kw):\n"
+            "    argv = [os.fsdecode(c) for c in cmd]\n"
+            "    if argv[:1] == ['git'] and 'merge-base' in argv:\n"
+            "        print('MERGE-BASE', ' '.join(argv), file=sys.stderr)\n"
+            "    if argv[:1] == ['git'] and marker in argv:\n"
+            "        print('INJECTED', ' '.join(argv), file=sys.stderr)\n"
+            "        if kind == 'oserror':\n"
+            "            raise OSError(errno.EAGAIN, 'injected')\n"
+            "        return subprocess.CompletedProcess(\n"
+            "            cmd, int(kind), b'', os.environ['INJECT_SAID'].encode())\n"
+            "    return real(cmd, *a, **kw)\n"
+            "subprocess.run = run\n"
+            "sys.argv = sys.argv[1:]\n"
+            "sys.path.insert(0, os.path.dirname(os.path.abspath(sys.argv[0])))\n"
+            "runpy.run_path(sys.argv[0], run_name='__main__')\n"
+        )
+        return sp.run(
+            [sys.executable, "-c", driver, str(script), base, "feat"],
+            capture_output=True, text=True, cwd=str(cwd),
+            env={**env, "INJECT_MARKER": marker, "INJECT_KIND": kind, "INJECT_SAID": said})
+
+    # The injected --symbolic-full-name results (3b620 round 18): a git
+    # killed by SIGKILL, and one exiting 128 on an internal error.
+    D13_SYMBOLIC_FAULTS = (
+        ("-9", "", "(nothing)"),
+        ("128", "fatal: unable to allocate memory\n", "fatal: unable to allocate memory"),
+    )
+
+    def _assert_d13_symbolic_fault_refusal(self, r, rc, named) -> None:
+        out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+        self.assertEqual(r.stderr.count("INJECTED"), 1, out)
+        self.assertEqual(r.returncode, 2, out)
+        self.assertIn(f"ERROR: git failed validating the base 'origin/main' (git rev-parse "
+                      f"--symbolic-full-name exited {rc}, git said: {named}; git rev-parse "
+                      f"--verify exited 0, git said: (nothing)), not git's answer for a name "
+                      f"it does not know", r.stderr)
+        self.assertNotIn("MERGE-BASE", r.stderr)
+        self.assertNotIn("merge base", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("D13 SKIP", r.stdout)
+        self.assertNotIn("D13 OK", r.stdout)
+
+    def test_d13_symbolic_full_name_nonzero_refuses_exit2(self) -> None:
+        # 3b620 round 18 (r17 reviews): any nonzero exit of git rev-parse
+        # --symbolic-full-name passed the base unchanged, so with a return
+        # code of -9 (SIGKILL) injected there D13 reached merge-base with
+        # the unqualified short base and exited 0. Now the base passes only
+        # where git rev-parse --verify answers that git does not know the
+        # name (exit 1, no output); origin/main is known, so D13 refuses with
+        # exit 2 naming both calls, before merge-base runs. An unknown base
+        # still reaches merge-base and refuses there
+        # (test_d13_git_refusal_at_merge_base_refuses_exit2). Mutation killed:
+        # test_d13_symbolic_full_name_nonzero_mutant_passes_base.
+        tmp, env, _run = self._d13_fixture()
+        d13 = tmp / "tools" / "check-stranded-control-code-on-pr.py"
+        for rc, said, named in self.D13_SYMBOLIC_FAULTS:
+            with self.subTest(returncode=rc):
+                self._assert_d13_symbolic_fault_refusal(
+                    self._base_validation_fault(d13, tmp, env, "--symbolic-full-name", rc, said),
+                    rc, named)
+
+    def test_d13_symbolic_full_name_nonzero_mutant_passes_base(self) -> None:
+        # 3b620 round 18: the mutant of lint_common that restores
+        # ``return base, None`` on the nonzero --symbolic-full-name branch
+        # (round 17) fails test_d13_symbolic_full_name_nonzero_refuses_exit2's
+        # assertions: the base reaches merge-base and D13 passes clean.
+        tmp, env, _run = self._d13_fixture()
+        lc = tmp / "tools" / "lint_common.py"
+        text = lc.read_text(encoding="utf-8")
+        branch = text.index("    if proc.returncode != 0:\n"
+                            "        # Only git's own answer for a name it does not know")
+        end = text.index("    full = proc.stdout.rstrip(b\"\\n\")\n", branch)
+        lc.write_text(text[:branch] + "    if proc.returncode != 0:\n        return base, None\n"
+                      + text[end:], encoding="utf-8")
+        d13 = tmp / "tools" / "check-stranded-control-code-on-pr.py"
+        for rc, said, named in self.D13_SYMBOLIC_FAULTS:
+            with self.subTest(returncode=rc):
+                r = self._base_validation_fault(d13, tmp, env, "--symbolic-full-name", rc, said)
+                with self.assertRaises(self.failureException):
+                    self._assert_d13_symbolic_fault_refusal(r, rc, named)
+                self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertIn("MERGE-BASE", r.stderr)
+                self.assertIn("D13 OK", r.stdout)
+
+    def test_d9_d5_tension_scan_base_validation_oserror_refuses_exit2(self) -> None:
+        # 3b620 round 18 (r17 reviews): D9, D5 and tension-scan share
+        # resolve_base_ref with D13; an OSError (EAGAIN) injected at its
+        # check-ref-format call makes each exit 2 with the round-17 refusal,
+        # never reaching merge-base.
+        import errno
+
+        tmp, git = self._repo()
+        git("checkout", "-q", "-b", "feat")
+        (tmp / "CHANGELOG.md").write_text(
+            "# Changelog\n\nNew entry.\n\nOld entry.\n", encoding="utf-8")
+        git("commit", "-q", "-am", "feat: a change")
+        own = self._own_copies(tmp / "tools")
+        for script in ("check-retired-section-orphan-on-pr.py",
+                       "check-todo-rotation-on-pr.py", "tension-scan.py"):
+            with self.subTest(gate=script):
+                r = self._base_validation_fault(own / script, tmp, os.environ,
+                                                "--allow-onelevel", "oserror")
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertEqual(r.stderr.count("INJECTED"), 1, out)
+                self.assertEqual(r.returncode, 2, out)
+                self.assertIn("git could not be run validating the base 'origin/main' "
+                              f"(git check-ref-format): [Errno {errno.EAGAIN}] injected",
+                              r.stderr)
+                self.assertNotIn("MERGE-BASE", r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+
+    def test_d9_d5_tension_scan_symbolic_full_name_nonzero_refuses_exit2(self) -> None:
+        # 3b620 round 19: the round-18 nonzero --symbolic-full-name branch,
+        # with a return code of -9 (SIGKILL) injected there, makes D9, D5
+        # and tension-scan each exit 2 with the refusal naming both calls
+        # (origin/main is known, so rev-parse --verify exits 0), never
+        # reaching merge-base.
+        tmp, git = self._repo()
+        git("checkout", "-q", "-b", "feat")
+        (tmp / "CHANGELOG.md").write_text(
+            "# Changelog\n\nNew entry.\n\nOld entry.\n", encoding="utf-8")
+        git("commit", "-q", "-am", "feat: a change")
+        own = self._own_copies(tmp / "tools")
+        for script in ("check-retired-section-orphan-on-pr.py",
+                       "check-todo-rotation-on-pr.py", "tension-scan.py"):
+            with self.subTest(gate=script):
+                r = self._base_validation_fault(own / script, tmp, os.environ,
+                                                "--symbolic-full-name", "-9")
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertEqual(r.stderr.count("INJECTED"), 1, out)
+                self.assertEqual(r.returncode, 2, out)
+                self.assertIn("git failed validating the base 'origin/main' (git rev-parse "
+                              "--symbolic-full-name exited -9, git said: (nothing); git "
+                              "rev-parse --verify exited 0, git said: (nothing)), not git's "
+                              "answer for a name it does not know", r.stderr)
+                self.assertNotIn("MERGE-BASE", r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+
+    def _d13_ambiguous_prefix(self, tmp, env):
+        """The first four digits of the fixture's feat commit, made an
+        ambiguous object name by writing a blob whose name starts with them
+        (3b620 round 19). One process at nice 19 searches blob contents by
+        hashing them, at most 2,000,000 (about 30 expected misses per 2**16;
+        no git call per try), within 300 seconds; the one blob found is then
+        written. Asserts git's round-18 answer for the prefix: rev-parse
+        --verify --quiet exits 1 with no output."""
+        import subprocess as sp
+
+        def git(*args, data=None):
+            return sp.run(["git", "-C", str(tmp), *args], capture_output=True, env=env,
+                          input=data, check=True).stdout
+
+        commit = git("rev-parse", "feat").decode().strip()
+        fmt = git("rev-parse", "--show-object-format").decode().strip()
+        prefix = commit[:4]
+        search = (
+            "import hashlib, os, sys\n"
+            "os.nice(19)\n"
+            "fmt, prefix = sys.argv[1], sys.argv[2]\n"
+            "for n in range(2000000):\n"
+            "    body = b'3b620 round 19 %d\\n' % n\n"
+            "    if hashlib.new(fmt, b'blob %d\\0' % len(body) + body).hexdigest()"
+            ".startswith(prefix):\n"
+            "        sys.stdout.write(body.decode('ascii'))\n"
+            "        break\n"
+        )
+        body = sp.run([sys.executable, "-I", "-c", search, fmt, prefix], capture_output=True,
+                      text=True, timeout=300, check=True).stdout
+        self.assertTrue(body, f"no blob found sharing the prefix {prefix}")
+        blob = git("hash-object", "-w", "--stdin", data=body.encode("ascii")).decode().strip()
+        self.assertEqual(blob[:4], prefix)
+        check = sp.run(["git", "-C", str(tmp), "rev-parse", "--verify", "--quiet",
+                        "--end-of-options", prefix], capture_output=True, env=env)
+        self.assertEqual((check.returncode, check.stdout, check.stderr), (1, b"", b""))
+        return prefix
+
+    def _assert_d13_hex_refusal(self, r, base) -> None:
+        out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+        self.assertEqual(r.returncode, 2, out)
+        self.assertIn(f"ERROR: the base {base!r} is hexadecimal digits but not a full object "
+                      f"name", r.stderr)
+        self.assertIn("pass a fully qualified ref, for example refs/remotes/origin/main, or a "
+                      "full object name", r.stderr)
+        self.assertNotIn("MERGE-BASE", r.stderr)
+        self.assertNotIn("merge base", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertNotIn("D13 SKIP", r.stdout)
+        self.assertNotIn("D13 OK", r.stdout)
+
+    def test_d13_ambiguous_abbreviated_base_refuses_exit2(self) -> None:
+        # 3b620 round 19 (r18 review): git rev-parse --verify --quiet exits 1
+        # with no output for an abbreviated object name a commit and another
+        # object share, its unknown-name answer, so round 18 passed
+        # <prefix>~1 unchanged and D13 reached merge-base and exited 0. Hexadecimal
+        # digits that are not a full object name now refuse before any ref
+        # lookup. Mutation killed: test_d13_ambiguous_abbreviated_base_mutant_passes_base.
+        tmp, env, _run = self._d13_fixture()
+        prefix = self._d13_ambiguous_prefix(tmp, env)
+        d13 = tmp / "tools" / "check-stranded-control-code-on-pr.py"
+        for base in (f"{prefix}~1", f"{prefix}^0"):
+            with self.subTest(base=base):
+                self._assert_d13_hex_refusal(
+                    self._base_validation_fault(d13, tmp, env, self.NO_FAULT, "0", base=base),
+                    base)
+
+    def test_d13_describe_and_unknown_base(self) -> None:
+        # 3b620 round 19: a describe-style base (<tag>-<n>-g<hex>, with a
+        # unique or an ambiguous hex part) refuses with exit 2 before
+        # merge-base (git resolves it to no ref); an unknown name still
+        # passes to merge-base and refuses there with exit 2, as before.
+        import subprocess as sp
+
+        tmp, env, _run = self._d13_fixture()
+        prefix = self._d13_ambiguous_prefix(tmp, env)
+        sp.run(["git", "-C", str(tmp), "tag", "v1", "main"], check=True, env=env)
+        described = sp.run(["git", "-C", str(tmp), "describe", "--tags", "--long", "feat"],
+                           capture_output=True, text=True, env=env, check=True).stdout.strip()
+        self.assertRegex(described, r"^v1-1-g[0-9a-f]+$")
+        d13 = tmp / "tools" / "check-stranded-control-code-on-pr.py"
+        for base in (described, f"v1-1-g{prefix}"):
+            with self.subTest(base=base):
+                r = self._base_validation_fault(d13, tmp, env, self.NO_FAULT, "0", base=base)
+                out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                self.assertEqual(r.returncode, 2, out)
+                self.assertIn(f"ERROR: git resolves the base {base!r} ambiguously or to 'no ref'",
+                              r.stderr)
+                self.assertNotIn("MERGE-BASE", r.stderr)
+                self.assertNotIn("D13 OK", r.stdout)
+        r = self._base_validation_fault(d13, tmp, env, self.NO_FAULT, "0", base="no-such-branch")
+        out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+        self.assertEqual(r.returncode, 2, out)
+        self.assertEqual(r.stderr.count("MERGE-BASE"), 1, out)
+        self.assertIn("ERROR: git failed finding the merge base (base=no-such-branch, head=feat)",
+                      r.stderr)
+        self.assertNotIn("D13 SKIP", r.stdout)
+        self.assertNotIn("D13 OK", r.stdout)
+
+    def test_d13_ambiguous_abbreviated_base_mutant_passes_base(self) -> None:
+        # 3b620 round 19: the mutant of lint_common without the hex-shape
+        # refusal and the ^{commit} check (round 18) fails
+        # test_d13_ambiguous_abbreviated_base_refuses_exit2's assertions:
+        # the ambiguous base reaches merge-base. Without only the hex-shape
+        # refusal, the ^{commit} check still refuses before merge-base.
+        tmp, env, _run = self._d13_fixture()
+        prefix = self._d13_ambiguous_prefix(tmp, env)
+        lc = tmp / "tools" / "lint_common.py"
+        original = lc.read_text(encoding="utf-8")
+        start = original.index("    # Hexadecimal digits that are not a full object name refuse")
+        end = original.index("    # The leading \"-\" test", start)
+        no_hex = original[:start] + original[end:]
+        start = no_hex.index("            # An ambiguous object name gives the same answer")
+        end = no_hex.index("            results += ((\"rev-parse --verify ^{commit}\", peeled),)\n",
+                           start)
+        end = no_hex.index("\n", end) + 1
+        mutant = no_hex[:start] + "            return base, None\n" + no_hex[end:]
+        d13 = tmp / "tools" / "check-stranded-control-code-on-pr.py"
+        lc.write_text(mutant, encoding="utf-8")
+        for base in (f"{prefix}~1", f"{prefix}^0"):
+            with self.subTest(mutant="both", base=base):
+                r = self._base_validation_fault(d13, tmp, env, self.NO_FAULT, "0", base=base)
+                with self.assertRaises(self.failureException):
+                    self._assert_d13_hex_refusal(r, base)
+                self.assertIn("MERGE-BASE", r.stderr, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        r = self._base_validation_fault(d13, tmp, env, self.NO_FAULT, "0", base=f"{prefix}~1")
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        self.assertIn("D13 OK", r.stdout)
+        lc.write_text(no_hex, encoding="utf-8")
+        base = f"{prefix}~1"
+        r = self._base_validation_fault(d13, tmp, env, self.NO_FAULT, "0", base=base)
+        out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+        self.assertEqual(r.returncode, 2, out)
+        self.assertIn(f"ERROR: git failed validating the base {base!r}", r.stderr)
+        self.assertIn("git rev-parse --verify exited 1, git said: (nothing); git rev-parse "
+                      "--verify ^{commit} exited 0, git said: (nothing)", r.stderr)
+        self.assertNotIn("MERGE-BASE", r.stderr)
 
     def _d13_in_process(self, failing, exc):
         """``(rc, stdout, stderr)`` of D13's run() in process over a fake git:
@@ -13674,8 +14066,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertEqual(r.returncode, 2, out)
                 self.assertEqual(r.stderr.count("INJECTED"), 1, r.stderr)
                 self.assertNotIn("Traceback", r.stderr)
+                # The base prints fully qualified, as resolve_base_ref hands
+                # it back (3b620).
                 self.assertIn("ERROR: git could not be run reading the top level "
-                              f"(base=origin/main, head={head}): [Errno {errno.EAGAIN}] injected",
+                              f"(base=refs/remotes/origin/main, head={head}): "
+                              f"[Errno {errno.EAGAIN}] injected",
                               r.stderr)
                 self.assertNotIn("D13 OK", r.stdout)
                 self.assertNotIn("CANNOT-EVALUATE", r.stderr)
@@ -17462,6 +17857,41 @@ class NativePrePushGuardTests(unittest.TestCase):
                              "--verify", "--quiet", ref, code=1)
         finally:
             hook.write_bytes(installed)
+
+    def test_reftable_linked_tables_refused(self):
+        # 3b620: a reftable clone whose reftable is a directory but whose
+        # tables.list and tables are symbolic links into another reftable
+        # repository reads that repository's refs; the tracked hook passed it.
+        # An ordinary reftable clone still passes.
+        main = self.root
+        table, alias = Path(self.tmp.name) / "table", Path(self.tmp.name) / "table-alias"
+        result = subprocess.run(["git", "clone", "-q", "--ref-format=reftable", str(main), str(table)],
+                                cwd=main, env=self.env, capture_output=True, text=True, timeout=30)
+        if result.returncode:
+            self.skipTest("reftable unavailable: " + result.stderr.strip())
+        self.run_cmd("git", "clone", "-q", "--ref-format=reftable", str(main), str(alias))
+        try:
+            self.root = table
+            self.push(remote="fork", url="/other/repo.git")
+            self.run_cmd("git", "-c", "user.email=t@t", "-c", "user.name=t",
+                         "commit", "-q", "--allow-empty", "-m", "y")
+            for entry in list((alias / ".git/reftable").iterdir()):
+                entry.unlink()
+            for entry in (table / ".git/reftable").iterdir():
+                (alias / ".git/reftable" / entry.name).symlink_to(entry)
+            self.root = alias
+            self.assertEqual(self.run_cmd("git", "rev-parse", "HEAD").stdout,
+                             subprocess.run(["git", "-C", str(table), "rev-parse", "HEAD"], env=self.env,
+                                            capture_output=True, text=True, check=True).stdout)
+            result = self.push(code=1, remote="fork", url="/other/repo.git")
+            # 3b620 round 4: the walk for symlinks names the first linked
+            # entry (a table sorts before tables.list).
+            reftable = str((alias / ".git/reftable").resolve())
+            self.assertIn("pre-push: refusing " + reftable + "/", result.stderr)
+            self.assertIn(": it is a symlink", result.stderr)
+            self.assertIn("keep " + reftable + " free of symlinks", result.stderr)
+        finally:
+            self.root = main
 
     def test_real_redirect_variables_main_and_linked(self):
         # 3b564 round 7 (r6 review E1): with GIT_OBJECT_DIRECTORY naming a
@@ -24465,9 +24895,18 @@ class LintCommonHelperTests(unittest.TestCase):
                     r = sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
                                cwd=str(root), env=env, stdin=sp.DEVNULL)
                     self.assertIn("HOOK PASSED", r.stdout, r.stderr)
+            with self.subTest(root="reftable symbolic link"):
+                # 3b620 round 4: the walk for symbolic links refuses the
+                # common reftable as one first, naming it, in both.
+                path = table_alias / ".git" / "reftable"
+                self.assertIn(f"{str(path)!r} in the common git directory is a symbolic link",
+                              lc.require_own_git_dir(table_alias) or "")
+                r = sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                           cwd=str(table_alias), env=env, stdin=sp.DEVNULL)
+                self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                self.assertIn(f"pre-push: refusing {path}: it is a symlink", r.stderr)
             for label, root in (("relocated objects directory", relocated),
-                                ("git-new-workdir checkout", workdir),
-                                ("reftable symbolic link", table_alias)):
+                                ("git-new-workdir checkout", workdir)):
                 with self.subTest(root=label):
                     refusal = lc.require_own_git_dir(root) or ""
                     self.assertIn("is not a work tree registered with the git directory "
@@ -24479,6 +24918,2821 @@ class LintCommonHelperTests(unittest.TestCase):
                     for message in (refusal, r.stderr):
                         self.assertIn("a relocated objects directory", message)
                         self.assertIn("a git-new-workdir checkout", message)
+
+    def test_require_own_git_dir_symlinked_reftable_tables(self) -> None:
+        """3b620: a reftable clone whose reftable is a directory but whose
+        tables.list and tables are symbolic links into another reftable
+        repository reads that repository's HEAD; require_own_git_dir returned
+        None and tools/git-hooks/pre-push passed it. Round 2: so did a regular
+        tables.list naming ../../../<other>/.git/reftable/<table> (r1 review
+        E1) or sub/<table> with sub/<table> a symbolic link (E2), and a linked
+        worktree whose own reftable entries were linked to another
+        repository's (W1). Each layout below links or names only what it
+        must, so dropping any one check fails at least one (r1 review W2);
+        each is refused by both, naming the path, and an ordinary reftable
+        clone and an ordinary reftable worktree still pass. Round 3: another
+        linked worktree's reftable linked to a foreign worktree's gave git
+        log --all that HEAD from the main checkout and every worktree (r2
+        review E1), and a reftable probe reporting false or failing passed
+        (E2); both now refuse, as do another worktree's reftable as a symbolic
+        link or not a directory and a worktrees directory that cannot be
+        listed, while a clone with two ordinary worktrees and a checkout whose
+        name ends in a newline pass."""
+        import subprocess as sp
+        from unittest import mock
+
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="symlinked-tables-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["GIT_CEILING_DIRECTORIES"] = str(td)
+
+        def git(*args):
+            return sp.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", *args], check=True,
+                          capture_output=True, text=True, env=env).stdout.strip()
+
+        table = td / "table"
+        result = sp.run(["git", "init", "-q", "--ref-format=reftable", str(table)],
+                        capture_output=True, text=True, env=env)
+        if result.returncode:
+            self.skipTest(git("--version") + ": reftable unavailable: " + result.stderr.strip())
+        (table / "tools").mkdir()
+        (table / "tools" / "check-dirty-tree-push.py").write_text("print('HOOK PASSED')\n",
+                                                                  encoding="utf-8")
+        (table / "tools" / "pre-push-hook.py").write_text("", encoding="utf-8")
+        git("-C", str(table), "add", "-A")
+        git("-C", str(table), "commit", "-q", "-m", "x")
+
+        def clone(name):
+            git("clone", "-q", "--ref-format=reftable", str(table), str(td / name))
+            return td / name
+
+        plain = clone("clone")
+        git("-C", str(table), "commit", "-q", "--allow-empty", "-m", "y")
+        theirs = table / ".git" / "reftable"
+        names = (theirs / "tables.list").read_text(encoding="utf-8").split()
+
+        def reftable_of(repo):
+            reftable = repo / ".git" / "reftable"
+            for entry in list(reftable.iterdir()):
+                entry.unlink()
+            return reftable
+
+        refused = {}  # label: (root, the path messages name, a root whose HEAD git reads)
+        reftable = reftable_of(clone("table-alias"))
+        for entry in theirs.iterdir():
+            (reftable / entry.name).symlink_to(entry)
+        # The helper names the first such entry in sorted order; the hook all.
+        refused["every entry linked"] = (td / "table-alias", reftable / min(names), table)
+        reftable = reftable_of(clone("dotdot"))
+        (reftable / "tables.list").write_text(
+            "".join(f"../../../table/.git/reftable/{name}\n" for name in names), encoding="utf-8")
+        refused["tables.list naming ../ paths (E1)"] = (td / "dotdot", reftable / "tables.list",
+                                                        table)
+        reftable = reftable_of(clone("subdir-links"))
+        (reftable / "sub").mkdir()
+        for name in names:
+            (reftable / "sub" / name).symlink_to(theirs / name)
+        (reftable / "tables.list").write_text("".join(f"sub/{name}\n" for name in names),
+                                              encoding="utf-8")
+        # Round 4: the walk for symbolic links names the link inside sub.
+        refused["sub/<table> links (E2)"] = (td / "subdir-links", reftable / "sub" / min(names),
+                                             table)
+        reftable = reftable_of(clone("one-linked"))
+        for name in names:
+            (reftable / name).symlink_to(theirs / name)
+        (reftable / "tables.list").write_text("".join(f"{name}\n" for name in names),
+                                              encoding="utf-8")
+        refused["only the tables linked"] = (td / "one-linked", reftable / min(names), table)
+        reftable = reftable_of(clone("list-linked"))
+        for name in names:
+            shutil.copyfile(theirs / name, reftable / name)
+        (reftable / "tables.list").symlink_to(theirs / "tables.list")
+        refused["only tables.list linked"] = (td / "list-linked", reftable / "tables.list", table)
+        subdir = clone("subdir")
+        (subdir / ".git" / "reftable" / "sub").mkdir()
+        refused["a subdirectory present"] = (subdir, subdir / ".git" / "reftable" / "sub", None)
+        missing = clone("missing")
+        with open(missing / ".git" / "reftable" / "tables.list", "a", encoding="utf-8") as fh:
+            fh.write("0x000000000009-0x000000000009-00000000.ref\n")
+        refused["tables.list naming a missing table"] = (
+            missing, missing / ".git" / "reftable" / "tables.list", None)
+        # W1: git 2.53 keeps a linked worktree's HEAD in reftable in its own
+        # git directory, worktrees/<id>/reftable.
+        clean = clone("clean")
+        for name in ("worktree", "worktree-2"):
+            git("-C", str(clean), "worktree", "add", "-q", "--detach", str(td / name), "HEAD~1")
+        main = clone("main")
+        git("-C", str(main), "worktree", "add", "-q", "--detach", str(td / "main-worktree"), "HEAD~1")
+        git("-C", str(table), "worktree", "add", "-q", "--detach", str(td / "their-worktree"), "HEAD")
+        git("-C", str(main), "worktree", "add", "-q", "--detach", str(td / "linked-worktree"),
+            "HEAD~1")
+        reftable = main / ".git" / "worktrees" / "linked-worktree" / "reftable"
+        self.assertEqual(git("-C", str(td / "linked-worktree"), "rev-parse", "--git-path", "reftable"),
+                         str(reftable))
+        for entry in list(reftable.iterdir()):
+            entry.unlink()
+        for entry in (table / ".git" / "worktrees" / "their-worktree" / "reftable").iterdir():
+            (reftable / entry.name).symlink_to(entry)
+        refused["a linked worktree's reftable linked (W1)"] = (
+            td / "linked-worktree", min(reftable.iterdir()), td / "their-worktree")
+        # Round 3 (r2 review E1): git log --all reads that worktree's HEAD
+        # from the main checkout and from every other worktree too.
+        self.assertEqual(git("-C", str(main), "rev-parse", "worktrees/linked-worktree/HEAD"),
+                         git("-C", str(td / "their-worktree"), "rev-parse", "HEAD"))
+        refused["another linked worktree's reftable linked, from the main checkout (E1)"] = (
+            main, min(reftable.iterdir()), None)
+        refused["another linked worktree's reftable linked, from a worktree (E1)"] = (
+            td / "main-worktree", min(reftable.iterdir()), None)
+        aliased_main = clone("aliased-main")
+        git("-C", str(aliased_main), "worktree", "add", "-q", "--detach",
+            str(td / "aliased-worktree"), "HEAD~1")
+        reftable = aliased_main / ".git" / "worktrees" / "aliased-worktree" / "reftable"
+        shutil.rmtree(reftable)
+        reftable.symlink_to(table / ".git" / "worktrees" / "their-worktree" / "reftable")
+        refused["another linked worktree's reftable a symbolic link"] = (aliased_main, reftable, None)
+        notdir = clone("notdir")
+        git("-C", str(notdir), "worktree", "add", "-q", "--detach", str(td / "notdir-worktree"),
+            "HEAD~1")
+        reftable = notdir / ".git" / "worktrees" / "notdir-worktree" / "reftable"
+        shutil.rmtree(reftable)
+        reftable.write_bytes(b"")
+        refused["another linked worktree's reftable not a directory (E2)"] = (notdir, reftable, None)
+
+        hook = REPO_ROOT / "tools" / "git-hooks" / "pre-push"
+        with mock.patch.dict(os.environ, env, clear=True):
+            newline = clone("newline\n")
+            for label, root in (("reftable clone", plain), ("clone with two worktrees", clean),
+                                ("reftable worktree", td / "worktree"),
+                                ("another reftable worktree", td / "worktree-2"),
+                                ("checkout name ending in a newline", newline)):
+                with self.subTest(passes=label):
+                    self.assertIsNone(lc.require_own_git_dir(root))
+                    r = sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                               cwd=str(root), env=env, stdin=sp.DEVNULL)
+                    self.assertIn("HOOK PASSED", r.stdout, r.stderr)
+            for label, (root, path, other) in refused.items():
+                with self.subTest(refused=label):
+                    if other is not None:
+                        self.assertEqual(git("-C", str(root), "rev-parse", "HEAD"),
+                                         git("-C", str(other), "rev-parse", "HEAD"))
+                        self.assertNotEqual(git("-C", str(root), "rev-parse", "HEAD"),
+                                            git("-C", str(plain), "rev-parse", "HEAD"))
+                    refusal = lc.require_own_git_dir(root) or ""
+                    self.assertIn(f"'{path}'", refusal)
+                    # A link is refused by the round-4 walk, anything else by
+                    # the reftable rules; both messages end the same way.
+                    self.assertIn("tools/git-hooks/pre-push refuses the same layout", refusal)
+                    self.assertIn("is a symbolic link" if path.is_symlink()
+                                  else "keep only those, as regular files", refusal)
+                    r = sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                               cwd=str(root), env=env, stdin=sp.DEVNULL)
+                    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                    self.assertNotIn("HOOK PASSED", r.stdout)
+                    self.assertIn(f"pre-push: refusing {path.parent}", r.stderr)
+                    self.assertIn(str(path), r.stderr)
+            with self.subTest(refused="a linked worktree's reftable a symbolic link"):
+                # Refused as an unregistered layout until round 4; the walk
+                # of the worktrees directory now refuses it first, naming it.
+                root = td / "aliased-worktree"
+                path = aliased_main / ".git" / "worktrees" / "aliased-worktree" / "reftable"
+                self.assertEqual(git("-C", str(root), "rev-parse", "HEAD"),
+                                 git("-C", str(td / "their-worktree"), "rev-parse", "HEAD"))
+                self.assertIn(f"{str(path)!r} in the common git directory is a symbolic link",
+                              lc.require_own_git_dir(root) or "")
+                r = sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                           cwd=str(root), env=env, stdin=sp.DEVNULL)
+                self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                self.assertIn(f"pre-push: refusing {path}: it is a symlink", r.stderr)
+            # r2 review E2: a probe that fails on a reftable or worktrees
+            # directory that exists refuses; only absence passes.
+            real_lstat, real_scandir = os.lstat, os.scandir
+            for label, name, probed in (
+                    ("the common reftable probe raises", "lstat", clean / ".git" / "reftable"),
+                    ("a linked worktree's reftable probe raises", "lstat",
+                     clean / ".git" / "worktrees" / "worktree-2" / "reftable"),
+                    ("the worktrees listing raises", "scandir", clean / ".git" / "worktrees")):
+                with self.subTest(refused=label):
+                    real = real_lstat if name == "lstat" else real_scandir
+
+                    def failing(path, *args, real=real, probed=probed, **kwargs):
+                        if os.fsencode(path) == os.fsencode(probed):
+                            raise PermissionError(13, "Permission denied (simulated)", path)
+                        return real(path, *args, **kwargs)
+
+                    with mock.patch.object(lc.os, name, failing):
+                        refusal = lc.require_own_git_dir(clean) or ""
+                    self.assertIn(f"{str(probed)!r}", refusal)
+                    self.assertIn("Permission denied (simulated)", refusal)
+            # The same failures for real, where permissions bind (not root).
+            if os.geteuid() != 0:
+                for label, locked in (
+                        ("a linked worktree's git directory unsearchable",
+                         clean / ".git" / "worktrees" / "worktree-2"),
+                        ("the worktrees directory unreadable", clean / ".git" / "worktrees")):
+                    with self.subTest(refused=label):
+                        locked.chmod(0o000 if locked.name == "worktree-2" else 0o300)
+                        try:
+                            refusal = lc.require_own_git_dir(clean) or ""
+                            r = sp.run(["sh", str(hook), "origin", "x"], capture_output=True,
+                                       text=True, cwd=str(clean), env=env, stdin=sp.DEVNULL)
+                        finally:
+                            locked.chmod(0o755)
+                        self.assertIn(str(locked), refusal)
+                        self.assertIn("Permission denied", refusal)
+                        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                        self.assertNotIn("HOOK PASSED", r.stdout)
+                        self.assertIn(f"pre-push: refusing {locked}", r.stderr)
+
+    def test_require_own_git_dir_worktrees_links(self) -> None:
+        """3b620 round 4 (r3 review, git 2.53): worktrees as a symbolic link
+        to another repository's worktrees directory, worktrees/<id> as one to
+        another repository's worktree git directory (reftable and files),
+        and a files repository's worktrees/<id>/HEAD as one to a foreign
+        detached HEAD each gave git that repository's worktree HEAD while
+        require_own_git_dir and tools/git-hooks/pre-push passed, and the
+        helper passed a broken worktrees symbolic link as absence. Both now
+        walk the worktrees directory and the common reftable and refuse a
+        symbolic link at any depth, naming it, and refuse past the walk's
+        depth or entry bound. The links git writes itself with
+        core.preferSymlinkRefs (a worktree's HEAD, a per-worktree symbolic
+        ref) pass, as do ordinary files and reftable repositories with
+        several worktrees; a link with symbolic-ref text elsewhere, or text
+        with "..", refuses. An entry vanishing between the listing and its
+        lstat, or a directory before its listing (git worktree remove
+        meanwhile), is absence in the helper (simulated deterministically).
+        Round 9 (r8 review E1): the worktrees race rule, at fixed points
+        rather than racing a concurrent git worktree add and remove;
+        test_hook_worktrees_second_look covers pre-push."""
+        import subprocess as sp
+        from unittest import mock
+
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="worktrees-links-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["GIT_CEILING_DIRECTORIES"] = str(td)
+        hook = REPO_ROOT / "tools" / "git-hooks" / "pre-push"
+
+        def git(*args):
+            return sp.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", *args], check=True,
+                          capture_output=True, text=True, env=env).stdout.strip()
+
+        def repo(name, ref_format):
+            root = td / name
+            result = sp.run(["git", "init", "-q", f"--ref-format={ref_format}", str(root)],
+                            capture_output=True, text=True, env=env)
+            if result.returncode:
+                self.skipTest(f"{ref_format} unavailable: " + result.stderr.strip())
+            (root / "tools").mkdir()
+            (root / "tools" / "check-dirty-tree-push.py").write_text("print('HOOK PASSED')\n",
+                                                                     encoding="utf-8")
+            (root / "tools" / "pre-push-hook.py").write_text("", encoding="utf-8")
+            git("-C", str(root), "add", "-A")
+            git("-C", str(root), "commit", "-q", "-m", name)
+            git("-C", str(root), "commit", "-q", "--allow-empty", "-m", name + " 2")
+            return root
+
+        def worktree(root, name, *how):
+            git("-C", str(root), "worktree", "add", "-q", *(how or ("--detach",)), str(td / name))
+            return root / ".git" / "worktrees" / name
+
+        def hook_run(root):
+            return sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                          cwd=str(root), env=env, stdin=sp.DEVNULL)
+
+        refused = {}  # label: (roots run from, the path both name, (main, id, foreign root) or None)
+        passes = {}  # label: roots run from
+        for ref_format in ("files", "reftable"):
+            theirs = repo(f"theirs-{ref_format}", ref_format)
+            worktree(theirs, f"theirs-{ref_format}-wt")
+            their_dir = theirs / ".git" / "worktrees" / f"theirs-{ref_format}-wt"
+            ours = repo(f"wt-link-{ref_format}", ref_format)
+            (ours / ".git" / "worktrees").symlink_to(theirs / ".git" / "worktrees")
+            refused[f"worktrees a symbolic link ({ref_format})"] = (
+                [ours], ours / ".git" / "worktrees",
+                (ours, their_dir.name, td / f"theirs-{ref_format}-wt"))
+            ours = repo(f"id-link-{ref_format}", ref_format)
+            worktree(ours, f"id-link-{ref_format}-wt")
+            (ours / ".git" / "worktrees" / "foreign").symlink_to(their_dir)
+            refused[f"worktrees/<id> a symbolic link ({ref_format})"] = (
+                [ours, td / f"id-link-{ref_format}-wt"], ours / ".git" / "worktrees" / "foreign",
+                (ours, "foreign", td / f"theirs-{ref_format}-wt"))
+            ours = repo(f"broken-{ref_format}", ref_format)
+            (ours / ".git" / "worktrees").symlink_to(td / "nowhere")
+            refused[f"worktrees a broken symbolic link ({ref_format})"] = (
+                [ours], ours / ".git" / "worktrees", None)
+            ours = repo(f"plain-{ref_format}", ref_format)
+            for name, how in (("a", ()), ("b", ("-b", f"b-{ref_format}")),
+                              ("c", ("--lock", "--detach"))):
+                worktree(ours, f"plain-{ref_format}-{name}", *how)
+            git("-C", str(td / f"plain-{ref_format}-a"), "update-ref", "refs/bisect/bad", "HEAD")
+            passes[f"{ref_format} repository with three worktrees"] = [
+                ours, td / f"plain-{ref_format}-a", td / f"plain-{ref_format}-b"]
+        their_head = (td / "theirs-files" / ".git" / "worktrees" / "theirs-files-wt" / "HEAD")
+        ours = repo("head-link", "files")
+        head = worktree(ours, "head-link-wt") / "HEAD"
+        head.unlink()
+        head.symlink_to(their_head)
+        refused["a files worktree's HEAD a symbolic link to a foreign HEAD"] = (
+            [ours], head, (ours, "head-link-wt", td / "theirs-files-wt"))
+        ours = repo("deep-link", "files")
+        bad = worktree(ours, "deep-link-wt") / "refs" / "bisect" / "bad"
+        bad.parent.mkdir(parents=True, exist_ok=True)
+        bad.symlink_to(td / "theirs-files" / ".git" / "refs" / "heads" / "main")
+        refused["a link deep in a worktree's refs"] = ([ours], bad, None)
+        ours = repo("misplaced-symref", "files")
+        log = worktree(ours, "misplaced-symref-wt") / "logs" / "HEAD"
+        log.unlink()
+        log.symlink_to("refs/heads/main")
+        refused["symbolic-ref text outside HEAD and refs"] = ([ours], log, None)
+        ours = repo("dotdot-symref", "files")
+        head = worktree(ours, "dotdot-symref-wt") / "HEAD"
+        head.unlink()
+        head.symlink_to("refs/../../../../theirs-files/.git/HEAD")
+        refused["a HEAD link whose text has .."] = ([ours], head, None)
+        ours = repo("preferred", "files")
+        git("-C", str(ours), "config", "core.preferSymlinkRefs", "true")
+        for name in ("one", "two"):
+            worktree(ours, f"preferred-{name}", "-b", f"p-{name}")
+        git("-C", str(td / "preferred-one"), "symbolic-ref", "refs/worktree/x", "refs/heads/p-one")
+        # r4 review: pre-push matched */HEAD first and refused these two.
+        git("-C", str(td / "preferred-one"), "symbolic-ref", "refs/worktree/HEAD", "refs/heads/p-one")
+        git("-C", str(td / "preferred-two"), "symbolic-ref", "refs/bisect/HEAD", "refs/heads/p-two")
+        for link in ("preferred-one/HEAD", "preferred-two/HEAD", "preferred-one/refs/worktree/x",
+                     "preferred-one/refs/worktree/HEAD", "preferred-two/refs/bisect/HEAD"):
+            self.assertTrue((ours / ".git" / "worktrees" / link).is_symlink(), link)
+        passes["core.preferSymlinkRefs worktrees (links git writes)"] = [
+            ours, td / "preferred-one", td / "preferred-two"]
+        for name, link in (("worktree", "refs/worktree/HEAD"), ("bisect", "refs/bisect/HEAD")):
+            ours = repo(f"outside-{name}", "files")
+            git("-C", str(ours), "config", "core.preferSymlinkRefs", "true")
+            out = worktree(ours, f"outside-{name}-wt") / link
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.symlink_to(td / "theirs-files" / ".git" / "HEAD")
+            refused[f"{link} a link outside the repository"] = ([ours], out, None)
+        ours = repo("depth", "reftable")
+        deep = worktree(ours, "depth-wt") / "refs"
+        for _ in range(30):  # worktrees/depth-wt/refs/d... is 32 levels deep
+            deep = deep / "d"
+        deep.mkdir(parents=True)
+        passes["an entry 32 levels deep"] = [ours]
+        ours = repo("too-deep", "reftable")
+        deep = worktree(ours, "too-deep-wt") / "refs"
+        for _ in range(31):
+            deep = deep / "d"
+        deep.mkdir(parents=True)
+        refused["an entry 33 levels deep"] = ([ours], ours / ".git" / "worktrees", None)
+        ours = repo("too-many", "reftable")
+        many = worktree(ours, "too-many-wt") / "many"
+        many.mkdir()
+        for index in range(20000):
+            (many / str(index)).touch()
+        refused["more than 20000 entries"] = ([ours], ours / ".git" / "worktrees", None)
+
+        with mock.patch.dict(os.environ, env, clear=True):
+            for label, roots in passes.items():
+                for root in roots:
+                    with self.subTest(passes=label, root=root.name):
+                        self.assertIsNone(lc.require_own_git_dir(root))
+                        r = hook_run(root)
+                        self.assertIn("HOOK PASSED", r.stdout, r.stderr)
+            for label, (roots, path, evidence) in refused.items():
+                if evidence is not None:
+                    # git reads the foreign worktree's HEAD through the link.
+                    main, name, foreign = evidence
+                    self.assertEqual(git("-C", str(main), "rev-parse", f"worktrees/{name}/HEAD"),
+                                     git("-C", str(foreign), "rev-parse", "HEAD"), label)
+                for root in roots:
+                    with self.subTest(refused=label, root=root.name):
+                        refusal = lc.require_own_git_dir(root) or ""
+                        self.assertIn(f"{str(path)!r}", refusal)
+                        self.assertIn("tools/git-hooks/pre-push refuses the same layout", refusal)
+                        r = hook_run(root)
+                        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                        self.assertNotIn("HOOK PASSED", r.stdout)
+                        self.assertIn(f"pre-push: refusing {path}", r.stderr)
+                        if label.endswith("deep") or label.endswith("entries"):
+                            self.assertIn("deeper than 32 levels", refusal)
+                            self.assertIn("deeper than 32 levels", r.stderr)
+                        else:
+                            self.assertIn("is a symbolic link", refusal)
+                            self.assertIn("is a symlink", r.stderr)
+
+            # An entry the listing found that is gone when examined, or a
+            # directory gone when listed, is absence (git worktree remove).
+            main = td / "plain-reftable"
+            worktrees = main / ".git" / "worktrees"
+            real_lstat, real_scandir = os.lstat, os.scandir
+
+            class Listing(list):
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *exc):
+                    return False
+
+            for step, (name, target, nth) in enumerate((
+                    ("lstat", "victim", 1),  # between the worktrees listing and its lstat
+                    ("scandir-after", "worktrees", 1),  # listed, then removed
+                    ("scandir-after", "victim", 1),  # its entries gone before their lstat
+                    ("scandir-before", "victim", 1),  # gone before its own listing
+                    ("scandir-before", "victim/reftable", 2))):  # gone before the reftable check
+                victim = worktree(main, f"victim-{step}")
+                probed = {"worktrees": worktrees, "victim": victim,
+                          "victim/reftable": victim / "reftable"}[target]
+                calls = {"n": 0}
+
+                def vanish(path, *args, name=name, probed=probed, victim=victim, calls=calls,
+                           **kwargs):
+                    # shutil.rmtree lists by descriptor through os.scandir too.
+                    if isinstance(path, int) or os.fsencode(path) != os.fsencode(probed):
+                        return (real_lstat if name == "lstat" else real_scandir)(path, *args, **kwargs)
+                    calls["n"] += 1
+                    if calls["n"] != nth:
+                        return (real_lstat if name == "lstat" else real_scandir)(path, *args, **kwargs)
+                    if name == "scandir-after":
+                        with real_scandir(path) as listing:
+                            found = Listing(listing)
+                        shutil.rmtree(victim)
+                        return found
+                    shutil.rmtree(victim)
+                    return (real_lstat if name == "lstat" else real_scandir)(path, *args, **kwargs)
+
+                with self.subTest(vanishes=f"{name} {target}"):
+                    with mock.patch.object(lc.os, "lstat" if name == "lstat" else "scandir",
+                                           vanish):
+                        self.assertIsNone(lc.require_own_git_dir(main))
+                    self.assertGreaterEqual(calls["n"], nth)
+                    self.assertFalse(victim.exists())
+                git("-C", str(main), "worktree", "prune")
+
+            # 3b620 round 9 (r8 review E1): the race rule, at fixed points in
+            # place of a concurrent git worktree add and remove (which made
+            # this test fail 3 or 4 times in 20 runs). A worktrees/<id> whose
+            # listing fails other than by absence, or whose reftable's
+            # tables.list names an absent table, is looked at again: gone,
+            # it is skipped; healed, it passes; unchanged, it refuses.
+            simulated = "Permission denied (simulated)"
+            for mode in ("gone", "once", "always"):
+                victim = worktree(main, f"look-walk-{mode}")
+                calls = {"n": 0}
+
+                def unlistable(path, *args, victim=victim, mode=mode, calls=calls, **kwargs):
+                    if not isinstance(path, int) and os.fsencode(path) == os.fsencode(victim):
+                        calls["n"] += 1
+                        if mode == "always" or calls["n"] == 1:
+                            if mode == "gone":
+                                shutil.rmtree(victim)
+                            raise PermissionError(13, simulated, path)
+                    return real_scandir(path, *args, **kwargs)
+
+                with self.subTest(second_look=f"walk listing fails, {mode}"):
+                    with mock.patch.object(lc.os, "scandir", unlistable):
+                        refusal = lc.require_own_git_dir(main)
+                    if mode == "always":
+                        self.assertIn(f"could not list {str(victim)!r} in the common git directory",
+                                      refusal or "")
+                        self.assertIn(simulated, refusal or "")
+                    else:
+                        self.assertIsNone(refusal)
+                        self.assertEqual(calls["n"], 1 if mode == "gone" else 2)
+                    self.assertEqual(victim.exists(), mode != "gone")
+                sp.run(["git", "-C", str(main), "worktree", "remove", "--force", str(td / victim.name)],
+                       capture_output=True, env=env)
+                git("-C", str(main), "worktree", "prune")
+            for mode in ("gone", "once", "always"):
+                victim = worktree(main, f"look-table-{mode}")
+                reftable = victim / "reftable"
+                tables = [name for name in (reftable / "tables.list").read_text().split("\n") if name]
+                self.assertTrue(tables)
+                aside = td / f"aside-{mode}"
+                aside.mkdir()
+                calls = {"n": 0, "removed": False}
+
+                def partial(path, *args, reftable=reftable, mode=mode, calls=calls, tables=tables,
+                            aside=aside, **kwargs):
+                    if not isinstance(path, int) and os.fsencode(path) == os.fsencode(reftable):
+                        calls["n"] += 1
+                        if calls["n"] == 3 and mode == "once":
+                            for name in tables:
+                                (aside / name).rename(reftable / name)
+                        if calls["n"] == 2:  # the reftable check, after the walk
+                            with real_scandir(path) as listing:
+                                found = Listing(listing)
+                            for name in tables:  # removed before tables.list
+                                (reftable / name).rename(aside / name)
+                            calls["removed"] = True
+                            return found
+                    return real_scandir(path, *args, **kwargs)
+
+                def removed(path, *args, victim=victim, mode=mode, calls=calls, **kwargs):
+                    if (mode == "gone" and calls["removed"] and not isinstance(path, int)
+                            and os.fsencode(path) == os.fsencode(victim)):
+                        calls["removed"] = False
+                        shutil.rmtree(victim)
+                    return real_lstat(path, *args, **kwargs)
+
+                with self.subTest(second_look=f"a table absent, {mode}"):
+                    with mock.patch.object(lc.os, "scandir", partial), \
+                            mock.patch.object(lc.os, "lstat", removed):
+                        refusal = lc.require_own_git_dir(main)
+                    if mode == "always":
+                        self.assertIn("not a regular file in that directory", refusal or "")
+                        self.assertIn(str(reftable / "tables.list"), refusal or "")
+                    else:
+                        self.assertIsNone(refusal)
+                    self.assertEqual(calls["n"], 2 if mode == "gone" else 3)
+                    self.assertEqual(victim.exists(), mode != "gone")
+                if mode == "always":
+                    for name in tables:
+                        (aside / name).rename(reftable / name)
+                sp.run(["git", "-C", str(main), "worktree", "remove", "--force", str(td / victim.name)],
+                       capture_output=True, env=env)
+                git("-C", str(main), "worktree", "prune")
+            # A symbolic link refuses at the first look: no second look.
+            victim = worktree(main, "look-link")
+            (victim / "foreign").symlink_to(td / "theirs-reftable" / ".git")
+            with self.subTest(second_look="a link"), \
+                    mock.patch.object(lc, "_second_look", wraps=lc._second_look) as looked:
+                refusal = lc.require_own_git_dir(main) or ""
+                self.assertIn(f"{str(victim / 'foreign')!r} in the common git directory is a "
+                              f"symbolic link", refusal)
+                looked.assert_not_called()
+            (victim / "foreign").unlink()
+            self.assertIsNone(lc.require_own_git_dir(main))
+            self.assertIn("HOOK PASSED", hook_run(main).stdout)
+
+    def test_hook_worktrees_second_look(self) -> None:
+        """3b620 round 9 (r8 review E1): tools/git-hooks/pre-push's worktrees
+        race rule at fixed points, its own functions taken from its text and
+        stat, readlink and realpath replaced by shell functions that remove
+        part of a linked worktree's git directory (as git worktree remove
+        does) at a set step. A worktrees/<id> whose walk meets an entry it
+        cannot examine, or whose reftable's tables.list names an absent
+        table, is looked at again: gone, it is skipped; healed, it passes;
+        unchanged, it refuses. Round 10: gone's python3 lstat probe, not
+        stat(1), is replaced."""
+        import re as re_mod
+        import subprocess as sp
+        import textwrap
+
+        td = Path(tempfile.mkdtemp(prefix="hook-second-look-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["GIT_CEILING_DIRECTORIES"] = str(td)
+        main = td / "main"
+        r = sp.run(["git", "init", "-q", "--ref-format=reftable", str(main)], capture_output=True,
+                   text=True, env=env)
+        if r.returncode:
+            self.skipTest("reftable unavailable: " + r.stderr.strip())
+        sp.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "-C", str(main), "commit", "-q",
+                "--allow-empty", "-m", "m"], check=True, capture_output=True, env=env)
+        text = (REPO_ROOT / "tools" / "git-hooks" / "pre-push").read_text(encoding="utf-8")
+        functions = "".join(
+            re_mod.search(rf"^{name}\(\) \{{\n.*?^\}}\n", text, re_mod.M | re_mod.S).group(0)
+            for name in ("gone", "refuse_unsettled", "second_look", "check_reftable",
+                         "symref_link_text", "walk_links", "walk_tree", "check_worktree_reftables"))
+        git_dir = main / ".git"
+        worktrees = git_dir / "worktrees"
+
+        def run(victim, step, mode):
+            # $1 the victim, $2 the step (walk or table), $3 the mode.
+            script = ("set -eu\nunsettled=1\nwalk_entries=0\n" + functions + textwrap.dedent("""\
+                v=$1 step=$2 mode=$3 n="$5/${1##*/}.n" a="$5/${1##*/}.aside"
+                common_git_dir=$4 current_git_dir=$4 worktrees=$4/worktrees
+                bump() { echo x >> "$n"; wc -l < "$n"; }
+                readlink() {
+                  if [ "$step" = walk ] && [ "$1" = "$v/HEAD" ]; then rm -rf "$v/zz"; fi
+                  command readlink "$@"
+                }
+                python3() {
+                  # An lstat probe only (gone's, and since round 14
+                  # check_reftable's table probe, given the reftable since
+                  # round 15), not check_reftable's read.
+                  case "$3" in *os.lstat*) ;; *) command python3 "$@"; return ;; esac
+                  last=; for last; do :; done
+                  if [ "$step" = walk ] && [ "$last" = "$v/zz" ] &&
+                     { [ "$mode" = always ] || [ "$(bump)" = 1 ]; }; then
+                    [ "$mode" != gone ] || rm -rf "$v"
+                    [ "$mode" != always ] || mkdir "$v/zz"
+                    return 12
+                  fi
+                  if [ "$step" = table ] && [ "$mode" = gone ] && [ "$last" = "$v/reftable" ]; then
+                    rm -rf "$v"
+                  fi
+                  if [ "$step" = table ] && [ "$mode" = once ] && [ "$last" = "$v/reftable" ] &&
+                     [ -n "$(ls -A "$a" 2>/dev/null)" ]; then
+                    mv "$a"/* "$v/reftable/"
+                    return 10
+                  fi
+                  command python3 "$@"
+                }
+                realpath() {
+                  if [ "$step" = table ] && [ "$1" = "$v" ] && [ ! -e "$n" ]; then
+                    bump >/dev/null
+                    mkdir "$a"
+                    while IFS= read -r t; do mv "$v/reftable/$t" "$a/$t"; done < "$v/reftable/tables.list"
+                  fi
+                  command realpath "$@"
+                }
+                walk_links "$worktrees" worktrees
+                check_worktree_reftables
+                echo CHECK PASSED
+                """))
+            return sp.run(["sh", "-c", script, "sh", str(victim), step, mode, str(git_dir), str(td)],
+                          capture_output=True, text=True, stdin=sp.DEVNULL, env=env)
+
+        for step in ("walk", "table"):
+            for mode in ("gone", "once", "always"):
+                name = f"{step}-{mode}"
+                sp.run(["git", "-C", str(main), "worktree", "add", "-q", "--detach", str(td / name)],
+                       check=True, capture_output=True, env=env)
+                victim = worktrees / name
+                if step == "walk":
+                    (victim / "zz").mkdir()
+                    (victim / "HEAD").unlink()
+                    (victim / "HEAD").symlink_to("refs/heads/main")
+                with self.subTest(step=step, mode=mode):
+                    r = run(victim, step, mode)
+                    if mode == "always":
+                        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                        self.assertNotIn("CHECK PASSED", r.stdout)
+                        expected = (f"pre-push: refusing {victim / 'zz'}: it cannot be examined"
+                                    if step == "walk" else
+                                    f"pre-push: refusing {victim / 'reftable' / 'tables.list'}: it "
+                                    f"names")
+                        self.assertIn(expected, r.stderr)
+                        self.assertEqual(r.stderr.count("pre-push: refusing"), 1, r.stderr)
+                    else:
+                        self.assertIn("CHECK PASSED", r.stdout, r.stderr)
+                        self.assertEqual(r.stderr, "")
+                    self.assertEqual(victim.exists(), mode != "gone")
+                if mode == "always" and step == "table":
+                    for table in (td / f"{name}.aside").iterdir():
+                        table.rename(victim / "reftable" / table.name)
+                sp.run(["git", "-C", str(main), "worktree", "remove", "--force", str(td / name)],
+                       capture_output=True, env=env)
+                sp.run(["git", "-C", str(main), "worktree", "prune"], capture_output=True, env=env)
+        # A symbolic link refuses at the first look.
+        victim = worktrees / "link"
+        victim.mkdir(parents=True)
+        (victim / "foreign").symlink_to(td)
+        r = run(victim, "walk", "gone")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn(f"pre-push: refusing {victim / 'foreign'}: it is a symlink", r.stderr)
+
+    def _hook_functions(self, *names):
+        """The text of tools/git-hooks/pre-push's own shell functions
+        ``names``, for running parts of the hook at fixed points."""
+        import re as re_mod
+
+        text = (REPO_ROOT / "tools" / "git-hooks" / "pre-push").read_text(encoding="utf-8")
+        return "".join(re_mod.search(rf"^{name}\(\) \{{\n.*?^\}}\n", text, re_mod.M | re_mod.S).group(0)
+                       for name in names)
+
+    def _hook_run_functions(self, body, *args, names=(), env=None):
+        """Run ``body`` with sh after the hook's own functions ``names`` (all
+        that the worktrees and reftable checks use by default), ``args`` as
+        $1...; returns the completed process."""
+        import subprocess as sp
+
+        names = names or ("gone", "refuse_unsettled", "second_look", "settle", "check_reftable",
+                          "symref_link_text", "walk_links", "walk_tree", "check_worktree_reftables")
+        script = "set -eu\nunsettled=1\nwalk_entries=0\n" + self._hook_functions(*names) + body
+        return sp.run(["sh", "-c", script, "sh", *map(str, args)], capture_output=True, text=True,
+                      stdin=sp.DEVNULL, env=env, timeout=120)
+
+    def test_hook_gone_reads_lstat_not_stat_messages(self) -> None:
+        """3b620 round 10 (r9 review W, N1): gone took absence from stat(1)'s
+        English message (BSD stat has no -c); python3's os.lstat now decides
+        by exit status: absent, present, cannot be examined, and python3
+        itself failing (cannot be examined), whatever stat says."""
+        td = Path(tempfile.mkdtemp(prefix="hook-gone-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        (td / "present").write_text("", encoding="utf-8")
+        (td / "dangling").symlink_to(td / "nowhere")
+        (td / "closed").mkdir()
+        (td / "closed" / "inside").write_text("", encoding="utf-8")
+        body = ('stat() { echo "stat: wording no build prints" >&2; return 1; }\n'
+                'for p; do s=0; gone "$p" || s=$?; echo "$s"; done\n'
+                'python3() { return 1; }\n'
+                's=0; gone "$1" || s=$?; echo "$s"\n')
+        paths = [td / "absent", td / "absent" / "below", td / "present", td / "dangling"]
+        expected = ["0", "0", "1", "1"]
+        if os.geteuid() != 0:
+            paths.append(td / "closed" / "inside")
+            expected.append("2")
+        (td / "closed").chmod(0o600)
+        try:
+            r = self._hook_run_functions(body, *paths, names=("gone",))
+        finally:
+            (td / "closed").chmod(0o700)
+        self.assertEqual(r.stdout.split(), expected + ["2"], r.stderr)
+        self.assertEqual(r.stderr, "")
+
+    def test_hook_second_look_keeps_only_the_count(self) -> None:
+        """3b620 round 10 (r9 review N3): second_look kept a passing look's
+        stderr in walk_entries with the count; it keeps the count only."""
+        body = ('noisy() { echo "a warning" >&2; walk_entries=5; }\n'
+                'walk_entries=2\nsecond_look "$1" noisy\necho "count=$walk_entries"\n')
+        r = self._hook_run_functions(body, "/nonexistent", names=("gone", "second_look"))
+        self.assertEqual(r.stdout, "count=5\n", r.stderr)
+
+    def _worktrees_fixture(self, prefix, *ids):
+        """A reftable repository with linked worktrees ``ids``; (td, env,
+        git directory), or a skip where reftable is unavailable."""
+        import subprocess as sp
+
+        td = Path(tempfile.mkdtemp(prefix=prefix)).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["GIT_CEILING_DIRECTORIES"] = str(td)
+        main = td / "main"
+        r = sp.run(["git", "init", "-q", "--ref-format=reftable", str(main)], capture_output=True,
+                   text=True, env=env)
+        if r.returncode:
+            self.skipTest("reftable unavailable: " + r.stderr.strip())
+        sp.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "-C", str(main), "commit", "-q",
+                "--allow-empty", "-m", "m"], check=True, capture_output=True, env=env)
+        for name in ids:
+            sp.run(["git", "-C", str(main), "worktree", "add", "-q", "--detach", str(td / name)],
+                   check=True, capture_output=True, env=env)
+        return td, env, main / ".git"
+
+    def test_hook_worktree_id_back_or_unexaminable(self) -> None:
+        """3b620 round 10 (r9 review E2, E): check_worktree_reftables refused
+        a worktrees/<id> absent when found and present at gone's lstat (git
+        worktree remove, then add, of one id), and an id it could not
+        examine at once, outside the second look. At fixed points (realpath
+        on the id before it moves the second id aside; gone's python3 probe
+        moves it back): back, it is checked and passes; unexaminable once,
+        settle looks again and passes; unexaminable at every look, it
+        refuses after 3 looks."""
+        import textwrap
+
+        td, env, git_dir = self._worktrees_fixture("hook-id-back-", "a", "b")
+        victim, aside, mark = git_dir / "worktrees" / "b", td / "b.aside", td / "b.moved"
+        body = textwrap.dedent("""\
+            v=$1 aside=$2 mark=$3 code=$4 how=$5 common_git_dir=$6 current_git_dir=$6
+            worktrees=$6/worktrees
+            realpath() {
+              if [ "$1" = "$worktrees/a" ] && { [ "$how" = always ] || [ ! -e "$mark" ]; }; then
+                : >> "$mark"
+                mv "$v" "$aside"
+              fi
+              command realpath "$@"
+            }
+            python3() {
+              last=; for last; do :; done
+              if [ "$last" = "$v" ] && [ -e "$aside" ]; then
+                echo look >> "$mark"
+                mv "$aside" "$v"
+                return "$code"
+              fi
+              command python3 "$@"
+            }
+            settle check_worktree_reftables
+            echo CHECK PASSED
+            """)
+        for code, how in (("11", "back"), ("12", "once"), ("12", "always")):
+            with self.subTest(lstat=code, how=how):
+                mark.unlink(missing_ok=True)
+                r = self._hook_run_functions(body, victim, aside, mark, code, how, git_dir, env=env)
+                looks = mark.read_text(encoding="utf-8").count("look")
+                if how == "always":
+                    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                    self.assertNotIn("CHECK PASSED", r.stdout)
+                    self.assertEqual(r.stderr, f"pre-push: refusing {victim}: it cannot be examined.\n")
+                    self.assertEqual(looks, 3)
+                else:
+                    self.assertIn("CHECK PASSED", r.stdout, r.stderr)
+                    self.assertEqual(r.stderr, "")
+                    self.assertEqual(looks, 1)
+                self.assertTrue(victim.is_dir())
+
+    def test_hook_worktrees_dir_back_or_unexaminable(self) -> None:
+        """3b620 round 10 (r9 review E): walk_links refused the worktrees
+        directory where gone's lstat found it, test(1) then found it no
+        directory, and lstat found it again (git worktree remove deleting an
+        empty worktrees, then add making it), and refused at once one it
+        could not examine. At fixed points (gone's python3 probe reports
+        it present while absent, then makes it): back, it is walked and
+        passes; unexaminable once, settle looks again; at every look, it
+        refuses after 3 looks; a regular file refuses at the first look."""
+        import textwrap
+
+        td, env, git_dir = self._worktrees_fixture("hook-wt-back-")
+        worktrees, calls = git_dir / "worktrees", td / "calls"
+        body = textwrap.dedent("""\
+            how=$1 calls=$2 common_git_dir=$3 current_git_dir=$3 worktrees=$3/worktrees
+            python3() {
+              last=; for last; do :; done
+              if [ "$last" = "$worktrees" ]; then
+                echo x >> "$calls"
+                k=$(wc -l < "$calls")
+                case "$how.$k" in
+                  back.1) return 11 ;;
+                  back.2) mkdir "$worktrees"; return 11 ;;
+                  once.1|always.*) return 12 ;;
+                esac
+              fi
+              command python3 "$@"
+            }
+            settle walk_links "$worktrees" worktrees
+            echo CHECK PASSED
+            """)
+        for how in ("back", "once", "always"):
+            with self.subTest(how=how):
+                calls.unlink(missing_ok=True)
+                if worktrees.exists():
+                    worktrees.rmdir()
+                r = self._hook_run_functions(body, how, calls, git_dir, env=env)
+                count = calls.read_text(encoding="utf-8").count("x")
+                if how == "always":
+                    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                    self.assertEqual(r.stderr,
+                                     f"pre-push: refusing {worktrees}: it cannot be examined.\n")
+                    self.assertEqual(count, 3)
+                else:
+                    self.assertIn("CHECK PASSED", r.stdout, r.stderr)
+                    self.assertEqual(r.stderr, "")
+                    self.assertEqual(count, 2)
+                self.assertEqual(worktrees.is_dir(), how == "back")
+        worktrees.write_text("", encoding="utf-8")
+        r = self._hook_run_functions(body, "none", calls, git_dir, env=env)
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertEqual(r.stderr, f"pre-push: refusing {worktrees}: it exists but is not a directory.\n")
+
+    def _hook_main_flow(self, git_dir, python3, env):
+        """Run tools/git-hooks/pre-push itself in the checkout above
+        ``git_dir`` up to its registration check, with the shell function
+        ``python3`` defined after set -eu (HOOK_MARK in its environment a
+        file to count in); returns the completed process."""
+        import subprocess as sp
+
+        text = (REPO_ROOT / "tools" / "git-hooks" / "pre-push").read_text(encoding="utf-8")
+        self.assertEqual(text.count("\nset -eu\n"), 1)
+        script = text[:text.index("registered=false\n")].replace(
+            "\nset -eu\n", "\nset -eu\n" + python3, 1) + "echo CHECK PASSED\n"
+        return sp.run(["sh", "-c", script, "pre-push"], cwd=git_dir.parent, capture_output=True,
+                      text=True, stdin=sp.DEVNULL, env=env, timeout=120)
+
+    def test_hook_main_flow_settles_worktrees_walk(self) -> None:
+        """3b620 round 11 (r10 review W2): the hook's own settle around its
+        walk of the worktrees directory. Absent, it is unexaminable at
+        gone's first python3 probe: settle looks again and passes; at every
+        probe, it refuses after 3 looks. Without settle, the first look
+        refuses."""
+        td, env, git_dir = self._worktrees_fixture("hook-main-walk-")
+        worktrees, mark = git_dir / "worktrees", td / "mark"
+        python3 = ('python3() {\n'
+                   '  last=; for last; do :; done\n'
+                   '  if [ "$last" = "$common_git_dir/worktrees" ] &&\n'
+                   '     { [ "$HOOK_HOW" = always ] || [ ! -e "$HOOK_MARK" ]; }; then\n'
+                   '    echo look >> "$HOOK_MARK"; return 12\n'
+                   '  fi\n'
+                   '  command python3 "$@"\n'
+                   '}\n')
+        self.assertFalse(worktrees.exists())
+        for how in ("once", "always"):
+            with self.subTest(how=how):
+                mark.unlink(missing_ok=True)
+                r = self._hook_main_flow(git_dir, python3,
+                                         dict(env, HOOK_MARK=str(mark), HOOK_HOW=how))
+                looks = mark.read_text(encoding="utf-8").count("look")
+                if how == "always":
+                    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                    self.assertNotIn("CHECK PASSED", r.stdout)
+                    self.assertEqual(r.stderr, f"pre-push: refusing {worktrees}: it cannot be examined.\n")
+                    self.assertEqual(looks, 3)
+                else:
+                    self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                    self.assertIn("CHECK PASSED", r.stdout)
+                    self.assertEqual(r.stderr, "")
+                    self.assertEqual(looks, 1)
+
+    def test_hook_main_flow_settles_worktree_reftables(self) -> None:
+        """3b620 round 11 (r10 review W1, W2): second_look's second look
+        exited 1 where it was unsettled, so the hook's own settle around
+        check_worktree_reftables could not look again. A linked worktree's
+        tables.list unreadable at the first two reads (second_look's two
+        looks) now passes at settle's next look; unreadable at every read,
+        it refuses after 3 settle looks. Without that settle, or with the
+        second look exiting 1, the first case refuses."""
+        td, env, git_dir = self._worktrees_fixture("hook-main-tables-", "wt")
+        tables_list, mark = git_dir / "worktrees" / "wt" / "reftable" / "tables.list", td / "mark"
+        python3 = ('python3() {\n'
+                   '  last=; for last; do :; done\n'
+                   '  if [ "$last" = "$common_git_dir/worktrees/wt/reftable/tables.list" ] &&\n'
+                   '     { [ "$HOOK_HOW" = always ] ||\n'
+                   '       [ "$(cat "$HOOK_MARK" 2>/dev/null | wc -l)" -lt 2 ]; }; then\n'
+                   '    echo look >> "$HOOK_MARK"; return 12\n'
+                   '  fi\n'
+                   '  [ "$last" != "$common_git_dir/worktrees/wt/reftable/tables.list" ] ||\n'
+                   '    echo read >> "$HOOK_MARK"\n'
+                   '  command python3 "$@"\n'
+                   '}\n')
+        for how in ("twice", "always"):
+            with self.subTest(how=how):
+                mark.unlink(missing_ok=True)
+                r = self._hook_main_flow(git_dir, python3,
+                                         dict(env, HOOK_MARK=str(mark), HOOK_HOW=how))
+                marks = mark.read_text(encoding="utf-8").split()
+                if how == "always":
+                    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                    self.assertNotIn("CHECK PASSED", r.stdout)
+                    self.assertEqual(r.stderr,
+                                     f"pre-push: refusing {tables_list}: it cannot be read.\n")
+                    # Two looks of second_look in each of 3 settle looks.
+                    self.assertEqual(marks, ["look"] * 6)
+                else:
+                    self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                    self.assertIn("CHECK PASSED", r.stdout)
+                    self.assertEqual(r.stderr, "")
+                    self.assertEqual(marks, ["look", "look", "read"])
+
+    def test_hook_second_look_unexaminable_is_unsettled(self) -> None:
+        """3b620 round 11 (r10 review W1): a worktrees/<id> that gone cannot
+        examine at second_look's second lstat exited 1; it exits
+        $unsettled, 3 under settle."""
+        body = ('python3() { return 12; }\nlook() { exit 3; }\n'
+                'unsettled=3\nsecond_look "$1" look\necho CHECK PASSED\n')
+        r = self._hook_run_functions(body, "/nonexistent/wt", names=("gone", "refuse_unsettled",
+                                                                     "second_look"))
+        self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
+        self.assertEqual(r.stderr,
+                         "pre-push: refusing /nonexistent/wt: it cannot be examined a second time.\n")
+
+    def test_reftable_unexaminable_helper_and_hook_agree(self) -> None:
+        """3b620 round 11 (r10 review E1), each run as this account:
+        _reftable_refusal passed a reftable it could list but not search
+        (os.path.isfile found no tables.list), which check_reftable refuses
+        as unsettled; took a table whose lstat failed other than by absence
+        (a name too long) for an absent one, unsettled, where check_reftable
+        refuses at the first look; and passed a reftable that could not be
+        examined after its table was found missing (os.path.lexists; its
+        parent made unsearchable at that point). Each now refuses, as
+        pre-push does, and check_reftable refuses a reftable whose parent
+        cannot be searched as unexaminable (round 13, r12 review W2). Round
+        15 (r14 review): check_reftable refuses a table its probe found
+        absent in a reftable gone then finds unexaminable at the first look,
+        as the helper does; removing that refusal passed every test."""
+        from unittest import mock
+
+        if os.geteuid() == 0:
+            self.skipTest("root searches any directory")
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="reftable-unexaminable-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        label = "the linked worktree git directory"
+        check = 'unsettled=3 common_git_dir=/nonexistent\ncheck_reftable "$1"\necho CHECK PASSED\n'
+        names = ("gone", "refuse_unsettled", "check_reftable")
+
+        def fresh(name, listed=b"t1.ref\n"):
+            reftable = td / name / "reftable"
+            reftable.mkdir(parents=True)
+            (reftable / "t1.ref").write_bytes(b"")
+            (reftable / "tables.list").write_bytes(listed)
+            return reftable
+
+        with self.subTest(agree="a reftable that cannot be searched"):
+            reftable = fresh("closed")
+            reftable.chmod(0o644)
+            self.addCleanup(reftable.chmod, 0o700)
+            refusal = lc._reftable_refusal(os.fsencode(reftable), label, td)
+            self.assertIsInstance(refusal, lc._Unsettled)
+            self.assertIn(f"could not examine the reftable {str(reftable)!r}", refusal)
+            r = self._hook_run_functions(check, reftable, names=names)
+            self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
+            self.assertEqual(r.stderr, f"pre-push: refusing {reftable}: its entries cannot be listed.\n")
+        with self.subTest(agree="a table that cannot be examined"):
+            reftable = fresh("long", b"n" * 300 + b"\n")
+            refusal = lc._reftable_refusal(os.fsencode(reftable), label, td)
+            self.assertIn(f"names {'n' * 300!r}, not a regular file in that directory", refusal or "")
+            self.assertNotIsInstance(refusal, lc._Unsettled)
+            r = self._hook_run_functions(check, reftable, names=names)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertIn(f"names '{'n' * 300}', not a regular file in that directory", r.stderr)
+        with self.subTest(agree="a reftable that cannot be examined after its table"):
+            reftable = fresh("raced")
+            (reftable / "t1.ref").unlink()
+            real_lstat = os.lstat
+
+            # The table's one lstat (round 14; os.path.isfile before).
+            def lstat_then_close(path, *args, **kwargs):
+                try:
+                    return real_lstat(path, *args, **kwargs)
+                finally:
+                    if os.fsencode(path) == os.fsencode(reftable / "t1.ref"):
+                        reftable.parent.chmod(0o600)
+
+            self.addCleanup(reftable.parent.chmod, 0o700)
+            with mock.patch.object(lc.os, "lstat", lstat_then_close):
+                refusal = lc._reftable_refusal(os.fsencode(reftable), label, td)
+            self.assertIn("names 't1.ref', not a regular file in that directory", refusal or "")
+            self.assertNotIsInstance(refusal, lc._Unsettled)
+            # pre-push with its reftable's parent unsearchable from the
+            # start: the refusal round 12's edit stopped asserting (round 13,
+            # r12 review W2: returning 0 there passed every test).
+            r = self._hook_run_functions(check, reftable, names=names)
+            self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
+            self.assertEqual(r.stderr, f"pre-push: refusing {reftable}: it cannot be examined, so "
+                                       f"the refs git reads there cannot be confirmed.\n")
+            # pre-push in the same state (round 12, r11 review N2: its
+            # reftable's parent was unsearchable from the start): the parent
+            # is closed once tables.list is read, before the missing table.
+            reftable.parent.chmod(0o700)
+            r = self._hook_run_functions(
+                'R=$1 T="$1/tables.list"\n'
+                'python3() { last=; for last; do :; done; command python3 "$@" || return $?; '
+                '[ "$last" != "$T" ] || chmod 600 "${R%/reftable}"; }\n' + check,
+                reftable, names=names)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertEqual(r.stderr, f"pre-push: refusing {reftable / 'tables.list'}: it names "
+                                       f"'t1.ref', not a regular file in that directory.\n")
+            # And as the helper above: closed once the probe finds t1.ref
+            # absent, so gone finds the reftable unexaminable (round 15, r14
+            # review: without the reftable_state 2 refusal the re-read of
+            # tables.list failed and the look refused as unsettled, 3).
+            reftable.parent.chmod(0o700)
+            r = self._hook_run_functions(
+                'R=$1\n'
+                'python3() { last=; for last; do :; done; p=0; command python3 "$@" || p=$?; '
+                'if [ "$last" = "$R" ] && [ "$p" = 10 ]; then chmod 600 "${R%/reftable}"; fi; '
+                'return "$p"; }\n' + check,
+                reftable, names=names)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertEqual(r.stderr, f"pre-push: refusing {reftable / 'tables.list'}: it names "
+                                       f"'t1.ref', not a regular file in that directory.\n")
+
+    def test_hook_reftable_absent_and_present_by_turns(self) -> None:
+        """3b620 round 10: check_reftable takes a reftable, or an entry the
+        listing found, that test(1) finds absent, gone's lstat present and
+        test(1) absent again (git worktree remove and add of one id) as
+        unsettled (exit 3 under second_look or settle), not as a non-directory
+        or non-regular entry; at fixed points, gone's python3 probe reports
+        an absent path present."""
+        td = Path(tempfile.mkdtemp(prefix="hook-by-turns-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        reftable = td / "gitdir" / "reftable"
+        reftable.mkdir(parents=True)
+        (reftable / "tables.list").write_text("", encoding="utf-8")
+        present = ('python3() { last=; for last; do :; done; '
+                   '[ "$last" != "$P" ] || return 11; command python3 "$@"; }\n')
+        loop = 'for table in "$1"/* "$1"/.[!.]* "$1"/..?*; do'
+        hook_text = self._hook_functions("check_reftable")
+        ghost = hook_text.replace(loop, 'for table in "$1"/* "$1/ghost"; do')
+        for label, path, script in (
+                ("the reftable", td / "gitdir" / "absent", self._hook_functions("check_reftable")),
+                ("a listed entry", reftable, ghost)):
+            with self.subTest(by_turns=label):
+                probed = path / "ghost" if label == "a listed entry" else path
+                r = self._hook_run_functions(
+                    f"unsettled=3\nP='{probed}'\n" + present + script + 'check_reftable "$1"\n'
+                    'echo CHECK PASSED\n', path, names=("gone", "refuse_unsettled"))
+                self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
+                self.assertEqual(r.stderr,
+                                 f"pre-push: refusing {probed}: it was absent and present by turns.\n")
+
+    def test_reftable_mid_check_helper_and_hook_agree(self) -> None:
+        """3b620 round 10 (r9 review W1, N2): check_reftable and
+        _reftable_refusal disagreed on a tables.list gone between its probe
+        and its read (pre-push refused, the helper passed), on an entry the
+        listing found that is gone when examined (each refused one case the
+        other passed), and on a reftable that is not a directory (pre-push
+        unsettled, the helper refused at the first look). Each now gets the
+        same verdict from both, at fixed points: a tables.list removed when
+        read, a subdirectory removed after the listing, and a regular file
+        at the reftable's path."""
+        from unittest import mock
+
+        lc = self._lint_common()
+        td, env, git_dir = self._worktrees_fixture("reftable-agree-", "wt")
+        reftable = git_dir / "worktrees" / "wt" / "reftable"
+        tables_list = reftable / "tables.list"
+        saved = tables_list.read_bytes()
+        real_open, real_scandir = os.open, os.scandir
+
+        class Listing(list):
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+        def open_removed(path, *args, **kwargs):
+            if os.fsencode(path) == os.fsencode(tables_list):
+                tables_list.unlink()
+            return real_open(path, *args, **kwargs)
+
+        def listed_then_removed(path, *args, **kwargs):
+            if not isinstance(path, int) and os.fsencode(path) == os.fsencode(reftable):
+                with real_scandir(path) as listing:
+                    found = Listing(listing)
+                shutil.rmtree(reftable / "sub")
+                return found
+            return real_scandir(path, *args, **kwargs)
+
+        check = 'check_reftable "$1"\necho CHECK PASSED\n'
+        hook_text = self._hook_functions("check_reftable")
+        loop = 'for table in "$1"/* "$1"/.[!.]* "$1"/..?*; do'
+        self.assertEqual(hook_text.count(loop), 1)
+        # The listing found sub; it is removed before its examination.
+        vanished = ('rm -rf "$1/sub"\n' + hook_text.replace(
+            loop, 'for table in "$1"/* "$1"/.[!.]* "$1"/..?* "$1/sub"; do') + check)
+        label = "the linked worktree git directory"
+        with mock.patch.dict(os.environ, env, clear=True):
+            with self.subTest(agree="tables.list gone when read"):
+                with mock.patch.object(lc.os, "open", open_removed):
+                    self.assertIsNone(lc._reftable_refusal(os.fsencode(reftable), label, td))
+                self.assertFalse(tables_list.exists())
+                tables_list.write_bytes(saved)
+                r = self._hook_run_functions(
+                    'T="$1/tables.list"\n'
+                    'python3() { last=; for last; do :; done; [ "$last" != "$T" ] || rm -f "$T"; '
+                    'command python3 "$@"; }\n' + check,
+                    reftable, names=("gone", "refuse_unsettled", "check_reftable"), env=env)
+                self.assertIn("CHECK PASSED", r.stdout, r.stderr)
+                self.assertFalse(tables_list.exists())
+                tables_list.write_bytes(saved)
+            with self.subTest(agree="an entry gone after the listing"):
+                (reftable / "sub").mkdir()
+                with mock.patch.object(lc.os, "scandir", listed_then_removed):
+                    self.assertIsNone(lc._reftable_refusal(os.fsencode(reftable), label, td))
+                (reftable / "sub").mkdir()
+                r = self._hook_run_functions(
+                    vanished, reftable, names=("gone", "refuse_unsettled"), env=env)
+                self.assertIn("CHECK PASSED", r.stdout, r.stderr)
+                self.assertFalse((reftable / "sub").exists())
+                # Still there, it refuses in both.
+                (reftable / "sub").mkdir()
+                refusal = lc._reftable_refusal(os.fsencode(reftable), label, td) or ""
+                self.assertIn(f"{str(reftable / 'sub')!r} in {label} is not a regular file", refusal)
+                r = self._hook_run_functions(check, reftable,
+                                             names=("gone", "refuse_unsettled", "check_reftable"),
+                                             env=env)
+                self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                self.assertIn(f"entries in it are not regular files ({reftable / 'sub'})", r.stderr)
+                (reftable / "sub").rmdir()
+            with self.subTest(agree="a reftable that is not a directory"):
+                moved = td / "reftable.moved"
+                reftable.rename(moved)
+                reftable.write_text("", encoding="utf-8")
+                try:
+                    refusal = lc._reftable_refusal(os.fsencode(reftable), label, td)
+                    self.assertIn("is not a directory", refusal or "")
+                    self.assertNotIsInstance(refusal, lc._Unsettled)
+                    # Refused at the first look: 1, not the unsettled 3.
+                    r = self._hook_run_functions('unsettled=3\n' + check, reftable,
+                                                 names=("gone", "refuse_unsettled", "check_reftable"),
+                                                 env=env)
+                    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                    self.assertEqual(r.stderr,
+                                     f"pre-push: refusing {reftable}: it exists but is not a directory.\n")
+                finally:
+                    reftable.unlink()
+                    moved.rename(reftable)
+
+    def test_reftable_tables_list_swapped_helper_and_hook_agree(self) -> None:
+        """3b620 round 12 (r11 review W1): a tables.list the listing found a
+        regular file and that is a directory or a symbolic link when read
+        (swapped since) passed in _reftable_refusal and in check_reftable.
+        At fixed points (the open of tables.list in the helper, its lstat
+        before round 14; after the listing in the hook) each swap is now
+        unsettled in both, and a tables.list that is a directory from the
+        start refuses at the first look in both."""
+        from unittest import mock
+
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="reftable-swapped-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        label = "the linked worktree git directory"
+        names = ("gone", "refuse_unsettled", "check_reftable")
+        hook_text = self._hook_functions("check_reftable")
+        after_listing = '  if [ -n "$odd_entries" ]; then\n'
+        self.assertEqual(hook_text.count(after_listing), 1)
+        real_open = os.open
+        swaps = {
+            "a directory": ('mv "$1/tables.list" "$1/../aside"; mkdir "$1/tables.list"\n',
+                            lambda t: t.mkdir()),
+            "a symbolic link": ('mv "$1/tables.list" "$1/../aside"; ln -s ../aside "$1/tables.list"\n',
+                                lambda t: t.symlink_to("../aside")),
+        }
+        for kind, (shell_swap, swap) in swaps.items():
+            reftable = td / kind.replace(" ", "-") / "reftable"
+            reftable.mkdir(parents=True)
+            tables_list = reftable / "tables.list"
+
+            def reset():
+                if tables_list.is_symlink() or tables_list.is_file():
+                    tables_list.unlink()
+                elif tables_list.is_dir():
+                    tables_list.rmdir()
+                (reftable.parent / "aside").unlink(missing_ok=True)
+                (reftable / "t1.ref").write_bytes(b"")
+                tables_list.write_bytes(b"t1.ref\n")
+
+            def swapped_at_open(path, *args, **kwargs):
+                if os.fsencode(path) == os.fsencode(tables_list) and not swapped:
+                    swapped.append(1)
+                    tables_list.rename(reftable.parent / "aside")
+                    swap(tables_list)
+                return real_open(path, *args, **kwargs)
+
+            with self.subTest(swapped=kind):
+                reset()
+                swapped = []
+                with mock.patch.object(lc.os, "open", swapped_at_open):
+                    refusal = lc._reftable_refusal(os.fsencode(reftable), label, td)
+                self.assertEqual(swapped, [1])
+                self.assertIsInstance(refusal, lc._Unsettled)
+                self.assertIn(f"{str(tables_list)!r} in {label} is not a regular file", refusal)
+                reset()
+                r = self._hook_run_functions(
+                    'unsettled=3\n' + hook_text.replace(after_listing, shell_swap + after_listing)
+                    + 'check_reftable "$1"\necho CHECK PASSED\n',
+                    reftable, names=("gone", "refuse_unsettled"))
+                self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
+                self.assertEqual(r.stderr,
+                                 f"pre-push: refusing {tables_list}: it is not a regular file.\n")
+        with self.subTest(swapped="none: a directory from the start"):
+            reset()
+            tables_list.unlink()
+            tables_list.mkdir()
+            refusal = lc._reftable_refusal(os.fsencode(reftable), label, td)
+            self.assertIn(f"{str(tables_list)!r} in {label} is not a regular file", refusal or "")
+            self.assertNotIsInstance(refusal, lc._Unsettled)
+            r = self._hook_run_functions('unsettled=3\ncheck_reftable "$1"\necho CHECK PASSED\n',
+                                         reftable, names=names)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertIn(f"entries in it are not regular files ({tables_list})", r.stderr)
+
+    def test_reftable_nul_line_helper_and_hook_agree(self) -> None:
+        """3b620 round 12 (r11 review N1): a NUL in a tables.list line passed
+        check_reftable (command substitution drops it, so t1<NUL>.ref read
+        as t1.ref) and refused in _reftable_refusal. It now refuses at the
+        first look in both, after the lines before it, which are checked
+        first in both: an absent table named earlier is unsettled in both."""
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="reftable-nul-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        label = "the linked worktree git directory"
+        check = 'unsettled=3\ncheck_reftable "$1"\necho CHECK PASSED\n'
+        names = ("gone", "refuse_unsettled", "check_reftable")
+        for case, listed in (("a NUL line", b"t1.ref\nt1\0.ref\n"),
+                             ("a NUL line, no newline", b"t1\0.ref"),
+                             ("an absent table first", b"absent.ref\nt1\0.ref\n")):
+            reftable = td / case.replace(" ", "-").replace(",", "") / "reftable"
+            reftable.mkdir(parents=True)
+            (reftable / "t1.ref").write_bytes(b"")
+            (reftable / "tables.list").write_bytes(listed)
+            with self.subTest(nul=case):
+                refusal = lc._reftable_refusal(os.fsencode(reftable), label, td)
+                r = self._hook_run_functions(check, reftable, names=names)
+                self.assertNotIn("CHECK PASSED", r.stdout)
+                if case == "an absent table first":
+                    self.assertIsInstance(refusal, lc._Unsettled)
+                    self.assertIn("names 'absent.ref', not a regular file", refusal)
+                    self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
+                    self.assertIn("it names 'absent.ref', not a regular file", r.stderr)
+                else:
+                    self.assertNotIsInstance(refusal, lc._Unsettled)
+                    self.assertIn("names 't1\\x00.ref', not a bare file name", refusal or "")
+                    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                    self.assertEqual(r.stderr, f"pre-push: refusing {reftable / 'tables.list'}: a line "
+                                               f"in it holds a NUL, not a bare file name; git reads "
+                                               f"that table from wherever it leads.\n")
+
+    def test_second_look_unexaminable_helper_and_hook_agree(self) -> None:
+        """3b620 round 12 (r11 review W2): a worktrees/<id> that cannot be
+        examined at the second look was a plain refusal in _second_look and
+        unsettled in second_look; it is unsettled in both, and the look is
+        not run again in either."""
+        from unittest import mock
+
+        lc = self._lint_common()
+        worktree = b"/nonexistent/wt"
+        real_lstat = os.lstat
+        looks = []
+
+        def closed(path, *args, **kwargs):
+            if os.fsencode(path) == worktree:
+                raise PermissionError(13, "Permission denied", path)
+            return real_lstat(path, *args, **kwargs)
+
+        with mock.patch.object(lc.os, "lstat", closed):
+            refusal = lc._second_look(worktree, "the common git directory",
+                                      lambda: looks.append(1) or "looked")
+        self.assertIsInstance(refusal, lc._Unsettled)
+        self.assertIn("could not examine '/nonexistent/wt' in the common git directory a second "
+                      "time", refusal)
+        self.assertEqual(looks, [])
+        body = ('python3() { return 12; }\nlook() { echo look >&2; exit 3; }\n'
+                'unsettled=3\nsecond_look "$1" look\necho CHECK PASSED\n')
+        r = self._hook_run_functions(body, os.fsdecode(worktree),
+                                     names=("gone", "refuse_unsettled", "second_look"))
+        self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
+        self.assertEqual(r.stderr,
+                         "pre-push: refusing /nonexistent/wt: it cannot be examined a second time.\n")
+
+    def test_common_reftable_looked_at_again(self) -> None:
+        """3b620 round 12 (r11 review W): under git worktree add -b churn
+        the common reftable's tables.list named a table git had just
+        compacted away, and both checks refused a clean repository at their
+        one look. pre-push's check of it runs under settle, and
+        require_own_git_dir looks at it a second time where the first was
+        unsettled. At fixed points: a table missing at the first look only
+        passes; missing at every look, it refuses in both (pre-push after 3
+        looks, the helper after 2); a tables.list unreadable at every read
+        refuses after 3 settle looks."""
+        from unittest import mock
+
+        lc = self._lint_common()
+        td, env, git_dir = self._worktrees_fixture("common-reftable-relook-")
+        main = git_dir.parent
+        reftable = git_dir / "reftable"
+        tables_list, mark = reftable / "tables.list", td / "mark"
+        table = tables_list.read_text(encoding="utf-8").split()[-1]
+        aside = td / "aside"
+        real = lc._reftable_refusal
+        calls = []
+
+        def raced(how):
+            def look(path, *args, **kwargs):
+                if os.fsencode(path) != os.fsencode(reftable):
+                    return real(path, *args, **kwargs)
+                calls.append(1)
+                if how == "always" or len(calls) == 1:
+                    (reftable / table).rename(aside)
+                    try:
+                        return real(path, *args, **kwargs)
+                    finally:
+                        aside.rename(reftable / table)
+                return real(path, *args, **kwargs)
+            return look
+
+        with mock.patch.dict(os.environ, env, clear=True):
+            for how in ("once", "always"):
+                with self.subTest(helper=how):
+                    calls.clear()
+                    with mock.patch.object(lc, "_reftable_refusal", raced(how)):
+                        refusal = lc.require_own_git_dir(main)
+                    self.assertEqual(len(calls), 2)
+                    if how == "always":
+                        self.assertIn(f"names {table!r}, not a regular file in that directory",
+                                      refusal or "")
+                    else:
+                        self.assertIsNone(refusal)
+        # In the hook, the look's probe that finds the table missing puts it
+        # back after the first look (once), or never (always); its reftable
+        # is probed at each look since round 14, once per look since round 15.
+        python3 = ('python3() {\n'
+                   '  last=; for last; do :; done\n'
+                   '  if [ "$last" = "${HOOK_TABLE%/*}" ] && [ ! -e "$HOOK_TABLE" ]; then\n'
+                   '    echo look >> "$HOOK_MARK"\n'
+                   '    p=0; command python3 "$@" || p=$?\n'
+                   '    [ "$HOOK_HOW" = always ] || mv "$HOOK_ASIDE" "$HOOK_TABLE"\n'
+                   '    return "$p"\n'
+                   '  fi\n'
+                   '  command python3 "$@"\n'
+                   '}\n')
+        for how in ("once", "always"):
+            with self.subTest(hook=how):
+                mark.unlink(missing_ok=True)
+                (reftable / table).rename(aside)
+                try:
+                    r = self._hook_main_flow(git_dir, python3, dict(
+                        env, HOOK_MARK=str(mark), HOOK_HOW=how, HOOK_TABLE=str(reftable / table),
+                        HOOK_ASIDE=str(aside)))
+                finally:
+                    if aside.exists():
+                        aside.rename(reftable / table)
+                looks = mark.read_text(encoding="utf-8").count("look")
+                if how == "always":
+                    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                    self.assertNotIn("CHECK PASSED", r.stdout)
+                    self.assertEqual(r.stderr, f"pre-push: refusing {tables_list}: it names '{table}', "
+                                               f"not a regular file in that directory.\n")
+                    self.assertEqual(looks, 3)
+                else:
+                    self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                    self.assertIn("CHECK PASSED", r.stdout)
+                    self.assertEqual(r.stderr, "")
+                    self.assertEqual(looks, 1)
+        python3 = ('python3() {\n'
+                   '  last=; for last; do :; done\n'
+                   '  if [ "$last" = "$common_git_dir/reftable/tables.list" ]; then\n'
+                   '    echo look >> "$HOOK_MARK"; return 12\n'
+                   '  fi\n'
+                   '  command python3 "$@"\n'
+                   '}\n')
+        with self.subTest(hook="tables.list unreadable at every read"):
+            mark.unlink(missing_ok=True)
+            r = self._hook_main_flow(git_dir, python3, dict(env, HOOK_MARK=str(mark)))
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertEqual(r.stderr, f"pre-push: refusing {tables_list}: it cannot be read.\n")
+            self.assertEqual(mark.read_text(encoding="utf-8").count("look"), 3)
+
+    def test_reftable_changed_tables_list_helper_and_hook_agree(self) -> None:
+        """3b620 round 13 (r12 review W1): under git worktree add -b churn
+        compaction wrote a new tables.list and deleted the table the old one
+        named between a check's read and its look at that table, and the
+        hook's 3 settle looks still refused clean repositories. A table found
+        absent now has tables.list read again in both, and is looked at
+        again only where its bytes changed. At fixed points (each read of
+        tables.list, numbered; the write lands before that read): a
+        tables.list naming absent tables that changes at reads 2 and 4 to
+        one naming a present table passes after 5 reads; a missing table
+        whose tables.list never changes is unsettled after 2; a tables.list
+        changed at every read refuses at the bound, 10 looks, 20 reads."""
+        from unittest import mock
+
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="reftable-reread-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        label = "the linked worktree git directory"
+        names = ("gone", "refuse_unsettled", "check_reftable")
+        self.assertEqual(lc._REFTABLE_LOOKS, 10)
+        self.assertEqual(self._hook_functions("check_reftable").count("  reftable_looks=10\n"), 1)
+        writes = {"settles": {2: b"mid.ref\n", 4: b"t1.ref\n"}, "persists": {}}
+        python3 = ('T="$1/tables.list" M=$2 HOW=$3\n'
+                   'python3() {\n'
+                   '  last=; for last; do :; done\n'
+                   '  if [ "$last" = "$T" ]; then\n'
+                   '    echo read >> "$M"; n=$(grep -c read "$M")\n'
+                   '    case "$HOW:$n" in\n'
+                   "      settles:2) printf 'mid.ref\\n' > \"$T\" ;;\n"
+                   "      settles:4) printf 't1.ref\\n' > \"$T\" ;;\n"
+                   "      never:*) printf 'gone%s.ref\\n' \"$n\" > \"$T\" ;;\n"
+                   '    esac\n'
+                   '  fi\n'
+                   '  command python3 "$@"\n'
+                   '}\n'
+                   'unsettled=3\ncheck_reftable "$1"\necho CHECK PASSED\n')
+        for how, listed in (("settles", b"old.ref\n"), ("persists", b"absent.ref\n"),
+                            ("never", b"old.ref\n")):
+            reftable = td / how / "reftable"
+            tables_list, mark = reftable / "tables.list", td / how / "mark"
+
+            def reset():
+                reftable.mkdir(parents=True, exist_ok=True)
+                (reftable / "t1.ref").write_bytes(b"")
+                tables_list.write_bytes(listed)
+                mark.unlink(missing_ok=True)
+
+            reads, real_open = [], os.open
+
+            def counted_open(path, *args, **kwargs):
+                if os.fsencode(path) == os.fsencode(tables_list):
+                    reads.append(1)
+                    n = len(reads)
+                    write = f"gone{n}.ref\n".encode() if how == "never" else writes[how].get(n)
+                    if write is not None:
+                        tables_list.write_bytes(write)
+                return real_open(path, *args, **kwargs)
+
+            with self.subTest(helper=how):
+                reset()
+                with mock.patch.object(lc.os, "open", counted_open):
+                    refusal = lc._reftable_refusal(os.fsencode(reftable), label, td)
+                if how == "settles":
+                    self.assertIsNone(refusal)
+                    self.assertEqual(len(reads), 5)
+                elif how == "persists":
+                    self.assertIsInstance(refusal, lc._Unsettled)
+                    self.assertIn("names 'absent.ref', not a regular file in that directory", refusal)
+                    self.assertEqual(len(reads), 2)
+                else:
+                    self.assertIsInstance(refusal, lc._Unsettled)
+                    self.assertIn(f"{str(tables_list)!r} in {label} changed at each of 10 looks, so "
+                                  f"the tables it names cannot be confirmed", refusal)
+                    self.assertEqual(len(reads), 20)
+            with self.subTest(hook=how):
+                reset()
+                r = self._hook_run_functions(python3, reftable, mark, how, names=names)
+                hook_reads = mark.read_text(encoding="utf-8").count("read")
+                if how == "settles":
+                    self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                    self.assertIn("CHECK PASSED", r.stdout)
+                    self.assertEqual(r.stderr, "")
+                    self.assertEqual(hook_reads, 5)
+                else:
+                    self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
+                    self.assertNotIn("CHECK PASSED", r.stdout)
+                    if how == "persists":
+                        self.assertEqual(r.stderr, f"pre-push: refusing {tables_list}: it names "
+                                                   f"'absent.ref', not a regular file in that "
+                                                   f"directory.\n")
+                        self.assertEqual(hook_reads, 2)
+                    else:
+                        self.assertEqual(r.stderr, f"pre-push: refusing {tables_list}: it changed at "
+                                                   f"each of 10 looks, so the tables it names cannot "
+                                                   f"be confirmed.\n")
+                        self.assertEqual(hook_reads, 20)
+
+    def test_linked_worktree_reftable_looked_at_once(self) -> None:
+        """3b620 round 13 (r12 review N2): the linked worktree's own reftable
+        is looked at once in both checks, by design (outside pre-push's
+        settle; no second look in require_own_git_dir), so a table missing
+        at that look while tables.list reads the same refuses, fail closed,
+        where the common reftable's second look would pass. Widening the
+        second look to it in either check fails here. At fixed points, as in
+        test_common_reftable_looked_at_again: the table is missing at the
+        first look only."""
+        from unittest import mock
+
+        lc = self._lint_common()
+        td, env, git_dir = self._worktrees_fixture("linked-reftable-once-", "wt")
+        reftable = git_dir / "worktrees" / "wt" / "reftable"
+        tables_list = reftable / "tables.list"
+        table = tables_list.read_text(encoding="utf-8").split()[-1]
+        aside = td / "aside"
+        real = lc._reftable_refusal
+        calls = []
+
+        def once(path, *args, **kwargs):
+            if os.fsencode(path) != os.fsencode(reftable):
+                return real(path, *args, **kwargs)
+            calls.append(1)
+            if len(calls) > 1:
+                return real(path, *args, **kwargs)
+            (reftable / table).rename(aside)
+            try:
+                return real(path, *args, **kwargs)
+            finally:
+                aside.rename(reftable / table)
+
+        with self.subTest(check="helper"), mock.patch.dict(os.environ, env, clear=True):
+            with mock.patch.object(lc, "_reftable_refusal", once):
+                refusal = lc.require_own_git_dir(td / "wt")
+            self.assertEqual(len(calls), 1)
+            self.assertIsInstance(refusal, lc._Unsettled)
+            self.assertIn(f"names {table!r}, not a regular file in that directory", refusal)
+        python3 = ('python3() {\n'
+                   '  last=; for last; do :; done\n'
+                   '  if [ "$last" = "${HOOK_TABLE%/*}" ] && [ ! -e "$HOOK_TABLE" ]; then\n'
+                   '    echo look >> "$HOOK_MARK"\n'
+                   '    p=0; command python3 "$@" || p=$?\n'
+                   '    mv "$HOOK_ASIDE" "$HOOK_TABLE"\n'
+                   '    return "$p"\n'
+                   '  fi\n'
+                   '  command python3 "$@"\n'
+                   '}\n')
+        mark = td / "mark"
+        with self.subTest(check="hook"):
+            (reftable / table).rename(aside)
+            try:
+                r = self._hook_main_flow(td / "wt" / ".git", python3, dict(
+                    env, HOOK_MARK=str(mark), HOOK_TABLE=str(reftable / table),
+                    HOOK_ASIDE=str(aside)))
+            finally:
+                if aside.exists():
+                    aside.rename(reftable / table)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertNotIn("CHECK PASSED", r.stdout)
+            self.assertEqual(r.stderr, f"pre-push: refusing {tables_list}: it names '{table}', not a "
+                                       f"regular file in that directory.\n")
+            self.assertEqual(mark.read_text(encoding="utf-8").count("look"), 1)
+
+    def test_reftable_table_one_lstat_helper_and_hook_agree(self) -> None:
+        """3b620 round 14 (r13 review N2): each check looked at a table
+        tables.list names twice, os.path.islink then os.path.isfile (which
+        follows a link) in _reftable_refusal and test -f then test -L in
+        check_reftable, so a symbolic link to another repository's table
+        made, or removed, between the two passed (a race the reviewer ran).
+        One lstat decides now. At fixed points, after the first look at
+        evil.ref by any probe: the helper finds it absent and a link is made
+        (unsettled), the hook finds a link that is removed (refused)."""
+        import re as re_mod
+        from unittest import mock
+
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="reftable-one-lstat-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        label = "the linked worktree git directory"
+        foreign = td / "foreign.ref"
+        foreign.write_bytes(b"REFT")
+        reftable = td / "gitdir" / "reftable"
+        reftable.mkdir(parents=True)
+        (reftable / "t1.ref").write_bytes(b"")
+        (reftable / "tables.list").write_bytes(b"t1.ref\nevil.ref\n")
+        evil = reftable / "evil.ref"
+        real_lstat = os.lstat
+        made = []
+
+        def lstat_then_link(path, *args, **kwargs):
+            try:
+                return real_lstat(path, *args, **kwargs)
+            finally:
+                if os.fsencode(path) == os.fsencode(evil) and not made:
+                    made.append(1)
+                    evil.symlink_to(foreign)
+
+        with self.subTest(check="helper"):
+            try:
+                with mock.patch.object(lc.os, "lstat", lstat_then_link):
+                    refusal = lc._reftable_refusal(os.fsencode(reftable), label, td)
+                self.assertEqual(made, [1])
+                self.assertTrue(evil.is_symlink())
+            finally:
+                evil.unlink(missing_ok=True)
+            self.assertIsInstance(refusal, lc._Unsettled)
+            self.assertIn("names 'evil.ref', not a regular file in that directory", refusal)
+        # In the hook the link is made once tables.list is read, and removed
+        # after the first look at it: test -f before round 14 (each test(1)
+        # in check_reftable runs as t_), its python3 probe since (one per
+        # look, given the reftable, since round 15).
+        hook_text = re_mod.sub(r"(?<![^\s!|&;(])\[ ", "t_ ", self._hook_functions("check_reftable"))
+        body = ('R=$1 T="$1/tables.list" E="$1/evil.ref" F=$2 M=$3\n'
+                't_() {\n'
+                '  if [ "$@"; then t_status=0; else t_status=1; fi\n'
+                '  if [ "$1 $2 $3" = "! -f $E" ] && [ ! -e "$M.removed" ]; then\n'
+                '    : > "$M.removed"; rm -f "$E"\n'
+                '  fi\n'
+                '  return "$t_status"\n'
+                '}\n'
+                'python3() {\n'
+                '  last=; for last; do :; done\n'
+                '  p_status=0; command python3 "$@" || p_status=$?\n'
+                '  if [ "$last" = "$T" ] && [ ! -e "$M.made" ]; then : > "$M.made"; ln -s "$F" "$E"; fi\n'
+                '  if { [ "$last" = "$E" ] || [ "$last" = "$R" ]; } && [ ! -e "$M.removed" ]; then\n'
+                '    : > "$M.removed"; rm -f "$E"\n'
+                '  fi\n'
+                '  return "$p_status"\n'
+                '}\n'
+                + hook_text + 'unsettled=3\ncheck_reftable "$1"\necho CHECK PASSED\n')
+        with self.subTest(check="hook"):
+            r = self._hook_run_functions(body, reftable, foreign, td / "mark",
+                                         names=("gone", "refuse_unsettled"))
+            self.assertTrue((td / "mark.made").exists())
+            self.assertTrue((td / "mark.removed").exists())
+            self.assertFalse(evil.is_symlink())
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertNotIn("CHECK PASSED", r.stdout)
+            self.assertEqual(r.stderr, f"pre-push: refusing {reftable / 'tables.list'}: it names "
+                                       f"'evil.ref', not a regular file in that directory.\n")
+
+    def test_reftable_tables_list_fifo_zero_and_bound_helper_and_hook_agree(self) -> None:
+        """3b620 round 14 (r13 review N1): tables.list was opened with no
+        lstat of its own after the probes before it, so a FIFO swapped in
+        between hung both checks, and a symbolic link to /dev/zero made the
+        read unbounded. Each is now opened without following a link or
+        blocking and must be a regular file: at fixed points (the helper's
+        open of tables.list; the hook's run of its reader) each swap refuses
+        at once as not a regular file, unsettled, in both. The helper runs
+        in a child capped at 1 GiB of address space and the hook's reader
+        under ulimit -v and timeout 10, so the old reads fail rather than
+        hang or exhaust memory. A tables.list of 1048576 bytes is read and
+        one byte more refuses at the first look in both."""
+        import subprocess as sp
+        import textwrap
+        import time
+
+        td = Path(tempfile.mkdtemp(prefix="reftable-fifo-zero-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        label = "the linked worktree git directory"
+        child = textwrap.dedent("""\
+            import importlib.util, os, resource, sys
+            from unittest import mock
+            resource.setrlimit(resource.RLIMIT_AS, (1 << 30, 1 << 30))
+            spec = importlib.util.spec_from_file_location("lc", sys.argv[1])
+            lc = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(lc)
+            reftable, how = os.fsencode(sys.argv[2]), sys.argv[3]
+            tables_list = os.path.join(reftable, b"tables.list")
+            real_open, real_os_open, swapped = open, os.open, []
+
+            def swap(path):
+                if os.fsencode(path) == tables_list and not swapped:
+                    swapped.append(1)
+                    os.unlink(tables_list)
+                    if how == "fifo":
+                        os.mkfifo(tables_list)
+                    else:
+                        os.symlink(b"/dev/zero", tables_list)
+
+            def swapped_open(path, *args, **kwargs):
+                swap(path)
+                return real_open(path, *args, **kwargs)
+
+            def swapped_os_open(path, *args, **kwargs):
+                swap(path)
+                return real_os_open(path, *args, **kwargs)
+
+            with mock.patch.object(lc, "open", swapped_open, create=True), \\
+                    mock.patch.object(lc.os, "open", swapped_os_open):
+                refusal = lc._reftable_refusal(reftable, sys.argv[4], sys.argv[2])
+            print(isinstance(refusal, lc._Unsettled), swapped == [1])
+            print(refusal)
+            """)
+        python3 = ('T="$1/tables.list" HOW=$2\n'
+                   'python3() {\n'
+                   '  last=; for last; do :; done\n'
+                   '  if [ "$last" = "$T" ] && [ ! -e "$T.swapped" ]; then\n'
+                   '    : > "$T.swapped"; rm -f "$T"\n'
+                   '    if [ "$HOW" = fifo ]; then mkfifo "$T"; else ln -s /dev/zero "$T"; fi\n'
+                   '  fi\n'
+                   '  (ulimit -v 2097152; exec timeout 10 python3 "$@")\n'
+                   '}\n'
+                   'unsettled=3\ncheck_reftable "$1"\necho CHECK PASSED\n')
+        names = ("gone", "refuse_unsettled", "check_reftable")
+        for how in ("fifo", "zero"):
+            reftable = td / how / "reftable"
+            tables_list = reftable / "tables.list"
+
+            def reset():
+                reftable.mkdir(parents=True, exist_ok=True)
+                for leftover in (tables_list, reftable / "tables.list.swapped"):
+                    if leftover.is_symlink() or leftover.exists():
+                        leftover.unlink()
+                (reftable / "t1.ref").write_bytes(b"")
+                tables_list.write_bytes(b"t1.ref\n")
+
+            with self.subTest(helper=how):
+                reset()
+                started = time.monotonic()
+                try:
+                    r = sp.run([sys.executable, "-I", "-c", child,
+                                str(REPO_ROOT / "tools" / "lint_common.py"), str(reftable), how,
+                                label], capture_output=True, text=True, stdin=sp.DEVNULL,
+                               timeout=20)
+                except sp.TimeoutExpired:
+                    self.fail(f"_reftable_refusal did not return within 20 s ({how})")
+                self.assertLess(time.monotonic() - started, 10)
+                self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                verdict, message = r.stdout.split("\n", 1)
+                self.assertEqual(verdict, "True True")
+                self.assertIn(f"{str(tables_list)!r} in {label} is not a regular file", message)
+            with self.subTest(hook=how):
+                reset()
+                started = time.monotonic()
+                r = self._hook_run_functions(python3, reftable, how, names=names)
+                self.assertLess(time.monotonic() - started, 10)
+                self.assertTrue((reftable / "tables.list.swapped").exists())
+                self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
+                self.assertEqual(r.stderr,
+                                 f"pre-push: refusing {tables_list}: it is not a regular file.\n")
+        lc = self._lint_common()
+        self.assertEqual(lc._TABLES_LIST_MAX_BYTES, 1048576)
+        reftable = td / "bound" / "reftable"
+        reftable.mkdir(parents=True)
+        tables_list = reftable / "tables.list"
+        check = 'unsettled=3\ncheck_reftable "$1"\necho CHECK PASSED\n'
+        for size in (1048576, 1048577):
+            tables_list.write_bytes(b"\n" * size)
+            with self.subTest(bound=size):
+                refusal = lc._reftable_refusal(os.fsencode(reftable), label, td)
+                r = self._hook_run_functions(check, reftable, names=names)
+                if size == 1048576:
+                    self.assertIsNone(refusal)
+                    self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                    self.assertIn("CHECK PASSED", r.stdout)
+                else:
+                    self.assertNotIsInstance(refusal, lc._Unsettled)
+                    self.assertIn(f"{str(tables_list)!r} in {label} holds more than 1048576 bytes",
+                                  refusal or "")
+                    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                    self.assertEqual(r.stderr, f"pre-push: refusing {tables_list}: it holds more "
+                                               f"than 1048576 bytes, so the tables it names cannot "
+                                               f"be confirmed.\n")
+
+    def test_hook_worktrees_absent_and_present_by_turns(self) -> None:
+        """3b620 round 14 (r13 review W1): walk_links refused a worktrees
+        directory that test(1) found absent, gone's lstat present and
+        test(1) absent again (git worktree add and remove by turns) as
+        existing but not a directory, at the first look, so settle could
+        not look again (2 of 150 churn runs refused). It is unsettled now,
+        as in check_reftable: at fixed points (gone's python3 probe reports
+        the absent worktrees present), every look refuses as unsettled after
+        3 settle looks, and the first look only passes at the second."""
+        td = Path(tempfile.mkdtemp(prefix="hook-worktrees-by-turns-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        worktrees, mark = td / "gitdir" / "worktrees", td / "mark"
+        worktrees.parent.mkdir()
+        python3 = ('W=$1 M=$2 HOW=$3\n'
+                   'python3() {\n'
+                   '  last=; for last; do :; done\n'
+                   '  if [ "$last" = "$W" ]; then\n'
+                   '    echo probe >> "$M"\n'
+                   '    if [ "$HOW" = always ] || [ "$(grep -c probe "$M")" -le 2 ]; then\n'
+                   '      return 11\n'
+                   '    fi\n'
+                   '  fi\n'
+                   '  command python3 "$@"\n'
+                   '}\n')
+        with self.subTest(look="one"):
+            mark.unlink(missing_ok=True)
+            r = self._hook_run_functions(python3 + 'unsettled=3\nwalk_links "$W" worktrees\n'
+                                         'echo CHECK PASSED\n', worktrees, mark, "always")
+            self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
+            self.assertEqual(r.stderr,
+                             f"pre-push: refusing {worktrees}: it was absent and present by turns.\n")
+        for how in ("once", "always"):
+            with self.subTest(settle=how):
+                mark.unlink(missing_ok=True)
+                r = self._hook_run_functions(python3 + 'settle walk_links "$W" worktrees\n'
+                                             'echo CHECK PASSED\n', worktrees, mark, how)
+                probes = mark.read_text(encoding="utf-8").count("probe")
+                if how == "always":
+                    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                    self.assertNotIn("CHECK PASSED", r.stdout)
+                    self.assertEqual(r.stderr, f"pre-push: refusing {worktrees}: it was absent and "
+                                               f"present by turns.\n")
+                    self.assertEqual(probes, 6)
+                else:
+                    self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                    self.assertIn("CHECK PASSED", r.stdout)
+                    self.assertEqual(r.stderr, "")
+                    self.assertEqual(probes, 3)
+        self.assertFalse(worktrees.exists())
+
+    def test_worktrees_symref_links_helper_and_hook_agree(self) -> None:
+        """3b620 round 5 (r4 review): require_own_git_dir passed
+        worktrees/<id>/refs/worktree/HEAD and refs/bisect/HEAD as symbolic
+        links git writes, while tools/git-hooks/pre-push matched */HEAD first
+        and refused them. One link at a time, each path and text below gets
+        the same verdict from both, and the expected one: a plain refs/ name
+        at worktrees/<id>/HEAD or under worktrees/<id>/refs passes, anything
+        else (another place, text leaving the repository) refuses."""
+        import subprocess as sp
+        from unittest import mock
+
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="symref-agree-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["GIT_CEILING_DIRECTORIES"] = str(td)
+        hook = REPO_ROOT / "tools" / "git-hooks" / "pre-push"
+
+        def git(*args):
+            return sp.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", *args], check=True,
+                          capture_output=True, text=True, env=env).stdout.strip()
+
+        main = td / "main"
+        git("init", "-q", "--ref-format=files", str(main))
+        (main / "tools").mkdir()
+        (main / "tools" / "check-dirty-tree-push.py").write_text("print('HOOK PASSED')\n",
+                                                                 encoding="utf-8")
+        (main / "tools" / "pre-push-hook.py").write_text("", encoding="utf-8")
+        git("-C", str(main), "add", "-A")
+        git("-C", str(main), "commit", "-q", "-m", "main")
+        git("-C", str(main), "worktree", "add", "-q", "-b", "agree", str(td / "wt"))
+        worktrees = main / ".git" / "worktrees"
+        outside = str(td / "elsewhere" / ".git" / "HEAD")
+        cases = (  # (path below worktrees, link text, passes)
+            ("wt/HEAD", "refs/heads/agree", True),
+            ("wt/refs/worktree/x", "refs/heads/agree", True),
+            ("wt/refs/worktree/HEAD", "refs/heads/agree", True),
+            ("wt/refs/bisect/HEAD", "refs/heads/agree", True),
+            ("wt/refs/HEAD", "refs/heads/agree", True),
+            ("wt/refs/a/b/c", "refs/heads/agree", True),
+            ("wt/HEAD", outside, False),
+            ("wt/refs/worktree/x", outside, False),
+            ("wt/refs/worktree/HEAD", outside, False),
+            ("wt/refs/bisect/HEAD", outside, False),
+            ("wt/refs/worktree/HEAD", "refs/../../../../elsewhere/.git/HEAD", False),
+            ("wt/refs/bisect/HEAD", "../../../../../elsewhere/.git/HEAD", False),
+            ("wt/refs/bisect/HEAD", "refs/heads/agree\n", False),
+            ("wt/refs/bisect/HEAD", "HEAD", False),
+            ("wt/logs/HEAD", "refs/heads/agree", False),
+            ("wt/logs/refs/heads/agree", "refs/heads/agree", False),
+            ("wt/x/HEAD", "refs/heads/agree", False),
+            ("wt/x/refs/y", "refs/heads/agree", False),
+            # 3b620 round 8 (r7 review W1): an unfinished notes merge.
+            ("wt/NOTES_MERGE_REF", "refs/notes/a", True),
+            # 3b620 round 9 (r8 review W2): any ref name git takes.
+            ("wt/HEAD", "refs/heads/w@t", True),
+            ("wt/HEAD", "refs/heads/café", True),
+            ("wt/refs/bisect/x", "refs/heads/topic#123", True),
+            ("wt/NOTES_MERGE_REF", "refs/notes/n@1", True),
+            ("wt/HEAD", "refs/heads/a b", False),
+            ("wt/HEAD", "refs/heads/x.lock", False),
+            ("wt/HEAD", "refs/heads/a@{1}", False),
+            ("wt/HEAD", "refs/heads/a..b", False),
+            ("wt/HEAD", "refs/heads/", False),
+            ("wt/NOTES_MERGE_REF", outside, False),
+            ("wt/x/NOTES_MERGE_REF", "refs/notes/a", False),
+            ("wt/ORIG_HEAD", "refs/heads/agree", False),
+            ("HEAD", "refs/heads/agree", False),
+            ("ghost/refs", "refs/heads/agree", False),
+        )
+        with mock.patch.dict(os.environ, env, clear=True):
+            for rel, text, passes in cases:
+                link = worktrees / rel
+                with self.subTest(path=rel, text=text):
+                    saved = None
+                    if link.is_file():
+                        saved = link.read_bytes()
+                        link.unlink()
+                    created = [parent for parent in reversed(link.parents) if not parent.exists()]
+                    link.parent.mkdir(parents=True, exist_ok=True)
+                    link.symlink_to(text)
+                    try:
+                        refusal = lc.require_own_git_dir(main) or ""
+                        r = sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                                   cwd=str(main), env=env, stdin=sp.DEVNULL)
+                    finally:
+                        link.unlink()
+                        for parent in reversed(created):
+                            parent.rmdir()
+                        if saved is not None:
+                            link.write_bytes(saved)
+                    helper_refuses = f"{str(link)!r} in" in refusal and "is a symbolic link" in refusal
+                    hook_refuses = f"pre-push: refusing {link}: it is a symlink" in r.stderr
+                    self.assertEqual(helper_refuses, hook_refuses, refusal + "\n" + r.stderr)
+                    self.assertEqual(helper_refuses, not passes, refusal + "\n" + r.stderr)
+                    if passes:
+                        self.assertEqual(refusal, "")
+                        self.assertIn("HOOK PASSED", r.stdout, r.stderr)
+                    else:
+                        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+
+    def test_require_own_git_dir_common_refs_links(self) -> None:
+        """3b620 round 6 (r5 review E1, git 2.53): a worktrees/<id>/HEAD link
+        with the permitted text refs/heads/foreign, while the common
+        refs/heads/foreign was a symbolic link to another repository's ref
+        file, gave git that repository's ref as the worktree's HEAD, and
+        require_own_git_dir and tools/git-hooks/pre-push passed. Both now walk
+        the common refs directory to any depth, and refuse a symbolic link
+        there, packed-refs as one, and the walk's depth or entry bound, naming
+        the path. The links git writes itself there with
+        core.preferSymlinkRefs (git clone's refs/remotes/origin/HEAD, any git
+        symbolic-ref) pass, as do ordinary files and reftable repositories,
+        packed refs and worktrees; a loose ref gone between the listing and
+        its lstat is absence (simulated)."""
+        import subprocess as sp
+        from unittest import mock
+
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="refs-links-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["GIT_CEILING_DIRECTORIES"] = str(td)
+        hook = REPO_ROOT / "tools" / "git-hooks" / "pre-push"
+
+        def git(*args):
+            return sp.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", *args], check=True,
+                          capture_output=True, text=True, env=env).stdout.strip()
+
+        def repo(name, ref_format="files"):
+            root = td / name
+            result = sp.run(["git", "init", "-q", "-b", "main", f"--ref-format={ref_format}",
+                             str(root)], capture_output=True, text=True, env=env)
+            if result.returncode:
+                self.skipTest(f"{ref_format} unavailable: " + result.stderr.strip())
+            (root / "tools").mkdir()
+            (root / "tools" / "check-dirty-tree-push.py").write_text("print('HOOK PASSED')\n",
+                                                                     encoding="utf-8")
+            (root / "tools" / "pre-push-hook.py").write_text("", encoding="utf-8")
+            git("-C", str(root), "add", "-A")
+            git("-C", str(root), "commit", "-q", "-m", name)
+            return root
+
+        def hook_run(root):
+            return sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                          cwd=str(root), env=env, stdin=sp.DEVNULL)
+
+        theirs = repo("theirs")
+        git("-C", str(theirs), "commit", "-q", "--allow-empty", "-m", "theirs 2")
+        their_ref = theirs / ".git" / "refs" / "heads" / "main"
+        refused = {}  # label: (roots run from, the path both name)
+        passes = {}  # label: roots run from
+        ours = repo("e1")
+        git("-C", str(ours), "worktree", "add", "-q", "--detach", str(td / "e1-wt"))
+        head = ours / ".git" / "worktrees" / "e1-wt" / "HEAD"
+        head.unlink()
+        head.symlink_to("refs/heads/foreign")
+        foreign = ours / ".git" / "refs" / "heads" / "foreign"
+        foreign.symlink_to(their_ref)
+        # git reads the other repository's ref as the worktree's HEAD.
+        self.assertEqual(git("-C", str(td / "e1-wt"), "rev-parse", "HEAD"),
+                         git("-C", str(theirs), "rev-parse", "main"))
+        refused["E1: a permitted worktree HEAD link naming a linked common ref"] = (
+            [ours, td / "e1-wt"], foreign)
+        ours = repo("deep")
+        deep = ours / ".git" / "refs" / "tags" / "a" / "b"
+        deep.mkdir(parents=True)
+        (deep / "c").symlink_to(os.path.relpath(their_ref, deep))
+        refused["a relative link deep in refs/tags"] = ([ours], deep / "c")
+        ours = repo("dir-link")
+        (ours / ".git" / "refs" / "remotes").symlink_to(theirs / ".git" / "refs" / "heads")
+        refused["refs/remotes a symbolic link to a directory"] = (
+            [ours], ours / ".git" / "refs" / "remotes")
+        ours = repo("dotdot")
+        link = ours / ".git" / "refs" / "heads" / "dotdot"
+        link.symlink_to("refs/../../../theirs/.git/refs/heads/main")
+        refused["symbolic-ref text with .."] = ([ours], link)
+        ours = repo("packed-link")
+        git("-C", str(theirs), "pack-refs", "--all")
+        packed = ours / ".git" / "packed-refs"
+        packed.symlink_to(theirs / ".git" / "packed-refs")
+        refused["packed-refs a symbolic link"] = ([ours], packed)
+        ours = repo("too-deep")
+        deep = ours / ".git" / "refs"
+        for _ in range(33):  # refs/d/... 33 levels deep
+            deep = deep / "d"
+        deep.mkdir(parents=True)
+        refused["an entry 33 levels deep"] = ([ours], ours / ".git" / "refs")
+        ours = repo("too-many")
+        many = ours / ".git" / "refs" / "tags"
+        for index in range(20000):
+            (many / f"t{index}").touch()
+        refused["more than 20000 entries"] = ([ours], ours / ".git" / "refs")
+
+        for ref_format in ("files", "reftable"):
+            ours = repo(f"plain-{ref_format}", ref_format)
+            git("-C", str(ours), "branch", "topic")
+            git("-C", str(ours), "tag", "v1")
+            git("-C", str(ours), "worktree", "add", "-q", "-b", f"wt-{ref_format}",
+                str(td / f"plain-{ref_format}-wt"))
+            passes[f"{ref_format} repository with a worktree"] = [
+                ours, td / f"plain-{ref_format}-wt"]
+        ours = repo("packed")
+        git("-C", str(ours), "branch", "topic")
+        git("-C", str(ours), "pack-refs", "--all")
+        self.assertTrue((ours / ".git" / "packed-refs").is_file())
+        passes["packed refs"] = [ours]
+        ours = repo("preferred")
+        git("-C", str(ours), "config", "core.preferSymlinkRefs", "true")
+        git("-C", str(ours), "symbolic-ref", "refs/heads/alias", "refs/heads/main")
+        git("-C", str(ours), "symbolic-ref", "refs/a/b/c/d", "refs/heads/main")
+        git("-C", str(ours), "worktree", "add", "-q", "-b", "p", str(td / "preferred-wt"))
+        git("-C", str(ours), "pack-refs", "--all")
+        cloned = td / "preferred-clone"
+        git("-c", "core.preferSymlinkRefs=true", "clone", "-q", str(ours), str(cloned))
+        for link in (ours / ".git" / "refs" / "heads" / "alias",
+                     ours / ".git" / "refs" / "a" / "b" / "c" / "d",
+                     cloned / ".git" / "refs" / "remotes" / "origin" / "HEAD"):
+            self.assertTrue(link.is_symlink(), link)
+        passes["core.preferSymlinkRefs (links git writes in refs)"] = [
+            ours, td / "preferred-wt", cloned]
+        ours = repo("depth")
+        deep = ours / ".git" / "refs"
+        for _ in range(32):
+            deep = deep / "d"
+        deep.mkdir(parents=True)
+        passes["an entry 32 levels deep"] = [ours]
+
+        with mock.patch.dict(os.environ, env, clear=True):
+            for label, roots in passes.items():
+                for root in roots:
+                    with self.subTest(passes=label, root=root.name):
+                        self.assertIsNone(lc.require_own_git_dir(root))
+                        r = hook_run(root)
+                        self.assertIn("HOOK PASSED", r.stdout, r.stderr)
+            for label, (roots, path) in refused.items():
+                for root in roots:
+                    with self.subTest(refused=label, root=root.name):
+                        refusal = lc.require_own_git_dir(root) or ""
+                        self.assertIn(f"{str(path)!r} in the common git directory", refusal)
+                        self.assertIn("tools/git-hooks/pre-push refuses the same layout", refusal)
+                        r = hook_run(root)
+                        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                        self.assertNotIn("HOOK PASSED", r.stdout)
+                        self.assertIn(f"pre-push: refusing {path}", r.stderr)
+                        if label.endswith("deep") or label.endswith("entries"):
+                            self.assertIn("deeper than 32 levels", refusal)
+                            self.assertIn("deeper than 32 levels", r.stderr)
+                            # 3b620 round 7 (r6 review N2): both name the remedy.
+                            self.assertIn("git pack-refs --all packs them into packed-refs", refusal)
+                            self.assertIn("git pack-refs --all packs them into packed-refs", r.stderr)
+                        else:
+                            self.assertIn("is a symbolic link", refusal)
+                            self.assertIn("is a symlink", r.stderr)
+
+            # A loose ref the listing found that is gone when examined (git
+            # pack-refs or branch -d meanwhile) is absence.
+            main = td / "plain-files"
+            gone = main / ".git" / "refs" / "heads" / "topic"
+            self.assertTrue(gone.is_file())
+            real_lstat = os.lstat
+
+            def vanish(path, *args, **kwargs):
+                if not isinstance(path, int) and os.fsencode(path) == os.fsencode(gone):
+                    gone.unlink(missing_ok=True)
+                return real_lstat(path, *args, **kwargs)
+
+            with mock.patch.object(lc.os, "lstat", vanish):
+                self.assertIsNone(lc.require_own_git_dir(main))
+            self.assertFalse(gone.exists())
+
+    def _top_level_link_fixture(self, prefix):
+        """A temporary directory, git and pre-push runners, and a files
+        repository factory for the 3b620 round 7 top-level link tests."""
+        import subprocess as sp
+
+        td = Path(tempfile.mkdtemp(prefix=prefix)).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["GIT_CEILING_DIRECTORIES"] = str(td)
+        hook = REPO_ROOT / "tools" / "git-hooks" / "pre-push"
+
+        def git(*args):
+            return sp.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", *args], check=True,
+                          capture_output=True, text=True, env=env).stdout.strip()
+
+        def repo(name):
+            root = td / name
+            git("init", "-q", "-b", "main", str(root))
+            (root / "tools").mkdir()
+            (root / "tools" / "check-dirty-tree-push.py").write_text("print('HOOK PASSED')\n",
+                                                                     encoding="utf-8")
+            (root / "tools" / "pre-push-hook.py").write_text("", encoding="utf-8")
+            git("-C", str(root), "add", "-A")
+            git("-C", str(root), "commit", "-q", "-m", name)
+            git("-C", str(root), "commit", "-q", "--allow-empty", "-m", name + " 2")
+            return root
+
+        def hook_run(root):
+            return sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                          cwd=str(root), env=env, stdin=sp.DEVNULL)
+
+        return td, env, git, repo, hook_run
+
+    def _assert_top_level_link_refused(self, name: str) -> None:
+        """3b620 round 7 (r6 review E, W1, N1, git 2.53): with ``name`` in
+        the common git directory (a fixed-name ref, or logs) a real symbolic
+        link to a second repository's ref file (its logs), git rev-parse
+        gives that repository's commit (main@{1} from its reflog), and
+        require_own_git_dir and tools/git-hooks/pre-push passed; both now
+        refuse, naming the link."""
+        from unittest import mock
+
+        lc = self._lint_common()
+        td, env, git, repo, hook_run = self._top_level_link_fixture("top-level-links-")
+        theirs, ours = repo("theirs"), repo("ours")
+        link = ours / ".git" / name
+        if name == "logs":
+            shutil.rmtree(link)
+            link.symlink_to(theirs / ".git" / "logs")
+            spec, expected = "main@{1}", git("-C", str(theirs), "rev-parse", "main@{1}")
+        else:
+            link.unlink(missing_ok=True)
+            link.symlink_to(theirs / ".git" / "refs" / "heads" / "main")
+            spec, expected = name, git("-C", str(theirs), "rev-parse", "main")
+        # git reads the second repository's commit through the link.
+        self.assertEqual(git("-C", str(ours), "rev-parse", spec), expected)
+        self.assertNotIn(expected, git("-C", str(ours), "rev-list", "--all"))
+        with mock.patch.dict(os.environ, env, clear=True):
+            refusal = lc.require_own_git_dir(ours) or ""
+            self.assertIn(f"{str(link)!r} in the common git directory is a symbolic link", refusal)
+            self.assertIn("tools/git-hooks/pre-push refuses the same layout", refusal)
+            r = hook_run(ours)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertNotIn("HOOK PASSED", r.stdout)
+            self.assertIn(f"pre-push: refusing {link}: it is a symlink", r.stderr)
+
+    def test_require_own_git_dir_orig_head_link(self) -> None:
+        self._assert_top_level_link_refused("ORIG_HEAD")
+
+    def test_require_own_git_dir_fetch_head_link(self) -> None:
+        self._assert_top_level_link_refused("FETCH_HEAD")
+
+    def test_require_own_git_dir_logs_link(self) -> None:
+        self._assert_top_level_link_refused("logs")
+
+    def test_require_own_git_dir_other_top_level_ref_links(self) -> None:
+        # 3b620 round 7: the other fixed-name refs git 2.53 followed as links.
+        for name in ("MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD", "BISECT_HEAD", "REBASE_HEAD",
+                     "AUTO_MERGE", "BISECT_EXPECTED_REV", "NOTES_MERGE_PARTIAL", "NOTES_MERGE_REF",
+                     "MERGE_AUTOSTASH"):
+            with self.subTest(name=name):
+                self._assert_top_level_link_refused(name)
+
+    def test_top_level_refs_git_writes_pass(self) -> None:
+        """3b620 round 7: what git 2.53 writes itself at those names passes
+        both checks: regular ORIG_HEAD and FETCH_HEAD files, a HEAD file in
+        git's "ref: refs/heads/<branch>" form, a logs directory, and HEAD as
+        a link whose text is a ref name (core.preferSymlinkRefs)."""
+        from unittest import mock
+
+        lc = self._lint_common()
+        td, env, git, repo, hook_run = self._top_level_link_fixture("top-level-refs-")
+        theirs, ours = repo("theirs"), repo("ours")
+        git("-C", str(ours), "reset", "-q", "--hard", "HEAD~1")
+        git("-C", str(ours), "fetch", "-q", str(theirs), "main")
+        git_dir = ours / ".git"
+        self.assertTrue((git_dir / "ORIG_HEAD").is_file())
+        self.assertTrue((git_dir / "FETCH_HEAD").is_file())
+        self.assertEqual((git_dir / "HEAD").read_text(encoding="utf-8"), "ref: refs/heads/main\n")
+        self.assertTrue((git_dir / "logs").is_dir())
+        preferred = repo("preferred")
+        git("-C", str(preferred), "config", "core.preferSymlinkRefs", "true")
+        git("-C", str(preferred), "checkout", "-q", "-b", "other")
+        self.assertEqual(os.readlink(preferred / ".git" / "HEAD"), "refs/heads/other")
+        with mock.patch.dict(os.environ, env, clear=True):
+            for root in (ours, preferred):
+                with self.subTest(root=root.name):
+                    self.assertIsNone(lc.require_own_git_dir(root))
+                    r = hook_run(root)
+                    self.assertIn("HOOK PASSED", r.stdout, r.stderr)
+
+    def test_require_own_git_dir_head_link_to_foreign_ref(self) -> None:
+        """3b620 round 8 (r7 review, agy N): HEAD in the common git
+        directory as a symbolic link into a second repository. With text
+        refs/../../../theirs/.git/refs/heads/main (which starts refs/, so
+        git 2.53 takes the directory as a repository, and is no ref name, so
+        it follows the link) git rev-parse HEAD gives that repository's
+        commit; require_own_git_dir and tools/git-hooks/pre-push refuse it,
+        naming the link. With an absolute path as its text git 2.53 does not
+        take the directory as a repository at all, and both refuse there
+        because git fails."""
+        import subprocess as sp
+        from unittest import mock
+
+        lc = self._lint_common()
+        td, env, git, repo, hook_run = self._top_level_link_fixture("head-link-")
+        theirs, ours = repo("theirs"), repo("ours")
+        link = ours / ".git" / "HEAD"
+        link.unlink()
+        link.symlink_to("refs/../../../theirs/.git/refs/heads/main")
+        self.assertEqual(git("-C", str(ours), "rev-parse", "HEAD"),
+                         git("-C", str(theirs), "rev-parse", "main"))
+        with mock.patch.dict(os.environ, env, clear=True):
+            refusal = lc.require_own_git_dir(ours) or ""
+            self.assertIn(f"{str(link)!r} in the common git directory is a symbolic link", refusal)
+            r = hook_run(ours)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertNotIn("HOOK PASSED", r.stdout)
+            self.assertIn(f"pre-push: refusing {link}: it is a symlink", r.stderr)
+        link.unlink()
+        link.symlink_to(theirs / ".git" / "refs" / "heads" / "main")
+        self.assertEqual(sp.run(["git", "-C", str(ours), "rev-parse", "HEAD"], capture_output=True,
+                                env=env).returncode, 128)
+        with mock.patch.dict(os.environ, env, clear=True):
+            self.assertIn("could not confirm that git reads this script's repository",
+                          lc.require_own_git_dir(ours) or "")
+            r = hook_run(ours)
+            self.assertNotEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertNotIn("HOOK PASSED", r.stdout)
+            self.assertIn("not a git repository", r.stderr)
+
+    def test_unfinished_notes_merge_symref_links_pass(self) -> None:
+        """3b620 round 8 (r7 review W1): git 2.53 with core.preferSymlinkRefs
+        leaves NOTES_MERGE_REF as a link whose text is refs/notes/<n> while a
+        git notes merge is unfinished, in the common git directory and, for a
+        merge in a linked worktree, at worktrees/<id>/NOTES_MERGE_REF; both
+        checks refused each. Both now pass them, from the main checkout and
+        the linked worktree."""
+        import subprocess as sp
+        from unittest import mock
+
+        lc = self._lint_common()
+        td, env, git, repo, hook_run = self._top_level_link_fixture("notes-merge-")
+        ours = repo("ours")
+        git("-C", str(ours), "config", "core.preferSymlinkRefs", "true")
+        git("-C", str(ours), "notes", "--ref", "a", "add", "-m", "a", "HEAD")
+        git("-C", str(ours), "notes", "--ref", "b", "add", "-m", "b", "HEAD")
+        wt = td / "wt"
+        git("-C", str(ours), "worktree", "add", "-q", "-b", "wtb", str(wt))
+
+        def unfinished_merge(where):
+            r = sp.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "-C", str(where),
+                        "notes", "--ref", "a", "merge", "refs/notes/b"],
+                       capture_output=True, text=True, env=env)
+            self.assertNotEqual(r.returncode, 0, r.stdout + r.stderr)
+
+        for label, where, link in (
+                ("main", ours, ours / ".git" / "NOTES_MERGE_REF"),
+                ("linked worktree", wt, ours / ".git" / "worktrees" / "wt" / "NOTES_MERGE_REF")):
+            with self.subTest(merge=label):
+                unfinished_merge(where)
+                try:
+                    self.assertEqual(os.readlink(link), "refs/notes/a")
+                    with mock.patch.dict(os.environ, env, clear=True):
+                        for root in (ours, wt):
+                            self.assertIsNone(lc.require_own_git_dir(root))
+                            r = hook_run(root)
+                            self.assertIn("HOOK PASSED", r.stdout, r.stderr)
+                finally:
+                    git("-C", str(where), "notes", "--ref", "a", "merge", "--abort")
+                self.assertFalse(os.path.lexists(link))
+
+    def test_git_written_symref_links_with_any_ref_name(self) -> None:
+        """3b620 round 9 (r8 review W, W2): git 2.53 with
+        core.preferSymlinkRefs writes HEAD as a link to refs/heads/rel@2026
+        or refs/heads/café, a worktree HEAD to refs/heads/w@t,
+        NOTES_MERGE_REF to refs/notes/n@1 and a symbolic ref under refs to
+        any ref name, and both checks refused each (their link-text
+        character class); both now pass every one, from the main checkout
+        and the worktree."""
+        import subprocess as sp
+        from unittest import mock
+
+        lc = self._lint_common()
+        td, env, git, repo, hook_run = self._top_level_link_fixture("symref-names-")
+        ours = repo("ours")
+        git("-C", str(ours), "config", "core.preferSymlinkRefs", "true")
+        git_dir = ours / ".git"
+        wt = td / "wt"
+        git("-C", str(ours), "worktree", "add", "-q", "-b", "w@t", str(wt))
+        git("-C", str(ours), "symbolic-ref", "refs/heads/alias#1", "refs/heads/main")
+        git("-C", str(ours), "notes", "--ref", "n@1", "add", "-m", "a", "HEAD")
+        git("-C", str(ours), "notes", "--ref", "n@2", "add", "-m", "b", "HEAD")
+        merge = sp.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "-C", str(ours), "notes",
+                        "--ref", "n@1", "merge", "refs/notes/n@2"], capture_output=True, text=True,
+                       env=env)
+        self.assertNotEqual(merge.returncode, 0, merge.stdout + merge.stderr)
+        links = {git_dir / "NOTES_MERGE_REF": "refs/notes/n@1",
+                 git_dir / "worktrees" / "wt" / "HEAD": "refs/heads/w@t",
+                 git_dir / "refs" / "heads" / "alias#1": "refs/heads/main"}
+        for branch in ("rel@2026", "café"):
+            git("-C", str(ours), "checkout", "-q", "-b", branch)
+            links[git_dir / "HEAD"] = f"refs/heads/{branch}"
+            with self.subTest(head=branch):
+                for link, text in links.items():
+                    self.assertEqual(os.readlink(link), text, link)
+                with mock.patch.dict(os.environ, env, clear=True):
+                    for root in (ours, wt):
+                        self.assertIsNone(lc.require_own_git_dir(root))
+                        r = hook_run(root)
+                        self.assertIn("HOOK PASSED", r.stdout, r.stderr)
+        git("-C", str(ours), "notes", "--ref", "n@1", "merge", "--abort")
+
+    def test_hook_lstat_error_is_not_absence(self) -> None:
+        """3b620 round 9 (r8 review N3): pre-push took an lstat error other
+        than ENOENT on a fixed-name ref in a searchable directory for
+        absence ([ ! -e ] && [ ! -L ]), where require_own_git_dir refuses
+        it; it now refuses it, as its lstat probe (round 10: python3's
+        os.lstat by exit status) reports it, and passes ENOENT."""
+        td = Path(tempfile.mkdtemp(prefix="hook-lstat-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        git_dir = td / "gitdir"
+        git_dir.mkdir()
+        (git_dir / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+        failing = 'case "$*" in *ORIG_HEAD) return 12 ;; esac; command python3 "$@"'
+        r = self._hook_top_level_check(git_dir, python3=failing)
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn(f"pre-push: refusing {git_dir / 'ORIG_HEAD'}: it cannot be examined", r.stderr)
+        r = self._hook_top_level_check(git_dir)
+        self.assertIn("CHECK PASSED", r.stdout, r.stderr)
+
+    def test_require_own_git_dir_top_level_examination_errors(self) -> None:
+        """3b620 round 8 (r7 review N4): an lstat of a fixed-name ref, logs
+        or origin in the common git directory failing other than by absence
+        refuses, naming the path, as does a readlink of a HEAD link failing
+        so; a HEAD link gone when read is absence and passes."""
+        from unittest import mock
+
+        lc = self._lint_common()
+        td, env, git, repo, hook_run = self._top_level_link_fixture("top-level-errors-")
+        ours = repo("ours")
+        real_lstat = os.lstat
+        with mock.patch.dict(os.environ, env, clear=True):
+            for name in ("HEAD", "ORIG_HEAD", "logs", "origin"):
+                target = os.fsencode(ours / ".git" / name)
+
+                def failing(path, *args, **kwargs):
+                    if not isinstance(path, int) and os.fsencode(path) == target:
+                        raise PermissionError(13, "Permission denied", path)
+                    return real_lstat(path, *args, **kwargs)
+
+                with self.subTest(lstat=name), mock.patch.object(lc.os, "lstat", failing):
+                    refusal = lc.require_own_git_dir(ours) or ""
+                    self.assertIn(f"could not examine {os.fsdecode(target)!r} in the common git "
+                                  f"directory", refusal)
+                    self.assertIn("Permission denied", refusal)
+            preferred = repo("preferred")
+            git("-C", str(preferred), "config", "core.preferSymlinkRefs", "true")
+            git("-C", str(preferred), "checkout", "-q", "-b", "other")
+            head = preferred / ".git" / "HEAD"
+            self.assertEqual(os.readlink(head), "refs/heads/other")
+            real_readlink = os.readlink
+
+            def denied(path, *args, **kwargs):
+                if os.fsencode(path) == os.fsencode(head):
+                    raise PermissionError(13, "Permission denied", path)
+                return real_readlink(path, *args, **kwargs)
+
+            def vanished(path, *args, **kwargs):
+                if os.fsencode(path) == os.fsencode(head):
+                    head.unlink()
+                return real_readlink(path, *args, **kwargs)
+
+            with self.subTest(readlink="denied"), mock.patch.object(lc.os, "readlink", denied):
+                self.assertIn(f"could not examine {str(head)!r}", lc.require_own_git_dir(preferred) or "")
+            with self.subTest(readlink="gone"), mock.patch.object(lc.os, "readlink", vanished):
+                self.assertIsNone(lc.require_own_git_dir(preferred))
+            self.assertFalse(os.path.lexists(head))
+
+    def _hook_top_level_check(self, directory, readlink=None, python3=None):
+        """Run tools/git-hooks/pre-push's own symref_link_text and
+        check_top_level, taken from the hook's text, on ``directory`` with
+        sh, ``readlink`` (shell text) replacing readlink(1) when given, and
+        ``python3`` the python3 that gone's lstat probe runs (round 10;
+        stat(1) in round 9); the
+        rest of the hook needs git to read the directory, which a directory
+        that cannot be searched prevents."""
+        import re as re_mod
+        import subprocess as sp
+
+        text = (REPO_ROOT / "tools" / "git-hooks" / "pre-push").read_text(encoding="utf-8")
+        functions = [re_mod.search(rf"^{name}\(\) \{{\n.*?^\}}\n", text, re_mod.M | re_mod.S).group(0)
+                     for name in ("gone", "symref_link_text", "check_top_level")]
+        script = "".join(functions) + (f"readlink() {{ {readlink}; }}\n" if readlink else "")
+        script += f"python3() {{ {python3}; }}\n" if python3 else ""
+        script += 'check_top_level "$1"\necho CHECK PASSED\n'
+        return sp.run(["sh", "-c", script, "sh", str(directory)], capture_output=True, text=True,
+                      stdin=sp.DEVNULL)
+
+    def test_hook_top_level_examination_errors(self) -> None:
+        """3b620 round 8 (r7 review W, N3): pre-push took an lstat error on a
+        fixed-name ref in the common git directory for absence ([ -L ] ||
+        continue) and a failed readlink of a HEAD link for a foreign link,
+        where lint_common refuses the first and takes a link gone when read
+        for absence. The hook's check now refuses an entry it cannot examine
+        (absence counts only in a searchable directory) and a link whose
+        text it cannot read while the link remains, and passes one gone when
+        read, as require_own_git_dir does."""
+        td = Path(tempfile.mkdtemp(prefix="hook-top-level-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        git_dir = td / "gitdir"
+        git_dir.mkdir()
+        (git_dir / "HEAD").symlink_to("refs/heads/main")
+        (git_dir / "ORIG_HEAD").write_text("0" * 40 + "\n", encoding="utf-8")
+        cannot = f"pre-push: refusing {git_dir / 'HEAD'}: it cannot be examined"
+        r = self._hook_top_level_check(git_dir)
+        self.assertIn("CHECK PASSED", r.stdout, r.stderr)
+        r = self._hook_top_level_check(git_dir, readlink="return 1")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn(cannot, r.stderr)
+        r = self._hook_top_level_check(git_dir, readlink='rm -f "$1"; return 1')
+        self.assertIn("CHECK PASSED", r.stdout, r.stderr)
+        self.assertFalse(os.path.lexists(git_dir / "HEAD"))
+        if os.geteuid() == 0:
+            self.skipTest("root searches a directory without its search permission")
+        git_dir.chmod(0o600)
+        try:
+            self.assertRaises(PermissionError, os.lstat, git_dir / "ORIG_HEAD")
+            r = self._hook_top_level_check(git_dir)
+        finally:
+            git_dir.chmod(0o700)
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn(f"pre-push: refusing {git_dir / 'HEAD'}: it cannot be examined", r.stderr)
+
+    def _foreign_ref_entries(self, git_dir, theirs, their_main):
+        """The shapes that gave git rev-parse a second repository's commit
+        for origin/main or main (3b620 r7 review E1, git 2.53): (label, entry,
+        short name, fully qualified name, make)."""
+        def origin_dir():
+            (git_dir / "origin").mkdir()
+            (git_dir / "origin" / "main").write_text(their_main + "\n", encoding="utf-8")
+
+        def main_file():
+            (git_dir / "main").write_text(their_main + "\n", encoding="utf-8")
+
+        return (
+            ("origin directory", git_dir / "origin", "origin/main", "refs/remotes/origin/main",
+             origin_dir),
+            ("origin symbolic link", git_dir / "origin", "origin/main", "refs/remotes/origin/main",
+             lambda: (git_dir / "origin").symlink_to(theirs / ".git" / "refs" / "heads")),
+            ("main file", git_dir / "main", "main", "refs/heads/main", main_file),
+            ("main symbolic link", git_dir / "main", "main", "refs/heads/main",
+             lambda: (git_dir / "main").symlink_to(theirs / ".git" / "refs" / "heads" / "main")),
+        )
+
+    @staticmethod
+    def _remove_entry(entry):
+        if entry.is_symlink() or entry.is_file():
+            entry.unlink()
+        else:
+            shutil.rmtree(entry)
+
+    def test_require_own_git_dir_origin_entry(self) -> None:
+        """3b620 round 8 (r7 review E1, git 2.53): a directory origin in the
+        common git directory holding a file main, or a symbolic link origin
+        to a second repository's refs/heads, gave git rev-parse origin/main
+        that repository's commit with only an ambiguity warning, and both
+        checks passed. Both now refuse an entry named origin there, naming
+        it. A file or link named main there (a single-level name) is a named
+        residual of both checks; resolve_base_ref refuses it as a gate base."""
+        from unittest import mock
+
+        lc = self._lint_common()
+        td, env, git, repo, hook_run = self._top_level_link_fixture("origin-entry-")
+        theirs, ours = repo("theirs"), repo("ours")
+        git("-C", str(ours), "update-ref", "refs/remotes/origin/main", "HEAD")
+        git("-C", str(ours), "fetch", "-q", str(theirs), "main")
+        their_main = git("-C", str(theirs), "rev-parse", "main")
+        for label, entry, short, full, make in self._foreign_ref_entries(ours / ".git", theirs,
+                                                                         their_main):
+            with self.subTest(shape=label):
+                make()
+                try:
+                    self.assertEqual(git("-C", str(ours), "rev-parse", short), their_main)
+                    with mock.patch.dict(os.environ, env, clear=True):
+                        refusal = lc.require_own_git_dir(ours)
+                        r = hook_run(ours)
+                finally:
+                    self._remove_entry(entry)
+                if entry.name == "origin":
+                    self.assertIn(f"{str(entry)!r} in the common git directory exists", refusal or "")
+                    # 3b620 round 9 (r8 review N2): true of files storage only.
+                    for message in (refusal or "", r.stderr):
+                        self.assertIn("in a repository that stores refs as files git reads origin/",
+                                      message)
+                        self.assertIn("git 2.53 with reftable storage did not", message)
+                    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                    self.assertNotIn("HOOK PASSED", r.stdout)
+                    self.assertIn(f"pre-push: refusing {entry}: it exists", r.stderr)
+                else:
+                    self.assertIsNone(refusal)
+                    self.assertIn("HOOK PASSED", r.stdout, r.stderr)
+
+    def test_resolve_base_ref(self) -> None:
+        """3b620 round 8 (r7 review E1): resolve_base_ref hands a gate a
+        fully qualified ref for a short base name, refuses one git finds
+        ambiguous or finds only in the git directory (the directory and
+        symbolic-link shapes, for origin/main and a single-level name), and
+        refuses a base form it cannot confirm; the fully qualified default
+        reads the repository's own ref through any of those shapes."""
+        from unittest import mock
+
+        lc = self._lint_common()
+        td, env, git, repo, hook_run = self._top_level_link_fixture("base-ref-")
+        theirs, ours = repo("theirs"), repo("ours")
+        git("-C", str(ours), "update-ref", "refs/remotes/origin/main", "HEAD~1")
+        git("-C", str(ours), "fetch", "-q", str(theirs), "main")
+        their_main = git("-C", str(theirs), "rev-parse", "main")
+        own = {name: git("-C", str(ours), "rev-parse", name)
+               for name in ("refs/heads/main", "refs/remotes/origin/main")}
+        refused = "not one ref under refs/"
+        with mock.patch.dict(os.environ, env, clear=True):
+            self.assertEqual(lc.resolve_base_ref("origin/main", ours),
+                             ("refs/remotes/origin/main", None))
+            self.assertEqual(lc.resolve_base_ref("origin/main~1^2", ours),
+                             ("refs/remotes/origin/main~1^2", None))
+            self.assertEqual(lc.resolve_base_ref("main", ours), ("refs/heads/main", None))
+            for unchanged in ("HEAD", "HEAD~1", own["refs/heads/main"], "no-such-branch",
+                              "refs/remotes/origin/main"):
+                with self.subTest(base=unchanged):
+                    self.assertEqual(lc.resolve_base_ref(unchanged, ours)[1], None)
+            for form in ("main@{1}", "-main", "main..HEAD", "origin/main:README.md", ""):
+                with self.subTest(base=form):
+                    self.assertIn("is not a full object name, HEAD or a ref name",
+                                  lc.resolve_base_ref(form, ours)[1] or "")
+            # Git would look an abbreviated object name up as a ref name first,
+            # so the validator refuses it before any ref lookup (3b620 round 19).
+            self.assertIn("is hexadecimal digits but not a full object name",
+                          lc.resolve_base_ref(own["refs/heads/main"][:12], ours)[1] or "")
+            git("-C", str(ours), "update-ref", "refs/tags/main", "HEAD")
+            self.assertIn(refused, lc.resolve_base_ref("main", ours)[1] or "")
+            git("-C", str(ours), "update-ref", "-d", "refs/tags/main")
+            for label, entry, short, full, make in self._foreign_ref_entries(ours / ".git", theirs,
+                                                                             their_main):
+                with self.subTest(shape=label):
+                    make()
+                    try:
+                        self.assertEqual(git("-C", str(ours), "rev-parse", short), their_main)
+                        self.assertIn(refused, lc.resolve_base_ref(short, ours)[1] or "")
+                        self.assertIn(refused, lc.resolve_base_ref(short + "~1", ours)[1] or "")
+                        self.assertEqual(lc.resolve_base_ref(full, ours), (full, None))
+                        self.assertEqual(git("-C", str(ours), "rev-parse", full), own[full])
+                        # Found only in the git directory: no ref of that name.
+                        git("-C", str(ours), "update-ref", "-d", full)
+                        try:
+                            self.assertIn(refused, lc.resolve_base_ref(short, ours)[1] or "")
+                        finally:
+                            git("-C", str(ours), "update-ref", full, own[full])
+                    finally:
+                        self._remove_entry(entry)
+
+    # Branch names git 2.53 creates and resolves that the round-8 character
+    # class refused (r8 review E, W1).
+    _GIT_VALID_BASES = ("feature@v1", "release@2026", "topic#123", "feat#12", "a!b", "a'b",
+                        "pct%20", "café")
+
+    def test_resolve_base_ref_git_valid_names(self) -> None:
+        """3b620 round 9 (r8 review E, W1, N1): resolve_base_ref takes every
+        name git check-ref-format --allow-onelevel takes, short, under
+        origin/ and as the fully qualified ref the gates build from
+        GITHUB_BASE_REF, and an uppercase full object name; it keeps every
+        round-8 refusal (a reflog or range expression, ":", a leading "-",
+        an abbreviated object name, an ambiguous name), including where the
+        repository's own config sets core.warnAmbiguousRefs=false."""
+        from unittest import mock
+
+        lc = self._lint_common()
+        td, env, git, repo, hook_run = self._top_level_link_fixture("base-names-")
+        ours = repo("ours")
+        sha = git("-C", str(ours), "rev-parse", "HEAD")
+        form = "is not a full object name, HEAD or a ref name"
+        refused = "not one ref under refs/"
+        with mock.patch.dict(os.environ, env, clear=True):
+            for name in self._GIT_VALID_BASES:
+                with self.subTest(base=name):
+                    git("-C", str(ours), "branch", name)
+                    git("-C", str(ours), "update-ref", f"refs/remotes/origin/{name}", "HEAD")
+                    self.assertEqual(lc.resolve_base_ref(name, ours), (f"refs/heads/{name}", None))
+                    self.assertEqual(lc.resolve_base_ref(f"origin/{name}~1", ours),
+                                     (f"refs/remotes/origin/{name}~1", None))
+                    full = f"refs/remotes/origin/{name}"
+                    self.assertEqual(lc.resolve_base_ref(full, ours), (full, None))
+                    self.assertEqual(lc.resolve_base_ref(full, ours, from_cwd=False)[1], None)
+            for full_name in (sha.upper(), sha, sha.upper() + "~1"):
+                with self.subTest(base=full_name):
+                    self.assertEqual(lc.resolve_base_ref(full_name, ours), (full_name, None))
+            for bad in ("main@{1}", "@{-1}", "main@{upstream}", "-main", "--all", "main..HEAD",
+                        "main...HEAD", "origin/main:README.md", "", "@", "main^{tree}", "a b",
+                        "refs/heads/x.lock", "a\\b", "ma*in", "main~x"):
+                with self.subTest(base=bad):
+                    self.assertIn(form, lc.resolve_base_ref(bad, ours)[1] or "")
+            for short in (sha[:12], sha[:12].upper()):
+                with self.subTest(base=short):
+                    # Refused before any ref lookup (3b620 round 19).
+                    self.assertIn("is hexadecimal digits but not a full object name",
+                                  lc.resolve_base_ref(short, ours)[1] or "")
+            git("-C", str(ours), "tag", "main")
+            self.assertIn(refused, lc.resolve_base_ref("main", ours)[1] or "")
+            # N1: the forced core.warnAmbiguousRefs=true outranks the
+            # repository's own false, under which git silently takes the tag.
+            git("-C", str(ours), "config", "core.warnAmbiguousRefs", "false")
+            self.assertEqual(git("-C", str(ours), "rev-parse", "--symbolic-full-name", "main"),
+                             "refs/tags/main")
+            self.assertIn(refused, lc.resolve_base_ref("main", ours)[1] or "")
+
+    def test_resolve_base_ref_object_name_width(self) -> None:
+        """3b620 round 10 (r9 review E1, git 2.53): hexadecimal digits are a
+        full object name only at the repository's object format's width. In
+        a sha1 repository a symbolic link at <git-dir>/<64 digits> to another
+        repository's ref file, and in a sha256 one at <git-dir>/<40 digits>,
+        gave git rev-parse that repository's commit, and round 9 passed both
+        unchanged; both now refuse, since round 19 as hexadecimal digits
+        that are not a full object name, before any ref lookup, found in
+        the git directory or not, and a full name at the right width, in
+        either case, still passes unchanged."""
+        import subprocess as sp
+        from unittest import mock
+
+        lc = self._lint_common()
+        td, env, git, repo, hook_run = self._top_level_link_fixture("base-width-")
+        refused = "is hexadecimal digits but not a full object name"
+        for fmt, width, other in (("sha1", 40, 64), ("sha256", 64, 40)):
+            with self.subTest(object_format=fmt):
+                roots = {}
+                for side in ("theirs", "ours"):
+                    root = roots[side] = td / f"{side}-{fmt}"
+                    result = sp.run(["git", "init", "-q", "-b", "main", f"--object-format={fmt}",
+                                     str(root)], capture_output=True, text=True, env=env)
+                    if result.returncode:
+                        self.skipTest(f"{fmt} unavailable: " + result.stderr.strip())
+                    git("-C", str(root), "commit", "-q", "--allow-empty", "-m", side)
+                theirs, ours = roots["theirs"], roots["ours"]
+                sha = git("-C", str(ours), "rev-parse", "HEAD")
+                their_main = git("-C", str(theirs), "rev-parse", "main")
+                self.assertEqual(len(sha), width)
+                wide = "ab" * (other // 2)
+                (ours / ".git" / wide).symlink_to(theirs / ".git" / "refs" / "heads" / "main")
+                # git reads the second repository's commit through the link.
+                self.assertEqual(git("-C", str(ours), "rev-parse", wide), their_main)
+                with mock.patch.dict(os.environ, env, clear=True):
+                    for name in (sha, sha.upper(), sha + "~1"):
+                        self.assertEqual(lc.resolve_base_ref(name, ours), (name, None))
+                    for name in (wide, wide + "~1"):
+                        self.assertIn(refused, lc.resolve_base_ref(name, ours)[1] or "")
+                    (ours / ".git" / wide).unlink()
+                    # Found nowhere, it refuses as well (3b620 round 19).
+                    self.assertIn(refused, lc.resolve_base_ref(wide, ours)[1] or "")
+                    if other < width:
+                        # 40 digits of a sha256 object's name abbreviate it.
+                        self.assertIn(refused, lc.resolve_base_ref(sha[:other], ours)[1] or "")
+
+    def test_pr_gates_resolve_base_unambiguously(self) -> None:
+        """3b620 round 8 (r7 review E1): D5, D9, D13 and tension-scan, as
+        copies inside a fixture, refuse (exit 2) a base git reads from a
+        file or symbolic link named main in the git directory ahead of
+        refs/heads/main, and pass the same base without it; D5, D9 and D13
+        build their default base as refs/remotes/origin/<target>, so with a
+        directory origin in the git directory the default is not taken as
+        ambiguous, and the origin entry refuses in require_own_git_dir."""
+        import subprocess as sp
+
+        td, env, git, repo, hook_run = self._top_level_link_fixture("gate-base-")
+        theirs = repo("theirs")
+        top = td / "gates"
+        git("init", "-q", "-b", "main", str(top))
+        (top / "README.md").write_text("# Repo\n", encoding="utf-8")
+        (top / "CHANGELOG.md").write_text("# Changelog\n\nOld entry.\n", encoding="utf-8")
+        git("-C", str(top), "add", "-A")
+        git("-C", str(top), "commit", "-q", "-m", "Initial")
+        git("-C", str(top), "update-ref", "refs/remotes/origin/main", "HEAD")
+        git("-C", str(top), "checkout", "-q", "-b", "feat")
+        (top / "CHANGELOG.md").write_text("# Changelog\n\nNew entry.\n\nOld entry.\n", encoding="utf-8")
+        git("-C", str(top), "commit", "-q", "-am", "feat: a change")
+        git("-C", str(top), "fetch", "-q", str(theirs), "main")
+        their_main = git("-C", str(theirs), "rev-parse", "main")
+        (top / "tools").mkdir()
+        for name in ("lint_common.py", "check-retired-section-orphan-on-pr.py",
+                     "check-stranded-control-code-on-pr.py", "check-todo-rotation-on-pr.py",
+                     "tension-scan.py"):
+            (top / "tools" / name).write_bytes((REPO_ROOT / "tools" / name).read_bytes())
+        gates = (("check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
+                 ("check-retired-section-orphan-on-pr.py", "D9 OK: no TODO section closed"),
+                 ("check-stranded-control-code-on-pr.py", "D13 OK: no corpus document changed"),
+                 ("tension-scan.py", "0 rewritten block(s) since"))
+
+        def gate(script, *args, base_ref=None):
+            run_env = dict(env)
+            if base_ref:
+                run_env["GITHUB_BASE_REF"] = base_ref
+            return sp.run([sys.executable, str(top / "tools" / script), *args], capture_output=True,
+                          text=True, cwd=str(top), env=run_env, stdin=sp.DEVNULL)
+
+        entries = {label: (entry, make) for label, entry, _, _, make
+                   in self._foreign_ref_entries(top / ".git", theirs, their_main)}
+        for script, verdict in gates:
+            with self.subTest(gate=script, base="main"):
+                r = gate(script, "main", "feat")
+                self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                self.assertIn(verdict, r.stdout)
+            for label in ("main file", "main symbolic link"):
+                entry, make = entries[label]
+                with self.subTest(gate=script, shape=label):
+                    make()
+                    try:
+                        self.assertEqual(git("-C", str(top), "rev-parse", "main"), their_main)
+                        r = gate(script, "main", "feat")
+                    finally:
+                        self._remove_entry(entry)
+                    self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                    self.assertIn("git resolves the base 'main' ambiguously", r.stderr)
+                    self.assertNotIn(verdict, r.stdout)
+            if script == "tension-scan.py":
+                continue
+            with self.subTest(gate=script, base="default"):
+                r = gate(script, base_ref="main")
+                self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                self.assertIn(verdict, r.stdout)
+                entry, make = entries["origin directory"]
+                make()
+                try:
+                    self.assertEqual(git("-C", str(top), "rev-parse", "origin/main"), their_main)
+                    r = gate(script, base_ref="main")
+                finally:
+                    self._remove_entry(entry)
+                self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                self.assertNotIn("ambiguously", r.stderr)
+                self.assertIn(f"{str(entry)!r} in the common git directory exists", r.stderr)
+
+    def test_relinked_checkout_passes_as_second_repositorys_worktree(self) -> None:
+        """3b620 round 6 (r5 review E2), a named residual: a linked checkout
+        of one repository whose .git file is changed to name a second
+        repository's worktrees/<id>, with that directory's gitdir file changed
+        to name the checkout's .git, gets the second repository's HEAD, and
+        require_own_git_dir and tools/git-hooks/pre-push pass it, as they pass
+        a genuine worktree of a repository moved by hand and fixed with git
+        worktree repair, which leaves the same .git file, gitdir file and
+        worktrees/<id> entries; local state cannot tell the two apart."""
+        import subprocess as sp
+        from unittest import mock
+
+        lc = self._lint_common()
+        td = Path(tempfile.mkdtemp(prefix="relinked-")).resolve()
+        self.addCleanup(shutil.rmtree, td, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["GIT_CEILING_DIRECTORIES"] = str(td)
+        hook = REPO_ROOT / "tools" / "git-hooks" / "pre-push"
+
+        def git(*args):
+            return sp.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", *args], check=True,
+                          capture_output=True, text=True, env=env).stdout.strip()
+
+        def repo(name):
+            root = td / name
+            git("init", "-q", "-b", "main", str(root))
+            (root / "tools").mkdir()
+            (root / "tools" / "check-dirty-tree-push.py").write_text("print('HOOK PASSED')\n",
+                                                                     encoding="utf-8")
+            (root / "tools" / "pre-push-hook.py").write_text("", encoding="utf-8")
+            git("-C", str(root), "add", "-A")
+            git("-C", str(root), "commit", "-q", "-m", name)
+            git("-C", str(root), "worktree", "add", "-q", "--detach", str(td / f"{name}-wt"))
+            return root
+
+        first, second, genuine = repo("first"), repo("second"), repo("genuine")
+        checkout = td / "first-wt"
+        second_dir = second / ".git" / "worktrees" / "second-wt"
+        (checkout / ".git").write_text(f"gitdir: {second_dir}\n", encoding="utf-8")
+        (second_dir / "gitdir").write_text(f"{checkout / '.git'}\n", encoding="utf-8")
+        self.assertEqual(git("-C", str(checkout), "rev-parse", "HEAD"),
+                         git("-C", str(second), "rev-parse", "HEAD"))
+        self.assertNotEqual(git("-C", str(checkout), "rev-parse", "HEAD"),
+                            git("-C", str(first), "rev-parse", "HEAD"))
+        moved = td / "moved"
+        shutil.move(str(td / "genuine-wt"), str(moved))
+        git("-C", str(genuine), "worktree", "repair", str(moved))
+        genuine_dir = genuine / ".git" / "worktrees" / "genuine-wt"
+        self.assertEqual((moved / ".git").read_text(encoding="utf-8"), f"gitdir: {genuine_dir}\n")
+        self.assertEqual((genuine_dir / "gitdir").read_text(encoding="utf-8"), f"{moved / '.git'}\n")
+        self.assertEqual(sorted(os.listdir(second_dir)), sorted(os.listdir(genuine_dir)))
+        with mock.patch.dict(os.environ, env, clear=True):
+            for root in (checkout, moved):
+                with self.subTest(root=root.name):
+                    self.assertIsNone(lc.require_own_git_dir(root))
+                    r = sp.run(["sh", str(hook), "origin", "x"], capture_output=True, text=True,
+                               cwd=str(root), env=env, stdin=sp.DEVNULL)
+                    self.assertIn("HOOK PASSED", r.stdout, r.stderr)
 
     def test_parse_metadata_block_fields_and_backslash(self) -> None:
         lc = self._lint_common()
@@ -33111,11 +36365,11 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-narrative-corpus-mixed-diff-on-pr.py NO_FS F d887f9c093699a558892270fda2810e744bfb55c1c9b4cbcae4ed6a666fefd5d
         check-portability.sh FIXED F 47a3853e165ba918c0f4f5687904f662a0a9d805356428394fd724ff227756d5
         check-pr-attribution.py OWN F c4f70a56baebcbdd6a30c252c80ab6853d631105208896f3ed47ae6f95824d3c
-        check-retired-section-orphan-on-pr.py NO_FS F 625d4037a2d598e6ab1eb5972a0b2c62dd25f02c90545d5a801795bdc021cfd3
+        check-retired-section-orphan-on-pr.py NO_FS F aa039c437a563f4a88cf540c9cd8e0ea15e37edfce292f19fcb134443a8ea87c
         check-review-cadence.py ROOT F 443ad71b0c3a1ff20fca6cf96195d149fbe0333446bb1055426b23195d2f9e4b
-        check-stranded-control-code-on-pr.py NO_FS F f9b60f8c5ed39b725f7f3bf0c9932107d91179ab94cb3aa920f92b487e3e27fd
+        check-stranded-control-code-on-pr.py NO_FS F 2c853cb450d2a00fe25290a3fce5284f0284c49560e7e23694fe25c0779301f6
         check-todo-floor-monotonic-on-pr.py NO_FS F 2be7d8fc308974a0b99b60a2d40f02b93c21be83ca1837d0a40c55974c893d29
-        check-todo-rotation-on-pr.py NO_FS F fa1b9a5954444ef8bf6e5666d5b717f1491883619bafbc67c6680736f918d93e
+        check-todo-rotation-on-pr.py NO_FS F 2b0c8ae01f02d2267d741656e99dbff257ec7407a4debbd5cf9d1812302c9844
         check-version-bump-commit.py MESSAGE F 142f3df04c03add5d49a80bc8f53fc67c414e052ce2424a21b11d9898ae303a6
         check-version-bump-on-pr.py NO_FS F 35a3896f610c90c1114d570720a0e152e57581ae2b67bda805ba14eda7866d5d
         ci-status.py NO_FS F 068ed02eb5f5a81572dce604a4cb1965582dbc178c7c9715be3d37dd8e01e54b
@@ -33132,7 +36386,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         gate-scope-manifest.json DATA F b2a3cd3834419d4e78891043c491e126623b916bccf4e7e283ec39b142d9e6a8
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
-        git-hooks/pre-push TRANSPORT F 9d1300e3fc7e1dcea3986ea7015f839c2c821cd7be16263dadc04482089fc2b5
+        git-hooks/pre-push TRANSPORT F 598806d6ab27e039ae858a935fa02813ba52588bd7ba2fab6586d27bd76d4267
         handoff-snapshot.py NO_FS F 70e30d65f7eeca3ae03ed36b3556e73a468272804f67cf38bfe16d988b2e3de2
         historical_citation_register.py PASSIVE F deb457b7487c069a6f1602b6a4160e1ce922da6a82a523b288dfee151d3b0236
         install-git-hooks.sh FIXED F a0010c29758bda7824fdd000e5400c5aa6c3dd13563c9cf3bc4c35acc53b286c
@@ -33237,7 +36491,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 5b8f07f67932e6a2e08b8de287bea230dd312d319654494f39b7c3349f6be1bb
-        lint_common.py PASSIVE F 30a62d8dfde2f60310cec7314179301c6091ca0cef8482a9b43c79be68dc49bc
+        lint_common.py PASSIVE F 82f35387a39a2ada3768e8bae5f374a6bdb6574c2a0997acc21373bead986555
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -33269,7 +36523,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         sweep-preflight-scanner.py NO_FS F ae4ca7f95dffecb823ec3bc0fdf382ead32fd92a8b0c8b0c286f0b85b2b4dd6f
         sync-citation-worklist-baseline.py OWN F 9c465a8c77bafd52f7f3079f35346a11716a6f0bc8e91862706590e831af397b
         tail-safe.sh COMMAND F 07908bc54b40d06445f63a08f92526d22e4a030465ee235104a3ec41fbbb0b02
-        tension-scan.py NO_FS F b49a801182538a004d973328235289a4f2bb23b5dbc034c34272619ca1d33511
+        tension-scan.py NO_FS F 280e4a102c450e944f0b850fb4cdd6e6f9113d2516f15ffbb7856e3ed9e9241f
         todo-number-floor.json DATA F b5b684a17754dd265c1072f2342971befcc59b5a6e0b579f48eb21ea172f047b
         todo_index_rows.py PASSIVE F 6aba39ba20b4bbbe5ffab3fe94ef520ec95ce8d8e2510ea73696c17d196c2e4a
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4
@@ -56512,8 +59766,8 @@ def _rewrite_slot_share_fixture(test, source, path):
 
 
 class HookDescendantIsolationTests(unittest.TestCase):
-    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 1, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 17, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 12}
-    NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(repo_root), 'rev-parse', '--absolute-git-dir']", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', '-c', 'core.warnAmbiguousRefs=false', '-c', 'trace2.normalTarget=', '-c', 'trace2.perfTarget=', '-c', 'trace2.eventTarget=', '-C', str(REPO), *args]", "['git', 'config', '--file', os.path.join(current, b'config'), '--get', 'core.worktree']", "['git', 'init', '-q', str(repo)]", "['git', 'ls-tree', '-z', '--full-tree', rev, '--', f':(literal){path}']", "['git', 'show', f'{ref}:{path}', '--']", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['git', *here, 'rev-parse', '--absolute-git-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-common-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-path', 'index']", "['git', *here, 'rev-parse', '--show-toplevel']", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
+    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 1, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 17, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 18}
+    NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(repo_root), 'rev-parse', '--absolute-git-dir']", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', '-c', 'core.warnAmbiguousRefs=false', '-c', 'trace2.normalTarget=', '-c', 'trace2.perfTarget=', '-c', 'trace2.eventTarget=', '-C', str(REPO), *args]", "['git', 'check-ref-format', '--allow-onelevel', name]", "['git', 'check-ref-format', text]", "['git', 'config', '--file', os.path.join(current, b'config'), '--get', 'core.worktree']", "['git', 'init', '-q', str(repo)]", "['git', 'ls-tree', '-z', '--full-tree', rev, '--', f':(literal){path}']", "['git', 'show', f'{ref}:{path}', '--']", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['git', *here, '-c', 'core.warnAmbiguousRefs=true', 'rev-parse', '--symbolic-full-name', name]", "['git', *here, 'rev-parse', '--absolute-git-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-common-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-path', 'index']", "['git', *here, 'rev-parse', '--show-object-format']", "['git', *here, 'rev-parse', '--show-toplevel']", "['git', *here, 'rev-parse', '--verify', '--quiet', '--end-of-options', name + '^{commit}']", "['git', *here, 'rev-parse', '--verify', '--quiet', '--end-of-options', name]", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
     PYTHON_TARGETS = {'block-idle-stop-with-actionable-backlog.py': {'str(script)'}, 'block-unbumped-version-commit.py': {"str(d5 / '.claude' / 'hooks' / 'hook.py')"}, 'clock-inject.py': {'code'}, 'future-stamp-write.py': {'code'}, 'stamp-truth-stop.py': {'code'}, 'nmw-actionable': {'TOOL'}, 'stop-guard-unattended.py': {'exe', 'hook', 'code', "os.path.join(r, '.claude', 'hooks', os.path.basename(__file__))"}}
 
     def test_every_python_descendant_is_isolated(self):

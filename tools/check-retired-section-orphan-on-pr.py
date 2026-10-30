@@ -80,7 +80,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import REPO_ROOT, classify, require_own_git_dir  # noqa: E402
+from lint_common import REPO_ROOT, classify, require_own_git_dir, resolve_base_ref  # noqa: E402
 
 
 # Post-2026-08 migration the per-item DETAIL (TODO-REFERENCE.md) is PRIVATE, so
@@ -252,7 +252,14 @@ def run(base: str | None, head: str) -> int:
     import os
     if base is None:
         target = os.environ.get("GITHUB_BASE_REF", "").strip() or "main"
-        base = f"origin/{target}"
+        base = f"refs/remotes/origin/{target}"
+    # A short name such as origin/main is read from <git-dir>/origin/main
+    # before refs/remotes, so it is resolved unambiguously first, and the
+    # default above is fully qualified (3b620 round 8).
+    base, refusal = resolve_base_ref(base, REPO_ROOT)
+    if refusal:
+        print(f"ERROR: {refusal} (head={head}); nothing was evaluated.", file=sys.stderr)
+        return 2
     try:
         merge_base = git("merge-base", base, head).strip()
         head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}").strip()

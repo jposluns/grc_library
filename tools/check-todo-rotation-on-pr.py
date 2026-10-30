@@ -135,7 +135,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import REPO_ROOT, require_own_git_dir  # noqa: E402
+from lint_common import REPO_ROOT, require_own_git_dir, resolve_base_ref  # noqa: E402
 
 CHANGELOG_PATHS = ("CHANGELOG.md",)
 TODO_PATH = "TODO.md"
@@ -336,8 +336,15 @@ def main(argv: list[str]) -> int:
                 file=sys.stderr,
             )
             return 2
-        base = f"origin/{github_base}"
+        base = f"refs/remotes/origin/{github_base}"
     head = args.head
+    # A short name such as origin/main is read from <git-dir>/origin/main
+    # before refs/remotes, so it is resolved unambiguously first, and the
+    # default above is fully qualified (3b620 round 8).
+    base, refusal = resolve_base_ref(base, REPO_ROOT, from_cwd=True)
+    if refusal:
+        print(f"ERROR: {refusal}.", file=sys.stderr)
+        return 2
 
     try:
         merge_base = git("merge-base", base, head)

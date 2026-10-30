@@ -76,9 +76,21 @@ Exit codes:
         refs or reftable that are symbolic links), git reads a separate git
         directory that sets no core.worktree, as git init or git clone
         --separate-git-dir leaves one (in that checkout run
-        git config core.worktree "$PWD"), or the changed-file diff
-        fails), or CANNOT-EVALUATE: base and head resolve to the same commit
-        (an empty range), so nothing was evaluated.
+        git config core.worktree "$PWD"), the changed-file diff
+        fails, the base is not a full object name, HEAD or a ref name, it
+        is hexadecimal digits but not a full object name (an abbreviated
+        object name, refused before any ref lookup: pass a fully qualified
+        ref or a full object name), git resolves it ambiguously or to
+        anything but one ref under refs/ (a describe-style name included), or
+        a call validating it (git check-ref-format, git rev-parse
+        --symbolic-full-name or git rev-parse --verify) fails with an
+        OSError other than git not being found or executable, or git
+        rev-parse --symbolic-full-name exits nonzero (a signal, 128 on an
+        internal error) and git rev-parse --verify --quiet of the name, then
+        of the name with ^{commit}, does not each answer that git does not
+        know it, exit 1 with no output (lint_common.resolve_base_ref, 3b620)),
+        or CANNOT-EVALUATE: base and head resolve to the same commit (an
+        empty range), so nothing was evaluated.
         Known residuals (3b564): what the git-directory checks do not cover
         is disclosed in lint_common.require_own_git_dir.
 """
@@ -94,7 +106,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import require_own_git_dir  # noqa: E402
+from lint_common import require_own_git_dir, resolve_base_ref  # noqa: E402
 
 # The central compliance matrix is excluded: its cross-doc consistency is /matrix-fit's
 # concern, not a same-doc table-vs-body question.
@@ -270,7 +282,17 @@ def changed_corpus_files(merge_base: str, head: str) -> list[str]:
 def run(base: str | None, head: str) -> int:
     if base is None:
         target = os.environ.get("GITHUB_BASE_REF", "").strip() or "main"
-        base = f"origin/{target}"
+        base = f"refs/remotes/origin/{target}"
+    # A short name such as origin/main is read from <git-dir>/origin/main
+    # before refs/remotes, so it is resolved unambiguously first, and the
+    # default above is fully qualified (3b620 round 8). A base git cannot
+    # resolve, or a git that cannot be found or executed, passes unchanged
+    # to the merge-base read below; any other OSError on a validation call
+    # refuses here (3b620 round 17).
+    base, refusal = resolve_base_ref(base, REPO_ROOT)
+    if refusal:
+        print(f"ERROR: {refusal} (head={head}).", file=sys.stderr)
+        return 2
     # Only git's own no-merge-base result is the documented fail-open skip; git
     # refusing to run at all (dubious ownership, no repository, a bad object)
     # read as that skip and passed with exit 0, so it refuses instead (3b572).

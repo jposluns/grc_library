@@ -2476,6 +2476,386 @@ def _existing_realpath(path: bytes) -> bytes | None:
     return os.path.realpath(path)
 
 
+# Bounds on the walk of the worktrees and reftable trees (3b620 round 4): an
+# entry deeper than this many levels below the walk's top, or more entries
+# than this in one walk, refuses. git 2.53 kept a linked worktree's files at
+# most a few levels below worktrees/<id> (refs/bisect/<name>, logs/HEAD,
+# reftable/<table>), each worktree a few dozen entries, and a reftable
+# directory a few tables between compactions. tools/git-hooks/pre-push keeps
+# the same numbers.
+_LINK_WALK_MAX_DEPTH = 32
+_LINK_WALK_MAX_ENTRIES = 20000
+
+# Looks at one reftable's tables.list while it changes between a look's read
+# and the read after a table it names is found absent (3b620 round 13);
+# tools/git-hooks/pre-push keeps the same number (reftable_looks).
+_REFTABLE_LOOKS = 10
+
+# The most bytes of one tables.list either check reads (3b620 round 14, r13
+# review N1: a symbolic link to /dev/zero made the read unbounded): git 2.53
+# writes one line of a few dozen bytes per table, so 1 MiB is some twenty
+# thousand tables. tools/git-hooks/pre-push keeps the same number.
+_TABLES_LIST_MAX_BYTES = 1 << 20
+
+# The text of a symbolic link git 2.53 writes itself in a files repository
+# with the deprecated core.preferSymlinkRefs: a linked worktree's HEAD, a
+# per-worktree symbolic ref under worktrees/<id>/refs, or a symbolic ref at
+# any depth under the common refs (refs/remotes/origin/HEAD from git clone,
+# or any git symbolic-ref; round 6), naming a ref. git reads a link whose
+# text starts refs/ and is a valid ref name as that name and never follows
+# it, so git check-ref-format decides (3b620 round 9, r8 review W2: the
+# round-4 character class refused refs/heads/rel@2026, refs/heads/café,
+# refs/notes/n@1 and a worktree HEAD naming refs/heads/w@t), with no ".."
+# in the text. A git that fails to run refuses. tools/git-hooks/pre-push's
+# symref_link_text asks git the same.
+def _symref_link_text(text: bytes) -> bool:
+    # The ".." test is redundant with git check-ref-format, which refuses
+    # ".." anywhere (git 2.53; r9 review W2: removing it changes no
+    # verdict); kept so the rule reads here.
+    if not text.startswith(b"refs/") or b".." in text:
+        return False
+    try:
+        return subprocess.run(["git", "check-ref-format", text], stdin=subprocess.DEVNULL,
+                              capture_output=True).returncode == 0
+    except OSError:
+        return False
+
+
+# A refusal message for an entry found absent, unexaminable or unreadable
+# part-way through a walk (3b620 round 9), which the worktrees race rule
+# (_worktrees_refusal) looks at a second time; any other caller refuses it as
+# it would any message. A symbolic link, an entry that is not a regular file
+# where only one may be, a bad tables.list line and the walk's bounds are
+# never unsettled.
+class _Unsettled(str):
+    pass
+
+# The refs git 2.53 keeps directly in a git directory under a fixed name
+# (its root refs and pseudorefs), each of which, as a symbolic link to
+# another repository's ref file or to a file holding an object name, gave
+# git rev-parse that repository's commit (3b620 round 7; HEAD so linked
+# failed closed). tools/git-hooks/pre-push lists the same names.
+_TOP_LEVEL_REFS = (b"HEAD", b"ORIG_HEAD", b"FETCH_HEAD", b"MERGE_HEAD", b"CHERRY_PICK_HEAD",
+                   b"REVERT_HEAD", b"BISECT_HEAD", b"REBASE_HEAD", b"AUTO_MERGE",
+                   b"BISECT_EXPECTED_REV", b"NOTES_MERGE_PARTIAL", b"NOTES_MERGE_REF",
+                   b"MERGE_AUTOSTASH")
+
+# The fixed names git 2.53 writes as a symbolic link itself, in the common
+# directory and in worktrees/<id>, with core.preferSymlinkRefs (3b620 round
+# 8): HEAD, and NOTES_MERGE_REF while a git notes merge is unfinished. Merge,
+# cherry-pick, revert, rebase (--autostash too), bisect, fetch and stash
+# wrote no other link there. tools/git-hooks/pre-push admits the same names.
+_SYMREF_TOP_LEVEL = (b"HEAD", b"NOTES_MERGE_REF")
+
+# Top-level entries in the common directory named as the first component of
+# a ref the PR gates use (origin/<target>): git rev-parse reads
+# <git-dir>/origin/main before refs/remotes/origin/main, so a directory
+# origin holding a file main, or a symbolic link origin, gave git another
+# commit for origin/main with only an ambiguity warning (3b620 round 8, r7
+# review E1). Any entry there refuses. tools/git-hooks/pre-push refuses the
+# same names.
+_REF_PREFIX_ENTRIES = (b"origin",)
+
+
+def _git_symref_link(top: bytes, path: bytes, symrefs: str) -> bool:
+    """Whether the symbolic link ``path`` below ``top`` is one git writes as
+    a symbolic ref (3b620 round 4): with ``symrefs`` "worktrees" (``top`` is
+    the worktrees directory) at worktrees/<id>/HEAD (or NOTES_MERGE_REF,
+    _SYMREF_TOP_LEVEL, round 8) or under worktrees/<id>/refs, with "refs"
+    (``top`` is the common refs directory, round 6) anywhere below it, with
+    text that is a plain ref name under refs/ (_SYMREF_LINK_TEXT, no ".." in
+    it; _symref_link_text). Raises OSError where the link cannot be read."""
+    parts = os.path.relpath(path, top).split(b"/")
+    if symrefs != "refs" and not ((len(parts) == 2 and parts[1] in _SYMREF_TOP_LEVEL)
+                                  or (len(parts) > 2 and parts[1] == b"refs")):
+        return False
+    return _symref_link_text(os.readlink(path))
+
+
+def _link_refusal(top: bytes, where: str, repo_root: Path, *, symrefs: str | None = None) -> str | None:
+    """A refusal message when ``top`` (in ``where``), or anything below it to
+    any depth, is a symbolic link, else None (3b620 round 4). The walk never
+    follows a link: each entry a listing finds is examined with lstat.
+
+    Refused, naming the path: ``top`` as a symbolic link (a broken one too),
+    or as something other than a directory; an entry at any depth below it
+    that is a symbolic link, except, with ``symrefs`` "worktrees" (``top`` is
+    the common directory's worktrees directory) or "refs" (its refs
+    directory, round 6), one git 2.53 writes itself in a files repository
+    with core.preferSymlinkRefs (_git_symref_link); a
+    listing, lstat or readlink failing other than by the path's absence; and
+    an entry deeper than _LINK_WALK_MAX_DEPTH levels below ``top`` or more
+    than _LINK_WALK_MAX_ENTRIES entries. Not refused: ``top`` absent, and an
+    entry that a listing found but that is gone when examined, or a
+    directory gone when listed, as during git worktree remove, which deletes
+    worktrees/<id> and then an empty worktrees (r3 review: pre-push refused
+    a third of runs during one). A hard link or bind mount below ``top`` is
+    not a symbolic link and is not refused, nor is a directory replaced by a
+    symbolic link between its lstat and its listing."""
+    tail = (f"; git reads refs and each linked worktree's HEAD through it, wherever it leads, "
+            f"so to read this script's repository {repo_root}'s own keep "
+            f"{os.fsdecode(top)!r} free of symbolic links; tools/git-hooks/pre-push refuses "
+            f"the same layout")
+    try:
+        mode = os.lstat(top).st_mode
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        return f"could not examine {os.fsdecode(top)!r} in {where}: {exc}" + tail
+    if _stat.S_ISLNK(mode):
+        return f"{os.fsdecode(top)!r} in {where} is a symbolic link" + tail
+    if not _stat.S_ISDIR(mode):
+        return f"{os.fsdecode(top)!r} in {where} is not a directory" + tail
+    count = 0
+
+    def walk(start: bytes, start_depth: int) -> str | None:
+        nonlocal count
+        pending = [(start, start_depth)]
+        while pending:
+            directory, depth = pending.pop()
+            try:
+                with os.scandir(directory) as listing:
+                    names = sorted(entry.name for entry in listing)
+            except FileNotFoundError:
+                continue
+            except OSError as exc:
+                return _Unsettled(f"could not list {os.fsdecode(directory)!r} in {where}: {exc}" + tail)
+            for name in names:
+                path = os.path.join(directory, name)
+                try:
+                    mode = os.lstat(path).st_mode
+                    count += 1
+                    if count > _LINK_WALK_MAX_ENTRIES or depth + 1 > _LINK_WALK_MAX_DEPTH:
+                        return (f"{os.fsdecode(top)!r} in {where} holds more than "
+                                f"{_LINK_WALK_MAX_ENTRIES} entries or an entry deeper than "
+                                f"{_LINK_WALK_MAX_DEPTH} levels ({os.fsdecode(path)!r}), so it "
+                                f"cannot be confirmed free of symbolic links"
+                                + ("; if loose refs fill it, git pack-refs --all packs them into "
+                                   "packed-refs" if symrefs == "refs" else "") + tail)
+                    if _stat.S_ISLNK(mode) and not (symrefs and _git_symref_link(top, path, symrefs)):
+                        return f"{os.fsdecode(path)!r} in {where} is a symbolic link" + tail
+                except FileNotFoundError:
+                    continue
+                except OSError as exc:
+                    return _Unsettled(f"could not examine {os.fsdecode(path)!r} in {where}: {exc}"
+                                      + tail)
+                if not _stat.S_ISDIR(mode):
+                    continue
+                if symrefs == "worktrees" and directory == top:
+                    # Each worktrees/<id> is walked whole under the race
+                    # rule (3b620 round 9); a second look recounts it.
+                    before = count
+                    refusal = walk(path, depth + 1)
+                    if isinstance(refusal, _Unsettled):
+                        count = before
+                        refusal = _second_look(path, where,
+                                               lambda path=path, depth=depth: walk(path, depth + 1))
+                    if refusal:
+                        return refusal
+                else:
+                    pending.append((path, depth + 1))
+        return None
+
+    return walk(top, 0)
+
+
+def _second_look(worktree: bytes, where: str, look) -> str | None:
+    """The worktrees race rule (3b620 round 9, r8 review E1): ``look`` gave
+    an _Unsettled message for the linked worktree git directory
+    ``worktree`` (worktrees/<id> in the common directory), as it can while
+    git worktree remove deletes it or git worktree add writes it. It is
+    examined again with lstat: gone, it is skipped (git reads nothing
+    there); still present, ``look`` runs once more and its message, if any,
+    refuses. An lstat failing other than by absence refuses as unsettled,
+    as in pre-push (round 12, r11 review W2: a plain refusal here).
+    tools/git-hooks/pre-push applies the same rule (second_look)."""
+    try:
+        os.lstat(worktree)
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        return _Unsettled(f"could not examine {os.fsdecode(worktree)!r} in {where} a second time: "
+                          f"{exc}")
+    return look()
+
+
+class _NotRegularFile(OSError):
+    pass
+
+
+def _read_tables_list(path: bytes) -> bytes | None:
+    """The bytes of the tables.list ``path``, or None where it holds more
+    than _TABLES_LIST_MAX_BYTES (3b620 round 14, r13 review N1). It is opened
+    without following a symbolic link and without blocking, and the open
+    descriptor must be a regular file: a FIFO swapped in hung the read, and a
+    symbolic link to /dev/zero made it unbounded. Raises _NotRegularFile
+    where it is a symbolic link or anything else but a regular file, and
+    OSError (FileNotFoundError where absent) where it cannot be opened or
+    read. pre-push's tables_reader reads it the same way."""
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+    except OSError as exc:
+        if exc.errno == errno.ELOOP:
+            raise _NotRegularFile(exc.errno, "it is a symbolic link", path) from exc
+        raise
+    try:
+        if not _stat.S_ISREG(os.fstat(fd).st_mode):
+            raise _NotRegularFile(errno.EINVAL, "it is not a regular file", path)
+        chunks, size = [], 0
+        while size <= _TABLES_LIST_MAX_BYTES:
+            chunk = os.read(fd, _TABLES_LIST_MAX_BYTES + 1 - size)
+            if not chunk:
+                break
+            chunks.append(chunk)
+            size += len(chunk)
+    finally:
+        os.close(fd)
+    return None if size > _TABLES_LIST_MAX_BYTES else b"".join(chunks)
+
+
+def _reftable_refusal(reftable: bytes, where: str, repo_root: Path) -> str | None:
+    """A refusal message when the reftable directory ``reftable`` in ``where``
+    can give git refs other than its own files', else None (3b620 round 2).
+
+    Refused: an entry in it that is a symbolic link, a subdirectory or
+    anything else but a regular file, and a non-empty line of its tables.list
+    that is not a bare file name (it has a "/" or a NUL, or is "." or "..")
+    or does not name a regular file in it. git 2.53 read another
+    repository's refs through a tables.list line ../../../<other>/.git/
+    reftable/<table> and through symbolic links at sub/<table>, and a linked
+    worktree's HEAD through links in its own reftable. Refused too (round 3):
+    a ``reftable`` that exists but is not a directory or is a symbolic link,
+    and any probe or read of it that fails other than by its absence, so a
+    failed probe cannot pass a layout it would refuse (r2 review E2).
+    require_own_git_dir walks for symbolic links first (_link_refusal).
+    Not refused: a reftable that is absent or gone when listed or read, or
+    a missing table once the reftable itself is gone (round 4: git worktree
+    remove deleting worktrees/<id> meanwhile), a directory with no
+    tables.list, and a table or tables.list that is a hard link to another
+    repository's. Round 10 (r9 review W1, N2), as pre-push's check_reftable
+    takes them: an entry the listing found that is gone when examined, and
+    a tables.list gone when read, are absence; a reftable that is not a
+    directory refuses at the first look. Round 13 (r12 review W1): a table
+    found absent has tables.list read again, and looked at again where it
+    changed (compaction), at most _REFTABLE_LOOKS looks. Round 14 (r13
+    review N1, N2): each table is examined with one lstat, and tables.list
+    is read without following a link or blocking (_read_tables_list); one
+    over _TABLES_LIST_MAX_BYTES refuses."""
+    tail = (f"; git reads refs through tables.list and the tables it names, wherever they "
+            f"lead, so to read this script's repository {repo_root}'s own keep only those, as "
+            f"regular files, in {os.fsdecode(reftable)!r}; tools/git-hooks/pre-push refuses "
+            f"the same layout")
+    try:
+        mode = os.lstat(reftable).st_mode
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        return _Unsettled(f"could not examine the reftable {os.fsdecode(reftable)!r} in {where}: "
+                          f"{exc}" + tail)
+    if _stat.S_ISLNK(mode):
+        return f"the reftable {os.fsdecode(reftable)!r} in {where} is a symbolic link" + tail
+    if not _stat.S_ISDIR(mode):
+        return f"the reftable {os.fsdecode(reftable)!r} in {where} is not a directory" + tail
+    try:
+        odd = []
+        with os.scandir(reftable) as entries:
+            for entry in entries:
+                if entry.is_file(follow_symlinks=False):
+                    continue
+                try:
+                    os.lstat(entry.path)
+                except FileNotFoundError:
+                    # Gone since the listing found it, as pre-push takes it
+                    # (3b620 round 10, r9 review W1).
+                    continue
+                odd.append((entry.path, entry.is_symlink()))
+        odd.sort()
+        if odd:
+            path, link = odd[0]
+            return (f"the reftable entry {os.fsdecode(path)!r} in {where} is "
+                    f"{'a symbolic link' if link else 'not a regular file'}" + tail)
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        return _Unsettled(f"could not examine the reftable {os.fsdecode(reftable)!r} in {where}: "
+                          f"{exc}" + tail)
+    tables_list = os.path.join(reftable, b"tables.list")
+    # A table found absent has tables.list read again (3b620 round 13, r12
+    # review W1): git's compaction writes a new tables.list and then deletes
+    # the tables it replaced, so where its bytes changed since this look's
+    # read, look again, at most _REFTABLE_LOOKS looks in all; unchanged, the
+    # absent table is unsettled, as before. A state that lasts reads the same
+    # each time and never passes; a tables.list that changes at every look
+    # refuses at the bound. pre-push's check_reftable has the same rule.
+    for _look in range(_REFTABLE_LOOKS):
+        try:
+            # Opened, not lstat then os.path.isfile, which took a reftable it
+            # could list but not search for one with no tables.list and passed
+            # it (3b620 round 11, r10 review E1); pre-push refuses it as
+            # unsettled. The listing found it a regular file, so anything else
+            # here is a swap since, unsettled, as in pre-push; it passed
+            # (round 12, r11 review W1).
+            data = _read_tables_list(tables_list)
+        except FileNotFoundError:
+            return None
+        except _NotRegularFile:
+            return _Unsettled(f"{os.fsdecode(tables_list)!r} in {where} is not a regular file"
+                              + tail)
+        except OSError as exc:
+            return _Unsettled(f"could not examine the reftable {os.fsdecode(reftable)!r} in "
+                              f"{where}: {exc}" + tail)
+        if data is None:
+            return (f"{os.fsdecode(tables_list)!r} in {where} holds more than "
+                    f"{_TABLES_LIST_MAX_BYTES} bytes, so the tables it names cannot be confirmed"
+                    + tail)
+        missing = None
+        for name in (name for name in data.split(b"\n") if name):
+            if b"/" in name or b"\0" in name or name in (b".", b".."):
+                return (f"{os.fsdecode(tables_list)!r} in {where} names {os.fsdecode(name)!r}, "
+                        f"not a bare file name" + tail)
+            table = os.path.join(reftable, name)
+            # One lstat decides (3b620 round 14, r13 review N2): os.path.islink
+            # and then os.path.isfile, which follows a link, passed a link to
+            # another repository's table made between the two.
+            absent = False
+            try:
+                if _stat.S_ISREG(os.lstat(table).st_mode):
+                    continue
+            except FileNotFoundError:
+                absent = True
+            except OSError:
+                pass
+            try:
+                os.lstat(reftable)
+            except FileNotFoundError:
+                return None
+            except OSError:
+                absent = False
+            # A table that is absent (not a link or other entry) is
+            # unsettled (3b620 round 9): git worktree remove deletes it
+            # before its tables.list and directory. One that cannot be
+            # examined, or in a reftable that cannot be, refuses at the
+            # first look, as in pre-push; os.path.lexists took it, and a
+            # reftable that could not be examined, for absence (round 11,
+            # r10 review E1).
+            message = (f"{os.fsdecode(tables_list)!r} in {where} names "
+                       f"{os.fsdecode(name)!r}, not a regular file in that directory" + tail)
+            if not absent:
+                return message
+            missing = _Unsettled(message)
+            break
+        if missing is None:
+            return None
+        try:
+            again = _read_tables_list(tables_list)
+        except OSError:
+            again = None
+        if again == data:
+            return missing
+    return _Unsettled(f"{os.fsdecode(tables_list)!r} in {where} changed at each of "
+                      f"{_REFTABLE_LOOKS} looks, so the tables it names cannot be confirmed" + tail)
+
+
 # git's repository-local variables (git rev-parse --local-env-vars) that move
 # the common directory, the object store or the history git reads, and that
 # git 2.53 exported to no pre-push or commit hook, so any value refuses (3b564
@@ -2535,7 +2915,115 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
     directory) and a git-new-workdir checkout, which links another
     checkout's objects, refs and hooks, refuse too, and the message names
     both (r6 review N2); reftable is checked because a reftable repository
-    keeps its refs there, not in refs (r6 review N3). Paths a .git file, a
+    keeps its refs there, not in refs (r6 review N3). A reftable that is a
+    directory, in the common directory and, for a linked worktree, in the git
+    directory git reads (where git 2.53 keeps that worktree's HEAD and other
+    per-worktree refs), refuses too unless every entry in it is a regular
+    file, not a symbolic link or subdirectory, and every non-empty line of
+    its tables.list is a bare file name naming one of those files
+    (_reftable_refusal), naming the path: a reftable clone whose tables.list
+    and tables were linked to another reftable repository's read that
+    repository's refs and HEAD (3b620), as did a regular tables.list naming
+    ../../../<other>/.git/reftable/<table> or sub/<table> with sub/<table> a
+    symbolic link, and a linked worktree whose own reftable entries were
+    linked to another repository's had that repository's HEAD, and each
+    passed here and in pre-push (3b620 round 2). That linked worktree's
+    reftable as a symbolic link refused as an unregistered layout; since
+    round 4 the walk below refuses it, and the common reftable as one,
+    first, naming the path. Round 3:
+    every other linked worktree's reftable (worktrees/<id>/reftable in the
+    common directory) is checked the same way and refuses as a symbolic
+    link too, since git log --all, as lint-todo-staleness.py runs it, reads
+    each worktree's HEAD, and git rev-parse worktrees/<id>/HEAD from the
+    main checkout gave another repository's HEAD through such links while
+    this and pre-push passed (r2 review E1, W1); a worktrees directory that
+    exists but cannot be listed refuses. A reftable path that exists but is
+    not a directory, or that cannot be examined, refuses: only its absence
+    passes (r2 review E2). Round 4 (_link_refusal): the common directory's
+    worktrees directory (worktrees itself, each worktrees/<id> and
+    everything in each, to any depth) and its reftable directory are walked
+    without following links, and a symbolic link anywhere in them refuses,
+    naming the path, as does either top existing as something other than a
+    directory, a listing or lstat failing other than by absence, or the walk
+    passing _LINK_WALK_MAX_DEPTH levels or _LINK_WALK_MAX_ENTRIES entries.
+    git 2.53 read another repository's worktree HEAD and refs, from
+    git rev-parse and git log --all, through worktrees as a symbolic link to
+    that repository's worktrees directory, through worktrees/<id> as a
+    symbolic link to its worktree git directory (reftable and files
+    repositories), and through a files repository's worktrees/<id>/HEAD as a
+    symbolic link to its detached HEAD, and this and pre-push passed each
+    (r3 review). The one symbolic link git 2.53 was found to write there
+    passes: a files repository with the deprecated core.preferSymlinkRefs
+    makes a linked worktree's HEAD, and a per-worktree symbolic ref under
+    worktrees/<id>/refs, a link whose text is the ref it names (refs/heads/
+    <branch>), which git reads as that name and does not follow; with that
+    setting off, and in a reftable repository either way, worktree add (with
+    --detach, -b, --lock, --orphan and --relative-paths), checkout, commit,
+    bisect, lock, unlock, move, repair, prune, remove, pack-refs, gc,
+    maintenance and reftable auto-compaction made no symbolic link in either
+    tree. An entry or directory gone when examined (git worktree remove
+    deleting worktrees/<id> meanwhile) is absence, as a missing worktrees
+    directory is; pre-push refused a third of runs during one (r3 review).
+    Round 6 (r5 review E1): the common directory's refs directory is walked
+    the same way, to any depth, in a files or a reftable repository, with
+    the same bounds and absence rules, and a packed-refs there that is a
+    symbolic link refuses, naming the path (refs itself as a symbolic link
+    is not walked and refuses as an unregistered layout, as above). A
+    worktrees/<id>/HEAD link with
+    the permitted text refs/heads/foreign, while refs/heads/foreign was a
+    symbolic link to another repository's ref file, gave git that
+    repository's ref as the worktree's HEAD, and this and pre-push passed.
+    git 2.53 with core.preferSymlinkRefs writes a symbolic ref anywhere
+    under refs (refs/remotes/origin/HEAD from git clone, any git
+    symbolic-ref, at any depth) as a link whose text is the ref it names,
+    and pack-refs and gc leave it; such a link passes there, as under
+    worktrees/<id>/refs. More than _LINK_WALK_MAX_ENTRIES loose refs and
+    directories under refs refuse; git pack-refs --all brings them under,
+    and the refusal says so. Round 7 (r6 review E, W1 and N1): each ref git
+    keeps directly in the common directory under a fixed name
+    (_TOP_LEVEL_REFS: HEAD, ORIG_HEAD, FETCH_HEAD, MERGE_HEAD,
+    CHERRY_PICK_HEAD, REVERT_HEAD, BISECT_HEAD, REBASE_HEAD, AUTO_MERGE,
+    BISECT_EXPECTED_REV, NOTES_MERGE_PARTIAL, NOTES_MERGE_REF and
+    MERGE_AUTOSTASH) and logs itself are examined with lstat, and a
+    symbolic link there refuses, naming the path, as does an lstat failing
+    other than by absence: git 2.53 rev-parse gave another repository's
+    commit through each of those names but HEAD as a symbolic link to
+    that repository's ref file or to a file holding its object name, and
+    another repository's reflog (HEAD@{1}, main@{1}) through logs as a link
+    to its logs, and this and pre-push passed each. A regular file, git's
+    own symbolic ref form ("ref: refs/heads/<branch>"), passes, and so does
+    HEAD as a link whose text is a ref name (_SYMREF_LINK_TEXT), which git
+    2.53 writes with core.preferSymlinkRefs and reads as that name; a linked
+    worktree's own HEAD, ORIG_HEAD and the like are in worktrees/<id>,
+    walked above. Round 8 (r7 review W1): NOTES_MERGE_REF, which git 2.53
+    with core.preferSymlinkRefs leaves as such a link (text refs/notes/<n>)
+    while a git notes merge is unfinished, passes as HEAD does, in the
+    common directory and at worktrees/<id>/NOTES_MERGE_REF
+    (_SYMREF_TOP_LEVEL); merge, cherry-pick, revert, rebase (--autostash
+    too), bisect, fetch and stash wrote no other link there. Round 8 (r7
+    review E1): an entry in the common directory named origin
+    (_REF_PREFIX_ENTRIES), whatever it is, refuses, naming the path: git
+    rev-parse origin/main read a file main in a directory origin there, or
+    in another repository through a symbolic link origin, before
+    refs/remotes/origin/main, warning only that the name was ambiguous, and
+    the PR gates take origin/<target> as their base; the gates also resolve
+    their base unambiguously (resolve_base_ref). Round 9 (r8 review W2):
+    a link git writes passes wherever its text is a ref name under refs/ by
+    git check-ref-format (_symref_link_text), not only one in the round-4
+    character class, so HEAD naming refs/heads/rel@2026 or refs/heads/café,
+    NOTES_MERGE_REF naming refs/notes/n@1 and a worktree HEAD naming
+    refs/heads/w@t pass. Round 9 (r8 review E1): what the walk of
+    worktrees/<id> or the check of its reftable finds absent, unexaminable
+    or unreadable part-way through (_Unsettled: a listing or lstat failing
+    other than by absence, a table tables.list names that is absent) is
+    looked at a second time (_second_look): worktrees/<id> gone, it is
+    skipped; still present, it is walked or checked once more and refuses
+    only if that look refuses. git worktree add and remove made those states
+    (pre-push refused 103 of 939 runs, this check 2, during them). A
+    symbolic link, a non-regular entry in a reftable, a tables.list line that
+    is not a bare name and the walk's bounds refuse at the first look.
+    Paths a
+    .git file, a
     gitdir file or core.worktree spells are compared canonically, as pre-push
     compares them: each must exist as spelled (_existing_realpath), so a
     trailing slash on a file, a path through a missing component and a file
@@ -2573,11 +3061,54 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
 
     Known residuals, each passing here as it passes pre-push: a common
     directory whose objects, refs and reftable are its own directories but
-    that takes another checkout's objects or refs from deeper inside them (a
-    symbolic link at refs/heads, a loose ref or a pack), through a
-    packed-refs file that is a symbolic or hard link, or through
-    objects/info/alternates; and a .git directory that is a bind mount of
-    another checkout's, which realpath does not reveal."""
+    that takes another checkout's objects from deeper inside objects (which
+    is not walked: a symbolic link there, or a pack), another checkout's
+    refs through a loose ref or a packed-refs file that is a hard link,
+    through a tables.list
+    or table in reftable that is a hard link to another repository's (not
+    refused: st_nlink is not relied on to tell one from an ordinary table,
+    3b620, in the common directory's reftable or any linked worktree's), or
+    through objects/info/alternates; a file anywhere in the worktrees or
+    refs directory or a reftable that is a hard link to another repository's
+    (st_nlink is not relied on there either); a worktrees directory, a
+    worktrees/<id> or anything in one, a refs directory or anything in it,
+    or a reftable directory or table, that is a bind mount of another
+    repository's; a worktrees, refs or reftable tree changed between this
+    walk and git's read (a directory replaced by a symbolic link after its
+    lstat is listed through it, or a worktrees/<id> whose first look was
+    unsettled changed before the second); the common reftable read
+    part-way through a compaction at both its looks, and the linked
+    worktree's own at its one look (a table removed meanwhile refuses, fail
+    closed, where tables.list reads the same after, or changed at each of
+    _REFTABLE_LOOKS looks); and a .git
+    directory that is a bind mount
+    of another checkout's, which realpath does not reveal. In the common
+    directory, a _TOP_LEVEL_REFS file or logs that is a hard link or bind
+    mount of another repository's, a symbolic link at any other name git
+    reads as a ref if asked for it by name (git 2.53 rev-parse followed one
+    at FOO_HEAD), a file, directory or symbolic link there named like a ref
+    or its first component other than origin (git 2.53 rev-parse main read
+    <git-dir>/main before refs/heads/main; resolve_base_ref refuses such a
+    base in the PR gates, but other callers of git are not covered), and a
+    symbolic link below logs (logs/HEAD, logs/refs/...), which is not
+    walked, are not examined. A linked checkout whose .git file
+    names a second repository's worktrees/<id>, with that directory's gitdir
+    file changed to name the checkout's .git (r5 review E2), passes here and
+    in pre-push, and both then act on the second repository as the
+    checkout's own worktree. That state is reachable with git's own
+    commands: r6 review W (codex, git 2.53) reached the same passing state
+    with git worktree repair and with git worktree move. Local state cannot
+    tell it from a genuine worktree of the second repository moved by hand
+    to the checkout's path and fixed with git worktree repair (git 2.53),
+    whose .git file and gitdir file have the same form and whose
+    worktrees/<id> holds the same files git worktree add made; git keeps no
+    record of the path a worktree was added at, and the checkout keeps no
+    history, index or config of its own to disagree (its index and HEAD are
+    in worktrees/<id>). The only trace is the first repository's stale
+    worktrees/<id> listing, still naming the checkout, and it lies in the
+    first repository, outside the checkout, where neither check looks; a
+    worktree deleted by hand and re-added at the same path from another
+    repository leaves the same."""
     redirect = next((name for name in _GIT_REDIRECT_VARIABLES if name in os.environ), None)
     if redirect:
         return (f"{redirect} in the environment moves what git reads (its common directory, "
@@ -2628,13 +3159,122 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
                     f"git rev-parse --git-common-dir printed {os.fsdecode(common)!r}, not an "
                     f"absolute path")
         common = os.path.realpath(common)
+        # A reftable directory of its own still gives git another
+        # repository's refs through an entry there that is a symbolic link
+        # (3b620), a tables.list line that is a path out of it, or a table in
+        # a subdirectory (3b620 round 2). A linked worktree keeps its HEAD and
+        # other per-worktree refs in reftable in its own git directory, and
+        # git log --all (lint-todo-staleness.py) reads every linked
+        # worktree's HEAD, so each worktrees/<id>/reftable is checked too
+        # (3b620 round 3). A symbolic link anywhere in the worktrees
+        # directory (worktrees itself, worktrees/<id>, a files repository's
+        # worktrees/<id>/HEAD) or the common reftable gave git another
+        # repository's worktree refs too (r3 review), so those trees are
+        # walked for any symbolic link first (3b620 round 4). So is the
+        # common refs directory: a permitted worktrees/<id>/HEAD link naming
+        # refs/heads/<b>, with refs/heads/<b> a link to another repository's
+        # ref file, gave git that ref (r5 review E1); a packed-refs link too.
+        # refs itself as a link is left to the registration check below,
+        # which names the git-new-workdir layout.
+        worktrees = os.path.join(common, b"worktrees")
+        refs = os.path.join(common, b"refs")
+        for top, label, symrefs in (
+                (os.path.join(common, b"reftable"), "the common git directory", None),
+                (refs, "the common git directory", "refs"),
+                (worktrees, "the common git directory", "worktrees")):
+            if symrefs == "refs" and os.path.islink(refs):
+                continue
+            refusal = _link_refusal(top, label, repo_root, symrefs=symrefs)
+            if refusal:
+                return refusal
+        packed = os.path.join(common, b"packed-refs")
+        if os.path.islink(packed):
+            return (f"{os.fsdecode(packed)!r} in the common git directory is a symbolic link; "
+                    f"git reads packed refs through it, wherever it leads, so to read this "
+                    f"script's repository {repo_root}'s own keep it a regular file; "
+                    f"tools/git-hooks/pre-push refuses the same layout")
+        # A symbolic link at ORIG_HEAD, FETCH_HEAD or another fixed-name ref
+        # in the common directory gave git rev-parse another repository's
+        # commit, and logs as one its reflog (3b620 round 7; r6 review E, W1,
+        # N1). HEAD or NOTES_MERGE_REF as a link whose text is a ref name is
+        # git's own (core.preferSymlinkRefs) and passes (round 8). An entry
+        # named origin, whatever it is, refuses: git reads origin/<b> there
+        # before refs/remotes (round 8, r7 review E1).
+        for name in (*_TOP_LEVEL_REFS, b"logs", *_REF_PREFIX_ENTRIES):
+            path = os.path.join(common, name)
+            try:
+                mode = os.lstat(path).st_mode
+                if name in _REF_PREFIX_ENTRIES:
+                    return (f"{os.fsdecode(path)!r} in the common git directory exists; in a "
+                            f"repository that stores refs as files git reads "
+                            f"{os.fsdecode(name)}/<branch> there before refs/remotes, wherever "
+                            f"it leads (git 2.53 with reftable storage did not, but the entry "
+                            f"refuses in either), so to read this script's repository "
+                            f"{repo_root}'s own remove it; tools/git-hooks/pre-push refuses "
+                            f"the same layout")
+                if not _stat.S_ISLNK(mode):
+                    continue
+                if name in _SYMREF_TOP_LEVEL and _symref_link_text(os.readlink(path)):
+                    continue
+            except FileNotFoundError:
+                continue
+            except OSError as exc:
+                return (f"could not examine {os.fsdecode(path)!r} in the common git directory, so "
+                        f"this script's repository {repo_root}'s refs cannot be confirmed: {exc}")
+            read = "reflogs" if name == b"logs" else "that ref"
+            return (f"{os.fsdecode(path)!r} in the common git directory is a symbolic link; git "
+                    f"reads {read} through it, wherever it leads, so to read this script's "
+                    f"repository {repo_root}'s own keep it a regular "
+                    f"{'directory' if name == b'logs' else 'file'}; tools/git-hooks/pre-push "
+                    f"refuses the same layout")
+        where = [(common, "the common git directory")]
+        if current != common:
+            where.append((current, "the linked worktree's git directory"))
+        try:
+            with os.scandir(worktrees) as entries:
+                others = sorted(entry.path for entry in entries)
+        except FileNotFoundError:
+            others = []
+        except OSError as exc:
+            return (f"could not list the linked worktrees in {os.fsdecode(worktrees)!r}, whose "
+                    f"reftables git log --all reads, so this script's repository {repo_root}'s "
+                    f"refs cannot be confirmed: {exc}")
+        for git_dir, label in where:
+            refusal = _reftable_refusal(os.path.join(git_dir, b"reftable"), label, repo_root)
+            # The common reftable gets one more look where the first was
+            # unsettled, as each worktrees/<id>'s does: git worktree add -b
+            # compacts it, and its tables.list named a table just removed
+            # (3b620 round 12, r11 review W). pre-push settles it. The
+            # linked worktree's own reftable gets no second look here, as
+            # pre-push checks it once outside settle: within either look a
+            # tables.list that changed is read again (_reftable_refusal), and
+            # what is still unsettled refuses, fail closed (round 13, r12
+            # review N2; test_linked_worktree_reftable_looked_at_once).
+            if isinstance(refusal, _Unsettled) and git_dir == common:
+                refusal = _reftable_refusal(os.path.join(git_dir, b"reftable"), label, repo_root)
+            if refusal:
+                return refusal
+        # Every other linked worktree's reftable, under the worktrees race
+        # rule (_second_look, 3b620 round 9).
+        for other in others:
+            if os.path.realpath(other) == current:
+                continue
+            label = f"the linked worktree git directory {os.fsdecode(other)!r}"
+            refusal = _reftable_refusal(os.path.join(other, b"reftable"), label, repo_root)
+            if isinstance(refusal, _Unsettled):
+                refusal = _second_look(other, "the common git directory", lambda other=other, label=label:
+                                       _reftable_refusal(os.path.join(other, b"reftable"), label,
+                                                         repo_root))
+            if refusal:
+                return refusal
         # git reads objects and refs from the common directory: a commondir
         # file naming another checkout's git directory, or objects or refs
         # there as symbolic links into one, gives git that checkout's while it
         # reports this git directory (r5 review W1). A reftable repository
-        # keeps its refs in reftable (r6 review N3).
-        if os.path.islink(dot_git) or any(os.path.islink(os.path.join(common, part))
-                                           for part in (b"objects", b"refs", b"reftable")):
+        # keeps its refs in reftable (r6 review N3), and a linked worktree its
+        # per-worktree refs in its own git directory's (3b620 round 2).
+        if os.path.islink(dot_git) or os.path.islink(os.path.join(current, b"reftable")) or any(
+                os.path.islink(os.path.join(common, part)) for part in (b"objects", b"refs", b"reftable")):
             pass
         elif os.path.isdir(dot_git):
             registered = _existing_realpath(dot_git) == current and common == current
@@ -2674,6 +3314,220 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
                 f"or make the checkout with git worktree add); tools/git-hooks/pre-push "
                 f"refuses the same layout")
     return None
+
+
+# A base the PR gates accept from their caller (3b620 round 8): a name with
+# ~<n> and ^<n> steps after it. Round 9 (r8 review E, W1): git, not a
+# character class, judges the name (resolve_base_ref).
+_BASE_REVISION = re.compile(r"(?P<name>[^~^]*)(?P<steps>(?:[~^][0-9]*)*)")
+_HEX_NAME = re.compile(r"[0-9a-fA-F]+")
+# The width of a full object name in each object format git 2.53 knows
+# (git rev-parse --show-object-format, 3b620 round 10).
+_OBJECT_NAME_WIDTH = {b"sha1": 40, b"sha256": 64}
+
+
+def _base_validation_refusal(base: str, repo_root: Path, call: str, exc: OSError) -> str:
+    """resolve_base_ref's refusal when a validation call fails to start
+    with an OSError other than git being absent (3b620 round 17)."""
+    return (f"git could not be run validating the base {base!r} (git {call}): {exc}; it "
+            f"cannot be confirmed to name this script's repository {repo_root}'s own commit")
+
+
+def _base_validation_failure(base: str, repo_root: Path, results) -> str:
+    """resolve_base_ref's refusal when git rev-parse --symbolic-full-name
+    exits nonzero and git rev-parse --verify, of the name or of its
+    ^{commit} form, does not give git's own answer for a name it does not
+    know; ``results`` is ``(call, proc)`` for each call made (3b620 rounds
+    18 and 19)."""
+    detail = "; ".join(
+        f"git {call} exited {proc.returncode}, git said: "
+        f"{proc.stderr.decode('utf-8', 'replace').strip() or '(nothing)'}"
+        for call, proc in results)
+    return (f"git failed validating the base {base!r} ({detail}), not git's answer for a "
+            f"name it does not know (git rev-parse --verify exiting 1 with no output); it "
+            f"cannot be confirmed to name this script's repository {repo_root}'s own commit")
+
+
+def resolve_base_ref(base: str, repo_root: Path, *, from_cwd: bool = False) -> tuple[str, str | None]:
+    """The base a PR gate should hand git, and a refusal message or None
+    (3b620 round 8, r7 review E1).
+
+    git rev-parse origin/main read <git-dir>/origin/main, a file in a
+    directory origin or a file through a symbolic link origin, before
+    refs/remotes/origin/main, and warned only that the name was ambiguous;
+    a single-level name (<git-dir>/main before refs/heads/main) behaved the
+    same. So a base that names a ref is resolved here with ``git rev-parse
+    --symbolic-full-name`` (core.warnAmbiguousRefs forced on, read the way
+    the gate runs git: ``-C repo_root``, or the current directory with
+    ``from_cwd``) and handed back fully qualified, any ~<n> or ^<n> steps
+    kept; it refuses where git finds the name ambiguous (git then prints
+    nothing) or resolves it to anything but a ref under refs/ (a name found
+    only in the git directory). A full object name and HEAD, examined by
+    require_own_git_dir, pass unchanged. A name of hexadecimal digits that
+    is not a full object name (an abbreviated object name, unique or
+    ambiguous, or a ref named that way) refuses before any ref lookup,
+    telling the caller to pass a fully qualified ref or a full object name
+    (3b620 round 19). Any other form (a reflog or range expression, a name
+    starting with "-") refuses, and a name git resolves to no ref (a
+    describe-style <tag>-<n>-g<hex> name) refuses as above. Where rev-parse
+    --symbolic-full-name exits nonzero, the base passes unchanged only when
+    ``git rev-parse --verify --quiet --end-of-options <name>`` and then
+    ``git rev-parse --verify --quiet --end-of-options <name>^{commit}``,
+    each read the same way, both exit exactly 1 with empty stdout and empty
+    stderr (git does not know the name), so each gate keeps its own
+    handling of a missing base; any other result of any of these calls (a
+    negative return code from a signal, 128 or any other code, output, or
+    an OSError other than FileNotFoundError or PermissionError) refuses,
+    naming the calls and their return codes or the error (3b620 rounds 18
+    and 19). At the check-ref-format, rev-parse --symbolic-full-name and
+    both rev-parse --verify calls, a git that cannot be
+    found or executed (FileNotFoundError or PermissionError) passes the
+    base unchanged, so the calling gate's own git-failure handling names it;
+    any other OSError (EAGAIN, ENOMEM, EMFILE and the like, a git that
+    exists but failed to start) refuses, naming the call and the error
+    (3b620 round 17). The
+    gates build their default base fully qualified
+    (refs/remotes/origin/<target>), which git reads as that ref and no
+    other, and resolve it here as well.
+
+    Round 9 (r8 review E, W1): the round-8 character class refused ref
+    names git creates and resolves (feature@v1, topic#123, a!b, a'b,
+    pct%20, café) and an uppercase full object name, so a PR into such a
+    branch was refused, from GITHUB_BASE_REF too. Any name but a full
+    object name must pass git check-ref-format --allow-onelevel (which
+    refuses "..", "@{", ":", "@" alone and the other forms git never takes
+    as a ref name) and must not start with "-"; the name is then resolved
+    as above.
+
+    Round 10 (r9 review E1): a full object name is hexadecimal digits, in
+    either case, at the width of the repository's object format as ``git
+    rev-parse --show-object-format`` reports it, read the way the gate runs
+    git (40 for sha1, 64 for sha256). git 2.53 reads hexadecimal digits at
+    any other width as a ref name first: in a sha1 repository a symbolic
+    link at <git-dir>/<64 digits> to another repository's ref file gave git
+    rev-parse that repository's commit, as did <git-dir>/<40 digits> in a
+    sha256 repository, and round 9 passed both unchanged. Such a name, or
+    any where the object format cannot be read, was a ref name here; it
+    refuses since round 19, as above.
+
+    Round 17 (r16 reviews): any OSError at check-ref-format or rev-parse
+    --symbolic-full-name passed the base unchanged, so a transient spawn
+    failure on a validation call let an unvalidated base reach the gate's
+    merge-base call while git otherwise ran; only a git that cannot be
+    found or executed passes it now, as above.
+
+    Round 18 (r17 reviews): any nonzero exit of rev-parse
+    --symbolic-full-name passed the base unchanged, a git killed by a
+    signal (a negative return code) or exiting 128 on an internal error as
+    well as a name git does not know, so the unqualified base reached the
+    gate's merge-base call; only git's own unknown-name answer at rev-parse
+    --verify passes it now, as above. In git 2.53 that answer is exit 1
+    with no output, where a known name and a unique abbreviated object name
+    exit 0 printing the object name.
+
+    Round 19 (r18 review): git 2.53's rev-parse --verify --quiet gives the
+    same answer, exit 1 with no output, for an abbreviated object name
+    whose prefix a commit and another object share (8569 in this
+    repository), so round 18 passed <prefix>~1 unchanged and the gate's
+    merge-base call resolved it. Hexadecimal digits that are not a full
+    object name now refuse before any ref lookup, and an unknown name must
+    also fail rev-parse --verify --quiet <name>^{commit}, where git
+    resolves such a prefix to its commit and exits 0, as above."""
+    match = _BASE_REVISION.fullmatch(base)
+    name = match.group("name") if match else ""
+    here = [] if from_cwd else ["-C", str(repo_root)]
+    full_object = False
+    if _HEX_NAME.fullmatch(name) and len(name) in _OBJECT_NAME_WIDTH.values():
+        try:
+            proc = subprocess.run(["git", *here, "rev-parse", "--show-object-format"],
+                                  stdin=subprocess.DEVNULL, capture_output=True)
+            full_object = (proc.returncode == 0
+                           and _OBJECT_NAME_WIDTH.get(proc.stdout.rstrip(b"\n")) == len(name))
+        except OSError:
+            pass
+    # Hexadecimal digits that are not a full object name refuse before any
+    # ref lookup: git 2.53 reads them as a ref name first and, where the
+    # prefix is shared by objects of two types, rev-parse --verify --quiet
+    # exits 1 with no output, its unknown-name answer (3b620 round 19).
+    if _HEX_NAME.fullmatch(name) and not full_object:
+        return base, (f"the base {base!r} is hexadecimal digits but not a full object name "
+                      f"(an abbreviated object name, which git reads as a ref name first and "
+                      f"may find ambiguous), so it cannot be confirmed to name this script's "
+                      f"repository {repo_root}'s own commit; pass a fully qualified ref, for "
+                      f"example refs/remotes/origin/main, or a full object name")
+    # The leading "-" test is redundant with git check-ref-format, which
+    # takes such a name for an option and exits 129 (git 2.53, r9 review
+    # W2: "-", "-x", "-main", "--", "--branch", "--normalize", "--print");
+    # kept so no base reaches git as an option.
+    valid = bool(name) and not name.startswith("-")
+    if valid and name != "HEAD" and not full_object:
+        try:
+            valid = subprocess.run(["git", "check-ref-format", "--allow-onelevel", name],
+                                   stdin=subprocess.DEVNULL, capture_output=True).returncode == 0
+        except (FileNotFoundError, PermissionError):
+            # git that cannot be found or executed passes the base
+            # unchanged, as the docstring says, so the gate's own
+            # git-failure handling names it (D13 refuses with exit 2, 3b572;
+            # 3b620 round 16).
+            return base, None
+        except OSError as exc:
+            # Any other OSError (a transient spawn failure) refuses: the
+            # base was never validated (3b620 round 17).
+            return base, _base_validation_refusal(base, repo_root, "check-ref-format", exc)
+    if not valid:
+        return base, (f"the base {base!r} is not a full object name, HEAD or a ref name (each "
+                      f"optionally followed by ~<n> or ^<n>), so it cannot be confirmed to name "
+                      f"this script's repository {repo_root}'s own commit; pass, for example, "
+                      f"refs/remotes/origin/main")
+    steps = match.group("steps")
+    if name == "HEAD" or full_object:
+        return base, None
+    try:
+        proc = subprocess.run(["git", *here, "-c", "core.warnAmbiguousRefs=true", "rev-parse",
+                               "--symbolic-full-name", name],
+                              capture_output=True)
+    except (FileNotFoundError, PermissionError):
+        return base, None
+    except OSError as exc:
+        return base, _base_validation_refusal(base, repo_root, "rev-parse --symbolic-full-name",
+                                              exc)
+    if proc.returncode != 0:
+        # Only git's own answer for a name it does not know passes the base
+        # unchanged, to the gate's merge-base handling; a signal, an
+        # internal error or a name git knows refuses (3b620 round 18).
+        try:
+            check = subprocess.run(["git", *here, "rev-parse", "--verify", "--quiet",
+                                    "--end-of-options", name],
+                                   stdin=subprocess.DEVNULL, capture_output=True)
+        except (FileNotFoundError, PermissionError):
+            return base, None
+        except OSError as exc:
+            return base, _base_validation_refusal(base, repo_root, "rev-parse --verify", exc)
+        results = (("rev-parse --symbolic-full-name", proc), ("rev-parse --verify", check))
+        if check.returncode == 1 and not check.stdout and not check.stderr:
+            # An ambiguous object name gives the same answer; peeled to a
+            # commit, git picks the commit and exits 0 (3b620 round 19).
+            try:
+                peeled = subprocess.run(["git", *here, "rev-parse", "--verify", "--quiet",
+                                         "--end-of-options", name + "^{commit}"],
+                                        stdin=subprocess.DEVNULL, capture_output=True)
+            except (FileNotFoundError, PermissionError):
+                return base, None
+            except OSError as exc:
+                return base, _base_validation_refusal(base, repo_root,
+                                                      "rev-parse --verify ^{commit}", exc)
+            if peeled.returncode == 1 and not peeled.stdout and not peeled.stderr:
+                return base, None
+            results += (("rev-parse --verify ^{commit}", peeled),)
+        return base, _base_validation_failure(base, repo_root, results)
+    full = proc.stdout.rstrip(b"\n")
+    if not full.startswith(b"refs/") or b"\n" in full:
+        return base, (f"git resolves the base {base!r} ambiguously or to "
+                      f"{os.fsdecode(full) or 'no ref'!r}, not one ref under refs/ in this "
+                      f"script's repository {repo_root} (a file or directory named like it in the "
+                      f"git directory, or a branch and a tag of that name, is read first); pass "
+                      f"the fully qualified ref, for example refs/remotes/origin/main")
+    return os.fsdecode(full) + steps, None
 
 
 # --- TODO index-format parsing (PR-1 rework, 2026-08) -----------------------
