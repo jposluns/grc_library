@@ -33174,7 +33174,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-gate-count-consistency.py CWD F 075bd03b5434c09153bf1da8d0eb6a3c3130d18f8073122f565216557be80bf0
         lint-guardrail-cadence.py OWN F fafdcf88714513d9b2c67cfb91af27de93c7cd7f9da10870252c39ea2d60110f
         lint-hooks-syntax.py OWN F f271dc554bdc7afdd6883d9fcf727cea7f9da6b87170d79a6d98cb0d785b15cb
-        lint-index-header-parity.py OWN F 5e77c0ccd4664aa35ba22b1c09630dc0f4a9de56986e0d51535c311541eb0281
+        lint-index-header-parity.py OWN F c69de7b5f51a38e856f32c14b5f9f6c5aa9ad1d9240a46a6a17cee33b5cbb9ef
         lint-internal-references.py CWD F 073ee419dad766efbef79f4a122d013c4b7d131a415589739d88613df662fe54
         lint-intra-doc-refs.py CWD F f03e7db6a34fc06702407f4707a091f4b64c183125b649be9581a3c137529a72
         lint-isolated-launch.py NO_FS F 390f03ea3a68d117faf893733cc828a3c2a0fbf98cae51c54a21554d769d8bb2
