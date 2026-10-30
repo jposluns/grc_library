@@ -2,8 +2,8 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.52\
-**Date:** 2026-10-27\
+**Version:** 1.1.53\
+**Date:** 2026-10-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`TODO.md`](../TODO.md)\
@@ -195,7 +195,7 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 | Multi-cloud governance patterns | None | Deferred | TODO backlog: multi-cloud governance overlay |  |
 | Kubernetes-specific governance | Partial | Deferred | Backlog candidate: Kubernetes-specific governance (not currently scheduled in TODO) | Could live in operations or dev-security. Re-graded None to Partial 2026-07-02 (initially Referenced; raised at the verifier's vocabulary check): [`dev-security/standard-container-and-image-security.md`](../dev-security/standard-container-and-image-security.md) carries Kubernetes-specific operational controls (the pod-security-standards baseline, host-namespace prohibitions, a full orchestrator-security section) and its framework table cites CIS benchmarks and the Kubernetes Pod Security Standards; dedicated Kubernetes governance remains the gap |
 | Serverless / FaaS-specific governance | Partial | Deferred | Backlog candidate: serverless-specific governance (not currently scheduled in TODO) | Re-graded None to Partial 2026-07-02: [`dev-security/standard-container-and-image-security.md`](../dev-security/standard-container-and-image-security.md) carries a dedicated serverless-container-platforms section, and all three per-cloud hardening baselines carry serverless compute/platform control rows; dedicated FaaS governance remains the gap |
-| SaaS-specific SPM (Security Posture Management) | None | Deferred | n/a | Adjacent to supply-chain domain |
+| SaaS-specific SPM (Security Posture Management) | Substantive | In library | n/a | Adjacent to supply-chain domain. Re-graded None to Substantive 2026-10-30: dedicated standard [`security/standard-saas-security-posture-management.md`](../security/standard-saas-security-posture-management.md) addresses SaaS inventory, configuration baselines, continuous posture monitoring, SaaS-to-SaaS integration risk, third-party application access, shadow-SaaS detection, and offboarding |
 
 ---
 
@@ -215,7 +215,7 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 | AI batch inference governance | Partial | Out of scope | n/a | Provider batch-API usage is addressed operationally in [`standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md) (batch APIs for non-interactive workloads); dedicated batch-inference governance (scheduling, cost/latency SLOs, failure handling) remains the gap. Assessed 2026-08-03 (PR #1974) and dedicated build declined (durable, revisitable) |
 | Self-hosted model serving architecture | Partial | Out of scope | n/a | Self-hosted models are addressed in shipped documents ([`procedure-foundation-model-lifecycle.md`](../ai/procedure-foundation-model-lifecycle.md) secure-hosting plan; [`standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md) self-hosted hosting cost; [`standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) self-hosted security review); a dedicated serving architecture (serving, capacity, and isolation model) remains the gap. Assessed 2026-08-03 (PR #1974) and dedicated build declined (durable, revisitable) |
 | AI use-case portfolio schema | Partial | Out of scope | n/a | Idea-stage governance exists ([`framework-ai-value-and-decision-governance.md`](../ai/framework-ai-value-and-decision-governance.md)) and the AI System Register ([`template-ai-system-register.md`](../ai/template-ai-system-register.md)) already admits proposed use cases (Business Purpose, Lifecycle Status of Proposed); a fuller opportunity-portfolio and value-hypothesis schema remains the gap. Assessed 2026-08-03 (PR #1974) and dedicated build declined (durable, revisitable) |
-| AI red-team methodology depth | Substantive | In library | n/a | Adversarial test reference, red team report template, agentic security standard with 16 threat classes, classical ML adversarial taxonomy, AI-driven offensive tool governance (§33 of agentic standard) all expanded across Phase 23 sub-phases |
+| AI red-team methodology depth | Substantive | In library | n/a | Adversarial test reference, red team report template, agentic security standard with 19 threat classes (TC-01 to TC-19), classical ML adversarial taxonomy, AI-driven offensive tool governance (§33 of agentic standard) all expanded across Phase 23 sub-phases |
 | AI-driven offensive security tool governance | Substantive | In library | n/a | [`standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) §33 (OFFAI-SEC-01 to 10); tooling landscape register references PentestGPT, PentAGI, Strix, HexStrike AI, BurpGPT |
 | ML model file scanning (pickle, H5, Keras, SavedModel) | Substantive | In library | n/a | SUPPLY-SEC-07 control in agentic standard; references modelscan, picklescan, fickling patterns |
 | Multimodal AI threats (image, audio, video, OCR, PDF, QR) | Substantive | In library | n/a | RUNTIME-SEC-07 / 08 in agentic standard; TC-13 multimodal injection threat class |
