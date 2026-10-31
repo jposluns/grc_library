@@ -20480,8 +20480,11 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
 
     MIRROR_REL = "changelog-details/CHANGELOG-detailed.md"
 
-    def _head_parity_result(self) -> tuple[subprocess.CompletedProcess, int] | None:
-        """The checkout's root CHANGELOG against the real detailed mirror, bounded to its own head.
+    def _head_parity_result(
+        self, changelog: str | None = None
+    ) -> tuple[subprocess.CompletedProcess, int] | None:
+        """The checkout's root CHANGELOG (or CHANGELOG, when given) against the real detailed
+        mirror, bounded to its own head.
 
         3b656 r2 (codex): the mirror is the one the linter's default run reads (resolve_working:
         GRC_STORE, <repo-parent>/private, the private sibling, the in-repo .working), so parity
@@ -20498,7 +20501,8 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         mirror_path = mod.resolve_working(self.MIRROR_REL)
         if mirror_path is None:
             return None
-        changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        if changelog is None:
+            changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
         ceiling = max(pr for _, pr, _, _ in mod.pr_headers(changelog, cutoff=0))
         mirror = mirror_path.read_text(encoding="utf-8")
         above = {ln for ln, pr, _, _ in mod.pr_headers(mirror, cutoff=0) if pr > ceiling}
@@ -20539,14 +20543,14 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         # one header newer than its root CHANGELOG (the #3008 case); it must pass.
         from unittest import mock
         mod = load_linter_module("tools/lint-changelog-mirror-header-parity.py", "_mp_3b656")
-        changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        changelog = self.ROOT_FIXTURE
         _, pr, version, _ = mod.pr_headers(changelog, cutoff=0)[0]
         newer = pr + 1
         header = f"**2099-01-01 | {version[0]}.{version[1]}.{version[2] + 1} | PR #{newer}** - x\n\n"
         with tempfile.TemporaryDirectory() as store:
             self._store_mirror(store, header + changelog)
             with mock.patch.dict(os.environ, {"GRC_STORE": store}):
-                result, ceiling = self._head_parity_result()
+                result, ceiling = self._head_parity_result(changelog)
         self.assertEqual(ceiling, pr)
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertNotIn(f"#{newer}", result.stdout)
@@ -20556,27 +20560,36 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         # header (the review's case, #3009 missing) must fail and name it.
         from unittest import mock
         mod = load_linter_module("tools/lint-changelog-mirror-header-parity.py", "_mp_3b656_miss")
-        changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        changelog = self.ROOT_FIXTURE
         lineno, pr, _, _ = mod.pr_headers(changelog, cutoff=0)[0]
         lines = changelog.splitlines(keepends=True)
         with tempfile.TemporaryDirectory() as store:
             self._store_mirror(store, "".join(lines[:lineno - 1] + lines[lineno:]))
             with mock.patch.dict(os.environ, {"GRC_STORE": store}):
-                result, _ = self._head_parity_result()
+                result, _ = self._head_parity_result(changelog)
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn("MISSING from the detailed mirror", result.stdout)
         self.assertIn(f"#{pr}", result.stdout)
 
     # A root header strictly inside the window: the newest-first index of a header neither the
-    # checkout's newest nor the mirror's oldest (the test asserts it is strictly inside).
+    # root's newest nor the mirror's oldest (the test asserts it is strictly inside).
     MIDDLE = 2
+
+    # The root CHANGELOG the helper reads: five single-PR headers in the live file's compact
+    # form, so the window does not depend on how many unrolled entries the live file holds
+    # (#3058: after the roll-ups it held two and MIDDLE fell outside it).
+    ROOT_FIXTURE = "# Changelog\n\n" + "".join(
+        f"**2026-10-31 | 2026.10.{1759 - n} | PR #{3058 - n}** - tooling: Entry {n}.\n\n"
+        for n in range(5)
+    )
 
     def _head_parity_dropping(self, index: int, name: str):
         """The head result for a store mirror one header ahead of the root (as in the #3008 case)
-        and missing the root header at INDEX (newest first); also the root header records."""
+        and missing the root header at INDEX (newest first); also the root header records. The
+        root is ROOT_FIXTURE, not the live CHANGELOG."""
         from unittest import mock
         mod = load_linter_module("tools/lint-changelog-mirror-header-parity.py", name)
-        changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        changelog = self.ROOT_FIXTURE
         records = mod.pr_headers(changelog, cutoff=0)
         _, newest, version, _ = records[0]
         bumped = f"{version[0]}.{version[1]}.{version[2] + 1}"
@@ -20586,7 +20599,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         with tempfile.TemporaryDirectory() as store:
             self._store_mirror(store, newer + "".join(lines[:lineno - 1] + lines[lineno:]))
             with mock.patch.dict(os.environ, {"GRC_STORE": store}):
-                result, ceiling = self._head_parity_result()
+                result, ceiling = self._head_parity_result(changelog)
         self.assertEqual(ceiling, newest)
         return result, records
 
@@ -36589,7 +36602,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-gate-parity.py OWN F 48a5130538cf0e506226c7c47c8c2b98e8b8e5e6ba5df2177e8b02cdbdfb1545
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
-        lint-bookkeeping-parity.py NO_FS F 43a25f9706516004b494a4ed6842b3fe06001f152cbedfa9ec1845cd88ba946b
+        lint-bookkeeping-parity.py NO_FS F 8f85da2547e95ad49c86265764b5d460db92e210d6339a593fbc896fc10b3181
         lint-ccm-aicm-citations.py CWD F 6a1eb4d255f76d35ed337441b0f7127ffd6d943d8c47730921e6f872491685a7
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
         lint-changelog-link-coverage.py CWD F 0eb2c21687bcae9e697ab26d0273e766530ec144f1417ac04309badae1bd1bd2
