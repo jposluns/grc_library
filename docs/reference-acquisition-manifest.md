@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-10-30\
+**Date:** 2026-10-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -324,7 +324,7 @@ without the private reference sibling).
 | NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems (IDPS) |  | NIST |  | FREE |
 | NIST SP 800-95, Guide to Secure Web Services | SP 800-95 (August 2007) | NIST |  | FREE |
 
-## Frameworks (338: 300 free, 38 licensed)
+## Frameworks (339: 301 free, 38 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -431,6 +431,7 @@ without the private reference sibling).
 | COBIT 5: Enabling Processes |  | ISACA |  | LICENSED |
 | COBIT for DevOps Audit Program (Internal Control Questionnaire) |  | ISACA |  | LICENSED |
 | COBIT for DevOps Audit Program (work program) |  | ISACA |  | LICENSED |
+| CommonMark Spec, Version 0.31.2 (2024-01-28) | CommonMark Spec version 0.31.2, dated 2024-01-28 (spec.txt at tag 0.31.2 of github.com/commonmark/commonmark-spec) | CommonMark project (John MacFarlane) |  | FREE |
 | Configuration Management Using COBIT 5 |  | ISACA |  | LICENSED |
 | Council of Europe Recommendation CM/Rec(2015)5 on the processing of personal data in the context of employment (adopted 1 April 2015) | CM/Rec(2015)5, adopted 1 April 2015 | Council of Europe Committee of Ministers |  | FREE |
 | CSA AI Controls Matrix (AICM) v1.1.0 |  | CSA |  | FREE |
@@ -978,5 +979,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 913 sources (792 free, 121 licensed).**
+**Total: 914 sources (793 free, 121 licensed).**
 
