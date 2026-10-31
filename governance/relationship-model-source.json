@@ -371,6 +371,13 @@
       "corpus_path": null
     },
     {
+      "id": "LGPD",
+      "display_name": "LGPD (Lei Geral de Proteção de Dados Pessoais)",
+      "class": "regulation or law",
+      "source_identifier": "Lei nº 13.709, de 14 de agosto de 2018",
+      "corpus_path": null
+    },
+    {
       "id": "ISO-19011",
       "display_name": "ISO 19011 Guidelines for auditing management systems",
       "class": "standard",
@@ -18796,6 +18803,198 @@
       "verb": "maps to",
       "destination": {
         "id": "NIS2",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0566",
+      "source": {
+        "id": "GRC-REGISTER-AUTOMATED-DECISION-MAKING",
+        "class": "evidence"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "LGPD",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0567",
+      "source": {
+        "id": "GRC-REGISTER-COOKIE-TRACKER",
+        "class": "evidence"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "LGPD",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0568",
+      "source": {
+        "id": "GRC-FW-CONSENT-MANAGEMENT",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "LGPD",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0569",
+      "source": {
+        "id": "GRC-FW-CHILDRENS-DATA",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "LGPD",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0570",
+      "source": {
+        "id": "GRC-PROC-TRAINING-DATA-GOVERNANCE",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "LGPD",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0571",
+      "source": {
+        "id": "GRC-PROC-DATA-SUBJECT-RIGHTS-MANAGEMENT",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "LGPD",
         "class": "regulation or law"
       },
       "relationship_class": "correspondence",
