@@ -2,8 +2,8 @@
 
 **Document Title:** Cookie and Tracker Register\
 **Document Type:** Register\
-**Version:** 1.0.7\
-**Date:** 2026-10-30\
+**Version:** 1.0.8\
+**Date:** 2026-10-31\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md)\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This register inventories cookies, similar storage technologies, and tracking technologies operated on the organization's websites, mobile applications, embedded surfaces, and partner-integrated channels. It supports the consent management framework, the privacy notice, and the ePrivacy and equivalent obligations across the EU, UK, Brazil, and other jurisdictions with prior-consent or opt-in requirements for non-essential tracking.
+This register inventories cookies, similar storage technologies, and tracking technologies operated on the organization's websites, mobile applications, embedded surfaces, and partner-integrated channels. It supports the consent management framework, the privacy notice, and the ePrivacy and equivalent obligations across the EU, UK, and other jurisdictions with prior-consent or opt-in requirements for non-essential tracking. For Brazil, Article 7 IX of the Marco Civil da Internet (Lei 12.965/2014) gives internet users a right ("ao usuário são assegurados") of express consent regarding the collection, use, storage and processing of personal data ("consentimento expresso sobre coleta, uso, armazenamento e tratamento de dados pessoais"), and that consent must be set apart from the other contract clauses ("que deverá ocorrer de forma destacada das demais cláusulas contratuais"); neither that law nor the LGPD mentions cookies, and LGPD Article 7 provides that the processing of personal data may only be carried out in the cases ("hipóteses") it lists, one of which is upon the provision of consent by the data subject, and Article 8 sets requirements for that consent and provides that it may be revoked at any time by express manifestation of the data subject ("mediante manifestação expressa do titular"). Separately, the ANPD's guidance on cookies (the "guia orientativo" listed under Framework alignment) states that, although there is no hierarchy or preference among the legal bases ("hipóteses legais") provided for in the LGPD, recourse to consent will be more appropriate when the collection of information is carried out by cookies that are not necessary ("cookies não necessários"), and that the use of cookies for audience measurement (analytical or measurement cookies) may be grounded in the legal basis of legitimate interest in certain contexts, subject in any case to the requirements provided for in the LGPD. In particular, the guide states that it is reasonable to suppose that the risks to the privacy of data subjects will be lower when the processing is limited to the specific purpose of identifying patterns and trends, based on aggregated data and without combination with other tracking mechanisms or without the formation of user profiles.
 
 A populated register identifies specific technologies and their providers and is operational data. This template is the structural baseline; populate, classify, and store internally.
 
@@ -116,7 +116,7 @@ Each entry is one row. Mandatory fields:
 | LGPD | Articles 7, 8 | Consent and its withdrawal where personal data is involved |
 | PIPL | Articles 13, 24 | Consent and automated behaviour analysis |
 | CCPA / CPRA | Cal. Civ. Code s. 1798.135; CCPA Regs 11 CCR ss. 7025-7026 | Opt-out of sale or sharing; opt-out preference signals (s. 7025, the Global Privacy Control) and requests to opt out of sale/sharing (s. 7026) |
-| Brazil ANPD Guidance | Cookies and similar technologies guidance | Local interpretation |
+| Brazil ANPD Guidance | Autoridade Nacional de Proteção de Dados (ANPD), "Cookies e proteção de dados pessoais", "guia orientativo", Versão 1.0, October 2022 | Guidance on cookies under the LGPD, not a statutory rule; the guide stresses that it must be understood as a guide of good practices ("deve ser entendido como um guia de boas práticas"); two of its statements on legal bases for cookies (consent for non-necessary cookies; legitimate interest for audience measurement) are summarized under Purpose |
 
 ---
 
