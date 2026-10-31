@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GRC Library card — C: audit seal</title>
+<style>
+  html,body{margin:0;padding:0}
+  body{width:1200px;height:630px;overflow:hidden;position:relative;background:#0b1730;
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+  svg.bg{position:absolute;left:0;top:0;width:1200px;height:630px}
+  .safe{position:absolute;left:120px;top:75px;width:960px;height:480px;display:flex;flex-direction:column}
+  .hdr{display:flex;align-items:center;gap:22px;flex:none}
+  .tile{width:84px;height:84px;border-radius:19px;box-sizing:border-box;
+    background:linear-gradient(145deg,#152a52 0%,#0b1730 85%);border:2px solid #d9ab54;
+    box-shadow:0 12px 26px rgba(4,10,22,.5),inset 0 1px 0 rgba(239,243,249,.16);
+    display:grid;place-items:center;color:#d9ab54;font-weight:800;font-size:30px;letter-spacing:.02em}
+  .name{color:#d9ab54;font-weight:700;font-size:34px;letter-spacing:.005em}
+  .body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:26px}
+  .hl{color:#eff3f9;font-weight:800;line-height:1.06;letter-spacing:-.012em;margin:0;
+    text-shadow:0 2px 20px rgba(4,10,22,.4)}
+  .hl span{display:block;width:max-content;white-space:nowrap}
+  .sub{color:#9fb1c9;font-size:34px;font-weight:400;margin:0;white-space:nowrap}
+</style>
+</head>
+<body>
+<svg class="bg" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <radialGradient id="vig" cx="0.26" cy="0.18" r="0.9">
+      <stop offset="0" stop-color="#142340"/>
+      <stop offset="0.6" stop-color="#0b1730"/>
+    </radialGradient>
+    <linearGradient id="rowfade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.6"/>
+    </linearGradient>
+    <mask id="rowmask"><rect width="1200" height="630" fill="url(#rowfade)"/></mask>
+  </defs>
+  <rect width="1200" height="630" fill="url(#vig)"/>
+  <g stroke="#294066" stroke-width="1" opacity="0.5" mask="url(#rowmask)">
+    <line x1="0" y1="430" x2="1200" y2="430"/>
+    <line x1="0" y1="472" x2="1200" y2="472"/>
+    <line x1="0" y1="514" x2="1200" y2="514"/>
+    <line x1="0" y1="556" x2="1200" y2="556"/>
+    <line x1="0" y1="598" x2="1200" y2="598"/>
+  </g>
+  <g transform="translate(930,330)" fill="none" stroke="#d9ab54">
+    <circle r="252" stroke-width="2" opacity="0.11"/>
+    <circle r="214" stroke-width="1.5" opacity="0.11"/>
+    <circle r="233" stroke-width="14" stroke-dasharray="4 22" opacity="0.1"/>
+    <path d="M-118 8 L-34 92 L138 -96" stroke-width="30" stroke-linecap="round"
+          stroke-linejoin="round" opacity="0.14"/>
+  </g>
+  <line x1="120" y1="192" x2="1080" y2="192" stroke="#294066" stroke-width="1" opacity="0.8"/>
+</svg>
+<div class="safe">
+  <div class="hdr"><div class="tile">GRC</div><div class="name">Library</div></div>
+  <div class="body">
+    <p class="hl"><span>Every document checked</span><span>before it ships.</span></p>
+    <p class="sub">Written to be adopted and adapted by any organization</p>
+  </div>
+</div>
+<script>
+(function(){
+  var hl=document.querySelector(".hl");
+  var spans=hl.querySelectorAll("span");
+  function widest(){var m=0;for(var i=0;i<spans.length;i++){var w=spans[i].getBoundingClientRect().width;if(w>m)m=w;}return m;}
+  var size=200;
+  hl.style.fontSize=size+"px";
+  size=Math.floor(size*960/widest());
+  if(size<64)size=64;
+  hl.style.fontSize=size+"px";
+  while(widest()>960&&size>64){size--;hl.style.fontSize=size+"px";}
+})();
+</script>
+</body>
+</html>

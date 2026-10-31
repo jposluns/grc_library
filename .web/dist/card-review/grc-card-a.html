@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GRC Library card — A: ledger light</title>
+<style>
+  html,body{margin:0;padding:0}
+  body{width:1200px;height:630px;overflow:hidden;position:relative;background:#0b1730;
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+  svg.bg{position:absolute;left:0;top:0;width:1200px;height:630px}
+  .safe{position:absolute;left:120px;top:75px;width:960px;height:480px;display:flex;flex-direction:column}
+  .hdr{display:flex;align-items:center;gap:22px;flex:none}
+  .tile{width:84px;height:84px;border-radius:19px;box-sizing:border-box;
+    background:linear-gradient(145deg,#152a52 0%,#0b1730 85%);border:2px solid #d9ab54;
+    box-shadow:0 12px 26px rgba(4,10,22,.5),inset 0 1px 0 rgba(239,243,249,.16);
+    display:grid;place-items:center;color:#d9ab54;font-weight:800;font-size:30px;letter-spacing:.02em}
+  .name{color:#d9ab54;font-weight:700;font-size:34px;letter-spacing:.005em}
+  .body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:26px}
+  .hl{color:#eff3f9;font-weight:800;line-height:1.06;letter-spacing:-.012em;margin:0;
+    text-shadow:0 2px 20px rgba(4,10,22,.4)}
+  .hl span{display:block;width:max-content;white-space:nowrap}
+  .sub{color:#9fb1c9;font-size:34px;font-weight:400;margin:0;white-space:nowrap}
+</style>
+</head>
+<body>
+<svg class="bg" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16264a"/>
+      <stop offset="0.38" stop-color="#101d36"/>
+      <stop offset="1" stop-color="#0b1730"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.1" cy="0" r="0.5">
+      <stop offset="0" stop-color="#d9ab54" stop-opacity="0.13"/>
+      <stop offset="1" stop-color="#d9ab54" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#294066" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="gridfade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.55"/>
+    </linearGradient>
+    <mask id="gridmask"><rect x="540" y="0" width="660" height="630" fill="url(#gridfade)"/></mask>
+  </defs>
+  <rect width="1200" height="630" fill="url(#base)"/>
+  <rect width="1200" height="630" fill="url(#grid)" mask="url(#gridmask)" opacity="0.5"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <g transform="translate(1076,522)">
+    <circle r="70" fill="none" stroke="#d9ab54" stroke-opacity="0.5" stroke-width="3"/>
+    <circle r="56" fill="#0b1730" stroke="#294066" stroke-width="2"/>
+    <path d="M-24 2 L-7 19 L28 -19" fill="none" stroke="#d9ab54" stroke-opacity="0.85"
+          stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
+<div class="safe">
+  <div class="hdr"><div class="tile">GRC</div><div class="name">Library</div></div>
+  <div class="body">
+    <p class="hl"><span>Every document checked</span><span>before it ships.</span></p>
+    <p class="sub">Written to be adopted and adapted by any organization</p>
+  </div>
+</div>
+<script>
+(function(){
+  var hl=document.querySelector(".hl");
+  var spans=hl.querySelectorAll("span");
+  function widest(){var m=0;for(var i=0;i<spans.length;i++){var w=spans[i].getBoundingClientRect().width;if(w>m)m=w;}return m;}
+  var size=200;
+  hl.style.fontSize=size+"px";
+  size=Math.floor(size*960/widest());
+  if(size<64)size=64;
+  hl.style.fontSize=size+"px";
+  while(widest()>960&&size>64){size--;hl.style.fontSize=size+"px";}
+})();
+</script>
+</body>
+</html>

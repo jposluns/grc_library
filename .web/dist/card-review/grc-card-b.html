@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GRC Library card — B: controlled stack</title>
+<style>
+  html,body{margin:0;padding:0}
+  body{width:1200px;height:630px;overflow:hidden;position:relative;
+    background:linear-gradient(160deg,#101d36 0%,#0b1730 72%);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+  svg.bg{position:absolute;left:0;top:0;width:1200px;height:630px}
+  .safe{position:absolute;left:120px;top:75px;width:960px;height:480px;display:flex;flex-direction:column}
+  .hdr{display:flex;align-items:center;gap:22px;flex:none}
+  .tile{width:84px;height:84px;border-radius:19px;box-sizing:border-box;
+    background:linear-gradient(145deg,#152a52 0%,#0b1730 85%);border:2px solid #d9ab54;
+    box-shadow:0 12px 26px rgba(4,10,22,.5),inset 0 1px 0 rgba(239,243,249,.16);
+    display:grid;place-items:center;color:#d9ab54;font-weight:800;font-size:30px;letter-spacing:.02em}
+  .name{color:#d9ab54;font-weight:700;font-size:34px;letter-spacing:.005em}
+  .body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:26px}
+  .hl{color:#eff3f9;font-weight:800;line-height:1.06;letter-spacing:-.012em;margin:0;
+    text-shadow:0 2px 20px rgba(4,10,22,.45)}
+  .hl span{display:block;width:max-content;white-space:nowrap}
+  .sub{color:#9fb1c9;font-size:34px;font-weight:400;margin:0;white-space:nowrap}
+</style>
+</head>
+<body>
+<svg class="bg" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <g>
+    <rect x="868" y="150" width="280" height="400" rx="12" transform="rotate(-8 1008 350)"
+          fill="#0d1830" stroke="#294066" stroke-width="2"/>
+    <rect x="884" y="136" width="280" height="400" rx="12" transform="rotate(-4 1024 336)"
+          fill="#101e3a" stroke="#294066" stroke-width="2"/>
+    <rect x="900" y="122" width="280" height="400" rx="12" fill="#14233f" stroke="#3a5680" stroke-width="2"/>
+    <rect x="928" y="150" width="170" height="54" rx="8" fill="none" stroke="#d9ab54" stroke-opacity="0.6" stroke-width="2"/>
+    <rect x="940" y="163" width="118" height="8" rx="4" fill="#d9ab54" opacity="0.55"/>
+    <rect x="940" y="181" width="86" height="8" rx="4" fill="#9fb1c9" opacity="0.4"/>
+    <rect x="928" y="236" width="224" height="8" rx="4" fill="#9fb1c9" opacity="0.22"/>
+    <rect x="928" y="262" width="188" height="8" rx="4" fill="#9fb1c9" opacity="0.22"/>
+    <rect x="928" y="288" width="210" height="8" rx="4" fill="#9fb1c9" opacity="0.22"/>
+    <rect x="928" y="314" width="160" height="8" rx="4" fill="#9fb1c9" opacity="0.22"/>
+    <rect x="928" y="340" width="214" height="8" rx="4" fill="#9fb1c9" opacity="0.22"/>
+    <rect x="928" y="366" width="132" height="8" rx="4" fill="#9fb1c9" opacity="0.22"/>
+    <circle cx="1146" cy="488" r="34" fill="#0b1730" stroke="#d9ab54" stroke-width="3"/>
+    <path d="M1132 488 L1142 499 L1162 477" fill="none" stroke="#d9ab54" stroke-width="6"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <rect x="0" y="624" width="1200" height="6" fill="#d9ab54" opacity="0.55"/>
+</svg>
+<div class="safe">
+  <div class="hdr"><div class="tile">GRC</div><div class="name">Library</div></div>
+  <div class="body">
+    <p class="hl"><span>Every document checked</span><span>before it ships.</span></p>
+    <p class="sub">Written to be adopted and adapted by any organization</p>
+  </div>
+</div>
+<script>
+(function(){
+  var hl=document.querySelector(".hl");
+  var spans=hl.querySelectorAll("span");
+  function widest(){var m=0;for(var i=0;i<spans.length;i++){var w=spans[i].getBoundingClientRect().width;if(w>m)m=w;}return m;}
+  var size=200;
+  hl.style.fontSize=size+"px";
+  size=Math.floor(size*960/widest());
+  if(size<64)size=64;
+  hl.style.fontSize=size+"px";
+  while(widest()>960&&size>64){size--;hl.style.fontSize=size+"px";}
+})();
+</script>
+</body>
+</html>
