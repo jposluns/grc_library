@@ -2,8 +2,8 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.21\
-**Date:** 2026-10-30\
+**Version:** 1.0.22\
+**Date:** 2026-10-31\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md), [`ai/standard-ai-human-oversight.md`](../ai/standard-ai-human-oversight.md)\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This register inventories automated decision-making and profiling activities subject to EU GDPR Article 22, UK GDPR Articles 22A-22D (per the UK annex; DUAA 2025 replaced Article 22, in force 2026-02-05), EU AI Act Articles 6 and 14, LGPD Article 20, PIPL Article 24, CPPA Section 63(3) (lapsed with Bill C-27), CCPA / CPRA automated decision-making rules, and equivalent provisions. It supports the transparency, human-review, and explanation rights data subjects can exercise.
+This register inventories automated decision-making and profiling activities subject to EU GDPR Article 22, UK GDPR Articles 22A-22D (per the UK annex; DUAA 2025 replaced Article 22, in force 2026-02-05), EU AI Act Articles 6 and 14, LGPD Article 20, PIPL Article 24, CPPA Section 63(3) (lapsed with Bill C-27), CCPA / CPRA automated decision-making rules, and equivalent provisions. It supports the transparency, human-review, and explanation rights data subjects can exercise. Under LGPD Article 20, the data subject has the right to request review of decisions taken solely on the basis of automated processing of personal data that affect their interests; the human review this register offers (item 2 under Subject rights and operating expectations) is the organization's own control and applies whether or not the governing regime requires review by a natural person.
 
 A populated ADM register identifies real systems and is sensitive operational data. This template is the structural baseline; populate, classify, and store internally.
 
