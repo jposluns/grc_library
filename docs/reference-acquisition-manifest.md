@@ -667,7 +667,7 @@ without the private reference sibling).
 | VDA Information Security Assessment (ISA) catalogue ISA2027.1 (English) | Version 2027.1, 2026-09-30 (Cover sheet) | VDA |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (255: 255 free, 0 licensed)
+## Legislation (256: 256 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -691,6 +691,7 @@ without the private reference sibling).
 | Brazil ANPD Resolução CD/ANPD nº 2/2022 (aplicação da LGPD para agentes de tratamento de pequeno porte; Small Processing Agents) | Resolução CD/ANPD nº 2, de 27 de janeiro de 2022 (DOU 28/01/2022); gov.br-served text (host confirmed reachable 2026-07-16; worker-acquired 2026-07-16). | Brazil |  | FREE |
 | Brazil ANPD Resolução CD/ANPD nº 4, de 24 de fevereiro de 2023 (Regulamento de Dosimetria e Aplicação de Sanções Administrativas / administrative sanctions dosimetry) | Resolução CD/ANPD nº 4/2023, published DOU 27/02/2023 (Edição 39, Seção 1, p. 59); in force since publication; current | Brazil |  | FREE |
 | Brazil Lei Geral de Proteção de Dados Pessoais (LGPD), Lei nº 13.709/2018 | Lei 13.709/2018, in force since 2020-09-18; law text unchanged, current | Brazil | https://www.gov.br/anpd/pt-br/centrais-de-conteudo/outros-documentos-e-publicacoes-institucionais/lgpd-en-lei-no-13-709-capa.pdf | FREE |
+| Brazil Marco Civil da Internet, Lei nº 12.965/2014 | Lei nº 12.965, de 23 de abril de 2014 (Marco Civil da Internet); Câmara dos Deputados consolidated text (norma atualizada), retrieved 2026-10-30. Latest amendment note carried: Art. 7 X and Art. 16 II, redação dada pela Lei nº 13.709, de 14/8/2018 (DOU 15/8/2018), em vigor 24 meses após a publicação, nos termos da Lei nº 13.853, de 8/7/2019. Planalto compiled text unreachable 2026-10-30, so currency is not confirmed upstream. | Brazil |  | FREE |
 | Brazil Resolucao BCB No. 85 (8 April 2021), politica de seguranca cibernetica for payment institutions (Portuguese, current version) | BCB normativos version 4.0, not revoked (includes the Resolucao BCB 368/2024 amendments) | Brazil |  | FREE |
 | Brazil Resolucao CMN No. 4.893 (26 February 2021), politica de seguranca cibernetica (Portuguese, current version) | BCB normativos version 3.0, not revoked (includes the Resolucao CMN 5.117/2024 amendments) | Brazil |  | FREE |
 | British Columbia E-Health (Personal Health Information Access and Protection of Privacy) Act (SBC 2008, c. 38) | SBC 2008 c. 38, consolidated | Canada (British Columbia) |  | FREE |
@@ -977,5 +978,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 912 sources (791 free, 121 licensed).**
+**Total: 913 sources (792 free, 121 licensed).**
 
