@@ -407,7 +407,9 @@ KNOWN_HANDOFF_NO_ROW: frozenset[int] = frozenset({300, 322, 334, 1054})
 # have. These PRs were opened-and-closed-without-merge (verified: no `(#N)` merge
 # commit on `main`), so excluding them is a false-positive fix, not a gate weakening.
 # #2698 is not a PR but an issue number (closed; commit 35549cb6 records it, 3b336).
-KNOWN_SKIPPED_PRS: frozenset[int] = frozenset({1092, 1093, 1221, 1400, 1471, 1493, 1648, 2083, 2653, 2698})
+# #2961 is a Dependabot bump closed without merge on 2026-10-28; the root CHANGELOG
+# `Week of 2026-10-19 (PRs #2853-#2981)` roll-up shows it in range.
+KNOWN_SKIPPED_PRS: frozenset[int] = frozenset({1092, 1093, 1221, 1400, 1471, 1493, 1648, 2083, 2653, 2698, 2961})
 
 # A row whose Findings cell marks the PR as a session-closing handoff
 # (validate-pr + retro both legitimately skipped, the loop-break).
