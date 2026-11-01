@@ -2,8 +2,8 @@
 
 **Document Title:** Whistleblower and Incident Reporting Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.20\
-**Date:** 2026-10-30\
+**Version:** 1.0.21\
+**Date:** 2026-11-01\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md)\
@@ -42,7 +42,7 @@ Applies to all employees, contractors, temporary workers, and third parties who 
 | **Chief Compliance Officer** | Owns whistleblower programme; receives and manages disclosures. |
 | **Ethics and Compliance Committee (ECC)** | Reviews whistleblower reports; approves investigation outcomes. |
 | **HR / People Operations** | Manages employment-related disciplinary outcomes. |
-| **Legal Counsel** | Advises on legal obligations; manages regulatory notifications. |
+| **Legal Counsel** | Advises on legal obligations; for a personal data breach, determines the notification obligations by jurisdiction and approves notification content, while the Data Protection Officer decides and submits the personal data breach notifications; owns every other regulatory notification, unless the applicable domain procedure assigns the notification elsewhere (section 5). |
 | **CISO** | Investigates security-related disclosures. |
 | **Internal Audit** | Independently reviews whistleblower programme effectiveness annually. |
 
@@ -113,7 +113,7 @@ Reports are made to the relevant team lead, IT/security helpdesk, or the CISO as
 
 ## 5. Regulatory notification obligations
 
-Where an investigation identifies, or the organization otherwise becomes aware of, a breach that may trigger regulatory notification obligations, Legal Counsel promptly assesses (unless a row states otherwise, the statutory clock starts at awareness, not at confirmation; see the GDPR row below):
+Where an investigation identifies, or the organization otherwise becomes aware of, a breach that may trigger regulatory notification obligations, Legal Counsel promptly assesses the obligations below (unless a row states otherwise, the statutory clock starts at awareness, not at confirmation; see the GDPR row below). For a personal data breach, the Data Protection Officer decides and submits the personal data breach notifications, and Legal Counsel determines the notification obligations by jurisdiction and approves notification content ([`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §2.1). Legal Counsel owns every other regulatory notification, unless the applicable domain procedure assigns the notification elsewhere.
 
 | Regulation | Notification Obligation |
 | --- | --- |
