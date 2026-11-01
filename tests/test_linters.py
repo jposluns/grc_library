@@ -1288,7 +1288,7 @@ class ChangelogLanguageTests(unittest.TestCase):
             for rel in ("tools/preflight-changelog.py", "tools/preflight_language_runner.py",
                         "tools/lint-language.py",
                         "tools/check-changelog-length-on-pr.py", "tools/lint_common.py",
-                        "tools/changelog_diff.py",
+                        "tools/changelog_diff.py", "tools/lint-working-prose-hygiene.py",
                         "tools/aiqt_bootstrap.py", "tools/check-changelog-preflight-commit.py",
                         ".corpus-management/tools/gate_lint_language.py",
                         ".corpus-management/tools/profile_loader.py",
@@ -1891,7 +1891,7 @@ class ChangelogLanguageTests(unittest.TestCase):
                         "tools/preflight_language_runner.py",
                         "tools/lint-language.py",
                         "tools/check-changelog-length-on-pr.py", "tools/lint_common.py",
-                        "tools/changelog_diff.py",
+                        "tools/changelog_diff.py", "tools/lint-working-prose-hygiene.py",
                         "tools/aiqt_bootstrap.py",
                         ".corpus-management/tools/gate_lint_language.py",
                         ".corpus-management/tools/profile_loader.py",
@@ -34553,6 +34553,1708 @@ class WorkingProseHygieneTests(LinterTestCase):
         result = run_linter("tools/lint-working-prose-hygiene.py", control)
         self.assertLinterFails(result, "prose-dash")
 
+    # 3b696: gate 51's own fence and code-span model. Each case below names the rule it pins
+    # (see the gate docstring). A case marked "fails on dde3e287d" failed against the toggle and
+    # the `(`+)(.+?)\1` stripper; the others are guards that both agree on.
+    SCRIPT = "tools/lint-working-prose-hygiene.py"
+
+    def _gate(self, name, text):
+        return run_linter(self.SCRIPT, self.make_fixture(name, text))
+
+    def _assert_findings(self, result, present=(), absent=()):
+        self.assertEqual(result.returncode, 1 if present else 0, result.stdout + result.stderr)
+        for needle in present:
+            self.assertIn(needle, result.stdout)
+        for needle in absent:
+            self.assertNotIn(needle, result.stdout)
+
+    def test_plain_prose_dash_control(self) -> None:
+        # Control for the cases below: the same prose dash with no code around it is flagged.
+        self._assert_findings(self._gate("c0.md", "# Note\n\nPlain prose — dash.\n"),
+                              present=("L3 [prose-dash]",))
+
+    def test_shorter_fence_line_inside_a_longer_fence_does_not_close_it(self) -> None:
+        # Fails on dde3e287d (exit 0): the toggle closed at ``` and reopened at ````.
+        self._assert_findings(self._gate("h1a.md", "# Note\n\n````\n```\n````\n\nProse — dash.\n"),
+                              present=("L7 [prose-dash]",), absent=("[unclosed-fence]",))
+
+    def test_backtick_line_inside_a_tilde_fence_does_not_close_it(self) -> None:
+        # Fails on dde3e287d (exit 0).
+        self._assert_findings(self._gate("h1b.md", "# Note\n\n~~~\n```\n~~~\n\nProse — dash.\n"),
+                              present=("L7 [prose-dash]",), absent=("[unclosed-fence]",))
+
+    def test_list_item_fence_does_not_pair_with_a_later_fence(self) -> None:
+        # Fails on dde3e287d (exit 0): the item's closer paired with the later top-level fence.
+        text = "# Note\n\n- ```sh\n  echo hi\n  ```\n\nProse — dash.\n\n```\ncode\n```\n"
+        self._assert_findings(self._gate("h2.md", text),
+                              present=("L7 [prose-dash]",), absent=("[unclosed-fence]",))
+
+    def test_autolink_backtick_does_not_open_a_span(self) -> None:
+        # I3. Fails on dde3e287d (exit 0).
+        text = "# Note\n\nSee <https://example.com/a`b> — then `code`.\n"
+        self._assert_findings(self._gate("h3.md", text), present=("L3 [prose-dash]",))
+
+    def test_raw_html_backtick_does_not_open_a_span(self) -> None:
+        # I4. Fails on dde3e287d (exit 0).
+        text = "# Note\n\nA <span title=\"a`b\">x</span> — then `code`.\n"
+        self._assert_findings(self._gate("h4a.md", text), present=("L3 [prose-dash]",))
+
+    def test_link_destination_backtick_does_not_open_a_span(self) -> None:
+        # I5. Fails on dde3e287d (exit 0).
+        text = "# Note\n\nSee [doc](https://example.com/a`b) — then `code`.\n"
+        self._assert_findings(self._gate("h4b.md", text), present=("L3 [prose-dash]",))
+
+    def test_dash_in_a_four_backtick_fence_holding_a_three_backtick_line(self) -> None:
+        # Fails on dde3e287d (L5 flagged).
+        self._assert_findings(
+            self._gate("r1a.md", "# Note\n\n````\n```\ncode — dash\n```\n````\n"))
+
+    def test_dash_in_a_tilde_fence_holding_a_backtick_line(self) -> None:
+        # Fails on dde3e287d (L5 flagged).
+        self._assert_findings(self._gate("r1b.md", "# Note\n\n~~~\n```\ncode — dash\n```\n~~~\n"))
+
+    def test_dash_in_a_span_that_crosses_a_line_ending(self) -> None:
+        # Fails on dde3e287d (L4 flagged).
+        self._assert_findings(self._gate("r2.md", "# Note\n\nUse `foo\n— bar` here.\n"))
+
+    def test_backtick_in_the_info_string_is_not_a_fence(self) -> None:
+        # F1. Fails on dde3e287d (exit 0).
+        self._assert_findings(self._gate("f1-info.md", "# Note\n\n```a`b\n\nProse — dash.\n"),
+                              present=("L5 [prose-dash]",), absent=("[unclosed-fence]",))
+
+    def test_fence_line_with_an_info_string_does_not_close(self) -> None:
+        # F3. Fails on dde3e287d (L6 flagged).
+        text = "# Note\n\n```\ncode — one\n```text\ncode — two\n```\n"
+        self._assert_findings(self._gate("f3-info.md", text))
+
+    def test_longer_run_closes_a_fence(self) -> None:
+        # F3 guard.
+        text = "# Note\n\n```\ncode — one\n`````\n\nProse — dash.\n"
+        self._assert_findings(self._gate("f3-long.md", text),
+                              present=("L7 [prose-dash]",), absent=("L4 ",))
+
+    def test_fence_indented_three_columns(self) -> None:
+        # F1 guard.
+        self._assert_findings(self._gate("f1-3.md", "# Note\n\n   ```\ncode — one\n   ```\n"))
+
+    def test_fence_indented_four_columns_is_not_a_fence(self) -> None:
+        # F1 guard.
+        self._assert_findings(self._gate("f1-4.md", "# Note\n\n    ```\n\nProse — dash.\n"),
+                              present=("L5 [prose-dash]",), absent=("[unclosed-fence]",))
+
+    def test_tilde_info_string_may_hold_a_backtick(self) -> None:
+        # F1 guard.
+        self._assert_findings(self._gate("f1-tilde.md", "# Note\n\n~~~ a`b\ncode — one\n~~~\n"))
+
+    def test_unclosed_fence_is_a_finding(self) -> None:
+        # U1. Fails on dde3e287d (exit 0).
+        result = self._gate("u1.md", "# Note\n\n```\ncode\n\nProse — dash.\n")
+        self._assert_findings(result, present=("L3 [unclosed-fence]",), absent=("L6 ",))
+        self.assertIn("1 unclosed fence(s)", result.stdout)
+
+    def test_dedented_line_ends_the_list_item_and_its_fence(self) -> None:
+        # F4. Fails on dde3e287d (L4 also flagged).
+        text = "# Note\n\n- ```\n  code — one\nProse — dash.\n"
+        self._assert_findings(self._gate("f4.md", text),
+                              present=("L5 [prose-dash]",), absent=("L4 ", "[unclosed-fence]"))
+
+    def test_ordered_list_marker_fence(self) -> None:
+        # F2 (W=3). Fails on dde3e287d (L4 flagged, L7 hidden).
+        text = "# Note\n\n1. ```\n   code — one\n   ```\n\nProse — dash.\n"
+        self._assert_findings(self._gate("f2.md", text),
+                              present=("L7 [prose-dash]",), absent=("L4 ",))
+
+    def test_unequal_backtick_runs_do_not_pair(self) -> None:
+        # I7. Fails on dde3e287d (L3 flagged).
+        self._assert_findings(self._gate("i7.md", "# Note\n\nThe ``a `b — c` d text.\n"))
+
+    def test_escaped_backtick_does_not_open_a_span(self) -> None:
+        # I2. Fails on dde3e287d (exit 0).
+        self._assert_findings(self._gate("i2.md", "# Note\n\nNot \\`code — dash` here.\n"),
+                              present=("L3 [prose-dash]",))
+
+    def test_span_stops_at_a_blank_line(self) -> None:
+        # I1 guard.
+        self._assert_findings(self._gate("i1-blank.md", "# Note\n\nUse `foo\n\n— bar` here.\n"),
+                              present=("L5 [prose-dash]",))
+
+    def test_span_stops_at_a_heading(self) -> None:
+        # I1 guard.
+        self._assert_findings(self._gate("i1-head.md", "# Head `x\nText — y` z.\n"),
+                              present=("L2 [prose-dash]",))
+
+    def test_span_stops_at_a_list_item(self) -> None:
+        # I1 guard.
+        self._assert_findings(self._gate("i1-list.md", "# Note\n\n- Use `foo\n- — bar` here.\n"),
+                              present=("L4 [prose-dash]",))
+
+    def test_span_crosses_into_a_deeper_indented_continuation_line(self) -> None:
+        # I1: a continuation line indented 4 or more stays in the paragraph, so the span closes on
+        # it and the dash after is prose. Fails on dde3e287d (exit 0) and on a split where the
+        # indent crosses 4 columns, which paired "` — `" on L4 alone.
+        text = "# Note\n\n- a `x\n    b` — `c`.\n"
+        self._assert_findings(self._gate("i1-indent.md", text), present=("L4 [prose-dash]",))
+
+    def test_lazy_quote_continuation_joins_the_unit(self) -> None:
+        # I1: a line with fewer quote markers is a lazy continuation of the quoted paragraph. Fails
+        # on dde3e287d (exit 0) and on a split wherever the quote depth changes.
+        text = "# Note\n\n> a `x\nb` — `c`.\n"
+        self._assert_findings(self._gate("i1-lazy.md", text), present=("L4 [prose-dash]",))
+
+    def test_indented_code_unit_ends_at_a_shallower_line(self) -> None:
+        # I1 guard: a unit whose first line is indented 4 or more (indented code) ends at the first
+        # shallower line, whose own span holds the dash.
+        self._assert_findings(self._gate("i1-code.md", "# Note\n\n    code `x\nb` — `c`.\n"))
+
+    def test_span_opened_inside_the_link_text_wins_over_the_destination(self) -> None:
+        # I5 guard: the span opens inside the link text, before its "]", so it masks "](/u) — c"
+        # and no destination is read.
+        self._assert_findings(self._gate("i5-span.md", "# Note\n\n[a `b](/u) — c` d.\n"))
+
+    def test_link_reference_definition_is_opaque(self) -> None:
+        # I6 guard: without I6 the definition's backtick would pair across the line ending.
+        text = "# Note\n\n[x]: https://example.com/a`b\nProse — then `code`.\n"
+        self._assert_findings(self._gate("i6.md", text), present=("L4 [prose-dash]",))
+
+    def test_autolink_blocks_a_pairing_across_lines(self) -> None:
+        # I3 guard.
+        text = "# Note\n\nSee <https://example.com/a`b>\n— then `code`.\n"
+        self._assert_findings(self._gate("i3-cross.md", text), present=("L4 [prose-dash]",))
+
+    def test_dash_inside_an_autolink_stays_prose(self) -> None:
+        # I8 guard.
+        text = "# Note\n\nSee <https://example.com/a—b> here.\n"
+        self._assert_findings(self._gate("i8.md", text), present=("L3 [prose-dash]",))
+
+    # 3b696 decision 1: each input shape from the 3b609 reviews that hides a prose dash or refuses
+    # a dash in real code, quoting the review line it comes from. Every one fails on dde3e287d.
+
+    def test_review_backtick_info_string_line_then_prose(self) -> None:
+        # vpr-3b609-1349-claude.out:44-46: "```x``` is the command" / "Rounds 1<U+2013>2 are
+        # done." / "```". On dde3e287d line 3 opened a fence and line 5 closed it (exit 0).
+        text = "# Note\n\n```x``` is the command\nRounds 1–2 are done.\n```\n"
+        self._assert_findings(self._gate("v1.md", text),
+                              present=("L4 [prose-dash]", "L5 [unclosed-fence]"))
+
+    def test_review_fence_shaped_line_with_a_dash(self) -> None:
+        # vpr-3b609-1349-claude.out:47: "```bash``` <U+2013> run it (the dash on that line is also
+        # skipped, because fence lines are never scanned)". dde3e287d: exit 0.
+        self._assert_findings(self._gate("v2.md", "# Note\n\n```bash``` – run it\n"),
+                              present=("L3 [prose-dash]",), absent=("[unclosed-fence]",))
+
+    def test_review_escaped_backticks_around_a_dash(self) -> None:
+        # vpr-3b609-1349-claude.out:53: "In ``use \` <U+2013> \` here`` the two escaped backticks
+        # are literal text in CommonMark, so the dash is prose". dde3e287d: exit 0.
+        self._assert_findings(self._gate("v3.md", "# Note\n\nuse \\` – \\` here\n"),
+                              present=("L3 [prose-dash]",))
+
+    def test_review_fence_after_a_line_separator_is_paragraph_text(self) -> None:
+        # vpr-3b609-1349-claude.out:55: "So `Prose\u2028```` flips the fence state ... and later
+        # dashes are hidden." 3b696 round 19: the gate ends a line only at LF, CR and CRLF, as
+        # CommonMark does, so the U+2028 stays inside L3, no fence opens and the L4 dash is
+        # prose. dde3e287d: exit 0; 85b35eaa7: only "L4 [unclosed-fence]" (str.splitlines broke
+        # L3 in two, so the fence opened on L4 and hid the dash on L5).
+        self._assert_findings(self._gate("v4.md", "# Note\n\nProse\u2028```\nLater — dash.\n"),
+                              present=("L4 [prose-dash]",), absent=("unclosed-fence", "L5"))
+
+    def test_review_tilde_line_inside_a_backtick_fence(self) -> None:
+        # vpr-3b609-1349-codex.out:4: "tildes inside a backtick fence ... produced exit 1 for a dash
+        # inside code" (also vpr-3b609-1349-claude.out:57). dde3e287d: L5 flagged.
+        self._assert_findings(self._gate("v5.md", "# Note\n\n```\n~~~\ncode — dash\n~~~\n```\n"))
+
+    def test_review_fence_inside_a_block_quote(self) -> None:
+        # vpr-3b609-1349-claude.out:57: "Fences inside blockquotes or list items (`> ```` `,
+        # `- ```` `) are never recognised, so their dashes are refused too." dde3e287d: L4 flagged.
+        text = "# Note\n\n> ```\n> code — dash\n> ```\n\nProse — dash.\n"
+        self._assert_findings(self._gate("v6.md", text),
+                              present=("L7 [prose-dash]",), absent=("L4 ", "[unclosed-fence]"))
+
+    def test_review_fence_on_a_list_marker_line(self) -> None:
+        # vpr-3b609-1349-claude.out:57, the `- ```` ` half. dde3e287d: L4 flagged.
+        text = "# Note\n\n- ```\n  code — dash\n  ```\n\nProse — dash.\n"
+        self._assert_findings(self._gate("v7.md", text),
+                              present=("L7 [prose-dash]",), absent=("L4 ", "[unclosed-fence]"))
+
+    def test_review_info_string_line_inside_a_fence(self) -> None:
+        # vpr-3b609-1349-codex.out:2: "For the input ` ``` `, then ` ```info `, then ` ``` `, then
+        # `outside — prose`, the middle line is code content, but the CLI exits 0." dde3e287d: exit 0.
+        text = "# Note\n\n```\n```info\n```\noutside — prose\n"
+        self._assert_findings(self._gate("v8.md", text),
+                              present=("L6 [prose-dash]",), absent=("[unclosed-fence]",))
+
+    def test_review_fence_below_a_list_marker_ends_with_the_item(self) -> None:
+        # vpr-3b609-r2-1431-claude.out:39: "- step\n  ```\n  cmd\nProse – here.\n\n```\nx\n```".
+        # Round 2 (L1, F2): the fence opened below the marker line is inside the open item, so the
+        # dedented L6 ends both and its dash is prose; the later fence pairs. Round 1 (e16d2cf32)
+        # modelled that fence outside the item and only reported L10 unclosed, so L6 was not
+        # identified (agy test note). dde3e287d: exit 0.
+        text = "# Note\n\n- step\n  ```\n  cmd\nProse – here.\n\n```\nx\n```\n"
+        self._assert_findings(self._gate("v9.md", text),
+                              present=("L6 [prose-dash]",), absent=("[unclosed-fence]",))
+
+    def test_review_autolink_ending_in_a_backtick(self) -> None:
+        # vpr-3b609-r2-1431-claude.out:46: "See <http://example.com/`> – then `x`." dde3e287d: exit 0.
+        self._assert_findings(
+            self._gate("v10.md", "# Note\n\nSee <http://example.com/`> – then `x`.\n"),
+            present=("L3 [prose-dash]",))
+
+    def test_review_html_attribute_holding_a_backtick(self) -> None:
+        # vpr-3b609-r2-1431-claude.out:47: "A <span title=\"`\"> – b `x`." dde3e287d: exit 0.
+        self._assert_findings(
+            self._gate("v11.md", "# Note\n\nA <span title=\"`\"> – b `x`.\n"),
+            present=("L3 [prose-dash]",))
+
+    def test_review_link_destination_holding_a_backtick(self) -> None:
+        # vpr-3b609-r2-1431-claude.out:48: "[a](/u`) – b `c`." dde3e287d: exit 0.
+        self._assert_findings(self._gate("v12.md", "# Note\n\n[a](/u`) – b `c`.\n"),
+                              present=("L3 [prose-dash]",))
+
+    def test_review_span_crossing_a_line_ending(self) -> None:
+        # vpr-3b609-r2-1431-codex.out:4: "For `Before \`code\n— still code\` after`, I observed
+        # a `prose-dash` refusal on line 2." dde3e287d: L4 flagged.
+        self._assert_findings(self._gate("v13.md", "# Note\n\nBefore `code\n— still code` after\n"))
+
+    def test_review_bom_before_a_fence_holding_a_dash(self) -> None:
+        # vpr-3b609-r3-1551-claude.out:29: "\ufeff```\na–b\n```\n". The gate drops one
+        # leading U+FEFF, so line 1 is a fence. dde3e287d: L2 flagged.
+        self._assert_findings(self._gate("v14.md", "\ufeff```\na–b\n```\n"))
+
+    def test_review_bom_before_a_fence_then_prose(self) -> None:
+        # vpr-3b609-r3-1551-claude.out:30: "\ufeff```\nx\n```\na–b\n" ("a fail-open
+        # divergence"). dde3e287d: line 3 opened a fence that hid L4 (exit 0).
+        self._assert_findings(self._gate("v15.md", "\ufeff```\nx\n```\na–b\n"),
+                              present=("L4 [prose-dash]",), absent=("[unclosed-fence]",))
+
+    # 3b696 round 2: the findings of the round 1 reviews (vpr-3b696-r1-1645-*.out). A case marked
+    # "fails on e16d2cf32" failed against round 1; a "mutant" case fails when that rule is removed.
+
+    def test_r2_numbered_marker_below_a_paragraph_opens_no_fence(self) -> None:
+        # A1 (claude E1): an ordered marker other than 1 does not interrupt a paragraph, so
+        # "3. ~~~" stays paragraph text, its dash line is prose, and the indented "~~~" opens a
+        # top-level fence left open. Fails on e16d2cf32 (exit 0).
+        text = "# Note\n\nSteps:\n3. ~~~\n   hidden — x\n   ~~~\nafter\n"
+        self._assert_findings(self._gate("r2-a1.md", text),
+                              present=("L5 [prose-dash]", "L6 [unclosed-fence]"))
+
+    def test_r2_numbered_marker_after_a_list_item_opens_a_fence(self) -> None:
+        # A1 guard: below an item's paragraph the marker is not in that paragraph's container
+        # (indent 0 < W=3), so it starts a sibling item and its fence opens.
+        text = "# Note\n\n1. a\n2. ```\n   x — y\n   ```\n\nProse — dash.\n"
+        self._assert_findings(self._gate("r2-a1-item.md", text),
+                              present=("L8 [prose-dash]",), absent=("L5 ", "[unclosed-fence]"))
+
+    def test_r2_heading_on_a_list_marker_line_is_a_unit_alone(self) -> None:
+        # A2 (codex E1): markers are read before headings, so "- # a `x" is a heading in an item
+        # and the next line a paragraph whose dash is prose. Fails on e16d2cf32 (exit 0).
+        self._assert_findings(self._gate("r2-a2.md", "# Note\n\n- # a `x\n    prose — y`\n"),
+                              present=("L4 [prose-dash]",))
+
+    def test_r2_span_after_a_heading_in_a_list_item_is_code(self) -> None:
+        # A2 converse (codex E1): the heading does not pair with the next line, whose own span
+        # holds the dash. Fails on e16d2cf32 (L4 flagged).
+        self._assert_findings(self._gate("r2-a2c.md", "# Note\n\n- # a `x\n  y` — `z`\n"))
+
+    def test_r2_fewer_quote_markers_continue_the_deeper_paragraph(self) -> None:
+        # A3 (agy E1) guard: in CommonMark a line with fewer, non-zero quote markers is a lazy
+        # continuation of the deeper quote's paragraph (the spec's ">>> foo" / "> bar" / ">>baz"
+        # laziness example is one paragraph), so "`\nprose — with dash `" is one span and the
+        # dash is code. Round 1 already joins; splitting there, as A3 asked, would fail this.
+        self._assert_findings(self._gate("r2-a3.md", "# Note\n\n> > `\n> prose — with dash `\n"))
+
+    def test_r2_lazy_quote_line_pairs_with_the_deeper_paragraph(self) -> None:
+        # A3 guard, the other direction: joined, the span closes on L4 and the dash after it is
+        # prose; a split at L4 would pair "` — `" alone and hide it.
+        self._assert_findings(self._gate("r2-a3c.md", "# Note\n\n> > a `x\n> b` — `c`.\n"),
+                              present=("L4 [prose-dash]",))
+
+    def test_r2_quote_markers_do_not_break_raw_html_across_lines(self) -> None:
+        # claude E2 (I4): a unit's quote markers are set aside before inline parsing, so the tag
+        # spans both quoted lines and the dash after it is prose. Fails on e16d2cf32 (exit 0).
+        text = "# Note\n\n> <a\n> title='`'> — `x`\n"
+        self._assert_findings(self._gate("r2-e2a.md", text), present=("L4 [prose-dash]",))
+
+    def test_r2_quote_markers_do_not_break_a_link_across_lines(self) -> None:
+        # claude E2 (I5): the destination, and the title, continue on the next quoted line.
+        # Fails on e16d2cf32 (exit 0, both rows).
+        for name, text in (("r2-e2b.md", "# Note\n\n> [a](\n> b`c) — `d`\n"),
+                           ("r2-e2c.md", "# Note\n\n> [a](/u\n> 't`') — `d`\n")):
+            with self.subTest(text=text):
+                self._assert_findings(self._gate(name, text), present=("L4 [prose-dash]",))
+
+    def test_r2_lazy_equals_line_is_paragraph_text(self) -> None:
+        # claude E3 / codex E2: a setext underline cannot be lazy, so "===" below a quote's or a
+        # list item's paragraph continues it, and the span pairs across it. Fails on e16d2cf32
+        # (exit 0, both rows).
+        for name, first in (("r2-e3q.md", "> x `a"), ("r2-e3l.md", "- x `a")):
+            with self.subTest(first=first):
+                text = f"# Note\n\n{first}\n===\nb ` c — d `e`\n"
+                self._assert_findings(self._gate(name, text), present=("L5 [prose-dash]",))
+
+    def test_r2_span_across_a_lazy_equals_line_is_code(self) -> None:
+        # codex E2 converse: "> a `x\n===\nprose — y`" is one paragraph and one span. Fails on
+        # e16d2cf32 (L5 flagged).
+        self._assert_findings(self._gate("r2-e3c.md", "# Note\n\n> a `x\n===\nprose — y`\n"))
+
+    def test_r2_setext_underline_interrupts_a_span(self) -> None:
+        # agy test note: an underline in the paragraph's own container makes it a setext heading,
+        # so the span cannot reach L5.
+        text = "# Note\n\nHeading `text\n===\nProse — dash `text\n"
+        self._assert_findings(self._gate("r2-setext.md", text), present=("L5 [prose-dash]",))
+
+    def test_r2_thematic_break_interrupts_a_span(self) -> None:
+        # agy test note: a thematic break interrupts a paragraph, a lazy one included.
+        for name, text in (("r2-hr.md", "# Note\n\n`code\n***\nProse — dash `code\n"),
+                           ("r2-hrq.md", "# Note\n\n> `code\n***\nProse — dash `code\n")):
+            with self.subTest(text=text):
+                self._assert_findings(self._gate(name, text), present=("L5 [prose-dash]",))
+
+    def test_r2_pipe_led_line_outside_a_table_is_paragraph_text(self) -> None:
+        # claude W1 / codex E2: without a delimiter row there is no table, so the pipe-led line
+        # continues the paragraph. Fails on e16d2cf32 (exit 0, every row).
+        for name, text in (("r2-pipe.md", "# Note\n\na `x\n| b ` c — d `e`\n"),
+                           ("r2-pipeq.md", "# Note\n\n> a `x\n> | b ` c — d `e`\n"),
+                           ("r2-pipec.md", "# Note\n\na `x\n| b` — `c`\n")):
+            with self.subTest(text=text):
+                self._assert_findings(self._gate(name, text), present=("L4 [prose-dash]",))
+
+    def test_r2_table_lines_are_units_alone(self) -> None:
+        # I1 guard: a pipe line over a delimiter row with as many cells starts a table, which
+        # interrupts the paragraph above, so the span cannot pair across it.
+        text = "# Note\n\nIntro `x\n| a | b |\n|---|---|\n| c — d | e` |\n"
+        self._assert_findings(self._gate("r2-table.md", text), present=("L6 [prose-dash]",))
+
+    def test_r2_marker_indented_four_continues_a_paragraph(self) -> None:
+        # claude E4: a list marker indented 4 or more past its container (here the top level) is
+        # paragraph text, so the span pairs across it. Fails on e16d2cf32 (exit 0).
+        text = "# Note\n\na `x\n    - b ` c — d `e`\n"
+        self._assert_findings(self._gate("r2-e4.md", text), present=("L4 [prose-dash]",))
+
+    def test_r2_nested_marker_starts_a_unit(self) -> None:
+        # E4 guard (L1): inside an item, a marker 2 columns past its content column is a nested
+        # item, which interrupts the paragraph, so the nested item's own span holds the dash.
+        self._assert_findings(self._gate("r2-e4n.md", "# Note\n\n- a `x\n    - b ` c — d `e`\n"))
+
+    def test_r2_invalid_definition_line_is_paragraph_text(self) -> None:
+        # claude E5 / codex E3 (I6): words after the destination make "[x]: ..." no definition, so
+        # it is paragraph text and its span pairs into L4. Fails on e16d2cf32 (exit 0, both rows).
+        for name, text in (("r2-e5a.md", "# Note\n\n[a]: x y `z\nb ` c — d `e`\n"),
+                           ("r2-e5b.md", "# Note\n\n[x]: not a definition `x\nb` — `c`\n")):
+            with self.subTest(text=text):
+                self._assert_findings(self._gate(name, text), present=("L4 [prose-dash]",))
+
+    def test_r2_span_from_an_invalid_definition_line_is_code(self) -> None:
+        # codex E3 converse. Fails on e16d2cf32 (L4 flagged).
+        self._assert_findings(
+            self._gate("r2-e5c.md", "# Note\n\n[x]: not a definition `x\nprose — y`\n"))
+
+    def test_r2_definition_destination_on_the_next_line_is_opaque(self) -> None:
+        # I6: the destination may follow on the next line, and both lines are opaque, so the
+        # destination's backtick pairs with nothing. Fails on e16d2cf32 (exit 0).
+        text = "# Note\n\n[a]:\n/u`b\nProse — `c`\n"
+        self._assert_findings(self._gate("r2-i6.md", text), present=("L5 [prose-dash]",))
+
+    def test_r2_full_reference_label_is_opaque(self) -> None:
+        # claude E6 (I5): "[a][b`c]" is a link when "b`c" is defined, so the label's backtick opens
+        # nothing and the dash is prose. Fails on e16d2cf32 (exit 0).
+        text = "# Note\n\n[a][b`c] — `d`\n\n[b`c]: /u\n"
+        self._assert_findings(self._gate("r2-e6.md", text), present=("L3 [prose-dash]",))
+
+    def test_r2_undefined_reference_label_still_opens_a_span(self) -> None:
+        # E6 guard: with no such definition "[b`c]" is text, and its backtick opens the span.
+        self._assert_findings(self._gate("r2-e6u.md", "# Note\n\n[a][b`c] — `d`\n"))
+
+    def test_r2_quote_line_without_markers_ends_a_quote_fence(self) -> None:
+        # claude W3, mutant M04 (F4): a line without the quote's markers ends its fence; without
+        # that rule L5 is fence content and L3 an unclosed fence.
+        text = "# Note\n\n> ~~~\n> code — one\nProse — dash.\n"
+        self._assert_findings(self._gate("r2-m04.md", text),
+                              present=("L5 [prose-dash]",), absent=("L4 ", "[unclosed-fence]"))
+
+    def test_r2_deeper_quote_starts_a_unit(self) -> None:
+        # claude W3, mutant M13 (I1): a deeper quote interrupts the paragraph, so L4's own span
+        # holds the dash; joining would pair "`x" with "b`" and expose it.
+        self._assert_findings(self._gate("r2-m13.md", "# Note\n\n> a `x\n> > b` — `c`.\n"))
+
+    def test_r2_leading_tab_counts_to_the_next_tab_stop(self) -> None:
+        # claude W3, mutant M19: a leading tab is 4 columns, so "\tcode" stays inside the item
+        # (W=2) and its fence; counting it as one column ends both and flags L4.
+        text = "# Note\n\n- ```\n\tcode — one\n  ```\n\nProse — dash.\n"
+        self._assert_findings(self._gate("r2-m19.md", text),
+                              present=("L7 [prose-dash]",), absent=("L4 ", "[unclosed-fence]"))
+
+    def test_r2_tilde_fence_inside_a_quote(self) -> None:
+        # claude W3, mutant M21 (F2): a tilde run cannot pair as a span, so only the quote fence
+        # opener keeps L4 code (a three-backtick quote fence also paired as an inline span).
+        text = "# Note\n\n> ~~~\n> code — one\n> ~~~\n\nProse — dash.\n"
+        self._assert_findings(self._gate("r2-m21.md", text),
+                              present=("L7 [prose-dash]",), absent=("L4 ", "[unclosed-fence]"))
+
+    def test_r2_closer_indented_four_does_not_close(self) -> None:
+        # claude W3, mutant M23 (F3): a closer indented 4 or more is fence content, so L6 is still
+        # code and the fence closes on L7.
+        self._assert_findings(self._gate("r2-m23.md", "# Note\n\n```\ncode\n    ```\nstill code — x\n```\n"))
+
+    def test_r2_fence_on_a_nested_marker_indented_four(self) -> None:
+        # L1, F2: a nested item's marker 4 columns in is 2 past its parent's content column, so its
+        # fence is recognised (tildes, which cannot also pair as an inline span). Fails on
+        # e16d2cf32 (L6 flagged).
+        text = "# Note\n\n- a\n  - b\n    - ~~~\n      code — x\n      ~~~\n"
+        self._assert_findings(self._gate("r2-nest.md", text))
+
+    def test_r2_item_opening_with_indented_code_ends_at_a_shallower_line(self) -> None:
+        # L1, I1: a gap of 5 or more makes the item's content indented code, which the next line,
+        # at the item's content column, does not continue; that line's own span holds the dash.
+        # Fails on e16d2cf32 (L4 flagged).
+        self._assert_findings(
+            self._gate("r2-icode.md", "# Note\n\n-      code `x\n  b ` c — d `e`\n"))
+
+    # 3b696 round 3: the findings of the round 2 reviews (vpr-3b696-r2-1928-*.out). A case marked
+    # "fails on cb69010c6" failed against round 2; the others are guards.
+
+    def test_r3_quote_on_a_list_marker_line_holds_its_fence(self) -> None:
+        # claude E1 shape 1 (Q1): the quote opens on the marker line, inside the item, so its
+        # fence closes on L5 and L6 is prose. Round 2 read no quote there, took L5 for an opener
+        # and ended that fence silently at the blank line. Fails on cb69010c6 (exit 0, each row).
+        for marker, run in (("- ", "```"), ("1. ", "```"), ("* ", "~~~")):
+            pad = " " * len(marker)
+            text = (f"# Note\n\n{marker}> {run}\n{pad}> code\n{pad}> {run}\n{pad}> prose — y\n"
+                    "\nAfter.\n")
+            with self.subTest(marker=marker):
+                self._assert_findings(self._gate("r3-e1a.md", text),
+                                      present=("L6 [prose-dash]",),
+                                      absent=("L4 ", "[unclosed-fence]"))
+
+    def test_r3_quote_fence_on_a_marker_line_ends_with_its_item(self) -> None:
+        # claude E1 shape 2 (Q1, F4): the dedented L4 ends the item, its quote and their fence, so
+        # it is prose and does not pair with the run on L5. Fails on cb69010c6 (exit 0).
+        self._assert_findings(self._gate("r3-e1b.md", "# Note\n\n- > ````\n— prose\n[````\n"),
+                              present=("L4 [prose-dash]",), absent=("[unclosed-fence]",))
+
+    def test_r3_column_0_quote_line_ends_a_quote_inside_an_item(self) -> None:
+        # claude E1 shape 3 (Q1, F4): "> " at column 0 is outside the item (W=2), so it ends the
+        # item's quote and fence and starts another quote; its "```" then opens a fence left open.
+        # Fails on cb69010c6 (exit 0).
+        text = "# Note\n\n- a\n  > ```\n  > code\n> prose — x\n> ```\n"
+        self._assert_findings(self._gate("r3-e1c.md", text),
+                              present=("L6 [prose-dash]", "L7 [unclosed-fence]"), absent=("L5 ",))
+
+    def test_r3_column_0_quote_line_starts_a_unit(self) -> None:
+        # Q1, I1: a quote opener outside the item is not a lazy line, so L4's own span holds the
+        # dash; joining would pair "`x" with "b`" and expose it.
+        self._assert_findings(self._gate("r3-q1u.md", "# Note\n\n- > a `x\n> b` — `c`\n"))
+
+    def test_r3_fence_in_a_quote_inside_a_nested_item_is_code(self) -> None:
+        # Q1: the quote's markers are read at the nested item's content column (4), so its fence
+        # holds L6. Fails on cb69010c6 (L6 flagged: a marker indented 4 was not read).
+        text = "# Note\n\n- a\n  - b\n    > ~~~\n    > code — x\n    > ~~~\n\nProse — dash.\n"
+        self._assert_findings(self._gate("r3-q1n.md", text),
+                              present=("L9 [prose-dash]",), absent=("L6 ", "[unclosed-fence]"))
+
+    def test_r3_item_with_a_blank_first_line_ends_at_a_second_blank_line(self) -> None:
+        # claude W1 (L1): an item can begin with at most one blank line, so the indented L5 is
+        # top-level indented code and L6 a paragraph whose dash is prose. Fails on cb69010c6
+        # (exit 0, both rows).
+        for name, text in (("r3-w1a.md", "# Note\n\n-\n\n    code `\n— prose `\n"),
+                           ("r3-w1b.md", "# Note\n\n*\n\n    c````\n—````\n")):
+            with self.subTest(text=text):
+                self._assert_findings(self._gate(name, text), present=("L6 [prose-dash]",))
+
+    def test_r3_item_with_a_blank_first_line_holds_its_next_line(self) -> None:
+        # L1 guard: with no blank line after the marker line, the indented lines are the item's
+        # paragraph and one span holds the dash.
+        self._assert_findings(self._gate("r3-w1g.md", "# Note\n\n-\n  a `x\n  b — c`\n"))
+
+    def test_r3_destination_holds_no_space_or_control_character(self) -> None:
+        # codex E2 (I5, I6): a backslash escapes only ASCII punctuation, so "\ " and an escaped
+        # line ending leave the space or line ending in the destination, and a bare destination
+        # holds no DEL; none of these is a link or a definition, and the backtick in it opens the
+        # span, leaving the dash prose. So for an autolink's DEL. Fails on cb69010c6 (exit 0, each).
+        rows = (("p [x](a\\ b`c) ` — `z`\n", "L3"),
+                ("p [x](a\x7fb`c) ` — `z`\n", "L3"),
+                ("p [x](a\\\nb`c) ` — `z`\n", "L4"),
+                ("[x]: /u\\ v`w\np ` — `z`\n", "L4"),
+                ("p <ab:c\x7f`d> ` — `z`\n", "L3"))
+        for text, line in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r3-e2.md", "# Note\n\n" + text),
+                                      present=(f"{line} [prose-dash]",))
+
+    def test_r3_escaped_punctuation_stays_in_a_destination(self) -> None:
+        # I5 guard: "\)" is an escaped parenthesis, so the destination runs to the last ")" and
+        # the span after it holds the dash.
+        self._assert_findings(self._gate("r3-e2g.md", "# Note\n\np [x](a\\)b`c) ` — `z`\n"))
+
+    def test_r3_label_whitespace_is_space_tab_and_line_ending_only(self) -> None:
+        # codex E3 (I5, I6): an NBSP is not collapsed, so "a<NBSP>`b" is not the defined "a `b"
+        # and its backtick opens the span; an NBSP-only label is valid, so that line is a
+        # definition, opaque. Fails on cb69010c6 (exit 0, both rows).
+        rows = (("p [x][a\u00a0`b] ` — `z`\n\n[a `b]: /u\n", "L3"),
+                ("[\u00a0]: /u`v\nprose — `x`\n", "L4"))
+        for text, line in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r3-e3.md", "# Note\n\n" + text),
+                                      present=(f"{line} [prose-dash]",))
+
+    def test_r3_label_spaces_and_tabs_are_collapsed(self) -> None:
+        # I5 guard: a run of spaces and tabs collapses to one space, so the reference is defined
+        # and opaque, and the dash after it is prose.
+        text = "# Note\n\np [x][a \t `b] — `z`\n\n[a `b]: /u\n"
+        self._assert_findings(self._gate("r3-e3g.md", text), present=("L3 [prose-dash]",))
+
+    def test_r3_label_holds_at_most_999_characters_as_written(self) -> None:
+        # codex E4 (I5): a backslash pair counts two characters, so the 1002-character label is no
+        # label and its backtick opens the span; at 999 it is one, and the span after it holds the
+        # dash. Fails on cb69010c6 (exit 0, the first row). Round 4 (claude W2): "\!" is an escape,
+        # one step of the label regex, so the 502 steps of the first row pass its bound and only
+        # label_valid's length check rejects the label ("\a" is two steps, and the regex alone
+        # rejected it). Mutant: that length check removed (exit 0, the first row).
+        for label, present in (("\\!" * 500 + "`b", ("L3 [prose-dash]",)),
+                               ("\\!" * 498 + "`bc", ())):
+            text = f"# Note\n\np [x][{label}] ` — `z`\n\n[{label}]: /u\n"
+            with self.subTest(length=len(label)):
+                self._assert_findings(self._gate("r3-e4.md", text), present=present)
+
+    def test_r3_unclosed_raw_html_openers_scan_in_linear_time(self) -> None:
+        # claude N2 (I4): each unclosed opener rescanned the rest of the unit, so 20,000 of them
+        # took about 25 s (a comment); an opener with no terminator after it now fails at once.
+        # Fails on cb69010c6 (over the bound, the first three rows at least). Round 4 (claude N3):
+        # a str.find variant that scans for the terminator on every opener stayed under the bound
+        # at 20,000 (about 1.4 s), so 8 times as many openers must also take under 24 times as
+        # long: about 8 times here, and about 60 times for that variant (each row).
+        import importlib.util
+        import time
+        spec = importlib.util.spec_from_file_location("_g51_r3_time", REPO_ROOT / self.SCRIPT)
+        model = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(model)
+
+        def timed(text):
+            start = time.monotonic()
+            findings = model.scan_text(text)
+            elapsed = time.monotonic() - start
+            self.assertEqual([tag for _, tag, _ in findings], ["prose-dash"])
+            return elapsed
+
+        for opener in ("<!--x ", "<?x ", "<![CDATA[x ", "<!X x "):
+            with self.subTest(opener=opener):
+                small = min(timed(opener * 20000 + "— y\n") for _ in range(3))
+                self.assertLess(small, 5.0)
+                large = timed(opener * 160000 + "— y\n")
+                self.assertLess(large, 24 * small, (small, large))
+
+    def test_r3_definition_then_indented_line_is_one_paragraph(self) -> None:
+        # codex E1, refuted (guard): a definition is parsed from the paragraph that opens on its
+        # line, and indented code cannot interrupt a paragraph, so L4 and L5 are paragraph text
+        # and one span holds the dash: no finding is right (markdown-it differs here).
+        self._assert_findings(self._gate("r3-e1x.md", "# Note\n\n[x]: /u\n    a `x\nprose — y`\n"))
+
+    def test_r3_specification_names_the_docstring_as_the_full_residual_list(self) -> None:
+        # claude N4: the specification's residual parenthetical read as the whole list, though it
+        # is a subset of the docstring's; it now names the docstring as the full list. Fails on
+        # cb69010c6.
+        spec = (REPO_ROOT / "governance/specification-audit-programme.md").read_text(encoding="utf-8")
+        self.assertIn("The gate's docstring holds the full list of its named residuals", spec)
+
+    # 3b696 round 4: the findings of the round 3 reviews (vpr-3b696-r3-2159-*.out). A case marked
+    # "fails on af4615b8a" failed against round 3; a "mutant" case pins a rule round 3 already had
+    # and fails when that rule is broken as named.
+
+    def test_r4_underline_below_definitions_alone_is_paragraph_text(self) -> None:
+        # codex E1 (I1, I6; CommonMark 0.31.2 examples 213 and 216): definitions alone leave no
+        # text to underline, so "===" is paragraph text, the definition-shaped line after it is
+        # paragraph text too (a definition cannot interrupt a paragraph), and its backtick pairs
+        # with the next line's, leaving the dash prose. Rows: top level, in a quote, and below a
+        # definition whose title runs over two lines. Fails on af4615b8a (exit 0, each row).
+        # Round 5 (agy leg b W1; example 285): the "-" rows, which the gate already read as
+        # paragraph text. Mutant: the rule limited to "=" underlines (exit 0, each "-" row).
+        rows = (("[x]: /u\n===\n[y]: /v`w\nprose ` — `x`\n", "L6"),
+                ("> [x]: /u\n> ===\n> [y]: /v`w\n> prose ` — `x`\n", "L6"),
+                ("[x]: /u 'a\nb'\n===\n[y]: /v`w\nprose ` — `x`\n", "L7"),
+                ("[x]: /u\n-\n[y]: /v`w\nprose ` — `x`\n", "L6"),
+                ("> [x]: /u\n> -\n> [y]: /v`w\n> prose ` — `x`\n", "L6"))
+        for text, line in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r4-e1.md", "# Note\n\n" + text),
+                                      present=(f"{line} [prose-dash]",))
+
+    def test_r4_span_from_a_definition_shaped_line_below_an_underline_is_code(self) -> None:
+        # codex E1 converse: the same paragraph pairs "`w" with the backtick after the dash, so
+        # the dash is code. Fails on af4615b8a (the dash line flagged, each row). Round 5: the "-"
+        # rows; mutant: the rule limited to "=" underlines (the dash line flagged, each "-" row).
+        for text in ("[x]: /u\n===\n[y]: /v`w\nprose — `x`\n",
+                     "> [x]: /u\n> ===\n> [y]: /v`w\n> prose — `x`\n",
+                     "[x]: /u 'a\nb'\n===\n[y]: /v`w\nprose — `x`\n",
+                     "[x]: /u\n-\n[y]: /v`w\nprose — `x`\n",
+                     "> [x]: /u\n> -\n> [y]: /v`w\n> prose — `x`\n"):
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r4-e1c.md", "# Note\n\n" + text))
+
+    def test_r4_indented_code_defines_no_label(self) -> None:
+        # codex E2 (I6; example 211): the first line is indented code, so "[x][a`b]" is no link,
+        # its backtick opens the span, and the dash is prose (first row; fails on af4615b8a,
+        # exit 0). The same definition at column 0 defines the label, so the reference is opaque
+        # and the span after it holds the dash (second row, a guard).
+        for text, present in (("    [a`b]: /u\n\np [x][a`b] ` — `z`\n", ("L5 [prose-dash]",)),
+                              ("[a`b]: /u\n\np [x][a`b] ` — `z`\n", ())):
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r4-e2.md", "# Note\n\n" + text), present=present)
+
+    def test_r4_table_in_a_list_item_keeps_its_rows_apart(self) -> None:
+        # codex E3 (I1): the marker line heads a table inside its item, so each row is a unit and
+        # the backticks of two rows do not pair: the dash is prose (first row), and in the
+        # converse the row's own span holds it (second row). Fails on af4615b8a (exit 0, then L6
+        # flagged).
+        for text, present in (("- a | b\n  --- | ---\n  x ` | y\n  — z` | w\n", ("L6 [prose-dash]",)),
+                              ("- a | b\n  --- | ---\n  x ` | y\n  z` — `q` | w\n", ())):
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r4-e3.md", "# Note\n\n" + text), present=present)
+
+    def test_r4_table_ends_at_a_line_outside_its_list_item(self) -> None:
+        # I1: a table row must be inside the table's list item, so a line at column 0 ends the
+        # table and the item and starts a paragraph whose span holds the dash (markdown-it agrees
+        # on the first row; the second heads the table on the marker line). The round 4
+        # differential fuzz found the second shape hidden by an item table that ran on (the
+        # rows of the third shape, which a less-indented line also ends). Fails on af4615b8a
+        # (L7 flagged, the first row).
+        rows = (("- a\n  b | c\n  --- | ---\nx ` | y\n— z` | w\n", ()),
+                ("- a | b\n  --- | ---\nx ` | y\n— z` | w\n", ()),
+                ("1. a | b\n    --- | ---\n  x ` | y\n  a `— b | c`\n", ("L6 [prose-dash]",)))
+        for text, present in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r4-e3t.md", "# Note\n\n" + text), present=present)
+
+    def test_r4_row_shaped_as_a_list_item_is_no_delimiter_row(self) -> None:
+        # codex E3: "- | -" below a pipe line is a list item (markdown-it refuses such a delimiter
+        # row for the same reason), so no table starts there and the pipe line continues the
+        # paragraph above, whose span pairs across it: the dash is prose (first and third rows),
+        # or code (second row). Fails on af4615b8a (exit 0, then L4 flagged, then exit 0).
+        rows = (("p `x\na ` — `b | c\n- | -\n", ("L4 [prose-dash]",)),
+                ("p `x\na — `b | c\n- | -\n", ()),
+                ("- p `x\n  a ` — `b | c\n  - | -\n", ("L4 [prose-dash]",)))
+        for text, present in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r4-e3d.md", "# Note\n\n" + text), present=present)
+
+    def test_r4_span_closer_is_exactly_the_openers_length(self) -> None:
+        # claude W1 (I7), mutant M4: "``" does not close a span opened by "`", so the span stays
+        # open and the dash is prose; a closer of any longer run masks it.
+        self._assert_findings(self._gate("r4-w1.md", "# Note\n\nThe `a — b`` c.\n"),
+                              present=("L3 [prose-dash]",))
+
+    def test_r4_label_ends_strip_no_nbsp(self) -> None:
+        # claude W3 (I5), mutant M9b: only spaces, tabs and line endings are stripped at a label's
+        # ends, so "<NBSP>a `b" is not the defined "a `b"; its backtick opens the span and the
+        # dash is prose. Stripping any whitespace makes it the defined label and hides the dash.
+        text = "# Note\n\np [x][\u00a0a `b] ` — `z`\n\n[a `b]: /u\n"
+        self._assert_findings(self._gate("r4-w3.md", text), present=("L3 [prose-dash]",))
+
+    def test_r4_less_indented_quote_line_ends_an_items_quote(self) -> None:
+        # claude W4 (Q1, F4), mutant M26: L6's markers start at column 2, outside the item (W=4),
+        # so the line ends the item's quote and its fence and starts another quote, whose dash
+        # is prose. Reading its markers at the item's column keeps it fence content and hides it.
+        text = "# Note\n\n1.  a\n\n    > ```\n  > > —\n    > ```\n"
+        self._assert_findings(self._gate("r4-w4.md", text),
+                              present=("L6 [prose-dash]",), absent=("[unclosed-fence]",))
+
+    # 3b696 round 5: the findings of the round 4 reviews (vpr-3b696-r4-0015-*.out). A case marked
+    # "fails on 98ff65d0b" failed against round 4; a "mutant" case pins a rule round 4 already had
+    # and fails when that rule is broken as named.
+
+    def test_r5_table_in_an_item_at_column_4_or_more_keeps_its_rows_apart(self) -> None:
+        # claude E1, codex E3 (I1, Q1): the delimiter row and its quote markers are read at the
+        # item's content column, so a table in a "10." item, in a nested item, or in a quote inside
+        # a nested item keeps its rows apart: the dash is prose (first three rows), and in the
+        # converse the row's own span holds it (fourth row). Fails on 98ff65d0b (exit 0, then L8
+        # flagged). The column-2 and top-level controls are flagged as before.
+        rows = (("10. x\n\n    | a | b |\n    | - | - |\n    | `p | q |\n    | r — s | t |\n"
+                 "    | `u | v |\n", ("L8 [prose-dash]",)),
+                ("- x\n  - y\n\n    | a | b |\n    | - | - |\n    | `p | q |\n    | r — s | t |\n"
+                 "    | `u | v |\n", ("L9 [prose-dash]",)),
+                ("- a\n  - b\n    > a | b\n    > --- | ---\n    > x ` | y\n    > — z` | w\n",
+                 ("L8 [prose-dash]",)),
+                ("- a\n  - b\n    > a | b\n    > --- | ---\n    > x ` | y\n    > z` — `q` | w\n", ()),
+                ("- x\n\n  | a | b |\n  | - | - |\n  | `p | q |\n  | r — s | t |\n  | `u | v |\n",
+                 ("L8 [prose-dash]",)),
+                ("| a | b |\n| - | - |\n| `p | q |\n| r — s | t |\n| `u | v |\n", ("L6 [prose-dash]",)))
+        for text, present in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r5-e1.md", "# Note\n\n" + text), present=present)
+
+    def test_r5_lazy_table_shaped_lines_join_the_paragraph(self) -> None:
+        # claude E2, codex E2 (I1): a delimiter row outside the item or quote of the paragraph its
+        # pipe line continues is a lazy line, so no table starts and the span pairs across the
+        # lines: the dash is prose (first four rows), or code (the next four rows, the last a
+        # lazy delimiter row below a pipe line inside the item). Fails on 98ff65d0b (exit 0 on
+        # each of the first four rows, the dash line flagged on each of the next four).
+        rows = (("- a `x\nb | c\n-|-\nd` — `e`\n", ("L6 [prose-dash]",)),
+                ("> a `x\nb | c\n-|-\nd` — `e`\n", ("L6 [prose-dash]",)),
+                ("- a\na | b\n--- | ---\nx ` | y\nz` — `q` | w\n", ("L7 [prose-dash]",)),
+                ("> a\na | b\n--- | ---\nx ` | y\nz` — `q` | w\n", ("L7 [prose-dash]",)),
+                ("- (`) —\na | `b\n-|-\n", ()),
+                ("- a\na | b\n--- | ---\nx ` | y\n— z` | w\n", ()),
+                ("> a\na | b\n--- | ---\nx ` | y\n— z` | w\n", ()),
+                ("- a\n  b ` | c\n--- | ---\n— z` | w\n", ()))
+        for text, present in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r5-e2.md", "# Note\n\n" + text), present=present)
+
+    def test_r5_lazy_pipe_line_heads_a_table_over_a_delimiter_row_in_the_container(self) -> None:
+        # I1 guard: a lazy pipe line joins the item's paragraph, and a delimiter row inside the
+        # item below it makes it the header of a table there, so the rows keep apart and the dash
+        # is prose (markdown-it renders a table here too). Mutant: a table only where its pipe
+        # line is inside the paragraph's container, not lazy (exit 0).
+        text = "# Note\n\n- a\nb | c\n  --- | ---\n  x ` | y\n  — z` | w\n"
+        self._assert_findings(self._gate("r5-e2t.md", text), present=("L7 [prose-dash]",))
+
+    def test_r5_delimiter_row_indented_4_or_more_heads_no_table(self) -> None:
+        # codex E1 (I1): a delimiter row 4 or more columns past its container continues the
+        # paragraph, as the header rule already said, so no table starts and the span pairs
+        # across the lines: the dash is prose (first and third rows) or code (second row). Fails
+        # on 98ff65d0b (exit 0, then L6 flagged, then exit 0). At 3 columns (fourth row) the
+        # table starts, as before.
+        rows = (("a | b\n    --- | ---\nx ` | y\nz` — `q` | w\n", ("L6 [prose-dash]",)),
+                ("a | b\n    --- | ---\nx ` | y\n— z` | w\n", ()),
+                ("- a | b\n      --- | ---\n  x ` | y\n  z` — `q` | w\n", ("L6 [prose-dash]",)),
+                ("a | b\n   --- | ---\nx ` | y\n— z` | w\n", ("L6 [prose-dash]",)))
+        for text, present in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r5-e3.md", "# Note\n\n" + text), present=present)
+
+    def test_r5_definition_in_a_list_item_is_paragraph_text(self) -> None:
+        # claude W2 (named residual): inside a list item a definition is read as paragraph text,
+        # so its "``" runs pair as a span and the dash is not reported (the residual hides it);
+        # the same line at top level is a definition, opaque, and its dash is prose. Mutant: list
+        # markers set aside before the inline read, so the item's line is a definition (L3
+        # flagged, the first row).
+        for text, present in (("- [x]: ``—``\n", ()), ("[x]: ``—``\n", ("L3 [prose-dash]",))):
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r5-w2.md", "# Note\n\n" + text), present=present)
+
+    def test_r5_definition_in_a_list_item_is_named_can_hide(self) -> None:
+        # claude W2: the residual hides a dash, so it carries the "can hide" label. Fails on
+        # 98ff65d0b.
+        doc = " ".join((REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8").split())
+        self.assertIn("a link reference definition inside a list item is read as paragraph text, "
+                      "so a backtick run in its destination or title can pair as a span around a "
+                      "dash that is no code (can hide).", doc)
+
+    def test_r5_parity_statements_name_the_utf8_exception(self) -> None:
+        # codex W2: gate 51 skips a whole file that is not valid UTF-8, while the preflight decodes
+        # it with surrogateescape and still scans its added lines, so each statement that the two
+        # agree names that exception. Fails on 98ff65d0b (each file).
+        for rel in (self.SCRIPT, "tools/preflight-changelog.py",
+                    "governance/specification-audit-programme.md"):
+            with self.subTest(rel=rel):
+                text = " ".join((REPO_ROOT / rel).read_text(encoding="utf-8").split())
+                self.assertIn("gate 51 skips a whole file that is not valid UTF-8", text)
+                self.assertIn("surrogateescape`` and still scans its added lines"
+                              if rel.endswith(".py") else
+                              "surrogateescape` and still scans its added lines", text)
+
+    # 3b696 round 6: the findings of the round 5 reviews (vpr-3b696-r5-0311-*.out). A case marked
+    # "fails on f37821f91" failed against round 5; a "mutant" case pins a rule round 5 already had
+    # and fails when that rule is broken as named.
+
+    def test_r6_indented_code_ends_a_table(self) -> None:
+        # codex E1 (I1): a line indented 4 or more columns past the table's container is indented
+        # code, another block, so it ends the table (cmark-gfm opens no row there), and the two
+        # lines after it form a paragraph whose span pairs across them: the dash is prose (first
+        # and third rows, the third in a quote), or code (second row). Fails on f37821f91 (exit 0,
+        # then L7 flagged, then exit 0).
+        rows = (("a | b\n--- | ---\n    indented\nx `\ny` — `z`\n", ("L7 [prose-dash]",)),
+                ("a | b\n--- | ---\n    indented\nx `\ny — z`\n", ()),
+                ("> a | b\n> --- | ---\n>     indented\n> x `\n> y` — `z`\n", ("L7 [prose-dash]",)))
+        for text, present in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r6-e1.md", "# Note\n\n" + text), present=present)
+
+    def test_r6_one_column_delimiter_row_needs_no_pipe(self) -> None:
+        # codex E2 (I1): ":---:" under "| a |" is a delimiter row (cmark-gfm's delimiter grammar
+        # makes the pipes optional), so each row is a unit and the backticks of two rows do not
+        # pair: the dash is prose (first row), and in the converse the row's own span holds it
+        # (second row). Fails on f37821f91 (exit 0, then L6 flagged).
+        rows = (("| a |\n:---:\nx `\ny — z`\n", ("L6 [prose-dash]",)),
+                ("| a |\n:---:\nx `\ny` — `z`\n", ()))
+        for text, present in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r6-e2.md", "# Note\n\n" + text), present=present)
+
+    def test_r6_setext_underline_is_no_delimiter_row(self) -> None:
+        # I1 guard: "---" under a pipe line that continues a paragraph is a setext underline,
+        # which cmark-gfm 0.29.0.gfm.13 reads before a table, so the paragraph keeps the pipe
+        # line and its span pairs across both lines: the dash is prose (first row) or code
+        # (second row). Mutant: a run of "-" alone taken as a delimiter row (exit 0, then L4
+        # flagged).
+        rows = (("p `x\n| a` — `b |\n---\n", ("L4 [prose-dash]",)),
+                ("p `x\n| a — ` |\n---\n", ()))
+        for text, present in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r6-e2s.md", "# Note\n\n" + text), present=present)
+
+    def test_r6_pipe_line_indented_4_or_more_heads_no_table(self) -> None:
+        # claude W1 (I1): a pipe line 4 or more columns past its container that starts a unit is
+        # indented code, so it heads no table, and the delimiter row below it starts a paragraph
+        # whose span pairs across the lines: the dash is prose (first row) or code (second row).
+        # Mutant: the header-indent test at the table check replaced with True (exit 0, then L6
+        # flagged).
+        rows = (("    a | b\n--- | ---\nx `\ny` — `z`\n", ("L6 [prose-dash]",)),
+                ("    a | b\n--- | ---\nx `\ny — z`\n", ()))
+        for text, present in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r6-w1.md", "# Note\n\n" + text), present=present)
+
+    # 3b696 round 7: the findings of the round 6 reviews (vpr-3b696-r6-0635-*.out). A case marked
+    # "fails on 4100f683a" failed against round 6; a "mutant" case pins a rule round 6 already had
+    # and fails when that rule is broken as named.
+
+    def test_r7_pipeless_line_heads_a_one_column_table(self) -> None:
+        # claude W1 (I1): a line with no pipe is one cell in cmark-gfm's row grammar, so over the
+        # one-column delimiter row ":-:" it heads a table, each row is a unit, and the backticks
+        # of two rows do not pair: the dash is prose (first row), and in the converse the row's
+        # own span holds it (second row). Fails on 4100f683a (exit 0, then L5 flagged).
+        rows = (("a `x\n:-:\nb — `\n", ("L5 [prose-dash]",)),
+                ("a `x\n:-:\nb `— c`\n", ()))
+        for text, present in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r7-w1.md", "# Note\n\n" + text), present=present)
+
+    def test_r7_pipeless_line_over_an_underline_or_break_heads_no_table(self) -> None:
+        # I1 guard: under a pipeless line that continues a paragraph, "---" and "===" are setext
+        # underlines and "- - -" is a thematic break, none of them a delimiter row, so the
+        # paragraph keeps the line and its span pairs across both lines: the dash is code (first
+        # three rows) or prose (fourth row). Mutant: the setext test dropped from the delimiter
+        # row check (L4 flagged on the first row).
+        rows = (("p `x\na — `\n---\n", ()),
+                ("p `x\na — `\n===\n", ()),
+                ("p `x\na — `\n- - -\n", ()),
+                ("p `x\na` — `b\n---\n", ("L4 [prose-dash]",)))
+        for text, present in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r7-w1s.md", "# Note\n\n" + text), present=present)
+
+    def test_r7_indented_line_continuing_a_paragraph_heads_a_table(self) -> None:
+        # claude W2 (I1): cmark-gfm stores a continuation line without its indent and checks only
+        # the delimiter row's, so "    b | c" continuing the paragraph heads a table over "--|--",
+        # and the review's line 4 ("d — `e", L6 here) is a row whose dash is prose (first row);
+        # in the converse the row's own span holds it (second row). Fails on 4100f683a (exit 0,
+        # then L6 flagged).
+        rows = (("a `x\n    b | c\n--|--\nd — `e\n", ("L6 [prose-dash]",)),
+                ("a `x\n    b | c\n--|--\nd `— e`\n", ()))
+        for text, present in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r7-w2.md", "# Note\n\n" + text), present=present)
+
+    # 3b696 round 8: the findings of the round 7 claude review (vpr-3b696-r7-0812-claude.out). A
+    # case marked "fails on 4dea6e5be" failed against round 7; a guard passes on both.
+
+    def test_r8_link_inside_a_link_text_makes_the_outer_bracket_text(self) -> None:
+        # claude E1 (I5; CommonMark: "Links may not contain other links, at any level of
+        # nesting"): once the inner link forms, the outer "[" is inactive, so its "](`d)" is text
+        # and "`d) x `" is the span, leaving the dash prose (markdown-it agrees on each row). Rows:
+        # the review's fixture, then an inner full, shortcut and collapsed reference to a defined
+        # label, then a second inner link. Fails on 4dea6e5be (exit 0, each row).
+        rows = ("[a [b](c)](`d) x ` — `y`\n",
+                "[a [b][k]](`d) x ` — `y`\n\n[k]: /u\n",
+                "[a [k]](`d) x ` — `y`\n\n[k]: /u\n",
+                "[a [k][]](`d) x ` — `y`\n\n[k]: /u\n",
+                "[a [b](c) [e](f)](`d) x ` — `y`\n")
+        for text in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r8-e1.md", "# Note\n\n" + text),
+                                      present=("L3 [prose-dash]",))
+
+    def test_r8_image_or_unformed_link_leaves_the_outer_opener_active(self) -> None:
+        # claude E1 guard (I5): an image may hold a link, so "![a [b](c)]" keeps its opener and
+        # "(`d)" is its destination, leaving "` — `" a span (the review's image counterpart,
+        # first row); an image inside a link's text, or an image holding a link inside the text
+        # of an image, makes no opener inactive (second and third rows); a shortcut to an
+        # undefined label forms no link (fourth row). markdown-it agrees on each row.
+        rows = ("![a [b](c)](`d) x ` — `y`\n",
+                "[a ![b](c)](`d) x ` — `y`\n",
+                "![i [a [b](c)]](`d) x ` — `y`\n",
+                "[a [z]](`d) x ` — `y`\n\n[k]: /u\n")
+        for text in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r8-e1g.md", "# Note\n\n" + text))
+
+    def test_r8_destination_nests_parentheses_to_32_levels(self) -> None:
+        # claude W1 (I5): a bare destination nests balanced parentheses up to 32 levels
+        # (markdown-it's limit), so "(`)" inside it is opaque and the dash is prose: the review's
+        # "[a](u(v(w))`)" (first row) and 32 levels (second row). Fails on 4dea6e5be (exit 0, each
+        # row). At 33 levels the destination does not parse, and the backtick in it pairs with
+        # the next one around the dash (third row, a guard; markdown-it agrees on each row).
+        rows = (("[a](u(v(w))`) — `x`\n", ("L3 [prose-dash]",)),
+                ("[a](" + "(" * 32 + "`" + ")" * 32 + ") — `x`\n", ("L3 [prose-dash]",)),
+                ("[a](" + "(" * 33 + "`" + ")" * 33 + ") — `x`\n", ()))
+        for text, present in rows:
+            with self.subTest(text=text[:12]):
+                self._assert_findings(self._gate("r8-w1.md", "# Note\n\n" + text), present=present)
+
+    def test_r8_docstring_states_link_nesting_and_the_title_underline(self) -> None:
+        # claude E1, W1 and N2: the docstring states the nesting rule and the 32-level limit,
+        # names a deeper-nesting renderer "can hide", and says a setext underline ends an open
+        # definition title as cmark-gfm 0.29.0.gfm.13 reads it, naming markdown-it's other reading
+        # (round 17: the claim is the pinned renderer's, not CommonMark's). Fails on 4dea6e5be.
+        doc = " ".join((REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8").split())
+        for needle in ("A link holds no link, at any level of nesting:",
+                       "an image makes no opener inactive.",
+                       "nests balanced parentheses up to 32 levels",
+                       "deeper than 32 levels reads a destination where the gate reads text (can "
+                       "hide, either way)",
+                       "ends the unit, and with it any title still open above it, as cmark-gfm "
+                       "0.29.0.gfm.13 reads it",
+                       "markdown-it runs the title on over a ``===`` line"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, doc)
+
+    def test_r8_title_cut_by_an_underline_keeps_its_label(self) -> None:
+        # claude N2 guard (I6): the "===" line ends the open title, so "[`k]: /u" is a definition
+        # without one, "[a][`k]" is an opaque full reference, and its backtick opens no span: the
+        # dash is prose.
+        text = "# Note\n\n[`k]: /u\n'x\n===\ny'\n\n[a][`k] — `x`\n"
+        self._assert_findings(self._gate("r8-n2.md", text), present=("L8 [prose-dash]",))
+
+    # 3b696 round 9: the finding of the round 8 claude review (vpr-3b696-r8-1003-claude.out). A
+    # case marked "fails on 3fc102754" failed against round 8; a guard passes on both.
+
+    def test_r9_table_line_defines_no_label(self) -> None:
+        # claude E1 (I6): a line after a delimiter row is a table row, not a paragraph, so
+        # "[b]: /u" there defines no label; "[b]" is then no link, the outer "[" forms the link
+        # "(`x)", and the dash is prose (main and markdown-it agree on the table rows). Rows: the
+        # review's single-column fixture, its one-line form, a two-column table, and a pipe-less
+        # header line over ":-:", which the gate reads as a table header. Fails on 3fc102754
+        # (exit 0, each row).
+        rows = (("| h |\n|---|\n[b]: /u\n\n[a [b]](`x) —\n`y`)\n", "L7 [prose-dash]"),
+                ("| h |\n|---|\n[b]: /u\n\n[a [b]](`x) — `y`)\n", "L7 [prose-dash]"),
+                ("| h | i |\n|---|---|\n[b]: /u\n\n[a [b]](`x) —\n`y`)\n", "L7 [prose-dash]"),
+                ("[b]: /u\n:-:\n\n[a [b]](`x) —\n`y`)\n", "L6 [prose-dash]"))
+        for text, line in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r9-e1.md", "# Note\n\n" + text), present=(line,))
+
+    def test_r9_definition_paragraph_still_defines_its_label(self) -> None:
+        # claude E1 guard (I6): the same definition as its own paragraph defines "b", so "[b]"
+        # is a link, the outer "[" is inactive, and "`x) —\n`" is a span (CommonMark and
+        # markdown-it agree on each row).
+        for text in ("[b]: /u\n\n[a [b]](`x) —\n`y`)\n", "[b]: /u\n\n[a [b]](`x) — `y`)\n"):
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r9-e1g.md", "# Note\n\n" + text))
+
+    def test_r9_docstring_states_the_label_source_and_the_pipe_less_header(self) -> None:
+        # claude E1 and item 2: the docstring says only a paragraph defines a label, states what
+        # the gate does with a definition-shaped line over a pipe-less delimiter row, and names
+        # that cmark-gfm 0.29.0.gfm.13 reads it the same way. Fails on 3fc102754.
+        doc = " ".join((REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8").split())
+        for needle in ("Only a paragraph unit defines a label:",
+                       "``[b]: /u`` over ``:-:`` heads a table, so it defines no label",
+                       "try_opening_table_header",
+                       "after the block-extension loop has let"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, doc)
+
+    # 3b696 round 10: the W1 of the round 9 claude review (vpr-3b696-r9-1257-claude.out), settled
+    # from the cmark-gfm 0.29.0.gfm.13 source. A case marked "fails on c2a4b27f5" failed against
+    # round 9; a guard passes on both.
+
+    def test_r10_definition_above_a_table_header_defines_no_label(self) -> None:
+        # claude W1 (I6): the lines of a paragraph above its table header line become a paragraph
+        # extensions/table.c inserts and src/blocks.c never finalizes, so "[b]: /u" there defines
+        # no label; "[b]" is then no link, the outer "[" forms the link "(`x)", and the dash is
+        # prose. Rows: the review's header with pipes, and its two definitions over a pipe-less
+        # header. Fails on c2a4b27f5 (exit 0, each row).
+        rows = ("[b]: /u\n| h |\n|---|\n\n[a [b]](`x) — `y`)\n",
+                "[b]: /u\n[c]: /v\n:-:\n\n[a [b]](`x) — `y`)\n")
+        for text in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r10-w1.md", "# Note\n\n" + text),
+                                      present=("L7 [prose-dash]",))
+
+    def test_r10_definition_paragraph_above_a_table_still_defines_its_label(self) -> None:
+        # claude W1 guard (I6): the same definition as its own paragraph, a blank line above the
+        # table, is finalized and defines "b", so "[b]" is a link, the outer "[" is inactive, and
+        # "`x) — `" is a span.
+        text = "# Note\n\n[b]: /u\n\n| h |\n|---|\n\n[a [b]](`x) — `y`)\n"
+        self._assert_findings(self._gate("r10-w1g.md", text))
+
+    def test_r10_docstring_states_the_inserted_paragraph_rule(self) -> None:
+        # claude W1, N2 and N3: the docstring states that a definition above a table header line
+        # in its paragraph defines no label, gives the cmark-gfm reason, and keeps the named
+        # HTML-block residual. Fails on c2a4b27f5.
+        doc = " ".join((REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8").split())
+        for needle in ("Nor does a line above the header line in its paragraph:",
+                       "try_inserting_table_header_paragraph",
+                       "finalize_document finalizes",
+                       "HTML blocks (read as inline units)"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, doc)
+
+    # 3b696 round 11: the N2 of the round 10 claude draft (draft-3b696-r10-1314-claude.out). A case
+    # marked "fails on 7b131a0ec" failed against round 10; a guard passes on both.
+
+    def test_r11_definition_above_a_table_header_is_inline_text(self) -> None:
+        # claude N2 (I6): src/blocks.c never finalizes the paragraph above a table header line,
+        # so "[b]: /u '`'" there stays text; its backtick pairs with the first one on the next
+        # line, and the dash after that span is prose. Fails on 7b131a0ec (exit 0).
+        text = "# Note\n\n[b]: /u '`'\na ` — `\n| h |\n|---|\n"
+        self._assert_findings(self._gate("r11-n2.md", text), present=("L4 [prose-dash]",))
+
+    def test_r11_definition_paragraph_above_a_table_is_still_opaque(self) -> None:
+        # claude N2 guard (I6): the same lines as their own paragraph, a blank line above the
+        # table, are finalized, so "[b]: /u '`'" is a definition and its backtick opens nothing;
+        # "` — `" is a span.
+        text = "# Note\n\n[b]: /u '`'\na ` — `\n\n| h |\n|---|\n"
+        self._assert_findings(self._gate("r11-n2g.md", text))
+
+    def test_r11_docstring_states_the_inserted_paragraph_text_rule(self) -> None:
+        # claude N2: the docstring states the rule in I6 and no longer names the shape as a
+        # residual. Fails on 7b131a0ec.
+        doc = " ".join((REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8").split())
+        self.assertIn("The gate reads them as text too:", doc)
+        self.assertNotIn("define no label but are still read as opaque", doc)
+
+    # 3b696 round 12: the round 10 reviews (vpr-3b696-r10-1352-codex.out E1, E2 and
+    # vpr-3b696-r10-1352-claude.out W1, W2, N1, N3), settled from the cmark-gfm 0.29.0.gfm.13
+    # source. A case marked "fails on adb15cd9c" failed against round 11; a "mutant" case pins a
+    # rule round 11 already had and fails when that rule is broken as named; a guard passes on both.
+
+    def test_r12_nul_is_read_as_the_replacement_character(self) -> None:
+        # codex E2 (CommonMark 0.31.2 section 2.3): each NUL is read as U+FFFD before parsing, so
+        # "(u<U+FFFD>`)" is a destination, its backtick opaque, and the dash is prose on the line
+        # it was written on. Fails on adb15cd9c (exit 0).
+        self._assert_findings(self._gate("r12-e2.md", "# Note\n\n[a](u\x00`) — `x`\n"),
+                              present=("L3 [prose-dash]",))
+
+    def test_r12_definition_shaped_table_cell_is_inline_text(self) -> None:
+        # codex E1 (I6): a table header or row is inline text, so definition-shaped text in it is
+        # not opaque, and "` — `" in its would-be title is a code span: a row (first row) and a
+        # pipe-less header over ":-:" (second row). Fails on adb15cd9c (L5, then L3 flagged).
+        for text in ("| h |\n|---|\n[b]: /u 'a ` — `z'\n", "[b]: /u 'a ` — `z'\n:-:\n"):
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r12-e1.md", "# Note\n\n" + text))
+
+    def test_r12_definition_in_a_paragraph_is_still_opaque(self) -> None:
+        # codex E1 guard (I6): the same line as a paragraph is a definition, its title opaque, so
+        # its backticks open nothing and the dash is prose.
+        self._assert_findings(self._gate("r12-e1g.md", "# Note\n\n[b]: /u 'a ` — `z'\n"),
+                              present=("L3 [prose-dash]",))
+
+    def test_r12_table_visited_paragraph_opens_no_later_table(self) -> None:
+        # claude W1 (I1): "a | b" over ":-:" is two cells over one, so extensions/table.c (line
+        # 345) marks the paragraph CMARK_NODE__TABLE_VISITED and (line 314) opens no table in it
+        # after; "| d |" over "|---|" is paragraph text, "`y" pairs with the first backtick of the
+        # last line, and the dash is prose. Rows: the review's fixture, then in a quote and in a
+        # list item. A last row: ":-:" over ":-:" heads no table either, so "`" pairs across the
+        # last two lines and the dash is code. Fails on adb15cd9c (exit 0 on the first three rows,
+        # L7 flagged on the last).
+        rows = (("a | b\n:-:\nx `y\n| d |\n|---|\n`— `\n", ("L8 [prose-dash]",)),
+                ("> a | b\n> :-:\n> x `y\n> | d |\n> |---|\n> `— `\n", ("L8 [prose-dash]",)),
+                ("- a | b\n  :-:\n  x `y\n  | d |\n  |---|\n  `— `\n", ("L8 [prose-dash]",)),
+                ("a | b\n:-:\n:-:\nx `\n— `\n", ()))
+        for text, present in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r12-w1.md", "# Note\n\n" + text), present=present)
+
+    def test_r12_table_visited_flag_ends_with_its_paragraph(self) -> None:
+        # claude W1 guard (I1): the flag belongs to one paragraph, so after a blank line, or with
+        # no mismatched header above it, "| d |" over "|---|" opens a table and each row keeps
+        # its own span: the dash is code.
+        for text in ("a | b\n:-:\n\n| d |\n|---|\n`— `\n", "x `y\n| d |\n|---|\n`— `\n"):
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r12-w1g.md", "# Note\n\n" + text))
+
+    def test_r12_dash_underline_below_definitions_alone_is_paragraph_text(self) -> None:
+        # claude N3 (I1): src/blocks.c (lines 1198 to 1217) tries the setext branch first, so on
+        # a paragraph of definitions alone "---" is paragraph text, as "===" is, and
+        # "[c]: /v '`'" below it is text: its backtick pairs with the first one on the next line,
+        # and the dash is prose. Rows: the review's T1, then "----" with trailing spaces. Fails
+        # on adb15cd9c (exit 0, each row).
+        for rule in ("---", "----  "):
+            with self.subTest(rule=rule):
+                text = "# Note\n\n[b]: /u\n" + rule + "\n[c]: /v '`'\n`a — `\n"
+                self._assert_findings(self._gate("r12-n3.md", text), present=("L6 [prose-dash]",))
+
+    def test_r12_spaced_or_starred_break_below_definitions_stays_a_break(self) -> None:
+        # claude N3 guard (I1): "- - -" and "***" are no setext underline, so the thematic-break
+        # branch reads them; "[c]: /v '`'" then starts a paragraph of its own, a definition whose
+        # backtick opens nothing, and "` — `" is a span.
+        for rule in ("- - -", "***"):
+            with self.subTest(rule=rule):
+                text = "# Note\n\n[b]: /u\n" + rule + "\n[c]: /v '`'\n`a — `\n"
+                self._assert_findings(self._gate("r12-n3g.md", text))
+
+    def test_r12_underline_below_definitions_alone_can_head_a_table(self) -> None:
+        # claude N3 follow-on (I1): the underline is then the paragraph's only text, and like any
+        # paragraph line it heads a table over a delimiter row with as many cells, so the rows
+        # keep apart and the dash is prose ("---" first row, "===" second). Over a delimiter row
+        # of two cells the paragraph is marked visited instead, so "| d |" over "|---|" below
+        # opens no table and "`" pairs across the lines (third row, the dash prose). Fails on
+        # adb15cd9c (exit 0, each row).
+        rows = (("[b]: /u\n---\n:-:\nx `\n— `\n", "L7 [prose-dash]"),
+                ("[b]: /u\n===\n:-:\nx `\n— `\n", "L7 [prose-dash]"),
+                ("[b]: /u\n---\n--|--\nx `\n| d |\n|---|\n`— `\n", "L9 [prose-dash]"))
+        for text, line in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r12-n3t.md", "# Note\n\n" + text), present=(line,))
+
+    def test_r12_underline_resolved_definitions_keep_their_label(self) -> None:
+        # claude W2 (I6): definitions a "===" underline resolved keep their label when a later
+        # line of the paragraph heads a table (the round 10 exception), so "[b]" is a link, the
+        # outer "[" is inactive and "`x) — `" is a span (the review's A2, first row); the same
+        # holds where the underline itself heads the table (second row). Mutant M3: the
+        # "not underline_text" exception dropped, so the first row's unit is "inserted" and
+        # defines no label (L8 flagged).
+        for text in ("[b]: /u\n===\n| h |\n|---|\n\n[a [b]](`x) — `y`)\n",
+                     "[b]: /u\n===\n:-:\n\n[a [b]](`x) — `y`)\n"):
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r12-w2.md", "# Note\n\n" + text))
+
+    def test_r12_html_block_above_a_table_header_is_a_named_residual(self) -> None:
+        # claude N1: a named "can hide" residual, pinned so that modelling HTML blocks changes
+        # this test and the docstring together. cmark-gfm starts an HTML block at "<div>", which
+        # ends the definition paragraph above it, so its title is opaque and the dash is prose;
+        # the gate reads the lines above "| h |" as the inserted paragraph's text, and the title's
+        # backtick pairs with the one ending line 5 around the dash (exit 0). Passes on adb15cd9c.
+        text = "# Note\n\n[b]: /u '`'\n<div> —\nx `\n| h |\n|---|\n"
+        self._assert_findings(self._gate("r12-n1.md", text))
+
+    def test_r12_docstring_states_the_round_12_rules(self) -> None:
+        # codex E1 and E2, claude W1, W2, N1 and N3: the docstring states each rule above and
+        # names the HTML-block shape round 11 hides. Fails on adb15cd9c.
+        doc = " ".join((REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8").split())
+        for needle in ("each NUL (U+0000) is read as U+FFFD before parsing",
+                       "so definition-shaped text in it is not opaque",
+                       "CMARK_NODE__TABLE_VISITED",
+                       "its thematic-break branch never reads that line",
+                       "then ``===`` or ``---``, I1) keeps its label and stays opaque",
+                       "One HTML-block shape hides since 3b696 round 11"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, doc)
+
+    # 3b696 round 13: the round 11 reviews (vpr-3b696-r11-1517-codex.out E1 and
+    # vpr-3b696-r11-1517-claude.out E1, W1), settled from cmark-gfm 0.29.0.gfm.13
+    # extensions/table.c: row_from_string returns NULL when the row does not reach the line end,
+    # has no columns, or overflows; a NULL header row marks the paragraph visited and opens no
+    # table; matches() continues a table only on a row with columns. A case marked "fails on
+    # 70dc81aa4" failed against round 12; a guard passes on both.
+
+    def test_r13_lone_pipe_header_after_a_definition_opens_no_table(self) -> None:
+        # codex E1 (I1, I6): "|" over ":-:" is no header (a lone pipe has no cell), so the
+        # paragraph stays one unit, its definition opaque, and the dash on line 4 is prose.
+        # Fails on 70dc81aa4 (exit 0).
+        text = "# Note\n\n[b]: /u '`'\nx \u2014 `\n|\n:-:\n"
+        self._assert_findings(self._gate("r13-e1a.md", text), present=("L4 [prose-dash]",))
+
+    def test_r13_lone_pipe_header_marks_the_paragraph_visited(self) -> None:
+        # codex E1 and claude E1 (I1): a NULL header row sets CMARK_NODE__TABLE_VISITED, so a
+        # later "| d |" over "|---|" in the paragraph (or "| h |" over "|-|") opens no table either,
+        # and the backticks pair across the lines around a prose dash. Rows: codex's second
+        # fixture, claude's fixture, and claude's related shape. Fails on 70dc81aa4 (exit 0).
+        rows = (("|\n:-:\nx `y\n| d |\n|---|\n`\u2014 `\n", "L8 [prose-dash]"),
+                ("p `a\n|\n|-|\n`b \u2014 c `d\n", "L6 [prose-dash]"),
+                ("p `a\n|\n|-|\n| h |\n|-|\n`b \u2014 c `d\n", "L8 [prose-dash]"),
+                ("p `a\n  |  \n|-|\n`b \u2014 c `d\n", "L6 [prose-dash]"))
+        for text, line in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r13-e1b.md", "# Note\n\n" + text),
+                                      present=(line,))
+
+    def test_r13_lone_pipe_row_ends_the_table(self) -> None:
+        # codex E1 (I1): matches() rejects "|" as a row, so the table ends and "|" starts a
+        # paragraph; "x `y" joins it, and the backtick pairs with the one opening the last line,
+        # leaving the dash prose. Rows: codex's third fixture, then in a quote. Fails on
+        # 70dc81aa4 (exit 0).
+        rows = (("h\n:-:\n|\nx `y\n`\u2014 `\n", "L7 [prose-dash]"),
+                ("> h\n> :-:\n> |\n> x `y\n> `\u2014 `\n", "L7 [prose-dash]"))
+        for text, line in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r13-e1c.md", "# Note\n\n" + text),
+                                      present=(line,))
+
+    def test_r13_rows_with_empty_cells_still_parse(self) -> None:
+        # Guard (I1): "h" over ":-:" is a one-cell table, "||" is one empty cell (a header over
+        # "|-|", or a row), and "|  |  |" is two; each row keeps its own span, so "`\u2014 `" is
+        # code. Passes on 70dc81aa4.
+        rows = ("h\n:-:\nx `\n`\u2014 `\n",
+                "||\n|-|\nx `\n`\u2014 `\n",
+                "h\n:-:\n||\nx `\n`\u2014 `\n",
+                "| a | b |\n|---|---|\n|  |  |\n|| x `\n`\u2014 `\n")
+        for text in rows:
+            with self.subTest(text=text):
+                self._assert_findings(self._gate("r13-g.md", "# Note\n\n" + text))
+
+    def test_r13_table_cells_follows_row_from_string(self) -> None:
+        # I1: the cell counts row_from_string gives, decided from its grammar
+        # "delim? table_cell (delim table_cell)* delim? newline" (an empty cell counts only before
+        # a pipe), and 0 for no row. Fails on 70dc81aa4 ("|" and "| " counted as one cell, and
+        # 65536 cells counted).
+        mod = load_linter_module(self.SCRIPT, "gate51_r13_cells")
+        cases = (("|", 0), ("  |  ", 0), ("||", 1), ("| |", 1), ("|||", 2), ("a", 1),
+                 ("a|", 1), ("|a", 1), ("|a|", 1), ("a||b", 3), ("\\|", 1),
+                 ("a|" * 65535, 65535), ("a|" * 65536, 0))
+        for text, cells in cases:
+            with self.subTest(text=text[:12]):
+                self.assertEqual(mod.table_cells(text), cells)
+
+    def test_r13_overflowing_rows_are_no_rows(self) -> None:
+        # I1: append_row_cell refuses the 65536th cell, so row_from_string returns NULL. A
+        # delimiter row that overflows opens no table (first row: the paragraph stays one unit
+        # and "`" pairs across the lines, the dash prose); a body row that overflows ends the
+        # table and starts a paragraph that the last line joins (second row). Fails on
+        # 70dc81aa4 (exit 0).
+        wide = "a|" * 65536
+        rows = ("x `\n" + wide + "\n" + "-|" * 65536 + "\n`\u2014 `\n",
+                "h\n:-:\n" + wide + " `\n`\u2014 `\n")
+        for text in rows:
+            with self.subTest(text=text[:8]):
+                self._assert_findings(self._gate("r13-ov.md", "# Note\n\n" + text),
+                                      present=("L6 [prose-dash]",))
+
+    def test_r13_docstring_states_the_round_13_rules(self) -> None:
+        # codex E1, claude E1 and W1: the docstring states the row rule and names the bare CR
+        # line ending in the splitlines residual. Fails on 70dc81aa4.
+        doc = " ".join((REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8").split())
+        for needle in ("a lone pipe has no cell",
+                       "a line that is no row ends the table",
+                       "a bare CR"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, doc)
+
+
+    # 3b696 round 14: the round 12 review (vpr-3b696-r12-1550-codex.out E1), settled from
+    # cmark-gfm 0.29.0.gfm.13 extensions/table.c: try_opening_table_header (303 to 347) hands
+    # row_from_string the whole paragraph (338 to 340); the walk restarts at each line ending
+    # (257 to 268) but append_row_cell's overflow (173 to 181) breaks out of it (230 to 236), so
+    # a line above the header with more than 65535 cells makes the header NULL (275 to 278) and
+    # marks the paragraph visited (341 to 346). A case marked "fails on 1775b46d9" failed
+    # against round 13; a guard passes on both.
+
+    def test_r14_overflowing_line_above_the_header_opens_no_table(self) -> None:
+        # codex E1 (I1): the reproducer. The 65536-cell line rejects "| h |", so the paragraph
+        # stays one unit and the backtick after "a" pairs with the one opening the last line,
+        # leaving the dash prose (line 5 of the reproducer). Fails on 1775b46d9 (exit 0).
+        text = "a `x\n" + "|a" * 65536 + "|\n| h |\n|---|\n`d \u2014 `e\n"
+        self._assert_findings(self._gate("r14-e1.md", "# Note\n\n" + text),
+                              present=("L7 [prose-dash]",))
+
+    def test_r14_overflow_further_above_the_header_also_rejects_it(self) -> None:
+        # codex E1 (I1): the overflowing line need not be the one just above the header. Rows:
+        # the overflow on the paragraph's first line two lines above "| h |"; the overflow in
+        # the middle; then a lazy header line in a quote. Fails on 1775b46d9 (exit 0).
+        wide = "|a" * 65536 + "|"
+        rows = ((wide + "\na `x\nb\n| h |\n|---|\n`d \u2014 `e\n", "L8 [prose-dash]"),
+                ("a `x\n" + wide + "\nb\nc\n| h |\n|---|\n`d \u2014 `e\n", "L9 [prose-dash]"),
+                ("> a `x\n> " + wide + "\n> b\n| h |\n> |---|\n> `d \u2014 `e\n",
+                 "L8 [prose-dash]"))
+        for text, line in rows:
+            with self.subTest(text=text[:8]):
+                self._assert_findings(self._gate("r14-e1b.md", "# Note\n\n" + text),
+                                      present=(line,))
+
+    def test_r14_overflow_marks_the_paragraph_visited(self) -> None:
+        # codex E1 (I1): the NULL header sets CMARK_NODE__TABLE_VISITED, so a later "| d |" over
+        # "|---|" in the same paragraph opens no table either, and the backtick after "a" pairs
+        # with the one opening the last line. Fails on 1775b46d9 (a table opens at "| h |" and
+        # every later line is its row, exit 0).
+        text = ("a `x\n" + "|a" * 65536 + "|\n| h |\n|---|\nx y\n| d |\n|---|\n"
+                "`\u2014 `\n")
+        self._assert_findings(self._gate("r14-e1c.md", "# Note\n\n" + text),
+                              present=("L10 [prose-dash]",))
+
+    def test_r14_lines_of_65535_cells_still_let_a_table_open(self) -> None:
+        # Guard (I1): 65535 cells is a row, so the line above the header does not reject it;
+        # the table opens, its row "`d \u2014 `e" holds a span, and nothing is reported. Rows: the
+        # reproducer's shape at 65535 cells, then the same line further above. Passes on
+        # 1775b46d9; fails if the overflow test counts 65535 cells as an overflow.
+        edge = "|a" * 65535 + "|"
+        rows = ("a `x\n" + edge + "\n| h |\n|---|\n`d \u2014 `e\n",
+                edge + "\na `x\nb\n| h |\n|---|\n`d \u2014 `e\n")
+        for text in rows:
+            with self.subTest(text=text[:8]):
+                self._assert_findings(self._gate("r14-g.md", "# Note\n\n" + text))
+
+    def test_r14_definitions_resolved_by_an_underline_are_not_read(self) -> None:
+        # Guard (I1, I6): a setext underline below definitions alone resolves them, and
+        # resolve_reference_link_definitions (src/blocks.c 266 to 280, called at 1202) drops them
+        # from the paragraph, so a 65536-cell title there does not reject a later header; the
+        # table opens and its row holds the span. Passes on 1775b46d9; the companion flip (the
+        # title kept in the walk) reports L8.
+        text = ('[b]: /u "' + "|a" * 65536 + '|"\n===\nx `y\n| h |\n|---|\n`\u2014 `\n')
+        self._assert_findings(self._gate("r14-g2.md", "# Note\n\n" + text))
+
+    def test_r14_row_overflows_follows_row_from_string(self) -> None:
+        # I1: a line overflows only past 65535 cells, counted as table_cells counts them.
+        # Fails on 1775b46d9 (no row_overflows).
+        mod = load_linter_module(self.SCRIPT, "gate51_r14_overflow")
+        cases = (("a|" * 65535, False), ("|a" * 65535 + "|", False), ("a|" * 65536, True),
+                 ("|a" * 65536 + "|", True), ("|" * 65536, False), ("|" * 65537, True),
+                 ("x", False))
+        for text, overflows in cases:
+            with self.subTest(text=text[:12], n=len(text)):
+                self.assertEqual(mod.row_overflows(text), overflows)
+
+    def test_r14_docstring_states_the_whole_paragraph_walk(self) -> None:
+        # codex E1: the docstring states that row_from_string reads the whole paragraph and that
+        # no other line above the header can make it NULL. Fails on 1775b46d9.
+        doc = " ".join((REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8").split())
+        for needle in ("try_opening_table_header hands row_from_string the whole paragraph",
+                       "a line above the header line with more than 65535 cells aborts the walk",
+                       "No other line above the header can make it NULL"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, doc)
+
+    # 3b696 round 15: the round 13 reviews (vpr-3b696-r13-1638-claude.out E1 and
+    # vpr-3b696-r13-1638-codex.out E1), settled from cmark-gfm 0.29.0.gfm.13. Claude E1:
+    # src/blocks.c adds a lazy continuation line at parser->offset (1375 to 1378, add_line 219
+    # to 220), after the container prefixes it matched, while the paragraph branches advance to
+    # the first non-space character first (1434 to 1436, 1441 to 1443); row_from_string reads
+    # leading whitespace before a pipe as a cell (extensions/ext_scanners.re 35 and 69). Codex
+    # E1: extensions/table.c refuses a body row once get_n_autocompleted_cells (109 to 116)
+    # passes MAX_AUTOCOMPLETED_CELLS, 0x80000 (15; the check at 438 to 440), and src/blocks.c
+    # then creates a paragraph for the line (1437 to 1443). A case marked "fails on ab953ad16"
+    # failed against round 14; a guard passes on both.
+
+    def test_r15_lazy_header_line_with_leading_space_opens_no_table(self) -> None:
+        # claude E1 (I1): the reviewer's three executed fixtures. The lazy "| b |" keeps the
+        # space before its pipe, so it is two cells over a one-cell delimiter row: no table, the
+        # paragraph runs on, and the backtick after "a" pairs with the one opening the last
+        # line, leaving the dash prose. Fails on ab953ad16 (exit 0).
+        rows = (("quote", "> a `\n  | b |\n> |---|\n> `\u2014 `\n"),
+                ("list item", "- a `\n | b |\n  |---|\n  `\u2014 `\n"),
+                ("nested quote", "> > a `\n>  | b |\n> > |---|\n> > `\u2014 `\n"))
+        for name, text in rows:
+            with self.subTest(shape=name):
+                self._assert_findings(self._gate("r15-e1.md", "# Note\n\n" + text),
+                                      present=("L6 [prose-dash]",))
+
+    def test_r15_lazy_header_with_one_more_delimiter_cell_opens_a_table(self) -> None:
+        # claude E1, the reverse (I1): the lazy "  | b |" is two cells, so it heads a table over
+        # the two-cell "> |-|-|"; the last line is a row whose lone backtick opens no span, so
+        # the dash is prose. Fails on ab953ad16 (the gate counted one cell, joined the lines and
+        # paired the backtick after "a" with the row's, exit 0).
+        text = "> a `x\n  | b |\n> |-|-|\n> | d \u2014 ` |\n"
+        self._assert_findings(self._gate("r15-e1r.md", "# Note\n\n" + text),
+                              present=("L6 [prose-dash]",))
+
+    def test_r15_lazy_line_above_the_header_overflows_with_its_leading_space(self) -> None:
+        # claude E1, the 65535-cell bound (I1): a lazy line of 65535 cells after one leading
+        # space is 65536 cells to row_from_string, so it rejects "> | h |"; the paragraph runs
+        # on and the backtick after "a" pairs with the one after "z". Fails on ab953ad16 (exit 0).
+        text = "> a `x\n " + "|c" * 65535 + "|\n> | h |\n> |---|\n> z` \u2014 `\n"
+        self._assert_findings(self._gate("r15-e1o.md", "# Note\n\n" + text),
+                              present=("L7 [prose-dash]",))
+
+    def test_r15_header_lines_without_lazy_leading_space_still_open_a_table(self) -> None:
+        # Guards (I1): the same texts with nothing before the lazy line's pipe, and a non-lazy
+        # continuation line, whose indent cmark-gfm drops. Each opens (or, for the one-cell
+        # header over "|-|-|", rightly keeps out) the table the round-14 gate read, and nothing
+        # is reported. Pass on ab953ad16; fail if every lazy line keeps its whitespace or every
+        # line does.
+        edge = "|c" * 65535 + "|"
+        rows = (("column 0", "> a `\n| b |\n> |---|\n> `\u2014 `\n"),
+                ("non-lazy", "> a `\n>   | b |\n> |---|\n> `\u2014 `\n"),
+                ("column 0, one cell under two", "> a `x\n| b |\n> |-|-|\n> | d \u2014 ` |\n"),
+                ("column 0, 65535 cells", "> a `x\n" + edge + "\n> | h |\n> |---|\n"
+                 "> z` \u2014 `\n"))
+        for name, text in rows:
+            with self.subTest(shape=name):
+                self._assert_findings(self._gate("r15-g.md", "# Note\n\n" + text))
+
+    def test_r15_autocompleted_cell_limit_ends_the_table(self) -> None:
+        # codex E1 (I1): the reproducer. Nine one-cell rows under 65535 columns autocomplete
+        # 9 * 65534 = 589806 cells, past 524288, so "a `x" is no row: it starts a paragraph,
+        # its backtick pairs with the one opening the last line, and the dash is prose (line 15
+        # of the fixture). Fails on ab953ad16 (each line a table row, exit 0).
+        text = ("|h" * 65535 + "|\n" + "|-" * 65535 + "|\n" + "x\n" * 9 + "a `x\n"
+                + "`d \u2014 `e\n")
+        self._assert_findings(self._gate("r15-e2.md", "# Note\n\n" + text),
+                              present=("L15 [prose-dash]",))
+
+    def test_r15_tables_under_the_autocompleted_cell_limit_continue(self) -> None:
+        # Guards (I1): eight one-cell rows leave 524272 autocompleted cells, not past the limit,
+        # so "a `x" is a row and the last line's span masks its dash; and 16 one-cell rows under
+        # 32769 columns leave exactly 524288, which try_opening_table_row's ">" still accepts.
+        # Pass on ab953ad16; fail if the limit is counted with ">=" or a row early.
+        rows = (("8 rows", "|h" * 65535 + "|\n" + "|-" * 65535 + "|\n" + "x\n" * 8),
+                ("exactly 524288", "|h" * 32769 + "|\n" + "|-" * 32769 + "|\n" + "x\n" * 16))
+        for name, head in rows:
+            with self.subTest(shape=name):
+                self._assert_findings(self._gate("r15-g2.md", "# Note\n\n" + head + "a `x\n"
+                                                 "`d \u2014 `e\n"))
+
+    def test_r15_row_cells_keeps_a_lazy_lines_leading_whitespace(self) -> None:
+        # I1: a lazy line keeps its leading whitespace, which is a cell before a pipe and no
+        # extra cell before text. Fails on ab953ad16 (no lazy argument).
+        mod = load_linter_module(self.SCRIPT, "gate51_r15_lazy")
+        edge = "|c" * 65535 + "|"
+        cases = (("  | b |", False, 1), ("  | b |", True, 2), ("  b | c", True, 2),
+                 ("| b |  ", True, 1), ("\t| b |", True, 2))
+        for text, lazy, cells in cases:
+            with self.subTest(text=text, lazy=lazy):
+                self.assertEqual(mod.table_cells(text, lazy), cells)
+        self.assertFalse(mod.row_overflows(" " + edge))
+        self.assertTrue(mod.row_overflows(" " + edge, True))
+        self.assertEqual(mod.MAX_AUTOCOMPLETED_CELLS, 0x80000)
+
+    def test_r15_docstring_states_the_lazy_line_and_autocomplete_rules(self) -> None:
+        # claude E1 and codex E1: the docstring qualifies the continuation-indent sentence and
+        # states the autocompleted-cell limit. Fails on ab953ad16.
+        doc = " ".join((REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8").split())
+        for needle in ("A lazy continuation line is the exception",
+                       "row_from_string reads that whitespace as a cell",
+                       "more than 524288 (0x80000) cells",
+                       "try_opening_table_row then refuses the row"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, doc)
+
+    # 3b696 round 16 (vpr-3b696-r14-1752-claude.out W1 and N2). extensions/table.c
+    # try_opening_table_row adds a body row's parsed cells only up to the table's columns
+    # (``i < table_columns``, 461) and passes that i to incr_table_row_count (472, 103 to 104),
+    # so a row wider than the table adds the table's column count to n_nonempty_cells, not its
+    # own cell count. A case marked "fails on the unclamped mutant" fails when block_scan's
+    # body-row count (the ``fill[2] +=`` line under its "A body row" comment) adds
+    # ``table_cells(body)`` in place of ``min(table_cells(body), fill[0])``.
+
+    @staticmethod
+    def _r16_wide_row_table(one_cell_rows: int) -> str:
+        # A 1000-column table, ONE_CELL_ROWS one-cell rows, a row of 2000 cells, one more
+        # one-cell row, then "a `x" and a line whose dash sits between two backticks.
+        return ("# Note\n\n" + "|h" * 1000 + "|\n" + "|-" * 1000 + "|\n" + "x\n" * one_cell_rows
+                + "|c" * 2000 + "|\n" + "x\n" + "a `x\n" + "`d \u2014 `e\n")
+
+    def test_r16_row_wider_than_the_table_adds_only_its_columns(self) -> None:
+        # claude W1 (I1): the reviewer's case. 524 one-cell rows autocomplete 524 * 999 = 523476
+        # cells; the 2000-cell row adds none (1000 parsed, up to the columns), and the next
+        # one-cell row brings 524475, past 524288, so "a `x" is no row: it starts a paragraph,
+        # its backtick pairs with the one opening the last line, and the dash is prose (line 532
+        # of the fixture). Fails on the unclamped mutant (the wide row takes 1000 cells off,
+        # leaving 522475, so both lines are rows and the last line's span masks the dash, exit 0).
+        self._assert_findings(self._gate("r16-w1.md", self._r16_wide_row_table(524)),
+                              present=("L532 [prose-dash]",))
+
+    def test_r16_wide_row_one_row_short_of_the_limit_continues(self) -> None:
+        # Guards (I1), the control on the other side of the limit: 523 one-cell rows leave
+        # 523476 autocompleted cells before "a `x", not past 524288, so it is a row; the last
+        # line (524475, past the limit) starts a paragraph of its own, whose span masks the
+        # dash. Passes on 3981317ff and on the unclamped mutant; fails if the wide row is
+        # counted as adding autocompleted cells or the limit is reached a row early.
+        self._assert_findings(self._gate("r16-w1g.md", self._r16_wide_row_table(523)))
+
+    def test_r16_docstring_names_the_int_overflow_residual(self) -> None:
+        # claude N2: the C int overflow of get_n_autocompleted_cells is in "Residuals, named"
+        # with its label, and I1 points there. Fails on 3981317ff.
+        text = (REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8")
+        residuals = " ".join(text.split("Residuals, named.", 1)[1]
+                             .split("``scan_lines`` applies", 1)[0].split())
+        self.assertIn("computes a table's autocompleted cells in C ``int`` "
+                      "(get_n_autocompleted_cells, 109 to 116", residuals)
+        self.assertIn("a backtick run then pairs differently around a dash (can hide, either "
+                      "way). It needs about 2**31 parsed cells", residuals)
+        doc = " ".join(text.split())
+        self.assertIn("which the gate does not model (a named residual, below)", doc)
+
+    # 3b696 round 18 (vpr-3b696-r15-1840-codex.out E1). CommonMark 0.31.2 section 6.6: an
+    # unquoted attribute value "is a nonempty string of characters not including spaces, tabs,
+    # line endings, `"`, `'`, `=`, `<`, `>`, or `` ` ``", so an ASCII control character other
+    # than tab is part of it; and a tag's whitespace is "spaces, tabs, and up to one line
+    # ending". A case marked "fails on fb652f529" failed against round 17, whose unquoted value
+    # excluded U+0000 to U+0020 and whose tag whitespace was any run of spaces, tabs and LFs.
+
+    def test_r18_control_character_in_an_unquoted_value_keeps_the_tag(self) -> None:
+        # codex E1: in 'a <b x=\x01 y="`"> \u2014 `' the tag forms, so its backtick opens no span
+        # and the dash is prose. Fails on fb652f529 for U+0001 and U+001F (exit 0: the tag did
+        # not form and the attribute's backtick paired with the last one around the dash);
+        # U+007F and "!" are guards that both agree on.
+        for ctl in ("\x01", "\x1f", "\x7f", "!"):
+            with self.subTest(ctl=ctl):
+                text = "# Note\n\na <b x=" + ctl + " y=\"`\"> \u2014 `\n"
+                self._assert_findings(self._gate("r18-e1.md", text), present=("L3 [prose-dash]",))
+
+    def test_r18_control_character_tag_before_a_code_span(self) -> None:
+        # codex E1, the other direction: the tag holding U+0001 forms, so the code span after it
+        # holds the dash. Fails on fb652f529 (L3 prose-dash: the attribute's backtick paired
+        # with the span's opener, leaving the dash outside any span).
+        self._assert_findings(
+            self._gate("r18-e1b.md", "# Note\n\n`x` <b a=\x01 c=\"`\"> `y \u2014 z`\n"))
+
+    def test_r18_space_tab_and_nul_in_an_unquoted_value(self) -> None:
+        # Guards, the negative controls: a space or a tab still ends the unquoted value, so
+        # 'x= y="`"' is no attribute, no tag forms and the attribute's backtick opens the span
+        # that holds the dash (exit 0); NUL is read as U+FFFD before parsing, a character the
+        # value holds, so the tag forms and the dash is prose. Pass on fb652f529 and here; the
+        # first two fail if space or tab is dropped from the exclusion set.
+        for ctl, present in ((" ", ()), ("\t", ()), ("\x00", ("L3 [prose-dash]",))):
+            with self.subTest(ctl=ctl):
+                text = "# Note\n\na <b x=" + ctl + " y=\"`\"> \u2014 `\n"
+                self._assert_findings(self._gate("r18-g.md", text), present=present)
+
+    def test_r18_tag_whitespace_holds_one_line_ending(self) -> None:
+        # A run of tag whitespace holding two line endings ends the tag, so the attribute's
+        # backtick opens a span. A paragraph unit holds no blank line, so scan_text does not
+        # reach this; code_spans is read on the unit text directly. Fails on fb652f529 (the tag
+        # formed: [(13, 16)] and [(14, 17)]); the one-line-ending rows are guards.
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("_g51_r18_ws", REPO_ROOT / self.SCRIPT)
+        model = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(model)
+        for text, spans in (('a <b\n\ny="`"> `c`', [(9, 14)]),
+                            ('a <b y="`"\n\n> `c`', [(8, 15)]),
+                            ('a <b y=\n\n"`"> `c`', [(10, 15)]),
+                            ('a <b\ny="`"> `c`', [(12, 15)]),
+                            ('a <b y="`"\n> `c`', [(13, 16)])):
+            with self.subTest(text=text):
+                self.assertEqual(model.code_spans(text), spans)
+
+    def test_r18_docstring_states_the_tag_rules(self) -> None:
+        # The I4 rule names the unquoted value's exclusions and the one-line-ending whitespace.
+        # Fails on fb652f529.
+        doc = " ".join((REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8").split())
+        self.assertIn("the whitespace in it is spaces, tabs and up to one line ending", doc)
+        self.assertIn("so an ASCII control character is part of the value (3b696 round 18)", doc)
+
+    # 3b696 round 19 (vpr-3b696-r16-2104-claude.out ERROR 1). CommonMark 0.31.2 section 2.1: "A
+    # line ending is a line feed (U+000A), a carriage return (U+000D) not followed by a line
+    # feed, or a carriage return and a following line feed." str.splitlines() also breaks at
+    # VT, FF, FS to RS, U+0085, U+2028 and U+2029, so a link destination or autolink holding one
+    # failed to form, its backtick paired with the trailing one and the dash was hidden.
+    R19_BREAKS = (("destination, U+0085", "x [a](u`\x85v) \u2014 `"),
+                  ("destination, U+2028", "x [a](u`\u2028v) \u2014 `"),
+                  ("autolink, U+0085", "x <http://a`\x85b> \u2014 `"),
+                  ("autolink, U+2029", "x <http://a`\u2029b> \u2014 `"))
+
+    def test_r19_a_unicode_break_in_a_destination_or_autolink_ends_no_line(self) -> None:
+        # The link or autolink forms, its backtick opens no span, and the dash is prose (main at
+        # 523989aac reports each; markdown-it agrees). Fails on 85b35eaa7 (exit 0 on all four).
+        for name, line in self.R19_BREAKS:
+            with self.subTest(name=name):
+                self._assert_findings(self._gate("r19-a.md", "# Note\n\n" + line + "\n"),
+                                      present=("L3 [prose-dash]",))
+
+    def test_r19_controls(self) -> None:
+        # Guards both readings agree on: the same destination with no separator reports the dash,
+        # and a real code span holding U+2028 and a dash hides it (the fix reports no code).
+        self._assert_findings(self._gate("r19-c1.md", "# Note\n\nx [a](u`v) \u2014 `\n"),
+                              present=("L3 [prose-dash]",))
+        self._assert_findings(self._gate("r19-c2.md", "# Note\n\nx `u\u2028v \u2014 w` y\n"))
+
+    def test_r19_commonmark_lines_splits_only_at_lf_cr_and_crlf(self) -> None:
+        # Fails with commonmark_lines replaced by str.splitlines (the first row then has eight
+        # more lines, and the U+2028 row two lines).
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("_g51_r19_lines", REPO_ROOT / self.SCRIPT)
+        model = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(model)
+        rows = (("a\x0bb\x0cc\x1cd\x1de\x1ef\x85g\u2028h\u2029i\rj\r\nk\nl\n",
+                 ["a\x0bb\x0cc\x1cd\x1de\x1ef\x85g\u2028h\u2029i", "j", "k", "l"]),
+                ("", []), ("a", ["a"]), ("a\n", ["a"]), ("a\n\n", ["a", ""]), ("\r\n", [""]),
+                ("a\r\r\nb", ["a", "", "b"]), ("x\u2028y", ["x\u2028y"]))
+        for text, lines in rows:
+            with self.subTest(text=text):
+                self.assertEqual(model.commonmark_lines(text), lines)
+
+    def test_r19_line_numbers_count_commonmark_lines(self) -> None:
+        # A U+2028 adds no line, so the dash is on L4 (85b35eaa7: L5).
+        self._assert_findings(self._gate("r19-n.md", "# Note\nx\u2028y\n\nLater \u2014 dash.\n"),
+                              present=("L4 [prose-dash]",), absent=("L5",))
+
+    def test_r19_docstring_states_the_line_rule(self) -> None:
+        # The splitlines residual is gone; what remains is the bare-CR table residual. Fails on
+        # 85b35eaa7.
+        doc = " ".join((REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8").split())
+        self.assertIn("Lines are CommonMark lines (``commonmark_lines``)", doc)
+        self.assertIn("The bare-CR residual: the gate splits at LF, CR and CRLF", doc)
+        self.assertNotIn("splitlines residual", doc)
+        self.assertNotIn("``str.splitlines()`` also breaks at VT, FF, FS to RS, U+0085, U+2028 and "
+                         "U+2029, where CommonMark does not", doc)
+
+    # 3b696 round 20 (vpr-3b696-rr17-2246-codex.out ERROR 1, vpr-3b696-rr17-2246-claude.out W1).
+    # cmark-gfm 0.29.0.gfm.13 extensions/ext_scanners.re line 30 reads "spacechar = [ \t\v\f];",
+    # and its table scanner reads spacechar around a delimiter row's markers, before its line end
+    # and after each pipe. Round 19 keeps VT and FF inside the line, and the gate read only spaces
+    # and tabs there, so a VT or FF in a delimiter row opened no table and the header's backtick
+    # paired with the last row's around its dash (the claude review observed main at 523989aac and
+    # round 18, which split the line at VT and FF, report it). A case marked "fails on
+    # 9b029fb7f" failed against round 19.
+    R20_SHAPES = (("after a pipe", "| a `x |", "|{}---|"),
+                  ("after a marker", "| a `x |", "|---{}|"),
+                  ("at the row end", "| a `x |", "|---|{}"),
+                  ("at the line start", "a `x", "{}---"),
+                  ("after the header's last pipe", "| a `x |{}", "|---|"))
+
+    @staticmethod
+    def _r20_table(header, delimiter, ws):
+        return ("# Note\n\n" + header.format(ws) + "\n" + delimiter.format(ws)
+                + "\n| b \u2014 `c |\n")
+
+    def test_r20_vt_or_ff_in_a_delimiter_row_opens_the_table(self) -> None:
+        # The table opens, each row is a unit alone, the last row's backtick has no closer and
+        # its dash is prose. Fails on 9b029fb7f (exit 0 on all ten).
+        for ws in ("\x0b", "\x0c"):
+            for shape, header, delimiter in self.R20_SHAPES:
+                with self.subTest(ws=ascii(ws), shape=shape):
+                    text = self._r20_table(header, delimiter, ws)
+                    self._assert_findings(self._gate("r20-a.md", text),
+                                          present=("L5 [prose-dash]",))
+
+    def test_r20_controls(self) -> None:
+        # Guards that pass on 9b029fb7f and here. Positive: a space in each place opens the table
+        # and the dash is reported, and so does a tab except at the line start, where it is four
+        # columns of indent, so that line is no delimiter row and the span holds the dash.
+        # Negative: U+2028, U+0085 and NBSP are no spacechar, so no table opens and the span holds
+        # the dash; and a VT before the header's first pipe is a cell's text, not whitespace (a
+        # paragraph line is stored from its first character that is not a space or tab), so the
+        # header has two cells over one and no table opens.
+        for ws in (" ", "\t", "\u2028", "\x85", "\xa0"):
+            for shape, header, delimiter in self.R20_SHAPES:
+                reported = ws == " " or (ws == "\t" and shape != "at the line start")
+                with self.subTest(ws=ascii(ws), shape=shape):
+                    text = self._r20_table(header, delimiter, ws)
+                    self._assert_findings(self._gate("r20-c.md", text),
+                                          present=("L5 [prose-dash]",) if reported else ())
+        self._assert_findings(
+            self._gate("r20-c2.md", "# Note\n\n\x0b| a `x |\n|---|\n| b \u2014 `c |\n"))
+
+    def test_r20_a_pipe_then_vt_is_no_body_row(self) -> None:
+        # The pipe takes the VT after it, so "|" then VT has no cell, as a lone pipe has none: it
+        # ends the table and starts a paragraph whose span holds the dash. Fails on 9b029fb7f
+        # (L7 [prose-dash]: it counted the VT as a cell, so the line was a row). Guards that pass
+        # on 9b029fb7f and here: "|" then a space ends the table too (no finding), and "|", a VT
+        # and "x" is a row of one cell, so the table runs on and the dash is reported.
+        for row, present in (("|\x0b", ()), ("| ", ()), ("|\x0bx", ("L7 [prose-dash]",))):
+            with self.subTest(row=ascii(row)):
+                text = "# Note\n\n| h |\n|---|\n" + row + "\n| `x |\n| \u2014 `y |\n"
+                self._assert_findings(self._gate("r20-b.md", text), present=present)
+
+    def test_r20_table_whitespace_is_spacechar(self) -> None:
+        # The rows marked * fail on 9b029fb7f (row_cells counted a VT or FF after the last pipe
+        # as a cell, and TABLE_DELIMITER read only spaces and tabs); the rest are guards that
+        # pass on both: a VT at the line's start, inside a cell or before a pipe is cell text,
+        # four spaces are indent, and other Unicode whitespace is not spacechar.
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("_g51_r20_ws", REPO_ROOT / self.SCRIPT)
+        model = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(model)
+        for text, lazy, cells in (("|\x0b", False, 0), ("| a |\x0b", False, 1),       # *
+                                  ("| a |\x0c ", False, 1), ("  |\x0b", True, 1),     # *
+                                  ("\x0b", False, 1), ("\x0b| a", False, 2), ("a\x0b", False, 1),
+                                  ("|\x0b|", False, 1), ("|", False, 0), ("a |\u2028", False, 2)):
+            with self.subTest(text=ascii(text), lazy=lazy):
+                self.assertEqual(model.row_cells(text, lazy), cells)
+        for row, matches in (("|\x0b---|", True), ("|---\x0b|", True), ("|---|\x0c", True),  # *
+                             ("\x0b---", True), (" \x0c:-:\x0c", True), ("   \x0b---", True),  # *
+                             ("\x0b|---", False), ("    ---", False), ("|-\x0b-|", False),
+                             ("|---|\x0b|", False), ("|---|\u2028", False), ("|---|\x85", False)):
+            with self.subTest(row=ascii(row)):
+                self.assertEqual(model.TABLE_DELIMITER.match(row) is not None, matches)
+
+    def test_r20_docstring_states_where_spacechar_applies(self) -> None:
+        # I1 names the two places the table scanner reads spacechar and the places it does not.
+        # Fails on 9b029fb7f.
+        doc = " ".join((REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8").split())
+        self.assertIn("Table whitespace is cmark-gfm's spacechar, space, tab, VT and FF "
+                      "(extensions/ext_scanners.re line 30), in the two places its table scanner "
+                      "reads spacechar", doc)
+        self.assertIn("Nowhere else: a cell's text (``table_cell``) takes VT and FF as characters",
+                      doc)
+
 
 
 class AdvisoryAidArgRefusalTests(LinterTestCase):
@@ -36549,12 +38251,12 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-taxonomy.py NO_FS F dc1c0549d33132cb87852e1729c530c5c607540f1317c968960ada44c1bd138b
         build-todo-number-allocation.py NO_FS F 8ad89e87b8a6df4a576935a21409cadc80ce0456784a22262ac3229b3f2dd99e
         ccm_aicm_reference.py PASSIVE F 1ed15d9b1bd4cfd1162df3e720b5aa6058c3cba3cb1f626fcf2e1ee605c17e71
-        changelog_diff.py PASSIVE F d712d841faf46461535b17d083d012280d3df85c0182b526625f7d7199b301bd
+        changelog_diff.py PASSIVE F 8311b75d1b8c3ed0ce72ed8342cbcf8cc6243073356ddcce2662e197c0069b3a
         check-alignment-register-on-pr.py NO_FS F 66bcdc0724ea2394bd35e29b8f78fb7313a5c755493f914656ce376364a4c0d9
         check-changelog-dash-on-pr.py NO_FS F c4a4ed41c310deedab000b034124e1c08482c59da539907d9d22fd5faeb0089e
         check-changelog-length-on-pr.py NO_FS F dd81f8c07f2ab5045bc492e1d59ebab939585c01355d1ca0d7baf0fed08c84a1
         check-changelog-on-pr.py NO_FS F e762e152f63d454d5915d219ce71329993c57b3bb780b860c0d3ec9938fdbd0e
-        check-changelog-preflight-commit.py NO_FS F 87b92b4235420074c259a9b50e0ee72d5624a81be2b87420de3e01cc7e551fd2
+        check-changelog-preflight-commit.py NO_FS F 12b94eff89cd413ba3b3f87c9ae07702316f9ba3614b36318731179664f20268
         check-class-attestation-on-pr.py NO_FS F bd15aaad43f488b824b69539041c1455de9208cbafebe725207a462210dae8fb
         check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
         check-claude-md-size.py NO_FS F 0c2c447fbeb2df2e88a61eca220cfd5f1a41ab8aca24b90936e832c1b52f1a95
@@ -36693,7 +38395,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-version-date-consistency.py OWN F f9956da5ff7492dc60c99939c1e10b650fc2ffbc51a00f28bf51e53ae863f472
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
-        lint-working-prose-hygiene.py CWD F 5b8f07f67932e6a2e08b8de287bea230dd312d319654494f39b7c3349f6be1bb
+        lint-working-prose-hygiene.py CWD F e0920226da77581df8ade337e5ed3464901b0cc92d7198fe95cef46ee461d220
         lint_common.py PASSIVE F 462a52c49caf0c0e4eea5801e794e807f7f533ca896f0a34a2679fa9839cb35c
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
@@ -36701,7 +38403,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
         pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
-        preflight-changelog.py NO_FS F 0396f470e26a529723c3d4e9a5de3c7eddb1fdd6db98e87cb1f58b3ee967598c
+        preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
         preflight_language_runner.py CHILD F 5022c1d1ea1b9d289710b26c96ba615ad303bee4850723fcf12d99a8e247d0c7
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
@@ -48500,6 +50202,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
     CLI_FILES = ("tools/preflight-changelog.py", "tools/preflight_language_runner.py",
                  "tools/lint-language.py", "tools/check-changelog-length-on-pr.py",
                  "tools/lint_common.py", "tools/changelog_diff.py", "tools/aiqt_bootstrap.py",
+                 "tools/lint-working-prose-hygiene.py",
                  ".corpus-management/tools/gate_lint_language.py",
                  ".corpus-management/tools/profile_loader.py",
                  ".corpus-management/defaults/grc/language.toml")
@@ -49478,6 +51181,333 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
             "ERROR: the D7 length checker could not be loaded from "
             "check-changelog-length-on-pr.py."])
 
+    def test_an_autolink_backtick_does_not_hide_a_dash(self):
+        # 3b696: the aid loads gate 51 and runs its model (round 2: over the whole new text, see
+        # below), so an autolink's backtick no longer opens a span that hides the dash. Fails on dde3e287d, whose
+        # `(`+)(.+?)\1` stripper paired it with the later span (exit 0).
+        with tempfile.TemporaryDirectory() as td:
+            result = self._run_cli(os.path.realpath(td),
+                                   "See <https://example.com/a`b> — then `code`.")
+        report = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 1, report)
+        self.assertIn("FAIL CHANGELOG.md: em/en dash in prose", report)
+
+    def test_unequal_backtick_runs_do_not_expose_a_dash_in_code(self):
+        # 3b696: as gate 51, a run of two backticks pairs only with a run of exactly two, so the
+        # single-backtick span holding the dash is code. Fails on dde3e287d (exit 1, a dash finding).
+        with tempfile.TemporaryDirectory() as td:
+            result = self._run_cli(os.path.realpath(td), "The ``a `b — c` d text.")
+        report = result.stdout + result.stderr
+        self.assertNotIn("em/en dash in prose", report)
+        self.assertEqual(result.returncode, 0, report)
+
+    def test_a_gate_51_load_failure_is_one_named_error(self):
+        # 3b696: gate 51 loads inside main()'s fail-closed boundary, as the D7 checker does:
+        # exit 2 with one fixed ERROR line, no traceback and no verdict.
+        with tempfile.TemporaryDirectory() as td:
+            result = self._run_cli(
+                os.path.realpath(td), "a clean entry",
+                replace={"tools/lint-working-prose-hygiene.py":
+                         "raise RuntimeError('gate 51 broken')\n"})
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(result.stderr.splitlines(), [
+            "ERROR: gate 51's inline model could not be loaded from "
+            "lint-working-prose-hygiene.py."])
+
+    G51_LOAD_ERROR = ("ERROR: gate 51's inline model could not be loaded from "
+                      "lint-working-prose-hygiene.py.")
+
+    def test_a_gate_51_without_a_callable_scan_lines_is_one_named_error(self):
+        # 3b696 round 2 (claude W4): a gate 51 that loads but has no callable scan_lines (the one
+        # name the aid calls) is the fixed load error. Mutation killed: dropping the callable check
+        # in _load_gate51 (the run then fails later, naming an AttributeError or TypeError).
+        # 3b696 round 19: commonmark_lines is called too, so a gate 51 without it is the same
+        # error (third row; mutation killed: dropping it from the callable check).
+        for source in ("x = 1\n", "scan_lines = None\n", "def scan_lines(lines):\n    return []\n"):
+            with self.subTest(source=source), tempfile.TemporaryDirectory() as td:
+                result = self._run_cli(os.path.realpath(td), self.ADDED,
+                                       replace={"tools/lint-working-prose-hygiene.py": source})
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertEqual(result.stdout, "")
+                self.assertEqual(result.stderr.splitlines(), [self.G51_LOAD_ERROR])
+
+    def test_a_gate_51_raising_a_base_exception_at_load_is_one_named_error(self):
+        # 3b696 round 2 (claude W4): SystemExit, GeneratorExit and a bare BaseException raised while
+        # gate 51 loads are load failures too. Mutation killed: narrowing `except BaseException` to
+        # `except Exception` (SystemExit(0) then ends the aid with exit 0 and no verdict).
+        for raised in ("SystemExit(0)", "SystemExit(3)", "GeneratorExit()", "BaseException('x')"):
+            with self.subTest(raised=raised), tempfile.TemporaryDirectory() as td:
+                result = self._run_cli(
+                    os.path.realpath(td), self.ADDED,
+                    replace={"tools/lint-working-prose-hygiene.py": f"raise {raised}\n"})
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertEqual(result.stdout, "")
+                self.assertEqual(result.stderr.splitlines(), [self.G51_LOAD_ERROR])
+
+    def test_a_fault_inside_gate_51_is_one_named_error(self):
+        # 3b696 round 2 (claude N1): an exception raised inside the model printed a traceback and
+        # exited 1; it is now one ERROR line naming the file and the error, exit 2. The stand-in
+        # defines both names, so it loads on e16d2cf32 too. Fails on e16d2cf32 (exit 1, traceback).
+        # Round 19: it defines commonmark_lines too, which the aid now calls.
+        source = ("def inline_residues(lines):\n    raise RuntimeError('model broken')\n\n\n"
+                  "scan_lines = inline_residues\n\n\ndef commonmark_lines(text):\n"
+                  "    return text.splitlines()\n")
+        with tempfile.TemporaryDirectory() as td:
+            result = self._run_cli(os.path.realpath(td), self.ADDED,
+                                   replace={"tools/lint-working-prose-hygiene.py": source})
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(result.stderr.splitlines(), [
+            "ERROR: gate 51's model failed on CHANGELOG.md: RuntimeError: model broken"])
+
+    def test_a_fault_in_gate_51s_splitter_is_one_named_error(self):
+        # 3b696 round 20 (vpr-3b696-rr17-2246-codex.out ERROR 2, claude W2): the aid called
+        # commonmark_lines before the try that maps a model fault to Gate51ModelFailed, so a
+        # RuntimeError there exited 1 with a traceback and SystemExit(0) exited 0 with no output.
+        # The split is now inside the try. The first two rows fail on 9b029fb7f (exit 1, then
+        # exit 0). Guards that pass on 9b029fb7f and here: the positive control, a SystemExit(0)
+        # from scan_lines after a working split, is the same one ERROR line and exit 2; the
+        # negative control, a working split and a scan_lines with no finding, exits 0 with no
+        # ERROR line.
+        split = "    return text.splitlines()\n"
+        rows = (("    raise RuntimeError('splitter broken')\n", "    return []\n",
+                 "RuntimeError: splitter broken"),
+                ("    raise SystemExit(0)\n", "    return []\n", "SystemExit: 0"),
+                (split, "    raise SystemExit(0)\n", "SystemExit: 0"),
+                (split, "    return []\n", None))
+        for splitter, scanner, detail in rows:
+            source = ("def scan_lines(lines):\n" + scanner + "\n\n"
+                      "def commonmark_lines(text):\n" + splitter)
+            with self.subTest(splitter=splitter, scanner=scanner):
+                with tempfile.TemporaryDirectory() as td:
+                    result = self._run_cli(os.path.realpath(td), self.ADDED,
+                                           replace={"tools/lint-working-prose-hygiene.py": source})
+                report = result.stdout + result.stderr
+                if detail is None:
+                    self.assertEqual(result.returncode, 0, report)
+                    self.assertNotIn("ERROR", report)
+                    continue
+                self.assertEqual(result.returncode, 2, report)
+                self.assertEqual(result.stdout, "")
+                self.assertEqual(result.stderr.splitlines(), [
+                    f"ERROR: gate 51's model failed on CHANGELOG.md: {detail}"])
+
+    def test_a_splitter_fault_whose_message_raises_is_one_named_error(self):
+        # 3b696 round 21 (review round 18, codex): the fault detail called the exception's __str__
+        # outside any guard, so a splitter raising BadString, whose __str__ raises, exited 1 with a
+        # traceback. The detail now falls back to the type name, and to a fixed string when the
+        # type name cannot be formatted either. The first row fails on 4e4ab0cc0 (exit 1,
+        # traceback); the second row (a type whose __name__ raises) fails there too. Guard that
+        # passes on 4e4ab0cc0 and here: an ordinary RuntimeError still reports its message.
+        classes = ("class BadString(BaseException):\n    def __str__(self):\n"
+                   "        raise RuntimeError('no message')\n\n\n"
+                   "class BadMeta(type):\n    @property\n    def __name__(cls):\n"
+                   "        raise RuntimeError('no name')\n\n\n"
+                   "class BadName(BadString, metaclass=BadMeta):\n    pass\n\n\n")
+        rows = (("BadString()", "BadString (its message could not be formatted)"),
+                ("BadName()", "an exception whose type name could not be formatted"),
+                ("RuntimeError('splitter broken')", "RuntimeError: splitter broken"))
+        for raised, detail in rows:
+            source = (classes + "def scan_lines(lines):\n    return []\n\n\n"
+                      "def commonmark_lines(text):\n    raise " + raised + "\n")
+            with self.subTest(raised=raised):
+                with tempfile.TemporaryDirectory() as td:
+                    result = self._run_cli(os.path.realpath(td), self.ADDED,
+                                           replace={"tools/lint-working-prose-hygiene.py": source})
+                report = result.stdout + result.stderr
+                self.assertEqual(result.returncode, 2, report)
+                self.assertEqual(result.stdout, "")
+                self.assertEqual(result.stderr.splitlines(), [
+                    f"ERROR: gate 51's model failed on CHANGELOG.md: {detail}"])
+
+    def test_a_model_fault_whose_message_has_a_line_break_is_one_error_line(self):
+        # 3b696 round 22 (claude N3): no test pinned the collapse of the fault detail to one line.
+        # A splitter raising a message with a line break is still exactly one ERROR line. Mutation
+        # killed: dropping the " ".join(....split()) collapse from the first format in _fault_detail
+        # (stderr then has two lines).
+        source = ("def scan_lines(lines):\n    return []\n\n\n"
+                  "def commonmark_lines(text):\n    raise RuntimeError('splitter\\nbroken')\n")
+        with tempfile.TemporaryDirectory() as td:
+            result = self._run_cli(os.path.realpath(td), self.ADDED,
+                                   replace={"tools/lint-working-prose-hygiene.py": source})
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(result.stderr.splitlines(), [
+            "ERROR: gate 51's model failed on CHANGELOG.md: RuntimeError: splitter broken"])
+
+    def test_a_span_crossing_added_lines_is_paired_as_gate_51_pairs_it(self):
+        # 3b696 round 2 (codex E4): the aid parsed each added line alone, so a span opened on one
+        # added line and closed on the next hid a dash gate 51 reports (first row), and a dash
+        # inside such a span was refused (second row). It now runs gate 51's model over the whole
+        # new text and keeps the findings on added lines. Fails on e16d2cf32 (exit 0, then exit 1).
+        for added, code in (("a `x\nb` — `c`", 1), ("Before `code\n— still code` after", 0)):
+            with self.subTest(added=added), tempfile.TemporaryDirectory() as td:
+                for staged in (True, False):
+                    result = self._run_cli(os.path.realpath(td) + ("/s" if staged else "/w"),
+                                           added, staged=staged)
+                    report = result.stdout + result.stderr
+                    self.assertEqual(result.returncode, code, (staged, report))
+                    self.assertEqual("FAIL CHANGELOG.md: em/en dash in prose\n    b` — `c`" in report,
+                                     bool(code), (staged, report))
+
+    def test_the_dash_check_reads_unchanged_lines_and_reports_added_ones(self):
+        # 3b696 round 2 (codex E4): a committed line's open span pairs with the added line, as in
+        # gate 51, and a committed prose dash is not reported. Fails on e16d2cf32 (exit 0: the
+        # added line alone paired "` — `").
+        with tempfile.TemporaryDirectory() as td:
+            root, env, git = self._cli_fixture(os.path.realpath(td))
+            history = "# Changelog\nOld — dash.\n\nopen `x\n"
+            (root / "CHANGELOG.md").write_text(history, encoding="utf-8")
+            git("add", "-A")
+            git("commit", "-q", "--no-verify", "-m", "init")
+            (root / "CHANGELOG.md").write_text(history + "b` — `c`\n", encoding="utf-8")
+            git("add", "CHANGELOG.md")
+            result = self._aid(root, env, True)
+        report = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 1, report)
+        self.assertIn("FAIL CHANGELOG.md: em/en dash in prose\n    b` — `c`", report)
+        self.assertNotIn("Old — dash", report)
+
+    def test_an_added_fence_is_read_as_gate_51_reads_it(self):
+        # 3b696 round 2: a dash inside an added fenced block is code, as in gate 51 (D3 still
+        # checks every added root CHANGELOG line, code included), and an added fence left open is
+        # a finding, since it would hide every later line. Fails on e16d2cf32 (exit 1 on L3 for
+        # both rows, with no fence finding).
+        rows = (("```\ncode — x\n```", 0, ()),
+                ("```\ncode — x", 1, ("FAIL CHANGELOG.md: code fence opened at line 2 is never "
+                                      "closed",)))
+        for added, code, needles in rows:
+            with self.subTest(added=added), tempfile.TemporaryDirectory() as td:
+                result = self._run_cli(os.path.realpath(td), added)
+                report = result.stdout + result.stderr
+                self.assertEqual(result.returncode, code, report)
+                self.assertNotIn("em/en dash in prose", report)
+                for needle in needles:
+                    self.assertIn(needle, report)
+
+    def test_a_bare_cr_splits_the_line_for_the_dash_check_as_in_gate_51(self):
+        # 3b696 round 3 (claude N1): the aid dropped only a trailing CR, so "# h `<CR>— x`" was one
+        # heading line whose span hid the dash, where gate 51 (str.splitlines) and CommonMark read
+        # a heading and then a prose line. It now splits each LF line as gate 51 does. Fails on
+        # cb69010c6 (exit 0, both modes).
+        for staged in (True, False):
+            with self.subTest(staged=staged), tempfile.TemporaryDirectory() as td:
+                result = self._run_cli(os.path.realpath(td), "# h `\r— x`", staged=staged)
+                report = result.stdout + result.stderr
+                self.assertEqual(result.returncode, 1, report)
+                self.assertIn("FAIL CHANGELOG.md: em/en dash in prose", report)
+
+    def test_the_dash_check_reads_a_control_character_attribute_value_as_gate_51(self):
+        # 3b696 round 18 (vpr-3b696-r15-1840-codex.out E1): the aid runs gate 51's model, so an
+        # unquoted attribute value holding U+0001 keeps the tag there too. Row 1: the tag's
+        # backtick opens no span and the dash is prose; row 2: the span after the tag holds the
+        # dash. Each row checks gate 51 too. Fails on fb652f529 (row 1: no finding; row 2: {0}).
+        gate51 = self._load("_pcl_r18_attr")._load_gate51()
+        mod = self._load("_pcl_r18_attr_aid")
+        for line, dashed in (('a <b x=\x01 y="`"> \u2014 `', {0}),
+                             ('`x` <b a=\x01 c="`"> `y \u2014 z`', set())):
+            with self.subTest(line=line):
+                self.assertEqual([tag for _, tag, _ in gate51.scan_text(line + "\n")],
+                                 ["prose-dash"] if dashed else [])
+                self.assertEqual(
+                    mod._gate51_dash_findings(gate51, [("CHANGELOG.md", [line], [(0, 1)], True)]),
+                    (dashed, []))
+
+    def test_the_dash_check_maps_each_split_piece_to_its_lf_line(self):
+        # 3b696 round 3 (claude N1): a finding on a piece of a split line is a finding on its LF
+        # line. Row 1: a bare CR (fails on cb69010c6, no dash); row 2 (3b696 round 19): a U+2028
+        # ends no line, as in CommonMark, so "x\u2028```" is the fence's content, the fence stays
+        # open and hides the dash, and the fence is reported (85b35eaa7 read a closer after the
+        # U+2028 and reported the dash); row 3, a guard: a trailing CR goes as CRLF's does, and
+        # the span crossing it holds the dash.
+        mod = self._load("_pcl_split_pieces")
+        gate51 = mod._load_gate51()
+        rows = ((["# h `\r— x`"], {0}, []),
+                (["```", "x\u2028```", "— z"], set(),
+                 [("CHANGELOG.md", "code fence opened at line 1 is never closed (gate 51 "
+                   "[unclosed-fence]), so it hides the lines after it", "```")]),
+                (["a `x\r", "— y`"], set(), []))
+        for lines, dashed, fences in rows:
+            with self.subTest(lines=lines):
+                added = [(k, k + 1) for k in range(len(lines))]
+                self.assertEqual(
+                    mod._gate51_dash_findings(gate51, [("CHANGELOG.md", lines, added, True)]),
+                    (dashed, fences))
+
+    def test_a_break_ending_a_file_with_no_final_lf_adds_no_line(self):
+        # 3b696 round 4 (claude N1): the aid split the last line of a file with no final LF as
+        # "line + LF", so a U+2028 ending it added an empty line that gate 51 does not read; that
+        # blank line ended the quote's fence, and the unclosed-fence finding gate 51 reports was
+        # dropped. The last line of such a file is now split alone. Each row checks gate 51 too;
+        # with a final LF (the guard row) both read the blank line. Fails on af4615b8a (the first
+        # row: exit 0, both modes). 3b696 round 19: a U+2028 ends no line (CommonMark ends one
+        # only at LF, CR or CRLF), so neither reading adds a line after it and the fence stays
+        # open with or without a final LF (85b35eaa7: the second row was exit 0); a blank line
+        # (the third row) ends the quote and its fence in both. With CR, LF and CRLF the only
+        # breaks, "line + LF" and the line alone split alike, so the rows are now guards.
+        gate51 = self._load("_pcl_final_lf")._load_gate51()
+        for tail, code in (("", 1), ("\n", 1), ("\n\n", 0)):
+            text = "# Changelog\n> ```\n> code\u2028" + tail
+            self.assertEqual(["unclosed-fence"] if code else [],
+                             [tag for _, tag, _ in gate51.scan_text(text)])
+            for staged in (True, False):
+                with self.subTest(tail=tail, staged=staged), tempfile.TemporaryDirectory() as td:
+                    root, env, git = self._cli_fixture(os.path.realpath(td))
+                    (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+                    git("add", "-A")
+                    git("commit", "-q", "--no-verify", "-m", "init")
+                    (root / "CHANGELOG.md").write_text(text, encoding="utf-8")
+                    git("add", "CHANGELOG.md")
+                    result = self._aid(root, env, staged)
+                    report = result.stdout + result.stderr
+                    self.assertEqual(result.returncode, code, report)
+                    self.assertEqual("FAIL CHANGELOG.md: code fence opened at line 2 is never "
+                                     "closed" in report, bool(code), report)
+
+    def test_the_dash_check_reads_a_unicode_break_in_a_destination_as_gate_51(self):
+        # 3b696 round 19 (vpr-3b696-r16-2104-claude.out ERROR 1): the aid splits with gate 51's
+        # commonmark_lines, so a U+2028 in a link destination ends no line, the link forms, its
+        # backtick opens no span and the dash is prose (row 1); the control row has no
+        # destination, so the span holds the dash. Each row checks gate 51 too, and row 1 runs
+        # through the CLI in both modes. Fails on 85b35eaa7 (row 1: no finding, exit 0).
+        gate51 = self._load("_pcl_r19_break")._load_gate51()
+        mod = self._load("_pcl_r19_break_aid")
+        for line, dashed in (("x [a](u`\u2028v) \u2014 `", {0}), ("x `u\u2028v \u2014 w` y", set())):
+            with self.subTest(line=line):
+                self.assertEqual([tag for _, tag, _ in gate51.scan_text(line + "\n")],
+                                 ["prose-dash"] if dashed else [])
+                self.assertEqual(
+                    mod._gate51_dash_findings(gate51, [("CHANGELOG.md", [line], [(0, 1)], True)]),
+                    (dashed, []))
+        for staged in (True, False):
+            with self.subTest(staged=staged), tempfile.TemporaryDirectory() as td:
+                result = self._run_cli(os.path.realpath(td), "x [a](u`\u2028v) \u2014 `",
+                                       staged=staged)
+                report = result.stdout + result.stderr
+                self.assertEqual(result.returncode, 1, report)
+                self.assertIn("FAIL CHANGELOG.md: em/en dash in prose", report)
+
+    def test_a_work_tree_file_that_differs_from_its_diff_exits_2(self):
+        # 3b696 round 2: the dash check reads the work-tree file whole, so when a git clean filter
+        # makes the diff show other text the run is refused rather than judging text the diff
+        # does not hold. Mutation killed: dropping the line check in _dash_sources.
+        with tempfile.TemporaryDirectory() as td:
+            root, env, git = self._cli_fixture(os.path.realpath(td))
+            (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+            git("add", "-A")
+            git("commit", "-q", "--no-verify", "-m", "init")
+            (root / "CHANGELOG.md").write_text("# Changelog\n" + self.ADDED + "\n",
+                                               encoding="utf-8")
+            (root / ".git" / "info").mkdir(exist_ok=True)
+            (root / ".git" / "info" / "attributes").write_text("CHANGELOG.md filter=up\n",
+                                                               encoding="utf-8")
+            git("config", "filter.up.clean", "tr a-z A-Z")
+            result = self._aid(root, env, False)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertRegex(result.stderr, r"^ERROR: the CHANGELOG diff could not be read: line \d+ "
+                         r"of CHANGELOG\.md does not match the diff's added line")
+
     def test_a_blank_context_line_cannot_end_a_hunk_early(self):
         # 3b236 round 2 (1): the round 1 parser ended a hunk on any line not starting " ", "-" or
         # "\"; with diff.suppressBlankEmpty=true git prints a blank context line as an empty line,
@@ -49524,12 +51554,15 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
         # 3b236 round 2 (1): an empty line inside a hunk is a blank context line, and a diff the
         # parser cannot read exactly raises the named error instead of yielding fewer added lines.
         mod = self._load("_pcl_hunk_counts")
+        # 3b696 round 2: the aid now reads with parse_numbered_added_lines, and parse_added_lines
+        # (D3, D7) is the same reader without the numbers, so the refusals below check both.
+        parse = sys.modules[mod.parse_numbered_added_lines.__module__].parse_added_lines
         head = b"diff --git a/CHANGELOG.md b/CHANGELOG.md\n--- a/CHANGELOG.md\n+++ b/CHANGELOG.md\n"
         self.assertEqual(
-            mod._parse_added_lines(head + b"@@ -2,3 +2,3 @@\n-x1\n+y1\n\n-x2\n+++y2\n"),
+            parse(head + b"@@ -2,3 +2,3 @@\n-x1\n+y1\n\n-x2\n+++y2\n"),
             [("CHANGELOG.md", "y1"), ("CHANGELOG.md", "++y2")])
         self.assertEqual(
-            mod._parse_added_lines(head + b"@@ -1 +1 @@\n-x\n\\ No newline at end of file\n+y\n"),
+            parse(head + b"@@ -1 +1 @@\n-x\n\\ No newline at end of file\n+y\n"),
             [("CHANGELOG.md", "y")])
         unreadable = (
             head + b"@@ -1,0 +2,2 @@\n+one\n",             # the output ends inside the hunk
@@ -49541,8 +51574,21 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
             head + b"@@ -0,0 +1 @@\n+bad \xff byte\n",       # an added line that is not UTF-8
         )
         for diff in unreadable:
-            with self.subTest(diff=diff), self.assertRaises(mod.ChangelogDiffUnreadable):
-                mod._parse_added_lines(diff)
+            for reader in (parse, mod.parse_numbered_added_lines):
+                with self.subTest(diff=diff, reader=reader.__name__), \
+                        self.assertRaises(mod.ChangelogDiffUnreadable):
+                    reader(diff)
+
+    def test_the_parser_numbers_each_added_line_on_the_new_side(self):
+        # 3b696 round 2: the whole-file dash check finds each added line by its new-side number,
+        # counted from the hunk header's +c past added and context lines, not removed ones.
+        mod = self._load("_pcl_hunk_numbers")
+        head = b"diff --git a/CHANGELOG.md b/CHANGELOG.md\n--- a/CHANGELOG.md\n+++ b/CHANGELOG.md\n"
+        self.assertEqual(
+            mod.parse_numbered_added_lines(head + b"@@ -2,3 +2,4 @@\n-x1\n+y1\n\n+y2\n-x2\n+y3\n"
+                                           b"@@ -9,0 +11 @@\n+z\n"),
+            [("CHANGELOG.md", 2, "y1"), ("CHANGELOG.md", 4, "y2"), ("CHANGELOG.md", 5, "y3"),
+             ("CHANGELOG.md", 11, "z")])
 
     def test_an_added_line_that_is_not_utf8_is_one_named_error(self):
         # 3b236 round 2 (2): the diff bytes were decoded with a bare decode("utf-8"), so an added

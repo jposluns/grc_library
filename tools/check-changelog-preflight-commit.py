@@ -220,7 +220,7 @@ def _integration_self_test():
                     "tools/install-git-hooks.sh", "tools/git-hooks/pre-commit", str(_PREFLIGHT),
                     "tools/preflight_language_runner.py",
                     "tools/check-changelog-length-on-pr.py", "tools/lint_common.py",
-                    "tools/changelog_diff.py",
+                    "tools/changelog_diff.py", "tools/lint-working-prose-hygiene.py",
                     "tools/aiqt_bootstrap.py", "tools/lint-language.py",
                     ".corpus-management/tools/gate_lint_language.py",
                     ".corpus-management/tools/profile_loader.py",

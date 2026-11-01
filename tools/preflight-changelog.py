@@ -55,12 +55,45 @@ inside every commit that stages ``CHANGELOG.md`` and refuses on failure.
 
 The check is scoped to the lines a PR ADDS (``git diff`` against HEAD), so
 historical entries that predate the conventions never false-alarm. Dash
-detection strips inline code spans first (a regex character class or a
-quoted format literal may legitimately contain a dash), matching gate 51.
+detection leaves out code (a regex character class or a quoted format literal
+may legitimately contain a dash) with gate 51's own model: this aid loads
+``lint-working-prose-hygiene.py`` and runs its ``scan_lines`` over the whole
+new text of each CHANGELOG file that gained a line (the index's copy under
+``--staged``, else the work-tree file), and reports a prose dash only on an
+added line (3b696 round 2). So fences, escapes, autolinks, raw HTML, link
+destinations, exact-length span pairing and spans that cross lines, an
+unchanged line's included, behave as gate 51's do. Round 1 ran the model on
+each added line alone, and a span opened on one added line and closed on the
+next hid a dash that gate 51 reports, so its "fails safe" claim was wrong. A
+fence the model sees still open at the end of the file, opened at or above an
+added line, is a finding too. A gate 51 that fails to load, or that lacks a
+callable ``scan_lines`` or ``commonmark_lines``, is one fixed ERROR line and exit 2. A fault an
+ordinary exception produces inside the model (``commonmark_lines`` included, 3b696 round 20) is
+one ERROR line naming the file and the error, exit 2, other than KeyboardInterrupt (raised by the
+model or while its error is formatted), which propagates. Only a bare KeyboardInterrupt propagates:
+one inside an exception group is mapped like the group, one ERROR line and exit 2 (3b696 round 23).
+Disclosed residual (3b696 round 22, widened in round 23): an exception whose own methods, or whose
+arguments' methods, raise, print, or misreport its name is outside that guarantee; a built-in
+RuntimeError whose argument's ``__str__`` prints to stderr, for one, gives two stderr lines.
 
-Known limitation: because the aid scans the added diff-lines in isolation,
-it does NOT track fenced (```` ``` ````) code-block state the way the
-authoritative link-coverage gate does (that gate skips path-shaped spans
+The file is split on LF only, as git splits the diff, and each added line
+must be the file's line at its number, or the run exits 2 (the file changed
+during the run, or a git clean filter or end-of-line conversion makes the
+work-tree file differ from the diff; availability only). The model then
+reads the lines gate 51 reads (3b696 round 3): each LF line is split again
+with gate 51's ``commonmark_lines``, so at a bare CR only, as CommonMark ends a
+line (3b696 round 19; VT, FF, FS to RS, U+0085, U+2028 and U+2029 stay inside
+the line; a trailing CR goes as CRLF's does, and the last line of a file with
+no final LF gains no empty line, 3b696 round 4), and a finding on
+any piece is a finding on its LF line, so on an added line the aid and gate 51
+agree, except that gate 51 skips a whole file that is not valid UTF-8 while the
+aid decodes it with ``surrogateescape`` and still scans its added lines. D3 still checks every added root CHANGELOG line, code included. An
+``added_lines`` that records no line origins (a test double) leaves each
+line checked whole, code included.
+
+Known limitation: because the link-coverage check scans the added diff-lines
+in isolation, it does NOT track fenced (```` ``` ````) code-block state the way
+the authoritative link-coverage gate does (that gate skips path-shaped spans
 inside fenced blocks). A path-shaped span added inside a fenced block in a
 CHANGELOG entry would therefore make this aid exit 1 (over-block) where the
 gate exits 0. The divergence fails safe (it over-blocks the author's own
@@ -88,8 +121,12 @@ Exit codes:
         engine fault in the child, exit 2. A D7 length checker
         (check-changelog-length-on-pr.py) that fails to load, or that lacks
         entries_in_added_line, evaluate, DEFAULT_WORD_MAX or DEFAULT_SENTENCE_MAX,
-        is also exit 2, reported as one fixed ERROR line rather than a traceback (3b236).
-        So is a diff the parser cannot read exactly: a hunk whose lines do not match its
+        is also exit 2, reported as one fixed ERROR line rather than a traceback (3b236),
+        and so is a gate 51 (lint-working-prose-hygiene.py) that fails to load or lacks a
+        callable scan_lines (3b696) or commonmark_lines (round 19), or whose model raises on a CHANGELOG file's text, named
+        with the file and the error (3b696 round 2). So is a CHANGELOG file whose new text
+        cannot be read whole (a failed ``git cat-file``, an unreadable file) or does not hold
+        an added line at that line's number (3b696 round 2). So is a diff the parser cannot read exactly: a hunk whose lines do not match its
         header's line counts, or an added line that is not valid UTF-8 (3b236 round 2), or a
         CHANGELOG.md or mirror that the diff shows as a symbolic link or a submodule (3b399
         round 4). So is a run where git selects a work tree other than this repository's
@@ -226,12 +263,12 @@ from aiqt_corpus import CODE_SPAN_RE  # noqa: E402  # generic core (behaviour-id
 from lint_common import (  # noqa: E402  # grc-config/store, stays local
     REPO_ROOT, _SIBLING_REPO_DIRS, InaccessiblePath, _store_dir, _strict_is_dir, resolve_working)
 # The added-line diff, its parser and the repository-selection and link checks are shared with
-# the D3 and D7 delta gates (3b399); the parser and the foreign environment keep their earlier
-# private names here.
+# the D3 and D7 delta gates (3b399); the foreign environment keeps its earlier private name here.
+# The aid reads added lines with their numbers (3b696 round 2), for the whole-file dash check.
 from changelog_diff import (  # noqa: E402
     ChangelogDiffUnreadable, GitQueryFailed, GitSelectsAnotherTree, _git_query, added_line_diff,
     check_git_selects_root, foreign_repo_env as _foreign_repo_env, git_selection,
-    parse_added_lines as _parse_added_lines, refuse_links)
+    parse_numbered_added_lines, refuse_links)
 
 # D7 length check reuse (P-1.4): import the authoritative per-PR length checker so the
 # 100-word / 45-word-sentence ceiling on a root-CHANGELOG compact entry is caught at
@@ -275,6 +312,50 @@ def _load_d7():
             raise D7CheckerUnavailable() from None
         _d7 = module
     return _d7
+
+
+# Gate 51 reuse (3b696): the dash check runs gate 51's own model (scan_lines in
+# lint-working-prose-hygiene.py) over each changed CHANGELOG file's whole new text, loaded the way
+# the D7 checker is, so the aid keeps no copy of it and a load failure is one named error (exit
+# 2), not a traceback. Round 2: a fault inside the model is one named error too.
+_g51 = None
+
+_G51_ERROR = (
+    "ERROR: gate 51's inline model could not be loaded from "
+    "lint-working-prose-hygiene.py."
+)
+
+
+class Gate51ModelUnavailable(RuntimeError):
+    """Gate 51's inline model failed to load; main() reports the fixed error and exits 2."""
+
+
+class Gate51ModelFailed(RuntimeError):
+    """Gate 51's model raised on a CHANGELOG file's text; main() names the file and the error
+    and exits 2 (3b696 round 2, claude N1)."""
+
+
+def _load_gate51():
+    """The loaded gate 51 module. Any failure while loading it, or a loaded module without a
+    callable scan_lines or commonmark_lines, raises Gate51ModelUnavailable; a KeyboardInterrupt
+    propagates."""
+    global _g51
+    if _g51 is None:
+        try:
+            spec = _ilu.spec_from_file_location(
+                '_working_prose_hygiene_g51',
+                Path(__file__).resolve().parent / 'lint-working-prose-hygiene.py')
+            module = _ilu.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            if not all(callable(getattr(module, name, None))
+                       for name in ("scan_lines", "commonmark_lines")):
+                raise Gate51ModelUnavailable()
+        except KeyboardInterrupt:
+            raise
+        except BaseException:
+            raise Gate51ModelUnavailable() from None
+        _g51 = module
+    return _g51
 
 
 # Gate 2's project entry point: the isolated child loads it, and through it the
@@ -542,18 +623,19 @@ CHANGELOG_FILES = (
 EM_DASH = "\u2014"
 EN_DASH = "\u2013"
 
-# Inline code-span stripper: a run of N backticks, the shortest content, then
-# a closing run of N backticks (the standard CommonMark code-span shape). Same
-# approach as gate 51 (lint-working-prose-hygiene.py), so a dash that is
-# legitimately inside a code span (a regex character class, a quoted format
-# literal) is treated as content, not prose.
+# Code spans and fences for the dash check come from gate 51 itself (3b696):
+# main() runs _load_gate51().scan_lines over each changed CHANGELOG file's whole
+# new text (round 2) and keeps the prose-dash findings on added lines, so a dash
+# that is legitimately inside a code span (a regex character class, a quoted
+# format literal) is treated as content, not prose, exactly as gate 51 treats it,
+# including a span that crosses lines.
 #
-# DELIBERATE two-parser seam (GR-11): this file carries TWO code-span parsers
-# because each mirrors a DIFFERENT authoritative gate. This regex mirrors gate
-# 51's any-length span stripper (the dash check); the manual single-backtick
-# walk in unlinked_refs_in_line() mirrors lint-changelog-link-coverage.py's
-# per-line walk byte-for-byte (the link check). Unifying them would break
-# parity with one gate or the other; keep each in step with ITS gate.
+# DELIBERATE seam (GR-11): each code-span reading here follows a DIFFERENT
+# authoritative gate. The dash check uses gate 51's loaded model; the manual
+# single-backtick walk in unlinked_refs_in_line() mirrors
+# lint-changelog-link-coverage.py's per-line walk byte-for-byte (the link
+# check); CODE_SPAN_RE in the dangling-link check is unchanged. Unifying them
+# would break parity with one gate or another; keep each in step with ITS gate.
 
 # --- File-reference recognition, mirrored from lint-changelog-link-coverage.py ---
 # Kept in step with that gate (the authoritative post-commit check); this aid
@@ -949,7 +1031,8 @@ def _private_sibling(root: Path) -> Path | None:
 
 
 def _added_lines_from_repo(
-    repo: Path, paths: tuple[str, ...], staged: bool, env: dict[str, str] | None = None
+    repo: Path, paths: tuple[str, ...], staged: bool, env: dict[str, str] | None = None,
+    origins: list[tuple[Path, dict[str, str] | None, bool, str, int]] | None = None,
 ) -> list[tuple[str, str]]:
     """(file, added-line-text) for every added CHANGELOG line in ONE repo's diff, run with ``env``:
     None inherits this process's environment, right for the public repository, where a pre-commit
@@ -967,20 +1050,143 @@ def _added_lines_from_repo(
     files at that root whatever this process's working directory, provided git selects that
     root as its work tree (:func:`added_lines` checks it for the public repository). The
     runner also drops the pathspec-reading variables (3b399 round 4). Its parser,
-    ``changelog_diff.parse_added_lines``, reads each hunk by its header's line counts, and a diff it
-    cannot read exactly raises ``ChangelogDiffUnreadable`` (``main()`` exits 2) rather than
-    yielding fewer added lines.
+    ``changelog_diff.parse_numbered_added_lines`` (``parse_added_lines`` with each line's number),
+    reads each hunk by its header's line counts, and a diff it cannot read exactly raises
+    ``ChangelogDiffUnreadable`` (``main()`` exits 2) rather than yielding fewer added lines.
 
     A git failure raises ``CalledProcessError`` carrying git's ``stderr``, and ``main()`` exits 2:
     an unread diff is not zero added lines. This replaces the 3.190 fail-open, which returned []
     for any git failure (a sibling that is not a git repository included), so a failed diff
-    printed "OK: 0 added CHANGELOG line(s)" and exited 0."""
+    printed "OK: 0 added CHANGELOG line(s)" and exited 0.
+
+    3b696 round 2: ``origins``, when given, receives ``(repo, env, staged, file, line number)``
+    for each added line, in the order of the returned lines, so :func:`_dash_sources` can read
+    each file's whole new text for gate 51's model."""
     revs = ["--cached", "HEAD"] if staged else ["HEAD"]
-    return _parse_added_lines(added_line_diff(revs, paths, cwd=repo, env=env))
+    numbered = parse_numbered_added_lines(added_line_diff(revs, paths, cwd=repo, env=env))
+    if origins is not None:
+        origins.extend((repo, env, staged, name, number) for name, number, _ in numbered)
+    return [(name, text) for name, _, text in numbered]
+
+
+def _new_side_lines(repo: Path, name: str, staged: bool,
+                    env: dict[str, str] | None) -> tuple[list[str], bool]:
+    """``(lines, ends)``: the lines of ``name`` (a path from the root of ``repo``'s work tree, as
+    the diff names it) on the side of the diff that :func:`_added_lines_from_repo` read (the
+    index's copy under ``--staged``, ``git cat-file``, else the work-tree file), and whether that
+    text ends with an LF. The text is split on LF only, as the diff parser splits it, so a CR,
+    U+2028 or U+0085 stays inside its line. Bytes that are not UTF-8 decode as surrogates (an
+    unchanged line may hold one; an added line cannot, the parser refuses it, and the
+    full-mirror scan still refuses such a mirror by name). A failed git query raises
+    ``GitQueryFailed``; an unreadable file, ``OSError``."""
+    if staged:
+        data = _git_query(["cat-file", "blob", f":{name}"], cwd=repo, env=env)
+    else:
+        data = (git_selection(repo, env)[0] / name).read_bytes()
+    text = data.decode("utf-8", errors="surrogateescape")
+    lines = text.split("\n")
+    ends = text.endswith("\n")
+    if ends:
+        lines.pop()
+    return lines, ends
+
+
+def _dash_sources(lines: list[tuple[str, str]],
+                  origins: list[tuple[Path, dict[str, str] | None, bool, str, int]]
+                  ) -> list[tuple[str, list[str], list[tuple[int, int]], bool]] | None:
+    """``(file, new-side lines, [(index into lines, line number), ...], ends with LF)`` for each
+    file that added lines came from, for gate 51's whole-file dash check (3b696 round 2), or
+    None when ``origins`` does not cover ``lines`` (an ``added_lines`` that records no origins,
+    as a test double does; main() then checks each such line whole, code included).
+
+    Each added line must be the new side's line at its number. A line that is not raises
+    ``ChangelogDiffUnreadable`` (exit 2): the file changed between the diff and the read, or a
+    git clean filter or end-of-line conversion makes the work-tree file differ from what the
+    diff shows, and the dash verdict would be about other text."""
+    if len(origins) != len(lines):
+        return None
+    groups: dict[tuple[Path, str], tuple[bool, dict[str, str] | None, list[tuple[int, int]]]] = {}
+    for k, (repo, env, staged, name, number) in enumerate(origins):
+        groups.setdefault((repo, name), (staged, env, []))[2].append((k, number))
+    sources = []
+    for (repo, name), (staged, env, added) in groups.items():
+        file_lines, ends = _new_side_lines(repo, name, staged, env)
+        for k, number in added:
+            if not (1 <= number <= len(file_lines) and file_lines[number - 1] == lines[k][1]):
+                raise ChangelogDiffUnreadable(
+                    f"line {number} of {name} does not match the diff's added line (the file "
+                    "changed while the aid read it, or a git filter changes it)")
+        sources.append((name, file_lines, added, ends))
+    return sources
+
+
+def _gate51_dash_findings(gate51, sources: list[tuple[str, list[str], list[tuple[int, int]], bool]]
+                          ) -> tuple[set[int], list[tuple[str, str, str]]]:
+    """``(dashed, fences)``: the indexes into the added lines that gate 51's model, run over each
+    file's whole new text, reports as a prose dash, and an unclosed-fence finding for each fence
+    left open at or above an added line (it would hide that line). The model reads the lines
+    gate 51 reads (3b696 round 3, claude N1): each LF line is split again with gate 51's
+    ``commonmark_lines`` (``line + "\\n"``, so a trailing CR goes as CRLF's does, and a bare CR
+    starts a new line; VT, FF, FS to RS, U+0085, U+2028 and U+2029 do not, as in CommonMark,
+    3b696 round 19), and a finding on any piece is a finding on its LF line. The last line of a file with no final LF is split
+    alone, so a break at its end adds no empty line (3b696 round 4, claude N1). Any exception
+    the model raises, in ``commonmark_lines`` (3b696 round 20) or ``scan_lines``, other than
+    KeyboardInterrupt, raises ``Gate51ModelFailed`` naming the file and the error."""
+    dashed: set[int] = set()
+    fences: list[tuple[str, str, str]] = []
+    for name, file_lines, added, ends in sources:
+        numbers = {number: k for k, number in added}
+        pieces: list[str] = []
+        owner: list[int] = []  # the LF line number of each piece
+        try:
+            # The split is the model's too, so a fault in it is a model fault (3b696 round 20).
+            for number, line in enumerate(file_lines, start=1):
+                split = gate51.commonmark_lines(line + "\n" if ends or number < len(file_lines)
+                                                else line)
+                pieces.extend(split)
+                owner.extend([number] * len(split))
+            findings = gate51.scan_lines(pieces)
+            for lineno, tag, snippet in findings:
+                number = owner[lineno - 1]
+                if tag == "prose-dash" and number in numbers:
+                    dashed.add(numbers[number])
+                elif tag == "unclosed-fence" and max(numbers) >= number:
+                    fences.append((name, f"code fence opened at line {number} is never closed "
+                                         "(gate 51 [unclosed-fence]), so it hides the lines "
+                                         "after it", snippet))
+        except KeyboardInterrupt:
+            raise
+        except BaseException as exc:
+            detail = _fault_detail(exc)
+            raise Gate51ModelFailed(f"gate 51's model failed on {name}: {detail}") from None
+    return dashed, fences
+
+
+def _fault_detail(exc: BaseException) -> str:
+    """``"<type>: <message>"`` on one line for a fault an ordinary exception produces in the
+    model, never raising other than KeyboardInterrupt, which propagates (3b696 round 21; the module
+    docstring states the residual): formatting calls the exception's ``__str__``, which may itself
+    raise, so that failure gives ``"<type> (its message could not be formatted)"``, and a type
+    name that cannot be formatted gives the fixed string ``"an exception whose type name could not
+    be formatted"`` (3b696 round 22, claude N1; quoted in round 23)."""
+    try:
+        return " ".join(f"{type(exc).__name__}: {exc}".split())
+    except KeyboardInterrupt:
+        raise
+    except BaseException:
+        pass
+    try:
+        return " ".join(f"{type(exc).__name__} (its message could not be formatted)".split())
+    except KeyboardInterrupt:
+        raise
+    except BaseException:
+        return "an exception whose type name could not be formatted"
 
 
 def added_lines(staged: bool, root: Path = REPO_ROOT,
-                diffed: list[tuple[str, Path]] | None = None) -> list[tuple[str, str]]:
+                diffed: list[tuple[str, Path]] | None = None,
+                origins: list[tuple[Path, dict[str, str] | None, bool, str, int]] | None = None,
+                ) -> list[tuple[str, str]]:
     """Added CHANGELOG lines across the public repo AND the (post-move) private
     detailed mirror. The public root CHANGELOG.md (and, pre-move, the in-repo
     mirror) come from this repo's diff; a mirror in the operational store or the private sibling gets its OWN
@@ -1013,11 +1219,12 @@ def added_lines(staged: bool, root: Path = REPO_ROOT,
     lines' file name and its physical file, for ``main()``'s full-mirror link scan. 3b399
     round 9: the index is asked for the mirror at its expected path only
     (:func:`_mirror_in_index`), so a tracked copy elsewhere is ignored, and a mirror is
-    appended to ``diffed`` only when its diff added a line."""
+    appended to ``diffed`` only when its diff added a line. 3b696 round 2: ``origins``, when
+    given, receives each added line's origin (:func:`_added_lines_from_repo`)."""
     check_git_selects_root(root, cwd=root)
     public_paths = ("CHANGELOG.md", DETAILED_MIRROR_REL)
     _refuse_linked_paths(root, public_paths)
-    results = _added_lines_from_repo(root, public_paths, staged)
+    results = _added_lines_from_repo(root, public_paths, staged, origins=origins)
     external = []
     store = _operational_store(root.resolve())
     if store is not None:
@@ -1040,7 +1247,7 @@ def added_lines(staged: bool, root: Path = REPO_ROOT,
             _refuse_linked_paths(private_root, (rel,), env)
         except GitQueryFailed as exc:
             raise GitQueryFailed(f"{exc} (in {private_root})") from None
-        added = _added_lines_from_repo(private_root, (rel,), staged, env=env)
+        added = _added_lines_from_repo(private_root, (rel,), staged, env=env, origins=origins)
         results.extend(added)
         if diffed is not None and added:
             # 3b399 round 9 (claude W1 3B399-R8-SIBLING-FULLSCAN-STALE): only a mirror whose diff
@@ -1071,9 +1278,16 @@ def main(argv: list[str]) -> int:
     except D7CheckerUnavailable:
         print(_D7_ERROR, file=sys.stderr)
         return 2
-    diffed: list[tuple[str, Path]] = []
     try:
-        lines = added_lines(args.staged, diffed=diffed)
+        gate51 = _load_gate51()
+    except Gate51ModelUnavailable:
+        print(_G51_ERROR, file=sys.stderr)
+        return 2
+    diffed: list[tuple[str, Path]] = []
+    origins: list[tuple[Path, dict[str, str] | None, bool, str, int]] = []
+    try:
+        lines = added_lines(args.staged, diffed=diffed, origins=origins)
+        sources = _dash_sources(lines, origins)
     except subprocess.CalledProcessError as exc:
         # Fail closed (3b141 QA r1): a failed diff is not zero added lines.
         detail = (exc.stderr or "").strip()
@@ -1098,10 +1312,18 @@ def main(argv: list[str]) -> int:
         print(_LANGUAGE_ERROR, file=sys.stderr)
         return 2
 
+    dashed: set[int] = set()
+    fences: list[tuple[str, str, str]] = []
+    if sources is not None:
+        try:
+            dashed, fences = _gate51_dash_findings(gate51, sources)
+        except Gate51ModelFailed as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 2
+
     findings: list[tuple[str, str, str]] = []
-    for path, text in lines:
-        stripped = CODE_SPAN_RE.sub("", text)
-        if EM_DASH in stripped or EN_DASH in stripped:
+    for k, (path, text) in enumerate(lines):
+        if k in dashed if sources is not None else (EM_DASH in text or EN_DASH in text):
             findings.append((path, "em/en dash in prose", text.strip()))
         for ref in unlinked_refs_in_line(text):
             findings.append((path, f"unlinked file reference `{ref}`", text.strip()))
@@ -1150,6 +1372,7 @@ def main(argv: list[str]) -> int:
               + (f" {scanning}" if scanning is not None else "") + f": {exc}", file=sys.stderr)
         return 2
 
+    findings.extend(fences)
     findings.extend(spelling)
     findings.extend(d7_length_findings(lines))
 
