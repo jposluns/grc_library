@@ -16620,38 +16620,6 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0496",
-      "inverse": {
-        "storage": "inferred",
-        "verb": "is mapped from"
-      },
-      "layout_role": "associative",
-      "nature": [
-        "structural"
-      ],
-      "provenance": null,
-      "relationship_class": "correspondence",
-      "scope": null,
-      "source": {
-        "class": "policy",
-        "id": "GRC-ANNEX-PUBLIC-SECTOR-REQUIREMENTS"
-      },
-      "status": "active",
-      "validity": {
-        "from": null,
-        "to": null
-      },
-      "verb": "maps to",
-      "viewpoint": "authority"
-    },
-    {
-      "authority_level": "industry practice",
-      "destination": {
-        "class": "framework",
-        "id": "OECD-AI-PRINCIPLES"
-      },
-      "direction_rule": "the entity that confers force places above the entity that receives it",
-      "evidence_refs": [],
       "id": "rel-corpus-0497",
       "inverse": {
         "storage": "inferred",
@@ -18985,10 +18953,10 @@
   "source": "governance/relationship-model-source.json",
   "summary": {
     "node_count": 201,
-    "record_count": 549,
+    "record_count": 548,
     "records_by_relationship_class": {
       "commitment": 1,
-      "correspondence": 521,
+      "correspondence": 520,
       "implementation": 19,
       "influence": 8
     }

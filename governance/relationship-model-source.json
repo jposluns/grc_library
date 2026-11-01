@@ -34,11 +34,11 @@
     "guideline per rel-corpus-0489 and rel-corpus-0492) and the document's own content corresponds",
     "to the regulation: it records, implements or evidences the regulation's obligations. As ruled,",
     "Document Type governs: a document whose Document Type maps to a node class qualifies whatever",
-    "its title or filename, and a document whose Document Type is Template stays out. As ruled, an",
-    "alignment, scope or citation row counts as correspondence only when the document's own body",
-    "implements or records the cited obligation; an index entry, glossary definition, role title,",
-    "example or sample value is not correspondence on its own. Principle documents stay out until a",
-    "node class exists for them."
+    "its title or filename, and a document whose Document Type is Template, Annex or Plan stays out.",
+    "As ruled, an alignment, scope or citation row counts as correspondence only when the document's",
+    "own body implements or records the cited obligation; an index entry, glossary definition, role",
+    "title, example or sample value is not correspondence on its own. Principle documents stay out",
+    "until a node class exists for them."
   ],
   "nodes": [
     {
@@ -16622,38 +16622,6 @@
       "id": "rel-corpus-0495",
       "source": {
         "id": "GRC-POL-COMPLIANCE-AUDIT-MGMT",
-        "class": "policy"
-      },
-      "verb": "maps to",
-      "destination": {
-        "id": "OECD-AI-PRINCIPLES",
-        "class": "framework"
-      },
-      "relationship_class": "correspondence",
-      "layout_role": "associative",
-      "nature": [
-        "structural"
-      ],
-      "viewpoint": "authority",
-      "direction_rule": "the entity that confers force places above the entity that receives it",
-      "inverse": {
-        "verb": null,
-        "storage": "inferred"
-      },
-      "validity": {
-        "from": null,
-        "to": null
-      },
-      "authority_level": "industry practice",
-      "evidence_refs": [],
-      "provenance": null,
-      "scope": null,
-      "status": "active"
-    },
-    {
-      "id": "rel-corpus-0496",
-      "source": {
-        "id": "GRC-ANNEX-PUBLIC-SECTOR-REQUIREMENTS",
         "class": "policy"
       },
       "verb": "maps to",
