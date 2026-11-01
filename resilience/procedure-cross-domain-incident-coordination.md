@@ -2,7 +2,7 @@
 
 **Document Title:** Cross-Domain Incident Coordination Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.17\
+**Version:** 1.1.18\
 **Date:** 2026-11-01\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
@@ -97,7 +97,7 @@ These checklists govern the transitions between streams. The Coordinator confirm
 1. Confirmed scope of personal data potentially exposed, by data category and approximate volume.
 2. Forensic evidence of access, exfiltration, or modification, with timestamps in UTC.
 3. List of affected data subjects, processing roles, and jurisdictions, to the extent known.
-4. Suspected attack vector and time-of-first-compromise estimate to support the "becoming aware" determination under GDPR Article 33.
+4. Suspected attack vector and time-of-first-compromise estimate to support the "becoming aware" determination under GDPR Article 33 and UK GDPR Article 33 (consolidated text retrieved 29 September 2026).
 5. Containment status: whether the breach is contained and whether further data is at risk.
 6. Authorization for the Privacy stream to take parallel actions (e.g. request supplier preservation, contact the Privacy regulator).
 
@@ -109,6 +109,7 @@ These checklists govern the transitions between streams. The Coordinator confirm
 4. Whether supplier access should be restricted or revoked, and the authority to do so.
 5. Evidence the supplier is expected to provide and the format and deadline.
 6. Communication boundary: who at the supplier and at the organization may discuss the incident, and what is on or off the record.
+7. When the supplier or processor notified the organization of the breach (UTC), and whether the contract specifies how the supplier or processor provides the information necessary for the organization to fulfil its obligation to notify relevant authorities (ISO/IEC 27701:2025 B.3.12).
 
 ### Security to AI hand-off (when an AI system is implicated)
 
@@ -118,6 +119,8 @@ These checklists govern the transitions between streams. The Coordinator confirm
 4. Decision on capability suspension: which AI capabilities are suspended pending investigation, by whose authority.
 5. Whether training, fine-tuning, or retrieval pipelines must be paused.
 6. Whether supplier model provider must be notified per contract and within what window.
+7. Recovery point: the known good state to which the AI system is to be recovered, and the procedures for validating model integrity (ETSI TR 104 128 V1.1.1 (2025-05) clause 6.6.5).
+8. Audit trails across the stack, including prompt inputs, augmentation sources, model outputs, function calls, and tool invocations, preserved and recorded in the evidence index (SANS Critical AI Security Guidelines v1.4, March 2026, Incident Response and Forensics for AI Systems).
 
 ### Privacy to Communications hand-off (when external notification is required)
 
@@ -178,6 +181,8 @@ The Evidence Custodian maintains a single evidence index spanning all streams. E
 
 Evidence that crosses streams (for example, a SIEM extract used by Security, Privacy, and Legal) is captured once and referenced by all consuming streams. The Custodian is responsible for chain of custody across the full incident lifecycle, including hand-off to external forensic providers or law enforcement.
 
+Digital evidence can transcend organizational or jurisdictional boundaries (for example, evidence held by a supplier or in another jurisdiction). In such cases, the Custodian confirms with the Legal Lead that the organization is entitled to collect the required information as digital evidence before collecting it (ISO/IEC 27002:2022 5.28).
+
 Retention follows the strictest applicable rule across streams: typically seven years per the records retention standard, longer where litigation hold or regulatory investigation applies.
 
 ---
@@ -215,7 +220,7 @@ The Joint PIR is owned by the Incident Coordinator, signed by the Executive Spon
 
 ## Joint exercises
 
-Cross-stream coordination must be exercised at minimum annually. Exercises rotate through scenario classes: security plus privacy, security plus supplier, AI plus security plus privacy, operational outage plus crisis activation. Each exercise produces an after-action report tracked in the resilience metrics register, and corrective actions feed the corrective action register.
+Cross-stream coordination must be exercised at minimum annually (NIST SP 800-84 (2006) Section 2 describes tabletop and functional exercise types). Exercises rotate through scenario classes: security plus privacy, security plus supplier, AI plus security plus privacy, operational outage plus crisis activation. Each exercise produces an after-action report tracked in the resilience metrics register, and corrective actions feed the corrective action register.
 
 ---
 
@@ -245,14 +250,16 @@ Maintain joint declaration record, coordination roster snapshot, joint decision 
 
 | Control area | Framework reference |
 | --- | --- |
-| Incident management programme | ISO/IEC 27035-1:2023, ISO/IEC 27035-2:2023; ISO/IEC 27001:2022 Annex A.5.24 to A.5.28 |
-| Cross-organization incident coordination (supplier and affected-party engagement) | ISO/IEC 27035-4:2024 (Part 4: Coordination) |
+| Incident management programme | ISO/IEC 27035-1:2023, ISO/IEC 27035-2:2023; ISO/IEC 27001:2022 Annex A.5.24 to A.5.28; ISO/IEC 27002:2022 5.24 to 5.28 |
+| Cross-organization incident coordination (supplier and affected-party engagement) | ISO/IEC 27035-4:2024 (Part 4: Coordination); ISO/IEC 27036-2:2022 7.3.3, Table 18, a) 5) ii) (incident management procedure agreed by the acquirer and the supplier); ISO/IEC 27701:2025 B.3.12 (PII processor breach notification provisions) |
 | Business continuity coordination | ISO 22301:2019 §8.4 |
-| Cybersecurity incident handling | NIST SP 800-61 Rev. 3; China Cybersecurity Law Article 27 (amended numbering, in force 1 January 2026) |
-| Personal data breach coordination | GDPR Articles 33 to 34; UK GDPR Articles 33 to 34; PIPL Article 57; China Cybersecurity Law Articles 27 and 44 para. 2 (amended numbering, in force 1 January 2026); LGPD Article 48 |
-| Operational resilience incident coordination | DORA Articles 17 and 19; NIS 2 Article 23 |
-| Cloud incident management | CSA CCM v4.1 SEF-03, SEF-07, SEF-08, SEF-09 |
-| AI security incident response | NIST AI RMF 1.0 MANAGE 4.3; ISO/IEC 42001:2023 A.8.4 (Communication of incidents) |
+| Cybersecurity incident handling | NIST SP 800-61 Rev. 3; China Cybersecurity Law Article 27 (consolidated text as amended 28 October 2025; amended numbering, in force 1 January 2026 under the NPC Standing Committee amendment decision of 28 October 2025); China Data Security Law Article 29 (data security incidents; unofficial DigiChina English translation of the law in force 1 September 2021) |
+| Personal data breach coordination | GDPR Articles 33 to 34; UK GDPR Articles 33 to 34 (consolidated text retrieved 29 September 2026); PIPL Article 57 (unofficial DigiChina English translation, last revised 7 September 2021); China Cybersecurity Law Articles 27 and 44 para. 2 (consolidated text as amended 28 October 2025; amended numbering, in force 1 January 2026 under the NPC Standing Committee amendment decision of 28 October 2025); LGPD Article 48 |
+| Operational resilience incident coordination | DORA Articles 17 and 19; Commission Delegated Regulation (EU) 2025/301 of 23 October 2024 Article 5 (time limits for DORA major-incident reports); NIS 2 Article 23; CER Directive (EU) 2022/2557 of 14 December 2022 Article 15 (critical entities) |
+| Operational service major incident coordination | ISO/IEC 20000-1:2018 §8.6.1 |
+| Cloud incident management | CSA CCM v4.1 SEF-03, SEF-07, SEF-08, SEF-09; ISO/IEC 27018:2025 A.10.1 (notification of a data breach involving PII) |
+| AI security incident response | NIST AI RMF 1.0 MANAGE 4.3; ISO/IEC 42001:2023 A.8.4 (Communication of incidents); ETSI TR 104 128 V1.1.1 (2025-05) clause 6.6.5; SANS Critical AI Security Guidelines v1.4 (March 2026), Incident Response and Forensics for AI Systems |
+| Joint exercises | NIST SP 800-84 (2006) Section 2 (tabletop and functional exercises) |
 
 ---
 
