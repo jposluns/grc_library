@@ -184,7 +184,7 @@ def refuse_links(paths: Iterable[str], rev: "str | None" = None, *,
                 "leads to")
 
 
-_DIFF_HUNK_RE = re.compile(rb"@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@")
+_DIFF_HUNK_RE = re.compile(rb"@@ -\d+(?:,(\d+))? \+(\d+)(?:,(\d+))? @@")
 # The new side's mode in a file's extended header: "new file mode", "new mode", or the mode
 # both sides share at the end of the "index" line.
 _NEW_MODE_RE = re.compile(rb"(?:new file mode |new mode |index [0-9a-f]+\.\.[0-9a-f]+ )(\d+)$")
@@ -206,15 +206,23 @@ def parse_added_lines(diff: bytes) -> list[tuple[str, str]]:
     round 4): git diffs a symbolic link's target path and a gitlink's commit id, not the
     lines of the file they lead to, so a CHANGELOG.md symlinked to a file holding a bad entry
     showed one clean added line."""
+    return [(name, text) for name, _, text in parse_numbered_added_lines(diff)]
+
+
+def parse_numbered_added_lines(diff: bytes) -> list[tuple[str, int, str]]:
+    """(file, line number, added-line-text) for every added line in ``diff``, read and refused
+    exactly as :func:`parse_added_lines` reads them; the number is the line's one-based position
+    in the file's new side, counted from its hunk header's ``+c`` (3b696 round 2, for the
+    preflight's whole-file dash check)."""
     lines = diff.split(b"\n")
     # Split on LF only (3b236): a CR, U+2028 or U+0085 inside an added line is part of that
     # line, so no fragment of it can lose its "+" marker and escape the checks.
     if lines and lines[-1] == b"":
         lines.pop()
-    results: list[tuple[str, str]] = []
+    results: list[tuple[str, int, str]] = []
     current: str | None = None
     link: tuple[int, bytes] | None = None  # (diff line, mode) of a link the parser is inside
-    old_left = new_left = 0
+    old_left = new_left = new_line = 0
 
     def not_a_file(name: str) -> ChangelogDiffUnreadable:
         number, mode = link
@@ -233,12 +241,14 @@ def parse_added_lines(diff: bytes) -> list[tuple[str, str]]:
                     raise ChangelogDiffUnreadable(
                         f"an added line of {current} (diff line {number}) is not valid "
                         "UTF-8") from None
-                results.append((current, text))
+                results.append((current, new_line, text))
+                new_line += 1
             elif marker == b"-" and old_left:
                 old_left -= 1
             elif marker in (b" ", b"") and old_left and new_left:
                 old_left -= 1
                 new_left -= 1
+                new_line += 1
             elif marker != b"\\":
                 raise ChangelogDiffUnreadable(
                     f"diff line {number} does not fit its hunk's line counts")
@@ -253,7 +263,8 @@ def parse_added_lines(diff: bytes) -> list[tuple[str, str]]:
             if match is None:
                 raise ChangelogDiffUnreadable(f"diff line {number} is not a hunk header")
             old_left = 1 if match.group(1) is None else int(match.group(1))
-            new_left = 1 if match.group(2) is None else int(match.group(2))
+            new_line = int(match.group(2))
+            new_left = 1 if match.group(3) is None else int(match.group(3))
             if new_left and current is None:
                 raise ChangelogDiffUnreadable(
                     f"the hunk at diff line {number} adds lines to no named file")
