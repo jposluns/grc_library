@@ -29775,7 +29775,7 @@ class SessionStateTests(LinterTestCase):
             "Active": lease.replace("Status: active", "Status: Active"),
             "ACTIVE": lease.replace("Status: active", "Status: ACTIVE"),
             "trailing space": lease.replace("Status: active", "Status: active "),
-            "trailing NBSP": lease.replace("example task", "example task "),
+            "trailing NBSP": lease.replace("example task", "example task\u00a0"),
             "lone CR": lease.replace("example task", "example\rtask"),
             "fullwidth digit": lease.replace("2026-07-03", "２026-07-03"),
             "impossible stamp": lease.replace("2026-07-03T12:00:00Z", "2026-02-30T25:61:61Z"),
@@ -64653,8 +64653,8 @@ class PiiInContentEngineTransferTests(unittest.TestCase):
         # ASCII is at a boundary, not a truncated domain, so it stays EXEMPT. (An
         # exotic non-ASCII symbol / curly quote / CJK bracket adjacent with no space
         # is the FN-safe over-flag residue: see test_idn_punctuation_and_fnsafe_residue.)
-        for tail in (" rest.", "　rest.", "， next.",
-                     ". Next sentence.", ")", "] x"):
+        for tail in ("\u00a0rest.", "\u3000rest.", "， next.",
+                     ".\u00a0Next sentence.", ")", "] x"):
             for base in ("x@example.invalid", "nobody@example.com"):
                 doc = f"{base}{tail}\n"
                 self.assertEqual(
@@ -64662,7 +64662,7 @@ class PiiInContentEngineTransferTests(unittest.TestCase):
                     f"exempt email at a Unicode boundary must stay exempt: {doc!r}")
         # a combining mark or zero-width format char DOES continue an IDN label,
         # so a reserved-looking prefix before one is retained (flagged)
-        for doc in ("x@a.test́ here.\n", "x@a.test​.com here.\n"):
+        for doc in ("x@a.test\u0301 here.\n", "x@a.test\u200b.com here.\n"):
             self.assertTrue(
                 [f for f in self._scan(doc) if f[1] == "email address"],
                 f"IDN label continuation after a reserved prefix must be flagged: {doc!r}")
@@ -71859,9 +71859,9 @@ class OpenFindingsRowDeliveryTests(unittest.TestCase):
         for name, text in (
                 ("inline code at column 0", "```inline``` code, not a fence\n" + quote + own),
                 ("a four-backtick code span", "```` ``` ```` spans a run\n" + quote + own),
-                ("U+2028 after the tail", own + "prose FINDINGS: 7 ERROR, 0 WARN, 0 NOTE\n"),
+                ("U+2028 after the tail", own + "prose\u2028FINDINGS: 7 ERROR, 0 WARN, 0 NOTE\n"),
                 ("a lone CR after the tail", own + "prose\rFINDINGS: 7 ERROR, 0 WARN, 0 NOTE\n"),
-                ("U+2028 before a VPR-COMPLETE", own + "prose VPR-COMPLETE 3b540 b0a2e71cf\n"),
+                ("U+2028 before a VPR-COMPLETE", own + "prose\u2028VPR-COMPLETE 3b540 b0a2e71cf\n"),
                 ("CRLF line ends", (quote + own).replace("\n", "\r\n"))):
             with self.subTest(case=name):
                 totals, parts = mod.parse_delivery(hook, text)
@@ -80213,7 +80213,7 @@ class TableCellCountTests(LinterTestCase):
         # after a closing fence makes the line text, so the next fence line
         # closes the fence, the table renders and the last fence never closes.
         n1 = "```\ncode\n```{}\n```\n| a | b |\n|---|---|\n| 1 |\n```\nx\n```\n```\n"
-        for tail in (" ", " ", "\u000c"):
+        for tail in ("\u00a0", "\u2003", "\u000c"):
             with self.subTest(tail=repr(tail)):
                 self.assertEqual(self.finding_heads(n1.format(tail)),
                                  ["doc.md:7 header=2 row=1", "doc.md:11 unclosed-fence"])
@@ -80223,17 +80223,17 @@ class TableCellCountTests(LinterTestCase):
         # N2: a line holding an NBSP is not blank, so it ends the list item and
         # the fence in it.
         n2 = "- item\n  ```\n  code\n{}\n  | a | b |\n  |---|---|\n  | 1 |\n  ```\n"
-        self.assertEqual(self.finding_heads(n2.format(" ")),
+        self.assertEqual(self.finding_heads(n2.format("\u00a0")),
                          ["doc.md:7 header=2 row=1", "doc.md:8 unclosed-fence"])
         self.assertClean(self.make_repo({"doc.md": n2.format("")}))
         # N4: nor does it end an HTML block of type 6.
         n4 = "<div>\n{}\n| a | b |\n|---|---|\n| 1 |\n"
-        self.assertClean(self.make_repo({"doc.md": n4.format(" ")}))
+        self.assertClean(self.make_repo({"doc.md": n4.format("\u00a0")}))
         self.assertFinding(self.make_repo({"doc.md": n4.format(" ")}), "doc.md:5 header=2 row=1")
         # Such a line is paragraph text, so "2. x" after it cannot interrupt
         # the paragraph, and the four-column lines are no table.
         tail = "2. x\n\n    | a | b |\n    |---|---|\n    | 1 |\n"
-        self.assertClean(self.make_repo({"doc.md": " \n" + tail}))
+        self.assertClean(self.make_repo({"doc.md": "\u00a0\n" + tail}))
         self.assertFinding(self.make_repo({"doc.md": "\n" + tail}), "doc.md:6 header=2 row=1")
 
     def test_list_marker_digits_are_ascii(self) -> None:
@@ -80261,7 +80261,7 @@ class TableCellCountTests(LinterTestCase):
         # delimiter cell, so a no-break space in the row, or at either end of
         # it, makes the line text and no table forms.
         table = "| a | b |\n{}\n| 1 |\n"
-        for delimiter in ("|--- |---|", "|---|---| ", " |---|---|"):
+        for delimiter in ("|---\u00a0|---|", "|---|---|\u00a0", "\u00a0|---|---|"):
             with self.subTest(delimiter=repr(delimiter)):
                 self.assertClean(self.make_repo({"doc.md": table.format(delimiter)}))
         for delimiter in ("|--- |---|", "|---\t|---|"):
@@ -80297,7 +80297,7 @@ class TableCellCountTests(LinterTestCase):
                            "doc.md:5 header=2 row=1")
         # Only spaces indent a row, so one starting with a no-break space does
         # not start with a pipe.
-        self.assertFinding(self.make_repo({"doc.md": "| a | b |\n|---|---|\n | 1 | 2 |\n"}),
+        self.assertFinding(self.make_repo({"doc.md": "| a | b |\n|---|---|\n\u00a0| 1 | 2 |\n"}),
                            "doc.md:3 header=2 row=2 no-leading-pipe")
         self.assertClean(self.make_repo({"doc.md": "| a | b |\n|---|---|\n   | 1 | 2 |\n"}))
 
@@ -80712,7 +80712,7 @@ class TableCellCountTests(LinterTestCase):
         # An item whose first line holds only a no-break space is not empty, so
         # the fence is in the item and the later fence lines pair up.
         self.assertClean(self.make_repo({"doc.md": (
-            "-  \n\n  ```\ncode at col 0\n  ```\n\n" + self.HEAD3 + "| 1 |\n\n```\n")}))
+            "- \u00a0\n\n  ```\ncode at col 0\n  ```\n\n" + self.HEAD3 + "| 1 |\n\n```\n")}))
 
     def test_html_block_starts_end_a_table_type_7_does_not(self) -> None:
         # Review probe A4 and CommonMark HTML block types 1 to 6. Types 1 to 5
@@ -82982,6 +82982,46 @@ class IsolatedLaunchTests(LinterTestCase):
             tool.write_text(source.replace("sys.path.append(_TOOLS_DIR)",
                                            "sys.path.insert(0, _TOOLS_DIR)"), encoding="utf-8")
             self.assertEqual(mod.probe(tool)["error"], planted)
+
+
+class TestModuleRawCharacterTests(unittest.TestCase):
+    """This module's own source holds no raw invisible, format, line-separator,
+    combining or non-ASCII space character (Unicode categories Cf, Zl, Zp and
+    Mn, and Zs other than U+0020 SPACE), no raw control character (Cc) other
+    than tab and line feed (carriage return included, since lines end in LF
+    alone), and no blank-looking character in BLANK. A fixture that needs one
+    writes it as an escape with the same value (``\\u00a0``, ``\\u200b``,
+    ``\\u2028``, ``\\u000c``), so a reader, a diff and a review see it (the 3b712
+    follow-up)."""
+
+    CATEGORIES = frozenset({"Cf", "Zl", "Zp", "Zs", "Mn", "Cc"})
+    # Blank-looking characters in no category above (Unicode 16.0.0): the
+    # PropList.txt Other_Default_Ignorable_Code_Point entries that are not Mn,
+    # namely the four Hangul fillers (Lo) and the reserved code points (Cn) a
+    # renderer shows as nothing; U+2800 BRAILLE PATTERN BLANK, "imaged as a
+    # fixed-width blank in many fonts" (NamesList.txt); and U+13441 and U+13442
+    # EGYPTIAN HIEROGLYPH FULL BLANK and HALF BLANK.
+    BLANK = frozenset(map(chr, (
+        0x115F, 0x1160, 0x3164, 0xFFA0,
+        0x2065, *range(0xFFF0, 0xFFF9), 0xE0000, *range(0xE0002, 0xE0020),
+        *range(0xE0080, 0xE0100), *range(0xE01F0, 0xE1000),
+        0x2800, 0x13441, 0x13442,
+        # U+1D159 MUSICAL SYMBOL NULL NOTEHEAD: a notehead with no ink, used for spacing.
+        0x1D159)))
+
+    def test_no_raw_invisible_or_non_ascii_space_character(self) -> None:
+        import unicodedata
+        # Lines are counted at LF only: str.splitlines also breaks at U+2028.
+        source = (REPO_ROOT / "tests" / "test_linters.py").read_bytes().decode("utf-8")
+        # The escape is \uXXXX up to U+FFFF and \UXXXXXXXX above it.
+        raw = [f"line {row}, column {col}: U+{ord(ch):04X} "
+               f"{unicodedata.name(ch, '?')} ({unicodedata.category(ch)}), write "
+               + (f"\\u{ord(ch):04x}" if ord(ch) <= 0xFFFF else f"\\U{ord(ch):08x}")
+               for row, line in enumerate(source.split("\n"), 1)
+               for col, ch in enumerate(line, 1)
+               if ch not in " \t"
+               and (unicodedata.category(ch) in self.CATEGORIES or ch in self.BLANK)]
+        self.assertEqual(raw, [], "write each as the escape shown:\n" + "\n".join(raw))
 
 
 if __name__ == "__main__":
