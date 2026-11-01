@@ -38121,6 +38121,2171 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
             self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
 
 
+class DailyChangelogRollupGrammarTests(unittest.TestCase):
+    """D8's machine-readable output grammar (3b726 PR1).
+
+    A later close-out reader parses these lines, so they are pinned exactly:
+    a ``D8 BEGIN`` line, one ``D8 DUE`` line per due date carrying the stable
+    key ``D8-<date>`` bound to the checked revision (each followed by the
+    existing human ``DAILY SUMMARY DUE for <date>`` line), and a ``D8 END``
+    line whose ``due=`` count lets a reader tell a complete report from a
+    truncated one. A revision that cannot be read is ``UNKNOWN``, never a
+    guess. D8 stays advisory: exit 0 whatever is due. The output carries no
+    time of day: its clock inputs are the UTC date and, through the git
+    time limit, elapsed time (round 2; round 14).
+
+    Round 3: BEGIN and END both carry the UTC date and the run digest, so a
+    report spliced from two runs is not complete under the reader rule (BEGIN
+    and END carry the same ``run=``); the revision is read with replacement
+    objects disabled; a missing CHANGELOG prints ``D8 NOT-FOUND`` and an
+    unreadable, non-UTF-8 or bad-date CHANGELOG prints ``D8 REFUSED``, each
+    exit 0 with no traceback; the pre-push runner starts BEGIN on a line.
+
+    Round 4: the reader rule also recomputes ``run`` over the lines between
+    BEGIN and END and checks END's ``due=`` count, so a cut, interleaved or
+    short-ended report is not complete (``complete`` applies it); the runner
+    reports a failing D8 as failed; each replacement-object switch is pinned.
+
+    Round 5: absence is decided by the open's own error, ENOENT or ENOTDIR
+    alone, so an unsearchable parent or an over-long name is refused, not
+    reported missing, on every Python version; each git call reads no stdin
+    and times out; principle 1 no longer calls the date D8's only external input.
+
+    Round 6: the human line escapes what stdout cannot encode, so D8 exits 0
+    whatever the path; it carries the path exactly as given; the docstring and
+    the spec state that one bad per-PR date refuses the whole report.
+
+    Round 7: D8 opens the argument exactly as given, so an empty argument and
+    a regular file named with a trailing slash or ``/.`` are NOT-FOUND; the
+    blob is read at the commit the first git call returned; the docstring and
+    the spec scope exit 0, require the whole END line to match, and qualify
+    the report's inputs.
+
+    Round 8: the human line escapes every control and line-breaking
+    character, so a path cannot forge grammar lines; a fake git pins the
+    40-hex guard on rev; the exceptions to exit 0 are a complete list, the
+    closed and full stdout exits observed in each buffering mode.
+
+    Round 10: a failing stdout write is stated as a non-zero exit, never 0,
+    with each observed code labelled as observed, and a report larger than
+    the buffer is observed failing mid-run; a permissive date parser pins the
+    ASCII-digit guard on per-PR dates.
+
+    Round 11: a run with no usable stdout (file descriptor 1 closed at
+    startup) is refused with exit 3 and a line on stderr, never exit 0 with
+    no output; principle 1 names gate 31's git inputs and follow-up ageing's
+    store rather than calling the date every other gate's only external input.
+
+    Round 12: a run with no usable stdout exits non-zero whatever stderr is
+    (3 when stderr is writable or absent); four of its branches are pinned in
+    process; principle 1 names the gates that ask git, read the operational
+    store or the private sibling, ask GitHub, or read the time of day.
+
+    Round 13: the stdout check runs before the parser is built, since Python
+    3.14's argparse reads stdout to decide on colour; the reader rule's whole
+    line requirement is stated without the mandatory verb.
+
+    Round 14: an unwritable stderr's exit is stated per buffering mode;
+    report() requires the date main read once; the docstring, the spec and
+    principle 1 name the git time limit as D8's second clock input, and four
+    gates' local date.
+
+    Round 15: every surrogate in the human line is escaped, so a
+    surrogateescape stdout cannot split it; the exceptions to exit 0 name a
+    usage error or self-test with stderr absent or unwritable; principle 1
+    names the time limits of gates 6, 109 and 50; the /dev/full open in the
+    no-usable-stdout test is skipped where the device is missing.
+
+    Round 16: every character outside printable ASCII in the human line is
+    escaped, so a cp1252 stdout cannot write U+2026 as the byte 0x85; the
+    usage error's message and program name are escaped the same way;
+    principle 1 names gate 36 in a list of examples and gate 50's untimed
+    git reads; the observed exit codes name CPython 3.14.4.
+    """
+
+    TOOL = "tools/check-daily-changelog-rollup.py"
+    REV = "0123456789abcdef0123456789abcdef01234567"
+    DUE_RE = re.compile(
+        r"D8 DUE id=D8-(?P<date>\d{4}-\d{2}-\d{2})@(?:[0-9a-f]{12}|UNKNOWN) "
+        r"date=(?P=date) count=\d+ due_since=\d{4}-\d{2}-\d{2}T00:00:00Z$"
+    )
+    FRAME = r"rev=(?P<rev>[0-9a-f]{40}|UNKNOWN) today=(?P<today>\d{4}-\d{2}-\d{2}) run=(?P<run>[0-9a-f]{64})"
+    BEGIN_RE = re.compile(rf"D8 BEGIN {FRAME}")
+    END_RE = re.compile(rf"D8 END {FRAME} due=(?P<due>\d+) rc=0")
+
+    def setUp(self) -> None:
+        import datetime
+
+        self.today = datetime.date(2026, 10, 31)
+        self.d8 = load_linter_module(self.TOOL, "_d8_grammar_under_test")
+
+    def report_lines(self, due, rev=REV, today=None):
+        buf = io.StringIO()
+        today = today or self.today
+        self.assertEqual(self.d8.report(due, stream=buf, rev=rev, today=today), len(due))
+        return buf.getvalue().splitlines()
+
+    @staticmethod
+    def run_digest(rev, today, body):
+        # The spec's definition, recomputed independently of the tool.
+        import hashlib
+
+        text = f"rev={rev} today={today}\n" + "".join(f"{line}\n" for line in body)
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+    def framed(self, lines, rev=REV, today="2026-10-31"):
+        """Assert BEGIN and END frame ``lines``; return the END line's tail."""
+        run = self.run_digest(rev, today, lines[1:-1])
+        self.assertEqual(lines[0], f"D8 BEGIN rev={rev} today={today} run={run}")
+        prefix = f"D8 END rev={rev} today={today} run={run} "
+        self.assertTrue(lines[-1].startswith(prefix), lines[-1])
+        return lines[-1][len(prefix):]
+
+    @classmethod
+    def complete(cls, lines):
+        """The spec's reader rule (round 4): BEGIN first and END last, with the
+        same rev, today and run; run recomputed over the lines between them;
+        END ending due=<n> rc=0 with n the number of DUE lines between them."""
+        if len(lines) < 2:
+            return False
+        begin, end = cls.BEGIN_RE.fullmatch(lines[0]), cls.END_RE.fullmatch(lines[-1])
+        if not begin or not end:
+            return False
+        body = lines[1:-1]
+        return (
+            begin.group("rev", "today", "run") == end.group("rev", "today", "run")
+            and cls.run_digest(begin["rev"], begin["today"], body) == begin["run"]
+            and end["due"] == str(sum(1 for line in body if line.startswith("D8 DUE ")))
+        )
+
+    def test_one_due_date(self) -> None:
+        lines = self.report_lines([("2026-10-29", 3)])
+        self.assertEqual(len(lines), 4, lines)
+        self.assertEqual(self.framed(lines), "due=1 rc=0")
+        self.assertEqual(
+            lines[1],
+            f"D8 DUE id=D8-2026-10-29@{self.REV[:12]} date=2026-10-29 count=3 "
+            f"due_since=2026-10-30T00:00:00Z",
+        )
+        self.assertTrue(lines[2].startswith("DAILY SUMMARY DUE for 2026-10-29: 3 per-PR entries"), lines[2])
+
+    def test_two_due_dates(self) -> None:
+        lines = self.report_lines([("2026-10-25", 21), ("2026-10-29", 9)])
+        self.assertEqual(len(lines), 6, lines)
+        self.assertEqual(self.framed(lines), "due=2 rc=0")
+        self.assertEqual(
+            lines[1],
+            f"D8 DUE id=D8-2026-10-25@{self.REV[:12]} date=2026-10-25 count=21 "
+            f"due_since=2026-10-26T00:00:00Z",
+        )
+        self.assertTrue(lines[2].startswith("DAILY SUMMARY DUE for 2026-10-25: 21 "), lines[2])
+        self.assertEqual(
+            lines[3],
+            f"D8 DUE id=D8-2026-10-29@{self.REV[:12]} date=2026-10-29 count=9 "
+            f"due_since=2026-10-30T00:00:00Z",
+        )
+        self.assertTrue(lines[4].startswith("DAILY SUMMARY DUE for 2026-10-29: 9 "), lines[4])
+
+    def test_none_due(self) -> None:
+        lines = self.report_lines([])
+        self.assertEqual(len(lines), 3, lines)
+        self.assertEqual(self.framed(lines), "due=0 rc=0")
+        self.assertTrue(lines[1].startswith("OK: "), lines[1])
+
+    def test_end_counts_the_due_lines(self) -> None:
+        # Round 3 (claude N5): renamed from "begin and end carry the due
+        # count"; only END carries it.
+        dates = ["2026-10-24", "2026-10-25", "2026-10-28", "2026-10-29"]
+        for n in range(len(dates) + 1):
+            with self.subTest(due=n):
+                lines = self.report_lines([(d, 2) for d in dates[:n]])
+                self.assertEqual(self.framed(lines), f"due={n} rc=0")
+                self.assertEqual(sum(1 for line in lines if line.startswith("D8 BEGIN")), 1)
+                due_lines = [line for line in lines if line.startswith("D8 DUE ")]
+                self.assertEqual(len(due_lines), n)
+                for line in due_lines:
+                    self.assertRegex(line, self.DUE_RE)
+                self.assertEqual(sum(1 for line in lines if line.startswith("D8 END")), 1)
+        # An unreadable revision is stated in the grammar, not guessed.
+        lines = self.report_lines([("2026-10-29", 2)], rev="UNKNOWN")
+        self.assertEqual(self.framed(lines, rev="UNKNOWN"), "due=1 rc=0")
+        self.assertTrue(lines[1].startswith("D8 DUE id=D8-2026-10-29@UNKNOWN date=2026-10-29 "), lines[1])
+
+    def test_a_report_spliced_from_two_runs_is_not_complete(self) -> None:
+        # Round 3 (codex E3, claude N3): at 9e0458d80 END carried neither the
+        # date nor a run identifier, so the October 31 BEGIN followed by the
+        # rest of an October 30 report over the same CHANGELOG and revision
+        # read as a complete zero-due October 31 report, though one date was due.
+        import datetime
+
+        text = (
+            "**2026-10-30 | 2026.10.1 | PR #1** - one.\n"
+            "**2026-10-30 | 2026.10.2 | PR #2** - two.\n"
+        )
+        runs = {}
+        for day in (30, 31):
+            today = datetime.date(2026, 10, day)
+            runs[day] = self.report_lines(self.d8.find_rollups_due(text, today), today=today)
+            self.assertTrue(self.complete(runs[day]), runs[day])
+            self.assertEqual(self.framed(runs[day], today=today.isoformat()), f"due={day - 30} rc=0")
+        spliced = runs[31][:1] + runs[30][1:]
+        self.assertFalse(self.complete(spliced), spliced)
+        # A run truncated after BEGIN, next to a complete run of another date.
+        self.assertFalse(self.complete(runs[30][:1] + runs[31][1:]))
+        # Different revisions give different run digests even when nothing is due.
+        other = self.report_lines([], rev="UNKNOWN")
+        self.assertFalse(self.complete(self.report_lines([])[:1] + other[1:]))
+
+    def test_a_cut_or_interleaved_report_is_not_complete(self) -> None:
+        # Round 4 (claude E1, agy W1), the review's reproduction: at b9eb38c2b
+        # the reader rule compared only the fields of BEGIN and END, so a
+        # report with lines cut from its middle, run A's BEGIN and END around
+        # run B's body, and an END line cut after its run hash each read as
+        # complete. The last three cases each break one clause of the rule
+        # alone (END's due= and rc= are outside the digest).
+        full = self.report_lines([("2026-10-25", 21), ("2026-10-29", 9)])
+        other = self.report_lines([("2026-10-29", 9)])
+        self.assertTrue(self.complete(full), full)
+        self.assertTrue(self.complete(other), other)
+        end = full[-1]
+        cases = {
+            "middle cut": full[:1] + full[3:],
+            "sandwich": full[:1] + other[1:-1] + full[-1:],
+            "END cut after the run hash": full[:-1] + [end[:end.index(" due=")]],
+            "END cut after the due count": full[:-1] + [end[:end.index(" rc=")]],
+            "END with another due count": full[:-1] + [end.replace(" due=2 ", " due=1 ")],
+            "END naming another date": full[:-1] + [end.replace(" today=2026-10-31 ", " today=2026-10-30 ")],
+        }
+        for name, lines in cases.items():
+            with self.subTest(name):
+                self.assertNotEqual(lines, full)
+                self.assertFalse(self.complete(lines), lines)
+
+    TWO_ENTRIES = (
+        "**2026-07-24 | 2026.07.1 | PR #1** - one.\n"
+        "**2026-07-24 | 2026.07.2 | PR #2** - two.\n"
+    )
+
+    def fixture(self):
+        """A fixture directory and repository, a git runner and a D8 CLI runner."""
+        env = fixture_git_environment()
+        tmp = Path(tempfile.mkdtemp(prefix="d8-grammar-"))
+        self.addCleanup(shutil.rmtree, tmp)
+        repo = tmp / "repo"
+        repo.mkdir()
+        env["GIT_CEILING_DIRECTORIES"] = str(tmp)
+
+        def git(*args):
+            return subprocess.run(
+                ["git", "-C", str(repo), "-c", "user.name=Fixture",
+                 "-c", "user.email=fixture@example.invalid", *args],
+                capture_output=True, text=True, env=env, check=True,
+            ).stdout.strip()
+
+        def d8(changelog, extra_env=None):
+            # A traceback is exit 1 with stderr: both are pinned, whatever is due.
+            # The timeout ends a read blocked on a FIFO (round 5).
+            r = subprocess.run(
+                [sys.executable, str(REPO_ROOT / self.TOOL), "--changelog", str(changelog)],
+                capture_output=True, encoding="utf-8", errors="replace",
+                env={**env, **(extra_env or {})}, cwd=str(tmp), timeout=120,
+            )
+            self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+            self.assertEqual(r.stderr, "", r.stderr)
+            return r.stdout, r.stdout.splitlines()
+
+        return tmp, repo, env, git, d8
+
+    def test_revision_line_binds_the_checked_head(self) -> None:
+        tmp, repo, env, git, d8 = self.fixture()
+        outside = tmp / "outside"
+        outside.mkdir()
+        changelog = repo / "CHANGELOG.md"
+        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
+        git("init", "-q")
+        git("add", "CHANGELOG.md")
+        git("commit", "-q", "-m", "fixture")
+        head = git("rev-parse", "HEAD")
+
+        out, lines = d8(changelog)
+        self.assertRegex(lines[0], rf"^D8 BEGIN rev={head} today=\d{{4}}-\d{{2}}-\d{{2}} run=[0-9a-f]{{64}}$")
+        self.assertTrue(self.complete(lines), out)
+        self.assertIn(f"D8 DUE id=D8-2026-07-24@{head[:12]} date=2026-07-24 count=2 ", out)
+        self.assertIn("DAILY SUMMARY DUE for 2026-07-24: 2 ", out)
+        self.assertRegex(lines[-1], rf"^D8 END rev={head} today=\S+ run=\S+ due=1 rc=0$")
+
+        # An uncommitted edit means HEAD is not what was checked: UNKNOWN.
+        changelog.write_text(
+            changelog.read_text(encoding="utf-8") + "**2026-07-24 | 2026.07.3 | PR #3** - three.\n",
+            encoding="utf-8",
+        )
+        out, lines = d8(changelog)
+        self.assertTrue(lines[0].startswith("D8 BEGIN rev=UNKNOWN "), lines[0])
+        self.assertTrue(self.complete(lines), out)
+        self.assertIn("D8 DUE id=D8-2026-07-24@UNKNOWN date=2026-07-24 count=3 ", out)
+        self.assertRegex(lines[-1], r"^D8 END rev=UNKNOWN today=\S+ run=\S+ due=1 rc=0$")
+        self.assertNotIn(head, out)
+
+        # Outside any repository there is no revision to read: UNKNOWN.
+        stray = outside / "CHANGELOG.md"
+        shutil.copy(changelog, stray)
+        out, lines = d8(stray)
+        self.assertTrue(lines[0].startswith("D8 BEGIN rev=UNKNOWN "), lines[0])
+        self.assertRegex(lines[-1], r"^D8 END rev=UNKNOWN today=\S+ run=\S+ due=1 rc=0$")
+
+    def test_a_replacement_object_cannot_bind_another_blob(self) -> None:
+        # Round 3 (codex E1), the reproduction: at 9e0458d80 git resolved
+        # HEAD:CHANGELOG.md through a replacement ref, so D8 named HEAD for
+        # bytes that differ from HEAD's own blob. Replacement objects are now
+        # disabled for D8's git reads.
+        tmp, repo, env, git, d8 = self.fixture()
+        changelog = repo / "CHANGELOG.md"
+        substitute = self.TWO_ENTRIES + "**2026-07-24 | 2026.07.3 | PR #3** - three.\n"
+        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
+        git("init", "-q")
+        git("add", "CHANGELOG.md")
+        git("commit", "-q", "-m", "fixture")
+        head = git("rev-parse", "HEAD")
+        changelog.write_text(substitute, encoding="utf-8")
+        git("add", "CHANGELOG.md")
+        git("replace", head, git("commit-tree", git("write-tree"), "-m", "substitute"))
+        # The replacement is live for an ordinary git read of HEAD.
+        self.assertEqual(git("show", "HEAD:CHANGELOG.md") + "\n", substitute)
+
+        out, lines = d8(changelog)
+        self.assertTrue(lines[0].startswith("D8 BEGIN rev=UNKNOWN "), lines[0])
+        self.assertIn("D8 DUE id=D8-2026-07-24@UNKNOWN date=2026-07-24 count=3 ", out)
+        self.assertNotIn(head, out)
+
+        # HEAD's own bytes still bind HEAD, the replacement notwithstanding.
+        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
+        out, lines = d8(changelog)
+        self.assertTrue(lines[0].startswith(f"D8 BEGIN rev={head} "), lines[0])
+        self.assertIn(f"D8 DUE id=D8-2026-07-24@{head[:12]} date=2026-07-24 count=2 ", out)
+
+    def test_every_git_read_carries_both_replacement_switches(self) -> None:
+        # Round 4 (claude N2): the --no-replace-objects flag and the
+        # GIT_NO_REPLACE_OBJECTS variable each disable replacement objects on
+        # their own, so the reproduction above survives removing either alone.
+        # Each is pinned here on every git call D8 makes.
+        from unittest import mock
+
+        tmp, repo, env, git, d8 = self.fixture()
+        changelog = repo / "CHANGELOG.md"
+        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
+        git("init", "-q")
+        git("add", "CHANGELOG.md")
+        git("commit", "-q", "-m", "fixture")
+        head = git("rev-parse", "HEAD")
+        calls = []
+        real_run = subprocess.run
+
+        def recording_run(argv, *args, **kwargs):
+            calls.append((list(argv), dict(kwargs.get("env") or {})))
+            return real_run(argv, *args, **kwargs)
+
+        with mock.patch.dict(os.environ, env, clear=True), \
+                mock.patch.object(self.d8.subprocess, "run", recording_run):
+            self.assertEqual(self.d8.checked_revision(changelog, changelog.read_bytes()), head)
+        self.assertEqual(len(calls), 2, calls)
+        for argv, call_env in calls:
+            with self.subTest(argv=argv):
+                self.assertIn("--no-replace-objects", argv[:argv.index("rev-parse")])
+                self.assertEqual(call_env.get("GIT_NO_REPLACE_OBJECTS"), "1")
+
+    def test_a_git_read_takes_no_stdin_and_a_timeout_leaves_rev_unknown(self) -> None:
+        # Round 5 (claude N5): at 0fd21910c both git calls inherited stdin and
+        # had no timeout, so a hung git hung the pre-push run. Each call now
+        # reads no stdin and times out; a timeout is a git failure (UNKNOWN).
+        import contextlib
+        import time
+        from unittest import mock
+
+        tmp, repo, env, git, d8 = self.fixture()
+        changelog = repo / "CHANGELOG.md"
+        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
+        git("init", "-q")
+        git("add", "CHANGELOG.md")
+        git("commit", "-q", "-m", "fixture")
+        head = git("rev-parse", "HEAD")
+        calls = []
+        real_run = subprocess.run
+
+        def recording_run(argv, *args, **kwargs):
+            calls.append(kwargs)
+            return real_run(argv, *args, **kwargs)
+
+        with mock.patch.dict(os.environ, env, clear=True), \
+                mock.patch.object(self.d8.subprocess, "run", recording_run):
+            self.assertEqual(self.d8.checked_revision(changelog, changelog.read_bytes()), head)
+        self.assertEqual(len(calls), 2, calls)
+        for kwargs in calls:
+            self.assertIs(kwargs.get("stdin"), subprocess.DEVNULL, kwargs)
+            self.assertEqual(kwargs.get("timeout"), self.d8.GIT_TIMEOUT, kwargs)
+        self.assertGreater(self.d8.GIT_TIMEOUT, 0)
+
+        # A real git that hangs: the call times out and the revision is UNKNOWN.
+        fake = tmp / "hanging-git"
+        fake.mkdir()
+        (fake / "git").write_text("#!/bin/sh\nexec sleep 60\n", encoding="utf-8")
+        (fake / "git").chmod(0o755)
+        started = time.monotonic()
+        with mock.patch.dict(os.environ, {**env, "PATH": f"{fake}{os.pathsep}{env['PATH']}"}, clear=True), \
+                mock.patch.object(self.d8, "GIT_TIMEOUT", 1):
+            self.assertEqual(self.d8.checked_revision(changelog, changelog.read_bytes()), "UNKNOWN")
+        self.assertLess(time.monotonic() - started, 30)
+
+        # An injected timeout on either call gives a complete UNKNOWN report.
+        for timed_out in (0, 1):
+            with self.subTest(call=timed_out):
+                seen = []
+
+                def timing_out_run(argv, *args, **kwargs):
+                    seen.append(argv)
+                    if len(seen) - 1 == timed_out:
+                        raise subprocess.TimeoutExpired(argv, kwargs.get("timeout"))
+                    return real_run(argv, *args, **kwargs)
+
+                # Loaded under the redirect, so report()'s stream default is the buffer.
+                buf = io.StringIO()
+                with mock.patch.dict(os.environ, env, clear=True), \
+                        mock.patch.object(subprocess, "run", timing_out_run), \
+                        contextlib.redirect_stdout(buf):
+                    d8 = load_linter_module(self.TOOL, "_d8_timeout_under_test")
+                    self.assertEqual(d8.main(["--changelog", str(changelog)]), 0)
+                lines = buf.getvalue().splitlines()
+                self.assertEqual(len(seen), timed_out + 1, seen)
+                self.assertTrue(lines[0].startswith("D8 BEGIN rev=UNKNOWN "), lines)
+                self.assertTrue(self.complete(lines), lines)
+                self.assertIn("D8 DUE id=D8-2026-07-24@UNKNOWN date=2026-07-24 count=2 ", buf.getvalue())
+
+    def test_an_undecodable_git_diagnostic_is_not_a_traceback(self) -> None:
+        # Round 3 (codex E2), the reproduction: at 9e0458d80 git's output was
+        # decoded as text, so git's diagnostic naming a malformed config file
+        # whose name holds byte 0xff raised UnicodeDecodeError (exit 1, no
+        # report). D8 now reads git's output as bytes; git failing leaves the
+        # revision UNKNOWN and the report complete.
+        tmp, repo, env, git, d8 = self.fixture()
+        changelog = repo / "CHANGELOG.md"
+        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
+        git("init", "-q")
+        git("add", "CHANGELOG.md")
+        git("commit", "-q", "-m", "fixture")
+        bad = tmp / os.fsdecode(b"bad-\xff.gitconfig")
+        bad.write_text("[broken\n", encoding="utf-8")
+        bad_env = {"GIT_CONFIG_GLOBAL": str(bad), "PYTHONUTF8": "1"}
+        probe = subprocess.run(
+            ["git", "-C", str(repo), "rev-parse", "HEAD"],
+            capture_output=True, env={**env, **bad_env},
+        )
+        self.assertNotEqual(probe.returncode, 0, probe)
+        self.assertIn(b"\xff", probe.stderr)
+
+        out, lines = d8(changelog, bad_env)
+        self.assertTrue(lines[0].startswith("D8 BEGIN rev=UNKNOWN "), lines[0])
+        self.assertTrue(self.complete(lines), out)
+        self.assertIn("D8 DUE id=D8-2026-07-24@UNKNOWN date=2026-07-24 count=2 ", out)
+
+    def test_an_unusable_changelog_is_refused_with_exit_0(self) -> None:
+        # Round 3 (codex E2, claude W3), the reproduction: at 9e0458d80 each
+        # file case raised ValueError or UnicodeDecodeError, so D8 exited 1
+        # with a traceback. Each now prints one D8 REFUSED line and the human
+        # refusal line, exit 0, and no report.
+        tmp, repo, env, git, d8 = self.fixture()
+        changelog = tmp / "CHANGELOG.md"
+        arabic_indic = "٢٠٢٦-١٠-٢٩"
+        cases = {
+            "an impossible repeated date": ("bad-date", (
+                "**2026-02-30 | 2026.02.1 | PR #1** - one.\n"
+                "**2026-02-30 | 2026.02.2 | PR #2** - two.\n").encode("utf-8")),
+            "a lone impossible date": ("bad-date", (
+                "**2026-10-29 | 2026.10.1 | PR #1** - one.\n"
+                "**2026-10-29 | 2026.10.2 | PR #2** - two.\n"
+                "**2026-13-01 | 2026.10.3 | PR #3** - three.\n").encode("utf-8")),
+            "non-ASCII digits in a date": ("bad-date", (
+                f"**{arabic_indic} | 2026.10.1 | PR #1** - one.\n"
+                f"**{arabic_indic} | 2026.10.2 | PR #2** - two.\n").encode("utf-8")),
+            "a non-UTF-8 CHANGELOG": ("not-utf8", (
+                b"**2026-10-29 | 2026.10.1 | PR #1** - caf\xe9.\n"
+                b"**2026-10-29 | 2026.10.2 | PR #2** - two.\n")),
+        }
+        for name, (reason, data) in cases.items():
+            with self.subTest(name):
+                changelog.write_bytes(data)
+                out, lines = d8(changelog)
+                self.assertEqual(len(lines), 2, out)
+                self.assertRegex(lines[0], rf"^D8 REFUSED reason={reason} today=\d{{4}}-\d{{2}}-\d{{2}} rc=0$")
+                self.assertTrue(lines[1].startswith(f"check-daily-changelog-rollup: {changelog}: "), lines[1])
+                self.assertTrue(lines[1].endswith("; nothing checked (advisory, exit 0)."), lines[1])
+                self.assertNotIn("D8 BEGIN", out)
+        # An unreadable file: test_each_open_error_is_classified_by_errno and
+        # the real-filesystem tests below (round 5).
+
+    def test_the_ascii_guard_refuses_what_a_permissive_parser_accepts(self) -> None:
+        # Round 10 (claude W2): CPython's C datetime already rejects
+        # non-ASCII digits, so the cases above pass without the isascii
+        # guard. A parser that accepts any string (as int() accepts other
+        # scripts' digits in a pure-Python datetime) leaves the guard as the
+        # only refusal.
+        import datetime
+        import types
+        from unittest import mock
+
+        accepted = []
+
+        def accept_anything(text):
+            accepted.append(text)
+            return datetime.date(2026, 10, 29)
+
+        permissive = types.SimpleNamespace(date=types.SimpleNamespace(fromisoformat=accept_anything))
+        arabic_indic = "٢٠٢٦-١٠-٢٩"
+        with mock.patch.object(self.d8, "datetime", permissive):
+            # The permissive parser is the one D8 calls: an impossible ASCII
+            # date passes it and is reported, not refused.
+            impossible = "**2026-02-30 | 2026.02.1 | PR #1** - one.\n**2026-02-30 | 2026.02.2 | PR #2** - two.\n"
+            self.assertEqual(self.d8.find_rollups_due(impossible, self.today), [("2026-02-30", 2)])
+            self.assertIn("2026-02-30", accepted)
+            text = (
+                f"**{arabic_indic} | 2026.10.1 | PR #1** - one.\n"
+                f"**{arabic_indic} | 2026.10.2 | PR #2** - two.\n"
+            )
+            with self.assertRaises(self.d8.Refusal) as caught:
+                self.d8.find_rollups_due(text, self.today)
+        self.assertEqual(caught.exception.reason, "bad-date")
+        self.assertNotIn(arabic_indic, accepted)
+
+    def assert_not_found(self, lines, changelog):
+        self.assertEqual(len(lines), 2, lines)
+        self.assertRegex(lines[0], r"^D8 NOT-FOUND today=\d{4}-\d{2}-\d{2} rc=0$")
+        self.assertEqual(
+            lines[1],
+            f"check-daily-changelog-rollup: {changelog} not found; nothing to check "
+            f"(advisory, exit 0).",
+        )
+
+    def assert_unreadable(self, lines, changelog):
+        self.assertEqual(len(lines), 2, lines)
+        self.assertRegex(lines[0], r"^D8 REFUSED reason=unreadable today=\d{4}-\d{2}-\d{2} rc=0$")
+        self.assertTrue(
+            lines[1].startswith(f"check-daily-changelog-rollup: {changelog}: cannot be read ("), lines[1])
+        self.assertTrue(lines[1].endswith("); nothing checked (advisory, exit 0)."), lines[1])
+
+    def test_a_changelog_behind_an_unsearchable_parent_is_refused(self) -> None:
+        # Round 5 (codex E1, claude W2), the reproduction: at 0fd21910c
+        # Path.is_file() decided absence before the protected read, so on
+        # Python 3.14 a CHANGELOG under an unsearchable parent printed
+        # D8 NOT-FOUND (on 3.11 is_file() raises EACCES: a traceback).
+        if os.geteuid() == 0:
+            self.skipTest("root searches any directory")
+        tmp, repo, env, git, d8 = self.fixture()
+        locked = tmp / "locked"
+        locked.mkdir()
+        changelog = locked / "CHANGELOG.md"
+        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
+        locked.chmod(0o600)
+        self.addCleanup(locked.chmod, 0o700)
+        with self.assertRaises(PermissionError):
+            changelog.read_bytes()
+        out, lines = d8(changelog)
+        self.assert_unreadable(lines, changelog)
+        self.assertIn("(Permission denied)", lines[1])
+
+    def test_only_a_missing_name_is_not_found(self) -> None:
+        # Round 5 (codex E1, claude W2): only ENOENT and ENOTDIR (a component
+        # of the path is not a directory, so no file can be at it) mean
+        # absence. At 0fd21910c a directory, a FIFO and a name over the
+        # length limit each printed D8 NOT-FOUND on Python 3.14.
+        tmp, repo, env, git, d8 = self.fixture()
+        a_file = tmp / "a-file"
+        a_file.write_text("not a directory\n", encoding="utf-8")
+        dangling = tmp / "dangling.md"
+        dangling.symlink_to(tmp / "nowhere.md")
+        a_dir = tmp / "a-dir"
+        a_dir.mkdir()
+        fifo = tmp / "a-fifo"
+        os.mkfifo(fifo)
+        loop = tmp / "loop.md"
+        loop.symlink_to(loop)
+        for name, path in {
+            "a missing name": tmp / "absent.md",
+            "a missing parent": tmp / "absent" / "CHANGELOG.md",
+            "a parent that is a file (ENOTDIR)": a_file / "CHANGELOG.md",
+            "a dangling symlink": dangling,
+        }.items():
+            with self.subTest(name):
+                out, lines = d8(path)
+                self.assert_not_found(lines, path)
+        for name, path in {
+            "a directory": a_dir,
+            "a FIFO with no writer": fifo,
+            "a name over the length limit": tmp / ("C" * 300 + ".md"),
+            "a symlink loop": loop,
+        }.items():
+            with self.subTest(name):
+                out, lines = d8(path)
+                self.assert_unreadable(lines, path)
+
+    def test_each_open_error_is_classified_by_errno(self) -> None:
+        # Round 5 (codex E1, claude W2): the error is injected at the open
+        # D8 makes itself, so the result does not depend on how the running
+        # interpreter's pathlib treats it. At 0fd21910c is_file() and
+        # read_bytes() never reached os.open, so every case read the file.
+        import contextlib
+        import errno
+        from unittest import mock
+
+        tmp = Path(tempfile.mkdtemp(prefix="d8-errno-"))
+        self.addCleanup(shutil.rmtree, tmp)
+        changelog = tmp / "CHANGELOG.md"
+        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
+        real_open = os.open
+
+        def run(err, at="open"):
+            def failing_open(target, *args, **kwargs):
+                if at == "open" and os.fspath(target) == str(changelog):
+                    raise OSError(err, os.strerror(err), str(changelog))
+                return real_open(target, *args, **kwargs)
+
+            def failing_fstat(fd):
+                raise OSError(err, os.strerror(err))
+
+            buf = io.StringIO()
+            patches = [mock.patch.object(self.d8.os, "open", failing_open)]
+            if at == "fstat":
+                patches.append(mock.patch.object(self.d8.os, "fstat", failing_fstat))
+            with contextlib.ExitStack() as stack:
+                for patch in patches:
+                    stack.enter_context(patch)
+                stack.enter_context(mock.patch.dict(os.environ, {"GIT_CEILING_DIRECTORIES": str(tmp)}))
+                stack.enter_context(contextlib.redirect_stdout(buf))
+                self.assertEqual(self.d8.main(["--changelog", str(changelog)]), 0)
+            return buf.getvalue().splitlines()
+
+        for err in (errno.ENOENT, errno.ENOTDIR):
+            with self.subTest(errno=errno.errorcode[err]):
+                self.assert_not_found(run(err), changelog)
+        for err in (errno.EACCES, errno.EPERM, errno.ENAMETOOLONG, errno.ELOOP,
+                    errno.EISDIR, errno.EIO, errno.EMFILE):
+            with self.subTest(errno=errno.errorcode[err]):
+                lines = run(err)
+                self.assert_unreadable(lines, changelog)
+                self.assertIn(f"({os.strerror(err)})", lines[1])
+        # An error after a successful open is a refusal too, never absence.
+        for err in (errno.ENOENT, errno.EIO):
+            with self.subTest(errno=errno.errorcode[err], at="fstat"):
+                self.assert_unreadable(run(err, at="fstat"), changelog)
+
+    def test_a_missing_changelog_prints_not_found_and_exits_0(self) -> None:
+        # Round 3 (claude W2, W4; codex W4): at 9e0458d80 only the human line
+        # was printed, and a mutant returning 1 here survived the class.
+        tmp, repo, env, git, d8 = self.fixture()
+        missing = tmp / "absent" / "CHANGELOG.md"
+        out, lines = d8(missing)
+        self.assertEqual(len(lines), 2, out)
+        self.assertRegex(lines[0], r"^D8 NOT-FOUND today=\d{4}-\d{2}-\d{2} rc=0$")
+        self.assertEqual(
+            lines[1],
+            f"check-daily-changelog-rollup: {missing} not found; nothing to check "
+            f"(advisory, exit 0).",
+        )
+
+    def test_a_path_stdout_cannot_encode_still_exits_0(self) -> None:
+        # Round 6 (claude E1), the reproduction: at 3f5d385b8 the human line
+        # after D8 NOT-FOUND or D8 REFUSED printed the path as plain text, so a
+        # path stdout could not encode raised UnicodeEncodeError: exit 1 with a
+        # traceback after a machine line saying rc=0. The human line now
+        # escapes what stdout cannot encode, and D8 exits 0 in every case.
+        tmp, repo, env, git, d8 = self.fixture()
+        odd = tmp / os.fsdecode(b"d8-\xff")
+        odd.mkdir()
+        bad_date = odd / "CHANGELOG.md"
+        bad_date.write_text("**2026-02-30 | 2026.02.1 | PR #1** - one.\n", encoding="utf-8")
+        accented = tmp / "café"
+        accented.mkdir()
+        strict, ascii_only = {"PYTHONIOENCODING": "utf-8:strict"}, {"PYTHONIOENCODING": "ascii"}
+        cases = {
+            "0xff, a missing file": (strict, odd / "absent.md", r"NOT-FOUND", "\\udcff"),
+            "0xff, a directory": (strict, odd, r"REFUSED reason=unreadable", "\\udcff"),
+            "0xff, a bad date": (strict, bad_date, r"REFUSED reason=bad-date", "\\udcff"),
+            "ASCII stdout, a missing file": (ascii_only, accented / "absent.md", r"NOT-FOUND", "caf\\xe9"),
+            "ASCII stdout, a bad date": (ascii_only, accented / "CHANGELOG.md", r"REFUSED reason=bad-date",
+                                         "caf\\xe9"),
+        }
+        (accented / "CHANGELOG.md").write_text(
+            "**2026-13-01 | 2026.10.1 | PR #1** - one.\n", encoding="utf-8")
+        for name, (extra_env, path, token, escaped) in cases.items():
+            with self.subTest(name):
+                out, lines = d8(path, extra_env)
+                self.assertEqual(len(lines), 2, out)
+                self.assertRegex(lines[0], rf"^D8 {token} today=\d{{4}}-\d{{2}}-\d{{2}} rc=0$")
+                self.assertTrue(lines[1].startswith("check-daily-changelog-rollup: "), lines[1])
+                self.assertIn(escaped, lines[1])
+                self.assertTrue(lines[1].endswith("(advisory, exit 0)."), lines[1])
+                self.assertNotIn("D8 BEGIN", out)
+        # Every line a report prints is ASCII by construction (dates pass the
+        # ASCII-digit check), so no report line depends on stdout's encoding.
+        for line in self.report_lines([("2026-10-25", 21), ("2026-10-29", 9)]) + self.report_lines([]):
+            self.assertTrue(line.isascii(), line)
+
+    def test_the_human_line_carries_the_path_as_given(self) -> None:
+        # Round 6 (claude W2): at 3f5d385b8 the human line printed pathlib's
+        # normalized form (a doubled slash and a "." component removed), not
+        # the path as given, which the docstring and the spec promise.
+        tmp, repo, env, git, d8 = self.fixture()
+        given = f"{tmp}//absent/./CHANGELOG.md"
+        self.assertNotEqual(str(Path(given)), given)
+        out, lines = d8(given)
+        self.assert_not_found(lines, given)
+        (tmp / "a-dir").mkdir()
+        given = f"{tmp}//a-dir/."
+        out, lines = d8(given)
+        self.assert_unreadable(lines, given)
+
+    def test_the_argument_is_opened_exactly_as_given(self) -> None:
+        # Round 7 (codex E1, claude W1), the reproduction: at ccdf536e1 D8
+        # opened Path(args.changelog), so "" opened "." and printed D8 REFUSED
+        # reason=unreadable, and a regular file named with a trailing "/" or
+        # "/." printed a full report naming the checked commit, although the
+        # open of each argument as given fails with ENOENT or ENOTDIR.
+        import errno
+
+        tmp, repo, env, git, d8 = self.fixture()
+        changelog = repo / "CHANGELOG.md"
+        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
+        git("init", "-q")
+        git("add", "CHANGELOG.md")
+        git("commit", "-q", "-m", "fixture")
+        head = git("rev-parse", "HEAD")
+        out, lines = d8(changelog)
+        self.assertTrue(lines[0].startswith(f"D8 BEGIN rev={head} "), out)
+        for name, given, err in (
+            ("an empty argument", "", errno.ENOENT),
+            ("a trailing slash on a regular file", f"{changelog}/", errno.ENOTDIR),
+            ("a trailing /. on a regular file", f"{changelog}/.", errno.ENOTDIR),
+        ):
+            with self.subTest(name):
+                with self.assertRaises(OSError) as caught:
+                    os.close(os.open(given, os.O_RDONLY))
+                self.assertEqual(caught.exception.errno, err)
+                out, lines = d8(given)
+                self.assert_not_found(lines, given)
+                self.assertNotIn(head, out)
+                self.assertNotIn("D8 BEGIN", out)
+
+    def test_the_blob_is_read_at_the_returned_commit(self) -> None:
+        # Round 7 (claude W2): at ccdf536e1 no test pinned that the second git
+        # call reads the blob at the commit the first call returned, so a
+        # mutant reading HEAD's blob again survived. Here HEAD moves between
+        # the two calls: the bytes of the new commit must not bind the old one.
+        from unittest import mock
+
+        tmp, repo, env, git, d8 = self.fixture()
+        changelog = repo / "CHANGELOG.md"
+        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
+        git("init", "-q")
+        git("add", "CHANGELOG.md")
+        git("commit", "-q", "-m", "first")
+        first = git("rev-parse", "HEAD")
+        first_bytes = changelog.read_bytes()
+        second_bytes = first_bytes + b"**2026-07-24 | 2026.07.3 | PR #3** - three.\n"
+        real_run = subprocess.run
+
+        def check(data):
+            git("reset", "-q", "--hard", first)
+            self.assertEqual(changelog.read_bytes(), first_bytes)
+            calls = []
+
+            def moving_run(argv, *args, **kwargs):
+                calls.append(list(argv))
+                result = real_run(argv, *args, **kwargs)
+                if len(calls) == 1:
+                    # HEAD moves to a commit whose CHANGELOG is second_bytes.
+                    changelog.write_bytes(second_bytes)
+                    for step in (["add", "CHANGELOG.md"], ["commit", "-q", "-m", "second"]):
+                        real_run(["git", "-C", str(repo), "-c", "user.name=Fixture",
+                                  "-c", "user.email=fixture@example.invalid", *step],
+                                 capture_output=True, env=env, check=True)
+                return result
+
+            with mock.patch.dict(os.environ, env, clear=True):
+                with mock.patch.object(self.d8.subprocess, "run", moving_run):
+                    rev = self.d8.checked_revision(changelog, data)
+            self.assertEqual(len(calls), 2, calls)
+            self.assertEqual(calls[1][-1], f"{first}:./CHANGELOG.md", calls[1])
+            self.assertNotEqual(git("rev-parse", "HEAD"), first)
+            return rev
+
+        # The new commit's bytes are not the first commit's blob: UNKNOWN.
+        self.assertEqual(check(second_bytes), "UNKNOWN")
+        # The first commit's bytes still bind the first commit.
+        self.assertEqual(check(first_bytes), first)
+
+    def assert_one_human_line(self, out, lines, token, escaped):
+        """Round 8: the machine line, then exactly one human line, and no
+        line but the machine line starts like any grammar line (the echoed
+        path may hold grammar text inside the one escaped line)."""
+        self.assertEqual(len(lines), 2, out)
+        self.assertRegex(lines[0], rf"^D8 {token} today=\d{{4}}-\d{{2}}-\d{{2}} rc=0$")
+        self.assertTrue(lines[1].startswith("check-daily-changelog-rollup: "), lines[1])
+        self.assertTrue(lines[1].endswith("(advisory, exit 0)."), lines[1])
+        self.assertIn(escaped, lines[1])
+        for line in lines[1:]:
+            self.assertFalse(line.startswith("D8 "), line)
+            for grammar in (self.BEGIN_RE, self.END_RE, self.DUE_RE):
+                self.assertIsNone(grammar.match(line), line)
+
+    def test_a_path_cannot_split_the_human_line(self) -> None:
+        # Round 8 (claude W1), the reproduction: at db8e74a40 say() escaped
+        # only what stdout could not encode, so a path holding LF (or CR)
+        # split the human line and D8 printed a forged BEGIN/body/END triple
+        # that the reader rule accepts as a complete zero-due report. Every
+        # C0 control, DEL, C1 control, U+2028 and U+2029 is now escaped.
+        tmp, repo, env, git, d8 = self.fixture()
+        run = self.run_digest("UNKNOWN", "2026-10-31", ["x/y"])
+        begin = f"D8 BEGIN rev=UNKNOWN today=2026-10-31 run={run}"
+        end = f"D8 END rev=UNKNOWN today=2026-10-31 run={run} due=0 rc=0"
+        # The forged lines are a complete report under the reader rule.
+        self.assertTrue(self.complete([begin, "x/y", end]))
+        due = "D8 DUE id=D8-2026-10-29@UNKNOWN date=2026-10-29 count=2 due_since=2026-10-30T00:00:00Z"
+        for brk, escaped in (("\n", "\\x0a"), ("\r", "\\x0d")):
+            # Each component stays under the name length limit, so the open
+            # of the missing path fails with ENOENT (NOT-FOUND).
+            missing = f"{tmp}/absent{brk}{begin}{brk}x/y{brk}{end}{brk}z"
+            a_dir = tmp / f"dir{brk}{due}" / f"y{brk}{end}{brk}z"
+            a_dir.mkdir(parents=True)
+            for name, path, token in (
+                ("a missing path", missing, "NOT-FOUND"),
+                ("a directory", str(a_dir), "REFUSED reason=unreadable"),
+            ):
+                with self.subTest(name, brk=escaped):
+                    out, lines = d8(path)
+                    self.assert_one_human_line(out, lines, token, escaped)
+                    self.assertFalse(any(self.complete(lines[i:j]) for i in range(len(lines))
+                                         for j in range(i + 2, len(lines) + 1)), out)
+                    self.assertEqual(lines[1].count(escaped), path.count(brk), lines[1])
+
+    def test_every_line_breaking_character_is_escaped(self) -> None:
+        # Round 8 (claude W1): every character str.splitlines() treats as a
+        # line boundary, and the other C0 and C1 controls and DEL, is written
+        # as a backslash escape, so say() always prints exactly one line.
+        import contextlib
+
+        breakers = "\n\r\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029"
+        self.assertEqual(len(("a" + "a".join(breakers) + "a").splitlines()), len(breakers) + 1)
+        controls = "".join(map(chr, (*range(0x20), 0x7F, *range(0x80, 0xA0), 0x2028, 0x2029)))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.d8.say(f"check-daily-changelog-rollup: a{controls}b\\c (advisory, exit 0).")
+        printed = buf.getvalue()
+        self.assertTrue(printed.endswith("\n"), printed)
+        self.assertEqual(len(printed[:-1].splitlines()), 1, printed)
+        self.assertFalse(set(printed[:-1]) & set(controls), printed)
+        self.assertIn("a\\x00\\x01", printed)
+        self.assertIn("\\x0a\\x0b\\x0c\\x0d", printed)
+        self.assertIn("\\x1f\\x7f\\x80", printed)
+        self.assertIn("\\x85", printed)
+        self.assertIn("\\x9f\\u2028\\u2029b\\c ", printed)
+
+    def test_a_surrogateescape_stdout_cannot_split_the_human_line(self) -> None:
+        # Round 15 (claude W1), the reproduction: at 98ea9d6b5 say() escaped
+        # C0 and C1 controls but not surrogates. A path byte 0x85 decodes to
+        # U+DC85, and a stdout with the surrogateescape error handler wrote it
+        # back as the raw byte 0x85, which ISO-8859-1 reads as NEL, so a path
+        # printed a forged report that a latin-1 reader split into complete
+        # BEGIN/body/END lines. Every surrogate is now escaped. The child runs
+        # without -I, which would ignore PYTHONIOENCODING.
+        import contextlib
+
+        tmp = Path(tempfile.mkdtemp(prefix="d8-surrogate-"))
+        self.addCleanup(shutil.rmtree, tmp)
+        run = self.run_digest("UNKNOWN", "2026-10-31", ["x/y"])
+        begin = f"D8 BEGIN rev=UNKNOWN today=2026-10-31 run={run}"
+        end = f"D8 END rev=UNKNOWN today=2026-10-31 run={run} due=0 rc=0"
+        self.assertTrue(self.complete([begin, "x/y", end]))
+        # One component, under the name length limit, in a missing directory:
+        # the open fails with ENOENT (NOT-FOUND).
+        component = b"\x85".join([b"absent", begin.encode(), b"x/y", end.encode(), b"z"])
+        self.assertLess(len(component), 255)
+        path = os.fsencode(tmp) + b"/no-such-dir/" + component
+        env = {**fixture_git_environment(), "GIT_CEILING_DIRECTORIES": str(tmp),
+               "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8",
+               "PYTHONIOENCODING": "latin-1:surrogateescape"}
+        r = subprocess.run(
+            [sys.executable, str(REPO_ROOT / self.TOOL), "--changelog", path],
+            capture_output=True, env=env, cwd=str(tmp), timeout=120,
+        )
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stderr, b"")
+        out = r.stdout.decode("latin-1")
+        lines = out.splitlines()
+        self.assertNotIn(b"\x85", r.stdout)
+        self.assert_one_human_line(out, lines, "NOT-FOUND", "\\udc85")
+        self.assertEqual(lines[1].count("\\udc85"), 4, lines[1])
+        self.assertFalse(any(self.complete(lines[i:j]) for i in range(len(lines))
+                             for j in range(i + 2, len(lines) + 1)), out)
+        # In process: every surrogate code point is escaped, as \udXXX.
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.d8.say("a" + "".join(map(chr, range(0xD800, 0xE000))) + "b")
+        printed = buf.getvalue()
+        self.assertTrue(printed.isascii(), printed[:80])
+        self.assertTrue(printed.startswith("a\\ud800\\ud801"), printed[:80])
+        self.assertTrue(printed.endswith("\\udffe\\udfffb\n"), printed[-80:])
+
+    def test_a_cp1252_stdout_cannot_split_the_human_line(self) -> None:
+        # Round 16 (codex ERROR), the reproduction: at d36f54d48 say()
+        # escaped controls, U+2028, U+2029 and surrogates but left other
+        # characters to stdout's encoding, and cp1252 writes U+2026 as the
+        # byte 0x85, which ISO-8859-1 reads as NEL, so a path printed a forged
+        # report that a latin-1 reader split into complete BEGIN/body/END
+        # lines. Every character outside printable ASCII is now escaped. The
+        # child runs without -I, which would ignore PYTHONIOENCODING.
+        import contextlib
+
+        tmp = Path(tempfile.mkdtemp(prefix="d8-cp1252-"))
+        self.addCleanup(shutil.rmtree, tmp)
+        run = self.run_digest("UNKNOWN", "2026-10-31", ["x/y"])
+        begin = f"D8 BEGIN rev=UNKNOWN today=2026-10-31 run={run}"
+        end = f"D8 END rev=UNKNOWN today=2026-10-31 run={run} due=0 rc=0"
+        self.assertTrue(self.complete([begin, "x/y", end]))
+        self.assertEqual("\u2026".encode("cp1252"), b"\x85")
+        # Under the name length limit, in a missing directory: the open fails
+        # with ENOENT (NOT-FOUND).
+        component = "\u2026".join(["absent", begin, "x/y", end, "z"])
+        self.assertLess(len(component.encode("utf-8")), 255)
+        path = f"{tmp}/no-such-dir/{component}"
+        env = {**fixture_git_environment(), "GIT_CEILING_DIRECTORIES": str(tmp),
+               "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8",
+               "PYTHONIOENCODING": "cp1252:strict"}
+        r = subprocess.run(
+            [sys.executable, str(REPO_ROOT / self.TOOL), "--changelog", path],
+            capture_output=True, env=env, cwd=str(tmp), timeout=120,
+        )
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stderr, b"")
+        self.assertTrue(r.stdout.isascii(), r.stdout)
+        out = r.stdout.decode("latin-1")
+        lines = out.splitlines()
+        self.assert_one_human_line(out, lines, "NOT-FOUND", "\\u2026")
+        self.assertEqual(lines[1].count("\\u2026"), 4, lines[1])
+        self.assertFalse(any(self.complete(lines[i:j]) for i in range(len(lines))
+                             for j in range(i + 2, len(lines) + 1)), out)
+        # In process: printable ASCII is kept, every other character escaped.
+        printable = "".join(map(chr, range(0x20, 0x7F)))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.d8.say(printable + "\u2026\u00e9\U0001f600")
+        self.assertEqual(buf.getvalue(), printable + "\\u2026\\xe9\\U0001f600\n")
+
+    def test_an_argument_cannot_forge_a_report_in_the_usage_error(self) -> None:
+        # Round 16 (claude W2), the reproduction: at d36f54d48 argparse wrote
+        # an unknown argument raw on stderr, so one argument holding LF
+        # printed exact BEGIN and END lines with a valid digest around x/y
+        # (exit 2). The usage error's message and the program name are now
+        # escaped as the human line is; the usage error still exits 2.
+        tmp = Path(tempfile.mkdtemp(prefix="d8-usage-"))
+        self.addCleanup(shutil.rmtree, tmp)
+        run = self.run_digest("UNKNOWN", "2026-10-31", ["x/y"])
+        begin = f"D8 BEGIN rev=UNKNOWN today=2026-10-31 run={run}"
+        end = f"D8 END rev=UNKNOWN today=2026-10-31 run={run} due=0 rc=0"
+        self.assertTrue(self.complete([begin, "x/y", end]))
+        env = {**fixture_git_environment(), "GIT_CEILING_DIRECTORIES": str(tmp),
+               "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8"}
+        for brk, escaped, encoding in (("\n", "\\x0a", None), ("\r", "\\x0d", None),
+                                       ("\u2026", "\\u2026", "cp1252:strict")):
+            with self.subTest(brk=escaped):
+                child_env = {**env, "PYTHONIOENCODING": encoding} if encoding else env
+                r = subprocess.run(
+                    [sys.executable, str(REPO_ROOT / self.TOOL),
+                     f"--bogus{brk}{begin}{brk}x/y{brk}{end}{brk}"],
+                    capture_output=True, env=child_env, cwd=str(tmp), timeout=120,
+                )
+                self.assertEqual(r.returncode, 2, r.stderr)
+                self.assertEqual(r.stdout, b"")
+                self.assertTrue(r.stderr.isascii(), r.stderr)
+                err = r.stderr.decode("latin-1")
+                lines = err.splitlines()
+                self.assertEqual(err.count(escaped), 4, err)
+                for line in lines:
+                    self.assertFalse(line.startswith("D8 "), line)
+                self.assertFalse(any(self.complete(lines[i:j]) for i in range(len(lines))
+                                     for j in range(i + 2, len(lines) + 1)), err)
+        # The program name, taken from argv[0], is escaped the same way.
+        self.assertEqual(self.d8.UsageParser(prog=f"x\n{begin}").prog, f"x\\x0a{begin}")
+
+    def test_a_rev_that_is_not_40_hex_is_unknown(self) -> None:
+        # Round 8 (claude W2): the mutant "if not rev:" passed the class at
+        # db8e74a40, because a real git never prints a non-SHA-1 rev with a
+        # matching SHA-1 blob. A fake git, first and alone on PATH, prints a
+        # rev outside the grammar and the exact SHA-1 of the bytes for any
+        # blob lookup, so the blob check would match: only REV_RE decides,
+        # and it stops before the blob lookup.
+        import hashlib
+        from unittest import mock
+
+        tmp = Path(tempfile.mkdtemp(prefix="d8-fake-git-"))
+        self.addCleanup(shutil.rmtree, tmp)
+        changelog = tmp / "CHANGELOG.md"
+        data = self.TWO_ENTRIES.encode("utf-8")
+        changelog.write_bytes(data)
+        blob = hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
+        fake = tmp / "bin"
+        fake.mkdir()
+        log = tmp / "git.log"
+        (fake / "git").write_text(
+            "#!/bin/sh\n"
+            'printf \'%s\\n\' "$*" >> "$FAKE_GIT_LOG"\n'
+            'for last in "$@"; do :; done\n'
+            'if [ "$last" = "HEAD^{commit}" ]; then printf \'%s\\n\' "$FAKE_GIT_REV"; '
+            'else printf \'%s\\n\' "$FAKE_GIT_BLOB"; fi\n',
+            encoding="utf-8",
+        )
+        (fake / "git").chmod(0o755)
+
+        def revision(rev):
+            log.write_text("", encoding="utf-8")
+            fake_env = {"PATH": str(fake), "FAKE_GIT_LOG": str(log), "FAKE_GIT_REV": rev,
+                        "FAKE_GIT_BLOB": blob, "GIT_CEILING_DIRECTORIES": str(tmp)}
+            with mock.patch.dict(os.environ, fake_env, clear=True):
+                result = self.d8.checked_revision(changelog, data)
+            return result, log.read_text(encoding="utf-8").splitlines()
+
+        # Control: a 40-hex rev passes the guard and the fake's blob matches,
+        # so the rev is returned; the fake saw both calls.
+        result, calls = revision(self.REV)
+        self.assertEqual(result, self.REV)
+        self.assertEqual(len(calls), 2, calls)
+        self.assertTrue(calls[0].endswith("rev-parse --verify --quiet HEAD^{commit}"), calls)
+        self.assertTrue(calls[1].endswith(f"rev-parse --verify --quiet {self.REV}:./CHANGELOG.md"), calls)
+        for name, rev in {
+            "text outside the grammar": "x rc=0 due=9",
+            "upper-case hex": self.REV.upper(),
+            "39 hex": self.REV[:39],
+            "a SHA-256": self.REV + self.REV[:24],
+        }.items():
+            with self.subTest(name):
+                result, calls = revision(rev)
+                self.assertEqual(result, "UNKNOWN")
+                self.assertEqual(len(calls), 1, calls)
+
+    def test_the_exceptions_to_exit_0_are_stated_and_observed(self) -> None:
+        # Round 8 (codex ERROR; claude N3, N9; agy W2): at db8e74a40 the
+        # docstring and the spec said a closed stdout gives exit 120, but
+        # unbuffered (python3 -u) the BEGIN print raises: exit 1. The list of
+        # exceptions also omitted a full device, a failing self-test and a
+        # signal, the spec's git-failure list omitted "absent", and the D15
+        # paragraph said D8 always exits zero. The interpreter's exits are
+        # observed here (-u, since -I ignores PYTHONUNBUFFERED).
+        import contextlib
+        from unittest import mock
+
+        def flat(text):
+            return " ".join(text.split())
+
+        spec = (REPO_ROOT / "governance" / "specification-audit-programme.md").read_text(encoding="utf-8")
+        d8_paragraphs = [line for line in spec.splitlines() if line.startswith("Delta gate D8 is ")]
+        self.assertEqual(len(d8_paragraphs), 1)
+        texts = {"docstring": flat(self.d8.__doc__), "spec": flat(d8_paragraphs[0])}
+        stated = (
+            "The exceptions to exit 0, a complete list, all lie outside D8's checking of the CHANGELOG:",
+            "an unknown option or a missing option value is argparse's usage error (exit 2);",
+            # Round 11 (claude W3); round 12 (claude W1): exit 3 holds only
+            # when stderr is writable or absent; an unwritable stderr gives
+            # the interpreter's exit, so the contract is a non-zero exit.
+            "a run with no usable stdout, as when the process starts with file descriptor 1 closed "
+            "(Python then sets `sys.stdout` to None, and `print` writes nothing) or stdout's "
+            "descriptor or stream is closed, is refused before anything is checked, and its exit is "
+            "non-zero in every case, so a report that could not be delivered never reads as a pass.",
+            "When stderr is writable, D8 writes one line giving the reason to stderr and exits 3; "
+            "with no stderr at all (file descriptor 2 also closed at startup, so `sys.stderr` is "
+            "None) it writes nothing and exits 3.",
+            # Round 14 (claude ERROR): an unwritable stderr exits 3 unbuffered
+            # and the interpreter's flush-failure status (120) buffered.
+            "When stderr exists but cannot be written (the device is full, as on /dev/full), the "
+            "exit is still non-zero: D8 catches the failed write and returns 3. Which code the "
+            "process ends with depends on stderr's buffering: unbuffered (`python3 -u`), nothing is "
+            "left to write and the exit is 3; with stderr's default buffering, the unwritten line "
+            "stays in stderr's buffer, the interpreter's final flush of it fails again, and the exit "
+            "is the interpreter's flush-failure status instead. Only a non-zero exit is part of this "
+            "contract for this case (observed on CPython 3.14.4: 3 unbuffered, 120 buffered);",
+            # Round 10 (claude W1): the contract is a non-zero exit; each
+            # code is labelled as observed, never stated per case.
+            "a write to stdout that fails, because the reader has closed it (a broken pipe) or the "
+            "device is full (ENOSPC, as on /dev/full), is the interpreter's error, and D8 then exits "
+            "non-zero, never 0, with no complete report delivered. The exact code depends on when the "
+            "write fails and is not part of this contract, nor is the wording of the interpreter's "
+            "message on stderr.",
+            "Observed on CPython 3.14.4: 120 when only the interpreter's final flush of stdout fails "
+            "(block-buffered, a pipe or a file, the default, with a report smaller than the buffer); "
+            "1 unbuffered (`python3 -u`), where the first line D8 prints fails; and 120 when, "
+            "block-buffered, a write fails mid-run (a report larger than the buffer, 128 KiB on "
+            "Python 3.14), because the final flush then fails again. Exit 120 on a failed final flush "
+            "has been CPython behaviour since 3.6 (the `sys.exit` documentation).",
+            "`--self-test` exits 1 when one of its cases fails;",
+            # Round 15 (claude W2): with stderr absent or unwritable, a usage
+            # error and --self-test can end with the interpreter's status.
+            "a usage error or `--self-test` (which reports its cases on stderr) may end with the "
+            "interpreter's own status instead when stderr is absent (file descriptor 2 closed at "
+            "startup) or cannot be written (the device is full, as on /dev/full). Observed on "
+            "CPython 3.14.4: `--no-such-option` exits 120 with stderr on /dev/full under stderr's "
+            "default buffering (2 unbuffered, and 2 with no stderr), and `--self-test` with every "
+            "case passing exits 120 with stderr on /dev/full (1 unbuffered) and 1 with no stderr. "
+            "A checked run and `--help` write nothing to stderr, and were observed to exit 0 in "
+            "each of these cases;",
+            "a signal that terminates the interpreter ends D8 with that signal's status, as does a "
+            "failure of the interpreter itself (it cannot start, or runs out of memory).",
+            # Round 15 (claude W1): surrogates are escaped too. Round 16
+            # (codex ERROR, claude W2): every character outside printable
+            # ASCII is, and the usage error is escaped the same way.
+            "Whatever stdout's encoding and error handler, every character in the human line outside "
+            "printable ASCII (0x20 to 0x7E) is written as a backslash escape (`\\x0a`, `\\x85`, "
+            "`\\u2026`, `\\udc85`) before the line is written, so the human line is plain ASCII and no "
+            "encoding sees any other character in it.",
+            "cp1252 writes U+2026 as the byte 0x85, which ISO-8859-1 reads as a line break (NEL),",
+            "Under an encoding that writes ASCII as ASCII (UTF-8, ISO-8859-1 and cp1252 among them), "
+            "read by a reader that reads ASCII as ASCII, the human line is therefore exactly one line, "
+            "always begins `check-daily-changelog-rollup: `, and no path or error text can make D8 "
+            "print a line of the grammar above.",
+            "argparse's usage error on stderr is escaped the same way, its message (which quotes an "
+            "unknown argument) and the program name, so an argument cannot make D8 print a line of "
+            "the grammar above either.",
+            "Git failing, absent, timing out or printing",
+        )
+        for where, text in texts.items():
+            for phrase in stated:
+                with self.subTest(where=where, phrase=phrase[:40]):
+                    self.assertIn(phrase, text)
+            with self.subTest(where=where, absent="two exceptions"):
+                self.assertNotIn("Two exceptions", text)
+            # Round 12 (claude W1): at cc298b905 the text tied exit 3 to every
+            # run with no usable stdout, but an unwritable stderr exits 120.
+            with self.subTest(where=where, absent="unconditional exit 3"):
+                self.assertNotIn("when stderr is usable, and exits 3", text)
+            # Round 14 (claude ERROR): at ba0d7dafd the text said an
+            # unwritable stderr never exits 3, but unbuffered it does.
+            with self.subTest(where=where, absent="never 3"):
+                self.assertNotIn("the exit is the interpreter's, not 3", text)
+            # Round 10 (claude W1): a write that fails mid-run under default
+            # buffering exits 120, not 1, so no text says a mid-run failure
+            # exits 1.
+            with self.subTest(where=where, absent="mid-run exit 1"):
+                self.assertNotIn("(exit 1, with a traceback)", text)
+                self.assertNotIn("while D8 runs raises at that line", text)
+            # Round 9 (claude W1): no interpreter banner is quoted; its wording
+            # varies by version and CI runs 3.11.
+            with self.subTest(where=where, absent="interpreter banner"):
+                self.assertNotIn("Exception ignored", text)
+            # Round 9 (claude N5): a dangling symlink is NOT-FOUND, so the
+            # condition is stated as the path resolving to nothing.
+            with self.subTest(where=where, absent="nothing is at the path"):
+                self.assertNotIn("nothing is at the path", text)
+        self.assertIn(
+            "a usage error, a run with no usable stdout, a failing stdout write, a failing self-test, "
+            "a usage error or self-test with stderr absent or unwritable, a signal and a failure of "
+            "the interpreter itself, the D8 paragraph lists",
+            flat(spec),
+        )
+        self.assertNotIn("always exits zero, the D8 precedent", spec)
+
+        # Observed: stdout an already-closed pipe, or /dev/full, in each
+        # buffering mode, for a report and for a NOT-FOUND line. Only the exit
+        # code and the errno text are asserted (round 9, claude W1): the
+        # interpreter's banner wording differs between versions, and CI runs
+        # Python 3.11 while this host has only 3.14.
+        tmp = Path(tempfile.mkdtemp(prefix="d8-stdout-"))
+        self.addCleanup(shutil.rmtree, tmp)
+        changelog = tmp / "CHANGELOG.md"
+        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
+        env = {**fixture_git_environment(), "GIT_CEILING_DIRECTORIES": str(tmp)}
+
+        def closed_pipe():
+            read_end, write_end = os.pipe()
+            os.close(read_end)
+            return write_end
+
+        def full_device():
+            return os.open("/dev/full", os.O_WRONLY)
+
+        sinks = {"a closed pipe": (closed_pipe, "Broken pipe")}
+        if os.path.exists("/dev/full"):
+            sinks["/dev/full"] = (full_device, "No space left on device")
+        else:
+            # Stated, not silent: the ENOSPC case needs a full device.
+            print("skipped: /dev/full does not exist on this host", file=sys.stderr)
+        for sink, (open_sink, error) in sinks.items():
+            for flags, rc in ((("-I",), 120), (("-I", "-u"), 1)):
+                for target in (changelog, tmp / "absent.md"):
+                    with self.subTest(sink=sink, flags=flags, target=target.name):
+                        fd = open_sink()
+                        try:
+                            r = subprocess.run(
+                                [sys.executable, *flags, str(REPO_ROOT / self.TOOL), "--changelog", str(target)],
+                                stdout=fd, stderr=subprocess.PIPE, env=env, cwd=str(tmp), timeout=120,
+                            )
+                        finally:
+                            os.close(fd)
+                        stderr = r.stderr.decode("utf-8", "replace")
+                        self.assertEqual(r.returncode, rc, stderr)
+                        self.assertIn(error, stderr)
+
+        # Round 10 (claude W1): a report larger than the buffer fails at a
+        # write while D8 runs, in either buffering mode. The contract asserted
+        # is a non-zero exit and the errno text; the traceback shows the write
+        # failed mid-run rather than only at the final flush.
+        import datetime
+        import io as io_module
+
+        large = tmp / "LARGE.md"
+        first = datetime.date(2020, 1, 1)
+        entries = []
+        for i in range(400):
+            day = (first + datetime.timedelta(days=i)).isoformat()
+            entries.append(f"**{day} | 2020.01.{2 * i + 1} | PR #{2 * i + 1}** - one.")
+            entries.append(f"**{day} | 2020.01.{2 * i + 2} | PR #{2 * i + 2}** - two.")
+        large.write_text("\n".join(entries) + "\n", encoding="utf-8")
+        whole = subprocess.run(
+            [sys.executable, "-I", str(REPO_ROOT / self.TOOL), "--changelog", str(large)],
+            capture_output=True, env=env, cwd=str(tmp), timeout=120,
+        )
+        self.assertEqual(whole.returncode, 0, whole.stderr)
+        self.assertTrue(self.complete(whole.stdout.decode("utf-8").splitlines()))
+        self.assertGreater(len(whole.stdout), io_module.DEFAULT_BUFFER_SIZE)
+        for sink, (open_sink, error) in sinks.items():
+            for flags in (("-I",), ("-I", "-u")):
+                with self.subTest(sink=sink, flags=flags, target="larger than the buffer"):
+                    fd = open_sink()
+                    try:
+                        r = subprocess.run(
+                            [sys.executable, *flags, str(REPO_ROOT / self.TOOL), "--changelog", str(large)],
+                            stdout=fd, stderr=subprocess.PIPE, env=env, cwd=str(tmp), timeout=120,
+                        )
+                    finally:
+                        os.close(fd)
+                    stderr = r.stderr.decode("utf-8", "replace")
+                    self.assertNotEqual(r.returncode, 0, stderr)
+                    self.assertIn(error, stderr)
+                    self.assertIn("Traceback", stderr)
+
+        # A failing self-test case exits 1.
+        with mock.patch.object(self.d8, "find_rollups_due", lambda text, today: []):
+            with contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(self.d8.main(["--self-test"]), 1)
+
+    def test_no_usable_stdout_is_refused_not_passed(self) -> None:
+        # Round 11 (claude W3): at f5c5534a7, with file descriptor 1 closed
+        # before launch, D8 exited 0 with no output and an empty stderr:
+        # Python sets sys.stdout to None and print writes nothing. The child
+        # here closes fd 1 in preexec_fn, after fork and before exec, so the
+        # interpreter starts with it closed (stdout=subprocess.DEVNULL would
+        # leave fd 1 open on /dev/null, which is a usable stdout). The flip
+        # is a copy of the tool with the check disabled, observed to exit 0.
+        import contextlib
+
+        tmp = Path(tempfile.mkdtemp(prefix="d8-nostdout-"))
+        self.addCleanup(shutil.rmtree, tmp)
+        changelog = tmp / "CHANGELOG.md"
+        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
+        env = {**fixture_git_environment(), "GIT_CEILING_DIRECTORIES": str(tmp)}
+        source = (REPO_ROOT / self.TOOL).read_text(encoding="utf-8")
+        check = "    if not usable_stdout():\n"
+        self.assertEqual(source.count(check), 1)
+        flipped = tmp / "d8-without-the-check.py"
+        flipped.write_text(source.replace(check, "    if False:\n"), encoding="utf-8")
+
+        def run(tool, target):
+            return subprocess.run(
+                [sys.executable, "-I", str(tool), "--changelog", str(target)],
+                stderr=subprocess.PIPE, env=env, cwd=str(tmp), timeout=120,
+                preexec_fn=lambda: os.close(1),
+            )
+
+        for target in (changelog, tmp / "absent.md"):
+            with self.subTest(target=target.name):
+                r = run(REPO_ROOT / self.TOOL, target)
+                self.assertEqual(r.returncode, 3, r.stderr)
+                self.assertEqual(
+                    r.stderr.decode("utf-8", "replace"),
+                    "check-daily-changelog-rollup: no usable stdout; nothing checked (exit 3).\n",
+                )
+            with self.subTest(target=target.name, flip="check removed"):
+                r = run(flipped, target)
+                self.assertEqual(r.returncode, 0, r.stderr)
+                self.assertEqual(r.stderr, b"")
+
+        # In process: no stdout is refused by main; a closed stream is
+        # unusable (main's refusal of a closed stream with argparse colour on
+        # is pinned by test_closed_stdout_is_refused_before_the_parser); a
+        # StringIO, which has no descriptor, is usable.
+        err = io.StringIO()
+        with contextlib.redirect_stdout(None), contextlib.redirect_stderr(err):
+            self.assertFalse(self.d8.usable_stdout())
+            self.assertEqual(self.d8.main(["--changelog", str(changelog)]), 3)
+        self.assertEqual(
+            err.getvalue(), "check-daily-changelog-rollup: no usable stdout; nothing checked (exit 3).\n"
+        )
+        # Round 12 (claude W1): the exit is non-zero whatever stderr is; it is
+        # 3 when stderr is writable (above) or absent, and the interpreter's
+        # own code when stderr cannot be written. Only "non-zero" is pinned
+        # for the unwritable case: the code is the interpreter's.
+        def run_err(stderr, closes):
+            def close():
+                for fd in closes:
+                    os.close(fd)
+            return subprocess.run(
+                [sys.executable, "-I", str(REPO_ROOT / self.TOOL), "--changelog", str(changelog)],
+                stderr=stderr, env=env, cwd=str(tmp), timeout=120, preexec_fn=close,
+            )
+
+        with self.subTest(stderr="absent"):
+            self.assertEqual(run_err(subprocess.DEVNULL, (1, 2)).returncode, 3)
+        # Round 15 (claude N2): the open is skipped as its sibling tests skip
+        # it, here for this subtest alone.
+        with self.subTest(stderr="/dev/full"):
+            if not os.path.exists("/dev/full"):
+                self.skipTest("/dev/full does not exist on this host")
+            full = os.open("/dev/full", os.O_WRONLY)
+            try:
+                self.assertNotEqual(run_err(full, (1,)).returncode, 0)
+            finally:
+                os.close(full)
+
+        closed = io.StringIO()
+        closed.close()
+        with contextlib.redirect_stdout(closed):
+            self.assertFalse(self.d8.usable_stdout())
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertTrue(self.d8.usable_stdout())
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(self.d8.main(["--changelog", str(tmp / "absent.md")]), 0)
+        self.assertTrue(out.getvalue().startswith("D8 NOT-FOUND "), out.getvalue())
+
+    def test_no_usable_stdout_branches_in_process(self) -> None:
+        # Round 12 (claude W2): at cc298b905 four branches survived their
+        # removal: usable_stdout's fstat and fileno() error branches, main's
+        # sys.stderr None check and its guard around the stderr write. Each
+        # case below fails when its branch is removed: the fstat and fileno()
+        # cases then call stdout usable; with the None check removed, print
+        # falls back to sys.stdout and writes the line into the recording
+        # stdout; with the guard removed, the stderr error escapes main.
+        import contextlib
+        import errno
+        from unittest import mock
+
+        class Recorder:
+            # A stdout stand-in that records writes and answers fileno()
+            # with the given result or exception.
+            def __init__(self, fileno):
+                self.closed = False
+                self.written = []
+                self._fileno = fileno
+
+            def fileno(self):
+                if isinstance(self._fileno, BaseException):
+                    raise self._fileno
+                return self._fileno
+
+            def isatty(self):
+                return False
+
+            def write(self, text):
+                self.written.append(text)
+                return len(text)
+
+            def flush(self):
+                pass
+
+        class Unwritable(Recorder):
+            def __init__(self, exc):
+                super().__init__(io.UnsupportedOperation("no descriptor"))
+                self.exc = exc
+
+            def write(self, text):
+                raise self.exc
+
+        tmp = Path(tempfile.mkdtemp(prefix="d8-branches-"))
+        self.addCleanup(shutil.rmtree, tmp)
+        argv = ["--changelog", str(tmp / "CHANGELOG.md")]
+        line = "check-daily-changelog-rollup: no usable stdout; nothing checked (exit 3).\n"
+
+        def bad():
+            return OSError(errno.EBADF, "bad")
+
+        # fstat branch: a descriptor fstat reports bad is unusable; the same
+        # stream with fstat answering is usable.
+        with contextlib.redirect_stdout(Recorder(1)):
+            with mock.patch.object(self.d8.os, "fstat", side_effect=bad()):
+                self.assertFalse(self.d8.usable_stdout())
+            with mock.patch.object(self.d8.os, "fstat", return_value=None):
+                self.assertTrue(self.d8.usable_stdout())
+
+        # fileno() branch: OSError or ValueError from fileno() is unusable;
+        # UnsupportedOperation (no descriptor, as a StringIO) is usable.
+        for exc in (bad(), ValueError("I/O operation on closed file")):
+            with self.subTest(fileno=type(exc).__name__):
+                with contextlib.redirect_stdout(Recorder(exc)):
+                    self.assertFalse(self.d8.usable_stdout())
+        with contextlib.redirect_stdout(Recorder(io.UnsupportedOperation("none"))):
+            self.assertTrue(self.d8.usable_stdout())
+
+        # sys.stderr None: main refuses with 3 and writes nothing, to stderr
+        # or to the unusable stdout.
+        out = Recorder(bad())
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(None):
+            self.assertEqual(self.d8.main(argv), 3)
+        self.assertEqual(out.written, [])
+
+        # stderr exception guard: a stderr whose write fails (ENOSPC, or a
+        # closed stream's ValueError) still gives 3, with nothing raised.
+        for exc in (OSError(errno.ENOSPC, "No space left on device"),
+                    ValueError("I/O operation on closed file")):
+            with self.subTest(stderr=type(exc).__name__):
+                out = Recorder(bad())
+                with contextlib.redirect_stdout(out), contextlib.redirect_stderr(Unwritable(exc)):
+                    self.assertEqual(self.d8.main(argv), 3)
+                self.assertEqual(out.written, [])
+
+        # Control: a writable stderr receives the one line.
+        err = io.StringIO()
+        with contextlib.redirect_stdout(Recorder(bad())), contextlib.redirect_stderr(err):
+            self.assertEqual(self.d8.main(argv), 3)
+        self.assertEqual(err.getvalue(), line)
+
+    def test_closed_stdout_is_refused_before_the_parser(self) -> None:
+        # Round 13 (codex E1): at 14ed25cb3 main built the ArgumentParser
+        # before the stdout check. Python 3.14's argparse asks stdout whether
+        # to colour help (it reads the stream's descriptor) when the parser is
+        # built, so with colour on (TERM=xterm; NO_COLOR, PYTHON_COLORS and
+        # FORCE_COLOR unset) a closed stdout raised ValueError: exit 1 with a
+        # traceback, not 3. The whole entry path runs here, the tool's own
+        # `__main__` block through runpy, with that environment set and then
+        # restored. The flip is a copy of the tool with the check moved back
+        # after parse_args, observed to raise; Python 3.11 has no argparse
+        # colour, so there the flip has nothing to observe and is skipped.
+        import argparse
+        import contextlib
+        import inspect
+        import runpy
+        from unittest import mock
+
+        tmp = Path(tempfile.mkdtemp(prefix="d8-colour-"))
+        self.addCleanup(shutil.rmtree, tmp)
+        changelog = tmp / "CHANGELOG.md"
+        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
+        tool = REPO_ROOT / self.TOOL
+        line = "check-daily-changelog-rollup: no usable stdout; nothing checked (exit 3).\n"
+
+        def run(path, args, stdout):
+            # The tool's __main__ block ends in sys.exit(main()); its code is
+            # the exit status. Anything else raised is the interpreter's exit 1.
+            err = io.StringIO()
+            with mock.patch.object(sys, "argv", [str(path), *args]):
+                with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(err):
+                    with self.assertRaises(SystemExit) as caught:
+                        runpy.run_path(str(path), run_name="__main__")
+            return caught.exception.code, err.getvalue()
+
+        names = ("TERM", "NO_COLOR", "PYTHON_COLORS", "FORCE_COLOR")
+        before = {name: os.environ.get(name) for name in names}
+        with mock.patch.dict(os.environ, {"TERM": "xterm"}):
+            for name in names[1:]:
+                os.environ.pop(name, None)
+            for args in (["--changelog", str(changelog)], ["--help"], ["--no-such-option"]):
+                with self.subTest(args=args):
+                    closed = io.StringIO()
+                    closed.close()
+                    self.assertEqual(run(tool, args, closed), (3, line))
+            # Control: --help on a working stdout is argparse's help, exit 0.
+            out = io.StringIO()
+            self.assertEqual(run(tool, ["--help"], out), (0, ""))
+            self.assertTrue(out.getvalue().startswith("usage: "), out.getvalue()[:80])
+            with self.subTest(flip="check after the parser"):
+                if "color" not in inspect.signature(argparse.ArgumentParser).parameters:
+                    self.skipTest("this argparse has no colour detection")
+                source = tool.read_text(encoding="utf-8")
+                start = source.index("    # A report nobody can read is not a pass")
+                tail = "        return NO_STDOUT_EXIT\n\n"
+                end = source.index(tail, start) + len(tail)
+                check = source[start:end]
+                self.assertEqual(source.count(check), 1)
+                self.assertLessEqual(end, source.index("    ap = UsageParser("))
+                late = source[:start] + source[end:]
+                parsed = "    args = ap.parse_args(argv)\n\n"
+                self.assertEqual(late.count(parsed), 1)
+                flipped = tmp / "d8-check-after-the-parser.py"
+                flipped.write_text(late.replace(parsed, parsed + check), encoding="utf-8")
+                closed = io.StringIO()
+                closed.close()
+                with self.assertRaises(ValueError):
+                    run(flipped, ["--changelog", str(changelog)], closed)
+        self.assertEqual({name: os.environ.get(name) for name in names}, before)
+
+    def test_docstring_and_spec_state_the_round_7_scope(self) -> None:
+        # Round 7 (claude N1, N3; codex closing note): at ccdf536e1 the
+        # docstring said the exit status is ALWAYS 0, though argparse exits 2
+        # and a closed stdout gives 120; the reader rule did not say the whole
+        # END line must match; and the report's inputs were stated without the
+        # git environment's and the human line's qualifications.
+        def flat(text):
+            return " ".join(text.split())
+
+        spec = (REPO_ROOT / "governance" / "specification-audit-programme.md").read_text(encoding="utf-8")
+        d8_paragraphs = [line for line in spec.splitlines() if line.startswith("Delta gate D8 is ")]
+        self.assertEqual(len(d8_paragraphs), 1)
+        texts = {"docstring": flat(self.d8.__doc__), "spec": flat(d8_paragraphs[0])}
+        # Round 13: the spec's "must match" sat within two lines of the D9
+        # paragraph's TODO and failed lint-shall-near-uncertainty; the same
+        # requirement is now stated without the mandatory verb.
+        stated = (
+            "A BEGIN or END line counts only when it matches its whole grammar line above, with "
+            "no other text anywhere on it, so an END line with a token added between `run=` and "
+            "`due=`, or after `rc=0`, is not an END line.",
+            # Round 8 (codex ERROR): the exit-120 sentence was inaccurate;
+            # test_the_exceptions_to_exit_0_are_stated_and_observed pins its
+            # replacement and the observed exits.
+            "an unknown option or a missing option value is argparse's usage error (exit 2)",
+            "Two qualifications apply: the git environment decides whether a revision is "
+            "available at all",
+            "and the human line after `D8 NOT-FOUND` or `D8 REFUSED` also depends on the path "
+            "as given, the interpreter, the operating system and stdout's encoding.",
+            "D8 also opens the `--changelog` argument exactly as given: an empty argument fails with ENOENT, "
+            "and a regular file named with a trailing `/` or `/.` fails with ENOTDIR, so each "
+            "is `D8 NOT-FOUND`; only the revision lookup uses the normalized form's directory "
+            "and name.",
+            "never at `HEAD` again, so a HEAD that moves between the two calls cannot bind one "
+            "commit to another commit's bytes.",
+        )
+        for where, text in texts.items():
+            for phrase in stated:
+                with self.subTest(where=where, phrase=phrase[:40]):
+                    self.assertIn(phrase, text)
+            with self.subTest(where=where, absent="ALWAYS 0"):
+                self.assertNotIn("ALWAYS 0", text)
+
+        # The reader rule as stated: a BEGIN or END line with any other text
+        # on it is not complete, whatever the rest of the report.
+        full = self.report_lines([("2026-10-29", 9)])
+        self.assertTrue(self.complete(full), full)
+        end = full[-1]
+        cut = end.index(" due=")
+        for name, lines in {
+            "END with a token before due=": full[:-1] + [end[:cut] + " extra=1" + end[cut:]],
+            "END with text after rc=0": full[:-1] + [end + " extra"],
+            "BEGIN with text after run": [full[0] + " extra"] + full[1:],
+        }.items():
+            with self.subTest(name):
+                self.assertFalse(self.complete(lines), lines)
+
+        # The first exception to exit 0 is real: argparse exits 2.
+        r = run_linter(self.TOOL, "--no-such-option")
+        self.assertEqual(r.returncode, 2, r.stderr)
+
+    def test_one_bad_date_refuses_the_whole_report(self) -> None:
+        # Round 6 (claude W1): one malformed per-PR date refuses the whole
+        # report, so a date that is otherwise due is not reported until the
+        # bad line is fixed. Deliberate (stricter is safer: a partial report
+        # would read as complete), and at 3f5d385b8 neither the docstring nor
+        # the spec said so.
+        tmp, repo, env, git, d8 = self.fixture()
+        changelog = tmp / "CHANGELOG.md"
+        good = self.TWO_ENTRIES + "**2026-10-25 | 2026.10.1 | PR #3** - three.\n" \
+            "**2026-10-25 | 2026.10.2 | PR #4** - four.\n"
+        changelog.write_text(good, encoding="utf-8")
+        out, lines = d8(changelog)
+        self.assertTrue(self.complete(lines), out)
+        self.assertEqual(sum(1 for line in lines if line.startswith("D8 DUE ")), 2, out)
+        changelog.write_text(good + "**2026-02-30 | 2026.02.1 | PR #5** - five.\n", encoding="utf-8")
+        out, lines = d8(changelog)
+        self.assertEqual(len(lines), 2, out)
+        self.assertRegex(lines[0], r"^D8 REFUSED reason=bad-date today=\d{4}-\d{2}-\d{2} rc=0$")
+        self.assertNotIn("D8 DUE", out)
+        self.assertNotIn("DAILY SUMMARY DUE", out)
+        stated = (
+            "One malformed per-PR date refuses the whole report (`D8 REFUSED reason=bad-date`), "
+            "so no other due date is reported until that line is fixed. This is deliberate "
+            "(stricter is safer): a partial report would read as complete."
+        )
+        spec = (REPO_ROOT / "governance" / "specification-audit-programme.md").read_text(encoding="utf-8")
+        d8_paragraph = [line for line in spec.splitlines() if line.startswith("Delta gate D8 is ")]
+        self.assertEqual(len(d8_paragraph), 1)
+        for where, text in {"docstring": self.d8.__doc__, "spec": d8_paragraph[0]}.items():
+            with self.subTest(where=where):
+                self.assertIn(stated, " ".join(text.split()))
+
+    def test_unwritable_stderr_exit_depends_on_buffering(self) -> None:
+        # Round 14 (claude ERROR): at ba0d7dafd the docstring and the spec
+        # said an unwritable stderr gives the interpreter's exit, "not 3".
+        # D8 catches the failed write and returns 3 either way; unbuffered
+        # that is the exit, while with stderr's default buffering the line
+        # stays in the buffer and the interpreter's final flush fails again
+        # (exit 120, CPython's flush-failure status since 3.6). Each code is
+        # pinned for its mode.
+        if not os.path.exists("/dev/full"):
+            self.skipTest("/dev/full does not exist on this host")
+        tmp = Path(tempfile.mkdtemp(prefix="d8-stderr-full-"))
+        self.addCleanup(shutil.rmtree, tmp)
+        changelog = tmp / "CHANGELOG.md"
+        changelog.write_text("**2026-10-29 | 2026.10.1 | PR #1** - one.\n", encoding="utf-8")
+        env = {**fixture_git_environment(), "GIT_CEILING_DIRECTORIES": str(tmp)}
+        for flags, want in ((("-I", "-u"), 3), (("-I",), 120)):
+            with self.subTest(flags=flags):
+                full = os.open("/dev/full", os.O_WRONLY)
+                try:
+                    result = subprocess.run(
+                        [sys.executable, *flags, str(REPO_ROOT / self.TOOL), "--changelog", str(changelog)],
+                        stderr=full, env=env, cwd=str(tmp), timeout=120,
+                        preexec_fn=lambda: os.close(1),
+                    )
+                finally:
+                    os.close(full)
+                self.assertEqual(result.returncode, want)
+
+    def test_clock_inputs_are_stated(self) -> None:
+        # Round 14 (claude W3): at ba0d7dafd the docstring and the spec
+        # called the UTC date D8's only clock input, but elapsed time against
+        # GIT_TIMEOUT decides whether rev is a SHA or UNKNOWN.
+        spec = (REPO_ROOT / "governance" / "specification-audit-programme.md").read_text(encoding="utf-8")
+        d8_paragraph = [line for line in spec.splitlines() if line.startswith("Delta gate D8 is ")]
+        self.assertEqual(len(d8_paragraph), 1)
+        stated = {
+            "docstring": "The report carries no time of day. It has two clock inputs (audit programme "
+                         "principle 1): the UTC date, and the elapsed time of each git call, which has a "
+                         "30-second limit (`GIT_TIMEOUT`), so a call that runs past it makes `rev` UNKNOWN "
+                         "(below) where a quicker one would give the SHA.",
+            "spec": "A report carries no time of day. It has two clock inputs: the UTC date, and the "
+                    "elapsed time of each git call, which has a 30-second limit (`GIT_TIMEOUT`), so a "
+                    "call that runs past it makes `rev` `UNKNOWN` where a quicker one would give the SHA.",
+        }
+        for where, text in {"docstring": self.d8.__doc__, "spec": d8_paragraph[0]}.items():
+            with self.subTest(where=where):
+                flat = " ".join(text.split())
+                self.assertIn(stated[where], flat)
+                self.assertNotIn("the UTC date is its only clock input", flat)
+        self.assertEqual(self.d8.GIT_TIMEOUT, 30)
+
+    def test_report_takes_today_from_main(self) -> None:
+        # Round 14 (claude W2): report() read the clock again when no date
+        # was passed, so a run crossing UTC midnight between main's read and
+        # report's could print day D+1 over due dates computed for day D.
+        # report() now requires today, and main reads the clock once.
+        import contextlib
+        import datetime
+        import inspect
+        import types
+        from unittest import mock
+
+        param = inspect.signature(self.d8.report).parameters["today"]
+        self.assertIs(param.default, inspect.Parameter.empty)
+        with self.assertRaises(TypeError):
+            self.d8.report([], stream=io.StringIO())
+
+        tmp = Path(tempfile.mkdtemp(prefix="d8-midnight-"))
+        self.addCleanup(shutil.rmtree, tmp)
+        changelog = tmp / "CHANGELOG.md"
+        changelog.write_text(
+            "**2026-10-31 | 2026.10.1 | PR #1** - one.\n"
+            "**2026-10-31 | 2026.10.2 | PR #2** - two.\n",
+            encoding="utf-8",
+        )
+        utc = datetime.timezone.utc
+        reads = [
+            datetime.datetime(2026, 10, 31, 23, 59, 59, 999999, tzinfo=utc),
+            datetime.datetime(2026, 11, 1, 0, 0, 0, tzinfo=utc),
+        ]
+        calls = []
+
+        class SteppingDateTime(datetime.datetime):
+            # Each clock read returns the next instant: the second read is
+            # past UTC midnight.
+            @classmethod
+            def now(cls, tz=None):
+                calls.append(tz)
+                return reads[min(len(calls), len(reads)) - 1]
+
+        clock = types.SimpleNamespace(
+            date=datetime.date, datetime=SteppingDateTime,
+            timedelta=datetime.timedelta, timezone=datetime.timezone,
+        )
+        # Loaded under the redirect, so report()'s stream default is the buffer.
+        buf = io.StringIO()
+        with mock.patch.dict(os.environ, {"GIT_CEILING_DIRECTORIES": str(tmp)}), \
+                contextlib.redirect_stdout(buf):
+            d8 = load_linter_module(self.TOOL, "_d8_midnight_under_test")
+            with mock.patch.object(d8, "datetime", clock):
+                self.assertEqual(d8.main(["--changelog", str(changelog)]), 0)
+        lines = buf.getvalue().splitlines()
+        self.assertEqual(len(calls), 1, calls)
+        self.assertEqual(len(lines), 3, lines)
+        self.assertTrue(lines[0].startswith("D8 BEGIN rev=UNKNOWN today=2026-10-31 "), lines)
+        self.assertTrue(lines[1].startswith("OK: "), lines)
+        self.assertTrue(lines[2].startswith("D8 END rev=UNKNOWN today=2026-10-31 "), lines)
+        self.assertTrue(self.complete(lines), lines)
+
+    def test_output_ignores_time_of_day_and_local_date(self) -> None:
+        # Round 2: the UTC date is the only clock input of a D8 report
+        # whose git calls finish in time (audit programme principle 1;
+        # round 14 names the git time limit), so two runs at
+        # either end of one UTC day print identical output. Round 3 (claude
+        # W4): each run loads a fresh module under frozen datetime AND time
+        # modules whose local zone is twelve hours behind UTC early in the day
+        # and fourteen ahead late in it, so a time-module read or a local date
+        # changes the output.
+        import contextlib
+        import datetime
+        import time as real_time
+        import types
+        from unittest import mock
+
+        tmp = Path(tempfile.mkdtemp(prefix="d8-clock-"))
+        self.addCleanup(shutil.rmtree, tmp)
+        changelog = tmp / "CHANGELOG.md"
+        changelog.write_text(
+            "**2026-10-29 | 2026.10.1 | PR #1** - one.\n"
+            "**2026-10-29 | 2026.10.2 | PR #2** - two.\n"
+            "**2026-10-31 | 2026.10.3 | PR #3** - three.\n"
+            "**2026-10-31 | 2026.10.4 | PR #4** - four.\n",
+            encoding="utf-8",
+        )
+
+        def run_at(instant, utc_offset_hours):
+            epoch = instant.timestamp()
+            shift = utc_offset_hours * 3600
+            local = (instant + datetime.timedelta(seconds=shift)).replace(tzinfo=None)
+
+            def local_at(secs):
+                moment = datetime.datetime.fromtimestamp(secs, datetime.timezone.utc)
+                return (moment + datetime.timedelta(seconds=shift)).replace(tzinfo=None)
+
+            class FrozenDate(datetime.date):
+                @classmethod
+                def today(cls):
+                    return local.date()
+
+                @classmethod
+                def fromtimestamp(cls, secs):
+                    return local_at(secs).date()
+
+            class FrozenDateTime(datetime.datetime):
+                @classmethod
+                def now(cls, tz=None):
+                    return instant.astimezone(tz) if tz else local
+
+                @classmethod
+                def today(cls):
+                    return local
+
+                @classmethod
+                def utcnow(cls):
+                    return instant.replace(tzinfo=None)
+
+                @classmethod
+                def fromtimestamp(cls, secs, tz=None):
+                    return datetime.datetime.fromtimestamp(secs, tz) if tz else local_at(secs)
+
+            def localtime(secs=None):
+                return real_time.gmtime((epoch if secs is None else secs) + shift)
+
+            fake_datetime = types.ModuleType("datetime")
+            fake_datetime.__dict__.update(vars(datetime))
+            fake_datetime.date, fake_datetime.datetime = FrozenDate, FrozenDateTime
+            fake_time = types.ModuleType("time")
+            fake_time.__dict__.update(vars(real_time))
+            fake_time.time = lambda: epoch
+            fake_time.time_ns = lambda: int(epoch) * 10**9
+            fake_time.gmtime = lambda secs=None: real_time.gmtime(epoch if secs is None else secs)
+            fake_time.localtime = localtime
+            fake_time.strftime = lambda fmt, t=None: real_time.strftime(fmt, localtime() if t is None else t)
+            fake_time.asctime = lambda t=None: real_time.asctime(localtime() if t is None else t)
+            fake_time.ctime = lambda secs=None: real_time.asctime(localtime(secs))
+
+            # Loaded under the redirect, so report()'s stream default is the buffer.
+            buf = io.StringIO()
+            saved = {name: sys.modules[name] for name in ("datetime", "time")}
+            sys.modules.update(datetime=fake_datetime, time=fake_time)
+            try:
+                with mock.patch.dict(os.environ, {"GIT_CEILING_DIRECTORIES": str(tmp)}), \
+                        contextlib.redirect_stdout(buf):
+                    d8 = load_linter_module(self.TOOL, "_d8_clock_under_test")
+                    self.assertEqual(d8.main(["--changelog", str(changelog)]), 0)
+            finally:
+                sys.modules.update(saved)
+            return buf.getvalue()
+
+        utc = datetime.timezone.utc
+        early = run_at(datetime.datetime(2026, 10, 31, 0, 0, 1, tzinfo=utc), -12)
+        late = run_at(datetime.datetime(2026, 10, 31, 23, 59, 59, tzinfo=utc), 14)
+        self.assertEqual(early, late)
+        lines = early.splitlines()
+        self.assertEqual(len(lines), 4, lines)
+        self.assertEqual(self.framed(lines, rev="UNKNOWN"), "due=1 rc=0")
+        self.assertEqual(
+            lines[1],
+            "D8 DUE id=D8-2026-10-29@UNKNOWN date=2026-10-29 count=2 "
+            "due_since=2026-10-30T00:00:00Z",
+        )
+
+    # The inline self-test's cases, each pinned by name (round 3).
+    SELF_TEST_CASES = (
+        "test_bad_entry_date_is_refused",
+        "test_commented_entries_do_not_count",
+        "test_empty_corpus",
+        "test_milestone_entry_is_never_counted",
+        "test_multiple_past_days_each_flagged",
+        "test_past_day_already_rolled_up_is_not_due",
+        "test_past_day_single_entry_is_not_due",
+        "test_past_day_with_multiple_per_pr_is_due",
+        "test_report_frames_the_lines_with_one_run_digest",
+        "test_report_line_count_matches_due",
+        "test_report_message_names_coupled_rollup_tool",
+        "test_today_multiple_per_pr_is_not_due",
+    )
+
+    def test_inline_self_test_runs(self) -> None:
+        # Round 3 (claude W4, codex W4): "OK" on stderr alone passed a mutant
+        # whose self-test only printed OK and returned 0.
+        r = run_linter(self.TOOL, "--self-test")
+        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        for case in self.SELF_TEST_CASES:
+            self.assertRegex(r.stderr, rf"(?m)^{case} \(.+\) \.\.\. ok$")
+        self.assertRegex(r.stderr, rf"(?m)^Ran {len(self.SELF_TEST_CASES)} tests in ")
+        self.assertEqual(r.stderr.splitlines()[-1], "OK", r.stderr)
+
+    def test_pre_push_runner_starts_the_report_on_its_own_line(self) -> None:
+        # Round 3 (claude W1): at 9e0458d80 run_check printed its label with no
+        # newline before D8 ran, so "D8 BEGIN" did not start a line there. The
+        # real runner and the real D8 run in a fixture repository, with silent
+        # stubs for every other tool the runner names, on a real range and on
+        # a collapsed one.
+        tmp, repo, env, git, d8 = self.fixture()
+        tools = repo / "tools"
+        tools.mkdir()
+        runner = REPO_ROOT / "tools" / "run-pr-time-checks.sh"
+        shutil.copy(runner, tools / runner.name)
+        shutil.copy(REPO_ROOT / self.TOOL, tools / Path(self.TOOL).name)
+        named = set(re.findall(r"tools/([A-Za-z0-9_.-]+\.py)", runner.read_text(encoding="utf-8")))
+        self.assertIn(Path(self.TOOL).name, named)
+        for name in named - {Path(self.TOOL).name}:
+            (tools / name).write_text("raise SystemExit(0)\n", encoding="utf-8")
+        (repo / "CHANGELOG.md").write_text(self.TWO_ENTRIES, encoding="utf-8")
+        git("init", "-q")
+        git("add", "-A")
+        git("commit", "-q", "-m", "fixture")
+        (repo / "README.md").write_text("# Fixture\n", encoding="utf-8")
+        git("add", "README.md")
+        git("commit", "-q", "-m", "change")
+
+        for base, rc in (("HEAD~1", 0), ("HEAD", 2)):
+            with self.subTest(base=base):
+                r = subprocess.run(
+                    ["bash", str(tools / runner.name)], capture_output=True, text=True,
+                    cwd=str(repo), env={**env, "BASE_REF": base, "HEAD_REF": "HEAD"},
+                )
+                self.assertEqual(r.returncode, rc, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                lines = r.stdout.splitlines()
+                begin = [i for i, line in enumerate(lines) if line.startswith("D8 BEGIN ")]
+                end = [i for i, line in enumerate(lines) if line.startswith("D8 END ")]
+                self.assertEqual(len(begin), 1, r.stdout)
+                self.assertEqual(len(end), 1, r.stdout)
+                self.assertTrue(self.complete(lines[begin[0]:end[0] + 1]), r.stdout)
+                self.assertRegex(r.stdout, r"(?m)^D8 Daily-changelog-rollup reminder +\.\.\. OK$")
+
+    def test_pre_push_runner_reports_a_failing_d8_as_failed(self) -> None:
+        # Round 4 (claude W1): a mutant whose on_own_lines returned 0 passed the
+        # class, so a D8 crash would read "... OK" before push. A D8 stub that
+        # exits 3 must print FAIL (rc=3) and fail the run, on a real range
+        # (exit 1) and on a collapsed one (exit 2, with the failure counted).
+        tmp, repo, env, git, d8 = self.fixture()
+        tools = repo / "tools"
+        tools.mkdir()
+        runner = REPO_ROOT / "tools" / "run-pr-time-checks.sh"
+        shutil.copy(runner, tools / runner.name)
+        named = set(re.findall(r"tools/([A-Za-z0-9_.-]+\.py)", runner.read_text(encoding="utf-8")))
+        self.assertIn(Path(self.TOOL).name, named)
+        for name in named - {Path(self.TOOL).name}:
+            (tools / name).write_text("raise SystemExit(0)\n", encoding="utf-8")
+        (tools / Path(self.TOOL).name).write_text("raise SystemExit(3)\n", encoding="utf-8")
+        (repo / "CHANGELOG.md").write_text(self.TWO_ENTRIES, encoding="utf-8")
+        git("init", "-q")
+        git("add", "-A")
+        git("commit", "-q", "-m", "fixture")
+        (repo / "README.md").write_text("# Fixture\n", encoding="utf-8")
+        git("add", "README.md")
+        git("commit", "-q", "-m", "change")
+
+        for base, rc, summary in (("HEAD~1", 1, "1 PR-time check(s) failed."),
+                                  ("HEAD", 2, "1 range-free PR-time check(s) failed.")):
+            with self.subTest(base=base):
+                r = subprocess.run(
+                    ["bash", str(tools / runner.name)], capture_output=True, text=True,
+                    cwd=str(repo), env={**env, "BASE_REF": base, "HEAD_REF": "HEAD"},
+                )
+                self.assertEqual(r.returncode, rc, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+                self.assertRegex(r.stdout, r"(?m)^D8 Daily-changelog-rollup reminder +\.\.\. FAIL \(rc=3\)$")
+                self.assertNotRegex(r.stdout, r"(?m)^D8 Daily-changelog-rollup reminder +\.\.\. OK$")
+                self.assertIn(summary, r.stdout.splitlines())
+
+    def test_docstring_and_spec_state_the_reader_rule_and_inputs(self) -> None:
+        # Round 4 (claude E1, W2, N3, N7; agy W1): at b9eb38c2b recomputing run
+        # was something a reader "may" do, the report was said to depend on
+        # the CHANGELOG, the revision and the UTC date alone, the spec's digest
+        # input named neither UTF-8 nor the LF after the first text, and the
+        # playbook kept the old advisory phrase.
+        def flat(text):
+            return " ".join(text.split())
+
+        spec = (REPO_ROOT / "governance" / "specification-audit-programme.md").read_text(encoding="utf-8")
+        d8_paragraphs = [line for line in spec.splitlines() if line.startswith("Delta gate D8 is ")]
+        self.assertEqual(len(d8_paragraphs), 1)
+        texts = {"docstring": flat(self.d8.__doc__), "spec": flat(d8_paragraphs[0])}
+        stated = (
+            "`run` is the SHA-256 (hex) of the UTF-8 text `rev=<rev> today=<date>`, a LF, "
+            "then every line between BEGIN and END, each followed by a LF.",
+            "Reader rule: a report is complete only when its BEGIN and END lines carry "
+            "the same `run` and name the same `rev` and `today`, `run` recomputed over "
+            "that `rev`, that `today` and every line between them equals it, and the END "
+            "line ends `due=<n> rc=0` with `<n>` the number of `D8 DUE` lines between them.",
+            "checkout filters",
+            "UNKNOWN never names a commit",
+            # Round 5 (claude W1): rev depends on more than the repository.
+            "so the current date is not D8's only input from outside the repository.",
+            # Round 5 (codex E1, claude W2): absence is ENOENT or ENOTDIR alone.
+            "Only an open failing with ENOENT, or with ENOTDIR because a component of the "
+            "path is not a directory, is `D8 NOT-FOUND`; any other error opening or reading "
+            "the path, or a path that is not a regular file, is `D8 REFUSED reason=unreadable`.",
+            # Round 5 (claude N5).
+            "Each git call reads no standard input and has a timeout, and a timeout is a "
+            "git failure like any other.",
+            # Round 5 (claude N1, N3).
+            "In CI, where D8 runs only for a pull request, `rev` is GitHub's temporary merge "
+            "commit of the pull request's head into its base branch (the workflow's default "
+            "checkout), not the head commit itself.",
+            "The machine-readable lines carry neither the path nor any error text; the human "
+            "line after `D8 NOT-FOUND` or `D8 REFUSED` also carries the path as given and, "
+            "after `D8 REFUSED`, error text specific to the interpreter and operating system "
+            "(the system's error message, or the UTF-8 decoder's or the date parser's message).",
+            # Round 6 (claude E1, W2).
+            "The path is the `--changelog` argument exactly as given, not pathlib's normalized form. "
+            "A character in the human line that stdout's encoding cannot represent is written as a "
+            "backslash escape, so neither the path nor the error text can stop D8 exiting 0; every "
+            "report line is ASCII by construction.",
+        )
+        for where, text in texts.items():
+            for phrase in stated:
+                with self.subTest(where=where, phrase=phrase[:40]):
+                    self.assertIn(phrase, text)
+            with self.subTest(where=where, absent="alone"):
+                self.assertNotIn("the UTC date alone", text)
+                self.assertNotIn("may recompute", text)
+                self.assertNotIn("only external input", text)
+
+        # Round 5 (claude W1): at 0fd21910c principle 1 called the current
+        # date the only external input of every date-sensitive gate, D8 named.
+        principle = [line for line in spec.splitlines() if line.startswith("1. **Determinism over heuristic**")]
+        self.assertEqual(len(principle), 1)
+        self.assertNotIn("The current date is their only external input", principle[0])
+        self.assertIn(
+            "Second, the advisory daily-changelog-rollup check also asks git which commit it "
+            "checked, so whether its report names that commit or `UNKNOWN` also depends on the "
+            "git found on `PATH`, its configuration and environment, and checkout filters, and on "
+            "a second clock input, the elapsed time of each git call: a call that runs past its "
+            "30-second limit gives `UNKNOWN` (delta gate D8).",
+            principle[0],
+        )
+        # Round 14 (claude W3, W4): at ba0d7dafd principle 1 called the
+        # current date the only clock input of every date-sensitive gate it
+        # names, but D8's git calls are timed and four gates read the local
+        # date. Each clause is checked against the gate's own source.
+        self.assertNotIn("the current date is their only clock input", principle[0])
+        self.assertIn(
+            "Four of them, the review cadence, citation verification freshness, tooling provenance "
+            "freshness and follow-up ageing audits, take the current date by default from Python's "
+            "`date.today()`, which is the local date, not the UTC date, so their results also depend "
+            "on the time zone setting and, near midnight, on the time of day.",
+            principle[0],
+        )
+        for name, read in {
+            "check-review-cadence.py": "today = dt.date.today() if not args.as_of",
+            "lint-citation-verification-freshness.py": "default=date.today(),",
+            "lint-tooling-provenance-freshness.py": "default=date.today(),",
+            "lint-followup-ageing.py": "today = datetime.date.today()",
+        }.items():
+            with self.subTest(local_date=name):
+                self.assertIn(read, (REPO_ROOT / "tools" / name).read_text(encoding="utf-8"))
+        self.assertIn("timeout=GIT_TIMEOUT", (REPO_ROOT / self.TOOL).read_text(encoding="utf-8"))
+        self.assertEqual(self.d8.GIT_TIMEOUT, 30)
+        # Round 15 (claude W3): at 98ea9d6b5 principle 1 named elapsed time
+        # as a clock input only for D8, but gates 6, 109 and 50 time their
+        # subprocesses too. Each limit and its outcome is checked against the
+        # gate's own source. Round 16 (claude W1, N3): at d36f54d48 the list
+        # read as complete but left out gate 36, whose tests time their
+        # subprocesses, and "its two local git reads" left out gate 50's
+        # untimed git reads through the operational-store scope.
+        self.assertNotIn("Elapsed time is also an input of gates 6, 109 and 50,", principle[0])
+        self.assertNotIn("its two local git reads", principle[0])
+        self.assertIn(
+            "Elapsed time is also an input of gates that put a time limit on their subprocesses, "
+            "among them gates 6, 36, 109 and 50 (a list of examples, not a complete one): the "
+            "standards-currency audit (gate 6) gives each git call 60 seconds (`GIT_TIMEOUT`), and a "
+            "call that runs past it ends the run with exit 2; the linter regression test suite "
+            "(gate 36) runs tests that give their subprocesses time limits (`timeout=`), so a "
+            "subprocess that runs past its limit can fail its test and with it the gate; the "
+            "isolated-launch import audit (gate 109) gives each tool's probe child 60 seconds "
+            "(`PROBE_TIMEOUT`), and a probe that runs past it ends the run with exit 2; and the "
+            "bookkeeping-parity audit (gate 50) gives its git reads of the current branch and the "
+            "`origin` URL, and its `gh pr view` query, 10 seconds each (`GH_PR_VIEW_TIMEOUT`), and a "
+            "call that runs past it keeps the row demand, as a query that cannot answer does; gate "
+            "50's other git reads, made through the operational-store scope (the merge base of "
+            "`HEAD` and `origin/main`, the root CHANGELOG at that base and at `origin/main`, and "
+            "`origin/main`'s commit subjects), have no time limit.",
+            principle[0],
+        )
+        common = (REPO_ROOT / "tools" / "lint_common.py").read_text(encoding="utf-8")
+        for phrase in (
+            'STORE_SCOPE_BASE_REF = "origin/main"\n',
+            'result = subprocess.run(["git", "-C", str(root), *args],\n'
+            "                                stdin=subprocess.DEVNULL, capture_output=True, text=True, check=True)\n",
+            '_store_git_text(["merge-base", "HEAD", STORE_SCOPE_BASE_REF], repo_root)',
+            '_store_git_text(["show", f"{base.strip()}:CHANGELOG.md"], repo_root)',
+            '_store_git_text(["show", f"{STORE_SCOPE_BASE_REF}:CHANGELOG.md"], repo_root)',
+            '_store_git_text(["log", "--format=%s", STORE_SCOPE_BASE_REF, "--"], repo_root)',
+        ):
+            with self.subTest(store_scope=phrase[:40]):
+                self.assertIn(phrase, common)
+        self.assertIn("    scope = store_scope(changelog_text)\n",
+                      (REPO_ROOT / "tools" / "lint-bookkeeping-parity.py").read_text(encoding="utf-8"))
+        for name, phrases in {
+            "lint-standards-currency.py": (
+                "GIT_TIMEOUT = 60\n", "env=_git_env(), timeout=GIT_TIMEOUT,",
+                "except (OSError, subprocess.TimeoutExpired) as exc:\n"
+                "        raise RatchetBaseError(",
+                "    except RatchetBaseError as exc:\n"
+                '        print("ERROR: UNPINNED ratchet base:", exc, file=sys.stderr)\n'
+                "        return 2\n",
+            ),
+            "lint-isolated-launch.py": (
+                "PROBE_TIMEOUT = 60  ", "timeout=PROBE_TIMEOUT)",
+                "    except subprocess.TimeoutExpired as exc:\n        raise ProbeError(",
+                "        except ProbeError as exc:\n"
+                '            print(f"ERROR: {exc}", file=sys.stderr)\n'
+                "            return 2\n",
+            ),
+            "lint-bookkeeping-parity.py": (
+                "GH_PR_VIEW_TIMEOUT = 10  ",
+                '"rev-parse", "--abbrev-ref", "HEAD"],\n'
+                "                             timeout=GH_PR_VIEW_TIMEOUT)",
+                '"remote", "get-url", "origin"],\n'
+                "                          timeout=GH_PR_VIEW_TIMEOUT)",
+                '"headRepository,url"], timeout=GH_PR_VIEW_TIMEOUT, env=gh_env)',
+                "    except subprocess.TimeoutExpired:\n        return False, ",
+            ),
+        }.items():
+            source = (REPO_ROOT / "tools" / name).read_text(encoding="utf-8")
+            for phrase in phrases:
+                with self.subTest(timeout=name, phrase=phrase[:40]):
+                    self.assertIn(phrase, source)
+        # Round 11 (claude W2): at f5c5534a7 the principle said every other
+        # date-sensitive gate had the current date as its only external input,
+        # but gate 31 asks git for each file's last commit date with the
+        # inherited environment and replacement objects enabled, and follow-up
+        # ageing reads the operational store.
+        self.assertNotIn("Every other date-sensitive gate has the current date as its only external input", principle[0])
+        self.assertNotIn("each gate is otherwise deterministic from repository state", principle[0])
+        for phrase in (
+            "Other date-sensitive gates can have inputs beyond the current date and the repository's "
+            "files too: a gate that also asks git, or reads a file outside the repository, depends on "
+            "that input.",
+            "Per-document date staleness (gate 31), for example, reads each file's last commit date "
+            "with `git log`, run with the inherited environment and with replacement objects enabled, "
+            "so its result also depends on the history the clone holds, the git found on `PATH`, and "
+            "its configuration and environment;",
+            "follow-up ageing reads its default target from the operational store",
+            "Each gate is otherwise deterministic from the inputs it reads.",
+        ):
+            with self.subTest(principle=phrase[:40]):
+                self.assertIn(phrase, principle[0])
+        # The gate 31 clause is checked against gate 31's own source, not only
+        # the spec's wording: it runs `git log`, passes no environment and does
+        # not disable replacement objects.
+        gate31 = (REPO_ROOT / "tools" / "lint-document-date-staleness.py").read_text(encoding="utf-8")
+        self.assertIn('"git",\n                "log",', gate31)
+        self.assertNotIn("replace-objects", gate31)
+        self.assertNotIn("GIT_NO_REPLACE_OBJECTS", gate31)
+        self.assertNotIn("env=", gate31)
+        ageing = (REPO_ROOT / "tools" / "lint-followup-ageing.py").read_text(encoding="utf-8")
+        self.assertIn("path = resolve_working(", ageing)
+        # Round 12 (claude W3): at cc298b905 the principle still opened "a
+        # function of the repository state alone, with two bounded
+        # exceptions", but gates 40 and 45 ask git, other gates read the
+        # operational store or the private sibling, gate 50 asks GitHub and
+        # gate 63 reads the time of day. The opening names them; each named
+        # git, store, network and clock input is checked against its gate's
+        # own source.
+        self.assertNotIn("repository state alone", principle[0])
+        self.assertNotIn("two bounded exceptions", principle[0])
+        for phrase in (
+            "Every gate produces a deterministic pass/fail outcome from the inputs it reads.",
+            "No gate depends on network access or third-party services for its findings, with one "
+            "fail-closed exception: the bookkeeping-parity audit (gate 50) grants its Check 6 own-PR "
+            "exemption only after `gh pr view` confirms on GitHub that the declared pull request is "
+            "open, and keeps the row demand when that query cannot answer.",
+            "For most gates the inputs are the repository's files alone; the gates named here read more.",
+            "The session-state lease audit (gate 63) also compares a recorded heartbeat with the "
+            "current UTC time, so the time of day is one of its inputs.",
+            "Third, gates that ask git also depend on what the clone holds and on the git found on "
+            "`PATH`, its configuration and environment: gates 3, 103 and 108 list tracked files from "
+            "the index; gates 6, 13, 31, 40 and 45 read commit history",
+            "gate 50 reads the current branch and the `origin` remote, and gates 50 and 59 read "
+            "`origin/main` and its merge base with `HEAD`;",
+            "Fourth, gates 43, 45, 46, 50, 51, 59, 60, 63 and 78 read the operational store",
+            "and gates 78, 81, 90 and 107 read the private sibling repository.",
+            "Gates 36 and 109 also launch interpreter subprocesses",
+        ):
+            with self.subTest(principle=phrase[:40]):
+                self.assertIn(phrase, principle[0])
+
+        def tool(name):
+            return (REPO_ROOT / "tools" / name).read_text(encoding="utf-8")
+
+        self.assertIn('["git", *anchor, *args]', tool("lint-version-bump-recency.py"))
+        self.assertIn('run_git("log", "--format=%s", "--all")', tool("lint-todo-staleness.py"))
+        for name in ("lint-links.py", "lint-worker-id-anonymity.py", "lint-table-cell-count.py"):
+            with self.subTest(index=name):
+                self.assertIn('"ls-files", "-z"]', tool(name))
+        self.assertIn('"show", f"{ref}:{path}"', tool("lint-library-version-monotonicity.py"))
+        self.assertIn("GITHUB_EVENT_PATH", tool("lint-standards-currency.py"))
+        parity = tool("lint-bookkeeping-parity.py")
+        self.assertIn('["gh", "pr", "view"', parity)
+        self.assertIn('"remote", "get-url", "origin"', parity)
+        for name in ("lint-bookkeeping-parity.py", "lint-changelog-mirror-header-parity.py"):
+            with self.subTest(origin_main=name):
+                self.assertIn("store_scope(", tool(name))
+        self.assertIn('STORE_SCOPE_BASE_REF = "origin/main"', tool("lint_common.py"))
+        self.assertIn("datetime.now(timezone.utc)", tool("lint-session-state.py"))
+        for name in ("lint-followup-ageing.py", "lint-todo-staleness.py", "lint-overnight-file.py",
+                     "lint-bookkeeping-parity.py", "lint-working-prose-hygiene.py",
+                     "lint-changelog-mirror-header-parity.py", "lint-guardrail-cadence.py",
+                     "lint-session-state.py", "lint-todo-number-permanence.py"):
+            with self.subTest(store=name):
+                self.assertIn("resolve_working(", tool(name))
+        for name in ("lint-todo-number-permanence.py", "lint-todo-list-tag.py",
+                     "lint-todo-index-reference-parity.py", "lint-tooling-backlog-refs.py"):
+            with self.subTest(sibling=name):
+                self.assertIn('resolve_sibling("private"', tool(name))
+
+    def test_playbook_uses_the_spec_advisory_phrase(self) -> None:
+        # Round 4 (claude N7): the playbook's D8 bullet kept the phrase the
+        # spec replaced in round 3.
+        advisory = "ADVISORY (exit 0 in each of these cases, never blocks)"
+        spec = (REPO_ROOT / "governance" / "specification-audit-programme.md").read_text(encoding="utf-8")
+        self.assertIn(advisory, " ".join(spec.split()))
+        playbook = (REPO_ROOT / ".claude" / "playbooks" / "pr-lifecycle.md").read_text(encoding="utf-8")
+        bullets = [line for line in playbook.splitlines()
+                   if "**Daily-changelog-rollup reminder (D8" in line]
+        self.assertEqual(len(bullets), 1, bullets)
+        self.assertIn(advisory, bullets[0])
+        self.assertNotIn("D8 is advisory (exit 0, never blocks)", playbook)
+
+
 class ExplicitPathCliInventoryTests(unittest.TestCase):
     """Complete file inventory and conservative drift pins (3b50c, round 3).
 
@@ -38263,7 +40428,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-clause-preservation.py OWN F 43d6804eccf05f9c2434da4ec879246d48cc80081b8c852e86437cf38c65c664
         check-clean-language-upstream.py NO_FS F 7732d2d2eceb44061d99e7c484aa83c93b0818091538ba7e3b95a0040acda6a2
         check-commit-on-main.py NO_FS F 65b09e20a245ce63b9be6415a517542797ffbad0bf32426c334f300068e7eee0
-        check-daily-changelog-rollup.py SKIP F 096c9d8e8cf4741ca7fd9bb43ca5c4a5d08ead37c65559e291b44fb8af28da10
+        check-daily-changelog-rollup.py SKIP F fd2816cb2294acfb8c3a2ab767a2c05f3ddc27f17bd865377b6d0bf52ec1470b
         check-date-cobump-on-pr.py NO_FS F ccf1be610cc379a0594fd052909cff7641bc3971e40d48fb6c8040cc6157558b
         check-dirty-tree-push.py TRANSPORT F e60cbafde1933c8bcc92410a997d41a6e5e89d97456ff2949aba0284ffb65713
         check-generated-commit.py NO_FS F 0966158af3a54dba6c55f7de8039ca21ff3658ffe98c4d341d6ad153e824697b
@@ -38414,7 +40579,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
         run-linter-regression.py FIXED F 600fa27468c6f7b5371de09d5e646429017411a58ebdefff853b91dd965195e0
-        run-pr-time-checks.sh FIXED F 7efe36d3fce0778df83e6f4578561b56d02bf15e389178c50b35053767c075ab
+        run-pr-time-checks.sh FIXED F 2caed4bb6e25ef2dd77397ca021c6af8752991b3a80d5a0c3fc83a38df384c35
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
         run_all_audits.sh FIXED F 18466189b74841fdf67c087abd6ee880730f4fe3a8b395dbc9da38466a4d5c63
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c

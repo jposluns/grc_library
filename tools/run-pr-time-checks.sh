@@ -84,6 +84,18 @@ run_check() {
     fi
 }
 
+# For a check that prints a machine-readable report (D8): end run_check's label
+# line first, so the report's first line (D8 BEGIN) starts a line, then repeat
+# the label (run_check's own ${name}, visible here) so the verdict still reads
+# "<name> ... OK" (3b726 round 3).
+on_own_lines() {
+    echo ""
+    "$@"
+    local rc=$?
+    printf '%-58s ... ' "${name}"
+    return "${rc}"
+}
+
 # A collapsed range evaluates nothing, and is exactly how a run from the wrong
 # repository looks (a main clone whose HEAD is the branch point while the change
 # lives in a worktree printed a false clean, orchestrator mistake 300). The
@@ -95,7 +107,7 @@ if [ "${BASE_SHA}" = "${HEAD_SHA}" ]; then
     echo ""
     echo "Collapsed range: running only the gates that take no range; the range-taking gates are refused below."
     run_check "D8 Daily-changelog-rollup reminder" \
-        python3 tools/check-daily-changelog-rollup.py
+        on_own_lines python3 tools/check-daily-changelog-rollup.py
     run_check "D10 CLAUDE.md-size ratchet" \
         python3 tools/check-claude-md-size.py
     run_check "D14 Class-completeness attestation check" \
@@ -157,9 +169,10 @@ run_check "D7 CHANGELOG length-on-PR check" \
 # carries more than one per-PR entry (never collapsed into its daily roll-up).
 # WARNS only (exit 0) so the orchestrator does not skip the daily summarization;
 # the next PR should carry the roll-up and prune the matching mirror rows. Reads
-# working-tree state, so like the corpus gates below it needs no base ref.
+# working-tree state, so like the corpus gates below it needs no base ref. Its
+# report starts on a line of its own (on_own_lines above).
 run_check "D8 Daily-changelog-rollup reminder" \
-    python3 tools/check-daily-changelog-rollup.py
+    on_own_lines python3 tools/check-daily-changelog-rollup.py
 
 # Delta gate D9: retired-section-orphan check. When this PR CLOSES a numbered
 # TODO item (deletes its `| N.M |` index row from TODO.md), flag any anchored positional
