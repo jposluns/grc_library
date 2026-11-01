@@ -555,7 +555,7 @@ is external. Two mechanisms:
      3b plain-language wave (#855-#862) converted the whole back-catalogue to it, so every new root
      entry uses this one-line form while the detailed mirror keeps the full structured sections.
      The only remaining residual of that CHANGELOG-format work is the deferred, maintainer-gated git-history collapse.
-   - **Daily-changelog-rollup reminder (D8, midnight-UTC cadence).** If the pre-push guard's D8 check prints `DAILY SUMMARY DUE for <date>`, the next PR carries that date's daily roll-up (collapse its per-PR root entries to one `**date | version | PRs #A-#B (N PRs)**` summary) AND prunes the matching detailed-mirror rows to the `grc_library_private/changelog-archive/`. D8 is advisory (exit 0, never blocks), so the reminder is ACTIONED not skipped; the roll-up draft is a small worker offload (`tools/check-daily-changelog-rollup.py` is the check).
+   - **Daily-changelog-rollup reminder (D8, midnight-UTC cadence).** If the pre-push guard's D8 check prints `DAILY SUMMARY DUE for <date>`, the next PR carries that date's daily roll-up (collapse its per-PR root entries to one `**date | version | PRs #A-#B (N PRs)**` summary) AND prunes the matching detailed-mirror rows to the `grc_library_private/changelog-archive/`. Whether D8 prints a report, `D8 NOT-FOUND` or `D8 REFUSED`, it is ADVISORY (exit 0 in each of these cases, never blocks), so the reminder is ACTIONED not skipped; the roll-up draft is a small worker offload (`tools/check-daily-changelog-rollup.py` is the check).
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh` + `.web/build.py --check`) is green.
 
