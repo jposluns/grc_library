@@ -34,9 +34,13 @@ the file has one style:
   ``released`` (no session holds the lease; the clean-close state),
   case-sensitive; orch_store refuses every other value.
 - ``Operating-mode:`` ``fully-attended``, ``attended-autonomous``,
-  ``overnight-unattended``, or ``daytime-unattended``. The
-  AskUserQuestion-blocking hook reads this and refuses a blocking prompt when
-  the mode is unattended, so the value must always be present and current.
+  ``overnight-unattended``, ``daytime-unattended``, or a dated swap
+  ``<mode>@<YYYY-MM-DDTHH:MM:SSZ>`` whose mode is ``daytime-unattended`` or
+  ``overnight-unattended`` (a swap only adds unattendedness; a dated attended
+  value is invalid) and whose stamp is the heartbeat grammar, a real UTC time
+  no later than now. The mode-reading hooks read the fleet mode file first and
+  honour the dated swap only while newer than the fleet ``set_at`` (3b781), so
+  the value must always be present and current.
 - ``Last-heartbeat-UTC:`` a ``YYYY-MM-DDTHH:MM:SSZ`` stamp in ASCII digits
   (``date -u +%Y-%m-%dT%H:%M:%SZ``) that is a real UTC date and time no
   later than now (the standard reader refuses a later one), refreshed at
@@ -54,7 +58,10 @@ counts), and accept only one, the exact field line. Each such line other
 than an exact field line is a finding, wherever it is, comments included.
 
 grc's readers (tools/session_facts.py for its three fields, and the
-AskUserQuestion-blocking and stop-guard hooks for ``Operating-mode``) read
+AskUserQuestion-blocking and stop-guard hooks for ``Operating-mode``, which
+since 3b781 read the fleet mode file first, a readable fleet file superseding
+an undated lease value, and with the fleet file absent hand the raw value to
+each hook's own legacy rule) read
 a field only from a line that starts at column zero with the exact label,
 plain ``Name: `` or bold ``**Name:** ``, matching the value with spaces and
 tabs only, and only when the line does not start inside an HTML comment
@@ -212,14 +219,18 @@ MENTION_PATTERNS = {
 
 VALID_STATUSES = {"active", "released"}
 
-# Operating mode (the AskUserQuestion-blocking hook reads this: it blocks a blocking
-# prompt when the mode contains "unattended", so the value must be reliably present).
+# Operating mode PLAIN values (the mode-reading hooks consume this field through the
+# shared reader, fleet mode file first, so the value must be reliably present). The
+# dated swap form `<mode>@<stamp>` is validated separately in check_text: its mode
+# must be in SWAP_MODES (a swap only adds unattendedness) and its stamp must satisfy
+# the heartbeat grammar and not be in the future (3b781).
 VALID_MODES = {
     "fully-attended",
     "attended-autonomous",
     "overnight-unattended",
     "daytime-unattended",
 }
+SWAP_MODES = {"daytime-unattended", "overnight-unattended"}
 
 HEARTBEAT_RE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z")
 HEARTBEAT_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
@@ -454,10 +465,41 @@ def check_text(
         )
 
     mode = values.get("Operating-mode")
-    if mode is not None and mode.lower() not in VALID_MODES:
+    if mode is not None and "@" in mode:
+        # The dated swap form (3b781): `<mode>@<YYYY-MM-DDTHH:MM:SSZ>`, written only by
+        # the orchestrator on a #5(b) timeout swap; it may only ADD unattendedness.
+        base, _sep, stamp = mode.partition("@")
+        if base.lower() not in SWAP_MODES:
+            invalid.append(
+                f"Operating-mode dated swap `{mode}` is invalid; a dated swap may only "
+                f"add unattendedness (daytime-unattended or overnight-unattended before "
+                f"the `@`)"
+            )
+        if not HEARTBEAT_RE.fullmatch(stamp):
+            invalid.append(
+                f"Operating-mode dated swap `{mode}` has a stamp that is not a "
+                f"YYYY-MM-DDTHH:MM:SSZ stamp (use `date -u +%Y-%m-%dT%H:%M:%SZ`)"
+            )
+        else:
+            try:
+                swap_stamp = datetime.strptime(stamp, HEARTBEAT_FORMAT).replace(
+                    tzinfo=timezone.utc)
+            except ValueError:
+                invalid.append(
+                    f"Operating-mode dated swap `{mode}` has a stamp that is not a "
+                    f"real UTC date and time"
+                )
+            else:
+                if swap_stamp > (now or datetime.now(timezone.utc)):
+                    invalid.append(
+                        f"Operating-mode dated swap `{mode}` has a stamp later than "
+                        f"now; a swap records a transition that has already happened"
+                    )
+    elif mode is not None and mode.lower() not in VALID_MODES:
         invalid.append(
             f"Operating-mode value `{mode}` is invalid; permitted values: "
-            f"fully-attended, attended-autonomous, overnight-unattended, daytime-unattended"
+            f"fully-attended, attended-autonomous, overnight-unattended, daytime-unattended, "
+            f"or a dated swap `<unattended-mode>@<YYYY-MM-DDTHH:MM:SSZ>`"
         )
 
     heartbeat = values.get("Last-heartbeat-UTC")

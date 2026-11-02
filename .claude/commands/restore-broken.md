@@ -53,10 +53,11 @@ Emit the AIQT check line, then observe. Do NOT infer state you can read.
    (`gh api repos/<owner>/<repo> --jq .permissions`, read-only), and which **PreToolUse guard hooks**
    are active (they will shape recovery). Run the permission-model health check if the project ships
    one (`check_perms.sh --check`) so a manual permission slip is caught before it bites a worker.
-6. **The lease's recorded operating-mode is a trap.** If the dead session left an unattended
-   `Operating-mode`, the AskUserQuestion-blocking hook will REFUSE interactive questions until the
-   mode is reconciled. Until then, **ask the maintainer in plain prose** rather than via the question
-   tool; do not change the lease to unblock the tool before the maintainer has authorized any write.
+6. **The lease's recorded operating-mode is a trap.** The hooks read the fleet mode file first; a
+   dead session's DATED unattended swap still blocks interactive questions until the fleet file
+   supersedes it or the maintainer reconciles the lease. Until then, **ask the maintainer in plain
+   prose** rather than via the question tool; do not change the lease to unblock the tool before
+   the maintainer has authorized any write.
 7. **Is anything still running?** Hunt for a leftover automation the dead session started that is
    still acting: cron, systemd user timers, `at`, detached processes (a worker-nudge or poll loop),
    background tasks. A log file whose mtime has stopped advancing is evidence the automation died with

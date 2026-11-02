@@ -29363,6 +29363,65 @@ class SessionStateTests(LinterTestCase):
         self.assertEqual(missing, [])
         self.assertEqual(invalid, [])
 
+    def test_dated_swap_operating_mode_passes(self) -> None:
+        # 3b781: the orchestrator's dated #5(b) swap `<mode>@<stamp>` is a valid value.
+        mod = self._load_module()
+        for mode in ("daytime-unattended", "overnight-unattended"):
+            text = self.VALID_LEASE.replace(
+                "Operating-mode: attended-autonomous",
+                "Operating-mode: %s@2026-07-03T12:00:00Z" % mode,
+            )
+            missing, invalid = mod.check_text(text)
+            self.assertEqual(missing, [], mode)
+            self.assertEqual(invalid, [], mode)
+
+    def test_dated_swap_attended_value_flagged(self) -> None:
+        # 3b781: a swap may only ADD unattendedness; a dated attended value is invalid.
+        mod = self._load_module()
+        for mode in ("attended-autonomous", "fully-attended", "unattended"):
+            text = self.VALID_LEASE.replace(
+                "Operating-mode: attended-autonomous",
+                "Operating-mode: %s@2026-07-03T12:00:00Z" % mode,
+            )
+            missing, invalid = mod.check_text(text)
+            self.assertEqual(missing, [], mode)
+            self.assertTrue(any("only add unattendedness" in message
+                                for message in invalid), (mode, invalid))
+
+    def test_dated_swap_future_stamp_flagged(self) -> None:
+        from datetime import datetime, timezone
+        mod = self._load_module()
+        text = self.VALID_LEASE.replace(
+            "Operating-mode: attended-autonomous",
+            "Operating-mode: daytime-unattended@2026-07-03T14:00:00Z",
+        )
+        now = datetime(2026, 7, 3, 13, tzinfo=timezone.utc)
+        missing, invalid = mod.check_text(text, now=now)
+        self.assertEqual(missing, [])
+        self.assertTrue(any("later than now" in message for message in invalid), invalid)
+        # the same stamp read after it has passed is valid
+        later = datetime(2026, 7, 3, 15, tzinfo=timezone.utc)
+        self.assertEqual(mod.check_text(text, now=later), ([], []))
+
+    def test_dated_swap_bad_stamp_flagged(self) -> None:
+        mod = self._load_module()
+        for stamp, needle in (("tomorrow", "not a"),
+                              ("2026-07-03T12:00:00", "not a"),
+                              ("2026-13-40T99:00:00Z", "not a real UTC"),
+                              # 3b781 r2 (codex W4): strptime accepts these three; the
+                              # required YYYY-MM-DDTHH:MM:SSZ grammar must reject them.
+                              ("2026-7-03T12:00:00Z", "not a"),
+                              ("2026-07-3T12:00:00Z", "not a"),
+                              ("2026-07-03T2:00:00Z", "not a")):
+            text = self.VALID_LEASE.replace(
+                "Operating-mode: attended-autonomous",
+                "Operating-mode: daytime-unattended@%s" % stamp,
+            )
+            missing, invalid = mod.check_text(text)
+            self.assertEqual(missing, [], stamp)
+            self.assertTrue(any(needle in message for message in invalid),
+                            (stamp, invalid))
+
     def test_malformed_heartbeat_flagged(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
@@ -29827,7 +29886,8 @@ class SessionStateTests(LinterTestCase):
                 self.assertEqual(mod.check_text(bad)[1], [
                     "Operating-mode value `casual` is invalid; permitted values: "
                     "fully-attended, attended-autonomous, overnight-unattended, "
-                    "daytime-unattended"])
+                    "daytime-unattended, or a dated swap "
+                    "`<unattended-mode>@<YYYY-MM-DDTHH:MM:SSZ>`"])
         text = self.VALID_LEASE.replace("Operating-mode: attended-autonomous\n",
                                         "<!--\nOperating-mode: attended-autonomous\n-->\n")
         self.assertEqual(mod.check_text(text)[0],
@@ -40379,7 +40439,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
-        aiqt_rules.py NO_FS F d060f25887a16d6e70009a243390ac246f23cf9dc164226e38bbc671648bcc83
+        aiqt_rules.py NO_FS F ce61d8225658b4170a6137c5ea206f977c34977c3626f0bd40e696bfa14da046
         alignment-register-aliases.json DATA F 7aba74ebc7e34d89145f754cc53763e03df0bbf7f366765bbd94df5e47fdb812
         alignment-register-exclusions.json DATA F ae28ec61a6a973f24a33af86957dff0d1f0d0740dc82b5aec393a5bb882c3df0
         alignment_citation_ids.json DATA F cfa3de2c52597f242d12bfce2d71756e897c173de8df9a1577aed4f42b571d56
@@ -40447,7 +40507,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         citation_publishers.py PASSIVE F 8c9729132cfaa4f2705c023b4501872905a44dd76b996be8ea8c78ae4188d3e8
         cleanup-tmp-worker-output.py WRITE F 188d936e3dca47b40ec662a51670d04ee2e9cc6b98b706f4e876f489483c62f8
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
-        convert-session-state-lease.py OWN F 9d9d39588909856d83d904e7fbeae7a451981c6b9f92296a8e61965c07a3cea4
+        convert-session-state-lease.py OWN F ca1667813b1c8c08e43143ffa713995e8fdd9ac0a4e2d12c7b6a515a94f765af
         decisions-search.py NO_FS F a6f83f23008ed1a78383293f3e685e67bc8af59d1ad79cad5832bc792a111eca
         detect-collection-candidates.py NO_FS F 4abd7344bc3bda8933daaa560e4479dea08a856f5503e6a4122f495923a6f21b
         detect-env.py WRITE F bb9b977f0a07a9d27b09dcd85d271bb1f31efc826c5f6cd860106f283144ebc6
@@ -40457,7 +40517,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
         git-hooks/pre-push TRANSPORT F 598806d6ab27e039ae858a935fa02813ba52588bd7ba2fab6586d27bd76d4267
-        handoff-snapshot.py NO_FS F 70e30d65f7eeca3ae03ed36b3556e73a468272804f67cf38bfe16d988b2e3de2
+        handoff-snapshot.py NO_FS F 59e87f5b350caee9295c0ac4499d1f113c1403e156408994520c4889d7c44af0
         historical_citation_register.py PASSIVE F deb457b7487c069a6f1602b6a4160e1ce922da6a82a523b288dfee151d3b0236
         install-git-hooks.sh FIXED F a0010c29758bda7824fdd000e5400c5aa6c3dd13563c9cf3bc4c35acc53b286c
         iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
@@ -40533,7 +40593,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-secrets-in-content.py CWD F 868061fc0527d0843223825800fb75dd963d345d058a144b6ecc23ee8deb227b
         lint-section-anchors.py CWD F 4b540b4eb8480d1f4be16e1c51cc7c990d22a5b4ea8911244636d0aa1956726f
         lint-section-placement.py CWD F 936e351d52bcd0a0a4964b3ecd046c44ae057298aed6edde002687e8f4c17f98
-        lint-session-state.py NO_FS F 35adde65a445770b605cad7fb087bf82de70afdf6cf6ca677c3b7a562a20c5cb
+        lint-session-state.py NO_FS F e723bbbb0268178ca8e649b3120733ccfd46f8ceaad3a5d3c62891870bba03e7
         lint-shall-near-uncertainty.py ROOT F 0df50c2b6826f9216f67addad8931f1eb35498d0e3862064bdb3fed317e64610
         lint-sibling-placeholders.py NO_FS F 2ae82222a589343521ebfbc12a3b9edbec0533203e02b3f7adf906f2b8ad1d2a
         lint-skill-derives-from.py OWN F 4bf6a78a42e9f8d8dff44035ac2320a67043006a133375e7cacdcd85dd5336f5
@@ -64125,8 +64185,8 @@ class HookSiblingImportIsolationTests(unittest.TestCase):
             self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
             self.assertIn('hook-helper-isolation', r.stderr)
             self.assertIn('symlink', r.stderr)
-    HELPER_NAMES = ('_hook_state', '_hookutil', '_session_clock', 'lint_common', 'todo_index_rows', 'session_facts')
-    HELPER_IMPORT_RE = re.compile('(?:from|import)\\s+(?:_hook_state|_hookutil|_session_clock|lint_common|todo_index_rows|session_facts)')
+    HELPER_NAMES = ('_hook_state', '_hookutil', '_operating_mode', '_session_clock', 'lint_common', 'todo_index_rows', 'session_facts')
+    HELPER_IMPORT_RE = re.compile('(?:from|import)\\s+(?:_hook_state|_hookutil|_operating_mode|_session_clock|lint_common|todo_index_rows|session_facts)')
 
     def _helper_import_offences(self, paths):
         import ast
@@ -64155,6 +64215,100 @@ class HookSiblingImportIsolationTests(unittest.TestCase):
         tools = REPO_ROOT / 'tools'
         offenders = self._helper_import_offences([tools / 'lint_common.py', tools / 'todo_index_rows.py', tools / 'session_facts.py'])
         self.assertEqual(offenders, [])
+
+
+class TestOperatingModeHelper(unittest.TestCase):
+    """The shared operating-mode reader .claude/hooks/_operating_mode.py (3b781).
+
+    The helper's embedded --self-test carries the hermetic fixture suite; this class
+    wires it into gate 36/CI and re-asserts the decision table that is NEW at the
+    fleet-first cutover (it fails at 430da42ef) directly against the module, so a
+    regression is caught even if the embedded suite is weakened. Fixture paths only;
+    the live fleet mode file is never read."""
+
+    HELPER = REPO_ROOT / '.claude' / 'hooks' / '_operating_mode.py'
+
+    def _load(self):
+        import runpy
+        return runpy.run_path(str(self.HELPER))
+
+    def test_helper_self_test_passes(self):
+        result = subprocess.run(
+            [sys.executable, '-I', '-B', str(self.HELPER), '--self-test'],
+            capture_output=True, text=True, timeout=600)
+        self.assertEqual(result.returncode, 0,
+                         f"--self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn('OK', result.stderr)
+
+    def test_effective_mode_decision_table(self):
+        helper = self._load()
+        set_at = '"set_at":"2026-11-01T12:00:00Z"'
+        uid = os.geteuid()
+        with tempfile.TemporaryDirectory() as d:
+            fleet = Path(d) / 'operating-mode'
+            absent = str(Path(d) / 'missing')
+            cases = [
+                # (fleet body or None for absent, lease value, expected mode)
+                ('{"mode":"unattended",%s}' % set_at, 'attended-autonomous', 'unattended'),
+                # NEW at 3b781: an undated swap is superseded by a readable fleet file.
+                ('{"mode":"attended-autonomous",%s}' % set_at, 'daytime-unattended',
+                 'attended-autonomous'),
+                ('{"mode":"attended-autonomous",%s}' % set_at,
+                 'daytime-unattended@2026-11-01T12:00:01Z', 'daytime-unattended'),
+                ('{"mode":"attended-autonomous",%s}' % set_at,
+                 'daytime-unattended@2026-11-01T11:00:00Z', 'attended-autonomous'),
+                ('{"mode":"attended-autonomous",%s}' % set_at,
+                 'attended@2026-11-02T00:00:00Z', 'attended-autonomous'),
+                ('{"mode":"attended"}', 'attended-autonomous', 'unattended'),  # no set_at
+                # 3b781 r2 (codex W4): a swap stamp strptime accepts but the grammar
+                # rejects parses as no swap, so the fleet reading wins.
+                ('{"mode":"attended-autonomous",%s}' % set_at,
+                 'daytime-unattended@2026-11-1T12:00:01Z', 'attended-autonomous'),
+                # 3b781 r2 (codex E2): an undated absent-fleet value returns RAW; each
+                # consumer applies its own pre-3b781 legacy rule.
+                (None, 'daytime-unattended', 'daytime-unattended'),
+                (None, 'daytime-unattended@2026-11-01T13:00:00Z', 'daytime-unattended'),
+                (None, 'attended; was overnight-unattended',
+                 'attended; was overnight-unattended'),
+                (None, 'fully-attended', 'fully-attended'),
+                (None, None, None),
+            ]
+            for body, lease, want in cases:
+                if body is None:
+                    path = absent
+                else:
+                    fleet.write_text(body, encoding='utf-8')
+                    path = str(fleet)
+                mode, _source = helper['effective_mode'](path, lease, uid)
+                self.assertEqual(mode, want, (body, lease))
+
+    def test_supersession_is_named_never_silent(self):
+        helper = self._load()
+        with tempfile.TemporaryDirectory() as d:
+            fleet = Path(d) / 'operating-mode'
+            fleet.write_text('{"mode":"attended","set_at":"2026-11-01T12:00:00Z"}',
+                             encoding='utf-8')
+            uid = os.geteuid()
+            _mode, source = helper['effective_mode'](str(fleet), 'daytime-unattended', uid)
+            self.assertIn('supersedes undated lease', source)
+            _mode, source = helper['effective_mode'](
+                str(fleet), 'daytime-unattended@2026-11-01T11:00:00Z', uid)
+            self.assertIn('supersedes lease swap', source)
+
+    def test_wrong_owner_and_symlink_fail_closed(self):
+        helper = self._load()
+        with tempfile.TemporaryDirectory() as d:
+            fleet = Path(d) / 'operating-mode'
+            fleet.write_text('{"mode":"attended","set_at":"2026-11-01T12:00:00Z"}',
+                             encoding='utf-8')
+            mode, _at, note = helper['read_fleet'](str(fleet), os.geteuid() + 1)
+            self.assertEqual(mode, 'unattended')
+            self.assertIn('wrong owner', note)
+            link = Path(d) / 'link'
+            link.symlink_to(fleet)
+            mode, _at, note = helper['read_fleet'](str(link), os.geteuid())
+            self.assertEqual(mode, 'unattended')
+            self.assertIn('symlink', note)
 
 
 _SLOT_SHARE_PRODUCTION_PATH = '/opt/' + 'orch-operator/' + 'slot-shares.json'
@@ -64593,6 +64747,29 @@ class HookRoundEightTests(unittest.TestCase):
                 ('block-askuserquestion-unattended.py',
                  'CANONICAL_MODE_FILE = "/opt/orch-operator/operating-mode"',
                  'CANONICAL_MODE_FILE = ' + repr(str(fleet))),
+                # 3b781 r2: the shared reader requires the fleet file's owner uid
+                # (0 in production); the fixture fleet file is owned by this test's
+                # uid, so the copies pin the fixture owner like the slot-share uid.
+                ('block-askuserquestion-unattended.py',
+                 '                        require_owner_uid: int = 0) -> tuple[str | None, str]:',
+                 '                        require_owner_uid: int = ('
+                 + repr(os.geteuid()) + ')) -> tuple[str | None, str]:'),
+                ('block-askuserquestion-unattended.py',
+                 '              require_owner_uid: int = 0) -> tuple[str | None, str]:',
+                 '              require_owner_uid: int = ('
+                 + repr(os.geteuid()) + ')) -> tuple[str | None, str]:'),
+                # 3b781 r3 (codex E2, agy2 E1): the stop guard's fleet path, and the
+                # shared reader's default, must point at the fixture too, so no copy
+                # can consult the live fleet file; asserted below on every copy.
+                ('stop-guard-unattended.py',
+                 '_FLEET_MODE_FILE = "/opt/orch-operator/operating-mode"',
+                 '_FLEET_MODE_FILE = ' + repr(str(fleet))),
+                ('_operating_mode.py',
+                 'CANONICAL_MODE_FILE = "/opt/orch-operator/operating-mode"',
+                 'CANONICAL_MODE_FILE = ' + repr(str(fleet))),
+                ('stop-guard-unattended.py',
+                 '_FLEET_OWNER_UID = 0',
+                 '_FLEET_OWNER_UID = (' + repr(os.geteuid()) + ')'),
                 ('stop-guard-unattended.py',
                  '_KILLREG_DIR = "/run/orch-workers"',
                  '_KILLREG_DIR = ' + repr(str(registry))),
@@ -64613,6 +64790,11 @@ class HookRoundEightTests(unittest.TestCase):
                 self.assertIn(replacement, rewritten)
                 path.write_text(rewritten)
             self.assertNotIn(_SLOT_SHARE_PRODUCTION_PATH, (hooks / 'stop-guard-unattended.py').read_text())
+            # 3b781 r3 (codex E2, agy2 E1): no copied hook may still carry the live
+            # fleet path as a string literal (docstrings cite it in double backquotes).
+            for copied in sorted(hooks.glob('*.py')):
+                self.assertNotIn('"/opt/orch-operator/operating-mode"',
+                                 copied.read_text(), copied.name)
             for name in ('home', 'tmp', 'private', 'grc_working', 'registry',
                          'config', 'cache', 'data', 'runtime'):
                 (base / name).mkdir(exist_ok=True)
@@ -64659,12 +64841,17 @@ class HookRoundEightTests(unittest.TestCase):
                 if has_private:
                     private.mkdir()
                     (private / 'P-TODO.md').write_text('# Empty private backlog\n')
+                # 3b781 r2: set_at is load-bearing since the fleet-first cutover, so the
+                # well-formed fixtures carry it; a fleet file without set_at is the
+                # fail-closed malformed class, not the attended class.
                 for mode, content in (
-                    ('attended', '{"mode":"attended"}'),
-                    ('unattended', '{"mode":"unattended"}'),
+                    ('attended', '{"mode":"attended","set_at":"2026-11-01T12:00:00Z"}'),
+                    ('unattended', '{"mode":"unattended","set_at":"2026-11-01T12:00:00Z"}'),
                     ('malformed', '{'),
                     ('absent', None),
-                ) + ((('worker-attended', '{"mode":"attended"}'),) if has_private else ()):
+                ) + ((('worker-attended',
+                       '{"mode":"attended","set_at":"2026-11-01T12:00:00Z"}'),)
+                     if has_private else ()):
                     worker = mode == 'worker-attended'
                     if worker:
                         env['CLAUDE_CONFIG_DIR'] = str(base / 'orch-worker.fixture')
