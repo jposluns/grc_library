@@ -148,13 +148,18 @@ The rule's mechanisms are the exception paths (graceful degradation for blocked 
   triggers. Overlay-only; the pack rule body is unchanged.
 - **#5(b) attended->unattended timeout swap (2026-08-28).** The project CLAUDE.md §3
   graceful-degradation timeout now performs an ASSISTANT-INITIATED `Operating-mode` transition
-  attended-autonomous -> daytime-unattended on a no-answer timeout (records the decision PENDING,
-  continues), a NARROW project exception to §2's "mode transitions are operator acts", authorized by
+  attended-autonomous -> daytime-unattended on a no-answer timeout, written as a dated record
+  `daytime-unattended@<utc>`, honoured only while newer than the fleet file's `set_at` AND only
+  because it ADDS unattendedness (it never counts against an unattended fleet reading); a later
+  fleet change supersedes it automatically (3b781). It records the decision PENDING and
+  continues, a NARROW project exception to §2's "mode transitions are operator acts", authorized by
   fleet directive #5(b). It is direction-limited: attended -> MORE-unattended ONLY, never ENDING
   unattended, so §2's hard clause ("ending an unattended mode is never a no-answer default or a
-  timeout effect") is fully preserved. Swap-BACK to attended remains an operator act per §2:
-  maintainer return does not itself restore attended mode (the block-askuserquestion-unattended.py
-  message states that a lease more unattended than the fleet file ends only on an explicit
-  operator instruction; since 2026-09-25 the hook also reads the canonical fleet mode file). Reversibility gate absolute:
+  timeout effect") is fully preserved. Swap-BACK to attended is the operator's fleet change, now
+  mechanical: a later operator fleet change supersedes the swap, and no one edits the lease back
+  by hand in routine operation (the hooks read the fleet mode file first; maintainer return alone
+  does not restore attended mode until the operator sets it; the one exception is crash recovery,
+  where restore-broken's maintainer-AUTHORIZED lease reconciliation rewrites the lease under the
+  takeover mode the maintainer set). Reversibility gate absolute:
   authorial / irreversible / outward decisions still defer-and-skip, never auto-proceed. Overlay-only;
   pack §2 body unchanged.

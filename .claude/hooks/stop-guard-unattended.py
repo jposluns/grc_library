@@ -53,8 +53,12 @@ by B's unchanged per-line clamp.
 
 GRC ADAPTATION (2026-09-27; backlog 3b113). Rebased the 2026-09-03 cross-project adoption
 (inbox msg 20260903T002018Z.from-lab_infra) onto lab_infra 17b407b9, adding the live-dispatch
-allowance and bounded diagnostic transport. read_operating_mode reads session-state.md via
-_grc_map_mode; main() consumes .allow-idle-stop before parsing the payload. Lease and escape
+allowance and bounded diagnostic transport. read_operating_mode in the grc checkout reads the
+fleet mode file FIRST through the shared reader .claude/hooks/_operating_mode.py and then the
+lease's dated #5(b) swap (3b781, _grc_effective_mode), mapped via _grc_map_mode; a
+reader-load failure or reader exception FAILS CLOSED to the armed 'unattended' (3b781 r2:
+the lease never outranks the fleet file, and the AskUserQuestion hook fails closed on the
+same condition). main() consumes .allow-idle-stop before parsing the payload. Lease and escape
 helpers are scoped to the primary grc checkout and exclude both fleet worker signals.
 Actionable items come from .claude/hooks/nmw-actionable (-> tools/audit-backlog-actionability.py);
 grc does not use tools/flow.py or tools/pipeline.py. Orchestrator scoping uses both fleet worker signals
@@ -183,6 +187,12 @@ def _grc_under_root(value, default):
 
 _GRC_STATE_FILE = os.path.join(_grc_under_root(os.environ.get("GRC_STORE"), os.path.join(_GRC_PARENT, "private")),
                                "session-state.md")
+
+# The fleet's canonical mode file and its required owner (3b781). Module globals so the
+# self-test can point them at fixtures; there is deliberately no environment override,
+# so no configuration can switch the fleet file off. Fixtures never touch the live path.
+_FLEET_MODE_FILE = "/opt/orch-operator/operating-mode"
+_FLEET_OWNER_UID = 0
 
 
 def _grc_escape_file():
@@ -356,21 +366,29 @@ def read_operating_mode(root):
     """Return the operating mode: "unattended" arms the guard; any other string, or None
     (indeterminate), fails open (allows the stop).
 
-    One source per checkout (3b113 QA r2):
-      - the primary grc checkout: the store lease only (_grc_lease_mode: 'Operating-mode:', plain or bold, from
-        GRC_STORE, else <repo-parent>/private, then session-state.md, mapped via _grc_map_mode); a
+    One source per checkout (3b113 QA r2; fleet-first since 3b781):
+      - the primary grc checkout: the fleet mode file FIRST, then the lease's dated #5(b) swap,
+        through the shared reader (_grc_effective_mode -> .claude/hooks/_operating_mode.py), the
+        result mapped via _grc_map_mode (the lease: 'Operating-mode:', plain or bold, from
+        GRC_STORE, else <repo-parent>/private, then session-state.md); on a reader-load
+        failure or reader exception, the armed 'unattended' (fail closed, 3b781 r2); a
         MODE_FILE there is ignored, so a stray file never shadows the lease.
       - any other root (the bundled --self-test, a file-based adopter): the repo-relative single-word
         file MODE_FILE. Present -> its trimmed word (or None); absent -> None.
          (The one-shot declared-wait escape is consumed at the top of main() by _grc_consume_escape.)
 
-    GRC WIRING NOTE: grc keeps the mode in session-state.md (not MODE_FILE) and declares a genuine wait
-    with the .allow-idle-stop sentinel (the retired block-idle-stop hook's documented escape), both
-    preserved here. A read failure at either source returns None (fail open)."""
-    # GRC (3b113 QA r2): the grc main checkout keeps its mode ONLY in the lease, so a stray MODE_FILE there
-    # never shadows it. Every other root takes the delivered core's portable MODE_FILE branch.
+    GRC WIRING NOTE: grc keeps the lease mode in session-state.md (not MODE_FILE) and declares a
+    genuine wait with the .allow-idle-stop sentinel (the retired block-idle-stop hook's documented
+    escape), both preserved here. A read failure at every source returns None (fail open); an
+    unusable fleet FILE (present but unreadable, wrong-owner, malformed, or missing set_at)
+    resolves to 'unattended' through the shared reader's fail-closed default, and a missing or
+    failing shared READER resolves to 'unattended' directly (3b781 r2); both ARM the guard,
+    the over-blocking direction (an operator ends it by fixing the file, reader or record)."""
+    # GRC (3b113 QA r2, 3b781): the grc main checkout reads the fleet file first, then the lease,
+    # so a stray MODE_FILE there never shadows either. Every other root takes the delivered
+    # core's portable MODE_FILE branch.
     if _is_grc_main_checkout(root):
-        return _grc_lease_mode(root)
+        return _grc_effective_mode(root)
     path = os.path.join(root, MODE_FILE)
     try:
         with open(path, encoding="utf-8") as fh:
@@ -384,18 +402,125 @@ def read_operating_mode(root):
     return _grc_lease_mode(root)
 
 
+def _grc_operating_mode_helper(_cache=[]):
+    """Load the shared operating-mode reader (.claude/hooks/_operating_mode.py) with a minimal
+    copy of the AskUserQuestion hook's containment discipline, or None on ANY failure (the caller
+    then FAILS CLOSED to the armed state, 3b781 r2: a packaging defect must not let a stale
+    lease disarm the guard). Containment is decided on the path AS LAUNCHED before symlink resolution:
+    this hook must sit at <root>/.claude/hooks, no component from the root down to the helper may
+    be a symlink, and the helper's real location must sit at exactly its expected place under the
+    real repository root; the reviewed SOURCE BYTES are then executed into a fresh module (no
+    import machinery, no sys.path, no bytecode cache). The result is cached per process."""
+    if _cache:
+        return _cache[0]
+    try:
+        hook_path = os.path.abspath(__file__)
+        hooks_dir = os.path.dirname(hook_path)
+        claude_dir = os.path.dirname(hooks_dir)
+        root = os.path.dirname(claude_dir)
+        if os.path.basename(hooks_dir) != "hooks" or os.path.basename(claude_dir) != ".claude":
+            return None
+        helper_path = os.path.join(hooks_dir, "_operating_mode.py")
+        for p in (root, claude_dir, hooks_dir, hook_path, helper_path):
+            if os.path.islink(p):
+                return None
+        real_root = os.path.realpath(root)
+        if os.path.realpath(hook_path) != os.path.join(
+                real_root, ".claude", "hooks", os.path.basename(hook_path)):
+            return None
+        if os.path.realpath(helper_path) != os.path.join(
+                real_root, ".claude", "hooks", "_operating_mode.py"):
+            return None
+        with open(helper_path, "rb") as fh:
+            source = fh.read()
+        module = type(sys)("_operating_mode")
+        module.__file__ = helper_path
+        exec(compile(source, helper_path, "exec", dont_inherit=True), module.__dict__)
+    except Exception:  # noqa: BLE001 (any load failure -> the caller fails closed to armed)
+        return None
+    _cache.append(module)
+    return module
+
+
+def _grc_effective_mode(root):
+    """grc mode source (3b781): the fleet mode file first, then the lease's dated #5(b) swap,
+    combined by the shared reader's effective_mode and mapped via _grc_map_mode, only in the
+    primary grc checkout and never for a worker (3b101 QA r3). The lease is read bounded and
+    non-blocking (_grc_read_lease_text, 3b781 r2) and parsed exactly as _grc_lease_mode parses
+    it (_grc_mode_value: LF-only split, comment-aware, one trailing CR dropped); a lease
+    failure never prevents consulting the fleet file. A reader-load failure or reader
+    exception FAILS CLOSED to the armed 'unattended' (3b781 r2): the AskUserQuestion hook
+    fails closed on the same condition, and the lease never outranks the fleet file. A fleet
+    file that is absent leaves the lease deciding as before: the shared reader hands the
+    undated value back RAW and _grc_map_mode applies this guard's own legacy leading-token
+    rule (the shared reader's documented grc divergence from lab_infra)."""
+    if not _is_grc_main_checkout(root) or _grc_is_worker():
+        return None
+    helper = _grc_operating_mode_helper()
+    if helper is None:
+        # 3b781 r2 (codex E1, agy1 E1): a missing or refused shared reader fails
+        # closed to the armed state; a stale lease must never disarm the guard
+        # against the fleet authority.
+        return "unattended"
+    txt = _grc_read_lease_text()
+    lease_value = _grc_mode_value(txt) if txt is not None else None
+    try:
+        mode, _source = helper.effective_mode(_FLEET_MODE_FILE, lease_value, _FLEET_OWNER_UID)
+    except Exception:  # noqa: BLE001 (a reader defect fails closed to armed, 3b781 r2)
+        return "unattended"
+    if mode is None:
+        return None
+    return _grc_map_mode(mode)
+
+
+_GRC_LEASE_MAX_BYTES = 65536  # orch_store's MAX_FILE; gate 63 refuses a larger lease
+
+
+def _grc_read_lease_text():
+    """The lease's text, or None when it cannot be read SAFELY (3b781 r2, codex W3): the
+    lease is opened without blocking, rejected unless a regular file BEFORE any read (a
+    FIFO lease used to hang the old open() before the fleet file was consulted), and read
+    bounded (over _GRC_LEASE_MAX_BYTES, or undecodable, is None: a prefix is not the
+    lease). The bytes are decoded without newline translation, so every CR survives and
+    _grc_mode_value splits on LF only (3b679 r4)."""
+    try:
+        fd = os.open(_GRC_STATE_FILE, os.O_RDONLY | os.O_NONBLOCK | os.O_CLOEXEC)
+    except OSError:
+        return None
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            return None
+        raw = b""
+        while len(raw) <= _GRC_LEASE_MAX_BYTES:
+            chunk = os.read(fd, _GRC_LEASE_MAX_BYTES + 1 - len(raw))
+            if not chunk:
+                break
+            raw += chunk
+    except OSError:
+        return None
+    finally:
+        os.close(fd)
+    if len(raw) > _GRC_LEASE_MAX_BYTES:
+        return None
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError:  # 3b679 r5: an undecodable lease is an unreadable one
+        return None
+
+
 def _grc_lease_mode(root):
     """grc mode source: session-state.md 'Operating-mode:' -> mapped arm-state, only in the primary grc
     checkout and never for a worker (3b101 QA r3). (The one-shot declared-wait escape is handled at the top
     of main() via _grc_consume_escape, not here, so it is consumed on the malformed/worker fail-open paths
-    too.) Split out of read_operating_mode in 3b113 QA r2 so the grc checkout reads the lease alone."""
+    too.) Split out of read_operating_mode in 3b113 QA r2 so the grc checkout reads the lease alone;
+    since 3b781 r2 the grc checkout always decides through _grc_effective_mode (a reader failure
+    fails closed THERE, never here), so this remains only as read_operating_mode's non-grc
+    defensive default and as the self-test's direct lease probe; it shares the bounded,
+    non-blocking _grc_read_lease_text (3b781 r2)."""
     if not _is_grc_main_checkout(root) or _grc_is_worker():
         return None
-    try:
-        # 3b679 r4: newline="" keeps every CR, so _grc_mode_value splits on LF only (a lone CR is no line end).
-        with open(_GRC_STATE_FILE, encoding="utf-8", newline="") as fh:
-            txt = fh.read()
-    except (OSError, UnicodeDecodeError):  # 3b679 r5: an undecodable lease is an unreadable one (fail open)
+    txt = _grc_read_lease_text()
+    if txt is None:
         return None
     value = _grc_mode_value(txt)
     if value is None:
@@ -2002,13 +2127,24 @@ def _self_test():
         def test_grc_sentinel_is_the_main_checkouts_alone(self):
             # 3b101 QA r1 (claude F1): a worker's Stop in a sibling worktree must not consume the
             # orchestrator's declared-wait sentinel; the main checkout's Stop consumes it.
-            import shutil, subprocess, tempfile
+            import subprocess, tempfile
             with tempfile.TemporaryDirectory() as parent:
                 main_root = os.path.join(parent, "grc_library")
                 wt_root = os.path.join(parent, "wt-x")
+                # 3b781 r4 (claude W): every hook copy carries a fixture fleet path (an
+                # absent file under this fixture tree), the same redirection the launcher
+                # test applies, so no copy can read the live fleet file even off the
+                # passing path; the live literal must be absent from each copy.
+                source = Path(__file__).read_text(encoding="utf-8")
+                live_line = '_FLEET_MODE_FILE = "/opt/' + 'orch-operator/operating-mode"'
+                self.assertEqual(source.count(live_line), 1)
+                patched_source = source.replace(
+                    live_line, "_FLEET_MODE_FILE = %r" % os.path.join(parent, "no-fleet-file"))
                 for r in (main_root, wt_root):
                     os.makedirs(os.path.join(r, ".claude", "hooks"))
-                    shutil.copy(__file__, os.path.join(r, ".claude", "hooks", os.path.basename(__file__)))
+                    hook = os.path.join(r, ".claude", "hooks", os.path.basename(__file__))
+                    Path(hook).write_text(patched_source, encoding="utf-8")
+                    self.assertNotIn(live_line, Path(hook).read_text(encoding="utf-8"), r)
                 os.makedirs(os.path.join(main_root, ".git"))
                 with open(os.path.join(wt_root, ".git"), "w", encoding="utf-8") as fh:
                     fh.write("gitdir: " + os.path.join(main_root, ".git", "worktrees", "wt-x") + "\n")
@@ -2069,12 +2205,20 @@ def _self_test():
             with tempfile.TemporaryDirectory() as parent:
                 os.makedirs(os.path.join(parent, "grc_working"))
                 sentinel = os.path.join(parent, "grc_working", ".allow-idle-stop")
+                # 3b781 r4 (claude N2): both copies carry a fixture fleet path (an
+                # absent file under this fixture tree), the same redirection the
+                # launcher test applies; the live literal must be absent from each copy.
+                live_line = '_FLEET_MODE_FILE = "/opt/' + 'orch-operator/operating-mode"'
+                fixture_line = "_FLEET_MODE_FILE = %r" % os.path.join(parent, "no-fleet-file")
                 for name, text in (("grc_library", source), ("mutant", mutant)):
+                    self.assertEqual(text.count(live_line), 1, name)
+                    text = text.replace(live_line, fixture_line)
                     root = os.path.join(parent, name)
                     os.makedirs(os.path.join(root, ".git"))  # a main checkout, whichever checkout runs this
                     hook = os.path.join(root, ".claude", "hooks", os.path.basename(__file__))
                     os.makedirs(os.path.dirname(hook))
                     Path(hook).write_text(text, encoding="utf-8")
+                    self.assertNotIn(live_line, Path(hook).read_text(encoding="utf-8"), name)
                     for payload in payloads:
                         open(sentinel, "w").close()
                         out = subprocess.run([sys.executable, "-I", "-B", hook], input=payload, text=True,
@@ -2171,7 +2315,10 @@ def _self_test():
             with tempfile.TemporaryDirectory() as store:
                 build(store, producer_lines="1\tFirst")
                 lease = os.path.join(store, "session-state.md")
+                # 3b781: pin the fleet path to an ABSENT fixture so this test never reads the
+                # live fleet file and the lease keeps deciding, as before the shared reader.
                 patches = {"_GRC_STATE_FILE": lease, "_is_grc_main_checkout": lambda root: True,
+                           "_FLEET_MODE_FILE": os.path.join(store, "no-fleet-file"),
                            "_grc_is_worker": lambda: False}
                 with mock.patch.dict(globals(), patches):
                     def outcome():
@@ -2188,6 +2335,143 @@ def _self_test():
                     with open(lease, "wb") as fh:
                         fh.write(lease_bytes + b"note: \xff\n")
                     self.assertEqual((missing, unreadable, outcome()), ((None, None, 0),) * 3)
+
+        def test_grc_fleet_mode_file_is_read_first(self):
+            # 3b781 (fails at 430da42ef): the fleet mode file is the authority in the grc
+            # checkout; the lease arms or yields only through the shared reader's dated-swap
+            # rules. Fixture paths only; the live fleet file is never read.
+            from unittest import mock
+            head = "# Session state: grc\n\n"
+            with tempfile.TemporaryDirectory() as store:
+                lease = os.path.join(store, "session-state.md")
+                fleet = os.path.join(store, "operating-mode")
+                patches = {"_GRC_STATE_FILE": lease, "_FLEET_MODE_FILE": fleet,
+                           "_FLEET_OWNER_UID": os.geteuid(),
+                           "_is_grc_main_checkout": lambda root: True,
+                           "_grc_is_worker": lambda: False}
+
+                def put(path, text):
+                    with open(path, "w", encoding="utf-8") as fh:
+                        fh.write(text)
+
+                with mock.patch.dict(globals(), patches):
+                    put(lease, head + "Operating-mode: fully-attended\n")
+                    put(fleet, '{"mode":"unattended","set_at":"2026-11-01T12:00:00Z"}')
+                    # NEW: a fleet unattended reading arms over an attended lease.
+                    self.assertEqual(read_operating_mode(store), "unattended")
+                    put(fleet, '{"mode":"attended","set_at":"2026-11-01T12:00:00Z"}')
+                    put(lease, head + "Operating-mode: daytime-unattended\n")
+                    # NEW: an UNDATED #5(b) swap is superseded by a readable fleet file.
+                    self.assertEqual(read_operating_mode(store), "attended")
+                    put(lease, head + "Operating-mode: "
+                               "daytime-unattended@2026-11-01T12:00:01Z\n")
+                    self.assertEqual(read_operating_mode(store), "unattended")  # newer swap arms
+                    put(lease, head + "Operating-mode: "
+                               "daytime-unattended@2026-11-01T11:00:00Z\n")
+                    self.assertEqual(read_operating_mode(store), "attended")  # stale swap yields
+                    # 3b781 r3 (claude N2): an ATTENDED lease here, so this assertion
+                    # holds only through the fail-closed reading (the dated swap above
+                    # would outrank a tolerated-missing-set_at epoch default anyway).
+                    put(lease, head + "Operating-mode: fully-attended\n")
+                    put(fleet, '{"mode":"attended"}')  # missing set_at: unusable, fail closed
+                    self.assertEqual(read_operating_mode(store), "unattended")
+                    put(lease, head + "Operating-mode: "
+                               "daytime-unattended@2026-11-01T11:00:00Z\n")
+                    os.unlink(fleet)  # absent fleet file: the lease decides as before
+                    self.assertEqual(read_operating_mode(store), "unattended")
+                    # 3b781 r2 (agy1 N5): the absent-fleet fallback asserted with an
+                    # ATTENDED lease too, so it is distinct from the fail-closed default.
+                    put(lease, head + "Operating-mode: fully-attended\n")
+                    self.assertEqual(read_operating_mode(store), "attended")
+                    # 3b781 r2 (codex E2): with the fleet file absent each consumer keeps
+                    # its own pre-3b781 rule; this guard maps the WHOLE leading token
+                    # (3b101), so commentary mentioning "unattended" must not arm it.
+                    put(lease, head + "Operating-mode: attended; was overnight-unattended\n")
+                    self.assertEqual(read_operating_mode(store), "attended")
+
+        def test_grc_fleet_nonjson_constants_fail_closed(self):
+            # 3b781 r4 (codex E1): NaN, Infinity and -Infinity are not JSON; each
+            # constant alone in an otherwise valid ATTENDED fleet fixture must fail
+            # closed to the armed state through the shared reader, never disarm the
+            # guard. Fixture paths only; the live fleet file and live lease are
+            # never read.
+            from unittest import mock
+            with tempfile.TemporaryDirectory() as store:
+                lease = os.path.join(store, "session-state.md")
+                with open(lease, "w", encoding="utf-8") as fh:
+                    fh.write("# Session state: grc\n\nOperating-mode: fully-attended\n")
+                fleet = os.path.join(store, "operating-mode")
+                patches = {"_GRC_STATE_FILE": lease, "_FLEET_MODE_FILE": fleet,
+                           "_FLEET_OWNER_UID": os.geteuid(),
+                           "_is_grc_main_checkout": lambda root: True,
+                           "_grc_is_worker": lambda: False}
+                with mock.patch.dict(globals(), patches):
+                    with open(fleet, "w", encoding="utf-8") as fh:
+                        fh.write('{"mode":"attended","set_at":"2026-11-01T12:00:00Z"}')
+                    # control: the fixture is otherwise valid attended
+                    self.assertEqual(read_operating_mode(store), "attended")
+                    for constant in ("NaN", "Infinity", "-Infinity"):
+                        with open(fleet, "w", encoding="utf-8") as fh:
+                            fh.write('{"mode":"attended",'
+                                     '"set_at":"2026-11-01T12:00:00Z","phase":%s}' % constant)
+                        self.assertEqual(read_operating_mode(store), "unattended", constant)
+
+        def test_grc_reader_failure_fails_closed_to_armed(self):
+            # 3b781 r2 (codex E1, agy1 E1, agy1 W3): a missing or refused shared reader,
+            # or a reader exception, FAILS CLOSED to the armed state: an ATTENDED lease
+            # must not disarm the guard while the (fixture) fleet file reads unattended.
+            # Fails at c068eeed0, where the lease-only fallback returned "attended".
+            # Fixture paths only; the live fleet file and live lease are never read.
+            from unittest import mock
+            with tempfile.TemporaryDirectory() as store:
+                lease = os.path.join(store, "session-state.md")
+                with open(lease, "w", encoding="utf-8") as fh:
+                    fh.write("# Session state: grc\n\nOperating-mode: fully-attended\n")
+                fleet = os.path.join(store, "operating-mode")
+                with open(fleet, "w", encoding="utf-8") as fh:
+                    fh.write('{"mode":"unattended","set_at":"2026-11-01T12:00:00Z"}')
+                patches = {"_GRC_STATE_FILE": lease, "_FLEET_MODE_FILE": fleet,
+                           "_FLEET_OWNER_UID": os.geteuid(),
+                           "_grc_operating_mode_helper": lambda: None,
+                           "_is_grc_main_checkout": lambda root: True,
+                           "_grc_is_worker": lambda: False}
+                with mock.patch.dict(globals(), patches):
+                    self.assertEqual(read_operating_mode(store), "unattended")
+
+                class _Raising:
+                    @staticmethod
+                    def effective_mode(*_args, **_kwargs):
+                        raise RuntimeError("reader defect")
+
+                patches["_grc_operating_mode_helper"] = lambda: _Raising
+                with mock.patch.dict(globals(), patches):
+                    self.assertEqual(read_operating_mode(store), "unattended")
+
+        def test_grc_lease_read_is_bounded_and_rejects_non_regular(self):
+            # 3b781 r2 (codex W3): a FIFO or oversized lease can neither hang the guard
+            # nor keep it from consulting the fleet file; the bounded reader sees None.
+            from unittest import mock
+            with tempfile.TemporaryDirectory() as store:
+                lease = os.path.join(store, "session-state.md")
+                fleet = os.path.join(store, "operating-mode")
+                with open(fleet, "w", encoding="utf-8") as fh:
+                    fh.write('{"mode":"unattended","set_at":"2026-11-01T12:00:00Z"}')
+                patches = {"_GRC_STATE_FILE": lease, "_FLEET_MODE_FILE": fleet,
+                           "_FLEET_OWNER_UID": os.geteuid(),
+                           "_is_grc_main_checkout": lambda root: True,
+                           "_grc_is_worker": lambda: False}
+                with mock.patch.dict(globals(), patches):
+                    os.mkfifo(lease)  # no writer: the non-blocking open cannot hang, and
+                    self.assertIsNone(_grc_read_lease_text())  # S_ISREG rejects it unread
+                    self.assertEqual(read_operating_mode(store), "unattended")  # fleet consulted
+                    os.unlink(lease)
+                    with open(lease, "w", encoding="utf-8") as fh:  # a prefix is not the lease
+                        fh.write(("# Session state: grc\n\n"
+                                  "Operating-mode: overnight-unattended\n")
+                                 .ljust(_GRC_LEASE_MAX_BYTES + 1, "x"))
+                    self.assertIsNone(_grc_read_lease_text())
+                    os.unlink(fleet)  # absent fleet + unreadable lease: indeterminate
+                    self.assertIsNone(read_operating_mode(store))
 
         def test_grc_lease_arms_only_the_main_checkout_and_submodules(self):
             # 3b101 QA r2: the lease half of the scoping, on real hook copies: the main checkout and a
@@ -2238,11 +2522,35 @@ def _self_test():
                 if check_locked:
                     layouts["wt-locked"] = f"gitdir: {locked}\n"
                 got = {}
+                # 3b781 r2 (agy1 W4): the REAL hook copies must never read the live fleet
+                # file. Each copy carries a fixture fleet path (an absent file under this
+                # fixture tree, so the lease keeps deciding) and the shared reader beside
+                # it, so the copies exercise the full fleet-first path hermetically.
+                source = Path(__file__).read_text(encoding="utf-8")
+                live_line = '_FLEET_MODE_FILE = "/opt/' + 'orch-operator/operating-mode"'
+                self.assertEqual(source.count(live_line), 1)
+                patched_source = source.replace(
+                    live_line, "_FLEET_MODE_FILE = %r" % os.path.join(parent, "no-fleet-file"))
+                reader = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                      "_operating_mode.py")
+                # 3b781 r5 (claude W, N): the copied reader's own default must point at the
+                # fixture too, as HookRoundEightTests rewrites it, and each copy is asserted
+                # free of its live literal like the sibling copy tests above.
+                reader_live_line = 'CANONICAL_MODE_FILE = "/opt/' + 'orch-operator/operating-mode"'
+                fixture_reader_line = "CANONICAL_MODE_FILE = %r" % os.path.join(parent, "no-fleet-file")
                 for name, gitfile in layouts.items():
                     r = os.path.join(parent, name)
                     os.makedirs(os.path.join(r, ".claude", "hooks"))
                     hook = os.path.join(r, ".claude", "hooks", os.path.basename(__file__))
-                    shutil.copy(__file__, hook)
+                    Path(hook).write_text(patched_source, encoding="utf-8")
+                    self.assertNotIn(live_line, Path(hook).read_text(encoding="utf-8"), name)
+                    reader_copy = os.path.join(r, ".claude", "hooks", "_operating_mode.py")
+                    shutil.copy(reader, reader_copy)
+                    reader_text = Path(reader_copy).read_text(encoding="utf-8")
+                    self.assertEqual(reader_text.count(reader_live_line), 1, name)
+                    Path(reader_copy).write_text(
+                        reader_text.replace(reader_live_line, fixture_reader_line), encoding="utf-8")
+                    self.assertNotIn(reader_live_line, Path(reader_copy).read_text(encoding="utf-8"), name)
                     if gitfile is None:
                         os.makedirs(os.path.join(r, ".git"), exist_ok=True)
                     elif gitfile == "":

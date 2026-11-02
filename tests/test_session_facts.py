@@ -114,6 +114,15 @@ class SessionFactsTests(unittest.TestCase):
             self.assertEqual(facts["elapsed"], "48h30m")
             self.assertIn("convention", facts["start_source"])
 
+    def test_dated_operating_mode_swap_still_parses(self):
+        # 3b781: the dated Operating-mode swap `<mode>@<stamp>` is one \S+ token;
+        # session facts never read that field, so every metric stays intact.
+        self.change("Operating-mode: attended-autonomous",
+                    "Operating-mode: daytime-unattended@2026-10-05T00:00:00Z")
+        facts = self.metrics()
+        self.assertEqual(facts["start"], "2026-10-04T13:36:00Z")
+        self.assertEqual(facts["elapsed"], "48h30m")
+
 
     def test_unknown_ids_fullmatch(self):
         for value in ("69556d8c", "sess-20260916T230059Z", "claude/example", "orch-20261004T133600Z",

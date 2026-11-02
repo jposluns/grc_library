@@ -228,7 +228,11 @@ def _self_test() -> int:
                  "Worker-dispatches: none\n")
         # 3b679: the plain form is canonical; a bold lease still reads.
         bold = re.sub(r"(?m)^([A-Za-z-]+):", r"**\1:**", plain)
-        for form, text in (("bold", bold), ("plain", plain)):
+        # 3b781: a dated Operating-mode swap value is one \S+ token; snapshot metrics
+        # must tolerate it (session facts never read the Operating-mode field).
+        dated = plain.replace("Operating-mode: attended-autonomous",
+                              "Operating-mode: daytime-unattended@2026-07-29T15:00:00Z")
+        for form, text in (("bold", bold), ("dated", dated), ("plain", plain)):
             lease.write_text(text, encoding="utf-8")
             if session_metrics(root)["start"] != "2026-07-29T15:30:45Z":
                 failures.append(f"  session_metrics: {form} lease must work without a log")

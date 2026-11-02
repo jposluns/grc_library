@@ -139,6 +139,71 @@ class ConvertLeaseTests(unittest.TestCase):
                               timeout=60)
         self.assertEqual(proc.returncode, 2)
 
+    # ---- --date-swap (3b781): the one-shot undated-swap cutover migration ----
+
+    SWAP_PLAIN = PLAIN.replace("Operating-mode: attended-autonomous",
+                               "Operating-mode: daytime-unattended")
+    STAMP = "2026-10-06T13:00:00Z"
+
+    def test_date_swap_dates_a_plain_unattended_value(self):
+        self.lease.write_text(self.SWAP_PLAIN)
+        inode = self.lease.stat().st_ino
+        proc = self.run_tool("--date-swap", "--stamp", self.STAMP)
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        want = self.SWAP_PLAIN.replace(
+            "Operating-mode: daytime-unattended",
+            "Operating-mode: daytime-unattended@" + self.STAMP)
+        self.assertEqual(self.lease.read_text(), want)
+        self.assertEqual(self.lease.stat().st_ino, inode)
+        gate = self.gate()
+        self.assertEqual(gate.returncode, 0, gate.stdout + gate.stderr)
+        # a second run refuses: the value is no longer a plain unattended value
+        again = self.run_tool("--date-swap", "--stamp", self.STAMP)
+        self.assertEqual(again.returncode, 2, again.stdout + again.stderr)
+        self.assertEqual(self.lease.read_text(), want)
+
+    def test_date_swap_converts_bold_and_dates_in_one_run(self):
+        self.lease.write_text(re.sub(r"(?m)^([A-Z][A-Za-z-]+): ", r"**\1:** ",
+                                     self.SWAP_PLAIN))
+        proc = self.run_tool("--date-swap", "--stamp", self.STAMP)
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertIn("Operating-mode: daytime-unattended@" + self.STAMP,
+                      self.lease.read_text())
+
+    def test_date_swap_refuses_attended_and_future_and_bad_stamps(self):
+        cases = {
+            "attended value": (PLAIN, self.STAMP),
+            "future stamp (gate 63 refuses)": (self.SWAP_PLAIN, "2999-01-01T00:00:00Z"),
+            "bad stamp grammar": (self.SWAP_PLAIN, "tomorrow"),
+            "unreal stamp": (self.SWAP_PLAIN, "2026-13-40T99:00:00Z"),
+        }
+        for name, (text, stamp) in cases.items():
+            with self.subTest(case=name):
+                self.lease.write_text(text)
+                proc = self.run_tool("--date-swap", "--stamp", stamp)
+                self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
+                self.assertEqual(self.lease.read_text(), text)
+                if name == "attended value":
+                    # 3b781 r2 (claude N3): the converter's OWN first-layer refusal,
+                    # not only gate 63's refusal of the converted output.
+                    self.assertIn("--date-swap requires a plain unattended "
+                                  "Operating-mode value", proc.stderr)
+
+    def test_date_swap_and_stamp_are_required_together(self):
+        self.lease.write_text(self.SWAP_PLAIN)
+        for args in (("--date-swap",), ("--stamp", self.STAMP)):
+            with self.subTest(args=args):
+                proc = self.run_tool(*args)
+                self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
+                self.assertEqual(self.lease.read_text(), self.SWAP_PLAIN)
+
+    def test_date_swap_dry_run_writes_nothing(self):
+        self.lease.write_text(self.SWAP_PLAIN)
+        proc = self.run_tool("--dry-run", "--date-swap", "--stamp", self.STAMP)
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertIn("daytime-unattended@" + self.STAMP, proc.stdout)
+        self.assertEqual(self.lease.read_text(), self.SWAP_PLAIN)
+
 
 if __name__ == "__main__":
     unittest.main()
