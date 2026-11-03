@@ -802,7 +802,7 @@ PROTECTED_EXEMPT_NAMES: frozenset[str] = (
     | DEFAULT_EXEMPT_DIRS                    # .git, node_modules, references, .ref, ...
     | NARRATIVE_DIRS                         # executive/
     | DEFAULT_EXEMPT_ROOTS                   # .corpus-management/
-    | frozenset({"tools", "guardrails", "docs", "tests", ".github", ".web", "vendor"})
+    | frozenset({"tools", "guardrails", "docs", "tests", ".github", ".web", ".baseline", "vendor"})
     | frozenset({"", ".", "/"})             # repo-root markers
 )
 

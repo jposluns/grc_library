@@ -89,6 +89,7 @@
       "lint-allowlist-spec-parity.py",
       "lint-audit-gate-parity.py",
       "lint-audit-spec-detailed-prose.py",
+      "lint-baseline-pin.py",
       "lint-changelog-link-coverage.py",
       "lint-changelog-mirror-header-parity.py",
       "lint-citation-currency-cadence.py",
