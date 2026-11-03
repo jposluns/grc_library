@@ -2,8 +2,8 @@
 
 **Document Title:** HIPAA Operational Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.5\
-**Date:** 2026-10-26\
+**Version:** 0.0.6\
+**Date:** 2026-11-03\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/healthcare/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -114,7 +114,7 @@ The governing text is 45 CFR Part 164 (the HIPAA Privacy, Security, and Breach N
 
 ## Framework alignment
 
-| Operational area | 45 CFR Part 164 | ISO/IEC 27001:2022 | NIST reference |
+| Operational area | 45 CFR Part 164 | ISO/IEC 27001:2022 | NIST SP 800-66r2 |
 | --- | --- | --- | --- |
 | Individual rights (access, amendment, accounting) | 164.524, 164.526, 164.528 | A.5.34 | SP 800-66r2 |
 | Notice and minimum necessary | 164.520, 164.502, 164.514 | A.5.34 | SP 800-66r2 |

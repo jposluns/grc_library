@@ -40473,7 +40473,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-public-changelog.py OWN F 407a5b794ad8b51c495f9a2d98ec1f8908fac68500a12004c092e59bd8054d77
         build-reference-manifest.py NO_FS F fdf4d1211bd09e6e1afdf2437b5b291ec5bc0cbc3d632d588af5bcb0091a387d
         build-relationship-model.py NO_FS F 6f4352a07d3aa1a1e991cde011e5f11c464776d58012701d17bc8ac5b43a6d14
-        build-taxonomy.py NO_FS F dc1c0549d33132cb87852e1729c530c5c607540f1317c968960ada44c1bd138b
+        build-taxonomy.py NO_FS F 1e8b292d6de7754a235bf5bc92c13da9af29342b21be5a74e3e333b62d9991af
         build-todo-number-allocation.py NO_FS F 8ad89e87b8a6df4a576935a21409cadc80ce0456784a22262ac3229b3f2dd99e
         ccm_aicm_reference.py PASSIVE F 1ed15d9b1bd4cfd1162df3e720b5aa6058c3cba3cb1f626fcf2e1ee605c17e71
         changelog_diff.py PASSIVE F 8311b75d1b8c3ed0ce72ed8342cbcf8cc6243073356ddcce2662e197c0069b3a
@@ -43908,6 +43908,212 @@ class BuildTaxonomyWalkScopeTests(unittest.TestCase):
         unreachable = [p for p in bt.EXEMPT_DIRECTORY_PREFIXES
                        if not any(p.startswith(f"{d}/") for d in bt.DOMAINS)]
         self.assertEqual(unreachable, [], "prefixes the per-domain walk can never match")
+
+
+class BuildTaxonomyFrameworksInstrumentTests(unittest.TestCase):
+    """tools/build-taxonomy.py extract_frameworks emits instrument names only
+    (site a11). Each fragment class the corpus carried is rejected at
+    extraction: a bold bullet lead-in ending in a period, an N/A or absence
+    note, a cell longer than the citation bound FW_MAX_LEN, a generic
+    obligation-category value, and a row whose reference cell is an internal
+    corpus link. The generated taxonomy.yml is held to the same shape.
+    Round 2 (site a11 r2) pins the rejections to fragments only: a citation
+    ending in a known abbreviation (et seq., U.S.C., No., Art., para.) is
+    kept, a data value is rejected only on the exact label set and the
+    obligation-category shape (the header-label patterns match real
+    instrument strings such as "EU AI Act classification obligations"), the
+    internal-reference row skip reads the raw cell's link destination, no
+    corpus frameworks value is dropped by the length backstop alone, and the
+    two source documents whose cells the extraction rules forced into prose
+    carry the moved facts in their bodies."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.bt = load_linter_module("tools/build-taxonomy.py", "build_taxonomy_a11")
+
+    def test_rejects_bullet_sentence_lead_ins(self):
+        text = ("## Framework alignment notes\n\n"
+                "- **Normative weight.** The norm is citable as an anchor.\n"
+                "- **ISO/IEC 42001:2023**: the management-system anchor.\n")
+        self.assertEqual(self.bt.extract_frameworks(text), ["ISO/IEC 42001:2023"])
+
+    def test_rejects_na_and_absence_notes(self):
+        bullets = ("## Framework alignment\n\n"
+                   "- **NIST SSDF: N/A**: documentation automation only.\n"
+                   "- **ISO 19011:2026**: audit guidance.\n")
+        self.assertEqual(self.bt.extract_frameworks(bullets), ["ISO 19011:2026"])
+        table = ("## Framework alignment\n\n"
+                 "| Control Area | Framework Reference |\n"
+                 "| --- | --- |\n"
+                 "| Sharing | NIST SP 800-150; no CCM control specific to sharing (N/A) |\n")
+        self.assertEqual(self.bt.extract_frameworks(table), ["NIST SP 800-150"])
+
+    def test_rejects_cells_longer_than_the_citation_bound(self):
+        long_cell = "NIST SP 800-61 Rev. 3 (" + "a" * self.bt.FW_MAX_LEN + ")"
+        table = ("## Framework alignment\n\n"
+                 "| Framework | Reference |\n"
+                 "| --- | --- |\n"
+                 f"| {long_cell} | Incident handling |\n"
+                 "| ISO/IEC 27035-1:2023 | Incident management |\n")
+        self.assertEqual(self.bt.extract_frameworks(table), ["ISO/IEC 27035-1:2023"])
+
+    def test_rejects_generic_obligation_categories(self):
+        table = ("## Framework alignment\n\n"
+                 "| Framework | Reference | Relevance |\n"
+                 "| --- | --- | --- |\n"
+                 "| ISO 22301:2019 | §8.4 | Site continuity |\n"
+                 "| Local fire and building codes | Per jurisdiction | Life safety |\n"
+                 "| Insurance policy terms | Per policy | Notification windows |\n"
+                 "| ITGC family | Industry practice | Control taxonomy |\n")
+        self.assertEqual(self.bt.extract_frameworks(table), ["ISO 22301:2019"])
+
+    def test_keeps_citations_ending_in_known_abbreviations(self):
+        # The trailing-period prose test must not drop a citation ending in
+        # an abbreviation's own period; a sentence still ends its value.
+        for citation in ("42 U.S.C. 17921 et seq.", "FISMA 44 U.S.C.",
+                         "UAE Federal Decree-Law No.", "GDPR Art.",
+                         "China Cybersecurity Law Art. 44 para."):
+            self.assertFalse(self.bt._is_fragment(citation), citation)
+        self.assertTrue(self.bt._is_fragment("The norm is citable as an anchor."))
+        table = ("## Framework alignment\n\n"
+                 "| Framework | Reference | Relevance |\n"
+                 "| --- | --- | --- |\n"
+                 "| HITECH Act, 42 U.S.C. 17921 et seq. | Subtitle D | Breach notification |\n"
+                 "| This row is a sentence, not a name. | n/a | Prose |\n")
+        self.assertEqual(self.bt.extract_frameworks(table),
+                         ["HITECH Act, 42 U.S.C. 17921 et seq."])
+
+    def test_keeps_instrument_data_values_shaped_like_header_labels(self):
+        # The header-label patterns (generic heads, jurisdiction labels)
+        # apply to HEADER cells only; a data value is rejected only on the
+        # exact set and the obligation-category shape, so real instrument
+        # strings such as these survive as data.
+        table = ("## Framework alignment\n\n"
+                 "| Framework | Reference | Relevance |\n"
+                 "| --- | --- | --- |\n"
+                 "| EU AI Act classification obligations | Art. 6 | Risk classes |\n"
+                 "| HIPAA obligation | 45 CFR 164 | Safeguards |\n"
+                 "| Insurance policy terms | Per policy | Still generic |\n")
+        self.assertEqual(self.bt.extract_frameworks(table),
+                         ["EU AI Act classification obligations", "HIPAA obligation"])
+        # A column HEADER of that shape is still a label, never a framework.
+        cols = ("## Framework alignment\n\n"
+                "| Topic | Australia instruments | ISO/IEC 42001:2023 |\n"
+                "| --- | --- | --- |\n"
+                "| Oversight | AI Ethics Principles | A.9.3 |\n")
+        self.assertEqual(self.bt.extract_frameworks(cols), ["ISO/IEC 42001:2023"])
+
+    def test_internal_reference_rows_skipped_by_link_destination(self):
+        # The skip reads the raw reference cell: one link to a repository
+        # .md file (optional fragment), whatever its display text.
+        table = ("## Framework alignment\n\n"
+                 "| Framework | Reference | Relevance |\n"
+                 "| --- | --- | --- |\n"
+                 "| ISO 9001:2015 | Documented information control | Practice analogue |\n"
+                 "| Library Charter | [`governance/charter-governance-library.md`]"
+                 "(charter-governance-library.md) | Quality obligations |\n"
+                 "| Library Charter again | [Library Charter](charter-governance-library.md)"
+                 " | Display-text link form |\n"
+                 "| Escalation rules | [Escalation](../security/sop-incident-escalation-matrix.md#severity)"
+                 " | Fragment link form |\n"
+                 "| ISO 22301:2019 | Continuity, see [`resilience/framework-business-continuity-and-resilience.md`]"
+                 "(../resilience/framework-business-continuity-and-resilience.md) for the corpus anchor | Mention in prose keeps the row |\n")
+        self.assertEqual(self.bt.extract_frameworks(table),
+                         ["ISO 9001:2015", "ISO 22301:2019"])
+
+    def test_no_corpus_frameworks_value_is_dropped_by_length(self):
+        # FW_MAX_LEN is a backstop above every legitimate citation: lifting
+        # it must change no document's extracted frameworks. A real citation
+        # over the bound is fixed at source (instrument-first cell,
+        # provenance in prose), never silently dropped here.
+        docs = self.bt.iter_all_docs()
+        bounded = {}
+        unbounded = {}
+        orig = self.bt.FW_MAX_LEN
+        try:
+            for d in docs:
+                text = d.read_text(encoding="utf-8")
+                self.bt.FW_MAX_LEN = orig
+                bounded[d] = self.bt.extract_frameworks(text)
+                self.bt.FW_MAX_LEN = 10 ** 9
+                unbounded[d] = self.bt.extract_frameworks(text)
+        finally:
+            self.bt.FW_MAX_LEN = orig
+        dropped = {d.relative_to(self.bt.REPO_ROOT).as_posix():
+                   [v for v in unbounded[d] if v not in bounded[d]]
+                   for d in docs if bounded[d] != unbounded[d]}
+        self.assertEqual(dropped, {})
+
+    def test_moved_cell_facts_live_in_the_source_bodies(self):
+        # The cells shortened to instrument-first citations moved their
+        # provenance and explanatory parentheticals into prose; the facts
+        # must stay in the documents (site a11 round 2, findings 1 and 2).
+        resilience = (REPO_ROOT / "resilience" /
+                      "procedure-cross-domain-incident-coordination.md").read_text(encoding="utf-8")
+        self.assertIn("consolidated text as amended 28 October 2025", resilience)
+        self.assertIn("NPC Standing Committee amendment decision of 28 October 2025", resilience)
+        privacy = (REPO_ROOT / "privacy" /
+                   "procedure-data-protection-and-privacy-breach-response.md").read_text(encoding="utf-8")
+        self.assertIn("the number of affected individuals as one risk factor", privacy)
+        self.assertIn("can severely affect even one individual", privacy)
+        threat = (REPO_ROOT / "operations" /
+                  "procedure-threat-intelligence-and-siem-operations.md").read_text(encoding="utf-8")
+        self.assertIn("in addition to monitoring CCCS advisories", threat)
+        self.assertIn("expected to monitor vendor notifications", threat)
+
+    def test_fedramp_certification_package_matches_the_held_rules(self):
+        # FRC-CSO-PKG (held 2026 Consolidated Rules) lists the package's
+        # minimum contents as a CPO, an SDR and a real or example Ongoing
+        # Certification Report; KSIs are the 20x specification's indicators,
+        # not a package artefact type (site a11 round 2, finding 3).
+        text = (REPO_ROOT / "compliance" / "public-sector" /
+                "annex-fedramp-requirements.md").read_text(encoding="utf-8")
+        package_rows = []
+        in_pkg = False
+        for ln in text.splitlines():
+            if ln.startswith("| Certification-package artefact |"):
+                in_pkg = True
+                continue
+            if in_pkg:
+                if not ln.startswith("|"):
+                    break
+                package_rows.append(ln)
+        self.assertTrue(package_rows, "certification-package table not found")
+        self.assertTrue(any(ln.startswith("| Ongoing Certification Report") for ln in package_rows),
+                        "the Ongoing Certification Report row is missing")
+        self.assertFalse(any(ln.startswith("| Key Security Indicators") for ln in package_rows),
+                         "KSIs are not a certification-package artefact type")
+        self.assertIn("include at least", text,
+                      "the package sentence must carry the rules' own at-least scope")
+
+    def test_rejects_internal_reference_rows(self):
+        table = ("## Framework alignment\n\n"
+                 "| Framework | Reference | Relevance |\n"
+                 "| --- | --- | --- |\n"
+                 "| ISO 9001:2015 | Documented information control | Practice analogue |\n"
+                 "| Library Charter | [`governance/charter-governance-library.md`]"
+                 "(charter-governance-library.md) | Quality obligations |\n")
+        self.assertEqual(self.bt.extract_frameworks(table), ["ISO 9001:2015"])
+
+    def test_taxonomy_frameworks_entries_are_instrument_shaped(self):
+        # The generated registry itself: no frameworks entry ends with a
+        # period, is an N/A note, or exceeds the citation bound.
+        text = (REPO_ROOT / "taxonomy.yml").read_text(encoding="utf-8")
+        entries = []
+        in_fw = False
+        for line in text.splitlines():
+            if line == "  frameworks:":
+                in_fw = True
+                continue
+            if in_fw:
+                m = re.match(r'^    - "(.*)"$', line)
+                if m:
+                    entries.append(m.group(1).replace('\\"', '"').replace("\\\\", "\\"))
+                    continue
+                in_fw = False
+        self.assertTrue(entries, "taxonomy.yml carries no frameworks entries")
+        offenders = [e for e in entries if self.bt._is_fragment(e)]
+        self.assertEqual(offenders, [])
 
 
 class GeneratorSortKeyParityTests(unittest.TestCase):
