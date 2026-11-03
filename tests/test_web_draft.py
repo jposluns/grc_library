@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The /draft tree (PR 2b): the grclibrary.ai rebuild on the shared family
-site template (baseline 1.3.1).
+site template (baseline 1.4.1).
 
 What is locked here, each test failing without its feature:
 
@@ -43,8 +43,9 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# The draft CSP, copied from baseline 1.3.1 SPECIFICATION.md section 9 (the
-# shared policy for draft pages); build.py must carry it byte for byte.
+# The draft CSP, copied from baseline 1.4.1 SPECIFICATION.md section 9
+# (unchanged since 1.3.1), the shared policy for draft pages; build.py must
+# carry it byte for byte.
 SPEC_SECTION_9_CSP = (
     "default-src 'none'; script-src 'self' 'unsafe-inline'"
     " https://ajax.cloudflare.com https://static.cloudflareinsights.com;"
@@ -256,6 +257,62 @@ class DraftSiteRenderTests(unittest.TestCase):
                 "in-page sections",
             )
 
+    def test_document_pages_use_the_logo_only_rail_and_a_body_outline(self):
+        """PR 2c (maintainer 2026-11-03 12:16Z): the template allows two
+        rails only, so a document page carries the logo-only rail and never
+        a nav rail; the source document's outline is a plain list
+        under an Outline heading in the page body, and rail.js stays off
+        document pages."""
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8")
+        )
+        pages_with_sections = 0
+        for doc in full:
+            if doc.get("domain") == self.mod.ROOT_DOMAIN:
+                continue
+            rel = "draft/" + self.mod._doc_route_rel(doc["path"])
+            html = self.draft_html[rel]
+            self.assertNotIn(
+                '<nav class="rail"', html,
+                f"{rel}: a document page carries no nav rail (spec 7.6 "
+                "allows the logo-only rail here)")
+            self.assertIn(
+                '<div class="rail"><img class="rail-logo"', html,
+                f"{rel}: a document page carries the logo-only rail")
+            self.assertNotIn(
+                "/assets/baseline/rail.js", html,
+                f"{rel}: rail.js stays off document pages")
+            outline = re.search(
+                r'<h2>Outline</h2>\s*<ul>(.*?)</ul>', html, re.S)
+            self.assertIsNone(
+                re.search(r'<h2>Outline</h2>\s*<ol class="num">', html),
+                f'{rel}: the outline is a plain <ul>, not an '
+                '<ol class="num">')
+            if doc.get("sections"):
+                pages_with_sections += 1
+                self.assertIsNotNone(
+                    outline,
+                    f"{rel}: the outline list appears in the page body")
+                self.assertNotIn(
+                    "<a", outline.group(1),
+                    f"{rel}: outline items are plain text, not links")
+                body = html.split('<main id="main-content">', 1)[1]
+                self.assertIn(
+                    "<h2>Outline</h2>", body,
+                    f"{rel}: the Outline heading sits in the page body")
+                for section in doc["sections"]:
+                    expected = self.mod._esc(re.sub(
+                        r"\*\*([^*]+)\*\*", r"\1", section.replace("`", "")))
+                    self.assertIn(
+                        f"<li>{expected}</li>", outline.group(1),
+                        f"{rel}: outline lists the heading {section!r}")
+            else:
+                self.assertIsNone(
+                    outline,
+                    f"{rel}: no outline on a document without sections")
+        self.assertTrue(pages_with_sections,
+                        "at least one document page shows an outline")
+
     def test_internal_references_resolve_inside_the_draft(self):
         rendered = set(self.draft_all)
         ids_by_rel = {
@@ -405,6 +462,47 @@ class DraftSiteRenderTests(unittest.TestCase):
             "the vendored AIQT corpus-tool subset", page,
             "the carve-out list names the vendored AIQT corpus-tool subset "
             "NOTICE.md records under vendor/aiqt/")
+
+    # -- pinned version named in prose ---------------------------------------
+
+    def test_prose_names_the_pinned_baseline_version(self):
+        """Round-3 finding: nothing checked that prose naming the pinned
+        template version agrees with ``.baseline/pin.toml``, so build.py
+        comments kept saying "baseline 1.3.1" after the bump to 1.4.1. Every
+        "baseline <version>" that names the current template (NOTICE.md's
+        baseline entry, the rendered licence page and the build.py comments)
+        must carry the pin.toml version; a historical mention such as
+        "unchanged since 1.3.1" stays allowed because it does not use the
+        "baseline <version>" form."""
+        pin_text = (REPO_ROOT / ".baseline" / "pin.toml").read_text(
+            encoding="utf-8")
+        pin = re.search(r'^version\s*=\s*"(\d+\.\d+\.\d+)"', pin_text, re.M)
+        self.assertIsNotNone(pin, ".baseline/pin.toml carries a version key")
+        version = pin.group(1)
+        named = re.compile(r"baseline (\d+\.\d+\.\d+)")
+
+        notice = (REPO_ROOT / "NOTICE.md").read_text(encoding="utf-8")
+        entries = [p for p in notice.split("\n\n")
+                   if p.startswith("Site template:")]
+        self.assertEqual(
+            len(entries), 1, "NOTICE.md keeps exactly one baseline entry")
+        self.assertEqual(
+            named.findall(entries[0]), [version],
+            "NOTICE.md's baseline entry names exactly the pinned version")
+
+        page = self.draft_html["draft/license/index.html"]
+        self.assertEqual(
+            set(named.findall(page)), {version},
+            "the rendered licence page names exactly the pinned version")
+
+        source = (REPO_ROOT / ".web" / "build.py").read_text(encoding="utf-8")
+        # Rejoin wrapped comment lines so "baseline\n# 1.4.1" is one phrase.
+        found = set(named.findall(source.replace("\n# ", " ")))
+        self.assertEqual(
+            found, {version},
+            "every build.py comment that names the current template carries "
+            "the pinned version, and no other baseline version is named as "
+            "current")
 
     # -- 5. counts ----------------------------------------------------------
 
@@ -623,7 +721,7 @@ class BaselineAssetCopyFixtureTests(unittest.TestCase):
         for rel, data in files.items():
             (baseline / rel).write_bytes(data)
         pin = root / "pin.toml"
-        lines = ['version = "1.3.1"', "", "[files]"]
+        lines = ['version = "1.4.1"', "", "[files]"]
         lines += [
             f'".web/baseline/{rel}" = "{hashlib.sha256(data).hexdigest()}"'
             for rel, data in sorted(files.items())
@@ -695,7 +793,7 @@ class DraftTemplateTypedCountTests(unittest.TestCase):
         r"</?h[1-6]\b",
         # The charset and viewport meta attribute values.
         r'(?:charset|content)="[^"]*"',
-        # A version string: CC BY-SA 4.0, CC0 1.0, OFL 1.1, baseline 1.3.1.
+        # A version string: CC BY-SA 4.0, CC0 1.0, OFL 1.1, baseline 1.4.1.
         r"\d+(?:\.\d+)+",
         r"\bCC0\b",
         # A licence clause reference: 2(a)(1), 3(a)(1)(A), section 5.
@@ -709,7 +807,7 @@ class DraftTemplateTypedCountTests(unittest.TestCase):
         r"\b404\b",
         # The disclosure page's ordinal entry labels (positions, not counts).
         r"\bEntry \d+\b",
-        # The shared family footer's fixed site-list label: baseline 1.3.1
+        # The shared family footer's fixed site-list label: baseline 1.4.1
         # owns that wording, outside this site's copy.
         r'aria-label="The 6 project sites"',
     )
