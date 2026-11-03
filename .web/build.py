@@ -2695,10 +2695,6 @@ def draft_type_plural(type_name):
 DRAFT_EXAMPLE_DOC = "governance/policy-exception-and-risk-acceptance-management.md"
 # The landing tile's example domain (the mockup's "Open a domain: Governance").
 DRAFT_EXAMPLE_DOMAIN = "governance"
-# The search page carries the N most recently dated corpus documents as its
-# on-page list (the rest reach search through browse and the GitHub full-text
-# link); recomputed as a count everywhere it is shown.
-DRAFT_SEARCH_ROW_COUNT = 36
 
 # The browse page's "By need" entries (approved mockup copy; the mockup's
 # routes are rewritten to draft-internal targets). (title, tag, href, line).
@@ -2919,13 +2915,18 @@ def draft_search_values(figures, full_docs):
     )
     domain_docs.sort(key=lambda d: d.get("date", ""), reverse=True)
     rows = []
-    for d in domain_docs[:DRAFT_SEARCH_ROW_COUNT]:
+    # Every corpus document gets a row, and its data-search text carries the
+    # title, type, area, the full purpose, and the framework names, with
+    # whitespace collapsed, so a query matches everything the page says it
+    # matches (round-1 defects: a 36-row cap left most queries empty, and a
+    # 200-character purpose cut lost matches for the page's own examples).
+    for d in domain_docs:
         label = draft_domain_label(d.get("domain", ""))
-        haystack = " ".join(
+        haystack = " ".join(" ".join(
             [d.get("title", ""), d.get("type", ""), label,
-             d.get("domain", ""), d.get("purpose", "")]
+             d.get("domain", ""), d.get("purpose", "") or ""]
             + d.get("frameworks", [])
-        ).lower()
+        ).lower().split())
         rows.append(
             f'<li data-search="{_esc(haystack)}">'
             f'<a href="{_esc(_doc_page_url("{{BASE}}", d["path"]))}">'
