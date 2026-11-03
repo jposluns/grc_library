@@ -40468,7 +40468,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-corpus-management.py OWN F 5a8cdc9491b4565b783cc4de48a65a06f0abc48bc272c039bfc6e2edc104b671
         build-historical-citation-exceptions.py OWN F 442e33ccfd3d443d763e0576d908d0a27c74f59d5cda3d1fe53a919d074376d2
         build-narrative-registry.py NO_FS F 92ebf6bf91d8fdce637d835dcc031a3ddd2a60ed51fbce195de18e1c734107ad
-        build-portal.py NO_FS F 6ac181341b086e9b57565a3d1783e085fcbf667a3b7a9004293a151169477664
+        build-portal.py NO_FS F 5bb93bd5bc185a71ab3b484027f35cf9847fd7db657758c341742f022685f0db
         build-provision-index.py ROOT F fe7e21ef073874b792080c23593e1d47e3e4f2702177860b06b67486a9cb46e1
         build-public-changelog.py OWN F 407a5b794ad8b51c495f9a2d98ec1f8908fac68500a12004c092e59bd8054d77
         build-reference-manifest.py NO_FS F fdf4d1211bd09e6e1afdf2437b5b291ec5bc0cbc3d632d588af5bcb0091a387d
@@ -48325,19 +48325,42 @@ class MaturityClassifierTests(unittest.TestCase):
 
 
 class PortalScorecardUnversionedTests(unittest.TestCase):
-    """tools/build-portal.py: a document whose metadata block gives no
-    Version (an empty file, or a block that stops before the Version line)
-    is left off the scorecard, named on stderr and listed in the portal
-    without a maturity tag, not a crash, so the pre-commit hook's own
-    fixtures (tools/check-generated-commit.py --self-test) can regenerate. A
-    Version present but outside MAJOR.MINOR.PATCH still fails the build, no
-    Unknown class is published, and the scorecard lede and the portal's
-    maturity-tag sentence are true of every entry each lists."""
+    """tools/build-portal.py: a document the taxonomy gives no Version (an
+    empty file, a block that stops before the Version line, or a Version
+    line present with an empty value) takes no maturity class, is named on
+    stderr and by path in the scorecard's Not classified section, and is
+    listed in the portal without a maturity tag, not a crash, so the
+    pre-commit hook's own fixtures (tools/check-generated-commit.py
+    --self-test) can regenerate. Gate lint-metadata reports a missing
+    Version line but not an empty value, so that section is the only output
+    naming the empty value. A non-empty Version outside MAJOR.MINOR.PATCH
+    still fails the build (gate lint-metadata reports it too), no Unknown
+    class is published, and the scorecard lede, its Not classified section
+    and the portal's maturity-tag sentence are true of every entry each
+    lists."""
 
     LEDE_RE = re.compile(r"The maturity scorecard classifies (each active artefact.*?) as ")
     ROW_RE = re.compile(r"^\| \[([^\]]+)\]\([^)]*\) \| [^|]* \| [^|]* \| ([^|]*) \| [^|]* \|$", re.M)
     TAGGED_RE = re.compile(r"^(Each document entry below.*?) carries an inline maturity tag", re.M)
     ENTRY_RE = re.compile(r"^- \[[^\]]*\]\(\.\./([^)]+)\)( \(maturity: (?:Mature|Baseline|Draft)\))?$", re.M)
+    NOT_CLASSIFIED = "## Not classified: no Version in the metadata block"
+    NOT_CLASSIFIED_RE = re.compile(
+        r"^## Not classified: no Version in the metadata block\n\n_(\d+) documents?\._ The metadata "
+        r"block of each gives no Version value, so it carries no maturity class\. Give it a "
+        r"MAJOR\.MINOR\.PATCH Version\.\n\n((?:- \[[^\]]+\]\([^)]+\)\n)+)\n---\n", re.M)
+
+    def _not_classified(self, text: str) -> list[str] | None:
+        """The paths the Not classified section lists, None when it is absent;
+        its count must equal the paths it lists, and it is never a class."""
+        self.assertLessEqual(text.count(self.NOT_CLASSIFIED), 1)
+        m = self.NOT_CLASSIFIED_RE.search(text)
+        if m is None:
+            self.assertNotIn(self.NOT_CLASSIFIED, text)
+            return None
+        paths = re.findall(r"^- \[([^\]]+)\]\(\.\./\1\)$", m.group(2), re.M)
+        self.assertEqual(len(paths), len(m.group(2).splitlines()))
+        self.assertEqual(int(m.group(1)), len(paths))
+        return paths
 
     def setUp(self) -> None:
         import importlib.util
@@ -48362,9 +48385,11 @@ class PortalScorecardUnversionedTests(unittest.TestCase):
 
     def test_unversioned_document_is_named_and_left_unclassified(self) -> None:
         text, err = self._build([self._doc("risk/versioned.md", "1.0.0"),
-                                 self._doc("risk/unversioned.md", "")])
+                                 self._doc("risk/unversioned.md", ""),
+                                 self._doc("risk/also-unversioned.md", "")])
         self.assertIn("WARN: risk/unversioned.md has no Version", err)
-        self.assertNotIn("risk/unversioned.md", text)
+        self.assertEqual(self._not_classified(text),
+                         ["risk/also-unversioned.md", "risk/unversioned.md"])
         self.assertNotIn("Unknown", text)
         lede = self.LEDE_RE.search(text)
         self.assertIsNotNone(lede, text)
@@ -48388,17 +48413,128 @@ class PortalScorecardUnversionedTests(unittest.TestCase):
         self.assertEqual(self.LEDE_RE.search(text).group(1), "each active artefact")
         self.assertEqual(sorted(p for p, _v in self.ROW_RE.findall(text)),
                          ["risk/a.md", "risk/b.md"])
+        self.assertIsNone(self._not_classified(text))
 
     def test_committed_scorecard_lists_every_artefact_its_lede_covers(self) -> None:
         """The committed scorecard, read as rendered: when its lede says it
         classifies each active artefact, every taxonomy document is a row,
-        with the Version the taxonomy gives it."""
+        with the Version the taxonomy gives it, and the Not classified
+        section lists exactly the taxonomy documents with no Version (it is
+        absent when there are none)."""
         docs = self.mod.parse_taxonomy()
         text = (REPO_ROOT / "docs" / "maturity-scorecard.md").read_text(encoding="utf-8")
         scope = self.LEDE_RE.search(text).group(1)
         covered = {d["path"]: d["version"] for d in docs
                    if scope == "each active artefact" or d.get("version", "")}
         self.assertEqual(dict(self.ROW_RE.findall(text)), covered)
+        unversioned = sorted(d["path"] for d in docs if not d.get("version", ""))
+        self.assertEqual(self._not_classified(text), unversioned or None)
+        self.assertEqual(scope == "each active artefact", not unversioned)
+
+    def test_comments_name_each_no_version_form_and_its_catcher(self) -> None:
+        """The comments state what gate lint-metadata does with each form;
+        this checks those statements against the gate itself, and that the
+        generator no longer claims the gate requires x.y.z of an empty
+        value or leaves out the present-but-empty Version line."""
+        source = (REPO_ROOT / "tools" / "build-portal.py").read_text(encoding="utf-8")
+        self.assertFalse("gate lint-metadata already requires x.y.z" in source,
+                         "build-portal.py still claims the gate requires x.y.z of an empty Version")
+        for phrase in ("an empty file", "a block that stops before the Version line",
+                       "a Version line present with an empty value: no gate reports it",
+                       "a non-empty value outside MAJOR.MINOR.PATCH: classify_maturity fails"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, " ".join(re.sub(r"^\s*# ?", "", line)
+                                               for line in source.splitlines()))
+        import importlib.util
+        tools = REPO_ROOT / "tools"
+        spec = importlib.util.spec_from_file_location("_portal_meta_gate", tools / "lint-metadata.py")
+        meta = importlib.util.module_from_spec(spec)
+        sys.path.insert(0, str(tools))
+        try:
+            spec.loader.exec_module(meta)
+        finally:
+            sys.path.remove(str(tools))
+        with tempfile.TemporaryDirectory(prefix="portal-meta-gate-") as tmp:
+            meta.REPO_ROOT = Path(tmp)  # a private module instance: nothing to restore
+            expected = {"policy-versioned.md": [],
+                        "policy-empty-file.md": ["missing required metadata field: Version"],
+                        "policy-no-version-line.md": ["missing required metadata field: Version"],
+                        "policy-blank-before-version.md": ["missing required metadata field: Version"],
+                        "policy-empty-value.md": [],
+                        "policy-malformed.md": ["invalid Version (expected x.y.z): '1.0'"]}
+            for name, path in self._write_forms(Path(tmp)).items():
+                with self.subTest(form=name):
+                    self.assertEqual([f for f in meta.check_file(path) if "Version" in f],
+                                     expected[name])
+
+    @staticmethod
+    def _write_forms(root: Path) -> dict[str, Path]:
+        """Real documents under root/risk/: one per no-Version form, one
+        versioned, one malformed."""
+        forms = {"policy-versioned.md": "**Version:** 1.0.0\\\n",
+                 "policy-empty-value.md": "**Version:** \\\n",
+                 "policy-no-version-line.md": "",
+                 "policy-blank-before-version.md": "\n**Version:** 1.0.0\\\n",
+                 "policy-malformed.md": "**Version:** 1.0\\\n"}
+        out: dict[str, Path] = {}
+        (root / "risk").mkdir(parents=True, exist_ok=True)
+        for name, version in forms.items():
+            out[name] = root / "risk" / name
+            out[name].write_text(f"# Fixture\n\n**Document Title:** Fixture {name}\\\n"
+                                 f"**Document Type:** Policy\\\n{version}**Date:** 2026-11-03\n\n"
+                                 "---\n\n## Purpose\n\nFixture.\n", encoding="utf-8")
+        out["policy-empty-file.md"] = root / "risk" / "policy-empty-file.md"
+        out["policy-empty-file.md"].write_text("", encoding="utf-8")
+        return out
+
+    def test_real_documents_without_a_version_are_listed_by_path(self) -> None:
+        """End to end on real files: build-taxonomy and build-portal run on a
+        temporary tree; the scorecard's Not classified section names each
+        no-Version document by path (an empty Version value, no Version line,
+        a blank line before the Version line, an empty file), the portal lists
+        them untagged, and a malformed Version still fails the build."""
+        with tempfile.TemporaryDirectory(prefix="portal-unversioned-") as tmp:
+            root = Path(tmp)
+            for rel in ("tools/build-taxonomy.py", "tools/build-portal.py", "tools/lint_common.py"):
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(REPO_ROOT / rel, root / rel)
+            self._write_forms(root)
+            (root / "risk" / "policy-malformed.md").unlink()
+
+            def run(rel: str) -> subprocess.CompletedProcess:
+                return subprocess.run([sys.executable, "-I", str(root / rel)], cwd=root,
+                                      capture_output=True, text=True, timeout=120)
+
+            for rel in ("tools/build-taxonomy.py", "tools/build-portal.py"):
+                cp = run(rel)
+                self.assertEqual(cp.returncode, 0, cp.stdout + cp.stderr)
+            unversioned = ["risk/policy-blank-before-version.md", "risk/policy-empty-file.md",
+                           "risk/policy-empty-value.md", "risk/policy-no-version-line.md"]
+            for path in unversioned:
+                self.assertIn(f"WARN: {path} has no Version", cp.stderr)
+            # The section's sentence is true of each path it lists: the taxonomy
+            # the run wrote gives each an empty version.
+            taxonomy = (root / "taxonomy.yml").read_text(encoding="utf-8")
+            for path in unversioned:
+                self.assertRegex(taxonomy, rf'- path: "{re.escape(path)}"\n(?:  .*\n)*?  version: ""\n')
+            scorecard = (root / "docs" / "maturity-scorecard.md").read_text(encoding="utf-8")
+            self.assertEqual(self._not_classified(scorecard), unversioned)
+            self.assertEqual(self.ROW_RE.findall(scorecard), [("risk/policy-versioned.md", "1.0.0")])
+            self.assertNotIn("Unknown", scorecard)
+            portal = (root / "docs" / "portal.md").read_text(encoding="utf-8")
+            entries = dict(self.ENTRY_RE.findall(portal))
+            self.assertEqual(entries.get("risk/policy-versioned.md"), " (maturity: Baseline)")
+            for path in unversioned:
+                if path != "risk/policy-empty-file.md":  # no Document Type, so no audience selects it
+                    self.assertEqual(entries.get(path), "", path)
+
+            self._write_forms(root)
+            self.assertEqual(run("tools/build-taxonomy.py").returncode, 0)
+            cp = run("tools/build-portal.py")
+            self.assertNotEqual(cp.returncode, 0)
+            self.assertIn("FAIL: risk/policy-malformed.md has Version '1.0', not MAJOR.MINOR.PATCH",
+                          cp.stderr)
+            self.assertNotIn("Traceback", cp.stderr)
 
     def test_portal_lists_an_unversioned_document_without_a_tag(self) -> None:
         docs = [{**self._doc("dev-security/versioned.md", "1.1.0"), "domain": "dev-security"},

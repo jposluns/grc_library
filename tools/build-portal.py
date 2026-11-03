@@ -251,11 +251,13 @@ def classify_maturity(doc: dict) -> str:
     - 1.0.x: Baseline (formally approved and stable).
     - 0.x.y: Draft.
 
-    A version outside MAJOR.MINOR.PATCH fails the build rather than taking
-    an "Unknown" class: gate lint-metadata already requires x.y.z, so such a
-    version is a metadata defect, and publishing it as a fourth maturity
+    A non-empty Version outside MAJOR.MINOR.PATCH fails the build rather
+    than taking an "Unknown" class: it is a metadata defect (gate
+    lint-metadata reports it too), and publishing it as a fourth maturity
     class would hide that and falsify the scorecard lede, which names
-    exactly the three classes above.
+    exactly the three classes above. An empty Version never reaches this
+    function: gate lint-metadata does not reject one, so the callers keep
+    it visible instead (build_scorecard lists it under Not classified).
     """
     version = doc.get("version", "")
     m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version)
@@ -363,8 +365,8 @@ def build_portal(docs: list[dict]) -> str:
     out.append("This portal is generated; the source of truth is each document's canonical metadata block. Inclusion of a document in an audience section is selector-based; a document may legitimately appear under more than one audience.")
     out.append("")
     # An entry whose metadata block gives no Version carries no maturity tag,
-    # as the scorecard leaves it unclassified (see build_scorecard), so the
-    # sentence names only the entries that carry one when any listed lacks it.
+    # as the scorecard lists it under Not classified (see build_scorecard), so
+    # the sentence names only the entries that carry one when any listed lacks it.
     tagged = "Each document entry below"
     if any(not d.get("version", "") for _audience, _blurb, selectors in AUDIENCES
            for d in select_for_audience(docs, selectors)):
@@ -455,16 +457,24 @@ def build_scorecard(docs: list[dict]) -> str:
     out.append("")
     out.append("## Overview")
     out.append("")
-    # A document whose metadata block gives no Version (an empty file, or a
-    # block that stops before the Version line) has nothing to class: it is
-    # left off the scorecard and named on stderr, and the lede says which
-    # artefacts it classes. A Version that is present but not
-    # MAJOR.MINOR.PATCH still fails the build in classify_maturity, so no
-    # fourth class is ever published.
+    # The taxonomy gives a document an empty version in three forms, and a
+    # fourth form is a bad value:
+    # - an empty file, and
+    # - a block that stops before the Version line (a blank line or a rule
+    #   ends it first, or it has none): gate lint-metadata reports a missing
+    #   required Version for both, as it reads the block the same way;
+    # - a Version line present with an empty value: no gate reports it (gate
+    #   lint-metadata checks only that the field is present and skips an
+    #   empty value), so the Not classified section below is what names it;
+    # - a non-empty value outside MAJOR.MINOR.PATCH: classify_maturity fails
+    #   the build, and gate lint-metadata reports it as an invalid Version.
+    # The first three have nothing to class: each is named on stderr and by
+    # path in the Not classified section, which is not a maturity class, and
+    # the lede says which artefacts the scorecard classes.
     unversioned = sorted(d.get("path", "?") for d in docs if not d.get("version", ""))
     for path in unversioned:
         print(f"WARN: {path} has no Version in its metadata block; the maturity "
-              "scorecard leaves it unclassified.", file=sys.stderr)
+              "scorecard lists it under Not classified.", file=sys.stderr)
     scope = "each active artefact"
     if unversioned:
         scope += " whose metadata block gives a Version"
@@ -514,6 +524,20 @@ def build_scorecard(docs: list[dict]) -> str:
             date = d.get("date", "")
             rel = f"../{path}"
             out.append(f"| [{path}]({rel}) | {title} | {dtype} | {version} | {date} |")
+        out.append("")
+        out.append("---")
+        out.append("")
+
+    # Not a fourth class: shown only when a document has no Version, so the
+    # gap stays visible by path without a maturity class (see above).
+    if unversioned:
+        noun = "document" if len(unversioned) == 1 else "documents"
+        out.append("## Not classified: no Version in the metadata block")
+        out.append("")
+        out.append(f"_{len(unversioned)} {noun}._ The metadata block of each gives no Version value, so it carries no maturity class. Give it a MAJOR.MINOR.PATCH Version.")
+        out.append("")
+        for path in unversioned:
+            out.append(f"- [{path}](../{path})")
         out.append("")
         out.append("---")
         out.append("")
