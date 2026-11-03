@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The /draft tree (PR 2b): the grclibrary.ai rebuild on the shared family
-site template (baseline 1.6.0).
+site template (baseline 1.6.1).
 
 What is locked here, each test failing without its feature:
 
@@ -11,10 +11,13 @@ What is locked here, each test failing without its feature:
    /draft/, carries the baseline head order and the favicon and touch-icon
    links, resolves every internal reference inside the draft tree or its
    copied assets, and marks every external link as opening in a new tab.
-3. The top bar is exactly Browse, Domains, Types, Search, GitHub (GitHub
-   last); the landing page's About line carries Disclosure, Licence, Privacy,
-   Security; no other draft page links the Disclosure or Licence pages, and
-   the approved value paragraph keeps its words with no link.
+3. The top bar is exactly Browse, All Documents, Decisions, Crosswalk,
+   Search, GitHub (GitHub last; maintainer decision 2026-11-03 23:27Z), each
+   link opening its own rendered page, never an anchor; each page marks the
+   link of the section its route belongs to, and pages outside every section
+   mark none; the landing page's About line carries Disclosure, Licence,
+   Privacy, Security; no other draft page links the Disclosure or Licence
+   pages, and the approved value paragraph keeps its words with no link.
 4. The draft refusal guard rejects an en or em dash (literal or
    entity-encoded), inline style or script, an ``on*`` attribute, and "what
    this is" framing, and is draft-scoped (the live trees keep their inline
@@ -45,12 +48,12 @@ What is locked here, each test failing without its feature:
    rows holds for every row and every row's rendered document page.
 9. The documents index (design A PR A3), named All Documents: one row per
    non-root taxonomy path in title order, each carrying the search page's
-   data-search text, wired the way search.js expects; area and type chips
-   link the domain pages and the design A type routes, each type chip
-   counting the corpus list its type page shows; the root specifications
-   open on GitHub under the one area label the type pages give them; every
-   document page's Next and the Browse page lead to the index; the index
-   and Browse prose about the list holds for the rendered rows.
+   data-search text, wired the way search.js expects; type and area are
+   search.js facet groups (item 27), each type chip counting the
+   corpus-area rows its type page shows; the root specifications open on
+   GitHub under the one area label the type pages give them; every document
+   page's Next and the Browse page lead to the index; the index and Browse
+   prose about the list holds for the rendered rows.
 10. The executive layer (design D items D1 and D3, section 4.1 branch 2):
    every narrative registry page renders at
    ``/draft/decisions/<subtype>/<slug>/`` on the baseline shell; each of the
@@ -92,7 +95,8 @@ What is locked here, each test failing without its feature:
 15. Crosswalk round 2: no register-internal text reaches an instrument
    page's register-fed regions (the lead and the Canonical citation record),
    the Browse and landing pages link the crosswalk, the preset list sits in
-   the right-hand rail only, the reverse matrix parser refuses interrupted
+   one side rail only (the left rail from item 29), the reverse matrix
+   parser refuses interrupted
    tables and unreadable links, every instrument's reverse paths are
    validated at build, the trade programmes point at the combined CTPAT
    section, and the preset views keep their All link.
@@ -168,7 +172,7 @@ What is locked here, each test failing without its feature:
    adopter documents of its type in a counted block whose sentence holds
    for every row, so it and the policies sentence hold for every document
    of the type, while the documents index's type chips still count the
-   corpus list; the Browse and govern sentences about All Documents say
+   corpus list's corpus-area rows; the Browse and govern sentences about All Documents say
    corpus document and Browse points to the adopter list; the comply annex
    sentence names jurisdiction and sector overlays; a compound alias that
    does not rejoin, also sits in the alias map, or names no instrument,
@@ -199,6 +203,110 @@ What is locked here, each test failing without its feature:
    comply count sentence and meta line claim only what the alias map
    counts; and the alias map comment scopes its clause rule to the concern
    pages.
+27. Search results mode and All Documents facets (site f1, baseline 1.5.1
+   spec 7.29, unchanged at 1.6.0; maintainer 2026-11-03: search is just a
+   search, and All Documents carries the filters, type among them): the
+   search scope runs in results mode with a generated status prompt, every
+   row's first link is the title search.js ranks by, and no sentence on the
+   page says the rows are listed below; every document page's framework chip links the search
+   page's ?q= address for its name, which finds that document; All
+   Documents carries a type and an area chip group whose counts are each
+   chip's documents in the whole list, whose chips link their own facet
+   addresses, and whose filter paragraph holds for every chip and row; each
+   type page links its type's facet address with a count true for its rows;
+   and the disclosure's data-handling claim names every key search.js
+   writes. Each check replays search.js 1.5.1 (unchanged at 1.6.0) on the
+   rendered rows.
+28. Site f1 round 2, each sentence replayed on the rendered pages: the All
+   Documents filter paragraph says a chip's count is its documents in the
+   whole list and the status line gives how many show, true in every
+   combined state (every type by every area, and each type page's filter
+   address), where a chip can show fewer than its count; the search page
+   says a ?q= address with words shows results on load; the search status
+   prompt and results sentence name the fields a row matches on, never the
+   whole document; a type page that lists one All Documents row drops the
+   narrowing clause; and Browse calls All Documents every corpus document,
+   which the adopter documents it leaves out are not.
+29. Crosswalk left rail and matrix presets (site f2, baseline 1.5.1 sections
+   7.30 to 7.32, unchanged at 1.6.0): the crosswalk page and its preset views are left-rail pages
+   with no right rail (the instrument pages keep the logo-only rail); the
+   side list names every instrument under its group, the Also in the corpus
+   instruments included; the matrix.js presets are All plus the topic views
+   (item 30), each a link to its static view; the row-header column
+   carries no data-col and sits outside every preset; the table is the
+   page's one matrix in a bounded scroll box and shows every column without
+   script; the sentences about the table and the views hold for every column
+   and view they cover; the generator refuses groups and instruments that
+   disagree; and the disclosure names the view the matrix script writes into
+   the page address.
+30. Crosswalk topic views (site f2 round 2, maintainer decision 2026-11-03
+   18:53Z: the views stay by topic): the presets equal design C 3.7's topic
+   views, pinned as literals; each renders at /draft/crosswalk/view/<topic>/
+   with its topic's columns and, where it has any, its related instrument
+   pages, and no other view route renders; the rail's Views list is All plus
+   the topics; the Views sentence's clauses on topics spanning groups,
+   columns shared between topics, and related pages hold on the rendered
+   pages; and the generator refuses a topic with no column, an unknown or
+   page-only instrument as a column, an unknown related instrument, and a
+   column in no topic.
+31. Crosswalk round 3 (site f2): the Views sentence tells All, which opens
+   the full table, from the topic views; the sentences about the side list
+   say the group lists, not the Views list, hold the instruments; the
+   disclosure's ?view= clause matches what matrix.js writes and removes;
+   headers and cells take the spec 7.30 markup (name over organization tag,
+   single-word identifiers in code type, a count link with a visually hidden
+   noun) and no phrase-length label sits in a matrix cell; a view's column
+   split counts its own columns, and the crosswalk page scopes every count to
+   the full table while each caption count equals the rendered columns; a
+   static view's columns follow the full table's order; a bad topic fails
+   the build, not the import; the generator refuses a duplicate topic slug,
+   the slug all, a column repeated in a topic, and a column header with no
+   organization tag; and a view's lead says All opens every instrument
+   column.
+32. Crosswalk round 4 (site f2): the table sentences name the columns whose
+   cells show a code, the columns that record phrase-length labels only,
+   and the columns with no mapping, each checked against every rendered
+   column of every table page; a header's name is its display without the
+   leading organization; and an empty cell holds only a visually hidden
+   "no documents" while "and more" is visually hidden, so a cell shows its
+   codes and count link alone.
+33. Batch 3 integration (site f1 and f2 onto batch 2): a type page's All
+   Documents sentence names the area chips only where its rows span areas
+   and the text filter alone where they sit in one, and counts its rows
+   against the page's whole total, adopter documents included; the
+   crosswalk opening sentence says what every column is, true for a column
+   no domain maps; a one-column group names its column directly; a space
+   separates the hidden "and more" from the count; the disclosure
+   names every script's address and storage behaviour together; and the
+   docstring-number guard reads a lead naming several items.
+34. Batch 3 round 2: on a type page with adopter documents, the All
+   Documents sentence names its scope as a part of this page's documents,
+   never "these" just after the adopter block; the AICPA TSC caveat says
+   what the reader sees, an empty cell for the matrix's N/A, renders only
+   on a page whose table has that column, and holds for every such cell;
+   and a plain space separates the codes from the count link in every
+   cell, capped or not.
+35. Batch 3 round 3: the AICPA TSC caveat names the documents the matrix
+   lists for a domain, checked against the matrix rows and each domain's
+   document count; the AICPA TSC instrument page carries its own caveat,
+   its N/A rows counted from the matrix, and no other page carries it; the
+   disclosure page carries the owner's "Your browser" paragraph before the
+   Security label, and every sentence on it about cookies or storage
+   agrees with that paragraph and with scheme.js; and the pin, NOTICE.md
+   and the version comments name baseline 1.6.1, whose pinned files are
+   the 1.6.0 files byte for byte.
+36. Batch 3 round 5: view pages say the AICPA TSC column is being populated
+   on the same parsed status as the AICPA TSC instrument page, so they agree
+   with the matrix sentence present and removed; and a one-row column with
+   no N/A gets its single-row form.
+37. Batch 3 round 6: the AICPA TSC status is read from the compliance
+   matrix's reading-guide paragraph alone, the first paragraph after its
+   framework column key table, which must be exactly one of two pinned
+   forms, with the status sentence or with exactly that sentence removed;
+   any other text in that paragraph, or the paragraph or key table missing,
+   fails the build, and wording elsewhere in the matrix is not read, so an
+   unrelated "populated" there passes; and no compliance matrix column can
+   have 0 rows.
 """
 
 from __future__ import annotations
@@ -210,12 +318,14 @@ import re
 import shutil
 import tempfile
 import unittest
+import urllib.parse
+from collections import Counter
 from html import unescape
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# The draft CSP, copied from baseline 1.6.0 SPECIFICATION.md section 9
+# The draft CSP, copied from baseline 1.6.1 SPECIFICATION.md section 9
 # (unchanged since 1.3.1), the shared policy for draft pages; build.py must
 # carry it byte for byte.
 SPEC_SECTION_9_CSP = (
@@ -226,7 +336,7 @@ SPEC_SECTION_9_CSP = (
     " frame-ancestors 'none'"
 )
 
-# Baseline 1.6.0 SPECIFICATION.md section 7.33, in the full form every 1.6.0
+# Baseline 1.6.1 SPECIFICATION.md section 7.33, in the full form every 1.6.1
 # reference page carries: the light and dark switch, the last child of
 # header.mast after nav.nav, hidden until scheme.js shows it.
 SCHEME_SWITCH = (
@@ -251,7 +361,7 @@ SCHEME_SCRIPT_TAG = (
 )
 # The baseline 1.6.0 SHA256SUMS digests of the files 1.6.0 adds to the copy
 # set or changes (CHANGELOG 1.6.0); every other pinned file is unchanged
-# from 1.5.1.
+# from 1.5.1, and 1.6.1 changes no pinned file (CHANGELOG 1.6.1).
 RELEASE_1_6_0_DIGESTS = {
     ".web/baseline/scheme.js":
         "39d035d986f53c987cbe92516b9a5fd499af5c7fcdda701ea896c63c45ef1634",
@@ -416,12 +526,47 @@ def _load_module(rel, name):
 
 
 def _page_rel_for(url_path):
-    """Map a /draft/... URL path to its dist-relative output path."""
-    path = url_path.split("#", 1)[0]
+    """Map a /draft/... URL path to its dist-relative output path (a query
+    string, such as a search or facet address, names no other page)."""
+    path = url_path.split("#", 1)[0].split("?", 1)[0]
     rel = path.lstrip("/")
     if rel.endswith("/"):
         return rel + "index.html"
     return rel
+
+
+def _address_params(href):
+    """The decoded query parameters of a rendered href, as URLSearchParams
+    reads them ('+' is a space), one value per key."""
+    query = urllib.parse.urlsplit(unescape(href)).query
+    pairs = urllib.parse.parse_qsl(query, keep_blank_values=True)
+    params = dict(pairs)
+    assert len(params) == len(pairs), f"{href}: a repeated parameter"
+    return params
+
+
+def _replay_search_js(rows, query="", active=None, results=False,
+                      rank=False):
+    """The rows baseline 1.5.1 search.js shows, in display order (spec 7.29,
+    its run()): a row shows when every whitespace-split term is a substring
+    of its lowercased data-search text and every active facet value is among
+    its group tokens; in results mode nothing shows with no query and no
+    active facet; with ranking, rows whose title holds every term come
+    first, page order kept within each group. Each row is a dict with
+    ``hay``, ``title``, ``href`` and ``tokens`` (group to token list)."""
+    terms = query.lower().split()
+    active = {g: v for g, v in (active or {}).items() if v}
+    if results and not terms and not active:
+        return []
+    first, rest = [], []
+    for row in rows:
+        if not all(t in row["hay"] for t in terms):
+            continue
+        if not all(v in row["tokens"].get(g, []) for g, v in active.items()):
+            continue
+        titled = rank and terms and all(t in row["title"] for t in terms)
+        (first if titled else rest).append(row)
+    return first + rest
 
 
 class DraftSiteRenderTests(unittest.TestCase):
@@ -589,8 +734,9 @@ class DraftSiteRenderTests(unittest.TestCase):
         """Baseline 1.5.0 adds matrix.js (spec 7.30, 1 matrix per page), and
         each script is opt-in per page (spec section 8), so adopting the
         release switches it on nowhere: it loads exactly on a page whose
-        table carries ``data-matrix``. No draft page has a matrix yet, so
-        MatrixScriptFixtureTests proves the rule on pages that do."""
+        table carries ``data-matrix``: the crosswalk page from site f2
+        (section 29 below), and MatrixScriptFixtureTests proves the rule on
+        fixtures too."""
         for rel, html in self.draft_html.items():
             self.assertEqual(
                 _matrix_script_faults(html), [],
@@ -709,34 +855,79 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # -- 3. top bar and About line ------------------------------------------
 
-    def test_top_bar_is_browse_domains_types_search_github(self):
+    # The maintainer's bar (2026-11-03 23:27Z), in order, before GitHub.
+    _TOP_BAR = [
+        ("Browse", "/draft/browse/"),
+        ("All Documents", "/draft/documents/"),
+        ("Decisions", "/draft/decide/"),
+        ("Crosswalk", "/draft/crosswalk/"),
+        ("Search", "/draft/search/"),
+    ]
+
+    def test_top_bar_is_six_links_each_to_its_own_page(self):
+        """Maintainer decision 2026-11-03 23:27Z: every draft page carries
+        exactly Browse, All Documents, Decisions, Crosswalk, Search, then the
+        unchanged GitHub link; no link is an in-page anchor, no two open the
+        same page, and every internal target renders."""
         for rel, html in self.draft_html.items():
             nav = _NAV_RE.search(html)
             self.assertIsNotNone(nav, rel)
             labels = [t.strip() for t in _NAV_LINK_RE.findall(nav.group(1))]
-            self.assertEqual(labels,
-                             ["Browse", "Domains", "Types", "Search", "GitHub"],
-                             f"{rel}: the bar must be Browse, Domains, Types, "
-                             "Search, then GitHub last")
+            hrefs = _HREF_RE.findall(nav.group(1))
+            self.assertEqual(
+                list(zip(labels, hrefs)),
+                self._TOP_BAR + [
+                    ("GitHub", "https://github.com/jposluns/grc_library")],
+                f"{rel}: the bar must be Browse, All Documents, Decisions, "
+                "Crosswalk, Search, then GitHub last")
             self.assertNotIn("Disclosure", nav.group(1), rel)
             self.assertNotIn("Licence", nav.group(1), rel)
-            hrefs = _HREF_RE.findall(nav.group(1))
-            self.assertEqual(hrefs[:4], [
-                "/draft/browse/", "/draft/browse/#domains",
-                "/draft/browse/#types", "/draft/search/",
-            ], rel)
-            self.assertTrue(hrefs[4].startswith("https://github.com/"), rel)
+            for href in hrefs:
+                self.assertNotIn("#", href, f"{rel}: {href} is an anchor")
+            internal = [_page_rel_for(h) for h in hrefs
+                        if h.startswith("/")]
+            self.assertEqual(len(set(internal)), len(internal),
+                             f"{rel}: two bar links open the same page")
+        for _, href in self._TOP_BAR:
+            self.assertIn(_page_rel_for(href), self.draft_html,
+                          f"{href}: the bar's target page is rendered")
 
-    def test_current_page_marker(self):
-        browse_nav = _NAV_RE.search(
-            self.draft_html["draft/browse/index.html"]).group(1)
-        self.assertIn('href="/draft/browse/" aria-current="page"', browse_nav)
-        search_nav = _NAV_RE.search(
-            self.draft_html["draft/search/index.html"]).group(1)
-        self.assertIn('href="/draft/search/" aria-current="page"', search_nav)
-        home_nav = _NAV_RE.search(self.draft_html["draft/index.html"]).group(1)
-        self.assertNotIn("aria-current", home_nav,
-                         "the landing page is not in the bar")
+    def _top_bar_section(self, rel):
+        """The bar link a draft page belongs under, from its route alone: the
+        need, domain and type pages under Browse, every document page under
+        All Documents, the decide hub, concern, subtype index and
+        reading-room pages under Decisions, the crosswalk views and
+        instrument pages under Crosswalk; None for a page in no section."""
+        route = rel[len("draft/"):]
+        first = route.split("/", 1)[0]
+        domains = {dp["domain"] for dp in self.figures["domain_pages"]}
+        if first in {"browse", "govern", "comply", "solutions", "policies",
+                     "types"} | domains:
+            return "/draft/browse/"
+        if first in ("decide", "decisions"):
+            return "/draft/decide/"
+        if first in ("documents", "crosswalk", "search"):
+            return f"/draft/{first}/"
+        self.assertIn(route, ("index.html", "404.html",
+                              "disclosure/index.html", "license/index.html"),
+                      f"{rel}: a page the section map does not place")
+        return None
+
+    def test_top_bar_marks_the_section_of_every_page(self):
+        """Each page marks exactly the bar link of its section (the bar
+        page itself and the pages under it), and the landing, disclosure,
+        licence and 404 pages mark none."""
+        sections = Counter()
+        for rel, html in self.draft_html.items():
+            nav = _NAV_RE.search(html).group(1)
+            current = re.findall(r'<a href="([^"]*)" aria-current="page">',
+                                 nav)
+            own = self._top_bar_section(rel)
+            self.assertEqual(current, [own] if own else [], rel)
+            self.assertEqual(nav.count("aria-current"), len(current), rel)
+            sections[own] += 1
+        self.assertEqual(set(sections), {h for _, h in self._TOP_BAR} | {None},
+                         "every bar section, and no section, has pages")
 
     def test_about_line_and_value_paragraph(self):
         landing = self.draft_html["draft/index.html"]
@@ -844,12 +1035,18 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn(
             "The search form filters a list already on the page and does not "
             "submit the query. As the reader types, the search script writes "
-            "the query into the page address (?q=), so the query can appear "
-            "in the browser history. This site's host, Cloudflare, receives "
-            "that address, query included, when the reader reloads the page "
-            "and with later requests from the page to this site. Scripts the "
-            "page runs, including the Cloudflare Web Analytics beacon, can "
-            "read the page address.", claim)
+            "the query into the page address (?q=), and on All Documents it "
+            "writes the type and area the reader picks there too (?type=, "
+            "?area=), so the query and those choices can appear in the "
+            "browser history. When the reader chooses a crosswalk topic "
+            "view, the matrix script writes the view's short identifier (for "
+            "example, privacy) into the page address (?view=) the same way, "
+            "and removes it from the address when the reader chooses All. "
+            "This site's host, Cloudflare, receives that address, query, "
+            "choices and view included, when the reader reloads the page and "
+            "with later requests from the page to this site. Scripts the page "
+            "runs, including the Cloudflare Web Analytics beacon, can read the "
+            "page address.", claim)
         self.assertNotIn("store nothing", claim,
                          "the address holds the query, so the claim may not "
                          "say the scripts store nothing")
@@ -897,22 +1094,55 @@ class DraftSiteRenderTests(unittest.TestCase):
         click = scheme[scheme.index('addEventListener("click"'):]
         self.assertIn("write(next);", click[:click.index("});")],
                       "the write happens inside the click handler only")
-        # "the search script writes the query into the page address (?q=)":
-        # it is the only loaded script that writes the address, and it
-        # writes ?q= and no facet key (no draft page has a facet group).
+        # "the search script writes the query into the page address (?q=),
+        # and on All Documents ... the type and area (?type=, ?area=)" and
+        # the matrix script's ?view= clause (checked against matrix.js in
+        # section 31): they are the only loaded scripts that write the
+        # address; search.js writes ?q= and one key per facet group, the
+        # only facet groups on the draft being All Documents' type and area,
+        # and matrix.js writes ?view= and loads on the crosswalk page alone
+        # (site f2), so "when the reader chooses a crosswalk topic view"
+        # covers it.
         self.assertEqual(
             sorted(n for n, js in sources.items() if "replaceState" in js),
-            ["search.js"],
-            "exactly the search script writes the page address")
+            ["matrix.js", "search.js"],
+            "exactly the search and matrix scripts write the page address")
         self.assertIn('p.set("q", input.value)', sources["search.js"])
+        self.assertIn("p.set(g.name, g.value)", sources["search.js"])
+        groups = {
+            rel: re.findall(r'\sdata-filter-group="([^"]*)"', html)
+            for rel, html in self.draft_html.items()
+            if "data-filter-group" in html
+        }
+        self.assertEqual(groups,
+                         {"draft/documents/index.html": ["type", "area"]},
+                         "the claim names every facet key a page writes")
+        self.assertIn('s.set("view", id)', sources["matrix.js"])
+        self.assertEqual(
+            sorted(rel for rel, html in self.draft_html.items()
+                   if "/assets/baseline/matrix.js" in html),
+            ["draft/crosswalk/index.html"],
+            "the matrix script loads on the crosswalk page alone")
+        # Batch 3 integration: the claim names every script's address and
+        # storage behaviour together, so a script that writes the address
+        # or keeps storage and goes unnamed fails here.
+        named = {"scheme.js": 'under the key "scheme"',
+                 "search.js": "(?q=)", "matrix.js": "(?view=)"}
+        self.assertEqual(
+            sorted(n for n, js in sources.items()
+                   if "replaceState" in js or "localStorage" in js),
+            sorted(named), "the scripts with address or storage behaviour")
+        for name, phrase in sorted(named.items()):
+            self.assertIn(phrase, claim, f"the claim names what {name} does")
+        keys = ", ".join(f"?{g}=" for g in groups["draft/documents/index.html"])
+        self.assertIn(f"({keys})", claim,
+                      "the claim names every facet key search.js writes")
         # "filters a list already on the page and does not submit the query"
         search_pages = [rel for rel, html in self.draft_html.items()
                         if "/assets/baseline/search.js" in html]
         self.assertTrue(search_pages, "a draft page carries the search form")
         for rel in search_pages:
             html = self.draft_html[rel]
-            self.assertNotIn("data-filter-group", html,
-                             f"{rel}: a facet would write its own key too")
             form = re.search(r"<form\b[^>]*\sdata-search\b[^>]*>(.*?)</form>",
                              html, re.S)
             self.assertIsNotNone(form, f"{rel}: the search form")
@@ -1056,7 +1286,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(search.count("data-search="), pool)
         self.assertIn(
             f'<p class="meta" id="search-prompt">Search the {pool} '
-            f"documents listed below, the {len(domain_docs)} corpus "
+            f"documents, the {len(domain_docs)} corpus "
             f"documents across the {len(domains)} domains and the "
             f"{adopter_count} adopter documents under docs/, by ", search)
         self.assertNotIn(f"Search all {pool}", search)
@@ -1514,7 +1744,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         with_purpose = sum(1 for d in docs
                            if (d.get("purpose") or "").strip())
         head = re.match(
-            r"Search the (\d+) documents listed below, the (\d+) corpus "
+            r"Search the (\d+) documents, the (\d+) corpus "
             r"documents across the (\d+) domains and the (\d+) adopter "
             r"documents under docs/, by title, type, ", prompt)
         self.assertIsNotNone(head, prompt)
@@ -1648,7 +1878,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             shaped(one[:1], [1], [1]), [fixture_guide])
         self.assertEqual(
             values["SEARCH_PROMPT"],
-            "Search the 2 documents listed below, the 1 corpus document "
+            "Search the 2 documents, the 1 corpus document "
             "across the 1 domain and the 1 adopter document under docs/, by "
             "title, type, area, and purpose, and by the frameworks a "
             "document maps to, where it has any.")
@@ -1659,18 +1889,262 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(values["SEARCH_ROWS"].count("<li data-search="),
                          len(domain_docs) + len(adopter))
         self.assertTrue(values["SEARCH_PROMPT"].startswith(
-            f"Search the {len(domain_docs) + len(adopter)} documents listed "
-            f"below, the {len(domain_docs)} corpus documents across the "))
+            f"Search the {len(domain_docs) + len(adopter)} documents, the "
+            f"{len(domain_docs)} corpus documents across the "))
+        self.assertEqual(
+            values["SEARCH_STATUS_PROMPT"],
+            f"Type one or more words to search the "
+            f"{len(domain_docs) + len(adopter)} documents; "
+            f"{self.SEARCH_MATCH_FIELDS}.")
         template = (REPO_ROOT / ".web" / "templates-draft"
                     / "search.html").read_text(encoding="utf-8")
         self.assertIn(">{{SEARCH_PROMPT}}</p>", template,
                       "the prompt is the generated value, never typed copy")
+        self.assertIn('data-search-prompt="{{SEARCH_STATUS_PROMPT}}"',
+                      template, "the status prompt is generated too")
+
+    # -- 5f. results mode (baseline 1.5.1 spec 7.29; maintainer 2026-11-03:
+    # search is just a search) -----------------------------------------------
+
+    _SEARCH_TITLED_ROW_RE = re.compile(
+        r'<li data-search="([^"]*)"><a href="([^"]*)">([^<]*)</a>')
+    # The search page's sentence on how results mode behaves, compared whole;
+    # each claim in it is checked on the rendered page.
+    SEARCH_RESULTS_PROSE = (
+        "<p>With script, the results stay empty until you type, or open a "
+        "search address with words in ?q=; then a document shows when every "
+        "word is in its title, type, area, or, where it has them, its "
+        "purpose or framework names, and those whose title holds every word "
+        "come first. The page address keeps your words (?q=), so a search "
+        "can be linked. Without script, the whole list stays below.</p>"
+    )
+    # What a search matches, as the status prompt and the results sentence
+    # both say it: the fields of a row's data-search text, not the document's
+    # full text (round-1 NOTE).
+    SEARCH_MATCH_FIELDS = (
+        "a document shows when every word is in its title, type, area, or, "
+        "where it has them, its purpose or framework names"
+    )
+
+    def _search_replay_rows(self):
+        """The search page's rows as search.js reads them, its title being
+        the first link's text (the page sets no data-title)."""
+        search = self.draft_html["draft/search/index.html"]
+        scope = re.search(r"<ul[^>]* data-search-scope>(.*?)</ul>", search,
+                          re.S).group(1)
+        return [
+            {"hay": unescape(hay).lower(), "href": href,
+             "title": unescape(title).lower(), "tokens": {}}
+            for hay, href, title in self._SEARCH_TITLED_ROW_RE.findall(scope)
+        ]
+
+    def test_search_scope_runs_in_results_mode_with_a_generated_prompt(self):
+        """The search list is search.js's results mode (data-search-mode=
+        "results" on the scope), so an empty query shows no row and the
+        status shows the scope's data-search-prompt, generated from the rows
+        and saying how to search: its count is the rows, and its "a document
+        shows when every word is in" its fields is replayed on them. The
+        status line stays empty in the markup for search.js to fill."""
+        search = self.draft_html["draft/search/index.html"]
+        scopes = re.findall(r"<ul\b([^>]*)\bdata-search-scope>", search)
+        self.assertEqual(len(scopes), 1)
+        attrs = dict(re.findall(r'\s(data-search-[a-z]+)="([^"]*)"',
+                                scopes[0]))
+        self.assertEqual(attrs.get("data-search-mode"), "results",
+                         "the scope runs in results mode")
+        rows = self._search_replay_rows()
+        self.assertEqual(len(rows), len(self._search_rows()))
+        self.assertEqual(
+            unescape(attrs.get("data-search-prompt", "")),
+            f"Type one or more words to search the {len(rows)} documents; "
+            f"{self.SEARCH_MATCH_FIELDS}.")
+        self.assertIn("data-search-status></p></form>", search)
+        self.assertEqual(_replay_search_js(rows, "", results=True), [],
+                         "an empty query shows no row")
+        for query in ("retention", "incident response"):
+            with self.subTest(query=query):
+                shown = _replay_search_js(rows, query, results=True,
+                                          rank=True)
+                self.assertTrue(shown)
+                self.assertLess(len(shown), len(rows))
+                for row in shown:
+                    for word in query.split():
+                        self.assertIn(word, row["hay"], row["href"])
+
+    def test_search_rows_rank_by_the_title_search_js_reads(self):
+        """Title ranking, on in results mode, reads a row's data-title or
+        else its first link's text, so every row's first link is exactly
+        its document's title and no row sets data-title. Replayed for one of
+        the page's own example searches: the rows whose title holds every
+        word lead, and rows matching only elsewhere follow."""
+        search = self.draft_html["draft/search/index.html"]
+        self.assertNotIn("data-title", search)
+        by_href = {self.mod._doc_page_url("/draft", d["path"]): d
+                   for d in self._full_taxonomy()
+                   + self.mod.parse_adopter_docs()}
+        rows = self._search_replay_rows()
+        for row in rows:
+            doc = by_href[row["href"]]
+            self.assertEqual(row["title"],
+                             doc.get("title", doc["path"]).lower(), row["href"])
+        shown = _replay_search_js(rows, "incident response", results=True,
+                                  rank=True)
+        titled = [r for r in shown
+                  if "incident" in r["title"] and "response" in r["title"]]
+        self.assertTrue(titled)
+        self.assertGreater(len(shown), len(titled))
+        self.assertEqual(shown[:len(titled)], titled,
+                         "titles holding every word come first")
+
+    def test_search_page_prose_is_true_in_results_mode(self):
+        """The page prose rule in results mode: no sentence on the page says
+        the rows are listed below (with script none shows before a query);
+        the behaviour sentence is read off the rendered page and each claim
+        checked there: results mode and its title ranking on the scope, the
+        ?q= write-back in the loaded search.js, and the whole list in the
+        markup with no row hidden, so without script it stays below."""
+        search = self.draft_html["draft/search/index.html"]
+        main = search.split('<main id="main-content">', 1)[1]
+        for text in self._label_texts(main):
+            self.assertNotIn("listed below", text)
+        self.assertIn(self.SEARCH_RESULTS_PROSE, main)
+        self.assertRegex(main, r'<ul\b[^>]*\sdata-search-mode="results"')
+        js = self.draft_all["draft/assets/baseline/search.js"].decode("utf-8")
+        self.assertIn('p.set("q", input.value)', js)
+        self.assertIn('params.get("q")', js)
+        self.assertIn('var rank = results ||', js,
+                      "title ranking is on in results mode")
+        scope = re.search(r"<ul[^>]* data-search-scope>(.*?)</ul>", search,
+                          re.S).group(1)
+        self.assertNotRegex(scope, r"<li\b[^>]*\shidden\b")
+        self.assertEqual(len(self._search_replay_rows()),
+                         len(re.findall(r"<li\b", scope)))
+        self.assertLess(main.find(self.SEARCH_RESULTS_PROSE),
+                        main.find("data-search-scope"),
+                        "the list the sentence calls below is below it")
+
+    def test_search_address_with_words_shows_results_on_load(self):
+        """Round-1 WARN: "the results stay empty until you type" was false
+        for a /draft/search/?q=<words> address, which the framework chips
+        open. The sentence now names that address, and each part is checked:
+        search.js reads ?q= into the input before its first run(), so every
+        rendered chip address (replayed with its words) shows results on
+        load, while an address with no words (?q=) stays empty."""
+        search = self.draft_html["draft/search/index.html"]
+        self.assertIn(self.SEARCH_RESULTS_PROSE, search)
+        js = self.draft_all["draft/assets/baseline/search.js"].decode("utf-8")
+        load = js.find('if (input && params.has("q")) '
+                       '{ input.value = params.get("q"); }')
+        self.assertGreaterEqual(load, 0, "search.js reads ?q= on load")
+        self.assertLess(load, js.rfind("  run();\n})();"),
+                        "the first run() comes after the ?q= read")
+        rows = self._search_replay_rows()
+        queries = set()
+        for rel in self._doc_pages():
+            section = self._DOC_FW_RE.search(self.draft_html[rel])
+            if section:
+                queries.update(
+                    _address_params(href)["q"]
+                    for href, _ in self._FW_CHIP_RE.findall(section.group(1)))
+        self.assertTrue(queries, "some page opens a search address")
+        for query in sorted(queries):
+            with self.subTest(q=query):
+                self.assertTrue(query.split(), "the address carries words")
+                self.assertTrue(
+                    _replay_search_js(rows, query, results=True, rank=True),
+                    "the address shows results on load")
+        self.assertEqual(_replay_search_js(rows, "", results=True), [],
+                         "an address with no words stays empty")
+
+    def test_search_prose_names_only_the_fields_a_row_matches(self):
+        """Round-1 NOTE: "a document shows when it holds every word" claimed
+        the whole document, but a row matches on its data-search text alone.
+        The status prompt and the results sentence each name those fields
+        (SEARCH_MATCH_FIELDS), qualifying purpose and frameworks "where it
+        has them"; every row's text is exactly those fields (rebuilt here
+        from the taxonomy and the adopter metadata), and some row's owner, a
+        field the document holds, has a word its row cannot match, so the
+        unscoped wording was false."""
+        search = self.draft_html["draft/search/index.html"]
+        prompt = unescape(re.search(r'\sdata-search-prompt="([^"]*)"',
+                                    search).group(1))
+        self.assertIn(self.SEARCH_MATCH_FIELDS, prompt)
+        self.assertIn(self.SEARCH_MATCH_FIELDS, self.SEARCH_RESULTS_PROSE)
+        self.assertIn(self.SEARCH_RESULTS_PROSE, search)
+        for text in (prompt, self.SEARCH_RESULTS_PROSE):
+            self.assertNotIn("holds every word.", text)
+        by_href = {self.mod._doc_page_url("/draft", d["path"]): d
+                   for d in self._full_taxonomy()
+                   + self.mod.parse_adopter_docs()}
+        rows = self._search_replay_rows()
+        unmatched_owner = 0
+        for row in rows:
+            d = by_href[row["href"]]
+            fields = " ".join(" ".join(
+                [d.get("title", ""), d.get("type", ""),
+                 self.mod.draft_domain_label(d.get("domain", "")),
+                 d.get("domain", ""), d.get("purpose", "") or ""]
+                + d.get("frameworks", [])).lower().split())
+            self.assertEqual(row["hay"], fields, row["href"])
+            if any(w not in row["hay"]
+                   for w in (d.get("owner") or "").lower().split()):
+                unmatched_owner += 1
+        self.assertTrue(unmatched_owner,
+                        "a document holds words its row cannot match")
+
+    _DOC_FW_RE = re.compile(
+        r'<h2>Frameworks it maps to</h2>\n<ul class="chips">(.*?)</ul>', re.S)
+    _FW_CHIP_RE = re.compile(r'<li><a href="([^"]*)">([^<]*)</a></li>')
+
+    def test_document_framework_chips_open_their_search(self):
+        """Design B 5.5 (a bare search link lost the framework the reader
+        clicked): every framework chip on a document page links the search
+        page's ?q= address for its own name, the address search.js reads on
+        load, and the search it opens, replayed on the rendered search rows,
+        finds the document the chip sits on."""
+        rows = self._search_replay_rows()
+        chips = 0
+        for rel in sorted(self._doc_pages()):
+            section = self._DOC_FW_RE.search(self.draft_html[rel])
+            if not section:
+                continue
+            own = "/" + rel[:-len("index.html")]
+            for href, name in self._FW_CHIP_RE.findall(section.group(1)):
+                chips += 1
+                self.assertEqual(_page_rel_for(unescape(href)),
+                                 "draft/search/index.html", f"{rel}: {href}")
+                self.assertEqual(_address_params(href), {"q": unescape(name)},
+                                 f"{rel}: {href}")
+                hits = {r["href"] for r in _replay_search_js(
+                    rows, unescape(name), results=True, rank=True)}
+                self.assertIn(own, hits,
+                              f"{rel}: ?q={unescape(name)!r} misses its page")
+        self.assertTrue(chips, "some document page carries framework chips")
 
     # -- 9. the documents index (design A PR A3) ------------------------------
 
     _INDEX_REL = "draft/documents/index.html"
-    _CHIP_RE = re.compile(
-        r'<li><a href="([^"]*)">([^<]*)<span class="n">(\d+)</span></a></li>')
+    _FACET_CHIP_RE = re.compile(
+        r'<li><a href="([^"]*)" data-filter="([^"]*)">([^<]*)'
+        r'<span class="n">(\d+)</span></a></li>')
+    _INDEX_ROW_RE = re.compile(
+        r'<li data-search="([^"]*)" data-type="([^"]*)" data-area="([^"]*)">'
+        r'<a href="([^"]*)">([^<]*)</a>')
+    # The filter paragraph on All Documents, compared whole; each claim in
+    # it is checked on the rendered page by the facet prose test.
+    INDEX_FILTER_PROSE = (
+        "<p>With script, a type chip keeps the documents of its type and an "
+        "area chip the documents of its area, and typing keeps the documents "
+        "whose title, type, area, purpose, or framework names match every "
+        "word; a type, an area and words combine. A second click on a chosen "
+        "chip, or a click on All, clears that chip's group and leaves the "
+        "other choices as they are. Each chip's count is the number of "
+        "documents of its type or area in the whole list, All counting the "
+        "whole list, and stays the same whatever else is chosen; the status "
+        "line under the text filter gives how many documents show. The page "
+        "address keeps the choice (?type=, ?area=, ?q=), so a filtered list "
+        "can be linked. Without script, the whole list stays as it is.</p>"
+    )
 
     def _full_taxonomy(self):
         return self.mod.parse_taxonomy_full(
@@ -1685,7 +2159,28 @@ class DraftSiteRenderTests(unittest.TestCase):
         return scopes[0]
 
     def _index_rows(self):
-        return self._SEARCH_ROW_RE.findall(self._index_scope())
+        return [(hay, href) for hay, _, _, href, _
+                in self._INDEX_ROW_RE.findall(self._index_scope())]
+
+    def _index_replay_rows(self):
+        """The index rows as search.js reads them, for _replay_search_js."""
+        return [
+            {"hay": unescape(hay).lower(), "href": href,
+             "title": unescape(title).lower(),
+             "tokens": {"type": unescape(t).lower().split(),
+                        "area": unescape(a).lower().split()}}
+            for hay, t, a, href, title
+            in self._INDEX_ROW_RE.findall(self._index_scope())
+        ]
+
+    def _facet_group(self, group):
+        """(aria-label, chip markup) of one All Documents chip group."""
+        block = re.search(
+            rf'<ul class="chips" data-filter-group="{group}" '
+            r'aria-label="([^"]*)">(.*?)</ul>',
+            self.draft_html[self._INDEX_REL], re.S)
+        self.assertIsNotNone(block, f"the index has no {group} chip group")
+        return block.group(1), block.group(2)
 
     def _index_block(self, label):
         index = self.draft_html[self._INDEX_REL]
@@ -1764,9 +2259,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         search.js text filter matches what the page says it matches."""
         index = self.draft_html[self._INDEX_REL]
         self.assertIn(
-            "<p>With script, typing narrows the list to the documents whose "
-            "title, type, area, purpose, or framework names match every word; "
-            "without it, the whole list stays as it is.</p>", index)
+            "typing keeps the documents whose title, type, area, purpose, or "
+            "framework names match every word;", index)
         hay_by_href = {href: unescape(hay)
                        for hay, href in self._index_rows()}
 
@@ -1832,72 +2326,254 @@ class DraftSiteRenderTests(unittest.TestCase):
                         index.find("data-search-scope"),
                         "the filter form sits above the list")
 
-    def test_documents_index_chips_link_domain_and_type_pages(self):
-        """The chips are plain links (design B 4.5): areas to the domain
-        pages, each counting the area's rows, and types to the design A
-        routes types/<slug>/, each counting every document of the type, root
-        specifications included, as its type page does (round-1 ERROR: the
-        Specification chip counted 3 of the 5)."""
-        domains = {}
-        types = {}
-        for d in self._full_taxonomy():
-            types[d["type"]] = types.get(d["type"], 0) + 1
-            if d.get("domain") == self.mod.ROOT_DOMAIN:
-                continue
-            domains[d["domain"]] = domains.get(d["domain"], 0) + 1
-        areas = self._CHIP_RE.findall(self._index_block("By area"))
+    def test_documents_index_facet_groups_filter_type_and_area(self):
+        """Spec 7.29 facets (maintainer 2026-11-03: All Documents carries the
+        filters, and type is a filter of it, not a separate heading): a type
+        group and an area group, each a [data-filter-group] of links carrying
+        data-filter, the All chip first; every row carries its taxonomy type
+        slug as data-type and its area slug as data-area; each chip's count
+        equals the rows carrying its token, All counts every row, and every
+        row token has a chip; each chip links its own facet address on the
+        index (?type=, ?area=), which search.js reads on load and which is
+        the plain link without script; and search.js on a chip (replayed)
+        shows exactly the chip's count."""
+        docs = {self.mod._doc_page_url("/draft", d["path"]): d
+                for d in self._full_taxonomy()
+                if d.get("domain") != self.mod.ROOT_DOMAIN}
+        rows = self._index_replay_rows()
+        self.assertEqual(len(rows), len(docs), "every row carries the tokens")
+        for row in rows:
+            d = docs[row["href"]]
+            self.assertEqual(row["tokens"]["type"],
+                             [self.mod.type_slug(d["type"])], row["href"])
+            self.assertEqual(row["tokens"]["area"], [d["domain"]], row["href"])
+        labels = {
+            "type": {self.mod.type_slug(d["type"]): d["type"]
+                     for d in docs.values()},
+            "area": {d["domain"]: self.mod.draft_domain_label(d["domain"])
+                     for d in docs.values()},
+        }
+        for group in ("type", "area"):
+            with self.subTest(group=group):
+                aria, block = self._facet_group(group)
+                self.assertEqual(aria, f"Filter by {group}")
+                chips = self._FACET_CHIP_RE.findall(block)
+                self.assertEqual(len(chips), block.count("<li>"),
+                                 "every item in the group is a facet chip")
+                self.assertEqual(chips[0], ("/draft/documents/", "", "All",
+                                            str(len(rows))),
+                                 "the All chip leads and counts every row")
+                tokens = Counter(row["tokens"][group][0] for row in rows)
+                self.assertEqual({v: int(n) for _, v, _, n in chips[1:]},
+                                 dict(tokens),
+                                 "one chip per row token, counting its rows")
+                for href, value, label, n in chips[1:]:
+                    self.assertEqual(_address_params(href), {group: value})
+                    self.assertEqual(_page_rel_for(href), self._INDEX_REL)
+                    self.assertEqual(unescape(label), labels[group][value])
+                    self.assertEqual(
+                        len(_replay_search_js(rows, active={group: value})),
+                        int(n), f"{group}={value}")
+
+    def test_documents_index_facets_combine_with_each_other_and_the_text(self):
+        """The two groups and the text filter combine (spec 7.29: a row shows
+        when every active facet's value is among its tokens and it matches
+        the query). Replayed on the rendered rows for the largest type and
+        area: the pair keeps exactly the rows carrying both tokens, and a
+        word from one of those titles narrows that further, never widening
+        it."""
+        rows = self._index_replay_rows()
+        self.assertEqual(len(rows), self._index_scope().count("<li "),
+                         "every row carries a type and an area token")
+        self.assertTrue(rows)
+        types = Counter(row["tokens"]["type"][0] for row in rows)
+        areas = Counter(row["tokens"]["area"][0] for row in rows)
+        pair = {"type": types.most_common(1)[0][0],
+                "area": areas.most_common(1)[0][0]}
+        both = _replay_search_js(rows, active=pair)
         self.assertEqual(
-            {href: int(n) for href, _, n in areas},
-            {f"/draft/{dom}/": n for dom, n in domains.items()})
-        for href, label, _ in areas:
-            self.assertEqual(
-                label, self.mod._esc(self.mod.draft_domain_label(
-                    href.split("/")[2])))
-        type_chips = self._CHIP_RE.findall(self._index_block("By type"))
+            [row["href"] for row in both],
+            [row["href"] for row in rows
+             if pair["type"] in row["tokens"]["type"]
+             and pair["area"] in row["tokens"]["area"]])
+        self.assertTrue(both)
+        self.assertLess(len(both), types[pair["type"]])
+        word = max(both[0]["title"].split(), key=len)
+        narrowed = _replay_search_js(rows, word, active=pair)
+        self.assertIn(both[0], narrowed)
+        self.assertLessEqual(len(narrowed), len(both))
+
+    def test_documents_index_filter_prose_is_true_for_every_chip_and_row(self):
+        """The page prose rule on the filter paragraph, read off the rendered
+        page with each claim checked there: a type chip keeps the documents
+        of its type and an area chip those of its area (each chip replayed,
+        every kept row's taxonomy type or area checked); the address keeps
+        ?type=, ?area= and ?q= (the page's facet groups are exactly type and
+        area, and its form holds the q input search.js writes). The count,
+        All and status claims are replayed in every combined state by
+        test_documents_index_counts_hold_in_every_combined_state, and the
+        typing clause against every row's data-search text by
+        test_documents_index_rows_carry_the_search_text."""
+        index = self.draft_html[self._INDEX_REL]
+        self.assertIn(self.INDEX_FILTER_PROSE, index)
+        docs = {self.mod._doc_page_url("/draft", d["path"]): d
+                for d in self._full_taxonomy()
+                if d.get("domain") != self.mod.ROOT_DOMAIN}
+        rows = self._index_replay_rows()
+        field = {"type": lambda d: self.mod.type_slug(d["type"]),
+                 "area": lambda d: d["domain"]}
+        for group in ("type", "area"):
+            _, block = self._facet_group(group)
+            for _, value, label, n in self._FACET_CHIP_RE.findall(block):
+                if not value:
+                    continue
+                with self.subTest(group=group, chip=label):
+                    kept = _replay_search_js(rows, active={group: value})
+                    self.assertEqual(
+                        [r["href"] for r in kept],
+                        [href for href in (r["href"] for r in rows)
+                         if field[group](docs[href]) == value],
+                        "the chip keeps exactly its documents")
         self.assertEqual(
-            {href: (label, int(n)) for href, label, n in type_chips},
-            {f"/draft/types/{self.mod.type_slug(t)}/": (t, n)
-             for t, n in types.items()})
+            re.findall(r'\sdata-filter-group="([^"]*)"', index),
+            ["type", "area"], "the address keys the prose names")
+        self.assertRegex(
+            index, r'<form class="search" role="search" data-search>'
+                   r'<label class="lbl" for="q">[^<]*</label>'
+                   r'<input id="q" type="search"')
+        self.assertLess(index.find("data-filter-group"),
+                        index.find("data-search-scope"),
+                        "the chips sit above the list they filter")
+
+    def test_documents_index_counts_hold_in_every_combined_state(self):
+        """Round-1 ERROR: "Each chip's count is the number of documents in
+        this list that it keeps, and All keeps the whole list" was false once
+        filters combine (with ?type=policy&area=ai the Policy and AI chips
+        kept their whole-list counts while one row showed). The paragraph's
+        count, All and status claims are replayed in every combined state,
+        every type value (All included) by every area value (All included),
+        and each type page's filter address as search.js loads it: every
+        chip's count is its documents in the whole list and All's the whole
+        list; search.js writes no text but the status line, so no count
+        changes with the state; a click on All, or a second click on the
+        chosen chip, clears only that chip's group; and the status line,
+        under the text filter, gives how many rows show. Some state shows a
+        chip fewer rows than its count, so the old wording was false."""
+        index = self.draft_html[self._INDEX_REL]
+        self.assertIn(self.INDEX_FILTER_PROSE, index)
+        rows = self._index_replay_rows()
+        chips = {}
+        for group in ("type", "area"):
+            found = self._FACET_CHIP_RE.findall(self._facet_group(group)[1])
+            chips[group] = {value: int(n) for _, value, _, n in found}
+            for value, n in chips[group].items():
+                self.assertEqual(
+                    n, sum(1 for r in rows
+                           if not value or value in r["tokens"][group]),
+                    f"{group}={value}: its documents in the whole list")
+        self.assertEqual(chips["type"][""], len(rows), "All is the list")
+        self.assertEqual(chips["area"][""], len(rows), "All is the list")
+        js = self.draft_all["draft/assets/baseline/search.js"].decode("utf-8")
+        self.assertEqual(set(re.findall(r"(\w+)\.textContent\s*=", js)),
+                         {"status"}, "only the status line's text changes")
+        self.assertIn('status.textContent = "Showing " + shown + " of " + '
+                      'total + " documents.";', js)
+        self.assertRegex(index, r'<input id="q" type="search"[^>]*>'
+                                r'<p class="status" role="status"[^>]*'
+                                r'\sdata-search-status></p></form>')
+        # Each type page's filter address, as search.js loads it: a value
+        # is set only when a chip of its group carries it.
+        loaded = set()
+        for tp in self.figures["type_pages"]:
+            for href in re.findall(r'<a href="([^"]*/documents/\?[^"]*)">',
+                                   self.draft_html[self._type_rel(tp["type"])]):
+                params = _address_params(href)
+                self.assertEqual(set(params), {"type"}, href)
+                self.assertIn(params["type"], chips["type"], href)
+                loaded.add(params["type"])
+        self.assertTrue(loaded, "type pages link their filter address")
+        states = [{"type": t, "area": a}
+                  for t in chips["type"] for a in chips["area"]]
+        self.assertLessEqual({(t, "") for t in loaded},
+                             {(s["type"], s["area"]) for s in states})
+        fewer = 0
+        for state in states:
+            with self.subTest(**state):
+                # The status line's number is the rows shown, those carrying
+                # every chosen token, recounted here.
+                shown = _replay_search_js(rows, active=state)
+                self.assertEqual(
+                    shown, [r for r in rows
+                            if all(not v or v in r["tokens"][g]
+                                   for g, v in state.items())])
+                for group, other in (("type", "area"), ("area", "type")):
+                    cleared = _replay_search_js(
+                        rows, active={group: "", other: state[other]})
+                    self.assertEqual(
+                        len(cleared), chips[other][state[other]],
+                        "clearing a group leaves the other as it is")
+                    for value, n in chips[group].items():
+                        kept = _replay_search_js(
+                            rows, active={group: value, other: state[other]})
+                        if len(kept) < n:
+                            fewer += 1
+        self.assertTrue(fewer, "a chip can show fewer rows than its count")
 
     def test_documents_index_type_chips_count_what_their_type_pages_list(self):
-        """Each type chip's count equals the corpus rows its type page lists
-        and the corpus count the page states, and every type page has a
-        chip. Integration round 2: a type page also lists the type's adopter
-        documents, which All Documents does not carry, in their own counted
-        block, so the page's total is the chip's count plus that block's and
-        the page states the corpus count apart."""
-        type_chips = self._CHIP_RE.findall(self._index_block("By type"))
-        type_pages = {rel for rel in self.draft_html
-                      if rel.startswith("draft/types/")}
-        self.assertEqual({_page_rel_for(href) for href, _, _ in type_chips},
-                         type_pages, "one chip per type page")
+        """Each type chip's count equals the corpus-area rows its type page
+        lists, the rows its filter keeps, and every type page with such a
+        row has a chip (site f1: a chip counts the rows it filters, so a
+        library specification, which has a type page row and no All
+        Documents row, stays out of it). Integration round 2: a type page
+        also lists the type's adopter documents, which All Documents does
+        not carry, in their own counted block, so the page's total is its
+        corpus list plus that block's and the page states the corpus count
+        apart."""
+        _, block = self._facet_group("type")
+        type_chips = [(href, value, label, n) for href, value, label, n
+                      in self._FACET_CHIP_RE.findall(block) if value]
+        with_rows = set()
         adopter_label = re.escape(self.mod._esc(
             self.mod.draft_domain_label(self.mod.ADOPTER_DOCS_AREA)))
-        for href, label, n in type_chips:
-            with self.subTest(type=label):
-                page = self.draft_html[_page_rel_for(href)]
-                scope = re.search(
-                    r'<ul class="plan one described">(.*?)</ul>', page, re.S)
-                self.assertIsNotNone(scope, "the type page has no list")
-                self.assertEqual(
-                    int(n), len(self._TYPE_ROW_RE.findall(scope.group(1))),
-                    "the chip counts the rows its type page lists")
-                adopter = re.search(
-                    rf'<p class="lbl blk">{adopter_label}, (\d+)</p>', page)
+        for tp in self.figures["type_pages"]:
+            page = self.draft_html[self._type_rel(tp["type"])]
+            scope = re.search(
+                r'<ul class="plan one described">(.*?)</ul>', page, re.S)
+            self.assertIsNotNone(scope, "the type page has no list")
+            corpus = self._TYPE_ROW_RE.findall(scope.group(1))
+            in_area = [href for href, _, _, _ in corpus
+                       if not href.startswith(self.mod.GITHUB_BLOB_BASE)]
+            if in_area:
+                with_rows.add(tp["slug"])
+            adopter = re.search(
+                rf'<p class="lbl blk">{adopter_label}, (\d+)</p>', page)
+            with self.subTest(type=tp["type"]):
                 if adopter:
-                    self.assertIn(f": {n} in the corpus and "
+                    self.assertIn(f": {len(corpus)} in the corpus and "
                                   f"{adopter.group(1)} adopter ", page,
-                                  "the page states the chip's corpus count")
-                    shown = int(n) + int(adopter.group(1))
+                                  "the page states its corpus count apart")
+                    shown = len(corpus) + int(adopter.group(1))
                 else:
-                    shown = int(n)
+                    shown = len(corpus)
                 self.assertIn(f"Documents, {shown}</p>", page)
+            for _, value, label, n in type_chips:
+                if value != tp["slug"]:
+                    continue
+                with self.subTest(chip=label):
+                    self.assertEqual(int(n), len(in_area),
+                                     "the chip counts the type page's "
+                                     "corpus-area rows")
+        self.assertEqual({value for _, value, _, _ in type_chips}, with_rows,
+                         "one chip per type page with a corpus-area row")
 
     def test_documents_index_counts_a_type_only_root_documents_hold(self):
         """Every type in today's corpus has a non-root document, so the live
-        render cannot tell the two counts apart; a fixture can. A type held
-        only by root specifications still has a type page, so it gets a chip
-        and counts among the index's types."""
+        render cannot tell the counts apart; a fixture can. A type held only
+        by root specifications still counts among the page's types (the
+        meta line counts every document on the page), but no filtered row
+        carries it, so its group has no chip: a chip whose count is the rows
+        it keeps would read 0 (round-1 ERROR on this page: a count that
+        differed from what the chip's landing showed)."""
         root = self.mod.ROOT_DOMAIN
         values = self.mod.draft_documents_values([
             {"path": "governance/policy-a.md", "domain": "governance",
@@ -1906,8 +2582,26 @@ class DraftSiteRenderTests(unittest.TestCase):
              "type": "Specification", "title": "B"},
         ])
         self.assertEqual(values["INDEX_TYPE_COUNT"], "2")
-        self.assertIn('/types/specification/">Specification'
-                      '<span class="n">1</span>', values["INDEX_TYPE_CHIPS"])
+        self.assertNotIn("specification", values["INDEX_TYPE_CHIPS"].lower())
+        self.assertEqual(
+            values["INDEX_TYPE_CHIPS"],
+            '<li><a href="{{BASE}}/documents/" data-filter="">All'
+            '<span class="n">1</span></a></li>\n'
+            '<li><a href="{{BASE}}/documents/?type=policy" '
+            'data-filter="policy">Policy<span class="n">1</span></a></li>')
+        self.assertIn('data-type="policy" data-area="governance"',
+                      values["INDEX_ROWS"])
+
+    def test_documents_index_refuses_a_facet_value_no_chip_can_match(self):
+        """search.js splits a row's tokens on whitespace and compares them
+        in lowercase, so an area slug that is not one lowercase token would
+        publish a chip that keeps nothing; the build refuses it instead."""
+        with self.assertRaises(self.mod.BuildError) as caught:
+            self.mod.draft_documents_values([
+                {"path": "Bad Area/policy-a.md", "domain": "Bad Area",
+                 "type": "Policy", "title": "A"},
+            ])
+        self.assertIn("'Bad Area'", str(caught.exception))
 
     def test_documents_index_is_named_all_documents(self):
         """Maintainer decision: the index is All Documents, in its title,
@@ -1929,25 +2623,33 @@ class DraftSiteRenderTests(unittest.TestCase):
         specification), and the filter covers exactly the documents across
         the domains (round-2 review: "the whole library in one list you can
         filter" left out the library specifications, which sit outside the
-        filtered list). Integration round 2 NOTE: All Documents carries the
-        corpus, not the docs/ adopter documents, so the sentence says every
+        filtered list). Integration round 2 NOTE (and f1 round-1 NOTE): All
+        Documents carries the corpus, not the docs/ adopter documents, which
+        have pages but no row on the index, so the sentence says every
         corpus document and points to the Browse list that carries every
-        adopter document."""
+        adopter document. Site f1: the sentence names the index's filters,
+        by type, by area and by words."""
         browse = self.draft_html["draft/browse/index.html"]
         main = browse.split('<main id="main-content">', 1)[1]
         self.assertIn('<a href="/draft/documents/">All Documents</a>', main,
                       "the Browse page body links the index by name")
-        self.assertNotIn("/draft/documents/", _NAV_RE.search(browse).group(1),
-                         "the top bar is unchanged in this PR")
         label = self.mod._esc(
             self.mod.draft_domain_label(self.mod.ADOPTER_DOCS_AREA))
         self.assertIn(
             "<p>To see every corpus document on one page, open "
-            '<a href="/draft/documents/">All Documents</a>; its filter covers '
-            "the documents across the domains. The adopter documents, outside "
-            "the corpus, are listed further down this page, under "
-            f"{label}.</p>", main)
+            '<a href="/draft/documents/">All Documents</a>; its filters, by '
+            "type, by area and by words, cover the documents across the "
+            "domains. The adopter documents, outside the corpus, are listed "
+            f"further down this page, under {label}.</p>", main)
         self.assertNotIn("every document in the library", main)
+        index = self.draft_html[self._INDEX_REL]
+        # "its filters, by type, by area and by words": the index's two
+        # facet groups and its text filter, all over the one filtered list.
+        self.assertEqual(
+            re.findall(r'\sdata-filter-group="([^"]*)"', index),
+            ["type", "area"])
+        self.assertEqual(index.count("<form "), 1)
+        self.assertEqual(index.count("data-search-scope"), 1)
         after = main.split("open <a href=\"/draft/documents/\">", 1)[1]
         section = re.search(
             rf'<h2 id="adopter-documents">{re.escape(label)}</h2>\s*'
@@ -1976,7 +2678,8 @@ class DraftSiteRenderTests(unittest.TestCase):
     def _assert_index_links_every_corpus_document(self):
         """Every taxonomy document is linked on All Documents (its page, or
         its GitHub source for a library specification), and the filter rows
-        are exactly the documents across the domains."""
+        are exactly the documents across the domains; the docs/ adopter
+        documents have pages and no link there."""
         index = self.draft_html[self._INDEX_REL]
         linked = {unescape(href) for href in _HREF_RE.findall(
             index.split('<main id="main-content">', 1)[1])}
@@ -1989,6 +2692,14 @@ class DraftSiteRenderTests(unittest.TestCase):
                 domain_hrefs.add(href)
             self.assertIn(href, linked,
                           f"{d['path']}: not on the All Documents page")
+        adopter = {self.mod._doc_page_url("/draft", d["path"])
+                   for d in self.mod.parse_adopter_docs()}
+        self.assertTrue(adopter, "the library holds adopter documents")
+        for href in sorted(adopter):
+            self.assertIn(_page_rel_for(href), self.draft_html, href)
+        self.assertEqual(adopter & linked, set(),
+                         "the adopter documents are no corpus document of "
+                         "All Documents, so the sentence names the corpus")
         self.assertEqual({href for _, href in self._index_rows()},
                          domain_hrefs,
                          "the filter covers the documents across the domains")
@@ -2679,10 +3390,12 @@ class DraftSiteRenderTests(unittest.TestCase):
                            "the decide hub carries other concerns")
 
     def test_each_subtype_index_links_up_to_the_hub(self):
+        # In the page body: the top bar's Decisions link is on every page.
         for slug in SUBTYPE_SLUGS:
             self.assertIn(
                 'href="/draft/decide/"',
-                self.draft_html[f"draft/decide/{slug}/index.html"],
+                self.draft_html[f"draft/decide/{slug}/index.html"].split(
+                    '<main id="main-content">', 1)[1],
                 f"{slug}: the subtype index links up to the decide hub")
 
     # -- 14. the crosswalk (design C 3.7 Version A) --------------------------
@@ -2690,7 +3403,7 @@ class DraftSiteRenderTests(unittest.TestCase):
     _XW_COL_RE = re.compile(r'<th scope="col" data-col="([a-z0-9-]+)"')
     _XW_COUNT_LINK_RE = re.compile(
         r'<a href="(/draft/crosswalk/([a-z0-9-]+)/#([a-z-]+))">'
-        r"(\d+) documents?</a>"
+        r'(\d+)<span class="vh"> documents?</span></a>'
     )
 
     def test_crosswalk_every_main_table_instrument_has_a_column_and_a_page(self):
@@ -2740,13 +3453,13 @@ class DraftSiteRenderTests(unittest.TestCase):
             "all N/A until the matrix populates it)")
 
     def test_crosswalk_presets_render_only_their_columns(self):
-        for preset in self.mod.CROSSWALK_PRESETS:
+        for preset in self.mod.CROSSWALK_TOPICS:
             rel = f"draft/crosswalk/view/{preset.slug}/index.html"
             self.assertIn(rel, self.draft_html,
                           f"preset '{preset.slug}' has no generated view page")
             page = self.draft_html[rel]
             self.assertEqual(
-                self._XW_COL_RE.findall(page), list(preset.columns),
+                sorted(self._XW_COL_RE.findall(page)), sorted(preset.columns),
                 f"the '{preset.slug}' view renders exactly its own columns")
             # Round-2 item 9: a bare href check also matched the Next block's
             # link, so a removed All link passed; pin the list item itself.
@@ -2756,21 +3469,23 @@ class DraftSiteRenderTests(unittest.TestCase):
                 "list")
         main = self.draft_html["draft/crosswalk/index.html"]
         self.assertIn(
-            '<li><a href="/draft/crosswalk/" aria-current="page">All</a></li>',
-            main, "the full crosswalk marks All as the current view")
+            '<li><a href="/draft/crosswalk/" aria-current="page" '
+            'data-preset="" data-preset-id="all">All</a></li>',
+            main, "the full crosswalk marks All as the current view, and All "
+            "is its matrix.js preset showing every column")
 
     def test_crosswalk_caveat_block_present(self):
         pages = ["draft/crosswalk/index.html"]
         pages += [f"draft/crosswalk/view/{p.slug}/index.html"
-                  for p in self.mod.CROSSWALK_PRESETS]
+                  for p in self.mod.CROSSWALK_TOPICS]
         pages += [f"draft/crosswalk/{i.key}/index.html"
                   for i in self.mod.CROSSWALK_INSTRUMENTS]
-        # The matrices' own caveats (design C 3.6), carried nearly verbatim.
+        # The matrices' own caveats (design C 3.6), carried nearly verbatim;
+        # the AICPA TSC caveat renders only where the table has that column
+        # (test_crosswalk_tsc_caveat_only_where_the_table_has_the_column).
         fragments = (
             "citations are indicative, not exhaustive",
             "certification, attestation, or legal opinion",
-            "no mapping has been made yet and does not assert that no "
-            "criterion applies",
             "coverage is partial",
             "referenced for navigation only",
             "not an official mapping, certification claim, legal opinion",
@@ -2853,42 +3568,45 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def test_browse_and_landing_link_the_crosswalk(self):
         """Round-2 item 2: no page outside /draft/crosswalk/ linked the
-        crosswalk. The Browse page and the landing page link it (the top bar
-        awaits a maintainer decision and stays unchanged)."""
+        crosswalk. The Browse page and the landing page link it in their
+        page bodies, apart from the top bar's Crosswalk link."""
         count = len([i for i in self.mod.CROSSWALK_INSTRUMENTS
                      if i.main_table])
-        landing = self.draft_html["draft/index.html"]
+        landing = self.draft_html["draft/index.html"].split(
+            '<main id="main-content">', 1)[1]
         self.assertIn('href="/draft/crosswalk/"', landing,
                       "the landing page links the crosswalk")
         self.assertIn(f'<span class="n">{count} instruments</span>', landing,
                       "the landing tile's instrument count is computed")
-        browse = self.draft_html["draft/browse/index.html"]
+        browse = self.draft_html["draft/browse/index.html"].split(
+            '<main id="main-content">', 1)[1]
         self.assertIn('href="/draft/crosswalk/"', browse,
                       "the Browse page links the crosswalk")
         self.assertIn(
             f"against {count} standards, laws, frameworks, and programmes",
             browse, "the Browse sentence's instrument count is computed")
 
-    _XW_RAIL_RE = re.compile(r'<div class="rail">(.*?)</div>', re.S)
+    _XW_RAIL_RE = re.compile(r'<div class="lrail">(.*?)</div>', re.S)
 
     def test_crosswalk_preset_list_sits_in_the_rail(self):
         """Round-2 item 3 (maintainer direction, 15:09Z): the preset list is
-        a vertical list in the page's existing right-hand rail, one side
-        only; the table takes the main column. The links stay plain links to
-        the preset views. Round 2b: the one-side rule holds for anchors, by
-        role, because a preset view's required self-canonical (a head
-        <link>, page hygiene test) names its own /draft/crosswalk/view/ URL
-        and is no preset link."""
+        a vertical list in one side rail; the table takes the main column.
+        The links stay links to the preset views. Round 2b: the one-side
+        rule holds for anchors, by role, because a preset view's required
+        self-canonical (a head <link>, page hygiene test) names its own
+        /draft/crosswalk/view/ URL and is no preset link. Site f2: the rail
+        is the left-rail page's side list (spec 7.32), the right rail having
+        stood in for it until the template carried one."""
         pages = ["draft/crosswalk/index.html"]
         pages += [f"draft/crosswalk/view/{p.slug}/index.html"
-                  for p in self.mod.CROSSWALK_PRESETS]
+                  for p in self.mod.CROSSWALK_TOPICS]
         for rel in pages:
             html = self.draft_html[rel]
             rail = self._XW_RAIL_RE.search(html)
-            self.assertIsNotNone(rail, f"{rel}: no rail column")
+            self.assertIsNotNone(rail, f"{rel}: no side list")
             self.assertIn('href="/draft/crosswalk/"', rail.group(1),
                           f"{rel}: the All link sits in the rail")
-            for preset in self.mod.CROSSWALK_PRESETS:
+            for preset in self.mod.CROSSWALK_TOPICS:
                 self.assertIn(
                     f'href="/draft/crosswalk/view/{preset.slug}/"',
                     rail.group(1),
@@ -2964,6 +3682,1644 @@ class DraftSiteRenderTests(unittest.TestCase):
             "every AICPA TSC spelling in the taxonomy must alias to "
             "aicpa-tsc")
 
+    # -- 29. crosswalk left rail and matrix presets (site f2) ---------------
+
+    _XW_RAIL_BLOCK_RE = re.compile(
+        r'<p class="lbl">([^<]*)</p><ul>(.*?)</ul>', re.S)
+    _XW_RAIL_LINK_RE = re.compile(
+        r'<li><a href="([^"]*)"([^>]*)>([^<]*)</a></li>')
+    _XW_PRESET_RE = re.compile(
+        r'<a href="([^"]*)"[^>]*\sdata-preset="([^"]*)" '
+        r'data-preset-id="([^"]*)">([^<]*)</a>')
+    _XW_ROW_RE = re.compile(r"<tr>(.*?)</tr>", re.S)
+    _XW_CELL_RE = re.compile(r"<(th|td)\b([^>]*)>(.*?)</\1>", re.S)
+    _XW_DATA_COL_RE = re.compile(r'\sdata-col="([^"]*)"')
+    _XW_ALSO = "Also in the corpus"
+
+    def _xw_table_pages(self):
+        return ["draft/crosswalk/index.html"] + [
+            f"draft/crosswalk/view/{p.slug}/index.html"
+            for p in self.mod.CROSSWALK_TOPICS]
+
+    def _xw_main_order(self, columns):
+        """A view's columns as the full table orders them (round 3 item 7:
+        matrix.js hides columns and never reorders them)."""
+        return [i.key for i in self.mod.CROSSWALK_INSTRUMENTS
+                if i.main_table and i.key in columns]
+
+    def _xw_groups(self):
+        """The page's instrument groups, rebuilt here from the instrument
+        table: every column group in order, then the Also in the corpus
+        instruments, each with its instruments in configured order."""
+        groups = list(self.mod.CROSSWALK_GROUPS) + [self._XW_ALSO]
+        return [(g, [i.key for i in self.mod.CROSSWALK_INSTRUMENTS
+                     if i.group == g]) for g in groups]
+
+    def _xw_table(self, html):
+        match = re.search(
+            r'<div class="tablewrap bounded" tabindex="0">\s*'
+            r'(<table class="matrix sticky sticky-col"[^>]*>.*?</table>)',
+            html, re.S)
+        self.assertIsNotNone(
+            match, "the table sits in a bounded scroll box (spec 7.31) in "
+            "the matrix markup (spec 7.30)")
+        return match.group(1)
+
+    def test_crosswalk_pages_are_left_rail_pages_with_no_right_rail(self):
+        """Maintainer directive 2026-11-03 15:06Z and 15:09Z: the crosswalk
+        option list sits in ONE side rail on the LEFT and the page carries no
+        right rail. Spec 7.32 markup and order: the kicker, the h1, then the
+        side list (logo once, above a labelled nav list), then the page's
+        blocks; rail.js stays off (a left-rail page has no nav.rail). The
+        preset views are the crosswalk page shown without script, so they
+        take the same layout. Decision: the instrument pages keep the
+        standard document grid with the logo-only rail (spec 7.6 and 7.5),
+        since they carry no option list and the directive names the
+        crosswalk page; this pins that they did not change."""
+        for rel in self._xw_table_pages():
+            html = self.draft_html[rel]
+            main = html[html.index("<main"):html.index("</main>")]
+            self.assertEqual(main.count('<div class="doc left-rail">'), 1,
+                             f"{rel}: one left-rail page grid")
+            self.assertNotIn('<div class="doc">', main,
+                             f"{rel}: not the standard document grid")
+            self.assertNotRegex(main, r'class="rail["\s]',
+                                f"{rel}: no right rail, nav or logo-only")
+            self.assertNotIn("/assets/baseline/rail.js", html,
+                             f"{rel}: rail.js has nothing to mark here")
+            self.assertEqual(main.count('<div class="lrail">'), 1, rel)
+            self.assertEqual(main.count('class="rail-logo"'), 1,
+                             f"{rel}: the logo appears once")
+            self.assertRegex(
+                main,
+                r'<div class="doc left-rail"><p class="lbl first">Crosswalk'
+                r'</p>\s*<h1>[^<]+</h1>\s*<div class="lrail"><img '
+                r'class="rail-logo" [^>]*><nav aria-label="[^"]+">\s*'
+                r'<p class="lbl">Views</p><ul>',
+                f"{rel}: kicker, h1, then the side list (spec 7.32)")
+        for inst in self.mod.CROSSWALK_INSTRUMENTS:
+            rel = f"draft/crosswalk/{inst.key}/index.html"
+            html = self.draft_html[rel]
+            self.assertIn('<div class="doc"><p class="lbl first">', html, rel)
+            self.assertIn('<div class="rail"><img class="rail-logo"', html,
+                          f"{rel}: the instrument page keeps its logo-only "
+                          "rail")
+            self.assertNotIn("left-rail", html, rel)
+
+    def test_crosswalk_side_list_names_every_instrument_by_group(self):
+        """Directive item 1: the side list holds every crosswalk instrument,
+        generated and grouped as the page groups them, the Also in the corpus
+        instruments included, each linking its rendered instrument page
+        under its display name."""
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        xw = self.mod.build_crosswalk(full)
+        expected = [
+            (g, [(f"/draft/crosswalk/{k}/", "",
+                  self.mod._esc(xw["instruments"][k]["display"]))
+                 for k in keys])
+            for g, keys in self._xw_groups() if keys]
+        self.assertTrue(dict(expected).get(self._XW_ALSO),
+                        "the Also in the corpus instruments are listed")
+        for rel in self._xw_table_pages():
+            rail = self._XW_RAIL_RE.search(self.draft_html[rel]).group(1)
+            blocks = self._XW_RAIL_BLOCK_RE.findall(rail)
+            self.assertEqual(blocks[0][0], "Views", rel)
+            got = [(unescape(label), self._XW_RAIL_LINK_RE.findall(body))
+                   for label, body in blocks[1:]]
+            self.assertEqual(got, expected,
+                             f"{rel}: the side list equals the instrument "
+                             "list, group by group")
+            hrefs = [h for _, links in got for h, _, _ in links]
+            self.assertEqual(
+                sorted(hrefs),
+                sorted(f"/draft/crosswalk/{i.key}/"
+                       for i in self.mod.CROSSWALK_INSTRUMENTS),
+                f"{rel}: every instrument exactly once")
+            for href in hrefs:
+                self.assertIn(_page_rel_for(href), self.draft_html, href)
+
+    # The topic views of design C 3.7 as the 8c3d83756 build carried them
+    # (slug, label, columns, related instrument pages), pinned as literals so
+    # a preset model regenerated from anything else fails here (round 2,
+    # maintainer decision 2026-11-03 18:53Z: the views stay by topic).
+    _XW_TOPICS = (
+        ("security", "Security",
+         ("iso-iec-27001", "nist-csf", "nist-sp-800-53", "csa-ccm",
+          "aicpa-tsc"), ()),
+        ("ai", "AI",
+         ("iso-iec-42001", "nist-ai-rmf", "csa-aicm", "eu-ai-act",
+          "owasp-llm-top-10", "mitre-atlas"), ()),
+        ("privacy", "Privacy and data protection",
+         ("gdpr", "eu-ai-act", "nis-2"), ("pipeda", "quebec-law-25")),
+        ("resilience", "Resilience and financial services",
+         ("dora", "nis-2", "csa-ccm"), ()),
+        ("trade", "Trade and customs",
+         ("ctpat", "pip", "basc", "wco-safe", "aeo"), ()),
+        ("canada", "Canada", ("pip",), ("pipeda", "quebec-law-25")),
+    )
+    _XW_RELATED_RE = re.compile(
+        r'<p class="lbl blk">Related instrument pages</p>'
+        r'<ul class="chips">(.*?)</ul>', re.S)
+
+    def test_crosswalk_presets_equal_the_topics(self):
+        """Round 2 item 1: the matrix.js presets (spec 7.30) are All plus
+        the topic views of design C 3.7, each holding exactly its topic's
+        columns, in topic order; every column sits in at least one topic,
+        the Also in the corpus instruments in none. Each preset lives in the
+        side list and is a link to a page that resolves without script and
+        renders that preset's columns; a static view carries no preset and
+        no matrix, so no script acts there."""
+        main = self.draft_html["draft/crosswalk/index.html"]
+        expected = [("/draft/crosswalk/", "", "all", "All")] + [
+            (f"/draft/crosswalk/view/{slug}/", " ".join(columns), slug,
+             self.mod._esc(label))
+            for slug, label, columns, _ in self._XW_TOPICS]
+        presets = self._XW_PRESET_RE.findall(main)
+        self.assertEqual(presets, expected,
+                         "the presets are All plus the topic views")
+        rail = self._XW_RAIL_RE.search(main).group(1)
+        self.assertEqual(rail.count("data-preset="), len(expected))
+        self.assertEqual(main.count("data-preset="), len(expected),
+                         "every preset sits in the side list")
+        columns = self._XW_COL_RE.findall(main)
+        in_presets = [k for _, keys, _, _ in presets for k in keys.split()]
+        self.assertEqual(sorted(set(in_presets)), sorted(columns),
+                         "every column sits in at least one topic preset, "
+                         "and no preset names a column the table has not")
+        also = dict(self._xw_groups())[self._XW_ALSO]
+        self.assertFalse(set(also) & set(in_presets),
+                         "an instrument with no column is in no preset")
+        for href, keys, slug, _ in presets[1:]:
+            rel = _page_rel_for(href)
+            self.assertIn(rel, self.draft_html,
+                          f"preset '{slug}' links a page that resolves")
+            view = self.draft_html[rel]
+            self.assertEqual(self._XW_COL_RE.findall(view),
+                             self._xw_main_order(keys.split()),
+                             f"the '{slug}' view renders its preset's columns")
+            self.assertNotIn("data-preset=", view, rel)
+            self.assertNotRegex(view, r"\sdata-matrix\b", rel)
+
+    def test_crosswalk_topic_view_routes_render(self):
+        """Round 2 item 1: each topic view renders at its old route
+        /draft/crosswalk/view/<topic>/ under its topic heading with a
+        non-empty column set equal to its topic's, and links its related
+        instrument pages beneath the table where it has any (each resolving);
+        no other view route renders, so no instrument-group view survives."""
+        rendered = sorted(
+            rel for rel in self.draft_html
+            if rel.startswith("draft/crosswalk/view/"))
+        self.assertEqual(
+            rendered,
+            sorted(f"draft/crosswalk/view/{slug}/index.html"
+                   for slug, _, _, _ in self._XW_TOPICS),
+            "the view routes are exactly the topic routes")
+        for slug, label, columns, related in self._XW_TOPICS:
+            rel = f"draft/crosswalk/view/{slug}/index.html"
+            html = self.draft_html[rel]
+            self.assertIn(
+                f"<h1>Crosswalk: {self.mod._esc(label)}</h1>", html, rel)
+            self.assertTrue(columns, f"{slug}: a topic has a column")
+            self.assertEqual(
+                self._XW_COL_RE.findall(self._xw_table(html)),
+                self._xw_main_order(columns), f"{rel}: the topic's columns")
+            block = self._XW_RELATED_RE.search(html)
+            if not related:
+                self.assertIsNone(block, f"{rel}: no related pages block")
+                continue
+            self.assertIsNotNone(block, f"{rel}: the related pages block")
+            hrefs = _HREF_RE.findall(block.group(1))
+            self.assertEqual(
+                hrefs, [f"/draft/crosswalk/{key}/" for key in related], rel)
+            for href in hrefs:
+                self.assertIn(_page_rel_for(href), self.draft_html, href)
+        self.assertIsNone(
+            self._XW_RELATED_RE.search(
+                self.draft_html["draft/crosswalk/index.html"]),
+            "the full crosswalk's side list already names every instrument")
+
+    def test_crosswalk_rail_views_equal_the_topics(self):
+        """Round 2 item 1: on the crosswalk page and on every view, the side
+        list's Views block holds All then the topic views in topic order,
+        each linking its route under its topic label, and the page's own
+        view is the one marked current."""
+        pages = [("draft/crosswalk/index.html", "/draft/crosswalk/")] + [
+            (f"draft/crosswalk/view/{slug}/index.html",
+             f"/draft/crosswalk/view/{slug}/")
+            for slug, _, _, _ in self._XW_TOPICS]
+        expected = [("/draft/crosswalk/", "All")] + [
+            (f"/draft/crosswalk/view/{slug}/", self.mod._esc(label))
+            for slug, label, _, _ in self._XW_TOPICS]
+        for rel, own in pages:
+            rail = self._XW_RAIL_RE.search(self.draft_html[rel]).group(1)
+            label, body = self._XW_RAIL_BLOCK_RE.findall(rail)[0]
+            self.assertEqual(label, "Views", rel)
+            links = self._XW_RAIL_LINK_RE.findall(body)
+            self.assertEqual([(href, text) for href, _, text in links],
+                             expected, f"{rel}: Views is All plus the topics")
+            current = [href for href, attrs, _ in links
+                       if 'aria-current="page"' in attrs]
+            self.assertEqual(current, [own], f"{rel}: its own view is current")
+
+    def test_crosswalk_row_header_column_sits_outside_every_preset(self):
+        """Directive item 2 and spec 7.30: the row-header column carries no
+        data-col, so no preset names it and matrix.js never hides it; every
+        other header and cell carries its column's key; the crosswalk table
+        is the page's one matrix, in its bounded scroll box (spec 7.31),
+        with the status line above it; and without script the full table
+        reads (no cell is hidden in the markup)."""
+        main = self.draft_html["draft/crosswalk/index.html"]
+        preset_keys = {k for _, keys, _, _ in self._XW_PRESET_RE.findall(main)
+                       for k in keys.split()}
+        for rel in self._xw_table_pages():
+            html = self.draft_html[rel]
+            table = self._xw_table(html)
+            columns = self._XW_COL_RE.findall(table)
+            self.assertNotRegex(table, r"\shidden\b",
+                                f"{rel}: every column shows without script")
+            self.assertIn('<caption class="vh">', table, rel)
+            rows = self._XW_ROW_RE.findall(table)
+            self.assertTrue(len(rows) > 1, rel)
+            for index, row in enumerate(rows):
+                cells = self._XW_CELL_RE.findall(row)
+                tag, attrs, _ = cells[0]
+                self.assertEqual(
+                    (tag, attrs), ("th", ' scope="col"' if index == 0
+                                   else ' scope="row"'),
+                    f"{rel}: the row-header column carries no data-col")
+                keys = [self._XW_DATA_COL_RE.search(a) for _, a, _ in
+                        cells[1:]]
+                self.assertTrue(all(keys), f"{rel}: every other cell has a "
+                                "data-col key")
+                self.assertEqual([k.group(1) for k in keys], columns, rel)
+                if rel == "draft/crosswalk/index.html":
+                    self.assertTrue(
+                        {k.group(1) for k in keys} <= preset_keys,
+                        "every keyed cell belongs to a preset")
+        self.assertRegex(
+            main, r'<p class="matrix-status" role="status" '
+            r'aria-live="polite" data-matrix-status></p>\s*<div class="wide">'
+            r'<div class="tablewrap bounded" tabindex="0">\s*<table '
+            r'class="matrix sticky sticky-col" data-matrix>',
+            "the status line sits above the page's one matrix")
+
+    def test_crosswalk_table_sentences_hold_for_every_column(self):
+        """Directive item 3 and the page prose rule: the sentences about the
+        table are generated from the columns each page renders and checked
+        against its rendered cells. A cell with no count link is empty on
+        screen (round 4 item 3) and has no mapping in the model; a
+        count-link cell lands on its instrument page at its domain;
+        identifiers show only in the columns the compliance alignment matrix
+        carries (wherever the model has any), and the other columns' cells
+        carry the count alone. Round 4 item 1 checks which columns the
+        sentences name."""
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        xw = self.mod.build_crosswalk(full)
+        by_key = {i.key: i for i in self.mod.CROSSWALK_INSTRUMENTS}
+        for rel in self._xw_table_pages():
+            html = self.draft_html[rel]
+            intro = self._xw_intro(html)
+            columns = self._XW_COL_RE.findall(html)
+            comp = [k for k in columns if by_key[k].compliance_column]
+            self.assertIn(
+                "A cell with a recorded mapping carries a generated document "
+                "count that opens the instrument page at that domain, and a "
+                "cell with none is left empty.", intro, rel)
+            table = self._xw_table(html)
+            for row in self._XW_ROW_RE.findall(table)[1:]:
+                cells = self._XW_CELL_RE.findall(row)
+                domain = re.search(r'href="/draft/([a-z-]+)/"',
+                                   cells[0][2]).group(1)
+                for (_, attrs, body), key in zip(cells[1:], columns):
+                    entry = xw["instruments"][key]["by_domain"].get(domain)
+                    where = f"{rel}: {key} x {domain}"
+                    if body == self._XW_NO_DOCS:
+                        self.assertIsNone(entry, where)
+                        continue
+                    self.assertIsNotNone(entry, where)
+                    self.assertIn(
+                        f'<a href="/draft/crosswalk/{key}/#{domain}">', body,
+                        where)
+                    shows_ids = "<code>" in body
+                    single = [i for i in entry["ids"] if " " not in i]
+                    if key in comp:
+                        self.assertEqual(shows_ids, bool(single), where)
+                    else:
+                        self.assertFalse(shows_ids, f"{where}: count alone")
+                    if key not in comp:
+                        continue
+                    # "the instrument page lists every identifier and label
+                    # in full": each identifier the model records for the
+                    # domain shows on the instrument page under its anchor.
+                    page = self.draft_html[f"draft/crosswalk/{key}/index.html"]
+                    section = re.search(
+                        rf'<h3 id="{domain}">.*?</ul>', page, re.S).group(0)
+                    for ident in entry["ids"]:
+                        self.assertIn(self.mod._esc(ident), section, where)
+
+    def test_crosswalk_views_sentences_hold_for_every_view(self):
+        """The page prose rule on the Views sentences, checked against the
+        rendered pages: the number of topic views equals the presets in the
+        side list; "every column is in at least one topic" holds for the
+        rendered presets; "the Domain column shows in every view" holds
+        because the row-header column is outside every preset (test above);
+        the clause that a topic can take columns from more than one group
+        appears exactly when a rendered topic's columns sit under more than
+        one group in the rendered side list, the clause that a column can
+        sit in more than one topic exactly when a rendered column does, and
+        the related pages clause exactly when a rendered view links related
+        pages (qualified, since only some do); each Also in the corpus
+        instrument the sentence counts has a rendered page and no column;
+        and a view page's sentence names only what its side list holds (the
+        other views, All among them, and every instrument)."""
+        main = self.draft_html["draft/crosswalk/index.html"]
+        presets = self._XW_PRESET_RE.findall(main)
+        also = dict(self._xw_groups())[self._XW_ALSO]
+        para = re.search(r"<p>(Each of the (\d+) topic views in the Views "
+                         r"list .*?)</p>", main, re.S)
+        self.assertIsNotNone(para, "the Views sentence on the crosswalk")
+        text = para.group(1)
+        self.assertEqual(int(para.group(2)), len(presets) - 1,
+                         "the topic view count equals the rendered presets")
+        self.assertIn(
+            "shows the columns for one topic, and All shows every column; "
+            "every column is in at least one topic, and the Domain column "
+            "shows in every view.", text)
+        columns = self._XW_COL_RE.findall(main)
+        topic_keys = [keys.split() for _, keys, _, _ in presets[1:]]
+        self.assertEqual({k for keys in topic_keys for k in keys},
+                         set(columns), "every column is in a topic")
+        rail = self._XW_RAIL_RE.search(main).group(1)
+        group_of = {}
+        for label, body in self._XW_RAIL_BLOCK_RE.findall(rail)[1:]:
+            for href, _, _ in self._XW_RAIL_LINK_RE.findall(body):
+                group_of[href.split("/")[-2]] = label
+        spans = any(len({group_of[k] for k in keys}) > 1
+                    for keys in topic_keys)
+        flat = [k for keys in topic_keys for k in keys]
+        shared = any(flat.count(k) > 1 for k in flat)
+        related = any(
+            self._XW_RELATED_RE.search(self.draft_html[_page_rel_for(href)])
+            for href, _, _, _ in presets[1:])
+        self.assertTrue(spans and shared and related,
+                        "the corpus exercises every clause today")
+        self.assertEqual(
+            "A topic can take columns from more than one instrument group"
+            in text, spans, "the spanning clause holds on the rendered pages")
+        self.assertEqual(
+            "a column can sit in more than one topic" in text.lower(), shared,
+            "the shared column clause holds on the rendered pages")
+        self.assertEqual(
+            "which also links the topic's related instrument pages where it "
+            "has any" in unescape(text), related,
+            "the related pages clause holds on the rendered pages")
+        self.assertIn("Without script every column shows here, All is a link "
+                      "to this full table, and each topic view is a link to a "
+                      "page with that topic's columns only", unescape(text))
+        tail = re.search(
+            r"Below the Views list, the group lists name every instrument "
+            r"under its group, each linking its instrument page; the (\d+) "
+            r"under Also in the corpus (?:has|have) a page and no column "
+            r"until a matrix carries (?:it|them)\.$", text)
+        self.assertIsNotNone(tail, text)
+        self.assertEqual(int(tail.group(1)), len(also))
+        for key in also:
+            self.assertIn(f"draft/crosswalk/{key}/index.html", self.draft_html)
+            self.assertNotIn(key, columns, f"{key} has no column")
+        for preset in self.mod.CROSSWALK_TOPICS:
+            view = self.draft_html[
+                f"draft/crosswalk/view/{preset.slug}/index.html"]
+            self.assertIn(
+                "<p>The Views list opens the other views, All among them, "
+                "and the group lists below it name every instrument under "
+                "its group, each linking its instrument page.</p>", view,
+                preset.slug)
+            hrefs = set(_HREF_RE.findall(
+                self._XW_RAIL_RE.search(view).group(1)))
+            for other in self.mod.CROSSWALK_TOPICS:
+                if other.slug != preset.slug:
+                    self.assertIn(f"/draft/crosswalk/view/{other.slug}/",
+                                  hrefs, preset.slug)
+            self.assertIn("/draft/crosswalk/", hrefs, preset.slug)
+            self.assertTrue(
+                {f"/draft/crosswalk/{i.key}/"
+                 for i in self.mod.CROSSWALK_INSTRUMENTS} <= hrefs,
+                f"{preset.slug}: every instrument")
+
+    # -- 31. crosswalk round 3 (site f2) ------------------------------------
+
+    _XW_HEAD_RE = re.compile(
+        r'<th scope="col" data-col="([a-z0-9-]+)">([^<]+)'
+        r'<span class="org">([^<]+)</span></th>')
+    _XW_COUNT_CELL_RE = re.compile(
+        r"^(?:<code>[^<\s]+</code>(?:, <code>[^<\s]+</code>)*"
+        r'(?:<span class="vh">, and more</span>)? )?'
+        r'<a href="/draft/crosswalk/([a-z0-9-]+)/#([a-z-]+)">(\d+)'
+        r'<span class="vh"> (documents?)</span></a>$')
+    _XW_CAPTION_RE = re.compile(r'<caption class="vh">([^<]*)</caption>')
+
+    def _xw_main_keys(self):
+        return [i.key for i in self.mod.CROSSWALK_INSTRUMENTS if i.main_table]
+
+    def _xw_views_text(self):
+        main = self.draft_html["draft/crosswalk/index.html"]
+        para = re.search(r"<p>(Each of the \d+ topic views in the Views "
+                         r"list .*?)</p>", main, re.S)
+        self.assertIsNotNone(para, "the Views sentence on the crosswalk")
+        return unescape(" ".join(para.group(1).split()))
+
+    def test_crosswalk_views_sentence_tells_all_from_the_topic_views(self):
+        """Round 3 item 1 (ERROR): without script All opens the full table,
+        and only a topic view opens a page with its topic's columns only.
+        The sentence says so, checked against the side list's links and the
+        pages they open: All is the crosswalk page itself, which renders
+        every main-table column, and each topic link opens a page with
+        exactly its preset's columns, fewer than the full table."""
+        text = self._xw_views_text()
+        self.assertIn(
+            "Without script every column shows here, All is a link to this "
+            "full table, and each topic view is a link to a page with that "
+            "topic's columns only", text)
+        self.assertNotIn("each view is a link to a page with that topic's "
+                         "columns only", text, "All is no topic page")
+        main = self.draft_html["draft/crosswalk/index.html"]
+        self.assertIn('<link rel="canonical" '
+                      'href="https://grclibrary.ai/draft/crosswalk/">', main)
+        main_keys = self._xw_main_keys()
+        self.assertEqual(self._XW_COL_RE.findall(main), main_keys,
+                         "this page is the full table")
+        presets = self._XW_PRESET_RE.findall(main)
+        self.assertEqual(presets[0][:2], ("/draft/crosswalk/", ""),
+                         "All links this full table")
+        self.assertEqual(presets[0][3], "All")
+        for href, keys, slug, _ in presets[1:]:
+            view = self.draft_html[_page_rel_for(href)]
+            shown = self._XW_COL_RE.findall(view)
+            self.assertEqual(sorted(shown), sorted(keys.split()), slug)
+            self.assertLess(len(shown), len(main_keys),
+                            f"{slug}: a topic page holds its columns only")
+
+    def test_crosswalk_side_list_sentences_name_the_lists_that_hold(self):
+        """Round 3 item 2 (ERROR): the Views list holds only All and the
+        topic views; the instruments sit in the group lists below it. On the
+        crosswalk page and every view, no sentence says the Views list (or
+        "the same list") names the instruments, a sentence says the group
+        lists do, and the rendered side list bears both out."""
+        instruments = {f"/draft/crosswalk/{i.key}/"
+                       for i in self.mod.CROSSWALK_INSTRUMENTS}
+        for rel in self._xw_table_pages():
+            html = self.draft_html[rel]
+            rail = self._XW_RAIL_RE.search(html).group(1)
+            blocks = self._XW_RAIL_BLOCK_RE.findall(rail)
+            self.assertEqual(blocks[0][0], "Views", rel)
+            views = [h for h, _, _ in
+                     self._XW_RAIL_LINK_RE.findall(blocks[0][1])]
+            self.assertTrue(all(h == "/draft/crosswalk/"
+                                or h.startswith("/draft/crosswalk/view/")
+                                for h in views),
+                            f"{rel}: the Views list holds All and the topic "
+                            "views only")
+            self.assertFalse(set(views) & instruments, rel)
+            grouped = {h for _, body in blocks[1:]
+                       for h, _, _ in self._XW_RAIL_LINK_RE.findall(body)}
+            self.assertEqual(grouped, instruments,
+                             f"{rel}: the group lists hold every instrument")
+            main = html[html.index("<main"):html.index("</main>")]
+            prose = unescape(" ".join(
+                re.sub(r"<[^>]+>", " ", main.replace(rail, "")).split()))
+            self.assertNotRegex(prose,
+                                r"Views list[^.]*\bnames every instrument",
+                                rel)
+            self.assertNotIn("The same list names every instrument", prose,
+                             rel)
+            self.assertRegex(prose, r"the group lists (?:below it )?name "
+                             r"every instrument under its group", rel)
+
+    def test_disclosure_view_claim_matches_matrix_js(self):
+        """Round 3 item 3 (WARN): the disclosure's ?view= clause says what
+        matrix.js does, read from the served script and the rendered presets:
+        on a topic view the script writes the chosen preset's data-preset-id
+        (a short identifier, not the view's name), and on All, whose
+        data-preset is empty, it removes the parameter. The example the
+        clause gives is a topic preset's id on the rendered crosswalk."""
+        page = self.draft_html["draft/disclosure/index.html"]
+        claim = re.search(
+            r'<h2 id="d-6">[^<]*</h2>\s*<p><strong>Claim:</strong>(.*?)</p>',
+            page, re.S)
+        claim = " ".join(claim.group(1).split())
+        clause = re.search(
+            r"When the reader chooses a crosswalk topic view, the matrix "
+            r"script writes the view's short identifier \(for example, "
+            r"([a-z0-9-]+)\) into the page address \(\?view=\) the same way, "
+            r"and removes it from the address when the reader chooses All\.",
+            claim)
+        self.assertIsNotNone(clause, claim)
+        main = self.draft_html["draft/crosswalk/index.html"]
+        presets = {pid: (keys, unescape(label)) for _, keys, pid, label
+                   in self._XW_PRESET_RE.findall(main)}
+        example = clause.group(1)
+        self.assertIn(example, presets, "the example is a rendered preset id")
+        keys, label = presets[example]
+        self.assertTrue(keys, "the example is a topic view with columns")
+        self.assertNotEqual(label, example,
+                            "the address takes the id, not the view's name")
+        self.assertEqual([k for k, lbl in presets.values() if lbl == "All"],
+                         [""], "All carries no column keys")
+        js = self.draft_all["draft/assets/baseline/matrix.js"].decode("utf-8")
+        # keys(p) reads data-preset, so All's k is empty; a preset with keys
+        # writes its data-preset-id as ?view=, and All deletes the parameter.
+        self.assertIn('return (p.getAttribute("data-preset") || "")', js)
+        self.assertIn("var k = keys(p);", js)
+        self.assertIn('var id = p.getAttribute("data-preset-id");', js)
+        self.assertIn('if (k.length && id) { s.set("view", id); } '
+                      'else { s.delete("view"); }', js)
+
+    def test_crosswalk_headers_and_cells_follow_spec_7_30(self):
+        """Round 3 item 4 (WARN): spec 7.30 markup. A header is the name over
+        its organization tag (the display name without the tag it opens
+        with); a mapped cell holds its single-word identifiers in code type
+        and a count link whose noun is visually hidden, the count equal to a
+        recount; a phrase-length label never sits in a matrix cell, so a
+        column with no single-word identifiers shows the count link alone."""
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        xw = self.mod.build_crosswalk(full)
+        labels_seen = 0
+        stripped = 0
+        for rel in self._xw_table_pages():
+            table = self._xw_table(self.draft_html[rel])
+            self.assertNotIn('<span class="n">', table, rel)
+            columns = self._XW_COL_RE.findall(table)
+            heads = self._XW_HEAD_RE.findall(table)
+            self.assertEqual([k for k, _, _ in heads], columns,
+                             f"{rel}: every header takes the spec markup")
+            for key, name, org in heads:
+                # Round 4 item 2: the name is the display with the leading
+                # organization and space removed whenever it opens with them,
+                # else the whole display; the tag is the instrument's org.
+                display = xw["instruments"][key]["display"]
+                tag = self.mod.CROSSWALK_BY_KEY[key].org
+                self.assertEqual(unescape(org), tag, f"{rel}: {key} tag")
+                expected = display
+                if display.startswith(tag + " "):
+                    expected = display[len(tag) + 1:]
+                    stripped += 1
+                self.assertEqual(unescape(name), expected,
+                                 f"{rel}: {key} header")
+            for row in self._XW_ROW_RE.findall(table)[1:]:
+                cells = self._XW_CELL_RE.findall(row)
+                domain = re.search(r'href="/draft/([a-z-]+)/"',
+                                   cells[0][2]).group(1)
+                for (_, _, body), key in zip(cells[1:], columns):
+                    where = f"{rel}: {key} x {domain}"
+                    if body == self._XW_NO_DOCS:
+                        continue
+                    entry = xw["instruments"][key]["by_domain"][domain]
+                    cell = self._XW_COUNT_CELL_RE.match(body)
+                    self.assertIsNotNone(cell, f"{where}: {body}")
+                    self.assertEqual(cell.group(1, 2), (key, domain), where)
+                    count = int(cell.group(3))
+                    self.assertEqual(count, len(entry["docs"]), where)
+                    self.assertEqual(cell.group(4), "document" if count == 1
+                                     else "documents", where)
+                    codes = [unescape(c) for c in
+                             re.findall(r"<code>([^<]*)</code>", body)]
+                    self.assertTrue(set(codes) <= set(entry["ids"]), where)
+                    for ident in entry["ids"]:
+                        if len(ident.split()) > 1:
+                            labels_seen += 1
+                            self.assertNotIn(self.mod._esc(ident), body,
+                                             f"{where}: a phrase-length label")
+        self.assertTrue(labels_seen, "the corpus has phrase-length labels "
+                        "today, so the label rule bites")
+        self.assertTrue(stripped, "a display opens with its organization "
+                        "today, so the prefix rule bites")
+
+    def test_crosswalk_counts_name_their_scope(self):
+        """Round 3 items 5 and 6 (WARN): matrix.js hides columns on the
+        crosswalk page, so every count there names the full table (caption,
+        label, meta, and the intro's column split); a static view's columns
+        never change, so its split counts the columns here. Wherever a
+        caption states a number, it equals the rendered data-col headers."""
+        split_views = 0
+        for rel in self._xw_table_pages():
+            html = self.draft_html[rel]
+            columns = self._XW_COL_RE.findall(self._xw_table(html))
+            caption = self._XW_CAPTION_RE.search(html).group(1)
+            for number in re.findall(r"\d+", caption):
+                self.assertEqual(int(number), len(columns),
+                                 f"{rel}: caption {caption!r}")
+            intro = self._xw_intro(html)
+            # Every column count in the sentences names its scope (round 4
+            # names the columns, and keeps each count scoped), and so does
+            # every column a sentence names alone (batch 3: "the PIP column
+            # here"); the opening sentence's "a column of the compliance
+            # alignment matrix" is the matrix's column, no column here.
+            where = (" of the full table" if rel == "draft/crosswalk/index.html"
+                     else " here")
+            scopes = re.findall(r"(?:\b\d+ columns|(?<!\ba) column)\b"
+                                r"( of the full table| here)?", intro)
+            self.assertEqual(set(scopes), {where} if scopes else set(),
+                             f"{rel}: every column count names its scope")
+            if rel != "draft/crosswalk/index.html":
+                if len(scopes) > 1:
+                    split_views += 1
+                continue
+            n = len(self._xw_main_keys())
+            self.assertEqual(len(columns), n)
+            self.assertEqual(
+                caption, f"Corpus domains by instruments, {n} in the full "
+                "table")
+            self.assertIn(f'<p class="lbl sec">The full table, {n} '
+                          "instruments</p>", html)
+            self.assertRegex(html, rf'<p class="meta">{n} instruments across '
+                             r"\d+ domains in the full table, ")
+            self.assertRegex(intro, r"In the \d+ columns of the full table "
+                             r"for ")
+        self.assertTrue(split_views, "a view splits its columns today")
+
+    def test_crosswalk_view_columns_follow_the_full_table_order(self):
+        """Round 3 item 7 (NOTE): matrix.js hides columns and never reorders
+        them, so each static view lists its columns in the full table's
+        order and agrees with the scripted view; at least one topic names
+        its columns in another order, so the rule bites."""
+        order = self._XW_COL_RE.findall(
+            self.draft_html["draft/crosswalk/index.html"])
+        reordered = False
+        for topic in self.mod.CROSSWALK_TOPICS:
+            shown = self._XW_COL_RE.findall(self.draft_html[
+                f"draft/crosswalk/view/{topic.slug}/index.html"])
+            self.assertEqual(shown, [k for k in order if k in topic.columns],
+                             topic.slug)
+            reordered = reordered or shown != list(topic.columns)
+        self.assertTrue(reordered)
+
+    def test_crosswalk_view_lead_says_all_opens_every_instrument_column(self):
+        """Round 3 item 10 (NOTE): the Also in the corpus instruments have no
+        column, so All opens every instrument column, not every instrument;
+        each view's lead says so, and its All link opens a page rendering
+        every main-table column."""
+        also = dict(self._xw_groups())[self._XW_ALSO]
+        self.assertTrue(also, "an instrument with no column exists")
+        for topic in self.mod.CROSSWALK_TOPICS:
+            html = self.draft_html[
+                f"draft/crosswalk/view/{topic.slug}/index.html"]
+            lead = re.search(r'<p class="lead">(.*?)</p>', html, re.S)
+            self.assertTrue(lead.group(1).endswith(
+                "The All link opens every instrument column."), topic.slug)
+            rail = self._XW_RAIL_RE.search(html).group(1)
+            self.assertIn('<li><a href="/draft/crosswalk/">All</a></li>', rail)
+        self.assertEqual(
+            self._XW_COL_RE.findall(
+                self.draft_html["draft/crosswalk/index.html"]),
+            self._xw_main_keys())
+
+    # -- 32. crosswalk round 4 (site f2) ------------------------------------
+
+    _XW_NO_DOCS = '<span class="vh">no documents</span>'
+    _XW_MORE = '<span class="vh">, and more</span>'
+    _XW_VH_RE = re.compile(r'<span class="vh">[^<]*</span>')
+    _XW_VISIBLE_CELL_RE = re.compile(
+        r"^(?:<code>[^<]+</code>(?:, <code>[^<]+</code>)* )?"
+        r'<a href="/draft/crosswalk/[a-z0-9-]+/#[a-z-]+">\d+</a>$')
+
+    def _xw_intro(self, html):
+        intro = re.search(
+            r'<h2 id="table">Domains by instruments</h2>\s*<p>(.*?)</p>',
+            html, re.S)
+        self.assertIsNotNone(intro, "the table sentences")
+        return unescape(" ".join(intro.group(1).split()))
+
+    def _xw_cells(self, html):
+        """(column key, domain, cell body) for every data cell rendered."""
+        table = self._xw_table(html)
+        columns = self._XW_COL_RE.findall(table)
+        for row in self._XW_ROW_RE.findall(table)[1:]:
+            cells = self._XW_CELL_RE.findall(row)
+            domain = re.search(r'href="/draft/([a-z-]+)/"',
+                               cells[0][2]).group(1)
+            for (_, _, body), key in zip(cells[1:], columns):
+                yield key, domain, body
+
+    @staticmethod
+    def _xw_split_names(text):
+        return re.split(r", and |, | and ", text)
+
+    def test_crosswalk_sentences_name_the_columns_that_show_codes(self):
+        """Round 4 item 1 (WARN): the identifier clause is generated from
+        the columns that render a code, and checked against every rendered
+        column of every table page. The columns a sentence names as showing
+        codes are exactly those with a code in some rendered cell, and no
+        cell shows more codes than the stated cap; the columns it names as
+        recording phrase-length labels only show a count and no code, and
+        their instrument page lists each label under its domain; the
+        columns it names as having no mapping show no count; the remaining
+        columns take their cells from the reverse crosswalk, show no code,
+        and their instrument page carries its control areas. Every rendered
+        column falls in exactly one class, and a page with no code column
+        (the Trade view today) says nothing about code type."""
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        xw = self.mod.build_crosswalk(full)
+        cap = self.mod.CROSSWALK_CELL_ID_CAP
+        seen = {"codes": 0, "labels": 0, "unmapped": 0, "rest": 0,
+                "no codes": 0, "single": 0}
+        for rel in self._xw_table_pages():
+            html = self.draft_html[rel]
+            intro = self._xw_intro(html)
+            columns = self._XW_COL_RE.findall(html)
+            rail = self._XW_RAIL_RE.search(html).group(1)
+            key_of = {unescape(name): href.split("/")[-2]
+                      for href, _, name in self._XW_RAIL_LINK_RE.findall(rail)
+                      if href.count("/") == 4}
+            has_code = dict.fromkeys(columns, False)
+            has_count = dict.fromkeys(columns, False)
+            for key, domain, body in self._xw_cells(html):
+                shown = body.count("<code>")
+                self.assertLessEqual(shown, cap, f"{rel}: {key} x {domain}")
+                has_code[key] = has_code[key] or bool(shown)
+                has_count[key] = has_count[key] or "<a href=" in body
+            codes = [k for k in columns if has_code[k]]
+            unmapped = [k for k in columns if not has_count[k]]
+            comp = [k for k in columns
+                    if self.mod.CROSSWALK_BY_KEY[k].compliance_column]
+            labels = [k for k in comp if has_count[k] and not has_code[k]]
+            rest = [k for k in columns
+                    if k not in codes + labels + unmapped]
+            self.assertTrue(set(codes) <= set(comp), rel)
+            where = (" of the full table"
+                     if rel == "draft/crosswalk/index.html" else " here")
+
+            def named(pattern, keys, label):
+                match = re.search(pattern, intro)
+                if not keys:
+                    self.assertIsNone(match, f"{rel}: no {label} clause")
+                    return None
+                self.assertIsNotNone(match, f"{rel}: {label} in {intro}")
+                # Batch 3 (f2 note): a one-column group names its column
+                # directly ("the PIP column here"), never "the 1 column
+                # here for PIP"; a larger group gives its count and names.
+                if match.group(1) is None:
+                    self.assertEqual(len(keys), 1, f"{rel}: {label} count")
+                    names = [match.group(3)]
+                    seen["single"] += 1
+                else:
+                    self.assertEqual(int(match.group(1)), len(keys),
+                                     f"{rel}: {label} count")
+                    self.assertGreater(len(keys), 1, f"{rel}: {label}")
+                    names = self._xw_split_names(match.group(2))
+                self.assertEqual([key_of.get(n) for n in names], keys,
+                                 f"{rel}: {label} names {names}")
+                seen[label] += 1
+                return match
+
+            # A names group never runs on into the next sentence.
+            names = r"((?:(?!In the |No domain ).)+?)"
+            cols = (rf"the (?:(\d+) columns{where} for {names}|"
+                    rf"{names} column{where})")
+            self.assertNotRegex(intro, r"\bthe 1 columns?\b", rel)
+            match = named(
+                rf"In {cols}, a cell also "
+                r"shows, in code type, up to (\d+) of the single-word "
+                r"identifiers "
+                r"that the compliance alignment matrix records for its "
+                r"domain, where it records any, and the instrument page lists "
+                r"every identifier and label in full\.", codes, "codes")
+            if match:
+                self.assertEqual(int(match.group(4)), cap, rel)
+            else:
+                self.assertNotIn("code type", intro, rel)
+                seen["no codes"] += 1
+            named(
+                rf"In {cols}, the compliance "
+                r"alignment matrix records only phrase-length labels, so a "
+                r"cell shows the count alone and the instrument page lists "
+                r"the labels in full\.", labels, "labels")
+            named(
+                rf"No domain has a recorded mapping in {cols}, so every cell "
+                r"there is empty\.",
+                unmapped, "unmapped")
+            tail = (r"cells from the documents the reverse framework control "
+                    r"crosswalk cites, with the count alone, and the "
+                    r"instrument page lists the control areas that crosswalk "
+                    r"maps\.")
+            if rest and len(rest) == len(columns):
+                self.assertIn(f"Every column{where} takes its ",
+                              intro, rel)
+                self.assertRegex(intro, tail, rel)
+                seen["rest"] += 1
+            elif rest:
+                split = re.search(
+                    rf"The remaining (?:(\d+) columns{where} take their|"
+                    rf"{names} column{where} takes its) {tail}", intro)
+                self.assertIsNotNone(split, f"{rel}: {intro}")
+                if split.group(1) is None:
+                    self.assertEqual([key_of.get(split.group(2))], rest, rel)
+                else:
+                    self.assertEqual(int(split.group(1)), len(rest), rel)
+                    self.assertGreater(len(rest), 1, rel)
+                seen["rest"] += 1
+            else:
+                self.assertNotRegex(intro, tail, rel)
+            for key in labels:
+                page = self.draft_html[f"draft/crosswalk/{key}/index.html"]
+                for domain, entry in xw["instruments"][key][
+                        "by_domain"].items():
+                    section = re.search(rf'<h3 id="{domain}">.*?</ul>',
+                                        page, re.S).group(0)
+                    for label in entry["ids"]:
+                        self.assertGreater(len(label.split()), 1,
+                                           f"{key}: phrase-length only")
+                        self.assertIn(self.mod._esc(label), section, key)
+            for key in rest:
+                self.assertFalse(has_code[key], f"{rel}: {key} count alone")
+                page = self.draft_html[f"draft/crosswalk/{key}/index.html"]
+                self.assertRegex(
+                    page, re.compile(
+                        r'<h2 id="control-areas">.*?<tbody>\s*<tr><td>', re.S),
+                    f"{key}: the instrument page lists control areas")
+        self.assertTrue(all(seen.values()),
+                        f"the corpus exercises every clause today: {seen}")
+
+    def test_crosswalk_cells_show_only_codes_and_the_count_link(self):
+        """Round 4 item 3 (NOTE, spec 7.30): an empty cell holds only a
+        visually hidden "no documents", as the reference page marks it, and
+        "and more" past the cap is visually hidden, so no cell shows n/a or
+        "and more"; with the hidden text removed a mapped cell is its codes
+        and the count link alone. "And more" is present exactly when the
+        cell's single-word identifiers exceed the cap, which then shows the
+        cap's number of codes. The sentence that a cell with none is left
+        empty holds for every rendered cell."""
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        xw = self.mod.build_crosswalk(full)
+        cap = self.mod.CROSSWALK_CELL_ID_CAP
+        empty = capped = 0
+        for rel in self._xw_table_pages():
+            html = self.draft_html[rel]
+            self.assertIn("and a cell with none is left empty.",
+                          self._xw_intro(html), rel)
+            for key, domain, body in self._xw_cells(html):
+                where = f"{rel}: {key} x {domain}"
+                entry = xw["instruments"][key]["by_domain"].get(domain)
+                visible = self._XW_VH_RE.sub("", body)
+                text = unescape(re.sub(r"<[^>]+>", "", visible))
+                self.assertNotIn("n/a", text.lower(), where)
+                self.assertNotIn("and more", text, where)
+                if entry is None:
+                    self.assertEqual(body, self._XW_NO_DOCS, where)
+                    self.assertEqual(text, "", where)
+                    empty += 1
+                    continue
+                self.assertRegex(visible, self._XW_VISIBLE_CELL_RE, where)
+                short = [i for i in entry["ids"] if len(i.split()) == 1]
+                more = len(short) > cap
+                self.assertEqual(body.count(self._XW_MORE), int(more), where)
+                if more:
+                    self.assertEqual(body.count("<code>"), cap, where)
+                    self.assertLess(body.index(self._XW_MORE),
+                                    body.index("<a href="),
+                                    f"{where}: before the count link")
+                    capped += 1
+        self.assertTrue(empty and capped,
+                        "the corpus has empty and capped cells today")
+
+    # -- 33. batch 3 integration (site f1 and f2 onto batch 2) -------------
+
+    _XW_OPENING = (
+        "Rows are the corpus domains and columns are instruments the "
+        "alignment matrices carry, each as a column of the compliance "
+        "alignment matrix or in a section of the reverse framework control "
+        "crosswalk."
+    )
+
+    def test_type_filter_sentence_names_only_the_filters_that_narrow(self):
+        """Batch 3 (f1 note, published text): a type page whose All
+        Documents rows all sit in one area (Guides, Principles, SOPs and
+        Specifications today) said the area chips narrow them, but with the
+        type chosen every row carries that one area, so no area chip keeps
+        fewer of them; the sentence names the text filter alone there and
+        the area chips only where the rows span areas. Replayed on the
+        rendered rows in each type's filter state: some area chip keeps a
+        nonempty part of the rows exactly when the sentence names the area
+        chips, and some word from a kept title keeps a nonempty part of them
+        wherever the sentence names the text filter."""
+        rows = self._index_replay_rows()
+        _, block = self._facet_group("area")
+        areas = [v for _, v, _, _ in self._FACET_CHIP_RE.findall(block) if v]
+        seen = {"one area": 0, "areas": 0}
+        for tp in self.figures["type_pages"]:
+            found = self._TYPE_FILTER_RE.findall(
+                self.draft_html[self._type_rel(tp["type"])])
+            if not found:
+                continue
+            narrow = found[0][3]
+            state = {"type": tp["slug"]}
+            kept = _replay_search_js(rows, active=state)
+            if len(kept) == 1:
+                continue
+            with self.subTest(type=tp["type"]):
+                by_area = any(
+                    0 < len(_replay_search_js(
+                        rows, active={**state, "area": a})) < len(kept)
+                    for a in areas)
+                if by_area:
+                    self.assertEqual(narrow, ", and its area chips and text "
+                                     "filter narrow them further")
+                    seen["areas"] += 1
+                else:
+                    self.assertEqual(len({r["tokens"]["area"][0]
+                                          for r in kept}), 1)
+                    self.assertEqual(narrow, ", and its text filter narrows "
+                                     "them further")
+                    seen["one area"] += 1
+                words = {w for r in kept for w in r["title"].split()}
+                self.assertTrue(any(
+                    0 < len(_replay_search_js(rows, w, active=state))
+                    < len(kept) for w in words),
+                    "a word narrows the rows, as the sentence says")
+        self.assertTrue(all(seen.values()),
+                        f"the corpus exercises both forms today: {seen}")
+
+    def test_crosswalk_opening_sentence_holds_for_every_column(self):
+        """Batch 3 (f2 note, published text): "columns are instruments the
+        alignment matrices map" was false for AICPA TSC, which no domain
+        maps, on the full table and the Security view. The opening sentence
+        now says what every column is, checked on every table page: each
+        rendered column's instrument is a column of the compliance alignment
+        matrix's pinned header or has a section in the parsed reverse
+        framework control crosswalk, and a page with a column no domain maps
+        (no count link in any of its cells) never says the matrices map its
+        columns."""
+        reverse = self.mod.parse_reverse_matrix(
+            self.mod.CROSSWALK_REVERSE_MATRIX.read_text(encoding="utf-8"))
+        unmapped_pages = []
+        for rel in self._xw_table_pages():
+            html = self.draft_html[rel]
+            intro = self._xw_intro(html)
+            self.assertTrue(intro.startswith(self._XW_OPENING + " "),
+                            f"{rel}: {intro}")
+            mapped = dict.fromkeys(self._XW_COL_RE.findall(html), False)
+            for key, _, body in self._xw_cells(html):
+                mapped[key] = mapped[key] or "<a href=" in body
+            for key in mapped:
+                inst = self.mod.CROSSWALK_BY_KEY[key]
+                self.assertTrue(
+                    inst.compliance_column
+                    in self.mod.CROSSWALK_COMPLIANCE_COLUMNS
+                    or inst.reverse_section in reverse,
+                    f"{rel}: {key} is in neither matrix")
+            if not all(mapped.values()):
+                unmapped_pages.append(rel)
+                self.assertNotIn("instruments the alignment matrices map",
+                                 intro, rel)
+        self.assertIn("draft/crosswalk/index.html", unmapped_pages)
+        self.assertIn("draft/crosswalk/view/security/index.html",
+                      unmapped_pages,
+                      "the Security view carries the column no domain maps")
+
+    def test_crosswalk_one_column_groups_name_their_column(self):
+        """Batch 3 (f2 note): a one-column group read "the 1 column here for
+        PIP"; the sentence names the column directly ("the PIP column
+        here"). On every table page no sentence counts one column, and each
+        column a sentence names alone is one of the page's rendered columns
+        under its display name; some page names one today."""
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        xw = self.mod.build_crosswalk(full)
+        named = 0
+        for rel in self._xw_table_pages():
+            html = self.draft_html[rel]
+            intro = self._xw_intro(html)
+            self.assertNotRegex(intro, r"(?<![\w.])1 columns?\b", rel)
+            where = (" of the full table"
+                     if rel == "draft/crosswalk/index.html" else " here")
+            displays = {xw["instruments"][k]["display"]
+                        for k in self._XW_COL_RE.findall(html)}
+            for name in re.findall(
+                    r"(?:\bIn the |\bmapping in the |\bThe remaining )"
+                    rf"((?:(?!\. ).)+?) column{re.escape(where)}\b", intro):
+                self.assertIn(name, displays, f"{rel}: {name}")
+                named += 1
+        self.assertTrue(named, "some page names a one-column group today")
+
+    def test_crosswalk_hidden_tail_never_runs_into_the_count(self):
+        """Batch 3 (f2 note): the visually hidden ", and more" ran into the
+        count link's text, so read aloud a cell said "more22"; a space
+        follows the hidden span (batch 3 round 2: a plain space outside it,
+        test_crosswalk_codes_and_count_link_are_spaced_in_every_cell). On
+        every capped cell of every table page
+        the cell's text, hidden text included, ends ", and more N
+        document(s)", a space before the count."""
+        capped = 0
+        for rel in self._xw_table_pages():
+            for key, domain, body in self._xw_cells(self.draft_html[rel]):
+                text = unescape(re.sub(r"<[^>]+>", "", body))
+                if "and more" not in text:
+                    continue
+                capped += 1
+                self.assertRegex(text, r", and more \d+ documents?$",
+                                 f"{rel}: {key} x {domain}")
+        self.assertTrue(capped, "the corpus has capped cells today")
+
+    # -- 34. batch 3 round 2 ------------------------------------------------
+
+    _TYPE_ADOPTER_LBL_RE = re.compile(
+        r'<p class="lbl blk">([^<]*), (\d+)</p>\s*<p>[^<]*</p>\s*'
+        r'<div class="wide"><ul class="plan one described">(.*?)</ul>', re.S)
+
+    def test_type_filter_sentence_names_its_scope_after_the_adopter_block(self):
+        """Batch 3 round 2 WARN (published text): on a type page with
+        adopter documents the All Documents sentence came straight after the
+        adopter block and said "the 3 of these in a corpus area", so "these"
+        read as the adopter documents. Read off every rendered type page
+        with an adopter block: the sentence follows the block, never says
+        "these", and names its part of the page's whole, the corpus-area
+        rows out of the page's own document count, which is the corpus list
+        and the adopter list together."""
+        label = self.mod.draft_domain_label(self.mod.ADOPTER_DOCS_AREA)
+        seen = 0
+        for tp in self.figures["type_pages"]:
+            page = self.draft_html[self._type_rel(tp["type"])]
+            block = self._TYPE_ADOPTER_LBL_RE.search(page)
+            if block is None or unescape(block.group(1)) != label:
+                continue
+            found = self._TYPE_FILTER_RE.search(page)
+            if found is None:
+                continue
+            with self.subTest(type=tp["type"]):
+                seen += 1
+                held = found.group(3)
+                in_index = [href for href, _, _, _
+                            in self._type_corpus_rows(page)
+                            if not href.startswith(self.mod.GITHUB_BLOB_BASE)]
+                adopters = self._TYPE_ROW_RE.findall(block.group(3))
+                total = int(re.search(r'<p class="lbl sec">Documents, '
+                                      r'(\d+)</p>', page).group(1))
+                self.assertEqual(int(block.group(2)), len(adopters))
+                self.assertEqual(total, len(self._type_corpus_rows(page))
+                                 + len(adopters))
+                self.assertLess(block.end(), found.start(),
+                                "the sentence follows the adopter block")
+                self.assertNotIn("these", held)
+                part = ("one" if len(in_index) == 1 else str(len(in_index)))
+                verb = "sits" if len(in_index) == 1 else "sit"
+                self.assertEqual(
+                    held, f"the {part} of this page's {total} documents that "
+                    f"{verb} in a corpus area")
+        self.assertTrue(seen, "a type page with adopter documents and an All "
+                        "Documents sentence exists today")
+
+    _XW_CAVEATS_RE = re.compile(
+        r'<h2 id="caveats">What this mapping is</h2>\s*<div class="callout">'
+        r"(.*?)</div>", re.S)
+    _XW_TSC_CAVEAT = (
+        "Its AICPA TSC 2017 column is being populated domain by domain: "
+        "until a document's Trust Services Criteria mapping has been "
+        "assessed, its N/A in that column records that no mapping has been "
+        "made yet and does not assert that no criterion applies. The table "
+        "here leaves an AICPA TSC cell empty where every document the matrix "
+        "lists for the domain has N/A in that column."
+    )
+
+    def _xw_all_pages(self):
+        return self._xw_table_pages() + [
+            f"draft/crosswalk/{i.key}/index.html"
+            for i in self.mod.CROSSWALK_INSTRUMENTS]
+
+    def test_crosswalk_tsc_caveat_only_where_the_table_has_the_column(self):
+        """Batch 3 round 2 NOTE (published text): the caveat "In the AICPA
+        TSC column, an N/A records ..." sat on all 29 crosswalk pages,
+        though since f2 no cell shows N/A and most of those pages have no
+        such column. On every crosswalk page the caveat renders exactly
+        when the page's table has the AICPA TSC column, and the old N/A
+        wording renders nowhere; the Trade view and the instrument pages,
+        whose tables have no such column, carry the other caveats only, the
+        AICPA TSC instrument page apart, which carries its own caveat (batch
+        3 round 3 item 2,
+        test_crosswalk_tsc_instrument_page_carries_its_own_caveat)."""
+        tsc = [i.key for i in self.mod.CROSSWALK_INSTRUMENTS
+               if i.compliance_column == "AICPA TSC 2017"]
+        self.assertEqual(len(tsc), 1, "one AICPA TSC column")
+        own = f"draft/crosswalk/{tsc[0]}/index.html"
+        with_col = without = 0
+        for rel in self._xw_all_pages():
+            html = self.draft_html[rel]
+            caveats = self._XW_CAVEATS_RE.search(html)
+            self.assertIsNotNone(caveats, rel)
+            text = unescape(" ".join(
+                re.sub(r"<[^>]+>", "", caveats.group(1)).split()))
+            self.assertNotIn("an N/A records", text, rel)
+            has_col = tsc[0] in self._XW_COL_RE.findall(html)
+            self.assertEqual(self._XW_TSC_CAVEAT in text, has_col, rel)
+            self.assertEqual("AICPA" in text, has_col or rel == own, rel)
+            with_col += has_col
+            without += not has_col
+        self.assertTrue(with_col and without, "pages of both kinds today")
+
+    def test_crosswalk_tsc_caveat_holds_for_every_tsc_cell(self):
+        """Batch 3 round 2 NOTE: the caveat describes what the reader sees,
+        so it is checked against the rendered cells and its source. On every
+        page carrying it, each AICPA TSC cell is empty (only the visually
+        hidden "no documents") exactly where every document of its domain
+        has N/A in the compliance alignment matrix's AICPA TSC 2017 column;
+        no cell shows N/A; and the matrix itself states that the column is
+        populated domain by domain and that its N/A records no mapping
+        made yet."""
+        source = self.mod.CROSSWALK_COMPLIANCE_MATRIX.read_text(
+            encoding="utf-8")
+        flat = " ".join(source.split())
+        self.assertIn("The AICPA TSC 2017 column is being populated domain by "
+                      "domain", flat)
+        self.assertIn('its "N/A" in that column records that no mapping has '
+                      "been made yet and does not assert that no criterion "
+                      "applies", flat)
+        _, rows = self.mod.parse_compliance_matrix(source)
+        tsc = [i.key for i in self.mod.CROSSWALK_INSTRUMENTS
+               if i.compliance_column == "AICPA TSC 2017"][0]
+        cells = 0
+        for rel in self._xw_table_pages():
+            html = self.draft_html[rel]
+            if self._XW_TSC_CAVEAT not in unescape(" ".join(html.split())):
+                continue
+            for key, domain, body in self._xw_cells(html):
+                if key != tsc:
+                    continue
+                cells += 1
+                all_na = all(r["cells"]["AICPA TSC 2017"] == "N/A"
+                             for r in rows[domain])
+                self.assertEqual(body == self._XW_NO_DOCS, all_na,
+                                 f"{rel}: {domain}")
+                self.assertNotIn("N/A", body, f"{rel}: {domain}")
+        self.assertTrue(cells, "some page carries the caveat and the column")
+
+    def test_crosswalk_codes_and_count_link_are_spaced_in_every_cell(self):
+        """Batch 3 round 2 NOTE (accessibility): in a cell under the cap the
+        last code sat directly against the count link, so read aloud it ran
+        into the count ("A.622"). In every cell that shows a code, capped or
+        not, on every table page, a plain space outside any visually hidden
+        span sits directly before the count link, and the cell's text,
+        hidden text included, has a space before the count."""
+        capped = uncapped = 0
+        for rel in self._xw_table_pages():
+            for key, domain, body in self._xw_cells(self.draft_html[rel]):
+                if "<code>" not in body:
+                    continue
+                where = f"{rel}: {key} x {domain}"
+                self.assertRegex(body, r'(?:</code>|</span>) <a href=', where)
+                text = unescape(re.sub(r"<[^>]+>", "", body))
+                self.assertRegex(text, r"\S \d+ documents?$", where)
+                if self._XW_MORE in body:
+                    capped += 1
+                else:
+                    uncapped += 1
+        self.assertTrue(capped and uncapped,
+                        "the corpus has capped and uncapped code cells today")
+
+    # -- 35. batch 3 round 3 ------------------------------------------------
+
+    def _xw_caveat_text(self, html):
+        caveats = self._XW_CAVEATS_RE.search(html)
+        self.assertIsNotNone(caveats, "the What this mapping is block")
+        return unescape(" ".join(
+            re.sub(r"<[^>]+>", "", caveats.group(1)).split()))
+
+    def test_crosswalk_tsc_caveat_names_the_rows_the_matrix_lists(self):
+        """Batch 3 round 3 item 1 (WARN, published text): the caveat said a
+        cell is empty "where every document of the domain has N/A", but a
+        cell is empty where every row the compliance alignment matrix lists
+        for the domain is N/A, and the matrix lists only some of most
+        domains' documents (ai 45 of 65). Checked against the matrix rows
+        and each domain's document count: every row of a domain section is
+        a document of that domain, some domain has documents the matrix does
+        not list (so the unscoped wording is false today), each AICPA TSC
+        cell is empty exactly where every listed row is N/A, and every page
+        whose table has the column says "every document the matrix lists
+        for the domain" and never "every document of the domain"."""
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        domain_of = {d["path"]: d.get("domain") for d in full}
+        counts = Counter(domain_of.values())
+        domains, rows = self.mod.parse_compliance_matrix(
+            self.mod.CROSSWALK_COMPLIANCE_MATRIX.read_text(encoding="utf-8"))
+        unlisted = []
+        for domain in domains:
+            paths = {r["path"] for r in rows[domain]}
+            for path in sorted(paths):
+                self.assertEqual(domain_of.get(path), domain,
+                                 f"{domain} section lists {path}")
+            self.assertLessEqual(len(paths), counts[domain], domain)
+            if len(paths) < counts[domain]:
+                unlisted.append(domain)
+        self.assertTrue(unlisted, "the matrix leaves out documents of some "
+                        "domain today, so the scope must be stated")
+        tsc = [i.key for i in self.mod.CROSSWALK_INSTRUMENTS
+               if i.compliance_column == "AICPA TSC 2017"][0]
+        pages = cells = 0
+        for rel in self._xw_table_pages():
+            html = self.draft_html[rel]
+            if tsc not in self._XW_COL_RE.findall(html):
+                continue
+            pages += 1
+            text = self._xw_caveat_text(html)
+            self.assertIn(
+                "The table here leaves an AICPA TSC cell empty where every "
+                "document the matrix lists for the domain has N/A in that "
+                "column.", text, rel)
+            self.assertNotIn("every document of the domain", text, rel)
+            for key, domain, body in self._xw_cells(html):
+                if key != tsc:
+                    continue
+                cells += 1
+                all_na = all(r["cells"]["AICPA TSC 2017"] == "N/A"
+                             for r in rows[domain])
+                self.assertEqual(body == self._XW_NO_DOCS, all_na,
+                                 f"{rel}: {domain}")
+        self.assertTrue(pages and cells, "some page has the column today")
+
+    def test_crosswalk_tsc_instrument_page_carries_its_own_caveat(self):
+        """Batch 3 round 3 item 2 (WARN, published text): round 2 moved the
+        AICPA TSC caveat to the tables with that column, so the AICPA TSC
+        instrument page lost its only word that the column is being
+        populated. That page's compliance alignment matrix caveat says so and
+        how many of the column's rows are N/A today, recounted here from the
+        matrix; no other crosswalk page, view or instrument page, carries
+        that sentence; and the generator words it from the counts, so a
+        partly filled column and a filled one each get a sentence true for
+        them.
+
+        Batch 3 round 4 item 1 (WARN, published text): the sentence keeps the
+        matrix's condition, that an N/A records no mapping yet only until the
+        row's mapping has been assessed, and says the column is being
+        populated only while the matrix's own text says so, never because
+        some N/A remains. Once the matrix drops that sentence (every row
+        assessed), an N/A there means no direct mapping, as in every other
+        column, and the page says nothing of its own about it."""
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        source = self.mod.CROSSWALK_COMPLIANCE_MATRIX.read_text(
+            encoding="utf-8")
+        domains, rows = self.mod.parse_compliance_matrix(source)
+        column = [r["cells"]["AICPA TSC 2017"]
+                  for domain in domains for r in rows[domain]]
+        na = sum(cell == "N/A" for cell in column)
+        self.assertEqual(na, len(column), "every row is N/A today")
+        populated = (
+            "Its AICPA TSC 2017 column is being populated domain by domain: ")
+        condition = (
+            " N/A in that column today; until a row's Trust Services Criteria "
+            "mapping has been assessed, its N/A in that column records that "
+            "no mapping has been made yet and does not assert that no "
+            "criterion applies."
+        )
+        sentence = (
+            f"{populated}every one of its {len(column)} rows is{condition}")
+        tsc = [i for i in self.mod.CROSSWALK_INSTRUMENTS
+               if i.compliance_column == "AICPA TSC 2017"][0]
+        own = f"draft/crosswalk/{tsc.key}/index.html"
+        for rel in self._xw_all_pages():
+            text = self._xw_caveat_text(self.draft_html[rel])
+            self.assertEqual(sentence in text, rel == own, rel)
+            self.assertEqual("in that column today" in text, rel == own, rel)
+        # The sentence sits in the paragraph attributed to the compliance
+        # alignment matrix, whose "Its" it continues.
+        title = next(d["title"] for d in full
+                     if d["path"] == self.mod.CROSSWALK_COMPLIANCE_MATRIX_PATH)
+        para = re.search(
+            r"<p>From the <a [^>]*>([^<]*)</a>: citations are indicative"
+            r"(.*?)</p>", self.draft_html[own], re.S)
+        self.assertIsNotNone(para, "the compliance alignment matrix caveat")
+        self.assertEqual(unescape(para.group(1)), title)
+        self.assertIn(sentence, unescape(" ".join(para.group(2).split())))
+
+        xw = self.mod.build_crosswalk(full)
+        data = xw["instruments"][tsc.key]
+        self.assertEqual((data["column_rows"], data["column_na"]),
+                         (len(column), na))
+        # "Being populated" comes from the matrix's text: the matrix says so
+        # today, and without its sentence it does not, whatever the counts.
+        self.assertTrue(data["column_populating"])
+        self.assertTrue(self.mod.parse_compliance_tsc_status(source))
+        self.assertIn(" " + self.mod.CROSSWALK_TSC_POPULATING, source)
+        self.assertFalse(self.mod.parse_compliance_tsc_status(
+            source.replace(" " + self.mod.CROSSWALK_TSC_POPULATING, "")))
+        with self.assertRaises(self.mod.BuildError):
+            self.mod.parse_compliance_tsc_status(source.replace(
+                self.mod.CROSSWALK_TSC_POPULATING,
+                "The AICPA TSC 2017 column has been assessed."))
+        self.assertFalse(any(
+            other["column_populating"] for key, other in
+            xw["instruments"].items() if key != tsc.key))
+        rows_n = len(column)
+        cases = (
+            # The matrix says the column is being populated: all N/A,
+            # partly filled (one N/A and several), and no N/A left.
+            (True, rows_n, f"{populated}every one of its {rows_n} rows is"
+             f"{condition}"),
+            (True, rows_n - 1, f"{populated}{rows_n - 1} of its {rows_n} rows "
+             f"are{condition}"),
+            (True, 1, f"{populated}1 of its {rows_n} rows is{condition}"),
+            (True, 0, f"{populated}none of its {rows_n} rows is{condition}"),
+            # Every row assessed, so the matrix no longer says so: N/A
+            # means no direct mapping, and the page claims neither.
+            (False, rows_n, None),
+            (False, rows_n - 1, None),
+            (False, 0, None),
+        )
+        for populating, left, expected in cases:
+            data["column_populating"] = populating
+            data["column_na"] = left
+            text = unescape(" ".join(re.sub(
+                r"<[^>]+>", "",
+                self.mod.render_crosswalk_caveats(xw, inst=tsc)).split()))
+            case = f"populating {populating}, {left} N/A"
+            if expected:
+                self.assertIn(expected, text, case)
+                self.assertEqual(text.count("AICPA"), 1, case)
+            else:
+                self.assertNotIn("AICPA", text, case)
+                self.assertNotIn("being populated", text, case)
+                self.assertNotIn("no mapping has been made yet", text, case)
+
+    _YOUR_BROWSER = (
+        '<p class="lbl blk">Your browser</p>\n'
+        "<p>If you use the light and dark switch, your choice is kept in "
+        "your browser's local storage under the name scheme, so the site "
+        "opens in that scheme next time. It is not sent to this site, and "
+        "nothing is stored until you press the switch.</p>\n"
+        '<p class="lbl blk">Security</p>'
+    )
+
+    def test_disclosure_your_browser_paragraph_and_storage_claims_agree(self):
+        """Batch 3 round 3 item 3 (template owner notice, owner-approved
+        2026-11-03 21:25Z; baseline 1.6.1 SPECIFICATION.md section 7.20 and
+        reference/disclosure.html): the "Your browser" paragraph sits under
+        its label, word for word as the reference page shows it, after the
+        entries and directly before the Security label. Every sentence on
+        the page about cookies or storage is pinned, and they agree with it
+        and with scheme.js: each names the storage key scheme.js uses, each
+        says nothing is stored before the switch is pressed, no sentence
+        says the site stores nothing in the browser (spec 7.20: inaccurate
+        from 1.6.0), and scheme.js sets no cookie and makes no request, so
+        the choice is not sent to this site."""
+        page = self.draft_html["draft/disclosure/index.html"]
+        self.assertEqual(page.count(self._YOUR_BROWSER), 1)
+        self.assertEqual(page.count("Your browser"), 1)
+        at = page.index(self._YOUR_BROWSER)
+        entry = page.index('<h2 id="d-6">')
+        self.assertLess(page.index("<p><strong>Evidence:</strong>", entry), at,
+                        "the paragraph follows the last entry")
+        self.assertEqual(re.findall(r'<h2 id="(d-\d+)">', page[at:]), [],
+                         "no entry follows the paragraph")
+
+        main = page[page.index("<main"):page.index("</main>")]
+        paragraphs = [unescape(" ".join(re.sub(r"<[^>]+>", "", p).split()))
+                      for p in re.findall(r"<p\b[^>]*>(.*?)</p>", main, re.S)]
+        text = " ".join(paragraphs)
+        sentences = [s for p in paragraphs
+                     for s in re.split(r"(?<=\.)\s+(?=[A-Z])", p)
+                     if re.search(r"\bstor|\bcookie", s, re.I)]
+        self.assertEqual(sentences, [
+            "Its own scripts are same-origin files that make no network "
+            "requests and use no cookies.",
+            "The light and dark switch is the one script that uses browser "
+            "storage: when the reader presses the switch, it saves the chosen "
+            "scheme, the word light or dark, in the browser's local storage "
+            'under the key "scheme", so later pages open in that scheme.',
+            "It stores nothing else, and nothing until the switch is pressed.",
+            "If you use the light and dark switch, your choice is kept in "
+            "your browser's local storage under the name scheme, so the site "
+            "opens in that scheme next time.",
+            "It is not sent to this site, and nothing is stored until you "
+            "press the switch.",
+        ])
+        scheme = self.draft_all["draft/assets/baseline/scheme.js"].decode(
+            "utf-8")
+        key = re.search(r'var KEY = "(\w+)";', scheme).group(1)
+        self.assertEqual(
+            re.findall(r'under the (?:key|name) "?([\w-]+)"?', text),
+            [key, key], "both statements name the key scheme.js uses")
+        self.assertIn("nothing until the switch is pressed", text)
+        self.assertIn("nothing is stored until you press the switch", text)
+        for claim in (r"\bno (?:browser|local) storage\b",
+                      r"\bstores? nothing\b(?! else)",
+                      r"\bnothing is stored\b(?! until)",
+                      r"\buses? no (?:browser )?storage\b"):
+            self.assertNotRegex(text, claim, "the site stores the scheme")
+        for api in ("document.cookie", "fetch(", "XMLHttpRequest",
+                    "sendBeacon", "WebSocket", "EventSource"):
+            self.assertNotIn(api, scheme, f"scheme.js uses {api}")
+
+    # -- 36. batch 3 round 5 ------------------------------------------------
+
+    @staticmethod
+    def _xw_text(html):
+        return unescape(" ".join(re.sub(r"<[^>]+>", "", html).split()))
+
+    def test_crosswalk_tsc_view_caveat_follows_the_matrix_status(self):
+        """Batch 3 round 5 item 2 (NOTE, published text): a view page whose
+        table has the AICPA TSC column said the column "is being populated
+        domain by domain" whatever the matrix said, while the instrument page
+        followed the matrix. The view sentence renders on the same parsed
+        status: on the rendered pages today (the matrix carries its sentence)
+        and on a crosswalk built from the matrix with that sentence removed,
+        a view page and the AICPA TSC instrument page each say "being
+        populated" and "no mapping has been made yet" exactly when the matrix
+        does, and the view page keeps the sentence on its empty cells."""
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        source = self.mod.CROSSWALK_COMPLIANCE_MATRIX.read_text(
+            encoding="utf-8")
+        pinned = self.mod.CROSSWALK_TSC_POPULATING
+        self.assertIn(" " + pinned, source)
+        tsc = [i for i in self.mod.CROSSWALK_INSTRUMENTS
+               if i.compliance_column == "AICPA TSC 2017"][0]
+        table = (
+            "The table here leaves an AICPA TSC cell empty where every "
+            "document the matrix lists for the domain has N/A in that column."
+        )
+        xw = self.mod.build_crosswalk(full)
+        # The generator's view caveat is what the rendered pages carry.
+        pages = 0
+        keys = None
+        for rel in self._xw_table_pages():
+            html = self.draft_html[rel]
+            cols = [k for k in self._XW_COL_RE.findall(html)
+                    if k in self.mod.CROSSWALK_BY_KEY]
+            if tsc.key not in cols:
+                continue
+            pages += 1
+            keys = cols
+            self.assertEqual(
+                self._xw_caveat_text(html),
+                self._xw_text(self.mod.render_crosswalk_caveats(xw, cols)),
+                rel)
+        self.assertTrue(pages, "some page has the column today")
+        with tempfile.TemporaryDirectory() as tmp:
+            doctored = Path(tmp) / "matrix.md"
+            doctored.write_text(source.replace(" " + pinned, ""),
+                                encoding="utf-8")
+            saved = self.mod.CROSSWALK_COMPLIANCE_MATRIX
+            self.mod.CROSSWALK_COMPLIANCE_MATRIX = doctored
+            try:
+                bare = self.mod.build_crosswalk(full)
+            finally:
+                self.mod.CROSSWALK_COMPLIANCE_MATRIX = saved
+        for populating, model in ((True, xw), (False, bare)):
+            self.assertEqual(
+                model["instruments"][tsc.key]["column_populating"], populating)
+            view = self._xw_text(self.mod.render_crosswalk_caveats(
+                model, keys))
+            own = self._xw_text(self.mod.render_crosswalk_caveats(
+                model, inst=tsc))
+            for phrase in ("being populated", "no mapping has been made yet"):
+                case = f"populating {populating}: {phrase}"
+                self.assertEqual(phrase in view, populating, case)
+                self.assertEqual(phrase in own, populating, case)
+            self.assertIn(table, view, f"populating {populating}")
+        for rel in self._xw_table_pages():
+            text = self._xw_caveat_text(self.draft_html[rel])
+            self.assertEqual("being populated" in text,
+                             self._XW_TSC_CAVEAT in text, rel)
+
+    def test_crosswalk_tsc_instrument_caveat_one_row_forms(self):
+        """Batch 3 round 5 item 3 (NOTE, published text): a one-row column
+        with no N/A read "none of its 1 rows is". The single-row form, as
+        the all-N/A branch has, renders for a one-row column in both states
+        of that row, and the plural forms stay for several rows."""
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        tsc = [i for i in self.mod.CROSSWALK_INSTRUMENTS
+               if i.compliance_column == "AICPA TSC 2017"][0]
+        xw = self.mod.build_crosswalk(full)
+        data = xw["instruments"][tsc.key]
+        data["column_populating"] = True
+        cases = (
+            (1, 0, "its one row is not N/A in that column today;"),
+            (1, 1, "its one row is N/A in that column today;"),
+            (2, 0, "none of its 2 rows is N/A in that column today;"),
+            (2, 2, "every one of its 2 rows is N/A in that column today;"),
+        )
+        for rows, na, expected in cases:
+            data["column_rows"], data["column_na"] = rows, na
+            text = self._xw_text(self.mod.render_crosswalk_caveats(
+                xw, inst=tsc))
+            case = f"{na} of {rows} N/A"
+            self.assertIn(expected, text, case)
+            self.assertNotIn("of its 1 rows", text, case)
+            self.assertNotIn("its 1 rows", text, case)
+
+    # -- 37. batch 3 round 6 ------------------------------------------------
+
+    def test_crosswalk_tsc_status_is_an_exact_pin_of_the_reading_guide(self):
+        """Batch 3 round 6 item 1 (WARN, design fix): rounds 4 and 5 read the
+        AICPA TSC 2017 column's status by matching phrases, and each review
+        found a rewording that slipped through. The status is read from the
+        matrix's reading-guide paragraph alone, the first paragraph after the
+        framework column key table, and that paragraph must be exactly one
+        of two forms: with CROSSWALK_TSC_POPULATING (being populated) or
+        with exactly that sentence removed (not). On the matrix, each form
+        parses with its status, and each of these fails the build with a
+        message naming the paragraph and both forms: a reworded status
+        sentence, the sentence moved within the paragraph, an extra sentence
+        in either form, another sentence of the paragraph reworded, the
+        paragraph reflowed onto two lines or missing, and the key table
+        missing or repeated.
+
+        Batch 3 round 6 item 2 (NOTE): no phrase is matched any more, so an
+        unrelated "populated" elsewhere in the matrix ("Every CTPAT cell is
+        populated for logistics rows.") leaves the build passing with the
+        paragraph's status."""
+        source = self.mod.CROSSWALK_COMPLIANCE_MATRIX.read_text(
+            encoding="utf-8")
+        guide = self.mod.CROSSWALK_TSC_READING_GUIDE
+        pinned = self.mod.CROSSWALK_TSC_POPULATING
+        current = f"{guide} {pinned}"
+        self.assertEqual(source.count(f"\n\n{current}\n\n"), 1)
+        bare = source.replace(current, guide)
+        notes = "## Notes\n\n"
+        self.assertEqual(source.count(notes), 1)
+        ctpat = "Every CTPAT cell is populated for logistics rows."
+        accepted = (
+            ("current paragraph", source, True),
+            ("sentence removed", bare, False),
+            ("CTPAT populated, current",
+             source.replace(notes, f"{notes}{ctpat}\n\n"), True),
+            ("CTPAT populated, sentence removed",
+             bare.replace(notes, f"{notes}{ctpat}\n\n"), False),
+            ("CTPAT populated at the end", f"{source}\n{ctpat}\n", True),
+        )
+        for case, text, status in accepted:
+            with self.subTest(case=case):
+                self.assertIs(self.mod.parse_compliance_tsc_status(text),
+                              status)
+
+        first, rest = guide.split(". ", 1)
+        key = "| Column | Framework | Reference Basis |"
+        self.assertEqual(source.count(key), 1)
+        refused = (
+            ("mappings being filled in", current.replace(
+                pinned, "The AICPA TSC 2017 mappings are being filled in "
+                "domain by domain.")),
+            ("2017 dropped", current.replace(
+                "AICPA TSC 2017 column", "AICPA TSC column")),
+            ("sentence moved first", f"{pinned} {guide}"),
+            ("sentence moved second", f"{first}. {pinned} {rest}"),
+            ("extra sentence, current",
+             f"{current} The AICPA TSC column is being populated."),
+            ("extra sentence, sentence removed", f"{guide} {ctpat}"),
+            ("another sentence reworded",
+             current.replace("Read across a row", "Read along a row")),
+            ("reflowed", current.replace(f" {pinned}", f"\n{pinned}")),
+            ("missing", None),
+            ("key table header changed", key),
+            ("key table repeated", key),
+        )
+        for case, para in refused:
+            with self.subTest(case=case):
+                if case == "missing":
+                    text = source.replace(f"{current}\n\n", "")
+                elif case == "key table header changed":
+                    text = source.replace(
+                        key, "| Column | Framework | Basis |")
+                elif case == "key table repeated":
+                    text = f"{source}\n{key}\n| --- | --- | --- |\n"
+                else:
+                    text = source.replace(current, para)
+                self.assertNotEqual(text, source)
+                with self.assertRaises(self.mod.BuildError) as raised:
+                    self.mod.parse_compliance_tsc_status(text)
+                message = str(raised.exception)
+                self.assertIn("reading-guide paragraph", message)
+                self.assertIn(f"form 1: {current} form 2: {guide}", message)
+
+    def test_crosswalk_compliance_matrix_refuses_an_empty_column(self):
+        """Batch 3 round 6 item 3 (observation): with 0 rows the AICPA TSC
+        instrument caveat would read "none of its 0 rows is N/A". No column
+        can have 0 rows: the parse fails on a matrix missing a domain's
+        section and on a domain section with no rows, and every row has a
+        cell in every column (build_crosswalk counts each one), so the
+        caveat is never worded for 0 rows."""
+        source = self.mod.CROSSWALK_COMPLIANCE_MATRIX.read_text(
+            encoding="utf-8")
+        domains, rows = self.mod.parse_compliance_matrix(source)
+        self.assertEqual(sorted(domains), sorted(self.mod.DOMAIN_SCOPE))
+        lines = source.splitlines()
+        row_lines = [line for line in lines
+                     if line.startswith("| ") and "[`" in line]
+        self.assertEqual(len(row_lines),
+                         sum(len(rows[domain]) for domain in domains))
+        emptied = "\n".join(line for line in lines if line not in row_lines)
+        with self.assertRaisesRegex(self.mod.BuildError, "zero rows"):
+            self.mod.parse_compliance_matrix(emptied)
+        heading = "## Governance domain\n"
+        self.assertEqual(source.count(heading), 1)
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "missing domain section"):
+            self.mod.parse_compliance_matrix(source.replace(heading, ""))
+
     # -- 6. asset copy ------------------------------------------------------
 
     def test_asset_copy_matches_the_pinned_tree(self):
@@ -2972,7 +5328,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             (REPO_ROOT / ".baseline" / "pin.toml").read_text(encoding="utf-8")
         )
         prefix = ".web/baseline/"
-        # Baseline 1.6.0 section 4 items 2 and 3: the palette gate is pinned
+        # Baseline 1.6.1 section 4 items 2 and 3: the palette gate is pinned
         # beside the copies and never served.
         served = {key: digest for key, digest in pin["files"].items()
                   if key != self.mod.PALETTE_GATE_KEY}
@@ -3000,7 +5356,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             "the palette gate is never served")
 
     def test_pinned_scripts_are_the_release_script_set(self):
-        """Baseline 1.6.0 SPECIFICATION.md section 8: "The 6 scripts are the
+        """Baseline 1.6.1 SPECIFICATION.md section 8: "The 6 scripts are the
         whole set", and section 4 step 2 copies each of them, matrix.js and
         scheme.js included; the pin and the draft asset copy carry exactly
         that set."""
@@ -3059,16 +5415,18 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # -- 25. baseline 1.6.0: switch, scheme.js, dark palette, palette gate --
 
-    def test_pin_and_copies_are_baseline_1_6_0(self):
-        """The 1.6.0 move (CHANGELOG 1.6.0): the pin names 1.6.0, and the
-        files 1.6.0 adds or changes carry the release's digests in the pin,
-        in the repository and, for the served ones, in the draft copy; the
-        module docstring and the CSP comment name the pinned version."""
+    def test_pin_and_copies_are_baseline_1_6_1(self):
+        """The 1.6.0 move (CHANGELOG 1.6.0) and the 1.6.1 move (batch 3
+        round 3 item 4; CHANGELOG 1.6.1: no stylesheet, script or palette
+        changed): the pin names 1.6.1, and the files 1.6.0 adds or changes
+        carry the release's digests, unchanged in 1.6.1, in the pin, in the
+        repository and, for the served ones, in the draft copy; the module
+        docstring and the CSP comment name the pinned version."""
         import tomllib
         pin = tomllib.loads(
             (REPO_ROOT / ".baseline" / "pin.toml").read_text(encoding="utf-8")
         )
-        self.assertEqual(pin["version"], "1.6.0")
+        self.assertEqual(pin["version"], "1.6.1")
         for key, digest in RELEASE_1_6_0_DIGESTS.items():
             self.assertEqual(pin["files"].get(key), digest, f"{key} pin")
             self.assertEqual(
@@ -3391,6 +5749,104 @@ class DraftSiteRenderTests(unittest.TestCase):
              for t, _ in self.figures["types"]],
             "every By type entry links its own type page, never the search "
             "page or a Browse anchor")
+
+    _TYPE_FILTER_RE = re.compile(
+        r'<p>With script, <a href="([^"]*)">All Documents, filtered to '
+        r'([^<]*)</a>, lists (.*?)(, and its area chips and text filter '
+        r'narrow them further|, and its text filter narrows them further)?'
+        r'\.</p>')
+
+    def _type_corpus_rows(self, page):
+        """The rows of a type page's corpus list (its first list; the
+        adopter documents follow in a block of their own)."""
+        scope = re.search(r'<ul class="plan one described">(.*?)</ul>', page,
+                          re.S)
+        self.assertIsNotNone(scope, "the type page has no list")
+        return self._TYPE_ROW_RE.findall(scope.group(1))
+
+    def test_type_pages_link_their_all_documents_type_filter(self):
+        """Each type page links its type's facet address on All Documents
+        (?type=<slug>), the landing that adds the area chips and the text
+        filter to the type; the value names a chip in the index's type
+        group, so search.js sets it on load. The sentence is read off each
+        rendered page: the documents it says that filter lists are exactly
+        the type page's corpus-area rows and the rows the filter keeps
+        (replayed), and it says "these N documents" only when the page
+        lists no library specification and no adopter document (batch 3:
+        the adopter block batch 2 added sits on the same page). A type with
+        no row on All Documents gets no link. Round-1 NOTE: with one such
+        row the sentence names one document and drops the clause saying the
+        area chips and the text filter narrow "them" further; with more it
+        keeps a narrowing clause (test_type_filter_sentence_names_only_the_
+        filters_that_narrow checks which)."""
+        rows = self._index_replay_rows()
+        _, block = self._facet_group("type")
+        chip_values = {v for _, v, _, _ in self._FACET_CHIP_RE.findall(block)}
+        qualified = 0
+        single = 0
+        for tp in self.figures["type_pages"]:
+            with self.subTest(type=tp["type"]):
+                page = self.draft_html[self._type_rel(tp["type"])]
+                in_index = [href for href, _, _, _
+                            in self._type_corpus_rows(page)
+                            if not href.startswith(self.mod.GITHUB_BLOB_BASE)]
+                total = int(re.search(r'<p class="lbl sec">Documents, '
+                                      r'(\d+)</p>', page).group(1))
+                found = self._TYPE_FILTER_RE.findall(page)
+                if not in_index:
+                    self.assertEqual(found, [])
+                    continue
+                self.assertEqual(len(found), 1, "one filter link per page")
+                href, plural, held, narrow = found[0]
+                if len(in_index) == 1:
+                    single += 1
+                    self.assertEqual(narrow, "", "one row: nothing to narrow")
+                else:
+                    self.assertTrue(narrow, "the chips narrow these rows")
+                self.assertEqual(_address_params(href), {"type": tp["slug"]})
+                self.assertEqual(_page_rel_for(href), self._INDEX_REL)
+                self.assertIn(tp["slug"], chip_values)
+                self.assertEqual(unescape(plural),
+                                 self.mod.draft_type_plural(tp["type"]))
+                kept = _replay_search_js(rows, active={"type": tp["slug"]})
+                self.assertEqual(sorted(r["href"] for r in kept),
+                                 sorted(in_index))
+                if len(in_index) == total:
+                    expected = ("this document" if len(in_index) == 1
+                                else f"these {len(in_index)} documents")
+                else:
+                    qualified += 1
+                    expected = (f"the one of this page's {total} documents "
+                                "that sits in a corpus area"
+                                if len(in_index) == 1 else
+                                f"the {len(in_index)} of this page's {total} "
+                                "documents that sit in a corpus area")
+                self.assertEqual(held, expected)
+        self.assertTrue(qualified, "a type with library specifications "
+                        "exercises the qualified form")
+        self.assertTrue(single, "a type with one row exercises the singular")
+
+    def test_type_filter_sentence_for_one_of_several_documents(self):
+        """No type in today's corpus pairs one corpus-area document with a
+        library specification, so a fixture exercises that form: the
+        sentence names "the one of this page's 2 documents that sits in a
+        corpus area" and drops the narrowing clause, as it does for a page
+        of one document."""
+        root = self.mod.ROOT_DOMAIN
+        tp = {"type": "Specification", "slug": "specification", "count": 2,
+              "scope": "A scope", "docs": [
+                  {"path": "governance/specification-a.md",
+                   "domain": "governance", "title": "A",
+                   "type": "Specification"},
+                  {"path": "specification-b.md", "domain": root,
+                   "title": "B", "type": "Specification"}]}
+        values = self.mod.draft_type_values(tp, {}, "/next/", "Next")
+        self.assertEqual(
+            values["TYPE_FILTER_SECTION"],
+            '<p>With script, <a href="{{BASE}}/documents/?type=specification">'
+            "All Documents, filtered to "
+            f"{self.mod.draft_type_plural('Specification')}</a>, lists the "
+            "one of this page's 2 documents that sits in a corpus area.</p>")
 
     # -- 17. the Browse adventure (design D sections 3 and 4.2 to 4.5) -------
 
@@ -3831,16 +6287,20 @@ class DraftSiteRenderTests(unittest.TestCase):
         """Round 2 error 1: the comply instruments intro states how many of
         its rows the crosswalk table holds and names the instruments the
         crosswalk lists under Also in the corpus, checked against the
-        rendered crosswalk page's columns and Also chips; the old claim
-        that the crosswalk shows the same instruments is gone."""
+        rendered crosswalk page's columns and Also list; the old claim
+        that the crosswalk shows the same instruments is gone. Site f2: the
+        Also in the corpus instruments are a group list in the crosswalk's
+        left-rail side list, no longer chips under the table."""
         comply = self.draft_html["draft/comply/index.html"]
         xw = self.draft_html["draft/crosswalk/index.html"]
         table = re.search(r"<thead><tr>(.*?)</tr></thead>", xw, re.S)
         self.assertIsNotNone(table, "the crosswalk has no table head")
         columns = re.findall(r'<th scope="col" data-col="', table.group(1))
-        also = re.search(r'<h2 id="also">Also in the corpus</h2>\s*<p>.*?'
-                         r'</p>\s*<ul class="chips">(.*?)</ul>', xw, re.S)
-        self.assertIsNotNone(also, "the crosswalk has no Also index")
+        rail = re.search(r'<div class="lrail">(.*?)</div>', xw, re.S)
+        self.assertIsNotNone(rail, "the crosswalk has no side list")
+        also = re.search(r'<p class="lbl">Also in the corpus</p><ul>(.*?)'
+                         r'</ul>', rail.group(1), re.S)
+        self.assertIsNotNone(also, "the crosswalk has no Also list")
         also_names = re.findall(r'<li><a href="[^"]*">([^<]*)</a></li>',
                                 also.group(1))
         self.assertTrue(columns)
@@ -5416,9 +7876,9 @@ class StickyTableBoundFixtureTests(unittest.TestCase):
 
 
 class MatrixScriptFixtureTests(unittest.TestCase):
-    """6: the matrix.js loading rule (spec 7.30 and section 8), on fixtures,
-    so the render test above cannot pass while no draft page has a matrix
-    (round-1 ERROR: False equalled False on every page)."""
+    """6: the matrix.js loading rule (spec section 7.30 and section 8), on
+    fixtures, so the render test above cannot pass while no draft page has a
+    matrix (round-1 ERROR: False equalled False on every page)."""
 
     SCRIPT = '<script src="/draft/assets/baseline/matrix.js" defer></script>'
     MATRIX = ('<div class="tablewrap bounded" tabindex="0">'
@@ -5447,8 +7907,140 @@ class MatrixScriptFixtureTests(unittest.TestCase):
             ["2 matrices (1 per page, spec 7.30)"])
 
 
+class CrosswalkPresetGroupTests(unittest.TestCase):
+    """29 to 31: the presets are the topic views, and the generator refuses
+    every way the topics, the groups and the instruments could disagree, so
+    a column can never fall out of every topic, a topic can never show
+    nothing or a column the table has not, and an instrument can never fall
+    out of the side list silently."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_build()
+
+    def _with(self, key, **changes):
+        return tuple(i._replace(**changes) if i.key == key else i
+                     for i in self.mod.CROSSWALK_INSTRUMENTS)
+
+    def _topic(self, slug, **changes):
+        return tuple(t._replace(**changes) if t.slug == slug else t
+                     for t in self.mod.CROSSWALK_TOPICS)
+
+    def test_presets_are_the_topics(self):
+        presets = self.mod.crosswalk_presets()
+        self.assertEqual(
+            [(p.slug, p.label, p.columns, p.related) for p in presets],
+            list(DraftSiteRenderTests._XW_TOPICS))
+        self.assertEqual(presets, self.mod.CROSSWALK_TOPICS)
+
+    def test_topic_with_no_column_raises(self):
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "topic 'canada' has no column"):
+            self.mod.crosswalk_presets(topics=self._topic("canada",
+                                                          columns=()))
+
+    def test_unknown_instrument_in_a_topic_raises(self):
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "names instrument 'soc-2', which is no "
+                                    "crosswalk instrument"):
+            self.mod.crosswalk_presets(topics=self._topic(
+                "security", columns=("iso-iec-27001", "soc-2")))
+
+    def test_page_only_instrument_as_a_topic_column_raises(self):
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "names 'pipeda' as a column, but it has "
+                                    "no main-table column"):
+            self.mod.crosswalk_presets(topics=self._topic(
+                "canada", columns=("pip", "pipeda")))
+
+    def test_unknown_related_instrument_raises(self):
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "relates instrument 'lgpd', which is no "
+                                    "crosswalk instrument"):
+            self.mod.crosswalk_presets(topics=self._topic(
+                "privacy", related=("pipeda", "lgpd")))
+
+    def test_column_in_no_topic_raises(self):
+        topics = self._topic("security", columns=(
+            "iso-iec-27001", "nist-csf", "nist-sp-800-53", "csa-ccm"))
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "'aicpa-tsc' has a main-table column in "
+                                    "no topic"):
+            self.mod.crosswalk_presets(topics=topics)
+
+    def test_instrument_outside_every_group_raises(self):
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "which is no crosswalk group"):
+            self.mod.crosswalk_presets(self._with("gdpr", group="Privacy"))
+
+    def test_column_instrument_in_the_also_group_raises(self):
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "belongs to a column group"):
+            self.mod.crosswalk_presets(
+                self._with("gdpr", group="Also in the corpus"))
+
+    def test_page_only_instrument_in_a_column_group_raises(self):
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "belongs to 'Also in the corpus'"):
+            self.mod.crosswalk_presets(
+                self._with("cobit", group="Laws and regulations"))
+
+    # 31: round 3 items 8 and 9, and the spec 7.30 header's organization tag.
+
+    def test_duplicate_topic_slug_raises(self):
+        topics = self.mod.CROSSWALK_TOPICS + (
+            self.mod.CROSSWALK_TOPICS[0]._replace(label="Security again"),)
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "duplicate topic slug 'security'"):
+            self.mod.crosswalk_presets(topics=topics)
+
+    def test_topic_slug_all_raises(self):
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "topic slug 'all' is the All view's "
+                                    "preset id"):
+            self.mod.crosswalk_presets(topics=tuple(
+                t._replace(slug="all") if t.slug == "canada" else t
+                for t in self.mod.CROSSWALK_TOPICS))
+
+    def test_column_repeated_within_a_topic_raises(self):
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "topic 'trade' names column 'pip' more "
+                                    "than once"):
+            self.mod.crosswalk_presets(topics=self._topic("trade", columns=(
+                "ctpat", "pip", "basc", "wco-safe", "aeo", "pip")))
+
+    def test_main_table_instrument_with_no_org_raises(self):
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "main-table instrument 'gdpr' has no "
+                                    "organization tag"):
+            self.mod.crosswalk_presets(self._with("gdpr", org=None))
+
+    def test_bad_topic_fails_the_build_not_the_import(self):
+        """Round 3 item 8: the presets are validated in build_crosswalk, not
+        at import, so a bad topic reports as a generator failure (main
+        catches the BuildError the render raises) and an importer of the
+        module does not break. The module is loaded from its own source with
+        one topic emptied: the load succeeds and the build refuses."""
+        path = REPO_ROOT / ".web" / "build.py"
+        source = path.read_text(encoding="utf-8")
+        good = ('CrosswalkPreset("canada", "Canada",\n'
+                '                    ("pip",), ("pipeda", "quebec-law-25")),')
+        self.assertEqual(source.count(good), 1, "the fixture finds its topic")
+        bad = source.replace(good, good.replace('("pip",)', "()"))
+        namespace = {"__name__": "web_build_bad_topic",
+                     "__file__": str(path)}
+        exec(compile(bad, str(path), "exec"), namespace)
+        self.assertNotIn("CROSSWALK_PRESETS", namespace,
+                         "no preset table is built at import")
+        full = namespace["parse_taxonomy_full"](
+            namespace["TAXONOMY"].read_text(encoding="utf-8"))
+        with self.assertRaisesRegex(namespace["BuildError"],
+                                    "topic 'canada' has no column"):
+            namespace["build_crosswalk"](full)
+
+
 class AdopterDocsFixtureTests(unittest.TestCase):
-    """18 and 21: the docs/ metadata reader's loud failure classes, on
+    """18, 19 and 21: the docs/ metadata reader's loud failure classes, on
     fixtures (round-2 fixes 1, 2, 7 and 8: only the leading block is read,
     the full 13-field model is validated, related documents resolve by link
     target, and nothing, README.md included, is skipped silently).
@@ -5848,7 +8440,7 @@ class DraftTemplateTypedCountTests(unittest.TestCase):
     EXCEPTIONS = (
         # The light and dark switch's two inline SVG glyphs, the moon and the
         # sun, exactly as the switch renders them (SCHEME_SWITCH, baseline
-        # 1.6.0 section 7.33, copied from the reference pages): drawing sizes
+        # 1.6.1 section 7.33, copied from the reference pages): drawing sizes
         # and coordinates, not counts. Any other inline SVG is scanned. First,
         # so the class blanking below cannot break the literal match.
         *(re.escape(glyph) for glyph in re.findall(
@@ -5954,39 +8546,97 @@ class DraftTestSectionNumberTests(unittest.TestCase):
         return {(a, b) for a, b in zip(words, words[1:])
                 if a not in self.COMMON and b not in self.COMMON}
 
-    def test_docstring_numbers_follow_the_module_docstring(self):
-        """A class docstring's number names a docstring item, and when the
-        docstring shares a two-word phrase with exactly one item, its own
-        item is among those (the palette gate class said 24 while only item
-        25 names the palette gate)."""
+    # A class docstring's leading numbers: "25: ", "18 and 21: ", "29 to 31: "
+    # or "4, 5 and 6: " (batch 3 note: "N and M:" was skipped unchecked).
+    _LEAD_RE = re.compile(r"(\d+(?:(?:, | and | to )\d+)*): ")
+
+    @classmethod
+    def _lead_numbers(cls, doc):
+        """The item numbers a docstring's lead names, a range expanded, or
+        None when it has no numbered lead."""
+        match = cls._LEAD_RE.match(doc)
+        if not match:
+            return None, None
+        numbers = []
+        for part in re.split(r", | and ", match.group(1)):
+            low, _, high = part.partition(" to ")
+            numbers += [str(n) for n in range(int(low), int(high or low) + 1)]
+        return numbers, match.end()
+
+    def _docstring_number_faults(self, classes):
+        """Every fault in the classes' numbered docstrings: a number that
+        names no module docstring item, and a docstring whose two-word
+        phrases, held by exactly one item each, belong to items none of its
+        numbers names."""
         items = dict(re.findall(r"^(\d+)\. (.*?)(?=^\d+\. |\Z)", __doc__,
                                 re.M | re.S))
         phrases = {number: self._phrases(text)
                    for number, text in items.items()}
+        faults = []
         numbered = 0
-        for name, obj in sorted(globals().items()):
-            if not inspect.isclass(obj) or obj.__module__ != __name__:
-                continue
+        for name, obj in classes:
             doc = inspect.cleandoc(obj.__doc__ or "")
-            match = re.match(r"(\d+): ", doc)
-            if not match:
+            numbers, end = self._lead_numbers(doc)
+            if numbers is None:
                 continue
             numbered += 1
-            number = match.group(1)
-            self.assertIn(number, items,
-                          f"{name}: docstring number {number} names no "
-                          "docstring item")
+            for number in numbers:
+                if number not in items:
+                    faults.append(f"{name}: docstring number {number} names "
+                                  "no docstring item")
             owners = set()
-            for pair in self._phrases(doc[match.end():]):
+            for pair in self._phrases(doc[end:]):
                 holders = [owner for owner, held in phrases.items()
                            if pair in held]
                 if len(holders) == 1:
                     owners.update(holders)
-            if owners:
-                self.assertIn(number, owners,
-                              f"{name}: docstring says {number} but its "
-                              f"phrases belong to item(s) {sorted(owners)}")
+            if owners and not owners & set(numbers):
+                faults.append(f"{name}: docstring says {', '.join(numbers)} "
+                              f"but its phrases belong to item(s) "
+                              f"{sorted(owners)}")
+        return numbered, faults
+
+    def test_docstring_numbers_follow_the_module_docstring(self):
+        """A class docstring's numbers name docstring items, and when the
+        docstring shares a two-word phrase with exactly one item, one of its
+        own items is among those (the palette gate class said 24 while only
+        item 25 names the palette gate). A lead naming several items ("18
+        and 21: ", "29 to 31: ") is checked number by number."""
+        classes = [(name, obj) for name, obj in sorted(globals().items())
+                   if inspect.isclass(obj) and obj.__module__ == __name__]
+        numbered, faults = self._docstring_number_faults(classes)
         self.assertTrue(numbered, "no numbered class docstrings found")
+        self.assertEqual(faults, [])
+        multi = [name for name, obj in classes
+                 if len(self._lead_numbers(
+                     inspect.cleandoc(obj.__doc__ or ""))[0] or ()) > 1]
+        self.assertTrue(multi, "a class docstring names several items today")
+
+    def test_docstring_guard_parses_a_lead_naming_several_items(self):
+        """Batch 3 (batch 2 note): the guard read only a "N: " lead, so a
+        docstring opening "N and M: " was skipped and a number in it naming
+        no item passed. On fixtures: each number of an "and" lead and of a
+        "to" range must name an item, and a lead whose numbers all name
+        items passes."""
+        items = re.findall(r"^(\d+)\. ", __doc__, re.M)
+        top = max(int(n) for n in items)
+        good = type("Good", (), {"__doc__": f"1 and {top}: fixture."})
+        bad_and = type("BadAnd", (), {"__doc__": f"1 and {top + 1}: fixture."})
+        bad_range = type("BadRange", (),
+                         {"__doc__": f"{top - 1} to {top + 1}: fixture."})
+        self.assertEqual(self._lead_numbers("18 and 21: x")[0], ["18", "21"])
+        self.assertEqual(self._lead_numbers("29 to 31: x")[0],
+                         ["29", "30", "31"])
+        self.assertEqual(self._lead_numbers("4, 5 and 6: x")[0],
+                         ["4", "5", "6"])
+        _, faults = self._docstring_number_faults([("Good", good)])
+        self.assertEqual(faults, [])
+        _, faults = self._docstring_number_faults(
+            [("BadAnd", bad_and), ("BadRange", bad_range)])
+        self.assertEqual(
+            faults,
+            [f"BadAnd: docstring number {top + 1} names no docstring item",
+             f"BadRange: docstring number {top + 1} names no docstring item"])
 
 
 if __name__ == "__main__":

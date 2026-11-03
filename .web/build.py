@@ -128,6 +128,7 @@ import re
 import subprocess
 import sys
 import unicodedata
+import urllib.parse
 from collections import Counter
 from html import unescape as html_unescape
 from pathlib import Path
@@ -474,7 +475,7 @@ SECURITY_TXT = (
 
 
 # The /draft/* CSP, copied byte for byte from the shared policy in baseline
-# 1.6.0 SPECIFICATION.md section 9 (unchanged since 1.3.1; section 9 states
+# 1.6.1 SPECIFICATION.md section 9 (unchanged since 1.3.1; section 9 states
 # that the light and dark switch of 1.6.0 needs no CSP change): the same
 # policy on every family site for draft pages now and every page after
 # promotion. The 3
@@ -2748,7 +2749,7 @@ def render_search_index(variant):
 
 # ---------------------------------------------------------------------------
 # The /draft tree (PR 2b): the grclibrary.ai rebuild on the shared family site
-# template (baseline 1.6.0, pinned under .web/baseline/ by PR 2a). The tree is
+# template (baseline 1.6.1, pinned under .web/baseline/ by PR 2a). The tree is
 # VARIANT-SCOPED by Variant.draft_rules, renders from its own templates under
 # .web/templates-draft/, and is self-contained: every internal link and asset
 # is {{BASE}}-prefixed and the pinned baseline runtime files are copied to
@@ -3772,13 +3773,18 @@ _DRAFT_NARR_LINK_RE = re.compile(
 )
 
 # ---------------------------------------------------------------------------
-# The /draft/crosswalk/ pages (design C section 3.7 Version A): one
-# domain-by-instrument table, one page per instrument, and static preset
-# views, all re-parsed on every build from the two alignment matrices, the
-# canonical citations register, and taxonomy.yml, structural and loud on
-# schema change exactly like parse_taxonomy. No baseline change: the table
-# uses the baseline's .tablewrap / table.fixed kit and the preset "buttons"
-# are plain links between generated pages.
+# The /draft/crosswalk/ pages (design C section 3.7 Version A, upgraded to
+# 3.8 on baseline 1.6.1, whose matrix.js arrived in 1.5.0 and whose spec
+# 7.30 to 7.32 are unchanged since 1.5.1): one domain-by-instrument table,
+# one page per instrument, and static preset views, all re-parsed on every
+# build from the
+# two alignment matrices, the canonical citations register, and taxonomy.yml,
+# structural and loud on schema change exactly like parse_taxonomy. The
+# crosswalk page is a left-rail page (spec 7.32) whose side list carries the
+# matrix.js column presets (spec 7.30), one per topic view of design C 3.7
+# (maintainer decision 2026-11-03 18:53Z: the views stay by topic), and every
+# instrument by group; each preset is a link to its static view page, so the
+# views still resolve without script.
 
 CROSSWALK_COMPLIANCE_MATRIX = (
     REPO_ROOT / "compliance" / "matrix-grc-compliance-alignment.md"
@@ -3801,6 +3807,39 @@ CROSSWALK_COMPLIANCE_COLUMNS = (
     "CSA CCM v4.1", "CSA AICM v1.1", "ISO/IEC 27001:2022", "NIST CSF 2.0",
     "CTPAT", "PIP", "BASC v6", "WCO SAFE", "AEO/AEO-S", "AICPA TSC 2017",
 )
+
+# The compliance matrix's own statement that its AICPA TSC 2017 column is
+# still being populated, with the condition on that column's N/A (batch 3
+# round 4 item 1). The AICPA TSC instrument page says the column is being
+# populated only while the matrix carries this sentence, so it is pinned here.
+CROSSWALK_TSC_POPULATING = (
+    "The AICPA TSC 2017 column is being populated domain by domain; until a "
+    "row's Trust Services Criteria mapping has been assessed, its \"N/A\" in "
+    "that column records that no mapping has been made yet and does not "
+    "assert that no criterion applies."
+)
+
+# The compliance matrix's reading-guide paragraph without that sentence (batch
+# 3 round 6 item 1). The paragraph is pinned whole: it reads exactly this
+# (the column is not being populated) or this, a space, and
+# CROSSWALK_TSC_POPULATING (it is), and any other text fails the build, so no
+# rewording of the status can pass as either form. It is found by position,
+# the first paragraph after the table whose header is
+# CROSSWALK_COMPLIANCE_KEY_HEADER, never by its own words.
+CROSSWALK_TSC_READING_GUIDE = (
+    "Read across a row to identify which frameworks a given document "
+    "supports. Read down a column to identify which GRC library documents "
+    "map or align to a framework's requirements; a mapping does not "
+    "establish that those documents satisfy the framework. A cell containing "
+    "\"N/A\" indicates no direct mapping; the document may still provide "
+    "contextual support. \"N/A\" is used in particular for the customs and "
+    "trade-security columns (CTPAT, PIP, BASC, WCO SAFE, AEO/AEO-S) on "
+    "documents whose subject is not customs or trade security."
+)
+
+# The header of the compliance matrix's framework column key table, the
+# anchor of its reading-guide paragraph.
+CROSSWALK_COMPLIANCE_KEY_HEADER = ("Column", "Framework", "Reference Basis")
 
 # Representative identifiers shown per cell before "and more" (design C 3.3
 # caps a cell at roughly six).
@@ -3838,6 +3877,9 @@ class Instrument(NamedTuple):
                              # that names this programme (the CTPAT MSC and
                              # BASC v6 section carries no per-programme rows
                              # to split, so the sibling pages point at it)
+    org: str | None = None   # the organization tag under a main-table column
+                             # header (spec 7.30: Name<span class="org">);
+                             # a display name that opens with it drops it
 
 
 _XW_G_STANDARDS = "Standards and management systems"
@@ -3853,68 +3895,78 @@ CROSSWALK_GROUPS = (
 
 # The 19 main-table instruments (the union of the compliance matrix's ten
 # columns and the reverse matrix's fifteen scope instruments, design C 3.2),
-# plus the register-and-taxonomy-only instrument pages the presets and the
-# "Also in the corpus" index need (design C 3.4: COBIT; 3.7: the Canadian
-# privacy instruments). Every register_id must resolve in the register and
-# every main-table instrument must appear in at least one matrix; both are
-# build errors (design C 3.5).
+# plus the register-and-taxonomy-only instrument pages the "Also in the
+# corpus" group lists and the topic views link (design C 3.4: COBIT; 3.7:
+# the Canadian privacy instruments). Every register_id must resolve in the
+# register and every main-table instrument must appear in at least one
+# matrix; both are build errors (design C 3.5).
 CROSSWALK_INSTRUMENTS = (
     Instrument("iso-iec-27001", "ISO/IEC 27001", _XW_G_STANDARDS,
                "ISO/IEC 27001", "colon", "ISO/IEC 27001:2022",
-               "ISO/IEC 27001:2022 Annex A", None, True),
+               "ISO/IEC 27001:2022 Annex A", None, True, org="ISO/IEC"),
     Instrument("iso-iec-42001", "ISO/IEC 42001", _XW_G_STANDARDS,
                "ISO/IEC 42001", "colon", None,
-               "ISO/IEC 42001:2023 (AI management systems)", None, True),
+               "ISO/IEC 42001:2023 (AI management systems)", None, True,
+               org="ISO/IEC"),
     Instrument("nist-csf", "NIST CSF", _XW_G_FRAMEWORKS,
-               "NIST CSF", "space", "NIST CSF 2.0", "NIST CSF 2.0", None, True),
+               "NIST CSF", "space", "NIST CSF 2.0", "NIST CSF 2.0", None, True,
+               org="NIST"),
     Instrument("nist-sp-800-53", "NIST SP 800-53", _XW_G_FRAMEWORKS,
                "NIST SP 800-53", "space", None,
-               "NIST SP 800-53 Rev. 5 (selected families)", None, True),
+               "NIST SP 800-53 Rev. 5 (selected families)", None, True,
+               org="NIST"),
     Instrument("nist-ai-rmf", "NIST AI RMF", _XW_G_FRAMEWORKS,
                "NIST AI RMF", "space", None,
-               "NIST AI RMF 1.0 (Govern, Map, Measure, Manage)", None, True),
+               "NIST AI RMF 1.0 (Govern, Map, Measure, Manage)", None, True,
+               org="NIST"),
     Instrument("csa-ccm", "CSA CCM", _XW_G_FRAMEWORKS,
                "CSA CCM", "space", "CSA CCM v4.1",
-               "CSA CCM v4.1 (selected domains)", None, True),
+               "CSA CCM v4.1 (selected domains)", None, True, org="CSA"),
     Instrument("csa-aicm", "CSA AICM", _XW_G_FRAMEWORKS,
-               "CSA AICM", "space", "CSA AICM v1.1", None, None, True),
+               "CSA AICM", "space", "CSA AICM v1.1", None, None, True,
+               org="CSA"),
     Instrument("owasp-llm-top-10", "OWASP LLM Top 10", _XW_G_FRAMEWORKS,
                "OWASP LLM Top 10", "paren", None,
                "OWASP LLM Top 10 (2026) and MITRE ATLAS",
-               ("exclude", "MITRE ATLAS"), True),
+               ("exclude", "MITRE ATLAS"), True, org="OWASP"),
     Instrument("mitre-atlas", "MITRE ATLAS", _XW_G_FRAMEWORKS,
                "MITRE ATLAS", "space", None,
                "OWASP LLM Top 10 (2026) and MITRE ATLAS",
-               ("include", "MITRE ATLAS"), True),
+               ("include", "MITRE ATLAS"), True, org="MITRE"),
     Instrument("eu-ai-act", "EU AI Act", _XW_G_LAWS,
-               "EU AI Act", None, None, "EU AI Act", None, True),
+               "EU AI Act", None, None, "EU AI Act", None, True, org="EU"),
     Instrument("gdpr", "GDPR", _XW_G_LAWS,
                "EU GDPR", None, None, "GDPR (and UK GDPR by analogue)",
-               None, True),
+               None, True, org="EU"),
     Instrument("dora", "DORA", _XW_G_LAWS,
                "EU DORA", None, None, "DORA (Digital Operational Resilience Act)",
-               None, True),
+               None, True, org="EU"),
     Instrument("nis-2", "NIS 2", _XW_G_LAWS,
-               "EU NIS 2 Directive", None, None, "NIS 2 Directive", None, True),
+               "EU NIS 2 Directive", None, None, "NIS 2 Directive", None, True,
+               org="EU"),
+    # The trade programmes' organization tags are their authorities as the
+    # supply-chain programme alignment matrix's programme summary names them
+    # (AEO/AEO-S as the compliance matrix's column key does: UK HMRC).
     Instrument("ctpat", "CTPAT", _XW_G_TRADE,
                "CTPAT MSC", "paren", "CTPAT",
                "CTPAT MSC and BASC v6 (trade and supply-chain security)",
-               None, True),
+               None, True, org="CBP"),
     Instrument("pip", "PIP", _XW_G_TRADE,
                None, None, "PIP", None, None, True,
-               reverse_pointer="ctpat"),
+               reverse_pointer="ctpat", org="CBSA"),
     Instrument("basc", "BASC", _XW_G_TRADE,
                "BASC International Norm V6-2022 (Control and Security "
                "Management System, CSMS)", "paren", "BASC v6", None, None, True,
-               reverse_pointer="ctpat"),
+               reverse_pointer="ctpat", org="WBO"),
     Instrument("wco-safe", "WCO SAFE", _XW_G_TRADE,
                "WCO SAFE Framework", "paren", "WCO SAFE", None, None, True,
-               reverse_pointer="ctpat"),
+               reverse_pointer="ctpat", org="WCO"),
     Instrument("aeo", "AEO/AEO-S", _XW_G_TRADE,
                None, None, "AEO/AEO-S", None, None, True,
-               reverse_pointer="ctpat"),
+               reverse_pointer="ctpat", org="HMRC"),
     Instrument("aicpa-tsc", "AICPA TSC", _XW_G_AUDIT,
-               "AICPA TSP Section 100", None, "AICPA TSC 2017", None, None, True),
+               "AICPA TSP Section 100", None, "AICPA TSC 2017", None, None, True,
+               org="AICPA"),
     # Register-and-taxonomy-only instrument pages (no matrix backing, so no
     # main-table column until a matrix carries them, design C 3.2 and 3.4).
     Instrument("cobit", "COBIT", _XW_G_ALSO,
@@ -4071,7 +4123,9 @@ def crosswalk_alias_keys(name):
 
 
 class CrosswalkPreset(NamedTuple):
-    """One static preset view at crosswalk/view/<slug>/ (design C 3.7)."""
+    """One topic view (design C 3.7): a matrix.js preset on the crosswalk
+    page (spec 7.30) and its static view at crosswalk/view/<slug>/, the page
+    the preset link resolves to without script (design C 3.8)."""
 
     slug: str
     label: str
@@ -4079,7 +4133,10 @@ class CrosswalkPreset(NamedTuple):
     related: tuple    # instrument-page keys linked beneath the view's table
 
 
-CROSSWALK_PRESETS = (
+# The topic views of design C 3.7 (maintainer decision 2026-11-03 18:53Z:
+# the views stay by topic). A topic may take columns from several instrument
+# groups, and one column may sit in several topics.
+CROSSWALK_TOPICS = (
     CrosswalkPreset("security", "Security",
                     ("iso-iec-27001", "nist-csf", "nist-sp-800-53", "csa-ccm",
                      "aicpa-tsc"), ()),
@@ -4096,6 +4153,105 @@ CROSSWALK_PRESETS = (
     CrosswalkPreset("canada", "Canada",
                     ("pip",), ("pipeda", "quebec-law-25")),
 )
+
+
+# The groups the crosswalk's side list shows, in page order: every column
+# group, then the instruments with a page and no column.
+CROSSWALK_RAIL_GROUPS = CROSSWALK_GROUPS + (_XW_G_ALSO,)
+
+# The All preset's id (spec 7.30 data-preset-id); a topic taking it would
+# make ?view=all name two views, so crosswalk_presets refuses it.
+CROSSWALK_ALL_ID = "all"
+
+
+def crosswalk_presets(instruments=None, topics=None):
+    """The column presets: the topic views, validated against the
+    instruments and their side-list groups. Loud when they disagree: an
+    instrument outside every side-list group would vanish from the side list,
+    a main-table instrument under "Also in the corpus" (or a page-only one
+    under a column group) would be listed as what it is not, a topic naming
+    an unknown instrument or a page-only one as a column would render a
+    column the table has not, a topic with no column would be a view showing
+    nothing, a related key naming no instrument page would be a dead link,
+    and a main-table instrument in no topic would be reachable only through
+    All. A main-table instrument with no organization tag would render a
+    column header short of its spec 7.30 markup; a repeated topic slug would
+    give two views one route and one preset id, a topic slug "all" would
+    take the All preset's id, and a column repeated within a topic would
+    render twice in its view. Called from build_crosswalk, never at import,
+    so a refusal reports as a generator failure and an importer of this
+    module does not break."""
+    instruments = CROSSWALK_INSTRUMENTS if instruments is None else instruments
+    topics = CROSSWALK_TOPICS if topics is None else topics
+    for inst in instruments:
+        if inst.group not in CROSSWALK_RAIL_GROUPS:
+            raise BuildError(
+                f"crosswalk: instrument '{inst.key}' names group "
+                f"'{inst.group}', which is no crosswalk group"
+            )
+        if inst.main_table != (inst.group in CROSSWALK_GROUPS):
+            raise BuildError(
+                f"crosswalk: instrument '{inst.key}' in group '{inst.group}' "
+                + ("has a main-table column, so it belongs to a column group"
+                   if inst.main_table else
+                   "has no main-table column, so it belongs to "
+                   f"'{_XW_G_ALSO}'")
+            )
+        if inst.main_table and not inst.org:
+            raise BuildError(
+                f"crosswalk: main-table instrument '{inst.key}' has no "
+                "organization tag for its column header"
+            )
+    by_key = {inst.key: inst for inst in instruments}
+    slugs = set()
+    for topic in topics:
+        if topic.slug == CROSSWALK_ALL_ID:
+            raise BuildError(
+                f"crosswalk: topic slug '{topic.slug}' is the All view's "
+                "preset id"
+            )
+        if topic.slug in slugs:
+            raise BuildError(
+                f"crosswalk: duplicate topic slug '{topic.slug}', so two "
+                "views would share one route and one preset id"
+            )
+        slugs.add(topic.slug)
+        if not topic.columns:
+            raise BuildError(
+                f"crosswalk: topic '{topic.slug}' has no column, so its view "
+                "would show nothing"
+            )
+        for key in topic.columns:
+            if topic.columns.count(key) > 1:
+                raise BuildError(
+                    f"crosswalk: topic '{topic.slug}' names column '{key}' "
+                    "more than once"
+                )
+            if key not in by_key:
+                raise BuildError(
+                    f"crosswalk: topic '{topic.slug}' names instrument "
+                    f"'{key}', which is no crosswalk instrument"
+                )
+            if not by_key[key].main_table:
+                raise BuildError(
+                    f"crosswalk: topic '{topic.slug}' names '{key}' as a "
+                    "column, but it has no main-table column"
+                )
+        for key in topic.related:
+            if key not in by_key:
+                raise BuildError(
+                    f"crosswalk: topic '{topic.slug}' relates instrument "
+                    f"'{key}', which is no crosswalk instrument"
+                )
+    covered = {key for topic in topics for key in topic.columns}
+    for inst in instruments:
+        if inst.main_table and inst.key not in covered:
+            raise BuildError(
+                f"crosswalk: instrument '{inst.key}' has a main-table column "
+                "in no topic, so only All would show it"
+            )
+    return tuple(topics)
+
 
 # The draft refusal guard (spec section 12: a generator refuses to write a
 # page that contains an en or em dash (literal or entity-encoded), an inline
@@ -4222,7 +4378,7 @@ def load_baseline_assets(baseline_dir=None, pin_path=None):
     return assets
 
 
-# The palette gate (baseline 1.6.0 SPECIFICATION.md section 4 items 2 and 3):
+# The palette gate (baseline 1.6.1 SPECIFICATION.md section 4 items 2 and 3):
 # the package's tools/check_palette.py, copied to .baseline/check_palette.py
 # and pinned in .baseline/pin.toml beside the served copies, never served.
 # Every draft build runs it on the served palettes.css (the pin-verified
@@ -4299,10 +4455,21 @@ def run_palette_gate(palettes=None, gate=None, pin_path=None):
 
 
 def _draft_nav(current=None):
-    """The topbar partial's per-page current-page markers (only real pages in
-    the bar can be current; the Domains and Types anchors never are)."""
+    """The topbar partial's per-page current-page markers. Each bar link
+    opens its own page (maintainer decision 2026-11-03 23:27Z), and a page
+    marks the link of the section it belongs to: the need, domain and type
+    pages under Browse, every document page under All Documents, the decide
+    hub, concern, subtype index and reading-room pages under Decisions, and
+    the crosswalk views and instrument pages under Crosswalk. The landing,
+    disclosure, licence and 404 pages belong to no bar section."""
     return {
         "NAV_BROWSE": ' aria-current="page"' if current == "browse" else "",
+        "NAV_DOCUMENTS":
+            ' aria-current="page"' if current == "documents" else "",
+        "NAV_DECISIONS":
+            ' aria-current="page"' if current == "decisions" else "",
+        "NAV_CROSSWALK":
+            ' aria-current="page"' if current == "crosswalk" else "",
         "NAV_SEARCH": ' aria-current="page"' if current == "search" else "",
     }
 
@@ -4473,10 +4640,52 @@ def draft_browse_values(figures, adopter_docs):
     }
 
 
-def _draft_search_row(d):
+# A facet value search.js can match (spec 7.29): a row's data-<group> is a
+# space-separated token list compared in lowercase, so a value is one
+# lowercase token; anything else would silently match nothing.
+_DRAFT_FACET_VALUE_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+
+
+def _draft_facet_value(value):
+    if not _DRAFT_FACET_VALUE_RE.match(value):
+        raise BuildError(
+            f"draft: facet value {value!r} is not one lowercase token "
+            "(letters, digits, hyphens), so no chip could match it"
+        )
+    return value
+
+
+def _draft_facet_chips(group, counts, label_of, total):
+    """One All Documents chip group (spec 7.29): the All chip, then one chip
+    per value in label order, each counting the rows that carry its token.
+    Every chip is a plain link to its facet address on the index, which
+    search.js reads on load (?<group>=<value>)."""
+    chips = [
+        f'<li><a href="{{{{BASE}}}}/documents/" data-filter="">All'
+        f'<span class="n">{total}</span></a></li>'
+    ]
+    for value in sorted(counts, key=lambda v: (label_of(v).lower(), v)):
+        value = _draft_facet_value(value)
+        chips.append(
+            f'<li><a href="{{{{BASE}}}}/documents/?{group}={_esc(value)}" '
+            f'data-filter="{_esc(value)}">{_esc(label_of(value))}'
+            f'<span class="n">{counts[value]}</span></a></li>'
+        )
+    return "\n".join(chips)
+
+
+def _draft_search_url(query):
+    """The search page's address with ``query`` in ?q=, which search.js
+    reads on load (spec 7.29), so a link can open a search already run."""
+    return "{{BASE}}/search/?" + urllib.parse.urlencode({"q": query})
+
+
+def _draft_search_row(d, facets=False):
     """One document row for a search.js scope (the search page and the
     documents index): the title links the on-site page, the annotation names
-    the type and area, the small line carries the date."""
+    the type and area, the small line carries the date. With ``facets`` the
+    row also carries the All Documents facet tokens (spec 7.29: data-<group>
+    per chip group), its type slug and its area slug."""
     label = draft_domain_label(d.get("domain", ""))
     # Every corpus document gets a row, and its data-search text carries the
     # title, type, area, the full purpose, and the framework names, with
@@ -4488,8 +4697,13 @@ def _draft_search_row(d):
          d.get("domain", ""), d.get("purpose", "") or ""]
         + d.get("frameworks", [])
     ).lower().split())
+    tokens = ""
+    if facets:
+        doc_type = _draft_facet_value(type_slug(d.get("type", "")))
+        area = _draft_facet_value(d.get("domain", ""))
+        tokens = f' data-type="{_esc(doc_type)}" data-area="{_esc(area)}"'
     return (
-        f'<li data-search="{_esc(haystack)}">'
+        f'<li data-search="{_esc(haystack)}"{tokens}>'
         f'<a href="{_esc(_doc_page_url("{{BASE}}", d["path"]))}">'
         f'{_esc(d.get("title", d["path"]))}</a>'
         f'<span class="n">{_esc(d.get("type", "").lower())}, {_esc(label)}</span>'
@@ -4502,7 +4716,11 @@ def draft_search_values(full_docs, adopter_docs):
     # type and area chips and the "Recently updated" framing duplicated
     # Browse and are gone; the full list stays as search.js's scope and as
     # the page's content without script. Every corpus domain document and
-    # every docs/ adopter document gets a row (site a9), one dated pool.
+    # every docs/ adopter document gets a row (site a9), one dated pool. The
+    # scope runs in results mode (spec 7.29): with script no row shows until
+    # the reader types, so no sentence may say the rows are listed below,
+    # and the status prompt, generated from the same rows, says how to
+    # search.
     pool = sorted(
         [d for d in full_docs if d.get("domain") != ROOT_DOMAIN]
         + list(adopter_docs),
@@ -4543,7 +4761,7 @@ def draft_search_values(full_docs, adopter_docs):
         corpus_noun = "document" if corpus_rows == 1 else "documents"
         adopter_noun = "document" if n_adopter == 1 else "documents"
         head = (
-            f"Search the {len(rows)} {noun} listed below, the {corpus_rows} "
+            f"Search the {len(rows)} {noun}, the {corpus_rows} "
             f"corpus {corpus_noun} across the {domains} {domain_noun} and "
             f"the {n_adopter} adopter {adopter_noun} under docs/, "
         )
@@ -4552,6 +4770,15 @@ def draft_search_values(full_docs, adopter_docs):
     return {
         **_draft_nav("search"),
         "SEARCH_PROMPT": head + ", ".join(clauses) + ".",
+        # The status prompt names the fields a row's data-search text holds,
+        # never the whole document (round-1 NOTE: "it holds every word" read
+        # as full text, which only GitHub searches); purpose and frameworks
+        # are qualified, as the prompt above qualifies them.
+        "SEARCH_STATUS_PROMPT": (
+            f"Type one or more words to search the {len(rows)} {noun}; a "
+            "document shows when every word is in its title, type, area, "
+            "or, where it has them, its purpose or framework names."
+        ),
         "SEARCH_ROWS": "\n".join(rows),
     }
 
@@ -4559,11 +4786,13 @@ def draft_search_values(full_docs, adopter_docs):
 def draft_documents_values(full_docs):
     """The full document index (design A PR A3, design B section 4 without a
     template change): every non-root corpus document, one row each in title
-    order, filtered on the page by the baseline search.js. The area and type
-    chips are plain links (the domain pages and the type pages design A
-    routes at types/<slug>/), each count recounted from the documents listed
-    here, and the root specifications, which have no on-site page, open on
-    GitHub."""
+    order, filtered on the page by the baseline search.js. Type and area are
+    search.js facet groups (spec 7.29; maintainer 2026-11-03: All Documents
+    carries the filters, and type is a filter of it, not a separate
+    heading), each chip's count recounted from the rows it filters and each
+    chip a plain link to its facet address. The root specifications, which
+    have no on-site page, open on GitHub and stay out of the filtered
+    rows."""
     domain_docs = sorted(
         (d for d in full_docs if d.get("domain") != ROOT_DOMAIN),
         key=lambda d: (d.get("title", "").lower(), d["path"]),
@@ -4573,23 +4802,20 @@ def draft_documents_values(full_docs):
         key=lambda d: (d.get("title", "").lower(), d["path"]),
     )
     by_domain = Counter(d.get("domain", "") for d in domain_docs)
-    # Types count over every document, root specifications included, as the
-    # type pages do (round-1 ERROR: a non-root count put 3 on the
-    # Specification chip while its type page listed 5).
+    # The meta line's type count covers every document on the page, root
+    # specifications included, as the type pages do.
     by_type = Counter(d.get("type", "") for d in full_docs)
-    area_chips = "\n".join(
-        f'<li><a href="{{{{BASE}}}}/{_esc(domain)}/">'
-        f'{_esc(draft_domain_label(domain))}'
-        f'<span class="n">{count}</span></a></li>'
-        for domain, count in sorted(
-            by_domain.items(), key=lambda kv: draft_domain_label(kv[0]).lower()
-        )
-    )
-    type_chips = "\n".join(
-        f'<li><a href="{{{{BASE}}}}/types/{type_slug(type_name)}/">'
-        f'{_esc(type_name)}<span class="n">{count}</span></a></li>'
-        for type_name, count in sorted(by_type.items())
-    )
+    # A chip filters the rows below, so its count is recounted from those
+    # rows alone (round-1 ERROR on this page: a chip that linked a type page
+    # counted other documents than its landing showed); the chip links its
+    # own facet address, never a page with a different count.
+    type_names = {type_slug(d.get("type", "")): d.get("type", "")
+                  for d in domain_docs}
+    row_types = Counter(type_slug(d.get("type", "")) for d in domain_docs)
+    type_chips = _draft_facet_chips(
+        "type", row_types, lambda slug: type_names[slug], len(domain_docs))
+    area_chips = _draft_facet_chips(
+        "area", by_domain, draft_domain_label, len(domain_docs))
     root_rows = "\n".join(
         f'<li><a href="{_esc(GITHUB_BLOB_BASE + d["path"])}"'
         ' target="_blank" rel="noopener noreferrer">'
@@ -4599,9 +4825,9 @@ def draft_documents_values(full_docs):
         f'<small>{_esc(d.get("date", ""))}</small></li>'
         for d in root_docs
     )
-    rows = [_draft_search_row(d) for d in domain_docs]
+    rows = [_draft_search_row(d, facets=True) for d in domain_docs]
     return {
-        **_draft_nav(),
+        **_draft_nav("documents"),
         "INDEX_AREA_CHIPS": area_chips,
         "INDEX_TYPE_CHIPS": type_chips,
         "INDEX_ROOT_ROWS": root_rows,
@@ -4671,7 +4897,7 @@ def draft_domain_values(dp, docs_by_path, next_url, next_label,
         )
     noun = "document" if dp["count"] == 1 else "documents"
     return {
-        **_draft_nav(),
+        **_draft_nav("browse"),
         "DOMAIN_LABEL": _esc(label),
         "DOMAIN_META": f"{dp['count']} {noun}. {_esc(dp['scope'])}.",
         "DOMAIN_LEAD": _esc(dp["purpose"]),
@@ -4748,8 +4974,9 @@ def draft_type_values(tp, docs_by_path, next_url, next_label, adopter_docs=()):
     # related-documents list does; their area label is the documents index's.
     # The docs/ adopter documents of the type follow in their own labelled
     # list (integration round 2 WARN: the page said every document of the
-    # type while listing only the corpus ones); the corpus list and its count
-    # stay the documents index's, so the index's type chip still counts it.
+    # type while listing only the corpus ones); the corpus list stays apart,
+    # so the index's type chip still counts its corpus-area rows (site f1:
+    # a chip counts the rows it filters, which no library specification is).
     rows = []
     for d in tp["docs"]:
         doc = docs_by_path.get(d["path"], d)
@@ -4809,10 +5036,49 @@ def draft_type_values(tp, docs_by_path, next_url, next_label, adopter_docs=()):
             '<div class="wide"><ul class="plan one described">\n'
             + "\n".join(adopter_rows) + "\n</ul></div>"
         )
+    # The type's facet address on All Documents, where the type has a row
+    # there: that list adds the area chips and the text filter to the type.
+    # Its rows are the corpus-area documents only, so the sentence counts
+    # them from this page's own lists and says so when the library
+    # specifications or the adopter documents this page also lists stay out.
+    # The sentence follows the adopter block, so a part names its whole as
+    # the page's documents, never "these" (batch 3 round 2 WARN: "these"
+    # read as the adopter documents just above it).
+    in_index = [d for d in tp["docs"] if d["domain"] != ROOT_DOMAIN]
+    filter_section = ""
+    if in_index:
+        if len(in_index) == total:
+            held = ("this document" if len(in_index) == 1
+                    else f"these {len(in_index)} documents")
+        elif len(in_index) == 1:
+            held = (f"the one of this page's {total} documents that sits "
+                    "in a corpus area")
+        else:
+            held = (f"the {len(in_index)} of this page's {total} documents "
+                    "that sit in a corpus area")
+        # One document leaves the area chips and the text filter nothing to
+        # narrow, so the clause saying they narrow "them" goes (round-1
+        # NOTE: Checklists and Roadmaps each list one document); rows that
+        # all sit in one area leave the area chips nothing to narrow, so only
+        # the text filter is named (integration note: Guides, Principles,
+        # SOPs and Specifications each sit in one area).
+        if len(in_index) == 1:
+            narrow = ""
+        elif len({d["domain"] for d in in_index}) == 1:
+            narrow = ", and its text filter narrows them further"
+        else:
+            narrow = ", and its area chips and text filter narrow them further"
+        filter_section = (
+            f'<p>With script, <a href="{{{{BASE}}}}/documents/?type='
+            f'{_esc(_draft_facet_value(tp["slug"]))}">All Documents, filtered '
+            f'to {_esc(draft_type_plural(tp["type"]))}</a>, lists '
+            f"{held}{narrow}.</p>"
+        )
     return {
-        **_draft_nav(),
+        **_draft_nav("browse"),
         "TYPE_HEADING": _esc(draft_type_plural(tp["type"])),
         "TYPE_META": f"{meta}. {_esc(tp['scope'])}.",
+        "TYPE_FILTER_SECTION": filter_section,
         "TYPE_ROWS": "\n".join(rows),
         "TYPE_ROW_COUNT": str(total),
         "TYPE_ADOPTER_BLOCK": adopter_block,
@@ -4849,8 +5115,11 @@ def draft_document_values(doc, docs_by_path):
     )
     frameworks_section = ""
     if doc.get("frameworks"):
+        # Each chip opens the search already run for its framework name (the
+        # ?q= address search.js reads on load, spec 7.29; design B 5.5: a
+        # bare search link lost the framework the reader clicked).
         chips = "".join(
-            f'<li><a href="{{{{BASE}}}}/search/">{_esc(f)}</a></li>'
+            f'<li><a href="{_esc(_draft_search_url(f))}">{_esc(f)}</a></li>'
             for f in doc["frameworks"]
         )
         frameworks_section = (
@@ -4880,7 +5149,7 @@ def draft_document_values(doc, docs_by_path):
             + "\n".join(rows) + "\n</ul>"
         )
     return {
-        **_draft_nav(),
+        **_draft_nav("documents"),
         "DOC_TITLE": _esc(title),
         "DOC_TYPE": _esc(doc_type),
         "DOC_RAIL": rail,
@@ -4932,7 +5201,7 @@ def draft_narrative_values(page, body_html, toc):
         for d in page["domains"]
     )
     return {
-        **_draft_nav(),
+        **_draft_nav("decisions"),
         "NARRATIVE_TYPE": _esc(page["narrative_type"]),
         "NARRATIVE_H1": _esc(page["title"]),
         "NARRATIVE_RAIL_ITEMS": rail_items,
@@ -4980,7 +5249,7 @@ def draft_subtype_values(figures, narrative_type):
     )
     noun = "page" if len(members) == 1 else "pages"
     return {
-        **_draft_nav(),
+        **_draft_nav("decisions"),
         "SUBTYPE_LABEL": _esc(label),
         "SUBTYPE_META": f"{len(members)} {noun}. {_esc(question)}",
         "SUBTYPE_COUNT": str(len(members)),
@@ -5050,7 +5319,7 @@ def draft_decide_values(figures, concerns):
         for domain, count in figures["domains"]
     )
     return {
-        **_draft_nav(),
+        **_draft_nav("decisions"),
         "DECIDE_META": (
             f"{len(concerns)} concerns under {len(DRAFT_DECIDE_GROUPS)} board "
             f"questions, {len(figures['narratives'])} leadership pages, "
@@ -5199,7 +5468,7 @@ def draft_concern_values(concern):
         for d in concern["domains"]
     )
     return {
-        **_draft_nav(),
+        **_draft_nav("decisions"),
         "CONCERN_LABEL": _esc(concern["label"]),
         "CONCERN_TITLE": _esc(concern["question"]),
         "CONCERN_META": f"{_concern_counts(concern)}. {_esc(board_question)}",
@@ -5263,7 +5532,7 @@ def draft_govern_values(figures, docs_by_path, concerns):
         ) + "."
     )
     return {
-        **_draft_nav(),
+        **_draft_nav("browse"),
         **{
             key: _draft_doc_or_source_link(docs_by_path, path, label)
             for key, (path, label) in DRAFT_GOVERN_ARTEFACTS.items()
@@ -5341,7 +5610,7 @@ def draft_comply_values(figures, docs_by_path, xw):
             "narrative registry does not carry (renamed or removed?)"
         )
     return {
-        **_draft_nav(),
+        **_draft_nav("browse"),
         "COMPLY_META": (
             f"{len(rows)} instruments; {len(mapped_union)} library documents "
             "count toward at least one of them."
@@ -5459,7 +5728,7 @@ def draft_solutions_values(figures, concerns):
             f'<small>{_esc(DOMAIN_SCOPE[domain])}</small></li>'
         )
     return {
-        **_draft_nav(),
+        **_draft_nav("browse"),
         "SOL_META": (
             f"{len(DRAFT_SOLUTION_EVENTS)} lifecycle events, "
             f"{len(scenarios)} scenarios to rehearse, "
@@ -5502,7 +5771,7 @@ def draft_policies_values(figures):
     policy_count = _draft_type_entry(figures, "Policy")["count"]
     template_count = _draft_type_entry(figures, "Template")["count"]
     return {
-        **_draft_nav(),
+        **_draft_nav("browse"),
         "POL_META": (
             f"{policy_count} policies and {template_count} templates in the "
             f"corpus, across {len(subjects)} subjects."
@@ -5740,6 +6009,59 @@ def parse_compliance_matrix(text):
     return domains, rows_by_domain
 
 
+def parse_compliance_tsc_status(text):
+    """Whether the compliance alignment matrix says its AICPA TSC 2017 column
+    is being populated (batch 3 round 4 item 1), read from its reading-guide
+    paragraph alone, the first paragraph after the framework column key table
+    (batch 3 round 6 item 1). That paragraph must be exactly one of two
+    forms: CROSSWALK_TSC_READING_GUIDE, a space and CROSSWALK_TSC_POPULATING
+    (True), or CROSSWALK_TSC_READING_GUIDE alone (False). Any other text in
+    it, the key table or the paragraph missing, or a second key table, is a
+    BuildError, so a reworded, moved or added sentence fails the build
+    instead of dropping the caveat. The rest of the matrix is not read."""
+    forms = {
+        f"{CROSSWALK_TSC_READING_GUIDE} {CROSSWALK_TSC_POPULATING}": True,
+        CROSSWALK_TSC_READING_GUIDE: False,
+    }
+    populating, bare = forms
+    accepted = (
+        "the compliance matrix's reading-guide paragraph (the first "
+        "paragraph after its framework column key table) must be exactly "
+        "one of two forms, CROSSWALK_TSC_READING_GUIDE followed by a space "
+        "and CROSSWALK_TSC_POPULATING (the AICPA TSC 2017 column is being "
+        "populated) or CROSSWALK_TSC_READING_GUIDE alone (it is not): "
+        f"form 1: {populating} form 2: {bare}"
+    )
+    lines = text.splitlines()
+    keys = [i for i, line in enumerate(lines)
+            if line.strip().startswith("|")
+            and tuple(_xw_table_cells(line)) == CROSSWALK_COMPLIANCE_KEY_HEADER]
+    if len(keys) != 1:
+        raise BuildError(
+            f"crosswalk: the compliance matrix has {len(keys)} framework "
+            "column key tables (header "
+            f"{' | '.join(CROSSWALK_COMPLIANCE_KEY_HEADER)}) instead of one, "
+            f"so its reading-guide paragraph cannot be found; {accepted}"
+        )
+    i = keys[0]
+    while i < len(lines) and lines[i].strip().startswith("|"):
+        i += 1
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    paragraph = []
+    while i < len(lines) and lines[i].strip():
+        paragraph.append(lines[i])
+        i += 1
+    found = "\n".join(paragraph)
+    if found not in forms:
+        if not paragraph or paragraph[0].startswith(("#", "---", "|")):
+            found = "no paragraph"
+        else:
+            found = repr(found)
+        raise BuildError(f"crosswalk: {accepted}; found {found}")
+    return forms[found]
+
+
 def parse_reverse_matrix(text):
     """The reverse framework control crosswalk, section by section.
 
@@ -5871,13 +6193,16 @@ def build_crosswalk(full_docs):
     coupling breakage design C 3.5 names: an instrument register_id missing
     from the register, a main-table instrument absent from both matrices, an
     alias naming no configured instrument, a cited path missing from the
-    taxonomy, and any schema change in a parsed source."""
+    taxonomy, and any schema change in a parsed source. The column presets
+    are validated here too (crosswalk_presets), so a bad topic or instrument
+    fails the build rather than the module import."""
+    presets = crosswalk_presets()
     register = parse_citations_register(
         CITATIONS_REGISTER.read_text(encoding="utf-8")
     )
-    domains, comp_rows = parse_compliance_matrix(
-        CROSSWALK_COMPLIANCE_MATRIX.read_text(encoding="utf-8")
-    )
+    comp_text = CROSSWALK_COMPLIANCE_MATRIX.read_text(encoding="utf-8")
+    domains, comp_rows = parse_compliance_matrix(comp_text)
+    tsc_populating = parse_compliance_tsc_status(comp_text)
     reverse_sections = parse_reverse_matrix(
         CROSSWALK_REVERSE_MATRIX.read_text(encoding="utf-8")
     )
@@ -6008,6 +6333,10 @@ def build_crosswalk(full_docs):
         # compliance matrix column when one exists, else from the reverse
         # matrix's cited documents grouped by their path's domain.
         by_domain = {}
+        # The compliance matrix column's rows and how many are N/A, so a
+        # caveat about the column's N/A is generated from the matrix (batch 3
+        # round 3 item 2).
+        column_rows = column_na = 0
         if inst.compliance_column:
             for domain in domains:
                 ids = []
@@ -6019,7 +6348,9 @@ def build_crosswalk(full_docs):
                             f"crosswalk: empty compliance matrix cell for "
                             f"{r['path']} / {inst.compliance_column}"
                         )
+                    column_rows += 1
                     if cell == "N/A":
+                        column_na += 1
                         continue
                     for ident in _xw_split_identifiers(cell):
                         if ident not in ids:
@@ -6039,6 +6370,12 @@ def build_crosswalk(full_docs):
             "display": display,
             "register": row,
             "by_domain": by_domain,
+            "column_rows": column_rows,
+            "column_na": column_na,
+            "column_populating": (
+                tsc_populating
+                and inst.compliance_column == "AICPA TSC 2017"
+            ),
             "reverse_rows": _xw_reverse_rows(inst, reverse_sections),
             "reverse_area_label": (
                 reverse_sections[inst.reverse_section]["area_label"]
@@ -6051,6 +6388,7 @@ def build_crosswalk(full_docs):
         "domains": domains,
         "instruments": instruments,
         "docs_by_path": docs_by_path,
+        "presets": presets,
     }
 
 
@@ -6073,26 +6411,45 @@ def _xw_doc_noun(count):
     return "document" if count == 1 else "documents"
 
 
-def _xw_width_class(column_count):
-    """A col.w<N> width for the instrument columns of a fixed table (the
-    baseline carries 5%-step classes): the row-header column takes w15 and the
-    rest split the remainder, clamped to the available steps."""
-    width = (100 - 15) // column_count
-    return max(5, min(30, (width // 5) * 5))
+def _xw_short_ids(ids):
+    """The identifiers a matrix cell shows in code type (spec 7.30: cells
+    hold short identifiers): the single-word ones. A phrase-length label (a
+    trade programme's requirement area, a BASC clause named with its
+    instrument) cannot sit in a nowrap matrix cell, so it stays on the
+    instrument page, which lists every identifier and label in full."""
+    return [ident for ident in ids if len(ident.split()) == 1]
 
 
-def render_crosswalk_table(xw, keys):
+def _xw_column_name(data):
+    """A column header's name: the display name without the organization
+    tag it opens with, since the tag shows beneath it (spec 7.30)."""
+    display, org = data["display"], data["inst"].org
+    if display.startswith(org + " "):
+        return display[len(org) + 1:]
+    return display
+
+
+def render_crosswalk_table(xw, keys, matrix):
     """The domain-by-instrument table (design C 3.3) for the given instrument
-    columns, in the baseline's .tablewrap / table.fixed kit."""
-    width = _xw_width_class(len(keys))
-    cols = '<col class="w15">' + f'<col class="w{width}">' * len(keys)
+    columns, in the spec 7.30 matrix markup: every instrument th and td
+    carries its data-col key and the row-header column carries none, so
+    matrix.js never hides it; a header is the name over its organization
+    tag, and a cell holds its single-word identifiers in code type and a
+    count link whose noun is visually hidden. Past the cap, "and more" is
+    visually hidden too, and an empty cell holds only a visually hidden
+    "no documents", as the reference page marks one, so the identifiers and
+    the count link are a cell's only visible content. ``matrix`` marks the
+    table data-matrix (the one matrix on the crosswalk page); a static
+    view's table is the same markup without it, so no script acts there.
+    No colgroup: a fixed column width would outlive the column matrix.js
+    hides."""
     head = ['<th scope="col">Domain</th>']
     for key in keys:
         data = xw["instruments"][key]
         head.append(
             f'<th scope="col" data-col="{key}">'
-            f'<a href="{{{{BASE}}}}/crosswalk/{key}/">'
-            f'{_esc(data["display"])}</a></th>'
+            f'{_esc(_xw_column_name(data))}'
+            f'<span class="org">{_esc(data["inst"].org)}</span></th>'
         )
     body = []
     for domain in xw["domains"]:
@@ -6104,30 +6461,133 @@ def render_crosswalk_table(xw, keys):
             data = xw["instruments"][key]
             entry = data["by_domain"].get(domain)
             if not entry:
-                cells.append("<td>n/a</td>")
+                cells.append(
+                    f'<td data-col="{key}"><span class="vh">no documents'
+                    "</span></td>"
+                )
                 continue
             count = len(entry["docs"])
             link = (
                 f'<a href="{{{{BASE}}}}/crosswalk/{key}/#{_esc(domain)}">'
-                f"{count} {_xw_doc_noun(count)}</a>"
+                f'{count}<span class="vh"> {_xw_doc_noun(count)}</span></a>'
             )
-            ids = entry["ids"]
+            ids = _xw_short_ids(entry["ids"])
             if ids:
                 shown = ids[:CROSSWALK_CELL_ID_CAP]
-                tail = ", and more" if len(ids) > CROSSWALK_CELL_ID_CAP else ""
-                cells.append(
-                    f'<td><span class="n">{_esc(", ".join(shown))}{tail}'
-                    f"</span> {link}</td>"
+                # A plain space, outside the hidden tail, separates the codes
+                # from the count link in every cell, capped or not, so read
+                # aloud the last code or "and more" never runs into the
+                # count's number ("A.622", "more22"; batch 3 round 2 NOTE).
+                tail = (
+                    '<span class="vh">, and more</span>'
+                    if len(ids) > CROSSWALK_CELL_ID_CAP else ""
                 )
+                codes = ", ".join(f"<code>{_esc(i)}</code>" for i in shown)
+                cells.append(f'<td data-col="{key}">{codes}{tail} {link}</td>')
             else:
-                cells.append(f"<td>{link}</td>")
+                cells.append(f'<td data-col="{key}">{link}</td>')
         body.append("<tr>" + "".join(cells) + "</tr>")
+    marker = " data-matrix" if matrix else ""
+    noun = "instrument" if len(keys) == 1 else "instruments"
+    # matrix.js hides columns on the crosswalk page, so its caption scopes
+    # the count to the full table; a static view's columns never change.
+    caption = (
+        f"Corpus domains by instruments, {len(keys)} in the full table"
+        if matrix else f"Corpus domains by {len(keys)} {noun}"
+    )
     return (
-        '<table class="fixed">\n'
-        f"<colgroup>{cols}</colgroup>\n"
+        f'<table class="matrix sticky sticky-col"{marker}>\n'
+        f'<caption class="vh">{caption}</caption>\n'
         "<thead><tr>" + "".join(head) + "</tr></thead>\n"
         "<tbody>\n" + "\n".join(body) + "\n</tbody>\n</table>"
     )
+
+
+def _xw_names(xw, keys):
+    """The columns' display names as a running-text list."""
+    names = [_esc(xw["instruments"][k]["display"]) for k in keys]
+    if len(names) < 3:
+        return " and ".join(names)
+    return ", ".join(names[:-1]) + ", and " + names[-1]
+
+
+def _xw_table_intro(xw, keys, matrix):
+    """The sentences under the table heading, derived from what the page's
+    columns render, so each holds for every column it covers: the columns
+    whose cells show a code are the compliance alignment matrix columns
+    with a single-word identifier in some domain (_xw_short_ids), and they
+    are named; the other matrix columns record phrase-length labels only and
+    show the count alone; a column with no recorded mapping in any domain is
+    empty throughout; and the remaining columns take their cells from the
+    documents the reverse framework control crosswalk cites, with the count
+    alone. On the crosswalk page (``matrix``) matrix.js hides columns, so
+    the counts name the full table; a static view's counts name the columns
+    here. The opening sentence says what every column is: an instrument the
+    matrices carry, as a compliance alignment matrix column or in a reverse
+    framework control crosswalk section (build_crosswalk refuses a
+    main-table instrument with neither), not one they map, since a column
+    can have no recorded mapping in any domain (AICPA TSC today). A
+    one-column group is named directly ("the PIP column here"), never
+    counted."""
+    where = "of the full table" if matrix else "here"
+
+    def columns(group):
+        if len(group) == 1:
+            return f"the {_xw_names(xw, group)} column {where}"
+        return f"the {len(group)} columns {where} for {_xw_names(xw, group)}"
+
+    data = xw["instruments"]
+    unmapped = [k for k in keys if not data[k]["by_domain"]]
+    comp = [k for k in keys if CROSSWALK_BY_KEY[k].compliance_column
+            and k not in unmapped]
+    codes = [k for k in comp
+             if any(_xw_short_ids(e["ids"])
+                    for e in data[k]["by_domain"].values())]
+    labels = [k for k in comp if k not in codes]
+    rest = [k for k in keys if k not in comp and k not in unmapped]
+    parts = [
+        "Rows are the corpus domains and columns are instruments the "
+        "alignment matrices carry, each as a column of the compliance "
+        "alignment matrix or in a section of the reverse framework control "
+        "crosswalk. A cell with a recorded mapping carries a generated "
+        "document count that opens the instrument page at that domain, and "
+        "a cell with none is left empty."
+    ]
+    if codes:
+        parts.append(
+            f"In {columns(codes)}, a cell also shows, in code type, up to "
+            f"{CROSSWALK_CELL_ID_CAP} of the single-word identifiers that the "
+            "compliance alignment matrix records for its domain, where it "
+            "records any, and the instrument page lists every identifier and "
+            "label in full."
+        )
+    if labels:
+        parts.append(
+            f"In {columns(labels)}, the compliance alignment matrix records "
+            "only phrase-length labels, so a cell shows the count alone and "
+            "the instrument page lists the labels in full."
+        )
+    if unmapped:
+        parts.append(
+            f"No domain has a recorded mapping in {columns(unmapped)}, so "
+            "every cell there is empty."
+        )
+    if rest:
+        cites = (
+            "cells from the documents the reverse framework control "
+            "crosswalk cites, with the count alone, and the instrument page "
+            "lists the control areas that crosswalk maps."
+        )
+        if len(rest) == len(keys):
+            parts.append(f"Every column {where} takes its {cites}")
+        elif len(rest) == 1:
+            parts.append(
+                f"The remaining {_xw_names(xw, rest)} column {where} takes "
+                f"its {cites}")
+        else:
+            parts.append(
+                f"The remaining {len(rest)} columns {where} take their {cites}")
+    return " ".join(parts)
 
 
 def _xw_matrix_link(xw, path):
@@ -6138,16 +6598,70 @@ def _xw_matrix_link(xw, path):
     )
 
 
-def render_crosswalk_caveats(xw):
+def render_crosswalk_caveats(xw, keys=(), inst=None):
     """The "What this mapping is" block (design C 3.6): the matrices' own
-    caveats, carried nearly verbatim, each attributed to its on-site source."""
+    caveats, carried nearly verbatim, each attributed to its on-site source.
+    The AICPA TSC caveat describes what the reader sees, an empty cell here
+    for the matrix's N/A, so it renders only where the page's table has that
+    column (``keys``, the table's columns; an instrument page has none)
+    (batch 3 round 2 NOTE: since f2 no cell shows N/A, and the caveat sat on
+    pages with no such column). A cell is empty where every row the matrix
+    lists for its domain is N/A, and the matrix lists only some of a
+    domain's documents, so the sentence names those rows (batch 3 round 3
+    item 1). The AICPA TSC instrument page (``inst``) carries its own
+    caveat, its N/A rows counted from the matrix, so it stays true as the
+    column is filled (batch 3 round 3 item 2). It says the column is being
+    populated, and keeps the matrix's condition on each N/A, only while the
+    matrix itself says so (``column_populating``); once the matrix drops that
+    sentence, an N/A there means no direct mapping, as in every other column,
+    and no caveat of its own renders (batch 3 round 4 item 1). A view page
+    says the column is being populated on the same parsed status, so view
+    and instrument pages agree in every state (batch 3 round 5 item 2)."""
+    tsc = ""
+    col = next((k for k in keys
+                if CROSSWALK_BY_KEY[k].compliance_column == "AICPA TSC 2017"),
+               None)
+    if col is not None:
+        if xw["instruments"][col]["column_populating"]:
+            tsc = (
+                " Its AICPA TSC 2017 column is being populated domain by "
+                "domain: until a document's Trust Services Criteria mapping "
+                "has been assessed, its N/A in that column records that no "
+                "mapping has been made yet and does not assert that no "
+                "criterion applies."
+            )
+        tsc += (
+            " The table here leaves an AICPA TSC cell empty where every "
+            "document the matrix lists for the domain has N/A in that column."
+        )
+    elif inst is not None and inst.compliance_column == "AICPA TSC 2017":
+        data = xw["instruments"][inst.key]
+        rows, na = data["column_rows"], data["column_na"]
+        if na and na == rows:
+            held = (
+                "its one row is" if rows == 1 else
+                f"every one of its {rows} rows is"
+            )
+        elif na:
+            held = f"{na} of its {rows} rows {'is' if na == 1 else 'are'}"
+        else:
+            held = (
+                "its one row is not" if rows == 1 else
+                f"none of its {rows} rows is"
+            )
+        if data["column_populating"]:
+            tsc = (
+                " Its AICPA TSC 2017 column is being populated domain by "
+                f"domain: {held} N/A in that column today; until a row's "
+                "Trust Services Criteria mapping has been assessed, its N/A "
+                "in that column records that no mapping has been made yet "
+                "and does not assert that no criterion applies."
+            )
     return "\n".join((
         "<p>From the " + _xw_matrix_link(xw, CROSSWALK_COMPLIANCE_MATRIX_PATH)
         + ": citations are indicative, not exhaustive (the "
         "representative-citation convention), and no entry constitutes a "
-        "certification, attestation, or legal opinion. In the AICPA TSC "
-        "column, an N/A records that no mapping has been made yet and does "
-        "not assert that no criterion applies.</p>",
+        f"certification, attestation, or legal opinion.{tsc}</p>",
         "<p>From the " + _xw_matrix_link(xw, CROSSWALK_REVERSE_MATRIX_PATH)
         + ": coverage is partial, and external control identifiers and "
         "clause numbers are referenced for navigation only; the library does "
@@ -6159,64 +6673,120 @@ def render_crosswalk_caveats(xw):
     ))
 
 
-def render_crosswalk_views(current=None):
-    """The preset quick-select list as plain links (design C 3.7): All plus
-    one link per generated preset view, the current view marked. The list
-    sits vertically in the page's right-hand rail, one side only (maintainer
-    direction, 2026-11-03 15:09Z); it moves to the left rail when the
-    template owner ships one."""
-    items = []
-    mark = ' aria-current="page"' if current is None else ""
-    items.append(f'<li><a href="{{{{BASE}}}}/crosswalk/"{mark}>All</a></li>')
-    for preset in CROSSWALK_PRESETS:
-        mark = ' aria-current="page"' if current == preset.slug else ""
-        items.append(
-            f'<li><a href="{{{{BASE}}}}/crosswalk/view/{preset.slug}/"{mark}>'
-            f"{_esc(preset.label)}</a></li>"
+def render_crosswalk_rail(xw, current=None, matrix=False):
+    """The crosswalk side list (spec 7.32; maintainer direction 2026-11-03
+    15:06Z and 15:09Z: one side rail, on the left, which the right rail
+    stood in for until the template carried it): the Views list, All plus
+    one preset per topic view, then every instrument under its group,
+    the "Also in the corpus" instruments included, each linking its page.
+    On the crosswalk page (``matrix``) each view carries its matrix.js
+    preset keys and id (spec 7.30); every view stays a link to the page that
+    shows it without script, and the current page's view is marked."""
+
+    def view(href, keys, slug, label, here):
+        attrs = ' aria-current="page"' if here else ""
+        if matrix:
+            attrs += f' data-preset="{" ".join(keys)}" data-preset-id="{slug}"'
+        return f'<li><a href="{href}"{attrs}>{_esc(label)}</a></li>'
+
+    views = [view("{{BASE}}/crosswalk/", (), CROSSWALK_ALL_ID, "All",
+                  current is None)]
+    for preset in xw["presets"]:
+        views.append(view(
+            f"{{{{BASE}}}}/crosswalk/view/{preset.slug}/", preset.columns,
+            preset.slug, preset.label, current == preset.slug,
+        ))
+    parts = ['<p class="lbl">Views</p><ul>\n' + "\n".join(views) + "\n</ul>"]
+    for group in CROSSWALK_RAIL_GROUPS:
+        keys = [i.key for i in CROSSWALK_INSTRUMENTS if i.group == group]
+        if not keys:
+            continue
+        parts.append(
+            f'<p class="lbl">{_esc(group)}</p><ul>\n'
+            + "\n".join(
+                f'<li><a href="{{{{BASE}}}}/crosswalk/{key}/">'
+                f'{_esc(xw["instruments"][key]["display"])}</a></li>'
+                for key in keys
+            )
+            + "\n</ul>"
         )
-    return "\n".join(items)
-
-
-def _xw_instrument_chips(xw, keys):
-    return "".join(
-        f'<li><a href="{{{{BASE}}}}/crosswalk/{key}/">'
-        f'{_esc(xw["instruments"][key]["display"])}</a></li>'
-        for key in keys
-    )
-
-
-def render_crosswalk_index(xw):
-    """The instrument index under the main table: the instrument groups as
-    labelled bands (design C 3.2), then the register-and-taxonomy-only pages
-    as the "Also in the corpus" tail (design C 3.4)."""
-    main_keys = [i.key for i in CROSSWALK_INSTRUMENTS if i.main_table]
-    parts = [
-        f'<p class="lbl sec">Instruments, {len(main_keys)}</p>',
-        '<h2 id="instruments">Instrument pages</h2>',
-        "<p>Each instrument page carries its register record, its matrix "
-        "mappings grouped by domain, and the documents naming it in their "
-        "framework alignment lists.</p>",
-    ]
-    for group in CROSSWALK_GROUPS:
-        keys = [i.key for i in CROSSWALK_INSTRUMENTS
-                if i.main_table and i.group == group]
-        parts.append(f'<p class="lbl blk">{_esc(group)}</p>')
-        parts.append('<ul class="chips">' + _xw_instrument_chips(xw, keys)
-                     + "</ul>")
-    extra_keys = [i.key for i in CROSSWALK_INSTRUMENTS if not i.main_table]
-    parts.append('<h2 id="also">Also in the corpus</h2>')
-    parts.append(
-        "<p>Instruments with a register row and corpus citations but no "
-        "matrix column yet; each links its instrument page.</p>"
-    )
-    parts.append('<ul class="chips">' + _xw_instrument_chips(xw, extra_keys)
-                 + "</ul>")
     return "\n".join(parts)
+
+
+def _xw_views_intro(xw, preset):
+    """The sentences about the side list, true for every item they cover and
+    derived from the topics: each preset is one topic's columns
+    (crosswalk_presets, which also puts every column in a topic), All opens
+    the full table and each topic view a page of its columns, the row-header
+    column carries no data-col, the clauses on topics spanning groups and
+    columns shared between topics appear only while some topic does so, the
+    Views list holds only All and the topic views while the group lists
+    below it hold the instruments, and every instrument outside the column
+    groups is an "Also in the corpus" page with no column."""
+    if preset is not None:
+        return (
+            "The Views list opens the other views, All among them, and the "
+            "group lists below it name every instrument under its group, "
+            "each linking its instrument page."
+        )
+    presets = xw["presets"]
+    group_of = {i.key: i.group for i in CROSSWALK_INSTRUMENTS}
+    spans = [p for p in presets
+             if len({group_of[k] for k in p.columns}) > 1]
+    seen = [k for p in presets for k in p.columns]
+    shared = sorted({k for k in seen if seen.count(k) > 1})
+    related = [p for p in presets if p.related]
+    text = (
+        f"Each of the {len(presets)} topic views in the Views list "
+        "shows the columns for one topic, and All shows every column; every "
+        "column is in at least one topic, and the Domain column shows in "
+        "every view."
+    )
+    if spans and shared:
+        text += (
+            " A topic can take columns from more than one instrument group, "
+            "and a column can sit in more than one topic."
+        )
+    elif spans:
+        text += (
+            " A topic can take columns from more than one instrument group."
+        )
+    elif shared:
+        text += " A column can sit in more than one topic."
+    text += (
+        " Without script every column shows here, All is a link to this full "
+        "table, and each topic view is a link to a page with that topic's "
+        "columns only"
+    )
+    text += (
+        ", which also links the topic's related instrument pages where it "
+        "has any." if related else "."
+    )
+    also = [i for i in CROSSWALK_INSTRUMENTS if i.group == _XW_G_ALSO]
+    text += (
+        " Below the Views list, the group lists name every instrument under "
+        "its group, each linking its instrument page"
+    )
+    if len(also) == 1:
+        text += (
+            f"; the 1 under {_XW_G_ALSO} has a page and no column until a "
+            "matrix carries it."
+        )
+    elif also:
+        text += (
+            f"; the {len(also)} under {_XW_G_ALSO} have a page and no column "
+            "until a matrix carries them."
+        )
+    else:
+        text += "."
+    return text
 
 
 def draft_crosswalk_values(xw, preset=None):
     """Per-page values for the crosswalk table page: the full table when
-    ``preset`` is None, else that preset's columns only (design C 3.7)."""
+    ``preset`` is None, as the page's one matrix with matrix.js and its
+    status line (spec 7.30), else that preset's columns only, the static view
+    its preset link opens without script (design C 3.7)."""
     main_keys = [i.key for i in CROSSWALK_INSTRUMENTS if i.main_table]
     if preset is None:
         keys = main_keys
@@ -6224,9 +6794,10 @@ def draft_crosswalk_values(xw, preset=None):
         heading = "The crosswalk"
         meta = (
             f"{len(main_keys)} instruments across {len(xw['domains'])} "
-            "domains, every cell generated from the corpus alignment "
-            "matrices at build time."
+            "domains in the full table, every cell generated from the corpus "
+            "alignment matrices at build time."
         )
+        label = f"The full table, {len(keys)} instruments"
         lead = (
             "Where the corpus maps to the standards, laws, frameworks, and "
             "programmes it cites. Every row, column, cell, and count is "
@@ -6234,43 +6805,61 @@ def draft_crosswalk_values(xw, preset=None):
             "framework control crosswalk, the canonical citations register, "
             "and the taxonomy."
         )
-        below = render_crosswalk_index(xw)
+        below = ""
         next_url = "{{BASE}}/browse/"
         next_label = "Browse by need, domain, or type"
     else:
-        keys = list(preset.columns)
+        # The view's columns in the full table's order, so the static page
+        # and the scripted view (matrix.js hides, never reorders) agree.
+        keys = [k for k in main_keys if k in preset.columns]
         title = f"Crosswalk: {preset.label}"
         heading = f"Crosswalk: {preset.label}"
         meta = (
-            f"A preset view showing {len(keys)} of the crosswalk's "
+            f"A topic view showing {len(keys)} of the crosswalk's "
             f"{len(main_keys)} instrument columns."
         )
         lead = (
             f"The {preset.label} view of the crosswalk: the same generated "
             "table, restricted to its columns. The All link opens every "
-            "instrument."
+            "instrument column."
         )
-        related = ""
+        label = (f"This view, {len(keys)} "
+                 f"{'instrument' if len(keys) == 1 else 'instruments'}")
+        below = ""
         if preset.related:
-            related = (
+            below = (
                 '<p class="lbl blk">Related instrument pages</p>'
-                '<ul class="chips">'
-                + _xw_instrument_chips(xw, preset.related) + "</ul>"
+                '<ul class="chips">' + "".join(
+                    f'<li><a href="{{{{BASE}}}}/crosswalk/{key}/">'
+                    f'{_esc(xw["instruments"][key]["display"])}</a></li>'
+                    for key in preset.related
+                ) + "</ul>"
             )
-        below = related
         next_url = "{{BASE}}/crosswalk/"
         next_label = "Open the full crosswalk"
+    matrix = preset is None
     return {
-        **_draft_nav(),
+        **_draft_nav("crosswalk"),
         "XW_TITLE": _esc(title),
         "XW_HEADING": _esc(heading),
         "XW_META": meta,
         "XW_LEAD": lead,
-        "XW_VIEWS": render_crosswalk_views(preset.slug if preset else None),
-        "XW_TABLE_CAPTION": f"The crosswalk, {len(keys)} instruments",
-        "XW_TABLE": render_crosswalk_table(xw, keys),
+        "XW_SCRIPT": (
+            '<script src="{{BASE}}/assets/baseline/matrix.js" defer></script>'
+            if matrix else ""
+        ),
+        "XW_RAIL": render_crosswalk_rail(
+            xw, preset.slug if preset else None, matrix),
+        "XW_TABLE_CAPTION": label,
+        "XW_TABLE_INTRO": _xw_table_intro(xw, keys, matrix),
+        "XW_VIEWS_INTRO": _xw_views_intro(xw, preset),
+        "XW_STATUS": (
+            '<p class="matrix-status" role="status" aria-live="polite" '
+            "data-matrix-status></p>" if matrix else ""
+        ),
+        "XW_TABLE": render_crosswalk_table(xw, keys, matrix),
         "XW_BELOW": below,
-        "XW_CAVEATS": render_crosswalk_caveats(xw),
+        "XW_CAVEATS": render_crosswalk_caveats(xw, keys),
         "XW_NEXT_URL": next_url,
         "XW_NEXT_LABEL": next_label,
     }
@@ -6439,7 +7028,7 @@ def draft_crosswalk_instrument_values(xw, inst):
             "maps column by column"
         )
     return {
-        **_draft_nav(),
+        **_draft_nav("crosswalk"),
         "XWI_TITLE": _esc(f"{data['display']} crosswalk"),
         "XWI_HEADING": _esc(data["display"]),
         "XWI_META": _esc(inst.group) + ".",
@@ -6448,7 +7037,7 @@ def draft_crosswalk_instrument_values(xw, inst):
         ),
         "XWI_REGISTER": _xw_register_block(inst, row),
         "XWI_SECTIONS": "\n".join(sections),
-        "XW_CAVEATS": render_crosswalk_caveats(xw),
+        "XW_CAVEATS": render_crosswalk_caveats(xw, inst=inst),
     }
 
 
@@ -6570,7 +7159,8 @@ def render_draft_variant(figures, variant):
 
     # One page per document type (/types/<slug>/, the route the other
     # variants' type pages use), chained by Next like the domain pages; the
-    # Browse "By type" entries and the search page's type chips link here.
+    # Browse "By type" entries link here, and each page links its type's
+    # facet address on All Documents.
     type_seq = figures["type_pages"]
     for idx, tp in enumerate(type_seq):
         if idx + 1 < len(type_seq):
@@ -6633,9 +7223,11 @@ def render_draft_variant(figures, variant):
             )
 
     # The crosswalk preset views and instrument pages (design C 3.4 and 3.7):
-    # one static page per preset, each the same generated table restricted to
-    # its columns, and one page per configured instrument.
-    for preset in CROSSWALK_PRESETS:
+    # one static page per preset (one per topic view), each the same
+    # generated table restricted to its columns and the page its matrix.js
+    # preset link opens without script, and one page per configured
+    # instrument.
+    for preset in crosswalk["presets"]:
         emit(
             "crosswalk.html", f"crosswalk/view/{preset.slug}/index.html",
             draft_crosswalk_values(crosswalk, preset),

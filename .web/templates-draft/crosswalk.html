@@ -5,23 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{XW_TITLE}} | GRCLibrary.ai</title>
 {{HEAD_STYLE}}
-{{SCRIPT}}
+{{SCRIPT}}{{XW_SCRIPT}}
 </head>
 <body>
 <a class="skip" href="#main-content">Skip to content</a>
 {{TOPBAR}}
 <main id="main-content">
-<div class="wrap"><div class="doc"><p class="lbl first">Crosswalk</p>
+<div class="wrap"><div class="doc left-rail"><p class="lbl first">Crosswalk</p>
 <h1>{{XW_HEADING}}</h1>
-<div class="rail"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"><p class="lbl">Views</p><nav aria-label="Preset views"><ul>
-{{XW_VIEWS}}
-</ul></nav></div>
+<div class="lrail"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"><nav aria-label="Crosswalk views and instruments">
+{{XW_RAIL}}
+</nav></div>
 <p class="meta">{{XW_META}}</p>
 <p class="lead">{{XW_LEAD}}</p>
 <p class="lbl sec">{{XW_TABLE_CAPTION}}</p>
 <h2 id="table">Domains by instruments</h2>
-<p>Rows are the corpus domains and columns are the instruments the alignment matrices map. A cell carries the representative identifiers the compliance alignment matrix records for that domain and a generated document count that opens the instrument page at that domain; n/a marks no direct mapping recorded.</p>
-<div class="wide"><div class="tablewrap" tabindex="0">
+<p>{{XW_TABLE_INTRO}}</p>
+<p>{{XW_VIEWS_INTRO}}</p>
+{{XW_STATUS}}
+<div class="wide"><div class="tablewrap bounded" tabindex="0">
 {{XW_TABLE}}
 </div></div>
 {{XW_BELOW}}
