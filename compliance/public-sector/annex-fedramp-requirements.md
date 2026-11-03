@@ -2,8 +2,8 @@
 
 **Document Title:** FedRAMP Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.17\
-**Date:** 2026-09-24\
+**Version:** 0.0.19\
+**Date:** 2026-11-03\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -118,9 +118,6 @@ Library gaps requiring additional documentation for a FedRAMP authorization pack
 | --- | --- | --- |
 | FedRAMP Rev5 | NIST SP 800-53 Rev. 5 controls (class-specific, per FedRAMP Rev5 Controls Guidance) | Legacy documented-plans certification type; applicable controls recorded in the Security Decision Record |
 | FedRAMP 20x | 2026 Consolidated Rules + Key Security Indicators (KSIs) | Modern measured-outcomes certification type; certification Classes A to D |
-| Certification Package Overview (CPO) | 2026 Consolidated Rules certification package | For Rev5, replaces the historically required System Security Plan (not including appendices); supplied in human-readable and JSON formats |
-| Security Decision Record (SDR) | 2026 Consolidated Rules certification package | Persistently maintained record of a provider's security decisions; replaces the traditional System Security Plan for both types |
-| Key Security Indicators (KSIs) | Finalized 2026 KSI content, folded into the Consolidated Rules | 20x measured-outcome evidence (supersedes the RFC-0006 draft) |
 | NIST SP 800-53 Rev. 5 | Security and Privacy Controls | Underlying Rev5 control catalogue |
 | NIST SP 800-37 Rev. 2 | Risk Management Framework | Authorization lifecycle |
 | NIST SP 800-171 / 800-172 | Protecting CUI | External CUI-protection standards, where applicable; not imposed by the 2026 FedRAMP rules |
@@ -129,7 +126,17 @@ Library gaps requiring additional documentation for a FedRAMP authorization pack
 | FIPS 200 | Minimum Security Requirements | Baseline prerequisite |
 | FIPS 140 (NIST CMVP) | Cryptographic module validation | Cryptographic module use documented per the 2026 rules; using CMVP-validated modules or update streams is class-dependent (Classes A and B may, Class C should, Class D must) |
 
-The 2026 Consolidated Rules distinguish applicability by certification type (Rev5 or 20x) and by certification class (A to D). Their held timeline places the rules in optional adoption from 4 July 2026, schedules mandatory adoption for 1 January 2027, and ends new Rev5 certifications on 11 June 2027; these dates are from the held July 2026 snapshot, so verify the live FedRAMP rules before relying on the transition timeline. RFC-0006 is a superseded historical draft; the finalized Key Security Indicators are the current 20x specification. The Authorization route selection and Certification class selection sections, the certification-package documentation, and the Framework alignment table now reflect the 2026 certification-profile structure (type, path, and class), the Certification Classes A to D, and the Certification Package Overview / Security Decision Record documentation model. JAB Provisional ATO is retired and FedRAMP Ready went legacy in July 2026 (no new submissions; existing Ready status persists through the transition).
+Under the held 2026 Consolidated Rules (rule FRC-CSO-PKG), the FedRAMP Certification Package supplied for initial certification must include at least a Certification Package Overview, a Security Decision Record, and a real or example Ongoing Certification Report. These are package documentation, not frameworks, and are recorded separately:
+
+| Certification-package artefact | Defined by | Relevance |
+| --- | --- | --- |
+| Certification Package Overview (CPO) | 2026 Consolidated Rules certification package (FRC-CSO-PKG) | For Rev5, replaces the historically required System Security Plan (not including appendices); supplied in human-readable and JSON formats |
+| Security Decision Record (SDR) | 2026 Consolidated Rules certification package (FRC-CSO-PKG) | Persistently maintained record of a provider's security decisions; replaces the traditional System Security Plan for both types |
+| Ongoing Certification Report (OCR) | 2026 Consolidated Rules certification package (FRC-CSO-PKG), following the report-availability rule (CCM-OCR-AVL) | A real or example report is part of the initial certification package; Ongoing Certification reporting then follows the cadence under Operating expectations |
+
+Key Security Indicators (KSIs) are not a certification-package artefact type: they are the 20x specification's measured-outcome indicators (the finalized 2026 KSI content, folded into the Consolidated Rules), and the Security Decision Record carries the Key Security Indicator information for a 20x certification.
+
+The 2026 Consolidated Rules distinguish applicability by certification type (Rev5 or 20x) and by certification class (A to D). Their held timeline places the rules in optional adoption from 4 July 2026, schedules mandatory adoption for 1 January 2027, and ends new Rev5 certifications on 11 June 2027; these dates are from the held July 2026 snapshot, so verify the live FedRAMP rules before relying on the transition timeline. RFC-0006 is a superseded historical draft; the finalized Key Security Indicators are the current 20x specification. The Authorization route selection and Certification class selection sections, the certification-package documentation, and the Framework alignment section now reflect the 2026 certification-profile structure (type, path, and class), the Certification Classes A to D, and the Certification Package Overview / Security Decision Record documentation model. JAB Provisional ATO is retired and FedRAMP Ready went legacy in July 2026 (no new submissions; existing Ready status persists through the transition).
 
 ---
 

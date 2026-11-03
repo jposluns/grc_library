@@ -2,8 +2,8 @@
 
 **Document Title:** ETSI Securing-AI Baseline Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 0.0.4\
-**Date:** 2026-09-21\
+**Version:** 0.0.5\
+**Date:** 2026-11-03\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md)\
@@ -209,7 +209,7 @@ The library is notably deeper than the baseline on adversarial testing and on ac
 
 ## Framework alignment notes
 
-- **Normative weight.** EN 304 223 is a European Norm; its `shall` and `should` provisions are citable as a normative anchor. The TR 104 128 guide and the ETSI GR SAI reports are informative; a mapping to them is an orientation, and this matrix marks informative sources as see-also rather than as an obligation.
+- **ETSI EN 304 223 V2.1.1 (2025-12)**: EN 304 223 is a European Norm; its `shall` and `should` provisions are citable as a normative anchor. The TR 104 128 guide and the ETSI GR SAI reports are informative; a mapping to them is an orientation, and this matrix marks informative sources as see-also rather than as an obligation.
 - **Distributed traceability.** Several carrier documents already cite specific EN 304 223 provisions in their own `Framework alignment` tables (for example [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md) and [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md)). This matrix is the index across those carriers; the per-document tables are the distributed record.
 - **Informative companion reports.** The ETSI GR SAI group-report family (Threat Ontology, Data Supply Chain Security, Mitigation Strategy, Role of Hardware, Explicability and Transparency) provides informative threat and mitigation taxonomies. Their themes are substantially reflected in the corpus AI-security content surveyed above; hardware and confidential-computing for AI is the thinnest theme. These reports are informative see-also, not baseline requirements.
 

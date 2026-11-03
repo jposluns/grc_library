@@ -286,6 +286,7 @@ _GENERIC_HEAD_EXACT = {
     "applicability condition", "framework coverage", "control objective",
     "evidence class", "evidence sharing", "evidence or rationale",
     "applies", "applies?", "practice analogue", "corpus artefact",
+    "itgc family",
 }
 
 
@@ -303,6 +304,14 @@ def _is_internal_ref(value: str) -> bool:
     return False
 
 
+# A reference cell that is wholly ONE Markdown link to a repository .md file
+# (optional #fragment), in either corpus form: [`path/doc.md`](doc.md) or
+# [Display Title](doc.md). The destination, not the display text, is what
+# makes the row an internal corpus cross-reference.
+_INTERNAL_REF_CELL_RE = re.compile(
+    r"^\[[^\]]+\]\(\s*[^)#\s]+\.md(?:#[^)\s]*)?\s*\)$")
+
+
 # A jurisdiction/authority label column, e.g. "Australia instrument",
 # "Colorado AI statute" (a leading name word + an instrument/statute noun).
 # Scoped so a real framework column like "NIST reference" is NOT caught.
@@ -310,11 +319,63 @@ _JURIS_LABEL_RE = re.compile(
     r"^[a-z][a-z/ .-]*\s+(?:instruments?|statutes?|obligations?)$", re.I)
 
 
+# A generic obligation-category value ("Insurance policy terms", "Local fire
+# and building codes"): a jurisdiction-, policy- or contract-dependent
+# obligation class with no nameable instrument. Shape: no digit and no capital
+# past the first character, ending in an obligation noun. A real instrument
+# carries an acronym, a number, or a proper name after the first word
+# ("Quebec Law 25", "IEC 62443 family"), so it never matches.
+_GENERIC_CATEGORY_RE = re.compile(
+    r"^[A-Za-z][a-z /,-]*(?:codes?|laws?|terms|regimes?)$")
+
+
 def _is_generic_label(cell: str) -> bool:
+    """A HEADER cell that labels a column rather than naming a framework."""
     c = cell.strip()
     return (c.lower() in _GENERIC_HEAD_EXACT
             or bool(_GENERIC_HEAD_RE.match(c))
-            or bool(_JURIS_LABEL_RE.match(c)))
+            or bool(_JURIS_LABEL_RE.match(c))
+            or bool(_GENERIC_CATEGORY_RE.match(c)))
+
+
+def _is_generic_value(cell: str) -> bool:
+    """A DATA value that names an obligation category, not an instrument.
+    Narrower than ``_is_generic_label``: the header-label patterns
+    (``_GENERIC_HEAD_RE``, ``_JURIS_LABEL_RE``) match real instrument
+    strings when applied to data ("EU AI Act classification obligations",
+    "HIPAA obligation"), so a data value is rejected only on the exact label
+    set and the generic obligation-category shape."""
+    c = cell.strip()
+    return (c.lower() in _GENERIC_HEAD_EXACT
+            or bool(_GENERIC_CATEGORY_RE.match(c)))
+
+
+# Backstop bound on a frameworks value. Every instrument citation the corpus
+# carries sits under it, and the regression test
+# ``test_no_corpus_frameworks_value_is_dropped_by_length`` proves that lifting
+# the bound changes no document's extracted frameworks. A real citation that
+# outgrows the bound is shortened at source to an instrument-first citation
+# with its provenance in prose (as the GC CSEMP, China Cybersecurity Law and
+# EDPB Guidelines cells were), never silently dropped here.
+FW_MAX_LEN = 200
+
+_NA_NOTE_RE = re.compile(r"\bn/a\b", re.I)
+
+# A citation may end in an abbreviation's own period ("42 U.S.C. 17921 et
+# seq."); the trailing-period prose test keeps a value ending in one of these.
+_ABBREV_END_RE = re.compile(r"\b(?:et seq|U\.S\.C|No|Art|para)\.$")
+
+
+def _is_fragment(value: str) -> bool:
+    """A cell or bullet value that is not an instrument name: a sentence
+    lead-in or other prose (trailing period, unless the period belongs to a
+    known citation abbreviation, ``_ABBREV_END_RE``), an N/A or absence note,
+    or a string longer than any legitimate instrument citation
+    (``FW_MAX_LEN``)."""
+    v = value.strip()
+    return ((v.endswith(".") and not _ABBREV_END_RE.search(v))
+            or bool(_NA_NOTE_RE.search(v))
+            or len(v) > FW_MAX_LEN)
 
 
 def _split_fw(cell: str) -> list[str]:
@@ -337,7 +398,7 @@ def _split_fw(cell: str) -> list[str]:
             buf += ch
     parts.append(buf)
     return [f for f in (_flatten_md(p) for p in parts if p.strip())
-            if f and not _is_internal_ref(f)]
+            if f and not _is_internal_ref(f) and not _is_generic_value(f)]
 
 
 def _clean_fw(cell: str) -> str:
@@ -346,9 +407,10 @@ def _clean_fw(cell: str) -> str:
 
 
 def _dedup(seq: list[str]) -> list[str]:
+    """De-duplicate, dropping empties, dash runs, and non-instrument fragments."""
     out: dict[str, None] = {}
     for x in seq:
-        if x and set(x) != {"-"}:
+        if x and set(x) != {"-"} and not _is_fragment(x):
             out.setdefault(x, None)
     return list(out)
 
@@ -362,6 +424,12 @@ def extract_frameworks(text: str) -> list[str]:
     first-column header), and a 2-column control/reference mapping (frameworks in
     the reference-column data cells). Reads only the FIRST table in the section,
     drops generic label columns, flattens inline Markdown, and de-duplicates.
+    Emits instrument names only: a sentence lead-in or prose fragment (trailing
+    period not belonging to a citation abbreviation, or longer than
+    ``FW_MAX_LEN``), an N/A or absence note, a generic obligation category,
+    and a row whose reference cell is wholly one link to a repository .md
+    file are all rejected (``_is_fragment``, ``_is_generic_label`` for header
+    cells, ``_is_generic_value`` for data values, ``_INTERNAL_REF_CELL_RE``).
     Empty list if the document carries no such table."""
     lines = text.splitlines()
     for i, ln in enumerate(lines):
@@ -417,6 +485,15 @@ def extract_frameworks(text: str) -> list[str]:
                 out = []
                 for r in data:
                     if r and r[0]:
+                        # A row whose raw reference cell is wholly one link to
+                        # a repository .md file (optional fragment) maps a
+                        # corpus document, not an external instrument,
+                        # whatever the link's display text. A cell that merely
+                        # mentions a repo link in a longer explanation keeps
+                        # its row.
+                        ref = r[1].strip() if len(r) > 1 and r[1] else ""
+                        if _INTERNAL_REF_CELL_RE.match(ref):
+                            continue
                         out.extend(_split_fw(r[0]))
                 return _dedup(out)
             # column-oriented: header columns after the first (control) column,

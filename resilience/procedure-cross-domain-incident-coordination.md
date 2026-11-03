@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Domain Incident Coordination Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.18\
-**Date:** 2026-11-01\
+**Version:** 1.1.19\
+**Date:** 2026-11-03\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -253,13 +253,15 @@ Maintain joint declaration record, coordination roster snapshot, joint decision 
 | Incident management programme | ISO/IEC 27035-1:2023, ISO/IEC 27035-2:2023; ISO/IEC 27001:2022 Annex A.5.24 to A.5.28; ISO/IEC 27002:2022 5.24 to 5.28 |
 | Cross-organization incident coordination (supplier and affected-party engagement) | ISO/IEC 27035-4:2024 (Part 4: Coordination); ISO/IEC 27036-2:2022 7.3.3, Table 18, a) 5) ii) (incident management procedure agreed by the acquirer and the supplier); ISO/IEC 27701:2025 B.3.12 (PII processor breach notification provisions) |
 | Business continuity coordination | ISO 22301:2019 §8.4 |
-| Cybersecurity incident handling | NIST SP 800-61 Rev. 3; China Cybersecurity Law Article 27 (consolidated text as amended 28 October 2025; amended numbering, in force 1 January 2026 under the NPC Standing Committee amendment decision of 28 October 2025); China Data Security Law Article 29 (data security incidents; unofficial DigiChina English translation of the law in force 1 September 2021) |
-| Personal data breach coordination | GDPR Articles 33 to 34; UK GDPR Articles 33 to 34 (consolidated text retrieved 29 September 2026); PIPL Article 57 (unofficial DigiChina English translation, last revised 7 September 2021); China Cybersecurity Law Articles 27 and 44 para. 2 (consolidated text as amended 28 October 2025; amended numbering, in force 1 January 2026 under the NPC Standing Committee amendment decision of 28 October 2025); LGPD Article 48 |
+| Cybersecurity incident handling | NIST SP 800-61 Rev. 3; China Cybersecurity Law Article 27; China Data Security Law Article 29 (data security incidents; unofficial DigiChina English translation of the law in force 1 September 2021) |
+| Personal data breach coordination | GDPR Articles 33 to 34; UK GDPR Articles 33 to 34 (consolidated text retrieved 29 September 2026); PIPL Article 57 (unofficial DigiChina English translation, last revised 7 September 2021); China Cybersecurity Law Articles 27 and 44 para. 2; LGPD Article 48 |
 | Operational resilience incident coordination | DORA Articles 17 and 19; Commission Delegated Regulation (EU) 2025/301 of 23 October 2024 Article 5 (time limits for DORA major-incident reports); NIS 2 Article 23; CER Directive (EU) 2022/2557 of 14 December 2022 Article 15 (critical entities) |
 | Operational service major incident coordination | ISO/IEC 20000-1:2018 §8.6.1 |
 | Cloud incident management | CSA CCM v4.1 SEF-03, SEF-07, SEF-08, SEF-09; ISO/IEC 27018:2025 A.10.1 (notification of a data breach involving PII) |
 | AI security incident response | NIST AI RMF 1.0 MANAGE 4.3; ISO/IEC 42001:2023 A.8.4 (Communication of incidents); ETSI TR 104 128 V1.1.1 (2025-05) clause 6.6.5; SANS Critical AI Security Guidelines v1.4 (March 2026), Incident Response and Forensics for AI Systems |
 | Joint exercises | NIST SP 800-84 (2006) Section 2 (tabletop and functional exercises) |
+
+The China Cybersecurity Law citations in the table are to the consolidated text as amended 28 October 2025; the amended numbering is in force 1 January 2026 under the NPC Standing Committee amendment decision of 28 October 2025.
 
 ---
 

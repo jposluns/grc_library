@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Intelligence and SIEM Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.16\
-**Date:** 2026-10-27\
+**Version:** 1.3.18\
+**Date:** 2026-11-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -72,6 +72,8 @@ The organization maintains a diverse, layered threat intelligence programme draw
 | **Dark Web and Criminal Forums** | Monitored via contracted threat intelligence service for credential exposure and pre-attack planning indicators | Vendor-curated alerting |
 | **Internal Telemetry** | SIEM-generated indicators from detected incidents, endpoint detection telemetry, DNS anomalies, and authentication failures | Automated from SIEM correlation output |
 | **Incident Response Findings** | Indicators and TTPs identified during post-incident reviews | Manual ingestion following PIR completion |
+
+For a Government of Canada organization, the GC Cyber Security Event Management Plan §2.3.1.1 sets the expectation that, in addition to monitoring CCCS advisories, GC organizations are expected to monitor vendor notifications (held text: date modified 2026-05-20; currency to be confirmed upstream).
 
 ### 3.2 Source evaluation
 
@@ -326,7 +328,7 @@ Metric trends are reviewed for continual improvement. Lessons learned from incid
 
 | Control Area | Framework Reference |
 | --- | --- |
-| Threat intelligence programme | NIST SP 800-150; ISO/IEC 27001:2022 Annex A.5.7; CSA CCM TVM-01, TVM-04, TVM-05; for a Government of Canada organization, the GC Cyber Security Event Management Plan (held text: date modified 2026-05-20; currency to be confirmed upstream) §2.3.1.1 (in addition to monitoring CCCS advisories, GC organizations are expected to monitor vendor notifications) and §2.3.1.2 (CCCS product types) |
+| Threat intelligence programme | NIST SP 800-150; ISO/IEC 27001:2022 Annex A.5.7; CSA CCM TVM-01, TVM-04, TVM-05; GC Cyber Security Event Management Plan §2.3.1.1 and §2.3.1.2 (Government of Canada organizations; held text: date modified 2026-05-20, currency to be confirmed upstream) |
 | SIEM operations and monitoring | CSA CCM LOG-03, LOG-05; NIST CSF 2.0 DE.CM-01, DE.CM-09; ISO/IEC 27002:2022 §8.16; NIST SP 800-92 §5.5 |
 | Correlation rule development | MITRE ATT&CK Enterprise; NIST SP 800-53 Rev. 5 SI-4; CSA CCM LOG-05 |
 | Threat hunting | MITRE ATT&CK; NIST CSF 2.0 DE.AE-02, DE.AE-03, DE.AE-07; ISO/IEC 27002:2022 §8.16; CSA CCM LOG-05 |

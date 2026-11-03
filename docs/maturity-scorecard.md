@@ -100,7 +100,7 @@ _135 documents._
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.7.1 | 2026-10-16 |
 | [operations/procedure-media-handling-and-transport.md](../operations/procedure-media-handling-and-transport.md) | Media Handling and Transport Procedure | Procedure | 1.10.1 | 2026-10-23 |
 | [operations/procedure-security-monitoring-and-alert-management.md](../operations/procedure-security-monitoring-and-alert-management.md) | Security Monitoring and Alert Management Procedure | Procedure | 1.4.2 | 2026-10-27 |
-| [operations/procedure-threat-intelligence-and-siem-operations.md](../operations/procedure-threat-intelligence-and-siem-operations.md) | Threat Intelligence and SIEM Operations Procedure | Procedure | 1.3.16 | 2026-10-27 |
+| [operations/procedure-threat-intelligence-and-siem-operations.md](../operations/procedure-threat-intelligence-and-siem-operations.md) | Threat Intelligence and SIEM Operations Procedure | Procedure | 1.3.18 | 2026-11-03 |
 | [operations/register-asset-inventory.md](../operations/register-asset-inventory.md) | Asset Inventory Register | Register | 1.1.3 | 2026-10-27 |
 | [operations/register-it-operations-kpis.md](../operations/register-it-operations-kpis.md) | IT Operations Key Performance Indicators Register | Register | 1.1.11 | 2026-10-21 |
 | [operations/standard-certificate-authority-management.md](../operations/standard-certificate-authority-management.md) | Certificate Authority Management Standard | Standard | 1.3.12 | 2026-09-16 |
@@ -126,7 +126,7 @@ _135 documents._
 | [privacy/jurisdictions/annex-privacy-united-states.md](../privacy/jurisdictions/annex-privacy-united-states.md) | United States Privacy Regulatory Requirements | Annex | 1.2.14 | 2026-10-03 |
 | [privacy/jurisdictions/annex-privacy-vietnam.md](../privacy/jurisdictions/annex-privacy-vietnam.md) | Vietnam Privacy Regulatory Requirements | Annex | 1.2.4 | 2026-10-01 |
 | [privacy/policy-privacy-and-data-governance.md](../privacy/policy-privacy-and-data-governance.md) | Privacy and Data Governance Policy | Policy | 1.4.30 | 2026-10-27 |
-| [privacy/procedure-data-protection-and-privacy-breach-response.md](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection and Privacy Breach Response Procedure | Procedure | 1.10.12 | 2026-10-27 |
+| [privacy/procedure-data-protection-and-privacy-breach-response.md](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection and Privacy Breach Response Procedure | Procedure | 1.10.13 | 2026-11-03 |
 | [privacy/procedure-data-subject-rights-management.md](../privacy/procedure-data-subject-rights-management.md) | Data Subject Rights Management Procedure | Procedure | 1.6.50 | 2026-10-31 |
 | [privacy/procedure-privacy-impact-and-cross-border-transfer.md](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Privacy Impact and Cross-Border Transfer Procedure | Procedure | 1.6.13 | 2026-10-26 |
 | [privacy/template-dsar-workflow.md](../privacy/template-dsar-workflow.md) | Data Subject Access Request Workflow Template | Template | 1.1.16 | 2026-10-20 |
@@ -134,7 +134,7 @@ _135 documents._
 | [resilience/plan-business-continuity-and-crisis-management.md](../resilience/plan-business-continuity-and-crisis-management.md) | Business Continuity and Crisis Management Plan | Plan | 1.1.2 | 2026-07-03 |
 | [resilience/plan-it-disaster-recovery.md](../resilience/plan-it-disaster-recovery.md) | IT Disaster Recovery Plan | Plan | 1.6.1 | 2026-10-27 |
 | [resilience/procedure-backup-and-recovery.md](../resilience/procedure-backup-and-recovery.md) | Backup and Recovery Procedure | Procedure | 1.1.4 | 2026-10-29 |
-| [resilience/procedure-cross-domain-incident-coordination.md](../resilience/procedure-cross-domain-incident-coordination.md) | Cross-Domain Incident Coordination Procedure | Procedure | 1.1.18 | 2026-11-01 |
+| [resilience/procedure-cross-domain-incident-coordination.md](../resilience/procedure-cross-domain-incident-coordination.md) | Cross-Domain Incident Coordination Procedure | Procedure | 1.1.19 | 2026-11-03 |
 | [resilience/register-eoc-contact-directory.md](../resilience/register-eoc-contact-directory.md) | Emergency Operations Contact Directory Register | Register | 1.1.1 | 2026-07-02 |
 | [resilience/register-resilience-metrics-and-testing-log.md](../resilience/register-resilience-metrics-and-testing-log.md) | Resilience Metrics and Testing Log Register | Register | 1.1.3 | 2026-08-26 |
 | [resilience/template-departmental-continuity-plan.md](../resilience/template-departmental-continuity-plan.md) | Departmental Continuity Plan Template | Template | 1.1.3 | 2026-09-25 |
@@ -364,7 +364,7 @@ _78 documents._
 | [ai/jurisdictions/annex-ai-us-illinois.md](../ai/jurisdictions/annex-ai-us-illinois.md) | Illinois AI in Employment (HB 3773) Regulatory Requirements | Annex | 0.0.5 | 2026-10-27 |
 | [ai/jurisdictions/annex-ai-us-new-york-city.md](../ai/jurisdictions/annex-ai-us-new-york-city.md) | New York City Automated Employment Decision Tool Regulatory Requirements | Annex | 0.0.8 | 2026-10-27 |
 | [ai/jurisdictions/annex-ai-us-texas.md](../ai/jurisdictions/annex-ai-us-texas.md) | Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements | Annex | 0.0.10 | 2026-10-27 |
-| [ai/matrix-etsi-sai-baseline-alignment.md](../ai/matrix-etsi-sai-baseline-alignment.md) | ETSI Securing-AI Baseline Alignment Matrix | Matrix | 0.0.4 | 2026-09-21 |
+| [ai/matrix-etsi-sai-baseline-alignment.md](../ai/matrix-etsi-sai-baseline-alignment.md) | ETSI Securing-AI Baseline Alignment Matrix | Matrix | 0.0.5 | 2026-11-03 |
 | [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.20 | 2026-10-29 |
 | [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.1.6 | 2026-09-05 |
 | [ai/procedure-training-data-governance.md](../ai/procedure-training-data-governance.md) | Training Data Governance Procedure | Procedure | 0.0.16 | 2026-10-30 |
@@ -382,10 +382,10 @@ _78 documents._
 | [compliance/financial-services/annex-mica-implementation.md](../compliance/financial-services/annex-mica-implementation.md) | MiCA Implementation Annex | Annex | 0.3.8 | 2026-10-01 |
 | [compliance/financial-services/annex-sox-itgc.md](../compliance/financial-services/annex-sox-itgc.md) | SOX IT General Controls Annex | Annex | 0.0.6 | 2026-09-04 |
 | [compliance/healthcare/annex-healthcare-united-states.md](../compliance/healthcare/annex-healthcare-united-states.md) | United States HIPAA Sector Requirements Annex | Annex | 0.0.4 | 2026-10-26 |
-| [compliance/healthcare/procedure-hipaa-operational-compliance.md](../compliance/healthcare/procedure-hipaa-operational-compliance.md) | HIPAA Operational Compliance Procedure | Procedure | 0.0.5 | 2026-10-26 |
+| [compliance/healthcare/procedure-hipaa-operational-compliance.md](../compliance/healthcare/procedure-hipaa-operational-compliance.md) | HIPAA Operational Compliance Procedure | Procedure | 0.0.6 | 2026-11-03 |
 | [compliance/public-sector/annex-canada-public-sector-requirements.md](../compliance/public-sector/annex-canada-public-sector-requirements.md) | Canada Public Sector GRC Requirements Annex | Annex | 0.0.28 | 2026-10-27 |
 | [compliance/public-sector/annex-eidas-requirements.md](../compliance/public-sector/annex-eidas-requirements.md) | eIDAS Sector Requirements Annex | Annex | 0.0.3 | 2026-09-24 |
-| [compliance/public-sector/annex-fedramp-requirements.md](../compliance/public-sector/annex-fedramp-requirements.md) | FedRAMP Sector Requirements Annex | Annex | 0.0.17 | 2026-09-24 |
+| [compliance/public-sector/annex-fedramp-requirements.md](../compliance/public-sector/annex-fedramp-requirements.md) | FedRAMP Sector Requirements Annex | Annex | 0.0.19 | 2026-11-03 |
 | [compliance/public-sector/annex-public-sector-requirements.md](../compliance/public-sector/annex-public-sector-requirements.md) | Public Sector GRC Requirements Annex | Annex | 0.0.6 | 2026-09-04 |
 | [compliance/telecommunications/annex-telecommunications-sector-requirements.md](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) | Telecommunications Sector Requirements Annex | Annex | 0.0.10 | 2026-10-04 |
 | [crypto/framework-crypto-asset-governance.md](../crypto/framework-crypto-asset-governance.md) | Crypto-Asset Governance Framework | Framework | 0.1.5 | 2026-09-28 |
@@ -403,7 +403,7 @@ _78 documents._
 | [dev-security/standard-cloud-hardening-baseline-gcp.md](../dev-security/standard-cloud-hardening-baseline-gcp.md) | Google Cloud Platform Hardening Baseline Standard | Standard | 0.0.9 | 2026-07-06 |
 | [dev-security/standard-jakarta-ee-application-security.md](../dev-security/standard-jakarta-ee-application-security.md) | Jakarta EE Application Security Standard | Standard | 0.0.6 | 2026-10-01 |
 | [governance/principle-capability-is-not-authority.md](../governance/principle-capability-is-not-authority.md) | Capability Is Not Authority Principle | Principle | 0.0.3 | 2026-08-30 |
-| [governance/principle-fail-closed-automation.md](../governance/principle-fail-closed-automation.md) | Fail-Closed Automation Principle | Principle | 0.0.4 | 2026-10-01 |
+| [governance/principle-fail-closed-automation.md](../governance/principle-fail-closed-automation.md) | Fail-Closed Automation Principle | Principle | 0.0.5 | 2026-11-03 |
 | [governance/principle-integrity-and-trustworthiness.md](../governance/principle-integrity-and-trustworthiness.md) | Integrity and Trustworthiness Principle | Principle | 0.0.14 | 2026-10-27 |
 | [governance/standard-delegation-of-authority.md](../governance/standard-delegation-of-authority.md) | Delegation-of-Authority Standard | Standard | 0.0.2 | 2026-08-31 |
 | [governance/standard-emergency-authority.md](../governance/standard-emergency-authority.md) | Emergency Authority Standard | Standard | 0.0.3 | 2026-08-31 |
