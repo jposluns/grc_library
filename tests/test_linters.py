@@ -40550,7 +40550,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-document-control-codes.py OWN F e2c89293d97c7c4e5f6e8d5e4ceda1f2be850718beecf7cd0323b5c6601fe2f9
         lint-document-date-staleness.py CWD F bd94e8055f86c3639fd11eb90712f9e63d353056de3754d2842e5b5908108e1b
         lint-document-iso-annex-a.py OWN F d15f9b9b9e0bad6ff5a943d950b3b58322293939f8ac496fe38d52c4183e64e5
-        lint-external-link-domains.py CWD F 906b40aed419a66a1d49cff6473771ff89c9db494526bc020b1aea462d026485
+        lint-external-link-domains.py CWD F 4756c25ed3ad16310059e1909f4785fba8ae7659efd955da980111488b762428
         lint-external-overlay-license.py NO_FS F 274c40601ab51949646d3c7fdf115e35b9fa47af81646ec83547e352c10f781d
         lint-filename-title-alignment.py ROOT F 053875094e7cc520061a2dd3a0fa226f35c68834942cef0a168bbfdac5f9dcf3
         lint-followup-ageing.py CWD F 20eedad44d3eb7a8237f0d3e8232f77d2566b4ec68d94631fb59012e2843f37f
@@ -46817,16 +46817,24 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
             try:
                 self.mod.figure_values = legacy_figure_values
                 legacy = self.mod.Variant(
-                    "legacy", str(legacy_templates), "", indexable=True
+                    "legacy", str(legacy_templates), "", indexable=True,
+                    error_page=True,
                 )
                 legacy_pages = self.mod.render_variant(figures, legacy)
                 legacy_pages.extend([
                     ("robots.txt", self.mod.render_robots_txt()),
                     (
                         "sitemap.xml",
-                        self.mod.render_sitemap(legacy, [rel for rel, _ in legacy_pages]),
+                        # The error page stays out of the sitemap page list,
+                        # mirroring render_site's exclusion.
+                        self.mod.render_sitemap(
+                            legacy,
+                            [rel for rel, _ in legacy_pages if rel != "404.html"],
+                        ),
                     ),
                     ("llms.txt", self.mod.render_llms_txt(figures, legacy)),
+                    ("_headers", self.mod.HEADERS_FILE),
+                    (".well-known/security.txt", self.mod.SECURITY_TXT),
                 ])
                 self._write_site(legacy_pages, baseline)
             finally:
@@ -46844,6 +46852,11 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
             )
             baseline_files = sorted(p.relative_to(baseline) for p in baseline.rglob("*") if p.is_file())
             after_files = sorted(p.relative_to(after) for p in after.rglob("*") if p.is_file())
+            # The real root tree must carry the hardening outputs this round
+            # pins; the byte-equality below then proves their exact content.
+            for pinned in ("404.html", "_headers", ".well-known/security.txt"):
+                self.assertIn(Path(pinned), after_files,
+                              f"the root tree must carry {pinned}")
             self.assertEqual(baseline_files, after_files)
             for rel in baseline_files:
                 self.assertEqual(
@@ -46934,7 +46947,12 @@ class WebGeneratorVariantTableTests(unittest.TestCase):
                     for rel, html in variant_pages
                 )
                 if variant.indexable:
-                    html_page_rels = [rel for rel, _ in variant_pages]
+                    # The error page stays out of the sitemap page list, and the
+                    # indexable root also carries _headers and security.txt; the
+                    # byte-equality below fails if render_site drops either rule.
+                    html_page_rels = [
+                        rel for rel, _ in variant_pages if rel != "404.html"
+                    ]
                     reconstructed.extend([
                         (self.mod.output_rel_for(variant, "robots.txt"), self.mod.render_robots_txt()),
                         (
@@ -46944,6 +46962,14 @@ class WebGeneratorVariantTableTests(unittest.TestCase):
                         (
                             self.mod.output_rel_for(variant, "llms.txt"),
                             self.mod.render_llms_txt(figures, variant),
+                        ),
+                        (
+                            self.mod.output_rel_for(variant, "_headers"),
+                            self.mod.HEADERS_FILE,
+                        ),
+                        (
+                            self.mod.output_rel_for(variant, ".well-known/security.txt"),
+                            self.mod.SECURITY_TXT,
                         ),
                     ])
             self._write_site(reconstructed, reconstructed_out)
@@ -47082,7 +47108,7 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
         indexable = self.mod.indexable_variant()
         self.assertEqual(
             indexable,
-            self.mod.Variant("v1", "templates", "", indexable=True),
+            self.mod.Variant("v1", "templates", "", indexable=True, error_page=True),
         )
         self.assertEqual(
             next(variant for variant in self.mod.VARIANTS if variant.name == "v2"),
@@ -57114,9 +57140,11 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         figures = self.mod.compute_figures()
         v1 = self._variant("v1")
         self.assertFalse(v1.narrative_routes)
+        self.assertTrue(v1.error_page, "the root variant carries the error page")
         rels = [out_rel for out_rel, _ in self.mod.render_variant(figures, v1)]
         expected = (
-            {"index.html", "about/index.html", "pack/index.html", "for-ai/index.html"}
+            {"index.html", "about/index.html", "pack/index.html", "for-ai/index.html",
+             "404.html"}
             | {f"{dp['domain']}/index.html" for dp in figures["domain_pages"]}
             | {f"types/{tp['slug']}/index.html" for tp in figures["type_pages"]}
         )
@@ -57142,10 +57170,14 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         for page in narratives:
             out_rel = "decisions/" + page["route"][len("executive/"):] + "/index.html"
             self.assertIn(out_rel, pages)
-        # Exactly the narrative routes are added on top of v1 + V2_EXTRA_PAGES.
-        v1_count = len(self.mod.render_variant(figures, self._variant("v1")))
+        # Exactly the narrative routes are added on top of v1 + V2_EXTRA_PAGES,
+        # minus the root-only error page (v1 carries 404.html, v2 must not).
+        v1_rels = [r for r, _ in self.mod.render_variant(figures, self._variant("v1"))]
+        self.assertIn("404.html", v1_rels, "the root variant renders the error page")
+        self.assertNotIn("404.html", pages, "v2 must not carry the error page")
         self.assertEqual(
-            len(pages), v1_count + len(self.mod.V2_EXTRA_PAGES) + len(narratives)
+            len(pages),
+            len(v1_rels) - 1 + len(self.mod.V2_EXTRA_PAGES) + len(narratives),
         )
 
     def test_unrouted_narrative_type_fails_loudly(self):
@@ -87420,6 +87452,148 @@ class TestModuleRawCharacterTests(unittest.TestCase):
                if ch not in " \t"
                and (unicodedata.category(ch) in self.CATEGORIES or ch in self.BLANK)]
         self.assertEqual(raw, [], "write each as the escape shown:\n" + "\n".join(raw))
+
+
+class WebSiteHardeningTests(unittest.TestCase):
+    """Site-hardening regression tests for the grclibrary.ai generator (PR 1).
+
+    W1: the dist-root ``_headers`` file carries exactly the four repo-owned
+    header rules under one ``/*`` rule, emitted once, at the output root
+    alone (never under v2/ or v3/); the zone's automatic headers
+    (X-Content-Type-Options, Referrer-Policy, Strict-Transport-Security) are
+    never repeated in it; and the live style-src 'unsafe-inline' widening is
+    recorded in a comment beside the constant as removable at promotion.
+    W2: the root variant renders a real 404 page (static noindex, root only,
+    excluded from sitemap.xml). W3: ``.well-known/security.txt`` carries
+    exactly the decided RFC 9116 fields. W4: robots.txt advertises the
+    sitemap. Each test fails without its feature.
+    """
+
+    # The exact decided header values (owner decision 2026-11-03), in file order.
+    EXPECTED_HEADERS = {
+        "Content-Security-Policy": (
+            "default-src 'none'; script-src 'self' 'unsafe-inline'"
+            " https://ajax.cloudflare.com https://static.cloudflareinsights.com;"
+            " connect-src 'self' https://cloudflareinsights.com;"
+            " style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self';"
+            " base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+        ),
+        "X-Frame-Options": "DENY",
+        "Permissions-Policy": (
+            "accelerometer=(), autoplay=(), bluetooth=(), browsing-topics=(),"
+            " camera=(), display-capture=(), fullscreen=(), geolocation=(),"
+            " gyroscope=(), hid=(), magnetometer=(), microphone=(), midi=(),"
+            " payment=(), serial=(), usb=()"
+        ),
+        "Cross-Origin-Opener-Policy": "same-origin",
+    }
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.web = load_linter_module(".web/build.py", "web_build_site_hardening")
+        cls.site_pages = cls.web.render_site(cls.web.compute_figures())
+        cls.by_rel: dict[str, list[str]] = {}
+        for rel, text in cls.site_pages:
+            cls.by_rel.setdefault(rel, []).append(text)
+
+    def _sole(self, rel: str) -> str:
+        """The named output, asserting it is emitted exactly once."""
+        self.assertIn(rel, self.by_rel, f"{rel} is not emitted")
+        self.assertEqual(len(self.by_rel[rel]), 1, f"{rel} is emitted more than once")
+        return self.by_rel[rel][0]
+
+    def test_headers_emitted_once_at_output_root_only(self) -> None:
+        rels = [rel for rel, _ in self.site_pages if rel.split("/")[-1] == "_headers"]
+        self.assertEqual(rels, ["_headers"],
+                         "_headers must be emitted exactly once, at the output "
+                         "root alone (never under v2/ or v3/)")
+
+    def test_headers_exact_names_and_values(self) -> None:
+        content = self._sole("_headers")
+        lines = content.splitlines()
+        self.assertEqual(lines[0], "/*", "the one rule must cover every path")
+        parsed: dict[str, list[str]] = {}
+        for line in lines[1:]:
+            self.assertTrue(line.startswith("  "), f"malformed header line: {line!r}")
+            name, sep, value = line[2:].partition(": ")
+            self.assertEqual(sep, ": ", f"malformed header line: {line!r}")
+            parsed.setdefault(name, []).append(value)
+        self.assertEqual(sorted(parsed), sorted(self.EXPECTED_HEADERS),
+                         "exactly these four header names")
+        for name, value in self.EXPECTED_HEADERS.items():
+            self.assertEqual(parsed[name], [value],
+                             f"{name} must appear exactly once with the exact value")
+        expected_file = "/*\n" + "".join(
+            f"  {name}: {value}\n" for name, value in self.EXPECTED_HEADERS.items()
+        )
+        self.assertEqual(content, expected_file,
+                         "_headers must carry exactly the decided rule and nothing else")
+
+    def test_headers_zone_owned_names_absent(self) -> None:
+        content = self._sole("_headers")
+        for name in ("X-Content-Type-Options", "Referrer-Policy",
+                     "Strict-Transport-Security"):
+            self.assertNotIn(name, content,
+                             f"{name} is zone-owned and must never appear in _headers")
+
+    def test_headers_widening_comment_beside_constant(self) -> None:
+        source = (REPO_ROOT / ".web" / "build.py").read_text(encoding="utf-8")
+        lines = source.splitlines()
+        starts = [i for i, line in enumerate(lines)
+                  if line.startswith("HEADERS_FILE = ")]
+        self.assertEqual(len(starts), 1, "one HEADERS_FILE constant")
+        beside = [line for line in lines[max(0, starts[0] - 12):starts[0]]
+                  if line.startswith("#")]
+        comment = "\n".join(beside)
+        self.assertIn("style-src 'unsafe-inline'", comment,
+                      "the comment beside HEADERS_FILE must record the live "
+                      "style-src 'unsafe-inline' widening")
+        self.assertIn("removable at promotion", comment,
+                      "the comment beside HEADERS_FILE must record the widening "
+                      "as removable at promotion")
+
+    def test_404_rendered_at_root_only_with_noindex(self) -> None:
+        rels = [rel for rel, _ in self.site_pages if rel.split("/")[-1] == "404.html"]
+        self.assertEqual(rels, ["404.html"],
+                         "404.html must render exactly once, at the root alone "
+                         "(never under v2/ or v3/)")
+        page = self.by_rel["404.html"][0]
+        self.assertIn('<meta name="robots" content="noindex">', page)
+        self.assertIn('<span class="wordmark mono">grclibrary.ai</span>', page,
+                      "the shared topbar partial must be rendered into the 404 page")
+
+    def test_404_excluded_from_sitemap(self) -> None:
+        self.assertIn("404.html", self.by_rel, "the 404 page must render (W2)")
+        sitemap = self._sole("sitemap.xml")
+        self.assertNotIn("404", sitemap,
+                         "the error page must never be listed in sitemap.xml")
+
+    def test_security_txt_exact_fields(self) -> None:
+        rels = [rel for rel, _ in self.site_pages
+                if rel.split("/")[-1] == "security.txt"]
+        self.assertEqual(rels, [".well-known/security.txt"],
+                         "security.txt must be emitted exactly once, at "
+                         ".well-known/ under the output root alone")
+        text = self.by_rel[".well-known/security.txt"][0]
+        for field in ("Contact", "Expires", "Encryption", "Policy",
+                      "Preferred-Languages", "Canonical"):
+            self.assertRegex(text, rf"(?m)^{field}: ",
+                             f"RFC 9116 field {field} must be present")
+        self.assertEqual(
+            text,
+            "Contact: mailto:jeff@posluns.ca\n"
+            "Expires: 2030-10-31T00:00:00Z\n"
+            "Encryption: https://posluns.ca/security/pgp-key.txt\n"
+            "Policy: https://posluns.ca/security/\n"
+            "Preferred-Languages: en, fr\n"
+            "Canonical: https://grclibrary.ai/.well-known/security.txt\n",
+        )
+
+    def test_robots_advertises_sitemap(self) -> None:
+        robots = self._sole("robots.txt")
+        self.assertRegex(robots, r"(?m)^Sitemap: https://grclibrary\.ai/sitemap\.xml$")
+        self.assertRegex(self.web.render_robots_txt(),
+                         r"(?m)^Sitemap: https://grclibrary\.ai/sitemap\.xml$")
 
 
 if __name__ == "__main__":

@@ -29,8 +29,12 @@ the safeguard checks, and, for the hand-written edition check, reads
 none of these feeds published content.) By default its rendered output is the site under
 ``.web/dist/`` (``--out DIR`` redirects it) (``index.html``, ``about/index.html``, ``pack/index.html``,
 ``for-ai/index.html``, one ``<domain>/index.html`` per corpus domain, one
-``types/<slug>/index.html`` per document type, and the three generated files
-``robots.txt``, ``sitemap.xml``, and ``llms.txt``); it also writes the committed ``.web/corpus-link-manifest.md`` (a generated artefact outside the ephemeral ``dist/`` tree). So the
+``types/<slug>/index.html`` per document type, the error page ``404.html``
+(root variant only, noindex, excluded from the sitemap; Cloudflare Pages serves
+it with status 404 for any missing path), and the generated files
+``robots.txt``, ``sitemap.xml``, ``llms.txt``, ``_headers`` (the Pages security
+headers, ``HEADERS_FILE``), and ``.well-known/security.txt`` (RFC 9116,
+``SECURITY_TXT``)); it also writes the committed ``.web/corpus-link-manifest.md`` (a generated artefact outside the ephemeral ``dist/`` tree). So the
 published surface is those root pages and files, plus the non-indexable staging
 variants' trees under ``.web/dist/v2/`` and ``.web/dist/v3/`` (both noindex); v2 additionally carries the
 executive-shell routes declared in ``V2_EXTRA_PAGES`` (decisions, start, trust,
@@ -140,6 +144,11 @@ class Variant(NamedTuple):
     document_routes: bool = False
     # Only templates that consume DOMAIN_RAIL_LENSES opt into its validation.
     domain_rail: bool = False
+    # Whether this variant renders the custom error page (404.html at the
+    # variant root, excluded from sitemap.xml). Cloudflare Pages serves
+    # /404.html with status 404 for any missing path, replacing the soft-200
+    # home-page fallback; only the indexable root variant carries it.
+    error_page: bool = False
 
 
 # Executive routes that exist ONLY on the non-indexable /v2 staging tree (wave 1
@@ -180,7 +189,7 @@ V3_EXTRA_PAGES = (
 # staging variants (v2 and v3). New staging variants belong in this table, so
 # the template source, URL prefix, and indexability policy stay coupled.
 VARIANTS = (
-    Variant("v1", "templates", "", indexable=True),
+    Variant("v1", "templates", "", indexable=True, error_page=True),
     Variant("v2", "templates-v2", "v2/", indexable=False, extra_pages=V2_EXTRA_PAGES,
             narrative_routes=True, domain_rail=True),
     Variant("v3", "templates-v3", "v3/", indexable=False,
@@ -355,6 +364,43 @@ CURATED_CORPUS_LINKS = [
     ("docs/maturity-scorecard.md", "Maturity scorecard"),
 ]
 SITE_BASE = "https://grclibrary.ai"
+
+# The security headers Cloudflare Pages applies from the dist-root ``_headers``
+# file (owner decision 2026-11-03: one ``/*`` rule; a ``/draft/*`` rule belongs
+# to a later PR). The zone keeps sending X-Content-Type-Options,
+# Referrer-Policy, Access-Control-Allow-Origin and Strict-Transport-Security
+# automatically, so none of those is repeated here. The CSP's
+# style-src 'unsafe-inline' is a live-tree widening for the current inline
+# style blocks and style attributes; it is removable at promotion, when the
+# redesigned tree externalizes or hashes its styles.
+HEADERS_FILE = (
+    "/*\n"
+    "  Content-Security-Policy: default-src 'none'; script-src 'self'"
+    " 'unsafe-inline' https://ajax.cloudflare.com"
+    " https://static.cloudflareinsights.com; connect-src 'self'"
+    " https://cloudflareinsights.com; style-src 'self' 'unsafe-inline';"
+    " font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none';"
+    " frame-ancestors 'none'\n"
+    "  X-Frame-Options: DENY\n"
+    "  Permissions-Policy: accelerometer=(), autoplay=(), bluetooth=(),"
+    " browsing-topics=(), camera=(), display-capture=(), fullscreen=(),"
+    " geolocation=(), gyroscope=(), hid=(), magnetometer=(), microphone=(),"
+    " midi=(), payment=(), serial=(), usb=()\n"
+    "  Cross-Origin-Opener-Policy: same-origin\n"
+)
+
+# RFC 9116 security.txt, served at /.well-known/security.txt by the indexable
+# root variant alone. Exact decided fields; the zone-level security.txt
+# feature is switched off after deploy so this committed file is the one
+# served.
+SECURITY_TXT = (
+    "Contact: mailto:jeff@posluns.ca\n"
+    "Expires: 2030-10-31T00:00:00Z\n"
+    "Encryption: https://posluns.ca/security/pgp-key.txt\n"
+    "Policy: https://posluns.ca/security/\n"
+    "Preferred-Languages: en, fr\n"
+    "Canonical: https://grclibrary.ai/.well-known/security.txt\n"
+)
 
 
 class BuildError(Exception):
@@ -2525,6 +2571,17 @@ def render_variant(figures, variant):
         pages.append((out_rel, html))
         used_across |= used
 
+    # The custom error page, VARIANT-SCOPED by the error_page table flag (the
+    # root variant alone): Cloudflare Pages serves /404.html with status 404
+    # for any missing path. The template carries its own static noindex meta,
+    # and render_site keeps the page out of sitemap.xml.
+    if variant.error_page:
+        html, used = render_page(
+            "404.html", figures, variant, template_dir, partials, out_rel="404.html"
+        )
+        pages.append(("404.html", html))
+        used_across |= used
+
     # One page per corpus domain, from the shared domain template plus that
     # domain's per-page values. The dead-value check below covers the global
     # values (used by the fixed pages); each domain page's own leftover check in
@@ -2643,7 +2700,11 @@ def render_site(figures):
             for out_rel, html in variant_pages
         )
         if variant.indexable:
-            html_page_rels = [out_rel for out_rel, _ in variant_pages]
+            # The error page is served for missing paths and must never be
+            # crawled, so it stays out of the sitemap's page list.
+            html_page_rels = [
+                out_rel for out_rel, _ in variant_pages if out_rel != "404.html"
+            ]
             pages.append((output_rel_for(variant, "robots.txt"), render_robots_txt()))
             pages.append((
                 output_rel_for(variant, "sitemap.xml"),
@@ -2651,6 +2712,13 @@ def render_site(figures):
             ))
             pages.append((
                 output_rel_for(variant, "llms.txt"), render_llms_txt(figures, variant),
+            ))
+            # The Pages header rules and the RFC 9116 security.txt, emitted
+            # once each, at the output root alone (the sole indexable variant
+            # has the empty prefix, so neither lands under a staging tree).
+            pages.append((output_rel_for(variant, "_headers"), HEADERS_FILE))
+            pages.append((
+                output_rel_for(variant, ".well-known/security.txt"), SECURITY_TXT,
             ))
     return pages
 
