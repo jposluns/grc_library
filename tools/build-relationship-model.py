@@ -51,6 +51,17 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SOURCE = REPO_ROOT / "governance" / "relationship-model-source.json"
 GENERATED = REPO_ROOT / "governance" / "relationship-model.generated.json"
 
+# tools/ on sys.path whatever loaded this module (script run, importlib,
+# or a -c boot), so the shared corpus helpers resolve. Appended to the
+# END of sys.path (gate 109): an insert at the front could shadow the
+# standard library with a file planted beside the tool.
+sys.path.append(str(Path(__file__).resolve().parent))
+from lint_common import (  # noqa: E402  # the shared fence predicate and field grammar
+    METADATA_FIELD_RE,
+    METADATA_HEAD_LINES,
+    is_fence_line,
+)
+
 # The 7 node-category short names from the framework's node-class taxonomy.
 CATEGORY_TOKENS = frozenset((
     "authority", "sources", "governance", "context",
@@ -94,6 +105,171 @@ CONTRADICTORY_NATURE_PAIRS = (
 )
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+# The source's own source-class boundary (the _comment's batch 14 rounds
+# 6 and 7 ruling, maintainer rulings 2026-10-24): a corpus document whose
+# Document Type is Template, Annex or Plan stays out of the model. A
+# registry node whose corpus document states one of these types therefore
+# violates the source's own rule and is a hard error. The type is read
+# from the document's metadata block, never inferred from the node id or
+# the filename (as ruled, Document Type governs).
+EXCLUDED_DOCUMENT_TYPES = frozenset(("Template", "Annex", "Plan"))
+# Principle is deliberately absent: the source's _comment keeps Principle documents out "until a node class exists for them", a different mechanism than this type exclusion.
+
+
+def _normalize_type(value: str) -> str:
+    """Comparison key for a metadata field name or Document Type value:
+    whitespace-normalized and case-folded."""
+    return " ".join(value.split()).casefold()
+
+
+# The exclusion compares normalized keys, so "annex", "ANNEX", a doubled
+# space, or a lowercase field name cannot slip an excluded document into
+# the model. tools/lint-metadata.py separately enforces the canonical
+# metadata block and the canonical Document Type set; this tolerance is
+# belt-and-braces for the model boundary, not a licence to misspell.
+_EXCLUDED_TYPE_KEYS = frozenset(_normalize_type(t) for t in EXCLUDED_DOCUMENT_TYPES)
+_DOCUMENT_TYPE_FIELD_KEY = _normalize_type("Document Type")
+
+
+def _is_excluded_type(value: str) -> bool:
+    """True when the Document Type's FIRST normalized word is an excluded
+    type (review round 2, fix 3): a trailing annotation such as
+    "Annex (draft)" normalizes to "annex (draft)", which a whole-value
+    comparison would wave through, so the comparison key is the value's
+    first word. A distinct longer type ("Annexure") shares no first word
+    and still passes."""
+    words = _normalize_type(value).split(" ")
+    return bool(words) and words[0] in _EXCLUDED_TYPE_KEYS
+
+
+def document_type_of(path: Path) -> str | None:
+    """The Document Type stated in a corpus document's OWN metadata
+    block, or None when the block or the field is absent.
+
+    Boundary rule (review round 2, fix 1; head-window ordering review
+    round 3; inclusive start window review round 4): the metadata block
+    STARTS at the first metadata-shaped line (lint_common's
+    METADATA_FIELD_RE) that lies outside a fenced code block and on
+    lines 1 to METADATA_HEAD_LINES inclusive, the same start window
+    lint_common.parse_metadata_block scans
+    (text.splitlines()[:head_lines]), and ENDS at the first following
+    line that is not metadata-shaped (a blank line, body prose, or a
+    fence delimiter), so only the document's own contiguous metadata
+    block is ever read. The head-window limit is checked before the
+    fence-state shortcuts and applies whether or not the line is
+    inside a fence: once lineno exceeds METADATA_HEAD_LINES with no
+    block started, the scan stops, so no metadata block can start
+    after line METADATA_HEAD_LINES, even when a fenced block spans
+    the window boundary (round 3's probe: a 39-line fence kept the
+    old scan alive and a block after the fence was read; round 4's
+    probe: the earlier ``lineno >= METADATA_HEAD_LINES`` stop ended
+    the scan ON line METADATA_HEAD_LINES, so a block starting exactly
+    there was invisible here while lint_common reads it, a fail-open
+    gap for this exclusion check).
+    Fence state is tracked with lint_common's shared is_fence_line
+    toggle, so a ``**Document Type:**`` line inside a fenced body
+    example never counts, wherever the example sits.
+    lint_common.parse_metadata_block is deliberately NOT used here: it
+    scans a fixed head window with no fence or block-end awareness,
+    and the gates sharing that helper keep their semantics. OSError is
+    not caught: the caller has already established the document exists,
+    so a read failure is a real environmental problem to surface (the
+    same contract as lint_common's readers)."""
+    in_code = False
+    in_block = False
+    lines = path.read_text(encoding="utf-8").splitlines()
+    for lineno, line in enumerate(lines, start=1):
+        match = METADATA_FIELD_RE.match(line)
+        if in_block and match is None:
+            # The block's actual boundary: its first non-metadata line
+            # (a fence delimiter is not metadata-shaped, so a fence
+            # opening right after the block also ends it here).
+            break
+        if not in_block and lineno > METADATA_HEAD_LINES:
+            # The start window is lines 1 to METADATA_HEAD_LINES
+            # inclusive, exactly lint_common.parse_metadata_block's
+            # window (round 4: the earlier ``>=`` stop skipped a block
+            # starting on line METADATA_HEAD_LINES that lint_common
+            # reads). No block starts deeper, fenced or not: checked
+            # BEFORE the fence-state shortcuts, so an open fence
+            # spanning the window boundary cannot keep the scan alive
+            # into the body (head-window ordering, round 3).
+            break
+        if is_fence_line(line):
+            in_code = not in_code
+            continue
+        if in_code:
+            continue
+        if match is None:
+            continue
+        in_block = True
+        if _normalize_type(match.group(1)) != _DOCUMENT_TYPE_FIELD_KEY:
+            continue
+        value = match.group(2)
+        # A single trailing backslash is the metadata hard-line-break
+        # marker, not part of the value (the same stripping
+        # parse_metadata_block applies).
+        if value.endswith("\\"):
+            value = value[:-1].rstrip()
+        return value.strip() or None
+    return None
+
+
+def validate_excluded_document_types(nodes: list) -> list[str]:
+    """Refuse a registry node whose corpus document carries a Document
+    Type the source's own rule excludes (EXCLUDED_DOCUMENT_TYPES), and
+    refuse a node whose corpus_path does not resolve to an existing
+    file: no linter in the tree validates that a node's corpus path
+    exists, so a missing or mistyped path would otherwise skip this
+    check silently. A corpus_path that is absolute, or whose resolved
+    form leaves REPO_ROOT, is refused as a node-shape error before any
+    read (review round 2, fix 2). Nodes without a usable id or corpus_path stay the
+    node-shape rules' concern, and a resolvable document that states no
+    Document Type stays the corpus linters' concern
+    (tools/lint-metadata.py enforces the canonical metadata block)."""
+    errors: list[str] = []
+    for node in nodes:
+        if not isinstance(node, dict):
+            continue
+        nid = node.get("id")
+        corpus_path = node.get("corpus_path")
+        if not (_is_nonempty_str(nid) and _is_nonempty_str(corpus_path)):
+            continue
+        # Containment BEFORE any read (review round 2, fix 2): pathlib
+        # joining replaces REPO_ROOT entirely when corpus_path is
+        # absolute, and a ".." component (or a symlink, which resolve()
+        # follows) can leave the repository, so either shape is a
+        # node-shape error and the document is never opened.
+        if Path(corpus_path).is_absolute():
+            errors.append(
+                f"{nid}: [node-shape] corpus_path {corpus_path!r} is an "
+                f"absolute path; corpus_path must be a repository-relative "
+                f"path inside the repository")
+            continue
+        document = REPO_ROOT / corpus_path
+        if not document.resolve().is_relative_to(REPO_ROOT.resolve()):
+            errors.append(
+                f"{nid}: [node-shape] corpus_path {corpus_path!r} resolves "
+                f"outside the repository root; corpus_path must stay inside "
+                f"the repository")
+            continue
+        if not document.is_file():
+            errors.append(
+                f"{nid}: [missing-corpus-document] corpus_path "
+                f"{corpus_path!r} does not resolve to an existing file; fix "
+                f"the path or remove it from the node")
+            continue
+        doc_type = document_type_of(document)
+        if doc_type is not None and _is_excluded_type(doc_type):
+            errors.append(
+                f"{nid}: [excluded-document-type] corpus document "
+                f"{corpus_path!r} states Document Type {doc_type!r}, a type "
+                f"the source's own rule excludes from the model (Template, "
+                f"Annex or Plan stays out); remove the node or re-type the "
+                f"document")
+    return errors
+
 
 RECORD_FIELDS = (
     "id", "source", "verb", "destination", "relationship_class",
@@ -785,16 +961,18 @@ def detect_primary_cycles(records: list) -> list[str]:
 
 
 def validate_records(records: list, nodes: list) -> tuple[list[str], list[str]]:
-    """All validation: the node registry, per-record rules, duplicate
-    ids, endpoint resolution against the registry, and per-slice
-    primary-edge cycle detection. Returns (errors, warnings): every
-    fatal error and every advisory warning, not only the first. Only
-    errors are fatal; warnings (category compatibility) print for the
-    reviewer and never fail the build."""
+    """All validation: the node registry, the excluded-document-type
+    boundary, per-record rules, duplicate ids, endpoint resolution
+    against the registry, and per-slice primary-edge cycle detection.
+    Returns (errors, warnings): every fatal error and every advisory
+    warning, not only the first. Only errors are fatal; warnings
+    (category compatibility) print for the reviewer and never fail the
+    build."""
     errors: list[str] = []
     warnings: list[str] = []
     node_errors, node_index = validate_nodes(nodes)
     errors.extend(node_errors)
+    errors.extend(validate_excluded_document_types(nodes))
     for position, rec in enumerate(records):
         rec_errors, rec_warnings = validate_record(rec, position)
         errors.extend(rec_errors)

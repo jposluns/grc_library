@@ -40472,7 +40472,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-provision-index.py ROOT F fe7e21ef073874b792080c23593e1d47e3e4f2702177860b06b67486a9cb46e1
         build-public-changelog.py OWN F 407a5b794ad8b51c495f9a2d98ec1f8908fac68500a12004c092e59bd8054d77
         build-reference-manifest.py NO_FS F fdf4d1211bd09e6e1afdf2437b5b291ec5bc0cbc3d632d588af5bcb0091a387d
-        build-relationship-model.py NO_FS F 6f4352a07d3aa1a1e991cde011e5f11c464776d58012701d17bc8ac5b43a6d14
+        build-relationship-model.py NO_FS F 06f2eb54ad21532fc7fdb0ff0fa863a8affc1cd58419bd7d073b1dee2b4f475f
         build-taxonomy.py NO_FS F dc1c0549d33132cb87852e1729c530c5c607540f1317c968960ada44c1bd138b
         build-todo-number-allocation.py NO_FS F 8ad89e87b8a6df4a576935a21409cadc80ce0456784a22262ac3229b3f2dd99e
         ccm_aicm_reference.py PASSIVE F 1ed15d9b1bd4cfd1162df3e720b5aa6058c3cba3cb1f626fcf2e1ee605c17e71
@@ -47942,6 +47942,430 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
                 self.assertFalse(generated.exists())
             finally:
                 mod.SOURCE, mod.GENERATED = old
+
+    def test_excluded_document_type_node_flagged(self) -> None:
+        # The source's own source-class boundary (the _comment's batch 14
+        # ruling): a document whose Document Type is Template, Annex or
+        # Plan stays out of the model, so a registry node whose corpus
+        # document states an excluded type is a hard error. The node id
+        # carries no type token, so a pass here proves the type is read
+        # from the document's metadata, never inferred from the node id.
+        mod = self._load("_relmodel_excluded_doctype")
+        old_root = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "compliance").mkdir()
+            (root / "compliance" / "overlay-example.md").write_text(
+                "# Example Overlay\n\n"
+                "**Document Title:** Example Overlay\\\n"
+                "**Document Type:** Annex\\\n"
+                "**Version:** 0.0.1\n",
+                encoding="utf-8")
+            rec = self._record()
+            nodes = self._nodes_for(rec) + [self._node(
+                "EXAMPLE-OVERLAY-A", "policy",
+                corpus_path="compliance/overlay-example.md")]
+            try:
+                mod.REPO_ROOT = root
+                errors, _ = mod.validate_records([rec], nodes)
+            finally:
+                mod.REPO_ROOT = old_root
+        self.assertTrue(
+            any("[excluded-document-type]" in e and "EXAMPLE-OVERLAY-A" in e
+                for e in errors), errors)
+
+    def test_allowed_document_type_node_passes(self) -> None:
+        # Positive control for the excluded-type boundary: a corpus
+        # document stating an included Document Type (Policy) validates
+        # clean through the same metadata-reading path.
+        mod = self._load("_relmodel_allowed_doctype")
+        old_root = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "compliance").mkdir()
+            (root / "compliance" / "overlay-example.md").write_text(
+                "# Example Overlay\n\n"
+                "**Document Title:** Example Overlay\\\n"
+                "**Document Type:** Policy\\\n"
+                "**Version:** 0.0.1\n",
+                encoding="utf-8")
+            rec = self._record()
+            nodes = self._nodes_for(rec) + [self._node(
+                "EXAMPLE-OVERLAY-A", "policy",
+                corpus_path="compliance/overlay-example.md")]
+            try:
+                mod.REPO_ROOT = root
+                errors, warnings = mod.validate_records([rec], nodes)
+            finally:
+                mod.REPO_ROOT = old_root
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
+
+    def test_body_example_document_type_does_not_count(self) -> None:
+        # Review round 1 (3b782, fix 1), reader narrowed again in round
+        # 2 fix 1: the type is read from the document's own metadata
+        # block only, so a "**Document Type:**" line inside a fenced
+        # example in the body never triggers the exclusion. The
+        # fixture's metadata block states no Document Type and the
+        # body's fenced example states an excluded one far below the
+        # block; the original whole-document scan read the body line
+        # and failed the node.
+        mod = self._load("_relmodel_body_doctype")
+        old_root = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "compliance").mkdir()
+            body = "\n".join(f"Body paragraph {i}." for i in range(40))
+            (root / "compliance" / "overlay-example.md").write_text(
+                "# Example Overlay\n\n"
+                "**Document Title:** Example Overlay\\\n"
+                "**Version:** 0.0.1\n\n"
+                + body + "\n\n"
+                "An example of the metadata line this corpus uses:\n\n"
+                "```markdown\n"
+                "**Document Type:** Annex\\\n"
+                "```\n",
+                encoding="utf-8")
+            rec = self._record()
+            nodes = self._nodes_for(rec) + [self._node(
+                "EXAMPLE-OVERLAY-A", "policy",
+                corpus_path="compliance/overlay-example.md")]
+            try:
+                mod.REPO_ROOT = root
+                errors, _ = mod.validate_records([rec], nodes)
+            finally:
+                mod.REPO_ROOT = old_root
+        self.assertEqual(errors, [])
+
+    def test_fenced_body_example_in_head_window_does_not_count(self) -> None:
+        # Review round 2 (3b782, fix 1): the earlier reader scanned a
+        # fixed 30-line head window (lint_common.parse_metadata_block)
+        # with no fence or block-end awareness, so a fenced body example
+        # INSIDE the first 30 lines still triggered the exclusion when
+        # the metadata block stated no Document Type (codex reproduced
+        # it by shortening this fixture's padding). The reader now ends
+        # the block at its actual boundary, the first non-metadata line,
+        # and never reads a line inside a fenced code block, so this
+        # fixture validates clean.
+        mod = self._load("_relmodel_fenced_head_doctype")
+        old_root = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "compliance").mkdir()
+            (root / "compliance" / "overlay-example.md").write_text(
+                "# Example Overlay\n\n"
+                "**Document Title:** Example Overlay\\\n"
+                "**Version:** 0.0.1\n\n"
+                "An example of the metadata line this corpus uses:\n\n"
+                "```markdown\n"
+                "**Document Type:** Annex\\\n"
+                "```\n",
+                encoding="utf-8")
+            rec = self._record()
+            nodes = self._nodes_for(rec) + [self._node(
+                "EXAMPLE-OVERLAY-A", "policy",
+                corpus_path="compliance/overlay-example.md")]
+            try:
+                mod.REPO_ROOT = root
+                errors, _ = mod.validate_records([rec], nodes)
+            finally:
+                mod.REPO_ROOT = old_root
+        self.assertEqual(errors, [])
+
+    def test_metadata_block_after_fence_spanning_head_window_not_read(self) -> None:
+        # Review round 3 (3b782): the reader checked fence state BEFORE
+        # the head-window limit, so a fenced block spanning line
+        # METADATA_HEAD_LINES kept the scan alive and a metadata block
+        # sitting right after a 39-line fence, far beyond the head
+        # window, was still read (the round-3 probe flagged this
+        # fixture's node). The head-window limit now applies whether or
+        # not the line is inside a fence: no metadata block can start
+        # after line METADATA_HEAD_LINES (round 4 made the window
+        # inclusive of that line), so the excluded type far below the
+        # fence is never read and the node validates clean.
+        mod = self._load("_relmodel_fence_spans_head_window")
+        old_root = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "compliance").mkdir()
+            fenced = "\n".join(f"fenced example line {i}" for i in range(39))
+            document = root / "compliance" / "overlay-example.md"
+            document.write_text(
+                "# Example Overlay\n\n"
+                "```markdown\n"
+                + fenced + "\n"
+                "```\n"
+                "**Document Title:** Example Overlay\\\n"
+                "**Document Type:** Annex\\\n"
+                "**Version:** 0.0.1\n",
+                encoding="utf-8")
+            # Fixture guard: the excluded-type line must sit beyond the
+            # head window, or this test stops exercising the boundary.
+            doctype_lineno = 1 + document.read_text(
+                encoding="utf-8").splitlines().index(
+                "**Document Type:** Annex\\")
+            self.assertGreater(doctype_lineno, mod.METADATA_HEAD_LINES)
+            rec = self._record()
+            nodes = self._nodes_for(rec) + [self._node(
+                "EXAMPLE-OVERLAY-A", "policy",
+                corpus_path="compliance/overlay-example.md")]
+            try:
+                mod.REPO_ROOT = root
+                errors, _ = mod.validate_records([rec], nodes)
+            finally:
+                mod.REPO_ROOT = old_root
+        self.assertEqual(errors, [])
+
+    def test_metadata_block_starting_on_head_window_last_line_is_read(self) -> None:
+        # Review round 4 (3b782): the ``lineno >= METADATA_HEAD_LINES``
+        # stop ended the scan ON line METADATA_HEAD_LINES, so a metadata
+        # block starting exactly there was never read and an excluded
+        # Document Type on that line slipped past this check, while
+        # lint_common.parse_metadata_block scans lines 1 to
+        # METADATA_HEAD_LINES inclusive and reads it: a fail-open gap
+        # (document_type_of returned None where lint_common and the
+        # round 3 reader both returned Annex). The start window is now
+        # the same inclusive window, so the Annex type on line
+        # METADATA_HEAD_LINES is read and the node is refused. Fails
+        # against the ea0a6cc46 reader (no error was raised there).
+        mod = self._load("_relmodel_head_window_last_line")
+        old_root = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "compliance").mkdir()
+            padding = "\n".join(
+                f"Body paragraph {i}."
+                for i in range(mod.METADATA_HEAD_LINES - 1))
+            document = root / "compliance" / "overlay-example.md"
+            document.write_text(
+                padding + "\n"
+                "**Document Type:** Annex\\\n",
+                encoding="utf-8")
+            # Fixture guard: the block's first line must sit exactly on
+            # line METADATA_HEAD_LINES, or this test stops exercising
+            # the window's last line.
+            doctype_lineno = 1 + document.read_text(
+                encoding="utf-8").splitlines().index(
+                "**Document Type:** Annex\\")
+            self.assertEqual(doctype_lineno, mod.METADATA_HEAD_LINES)
+            rec = self._record()
+            nodes = self._nodes_for(rec) + [self._node(
+                "EXAMPLE-OVERLAY-A", "policy",
+                corpus_path="compliance/overlay-example.md")]
+            try:
+                mod.REPO_ROOT = root
+                errors, _ = mod.validate_records([rec], nodes)
+            finally:
+                mod.REPO_ROOT = old_root
+        self.assertTrue(
+            any("[excluded-document-type]" in e and "EXAMPLE-OVERLAY-A" in e
+                for e in errors), errors)
+
+    def test_metadata_block_starting_past_head_window_not_read(self) -> None:
+        # Round 4's counterpart boundary: the start window is inclusive
+        # of line METADATA_HEAD_LINES and of nothing deeper, exactly
+        # lint_common.parse_metadata_block's window, so a metadata
+        # block whose first line is METADATA_HEAD_LINES + 1 is still
+        # never read and the excluded type there does not refuse the
+        # node (the scan stops once lineno exceeds METADATA_HEAD_LINES
+        # with no block started).
+        mod = self._load("_relmodel_head_window_past_line")
+        old_root = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "compliance").mkdir()
+            padding = "\n".join(
+                f"Body paragraph {i}."
+                for i in range(mod.METADATA_HEAD_LINES))
+            document = root / "compliance" / "overlay-example.md"
+            document.write_text(
+                padding + "\n"
+                "**Document Type:** Annex\\\n",
+                encoding="utf-8")
+            # Fixture guard: the block's first line must sit exactly
+            # one line past the window, or this test stops exercising
+            # the window's far edge.
+            doctype_lineno = 1 + document.read_text(
+                encoding="utf-8").splitlines().index(
+                "**Document Type:** Annex\\")
+            self.assertEqual(doctype_lineno, mod.METADATA_HEAD_LINES + 1)
+            rec = self._record()
+            nodes = self._nodes_for(rec) + [self._node(
+                "EXAMPLE-OVERLAY-A", "policy",
+                corpus_path="compliance/overlay-example.md")]
+            try:
+                mod.REPO_ROOT = root
+                errors, _ = mod.validate_records([rec], nodes)
+            finally:
+                mod.REPO_ROOT = old_root
+        self.assertEqual(errors, [])
+
+    def test_excluded_type_variants_normalized(self) -> None:
+        # Review round 1 (3b782, fix 2): the exclusion compares the type
+        # case-insensitively after normalizing whitespace, so a lowercase
+        # key or value, doubled spacing, or a trailing space cannot slip
+        # an excluded document into the model. tools/lint-metadata.py
+        # separately enforces the canonical block and type set; this
+        # guards the model boundary itself.
+        mod = self._load("_relmodel_doctype_variants")
+        old_root = mod.REPO_ROOT
+        variants = (
+            "**Document Type:** annex\\\n",
+            "**Document Type:** Annex \\\n",
+            "**Document Type:** ANNEX\\\n",
+            "**document type:** Annex\\\n",
+            "**Document  Type:**  Annex\\\n",
+        )
+        for variant in variants:
+            with self.subTest(variant=variant):
+                with tempfile.TemporaryDirectory() as td:
+                    root = Path(td)
+                    (root / "compliance").mkdir()
+                    (root / "compliance" / "overlay-example.md").write_text(
+                        "# Example Overlay\n\n"
+                        "**Document Title:** Example Overlay\\\n"
+                        + variant +
+                        "**Version:** 0.0.1\n",
+                        encoding="utf-8")
+                    rec = self._record()
+                    nodes = self._nodes_for(rec) + [self._node(
+                        "EXAMPLE-OVERLAY-A", "policy",
+                        corpus_path="compliance/overlay-example.md")]
+                    try:
+                        mod.REPO_ROOT = root
+                        errors, _ = mod.validate_records([rec], nodes)
+                    finally:
+                        mod.REPO_ROOT = old_root
+                self.assertTrue(
+                    any("[excluded-document-type]" in e
+                        and "EXAMPLE-OVERLAY-A" in e for e in errors),
+                    (variant, errors))
+
+    def test_annotated_excluded_type_first_word_governs(self) -> None:
+        # Review round 2 (3b782, fix 3): "Annex (draft)" normalizes to
+        # "annex (draft)", which the earlier whole-value comparison
+        # waved through. A value whose FIRST normalized word is an
+        # excluded type is now treated as excluded, while a distinct
+        # longer type ("Annexure") shares no first word and still
+        # passes.
+        mod = self._load("_relmodel_annotated_doctype")
+        old_root = mod.REPO_ROOT
+        cases = (("Annex (draft)", True),
+                 ("annex (superseded 2026-01-01)", True),
+                 ("Annexure", False))
+        for doc_type, excluded in cases:
+            with self.subTest(doc_type=doc_type):
+                with tempfile.TemporaryDirectory() as td:
+                    root = Path(td)
+                    (root / "compliance").mkdir()
+                    (root / "compliance" / "overlay-example.md").write_text(
+                        "# Example Overlay\n\n"
+                        "**Document Title:** Example Overlay\\\n"
+                        f"**Document Type:** {doc_type}\\\n"
+                        "**Version:** 0.0.1\n",
+                        encoding="utf-8")
+                    rec = self._record()
+                    nodes = self._nodes_for(rec) + [self._node(
+                        "EXAMPLE-OVERLAY-A", "policy",
+                        corpus_path="compliance/overlay-example.md")]
+                    try:
+                        mod.REPO_ROOT = root
+                        errors, _ = mod.validate_records([rec], nodes)
+                    finally:
+                        mod.REPO_ROOT = old_root
+                flagged = any("[excluded-document-type]" in e
+                              and "EXAMPLE-OVERLAY-A" in e for e in errors)
+                self.assertEqual(flagged, excluded, (doc_type, errors))
+
+    def test_absolute_corpus_path_rejected_before_read(self) -> None:
+        # Review round 2 (3b782, fix 2): corpus_path is joined to
+        # REPO_ROOT with pathlib, and joining an absolute path replaces
+        # the root entirely, so an absolute corpus_path used to read a
+        # file outside the repository. It is now a node-shape error
+        # naming the node, raised before any read: the outside document
+        # here states an excluded type, so the absence of an
+        # [excluded-document-type] error proves it was never opened.
+        mod = self._load("_relmodel_absolute_corpus_path")
+        old_root = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "repo"
+            (root / "compliance").mkdir(parents=True)
+            outside = Path(td) / "outside.md"
+            outside.write_text(
+                "# Outside\n\n"
+                "**Document Title:** Outside\\\n"
+                "**Document Type:** Annex\\\n"
+                "**Version:** 0.0.1\n",
+                encoding="utf-8")
+            rec = self._record()
+            nodes = self._nodes_for(rec) + [self._node(
+                "EXAMPLE-OVERLAY-A", "policy", corpus_path=str(outside))]
+            try:
+                mod.REPO_ROOT = root
+                errors, _ = mod.validate_records([rec], nodes)
+            finally:
+                mod.REPO_ROOT = old_root
+        self.assertTrue(
+            any("[node-shape]" in e and "EXAMPLE-OVERLAY-A" in e
+                and "absolute" in e for e in errors), errors)
+        self.assertFalse(
+            any("[excluded-document-type]" in e for e in errors), errors)
+
+    def test_escaping_corpus_path_rejected_before_read(self) -> None:
+        # Review round 2 (3b782, fix 2), second case: a relative
+        # corpus_path with a ".." component resolves outside REPO_ROOT
+        # and used to read there; it is now a node-shape error naming
+        # the node, raised before any read (the same no-read proof shape
+        # as the absolute case).
+        mod = self._load("_relmodel_escaping_corpus_path")
+        old_root = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "repo"
+            (root / "compliance").mkdir(parents=True)
+            outside = Path(td) / "outside.md"
+            outside.write_text(
+                "# Outside\n\n"
+                "**Document Title:** Outside\\\n"
+                "**Document Type:** Annex\\\n"
+                "**Version:** 0.0.1\n",
+                encoding="utf-8")
+            rec = self._record()
+            nodes = self._nodes_for(rec) + [self._node(
+                "EXAMPLE-OVERLAY-A", "policy",
+                corpus_path="compliance/../../outside.md")]
+            try:
+                mod.REPO_ROOT = root
+                errors, _ = mod.validate_records([rec], nodes)
+            finally:
+                mod.REPO_ROOT = old_root
+        self.assertTrue(
+            any("[node-shape]" in e and "EXAMPLE-OVERLAY-A" in e
+                and "outside the repository root" in e for e in errors), errors)
+        self.assertFalse(
+            any("[excluded-document-type]" in e for e in errors), errors)
+
+    def test_missing_corpus_document_is_hard_error(self) -> None:
+        # Review round 1 (3b782, fix 3): no linter in the tree validates
+        # that a node's corpus path exists, so a missing or mistyped path
+        # used to skip the exclusion silently; it is now a hard build
+        # error naming the node and the path.
+        mod = self._load("_relmodel_missing_corpus_doc")
+        old_root = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "compliance").mkdir()
+            rec = self._record()
+            nodes = self._nodes_for(rec) + [self._node(
+                "EXAMPLE-OVERLAY-A", "policy",
+                corpus_path="compliance/not-there.md")]
+            try:
+                mod.REPO_ROOT = root
+                errors, _ = mod.validate_records([rec], nodes)
+            finally:
+                mod.REPO_ROOT = old_root
+        self.assertTrue(
+            any("[missing-corpus-document]" in e and "EXAMPLE-OVERLAY-A" in e
+                and "compliance/not-there.md" in e for e in errors), errors)
 
     def test_committed_seed_and_generated_model_in_sync(self) -> None:
         mod = self._load("_relmodel_check_head")
