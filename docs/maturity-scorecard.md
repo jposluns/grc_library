@@ -7,7 +7,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 
 **Document Title:** Document Maturity Scorecard\
 **Document Type:** Register\
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-11-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -23,7 +23,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 
 ## Overview
 
-This scorecard classifies each active artefact by maturity. The classification is derived from the document's semantic version per the heuristic below.
+The maturity scorecard classifies each active artefact as Mature, Baseline, or Draft. The classification is derived from the document's semantic version by the heuristic recorded in the scorecard.
 
 | Maturity | Version range | Adopter signal |
 | --- | --- | --- |
@@ -37,7 +37,7 @@ The metadata block above carries a generator schema constant for `Version` and t
 
 ---
 
-_Summary as of last regeneration: Mature: 135, Baseline: 147, Draft: 78, Unknown: 0._
+_Summary as of last regeneration: Mature: 135, Baseline: 147, Draft: 78._
 
 ## Mature
 
@@ -90,7 +90,7 @@ _135 documents._
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.24 | 2026-10-27 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.2.3 | 2026-10-27 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.7.1 | 2026-10-27 |
-| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.340 | 2026-11-03 |
+| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.342 | 2026-11-03 |
 | [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.40 | 2026-10-27 |
 | [governance/standard-maturity-assessment-methodology.md](../governance/standard-maturity-assessment-methodology.md) | Maturity Assessment Methodology Standard | Standard | 1.1.5 | 2026-10-13 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.8.0 | 2026-10-15 |

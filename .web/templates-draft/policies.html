@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" class="site-grclibrary">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Write a policy | GRCLibrary.ai</title>
+{{HEAD_STYLE}}
+{{SCRIPT}}<script src="{{BASE}}/assets/baseline/rail.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to content</a>
+{{TOPBAR}}
+<main id="main-content">
+<div class="wrap"><div class="doc"><p class="lbl first">Write a policy</p>
+<h1>Which policy or template do you need right now?</h1>
+<nav class="rail" aria-label="On this page"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"><p class="lbl">On this page</p><ol>
+<li><a href="#start">Start from the type</a></li>
+<li><a href="#subjects">Jump to your subject</a></li>
+<li><a href="#adapt">How to adapt it</a></li>
+</ol></nav>
+<p class="meta">{{POL_META}}</p>
+<p class="lead">The shortest path in the library. Pick a document, adapt it, and keep the cross-references that make it work.</p>
+<p class="lbl sec">Start</p>
+<h2 id="start">Start from the type</h2>
+<p>Each row opens a type page listing every document of the type, with its area and purpose: the corpus documents, then the adopter documents of the type under docs/, where it has any. The count beside a row is the type's corpus documents, generated from the taxonomy at build time.</p>
+<div class="wide"><ul class="plan described">
+{{POL_TYPES}}
+</ul></div>
+<p class="lbl sec">Subjects, {{POL_SUBJECT_COUNT}}</p>
+<h2 id="subjects">Or jump to your subject</h2>
+<p>The domains with at least one policy or template, derived from the taxonomy at build time; the count beside each is the domain's policies and templates, and a subject opens the domain page, every document of the domain on one page.</p>
+<div class="wide"><ul class="plan described">
+{{POL_SUBJECTS}}
+</ul></div>
+<p class="lbl sec">Adapt</p>
+<h2 id="adapt">How to adapt it</h2>
+<p>Copy the document and replace the organization-neutral values with your own: thresholds, review cadences, and identifiers. Keep the Owner and Approving Authority as roles, and map each role to a real person in a separate private overlay, rather than editing names into the document itself. Read the related <a href="{{BASE}}/types/standard/">standards</a> the policy points to, where it names any; the policy states intent, and the standards carry the requirements an audit will test. Keep the cross-references between them intact, and record your own version and owner on the adapted copy.</p>
+<p>Original library content is CC BY-SA 4.0: free to adopt, adapt, and reuse, commercially included; when you share it, give attribution and indicate any changes. If you share an adaptation, license your own contributions under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence; the library's original content stays under CC BY-SA 4.0, and quotations keep their own licences, as the library's <a href="https://github.com/jposluns/grc_library/blob/main/NOTICE.md" target="_blank" rel="noopener noreferrer">NOTICE file<span class="vh"> (opens in a new tab)</span></a> records.</p>
+<div class="next"><p class="lbl">Next</p><a class="start" href="{{BASE}}/documents/">All Documents <span class="arrow" aria-hidden="true">&rarr;</span></a></div></div></div>
+</main>
+{{FOOTER}}
+<p class="vh" id="copy-status" role="status" aria-live="polite"></p>
+</body>
+</html>

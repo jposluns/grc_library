@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" class="site-grclibrary">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Find a solution | GRCLibrary.ai</title>
+{{HEAD_STYLE}}
+{{SCRIPT}}<script src="{{BASE}}/assets/baseline/rail.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to content</a>
+{{TOPBAR}}
+<main id="main-content">
+<div class="wrap"><div class="doc"><p class="lbl first">Find a solution</p>
+<h1>What is in front of you?</h1>
+<nav class="rail" aria-label="On this page"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"><p class="lbl">On this page</p><ol>
+<li><a href="#events">Common problems and events</a></li>
+<li><a href="#rehearse">Rehearse a bad day</a></li>
+<li><a href="#builders">For the CIO and the architect</a></li>
+</ol></nav>
+<p class="meta">{{SOL_META}}</p>
+<p class="lead">Start from the problem or the lifecycle event, not the paperwork. Each event lands on library pages that resolve it; every count on this page is generated at build time.</p>
+<p class="lbl sec">Events, {{SOL_EVENT_COUNT}}</p>
+<h2 id="events">Common problems and events</h2>
+<p>One row per event, curated in the site generator. A row opens the leadership page that walks the event end to end or the leadership concern that owns it; where an event has more pages behind it, the row's Go deeper links name them, and every link target and count is checked against the library's registries at build time.</p>
+<div class="wide"><ul class="plan one described">
+{{SOL_EVENTS}}
+</ul></div>
+<p class="lbl sec">Scenarios, {{SOL_SCENARIO_COUNT}}</p>
+<h2 id="rehearse">Rehearse a bad day</h2>
+<p>Every scenario in the library's executive layer, generated from the narrative registry, so a newly published scenario appears here without an edit. The same pages are indexed under <a href="{{BASE}}/decide/scenarios/">Scenarios</a> on the executive path.</p>
+<div class="wide"><ul class="plan one described">
+{{SOL_SCENARIOS}}
+</ul></div>
+<p class="lbl sec">Builders</p>
+<h2 id="builders">For the CIO and the architect</h2>
+<p>Building or changing systems rather than responding to one event? These domains carry the technology side of the corpus.</p>
+<div class="wide"><ul class="plan described">
+{{SOL_BUILDERS}}
+</ul></div>
+<div class="next"><p class="lbl">Next</p><a class="start" href="{{BASE}}/search/">Search the library <span class="arrow" aria-hidden="true">&rarr;</span></a></div></div></div>
+</main>
+{{FOOTER}}
+<p class="vh" id="copy-status" role="status" aria-live="polite"></p>
+</body>
+</html>

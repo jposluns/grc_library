@@ -10,11 +10,21 @@ files together. The pin file ``.baseline/pin.toml`` records the adopted
 baseline version and the SHA-256 of every copied file, in the format the
 package README's "Adoption in a repository" section defines: a top-level
 ``version`` string and a ``[files]`` table mapping each repository-relative
-copied-file path (always under ``.web/baseline/``) to its lowercase
-hexadecimal SHA-256.
+copied-file path (under ``.web/baseline/``, or one of the pinned tools
+below) to its lowercase hexadecimal SHA-256.
+
+The pin also records the package's build tools that the repository copies
+outside the served tree, never served: exactly the paths in
+``PINNED_TOOLS`` (the palette gate ``.baseline/check_palette.py``, which the
+package's adoption step 3 pins in the same ``[files]`` table and the site
+build runs). Each is verified like a copied file: a regular file, not a
+symbolic link, under a real ``.baseline`` directory, whose SHA-256 matches its
+pin entry; a pinned tool that is missing, a tool present with no pin entry,
+and a pin with no entry for a ``PINNED_TOOLS`` path (the pin must include
+every one, file or no file) are findings.
 
 This gate recomputes the SHA-256 of every file under ``.web/baseline/`` and
-compares the tree with the pin. It fails on:
+of every pinned tool, and compares them with the pin. It fails on:
 
 - a hash mismatch (a copied file whose bytes drifted from the pin);
 - a pin entry without a file (a pinned path missing from the tree, or
@@ -26,8 +36,13 @@ compares the tree with the pin. It fails on:
   decided by ``lstat`` before any open or read, so the gate never opens a
   non-regular file: an opened FIFO with no writer would block the gate,
   and one with a writer could feed it substitute bytes;
-- a pin key outside ``.web/baseline/`` (the pin governs only the vendored
-  tree; a key elsewhere would silently extend its authority);
+- a pin key outside ``.web/baseline/`` other than a ``PINNED_TOOLS`` path
+  (the pin governs only the vendored tree and those tools; a key elsewhere
+  would silently extend its authority);
+- a pinned tool whose bytes drift from the pin, that is missing, that is a
+  symbolic link or not a regular file, or whose ``.baseline`` directory is a
+  symbolic link or not a real directory; a tool present with no pin entry;
+  and a ``PINNED_TOOLS`` path with no pin entry and no file;
 - a refused tree shape, found before traversal starts and named by path:
   a ``.web`` or ``.web/baseline`` entry that is a symbolic link or not a
   real directory (a link could alias the pinned bytes from elsewhere);
@@ -49,8 +64,8 @@ Exit codes:
     0   the tree and the pin agree.
     1   one or more findings (mismatch, unpinned file, missing file, a
         non-regular file inside the tree, a key outside the vendored
-        tree, or a refused tree shape: a symlinked or non-directory
-        ``.web`` or ``.web/baseline``).
+        tree, a pinned-tool fault, or a refused tree shape: a symlinked or
+        non-directory ``.web`` or ``.web/baseline``).
     2   prerequisite failure: the pin is missing or malformed, the named
         root is not a directory, or a listed file cannot be read.
 """
@@ -70,6 +85,11 @@ PIN_REL = ".baseline/pin.toml"
 TREE_REL = ".web/baseline"
 TREE_PREFIX = TREE_REL + "/"
 HEX_DIGITS = frozenset("0123456789abcdef")
+# The package's build tools pinned outside the served tree (the palette gate,
+# copied from the package's tools/check_palette.py). Fixed paths: a new tool
+# is a reviewed edit here, never a pin key alone.
+TOOLS_DIR_REL = ".baseline"
+PINNED_TOOLS = frozenset({".baseline/check_palette.py"})
 
 
 class PinError(Exception):
@@ -186,6 +206,60 @@ def discover_tree(root: Path) -> tuple[dict[str, Path], list[str]]:
     return files, findings
 
 
+def tool_findings(root: Path, pinned: dict[str, str]) -> list[str]:
+    """Findings for the pinned build tools (``PINNED_TOOLS``).
+
+    Each tool is classified by ``lstat`` before anything is opened, as in
+    the vendored tree: a pinned tool must be a regular file under a real
+    ``.baseline`` directory (a symbolic link could alias other bytes) whose
+    SHA-256 matches its pin entry. A tool present with no pin entry is a
+    finding too, so the build never runs an unpinned copy, and so is a pin
+    with no entry for a tool even when the file is absent too: the pin must
+    include every ``PINNED_TOOLS`` path, so the gate never skips one
+    silently.
+    """
+    findings: list[str] = []
+    tools_dir = root / TOOLS_DIR_REL
+    for rel in sorted(PINNED_TOOLS):
+        path = root / rel
+        if rel not in pinned:
+            if path.is_symlink() or path.exists():
+                findings.append(f"{rel}: present with no entry in {PIN_REL} "
+                                f"(file without a pin entry)")
+            else:
+                findings.append(f"{rel}: no entry in {PIN_REL} and no file; "
+                                f"the pin must include every pinned tool "
+                                f"(pinned tool without a pin entry)")
+            continue
+        if tools_dir.is_symlink() or not tools_dir.is_dir():
+            findings.append(f"{TOOLS_DIR_REL}: symbolic link or not a real "
+                            f"directory; a pinned tool must be reached "
+                            f"through a real directory")
+            continue
+        try:
+            mode = path.lstat().st_mode
+        except FileNotFoundError:
+            findings.append(f"{rel}: pinned in {PIN_REL} but missing (pin "
+                            f"entry without a file)")
+            continue
+        if stat.S_ISLNK(mode):
+            findings.append(f"{rel}: symbolic link in place of a pinned tool; "
+                            f"only a pinned regular file belongs here")
+            continue
+        if not stat.S_ISREG(mode):
+            findings.append(f"{rel}: not a regular file (refused by lstat, "
+                            f"never opened)")
+            continue
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        if digest != pinned[rel]:
+            findings.append(f"{rel}: SHA-256 {digest} does not match the "
+                            f"pinned {pinned[rel]}; a copied tool is never "
+                            f"edited: restore the pinned bytes or adopt a "
+                            f"new baseline version by bumping the pin and "
+                            f"the copies together")
+    return findings
+
+
 def key_problem(key: str) -> str | None:
     """Why ``key`` is not a clean path inside ``.web/baseline/``, or None."""
     if not key.startswith(TREE_PREFIX):
@@ -220,6 +294,8 @@ def main(argv: list[str]) -> int:
         if not findings:
             files, findings = discover_tree(root)
             for key in sorted(pinned):
+                if key in PINNED_TOOLS:
+                    continue
                 problem = key_problem(key)
                 if problem:
                     findings.append(f"{PIN_REL}: pin key {key!r} is "
@@ -243,6 +319,7 @@ def main(argv: list[str]) -> int:
             for rel in sorted(files):
                 findings.append(f"{rel}: present under {TREE_REL}/ with no "
                                 f"pin entry (file without a pin entry)")
+            findings.extend(tool_findings(root, pinned))
     except PinError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
@@ -254,8 +331,9 @@ def main(argv: list[str]) -> int:
             print(f"ERROR: {finding}")
         print(f"{len(findings)} baseline-pin finding(s).")
         return 1
-    print(f"OK: {len(pinned)} file(s) under {TREE_REL}/ verified against "
-          f"{PIN_REL} (baseline {version}).")
+    tools = len(PINNED_TOOLS & set(pinned))
+    print(f"OK: {len(pinned) - tools} file(s) under {TREE_REL}/ and {tools} "
+          f"pinned tool(s) verified against {PIN_REL} (baseline {version}).")
     return 0
 
 

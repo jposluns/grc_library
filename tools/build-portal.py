@@ -40,8 +40,8 @@ SCORECARD = REPO_ROOT / "docs" / "maturity-scorecard.md"
 # the metadata schema itself changes (e.g. a new required field, a
 # rewritten Overview, an audience added or removed) and capture the
 # bump in CHANGELOG.md.
-PORTAL_METADATA_VERSION = "1.3.1"
-SCORECARD_METADATA_VERSION = "1.0.1"
+PORTAL_METADATA_VERSION = "1.3.2"
+SCORECARD_METADATA_VERSION = "1.0.2"
 
 # Fallback Date if the parsed taxonomy yields no usable date values
 # (defensive; production runs always have dates).
@@ -250,11 +250,23 @@ def classify_maturity(doc: dict) -> str:
     - 1.x.y where x >= 1: Mature (post-baseline with structural revisions).
     - 1.0.x: Baseline (formally approved and stable).
     - 0.x.y: Draft.
+
+    A non-empty Version outside MAJOR.MINOR.PATCH fails the build rather
+    than taking an "Unknown" class: it is a metadata defect (gate
+    lint-metadata reports it too), and publishing it as a fourth maturity
+    class would hide that and falsify the scorecard lede, which names
+    exactly the three classes above. An empty Version never reaches this
+    function: gate lint-metadata does not reject one, so the callers keep
+    it visible instead (build_scorecard lists it under Not classified).
     """
     version = doc.get("version", "")
     m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version)
     if not m:
-        return "Unknown"
+        raise SystemExit(
+            f"FAIL: {doc.get('path', '?')} has Version {version!r}, not "
+            "MAJOR.MINOR.PATCH; the scorecard classes only Mature, Baseline, "
+            "and Draft. Fix the document's metadata block."
+        )
     major, minor, _patch = (int(x) for x in m.groups())
     if major >= 2 or (major == 1 and minor >= 1):
         return "Mature"
@@ -342,13 +354,24 @@ def build_portal(docs: list[dict]) -> str:
     out.append("")
     out.append("## Overview")
     out.append("")
-    out.append("This page is a navigation aid for the most common adopter audiences. Each section lists the documents most likely to be useful to that role, drawn from the machine-readable taxonomy and grouped by document type. The full document index lives in [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md); term definitions and acronym expansions are in the [`governance/register-glossary.md`](../governance/register-glossary.md).")
+    # The opening paragraph doubles as the document's lede wherever the
+    # document is summarized (the draft site renders it on a record page with
+    # no audience sections in sight), so it must stay true outside this file:
+    # no "this page", no "below", no claim about surrounding content.
+    out.append("The adopter portal is a navigation aid for the most common adopter audiences: for each role, it lists the documents most likely to be useful to that role, drawn from the machine-readable taxonomy and grouped by document type. The full document index lives in [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md); term definitions and acronym expansions are in the [`governance/register-glossary.md`](../governance/register-glossary.md).")
     out.append("")
     out.append("This portal is the canonical front door for adopters. The audience-keyed groupings below are the primary entry point. Five further adopter-facing documents support the portal as deeper-dive paths for specific questions; the \"Other entry points and when to use them\" section immediately below maps each to its purpose so a reader can pick the path that matches their question.")
     out.append("")
     out.append("This portal is generated; the source of truth is each document's canonical metadata block. Inclusion of a document in an audience section is selector-based; a document may legitimately appear under more than one audience.")
     out.append("")
-    out.append("Each document entry below carries an inline maturity tag (for example `(maturity: Mature)`), the same classification the [`docs/maturity-scorecard.md`](maturity-scorecard.md) reports, so a reader can gauge at a glance how settled an artefact is.")
+    # An entry whose metadata block gives no Version carries no maturity tag,
+    # as the scorecard lists it under Not classified (see build_scorecard), so
+    # the sentence names only the entries that carry one when any listed lacks it.
+    tagged = "Each document entry below"
+    if any(not d.get("version", "") for _audience, _blurb, selectors in AUDIENCES
+           for d in select_for_audience(docs, selectors)):
+        tagged += " whose metadata block gives a Version"
+    out.append(f"{tagged} carries an inline maturity tag (for example `(maturity: Mature)`), the same classification the [`docs/maturity-scorecard.md`](maturity-scorecard.md) reports, so a reader can gauge at a glance how settled an artefact is.")
     out.append("")
     out.append("The metadata block above carries a generator schema constant for `Version` and the latest source `Date` found in the taxonomy. Bumps to the schema constant are recorded in [`CHANGELOG.md`](../CHANGELOG.md); the `Date` advances automatically with the corpus.")
     out.append("")
@@ -395,7 +418,8 @@ def build_portal(docs: list[dict]) -> str:
                 path = d["path"]
                 title = d.get("title", path)
                 rel = f"../{path}"
-                out.append(f"- [{title}]({rel}) (maturity: {classify_maturity(d)})")
+                tag = f" (maturity: {classify_maturity(d)})" if d.get("version", "") else ""
+                out.append(f"- [{title}]({rel}){tag}")
             out.append("")
         out.append("---")
         out.append("")
@@ -433,7 +457,30 @@ def build_scorecard(docs: list[dict]) -> str:
     out.append("")
     out.append("## Overview")
     out.append("")
-    out.append("This scorecard classifies each active artefact by maturity. The classification is derived from the document's semantic version per the heuristic below.")
+    # The taxonomy gives a document an empty version in three forms, and a
+    # fourth form is a bad value:
+    # - an empty file, and
+    # - a block that stops before the Version line (a blank line or a rule
+    #   ends it first, or it has none): gate lint-metadata reports a missing
+    #   required Version for both, as it reads the block the same way;
+    # - a Version line present with an empty value: no gate reports it (gate
+    #   lint-metadata checks only that the field is present and skips an
+    #   empty value), so the Not classified section below is what names it;
+    # - a non-empty value outside MAJOR.MINOR.PATCH: classify_maturity fails
+    #   the build, and gate lint-metadata reports it as an invalid Version.
+    # The first three have nothing to class: each is named on stderr and by
+    # path in the Not classified section, which is not a maturity class, and
+    # the lede says which artefacts the scorecard classes.
+    unversioned = sorted(d.get("path", "?") for d in docs if not d.get("version", ""))
+    for path in unversioned:
+        print(f"WARN: {path} has no Version in its metadata block; the maturity "
+              "scorecard lists it under Not classified.", file=sys.stderr)
+    scope = "each active artefact"
+    if unversioned:
+        scope += " whose metadata block gives a Version"
+    # Like the portal's opening paragraph, this one is the document's lede
+    # wherever the document is summarized, so it must not point "below".
+    out.append(f"The maturity scorecard classifies {scope} as Mature, Baseline, or Draft. The classification is derived from the document's semantic version by the heuristic recorded in the scorecard.")
     out.append("")
     out.append("| Maturity | Version range | Adopter signal |")
     out.append("| --- | --- | --- |")
@@ -448,16 +495,18 @@ def build_scorecard(docs: list[dict]) -> str:
     out.append("---")
     out.append("")
 
-    by_maturity: dict[str, list[dict]] = {"Mature": [], "Baseline": [], "Draft": [], "Unknown": []}
+    by_maturity: dict[str, list[dict]] = {"Mature": [], "Baseline": [], "Draft": []}
     for d in docs:
+        if not d.get("version", ""):
+            continue
         m = classify_maturity(d)
         by_maturity[m].append(d)
 
-    summary = ", ".join(f"{name}: {len(by_maturity[name])}" for name in ("Mature", "Baseline", "Draft", "Unknown"))
+    summary = ", ".join(f"{name}: {len(by_maturity[name])}" for name in ("Mature", "Baseline", "Draft"))
     out.append(f"_Summary as of last regeneration: {summary}._")
     out.append("")
 
-    for maturity in ("Mature", "Baseline", "Draft", "Unknown"):
+    for maturity in ("Mature", "Baseline", "Draft"):
         items = by_maturity[maturity]
         if not items:
             continue
@@ -475,6 +524,20 @@ def build_scorecard(docs: list[dict]) -> str:
             date = d.get("date", "")
             rel = f"../{path}"
             out.append(f"| [{path}]({rel}) | {title} | {dtype} | {version} | {date} |")
+        out.append("")
+        out.append("---")
+        out.append("")
+
+    # Not a fourth class: shown only when a document has no Version, so the
+    # gap stays visible by path without a maturity class (see above).
+    if unversioned:
+        noun = "document" if len(unversioned) == 1 else "documents"
+        out.append("## Not classified: no Version in the metadata block")
+        out.append("")
+        out.append(f"_{len(unversioned)} {noun}._ The metadata block of each gives no Version value, so it carries no maturity class. Give it a MAJOR.MINOR.PATCH Version.")
+        out.append("")
+        for path in unversioned:
+            out.append(f"- [{path}](../{path})")
         out.append("")
         out.append("---")
         out.append("")

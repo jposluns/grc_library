@@ -40468,7 +40468,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-corpus-management.py OWN F 5a8cdc9491b4565b783cc4de48a65a06f0abc48bc272c039bfc6e2edc104b671
         build-historical-citation-exceptions.py OWN F 442e33ccfd3d443d763e0576d908d0a27c74f59d5cda3d1fe53a919d074376d2
         build-narrative-registry.py NO_FS F 92ebf6bf91d8fdce637d835dcc031a3ddd2a60ed51fbce195de18e1c734107ad
-        build-portal.py NO_FS F 5ec4891c1488822c6dc1d06ee08f27523d0f2766869578574bfbf96e3203fc2a
+        build-portal.py NO_FS F 5bb93bd5bc185a71ab3b484027f35cf9847fd7db657758c341742f022685f0db
         build-provision-index.py ROOT F fe7e21ef073874b792080c23593e1d47e3e4f2702177860b06b67486a9cb46e1
         build-public-changelog.py OWN F 407a5b794ad8b51c495f9a2d98ec1f8908fac68500a12004c092e59bd8054d77
         build-reference-manifest.py NO_FS F fdf4d1211bd09e6e1afdf2437b5b291ec5bc0cbc3d632d588af5bcb0091a387d
@@ -40529,7 +40529,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-gate-parity.py OWN F 48a5130538cf0e506226c7c47c8c2b98e8b8e5e6ba5df2177e8b02cdbdfb1545
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
-        lint-baseline-pin.py OWN F b04767d16110527ceb0de7577283a548457f09b31859d7dd0c7ed75609a83254
+        lint-baseline-pin.py OWN F b118d17b4e80267b4567d276c8e99064300bcd79c18fb648cf057253172f14f2
         lint-bookkeeping-parity.py NO_FS F 8f85da2547e95ad49c86265764b5d460db92e210d6339a593fbc896fc10b3181
         lint-ccm-aicm-citations.py CWD F 6a1eb4d255f76d35ed337441b0f7127ffd6d943d8c47730921e6f872491685a7
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
@@ -48322,6 +48322,243 @@ class MaturityClassifierTests(unittest.TestCase):
                 # Flip guard: the pre-fix rule agrees here, so the fix is
                 # confined to the major >= 2 branch.
                 self.assertEqual(self._pre_fix_rule(version), expected)
+
+
+class PortalScorecardUnversionedTests(unittest.TestCase):
+    """tools/build-portal.py: a document the taxonomy gives no Version (an
+    empty file, a block that stops before the Version line, or a Version
+    line present with an empty value) takes no maturity class, is named on
+    stderr and by path in the scorecard's Not classified section, and is
+    listed in the portal without a maturity tag, not a crash, so the
+    pre-commit hook's own fixtures (tools/check-generated-commit.py
+    --self-test) can regenerate. Gate lint-metadata reports a missing
+    Version line but not an empty value, so that section is the only output
+    naming the empty value. A non-empty Version outside MAJOR.MINOR.PATCH
+    still fails the build (gate lint-metadata reports it too), no Unknown
+    class is published, and the scorecard lede, its Not classified section
+    and the portal's maturity-tag sentence are true of every entry each
+    lists."""
+
+    LEDE_RE = re.compile(r"The maturity scorecard classifies (each active artefact.*?) as ")
+    ROW_RE = re.compile(r"^\| \[([^\]]+)\]\([^)]*\) \| [^|]* \| [^|]* \| ([^|]*) \| [^|]* \|$", re.M)
+    TAGGED_RE = re.compile(r"^(Each document entry below.*?) carries an inline maturity tag", re.M)
+    ENTRY_RE = re.compile(r"^- \[[^\]]*\]\(\.\./([^)]+)\)( \(maturity: (?:Mature|Baseline|Draft)\))?$", re.M)
+    NOT_CLASSIFIED = "## Not classified: no Version in the metadata block"
+    NOT_CLASSIFIED_RE = re.compile(
+        r"^## Not classified: no Version in the metadata block\n\n_(\d+) documents?\._ The metadata "
+        r"block of each gives no Version value, so it carries no maturity class\. Give it a "
+        r"MAJOR\.MINOR\.PATCH Version\.\n\n((?:- \[[^\]]+\]\([^)]+\)\n)+)\n---\n", re.M)
+
+    def _not_classified(self, text: str) -> list[str] | None:
+        """The paths the Not classified section lists, None when it is absent;
+        its count must equal the paths it lists, and it is never a class."""
+        self.assertLessEqual(text.count(self.NOT_CLASSIFIED), 1)
+        m = self.NOT_CLASSIFIED_RE.search(text)
+        if m is None:
+            self.assertNotIn(self.NOT_CLASSIFIED, text)
+            return None
+        paths = re.findall(r"^- \[([^\]]+)\]\(\.\./\1\)$", m.group(2), re.M)
+        self.assertEqual(len(paths), len(m.group(2).splitlines()))
+        self.assertEqual(int(m.group(1)), len(paths))
+        return paths
+
+    def setUp(self) -> None:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_portal_scorecard_unversioned", REPO_ROOT / "tools/build-portal.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        self.mod = mod
+
+    @staticmethod
+    def _doc(path: str, version: str) -> dict:
+        return {"path": path, "title": "Fixture", "type": "Policy",
+                "version": version, "date": "2026-11-03"}
+
+    def _build(self, docs: list[dict]) -> tuple[str, str]:
+        from contextlib import redirect_stderr
+        err = io.StringIO()
+        with redirect_stderr(err):
+            text = self.mod.build_scorecard(docs)
+        return text, err.getvalue()
+
+    def test_unversioned_document_is_named_and_left_unclassified(self) -> None:
+        text, err = self._build([self._doc("risk/versioned.md", "1.0.0"),
+                                 self._doc("risk/unversioned.md", ""),
+                                 self._doc("risk/also-unversioned.md", "")])
+        self.assertIn("WARN: risk/unversioned.md has no Version", err)
+        self.assertEqual(self._not_classified(text),
+                         ["risk/also-unversioned.md", "risk/unversioned.md"])
+        self.assertNotIn("Unknown", text)
+        lede = self.LEDE_RE.search(text)
+        self.assertIsNotNone(lede, text)
+        self.assertEqual(lede.group(1),
+                         "each active artefact whose metadata block gives a Version")
+        rows = self.ROW_RE.findall(text)
+        self.assertEqual(rows, [("risk/versioned.md", "1.0.0")])
+        summary = re.search(r"^_Summary as of last regeneration: (.*)\._$", text, re.M)
+        self.assertEqual(summary.group(1), "Mature: 0, Baseline: 1, Draft: 0")
+
+    def test_malformed_version_still_fails_beside_an_unversioned_one(self) -> None:
+        with self.assertRaises(SystemExit) as caught:
+            self._build([self._doc("risk/unversioned.md", ""),
+                         self._doc("risk/malformed.md", "1.0")])
+        self.assertIn("risk/malformed.md", str(caught.exception))
+
+    def test_lede_is_unqualified_and_true_when_every_document_is_versioned(self) -> None:
+        text, err = self._build([self._doc("risk/a.md", "0.1.0"),
+                                 self._doc("risk/b.md", "2.0.0")])
+        self.assertEqual(err, "")
+        self.assertEqual(self.LEDE_RE.search(text).group(1), "each active artefact")
+        self.assertEqual(sorted(p for p, _v in self.ROW_RE.findall(text)),
+                         ["risk/a.md", "risk/b.md"])
+        self.assertIsNone(self._not_classified(text))
+
+    def test_committed_scorecard_lists_every_artefact_its_lede_covers(self) -> None:
+        """The committed scorecard, read as rendered: when its lede says it
+        classifies each active artefact, every taxonomy document is a row,
+        with the Version the taxonomy gives it, and the Not classified
+        section lists exactly the taxonomy documents with no Version (it is
+        absent when there are none)."""
+        docs = self.mod.parse_taxonomy()
+        text = (REPO_ROOT / "docs" / "maturity-scorecard.md").read_text(encoding="utf-8")
+        scope = self.LEDE_RE.search(text).group(1)
+        covered = {d["path"]: d["version"] for d in docs
+                   if scope == "each active artefact" or d.get("version", "")}
+        self.assertEqual(dict(self.ROW_RE.findall(text)), covered)
+        unversioned = sorted(d["path"] for d in docs if not d.get("version", ""))
+        self.assertEqual(self._not_classified(text), unversioned or None)
+        self.assertEqual(scope == "each active artefact", not unversioned)
+
+    def test_comments_name_each_no_version_form_and_its_catcher(self) -> None:
+        """The comments state what gate lint-metadata does with each form;
+        this checks those statements against the gate itself, and that the
+        generator no longer claims the gate requires x.y.z of an empty
+        value or leaves out the present-but-empty Version line."""
+        source = (REPO_ROOT / "tools" / "build-portal.py").read_text(encoding="utf-8")
+        self.assertFalse("gate lint-metadata already requires x.y.z" in source,
+                         "build-portal.py still claims the gate requires x.y.z of an empty Version")
+        for phrase in ("an empty file", "a block that stops before the Version line",
+                       "a Version line present with an empty value: no gate reports it",
+                       "a non-empty value outside MAJOR.MINOR.PATCH: classify_maturity fails"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, " ".join(re.sub(r"^\s*# ?", "", line)
+                                               for line in source.splitlines()))
+        import importlib.util
+        tools = REPO_ROOT / "tools"
+        spec = importlib.util.spec_from_file_location("_portal_meta_gate", tools / "lint-metadata.py")
+        meta = importlib.util.module_from_spec(spec)
+        sys.path.insert(0, str(tools))
+        try:
+            spec.loader.exec_module(meta)
+        finally:
+            sys.path.remove(str(tools))
+        with tempfile.TemporaryDirectory(prefix="portal-meta-gate-") as tmp:
+            meta.REPO_ROOT = Path(tmp)  # a private module instance: nothing to restore
+            expected = {"policy-versioned.md": [],
+                        "policy-empty-file.md": ["missing required metadata field: Version"],
+                        "policy-no-version-line.md": ["missing required metadata field: Version"],
+                        "policy-blank-before-version.md": ["missing required metadata field: Version"],
+                        "policy-empty-value.md": [],
+                        "policy-malformed.md": ["invalid Version (expected x.y.z): '1.0'"]}
+            for name, path in self._write_forms(Path(tmp)).items():
+                with self.subTest(form=name):
+                    self.assertEqual([f for f in meta.check_file(path) if "Version" in f],
+                                     expected[name])
+
+    @staticmethod
+    def _write_forms(root: Path) -> dict[str, Path]:
+        """Real documents under root/risk/: one per no-Version form, one
+        versioned, one malformed."""
+        forms = {"policy-versioned.md": "**Version:** 1.0.0\\\n",
+                 "policy-empty-value.md": "**Version:** \\\n",
+                 "policy-no-version-line.md": "",
+                 "policy-blank-before-version.md": "\n**Version:** 1.0.0\\\n",
+                 "policy-malformed.md": "**Version:** 1.0\\\n"}
+        out: dict[str, Path] = {}
+        (root / "risk").mkdir(parents=True, exist_ok=True)
+        for name, version in forms.items():
+            out[name] = root / "risk" / name
+            out[name].write_text(f"# Fixture\n\n**Document Title:** Fixture {name}\\\n"
+                                 f"**Document Type:** Policy\\\n{version}**Date:** 2026-11-03\n\n"
+                                 "---\n\n## Purpose\n\nFixture.\n", encoding="utf-8")
+        out["policy-empty-file.md"] = root / "risk" / "policy-empty-file.md"
+        out["policy-empty-file.md"].write_text("", encoding="utf-8")
+        return out
+
+    def test_real_documents_without_a_version_are_listed_by_path(self) -> None:
+        """End to end on real files: build-taxonomy and build-portal run on a
+        temporary tree; the scorecard's Not classified section names each
+        no-Version document by path (an empty Version value, no Version line,
+        a blank line before the Version line, an empty file), the portal lists
+        them untagged, and a malformed Version still fails the build."""
+        with tempfile.TemporaryDirectory(prefix="portal-unversioned-") as tmp:
+            root = Path(tmp)
+            for rel in ("tools/build-taxonomy.py", "tools/build-portal.py", "tools/lint_common.py"):
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(REPO_ROOT / rel, root / rel)
+            self._write_forms(root)
+            (root / "risk" / "policy-malformed.md").unlink()
+
+            def run(rel: str) -> subprocess.CompletedProcess:
+                return subprocess.run([sys.executable, "-I", str(root / rel)], cwd=root,
+                                      capture_output=True, text=True, timeout=120)
+
+            for rel in ("tools/build-taxonomy.py", "tools/build-portal.py"):
+                cp = run(rel)
+                self.assertEqual(cp.returncode, 0, cp.stdout + cp.stderr)
+            unversioned = ["risk/policy-blank-before-version.md", "risk/policy-empty-file.md",
+                           "risk/policy-empty-value.md", "risk/policy-no-version-line.md"]
+            for path in unversioned:
+                self.assertIn(f"WARN: {path} has no Version", cp.stderr)
+            # The section's sentence is true of each path it lists: the taxonomy
+            # the run wrote gives each an empty version.
+            taxonomy = (root / "taxonomy.yml").read_text(encoding="utf-8")
+            for path in unversioned:
+                self.assertRegex(taxonomy, rf'- path: "{re.escape(path)}"\n(?:  .*\n)*?  version: ""\n')
+            scorecard = (root / "docs" / "maturity-scorecard.md").read_text(encoding="utf-8")
+            self.assertEqual(self._not_classified(scorecard), unversioned)
+            self.assertEqual(self.ROW_RE.findall(scorecard), [("risk/policy-versioned.md", "1.0.0")])
+            self.assertNotIn("Unknown", scorecard)
+            portal = (root / "docs" / "portal.md").read_text(encoding="utf-8")
+            entries = dict(self.ENTRY_RE.findall(portal))
+            self.assertEqual(entries.get("risk/policy-versioned.md"), " (maturity: Baseline)")
+            for path in unversioned:
+                if path != "risk/policy-empty-file.md":  # no Document Type, so no audience selects it
+                    self.assertEqual(entries.get(path), "", path)
+
+            self._write_forms(root)
+            self.assertEqual(run("tools/build-taxonomy.py").returncode, 0)
+            cp = run("tools/build-portal.py")
+            self.assertNotEqual(cp.returncode, 0)
+            self.assertIn("FAIL: risk/policy-malformed.md has Version '1.0', not MAJOR.MINOR.PATCH",
+                          cp.stderr)
+            self.assertNotIn("Traceback", cp.stderr)
+
+    def test_portal_lists_an_unversioned_document_without_a_tag(self) -> None:
+        docs = [{**self._doc("dev-security/versioned.md", "1.1.0"), "domain": "dev-security"},
+                {**self._doc("dev-security/unversioned.md", ""), "domain": "dev-security"}]
+        text = self.mod.build_portal(docs)
+        self.assertNotIn("Unknown", text)
+        self.assertEqual(self.TAGGED_RE.search(text).group(1),
+                         "Each document entry below whose metadata block gives a Version")
+        entries = self.ENTRY_RE.findall(text)
+        self.assertIn(("dev-security/versioned.md", " (maturity: Mature)"), entries)
+        self.assertIn(("dev-security/unversioned.md", ""), entries)
+        with self.assertRaises(SystemExit):
+            self.mod.build_portal([{**self._doc("dev-security/malformed.md", "1.0"),
+                                    "domain": "dev-security"}])
+
+    def test_committed_portal_tags_every_entry_its_sentence_covers(self) -> None:
+        """The committed portal, read as rendered: every entry line is matched,
+        and when the sentence covers each entry, each carries a tag."""
+        text = (REPO_ROOT / "docs" / "portal.md").read_text(encoding="utf-8")
+        entries = self.ENTRY_RE.findall(text)
+        self.assertTrue(entries)
+        self.assertEqual(len(entries), len(re.findall(r"^- \[", text, re.M)))
+        if self.TAGGED_RE.search(text).group(1) == "Each document entry below":
+            self.assertEqual([p for p, tag in entries if not tag], [])
 
 
 class SiblingPlaceholderTests(LinterTestCase):
@@ -56562,12 +56799,17 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
             )
 
     def test_missing_listing_route_fails_loudly(self):
+        # The fixture satisfies every earlier load_narratives() check (a
+        # domain: tag and a corpus_sources entry), so the missing route is the
+        # only defect left and its own error is the one that must surface.
         with self.assertRaisesRegex(self.mod.BuildError, "no listing: route"):
             self._load_from_text(
                 'pages:\n'
                 '- path: "executive/briefs/x.md"\n'
                 '  title: "T"\n'
                 '  narrative_type: "Executive Brief"\n'
+                '  corpus_sources:\n'
+                '    - "ai/x.md"\n'
                 '  derived_tags:\n'
                 '    - "domain:ai"\n'
                 'listing:\n'
@@ -56789,6 +57031,13 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
         for variant in self.mod.VARIANTS:
             with self.subTest(variant=variant.name):
                 if variant.name == "v2":
+                    with self.assertRaisesRegex(self.mod.BuildError, "security"):
+                        self.mod.render_variant(figures, variant)
+                elif variant.draft_rules:
+                    # The Browse adventure curates 'security' as a solutions
+                    # Go deeper target (DRAFT_SOLUTION_EVENTS), so a missing
+                    # domain page is a loud BuildError on the draft too,
+                    # never a silently dropped link.
                     with self.assertRaisesRegex(self.mod.BuildError, "security"):
                         self.mod.render_variant(figures, variant)
                 else:
@@ -88070,7 +88319,9 @@ class BaselinePinLinterTests(LinterTestCase):
     """tools/lint-baseline-pin.py (gate 110): every file under the vendored
     site-template tree ``.web/baseline/`` must match the SHA-256 recorded in
     ``.baseline/pin.toml``, with no unpinned file, no pinned file missing and
-    no pin key outside the tree; a missing or malformed pin refuses (exit 2).
+    no pin key outside the tree except the pinned palette gate
+    ``.baseline/check_palette.py``, which is verified the same way and which
+    the pin must include; a missing or malformed pin refuses (exit 2).
 
     Each fixture builds a synthetic repository root in a unique mkdtemp
     directory under ``tests/tmp/`` and points the gate at it with ``--root``,
@@ -88089,9 +88340,13 @@ class BaselinePinLinterTests(LinterTestCase):
         root = Path(tempfile.mkdtemp(prefix="baseline-pin-", dir=FIXTURE_DIR))
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
         (root / ".web" / "baseline" / "fonts").mkdir(parents=True)
+        (root / ".baseline").mkdir()
         files = {
             ".web/baseline/baseline.css": b"body { color: #123456; }\n",
             ".web/baseline/fonts/sample-LICENSE.txt": b"SIL OFL 1.1 sample\n",
+            # The pinned palette gate (baseline section 4 items 2 and 3),
+            # which the pin must include.
+            ".baseline/check_palette.py": b"print('palette gate sample')\n",
         }
         for rel, data in files.items():
             (root / rel).write_bytes(data)
@@ -88108,6 +88363,16 @@ class BaselinePinLinterTests(LinterTestCase):
         lines = [f'version = "{version}"', "", "[files]"]
         lines.extend(f'"{key}" = "{entries[key]}"' for key in sorted(entries))
         pin.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    def _write_tree_only_pin(self, root: Path) -> None:
+        """Pin the two vendored files alone, with no palette gate entry."""
+        import hashlib
+
+        self._write_pin(root, {
+            rel: hashlib.sha256((root / rel).read_bytes()).hexdigest()
+            for rel in (".web/baseline/baseline.css",
+                        ".web/baseline/fonts/sample-LICENSE.txt")
+        })
 
     def test_clean_tree_passes(self) -> None:
         root = self._pin_fixture_root()
@@ -88148,13 +88413,123 @@ class BaselinePinLinterTests(LinterTestCase):
         files = {
             rel: hashlib.sha256((root / rel).read_bytes()).hexdigest()
             for rel in (".web/baseline/baseline.css",
-                        ".web/baseline/fonts/sample-LICENSE.txt")
+                        ".web/baseline/fonts/sample-LICENSE.txt",
+                        ".baseline/check_palette.py")
         }
         files["docs/outside.md"] = "0" * 64
         self._write_pin(root, files)
         result = run_linter(self.SCRIPT, "--root", root)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("outside .web/baseline/", result.stdout)
+
+    def test_pinned_tool_verified(self) -> None:
+        root = self._pin_fixture_root()
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("OK: 2 file(s) under .web/baseline/ and 1 pinned tool(s)",
+                      result.stdout)
+
+    def test_pinned_tool_changed_byte_flagged(self) -> None:
+        root = self._pin_fixture_root()
+        tool = root / ".baseline" / "check_palette.py"
+        tool.write_bytes(tool.read_bytes() + b"raise SystemExit(0)\n")
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline/check_palette.py: SHA-256", result.stdout)
+        self.assertIn("does not match the pinned", result.stdout)
+
+    def test_pinned_tool_missing_flagged(self) -> None:
+        root = self._pin_fixture_root()
+        (root / ".baseline" / "check_palette.py").unlink()
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline/check_palette.py: pinned", result.stdout)
+        self.assertIn("pin entry without a file", result.stdout)
+
+    def test_unpinned_tool_flagged(self) -> None:
+        root = self._pin_fixture_root()
+        self._write_tree_only_pin(root)
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline/check_palette.py: present with no entry",
+                      result.stdout)
+
+    def test_tool_without_pin_entry_or_file_flagged(self) -> None:
+        """Round 2 NOTE 4: the pin must include every ``PINNED_TOOLS`` path,
+        so a pin with no palette gate entry is a finding even when the file
+        is absent too; the gate skipped that case silently (exit 0)."""
+        root = self._pin_fixture_root()
+        (root / ".baseline" / "check_palette.py").unlink()
+        self._write_tree_only_pin(root)
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline/check_palette.py: no entry in "
+                      ".baseline/pin.toml and no file", result.stdout)
+
+    def test_symlinked_tools_directory_refused(self) -> None:
+        """Round 2 WARN 1: a ``.baseline`` that is a symbolic link to a
+        byte-identical directory is refused (exit 1, naming the path), never
+        verified through the link; the pin reads through the link, so only
+        the tools-directory check catches it."""
+        root = self._pin_fixture_root()
+        tools = root / ".baseline"
+        moved = root / "baseline-tools-moved"
+        tools.rename(moved)
+        tools.symlink_to(moved)
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline: symbolic link or not a real directory",
+                      result.stdout)
+
+    def test_regular_file_at_tools_directory_refused(self) -> None:
+        """Round 2 WARN 1: a regular file at ``.baseline``. Through the CLI
+        the pin under it cannot be read, a prerequisite refusal (exit 2)
+        before any tool check; ``tool_findings`` itself, given a pin that
+        names the tool, refuses the non-directory by name instead of
+        failing on the lstat beneath it."""
+        root = self._pin_fixture_root()
+        tools = root / ".baseline"
+        shutil.rmtree(tools)
+        tools.write_bytes(b"not a directory\n")
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(".baseline/pin.toml: cannot be read", result.stderr)
+        mod = load_linter_module(self.SCRIPT, "lint_baseline_pin_tools_dir")
+        findings = mod.tool_findings(
+            root, {".baseline/check_palette.py": "0" * 64})
+        self.assertEqual(len(findings), 1, findings)
+        self.assertIn(".baseline: symbolic link or not a real directory",
+                      findings[0])
+
+    def test_pinned_tool_symlink_flagged(self) -> None:
+        root = self._pin_fixture_root()
+        tool = root / ".baseline" / "check_palette.py"
+        real = root / "check_palette-real.py"
+        tool.rename(real)
+        tool.symlink_to(real)
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline/check_palette.py: symbolic link",
+                      result.stdout)
+
+    def test_other_baseline_key_still_outside(self) -> None:
+        """Only the fixed ``PINNED_TOOLS`` paths may sit outside the tree: a
+        second key under ``.baseline/`` is still a key outside the tree."""
+        import hashlib
+
+        root = self._pin_fixture_root()
+        (root / ".baseline" / "other.py").write_bytes(b"pass\n")
+        files = {
+            rel: hashlib.sha256((root / rel).read_bytes()).hexdigest()
+            for rel in (".web/baseline/baseline.css",
+                        ".web/baseline/fonts/sample-LICENSE.txt",
+                        ".baseline/check_palette.py", ".baseline/other.py")
+        }
+        self._write_pin(root, files)
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("'.baseline/other.py' is outside .web/baseline/",
+                      result.stdout)
 
     def test_symlink_in_tree_flagged(self) -> None:
         root = self._pin_fixture_root()

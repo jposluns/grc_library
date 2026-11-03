@@ -15,9 +15,9 @@
 <h1>Start from the seat you hold</h1>
 <div class="rail"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"></div>
 <p class="meta">{{DOC_TOTAL}} documents: {{DOMAIN_DOC_COUNT}} across {{DOMAIN_COUNT}} domains plus {{ROOT_COUNT}} library specifications, in {{TYPE_COUNT}} types, one connected corpus. Pick a path by what you need to do, or go straight to a domain or a document type.</p>
-<p>To see every document in the library on one page, open <a href="{{BASE}}/documents/">All Documents</a>; its filter covers the documents across the domains.</p>
+<p>To see every corpus document on one page, open <a href="{{BASE}}/documents/">All Documents</a>; its filter covers the documents across the domains. The adopter documents, outside the corpus, are listed further down this page, under {{ADOPTER_AREA_LABEL}}.</p>
 <p class="lbl blk">Scope</p>
-<p>Organization-neutral reference material to adapt to your obligations; it confers no certification, and legal advice is outside it. Vendored third-party material and quotations keep their own licences. A document page holds the record, outline, frameworks, and related documents; the full text is read on GitHub.</p>
+<p>Organization-neutral reference material to adapt to your obligations; it confers no certification, and legal advice is outside it. Vendored third-party material and quotations keep their own licences. A document page holds the record and, where the document has them, its outline, frameworks, and related documents; the full text is read on GitHub.</p>
 <p class="lbl blk">At a glance</p>
 <div class="wide"><div class="figures"><div class="fig"><span class="num">{{DOC_TOTAL}}</span><span class="cap">documents</span></div><div class="fig"><span class="num">{{DOMAIN_COUNT}}</span><span class="cap">domains</span></div><div class="fig"><span class="num">{{TYPE_COUNT}}</span><span class="cap">document types</span></div></div></div>
 <p class="lbl sec">By need</p>
@@ -25,6 +25,12 @@
 <div class="wide"><ol class="entries">
 {{NEED_ENTRIES}}
 </ol></div>
+<p class="lbl sec">Executive path</p>
+<h2 id="executive">The executive path</h2>
+<p>The executive path serves a governing body or accountable executive leadership. <a href="{{BASE}}/decide/">Make a decision</a> is its hub: {{EXEC_CONCERN_COUNT}} leadership concerns, each a topic page, and {{EXEC_PAGE_COUNT}} leadership pages in {{EXEC_KIND_COUNT}} kinds, each kind with its own generated index.</p>
+<div class="wide"><ul class="plan three">
+{{EXEC_KINDS}}
+</ul></div>
 <p class="lbl sec">By domain</p>
 <h2 id="domains">By domain</h2>
 <div class="wide"><ul class="plan described">
@@ -32,9 +38,19 @@
 </ul></div>
 <p class="lbl sec">By type</p>
 <h2 id="types">By type</h2>
+<p>{{TYPE_SCOPE_LINE}}</p>
 <div class="wide"><ul class="plan three">
 {{TYPE_PLAN}}
 </ul></div>
+<p class="lbl sec">{{ADOPTER_AREA_LABEL}}</p>
+<h2 id="adopter-documents">{{ADOPTER_AREA_LABEL}}</h2>
+<p>{{GUIDE_INTRO}}</p>
+<div class="wide"><ul class="plan described">
+{{GUIDE_PLAN}}
+</ul></div>
+<p class="lbl sec">By instrument</p>
+<h2 id="instruments">By instrument</h2>
+<p>The <a href="{{BASE}}/crosswalk/">crosswalk</a> sets the corpus domains against {{XW_INSTRUMENT_COUNT}} standards, laws, frameworks, and programmes, with a generated page per instrument; every cell and count is generated from the alignment matrices and the taxonomy at build time.</p>
 <div class="next"><p class="lbl">Next</p><a class="start" href="{{NEXT_DOMAIN_URL}}">Open a domain: {{NEXT_DOMAIN_LABEL}} <span class="arrow" aria-hidden="true">&rarr;</span></a></div></div></div>
 </main>
 {{FOOTER}}
