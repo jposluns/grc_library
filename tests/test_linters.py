@@ -40513,7 +40513,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         detect-env.py WRITE F bb9b977f0a07a9d27b09dcd85d271bb1f31efc826c5f6cd860106f283144ebc6
         external_overlay.py PASSIVE F fcbdb23ea95b360fdb467d3d4b39a0b1fd9ac1113eb6b431aeee1de0fbcbe2f1
         gate-mutation-variants.json DATA F c6af7a3c12d4d56ccae611dd77676e8be2113c3fed0ae83638d3be8790e72549
-        gate-scope-manifest.json DATA F b2a3cd3834419d4e78891043c491e126623b916bccf4e7e283ec39b142d9e6a8
+        gate-scope-manifest.json DATA F a5b51798c51f98b3158f8dfb7b8faae4a0681225e311b22bbe497f84694ec7fe
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
         git-hooks/pre-push TRANSPORT F 598806d6ab27e039ae858a935fa02813ba52588bd7ba2fab6586d27bd76d4267
@@ -40529,6 +40529,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-gate-parity.py OWN F 48a5130538cf0e506226c7c47c8c2b98e8b8e5e6ba5df2177e8b02cdbdfb1545
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
+        lint-baseline-pin.py OWN F b04767d16110527ceb0de7577283a548457f09b31859d7dd0c7ed75609a83254
         lint-bookkeeping-parity.py NO_FS F 8f85da2547e95ad49c86265764b5d460db92e210d6339a593fbc896fc10b3181
         lint-ccm-aicm-citations.py CWD F 6a1eb4d255f76d35ed337441b0f7127ffd6d943d8c47730921e6f872491685a7
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
@@ -40550,7 +40551,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-document-control-codes.py OWN F e2c89293d97c7c4e5f6e8d5e4ceda1f2be850718beecf7cd0323b5c6601fe2f9
         lint-document-date-staleness.py CWD F bd94e8055f86c3639fd11eb90712f9e63d353056de3754d2842e5b5908108e1b
         lint-document-iso-annex-a.py OWN F d15f9b9b9e0bad6ff5a943d950b3b58322293939f8ac496fe38d52c4183e64e5
-        lint-external-link-domains.py CWD F 4756c25ed3ad16310059e1909f4785fba8ae7659efd955da980111488b762428
+        lint-external-link-domains.py CWD F 2437ee3e898d7b5a37b6eabf990c5924d43401558001b3e92061b25a3502a7fb
         lint-external-overlay-license.py NO_FS F 274c40601ab51949646d3c7fdf115e35b9fa47af81646ec83547e352c10f781d
         lint-filename-title-alignment.py ROOT F 053875094e7cc520061a2dd3a0fa226f35c68834942cef0a168bbfdac5f9dcf3
         lint-followup-ageing.py CWD F 20eedad44d3eb7a8237f0d3e8232f77d2566b4ec68d94631fb59012e2843f37f
@@ -40621,7 +40622,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F e0920226da77581df8ade337e5ed3464901b0cc92d7198fe95cef46ee461d220
-        lint_common.py PASSIVE F 462a52c49caf0c0e4eea5801e794e807f7f533ca896f0a34a2679fa9839cb35c
+        lint_common.py PASSIVE F efce3cc8569ef9bf07cd677d12f119482097b766b6e8f587acd07986527abe87
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -40633,7 +40634,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         preflight_language_runner.py CHILD F 5022c1d1ea1b9d289710b26c96ba615ad303bee4850723fcf12d99a8e247d0c7
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
-        quick-guard.sh FIXED F df796e5fac359bad820044bce06be97b8f04b96aacb4b81d0454a3e94ffc94d5
+        quick-guard.sh FIXED F 2e518f73cbbe613de9c3265e2996f8babd38a538ff8b50f922d0335430b13f5e
         ref-holds.py OWN F 12b4bc426cc0dc4f0cb070fc94feb3398c0d0d420c091e3e343393a16feb4f7d
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
@@ -40641,7 +40642,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run-linter-regression.py FIXED F 600fa27468c6f7b5371de09d5e646429017411a58ebdefff853b91dd965195e0
         run-pr-time-checks.sh FIXED F 2caed4bb6e25ef2dd77397ca021c6af8752991b3a80d5a0c3fc83a38df384c35
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
-        run_all_audits.sh FIXED F 18466189b74841fdf67c087abd6ee880730f4fe3a8b395dbc9da38466a4d5c63
+        run_all_audits.sh FIXED F b2591e806571f470dfe10dbedc38f2974cf5f032d7f3d535c6218b0499e8c449
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
         session_facts.py PASSIVE F b4fc9c2f87ed95dd52a717bf07913c942777e1aae5ec902c595f10e5ed2ad77b
@@ -61433,6 +61434,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         lint-allowlist-spec-parity.py
         lint-audit-gate-parity.py
         lint-audit-spec-detailed-prose.py
+        lint-baseline-pin.py
         lint-changelog-link-coverage.py
         lint-changelog-mirror-header-parity.py
         lint-citation-currency-cadence.py
@@ -87594,6 +87596,238 @@ class WebSiteHardeningTests(unittest.TestCase):
         self.assertRegex(robots, r"(?m)^Sitemap: https://grclibrary\.ai/sitemap\.xml$")
         self.assertRegex(self.web.render_robots_txt(),
                          r"(?m)^Sitemap: https://grclibrary\.ai/sitemap\.xml$")
+
+
+class BaselinePinLinterTests(LinterTestCase):
+    """tools/lint-baseline-pin.py (gate 110): every file under the vendored
+    site-template tree ``.web/baseline/`` must match the SHA-256 recorded in
+    ``.baseline/pin.toml``, with no unpinned file, no pinned file missing and
+    no pin key outside the tree; a missing or malformed pin refuses (exit 2).
+
+    Each fixture builds a synthetic repository root in a unique mkdtemp
+    directory under ``tests/tmp/`` and points the gate at it with ``--root``,
+    so the gate never scans the real repository during the test (the fixture
+    convention in tests/README.md). The clean fixture pins the pass, and each
+    positive test engineers exactly one regression class and asserts the gate
+    exits non-zero naming it, so a weakened hash comparison, set comparison or
+    key-scope check fails here.
+    """
+
+    SCRIPT = "tools/lint-baseline-pin.py"
+
+    def _pin_fixture_root(self) -> Path:
+        import hashlib
+
+        root = Path(tempfile.mkdtemp(prefix="baseline-pin-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        (root / ".web" / "baseline" / "fonts").mkdir(parents=True)
+        files = {
+            ".web/baseline/baseline.css": b"body { color: #123456; }\n",
+            ".web/baseline/fonts/sample-LICENSE.txt": b"SIL OFL 1.1 sample\n",
+        }
+        for rel, data in files.items():
+            (root / rel).write_bytes(data)
+        self._write_pin(
+            root,
+            {rel: hashlib.sha256(data).hexdigest() for rel, data in files.items()},
+        )
+        return root
+
+    @staticmethod
+    def _write_pin(root: Path, entries: dict[str, str], version: str = "9.9.9") -> None:
+        pin = root / ".baseline" / "pin.toml"
+        pin.parent.mkdir(exist_ok=True)
+        lines = [f'version = "{version}"', "", "[files]"]
+        lines.extend(f'"{key}" = "{entries[key]}"' for key in sorted(entries))
+        pin.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    def test_clean_tree_passes(self) -> None:
+        root = self._pin_fixture_root()
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("OK: 2 file(s)", result.stdout)
+
+    def test_changed_byte_flagged(self) -> None:
+        root = self._pin_fixture_root()
+        target = root / ".web" / "baseline" / "baseline.css"
+        data = bytearray(target.read_bytes())
+        data[0] ^= 0x01
+        target.write_bytes(bytes(data))
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".web/baseline/baseline.css", result.stdout)
+        self.assertIn("does not match the pinned", result.stdout)
+
+    def test_unlisted_file_flagged(self) -> None:
+        root = self._pin_fixture_root()
+        (root / ".web" / "baseline" / "extra.js").write_bytes(b"alert(1)\n")
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".web/baseline/extra.js", result.stdout)
+        self.assertIn("file without a pin entry", result.stdout)
+
+    def test_missing_file_flagged(self) -> None:
+        root = self._pin_fixture_root()
+        (root / ".web" / "baseline" / "baseline.css").unlink()
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("pin entry without a file", result.stdout)
+
+    def test_pin_key_outside_tree_flagged(self) -> None:
+        import hashlib
+
+        root = self._pin_fixture_root()
+        files = {
+            rel: hashlib.sha256((root / rel).read_bytes()).hexdigest()
+            for rel in (".web/baseline/baseline.css",
+                        ".web/baseline/fonts/sample-LICENSE.txt")
+        }
+        files["docs/outside.md"] = "0" * 64
+        self._write_pin(root, files)
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("outside .web/baseline/", result.stdout)
+
+    def test_symlink_in_tree_flagged(self) -> None:
+        root = self._pin_fixture_root()
+        (root / ".web" / "baseline" / "alias.css").symlink_to(
+            root / ".web" / "baseline" / "baseline.css")
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("symbolic link", result.stdout)
+
+    def test_missing_pin_refused(self) -> None:
+        root = self._pin_fixture_root()
+        (root / ".baseline" / "pin.toml").unlink()
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("missing", result.stderr)
+
+    def test_non_string_version_refused(self) -> None:
+        """Round 1 finding 2: only the version is malformed; the ``[files]``
+        table stays valid and nonempty, so this fails when the version check
+        alone is removed (the combined fixture let that mutation survive)."""
+        root = self._pin_fixture_root()
+        pin = root / ".baseline" / "pin.toml"
+        text = pin.read_text(encoding="utf-8")
+        pin.write_text(re.sub(r'(?m)^version = ".*"$', "version = 1.21", text),
+                       encoding="utf-8")
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("malformed", result.stderr)
+        self.assertIn("version", result.stderr)
+
+    def test_empty_files_table_refused(self) -> None:
+        """Round 1 finding 2: only the ``[files]`` table is malformed (empty);
+        the version stays a valid string, so this fails when the table check
+        alone is removed."""
+        root = self._pin_fixture_root()
+        (root / ".baseline" / "pin.toml").write_text(
+            'version = "9.9.9"\n\n[files]\n', encoding="utf-8")
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("malformed", result.stderr)
+        self.assertIn("[files]", result.stderr)
+
+    def test_symlinked_baseline_tree_refused(self) -> None:
+        """Round 1 finding 1: a ``.web/baseline`` that is itself a symbolic
+        link to a byte-identical directory must be refused before traversal
+        (exit 1, naming the path), never verified through the link."""
+        root = self._pin_fixture_root()
+        real = root / ".web" / "baseline"
+        moved = root / "baseline-moved"
+        real.rename(moved)
+        real.symlink_to(moved)
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".web/baseline: symbolic link", result.stdout)
+
+    def test_symlinked_web_component_refused(self) -> None:
+        """Round 1 finding 1: a symbolic link at the ``.web`` component is
+        refused before traversal (exit 1, naming the path)."""
+        root = self._pin_fixture_root()
+        web = root / ".web"
+        moved = root / "web-moved"
+        web.rename(moved)
+        web.symlink_to(moved)
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".web: symbolic link", result.stdout)
+
+    def test_fifo_in_tree_refused_quickly(self) -> None:
+        """Round 2 finding 1 (ERROR): a FIFO in place of a pinned file is
+        refused by ``lstat`` before any open (exit 1, naming the path),
+        never opened: the unfixed gate opened it and an open FIFO with no
+        writer blocks forever, so the gate runs under a bounded timeout
+        here and the unfixed tool fails this test by exceeding it."""
+        root = self._pin_fixture_root()
+        target = root / ".web" / "baseline" / "baseline.css"
+        target.unlink()
+        os.mkfifo(target)
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / self.SCRIPT),
+             "--root", str(root)],
+            cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".web/baseline/baseline.css", result.stdout)
+        self.assertIn("not a regular file", result.stdout)
+
+    def test_regular_file_at_baseline_refused(self) -> None:
+        """Round 2 finding 2 (WARN): a regular file in place of the
+        ``.web/baseline`` directory is refused before traversal (exit 1,
+        naming the path); the round-5 refusal had no test, so removing it
+        left every test green (the pin comparison still exited 1, but as
+        missing-file findings that never name the misshapen entry)."""
+        root = self._pin_fixture_root()
+        baseline = root / ".web" / "baseline"
+        shutil.rmtree(baseline)
+        baseline.write_bytes(b"not a directory\n")
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".web/baseline: present but not a real directory",
+                      result.stdout)
+
+    def test_regular_file_at_web_refused(self) -> None:
+        """Round 2 finding 2 (WARN): a regular file at the ``.web``
+        component is refused before traversal (exit 1, naming the path)."""
+        root = self._pin_fixture_root()
+        web = root / ".web"
+        shutil.rmtree(web)
+        web.write_bytes(b"not a directory\n")
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".web: present but not a real directory", result.stdout)
+
+    def test_version_claims_defer_to_pin(self) -> None:
+        """Round 1 finding 3: the module docstring must not hard-code a
+        baseline version (the adopted version lives in .baseline/pin.toml),
+        and the fixture helper's default pin version must be clearly
+        synthetic, never a plausible real baseline version."""
+        import ast
+        import inspect
+        source = (REPO_ROOT / self.SCRIPT).read_text(encoding="utf-8")
+        doc = ast.get_docstring(ast.parse(source)) or ""
+        self.assertNotRegex(doc, r"\b\d+\.\d+\.\d+\b",
+                            "the docstring must take the baseline version "
+                            "from the pin, not name one")
+        self.assertIn(".baseline/pin.toml", doc)
+        default = inspect.signature(self._write_pin).parameters["version"].default
+        self.assertEqual(default, "9.9.9",
+                         "the fixture helper's default version must be "
+                         "clearly synthetic")
+
+    def test_bad_digest_value_refused(self) -> None:
+        root = self._pin_fixture_root()
+        self._write_pin(root, {".web/baseline/baseline.css": "ABC123"})
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("lowercase hexadecimal", result.stderr)
+
+    def test_repository_tree_matches_pin(self) -> None:
+        """The committed tree itself passes: the vendored copies are the
+        pinned bytes (the gate's default-root contract)."""
+        result = run_linter(self.SCRIPT)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 if __name__ == "__main__":

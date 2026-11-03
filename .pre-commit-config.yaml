@@ -746,3 +746,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-baseline-pin
+        name: Baseline-pin integrity audit
+        entry: python3 tools/lint-baseline-pin.py
+        language: system
+        pass_filenames: false
+        always_run: true

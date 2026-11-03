@@ -102,7 +102,12 @@ ALLOW_LIST = {
     "ajax.cloudflare.com",  # non-publisher: CSP script-src host for the kept Cloudflare Rocket Loader feature
     "static.cloudflareinsights.com",  # non-publisher: CSP script-src host for the kept Cloudflare Web Analytics feature
     "cloudflareinsights.com",  # non-publisher: CSP connect-src host for the kept Cloudflare Web Analytics feature
-    "posluns.ca",  # non-publisher: the owner's security.txt Encryption and Policy URLs
+    # The maintainer's own domain: hosts the shared site-template (baseline)
+    # package the root NOTICE.md attributes, the universal privacy and security
+    # policies, and the owner's security.txt Encryption and Policy URLs in
+    # .web/build.py SECURITY_TXT. Not a citation publisher, so the
+    # citation-verification spec (§7) is not updated.
+    "posluns.ca",  # non-publisher: the maintainer's own domain (baseline package host and security.txt URLs)
     # Clean Language, the maintainer's AI-writing editorial standard
     # (jposluns/cleanlanguage); linked from the CHANGELOG milestone entry.
     "cleanlanguage.ai",  # non-publisher: the maintainer's editorial standard site
@@ -219,6 +224,15 @@ def main(argv: list[str]) -> int:
         exclude_default_roots=False,  # Preserve source-tree safety coverage.
         exempt_files=EXEMPT_FILES,
     )
+    # Scoped exclusion: .web/baseline/ is a verbatim third-party template
+    # package, integrity-pinned by tools/lint-baseline-pin.py (gate 110). Its
+    # files (the SIL OFL font licence texts among them) must stay byte-identical
+    # to the published package, so their upstream URLs cannot be brought onto
+    # the allow-list by editing them; the pinned tree is dropped from discovery
+    # instead. Root-anchored (resolved against REPO_ROOT), so a nested directory
+    # merely named baseline elsewhere is still scanned.
+    baseline_tree = (REPO_ROOT / ".web" / "baseline").resolve()
+    targets = [t for t in targets if not t.is_relative_to(baseline_tree)]
     grouped: dict[Path, list[tuple[int, str]]] = {}
     for t in targets:
         findings = scan(t)

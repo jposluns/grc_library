@@ -339,6 +339,9 @@ jobs:
       - name: Isolated-launch import audit
         run: python3 tools/lint-isolated-launch.py
 
+      - name: Baseline-pin integrity audit
+        run: python3 tools/lint-baseline-pin.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
