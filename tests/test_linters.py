@@ -40551,7 +40551,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-document-control-codes.py OWN F e2c89293d97c7c4e5f6e8d5e4ceda1f2be850718beecf7cd0323b5c6601fe2f9
         lint-document-date-staleness.py CWD F bd94e8055f86c3639fd11eb90712f9e63d353056de3754d2842e5b5908108e1b
         lint-document-iso-annex-a.py OWN F d15f9b9b9e0bad6ff5a943d950b3b58322293939f8ac496fe38d52c4183e64e5
-        lint-external-link-domains.py CWD F 2437ee3e898d7b5a37b6eabf990c5924d43401558001b3e92061b25a3502a7fb
+        lint-external-link-domains.py CWD F 3388608245b63f0f082eb846aa3c262342a50bef54987c14cdabed083ebdc741
         lint-external-overlay-license.py NO_FS F 274c40601ab51949646d3c7fdf115e35b9fa47af81646ec83547e352c10f781d
         lint-filename-title-alignment.py ROOT F 053875094e7cc520061a2dd3a0fa226f35c68834942cef0a168bbfdac5f9dcf3
         lint-followup-ageing.py CWD F 20eedad44d3eb7a8237f0d3e8232f77d2566b4ec68d94631fb59012e2843f37f
@@ -40601,7 +40601,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-skill-internal-refs.py ROOT F b2b1fc4846ca52b298fe12ee712477bfac97e173e3ac6368e72c5edd6c28b50e
         lint-skill-verdict-carrier-completeness.py OWN F 7056be9141352daf10807f17e9941fb422a84cbf43eae4fff9549efd3684f5a3
         lint-ssdf-control-ids.py CWD F fc3326619bde8b0c6389a3ac7a4b5b79e06ab9e3195e471b6d766f067e06a60f
-        lint-standards-currency.py OWN F 527cd1e8a3ce360e3404acc9bb1c77e91830c071a8deb468b68768a2cf2395af
+        lint-standards-currency.py OWN F d94226d38cfadf84bda73951845c464510ad3d29c7da68c4867d115abefe652c
         lint-startup-character-ceiling.py NO_FS F aeaaf73e5efe319cb6881277ca5b7abef8db708826fe1bf0a241559d7d58a060
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
@@ -46775,7 +46775,11 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
         for rel, text in pages:
             path = out_dir / rel
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(text, encoding="utf-8")
+            if isinstance(text, bytes):
+                # The draft tree's baseline asset copy is byte content.
+                path.write_bytes(text)
+            else:
+                path.write_text(text, encoding="utf-8")
 
     def _render_with_base(self, figures, base):
         variant = self.mod.Variant("test", "templates", base, indexable=False)
@@ -46835,7 +46839,7 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
                         ),
                     ),
                     ("llms.txt", self.mod.render_llms_txt(figures, legacy)),
-                    ("_headers", self.mod.HEADERS_FILE),
+                    ("_headers", self.mod.render_headers_file()),
                     (".well-known/security.txt", self.mod.SECURITY_TXT),
                 ])
                 self._write_site(legacy_pages, baseline)
@@ -46929,7 +46933,11 @@ class WebGeneratorVariantTableTests(unittest.TestCase):
         for rel, text in pages:
             path = out_dir / rel
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(text, encoding="utf-8")
+            if isinstance(text, bytes):
+                # The draft tree's baseline asset copy is byte content.
+                path.write_bytes(text)
+            else:
+                path.write_text(text, encoding="utf-8")
 
     def test_variant_table_render_matches_direct_helper_composition(self):
         """Orchestration invariant: render_site() equals direct table composition."""
@@ -46967,7 +46975,7 @@ class WebGeneratorVariantTableTests(unittest.TestCase):
                         ),
                         (
                             self.mod.output_rel_for(variant, "_headers"),
-                            self.mod.HEADERS_FILE,
+                            self.mod.render_headers_file(),
                         ),
                         (
                             self.mod.output_rel_for(variant, ".well-known/security.txt"),
@@ -47034,7 +47042,11 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
         for rel, text in pages:
             path = out_dir / rel
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(text, encoding="utf-8")
+            if isinstance(text, bytes):
+                # The draft tree's baseline asset copy is byte content.
+                path.write_bytes(text)
+            else:
+                path.write_text(text, encoding="utf-8")
 
     def _single_v1_pages(self, figures):
         original = self.mod.VARIANTS
@@ -47071,10 +47083,21 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
                 if p.is_file() and p.relative_to(staged).parts[0] not in staging_dirs
             )
             self.assertEqual(baseline_files, root_files)
+            draft_block = self.mod.DRAFT_HEADERS_BLOCK.encode("utf-8")
             for rel in baseline_files:
                 if rel == Path("robots.txt"):
                     self.assertEqual(
                         (staged / rel).read_bytes().replace(b"Disallow: /v2/\n", b""),
+                        (baseline / rel).read_bytes(),
+                    )
+                elif rel == Path("_headers"):
+                    # The draft tree's one sanctioned root-file change: its
+                    # /draft/* block is appended to the byte-identical live
+                    # /* rule (spec 4.1 item 2).
+                    staged_headers = (staged / rel).read_bytes()
+                    self.assertTrue(staged_headers.endswith(draft_block))
+                    self.assertEqual(
+                        staged_headers[: -len(draft_block)],
                         (baseline / rel).read_bytes(),
                     )
                 else:
@@ -56573,6 +56596,12 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
         figures = self.mod.compute_figures()
         generated = self._generated_domains(figures)
         for variant in self.mod.VARIANTS:
+            if variant.draft_rules:
+                # The draft tree renders through its own templates and value
+                # builders (render_draft_variant); it has no type.html and its
+                # domain.html takes draft placeholders, so the live-tree meta
+                # description contract below does not apply to it.
+                continue
             template_dir = self.mod.template_dir_for(variant)
             partials = self.mod.load_partials(template_dir)
             for kind in ("domain", "type"):
@@ -87717,8 +87746,32 @@ class WebSiteHardeningTests(unittest.TestCase):
 
     def test_headers_exact_names_and_values(self) -> None:
         content = self._sole("_headers")
-        lines = content.splitlines()
-        self.assertEqual(lines[0], "/*", "the one rule must cover every path")
+        # PR 2b appends the /draft/* block to PR 1's /* rule; the live rule
+        # must stay byte-identical above it, and nothing else may follow.
+        # The block is asserted against this literal (never only against
+        # build.py's own constant), so a corrupted DRAFT_HEADERS_BLOCK cannot
+        # satisfy both sides of the comparison (round-2 fix 6).
+        self.assertEqual(
+            self.web.DRAFT_HEADERS_BLOCK,
+            "/draft/*\n"
+            "  ! Content-Security-Policy\n"
+            "  Content-Security-Policy: default-src 'none'; script-src 'self'"
+            " 'unsafe-inline' https://ajax.cloudflare.com"
+            " https://static.cloudflareinsights.com; connect-src 'self'"
+            " https://cloudflareinsights.com; style-src 'self';"
+            " font-src 'self'; img-src 'self'; base-uri 'none';"
+            " form-action 'none'; frame-ancestors 'none'\n"
+            "  X-Robots-Tag: noindex\n",
+            "DRAFT_HEADERS_BLOCK must be the decided /draft/* block, byte "
+            "for byte, including the literal X-Robots-Tag: noindex line")
+        self.assertIn(self.web.DRAFT_HEADERS_BLOCK, content,
+                      "_headers must carry the /draft/* block while the "
+                      "variant table carries the draft tree")
+        live = content[: -len(self.web.DRAFT_HEADERS_BLOCK)]
+        self.assertEqual(content, live + self.web.DRAFT_HEADERS_BLOCK,
+                         "the /draft/* block must be the file's tail")
+        lines = live.splitlines()
+        self.assertEqual(lines[0], "/*", "the one live rule must cover every path")
         parsed: dict[str, list[str]] = {}
         for line in lines[1:]:
             self.assertTrue(line.startswith("  "), f"malformed header line: {line!r}")
@@ -87730,11 +87783,13 @@ class WebSiteHardeningTests(unittest.TestCase):
         for name, value in self.EXPECTED_HEADERS.items():
             self.assertEqual(parsed[name], [value],
                              f"{name} must appear exactly once with the exact value")
-        expected_file = "/*\n" + "".join(
+        expected_live = "/*\n" + "".join(
             f"  {name}: {value}\n" for name, value in self.EXPECTED_HEADERS.items()
         )
-        self.assertEqual(content, expected_file,
-                         "_headers must carry exactly the decided rule and nothing else")
+        self.assertEqual(live, expected_live,
+                         "the /* rule must carry exactly the decided headers, "
+                         "byte for byte")
+        self.assertEqual(content, self.web.render_headers_file())
 
     def test_headers_zone_owned_names_absent(self) -> None:
         content = self._sole("_headers")
@@ -87761,9 +87816,9 @@ class WebSiteHardeningTests(unittest.TestCase):
 
     def test_404_rendered_at_root_only_with_noindex(self) -> None:
         rels = [rel for rel, _ in self.site_pages if rel.split("/")[-1] == "404.html"]
-        self.assertEqual(rels, ["404.html"],
-                         "404.html must render exactly once, at the root alone "
-                         "(never under v2/ or v3/)")
+        self.assertEqual(rels, ["404.html", "draft/404.html"],
+                         "404.html must render exactly once at the root (never "
+                         "under v2/ or v3/) plus the draft tree's own copy")
         page = self.by_rel["404.html"][0]
         self.assertIn('<meta name="robots" content="noindex">', page)
         self.assertIn('<span class="wordmark mono">grclibrary.ai</span>', page,
@@ -87772,7 +87827,9 @@ class WebSiteHardeningTests(unittest.TestCase):
     def test_404_excluded_from_sitemap(self) -> None:
         self.assertIn("404.html", self.by_rel, "the 404 page must render (W2)")
         sitemap = self._sole("sitemap.xml")
-        self.assertNotIn("404", sitemap,
+        # "/404.html", not the bare substring "404": a future URL containing
+        # 404 in a slug or count must not trip the error-page exclusion check.
+        self.assertNotIn("/404.html", sitemap,
                          "the error page must never be listed in sitemap.xml")
 
     def test_security_txt_exact_fields(self) -> None:

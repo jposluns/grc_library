@@ -233,6 +233,14 @@ def main(argv: list[str]) -> int:
     # merely named baseline elsewhere is still scanned.
     baseline_tree = (REPO_ROOT / ".web" / "baseline").resolve()
     targets = [t for t in targets if not t.is_relative_to(baseline_tree)]
+    # Same reasoning for the ephemeral build output: .web/dist/ is the
+    # git-ignored render artefact (never committed, absent in CI), and from
+    # PR 2b it carries the draft's byte-verified copy of the pinned tree above
+    # (draft/assets/baseline/, the OFL licence texts included), so a local run
+    # after `python3 .web/build.py` must not re-scan those verbatim files.
+    # lint-standards-currency.py excludes the same tree.
+    dist_tree = (REPO_ROOT / ".web" / "dist").resolve()
+    targets = [t for t in targets if not t.is_relative_to(dist_tree)]
     grouped: dict[Path, list[tuple[int, str]]] = {}
     for t in targets:
         findings = scan(t)
