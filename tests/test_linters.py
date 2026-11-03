@@ -40624,6 +40624,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-working-prose-hygiene.py CWD F e0920226da77581df8ade337e5ed3464901b0cc92d7198fe95cef46ee461d220
         lint_common.py PASSIVE F efce3cc8569ef9bf07cd677d12f119482097b766b6e8f587acd07986527abe87
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
+        measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
@@ -87414,6 +87415,210 @@ class IsolatedLaunchTests(LinterTestCase):
             tool.write_text(source.replace("sys.path.append(_TOOLS_DIR)",
                                            "sys.path.insert(0, _TOOLS_DIR)"), encoding="utf-8")
             self.assertEqual(mod.probe(tool)["error"], planted)
+
+
+class RegressionTimingMeasurementTests(unittest.TestCase):
+    """Per-unit timing measurement for the regression suite (3b789 PR 1).
+
+    tools/measure-regression-timings.py groups a module's flattened
+    suite into units (a maximal run of consecutive occurrences of one
+    class object; a case that is not a TestCase instance is its own
+    unit), keys each unit module:qualname#ordinal, measures wall
+    seconds per unit, and writes the shard-weights JSON with a schema
+    version, sorted keys and stable formatting. A module that loads
+    zero test cases is a refusal, mirroring the regression gate. Each
+    test here fails without that behaviour. The tool is wired into no
+    gate surface; only the dispatch-only timing workflow runs it.
+
+    Round 2 (review round 1 fixes): each module is imported explicitly
+    before its tests load, so an import-time raise is refused (exit 2,
+    naming the module, no weights file) instead of exiting 1 and timing
+    a synthetic failed-import case as a phantom unit; the timer takes an
+    injectable clock and is asserted exactly against a fake clock; the
+    duplicate-module refusal names the duplicated module; a relative
+    --output resolves against the invoker's working directory, not the
+    repository root the tool changes into; and the docstring names the
+    audit-programme specification, the gate surfaces and the tool's
+    ordinary inventory pin row. Fixture modules that must break or stay
+    tiny live in a disposable repo skeleton holding a copy of the tool,
+    never in this repository's discovered tests/test_*.py set.
+    """
+
+    TOOL = "tools/measure-regression-timings.py"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = load_linter_module(cls.TOOL, "_measure_regression_timings")
+
+    @staticmethod
+    def _sample_classes():
+        class AlphaTests(unittest.TestCase):
+            def test_one(self):
+                pass
+
+            def test_two(self):
+                pass
+
+        class BetaTests(unittest.TestCase):
+            def test_three(self):
+                pass
+
+        return AlphaTests, BetaTests
+
+    def test_unit_key_construction(self):
+        self.assertEqual(self.mod.unit_key("tests.test_sample", "AlphaTests", 0),
+                         "tests.test_sample:AlphaTests#0")
+        self.assertEqual(self.mod.unit_key("tests.test_sample", "Outer.Inner", 2),
+                         "tests.test_sample:Outer.Inner#2")
+
+    def test_class_run_grouping_with_ordinals(self):
+        AlphaTests, BetaTests = self._sample_classes()
+        cases = [AlphaTests("test_one"), AlphaTests("test_two"),
+                 BetaTests("test_three"), AlphaTests("test_one")]
+        self.assertEqual(
+            self.mod.compute_units("tests.test_sample", cases),
+            [("tests.test_sample:%s#0" % AlphaTests.__qualname__, 0, 1),
+             ("tests.test_sample:%s#0" % BetaTests.__qualname__, 2, 2),
+             ("tests.test_sample:%s#1" % AlphaTests.__qualname__, 3, 3)])
+
+    def test_distinct_class_objects_sharing_a_qualname_are_two_units(self):
+        twin_a = type("TwinTests", (unittest.TestCase,), {"test_t": lambda self: None})
+        twin_b = type("TwinTests", (unittest.TestCase,), {"test_t": lambda self: None})
+        self.assertEqual(
+            self.mod.compute_units("tests.test_sample",
+                                   [twin_a("test_t"), twin_b("test_t")]),
+            [("tests.test_sample:TwinTests#0", 0, 0),
+             ("tests.test_sample:TwinTests#1", 1, 1)])
+
+    def test_non_testcase_case_is_its_own_unit(self):
+        class BareCase:
+            def run(self, result=None):
+                pass
+
+            def countTestCases(self):
+                return 1
+
+        units = self.mod.compute_units("tests.test_sample", [BareCase(), BareCase()])
+        self.assertEqual([unit[1:] for unit in units], [(0, 0), (1, 1)])
+        self.assertTrue(units[0][0].endswith("#0"), units[0][0])
+        self.assertTrue(units[1][0].endswith("#1"), units[1][0])
+
+    def test_measure_suite_times_every_unit(self):
+        AlphaTests, BetaTests = self._sample_classes()
+        suite = unittest.TestSuite([AlphaTests("test_one"), AlphaTests("test_two"),
+                                    BetaTests("test_three")])
+        # An injected fake clock pins exact per-unit seconds: the clock is
+        # read once when the result is configured and once per recorded
+        # unit boundary, so a disabled or misattributed timer cannot pass
+        # (round 1, codex: the >= 0.0 assertion let a mutation survive).
+        ticks = iter([100.0, 103.0, 107.5])
+        units, seconds, result = self.mod.measure_suite(
+            "tests.test_sample", suite, stream=io.StringIO(), verbosity=0,
+            clock=lambda: next(ticks))
+        self.assertTrue(result.wasSuccessful())
+        self.assertEqual(result.testsRun, 3)
+        self.assertEqual([unit[0] for unit in units],
+                         ["tests.test_sample:%s#0" % AlphaTests.__qualname__,
+                          "tests.test_sample:%s#0" % BetaTests.__qualname__])
+        self.assertEqual(seconds, [3.0, 4.5])
+
+    def test_weights_json_shape(self):
+        text = self.mod.render_weights({"b:K#0": 1.23456, "a:K#0": 0.5})
+        self.assertEqual(json.loads(text),
+                         {"schema": 1, "units": {"a:K#0": 0.5, "b:K#0": 1.235}})
+        self.assertTrue(text.endswith("\n"))
+        self.assertLess(text.index('"a:K#0"'), text.index('"b:K#0"'))
+        # Insertion-order independence pins the sorted, stable serialization.
+        self.assertEqual(
+            text, self.mod.render_weights({"a:K#0": 0.5, "b:K#0": 1.23456}))
+
+    def test_zero_test_module_refused(self):
+        import types
+
+        name = "measure_timings_zero_case_fixture"
+        sys.modules[name] = types.ModuleType(name)
+        try:
+            with self.assertRaises(self.mod.Refusal) as refused:
+                self.mod.load_module_suite(name)
+        finally:
+            del sys.modules[name]
+        self.assertIn("zero test cases", str(refused.exception))
+        self.assertIn(name, str(refused.exception))
+
+    def test_unknown_module_argument_refused(self):
+        result = run_linter(self.TOOL, "tests.test_no_such_module")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("REFUSED", result.stderr)
+        self.assertIn("tests.test_no_such_module", result.stderr)
+
+    def _tool_fixture_repo(self, module_stem: str, module_body: str) -> Path:
+        """A disposable repo skeleton holding a copy of the tool and one
+        tests/test_*.py fixture module, so a module that must break (or
+        must stay tiny) never enters this repository's discovered set."""
+        root = Path(tempfile.mkdtemp(dir=FIXTURE_DIR))
+        self.addCleanup(_force_rmtree, root)
+        (root / "tools").mkdir()
+        (root / "tests").mkdir()
+        (root / "tests" / "__init__.py").write_text("", encoding="utf-8")
+        shutil.copy2(REPO_ROOT / self.TOOL, root / self.TOOL)
+        (root / "tests" / (module_stem + ".py")).write_text(
+            module_body, encoding="utf-8")
+        return root
+
+    def test_import_error_module_refused_without_weights_file(self):
+        root = self._tool_fixture_repo(
+            "test_broken_import",
+            "raise ImportError('synthetic import failure, 3b789 PR 1')\n")
+        result = subprocess.run(
+            [sys.executable, str(root / self.TOOL), "tests.test_broken_import"],
+            cwd=str(root), capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("REFUSED", result.stderr)
+        self.assertIn("tests/test_broken_import.py", result.stderr)
+        self.assertFalse(
+            (root / "tests" / "regression-shard-weights.json").exists(),
+            "a refusal must write no weights file")
+
+    def test_duplicate_module_argument_refusal_names_the_module(self):
+        result = run_linter(self.TOOL, "tests.test_session_facts",
+                            "tests.test_session_facts")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("REFUSED", result.stderr)
+        self.assertIn("duplicate module argument", result.stderr)
+        self.assertIn("tests.test_session_facts", result.stderr)
+
+    def test_relative_output_resolves_against_invokers_directory(self):
+        root = self._tool_fixture_repo(
+            "test_tiny_fixture",
+            "import unittest\n\n\n"
+            "class TinyTests(unittest.TestCase):\n"
+            "    def test_tiny(self):\n"
+            "        pass\n")
+        invoke_dir = Path(tempfile.mkdtemp(dir=FIXTURE_DIR))
+        self.addCleanup(_force_rmtree, invoke_dir)
+        result = subprocess.run(
+            [sys.executable, str(root / self.TOOL), "tests.test_tiny_fixture",
+             "--output", "weights-here.json"],
+            cwd=str(invoke_dir), capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue(
+            (invoke_dir / "weights-here.json").exists(),
+            "relative --output must land in the invoker's working directory")
+        self.assertFalse(
+            (root / "weights-here.json").exists(),
+            "relative --output must not land in the repository root")
+
+    def test_docstring_names_the_gate_surfaces_and_inventory_row(self):
+        import ast
+
+        source = (REPO_ROOT / self.TOOL).read_text(encoding="utf-8")
+        docstring = ast.get_docstring(ast.parse(source))
+        self.assertIsNotNone(docstring)
+        self.assertNotIn("spec inventory", docstring)
+        for needle in ("governance/specification-audit-programme.md",
+                       "quality.yml", "run_all_audits.sh", "pre-commit",
+                       "ExplicitPathCliInventoryTests", "inventory pin row"):
+            self.assertIn(needle, docstring)
 
 
 class TestModuleRawCharacterTests(unittest.TestCase):

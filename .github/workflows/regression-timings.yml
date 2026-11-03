@@ -1,0 +1,50 @@
+name: Regression suite timing measurement
+
+# PR 1 of the gate 36 split plan (backlog item 3b789): measure wall seconds
+# per unit of the linter regression test suite on a CI runner, so the planned
+# shard mode can balance shards from CI timings rather than local ones. This
+# workflow is manual-only, changes no gate, and is read by no gate surface
+# (gate 35 parses only quality.yml; merge-when-green pins only quality.yml
+# and pr-attribution.yml).
+on:
+  workflow_dispatch:
+
+# Least-privilege token: the job only reads the repository; the timing JSON
+# leaves the runner as a workflow artefact, never as a commit.
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    name: Measure per-unit regression timings
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history: some regression tests read pinned blobs with
+          # git show, as the quality workflow's checkout does.
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Measure per-unit regression suite timings
+        run: python3 tools/measure-regression-timings.py
+
+      # The tool writes the weights file even when a module's run fails
+      # (exit 1), so the upload runs on failure too; only a refusal
+      # (exit 2) leaves no file, which if-no-files-found turns into a
+      # visible error instead of an empty artefact.
+      - name: Upload shard-weights artefact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: regression-shard-weights
+          path: tests/regression-shard-weights.json
+          if-no-files-found: error
