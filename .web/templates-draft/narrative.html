@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" class="site-grclibrary">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{NARRATIVE_H1}} | GRCLibrary.ai</title>
+{{HEAD_STYLE}}
+{{SCRIPT}}<script src="{{BASE}}/assets/baseline/rail.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to content</a>
+{{TOPBAR}}
+<main id="main-content">
+<div class="wrap"><div class="doc"><p class="lbl first">{{NARRATIVE_TYPE}}</p>
+<h1>{{NARRATIVE_H1}}</h1>
+<nav class="rail" aria-label="On this page"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"><p class="lbl">On this page</p><ol>
+{{NARRATIVE_RAIL_ITEMS}}
+</ol></nav>
+<p class="lead">A leadership page from the library's executive layer: it explains the position in plain language, and the corpus documents it cites remain the governing texts.</p>
+<p><a class="start" href="{{NARRATIVE_SOURCE_URL}}" target="_blank" rel="noopener noreferrer">Read the source on GitHub <span class="arrow" aria-hidden="true">&rarr;</span><span class="vh"> (opens in a new tab)</span></a></p>
+{{NARRATIVE_BODY}}
+<p class="lbl sec">Source</p>
+<h2 id="source">The source</h2>
+<p>This page is rendered from the version-controlled Markdown file in the corpus repository, with the site's navigation and framing added around it. The Markdown, where its metadata, review record and full history live, is the source. If the two ever differ, the source governs.</p>
+<p class="lbl sec">Domains</p>
+<h2 id="domains">The domains behind it</h2>
+<ul class="chips">{{NARRATIVE_DOMAIN_CHIPS}}</ul>
+<div class="next"><p class="lbl">Next</p><a class="start" href="{{NARRATIVE_INDEX_URL}}">All {{NARRATIVE_INDEX_LABEL}} <span class="arrow" aria-hidden="true">&rarr;</span></a></div></div></div>
+</main>
+{{FOOTER}}
+<p class="vh" id="copy-status" role="status" aria-live="polite"></p>
+</body>
+</html>

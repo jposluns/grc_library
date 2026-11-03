@@ -69,6 +69,10 @@ registry-listed ``executive/`` narrative sources (each admitted only through the
 renderer-confinement validator above). The /draft tree (PR 2b) adds exactly 2
 reads: the pinned baseline runtime files under ``.web/baseline/`` and their pin
 ``.baseline/pin.toml``, each copied file verified by SHA-256 at build time.
+The /draft tree also renders the reading room at ``decisions/<subtype>/<slug>/``
+(the same registry-listed sources through the same confinement validator), one
+generated ``decide/<subtype-plural>/`` index per narrative type, and the
+leadership-page list on each draft domain page.
 
 QUALITATIVE, NOT COUNTED. The automated gating system is described qualitatively
 on the page ("comprehensive, continuously-improving", "Continuous"), never as a
@@ -204,13 +208,14 @@ V3_EXTRA_PAGES = (
 
 # The fixed pages of the /draft tree (baseline-template rebuild, PR 2b):
 # (template under .web/templates-draft/, output path under draft/). The
-# per-domain and per-document routes come from the same machinery the fixed
-# pages cannot carry (one page per corpus domain; one per non-root corpus
-# document), inside render_draft_variant.
+# per-domain, per-type and per-document routes come from the same machinery
+# the fixed pages cannot carry (one page per corpus domain; one per document
+# type; one per non-root corpus document), inside render_draft_variant.
 DRAFT_PAGES = (
     ("landing.html", "index.html"),
     ("browse.html", "browse/index.html"),
     ("search.html", "search/index.html"),
+    ("documents.html", "documents/index.html"),
     ("disclosure.html", "disclosure/index.html"),
     ("license.html", "license/index.html"),
     ("404.html", "404.html"),
@@ -227,7 +232,8 @@ VARIANTS = (
     Variant("v3", "templates-v3", "v3/", indexable=False,
             extra_pages=V3_EXTRA_PAGES, document_routes=True, narrative_routes=True),
     Variant("draft", "templates-draft", "draft/", indexable=False,
-            document_routes=True, pages=DRAFT_PAGES, draft_rules=True),
+            document_routes=True, narrative_routes=True, pages=DRAFT_PAGES,
+            draft_rules=True),
 )
 
 # Shared chrome injected into every page from a single source, so the pages
@@ -1227,6 +1233,11 @@ NARRATIVE_ROUTE_PREFIX = "decisions/"
 NARRATIVE_SHELL_IDS = {
     "templates-v2": {"narr-intro", "depth", "source"},
     "templates-v3": {"narr-intro", "contents", "source", "go-deeper"},
+    # The draft shell's ids are every id its narrative.html carries (the
+    # skip-link target, two heading anchors and the copy status line).
+    "templates-draft": {
+        "narr-intro", "main-content", "source", "domains", "copy-status",
+    },
 }
 
 
@@ -2095,6 +2106,49 @@ def narrative_out_rel(page):
     return f"{NARRATIVE_ROUTE_PREFIX}{tail}/index.html"
 
 
+def narrative_route_bodies(figures, variant, seen_out_rels):
+    """Yield ``(page, out_rel, body_html, toc)`` for every registry-listed
+    narrative page of a routed type: the reading-room loop shared by the live
+    staging trees (render_variant) and the /draft tree (render_draft_variant),
+    so both read the same confined sources through the same renderer. Sources
+    are read ONLY after the renderer-confinement validator admits them
+    (registry-listed, normalized, git-tracked, under executive/ only), so this
+    loop extends the generator's read allow-list to the registry-listed
+    executive/ pages without the generator ever walking the repository.
+    ``seen_out_rels`` holds the variant's already-rendered paths; a narrative
+    route colliding with one raises."""
+    # Every registry type must be a routed type: a future NEW narrative
+    # type would otherwise fall through the filter below and silently
+    # skip on-site rendering (PR-2b widened the tuple to all six
+    # published types; this check keeps the widening honest).
+    unrouted = sorted(
+        {p["narrative_type"] for p in figures["narratives"]}
+        - set(NARRATIVE_ROUTE_TYPES)
+    )
+    if unrouted:
+        raise BuildError(
+            "narrative registry type(s) with no on-site route (add to "
+            f"NARRATIVE_ROUTE_TYPES): {', '.join(unrouted)}"
+        )
+    tracked = _tracked_executive_paths()
+    seen_sources = set()
+    for page in figures["narratives"]:
+        if page["narrative_type"] not in NARRATIVE_ROUTE_TYPES:
+            continue
+        source = narrative_source_file(page["path"], tracked, seen_sources)
+        out_rel = narrative_out_rel(page)
+        if out_rel in seen_out_rels:
+            raise BuildError(
+                f"narrative route collides with an existing page: {out_rel}"
+            )
+        seen_out_rels.add(out_rel)
+        body_html, toc = render_narrative_body(
+            source.read_text(encoding="utf-8"), page["path"],
+            narrative_shell_ids_for(variant),
+        )
+        yield page, out_rel, body_html, toc
+
+
 def render_narrative_domain_chips(page):
     """The domain-page chips for ONE narrative: exactly the domains the registry
     tags it with (``page['domains']``), each linking to its on-site domain page.
@@ -2655,12 +2709,15 @@ def render_search_index(variant):
 # ---------------------------------------------------------------------------
 
 # Display label per corpus domain slug (the slug is the URL and the registry
-# key; the label is the page wording, per the owner-approved mockups).
-_DRAFT_DOMAIN_LABEL_OVERRIDES = {"ai": "AI"}
+# key; the label is the page wording, per the owner-approved mockups). The
+# root specifications live in no corpus domain; their one area label is
+# "Library", shown the same way on the type pages and the documents index.
+_DRAFT_DOMAIN_LABEL_OVERRIDES = {"ai": "AI", ROOT_DOMAIN: "Library"}
 
 
 def draft_domain_label(domain):
-    """'governance' -> 'Governance', 'supply-chain' -> 'Supply chain'."""
+    """'governance' -> 'Governance', 'supply-chain' -> 'Supply chain',
+    'root' -> 'Library'."""
     return _DRAFT_DOMAIN_LABEL_OVERRIDES.get(
         domain, domain.replace("-", " ").capitalize()
     )
@@ -2687,6 +2744,48 @@ def draft_type_plural(type_name):
             f"draft: document type '{type_name}' has no plural heading in "
             "DRAFT_TYPE_PLURALS (add one to .web/build.py)"
         ) from None
+
+
+# The generated subtype index pages, one per narrative type, at
+# decide/<slug>/ (design D section 4.1 branch 2): (route slug, plural
+# heading, the reader's question the subtype answers). Mirrors
+# DRAFT_TYPE_PLURALS: a registry narrative_type with no entry is a build
+# error, so a new narrative type cannot publish without its index.
+DRAFT_NARRATIVE_SUBTYPES = {
+    "Executive Brief": (
+        "briefs", "Executive briefs",
+        "What should we require before we approve this?"),
+    "Scenario": (
+        "scenarios", "Scenarios",
+        "What does the bad day look like, and would we cope?"),
+    "Journey": (
+        "journeys", "Journeys",
+        "How does one thing move through governance end to end?"),
+    "Outcome Map": (
+        "outcome-maps", "Outcome maps",
+        "How would we know, with evidence, that the outcome holds?"),
+    "Oversight Question Set": (
+        "question-sets", "Oversight question sets",
+        "What should we ask, and what evidence should come back?"),
+    "Decision Narrative": (
+        "choices", "Decision narratives",
+        "What are the options on a genuine choice, and the trade-offs?"),
+}
+
+
+def draft_narrative_subtype(narrative_type):
+    try:
+        return DRAFT_NARRATIVE_SUBTYPES[narrative_type]
+    except KeyError:
+        raise BuildError(
+            f"draft: narrative type '{narrative_type}' has no subtype index "
+            "in DRAFT_NARRATIVE_SUBTYPES (add one to .web/build.py)"
+        ) from None
+
+
+def _draft_subtype_url(narrative_type):
+    slug, _, _ = draft_narrative_subtype(narrative_type)
+    return "{{BASE}}/decide/" + slug + "/"
 
 
 # The owner-approved example document (the mockup's "Open a document" tile and
@@ -2728,6 +2827,20 @@ DRAFT_RECORD_FIELDS = (
 )
 
 _DRAFT_NEW_TAB = '<span class="vh"> (opens in a new tab)</span>'
+
+# The constrained narrative renderer's two shapes the draft shell adapts (the
+# renderer itself is shared with v2 and v3 and stays unchanged). The baseline
+# lays a .doc section out with display: contents, which gives the section no
+# box, so its id moves to the inner block (an anchor or rail.js target needs
+# a box) and the inner block drops the .wrap class the draft page already
+# supplies. A body link to the source on GitHub gains the draft's external
+# link form: noreferrer and the hidden new-tab hint.
+_DRAFT_NARR_SECTION_RE = re.compile(
+    r'<section class="narr" id="([^"]+)">\n    <div class="wrap">'
+)
+_DRAFT_NARR_LINK_RE = re.compile(
+    r'(<a href="[^"]*") target="_blank" rel="noopener">([^<]*)</a>'
+)
 
 # The draft refusal guard (spec section 12: a generator refuses to write a
 # page that contains an en or em dash (literal or entity-encoded), an inline
@@ -2880,7 +2993,8 @@ def draft_browse_values(figures):
         for domain, count in figures["domains"]
     )
     types = "\n".join(
-        f'<li><a href="{{{{BASE}}}}/search/">{_esc(type_name)}</a>'
+        f'<li><a href="{{{{BASE}}}}/types/{type_slug(type_name)}/">'
+        f'{_esc(type_name)}</a>'
         f'<span class="n">{count}</span></li>'
         for type_name, count in figures["types"]
     )
@@ -2895,55 +3009,134 @@ def draft_browse_values(figures):
     }
 
 
-def draft_search_values(figures, full_docs):
-    type_chips = "\n".join(
-        f'<li><a href="{{{{BASE}}}}/browse/#types">{_esc(type_name)}'
-        f'<span class="n">{count}</span></a></li>'
-        for type_name, count in sorted(figures["types"])
-    )
-    area_chips = "\n".join(
-        f'<li><a href="{{{{BASE}}}}/{_esc(domain)}/">'
-        f'{_esc(draft_domain_label(domain))}'
-        f'<span class="n">{count}</span></a></li>'
-        for domain, count in sorted(
-            figures["domains"], key=lambda kv: draft_domain_label(kv[0]).lower()
-        )
-    )
-    domain_docs = sorted(
-        (d for d in full_docs if d.get("domain") != ROOT_DOMAIN),
-        key=lambda d: (d.get("title", "").lower(), d["path"]),
-    )
-    domain_docs.sort(key=lambda d: d.get("date", ""), reverse=True)
-    rows = []
+def _draft_search_row(d):
+    """One document row for a search.js scope (the search page and the
+    documents index): the title links the on-site page, the annotation names
+    the type and area, the small line carries the date."""
+    label = draft_domain_label(d.get("domain", ""))
     # Every corpus document gets a row, and its data-search text carries the
     # title, type, area, the full purpose, and the framework names, with
     # whitespace collapsed, so a query matches everything the page says it
     # matches (round-1 defects: a 36-row cap left most queries empty, and a
     # 200-character purpose cut lost matches for the page's own examples).
-    for d in domain_docs:
-        label = draft_domain_label(d.get("domain", ""))
-        haystack = " ".join(" ".join(
-            [d.get("title", ""), d.get("type", ""), label,
-             d.get("domain", ""), d.get("purpose", "") or ""]
-            + d.get("frameworks", [])
-        ).lower().split())
-        rows.append(
-            f'<li data-search="{_esc(haystack)}">'
-            f'<a href="{_esc(_doc_page_url("{{BASE}}", d["path"]))}">'
-            f'{_esc(d.get("title", d["path"]))}</a>'
-            f'<span class="n">{_esc(d.get("type", "").lower())}, {_esc(label)}</span>'
-            f'<small>{_esc(d.get("date", ""))}</small></li>'
-        )
+    haystack = " ".join(" ".join(
+        [d.get("title", ""), d.get("type", ""), label,
+         d.get("domain", ""), d.get("purpose", "") or ""]
+        + d.get("frameworks", [])
+    ).lower().split())
+    return (
+        f'<li data-search="{_esc(haystack)}">'
+        f'<a href="{_esc(_doc_page_url("{{BASE}}", d["path"]))}">'
+        f'{_esc(d.get("title", d["path"]))}</a>'
+        f'<span class="n">{_esc(d.get("type", "").lower())}, {_esc(label)}</span>'
+        f'<small>{_esc(d.get("date", ""))}</small></li>'
+    )
+
+
+def draft_search_values(full_docs):
+    # The search page is just a search (maintainer, 2026-11-03 14:29Z): the
+    # type and area chips and the "Recently updated" framing duplicated
+    # Browse and are gone; the full list stays as search.js's scope and as
+    # the page's content without script.
+    domain_docs = sorted(
+        (d for d in full_docs if d.get("domain") != ROOT_DOMAIN),
+        key=lambda d: (d.get("title", "").lower(), d["path"]),
+    )
+    domain_docs.sort(key=lambda d: d.get("date", ""), reverse=True)
+    rows = [_draft_search_row(d) for d in domain_docs]
+    # The prompt names its pool (the library also holds the root
+    # specifications, which have no row) and states a field plainly only when
+    # every row carries it; a purpose only some rows state is qualified with
+    # the generated count of rows that do. Frameworks are never counted: a
+    # raw taxonomy frameworks list can hold extraction fragments rather than
+    # frameworks (review round 2 WARN), so the clause is qualified in words
+    # and stays true however that data stands. Browse calls the groupings
+    # domains, so the prompt does too (review round 2 NOTE).
+    noun = "document" if len(rows) == 1 else "documents"
+    domains = len({d.get("domain", "") for d in domain_docs})
+    domain_noun = "domain" if domains == 1 else "domains"
+    with_purpose = sum(1 for d in domain_docs if (d.get("purpose") or "").strip())
+    fields = ["title", "type", "domain"]
+    clauses = []
+    if with_purpose == len(rows):
+        fields.append("purpose")
+    elif with_purpose:
+        verb = "states" if with_purpose == 1 else "state"
+        clauses.append(f"by purpose for the {with_purpose} that {verb} one")
+    if any(d.get("frameworks") for d in domain_docs):
+        clauses.append("by the frameworks a document maps to, where it has any")
+    clauses.insert(0, "by " + ", ".join(fields[:-1]) + ", and " + fields[-1])
+    if len(clauses) > 1:
+        clauses[-1] = "and " + clauses[-1]
     return {
         **_draft_nav("search"),
-        "TYPE_CHIPS_D": type_chips,
-        "AREA_CHIPS_D": area_chips,
+        "SEARCH_PROMPT": (
+            f"Search the {len(rows)} {noun} across the {domains} {domain_noun} "
+            + ", ".join(clauses) + "."
+        ),
         "SEARCH_ROWS": "\n".join(rows),
-        "SEARCH_COUNT": str(len(rows)),
     }
 
 
-def draft_domain_values(dp, docs_by_path, next_url, next_label):
+def draft_documents_values(full_docs):
+    """The full document index (design A PR A3, design B section 4 without a
+    template change): every non-root corpus document, one row each in title
+    order, filtered on the page by the baseline search.js. The area and type
+    chips are plain links (the domain pages and the type pages design A
+    routes at types/<slug>/), each count recounted from the documents listed
+    here, and the root specifications, which have no on-site page, open on
+    GitHub."""
+    domain_docs = sorted(
+        (d for d in full_docs if d.get("domain") != ROOT_DOMAIN),
+        key=lambda d: (d.get("title", "").lower(), d["path"]),
+    )
+    root_docs = sorted(
+        (d for d in full_docs if d.get("domain") == ROOT_DOMAIN),
+        key=lambda d: (d.get("title", "").lower(), d["path"]),
+    )
+    by_domain = Counter(d.get("domain", "") for d in domain_docs)
+    # Types count over every document, root specifications included, as the
+    # type pages do (round-1 ERROR: a non-root count put 3 on the
+    # Specification chip while its type page listed 5).
+    by_type = Counter(d.get("type", "") for d in full_docs)
+    area_chips = "\n".join(
+        f'<li><a href="{{{{BASE}}}}/{_esc(domain)}/">'
+        f'{_esc(draft_domain_label(domain))}'
+        f'<span class="n">{count}</span></a></li>'
+        for domain, count in sorted(
+            by_domain.items(), key=lambda kv: draft_domain_label(kv[0]).lower()
+        )
+    )
+    type_chips = "\n".join(
+        f'<li><a href="{{{{BASE}}}}/types/{type_slug(type_name)}/">'
+        f'{_esc(type_name)}<span class="n">{count}</span></a></li>'
+        for type_name, count in sorted(by_type.items())
+    )
+    root_rows = "\n".join(
+        f'<li><a href="{_esc(GITHUB_BLOB_BASE + d["path"])}"'
+        ' target="_blank" rel="noopener noreferrer">'
+        f'{_esc(d.get("title", d["path"]))}{_DRAFT_NEW_TAB}</a>'
+        f'<span class="n">{_esc(d.get("type", "").lower())}, '
+        f'{_esc(draft_domain_label(ROOT_DOMAIN))}</span>'
+        f'<small>{_esc(d.get("date", ""))}</small></li>'
+        for d in root_docs
+    )
+    rows = [_draft_search_row(d) for d in domain_docs]
+    return {
+        **_draft_nav(),
+        "INDEX_AREA_CHIPS": area_chips,
+        "INDEX_TYPE_CHIPS": type_chips,
+        "INDEX_ROOT_ROWS": root_rows,
+        "INDEX_ROWS": "\n".join(rows),
+        "INDEX_COUNT": str(len(rows)),
+        "INDEX_AREA_COUNT": str(len(by_domain)),
+        "INDEX_TYPE_COUNT": str(len(by_type)),
+        "INDEX_ROOT_COUNT": str(len(root_docs)),
+    }
+
+
+def draft_domain_values(dp, docs_by_path, next_url, next_label,
+                        leadership=False):
     label = draft_domain_label(dp["domain"])
     by_type = {}
     for d in dp["docs"]:
@@ -2970,6 +3163,34 @@ def draft_domain_values(dp, docs_by_path, next_url, next_label):
             f'<div class="wide"><ul class="plan">\n' + "\n".join(rows)
             + "\n</ul></div>"
         )
+    if leadership:
+        # The registry join the v2 and v3 domain pages already compute
+        # (dp["narratives"]: every narrative page whose domain tags include
+        # this domain), each row linking the page's on-site reading room.
+        count = len(dp["narratives"])
+        rail_items += f'\n<li><a href="#leadership">Leadership, {count}</a></li>'
+        rows = [
+            f'<li><a href="{_esc(narrative_page_url(page))}">'
+            f'{_esc(page["title"])}</a>'
+            f'<span class="n">{_esc(page["narrative_type"].lower())}</span></li>'
+            for page in dp["narratives"]
+        ]
+        if rows:
+            listing = (
+                '<div class="wide"><ul class="plan one">\n' + "\n".join(rows)
+                + "\n</ul></div>"
+            )
+        else:
+            listing = (
+                "<p>No leadership page tags this area yet: a declared "
+                "coverage gap, not a hidden one.</p>"
+            )
+        sections.append(
+            f'<p class="lbl sec">Leadership, {count}</p>\n'
+            '<h2 id="leadership">Leadership pages for this area</h2>\n'
+            "<p>Pages from the executive layer that tag this area. They "
+            "explain and advise; the documents above govern.</p>\n" + listing
+        )
     noun = "document" if dp["count"] == 1 else "documents"
     return {
         **_draft_nav(),
@@ -2983,15 +3204,58 @@ def draft_domain_values(dp, docs_by_path, next_url, next_label):
     }
 
 
-def draft_document_values(doc, docs_by_path):
-    doc_type = doc.get("type", "")
-    title = doc.get("title", doc["path"])
+def draft_doc_purpose(doc):
+    """A document's taxonomy purpose, or a generated line when it has none
+    (shared by the document page lead and the type page rows)."""
     purpose = doc.get("purpose", "")
     if not purpose:
         purpose = (
-            f"A {doc_type.lower()} in the "
+            f"A {doc.get('type', '').lower()} in the "
             f"{draft_domain_label(doc.get('domain', ''))} area of the GRC Library."
         )
+    return purpose
+
+
+def draft_type_values(tp, docs_by_path, next_url, next_label):
+    # One row per document of the type, in the shared type-page order (area,
+    # then title), each with its area and purpose. Root-level specifications
+    # have no draft document page, so they link their GitHub source, as the
+    # related-documents list does; their area label is the documents index's.
+    rows = []
+    for d in tp["docs"]:
+        doc = docs_by_path.get(d["path"], d)
+        area = draft_domain_label(d["domain"])
+        if d["domain"] == ROOT_DOMAIN:
+            link = (
+                f'<a href="{_esc(GITHUB_BLOB_BASE + d["path"])}"'
+                ' target="_blank" rel="noopener noreferrer">'
+                f'{_esc(d["title"])}{_DRAFT_NEW_TAB}</a>'
+            )
+        else:
+            link = (
+                f'<a href="{_esc(_doc_page_url("{{BASE}}", d["path"]))}">'
+                f'{_esc(d["title"])}</a>'
+            )
+        rows.append(
+            f'<li>{link}<span class="n">{_esc(area)}</span>'
+            f'<small>{_esc(draft_doc_purpose(doc))}</small></li>'
+        )
+    noun = "document" if tp["count"] == 1 else "documents"
+    return {
+        **_draft_nav(),
+        "TYPE_HEADING": _esc(draft_type_plural(tp["type"])),
+        "TYPE_META": f"{tp['count']} {noun}. {_esc(tp['scope'])}.",
+        "TYPE_ROWS": "\n".join(rows),
+        "TYPE_ROW_COUNT": str(len(rows)),
+        "NEXT_URL": next_url,
+        "NEXT_LABEL": next_label,
+    }
+
+
+def draft_document_values(doc, docs_by_path):
+    doc_type = doc.get("type", "")
+    title = doc.get("title", doc["path"])
+    purpose = draft_doc_purpose(doc)
     logo = (
         f'<img class="rail-logo" src="{{{{BASE}}}}/assets/baseline/logos/'
         f'grclibrary.svg" alt="Books on a shelf with a seal">'
@@ -3060,9 +3324,107 @@ def draft_document_values(doc, docs_by_path):
     }
 
 
+def draft_narrative_body(body_html, source_rel):
+    """Adapt one render_narrative_body result to the draft shell (see
+    _DRAFT_NARR_SECTION_RE). Each rewrite must account for every section and
+    every link in the body, so a renderer shape change raises here rather
+    than shipping a section with no box or a link with no new-tab hint."""
+    body, moved = _DRAFT_NARR_SECTION_RE.subn(
+        lambda m: f'<section class="narr">\n    <div id="{m.group(1)}">',
+        body_html,
+    )
+    if moved != body_html.count("<section "):
+        raise BuildError(
+            f"draft: {source_rel}: a narrative section outside the shape the "
+            "draft shell adapts (renderer change?)"
+        )
+    body, marked = _DRAFT_NARR_LINK_RE.subn(
+        lambda m: (f'{m.group(1)} target="_blank" rel="noopener noreferrer">'
+                   f"{m.group(2)}{_DRAFT_NEW_TAB}</a>"),
+        body,
+    )
+    if marked != body_html.count("<a "):
+        raise BuildError(
+            f"draft: {source_rel}: a narrative link outside the shape the "
+            "draft shell adapts (renderer change?)"
+        )
+    return body
+
+
+def draft_narrative_values(page, body_html, toc):
+    _, label, _ = draft_narrative_subtype(page["narrative_type"])
+    rail_items = "\n".join(
+        f'<li><a href="#{anchor}">{_esc(heading)}</a></li>'
+        for anchor, heading in toc
+    )
+    chips = "".join(
+        f'<li><a href="{{{{BASE}}}}/{_esc(d)}/">'
+        f"{_esc(draft_domain_label(d))}</a></li>"
+        for d in page["domains"]
+    )
+    return {
+        **_draft_nav(),
+        "NARRATIVE_TYPE": _esc(page["narrative_type"]),
+        "NARRATIVE_H1": _esc(page["title"]),
+        "NARRATIVE_RAIL_ITEMS": rail_items,
+        "NARRATIVE_BODY": draft_narrative_body(body_html, page["path"]),
+        # Brace-escaped as on v2 and v3 (narrative_page_values).
+        "NARRATIVE_SOURCE_URL": _esc(narrative_source_blob_url(page)).replace("{", "&#123;"),
+        "NARRATIVE_DOMAIN_CHIPS": chips,
+        "NARRATIVE_INDEX_URL": _draft_subtype_url(page["narrative_type"]),
+        "NARRATIVE_INDEX_LABEL": _esc(label.lower()),
+    }
+
+
+def draft_subtype_values(figures, narrative_type):
+    """One generated subtype index: every registry narrative page of
+    ``narrative_type``, title order, each row its title (to the on-site
+    reading room) and the domains it tags; then the other subtype indexes
+    with their counts. An empty subtype is a declared gap, never hidden."""
+    _, label, question = draft_narrative_subtype(narrative_type)
+    members = sorted(
+        (p for p in figures["narratives"] if p["narrative_type"] == narrative_type),
+        key=lambda p: (p["title"].lower(), p["path"]),
+    )
+    rows = []
+    for page in members:
+        domains = ", ".join(
+            f'<a href="{{{{BASE}}}}/{_esc(d)}/">{_esc(draft_domain_label(d))}</a>'
+            for d in page["domains"]
+        )
+        rows.append(
+            f'<li><a href="{_esc(narrative_page_url(page))}">'
+            f'{_esc(page["title"])}</a><small>{domains}</small></li>'
+        )
+    if not rows:
+        rows.append(
+            "<li>No page of this kind is published yet: a declared coverage "
+            "gap, not a hidden one.</li>"
+        )
+    siblings = "\n".join(
+        f'<li><a href="{_draft_subtype_url(other)}">{_esc(other_label)}</a>'
+        f'<span class="n">'
+        f'{sum(1 for p in figures["narratives"] if p["narrative_type"] == other)}'
+        f"</span></li>"
+        for other, (_, other_label, _) in DRAFT_NARRATIVE_SUBTYPES.items()
+        if other != narrative_type
+    )
+    noun = "page" if len(members) == 1 else "pages"
+    return {
+        **_draft_nav(),
+        "SUBTYPE_LABEL": _esc(label),
+        "SUBTYPE_META": f"{len(members)} {noun}. {_esc(question)}",
+        "SUBTYPE_COUNT": str(len(members)),
+        "SUBTYPE_ROWS": "\n".join(rows),
+        "SUBTYPE_SIBLINGS": siblings,
+    }
+
+
 def render_draft_variant(figures, variant):
     """Render the whole /draft tree: the fixed pages, one page per corpus
-    domain, one page per non-root corpus document, and the pin-verified
+    domain, one page per document type, one page per non-root corpus
+    document, with narrative_routes the narrative subtype indexes and the
+    reading room, and the pin-verified
     baseline asset copy (bytes). Every HTML page passes the refusal guard, and
     the draft figure values get the same dead-value check as the live trees."""
     template_dir = template_dir_for(variant)
@@ -3089,7 +3451,8 @@ def render_draft_variant(figures, variant):
     fixed_extras = {
         "landing.html": lambda: draft_landing_values(figures),
         "browse.html": lambda: draft_browse_values(figures),
-        "search.html": lambda: draft_search_values(figures, full_docs),
+        "search.html": lambda: draft_search_values(full_docs),
+        "documents.html": lambda: draft_documents_values(full_docs),
         "disclosure.html": _draft_nav,
         "license.html": _draft_nav,
         "404.html": _draft_nav,
@@ -3114,7 +3477,25 @@ def render_draft_variant(figures, variant):
             )
         emit(
             "domain.html", f"{dp['domain']}/index.html",
-            draft_domain_values(dp, docs_by_path, next_url, next_label),
+            draft_domain_values(dp, docs_by_path, next_url, next_label,
+                                leadership=variant.narrative_routes),
+        )
+
+    # One page per document type (/types/<slug>/, the route the other
+    # variants' type pages use), chained by Next like the domain pages; the
+    # Browse "By type" entries and the search page's type chips link here.
+    type_seq = figures["type_pages"]
+    for idx, tp in enumerate(type_seq):
+        if idx + 1 < len(type_seq):
+            nxt = type_seq[idx + 1]
+            next_url = "{{BASE}}/types/" + nxt["slug"] + "/"
+            next_label = "Open a type: " + _esc(draft_type_plural(nxt["type"]))
+        else:
+            next_url = "{{BASE}}/browse/"
+            next_label = "Browse by need, domain, or type"
+        emit(
+            "type.html", f"types/{tp['slug']}/index.html",
+            draft_type_values(tp, docs_by_path, next_url, next_label),
         )
 
     for d in full_docs:
@@ -3124,6 +3505,30 @@ def render_draft_variant(figures, variant):
             "document.html", _doc_route_rel(d["path"]),
             draft_document_values(d, docs_by_path),
         )
+
+    # The executive layer (design D items D1 and D3, section 4.1 branch 2),
+    # VARIANT-SCOPED by narrative_routes like the live staging trees: one
+    # generated index per narrative type at decide/<slug>/, then the reading
+    # room at decisions/<subtype>/<slug>/ on the baseline shell, each page
+    # under the refusal guard like every other draft page.
+    if variant.narrative_routes:
+        for narrative_type in sorted(
+            {p["narrative_type"] for p in figures["narratives"]}
+        ):
+            draft_narrative_subtype(narrative_type)
+        for narrative_type, (slug, _, _) in DRAFT_NARRATIVE_SUBTYPES.items():
+            emit(
+                "subtype.html", f"decide/{slug}/index.html",
+                draft_subtype_values(figures, narrative_type),
+            )
+        seen_out_rels = {out_rel for out_rel, _ in pages}
+        for page, out_rel, body_html, toc in narrative_route_bodies(
+            figures, variant, seen_out_rels
+        ):
+            emit(
+                "narrative.html", out_rel,
+                draft_narrative_values(page, body_html, toc),
+            )
 
     unused = sorted(
         (set(PARTIALS) | set(figure_values(figures, variant))) - used
@@ -3215,42 +3620,14 @@ def render_variant(figures, variant):
     # one on-site page per
     # registry-listed narrative page of a routed type, VARIANT-SCOPED by the
     # variant-table flag so the frozen root's page loops above are untouched
-    # (the byte-identical-root mechanism for this new route class). Sources
-    # are read ONLY after the renderer-confinement validator admits them
-    # (registry-listed, normalized, git-tracked, under executive/ only), so
-    # this loop extends the generator's read allow-list to the registry-listed
-    # executive/ pages without the generator ever walking the repository.
+    # (the byte-identical-root mechanism for this new route class). The
+    # confined source reads and the route checks live in
+    # narrative_route_bodies, shared with the /draft tree.
     if variant.narrative_routes:
-        # Every registry type must be a routed type: a future NEW narrative
-        # type would otherwise fall through the filter below and silently
-        # skip on-site rendering (PR-2b widened the tuple to all six
-        # published types; this check keeps the widening honest).
-        unrouted = sorted(
-            {p["narrative_type"] for p in figures["narratives"]}
-            - set(NARRATIVE_ROUTE_TYPES)
-        )
-        if unrouted:
-            raise BuildError(
-                "narrative registry type(s) with no on-site route (add to "
-                f"NARRATIVE_ROUTE_TYPES): {', '.join(unrouted)}"
-            )
-        tracked = _tracked_executive_paths()
-        seen_sources = set()
         seen_out_rels = {out_rel for out_rel, _ in pages}
-        for page in figures["narratives"]:
-            if page["narrative_type"] not in NARRATIVE_ROUTE_TYPES:
-                continue
-            source = narrative_source_file(page["path"], tracked, seen_sources)
-            out_rel = narrative_out_rel(page)
-            if out_rel in seen_out_rels:
-                raise BuildError(
-                    f"narrative route collides with an existing page: {out_rel}"
-                )
-            seen_out_rels.add(out_rel)
-            body_html, toc = render_narrative_body(
-                source.read_text(encoding="utf-8"), page["path"],
-                narrative_shell_ids_for(variant),
-            )
+        for page, out_rel, body_html, toc in narrative_route_bodies(
+            figures, variant, seen_out_rels
+        ):
             html, _ = render_page(
                 "narrative.html", figures, variant, template_dir, partials,
                 extra=narrative_page_values(page, variant, out_rel, body_html, toc),
