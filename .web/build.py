@@ -438,10 +438,10 @@ SECURITY_TXT = (
 
 
 # The /draft/* CSP, copied byte for byte from the shared policy in baseline
-# 1.3.1 SPECIFICATION.md section 9 (the same policy on every family site for
-# draft pages now and every page after promotion). The 3 Cloudflare hosts are
-# already in tools/lint-external-link-domains.py ALLOW_LIST (PR 1 added them
-# for the live CSP above).
+# 1.4.1 SPECIFICATION.md section 9 (unchanged since 1.3.1): the same policy on
+# every family site for draft pages now and every page after promotion. The 3
+# Cloudflare hosts are already in tools/lint-external-link-domains.py
+# ALLOW_LIST (PR 1 added them for the live CSP above).
 DRAFT_CSP = (
     "default-src 'none'; script-src 'self' 'unsafe-inline'"
     " https://ajax.cloudflare.com https://static.cloudflareinsights.com;"
@@ -2643,7 +2643,7 @@ def render_search_index(variant):
 
 # ---------------------------------------------------------------------------
 # The /draft tree (PR 2b): the grclibrary.ai rebuild on the shared family site
-# template (baseline 1.3.1, pinned under .web/baseline/ by PR 2a). The tree is
+# template (baseline 1.4.1, pinned under .web/baseline/ by PR 2a). The tree is
 # VARIANT-SCOPED by Variant.draft_rules, renders from its own templates under
 # .web/templates-draft/, and is self-contained: every internal link and asset
 # is {{BASE}}-prefixed and the pinned baseline runtime files are copied to
@@ -2995,6 +2995,11 @@ def draft_document_values(doc, docs_by_path):
         f'<img class="rail-logo" src="{{{{BASE}}}}/assets/baseline/logos/'
         f'grclibrary.svg" alt="Books on a shelf with a seal">'
     )
+    # Spec 7.6 allows two rails only, so a document page takes the logo-only
+    # rail; the source document's outline is body content, a plain list
+    # under its own heading (maintainer, 2026-11-03 12:16Z).
+    rail = f'<div class="rail">{logo}</div>'
+    outline_section = ""
     sections = doc.get("sections", [])
     if sections:
         items = "\n".join(
@@ -3003,12 +3008,7 @@ def draft_document_values(doc, docs_by_path):
             + "</li>"
             for s in sections
         )
-        rail = (
-            f'<nav class="rail" aria-label="Outline">{logo}'
-            f'<p class="lbl">Outline</p><ol>\n{items}\n</ol></nav>'
-        )
-    else:
-        rail = f'<div class="rail">{logo}</div>'
+        outline_section = f'<h2>Outline</h2>\n<ul>\n{items}\n</ul>'
     record = "\n".join(
         f"<dt>{_esc(field)}</dt><dd>{_esc(doc[key])}</dd>"
         for field, key in DRAFT_RECORD_FIELDS if doc.get(key)
@@ -3050,6 +3050,7 @@ def draft_document_values(doc, docs_by_path):
         "DOC_TITLE": _esc(title),
         "DOC_TYPE": _esc(doc_type),
         "DOC_RAIL": rail,
+        "DOC_OUTLINE_SECTION": outline_section,
         "DOC_LEAD": _esc(purpose),
         "DOC_RECORD": record,
         "DOC_GITHUB_URL": _esc(GITHUB_BLOB_BASE + doc["path"]),

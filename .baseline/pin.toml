@@ -1,9 +1,9 @@
-version = "1.3.1"
+version = "1.4.1"
 
 [files]
 ".web/baseline/LICENSE" = "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
 ".web/baseline/NOTICE.md" = "08b26141bb2ecf0f4cd76e599c21f888fc71c4b3ab7ba769e954f6eea37ac7f3"
-".web/baseline/baseline.css" = "9d8e4d5307af49f607e89bcb3ac32a80d25f9e86253572b65559cd35cd4e16e9"
+".web/baseline/baseline.css" = "8af38c8d65033c376475a3c65bcd90496010dd5a396c24aaa08d222d31619490"
 ".web/baseline/copy.js" = "9bf99b50471889b768c795af5a4f84f526cecf7622a1f1265ca3d088b31339a4"
 ".web/baseline/fonts.css" = "a309a8ff4026a67fb5d10dea2c02e5b9ea2c1b32d4b18d7892015e038397396a"
 ".web/baseline/fonts/dancing-script-LICENSE.txt" = "c02c0002d3bbd41a16933c162888c400469c7029f1362ca9d60d5ed20ea7d157"
