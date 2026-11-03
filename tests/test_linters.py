@@ -40468,7 +40468,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-corpus-management.py OWN F 5a8cdc9491b4565b783cc4de48a65a06f0abc48bc272c039bfc6e2edc104b671
         build-historical-citation-exceptions.py OWN F 442e33ccfd3d443d763e0576d908d0a27c74f59d5cda3d1fe53a919d074376d2
         build-narrative-registry.py NO_FS F 92ebf6bf91d8fdce637d835dcc031a3ddd2a60ed51fbce195de18e1c734107ad
-        build-portal.py NO_FS F 6957f8e2be70ee5a5975c6afd9962236415d76641d8c43e8a5590ce7843f50fd
+        build-portal.py NO_FS F 6ac181341b086e9b57565a3d1783e085fcbf667a3b7a9004293a151169477664
         build-provision-index.py ROOT F fe7e21ef073874b792080c23593e1d47e3e4f2702177860b06b67486a9cb46e1
         build-public-changelog.py OWN F 407a5b794ad8b51c495f9a2d98ec1f8908fac68500a12004c092e59bd8054d77
         build-reference-manifest.py NO_FS F fdf4d1211bd09e6e1afdf2437b5b291ec5bc0cbc3d632d588af5bcb0091a387d
@@ -48322,6 +48322,107 @@ class MaturityClassifierTests(unittest.TestCase):
                 # Flip guard: the pre-fix rule agrees here, so the fix is
                 # confined to the major >= 2 branch.
                 self.assertEqual(self._pre_fix_rule(version), expected)
+
+
+class PortalScorecardUnversionedTests(unittest.TestCase):
+    """tools/build-portal.py: a document whose metadata block gives no
+    Version (an empty file, or a block that stops before the Version line)
+    is left off the scorecard, named on stderr and listed in the portal
+    without a maturity tag, not a crash, so the pre-commit hook's own
+    fixtures (tools/check-generated-commit.py --self-test) can regenerate. A
+    Version present but outside MAJOR.MINOR.PATCH still fails the build, no
+    Unknown class is published, and the scorecard lede and the portal's
+    maturity-tag sentence are true of every entry each lists."""
+
+    LEDE_RE = re.compile(r"The maturity scorecard classifies (each active artefact.*?) as ")
+    ROW_RE = re.compile(r"^\| \[([^\]]+)\]\([^)]*\) \| [^|]* \| [^|]* \| ([^|]*) \| [^|]* \|$", re.M)
+    TAGGED_RE = re.compile(r"^(Each document entry below.*?) carries an inline maturity tag", re.M)
+    ENTRY_RE = re.compile(r"^- \[[^\]]*\]\(\.\./([^)]+)\)( \(maturity: (?:Mature|Baseline|Draft)\))?$", re.M)
+
+    def setUp(self) -> None:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_portal_scorecard_unversioned", REPO_ROOT / "tools/build-portal.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        self.mod = mod
+
+    @staticmethod
+    def _doc(path: str, version: str) -> dict:
+        return {"path": path, "title": "Fixture", "type": "Policy",
+                "version": version, "date": "2026-11-03"}
+
+    def _build(self, docs: list[dict]) -> tuple[str, str]:
+        from contextlib import redirect_stderr
+        err = io.StringIO()
+        with redirect_stderr(err):
+            text = self.mod.build_scorecard(docs)
+        return text, err.getvalue()
+
+    def test_unversioned_document_is_named_and_left_unclassified(self) -> None:
+        text, err = self._build([self._doc("risk/versioned.md", "1.0.0"),
+                                 self._doc("risk/unversioned.md", "")])
+        self.assertIn("WARN: risk/unversioned.md has no Version", err)
+        self.assertNotIn("risk/unversioned.md", text)
+        self.assertNotIn("Unknown", text)
+        lede = self.LEDE_RE.search(text)
+        self.assertIsNotNone(lede, text)
+        self.assertEqual(lede.group(1),
+                         "each active artefact whose metadata block gives a Version")
+        rows = self.ROW_RE.findall(text)
+        self.assertEqual(rows, [("risk/versioned.md", "1.0.0")])
+        summary = re.search(r"^_Summary as of last regeneration: (.*)\._$", text, re.M)
+        self.assertEqual(summary.group(1), "Mature: 0, Baseline: 1, Draft: 0")
+
+    def test_malformed_version_still_fails_beside_an_unversioned_one(self) -> None:
+        with self.assertRaises(SystemExit) as caught:
+            self._build([self._doc("risk/unversioned.md", ""),
+                         self._doc("risk/malformed.md", "1.0")])
+        self.assertIn("risk/malformed.md", str(caught.exception))
+
+    def test_lede_is_unqualified_and_true_when_every_document_is_versioned(self) -> None:
+        text, err = self._build([self._doc("risk/a.md", "0.1.0"),
+                                 self._doc("risk/b.md", "2.0.0")])
+        self.assertEqual(err, "")
+        self.assertEqual(self.LEDE_RE.search(text).group(1), "each active artefact")
+        self.assertEqual(sorted(p for p, _v in self.ROW_RE.findall(text)),
+                         ["risk/a.md", "risk/b.md"])
+
+    def test_committed_scorecard_lists_every_artefact_its_lede_covers(self) -> None:
+        """The committed scorecard, read as rendered: when its lede says it
+        classifies each active artefact, every taxonomy document is a row,
+        with the Version the taxonomy gives it."""
+        docs = self.mod.parse_taxonomy()
+        text = (REPO_ROOT / "docs" / "maturity-scorecard.md").read_text(encoding="utf-8")
+        scope = self.LEDE_RE.search(text).group(1)
+        covered = {d["path"]: d["version"] for d in docs
+                   if scope == "each active artefact" or d.get("version", "")}
+        self.assertEqual(dict(self.ROW_RE.findall(text)), covered)
+
+    def test_portal_lists_an_unversioned_document_without_a_tag(self) -> None:
+        docs = [{**self._doc("dev-security/versioned.md", "1.1.0"), "domain": "dev-security"},
+                {**self._doc("dev-security/unversioned.md", ""), "domain": "dev-security"}]
+        text = self.mod.build_portal(docs)
+        self.assertNotIn("Unknown", text)
+        self.assertEqual(self.TAGGED_RE.search(text).group(1),
+                         "Each document entry below whose metadata block gives a Version")
+        entries = self.ENTRY_RE.findall(text)
+        self.assertIn(("dev-security/versioned.md", " (maturity: Mature)"), entries)
+        self.assertIn(("dev-security/unversioned.md", ""), entries)
+        with self.assertRaises(SystemExit):
+            self.mod.build_portal([{**self._doc("dev-security/malformed.md", "1.0"),
+                                    "domain": "dev-security"}])
+
+    def test_committed_portal_tags_every_entry_its_sentence_covers(self) -> None:
+        """The committed portal, read as rendered: every entry line is matched,
+        and when the sentence covers each entry, each carries a tag."""
+        text = (REPO_ROOT / "docs" / "portal.md").read_text(encoding="utf-8")
+        entries = self.ENTRY_RE.findall(text)
+        self.assertTrue(entries)
+        self.assertEqual(len(entries), len(re.findall(r"^- \[", text, re.M)))
+        if self.TAGGED_RE.search(text).group(1) == "Each document entry below":
+            self.assertEqual([p for p, tag in entries if not tag], [])
 
 
 class SiblingPlaceholderTests(LinterTestCase):

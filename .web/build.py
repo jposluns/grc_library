@@ -2837,11 +2837,12 @@ ADOPTER_REQUIRED_FIELDS = (
 )
 
 # The corpus's own version rule (MAJOR.MINOR.PATCH), the one the metadata
-# gate applies to docs/ (.corpus-management/tools/gate_lint_metadata.py
-# VERSION_RE) and the maturity heuristic reads (tools/build-portal.py
-# classify_maturity), restricted to ASCII digits (round-4 WARN 2: the round-3
-# no-leading-zero rule refused versions the corpus gate accepts). A leading
-# zero is accepted, as there. Then the ISO calendar-date form.
+# gate applies to docs/ (the VERSION_RE of the engine behind gate
+# lint-metadata, tools/lint-metadata.py) and the maturity heuristic reads
+# (tools/build-portal.py classify_maturity), restricted to ASCII digits
+# (round-4 WARN 2: the round-3 no-leading-zero rule refused versions the
+# corpus gate accepts). A leading zero is accepted, as there. Then the ISO
+# calendar-date form.
 _ADOPTER_VERSION_RE = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
 _ADOPTER_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 

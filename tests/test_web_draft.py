@@ -5580,7 +5580,7 @@ class AdopterDocsFixtureTests(unittest.TestCase):
                               "portal_version_draft_mod")
         versions = ("01.0.0", "1.00.0", "1.0.01", "00.0.0", "0.0.1",
                     "1.0.0", "10.20.30", "3.0.11", "v1.2.3", "1.2",
-                    "1.2.3-rc1", "1.2.3.4", "1..0")
+                    "1.2.3-rc1", "1.2.3.400", "1..0")
         for version in versions:
             with self.subTest(version=version):
                 gate_ok = bool(gate.VERSION_RE.match(version))
