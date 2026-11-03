@@ -66,7 +66,9 @@ published leadership (executive-narrative) pages that touch the area, joined at
 render time from ``narrative.yml``. The allow-list additions are the twelve
 domain READMEs, ``narrative.yml``, and, for the v2 and v3 reading rooms, the
 registry-listed ``executive/`` narrative sources (each admitted only through the
-renderer-confinement validator above).
+renderer-confinement validator above). The /draft tree (PR 2b) adds exactly 2
+reads: the pinned baseline runtime files under ``.web/baseline/`` and their pin
+``.baseline/pin.toml``, each copied file verified by SHA-256 at build time.
 
 QUALITATIVE, NOT COUNTED. The automated gating system is described qualitatively
 on the page ("comprehensive, continuously-improving", "Continuous"), never as a
@@ -149,6 +151,21 @@ class Variant(NamedTuple):
     # /404.html with status 404 for any missing path, replacing the soft-200
     # home-page fallback; only the indexable root variant carries it.
     error_page: bool = False
+    # The variant's own fixed page set. None keeps the shared PAGES list, so
+    # the frozen v1/v2/v3 trees render byte-identically; the /draft tree sets
+    # its own tuple (DRAFT_PAGES) because the redesigned site shares no
+    # template with the live trees.
+    pages: tuple = None
+    # Baseline-template draft rules (PR 2b), VARIANT-SCOPED like the flags
+    # above so the frozen trees are untouched: the tree renders through
+    # render_draft_variant (its own templates, partials and figure values),
+    # copies the pinned baseline assets under <prefix>/assets/baseline/ with
+    # SHA-256 verification against .baseline/pin.toml, and every rendered page
+    # must pass the draft refusal guard (no inline style or script, no on*
+    # attribute, no en or em dash, no "what this is" framing). The live v1
+    # partials carry an inline <style> and <script>, so the guard cannot be
+    # global.
+    draft_rules: bool = False
 
 
 # Executive routes that exist ONLY on the non-indexable /v2 staging tree (wave 1
@@ -185,15 +202,32 @@ V3_EXTRA_PAGES = (
     ("search.html", "search/index.html"),
 )
 
+# The fixed pages of the /draft tree (baseline-template rebuild, PR 2b):
+# (template under .web/templates-draft/, output path under draft/). The
+# per-domain and per-document routes come from the same machinery the fixed
+# pages cannot carry (one page per corpus domain; one per non-root corpus
+# document), inside render_draft_variant.
+DRAFT_PAGES = (
+    ("landing.html", "index.html"),
+    ("browse.html", "browse/index.html"),
+    ("search.html", "search/index.html"),
+    ("disclosure.html", "disclosure/index.html"),
+    ("license.html", "license/index.html"),
+    ("404.html", "404.html"),
+)
+
 # The site variant table: one indexable root variant (v1) plus any non-indexable
-# staging variants (v2 and v3). New staging variants belong in this table, so
-# the template source, URL prefix, and indexability policy stay coupled.
+# staging variants (v2, v3 and the /draft baseline-template tree). New staging
+# variants belong in this table, so the template source, URL prefix, and
+# indexability policy stay coupled.
 VARIANTS = (
     Variant("v1", "templates", "", indexable=True, error_page=True),
     Variant("v2", "templates-v2", "v2/", indexable=False, extra_pages=V2_EXTRA_PAGES,
             narrative_routes=True, domain_rail=True),
     Variant("v3", "templates-v3", "v3/", indexable=False,
             extra_pages=V3_EXTRA_PAGES, document_routes=True, narrative_routes=True),
+    Variant("draft", "templates-draft", "draft/", indexable=False,
+            document_routes=True, pages=DRAFT_PAGES, draft_rules=True),
 )
 
 # Shared chrome injected into every page from a single source, so the pages
@@ -401,6 +435,42 @@ SECURITY_TXT = (
     "Preferred-Languages: en, fr\n"
     "Canonical: https://grclibrary.ai/.well-known/security.txt\n"
 )
+
+
+# The /draft/* CSP, copied byte for byte from the shared policy in baseline
+# 1.3.1 SPECIFICATION.md section 9 (the same policy on every family site for
+# draft pages now and every page after promotion). The 3 Cloudflare hosts are
+# already in tools/lint-external-link-domains.py ALLOW_LIST (PR 1 added them
+# for the live CSP above).
+DRAFT_CSP = (
+    "default-src 'none'; script-src 'self' 'unsafe-inline'"
+    " https://ajax.cloudflare.com https://static.cloudflareinsights.com;"
+    " connect-src 'self' https://cloudflareinsights.com; style-src 'self';"
+    " font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none';"
+    " frame-ancestors 'none'"
+)
+
+# The /draft/* block appended to the PR 1 ``/*`` rule (owner decisions,
+# 2026-11-03, via SPECIFICATION.md section 9): ``!`` detaches the live CSP,
+# the draft CSP above replaces it, and X-Robots-Tag keeps the staging tree out
+# of search alongside each page's noindex meta. Never add X-Content-Type-
+# Options, Referrer-Policy or Strict-Transport-Security here: the zone sends
+# them automatically.
+DRAFT_HEADERS_BLOCK = (
+    "/draft/*\n"
+    "  ! Content-Security-Policy\n"
+    f"  Content-Security-Policy: {DRAFT_CSP}\n"
+    "  X-Robots-Tag: noindex\n"
+)
+
+
+def render_headers_file():
+    """The dist-root ``_headers`` content: PR 1's ``/*`` rule byte for byte,
+    with the ``/draft/*`` block appended only while the variant table carries a
+    draft tree (the block leaves with the tree at promotion)."""
+    if any(variant.draft_rules for variant in VARIANTS):
+        return HEADERS_FILE + DRAFT_HEADERS_BLOCK
+    return HEADERS_FILE
 
 
 class BuildError(Exception):
@@ -2069,6 +2139,20 @@ def narrative_page_values(page, variant, out_rel, body_html, toc):
 
 def figure_values(figures, variant):
     """The corpus-derived values interpolated into every page."""
+    if variant.draft_rules:
+        # The draft tree's shared values: counts only, every one recomputed
+        # (decision: no count is ever typed into a template). The live keys
+        # below render v1-shaped markup (DOMAIN_ROWS carries an inline style
+        # attribute the draft refusal guard forbids), so the draft set is its
+        # own.
+        return {
+            "BASE": site_prefix_for(variant),
+            "DOC_TOTAL": str(figures["total"]),
+            "DOMAIN_COUNT": str(figures["domain_count"]),
+            "DOMAIN_DOC_COUNT": str(figures["domain_docs"]),
+            "ROOT_COUNT": str(figures["root_count"]),
+            "TYPE_COUNT": str(len(figures["types"])),
+        }
     return {
         "CALVER": figures["calver"],
         "DOC_TOTAL": str(figures["total"]),
@@ -2557,8 +2641,506 @@ def render_search_index(variant):
     return json.dumps(entries, ensure_ascii=False, separators=(",", ":"))
 
 
+# ---------------------------------------------------------------------------
+# The /draft tree (PR 2b): the grclibrary.ai rebuild on the shared family site
+# template (baseline 1.3.1, pinned under .web/baseline/ by PR 2a). The tree is
+# VARIANT-SCOPED by Variant.draft_rules, renders from its own templates under
+# .web/templates-draft/, and is self-contained: every internal link and asset
+# is {{BASE}}-prefixed and the pinned baseline runtime files are copied to
+# draft/assets/baseline/ at build time, each byte verified against
+# .baseline/pin.toml (the same pin gate 110 checks). This section's reads
+# extend the generator's allow-list by exactly .web/baseline/** and
+# .baseline/pin.toml. Every rendered draft page must pass the draft refusal
+# guard below (spec section 12 generator rule).
+# ---------------------------------------------------------------------------
+
+# Display label per corpus domain slug (the slug is the URL and the registry
+# key; the label is the page wording, per the owner-approved mockups).
+_DRAFT_DOMAIN_LABEL_OVERRIDES = {"ai": "AI"}
+
+
+def draft_domain_label(domain):
+    """'governance' -> 'Governance', 'supply-chain' -> 'Supply chain'."""
+    return _DRAFT_DOMAIN_LABEL_OVERRIDES.get(
+        domain, domain.replace("-", " ").capitalize()
+    )
+
+
+# Section heading per document type on a draft domain page (the mockup uses
+# plural headings). A taxonomy type with no entry is a build error, so a new
+# type cannot publish a blank or misspelled heading.
+DRAFT_TYPE_PLURALS = {
+    "Standard": "Standards", "Procedure": "Procedures", "Annex": "Annexes",
+    "Register": "Registers", "Template": "Templates", "Framework": "Frameworks",
+    "Policy": "Policies", "Guideline": "Guidelines", "Plan": "Plans",
+    "Matrix": "Matrices", "Specification": "Specifications",
+    "Charter": "Charters", "Guide": "Guides", "SOP": "SOPs",
+    "Checklist": "Checklists", "Principle": "Principles", "Roadmap": "Roadmaps",
+}
+
+
+def draft_type_plural(type_name):
+    try:
+        return DRAFT_TYPE_PLURALS[type_name]
+    except KeyError:
+        raise BuildError(
+            f"draft: document type '{type_name}' has no plural heading in "
+            "DRAFT_TYPE_PLURALS (add one to .web/build.py)"
+        ) from None
+
+
+# The owner-approved example document (the mockup's "Open a document" tile and
+# the last domain page's Next). Validated against the taxonomy on every draft
+# render, so a rename fails the build instead of publishing a dead link.
+DRAFT_EXAMPLE_DOC = "governance/policy-exception-and-risk-acceptance-management.md"
+# The landing tile's example domain (the mockup's "Open a domain: Governance").
+DRAFT_EXAMPLE_DOMAIN = "governance"
+# The search page carries the N most recently dated corpus documents as its
+# on-page list (the rest reach search through browse and the GitHub full-text
+# link); recomputed as a count everywhere it is shown.
+DRAFT_SEARCH_ROW_COUNT = 36
+
+# The browse page's "By need" entries (approved mockup copy; the mockup's
+# routes are rewritten to draft-internal targets). (title, tag, href, line).
+DRAFT_NEEDS = (
+    ("Make a decision", "decide", "{{BASE}}/browse/#domains",
+     "What the board should ask: decision briefs, oversight questions, and "
+     "the evidence to expect back."),
+    ("Govern a programme", "govern", "{{BASE}}/" + DRAFT_EXAMPLE_DOMAIN + "/",
+     "Stand up a programme, run it, or assess its maturity, with charters, "
+     "policies, and registers ready to adapt."),
+    ("Meet an obligation", "comply", "{{BASE}}/browse/#domains",
+     "Choose a framework, see the mappings and the gaps, and assemble the "
+     "evidence an audit will ask for."),
+    ("Find a solution", "solutions", "{{BASE}}/search/",
+     "Start from a problem or a lifecycle event and follow it to the "
+     "standards, procedures, and registers that resolve it."),
+    ("Write a policy", "policies",
+     _doc_page_url("{{BASE}}", DRAFT_EXAMPLE_DOC),
+     "Choose a template, see its prerequisites, and adapt it to your "
+     "organization."),
+)
+
+# The draft document record's field order and wording (Canadian spelling for
+# the licence label; values come from the enriched taxonomy).
+DRAFT_RECORD_FIELDS = (
+    ("Type", "type"), ("Version", "version"), ("Date", "date"),
+    ("Owner", "owner"), ("Approving authority", "approving_authority"),
+    ("Classification", "classification"),
+    ("Confidentiality", "confidentiality"), ("Category", "category"),
+    ("Review frequency", "review_frequency"), ("Licence", "license"),
+)
+
+_DRAFT_NEW_TAB = '<span class="vh"> (opens in a new tab)</span>'
+
+# The draft refusal guard (spec section 12: a generator refuses to write a
+# page that contains an en or em dash (literal or entity-encoded), an inline
+# style or script, an on* attribute, or "what this is" framing). Scoped to
+# draft pages because the live v1/v2/v3 partials deliberately carry an inline
+# <style> and <script>.
+_DRAFT_REFUSALS = (
+    ("an en dash", re.compile("–")),
+    ("an em dash", re.compile("—")),
+    ("an inline style element", re.compile(r"<style\b", re.I)),
+    ("an inline script element", re.compile(r"<script\b(?![^>]*\bsrc=)", re.I)),
+    ("a style attribute", re.compile(r"\sstyle\s*=", re.I)),
+    ("an on* event attribute", re.compile(r"\son[a-z]+\s*=", re.I)),
+    ('"what this is" framing', re.compile(r"what this is", re.I)),
+)
+
+
+def refuse_draft_page(out_rel, html):
+    """Raise BuildError when a rendered draft page breaks a refusal rule."""
+    for what, pattern in _DRAFT_REFUSALS:
+        if pattern.search(html):
+            raise BuildError(f"draft refusal guard: {out_rel} contains {what}")
+    # Round-3 WARN: an exact spelling list missed valid entity forms (no
+    # trailing semicolon, leading zeros, the Windows-1252 code points), each
+    # of which a browser decodes to a dash. Decode once and scan for the
+    # literal characters instead, so every spelling that renders as a dash is
+    # refused, while text that only shows a spelling (an escaped ampersand
+    # form such as "&amp;ndash;") still passes.
+    decoded = html_unescape(html)
+    if "\u2013" in decoded:
+        raise BuildError(
+            f"draft refusal guard: {out_rel} contains an encoded en dash"
+        )
+    if "\u2014" in decoded:
+        raise BuildError(
+            f"draft refusal guard: {out_rel} contains an encoded em dash"
+        )
+
+
+def load_baseline_assets(baseline_dir=None, pin_path=None):
+    """Read every pinned baseline runtime file as bytes for the draft asset
+    copy, verifying each against ``.baseline/pin.toml`` (stdlib ``tomllib``).
+
+    Returns ``[(rel-under-assets/baseline/, bytes), ...]``. BuildError on a
+    missing or malformed pin, a pin key outside ``.web/baseline/``, a pinned
+    file missing, a SHA-256 mismatch, or an unpinned file present, so a
+    tampered or drifted copy can never deploy. The parameters exist for the
+    test fixtures; a build always uses the repository paths."""
+    import hashlib
+    import tomllib
+    baseline_dir = (
+        Path(baseline_dir) if baseline_dir is not None else WEB_DIR / "baseline"
+    )
+    pin_path = (
+        Path(pin_path) if pin_path is not None
+        else REPO_ROOT / ".baseline" / "pin.toml"
+    )
+    if not pin_path.is_file():
+        raise BuildError(f"draft asset copy: pin file not found at {pin_path}")
+    try:
+        pin = tomllib.loads(pin_path.read_text(encoding="utf-8"))
+    except tomllib.TOMLDecodeError as exc:
+        raise BuildError(f"draft asset copy: malformed pin {pin_path}: {exc}")
+    version = pin.get("version")
+    files = pin.get("files")
+    if not isinstance(version, str) or not version \
+            or not isinstance(files, dict) or not files:
+        raise BuildError(
+            f"draft asset copy: {pin_path} needs a version string and a "
+            "non-empty [files] table"
+        )
+    prefix = ".web/baseline/"
+    assets = []
+    pinned = set()
+    for key in sorted(files):
+        digest = files[key]
+        if not key.startswith(prefix) or not isinstance(digest, str):
+            raise BuildError(
+                f"draft asset copy: pin entry outside {prefix} or with a "
+                f"non-string digest: {key}"
+            )
+        rel = key[len(prefix):]
+        pinned.add(rel)
+        source = baseline_dir / rel
+        if not source.is_file():
+            raise BuildError(
+                f"draft asset copy: pinned file missing from {baseline_dir}: {rel}"
+            )
+        data = source.read_bytes()
+        if hashlib.sha256(data).hexdigest() != digest:
+            raise BuildError(
+                f"draft asset copy: {rel} does not match its pinned SHA-256 "
+                f"in {pin_path}"
+            )
+        assets.append((rel, data))
+    on_disk = {
+        p.relative_to(baseline_dir).as_posix()
+        for p in baseline_dir.rglob("*") if p.is_file()
+    }
+    unpinned = sorted(on_disk - pinned)
+    if unpinned:
+        raise BuildError(
+            f"draft asset copy: unpinned file(s) under {baseline_dir}: "
+            + ", ".join(unpinned)
+        )
+    return assets
+
+
+def _draft_nav(current=None):
+    """The topbar partial's per-page current-page markers (only real pages in
+    the bar can be current; the Domains and Types anchors never are)."""
+    return {
+        "NAV_BROWSE": ' aria-current="page"' if current == "browse" else "",
+        "NAV_SEARCH": ' aria-current="page"' if current == "search" else "",
+    }
+
+
+def _draft_domain_page(figures, domain):
+    for dp in figures["domain_pages"]:
+        if dp["domain"] == domain:
+            return dp
+    raise BuildError(
+        f"draft: domain '{domain}' has no generated domain page "
+        "(renamed in the taxonomy?)"
+    )
+
+
+def draft_landing_values(figures):
+    gov = _draft_domain_page(figures, DRAFT_EXAMPLE_DOMAIN)
+    return {
+        **_draft_nav(),
+        "GOV_COUNT": str(gov["count"]),
+        "NEED_COUNT": str(len(DRAFT_NEEDS)),
+        "EXAMPLE_DOC_URL": _doc_page_url("{{BASE}}", DRAFT_EXAMPLE_DOC),
+    }
+
+
+def draft_browse_values(figures):
+    needs = "\n".join(
+        f'<li><a href="{href}"><span class="t">{_esc(title)}</span>'
+        f'<span class="n">{_esc(tag)}</span>'
+        f'<span class="d">{_esc(line)}</span></a></li>'
+        for title, tag, href, line in DRAFT_NEEDS
+    )
+    domains = "\n".join(
+        f'<li><a href="{{{{BASE}}}}/{_esc(domain)}/">'
+        f'{_esc(draft_domain_label(domain))}</a>'
+        f'<span class="n">{count}</span>'
+        f'<small>{_esc(DOMAIN_SCOPE[domain])}</small></li>'
+        for domain, count in figures["domains"]
+    )
+    types = "\n".join(
+        f'<li><a href="{{{{BASE}}}}/search/">{_esc(type_name)}</a>'
+        f'<span class="n">{count}</span></li>'
+        for type_name, count in figures["types"]
+    )
+    first_domain, _ = figures["domains"][0]
+    return {
+        **_draft_nav("browse"),
+        "NEED_ENTRIES": needs,
+        "DOMAIN_PLAN": domains,
+        "TYPE_PLAN": types,
+        "NEXT_DOMAIN_URL": "{{BASE}}/" + first_domain + "/",
+        "NEXT_DOMAIN_LABEL": _esc(draft_domain_label(first_domain)),
+    }
+
+
+def draft_search_values(figures, full_docs):
+    type_chips = "\n".join(
+        f'<li><a href="{{{{BASE}}}}/browse/#types">{_esc(type_name)}'
+        f'<span class="n">{count}</span></a></li>'
+        for type_name, count in sorted(figures["types"])
+    )
+    area_chips = "\n".join(
+        f'<li><a href="{{{{BASE}}}}/{_esc(domain)}/">'
+        f'{_esc(draft_domain_label(domain))}'
+        f'<span class="n">{count}</span></a></li>'
+        for domain, count in sorted(
+            figures["domains"], key=lambda kv: draft_domain_label(kv[0]).lower()
+        )
+    )
+    domain_docs = sorted(
+        (d for d in full_docs if d.get("domain") != ROOT_DOMAIN),
+        key=lambda d: (d.get("title", "").lower(), d["path"]),
+    )
+    domain_docs.sort(key=lambda d: d.get("date", ""), reverse=True)
+    rows = []
+    for d in domain_docs[:DRAFT_SEARCH_ROW_COUNT]:
+        label = draft_domain_label(d.get("domain", ""))
+        haystack = " ".join(
+            [d.get("title", ""), d.get("type", ""), label,
+             d.get("domain", ""), d.get("purpose", "")]
+            + d.get("frameworks", [])
+        ).lower()
+        rows.append(
+            f'<li data-search="{_esc(haystack)}">'
+            f'<a href="{_esc(_doc_page_url("{{BASE}}", d["path"]))}">'
+            f'{_esc(d.get("title", d["path"]))}</a>'
+            f'<span class="n">{_esc(d.get("type", "").lower())}, {_esc(label)}</span>'
+            f'<small>{_esc(d.get("date", ""))}</small></li>'
+        )
+    return {
+        **_draft_nav("search"),
+        "TYPE_CHIPS_D": type_chips,
+        "AREA_CHIPS_D": area_chips,
+        "SEARCH_ROWS": "\n".join(rows),
+        "SEARCH_COUNT": str(len(rows)),
+    }
+
+
+def draft_domain_values(dp, docs_by_path, next_url, next_label):
+    label = draft_domain_label(dp["domain"])
+    by_type = {}
+    for d in dp["docs"]:
+        by_type.setdefault(d["type"], []).append(d)
+    ordered = [t for t in TYPE_ORDER if t in by_type]
+    ordered += sorted(t for t in by_type if t not in TYPE_RANK)
+    rail_items = "\n".join(
+        f'<li><a href="#t-{type_slug(t)}">{_esc(t)}, {len(by_type[t])}</a></li>'
+        for t in ordered
+    )
+    sections = []
+    for t in ordered:
+        rows = []
+        for d in by_type[t]:
+            version = docs_by_path.get(d["path"], {}).get("version", "")
+            tail = f'<span class="n">v{_esc(version)}</span>' if version else ""
+            rows.append(
+                f'<li><a href="{_esc(_doc_page_url("{{BASE}}", d["path"]))}">'
+                f'{_esc(d["title"])}</a>{tail}</li>'
+            )
+        sections.append(
+            f'<p class="lbl sec">{_esc(t)}, {len(by_type[t])}</p>\n'
+            f'<h2 id="t-{type_slug(t)}">{_esc(draft_type_plural(t))}</h2>\n'
+            f'<div class="wide"><ul class="plan">\n' + "\n".join(rows)
+            + "\n</ul></div>"
+        )
+    noun = "document" if dp["count"] == 1 else "documents"
+    return {
+        **_draft_nav(),
+        "DOMAIN_LABEL": _esc(label),
+        "DOMAIN_META": f"{dp['count']} {noun}. {_esc(dp['scope'])}.",
+        "DOMAIN_LEAD": _esc(dp["purpose"]),
+        "DOMAIN_RAIL_ITEMS": rail_items,
+        "DOMAIN_SECTIONS": "\n".join(sections),
+        "NEXT_URL": next_url,
+        "NEXT_LABEL": next_label,
+    }
+
+
+def draft_document_values(doc, docs_by_path):
+    doc_type = doc.get("type", "")
+    title = doc.get("title", doc["path"])
+    purpose = doc.get("purpose", "")
+    if not purpose:
+        purpose = (
+            f"A {doc_type.lower()} in the "
+            f"{draft_domain_label(doc.get('domain', ''))} area of the GRC Library."
+        )
+    logo = (
+        f'<img class="rail-logo" src="{{{{BASE}}}}/assets/baseline/logos/'
+        f'grclibrary.svg" alt="Books on a shelf with a seal">'
+    )
+    sections = doc.get("sections", [])
+    if sections:
+        items = "\n".join(
+            "<li>"
+            + _esc(re.sub(r"\*\*([^*]+)\*\*", r"\1", s.replace("`", "")))
+            + "</li>"
+            for s in sections
+        )
+        rail = (
+            f'<nav class="rail" aria-label="Outline">{logo}'
+            f'<p class="lbl">Outline</p><ol>\n{items}\n</ol></nav>'
+        )
+    else:
+        rail = f'<div class="rail">{logo}</div>'
+    record = "\n".join(
+        f"<dt>{_esc(field)}</dt><dd>{_esc(doc[key])}</dd>"
+        for field, key in DRAFT_RECORD_FIELDS if doc.get(key)
+    )
+    frameworks_section = ""
+    if doc.get("frameworks"):
+        chips = "".join(
+            f'<li><a href="{{{{BASE}}}}/search/">{_esc(f)}</a></li>'
+            for f in doc["frameworks"]
+        )
+        frameworks_section = (
+            f'<h2>Frameworks it maps to</h2>\n<ul class="chips">{chips}</ul>'
+        )
+    related_section = ""
+    if doc.get("related_documents"):
+        rows = []
+        for rp in doc["related_documents"]:
+            rd = docs_by_path.get(rp)
+            if rd and rd.get("domain") != ROOT_DOMAIN:
+                rows.append(
+                    f'<li><a href="{_esc(_doc_page_url("{{BASE}}", rp))}">'
+                    f'{_esc(rd.get("title", rp))}</a>'
+                    f'<span class="n">{_esc(rd.get("domain", ""))}</span></li>'
+                )
+            else:
+                rtitle = rd.get("title", rp) if rd else rp
+                rows.append(
+                    f'<li><a href="{_esc(GITHUB_BLOB_BASE + rp)}"'
+                    ' target="_blank" rel="noopener noreferrer">'
+                    f'{_esc(rtitle)}{_DRAFT_NEW_TAB}</a>'
+                    '<span class="n">source</span></li>'
+                )
+        related_section = (
+            '<h2>Related documents</h2>\n<ul class="plan one">\n'
+            + "\n".join(rows) + "\n</ul>"
+        )
+    return {
+        **_draft_nav(),
+        "DOC_TITLE": _esc(title),
+        "DOC_TYPE": _esc(doc_type),
+        "DOC_RAIL": rail,
+        "DOC_LEAD": _esc(purpose),
+        "DOC_RECORD": record,
+        "DOC_GITHUB_URL": _esc(GITHUB_BLOB_BASE + doc["path"]),
+        "DOC_FRAMEWORKS_SECTION": frameworks_section,
+        "DOC_RELATED_SECTION": related_section,
+    }
+
+
+def render_draft_variant(figures, variant):
+    """Render the whole /draft tree: the fixed pages, one page per corpus
+    domain, one page per non-root corpus document, and the pin-verified
+    baseline asset copy (bytes). Every HTML page passes the refusal guard, and
+    the draft figure values get the same dead-value check as the live trees."""
+    template_dir = template_dir_for(variant)
+    partials = load_partials(template_dir)
+    full_docs = parse_taxonomy_full(TAXONOMY.read_text(encoding="utf-8"))
+    docs_by_path = {d["path"]: d for d in full_docs}
+    if DRAFT_EXAMPLE_DOC not in docs_by_path:
+        raise BuildError(
+            f"draft: example document {DRAFT_EXAMPLE_DOC} is not in the "
+            "taxonomy (renamed or removed?)"
+        )
+    pages = []
+    used = set()
+
+    def emit(template_name, out_rel, extra):
+        html, used_keys = render_page(
+            template_name, figures, variant, template_dir, partials,
+            extra=extra, out_rel=out_rel,
+        )
+        refuse_draft_page(out_rel, html)
+        pages.append((out_rel, html))
+        used.update(used_keys)
+
+    fixed_extras = {
+        "landing.html": lambda: draft_landing_values(figures),
+        "browse.html": lambda: draft_browse_values(figures),
+        "search.html": lambda: draft_search_values(figures, full_docs),
+        "disclosure.html": _draft_nav,
+        "license.html": _draft_nav,
+        "404.html": _draft_nav,
+    }
+    for template_name, out_rel in variant.pages or ():
+        if template_name not in fixed_extras:
+            raise BuildError(
+                f"draft: no extras builder for fixed page {template_name}"
+            )
+        emit(template_name, out_rel, fixed_extras[template_name]())
+
+    domain_seq = figures["domain_pages"]
+    for idx, dp in enumerate(domain_seq):
+        if idx + 1 < len(domain_seq):
+            nxt = domain_seq[idx + 1]["domain"]
+            next_url = "{{BASE}}/" + nxt + "/"
+            next_label = "Open a domain: " + _esc(draft_domain_label(nxt))
+        else:
+            next_url = _doc_page_url("{{BASE}}", DRAFT_EXAMPLE_DOC)
+            next_label = "Open a document: " + _esc(
+                docs_by_path[DRAFT_EXAMPLE_DOC].get("title", DRAFT_EXAMPLE_DOC)
+            )
+        emit(
+            "domain.html", f"{dp['domain']}/index.html",
+            draft_domain_values(dp, docs_by_path, next_url, next_label),
+        )
+
+    for d in full_docs:
+        if d.get("domain") == ROOT_DOMAIN:
+            continue
+        emit(
+            "document.html", _doc_route_rel(d["path"]),
+            draft_document_values(d, docs_by_path),
+        )
+
+    unused = sorted(
+        (set(PARTIALS) | set(figure_values(figures, variant))) - used
+    )
+    if unused:
+        raise BuildError(
+            "draft value(s) used by no page (dead computation or a dropped "
+            "placeholder): " + ", ".join("{{" + k + "}}" for k in unused)
+        )
+
+    for rel, data in load_baseline_assets():
+        pages.append((f"assets/baseline/{rel}", data))
+    return pages
+
+
 def render_variant(figures, variant):
     """Render one variant's HTML template tree and return relative outputs."""
+    if variant.draft_rules:
+        return render_draft_variant(figures, variant)
     template_dir = template_dir_for(variant)
     partials = load_partials(template_dir)
     all_values = set(PARTIALS) | set(figure_values(figures, variant))
@@ -2716,7 +3298,7 @@ def render_site(figures):
             # The Pages header rules and the RFC 9116 security.txt, emitted
             # once each, at the output root alone (the sole indexable variant
             # has the empty prefix, so neither lands under a staging tree).
-            pages.append((output_rel_for(variant, "_headers"), HEADERS_FILE))
+            pages.append((output_rel_for(variant, "_headers"), render_headers_file()))
             pages.append((
                 output_rel_for(variant, ".well-known/security.txt"), SECURITY_TXT,
             ))
@@ -4624,7 +5206,12 @@ def main(argv=None):
     for out_rel, html in pages:
         out_file = out_dir / out_rel
         out_file.parent.mkdir(parents=True, exist_ok=True)
-        out_file.write_text(html, encoding="utf-8")
+        if isinstance(html, bytes):
+            # The draft tree's baseline asset copy (fonts and PNGs included)
+            # is byte content; pin-verified in load_baseline_assets.
+            out_file.write_bytes(html)
+        else:
+            out_file.write_text(html, encoding="utf-8")
         written.append(out_rel)
     # The corpus-link manifest is a COMMITTED artefact (not part of the ephemeral
     # dist/ tree), so it is always written to its tracked path, independent of

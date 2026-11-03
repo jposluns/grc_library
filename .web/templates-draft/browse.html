@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" class="site-grclibrary">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Browse | GRCLibrary.ai</title>
+{{HEAD_STYLE}}
+{{SCRIPT}}
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to content</a>
+{{TOPBAR}}
+<main id="main-content">
+<div class="wrap"><div class="doc"><p class="lbl first">Browse</p>
+<h1>Start from the seat you hold</h1>
+<div class="rail"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"></div>
+<p class="meta">{{DOC_TOTAL}} documents: {{DOMAIN_DOC_COUNT}} across {{DOMAIN_COUNT}} domains plus {{ROOT_COUNT}} library specifications, in {{TYPE_COUNT}} types, one connected corpus. Pick a path by what you need to do, or go straight to a domain or a document type.</p>
+<p class="lbl blk">Scope</p>
+<p>Organization-neutral reference material to adapt to your obligations; it confers no certification, and legal advice is outside it. Vendored third-party material and quotations keep their own licences. A document page holds the record, outline, frameworks, and related documents; the full text is read on GitHub.</p>
+<p class="lbl blk">At a glance</p>
+<div class="wide"><div class="figures"><div class="fig"><span class="num">{{DOC_TOTAL}}</span><span class="cap">documents</span></div><div class="fig"><span class="num">{{DOMAIN_COUNT}}</span><span class="cap">domains</span></div><div class="fig"><span class="num">{{TYPE_COUNT}}</span><span class="cap">document types</span></div></div></div>
+<p class="lbl sec">By need</p>
+<h2 id="need">By need</h2>
+<div class="wide"><ol class="entries">
+{{NEED_ENTRIES}}
+</ol></div>
+<p class="lbl sec">By domain</p>
+<h2 id="domains">By domain</h2>
+<div class="wide"><ul class="plan described">
+{{DOMAIN_PLAN}}
+</ul></div>
+<p class="lbl sec">By type</p>
+<h2 id="types">By type</h2>
+<div class="wide"><ul class="plan three">
+{{TYPE_PLAN}}
+</ul></div>
+<div class="next"><p class="lbl">Next</p><a class="start" href="{{NEXT_DOMAIN_URL}}">Open a domain: {{NEXT_DOMAIN_LABEL}} <span class="arrow" aria-hidden="true">&rarr;</span></a></div></div></div>
+</main>
+{{FOOTER}}
+<p class="vh" id="copy-status" role="status" aria-live="polite"></p>
+</body>
+</html>

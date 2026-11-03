@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" class="site-grclibrary">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Disclosure | GRCLibrary.ai</title>
+{{HEAD_STYLE}}
+{{SCRIPT}}<script src="{{BASE}}/assets/baseline/rail.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to content</a>
+{{TOPBAR}}
+<main id="main-content">
+<div class="wrap"><div class="doc">
+<p class="lbl first">Disclosure</p>
+<h1>Disclosure</h1>
+<nav class="rail" aria-label="On this page"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"><p class="lbl">On this page</p><ol><li><a href="#d-1">What the library is</a></li><li><a href="#d-2">Counts and figures</a></li><li><a href="#d-3">Citations</a></li><li><a href="#d-4">Licence boundary</a></li><li><a href="#d-5">Change control</a></li><li><a href="#d-6">The site's data handling</a></li></ol></nav>
+<p class="meta">This page sets out what the project claims, the limit of each claim, and the evidence for both.</p>
+<p class="lbl sec">Entry 1</p>
+<h2 id="d-1">What the library is</h2>
+<p><strong>Claim:</strong> The library is {{DOC_TOTAL}} organization-neutral governance, risk, and compliance documents in Markdown, each carrying its owner, classification, review cadence, and framework mappings.</p>
+<p><strong>Limitation:</strong> They are templates the adopting organization adapts and approves. Adopting them confers no certification, and legal advice is outside the library.</p>
+<p><strong>Evidence:</strong> <a href="https://github.com/jposluns/grc_library/blob/main/README.md" target="_blank" rel="noopener noreferrer">README.md<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/taxonomy.yml" target="_blank" rel="noopener noreferrer">taxonomy.yml<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/docs/portal.md" target="_blank" rel="noopener noreferrer">The adopter portal<span class="vh"> (opens in a new tab)</span></a></p>
+<p class="lbl sec">Entry 2</p>
+<h2 id="d-2">Counts and figures</h2>
+<p><strong>Claim:</strong> Every count on this site is recomputed from the library at build time, and a build whose counts cannot be computed fails.</p>
+<p><strong>Limitation:</strong> A count describes the inventory. It never describes coverage of any obligation; the library's own gap register records what is not covered.</p>
+<p><strong>Evidence:</strong> <a href="https://github.com/jposluns/grc_library/blob/main/.web/build.py" target="_blank" rel="noopener noreferrer">The site generator<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/.github/workflows/web-generator-health.yml" target="_blank" rel="noopener noreferrer">The generator health check<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/governance/register-coverage-gaps.md" target="_blank" rel="noopener noreferrer">The coverage gap register<span class="vh"> (opens in a new tab)</span></a></p>
+<p class="lbl sec">Entry 3</p>
+<h2 id="d-3">Citations</h2>
+<p><strong>Claim:</strong> Hand-written standard editions on the site are checked against the canonical citations register, and corpus citations follow the citation verification specification.</p>
+<p><strong>Limitation:</strong> External standards change after verification; the register records what was verified and when, not what a publisher released afterwards.</p>
+<p><strong>Evidence:</strong> <a href="https://github.com/jposluns/grc_library/blob/main/governance/register-canonical-citations.md" target="_blank" rel="noopener noreferrer">The canonical citations register<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/governance/specification-citation-verification.md" target="_blank" rel="noopener noreferrer">The citation verification specification<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/tools/lint-standards-currency.py" target="_blank" rel="noopener noreferrer">The standards currency gate<span class="vh"> (opens in a new tab)</span></a></p>
+<p class="lbl sec">Entry 4</p>
+<h2 id="d-4">Licence boundary</h2>
+<p><strong>Claim:</strong> The library's original content is under CC BY-SA 4.0, and the site template is under CC0 1.0 with the font and mark exceptions.</p>
+<p><strong>Limitation:</strong> Vendored third-party material, the quotations NOTICE.md allows, the fonts under the SIL Open Font License 1.1, and the owners' marks keep their own terms.</p>
+<p><strong>Evidence:</strong> <a href="https://github.com/jposluns/grc_library/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">LICENSE<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/NOTICE.md" target="_blank" rel="noopener noreferrer">NOTICE.md<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/.web/baseline/marks/NOTICE.md" target="_blank" rel="noopener noreferrer">The marks notice<span class="vh"> (opens in a new tab)</span></a></p>
+<p class="lbl sec">Entry 5</p>
+<h2 id="d-5">Change control</h2>
+<p><strong>Claim:</strong> Every change to the library passes the automated audit programme's gates, including the pin gate that verifies the copied site-template files byte for byte.</p>
+<p><strong>Limitation:</strong> A gate checks the mechanical rule it is built to check. Passing the gates does not make an adopting organization compliant or secure.</p>
+<p><strong>Evidence:</strong> <a href="https://github.com/jposluns/grc_library/blob/main/governance/specification-audit-programme.md" target="_blank" rel="noopener noreferrer">The audit programme specification<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/tools/run_all_audits.sh" target="_blank" rel="noopener noreferrer">The audit runner<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/tools/lint-baseline-pin.py" target="_blank" rel="noopener noreferrer">The baseline pin gate<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/.baseline/pin.toml" target="_blank" rel="noopener noreferrer">The pin<span class="vh"> (opens in a new tab)</span></a></p>
+<p class="lbl sec">Entry 6</p>
+<h2 id="d-6">The site's data handling</h2>
+<p><strong>Claim:</strong> This is a static site. Its own scripts are same-origin files that make no network requests and store nothing, and the search form filters a list already on the page and never submits.</p>
+<p><strong>Limitation:</strong> The host platform, Cloudflare, serves the pages with these features kept (JavaScript Detections, the Web Analytics beacon, Rocket Loader, and Speed Brain) and sees requests, under the privacy policy linked below.</p>
+<p><strong>Evidence:</strong> <a href="https://github.com/jposluns/grc_library/blob/main/.web/baseline/copy.js" target="_blank" rel="noopener noreferrer">copy.js<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/.web/baseline/search.js" target="_blank" rel="noopener noreferrer">search.js<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/.web/build.py" target="_blank" rel="noopener noreferrer">The headers the site sends<span class="vh"> (opens in a new tab)</span></a></p>
+<p class="lbl blk">Security</p>
+<p>To report a security vulnerability, see <a href="https://posluns.ca/security/" target="_blank" rel="noopener noreferrer">the vulnerability disclosure policy<span class="vh"> (opens in a new tab)</span></a>. The privacy policy that covers this site and the owner's other sites is at <a href="https://posluns.ca/privacy/" target="_blank" rel="noopener noreferrer">posluns.ca/privacy<span class="vh"> (opens in a new tab)</span></a>.</p>
+<div class="next"><p class="lbl">Next</p><a class="start" href="{{BASE}}/">Home <span class="arrow" aria-hidden="true">&rarr;</span></a></div>
+</div></div>
+</main>
+{{FOOTER}}
+<p class="vh" id="copy-status" role="status" aria-live="polite"></p>
+</body>
+</html>

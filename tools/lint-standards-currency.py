@@ -321,6 +321,12 @@ PROJECT_HEADER = [
     "License", "Status notes", *EVIDENCE_HEADER,
 ]
 HTML_ROOT = ".web/templates"
+# The /draft tree's templates (PR 2b) are scanned under the same live rules
+# rather than excluded: the draft becomes the root at promotion, so holding it
+# to the register now leaves no exclusion to remove. templates-v2/ and
+# templates-v3/ stay omitted (frozen staging copies).
+DRAFT_HTML_ROOT = ".web/templates-draft"
+HTML_ROOTS = (HTML_ROOT, DRAFT_HTML_ROOT)
 
 # No evidence-backed bare-publication or series exceptions approved in PR1.
 BARE_EXCEPTIONS = {}
@@ -983,7 +989,7 @@ def base_unpinned_counts(rev, entries):
     register, so a standard whose row is new in the change counts its citations already at
     rev (the cap on a bootstrap seed and, from round 4, on a new row's entry). Historical exceptions sanction only superseded editions, never an UNPINNED one, so
     none are applied. Any failure raises RatchetBaseError."""
-    roots = [*DEFAULT_PATHS, HTML_ROOT]
+    roots = [*DEFAULT_PATHS, *HTML_ROOTS]
     listing = _git("ls-tree", "-r", "-z", "--full-tree", rev, "--",
                    *(f":(literal){p}" for p in roots))
     blobs, links = [], []
@@ -1184,7 +1190,7 @@ def iter_files(paths, *, explicit=True, root=None):
             rel = path.relative_to(root).as_posix()
             if path.suffix == ".md" or (
                 path.suffix == ".html"
-                and rel.startswith(HTML_ROOT + "/")
+                and any(rel.startswith(root + "/") for root in HTML_ROOTS)
             ):
                 selected.add(path)
         else:
@@ -1269,7 +1275,7 @@ def main(argv=None):
                 raise RegisterError(problem)
         paths = (
             args.paths if args.paths is not None
-            else [*DEFAULT_PATHS, HTML_ROOT]
+            else [*DEFAULT_PATHS, *HTML_ROOTS]
         )
         files = iter_files(paths, explicit=args.paths is not None)
         scanned = {f.relative_to(REPO_ROOT).as_posix() for f in files}
