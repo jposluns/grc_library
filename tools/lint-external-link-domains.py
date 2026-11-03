@@ -95,6 +95,14 @@ ALLOW_LIST = {
     # canonical URLs emitted on the per-domain pages by .web/build.py). Not a
     # citation publisher, so the citation-verification spec (§7) is not updated.
     "grclibrary.ai",  # non-publisher: the project's own site
+    # The CSP hosts in .web/build.py HEADERS_FILE for the kept Cloudflare
+    # features (Rocket Loader and Web Analytics), and the owner's security.txt
+    # URLs in .web/build.py SECURITY_TXT. None is a citation publisher, so the
+    # citation-verification spec (§7) is not updated (as with grclibrary.ai).
+    "ajax.cloudflare.com",  # non-publisher: CSP script-src host for the kept Cloudflare Rocket Loader feature
+    "static.cloudflareinsights.com",  # non-publisher: CSP script-src host for the kept Cloudflare Web Analytics feature
+    "cloudflareinsights.com",  # non-publisher: CSP connect-src host for the kept Cloudflare Web Analytics feature
+    "posluns.ca",  # non-publisher: the owner's security.txt Encryption and Policy URLs
     # Clean Language, the maintainer's AI-writing editorial standard
     # (jposluns/cleanlanguage); linked from the CHANGELOG milestone entry.
     "cleanlanguage.ai",  # non-publisher: the maintainer's editorial standard site
