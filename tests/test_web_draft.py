@@ -550,13 +550,88 @@ class DraftSiteRenderTests(unittest.TestCase):
             "the Browse tile separates in-domain documents from the root "
             "library specifications")
         search = self.draft_html["draft/search/index.html"]
-        expected_rows = min(self.mod.DRAFT_SEARCH_ROW_COUNT, len(domain_docs))
-        self.assertEqual(search.count("data-search="), expected_rows)
+        self.assertEqual(search.count("data-search="), len(domain_docs))
         # The rows are drawn from the non-root documents alone, so the label
-        # counts against that pool, never the whole-library total.
-        self.assertIn(
-            f"Recently updated, {expected_rows} of {len(domain_docs)}</p>",
-            search)
+        # counts that pool, never the whole-library total.
+        self.assertIn(f"All documents, {len(domain_docs)}</p>", search)
+
+    # -- 5b. search coverage (round-1 defect: the page carried only the 36
+    # most recently dated rows, so most queries matched nothing) --------------
+
+    _SEARCH_ROW_RE = re.compile(r'<li data-search="([^"]*)"><a href="([^"]*)">')
+
+    def _search_rows(self):
+        search = self.draft_html["draft/search/index.html"]
+        scope = re.search(
+            r"<ul[^>]* data-search-scope>(.*?)</ul>", search, re.S
+        )
+        self.assertIsNotNone(
+            scope, "search page has no [data-search-scope] list"
+        )
+        return self._SEARCH_ROW_RE.findall(scope.group(1))
+
+    def test_search_has_one_row_per_draft_document_page(self):
+        doc_pages = {rel for rel in self.draft_html
+                     if rel.startswith("draft/documents/")}
+        self.assertTrue(doc_pages)
+        self.assertEqual(
+            len(self._search_rows()), len(doc_pages),
+            "the search list carries one row per draft document page")
+
+    def test_every_search_row_links_an_existing_draft_document_page(self):
+        doc_pages = {rel for rel in self.draft_html
+                     if rel.startswith("draft/documents/")}
+        linked = set()
+        for _, href in self._search_rows():
+            self.assertTrue(href.startswith("/draft/documents/"), href)
+            target = _page_rel_for(href)
+            self.assertIn(target, self.draft_html,
+                          f"search row links a missing page: {href}")
+            linked.add(target)
+        self.assertEqual(
+            linked, doc_pages,
+            "the rows link every draft document page, each exactly once")
+
+    def test_known_terms_match_the_expected_documents(self):
+        """Replays search.js's matching (every whitespace-split query term is
+        a substring of the row's decoded data-search text) for terms a reader
+        would type, including documents the old 36-row page missed."""
+        rows = [(unescape(hay).lower(), href)
+                for hay, href in self._search_rows()]
+
+        def hits(query):
+            terms = query.lower().split()
+            return {href for hay, href in rows
+                    if all(t in hay for t in terms)}
+
+        cases = (
+            # Title terms; dated 2026-10-27, outside the old 36-row window.
+            ("exception risk acceptance",
+             "/draft/documents/governance/"
+             "policy-exception-and-risk-acceptance-management/"),
+            # Title term on one of the oldest documents (2026-07-02).
+            ("ctpat",
+             "/draft/documents/compliance/logistics/"
+             "register-ctpat-united-states-msc-controls/"),
+            # A mapped framework name reaches the same governance policy.
+            ("iso 31000",
+             "/draft/documents/governance/"
+             "policy-exception-and-risk-acceptance-management/"),
+            # Review round 1 WARN: two of the page's own example searches,
+            # each matching its document only through purpose words after the
+            # first 200 characters ("retention" first appears at offset 294 of
+            # this purpose, "incident" at offset 419 of the next); a truncated
+            # purpose lost both.
+            ("retention",
+             "/draft/documents/operations/"
+             "procedure-media-handling-and-transport/"),
+            ("incident response",
+             "/draft/documents/operations/"
+             "procedure-security-monitoring-and-alert-management/"),
+        )
+        for query, expected in cases:
+            with self.subTest(query=query):
+                self.assertIn(expected, hits(query))
 
     # -- 6. asset copy ------------------------------------------------------
 
