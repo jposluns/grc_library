@@ -14,23 +14,12 @@
 <div class="wrap"><div class="doc"><p class="lbl first">Search</p>
 <h1>Search the library</h1>
 <div class="rail"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"></div>
-<p class="meta">Filter the corpus documents by what each is and what it covers. Matches title, type, area, purpose, and the frameworks a document maps to. With script, typing filters the list below; without it, the browse links and the list stay as they are.</p>
-<p class="lbl blk">Query</p>
-<form class="search" role="search" data-search><label class="lbl" for="q">Search the library</label><input id="q" type="search" autocomplete="off" placeholder="e.g. incident response, ISO 27001, retention, privileged access"><p class="status" role="status" aria-live="polite" data-search-status></p></form>
-<p class="lbl blk">By type</p>
-<ul class="chips">
-{{TYPE_CHIPS_D}}
-</ul>
-<p class="lbl blk">By area</p>
-<ul class="chips">
-{{AREA_CHIPS_D}}
-</ul>
-<p class="lbl sec">All documents, {{SEARCH_COUNT}}</p>
-<h2>All documents</h2>
-<p>Every one of the {{SEARCH_COUNT}} corpus documents with a page on this draft, most recently dated first. Prefer the raw source? <a href="https://github.com/search?q=repo%3Ajposluns%2Fgrc_library&amp;type=code" target="_blank" rel="noopener noreferrer">Full-text search on GitHub<span class="vh"> (opens in a new tab)</span></a>.</p>
-<div class="wide"><ul class="plan one described" data-search-scope>
+<p class="meta" id="search-prompt">{{SEARCH_PROMPT}}</p>
+<form class="search" role="search" data-search><label class="lbl" for="q">Search the library</label><input id="q" type="search" autocomplete="off" aria-describedby="search-prompt" placeholder="e.g. incident response, ISO 27001, retention, privileged access"><p class="status" role="status" aria-live="polite" data-search-status></p></form>
+<div class="wide"><ul class="plan one described" aria-label="Search results" data-search-scope>
 {{SEARCH_ROWS}}
 </ul></div>
+<p class="meta">Need words from inside a document? <a href="https://github.com/search?q=repo%3Ajposluns%2Fgrc_library&amp;type=code" target="_blank" rel="noopener noreferrer">Full-text search on GitHub<span class="vh"> (opens in a new tab)</span></a>.</p>
 <div class="next"><p class="lbl">Next</p><a class="start" href="{{BASE}}/browse/">Browse by need, domain, or type <span class="arrow" aria-hidden="true">&rarr;</span></a></div></div></div>
 </main>
 {{FOOTER}}
