@@ -40,8 +40,8 @@ SCORECARD = REPO_ROOT / "docs" / "maturity-scorecard.md"
 # the metadata schema itself changes (e.g. a new required field, a
 # rewritten Overview, an audience added or removed) and capture the
 # bump in CHANGELOG.md.
-PORTAL_METADATA_VERSION = "1.3.1"
-SCORECARD_METADATA_VERSION = "1.0.1"
+PORTAL_METADATA_VERSION = "1.3.2"
+SCORECARD_METADATA_VERSION = "1.0.2"
 
 # Fallback Date if the parsed taxonomy yields no usable date values
 # (defensive; production runs always have dates).
@@ -250,11 +250,21 @@ def classify_maturity(doc: dict) -> str:
     - 1.x.y where x >= 1: Mature (post-baseline with structural revisions).
     - 1.0.x: Baseline (formally approved and stable).
     - 0.x.y: Draft.
+
+    A version outside MAJOR.MINOR.PATCH fails the build rather than taking
+    an "Unknown" class: gate lint-metadata already requires x.y.z, so such a
+    version is a metadata defect, and publishing it as a fourth maturity
+    class would hide that and falsify the scorecard lede, which names
+    exactly the three classes above.
     """
     version = doc.get("version", "")
     m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version)
     if not m:
-        return "Unknown"
+        raise SystemExit(
+            f"FAIL: {doc.get('path', '?')} has Version {version!r}, not "
+            "MAJOR.MINOR.PATCH; the scorecard classes only Mature, Baseline, "
+            "and Draft. Fix the document's metadata block."
+        )
     major, minor, _patch = (int(x) for x in m.groups())
     if major >= 2 or (major == 1 and minor >= 1):
         return "Mature"
@@ -342,7 +352,11 @@ def build_portal(docs: list[dict]) -> str:
     out.append("")
     out.append("## Overview")
     out.append("")
-    out.append("This page is a navigation aid for the most common adopter audiences. Each section lists the documents most likely to be useful to that role, drawn from the machine-readable taxonomy and grouped by document type. The full document index lives in [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md); term definitions and acronym expansions are in the [`governance/register-glossary.md`](../governance/register-glossary.md).")
+    # The opening paragraph doubles as the document's lede wherever the
+    # document is summarized (the draft site renders it on a record page with
+    # no audience sections in sight), so it must stay true outside this file:
+    # no "this page", no "below", no claim about surrounding content.
+    out.append("The adopter portal is a navigation aid for the most common adopter audiences: for each role, it lists the documents most likely to be useful to that role, drawn from the machine-readable taxonomy and grouped by document type. The full document index lives in [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md); term definitions and acronym expansions are in the [`governance/register-glossary.md`](../governance/register-glossary.md).")
     out.append("")
     out.append("This portal is the canonical front door for adopters. The audience-keyed groupings below are the primary entry point. Five further adopter-facing documents support the portal as deeper-dive paths for specific questions; the \"Other entry points and when to use them\" section immediately below maps each to its purpose so a reader can pick the path that matches their question.")
     out.append("")
@@ -433,7 +447,9 @@ def build_scorecard(docs: list[dict]) -> str:
     out.append("")
     out.append("## Overview")
     out.append("")
-    out.append("This scorecard classifies each active artefact by maturity. The classification is derived from the document's semantic version per the heuristic below.")
+    # Like the portal's opening paragraph, this one is the document's lede
+    # wherever the document is summarized, so it must not point "below".
+    out.append("The maturity scorecard classifies each active artefact as Mature, Baseline, or Draft. The classification is derived from the document's semantic version by the heuristic recorded in the scorecard.")
     out.append("")
     out.append("| Maturity | Version range | Adopter signal |")
     out.append("| --- | --- | --- |")
@@ -448,16 +464,16 @@ def build_scorecard(docs: list[dict]) -> str:
     out.append("---")
     out.append("")
 
-    by_maturity: dict[str, list[dict]] = {"Mature": [], "Baseline": [], "Draft": [], "Unknown": []}
+    by_maturity: dict[str, list[dict]] = {"Mature": [], "Baseline": [], "Draft": []}
     for d in docs:
         m = classify_maturity(d)
         by_maturity[m].append(d)
 
-    summary = ", ".join(f"{name}: {len(by_maturity[name])}" for name in ("Mature", "Baseline", "Draft", "Unknown"))
+    summary = ", ".join(f"{name}: {len(by_maturity[name])}" for name in ("Mature", "Baseline", "Draft"))
     out.append(f"_Summary as of last regeneration: {summary}._")
     out.append("")
 
-    for maturity in ("Mature", "Baseline", "Draft", "Unknown"):
+    for maturity in ("Mature", "Baseline", "Draft"):
         items = by_maturity[maturity]
         if not items:
             continue

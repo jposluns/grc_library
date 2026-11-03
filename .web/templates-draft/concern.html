@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" class="site-grclibrary">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{CONCERN_TITLE}} | GRCLibrary.ai</title>
+{{HEAD_STYLE}}
+{{SCRIPT}}<script src="{{BASE}}/assets/baseline/rail.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to content</a>
+{{TOPBAR}}
+<main id="main-content">
+<div class="wrap"><div class="doc"><p class="lbl first">{{CONCERN_LABEL}}</p>
+<h1>{{CONCERN_TITLE}}</h1>
+<nav class="rail" aria-label="On this page"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"><p class="lbl">On this page</p><ol>
+{{CONCERN_RAIL_ITEMS}}
+</ol></nav>
+<p class="meta">{{CONCERN_META}}</p>
+<p class="lead">{{CONCERN_LEDE}}</p>
+<p class="lbl accent blk">Note</p>
+<div class="callout"><p>{{CONCERN_NOTE}}</p></div>
+<p class="lbl sec">Leadership</p>
+<h2 id="leadership">The leadership pages</h2>
+{{CONCERN_LEADERSHIP}}
+<p class="lbl sec">Documents</p>
+<h2 id="documents">The governing documents</h2>
+<p>{{CONCERN_DOCS_INTRO}}</p>
+<div class="wide"><ul class="plan one">
+{{CONCERN_DOCS}}
+</ul></div>
+<p class="lbl sec">Frameworks</p>
+<h2 id="frameworks">Frameworks touched</h2>
+<p>The external frameworks the shelf above maps, from the corpus registry. A name that cites a crosswalk instrument, whole or by a clause, links its instrument page; in a name joining several texts, each part that names a crosswalk instrument links its page and any other part is plain text; any other name is shown as plain text.</p>
+{{CONCERN_FRAMEWORKS}}
+<p class="lbl sec">Go deeper</p>
+<h2 id="domains">The domains behind it</h2>
+<ul class="chips">{{CONCERN_DOMAIN_CHIPS}}</ul>
+<div class="next"><p class="lbl">Next</p><a class="start" href="{{BASE}}/decide/">All leadership concerns <span class="arrow" aria-hidden="true">&rarr;</span></a></div></div></div>
+</main>
+{{FOOTER}}
+<p class="vh" id="copy-status" role="status" aria-live="polite"></p>
+</body>
+</html>

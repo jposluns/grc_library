@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" class="site-grclibrary">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{XW_TITLE}} | GRCLibrary.ai</title>
+{{HEAD_STYLE}}
+{{SCRIPT}}
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to content</a>
+{{TOPBAR}}
+<main id="main-content">
+<div class="wrap"><div class="doc"><p class="lbl first">Crosswalk</p>
+<h1>{{XW_HEADING}}</h1>
+<div class="rail"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"><p class="lbl">Views</p><nav aria-label="Preset views"><ul>
+{{XW_VIEWS}}
+</ul></nav></div>
+<p class="meta">{{XW_META}}</p>
+<p class="lead">{{XW_LEAD}}</p>
+<p class="lbl sec">{{XW_TABLE_CAPTION}}</p>
+<h2 id="table">Domains by instruments</h2>
+<p>Rows are the corpus domains and columns are the instruments the alignment matrices map. A cell carries the representative identifiers the compliance alignment matrix records for that domain and a generated document count that opens the instrument page at that domain; n/a marks no direct mapping recorded.</p>
+<div class="wide"><div class="tablewrap" tabindex="0">
+{{XW_TABLE}}
+</div></div>
+{{XW_BELOW}}
+<p class="lbl accent blk">Note</p>
+<h2 id="caveats">What this mapping is</h2>
+<div class="callout">
+{{XW_CAVEATS}}
+</div>
+<div class="next"><p class="lbl">Next</p><a class="start" href="{{XW_NEXT_URL}}">{{XW_NEXT_LABEL}} <span class="arrow" aria-hidden="true">&rarr;</span></a></div></div></div>
+</main>
+{{FOOTER}}
+<p class="vh" id="copy-status" role="status" aria-live="polite"></p>
+</body>
+</html>

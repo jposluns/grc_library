@@ -40468,7 +40468,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-corpus-management.py OWN F 5a8cdc9491b4565b783cc4de48a65a06f0abc48bc272c039bfc6e2edc104b671
         build-historical-citation-exceptions.py OWN F 442e33ccfd3d443d763e0576d908d0a27c74f59d5cda3d1fe53a919d074376d2
         build-narrative-registry.py NO_FS F 92ebf6bf91d8fdce637d835dcc031a3ddd2a60ed51fbce195de18e1c734107ad
-        build-portal.py NO_FS F 5ec4891c1488822c6dc1d06ee08f27523d0f2766869578574bfbf96e3203fc2a
+        build-portal.py NO_FS F 6957f8e2be70ee5a5975c6afd9962236415d76641d8c43e8a5590ce7843f50fd
         build-provision-index.py ROOT F fe7e21ef073874b792080c23593e1d47e3e4f2702177860b06b67486a9cb46e1
         build-public-changelog.py OWN F 407a5b794ad8b51c495f9a2d98ec1f8908fac68500a12004c092e59bd8054d77
         build-reference-manifest.py NO_FS F fdf4d1211bd09e6e1afdf2437b5b291ec5bc0cbc3d632d588af5bcb0091a387d
@@ -40529,7 +40529,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-gate-parity.py OWN F 48a5130538cf0e506226c7c47c8c2b98e8b8e5e6ba5df2177e8b02cdbdfb1545
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
-        lint-baseline-pin.py OWN F b04767d16110527ceb0de7577283a548457f09b31859d7dd0c7ed75609a83254
+        lint-baseline-pin.py OWN F b118d17b4e80267b4567d276c8e99064300bcd79c18fb648cf057253172f14f2
         lint-bookkeeping-parity.py NO_FS F 8f85da2547e95ad49c86265764b5d460db92e210d6339a593fbc896fc10b3181
         lint-ccm-aicm-citations.py CWD F 6a1eb4d255f76d35ed337441b0f7127ffd6d943d8c47730921e6f872491685a7
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
@@ -56562,12 +56562,17 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
             )
 
     def test_missing_listing_route_fails_loudly(self):
+        # The fixture satisfies every earlier load_narratives() check (a
+        # domain: tag and a corpus_sources entry), so the missing route is the
+        # only defect left and its own error is the one that must surface.
         with self.assertRaisesRegex(self.mod.BuildError, "no listing: route"):
             self._load_from_text(
                 'pages:\n'
                 '- path: "executive/briefs/x.md"\n'
                 '  title: "T"\n'
                 '  narrative_type: "Executive Brief"\n'
+                '  corpus_sources:\n'
+                '    - "ai/x.md"\n'
                 '  derived_tags:\n'
                 '    - "domain:ai"\n'
                 'listing:\n'
@@ -56789,6 +56794,13 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
         for variant in self.mod.VARIANTS:
             with self.subTest(variant=variant.name):
                 if variant.name == "v2":
+                    with self.assertRaisesRegex(self.mod.BuildError, "security"):
+                        self.mod.render_variant(figures, variant)
+                elif variant.draft_rules:
+                    # The Browse adventure curates 'security' as a solutions
+                    # Go deeper target (DRAFT_SOLUTION_EVENTS), so a missing
+                    # domain page is a loud BuildError on the draft too,
+                    # never a silently dropped link.
                     with self.assertRaisesRegex(self.mod.BuildError, "security"):
                         self.mod.render_variant(figures, variant)
                 else:
@@ -88070,7 +88082,9 @@ class BaselinePinLinterTests(LinterTestCase):
     """tools/lint-baseline-pin.py (gate 110): every file under the vendored
     site-template tree ``.web/baseline/`` must match the SHA-256 recorded in
     ``.baseline/pin.toml``, with no unpinned file, no pinned file missing and
-    no pin key outside the tree; a missing or malformed pin refuses (exit 2).
+    no pin key outside the tree except the pinned palette gate
+    ``.baseline/check_palette.py``, which is verified the same way and which
+    the pin must include; a missing or malformed pin refuses (exit 2).
 
     Each fixture builds a synthetic repository root in a unique mkdtemp
     directory under ``tests/tmp/`` and points the gate at it with ``--root``,
@@ -88089,9 +88103,13 @@ class BaselinePinLinterTests(LinterTestCase):
         root = Path(tempfile.mkdtemp(prefix="baseline-pin-", dir=FIXTURE_DIR))
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
         (root / ".web" / "baseline" / "fonts").mkdir(parents=True)
+        (root / ".baseline").mkdir()
         files = {
             ".web/baseline/baseline.css": b"body { color: #123456; }\n",
             ".web/baseline/fonts/sample-LICENSE.txt": b"SIL OFL 1.1 sample\n",
+            # The pinned palette gate (baseline section 4 items 2 and 3),
+            # which the pin must include.
+            ".baseline/check_palette.py": b"print('palette gate sample')\n",
         }
         for rel, data in files.items():
             (root / rel).write_bytes(data)
@@ -88108,6 +88126,16 @@ class BaselinePinLinterTests(LinterTestCase):
         lines = [f'version = "{version}"', "", "[files]"]
         lines.extend(f'"{key}" = "{entries[key]}"' for key in sorted(entries))
         pin.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    def _write_tree_only_pin(self, root: Path) -> None:
+        """Pin the two vendored files alone, with no palette gate entry."""
+        import hashlib
+
+        self._write_pin(root, {
+            rel: hashlib.sha256((root / rel).read_bytes()).hexdigest()
+            for rel in (".web/baseline/baseline.css",
+                        ".web/baseline/fonts/sample-LICENSE.txt")
+        })
 
     def test_clean_tree_passes(self) -> None:
         root = self._pin_fixture_root()
@@ -88148,13 +88176,123 @@ class BaselinePinLinterTests(LinterTestCase):
         files = {
             rel: hashlib.sha256((root / rel).read_bytes()).hexdigest()
             for rel in (".web/baseline/baseline.css",
-                        ".web/baseline/fonts/sample-LICENSE.txt")
+                        ".web/baseline/fonts/sample-LICENSE.txt",
+                        ".baseline/check_palette.py")
         }
         files["docs/outside.md"] = "0" * 64
         self._write_pin(root, files)
         result = run_linter(self.SCRIPT, "--root", root)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("outside .web/baseline/", result.stdout)
+
+    def test_pinned_tool_verified(self) -> None:
+        root = self._pin_fixture_root()
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("OK: 2 file(s) under .web/baseline/ and 1 pinned tool(s)",
+                      result.stdout)
+
+    def test_pinned_tool_changed_byte_flagged(self) -> None:
+        root = self._pin_fixture_root()
+        tool = root / ".baseline" / "check_palette.py"
+        tool.write_bytes(tool.read_bytes() + b"raise SystemExit(0)\n")
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline/check_palette.py: SHA-256", result.stdout)
+        self.assertIn("does not match the pinned", result.stdout)
+
+    def test_pinned_tool_missing_flagged(self) -> None:
+        root = self._pin_fixture_root()
+        (root / ".baseline" / "check_palette.py").unlink()
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline/check_palette.py: pinned", result.stdout)
+        self.assertIn("pin entry without a file", result.stdout)
+
+    def test_unpinned_tool_flagged(self) -> None:
+        root = self._pin_fixture_root()
+        self._write_tree_only_pin(root)
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline/check_palette.py: present with no entry",
+                      result.stdout)
+
+    def test_tool_without_pin_entry_or_file_flagged(self) -> None:
+        """Round 2 NOTE 4: the pin must include every ``PINNED_TOOLS`` path,
+        so a pin with no palette gate entry is a finding even when the file
+        is absent too; the gate skipped that case silently (exit 0)."""
+        root = self._pin_fixture_root()
+        (root / ".baseline" / "check_palette.py").unlink()
+        self._write_tree_only_pin(root)
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline/check_palette.py: no entry in "
+                      ".baseline/pin.toml and no file", result.stdout)
+
+    def test_symlinked_tools_directory_refused(self) -> None:
+        """Round 2 WARN 1: a ``.baseline`` that is a symbolic link to a
+        byte-identical directory is refused (exit 1, naming the path), never
+        verified through the link; the pin reads through the link, so only
+        the tools-directory check catches it."""
+        root = self._pin_fixture_root()
+        tools = root / ".baseline"
+        moved = root / "baseline-tools-moved"
+        tools.rename(moved)
+        tools.symlink_to(moved)
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline: symbolic link or not a real directory",
+                      result.stdout)
+
+    def test_regular_file_at_tools_directory_refused(self) -> None:
+        """Round 2 WARN 1: a regular file at ``.baseline``. Through the CLI
+        the pin under it cannot be read, a prerequisite refusal (exit 2)
+        before any tool check; ``tool_findings`` itself, given a pin that
+        names the tool, refuses the non-directory by name instead of
+        failing on the lstat beneath it."""
+        root = self._pin_fixture_root()
+        tools = root / ".baseline"
+        shutil.rmtree(tools)
+        tools.write_bytes(b"not a directory\n")
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(".baseline/pin.toml: cannot be read", result.stderr)
+        mod = load_linter_module(self.SCRIPT, "lint_baseline_pin_tools_dir")
+        findings = mod.tool_findings(
+            root, {".baseline/check_palette.py": "0" * 64})
+        self.assertEqual(len(findings), 1, findings)
+        self.assertIn(".baseline: symbolic link or not a real directory",
+                      findings[0])
+
+    def test_pinned_tool_symlink_flagged(self) -> None:
+        root = self._pin_fixture_root()
+        tool = root / ".baseline" / "check_palette.py"
+        real = root / "check_palette-real.py"
+        tool.rename(real)
+        tool.symlink_to(real)
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline/check_palette.py: symbolic link",
+                      result.stdout)
+
+    def test_other_baseline_key_still_outside(self) -> None:
+        """Only the fixed ``PINNED_TOOLS`` paths may sit outside the tree: a
+        second key under ``.baseline/`` is still a key outside the tree."""
+        import hashlib
+
+        root = self._pin_fixture_root()
+        (root / ".baseline" / "other.py").write_bytes(b"pass\n")
+        files = {
+            rel: hashlib.sha256((root / rel).read_bytes()).hexdigest()
+            for rel in (".web/baseline/baseline.css",
+                        ".web/baseline/fonts/sample-LICENSE.txt",
+                        ".baseline/check_palette.py", ".baseline/other.py")
+        }
+        self._write_pin(root, files)
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("'.baseline/other.py' is outside .web/baseline/",
+                      result.stdout)
 
     def test_symlink_in_tree_flagged(self) -> None:
         root = self._pin_fixture_root()

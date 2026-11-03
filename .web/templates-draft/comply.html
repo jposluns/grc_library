@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" class="site-grclibrary">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meet an obligation | GRCLibrary.ai</title>
+{{HEAD_STYLE}}
+{{SCRIPT}}<script src="{{BASE}}/assets/baseline/rail.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to content</a>
+{{TOPBAR}}
+<main id="main-content">
+<div class="wrap"><div class="doc"><p class="lbl first">Meet an obligation</p>
+<h1>Which framework or law do you answer to?</h1>
+<nav class="rail" aria-label="On this page"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"><p class="lbl">On this page</p><ol>
+<li><a href="#instruments">The instruments</a></li>
+<li><a href="#not-listed">Not listed here</a></li>
+<li><a href="#method">Work backwards</a></li>
+</ol></nav>
+<p class="meta">{{COMPLY_META}}</p>
+<p class="lead">Name your obligation, follow the mappings to the documents that support it, and assemble the evidence an audit will ask for. The mappings support gap analysis and audit preparation; they do not certify compliance.</p>
+<p class="lbl sec">Instruments, {{COMPLY_ROW_COUNT}}</p>
+<h2 id="instruments">The standards, laws, frameworks, and programmes</h2>
+<p>One row per crosswalk instrument, generated from the alignment matrices, the canonical citations register, and the taxonomy at build time. A row opens the instrument's crosswalk page; the count beside it is the library documents the matrices map to it or whose framework alignment names it in a form the site's alias map recognizes, so a document naming it only in another form is not counted. The <a href="{{BASE}}/crosswalk/">crosswalk</a> {{COMPLY_XW_SCOPE}}</p>
+<div class="wide"><ul class="plan described">
+{{COMPLY_INSTRUMENTS}}
+</ul></div>
+<p class="lbl sec">Not listed</p>
+<h2 id="not-listed">Answering to something not listed here?</h2>
+<p>The corpus mappings live in the <a href="{{BASE}}/types/matrix/">matrix documents</a>, {{COMPLY_MATRIX_COUNT}} in the corpus, on one page. For how coverage of regulatory obligations is evidenced, read the outcome map {{COMPLY_OUTCOME_LINK}}. If none of these covers your obligation, the corpus likely does not map it yet.</p>
+<div class="callout"><p>Known coverage gaps are declared in the {{COMPLY_GAPS_LINK}}, never hidden. Where the corpus does not map your obligation, it says so, and what an assurer ultimately tests is whether your controls are well designed and actually operate, not only whether the paper exists.</p></div>
+<p class="lbl sec">Method</p>
+<h2 id="method">Work backwards from the obligation</h2>
+<p>If your framework has a column in the {{COMPLY_ART_COMPLIANCE_MATRIX}} or the {{COMPLY_ART_FORWARD_MATRIX}}, read off which corpus documents align to its requirements. To work backwards from a control you already hold, the {{COMPLY_ART_REVERSE_MATRIX}} names which library documents address it. Check editions against the {{COMPLY_ART_CITATIONS_REGISTER}} so your programme names the edition your auditor will. Then adopt the supporting documents plus the <a href="{{BASE}}/types/annex/">annex overlays</a>, {{COMPLY_ANNEX_COUNT}} in the corpus, including jurisdiction and sector overlays, and keep the <a href="{{BASE}}/types/register/">registers</a> that carry the evidence, {{COMPLY_REGISTER_COUNT}} in the corpus.</p>
+<div class="next"><p class="lbl">Next</p><a class="start" href="{{BASE}}/crosswalk/">Open the crosswalk <span class="arrow" aria-hidden="true">&rarr;</span></a></div></div></div>
+</main>
+{{FOOTER}}
+<p class="vh" id="copy-status" role="status" aria-live="polite"></p>
+</body>
+</html>
