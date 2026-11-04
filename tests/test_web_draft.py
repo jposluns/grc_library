@@ -3512,6 +3512,23 @@ class DraftSiteRenderTests(unittest.TestCase):
         "Interrelationship": 247.7,
     }
 
+    def _assert_heading_pieces_measured(self, titles):
+        """Each run of more than 14 letters the document h1 of one of
+        ``titles`` renders, split at the soft hyphens _draft_breakable_title
+        inserts, is one of _MEASURED_TITLE_WORDS, and each of those renders.
+        A title word of 18 or more letters renders as its pieces, so they
+        are what must fit, and a longer piece is unmeasured too."""
+        pieces = {p for t in titles
+                  for part in unescape(
+                      self.mod._draft_breakable_title(t)).split("\u00ad")
+                  for p in re.findall(r"[^\W\d_]+", part)}
+        self.assertEqual(
+            {p for p in pieces if len(p) > 14},
+            set(self._MEASURED_TITLE_WORDS),
+            "an h1 piece of more than 14 letters not measured to fit the "
+            "288 px h1 box at 320 px; measure it in light and dark, then "
+            "list it")
+
     def test_document_heading_words_can_break_at_320px(self):
         """Item 3b788 round 2: "Telecommunications" (18 letters) ran 19 px
         past its 288 px h1 box at 320 px in the dark scheme and widened its
@@ -3535,13 +3552,8 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.mod._draft_breakable_title(
                 "Telecommunications & Trustworthiness"),
             "Telecommu&shy;nications &amp; Trustworthiness")
-        words = {w for d in self._full_taxonomy()
-                 for w in re.findall(r"[^\W\d_]+", d.get("title", ""))}
-        self.assertEqual(
-            {w for w in words if 15 <= len(w) <= 17},
-            set(self._MEASURED_TITLE_WORDS),
-            "a title word of 15 to 17 letters not measured to fit the 288 px "
-            "h1 box at 320 px; measure it in light and dark, then list it")
+        self._assert_heading_pieces_measured(
+            d.get("title", "") for d in self._full_taxonomy())
         for word, width in self._MEASURED_TITLE_WORDS.items():
             with self.subTest(word=word):
                 self.assertLessEqual(width + 12, 288)
@@ -3567,6 +3579,18 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn("draft/documents/compliance/telecommunications/"
                       "annex-telecommunications-sector-requirements/"
                       "index.html", hyphenated)
+
+    def test_heading_guard_measures_the_pieces_a_long_word_renders(self):
+        """Item 3b788: the guard above measures the pieces an h1 renders, not
+        whole title words. A synthetic 22-letter word breaks into
+        "Overstrengthsst" (15 letters, unmeasured) and "rengths"; a guard
+        over whole words of 15 to 17 letters never saw that piece."""
+        word = "Overstrengthsstrengths"
+        self.assertEqual(self.mod._draft_breakable_title(word),
+                         "Overstrengthsst&shy;rengths")
+        titles = [d.get("title", "") for d in self._full_taxonomy()]
+        with self.assertRaises(AssertionError):
+            self._assert_heading_pieces_measured(titles + [word])
 
     def test_decide_hub_kinds_branch_lists_the_six_indexes(self):
         hub = self.draft_html["draft/decide/index.html"]
