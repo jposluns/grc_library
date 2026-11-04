@@ -46,15 +46,14 @@ execute YAML metadata parsing. CR-only and mixed headers left the header tokens
 in the body; CRLF still recognized frontmatter. `jTe` rewrote U+FFFE/U+FFFF.
 The probe prints the binary SHA-256 and the result for each byte fixture.
 
-## Site-reading classes for the pre-push fast path
+## Gate 36 and the pre-push fast path
 
-[`site_reading_tests.py`](site_reading_tests.py) is a helper, not a test module,
-so gate 36 does not discover it. The pre-push guard's site-only fast path runs
-`python3 -B tests/site_reading_tests.py --list` to find the gate 36 classes that
-read `.web/`, `.baseline/` or the root `CHANGELOG.md`, `README.md` or
-`NOTICE.md`, and runs exactly those classes with `--run`. Its docstring gives the
-detection rules and the reads it does not see. `SiteReadingDetectorTests` tests
-the detector and checks that `--list` selects every class it flags.
+The pre-push guard's site-only fast path (see
+[`tools/README.md`](../tools/README.md)) runs `tests/test_web_draft.py` but no
+other part of gate 36; CI runs gate 36 whole on every pull request before merge.
+A change to `.web/build.py` or a `.py` file under `.baseline/` is not site-only,
+so the full guard runs gate 36 for it. `PrePushGuardFastPathTests` in
+`test_linters.py` pins both.
 
 ## Running
 

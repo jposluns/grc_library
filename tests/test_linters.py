@@ -18667,41 +18667,24 @@ class PrePushGuardTests(unittest.TestCase):
 class PrePushGuardFastPathTests(unittest.TestCase):
     """tools/pre-push-guard.sh site-only fast path (maintainer directive 2026-11-04).
 
-    A committed fixture repository holds the real guard beside stub runners, a
-    stub for every tools/*.py the guard or a runner gate line names, the web
-    generator, the web draft tests, the palette gate and
-    tests/site_reading_tests.py; each stub appends the path it was run as (the
-    site-reading stub, its whole command line) to ran.log. The stub
-    tools/run_all_audits.sh exits before the real runner's run_gate lines,
-    which follow it for the guard to read. The base is the local branch "base"
-    (BASE_REF=base), the change is one later commit, and the tracked tree is
-    clean, so the guard's own changed-set selection decides the path. Any
-    doubt must take the full guard.
+    A committed fixture repository holds the real guard beside stub runners and
+    a stub for every tools/*.py the guard or a runner gate line names, the web
+    generator, the web draft tests and the palette gate; each stub appends the
+    command line it was run with to ran.log. The stub tools/run_all_audits.sh
+    exits before the real runner's run_gate lines, which follow it for the
+    guard to read. The base is the local branch "base" (BASE_REF=base), the
+    change is one later commit, and the tracked tree is clean, so the guard's
+    own changed-set selection decides the path. Any doubt must take the full
+    guard.
     """
 
-    # Each stub logs its own path; a fail-<basename> file makes it print a finding and exit 3.
-    STUB = ("import os\nimport sys\nwith open('ran.log', 'a') as f:\n    f.write(sys.argv[0] + '\\n')\n"
+    # Each stub logs its command line; a fail-<basename> file makes it print a finding and exit 3.
+    STUB = ("import os\nimport sys\nwith open('ran.log', 'a') as f:\n"
+            "    f.write(' '.join(sys.argv) + '\\n')\n"
             "name = os.path.basename(sys.argv[0])\n"
             "if os.path.exists('fail-' + name):\n"
             "    print('stub finding in ' + name)\n"
             "    sys.exit(3)\n")
-    # --list prints the site-list file when there is one (else SITE_ID) and exits
-    # 3 when fail-site-list exists; --run behaves as STUB does.
-    SITE_STUB = ("import os\nimport sys\nwith open('ran.log', 'a') as f:\n"
-                 "    f.write(' '.join(sys.argv) + '\\n')\n"
-                 "if sys.argv[1:] == ['--list']:\n"
-                 "    if os.path.exists('fail-site-list'):\n"
-                 "        sys.exit(3)\n"
-                 "    if os.path.exists('site-list'):\n"
-                 "        with open('site-list') as f:\n"
-                 "            print(f.read(), end='')\n"
-                 "    else:\n"
-                 "        print('tests.test_linters.FixtureSiteTests')\n"
-                 "    sys.exit(0)\n"
-                 "if os.path.exists('fail-site_reading_tests.py'):\n"
-                 "    print('stub finding in site_reading_tests.py')\n"
-                 "    sys.exit(3)\n")
-    SITE_ID = "tests.test_linters.FixtureSiteTests"
     RUN_GATE_RE = re.compile(r'^run_gate\s+"([^"]+)"\s+python3\s+(.+?)\s*$', re.M)
     REGRESSION_SCRIPT = "tools/run-linter-regression.py"
 
@@ -18728,7 +18711,6 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             dest = self.root / rel
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_text(self.STUB, encoding="utf-8")
-        (self.root / "tests" / "site_reading_tests.py").write_text(self.SITE_STUB, encoding="utf-8")
         for rel, body in {
             ".web/templates-draft/landing.html": "<p>Welcome to the library</p>\n",
             ".web/baseline/palettes.css": ":root {}\n",
@@ -18806,8 +18788,6 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIn("the full suite still runs in CI before merge", result.stdout)
         self.assertIn("Changed paths (3): .web/templates-draft/landing.html CHANGELOG.md "
                       "README.md", result.stdout)
-        self.assertIn(f"gate 36 classes that read a site-only path (1): {self.SITE_ID}",
-                      result.stdout)
         self.assertIn("PASS (FAST PATH", result.stdout)
         self.assertNotIn("tools/run_all_audits.sh", ran)
         self.assertNotIn(self.REGRESSION_SCRIPT, ran)
@@ -18821,23 +18801,75 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(len(expected), len(scripts) - 1)
         self.assertEqual([entry for entry in ran if entry in set(expected)], expected)
         self.assertIn(f"{len(expected)} runner gates passed in ", result.stdout)
-        # The listed classes are the ones run.
-        self.assertIn("--list", ran)
-        run_at = ran.index("--run")
-        self.assertEqual(ran[run_at + 1:run_at + 2], [self.SITE_ID])
 
-    def test_every_listed_class_is_passed_to_the_run(self):
+    def test_templates_draft_change_takes_fast_path(self):
+        # The fast path runs no part of gate 36 itself, so it needs no helper
+        # beside the fixture's stubs.
         self.change(".web/templates-draft/landing.html")
-        ids = [self.SITE_ID, "tests.test_regression_gate.FixtureSecondTests"]
-        (self.root / "site-list").write_text("\n".join(ids) + "\n", encoding="utf-8")
         result, ran = self.run_guard()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("gate 36 classes that read a site-only path (2): " + " ".join(ids),
-                      result.stdout)
-        # The run takes exactly the listed ids; the next logged entry is the advisory.
-        run_at = ran.index("--run")
-        self.assertEqual(ran[run_at + 1:run_at + len(ids) + 2],
-                         ids + ["tools/build-reference-manifest.py"])
+        self.assertIn("Changed paths (1): .web/templates-draft/landing.html", result.stdout)
+        self.assertIn("gate 36), which is left to CI", result.stdout)
+        self.assertIn("PASS (FAST PATH", result.stdout)
+        self.assertNotIn("tools/run_all_audits.sh", ran)
+        self.assertNotIn(self.REGRESSION_SCRIPT, ran)
+
+    def test_build_py_change_takes_full_guard(self):
+        self.change(".web/build.py")
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran, ".web/build.py is not a site-only path")
+
+    def test_baseline_python_change_takes_full_guard(self):
+        (self.root / ".baseline" / "x.py").write_text("# Baseline helper\n", encoding="utf-8")
+        self.commit("Baseline script")
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran, ".baseline/x.py is not a site-only path")
+
+    def test_fast_path_gates_are_runner_gates_minus_regression_suite(self):
+        # The gates the fast path runs, by name and command line in order, are
+        # the real runner's gate lines with exactly gate 36 taken out.
+        gates = [(name, " ".join(cmd.split()))
+                 for name, cmd in self.RUN_GATE_RE.findall(self.gate_lines)]
+        regression = [gate for gate in gates if gate[1] == self.REGRESSION_SCRIPT]
+        self.assertEqual(regression, [("Linter regression test suite", self.REGRESSION_SCRIPT)])
+        expected = [gate for gate in gates if gate not in regression]
+        self.assertEqual(len(expected), len(gates) - 1)
+        self.change(".web/templates-draft/landing.html")
+        result, _ = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        labels = re.findall(r"^pre-push guard fast path gate: (.+?) +\.\.\. ", result.stdout, re.M)
+        self.assertEqual(labels, [name for name, _ in expected])
+        commands = set(cmd for _, cmd in gates)
+        lines = (self.root / "ran.log").read_text(encoding="utf-8").splitlines()
+        self.assertEqual([line for line in lines if line in commands],
+                         [cmd for _, cmd in expected])
+
+    def test_ci_path_skips_nothing(self):
+        # The skip lives in the guard alone: the real runner and the CI workflows
+        # carry no skip option, the runner and quality.yml each run gate 36, and
+        # the guard calls the runner bare on the full path.
+        runner = (REPO_ROOT / "tools" / "run_all_audits.sh").read_text(encoding="utf-8")
+        quality = (REPO_ROOT / ".github" / "workflows" / "quality.yml").read_text(encoding="utf-8")
+        nightly = (REPO_ROOT / ".github" / "workflows" / "nightly-sweep.yml").read_text(
+            encoding="utf-8")
+        guard = (REPO_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        self.assertEqual(len(re.findall(r'^run_gate\s+"Linter regression test suite"\s+'
+                                        r"python3\s+tools/run-linter-regression\.py\s*$",
+                                        runner, re.M)), 1)
+        self.assertEqual(len(re.findall(r"^\s+run: python3 tools/run-linter-regression\.py\s*$",
+                                        quality, re.M)), 1)
+        self.assertIn("run: tools/run_all_audits.sh", nightly)
+        for label, text in (("tools/run_all_audits.sh", runner), ("quality.yml", quality),
+                            ("nightly-sweep.yml", nightly)):
+            with self.subTest(label):
+                self.assertNotRegex(text, r"PRE_PUSH|pre-push-guard|SKIP")
+        call = r"""^[ \t]*(?:[A-Za-z_]\w*=[^\s"']*[ \t]+)*tools/run_all_audits\.sh\b.*$"""
+        self.assertEqual(re.findall(call, guard, re.M), ["    tools/run_all_audits.sh"])
+        # The full path runs the runner whole.
+        self.change(".web/templates-draft/landing.html", "ai/policy-fixture.md")
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran, "ai/policy-fixture.md is not a site-only path")
+        self.assertNotIn("fast path gate:", result.stdout)
 
     def test_corpus_document_takes_full_guard(self):
         self.change(".web/templates-draft/landing.html", "ai/policy-fixture.md")
@@ -19014,19 +19046,6 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIn("tools/lint-fixture-new.py", ran)
         self.assertIn("PASS (FAST PATH", result.stdout)
 
-    def test_site_list_failure_takes_full_guard(self):
-        self.change(".web/templates-draft/landing.html")
-        (self.root / "fail-site-list").touch()
-        result, ran = self.run_guard()
-        self.assert_full_guard(result, ran, "tests/site_reading_tests.py --list failed")
-
-    def test_site_list_garbage_takes_full_guard(self):
-        self.change(".web/templates-draft/landing.html")
-        (self.root / "site-list").write_text(self.SITE_ID + "\n-k everything\n", encoding="utf-8")
-        result, ran = self.run_guard()
-        self.assert_full_guard(result, ran, "tests/site_reading_tests.py --list printed "
-                               "-k\\ everything, not a test class id")
-
     def test_fast_path_failure_propagates_exit_code(self):
         self.change(".web/templates-draft/landing.html")
         (self.root / "fail-runner").touch()
@@ -19043,146 +19062,6 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIn("stub finding in lint-links.py", result.stdout)
         self.assertIn("FAILED at Repository-internal link audit (rc=3)", result.stdout)
         self.assertNotIn(".web/build.py", ran)
-
-    def test_site_reading_test_failure_propagates(self):
-        self.change(".web/templates-draft/landing.html")
-        (self.root / "fail-site_reading_tests.py").touch()
-        result, ran = self.run_guard()
-        self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
-        self.assertIn("stub finding in site_reading_tests.py", result.stdout)
-        self.assertIn("FAILED at Linter regression suite (gate 36), 1 site-reading classes",
-                      result.stdout)
-        self.assertNotIn("PASS (FAST PATH", result.stdout)
-
-
-class SiteReadingDetectorTests(unittest.TestCase):
-    """tests/site_reading_tests.py: the detector that picks the gate 36 classes the
-    pre-push guard's fast path runs (any quoting or Path form of a root join)."""
-
-    PRELUDE = ("import os\nimport unittest\nfrom pathlib import Path\n"
-               "REPO_ROOT = Path(__file__).resolve().parent.parent\n"
-               "def read_repo(rel):\n    return (REPO_ROOT / rel).read_text()\n")
-
-    @classmethod
-    def setUpClass(cls):
-        from tests import site_reading_tests
-        cls.detector = site_reading_tests
-
-    def selected(self, body, prelude="", members=""):
-        import textwrap
-
-        source = (self.PRELUDE + prelude + "class ProbeTests(unittest.TestCase):\n"
-                  + textwrap.indent(members, "    ")
-                  + "    def test_probe(self):\n" + textwrap.indent(body, " " * 8) + "\n")
-        return self.detector.selected_classes(source)[1]
-
-    def test_root_joins_in_every_form_are_selected(self):
-        cases = {
-            "single-quoted": "(REPO_ROOT / '.web' / variant / 'pack.html').read_text()",
-            "double-quoted": '(REPO_ROOT / ".web" / "build.py").read_text()',
-            "Path-joined": 'Path(REPO_ROOT, ".baseline", "pin.toml").read_text()',
-            "joinpath": "REPO_ROOT.joinpath('CHANGELOG.md').read_text()",
-            "os.path.join": 'open(os.path.join(REPO_ROOT, "README.md")).read()',
-            "f-string": "open(f'{REPO_ROOT}/NOTICE.md').read()",
-            "concatenation": 'open(str(REPO_ROOT) + "/.baseline/pin.toml").read()',
-            "percent": "open('%s/.web/x.html' % REPO_ROOT).read()",
-            "format": 'open("{}/README.md".format(REPO_ROOT)).read()',
-            "joined string": '(REPO_ROOT / ".web/templates/landing.html").read_text()',
-            "dot component": '(REPO_ROOT / "./NOTICE.md").read_text()',
-            "climb back in": '(REPO_ROOT / ".." / REPO_ROOT.name / "README.md").read_text()',
-            "variable below a site directory": '(REPO_ROOT / ".baseline" / name).read_text()',
-            "parents index": "(Path(__file__).resolve().parents[1] / '.web' / 'x').read_text()",
-            "parent twice": '(Path(__file__).resolve().parent.parent / "CHANGELOG.md").read_text()',
-            "dirname twice": ("open(os.path.join(os.path.dirname(os.path.dirname("
-                              "os.path.abspath(__file__))), '.web', 'x')).read()"),
-            "attribute root": '(mod.REPO_ROOT / "CHANGELOG.md").read_text()',
-            "local alias": "root = REPO_ROOT\n(root / '.web' / 'x').read_text()",
-            "web module load": 'load_linter_module(".web/build.py", "probe_build")',
-            "linter on a root file": 'run_linter("tools/lint-language.py", "README.md")',
-            "path sink": 'read_repo(".web/templates/landing.html")',
-        }
-        for label, body in cases.items():
-            with self.subTest(label):
-                self.assertEqual(self.selected(body), ["ProbeTests"], body)
-
-    def test_aliases_and_attributes_are_followed(self):
-        self.assertEqual(self.selected("(ROOT / 'README.md').read_text()",
-                                       prelude="ROOT = REPO_ROOT\n"), ["ProbeTests"])
-        self.assertEqual(self.selected("(self.repo / '.web' / 'x').read_text()",
-                                       members="def setUp(self):\n    self.repo = REPO_ROOT\n"),
-                         ["ProbeTests"])
-        self.assertEqual(self.selected("(REPO_ROOT / self.LANDING).read_text()",
-                                       members="LANDING = '.web/templates/landing.html'\n"),
-                         ["ProbeTests"])
-
-    def test_other_paths_are_not_selected(self):
-        cases = {
-            "fixture root": "root = Path(self.tmp) / 'repo'\n(root / '.web' / 'x').write_text('')",
-            "tools README": '(REPO_ROOT / "tools" / "README.md").read_text()',
-            "tests README": "(REPO_ROOT / 'tests/README.md').read_text()",
-            "mention only": "text = '.web/templates/landing.html'",
-            "variable below a corpus directory": '(REPO_ROOT / "tools" / name).read_text()',
-            "path sink, corpus path": 'read_repo("tools/lint-links.py")',
-            "linter on a fixture": 'run_linter("tools/lint-language.py", fixture)',
-        }
-        for label, body in cases.items():
-            with self.subTest(label):
-                self.assertEqual(self.selected(body), [], body)
-        self.assertEqual(self.selected("(REPO_ROOT / self.DOC).read_text()",
-                                       members="DOC = 'ai/policy.md'\n"), [])
-
-    def test_helpers_and_base_classes_carry_the_read(self):
-        source = (self.PRELUDE
-                  + "def landing():\n    return (REPO_ROOT / '.web' / 'x').read_text()\n"
-                  + "class Helper:\n    def read(self):\n        return landing()\n"
-                  + "class UsesHelperTests(unittest.TestCase):\n"
-                  + "    def test_a(self):\n        Helper().read()\n"
-                  + "class BaseTests(unittest.TestCase):\n"
-                  + "    def setUp(self):\n        self.text = (REPO_ROOT / 'CHANGELOG.md').read_text()\n"
-                  + "class ChildTests(BaseTests):\n    def test_b(self):\n        pass\n"
-                  + "class UnrelatedTests(unittest.TestCase):\n"
-                  + "    def test_c(self):\n        pass\n")
-        flagged, test_cases = self.detector.selected_classes(source)
-        self.assertEqual(flagged, ["BaseTests", "ChildTests", "Helper", "UsesHelperTests"])
-        self.assertEqual(test_cases, ["BaseTests", "ChildTests", "UsesHelperTests"])
-
-    def test_unparseable_module_is_refused(self):
-        with self.assertRaises(SyntaxError):
-            self.detector.selected_classes("class Broken(:\n")
-
-    def test_every_flagged_class_in_the_suite_is_selected(self):
-        # The guard runs exactly what --list prints (PrePushGuardFastPathTests pins
-        # that), so --list must name every class the detector flags that unittest
-        # loads as a TestCase, including the classes round 1 of the review found
-        # reading .web/ with single quotes and the live CHANGELOG.md.
-        import importlib
-
-        result = subprocess.run(
-            [sys.executable, "-B", str(REPO_ROOT / "tests" / "site_reading_tests.py"), "--list"],
-            cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=600)
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        listed = result.stdout.split()
-        for name in ("AIQTCutoverTests", "BookkeepingParityTests",
-                     "ChangelogMirrorHeaderParityTests"):
-            self.assertIn(f"tests.test_linters.{name}", listed)
-        this = sys.modules[type(self).__module__]
-        expected = []
-        for path in sorted((REPO_ROOT / "tests").glob("test_*.py")):
-            if path.stem in self.detector.RUN_WHOLE:
-                continue
-            flagged, _ = self.detector.selected_classes(path.read_text(encoding="utf-8"), str(path))
-            if Path(this.__file__).resolve() == path.resolve():
-                module = this
-            else:
-                module = importlib.import_module(f"tests.{path.stem}")
-            for name in flagged:
-                cls = getattr(module, name, None)
-                if isinstance(cls, type) and issubclass(cls, unittest.TestCase):
-                    expected.append(f"tests.{path.stem}.{name}")
-        self.assertTrue(expected, "the detector flags no class in the suite")
-        self.assertEqual(listed, expected,
-                         "tests/site_reading_tests.py --list must select every flagged "
-                         "TestCase class, and only those")
 
 
 class ExternalOverlayLicenseTests(LinterTestCase):
@@ -40956,7 +40835,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F c5cd825c2e84066c1c6d84d1cad0e4e525ba76d6cdcc4dae5775f990a7fc5043
+        README.md DATA F b07fdc6724b023f65af1739904d9344f38af87fd5b76b11358010b32f6bfa744
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
@@ -41149,7 +41028,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
-        pre-push-guard.sh FIXED F 2e9450b3fe11fccd0a32e11ee37f9000dfdba840260930a9bfb6380d8dd01aba
+        pre-push-guard.sh FIXED F 8d74cc78db20ac7b9ff53126a0bd5bcdcadbfe0425c5f5bb48a849ba05f457df
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088

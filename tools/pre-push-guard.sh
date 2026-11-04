@@ -54,22 +54,24 @@
 #   (each could hide a change from a diff; the diff options above override them
 #   as well) or cannot be read; when git cannot read the merge base or finds
 #   more than one; when the diff fails, is empty, or holds a record it cannot
-#   parse; when tools/run_all_audits.sh cannot be read, a run_gate line in it
-#   cannot be parsed, or its linter regression suite gate is not there exactly
-#   once by name and command; and when tests/site_reading_tests.py --list fails
-#   or prints anything but test class ids.
+#   parse; and when tools/run_all_audits.sh cannot be read, a run_gate line in
+#   it cannot be parsed, or its linter regression suite gate is not there
+#   exactly once by name and command.
 #
-#   Site-only paths: anything under .web/ (the templates, the generator
-#   .web/build.py and the vendored .web/baseline/ files), anything under
-#   .baseline/, tests/test_web_draft.py, and the per-PR close-out surfaces
-#   CHANGELOG.md, README.md and NOTICE.md at the repository root. README.md and
-#   NOTICE.md belong: a site PR bumps the README library version (60d550d58),
-#   and a baseline or licence change updates NOTICE.md; 65669d0c6 and 8fee33861
-#   each change only .web/, .baseline/, tests/test_web_draft.py, CHANGELOG.md,
-#   README.md and NOTICE.md. Both files are corpus-adjacent, so every gate that
-#   scans them still runs. Any other path (a corpus document, tools/, any other
-#   test, .claude/, .corpus-management/, .github/, a generated registry) means
-#   the full guard.
+#   Site-only paths: anything under .web/ (the templates and the vendored
+#   .web/baseline/ files) except the generator .web/build.py, anything under
+#   .baseline/ except a .py file, tests/test_web_draft.py, and the per-PR
+#   close-out surfaces CHANGELOG.md, README.md and NOTICE.md at the repository
+#   root. README.md and NOTICE.md belong: a site PR bumps the README library
+#   version (60d550d58), and a baseline or licence change updates NOTICE.md;
+#   65669d0c6 and 8fee33861 each change only .web/, .baseline/,
+#   tests/test_web_draft.py, CHANGELOG.md, README.md and NOTICE.md. Both files
+#   are corpus-adjacent, so every gate that scans them still runs. .web/build.py
+#   and the .baseline/ scripts are tooling that the linter regression suite
+#   tests, and the fast path does not run that suite, so a change to one takes
+#   the full guard (maintainer decision 2026-11-04 13:02Z, scope B). Any other
+#   path (a corpus document, tools/, any other test, .claude/,
+#   .corpus-management/, .github/, a generated registry) means the full guard.
 #
 #   The fast path runs, stopping on the first failure:
 #     1. tools/run-pr-time-checks.sh (unchanged; every delta gate, D3 included).
@@ -82,31 +84,28 @@
 #        the first failing gate. The step ends with its elapsed time.
 #     3. The palette gate .baseline/check_palette.py, run as .web/build.py runs it.
 #     4. .web/build.py --check and python3 -B tests/test_web_draft.py.
-#     5. The gate 36 test classes that read a site-only path:
-#        tests/site_reading_tests.py lists them during selection, with a
-#        detector that reads each test module's syntax tree, so quote style
-#        does not matter (its docstring gives the rules), and runs exactly the
-#        listed classes with --run; output as for step 2.
-#   It prints one FAST PATH line naming the changed paths, a line naming the
-#   step 5 classes, then the reference manifest advisory, then a PASS line with
-#   the elapsed time.
+#   It prints one FAST PATH line naming the changed paths, then the reference
+#   manifest advisory, then a PASS line with the elapsed time.
 #
-#   Skipped locally: from gate 36, every test outside the step 5 classes (the
-#   rest of tests/test_linters.py and of the other tests/test_*.py modules) and
-#   the completeness checks tools/run-linter-regression.py makes; and the full
-#   guard's own run_all_audits.sh summary. Each is still covered before merge:
-#   .github/workflows/quality.yml runs the full gate set, gate 36 whole
-#   included, on every pull request (kept in lock-step with run_all_audits.sh
-#   by the gate-parity gate), and tools/merge-when-green.py merges only on
-#   green CI. This change alters neither.
+#   The skip lives here alone (maintainer decision 2026-11-04 13:02Z, design
+#   B): the guard lists the runner's gates itself and runs each but gate 36, so
+#   tools/run_all_audits.sh takes no skip option or variable, and neither it
+#   nor .github/workflows/quality.yml, which runs each gate, gate 36 included,
+#   as its own step, is changed or can be told to skip a gate.
 #
-#   Residual (what is lost): local detection, before the push, of a failure in a
-#   gate 36 test outside step 5; that failure now first shows in CI. A
-#   site-only change can cause one when a test reads an admitted path in a way
-#   the detector does not see (tests/site_reading_tests.py lists those: a
-#   subprocess given a relative path with its working directory at the root, a
-#   linter run at its default root, a root reached through a function call), or
-#   depends on a site file only through what another tool prints.
+#   Skipped locally, disclosed as left to CI: gate 36 apart from
+#   tests/test_web_draft.py (the rest of tests/test_linters.py and of the other
+#   tests/test_*.py modules, and the completeness checks
+#   tools/run-linter-regression.py makes), and the full guard's own
+#   run_all_audits.sh summary. .github/workflows/quality.yml runs the full gate
+#   set, gate 36 whole included, on every pull request (kept in lock-step with
+#   run_all_audits.sh by the gate-parity gate), and tools/merge-when-green.py
+#   merges only on green CI. This change alters neither.
+#
+#   Residual (what is lost): local detection, before the push, of a failure in
+#   a gate 36 test that a site-only change causes (a test that reads a template,
+#   a vendored .web/baseline/ file, .baseline/pin.toml or a root close-out
+#   file); that failure now first shows in CI.
 #
 # Scope boundary: this guard gates PUSHES (the two post-commit / pre-push
 # runners plus the conditional `.web/build.py --check`). The commit-time
@@ -227,7 +226,6 @@ fast_path=0
 full_reason=""
 changed_paths=()
 fast_gates=()
-site_tests=()
 
 # True when a changed path is site-only (see the header), matched literally.
 # The allowed characters are listed one by one, not as ranges, so the match
@@ -240,17 +238,21 @@ site_only_path() {
     case "/${path}/" in
         *//* | */./* | */../*) return 1 ;;
     esac
+    # Tooling the linter regression suite tests; * here also matches "/".
+    case "${path}" in
+        .web/build.py | .baseline/*.py) return 1 ;;
+    esac
     case "${path}" in
         .web/?* | .baseline/?* | tests/test_web_draft.py | CHANGELOG.md | README.md | NOTICE.md) return 0 ;;
     esac
     return 1
 }
 
-# Sets fast_path to 1 when the push qualifies, filling changed_paths, fast_gates
-# and site_tests; otherwise returns with the reason in full_reason.
+# Sets fast_path to 1 when the push qualifies, filling changed_paths and
+# fast_gates; otherwise returns with the reason in full_reason.
 select_fast_path() {
     local hiding rc merge_base record_re header path shown ended=0 line name
-    local call_re gate_re key found=0 listing id_re
+    local call_re gate_re key found=0
     local -a words gates=()
     if [ -n "${HEAD_REF:-}" ] && [ "${HEAD_REF}" != "HEAD" ]; then
         full_reason="HEAD_REF is ${HEAD_REF}, not HEAD, so the changed set would not describe the tree the gates read"
@@ -362,21 +364,6 @@ select_fast_path() {
         full_reason="tools/run_all_audits.sh has no gate besides the linter regression suite"
         return
     fi
-
-    # The gate 36 classes that read a site-only path (step 5).
-    if ! listing="$(python3 -B tests/site_reading_tests.py --list)"; then
-        full_reason="tests/site_reading_tests.py --list failed, so the gate 36 classes that read a site-only path cannot be listed"
-        return
-    fi
-    id_re='^tests\.test_[A-Za-z0-9_]+\.[A-Za-z_][A-Za-z0-9_]*$'
-    while IFS= read -r line; do
-        if ! [[ "${line}" =~ ${id_re} ]]; then
-            printf -v shown '%q' "${line}"
-            full_reason="tests/site_reading_tests.py --list printed ${shown}, not a test class id"
-            return
-        fi
-        site_tests+=("${line}")
-    done <<< "${listing}"
     fast_gates=("${gates[@]}")
     fast_path=1
 }
@@ -419,8 +406,7 @@ fast_gate() {
 }
 
 if [ "${fast_path}" -eq 1 ]; then
-    echo "=== pre-push guard FAST PATH: every changed path is site-only, so tools/run_all_audits.sh runs here without the linter regression suite (gate 36), which runs only its site-reading classes; the full suite still runs in CI before merge. Changed paths (${#changed_paths[@]}): ${changed_paths[*]} ==="
-    echo "pre-push guard fast path: gate 36 classes that read a site-only path (${#site_tests[@]}): ${site_tests[*]}"
+    echo "=== pre-push guard FAST PATH: every changed path is site-only, so tools/run_all_audits.sh runs here without the linter regression suite (gate 36), which is left to CI; the full suite still runs in CI before merge. Changed paths (${#changed_paths[@]}): ${changed_paths[*]} ==="
     fast_step "run-pr-time-checks.sh (delta + history-aware gates)" tools/run-pr-time-checks.sh
     echo ""
     echo "=== pre-push guard fast path: ${#fast_gates[@]} tools/run_all_audits.sh gates (all but gate 36) ==="
@@ -434,8 +420,6 @@ if [ "${fast_path}" -eq 1 ]; then
         python3 -I .baseline/check_palette.py --site grclibrary --palettes .web/baseline/palettes.css
     fast_step ".web/build.py --check (web-generator health, from HEAD)" python3 .web/build.py --check
     fast_step "tests/test_web_draft.py (web draft tests)" python3 -B tests/test_web_draft.py
-    fast_gate "Linter regression suite (gate 36), ${#site_tests[@]} site-reading classes" \
-        python3 -B tests/site_reading_tests.py --run "${site_tests[@]}"
 else
     echo "pre-push-guard: running the full guard (${full_reason})."
 
