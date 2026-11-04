@@ -16871,14 +16871,18 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         import json
         import tempfile
         from datetime import datetime, timedelta, timezone
+        from zoneinfo import ZoneInfo
         if not (REPO_ROOT.parent / "grc_library_private").is_dir():
             self.skipTest("maintainer-scoped hook: no grc_library_private sibling (adopter env)")
         hook = str(REPO_ROOT / '.claude' / 'hooks' / 'block-unstamped-turn-end.py')
         # Use CURRENT values: the accuracy check requires the stamp near now and the duration near
         # the transcript-computed session length. Session start = now - 1h, so duration == "1h 0m".
+        # The stamp is Toronto local time (2026-11-04); the UTC form must now block.
         now = datetime.now(timezone.utc)
         start = now - timedelta(hours=1)
-        cur_stamp = "[" + now.strftime("%Y-%m-%d %H:%M") + "Z]"
+        local = now.astimezone(ZoneInfo("America/Toronto"))
+        cur_stamp = "[" + local.strftime("%Y-%m-%d %H:%M") + " " + local.tzname() + "]"
+        utc_stamp = "[" + now.strftime("%Y-%m-%d %H:%M") + "Z]"
         def _tx(text):
             fd, p = tempfile.mkstemp(suffix='.jsonl'); os.close(fd)
             with open(p, 'w', encoding='utf-8') as fh:
@@ -16898,8 +16902,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             def _run(payload):
                 return subprocess.run([sys.executable, hook], input=json.dumps(payload),
                                       capture_output=True, text=True, env=env)
-            stale = _tx("[2020-01-01 00:00Z] old (session: 1h 0m)")
+            stale = _tx("[2020-01-01 00:00 EST] old (session: 1h 0m)")
             r_bad = _run({"transcript_path": bad})
+            r_utc = _run({"transcript_path": bad, "last_assistant_message": utc_stamp + " ok (session: 1h 0m)"})
             r_good = _run({"transcript_path": good})
             r_active = _run({"transcript_path": bad, "stop_hook_active": True})
             r_stale = _run({"transcript_path": stale})
@@ -16911,6 +16916,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             self.assertEqual(r_stale.returncode, 2, f"must BLOCK a stale stamp (accuracy): {r_stale.stderr}")
             self.assertEqual(r_lam_bad.returncode, 2, "must BLOCK via payload last_assistant_message")
             self.assertEqual(r_lam_good.returncode, 0, "must ALLOW via payload last_assistant_message over a bad transcript")
+            self.assertEqual(r_utc.returncode, 2, f"must BLOCK the retired UTC form: {r_utc.stderr}")
             os.unlink(stale)
         finally:
             os.unlink(bad); os.unlink(good)
@@ -72648,11 +72654,12 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         add = group("block-unstamped-turn-end", "re-send",
                     ("main", "BLOCKED (unstamped-turn-end)"))
         for name, message in (
-            ("missing", "done"), ("missing-duration", "[2026-09-22 12:00Z] done"),
+            ("missing", "done"), ("missing-duration", "[2026-09-22 08:00 EDT] done"),
             ("missing-stamp", "done (session: 0h 5m)"),
-            ("stale", "[2026-09-21 11:00Z] done (session: 0h 1m)"),
+            ("stale", "[2026-09-21 07:00 EDT] done (session: 0h 1m)"),
+            ("utc", "[2026-09-22 12:00Z] done (session: 0h 5m)"),
         ):
-            add(name, message, evidence=("[2026-09-22 12:00Z]", "(session: 0h 5m)"))
+            add(name, message, evidence=("[2026-09-22 08:00 EDT]", "(session: 0h 5m)"))
 
         add = group("block-verification-pipes", "run", ("main", "sys.stderr.write(", 8))
         add("pipe", "tools/run_all_audits.sh | tail -8", evidence=("(RM-10)",))
@@ -72990,7 +72997,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     payload.update(hook_event_name="Stop", stop_hook_active=False,
                                    last_assistant_message=arg)
                     m(mod, "maintainer_env", True)
-                    m(mod, "stamp_and_duration", ("[2026-09-22 12:00Z]", "(session: 0h 5m)"))
+                    m(mod, "stamp_and_duration", ("[2026-09-22 08:00 EDT]", "(session: 0h 5m)"))
                     current = m(mod, "values_current", False)
                 elif hook == "block-wrong-repo-tool":
                     bash(arg)

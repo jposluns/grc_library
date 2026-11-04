@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""UserPromptSubmit hook: every turn, inject the current UTC timestamp + session duration + a
-reminder of the maintainer standing rule into context, so the assistant always has FRESH values and
+"""UserPromptSubmit hook: every turn, inject the current Toronto local timestamp + session duration +
+a reminder of the maintainer standing rule into context, so the assistant always has FRESH values and
 is re-primed against convention-erosion.
 
-Maintainer-directed 2026-08-21: every message the assistant authors MUST begin with the current UTC
-timestamp and end with the session duration. This hook is the anti-forgetting half (supplies the
-exact values so the assistant need not guess); block-unstamped-turn-end.py is the enforcing half.
+Maintainer-directed 2026-08-21: every message the assistant authors MUST begin with the current
+timestamp and end with the session duration; since 2026-11-04 (maintainer and Architect) the stamp
+is Toronto local time with the zone abbreviation, from zoneinfo America/Toronto, and the earlier UTC
+form no longer conforms. This hook is the anti-forgetting half (supplies the exact values so the
+assistant need not guess); block-unstamped-turn-end.py is the enforcing half.
 
 MAINTAINER-SCOPED (no-op for adopters, who lack grc_library_private): the console-format rule is the
 maintainer's preference, not portable. FAIL-OPEN on any error: a prompt is never blocked or delayed.
@@ -119,7 +121,9 @@ def main() -> int:
         return 0
     if "--self-test" in sys.argv:
         _clock = _load_sibling("_session_clock")
-        ok = (_clock.conforms("[2026-08-21 02:31Z] x (session: 1h 0m)")
+        ok = (_clock.conforms("[2026-08-20 22:31 EDT] x (session: 1h 0m)")
+              and _clock.conforms("[2026-01-15 12:00 EST] x (session: 1h 0m)")
+              and not _clock.conforms("[2026-08-21 02:31Z] x (session: 1h 0m)")
               and not _clock.conforms("no stamp"))
         rc = _clock._self_test()
         print(f"{'inject-session-timestamp'} self-test: {'OK' if ok and rc==0 else 'FAIL'}")
@@ -140,10 +144,11 @@ def main() -> int:
         return 0
     have_dur = bool(dur)
     msg = (
-        "STANDING RULE (maintainer-directed 2026-08-21): BEGIN every message you author with the "
-        "current UTC timestamp and END it with the session duration. Use these values now: "
+        "STANDING RULE (maintainer-directed 2026-08-21, Toronto time since 2026-11-04): BEGIN every message "
+        "you author with the current Toronto local timestamp (America/Toronto, not UTC) and END it with the "
+        "session duration. Use these values now: "
         f"start with `{stamp}` , " + (f"end with `{dur}` ." if have_dur else "and end with `(session: Xh Ym)` (session start not yet determinable this turn).") +
-        " Format: `[YYYY-MM-DD HH:MMZ]` ... `(session: Xh Ym)`. This applies to every message, including short ones."
+        " Format: `[YYYY-MM-DD HH:MM EST]` (EDT in summer) ... `(session: Xh Ym)`. This applies to every message, including short ones."
     )
     try:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": msg}}))
