@@ -475,7 +475,7 @@ SECURITY_TXT = (
 
 
 # The /draft/* CSP, copied byte for byte from the shared policy in baseline
-# 1.6.1 SPECIFICATION.md section 9 (unchanged since 1.3.1; section 9 states
+# 1.7.0 SPECIFICATION.md section 9 (unchanged since 1.3.1; section 9 states
 # that the light and dark switch of 1.6.0 needs no CSP change): the same
 # policy on every family site for draft pages now and every page after
 # promotion. The 3
@@ -2749,7 +2749,7 @@ def render_search_index(variant):
 
 # ---------------------------------------------------------------------------
 # The /draft tree (PR 2b): the grclibrary.ai rebuild on the shared family site
-# template (baseline 1.6.1, pinned under .web/baseline/ by PR 2a). The tree is
+# template (baseline 1.7.0, pinned under .web/baseline/ by PR 2a). The tree is
 # VARIANT-SCOPED by Variant.draft_rules, renders from its own templates under
 # .web/templates-draft/, and is self-contained: every internal link and asset
 # is {{BASE}}-prefixed and the pinned baseline runtime files are copied to
@@ -3774,8 +3774,10 @@ _DRAFT_NARR_LINK_RE = re.compile(
 
 # ---------------------------------------------------------------------------
 # The /draft/crosswalk/ pages (design C section 3.7 Version A, upgraded to
-# 3.8 on baseline 1.6.1, whose matrix.js arrived in 1.5.0 and whose spec
-# 7.30 to 7.32 are unchanged since 1.5.1): one domain-by-instrument table,
+# 3.8; on baseline 1.7.0, whose matrix.js arrived in 1.5.0, spec 7.30 to 7.32
+# keep their 1.5.1 contract for a page without the opt-in column toggles,
+# column highlight and pinned-column cap that 1.7.0 adds, none of which these
+# pages use): one domain-by-instrument table,
 # one page per instrument, and static preset views, all re-parsed on every
 # build from the
 # two alignment matrices, the canonical citations register, and taxonomy.yml,
@@ -4464,7 +4466,7 @@ def load_baseline_assets(baseline_dir=None, pin_path=None):
     return assets
 
 
-# The palette gate (baseline 1.6.1 SPECIFICATION.md section 4 items 2 and 3):
+# The palette gate (baseline 1.7.0 SPECIFICATION.md section 4 items 2 and 3):
 # the package's tools/check_palette.py, copied to .baseline/check_palette.py
 # and pinned in .baseline/pin.toml beside the served copies, never served.
 # Every draft build runs it on the served palettes.css (the pin-verified
@@ -4876,9 +4878,11 @@ def draft_documents_values(full_docs):
     search.js facet groups (spec 7.29; maintainer 2026-11-03: All Documents
     carries the filters, and type is a filter of it, not a separate
     heading), each chip's count recounted from the rows it filters and each
-    chip a plain link to its facet address. The root specifications, which
-    have no on-site page, open on GitHub and stay out of the filtered
-    rows."""
+    chip a plain link to its facet address. From baseline 1.7.0 both groups
+    carry data-filter-empty="disable" in the template, so search.js marks a
+    chip that would show no rows unavailable; the served counts stay, as the
+    page's filter paragraph says. The root specifications, which have no
+    on-site page, open on GitHub and stay out of the filtered rows."""
     domain_docs = sorted(
         (d for d in full_docs if d.get("domain") != ROOT_DOMAIN),
         key=lambda d: (d.get("title", "").lower(), d["path"]),
@@ -4898,6 +4902,9 @@ def draft_documents_values(full_docs):
     type_names = {type_slug(d.get("type", "")): d.get("type", "")
                   for d in domain_docs}
     row_types = Counter(type_slug(d.get("type", "")) for d in domain_docs)
+    # Each group reads its own row tokens (data-type, data-area), so a type
+    # slug equal to an area slug matches only in its own group and needs no
+    # guard.
     type_chips = _draft_facet_chips(
         "type", row_types, lambda slug: type_names[slug], len(domain_docs))
     area_chips = _draft_facet_chips(
@@ -5147,13 +5154,17 @@ def draft_type_values(tp, docs_by_path, next_url, next_label, adopter_docs=()):
         # NOTE: Checklists and Roadmaps each list one document); rows that
         # all sit in one area leave the area chips nothing to narrow, so only
         # the text filter is named (integration note: Guides, Principles,
-        # SOPs and Specifications each sit in one area).
+        # SOPs and Specifications each sit in one area). From baseline 1.7.0
+        # an area chip holding none of the type's rows is unavailable there,
+        # which narrows nothing either, so the clause names only the area
+        # chips holding them (adoption round-2 NOTE).
         if len(in_index) == 1:
             narrow = ""
         elif len({d["domain"] for d in in_index}) == 1:
             narrow = ", and its text filter narrows them further"
         else:
-            narrow = ", and its area chips and text filter narrow them further"
+            narrow = (", and the area chips holding any of them, and its text "
+                      "filter, narrow them further")
         filter_section = (
             f'<p>With script, <a href="{{{{BASE}}}}/documents/?type='
             f'{_esc(_draft_facet_value(tp["slug"]))}">All Documents, filtered '
@@ -5379,7 +5390,7 @@ def draft_decide_values(figures, concerns):
         group_sections.append(
             f'<p class="lbl sec">Concerns, {len(members)}</p>\n'
             f'<h2 id="g-{group_slug}">{_esc(board_question)}</h2>\n'
-            '<div class="wide"><ul class="plan described">\n'
+            '<div class="wide"><ul class="plan described one">\n'
             + "\n".join(rows) + "\n</ul></div>"
         )
         rail_items.append(

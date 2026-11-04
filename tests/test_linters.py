@@ -62033,7 +62033,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.22.1", "3b614 rewords the core rules README to name the three managed directories and the CLAUDE.md block gate 99 owns (PATCH) on top of P-3.213, which adds the standards-currency engine's identity_counts, ratchet and count_summary functions and print_coverage's trailer parameter for the per-standard UNPINNED ratchet (MINOR) on top of 3b146, which has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of 3b662, which has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for 3b146; then 0.21.5 to 0.22.0 for P-3.213; then 0.22.0 to 0.22.1 for 3b614)")
+        self.assertEqual(man["pack"]["version"], "0.22.2", "gate 36 makes the language engine's -isation scan linear through a private helper, _isation_matches (PATCH) on top of 3b614, which rewords the core rules README to name the three managed directories and the CLAUDE.md block gate 99 owns (PATCH) on top of P-3.213, which adds the standards-currency engine's identity_counts, ratchet and count_summary functions and print_coverage's trailer parameter for the per-standard UNPINNED ratchet (MINOR) on top of 3b146, which has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of 3b662, which has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for 3b146; then 0.21.5 to 0.22.0 for P-3.213; then 0.22.0 to 0.22.1 for 3b614; then 0.22.1 to 0.22.2 for gate 36)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
@@ -68271,26 +68271,69 @@ class LanguageEngineProfileTests(unittest.TestCase):
         # U+212A (Kelvin sign) folds to "k". With the memoized scan the first input
         # takes well under a second; the shorter runs, one for every listed prefix,
         # took about 2 seconds each before and a few hundredths of a second after.
+        # Gate 36: a fixed CPU budget failed under host load (1.12 to 4.13 seconds
+        # against 1.0), and the -isation check was itself quadratic on these runs
+        # (_isation_matches). Each input is now timed against the same input at an
+        # eighth of its length, so host speed and load scale both runs alike: a
+        # linear scan takes about 8 times as long on the longer input, the quadratic
+        # -isation check about 17 times in total, the round 6 pattern far more. The
+        # best of three (shorter) and two (longer) runs keeps one slow run from
+        # deciding.
         import time
-        cases = [("mi\u017f" * 4000 + "x", [], 5.0),
-                 ("mi\u017f" * 4000 + "organised",
-                  [("ise", 1, "mi\u017f" * 4000 + "organised")], 5.0),
-                 (("mi\u017f" + "mult\u0130" + "d\u0131\u017f" + "\u212a") * 1000 + "x",
-                  [], 5.0)]
+        cases = [("mi\u017f", 4000, "x"), ("mi\u017f", 4000, "organised"),
+                 ("mi\u017f" + "mult\u0130" + "d\u0131\u017f" + "\u212a", 1000, "x")]
         for prefix in self.vocab.ise_prefixes:
             for tail in ("mi\u017f", "mult\u0130", "d\u0131\u017f", "\u017fub",
                          "cro\u017f\u017f-", "\u212a"):
-                cases.append(((prefix + tail) * (4000 // len(prefix + tail)) + "x",
-                              [], 1.0))
-        for text, expected, budget in cases:
-            for generator in (False, True):
+                cases.append((prefix + tail, 4000 // len(prefix + tail), "x"))
+
+        def best(text, generator, runs):
+            times = []
+            for _ in range(runs):
+                start = time.process_time()
+                found = self.scan(text, generator=generator)
+                times.append(time.process_time() - start)
+            return min(times), found
+
+        for generator in (False, True):
+            short_total = long_total = 0.0
+            for unit, count, end in cases:
+                text = unit * count + end
+                expected = [("ise", 1, text)] if end == "organised" else []
                 with self.subTest(text=ascii(text[:12]), length=len(text),
                                   generator=generator):
-                    start = time.process_time()
-                    found = self.scan(text, generator=generator)
-                    elapsed = time.process_time() - start
+                    short, _ = best(unit * (count // 8) + end, generator, 3)
+                    long, found = best(text, generator, 2)
+                    short_total += short
+                    long_total += long
                     self.assertEqual(found, expected)
-                    self.assertLess(elapsed, budget)
+                    self.assertLess(long, 32 * short)
+            with self.subTest(generator=generator):
+                self.assertLess(long_total, 12 * short_total)
+
+    def test_isation_matches_the_pattern(self):
+        # Gate 36: _isation_matches moves to the end of a letter run after a failed
+        # start; it must report exactly the matches ISATION_PATTERN.finditer reports,
+        # including case-folded characters inside and around the word. The helper is
+        # private (pack 0.22.2), so this test reaches it as an engine internal.
+        import random
+        pieces = ("isation", "ISATION", "is", "ation", "i\u017fation", "\u0131sation",
+                  "\u0130SATION", "s", "al", "ally", "l", "y", "organ", "improv",
+                  "mi\u017f", "\u017f", "\u212a", "\u0131", "\u0130", "\u00e9", "\u00ad",
+                  "-", " ", "_", "x", "1")
+        rng = random.Random(36)
+        matched = 0
+        for _ in range(20000):
+            text = "".join(rng.choice(pieces) for _ in range(rng.randint(1, 30)))
+            if rng.random() < 0.3:
+                text = text.upper() if rng.random() < 0.5 else text.swapcase()
+            expected = [(m.span(), m.groups())
+                        for m in self.engine.ISATION_PATTERN.finditer(text)]
+            matched += bool(expected)
+            self.assertEqual([(m.span(), m.groups())
+                              for m in self.engine._isation_matches(text)],
+                             expected, ascii(text))
+        self.assertGreater(matched, 5000)
 
     def test_prefix_scan_matches_the_pattern(self):
         # 3b234 round 6: ise_words runs the ise pattern as a memoized search; it

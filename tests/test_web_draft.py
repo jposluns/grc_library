@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The /draft tree (PR 2b): the grclibrary.ai rebuild on the shared family
-site template (baseline 1.6.1).
+site template (baseline 1.7.0).
 
 What is locked here, each test failing without its feature:
 
@@ -216,7 +216,9 @@ What is locked here, each test failing without its feature:
    type page links its type's facet address with a count true for its rows;
    and the disclosure's data-handling claim names every key search.js
    writes. Each check replays search.js 1.5.1 (unchanged at 1.6.0) on the
-   rendered rows.
+   rendered rows. No test replays 1.7.0's count(); the rows it shows in
+   each state were read as the same, and the pinned 1.7.0 search.js digest
+   (item 38) locks that file, so a changed search.js fails there.
 28. Site f1 round 2, each sentence replayed on the rendered pages: the All
    Documents filter paragraph says a chip's count is its documents in the
    whole list and the status line gives how many show, true in every
@@ -293,8 +295,9 @@ What is locked here, each test failing without its feature:
    disclosure page carries the owner's "Your browser" paragraph before the
    Security label, and every sentence on it about cookies or storage
    agrees with that paragraph and with scheme.js; and the pin, NOTICE.md
-   and the version comments name baseline 1.6.1, whose pinned files are
-   the 1.6.0 files byte for byte.
+   and the version comments name the pinned baseline version (then 1.6.1,
+   whose pinned files were the 1.6.0 files byte for byte; item 38 moves
+   them on).
 36. Batch 3 round 5: view pages say the AICPA TSC column is being populated
    on the same parsed status as the AICPA TSC instrument page, so they agree
    with the matrix sentence present and removed; and a one-row column with
@@ -318,6 +321,20 @@ What is locked here, each test failing without its feature:
    refused, so the build passes without the caveat; and the 404 page lead
    names each top bar link, in the bar's order, by its exact label, or,
    for a label listed in _404_LEAD_FORMS, by that fixed form only.
+39. Baseline 1.7.0 (CHANGELOG 1.7.0; spec sections 6.1, 7.24 and 7.29): the
+   pin names 1.7.0, and the 5 files 1.7.0 changes (baseline.css,
+   palettes.css, search.js, matrix.js and the palette gate) carry the
+   release's digests in the pin, in the repository and, for the served
+   ones, in the draft copy; the served palettes.css gives grclibrary the 13
+   matrix tokens in all 4 of its light and dark forms, and the build's
+   palette gate fails on a palette without them or with a heat step text
+   cannot be read on; the landing page's About line has exactly one
+   ordinary space after each dot span and none before it; and All Documents
+   has two facet groups again, type and area (?type=, ?area=), each opted
+   in to unavailable chips (data-filter-empty="disable") with the served
+   counts kept (no data-filter-count="live"), so the filter paragraph's
+   unavailable-chip sentence holds in every combined state, replayed on
+   the rendered rows.
 """
 
 from __future__ import annotations
@@ -336,7 +353,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# The draft CSP, copied from baseline 1.6.1 SPECIFICATION.md section 9
+# The draft CSP, copied from baseline 1.7.0 SPECIFICATION.md section 9
 # (unchanged since 1.3.1), the shared policy for draft pages; build.py must
 # carry it byte for byte.
 SPEC_SECTION_9_CSP = (
@@ -347,7 +364,7 @@ SPEC_SECTION_9_CSP = (
     " frame-ancestors 'none'"
 )
 
-# Baseline 1.6.1 SPECIFICATION.md section 7.33, in the full form every 1.6.1
+# Baseline 1.7.0 SPECIFICATION.md section 7.33, in the full form every 1.7.0
 # reference page carries: the light and dark switch, the last child of
 # header.mast after nav.nav, hidden until scheme.js shows it.
 SCHEME_SWITCH = (
@@ -370,31 +387,50 @@ SCHEME_SCRIPT_TAG = (
     '<script data-cfasync="false" src="/draft/assets/baseline/scheme.js">'
     "</script>"
 )
-# The baseline 1.6.0 SHA256SUMS digests of the files 1.6.0 adds to the copy
-# set or changes (CHANGELOG 1.6.0); every other pinned file is unchanged
-# from 1.5.1, and 1.6.1 changes no pinned file (CHANGELOG 1.6.1).
-RELEASE_1_6_0_DIGESTS = {
+# The baseline 1.7.0 SHA256SUMS digests of the files 1.7.0 changes
+# (CHANGELOG 1.7.0: baseline.css, palettes.css, search.js, matrix.js and
+# tools/check_palette.py), and of scheme.js, which 1.6.0 added and 1.7.0
+# leaves unchanged; every other pinned file is unchanged from 1.6.1.
+RELEASE_1_7_0_DIGESTS = {
     ".web/baseline/scheme.js":
         "39d035d986f53c987cbe92516b9a5fd499af5c7fcdda701ea896c63c45ef1634",
     ".web/baseline/baseline.css":
-        "654f9b349acf97860dae417e2bd3cc3de1fe51a2c7b1d7f88d0971efc83bceae",
+        "8a902e09bc770744e4f1a15066a0c5ef33095d829a5dc59486a502c567dac777",
     ".web/baseline/palettes.css":
-        "f1d77366c5bfdae3e7c35420f755cf6a7cbe2a0c8eca081e062635202769cb17",
+        "cf4bed49e0c3c16fcc8272acbf8263753e2f392db6dcdac96313540b0da220f2",
+    ".web/baseline/search.js":
+        "ff39a504d988c51510be466b2ad7e5eb2edf8299eead35b4070a20ac768359bb",
+    ".web/baseline/matrix.js":
+        "f8b2d53a4bd5ad25bae8974668c3e0b71f32298bc3b2f96913c2455a0739d87e",
     ".baseline/check_palette.py":
-        "d7a9994997ef721e8e7ba3809b18df3f0e9e3c803bd6fcddb3c8125171e21bfc",
+        "cae71e9a43e87c5687bc50dc75784e83b3a5b643a4e9a07298294b9d270971a4",
 }
-# Section 6.1: grclibrary's dark --bg in 1.6.0 (#1f1718 in 1.5.1).
+# Section 6.1: grclibrary's dark --bg in 1.6.0 (#1f1718 in 1.5.1), unchanged
+# in 1.7.0, which adds tokens and changes no existing value.
 RELEASED_DARK_BG = "#110814"
 _DARK_BLOCKS = (
     '.site-grclibrary:not([data-scheme="light"]) {',
     '[data-scheme="dark"].site-grclibrary {',
 )
+# The light forms: the bare site class (the first rule in the file that
+# opens with it) and the forced light scheme.
+_LIGHT_BLOCKS = (
+    '\n.site-grclibrary {',
+    '[data-scheme="light"].site-grclibrary {',
+)
+# Section 6.1 from 1.7.0: the 13 matrix tokens every site and scheme carries,
+# which the palette gate checks.
+MATRIX_TOKENS = (
+    ["row-tint", "row-hover"] + [f"heat-{i}" for i in range(5)]
+    + [f"grp-{i}" for i in range(1, 7)]
+)
 
 
-def _dark_token(css, token):
-    """The value of ``--<token>`` in each of grclibrary's 2 dark blocks."""
+def _dark_token(css, token, openers=_DARK_BLOCKS):
+    """The value of ``--<token>`` in each of grclibrary's 2 dark blocks (or
+    the named blocks), None where a block sets it other than once."""
     values = []
-    for opener in _DARK_BLOCKS:
+    for opener in openers:
         start = css.index(opener) + len(opener)
         block = css[start:css.index("}", start)]
         found = re.findall(r"--" + re.escape(token) + r":\s*([^;]+);", block)
@@ -410,6 +446,19 @@ def _doctor_dark_token(css, token, value, openers=_DARK_BLOCKS):
         end = css.index("}", start)
         block, count = re.subn(r"(--" + re.escape(token) + r":\s*)[^;]+;",
                                r"\g<1>" + value + ";", css[start:end])
+        assert count == 1, (opener, token)
+        css = css[:start] + block + css[end:]
+    return css
+
+
+def _drop_token(css, token, openers=_DARK_BLOCKS + _LIGHT_BLOCKS):
+    """``css`` with grclibrary's ``--<token>`` removed from the named
+    blocks (by default all 4 of its light and dark forms)."""
+    for opener in openers:
+        start = css.index(opener) + len(opener)
+        end = css.index("}", start)
+        block, count = re.subn(r"\n\s*--" + re.escape(token) + r":[^;]+;",
+                               "", css[start:end])
         assert count == 1, (opener, token)
         css = css[:start] + block + css[end:]
     return css
@@ -966,6 +1015,29 @@ class DraftSiteRenderTests(unittest.TestCase):
                          "the value paragraph keeps no licence link "
                          "(maintainer 2026-11-03 02:19Z)")
 
+    def test_about_line_has_one_space_after_each_dot_and_none_before(self):
+        """Spec 7.24 from 1.7.0 (required on every site): one ordinary space
+        after each dot span and none before it, so the line breaks only
+        after a dot and a dot never starts a line. Until 1.6.1 the links and
+        dots touched, so the line could not break and overflowed at 300 to
+        360 px. Each dot is read off the rendered landing page with what
+        touches it on either side."""
+        landing = self.draft_html["draft/index.html"]
+        about = re.search(r'<p class="about">(.*?)</p>', landing, re.S)
+        self.assertIsNotNone(about, "the About line (spec 7.24) is required")
+        dot = '<span class="dot" aria-hidden="true">&middot;</span>'
+        parts = about.group(1).split(dot)
+        self.assertEqual(len(parts), 4, "3 dots between the 4 links")
+        for before, after in zip(parts, parts[1:]):
+            with self.subTest(after=after[:40]):
+                self.assertTrue(before.endswith("</a>"),
+                                "no space or other text before the dot")
+                self.assertTrue(after.startswith(" <a "),
+                                "one ordinary space after the dot")
+                self.assertFalse(after.startswith("  "))
+        self.assertFalse(parts[0][:1].isspace())
+        self.assertTrue(parts[-1].endswith("</a>"))
+
     def test_only_the_landing_page_links_disclosure_and_licence(self):
         allowed = {
             "draft/index.html", "draft/disclosure/index.html",
@@ -1016,17 +1088,86 @@ class DraftSiteRenderTests(unittest.TestCase):
             "the carve-out list names the vendored AIQT corpus-tool subset "
             "NOTICE.md records under vendor/aiqt/")
 
+    # Entry 6's claim, sentence by sentence, as the one paragraph held it
+    # before the maintainer's 2026-11-04 split; the split moves sentence
+    # boundaries into separate paragraphs and changes no wording. Round-2
+    # NOTE: the search script sentence says its "never" covers only what
+    # the script writes.
+    _D6_CLAIM_SENTENCES = (
+        "This is a static site.",
+        "Its own scripts are same-origin files that make no network requests "
+        "and use no cookies.",
+        "The light and dark switch is the one script that uses browser "
+        "storage: when the reader presses the switch, it saves the chosen "
+        "scheme, the word light or dark, in the browser's local storage "
+        'under the key "scheme", so later pages open in that scheme.',
+        "It stores nothing else, and nothing until the switch is pressed.",
+        "The search form filters a list already on the page and does not "
+        "submit the query.",
+        "As the reader types, the search script writes the query into the "
+        "page address (?q=), and on All Documents it writes the type and "
+        "area the reader picks there too (?type=, ?area=), so the query and "
+        "those choices can appear in the browser history; the script itself "
+        "never writes the type or area of a chip marked unavailable, though "
+        "a chip's link opened in a new tab or window carries it, as any link "
+        "does.",
+        "When the reader chooses a crosswalk topic view, the matrix script "
+        "writes the view's short identifier (for example, privacy) into the "
+        "page address (?view=) the same way, and removes it from the address "
+        "when the reader chooses All.",
+        "This site's host, Cloudflare, receives that address, query, choices "
+        "and view included, when the reader reloads the page and with later "
+        "requests from the page to this site.",
+        "Scripts the page runs, including the Cloudflare Web Analytics "
+        "beacon, can read the page address.",
+    )
+
+    def _disclosure_claim_parts(self, page):
+        """Entry 6's claim paragraphs in order, whitespace collapsed: the
+        "Claim:" paragraph (lead dropped) and the unlabelled paragraphs that
+        follow it, up to the Limitation paragraph."""
+        block = re.search(
+            r'<h2 id="d-6">[^<]*</h2>\s*<p><strong>Claim:</strong>(.*?)'
+            r'<p><strong>Limitation:</strong>', page, re.S)
+        self.assertIsNotNone(block, "Entry 6 carries a claim, then a "
+                             "limitation")
+        body = "<p>" + block.group(1)
+        self.assertRegex(body, r"(?s)\A(?:<p>(?:(?!<p\b|</p>).)*</p>\s*)+\Z",
+                         "only plain paragraphs sit between the claim's lead "
+                         "and the limitation")
+        return [" ".join(p.split())
+                for p in re.findall(r"<p>(.*?)</p>", body, re.S)]
+
+    def test_disclosure_data_handling_claim_keeps_every_sentence(self):
+        """Maintainer 2026-11-04 03:07Z: Entry 6's claim was one paragraph of
+        about 1,270 characters, hard to read, so it is split into short
+        paragraphs by subject. The split adds, drops and rewords nothing: the
+        claim's paragraphs, read in order and split at sentence ends, are the
+        old claim's sentences, so each paragraph holds whole sentences, and
+        each old sentence appears on the rendered page exactly once."""
+        page = self.draft_html["draft/disclosure/index.html"]
+        parts = self._disclosure_claim_parts(page)
+        # Four paragraphs by subject, each opening on its own sentence.
+        self.assertEqual(len(parts), 4, "the claim is four paragraphs")
+        for part, first in zip(parts, [self._D6_CLAIM_SENTENCES[i]
+                                       for i in (0, 2, 4, 7)]):
+            self.assertTrue(part.startswith(first), first)
+        self.assertEqual(
+            [s for p in parts for s in re.split(r"(?<=\.)\s+(?=[A-Z])", p)],
+            list(self._D6_CLAIM_SENTENCES))
+        text = unescape(" ".join(re.sub(r"<[^>]+>", " ", page).split()))
+        for sentence in self._D6_CLAIM_SENTENCES:
+            self.assertEqual(text.count(sentence), 1, sentence)
+
     def test_disclosure_data_handling_claim_matches_the_scripts(self):
         """Round-1 NOTE (a published privacy statement): from baseline 1.5.0
         search.js writes the query into the page address (spec 7.29), so the
         Entry 6 claim says so, and each part of the claim is checked against
         the rendered pages and the scripts they load."""
         page = self.draft_html["draft/disclosure/index.html"]
-        claim = re.search(
-            r'<h2 id="d-6">[^<]*</h2>\s*<p><strong>Claim:</strong>(.*?)</p>',
-            page, re.S)
-        self.assertIsNotNone(claim, "Entry 6 carries a claim")
-        claim = " ".join(claim.group(1).split())
+        # The claim runs over several paragraphs (maintainer 2026-11-04
+        # split); joined, they read as the one paragraph did.
+        claim = " ".join(self._disclosure_claim_parts(page))
         self.assertIn("make no network requests and use no cookies.", claim)
         # Baseline 1.6.0 (spec sections 7.33 and 8): scheme.js keeps the
         # reader's choice in localStorage, so "use no browser storage" would
@@ -1049,7 +1190,10 @@ class DraftSiteRenderTests(unittest.TestCase):
             "the query into the page address (?q=), and on All Documents it "
             "writes the type and area the reader picks there too (?type=, "
             "?area=), so the query and those choices can appear in the "
-            "browser history. When the reader chooses a crosswalk topic "
+            "browser history; the script itself never writes the type or "
+            "area of a chip marked unavailable, though a chip's link opened "
+            "in a new tab or window carries it, as any link does. When the "
+            "reader chooses a crosswalk topic "
             "view, the matrix script writes the view's short identifier (for "
             "example, privacy) into the page address (?view=) the same way, "
             "and removes it from the address when the reader chooses All. "
@@ -1128,7 +1272,20 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(groups,
                          {"draft/documents/index.html": ["type", "area"]},
                          "the claim names every facet key a page writes")
-        self.assertIn('s.set("view", id)', sources["matrix.js"])
+        # "the script itself never writes the type or area of a chip marked
+        # unavailable": search.js 1.7.0 refuses such a chip and returns
+        # before the click handler writes the address.
+        click = sources["search.js"][
+            sources["search.js"].index('c.addEventListener("click"'):]
+        self.assertLess(click.index('=== "true") {'),
+                        click.index("write();"))
+        # matrix.js 1.7.0 writes { view: id } for a topic preset and deletes
+        # view for All; ?cols= only where column toggles exist, and the
+        # crosswalk has none (section 31 reads the exact call).
+        self.assertIn('{ view: k.length && id ? id : "" }',
+                      sources["matrix.js"])
+        self.assertNotIn("data-col-toggles",
+                         self.draft_html["draft/crosswalk/index.html"])
         self.assertEqual(
             sorted(rel for rel, html in self.draft_html.items()
                    if "/assets/baseline/matrix.js" in html),
@@ -2152,9 +2309,18 @@ class DraftSiteRenderTests(unittest.TestCase):
         "other choices as they are. Each chip's count is the number of "
         "documents of its type or area in the whole list, All counting the "
         "whole list, and stays the same whatever else is chosen; the status "
-        "line under the text filter gives how many documents show. The page "
-        "address keeps the choice (?type=, ?area=, ?q=), so a filtered list "
-        "can be linked. Without script, the whole list stays as it is.</p>"
+        "line under the text filter gives how many documents show. A type or "
+        "area chip that would show no documents with the other group's "
+        "choice and the words typed is marked unavailable, with a dashed "
+        "border: choosing it on the page (a plain click, Enter or Space) "
+        "leaves the list and the page address as they are, and the status "
+        "line says that it would show no documents, until the next change. "
+        "Opening a chip's link in a new tab or window goes to its filtered "
+        "address, as any link does. All and a chosen chip are never "
+        "unavailable. "
+        "The page address keeps the choice (?type=, ?area=, ?q=), so a "
+        "filtered list can be linked. Without script, the whole list stays "
+        "as it is.</p>"
     )
 
     def _full_taxonomy(self):
@@ -2185,9 +2351,11 @@ class DraftSiteRenderTests(unittest.TestCase):
         ]
 
     def _facet_group(self, group):
-        """(aria-label, chip markup) of one All Documents chip group."""
+        """(aria-label, chip markup) of one All Documents chip group (its
+        other attributes are checked by
+        test_documents_index_facet_groups_disable_empty_chips)."""
         block = re.search(
-            rf'<ul class="chips" data-filter-group="{group}" '
+            rf'<ul class="chips" data-filter-group="{group}"[^>]* '
             r'aria-label="([^"]*)">(.*?)</ul>',
             self.draft_html[self._INDEX_REL], re.S)
         self.assertIsNotNone(block, f"the index has no {group} chip group")
@@ -2485,8 +2653,18 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(chips["type"][""], len(rows), "All is the list")
         self.assertEqual(chips["area"][""], len(rows), "All is the list")
         js = self.draft_all["draft/assets/baseline/search.js"].decode("utf-8")
+        # From 1.7.0 search.js also writes a chip's .n (el), only in a group
+        # with data-filter-count="live", which neither group carries, and
+        # the text of the hidden note it creates once (note); so the counts
+        # stay as served.
         self.assertEqual(set(re.findall(r"(\w+)\.textContent\s*=", js)),
-                         {"status"}, "only the status line's text changes")
+                         {"status", "el", "note"},
+                         "only the status line's text changes here")
+        self.assertIn('        if (g.live) {\n'
+                      '          var el = c.querySelector(".n");', js)
+        self.assertIn('live: el.getAttribute("data-filter-count") === "live"',
+                      js)
+        self.assertNotIn("data-filter-count", index)
         self.assertIn('status.textContent = "Showing " + shown + " of " + '
                       'total + " documents.";', js)
         self.assertRegex(index, r'<input id="q" type="search"[^>]*>'
@@ -2529,6 +2707,107 @@ class DraftSiteRenderTests(unittest.TestCase):
                         if len(kept) < n:
                             fewer += 1
         self.assertTrue(fewer, "a chip can show fewer rows than its count")
+
+    def test_documents_index_facet_groups_disable_empty_chips(self):
+        """Spec 7.29 from 1.7.0 (CHANGELOG 1.7.0: grclibrary.ai's request
+        for chips that show when a choice would give no results; site round
+        b170-r1: two groups again, each marking such a chip): All Documents has
+        exactly the type and area groups, each a ul.chips opted in with
+        data-filter-empty="disable" and labelled for screen readers, each
+        holding its own All chip, so no All chip sits outside a group; no
+        group opts in to live counts, because the filter paragraph says the
+        counts stay the same; and no other draft page has a facet group."""
+        index = self.draft_html[self._INDEX_REL]
+        for group in ("type", "area"):
+            with self.subTest(group=group):
+                self.assertEqual(
+                    index.count(f'data-filter-group="{group}"'), 1)
+                self.assertIn(
+                    f'<ul class="chips" data-filter-group="{group}" '
+                    'data-filter-empty="disable" '
+                    f'aria-label="Filter by {group}">', index)
+                chips = self._FACET_CHIP_RE.findall(
+                    self._facet_group(group)[1])
+                self.assertEqual([v for _, v, _, _ in chips].count(""), 1,
+                                 "the group holds its own All chip")
+        self.assertEqual(
+            re.findall(r'\sdata-filter-group="([^"]*)"', index),
+            ["type", "area"])
+        self.assertEqual(index.count('data-filter-empty="disable"'), 2)
+        self.assertEqual(index.count(' data-filter=""'), 2,
+                         "no All chip outside the two groups")
+        self.assertNotIn("data-filter-count", index)
+        self.assertIn("and stays the same whatever else is chosen",
+                      self.INDEX_FILTER_PROSE)
+        self.assertEqual(
+            sorted(rel for rel, html in self.draft_html.items()
+                   if "data-filter-group" in html), [self._INDEX_REL])
+        js = self.draft_all["draft/assets/baseline/search.js"].decode("utf-8")
+        self.assertIn('empty: el.getAttribute("data-filter-empty") === '
+                      '"disable"', js)
+
+    def test_documents_index_unavailable_chip_sentence_holds(self):
+        """The filter paragraph's unavailable-chip sentences, each checked:
+        search.js 1.7.0 (spec 7.29) marks a chip unavailable when its
+        would-show count is 0, counted with the words typed and every other
+        group's choice, never for All or the chosen chip ("var off = ...");
+        activating one returns before any choice, row or address change and
+        writes the refusal to the status line; and baseline.css draws it
+        with a dashed border. Replayed on the rendered rows in every
+        combined state (every type value by every area value, All
+        included): the chips the sentence covers exist on this page."""
+        index = self.draft_html[self._INDEX_REL]
+        self.assertIn(self.INDEX_FILTER_PROSE, index)
+        js = self.draft_all["draft/assets/baseline/search.js"].decode("utf-8")
+        self.assertIn('var off = g.empty && v !== "" && v !== g.value && '
+                      'n === 0;', js)
+        # "with the other group's choice and the words typed": a row that
+        # misses a word counts nowhere; one that misses only another
+        # group's choice counts toward that group alone.
+        self.assertIn('if (!terms.every(function (t) { return '
+                      'r.hay.indexOf(t) >= 0; })) { return false; }', js)
+        self.assertIn('var n = v ? tally[g.name].v[v] || 0 : '
+                      'tally[g.name].all;', js)
+        click = js[js.index('c.addEventListener("click"'):]
+        refused = click.index('if (c.getAttribute("aria-disabled") === '
+                              '"true") {')
+        self.assertLess(refused, click.index("g.value ="),
+                        "the refusal returns before the choice changes")
+        # "choosing it on the page (a plain click, Enter or Space)": Space
+        # clicks the chip, and a modified or non-primary click returns before
+        # the refusal, so the browser opens the chip's link as any link.
+        self.assertIn('if (e.key === " " || e.key === "Spacebar") { '
+                      'e.preventDefault(); c.click(); }', js)
+        self.assertLess(click.index('if (e.metaKey || e.ctrlKey || '
+                                    'e.shiftKey || e.altKey || e.button !== '
+                                    '0) { return; }'), refused)
+        self.assertIn('status.textContent = labelOf(c) + " would show no '
+                      'documents with the current choices.";',
+                      click[refused:click.index("g.value =")])
+        css = self.draft_all["draft/assets/baseline/baseline.css"].decode(
+            "utf-8")
+        self.assertIn('.chips a[aria-disabled="true"], .chips '
+                      'button[aria-disabled="true"] { border-style: dashed;',
+                      css)
+        rows = self._index_replay_rows()
+        chips = {group: [v for _, v, _, _ in self._FACET_CHIP_RE.findall(
+                     self._facet_group(group)[1])]
+                 for group in ("type", "area")}
+        unavailable = 0
+        for t in chips["type"]:
+            for a in chips["area"]:
+                state = {"type": t, "area": a}
+                for group, values in chips.items():
+                    for value in values:
+                        if value in ("", state[group]):
+                            continue  # All and the chosen chip: never off
+                        # The would-show count of spec 7.29: the rows
+                        # holding every other group's choice and this
+                        # chip's value (no words typed here).
+                        unavailable += not _replay_search_js(
+                            rows, active={**state, group: value})
+        self.assertTrue(unavailable,
+                        "some state has a chip the sentence covers")
 
     def test_documents_index_type_chips_count_what_their_type_pages_list(self):
         """Each type chip's count equals the corpus-area rows its type page
@@ -3053,7 +3332,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         for group_slug, board_question in self.mod.DRAFT_DECIDE_GROUPS:
             section = re.search(
                 rf'<h2 id="g-{group_slug}">(.*?)</h2>\n'
-                r'<div class="wide"><ul class="plan described">(.*?)</ul>',
+                r'<div class="wide"><ul class="plan described one">(.*?)</ul>',
                 hub, re.S)
             self.assertIsNotNone(section, group_slug)
             self.assertEqual(section.group(1),
@@ -4216,10 +4495,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         data-preset is empty, it removes the parameter. The example the
         clause gives is a topic preset's id on the rendered crosswalk."""
         page = self.draft_html["draft/disclosure/index.html"]
-        claim = re.search(
-            r'<h2 id="d-6">[^<]*</h2>\s*<p><strong>Claim:</strong>(.*?)</p>',
-            page, re.S)
-        claim = " ".join(claim.group(1).split())
+        claim = " ".join(self._disclosure_claim_parts(page))
         clause = re.search(
             r"When the reader chooses a crosswalk topic view, the matrix "
             r"script writes the view's short identifier \(for example, "
@@ -4240,12 +4516,22 @@ class DraftSiteRenderTests(unittest.TestCase):
                          [""], "All carries no column keys")
         js = self.draft_all["draft/assets/baseline/matrix.js"].decode("utf-8")
         # keys(p) reads data-preset, so All's k is empty; a preset with keys
-        # writes its data-preset-id as ?view=, and All deletes the parameter.
+        # writes its data-preset-id as ?view=, and All deletes the parameter
+        # (writeAddress sets a key with a value and deletes an empty one).
+        # From 1.7.0 the same call also clears ?cols= on a page with column
+        # toggles; the crosswalk has none, so it writes ?view= alone, and
+        # ?cols= is written only from the toggles (showSet).
         self.assertIn('return (p.getAttribute("data-preset") || "")', js)
         self.assertIn("var k = keys(p);", js)
         self.assertIn('var id = p.getAttribute("data-preset-id");', js)
-        self.assertIn('if (k.length && id) { s.set("view", id); } '
-                      'else { s.delete("view"); }', js)
+        self.assertIn('writeAddress(toggles.length ? { view: k.length && id '
+                      '? id : "", cols: "" } : { view: k.length && id ? id '
+                      ': "" });', js)
+        self.assertIn('if (set[k]) { s.set(k, set[k]); } else { '
+                      's.delete(k); }', js)
+        self.assertIn('var toggles = slice(document.querySelectorAll('
+                      '"[data-col-toggles] button[data-col]"));', js)
+        self.assertNotIn("data-col-toggles", main)
 
     def test_crosswalk_headers_and_cells_follow_spec_7_30(self):
         """Round 3 item 4 (WARN): spec 7.30 markup. A header is the name over
@@ -4637,8 +4923,9 @@ class DraftSiteRenderTests(unittest.TestCase):
                         rows, active={**state, "area": a})) < len(kept)
                     for a in areas)
                 if by_area:
-                    self.assertEqual(narrow, ", and its area chips and text "
-                                     "filter narrow them further")
+                    self.assertEqual(narrow, ", and the area chips holding "
+                                     "any of them, and its text filter, "
+                                     "narrow them further")
                     seen["areas"] += 1
                 else:
                     self.assertEqual(len({r["tokens"]["area"][0]
@@ -4653,6 +4940,39 @@ class DraftSiteRenderTests(unittest.TestCase):
                     "a word narrows the rows, as the sentence says")
         self.assertTrue(all(seen.values()),
                         f"the corpus exercises both forms today: {seen}")
+
+    def test_type_filter_sentence_area_chips_are_available_at_the_type(self):
+        """Adoption round-2 NOTE: from baseline 1.7.0 an area chip that would
+        show no documents at ?type=<slug> is unavailable there, so "its area
+        chips ... narrow them further" was false of every such chip. The
+        sentence names "the area chips holding any of
+        them"; replayed in each type's filter state as search.js 1.7.0
+        counts it (an unchosen chip is available when the rows holding the
+        type and its area are not none), at least one area chip is available
+        on every page using that wording, and each available one keeps
+        fewer of the rows than the type does."""
+        rows = self._index_replay_rows()
+        _, block = self._facet_group("area")
+        areas = [v for _, v, _, _ in self._FACET_CHIP_RE.findall(block) if v]
+        named = 0
+        for tp in self.figures["type_pages"]:
+            found = self._TYPE_FILTER_RE.findall(
+                self.draft_html[self._type_rel(tp["type"])])
+            if not found or not found[0][3].startswith(
+                    ", and the area chips holding any of them"):
+                continue
+            named += 1
+            state = {"type": tp["slug"]}
+            kept = _replay_search_js(rows, active=state)
+            with self.subTest(type=tp["type"]):
+                available = [
+                    len(_replay_search_js(rows, active={**state, "area": a}))
+                    for a in areas]
+                available = [n for n in available if n]
+                self.assertTrue(available, "an area chip is available")
+                for n in available:
+                    self.assertLess(n, len(kept), "the chip narrows the rows")
+        self.assertTrue(named, "a type page names the area chips today")
 
     def test_crosswalk_opening_sentence_holds_for_every_column(self):
         """Batch 3 (f2 note, published text): "columns are instruments the
@@ -5637,7 +5957,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             (REPO_ROOT / ".baseline" / "pin.toml").read_text(encoding="utf-8")
         )
         prefix = ".web/baseline/"
-        # Baseline 1.6.1 section 4 items 2 and 3: the palette gate is pinned
+        # Baseline 1.7.0 section 4 items 2 and 3: the palette gate is pinned
         # beside the copies and never served.
         served = {key: digest for key, digest in pin["files"].items()
                   if key != self.mod.PALETTE_GATE_KEY}
@@ -5665,7 +5985,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             "the palette gate is never served")
 
     def test_pinned_scripts_are_the_release_script_set(self):
-        """Baseline 1.6.1 SPECIFICATION.md section 8: "The 6 scripts are the
+        """Baseline 1.7.0 SPECIFICATION.md section 8: "The 6 scripts are the
         whole set", and section 4 step 2 copies each of them, matrix.js and
         scheme.js included; the pin and the draft asset copy carry exactly
         that set."""
@@ -5724,19 +6044,18 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # -- 25. baseline 1.6.0: switch, scheme.js, dark palette, palette gate --
 
-    def test_pin_and_copies_are_baseline_1_6_1(self):
-        """The 1.6.0 move (CHANGELOG 1.6.0) and the 1.6.1 move (batch 3
-        round 3 item 4; CHANGELOG 1.6.1: no stylesheet, script or palette
-        changed): the pin names 1.6.1, and the files 1.6.0 adds or changes
-        carry the release's digests, unchanged in 1.6.1, in the pin, in the
+    def test_pin_and_copies_are_baseline_1_7_0(self):
+        """The 1.7.0 move (CHANGELOG 1.7.0: every site moves to 1.7.0):
+        the pin names 1.7.0, and the files 1.7.0 changes, with scheme.js
+        from 1.6.0, carry the release's SHA256SUMS digests in the pin, in the
         repository and, for the served ones, in the draft copy; the module
         docstring and the CSP comment name the pinned version."""
         import tomllib
         pin = tomllib.loads(
             (REPO_ROOT / ".baseline" / "pin.toml").read_text(encoding="utf-8")
         )
-        self.assertEqual(pin["version"], "1.6.1")
-        for key, digest in RELEASE_1_6_0_DIGESTS.items():
+        self.assertEqual(pin["version"], "1.7.0")
+        for key, digest in RELEASE_1_7_0_DIGESTS.items():
             self.assertEqual(pin["files"].get(key), digest, f"{key} pin")
             self.assertEqual(
                 hashlib.sha256((REPO_ROOT / key).read_bytes()).hexdigest(),
@@ -5803,6 +6122,25 @@ class DraftSiteRenderTests(unittest.TestCase):
             "utf-8")
         self.assertEqual(_dark_token(css, "bg"),
                          [RELEASED_DARK_BG, RELEASED_DARK_BG])
+
+    def test_served_palette_carries_the_matrix_tokens(self):
+        """Spec 6.1 from 1.7.0: the 13 matrix tokens are palette tokens on
+        every site and scheme, and the palette gate checks them. The site has
+        no site-palette.css, so the served palettes.css alone must give
+        grclibrary each token once, as a hex value, in both forms of each
+        scheme, the 2 forms agreeing."""
+        css = self.draft_all["draft/assets/baseline/palettes.css"].decode(
+            "utf-8")
+        self.assertEqual(len(MATRIX_TOKENS), 13)
+        for token in MATRIX_TOKENS:
+            for openers in (_LIGHT_BLOCKS, _DARK_BLOCKS):
+                with self.subTest(token=token, block=openers[1]):
+                    values = _dark_token(css, token, openers)
+                    self.assertEqual(len(set(values)), 1, values)
+                    self.assertRegex(values[0] or "", r"^#[0-9a-f]{6}$")
+        self.assertEqual(
+            [rel for rel in self.draft_all if rel.endswith("site-palette.css")],
+            [], "the site serves no site-palette.css")
 
     def test_draft_build_runs_the_palette_gate(self):
         """Spec section 4 item 3: the palette gate runs in the draft build,
@@ -6061,9 +6399,9 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     _TYPE_FILTER_RE = re.compile(
         r'<p>With script, <a href="([^"]*)">All Documents, filtered to '
-        r'([^<]*)</a>, lists (.*?)(, and its area chips and text filter '
-        r'narrow them further|, and its text filter narrows them further)?'
-        r'\.</p>')
+        r'([^<]*)</a>, lists (.*?)(, and the area chips holding any of them, '
+        r'and its text filter, narrow them further|, and its text filter '
+        r'narrows them further)?\.</p>')
 
     def _type_corpus_rows(self, page):
         """The rows of a type page's corpus list (its first list; the
@@ -8094,6 +8432,27 @@ class PaletteGateFixtureTests(unittest.TestCase):
             self._released(), "text-muted", "#2a2a2a"))
         with self.assertRaisesRegex(self.mod.BuildError,
                                     r"text-muted .*FAIL.*RESULT: fail"):
+            self.mod.run_palette_gate(bad)
+
+    def test_palette_without_a_matrix_token_fails(self):
+        """CHANGELOG 1.7.0: the 13 matrix tokens join the palette tokens and
+        "a palette without them fails"; each, removed from all 4 of
+        grclibrary's forms, fails the build's gate as not set."""
+        for token in MATRIX_TOKENS:
+            with self.subTest(token=token):
+                bad = self._palettes(_drop_token(self._released(), token))
+                with self.assertRaisesRegex(
+                        self.mod.BuildError,
+                        rf"FAIL grclibrary / light: --{token} is not set"):
+                    self.mod.run_palette_gate(bad)
+
+    def test_heat_step_text_cannot_be_read_on_fails(self):
+        """1.7.0 checks the text on each heat step at 4.5:1: a dark --heat-4
+        as light as the dark --text fails the build's gate."""
+        bad = self._palettes(_doctor_dark_token(
+            self._released(), "heat-4", "#e9e9e9"))
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    r"text on heat-4 .*FAIL"):
             self.mod.run_palette_gate(bad)
 
     def test_override_in_one_dark_form_only_fails(self):
