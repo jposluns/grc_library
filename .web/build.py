@@ -3776,8 +3776,9 @@ def _draft_wrapping_path(text):
 # scheme), while "Telecommunications" (18 letters, 307.4 px in dark) runs
 # 19 px past the box and widened its page to 323 px (item 3b788). At the
 # widest rate measured, "Management"'s 19.6 px a letter, only 14 letters
-# (274 px) fit, so the test holds the title words of 15 to 17 letters to the
-# ones measured (item 3b788 lows round 1).
+# (274 px) fit, so the test holds each h1 piece of more than 14 letters, a
+# whole word or a piece of a split one, to the ones measured (item 3b788 lows
+# round 1).
 DRAFT_TITLE_RUN_MAX = 17
 _DRAFT_TITLE_RUN_RE = re.compile(rf"[^\W\d_]{{{DRAFT_TITLE_RUN_MAX + 1},}}")
 _DRAFT_VOWELS = frozenset("aeiouyAEIOUY")

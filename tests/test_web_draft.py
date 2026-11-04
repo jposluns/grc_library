@@ -3541,10 +3541,10 @@ class DraftSiteRenderTests(unittest.TestCase):
         "Trustworthiness", "Responsibilities" and "Interrelationship" broke
         where the whole word fits on the next line. Measured in the 288 px
         h1 box at 320 px, light and dark, every title word of up to 17
-        letters fits with at least 12 px to spare, so the limit is 17; a
-        title word of 15 to 17 letters must be one of those measured
-        (_MEASURED_TITLE_WORDS), since a new one, unlike a word of 14
-        letters or fewer, could be too wide."""
+        letters fits with at least 12 px to spare, so the limit is 17; each
+        h1 piece of more than 14 letters, a whole word or a piece of a split
+        one, must be one of those measured (_MEASURED_TITLE_WORDS), since a
+        new one, unlike a piece of 14 letters or fewer, could be too wide."""
         self.assertEqual(self.mod.DRAFT_TITLE_RUN_MAX, 17)
         long_run = re.compile(
             rf"[^\W\d_]{{{self.mod.DRAFT_TITLE_RUN_MAX + 1},}}")
@@ -3589,7 +3589,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(self.mod._draft_breakable_title(word),
                          "Overstrengthsst&shy;rengths")
         titles = [d.get("title", "") for d in self._full_taxonomy()]
-        with self.assertRaises(AssertionError):
+        with self.assertRaisesRegex(AssertionError, "Overstrengthsst"):
             self._assert_heading_pieces_measured(titles + [word])
 
     def test_decide_hub_kinds_branch_lists_the_six_indexes(self):
