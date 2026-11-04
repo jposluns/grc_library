@@ -376,10 +376,14 @@ What is locked here, each test failing without its feature:
    equal the register's sections; the page sits under the Crosswalk bar
    section, carries the aligned-to-not-certified caveat, and is linked from
    the crosswalk caveats block, the comply Not listed section, and a sixth
-   landing Start here entry whose count is computed at build time. Round 2:
-   representative citations are pinned as literals (IEEE hyphen join,
-   "continuous" and repeated versions as the ID alone, long legal versions
-   moved to the description and labelled as the register's); the scope
+   landing Start here entry whose count is computed at build time. Round 3:
+   the heading joins the ID and version only in the safe publisher forms
+   (ISO/IEC colon and IEEE hyphen for a version that is exactly a four-digit
+   year, the ID alone where the version repeats the ID or its last token);
+   every other entry shows the register's Current version cell verbatim on
+   a Current version line ("continuous" spelled out, "-" nothing), pinned
+   by literal headings and lines, synthetic rule-edge rows, and a
+   whole-register preservation test over all 257 rows; the scope
    sentence claims only what the register records and counts the main-table
    instruments; the landing, comply, and crosswalk wording names the
    register and the one "Standards & frameworks" label; no raw backtick
@@ -8356,23 +8360,23 @@ class DraftSiteRenderTests(unittest.TestCase):
                 sections[-1][1].append(cells)
         return [(h, rows) for h, rows in sections if rows]
 
-    # Literal expected citations for representative register rows (round 2:
-    # the previous expectation copied _standards_citation line for line, so
-    # it could not fail on a convention bug): an ISO/IEC and an IEC bare-year
-    # edition (colon), an IEEE bare-year edition (hyphen, the publisher's
-    # format), NIST SP (space) and NIST FIPS 198-1 (the version repeats the
-    # ID's ending), CSA (space), a "continuous" version (ID alone), the BASC
-    # and WP248 rows (the version is already a token of the ID), and a long
-    # legal version (ID alone; the description carries the register's
-    # version text).
-    _STANDARDS_LITERAL_CITATIONS = {
+    # Literal expected headings for representative register rows (round 3:
+    # the heading is the Standard ID verbatim, joined with the Current
+    # version only in the exact publisher forms that are safe by
+    # construction): an ISO/IEC and an IEC edition whose version is exactly
+    # a four-digit year (colon), two IEEE ones (hyphen, the publisher's
+    # format), and NIST FIPS 198-1, the register's one row whose version
+    # equals the ID's last whitespace token (so the ID alone is the full
+    # citation). Every other row is headed by the ID alone, whatever its
+    # version; the entry's Current version line carries the cell.
+    _STANDARDS_LITERAL_HEADINGS = {
         "ISO/IEC 27001": "ISO/IEC 27001:2022",
         "IEC 62443-4-2": "IEC 62443-4-2:2019",
         "IEEE 2883": "IEEE 2883-2022",
         "IEEE 7000": "IEEE 7000-2021",
-        "NIST SP 800-53": "NIST SP 800-53 Rev. 5",
         "NIST FIPS 198-1": "NIST FIPS 198-1",
-        "CSA CCM": "CSA CCM v4.1",
+        "NIST SP 800-53": "NIST SP 800-53",
+        "CSA CCM": "CSA CCM",
         "CSA STAR": "CSA STAR",
         "STRIDE": "STRIDE",
         "BASC International Norm V6-2022 (Control and Security Management "
@@ -8390,17 +8394,47 @@ class DraftSiteRenderTests(unittest.TestCase):
         "Australia National AI Plan 2025": "Australia National AI Plan 2025",
         "Resolution CD/ANPD No. 15/2024": "Resolution CD/ANPD No. 15/2024",
         "CAN/DGSI 101:2025": "CAN/DGSI 101:2025",
-        "EU GDPR": "EU GDPR Regulation 2016/679",
+        "EU GDPR": "EU GDPR",
+        "EU NIS 2 Directive": "EU NIS 2 Directive",
         "US HIPAA": "US HIPAA",
         "Colorado AI Act": "Colorado AI Act",
         "NERC CIP": "NERC CIP",
         "India DPDPA": "India DPDPA",
     }
 
+    # Literal expected Current version lines (round 3: the rows whose
+    # recorded identifiers round 2's repeated-leading-word, year, and
+    # 40-character rules dropped, plus a short marker, a "continuous" row,
+    # and the version round 2 joined into the heading), keyed by Standard
+    # ID. The rendered line appends a closing period where the cell carries
+    # none; the cell itself is never dropped or shortened.
+    _STANDARDS_LITERAL_VERSION_LINES = {
+        "EU NIS 2 Directive": "Current version: Directive 2022/2555.",
+        "EU NIS 2 Implementing Regulation":
+            "Current version: Commission Implementing Regulation (EU) "
+            "2024/2690.",
+        "China Cross-Border Data Provisions (2024)":
+            "Current version: 2024-03-22 (immediate effect).",
+        "CAN/DGSI 101:2025": "Current version: 2nd edition, 2025.",
+        "LINDDUN":
+            "Current version: v240118 (knowledge release; methods GO / PRO "
+            "/ MAESTRO).",
+        "Security Directive 1580-21-01":
+            "Current version: SD 1580-21-01E (effective 2026-01-16 through "
+            "2027-01-15; cancels and supersedes SD 1580-21-01D).",
+        "CSA STAR": "Current version: continuous (no fixed edition).",
+        "NIST SP 800-53": "Current version: Rev. 5.",
+    }
+
+    # Headings that already carry the whole version cell, so no Current
+    # version line shows: a joined publisher citation and the last-token row.
+    _STANDARDS_NO_VERSION_LINE = (
+        "ISO/IEC 27001:2022", "IEEE 2883-2022", "NIST FIPS 198-1")
+
     def test_standards_entries_equal_a_reparse_of_the_register(self):
         """One entry per register data row, grouped by register section in
-        register order; each entry's name is the Standard ID plus Current
-        version per the register's citing convention, its Topic follows, the
+        register order; each entry's heading is the Standard ID, alone or
+        with a bare-year publisher join (round 3), its Topic follows, the
         Upstream check location is the one external link ("none recorded"
         for "-"), and the rail anchors equal the register's sections."""
         html = self.draft_html["standards/index.html"]
@@ -8428,16 +8462,20 @@ class DraftSiteRenderTests(unittest.TestCase):
                     cells[0], cells[1], cells[3], cells[5])
                 with self.subTest(standard=sid):
                     citation = unescape(name)
-                    # Structural: every citation is the row's Standard ID,
-                    # alone or followed by a version marker; the exact
-                    # convention is pinned by the literal table below
+                    # Structural: every heading is the row's Standard ID,
+                    # alone or joined with exactly a four-digit year (the
+                    # safe publisher forms); the exact convention is pinned
+                    # by the literal table below
                     # (test_standards_representative_citations).
                     self.assertTrue(
                         citation == sid or (
                             citation.startswith(sid)
-                            and citation[len(sid)] in ":- "),
-                        f"{citation!r} opens with the Standard ID")
-                    expected = self._STANDARDS_LITERAL_CITATIONS.get(sid)
+                            and citation[len(sid)] in ":-"
+                            and re.fullmatch(
+                                r"\d{4}", citation[len(sid) + 1:])),
+                        f"{citation!r} is the Standard ID, alone or with a "
+                        "bare-year publisher join")
+                    expected = self._STANDARDS_LITERAL_HEADINGS.get(sid)
                     if expected is not None:
                         self.assertEqual(citation, expected)
                     expected_topic = self.mod._XW_TOPIC_NOTE_RE.sub(
@@ -8525,36 +8563,95 @@ class DraftSiteRenderTests(unittest.TestCase):
                       "uses the standards page's own unit (round 2 note)")
 
     def test_standards_representative_citations(self):
-        """Round 2: the rendered citation for each representative register
-        row equals its literal expectation (ISO/IEC and IEC colon, IEEE
-        hyphen, NIST SP space, FIPS 198-1 and BASC and WP248 ID alone where
-        the ID already carries the version, CSA space, "continuous" as "-",
-        a repeated year token dropped, a long legal version as the ID
-        alone), and a long legal version's text moves to the description,
-        labelled as the register's current version."""
+        """Round 3: each representative heading equals its literal (ISO/IEC
+        and IEC colon, IEEE hyphen, every other row the Standard ID alone),
+        each representative Current version line equals its literal (the
+        register's cell verbatim, "continuous" spelled out), and a heading
+        that carries the whole cell shows no line."""
         html = self.draft_html["standards/index.html"]
-        names = {}
-        descs = {}
+        entries = {}
         for name, desc in self._STANDARDS_ITEM_RE.findall(html):
-            names[unescape(name)] = desc
-        for sid, expected in self._STANDARDS_LITERAL_CITATIONS.items():
+            entries[unescape(name)] = unescape(desc)
+        for sid, expected in self._STANDARDS_LITERAL_HEADINGS.items():
             with self.subTest(standard=sid):
-                self.assertIn(expected, names,
-                              f"{sid}: cited as {expected!r}")
-                descs[sid] = names[expected]
-        for sid in ("US HIPAA", "Colorado AI Act", "NERC CIP", "India DPDPA"):
+                self.assertIn(expected, entries,
+                              f"{sid}: headed {expected!r}")
+        for sid, line in self._STANDARDS_LITERAL_VERSION_LINES.items():
+            heading = self._STANDARDS_LITERAL_HEADINGS.get(sid, sid)
             with self.subTest(standard=sid):
-                self.assertIn("The register's current version:", descs[sid],
-                              "a long legal version moves to the "
-                              "description, labelled as the register's")
-        self.assertIn("The register's current version: 1996 (with HITECH",
-                      descs["US HIPAA"])
-        for sid in ("CSA STAR", "STRIDE", "CAN/DGSI 101:2025",
-                    "Resolution CD/ANPD No. 15/2024"):
-            with self.subTest(standard=sid):
-                self.assertNotIn("The register's current version:",
-                                 descs[sid],
-                                 "a dropped marker is no register prose")
+                self.assertIn(heading, entries,
+                              f"{sid}: headed by the ID alone")
+                self.assertIn(line, entries[heading],
+                              f"{sid}: the register's cell, verbatim, on "
+                              "the entry's Current version line")
+        self.assertIn("Current version: 1996 (with HITECH",
+                      entries["US HIPAA"],
+                      "a long legal version renders in full")
+        for heading in self._STANDARDS_NO_VERSION_LINE:
+            with self.subTest(standard=heading):
+                self.assertNotIn("Current version:", entries[heading],
+                                 "a heading that carries the whole cell "
+                                 "shows no line")
+
+    def test_standards_every_version_cell_is_preserved(self):
+        """Round 3, the whole-register preservation check: for every one of
+        the register's 257 rows, the rendered entry contains the register's
+        plain Current version verbatim, in the heading or on its Current
+        version line; only a "-" cell (no recorded version) shows nothing.
+        Nothing in the version cell is ever dropped or shortened."""
+        html = self.draft_html["standards/index.html"]
+        sections = self._register_sections()
+        self.assertEqual(sum(len(rows) for _, rows in sections), 257,
+                         "the register's row count at this commit")
+        groups = self._STANDARDS_GROUP_RE.findall(html)
+        for (slug, _, body), (heading, rows) in zip(groups, sections):
+            items = self._STANDARDS_ITEM_RE.findall(body)
+            self.assertEqual(len(items), len(rows),
+                             f"{heading}: one entry per register row")
+            for (name, desc), cells in zip(items, rows):
+                sid = cells[0]
+                version = self.mod._xw_plain(cells[1])
+                with self.subTest(standard=sid):
+                    if version == "-":
+                        self.assertNotIn("Current version:", unescape(desc))
+                        continue
+                    self.assertTrue(
+                        version in unescape(name)
+                        or f"Current version: {version}" in unescape(desc),
+                        f"{sid}: the version cell {version!r} is in neither "
+                        f"the heading {unescape(name)!r} nor a Current "
+                        "version line")
+
+    def test_standards_display_rules_on_synthetic_rows(self):
+        """Round 3, the rule edges no live register row pins today: the
+        bare-year join requires the version to be exactly a four-digit
+        year; a version equal to the whole ID shows no line; a "-" version
+        shows nothing; "continuous" is spelled out; any other version shows
+        on a Current version line, whatever its org."""
+        def row(sid, version):
+            return {"id": sid, "version": version}
+        cite = self.mod._standards_citation
+        line = self.mod._standards_version_display
+        self.assertEqual(cite(row("ISO/IEC 99999", "2024")),
+                         "ISO/IEC 99999:2024")
+        self.assertIsNone(line(row("ISO/IEC 99999", "2024")))
+        self.assertEqual(cite(row("IEEE 99999", "2024")), "IEEE 99999-2024")
+        self.assertIsNone(line(row("IEEE 99999", "2024")))
+        self.assertEqual(cite(row("ISO/IEC 99999", "2024 (corrected)")),
+                         "ISO/IEC 99999")
+        self.assertEqual(line(row("ISO/IEC 99999", "2024 (corrected)")),
+                         "Current version: 2024 (corrected)")
+        self.assertEqual(cite(row("NIST Example 7", "2024")),
+                         "NIST Example 7")
+        self.assertEqual(line(row("NIST Example 7", "2024")),
+                         "Current version: 2024")
+        self.assertEqual(cite(row("Example Framework", "Example Framework")),
+                         "Example Framework")
+        self.assertIsNone(line(row("Example Framework", "Example Framework")))
+        self.assertIsNone(line(row("Example Framework", "Framework")))
+        self.assertIsNone(line(row("Example Framework", "-")))
+        self.assertEqual(line(row("Example Framework", "continuous")),
+                         "Current version: continuous (no fixed edition)")
 
     def test_standards_scope_claims_only_what_the_register_records(self):
         """Round 2 fix 1 and note: the scope sentence claims the recorded

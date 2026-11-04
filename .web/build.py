@@ -7109,68 +7109,59 @@ def _xw_register_block(inst, row):
     return f'<dl class="record">\n{rows}\n</dl>'
 
 
-# The register's citing convention (its Conventions section): Standard ID
-# plus Current version in the format the publisher uses, "ISO/IEC 42006:2025"
-# for an ISO or IEC bare-year edition, "IEEE 2883-2022" for an IEEE bare-year
-# edition, "NIST SP 800-53 Rev. 5" otherwise.
+# The register's citing convention (its Conventions section) joins the
+# Standard ID and the Current version only in the exact publisher forms that
+# are safe by construction (round 3 review: guessing which part of a
+# free-text version cell is redundant dropped recorded identifiers):
+# "ISO/IEC 42006:2025" for an ISO or IEC edition whose version is exactly a
+# four-digit year, "IEEE 2883-2022" for an IEEE one. Every other entry is
+# headed by the Standard ID alone, and the register's Current version cell
+# shows verbatim on the entry's own Current version line unless the heading
+# already carries it whole.
 _STANDARDS_YEAR_RE = re.compile(r"\d{4}\Z")
 _STANDARDS_SLUG_RE = re.compile(r"[^a-z0-9]+")
-# A four-digit year as a register cell writes one ("15/2024", "101:2025",
-# "(2024)"): never part of a longer digit run such as "27001".
-_STANDARDS_CELL_YEAR_RE = re.compile(r"(?<!\d)(?:19|20)\d\d(?!\d)")
-# A Current version longer than this is register currency prose (a legal
-# consolidation note), not an edition marker the publisher's citation format
-# would carry; the entry's description shows it instead (round 1 review,
-# following the Instrument.version_join precedent: None for a long legal
-# version).
-_STANDARDS_MARKER_MAX = 40
 
 
 def _standards_version_display(row):
-    """How one register row's Current version renders on the standards page
-    (round 1 review): ``(marker, note)``. ``marker`` is the short version the
-    citation appends to the Standard ID, or None where the ID alone is the
-    citation: a "-" or "continuous" version, a version already written into
-    the ID (whole, as its leading token, or as its leading year, each as a
-    token of the ID: "BASC International Norm V6-2022 (...)", "WP248
-    rev.01 (...)", "Resolution CD/ANPD No. 15/2024"), or currency prose over
-    _STANDARDS_MARKER_MAX characters, which ``note`` then carries for the
-    entry's description. A register-internal HTML comment in the version
-    cell never reaches a page (_xw_plain)."""
+    """One register row's "Current version:" line for the standards page, or
+    None where the entry shows no line (round 3 review): the register's
+    Current version cell verbatim (plain text via _xw_plain), never dropped
+    or shortened. "continuous" is spelled out as "continuous (no fixed
+    edition)"; "-" (no recorded version) shows nothing; and a version the
+    heading already carries whole (a joined publisher citation, the whole
+    ID, or the ID's last whitespace token) shows no line. A
+    register-internal HTML comment in the version cell never reaches a page
+    (_xw_plain)."""
     sid = row["id"]
     version = _xw_plain(row["version"])
-    if version in ("-", "continuous") or sid == version:
-        return None, None
-    if len(version) > _STANDARDS_MARKER_MAX:
-        return None, version
+    if version == "-":
+        return None
+    if version == "continuous":
+        return "Current version: continuous (no fixed edition)"
     tokens = sid.split()
-    leading = version.split()[0].rstrip(",")
-    year = _STANDARDS_CELL_YEAR_RE.search(version)
-    if version in tokens or sid.endswith(" " + version) \
-            or leading in tokens \
-            or (year is not None and re.search(
-                rf"(?<!\d){year.group()}(?!\d)", sid)):
-        return None, None
-    return version, None
+    if version == sid or (tokens and version == tokens[-1]):
+        return None
+    if _standards_citation(row) != sid:
+        return None
+    return f"Current version: {version}"
 
 
 def _standards_citation(row):
-    """One register row cited per the register's own convention: the
-    Standard ID plus the Current version, an ISO or IEC bare-year edition
-    joined with a colon and an IEEE bare-year edition with a hyphen as the
-    publishers write them, any other pairing with a space; the ID alone
-    where _standards_version_display carries no short marker."""
+    """One register row's entry heading: the Standard ID verbatim, joined
+    with the Current version only in the exact publisher forms that are safe
+    by construction (round 3 review): an ISO or IEC ID with a version that
+    is exactly a four-digit year joined with a colon, an IEEE ID with one
+    joined with a hyphen, as the publishers write them. Every other heading
+    is the ID alone; _standards_version_display carries the cell."""
     sid = row["id"]
-    marker, _ = _standards_version_display(row)
-    if marker is None:
-        return sid
-    if _STANDARDS_YEAR_RE.fullmatch(marker):
+    version = _xw_plain(row["version"])
+    if _STANDARDS_YEAR_RE.fullmatch(version):
         org = sid.split()[0].split("/")[0]
         if org in ("ISO", "IEC"):
-            return f"{sid}:{marker}"
+            return f"{sid}:{version}"
         if org == "IEEE":
-            return f"{sid}-{marker}"
-    return f"{sid} {marker}"
+            return f"{sid}-{version}"
+    return sid
 
 
 def _standards_section_slug(heading):
@@ -7188,8 +7179,10 @@ def _standards_section_slug(heading):
 def draft_standards_values(xw):
     """Per-page values for the standards page at standards/ (maintainer
     decisions 2026-11-04 16:09 EST): every citations-register row, grouped
-    by register section in register order, each entry the row's Standard ID
-    plus Current version per the register's citing convention, its Topic,
+    by register section in register order, each entry headed by the row's
+    Standard ID (joined with its Current version only in the safe publisher
+    forms, round 3 review) over the register's Current version cell
+    verbatim where the heading does not carry it whole, its Topic,
     and its Upstream check location as the one external link, labelled as
     the register labels it ("none recorded" for "-"); a row whose Standard
     ID is a crosswalk instrument's register_id links that instrument's page.
@@ -7247,20 +7240,19 @@ def draft_standards_values(xw):
                     f'<a href="{{{{BASE}}}}/crosswalk/{inst.key}/">'
                     f'{_esc(xw["instruments"][inst.key]["display"])}</a>.'
                 )
-            # Register currency prose is no edition marker; the description
-            # carries it, labelled as the register's (round 1 review).
-            _, note = _standards_version_display(row)
-            version_note = ""
-            if note is not None:
-                if not note.endswith("."):
-                    note += "."
-                version_note = (
-                    f" The register's current version: {_esc(note)}"
-                )
+            # The register's Current version cell, verbatim, wherever the
+            # heading does not already carry it whole (round 3 review:
+            # nothing in the cell is ever dropped or shortened).
+            line = _standards_version_display(row)
+            version_line = ""
+            if line is not None:
+                if not line.endswith("."):
+                    line += "."
+                version_line = f" {_esc(line)}"
             topic_text = f" {_esc(topic)}" if topic else ""
             items.append(
                 f'<li><span class="row-name">{_esc(_standards_citation(row))}'
-                f'</span><span class="row-desc">{topic_text}{version_note} '
+                f'</span><span class="row-desc">{topic_text}{version_line} '
                 f"{upstream}{mapped}</span></li>"
             )
         noun = "citation" if len(rows) == 1 else "citations"
