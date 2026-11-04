@@ -1,4 +1,4 @@
-version = "1.6.0"
+version = "1.6.1"
 
 [files]
 ".baseline/check_palette.py" = "d7a9994997ef721e8e7ba3809b18df3f0e9e3c803bd6fcddb3c8125171e21bfc"

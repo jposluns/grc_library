@@ -2,7 +2,7 @@
 
 **Document Title:** Notice: External Reference Materials and Licence Boundaries\
 **Document Type:** Policy\
-**Version:** 1.6.9\
+**Version:** 1.6.10\
 **Date:** 2026-11-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -76,7 +76,7 @@ The library is released under **CC BY-SA 4.0**, which requires attribution of th
 
 GRC-original material retains CC BY-SA 4.0. The upstream-owned pinned snapshot in `guardrails/aiqt-rules/` and its local rule derivatives are separately licensed Apache-2.0; retain the verbatim upstream LICENSE and NOTICE in that directory. GRC owns its compatibility rule and the retained legacy procedures. Authority: maintainer decisions D1-D3, 2026-10-02 12:27Z. The minimal subset of the upstream AIQT guardrails pack vendored in `vendor/aiqt/` (the generic corpus-tool module `tools/aiqt_corpus.py`, its digest pin `PIN.toml`, and `RULES.json`, the inventory of the rule snapshot above) keeps its upstream licence; `RULES.json` records that rule snapshot as Apache-2.0, and the directory's own files state no separate licence for the module, so none is named for it here. The third-party rule overlays vendored in `.claude/rules/external/kariedo/` and `.claude/rules/external/tikitribe/` keep their upstream MIT licence, held in the LICENSE file in each directory. The five third-party skills vendored in `.claude/skills/addyosmani-*/` (ci-cd-and-automation, code-review-and-quality, context-engineering, security-and-hardening, and using-agent-skills, from addyosmani) keep their upstream MIT licence, held in the LICENSE file in each skill directory beside its PROVENANCE.md. The Clean Language skill vendored in `.claude/skills/clean-language/` keeps its upstream CC BY-SA 4.0 licence under its own upstream copyright and attribution, which are not folded into the library's, held in the LICENSE and NOTICE.md files in that directory beside its PROVENANCE.md.
 
-Site template: the shared site template (baseline 1.6.0, https://posluns.ca/baseline/) is dedicated to the public domain under CC0 1.0 Universal, with 2 exceptions. The fonts Newsreader, Public Sans, JetBrains Mono and Dancing Script are licensed by their authors under the SIL Open Font License 1.1; their licence files are in .web/baseline/fonts/. The GitHub Invertocat, the LinkedIn [in] bug and the ORCID iD icon in .web/baseline/marks/ are trademarks of their owners, used under their owners' published terms as recorded in .web/baseline/marks/NOTICE.md, and are not covered by the CC0 grant.
+Site template: the shared site template (baseline 1.6.1, https://posluns.ca/baseline/) is dedicated to the public domain under CC0 1.0 Universal, with 2 exceptions. The fonts Newsreader, Public Sans, JetBrains Mono and Dancing Script are licensed by their authors under the SIL Open Font License 1.1; their licence files are in .web/baseline/fonts/. The GitHub Invertocat, the LinkedIn [in] bug and the ORCID iD icon in .web/baseline/marks/ are trademarks of their owners, used under their owners' published terms as recorded in .web/baseline/marks/NOTICE.md, and are not covered by the CC0 grant.
 
 See [`CITATION.cff`](CITATION.cff) for machine-readable citation metadata and [`AUTHORS.md`](AUTHORS.md) for the author's attribution preference.
 

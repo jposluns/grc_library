@@ -15,21 +15,21 @@
 <h1>All Documents</h1>
 <div class="rail"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"></div>
 <p class="meta">{{INDEX_COUNT}} documents across {{INDEX_AREA_COUNT}} areas, each with its own page, listed by title from A to Z, plus {{INDEX_ROOT_COUNT}} library specifications read on GitHub, in {{INDEX_TYPE_COUNT}} types. The list is generated from the library at build time, so a document added or removed appears or drops out on the next build.</p>
-<p class="lbl blk">By area</p>
-<ul class="chips">
-{{INDEX_AREA_CHIPS}}
-</ul>
-<p class="lbl blk">By type</p>
-<ul class="chips">
-{{INDEX_TYPE_CHIPS}}
-</ul>
 <p class="lbl blk">Library specifications</p>
 <ul class="plan one described">
 {{INDEX_ROOT_ROWS}}
 </ul>
 <p class="lbl sec">Documents, {{INDEX_COUNT}}</p>
 <h2>Every document in a corpus area, A to Z</h2>
-<p>With script, typing narrows the list to the documents whose title, type, area, purpose, or framework names match every word; without it, the whole list stays as it is.</p>
+<p>With script, a type chip keeps the documents of its type and an area chip the documents of its area, and typing keeps the documents whose title, type, area, purpose, or framework names match every word; a type, an area and words combine. A second click on a chosen chip, or a click on All, clears that chip's group and leaves the other choices as they are. Each chip's count is the number of documents of its type or area in the whole list, All counting the whole list, and stays the same whatever else is chosen; the status line under the text filter gives how many documents show. The page address keeps the choice (?type=, ?area=, ?q=), so a filtered list can be linked. Without script, the whole list stays as it is.</p>
+<p class="lbl blk">Type</p>
+<ul class="chips" data-filter-group="type" aria-label="Filter by type">
+{{INDEX_TYPE_CHIPS}}
+</ul>
+<p class="lbl blk">Area</p>
+<ul class="chips" data-filter-group="area" aria-label="Filter by area">
+{{INDEX_AREA_CHIPS}}
+</ul>
 <form class="search" role="search" data-search><label class="lbl" for="q">Filter the documents</label><input id="q" type="search" autocomplete="off" placeholder="e.g. retention, ISO 27001, supplier"><p class="status" role="status" aria-live="polite" data-search-status></p></form>
 <div class="wide"><ul class="plan one described" data-search-scope>
 {{INDEX_ROWS}}
