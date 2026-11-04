@@ -55,6 +55,11 @@ EXEMPT_FILES = {
     "register-coverage-gaps.md",
     # The decision tree references TODO.md and coverage gaps by name.
     "decision-tree.md",
+    # The generated web-to-corpus link manifest enumerates every GitHub
+    # target the site links, TODO.md among them (document pages link their
+    # sources' related documents); a row naming the file is a link target,
+    # not a placeholder marker.
+    "corpus-link-manifest.md",
 }
 
 # Directories whose content is exempt. The default set

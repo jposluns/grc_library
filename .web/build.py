@@ -1,25 +1,23 @@
 #!/usr/bin/env python3
-"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, per-domain, and per-type pages, plus the non-indexable staging trees (/v2 executive routes; the /v3 need-based path routes, the /v3 on-site document pages, one per domain document, root specs excepted, the /v3 client-side search, and the /v3 executive reading room).
+"""Static-site generator for the grclibrary.ai public site: the promoted baseline-template tree (the PR 2b rebuild, flipped to the site root at the draft-site promotion): the fixed pages, per-domain, per-type and per-document pages, the Browse adventure's need pages, the decide hub and concern pages, the executive reading room, and the crosswalk views and instrument pages.
 
-WHAT THIS IS. A stdlib-only generator that renders the public site (the landing page,
-the about page, the governance-pack page, one page per corpus domain, and one listing
-page per document type) from the LIVE corpus at build time.
+WHAT THIS IS. A stdlib-only generator that renders the public site from the
+LIVE corpus at build time.
 There is one source of truth (the corpus); the site is a projection of it. Every
 corpus figure on the pages is recomputed here
 from ``taxonomy.yml`` (the canonical machine-readable taxonomy, kept in sync with
-the corpus by the taxonomy-drift gate), the library version from ``README.md``,
-and, on the v2 and v3 staging domain pages, the published leadership-page listing from
+the corpus by the taxonomy-drift gate) and, on the domain pages and the
+executive routes, the published leadership-page listing from
 ``narrative.yml`` (the generated executive-narrative registry).
 Nothing is hardcoded; the preview HTML that seeded the templates carried a
 point-in-time snapshot that this generator overwrites.
 
 CONTENT BOUNDARY (why this is safe to publish). The generator reads EXACTLY an
 explicit allow-list: ``taxonomy.yml``, ``narrative.yml`` (the committed generated
-narrative registry, joined at render time into each v2 and v3 staging domain
+narrative registry, joined at render time into each domain
 page's leadership-page list), ``README.md``, each corpus domain's own
 ``<domain>/README.md`` (for the per-domain page intro), and the page templates and
-shared partials under each variant's template tree (``.web/templates/`` and the
-non-indexable ``.web/templates-v2/`` and ``.web/templates-v3/`` staging copies). It never walks the repository and
+shared partials under the variant's template tree. It never walks the repository and
 never reads ``.working/``, ``.claude/``, ``tools/``, ``tests/``, ``.github/``, or
 the private sibling repositories. (Under ``--check`` it additionally reads the
 committed ``.web/corpus-link-manifest.md``, self-scans this generator source for
@@ -27,46 +25,43 @@ the safeguard checks, and, for the hand-written edition check, reads
 ``governance/register-canonical-citations.md`` through gate D15's resolver
 (``tools/check-alignment-register-on-pr.py`` and its alias and exclusion files);
 none of these feeds published content.) By default its rendered output is the site under
-``.web/dist/`` (``--out DIR`` redirects it) (``index.html``, ``about/index.html``, ``pack/index.html``,
-``for-ai/index.html``, one ``<domain>/index.html`` per corpus domain, one
-``types/<slug>/index.html`` per document type, the error page ``404.html``
-(root variant only, noindex, excluded from the sitemap; Cloudflare Pages serves
+``.web/dist/`` (``--out DIR`` redirects it): the fixed pages of ``DRAFT_PAGES``
+(the landing, Browse, Search, All Documents, the crosswalk, the need pages, the
+Contributors and For-AI pages, the disclosure and licence pages), one
+``<domain>/index.html`` per corpus domain, one
+``types/<slug>/index.html`` per document type, one document page per non-root
+corpus document under ``documents/``, the executive layer (the decide hub,
+concern and subtype pages, and the reading room at
+``decisions/<subtype>/<slug>/``: ALL 34 published narrative pages across the
+six narrative types, each from the
+page's Markdown source by the constrained stdlib renderer below), the error page ``404.html``
+(noindex, excluded from the sitemap; Cloudflare Pages serves
 it with status 404 for any missing path), and the generated files
 ``robots.txt``, ``sitemap.xml``, ``llms.txt``, ``_headers`` (the Pages security
-headers, ``HEADERS_FILE``), and ``.well-known/security.txt`` (RFC 9116,
-``SECURITY_TXT``)); it also writes the committed ``.web/corpus-link-manifest.md`` (a generated artefact outside the ephemeral ``dist/`` tree). So the
-published surface is those root pages and files, plus the non-indexable staging
-variants' trees under ``.web/dist/v2/`` and ``.web/dist/v3/`` (both noindex); v2 additionally carries the
-executive-shell routes declared in ``V2_EXTRA_PAGES`` (decisions, start, trust,
-coverage, library, how-its-built), v3 additionally carries the need-based path
-routes declared in ``V3_EXTRA_PAGES`` (decide, govern, comply, solutions,
-policies, plus the client-side search page), while v2 AND v3 both carry the executive reading room (one on-site page
-per registry-listed narrative page: ALL 34 published narrative pages across the
-six narrative types render at ``decisions/<subtype>/<slug>/``, each from the
-page's Markdown source by the constrained stdlib renderer below; v2's discovery
-rows and hand-curated decisions page link to these on-site routes, and on v3 the
-Decide and Solutions pages link them on-site and every narrative is reachable
-from its domain page); a repo file cannot
+headers, ``HEADERS_FILE``), ``_redirects`` (the Pages redirect rules,
+``REDIRECTS_FILE``: the pre-promotion /draft/ splat and the retired /about/
+and /pack/ addresses), and ``.well-known/security.txt`` (RFC 9116,
+``SECURITY_TXT``); it also writes the committed ``.web/corpus-link-manifest.md`` (a generated artefact outside the ephemeral ``dist/`` tree). So the
+published surface is those pages and files; a repo file cannot
 leak onto the public site through this generator: the reading room reads ONLY
 registry-listed sources admitted by the renderer-confinement validator
 (``narrative_source_file``: a normalized repo-relative regular file under
 ``executive/`` only, git-tracked; absolute paths, parent-directory traversal,
 symlinks, duplicates, and untracked sources are all rejected loudly; the
-tracked-path authority is one ``git ls-files`` call returning paths, never content). The about page and the For-AI
-page are static template prose (the maintainer bio and acknowledged contributors;
+tracked-path authority is one ``git ls-files`` call returning paths, never content). The Contributors page and the For-AI
+page are static template prose (the acknowledged contributors;
 and, for For-AI, descriptive guidance plus a resource index whose links point at
 public corpus artefacts on GitHub), not corpus-derived. ``robots.txt`` welcomes
 AI/search crawlers, ``sitemap.xml`` lists the indexable root variant's rendered pages, and ``llms.txt`` is
 a curated Markdown map of public corpus artefacts. Each domain page draws its
-intro (the domain README's ``## Purpose`` paragraph, public corpus content) and
-its document list (title / type / path from ``taxonomy.yml``, each linking to its
-on-site document page on v3, or the document's GitHub blob on the frozen v1/v2
-trees and for root specifications); the v2 and v3 staging domain pages additionally list the
+intro (the domain README's ``## Purpose`` paragraph, public corpus content), its
+document list (title / type / path from ``taxonomy.yml``, each linking to its
+on-site document page, root specifications to their GitHub blobs), and the
 published leadership (executive-narrative) pages that touch the area, joined at
 render time from ``narrative.yml``. The allow-list additions are the twelve
-domain READMEs, ``narrative.yml``, and, for the v2 and v3 reading rooms, the
+domain READMEs, ``narrative.yml``, and, for the reading room, the
 registry-listed ``executive/`` narrative sources (each admitted only through the
-renderer-confinement validator above). Beyond that allow-list the /draft tree
+renderer-confinement validator above). Beyond that allow-list the tree
 reads its own template tree ``.web/templates-draft/``; the pinned baseline
 runtime files under ``.web/baseline/`` and their pin ``.baseline/pin.toml``
 (PR 2b), each copied file verified by SHA-256 at build time, and runs the
@@ -114,7 +109,7 @@ USAGE
                                    parsed (a renamed field, a moved file, a
                                    taxonomy schema change). This is the
                                    generator-health check wired into CI; it is a
-                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version, must not be among the row's Superseded versions, and must not be marked ended by the Current version (after the year of a statute named by its year only the row's enumerated notes, the register's own text with its dates, numbers and amending Act name variable, may follow (``STATUTE_NOTE_FORMS``), and an EU instrument citation may end only with a short name enumerated for its row or the row's own Standard ID (``EU_INSTRUMENT_SHORT_NAMES``), so any other text after the edition fails and the failure says to update the allowlist if the register text changed legitimately); a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, reads as an edition or date, or is not descriptive (a numeric character or a word not in ``TOPIC_WORDS``), or that carries no edition and is not enumerated in ``UNRESOLVED_LIST_NAMES`` (which a For-AI name cannot use), also fails, as does a list item the check cannot parse (any text but whitespace after an item's ``</li>`` and before the next item or the list's close included, a For-AI item's text between its name and description spans, which must be one of the forms in ``FOR_AI_INTER_SPAN_FORMS``, a For-AI item whose description span does not run to its ``</li>``, whitespace aside, and the description of a For-AI item, which must be one enumerated in ``FOR_AI_DESCRIPTIONS`` for the row of every part of its name, split on " / " and " and ", that names one (resolved, mapped in ``FOR_AI_NAME_ROWS``, or named by a leading part); the OWASP entries are chosen by the row any part of the name resolves to, not by its literal prefix, with one fallback by spelling: a For-AI name that, NFKC-normalised with format characters removed and case-folded, contains "owasp" anywhere is compared too, so one that does not resolve fails, and every part of a compared compound name has its edition compared), a For-AI jurisdiction label whose instrument text is none of its forms in ``FOR_AI_LABEL_INSTRUMENTS``, or any other For-AI name enumerated in ``FOR_AI_NAME_TEXTS`` whose text is none of its forms there, or a form of either list after a name it is not enumerated for, a compared OWASP name enumerated in ``FOR_AI_OWASP_TEXTS`` whose text is a form of the OWASP branch in ``FOR_AI_INTER_SPAN_FORMS`` but none of its own forms there (text that is no form of the branch fails as unparsed, above), a For-AI name, part or piece not compared as an OWASP entry that names no row and is not enumerated in ``FOR_AI_UNCHECKED_NAMES``, an "id" list item outside every list read, a For-AI source without exactly one EU AI Act entry or on which a name of ``FOR_AI_LABEL_INSTRUMENTS`` or ``FOR_AI_NAME_TEXTS`` (case and spacing ignored), of ``FOR_AI_UNCHECKED_NAMES`` (matched exactly) or of ``FOR_AI_OWASP_TEXTS`` (case and spacing ignored, any trailing edition removed) is not the whole name of exactly one item or on which an item named by a name of ``FOR_AI_OWASP_TEXTS`` adds or drops a trailing edition (adding or dropping one needs a list update) or on which a name of ``FOR_AI_OWASP_TEXTS`` that names one item is not the only item, part or piece naming its register row in any spelling, or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
+                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the OWASP and EU AI Act entries of the For-AI page; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version, must not be among the row's Superseded versions, and must not be marked ended by the Current version (after the year of a statute named by its year only the row's enumerated notes, the register's own text with its dates, numbers and amending Act name variable, may follow (``STATUTE_NOTE_FORMS``), and an EU instrument citation may end only with a short name enumerated for its row or the row's own Standard ID (``EU_INSTRUMENT_SHORT_NAMES``), so any other text after the edition fails and the failure says to update the allowlist if the register text changed legitimately); a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, reads as an edition or date, or is not descriptive (a numeric character or a word not in ``TOPIC_WORDS``), or that carries no edition and is not enumerated in ``UNRESOLVED_LIST_NAMES`` (which a For-AI name cannot use), also fails, as does a list item the check cannot parse (any text but whitespace after an item's ``</li>`` and before the next item or the list's close included, a For-AI item's text between its name and description spans, which must be one of the forms in ``FOR_AI_INTER_SPAN_FORMS``, a For-AI item whose description span does not run to its ``</li>``, whitespace aside, and the description of a For-AI item, which must be one enumerated in ``FOR_AI_DESCRIPTIONS`` for the row of every part of its name, split on " / " and " and ", that names one (resolved, mapped in ``FOR_AI_NAME_ROWS``, or named by a leading part); the OWASP entries are chosen by the row any part of the name resolves to, not by its literal prefix, with one fallback by spelling: a For-AI name that, NFKC-normalised with format characters removed and case-folded, contains "owasp" anywhere is compared too, so one that does not resolve fails, and every part of a compared compound name has its edition compared), a For-AI jurisdiction label whose instrument text is none of its forms in ``FOR_AI_LABEL_INSTRUMENTS``, or any other For-AI name enumerated in ``FOR_AI_NAME_TEXTS`` whose text is none of its forms there, or a form of either list after a name it is not enumerated for, a compared OWASP name enumerated in ``FOR_AI_OWASP_TEXTS`` whose text is a form of the OWASP branch in ``FOR_AI_INTER_SPAN_FORMS`` but none of its own forms there (text that is no form of the branch fails as unparsed, above), a For-AI name, part or piece not compared as an OWASP entry that names no row and is not enumerated in ``FOR_AI_UNCHECKED_NAMES``, an "id" list item outside every list read, a For-AI source without exactly one EU AI Act entry or on which a name of ``FOR_AI_LABEL_INSTRUMENTS`` or ``FOR_AI_NAME_TEXTS`` (case and spacing ignored), of ``FOR_AI_UNCHECKED_NAMES`` (matched exactly) or of ``FOR_AI_OWASP_TEXTS`` (case and spacing ignored, any trailing edition removed) is not the whole name of exactly one item or on which an item named by a name of ``FOR_AI_OWASP_TEXTS`` adds or drops a trailing edition (adding or dropping one needs a list update) or on which a name of ``FOR_AI_OWASP_TEXTS`` that names one item is not the only item, part or piece naming its register row in any spelling, or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
   python3 .web/build.py --out DIR  render into DIR instead of .web/dist/
 """
 
@@ -159,84 +154,32 @@ class Variant(NamedTuple):
     template_source_dir: str
     url_prefix: str
     indexable: bool = False
-    # Extra (template, out_rel) pages this variant renders on TOP of the shared
-    # PAGES set. A non-indexable staging variant uses this to carry routes the
-    # frozen root does not yet have, without touching PAGES (which is shared, so
-    # a root render stays byte-for-byte unchanged). Empty for the root variant.
-    extra_pages: tuple = ()
     # Whether this variant renders the executive reading room (the on-site
-    # narrative routes generated from the registry). VARIANT-SCOPED by this
-    # table flag, so the frozen root's page loop is untouched (the
-    # byte-identical-root mechanism for the new route class): the root variant
-    # keeps the default False and renders exactly the page set it always has.
+    # narrative routes generated from the registry).
     narrative_routes: bool = False
     # Whether this variant renders the on-site document (L2) pages, one per
-    # corpus document from the enriched taxonomy. VARIANT-SCOPED like
-    # narrative_routes so the frozen root/v2 trees are untouched.
+    # corpus document from the enriched taxonomy.
     document_routes: bool = False
-    # Only templates that consume DOMAIN_RAIL_LENSES opt into its validation.
-    domain_rail: bool = False
-    # Whether this variant renders the custom error page (404.html at the
-    # variant root, excluded from sitemap.xml). Cloudflare Pages serves
-    # /404.html with status 404 for any missing path, replacing the soft-200
-    # home-page fallback; only the indexable root variant carries it.
-    error_page: bool = False
-    # The variant's own fixed page set. None keeps the shared PAGES list, so
-    # the frozen v1/v2/v3 trees render byte-identically; the /draft tree sets
-    # its own tuple (DRAFT_PAGES) because the redesigned site shares no
-    # template with the live trees.
+    # The variant's own fixed page set (DRAFT_PAGES for the promoted tree).
     pages: tuple = None
-    # Baseline-template draft rules (PR 2b), VARIANT-SCOPED like the flags
-    # above so the frozen trees are untouched: the tree renders through
-    # render_draft_variant (its own templates, partials and figure values),
-    # copies the pinned baseline assets under <prefix>/assets/baseline/ with
-    # SHA-256 verification against .baseline/pin.toml, and every rendered page
-    # must pass the draft refusal guard (no inline style or script, no on*
-    # attribute, no en or em dash, no "what this is" framing). The live v1
-    # partials carry an inline <style> and <script>, so the guard cannot be
-    # global.
+    # Baseline-template draft rules (PR 2b, promoted to the root at the
+    # draft-site promotion): the tree renders through render_draft_variant
+    # (its own templates, partials and figure values), copies the pinned
+    # baseline assets under <prefix>assets/baseline/ with SHA-256
+    # verification against .baseline/pin.toml, and every rendered page must
+    # pass the draft refusal guard (no inline style or script, no on*
+    # attribute, no en or em dash, no "what this is" framing).
     draft_rules: bool = False
 
 
-# Executive routes that exist ONLY on the non-indexable /v2 staging tree (wave 1
-# of the executive-site rework). These render in addition to PAGES for v2 alone,
-# so the frozen root (v1) is unaffected and stays byte-identical to its baseline.
-# They inherit the noindex + self-canonical + /v2/-prefixed treatment every v2
-# page gets. Discovery files (robots/sitemap/llms.txt) are emitted for the
-# indexable variant only, so these routes stay out of them automatically.
-V2_EXTRA_PAGES = (
-    ("decisions.html", "decisions/index.html"),
-    ("start.html", "start/index.html"),
-    ("trust.html", "trust/index.html"),
-    ("coverage.html", "coverage/index.html"),
-    ("library.html", "library/index.html"),
-    ("how-its-built.html", "how-its-built/index.html"),
-)
-
-# The five need-based path routes (plus the client-side search page) that exist ONLY
-# on the non-indexable /v3 staging tree (PR-B of the ground-up redesign). The
-# landing's path cards and the v3 topnav link these routes; each opens on one
-# plain question and routes to content that already renders in v3 (the
-# per-domain and per-type pages) or to the corpus on GitHub. They render in
-# addition to PAGES for v3 alone, so v1 and v2 are unaffected and stay
-# byte-identical to their baselines. They inherit the noindex + self-canonical
-# + /v3/-prefixed treatment every v3 page gets, and stay out of the discovery
-# files (robots/sitemap/llms.txt), which are emitted for the indexable variant
-# only.
-V3_EXTRA_PAGES = (
-    ("decide.html", "decide/index.html"),
-    ("govern.html", "govern/index.html"),
-    ("comply.html", "comply/index.html"),
-    ("solutions.html", "solutions/index.html"),
-    ("policies.html", "policies/index.html"),
-    ("search.html", "search/index.html"),
-)
-
-# The fixed pages of the /draft tree (baseline-template rebuild, PR 2b):
-# (template under .web/templates-draft/, output path under draft/). The
-# per-domain, per-type and per-document routes come from the same machinery
-# the fixed pages cannot carry (one page per corpus domain; one per document
-# type; one per non-root corpus document), inside render_draft_variant.
+# The fixed pages of the promoted tree (the PR 2b baseline-template rebuild,
+# flipped to the site root at the draft-site promotion): (template under
+# .web/templates-draft/, output path at the dist root). The per-domain,
+# per-type and per-document routes come from the same machinery the fixed
+# pages cannot carry (one page per corpus domain; one per document type; one
+# per non-root corpus document), inside render_draft_variant. The 404 page is
+# excluded from sitemap.xml in render_site; Cloudflare Pages serves /404.html
+# with status 404 for any missing path.
 DRAFT_PAGES = (
     ("landing.html", "index.html"),
     ("browse.html", "browse/index.html"),
@@ -247,22 +190,20 @@ DRAFT_PAGES = (
     ("comply.html", "comply/index.html"),
     ("solutions.html", "solutions/index.html"),
     ("policies.html", "policies/index.html"),
+    ("contributors.html", "contributors/index.html"),
+    ("for-ai.html", "for-ai/index.html"),
     ("disclosure.html", "disclosure/index.html"),
     ("license.html", "license/index.html"),
     ("404.html", "404.html"),
 )
 
-# The site variant table: one indexable root variant (v1) plus any non-indexable
-# staging variants (v2, v3 and the /draft baseline-template tree). New staging
-# variants belong in this table, so the template source, URL prefix, and
-# indexability policy stay coupled.
+# The site variant table: exactly one indexable root variant (the promoted
+# baseline-template tree; the old root and the v2/v3 staging trees are removed
+# at the draft-site promotion, maintainer decision 2026-11-04). A future
+# staging variant belongs in this table, so the template source, URL prefix,
+# and indexability policy stay coupled.
 VARIANTS = (
-    Variant("v1", "templates", "", indexable=True, error_page=True),
-    Variant("v2", "templates-v2", "v2/", indexable=False, extra_pages=V2_EXTRA_PAGES,
-            narrative_routes=True, domain_rail=True),
-    Variant("v3", "templates-v3", "v3/", indexable=False,
-            extra_pages=V3_EXTRA_PAGES, document_routes=True, narrative_routes=True),
-    Variant("draft", "templates-draft", "draft/", indexable=False,
+    Variant("draft", "templates-draft", "", indexable=True,
             document_routes=True, narrative_routes=True, pages=DRAFT_PAGES,
             draft_rules=True),
 )
@@ -277,15 +218,6 @@ PARTIALS = {
     "FOOTER": "footer.html",
     "SCRIPT": "script.html",
 }
-
-# The site's pages: (template filename under a variant's template tree, output
-# path relative to that variant's output directory).
-PAGES = [
-    ("landing.html", "index.html"),
-    ("about.html", "about/index.html"),
-    ("pack.html", "pack/index.html"),
-    ("for-ai.html", "for-ai/index.html"),
-]
 
 # The licence sentence closing every generated page description: CC BY-SA 4.0
 # covers the library's own text only, matching each document's License field,
@@ -436,28 +368,51 @@ CURATED_CORPUS_LINKS = [
 ]
 SITE_BASE = "https://grclibrary.ai"
 
+# The shared-baseline CSP, copied byte for byte from the shared policy in
+# baseline 1.7.0 SPECIFICATION.md section 9 (unchanged since 1.3.1; section 9
+# states that the light and dark switch of 1.6.0 needs no CSP change): the
+# same policy on every family site, and on every page here since the
+# promotion executed the recorded owner decision that ``/*`` takes this
+# policy when the baseline-template tree becomes the root (the old live
+# CSP's ``style-src 'unsafe-inline'`` widening left with the old tree's
+# inline styles). The 3 Cloudflare hosts are in
+# tools/lint-external-link-domains.py ALLOW_LIST.
+DRAFT_CSP = (
+    "default-src 'none'; script-src 'self' 'unsafe-inline'"
+    " https://ajax.cloudflare.com https://static.cloudflareinsights.com;"
+    " connect-src 'self' https://cloudflareinsights.com; style-src 'self';"
+    " font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none';"
+    " frame-ancestors 'none'"
+)
+
 # The security headers Cloudflare Pages applies from the dist-root ``_headers``
-# file (owner decision 2026-11-03: one ``/*`` rule; a ``/draft/*`` rule belongs
-# to a later PR). The zone keeps sending X-Content-Type-Options,
-# Referrer-Policy, Access-Control-Allow-Origin and Strict-Transport-Security
-# automatically, so none of those is repeated here. The CSP's
-# style-src 'unsafe-inline' is a live-tree widening for the current inline
-# style blocks and style attributes; it is removable at promotion, when the
-# redesigned tree externalizes or hashes its styles.
+# file: one ``/*`` rule carrying the spec section 9 CSP (the recorded
+# at-promotion owner decision, executed at the draft-site promotion). The
+# zone keeps sending X-Content-Type-Options, Referrer-Policy,
+# Access-Control-Allow-Origin and Strict-Transport-Security automatically,
+# so none of those is repeated here.
 HEADERS_FILE = (
     "/*\n"
-    "  Content-Security-Policy: default-src 'none'; script-src 'self'"
-    " 'unsafe-inline' https://ajax.cloudflare.com"
-    " https://static.cloudflareinsights.com; connect-src 'self'"
-    " https://cloudflareinsights.com; style-src 'self' 'unsafe-inline';"
-    " font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none';"
-    " frame-ancestors 'none'\n"
+    f"  Content-Security-Policy: {DRAFT_CSP}\n"
     "  X-Frame-Options: DENY\n"
     "  Permissions-Policy: accelerometer=(), autoplay=(), bluetooth=(),"
     " browsing-topics=(), camera=(), display-capture=(), fullscreen=(),"
     " geolocation=(), gyroscope=(), hid=(), magnetometer=(), microphone=(),"
     " midi=(), payment=(), serial=(), usb=()\n"
     "  Cross-Origin-Opener-Policy: same-origin\n"
+)
+
+# The ``_redirects`` rules Cloudflare Pages applies from the dist root,
+# emitted at the draft-site promotion (maintainer decisions 2026-11-04):
+# every pre-promotion /draft/ address maps to its promoted root address
+# through the splat (the promoted tree is the draft tree with the prefix
+# stripped, so every target exists by construction); the old About page's
+# contributor content moved to /contributors/; the old rule-pack page's
+# subject is now the AIQT project.
+REDIRECTS_FILE = (
+    "/draft/* /:splat 301\n"
+    "/about/ /contributors/ 301\n"
+    "/pack/ https://aiqt.ai/ 301\n"
 )
 
 # RFC 9116 security.txt, served at /.well-known/security.txt by the indexable
@@ -474,27 +429,14 @@ SECURITY_TXT = (
 )
 
 
-# The /draft/* CSP, copied byte for byte from the shared policy in baseline
-# 1.7.0 SPECIFICATION.md section 9 (unchanged since 1.3.1; section 9 states
-# that the light and dark switch of 1.6.0 needs no CSP change): the same
-# policy on every family site for draft pages now and every page after
-# promotion. The 3
-# Cloudflare hosts are already in tools/lint-external-link-domains.py
-# ALLOW_LIST (PR 1 added them for the live CSP above).
-DRAFT_CSP = (
-    "default-src 'none'; script-src 'self' 'unsafe-inline'"
-    " https://ajax.cloudflare.com https://static.cloudflareinsights.com;"
-    " connect-src 'self' https://cloudflareinsights.com; style-src 'self';"
-    " font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none';"
-    " frame-ancestors 'none'"
-)
-
-# The /draft/* block appended to the PR 1 ``/*`` rule (owner decisions,
-# 2026-11-03, via SPECIFICATION.md section 9): ``!`` detaches the live CSP,
-# the draft CSP above replaces it, and X-Robots-Tag keeps the staging tree out
-# of search alongside each page's noindex meta. Never add X-Content-Type-
-# Options, Referrer-Policy or Strict-Transport-Security here: the zone sends
-# them automatically.
+# The prefixed staging block appended to the ``/*`` rule only while a
+# draft-rules variant renders under a non-empty URL prefix: ``!`` detaches
+# the root CSP, the spec section 9 CSP replaces it, and X-Robots-Tag keeps a
+# staging tree out of search alongside each page's noindex meta. The block
+# left the emitted ``_headers`` with the /draft/ prefix at promotion (the
+# promoted tree has the empty prefix, so no page renders under /draft/).
+# Never add X-Content-Type-Options, Referrer-Policy or
+# Strict-Transport-Security here: the zone sends them automatically.
 DRAFT_HEADERS_BLOCK = (
     "/draft/*\n"
     "  ! Content-Security-Policy\n"
@@ -504,10 +446,11 @@ DRAFT_HEADERS_BLOCK = (
 
 
 def render_headers_file():
-    """The dist-root ``_headers`` content: PR 1's ``/*`` rule byte for byte,
-    with the ``/draft/*`` block appended only while the variant table carries a
-    draft tree (the block leaves with the tree at promotion)."""
-    if any(variant.draft_rules for variant in VARIANTS):
+    """The dist-root ``_headers`` content: the ``/*`` rule byte for byte, with
+    the ``/draft/*`` block appended only while the variant table carries a
+    draft-rules tree under a non-empty prefix (the block left with the prefix
+    at promotion)."""
+    if any(variant.draft_rules and variant.url_prefix for variant in VARIANTS):
         return HEADERS_FILE + DRAFT_HEADERS_BLOCK
     return HEADERS_FILE
 
@@ -914,48 +857,6 @@ def _esc(s):
     )
 
 
-def render_domain_rows(figures):
-    rows = []
-    largest = figures["largest"]
-    for idx, (domain, count) in enumerate(figures["domains"], start=1):
-        pct = round(count / largest * 100)
-        scope = _esc(DOMAIN_SCOPE[domain])
-        rows.append(
-            f'            <tr><td class="rg-idx tnum">{idx:02d}</td>'
-            f'<td class="rg-name"><a href="{{{{BASE}}}}/{_esc(domain)}/">{_esc(domain)}</a></td>'
-            f'<td class="rg-scope">{scope}</td>'
-            f'<td class="rg-count"><span class="bar-wrap">'
-            f'<span class="bar" style="width:{pct}%"></span>'
-            f'<span class="n">{count}</span></span></td></tr>'
-        )
-    return "\n".join(rows)
-
-
-def render_sidenav_domains(figures):
-    """The landing-page contents-sidebar domain links (one per domain, register
-    order), each to its on-site domain page. Rendered as indented sub-links
-    (``class="sub"``) nested under the "By domain" section link, so the nav is a
-    two-level quick-nav rather than a separate flat Domains group (#941)."""
-    return "\n".join(
-        f'      <a class="sub" href="{{{{BASE}}}}/{_esc(domain)}/">{_esc(domain)}</a>'
-        for domain, _ in figures["domains"]
-    )
-
-
-def render_type_chips(figures):
-    """The "By document type" chips on the landing #register section, each a link
-    to that type's per-type listing page (/types/<slug>/)."""
-    chips = []
-    for type_name, count in figures["types"]:
-        slug = type_slug(type_name)
-        chips.append(
-            f'          <a class="type-chip" href="{{{{BASE}}}}/types/{slug}/">'
-            f'<span class="tn">{count}</span>'
-            f'<span class="tk">{_esc(type_name)}</span></a>'
-        )
-    return "\n".join(chips)
-
-
 def template_dir_for(variant):
     """Return the template tree selected by one variant-table row."""
     return WEB_DIR / variant.template_source_dir
@@ -971,29 +872,6 @@ def load_partials(template_dir):
             raise BuildError(f"partial not found at {p}")
         partials[key] = p.read_text(encoding="utf-8").rstrip("\n")
     return partials
-
-
-def render_domain_doc_rows(dp, variant):
-    """One list row per document in the domain: a type tag and the document
-    title as a link. On a variant with on-site document pages (v3) the title
-    links to the document's own L2 page; otherwise it links to the source on
-    GitHub in a new tab (the frozen root/v2 behaviour, kept byte-identical)."""
-    rows = []
-    for d in dp["docs"]:
-        if variant.document_routes and d["domain"] != ROOT_DOMAIN:
-            url = _doc_page_url("{{BASE}}", d["path"])
-            link = (f'<a class="doc-title" href="{_esc(url)}">'
-                    f'{_esc(d["title"])}</a>')
-        else:
-            url = GITHUB_BLOB_BASE + d["path"]
-            link = (f'<a class="doc-title" href="{_esc(url)}" target="_blank" '
-                    f'rel="noopener">{_esc(d["title"])}<span class="ext">&#8599;</span></a>')
-        rows.append(
-            f'          <li class="doc-row">'
-            f'<span class="doc-type">{_esc(d["type"])}</span>'
-            f'{link}</li>'
-        )
-    return "\n".join(rows)
 
 
 def narrative_source_blob_url(page):
@@ -1019,235 +897,6 @@ def narrative_page_url(page):
     using ``narrative_source_blob_url`` directly."""
     out_rel = narrative_out_rel(page)
     return "{{BASE}}/" + out_rel[: -len("index.html")]
-
-
-def render_domain_narrative_rows(dp):
-    """One list row per published leadership (narrative) page that touches this
-    domain, in the shape ``render_domain_doc_rows`` emits, with the page's
-    narrative_type as the type tag and the title as the link to the page's
-    ON-SITE reading-room route (via ``narrative_page_url``). Unlike the corpus
-    doc rows on the frozen v1/v2 trees (external GitHub links, new-tab,
-    external-arrow), these are INTERNAL links, so they open in place and carry no external arrow.
-    When NO page touches the domain, the single row is the declared-gap
-    statement in the shell's declared-gap voice (a gap is declared, never
-    hidden), so the template needs no branch; today every domain has at least
-    three pages, so the branch is future-proofing, not current output."""
-    if not dp["narratives"]:
-        return (
-            '          <li class="doc-row">'
-            '<span class="doc-type">Declared gap</span>'
-            '<span class="doc-title">No leadership pages touch this area yet: '
-            "a declared coverage gap, not a hidden one.</span>"
-            "</li>"
-        )
-    rows = []
-    for page in dp["narratives"]:
-        url = narrative_page_url(page)
-        rows.append(
-            f'          <li class="doc-row">'
-            f'<span class="doc-type">{_esc(page["narrative_type"])}</span>'
-            f'<a class="doc-title" href="{_esc(url)}">'
-            f'{_esc(page["title"])}</a>'
-            f"</li>"
-        )
-    return "\n".join(rows)
-
-
-# The v2 domain page's closing three-lens "Go deeper" rail. Every other v2 page
-# carries this block verbatim in its template; the domain template instead
-# renders it from this table (via the DOMAIN_RAIL_LENSES value below) so the
-# lens entry that IS the current domain page demotes to a non-link current-page
-# marker instead of linking to itself (3b152 N4: 8 of the rail's 10 entries are
-# domain pages, so the verbatim block self-linked on 8 of the domain pages).
-# Each entry is (domain slug or None, BASE-relative path or None, label); the
-# labels are template-authored HTML, already entity-escaped. A domain entry
-# carries its slug and no path (the renderer derives its href from the slug, so
-# the link destination cannot diverge from the validated slug); a None slug
-# marks a non-domain page that can never be the current domain page, and only
-# such an entry carries a hand-typed path.
-V2_DOMAIN_RAIL_LENSES = (
-    ("Security &amp; risk (CISO)", (
-        ("security", None, "Security controls &amp; operations"),
-        ("risk", None, "Risk methodology &amp; registers"),
-        ("resilience", None, "Continuity, recovery &amp; incidents"),
-    )),
-    ("Compliance &amp; evidence", (
-        ("compliance", None, "Regulatory mapping &amp; audit readiness"),
-        ("privacy", None, "Privacy &amp; data-protection obligations"),
-        ("governance", None, "Charters, policies &amp; registers"),
-    )),
-    ("Technology", (
-        (None, "how-its-built/", "How the library is built &amp; gated"),
-        ("architecture", None, "Reference architectures"),
-        ("dev-security", None, "Secure development &amp; pipelines"),
-        (None, "for-ai/", "For AI systems"),
-    )),
-)
-
-
-def render_domain_rail_lenses(current_domain, generated_domains):
-    """The three-lens rail for one v2 domain page: the shared lens block, except
-    that the entry naming the current domain renders as a non-link current-page
-    marker (aria-current, styled in the template) rather than a self-link. Fail
-    closed on table drift (3b152 round-1 QA): a rail slug that names no
-    GENERATED domain page (a renamed domain, or a domain whose last document
-    was removed, including one whose stale DOMAIN_SCOPE key remains) is a loud
-    build error, so neither case can leave the demotion silently dead or the
-    rail linking to a page that is not built; and a domain entry's href is
-    derived from its slug (an entry carrying both a slug and a hand-typed path,
-    or neither, is a loud build error), so the link destination cannot diverge
-    from the validated slug."""
-    malformed = sorted(
-        label for _, entries in V2_DOMAIN_RAIL_LENSES
-        for slug, path, label in entries if (slug is None) == (path is None)
-    )
-    if malformed:
-        raise BuildError(
-            "V2_DOMAIN_RAIL_LENSES entr(y/ies) must carry exactly one of a "
-            "domain slug (href derived from it) or a hand-typed path: "
-            + ", ".join(malformed)
-        )
-    unknown = sorted({slug for _, entries in V2_DOMAIN_RAIL_LENSES
-                      for slug, _, _ in entries if slug is not None}
-                     - set(generated_domains))
-    if unknown:
-        raise BuildError(
-            "V2_DOMAIN_RAIL_LENSES slug(s) name no generated domain page "
-            "(a renamed domain, or every document in it removed?): "
-            + ", ".join(unknown)
-        )
-    lenses = []
-    for heading, entries in V2_DOMAIN_RAIL_LENSES:
-        lines = ['        <div class="lens">', f"          <h3>{heading}</h3>"]
-        for slug, path, label in entries:
-            if slug == current_domain:
-                lines.append(
-                    f'          <span class="lens-here" aria-current="page">{label}</span>'
-                )
-            else:
-                href_path = f"{slug}/" if slug is not None else path
-                lines.append(
-                    f'          <a href="{{{{BASE}}}}/{href_path}">{label}</a>'
-                )
-        lines.append("        </div>")
-        lenses.append("\n".join(lines))
-    return "\n".join(lenses)
-
-
-def domain_page_values(dp, variant, generated_domains):
-    """The per-page values for one domain page (merged on top of the shared
-    values in render_page). SEO/attribute values are built from controlled
-    strings (the domain name, the curated scope, the count), never from the
-    README prose, so no quote-escaping is needed in the attribute context.
-    ``generated_domains`` is the set of domain slugs that actually get pages
-    this build, the fail-closed ground truth for the rail renderer."""
-    name = dp["domain"]
-    return {
-        "DOMAIN_NAME": _esc(name),
-        "DOMAIN_SCOPE_TEXT": _esc(dp["scope"]),
-        "DOMAIN_PURPOSE": _esc(dp["purpose"]),
-        "DOMAIN_DOC_COUNT": str(dp["count"]),
-        # The documents lede's noun is COMPUTED with the count (3b152 round-1
-        # QA, the same grammar class as the leadership lede below): exactly one
-        # document reads "reference document". A domain page exists only for a
-        # domain with at least one document, so zero never renders here. Like
-        # the narrative tokens this is inert on templates that omit the token,
-        # so v1 and v3 output stays byte-identical.
-        "DOMAIN_DOC_NOUN": (
-            "reference document" if dp["count"] == 1 else "reference documents"
-        ),
-        "DOMAIN_DOC_ROWS": render_domain_doc_rows(dp, variant),
-        # The leadership-page (narrative registry) join, consumed by the v2
-        # and v3 domain templates. Per-page extra= values are inert in a template
-        # that does not reference them (the unknown-placeholder error fires only
-        # on placeholders a template contains), so the untouched v1 template's
-        # output stays byte-identical. The count is COMPUTED, never typed.
-        "DOMAIN_NARRATIVE_COUNT": str(len(dp["narratives"])),
-        # The lede's noun-verb agreement is COMPUTED with the count (3b152 N2):
-        # exactly one page reads "page draws"; zero keeps the plural ("0 ...
-        # pages draw"), consistent with the declared-gap row beneath it. Like
-        # the rows/count values this is inert on templates that omit the token.
-        "DOMAIN_NARRATIVE_PAGES_DRAW": (
-            "page draws" if len(dp["narratives"]) == 1 else "pages draw"
-        ),
-        "DOMAIN_NARRATIVE_ROWS": render_domain_narrative_rows(dp),
-        # Only rail variants get the key, so a template that uses the rail on a
-        # variant without the flag fails the unknown-placeholder check instead of
-        # rendering an empty rail (3b152 round-3 claude N1).
-        **({"DOMAIN_RAIL_LENSES": render_domain_rail_lenses(name, generated_domains)}
-           if variant.domain_rail else {}),
-        "DOMAIN_TITLE": f"{_esc(name)} domain: GRC Library",
-        "DOMAIN_SEO_DESC": _esc(
-            f"{dp['scope']}. {dp['count']} governance documents in the {name} "
-            f"domain of the open GRC Library. {LICENCE_SEO_SUFFIX}"
-        ),
-        # Only v2 consumes this agreed description; keep the legacy token.
-        "DOMAIN_SEO_DESC_AGREED": _esc(
-            f"{dp['scope']}. {dp['count']} governance "
-            f"{'document' if dp['count'] == 1 else 'documents'} in the {name} "
-            f"domain of the open GRC Library. {LICENCE_SEO_SUFFIX}"
-        ),
-        "DOMAIN_CANONICAL": _site_url_for(variant, f"{name}/index.html"),
-    }
-
-
-def render_type_doc_rows(tp, variant):
-    """One list row per document of this type: a small tag showing the document's
-    DOMAIN and the document title as a link. On a variant with on-site document
-    pages (v3) a non-root document links to its own L2 page; otherwise (and for
-    root-level specs, which have no L2 page) it links to the source on GitHub."""
-    rows = []
-    for d in tp["docs"]:
-        # Root-level specs (domain "root") only ever surface on a type page; show
-        # a reader-friendly "library" tag rather than the internal "root".
-        dom = "library" if d["domain"] == ROOT_DOMAIN else d["domain"]
-        if variant.document_routes and d["domain"] != ROOT_DOMAIN:
-            url = _doc_page_url("{{BASE}}", d["path"])
-            link = (f'<a class="doc-title" href="{_esc(url)}">'
-                    f'{_esc(d["title"])}</a>')
-        else:
-            url = GITHUB_BLOB_BASE + d["path"]
-            link = (f'<a class="doc-title" href="{_esc(url)}" target="_blank" '
-                    f'rel="noopener">{_esc(d["title"])}<span class="ext">&#8599;</span></a>')
-        rows.append(
-            f'          <li class="doc-row">'
-            f'<span class="doc-type">{_esc(dom)}</span>'
-            f'{link}</li>'
-        )
-    return "\n".join(rows)
-
-
-def type_page_values(tp, variant):
-    """The per-page values for one per-type listing page (merged on top of the
-    shared values in render_page). All are built from controlled strings (the type
-    name, curated scope, count), never from document prose."""
-    name = tp["type"]
-    return {
-        "TYPE_NAME": _esc(name),
-        "TYPE_SCOPE_TEXT": _esc(tp["scope"]),
-        "TYPE_DOC_COUNT": str(tp["count"]),
-        # The type lede's noun is COMPUTED with the count (3b152 round-1 QA,
-        # the same grammar class as the domain ledes; the live corpus has
-        # one-document types, Checklist and Roadmap): exactly one document
-        # reads "reference document". Inert on templates that omit the token,
-        # so v1 and v3 output stays byte-identical.
-        "TYPE_DOC_NOUN": (
-            "reference document" if tp["count"] == 1 else "reference documents"
-        ),
-        "TYPE_DOC_ROWS": render_type_doc_rows(tp, variant),
-        "TYPE_TITLE": f"{_esc(name)} documents: GRC Library",
-        "TYPE_SEO_DESC": _esc(
-            f"{tp['scope']}. {tp['count']} {name}-type documents in the open "
-            f"GRC Library. {LICENCE_SEO_SUFFIX}"
-        ),
-        # Only v2 consumes this agreed description; keep the legacy token.
-        "TYPE_SEO_DESC_AGREED": _esc(
-            f"{tp['scope']}. {tp['count']} {name}-type "
-            f"{'document' if tp['count'] == 1 else 'documents'} in the open "
-            f"GRC Library. {LICENCE_SEO_SUFFIX}"
-        ),
-        "TYPE_CANONICAL": _site_url_for(variant, f"types/{tp['slug']}/index.html"),
-    }
 
 
 # ---------------------------------------------------------------------------
@@ -1279,13 +928,11 @@ NARRATIVE_ROUTE_PREFIX = "decisions/"
 
 # The section ids each reading-room TEMPLATE uses for its own shell sections,
 # reserved so a narrative-body heading slugging to one raises loudly rather than
-# emitting a duplicate id (RR guard, PR #1638). Keyed by template dir because the
-# v2 and v3 reading-room templates use different shells; ``narr-intro`` is the
+# emitting a duplicate id (RR guard, PR #1638). Keyed by template dir so a
+# future second shell carries its own reservation; ``narr-intro`` is the
 # renderer's own intro-section id and is always present.
 NARRATIVE_SHELL_IDS = {
-    "templates-v2": {"narr-intro", "depth", "source"},
-    "templates-v3": {"narr-intro", "contents", "source", "go-deeper"},
-    # The draft shell's ids are every id its narrative.html carries (the
+    # The shell's ids are every id its narrative.html carries (the
     # skip-link target, two heading anchors and the copy status line).
     "templates-draft": {
         "narr-intro", "main-content", "source", "domains", "copy-status",
@@ -2037,10 +1684,10 @@ def render_narrative_body(text, source_rel, reserved_shell_ids=None):
     unnumbered intro section."""
     blocks = _narrative_blocks(_narrative_body_lines(text, source_rel), source_rel)
     # The shell ids the TEMPLATE reserves (passed per-variant; defaults to the
-    # v2 set for the direct-call test surface), so a body heading slugging to one
-    # raises rather than emitting a duplicate id (RR guard, PR #1638).
+    # draft set for the direct-call test surface), so a body heading slugging to
+    # one raises rather than emitting a duplicate id (RR guard, PR #1638).
     if reserved_shell_ids is None:
-        reserved_shell_ids = NARRATIVE_SHELL_IDS["templates-v2"]
+        reserved_shell_ids = NARRATIVE_SHELL_IDS["templates-draft"]
     seen_slugs = set(reserved_shell_ids)
     toc = []
     sections = []
@@ -2201,74 +1848,17 @@ def narrative_route_bodies(figures, variant, seen_out_rels):
         yield page, out_rel, body_html, toc
 
 
-def render_narrative_domain_chips(page):
-    """The domain-page chips for ONE narrative: exactly the domains the registry
-    tags it with (``page['domains']``), each linking to its on-site domain page.
-    Replaces the fixed rail so the "go deeper" links match THIS narrative and its
-    copy is accurate (PR #1638; RR-1). All 34 narratives carry domain tags."""
-    return "\n".join(
-        f'        <a href="{{{{BASE}}}}/{_esc(d)}/">{_esc(d)}</a>'
-        for d in page.get("domains", [])
-    )
-
-
-def narrative_page_values(page, variant, out_rel, body_html, toc):
-    """The per-page values for one reading-room page (merged on top of the
-    shared values in render_page, riding the same ``extra=`` path as the
-    domain and type pages, so they are inert everywhere else). SEO/attribute
-    values are built from registry strings (title, narrative_type), all
-    escaped; the body arrives pre-rendered by the constrained renderer."""
-    title = page["title"]
-    sidenav = "\n".join(
-        f'      <a href="#{anchor}">{_esc(heading)}</a>' for anchor, heading in toc
-    )
-    return {
-        "NARRATIVE_TYPE": _esc(page["narrative_type"]),
-        "NARRATIVE_H1": _esc(title),
-        "NARRATIVE_BODY": body_html,
-        "NARRATIVE_SIDENAV": sidenav,
-        "NARRATIVE_DOMAINS": render_narrative_domain_chips(page),
-        # Brace-escaped as defence-in-depth (F1, round-2 QA): the registry
-        # path is already brace-rejected in load_narratives, but the source
-        # URL flows into an href, so mirror the in-body href treatment so a
-        # brace could never survive into render_page's second pass here either.
-        "NARRATIVE_SOURCE_URL": _esc(narrative_source_blob_url(page)).replace("{", "&#123;"),
-        "NARRATIVE_TITLE": f"{_esc(title)}: GRC Library",
-        "NARRATIVE_SEO_DESC": _esc(
-            f"{page['narrative_type']}: {title}. A leadership page of the open "
-            "GRC Library; every claim resolves to the governing corpus "
-            f"documents. {LICENCE_SEO_SUFFIX}"
-        ),
-        "NARRATIVE_CANONICAL": _site_url_for(variant, out_rel),
-    }
-
-
 def figure_values(figures, variant):
-    """The corpus-derived values interpolated into every page."""
-    if variant.draft_rules:
-        # The draft tree's shared values: counts only, every one recomputed
-        # (decision: no count is ever typed into a template). The live keys
-        # below render v1-shaped markup (DOMAIN_ROWS carries an inline style
-        # attribute the draft refusal guard forbids), so the draft set is its
-        # own.
-        return {
-            "BASE": site_prefix_for(variant),
-            "DOC_TOTAL": str(figures["total"]),
-            "DOMAIN_COUNT": str(figures["domain_count"]),
-            "DOMAIN_DOC_COUNT": str(figures["domain_docs"]),
-            "ROOT_COUNT": str(figures["root_count"]),
-            "TYPE_COUNT": str(len(figures["types"])),
-        }
+    """The corpus-derived values interpolated into every page: counts only,
+    every one recomputed (decision: no count is ever typed into a
+    template)."""
     return {
-        "CALVER": figures["calver"],
+        "BASE": site_prefix_for(variant),
         "DOC_TOTAL": str(figures["total"]),
         "DOMAIN_COUNT": str(figures["domain_count"]),
-        "DOMAIN_DOC_TOTAL": str(figures["domain_docs"]),
+        "DOMAIN_DOC_COUNT": str(figures["domain_docs"]),
         "ROOT_COUNT": str(figures["root_count"]),
-        "BASE": site_prefix_for(variant),
-        "DOMAIN_ROWS": render_domain_rows(figures),
-        "TYPE_CHIPS": render_type_chips(figures),
-        "SIDENAV_DOMAINS": render_sidenav_domains(figures),
+        "TYPE_COUNT": str(len(figures["types"])),
     }
 
 
@@ -2321,6 +1911,20 @@ def render_page(template_name, figures, variant, template_dir, partials, extra=N
             rendered = _CANONICAL_TAG_RE.sub(metadata, rendered)
         else:
             rendered = rendered.replace("</head>", f"{metadata}\n</head>", 1)
+    elif variant.draft_rules and out_rel != "404.html":
+        # Promoted draft-rules pages carry an injected self-canonical: the
+        # templates carry no canonical tag of their own (pre-promotion the
+        # noindex injection above was the sole canonical source, so without
+        # this branch the promoted pages would ship with none). The 404 page
+        # is excluded, matching its sitemap exclusion; it carries a static
+        # noindex meta in its template.
+        if out_rel is None:
+            raise BuildError(f"indexable variant page {template_name} has no output path")
+        metadata = f'<link rel="canonical" href="{_site_url_for(variant, out_rel)}">'
+        if _CANONICAL_TAG_RE.search(rendered):
+            rendered = _CANONICAL_TAG_RE.sub(metadata, rendered)
+        else:
+            rendered = rendered.replace("</head>", f"{metadata}\n</head>", 1)
     return rendered, used
 
 
@@ -2329,8 +1933,7 @@ def render_robots_txt():
     content is CC BY-SA 4.0 (quotations keep their own licences; see NOTICE.md)
     and it is intended to be widely read, cited, and learned from (including as AI
     training data), so the file names the known AI/training crawlers explicitly
-    with ``Allow: /`` and then allows everyone via a trailing wildcard group while disallowing the ``/v2``
-    staging tree,
+    with ``Allow: /`` and then allows everyone via a trailing wildcard group,
     and advertises the sitemap. It is deliberately permissive and replaces any
     platform-managed default that would restrict AI crawlers."""
     lines = [
@@ -2339,13 +1942,13 @@ def render_robots_txt():
         "# content under CC BY-SA 4.0 (vendored third-party material and quotations",
         "# keep their own licences; see NOTICE.md in the source repository),",
         "# intended to be widely read, cited, and learned from, including as",
-        "# training data for AI systems. All crawlers are welcome on every public path (the /v2 staging tree is disallowed).",
+        "# training data for AI systems. All crawlers are welcome on every public path.",
         "",
     ]
     for ua in AI_CRAWLER_USER_AGENTS:
-        lines += [f"User-agent: {ua}", "Allow: /", "Disallow: /v2/", ""]
+        lines += [f"User-agent: {ua}", "Allow: /", ""]
     lines += [
-        "User-agent: *", "Allow: /", "Disallow: /v2/", "",
+        "User-agent: *", "Allow: /", "",
         f"Sitemap: {SITE_BASE}/sitemap.xml", "",
     ]
     return "\n".join(lines)
@@ -2430,89 +2033,55 @@ def render_llms_txt(figures, variant):
 """
 
 
-# A corpus link written directly into a static page template, as opposed to one
-# the taxonomy emits. `render_static_template_links` scans for these so the
-# manifest (and therefore gate 75) reaches them; before that scan existed, 48
-# distinct targets were linked by the site and covered by no gate, including
-# every governance-rule and skill link on the pack page (Sweep 120 F2).
+# A corpus link emitted into a page (hardcoded in a template, or generated
+# from the taxonomy, the narrative registry or the crosswalk model).
+# `render_corpus_link_manifest` scans the RENDERED pages for these so the
+# manifest (and therefore gate 75) reaches every one; before that scan
+# existed, 48 distinct targets were linked by the site and covered by no gate
+# (Sweep 120 F2), and the promotion-era pages (document pages linking their
+# own sources, the documents index's root-spec links, the licence and For-AI
+# pages) would otherwise each need their own enumeration.
 TEMPLATE_CORPUS_LINK_RE = re.compile(
     re.escape(GITHUB_BLOB_BASE) + r'([^"#?\s]+)'
 )
 
-
-def render_static_template_links(variant):
-    """Yield ``(target, location, link_text)`` for every corpus link hardcoded in
-    a static page template or a shared partial.
-
-    The templates in PAGES and the shared PARTIALS are scanned: `domain.html` and
-    `type.html` render from the taxonomy (already covered above), and a partial
-    such as the footer, whose NOTICE.md link 3b550 added, is injected into every
-    page that carries its placeholder, so its links are recorded once, located at
-    the partial itself rather than repeated for each page. Together they are the
-    complete set of static-link sources for the indexable root manifest. A staging
-    variant's extra_pages templates carry their own hardcoded
-    corpus links, intentionally excluded from the committed root manifest (verified at
-    authoring time, folded in at promotion). The link
-    text is the anchor's own text when it can be read, else the target's basename,
-    since a template anchor's text is prose rather than a document title."""
-    template_dir = template_dir_for(variant)
-    sources = [(template_name, _site_path_for(variant, out_rel))
-               for template_name, out_rel in PAGES]
-    sources += [(f"partials/{fname}", f"partial {fname}")
-                for fname in PARTIALS.values()]
-    for template_name, location in sources:
-        path = template_dir / template_name
-        if not path.is_file():
-            continue
-        text = path.read_text(encoding="utf-8")
-        for match in TEMPLATE_CORPUS_LINK_RE.finditer(text):
-            target = match.group(1)
-            anchor = re.match(
-                r'[^>]*>(?P<text>[^<]{1,120})</a>', text[match.end():]
-            )
-            label = (anchor.group("text").strip() if anchor
-                     else target.rsplit("/", 1)[-1])
-            yield target, location, label
+_ANCHOR_TEXT_RE_TEMPLATE = r'[^>]*>(?P<text>[^<]{1,120})</a>'
 
 
-def render_corpus_link_manifest(figures, variant):
+def render_corpus_link_manifest(figures, variant, pages):
     """The committed web-to-corpus link manifest: one row per corpus/GitHub
-    target the indexable root variant's pages link (its repo-relative path, its
-    website location, and its link text). A non-indexable staging variant may carry
-    extra routes (variant.extra_pages) that link further corpus targets; those
-    staging-only links are verified at authoring time but are not enumerated in
-    this root manifest, and enter it when a staging tree is promoted to root. Re-derived from the SAME sources the pages emit from, so the
-    manifest cannot drift from the emitted links: the taxonomy docs behind the
-    per-domain pages (render_domain_doc_rows) and the per-type pages
-    (render_type_doc_rows), the curated llms.txt corpus links
-    (CURATED_CORPUS_LINKS), and the corpus links hardcoded in the static page
-    templates (render_static_template_links). The repo-root and on-site links are
-    not corpus-path targets and are excluded, matching the gate's scope."""
+    target the indexable root variant's pages link (its repo-relative path,
+    its website location, and its link text). Re-derived by scanning the
+    RENDERED HTML pages the build just produced plus the curated llms.txt
+    corpus links (CURATED_CORPUS_LINKS), so the manifest cannot drift from
+    the emitted links, whatever machinery emitted them. The link text is the
+    anchor's own text when it can be read, else the target's basename. The
+    repo-root and on-site links are not corpus-path targets and are excluded,
+    matching the gate's scope. ``pages`` is the render_site output
+    (dist-relative path, content)."""
     rows = {}  # (target, location) -> link_text, dedup-safe and deterministic
-    for dp in figures["domain_pages"]:
-        for d in dp["docs"]:
-            rows[(d["path"], _site_path_for(variant, f"{dp['domain']}/index.html"))] = d["title"]
-    for tp in figures["type_pages"]:
-        for d in tp["docs"]:
-            rows[(d["path"], _site_path_for(variant, f"types/{tp['slug']}/index.html"))] = d["title"]
     for path, label in CURATED_CORPUS_LINKS:
         rows[(path, "llms.txt")] = label
-    for target, location, label in render_static_template_links(variant):
-        rows[(target, location)] = label
+    for rel, content in pages:
+        if not rel.endswith(".html") or not isinstance(content, str):
+            continue
+        location = _site_path_for(variant, rel)
+        for match in TEMPLATE_CORPUS_LINK_RE.finditer(content):
+            target = match.group(1)
+            anchor = re.match(_ANCHOR_TEXT_RE_TEMPLATE, content[match.end():])
+            label = (anchor.group("text").strip() if anchor
+                     else target.rsplit("/", 1)[-1])
+            rows[(target, location)] = label
     lines = [
         "# Web-to-corpus link manifest",
         "",
         "Generated by `.web/build.py`; do not edit by hand. Every corpus/GitHub "
-        "target the indexable root variant's pages link, with its website location and link text: the "
-        "taxonomy-derived domain and type pages, the curated `llms.txt` map, and "
-        "the corpus links hardcoded in the static page templates and the shared "
-        "partials (a partial's link is located at the partial, which every page "
-        "that includes it carries). Gate 75 "
-        "(`tools/lint-web-corpus-links.py`) resolves each target against the repo. "
-        "Non-indexable staging variants (v2 and v3) may carry extra routes that "
-        "link further corpus targets; those staging-only links are verified at "
-        "authoring time, are not enumerated here, and enter this manifest when a "
-        "staging tree is promoted to root.",
+        "target the indexable root variant's pages link, with its website "
+        "location and link text, scanned from the rendered pages themselves "
+        "(so a hardcoded template link, a taxonomy-derived link and a "
+        "registry-derived link all land here the same way), plus the curated "
+        "`llms.txt` map. Gate 75 (`tools/lint-web-corpus-links.py`) resolves "
+        "each target against the repo.",
         "",
         "| Corpus target | Website location | Link text |",
         "| --- | --- | --- |",
@@ -2607,144 +2176,6 @@ def _doc_page_url(base, path):
     """The {{BASE}}-relative link to a document's on-site page."""
     stem = path[:-3] if path.endswith(".md") else path
     return f"{base}/documents/{stem}/"
-
-
-# The metadata fields shown in the L2 spec strip, in display order (label, key).
-_SPEC_STRIP_FIELDS = (
-    ("Type", "type"),
-    ("Version", "version"),
-    ("Date", "date"),
-    ("Owner", "owner"),
-    ("Approving authority", "approving_authority"),
-    ("Classification", "classification"),
-    ("Confidentiality", "confidentiality"),
-    ("Category", "category"),
-    ("Review frequency", "review_frequency"),
-    ("License", "license"),
-)
-
-
-def _render_meta_strip(doc):
-    cells = []
-    for label, key in _SPEC_STRIP_FIELDS:
-        val = doc.get(key, "")
-        if not val:
-            continue
-        cells.append(
-            f'        <div class="spec"><dt>{_esc(label)}</dt>'
-            f'<dd>{_esc(val)}</dd></div>'
-        )
-    return "\n".join(cells)
-
-
-def _render_section_outline(doc):
-    secs = doc.get("sections", [])
-    if not secs:
-        return '        <li class="muted">No section outline.</li>'
-    # Flatten inline Markdown (code spans, bold) in a heading for clean display;
-    # the taxonomy keeps the exact heading, the outline shows plain text.
-    def _plain(s):
-        s = s.replace("`", "")
-        s = re.sub(r"\*\*([^*]+)\*\*", r"\1", s)
-        return s
-    return "\n".join(f'        <li>{_esc(_plain(s))}</li>' for s in secs)
-
-
-def _render_frameworks(doc):
-    fws = doc.get("frameworks", [])
-    if not fws:
-        return ('        <span class="chip-muted">'
-                'No external-framework alignment table.</span>')
-    return "\n".join(f'        <span class="type-chip">{_esc(f)}</span>'
-                     for f in fws)
-
-
-def _render_related_docs(doc, docs_by_path, base):
-    rels = doc.get("related_documents", [])
-    if not rels:
-        return ('        <li class="doc-row"><span class="doc-type">None listed</span>'
-                '<span class="doc-title">This document lists no related documents.</span></li>')
-    rows = []
-    for rp in rels:
-        rd = docs_by_path.get(rp)
-        if rd and rd.get("domain") != ROOT_DOMAIN:
-            # on-site link to the related document's own L2 page
-            url = _doc_page_url(base, rp)
-            rows.append(
-                f'        <li class="doc-row">'
-                f'<span class="doc-type">{_esc(rd.get("type",""))}</span>'
-                f'<a class="doc-title" href="{_esc(url)}">'
-                f'{_esc(rd.get("title", rp))}</a></li>'
-            )
-        else:
-            # related target not an on-site domain document: link to source
-            url = GITHUB_BLOB_BASE + rp
-            title = rd.get("title", rp) if rd else rp
-            rows.append(
-                f'        <li class="doc-row">'
-                f'<span class="doc-type">source</span>'
-                f'<a class="doc-title" href="{_esc(url)}" target="_blank" rel="noopener">'
-                f'{_esc(title)}<span class="ext">&#8599;</span></a></li>'
-            )
-    return "\n".join(rows)
-
-
-def document_page_values(doc, docs_by_path, variant):
-    """Per-page values for one on-site document (L2) page, all built from the
-    enriched taxonomy (never from live document prose): the escaper covers the
-    attribute context, so the purpose is safe in the meta-description too."""
-    base = "{{BASE}}"
-    path = doc["path"]
-    domain = doc.get("domain", "")
-    doc_type = doc.get("type", "")
-    title = doc.get("title", path)
-    purpose = doc.get("purpose", "")
-    if not purpose:
-        # Graceful lede for the few structurally-atypical docs with no
-        # purpose paragraph in source (keeps the lede + meta non-empty).
-        purpose = f"A {doc_type.lower()} in the {domain} area of the GRC Library."
-    return {
-        "DOC_TITLE": _esc(title),
-        "DOC_TYPE": _esc(doc_type),
-        "DOC_TYPE_SLUG": type_slug(doc_type),
-        "DOC_AREA": _esc(domain),
-        "DOC_AREA_SLUG": _esc(domain),
-        "DOC_PURPOSE": _esc(purpose),
-        "META_STRIP": _render_meta_strip(doc),
-        "SECTION_OUTLINE": _render_section_outline(doc),
-        "FRAMEWORKS": _render_frameworks(doc),
-        "RELATED_DOCS": _render_related_docs(doc, docs_by_path, base),
-        "GITHUB_URL": _esc(GITHUB_BLOB_BASE + path),
-        "RAW_MD_URL": _esc(RAW_GITHUB_BASE + path),
-    }
-
-
-def render_search_index(variant):
-    """A compact JSON index for the client-side /v3 search: one entry per corpus
-    DOMAIN document (title, type, area, a truncated purpose, frameworks, and its
-    on-site URL), built from the enriched taxonomy (the generator still never
-    walks the repository). Emitted only for a variant with document_routes.
-    Reading-room narrative pages are NOT indexed here: they are corpus documents
-    by neither count nor category (the gate-86 boundary), and are reached from
-    their domain pages and the Decide path instead."""
-    import json
-    base = variant.url_prefix.rstrip("/")
-    prefix = f"/{base}" if base else ""
-    full = parse_taxonomy_full(TAXONOMY.read_text(encoding="utf-8"))
-    entries = []
-    for d in full:
-        if d.get("domain") == ROOT_DOMAIN:
-            continue
-        stem = d["path"][:-3] if d["path"].endswith(".md") else d["path"]
-        entries.append({
-            "t": d.get("title", ""),
-            "y": d.get("type", ""),
-            "a": d.get("domain", ""),
-            "p": (d.get("purpose", "") or "")[:200],
-            "f": d.get("frameworks", []),
-            "u": f"{prefix}/documents/{stem}/",
-        })
-    return json.dumps(entries, ensure_ascii=False, separators=(",", ":"))
 
 
 # ---------------------------------------------------------------------------
@@ -7380,6 +6811,11 @@ def render_draft_variant(figures, variant):
             figures, docs_by_path, crosswalk),
         "solutions.html": lambda: draft_solutions_values(figures, concerns),
         "policies.html": lambda: draft_policies_values(figures),
+        # Static template prose carried over from the old root at promotion
+        # (maintainer decisions 2026-11-04): the Contributors page and the
+        # For-AI page. Neither belongs to a top-bar section.
+        "contributors.html": _draft_nav,
+        "for-ai.html": _draft_nav,
         # Rendered after every other page (below), so its evidence lists
         # the scripts the draft actually loads.
         "disclosure.html": None,
@@ -7530,104 +6966,19 @@ def render_draft_variant(figures, variant):
 
 
 def render_variant(figures, variant):
-    """Render one variant's HTML template tree and return relative outputs."""
+    """Render one variant's HTML template tree and return relative outputs.
+
+    Every variant in the promoted table renders through render_draft_variant
+    (the plain-template machinery left with the old root and the v2/v3
+    staging trees at the draft-site promotion); a non-draft-rules row is a
+    table error, surfaced loudly here."""
     if variant.draft_rules:
         return render_draft_variant(figures, variant)
-    template_dir = template_dir_for(variant)
-    partials = load_partials(template_dir)
-    all_values = set(PARTIALS) | set(figure_values(figures, variant))
-    pages = []
-    used_across = set()
-    for template_name, out_rel in tuple(PAGES) + tuple(variant.extra_pages):
-        html, used = render_page(
-            template_name, figures, variant, template_dir, partials, out_rel=out_rel
-        )
-        pages.append((out_rel, html))
-        used_across |= used
-
-    # The custom error page, VARIANT-SCOPED by the error_page table flag (the
-    # root variant alone): Cloudflare Pages serves /404.html with status 404
-    # for any missing path. The template carries its own static noindex meta,
-    # and render_site keeps the page out of sitemap.xml.
-    if variant.error_page:
-        html, used = render_page(
-            "404.html", figures, variant, template_dir, partials, out_rel="404.html"
-        )
-        pages.append(("404.html", html))
-        used_across |= used
-
-    # One page per corpus domain, from the shared domain template plus that
-    # domain's per-page values. The dead-value check below covers the global
-    # values (used by the fixed pages); each domain page's own leftover check in
-    # render_page guarantees its DOMAIN_* placeholders all resolved.
-    generated_domains = set(d["domain"] for d in figures["domain_pages"])
-    for dp in figures["domain_pages"]:
-        html, _ = render_page(
-            "domain.html", figures, variant, template_dir, partials,
-            extra=domain_page_values(dp, variant, generated_domains),
-            out_rel=f"{dp['domain']}/index.html"
-        )
-        pages.append((f"{dp['domain']}/index.html", html))
-
-    # One page per document type, from the shared type template plus that type's
-    # per-page values. Like the domain pages, each page's own leftover check in
-    # render_page guarantees its TYPE_* placeholders all resolved. The "By document
-    # type" chips on the landing page link here (/types/<slug>/).
-    for tp in figures["type_pages"]:
-        html, _ = render_page(
-            "type.html", figures, variant, template_dir, partials,
-            extra=type_page_values(tp, variant), out_rel=f"types/{tp['slug']}/index.html"
-        )
-        pages.append((f"types/{tp['slug']}/index.html", html))
-
-    # On-site document (L2) pages: one per corpus DOMAIN document, built from
-    # the enriched taxonomy (never from live prose), VARIANT-SCOPED by
-    # document_routes so the frozen root/v2 trees are untouched. Root-level
-    # specs are excluded (they have no domain page to anchor their area link).
-    # Each page's own leftover check in render_page guarantees its DOC_*
-    # placeholders all resolved.
-    if variant.document_routes:
-        full_docs = parse_taxonomy_full(TAXONOMY.read_text(encoding="utf-8"))
-        docs_by_path = {d["path"]: d for d in full_docs}
-        for d in full_docs:
-            if d.get("domain") == ROOT_DOMAIN:
-                continue
-            out_rel = _doc_route_rel(d["path"])
-            html, _ = render_page(
-                "document.html", figures, variant, template_dir, partials,
-                extra=document_page_values(d, docs_by_path, variant),
-                out_rel=out_rel,
-            )
-            pages.append((out_rel, html))
-        pages.append(("search-index.json", render_search_index(variant)))
-
-    # The executive reading room (wave-2 PR-2a; extended to /v3 in PR #1638):
-    # one on-site page per
-    # registry-listed narrative page of a routed type, VARIANT-SCOPED by the
-    # variant-table flag so the frozen root's page loops above are untouched
-    # (the byte-identical-root mechanism for this new route class). The
-    # confined source reads and the route checks live in
-    # narrative_route_bodies, shared with the /draft tree.
-    if variant.narrative_routes:
-        seen_out_rels = {out_rel for out_rel, _ in pages}
-        for page, out_rel, body_html, toc in narrative_route_bodies(
-            figures, variant, seen_out_rels
-        ):
-            html, _ = render_page(
-                "narrative.html", figures, variant, template_dir, partials,
-                extra=narrative_page_values(page, variant, out_rel, body_html, toc),
-                out_rel=out_rel,
-            )
-            pages.append((out_rel, html))
-
-    unused = sorted(all_values - used_across)
-    if unused:
-        raise BuildError(
-            "value(s) used by no page (dead computation or a dropped placeholder): "
-            f"{', '.join('{{' + k + '}}' for k in unused)}"
-        )
-
-    return pages
+    raise BuildError(
+        f"variant {variant.name} has no renderer: the plain-template "
+        "machinery was removed at the draft-site promotion (every variant "
+        "must set draft_rules)"
+    )
 
 
 def render_site(figures):
@@ -7659,10 +7010,12 @@ def render_site(figures):
             pages.append((
                 output_rel_for(variant, "llms.txt"), render_llms_txt(figures, variant),
             ))
-            # The Pages header rules and the RFC 9116 security.txt, emitted
-            # once each, at the output root alone (the sole indexable variant
-            # has the empty prefix, so neither lands under a staging tree).
+            # The Pages header and redirect rules and the RFC 9116
+            # security.txt, emitted once each, at the output root alone (the
+            # sole indexable variant has the empty prefix, so none lands
+            # under a staging tree).
             pages.append((output_rel_for(variant, "_headers"), render_headers_file()))
+            pages.append((output_rel_for(variant, "_redirects"), REDIRECTS_FILE))
             pages.append((
                 output_rel_for(variant, ".well-known/security.txt"), SECURITY_TXT,
             ))
@@ -7735,11 +7088,7 @@ D15_CHECKER = REPO_ROOT / "tools" / "check-alignment-register-on-pr.py"
 # ("incomplete"). So a markup change to an <li> with an "id" span, to a "biblio-col"
 # div or to the EU AI Act entry fails rather than silently dropping the entry.
 EDITION_LIST_SOURCES = (
-    ("templates/landing.html", "biblio"),
-    ("templates-v2/coverage.html", "biblio"),
-    ("templates/for-ai.html", "for-ai"),
-    ("templates-v2/for-ai.html", "for-ai"),
-    ("templates-v3/for-ai.html", "for-ai"),
+    ("templates-draft/for-ai.html", "for-ai"),
 )
 _BIBLIO_ITEM_RE = re.compile(
     r'<li><span class="id">(?P<name>[^<]*)</span><span class="topic">(?P<topic>[^<]*)</span></li>'
@@ -8361,9 +7710,12 @@ def _load_edition_resolver():
 
 
 def _plain(fragment):
-    """Template HTML as text: the external-link marker (``EXT_LINK_MARKER``, exactly as
-    written) and tags dropped, entities decoded. The text of any other "ext" span is kept."""
+    """Template HTML as text: the external-link markers (``EXT_LINK_MARKER``
+    and the draft new-tab hint ``_DRAFT_NEW_TAB``, each exactly as written)
+    and tags dropped, entities decoded. The text of any other "ext" or "vh"
+    span is kept."""
     fragment = fragment.replace(EXT_LINK_MARKER, "")
+    fragment = fragment.replace(_DRAFT_NEW_TAB, "")
     return html_unescape(re.sub(r"<[^>]+>", "", fragment)).strip()
 
 
@@ -9475,7 +8827,7 @@ def stale_standard_editions(texts=None):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(
-        description="Render the grclibrary.ai public site (landing, about, pack, per-domain, and per-type pages, plus the non-indexable staging trees: the /v2 executive routes (decisions/start/trust/coverage/library/how-its-built), the /v3 need-based path routes, on-site document pages, and client-side search, and the decisions/<subtype>/<slug>/ executive reading-room pages, one per registry narrative page, rendered on-site for both /v2 and /v3) from the live corpus.",
+        description="Render the grclibrary.ai public site (the promoted baseline-template tree: the fixed pages, per-domain, per-type and per-document pages, the decide hub and concern pages, the decisions/<subtype>/<slug>/ executive reading-room pages, and the crosswalk views and instrument pages) from the live corpus.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     ap.add_argument(
@@ -9496,7 +8848,9 @@ def main(argv=None):
         # Rendering is part of the health check: it proves every page template
         # still matches the generator's partial and placeholder set.
         pages = render_site(figures)
-        manifest_text = render_corpus_link_manifest(figures, indexable_variant())
+        manifest_text = render_corpus_link_manifest(
+            figures, indexable_variant(), pages
+        )
     except BuildError as e:
         print(f"web-generator FAIL: {e}", file=sys.stderr)
         return 1

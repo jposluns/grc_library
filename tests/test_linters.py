@@ -41222,7 +41222,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
         lint-pii-in-content.py CWD F 3892a7ab7f09960df0bdeb187a3e2b61f406483620d6baa1eaa238ea91166d8e
-        lint-placeholder-leakage.py CWD F e09ad286e82070d2f80453547f7b648d84f3f3ec46aed1c9c2af7c6c4d35929f
+        lint-placeholder-leakage.py CWD F 80c422710ee6a19e4dfea1a21628458b6ba103e73058c373d86fbf6917949b6e
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
         lint-publication-manifest.py NO_FS F 4a017db9b2313865a406351d0d0d2fb2f0d4ffdaee4c79397b742d89965b21ad
@@ -41242,7 +41242,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-skill-internal-refs.py ROOT F b2b1fc4846ca52b298fe12ee712477bfac97e173e3ac6368e72c5edd6c28b50e
         lint-skill-verdict-carrier-completeness.py OWN F 7056be9141352daf10807f17e9941fb422a84cbf43eae4fff9549efd3684f5a3
         lint-ssdf-control-ids.py CWD F fc3326619bde8b0c6389a3ac7a4b5b79e06ab9e3195e471b6d766f067e06a60f
-        lint-standards-currency.py OWN F d94226d38cfadf84bda73951845c464510ad3d29c7da68c4867d115abefe652c
+        lint-standards-currency.py OWN F 29cf0c511092c1854e69a277a33701be9ce95d24f7f1606528a2f7e1a5841913
         lint-startup-character-ceiling.py NO_FS F aeaaf73e5efe319cb6881277ca5b7abef8db708826fe1bf0a241559d7d58a060
         lint-stdlib-only-imports.py NO_FS F 872914b80a06bc1aefe44bcd6cca5da817be871d6522b9deb38f397164013e21
         lint-structure.py OWN F c4a53f617560a5e6fad99bfc5a5ee6014da0aee9593d9215115cc890613a76a1
@@ -41289,7 +41289,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
         session_facts.py PASSIVE F b4fc9c2f87ed95dd52a717bf07913c942777e1aae5ec902c595f10e5ed2ad77b
         skill-verdict-fields.json DATA F fba56d7e70141647fcad92824591d65a0208c6e6b623caaff82bfcb62bbd06aa
-        standards-currency-unpinned-baseline.json DATA F e37c71336ad92904670c220de1d3e622a1e8e5b638c1dc0aac3829d99344ec79
+        standards-currency-unpinned-baseline.json DATA F 3731e576e0d0afbabdbe3fc1b88cddd2e6865c39e032457dd84e4ccc11f4d4b2
         statusline-next-pr.py NO_FS F 81db4327eb56260c362e61edbae2a7c7c2fd426df579fe21d57638cfd7b55223
         suggest-listing-surfaces.py SKIP F 5fc2bb9c52ffede72df029c5e8f05944e7a2176111f7e17bbd2e21a06bbb2d35
         sweep-preflight-exemptions.json DATA F 6912151cc3082699047edeba48f3092d50d7c21e8f8a22173372a4cda7146d7e
@@ -44880,17 +44880,67 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     LANDING = "templates/landing.html"
     FOR_AI_V3 = "templates-v3/for-ai.html"
 
+    # The edition-bearing templates the draft-site promotion removed
+    # (.web/templates/ and the v2/v3 staging copies), frozen at 716a3f53b as
+    # test fixtures so the biblio and For-AI parser machinery keeps its full
+    # regression surface; the live config (EDITION_LIST_SOURCES) now carries
+    # the promoted templates-draft/for-ai.html alone, pinned in
+    # test_live_config_is_the_promoted_for_ai_page_alone. On a citations
+    # register bump these fixtures are updated like the templates they
+    # replace were.
+    FIXTURE_ROOT = REPO_ROOT / "tests" / "fixtures" / "web-editions"
+    FIXTURE_SOURCES = (
+        ("templates/landing.html", "biblio"),
+        ("templates-v2/coverage.html", "biblio"),
+        ("templates/for-ai.html", "for-ai"),
+        ("templates-v2/for-ai.html", "for-ai"),
+        ("templates-v3/for-ai.html", "for-ai"),
+    )
+
     @classmethod
-    def setUpClass(cls):
+    def _load_module(cls):
         import importlib.util
         spec = importlib.util.spec_from_file_location(
             "web_build_3b380_mod", REPO_ROOT / ".web" / "build.py"
         )
-        cls.mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(cls.mod)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    @classmethod
+    def _source_text(cls, rel):
+        path = cls.FIXTURE_ROOT / rel
+        if path.is_file():
+            return path.read_text(encoding="utf-8")
+        return (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = cls._load_module()
+        cls.mod.EDITION_LIST_SOURCES = cls.FIXTURE_SOURCES
+        cls.mod._edition_source_text = cls._source_text
+
+    def test_live_config_is_the_promoted_for_ai_page_alone(self):
+        """The repository config (unpatched): the promotion left exactly one
+        hand-written edition source, the carried-over For-AI page, and the
+        live check passes on it with the pinned entry profile."""
+        from collections import Counter
+        mod = self._load_module()
+        self.assertEqual(
+            mod.EDITION_LIST_SOURCES,
+            (("templates-draft/for-ai.html", "for-ai"),),
+        )
+        self.assertEqual(mod.stale_standard_editions(), [])
+        entries = mod.standard_edition_entries()
+        self.assertEqual(
+            {e.source for e in entries},
+            {".web/templates-draft/for-ai.html"},
+        )
+        counts = Counter(e.status for e in entries)
+        self.assertEqual(dict(counts), {"match": 2, "no edition": 2})
 
     def _landing_with(self, old, new):
-        text = (REPO_ROOT / ".web" / self.LANDING).read_text(encoding="utf-8")
+        text = self._source_text(self.LANDING)
         self.assertIn(old, text)
         return {self.LANDING: text.replace(old, new)}
 
@@ -44898,7 +44948,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # 2.25.2 links each landing-page name to its source: the "id" span holds a link
         # whose text is the name and the external-link marker. The span of ``name``, with
         # ``written`` as the link's name when given (the link itself unchanged).
-        text = (REPO_ROOT / ".web" / self.LANDING).read_text(encoding="utf-8")
+        text = self._source_text(self.LANDING)
         marker = self.mod.EXT_LINK_MARKER
         found = re.findall(r'(<span class="id"><a\b[^>]*>)' + re.escape(name + marker) + "</a></span>", text)
         self.assertEqual(len(found), 1, name)
@@ -44941,7 +44991,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         self.assertIn("Current version '2.2.0'", hits[0])
 
     def test_eu_ai_act_without_the_amendment_fails_on_for_ai(self):
-        text = (REPO_ROOT / ".web" / self.FOR_AI_V3).read_text(encoding="utf-8")
+        text = self._source_text(self.FOR_AI_V3)
         current = "(Regulation (EU) 2024/1689, as amended by (EU) 2026/1744)"
         self.assertIn(current, text)
         hits = self.mod.stale_standard_editions(
@@ -45112,7 +45162,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     def test_every_id_item_of_each_source_is_read(self):
         entries = self.mod.standard_edition_entries()
         for rel, kind in self.EXPECTED_SOURCES:
-            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            text = self._source_text(rel)
             id_lines = {text.count("\n", 0, i) + 1 for i in
                         (m.start() for m in re.finditer(r'<li><span class="id">', text))}
             read = {e.line for e in entries if e.source == f".web/{rel}"}
@@ -45159,7 +45209,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     def test_an_id_item_outside_every_list_read_fails(self):
         # A renamed column class leaves its items outside every column read; another
         # column remains, so only the completeness check sees the dropped items.
-        text = (REPO_ROOT / ".web" / self.LANDING).read_text(encoding="utf-8")
+        text = self._source_text(self.LANDING)
         old = '<div class="biblio-col">\n          <h3 id="std-frameworks">'
         self.assertIn(old, text)
         hits = self.mod.stale_standard_editions(
@@ -45183,7 +45233,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             (self.FOR_AI_V3, '<span class="row-name">European Union</span>, AI Act'),
             ("templates/for-ai.html", '<span class="fa-inst">European Union, AI Act'),
         ):
-            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            text = self._source_text(rel)
             self.assertIn(old, text)
             for new in (old.replace("European Union", "EU"),
                         old.replace("European Union", "The Union").replace(", AI Act", ", Artificial Intelligence Act")):
@@ -45469,7 +45519,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     def test_an_id_span_nested_in_an_item_outside_every_list_fails(self):
         # Round 4 (codex E1): an "id" span anywhere inside an <li>, here inside an <a>.
-        text = (REPO_ROOT / ".web" / self.LANDING).read_text(encoding="utf-8")
+        text = self._source_text(self.LANDING)
         stray = text.replace("</body>", '<ul><li><a href="#x"><span class="id">OWASP SAMM 2.0</span></a>'
                              '<span class="topic">x</span></li></ul>\n</body>')
         self.assertNotEqual(stray, text)
@@ -45485,7 +45535,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         self.assertEqual(len(hits), 1, hits)
         self.assertIn(".web/templates/landing.html:1: list item 'OWASP SAMM 2.0x' is not among", hits[0])
         # A second For-AI item on the line of another is read and compared.
-        text = (REPO_ROOT / ".web" / self.FOR_AI_V3).read_text(encoding="utf-8")
+        text = self._source_text(self.FOR_AI_V3)
         line = next(ln for ln in text.splitlines() if "OWASP Top 10 for LLM Applications 2026" in ln)
         doubled = text.replace(line, line + line.strip().replace("2026", "2025"))
         hits = self.mod.stale_standard_editions({self.FOR_AI_V3: doubled})
@@ -45506,7 +45556,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         self.assertIn("OWASP SAMM 2.0", hits[0])
 
     def test_changed_for_ai_markup_fails_instead_of_dropping_the_entry(self):
-        text = (REPO_ROOT / ".web" / self.FOR_AI_V3).read_text(encoding="utf-8")
+        text = self._source_text(self.FOR_AI_V3)
         # 3b413: an OWASP item whose name span is not read leaves the page without it.
         for old, new, presence in (
             ('<span class="row-name">OWASP MCP Top 10</span>', '<span class="row-name inst">OWASP MCP Top 10</span>',
@@ -45523,7 +45573,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                 self.assertTrue(hit.startswith(self._owasp_presence(self.FOR_AI_V3, name, 0)), hit)
 
     def test_a_source_with_no_list_fails(self):
-        text = (REPO_ROOT / ".web" / "templates-v2/for-ai.html").read_text(encoding="utf-8")
+        text = self._source_text("templates-v2/for-ai.html")
         hits = self.mod.stale_standard_editions(
             {"templates-v2/for-ai.html": text.replace("<h2>Resource index", "<h2>Resources")}
         )
@@ -45720,7 +45770,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     def test_list_item_and_id_span_patterns_ignore_case_and_quotes(self):
         # Round 5 (claude notes).
-        text = (REPO_ROOT / ".web" / self.LANDING).read_text(encoding="utf-8")
+        text = self._source_text(self.LANDING)
         for stray in (
             '<UL><LI><SPAN CLASS="id">OWASP SAMM 2.0</SPAN><span class="topic">x</span></LI></UL>',
             '<ul><li><span class=id>OWASP SAMM 2.0</span><span class="topic">x</span></li></ul>',
@@ -46000,7 +46050,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             self.assertEqual(len(hits), 1, (new, hits))
             self.assertIn(f"names the register row {row!r}", hits[0])
             self.assertIn(unreadable, hits[0])
-        text = (REPO_ROOT / ".web" / self.FOR_AI_V3).read_text(encoding="utf-8")
+        text = self._source_text(self.FOR_AI_V3)
         name = ">OWASP Top 10 for LLM Applications 2026<"
         self.assertIn(name, text)
         hits = self.mod.stale_standard_editions(
@@ -46306,7 +46356,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         for rel, kind in self.mod.EDITION_LIST_SOURCES:
             if kind != "biblio":
                 continue
-            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            text = self._source_text(rel)
             for _, _, topic, problem in self.mod._hand_written_entries(rel, kind, text):
                 self.assertEqual(problem, "", (rel, topic))
                 if (topic and not self.mod._topic_edition(topic, d15)
@@ -46332,7 +46382,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     BIBLIO_SOURCES = ("templates/landing.html", "templates-v2/coverage.html")
 
     def _iec_62443_topic(self, rel, topic):
-        text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+        text = self._source_text(rel)
         self.assertEqual(text.count(self.IEC_62443_ITEM), 1, rel)
         return {rel: text.replace(self.IEC_62443_ITEM,
                                   f'<span class="id">IEC 62443</span><span class="topic">{topic}</span>')}
@@ -46381,7 +46431,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     FOR_AI_SOURCES = ("templates/for-ai.html", "templates-v2/for-ai.html", "templates-v3/for-ai.html")
 
     def _for_ai_with(self, rel, old, new):
-        text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+        text = self._source_text(rel)
         self.assertEqual(text.count(old), 1, (rel, old))
         return {rel: text.replace(old, new)}
 
@@ -46432,7 +46482,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         used, items = {branch: set() for branch in forms}, 0
         d15, resolver = self.mod._load_edition_resolver()
         for rel in self.FOR_AI_SOURCES:
-            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            text = self._source_text(rel)
             start = self.mod._FOR_AI_INDEX_RE.search(text).end()
             end = text.find("<h2", start)
             for li in self.mod._LI_RE.finditer(text, start, end):
@@ -46586,7 +46636,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         for rel, count in (("templates/landing.html", 61), ("templates-v2/coverage.html", 63),
                            ("templates/for-ai.html", 0), ("templates-v2/for-ai.html", 0),
                            ("templates-v3/for-ai.html", 0)):
-            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            text = self._source_text(rel)
             self.assertEqual(text.count(marker), count, rel)
             self.assertEqual(len(re.findall(r"""class\s*=\s*["']?ext\b""", text, re.I)), count, rel)
         self.assertEqual(self.mod._plain(f"a{marker}"), "a")
@@ -46630,7 +46680,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     }
 
     def _for_ai_description(self, rel, name, desc):
-        text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+        text = self._source_text(rel)
         item = re.compile(r'(<li><span class="(?:fa-inst|row-name)">' + re.escape(name)
                           + r'</span>.*?<span class="(?:fa-cov|row-desc)">).*?(</span></li>)')
         new, count = item.subn(lambda m: m[1] + desc + m[2], text)
@@ -46693,7 +46743,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         ids = {e["identity_key"]: e["id"] for e in resolver.register.entries}
         used, items, unchecked = {}, 0, {}
         for rel in self.FOR_AI_SOURCES:
-            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            text = self._source_text(rel)
             start = self.mod._FOR_AI_INDEX_RE.search(text).end()
             for li in self.mod._LI_RE.finditer(text, start, text.find("<h2", start)):
                 m = self.mod._FOR_AI_ITEM_RE.match(li[0])
@@ -46730,7 +46780,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         for rel in self.BIBLIO_SOURCES:
             for name in ("IEC 62443 (withdrawn)", "IEC 62443 superseded", "IEC 62443 (EOL)", "IEC  62443",
                          "iec 62443", "Foo Standard"):
-                text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+                text = self._source_text(rel)
                 texts = {rel: text.replace(self.IEC_62443_ITEM, f'<span class="id">{name}</span><span '
                                            f'class="topic">Industrial / OT security series</span>')}
                 hits = self.mod.stale_standard_editions(texts)
@@ -46823,7 +46873,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         self.assertEqual(statuses, Counter({"match": 96, "no edition": 42}))
 
     def _for_ai_item(self, rel, old_name, new_name, desc=None):
-        text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+        text = self._source_text(rel)
         item = re.compile(r'(<li><span class="(?:fa-inst|row-name)">)' + re.escape(old_name)
                           + r'(</span>.*?<span class="(?:fa-cov|row-desc)">)(.*?)(</span></li>)')
         new, count = item.subn(lambda m: m[1] + new_name + m[2] + (m[3] if desc is None else desc) + m[4], text)
@@ -46942,7 +46992,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # VPR3B393-R6 item 4: only whitespace may follow an item's </li> before the next
         # <li> or the list's close, on every list read.
         for rel in self.BIBLIO_SOURCES + self.FOR_AI_SOURCES:
-            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            text = self._source_text(rel)
             if rel in self.BIBLIO_SOURCES:
                 first = text.index("</li>", text.index("biblio-col")) + len("</li>")
             else:
@@ -46960,7 +47010,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             self.assertEqual(self.mod.stale_standard_editions({rel: text[:first] + " \n\t" + text[first:]}), [], rel)
         # The EU AI Act entry with text after it fails once, not also as missing.
         for rel in self.FOR_AI_SOURCES:
-            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            text = self._source_text(rel)
             at = text.index("</li>", text.index(", in force and phasing in.")) + len("</li>")
             hits = self.mod.stale_standard_editions({rel: text[:at] + " (repealed)" + text[at:]})
             self.assertEqual(len(hits), 1, (rel, hits))
@@ -46993,7 +47043,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     def _for_ai_names(self, rel):
         """(name, full label) of every For-AI item on ``rel`` but the EU AI Act entry."""
-        text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+        text = self._source_text(rel)
         start = self.mod._FOR_AI_INDEX_RE.search(text).end()
         out = []
         for li in self.mod._LI_RE.finditer(text, start, text.find("<h2", start)):
@@ -47056,7 +47106,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             for name, desc in ((self.LLM_NAME, "Documented in the AI security and risk standard."),
                                ("United States, Texas", "Documented in the Texas AI annex."),
                                ("Model Cards", "Adapted as the corpus model-card template.")):
-                text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+                text = self._source_text(rel)
                 at = text.index("</span></li>", text.index(f">{name}</span>")) + len("</span>")
                 self.assertEqual(self.mod.stale_standard_editions({rel: text[:at] + " \n\t" + text[at:]}), [],
                                  (rel, name))
@@ -47303,7 +47353,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     def _for_ai_rest_as(self, texts, rel, name, rest):
         """``texts`` (or the page) with the text between the name and description spans of
         the item named ``name`` on ``rel`` replaced by ``rest``, and that item's old text."""
-        text = texts[rel] if rel in texts else (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+        text = texts[rel] if rel in texts else self._source_text(rel)
         item = re.compile(r'(<li><span class="(?:fa-inst|row-name)">' + re.escape(name)
                           + r'</span>)(.*?)(<span class="(?:fa-cov|row-desc)">)')
         old = [m[2] for m in item.finditer(text)]
@@ -47312,7 +47362,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     def _for_ai_li(self, rel, name):
         """The whole <li> line of the item named ``name`` on ``rel``, and the page text."""
-        text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+        text = self._source_text(rel)
         found = re.findall(r'\n[ \t]*<li><span class="(?:fa-inst|row-name)">' + re.escape(name)
                            + r'</span>.*?</li>', text)
         self.assertEqual(len(found), 1, (rel, name))
@@ -47628,123 +47678,46 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
             else:
                 path.write_text(text, encoding="utf-8")
 
-    def _render_with_base(self, figures, base):
-        variant = self.mod.Variant("test", "templates", base, indexable=False)
-        return self.mod.render_variant(figures, variant)
-
-    def test_base_empty_render_stable_and_targets_bare(self):
-        """Forward regression guard for BASE='' rendering.
-
-        Asserts (a) the BASE='' render equals the same templates and generated
-        values with the {{BASE}} token stripped (so BASE='' can never expand to
-        anything but empty, and no {{BASE}} can leak), and (b) the real site-root
-        targets render as bare /paths, an independent check that the conversion
-        keeps root output unprefixed. This is a forward invariant, NOT a proof of
-        byte-identity against the pre-S4 tree: that was established out-of-band by
-        an independent two-revision rebuild diff at apply time and in validation.
-        """
+    def test_base_empty_render_targets_bare_with_no_token_leak(self):
+        """Forward regression guard for BASE='' rendering (re-based at the
+        draft-site promotion from the retired legacy-tree byte-identity
+        fixture, which rebuilt the removed v1 templates): at the promoted
+        variant's empty prefix, the real site-root targets render as bare
+        /paths, and no {{BASE}} token leaks into any emitted file."""
         figures = self.mod.compute_figures()
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp_path = Path(tmp)
-            baseline = tmp_path / "baseline"
-            after = tmp_path / "after"
-            legacy_templates = tmp_path / "legacy-templates"
-            shutil.copytree(self.mod.template_dir_for(self.mod.VARIANTS[0]), legacy_templates)
-            for template in legacy_templates.rglob("*.html"):
-                template.write_text(
-                    template.read_text(encoding="utf-8").replace("{{BASE}}", ""),
-                    encoding="utf-8",
-                )
-
-            original_figure_values = self.mod.figure_values
-
-            def legacy_figure_values(current_figures, variant):
-                values = original_figure_values(current_figures, variant)
-                values = {
-                    key: value.replace("{{BASE}}", "") if isinstance(value, str) else value
-                    for key, value in values.items()
-                }
-                values.pop("BASE")
-                return values
-
-            try:
-                self.mod.figure_values = legacy_figure_values
-                legacy = self.mod.Variant(
-                    "legacy", str(legacy_templates), "", indexable=True,
-                    error_page=True,
-                )
-                legacy_pages = self.mod.render_variant(figures, legacy)
-                legacy_pages.extend([
-                    ("robots.txt", self.mod.render_robots_txt()),
-                    (
-                        "sitemap.xml",
-                        # The error page stays out of the sitemap page list,
-                        # mirroring render_site's exclusion.
-                        self.mod.render_sitemap(
-                            legacy,
-                            [rel for rel, _ in legacy_pages if rel != "404.html"],
-                        ),
-                    ),
-                    ("llms.txt", self.mod.render_llms_txt(figures, legacy)),
-                    ("_headers", self.mod.render_headers_file()),
-                    (".well-known/security.txt", self.mod.SECURITY_TXT),
-                ])
-                self._write_site(legacy_pages, baseline)
-            finally:
-                self.mod.figure_values = original_figure_values
-
-            staging_prefixes = tuple(
-                v.url_prefix for v in self.mod.VARIANTS if not v.indexable and v.url_prefix
-            )
-            self._write_site(
-                [
-                    page for page in self.mod.render_site(figures)
-                    if not page[0].startswith(staging_prefixes)
-                ],
-                after,
-            )
-            baseline_files = sorted(p.relative_to(baseline) for p in baseline.rglob("*") if p.is_file())
-            after_files = sorted(p.relative_to(after) for p in after.rglob("*") if p.is_file())
-            # The real root tree must carry the hardening outputs this round
-            # pins; the byte-equality below then proves their exact content.
-            for pinned in ("404.html", "_headers", ".well-known/security.txt"):
-                self.assertIn(Path(pinned), after_files,
-                              f"the root tree must carry {pinned}")
-            self.assertEqual(baseline_files, after_files)
-            for rel in baseline_files:
-                self.assertEqual(
-                    (baseline / rel).read_bytes(),
-                    (after / rel).read_bytes(),
-                    f"BASE='' changed {rel}",
-                )
-
-            # Independent invariant (not self-referential): at BASE='' the real
-            # site-root targets render as bare /paths, never /v2-prefixed, no leak.
-            landing = (after / "index.html").read_text(encoding="utf-8")
-            for href in [
-                'href="/"',
-                'href="/#what"',
-                'href="/pack"',
-                'href="/privacy/"',
-                'href="/types/standard/"',
-            ]:
-                self.assertIn(href, landing)
-            self.assertNotIn("{{BASE}}", landing)
-            self.assertNotIn('href="/v2/', landing)
-
-    def test_base_v2_prefixes_template_and_generated_hrefs(self):
-        figures = self.mod.compute_figures()
-        landing = dict(self._render_with_base(figures, "/v2"))["index.html"]
+        pages = self.mod.render_site(figures)
+        landing = dict(pages)["index.html"]
         for href in [
-            'href="/v2/"',
-            'href="/v2/#what"',
-            'href="/v2/pack"',
-            'href="/v2/privacy/"',
-            'href="/v2/types/standard/"',
+            'href="/"',
+            'href="/browse/"',
+            'href="/governance/"',
+            'href="/crosswalk/"',
         ]:
             self.assertIn(href, landing)
-        self.assertNotIn('href="/privacy/"', landing)
-        self.assertNotIn('href="/types/standard/"', landing)
+        for rel, content in pages:
+            if isinstance(content, str):
+                self.assertNotIn("{{BASE}}", content, rel)
+
+    def test_base_prefix_prefixes_template_and_generated_hrefs(self):
+        """Re-based at promotion from the v2 plain-template fixture: a
+        prefixed draft-rules variant prefixes every template and generated
+        href with its URL prefix, with no token leak and no bare root href."""
+        figures = self.mod.compute_figures()
+        variant = self.mod.Variant(
+            "staged", "templates-draft", "v2/", indexable=False,
+            document_routes=True, narrative_routes=True,
+            pages=self.mod.DRAFT_PAGES, draft_rules=True,
+        )
+        landing = dict(self.mod.render_variant(figures, variant))["index.html"]
+        for href in [
+            'href="/v2/"',
+            'href="/v2/browse/"',
+            'href="/v2/governance/"',
+            'href="/v2/search/"',
+        ]:
+            self.assertIn(href, landing)
+        self.assertNotIn('href="/browse/"', landing)
+        self.assertNotIn('href="/governance/"', landing)
         self.assertNotIn("{{BASE}}", landing)
 
     def test_root_href_guard_is_clean_and_discriminating(self):
@@ -47825,6 +47798,10 @@ class WebGeneratorVariantTableTests(unittest.TestCase):
                             self.mod.render_headers_file(),
                         ),
                         (
+                            self.mod.output_rel_for(variant, "_redirects"),
+                            self.mod.REDIRECTS_FILE,
+                        ),
+                        (
                             self.mod.output_rel_for(variant, ".well-known/security.txt"),
                             self.mod.SECURITY_TXT,
                         ),
@@ -47870,527 +47847,6 @@ class WebGeneratorVariantTableTests(unittest.TestCase):
             self.assertEqual(self.mod.main(["--check"]), 1)
         finally:
             self.mod.VARIANTS = original
-
-
-class WebGeneratorV2StagingTests(unittest.TestCase):
-    """S6: the non-indexable v2 tree is a safe, root-preserving staging site."""
-
-    @classmethod
-    def setUpClass(cls):
-        import importlib.util
-        spec = importlib.util.spec_from_file_location(
-            "web_build_s6_mod", REPO_ROOT / ".web" / "build.py"
-        )
-        cls.mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(cls.mod)
-
-    @staticmethod
-    def _write_site(pages, out_dir):
-        for rel, text in pages:
-            path = out_dir / rel
-            path.parent.mkdir(parents=True, exist_ok=True)
-            if isinstance(text, bytes):
-                # The draft tree's baseline asset copy is byte content.
-                path.write_bytes(text)
-            else:
-                path.write_text(text, encoding="utf-8")
-
-    def _single_v1_pages(self, figures):
-        original = self.mod.VARIANTS
-        try:
-            self.mod.VARIANTS = (original[0],)
-            return self.mod.render_site(figures)
-        finally:
-            self.mod.VARIANTS = original
-
-    def test_root_matches_single_variant_except_robots_txt(self):
-        figures = self.mod.compute_figures()
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp_path = Path(tmp)
-            baseline = tmp_path / "baseline"
-            staged = tmp_path / "staged"
-            baseline_pages = [
-                (rel, text.replace("Disallow: /v2/\n", "") if rel == "robots.txt" else text)
-                for rel, text in self._single_v1_pages(figures)
-            ]
-            self._write_site(baseline_pages, baseline)
-            self._write_site(self.mod.render_site(figures), staged)
-
-            baseline_files = sorted(
-                p.relative_to(baseline) for p in baseline.rglob("*") if p.is_file()
-            )
-            staging_dirs = {
-                v.url_prefix.strip("/")
-                for v in self.mod.VARIANTS
-                if not v.indexable and v.url_prefix
-            }
-            root_files = sorted(
-                p.relative_to(staged)
-                for p in staged.rglob("*")
-                if p.is_file() and p.relative_to(staged).parts[0] not in staging_dirs
-            )
-            self.assertEqual(baseline_files, root_files)
-            draft_block = self.mod.DRAFT_HEADERS_BLOCK.encode("utf-8")
-            for rel in baseline_files:
-                if rel == Path("robots.txt"):
-                    self.assertEqual(
-                        (staged / rel).read_bytes().replace(b"Disallow: /v2/\n", b""),
-                        (baseline / rel).read_bytes(),
-                    )
-                elif rel == Path("_headers"):
-                    # The draft tree's one sanctioned root-file change: its
-                    # /draft/* block is appended to the byte-identical live
-                    # /* rule (spec 4.1 item 2).
-                    staged_headers = (staged / rel).read_bytes()
-                    self.assertTrue(staged_headers.endswith(draft_block))
-                    self.assertEqual(
-                        staged_headers[: -len(draft_block)],
-                        (baseline / rel).read_bytes(),
-                    )
-                else:
-                    self.assertEqual((staged / rel).read_bytes(), (baseline / rel).read_bytes())
-
-    def test_v2_pages_are_prefixed_noindex_and_self_canonical(self):
-        figures = self.mod.compute_figures()
-        v2 = next(variant for variant in self.mod.VARIANTS if variant.name == "v2")
-        with tempfile.TemporaryDirectory() as tmp:
-            out_dir = Path(tmp)
-            self._write_site(self.mod.render_site(figures), out_dir)
-            v2_html = sorted((out_dir / "v2").rglob("*.html"))
-            self.assertTrue(v2_html)
-            for page in v2_html:
-                rel = page.relative_to(out_dir / "v2").as_posix()
-                html = page.read_text(encoding="utf-8")
-                self.assertIn('<meta name="robots" content="noindex,nofollow">', html)
-                self.assertIn(
-                    f'<link rel="canonical" href="{self.mod._site_url_for(v2, rel)}">', html
-                )
-                self.assertNotIn("{{BASE}}", html)
-                self.assertNotIn('href="/v2//', html)
-                for href in re.findall(r'href="([^"]+)"', html):
-                    if href.startswith("/"):
-                        self.assertTrue(href.startswith("/v2/"), f"{page}: {href}")
-            self.assertNotIn(
-                '<meta name="robots" content="noindex,nofollow">',
-                (out_dir / "index.html").read_text(encoding="utf-8"),
-            )
-
-    def test_discovery_files_exclude_v2_and_indexable_invariant_holds(self):
-        figures = self.mod.compute_figures()
-        indexable = self.mod.indexable_variant()
-        self.assertEqual(
-            indexable,
-            self.mod.Variant("v1", "templates", "", indexable=True, error_page=True),
-        )
-        self.assertEqual(
-            next(variant for variant in self.mod.VARIANTS if variant.name == "v2"),
-            self.mod.Variant(
-                "v2", "templates-v2", "v2/", indexable=False,
-                extra_pages=self.mod.V2_EXTRA_PAGES, narrative_routes=True,
-                domain_rail=True,
-            ),
-        )
-        robots = self.mod.render_robots_txt()
-        groups = [group for group in robots.split("\n\n") if group.startswith("User-agent:")]
-        self.assertEqual(len(groups), len(self.mod.AI_CRAWLER_USER_AGENTS) + 1)
-        self.assertTrue(all("Disallow: /v2/" in group.splitlines() for group in groups))
-        self.assertNotIn("/v2/", self.mod.render_sitemap(indexable, ["index.html"]))
-
-    def test_v2_extra_pages_render_only_under_v2(self):
-        """The extra_pages mechanism: v2's executive routes render under /v2 and
-        NOT at root, so the frozen root tree is unaffected by them. Locks the exact
-        six-route contract so a silent add/drop is caught (PR #1627 L1)."""
-        figures = self.mod.compute_figures()
-        expected = {
-            ("decisions.html", "decisions/index.html"),
-            ("start.html", "start/index.html"),
-            ("trust.html", "trust/index.html"),
-            ("coverage.html", "coverage/index.html"),
-            ("library.html", "library/index.html"),
-            ("how-its-built.html", "how-its-built/index.html"),
-        }
-        self.assertEqual(len(self.mod.V2_EXTRA_PAGES), 6)
-        self.assertEqual(set(self.mod.V2_EXTRA_PAGES), expected)
-        v1 = self.mod.indexable_variant()
-        self.assertEqual(v1.extra_pages, (), "root variant must carry no extra pages")
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp)
-            self._write_site(self.mod.render_site(figures), out)
-            for template_name, out_rel in self.mod.V2_EXTRA_PAGES:
-                self.assertTrue(
-                    (out / "v2" / out_rel).is_file(),
-                    f"/v2 is missing extra route {out_rel}",
-                )
-                self.assertFalse(
-                    (out / out_rel).is_file(),
-                    f"root must NOT carry the v2-only route {out_rel}",
-                )
-
-    def test_v3_extra_pages_render_only_under_v3(self):
-        """The v3 need-based path routes render under /v3 and NOT at root, so the
-        frozen root tree is unaffected. Locks the exact six-route contract so a
-        silent add/drop is caught (v3 PR-B)."""
-        figures = self.mod.compute_figures()
-        expected = {
-            ("decide.html", "decide/index.html"),
-            ("govern.html", "govern/index.html"),
-            ("comply.html", "comply/index.html"),
-            ("solutions.html", "solutions/index.html"),
-            ("policies.html", "policies/index.html"),
-            ("search.html", "search/index.html"),
-        }
-        self.assertEqual(len(self.mod.V3_EXTRA_PAGES), 6)
-        self.assertEqual(set(self.mod.V3_EXTRA_PAGES), expected)
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp)
-            self._write_site(self.mod.render_site(figures), out)
-            for template_name, out_rel in self.mod.V3_EXTRA_PAGES:
-                self.assertTrue(
-                    (out / "v3" / out_rel).is_file(),
-                    f"/v3 is missing path route {out_rel}",
-                )
-                self.assertFalse(
-                    (out / out_rel).is_file(),
-                    f"root must NOT carry the v3-only route {out_rel}",
-                )
-
-    def test_v3_disclosure_integrity(self):
-        """Every rendered /v3 page balances its <details>/</details> tags, and the
-        Decide page carries EXACTLY 10 concern disclosures. Regression guard for the
-        v3 PR-B clustering edit that duplicated 9 of the 10 disclosures (19 rendered)
-        by an unanchored region replace; caught by cross-family QA, missed by every
-        render/byte/unit check because duplicated valid HTML still renders."""
-        figures = self.mod.compute_figures()
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp)
-            self._write_site(self.mod.render_site(figures), out)
-            v3root = out / "v3"
-            pages = sorted(v3root.rglob("index.html"))
-            self.assertTrue(pages, "no v3 pages rendered")
-            for page in pages:
-                html = page.read_text(encoding="utf-8")
-                opens = html.count("<details")
-                closes = html.count("</details>")
-                self.assertEqual(
-                    opens, closes,
-                    f"{page.relative_to(out)}: {opens} <details> vs {closes} </details> (orphan tag)",
-                )
-            decide = (v3root / "decide" / "index.html").read_text(encoding="utf-8")
-            self.assertEqual(
-                decide.count('<details class="disclosure">'), 10,
-                "v3/decide must carry exactly 10 concern disclosures (no duplication)",
-            )
-
-    def test_v3_document_pages_render_only_under_v3(self):
-        """The on-site L2 document pages (PR-C) render one per corpus DOMAIN
-        document under /v3/documents/ and NOWHERE else, so the frozen root/v2
-        trees stay unaffected. Every domain doc gets a page; root specs do not."""
-        figures = self.mod.compute_figures()
-        full = self.mod.parse_taxonomy_full(self.mod.TAXONOMY.read_text(encoding="utf-8"))
-        expected = [d for d in full if d.get("domain") != self.mod.ROOT_DOMAIN]
-        self.assertGreater(len(expected), 300, "expected 300+ domain documents")
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp)
-            self._write_site(self.mod.render_site(figures), out)
-            for d in expected:  # every domain document, not a sample
-                rel = self.mod._doc_route_rel(d["path"])
-                self.assertTrue((out / "v3" / rel).is_file(),
-                                f"/v3 is missing document page {rel}")
-                self.assertFalse((out / rel).is_file(),
-                                 f"root must NOT carry the v3-only document page {rel}")
-                self.assertFalse((out / "v2" / rel).is_file(),
-                                 f"v2 must NOT carry the v3-only document page {rel}")
-            # a root spec has NO document page anywhere
-            roots = [d for d in full if d.get("domain") == self.mod.ROOT_DOMAIN]
-            for d in roots:
-                rel = self.mod._doc_route_rel(d["path"])
-                self.assertFalse((out / "v3" / rel).is_file(),
-                                 f"root spec {d['path']} should have no L2 page")
-
-    def test_v3_search_index_only_under_v3(self):
-        """The client-side search index renders as /v3/search-index.json ONLY
-        (never at root or /v2), is valid JSON, and has one entry per corpus
-        domain document with the search fields."""
-        import json
-        figures = self.mod.compute_figures()
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp)
-            self._write_site(self.mod.render_site(figures), out)
-            self.assertTrue((out / "v3" / "search-index.json").is_file(),
-                            "/v3/search-index.json missing")
-            self.assertFalse((out / "search-index.json").is_file(),
-                             "search index must NOT be at root")
-            self.assertFalse((out / "v2" / "search-index.json").is_file(),
-                             "search index must NOT be in /v2")
-            data = json.loads((out / "v3" / "search-index.json").read_text(encoding="utf-8"))
-            full = self.mod.parse_taxonomy_full(self.mod.TAXONOMY.read_text(encoding="utf-8"))
-            docs = [d for d in full if d.get("domain") != self.mod.ROOT_DOMAIN]
-            # The index is corpus DOMAIN documents only: reading-room narrative
-            # pages are corpus documents by neither count nor category (the
-            # gate-86 boundary), so they are NOT indexed here (they are reached
-            # from their domain pages and the Decide path). Guards against the
-            # documents/narratives boundary being re-crossed.
-            self.assertEqual(len(data), len(docs))
-            self.assertFalse([e for e in data if "/decisions/" in e["u"]],
-                             "narrative pages must NOT be in the document search index")
-            for e in data[:5]:
-                self.assertEqual(set(e), {"t", "y", "a", "p", "f", "u"})
-                self.assertTrue(e["u"].startswith("/v3/documents/"))
-            # exact-set rigour (RC-4): every indexed URL resolves to an emitted
-            # page, and the URLs are unique (a duplicate hiding a lost document
-            # would pass a bare count check).
-            for e in data:
-                self.assertTrue((out / e["u"].strip("/") / "index.html").is_file(),
-                                f"search URL does not resolve: {e['u']}")
-            self.assertEqual(len({e["u"] for e in data}), len(data), "duplicate URL")
-
-    def test_v3_document_page_values_from_taxonomy(self):
-        """document_page_values surfaces the enriched taxonomy fields (purpose,
-        section outline, frameworks, spec strip) and the on-site + source links,
-        all resolved (no unfilled placeholders)."""
-        full = self.mod.parse_taxonomy_full(self.mod.TAXONOMY.read_text(encoding="utf-8"))
-        by_path = {d["path"]: d for d in full}
-        pam = by_path["security/standard-privileged-access-management.md"]
-        # the enriched taxonomy fields must be present
-        self.assertTrue(pam.get("purpose"), "taxonomy missing purpose")
-        self.assertIn("1. Purpose", pam.get("sections", []))
-        self.assertTrue(pam.get("frameworks"), "taxonomy missing frameworks")
-        v3 = next(v for v in self.mod.VARIANTS if v.document_routes)
-        vals = self.mod.document_page_values(pam, by_path, v3)
-        self.assertEqual(vals["DOC_TITLE"], "Privileged Access Management Standard")
-        self.assertIn("Purpose", vals["SECTION_OUTLINE"])
-        self.assertIn("type-chip", vals["FRAMEWORKS"])
-        self.assertIn("raw.githubusercontent.com", vals["RAW_MD_URL"])
-        self.assertIn("{{BASE}}/documents/", vals["RELATED_DOCS"])
-        for k, val in vals.items():
-            self.assertNotIn("{{", val.replace("{{BASE}}", ""),
-                             f"unfilled placeholder in {k}")
-
-    def test_v3_reading_room_renders_only_under_v3(self):
-        """The executive reading room renders under /v3/decisions/ (never at
-        root), one page per registry narrative, via the constrained renderer.
-        v2 renders its own copy under /v2/decisions/ (unchanged); root (v1) never
-        renders it at all."""
-        figures = self.mod.compute_figures()
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp)
-            self._write_site(self.mod.render_site(figures), out)
-            v3dec = out / "v3" / "decisions"
-            self.assertTrue(v3dec.is_dir(), "/v3/decisions/ missing")
-            pages = sorted(v3dec.rglob("index.html"))
-            # the build emits one on-site page per registry narrative of a
-            # routed type; all published types are routed, so figures'
-            # narrative list is the authoritative expected count.
-            expected = len(figures["narratives"])
-            self.assertEqual(len(pages), expected,
-                             "one /v3/decisions/ page per registry narrative")
-            self.assertGreaterEqual(expected, 18, "registry narratives missing")
-            self.assertFalse((out / "decisions").exists(),
-                             "the reading room must NOT render at root (v1)")
-            sample = (v3dec / "briefs" / "brief-ai-data-governance" / "index.html")
-            self.assertTrue(sample.is_file(), "sample narrative page missing")
-            html = sample.read_text(encoding="utf-8")
-            self.assertNotIn("{{", html.replace("{{BASE}}", ""),
-                             "unfilled placeholder in a reading-room page")
-            self.assertIn('class="narr"', html)
-            self.assertIn("/v3/decide/", html)
-
-    def test_v3_narrative_reserved_anchor_guard(self):
-        """A narrative body heading slugging to a v3 reading-room shell id
-        (contents / go-deeper) raises loudly rather than emitting a duplicate id
-        (RR guard, PR #1638). The reservation is per-variant: the same heading is
-        fine under the v2 template, which does not use those shell ids."""
-        v3ids = self.mod.NARRATIVE_SHELL_IDS["templates-v3"]
-        v2ids = self.mod.NARRATIVE_SHELL_IDS["templates-v2"]
-        self.assertIn("go-deeper", v3ids)
-        self.assertIn("contents", v3ids)
-        body = "# T\n\n---\n\n## Go deeper\n\nx\n\n**End of Document**\n"
-        with self.assertRaises(self.mod.BuildError):
-            self.mod.render_narrative_body(body, "executive/briefs/x.md", v3ids)
-        # the SAME body renders under the v2 reservation (go-deeper not reserved)
-        html, toc = self.mod.render_narrative_body(
-            body, "executive/briefs/x.md", v2ids)
-        self.assertTrue(toc)
-
-    def test_v3_narrative_reserved_set_matches_template(self):
-        """The v3 reserved shell-id set must EXACTLY cover the v3 narrative
-        template's own <section> ids, plus the renderer-owned narr-intro (RC-2):
-        a template section added or renamed without updating NARRATIVE_SHELL_IDS
-        would silently reopen the collision gap this guard closes."""
-        import re
-        # Parametrized over BOTH reading-room templates (claude round-6 LOW): a
-        # v2-only check let a new templates-v2 section drift from its reservation.
-        for tdir in ("templates-v2", "templates-v3"):
-            tmpl = (self.mod.WEB_DIR / tdir / "narrative.html").read_text(
-                encoding="utf-8")
-            template_ids = set(re.findall(r'<section id="([a-z0-9-]+)"', tmpl))
-            reserved = self.mod.NARRATIVE_SHELL_IDS[tdir]
-            unreserved = template_ids - reserved
-            self.assertEqual(unreserved, set(),
-                             f"{tdir} section id(s) not reserved: {unreserved}")
-            self.assertEqual(reserved - template_ids, {"narr-intro"},
-                             f"reserved set drifted from {tdir}'s section ids")
-
-    def test_v3_narrative_domain_rail_matches_registry(self):
-        """EVERY reading-room page's 'go deeper' rail links exactly the domains
-        the registry tags that narrative with, in order (RC-3) - not a fixed
-        set. Guards the per-narrative-rail fix across all 25 pages, not one."""
-        import re
-        figures = self.mod.compute_figures()
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp)
-            self._write_site(self.mod.render_site(figures), out)
-            for pg in figures["narratives"]:
-                tail = pg["route"][len("executive/"):]
-                html = (out / "v3" / "decisions" / tail / "index.html").read_text(
-                    encoding="utf-8")
-                m = re.search(
-                    r'aria-label="Domains this narrative touches">(.*?)</nav>',
-                    html, re.S)
-                self.assertIsNotNone(m, f"{tail}: domain rail missing")
-                rail = re.findall(r'\{\{BASE\}\}/([a-z-]+)/"|/v3/([a-z-]+)/"',
-                                  m.group(1))
-                rail = [a or b for a, b in rail]
-                self.assertEqual(rail, list(pg["domains"]),
-                                 f"{tail}: rail {rail} != registry {pg['domains']}")
-
-    def test_v3_reading_room_reachable_from_domain_pages(self):
-        """Every reading-room narrative is linked from at least one /v3 domain
-        page (the per-domain "Leadership pages" section), so no page is an
-        on-site orphan with JS off (PR #1638; F-3). Reachability is via the
-        domain pages, not the document search index."""
-        import re
-        figures = self.mod.compute_figures()
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp)
-            self._write_site(self.mod.render_site(figures), out)
-            linked = set()
-            for dp in figures["domain_pages"]:
-                html = (out / "v3" / dp["domain"] / "index.html").read_text(
-                    encoding="utf-8")
-                linked |= set(re.findall(r'/v3/(decisions/[a-z0-9/-]+/)', html))
-            for pg in figures["narratives"]:
-                tail = pg["route"][len("executive/"):]
-                self.assertIn(f"decisions/{tail}/", linked,
-                              f"{tail} not linked from any /v3 domain page")
-
-    def test_v3_no_stale_executive_blob_links(self):
-        """The executive-blob link surface is EXACT against the registry. Build
-        the allowed map from the narrative registry (each of the 25 pages links
-        exactly twice to its OWN .md source, the two "read the source" CTAs) and
-        require the rendered /v3 tree to match it EXACTLY: no other /v3 page
-        (including a non-registry page under decisions/) carries any executive/
-        blob, and no /v3 template or page carries a stale "coming soon" phrase.
-        Detection is case-insensitive over any path characters and the allowed
-        pages are the exact registry paths (not the whole decisions/ subtree),
-        so an uppercase / digit / foreign / wrong-subtype blob, a non-registry
-        decisions page, and a missing / extra CTA all fail (PR #1638; codex
-        rounds 4-6 each closed a narrower edge, this is the exact-set form)."""
-        import re
-        from collections import Counter
-        figures = self.mod.compute_figures()
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp)
-            self._write_site(self.mod.render_site(figures), out)
-            v3 = out / "v3"
-            blob_re = re.compile(r"blob/main/(executive/\S+?\.md)", re.I)
-            actual = {}
-            for f in v3.rglob("*.html"):
-                links = blob_re.findall(f.read_text(encoding="utf-8"))
-                if links:
-                    actual[f.relative_to(v3).as_posix()] = links
-            expected = {
-                f"decisions/{pg['route'][len('executive/'):]}/index.html":
-                    [pg["path"]] * 2
-                for pg in figures["narratives"]
-            }
-            self.assertEqual(
-                set(actual), set(expected),
-                "pages carrying executive/ blobs differ from the registry "
-                f"narrative set: extra={sorted(set(actual) - set(expected))}, "
-                f"missing={sorted(set(expected) - set(actual))}")
-            for rel, exp in expected.items():
-                self.assertEqual(
-                    Counter(actual.get(rel, [])), Counter(exp),
-                    f"{rel}: executive blobs {dict(Counter(actual.get(rel, [])))} "
-                    f"!= two of {exp[0]}")
-            # no stale "coming soon" / GitHub-today phrase in any /v3 template or page
-            tdir = self.mod.WEB_DIR / "templates-v3"
-            stale = ("coming soon", "on-site versions are coming",
-                     "read at source on github", "reads at source on github")
-            for base in (tdir, v3):
-                for f in base.rglob("*.html"):
-                    low = f.read_text(encoding="utf-8").lower()
-                    for ph in stale:
-                        self.assertNotIn(ph, low, f"stale copy phrase {ph!r} in {f}")
-
-    def test_v3_decide_links_resolve(self):
-        """Every on-site reading-room link on the /v3 Decide AND Solutions pages
-        resolves to an actually-emitted page. Guards both relinks (GitHub blob to
-        on-site) against narrative-registry drift: a link to a non-registered
-        executive/ file would 404."""
-        import re
-        figures = self.mod.compute_figures()
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp)
-            self._write_site(self.mod.render_site(figures), out)
-            # Both the Decide page (8 briefs) and the Solutions page (5
-            # journeys/scenarios) link narratives on-site; every such link must
-            # resolve to an emitted page (guards both relinks against registry
-            # drift; codex round-4 MED-2 added the Solutions coverage).
-            for page, floor in (("decide", 8), ("solutions", 5)):
-                idx = out / "v3" / page / "index.html"
-                self.assertTrue(idx.is_file(), f"/v3/{page}/ missing")
-                links = re.findall(r'href="/v3/(decisions/[a-z0-9/-]+/)"',
-                                   idx.read_text(encoding="utf-8"))
-                self.assertGreaterEqual(len(links), floor,
-                                        f"/v3/{page}/ lost its on-site narrative links")
-                for rel in links:
-                    self.assertTrue((out / "v3" / rel / "index.html").is_file(),
-                                    f"{page} link /v3/{rel} resolves to no page")
-
-    def test_v2_internal_fragment_links_resolve(self):
-        """Every internal /v2 link that carries a #fragment resolves to an id on
-        the target page. Regression guard for PR #1627 H1, where a homepage rewrite
-        removed the #register anchor and orphaned 56 return links across the v2
-        domain/type pages (which no gate caught)."""
-        import re
-        figures = self.mod.compute_figures()
-        id_re = re.compile(r'id="([^"]+)"')
-        href_re = re.compile(r'href="([^"]+)"')
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp)
-            self._write_site(self.mod.render_site(figures), out)
-            v2root = out / "v2"
-            pages = sorted(v2root.rglob("*.html"))
-            self.assertTrue(pages, "no v2 pages rendered")
-            ids_cache = {}
-            def ids_of(path):
-                if path not in ids_cache:
-                    ids_cache[path] = (set(id_re.findall(path.read_text(encoding="utf-8")))
-                                       if path.is_file() else None)
-                return ids_cache[path]
-            def page_for(base):
-                rel = base[len("/v2"):].strip("/")
-                return (v2root / rel / "index.html") if rel else (v2root / "index.html")
-            broken = []
-            for page in pages:
-                html = page.read_text(encoding="utf-8")
-                page_ids = set(id_re.findall(html))
-                for href in href_re.findall(html):
-                    if "#" not in href:
-                        continue
-                    base, frag = href.split("#", 1)
-                    if not frag:
-                        continue
-                    if href.startswith("#"):
-                        if frag not in page_ids:
-                            broken.append((str(page.relative_to(out)), href))
-                    elif base == "/v2" or base.startswith("/v2/"):
-                        target_ids = ids_of(page_for(base))
-                        if target_ids is None or frag not in target_ids:
-                            broken.append((str(page.relative_to(out)), href))
-            self.assertEqual(broken, [], f"unresolved /v2 fragment links: {broken}")
 
 
 class RelationshipModelGeneratorTests(unittest.TestCase):
@@ -57264,76 +56720,6 @@ class GateCitationInventoryTests(LinterTestCase):
         self.assertIn("OK", result.stderr)
 
 
-class WebGeneratorV3TypeFloorTests(unittest.TestCase):
-    """Guards the /v3 redesign's central invariant (the maintainer's #1 concern,
-    PR-A #1634): NO font-size below the 16px (1rem) floor anywhere in the v3
-    stylesheet, and uppercase text only at or above that floor. Without this,
-    the type reset can silently regress (e.g. a later PR reaching for 0.8rem)."""
-
-    FLOOR_REM = 1.0
-
-    KEYWORDS = {"inherit", "initial", "unset", "revert", "smaller", "larger", "medium"}
-
-    @classmethod
-    def setUpClass(cls):
-        root = REPO_ROOT / ".web" / "templates-v3"
-        cls.css = "\n".join(
-            p.read_text(encoding="utf-8") for p in sorted(root.rglob("*.html"))
-        )
-        # Map the --fs-* custom properties to their rem values (clamp -> first arg).
-        cls.tokens = {}
-        for name, val in re.findall(r"(--fs-[a-z0-9-]+):\s*([^;]+);", cls.css):
-            m = re.search(r"([0-9.]+)rem", val)  # clamp()'s first rem is the minimum
-            if m:
-                cls.tokens[name] = float(m.group(1))
-
-    def _resolve(self, value):
-        """Resolve one font-size value to rem, or None if not a size (e.g. inherit)."""
-        value = value.strip()
-        m = re.match(r"var\((--fs-[a-z0-9-]+)\)", value)
-        if m:
-            return self.tokens.get(m.group(1), 0.0)  # unknown --fs-* name -> fail closed
-        m = re.match(r"clamp\(\s*([0-9.]+)rem", value)  # min arg
-        if m:
-            return float(m.group(1))
-        m = re.match(r"([0-9.]+)rem", value)
-        if m:
-            return float(m.group(1))
-        if value.lower() in self.KEYWORDS:
-            return None
-        return 0.0  # unknown unit/token (px, em, %, clamp(px..), typo'd var) -> fail closed
-
-    def test_no_font_size_below_the_16px_floor(self):
-        offenders = []
-        for value in re.findall(r"font-size:\s*([^;]+);", self.css):
-            rem = self._resolve(value)
-            if rem is not None and rem < self.FLOOR_REM:
-                offenders.append((value.strip(), rem))
-        self.assertEqual(
-            offenders, [],
-            f"font-size(s) below the {self.FLOOR_REM}rem (16px) floor in templates-v3: {offenders}",
-        )
-
-    def test_every_fs_token_is_at_or_above_the_floor(self):
-        below = {n: v for n, v in self.tokens.items() if v < self.FLOOR_REM}
-        self.assertEqual(below, {}, f"--fs-* token(s) below the 1rem floor: {below}")
-
-    def test_uppercase_text_only_at_or_above_the_floor(self):
-        # Every rule declaring text-transform: uppercase must resolve to a
-        # font-size >= 1rem (the "uppercase + tracking only above the floor"
-        # discipline). Parse each rule block; if it uppercases, its font-size
-        # (own or the token it names) must clear the floor.
-        offenders = []
-        for block in re.findall(r"\{[^{}]*\}", self.css):
-            if "text-transform: uppercase" not in block:
-                continue
-            m = re.search(r"font-size:\s*([^;]+);", block)
-            rem = self._resolve(m.group(1)) if m else None
-            if rem is not None and rem < self.FLOOR_REM:
-                offenders.append(block.strip()[:80])
-        self.assertEqual(offenders, [], f"uppercase rule(s) below the 1rem floor: {offenders}")
-
-
 class WebGeneratorNarrativeJoinTests(unittest.TestCase):
     """Wave-2 PR-1: the narrative-registry (narrative.yml) render-time join.
 
@@ -57485,428 +56871,6 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
                 self.mod.compute_figures()
         finally:
             self.mod.load_narratives = original
-
-    # --- the domain-page rendering ---
-
-    @staticmethod
-    def _generated_domains(figures):
-        # The fail-closed ground truth the rail renderer validates against:
-        # the domain slugs that actually get pages this build.
-        return {dp["domain"] for dp in figures["domain_pages"]}
-
-    def test_domain_page_values_carry_computed_narrative_tokens(self):
-        figures = self.mod.compute_figures()
-        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
-        generated = self._generated_domains(figures)
-        for dp in figures["domain_pages"]:
-            values = self.mod.domain_page_values(dp, v2, generated)
-            self.assertEqual(
-                values["DOMAIN_NARRATIVE_COUNT"], str(len(dp["narratives"])),
-                f"{dp['domain']}: count token is not the computed join size",
-            )
-            rows = values["DOMAIN_NARRATIVE_ROWS"]
-            self.assertEqual(
-                rows.count('<li class="doc-row">'),
-                max(len(dp["narratives"]), 1),
-                f"{dp['domain']}: row count drifted from the join",
-            )
-            for page in dp["narratives"]:
-                self.assertIn(
-                    f'<span class="doc-type">{self.mod._esc(page["narrative_type"])}</span>',
-                    rows,
-                )
-
-    def test_v2_domain_page_renders_leadership_section(self):
-        figures = self.mod.compute_figures()
-        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
-        template_dir = self.mod.template_dir_for(v2)
-        partials = self.mod.load_partials(template_dir)
-        dp = figures["domain_pages"][0]
-        html, _ = self.mod.render_page(
-            "domain.html", figures, v2, template_dir, partials,
-            extra=self.mod.domain_page_values(
-                dp, v2, self._generated_domains(figures)
-            ),
-            out_rel=f"{dp['domain']}/index.html",
-        )
-        self.assertIn("Leadership pages that touch this area.", html)
-        self.assertIn(
-            f"{len(dp['narratives'])} published leadership pages", html,
-            "the lede count must be the computed join size",
-        )
-        first = dp["narratives"][0]
-        self.assertIn(self.mod._esc(first["title"]), html)
-        # PR-2b: the row links to the ON-SITE reading-room route (the BASE
-        # token resolved to the variant prefix), not the GitHub blob.
-        route_tail = first["route"][len("executive/"):]
-        self.assertIn(f'href="/v2/decisions/{route_tail}/"', html)
-        self.assertNotIn(self.mod.GITHUB_BLOB_BASE + first["path"], html)
-
-    def test_zero_narratives_render_declared_gap_row(self):
-        rows = self.mod.render_domain_narrative_rows({"narratives": []})
-        self.assertIn("a declared coverage gap, not a hidden one", rows)
-        self.assertIn('<li class="doc-row">', rows)
-        self.assertNotIn("<a ", rows, "the declared-gap row links nowhere")
-
-    def test_narrative_lede_noun_verb_agrees_with_join_size(self):
-        # 3b152 N2: the v2 lede's noun-verb phrase is COMPUTED alongside the
-        # count, so a join of exactly one page reads "page draws" and zero
-        # keeps the plural ("0 ... pages draw"), consistent with the
-        # declared-gap row rendered beneath it.
-        figures = self.mod.compute_figures()
-        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
-        page = figures["domain_pages"][0]["narratives"][0]
-        for narratives, expected in (
-            ([], "pages draw"),
-            ([page], "page draws"),
-            ([page, page], "pages draw"),
-        ):
-            dp = dict(figures["domain_pages"][0])
-            dp["narratives"] = narratives
-            values = self.mod.domain_page_values(
-                dp, v2, self._generated_domains(figures)
-            )
-            size = len(narratives)
-            self.assertEqual(
-                values["DOMAIN_NARRATIVE_PAGES_DRAW"], expected,
-                f"join size {size}: noun-verb phrase must agree",
-            )
-
-    def test_v2_domain_lede_renders_singular_grammar(self):
-        # 3b152 N2, rendered form: a single joined page must produce
-        # "1 published leadership page draws", never "1 ... pages draw".
-        figures = self.mod.compute_figures()
-        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
-        template_dir = self.mod.template_dir_for(v2)
-        partials = self.mod.load_partials(template_dir)
-        dp = dict(figures["domain_pages"][0])
-        dp["narratives"] = [figures["domain_pages"][0]["narratives"][0]]
-        dom = dp["domain"]
-        html, _ = self.mod.render_page(
-            "domain.html", figures, v2, template_dir, partials,
-            extra=self.mod.domain_page_values(
-                dp, v2, self._generated_domains(figures)
-            ),
-            out_rel=f"{dom}/index.html",
-        )
-        self.assertIn("1 published leadership page draws on", html)
-        self.assertNotIn("1 published leadership pages draw", html)
-
-    def test_v2_domain_rail_never_self_links(self):
-        # 3b152 N4: the closing three-lens rail is shared prose, but on a v2
-        # domain page the lens entry that IS the current page must render as a
-        # non-link current-page marker, never a self-link; every other entry
-        # stays a BASE-prefixed link, and a page the rail does not name keeps
-        # all entries as links.
-        figures = self.mod.compute_figures()
-        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
-        rail_slugs = {
-            slug for _, entries in self.mod.V2_DOMAIN_RAIL_LENSES
-            for slug, _, _ in entries if slug is not None
-        }
-        generated = self._generated_domains(figures)
-        stray = sorted(rail_slugs - generated)
-        self.assertEqual(
-            stray, [], f"rail slug(s) name no generated domain page: {stray}"
-        )
-        template_dir = self.mod.template_dir_for(v2)
-        partials = self.mod.load_partials(template_dir)
-        for dp in figures["domain_pages"]:
-            dom = dp["domain"]
-            html, _ = self.mod.render_page(
-                "domain.html", figures, v2, template_dir, partials,
-                extra=self.mod.domain_page_values(dp, v2, generated),
-                out_rel=f"{dom}/index.html",
-            )
-            self.assertNotIn(
-                f'href="/v2/{dom}/"', html,
-                f"{dom}: the v2 domain page must not link to itself",
-            )
-            if dom in rail_slugs:
-                self.assertIn(
-                    '<span class="lens-here" aria-current="page">', html,
-                    f"{dom}: the rail must mark the current page",
-                )
-            else:
-                self.assertNotIn(
-                    'class="lens-here"', html.split("</style>", 1)[1],
-                    f"{dom}: no rail entry names this page, so none demotes",
-                )
-
-    def test_rail_renderer_demotes_only_the_current_domain(self):
-        # The renderer itself: exactly the current domain's entry demotes, the
-        # other nine entries stay links, and a rail slug naming no generated
-        # domain page is a loud BuildError (fail-closed against a domain
-        # rename leaving the demotion silently dead).
-        generated = self._generated_domains(self.mod.compute_figures())
-        rendered = self.mod.render_domain_rail_lenses("risk", generated)
-        self.assertIn(
-            '<span class="lens-here" aria-current="page">Risk methodology &amp; registers</span>',
-            rendered,
-        )
-        self.assertNotIn('href="{{BASE}}/risk/"', rendered)
-        self.assertEqual(rendered.count('class="lens-here"'), 1)
-        self.assertEqual(rendered.count("<a href="), 9)
-        all_links = self.mod.render_domain_rail_lenses("ai", generated)
-        self.assertNotIn('class="lens-here"', all_links)
-        self.assertEqual(all_links.count("<a href="), 10)
-        saved = self.mod.V2_DOMAIN_RAIL_LENSES
-        try:
-            self.mod.V2_DOMAIN_RAIL_LENSES = (
-                ("H", (("not-a-domain", None, "X"),)),
-            )
-            with self.assertRaisesRegex(self.mod.BuildError, "not-a-domain"):
-                self.mod.render_domain_rail_lenses("risk", generated)
-        finally:
-            self.mod.V2_DOMAIN_RAIL_LENSES = saved
-
-    def test_r2_codex_f1_f2_claude_f1_render_variant_missing_rail_domain(self):
-        figures = dict(self.mod.compute_figures())
-        self.assertIn("security", self.mod.DOMAIN_SCOPE)
-        self.assertIn("security", self._generated_domains(figures))
-        figures["domain_pages"] = [
-            dp for dp in figures["domain_pages"] if dp["domain"] != "security"
-        ]
-        # Exercise production wiring, retaining the stale scope key. Replacing
-        # generated_domains with set(DOMAIN_SCOPE) must fail the v2 assertion.
-        for variant in self.mod.VARIANTS:
-            with self.subTest(variant=variant.name):
-                if variant.name == "v2":
-                    with self.assertRaisesRegex(self.mod.BuildError, "security"):
-                        self.mod.render_variant(figures, variant)
-                elif variant.draft_rules:
-                    # The Browse adventure curates 'security' as a solutions
-                    # Go deeper target (DRAFT_SOLUTION_EVENTS), so a missing
-                    # domain page is a loud BuildError on the draft too,
-                    # never a silently dropped link.
-                    with self.assertRaisesRegex(self.mod.BuildError, "security"):
-                        self.mod.render_variant(figures, variant)
-                else:
-                    pages = dict(self.mod.render_variant(figures, variant))
-                    self.assertIn("risk/index.html", pages)
-                    self.assertNotIn("security/index.html", pages)
-
-    def test_r2_claude_f2_meta_description_noun_agrees_only_in_v2(self):
-        from html import unescape
-
-        figures = self.mod.compute_figures()
-        generated = self._generated_domains(figures)
-        for variant in self.mod.VARIANTS:
-            if variant.draft_rules:
-                # The draft tree renders through its own templates and value
-                # builders (render_draft_variant); it has no type.html and its
-                # domain.html takes draft placeholders, so the live-tree meta
-                # description contract below does not apply to it.
-                continue
-            template_dir = self.mod.template_dir_for(variant)
-            partials = self.mod.load_partials(template_dir)
-            for kind in ("domain", "type"):
-                original = next(
-                    page for page in figures[f"{kind}_pages"]
-                    if page["count"] >= 2
-                )
-                for count in (0, 1, 2):
-                    with self.subTest(
-                        variant=variant.name, kind=kind, count=count
-                    ):
-                        page = dict(original, count=count)
-                        page["docs"] = original["docs"][:count]
-                        noun = (
-                            "document" if variant.name == "v2" and count == 1
-                            else "documents"
-                        )
-                        if kind == "domain":
-                            values = self.mod.domain_page_values(
-                                page, variant, generated
-                            )
-                            out_rel = f"{page['domain']}/index.html"
-                            expected = (
-                                f"{page['scope']}. {count} governance {noun} "
-                                f"in the {page['domain']} domain of the open "
-                                "GRC Library. Its own text is under CC BY-SA "
-                                "4.0; quoted third-party material keeps its "
-                                "own terms (see NOTICE.md)."
-                            )
-                        else:
-                            values = self.mod.type_page_values(page, variant)
-                            out_rel = f"types/{page['slug']}/index.html"
-                            expected = (
-                                f"{page['scope']}. {count} {page['type']}-type "
-                                f"{noun} in the open GRC Library. Its own "
-                                "text is under CC BY-SA 4.0; quoted "
-                                "third-party material keeps its own terms "
-                                "(see NOTICE.md)."
-                            )
-                        html, _ = self.mod.render_page(
-                            f"{kind}.html", figures, variant, template_dir,
-                            partials, extra=values, out_rel=out_rel,
-                        )
-                        descriptions = re.findall(
-                            r'<meta name="description" content="([^"]*)">',
-                            html,
-                        )
-                        self.assertEqual(
-                            [unescape(value) for value in descriptions],
-                            [expected],
-                        )
-
-    def test_rail_slug_in_scope_but_not_generated_fails_loudly(self):
-        # 3b152 round-1 QA (codex F1, claude F2, gemini F-02): the rail guard
-        # must validate against the domain pages actually GENERATED, not the
-        # curated DOMAIN_SCOPE keys. A domain that keeps its stale DOMAIN_SCOPE
-        # entry but loses its page (renamed in the taxonomy, or its last
-        # document removed) previously passed the guard and left every other
-        # domain page's rail linking to a page that does not exist.
-        generated = self._generated_domains(self.mod.compute_figures())
-        self.assertIn("security", self.mod.DOMAIN_SCOPE)
-        with self.assertRaisesRegex(self.mod.BuildError, "security"):
-            self.mod.render_domain_rail_lenses(
-                "risk", generated - set(["security"])
-            )
-
-    def test_rail_domain_hrefs_derive_from_their_slugs(self):
-        # 3b152 round-1 QA (codex F1): a domain entry's destination is derived
-        # from its validated slug, never stored beside it, so a rename cannot
-        # leave a stale hand-typed path behind a passing slug guard. The table
-        # shape enforces it (a domain entry carries no path), the renderer
-        # refuses a drifted entry loudly, and every rendered href equals its
-        # slug.
-        for _, entries in self.mod.V2_DOMAIN_RAIL_LENSES:
-            for slug, path, _ in entries:
-                if slug is not None:
-                    self.assertIsNone(
-                        path, f"{slug}: a domain entry must not hand-type a path"
-                    )
-                else:
-                    self.assertTrue(path, "a non-domain entry carries its path")
-        generated = self._generated_domains(self.mod.compute_figures())
-        rendered = self.mod.render_domain_rail_lenses("risk", generated)
-        for _, entries in self.mod.V2_DOMAIN_RAIL_LENSES:
-            for slug, _, label in entries:
-                if slug is not None and slug != "risk":
-                    self.assertIn(
-                        f'<a href="{{{{BASE}}}}/{slug}/">{label}</a>', rendered
-                    )
-        saved = self.mod.V2_DOMAIN_RAIL_LENSES
-        try:
-            self.mod.V2_DOMAIN_RAIL_LENSES = (
-                ("H", (("risk", "enterprise-risk/", "X"),)),
-            )
-            with self.assertRaisesRegex(self.mod.BuildError, "exactly one"):
-                self.mod.render_domain_rail_lenses("ai", generated)
-        finally:
-            self.mod.V2_DOMAIN_RAIL_LENSES = saved
-
-    def test_v2_domain_documents_lede_pluralizes_with_doc_count(self):
-        # 3b152 round-1 QA (gemini F-01): the documents lede's noun is COMPUTED
-        # with the count, like the leadership lede above it, so a one-document
-        # domain renders "1 reference document", never "1 reference documents".
-        figures = self.mod.compute_figures()
-        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
-        generated = self._generated_domains(figures)
-        template_dir = self.mod.template_dir_for(v2)
-        partials = self.mod.load_partials(template_dir)
-        dp = dict(figures["domain_pages"][0])
-        dp["docs"] = dp["docs"][:1]
-        dp["count"] = 1
-        values = self.mod.domain_page_values(dp, v2, generated)
-        self.assertEqual(values["DOMAIN_DOC_NOUN"], "reference document")
-        html, _ = self.mod.render_page(
-            "domain.html", figures, v2, template_dir, partials,
-            extra=values, out_rel=f"{dp['domain']}/index.html",
-        )
-        self.assertIn("1 reference document in this area.", html)
-        self.assertNotIn("1 reference documents", html)
-        many = self.mod.domain_page_values(
-            figures["domain_pages"][0], v2, generated
-        )
-        self.assertEqual(many["DOMAIN_DOC_NOUN"], "reference documents")
-
-    def test_v2_type_lede_pluralizes_with_doc_count(self):
-        # 3b152 round-1 QA (gemini F-01 at class width): the per-type lede is
-        # the same count-plus-hand-typed-plural shape, and the live corpus HAS
-        # one-document types (Checklist and Roadmap), so the v2 type page
-        # rendered "1 Checklist-type reference documents in the library".
-        figures = self.mod.compute_figures()
-        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
-        template_dir = self.mod.template_dir_for(v2)
-        partials = self.mod.load_partials(template_dir)
-        for tp in figures["type_pages"]:
-            values = self.mod.type_page_values(tp, v2)
-            self.assertEqual(
-                values["TYPE_DOC_NOUN"],
-                "reference document" if tp["count"] == 1
-                else "reference documents",
-                f"{tp['type']}: the lede noun must agree with the count",
-            )
-        singular = [tp for tp in figures["type_pages"] if tp["count"] == 1]
-        self.assertTrue(
-            singular,
-            "no one-document type left in the corpus; keep this rendered-form "
-            "check honest by synthesizing one (see the domain test above)",
-        )
-        for tp in singular:
-            html, _ = self.mod.render_page(
-                "type.html", figures, v2, template_dir, partials,
-                extra=self.mod.type_page_values(tp, v2),
-                out_rel=f"types/{tp['slug']}/index.html",
-            )
-            self.assertIn(
-                f"1 {tp['type']}-type reference document in the library", html
-            )
-            self.assertNotIn(
-                f"1 {tp['type']}-type reference documents", html
-            )
-
-    def test_v2_rail_current_page_marker_keeps_aa_contrast(self):
-        # 3b152 round-1 QA (claude F1): the current-page marker mirrors the
-        # rail links at FULL opacity (ink-soft on surface-2 measures 6.66:1
-        # light / 6.79:1 dark, WCAG AA for its 0.9rem text) and is set off by
-        # weight; the 0.65-opacity version measured about 3.0:1 / 3.7:1, below
-        # the 4.5:1 AA minimum for body text.
-        # R2 claude F3: this checks only the marker's own rule, not computed
-        # contrast or opacity introduced by other matching CSS selectors.
-        template = (
-            REPO_ROOT / ".web" / "templates-v2" / "domain.html"
-        ).read_text(encoding="utf-8")
-        rules = [
-            line for line in template.splitlines() if ".lens-here" in line
-        ]
-        self.assertEqual(len(rules), 1, "exactly one .lens-here style rule")
-        self.assertNotIn(
-            "opacity", rules[0], "no translucency on the marker text"
-        )
-        self.assertIn("font-weight: 600", rules[0])
-        self.assertIn("color: var(--ink-soft)", rules[0])
-
-    def test_row_urls_go_through_single_helper(self):
-        page = {
-            "path": "executive/briefs/x.md", "route": "executive/briefs/x",
-            "title": "T", "narrative_type": "Executive Brief", "domains": ["ai"],
-        }
-        self.assertEqual(
-            self.mod.narrative_page_url(page), "{{BASE}}/decisions/briefs/x/"
-        )
-        rows = self.mod.render_domain_narrative_rows({"narratives": [page]})
-        self.assertIn(
-            self.mod.narrative_page_url(page), rows,
-            "rows must emit their URL through narrative_page_url (the PR-2 flip point)",
-        )
-
-    def test_v1_domain_template_is_inert_to_narrative_tokens(self):
-        v1_template = (
-            REPO_ROOT / ".web" / "templates" / "domain.html"
-        ).read_text(encoding="utf-8")
-        self.assertNotIn(
-            "DOMAIN_NARRATIVE", v1_template,
-            "the frozen v1 template must not reference the narrative tokens "
-            "(the byte-identical-root mechanism)",
-        )
-        v2_template = (
-            REPO_ROOT / ".web" / "templates-v2" / "domain.html"
-        ).read_text(encoding="utf-8")
-        self.assertIn("{{DOMAIN_NARRATIVE_COUNT}}", v2_template)
-        self.assertIn("{{DOMAIN_NARRATIVE_ROWS}}", v2_template)
 
     def test_real_registry_pins_known_join_values(self):
         # Pin concrete registry values so an emit-shape drift (e.g. a dropped or
@@ -58258,97 +57222,8 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
                 with self.assertRaisesRegex(self.mod.BuildError, re.escape(expected)):
                     self.mod.narrative_out_rel({"route": route})
 
-    # --- the on-site route generation (v2 and v3) and the frozen-root invariant ---
-
-    def _variant(self, name):
-        return next(v for v in self.mod.VARIANTS if v.name == name)
-
-    def test_v1_page_set_is_unchanged_and_narrative_free(self):
-        figures = self.mod.compute_figures()
-        v1 = self._variant("v1")
-        self.assertFalse(v1.narrative_routes)
-        self.assertTrue(v1.error_page, "the root variant carries the error page")
-        rels = [out_rel for out_rel, _ in self.mod.render_variant(figures, v1)]
-        expected = (
-            {"index.html", "about/index.html", "pack/index.html", "for-ai/index.html",
-             "404.html"}
-            | {f"{dp['domain']}/index.html" for dp in figures["domain_pages"]}
-            | {f"types/{tp['slug']}/index.html" for tp in figures["type_pages"]}
-        )
-        self.assertEqual(set(rels), expected)
-        self.assertEqual(len(rels), len(expected))
-        self.assertFalse([r for r in rels if r.startswith("decisions/")])
-
-    def test_v2_renders_all_twenty_two_narrative_routes(self):
-        """PR-2b: EVERY registry-listed narrative page (all 25, across the
-        six published narrative types) renders on-site under
-        decisions/<subtype>/<slug>/; no page falls through the type filter."""
-        figures = self.mod.compute_figures()
-        v2 = self._variant("v2")
-        self.assertTrue(v2.narrative_routes)
-        pages = dict(self.mod.render_variant(figures, v2))
-        narratives = figures["narratives"]
-        self.assertEqual(len(narratives), 34)
-        self.assertEqual(
-            {p["narrative_type"] for p in narratives},
-            set(self.mod.NARRATIVE_ROUTE_TYPES),
-        )
-        self.assertEqual(len(self.mod.NARRATIVE_ROUTE_TYPES), 6)
-        for page in narratives:
-            out_rel = "decisions/" + page["route"][len("executive/"):] + "/index.html"
-            self.assertIn(out_rel, pages)
-        # Exactly the narrative routes are added on top of v1 + V2_EXTRA_PAGES,
-        # minus the root-only error page (v1 carries 404.html, v2 must not).
-        v1_rels = [r for r, _ in self.mod.render_variant(figures, self._variant("v1"))]
-        self.assertIn("404.html", v1_rels, "the root variant renders the error page")
-        self.assertNotIn("404.html", pages, "v2 must not carry the error page")
-        self.assertEqual(
-            len(pages),
-            len(v1_rels) - 1 + len(self.mod.V2_EXTRA_PAGES) + len(narratives),
-        )
-
-    def test_unrouted_narrative_type_fails_loudly(self):
-        """The PR-2b health check: a registry narrative_type missing from
-        NARRATIVE_ROUTE_TYPES is a loud BuildError, so a future NEW type
-        cannot silently skip on-site rendering."""
-        figures = dict(self.mod.compute_figures())
-        figures["narratives"] = figures["narratives"] + [{
-            "path": "executive/briefs/brief-ai-data-governance.md",
-            "route": "executive/future-things/future-page",
-            "title": "A future page",
-            "narrative_type": "Future Type",
-            "domains": ["ai"],
-        }]
-        with self.assertRaisesRegex(
-            self.mod.BuildError, "no on-site route.*Future Type"
-        ):
-            self.mod.render_variant(figures, self._variant("v2"))
-
-    def test_rendered_brief_page_carries_the_required_surfaces(self):
-        figures = self.mod.compute_figures()
-        v2 = self._variant("v2")
-        pages = dict(self.mod.render_variant(figures, v2))
-        page = next(
-            p for p in figures["narratives"]
-            if p["path"] == "executive/briefs/brief-ai-data-governance.md"
-        )
-        html = pages["decisions/briefs/brief-ai-data-governance/index.html"]
-        # Inherited noindex + self-canonical (render_page, not hand-built).
-        self.assertIn('<meta name="robots" content="noindex,nofollow">', html)
-        self.assertIn(
-            '<link rel="canonical" href="https://grclibrary.ai/v2/decisions/'
-            'briefs/brief-ai-data-governance/">',
-            html,
-        )
-        # The chrome-supplied title and the prominent source link.
-        self.assertIn(self.mod._esc(page["title"]), html)
-        self.assertIn("Read the source on GitHub", html)
-        self.assertIn(self.mod.narrative_source_blob_url(page), html)
-        # The closing three-lens rail, as on the shipped route pages.
-        self.assertIn("Three lenses past the executive layer.", html)
-        # The rendered body: numbered sections, no terminator leakage.
-        self.assertIn('<span class="sec-num">&sect;01</span>', html)
-        self.assertNotIn("End of Document", html)
+    # --- the on-site route generation (the promoted tree's own route
+    # rendering is pinned in tests/test_web_draft.py) ---
 
     def test_row_url_is_on_site_and_source_link_stays_the_blob(self):
         """PR-2b: the discovery-row URL helper now returns the ON-SITE
@@ -58364,8 +57239,8 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
 
     def test_every_discovery_row_url_is_on_site(self):
         """PR-2b: every registry page's row URL is the on-site route (never a
-        GitHub blob), and the rendered v2 domain rows carry the resolved
-        /v2/decisions/ links with no new-tab/external-arrow treatment."""
+        GitHub blob); the rendered leadership rows on the promoted domain
+        pages are pinned in tests/test_web_draft.py."""
         figures = self.mod.compute_figures()
         for page in figures["narratives"]:
             url = self.mod.narrative_page_url(page)
@@ -58374,33 +57249,6 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
                 f"{page['path']}: {url}",
             )
             self.assertNotIn("github.com", url)
-        for dp in figures["domain_pages"]:
-            rows = self.mod.render_domain_narrative_rows(dp)
-            self.assertNotIn("github.com", rows)
-            self.assertNotIn('target="_blank"', rows)
-            self.assertNotIn('class="ext"', rows)
-        # End-to-end: a rendered v2 domain page resolves the BASE token.
-        v2 = self._variant("v2")
-        pages = dict(self.mod.render_variant(figures, v2))
-        html = pages["ai/index.html"]
-        self.assertIn('href="/v2/decisions/', html)
-        self.assertNotIn("blob/main/executive/", html)
-
-    def test_decisions_template_links_are_on_site(self):
-        """PR-2b: the hand-curated decisions.html narrative rows link to the
-        on-site reading-room routes (internal: no blob URL, no new-tab, no
-        external arrow on those rows), and every linked route is a real
-        registry route, so a curated row cannot point at a page the reading
-        room does not render."""
-        template = (
-            self.mod.template_dir_for(self._variant("v2")) / "decisions.html"
-        ).read_text(encoding="utf-8")
-        self.assertNotIn("blob/main/executive/", template)
-        hrefs = set(re.findall(r'href="\{\{BASE\}\}/decisions/([a-z0-9-]+/[a-z0-9-]+)/"', template))
-        figures = self.mod.compute_figures()
-        routes = {p["route"][len("executive/"):] for p in figures["narratives"]}
-        self.assertEqual(hrefs, routes)
-        self.assertEqual(len(routes), 34)
 
     # --- QA fix 1 regression: {{TOKEN}} in prose stays inert END-TO-END ---
 
@@ -58415,24 +57263,26 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         the prose tokens, the tokens present as literal escaped text, and an
         unknown token neither expanded nor build-breaking."""
         figures = self.mod.compute_figures()
-        v2 = self._variant("v2")
-        template_dir = self.mod.template_dir_for(v2)
+        variant = next(v for v in self.mod.VARIANTS if v.draft_rules)
+        template_dir = self.mod.template_dir_for(variant)
         partials = self.mod.load_partials(template_dir)
         page = {
             "path": "executive/briefs/fixture-brief.md",
             "route": "executive/briefs/fixture-brief",
             "title": "Fixture brief",
             "narrative_type": "Executive Brief",
+            "domains": ["ai"],
         }
         out_rel = "decisions/briefs/fixture-brief/index.html"
 
         def render(body):
             body_html, toc = self.mod.render_narrative_body(
-                self._doc(body), self._SOURCE_REL
+                self._doc(body), self._SOURCE_REL,
+                self.mod.NARRATIVE_SHELL_IDS["templates-draft"],
             )
             html, _ = self.mod.render_page(
-                "narrative.html", figures, v2, template_dir, partials,
-                extra=self.mod.narrative_page_values(page, v2, out_rel, body_html, toc),
+                "narrative.html", figures, variant, template_dir, partials,
+                extra=self.mod.draft_narrative_values(page, body_html, toc),
                 out_rel=out_rel,
             )
             return html
@@ -58447,13 +57297,14 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         # prose {{SCRIPT}}/{{HEAD_STYLE}} tokens did not become partials.
         self.assertEqual(attacked.count("<script"), control.count("<script"))
         self.assertEqual(attacked.count("<style"), control.count("<style"))
-        # No CalVer/BASE substitution of the prose tokens: the figure counts
-        # match the control page exactly.
+        # No CalVer substitution of the prose tokens: the literal never
+        # reaches the page (the promoted figure set carries no CALVER value,
+        # so an expansion would have raised; the count pins it anyway). The
+        # promoted variant's BASE is the empty prefix, so the BASE token's
+        # inertness is pinned by the escaped-literal assertion below alone.
         self.assertEqual(
             attacked.count(figures["calver"]), control.count(figures["calver"])
         )
-        base = self.mod.site_prefix_for(v2)
-        self.assertEqual(attacked.count(base), control.count(base))
         # The tokens render as literal escaped text ('{' -> &#123;), the
         # unknown {{ZZZ}} included (pre-fix it raised in pass 2; the known
         # tokens expanded silently, which was the live-script defect).
@@ -82280,20 +81131,15 @@ class AIQTCutoverTests(unittest.TestCase):
         self.assertIn('.claude/rules/README.md', getattr(caught.exception, '__notes__', []))
 
     def test_website_entries_resolve_and_preserve_counts(self):
+        # The pack pages that rendered these records left with the old root
+        # and staging trees at the draft-site promotion (/pack/ now redirects
+        # to the AIQT project, maintainer decision 2026-11-04 item 2); the
+        # record-to-source resolution is corpus-side and stays pinned.
         import json
         records = json.loads((REPO_ROOT / 'vendor/aiqt/RULES.json').read_text())['rules']
-        for variant in ('templates', 'templates-v2', 'templates-v3'):
-            text = (REPO_ROOT / '.web' / variant / 'pack.html').read_text()
-            self.assertIn('132 pinned AIQT rules', text)
-            self.assertIn('83 AIQT principles + 49 security rules', text)
-            self.assertIn('15 retained GRC compatibility procedures', text)
-            for r in records:
-                self.assertTrue((REPO_ROOT / r['source']).is_file())
-                self.assertIn('/blob/main/' + r['source'], text)
-                ident = 'aiqt-' + r['source'].removeprefix('guardrails/aiqt-rules/')[:-3].replace('/', '-')
-                self.assertEqual(text.count('id="' + ident + '"'), 1)
-                if variant != 'templates-v3':
-                    self.assertEqual(text.count('href="#' + ident + '"'), 1)
+        self.assertTrue(records)
+        for r in records:
+            self.assertTrue((REPO_ROOT / r['source']).is_file())
 
     def test_mutation_actions_have_effect_and_fail_on_wrong_premise(self):
         mod = self.load('audit-gate-mutation.py')
@@ -88834,27 +87680,30 @@ class TestModuleRawCharacterTests(unittest.TestCase):
 
 
 class WebSiteHardeningTests(unittest.TestCase):
-    """Site-hardening regression tests for the grclibrary.ai generator (PR 1).
+    """Site-hardening regression tests for the grclibrary.ai generator (PR 1,
+    re-based at the draft-site promotion).
 
     W1: the dist-root ``_headers`` file carries exactly the four repo-owned
     header rules under one ``/*`` rule, emitted once, at the output root
-    alone (never under v2/ or v3/); the zone's automatic headers
-    (X-Content-Type-Options, Referrer-Policy, Strict-Transport-Security) are
-    never repeated in it; and the live style-src 'unsafe-inline' widening is
-    recorded in a comment beside the constant as removable at promotion.
-    W2: the root variant renders a real 404 page (static noindex, root only,
+    alone, with the spec section 9 CSP (the old live rule's
+    style-src 'unsafe-inline' widening left with the old root tree at the
+    promotion, executing the recorded owner decision); the zone's automatic
+    headers (X-Content-Type-Options, Referrer-Policy,
+    Strict-Transport-Security) are never repeated in it.
+    W2: the site renders a real 404 page (static noindex, root only,
     excluded from sitemap.xml). W3: ``.well-known/security.txt`` carries
     exactly the decided RFC 9116 fields. W4: robots.txt advertises the
     sitemap. Each test fails without its feature.
     """
 
-    # The exact decided header values (owner decision 2026-11-03), in file order.
+    # The exact decided header values (owner decisions 2026-11-03 and the
+    # 2026-11-04 promotion CSP flip), in file order.
     EXPECTED_HEADERS = {
         "Content-Security-Policy": (
             "default-src 'none'; script-src 'self' 'unsafe-inline'"
             " https://ajax.cloudflare.com https://static.cloudflareinsights.com;"
             " connect-src 'self' https://cloudflareinsights.com;"
-            " style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self';"
+            " style-src 'self'; font-src 'self'; img-src 'self';"
             " base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
         ),
         "X-Frame-Options": "DENY",
@@ -88889,11 +87738,10 @@ class WebSiteHardeningTests(unittest.TestCase):
 
     def test_headers_exact_names_and_values(self) -> None:
         content = self._sole("_headers")
-        # PR 2b appends the /draft/* block to PR 1's /* rule; the live rule
-        # must stay byte-identical above it, and nothing else may follow.
-        # The block is asserted against this literal (never only against
-        # build.py's own constant), so a corrupted DRAFT_HEADERS_BLOCK cannot
-        # satisfy both sides of the comparison (round-2 fix 6).
+        # The /draft/* staging block left the emitted file with the /draft/
+        # prefix at the promotion; its constant stays pinned against this
+        # literal (never only against build.py's own constant) for a future
+        # prefixed staging tree (round-2 fix 6).
         self.assertEqual(
             self.web.DRAFT_HEADERS_BLOCK,
             "/draft/*\n"
@@ -88907,12 +87755,12 @@ class WebSiteHardeningTests(unittest.TestCase):
             "  X-Robots-Tag: noindex\n",
             "DRAFT_HEADERS_BLOCK must be the decided /draft/* block, byte "
             "for byte, including the literal X-Robots-Tag: noindex line")
-        self.assertIn(self.web.DRAFT_HEADERS_BLOCK, content,
-                      "_headers must carry the /draft/* block while the "
-                      "variant table carries the draft tree")
-        live = content[: -len(self.web.DRAFT_HEADERS_BLOCK)]
-        self.assertEqual(content, live + self.web.DRAFT_HEADERS_BLOCK,
-                         "the /draft/* block must be the file's tail")
+        self.assertNotIn("/draft/*", content,
+                         "no staging block on the promoted site (the table "
+                         "carries no prefixed draft-rules variant)")
+        self.assertNotIn("X-Robots-Tag", content,
+                         "no header-level noindex on the promoted site")
+        live = content
         lines = live.splitlines()
         self.assertEqual(lines[0], "/*", "the one live rule must cover every path")
         parsed: dict[str, list[str]] = {}
@@ -88941,7 +87789,12 @@ class WebSiteHardeningTests(unittest.TestCase):
             self.assertNotIn(name, content,
                              f"{name} is zone-owned and must never appear in _headers")
 
-    def test_headers_widening_comment_beside_constant(self) -> None:
+    def test_headers_promotion_decision_comment_beside_constant(self) -> None:
+        # Re-based at the promotion from the widening-comment test: the old
+        # live rule's style-src 'unsafe-inline' widening was recorded as
+        # removable at promotion and left with the old tree; the comment
+        # beside the constant now records the executed decision, and the
+        # emitted CSP must not carry the widening.
         source = (REPO_ROOT / ".web" / "build.py").read_text(encoding="utf-8")
         lines = source.splitlines()
         starts = [i for i, line in enumerate(lines)
@@ -88950,22 +87803,27 @@ class WebSiteHardeningTests(unittest.TestCase):
         beside = [line for line in lines[max(0, starts[0] - 12):starts[0]]
                   if line.startswith("#")]
         comment = "\n".join(beside)
-        self.assertIn("style-src 'unsafe-inline'", comment,
-                      "the comment beside HEADERS_FILE must record the live "
-                      "style-src 'unsafe-inline' widening")
-        self.assertIn("removable at promotion", comment,
-                      "the comment beside HEADERS_FILE must record the widening "
-                      "as removable at promotion")
+        self.assertIn("spec section 9 CSP", comment,
+                      "the comment beside HEADERS_FILE must name the spec "
+                      "section 9 CSP")
+        self.assertIn("at-promotion owner decision", comment,
+                      "the comment beside HEADERS_FILE must record the "
+                      "executed at-promotion owner decision")
+        content = self._sole("_headers")
+        self.assertIn("style-src 'self';", content)
+        self.assertNotIn("style-src 'self' 'unsafe-inline'", content,
+                         "the old live style-src widening left at promotion")
 
     def test_404_rendered_at_root_only_with_noindex(self) -> None:
         rels = [rel for rel, _ in self.site_pages if rel.split("/")[-1] == "404.html"]
-        self.assertEqual(rels, ["404.html", "draft/404.html"],
-                         "404.html must render exactly once at the root (never "
-                         "under v2/ or v3/) plus the draft tree's own copy")
+        self.assertEqual(rels, ["404.html"],
+                         "404.html must render exactly once, at the root")
         page = self.by_rel["404.html"][0]
         self.assertIn('<meta name="robots" content="noindex">', page)
-        self.assertIn('<span class="wordmark mono">grclibrary.ai</span>', page,
-                      "the shared topbar partial must be rendered into the 404 page")
+        self.assertIn(
+            '<span class="name">GRCLibrary<span class="tld">.ai</span></span>',
+            page,
+            "the shared topbar partial must be rendered into the 404 page")
 
     def test_404_excluded_from_sitemap(self) -> None:
         self.assertIn("404.html", self.by_rel, "the 404 page must render (W2)")

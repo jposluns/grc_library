@@ -320,13 +320,13 @@ PROJECT_HEADER = [
     "Project", "Current version", "Registration date", "Topic",
     "License", "Status notes", *EVIDENCE_HEADER,
 ]
-HTML_ROOT = ".web/templates"
-# The /draft tree's templates (PR 2b) are scanned under the same live rules
-# rather than excluded: the draft becomes the root at promotion, so holding it
-# to the register now leaves no exclusion to remove. templates-v2/ and
-# templates-v3/ stay omitted (frozen staging copies).
+# The promoted tree's templates (PR 2b, flipped to the site root at the
+# draft-site promotion; it was scanned under the same live rules while
+# staging, so the promotion left no exclusion to remove). The old root tree
+# .web/templates/ and the templates-v2/ and templates-v3/ staging copies were
+# removed at the promotion.
 DRAFT_HTML_ROOT = ".web/templates-draft"
-HTML_ROOTS = (HTML_ROOT, DRAFT_HTML_ROOT)
+HTML_ROOTS = (DRAFT_HTML_ROOT,)
 
 # No evidence-backed bare-publication or series exceptions approved in PR1.
 BARE_EXCEPTIONS = {}
@@ -1159,10 +1159,6 @@ def iter_files(paths, *, explicit=True, root=None):
             or any(rel.startswith(p) for p in EXEMPT_DIRECTORY_PREFIXES)
             or rel == ".web/dist"
             or rel.startswith(".web/dist/")
-            or rel == ".web/templates-v2"
-            or rel.startswith(".web/templates-v2/")
-            or rel == ".web/templates-v3"
-            or rel.startswith(".web/templates-v3/")
             or is_default_exempt_root(path, repo_root=root)
             or is_adopter_exempt(path, repo_root=root)
         )
@@ -1300,7 +1296,7 @@ def main(argv=None):
             explicit=args.paths is not None,
             exclusions=EXEMPT_REASONS,
             omitted=[
-                ".web/templates-v2/", ".web/templates-v3/", ".web/dist/",
+                ".web/dist/",
             ],
             residual=(
                 "Regulations, Acts, soft law, tooling, unrecognized prose; "

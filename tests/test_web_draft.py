@@ -1,27 +1,34 @@
 #!/usr/bin/env python3
-"""The /draft tree (PR 2b): the grclibrary.ai rebuild on the shared family
-site template (baseline 1.7.0).
+"""The promoted site tree (PR 2b's rebuild on the shared family site
+template, baseline 1.7.0, flipped to the site root at the draft-site
+promotion, maintainer decisions 2026-11-04).
 
 What is locked here, each test failing without its feature:
 
-1. Frozen root: the draft variant adds pages only under ``draft/`` and changes
-   no other output byte, except the one sanctioned ``_headers`` appendix (the
-   ``/draft/*`` block); the discovery files never mention the draft.
-2. Page hygiene: every draft page is noindex with a self-canonical under
-   /draft/, carries the baseline head order and the favicon and touch-icon
-   links, resolves every internal reference inside the draft tree or its
+1. The promoted root: the variant's outputs are the site root (no output
+   under the old ``draft/`` prefix), the discovery files cover the promoted
+   pages and never mention the draft, ``_redirects`` carries exactly the
+   three decided rules, and the durable route-coverage pin
+   (PromotedRouteCoverageTests) proves every pre-promotion URL still
+   resolves or redirects.
+2. Page hygiene: every page is indexable with exactly one self-canonical at
+   its own root URL (the 404 page keeps a static noindex and no canonical),
+   carries the baseline head order and the favicon and touch-icon
+   links, resolves every internal reference inside the site tree or its
    copied assets, and marks every external link as opening in a new tab.
 3. The top bar is exactly Browse, All Documents, Decisions, Crosswalk,
    Search, GitHub (GitHub last; maintainer decision 2026-11-03 23:27Z), each
    link opening its own rendered page, never an anchor; each page marks the
    link of the section its route belongs to, and pages outside every section
-   mark none; the landing page's About line carries Disclosure, Licence,
-   Privacy, Security; no other draft page links the Disclosure or Licence
+   mark none; the landing page's About line carries Contributors, For AI,
+   Disclosure, Licence,
+   Privacy, Security, then the AIQT rule-pack note; no other page links the
+   Disclosure or Licence
    pages, and the approved value paragraph keeps its words with no link.
 4. The draft refusal guard rejects an en or em dash (literal or
    entity-encoded), inline style or script, an ``on*`` attribute, and "what
-   this is" framing, and is draft-scoped (the live trees keep their inline
-   partials).
+   this is" framing, and the render path refuses a variant outside the
+   guard loudly.
 5. Every count shown on the draft equals a value recomputed from
    ``taxonomy.yml``.
 6. The baseline asset copy matches ``.web/baseline/`` byte for byte and every
@@ -39,9 +46,10 @@ What is locked here, each test failing without its feature:
    including the query search.js writes into the page address and who
    receives or can read that address, and its evidence links every script
    the rendered draft pages load.
-7. ``_headers`` is PR 1's ``/*`` rule byte for byte plus exactly the decided
-   ``/draft/*`` block (the spec section 9 CSP, the ``!`` detach line and
-   ``X-Robots-Tag: noindex``), with no zone-owned header name.
+7. ``_headers`` is exactly the ``/*`` rule carrying the spec section 9 CSP
+   (the recorded at-promotion owner decision), with no staging block, no
+   ``X-Robots-Tag`` and no zone-owned header name; a prefixed staging
+   variant would re-attach the decided ``/draft/*`` block.
 8. Every taxonomy type has exactly one draft type page carrying its
    TYPE_SCOPE line and every document of the type, with area and purpose;
    the Browse "By type" entries link those pages; the page's prose about its
@@ -387,7 +395,7 @@ SCHEME_SWITCH = (
 # Section 5 and 7.33: in <head>, before the stylesheets, data-cfasync before
 # src, no defer or async.
 SCHEME_SCRIPT_TAG = (
-    '<script data-cfasync="false" src="/draft/assets/baseline/scheme.js">'
+    '<script data-cfasync="false" src="/assets/baseline/scheme.js">'
     "</script>"
 )
 # The baseline 1.7.0 SHA256SUMS digests of the files 1.7.0 changes
@@ -488,7 +496,7 @@ SUBTYPE_SLUGS = {
 def _reading_room_href(page):
     """The draft reading-room URL of one registry page, derived here from
     the registry route rather than through build.py's helpers."""
-    return "/draft/decisions/" + page["route"][len("executive/"):] + "/"
+    return "/decisions/" + page["route"][len("executive/"):] + "/"
 
 
 _MATRIX_RE = re.compile(r"<table\b[^>]*\sdata-matrix\b")
@@ -593,7 +601,7 @@ def _page_rel_for(url_path):
     string, such as a search or facet address, names no other page)."""
     path = url_path.split("#", 1)[0].split("?", 1)[0]
     rel = path.lstrip("/")
-    if rel.endswith("/"):
+    if rel == "" or rel.endswith("/"):
         return rel + "index.html"
     return rel
 
@@ -640,9 +648,16 @@ class DraftSiteRenderTests(unittest.TestCase):
         cls.mod = _load_build()
         cls.figures = cls.mod.compute_figures()
         cls.site_pages = cls.mod.render_site(cls.figures)
+        # The promoted tree has the empty prefix, so the variant's own render
+        # (not a prefix filter) is the page-set fixture; the discovery files
+        # render_site appends on top are reached through by_rel.
+        cls.draft_variant = next(
+            v for v in cls.mod.VARIANTS if v.draft_rules
+        )
+        rendered = cls.mod.render_variant(cls.figures, cls.draft_variant)
         cls.draft_all = {
-            rel: content for rel, content in cls.site_pages
-            if rel.startswith("draft/")
+            cls.mod.output_rel_for(cls.draft_variant, rel): content
+            for rel, content in rendered
         }
         cls.draft_html = {
             rel: content for rel, content in cls.draft_all.items()
@@ -652,72 +667,80 @@ class DraftSiteRenderTests(unittest.TestCase):
         for rel, content in cls.site_pages:
             cls.by_rel.setdefault(rel, []).append(content)
 
-    # -- 1. frozen root ----------------------------------------------------
+    # -- 1. the promoted root (pre-promotion: the frozen root; the
+    # byte-identical-root test retired with the old root tree and is replaced
+    # by PromotedRouteCoverageTests below) ----------------------------------
 
-    def test_root_byte_identical_without_draft_except_headers_block(self):
-        mod = self.mod
-        original = mod.VARIANTS
-        try:
-            mod.VARIANTS = tuple(v for v in original if not v.draft_rules)
-            without = mod.render_site(self.figures)
-        finally:
-            mod.VARIANTS = original
-        kept = [(rel, c) for rel, c in self.site_pages
-                if not rel.startswith("draft/")]
-        self.assertEqual([rel for rel, _ in without], [rel for rel, _ in kept])
-        for (rel_a, content_a), (_, content_b) in zip(without, kept):
-            if rel_a == "_headers":
-                self.assertEqual(
-                    content_a + mod.DRAFT_HEADERS_BLOCK, content_b,
-                    "_headers must be the draft-free file plus the block",
-                )
-            else:
-                self.assertEqual(
-                    content_a, content_b,
-                    f"{rel_a} changed by the draft variant",
-                )
-
-    def test_every_draft_output_lives_under_draft_prefix(self):
-        draft_variant = next(v for v in self.mod.VARIANTS if v.draft_rules)
-        rendered = self.mod.render_variant(self.figures, draft_variant)
-        self.assertTrue(rendered)
-        expected = {
-            self.mod.output_rel_for(draft_variant, rel) for rel, _ in rendered
+    def test_every_output_lives_at_the_site_root(self):
+        # Inverted at promotion from
+        # test_every_draft_output_lives_under_draft_prefix: the promoted
+        # variant is the empty-prefix root, so no output may carry the old
+        # draft/ prefix and the site pages are exactly the variant's render
+        # plus the discovery files.
+        self.assertTrue(self.draft_all)
+        for rel in self.draft_all:
+            self.assertFalse(rel.startswith("draft/"), rel)
+        discovery = {
+            "robots.txt", "sitemap.xml", "llms.txt", "_headers",
+            "_redirects", ".well-known/security.txt",
         }
-        self.assertEqual(expected, set(self.draft_all))
-        for rel in expected:
-            self.assertTrue(rel.startswith("draft/"), rel)
+        self.assertEqual(
+            set(self.draft_all) | discovery,
+            {rel for rel, _ in self.site_pages},
+        )
 
-    def test_discovery_files_never_mention_the_draft(self):
+    def test_discovery_files_cover_the_promoted_site_and_never_mention_the_draft(self):
+        # Inverted at promotion from test_discovery_files_never_mention_the
+        # _draft: the discovery files now cover the promoted pages, and no
+        # emitted file but the _redirects splat rule mentions the old /draft
+        # prefix.
         for name in ("robots.txt", "sitemap.xml", "llms.txt"):
             self.assertEqual(len(self.by_rel[name]), 1)
             self.assertNotIn("draft", self.by_rel[name][0],
                              f"{name} must not mention the draft")
+        sitemap = self.by_rel["sitemap.xml"][0]
+        for loc in ("https://grclibrary.ai/", "https://grclibrary.ai/browse/",
+                    "https://grclibrary.ai/contributors/",
+                    "https://grclibrary.ai/for-ai/"):
+            self.assertIn(f"<loc>{loc}</loc>", sitemap)
+        self.assertNotIn("404.html", sitemap)
+        self.assertIn("https://grclibrary.ai/for-ai/", self.by_rel["llms.txt"][0])
 
-    def test_no_live_page_links_the_draft(self):
+    def test_no_page_links_the_draft(self):
         for rel, content in self.site_pages:
-            if rel.startswith("draft/") or not rel.endswith(".html"):
+            if not rel.endswith(".html") or not isinstance(content, str):
                 continue
             self.assertNotIn("/draft", content,
-                             f"live page {rel} must not link the draft")
+                             f"page {rel} must not link the old /draft prefix")
+
+    def test_redirects_file_exact(self):
+        self.assertEqual(len(self.by_rel["_redirects"]), 1)
+        self.assertEqual(
+            self.by_rel["_redirects"][0],
+            "/draft/* /:splat 301\n"
+            "/about/ /contributors/ 301\n"
+            "/pack/ https://aiqt.ai/ 301\n",
+        )
 
     def test_draft_page_set_is_complete(self):
-        self.assertIn("draft/index.html", self.draft_html)
-        self.assertIn("draft/browse/index.html", self.draft_html)
-        self.assertIn("draft/search/index.html", self.draft_html)
-        self.assertIn("draft/documents/index.html", self.draft_html)
-        self.assertIn("draft/disclosure/index.html", self.draft_html)
-        self.assertIn("draft/license/index.html", self.draft_html)
-        self.assertIn("draft/404.html", self.draft_html)
-        self.assertNotIn("draft/license.html", self.draft_all,
+        self.assertIn("index.html", self.draft_html)
+        self.assertIn("browse/index.html", self.draft_html)
+        self.assertIn("search/index.html", self.draft_html)
+        self.assertIn("documents/index.html", self.draft_html)
+        self.assertIn("contributors/index.html", self.draft_html)
+        self.assertIn("for-ai/index.html", self.draft_html)
+        self.assertIn("disclosure/index.html", self.draft_html)
+        self.assertIn("license/index.html", self.draft_html)
+        self.assertIn("404.html", self.draft_html)
+        self.assertNotIn("license.html", self.draft_all,
                          "no license.html file may shadow license/ (spec 7.16)")
         for dp in self.figures["domain_pages"]:
-            self.assertIn(f"draft/{dp['domain']}/index.html", self.draft_html)
+            self.assertIn(f"{dp['domain']}/index.html", self.draft_html)
         full = self.mod.parse_taxonomy_full(
             self.mod.TAXONOMY.read_text(encoding="utf-8")
         )
         for doc in full:
-            rel = "draft/" + self.mod._doc_route_rel(doc["path"])
+            rel = self.mod._doc_route_rel(doc["path"])
             if doc.get("domain") == self.mod.ROOT_DOMAIN:
                 self.assertNotIn(rel, self.draft_html,
                                  "root specs have no draft document page")
@@ -726,18 +749,31 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # -- 2. page hygiene ---------------------------------------------------
 
-    def test_pages_noindex_and_self_canonical(self):
+    def test_pages_indexable_with_exactly_one_self_canonical(self):
+        # Inverted at promotion from test_pages_noindex_and_self_canonical:
+        # the promoted pages carry NO noindex and exactly one self-canonical
+        # at the page's own root URL; the 404 page keeps a static noindex and
+        # carries no canonical, matching its sitemap exclusion.
         for rel, html in self.draft_html.items():
-            self.assertIn('<meta name="robots" content="noindex,nofollow">',
-                          html, rel)
             canonical = re.findall(
                 r'<link rel="canonical" href="([^"]*)">', html
             )
+            if rel == "404.html":
+                self.assertIn('<meta name="robots" content="noindex">',
+                              html, rel)
+                self.assertEqual(canonical, [], rel)
+                continue
+            self.assertNotIn("noindex", html, rel)
             self.assertEqual(len(canonical), 1, rel)
-            self.assertTrue(
-                canonical[0].startswith("https://grclibrary.ai/draft/"),
-                f"{rel}: {canonical[0]}",
-            )
+            page_rel = rel
+            if page_rel == "index.html":
+                expected = "https://grclibrary.ai/"
+            elif page_rel.endswith("/index.html"):
+                expected = ("https://grclibrary.ai/"
+                            + page_rel[: -len("index.html")])
+            else:
+                expected = "https://grclibrary.ai/" + page_rel
+            self.assertEqual(canonical[0], expected, rel)
 
     def test_pages_pass_the_refusal_rules(self):
         for rel, html in self.draft_html.items():
@@ -766,13 +802,13 @@ class DraftSiteRenderTests(unittest.TestCase):
                             f"{rel}: stylesheet order must be fonts, "
                             "palettes, baseline")
             self.assertIn(
-                '<link rel="icon" href="/draft/assets/baseline/logos/'
+                '<link rel="icon" href="/assets/baseline/logos/'
                 'grclibrary-favicon.svg" type="image/svg+xml">', html, rel)
             self.assertIn(
-                '<link rel="apple-touch-icon" href="/draft/assets/baseline/'
+                '<link rel="apple-touch-icon" href="/assets/baseline/'
                 'logos/grclibrary-touch.png">', html, rel)
             self.assertIn(
-                '<script src="/draft/assets/baseline/copy.js" defer></script>',
+                '<script src="/assets/baseline/copy.js" defer></script>',
                 html, rel)
             self.assertNotIn("application/ld+json", html,
                              f"{rel}: no JSON-LD on a noindex draft")
@@ -830,7 +866,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         for doc in full:
             if doc.get("domain") == self.mod.ROOT_DOMAIN:
                 continue
-            rel = "draft/" + self.mod._doc_route_rel(doc["path"])
+            rel = self.mod._doc_route_rel(doc["path"])
             html = self.draft_html[rel]
             self.assertNotIn(
                 '<nav class="rail"', html,
@@ -886,7 +922,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                     continue
                 path, hash_sign, fragment = ref.partition("#")
                 if path:
-                    self.assertTrue(path.startswith("/draft/"),
+                    self.assertTrue(path.startswith("/"),
                                     f"{rel}: internal reference escapes the "
                                     f"draft: {ref}")
                     target = _page_rel_for(path)
@@ -920,11 +956,11 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # The maintainer's bar (2026-11-03 23:27Z), in order, before GitHub.
     _TOP_BAR = [
-        ("Browse", "/draft/browse/"),
-        ("All Documents", "/draft/documents/"),
-        ("Decisions", "/draft/decide/"),
-        ("Crosswalk", "/draft/crosswalk/"),
-        ("Search", "/draft/search/"),
+        ("Browse", "/browse/"),
+        ("All Documents", "/documents/"),
+        ("Decisions", "/decide/"),
+        ("Crosswalk", "/crosswalk/"),
+        ("Search", "/search/"),
     ]
 
     def test_top_bar_is_six_links_each_to_its_own_page(self):
@@ -961,18 +997,19 @@ class DraftSiteRenderTests(unittest.TestCase):
         All Documents, the decide hub, concern, subtype index and
         reading-room pages under Decisions, the crosswalk views and
         instrument pages under Crosswalk; None for a page in no section."""
-        route = rel[len("draft/"):]
+        route = rel
         first = route.split("/", 1)[0]
         domains = {dp["domain"] for dp in self.figures["domain_pages"]}
         if first in {"browse", "govern", "comply", "solutions", "policies",
                      "types"} | domains:
-            return "/draft/browse/"
+            return "/browse/"
         if first in ("decide", "decisions"):
-            return "/draft/decide/"
+            return "/decide/"
         if first in ("documents", "crosswalk", "search"):
-            return f"/draft/{first}/"
+            return f"/{first}/"
         self.assertIn(route, ("index.html", "404.html",
-                              "disclosure/index.html", "license/index.html"),
+                              "disclosure/index.html", "license/index.html",
+                              "contributors/index.html", "for-ai/index.html"),
                       f"{rel}: a page the section map does not place")
         return None
 
@@ -993,19 +1030,28 @@ class DraftSiteRenderTests(unittest.TestCase):
                          "every bar section, and no section, has pages")
 
     def test_about_line_and_value_paragraph(self):
-        landing = self.draft_html["draft/index.html"]
+        # Remapped at promotion (maintainer decisions 2026-11-04, items 2 and
+        # 5): the About line now also carries Contributors and For AI (the
+        # secondary links kept out of the top bar), and a second short About
+        # sentence says the rule pack is now the AIQT project.
+        landing = self.draft_html["index.html"]
         about = re.search(
             r'<p class="lbl">About this project</p><div><p class="about">'
-            r"(.*?)</p></div>", landing, re.S)
+            r'(.*?)</p><p class="about">(.*?)</p></div>', landing, re.S)
         self.assertIsNotNone(about, "the About line (spec 7.24) is required")
         hrefs = _HREF_RE.findall(about.group(1))
         self.assertEqual(hrefs, [
-            "/draft/disclosure/", "/draft/license/",
+            "/contributors/", "/for-ai/",
+            "/disclosure/", "/license/",
             "https://posluns.ca/privacy/", "https://posluns.ca/security/",
         ], "the About line links in order")
         self.assertEqual(about.group(1).count("(opens in a new tab)"), 2,
                          "Privacy and Security carry the new-tab hint")
-        self.assertEqual(about.group(1).count('class="dot"'), 3)
+        self.assertEqual(about.group(1).count('class="dot"'), 5)
+        aiqt = _HREF_RE.findall(about.group(2))
+        self.assertEqual(aiqt, ["https://aiqt.ai/"],
+                         "the AIQT note links exactly https://aiqt.ai/")
+        self.assertEqual(about.group(2).count("(opens in a new tab)"), 1)
         value = re.search(r'<p class="value">(.*?)</p>', landing, re.S)
         self.assertIsNotNone(value)
         expected = APPROVED_VALUE_PARAGRAPH.format(
@@ -1025,12 +1071,12 @@ class DraftSiteRenderTests(unittest.TestCase):
         dots touched, so the line could not break and overflowed at 300 to
         360 px. Each dot is read off the rendered landing page with what
         touches it on either side."""
-        landing = self.draft_html["draft/index.html"]
+        landing = self.draft_html["index.html"]
         about = re.search(r'<p class="about">(.*?)</p>', landing, re.S)
         self.assertIsNotNone(about, "the About line (spec 7.24) is required")
         dot = '<span class="dot" aria-hidden="true">&middot;</span>'
         parts = about.group(1).split(dot)
-        self.assertEqual(len(parts), 4, "3 dots between the 4 links")
+        self.assertEqual(len(parts), 6, "5 dots between the 6 links")
         for before, after in zip(parts, parts[1:]):
             with self.subTest(after=after[:40]):
                 self.assertTrue(before.endswith("</a>"),
@@ -1043,14 +1089,14 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def test_only_the_landing_page_links_disclosure_and_licence(self):
         allowed = {
-            "draft/index.html", "draft/disclosure/index.html",
-            "draft/license/index.html",
+            "index.html", "disclosure/index.html",
+            "license/index.html",
         }
         for rel, html in self.draft_html.items():
             if rel in allowed:
                 continue
-            self.assertNotIn("/draft/disclosure/", html, rel)
-            self.assertNotIn("/draft/license/", html, rel)
+            self.assertNotIn("/disclosure/", html, rel)
+            self.assertNotIn("/license/", html, rel)
 
     # -- licence and disclosure copy -----------------------------------------
 
@@ -1058,7 +1104,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         """Round-1 ERROR: the summary dropped LICENSE source qualifiers, and
         the carve-out list missed the vendored AIQT corpus-tool subset that
         NOTICE.md records."""
-        page = self.draft_html["draft/license/index.html"]
+        page = self.draft_html["license/index.html"]
         self.assertIn(
             "and, if the licensor asks, you must remove any of the "
             "attribution information above to the extent reasonably "
@@ -1151,7 +1197,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         sentence ends, are the old claim's sentences with that one reworded,
         so each paragraph holds whole sentences, and each sentence appears
         on the rendered page exactly once."""
-        page = self.draft_html["draft/disclosure/index.html"]
+        page = self.draft_html["disclosure/index.html"]
         parts = self._disclosure_claim_parts(page)
         # Four paragraphs by subject, each opening on its own sentence.
         self.assertEqual(len(parts), 4, "the claim is four paragraphs")
@@ -1170,7 +1216,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         search.js writes the query into the page address (spec 7.29), so the
         Entry 6 claim says so, and each part of the claim is checked against
         the rendered pages and the scripts they load."""
-        page = self.draft_html["draft/disclosure/index.html"]
+        page = self.draft_html["disclosure/index.html"]
         # The claim runs over several paragraphs (maintainer 2026-11-04
         # split); joined, they read as the one paragraph did.
         claim = " ".join(self._disclosure_claim_parts(page))
@@ -1223,11 +1269,11 @@ class DraftSiteRenderTests(unittest.TestCase):
         for html in self.draft_html.values():
             # Any attribute order: scheme.js carries data-cfasync before src.
             loaded.update(re.findall(
-                r'<script\b[^>]*\ssrc="/draft/assets/baseline/([^"]+)"',
+                r'<script\b[^>]*\ssrc="/assets/baseline/([^"]+)"',
                 html))
         self.assertIn("scheme.js", loaded)
         sources = {
-            name: self.draft_all[f"draft/assets/baseline/{name}"].decode(
+            name: self.draft_all[f"assets/baseline/{name}"].decode(
                 "utf-8")
             for name in loaded
         }
@@ -1276,7 +1322,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             if "data-filter-group" in html
         }
         self.assertEqual(groups,
-                         {"draft/documents/index.html": ["type", "area"]},
+                         {"documents/index.html": ["type", "area"]},
                          "the claim names every facet key a page writes")
         # "the script itself never writes the type or area of a chip marked
         # unavailable": search.js 1.7.0 refuses such a chip and returns
@@ -1291,11 +1337,11 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn('{ view: k.length && id ? id : "" }',
                       sources["matrix.js"])
         self.assertNotIn("data-col-toggles",
-                         self.draft_html["draft/crosswalk/index.html"])
+                         self.draft_html["crosswalk/index.html"])
         self.assertEqual(
             sorted(rel for rel, html in self.draft_html.items()
                    if "/assets/baseline/matrix.js" in html),
-            ["draft/crosswalk/index.html"],
+            ["crosswalk/index.html"],
             "the matrix script loads on the crosswalk page alone")
         # Batch 3 integration: the claim names every script's address and
         # storage behaviour together, so a script that writes the address
@@ -1308,7 +1354,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             sorted(named), "the scripts with address or storage behaviour")
         for name, phrase in sorted(named.items()):
             self.assertIn(phrase, claim, f"the claim names what {name} does")
-        keys = ", ".join(f"?{g}=" for g in groups["draft/documents/index.html"])
+        keys = ", ".join(f"?{g}=" for g in groups["documents/index.html"])
         self.assertIn(f"({keys})", claim,
                       "the claim names every facet key search.js writes")
         # "filters a list already on the page and does not submit the query"
@@ -1338,11 +1384,11 @@ class DraftSiteRenderTests(unittest.TestCase):
         for rel, html in self.draft_html.items():
             for src in re.findall(r'<script\b[^>]*\ssrc="([^"]*)"', html):
                 self.assertTrue(
-                    src.startswith("/draft/assets/baseline/"),
+                    src.startswith("/assets/baseline/"),
                     f"{rel}: {src} is not a baseline asset")
                 loaded.add(src.rsplit("/", 1)[1])
         self.assertIn("rail.js", loaded)
-        page = self.draft_html["draft/disclosure/index.html"]
+        page = self.draft_html["disclosure/index.html"]
         evidence = re.search(
             r'<h2 id="d-6">.*?<p><strong>Evidence:</strong>(.*?)</p>',
             page, re.S)
@@ -1383,7 +1429,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             named.findall(entries[0]), [version],
             "NOTICE.md's baseline entry names exactly the pinned version")
 
-        page = self.draft_html["draft/license/index.html"]
+        page = self.draft_html["license/index.html"]
         self.assertEqual(
             set(named.findall(page)), {version},
             "the rendered licence page names exactly the pinned version")
@@ -1420,7 +1466,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         for d in domain_docs:
             domains[d["domain"]] = domains.get(d["domain"], 0) + 1
         root_count = total - len(domain_docs)
-        browse = self.draft_html["draft/browse/index.html"]
+        browse = self.draft_html["browse/index.html"]
         # The meta sentence separates the in-domain documents from the root
         # library specifications (round-1 WARN: "360 documents in 12 domains"
         # overcounted; 2 of the 360 live in no domain).
@@ -1439,18 +1485,18 @@ class DraftSiteRenderTests(unittest.TestCase):
             f'<div class="fig"><span class="num">{len(types)}</span>'
             '<span class="cap">document types</span></div>', browse)
         for domain, count in domains.items():
-            page = self.draft_html[f"draft/{domain}/index.html"]
+            page = self.draft_html[f"{domain}/index.html"]
             noun = "document" if count == 1 else "documents"
             self.assertIn(f'<p class="meta">{count} {noun}. ', page)
             self.assertIn(f'<span class="n">{count}</span>', browse)
-        landing = self.draft_html["draft/index.html"]
+        landing = self.draft_html["index.html"]
         self.assertIn(f">{domains['governance']} documents</span>", landing)
         self.assertIn(
             f"{len(domain_docs)} documents across {len(domains)} domains "
             f"plus {root_count} library specifications", landing,
             "the Browse tile separates in-domain documents from the root "
             "library specifications")
-        search = self.draft_html["draft/search/index.html"]
+        search = self.draft_html["search/index.html"]
         # The rows are drawn from the non-root corpus documents plus the
         # docs/ adopter documents (site a9), so the row count and the prompt
         # count that pool, the two parts apart, and never claim the whole
@@ -1467,7 +1513,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         # The documents index counts its own rows: the non-root documents and
         # their areas, plus the root specifications, in the types of all of
         # them (the set the type pages count).
-        index = self.draft_html["draft/documents/index.html"]
+        index = self.draft_html["documents/index.html"]
         self.assertIn(
             f'<p class="meta">{len(domain_docs)} documents across '
             f'{len(domains)} areas, ', index)
@@ -1482,7 +1528,7 @@ class DraftSiteRenderTests(unittest.TestCase):
     _SEARCH_ROW_RE = re.compile(r'<li data-search="([^"]*)"><a href="([^"]*)">')
 
     def _search_rows(self):
-        search = self.draft_html["draft/search/index.html"]
+        search = self.draft_html["search/index.html"]
         scope = re.search(
             r"<ul[^>]* data-search-scope>(.*?)</ul>", search, re.S
         )
@@ -1495,8 +1541,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         """The draft document pages (the documents index, the one fixed page
         under documents/, is not a document page)."""
         return {rel for rel in self.draft_html
-                if rel.startswith("draft/documents/")
-                and rel != "draft/documents/index.html"}
+                if rel.startswith("documents/")
+                and rel != "documents/index.html"}
 
     def test_search_has_one_row_per_draft_document_page(self):
         doc_pages = self._doc_pages()
@@ -1509,7 +1555,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         doc_pages = self._doc_pages()
         linked = set()
         for _, href in self._search_rows():
-            self.assertTrue(href.startswith("/draft/documents/"), href)
+            self.assertTrue(href.startswith("/documents/"), href)
             target = _page_rel_for(href)
             self.assertIn(target, self.draft_html,
                           f"search row links a missing page: {href}")
@@ -1533,15 +1579,15 @@ class DraftSiteRenderTests(unittest.TestCase):
         cases = (
             # Title terms; dated 2026-10-27, outside the old 36-row window.
             ("exception risk acceptance",
-             "/draft/documents/governance/"
+             "/documents/governance/"
              "policy-exception-and-risk-acceptance-management/"),
             # Title term on one of the oldest documents (2026-07-02).
             ("ctpat",
-             "/draft/documents/compliance/logistics/"
+             "/documents/compliance/logistics/"
              "register-ctpat-united-states-msc-controls/"),
             # A mapped framework name reaches the same governance policy.
             ("iso 31000",
-             "/draft/documents/governance/"
+             "/documents/governance/"
              "policy-exception-and-risk-acceptance-management/"),
             # Review round 1 WARN: two of the page's own example searches,
             # each matching its document only through purpose words after the
@@ -1549,10 +1595,10 @@ class DraftSiteRenderTests(unittest.TestCase):
             # this purpose, "incident" at offset 419 of the next); a truncated
             # purpose lost both.
             ("retention",
-             "/draft/documents/operations/"
+             "/documents/operations/"
              "procedure-media-handling-and-transport/"),
             ("incident response",
-             "/draft/documents/operations/"
+             "/documents/operations/"
              "procedure-security-monitoring-and-alert-management/"),
         )
         for query, expected in cases:
@@ -1580,7 +1626,7 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def test_every_adopter_doc_has_a_draft_document_page(self):
         for rel_md in self._adopter_doc_paths():
-            rel = "draft/" + self.mod._doc_route_rel(rel_md)
+            rel = self.mod._doc_route_rel(rel_md)
             self.assertIn(rel, self.draft_html,
                           f"{rel_md} has no draft document page")
             title = self._TITLE_FIELD_RE.search(
@@ -1593,13 +1639,13 @@ class DraftSiteRenderTests(unittest.TestCase):
     def test_search_lists_every_adopter_doc(self):
         hrefs = {href for _, href in self._search_rows()}
         for rel_md in self._adopter_doc_paths():
-            self.assertIn(f"/draft/documents/{rel_md[:-3]}/", hrefs,
+            self.assertIn(f"/documents/{rel_md[:-3]}/", hrefs,
                           f"{rel_md} has no search row")
 
     def test_browse_lists_every_adopter_doc(self):
-        browse = self.draft_html["draft/browse/index.html"]
+        browse = self.draft_html["browse/index.html"]
         for rel_md in self._adopter_doc_paths():
-            self.assertIn(f'href="/draft/documents/{rel_md[:-3]}/"', browse,
+            self.assertIn(f'href="/documents/{rel_md[:-3]}/"', browse,
                           f"{rel_md} is not listed on the browse page")
 
     # -- 5d. adopter page prose: every descriptive sentence true for every
@@ -1610,7 +1656,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         listed documents and called them all 'how to adopt the library'. The
         sentence now derives its count from the generated list and claims
         only what every item satisfies (each is read from its own record)."""
-        browse = self.draft_html["draft/browse/index.html"]
+        browse = self.draft_html["browse/index.html"]
         guides = re.search(
             r'<h2 id="adopter-documents">.*?<ul class="plan described">\n'
             r'(.*?)\n</ul>', browse, re.S)
@@ -1660,7 +1706,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         search list adds the adopter documents and leaves out the library
         specifications. The scope sentence states both claims, each checked
         against the rendered pages, type section and search rows alike."""
-        browse = self.draft_html["draft/browse/index.html"]
+        browse = self.draft_html["browse/index.html"]
         section = re.search(
             r'<h2 id="types">By type</h2>\n<p>([^<]*)</p>\n'
             r'<div class="wide"><ul class="plan three">\n(.*?)\n</ul>',
@@ -1689,9 +1735,9 @@ class DraftSiteRenderTests(unittest.TestCase):
         hrefs = {href for _, href in self._search_rows()}
         self.assertEqual(len(hrefs), len(docs) - len(root) + len(adopter))
         for g in adopter:
-            self.assertIn(f"/draft/documents/{g['path'][:-3]}/", hrefs)
+            self.assertIn(f"/documents/{g['path'][:-3]}/", hrefs)
         for d in root:
-            self.assertNotIn(f"/draft/documents/{d['path'][:-3]}/", hrefs)
+            self.assertNotIn(f"/documents/{d['path'][:-3]}/", hrefs)
 
     _ROW_META_RE = re.compile(
         r'<li data-search="[^"]*"><a href="[^"]*">.*?</a>'
@@ -1724,7 +1770,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         types = {d["type"] for d in self.mod.parse_adopter_docs()}
         self.assertNotEqual(types, {"Guide"},
                             "the docs/ area is not all guides today")
-        for rel in ("draft/search/index.html", "draft/browse/index.html"):
+        for rel in ("search/index.html", "browse/index.html"):
             for text in self._label_texts(self.draft_html[rel]):
                 self.assertNotIn(
                     "adopter guides", text.lower(),
@@ -1737,8 +1783,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         label, heading and anchor and on every docs/ search row's area
         label. Checked on the rendered pages."""
         adopter = self.mod.parse_adopter_docs()
-        browse = self.draft_html["draft/browse/index.html"]
-        search = self.draft_html["draft/search/index.html"]
+        browse = self.draft_html["browse/index.html"]
+        search = self.draft_html["search/index.html"]
         self.assertIn(
             '<p class="lbl sec">Adopter documents</p>\n'
             '<h2 id="adopter-documents">Adopter documents</h2>', browse)
@@ -1757,12 +1803,12 @@ class DraftSiteRenderTests(unittest.TestCase):
         one (the Browse adopter section at /draft/browse/#adopter-documents
         is the area's listing instead)."""
         for rel, html in self.draft_html.items():
-            self.assertNotIn('"/draft/docs/', html, rel)
+            self.assertNotIn('"/docs/', html, rel)
 
     _LEAD_RE = re.compile(r'<p class="lead">(.*?)</p>', re.S)
 
     def _doc_lead(self, rel_md):
-        rel = "draft/" + self.mod._doc_route_rel(rel_md)
+        rel = self.mod._doc_route_rel(rel_md)
         m = self._LEAD_RE.search(self.draft_html[rel])
         self.assertIsNotNone(m, f"{rel} has no lede")
         return unescape(m.group(1))
@@ -1824,7 +1870,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         """Round-2 error 1 companion: docs/worked-example.md carries a whole
         fenced example document; the page must read the file's own leading
         block, never the fenced one."""
-        rel = "draft/" + self.mod._doc_route_rel("docs/worked-example.md")
+        rel = self.mod._doc_route_rel("docs/worked-example.md")
         self.assertIn(
             "<h1>Worked Example: Converting a Draft into a CC BY-SA 4.0 "
             "Artefact</h1>", self.draft_html[rel])
@@ -1833,7 +1879,7 @@ class DraftSiteRenderTests(unittest.TestCase):
     # too much going on ... search should just give you a search") -----------
 
     def test_search_page_has_no_chip_rows_or_recently_updated_block(self):
-        search = self.draft_html["draft/search/index.html"]
+        search = self.draft_html["search/index.html"]
         main = search.split('<main id="main-content">', 1)[1]
         main = main.split("</main>", 1)[0]
         self.assertNotIn('class="chips"', main,
@@ -1849,7 +1895,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn("data-search-scope", lists[0])
 
     def test_search_input_is_labelled_and_described_by_the_prompt(self):
-        search = self.draft_html["draft/search/index.html"]
+        search = self.draft_html["search/index.html"]
         self.assertIn('<label class="lbl" for="q">Search the library</label>',
                       search)
         self.assertIn('aria-describedby="search-prompt"', search)
@@ -1862,7 +1908,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         line's live-region roles, or the list's accessible name passed every
         test. The list is named for what it holds on this page, not "All
         documents" or "Documents", the names of the separate full index."""
-        search = self.draft_html["draft/search/index.html"]
+        search = self.draft_html["search/index.html"]
         forms = re.findall(r"<form\b([^>]*)>", search)
         self.assertEqual(len(forms), 1, "the page has one form")
         self.assertIn('role="search"', forms[0],
@@ -1890,7 +1936,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         counted are the corpus domains, as on Browse (review round 2 NOTE);
         the docs/ area is no domain, so the stated field is the row's
         area."""
-        search = self.draft_html["draft/search/index.html"]
+        search = self.draft_html["search/index.html"]
         prompt = re.search(
             r'<p class="meta" id="search-prompt">([^<]*)</p>', search)
         self.assertIsNotNone(prompt)
@@ -1898,7 +1944,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         full = self.mod.parse_taxonomy_full(
             self.mod.TAXONOMY.read_text(encoding="utf-8")
         )
-        by_href = {self.mod._doc_page_url("/draft", d["path"]): d
+        by_href = {self.mod._doc_page_url("", d["path"]): d
                    for d in full + self.mod.parse_adopter_docs()}
         hrefs = [href for _, href in self._search_rows()]
         docs = [by_href[href] for href in hrefs]
@@ -1929,7 +1975,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn(
             f'<div class="fig"><span class="num">{head.group(3)}</span>'
             '<span class="cap">domains</span></div>',
-            self.draft_html["draft/browse/index.html"],
+            self.draft_html["browse/index.html"],
             "the prompt's domains are the ones Browse counts")
         self.assertNotRegex(prompt, r"\ball\b",
                             "the rows are not the whole library")
@@ -1973,7 +2019,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         for d in full + self.mod.parse_adopter_docs():
             if d.get("domain") == self.mod.ROOT_DOMAIN:
                 continue
-            href = self.mod._doc_page_url("/draft", d["path"])
+            href = self.mod._doc_page_url("", d["path"])
             expected[href] = " ".join(" ".join(
                 [d.get("title", ""), d.get("type", ""),
                  self.mod.draft_domain_label(d.get("domain", "")),
@@ -2103,7 +2149,7 @@ class DraftSiteRenderTests(unittest.TestCase):
     def _search_replay_rows(self):
         """The search page's rows as search.js reads them, its title being
         the first link's text (the page sets no data-title)."""
-        search = self.draft_html["draft/search/index.html"]
+        search = self.draft_html["search/index.html"]
         scope = re.search(r"<ul[^>]* data-search-scope>(.*?)</ul>", search,
                           re.S).group(1)
         return [
@@ -2119,7 +2165,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         and saying how to search: its count is the rows, and its "a document
         shows when every word is in" its fields is replayed on them. The
         status line stays empty in the markup for search.js to fill."""
-        search = self.draft_html["draft/search/index.html"]
+        search = self.draft_html["search/index.html"]
         scopes = re.findall(r"<ul\b([^>]*)\bdata-search-scope>", search)
         self.assertEqual(len(scopes), 1)
         attrs = dict(re.findall(r'\s(data-search-[a-z]+)="([^"]*)"',
@@ -2151,9 +2197,9 @@ class DraftSiteRenderTests(unittest.TestCase):
         its document's title and no row sets data-title. Replayed for one of
         the page's own example searches: the rows whose title holds every
         word lead, and rows matching only elsewhere follow."""
-        search = self.draft_html["draft/search/index.html"]
+        search = self.draft_html["search/index.html"]
         self.assertNotIn("data-title", search)
-        by_href = {self.mod._doc_page_url("/draft", d["path"]): d
+        by_href = {self.mod._doc_page_url("", d["path"]): d
                    for d in self._full_taxonomy()
                    + self.mod.parse_adopter_docs()}
         rows = self._search_replay_rows()
@@ -2177,13 +2223,13 @@ class DraftSiteRenderTests(unittest.TestCase):
         checked there: results mode and its title ranking on the scope, the
         ?q= write-back in the loaded search.js, and the whole list in the
         markup with no row hidden, so without script it stays below."""
-        search = self.draft_html["draft/search/index.html"]
+        search = self.draft_html["search/index.html"]
         main = search.split('<main id="main-content">', 1)[1]
         for text in self._label_texts(main):
             self.assertNotIn("listed below", text)
         self.assertIn(self.SEARCH_RESULTS_PROSE, main)
         self.assertRegex(main, r'<ul\b[^>]*\sdata-search-mode="results"')
-        js = self.draft_all["draft/assets/baseline/search.js"].decode("utf-8")
+        js = self.draft_all["assets/baseline/search.js"].decode("utf-8")
         self.assertIn('p.set("q", input.value)', js)
         self.assertIn('params.get("q")', js)
         self.assertIn('var rank = results ||', js,
@@ -2204,9 +2250,9 @@ class DraftSiteRenderTests(unittest.TestCase):
         search.js reads ?q= into the input before its first run(), so every
         rendered chip address (replayed with its words) shows results on
         load, while an address with no words (?q=) stays empty."""
-        search = self.draft_html["draft/search/index.html"]
+        search = self.draft_html["search/index.html"]
         self.assertIn(self.SEARCH_RESULTS_PROSE, search)
-        js = self.draft_all["draft/assets/baseline/search.js"].decode("utf-8")
+        js = self.draft_all["assets/baseline/search.js"].decode("utf-8")
         load = js.find('if (input && params.has("q")) '
                        '{ input.value = params.get("q"); }')
         self.assertGreaterEqual(load, 0, "search.js reads ?q= on load")
@@ -2239,7 +2285,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         from the taxonomy and the adopter metadata), and some row's owner, a
         field the document holds, has a word its row cannot match, so the
         unscoped wording was false."""
-        search = self.draft_html["draft/search/index.html"]
+        search = self.draft_html["search/index.html"]
         prompt = unescape(re.search(r'\sdata-search-prompt="([^"]*)"',
                                     search).group(1))
         self.assertIn(self.SEARCH_MATCH_FIELDS, prompt)
@@ -2247,7 +2293,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn(self.SEARCH_RESULTS_PROSE, search)
         for text in (prompt, self.SEARCH_RESULTS_PROSE):
             self.assertNotIn("holds every word.", text)
-        by_href = {self.mod._doc_page_url("/draft", d["path"]): d
+        by_href = {self.mod._doc_page_url("", d["path"]): d
                    for d in self._full_taxonomy()
                    + self.mod.parse_adopter_docs()}
         rows = self._search_replay_rows()
@@ -2286,7 +2332,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             for href, name in self._FW_CHIP_RE.findall(section.group(1)):
                 chips += 1
                 self.assertEqual(_page_rel_for(unescape(href)),
-                                 "draft/search/index.html", f"{rel}: {href}")
+                                 "search/index.html", f"{rel}: {href}")
                 self.assertEqual(_address_params(href), {"q": unescape(name)},
                                  f"{rel}: {href}")
                 hits = {r["href"] for r in _replay_search_js(
@@ -2297,7 +2343,7 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # -- 9. the documents index (design A PR A3) ------------------------------
 
-    _INDEX_REL = "draft/documents/index.html"
+    _INDEX_REL = "documents/index.html"
     _FACET_CHIP_RE = re.compile(
         r'<li><a href="([^"]*)" data-filter="([^"]*)">([^<]*)'
         r'<span class="n">(\d+)</span></a></li>')
@@ -2378,7 +2424,7 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def test_documents_index_has_one_row_per_non_root_taxonomy_path(self):
         expected = [
-            self.mod._doc_page_url("/draft", d["path"])
+            self.mod._doc_page_url("", d["path"])
             for d in self._full_taxonomy()
             if d.get("domain") != self.mod.ROOT_DOMAIN
         ]
@@ -2403,7 +2449,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             key=lambda d: (d.get("title", "").lower(), d["path"]))
         self.assertEqual(
             [href for _, href in self._index_rows()],
-            [self.mod._doc_page_url("/draft", d["path"]) for d in docs])
+            [self.mod._doc_page_url("", d["path"]) for d in docs])
 
     def test_documents_index_prose_is_true_for_every_row(self):
         """The page prose rule, on the index: the meta line says every listed
@@ -2433,7 +2479,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         hrefs = [href for _, href in self._index_rows()]
         self.assertEqual(
             hrefs,
-            [self.mod._doc_page_url("/draft", d["path"]) for d in listed],
+            [self.mod._doc_page_url("", d["path"]) for d in listed],
             "the list holds, A to Z, exactly the documents its heading names")
         for href in hrefs:
             self.assertIn(_page_rel_for(href), self.draft_html,
@@ -2456,7 +2502,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         for d in self._full_taxonomy():
             if d.get("domain") == self.mod.ROOT_DOMAIN:
                 continue
-            href = self.mod._doc_page_url("/draft", d["path"])
+            href = self.mod._doc_page_url("", d["path"])
             hay = hay_by_href[href]
             parts = [d.get("title", ""), d.get("type", ""),
                      self.mod.draft_domain_label(d.get("domain", "")),
@@ -2477,7 +2523,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         # describes.
         self.assertEqual(
             set(search_rows) - set(index_rows),
-            {self.mod._doc_page_url("/draft", g["path"])
+            {self.mod._doc_page_url("", g["path"])
              for g in self.mod.parse_adopter_docs()})
 
     def test_documents_index_wires_the_filter_scope_search_js_expects(self):
@@ -2486,7 +2532,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         of the first [data-search-scope] as a row."""
         index = self.draft_html[self._INDEX_REL]
         self.assertIn(
-            '<script src="/draft/assets/baseline/search.js" defer></script>',
+            '<script src="/assets/baseline/search.js" defer></script>',
             index, "the index loads the baseline search.js")
         first = re.search(r"<([a-z]+)\b[^>]*\sdata-search(?=[\s>=])", index)
         self.assertIsNotNone(first)
@@ -2523,7 +2569,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         index (?type=, ?area=), which search.js reads on load and which is
         the plain link without script; and search.js on a chip (replayed)
         shows exactly the chip's count."""
-        docs = {self.mod._doc_page_url("/draft", d["path"]): d
+        docs = {self.mod._doc_page_url("", d["path"]): d
                 for d in self._full_taxonomy()
                 if d.get("domain") != self.mod.ROOT_DOMAIN}
         rows = self._index_replay_rows()
@@ -2546,7 +2592,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 chips = self._FACET_CHIP_RE.findall(block)
                 self.assertEqual(len(chips), block.count("<li>"),
                                  "every item in the group is a facet chip")
-                self.assertEqual(chips[0], ("/draft/documents/", "", "All",
+                self.assertEqual(chips[0], ("/documents/", "", "All",
                                             str(len(rows))),
                                  "the All chip leads and counts every row")
                 tokens = Counter(row["tokens"][group][0] for row in rows)
@@ -2602,7 +2648,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         test_documents_index_rows_carry_the_search_text."""
         index = self.draft_html[self._INDEX_REL]
         self.assertIn(self.INDEX_FILTER_PROSE, index)
-        docs = {self.mod._doc_page_url("/draft", d["path"]): d
+        docs = {self.mod._doc_page_url("", d["path"]): d
                 for d in self._full_taxonomy()
                 if d.get("domain") != self.mod.ROOT_DOMAIN}
         rows = self._index_replay_rows()
@@ -2659,7 +2705,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                     f"{group}={value}: its documents in the whole list")
         self.assertEqual(chips["type"][""], len(rows), "All is the list")
         self.assertEqual(chips["area"][""], len(rows), "All is the list")
-        js = self.draft_all["draft/assets/baseline/search.js"].decode("utf-8")
+        js = self.draft_all["assets/baseline/search.js"].decode("utf-8")
         # From 1.7.0 search.js also writes a chip's .n (el), only in a group
         # with data-filter-count="live", which neither group carries, and
         # the text of the hidden note it creates once (note); so the counts
@@ -2749,7 +2795,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(
             sorted(rel for rel, html in self.draft_html.items()
                    if "data-filter-group" in html), [self._INDEX_REL])
-        js = self.draft_all["draft/assets/baseline/search.js"].decode("utf-8")
+        js = self.draft_all["assets/baseline/search.js"].decode("utf-8")
         self.assertIn('empty: el.getAttribute("data-filter-empty") === '
                       '"disable"', js)
 
@@ -2765,7 +2811,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         included): the chips the sentence covers exist on this page."""
         index = self.draft_html[self._INDEX_REL]
         self.assertIn(self.INDEX_FILTER_PROSE, index)
-        js = self.draft_all["draft/assets/baseline/search.js"].decode("utf-8")
+        js = self.draft_all["assets/baseline/search.js"].decode("utf-8")
         self.assertIn('var off = g.empty && v !== "" && v !== g.value && '
                       'n === 0;', js)
         # "with the other group's choice and the words typed": a row that
@@ -2791,7 +2837,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn('status.textContent = labelOf(c) + " would show no '
                       'documents with the current choices.";',
                       click[refused:click.index("g.value =")])
-        css = self.draft_all["draft/assets/baseline/baseline.css"].decode(
+        css = self.draft_all["assets/baseline/baseline.css"].decode(
             "utf-8")
         self.assertIn('.chips a[aria-disabled="true"], .chips '
                       'button[aria-disabled="true"] { border-style: dashed;',
@@ -2910,7 +2956,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         for rel in self._doc_pages():
             self.assertIn(
                 '<p class="lbl">Next</p><a class="start" '
-                'href="/draft/documents/">All Documents <span',
+                'href="/documents/">All Documents <span',
                 self.draft_html[rel], rel)
 
     def test_browse_links_all_documents_outside_the_top_bar(self):
@@ -2926,15 +2972,15 @@ class DraftSiteRenderTests(unittest.TestCase):
         corpus document and points to the Browse list that carries every
         adopter document. Site f1: the sentence names the index's filters,
         by type, by area and by words."""
-        browse = self.draft_html["draft/browse/index.html"]
+        browse = self.draft_html["browse/index.html"]
         main = browse.split('<main id="main-content">', 1)[1]
-        self.assertIn('<a href="/draft/documents/">All Documents</a>', main,
+        self.assertIn('<a href="/documents/">All Documents</a>', main,
                       "the Browse page body links the index by name")
         label = self.mod._esc(
             self.mod.draft_domain_label(self.mod.ADOPTER_DOCS_AREA))
         self.assertIn(
             "<p>To see every corpus document on one page, open "
-            '<a href="/draft/documents/">All Documents</a>; its filters, by '
+            '<a href="/documents/">All Documents</a>; its filters, by '
             "type, by area and by words, cover the documents across the "
             "domains. The adopter documents, outside the corpus, are listed "
             f"further down this page, under {label}.</p>", main)
@@ -2947,7 +2993,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             ["type", "area"])
         self.assertEqual(index.count("<form "), 1)
         self.assertEqual(index.count("data-search-scope"), 1)
-        after = main.split("open <a href=\"/draft/documents/\">", 1)[1]
+        after = main.split("open <a href=\"/documents/\">", 1)[1]
         section = re.search(
             rf'<h2 id="adopter-documents">{re.escape(label)}</h2>\s*'
             r'<p>[^<]*</p>\s*<div class="wide"><ul class="plan described">'
@@ -2955,7 +3001,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIsNotNone(section, "the adopter list sits further down")
         self.assertEqual(
             sorted(_HREF_RE.findall(section.group(1))),
-            sorted(self.mod._doc_page_url("/draft", g["path"])
+            sorted(self.mod._doc_page_url("", g["path"])
                    for g in self.mod.parse_adopter_docs()),
             "the list under the label carries every adopter document")
         self._assert_index_links_every_corpus_document()
@@ -2965,9 +3011,9 @@ class DraftSiteRenderTests(unittest.TestCase):
         library document, but it omits the docs/ adopter documents; the
         sentence says every corpus document, checked on the rendered
         index."""
-        govern = self.draft_html["draft/govern/index.html"]
+        govern = self.draft_html["govern/index.html"]
         self.assertIn(
-            '<a href="/draft/documents/">All Documents</a> to see every '
+            '<a href="/documents/">All Documents</a> to see every '
             "corpus document on one page;", govern)
         self.assertNotIn("every library document", govern)
         self._assert_index_links_every_corpus_document()
@@ -2985,11 +3031,11 @@ class DraftSiteRenderTests(unittest.TestCase):
             if d.get("domain") == self.mod.ROOT_DOMAIN:
                 href = self.mod.GITHUB_BLOB_BASE + d["path"]
             else:
-                href = self.mod._doc_page_url("/draft", d["path"])
+                href = self.mod._doc_page_url("", d["path"])
                 domain_hrefs.add(href)
             self.assertIn(href, linked,
                           f"{d['path']}: not on the All Documents page")
-        adopter = {self.mod._doc_page_url("/draft", d["path"])
+        adopter = {self.mod._doc_page_url("", d["path"])
                    for d in self.mod.parse_adopter_docs()}
         self.assertTrue(adopter, "the library holds adopter documents")
         for href in sorted(adopter):
@@ -3050,7 +3096,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 r'<div class="next"><p class="lbl">Next</p>'
                 r'<a class="start" href="([^"]*)">', self.draft_html[rel])
             self.assertIsNotNone(nxt, rel)
-            self.assertEqual(nxt.group(1), "/draft/documents/", rel)
+            self.assertEqual(nxt.group(1), "/documents/", rel)
 
     # -- 10. the executive layer ----------------------------------------------
 
@@ -3058,7 +3104,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         narratives = self.figures["narratives"]
         self.assertTrue(narratives)
         rendered = {rel for rel in self.draft_html
-                    if rel.startswith("draft/decisions/")}
+                    if rel.startswith("decisions/")}
         expected = {_page_rel_for(_reading_room_href(p)) for p in narratives}
         self.assertEqual(rendered, expected,
                          "exactly one draft reading-room page per registry "
@@ -3082,16 +3128,16 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertIsNotNone(chips, f"{rel}: domain chips")
                 self.assertEqual(
                     _HREF_RE.findall(chips.group(1)),
-                    [f"/draft/{d}/" for d in page["domains"]],
+                    [f"/{d}/" for d in page["domains"]],
                     f"{rel}: the chips are the registry's domain tags")
 
     def test_every_subtype_index_lists_exactly_its_pages(self):
         narratives = self.figures["narratives"]
         rendered = {rel for rel in self.draft_html
-                    if rel.startswith("draft/decide/")}
-        expected = {"draft/decide/index.html"}
-        expected |= {f"draft/decide/{s}/index.html" for s in SUBTYPE_SLUGS}
-        expected |= {f"draft/decide/{c['slug']}/index.html"
+                    if rel.startswith("decide/")}
+        expected = {"decide/index.html"}
+        expected |= {f"decide/{s}/index.html" for s in SUBTYPE_SLUGS}
+        expected |= {f"decide/{c['slug']}/index.html"
                      for c in self.mod.DRAFT_CONCERNS}
         self.assertEqual(
             rendered, expected,
@@ -3103,7 +3149,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         listed = set()
         for narrative_type, (slug, label, question) in (
                 self.mod.DRAFT_NARRATIVE_SUBTYPES.items()):
-            html = self.draft_html[f"draft/decide/{slug}/index.html"]
+            html = self.draft_html[f"decide/{slug}/index.html"]
             block = re.search(
                 r'<h2 id="pages">.*?<ul class="plan one described">(.*?)</ul>',
                 html, re.S)
@@ -3134,7 +3180,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                         r'<li><a href="([^"]*)">[^<]*</a>'
                         r'<span class="n">([^<]*)</span></li>',
                         kinds.group(1))),
-                    {f"/draft/decide/{other_slug}/":
+                    {f"/decide/{other_slug}/":
                          str(counts.get(other, 0))
                      for other, (other_slug, _, _) in (
                          self.mod.DRAFT_NARRATIVE_SUBTYPES.items())
@@ -3153,7 +3199,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 key=lambda p: (p["narrative_type"], p["title"].lower(),
                                p["path"]),
             )
-            html = self.draft_html[f"draft/{domain}/index.html"]
+            html = self.draft_html[f"{domain}/index.html"]
             with self.subTest(domain=domain):
                 self.assertIn(
                     f'<li><a href="#leadership">Leadership, {len(joined)}'
@@ -3186,11 +3232,11 @@ class DraftSiteRenderTests(unittest.TestCase):
             with self.subTest(page=rel):
                 self.assertIn(NARRATIVE_QUALIFIER, self.draft_html[rel])
         for slug in sorted(SUBTYPE_SLUGS):
-            rel = f"draft/decide/{slug}/index.html"
+            rel = f"decide/{slug}/index.html"
             with self.subTest(page=rel):
                 self.assertIn(SUBTYPE_QUALIFIER, self.draft_html[rel])
         for dp in self.figures["domain_pages"]:
-            rel = f"draft/{dp['domain']}/index.html"
+            rel = f"{dp['domain']}/index.html"
             with self.subTest(page=rel):
                 self.assertIn(LEADERSHIP_QUALIFIER, self.draft_html[rel])
 
@@ -3333,7 +3379,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         return f"{len(pages)} {pages_noun}, {len(docs)} {docs_noun}"
 
     def test_decide_hub_groups_every_concern_with_generated_counts(self):
-        hub = self.draft_html["draft/decide/index.html"]
+        hub = self.draft_html["decide/index.html"]
         joins = self._concern_joins()
         hrefs = []
         for group_slug, board_question in self.mod.DRAFT_DECIDE_GROUPS:
@@ -3348,12 +3394,12 @@ class DraftSiteRenderTests(unittest.TestCase):
             hrefs += _ROW_HREF_RE.findall(section.group(2))
         self.assertEqual(
             hrefs,
-            [f"/draft/decide/{c['slug']}/" for c in self.mod.DRAFT_CONCERNS],
+            [f"/decide/{c['slug']}/" for c in self.mod.DRAFT_CONCERNS],
             "the three groups together list every concern exactly once, in "
             "table order")
         for concern, pages, docs in joins.values():
             mark = "" if pages else '<span class="n">declared gap</span>'
-            row = (f'<li><a href="/draft/decide/{concern["slug"]}/">'
+            row = (f'<li><a href="/decide/{concern["slug"]}/">'
                    f'{self.mod._esc(concern["question"])}</a>{mark}'
                    f'<small>{self.mod._esc(concern["label"])}. '
                    f'{self._concern_counts_text(pages, docs)}.</small></li>')
@@ -3372,15 +3418,15 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def test_no_plan_count_outgrows_a_320px_row(self):
         rels = [rel for rel in self.draft_html
-                if rel in {f"draft/{page}/index.html" for page in (
+                if rel in {f"{page}/index.html" for page in (
                     "decide", "browse", "policies", "comply", "govern",
                     "solutions", "documents")}
-                or rel.startswith(("draft/types/", "draft/decide/",
-                                   "draft/crosswalk/", "draft/decisions/"))]
+                or rel.startswith(("types/", "decide/",
+                                   "crosswalk/", "decisions/"))]
         self.assertGreater(len(rels), 7, "the pages under test rendered")
         self.assertTrue(
-            any(rel.startswith("draft/crosswalk/") for rel in rels)
-            and any(rel.startswith("draft/decisions/") for rel in rels),
+            any(rel.startswith("crosswalk/") for rel in rels)
+            and any(rel.startswith("decisions/") for rel in rels),
             "the crosswalk and leadership pages are under test")
         for rel in rels:
             html = self.draft_html[rel]
@@ -3408,7 +3454,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertEqual(len(wrapped.findall(html)), tables,
                                  "a table outside .tablewrap can widen the "
                                  "page at 320 px")
-            if tables and rel.startswith("draft/decisions/"):
+            if tables and rel.startswith("decisions/"):
                 narrative += 1
         self.assertGreaterEqual(narrative, 3,
                                 "the outcome maps' tables are under test")
@@ -3427,7 +3473,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             row = data["register"]
             if row is None or row["upstream"] == "-":
                 continue
-            page = self.draft_html[f"draft/crosswalk/{key}/index.html"]
+            page = self.draft_html[f"crosswalk/{key}/index.html"]
             link = re.search(
                 r'<dt>Upstream check location</dt><dd><a href="([^"]*)"'
                 r'[^>]*>(.*?)<span class="vh">', page, re.S)
@@ -3464,7 +3510,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 if ("<" in text.replace("<wbr>", "") or "/" not in plain
                         or " " in plain):
                     continue
-                sources += rel.startswith("draft/documents/")
+                sources += rel.startswith("documents/")
                 for run in re.split(r"<wbr>|(?<=-)(?=[A-Za-z])", text):
                     with self.subTest(page=rel, text=plain):
                         self.assertLessEqual(
@@ -3482,7 +3528,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         page) carries a <wbr> after each slash but the first of a "//"."""
         link_re = re.compile(r'<a\b[^>]*?\bhref="([^"]*)"[^>]*>(.*?)</a>',
                              re.S)
-        found = {"draft/crosswalk/": 0, "draft/documents/": 0}
+        found = {"crosswalk/": 0, "documents/": 0}
         for rel, html in self.draft_html.items():
             for href, body in link_re.findall(html):
                 text = re.sub(r'<span class="vh">.*?</span>', "", body)
@@ -3567,8 +3613,8 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertIsNone(
                     long_run.search(unescape(heading)),
                     "a word too long for the h1 at 320 px has no soft hyphen")
-                if rel.startswith("draft/documents/") and rel != (
-                        "draft/documents/index.html"):
+                if rel.startswith("documents/") and rel != (
+                        "documents/index.html"):
                     title = re.search(r"<title>(.*?) \| GRCLibrary\.ai</title>",
                                       html).group(1)
                     self.assertEqual(heading.replace("&shy;", ""), title,
@@ -3576,7 +3622,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                     self.assertNotIn("&shy;", title)
             if "&shy;" in heading:
                 hyphenated.append(rel)
-        self.assertIn("draft/documents/compliance/telecommunications/"
+        self.assertIn("documents/compliance/telecommunications/"
                       "annex-telecommunications-sector-requirements/"
                       "index.html", hyphenated)
 
@@ -3593,27 +3639,27 @@ class DraftSiteRenderTests(unittest.TestCase):
             self._assert_heading_pieces_measured(titles + [word])
 
     def test_decide_hub_kinds_branch_lists_the_six_indexes(self):
-        hub = self.draft_html["draft/decide/index.html"]
+        hub = self.draft_html["decide/index.html"]
         block = re.search(
             r'<h2 id="kinds">.*?<ul class="plan described">(.*?)</ul>',
             hub, re.S)
         self.assertIsNotNone(block)
         hrefs = _ROW_HREF_RE.findall(block.group(1))
         self.assertEqual(set(hrefs),
-                         {f"/draft/decide/{s}/" for s in SUBTYPE_SLUGS},
+                         {f"/decide/{s}/" for s in SUBTYPE_SLUGS},
                          "one row per subtype index")
         for narrative_type, (slug, label, _) in (
                 self.mod.DRAFT_NARRATIVE_SUBTYPES.items()):
             count = sum(1 for p in self.figures["narratives"]
                         if p["narrative_type"] == narrative_type)
             self.assertIn(
-                f'<li><a href="/draft/decide/{slug}/">{label}</a>'
+                f'<li><a href="/decide/{slug}/">{label}</a>'
                 f'<span class="n">{count}</span>', block.group(1),
                 f"{slug}: the generated count")
 
     def test_decide_hub_domain_branch_is_the_browse_list_unchanged(self):
-        hub = self.draft_html["draft/decide/index.html"]
-        browse = self.draft_html["draft/browse/index.html"]
+        hub = self.draft_html["decide/index.html"]
+        browse = self.draft_html["browse/index.html"]
         hub_block = re.search(
             r'<h2 id="domains">.*?<ul class="plan described">(.*?)</ul>',
             hub, re.S)
@@ -3627,7 +3673,7 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def test_concern_leadership_equals_the_registry_join(self):
         for slug, (concern, pages, _) in self._concern_joins().items():
-            html = self.draft_html[f"draft/decide/{slug}/index.html"]
+            html = self.draft_html[f"decide/{slug}/index.html"]
             with self.subTest(concern=slug):
                 if not pages:
                     continue  # the declared-gap test below covers this shape
@@ -3648,7 +3694,7 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def test_concern_documents_equal_the_source_union_joined_to_taxonomy(self):
         for slug, (concern, _, docs) in self._concern_joins().items():
-            html = self.draft_html[f"draft/decide/{slug}/index.html"]
+            html = self.draft_html[f"decide/{slug}/index.html"]
             section = re.search(
                 r'<h2 id="documents">.*?<ul class="plan one">(.*?)</ul>',
                 html, re.S)
@@ -3659,7 +3705,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                                  "no repeated document row")
                 self.assertEqual(
                     hrefs,
-                    [f"/draft/documents/{d['path'][:-3]}/" for d in docs],
+                    [f"/documents/{d['path'][:-3]}/" for d in docs],
                     "the rows are the deduplicated corpus-source union, "
                     "joined to the taxonomy, in type-rank order")
                 for d in docs:
@@ -3682,7 +3728,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         regression in either direction fails."""
         linked_any = plain_any = False
         for slug, (concern, _, docs) in self._concern_joins().items():
-            html = self.draft_html[f"draft/decide/{slug}/index.html"]
+            html = self.draft_html[f"decide/{slug}/index.html"]
             block = re.search(
                 r'<h2 id="frameworks">(.*?)<p class="lbl sec">Go deeper</p>',
                 html, re.S)
@@ -3707,7 +3753,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                         self.assertEqual(
                             item,
                             " / ".join(
-                                f'<a href="/draft/crosswalk/{k}/">'
+                                f'<a href="/crosswalk/{k}/">'
                                 f"{self.mod._esc(part)}</a>"
                                 if k is not None else self.mod._esc(part)
                                 for part, k in parts),
@@ -3717,17 +3763,17 @@ class DraftSiteRenderTests(unittest.TestCase):
                         for _, k in parts:
                             if k is not None:
                                 self.assertIn(
-                                    f"draft/crosswalk/{k}/index.html",
+                                    f"crosswalk/{k}/index.html",
                                     self.draft_html, slug)
                         linked_any = True
                     elif key:
                         self.assertEqual(
                             item,
-                            f'<a href="/draft/crosswalk/{key}/">'
+                            f'<a href="/crosswalk/{key}/">'
                             f"{self.mod._esc(name)}</a>",
                             f"{slug}: an aliased name links its instrument "
                             "page")
-                        self.assertIn(f"draft/crosswalk/{key}/index.html",
+                        self.assertIn(f"crosswalk/{key}/index.html",
                                       self.draft_html,
                                       f"{slug}: the linked page renders")
                         linked_any = True
@@ -3744,7 +3790,7 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def test_concern_domain_chips_are_the_derived_domains(self):
         for slug, (concern, pages, docs) in self._concern_joins().items():
-            html = self.draft_html[f"draft/decide/{slug}/index.html"]
+            html = self.draft_html[f"decide/{slug}/index.html"]
             chips = re.search(
                 r'<h2 id="domains">.*?<ul class="chips">(.*?)</ul>',
                 html, re.S)
@@ -3756,7 +3802,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertIsNotNone(chips, f"{slug}: domain chips")
                 self.assertEqual(
                     _HREF_RE.findall(chips.group(1)),
-                    [f"/draft/{d}/" for d in expected],
+                    [f"/{d}/" for d in expected],
                     "the Go deeper chips are the derived domains")
 
     def test_declared_gap_concern_renders_its_gap_block(self):
@@ -3764,7 +3810,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertTrue(gaps, "the concern set carries a declared gap today "
                               "(programme-maturity, design D item G2)")
         for concern in gaps:
-            html = self.draft_html[f"draft/decide/{concern['slug']}/index.html"]
+            html = self.draft_html[f"decide/{concern['slug']}/index.html"]
             with self.subTest(concern=concern["slug"]):
                 gap_block = html.split('<h2 id="leadership">', 1)[1] \
                                 .split('<h2 id="documents">', 1)[0]
@@ -3776,47 +3822,47 @@ class DraftSiteRenderTests(unittest.TestCase):
                                 "a gap concern still shows corpus-only "
                                 "material")
                 for path in concern["corpus"]:
-                    self.assertIn(f'/draft/documents/{path[:-3]}/', html,
+                    self.assertIn(f'/documents/{path[:-3]}/', html,
                                   "the corpus-only material still renders")
 
     def test_qualifier_visible_on_hub_and_every_concern_page(self):
-        hub = self.draft_html["draft/decide/index.html"]
+        hub = self.draft_html["decide/index.html"]
         self.assertIn(self.HUB_QUALIFIER_SENTENCE, hub,
                       "the hub's authority qualifier stays visible")
         self.assertNotIn("Adopting a page here", hub,
                          "the hub holds no leadership page to adopt")
         self.assertIsNone(
-            re.search(r'<a href="/draft/decisions/', hub),
+            re.search(r'<a href="/decisions/', hub),
             "the hub links no leadership page itself, so its qualifier "
             "names the pages the path leads to")
         for slug, (concern, _, docs) in self._concern_joins().items():
-            rel = f"draft/decide/{slug}/index.html"
+            rel = f"decide/{slug}/index.html"
             html = self.draft_html[rel]
             with self.subTest(page=rel):
                 if concern["pages"]:
                     self.assertIn(self.QUALIFIER_SENTENCE, html,
                                   "the authority qualifier stays visible")
-                    self.assertIn('href="/draft/decisions/', html,
+                    self.assertIn('href="/decisions/', html,
                                   "the qualifier's linked pages exist")
                 else:
                     self.assertIn(self.GAP_QUALIFIER[len(docs) == 1], html,
                                   "the gap page's qualifier stays visible")
                     self.assertNotIn("The leadership pages linked here", html)
-                    self.assertNotIn('href="/draft/decisions/', html,
+                    self.assertNotIn('href="/decisions/', html,
                                      "the gap page links no leadership page")
 
     def test_decide_hub_lead_claims_only_what_is_true(self):
         """Round-2 ERROR 1: the lead's claims checked against the render:
         the concern groups are the curated table (not a registry list), and
         every registry page is linked from at least one concern page."""
-        hub = self.draft_html["draft/decide/index.html"]
+        hub = self.draft_html["decide/index.html"]
         self.assertIn(self.HUB_LEAD, hub)
         self.assertNotIn("Every list here is generated", hub)
         linked = set()
         for concern in self.mod.DRAFT_CONCERNS:
-            html = self.draft_html[f"draft/decide/{concern['slug']}/index.html"]
+            html = self.draft_html[f"decide/{concern['slug']}/index.html"]
             linked.update(h for h in _HREF_RE.findall(html)
-                          if h.startswith("/draft/decisions/"))
+                          if h.startswith("/decisions/"))
         for page in self.figures["narratives"]:
             with self.subTest(page=page["path"]):
                 self.assertIn(_reading_room_href(page), linked,
@@ -3831,7 +3877,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         joins = self._concern_joins()
         seen_gap = False
         for slug, (concern, pages, docs) in joins.items():
-            html = self.draft_html[f"draft/decide/{slug}/index.html"]
+            html = self.draft_html[f"decide/{slug}/index.html"]
             leadership = html.split('<h2 id="leadership">', 1)[1] \
                              .split('<p class="lbl sec">Documents</p>', 1)[0]
             with self.subTest(concern=slug):
@@ -3866,7 +3912,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         shelf holds, never the other; the frameworks intro is count-neutral."""
         seen_gap = False
         for concern in self.mod.DRAFT_CONCERNS:
-            html = self.draft_html[f"draft/decide/{concern['slug']}/index.html"]
+            html = self.draft_html[f"decide/{concern['slug']}/index.html"]
             shelf = html.split('<h2 id="documents">', 1)[1] \
                         .split('<p class="lbl sec">Frameworks</p>', 1)[0]
             one_doc = len(_ROW_HREF_RE.findall(shelf)) == 1
@@ -3893,14 +3939,14 @@ class DraftSiteRenderTests(unittest.TestCase):
         here"); the ai-systems lede's claim of other concerns on the decide
         hub holds on the rendered hub, which lists ai-systems and at least one
         other concern."""
-        hub = self.draft_html["draft/decide/index.html"]
-        hub_concerns = re.findall(r'<li><a href="/draft/decide/([^/"]+)/">',
+        hub = self.draft_html["decide/index.html"]
+        hub_concerns = re.findall(r'<li><a href="/decide/([^/"]+)/">',
                                   hub)
         subtype_slugs = {s for s, _, _ in
                          self.mod.DRAFT_NARRATIVE_SUBTYPES.values()}
         hub_concerns = [s for s in hub_concerns if s not in subtype_slugs]
         for concern in self.mod.DRAFT_CONCERNS:
-            html = self.draft_html[f"draft/decide/{concern['slug']}/index.html"]
+            html = self.draft_html[f"decide/{concern['slug']}/index.html"]
             lede = re.search(r'<p class="lead">(.*?)</p>', html, re.S)
             with self.subTest(concern=concern["slug"]):
                 self.assertIsNotNone(lede)
@@ -3908,7 +3954,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 for phrase in ("on this page", "this page", "among the ten",
                                "concerns here"):
                     self.assertNotIn(phrase, lede.group(1))
-        ai = self.draft_html["draft/decide/ai-systems/index.html"]
+        ai = self.draft_html["decide/ai-systems/index.html"]
         self.assertIn(
             '<p class="lead">AI is one leadership concern among the others on '
             "the decide hub: governed like the rest, which is precisely the "
@@ -3921,8 +3967,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         # In the page body: the top bar's Decisions link is on every page.
         for slug in SUBTYPE_SLUGS:
             self.assertIn(
-                'href="/draft/decide/"',
-                self.draft_html[f"draft/decide/{slug}/index.html"].split(
+                'href="/decide/"',
+                self.draft_html[f"decide/{slug}/index.html"].split(
                     '<main id="main-content">', 1)[1],
                 f"{slug}: the subtype index links up to the decide hub")
 
@@ -3930,12 +3976,12 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     _XW_COL_RE = re.compile(r'<th scope="col" data-col="([a-z0-9-]+)"')
     _XW_COUNT_LINK_RE = re.compile(
-        r'<a href="(/draft/crosswalk/([a-z0-9-]+)/#([a-z-]+))">'
+        r'<a href="(/crosswalk/([a-z0-9-]+)/#([a-z-]+))">'
         r'(\d+)<span class="vh"> documents?</span></a>'
     )
 
     def test_crosswalk_every_main_table_instrument_has_a_column_and_a_page(self):
-        main = self.draft_html["draft/crosswalk/index.html"]
+        main = self.draft_html["crosswalk/index.html"]
         expected = [i.key for i in self.mod.CROSSWALK_INSTRUMENTS
                     if i.main_table]
         self.assertEqual(
@@ -3944,11 +3990,11 @@ class DraftSiteRenderTests(unittest.TestCase):
             "in the configured group order")
         for inst in self.mod.CROSSWALK_INSTRUMENTS:
             self.assertIn(
-                f"draft/crosswalk/{inst.key}/index.html", self.draft_html,
+                f"crosswalk/{inst.key}/index.html", self.draft_html,
                 f"instrument '{inst.key}' has no generated page")
 
     def test_crosswalk_cell_count_links_resolve(self):
-        main = self.draft_html["draft/crosswalk/index.html"]
+        main = self.draft_html["crosswalk/index.html"]
         links = self._XW_COUNT_LINK_RE.findall(main)
         self.assertTrue(links, "the main table carries document count links")
         # Independent recount: rebuild the model and compare each link's count
@@ -3982,7 +4028,7 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def test_crosswalk_presets_render_only_their_columns(self):
         for preset in self.mod.CROSSWALK_TOPICS:
-            rel = f"draft/crosswalk/view/{preset.slug}/index.html"
+            rel = f"crosswalk/view/{preset.slug}/index.html"
             self.assertIn(rel, self.draft_html,
                           f"preset '{preset.slug}' has no generated view page")
             page = self.draft_html[rel]
@@ -3992,21 +4038,21 @@ class DraftSiteRenderTests(unittest.TestCase):
             # Round-2 item 9: a bare href check also matched the Next block's
             # link, so a removed All link passed; pin the list item itself.
             self.assertIn(
-                '<li><a href="/draft/crosswalk/">All</a></li>', page,
+                '<li><a href="/crosswalk/">All</a></li>', page,
                 f"the '{preset.slug}' view keeps the All link in the views "
                 "list")
-        main = self.draft_html["draft/crosswalk/index.html"]
+        main = self.draft_html["crosswalk/index.html"]
         self.assertIn(
-            '<li><a href="/draft/crosswalk/" aria-current="page" '
+            '<li><a href="/crosswalk/" aria-current="page" '
             'data-preset="" data-preset-id="all">All</a></li>',
             main, "the full crosswalk marks All as the current view, and All "
             "is its matrix.js preset showing every column")
 
     def test_crosswalk_caveat_block_present(self):
-        pages = ["draft/crosswalk/index.html"]
-        pages += [f"draft/crosswalk/view/{p.slug}/index.html"
+        pages = ["crosswalk/index.html"]
+        pages += [f"crosswalk/view/{p.slug}/index.html"
                   for p in self.mod.CROSSWALK_TOPICS]
-        pages += [f"draft/crosswalk/{i.key}/index.html"
+        pages += [f"crosswalk/{i.key}/index.html"
                   for i in self.mod.CROSSWALK_INSTRUMENTS]
         # The matrices' own caveats (design C 3.6), carried nearly verbatim;
         # the AICPA TSC caveat renders only where the table has that column
@@ -4046,7 +4092,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         )
         xw = self.mod.build_crosswalk(full)
         for inst in self.mod.CROSSWALK_INSTRUMENTS:
-            rel = f"draft/crosswalk/{inst.key}/index.html"
+            rel = f"crosswalk/{inst.key}/index.html"
             html = self.draft_html[rel]
             lead = self._XWI_LEAD_RE.search(html)
             self.assertIsNotNone(lead, f"{rel}: no lead paragraph")
@@ -4078,7 +4124,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             "aicpa-tsc": "Trust Services Criteria for SOC 2 examinations",
         }
         for key, name in pinned.items():
-            rel = f"draft/crosswalk/{key}/index.html"
+            rel = f"crosswalk/{key}/index.html"
             display = xw["instruments"][key]["display"]
             expected = self.mod._esc(
                 f"Where the corpus maps to {display}: {name}.")
@@ -4086,7 +4132,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 expected, self._XWI_LEAD_RE.search(self.draft_html[rel])
                 .group(0),
                 f"{rel}: the lead carries the descriptive name alone")
-        cobit = self.draft_html["draft/crosswalk/cobit/index.html"]
+        cobit = self.draft_html["crosswalk/cobit/index.html"]
         self.assertIn(
             "Control Objectives for Information and Related Technologies",
             cobit, "the COBIT page keeps the descriptive name")
@@ -4100,15 +4146,15 @@ class DraftSiteRenderTests(unittest.TestCase):
         page bodies, apart from the top bar's Crosswalk link."""
         count = len([i for i in self.mod.CROSSWALK_INSTRUMENTS
                      if i.main_table])
-        landing = self.draft_html["draft/index.html"].split(
+        landing = self.draft_html["index.html"].split(
             '<main id="main-content">', 1)[1]
-        self.assertIn('href="/draft/crosswalk/"', landing,
+        self.assertIn('href="/crosswalk/"', landing,
                       "the landing page links the crosswalk")
         self.assertIn(f'<span class="n">{count} instruments</span>', landing,
                       "the landing tile's instrument count is computed")
-        browse = self.draft_html["draft/browse/index.html"].split(
+        browse = self.draft_html["browse/index.html"].split(
             '<main id="main-content">', 1)[1]
-        self.assertIn('href="/draft/crosswalk/"', browse,
+        self.assertIn('href="/crosswalk/"', browse,
                       "the Browse page links the crosswalk")
         self.assertIn(
             f"against {count} standards, laws, frameworks, and programmes",
@@ -4125,25 +4171,25 @@ class DraftSiteRenderTests(unittest.TestCase):
         /draft/crosswalk/view/ URL and is no preset link. Site f2: the rail
         is the left-rail page's side list (spec 7.32), the right rail having
         stood in for it until the template carried one."""
-        pages = ["draft/crosswalk/index.html"]
-        pages += [f"draft/crosswalk/view/{p.slug}/index.html"
+        pages = ["crosswalk/index.html"]
+        pages += [f"crosswalk/view/{p.slug}/index.html"
                   for p in self.mod.CROSSWALK_TOPICS]
         for rel in pages:
             html = self.draft_html[rel]
             rail = self._XW_RAIL_RE.search(html)
             self.assertIsNotNone(rail, f"{rel}: no side list")
-            self.assertIn('href="/draft/crosswalk/"', rail.group(1),
+            self.assertIn('href="/crosswalk/"', rail.group(1),
                           f"{rel}: the All link sits in the rail")
             for preset in self.mod.CROSSWALK_TOPICS:
                 self.assertIn(
-                    f'href="/draft/crosswalk/view/{preset.slug}/"',
+                    f'href="/crosswalk/view/{preset.slug}/"',
                     rail.group(1),
                     f"{rel}: the '{preset.slug}' link sits in the rail")
             outside = html.replace(rail.group(0), "")
             for anchor in _ANCHOR_RE.findall(outside):
                 for href in _HREF_RE.findall(anchor):
                     self.assertFalse(
-                        href.startswith("/draft/crosswalk/view/"),
+                        href.startswith("/crosswalk/view/"),
                         f"{rel}: preset link {href} lives in the rail only "
                         "(one side)")
             self.assertNotIn("<table", rail.group(1),
@@ -4170,7 +4216,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(set(pointers), {"basc", "pip", "wco-safe", "aeo"})
         tokens = {"basc": "BASC", "pip": "PIP", "wco-safe": "WCO SAFE",
                   "aeo": "AEO"}
-        ctpat = self.draft_html["draft/crosswalk/ctpat/index.html"]
+        ctpat = self.draft_html["crosswalk/ctpat/index.html"]
         self.assertIn('id="control-areas"', ctpat)
         self.assertIn("Procedural and cargo security", ctpat)
         for key, inst in pointers.items():
@@ -4179,8 +4225,8 @@ class DraftSiteRenderTests(unittest.TestCase):
                 tokens[key], blob,
                 f"the combined section names {tokens[key]}, which keeps the "
                 "pointer sentence true")
-            page = self.draft_html[f"draft/crosswalk/{key}/index.html"]
-            self.assertIn('href="/draft/crosswalk/ctpat/#control-areas"',
+            page = self.draft_html[f"crosswalk/{key}/index.html"]
+            self.assertIn('href="/crosswalk/ctpat/#control-areas"',
                           page, f"{key}: no pointer link to the section")
             self.assertIn("names this programme in its combined section",
                           page, key)
@@ -4225,8 +4271,8 @@ class DraftSiteRenderTests(unittest.TestCase):
     _XW_ALSO = "Also in the corpus"
 
     def _xw_table_pages(self):
-        return ["draft/crosswalk/index.html"] + [
-            f"draft/crosswalk/view/{p.slug}/index.html"
+        return ["crosswalk/index.html"] + [
+            f"crosswalk/view/{p.slug}/index.html"
             for p in self.mod.CROSSWALK_TOPICS]
 
     def _xw_main_order(self, columns):
@@ -4286,7 +4332,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 r'<p class="lbl">Views</p><ul>',
                 f"{rel}: kicker, h1, then the side list (spec 7.32)")
         for inst in self.mod.CROSSWALK_INSTRUMENTS:
-            rel = f"draft/crosswalk/{inst.key}/index.html"
+            rel = f"crosswalk/{inst.key}/index.html"
             html = self.draft_html[rel]
             self.assertIn('<div class="doc"><p class="lbl first">', html, rel)
             self.assertIn('<div class="rail"><img class="rail-logo"', html,
@@ -4303,7 +4349,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.mod.TAXONOMY.read_text(encoding="utf-8"))
         xw = self.mod.build_crosswalk(full)
         expected = [
-            (g, [(f"/draft/crosswalk/{k}/", "",
+            (g, [(f"/crosswalk/{k}/", "",
                   self.mod._esc(xw["instruments"][k]["display"]))
                  for k in keys])
             for g, keys in self._xw_groups() if keys]
@@ -4321,7 +4367,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             hrefs = [h for _, links in got for h, _, _ in links]
             self.assertEqual(
                 sorted(hrefs),
-                sorted(f"/draft/crosswalk/{i.key}/"
+                sorted(f"/crosswalk/{i.key}/"
                        for i in self.mod.CROSSWALK_INSTRUMENTS),
                 f"{rel}: every instrument exactly once")
             for href in hrefs:
@@ -4358,9 +4404,9 @@ class DraftSiteRenderTests(unittest.TestCase):
         side list and is a link to a page that resolves without script and
         renders that preset's columns; a static view carries no preset and
         no matrix, so no script acts there."""
-        main = self.draft_html["draft/crosswalk/index.html"]
-        expected = [("/draft/crosswalk/", "", "all", "All")] + [
-            (f"/draft/crosswalk/view/{slug}/", " ".join(columns), slug,
+        main = self.draft_html["crosswalk/index.html"]
+        expected = [("/crosswalk/", "", "all", "All")] + [
+            (f"/crosswalk/view/{slug}/", " ".join(columns), slug,
              self.mod._esc(label))
             for slug, label, columns, _ in self._XW_TOPICS]
         presets = self._XW_PRESET_RE.findall(main)
@@ -4397,14 +4443,14 @@ class DraftSiteRenderTests(unittest.TestCase):
         no other view route renders, so no instrument-group view survives."""
         rendered = sorted(
             rel for rel in self.draft_html
-            if rel.startswith("draft/crosswalk/view/"))
+            if rel.startswith("crosswalk/view/"))
         self.assertEqual(
             rendered,
-            sorted(f"draft/crosswalk/view/{slug}/index.html"
+            sorted(f"crosswalk/view/{slug}/index.html"
                    for slug, _, _, _ in self._XW_TOPICS),
             "the view routes are exactly the topic routes")
         for slug, label, columns, related in self._XW_TOPICS:
-            rel = f"draft/crosswalk/view/{slug}/index.html"
+            rel = f"crosswalk/view/{slug}/index.html"
             html = self.draft_html[rel]
             self.assertIn(
                 f"<h1>Crosswalk: {self.mod._esc(label)}</h1>", html, rel)
@@ -4419,12 +4465,12 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.assertIsNotNone(block, f"{rel}: the related pages block")
             hrefs = _HREF_RE.findall(block.group(1))
             self.assertEqual(
-                hrefs, [f"/draft/crosswalk/{key}/" for key in related], rel)
+                hrefs, [f"/crosswalk/{key}/" for key in related], rel)
             for href in hrefs:
                 self.assertIn(_page_rel_for(href), self.draft_html, href)
         self.assertIsNone(
             self._XW_RELATED_RE.search(
-                self.draft_html["draft/crosswalk/index.html"]),
+                self.draft_html["crosswalk/index.html"]),
             "the full crosswalk's side list already names every instrument")
 
     def test_crosswalk_rail_views_equal_the_topics(self):
@@ -4432,12 +4478,12 @@ class DraftSiteRenderTests(unittest.TestCase):
         list's Views block holds All then the topic views in topic order,
         each linking its route under its topic label, and the page's own
         view is the one marked current."""
-        pages = [("draft/crosswalk/index.html", "/draft/crosswalk/")] + [
-            (f"draft/crosswalk/view/{slug}/index.html",
-             f"/draft/crosswalk/view/{slug}/")
+        pages = [("crosswalk/index.html", "/crosswalk/")] + [
+            (f"crosswalk/view/{slug}/index.html",
+             f"/crosswalk/view/{slug}/")
             for slug, _, _, _ in self._XW_TOPICS]
-        expected = [("/draft/crosswalk/", "All")] + [
-            (f"/draft/crosswalk/view/{slug}/", self.mod._esc(label))
+        expected = [("/crosswalk/", "All")] + [
+            (f"/crosswalk/view/{slug}/", self.mod._esc(label))
             for slug, label, _, _ in self._XW_TOPICS]
         for rel, own in pages:
             rail = self._XW_RAIL_RE.search(self.draft_html[rel]).group(1)
@@ -4457,7 +4503,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         is the page's one matrix, in its bounded scroll box (spec 7.31),
         with the status line above it; and without script the full table
         reads (no cell is hidden in the markup)."""
-        main = self.draft_html["draft/crosswalk/index.html"]
+        main = self.draft_html["crosswalk/index.html"]
         preset_keys = {k for _, keys, _, _ in self._XW_PRESET_RE.findall(main)
                        for k in keys.split()}
         for rel in self._xw_table_pages():
@@ -4481,7 +4527,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertTrue(all(keys), f"{rel}: every other cell has a "
                                 "data-col key")
                 self.assertEqual([k.group(1) for k in keys], columns, rel)
-                if rel == "draft/crosswalk/index.html":
+                if rel == "crosswalk/index.html":
                     self.assertTrue(
                         {k.group(1) for k in keys} <= preset_keys,
                         "every keyed cell belongs to a preset")
@@ -4518,7 +4564,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             table = self._xw_table(html)
             for row in self._XW_ROW_RE.findall(table)[1:]:
                 cells = self._XW_CELL_RE.findall(row)
-                domain = re.search(r'href="/draft/([a-z-]+)/"',
+                domain = re.search(r'href="/([a-z-]+)/"',
                                    cells[0][2]).group(1)
                 for (_, attrs, body), key in zip(cells[1:], columns):
                     entry = xw["instruments"][key]["by_domain"].get(domain)
@@ -4528,7 +4574,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                         continue
                     self.assertIsNotNone(entry, where)
                     self.assertIn(
-                        f'<a href="/draft/crosswalk/{key}/#{domain}">', body,
+                        f'<a href="/crosswalk/{key}/#{domain}">', body,
                         where)
                     shows_ids = "<code>" in body
                     single = [i for i in entry["ids"] if " " not in i]
@@ -4541,7 +4587,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                     # "the instrument page lists every identifier and label
                     # in full": each identifier the model records for the
                     # domain shows on the instrument page under its anchor.
-                    page = self.draft_html[f"draft/crosswalk/{key}/index.html"]
+                    page = self.draft_html[f"crosswalk/{key}/index.html"]
                     section = re.search(
                         rf'<h3 id="{domain}">.*?</ul>', page, re.S).group(0)
                     for ident in entry["ids"]:
@@ -4562,7 +4608,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         instrument the sentence counts has a rendered page and no column;
         and a view page's sentence names only what its side list holds (the
         other views, All among them, and every instrument)."""
-        main = self.draft_html["draft/crosswalk/index.html"]
+        main = self.draft_html["crosswalk/index.html"]
         presets = self._XW_PRESET_RE.findall(main)
         also = dict(self._xw_groups())[self._XW_ALSO]
         para = re.search(r"<p>(Each of the (\d+) topic views in the Views "
@@ -4614,11 +4660,11 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIsNotNone(tail, text)
         self.assertEqual(int(tail.group(1)), len(also))
         for key in also:
-            self.assertIn(f"draft/crosswalk/{key}/index.html", self.draft_html)
+            self.assertIn(f"crosswalk/{key}/index.html", self.draft_html)
             self.assertNotIn(key, columns, f"{key} has no column")
         for preset in self.mod.CROSSWALK_TOPICS:
             view = self.draft_html[
-                f"draft/crosswalk/view/{preset.slug}/index.html"]
+                f"crosswalk/view/{preset.slug}/index.html"]
             self.assertIn(
                 "<p>The Views list opens the other views, All among them, "
                 "and the group lists below it name every instrument under "
@@ -4628,11 +4674,11 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self._XW_RAIL_RE.search(view).group(1)))
             for other in self.mod.CROSSWALK_TOPICS:
                 if other.slug != preset.slug:
-                    self.assertIn(f"/draft/crosswalk/view/{other.slug}/",
+                    self.assertIn(f"/crosswalk/view/{other.slug}/",
                                   hrefs, preset.slug)
-            self.assertIn("/draft/crosswalk/", hrefs, preset.slug)
+            self.assertIn("/crosswalk/", hrefs, preset.slug)
             self.assertTrue(
-                {f"/draft/crosswalk/{i.key}/"
+                {f"/crosswalk/{i.key}/"
                  for i in self.mod.CROSSWALK_INSTRUMENTS} <= hrefs,
                 f"{preset.slug}: every instrument")
 
@@ -4644,7 +4690,7 @@ class DraftSiteRenderTests(unittest.TestCase):
     _XW_COUNT_CELL_RE = re.compile(
         r"^(?:<code>[^<\s]+</code>(?:, <code>[^<\s]+</code>)*"
         r'(?:<span class="vh">, and more</span>)? )?'
-        r'<a href="/draft/crosswalk/([a-z0-9-]+)/#([a-z-]+)">(\d+)'
+        r'<a href="/crosswalk/([a-z0-9-]+)/#([a-z-]+)">(\d+)'
         r'<span class="vh"> (documents?)</span></a>$')
     _XW_CAPTION_RE = re.compile(r'<caption class="vh">([^<]*)</caption>')
 
@@ -4652,7 +4698,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         return [i.key for i in self.mod.CROSSWALK_INSTRUMENTS if i.main_table]
 
     def _xw_views_text(self):
-        main = self.draft_html["draft/crosswalk/index.html"]
+        main = self.draft_html["crosswalk/index.html"]
         para = re.search(r"<p>(Each of the \d+ topic views in the Views "
                          r"list .*?)</p>", main, re.S)
         self.assertIsNotNone(para, "the Views sentence on the crosswalk")
@@ -4672,14 +4718,14 @@ class DraftSiteRenderTests(unittest.TestCase):
             "topic's columns only", text)
         self.assertNotIn("each view is a link to a page with that topic's "
                          "columns only", text, "All is no topic page")
-        main = self.draft_html["draft/crosswalk/index.html"]
+        main = self.draft_html["crosswalk/index.html"]
         self.assertIn('<link rel="canonical" '
-                      'href="https://grclibrary.ai/draft/crosswalk/">', main)
+                      'href="https://grclibrary.ai/crosswalk/">', main)
         main_keys = self._xw_main_keys()
         self.assertEqual(self._XW_COL_RE.findall(main), main_keys,
                          "this page is the full table")
         presets = self._XW_PRESET_RE.findall(main)
-        self.assertEqual(presets[0][:2], ("/draft/crosswalk/", ""),
+        self.assertEqual(presets[0][:2], ("/crosswalk/", ""),
                          "All links this full table")
         self.assertEqual(presets[0][3], "All")
         for href, keys, slug, _ in presets[1:]:
@@ -4695,7 +4741,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         crosswalk page and every view, no sentence says the Views list (or
         "the same list") names the instruments, a sentence says the group
         lists do, and the rendered side list bears both out."""
-        instruments = {f"/draft/crosswalk/{i.key}/"
+        instruments = {f"/crosswalk/{i.key}/"
                        for i in self.mod.CROSSWALK_INSTRUMENTS}
         for rel in self._xw_table_pages():
             html = self.draft_html[rel]
@@ -4704,8 +4750,8 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.assertEqual(blocks[0][0], "Views", rel)
             views = [h for h, _, _ in
                      self._XW_RAIL_LINK_RE.findall(blocks[0][1])]
-            self.assertTrue(all(h == "/draft/crosswalk/"
-                                or h.startswith("/draft/crosswalk/view/")
+            self.assertTrue(all(h == "/crosswalk/"
+                                or h.startswith("/crosswalk/view/")
                                 for h in views),
                             f"{rel}: the Views list holds All and the topic "
                             "views only")
@@ -4732,7 +4778,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         (a short identifier, not the view's name), and on All, whose
         data-preset is empty, it removes the parameter. The example the
         clause gives is a topic preset's id on the rendered crosswalk."""
-        page = self.draft_html["draft/disclosure/index.html"]
+        page = self.draft_html["disclosure/index.html"]
         claim = " ".join(self._disclosure_claim_parts(page))
         clause = re.search(
             r"When the reader chooses a crosswalk topic view, the matrix "
@@ -4741,7 +4787,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             r"and removes it from the address when the reader chooses All\.",
             claim)
         self.assertIsNotNone(clause, claim)
-        main = self.draft_html["draft/crosswalk/index.html"]
+        main = self.draft_html["crosswalk/index.html"]
         presets = {pid: (keys, unescape(label)) for _, keys, pid, label
                    in self._XW_PRESET_RE.findall(main)}
         example = clause.group(1)
@@ -4752,7 +4798,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                             "the address takes the id, not the view's name")
         self.assertEqual([k for k, lbl in presets.values() if lbl == "All"],
                          [""], "All carries no column keys")
-        js = self.draft_all["draft/assets/baseline/matrix.js"].decode("utf-8")
+        js = self.draft_all["assets/baseline/matrix.js"].decode("utf-8")
         # keys(p) reads data-preset, so All's k is empty; a preset with keys
         # writes its data-preset-id as ?view=, and All deletes the parameter
         # (writeAddress sets a key with a value and deletes an empty one).
@@ -4805,7 +4851,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                                  f"{rel}: {key} header")
             for row in self._XW_ROW_RE.findall(table)[1:]:
                 cells = self._XW_CELL_RE.findall(row)
-                domain = re.search(r'href="/draft/([a-z-]+)/"',
+                domain = re.search(r'href="/([a-z-]+)/"',
                                    cells[0][2]).group(1)
                 for (_, _, body), key in zip(cells[1:], columns):
                     where = f"{rel}: {key} x {domain}"
@@ -4852,13 +4898,13 @@ class DraftSiteRenderTests(unittest.TestCase):
             # every column a sentence names alone (batch 3: "the PIP column
             # here"); the opening sentence's "a column of the compliance
             # alignment matrix" is the matrix's column, no column here.
-            where = (" of the full table" if rel == "draft/crosswalk/index.html"
+            where = (" of the full table" if rel == "crosswalk/index.html"
                      else " here")
             scopes = re.findall(r"(?:\b\d+ columns|(?<!\ba) column)\b"
                                 r"( of the full table| here)?", intro)
             self.assertEqual(set(scopes), {where} if scopes else set(),
                              f"{rel}: every column count names its scope")
-            if rel != "draft/crosswalk/index.html":
+            if rel != "crosswalk/index.html":
                 if len(scopes) > 1:
                     split_views += 1
                 continue
@@ -4881,11 +4927,11 @@ class DraftSiteRenderTests(unittest.TestCase):
         order and agrees with the scripted view; at least one topic names
         its columns in another order, so the rule bites."""
         order = self._XW_COL_RE.findall(
-            self.draft_html["draft/crosswalk/index.html"])
+            self.draft_html["crosswalk/index.html"])
         reordered = False
         for topic in self.mod.CROSSWALK_TOPICS:
             shown = self._XW_COL_RE.findall(self.draft_html[
-                f"draft/crosswalk/view/{topic.slug}/index.html"])
+                f"crosswalk/view/{topic.slug}/index.html"])
             self.assertEqual(shown, [k for k in order if k in topic.columns],
                              topic.slug)
             reordered = reordered or shown != list(topic.columns)
@@ -4900,15 +4946,15 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertTrue(also, "an instrument with no column exists")
         for topic in self.mod.CROSSWALK_TOPICS:
             html = self.draft_html[
-                f"draft/crosswalk/view/{topic.slug}/index.html"]
+                f"crosswalk/view/{topic.slug}/index.html"]
             lead = re.search(r'<p class="lead">(.*?)</p>', html, re.S)
             self.assertTrue(lead.group(1).endswith(
                 "The All link opens every instrument column."), topic.slug)
             rail = self._XW_RAIL_RE.search(html).group(1)
-            self.assertIn('<li><a href="/draft/crosswalk/">All</a></li>', rail)
+            self.assertIn('<li><a href="/crosswalk/">All</a></li>', rail)
         self.assertEqual(
             self._XW_COL_RE.findall(
-                self.draft_html["draft/crosswalk/index.html"]),
+                self.draft_html["crosswalk/index.html"]),
             self._xw_main_keys())
 
     # -- 32. crosswalk round 4 (site f2) ------------------------------------
@@ -4918,7 +4964,7 @@ class DraftSiteRenderTests(unittest.TestCase):
     _XW_VH_RE = re.compile(r'<span class="vh">[^<]*</span>')
     _XW_VISIBLE_CELL_RE = re.compile(
         r"^(?:<code>[^<]+</code>(?:, <code>[^<]+</code>)* )?"
-        r'<a href="/draft/crosswalk/[a-z0-9-]+/#[a-z-]+">\d+</a>$')
+        r'<a href="/crosswalk/[a-z0-9-]+/#[a-z-]+">\d+</a>$')
 
     def _xw_intro(self, html):
         intro = re.search(
@@ -4933,7 +4979,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         columns = self._XW_COL_RE.findall(table)
         for row in self._XW_ROW_RE.findall(table)[1:]:
             cells = self._XW_CELL_RE.findall(row)
-            domain = re.search(r'href="/draft/([a-z-]+)/"',
+            domain = re.search(r'href="/([a-z-]+)/"',
                                cells[0][2]).group(1)
             for (_, _, body), key in zip(cells[1:], columns):
                 yield key, domain, body
@@ -4968,7 +5014,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             rail = self._XW_RAIL_RE.search(html).group(1)
             key_of = {unescape(name): href.split("/")[-2]
                       for href, _, name in self._XW_RAIL_LINK_RE.findall(rail)
-                      if href.count("/") == 4}
+                      if href.count("/") == 3}
             has_code = dict.fromkeys(columns, False)
             has_count = dict.fromkeys(columns, False)
             for key, domain, body in self._xw_cells(html):
@@ -4985,7 +5031,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                     if k not in codes + labels + unmapped]
             self.assertTrue(set(codes) <= set(comp), rel)
             where = (" of the full table"
-                     if rel == "draft/crosswalk/index.html" else " here")
+                     if rel == "crosswalk/index.html" else " here")
 
             def named(pattern, keys, label):
                 match = re.search(pattern, intro)
@@ -5059,7 +5105,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             else:
                 self.assertNotRegex(intro, tail, rel)
             for key in labels:
-                page = self.draft_html[f"draft/crosswalk/{key}/index.html"]
+                page = self.draft_html[f"crosswalk/{key}/index.html"]
                 for domain, entry in xw["instruments"][key][
                         "by_domain"].items():
                     section = re.search(rf'<h3 id="{domain}">.*?</ul>',
@@ -5070,7 +5116,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                         self.assertIn(self.mod._esc(label), section, key)
             for key in rest:
                 self.assertFalse(has_code[key], f"{rel}: {key} count alone")
-                page = self.draft_html[f"draft/crosswalk/{key}/index.html"]
+                page = self.draft_html[f"crosswalk/{key}/index.html"]
                 self.assertRegex(
                     page, re.compile(
                         r'<h2 id="control-areas">.*?<tbody>\s*<tr><td>', re.S),
@@ -5245,8 +5291,8 @@ class DraftSiteRenderTests(unittest.TestCase):
                 unmapped_pages.append(rel)
                 self.assertNotIn("instruments the alignment matrices map",
                                  intro, rel)
-        self.assertIn("draft/crosswalk/index.html", unmapped_pages)
-        self.assertIn("draft/crosswalk/view/security/index.html",
+        self.assertIn("crosswalk/index.html", unmapped_pages)
+        self.assertIn("crosswalk/view/security/index.html",
                       unmapped_pages,
                       "the Security view carries the column no domain maps")
 
@@ -5265,7 +5311,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             intro = self._xw_intro(html)
             self.assertNotRegex(intro, r"(?<![\w.])1 columns?\b", rel)
             where = (" of the full table"
-                     if rel == "draft/crosswalk/index.html" else " here")
+                     if rel == "crosswalk/index.html" else " here")
             displays = {xw["instruments"][k]["display"]
                         for k in self._XW_COL_RE.findall(html)}
             for name in re.findall(
@@ -5356,7 +5402,7 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def _xw_all_pages(self):
         return self._xw_table_pages() + [
-            f"draft/crosswalk/{i.key}/index.html"
+            f"crosswalk/{i.key}/index.html"
             for i in self.mod.CROSSWALK_INSTRUMENTS]
 
     def test_crosswalk_tsc_caveat_only_where_the_table_has_the_column(self):
@@ -5373,7 +5419,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         tsc = [i.key for i in self.mod.CROSSWALK_INSTRUMENTS
                if i.compliance_column == "AICPA TSC 2017"]
         self.assertEqual(len(tsc), 1, "one AICPA TSC column")
-        own = f"draft/crosswalk/{tsc[0]}/index.html"
+        own = f"crosswalk/{tsc[0]}/index.html"
         with_col = without = 0
         for rel in self._xw_all_pages():
             html = self.draft_html[rel]
@@ -5548,7 +5594,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             f"{populated}every one of its {len(column)} rows is{condition}")
         tsc = [i for i in self.mod.CROSSWALK_INSTRUMENTS
                if i.compliance_column == "AICPA TSC 2017"][0]
-        own = f"draft/crosswalk/{tsc.key}/index.html"
+        own = f"crosswalk/{tsc.key}/index.html"
         for rel in self._xw_all_pages():
             text = self._xw_caveat_text(self.draft_html[rel])
             self.assertEqual(sentence in text, rel == own, rel)
@@ -5634,7 +5680,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         says the site stores nothing in the browser (spec 7.20: inaccurate
         from 1.6.0), and scheme.js sets no cookie and makes no request, so
         the choice is not sent to this site."""
-        page = self.draft_html["draft/disclosure/index.html"]
+        page = self.draft_html["disclosure/index.html"]
         self.assertEqual(page.count(self._YOUR_BROWSER), 1)
         self.assertEqual(page.count("Your browser"), 1)
         at = page.index(self._YOUR_BROWSER)
@@ -5665,7 +5711,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             "It is not sent to this site, and nothing is stored until you "
             "press the switch.",
         ])
-        scheme = self.draft_all["draft/assets/baseline/scheme.js"].decode(
+        scheme = self.draft_all["assets/baseline/scheme.js"].decode(
             "utf-8")
         key = re.search(r'var KEY = "(\w+)";', scheme).group(1)
         self.assertEqual(
@@ -6223,7 +6269,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         for key, digest in served.items():
             self.assertTrue(key.startswith(prefix), key)
             rel = key[len(prefix):]
-            out_rel = f"draft/assets/baseline/{rel}"
+            out_rel = f"assets/baseline/{rel}"
             self.assertIn(out_rel, self.draft_all, out_rel)
             data = self.draft_all[out_rel]
             self.assertIsInstance(data, bytes, out_rel)
@@ -6233,7 +6279,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 f"{out_rel} must equal the vendored file byte for byte",
             )
         copied = {rel for rel in self.draft_all
-                  if rel.startswith("draft/assets/baseline/")}
+                  if rel.startswith("assets/baseline/")}
         self.assertEqual(len(copied), len(served),
                          "exactly the pinned files are copied")
         self.assertEqual(
@@ -6259,7 +6305,7 @@ class DraftSiteRenderTests(unittest.TestCase):
              "scheme.js"},
             "the pin carries the release's whole script set")
         for name in sorted(scripts):
-            self.assertIn(f"draft/assets/baseline/{name}", self.draft_all,
+            self.assertIn(f"assets/baseline/{name}", self.draft_all,
                           f"{name} is copied into the draft asset tree")
 
     def test_hidden_content_is_never_displayed(self):
@@ -6269,7 +6315,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         release adds 1 global rule that outranks any component's display
         rule. The stylesheet the draft serves carries it, so what search.js,
         select.js, matrix.js or copy.js hides stays off screen."""
-        css = self.draft_all["draft/assets/baseline/baseline.css"].decode(
+        css = self.draft_all["assets/baseline/baseline.css"].decode(
             "utf-8")
         self.assertEqual(
             re.findall(r"^\[hidden\] \{ display: none !important; \}$", css,
@@ -6287,7 +6333,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         pin = tomllib.loads(
             (REPO_ROOT / ".baseline" / "pin.toml").read_text(encoding="utf-8")
         )
-        notice = self.draft_all["draft/assets/baseline/NOTICE.md"].decode(
+        notice = self.draft_all["assets/baseline/NOTICE.md"].decode(
             "utf-8")
         self.assertLessEqual(
             set(re.findall(r"\bbaseline (\d+\.\d+\.\d+)", notice, re.I)),
@@ -6318,7 +6364,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 hashlib.sha256((REPO_ROOT / key).read_bytes()).hexdigest(),
                 digest, f"{key} copy")
             if key.startswith(".web/baseline/"):
-                out_rel = "draft/assets/baseline/" + key[len(".web/baseline/"):]
+                out_rel = "assets/baseline/" + key[len(".web/baseline/"):]
                 self.assertEqual(
                     hashlib.sha256(self.draft_all[out_rel]).hexdigest(),
                     digest, out_rel)
@@ -6337,7 +6383,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         """Spec 7.33: on every page, the 404 page included, the switch is
         the last child of header.mast, right after nav.nav, and carries the
         hidden attribute in the markup (without script it is never shown)."""
-        self.assertIn("draft/404.html", self.draft_html)
+        self.assertIn("404.html", self.draft_html)
         for rel, html in self.draft_html.items():
             masts = re.findall(r'<header class="mast">(.*?)</header>', html,
                                re.S)
@@ -6375,7 +6421,7 @@ class DraftSiteRenderTests(unittest.TestCase):
     def test_served_dark_bg_is_the_released_value(self):
         """Spec 6.1: grclibrary's dark --bg in 1.6.0 is #110814 (1.5.1 had
         #1f1718); the served palettes.css carries it in both dark forms."""
-        css = self.draft_all["draft/assets/baseline/palettes.css"].decode(
+        css = self.draft_all["assets/baseline/palettes.css"].decode(
             "utf-8")
         self.assertEqual(_dark_token(css, "bg"),
                          [RELEASED_DARK_BG, RELEASED_DARK_BG])
@@ -6386,7 +6432,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         no site-palette.css, so the served palettes.css alone must give
         grclibrary each token once, as a hex value, in both forms of each
         scheme, the 2 forms agreeing."""
-        css = self.draft_all["draft/assets/baseline/palettes.css"].decode(
+        css = self.draft_all["assets/baseline/palettes.css"].decode(
             "utf-8")
         self.assertEqual(len(MATRIX_TOKENS), 13)
         for token in MATRIX_TOKENS:
@@ -6422,22 +6468,38 @@ class DraftSiteRenderTests(unittest.TestCase):
     # -- 7. _headers --------------------------------------------------------
 
     def test_headers_block_exact(self):
+        # Updated at promotion: /* carries the spec section 9 CSP (the
+        # recorded at-promotion owner decision), the /draft/* staging block
+        # and its X-Robots-Tag left with the prefix (render_headers_file
+        # appends the block only for a draft-rules variant with a non-empty
+        # prefix), and no zone-owned header appears.
         content = self.by_rel["_headers"][0]
         self.assertEqual(len(self.by_rel["_headers"]), 1)
         self.assertEqual(self.mod.DRAFT_CSP, SPEC_SECTION_9_CSP,
-                         "the draft CSP is the spec section 9 string")
-        block = (
-            "/draft/*\n"
-            "  ! Content-Security-Policy\n"
+                         "the promoted CSP is the spec section 9 string")
+        self.assertEqual(content, self.mod.HEADERS_FILE,
+                         "_headers is exactly the /* rule, no staging block")
+        self.assertTrue(content.startswith(
+            "/*\n"
             f"  Content-Security-Policy: {SPEC_SECTION_9_CSP}\n"
-            "  X-Robots-Tag: noindex\n"
-        )
-        self.assertEqual(self.mod.DRAFT_HEADERS_BLOCK, block)
-        self.assertTrue(content.endswith(block))
-        self.assertEqual(content.count("/draft/*"), 1)
+        ))
+        self.assertEqual(content.count("/draft/*"), 0)
         self.assertEqual(content.count(SPEC_SECTION_9_CSP), 1)
-        self.assertEqual(content, self.mod.HEADERS_FILE + block,
-                         "the live /* rule stays byte for byte above the block")
+        self.assertNotIn("X-Robots-Tag", content,
+                         "no header-level noindex on the promoted site")
+        staged = self.mod.Variant(
+            "staged", "templates-draft", "draft/", indexable=False,
+            pages=self.mod.DRAFT_PAGES, draft_rules=True,
+        )
+        original = self.mod.VARIANTS
+        try:
+            self.mod.VARIANTS = original + (staged,)
+            with_block = self.mod.render_headers_file()
+        finally:
+            self.mod.VARIANTS = original
+        self.assertEqual(
+            with_block, self.mod.HEADERS_FILE + self.mod.DRAFT_HEADERS_BLOCK,
+            "a prefixed staging tree would re-attach the /draft/* block")
         for name in ("X-Content-Type-Options", "Referrer-Policy",
                      "Strict-Transport-Security"):
             self.assertNotIn(name, content,
@@ -6451,7 +6513,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         r'<small>(.*?)</small></li>', re.S)
 
     def _type_rel(self, type_name):
-        return f"draft/types/{self.mod.type_slug(type_name)}/index.html"
+        return f"types/{self.mod.type_slug(type_name)}/index.html"
 
     def test_every_taxonomy_type_has_exactly_one_draft_type_page(self):
         docs = self.mod.parse_taxonomy(
@@ -6462,7 +6524,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(len(expected), len(types),
                          "two taxonomy types share one type slug")
         rendered = [rel for rel in self.draft_all
-                    if rel.startswith("draft/types/")]
+                    if rel.startswith("types/")]
         self.assertEqual(len(rendered), len(set(rendered)))
         self.assertEqual(set(rendered), expected,
                          "one draft type page per taxonomy type, no other")
@@ -6511,7 +6573,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                     if doc["domain"] == self.mod.ROOT_DOMAIN:
                         href = self.mod.GITHUB_BLOB_BASE + doc["path"]
                     else:
-                        href = self.mod._doc_page_url("/draft", doc["path"])
+                        href = self.mod._doc_page_url("", doc["path"])
                     self.assertIn(href, rows, f"{doc['path']} has no row")
                     title, shown_area, purpose = rows[href]
                     self.assertTrue(
@@ -6565,7 +6627,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             if d["domain"] == self.mod.ROOT_DOMAIN:
                 docs[self.mod.GITHUB_BLOB_BASE + d["path"]] = d
             else:
-                docs[self.mod._doc_page_url("/draft", d["path"])] = d
+                docs[self.mod._doc_page_url("", d["path"])] = d
         for tp in self.figures["type_pages"]:
             with self.subTest(type=tp["type"]):
                 page = self.draft_html[self._type_rel(tp["type"])]
@@ -6639,7 +6701,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                             "where the document has it")
 
     def test_browse_by_type_links_the_type_pages(self):
-        browse = self.draft_html["draft/browse/index.html"]
+        browse = self.draft_html["browse/index.html"]
         # The scope sentence (site a9) sits between the heading and the
         # list; its content is pinned by the type-scope test.
         section = re.search(
@@ -6649,7 +6711,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         hrefs = _HREF_RE.findall(section.group(1))
         self.assertEqual(
             hrefs,
-            ["/draft/types/" + self.mod.type_slug(t) + "/"
+            ["/types/" + self.mod.type_slug(t) + "/"
              for t, _ in self.figures["types"]],
             "every By type entry links its own type page, never the search "
             "page or a Browse anchor")
@@ -6770,7 +6832,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         the approved copy but land on the five need pages; the mockup's
         placeholder targets (two Browse anchors, the search page and one
         example document) are retired."""
-        browse = self.draft_html["draft/browse/index.html"]
+        browse = self.draft_html["browse/index.html"]
         block = re.search(
             r'<h2 id="need">By need</h2>\s*<div class="wide">'
             r"<ol class=\"entries\">(.*?)</ol>", browse, re.S)
@@ -6780,15 +6842,15 @@ class DraftSiteRenderTests(unittest.TestCase):
             r'<span class="n">([^<]*)</span>', block.group(1))
         self.assertEqual(
             entries,
-            [(f"/draft/{tag}/", self.mod._esc(title), self.mod._esc(tag))
+            [(f"/{tag}/", self.mod._esc(title), self.mod._esc(tag))
              for title, tag, _, _ in self.mod.DRAFT_NEEDS],
             "each By need card lands on its need page, approved copy intact")
         for href, _, _ in entries:
             self.assertIn(_page_rel_for(href), self.draft_html,
                           f"{href}: the need page is rendered")
-        for retired in ('href="/draft/browse/#domains"',
-                        'href="/draft/search/"',
-                        "/draft/documents/governance/"):
+        for retired in ('href="/browse/#domains"',
+                        'href="/search/"',
+                        "/documents/governance/"):
             self.assertNotIn(retired, block.group(1),
                              "a mockup placeholder target survives")
 
@@ -6796,15 +6858,15 @@ class DraftSiteRenderTests(unittest.TestCase):
         """Design D section 3: Browse carries the executive path, the
         decide hub plus one chip per narrative kind, every count generated
         from the registry, and every concern a rendered topic page."""
-        browse = self.draft_html["draft/browse/index.html"]
+        browse = self.draft_html["browse/index.html"]
         self.assertIn(
-            '<a href="/draft/decide/">Make a decision</a> is its hub: '
+            '<a href="/decide/">Make a decision</a> is its hub: '
             f"{len(self.mod.DRAFT_CONCERNS)} leadership concerns, each a "
             f"topic page, and {len(self.figures['narratives'])} leadership "
             f"pages in {len(self.mod.DRAFT_NARRATIVE_SUBTYPES)} kinds",
             browse, "the executive path sentence carries generated counts")
         for concern in self.mod.DRAFT_CONCERNS:
-            self.assertIn(f"draft/decide/{concern['slug']}/index.html",
+            self.assertIn(f"decide/{concern['slug']}/index.html",
                           self.draft_html,
                           "each a topic page holds for every concern")
         block = re.search(
@@ -6813,14 +6875,14 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIsNotNone(block, "Browse has no executive path list")
         hrefs = _ROW_HREF_RE.findall(block.group(1))
         self.assertEqual(set(hrefs),
-                         {f"/draft/decide/{s}/" for s in SUBTYPE_SLUGS},
+                         {f"/decide/{s}/" for s in SUBTYPE_SLUGS},
                          "one chip per subtype index")
         for narrative_type, (slug, label, _) in (
                 self.mod.DRAFT_NARRATIVE_SUBTYPES.items()):
             count = sum(1 for p in self.figures["narratives"]
                         if p["narrative_type"] == narrative_type)
             self.assertIn(
-                f'<li><a href="/draft/decide/{slug}/">{label}</a>'
+                f'<li><a href="/decide/{slug}/">{label}</a>'
                 f'<span class="n">{count}</span></li>', block.group(1),
                 f"{slug}: the registry count")
 
@@ -6830,7 +6892,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         and the claim is checked against every rendered document page: the
         record on every page, and the outline, frameworks and related
         documents exactly where the taxonomy carries them."""
-        browse = self.draft_html["draft/browse/index.html"]
+        browse = self.draft_html["browse/index.html"]
         self.assertIn(self.BROWSE_SCOPE_SENTENCE, browse)
         self.assertNotIn(
             "A document page holds the record, outline, frameworks, and "
@@ -6839,7 +6901,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         for d in self._full_taxonomy():
             if d.get("domain") == self.mod.ROOT_DOMAIN:
                 continue
-            rel = "draft/" + self.mod._doc_route_rel(d["path"])
+            rel = self.mod._doc_route_rel(d["path"])
             page = self.draft_html[rel]
             with self.subTest(doc=d["path"]):
                 for name, (found, field) in self._DOC_PAGE_PARTS.items():
@@ -6859,7 +6921,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         anchor or another page's fragment; an external link keeps the
         draft's new-tab form (checked suite-wide by the hygiene test)."""
         for need in self._NEED_SLUGS:
-            html = self.draft_html[f"draft/{need}/index.html"]
+            html = self.draft_html[f"{need}/index.html"]
             main = html.split('<main id="main-content">', 1)[1] \
                        .split("</main>", 1)[0]
             main = _RAIL_RE.sub("", main)
@@ -6875,7 +6937,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                     self.assertNotIn(
                         "#", href,
                         "a branch lands on a page, not a fragment")
-                    self.assertTrue(href.startswith("/draft/"), href)
+                    self.assertTrue(href.startswith("/"), href)
                     self.assertIn(_page_rel_for(href), self.draft_html,
                                   f"unresolved branch {href}")
 
@@ -6886,7 +6948,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         source in the draft's external-link form only where neither carries
         it; every docs/ artefact now has an on-site page, and each artefact
         file exists in the repository."""
-        html = self.draft_html["draft/govern/index.html"]
+        html = self.draft_html["govern/index.html"]
         by_path = {d["path"]: d for d in self._full_taxonomy()}
         by_path.update({g["path"]: g for g in self.mod.parse_adopter_docs()})
         for key, (path, label) in self.mod.DRAFT_GOVERN_ARTEFACTS.items():
@@ -6898,7 +6960,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                         doc, f"{key}: every docs/ artefact is an adopter "
                         "document with a draft page")
                 if doc is not None and doc["domain"] != self.mod.ROOT_DOMAIN:
-                    href = self.mod._doc_page_url("/draft", path)
+                    href = self.mod._doc_page_url("", path)
                     self.assertIn(
                         f'<a href="{href}">{self.mod._esc(label)}</a>', html,
                         key)
@@ -6914,36 +6976,36 @@ class DraftSiteRenderTests(unittest.TestCase):
                         f"{self.mod._esc(label)}"
                         '<span class="vh"> (opens in a new tab)</span></a>',
                         html, key)
-        self.assertIn('<a href="/draft/comply/">Meet an obligation</a>',
+        self.assertIn('<a href="/comply/">Meet an obligation</a>',
                       html, "situation four routes to the comply path")
 
     def test_govern_landing_list_equals_its_sources(self):
         """The govern landing rows are the configured domains, types and
         concern, each count recomputed from the figures and the concern
         join."""
-        html = self.draft_html["draft/govern/index.html"]
+        html = self.draft_html["govern/index.html"]
         block = re.search(
             r'<h2 id="lands">.*?<ul class="plan described">(.*?)</ul>',
             html, re.S)
         self.assertIsNotNone(block, "govern has no landing list")
         self.assertEqual(
             _ROW_HREF_RE.findall(block.group(1)),
-            [f"/draft/{d}/" for d in self.mod.DRAFT_GOVERN_LANDING_DOMAINS]
-            + [f"/draft/types/{self.mod.type_slug(t)}/"
+            [f"/{d}/" for d in self.mod.DRAFT_GOVERN_LANDING_DOMAINS]
+            + [f"/types/{self.mod.type_slug(t)}/"
                for t in self.mod.DRAFT_GOVERN_LANDING_TYPES]
-            + [f"/draft/decide/{self.mod.DRAFT_GOVERN_CONCERN}/"],
+            + [f"/decide/{self.mod.DRAFT_GOVERN_CONCERN}/"],
             "the landing rows, in table order")
         domain_counts = dict(self.figures["domains"])
         for domain in self.mod.DRAFT_GOVERN_LANDING_DOMAINS:
             self.assertIn(
-                f'<li><a href="/draft/{domain}/">'
+                f'<li><a href="/{domain}/">'
                 f"{self.mod._esc(self.mod.draft_domain_label(domain))}</a>"
                 f'<span class="n">{domain_counts[domain]}</span>',
                 block.group(1), domain)
         type_counts = dict(self.figures["types"])
         for type_name in self.mod.DRAFT_GOVERN_LANDING_TYPES:
             self.assertIn(
-                f'<a href="/draft/types/{self.mod.type_slug(type_name)}/">'
+                f'<a href="/types/{self.mod.type_slug(type_name)}/">'
                 f"{self.mod.draft_type_plural(type_name)}</a>"
                 f'<span class="n">{type_counts[type_name]}</span>',
                 block.group(1), type_name)
@@ -6951,7 +7013,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.mod.DRAFT_GOVERN_CONCERN]
         mark = "" if pages else '<span class="n">declared gap</span>'
         self.assertIn(
-            f'<li><a href="/draft/decide/{concern["slug"]}/">'
+            f'<li><a href="/decide/{concern["slug"]}/">'
             f'{self.mod._esc(concern["question"])}</a>{mark}'
             f'<small>{self.mod._esc(concern["label"])}. '
             f'{self._concern_counts_text(pages, docs)}.</small></li>',
@@ -6966,7 +7028,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         and the not-listed
         branch lands on the matrix type page, the coverage-gaps register's
         document page and the regulatory-obligations outcome map."""
-        html = self.draft_html["draft/comply/index.html"]
+        html = self.draft_html["comply/index.html"]
         block = re.search(
             r'<h2 id="instruments">.*?<ul class="plan described">(.*?)</ul>',
             html, re.S)
@@ -6976,7 +7038,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             r"</span><small>([^<]*)</small></li>", block.group(1))
         self.assertEqual(
             [r[0] for r in rows],
-            [f"/draft/crosswalk/{inst.key}/"
+            [f"/crosswalk/{inst.key}/"
              for inst in self.mod.CROSSWALK_INSTRUMENTS],
             "one row per configured instrument, in table order")
         full = self.mod.parse_taxonomy_full(
@@ -7003,11 +7065,11 @@ class DraftSiteRenderTests(unittest.TestCase):
         matrix = next(tp for tp in self.figures["type_pages"]
                       if tp["type"] == "Matrix")
         self.assertIn(
-            f'<a href="/draft/types/matrix/">matrix documents</a>, '
+            f'<a href="/types/matrix/">matrix documents</a>, '
             f'{matrix["count"]} in the corpus, on one page', html)
         self.assertIn(
             self.mod._doc_page_url(
-                "/draft", self.mod.DRAFT_COMPLY_GAPS_REGISTER), html,
+                "", self.mod.DRAFT_COMPLY_GAPS_REGISTER), html,
             "the coverage-gaps register's document page")
         outcome = next(p for p in self.figures["narratives"]
                        if p["path"] == self.mod.DRAFT_COMPLY_OUTCOME_MAP)
@@ -7023,7 +7085,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         and the concern join, Go deeper links the configured concern and
         domains); the scenario index equals the registry's Scenario pages;
         the builders rows are the configured domains with their counts."""
-        html = self.draft_html["draft/solutions/index.html"]
+        html = self.draft_html["solutions/index.html"]
         joins = self._concern_joins()
         by_path = {p["path"]: p for p in self.figures["narratives"]}
         block = re.search(
@@ -7036,7 +7098,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             if page_path is not None:
                 expected_hrefs.append(_reading_room_href(by_path[page_path]))
             else:
-                expected_hrefs.append(f"/draft/decide/{concern_slug}/")
+                expected_hrefs.append(f"/decide/{concern_slug}/")
         self.assertEqual(_ROW_HREF_RE.findall(block.group(1)),
                          expected_hrefs, "one row per event, in table order")
         for label, lede, page_path, concern_slug, domains in (
@@ -7055,7 +7117,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                         f'{len(page["sources"])} {noun}.',
                         block.group(1),
                         "the row's count is the page's source count")
-                    self.assertIn(f'<a href="/draft/decide/{concern_slug}/">',
+                    self.assertIn(f'<a href="/decide/{concern_slug}/">',
                                   block.group(1),
                                   "Go deeper names the resolving concern")
                 else:
@@ -7068,7 +7130,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                         block.group(1),
                         "the row's counts are the concern join's")
                 for domain in domains:
-                    self.assertIn(f'<a href="/draft/{domain}/">',
+                    self.assertIn(f'<a href="/{domain}/">',
                                   block.group(1),
                                   f"Go deeper names the {domain} domain")
         scenarios = sorted(
@@ -7092,11 +7154,11 @@ class DraftSiteRenderTests(unittest.TestCase):
         domain_counts = dict(self.figures["domains"])
         self.assertEqual(
             _ROW_HREF_RE.findall(builders.group(1)),
-            [f"/draft/{d}/"
+            [f"/{d}/"
              for d in self.mod.DRAFT_SOLUTION_BUILDER_DOMAINS])
         for domain in self.mod.DRAFT_SOLUTION_BUILDER_DOMAINS:
             self.assertIn(
-                f'<li><a href="/draft/{domain}/">'
+                f'<li><a href="/{domain}/">'
                 f"{self.mod._esc(self.mod.draft_domain_label(domain))}</a>"
                 f'<span class="n">{domain_counts[domain]}</span>',
                 builders.group(1), domain)
@@ -7108,18 +7170,18 @@ class DraftSiteRenderTests(unittest.TestCase):
         from the type pages' own document lists, so the page's derived
         sentence stays true; the adapt block links the standard type page
         and the NOTICE file."""
-        html = self.draft_html["draft/policies/index.html"]
+        html = self.draft_html["policies/index.html"]
         types = {tp["type"]: tp for tp in self.figures["type_pages"]}
         start = re.search(
             r'<h2 id="start">.*?<ul class="plan described">(.*?)</ul>',
             html, re.S)
         self.assertIsNotNone(start, "policies has no start list")
         self.assertEqual(_ROW_HREF_RE.findall(start.group(1)),
-                         ["/draft/types/policy/", "/draft/types/template/"])
+                         ["/types/policy/", "/types/template/"])
         for type_name in ("Policy", "Template"):
             tp = types[type_name]
             self.assertIn(
-                f'<li><a href="/draft/types/{tp["slug"]}/">'
+                f'<li><a href="/types/{tp["slug"]}/">'
                 f"{self.mod.draft_type_plural(type_name)}</a>"
                 f'<span class="n">{tp["count"]}</span>', start.group(1),
                 type_name)
@@ -7136,12 +7198,12 @@ class DraftSiteRenderTests(unittest.TestCase):
             html, re.S)
         self.assertIsNotNone(subjects, "policies has no subject list")
         self.assertEqual(_ROW_HREF_RE.findall(subjects.group(1)),
-                         [f"/draft/{domain}/" for domain, _ in expected],
+                         [f"/{domain}/" for domain, _ in expected],
                          "exactly the domains with a policy or template")
         for domain, count in expected:
             self.assertGreater(count, 0, domain)
             self.assertIn(
-                f'<li><a href="/draft/{domain}/">'
+                f'<li><a href="/{domain}/">'
                 f"{self.mod._esc(self.mod.draft_domain_label(domain))}</a>"
                 f'<span class="n">{count}</span>', subjects.group(1), domain)
         self.assertIn(
@@ -7149,7 +7211,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             f"{types['Template']['count']} templates in the corpus, across "
             f"{len(expected)} subjects.", html,
             "the meta counts are the type pages' corpus counts")
-        self.assertIn('<a href="/draft/types/standard/">standards</a>', html)
+        self.assertIn('<a href="/types/standard/">standards</a>', html)
         self.assertIn(
             self.mod.GITHUB_BLOB_BASE + "NOTICE.md", html,
             "the licence paragraph links the NOTICE file")
@@ -7183,7 +7245,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         """Maintainer directive 2026-11-03 17:55Z: two By need card lines
         change exactly as directed and the other three stay as approved,
         checked on the rendered Browse cards."""
-        browse = self.draft_html["draft/browse/index.html"]
+        browse = self.draft_html["browse/index.html"]
         block = re.search(
             r'<h2 id="need">By need</h2>\s*<div class="wide">'
             r"<ol class=\"entries\">(.*?)</ol>", browse, re.S)
@@ -7201,8 +7263,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         that the crosswalk shows the same instruments is gone. Site f2: the
         Also in the corpus instruments are a group list in the crosswalk's
         left-rail side list, no longer chips under the table."""
-        comply = self.draft_html["draft/comply/index.html"]
-        xw = self.draft_html["draft/crosswalk/index.html"]
+        comply = self.draft_html["comply/index.html"]
+        xw = self.draft_html["crosswalk/index.html"]
         table = re.search(r"<thead><tr>(.*?)</tr></thead>", xw, re.S)
         self.assertIsNotNone(table, "the crosswalk has no table head")
         columns = re.findall(r'<th scope="col" data-col="', table.group(1))
@@ -7222,7 +7284,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                          len(columns) + len(also_names),
                          "comply lists every table column and Also page")
         self.assertIn(
-            'The <a href="/draft/crosswalk/">crosswalk</a> shows '
+            'The <a href="/crosswalk/">crosswalk</a> shows '
             f"{len(columns)} of them as one table, domain by domain, and "
             f"lists {self._series(also_names)} under Also in the corpus.</p>",
             comply)
@@ -7237,10 +7299,10 @@ class DraftSiteRenderTests(unittest.TestCase):
         one under a compliance sector directory."""
         annex = next(tp for tp in self.figures["type_pages"]
                      if tp["type"] == "Annex")
-        page = self.draft_html[f"draft/types/{annex['slug']}/index.html"]
+        page = self.draft_html[f"types/{annex['slug']}/index.html"]
         listed = [d for d in annex["docs"]
                   if d["domain"] != self.mod.ROOT_DOMAIN
-                  and f'href="{self.mod._doc_page_url("/draft", d["path"])}"'
+                  and f'href="{self.mod._doc_page_url("", d["path"])}"'
                   in page]
         self.assertEqual(len(listed), annex["count"],
                          "the annex page lists every counted annex")
@@ -7251,8 +7313,8 @@ class DraftSiteRenderTests(unittest.TestCase):
             any(d["path"].startswith("compliance/")
                 and d["path"].count("/") == 2 for d in listed),
             "the annex page includes sector overlays")
-        link = f'<a href="/draft/types/{annex["slug"]}/">annex overlays</a>'
-        govern = self.draft_html["draft/govern/index.html"]
+        link = f'<a href="/types/{annex["slug"]}/">annex overlays</a>'
+        govern = self.draft_html["govern/index.html"]
         self.assertIn(
             "per entity layer on what applies from the "
             f"{link}, {annex['count']} in the corpus, including those for "
@@ -7261,7 +7323,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         # Integration round 2 NOTE: "those for your jurisdiction or sector"
         # assumed every reader has an annex; the sentence names the overlay
         # kinds the page includes instead.
-        comply = self.draft_html["draft/comply/index.html"]
+        comply = self.draft_html["comply/index.html"]
         self.assertIn(
             f"plus the {link}, {annex['count']} in the corpus, including "
             "jurisdiction and sector overlays, and keep", comply)
@@ -7274,13 +7336,13 @@ class DraftSiteRenderTests(unittest.TestCase):
         row the page that asks where the programme stands (the
         programme-maturity page scores nothing), checked against the
         rendered landing rows."""
-        html = self.draft_html["draft/govern/index.html"]
+        html = self.draft_html["govern/index.html"]
         block = re.search(
             r'<h2 id="lands">.*?<ul class="plan described">(.*?)</ul>',
             html, re.S)
         self.assertIsNotNone(block, "govern has no landing list")
         type_rows = re.findall(
-            r'<li><a href="/draft/types/[^"]*/">([^<]*)</a>', block.group(1))
+            r'<li><a href="/types/[^"]*/">([^<]*)</a>', block.group(1))
         roles = self.mod.DRAFT_GOVERN_LANDING_TYPES
         self.assertEqual(
             type_rows,
@@ -7296,7 +7358,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             "stands;")
         self.assertIn(sentence, html)
         concern = re.search(
-            r'<li><a href="/draft/decide/'
+            r'<li><a href="/decide/'
             f'{self.mod.DRAFT_GOVERN_CONCERN}/">([^<]*)</a>', block.group(1))
         self.assertIsNotNone(concern, "the concern row")
         self.assertIn("programme stand", unescape(concern.group(1)),
@@ -7414,7 +7476,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                     for name, pattern in self.SEPARATE_TEXT_RES.items()}
         plain_hits, wrong_links, chips_read = [], [], 0
         for slug in self._concern_joins():
-            html = self.draft_html[f"draft/decide/{slug}/index.html"]
+            html = self.draft_html[f"decide/{slug}/index.html"]
             block = re.search(
                 r'<h2 id="frameworks">.*?<ul class="chips">(.*?)</ul>',
                 html, re.S)
@@ -7429,9 +7491,9 @@ class DraftSiteRenderTests(unittest.TestCase):
                 if named and plain not in self.NOT_INSTRUMENT_NAMES:
                     plain_hits.append(f"{slug}: {plain!r} names {named}")
                 for key, text in re.findall(
-                        r'<a href="/draft/crosswalk/([^"/]+)/">(.*?)</a>',
+                        r'<a href="/crosswalk/([^"/]+)/">(.*?)</a>',
                         item):
-                    self.assertIn(f"draft/crosswalk/{key}/index.html",
+                    self.assertIn(f"crosswalk/{key}/index.html",
                                   self.draft_html, f"{slug}: {key}")
                     for piece in unescape(text).split(" / "):
                         others = sorted(
@@ -7448,8 +7510,8 @@ class DraftSiteRenderTests(unittest.TestCase):
                          "a plain-text name names a crosswalk instrument")
         self.assertEqual(wrong_links, [],
                          "a linked name does not name its instrument")
-        page = self.draft_html["draft/decide/compliance-assurance/index.html"]
-        self.assertIn('<a href="/draft/crosswalk/nist-csf/">NIST Cybersecurity '
+        page = self.draft_html["decide/compliance-assurance/index.html"]
+        self.assertIn('<a href="/crosswalk/nist-csf/">NIST Cybersecurity '
                       "Framework 2.0</a>", page)
 
     def test_type_pages_list_their_adopter_documents(self):
@@ -7470,7 +7532,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertTrue(adopter)
         label = self.mod._esc(
             self.mod.draft_domain_label(self.mod.ADOPTER_DOCS_AREA))
-        by_href = {self.mod._doc_page_url("/draft", g["path"]): g
+        by_href = {self.mod._doc_page_url("", g["path"]): g
                    for g in adopter}
         block_re = re.compile(
             rf'<p class="lbl blk">{re.escape(label)}, (\d+)</p>\n<p>(.*?)</p>'
@@ -7506,7 +7568,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 rows = self._TYPE_ROW_RE.findall(block.group(3))
                 self.assertEqual(
                     sorted(unescape(href) for href, _, _, _ in rows),
-                    sorted(self.mod._doc_page_url("/draft", g["path"])
+                    sorted(self.mod._doc_page_url("", g["path"])
                            for g in mine))
                 for href, title, area, purpose in rows:
                     g = by_href[unescape(href)]
@@ -7542,7 +7604,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         links every corpus document and every adopter document of the type,
         the row's count is the page's corpus list, and the adopter
         documents come after the corpus list on a page that has any."""
-        html = self.draft_html["draft/policies/index.html"]
+        html = self.draft_html["policies/index.html"]
         self.assertIn(
             "<p>Each row opens a type page listing every document of the "
             "type, with its area and purpose: the corpus documents, then the "
@@ -7559,7 +7621,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         full = self._full_taxonomy()
         adopter = self.mod.parse_adopter_docs()
         for href, n in rows:
-            type_name = slugs[href.split("/")[3]]
+            type_name = slugs[href.split("/")[2]]
             with self.subTest(type=type_name):
                 page = self.draft_html[_page_rel_for(href)]
                 main = page.split('<main id="main-content">', 1)[1]
@@ -7569,7 +7631,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                     self.assertIn(
                         self.mod.GITHUB_BLOB_BASE + d["path"]
                         if d["domain"] == self.mod.ROOT_DOMAIN
-                        else self.mod._doc_page_url("/draft", d["path"]),
+                        else self.mod._doc_page_url("", d["path"]),
                         linked, d["path"])
                 corpus_list = re.search(
                     r'<ul class="plan one described">(.*?)</ul>', main, re.S)
@@ -7581,7 +7643,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 for g in adopter:
                     if g["type"] != type_name:
                         continue
-                    href_g = self.mod._doc_page_url("/draft", g["path"])
+                    href_g = self.mod._doc_page_url("", g["path"])
                     self.assertIn(href_g, linked, g["path"])
                     self.assertGreater(main.index(f'href="{href_g}"'),
                                        corpus_list.end(),
@@ -7592,7 +7654,7 @@ class DraftSiteRenderTests(unittest.TestCase):
     # A type page link on a need page or Browse, the prose up to the next
     # tag after it, and the row count beside it where it is a list row.
     _TYPE_LINK_RE = re.compile(
-        r'<a href="/draft/types/([^"/]+)/">[^<]*</a>([^<]*)'
+        r'<a href="/types/([^"/]+)/">[^<]*</a>([^<]*)'
         r'(?:<span class="n">(\d+)</span>)?')
     # Per page with type rows: the sentence stating that each row count is
     # the type's corpus documents.
@@ -7615,11 +7677,11 @@ class DraftSiteRenderTests(unittest.TestCase):
         adopter documents, so the two scopes differ somewhere checked."""
         checked, differ = 0, False
         for name in ("comply", "govern", "solutions", "policies", "browse"):
-            html = self.draft_html[f"draft/{name}/index.html"]
+            html = self.draft_html[f"{name}/index.html"]
             main = html.split('<main id="main-content">', 1)[1]
             main = main.split("</main>", 1)[0]
             for slug, prose, row in self._TYPE_LINK_RE.findall(main):
-                page = self.draft_html[f"draft/types/{slug}/index.html"]
+                page = self.draft_html[f"types/{slug}/index.html"]
                 total = int(re.search(r'<p class="meta">(\d+) documents?\b',
                                       page).group(1))
                 corpus_list = re.search(
@@ -7650,12 +7712,12 @@ class DraftSiteRenderTests(unittest.TestCase):
         register = next(tp for tp in self.figures["type_pages"]
                         if tp["type"] == "Register")
         self.assertIn(
-            f'<a href="/draft/types/{register["slug"]}/">registers</a> that '
+            f'<a href="/types/{register["slug"]}/">registers</a> that '
             f"carry the evidence, {register['count']} in the corpus.</p>",
-            self.draft_html["draft/comply/index.html"])
+            self.draft_html["comply/index.html"])
 
     def _citation_hrefs(self, key):
-        page = self.draft_html[f"draft/crosswalk/{key}/index.html"]
+        page = self.draft_html[f"crosswalk/{key}/index.html"]
         self.assertIn('<h2 id="citations">', page, key)
         block = re.search(
             r'<h2 id="citations">[^<]*</h2>\n<p>[^<]*</p>\n'
@@ -7680,7 +7742,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         cited = {key: set() for key in self.mod.CROSSWALK_BY_KEY}
         only_part = {key: set() for key in self.mod.CROSSWALK_BY_KEY}
         for d in full:
-            href = self.mod._doc_page_url("/draft", d["path"])
+            href = self.mod._doc_page_url("", d["path"])
             names = d.get("frameworks", [])
             exact = {aliases[n] for n in names if n in aliases}
             for key in exact:
@@ -7692,18 +7754,18 @@ class DraftSiteRenderTests(unittest.TestCase):
                     cited[key].add(href)
                     if key not in exact:
                         only_part[key].add(href)
-        comply = self.draft_html["draft/comply/index.html"]
+        comply = self.draft_html["comply/index.html"]
         xw = self.mod.build_crosswalk(self._full_taxonomy())
         for key in self.mod.CROSSWALK_BY_KEY:
             with self.subTest(instrument=key):
                 self.assertEqual(self._citation_hrefs(key), cited[key],
                                  "the citations are the aliased documents")
-                mapped = {self.mod._doc_page_url("/draft", path)
+                mapped = {self.mod._doc_page_url("", path)
                           for entry in xw["instruments"][key]["by_domain"]
                           .values() for path, _ in entry["docs"]}
                 n = len(mapped | cited[key])
                 self.assertIn(
-                    f'<li><a href="/draft/crosswalk/{key}/">'
+                    f'<li><a href="/crosswalk/{key}/">'
                     f'{self.mod._esc(xw["instruments"][key]["display"])}</a>'
                     f'<span class="n">{n} '
                     f'{"document" if n == 1 else "documents"}</span>', comply,
@@ -7718,7 +7780,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                             for n in d["frameworks"])]
         self.assertTrue(aicm, "a document names AICM only in the compound")
         for d in aicm:
-            self.assertIn(self.mod._doc_page_url("/draft", d["path"]),
+            self.assertIn(self.mod._doc_page_url("", d["path"]),
                           self._citation_hrefs("csa-aicm"), d["path"])
 
     def test_compound_parts_naming_other_texts_render_plain(self):
@@ -7731,10 +7793,10 @@ class DraftSiteRenderTests(unittest.TestCase):
         parts = self.mod.CROSSWALK_ALIAS_PARTS
         expected = {
             "UK GDPR / Data Protection Act 2018":
-                '<li><a href="/draft/crosswalk/gdpr/">UK GDPR</a> / '
+                '<li><a href="/crosswalk/gdpr/">UK GDPR</a> / '
                 "Data Protection Act 2018</li>",
             "ISO/IEC 27001:2022 / ISO/IEC 27002:2022":
-                '<li><a href="/draft/crosswalk/iso-iec-27001/">ISO/IEC '
+                '<li><a href="/crosswalk/iso-iec-27001/">ISO/IEC '
                 "27001:2022</a> / ISO/IEC 27002:2022</li>",
         }
         for name, chip in expected.items():
@@ -7743,7 +7805,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertIn(None, [key for _, key in parts[name]])
                 pages = [slug for slug in self._concern_joins()
                          if chip in self.draft_html[
-                             f"draft/decide/{slug}/index.html"]]
+                             f"decide/{slug}/index.html"]]
                 self.assertTrue(pages, "a concern page shows the chip")
                 self.assertEqual(
                     self.mod.crosswalk_alias_keys(name),
@@ -7758,7 +7820,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         pages' citation sentence does, and the meta line claims only the
         counted union; an unaliased string naming an instrument exists, so
         the qualifier is needed."""
-        comply = self.draft_html["draft/comply/index.html"]
+        comply = self.draft_html["comply/index.html"]
         self.assertIn(
             "A row opens the instrument's crosswalk page; the count beside it "
             "is the library documents the matrices map to it or whose "
@@ -7773,7 +7835,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         unaliased = sorted(n for n in names if cobit.search(n)
                            and not self.mod.crosswalk_alias_keys(n))
         self.assertIn("COBIT 2019 DSS05", unaliased)
-        page = self.draft_html["draft/crosswalk/cobit/index.html"]
+        page = self.draft_html["crosswalk/cobit/index.html"]
         self.assertIn("through the committed alias map.</p>", page)
 
     def test_alias_comment_scopes_the_clause_rule_to_concern_pages(self):
@@ -8014,7 +8076,7 @@ class DraftRefusalGuardTests(unittest.TestCase):
         for what, snippet in cases.items():
             with self.subTest(what=what):
                 with self.assertRaisesRegex(self.mod.BuildError, "refusal"):
-                    self.mod.refuse_draft_page("draft/x.html", snippet)
+                    self.mod.refuse_draft_page("x.html", snippet)
 
     def test_each_entity_encoded_dash_spelling_raises(self):
         """Round-2 WARN: an entity-encoded dash would render as a dash and
@@ -8038,12 +8100,12 @@ class DraftRefusalGuardTests(unittest.TestCase):
             with self.subTest(spelling=spelling):
                 with self.assertRaisesRegex(self.mod.BuildError, "refusal"):
                     self.mod.refuse_draft_page(
-                        "draft/x.html", f"<p>a {spelling} b</p>")
+                        "x.html", f"<p>a {spelling} b</p>")
 
     def test_clean_page_and_external_script_pass(self):
         self.mod.refuse_draft_page(
-            "draft/x.html",
-            '<p>Clean.</p><script src="/draft/assets/baseline/copy.js" '
+            "x.html",
+            '<p>Clean.</p><script src="/assets/baseline/copy.js" '
             "defer></script>",
         )
 
@@ -8054,7 +8116,7 @@ class DraftRefusalGuardTests(unittest.TestCase):
         semicolon is one HTML5 does not decode (&ndash and &mdash are not in
         the legacy no-semicolon list), so it stays text and is accepted."""
         self.mod.refuse_draft_page(
-            "draft/x.html",
+            "x.html",
             "<p>Write &amp;ndash; or &amp;#8211; here, or the undecoded "
             "&ndash and &mdash forms.</p>")
 
@@ -8073,20 +8135,23 @@ class DraftRefusalGuardTests(unittest.TestCase):
                 encoding="utf-8",
             )
             variant = mod.Variant(
-                "draft-fixture", str(doctored), "draft/", indexable=False,
+                "draft-fixture", str(doctored), "", indexable=False,
                 document_routes=True, pages=mod.DRAFT_PAGES, draft_rules=True,
             )
             with self.assertRaisesRegex(mod.BuildError, "em dash"):
                 mod.render_variant(figures, variant)
 
-    def test_guard_is_scoped_to_the_draft(self):
+    def test_non_draft_variant_has_no_renderer(self):
+        # Replaces test_guard_is_scoped_to_the_draft at promotion: the live
+        # v1 tree the guard was scoped against is removed, so the scoping
+        # property is void; what remains to pin is that the render path
+        # refuses a variant outside the guard loudly instead of rendering it
+        # unguarded.
         mod = self.mod
         figures = mod.compute_figures()
-        v1 = mod.VARIANTS[0]
-        pages = dict(mod.render_variant(figures, v1))
-        self.assertIn("<style", pages["index.html"],
-                      "the live tree keeps its inline style partial, so the "
-                      "guard must stay draft-scoped")
+        plain = mod.Variant("plain", "templates-draft", "", indexable=True)
+        with self.assertRaisesRegex(mod.BuildError, "no renderer"):
+            mod.render_variant(figures, plain)
 
 
 class DraftNarrativeShellTests(unittest.TestCase):
@@ -8618,23 +8683,23 @@ class DraftLoadedScriptsTests(unittest.TestCase):
 
     def test_names_every_baseline_script_once_sorted(self):
         pages = [
-            '<script src="/draft/assets/baseline/rail.js" defer></script>'
-            '<script src="/draft/assets/baseline/copy.js" defer></script>',
-            '<script src="/draft/assets/baseline/copy.js" defer></script>',
+            '<script src="/assets/baseline/rail.js" defer></script>'
+            '<script src="/assets/baseline/copy.js" defer></script>',
+            '<script src="/assets/baseline/copy.js" defer></script>',
         ]
         self.assertEqual(
-            self.mod.draft_loaded_scripts(pages, "/draft/assets/baseline/"),
+            self.mod.draft_loaded_scripts(pages, "/assets/baseline/"),
             ["copy.js", "rail.js"])
 
     def test_script_outside_the_baseline_fails(self):
-        for src in ("/elsewhere/x.js", "/draft/assets/other.js",
-                    "/draft/assets/baseline/nested/x.js"):
+        for src in ("/elsewhere/x.js", "/assets/other.js",
+                    "/assets/baseline/nested/x.js"):
             with self.subTest(src=src):
                 with self.assertRaisesRegex(self.mod.BuildError,
                                             "not a baseline asset"):
                     self.mod.draft_loaded_scripts(
                         [f'<script src="{src}" defer></script>'],
-                        "/draft/assets/baseline/")
+                        "/assets/baseline/")
 
 
 class BaselinePinGateTests(unittest.TestCase):
@@ -8807,11 +8872,12 @@ class StickyTableBoundFixtureTests(unittest.TestCase):
 
 
 class MatrixScriptFixtureTests(unittest.TestCase):
-    """6: the matrix.js loading rule (spec section 7.30 and section 8), on
-    fixtures, so the render test above cannot pass while no draft page has a
+    """6: the rule that matrix.js loads exactly on a page with a matrix
+    (spec section 7.30 and section 8), on fixtures, so the render test above
+    cannot pass while no rendered page has a
     matrix (round-1 ERROR: False equalled False on every page)."""
 
-    SCRIPT = '<script src="/draft/assets/baseline/matrix.js" defer></script>'
+    SCRIPT = '<script src="/assets/baseline/matrix.js" defer></script>'
     MATRIX = ('<div class="tablewrap bounded" tabindex="0">'
               '<table class="matrix sticky sticky-col" data-matrix></table>'
               "</div>")
@@ -9408,6 +9474,12 @@ class DraftTemplateTypedCountTests(unittest.TestCase):
         # The shared family footer's fixed site-list label: the baseline
         # owns that wording, outside this site's copy.
         r'aria-label="The 6 project sites"',
+        # The contributors page's carried-over prose (the old About page's
+        # contributor content, maintainer decision 2026-11-04 item 3): a
+        # decade written as prose and a contributor's GitHub handle, neither
+        # a corpus count.
+        r"\bthe early 2000s\b",
+        r"\b0xbja\b",
     )
 
     def _typed_number(self, text):
@@ -9436,6 +9508,14 @@ class DraftTemplateTypedCountTests(unittest.TestCase):
         sources = sorted(template_root.rglob("*.html"))
         self.assertTrue(sources, "no draft template sources found")
         for path in sources:
+            if path.name == "for-ai.html":
+                # The carried-over For-AI page (maintainer decision
+                # 2026-11-04 item 4) types standard editions, statute
+                # numbers and memo numbers by design; its OWASP and EU AI
+                # Act edition lines are governed by the stale-editions
+                # check in build.py --check, not by the typed-count rule,
+                # and none of its numbers is a corpus count.
+                continue
             match, text = self._typed_number(
                 path.read_text(encoding="utf-8"))
             if match:
@@ -9568,6 +9648,110 @@ class DraftTestSectionNumberTests(unittest.TestCase):
             faults,
             [f"BadAnd: docstring number {top + 1} names no docstring item",
              f"BadRange: docstring number {top + 1} names no docstring item"])
+
+
+class PromotedRouteCoverageTests(unittest.TestCase):
+    """The durable promotion route-coverage pin (draft-site promotion,
+    maintainer decisions 2026-11-04), replacing the retired frozen-root
+    byte-identity test: every URL the pre-promotion live root served (the 33
+    sitemap URLs plus the error page and the root files, each pinned below
+    as a literal, never derived) must resolve to a rendered output of the
+    promoted site or redirect, in one hop through the emitted ``_redirects``,
+    to a rendered output or an allow-listed external URL; and every
+    pre-promotion /draft/ path must map through the splat rule to an
+    existing output."""
+
+    # The pre-promotion live root inventory, pinned as literals: the 33
+    # sitemap URLs (the 4 fixed pages, 12 domain pages, 17 type pages) plus
+    # 404.html and the root files. /about/, /pack/ and /for-ai/ are the three
+    # retired-or-carried fixed pages of the old root.
+    PRE_PROMOTION_URLS = (
+        "/", "/about/", "/pack/", "/for-ai/",
+        "/ai/", "/privacy/", "/security/", "/governance/", "/compliance/",
+        "/crypto/", "/operations/", "/resilience/", "/supply-chain/",
+        "/dev-security/", "/risk/", "/architecture/",
+        "/types/annex/", "/types/charter/", "/types/checklist/",
+        "/types/framework/", "/types/guide/", "/types/guideline/",
+        "/types/matrix/", "/types/plan/", "/types/policy/",
+        "/types/principle/", "/types/procedure/", "/types/register/",
+        "/types/roadmap/", "/types/sop/", "/types/specification/",
+        "/types/standard/", "/types/template/",
+        "/404.html", "/robots.txt", "/sitemap.xml", "/llms.txt",
+        "/_headers", "/.well-known/security.txt",
+    )
+    # External redirect targets the coverage pin accepts (maintainer
+    # decision 2026-11-04 item 2: /pack/ goes to the AIQT project).
+    ALLOWED_EXTERNAL = frozenset({"https://aiqt.ai/"})
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_build()
+        cls.figures = cls.mod.compute_figures()
+        cls.site_pages = cls.mod.render_site(cls.figures)
+        cls.outputs = {rel for rel, _ in cls.site_pages}
+        redirects = [c for rel, c in cls.site_pages if rel == "_redirects"]
+        assert len(redirects) == 1
+        cls.rules = []
+        for line in redirects[0].splitlines():
+            src, dst, status = line.split(" ")
+            cls.rules.append((src, dst, status))
+
+    def _lookup(self, url):
+        """The rendered output a site URL serves, or None."""
+        rel = _page_rel_for(url)
+        return rel if rel in self.outputs else None
+
+    def _resolve(self, url):
+        """The rendered output or allow-listed external URL ``url`` reaches,
+        directly or through at most one _redirects hop; None if it 404s."""
+        for src, dst, status in self.rules:
+            if src.endswith("/*") and url.startswith(src[:-1]):
+                self.assertEqual(status, "301", src)
+                target = dst.replace(":splat", url[len(src) - 1:])
+                return self._lookup(target)
+            if url == src:
+                self.assertEqual(status, "301", src)
+                if dst in self.ALLOWED_EXTERNAL:
+                    return dst
+                self.assertFalse(dst.startswith("http"),
+                                 f"{src}: external target {dst} is not "
+                                 "allow-listed")
+                return self._lookup(dst)
+        return self._lookup(url)
+
+    def test_redirect_rules_are_exactly_the_decided_three(self):
+        self.assertEqual(self.rules, [
+            ("/draft/*", "/:splat", "301"),
+            ("/about/", "/contributors/", "301"),
+            ("/pack/", "https://aiqt.ai/", "301"),
+        ])
+
+    def test_every_pre_promotion_root_url_resolves_or_redirects(self):
+        for url in self.PRE_PROMOTION_URLS:
+            with self.subTest(url=url):
+                self.assertIsNotNone(
+                    self._resolve(url),
+                    f"{url}: served by the old root, resolves to nothing on "
+                    "the promoted site")
+        # The two redirect-only addresses land where the maintainer decided.
+        self.assertEqual(self._resolve("/about/"), "contributors/index.html")
+        self.assertEqual(self._resolve("/pack/"), "https://aiqt.ai/")
+        # The carried-over page serves directly, not via a redirect.
+        self.assertEqual(self._lookup("/for-ai/"), "for-ai/index.html")
+
+    def test_every_pre_promotion_draft_path_maps_through_the_splat(self):
+        variant = next(v for v in self.mod.VARIANTS if v.draft_rules)
+        rendered = self.mod.render_variant(self.figures, variant)
+        self.assertTrue(rendered)
+        for rel, _ in rendered:
+            out_rel = self.mod.output_rel_for(variant, rel)
+            old_url = "/draft/" + self.mod._site_path_for(
+                variant, out_rel).lstrip("/")
+            with self.subTest(url=old_url):
+                self.assertEqual(
+                    self._resolve(old_url), out_rel,
+                    f"{old_url}: the pre-promotion draft address must map "
+                    "through the splat to its promoted output")
 
 
 if __name__ == "__main__":
