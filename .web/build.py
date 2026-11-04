@@ -3812,6 +3812,10 @@ CROSSWALK_COMPLIANCE_COLUMNS = (
 # still being populated, with the condition on that column's N/A (batch 3
 # round 4 item 1). The AICPA TSC instrument page says the column is being
 # populated only while the matrix carries this sentence, so it is pinned here.
+# It may stand only in the reading-guide paragraph: anywhere else in the
+# matrix it fails the build (batch 3 follow-up round 2 item 1). A reworded
+# status outside the "How to use this matrix" section is not read and does
+# not fail the build.
 CROSSWALK_TSC_POPULATING = (
     "The AICPA TSC 2017 column is being populated domain by domain; until a "
     "row's Trust Services Criteria mapping has been assessed, its \"N/A\" in "
@@ -3824,8 +3828,8 @@ CROSSWALK_TSC_POPULATING = (
 # (the column is not being populated) or this, a space, and
 # CROSSWALK_TSC_POPULATING (it is), and any other text fails the build, so no
 # rewording of the status can pass as either form. It is found by position,
-# the first paragraph after the table whose header is
-# CROSSWALK_COMPLIANCE_KEY_HEADER, never by its own words.
+# the last paragraph of the "How to use this matrix" section pinned below,
+# never by its own words.
 CROSSWALK_TSC_READING_GUIDE = (
     "Read across a row to identify which frameworks a given document "
     "supports. Read down a column to identify which GRC library documents "
@@ -3837,9 +3841,91 @@ CROSSWALK_TSC_READING_GUIDE = (
     "documents whose subject is not customs or trade security."
 )
 
-# The header of the compliance matrix's framework column key table, the
-# anchor of its reading-guide paragraph.
+# The header of the compliance matrix's framework column key table; the
+# matrix carries exactly one table with this header.
 CROSSWALK_COMPLIANCE_KEY_HEADER = ("Column", "Framework", "Reference Basis")
+
+# The compliance matrix's "How to use this matrix" section, pinned whole from
+# its heading to the --- that ends it (batch 3 follow-up round 2 item 1): the
+# heading, a blank line, CROSSWALK_TSC_SECTION_OPENING (the intro and
+# representative-citation paragraphs and the framework column key list), a
+# blank line, the reading-guide paragraph in one of its two forms, a blank
+# line and ---. Any other text in the section fails the build, so the status
+# sentence moved or reworded into the intro paragraph, a paragraph of its
+# own, or a key table row, old or new, cannot drop the caveat. Editing this
+# section of the matrix means editing this pin with it.
+CROSSWALK_TSC_SECTION_HEADING = "## How to use this matrix"
+CROSSWALK_TSC_SECTION_OPENING = "\n".join((
+    "This matrix maps GRC library documents to the control domains and "
+    "section references of ten compliance, security, assurance, and "
+    "AI-control frameworks. Each row represents one GRC library document. "
+    "Each framework column lists the control identifiers, domains, or "
+    "section references that the document materially supports.",
+    "",
+    "**Citations are indicative, not exhaustive (representative-citation "
+    "convention).** The identifiers in each framework column are a "
+    "REPRESENTATIVE selection that best characterizes how the document "
+    "aligns to that framework; they are not an exhaustive reproduction of, "
+    "and need not appear verbatim in, the referenced document. A document "
+    "commonly expresses its own control coverage at a different granularity "
+    "or as a different subset (or carries no same-framework identifiers of "
+    "its own at all), so a control named here may be an indicative example "
+    "of the domain's applicability rather than a code the document itself "
+    "cites. Consequently, an advisory stranded-code scan that compares a "
+    "cell against the referenced document's own codes may list a cited "
+    "identifier as a \"candidate\"; under this convention that is expected "
+    "and is not, by itself, a defect. A cited identifier is still expected "
+    "to be a real control of its framework and to materially fit the row's "
+    "subject: literal absence from the referenced document is permitted by "
+    "this convention, but a fabricated (non-existent) code or a genuine "
+    "wrong-fit is not, and the corpus's citation-validity and periodic "
+    "semantic-fit checks address those separately (to the extent each "
+    "framework column is covered). Where a citation uses a control-family "
+    "RANGE (for example a domain's NN-01 through NN-14), the range expresses "
+    "broad family coverage and does not assert that every member "
+    "individually applies to the row; narrower direct citations elsewhere "
+    "identify the strongest specific mappings. A family range is split or "
+    "enumerated, however, to exclude any member whose source specification "
+    "imposes a cloud provider's duty to its service customers or tenants "
+    "where the citing document is internal in scope.",
+    "",
+    "**Framework column keys:**",
+    "",
+    "| Column | Framework | Reference Basis |",
+    "| --- | --- | --- |",
+    "| CSA CCM v4.1 | Cloud Security Alliance Cloud Controls Matrix v4.1 | "
+    "Control domain identifiers (e.g., IAM, SEF, DSP) |",
+    "| CSA AICM v1.1 | Cloud Security Alliance AI Controls Matrix v1.1, the "
+    "AI-focused extension of CCM v4.1 | AI-specific control identifiers only "
+    "(the AICM-only delta: the MDS Model Security domain plus the "
+    "AI-specific AIS, GRC, DSP, HRS, IAM, LOG, and TVM controls). CCM-base "
+    "controls remain in the CSA CCM v4.1 column; this column carries the "
+    "AI-specific additions, so it is N/A for documents with no AI dimension |",
+    "| ISO/IEC 27001:2022 | ISO/IEC 27001:2022 | Annex A control numbers and "
+    "§4 to §10 clauses; ISO/IEC 27002:2022 is the supporting implementation "
+    "guidance for the Annex A controls, not a separate column |",
+    "| NIST CSF 2.0 | NIST Cybersecurity Framework 2.0 | Category "
+    "identifiers (e.g., GV.SC, ID.RA, DE.AE) within the six Core Functions "
+    "(GV, ID, PR, DE, RS, RC) |",
+    "| CTPAT | C-TPAT | Section headings |",
+    "| PIP | Partners in Protection (Canada Border Services Agency) | "
+    "Programme requirement areas |",
+    "| BASC v6 | BASC (Business Alliance for Secure Commerce): the Norm "
+    "V6-2022 (CSMS, §4 to §9.4) and the applicable Security Standard "
+    "6.0.2/6.0.3 (§1 to §5) | Clause references; each cell names the "
+    "instrument (Norm or Security Standard) so the clause resolves |",
+    "| WCO SAFE | WCO SAFE Framework of Standards | Pillar and standard "
+    "references |",
+    "| AEO/AEO-S | UK HMRC Authorized Economic Operator (Security and "
+    "Safety) | Requirement area headings |",
+    "| AICPA TSC 2017 | AICPA 2017 Trust Services Criteria (TSP Section "
+    "100), the criteria used to evaluate controls in a SOC 2 examination; "
+    "the 2022 revision updated the points of focus, not the criteria | "
+    "Criterion identifiers only: CC1.1 to CC9.2 (common criteria), A1.1 to "
+    "A1.3 (Availability), C1.1 to C1.2 (Confidentiality), PI1.1 to PI1.5 "
+    "(Processing Integrity), and P1.1 to P8.1 (Privacy); never a category "
+    "name or a privacy group heading such as P1.0 |",
+))
 
 # Representative identifiers shown per cell before "and more" (design C 3.3
 # caps a cell at roughly six).
@@ -6012,54 +6098,131 @@ def parse_compliance_matrix(text):
 def parse_compliance_tsc_status(text):
     """Whether the compliance alignment matrix says its AICPA TSC 2017 column
     is being populated (batch 3 round 4 item 1), read from its reading-guide
-    paragraph alone, the first paragraph after the framework column key table
-    (batch 3 round 6 item 1). That paragraph must be exactly one of two
-    forms: CROSSWALK_TSC_READING_GUIDE, a space and CROSSWALK_TSC_POPULATING
-    (True), or CROSSWALK_TSC_READING_GUIDE alone (False). Any other text in
-    it, the key table or the paragraph missing, or a second key table, is a
-    BuildError, so a reworded, moved or added sentence fails the build
-    instead of dropping the caveat. The rest of the matrix is not read."""
+    paragraph alone (batch 3 round 6 item 1), the last paragraph of its "How
+    to use this matrix" section. That section, from its heading to the ---
+    that ends it, is pinned whole (batch 3 follow-up round 2 item 1): it must
+    read exactly CROSSWALK_TSC_SECTION_HEADING, CROSSWALK_TSC_SECTION_OPENING
+    and the reading-guide paragraph, each followed by a blank line, then ---,
+    with the paragraph in one of two forms: CROSSWALK_TSC_READING_GUIDE, a
+    space and CROSSWALK_TSC_POPULATING (True), or CROSSWALK_TSC_READING_GUIDE
+    alone (False).
+
+    Each of these is a BuildError naming the matrix file: any other text in
+    that section, so the status sentence moved or reworded into the intro
+    paragraph, into a paragraph of its own anywhere in the section, or into
+    a key table row, old or new; the heading missing or repeated, or no ---
+    after it; a second framework column key table anywhere in the matrix;
+    and CROSSWALK_TSC_POPULATING anywhere outside the section (the document
+    header, after the section's closing ---, Notes, a domain table, the end
+    of the file), compared with each run of whitespace as one space, so a
+    copy reflowed over several lines counts too.
+
+    Not refused: a reworded status sentence outside the section (any text
+    other than CROSSWALK_TSC_POPULATING up to whitespace). Telling one from
+    an unrelated sentence would take phrase matching, which rounds 4 and 5
+    showed misses rewordings and fails the build on an unrelated "populated"
+    (batch 3 round 6 item 2), so outside the section the matrix is read for
+    that one sentence alone and the status comes from the section."""
     forms = {
         f"{CROSSWALK_TSC_READING_GUIDE} {CROSSWALK_TSC_POPULATING}": True,
         CROSSWALK_TSC_READING_GUIDE: False,
     }
     populating, bare = forms
     accepted = (
-        "the compliance matrix's reading-guide paragraph (the first "
-        "paragraph after its framework column key table) must be exactly "
-        "one of two forms, CROSSWALK_TSC_READING_GUIDE followed by a space "
+        "its \"How to use this matrix\" section, from its heading to the --- "
+        "that ends it, must read exactly CROSSWALK_TSC_SECTION_HEADING, "
+        "CROSSWALK_TSC_SECTION_OPENING and its reading-guide paragraph, each "
+        "followed by a blank line, then ---, with the reading-guide paragraph "
+        "in one of two forms, CROSSWALK_TSC_READING_GUIDE followed by a space "
         "and CROSSWALK_TSC_POPULATING (the AICPA TSC 2017 column is being "
         "populated) or CROSSWALK_TSC_READING_GUIDE alone (it is not): "
         f"form 1: {populating} form 2: {bare}"
     )
+    # The instruction is one fixed sentence (batch 3 follow-up round 4
+    # item 1): naming one constant by similarity or line position named
+    # the reading guide for a reworded status sentence, so updating it
+    # passed with the status False, and on a layout line named a
+    # constant that cannot make the section pass. The status rule names
+    # every other pinned constant (batch 3 follow-up round 5 item 1): a
+    # status sentence moved into the opening or a paragraph of its own
+    # passes once that constant is updated, with the status False. Every
+    # section error carries both (batch 3 follow-up round 6 item 1): a
+    # status sentence moved into the heading takes the heading count
+    # error, and passes once the heading is updated, with the status False.
+    update = (
+        "if the edit is intended, update the pinned text in .web/build.py "
+        "(CROSSWALK_TSC_SECTION_HEADING, CROSSWALK_TSC_SECTION_OPENING, "
+        "CROSSWALK_TSC_READING_GUIDE, CROSSWALK_TSC_POPULATING; the blank "
+        "lines between the heading, the opening, the reading-guide "
+        "paragraph and the closing --- are fixed in "
+        "parse_compliance_tsc_status); a status sentence, changed or moved, "
+        "belongs only in CROSSWALK_TSC_POPULATING at the end of the "
+        "reading-guide line, never in CROSSWALK_TSC_SECTION_HEADING, "
+        "CROSSWALK_TSC_SECTION_OPENING or CROSSWALK_TSC_READING_GUIDE, "
+        "because the section without it records the AICPA TSC 2017 column "
+        "as no longer being populated; "
+    )
+    where = f"crosswalk: {CROSSWALK_COMPLIANCE_MATRIX_PATH}:"
     lines = text.splitlines()
+    heads = [i for i, line in enumerate(lines)
+             if line == CROSSWALK_TSC_SECTION_HEADING]
+    if len(heads) != 1:
+        raise BuildError(
+            f"{where} {len(heads)} {CROSSWALK_TSC_SECTION_HEADING!r} headings "
+            f"instead of one; {update}{accepted}"
+        )
+    start = heads[0]
+    end = next((i for i in range(start, len(lines)) if lines[i] == "---"),
+               None)
+    if end is None:
+        raise BuildError(
+            f"{where} no --- after {CROSSWALK_TSC_SECTION_HEADING!r} ends "
+            f"its section; {update}{accepted}"
+        )
+    found = lines[start:end + 1]
+    pinned = {
+        status: [CROSSWALK_TSC_SECTION_HEADING, "",
+                 *CROSSWALK_TSC_SECTION_OPENING.split("\n"), "",
+                 paragraph, "", "---"]
+        for paragraph, status in forms.items()
+    }
+    status = next((s for s, want in pinned.items() if found == want), None)
+    if status is None:
+        # The first line off the pin, the reading-guide line in either form.
+        # Both lists end at their only line that is exactly ---, so they
+        # differ before either ends.
+        want = pinned[False]
+        at = next(n for n, (got, line) in enumerate(zip(found, want))
+                  if got != line and not (line == bare and got == populating))
+        # At the reading-guide line the pin is shown in the populating form
+        # when the found line is the reading guide with more text after it.
+        expected = want[at]
+        if (at == len(want) - 3 and found[at].startswith(bare)
+                and found[at] != bare):
+            expected = populating
+        raise BuildError(
+            f"{where} line {start + at + 1} reads {found[at]!r} where the "
+            f"pin has {expected!r}; {update}{accepted}"
+        )
     keys = [i for i, line in enumerate(lines)
             if line.strip().startswith("|")
             and tuple(_xw_table_cells(line)) == CROSSWALK_COMPLIANCE_KEY_HEADER]
     if len(keys) != 1:
         raise BuildError(
-            f"crosswalk: the compliance matrix has {len(keys)} framework "
-            "column key tables (header "
-            f"{' | '.join(CROSSWALK_COMPLIANCE_KEY_HEADER)}) instead of one, "
-            f"so its reading-guide paragraph cannot be found; {accepted}"
+            f"{where} {len(keys)} framework column key tables (header "
+            f"{' | '.join(CROSSWALK_COMPLIANCE_KEY_HEADER)}) instead of one; "
+            f"{accepted}"
         )
-    i = keys[0]
-    while i < len(lines) and lines[i].strip().startswith("|"):
-        i += 1
-    while i < len(lines) and not lines[i].strip():
-        i += 1
-    paragraph = []
-    while i < len(lines) and lines[i].strip():
-        paragraph.append(lines[i])
-        i += 1
-    found = "\n".join(paragraph)
-    if found not in forms:
-        if not paragraph or paragraph[0].startswith(("#", "---", "|")):
-            found = "no paragraph"
-        else:
-            found = repr(found)
-        raise BuildError(f"crosswalk: {accepted}; found {found}")
-    return forms[found]
+    outside = (" ".join(text.split()).count(CROSSWALK_TSC_POPULATING)
+               - int(status))
+    if outside:
+        raise BuildError(
+            f"{where} CROSSWALK_TSC_POPULATING stands {outside} time(s) "
+            "outside the reading-guide paragraph (each run of whitespace "
+            "read as one space); it may stand only there, as form 1; "
+            f"{accepted}"
+        )
+    return status
 
 
 def parse_reverse_matrix(text):

@@ -307,6 +307,17 @@ What is locked here, each test failing without its feature:
    fails the build, and wording elsewhere in the matrix is not read, so an
    unrelated "populated" there passes; and no compliance matrix column can
    have 0 rows.
+38. Batch 3 follow-up: the compliance matrix's "How to use this matrix"
+   section is pinned whole, from its heading to the --- that ends it, in
+   its two forms, so the status sentence moved or reworded anywhere in that
+   section (the intro paragraph, a paragraph of its own above the key list
+   or after the reading-guide paragraph, a key table row, old or new) fails
+   the build; the exact status sentence anywhere else in the matrix (the
+   document header, after the section's ---, Notes, the end of the file)
+   fails the build too, while a reworded status outside the section is not
+   refused, so the build passes without the caveat; and the 404 page lead
+   names each top bar link, in the bar's order, by its exact label, or,
+   for a label listed in _404_LEAD_FORMS, by that fixed form only.
 """
 
 from __future__ import annotations
@@ -5231,7 +5242,28 @@ class DraftSiteRenderTests(unittest.TestCase):
         Batch 3 round 6 item 2 (NOTE): no phrase is matched any more, so an
         unrelated "populated" elsewhere in the matrix ("Every CTPAT cell is
         populated for logistics rows.") leaves the build passing with the
-        paragraph's status."""
+        paragraph's status.
+
+        Batch 3 follow-up items 1 to 3 (WARN): the paragraph was read only up
+        to its first blank line, so the status sentence moved into a
+        paragraph of its own after it (probe A04), or replaced by a reworded
+        one there (probe A05), passed with the status False.
+
+        Batch 3 follow-up round 2 item 1 (WARN): round 1 still passed with
+        the status False when the sentence moved before the key table or
+        into another key row. The whole "How to use this matrix" section is
+        pinned in its two forms, and every refusal names the matrix file.
+        Refused in the section: either probe, nothing after the paragraph,
+        no blank line between the key table and the paragraph, and the
+        sentence moved into the intro paragraph, into a paragraph of its own
+        above the key list (also reworded), into the AICPA TSC 2017 key row
+        or another key row, or into a new key row, or that row missing, or
+        the section heading reworded or repeated.
+        Refused outside it: the exact sentence after the section's ---, in
+        Notes (also reflowed over two lines), in the document header, at the
+        end of the file, and as a second copy beside the current one. Not
+        refused, a disclosed limit: a reworded status after the section's
+        --- or in Notes passes with the status False."""
         source = self.mod.CROSSWALK_COMPLIANCE_MATRIX.read_text(
             encoding="utf-8")
         guide = self.mod.CROSSWALK_TSC_READING_GUIDE
@@ -5242,6 +5274,10 @@ class DraftSiteRenderTests(unittest.TestCase):
         notes = "## Notes\n\n"
         self.assertEqual(source.count(notes), 1)
         ctpat = "Every CTPAT cell is populated for logistics rows."
+        reworded = ("The AICPA TSC 2017 mappings are being filled in domain "
+                    "by domain.")
+        divider = "---\n\n## Notes"
+        self.assertEqual(source.count(divider), 1)
         accepted = (
             ("current paragraph", source, True),
             ("sentence removed", bare, False),
@@ -5250,6 +5286,12 @@ class DraftSiteRenderTests(unittest.TestCase):
             ("CTPAT populated, sentence removed",
              bare.replace(notes, f"{notes}{ctpat}\n\n"), False),
             ("CTPAT populated at the end", f"{source}\n{ctpat}\n", True),
+            # Disclosed limit, not a requirement: a reworded status outside
+            # the pinned section is not read.
+            ("reworded status after the section's ---",
+             bare.replace(divider, f"---\n\n{reworded}\n\n## Notes"), False),
+            ("reworded status in Notes",
+             bare.replace(notes, f"{notes}{reworded}\n\n"), False),
         )
         for case, text, status in accepted:
             with self.subTest(case=case):
@@ -5276,7 +5318,14 @@ class DraftSiteRenderTests(unittest.TestCase):
             ("missing", None),
             ("key table header changed", key),
             ("key table repeated", key),
+            ("A04, sentence moved into a paragraph of its own",
+             f"{guide}\n\n{pinned}"),
+            ("A05, reworded sentence in a paragraph of its own",
+             f"{guide}\n\n{reworded}"),
+            ("nothing after the paragraph", None),
+            ("no blank line under the key table", None),
         )
+        path = self.mod.CROSSWALK_COMPLIANCE_MATRIX_PATH
         for case, para in refused:
             with self.subTest(case=case):
                 if case == "missing":
@@ -5286,14 +5335,80 @@ class DraftSiteRenderTests(unittest.TestCase):
                         key, "| Column | Framework | Basis |")
                 elif case == "key table repeated":
                     text = f"{source}\n{key}\n| --- | --- | --- |\n"
+                elif case == "nothing after the paragraph":
+                    text = source[:source.index(current) + len(current)] + "\n"
+                elif case == "no blank line under the key table":
+                    text = source.replace(f"\n\n{current}\n\n",
+                                          f"\n{current}\n\n")
                 else:
                     text = source.replace(current, para)
                 self.assertNotEqual(text, source)
                 with self.assertRaises(self.mod.BuildError) as raised:
                     self.mod.parse_compliance_tsc_status(text)
                 message = str(raised.exception)
+                self.assertIn(path, message)
                 self.assertIn("reading-guide paragraph", message)
                 self.assertIn(f"form 1: {current} form 2: {guide}", message)
+
+        opening = self.mod.CROSSWALK_TSC_SECTION_OPENING.split("\n")
+        row = [line for line in opening
+               if line.startswith("| AICPA TSC 2017 |")]
+        self.assertEqual(len(row), 1, "the key table's AICPA TSC 2017 row")
+        row = row[0]
+        ctpat_row = "| CTPAT | C-TPAT | Section headings |"
+        intro = "section references that the document materially supports."
+        key_list = "**Framework column keys:**"
+        header = "**License:** CC BY-SA 4.0\n"
+        for anchor in (f"{row}\n", ctpat_row, intro, key_list, header):
+            self.assertEqual(source.count(anchor), 1, anchor)
+        heading = f"{self.mod.CROSSWALK_TSC_SECTION_HEADING}\n"
+        self.assertEqual(source.count(heading), 1)
+        reflowed = pinned.replace("; until ", ";\nuntil ")
+        self.assertNotEqual(reflowed, pinned)
+        in_section = "where the pin has"
+        outside = "outside the reading-guide paragraph"
+        moved = (
+            ("kept, the section heading reworded",
+             source.replace(heading, "## How to read this matrix\n"),
+             "headings instead of one"),
+            ("kept, the section heading repeated", f"{source}\n{heading}",
+             "headings instead of one"),
+            ("into the intro paragraph",
+             bare.replace(intro, f"{intro} {pinned}"), in_section),
+            ("into its own paragraph above the key list",
+             bare.replace(key_list, f"{pinned}\n\n{key_list}"), in_section),
+            ("reworded, its own paragraph above the key list",
+             bare.replace(key_list, f"{reworded}\n\n{key_list}"), in_section),
+            ("into the AICPA TSC key row",
+             bare.replace(row, f"{row[:-2]} {pinned} |"), in_section),
+            ("into another key row",
+             bare.replace(ctpat_row, f"{ctpat_row[:-2]}; {pinned} |"),
+             in_section),
+            ("as a new key row",
+             bare.replace(f"{row}\n", f"{row}\n| AICPA TSC 2017 status | "
+                          f"{pinned} | Matrix status |\n"), in_section),
+            ("kept, the AICPA TSC key row removed",
+             source.replace(f"{row}\n", ""), in_section),
+            ("after the section's ---",
+             bare.replace(divider, f"---\n\n{pinned}\n\n## Notes"), outside),
+            ("into Notes", bare.replace(notes, f"{notes}{pinned}\n\n"),
+             outside),
+            ("into Notes, reflowed",
+             bare.replace(notes, f"{notes}{reflowed}\n\n"), outside),
+            ("into the document header",
+             bare.replace(header, f"{header}\n{pinned}\n"), outside),
+            ("at the end of the file", f"{bare}\n{pinned}\n", outside),
+            ("a second copy in Notes",
+             source.replace(notes, f"{notes}{pinned}\n\n"), outside),
+        )
+        for case, text, check in moved:
+            with self.subTest(case=f"status sentence {case}"):
+                self.assertNotEqual(text, source)
+                with self.assertRaises(self.mod.BuildError) as raised:
+                    self.mod.parse_compliance_tsc_status(text)
+                message = str(raised.exception)
+                self.assertIn(path, message)
+                self.assertIn(check, message)
 
     def test_crosswalk_compliance_matrix_refuses_an_empty_column(self):
         """Batch 3 round 6 item 3 (observation): with 0 rows the AICPA TSC
@@ -5319,6 +5434,200 @@ class DraftSiteRenderTests(unittest.TestCase):
         with self.assertRaisesRegex(self.mod.BuildError,
                                     "missing domain section"):
             self.mod.parse_compliance_matrix(source.replace(heading, ""))
+
+    # -- 38. batch 3 follow-up ----------------------------------------------
+
+    # The 404 lead's fixed form for each top bar link it does not name by its
+    # exact label (batch 3 follow-up round 2 item 2); every other lead item
+    # must equal its bar label.
+    _404_LEAD_FORMS = {
+        "Crosswalk": "the crosswalk",
+        "Search": "the search page",
+        "GitHub": "the GitHub repository",
+    }
+
+    def _404_lead_problems(self, bar, page):
+        """What keeps the 404 lead from naming the bar's links, in order."""
+        nav = re.findall(r'<nav class="nav"[^>]*>(.*?)</nav>', bar, re.S)
+        if len(nav) != 1:
+            return [f"the top bar has {len(nav)} site navs"]
+        labels = [re.sub(r'<span class="vh">.*?</span>', "", link).strip()
+                  for link in re.findall(r"<a [^>]*>(.*?)</a>", nav[0], re.S)]
+        lead = re.findall(r'<p class="lead">(.*?)</p>', page, re.S)
+        if not labels or len(lead) != 1:
+            return [f"{len(labels)} bar links, {len(lead)} 404 leads"]
+        listed = re.fullmatch(r"(.*) are linked from the bar above\.",
+                              lead[0])
+        if listed is None:
+            return [f"lead {lead[0]!r}"]
+        items = re.split(r", (?:and )?", listed.group(1))
+        if len(items) != len(labels):
+            return [f"lead items {items} for bar links {labels}"]
+        return [f"lead item {item!r} for bar link {label!r}"
+                for item, label in zip(items, labels)
+                if item != self._404_LEAD_FORMS.get(label, label)]
+
+    def test_404_lead_names_every_top_bar_link(self):
+        """Batch 3 follow-up item 4: the 404 page's lead lists the links of
+        the top bar, one item per bar link in the bar's order, so renaming,
+        adding or removing a bar link without updating the lead fails.
+
+        Batch 3 follow-up round 2 item 2 (NOTE): round 1 matched each label
+        as a case-insensitive word in its item, so renaming the bar's All
+        Documents to Documents passed. Each item names its bar link by its
+        exact label, or, for a label listed in _404_LEAD_FORMS, by that fixed
+        form only.
+        Flip samples, each failing: that rename, a lead item reworded ("the
+        crosswalks"), and a bar link renamed while the lead keeps its old
+        fixed form (Search to Site search)."""
+        root = REPO_ROOT / ".web" / "templates-draft"
+        bar = (root / "partials" / "topbar.html").read_text(encoding="utf-8")
+        page = (root / "404.html").read_text(encoding="utf-8")
+        self.assertEqual(self._404_lead_problems(bar, page), [])
+        flips = (
+            ("bar All Documents renamed Documents",
+             bar.replace(">All Documents</a>", ">Documents</a>"), page),
+            ("lead item reworded",
+             bar, page.replace("the crosswalk,", "the crosswalks,")),
+            ("bar Search renamed Site search",
+             bar.replace(">Search</a>", ">Site search</a>"), page),
+        )
+        for case, flip_bar, flip_page in flips:
+            with self.subTest(case=case):
+                self.assertNotEqual((flip_bar, flip_page), (bar, page))
+                self.assertTrue(self._404_lead_problems(flip_bar, flip_page))
+
+    def test_crosswalk_section_pin_message_names_the_pin_to_update(self):
+        """Batch 3 follow-up round 3 item 1: round 2's section pin failure
+        message said only that the section must read exactly the pin, which
+        points an author who fixed a typo in the matrix toward reverting it.
+
+        Batch 3 follow-up round 4 item 1: round 3 named one constant to
+        update, chosen by similarity or line position, which for a reworded
+        status sentence named CROSSWALK_TSC_READING_GUIDE (updating it passes
+        with the status False and drops the caveat) and on a layout line
+        named a constant that cannot make the section pass. The message
+        gives the line, the text found there and the pinned text, in the
+        populating form at the reading-guide line when that line is the
+        reading guide with more text after it, then one fixed sentence for
+        every mismatch: update the pinned text in .web/build.py, the four
+        constants named, the blank lines and the closing --- fixed in
+        parse_compliance_tsc_status, and a changed status sentence goes in
+        CROSSWALK_TSC_POPULATING, never folded into
+        CROSSWALK_TSC_READING_GUIDE. Samples: a typo fixed in the status
+        sentence, the status sentence reworded, the bare reading guide and
+        the intro paragraph edited, the status sentence reflowed onto a line
+        of its own, and the blank line after the reading guide removed.
+
+        Batch 3 follow-up round 5 item 1: round 4 forbade folding a status
+        sentence only into CROSSWALK_TSC_READING_GUIDE, so one moved into a
+        paragraph of its own before the bare reading guide (P5) or onto the
+        end of the intro paragraph (P6) passed once that pin was updated,
+        with the status False. The status rule is independent of
+        destination: a status sentence, changed or moved, belongs only in
+        CROSSWALK_TSC_POPULATING at the end of the reading-guide line, never
+        in CROSSWALK_TSC_SECTION_HEADING, CROSSWALK_TSC_SECTION_OPENING or
+        CROSSWALK_TSC_READING_GUIDE. Round 5 item 2: the blank lines named
+        as fixed in parse_compliance_tsc_status are those between the
+        heading, the opening, the reading-guide paragraph and the closing
+        ---. Samples added: P5 and P6.
+
+        Batch 3 follow-up round 6 item 1: round 5 gave the instruction and
+        the status rule only in the line mismatch error, so a status
+        sentence moved into the section heading (P9) took the heading count
+        error without them, and passed once CROSSWALK_TSC_SECTION_HEADING
+        was updated, with the status False. Every section error carries
+        both. Sample added: P9."""
+        source = self.mod.CROSSWALK_COMPLIANCE_MATRIX.read_text(
+            encoding="utf-8")
+        guide = self.mod.CROSSWALK_TSC_READING_GUIDE
+        pinned = self.mod.CROSSWALK_TSC_POPULATING
+        current = f"{guide} {pinned}"
+        self.assertEqual(source.count(f"\n\n{current}\n\n"), 1)
+        bare = source.replace(current, guide)
+        intro = [line for line
+                 in self.mod.CROSSWALK_TSC_SECTION_OPENING.split("\n")
+                 if line.startswith("This matrix maps GRC library")]
+        self.assertEqual(len(intro), 1, "the intro paragraph")
+        intro = intro[0]
+        fixed = (
+            "if the edit is intended, update the pinned text in "
+            ".web/build.py (CROSSWALK_TSC_SECTION_HEADING, "
+            "CROSSWALK_TSC_SECTION_OPENING, CROSSWALK_TSC_READING_GUIDE, "
+            "CROSSWALK_TSC_POPULATING; the blank lines between the heading, the opening, "
+            "the reading-guide paragraph and the closing --- are fixed in "
+            "parse_compliance_tsc_status); "
+        )
+        rule = (
+            "a status sentence, changed or moved, belongs only in "
+            "CROSSWALK_TSC_POPULATING at the end of the reading-guide line, "
+            "never in CROSSWALK_TSC_SECTION_HEADING, "
+            "CROSSWALK_TSC_SECTION_OPENING or CROSSWALK_TSC_READING_GUIDE, "
+            "because the section without it records the AICPA TSC 2017 "
+            "column as no longer being populated; "
+        )
+        fixed += rule
+        moved = "The AICPA TSC 2017 column is still being filled in."
+        reworded = source.replace(current, f"{guide} {moved}")
+        # P5 and P6: the status reworded and moved out of the reading-guide
+        # line, which passes with the status False once its pin is updated.
+        placed = (
+            ("P5 status as its own paragraph before the bare reading guide",
+             source.replace(f"\n\n{current}\n\n",
+                            f"\n\n{moved}\n\n{guide}\n\n"),
+             guide),
+            ("P6 status appended to the intro paragraph",
+             bare.replace(intro, f"{intro} {moved}"), intro),
+        )
+        cases = (
+            ("typo fixed in the status sentence",
+             source.replace(pinned, pinned.replace("domain by domain",
+                                                   "domain-by-domain")),
+             current),
+            ("status sentence reworded", reworded, current),
+            ("bare reading guide edited",
+             bare.replace(guide, guide.replace("Read across a row",
+                                               "Read across each row")),
+             guide),
+            ("intro paragraph edited",
+             source.replace(intro, intro.replace("ten compliance",
+                                                 "eleven compliance")),
+             intro),
+            ("status sentence reflowed onto its own line",
+             source.replace(current, f"{guide}\n{pinned}"), ""),
+            ("blank line after the reading guide removed",
+             source.replace(f"\n\n{current}\n\n", f"\n\n{current}\n"), ""),
+            *placed,
+        )
+        for case, text, shown in cases:
+            with self.subTest(case=case):
+                self.assertNotEqual(text, source)
+                with self.assertRaises(self.mod.BuildError) as raised:
+                    self.mod.parse_compliance_tsc_status(text)
+                message = str(raised.exception)
+                self.assertIn(".web/build.py", message)
+                self.assertIn(f"where the pin has {shown!r}; {fixed}",
+                              message)
+        # P9: the status moved into the heading, which takes the heading
+        # count error and passes with the status False once its pin is
+        # updated.
+        heading = f"{self.mod.CROSSWALK_TSC_SECTION_HEADING}\n"
+        self.assertEqual(source.count(heading), 1)
+        headed = ("P9 status in the section heading",
+                  bare.replace(heading, f"{heading[:-1]} ({moved})\n"))
+        with self.subTest(case=headed[0]):
+            self.assertNotEqual(headed[1], source)
+            with self.assertRaises(self.mod.BuildError) as raised:
+                self.mod.parse_compliance_tsc_status(headed[1])
+            self.assertIn(f"headings instead of one; {fixed}",
+                          str(raised.exception))
+        for case, text in (("status sentence reworded", reworded),
+                           *((case, text) for case, text, _ in placed),
+                           headed):
+            with self.subTest(case=f"destination-independent rule: {case}"):
+                with self.assertRaises(self.mod.BuildError) as raised:
+                    self.mod.parse_compliance_tsc_status(text)
+                self.assertIn(rule, str(raised.exception))
 
     # -- 6. asset copy ------------------------------------------------------
 
