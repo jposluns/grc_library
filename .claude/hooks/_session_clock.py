@@ -1,11 +1,15 @@
 """Shared helper for the timestamp/duration console-rule hooks. NOT a hook itself.
 
-Maintainer-directed 2026-08-21: every message the assistant authors MUST begin with the current UTC
-timestamp `[YYYY-MM-DD HH:MMZ]` and end with the session duration `(session: Xh Ym)`. This helper
-computes those from the transcript (session start = earliest PARSED message timestamp), validates a
-message's FORMAT (real date, minutes 0-59), and checks the values are CURRENT (within a generous
-tolerance of now / the computed duration, to catch reused-stale or drifted values without spurious
-blocks). Self-contained (no _private / no network); every function fails soft.
+Maintainer-directed 2026-08-21: every message the assistant authors MUST begin with the current
+timestamp and end with the session duration `(session: Xh Ym)`. Since 2026-11-04 (maintainer and
+Architect) the stamp is Toronto local time with the zone abbreviation, `[YYYY-MM-DD HH:MM EST]` (EDT
+in summer), taken from the system zone database (zoneinfo America/Toronto), never a fixed offset.
+The earlier UTC form `[YYYY-MM-DD HH:MMZ]` no longer conforms (maintainer decision 2026-11-04).
+This helper computes the values from the transcript (session start = earliest PARSED message
+timestamp), validates a message's FORMAT (real date, minutes 0-59, the abbreviation the zone gives for
+that wall time), and checks the values are CURRENT (within a generous tolerance of now / the computed
+duration, to catch reused-stale or drifted values without spurious blocks). Self-contained (no
+_private / no network); every function fails soft.
 """
 from __future__ import annotations
 
@@ -13,10 +17,15 @@ import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
-# Anchored SHAPE, with capture groups; semantic validity (real date, minutes 0-59) is checked below.
-LEAD_RE = re.compile(r"^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})?)Z\]")
+# Anchored SHAPE, with capture groups: the stamp body, then the zone abbreviation.
+# Semantic validity (real date, minutes 0-59, abbreviation matching the zone) is checked below.
+LEAD_RE = re.compile(r"^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})?) ([A-Z]{3,4})\]")
 TAIL_RE = re.compile(r"\(session: (\d{1,5})h ([0-5]?\d)m\)\s*$")
+
+# The stamp zone, resolved through the system zone database at every use (never a fixed offset).
+STAMP_ZONE = "America/Toronto"
 
 # Staleness tolerance: the message's stamp must be within this of `now`, and its duration within
 # this of the computed duration. Generous enough that normal compose-to-Stop lag never false-blocks,
@@ -26,6 +35,14 @@ TOLERANCE_MIN = 10
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def _zone():
+    """The STAMP_ZONE tzinfo from the system zone database, or None when it is unavailable."""
+    try:
+        return ZoneInfo(STAMP_ZONE)
+    except Exception:
+        return None
 
 
 def _parse_iso(ts):
@@ -41,15 +58,35 @@ def _parse_iso(ts):
     return dt.astimezone(timezone.utc)
 
 
-def _parse_stamp(stamp_body: str):
+def _parse_stamp(stamp_body: str, abbr: str):
     """Parse the `YYYY-MM-DD HH:MM(:SS)` body of a message stamp to an aware UTC datetime, or None.
-    A structurally-shaped but impossible date (2026-02-31, 25:00) fails to parse -> None."""
+    The body is Toronto wall time and parses only when `abbr` is the abbreviation the zone database
+    gives for it (either fold of the repeated autumn hour). A structurally-shaped but impossible date
+    (2026-02-31, 25:00) or a wall time the spring change skips fails to parse -> None."""
     for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
         try:
-            return datetime.strptime(stamp_body, fmt).replace(tzinfo=timezone.utc)
+            naive = datetime.strptime(stamp_body, fmt)
         except Exception:
             continue
+        zone = _zone()
+        if zone is None:
+            return None
+        for fold in (0, 1):
+            local = naive.replace(tzinfo=zone, fold=fold)
+            utc = local.astimezone(timezone.utc)
+            if local.tzname() == abbr and utc.astimezone(zone).replace(tzinfo=None) == naive:
+                return utc
+        return None
     return None
+
+
+def format_stamp(now: datetime):
+    """`[YYYY-MM-DD HH:MM ABBR]` for the aware instant `now` in STAMP_ZONE, or None without the zone."""
+    zone = _zone()
+    if zone is None:
+        return None
+    local = now.astimezone(zone)
+    return f"[{local.strftime('%Y-%m-%d %H:%M')} {local.tzname()}]"
 
 
 def session_start_dt(transcript_path):
@@ -73,9 +110,12 @@ def session_start_dt(transcript_path):
 
 
 def stamp_and_duration(transcript_path, now: "datetime | None" = None):
-    """Return (stamp, duration). duration is None when the session start cannot be determined."""
+    """Return (stamp, duration). duration is None when the session start cannot be determined, and
+    both are None when the zone database lacks STAMP_ZONE (no stamp to require, so callers fail open)."""
     now = now or _now()
-    stamp = f"[{now.strftime('%Y-%m-%d %H:%M')}Z]"
+    stamp = format_stamp(now)
+    if stamp is None:
+        return None, None
     sd = session_start_dt(transcript_path)
     if sd is not None:
         m = max(int((now - sd).total_seconds() // 60), 0)
@@ -85,7 +125,7 @@ def stamp_and_duration(transcript_path, now: "datetime | None" = None):
 
 def _msg_stamp_dt(text: str):
     m = LEAD_RE.match(text.strip()) if isinstance(text, str) else None
-    return _parse_stamp(m.group(1)) if m else None
+    return _parse_stamp(m.group(1), m.group(2)) if m else None
 
 
 def _msg_duration_min(text: str):
@@ -137,23 +177,32 @@ def maintainer_env() -> bool:
 
 def _self_test() -> int:
     now = datetime(2026, 8, 21, 3, 0, 0, tzinfo=timezone.utc)
+    winter = datetime(2026, 1, 15, 17, 0, 0, tzinfo=timezone.utc)
     checks = [
-        ("conforms full", conforms("[2026-08-21 03:00Z] hi (session: 2h 21m)") is True),
-        ("conforms seconds", conforms("[2026-08-21 03:00:05Z] hi (session: 0h 3m)") is True),
+        ("conforms full", conforms("[2026-08-20 23:00 EDT] hi (session: 2h 21m)") is True),
+        ("conforms seconds", conforms("[2026-08-20 23:00:05 EDT] hi (session: 0h 3m)") is True),
+        ("conforms winter", conforms("[2026-01-15 12:00 EST] hi (session: 0h 3m)") is True),
+        ("summer EST rejected", conforms("[2026-08-20 23:00 EST] x (session: 1h 0m)") is False),
+        ("winter EDT rejected", conforms("[2026-01-15 12:00 EDT] x (session: 1h 0m)") is False),
+        ("skipped spring hour rejected", conforms("[2026-03-08 02:30 EST] x (session: 1h 0m)") is False),
+        ("legacy UTC rejected", conforms("[2026-08-21 03:00Z] hi (session: 2h 21m)") is False),
         ("no lead", conforms("hi (session: 2h 21m)") is False),
-        ("no tail", conforms("[2026-08-21 03:00Z] hi") is False),
+        ("no tail", conforms("[2026-08-20 23:00 EDT] hi") is False),
         ("empty ok", conforms("   ") is True),
-        ("bad duration text", conforms("[2026-08-21 03:00Z] x (session: bananas)") is False),
-        ("minutes 99 rejected", conforms("[2026-08-21 03:00Z] x (session: 3h 99m)") is False),
-        ("impossible date rejected", conforms("[2026-02-31 03:00Z] x (session: 1h 0m)") is False),
-        ("hour 25 rejected", conforms("[2026-08-21 25:00Z] x (session: 1h 0m)") is False),
-        ("tail not at end", conforms("[2026-08-21 03:00Z] (session: 1h 0m) x") is False),
+        ("bad duration text", conforms("[2026-08-20 23:00 EDT] x (session: bananas)") is False),
+        ("minutes 99 rejected", conforms("[2026-08-20 23:00 EDT] x (session: 3h 99m)") is False),
+        ("impossible date rejected", conforms("[2026-02-31 03:00 EST] x (session: 1h 0m)") is False),
+        ("hour 25 rejected", conforms("[2026-08-20 25:00 EDT] x (session: 1h 0m)") is False),
+        ("tail not at end", conforms("[2026-08-20 23:00 EDT] (session: 1h 0m) x") is False),
+        # format_stamp: abbreviation and wall time from the zone database
+        ("stamp summer", format_stamp(now) == "[2026-08-20 23:00 EDT]"),
+        ("stamp winter", format_stamp(winter) == "[2026-01-15 12:00 EST]"),
         # values_current: fresh stamp ok, stale stamp not
-        ("fresh stamp current", values_current("[2026-08-21 03:00Z] x (session: 0h 0m)", None, now) is True),
-        ("stale stamp not current", values_current("[2026-08-21 02:30Z] x (session: 0h 0m)", None, now) is False),
+        ("fresh stamp current", values_current("[2026-08-20 23:00 EDT] x (session: 0h 0m)", None, now) is True),
+        ("stale stamp not current", values_current("[2026-08-20 22:30 EDT] x (session: 0h 0m)", None, now) is False),
         ("unparseable value fails soft", values_current("no stamp", None, now) is True),
-        ("huge-hours duration rejected by grammar", conforms("[2026-08-21 03:00Z] x (session: 999999h 0m)") is False),
-        ("5-digit hours ok", conforms("[2026-08-21 03:00Z] x (session: 99999h 0m)") is True),
+        ("huge-hours duration rejected by grammar", conforms("[2026-08-20 23:00 EDT] x (session: 999999h 0m)") is False),
+        ("5-digit hours ok", conforms("[2026-08-20 23:00 EDT] x (session: 99999h 0m)") is True),
     ]
     bad = [n for n, ok in checks if not ok]
     if bad:

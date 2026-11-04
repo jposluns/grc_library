@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Stop hook: block turn-end if the assistant's FINAL authored message lacks the required leading
-UTC timestamp or trailing session duration (maintainer standing rule 2026-08-21). Supplies the
-correct current values in the block reason so the re-emit is trivially correct.
+Toronto local timestamp or trailing session duration (maintainer standing rule 2026-08-21; Toronto
+time since 2026-11-04, and the earlier UTC form no longer conforms). Supplies the correct current
+values in the block reason so the re-emit is trivially correct.
 
 FINAL MESSAGE SOURCE: the Stop payload's `last_assistant_message` (a string, or an object with
 `content`) is preferred over the transcript, because the transcript can lag; the transcript's last
@@ -179,7 +180,11 @@ def main() -> int:
         return 0
     if "--self-test" in sys.argv:
         clock_test = _load_sibling("_session_clock")._self_test
-        ok = conforms("[2026-08-21 02:31Z] x (session: 1h 0m)") and not conforms("no stamp")
+        ok = (conforms("[2026-08-20 22:31 EDT] x (session: 1h 0m)")
+              and conforms("[2026-01-15 12:00 EST] x (session: 1h 0m)")
+              and not conforms("[2026-08-20 22:31 EST] x (session: 1h 0m)")
+              and not conforms("[2026-08-21 02:31Z] x (session: 1h 0m)")
+              and not conforms("no stamp"))
         rc = clock_test()
         print(f"block-unstamped-turn-end self-test: {'OK' if ok and rc == 0 else 'FAIL'}")
         return 0 if (ok and rc == 0) else 1
@@ -206,8 +211,9 @@ def main() -> int:
     except Exception:
         return 0
     print(
-        "BLOCKED (unstamped-turn-end): your final message lacks the required leading UTC timestamp "
-        "or trailing session duration (maintainer standing rule 2026-08-21).\n"
+        "BLOCKED (unstamped-turn-end): your final message lacks the required leading Toronto local "
+        "timestamp (America/Toronto, EST or EDT; the UTC `Z` form no longer conforms) or trailing "
+        "session duration (maintainer standing rule 2026-08-21, Toronto time since 2026-11-04).\n"
         "WHY: every authored message must carry both so the maintainer can place it in time; the "
         "turn-end is where the final message is checked.\n"
         f"CONSIDER INSTEAD: re-send the same message starting with `{stamp}` and ending with `{dur}`.",
