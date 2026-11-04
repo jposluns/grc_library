@@ -3758,7 +3758,57 @@ DRAFT_RECORD_FIELDS = (
 
 _DRAFT_NEW_TAB = '<span class="vh"> (opens in a new tab)</span>'
 
-# The constrained narrative renderer's two shapes the draft shell adapts (the
+
+def _draft_wrapping_path(text):
+    """Escaped ``text`` with a <wbr> after each slash (after the pair in
+    "//"), so a web address or corpus path shown as link text can wrap where
+    the browser finds no other break; unbroken, one widened its page past
+    320 px (item 3b788). The text still reads, and copies, the same."""
+    return re.sub("/(?!/)", "/<wbr>", _esc(text))
+
+
+# A document h1 word longer than this many letters gets a soft hyphen, so the
+# heading can break it: at 320 px the h1 box is 288 px (the narrow layout's
+# 2.2rem Newsreader 300), and of the 194 title words of 10 or more letters
+# measured there (headless Chrome), the widest for its length is "Management",
+# 19.6 px a letter in the dark scheme, so 14 such letters (274 px) fit, while
+# "Telecommunications" (18 letters, 307 px in dark) ran 19 px past the box and
+# widened its page to 323 px (item 3b788).
+DRAFT_TITLE_RUN_MAX = 14
+_DRAFT_TITLE_RUN_RE = re.compile(rf"[^\W\d_]{{{DRAFT_TITLE_RUN_MAX + 1},}}")
+_DRAFT_VOWELS = frozenset("aeiouyAEIOUY")
+_DRAFT_DIGRAPHS = frozenset({"ch", "ck", "gh", "ph", "qu", "sh", "th", "wh"})
+
+
+def _draft_soft_hyphenated(word):
+    """``word`` with a U+00AD soft hyphen at the syllable break nearest its
+    middle (before a consonant a vowel follows, never inside a digraph:
+    "Telecommu-nications", "Trust-worthiness"), again in either half while
+    it is longer than DRAFT_TITLE_RUN_MAX letters."""
+    if len(word) <= DRAFT_TITLE_RUN_MAX:
+        return word
+    breaks = [
+        i for i in range(2, len(word) - 2)
+        if word[i] not in _DRAFT_VOWELS and word[i + 1] in _DRAFT_VOWELS
+        and (word[i - 1] in _DRAFT_VOWELS
+             or word[i - 1:i + 1].lower() not in _DRAFT_DIGRAPHS)
+    ]
+    mid = len(word) // 2
+    at = min(breaks, key=lambda i: abs(i - mid), default=mid)
+    return (_draft_soft_hyphenated(word[:at]) + "\u00ad"
+            + _draft_soft_hyphenated(word[at:]))
+
+
+def _draft_breakable_title(title):
+    """Escaped ``title`` for a document h1, with &shy; in each word longer
+    than DRAFT_TITLE_RUN_MAX letters. The heading reads the same and shows a
+    hyphen only where it breaks; the page's <title> keeps the plain text."""
+    return _esc(_DRAFT_TITLE_RUN_RE.sub(
+        lambda m: _draft_soft_hyphenated(m.group(0)), title
+    )).replace("\u00ad", "&shy;")
+
+
+# The constrained narrative renderer's shapes the draft shell adapts (the
 # renderer itself is shared with v2 and v3 and stays unchanged). The baseline
 # lays a .doc section out with display: contents, which gives the section no
 # box, so its id moves to the inner block (an anchor or rail.js target needs
@@ -3771,6 +3821,10 @@ _DRAFT_NARR_SECTION_RE = re.compile(
 _DRAFT_NARR_LINK_RE = re.compile(
     r'(<a href="[^"]*") target="_blank" rel="noopener">([^<]*)</a>'
 )
+# A body table sits in the baseline's .tablewrap, so a table wider than the
+# page scrolls inside that box and not the page: the outcome maps' nowrap
+# uppercase headers made the page 522 px wide at 320 px (item 3b788).
+_DRAFT_NARR_TABLE_RE = re.compile(r"<table>(.*?)</table>", re.S)
 
 # ---------------------------------------------------------------------------
 # The /draft/crosswalk/ pages (design C section 3.7 Version A, upgraded to
@@ -5238,7 +5292,7 @@ def draft_document_values(doc, docs_by_path):
                 rows.append(
                     f'<li><a href="{_esc(GITHUB_BLOB_BASE + rp)}"'
                     ' target="_blank" rel="noopener noreferrer">'
-                    f'{_esc(rtitle)}{_DRAFT_NEW_TAB}</a>'
+                    f'{_draft_wrapping_path(rtitle)}{_DRAFT_NEW_TAB}</a>'
                     '<span class="n">source</span></li>'
                 )
         related_section = (
@@ -5248,6 +5302,7 @@ def draft_document_values(doc, docs_by_path):
     return {
         **_draft_nav("documents"),
         "DOC_TITLE": _esc(title),
+        "DOC_HEADING": _draft_breakable_title(title),
         "DOC_TYPE": _esc(doc_type),
         "DOC_RAIL": rail,
         "DOC_OUTLINE_SECTION": outline_section,
@@ -5261,9 +5316,10 @@ def draft_document_values(doc, docs_by_path):
 
 def draft_narrative_body(body_html, source_rel):
     """Adapt one render_narrative_body result to the draft shell (see
-    _DRAFT_NARR_SECTION_RE). Each rewrite must account for every section and
-    every link in the body, so a renderer shape change raises here rather
-    than shipping a section with no box or a link with no new-tab hint."""
+    _DRAFT_NARR_SECTION_RE). Each rewrite must account for every section,
+    every link and every table in the body, so a renderer shape change raises
+    here rather than shipping a section with no box, a link with no new-tab
+    hint or a table that widens the page."""
     body, moved = _DRAFT_NARR_SECTION_RE.subn(
         lambda m: f'<section class="narr">\n    <div id="{m.group(1)}">',
         body_html,
@@ -5281,6 +5337,14 @@ def draft_narrative_body(body_html, source_rel):
     if marked != body_html.count("<a "):
         raise BuildError(
             f"draft: {source_rel}: a narrative link outside the shape the "
+            "draft shell adapts (renderer change?)"
+        )
+    body, wrapped = _DRAFT_NARR_TABLE_RE.subn(
+        r'<div class="tablewrap" tabindex="0"><table>\1</table></div>', body
+    )
+    if wrapped != body_html.count("<table"):
+        raise BuildError(
+            f"draft: {source_rel}: a narrative table outside the shape the "
             "draft shell adapts (renderer change?)"
         )
     return body
@@ -5365,27 +5429,36 @@ def _concern_counts(concern):
     return f"{pages} {pages_noun}, {docs} {docs_noun}"
 
 
+def _concern_gap_mark(concern):
+    """A concern row's .n slot: the short declared-gap mark (never hidden)
+    where no leadership page maps to the concern, else nothing. The row's
+    counts sit in its <small> line instead: .plan li .n is nowrap in a
+    minmax(0, 1fr) auto grid, so a full count there took the row at 320 px
+    and shrank the question column to nothing (item 3b788)."""
+    if concern["mapped_pages"]:
+        return ""
+    return '<span class="n">declared gap</span>'
+
+
 def draft_decide_values(figures, concerns):
     """The decide hub at decide/ (design D section 4.1): branch 1 the concern
     rows grouped under the three board questions, each row carrying the
-    question-led title and two generated counts, with a declared-gap mark
-    (never hidden) where a concern has no leadership page; branch 2 the six
-    subtype indexes with their counts; branch 3 the Browse By domain list,
-    unchanged."""
+    question-led title, a declared-gap mark (never hidden) where a concern
+    has no leadership page, and the two generated counts in its wrapping
+    <small> line; branch 2 the six subtype indexes with their counts; branch
+    3 the Browse By domain list, unchanged."""
     group_sections = []
     rail_items = []
     for group_slug, board_question in DRAFT_DECIDE_GROUPS:
         members = [c for c in concerns if c["group"] == group_slug]
         rows = []
         for concern in members:
-            counts = _concern_counts(concern)
-            if not concern["mapped_pages"]:
-                counts = "declared gap: " + counts
             rows.append(
                 f'<li><a href="{{{{BASE}}}}/decide/{_esc(concern["slug"])}/">'
                 f'{_esc(concern["question"])}</a>'
-                f'<span class="n">{counts}</span>'
-                f'<small>{_esc(concern["label"])}</small></li>'
+                f'{_concern_gap_mark(concern)}'
+                f'<small>{_esc(concern["label"])}. '
+                f'{_concern_counts(concern)}.</small></li>'
             )
         group_sections.append(
             f'<p class="lbl sec">Concerns, {len(members)}</p>\n'
@@ -5610,8 +5683,9 @@ def draft_govern_values(figures, docs_by_path, concerns):
     lands.append(
         f'<li><a href="{{{{BASE}}}}/decide/{_esc(maturity["slug"])}/">'
         f'{_esc(maturity["question"])}</a>'
-        f'<span class="n">{_concern_counts(maturity)}</span>'
-        f'<small>{_esc(maturity["label"])}</small></li>'
+        f'{_concern_gap_mark(maturity)}'
+        f'<small>{_esc(maturity["label"])}. '
+        f'{_concern_counts(maturity)}.</small></li>'
     )
     gov = _draft_domain_page(figures, DRAFT_GOVERN_LANDING_DOMAINS[0])
     comp = _draft_domain_page(figures, DRAFT_GOVERN_LANDING_DOMAINS[1])
@@ -5768,18 +5842,18 @@ def draft_solutions_values(figures, concerns):
                 )
             noun = ("governing document" if len(page["sources"]) == 1
                     else "governing documents")
+            # The count sits in the wrapping <small> line, the .n slot
+            # keeps only the page kind (item 3b788, as on the concern rows).
             main = (
                 f'<a href="{_esc(narrative_page_url(page))}">'
                 f'{_esc(page["title"])}</a>'
-                f'<span class="n">{_esc(page["narrative_type"].lower())}, '
-                f'{len(page["sources"])} {noun}</span>'
+                f'<span class="n">{_esc(page["narrative_type"].lower())}</span>'
             )
+            counts = f'{len(page["sources"])} {noun}'
             deeper.append(concern_link)
         else:
-            main = (
-                f'{concern_link}'
-                f'<span class="n">{_concern_counts(concern)}</span>'
-            )
+            main = f'{concern_link}{_concern_gap_mark(concern)}'
+            counts = _concern_counts(concern)
         for domain in domains:
             dp = _draft_domain_page(figures, domain)
             deeper.append(
@@ -5790,7 +5864,7 @@ def draft_solutions_values(figures, concerns):
         if deeper:
             tail = " Go deeper: " + "; ".join(deeper) + "."
         event_rows.append(
-            f"<li>{main}<small>{_esc(lede)}{tail}</small></li>"
+            f"<li>{main}<small>{_esc(lede)} {counts}.{tail}</small></li>"
         )
     scenarios = sorted(
         (p for p in figures["narratives"]
@@ -7055,7 +7129,7 @@ def _xw_register_block(inst, row):
         upstream = (
             f'<a href="{_esc(row["upstream"])}" target="_blank" '
             'rel="noopener noreferrer">'
-            f'{_esc(row["upstream"])}{_DRAFT_NEW_TAB}</a>'
+            f'{_draft_wrapping_path(row["upstream"])}{_DRAFT_NEW_TAB}</a>'
         )
     fields = (
         ("Standard ID", _esc(row["id"])),
@@ -7147,8 +7221,12 @@ def draft_crosswalk_instrument_values(xw, inst):
             items = []
             for path, ids in entry["docs"]:
                 doc = docs_by_path[path]
+                # The identifiers sit in the row's wrapping <small> line:
+                # .plan li .n is nowrap in a minmax(0, 1fr) auto grid, so a
+                # list of up to 140 characters there widened the page past
+                # 320, 360 and 390 px (item 3b788, as on the concern rows).
                 tail = (
-                    f'<span class="n">{_esc(", ".join(ids))}</span>'
+                    f'<small>{_esc(", ".join(ids))}</small>'
                     if ids else
                     f'<span class="n">{_esc(doc.get("type", "").lower())}</span>'
                 )
