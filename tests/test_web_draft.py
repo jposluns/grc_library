@@ -3589,7 +3589,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(self.mod._draft_breakable_title(word),
                          "Overstrengthsst&shy;rengths")
         titles = [d.get("title", "") for d in self._full_taxonomy()]
-        with self.assertRaisesRegex(AssertionError, "Overstrengthsst"):
+        with self.assertRaisesRegex(AssertionError, "'Overstrengthsst'"):
             self._assert_heading_pieces_measured(titles + [word])
 
     def test_decide_hub_kinds_branch_lists_the_six_indexes(self):
