@@ -36,7 +36,14 @@ concern and subtype pages, and the reading room at
 six narrative types, each from the
 page's Markdown source by the constrained stdlib renderer below), the error page ``404.html``
 (noindex, excluded from the sitemap; Cloudflare Pages serves
-it with status 404 for any missing path), and the generated files
+it with status 404 for any missing path), the link-preview card
+``images/grclibrary-card.png`` (item 3b788: copied byte-for-byte from
+``.web/static/images/grclibrary-card.png`` once its SHA-256 matches
+``CARD_SHA256`` and its header reads as a 1200 by 630 PNG; every indexable
+page's head gets the sister sites' og: and twitter: tag set through
+``draft_head_tag_block``, og:url its own canonical URL, og:title its rendered
+title and og:description its rendered meta description, while the 404 page
+carries none and the card stays out of the sitemap), and the generated files
 ``robots.txt``, ``sitemap.xml``, ``llms.txt``, ``_headers`` (the Pages security
 headers, ``HEADERS_FILE``), ``_redirects`` (the Pages redirect rules,
 ``REDIRECTS_FILE``: the pre-promotion /draft/ splat and the retired /about/
@@ -117,6 +124,7 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import hashlib
 import importlib.util
 import posixpath
 import re
@@ -146,6 +154,23 @@ DEFAULT_OUT = WEB_DIR / "dist"
 # corpus/GitHub target the indexable root variant's pages link, with its website location and link text.
 # Gate 75 (tools/lint-web-corpus-links.py) resolves its targets against the repo.
 CORPUS_LINK_MANIFEST = WEB_DIR / "corpus-link-manifest.md"
+# The link-preview card (item 3b788, the family-card design of item 3b762
+# ported to the promoted tree). The rendered card is committed under
+# .web/static/images/ and copied byte-for-byte into every build at
+# images/grclibrary-card.png, an image file and never a page, so it stays out
+# of sitemap.xml (render_site lists rendered .html pages alone). A card whose
+# SHA-256 differs from CARD_SHA256, or that is not a PNG of exactly CARD_WIDTH
+# by CARD_HEIGHT, fails every build and --check (load_card_bytes).
+CARD_SOURCE = WEB_DIR / "static" / "images" / "grclibrary-card.png"
+CARD_OUT_REL = "images/grclibrary-card.png"
+CARD_SHA256 = "a8f10266d2544a46c839e305595e9c0ca148c6f7d9f7c58d13cf6d432b248c94"
+CARD_WIDTH = 1200
+CARD_HEIGHT = 630
+# The card's alt text, carried from the family-card branch's tags.html.
+CARD_IMAGE_ALT = (
+    "GRCLibrary.ai: Governance, risk, and compliance. "
+    "Engineered like software."
+)
 
 
 class Variant(NamedTuple):
@@ -1875,6 +1900,126 @@ def figure_values(figures, variant):
     }
 
 
+_PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+
+
+def load_card_bytes(path=None, expected_sha256=None):
+    """The link-preview card's raw bytes, verified against the pinned SHA-256
+    and the PNG header (fail closed): the signature, an IHDR first chunk, and
+    a size of exactly CARD_WIDTH by CARD_HEIGHT, read from the header with no
+    image decoding. The parameters exist for the test fixtures."""
+    path = CARD_SOURCE if path is None else path
+    expected = CARD_SHA256 if expected_sha256 is None else expected_sha256
+    try:
+        data = path.read_bytes()
+    except OSError as e:
+        raise BuildError(f"link-preview card unreadable at {path}: {e}") from e
+    digest = hashlib.sha256(data).hexdigest()
+    if digest != expected:
+        raise BuildError(
+            f"link-preview card at {path} has SHA-256 {digest}, "
+            f"expected {expected}"
+        )
+    if len(data) < 24 or data[:8] != _PNG_SIGNATURE or data[12:16] != b"IHDR":
+        raise BuildError(f"link-preview card at {path} is not a PNG")
+    width = int.from_bytes(data[16:20], "big")
+    height = int.from_bytes(data[20:24], "big")
+    if (width, height) != (CARD_WIDTH, CARD_HEIGHT):
+        raise BuildError(
+            f"link-preview card at {path} is {width} by {height}, expected "
+            f"{CARD_WIDTH} by {CARD_HEIGHT}"
+        )
+    return data
+
+
+# The render step is the only source of the canonical link and the og: and
+# twitter: tags, so a rendered page already carrying one of these tag forms
+# fails the build instead of publishing a duplicate (carried from the
+# family-card branch's template check). The bare text og: or twitter: is NOT
+# refused, unlike on that branch's hand-written template trees: promoted pages
+# render corpus-derived prose, where such text can occur legitimately.
+_HEAD_TAG_SOURCES = (
+    ('<link rel="canonical"', "a canonical link"),
+    ('property="og:', "an og: meta tag"),
+    ('name="twitter:', "a twitter: meta tag"),
+)
+_TITLE_TEXT_RE = re.compile(r"<title>(.*?)</title>", re.S)
+_META_DESCRIPTION_RE = re.compile(
+    r'<meta name="description" content="([^"]*)">'
+)
+
+
+def draft_head_tag_block(template_name, rendered, page_url):
+    """The injected head block for one indexable promoted page (item 3b788,
+    the family-card tag set of item 3b762): the self-canonical, then the og:
+    and twitter: tags the sister sites carry, with og:url the page's own
+    canonical URL, og:title the page's one rendered <title> text,
+    og:description the page's one rendered meta description, and the
+    published card as the image. Fails closed on a page that already carries
+    any of these tags, that renders no or several titles, meta descriptions
+    or ``</head>`` closes (the block lands before the one close), an empty
+    title or description once stripped, or a raw double quote in either (each
+    value is re-emitted verbatim inside a double-quoted content attribute;
+    write ``&quot;``)."""
+    for needle, label in _HEAD_TAG_SOURCES:
+        if needle in rendered:
+            raise BuildError(
+                f"draft page {template_name} already carries {label}; the "
+                "render step is the only source of the link-preview head tags"
+            )
+    closes = rendered.count("</head>")
+    if closes != 1:
+        raise BuildError(
+            f"draft page {template_name} must render exactly one </head>, "
+            f"found {closes}"
+        )
+    titles = _TITLE_TEXT_RE.findall(rendered)
+    if len(titles) != 1:
+        raise BuildError(
+            f"draft page {template_name} must render exactly one <title>, "
+            f"found {len(titles)}"
+        )
+    descriptions = _META_DESCRIPTION_RE.findall(rendered)
+    if len(descriptions) != 1:
+        raise BuildError(
+            f"draft page {template_name} must render exactly one "
+            f'<meta name="description" content="...">, found '
+            f"{len(descriptions)} (every indexable page needs one)"
+        )
+    title = titles[0].strip()
+    description = descriptions[0].strip()
+    for what, value in (("<title>", title),
+                        ("meta description", description)):
+        if not value:
+            raise BuildError(
+                f"draft page {template_name} renders an empty {what}"
+            )
+        if '"' in value:
+            raise BuildError(
+                f"draft page {template_name} renders a raw double quote in "
+                f"its {what} (write &quot;): {value[:200]!r}"
+            )
+    card_url = f"{SITE_BASE}/{CARD_OUT_REL}"
+    return "\n".join((
+        f'<link rel="canonical" href="{page_url}">',
+        '<meta property="og:type" content="website">',
+        '<meta property="og:site_name" content="GRCLibrary.ai">',
+        f'<meta property="og:url" content="{page_url}">',
+        f'<meta property="og:title" content="{title}">',
+        f'<meta property="og:description" content="{description}">',
+        f'<meta property="og:image" content="{card_url}">',
+        '<meta property="og:image:type" content="image/png">',
+        f'<meta property="og:image:width" content="{CARD_WIDTH}">',
+        f'<meta property="og:image:height" content="{CARD_HEIGHT}">',
+        f'<meta property="og:image:alt" content="{CARD_IMAGE_ALT}">',
+        '<meta name="twitter:card" content="summary_large_image">',
+        f'<meta name="twitter:title" content="{title}">',
+        f'<meta name="twitter:description" content="{description}">',
+        f'<meta name="twitter:image" content="{card_url}">',
+        f'<meta name="twitter:image:alt" content="{CARD_IMAGE_ALT}">',
+    ))
+
+
 def render_page(template_name, figures, variant, template_dir, partials, extra=None, out_rel=None):
     """Render one page: inject the shared partials, then the corpus figures.
 
@@ -1925,19 +2070,21 @@ def render_page(template_name, figures, variant, template_dir, partials, extra=N
         else:
             rendered = rendered.replace("</head>", f"{metadata}\n</head>", 1)
     elif variant.draft_rules and out_rel != "404.html":
-        # Promoted draft-rules pages carry an injected self-canonical: the
-        # templates carry no canonical tag of their own (pre-promotion the
-        # noindex injection above was the sole canonical source, so without
-        # this branch the promoted pages would ship with none). The 404 page
-        # is excluded, matching its sitemap exclusion; it carries a static
-        # noindex meta in its template.
+        # Promoted draft-rules pages carry an injected self-canonical plus
+        # the link-preview tag set (item 3b788, the family-card design of
+        # item 3b762 ported from the removed template trees): the templates
+        # carry no canonical or card tag of their own (draft_head_tag_block
+        # fails the build on one instead of substituting), so this injection
+        # is the sole source, as the noindex injection above was
+        # pre-promotion. The 404 page is excluded, matching its sitemap
+        # exclusion; it carries a static noindex meta in its template and
+        # none of the link-preview tags.
         if out_rel is None:
             raise BuildError(f"indexable variant page {template_name} has no output path")
-        metadata = f'<link rel="canonical" href="{_site_url_for(variant, out_rel)}">'
-        if _CANONICAL_TAG_RE.search(rendered):
-            rendered = _CANONICAL_TAG_RE.sub(metadata, rendered)
-        else:
-            rendered = rendered.replace("</head>", f"{metadata}\n</head>", 1)
+        metadata = draft_head_tag_block(
+            template_name, rendered, _site_url_for(variant, out_rel)
+        )
+        rendered = rendered.replace("</head>", f"{metadata}\n</head>", 1)
     return rendered, used
 
 
@@ -4764,6 +4911,13 @@ def draft_domain_values(dp, docs_by_path, next_url, next_label,
         **_draft_nav("browse"),
         "DOMAIN_LABEL": _esc(label),
         "DOMAIN_META": f"{dp['count']} {noun}. {_esc(dp['scope'])}.",
+        # The page's meta description (item 3b788), fed to the injected
+        # og:description by draft_head_tag_block: the domain, its recomputed
+        # count and its curated scope line.
+        "DOMAIN_DESC": _esc(
+            f"The {label} domain of the open GRC Library: {dp['count']} "
+            f"{noun}. {dp['scope']}."
+        ),
         "DOMAIN_LEAD": _esc(dp["purpose"]),
         "DOMAIN_RAIL_ITEMS": rail_items,
         "DOMAIN_SECTIONS": "\n".join(sections),
@@ -4946,6 +5100,13 @@ def draft_type_values(tp, docs_by_path, next_url, next_label, adopter_docs=()):
         **_draft_nav("browse"),
         "TYPE_HEADING": _esc(draft_type_plural(tp["type"])),
         "TYPE_META": f"{meta}. {_esc(tp['scope'])}.",
+        # The page's meta description (item 3b788), fed to the injected
+        # og:description by draft_head_tag_block: the type, its recomputed
+        # counts and its TYPE_SCOPE line.
+        "TYPE_DESC": _esc(
+            f"{draft_type_plural(tp['type'])} in the open GRC Library: "
+            f"{meta}. {tp['scope']}."
+        ),
         "TYPE_FILTER_SECTION": filter_section,
         "TYPE_ROWS": "\n".join(rows),
         "TYPE_ROW_COUNT": str(total),
@@ -5082,6 +5243,14 @@ def draft_narrative_values(page, body_html, toc):
         **_draft_nav("decisions"),
         "NARRATIVE_TYPE": _esc(page["narrative_type"]),
         "NARRATIVE_H1": _esc(page["title"]),
+        # The page's meta description (item 3b788), fed to the injected
+        # og:description by draft_head_tag_block: the registry title, the
+        # narrative type and the layer's standing qualifier.
+        "NARRATIVE_DESC": _esc(
+            f"{page['title']}: a {page['narrative_type'].lower()} page from "
+            "the GRC Library's executive layer. It explains and advises; "
+            "every claim resolves to the governing corpus documents."
+        ),
         "NARRATIVE_RAIL_ITEMS": rail_items,
         "NARRATIVE_BODY": draft_narrative_body(body_html, page["path"]),
         # Brace-escaped as on v2 and v3 (narrative_page_values).
@@ -5130,6 +5299,13 @@ def draft_subtype_values(figures, narrative_type):
         **_draft_nav("decisions"),
         "SUBTYPE_LABEL": _esc(label),
         "SUBTYPE_META": f"{len(members)} {noun}. {_esc(question)}",
+        # The page's meta description (item 3b788), fed to the injected
+        # og:description by draft_head_tag_block: the subtype label, its
+        # recomputed count and its board question.
+        "SUBTYPE_DESC": _esc(
+            f"{label} in the GRC Library's executive layer: {len(members)} "
+            f"{noun}. {question}"
+        ),
         "SUBTYPE_COUNT": str(len(members)),
         "SUBTYPE_ROWS": "\n".join(rows),
         "SUBTYPE_SIBLINGS": siblings,
@@ -7243,6 +7419,10 @@ def render_draft_variant(figures, variant):
     run_palette_gate()
     for rel, data in assets:
         pages.append((f"assets/baseline/{rel}", data))
+    # The link-preview card (item 3b788): its hash-verified raw bytes, never
+    # re-encoded, published beside the baseline assets. A non-.html output
+    # never lands in the sitemap (render_site lists rendered pages alone).
+    pages.append((CARD_OUT_REL, load_card_bytes()))
     return pages
 
 

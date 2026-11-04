@@ -349,6 +349,18 @@ What is locked here, each test failing without its feature:
    counts kept (no data-filter-count="live"), so the filter paragraph's
    unavailable-chip sentence holds in every combined state, replayed on
    the rendered rows.
+40. The link-preview card (item 3b788, the family-card design of item 3b762
+   ported to the promoted tree): every indexable page's head carries the
+   sister sites' og: and twitter: tag set exactly once, og:url equal to the
+   page's own canonical URL, og:title the page's one <title> text,
+   og:description the page's one meta description, and og:image the
+   published card at images/grclibrary-card.png, a 1200 by 630 PNG served
+   byte-identical to .web/static/images/grclibrary-card.png under a pinned
+   SHA-256; the 404 page carries none of these tags; the card stays out of
+   the sitemap; and the build fails closed on a tampered, missing,
+   non-PNG or wrong-size card, on a page carrying its own canonical, og: or
+   twitter: tag, and on a page without exactly one title, meta description
+   and head close.
 """
 
 from __future__ import annotations
@@ -1182,6 +1194,86 @@ class DraftSiteRenderTests(unittest.TestCase):
                               f"{rel}: {head}")
                 self.assertIn("(opens in a new tab)", anchor,
                               f"{rel}: external link without the hidden hint")
+
+    # -- 40. the link-preview card (item 3b788, port of item 3b762) ----------
+
+    _CARD_TAG_RE = re.compile(
+        r'<meta (?:property|name)="((?:og|twitter):[^"]*)" content="([^"]*)">')
+    _CARD_URL = "https://grclibrary.ai/images/grclibrary-card.png"
+    _CARD_ALT = ("GRCLibrary.ai: Governance, risk, and compliance. "
+                 "Engineered like software.")
+    _CARD_KEYS = (
+        "og:type", "og:site_name", "og:url", "og:title", "og:description",
+        "og:image", "og:image:type", "og:image:width", "og:image:height",
+        "og:image:alt", "twitter:card", "twitter:title",
+        "twitter:description", "twitter:image", "twitter:image:alt",
+    )
+
+    def test_every_indexable_page_carries_the_card_tag_set_once(self):
+        for rel, html in self.draft_html.items():
+            tags = self._CARD_TAG_RE.findall(html)
+            if rel == "404.html":
+                self.assertEqual(tags, [], rel)
+                self.assertNotIn("grclibrary-card.png", html, rel)
+                continue
+            counts = Counter(key for key, _ in tags)
+            self.assertEqual(sorted(counts), sorted(self._CARD_KEYS), rel)
+            self.assertEqual(set(counts.values()), {1}, rel)
+            values = dict(tags)
+            titles = re.findall(r"<title>(.*?)</title>", html, re.S)
+            self.assertEqual(len(titles), 1, rel)
+            descriptions = re.findall(
+                r'<meta name="description" content="([^"]*)">', html)
+            self.assertEqual(
+                len(descriptions), 1,
+                f"{rel}: every indexable page needs one meta description")
+            self.assertTrue(descriptions[0].strip(), rel)
+            canonical = re.findall(
+                r'<link rel="canonical" href="([^"]*)">', html)
+            self.assertEqual(len(canonical), 1, rel)
+            self.assertEqual(values["og:url"], canonical[0], rel)
+            self.assertIn(
+                f'<meta property="og:url" content="{canonical[0]}">',
+                html, rel)
+            self.assertEqual(values["og:title"], titles[0].strip(), rel)
+            self.assertEqual(values["twitter:title"], values["og:title"], rel)
+            self.assertEqual(
+                values["og:description"], descriptions[0].strip(), rel)
+            self.assertEqual(
+                values["twitter:description"], values["og:description"], rel)
+            self.assertEqual(values["og:type"], "website", rel)
+            self.assertEqual(values["og:site_name"], "GRCLibrary.ai", rel)
+            self.assertEqual(values["og:image"], self._CARD_URL, rel)
+            self.assertEqual(values["twitter:image"], self._CARD_URL, rel)
+            self.assertEqual(values["og:image:type"], "image/png", rel)
+            self.assertEqual(values["og:image:width"], "1200", rel)
+            self.assertEqual(values["og:image:height"], "630", rel)
+            self.assertEqual(values["og:image:alt"], self._CARD_ALT, rel)
+            self.assertEqual(values["twitter:image:alt"], self._CARD_ALT, rel)
+            self.assertIn(
+                '<meta name="twitter:card" content="summary_large_image">',
+                html, rel)
+
+    def test_card_is_published_byte_identical_with_pinned_hash(self):
+        data = self.draft_all.get("images/grclibrary-card.png")
+        self.assertIsNotNone(
+            data, "images/grclibrary-card.png is not rendered")
+        self.assertIsInstance(data, bytes)
+        self.assertEqual(
+            hashlib.sha256(data).hexdigest(), self.mod.CARD_SHA256)
+        source = (REPO_ROOT / ".web" / "static" / "images"
+                  / "grclibrary-card.png").read_bytes()
+        self.assertEqual(data, source)
+        self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
+        self.assertEqual(data[12:16], b"IHDR")
+        self.assertEqual(int.from_bytes(data[16:20], "big"), 1200)
+        self.assertEqual(int.from_bytes(data[20:24], "big"), 630)
+
+    def test_card_stays_out_of_the_sitemap(self):
+        self.assertIn("images/grclibrary-card.png", self.draft_all)
+        sitemap = self.by_rel["sitemap.xml"][0]
+        self.assertNotIn("grclibrary-card.png", sitemap)
+        self.assertNotIn("/images/", sitemap)
 
     # -- 3. top bar and About line ------------------------------------------
 
@@ -9667,6 +9759,113 @@ class AdopterDocsFixtureTests(unittest.TestCase):
                 + "**Purpose.** A fixture bibliography.\n")
         records = self._parse({"fixture.md": body})
         self.assertEqual(records[0]["purpose"], "A fixture bibliography.")
+
+
+class DraftCardFixtureTests(unittest.TestCase):
+    """40: the build checks around the link-preview card, on fixtures: a
+    tampered, missing, non-PNG or wrong-size card fails load_card_bytes, and
+    draft_head_tag_block refuses a page carrying its own canonical, og: or
+    twitter: tag, a page without exactly one title, meta description or head
+    close, an empty value, and a double quote in a value."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_build()
+
+    @staticmethod
+    def _page(title="<title>Fixture | GRCLibrary.ai</title>",
+              description=('<meta name="description" '
+                           'content="A fixture page.">'),
+              head=""):
+        return ("<!doctype html>\n<html><head>\n"
+                f"{description}\n{title}\n{head}\n</head>\n"
+                "<body><p>body</p></body></html>\n")
+
+    def test_head_tag_block_carries_the_page_title_and_description(self):
+        url = "https://grclibrary.ai/fixture/"
+        block = self.mod.draft_head_tag_block(
+            "fixture.html", self._page(), url)
+        self.assertIn(f'<link rel="canonical" href="{url}">', block)
+        self.assertIn(f'<meta property="og:url" content="{url}">', block)
+        self.assertIn('<meta property="og:title" '
+                      'content="Fixture | GRCLibrary.ai">', block)
+        self.assertIn('<meta property="og:description" '
+                      'content="A fixture page.">', block)
+        self.assertIn('<meta name="twitter:card" '
+                      'content="summary_large_image">', block)
+        self.assertIn('<meta property="og:image" content='
+                      '"https://grclibrary.ai/images/grclibrary-card.png">',
+                      block)
+
+    def test_page_with_its_own_card_tag_or_canonical_refuses(self):
+        for head in (
+            '<link rel="canonical" href="https://grclibrary.ai/">',
+            '<meta property="og:type" content="website">',
+            '<meta name="twitter:card" content="summary">',
+        ):
+            with self.assertRaises(self.mod.BuildError, msg=head):
+                self.mod.draft_head_tag_block(
+                    "fixture.html", self._page(head=head),
+                    "https://grclibrary.ai/fixture/")
+
+    def test_page_without_one_title_and_description_refuses(self):
+        cases = (
+            dict(description=""),
+            dict(description='<meta name="description" content="A.">'
+                             '<meta name="description" content="B.">'),
+            dict(description='<meta name="description" content="  ">'),
+            dict(title=""),
+            dict(title="<title>A</title><title>B</title>"),
+            dict(title='<title>Say &quot;hi&quot; "quoted"</title>'),
+        )
+        for kwargs in cases:
+            with self.assertRaises(self.mod.BuildError, msg=kwargs):
+                self.mod.draft_head_tag_block(
+                    "fixture.html", self._page(**kwargs),
+                    "https://grclibrary.ai/fixture/")
+
+    def test_page_without_exactly_one_head_close_refuses(self):
+        for page in (self._page() + "</head>",
+                     self._page().replace("</head>", "")):
+            with self.assertRaises(self.mod.BuildError, msg=page[-40:]):
+                self.mod.draft_head_tag_block(
+                    "fixture.html", page, "https://grclibrary.ai/fixture/")
+
+    def test_tampered_or_missing_card_fails_the_build(self):
+        source = (REPO_ROOT / ".web" / "static" / "images"
+                  / "grclibrary-card.png")
+        root = Path(tempfile.mkdtemp(prefix="draft-card-"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        data = bytearray(source.read_bytes())
+        data[-1] ^= 0xFF
+        bad = root / "grclibrary-card.png"
+        bad.write_bytes(bytes(data))
+        with self.assertRaises(self.mod.BuildError):
+            self.mod.load_card_bytes(bad)
+        with self.assertRaises(self.mod.BuildError):
+            self.mod.load_card_bytes(root / "missing.png")
+        self.assertEqual(self.mod.load_card_bytes(source),
+                         source.read_bytes())
+
+    def test_card_that_is_not_a_1200_by_630_png_fails_the_build(self):
+        root = Path(tempfile.mkdtemp(prefix="draft-card-"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        header = (b"\x89PNG\r\n\x1a\n" + (13).to_bytes(4, "big") + b"IHDR"
+                  + (600).to_bytes(4, "big") + (630).to_bytes(4, "big")
+                  + b"\x08\x06\x00\x00\x00" + b"\x00\x00\x00\x00")
+        small = root / "grclibrary-card.png"
+        small.write_bytes(header)
+        with self.assertRaises(self.mod.BuildError):
+            self.mod.load_card_bytes(
+                small,
+                expected_sha256=hashlib.sha256(header).hexdigest())
+        not_png = root / "not-a-card.png"
+        not_png.write_bytes(b"GIF89a not a png at all, but long enough")
+        with self.assertRaises(self.mod.BuildError):
+            self.mod.load_card_bytes(
+                not_png,
+                expected_sha256=hashlib.sha256(
+                    b"GIF89a not a png at all, but long enough").hexdigest())
 
 
 class DraftRootTypeTests(unittest.TestCase):
