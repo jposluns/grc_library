@@ -517,6 +517,32 @@ def ise_words(text: str, language: LanguageChecks) -> list[str]:
 ISATION_PATTERN = re.compile(
     _NO_LETTER_BEFORE + r"[A-Za-z][a-z]*isation(s|al|ally)?" + _NO_LETTER_AFTER, re.IGNORECASE)
 
+# ISATION_PATTERN.finditer is quadratic on a long letter run holding a character
+# that folds to an ASCII letter (U+017F, U+212A, U+0130 or U+0131): the ASCII-only
+# letter bound allows a fresh attempt after every such character, and each attempt
+# walks "[a-z]*" to the end of the run and back (about 0.1 s for "mi" + U+017F
+# repeated to 4000 characters, four times that at 8000). ``_isation_matches`` tries
+# the pattern from the same starts, and after a start that fails moves to the end
+# of its letter run: a later start in the run can only end its "[a-z]*" where the
+# failed start already tried, so it fails too, and the scan is linear. It is private
+# (only spelling_matches calls it), so the fix adds no public symbol to the pack.
+_ISATION_START = re.compile(_NO_LETTER_BEFORE + r"[A-Za-z]", re.IGNORECASE)
+_ISATION_RUN = re.compile(r"[A-Za-z]*", re.IGNORECASE)
+
+
+def _isation_matches(text: str) -> list["re.Match[str]"]:
+    """The matches ``ISATION_PATTERN.finditer(text)`` reports, in linear time."""
+    matches = []
+    pos = 0
+    while (start := _ISATION_START.search(text, pos)) is not None:
+        m = ISATION_PATTERN.match(text, start.start())
+        if m:
+            matches.append(m)
+            pos = m.end()
+        else:
+            pos = _ISATION_RUN.match(text, start.start()).end()
+    return matches
+
 # Commonwealth `-yse` verb forms and agent nouns (Canadian is `analyze` /
 # `analyzer`). The noun plural `analyses` (of `analysis`) is deliberately NOT
 # matched: it is correct in every dialect and indistinguishable from the
@@ -666,7 +692,7 @@ def spelling_matches(text: str, language: LanguageChecks) -> list[tuple[str, str
     """
     masked = mask_allowed_spans(mask_urls(text), language.vocab.allowed_commonwealth_spans)
     found = [("ise", word) for word in ise_words(masked, language)]
-    found += [("isation", m.group(0)) for m in ISATION_PATTERN.finditer(masked)
+    found += [("isation", m.group(0)) for m in _isation_matches(masked)
               if m.group(0).lower() not in language.vocab.isation_allowed_words]
     found += [("yse", m.group(0)) for m in language.yse_pattern.finditer(masked)]
     return found

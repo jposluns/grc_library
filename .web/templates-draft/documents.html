@@ -21,13 +21,13 @@
 </ul>
 <p class="lbl sec">Documents, {{INDEX_COUNT}}</p>
 <h2>Every document in a corpus area, A to Z</h2>
-<p>With script, a type chip keeps the documents of its type and an area chip the documents of its area, and typing keeps the documents whose title, type, area, purpose, or framework names match every word; a type, an area and words combine. A second click on a chosen chip, or a click on All, clears that chip's group and leaves the other choices as they are. Each chip's count is the number of documents of its type or area in the whole list, All counting the whole list, and stays the same whatever else is chosen; the status line under the text filter gives how many documents show. The page address keeps the choice (?type=, ?area=, ?q=), so a filtered list can be linked. Without script, the whole list stays as it is.</p>
+<p>With script, a type chip keeps the documents of its type and an area chip the documents of its area, and typing keeps the documents whose title, type, area, purpose, or framework names match every word; a type, an area and words combine. A second click on a chosen chip, or a click on All, clears that chip's group and leaves the other choices as they are. Each chip's count is the number of documents of its type or area in the whole list, All counting the whole list, and stays the same whatever else is chosen; the status line under the text filter gives how many documents show. A type or area chip that would show no documents with the other group's choice and the words typed is marked unavailable, with a dashed border: choosing it on the page (a plain click, Enter or Space) leaves the list and the page address as they are, and the status line says that it would show no documents, until the next change. Opening a chip's link in a new tab or window goes to its filtered address, as any link does. All and a chosen chip are never unavailable. The page address keeps the choice (?type=, ?area=, ?q=), so a filtered list can be linked. Without script, the whole list stays as it is.</p>
 <p class="lbl blk">Type</p>
-<ul class="chips" data-filter-group="type" aria-label="Filter by type">
+<ul class="chips" data-filter-group="type" data-filter-empty="disable" aria-label="Filter by type">
 {{INDEX_TYPE_CHIPS}}
 </ul>
 <p class="lbl blk">Area</p>
-<ul class="chips" data-filter-group="area" aria-label="Filter by area">
+<ul class="chips" data-filter-group="area" data-filter-empty="disable" aria-label="Filter by area">
 {{INDEX_AREA_CHIPS}}
 </ul>
 <form class="search" role="search" data-search><label class="lbl" for="q">Filter the documents</label><input id="q" type="search" autocomplete="off" placeholder="e.g. retention, ISO 27001, supplier"><p class="status" role="status" aria-live="polite" data-search-status></p></form>
