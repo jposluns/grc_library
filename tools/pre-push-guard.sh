@@ -12,7 +12,8 @@
 # Hook output streams through a regular file; direct pipes retain RM-10 refusal.
 # Git --no-verify and core.hooksPath can bypass hooks; see tools/README.md.
 #
-# A push whose every changed path is site-only takes the FAST PATH described
+# A push whose every changed path is site-only, and that clears every check
+# below that would send it to the full guard, takes the FAST PATH described
 # below; any other push runs the full guard. The full guard chains the two
 # runners that PR-workflow step 4 mandates, plus a web-generator health check,
 # before any push, stopping on the first failure:
@@ -54,14 +55,19 @@
 #   (each could hide a change from a diff; the diff options above override them
 #   as well) or cannot be read; when git cannot read the merge base or finds
 #   more than one; when the diff fails, is empty, or holds a record it cannot
-#   parse; and when tools/run_all_audits.sh cannot be read, a run_gate line in
-#   it cannot be parsed, or its linter regression suite gate is not there
-#   exactly once by name and command. A run_gate line parses only as
-#   run_gate "<name>" python3 <command>, where the name holds no ", $, `, \ or
-#   | and the command is plain tokens of A-Z, a-z, 0-9 and _ . / = -, each
-#   separated by one space, so the shell gives the runner the same words the
-#   guard reads: a quoted argument, an expansion, a comment or a line
-#   continuation makes the line unparseable.
+#   parse; and when tools/run_all_audits.sh cannot be read, a line in it that
+#   names run_gate anywhere cannot be parsed, or its linter regression suite
+#   gate is not there exactly once by name and command. Every line naming
+#   run_gate must parse as a gate line, except the definition line
+#   run_gate() { itself. A gate line parses only as
+#   run_gate "<name>" python3 <command>, starting the line, where the name
+#   holds no ", $, `, \ or | and the command is plain tokens of A-Z, a-z, 0-9
+#   and _ . / = -, each separated by one space; the words are separated by
+#   spaces and tabs only, the two blanks the shell splits on, so the shell gives
+#   the runner the same words the guard reads: a quoted argument, an expansion,
+#   a comment, a line continuation, a carriage return, a vertical tab or form
+#   feed, or a run_gate call that does not start the line (behind a test, for
+#   example) makes the line unparseable.
 #
 #   Site-only paths: anything under .web/ (the templates and the vendored
 #   .web/baseline/ files) except a .py file, anything under .baseline/ except
@@ -265,7 +271,7 @@ site_only_path() {
 # fast_gates; otherwise returns with the reason in full_reason.
 select_fast_path() {
     local hiding rc merge_base record_re header path shown ended=0 line name
-    local call_re gate_re token key found=0
+    local blank gate_re token key found=0
     local -a gates=()
     if [ -n "${HEAD_REF:-}" ] && [ "${HEAD_REF}" != "HEAD" ]; then
         full_reason="HEAD_REF is ${HEAD_REF}, not HEAD, so the changed set would not describe the tree the gates read"
@@ -353,22 +359,26 @@ select_fast_path() {
     fi
 
     # The runner's gates, as "runner name|command" in runner order, read from its
-    # run_gate lines. A line that starts with run_gate but does not match the one
-    # shape the runner uses, an unreadable runner, or a gate 36 line missing or
-    # repeated means the full guard. The name holds nothing the shell expands
-    # inside double quotes, and the command is plain tokens separated by single
-    # spaces (see the header), so the shell splits it exactly as the guard does.
-    # The characters are listed one by one, not as ranges, so the match does
-    # not depend on the locale.
-    call_re='^[[:space:]]*run_gate([[:space:]]|$)'
+    # run_gate lines. A line that names run_gate anywhere, other than the
+    # function's definition line, but does not match the one shape the runner
+    # uses, an unreadable runner, or a gate 36 line missing or repeated means the
+    # full guard. The name holds nothing the shell expands inside double quotes,
+    # and the command is plain tokens separated by single spaces (see the
+    # header), so the shell splits it exactly as the guard does. The blanks are
+    # space and tab alone, the two the shell splits words on, not [[:space:]],
+    # which also admits a carriage return, vertical tab and form feed. The
+    # characters are listed one by one, not as ranges, so the match does not
+    # depend on the locale.
+    blank='[ '$'\t'']'
     token='[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_./=-]+'
-    gate_re='^run_gate[[:space:]]+"([^"$`\|]+)"[[:space:]]+python3[[:space:]]+('"${token}"'( '"${token}"')*)[[:space:]]*$'
+    gate_re='^run_gate'"${blank}"'+"([^"$`\|]+)"'"${blank}"'+python3'"${blank}"'+('"${token}"'( '"${token}"')*)'"${blank}"'*$'
     if [ ! -f tools/run_all_audits.sh ] || [ ! -r tools/run_all_audits.sh ]; then
         full_reason="tools/run_all_audits.sh cannot be read, so the gates to run cannot be listed"
         return
     fi
     while IFS= read -r line || [ -n "${line}" ]; do
-        [[ "${line}" =~ ${call_re} ]] || continue
+        [[ "${line}" == *run_gate* ]] || continue
+        [ "${line}" = "run_gate() {" ] && continue
         if ! [[ "${line}" =~ ${gate_re} ]]; then
             full_reason="the tools/run_all_audits.sh line '${line}' cannot be parsed, so the gates to run cannot be listed"
             return
@@ -456,8 +466,10 @@ else
     # `if ! cmd` test: `rc=$?` after `if ! cmd; then` would capture the negated
     # status (0), making the guard exit 0 on failure. (improvement-log #439 HIGH:
     # the original `if ! cmd; then rc=$?` form exited 0 on a failing runner and
-    # let `&& git push` proceed. set -u is on, set -e is NOT, so a non-zero rc
-    # does not abort the script before we handle it.)
+    # let `&& git push` proceed. set -u is on and the guard does not set -e, but
+    # an inherited errexit (SHELLOPTS) is possible: it ends the guard at the
+    # failing runner, before the report below, with that runner's rc, so the
+    # exit code still reaches the caller.)
     echo "=== pre-push guard 1/3: run_all_audits.sh (corpus gates, from HEAD) ==="
     tools/run_all_audits.sh
     rc=$?

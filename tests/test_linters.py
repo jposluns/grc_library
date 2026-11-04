@@ -19190,6 +19190,47 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 self.assert_full_guard(result, ran, "the tools/run_all_audits.sh line "
                                        f"'{extra.splitlines()[0]}' cannot be parsed")
 
+    def test_runner_line_with_other_blank_takes_full_guard(self):
+        # The shell splits words on space and tab only, so a carriage return or a
+        # vertical tab is not a blank the guard may read past.
+        for extra in ('run_gate "Fixture CR audit" python3 tools/lint-links.py\r',
+                      'run_gate\v"Fixture VT audit" python3 tools/lint-links.py'):
+            with self.subTest(extra=extra):
+                self.set_runner_lines(self.gate_lines + extra + "\n")
+                self.change(".web/templates-draft/landing.html")
+                result, ran = self.run_guard()
+                (self.root / "ran.log").unlink(missing_ok=True)
+                # Text mode reads the carriage return in the reason as a newline.
+                self.assert_full_guard(result, ran, "the tools/run_all_audits.sh line "
+                                       f"'{extra.rstrip(chr(13))}")
+                self.assertIn("' cannot be parsed", result.stdout)
+
+    def test_runner_gate_not_starting_its_line_takes_full_guard(self):
+        # A run_gate call behind a test would run in the runner but not here.
+        extra = '[ -f x ] && run_gate "X audit" python3 tools/x.py'
+        self.set_runner_lines(self.gate_lines + extra + "\n")
+        self.change(".web/templates-draft/landing.html")
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran, f"the tools/run_all_audits.sh line '{extra}' "
+                               "cannot be parsed")
+
+    def test_runner_function_definition_is_not_a_gate_line(self):
+        self.set_runner_lines("run_gate() {\n    \"$@\"\n}\n" + self.gate_lines)
+        self.change(".web/templates-draft/landing.html")
+        result, _ = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("PASS (FAST PATH", result.stdout)
+
+    def test_real_runner_text_parses_whole(self):
+        # Every line of the real runner that names run_gate parses or is its
+        # definition, so a site-only push against it takes the fast path.
+        runner = (REPO_ROOT / "tools" / "run_all_audits.sh").read_text(encoding="utf-8")
+        self.set_runner_lines(runner)
+        self.change(".web/templates-draft/landing.html")
+        result, _ = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("PASS (FAST PATH", result.stdout)
+
     def test_repeated_regression_gate_takes_full_guard(self):
         self.set_runner_lines(self.gate_lines + 'run_gate "Linter regression test suite"'
                               f"  python3 {self.REGRESSION_SCRIPT}\n")
@@ -19212,6 +19253,26 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         result, ran = self.run_guard(SHELLOPTS="errexit")
         self.assert_full_guard(result, ran, "ai/policy-fixture.md is not a site-only path")
         self.assertIn("Safe to push", result.stdout)
+
+    def test_inherited_errexit_full_guard_failure_keeps_its_status(self):
+        # The full path's capture comment allows for an inherited errexit, which
+        # ends the guard at the failing runner with that runner's status.
+        guard = (REPO_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        self.assertNotIn("set -e is NOT", guard)
+        self.assertIn("an inherited errexit (SHELLOPTS) is possible", guard)
+        self.change("ai/policy-fixture.md")
+        (self.root / "fail-runner").touch()
+        result, _ = self.run_guard(SHELLOPTS="errexit")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("running the full guard", result.stdout)
+        self.assertNotIn("PASS", result.stdout)
+
+    def test_hook_docstring_defers_to_guard_header(self):
+        # The fast path needs more than site-only paths; the guard's header says what.
+        module = load_linter_module("tools/pre-push-hook.py", "push_hook_doc")
+        self.assertIn("when the push qualifies (see the guard's header)",
+                      " ".join(module.__doc__.split()))
+        self.assertNotIn("every changed path is site-only", " ".join(module.__doc__.split()))
 
     def test_inherited_errexit_fast_path_failure_is_reported(self):
         # A failing gate or step still prints its report under errexit.
@@ -41202,8 +41263,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
-        pre-push-guard.sh FIXED F 2f1aacc092ff7ad990f8cc0ba4ce67e8ccf92f218891ace7bddc6c6f00c03f81
-        pre-push-hook.py TRANSPORT F d3b4310317366c751e9940f36fd21f93707c980f049c0f0cdaccbcfceab2cb83
+        pre-push-guard.sh FIXED F 518f725f04b7fc05d736c4546c8d0a79496e35967fbd171c33072e2872c674fb
+        pre-push-hook.py TRANSPORT F d193c170d963cbca2e64bb76ce0b1dfbe7999b9f5af6c0701ae11d95f9d7f659
         preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
         preflight_language_runner.py CHILD F 5022c1d1ea1b9d289710b26c96ba615ad303bee4850723fcf12d99a8e247d0c7
