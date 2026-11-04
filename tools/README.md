@@ -160,32 +160,37 @@ direct-run overrides are excluded, including in linked worktrees. These override
 not exempt guarded pushes. After the guard passes, HEAD must still match every
 pushed branch SHA and the tracked tree must still be clean.
 
-Site-only fast path: when every path in the committed diff from the merge base
-of `BASE_REF` (default `origin/main`, the base
-[`run-pr-time-checks.sh`](run-pr-time-checks.sh) uses) to HEAD is site-only,
-the guard skips the full corpus suite locally. Site-only paths are anything under
-`.web/` (templates, the generator `.web/build.py`, the vendored `.web/baseline/`
-files) or `.baseline/`, `tests/test_web_draft.py`, and the root close-out
-surfaces `CHANGELOG.md`, `README.md` and `NOTICE.md`; any other path means the
-full guard. The fast path runs `run-pr-time-checks.sh` unchanged, each
-`run_all_audits.sh` gate whose scan covers a changed path (the guard's
-`FAST_GATES` table, which includes the language, link and version gates for
-`CHANGELOG.md` and `README.md`), the baseline-pin and palette gates,
-`.web/build.py --check`, `tests/test_web_draft.py` and the
-`tests/test_linters.py` classes that read the real `.web/` and `.baseline/`
-trees (selected by class-name pattern), and prints a `FAST PATH` line naming the
-changed paths. Every `run_all_audits.sh` gate is recorded in exactly one of the
-guard's `FAST_GATES`, `FAST_STEP_GATES` and `SITE_UNSCANNED_GATES` tables, and a
-regression test fails otherwise; a gate the guard finds in none of them runs on
-every fast path (fail closed) with a `NOTE` naming it. The guard fails closed to
-the full run when the merge base or the diff cannot be read, the diff is empty,
-`HEAD_REF` names anything other than HEAD, `PRE_PUSH_GUARD_ALLOW_DIRTY` is set,
-or a runner gate line cannot be read. Every skipped gate still runs in CI on the
-pull request, and `merge-when-green.py` merges only on green CI. Residual: a
-failure in a skipped gate is first seen in CI, not before the push; a site-only
-change can still fail a skipped regression test that reads `CHANGELOG.md`,
-`README.md` or `NOTICE.md` over the real tree. The guard's header lists the
-skipped gates and how the tables were derived.
+Site-only fast path: the guard reads the committed diff from the merge base of
+`BASE_REF` (default `origin/main`, the base
+[`run-pr-time-checks.sh`](run-pr-time-checks.sh) uses) to HEAD as NUL-delimited
+raw records (`git diff --raw -z --no-renames --ignore-submodules=none`). It
+takes the fast path only when every record adds or modifies a regular file
+(mode 100644 or 100755, unchanged) at a site-only path, matched literally:
+anything under `.web/` (templates, the generator `.web/build.py`, the vendored
+`.web/baseline/` files) or `.baseline/`, `tests/test_web_draft.py`, and the
+root close-out surfaces `CHANGELOG.md`, `README.md` and `NOTICE.md`. A
+deletion, rename, type or mode change, gitlink, symlink, path with a character
+outside `A-Z a-z 0-9 . _ / + @ -`, or any other path means the full guard, as
+do an unreadable or empty diff, more than one merge base, a git config setting
+that can hide changes (`diff.ignoreSubmodules`, `diff.relative`, any
+submodule's `ignore` key), `HEAD_REF` other than HEAD,
+`PRE_PUSH_GUARD_ALLOW_DIRTY`, a `run_all_audits.sh` that cannot be parsed, and
+a failed test listing. The fast path runs `run-pr-time-checks.sh` unchanged;
+every `run_all_audits.sh` gate except the linter regression suite (gate 36), by
+the runner's own names and commands read at run time, then the gate step's
+elapsed time; the palette gate; `.web/build.py --check`;
+`tests/test_web_draft.py`; and, from gate 36, the test classes that
+[`tests/site_reading_tests.py`](../tests/site_reading_tests.py) finds reading a
+site-only path (a syntax-tree detector, so quote style does not matter). It
+prints a `FAST PATH` line naming the changed paths and a line naming those
+classes. Skipped locally: the rest of gate 36 (every other regression test and
+the completeness checks of `run-linter-regression.py`). The full suite, gate
+36 whole included, still runs in CI on the pull request, and
+`merge-when-green.py` merges only on green CI. Residual: a failure in a skipped
+regression test is first seen in CI, not before the push; a site-only change
+can cause one through a read the detector does not see (its docstring lists
+them, such as a linter run at its default root or a subprocess given a
+relative path). The guard's header gives the exact rules.
 
 Residual: `git push --no-verify` and a command-level `core.hooksPath` override
 can skip the hook entirely, including overrides supplied through

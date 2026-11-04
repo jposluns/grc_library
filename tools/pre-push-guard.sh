@@ -33,14 +33,31 @@
 # Site-only fast path (maintainer directive 2026-11-04: accelerated pushes when
 # the change is web site content, not corpus or tooling).
 #
-#   Changed set: the committed diff (git diff --name-only --no-renames) from the
-#   merge base of BASE_REF (origin/main by default, the base
-#   tools/run-pr-time-checks.sh uses) to HEAD, read after the fetch below. The
-#   guard FAILS CLOSED to the full guard when HEAD_REF names anything other than
-#   HEAD, when PRE_PUSH_GUARD_ALLOW_DIRTY is set (the working tree the gates
-#   read may then hold changes the diff does not show), when git cannot read the
-#   merge base or finds more than one, when the diff cannot be read, and when it
-#   is empty. A path git quotes (an unusual character) is never site-only.
+#   Changed set: every record of the committed diff from the merge base of
+#   BASE_REF (origin/main by default, the base tools/run-pr-time-checks.sh uses)
+#   to HEAD, read after the fetch below as
+#     git --no-replace-objects diff --raw -z --no-abbrev --no-renames
+#         --no-relative --ignore-submodules=none <merge base> HEAD --
+#   Records and paths are NUL-delimited and every path is matched literally.
+#   The fast path needs every record to be an added or modified regular file:
+#   status A from mode 000000 to 100644 or 100755, or status M with both modes
+#   100644 or both 100755. A deletion, a rename (a deletion plus an addition
+#   under --no-renames), a type change, a mode change, a gitlink (160000) or a
+#   symlink (120000) means the full guard, and so does a path holding a
+#   character other than A-Z, a-z, 0-9 and . _ / + @ - (every path git would
+#   quote is among them) or an empty, . or .. component.
+#
+#   The guard FAILS CLOSED to the full guard when HEAD_REF names anything other
+#   than HEAD; when PRE_PUSH_GUARD_ALLOW_DIRTY is set (the working tree the
+#   gates read may then hold changes the diff does not show); when git config
+#   sets diff.ignoreSubmodules, diff.relative or any submodule.<name>.ignore
+#   (each could hide a change from a diff; the diff options above override them
+#   as well) or cannot be read; when git cannot read the merge base or finds
+#   more than one; when the diff fails, is empty, or holds a record it cannot
+#   parse; when tools/run_all_audits.sh cannot be read, a run_gate line in it
+#   cannot be parsed, or its linter regression suite gate is not there exactly
+#   once by name and command; and when tests/site_reading_tests.py --list fails
+#   or prints anything but test class ids.
 #
 #   Site-only paths: anything under .web/ (the templates, the generator
 #   .web/build.py and the vendored .web/baseline/ files), anything under
@@ -56,59 +73,40 @@
 #
 #   The fast path runs, stopping on the first failure:
 #     1. tools/run-pr-time-checks.sh (unchanged; every delta gate, D3 included).
-#     2. Each tools/run_all_audits.sh gate, in runner order, that FAST_GATES
-#        below tags for a changed path. The table names, with the runner's name
-#        and command, every runner gate whose traced run at 65669d0c6 opened,
-#        listed or passed to git a path of that kind (w .web/, b .baseline/,
-#        t tests/test_web_draft.py, c CHANGELOG.md, r README.md, n NOTICE.md),
-#        plus the CHANGELOG mirror gate (59), which reads CHANGELOG.md only
-#        when the operational store supplies its detailed mirror, a code path
-#        the trace did not take. For CHANGELOG.md and README.md that includes
-#        the language gate (2, which also enforces the no-dash rule there; the
-#        ungated-surface dash gate 82 does not scan either file), the link
-#        gates (3, 11, 17, 68) and the version gates (13, 29, 40); gate numbers
-#        are those of governance/specification-audit-programme.md section 6.
-#        As in tools/run_all_audits.sh, a passing gate prints only OK and a
-#        failing gate's output is printed in full; unlike the runner, no
-#        advisory lines are echoed from a passing gate.
-#     3. The baseline-pin gate (gate 110, tools/lint-baseline-pin.py) and the
-#        palette gate .baseline/check_palette.py, run as the build runs it.
+#     2. Every tools/run_all_audits.sh gate except the linter regression suite
+#        (gate 36), in runner order, by the runner's own name and command, read
+#        from its run_gate lines at run time, so a gate added to the runner runs
+#        here by existing. As in the runner, a passing gate prints only OK and
+#        a failing gate's output is printed in full; unlike the runner, no
+#        advisory lines are echoed from a passing gate and the step stops at
+#        the first failing gate. The step ends with its elapsed time.
+#     3. The palette gate .baseline/check_palette.py, run as .web/build.py runs it.
 #     4. .web/build.py --check and python3 -B tests/test_web_draft.py.
-#     5. The tests/test_linters.py classes of the linter regression suite
-#        (gate 36) that read the real .web/ and .baseline/ trees, selected by
-#        the class-name patterns in FAST_TEST_PATTERNS below (so a new class
-#        with one of those prefixes is included); output as for step 2.
-#   It prints one FAST PATH line naming the changed paths, then the reference
-#   manifest advisory, then a PASS line with the elapsed time.
+#     5. The gate 36 test classes that read a site-only path:
+#        tests/site_reading_tests.py lists them during selection, with a
+#        detector that reads each test module's syntax tree, so quote style
+#        does not matter (its docstring gives the rules), and runs exactly the
+#        listed classes with --run; output as for step 2.
+#   It prints one FAST PATH line naming the changed paths, a line naming the
+#   step 5 classes, then the reference manifest advisory, then a PASS line with
+#   the elapsed time.
 #
-#   Site-scope record: every tools/run_all_audits.sh gate is named, by runner
-#   name and command, in exactly one of FAST_GATES, FAST_STEP_GATES (gates 36
-#   and 110, run by steps 5 and 3) and SITE_UNSCANNED_GATES (the gates whose
-#   traced run touched no site-only path); PrePushGuardFastPathTests fails
-#   otherwise. tools/gate-scope-manifest.json records only whether a gate scans
-#   the executive/ narrative tree, so it cannot answer site scope for any gate,
-#   and these tables are the record. At run time the guard reads the runner's
-#   gate lines: a gate in none of the tables runs on every fast path (fail
-#   closed) with a NOTE naming it, and a gate line the guard cannot parse, or a
-#   runner it cannot read, means the full guard.
-#
-#   Skipped locally: every SITE_UNSCANNED_GATES gate, each FAST_GATES entry
-#   whose tags match no changed path, and every gate 36 test outside step 5.
-#   Each one is still covered before merge: .github/workflows/quality.yml runs
-#   the full gate set on every pull request (kept in lock-step with
-#   run_all_audits.sh by the gate-parity gate), and tools/merge-when-green.py
-#   merges only on green CI. This change alters neither.
+#   Skipped locally: from gate 36, every test outside the step 5 classes (the
+#   rest of tests/test_linters.py and of the other tests/test_*.py modules) and
+#   the completeness checks tools/run-linter-regression.py makes; and the full
+#   guard's own run_all_audits.sh summary. Each is still covered before merge:
+#   .github/workflows/quality.yml runs the full gate set, gate 36 whole
+#   included, on every pull request (kept in lock-step with run_all_audits.sh
+#   by the gate-parity gate), and tools/merge-when-green.py merges only on
+#   green CI. This change alters neither.
 #
 #   Residual (what is lost): local detection, before the push, of a failure in a
-#   skipped gate; that failure now first shows in CI. A site-only change cannot
-#   change what a SITE_UNSCANNED_GATES gate scans, by the trace above.
-#   Exceptions, which a site-only change CAN fail:
-#     - a gate 36 test outside step 5 that reads CHANGELOG.md, README.md or
-#       NOTICE.md over the real tree (directly or through a gate it runs), or
-#       reads a site path other than by a REPO_ROOT join;
-#     - any gate that reads a site-only path only on a code path neither the
-#       traced run nor a later reading found; move such a gate from
-#       SITE_UNSCANNED_GATES to FAST_GATES when its scan scope changes.
+#   gate 36 test outside step 5; that failure now first shows in CI. A
+#   site-only change can cause one when a test reads an admitted path in a way
+#   the detector does not see (tests/site_reading_tests.py lists those: a
+#   subprocess given a relative path with its working directory at the root, a
+#   linter run at its default root, a root reached through a function call), or
+#   depends on a site file only through what another tool prints.
 #
 # Scope boundary: this guard gates PUSHES (the two post-commit / pre-push
 # runners plus the conditional `.web/build.py --check`). The commit-time
@@ -222,215 +220,167 @@ fi
 # Site-only fast path selection (see the header). Any doubt leaves fast_path at
 # 0 with the reason in full_reason, so the full guard runs.
 BASE_REF="${BASE_REF:-origin/main}"
+# The runner's linter regression suite gate (gate 36), as "runner name|command":
+# the one runner gate the fast path does not run whole.
+REGRESSION_GATE="Linter regression test suite|tools/run-linter-regression.py"
 fast_path=0
 full_reason=""
 changed_paths=()
-changed_tags=""
-if [ -n "${HEAD_REF:-}" ] && [ "${HEAD_REF}" != "HEAD" ]; then
-    full_reason="HEAD_REF is ${HEAD_REF}, not HEAD, so the changed set would not describe the tree the gates read"
-elif [ -n "${PRE_PUSH_GUARD_ALLOW_DIRTY:-}" ]; then
-    full_reason="PRE_PUSH_GUARD_ALLOW_DIRTY is set, so the working tree may hold changes outside the committed diff"
-elif ! merge_base="$(git merge-base --all "${BASE_REF}" HEAD 2>/dev/null)" || [ -z "${merge_base}" ]; then
-    full_reason="the merge base of ${BASE_REF} and HEAD cannot be read"
-elif [[ "${merge_base}" == *$'\n'* ]]; then
-    full_reason="${BASE_REF} and HEAD have more than one merge base"
-elif ! changed="$(git -c core.quotePath=true diff --name-only --no-renames "${merge_base}" HEAD --)"; then
-    full_reason="git diff ${merge_base} HEAD failed, so the changed set cannot be read"
-elif [ -z "${changed}" ]; then
-    full_reason="the changed set against ${BASE_REF} is empty"
-else
-    fast_path=1
-    while IFS= read -r path; do
-        changed_paths+=("${path}")
-        case "${path}" in
-            .web/*) changed_tags+="w" ;;
-            .baseline/*) changed_tags+="b" ;;
-            tests/test_web_draft.py) changed_tags+="t" ;;
-            CHANGELOG.md) changed_tags+="c" ;;
-            README.md) changed_tags+="r" ;;
-            NOTICE.md) changed_tags+="n" ;;
-            *)
-                if [ "${fast_path}" -eq 1 ]; then
-                    full_reason="${path} is not a site-only path"
-                fi
-                fast_path=0
+fast_gates=()
+site_tests=()
+
+# True when a changed path is site-only (see the header), matched literally.
+# The allowed characters are listed one by one, not as ranges, so the match
+# does not depend on the locale.
+site_only_path() {
+    local path="$1"
+    case "${path}" in
+        "" | *[!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._/+@-]*) return 1 ;;
+    esac
+    case "/${path}/" in
+        *//* | */./* | */../*) return 1 ;;
+    esac
+    case "${path}" in
+        .web/?* | .baseline/?* | tests/test_web_draft.py | CHANGELOG.md | README.md | NOTICE.md) return 0 ;;
+    esac
+    return 1
+}
+
+# Sets fast_path to 1 when the push qualifies, filling changed_paths, fast_gates
+# and site_tests; otherwise returns with the reason in full_reason.
+select_fast_path() {
+    local hiding rc merge_base record_re header path shown ended=0 line name
+    local call_re gate_re key found=0 listing id_re
+    local -a words gates=()
+    if [ -n "${HEAD_REF:-}" ] && [ "${HEAD_REF}" != "HEAD" ]; then
+        full_reason="HEAD_REF is ${HEAD_REF}, not HEAD, so the changed set would not describe the tree the gates read"
+        return
+    fi
+    if [ -n "${PRE_PUSH_GUARD_ALLOW_DIRTY:-}" ]; then
+        full_reason="PRE_PUSH_GUARD_ALLOW_DIRTY is set, so the working tree may hold changes outside the committed diff"
+        return
+    fi
+    # git config exits 1 when no key matches.
+    hiding="$(git config --name-only --get-regexp '^(diff\.ignoresubmodules|diff\.relative|submodule\..+\.ignore)$')"
+    rc=$?
+    if [ "${rc}" -eq 0 ]; then
+        full_reason="git config sets ${hiding//$'\n'/, }, which could hide a change from the changed set"
+        return
+    elif [ "${rc}" -ne 1 ]; then
+        full_reason="git config cannot be read (rc=${rc}), so a setting that hides changes cannot be ruled out"
+        return
+    fi
+    if ! merge_base="$(git --no-replace-objects merge-base --all "${BASE_REF}" HEAD 2>/dev/null)" \
+            || [ -z "${merge_base}" ]; then
+        full_reason="the merge base of ${BASE_REF} and HEAD cannot be read"
+        return
+    fi
+    if [[ "${merge_base}" == *$'\n'* ]]; then
+        full_reason="${BASE_REF} and HEAD have more than one merge base"
+        return
+    fi
+    # Each record is a header field and a path field, each NUL-terminated. The
+    # diff's own exit status follows as one more field, "END <rc>", so a failed
+    # or cut-short diff cannot pass for a complete one.
+    record_re='^:([0-7]{6}) ([0-7]{6}) ([0-9a-f]{40}|[0-9a-f]{64}) ([0-9a-f]{40}|[0-9a-f]{64}) ([A-Z])$'
+    while IFS= read -r -d '' header; do
+        if [ "${ended}" -eq 1 ]; then
+            full_reason="the changed set has data after the end of git diff's output"
+            return
+        fi
+        case "${header}" in
+            "END 0") ended=1; continue ;;
+            "END "*)
+                full_reason="git diff ${merge_base} HEAD failed (rc=${header#END }), so the changed set cannot be read"
+                return
                 ;;
         esac
-    done <<< "${changed}"
-fi
+        if ! [[ "${header}" =~ ${record_re} ]]; then
+            printf -v shown '%q' "${header}"
+            full_reason="the changed-set record ${shown} cannot be read"
+            return
+        fi
+        if ! IFS= read -r -d '' path; then
+            full_reason="a changed-set record has no path"
+            return
+        fi
+        printf -v shown '%q' "${path}"
+        case "${BASH_REMATCH[5]}:${BASH_REMATCH[1]}:${BASH_REMATCH[2]}" in
+            A:000000:100644 | A:000000:100755 | M:100644:100644 | M:100755:100755) ;;
+            *)
+                full_reason="${shown} is not an added or modified regular file with its mode unchanged (status ${BASH_REMATCH[5]}, mode ${BASH_REMATCH[1]} to ${BASH_REMATCH[2]})"
+                return
+                ;;
+        esac
+        if ! site_only_path "${path}"; then
+            full_reason="${shown} is not a site-only path"
+            return
+        fi
+        changed_paths+=("${path}")
+    done < <(git --no-replace-objects diff --raw -z --no-abbrev --no-renames --no-relative \
+                 --ignore-submodules=none "${merge_base}" HEAD --
+             printf 'END %s\0' "$?")
+    if [ "${ended}" -ne 1 ] || [ -n "${header}" ]; then
+        full_reason="the changed set ends before git diff's exit status, so it cannot be read"
+        return
+    fi
+    if [ "${#changed_paths[@]}" -eq 0 ]; then
+        full_reason="the changed set against ${BASE_REF} is empty"
+        return
+    fi
 
-# The runner's gates, as "runner name|command" in runner order, read from its
-# run_gate lines (see the site-scope record in the header). A line that starts
-# with run_gate but does not match the one shape the runner uses, an unreadable
-# runner, or no gate at all means the full guard.
-runner_gates=()
-if [ "${fast_path}" -eq 1 ]; then
+    # The runner's gates, as "runner name|command" in runner order, read from its
+    # run_gate lines. A line that starts with run_gate but does not match the one
+    # shape the runner uses, an unreadable runner, or a gate 36 line missing or
+    # repeated means the full guard.
     call_re='^[[:space:]]*run_gate([[:space:]]|$)'
     gate_re='^run_gate[[:space:]]+"([^"]+)"[[:space:]]+python3[[:space:]]+(.*[^[:space:]])[[:space:]]*$'
     if [ ! -f tools/run_all_audits.sh ] || [ ! -r tools/run_all_audits.sh ]; then
-        fast_path=0
-        full_reason="tools/run_all_audits.sh cannot be read, so its gates cannot be checked against the site-scope record"
-    else
-        while IFS= read -r line || [ -n "${line}" ]; do
-            [[ "${line}" =~ ${call_re} ]] || continue
-            if [[ "${line}" =~ ${gate_re} ]]; then
-                name="${BASH_REMATCH[1]}"
-                read -r -a words <<< "${BASH_REMATCH[2]}"
-                runner_gates+=("${name}|${words[*]}")
-            else
-                fast_path=0
-                full_reason="the tools/run_all_audits.sh line '${line}' cannot be parsed, so its gate cannot be checked against the site-scope record"
-                break
-            fi
-        done < tools/run_all_audits.sh
-        if [ "${fast_path}" -eq 1 ] && [ "${#runner_gates[@]}" -eq 0 ]; then
-            fast_path=0
-            full_reason="no gate was read from tools/run_all_audits.sh"
-        fi
+        full_reason="tools/run_all_audits.sh cannot be read, so the gates to run cannot be listed"
+        return
     fi
-fi
+    while IFS= read -r line || [ -n "${line}" ]; do
+        [[ "${line}" =~ ${call_re} ]] || continue
+        if ! [[ "${line}" =~ ${gate_re} ]]; then
+            full_reason="the tools/run_all_audits.sh line '${line}' cannot be parsed, so the gates to run cannot be listed"
+            return
+        fi
+        name="${BASH_REMATCH[1]}"
+        read -r -a words <<< "${BASH_REMATCH[2]}"
+        key="${name}|${words[*]}"
+        if [ "${key}" = "${REGRESSION_GATE}" ]; then
+            found=$((found + 1))
+        else
+            gates+=("${key}")
+        fi
+    done < tools/run_all_audits.sh
+    if [ "${found}" -ne 1 ]; then
+        full_reason="tools/run_all_audits.sh has ${found} linter regression suite gate lines ('${REGRESSION_GATE%%|*}' running ${REGRESSION_GATE#*|}), not one, so the gate the fast path narrows cannot be named"
+        return
+    fi
+    if [ "${#gates[@]}" -eq 0 ]; then
+        full_reason="tools/run_all_audits.sh has no gate besides the linter regression suite"
+        return
+    fi
 
-# The run_all_audits.sh gates the fast path runs when one of their tags names a
-# kind of changed path: "tags|runner name|command", in runner order, with the
-# runner's own name and command (PrePushGuardFastPathTests pins both against
-# tools/run_all_audits.sh). Tags: w .web/, b .baseline/, t tests/test_web_draft.py,
-# c CHANGELOG.md, r README.md, n NOTICE.md.
-FAST_GATES=(
-    "n|Metadata audit|tools/lint-metadata.py"
-    "crn|Language and style audit|tools/lint-language.py"
-    "wcrn|Repository-internal link audit|tools/lint-links.py"
-    "rn|Framework citation hallucination audit|tools/lint-citations.py"
-    "wrn|Standards-currency audit|tools/lint-standards-currency.py"
-    "rn|Owner and Approving Authority role audit|tools/lint-roles.py"
-    "rn|Mandatory requirement near uncertainty marker audit|tools/lint-shall-near-uncertainty.py"
-    "c|CHANGELOG file-reference link coverage|tools/lint-changelog-link-coverage.py"
-    "wbrn|Placeholder leakage audit|tools/lint-placeholder-leakage.py"
-    "wbrn|Library and document version monotonicity audit|tools/lint-library-version-monotonicity.py"
-    "wbcrn|Metadata date format audit|tools/lint-date-format.py"
-    "wbcr|License consistency audit|tools/lint-license-consistency.py"
-    "wb|Stub document audit|tools/lint-stub-documents.py"
-    "wbcrn|Section anchor reference audit|tools/lint-section-anchors.py"
-    "wbrn|Intra-document section reference audit|tools/lint-intra-doc-refs.py"
-    "wb|Required sections audit|tools/lint-required-sections.py"
-    "wbrn|Acronym expansion consistency audit|tools/lint-acronym-consistency.py"
-    "wbtcrn|Secret pattern audit|tools/lint-secrets-in-content.py"
-    "wbtrn|PII pattern audit|tools/lint-pii-in-content.py"
-    "wbtrn|Internal references audit|tools/lint-internal-references.py"
-    "wbtcrn|External link domain audit|tools/lint-external-link-domains.py"
-    "wbrn|Cross-document numerical coherence audit|tools/lint-cross-doc-numbers.py"
-    "wbcrn|Orphan document audit|tools/lint-orphan-documents.py"
-    "cr|Version-date consistency audit|tools/lint-version-date-consistency.py"
-    "crn|Metadata-block line-break audit|tools/lint-metadata-line-breaks.py"
-    "rn|Document Date staleness audit|tools/lint-document-date-staleness.py"
-    "wbcrn|Section placement audit|tools/lint-section-placement.py"
-    "wbtrn|Cross-file gate-count consistency audit|tools/lint-gate-count-consistency.py"
-    "wbcrn|Corpus version-bump-recency audit|tools/lint-version-bump-recency.py"
-    "wbrn|CSA CCM/AICM citation-accuracy audit|tools/lint-ccm-aicm-citations.py"
-    "wbrn|CCM provider-member range-direction audit|tools/lint-ccm-provider-member-in-range.py"
-    "wbcrn|Bookkeeping-parity audit|tools/lint-bookkeeping-parity.py"
-    "rn|Corpus-to-project directional-dependency audit|tools/lint-directional-dependency.py"
-    "rn|Bare-normative-shall audit|tools/lint-bare-normative-shall.py"
-    "c|CHANGELOG mirror header-parity audit|tools/lint-changelog-mirror-header-parity.py"
-    "wbrn|COBIT/ISO 31000 citation-existence audit|tools/lint-cobit-iso31000-citations.py"
-    "wbrn|Cross-file section-reference audit|tools/lint-cross-file-section-refs.py"
-    "wbrn|Cross-file section-name audit|tools/lint-cross-file-section-names.py"
-    "wbcrn|Unbalanced-fence audit|tools/lint-unbalanced-fences.py"
-    "r|Document-Type enumeration parity audit|tools/lint-doctype-parity.py"
-    "wbcrn|Nested-markdown-link audit|tools/lint-nested-markdown-links.py"
-    "rn|Positional backlog-token audit|tools/lint-positional-backlog-tokens.py"
-    "wt|Stdlib-only import audit|tools/lint-stdlib-only-imports.py"
-    "wbrn|COBIT objective title-text audit|tools/lint-cobit-title-text.py"
-    "w|Web-to-corpus link-target integrity audit|tools/lint-web-corpus-links.py"
-    "wbrn|NIST SSDF control-id validity audit|tools/lint-ssdf-control-ids.py"
-    "wbcrn|Narrative boundary audit|tools/lint-narrative-boundary.py"
-    "rn|Narrative authority-boundary audit|tools/lint-narrative-authority-boundary.py"
-    "wt|Static unused-import audit|tools/lint-unused-imports.py --enforce"
-    "wbrn|Alignment-citation existence audit|tools/lint-alignment-citation-existence.py --strict"
-    "wbtcrn|Worker-id anonymity audit|tools/lint-worker-id-anonymity.py"
-    "rn|Reference-absence claim audit|tools/lint-ref-absence-claims.py"
-    "wcrn|Table cell-count audit|tools/lint-table-cell-count.py"
-)
-
-# The run_all_audits.sh gates a fast-path step of its own covers: gate 36 by its
-# site-reading classes (FAST_TEST_PATTERNS), gate 110 whole.
-FAST_STEP_GATES=(
-    "Linter regression test suite|tools/run-linter-regression.py"
-    "Baseline-pin integrity audit|tools/lint-baseline-pin.py"
-)
-
-# The run_all_audits.sh gates whose traced run at 65669d0c6 touched no site-only
-# path, in runner order: the fast path skips them.
-SITE_UNSCANNED_GATES=(
-    "Structural index integrity audit|tools/lint-structure.py"
-    "Filename and Document Title alignment audit|tools/lint-filename-title-alignment.py"
-    "Per-document review cadence audit|tools/check-review-cadence.py"
-    "Citation verification freshness audit|tools/lint-citation-verification-freshness.py"
-    "Tooling provenance freshness audit|tools/lint-tooling-provenance-freshness.py"
-    "Skill derives-from reference audit|tools/lint-skill-derives-from.py"
-    "Machine-readable taxonomy in sync|tools/build-taxonomy.py --check"
-    "Adopter portal and maturity scorecard in sync|tools/build-portal.py --check"
-    "Gate-name parity audit|tools/lint-audit-gate-parity.py"
-    "Claude-rules local-copy sync audit|tools/lint-claude-rules-sync.py"
-    "Collection-enumeration consistency audit|tools/lint-collection-enumeration-consistency.py"
-    "External-overlay license consistency audit|tools/lint-external-overlay-license.py"
-    "Follow-up ageing audit|tools/lint-followup-ageing.py"
-    "Paired-skill step-parity audit|tools/lint-paired-skill-step-parity.py"
-    "TODO staleness audit|tools/lint-todo-staleness.py"
-    "Overnight-work file audit|tools/lint-overnight-file.py"
-    "Listing-surface completeness audit|tools/lint-listing-surface-completeness.py"
-    "Matrix control-code validity audit|tools/lint-matrix-control-codes.py"
-    "Working-tree prose-hygiene audit|tools/lint-working-prose-hygiene.py"
-    "Directory-scan-scope parity audit|tools/lint-scan-scope-parity.py"
-    "Per-document NIST CSF 2.0 control-code validity audit|tools/lint-document-control-codes.py"
-    "Cross-document retention-consistency audit|tools/lint-retention-consistency.py"
-    "Backlog marked-done audit|tools/lint-todo-marked-done.py"
-    "Per-document ISO Annex A validity audit|tools/lint-document-iso-annex-a.py"
-    "Guardrail-review cadence audit|tools/lint-guardrail-cadence.py"
-    "Session-state lease audit|tools/lint-session-state.py"
-    "Audit-spec detailed-prose presence audit|tools/lint-audit-spec-detailed-prose.py"
-    "Sibling-repo stub-guard audit|tools/lint-sibling-placeholders.py"
-    "Citation-currency-cadence audit|tools/lint-citation-currency-cadence.py"
-    "Rule-scope-table completeness audit|tools/lint-rule-scope-table.py"
-    "Skill-body internal-reference audit|tools/lint-skill-internal-refs.py"
-    "Gate-name-citation inventory audit|tools/lint-gate-citation-inventory.py"
-    "Backlog item-number permanence audit|tools/lint-todo-number-permanence.py"
-    "Playbook-pointer-integrity audit|tools/lint-playbook-pointer-integrity.py"
-    "Backlog list-tag audit|tools/lint-todo-list-tag.py"
-    "Ungated-surface dash audit|tools/lint-ungated-dashes.py"
-    "Publication-manifest sync audit|tools/lint-publication-manifest.py"
-    "Narrative metadata audit|tools/lint-narrative-metadata.py"
-    "Narrative registry sync|tools/build-narrative-registry.py --check"
-    "Narrative vocabulary audit|tools/lint-narrative-vocabulary.py"
-    "Narrative disclaimer-presence audit|tools/lint-narrative-disclaimer.py"
-    "Backlog index-reference parity audit|tools/lint-todo-index-reference-parity.py"
-    "TODO.md number-allocation block sync|tools/build-todo-number-allocation.py --check"
-    "Index-header parity audit|tools/lint-index-header-parity.py --strict-owner"
-    "Relationship model in sync|tools/build-relationship-model.py --check"
-    "Hooks Python-syntax audit|tools/lint-hooks-syntax.py"
-    "Skill verdict carrier-completeness audit|tools/lint-skill-verdict-carrier-completeness.py"
-    "AIQT vendor digest audit|tools/lint-aiqt-vendor-digest.py"
-    "Corpus-management generated outputs in sync|tools/build-corpus-management.py --check --release-delta"
-    "Allow-list and publisher-table parity audit|tools/lint-allowlist-spec-parity.py"
-    "Citation-publisher table in sync with its source of record|tools/build-citation-publishers.py --check"
-    "Hook-launcher isolation audit|tools/lint-hooks-syntax.py --launcher-isolation"
-    "Startup character and core-line ceiling audit|tools/lint-startup-character-ceiling.py"
-    "Tooling backlog-reference audit|tools/lint-tooling-backlog-refs.py"
-    "Isolated-launch import audit|tools/lint-isolated-launch.py"
-)
-
-# Step 5: the unittest -k patterns (fnmatch over __main__.<class>.<test>) that
-# select the tests/test_linters.py tests over the real .web/ and .baseline/ trees.
-# Each prefix pattern also takes in a later class with that prefix;
-# PrePushGuardFastPathTests requires each pattern to select a test and every
-# class that joins REPO_ROOT with a site path to have a selected test.
-FAST_TEST_PATTERNS=(
-    "*.WebGenerator*.*"
-    "*.WebCorpusLink*.*"
-    "*.WebSiteHardening*.*"
-    "*.BaselinePinLinter*.*"
-    "*.GeneratorSortKeyParity*.*"
-    "*.CorpusManagementScanScopeTests.test_closed_wired_inventory"
-)
+    # The gate 36 classes that read a site-only path (step 5).
+    if ! listing="$(python3 -B tests/site_reading_tests.py --list)"; then
+        full_reason="tests/site_reading_tests.py --list failed, so the gate 36 classes that read a site-only path cannot be listed"
+        return
+    fi
+    id_re='^tests\.test_[A-Za-z0-9_]+\.[A-Za-z_][A-Za-z0-9_]*$'
+    while IFS= read -r line; do
+        if ! [[ "${line}" =~ ${id_re} ]]; then
+            printf -v shown '%q' "${line}"
+            full_reason="tests/site_reading_tests.py --list printed ${shown}, not a test class id"
+            return
+        fi
+        site_tests+=("${line}")
+    done <<< "${listing}"
+    fast_gates=("${gates[@]}")
+    fast_path=1
+}
+select_fast_path
 
 # One fast-path step: run it from the bare command (see the capture note below)
 # and, on a non-zero status, report it and exit with that status.
@@ -469,51 +419,23 @@ fast_gate() {
 }
 
 if [ "${fast_path}" -eq 1 ]; then
-    echo "=== pre-push guard FAST PATH: every changed path is site-only, so only the site checks run here; the full suite (tools/run_all_audits.sh) still runs in CI before merge. Changed paths (${#changed_paths[@]}): ${changed_paths[*]} ==="
+    echo "=== pre-push guard FAST PATH: every changed path is site-only, so tools/run_all_audits.sh runs here without the linter regression suite (gate 36), which runs only its site-reading classes; the full suite still runs in CI before merge. Changed paths (${#changed_paths[@]}): ${changed_paths[*]} ==="
+    echo "pre-push guard fast path: gate 36 classes that read a site-only path (${#site_tests[@]}): ${site_tests[*]}"
     fast_step "run-pr-time-checks.sh (delta + history-aware gates)" tools/run-pr-time-checks.sh
-    skipped=$'\n'
-    for key in "${FAST_STEP_GATES[@]}" "${SITE_UNSCANNED_GATES[@]}"; do
-        skipped+="${key}"$'\n'
+    echo ""
+    echo "=== pre-push guard fast path: ${#fast_gates[@]} tools/run_all_audits.sh gates (all but gate 36) ==="
+    gates_started=${SECONDS}
+    for key in "${fast_gates[@]}"; do
+        # ${key#*|} is unquoted on purpose: it splits into the script and its flags.
+        fast_gate "${key%%|*}" python3 ${key#*|}
     done
-    for key in "${runner_gates[@]}"; do
-        name="${key%%|*}"
-        cmd="${key#*|}"
-        tags=""
-        for entry in "${FAST_GATES[@]}"; do
-            if [ "${entry#*|}" = "${key}" ]; then
-                tags="${entry%%|*}"
-                break
-            fi
-        done
-        if [ -z "${tags}" ]; then
-            case "${skipped}" in
-                *$'\n'"${key}"$'\n'*) continue ;;
-            esac
-            echo "pre-push guard fast path: NOTE: ${name} (${cmd}) has no site-scope record in tools/pre-push-guard.sh, so it runs here (fail closed); record it in FAST_GATES, FAST_STEP_GATES or SITE_UNSCANNED_GATES."
-            tags="wbtcrn"
-        fi
-        selected=0
-        for (( i = 0; i < ${#tags}; i++ )); do
-            case "${changed_tags}" in
-                *"${tags:i:1}"*) selected=1 ;;
-            esac
-        done
-        if [ "${selected}" -eq 1 ]; then
-            # ${cmd} is unquoted on purpose: it splits into the script and its flags.
-            fast_gate "${name}" python3 ${cmd}
-        fi
-    done
-    fast_gate "Baseline-pin integrity audit" python3 tools/lint-baseline-pin.py
+    echo "pre-push guard fast path: ${#fast_gates[@]} runner gates passed in $((SECONDS - gates_started))s."
     fast_step "palette gate (.baseline/check_palette.py, as .web/build.py runs it)" \
         python3 -I .baseline/check_palette.py --site grclibrary --palettes .web/baseline/palettes.css
     fast_step ".web/build.py --check (web-generator health, from HEAD)" python3 .web/build.py --check
     fast_step "tests/test_web_draft.py (web draft tests)" python3 -B tests/test_web_draft.py
-    test_args=()
-    for pattern in "${FAST_TEST_PATTERNS[@]}"; do
-        test_args+=(-k "${pattern}")
-    done
-    fast_gate "Linter regression suite, site-reading classes (tests/test_linters.py)" \
-        python3 -B tests/test_linters.py "${test_args[@]}"
+    fast_gate "Linter regression suite (gate 36), ${#site_tests[@]} site-reading classes" \
+        python3 -B tests/site_reading_tests.py --run "${site_tests[@]}"
 else
     echo "pre-push-guard: running the full guard (${full_reason})."
 

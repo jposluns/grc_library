@@ -46,6 +46,16 @@ execute YAML metadata parsing. CR-only and mixed headers left the header tokens
 in the body; CRLF still recognized frontmatter. `jTe` rewrote U+FFFE/U+FFFF.
 The probe prints the binary SHA-256 and the result for each byte fixture.
 
+## Site-reading classes for the pre-push fast path
+
+[`site_reading_tests.py`](site_reading_tests.py) is a helper, not a test module,
+so gate 36 does not discover it. The pre-push guard's site-only fast path runs
+`python3 -B tests/site_reading_tests.py --list` to find the gate 36 classes that
+read `.web/`, `.baseline/` or the root `CHANGELOG.md`, `README.md` or
+`NOTICE.md`, and runs exactly those classes with `--run`. Its docstring gives the
+detection rules and the reads it does not see. `SiteReadingDetectorTests` tests
+the detector and checks that `--list` selects every class it flags.
+
 ## Running
 
 The complete regression command (audit-programme gate 36) is:
