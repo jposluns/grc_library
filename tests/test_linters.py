@@ -18664,6 +18664,191 @@ class PrePushGuardTests(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class PrePushGuardFastPathTests(unittest.TestCase):
+    """tools/pre-push-guard.sh site-only fast path (maintainer directive 2026-11-04).
+
+    A committed fixture repository holds the real guard beside stub runners and a
+    stub for every tools/*.py the guard names, the web generator, the web draft
+    tests and the palette gate; each stub appends the path it was run as to
+    ran.log. The base is the local branch "base" (BASE_REF=base), the change is
+    one later commit, and the tracked tree is clean, so the guard's own changed-set
+    selection decides the path. Any doubt must take the full guard.
+    """
+
+    # Each stub logs its own path; a fail-<basename> file makes it print a finding and exit 3.
+    STUB = ("import os\nimport sys\nwith open('ran.log', 'a') as f:\n    f.write(sys.argv[0] + '\\n')\n"
+            "name = os.path.basename(sys.argv[0])\n"
+            "if os.path.exists('fail-' + name):\n"
+            "    print('stub finding in ' + name)\n"
+            "    sys.exit(3)\n")
+    FAST_GATE_RE = re.compile(r'^\s*"([a-z]+)\|([^|"]+)\|([^"]+)"\s*$', re.M)
+    RUN_GATE_RE = re.compile(r'^run_gate\s+"([^"]+)"\s+python3\s+(.+?)\s*$', re.M)
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(prefix="guard-fast-")
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name) / "repo"
+        guard = (REPO_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        for name in ("pre-push-guard.sh", "install-git-hooks.sh", "lint_common.py"):
+            dest = self.root / "tools" / name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(REPO_ROOT / "tools" / name, dest)
+        for name in ("run_all_audits.sh", "run-pr-time-checks.sh"):
+            dest = self.root / "tools" / name
+            dest.write_text('#!/bin/sh\necho "$0" >> ran.log\n[ ! -f fail-runner ]\n',
+                            encoding="utf-8")
+            dest.chmod(0o755)
+        stubs = set(re.findall(r"tools/[\w-]+\.py", guard)) - {"tools/lint_common.py"}
+        stubs |= {".web/build.py", "tests/test_web_draft.py", ".baseline/check_palette.py"}
+        for rel in stubs:
+            dest = self.root / rel
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_text(self.STUB, encoding="utf-8")
+        for rel, body in {
+            ".web/templates-draft/landing.html": "<p>Welcome to the library</p>\n",
+            ".web/baseline/palettes.css": ":root {}\n",
+            ".baseline/pin.toml": "version = \"9.9.9\"\n",
+            "CHANGELOG.md": "# Changelog\n",
+            "README.md": "# Library\n",
+            "NOTICE.md": "# Notice\n",
+            "ai/policy-fixture.md": "# Policy\n",
+        }.items():
+            path = self.root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(body, encoding="utf-8")
+        self.env = {k: v for k, v in os.environ.items()
+                    if not k.startswith(("GIT_", "PRE_PUSH_GUARD_"))
+                    and k not in ("BASE_REF", "HEAD_REF")}
+        self.env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1",
+                        GRC_STORE=str(Path(self.tmp.name) / "no-store"),
+                        PRE_PUSH_GUARD_ALLOW_PIPE="1", BASE_REF="base")
+        self.git("init", "-q")
+        self.git("config", "user.email", "fixture@example.com")
+        self.git("config", "user.name", "Guard fixture")
+        self.commit("Base")
+        self.git("branch", "base")
+
+    def git(self, *args):
+        return subprocess.run(["git", *args], cwd=self.root, env=self.env, check=True,
+                              capture_output=True, text=True, timeout=30)
+
+    def commit(self, message):
+        self.git("add", "-A")
+        self.git("-c", "core.hooksPath=/dev/null", "commit", "-qm", message)
+
+    def change(self, *rels):
+        for rel in rels:
+            path = self.root / rel
+            # A comment line in Python, a heading in Markdown, text in HTML.
+            path.write_text(path.read_text(encoding="utf-8") + "# edit\n", encoding="utf-8")
+        self.commit("Change")
+
+    def run_guard(self, **extra):
+        env = dict(self.env, **extra)
+        result = subprocess.run(["bash", "tools/pre-push-guard.sh"], cwd=self.root, env=env,
+                                capture_output=True, text=True, timeout=60)
+        log = self.root / "ran.log"
+        ran = log.read_text(encoding="utf-8").split() if log.exists() else []
+        return result, ran
+
+    def assert_full_guard(self, result, ran, reason):
+        output = result.stdout + result.stderr
+        self.assertNotIn("FAST PATH", output)
+        self.assertIn(f"running the full guard ({reason}", result.stdout)
+        self.assertIn("tools/run_all_audits.sh", ran)
+        self.assertIn("pre-push guard 1/3", result.stdout)
+        self.assertEqual(result.returncode, 0, output)
+
+    def test_site_only_change_takes_fast_path(self):
+        self.change(".web/templates-draft/landing.html", "CHANGELOG.md", "README.md")
+        result, ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("pre-push guard FAST PATH", result.stdout)
+        self.assertIn("full suite (tools/run_all_audits.sh) still runs in CI before merge",
+                      result.stdout)
+        self.assertIn("Changed paths (3): .web/templates-draft/landing.html CHANGELOG.md "
+                      "README.md", result.stdout)
+        self.assertIn("PASS (FAST PATH", result.stdout)
+        self.assertNotIn("tools/run_all_audits.sh", ran)
+        for expected in ("tools/run-pr-time-checks.sh", "tools/lint-language.py",
+                         "tools/lint-links.py", "tools/lint-standards-currency.py",
+                         "tools/lint-baseline-pin.py", ".baseline/check_palette.py",
+                         ".web/build.py", "tests/test_web_draft.py"):
+            self.assertIn(expected, ran)
+        # Tags select per changed path: NOTICE.md is unchanged, so the gate
+        # tagged for it alone does not run.
+        self.assertNotIn("tools/lint-metadata.py", ran)
+
+    def test_corpus_document_takes_full_guard(self):
+        self.change(".web/templates-draft/landing.html", "ai/policy-fixture.md")
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran, "ai/policy-fixture.md is not a site-only path")
+
+    def test_tools_file_takes_full_guard(self):
+        self.change(".web/templates-draft/landing.html", "tools/lint-links.py")
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran, "tools/lint-links.py is not a site-only path")
+
+    def test_unreadable_base_takes_full_guard(self):
+        self.change(".web/templates-draft/landing.html")
+        result, ran = self.run_guard(BASE_REF="no-such-ref")
+        self.assert_full_guard(result, ran, "the merge base of no-such-ref and HEAD cannot be read")
+
+    def test_unreadable_changed_set_takes_full_guard(self):
+        # The base commit's root tree is unique to it; without it git can still
+        # find the merge base (commits only) but cannot diff, so the changed set
+        # cannot be read.
+        self.change(".web/templates-draft/landing.html")
+        tree = self.git("rev-parse", "base^{tree}").stdout.strip()
+        (self.root / ".git" / "objects" / tree[:2] / tree[2:]).unlink()
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran, "git diff ")
+
+    def test_empty_changed_set_takes_full_guard(self):
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran, "the changed set against base is empty")
+
+    def test_allow_dirty_override_takes_full_guard(self):
+        self.change(".web/templates-draft/landing.html")
+        result, ran = self.run_guard(PRE_PUSH_GUARD_ALLOW_DIRTY="1")
+        self.assert_full_guard(result, ran, "PRE_PUSH_GUARD_ALLOW_DIRTY is set")
+
+    def test_fast_path_failure_propagates_exit_code(self):
+        self.change(".web/templates-draft/landing.html")
+        (self.root / "fail-runner").touch()
+        result, ran = self.run_guard()
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("FAILED at run-pr-time-checks.sh", result.stdout)
+        self.assertNotIn(".web/build.py", ran)
+
+    def test_fast_path_gate_failure_prints_output_and_propagates(self):
+        self.change(".web/templates-draft/landing.html")
+        (self.root / "fail-lint-links.py").touch()
+        result, ran = self.run_guard()
+        self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
+        self.assertIn("stub finding in lint-links.py", result.stdout)
+        self.assertIn("FAILED at Repository-internal link audit (rc=3)", result.stdout)
+        self.assertNotIn(".web/build.py", ran)
+
+    def test_fast_gates_match_the_runner(self):
+        guard = (REPO_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        runner = (REPO_ROOT / "tools" / "run_all_audits.sh").read_text(encoding="utf-8")
+        order = [(" ".join(name.split()), " ".join(cmd.split()))
+                 for name, cmd in self.RUN_GATE_RE.findall(runner)]
+        entries = self.FAST_GATE_RE.findall(guard)
+        self.assertTrue(entries, "no FAST_GATES entries parsed from the guard")
+        positions = []
+        for tags, name, cmd in entries:
+            gate = (" ".join(name.split()), " ".join(cmd.split()))
+            self.assertIn(gate, order, f"FAST_GATES entry {gate} is not a run_all_audits.sh gate")
+            self.assertTrue(tags and set(tags) <= set("wbtcrn"), f"bad tags {tags!r} for {name}")
+            positions.append(order.index(gate))
+        self.assertEqual(positions, sorted(set(positions)),
+                         "FAST_GATES must list distinct gates in runner order")
+        self.assertNotIn("tools/lint-baseline-pin.py", {cmd for _, _, cmd in entries},
+                         "the baseline-pin gate runs as its own fast-path step")
+
+
 class ExternalOverlayLicenseTests(LinterTestCase):
     """tools/lint-external-overlay-license.py (gate 42): the two-layout audit over the
     rule-source directories and the five registered addyosmani skill directories."""
@@ -40435,7 +40620,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F a286bae1556510cc3995fdded2c745403b79598b43551cb795f3f9a0d3dd433a
+        README.md DATA F ceef1401d311a181b5209ada2969b0ac6a7695d4b7d9eff578210c4c25386f2d
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
@@ -40628,7 +40813,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
-        pre-push-guard.sh FIXED F 9b82723aebdf390d89ee39d9ff2a2fdc986d179595044f535b81d89687983517
+        pre-push-guard.sh FIXED F 88a07338a164f7100e806292f22ec91e459d49d7cba462ee00455792121c5b42
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088

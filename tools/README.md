@@ -107,7 +107,7 @@ Some scripts in this directory are exploratory tools the maintainer runs on dema
 
 - [`tools/detect-collection-candidates.py`](detect-collection-candidates.py): heuristic detector for new candidate collections that should be added to gate 41 (Collection-enumeration consistency audit). Walks candidate-source roots, scores each subdirectory's items against corpus markdown files for coverage, and surfaces candidates with rationale for the maintainer to triage one-by-one. Companion to gate 41's hard-coded configuration.
 
-The pre-push hook runs the full guard on every branch update to a destination
+The pre-push hook runs the guard on every branch update to a destination
 whose normalized path ends in `jposluns/grc_library`, on any host or remote name.
 HTTPS, SSH, scp-like and local URLs are matched case-insensitively, ignoring a
 trailing slash and `.git` (including a `/.git` component). After installation,
@@ -129,7 +129,7 @@ inspect and remove that old managed
 pre-push shim, then rerun the installer. Foreign hooks are never overwritten.
 
 Direct `tools/pre-push-guard.sh` runs remain available and retain pipe refusal.
-Every guarded push reruns all checks, even after a direct pass or transport
+Every guarded push reruns the guard, even after a direct pass or transport
 failure. Output streams through a regular temporary file with the guard's exit
 status preserved. The guard environment allows only `LANG`, `LC_*`,
 `TMPDIR`, `TERM`, `GRC_STORE`, `SSH_AUTH_SOCK` and the lowercase and uppercase
@@ -159,6 +159,28 @@ and `GIT_CONFIG_NOSYSTEM` settings are dropped. Other Git settings and
 direct-run overrides are excluded, including in linked worktrees. These overrides do
 not exempt guarded pushes. After the guard passes, HEAD must still match every
 pushed branch SHA and the tracked tree must still be clean.
+
+Site-only fast path: when every path in the committed diff from the merge base
+of `BASE_REF` (default `origin/main`, the base
+[`run-pr-time-checks.sh`](run-pr-time-checks.sh) uses) to HEAD is site-only,
+the guard skips the full corpus suite locally. Site-only paths are anything under
+`.web/` (templates, the generator `.web/build.py`, the vendored `.web/baseline/`
+files) or `.baseline/`, `tests/test_web_draft.py`, and the root close-out
+surfaces `CHANGELOG.md`, `README.md` and `NOTICE.md`; any other path means the
+full guard. The fast path runs `run-pr-time-checks.sh` unchanged, each
+`run_all_audits.sh` gate whose scan covers a changed path (the guard's
+`FAST_GATES` table, which includes the language, link and version gates for
+`CHANGELOG.md` and `README.md`), the baseline-pin and palette gates,
+`.web/build.py --check` and `tests/test_web_draft.py`, and prints a `FAST PATH`
+line naming the changed paths. The guard fails closed to the full run when the
+merge base or the diff cannot be read, the diff is empty, `HEAD_REF` names
+anything other than HEAD, or `PRE_PUSH_GUARD_ALLOW_DIRTY` is set. Every skipped
+gate still runs in CI on the pull request, and `merge-when-green.py` merges only
+on green CI. Residual: a failure in a skipped gate is first seen in CI, not before
+the push. A site-only change can fail the skipped linter regression suite, whose
+`tests/test_linters.py` web-generator and baseline-pin tests read the real
+`.web/` and `.baseline/` trees. The guard's header lists the skipped gates and
+how the table was derived.
 
 Residual: `git push --no-verify` and a command-level `core.hooksPath` override
 can skip the hook entirely, including overrides supplied through
