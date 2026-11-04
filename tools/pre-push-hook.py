@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Validate native push records and run the full guard without cached passes."""
+"""Validate native push records and run the guard without cached passes.
+
+The guard runs in full or, when every changed path is site-only, takes its
+fast path.
+"""
 import os
 from pathlib import Path
 import posixpath

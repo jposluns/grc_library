@@ -19063,6 +19063,180 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIn("FAILED at Repository-internal link audit (rc=3)", result.stdout)
         self.assertNotIn(".web/build.py", ran)
 
+    def test_fast_path_step_failure_ends_with_its_status(self):
+        # Each later step fails in turn; the guard stops there with its status.
+        steps = (("check_palette.py", "palette gate (.baseline/check_palette.py, with "
+                  ".web/build.py's arguments)", [".web/build.py", "tests/test_web_draft.py"]),
+                 ("build.py", ".web/build.py --check (web-generator health, from HEAD)",
+                  ["tests/test_web_draft.py"]),
+                 ("test_web_draft.py", "tests/test_web_draft.py (web draft tests)", []))
+        self.change(".web/templates-draft/landing.html")
+        for script, label, not_run in steps:
+            with self.subTest(script=script):
+                marker = self.root / f"fail-{script}"
+                marker.touch()
+                result, ran = self.run_guard()
+                marker.unlink()
+                (self.root / "ran.log").unlink()
+                self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
+                self.assertIn(f"stub finding in {script}", result.stdout)
+                self.assertIn(f"FAILED at {label} (rc=3)", result.stdout)
+                self.assertNotIn("PASS", result.stdout)
+                for later in not_run + ["tools/build-reference-manifest.py"]:
+                    self.assertNotIn(later, ran)
+
+    def test_web_python_change_takes_full_guard(self):
+        # Every .py file under .web/ is tooling, not only the generator.
+        (self.root / ".web" / "tools").mkdir()
+        (self.root / ".web" / "tools" / "helper.py").write_text("# Web helper\n",
+                                                                 encoding="utf-8")
+        self.commit("Web helper")
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran, ".web/tools/helper.py is not a site-only path")
+
+    def test_head_ref_other_than_head_takes_full_guard(self):
+        self.change(".web/templates-draft/landing.html")
+        result, ran = self.run_guard(HEAD_REF="base")
+        self.assert_full_guard(result, ran, "HEAD_REF is base, not HEAD")
+
+    def test_path_with_space_takes_full_guard(self):
+        (self.root / ".web" / "templates-draft" / "a b.html").write_text("<p>A</p>\n",
+                                                                       encoding="utf-8")
+        self.commit("Space")
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran, ".web/templates-draft/a\\ b.html is not a "
+                               "site-only path")
+
+    def test_path_with_newline_takes_full_guard(self):
+        (self.root / ".web" / "templates-draft" / "a\nb.html").write_text("<p>A</p>\n",
+                                                                        encoding="utf-8")
+        self.commit("Newline")
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran, "$'.web/templates-draft/a\\nb.html' is not a "
+                               "site-only path")
+
+    def git_shim(self, case):
+        # A git ahead of the real one on PATH: the call the shell case matches is
+        # handled there, and every other call runs the real git.
+        real = shutil.which("git", path=self.env.get("PATH"))
+        shim = Path(self.tmp.name) / "bin" / "git"
+        shim.parent.mkdir(exist_ok=True)
+        shim.write_text(f"#!/bin/sh\n{case}\nexec '{real}' \"$@\"\n", encoding="utf-8")
+        shim.chmod(0o755)
+        return {"PATH": f"{shim.parent}{os.pathsep}{self.env.get('PATH', '')}"}
+
+    def test_unreadable_git_config_takes_full_guard(self):
+        # git config exits 1 when no key matches; any other failure fails closed.
+        self.change(".web/templates-draft/landing.html")
+        path = self.git_shim('if [ "$1" = config ] && [ "$2" = --name-only ]; then exit 3; fi')
+        result, ran = self.run_guard(**path)
+        self.assert_full_guard(result, ran, "git config cannot be read (rc=3)")
+
+    def test_data_after_diff_end_takes_full_guard(self):
+        # A stray end field ahead of the diff's records leaves records after it.
+        self.change(".web/templates-draft/landing.html")
+        path = self.git_shim('if [ "$1" = --no-replace-objects ] && [ "$2" = diff ]; then '
+                             "printf 'END 0\\000'; fi")
+        result, ran = self.run_guard(**path)
+        self.assert_full_guard(result, ran, "the changed set has data after the end of git "
+                               "diff's output")
+
+    def test_missing_diff_end_takes_full_guard(self):
+        # The diff completes, then the subshell that would write its end field dies.
+        self.change(".web/templates-draft/landing.html")
+        real = shutil.which("git", path=self.env.get("PATH"))
+        path = self.git_shim('if [ "$1" = --no-replace-objects ] && [ "$2" = diff ]; then '
+                             f"'{real}' \"$@\"; kill -KILL \"$PPID\"; exit 0; fi")
+        result, ran = self.run_guard(**path)
+        self.assert_full_guard(result, ran, "the changed set ends before git diff's exit "
+                               "status")
+
+    def test_unreadable_runner_takes_full_guard(self):
+        # Git ignores the mode and ctime change, so the tracked tree stays clean.
+        # An older mtime, recorded in the index while the runner is readable,
+        # keeps Git from rereading a racily clean entry it can no longer open.
+        self.change(".web/templates-draft/landing.html")
+        self.git("config", "core.fileMode", "false")
+        self.git("config", "core.trustctime", "false")
+        runner = self.root / "tools" / "run_all_audits.sh"
+        os.utime(runner, (1_700_000_000, 1_700_000_000))
+        self.git("update-index", "--refresh")
+        runner.chmod(0)
+        self.addCleanup(runner.chmod, 0o755)
+        if os.access(runner, os.R_OK):
+            self.skipTest("the runner stays readable to this account")
+        result, ran = self.run_guard()
+        output = result.stdout + result.stderr
+        self.assertNotIn("FAST PATH", output)
+        self.assertIn("running the full guard (tools/run_all_audits.sh cannot be read, so the "
+                      "gates to run cannot be listed)", result.stdout, output)
+        self.assertEqual(result.returncode, 126, output)
+        self.assertIn("FAILED at run_all_audits.sh (rc=126)", result.stdout)
+
+    def test_runner_line_with_shell_syntax_takes_full_guard(self):
+        # The shell would give the gate other words than the guard reads.
+        for extra in ('run_gate "Fixture quoted audit" python3 tools/lint-links.py "--strict"',
+                      'run_gate "Fixture expanded audit" python3 tools/lint-links.py ${FLAGS}',
+                      'run_gate "Fixture commented audit" python3 tools/lint-links.py # x',
+                      'run_gate "Fixture continued audit" python3 tools/lint-links.py \\\n'
+                      "    --strict",
+                      'run_gate "Fixture glob audit" python3 tools/lint-*.py',
+                      'run_gate "Fixture $NAME audit" python3 tools/lint-links.py'):
+            with self.subTest(extra=extra):
+                self.set_runner_lines(self.gate_lines + extra + "\n")
+                self.change(".web/templates-draft/landing.html")
+                result, ran = self.run_guard()
+                (self.root / "ran.log").unlink(missing_ok=True)
+                self.assert_full_guard(result, ran, "the tools/run_all_audits.sh line "
+                                       f"'{extra.splitlines()[0]}' cannot be parsed")
+
+    def test_repeated_regression_gate_takes_full_guard(self):
+        self.set_runner_lines(self.gate_lines + 'run_gate "Linter regression test suite"'
+                              f"  python3 {self.REGRESSION_SCRIPT}\n")
+        self.change(".web/templates-draft/landing.html")
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran, "tools/run_all_audits.sh has 2 linter regression "
+                               "suite gate lines")
+
+    def test_inherited_errexit_site_only_push_takes_fast_path(self):
+        # git config exits 1 when no key matches; errexit must not end the guard there.
+        self.change(".web/templates-draft/landing.html")
+        result, ran = self.run_guard(SHELLOPTS="errexit")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("pre-push guard FAST PATH", result.stdout)
+        self.assertIn("PASS (FAST PATH", result.stdout)
+        self.assertIn("tests/test_web_draft.py", ran)
+
+    def test_inherited_errexit_other_push_takes_full_guard(self):
+        self.change("ai/policy-fixture.md")
+        result, ran = self.run_guard(SHELLOPTS="errexit")
+        self.assert_full_guard(result, ran, "ai/policy-fixture.md is not a site-only path")
+        self.assertIn("Safe to push", result.stdout)
+
+    def test_inherited_errexit_fast_path_failure_is_reported(self):
+        # A failing gate or step still prints its report under errexit.
+        self.change(".web/templates-draft/landing.html")
+        for marker, rc, expected in (
+                ("fail-lint-links.py", 3, ["stub finding in lint-links.py",
+                                           "FAILED at Repository-internal link audit (rc=3)"]),
+                ("fail-runner", 1, ["FAILED at run-pr-time-checks.sh (delta + history-aware "
+                                    "gates) (rc=1)"])):
+            with self.subTest(marker=marker):
+                (self.root / marker).touch()
+                result, _ = self.run_guard(SHELLOPTS="errexit")
+                (self.root / marker).unlink()
+                self.assertEqual(result.returncode, rc, result.stdout + result.stderr)
+                for text in expected:
+                    self.assertIn(text, result.stdout)
+
+    def test_inherited_errexit_unreadable_changed_set_reports_diff_failure(self):
+        # Under errexit the failed diff's status still arrives as the end field.
+        self.change(".web/templates-draft/landing.html")
+        tree = self.git("rev-parse", "base^{tree}").stdout.strip()
+        (self.root / ".git" / "objects" / tree[:2] / tree[2:]).unlink()
+        result, ran = self.run_guard(SHELLOPTS="errexit")
+        self.assert_full_guard(result, ran, "git diff ")
+
 
 class ExternalOverlayLicenseTests(LinterTestCase):
     """tools/lint-external-overlay-license.py (gate 42): the two-layout audit over the
@@ -40835,7 +41009,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F b07fdc6724b023f65af1739904d9344f38af87fd5b76b11358010b32f6bfa744
+        README.md DATA F 26ba9d32f4a5e6974bda72955d86d81060df78d643d144676ed4401f34e4fa73
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
@@ -41028,8 +41202,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
-        pre-push-guard.sh FIXED F 8d74cc78db20ac7b9ff53126a0bd5bcdcadbfe0425c5f5bb48a849ba05f457df
-        pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
+        pre-push-guard.sh FIXED F 2f1aacc092ff7ad990f8cc0ba4ce67e8ccf92f218891ace7bddc6c6f00c03f81
+        pre-push-hook.py TRANSPORT F d3b4310317366c751e9940f36fd21f93707c980f049c0f0cdaccbcfceab2cb83
         preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
         preflight_language_runner.py CHILD F 5022c1d1ea1b9d289710b26c96ba615ad303bee4850723fcf12d99a8e247d0c7

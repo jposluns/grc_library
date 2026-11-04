@@ -167,20 +167,27 @@ raw records (`git diff --raw -z --no-renames --ignore-submodules=none`). It
 takes the fast path only when every record adds or modifies a regular file
 (mode 100644 or 100755, unchanged) at a site-only path, matched literally:
 anything under `.web/` (templates, the vendored `.web/baseline/` files) except
-the generator `.web/build.py`, anything under `.baseline/` except a `.py` file,
+a `.py` file, anything under `.baseline/` except a `.py` file,
 `tests/test_web_draft.py`, and the root close-out surfaces `CHANGELOG.md`,
-`README.md` and `NOTICE.md`. A change to `.web/build.py` or a `.baseline/`
-script takes the full guard, because the linter regression suite tests them. A
+`README.md` and `NOTICE.md`. A change to a `.py` file under `.web/` (the
+generator `.web/build.py` among them) or `.baseline/` takes the full guard:
+Python there is tooling, and the linter regression suite tests `.web/build.py`
+and the `.baseline/` scripts. A
 deletion, rename, type or mode change, gitlink, symlink, path with a character
 outside `A-Z a-z 0-9 . _ / + @ -`, or any other path means the full guard, as
 do an unreadable or empty diff, more than one merge base, a git config setting
 that can hide changes (`diff.ignoreSubmodules`, `diff.relative`, any
 submodule's `ignore` key), `HEAD_REF` other than HEAD,
-`PRE_PUSH_GUARD_ALLOW_DIRTY`, and a `run_all_audits.sh` that cannot be parsed.
+`PRE_PUSH_GUARD_ALLOW_DIRTY`, and a `run_all_audits.sh` that cannot be read or
+parsed. A `run_gate` line parses only when its command after `python3` is plain
+tokens of `A-Z a-z 0-9 _ . / = -` separated by single spaces, so a quoted
+argument, an expansion, a comment or a line continuation means the full guard.
 The fast path runs `run-pr-time-checks.sh` unchanged; every
 `run_all_audits.sh` gate except the linter regression suite (gate 36), by the
 runner's own names and commands read at run time, then the gate step's elapsed
 time; the palette gate; `.web/build.py --check`; and `tests/test_web_draft.py`.
+Unlike `run_all_audits.sh`, it does not show a passing gate's `DUE-SOON`,
+`WARN` and `NOTE` lines; a failing gate's output is shown in full.
 It prints a `FAST PATH` line naming the changed paths. The guard lists the
 gates itself, so `run_all_audits.sh` has no skip option and CI
 (`.github/workflows/quality.yml`, one step per gate) cannot be told to skip
