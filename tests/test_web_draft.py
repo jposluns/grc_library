@@ -3235,8 +3235,8 @@ class DraftSiteRenderTests(unittest.TestCase):
     HUB_LEAD = (
         '<p class="lead">Start from the concern you own, the kind of page you '
         "need, or the domain you oversee. The concerns, their board-question "
-        "groups and the kinds of page are curated in the site generator; the "
-        "counts beside them and the domain list are generated at build time. "
+        "groups and the kinds of page are curated in the site generator; "
+        "their counts and the domain list are generated at build time. "
         "A newly published leadership page fails the build until it is mapped "
         "to a concern, so every published leadership page appears on at least "
         "one concern page.</p>"
@@ -3345,14 +3345,191 @@ class DraftSiteRenderTests(unittest.TestCase):
             "the three groups together list every concern exactly once, in "
             "table order")
         for concern, pages, docs in joins.values():
-            counts = self._concern_counts_text(pages, docs)
-            if not pages:
-                counts = "declared gap: " + counts
+            mark = "" if pages else '<span class="n">declared gap</span>'
             row = (f'<li><a href="/draft/decide/{concern["slug"]}/">'
-                   f'{self.mod._esc(concern["question"])}</a>'
-                   f'<span class="n">{counts}</span>'
-                   f'<small>{self.mod._esc(concern["label"])}</small></li>')
+                   f'{self.mod._esc(concern["question"])}</a>{mark}'
+                   f'<small>{self.mod._esc(concern["label"])}. '
+                   f'{self._concern_counts_text(pages, docs)}.</small></li>')
             self.assertIn(row, hub, concern["slug"])
+
+    # Item 3b788: .plan li .n is nowrap in a minmax(0, 1fr) auto grid, so a
+    # long count takes the row and the title column shrinks to nothing. At
+    # 320 px a row is 254 px wide and a .n character 7.9 px (headless Chrome,
+    # JetBrains Mono at 0.82rem); 25 characters (197 px) leave the title
+    # about 40 px beside the 1rem gap, the room the widest count on these
+    # pages, "specification, Governance" on documents/, leaves today. The
+    # crosswalk instrument pages' identifier lists (up to 140 characters,
+    # basc 1152 px wide at 320 px) now sit in the <small> line too, so the
+    # crosswalk and leadership pages are held to the same limit.
+    _N_MAX_CHARS = 25
+
+    def test_no_plan_count_outgrows_a_320px_row(self):
+        rels = [rel for rel in self.draft_html
+                if rel in {f"draft/{page}/index.html" for page in (
+                    "decide", "browse", "policies", "comply", "govern",
+                    "solutions", "documents")}
+                or rel.startswith(("draft/types/", "draft/decide/",
+                                   "draft/crosswalk/", "draft/decisions/"))]
+        self.assertGreater(len(rels), 7, "the pages under test rendered")
+        self.assertTrue(
+            any(rel.startswith("draft/crosswalk/") for rel in rels)
+            and any(rel.startswith("draft/decisions/") for rel in rels),
+            "the crosswalk and leadership pages are under test")
+        for rel in rels:
+            html = self.draft_html[rel]
+            for count in re.findall(r'<span class="n">(.*?)</span>', html,
+                                    re.S):
+                text = unescape(re.sub(r"<[^>]+>", "", count))
+                with self.subTest(page=rel, count=text):
+                    self.assertLessEqual(
+                        len(text), self._N_MAX_CHARS,
+                        "a nowrap .n count this long squeezes the row's "
+                        "title column to nothing at 320 px; carry it in the "
+                        "row's <small> line")
+
+    def test_every_draft_table_scrolls_inside_a_tablewrap(self):
+        """Item 3b788: a table outside the baseline's .tablewrap widens the
+        page when its columns outgrow it (the outcome maps' nowrap uppercase
+        headers made the page 522 px wide at 320 px); inside it, the table
+        scrolls in its own box. Every table on every draft page opens its
+        .tablewrap, the leadership pages' body tables among them."""
+        wrapped = re.compile(r'<div class="tablewrap[^"]*"[^>]*>\s*<table\b')
+        narrative = 0
+        for rel, html in self.draft_html.items():
+            tables = html.count("<table")
+            with self.subTest(page=rel):
+                self.assertEqual(len(wrapped.findall(html)), tables,
+                                 "a table outside .tablewrap can widen the "
+                                 "page at 320 px")
+            if tables and rel.startswith("draft/decisions/"):
+                narrative += 1
+        self.assertGreaterEqual(narrative, 3,
+                                "the outcome maps' tables are under test")
+
+    # Item 3b788: a register address with no break opportunity widened its
+    # instrument page (nist-sp-800-53's 50 characters ran 325 px from a
+    # 16 px inset, 341 px wide at 320 px; headless Chrome, the record's
+    # 0.95rem Public Sans, about 6.5 px a character). The record has about
+    # 273 px at 320 px, so a run of 36 characters (about 234 px) fits.
+    _ADDRESS_RUN_MAX_CHARS = 36
+
+    def test_register_addresses_wrap_inside_a_320px_record(self):
+        xw = self.mod.build_crosswalk(self._full_taxonomy())
+        checked = 0
+        for key, data in xw["instruments"].items():
+            row = data["register"]
+            if row is None or row["upstream"] == "-":
+                continue
+            page = self.draft_html[f"draft/crosswalk/{key}/index.html"]
+            link = re.search(
+                r'<dt>Upstream check location</dt><dd><a href="([^"]*)"'
+                r'[^>]*>(.*?)<span class="vh">', page, re.S)
+            with self.subTest(instrument=key):
+                self.assertIsNotNone(link, "the record links the address")
+                href, text = link.groups()
+                self.assertEqual(unescape(href), row["upstream"])
+                self.assertEqual(unescape(text.replace("<wbr>", "")),
+                                 row["upstream"],
+                                 "the link text reads as the address")
+                self.assertEqual(text.count("<wbr>"),
+                                 len(re.findall("/(?!/)", row["upstream"])),
+                                 "a break opportunity after each slash")
+                # A hyphen before a letter is a break opportunity too; one
+                # before a digit is not ("p-39.1" stays whole).
+                for run in re.split(r"<wbr>|(?<=-)(?=[A-Za-z])", text):
+                    self.assertLessEqual(
+                        len(unescape(run)), self._ADDRESS_RUN_MAX_CHARS,
+                        f"{run!r} cannot wrap inside the record at 320 px")
+            checked += 1
+        self.assertGreater(checked, 0, "the register addresses rendered")
+
+    def test_no_path_link_text_outruns_a_320px_column(self):
+        """Item 3b788: the same holds for every link whose text is an address
+        or a corpus path (a slash, no space) on every draft page, such as a
+        related document's source row ("compliance/healthcare/README.md" in a
+        191 px title column took two document pages to 323 px at 320 px)."""
+        link_re = re.compile(r"<a\b[^>]*>(.*?)</a>", re.S)
+        sources = 0
+        for rel, html in self.draft_html.items():
+            for body in link_re.findall(html):
+                text = re.sub(r'<span class="vh">.*?</span>', "", body)
+                plain = unescape(text.replace("<wbr>", ""))
+                if ("<" in text.replace("<wbr>", "") or "/" not in plain
+                        or " " in plain):
+                    continue
+                sources += rel.startswith("draft/documents/")
+                for run in re.split(r"<wbr>|(?<=-)(?=[A-Za-z])", text):
+                    with self.subTest(page=rel, text=plain):
+                        self.assertLessEqual(
+                            len(unescape(run)), self._ADDRESS_RUN_MAX_CHARS,
+                            f"{run!r} cannot wrap at 320 px")
+        self.assertGreater(sources, 0,
+                           "the document pages' source rows are under test")
+
+    def test_every_path_link_text_breaks_after_each_slash(self):
+        """Item 3b788 round 2: a run under the limit above can still outrun a
+        narrower column ("compliance/healthcare/README.md", 31 characters, in
+        a 191 px source row took two document pages to 323 px at 320 px), so
+        every link whose text is the address or corpus path it opens (a
+        register address on a crosswalk page, a source row on a document
+        page) carries a <wbr> after each slash but the first of a "//"."""
+        link_re = re.compile(r'<a\b[^>]*?\bhref="([^"]*)"[^>]*>(.*?)</a>',
+                             re.S)
+        found = {"draft/crosswalk/": 0, "draft/documents/": 0}
+        for rel, html in self.draft_html.items():
+            for href, body in link_re.findall(html):
+                text = re.sub(r'<span class="vh">.*?</span>', "", body)
+                plain = unescape(text.replace("<wbr>", ""))
+                if "/" not in plain or unescape(href) not in (
+                        plain, self.mod.GITHUB_BLOB_BASE + plain):
+                    continue
+                with self.subTest(page=rel, text=plain):
+                    self.assertIsNone(
+                        re.search("/(?!/|<wbr>)", text),
+                        "a slash with no <wbr> after it leaves the path no "
+                        "break there")
+                for prefix in found:
+                    found[prefix] += rel.startswith(prefix)
+        for prefix, count in found.items():
+            self.assertGreater(count, 0,
+                               f"the path links on {prefix} pages are under "
+                               "test")
+
+    def test_document_heading_words_can_break_at_320px(self):
+        """Item 3b788 round 2: "Telecommunications" (18 letters) ran 19 px
+        past its 288 px h1 box at 320 px in the dark scheme and widened its
+        page to 323 px. No draft h1 holds a run of more than
+        DRAFT_TITLE_RUN_MAX letters without a soft hyphen; a document
+        heading reads as the title once they are removed, and the page's
+        <title> keeps the plain title."""
+        long_run = re.compile(
+            rf"[^\W\d_]{{{self.mod.DRAFT_TITLE_RUN_MAX + 1},}}")
+        self.assertEqual(
+            self.mod._draft_breakable_title(
+                "Telecommunications & Trustworthiness"),
+            "Telecommu&shy;nications &amp; Trust&shy;worthiness")
+        hyphenated = []
+        for rel, html in self.draft_html.items():
+            h1 = re.search(r"<h1\b[^>]*>(.*?)</h1>", html, re.S)
+            if h1 is None:
+                continue
+            heading = h1.group(1)
+            with self.subTest(page=rel):
+                self.assertIsNone(
+                    long_run.search(unescape(heading)),
+                    "a word too long for the h1 at 320 px has no soft hyphen")
+                if rel.startswith("draft/documents/") and rel != (
+                        "draft/documents/index.html"):
+                    title = re.search(r"<title>(.*?) \| GRCLibrary\.ai</title>",
+                                      html).group(1)
+                    self.assertEqual(heading.replace("&shy;", ""), title,
+                                     "the heading reads as the title")
+                    self.assertNotIn("&shy;", title)
+            if "&shy;" in heading:
+                hyphenated.append(rel)
+        self.assertIn("draft/documents/compliance/telecommunications/"
+                      "annex-telecommunications-sector-requirements/"
+                      "index.html", hyphenated)
 
     def test_decide_hub_kinds_branch_lists_the_six_indexes(self):
         hub = self.draft_html["draft/decide/index.html"]
@@ -6692,10 +6869,12 @@ class DraftSiteRenderTests(unittest.TestCase):
                 block.group(1), type_name)
         concern, pages, docs = self._concern_joins()[
             self.mod.DRAFT_GOVERN_CONCERN]
+        mark = "" if pages else '<span class="n">declared gap</span>'
         self.assertIn(
             f'<li><a href="/draft/decide/{concern["slug"]}/">'
-            f'{self.mod._esc(concern["question"])}</a>'
-            f'<span class="n">{self._concern_counts_text(pages, docs)}</span>',
+            f'{self.mod._esc(concern["question"])}</a>{mark}'
+            f'<small>{self.mod._esc(concern["label"])}. '
+            f'{self._concern_counts_text(pages, docs)}.</small></li>',
             block.group(1), "the concern row carries the join's counts")
 
     def test_comply_instrument_rows_equal_the_crosswalk(self):
@@ -6791,17 +6970,21 @@ class DraftSiteRenderTests(unittest.TestCase):
                             else "governing documents")
                     self.assertIn(
                         f'<span class="n">'
-                        f'{self.mod._esc(page["narrative_type"].lower())}, '
-                        f'{len(page["sources"])} {noun}</span>',
+                        f'{self.mod._esc(page["narrative_type"].lower())}'
+                        f'</span><small>{self.mod._esc(lede)} '
+                        f'{len(page["sources"])} {noun}.',
                         block.group(1),
                         "the row's count is the page's source count")
                     self.assertIn(f'<a href="/draft/decide/{concern_slug}/">',
                                   block.group(1),
                                   "Go deeper names the resolving concern")
                 else:
+                    mark = ("" if pages
+                            else '<span class="n">declared gap</span>')
                     self.assertIn(
-                        f'<span class="n">'
-                        f"{self._concern_counts_text(pages, docs)}</span>",
+                        f'{self.mod._esc(concern["question"])}</a>{mark}'
+                        f'<small>{self.mod._esc(lede)} '
+                        f"{self._concern_counts_text(pages, docs)}.",
                         block.group(1),
                         "the row's counts are the concern join's")
                 for domain in domains:
