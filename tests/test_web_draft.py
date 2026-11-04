@@ -818,6 +818,70 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertNotIn("/v9/", text)
         self.assertNotIn("v9/probe", text)
 
+    def test_counted_target_with_parentheses_passes_both_scans(self):
+        # Round-3 fix 2: the manifest scan and the uncounted-link check
+        # share one target extraction, so a counted corpus path whose name
+        # carries balanced parentheses is read whole by both scans and is
+        # never split into a counted row and an uncounted link.
+        variant = self.mod.indexable_variant()
+        blob = self.mod.GITHUB_BLOB_BASE + "docs/probe(v2).md"
+        text = self.mod.render_corpus_link_manifest(
+            self.figures, variant,
+            list(self.site_pages)
+            + [("synthetic/index.html", f'<a href="{blob}">probe</a>')],
+        )
+        self.assertIn("| docs/probe(v2).md | /synthetic/ | probe |", text)
+
+    def test_non_canonical_repository_link_spellings_fail_the_build(self):
+        # Round-3 fix 2: the uncounted-link check reads the http,
+        # protocol-relative and www. spellings too, and matches the host,
+        # owner and repository case-insensitively, so none of these forms
+        # can bypass gate 75.
+        variant = self.mod.indexable_variant()
+        spellings = (
+            "http://github.com/jposluns/grc_library/tree/main/ai",
+            "//github.com/jposluns/grc_library/tree/main/ai",
+            "www.github.com/jposluns/grc_library/tree/main/ai",
+            "https://GitHub.COM/JPosluns/GRC_Library/tree/main/ai",
+        )
+        for bad in spellings:
+            with self.subTest(link=bad):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.mod.render_corpus_link_manifest(
+                        self.figures, variant,
+                        list(self.site_pages)
+                        + [("synthetic.txt", f"see {bad} for the source")],
+                    )
+                self.assertIn(bad, str(ctx.exception))
+
+    def test_sibling_repository_link_does_not_trigger_the_check(self):
+        # Round-3 fix 2: a boundary is required after the repository name,
+        # so a link to the grc_library_ref sibling is not read as this
+        # repository and raises nothing.
+        variant = self.mod.indexable_variant()
+        sibling = ("https://github.com/jposluns/grc_library_ref"
+                   "/blob/main/README.md")
+        text = self.mod.render_corpus_link_manifest(
+            self.figures, variant,
+            list(self.site_pages) + [("synthetic.txt", f"see {sibling}")],
+        )
+        self.assertNotIn("grc_library_ref", text)
+
+    def test_single_quoted_counted_href_produces_a_correct_manifest_row(self):
+        # Round-3 fix 2: a single quote ends a target in both scans, so a
+        # single-quoted href is counted as its real path with its own
+        # anchor text, never a garbled row.
+        variant = self.mod.indexable_variant()
+        blob = self.mod.GITHUB_BLOB_BASE + "no-such-quoted.md"
+        text = self.mod.render_corpus_link_manifest(
+            self.figures, variant,
+            list(self.site_pages)
+            + [("synthetic/index.html",
+                f"<a href='{blob}'>quoted probe</a>")],
+        )
+        self.assertIn(
+            "| no-such-quoted.md | /synthetic/ | quoted probe |", text)
+
     def test_draft_page_set_is_complete(self):
         self.assertIn("index.html", self.draft_html)
         self.assertIn("browse/index.html", self.draft_html)

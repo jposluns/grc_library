@@ -10,8 +10,10 @@ does not carry: the AIQT bootstrap, the default scan root (whole repo), the mark
 (``iter_targets``, kept here so the scan-scope regression's ALLOW map observes it unmoved), and the
 grc exempt policy (``is_exempt`` with the exempt-file set, the exempt-dir set, and the ``template-`` /
 ``worklist-`` filename-prefix carve-outs). The wrapper filters exempt files out before delegating, so
-the engine holds no project-file policy. These wrapper bytes are HAND-MAINTAINED, not
-compiler-generated, so gate 99 does NOT own them.
+the engine holds no project-file policy; it drives the engine's per-file ``scan`` and prints ONE
+combined report in the engine's ``run`` shape, with the generated manifest's wrapper-local scan
+(``manifest_findings``) counted and grouped alongside (round-3 fix 1c). These wrapper bytes are
+HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them.
 
 Boundary with the shall-near-uncertainty audit (``lint-shall-near-uncertainty.py``): the two share
 five marker tokens (TODO, TBD, FIXME, XXX, [Unverified]) plus a sixth in differing forms (this gate
@@ -33,7 +35,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import guard_explicit_paths_cwd, is_default_exempt_root, is_adopter_exempt, iter_non_code_lines, read_text_safe, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import guard_explicit_paths_cwd, is_default_exempt_root, is_adopter_exempt, read_text_safe, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 # Derive the pack tools/ from this file's location, independent of REPO_ROOT.
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
@@ -92,14 +94,18 @@ def _mask_manifest_line(line: str) -> str:
 
 
 def manifest_findings(path: Path, *, patterns) -> list[tuple[int, str, str]]:
-    """Findings for the generated manifest: the engine's patterns over the
-    engine's non-code lines, each line masked by ``_mask_manifest_line``
-    first. Reported excerpts are the original line, like the engine's."""
+    """Findings for the generated manifest: the engine's patterns over EVERY
+    line of the file, fenced or not (round-3 fix 1b: the manifest is a
+    generated table with no legitimate code fences, so the engine's
+    fence-aware line iterator would let a fence marker, terminated or not,
+    hide leaked content from the scan), each line masked by
+    ``_mask_manifest_line`` first. Reported excerpts are the original line,
+    like the engine's."""
     findings: list[tuple[int, str, str]] = []
     text = read_text_safe(path)
     if text is None:
         return findings
-    for lineno, line in iter_non_code_lines(text):
+    for lineno, line in enumerate(text.splitlines(), 1):
         masked = _mask_manifest_line(line)
         for pattern, label in patterns:
             if pattern.search(masked):
@@ -201,25 +207,52 @@ def main(argv: list[str]) -> int:
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     targets = iter_targets(args.paths)
     # The generated manifest takes the narrow TODO.md-token carve-out here in
-    # the wrapper (project-file policy); every other target goes to the engine
-    # whole. Only the real manifest path qualifies.
+    # the wrapper (project-file policy); every other target goes to the
+    # engine's per-file ``scan`` whole. Only the real manifest path qualifies.
+    # The wrapper groups and reports BOTH scans itself in ONE summary,
+    # mirroring the engine's ``run`` report shape (round-3 fix 1c: the former
+    # engine ``run`` call printed its own OK line before the wrapper's
+    # manifest FAIL block, a pass-then-fail contradiction, and its OK file
+    # count omitted the manifest).
     manifest_path = (REPO_ROOT / MANIFEST_REL).resolve()
-    engine_targets = [t for t in targets if t != manifest_path]
     patterns = _placeholders_config()
-    rc = _engine().run(engine_targets, repo_root=REPO_ROOT, patterns=patterns)
-    if manifest_path in targets:
-        findings = manifest_findings(manifest_path, patterns=patterns)
+    engine = _engine()
+    grouped: dict[Path, list[tuple[int, str, str]]] = {}
+    for target in targets:
+        findings = (manifest_findings(target, patterns=patterns)
+                    if target == manifest_path
+                    else engine.scan(target, patterns=patterns))
         if findings:
-            print(f"=== {MANIFEST_REL} ===")
-            for lineno, label, excerpt in findings:
-                print(f"  L{lineno} [{label}] {excerpt}")
-            print(
-                f"\nFAIL: {len(findings)} placeholder finding(s) in "
-                f"{MANIFEST_REL} (the TODO.md link-target token is the only "
-                "exempt cell content)."
-            )
-            return 1
-    return rc
+            grouped[target] = findings
+    if not grouped:
+        print(f"OK: no placeholder leakage (scanned {len(targets)} files).")
+        return 0
+    total = 0
+    for path, findings in sorted(grouped.items()):
+        try:
+            rel = path.relative_to(REPO_ROOT)
+        except ValueError:
+            rel = path
+        print(f"=== {rel} ===")
+        for lineno, label, excerpt in findings:
+            print(f"  L{lineno} [{label}] {excerpt}")
+        total += len(findings)
+    print(
+        f"\nFAIL: {total} placeholder finding(s) across {len(grouped)} file(s)."
+    )
+    print(
+        "Placeholders such as TODO, TBD, FIXME, XXX, or "
+        "<YYYY-MM-DD>-style markers should not appear in production library "
+        "documents. Either complete the content or move the document to the "
+        "template directory (filename prefix `template-`)."
+    )
+    if manifest_path in grouped:
+        print(
+            f"{MANIFEST_REL} is generated: the TODO.md link-target token is "
+            "the only exempt cell content; regenerate the manifest from "
+            "clean sources instead of editing it."
+        )
+    return 1
 
 
 if __name__ == "__main__":

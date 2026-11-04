@@ -2052,22 +2052,55 @@ def render_llms_txt(figures, variant):
 # existed, 48 distinct targets were linked by the site and covered by no gate
 # (Sweep 120 F2), and the promotion-era pages (document pages linking their
 # own sources, the documents index's root-spec links, the licence and For-AI
-# pages) would otherwise each need their own enumeration.
-TEMPLATE_CORPUS_LINK_RE = re.compile(
-    re.escape(GITHUB_BLOB_BASE) + r'([^"#?\s]+)'
-)
+# pages) would otherwise each need their own enumeration. The regex finds the
+# blob base alone; the target after it is read by `_link_target`, the ONE
+# extraction the uncounted-link check shares (round-3 fix 2).
+TEMPLATE_CORPUS_LINK_RE = re.compile(re.escape(GITHUB_BLOB_BASE))
 
 _ANCHOR_TEXT_RE_TEMPLATE = r'[^>]*>(?P<text>[^<]{1,120})</a>'
 
+# The one link-target extraction (round-3 fix 2), shared by the manifest scan
+# and the uncounted-link check so both end a link at the same characters: a
+# target runs to the first double or single quote, fragment, query,
+# whitespace, angle bracket or backslash. A closing parenthesis with no
+# opener earlier in the target ends it too (the Markdown `[text](url)` and
+# prose-parenthesis delimiters), while balanced parentheses stay inside, so a
+# counted corpus path whose name carries parentheses is read whole by BOTH
+# scans instead of splitting into a counted row and an uncounted link.
+_LINK_TARGET_RUN_RE = re.compile(r"[^\"'#?\s<>\\]*")
+
+
+def _link_target(text):
+    """The link target at the start of ``text``, per the shared extraction."""
+    run = _LINK_TARGET_RUN_RE.match(text).group(0)
+    depth = 0
+    for index, char in enumerate(run):
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            if depth == 0:
+                return run[:index]
+            depth -= 1
+    return run
+
+
 # Every spelling of a link to this repository (github.com and the raw host),
 # however deep, as it appears in an emitted output (an HTML attribute, a
-# Markdown link, or plain text). Used by the round-2 fix 3 coverage check:
-# a repository link the manifest scan does not count (a raw, tree or other
-# form, or a blob link in an output the scan does not read) would bypass
-# gate 75's resolution, so emitting one fails the build.
+# Markdown link, or plain text): the https, http, protocol-relative // and
+# bare www. forms, with the host, owner and repository matched
+# case-insensitively, and a boundary required after the repository name so
+# grc_library_ref (or any other grc_library-prefixed sibling) is never read
+# as this repository. The regex ends at the repository name; the link's tail
+# is read by `_link_target`, the same extraction the manifest scan uses.
+# Used by the round-2 fix 3 coverage check: a repository link the manifest
+# scan does not count (a raw, tree or other form, a non-canonical spelling,
+# or a blob link in an output the scan does not read) would bypass gate 75's
+# resolution, so emitting one fails the build.
 REPO_LINK_RE = re.compile(
-    r"https://(?:github\.com|raw\.githubusercontent\.com)"
-    r"/jposluns/grc_library[^\s\"'<>()\\]*"
+    r"(?:(?:https?:)?//(?:www\.)?|www\.)"
+    r"(?:github\.com|raw\.githubusercontent\.com)"
+    r"/jposluns/grc_library(?![\w-])",
+    re.IGNORECASE,
 )
 
 # The bare repository root is not a corpus-path target and is deliberately
@@ -2088,21 +2121,23 @@ def _staging_prefixes():
 def _uncounted_repo_links(pages, counted_targets):
     """Repository links in ANY emitted output (HTML or not) that the manifest
     scan does not count, as ``[(dist-relative path, link), ...]``: a raw-host
-    link, a tree or commit form, a blob link to a target no counted row
-    carries, or the blob base itself with no target. The bare repository
-    root (with or without a trailing slash) stays excluded, matching the
-    manifest's declared scope."""
+    link, a tree or commit form, a non-canonical spelling (http, protocol-
+    relative, www. or a case variant), a blob link to a target no counted row
+    carries, or the blob base itself with no target. Each link's tail is read
+    by ``_link_target``, the manifest scan's own extraction, so the two scans
+    end every link at the same characters (round-3 fix 2). The bare
+    repository root (with or without a trailing slash) stays excluded,
+    matching the manifest's declared scope."""
     uncounted = []
     for rel, content in pages:
         text = (content.decode("utf-8", "replace")
                 if isinstance(content, bytes) else content)
         for match in REPO_LINK_RE.finditer(text):
-            link = match.group(0)
+            link = match.group(0) + _link_target(text[match.end():])
             if link in (GITHUB_REPO_ROOT, GITHUB_REPO_ROOT + "/"):
                 continue
             if link.startswith(GITHUB_BLOB_BASE):
-                tail = link[len(GITHUB_BLOB_BASE):]
-                target = re.match(r'[^"#?\s]*', tail).group(0)
+                target = link[len(GITHUB_BLOB_BASE):]
                 if target and target in counted_targets:
                     continue
             uncounted.append((rel, link))
@@ -2135,8 +2170,11 @@ def render_corpus_link_manifest(figures, variant, pages):
             continue
         location = _site_path_for(variant, rel)
         for match in TEMPLATE_CORPUS_LINK_RE.finditer(content):
-            target = match.group(1)
-            anchor = re.match(_ANCHOR_TEXT_RE_TEMPLATE, content[match.end():])
+            target = _link_target(content[match.end():])
+            if not target:
+                continue  # the bare blob base links no corpus target
+            end = match.end() + len(target)
+            anchor = re.match(_ANCHOR_TEXT_RE_TEMPLATE, content[end:])
             label = (anchor.group("text").strip() if anchor
                      else target.rsplit("/", 1)[-1])
             rows[(target, location)] = label

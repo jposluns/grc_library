@@ -5828,6 +5828,105 @@ class PlaceholderLeakageTests(LinterTestCase):
         prose = "TODO: prose outside a table row"
         self.assertEqual(mask(prose), prose)
 
+    # -- round-3 fix 1: the wrapper's CLI path over the real manifest
+    # location, the whole-line (fence-blind) manifest scan, and the one
+    # combined summary.
+
+    def _cli_root(self, manifest_text):
+        """A private repository root whose ``.web/corpus-link-manifest.md``
+        is a copy of the committed manifest plus ``manifest_text``, beside
+        one clean document."""
+        root = self._fixture_base("plh-cli-root-")
+        web = root / ".web"
+        web.mkdir()
+        committed = (REPO_ROOT / ".web" / "corpus-link-manifest.md").read_text(
+            encoding="utf-8"
+        )
+        (web / "corpus-link-manifest.md").write_text(
+            committed + manifest_text, encoding="utf-8"
+        )
+        (root / "standard-clean.md").write_text(
+            VALID_METADATA, encoding="utf-8"
+        )
+        return root
+
+    def _run_wrapper_main_at_root(self, root):
+        """Run the wrapper's ``main`` exactly as the CLI does (no path
+        arguments, so the default whole-repo scan), with every root global
+        the wrapper reads patched to ``root``."""
+        from contextlib import redirect_stdout
+        from unittest.mock import patch
+
+        import lint_common
+
+        wrapper = load_linter_module(
+            "tools/lint-placeholder-leakage.py", "_plh_wrapper_cli"
+        )
+        out = io.StringIO()
+        with patch.object(wrapper, "REPO_ROOT", root), \
+                patch.object(wrapper, "DEFAULT_PATHS", [str(root)]), \
+                patch.object(lint_common, "REPO_ROOT", root), \
+                redirect_stdout(out):
+            code = wrapper.main(["lint-placeholder-leakage.py"])
+        return code, out.getvalue()
+
+    def test_cli_default_run_flags_a_manifest_marker_in_one_summary(self):
+        # Round-3 fix 1a: the CLI path itself (main, default scan, the real
+        # .web/corpus-link-manifest.md location) must exit 1 on a TBD in a
+        # manifest cell; and (fix 1c) the report is ONE combined summary,
+        # never an engine OK line followed by a wrapper FAIL block.
+        root = self._cli_root("| ai/README.md | /ai/ | TBD |\n")
+        code, text = self._run_wrapper_main_at_root(root)
+        self.assertEqual(code, 1, text)
+        self.assertIn(".web/corpus-link-manifest.md", text)
+        self.assertIn("TBD", text)
+        self.assertNotIn("OK:", text)
+        self.assertEqual(text.count("FAIL:"), 1, text)
+
+    def test_cli_default_run_counts_the_manifest_in_the_ok_summary(self):
+        # Round-3 fix 1c: on a clean tree the one OK summary's file count
+        # includes the manifest (here: the manifest plus one clean doc).
+        root = self._cli_root("")
+        code, text = self._run_wrapper_main_at_root(root)
+        self.assertEqual(code, 0, text)
+        self.assertNotIn("FAIL", text)
+        self.assertEqual(text.count("OK:"), 1, text)
+        self.assertIn("scanned 2 files", text)
+
+    def test_manifest_scan_reads_a_marker_inside_a_fence(self):
+        # Round-3 fix 1b: the manifest scan reads every line, fenced or not
+        # (the generated table has no legitimate fences, so a fence must
+        # hide nothing).
+        wrapper = load_linter_module(
+            "tools/lint-placeholder-leakage.py", "_plh_wrapper_fenced"
+        )
+        patterns = wrapper._placeholders_config()
+        fixture = self.make_fixture(
+            "manifest-fenced.md",
+            "| Corpus target | Website location | Link text |\n"
+            "| --- | --- | --- |\n"
+            "```\n"
+            "| ai/README.md | /ai/ | TBD |\n"
+            "```\n",
+        )
+        findings = wrapper.manifest_findings(fixture, patterns=patterns)
+        self.assertEqual([f[0] for f in findings], [4], findings)
+        self.assertIn("TBD", findings[0][1])
+
+    def test_manifest_scan_reads_after_an_unterminated_fence(self):
+        wrapper = load_linter_module(
+            "tools/lint-placeholder-leakage.py", "_plh_wrapper_unterminated"
+        )
+        patterns = wrapper._placeholders_config()
+        fixture = self.make_fixture(
+            "manifest-unterminated.md",
+            "```text\n"
+            "| ai/README.md | /ai/ | TBD |\n",
+        )
+        findings = wrapper.manifest_findings(fixture, patterns=patterns)
+        self.assertEqual([f[0] for f in findings], [2], findings)
+        self.assertIn("TBD", findings[0][1])
+
 
 class DateFormatTests(LinterTestCase):
     """tools/lint-date-format.py"""
@@ -41289,7 +41388,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
         lint-pii-in-content.py CWD F 3892a7ab7f09960df0bdeb187a3e2b61f406483620d6baa1eaa238ea91166d8e
-        lint-placeholder-leakage.py CWD F d1a996c06af31422d3e00670ff007891b687b3794d0e076dc21aa935aed95245
+        lint-placeholder-leakage.py CWD F 8de44c2447bcbae3e233c5d2429e86b672a3a2094bef4c51a95e039ed558b700
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
         lint-publication-manifest.py NO_FS F 4a017db9b2313865a406351d0d0d2fb2f0d4ffdaee4c79397b742d89965b21ad
