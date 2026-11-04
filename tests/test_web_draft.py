@@ -366,6 +366,17 @@ What is locked here, each test failing without its feature:
    non-PNG or wrong-size card, on a page carrying its own canonical, og: or
    twitter: tag, and on a page without exactly one title, meta description
    and head close.
+41. The standards page (maintainer decisions 2026-11-04 16:09 EST): the
+   Standards and frameworks page at /standards/ lists every citations-register
+   row grouped by register section, each entry the row's Standard ID plus
+   Current version composed per the register's citing convention with its
+   Topic, its Upstream check location as the one external link ("none
+   recorded" for "-"), and, where the Standard ID is a crosswalk instrument's
+   register_id, an internal link to that instrument's page; the rail anchors
+   equal the register's sections; the page sits under the Crosswalk bar
+   section, carries the aligned-to-not-certified caveat, and is linked from
+   the crosswalk caveats block, the comply Not listed section, and a sixth
+   landing Start here entry whose count is computed at build time.
 """
 
 from __future__ import annotations
@@ -977,6 +988,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn("browse/index.html", self.draft_html)
         self.assertIn("search/index.html", self.draft_html)
         self.assertIn("documents/index.html", self.draft_html)
+        self.assertIn("standards/index.html", self.draft_html)
         self.assertIn("contributors/index.html", self.draft_html)
         self.assertIn("for-ai/index.html", self.draft_html)
         self.assertIn("disclosure/index.html", self.draft_html)
@@ -1336,6 +1348,10 @@ class DraftSiteRenderTests(unittest.TestCase):
             return "/browse/"
         if first in ("decide", "decisions"):
             return "/decide/"
+        if first == "standards":
+            # The standards page sits under the Crosswalk section
+            # (maintainer decision 2026-11-04 16:09 EST).
+            return "/crosswalk/"
         if first in ("documents", "crosswalk", "search"):
             return f"/{first}/"
         self.assertIn(route, ("index.html", "404.html",
@@ -8286,6 +8302,183 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn("an unaliased spelling counts toward no instrument",
                       comment)
         self.assertNotIn("A spelling that cites an instrument", comment)
+
+    # -- 40. the standards and frameworks page -------------------------------
+
+    _STANDARDS_REGISTER_COLUMNS = [
+        "Standard ID", "Current version", "Publication date", "Topic",
+        "Superseded versions", "Upstream check location",
+        "Last verified (UTC)"]
+    _STANDARDS_GROUP_RE = re.compile(
+        r'<h2 id="([^"]+)">([^<]*)</h2>\s*<ul>(.*?)</ul>', re.S)
+    _STANDARDS_ITEM_RE = re.compile(
+        r'<li><span class="row-name">(.*?)</span>'
+        r'<span class="row-desc">(.*?)</span></li>', re.S)
+
+    def _register_sections(self):
+        """An independent reparse of the citations register: ``(heading,
+        [row cells, ...])`` per ``##`` section in register order, rows under
+        the register's exact seven-column header only (so a prose section or
+        the AI security tooling references table contributes none), raw cell
+        strings."""
+        text = (REPO_ROOT / "governance"
+                / "register-canonical-citations.md").read_text(
+                    encoding="utf-8")
+        sections = []
+        heading = None
+        state = "outside"
+        for line in text.splitlines():
+            if line.startswith("## "):
+                heading = line[len("## "):].strip()
+                state = "outside"
+                continue
+            if not line.strip().startswith("|"):
+                state = "outside"
+                continue
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if cells == self._STANDARDS_REGISTER_COLUMNS:
+                state = "header"
+                continue
+            if state == "header":
+                state = "rows"
+                if not sections or sections[-1][0] != heading:
+                    sections.append((heading, []))
+                continue
+            if state == "rows":
+                sections[-1][1].append(cells)
+        return [(h, rows) for h, rows in sections if rows]
+
+    @staticmethod
+    def _standards_expected_citation(sid, version):
+        """The register's citing convention (its Conventions section):
+        Standard ID plus Current version in the publisher's format, an ISO
+        or IEC bare-year edition joined with a colon, any other pairing with
+        a space; the ID alone where the version repeats its ending or is
+        "-". Register-internal HTML comments never reach a page."""
+        version = re.sub(r"<!--.*?-->", "", version, flags=re.S)
+        version = " ".join(version.split())
+        if version == "-" or sid == version or sid.endswith(" " + version):
+            return sid
+        if re.fullmatch(r"\d{4}", version) \
+                and sid.split()[0].split("/")[0] in ("ISO", "IEC"):
+            return f"{sid}:{version}"
+        return f"{sid} {version}"
+
+    def test_standards_entries_equal_a_reparse_of_the_register(self):
+        """One entry per register data row, grouped by register section in
+        register order; each entry's name is the Standard ID plus Current
+        version per the register's citing convention, its Topic follows, the
+        Upstream check location is the one external link ("none recorded"
+        for "-"), and the rail anchors equal the register's sections."""
+        html = self.draft_html["standards/index.html"]
+        sections = self._register_sections()
+        self.assertTrue(sections, "the register parses to sections")
+        groups = self._STANDARDS_GROUP_RE.findall(html)
+        self.assertEqual([unescape(h) for _, h, _ in groups],
+                         [h for h, _ in sections],
+                         "one group per register section, in register order")
+        rail = re.search(r'<nav class="rail".*?<ol>(.*?)</ol>', html, re.S)
+        self.assertIsNotNone(rail, "the standards page carries a rail")
+        self.assertEqual(
+            re.findall(r'<li><a href="#([^"]*)">([^<]*)</a></li>',
+                       rail.group(1)),
+            [(slug, h) for slug, h, _ in groups],
+            "the rail anchors equal the rendered sections")
+        total = 0
+        for (slug, _, body), (heading, rows) in zip(groups, sections):
+            items = self._STANDARDS_ITEM_RE.findall(body)
+            self.assertEqual(len(items), len(rows),
+                             f"{heading}: one entry per register row")
+            for (name, desc), cells in zip(items, rows):
+                total += 1
+                sid, version, topic, upstream = (
+                    cells[0], cells[1], cells[3], cells[5])
+                with self.subTest(standard=sid):
+                    self.assertEqual(
+                        unescape(name),
+                        self._standards_expected_citation(sid, version))
+                    expected_topic = self.mod._XW_TOPIC_NOTE_RE.sub(
+                        "", self.mod._xw_plain(topic))
+                    if expected_topic and expected_topic != "-":
+                        self.assertIn(
+                            self.mod._esc(expected_topic).rstrip("."), desc)
+                    if upstream == "-":
+                        self.assertIn(
+                            "Upstream check location: none recorded.", desc)
+                        self.assertNotIn('target="_blank"', desc)
+                    else:
+                        self.assertIn("Upstream check location: <a", desc)
+                        self.assertIn(
+                            f'href="{self.mod._esc(upstream)}"', desc)
+                        self.assertEqual(desc.count('target="_blank"'), 1,
+                                         "one external link per entry")
+        self.assertEqual(html.count('<span class="row-name">'), total,
+                         "every rendered entry is one register row")
+        self.assertIn(
+            f"{total} citations across {len(sections)} register sections",
+            html, "the meta line's counts are recomputed")
+
+    def test_standards_instrument_links_cover_exactly_the_register_ids(self):
+        """Every row whose Standard ID is a crosswalk instrument's
+        register_id links that instrument's page with its display name, and
+        no other entry links a crosswalk page."""
+        html = self.draft_html["standards/index.html"]
+        by_register_id = {i.register_id: i
+                          for i in self.mod.CROSSWALK_INSTRUMENTS
+                          if i.register_id is not None}
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        xw = self.mod.build_crosswalk(full)
+        linked = unlinked = 0
+        groups = self._STANDARDS_GROUP_RE.findall(html)
+        for (slug, _, body), (heading, rows) in zip(groups,
+                                                    self._register_sections()):
+            items = self._STANDARDS_ITEM_RE.findall(body)
+            for (name, desc), cells in zip(items, rows):
+                inst = by_register_id.get(cells[0])
+                with self.subTest(standard=cells[0]):
+                    if inst is None:
+                        unlinked += 1
+                        self.assertNotIn("/crosswalk/", desc)
+                    else:
+                        linked += 1
+                        self.assertIn(
+                            f'Mapped in the crosswalk: <a href="/crosswalk/'
+                            f'{inst.key}/">'
+                            f'{self.mod._esc(xw["instruments"][inst.key]["display"])}'
+                            "</a>", desc)
+        self.assertTrue(linked and unlinked,
+                        "rows of both kinds exist today")
+
+    def test_standards_page_caveat_nav_and_crosslinks(self):
+        """The standards page carries the aligned-to-not-certified caveat
+        and marks the Crosswalk bar section; the crosswalk caveats block,
+        the comply Not listed section and a sixth landing Start here entry
+        link /standards/, the landing count computed from the register."""
+        html = self.draft_html["standards/index.html"]
+        self.assertIn("aligned to these instruments, not certified against "
+                      "them", html)
+        self.assertIn('<a href="/crosswalk/" aria-current="page">', html)
+        crosswalk = self.draft_html["crosswalk/index.html"]
+        caveats = self._XW_CAVEATS_RE.search(crosswalk)
+        self.assertIsNotNone(caveats)
+        self.assertIn('href="/standards/"', caveats.group(1),
+                      "the crosswalk caveats block links the standards page")
+        comply = self.draft_html["comply/index.html"]
+        not_listed = re.search(r'<h2 id="not-listed">(.*?)<h2 ', comply, re.S)
+        self.assertIsNotNone(not_listed)
+        self.assertIn('href="/standards/"', not_listed.group(1),
+                      "the comply Not listed section links the standards page")
+        landing = self.draft_html["index.html"]
+        entries = re.search(r'<ol class="entries">(.*?)</ol>', landing, re.S)
+        self.assertIsNotNone(entries)
+        rows = re.findall(r'<li><a href="([^"]*)">', entries.group(1))
+        self.assertEqual(len(rows), 6, "six Start here entries")
+        self.assertIn("/standards/", rows)
+        count = sum(len(rows_) for _, rows_ in self._register_sections())
+        self.assertIn(f'<span class="n">{count} instruments</span>',
+                      entries.group(1),
+                      "the landing count is computed from the register")
 
 
 class DraftAdventureGuardTests(unittest.TestCase):
