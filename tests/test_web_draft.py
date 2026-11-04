@@ -882,6 +882,77 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn(
             "| no-such-quoted.md | /synthetic/ | quoted probe |", text)
 
+    def test_truncated_href_spellings_are_counted_whole(self):
+        # Round-4 fix 1/2: the old extraction cut a quoted href at a closing
+        # parenthesis, angle bracket, backslash or single quote, so each of
+        # these was counted as README.md while the real target never
+        # resolved. The parser takes the attribute value whole, so each is
+        # counted as its own (unresolvable) target and fails gate 75 instead
+        # of passing.
+        variant = self.mod.indexable_variant()
+        for tail in (")x", ">x", "\\x", "'x"):
+            with self.subTest(tail=tail):
+                target = "README.md" + tail
+                blob = self.mod.GITHUB_BLOB_BASE + target
+                text = self.mod.render_corpus_link_manifest(
+                    self.figures, variant,
+                    list(self.site_pages)
+                    + [("synthetic/index.html",
+                        f'<a href="{blob}">probe</a>')],
+                )
+                self.assertIn(f"| {target} | /synthetic/ | probe |", text)
+
+    def test_dot_suffixed_sibling_repository_is_not_matched(self):
+        # Round-4 fix 3: grc_library.ref passed the old (?![\w-]) boundary
+        # and was wrongly rejected; a dot now bounds the repository name too,
+        # so every grc_library-prefixed sibling passes untouched.
+        variant = self.mod.indexable_variant()
+        for sibling in (
+            "https://github.com/jposluns/grc_library.ref/blob/main/README.md",
+            "https://github.com/jposluns/grc_library-x/blob/main/README.md",
+            "https://github.com/jposluns/grc_libraryX/blob/main/README.md",
+        ):
+            with self.subTest(link=sibling):
+                text = self.mod.render_corpus_link_manifest(
+                    self.figures, variant,
+                    list(self.site_pages)
+                    + [("synthetic.txt", f"see {sibling}")],
+                )
+                for name in ("grc_library.ref", "grc_library-x",
+                             "grc_libraryX"):
+                    self.assertNotIn(name, text)
+
+    def test_evasive_spellings_of_an_uncounted_link_fail_the_build(self):
+        # Round-4 fix 3: round 3 found that backslash, port, userinfo,
+        # JSON-encoded and scheme-less spellings passed the scheme-anchored
+        # regex; the occurrence scan now reads the host wherever it appears,
+        # after normalizing backslash and JSON-encoded separators.
+        variant = self.mod.indexable_variant()
+        spellings = (
+            "https://github.com\\jposluns\\grc_library\\tree\\main\\ai",
+            "https://github.com:443/jposluns/grc_library/tree/main/ai",
+            "https://user@github.com/jposluns/grc_library/tree/main/ai",
+            "https:\\/\\/github.com\\/jposluns\\/grc_library"
+            "\\/tree\\/main\\/ai",
+            "github.com/jposluns/grc_library/tree/main/ai",
+        )
+        synthetic_pages = [
+            ("synthetic/index.html", '<p><a href="{}">probe</a></p>'),
+            ("synthetic.txt", "see {} for the source"),
+        ]
+        for bad in spellings:
+            for rel, template in synthetic_pages:
+                with self.subTest(link=bad, page=rel):
+                    with self.assertRaises(self.mod.BuildError) as ctx:
+                        self.mod.render_corpus_link_manifest(
+                            self.figures, variant,
+                            list(self.site_pages)
+                            + [(rel, template.format(bad))],
+                        )
+                    self.assertIn(rel, str(ctx.exception))
+                    # The excerpt is reported separator-normalized.
+                    self.assertIn("tree/main/ai", str(ctx.exception))
+
     def test_draft_page_set_is_complete(self):
         self.assertIn("index.html", self.draft_html)
         self.assertIn("browse/index.html", self.draft_html)

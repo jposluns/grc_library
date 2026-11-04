@@ -126,6 +126,7 @@ import unicodedata
 import urllib.parse
 from collections import Counter
 from html import unescape as html_unescape
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import NamedTuple
 
@@ -2050,58 +2051,167 @@ def render_llms_txt(figures, variant):
 # `render_corpus_link_manifest` scans the RENDERED pages for these so the
 # manifest (and therefore gate 75) reaches every one; before that scan
 # existed, 48 distinct targets were linked by the site and covered by no gate
-# (Sweep 120 F2), and the promotion-era pages (document pages linking their
-# own sources, the documents index's root-spec links, the licence and For-AI
-# pages) would otherwise each need their own enumeration. The regex finds the
-# blob base alone; the target after it is read by `_link_target`, the ONE
-# extraction the uncounted-link check shares (round-3 fix 2).
-TEMPLATE_CORPUS_LINK_RE = re.compile(re.escape(GITHUB_BLOB_BASE))
-
-_ANCHOR_TEXT_RE_TEMPLATE = r'[^>]*>(?P<text>[^<]{1,120})</a>'
-
-# The one link-target extraction (round-3 fix 2), shared by the manifest scan
-# and the uncounted-link check so both end a link at the same characters: a
-# target runs to the first double or single quote, fragment, query,
-# whitespace, angle bracket or backslash. A closing parenthesis with no
-# opener earlier in the target ends it too (the Markdown `[text](url)` and
-# prose-parenthesis delimiters), while balanced parentheses stay inside, so a
-# counted corpus path whose name carries parentheses is read whole by BOTH
-# scans instead of splitting into a counted row and an uncounted link.
-_LINK_TARGET_RUN_RE = re.compile(r"[^\"'#?\s<>\\]*")
+# (Sweep 120 F2). Round 4 replaces the regex extraction wholesale: three
+# review rounds each found new delimiter edge cases (a quoted value cut at a
+# closing parenthesis, angle bracket, backslash or single quote; sibling and
+# spelling variants at the repository-name boundary), so link URLs are now
+# collected by PARSING the HTML output (html.parser) and classified with
+# urllib.parse, never by a pattern over the raw text.
 
 
-def _link_target(text):
-    """The link target at the start of ``text``, per the shared extraction."""
-    run = _LINK_TARGET_RUN_RE.match(text).group(0)
-    depth = 0
-    for index, char in enumerate(run):
-        if char == "(":
-            depth += 1
-        elif char == ")":
-            if depth == 0:
-                return run[:index]
-            depth -= 1
-    return run
+class _OutputLinkParser(HTMLParser):
+    """Collects every ``href`` and ``src`` attribute value of an HTML output,
+    whole as the parser decodes it (quoted or not, character references
+    decoded), with the anchor's own text for an ``<a>``. ``links`` holds
+    ``[url, anchor text or None]`` entries in document order; a non-anchor
+    URL (or an anchor never closed) keeps ``None``."""
+
+    def __init__(self):
+        super().__init__()
+        self.links = []
+        self._anchor_entry = None
+        self._anchor_parts = None
+
+    def handle_starttag(self, tag, attrs):
+        for name, value in attrs:
+            if name in ("href", "src") and value is not None:
+                entry = [value, None]
+                self.links.append(entry)
+                if tag == "a" and name == "href":
+                    self._anchor_entry = entry
+                    self._anchor_parts = []
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self._anchor_entry is not None:
+            self._anchor_entry[1] = "".join(self._anchor_parts)
+            self._anchor_entry = None
+            self._anchor_parts = None
+
+    def handle_data(self, data):
+        if self._anchor_parts is not None:
+            self._anchor_parts.append(data)
 
 
-# Every spelling of a link to this repository (github.com and the raw host),
-# however deep, as it appears in an emitted output (an HTML attribute, a
-# Markdown link, or plain text): the https, http, protocol-relative // and
-# bare www. forms, with the host, owner and repository matched
-# case-insensitively, and a boundary required after the repository name so
-# grc_library_ref (or any other grc_library-prefixed sibling) is never read
-# as this repository. The regex ends at the repository name; the link's tail
-# is read by `_link_target`, the same extraction the manifest scan uses.
-# Used by the round-2 fix 3 coverage check: a repository link the manifest
-# scan does not count (a raw, tree or other form, a non-canonical spelling,
-# or a blob link in an output the scan does not read) would bypass gate 75's
-# resolution, so emitting one fails the build.
-REPO_LINK_RE = re.compile(
-    r"(?:(?:https?:)?//(?:www\.)?|www\.)"
+def _html_link_urls(content):
+    """Every (URL, anchor text or None) an HTML output links through an
+    ``href`` or ``src`` attribute, by parsing, not patterns."""
+    parser = _OutputLinkParser()
+    parser.feed(content)
+    parser.close()
+    return [(url, text) for url, text in parser.links]
+
+
+_REPO_OWNER = "jposluns"
+_REPO_NAME = "grc_library"
+
+
+def _manifest_target(url):
+    """The corpus target ``url`` links for the manifest, or None. A link
+    counts only when its scheme is https, its host is github.com
+    (case-insensitive, no userinfo, no port or port 443) and its path is
+    /jposluns/grc_library/blob/main/<target> exactly (owner and repository
+    case-insensitive, the repository segment exactly grc_library, so no
+    grc_library-prefixed sibling ever matches), with the target
+    percent-decoded and taken whole up to the query or fragment. The bare
+    blob base links no corpus target."""
+    try:
+        parts = urllib.parse.urlsplit(url)
+        port = parts.port
+    except ValueError:
+        return None
+    if parts.scheme != "https" or parts.hostname != "github.com":
+        return None
+    if parts.username is not None or parts.password is not None:
+        return None
+    if port not in (None, 443):
+        return None
+    segments = parts.path.split("/")
+    if len(segments) < 6 or segments[0] != "":
+        return None
+    if segments[1].lower() != _REPO_OWNER or segments[2].lower() != _REPO_NAME:
+        return None
+    if segments[3] != "blob" or segments[4] != "main":
+        return None
+    return urllib.parse.unquote("/".join(segments[5:])) or None
+
+
+# Any OTHER occurrence of this repository in ANY emitted output (HTML or not)
+# fails the build, so no emitted spelling can bypass gate 75 (round-2 fix 3,
+# rebuilt at round 4): after normalizing backslashes (and the JSON-encoded
+# backslash-slash spelling) to slashes, a case-insensitive search finds the
+# github.com and raw.githubusercontent.com hosts, with optional port or
+# userinfo forms, followed by /jposluns/grc_library at a segment boundary
+# (the next character is not a letter, digit, underscore, hyphen or dot, so
+# grc_library_ref, grc_library-x, grc_library.ref and grc_libraryX never
+# match), and the bare jposluns/grc_library/ spelling outside any URL the
+# manifest scan counted.
+_REPO_HOST_OCCURRENCE_RE = re.compile(
     r"(?:github\.com|raw\.githubusercontent\.com)"
-    r"/jposluns/grc_library(?![\w-])",
+    r"(?::\d+)?"
+    r"(?:(?::[^/@\s]*)?@[^/\s]*)?"
+    r"/jposluns/grc_library(?![A-Za-z0-9_.-])",
     re.IGNORECASE,
 )
+_REPO_BARE_OCCURRENCE_RE = re.compile(r"jposluns/grc_library/", re.IGNORECASE)
+
+# A character that extends a URL path: a counted-URL occurrence or the bare
+# repository root is excused only when the next character is none of these.
+# A query or fragment does not extend the target (which is read whole up to
+# either), so the same URL with one appended stays excused.
+_URL_PATH_CHAR_RE = re.compile(r"[A-Za-z0-9._~%/-]")
+
+# Characters that bound the reported excerpt around a flagged occurrence.
+_OCCURRENCE_BOUNDARY = set(" \t\r\n\"'<>()[]`")
+
+
+def _normalize_separators(text):
+    """Backslashes, and the JSON-encoded backslash-slash spelling, normalized
+    to slashes, so no backslash spelling evades the occurrence scan."""
+    return text.replace("\\/", "/").replace("\\", "/")
+
+
+def _occurrence_excerpt(text, start, end):
+    """The flagged occurrence with its surrounding run of non-delimiter
+    characters, so the failure message shows the whole spelling as emitted
+    (after separator normalization)."""
+    while start > 0 and text[start - 1] not in _OCCURRENCE_BOUNDARY:
+        start -= 1
+    while end < len(text) and text[end] not in _OCCURRENCE_BOUNDARY:
+        end += 1
+    return text[start:end]
+
+
+def _excused_spans(text, urls):
+    """The (start, end) spans of every occurrence of a counted URL in
+    ``text`` (both already separator-normalized) whose next character does
+    not extend the URL path."""
+    spans = []
+    for url in urls:
+        if not url:
+            continue
+        pos = text.find(url)
+        while pos != -1:
+            end = pos + len(url)
+            if end >= len(text) or not _URL_PATH_CHAR_RE.match(text[end]):
+                spans.append((pos, end))
+            pos = text.find(url, pos + 1)
+    return spans
+
+
+def _allowed_root_end(text, match):
+    """The end of a bare repository-root occurrence (with its trailing slash
+    when present), or None when ``match`` is not the allowed root form: the
+    exact ``https://github.com/jposluns/grc_library`` spelling with no path
+    after it (a query or fragment excepted), as before round 4."""
+    start = match.start() - len("https://")
+    if start < 0 or text[start:match.end()] != GITHUB_REPO_ROOT:
+        return None
+    end = match.end()
+    if end < len(text) and text[end] == "/":
+        end += 1
+    if end < len(text) and _URL_PATH_CHAR_RE.match(text[end]):
+        return None
+    return end
 
 # The bare repository root is not a corpus-path target and is deliberately
 # excluded from the manifest (the llms.txt map and the topbar link it).
@@ -2118,29 +2228,71 @@ def _staging_prefixes():
     )
 
 
-def _uncounted_repo_links(pages, counted_targets):
-    """Repository links in ANY emitted output (HTML or not) that the manifest
-    scan does not count, as ``[(dist-relative path, link), ...]``: a raw-host
-    link, a tree or commit form, a non-canonical spelling (http, protocol-
-    relative, www. or a case variant), a blob link to a target no counted row
-    carries, or the blob base itself with no target. Each link's tail is read
-    by ``_link_target``, the manifest scan's own extraction, so the two scans
-    end every link at the same characters (round-3 fix 2). The bare
-    repository root (with or without a trailing slash) stays excluded,
-    matching the manifest's declared scope."""
+def _uncounted_repo_occurrences(pages, counted_targets, counted_urls_by_rel):
+    """Occurrences of this repository in ANY emitted output (HTML or not)
+    that the manifest scan does not count, as ``[(dist-relative path,
+    excerpt), ...]``: any host spelling of a raw, tree or other form, an
+    evasive spelling (port, userinfo, backslash, JSON-encoded or
+    scheme-less), a blob URL whose target no counted row carries, the blob
+    base itself with no target, or the bare jposluns/grc_library/ spelling
+    outside a counted URL. An occurrence inside a URL the manifest scan
+    counted is excused (the same separator normalization applied to both
+    sides, with the canonical blob URL of every counted target excusing the
+    non-HTML outputs, llms.txt among them), and the bare repository root,
+    with or without a trailing slash, stays allowed, matching the manifest's
+    declared scope."""
+    canonical = [
+        _normalize_separators(GITHUB_BLOB_BASE + target)
+        for target in counted_targets
+    ]
     uncounted = []
     for rel, content in pages:
         text = (content.decode("utf-8", "replace")
                 if isinstance(content, bytes) else content)
-        for match in REPO_LINK_RE.finditer(text):
-            link = match.group(0) + _link_target(text[match.end():])
-            if link in (GITHUB_REPO_ROOT, GITHUB_REPO_ROOT + "/"):
-                continue
-            if link.startswith(GITHUB_BLOB_BASE):
-                target = link[len(GITHUB_BLOB_BASE):]
-                if target and target in counted_targets:
-                    continue
-            uncounted.append((rel, link))
+        text = _normalize_separators(text)
+        host_matches = list(_REPO_HOST_OCCURRENCE_RE.finditer(text))
+        bare_matches = list(_REPO_BARE_OCCURRENCE_RE.finditer(text))
+        if not host_matches and not bare_matches:
+            continue
+        spans = _excused_spans(
+            text,
+            [_normalize_separators(url)
+             for url in counted_urls_by_rel.get(rel, ())],
+        )
+
+        def covered(match):
+            return any(s <= match.start() and match.end() <= e
+                       for s, e in spans)
+
+        pending = [m for m in host_matches if not covered(m)]
+        pending_bare = [m for m in bare_matches if not covered(m)]
+        root_spans = []
+        flagged = []
+        for match in pending:
+            root_end = _allowed_root_end(text, match)
+            if root_end is not None:
+                root_spans.append((match.start() - len("https://"), root_end))
+            else:
+                flagged.append(match)
+        pending_bare = [
+            m for m in pending_bare
+            if not any(s <= m.start() and m.end() <= e for s, e in root_spans)
+        ]
+        if flagged or pending_bare:
+            # Second chance for an occurrence outside a parsed attribute (a
+            # non-HTML output, or page text): the canonical blob URL of a
+            # counted target excuses it, exactly as a counted attribute does.
+            spans.extend(_excused_spans(text, canonical))
+            flagged = [m for m in flagged if not covered(m)]
+            pending_bare = [m for m in pending_bare if not covered(m)]
+        flagged_spans = [(m.start(), m.end()) for m in flagged]
+        for match in pending_bare:
+            if any(match.start() < e and match.end() > s
+                   for s, e in flagged_spans):
+                continue  # already reported through its host form
+            flagged_spans.append((match.start(), match.end()))
+        for start, end in sorted(flagged_spans):
+            uncounted.append((rel, _occurrence_excerpt(text, start, end)))
     return uncounted
 
 
@@ -2152,41 +2304,54 @@ def render_corpus_link_manifest(figures, variant, pages):
     tree's outputs are out of the manifest's declared scope) plus the
     curated llms.txt corpus links (CURATED_CORPUS_LINKS), so the manifest
     cannot drift from the emitted links, whatever machinery emitted them.
-    The link text is the anchor's own text when it can be read, else the
-    target's basename. The repo-root and on-site links are not corpus-path
-    targets and are excluded, matching the gate's scope. ``pages`` is the
-    render_site output (dist-relative path, content). Round-2 fix 3: any
-    repository link in any emitted output that this scan does not count (a
-    raw, tree or other form) is a BuildError, so no emitted link can bypass
-    gate 75."""
+    Round 4: link URLs come whole from html.parser (every href and src
+    attribute value, ``_html_link_urls``) and are classified by
+    ``_manifest_target`` (urllib.parse), never by a pattern over the raw
+    text. The link text is the anchor's own text as the parser gives it
+    (whitespace collapsed to keep the table rows well formed; the target's
+    basename when the URL is not an anchor's or the anchor has no text). The
+    repo-root and on-site links are not corpus-path targets and are
+    excluded, matching the gate's scope. ``pages`` is the render_site output
+    (dist-relative path, content). Round-2 fix 3, kept: any other occurrence
+    of this repository in any emitted output is a BuildError, so no emitted
+    spelling can bypass gate 75."""
     rows = {}  # (target, location) -> link_text, dedup-safe and deterministic
     for path, label in CURATED_CORPUS_LINKS:
         rows[(path, "llms.txt")] = label
     staging = _staging_prefixes()
+    parsed_links = []  # (rel, [(url, anchor text or None), ...]), every HTML
     for rel, content in pages:
         if not rel.endswith(".html") or not isinstance(content, str):
             continue
+        links = _html_link_urls(content)
+        parsed_links.append((rel, links))
         if staging and rel.startswith(staging):
             continue
         location = _site_path_for(variant, rel)
-        for match in TEMPLATE_CORPUS_LINK_RE.finditer(content):
-            target = _link_target(content[match.end():])
-            if not target:
-                continue  # the bare blob base links no corpus target
-            end = match.end() + len(target)
-            anchor = re.match(_ANCHOR_TEXT_RE_TEMPLATE, content[end:])
-            label = (anchor.group("text").strip() if anchor
-                     else target.rsplit("/", 1)[-1])
-            rows[(target, location)] = label
-    uncounted = _uncounted_repo_links(
-        pages, {target for target, _ in rows}
+        for url, anchor_text in links:
+            target = _manifest_target(url)
+            if target is None:
+                continue
+            label = " ".join(anchor_text.split()) if anchor_text else ""
+            rows[(target, location)] = label or target.rsplit("/", 1)[-1]
+    counted_targets = {target for target, _ in rows}
+    # A parsed URL counting a manifest target is excused wherever it occurs,
+    # on a staging page too (a staging link to a counted target gains no row
+    # and raises nothing; one to an uncounted target still fails below).
+    counted_urls_by_rel = {
+        rel: [url for url, _ in links
+              if _manifest_target(url) in counted_targets]
+        for rel, links in parsed_links
+    }
+    uncounted = _uncounted_repo_occurrences(
+        pages, counted_targets, counted_urls_by_rel
     )
     if uncounted:
         listed = "; ".join(f"{rel}: {link}" for rel, link in uncounted[:20])
         raise BuildError(
-            "repository link(s) the corpus-link manifest scan does not count "
-            "(use the blob form the scan reads, or link the repository root): "
-            + listed
+            "repository occurrence(s) the corpus-link manifest scan does not "
+            "count (link the blob form in an href or src attribute of an "
+            "HTML page, or link the repository root): " + listed
         )
     lines = [
         "# Web-to-corpus link manifest",

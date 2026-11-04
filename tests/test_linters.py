@@ -5927,6 +5927,56 @@ class PlaceholderLeakageTests(LinterTestCase):
         self.assertEqual([f[0] for f in findings], [2], findings)
         self.assertIn("TBD", findings[0][1])
 
+    # -- round-4 item 5: the wrapper prints its own combined report in the
+    # engine's ``run`` shape; these pin the wrapper's report text equal to
+    # the engine's run output for the same findings (and for a clean scan),
+    # so the copied shape cannot drift silently.
+
+    def _engine_run_output(self, wrapper, root, targets):
+        """The engine's ``run`` report and exit code for ``targets``."""
+        from contextlib import redirect_stdout
+
+        engine = wrapper._engine()
+        patterns = wrapper._placeholders_config()
+        out = io.StringIO()
+        with redirect_stdout(out):
+            code = engine.run(targets, repo_root=root, patterns=patterns)
+        return code, out.getvalue()
+
+    def test_wrapper_fail_report_text_equals_the_engines_run_output(self):
+        wrapper = load_linter_module(
+            "tools/lint-placeholder-leakage.py", "_plh_wrapper_parity_fail"
+        )
+        root = self._fixture_base("plh-parity-fail-")
+        leaky = root / "standard-leaky.md"
+        leaky.write_text(
+            VALID_METADATA + "\n\nTODO: complete this section.\n"
+            "Status: TBD for now.\n",
+            encoding="utf-8",
+        )
+        clean = root / "standard-clean.md"
+        clean.write_text(VALID_METADATA, encoding="utf-8")
+        engine_code, engine_text = self._engine_run_output(
+            wrapper, root, [clean, leaky])
+        wrapper_code, wrapper_text = self._run_wrapper_main_at_root(root)
+        self.assertEqual((wrapper_code, wrapper_text),
+                         (engine_code, engine_text))
+        self.assertEqual(engine_code, 1, engine_text)
+
+    def test_wrapper_ok_report_text_equals_the_engines_run_output(self):
+        wrapper = load_linter_module(
+            "tools/lint-placeholder-leakage.py", "_plh_wrapper_parity_ok"
+        )
+        root = self._fixture_base("plh-parity-ok-")
+        clean = root / "standard-clean.md"
+        clean.write_text(VALID_METADATA, encoding="utf-8")
+        engine_code, engine_text = self._engine_run_output(
+            wrapper, root, [clean])
+        wrapper_code, wrapper_text = self._run_wrapper_main_at_root(root)
+        self.assertEqual((wrapper_code, wrapper_text),
+                         (engine_code, engine_text))
+        self.assertEqual(engine_code, 0, engine_text)
+
 
 class DateFormatTests(LinterTestCase):
     """tools/lint-date-format.py"""
@@ -41388,7 +41438,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
         lint-pii-in-content.py CWD F 3892a7ab7f09960df0bdeb187a3e2b61f406483620d6baa1eaa238ea91166d8e
-        lint-placeholder-leakage.py CWD F 8de44c2447bcbae3e233c5d2429e86b672a3a2094bef4c51a95e039ed558b700
+        lint-placeholder-leakage.py CWD F b37d2c6e8059f10902b853449c6e40b6c6aa2366ec4636075f04825ae782e447
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
         lint-publication-manifest.py NO_FS F 4a017db9b2313865a406351d0d0d2fb2f0d4ffdaee4c79397b742d89965b21ad

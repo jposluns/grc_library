@@ -24,7 +24,9 @@ Usage:
     python3 tools/lint-placeholder-leakage.py
     python3 tools/lint-placeholder-leakage.py path1 path2 ...
 
-Exit codes are the engine's: 0 clean; 1 findings.
+Exit codes are the wrapper's (0 clean, 1 findings, the engine's convention): the wrapper drives the
+engine's per-file ``scan`` and returns its own combined verdict in the engine's ``run`` shape; the
+report-text parity with the engine's ``run`` is pinned by a regression test.
 """
 
 from __future__ import annotations
