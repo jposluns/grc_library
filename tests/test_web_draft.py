@@ -8,9 +8,12 @@ What is locked here, each test failing without its feature:
 1. The promoted root: the variant's outputs are the site root (no output
    under the old ``draft/`` prefix), the discovery files cover the promoted
    pages and never mention the draft, ``_redirects`` carries exactly the
-   three decided rules, and the durable route-coverage pin
-   (PromotedRouteCoverageTests) proves every pre-promotion URL still
-   resolves or redirects.
+   decided rules (the three promotion rules plus the slashless, index.html
+   and bare-/draft spellings, round-2 fix 7), the sitemap URL set equals
+   the rendered indexable HTML page set exactly (round-2 fix 1), and the
+   durable route-coverage pin (PromotedRouteCoverageTests) proves every
+   pre-promotion URL still resolves or redirects, with the pre-promotion
+   /draft/ inventory pinned as fixture literals (round-2 fix 6).
 2. Page hygiene: every page is indexable with exactly one self-canonical at
    its own root URL (the 404 page keeps a static noindex and no canonical),
    carries the baseline head order and the favicon and touch-icon
@@ -361,6 +364,7 @@ import urllib.parse
 from collections import Counter
 from html import unescape
 from pathlib import Path
+from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -714,13 +718,105 @@ class DraftSiteRenderTests(unittest.TestCase):
                              f"page {rel} must not link the old /draft prefix")
 
     def test_redirects_file_exact(self):
+        # Round-2 fix 7: the slashless and index.html spellings of the two
+        # redirected addresses, and /draft itself (which the /draft/* splat
+        # does not match), carry their own rules beside the original three.
         self.assertEqual(len(self.by_rel["_redirects"]), 1)
         self.assertEqual(
             self.by_rel["_redirects"][0],
             "/draft/* /:splat 301\n"
+            "/draft / 301\n"
             "/about/ /contributors/ 301\n"
-            "/pack/ https://aiqt.ai/ 301\n",
+            "/about /contributors/ 301\n"
+            "/about/index.html /contributors/ 301\n"
+            "/pack/ https://aiqt.ai/ 301\n"
+            "/pack https://aiqt.ai/ 301\n"
+            "/pack/index.html https://aiqt.ai/ 301\n",
         )
+
+    def test_sitemap_urls_equal_the_indexable_html_page_set_exactly(self):
+        # Round-2 fix 1: the page list fed to the sitemap took every variant
+        # output except 404.html, so the 37 copied baseline asset files
+        # (fonts, CSS, JS, logos, licence texts) were listed as pages. The
+        # sitemap URL set must equal the rendered indexable HTML page set
+        # exactly (404.html stays excluded).
+        sitemap = self.by_rel["sitemap.xml"][0]
+        listed = re.findall(r"<loc>([^<]*)</loc>", sitemap)
+        self.assertEqual(len(listed), len(set(listed)), "no repeated URL")
+        expected = {
+            self.mod._site_url_for(self.draft_variant, rel)
+            for rel in self.draft_html
+            if rel != "404.html"
+        }
+        self.assertEqual(set(listed), expected)
+
+    def test_uncounted_repository_link_fails_the_build(self):
+        # Round-2 fix 3: a repository link in any emitted output (HTML or
+        # not) that the manifest scan does not count (a raw, tree or other
+        # form) would bypass gate 75, so it is a BuildError; the real render
+        # passes (every emitted repository link is counted or the bare root).
+        variant = self.mod.indexable_variant()
+        self.mod.render_corpus_link_manifest(
+            self.figures, variant, self.site_pages)
+        bad_links = (
+            "https://github.com/jposluns/grc_library/tree/main/ai",
+            "https://raw.githubusercontent.com/jposluns/grc_library/main/taxonomy.yml",
+        )
+        synthetic_pages = [
+            ("synthetic/index.html", '<p><a href="{}">probe</a></p>'),
+            ("synthetic.txt", "see {} for the source"),
+        ]
+        for bad in bad_links:
+            for rel, template in synthetic_pages:
+                with self.subTest(link=bad, page=rel):
+                    with self.assertRaises(self.mod.BuildError) as ctx:
+                        self.mod.render_corpus_link_manifest(
+                            self.figures, variant,
+                            list(self.site_pages)
+                            + [(rel, template.format(bad))],
+                        )
+                    self.assertIn(bad, str(ctx.exception))
+                    self.assertIn(rel, str(ctx.exception))
+        # A blob link in an output the scan does NOT read (non-HTML) is
+        # uncounted too; in a scanned HTML page the same link is counted as a
+        # manifest row instead (and gate 75 then resolves it).
+        blob = self.mod.GITHUB_BLOB_BASE + "no-such-file.md"
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.mod.render_corpus_link_manifest(
+                self.figures, variant,
+                list(self.site_pages) + [("synthetic.txt", f"see {blob}")],
+            )
+        self.assertIn(blob, str(ctx.exception))
+        text = self.mod.render_corpus_link_manifest(
+            self.figures, variant,
+            list(self.site_pages)
+            + [("synthetic/index.html", f'<a href="{blob}">probe</a>')],
+        )
+        self.assertIn("| no-such-file.md | /synthetic/ |", text)
+
+    def test_manifest_scan_counts_only_the_indexable_variant_pages(self):
+        # Round-2 fix 3 (scope): the manifest's declared scope is the
+        # indexable root variant's pages, but the scan read every variant's
+        # HTML, so a staging tree's links would gain manifest rows with
+        # root-relative locations. A staging-prefixed page's counted-target
+        # link must produce no row.
+        variant = self.mod.indexable_variant()
+        staging = self.mod.Variant(
+            "staged", "templates-draft", "v9/", indexable=False,
+            document_routes=True, narrative_routes=True,
+            pages=self.mod.DRAFT_PAGES, draft_rules=True,
+        )
+        staged_page = (
+            "v9/probe/index.html",
+            f'<a href="{self.mod.GITHUB_BLOB_BASE}taxonomy.yml">taxonomy.yml</a>',
+        )
+        with mock.patch.object(
+            self.mod, "VARIANTS", self.mod.VARIANTS + (staging,)
+        ):
+            text = self.mod.render_corpus_link_manifest(
+                self.figures, variant, list(self.site_pages) + [staged_page])
+        self.assertNotIn("/v9/", text)
+        self.assertNotIn("v9/probe", text)
 
     def test_draft_page_set_is_complete(self):
         self.assertIn("index.html", self.draft_html)
@@ -3222,6 +3318,55 @@ class DraftSiteRenderTests(unittest.TestCase):
                     _ROW_HREF_RE.findall(section.group(1)),
                     [_reading_room_href(p) for p in joined],
                     "the rows are the registry join, in order")
+
+    def test_forced_empty_narrative_join_renders_the_declared_gap(self):
+        # Round-2 fix 4: every corpus domain currently joins at least one
+        # narrative, so the declared-gap branch rendered untested; force an
+        # empty join through the promoted renderer.
+        dp = dict(self.figures["domain_pages"][0])
+        dp["narratives"] = []
+        docs_by_path = {
+            d["path"]: d
+            for d in self.mod.parse_taxonomy_full(
+                self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        }
+        values = self.mod.draft_domain_values(
+            dp, docs_by_path, "{{BASE}}/browse/", "Browse", leadership=True)
+        sections = values["DOMAIN_SECTIONS"]
+        self.assertIn('<p class="lbl sec">Leadership, 0</p>', sections)
+        leadership = sections.split('<h2 id="leadership">', 1)[1]
+        self.assertIn("a declared coverage gap, not a hidden one", leadership)
+        self.assertNotIn('<ul class="plan one">', leadership,
+                         "no narrative listing on an empty join")
+        self.assertNotIn("decisions/", leadership,
+                         "no narrative link on an empty join")
+
+    def test_type_absent_from_the_route_table_fails_the_build(self):
+        # Round-2 fix 5: the unrouted-type guard (narrative_route_bodies)
+        # had no test, so a weakened guard passed; and a type present in
+        # DRAFT_NARRATIVE_SUBTYPES but absent from NARRATIVE_ROUTE_TYPES
+        # now fails the build too, even with no registry page of the type.
+        dropped = self.mod.NARRATIVE_ROUTE_TYPES[-1]
+        reduced = self.mod.NARRATIVE_ROUTE_TYPES[:-1]
+        self.assertIn(dropped, self.mod.DRAFT_NARRATIVE_SUBTYPES)
+        scenarios = {
+            "registry": self.figures,
+            "subtypes-only": {
+                **self.figures,
+                "narratives": [p for p in self.figures["narratives"]
+                               if p["narrative_type"] != dropped],
+            },
+        }
+        for name, figures in scenarios.items():
+            with self.subTest(scenario=name):
+                with mock.patch.object(
+                    self.mod, "NARRATIVE_ROUTE_TYPES", reduced
+                ):
+                    with self.assertRaises(self.mod.BuildError) as ctx:
+                        list(self.mod.narrative_route_bodies(
+                            figures, self.draft_variant, set()))
+                self.assertIn("no on-site route", str(ctx.exception))
+                self.assertIn(dropped, str(ctx.exception))
 
     def test_every_executive_page_carries_the_authority_qualifier(self):
         """Round-1 WARN: removing any clause of the layer's authority
@@ -9658,8 +9803,9 @@ class PromotedRouteCoverageTests(unittest.TestCase):
     as a literal, never derived) must resolve to a rendered output of the
     promoted site or redirect, in one hop through the emitted ``_redirects``,
     to a rendered output or an allow-listed external URL; and every
-    pre-promotion /draft/ path must map through the splat rule to an
-    existing output."""
+    pre-promotion /draft/ path (the inventory main 716a3f53b rendered,
+    pinned as literals in tests/fixtures/pre-promotion-draft-inventory.txt)
+    must map through the splat rule to an existing output."""
 
     # The pre-promotion live root inventory, pinned as literals: the 33
     # sitemap URLs (the 4 fixed pages, 12 domain pages, 17 type pages) plus
@@ -9719,11 +9865,19 @@ class PromotedRouteCoverageTests(unittest.TestCase):
                 return self._lookup(dst)
         return self._lookup(url)
 
-    def test_redirect_rules_are_exactly_the_decided_three(self):
+    def test_redirect_rules_are_exactly_the_decided_rules(self):
+        # The three promotion rules plus the round-2 fix 7 spellings: the
+        # slashless and index.html forms of the two redirected addresses,
+        # and /draft itself (the /draft/* splat does not match it).
         self.assertEqual(self.rules, [
             ("/draft/*", "/:splat", "301"),
+            ("/draft", "/", "301"),
             ("/about/", "/contributors/", "301"),
+            ("/about", "/contributors/", "301"),
+            ("/about/index.html", "/contributors/", "301"),
             ("/pack/", "https://aiqt.ai/", "301"),
+            ("/pack", "https://aiqt.ai/", "301"),
+            ("/pack/index.html", "https://aiqt.ai/", "301"),
         ])
 
     def test_every_pre_promotion_root_url_resolves_or_redirects(self):
@@ -9739,19 +9893,50 @@ class PromotedRouteCoverageTests(unittest.TestCase):
         # The carried-over page serves directly, not via a redirect.
         self.assertEqual(self._lookup("/for-ai/"), "for-ai/index.html")
 
+    def test_slashless_index_html_and_bare_draft_forms_redirect(self):
+        # Round-2 fix 7: the alternate spellings land where their canonical
+        # addresses do, each in one 301 hop.
+        self.assertEqual(self._resolve("/about"), "contributors/index.html")
+        self.assertEqual(self._resolve("/about/index.html"),
+                         "contributors/index.html")
+        self.assertEqual(self._resolve("/pack"), "https://aiqt.ai/")
+        self.assertEqual(self._resolve("/pack/index.html"),
+                         "https://aiqt.ai/")
+        self.assertEqual(self._resolve("/draft"), "index.html")
+
+    # The pinned pre-promotion /draft/ output inventory (round-2 fix 6):
+    # every dist-relative output path main 716a3f53b's own .web/build.py
+    # rendered for the draft tree, stored as fixture literals, never derived
+    # from the promoted render.
+    DRAFT_INVENTORY = (REPO_ROOT / "tests" / "fixtures"
+                       / "pre-promotion-draft-inventory.txt")
+
     def test_every_pre_promotion_draft_path_maps_through_the_splat(self):
-        variant = next(v for v in self.mod.VARIANTS if v.draft_rules)
-        rendered = self.mod.render_variant(self.figures, variant)
-        self.assertTrue(rendered)
-        for rel, _ in rendered:
-            out_rel = self.mod.output_rel_for(variant, rel)
-            old_url = "/draft/" + self.mod._site_path_for(
-                variant, out_rel).lstrip("/")
+        inventory = [
+            line
+            for line in self.DRAFT_INVENTORY.read_text(
+                encoding="utf-8").splitlines()
+            if line and not line.startswith("#")
+        ]
+        # The whole pinned tree: 494 pages and files plus the 37 copied
+        # baseline assets of the pre-promotion draft render.
+        self.assertEqual(len(inventory), 531)
+        self.assertEqual(len(inventory), len(set(inventory)))
+        for out_rel in inventory:
+            self.assertTrue(out_rel.startswith("draft/"), out_rel)
+            promoted_rel = out_rel[len("draft/"):]
+            if out_rel.endswith("/index.html"):
+                old_url = "/" + out_rel[: -len("index.html")]
+            else:
+                old_url = "/" + out_rel
             with self.subTest(url=old_url):
                 self.assertEqual(
-                    self._resolve(old_url), out_rel,
+                    self._resolve(old_url), promoted_rel,
                     f"{old_url}: the pre-promotion draft address must map "
                     "through the splat to its promoted output")
+            # The explicit file spelling resolves through the splat too.
+            with self.subTest(url="/" + out_rel):
+                self.assertEqual(self._resolve("/" + out_rel), promoted_rel)
 
 
 if __name__ == "__main__":

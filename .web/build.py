@@ -343,7 +343,6 @@ _ROOT_HREF_RE = re.compile(r'(?i)href' + r'\s*=\s*["\']?/')
 # while root specifications, which have no on-site page, still open on GitHub.
 # Pages carry a canonical URL for SEO. Both are the public repository / site, no secret.
 GITHUB_BLOB_BASE = "https://github.com/jposluns/grc_library/blob/main/"
-RAW_GITHUB_BASE = "https://raw.githubusercontent.com/jposluns/grc_library/main/"
 
 # The curated corpus artefacts linked from the llms.txt map (repo-relative path,
 # label). The manifest's llms.txt rows are re-derived from this list. NOTE: this
@@ -408,11 +407,19 @@ HEADERS_FILE = (
 # through the splat (the promoted tree is the draft tree with the prefix
 # stripped, so every target exists by construction); the old About page's
 # contributor content moved to /contributors/; the old rule-pack page's
-# subject is now the AIQT project.
+# subject is now the AIQT project. Round-2 fix 7: the splat covers only
+# paths under /draft/, and Pages matches rules literally, so the slashless
+# and explicit index.html spellings of each redirected address carry their
+# own rules (/draft itself lands on the promoted root).
 REDIRECTS_FILE = (
     "/draft/* /:splat 301\n"
+    "/draft / 301\n"
     "/about/ /contributors/ 301\n"
+    "/about /contributors/ 301\n"
+    "/about/index.html /contributors/ 301\n"
     "/pack/ https://aiqt.ai/ 301\n"
+    "/pack https://aiqt.ai/ 301\n"
+    "/pack/index.html https://aiqt.ai/ 301\n"
 )
 
 # RFC 9116 security.txt, served at /.well-known/security.txt by the indexable
@@ -1819,14 +1826,19 @@ def narrative_route_bodies(figures, variant, seen_out_rels):
     # Every registry type must be a routed type: a future NEW narrative
     # type would otherwise fall through the filter below and silently
     # skip on-site rendering (PR-2b widened the tuple to all six
-    # published types; this check keeps the widening honest).
+    # published types; this check keeps the widening honest). The
+    # subtype-index table joins the union (round-2 fix 5): a type with a
+    # DRAFT_NARRATIVE_SUBTYPES entry but no route would publish an index
+    # whose pages the reading room never renders.
     unrouted = sorted(
-        {p["narrative_type"] for p in figures["narratives"]}
+        ({p["narrative_type"] for p in figures["narratives"]}
+         | set(DRAFT_NARRATIVE_SUBTYPES))
         - set(NARRATIVE_ROUTE_TYPES)
     )
     if unrouted:
         raise BuildError(
-            "narrative registry type(s) with no on-site route (add to "
+            "narrative type(s) with no on-site route (in the registry or "
+            "DRAFT_NARRATIVE_SUBTYPES; add to "
             f"NARRATIVE_ROUTE_TYPES): {', '.join(unrouted)}"
         )
     tracked = _tracked_executive_paths()
@@ -2047,23 +2059,79 @@ TEMPLATE_CORPUS_LINK_RE = re.compile(
 
 _ANCHOR_TEXT_RE_TEMPLATE = r'[^>]*>(?P<text>[^<]{1,120})</a>'
 
+# Every spelling of a link to this repository (github.com and the raw host),
+# however deep, as it appears in an emitted output (an HTML attribute, a
+# Markdown link, or plain text). Used by the round-2 fix 3 coverage check:
+# a repository link the manifest scan does not count (a raw, tree or other
+# form, or a blob link in an output the scan does not read) would bypass
+# gate 75's resolution, so emitting one fails the build.
+REPO_LINK_RE = re.compile(
+    r"https://(?:github\.com|raw\.githubusercontent\.com)"
+    r"/jposluns/grc_library[^\s\"'<>()\\]*"
+)
+
+# The bare repository root is not a corpus-path target and is deliberately
+# excluded from the manifest (the llms.txt map and the topbar link it).
+GITHUB_REPO_ROOT = "https://github.com/jposluns/grc_library"
+
+
+def _staging_prefixes():
+    """The dist-relative path prefixes of every non-indexable variant, for
+    excluding staging outputs from the indexable-root manifest scan."""
+    return tuple(
+        v.url_prefix.strip("/") + "/"
+        for v in VARIANTS
+        if not v.indexable and v.url_prefix.strip("/")
+    )
+
+
+def _uncounted_repo_links(pages, counted_targets):
+    """Repository links in ANY emitted output (HTML or not) that the manifest
+    scan does not count, as ``[(dist-relative path, link), ...]``: a raw-host
+    link, a tree or commit form, a blob link to a target no counted row
+    carries, or the blob base itself with no target. The bare repository
+    root (with or without a trailing slash) stays excluded, matching the
+    manifest's declared scope."""
+    uncounted = []
+    for rel, content in pages:
+        text = (content.decode("utf-8", "replace")
+                if isinstance(content, bytes) else content)
+        for match in REPO_LINK_RE.finditer(text):
+            link = match.group(0)
+            if link in (GITHUB_REPO_ROOT, GITHUB_REPO_ROOT + "/"):
+                continue
+            if link.startswith(GITHUB_BLOB_BASE):
+                tail = link[len(GITHUB_BLOB_BASE):]
+                target = re.match(r'[^"#?\s]*', tail).group(0)
+                if target and target in counted_targets:
+                    continue
+            uncounted.append((rel, link))
+    return uncounted
+
 
 def render_corpus_link_manifest(figures, variant, pages):
     """The committed web-to-corpus link manifest: one row per corpus/GitHub
     target the indexable root variant's pages link (its repo-relative path,
     its website location, and its link text). Re-derived by scanning the
-    RENDERED HTML pages the build just produced plus the curated llms.txt
-    corpus links (CURATED_CORPUS_LINKS), so the manifest cannot drift from
-    the emitted links, whatever machinery emitted them. The link text is the
-    anchor's own text when it can be read, else the target's basename. The
-    repo-root and on-site links are not corpus-path targets and are excluded,
-    matching the gate's scope. ``pages`` is the render_site output
-    (dist-relative path, content)."""
+    RENDERED HTML pages of the indexable root variant alone (a staging
+    tree's outputs are out of the manifest's declared scope) plus the
+    curated llms.txt corpus links (CURATED_CORPUS_LINKS), so the manifest
+    cannot drift from the emitted links, whatever machinery emitted them.
+    The link text is the anchor's own text when it can be read, else the
+    target's basename. The repo-root and on-site links are not corpus-path
+    targets and are excluded, matching the gate's scope. ``pages`` is the
+    render_site output (dist-relative path, content). Round-2 fix 3: any
+    repository link in any emitted output that this scan does not count (a
+    raw, tree or other form) is a BuildError, so no emitted link can bypass
+    gate 75."""
     rows = {}  # (target, location) -> link_text, dedup-safe and deterministic
     for path, label in CURATED_CORPUS_LINKS:
         rows[(path, "llms.txt")] = label
+    staging = _staging_prefixes()
     for rel, content in pages:
         if not rel.endswith(".html") or not isinstance(content, str):
+            continue
+        if staging and rel.startswith(staging):
             continue
         location = _site_path_for(variant, rel)
         for match in TEMPLATE_CORPUS_LINK_RE.finditer(content):
@@ -2072,6 +2140,16 @@ def render_corpus_link_manifest(figures, variant, pages):
             label = (anchor.group("text").strip() if anchor
                      else target.rsplit("/", 1)[-1])
             rows[(target, location)] = label
+    uncounted = _uncounted_repo_links(
+        pages, {target for target, _ in rows}
+    )
+    if uncounted:
+        listed = "; ".join(f"{rel}: {link}" for rel, link in uncounted[:20])
+        raise BuildError(
+            "repository link(s) the corpus-link manifest scan does not count "
+            "(use the blob form the scan reads, or link the repository root): "
+            + listed
+        )
     lines = [
         "# Web-to-corpus link manifest",
         "",
@@ -6997,10 +7075,14 @@ def render_site(figures):
             for out_rel, html in variant_pages
         )
         if variant.indexable:
-            # The error page is served for missing paths and must never be
+            # Only rendered .html pages belong in the sitemap: the variant's
+            # output also carries the copied baseline assets (fonts, CSS, JS,
+            # logos, licence texts), which are not pages (round-2 fix 1), and
+            # the error page is served for missing paths and must never be
             # crawled, so it stays out of the sitemap's page list.
             html_page_rels = [
-                out_rel for out_rel, _ in variant_pages if out_rel != "404.html"
+                out_rel for out_rel, _ in variant_pages
+                if out_rel.endswith(".html") and out_rel != "404.html"
             ]
             pages.append((output_rel_for(variant, "robots.txt"), render_robots_txt()))
             pages.append((

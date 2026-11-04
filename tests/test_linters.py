@@ -5761,6 +5761,73 @@ class PlaceholderLeakageTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    # -- the generated web manifest's narrow carve-out (round-2 fix 2): the
+    # former whole-file EXEMPT_FILES entry "corpus-link-manifest.md" exempted
+    # every file of that name whole, so template link text leaking into the
+    # manifest passed the gate. Only .web/corpus-link-manifest.md takes the
+    # carve-out, and only for the literal TODO.md path token in a row's
+    # target and link-text cells.
+
+    def test_manifest_named_file_elsewhere_is_scanned_whole(self):
+        fixture = self.make_fixture(
+            "corpus-link-manifest.md",
+            "| TODO.md | /documents/governance/probe/ | TODO.md |\n",
+        )
+        result = run_linter("tools/lint-placeholder-leakage.py", fixture)
+        self.assertLinterFails(result, "TODO")
+
+    def test_real_manifest_passes_with_its_todo_link_target_rows(self):
+        result = run_linter("tools/lint-placeholder-leakage.py",
+                            ".web/corpus-link-manifest.md")
+        self.assertEqual(
+            result.returncode, 0,
+            f"the generated manifest's TODO.md rows are link targets, not "
+            f"placeholder markers.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_manifest_scan_reports_a_marker_in_any_other_cell(self):
+        wrapper = load_linter_module(
+            "tools/lint-placeholder-leakage.py", "_plh_wrapper_manifest"
+        )
+        patterns = wrapper._placeholders_config()
+        fixture = self.make_fixture(
+            "manifest-probe.md",
+            "| Corpus target | Website location | Link text |\n"
+            "| --- | --- | --- |\n"
+            "| TODO.md | /documents/governance/probe/ | TODO.md |\n"
+            "| ai/README.md | /ai/ | TBD |\n",
+        )
+        findings = wrapper.manifest_findings(fixture, patterns=patterns)
+        self.assertEqual(len(findings), 1, findings)
+        lineno, label, excerpt = findings[0]
+        self.assertEqual(lineno, 4)
+        self.assertIn("TBD", label)
+        self.assertIn("ai/README.md", excerpt)
+
+    def test_manifest_mask_blanks_only_the_todo_path_token(self):
+        wrapper = load_linter_module(
+            "tools/lint-placeholder-leakage.py", "_plh_wrapper_mask"
+        )
+        mask = wrapper._mask_manifest_line
+        self.assertNotIn(
+            "TODO",
+            mask("| TODO.md | /documents/governance/probe/ | TODO.md |"))
+        self.assertNotIn(
+            "TODO", mask("| ai/TODO.md | /documents/ai/probe/ | TODO.md |"))
+        # A marker anywhere else in a row's cells survives the mask.
+        for row in (
+            "| TBD | /probe/ | label |",
+            "| TODO.md | /probe/ | see TBD now |",
+            "| TODO.md | /TBD/ | TODO.md |",
+        ):
+            self.assertIn("TBD", mask(row), row)
+        # The location cell is never masked, and a non-row line passes
+        # through untouched.
+        self.assertIn("TODO.md", mask("| a.md | /TODO.md/ | a |"))
+        prose = "TODO: prose outside a table row"
+        self.assertEqual(mask(prose), prose)
+
 
 class DateFormatTests(LinterTestCase):
     """tools/lint-date-format.py"""
@@ -41222,7 +41289,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
         lint-pii-in-content.py CWD F 3892a7ab7f09960df0bdeb187a3e2b61f406483620d6baa1eaa238ea91166d8e
-        lint-placeholder-leakage.py CWD F 80c422710ee6a19e4dfea1a21628458b6ba103e73058c373d86fbf6917949b6e
+        lint-placeholder-leakage.py CWD F d1a996c06af31422d3e00670ff007891b687b3794d0e076dc21aa935aed95245
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
         lint-publication-manifest.py NO_FS F 4a017db9b2313865a406351d0d0d2fb2f0d4ffdaee4c79397b742d89965b21ad
@@ -47777,11 +47844,14 @@ class WebGeneratorVariantTableTests(unittest.TestCase):
                     for rel, html in variant_pages
                 )
                 if variant.indexable:
-                    # The error page stays out of the sitemap page list, and the
-                    # indexable root also carries _headers and security.txt; the
-                    # byte-equality below fails if render_site drops either rule.
+                    # Only .html pages reach the sitemap (the asset copy and
+                    # the error page stay out, round-2 fix 1), and the
+                    # indexable root also carries _headers and security.txt;
+                    # the byte-equality below fails if render_site drops
+                    # either rule.
                     html_page_rels = [
-                        rel for rel, _ in variant_pages if rel != "404.html"
+                        rel for rel, _ in variant_pages
+                        if rel.endswith(".html") and rel != "404.html"
                     ]
                     reconstructed.extend([
                         (self.mod.output_rel_for(variant, "robots.txt"), self.mod.render_robots_txt()),
