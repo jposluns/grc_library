@@ -107,7 +107,7 @@ Some scripts in this directory are exploratory tools the maintainer runs on dema
 
 - [`tools/detect-collection-candidates.py`](detect-collection-candidates.py): heuristic detector for new candidate collections that should be added to gate 41 (Collection-enumeration consistency audit). Walks candidate-source roots, scores each subdirectory's items against corpus markdown files for coverage, and surfaces candidates with rationale for the maintainer to triage one-by-one. Companion to gate 41's hard-coded configuration.
 
-The pre-push hook runs the full guard on every branch update to a destination
+The pre-push hook runs the guard on every branch update to a destination
 whose normalized path ends in `jposluns/grc_library`, on any host or remote name.
 HTTPS, SSH, scp-like and local URLs are matched case-insensitively, ignoring a
 trailing slash and `.git` (including a `/.git` component). After installation,
@@ -129,7 +129,7 @@ inspect and remove that old managed
 pre-push shim, then rerun the installer. Foreign hooks are never overwritten.
 
 Direct `tools/pre-push-guard.sh` runs remain available and retain pipe refusal.
-Every guarded push reruns all checks, even after a direct pass or transport
+Every guarded push reruns the guard, even after a direct pass or transport
 failure. Output streams through a regular temporary file with the guard's exit
 status preserved. The guard environment allows only `LANG`, `LC_*`,
 `TMPDIR`, `TERM`, `GRC_STORE`, `SSH_AUTH_SOCK` and the lowercase and uppercase
@@ -159,6 +159,44 @@ and `GIT_CONFIG_NOSYSTEM` settings are dropped. Other Git settings and
 direct-run overrides are excluded, including in linked worktrees. These overrides do
 not exempt guarded pushes. After the guard passes, HEAD must still match every
 pushed branch SHA and the tracked tree must still be clean.
+
+Site-only fast path: the guard reads the committed diff from the merge base of
+`BASE_REF` (default `origin/main`, the base
+[`run-pr-time-checks.sh`](run-pr-time-checks.sh) uses) to HEAD as NUL-delimited
+raw records (`git diff --raw -z --no-renames --ignore-submodules=none`). It
+takes the fast path only when every record adds or modifies a regular file
+(mode 100644 or 100755, unchanged) at a site-only path, matched literally:
+anything under `.web/` (templates, the vendored `.web/baseline/` files) except
+a `.py` file, anything under `.baseline/` except a `.py` file,
+`tests/test_web_draft.py`, and the root close-out surfaces `CHANGELOG.md`,
+`README.md` and `NOTICE.md`. A change to a `.py` file under `.web/` (the
+generator `.web/build.py` among them) or `.baseline/` takes the full guard:
+Python there is tooling, and the linter regression suite tests `.web/build.py`
+and the `.baseline/` scripts. A
+deletion, rename, type or mode change, gitlink, symlink, path with a character
+outside `A-Z a-z 0-9 . _ / + @ -`, or any other path means the full guard, as
+do an unreadable or empty diff, more than one merge base, a git config setting
+that can hide changes (`diff.ignoreSubmodules`, `diff.relative`, any
+submodule's `ignore` key), `HEAD_REF` other than HEAD,
+`PRE_PUSH_GUARD_ALLOW_DIRTY`, and a `run_all_audits.sh` that cannot be read or
+parsed. A `run_gate` line parses only when its command after `python3` is plain
+tokens of `A-Z a-z 0-9 _ . / = -` separated by single spaces, so a quoted
+argument, an expansion, a comment or a line continuation means the full guard.
+The fast path runs `run-pr-time-checks.sh` unchanged; every
+`run_all_audits.sh` gate except the linter regression suite (gate 36), by the
+runner's own names and commands read at run time, then the gate step's elapsed
+time; the palette gate; `.web/build.py --check`; and `tests/test_web_draft.py`.
+Unlike `run_all_audits.sh`, it does not show a passing gate's `DUE-SOON`,
+`WARN` and `NOTE` lines; a failing gate's output is shown in full.
+It prints a `FAST PATH` line naming the changed paths. The guard lists the
+gates itself, so `run_all_audits.sh` has no skip option and CI
+(`.github/workflows/quality.yml`, one step per gate) cannot be told to skip
+one. Skipped locally and left to CI: the rest of gate 36 (every other
+regression test and the completeness checks of `run-linter-regression.py`).
+The full suite, gate 36 whole included, still runs in CI on the pull request,
+and `merge-when-green.py` merges only on green CI. Residual: a failure in a
+skipped regression test that a site-only change causes is first seen in CI,
+not before the push. The guard's header gives the exact rules.
 
 Residual: `git push --no-verify` and a command-level `core.hooksPath` override
 can skip the hook entirely, including overrides supplied through

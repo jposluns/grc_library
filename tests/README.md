@@ -46,6 +46,15 @@ execute YAML metadata parsing. CR-only and mixed headers left the header tokens
 in the body; CRLF still recognized frontmatter. `jTe` rewrote U+FFFE/U+FFFF.
 The probe prints the binary SHA-256 and the result for each byte fixture.
 
+## Gate 36 and the pre-push fast path
+
+The pre-push guard's site-only fast path (see
+[`tools/README.md`](../tools/README.md)) runs `tests/test_web_draft.py` but no
+other part of gate 36; CI runs gate 36 whole on every pull request before merge.
+A change to a `.py` file under `.web/` (`.web/build.py` among them) or
+`.baseline/` is not site-only, so the full guard runs gate 36 for it. `PrePushGuardFastPathTests` in
+`test_linters.py` pins both.
+
 ## Running
 
 The complete regression command (audit-programme gate 36) is:
