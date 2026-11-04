@@ -5876,9 +5876,11 @@ _XW_TOPIC_NOTE_RE = re.compile(r"\.?\s*\bNote:.*\Z")
 
 def _xw_plain(text):
     """Flatten a register or matrix cell for display: markdown links become
-    their text, HTML comments drop, whitespace collapses."""
+    their text, HTML comments drop, code spans drop their backticks (raw
+    Markdown never reaches a page, round 2 note), whitespace collapses."""
     text = _XW_COMMENT_RE.sub("", text)
     text = _XW_MD_LINK_RE.sub(r"\1", text)
+    text = text.replace("`", "")
     return " ".join(text.split())
 
 
@@ -5933,17 +5935,17 @@ def _xw_topic_name(topic):
     return " ".join("".join(out).split())
 
 
-def parse_citations_register_sections(text):
-    """``(section heading, [row dict, ...])`` pairs from
-    governance/register-canonical-citations.md, in register order.
-
-    The section-aware reader under parse_citations_register (the standards
-    page lists every register row grouped by its ``##`` section): only rows
-    under the register's exact seven-column header are read, so a prose
-    section and a table of another schema (the AI security tooling
-    references) contribute no rows. Structural and loud, like
-    parse_taxonomy: a malformed row, a duplicate Standard ID anywhere in
-    the register, or a zero-row parse is a BuildError (schema change)."""
+def _parse_citations_register_sections(text, require_heading):
+    """The shared reader under parse_citations_register_sections (the
+    section reader, which requires every register table to sit under a
+    ``##`` heading) and parse_citations_register (the flat view, which
+    keeps its old input contract and reads a heading-free table too,
+    round 2 fix 7): only rows under the register's exact seven-column
+    header are read, so a prose section and a table of another schema
+    (the AI security tooling references) contribute no rows. Structural
+    and loud, like parse_taxonomy: a malformed row, a duplicate Standard
+    ID anywhere in the register, or a zero-row parse is a BuildError
+    (schema change)."""
     expected = ["Standard ID", "Current version", "Publication date", "Topic",
                 "Superseded versions", "Upstream check location",
                 "Last verified (UTC)"]
@@ -5961,7 +5963,7 @@ def parse_citations_register_sections(text):
             continue
         cells = _xw_table_cells(line)
         if cells == expected:
-            if heading is None:
+            if heading is None and require_heading:
                 raise BuildError(
                     "crosswalk: citations register table above the first "
                     "## section heading (schema change?)"
@@ -6009,15 +6011,30 @@ def parse_citations_register_sections(text):
     return [(heading, rows) for heading, rows in sections if rows]
 
 
+def parse_citations_register_sections(text):
+    """``(section heading, [row dict, ...])`` pairs from
+    governance/register-canonical-citations.md, in register order.
+
+    The section reader (the standards page lists every register row grouped
+    by its ``##`` section), so a table above the first ``##`` heading is a
+    BuildError here; the flat view keeps its old heading-free contract
+    (round 2 fix 7). The shared reader carries the structural checks."""
+    return _parse_citations_register_sections(text, require_heading=True)
+
+
 def parse_citations_register(text):
     """Standard ID -> row dict from governance/register-canonical-citations.md.
 
-    The flat view of parse_citations_register_sections, which carries the
-    loud structural checks: only rows under the register's exact
-    seven-column header are read; a malformed row, a duplicate Standard ID,
-    or a zero-row parse is a BuildError (schema change)."""
+    The flat view, which keeps its old input contract: a table above the
+    first ``##`` heading (or with no heading at all) still returns the flat
+    dict (round 2 fix 7); the section requirement belongs to the standards
+    page's section reader only. The shared reader carries the loud
+    structural checks: only rows under the register's exact seven-column
+    header are read; a malformed row, a duplicate Standard ID, or a
+    zero-row parse is a BuildError (schema change)."""
     return {row["id"]: row
-            for _, rows in parse_citations_register_sections(text)
+            for _, rows in _parse_citations_register_sections(
+                text, require_heading=False)
             for row in rows}
 
 
@@ -6855,10 +6872,11 @@ def render_crosswalk_caveats(xw, keys=(), inst=None):
         # The breadth pointer (maintainer decisions 2026-11-04 16:09 EST):
         # the crosswalk maps depth for its instruments; every register row,
         # mapped here or not, is listed on the standards page.
-        "<p>The standards, laws, frameworks, and programmes the corpus "
-        "cites, mapped here or not, are listed with their current editions "
-        'on the <a href="{{BASE}}/standards/">Standards and frameworks</a> '
-        "page, generated from the canonical citations register.</p>",
+        "<p>The standards, laws, frameworks, and programmes in the "
+        "canonical citations register, mapped here or not, are listed with "
+        "their current editions on the "
+        '<a href="{{BASE}}/standards/">Standards &amp; frameworks</a> '
+        "page, generated from that register.</p>",
     ))
 
 
@@ -7093,26 +7111,66 @@ def _xw_register_block(inst, row):
 
 # The register's citing convention (its Conventions section): Standard ID
 # plus Current version in the format the publisher uses, "ISO/IEC 42006:2025"
-# for an ISO or IEC bare-year edition, "NIST SP 800-53 Rev. 5" otherwise.
+# for an ISO or IEC bare-year edition, "IEEE 2883-2022" for an IEEE bare-year
+# edition, "NIST SP 800-53 Rev. 5" otherwise.
 _STANDARDS_YEAR_RE = re.compile(r"\d{4}\Z")
 _STANDARDS_SLUG_RE = re.compile(r"[^a-z0-9]+")
+# A four-digit year as a register cell writes one ("15/2024", "101:2025",
+# "(2024)"): never part of a longer digit run such as "27001".
+_STANDARDS_CELL_YEAR_RE = re.compile(r"(?<!\d)(?:19|20)\d\d(?!\d)")
+# A Current version longer than this is register currency prose (a legal
+# consolidation note), not an edition marker the publisher's citation format
+# would carry; the entry's description shows it instead (round 1 review,
+# following the Instrument.version_join precedent: None for a long legal
+# version).
+_STANDARDS_MARKER_MAX = 40
+
+
+def _standards_version_display(row):
+    """How one register row's Current version renders on the standards page
+    (round 1 review): ``(marker, note)``. ``marker`` is the short version the
+    citation appends to the Standard ID, or None where the ID alone is the
+    citation: a "-" or "continuous" version, a version already written into
+    the ID (whole, as its leading token, or as its leading year, each as a
+    token of the ID: "BASC International Norm V6-2022 (...)", "WP248
+    rev.01 (...)", "Resolution CD/ANPD No. 15/2024"), or currency prose over
+    _STANDARDS_MARKER_MAX characters, which ``note`` then carries for the
+    entry's description. A register-internal HTML comment in the version
+    cell never reaches a page (_xw_plain)."""
+    sid = row["id"]
+    version = _xw_plain(row["version"])
+    if version in ("-", "continuous") or sid == version:
+        return None, None
+    if len(version) > _STANDARDS_MARKER_MAX:
+        return None, version
+    tokens = sid.split()
+    leading = version.split()[0].rstrip(",")
+    year = _STANDARDS_CELL_YEAR_RE.search(version)
+    if version in tokens or sid.endswith(" " + version) \
+            or leading in tokens \
+            or (year is not None and re.search(
+                rf"(?<!\d){year.group()}(?!\d)", sid)):
+        return None, None
+    return version, None
 
 
 def _standards_citation(row):
     """One register row cited per the register's own convention: the
     Standard ID plus the Current version, an ISO or IEC bare-year edition
-    joined with a colon as the publisher writes it, any other pairing with a
-    space; the ID alone where the version only repeats its ending (NIST FIPS
-    198-1) or is "-". A register-internal HTML comment in the version cell
-    never reaches a page (_xw_plain)."""
+    joined with a colon and an IEEE bare-year edition with a hyphen as the
+    publishers write them, any other pairing with a space; the ID alone
+    where _standards_version_display carries no short marker."""
     sid = row["id"]
-    version = _xw_plain(row["version"])
-    if version == "-" or sid == version or sid.endswith(" " + version):
+    marker, _ = _standards_version_display(row)
+    if marker is None:
         return sid
-    if _STANDARDS_YEAR_RE.fullmatch(version) \
-            and sid.split()[0].split("/")[0] in ("ISO", "IEC"):
-        return f"{sid}:{version}"
-    return f"{sid} {version}"
+    if _STANDARDS_YEAR_RE.fullmatch(marker):
+        org = sid.split()[0].split("/")[0]
+        if org in ("ISO", "IEC"):
+            return f"{sid}:{marker}"
+        if org == "IEEE":
+            return f"{sid}-{marker}"
+    return f"{sid} {marker}"
 
 
 def _standards_section_slug(heading):
@@ -7189,10 +7247,20 @@ def draft_standards_values(xw):
                     f'<a href="{{{{BASE}}}}/crosswalk/{inst.key}/">'
                     f'{_esc(xw["instruments"][inst.key]["display"])}</a>.'
                 )
+            # Register currency prose is no edition marker; the description
+            # carries it, labelled as the register's (round 1 review).
+            _, note = _standards_version_display(row)
+            version_note = ""
+            if note is not None:
+                if not note.endswith("."):
+                    note += "."
+                version_note = (
+                    f" The register's current version: {_esc(note)}"
+                )
             topic_text = f" {_esc(topic)}" if topic else ""
             items.append(
                 f'<li><span class="row-name">{_esc(_standards_citation(row))}'
-                f'</span><span class="row-desc">{topic_text} '
+                f'</span><span class="row-desc">{topic_text}{version_note} '
                 f"{upstream}{mapped}</span></li>"
             )
         noun = "citation" if len(rows) == 1 else "citations"
@@ -7201,7 +7269,10 @@ def draft_standards_values(xw):
             f'<h2 id="{slug}">{_esc(heading)}</h2>\n'
             "<ul>\n" + "\n".join(items) + "\n</ul>"
         )
-    mapped_count = len(by_register_id)
+    # The main-table count, the crosswalk page's own figure (round 1
+    # review: counting every register_id took in the "Also in the corpus"
+    # pages, which the main table carries no cells for).
+    main_count = sum(1 for inst in CROSSWALK_INSTRUMENTS if inst.main_table)
     return {
         **_draft_nav("crosswalk"),
         "STANDARDS_META": (
@@ -7213,10 +7284,10 @@ def draft_standards_values(xw):
             xw["docs_by_path"], "governance/register-canonical-citations.md",
             "canonical citations register"),
         "STANDARDS_SCOPE": (
-            f"The crosswalk maps {mapped_count} of these instruments in "
-            "depth; a mapped instrument's entry links its crosswalk page, "
-            "and every other row is cited here, with its current edition, "
-            "and checked for currency at its upstream location."
+            f"The crosswalk maps {main_count} instruments in depth, and an "
+            "entry whose instrument has a crosswalk page links it. Every "
+            "row is cited with the edition the register records, and with "
+            "the register's upstream check location where one is recorded."
         ),
         "STANDARDS_RAIL": "\n".join(rail),
         "STANDARDS_GROUPS": "\n".join(groups),
