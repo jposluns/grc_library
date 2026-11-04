@@ -217,8 +217,11 @@ What is locked here, each test failing without its feature:
    and the disclosure's data-handling claim names every key search.js
    writes. Each check replays search.js 1.5.1 (unchanged at 1.6.0) on the
    rendered rows. No test replays 1.7.0's count(); the rows it shows in
-   each state were read as the same, and the pinned 1.7.0 search.js digest
-   (item 38) locks that file, so a changed search.js fails there.
+   each state, and the count it gives a chip that is not chosen (the rows
+   holding that chip's value, every other group's choice and the words
+   typed), were read from its source to match what the 1.5.1 replay gives,
+   and the pinned 1.7.0 search.js digest (item 39) locks that file, so a
+   changed search.js fails there.
 28. Site f1 round 2, each sentence replayed on the rendered pages: the All
    Documents filter paragraph says a chip's count is its documents in the
    whole list and the status line gives how many show, true in every
@@ -1090,9 +1093,10 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # Entry 6's claim, sentence by sentence, as the one paragraph held it
     # before the maintainer's 2026-11-04 split; the split moves sentence
-    # boundaries into separate paragraphs and changes no wording. Round-2
-    # NOTE: the search script sentence says its "never" covers only what
-    # the script writes.
+    # boundaries into separate paragraphs and changes no wording. One
+    # sentence was later reworded for baseline 1.7.0 (round-2 NOTE): the
+    # search script sentence says its "never" covers only what the script
+    # writes.
     _D6_CLAIM_SENTENCES = (
         "This is a static site.",
         "Its own scripts are same-origin files that make no network requests "
@@ -1141,10 +1145,12 @@ class DraftSiteRenderTests(unittest.TestCase):
     def test_disclosure_data_handling_claim_keeps_every_sentence(self):
         """Maintainer 2026-11-04 03:07Z: Entry 6's claim was one paragraph of
         about 1,270 characters, hard to read, so it is split into short
-        paragraphs by subject. The split adds, drops and rewords nothing: the
-        claim's paragraphs, read in order and split at sentence ends, are the
-        old claim's sentences, so each paragraph holds whole sentences, and
-        each old sentence appears on the rendered page exactly once."""
+        paragraphs by subject. The split adds, drops and rewords nothing,
+        and one sentence, the search script's, was later reworded for
+        baseline 1.7.0: the claim's paragraphs, read in order and split at
+        sentence ends, are the old claim's sentences with that one reworded,
+        so each paragraph holds whole sentences, and each sentence appears
+        on the rendered page exactly once."""
         page = self.draft_html["draft/disclosure/index.html"]
         parts = self._disclosure_claim_parts(page)
         # Four paragraphs by subject, each opening on its own sentence.
@@ -2315,9 +2321,10 @@ class DraftSiteRenderTests(unittest.TestCase):
         "border: choosing it on the page (a plain click, Enter or Space) "
         "leaves the list and the page address as they are, and the status "
         "line says that it would show no documents, until the next change. "
-        "Opening a chip's link in a new tab or window goes to its filtered "
-        "address, as any link does. All and a chosen chip are never "
-        "unavailable. "
+        "Opening a chip's link in a new tab or window goes to the address it "
+        "links, as any link does: the whole list for All, and the list "
+        "filtered to that chip's type or area alone for any other chip. All "
+        "and a chosen chip are never unavailable. "
         "The page address keeps the choice (?type=, ?area=, ?q=), so a "
         "filtered list can be linked. Without script, the whole list stays "
         "as it is.</p>"
@@ -3495,19 +3502,49 @@ class DraftSiteRenderTests(unittest.TestCase):
                                f"the path links on {prefix} pages are under "
                                "test")
 
+    # Item 3b788 lows round 1: each title word of 15 to 17 letters with its
+    # width in px set alone in the h1 at 320 px in the dark scheme, the wider
+    # one (headless Chrome 156, the 2.2rem Newsreader 300, 0.01em tracking).
+    _MEASURED_TITLE_WORDS = {
+        "Trustworthiness": 238.9,
+        "Responsibilities": 231.1,
+        "Pseudonymization": 275.2,
+        "Interrelationship": 247.7,
+    }
+
     def test_document_heading_words_can_break_at_320px(self):
         """Item 3b788 round 2: "Telecommunications" (18 letters) ran 19 px
         past its 288 px h1 box at 320 px in the dark scheme and widened its
         page to 323 px. No draft h1 holds a run of more than
         DRAFT_TITLE_RUN_MAX letters without a soft hyphen; a document
         heading reads as the title once they are removed, and the page's
-        <title> keeps the plain title."""
+        <title> keeps the plain title.
+
+        Item 3b788 lows round 1 item 4: with the limit at 14 letters,
+        "Trustworthiness", "Responsibilities" and "Interrelationship" broke
+        where the whole word fits on the next line. Measured in the 288 px
+        h1 box at 320 px, light and dark, every title word of up to 17
+        letters fits with at least 12 px to spare, so the limit is 17; a
+        title word of 15 to 17 letters must be one of those measured
+        (_MEASURED_TITLE_WORDS), since a new one, unlike a word of 14
+        letters or fewer, could be too wide."""
+        self.assertEqual(self.mod.DRAFT_TITLE_RUN_MAX, 17)
         long_run = re.compile(
             rf"[^\W\d_]{{{self.mod.DRAFT_TITLE_RUN_MAX + 1},}}")
         self.assertEqual(
             self.mod._draft_breakable_title(
                 "Telecommunications & Trustworthiness"),
-            "Telecommu&shy;nications &amp; Trust&shy;worthiness")
+            "Telecommu&shy;nications &amp; Trustworthiness")
+        words = {w for d in self._full_taxonomy()
+                 for w in re.findall(r"[^\W\d_]+", d.get("title", ""))}
+        self.assertEqual(
+            {w for w in words if 15 <= len(w) <= 17},
+            set(self._MEASURED_TITLE_WORDS),
+            "a title word of 15 to 17 letters not measured to fit the 288 px "
+            "h1 box at 320 px; measure it in light and dark, then list it")
+        for word, width in self._MEASURED_TITLE_WORDS.items():
+            with self.subTest(word=word):
+                self.assertLessEqual(width + 12, 288)
         hyphenated = []
         for rel, html in self.draft_html.items():
             h1 = re.search(r"<h1\b[^>]*>(.*?)</h1>", html, re.S)
@@ -5123,11 +5160,12 @@ class DraftSiteRenderTests(unittest.TestCase):
         show no documents at ?type=<slug> is unavailable there, so "its area
         chips ... narrow them further" was false of every such chip. The
         sentence names "the area chips holding any of
-        them"; replayed in each type's filter state as search.js 1.7.0
-        counts it (an unchosen chip is available when the rows holding the
-        type and its area are not none), at least one area chip is available
-        on every page using that wording, and each available one keeps
-        fewer of the rows than the type does."""
+        them". No test replays 1.7.0's count(); read from its source, it
+        makes a chip that is not chosen available when some row holds both
+        the type and the chip's area, and those rows are replayed with
+        search.js 1.5.1 in each type's filter state: at least one area chip
+        is available on every page using that wording, and each available
+        one keeps fewer of the rows than the type does."""
         rows = self._index_replay_rows()
         _, block = self._facet_group("area")
         areas = [v for _, v, _, _ in self._FACET_CHIP_RE.findall(block) if v]
@@ -6034,7 +6072,13 @@ class DraftSiteRenderTests(unittest.TestCase):
         sentence moved into the section heading (P9) took the heading count
         error without them, and passed once CROSSWALK_TSC_SECTION_HEADING
         was updated, with the status False. Every section error carries
-        both. Sample added: P9."""
+        both. Sample added: P9.
+
+        Item 3b788 lows round 1 item 1: no sample reached the heading count
+        error with two headings or the missing closing --- error, so either
+        could lose the instruction and the rule unseen. Samples added: the
+        section heading repeated at the end of the file, and every --- rule
+        written as ***."""
         source = self.mod.CROSSWALK_COMPLIANCE_MATRIX.read_text(
             encoding="utf-8")
         guide = self.mod.CROSSWALK_TSC_READING_GUIDE
@@ -6112,12 +6156,24 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(source.count(heading), 1)
         headed = ("P9 status in the section heading",
                   bare.replace(heading, f"{heading[:-1]} ({moved})\n"))
-        with self.subTest(case=headed[0]):
-            self.assertNotEqual(headed[1], source)
-            with self.assertRaises(self.mod.BuildError) as raised:
-                self.mod.parse_compliance_tsc_status(headed[1])
-            self.assertIn(f"headings instead of one; {fixed}",
-                          str(raised.exception))
+        # The heading count and closing --- errors, which no line mismatch
+        # reaches: P9 (no heading), the heading repeated (two) and no ---
+        # left after the heading.
+        structural = (
+            (*headed, f"0 {heading[:-1]!r} headings instead of one"),
+            ("section heading repeated at the end of the file",
+             f"{source}\n{heading}",
+             f"2 {heading[:-1]!r} headings instead of one"),
+            ("every --- rule written as ***",
+             source.replace("\n---\n", "\n***\n"),
+             f"no --- after {heading[:-1]!r} ends its section"),
+        )
+        for case, text, error in structural:
+            with self.subTest(case=case):
+                self.assertNotEqual(text, source)
+                with self.assertRaises(self.mod.BuildError) as raised:
+                    self.mod.parse_compliance_tsc_status(text)
+                self.assertIn(f"{error}; {fixed}", str(raised.exception))
         for case, text in (("status sentence reworded", reworded),
                            *((case, text) for case, text, _ in placed),
                            headed):
