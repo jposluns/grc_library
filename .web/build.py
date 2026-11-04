@@ -3768,13 +3768,17 @@ def _draft_wrapping_path(text):
 
 
 # A document h1 word longer than this many letters gets a soft hyphen, so the
-# heading can break it: at 320 px the h1 box is 288 px (the narrow layout's
-# 2.2rem Newsreader 300), and of the 194 title words of 10 or more letters
-# measured there (headless Chrome), the widest for its length is "Management",
-# 19.6 px a letter in the dark scheme, so 14 such letters (274 px) fit, while
-# "Telecommunications" (18 letters, 307 px in dark) ran 19 px past the box and
-# widened its page to 323 px (item 3b788).
-DRAFT_TITLE_RUN_MAX = 14
+# heading can break it; a shorter one moves whole to the next line. At 320 px
+# the h1 box is 288 px (the narrow layout's 2.2rem Newsreader 300). Of the 125
+# distinct title words of 10 or more letters measured there (headless Chrome,
+# light and dark), every one of 17 letters or fewer fits with at least 12 px
+# to spare, the widest "Pseudonymization" (16 letters, 275.2 px in the dark
+# scheme), while "Telecommunications" (18 letters, 307.4 px in dark) runs
+# 19 px past the box and widened its page to 323 px (item 3b788). At the
+# widest rate measured, "Management"'s 19.6 px a letter, only 14 letters
+# (274 px) fit, so the test holds the title words of 15 to 17 letters to the
+# ones measured (item 3b788 lows round 1).
+DRAFT_TITLE_RUN_MAX = 17
 _DRAFT_TITLE_RUN_RE = re.compile(rf"[^\W\d_]{{{DRAFT_TITLE_RUN_MAX + 1},}}")
 _DRAFT_VOWELS = frozenset("aeiouyAEIOUY")
 _DRAFT_DIGRAPHS = frozenset({"ch", "ck", "gh", "ph", "qu", "sh", "th", "wh"})
@@ -3783,8 +3787,8 @@ _DRAFT_DIGRAPHS = frozenset({"ch", "ck", "gh", "ph", "qu", "sh", "th", "wh"})
 def _draft_soft_hyphenated(word):
     """``word`` with a U+00AD soft hyphen at the syllable break nearest its
     middle (before a consonant a vowel follows, never inside a digraph:
-    "Telecommu-nications", "Trust-worthiness"), again in either half while
-    it is longer than DRAFT_TITLE_RUN_MAX letters."""
+    "Telecommu-nications"), again in either half while it is longer than
+    DRAFT_TITLE_RUN_MAX letters."""
     if len(word) <= DRAFT_TITLE_RUN_MAX:
         return word
     breaks = [
