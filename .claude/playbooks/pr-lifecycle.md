@@ -28,15 +28,16 @@ drive end-to-end on the maintainer's behalf:
    that one finding is expected until then, a concurrent-run artefact identified as such
    (step 2) is not a defect, and any other failure is a defect to fix before continuing.
    Install once with `tools/install-git-hooks.sh`, then push:
-   `git push -u origin <branch>`. The guard chains
+   `git push -u origin <branch>`. The full guard chains
    `run_all_audits.sh` (corpus gates from HEAD) then `run-pr-time-checks.sh` (the per-PR
    D-numbered delta gates (D6 retired) plus the history-aware trio 45/40/31 against the merge base), then `.web/build.py --check` (web-generator health),
    stopping non-zero on the first failure, so a gate defect blocks the push instead of
-   flipping CI red after the fact. The two runners plus the web-generator check together cover every gate CI runs. After them the guard prints one advisory that never blocks: `build-reference-manifest.py --check`, which reports reference-manifest drift against the reference sibling (P-TODO 3b62).
-   The installed pre-push hook runs the full guard on every branch update to the
+   flipping CI red after the fact. The two runners plus the web-generator check together cover every gate CI runs. A push whose every changed path (from the merge base of `BASE_REF`, default `origin/main`, to HEAD) is site-only takes the guard's fast path instead: an added or modified regular file under `.web/` or `.baseline/` that is not a `.py` file, `tests/test_web_draft.py`, or the root `CHANGELOG.md`, `README.md` or `NOTICE.md`. The fast path runs `run-pr-time-checks.sh`, every `run_all_audits.sh` gate except the linter regression suite (gate 36), the palette gate, `.web/build.py --check` and `tests/test_web_draft.py`, stopping on the first failure. It leaves the rest of gate 36 to CI and does not show a passing gate's `DUE-SOON`, `WARN` and `NOTE` lines, so a green fast path does not promise green CI. Any doubt about the changed set takes the full guard; `tools/pre-push-guard.sh`'s header gives the exact rules. After either path the guard prints one advisory that never blocks: `build-reference-manifest.py --check`, which reports reference-manifest drift against the reference sibling (P-TODO 3b62).
+   The installed pre-push hook runs the guard (the full guard, or its fast path for a
+   site-only change) on every branch update to the
    maintainer repository, selected by normalized URL regardless of remote name.
    Each branch commit must equal the active checkout's HEAD. Tags, deletions and
-   other repositories skip the full guard but retain the dirty-tree backstop.
+   other repositories skip the guard on either path but retain the dirty-tree backstop.
    Older checkouts without the current adapter refuse all pushes to the guarded
    destination until updated; other destinations still run their older hook,
    or succeed if the tracked hook is absent.
@@ -557,7 +558,8 @@ is external. Two mechanisms:
      The only remaining residual of that CHANGELOG-format work is the deferred, maintainer-gated git-history collapse.
    - **Daily-changelog-rollup reminder (D8, midnight-UTC cadence).** If the pre-push guard's D8 check prints `DAILY SUMMARY DUE for <date>`, the next PR carries that date's daily roll-up (collapse its per-PR root entries to one `**date | version | PRs #A-#B (N PRs)**` summary) AND prunes the matching detailed-mirror rows to the `grc_library_private/changelog-archive/`. Whether D8 prints a report, `D8 NOT-FOUND` or `D8 REFUSED`, it is ADVISORY (exit 0 in each of these cases, never blocks), so the reminder is ACTIONED not skipped; the roll-up draft is a small worker offload (`tools/check-daily-changelog-rollup.py` is the check).
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
-     (`run_all_audits.sh` + `run-pr-time-checks.sh` + `.web/build.py --check`) is green.
+     (`run_all_audits.sh` + `run-pr-time-checks.sh` + `.web/build.py --check`, or for a
+     site-only change its fast path, which leaves the rest of gate 36 to CI) is green.
 
    The mechanizable half of QA-cadence enforcement (the former QA-cadence-mechanization
    item, closed as satisfied in #471) is gate 50's Check 1, which fails when an in-window merged
@@ -680,6 +682,7 @@ a gate; when a gate's coverage changes, its row here is updated in the same PR.
 **Enforcement.** The pre-push guard (`tools/pre-push-guard.sh`, PR-workflow step 4) runs
 `run_all_audits.sh` (gate 40, plus gate 36 which exercises gates 31/40 in test form) and
 `run-pr-time-checks.sh` (D2 per-PR version-bump, D4 per-PR Version-Date co-bump) before
-the push, so a missed bump blocks the push instead of flipping CI red. At each commit ask:
+the push, so a missed bump blocks the push instead of flipping CI red. On a site-only
+push its fast path still runs gate 40, D2 and D4, but not gate 36, which CI runs. At each commit ask:
 did this commit change a versioned document's body (bump its Version AND Date), and is this
 the last commit before push (bump library CalVer and the README Version field)?
