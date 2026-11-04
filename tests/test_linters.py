@@ -72657,6 +72657,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             ("missing", "done"), ("missing-duration", "[2026-09-22 08:00 EDT] done"),
             ("missing-stamp", "done (session: 0h 5m)"),
             ("stale", "[2026-09-21 07:00 EDT] done (session: 0h 1m)"),
+            # Rendering only: values_current is forced False below, so this
+            # case blocks whatever conforms() returns; the UTC refusal itself
+            # is tested behaviourally (r_utc and test_legacy_utc_form_refused).
             ("utc", "[2026-09-22 12:00Z] done (session: 0h 5m)"),
         ):
             add(name, message, evidence=("[2026-09-22 08:00 EDT]", "(session: 0h 5m)"))
