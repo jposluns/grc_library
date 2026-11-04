@@ -18669,10 +18669,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
 
     A committed fixture repository holds the real guard beside stub runners and a
     stub for every tools/*.py the guard names, the web generator, the web draft
-    tests and the palette gate; each stub appends the path it was run as to
-    ran.log. The base is the local branch "base" (BASE_REF=base), the change is
-    one later commit, and the tracked tree is clean, so the guard's own changed-set
-    selection decides the path. Any doubt must take the full guard.
+    tests, tests/test_linters.py and the palette gate; each stub appends the path
+    it was run as to ran.log. The stub tools/run_all_audits.sh exits before the
+    real runner's run_gate lines, which follow it for the guard to read. The base
+    is the local branch "base" (BASE_REF=base), the change is one later commit,
+    and the tracked tree is clean, so the guard's own changed-set selection
+    decides the path. Any doubt must take the full guard.
     """
 
     # Each stub logs its own path; a fail-<basename> file makes it print a finding and exit 3.
@@ -18683,23 +18685,28 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             "    sys.exit(3)\n")
     FAST_GATE_RE = re.compile(r'^\s*"([a-z]+)\|([^|"]+)\|([^"]+)"\s*$', re.M)
     RUN_GATE_RE = re.compile(r'^run_gate\s+"([^"]+)"\s+python3\s+(.+?)\s*$', re.M)
+    RECORD_RE = re.compile(r'^\s*"([^|"]+)\|([^|"]+)"\s*$', re.M)
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(prefix="guard-fast-")
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name) / "repo"
         guard = (REPO_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        runner = (REPO_ROOT / "tools" / "run_all_audits.sh").read_text(encoding="utf-8")
         for name in ("pre-push-guard.sh", "install-git-hooks.sh", "lint_common.py"):
             dest = self.root / "tools" / name
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(REPO_ROOT / "tools" / name, dest)
-        for name in ("run_all_audits.sh", "run-pr-time-checks.sh"):
+        gate_lines = "".join(m.group(0).rstrip() + "\n" for m in self.RUN_GATE_RE.finditer(runner))
+        for name, tail in (("run_all_audits.sh", "exit\n" + gate_lines),
+                           ("run-pr-time-checks.sh", "")):
             dest = self.root / "tools" / name
-            dest.write_text('#!/bin/sh\necho "$0" >> ran.log\n[ ! -f fail-runner ]\n',
+            dest.write_text('#!/bin/sh\necho "$0" >> ran.log\n[ ! -f fail-runner ]\n' + tail,
                             encoding="utf-8")
             dest.chmod(0o755)
         stubs = set(re.findall(r"tools/[\w-]+\.py", guard)) - {"tools/lint_common.py"}
-        stubs |= {".web/build.py", "tests/test_web_draft.py", ".baseline/check_palette.py"}
+        stubs |= {".web/build.py", "tests/test_web_draft.py", ".baseline/check_palette.py",
+                  "tests/test_linters.py"}
         for rel in stubs:
             dest = self.root / rel
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -18743,6 +18750,18 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             path.write_text(path.read_text(encoding="utf-8") + "# edit\n", encoding="utf-8")
         self.commit("Change")
 
+    def add_runner_line(self, line):
+        # Commit a runner gate line and move the base past it, so the change stays site-only.
+        runner = self.root / "tools" / "run_all_audits.sh"
+        runner.write_text(runner.read_text(encoding="utf-8") + line + "\n", encoding="utf-8")
+        self.commit("Runner")
+        self.git("branch", "-f", "base")
+
+    def records(self, guard, table):
+        block = re.search(rf"^{table}=\(\n(.*?)^\)", guard, re.M | re.S)
+        self.assertIsNotNone(block, f"{table} not found in the guard")
+        return block.group(1)
+
     def run_guard(self, **extra):
         env = dict(self.env, **extra)
         result = subprocess.run(["bash", "tools/pre-push-guard.sh"], cwd=self.root, env=env,
@@ -18772,12 +18791,16 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertNotIn("tools/run_all_audits.sh", ran)
         for expected in ("tools/run-pr-time-checks.sh", "tools/lint-language.py",
                          "tools/lint-links.py", "tools/lint-standards-currency.py",
+                         "tools/lint-changelog-mirror-header-parity.py",
                          "tools/lint-baseline-pin.py", ".baseline/check_palette.py",
-                         ".web/build.py", "tests/test_web_draft.py"):
+                         ".web/build.py", "tests/test_web_draft.py", "tests/test_linters.py"):
             self.assertIn(expected, ran)
         # Tags select per changed path: NOTICE.md is unchanged, so the gate
-        # tagged for it alone does not run.
+        # tagged for it alone does not run; a recorded unscanned gate never runs.
         self.assertNotIn("tools/lint-metadata.py", ran)
+        self.assertNotIn("tools/lint-structure.py", ran)
+        self.assertNotIn("tools/run-linter-regression.py", ran)
+        self.assertNotIn("has no site-scope record", result.stdout)
 
     def test_corpus_document_takes_full_guard(self):
         self.change(".web/templates-draft/landing.html", "ai/policy-fixture.md")
@@ -18830,12 +18853,45 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIn("FAILED at Repository-internal link audit (rc=3)", result.stdout)
         self.assertNotIn(".web/build.py", ran)
 
-    def test_fast_gates_match_the_runner(self):
+    def test_site_reading_test_failure_propagates(self):
+        self.change(".web/templates-draft/landing.html")
+        (self.root / "fail-test_linters.py").touch()
+        result, ran = self.run_guard()
+        self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
+        self.assertIn("stub finding in test_linters.py", result.stdout)
+        self.assertIn("FAILED at Linter regression suite, site-reading classes", result.stdout)
+        self.assertNotIn("PASS (FAST PATH", result.stdout)
+
+    def test_unrecorded_runner_gate_runs_fail_closed(self):
+        (self.root / "tools" / "lint-fixture-new.py").write_text(self.STUB, encoding="utf-8")
+        self.add_runner_line('run_gate "Fixture new audit"    python3 tools/lint-fixture-new.py')
+        self.change(".web/templates-draft/landing.html")
+        result, ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("NOTE: Fixture new audit (tools/lint-fixture-new.py) has no site-scope "
+                      "record in tools/pre-push-guard.sh, so it runs here (fail closed)",
+                      result.stdout)
+        self.assertIn("tools/lint-fixture-new.py", ran)
+        self.assertIn("PASS (FAST PATH", result.stdout)
+
+    def test_unparseable_runner_line_takes_full_guard(self):
+        self.add_runner_line('run_gate "Fixture shell audit" bash tools/fixture.sh')
+        self.change(".web/templates-draft/landing.html")
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran, "the tools/run_all_audits.sh line 'run_gate "
+                               "\"Fixture shell audit\" bash tools/fixture.sh' cannot be parsed")
+
+    def test_every_runner_gate_has_one_site_scope_record(self):
+        # A gate that scans a site-only path must not be missing from the fast path:
+        # every runner gate is in FAST_GATES (run when its tags match),
+        # FAST_STEP_GATES (run by a step of its own) or SITE_UNSCANNED_GATES (its
+        # traced run touched no site-only path), and in only one of them.
         guard = (REPO_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
         runner = (REPO_ROOT / "tools" / "run_all_audits.sh").read_text(encoding="utf-8")
         order = [(" ".join(name.split()), " ".join(cmd.split()))
                  for name, cmd in self.RUN_GATE_RE.findall(runner)]
-        entries = self.FAST_GATE_RE.findall(guard)
+        self.assertTrue(order, "no run_gate lines parsed from tools/run_all_audits.sh")
+        entries = self.FAST_GATE_RE.findall(self.records(guard, "FAST_GATES"))
         self.assertTrue(entries, "no FAST_GATES entries parsed from the guard")
         positions = []
         for tags, name, cmd in entries:
@@ -18845,8 +18901,50 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             positions.append(order.index(gate))
         self.assertEqual(positions, sorted(set(positions)),
                          "FAST_GATES must list distinct gates in runner order")
-        self.assertNotIn("tools/lint-baseline-pin.py", {cmd for _, _, cmd in entries},
-                         "the baseline-pin gate runs as its own fast-path step")
+        steps = self.RECORD_RE.findall(self.records(guard, "FAST_STEP_GATES"))
+        self.assertEqual(steps, [("Linter regression test suite", "tools/run-linter-regression.py"),
+                                 ("Baseline-pin integrity audit", "tools/lint-baseline-pin.py")])
+        unscanned = self.RECORD_RE.findall(self.records(guard, "SITE_UNSCANNED_GATES"))
+        positions = [order.index(gate) for gate in unscanned if gate in order]
+        self.assertEqual(positions, sorted(positions),
+                         "SITE_UNSCANNED_GATES must list gates in runner order")
+        recorded = [(name, cmd) for _, name, cmd in entries] + steps + unscanned
+        self.assertEqual(sorted(set(order) - set(recorded)), [],
+                         "run_all_audits.sh gate(s) with no site-scope record in the guard")
+        self.assertEqual(sorted(set(recorded) - set(order)), [],
+                         "site-scope record(s) naming no run_all_audits.sh gate")
+        self.assertEqual(len(recorded), len(set(recorded)), "a gate is recorded twice")
+
+    def test_fast_test_patterns_select_the_site_reading_classes(self):
+        import fnmatch
+
+        guard = (REPO_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        patterns = re.findall(r'^\s*"([^"]+)"\s*$', self.records(guard, "FAST_TEST_PATTERNS"), re.M)
+        self.assertTrue(patterns, "no FAST_TEST_PATTERNS parsed from the guard")
+        module = sys.modules[type(self).__module__]
+        loader = unittest.TestLoader()
+        names = {}
+        for cls in vars(module).values():
+            if (isinstance(cls, type) and issubclass(cls, unittest.TestCase)
+                    and cls.__module__ == module.__name__):
+                names[cls.__name__] = [f"__main__.{cls.__qualname__}.{m}"
+                                       for m in loader.getTestCaseNames(cls)]
+        every = [n for ns in names.values() for n in ns]
+        for pattern in patterns:
+            self.assertTrue(any(fnmatch.fnmatchcase(n, pattern) for n in every),
+                            f"FAST_TEST_PATTERNS entry {pattern!r} selects no test")
+        # Every class that joins REPO_ROOT with a site path, or loads the web
+        # generator, must have a test the fast path runs.
+        source = Path(module.__file__).read_text(encoding="utf-8")
+        site = re.compile(r'REPO_ROOT\s*/\s*"\.(?:web|baseline)\b'
+                          r'|load_linter_module\(\s*"\.(?:web|baseline)/')
+        for block in re.split(r"^(?=class \w)", source, flags=re.M):
+            match = re.match(r"class (\w+)", block)
+            if match and site.search(block) and match.group(1) in names:
+                self.assertTrue(any(fnmatch.fnmatchcase(n, p) for n in names[match.group(1)]
+                                    for p in patterns),
+                                f"{match.group(1)} reads the real site tree but no "
+                                "FAST_TEST_PATTERNS entry selects it")
 
 
 class ExternalOverlayLicenseTests(LinterTestCase):
@@ -40620,7 +40718,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F ceef1401d311a181b5209ada2969b0ac6a7695d4b7d9eff578210c4c25386f2d
+        README.md DATA F bd5b19c35e4047d6718688281f98862622ddaa1601647a2865f3b3eb517924dd
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
@@ -40813,7 +40911,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
-        pre-push-guard.sh FIXED F 88a07338a164f7100e806292f22ec91e459d49d7cba462ee00455792121c5b42
+        pre-push-guard.sh FIXED F c9ae0f8219b80095d10c0f2687d73eaa0312408b38989257e1ac485b97d427d6
         pre-push-hook.py TRANSPORT F 354e7c39cf62fce09e53232ef355d5d5994111ac5a2fb4d43a8a3c7590c9534e
         preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088

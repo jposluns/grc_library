@@ -171,16 +171,21 @@ full guard. The fast path runs `run-pr-time-checks.sh` unchanged, each
 `run_all_audits.sh` gate whose scan covers a changed path (the guard's
 `FAST_GATES` table, which includes the language, link and version gates for
 `CHANGELOG.md` and `README.md`), the baseline-pin and palette gates,
-`.web/build.py --check` and `tests/test_web_draft.py`, and prints a `FAST PATH`
-line naming the changed paths. The guard fails closed to the full run when the
-merge base or the diff cannot be read, the diff is empty, `HEAD_REF` names
-anything other than HEAD, or `PRE_PUSH_GUARD_ALLOW_DIRTY` is set. Every skipped
-gate still runs in CI on the pull request, and `merge-when-green.py` merges only
-on green CI. Residual: a failure in a skipped gate is first seen in CI, not before
-the push. A site-only change can fail the skipped linter regression suite, whose
-`tests/test_linters.py` web-generator and baseline-pin tests read the real
-`.web/` and `.baseline/` trees. The guard's header lists the skipped gates and
-how the table was derived.
+`.web/build.py --check`, `tests/test_web_draft.py` and the
+`tests/test_linters.py` classes that read the real `.web/` and `.baseline/`
+trees (selected by class-name pattern), and prints a `FAST PATH` line naming the
+changed paths. Every `run_all_audits.sh` gate is recorded in exactly one of the
+guard's `FAST_GATES`, `FAST_STEP_GATES` and `SITE_UNSCANNED_GATES` tables, and a
+regression test fails otherwise; a gate the guard finds in none of them runs on
+every fast path (fail closed) with a `NOTE` naming it. The guard fails closed to
+the full run when the merge base or the diff cannot be read, the diff is empty,
+`HEAD_REF` names anything other than HEAD, `PRE_PUSH_GUARD_ALLOW_DIRTY` is set,
+or a runner gate line cannot be read. Every skipped gate still runs in CI on the
+pull request, and `merge-when-green.py` merges only on green CI. Residual: a
+failure in a skipped gate is first seen in CI, not before the push; a site-only
+change can still fail a skipped regression test that reads `CHANGELOG.md`,
+`README.md` or `NOTICE.md` over the real tree. The guard's header lists the
+skipped gates and how the tables were derived.
 
 Residual: `git push --no-verify` and a command-level `core.hooksPath` override
 can skip the hook entirely, including overrides supplied through
