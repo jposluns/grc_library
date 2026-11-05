@@ -72760,29 +72760,37 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         "stop-guard-unattended": ("stop-guard-unattended", "continue"),
     }
 
-    def _stop_block(self, hook, td, count, payload, store, **patches):
-        """Drive a Stop hook's real block path with `count` items, the detail log routed to
-        `store` (None: no store). Returns (items, exit status, console text)."""
+    def _stop_block(self, hook, td, count, payload, store, *, repo=None, names=None,
+                    real_diagnostic=False, **patches):
+        """Drive a Stop hook's real block path with `count` items (or the branch `names`), the
+        detail log routed to `store` (None: no store) and the checkout root at `repo` (default
+        <td>/repo). With `real_diagnostic`, stop-guard's own forked _diagnostic writes to a
+        regular file standing in for fd 2. Returns (items, exit status, console text)."""
         import json
         import lint_common
+        import time
         from contextlib import ExitStack, redirect_stderr
         from unittest.mock import patch
         turn_end = hook == "block-turn-end-with-outstanding-work"
+        repo = Path(td) / "repo" if repo is None else Path(repo)
         with patch.dict(os.environ, {"CLAUDE_PROJECT_DIR": td}), \
                 patch.object(lint_common, "resolve_working", return_value=None):
             mod = load_linter_module(".claude/hooks/%s.py" % hook,
                                      "_stop_detail_" + hook.replace("-", "_"))
-        items = [("claude/probe%d" % n, "1") if turn_end else ("P-%d" % n, "title %d" % n)
-                 for n in range(count)]
+        if names is not None:
+            items = [(name, "1") for name in names]
+        else:
+            items = [("claude/probe%d" % n, "1") if turn_end else ("P-%d" % n, "title %d" % n)
+                     for n in range(count)]
         sent = []
+        sink = Path(td) / "fd2.out"
         with ExitStack() as stack:
             def p(name, value):
                 stack.enter_context(patch.object(mod, name, value))
             if turn_end:
                 defaults = dict(
                     is_worker_session=lambda: False, unmerged_branches=lambda: list(items),
-                    ESCAPE_FILE=Path(td) / ".allow-stop", HELD_FILE=None,
-                    REPO=Path(td) / "repo",
+                    ESCAPE_FILE=Path(td) / ".allow-stop", HELD_FILE=None, REPO=repo,
                     _resolve_working=lambda rel, repo_root, strict: store)
             else:
                 state = Path(store if store is not None else Path(td) / "no-store") / "session-state.md"
@@ -72793,21 +72801,56 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     actionable_items=lambda root: list(items),
                     live_dispatch_groups=lambda: 0,
                     read_slot_share=lambda: (None, "absent"),
-                    _GRC_STATE_FILE=str(state), _diagnostic=sent.append)
+                    _GRC_STATE_FILE=str(state), _GRC_REPO_ROOT=str(repo))
+                if not real_diagnostic:
+                    defaults["_diagnostic"] = sent.append
             for name, value in {**defaults, **patches}.items():
                 p(name, value)
             stack.enter_context(patch.object(sys, "stdin", io.StringIO(json.dumps(payload))))
             err = stack.enter_context(redirect_stderr(io.StringIO()))
-            status = mod.main() if turn_end else mod.main([mod.__file__])
-            text = err.getvalue() if turn_end else "".join(sent)
+            if turn_end:
+                status = mod.main()
+                text = err.getvalue()
+            elif real_diagnostic:
+                saved = os.dup(2)
+                out = os.open(sink, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+                try:
+                    os.dup2(out, 2)
+                    status = mod.main([mod.__file__])
+                finally:
+                    os.dup2(saved, 2)
+                    os.close(saved)
+                    os.close(out)
+                deadline = time.monotonic() + 5
+                while time.monotonic() < deadline and not sink.read_bytes().endswith(b"\n"):
+                    time.sleep(0.01)
+                text = sink.read_bytes().decode("utf-8", "backslashreplace")
+            else:
+                status = mod.main([mod.__file__])
+                text = "".join(sent)
         return items, status, text.rstrip("\n")
 
     def _stop_log(self, hook, store, session):
         prefix = self.STOP_LOG_HOOKS[hook][0]
         return Path(store) / "stop-hook-detail" / ("%s.%s.log" % (prefix, session))
 
+    def _assert_fallback(self, hook, items, text):
+        """The visible fallback: a conforming refusal, the NOTE, and (turn-end) every item or
+        (stop-guard, #2291) the count with no item ID or title."""
+        guard, verb = self.STOP_LOG_HOOKS[hook]
+        self.assert_refusal(text, guard=guard, imperative=verb)
+        self.assertIn("NOTE: detail log not written (", text)
+        self.assertIn("touch ", text)  # the escape stays reachable
+        if hook.startswith("block-"):
+            for name, ahead in items:
+                self.assertIn("%s (+%s)" % (name, ahead), text)
+        else:
+            self.assertIn("\nActionable items: %d " % len(items), text)
+            self.assertNotRegex(text, r"\bP-\d")
+            self.assertNotIn("title ", text)
+
     def test_stop_hooks_console_short_form(self):
-        """A logged refusal is three conforming lines ending in the detail log path."""
+        """A logged refusal is three conforming lines, each within the clamp, ending in the log path."""
         for hook, (guard, verb) in self.STOP_LOG_HOOKS.items():
             with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td:
                 store = Path(td) / "store"
@@ -72817,9 +72860,48 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 lines = text.split("\n")
                 self.assertEqual(len(lines), 3, text)
                 self.assert_refusal(text, guard=guard, imperative=verb)
-                self.assertTrue(lines[2].endswith(str(self._stop_log(hook, store, "s-1"))), text)
+                self.assertTrue(lines[2].endswith(" " + str(self._stop_log(hook, store, "s-1"))), text)
+                self.assertLessEqual(max(map(len, lines)), 160, text)
                 for detail in ("Branches outstanding", "touch ", "Declared wait", "NOTE:"):
                     self.assertNotIn(detail, text)
+
+    def test_stop_hooks_console_lines_clamped(self):
+        """Turn-end line 1 stays within _MAX_LINE_CHARS with long branch names, keeping the
+        count; each shown branch is cut to _MAX_ITEM_CHARS; a long NOTE line is clamped."""
+        from unittest.mock import Mock
+        hook = "block-turn-end-with-outstanding-work"
+        with tempfile.TemporaryDirectory() as td:
+            store = Path(td) / "store"
+            store.mkdir()
+            names = ["claude/%s-%d" % ("x" * 300, n) for n in range(5)]
+            _items, status, text = self._stop_block(hook, td, 0, {"session_id": "s-1"}, store,
+                                                    names=names)
+            self.assertEqual(status, 2)
+            lines = text.split("\n")
+            self.assertEqual(len(lines), 3, text)
+            self.assertLessEqual(len(lines[0]), 160, lines[0])
+            self.assertIn("5 branch(es)", lines[0])
+        with tempfile.TemporaryDirectory() as td:
+            store = Path(td) / "store"
+            store.mkdir()
+            _items, status, text = self._stop_block(hook, td, 0, {"session_id": "s-1"}, store,
+                                                    names=["b" * 300])
+            self.assertEqual(status, 2)
+            line = text.split("\n")[0]
+            limit = 48  # _MAX_ITEM_CHARS
+            self.assertIn("b" * (limit - 3) + "...", line)
+            self.assertNotIn("b" * (limit - 2), line)
+        with tempfile.TemporaryDirectory() as td:
+            store = Path(td) / "store"
+            store.mkdir()
+            items, status, text = self._stop_block(
+                hook, td, 2, {"session_id": "s-1"}, store,
+                _append_private=Mock(side_effect=OSError(5, "e" * 400)))
+            self.assertEqual(status, 2)
+            note = [ln for ln in text.split("\n") if ln.startswith("NOTE:")]
+            self.assertEqual(len(note), 1, text)
+            self.assertLessEqual(len(note[0]), 160, note[0])
+            self._assert_fallback(hook, items, text)
 
     def test_stop_hooks_write_private_detail_log(self):
         """Every item lands in a 0600 per-session log; a planted symlink is never followed."""
@@ -72847,10 +72929,11 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 self.assertEqual(target.read_text(encoding="utf-8"), "untouched")
                 self.assertIn("NOTE: detail log not written", text)
 
-    def test_stop_hooks_log_failure_shows_full_detail(self):
-        """No usable session, no store or a failed write: every item stays on the console."""
+    def test_stop_hooks_log_failure_fallback(self):
+        """No usable session, no store or a failed write: the refusal stays visible (turn-end:
+        every item; stop-guard: the count only, #2291) and nothing is logged."""
         from unittest.mock import Mock
-        for hook, (guard, verb) in self.STOP_LOG_HOOKS.items():
+        for hook in self.STOP_LOG_HOOKS:
             for case in ("no-session", "bad-session", "no-store", "write-error"):
                 with self.subTest(hook=hook, case=case), tempfile.TemporaryDirectory() as td:
                     store = Path(td) / "store"
@@ -72862,15 +72945,166 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     items, status, text = self._stop_block(
                         hook, td, 9, payload, None if case == "no-store" else store, **patches)
                     self.assertEqual(status, 2)
-                    self.assert_refusal(text, guard=guard, imperative=verb)
-                    self.assertIn("NOTE: detail log not written (", text)
-                    for name, extra in items:
-                        self.assertIn(name + (" (+1)" if hook.startswith("block-") else ": " + extra), text)
-                    self.assertIn("touch ", text)  # the escape stays reachable
+                    self._assert_fallback(hook, items, text)
                     if case == "write-error":
                         self.assertIn("disk full", text)
                     self.assertFalse((store / "stop-hook-detail").exists()
                                      and any((store / "stop-hook-detail").iterdir()))
+
+    def test_stop_hooks_store_inside_checkout_falls_back(self):
+        """A store that resolves inside the checkout is refused before anything is created."""
+        for hook in self.STOP_LOG_HOOKS:
+            with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td:
+                repo = Path(td) / "repo"
+                store = repo / "private"
+                store.mkdir(parents=True)
+                items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"}, store,
+                                                       repo=repo)
+                self.assertEqual(status, 2)
+                self._assert_fallback(hook, items, text)
+                self.assertIn("inside this checkout", text)
+                self.assertFalse((store / "stop-hook-detail").exists())
+
+    def test_stop_guard_fallback_fits_diagnostic_cap(self):
+        """Through the real forked _diagnostic: 200 items, a long failure reason and wide
+        override paths still deliver the whole fallback with the NOTE, under PIPE_BUF."""
+        import select
+        hook = "stop-guard-unattended"
+        with tempfile.TemporaryDirectory() as td:
+            missing = Path(td) / ("m" * 200) / "store"
+            items, status, text = self._stop_block(
+                hook, td, 200, {"session_id": "s-1"}, missing, real_diagnostic=True,
+                _grc_escape_file=lambda: "/" + "é" * 300 + "/.allow-idle-stop",
+                ACTIONABLE_PRODUCER="中" * 300)
+            self.assertEqual(status, 2)
+            raw = (Path(td) / "fd2.out").read_bytes()
+            self.assertTrue(raw.endswith(b"\n"), raw[-200:])
+            self.assertLess(len(raw), select.PIPE_BUF)
+            self._assert_fallback(hook, items, text)
+            lines = text.split("\n")
+            self.assertTrue(lines[5].startswith("NOTE: detail log not written (FileNotFoundError"), text)
+            self.assertEqual(lines[6], "Actionable items: 200 (IDs and titles are not shown here, #2291).")
+            self.assertLessEqual(max(map(len, lines)), 160)
+
+    def test_stop_hooks_replaced_log_path_falls_back(self):
+        """A path replaced between the write and the check is not advertised."""
+        from unittest.mock import patch
+        for hook in self.STOP_LOG_HOOKS:
+            with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td:
+                store = Path(td) / "store"
+                store.mkdir()
+                log = self._stop_log(hook, store, "s-1")
+                decoy = Path(td) / "decoy"
+                decoy.write_text("decoy", encoding="utf-8")
+                real_write, swapped = os.write, []
+
+                def write_then_swap(fd, data):
+                    written = real_write(fd, data)
+                    if not swapped:
+                        swapped.append(fd)
+                        os.replace(decoy, log)
+                    return written
+
+                with patch.object(os, "write", write_then_swap):
+                    items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"}, store)
+                self.assertEqual(len(swapped), 1)
+                self.assertEqual(status, 2)
+                self._assert_fallback(hook, items, text)
+                self.assertIn("replaced during the write", text)
+                self.assertEqual(log.read_text(encoding="utf-8"), "decoy")
+
+    def test_stop_hooks_stalled_log_write_is_bounded(self):
+        """A stalled log write cannot delay the refusal past the bound; the fallback shows."""
+        import threading
+        import time
+        for hook in self.STOP_LOG_HOOKS:
+            with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td:
+                store = Path(td) / "store"
+                store.mkdir()
+                release = threading.Event()
+
+                def slow(directory, name, text):
+                    release.wait(8)
+                    return os.path.join(directory, "stop-hook-detail", name)
+
+                started = time.monotonic()
+                try:
+                    items, status, text = self._stop_block(
+                        hook, td, 4, {"session_id": "s-1"}, store,
+                        _append_private=slow, _DETAIL_TIMEOUT_S=0.3)
+                    elapsed = time.monotonic() - started
+                finally:
+                    release.set()
+                self.assertEqual(status, 2)
+                self.assertLess(elapsed, 4.0)
+                self._assert_fallback(hook, items, text)
+                self.assertIn("TimeoutError", text)
+
+    def test_stop_hooks_detail_directory_must_be_private(self):
+        """A group/other-writable, foreign-owned or symlinked stop-hook-detail is refused."""
+        from unittest.mock import patch
+        import stat
+        real_fstat = os.fstat
+
+        def foreign_dir(fd):
+            info = real_fstat(fd)
+            if stat.S_ISDIR(info.st_mode):
+                fields = list(info)
+                fields[4] = info.st_uid + 1
+                return os.stat_result(fields)
+            return info
+
+        for hook in self.STOP_LOG_HOOKS:
+            for case in ("mode-0777", "symlink", "foreign-uid"):
+                with self.subTest(hook=hook, case=case), tempfile.TemporaryDirectory() as td:
+                    store = Path(td) / "store"
+                    store.mkdir()
+                    detail_dir = store / "stop-hook-detail"
+                    elsewhere = Path(td) / "elsewhere"
+                    elsewhere.mkdir(mode=0o700)
+                    if case == "mode-0777":
+                        detail_dir.mkdir()
+                        os.chmod(detail_dir, 0o777)
+                    elif case == "symlink":
+                        detail_dir.symlink_to(elsewhere)
+                    with patch.object(os, "fstat", foreign_dir if case == "foreign-uid" else real_fstat):
+                        items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"}, store)
+                    self.assertEqual(status, 2)
+                    self._assert_fallback(hook, items, text)
+                    self.assertEqual(list(elsewhere.iterdir()), [])
+                    if case != "symlink":
+                        self.assertEqual(list(detail_dir.iterdir()), [])
+
+    def test_stop_hooks_log_file_uid_and_link_count(self):
+        """A log file owned by another uid, or hard linked elsewhere, is never written."""
+        from unittest.mock import patch
+        import stat
+        real_fstat = os.fstat
+
+        def foreign_file(fd):
+            info = real_fstat(fd)
+            if stat.S_ISREG(info.st_mode):
+                fields = list(info)
+                fields[4] = info.st_uid + 1
+                return os.stat_result(fields)
+            return info
+
+        for hook in self.STOP_LOG_HOOKS:
+            for case in ("foreign-uid", "hard-link"):
+                with self.subTest(hook=hook, case=case), tempfile.TemporaryDirectory() as td:
+                    store = Path(td) / "store"
+                    (store / "stop-hook-detail").mkdir(parents=True, mode=0o700)
+                    log = self._stop_log(hook, store, "s-1")
+                    if case == "hard-link":
+                        log.write_text("", encoding="utf-8")
+                        os.chmod(log, 0o600)
+                        os.link(log, Path(td) / "alias")
+                    with patch.object(os, "fstat", foreign_file if case == "foreign-uid" else real_fstat):
+                        items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"}, store)
+                    self.assertEqual(status, 2)
+                    self._assert_fallback(hook, items, text)
+                    self.assertIn("not a private regular file", text)
+                    self.assertEqual(log.read_text(encoding="utf-8"), "")
 
     def test_stop_hooks_console_list_cap(self):
         """The console shows the count and at most the first three items."""
@@ -72886,12 +73120,22 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                         shown = [name for name, _ in items if re.search(re.escape(name) + r"\b", text)]
                         self.assertEqual(shown, [name for name, _ in items[:3]])
                         if count > 3:
-                            self.assertIn("and %d more" % (count - 3), text)
+                            self.assertIn("; first 3: ", text)
                         else:
-                            self.assertNotIn(" more", text)
+                            self.assertNotIn("first", text)
                     else:
                         self.assertIn("%d actionable open backlog item(s)" % count, text)
                         self.assertNotRegex(text, r"\bP-\d")  # count only (#2291)
+
+    def test_stop_guard_docstring_matches_console_form(self):
+        """The docstring no longer says the console carries the producer command, the escape
+        or item titles (#2291 holds on the fallback too)."""
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_stop_detail_doc")
+        doc = " ".join(mod.__doc__.split())
+        self.assertNotIn("BLOCK (exit 2), reporting the actionable count, producer command, rule and escape", doc)
+        self.assertNotIn("item titles do reach the diagnostic", doc)
+        self.assertIn("the console carries the count and the detail log path", doc)
+        self.assertIn("no item ID or title reaches the diagnostic on either path", doc)
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()

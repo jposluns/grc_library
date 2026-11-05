@@ -86,16 +86,24 @@ refuses. decide() renders the FULL detail: every outstanding or unverifiable bra
 held-branches path and the one-shot escape. main() appends that detail to a per-session log,
 <store>/stop-hook-detail/turn-end-outstanding-work.<session_id>.log, where <store> is the same
 store-aware `.working` resolution (lint_common.resolve_working, strict) that locates the
-held-branches file. The text returned to the harness is then three short lines (summarize()):
-what blocked, with the branch count and at most the first _SHOWN_ITEMS branches; WHY; and the one
-action that clears it, followed by the log path. The log is created without following symlinks
-(the store directory, the subdirectory and the file are opened with O_NOFOLLOW), mode 0600,
-regular, owned by this uid and singly linked. If the log cannot be written (no usable session_id
-in the Stop payload, no store, a store inside this checkout, or any open, check or write
-failure), the full detail is returned instead with one NOTE line naming the failure: this fails
-open to visibility, never to silence. Exit status, the escape and stop_hook_active handling are
-unchanged. RESIDUE: ancestors above the store directory are not checked for symlinks, and the
-log is appended to without rotation.
+held-branches file. The text returned to the harness is then three short lines (summarize()),
+each at most _MAX_LINE_CHARS characters: what blocked, with the branch count and at most the
+first _SHOWN_ITEMS branches (each cut to _MAX_ITEM_CHARS); WHY; and the one action that clears
+it, followed by the log path. A store that resolves inside this checkout is refused before
+anything is created. The log is created without following symlinks (the store directory, the
+subdirectory and the file are opened with O_NOFOLLOW); the subdirectory must be owned by this
+uid with no group or other write bit; the file must be regular, mode 0600, owned by this uid and
+singly linked; and after the write the advertised path must still name the written file (lstat
+st_dev and st_ino against the descriptor's fstat). The resolution, open and write run in a daemon
+thread joined for at most _DETAIL_TIMEOUT_S seconds, so a stalled filesystem cannot delay the
+refusal. If the log cannot be written (no usable session_id in the Stop payload, no store, a
+store inside this checkout, a timeout, or any open, check or write failure), or the log path
+cannot fit one console line, the full detail is returned instead with one NOTE line naming the
+failure: this fails open to visibility, never to silence. Exit status, the escape and
+stop_hook_active handling are unchanged. RESIDUE: ancestors above the store directory are not
+checked for symlinks; the log is appended to without rotation; a write that times out may still
+complete later in the abandoned thread, and the process exit can still wait on a syscall the
+kernel does not let a fatal signal interrupt.
 """
 
 from __future__ import annotations
@@ -234,10 +242,13 @@ except Exception as exc:
     _HELD_FILE_ERROR = exc
 GIT_TIMEOUT = 20
 _EXPIRY = _re.compile(r"\d{4}-\d{2}-\d{2}", _re.ASCII)
-# Console refusal shape (see CONSOLE AND DETAIL LOG in the module docstring).
+# Console refusal shape (see CONSOLE AND DETAIL LOG in the module docstring). _MAX_LINE_CHARS is
+# stop-guard-unattended.py's existing per-line clamp, mirrored here so both Stop hooks agree.
 _SHOWN_ITEMS = 3
-_MAX_ITEM_CHARS = 120
+_MAX_ITEM_CHARS = 48
+_MAX_LINE_CHARS = 160
 _DETAIL_SUBDIR = "stop-hook-detail"
+_DETAIL_TIMEOUT_S = 2.0
 _SESSION_ID = _re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}", _re.ASCII)
 
 
@@ -413,31 +424,40 @@ def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
     return "\n".join(lines)
 
 
+def _clamp(line: str, limit: int = _MAX_LINE_CHARS) -> str:
+    """One console line cut to ``limit`` characters, marked with "..." when cut."""
+    return line if len(line) <= limit else line[:limit - 3] + "..."
+
+
 def summarize(branches: list, log_path: str) -> str:
-    """The three console lines: what blocked (count plus at most _SHOWN_ITEMS branches), WHY,
-    and the one action that clears it followed by the detail log path."""
-    shown = []
-    for name, ahead in branches[:_SHOWN_ITEMS]:
-        item = "%s (+%s)" % (name, ahead)
-        if len(item) > _MAX_ITEM_CHARS:
-            item = item[:_MAX_ITEM_CHARS - 3] + "..."
-        shown.append(item)
-    listed = ", ".join(shown)
+    """The three console lines, each at most _MAX_LINE_CHARS: what blocked (the count, then at
+    most the first _SHOWN_ITEMS branches, each cut to _MAX_ITEM_CHARS), WHY, and the one action
+    that clears it followed by the detail log path. The count precedes the list so a cut line
+    keeps it; a log path that cannot fit whole raises, and the caller then shows the detail."""
+    shown = [_clamp("%s (+%s)" % (name, ahead), _MAX_ITEM_CHARS)
+             for name, ahead in branches[:_SHOWN_ITEMS]]
     if len(branches) > _SHOWN_ITEMS:
-        listed += ", and %d more" % (len(branches) - _SHOWN_ITEMS)
+        head = "%d branch(es) outstanding or not verifiable; first %d: " % (len(branches), len(shown))
+    else:
+        head = "%d branch(es) outstanding or not verifiable: " % len(branches)
+    for form in ("CONSIDER INSTEAD: merge or hold each branch; detail log: %s",
+                 "CONSIDER INSTEAD: merge or hold; log: %s"):
+        action = form % log_path
+        if len(action) <= _MAX_LINE_CHARS:
+            break
+    else:
+        raise ValueError("detail log path does not fit one console line")
     return "\n".join([
-        "BLOCKED (turn-end-outstanding-work): %d branch(es) outstanding or not verifiable: %s."
-        % (len(branches), listed),
-        "WHY: a turn-end yield strands unmerged work ahead of main for the next session.",
-        "CONSIDER INSTEAD: merge each listed branch or record its hold; "
-        "full list, hold file and escape: %s" % log_path,
+        _clamp("BLOCKED (turn-end-outstanding-work): " + head + ", ".join(shown)),
+        _clamp("WHY: a turn-end yield strands unmerged work ahead of main for the next session."),
+        action,
     ])
 
 
 def _detail_dir():
     """The store directory holding the detail log subdirectory: the held-branches resolution
-    (resolve_working, strict) of the `.working` root. None when no store resolves or the
-    resolved location is inside this checkout (detail never lands in the public tree)."""
+    (resolve_working, strict) of the `.working` root. None when no store resolves; raises when
+    the resolved location is inside this checkout (detail never lands in the public tree)."""
     if _resolve_working is None:
         return None
     found = _resolve_working(".", repo_root=REPO, strict=True)
@@ -445,15 +465,16 @@ def _detail_dir():
         return None
     found = Path(os.path.abspath(found))
     if found.resolve().is_relative_to(Path(REPO).resolve()):
-        return None
+        raise PermissionError(errno.EPERM, "store resolves inside this checkout", str(found))
     return found
 
 
 def _append_private(directory, name: str, text: str) -> str:
     """Append ``text`` to ``directory/_DETAIL_SUBDIR/name`` without following a symlink at the
-    directory, the subdirectory or the file; the file must end up a singly linked regular file
-    owned by this uid with mode 0600. Any failure raises; the caller then fails open to the
-    console."""
+    directory, the subdirectory or the file. The subdirectory must be owned by this uid with no
+    group or other write bit; the file must be a singly linked regular file owned by this uid,
+    mode 0600; after the write the returned path must still name the written file (same st_dev
+    and st_ino). Any failure raises; the caller then fails open to the console."""
     flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
     top = os.open(directory, flags)
     try:
@@ -465,10 +486,15 @@ def _append_private(directory, name: str, text: str) -> str:
     finally:
         os.close(top)
     try:
+        info = os.fstat(sub)
+        if (not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid()
+                or info.st_mode & (stat.S_IWGRP | stat.S_IWOTH)):
+            raise PermissionError(errno.EPERM, "detail log directory is not private", _DETAIL_SUBDIR)
         fd = os.open(name, os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NOFOLLOW
                      | os.O_NONBLOCK | os.O_CLOEXEC, 0o600, dir_fd=sub)
     finally:
         os.close(sub)
+    path = os.path.join(os.fspath(directory), _DETAIL_SUBDIR, name)
     try:
         info = os.fstat(fd)
         if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
@@ -481,9 +507,12 @@ def _append_private(directory, name: str, text: str) -> str:
             if written <= 0:
                 raise OSError(errno.EIO, "short write to detail log", name)
             data = data[written:]
+        named = os.lstat(path)
+        if (named.st_dev, named.st_ino) != (info.st_dev, info.st_ino):
+            raise PermissionError(errno.EPERM, "detail log path was replaced during the write", name)
     finally:
         os.close(fd)
-    return os.path.join(os.fspath(directory), _DETAIL_SUBDIR, name)
+    return path
 
 
 def _write_detail_log(detail: str, payload) -> str:
@@ -499,20 +528,42 @@ def _write_detail_log(detail: str, payload) -> str:
                            "=== %s turn-end-outstanding-work ===\n%s\n\n" % (stamp, detail))
 
 
+def _bounded_write(detail: str, payload) -> str:
+    """_write_detail_log in a daemon thread joined for at most _DETAIL_TIMEOUT_S seconds, so a
+    stalled filesystem cannot delay the refusal; a timeout raises and the caller fails open."""
+    import threading
+    box = {}
+
+    def work():
+        try:
+            box["path"] = _write_detail_log(detail, payload)
+        except Exception as exc:
+            box["error"] = exc
+
+    worker = threading.Thread(target=work, name="stop-hook-detail-log", daemon=True)
+    worker.start()
+    worker.join(_DETAIL_TIMEOUT_S)
+    if worker.is_alive():
+        raise TimeoutError(errno.ETIMEDOUT, "detail log write exceeded %gs" % _DETAIL_TIMEOUT_S)
+    if "error" in box:
+        raise box["error"]
+    return box["path"]
+
+
 def _route_refusal(detail: str, branches: list, payload) -> str:
-    """Short console form after a successful log write; the full detail otherwise."""
+    """Short console form after a successful log write; the full detail otherwise, with one
+    NOTE line naming the failure (fail open to visibility, never to silence)."""
+    state = "not written"
     try:
-        path = _write_detail_log(detail, payload)
+        path = _bounded_write(detail, payload)
+        state = "written but not summarized"
+        return summarize(branches, path)
     except Exception as exc:
         try:
             why = "%s: %s" % (type(exc).__name__, exc)
         except Exception:
             why = type(exc).__name__
-        return detail + "\nNOTE: detail log not written (%s); full detail shown here." % why
-    try:
-        return summarize(branches, path)
-    except Exception:
-        return detail
+        return detail + "\n" + _clamp("NOTE: detail log %s (%s); full detail shown here." % (state, why))
 
 
 def _fail_open() -> int:
@@ -690,7 +741,8 @@ def self_test() -> int:
     many = [("b%d" % n, "1") for n in range(5)]
     short = summarize(many, "/store/x.log")
     if (len(short.splitlines()) != 3 or "5 branch(es)" not in short or "b2 (+1)" not in short
-            or "b3" in short or "and 2 more" not in short or not short.endswith("/store/x.log")):
+            or "b3" in short or "first 3: " not in short or not short.endswith("/store/x.log")
+            or max(map(len, short.splitlines())) > _MAX_LINE_CHARS):
         bad += 1
         print("FAIL summarize did not cap the console list at three")
 
