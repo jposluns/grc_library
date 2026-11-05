@@ -253,8 +253,8 @@ What is locked here, each test failing without its feature:
    instruments included; the Views links are All plus the topic views
    (item 30), each a plain link that navigates to its rendered view page;
    the row-header column
-   carries no data-col and sits outside every topic; the table sits in a
-   bounded scroll box with no data-matrix marker or status line and shows
+   carries no data-col and sits outside every topic; the table sits in its
+   region box (item 46) with no data-matrix marker or status line and shows
    every column as served;
    the sentences about the table and the views hold for every column
    and view they cover; the generator refuses groups and instruments that
@@ -288,9 +288,9 @@ What is locked here, each test failing without its feature:
    cells show a code, the columns that record phrase-length labels only,
    and the columns with no mapping, each checked against every rendered
    column of every table page; a header's name is its display without the
-   leading organization; and an empty cell holds only a visually hidden
-   "no documents" while "and more" is visually hidden, so a cell shows its
-   codes and count link alone.
+   leading organization; and an empty cell held only a visually hidden
+   "no documents" (item 43 gives it a visible word) while "and more" is
+   visually hidden, so a mapped cell shows its codes and count link alone.
 33. Batch 3 integration (site f1 and f2 onto batch 2): a type page's All
    Documents sentence names the area chips only where its rows span areas
    and the text filter alone where they sit in one, and counts its rows
@@ -303,7 +303,8 @@ What is locked here, each test failing without its feature:
 34. Batch 3 round 2: on a type page with adopter documents, the All
    Documents sentence names its scope as a part of this page's documents,
    never "these" just after the adopter block; the AICPA TSC caveat says
-   what the reader sees, an empty cell for the matrix's N/A, renders only
+   what the reader sees, a "no mapping" cell for the matrix's N/A (an empty
+   cell before item 43), renders only
    on a page whose table has that column, and holds for every such cell;
    and a plain space separates the codes from the count link in every
    cell, capped or not.
@@ -404,6 +405,43 @@ What is locked here, each test failing without its feature:
    so the Start here list holds seven entries); the govern type clauses
    read generic singular; and the policies page names the domains with no
    policy or template of their own.
+43. Crosswalk as a large matrix (baseline 1.7.0 spec 7.34; maintainer
+   2026-11-04 01:52Z: a wide matrix that scrolls sideways): every crosswalk
+   view's table sits in a focusable named region box (tabindex, role and an
+   aria-label equal to its caption) and carries the combined classes with
+   exactly one pin cap, CROSSWALK_PIN_CLASS; a column whose cells show a
+   count alone has every cell nowrap and a code column none; every header
+   has scope; in a table whose columns span more than one group every
+   header names its instrument group with the group's accent number (item
+   45); no table takes data-matrix or the column highlight, since no page
+   loads matrix.js (item 29); there are no column toggles, so the address
+   gains no key; and an empty cell is td.na keeping the word "no mapping",
+   the only cells without a count link.
+44. Review round 1 of item 43: no crosswalk table is table.fixed or sets a
+   column width, so no table can spread spare width over its pinned column
+   past the cap (baseline.css: table width 100%, table.fixed min-width
+   56rem); the count-alone sentences cover a cell with a recorded mapping
+   and are checked on every cell of the columns they name, td.na included.
+45. Review round 2 of item 43 (measured in headless Chrome): a table whose
+   columns all share one group carries no group tag (.grp) and no data-grp
+   accent on its headers, since the view's heading names its topic and the
+   tag set each count-only column's width (the Trade view scrolled sideways
+   at 1512px); a table spanning more than one group keeps both. The item 44
+   checks read markup only; layout was measured in a browser in review.
+46. The crosswalk box scrolls sideways only (maintainer 2026-11-04 12:58Z:
+   the crosswalk scrolled vertically by a few pixels, measured in headless
+   Chrome): the served baseline.css caps a .tablewrap.bounded, and a
+   .tablewrap holding table.sticky, at 75vh with overflow: auto, and the
+   horizontal scrollbar's gutter counts against that cap, so no crosswalk
+   view's wrapper is .bounded and no table is .sticky; the pinned column
+   (sticky-col) stays. The check reads markup and the served stylesheet;
+   the before and after measurements were taken in a browser in review.
+47. Site review batch B8 (three NOTE findings): the decision narratives
+   index takes its kind's name, /decide/decision-narratives/, and the old
+   /decide/choices/ address redirects there; the domain pages label their
+   tour steps "Next on the tour" in the unchanged tour order; and every
+   trade programme page the combined reverse section covers renders the
+   shared control-area table.
 """
 
 from __future__ import annotations
@@ -545,10 +583,11 @@ _ID_RE = re.compile(r'\bid="([^"]+)"')
 _ROW_HREF_RE = re.compile(r'<li><a href="([^"]*)">')
 
 # The six subtype index routes the reconciled design fixes
-# (RECONCILED.md: /draft/decide/<subtype-plural>/, design D section 4.1).
+# (RECONCILED.md: /draft/decide/<subtype-plural>/, design D section 4.1);
+# site review F16 renamed choices to decision-narratives, its kind's name.
 SUBTYPE_SLUGS = {
     "briefs", "scenarios", "journeys", "outcome-maps", "question-sets",
-    "choices",
+    "decision-narratives",
 }
 
 
@@ -598,6 +637,151 @@ def _matrix_script_faults(html):
         faults.append("a data-matrix table without matrix.js")
     if loads and not matrices:
         faults.append("matrix.js without a data-matrix table")
+    return faults
+
+
+# Baseline 1.7.0 SPECIFICATION.md section 7.34, the combined form of a large
+# matrix: a focusable named bounded region box (.tablewrap.bounded,
+# tabindex, role="region", an aria-label naming the table) holding
+# table.matrix with both sticky axes and scoped headers; plus the 7.34
+# classes the crosswalk uses (the capped pinned column of spec 7.31,
+# wrapping cells, row guides). The crosswalk leaves out the form's fixed
+# layout and rem widths (item 44) and its bounded box and sticky header
+# (item 46).
+_XW_COMBINED_CLASSES = frozenset(
+    "matrix sticky-col pin-cap cells-wrap zebra rowhover".split())
+_XW_REGION_RE = re.compile(
+    r'<div class="tablewrap" tabindex="0" role="region" '
+    r'aria-label="([^"]+)">\s*<table class="([^"]*)"([^>]*)>\s*'
+    r'<caption class="vh">([^<]*)</caption>\s*'
+    r"(?:<colgroup>(.*?)</colgroup>\s*)?"
+    r"<thead>(.*?)</thead>\s*<tbody>(.*?)</tbody>\s*</table>\s*</div>",
+    re.S)
+_XW_PIN_RE = re.compile(r"pin-r(?:6|8|10|12|14|16|18|20)")
+_XW_TD_RE = re.compile(r"<td\b([^>]*)>(.*?)</td>", re.S)
+_XW_CLASS_ATTR_RE = re.compile(r'\sclass="([^"]*)"')
+_XW_TABLE_RE = re.compile(r'<table class="([^"]*)"[^>]*>(.*?)</table>', re.S)
+
+
+def _xw_combined_form_faults(html, pin):
+    """Every way the one table on a crosswalk page misses the spec 7.34
+    combined form: not exactly one table; no focusable named region box
+    directly around it (with the caption, thead and tbody in order); a
+    region label other than the caption's words; a combined class missing;
+    pin-r<N> caps other than exactly ``pin`` (CROSSWALK_PIN_CLASS); a column
+    header or row header without its scope."""
+    tables = html.count("<table")
+    if tables != 1:
+        return [f"{tables} tables on the page, not 1"]
+    found = _XW_REGION_RE.search(html)
+    if found is None:
+        return ["the table is not alone in a focusable named region box "
+                "(.tablewrap, tabindex, role, aria-label) with its "
+                "caption, thead and tbody in order"]
+    label, classes, _, caption, _, thead, tbody = found.groups()
+    faults = []
+    if label != caption:
+        faults.append(f"region label {label!r} is not the caption {caption!r}")
+    classes = set(classes.split())
+    missing = sorted(_XW_COMBINED_CLASSES - classes)
+    if missing:
+        faults.append(f"table classes missing: {missing}")
+    pins = sorted(c for c in classes if _XW_PIN_RE.fullmatch(c))
+    if pins != [pin]:
+        faults.append(f"pin caps {pins}, not exactly [{pin!r}]")
+    head_attrs = re.findall(r"<th\b([^>]*)>", thead)
+    if not head_attrs or any(not a.startswith(' scope="col"')
+                             for a in head_attrs):
+        faults.append("a column header without scope=\"col\"")
+    row_attrs = re.findall(r"<th\b([^>]*)>", tbody)
+    if not row_attrs or any(a != ' scope="row"' for a in row_attrs):
+        faults.append("a row header without scope=\"row\"")
+    return faults
+
+
+def _xw_pin_stretch_faults(html):
+    """Every way the table on a crosswalk page could spread spare width over
+    its pinned column past the pin cap (review round 1 WARN). baseline.css
+    gives every table width: 100% and table.fixed a 56rem minimum; in fixed
+    layout each column has a set width, the pinned one from its cells, so a
+    fixed table wider than its columns spreads the rest over all of them,
+    and any table can be wider than its columns: the left-rail main column
+    has no maximum width. In automatic layout the spare width goes to the
+    columns that set no width, so the pinned column is never wider than its
+    cap while no data column sets one: no table.fixed, no col (baseline.css
+    widths a col only in table.fixed), and no width or style attribute on a
+    cell. No crosswalk page loads matrix.js (item 29), so the served markup
+    is the only state."""
+    found = _XW_TABLE_RE.search(html)
+    if found is None:
+        return ["no crosswalk table"]
+    classes, inner = found.groups()
+    faults = []
+    if "fixed" in classes.split():
+        faults.append("table.fixed spreads spare width over the pinned column")
+    if re.search(r"<col\b", inner):
+        faults.append("a col: column widths are for table.fixed")
+    if re.search(r"<t[hd]\b[^>]*\s(?:width|style)=", inner):
+        faults.append("a cell sets its own width")
+    return faults
+
+
+def _xw_one_group_tag_faults(html, group_of):
+    """Every way the table on a crosswalk page whose columns all share one
+    instrument group still marks that group on its headers (item 45): a
+    group tag (.grp) or a data-grp accent. A table spanning more than one
+    group has none to report. ``group_of`` maps instrument key to group."""
+    found = _XW_REGION_RE.search(html)
+    if found is None:
+        return ["no crosswalk table"]
+    thead = found.group(6)
+    keys = re.findall(r'<th scope="col" data-col="([a-z0-9-]+)"', thead)
+    if len({group_of[key] for key in keys}) > 1:
+        return []
+    faults = []
+    if re.search(r'\sclass="(?:[^"]*\s)?grp[\s"]', thead):
+        faults.append("a group tag (.grp) in a one-group table")
+    if re.search(r"\sdata-grp=", thead):
+        faults.append("a data-grp accent in a one-group table")
+    return faults
+
+
+def _xw_vertical_scroll_faults(html):
+    """Every way the box around the table on a crosswalk page is made a
+    vertical scroller (item 46): baseline.css caps a .tablewrap.bounded, and
+    a .tablewrap holding table.sticky, at 75vh with overflow: auto, and the
+    horizontal scrollbar's gutter counts against that cap, so a table within
+    a gutter of 75vh scrolled vertically by a few pixels. A sticky header
+    sticks only inside that bound, so the table is not .sticky either;
+    table.sticky-col, the pinned column, is another class and stays."""
+    found = re.search(r'<div class="([^"]*)"[^>]*>\s*<table class="([^"]*)"',
+                      html)
+    if found is None:
+        return ["no crosswalk table directly in a wrapper"]
+    wrapper, table = (set(classes.split()) for classes in found.groups())
+    faults = []
+    if "tablewrap" not in wrapper:
+        faults.append("the table's wrapper is not .tablewrap")
+    if "bounded" in wrapper:
+        faults.append("the wrapper is .tablewrap.bounded, capped at 75vh")
+    if "sticky" in table:
+        faults.append("table.sticky caps its .tablewrap at 75vh")
+    return faults
+
+
+def _xw_na_faults(table):
+    """Every way a crosswalk table's data cells break spec 7.34 td.na: an
+    empty cell (no count link) that is not td.na, and a td.na cell that
+    holds a link or anything but the word "no mapping"."""
+    faults = []
+    for attrs, body in _XW_TD_RE.findall(table):
+        found = _XW_CLASS_ATTR_RE.search(attrs)
+        classes = set(found.group(1).split()) if found else set()
+        linked = "<a href=" in body
+        if "na" in classes and (linked or body != "no mapping"):
+            faults.append(f"td.na holding {body!r}")
+        if "na" not in classes and not linked:
+            faults.append(f"an empty cell that is not td.na: {attrs!r}")
     return faults
 
 # The owner-approved "What it gives you" paragraph (landing page), compared
@@ -778,10 +962,17 @@ class DraftSiteRenderTests(unittest.TestCase):
         # does not match), carry their own rules beside the original three.
         # Item 3b788: the page prose spells "Licence" while the route is
         # /license/, so the /licence/ spelling redirects in the same three
-        # spellings instead of landing on the 404.
+        # spellings instead of landing on the 404. Site review F16: the
+        # decision narratives index moved off /decide/choices/, so that
+        # address and its /draft/ form redirect in the same three spellings,
+        # the /draft/ ones ahead of the splat.
         self.assertEqual(len(self.by_rel["_redirects"]), 1)
         self.assertEqual(
             self.by_rel["_redirects"][0],
+            "/draft/decide/choices/ /decide/decision-narratives/ 301\n"
+            "/draft/decide/choices /decide/decision-narratives/ 301\n"
+            "/draft/decide/choices/index.html /decide/decision-narratives/ "
+            "301\n"
             "/draft/* /:splat 301\n"
             "/draft / 301\n"
             "/about/ /contributors/ 301\n"
@@ -790,6 +981,9 @@ class DraftSiteRenderTests(unittest.TestCase):
             "/licence/ /license/ 301\n"
             "/licence /license/ 301\n"
             "/licence/index.html /license/ 301\n"
+            "/decide/choices/ /decide/decision-narratives/ 301\n"
+            "/decide/choices /decide/decision-narratives/ 301\n"
+            "/decide/choices/index.html /decide/decision-narratives/ 301\n"
             "/pack/ https://aiqt.ai/ 301\n"
             "/pack https://aiqt.ai/ 301\n"
             "/pack/index.html https://aiqt.ai/ 301\n",
@@ -5140,12 +5334,14 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.assertNotIn("<table", rail.group(1),
                              f"{rel}: the table takes the main column")
 
-    def test_trade_programme_pages_point_at_the_combined_reverse_section(self):
+    def test_trade_programme_pages_render_the_combined_reverse_section(self):
         """Round-2 item 5 (agy F2): the combined trade section's rows all
-        carry CTPAT MSC domain area labels (none is BASC-labelled), so its
-        table renders once, on the CTPAT page, and every programme the
-        section names points there. The pointer sentence is checked against
-        the parsed section, so it stays true of the source data."""
+        carry CTPAT MSC domain area labels (none is BASC-labelled), so no
+        filter splits it. Site review F34: the table rendered once, on the
+        CTPAT page, and the other programmes only pointed there; every
+        programme the section names now renders the whole table, with a
+        sentence naming the section, checked against the parsed section so
+        it stays true of the source data."""
         mod = self.mod
         heading = "CTPAT MSC and BASC v6 (trade and supply-chain security)"
         sections = mod.parse_reverse_matrix(
@@ -5161,24 +5357,34 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(set(pointers), {"basc", "pip", "wco-safe", "aeo"})
         tokens = {"basc": "BASC", "pip": "PIP", "wco-safe": "WCO SAFE",
                   "aeo": "AEO"}
+        table_re = re.compile(
+            r'<h2 id="control-areas">.*?(<table\b.*?</table>)', re.S)
         ctpat = self.draft_html["crosswalk/ctpat/index.html"]
         self.assertIn('id="control-areas"', ctpat)
         self.assertIn("Procedural and cargo security", ctpat)
+        shared = table_re.search(ctpat).group(1)
+        self.assertEqual(shared.count("<tr><td>"), len(rows))
         for key, inst in pointers.items():
             self.assertEqual(inst.reverse_pointer, "ctpat")
             self.assertIn(
                 tokens[key], blob,
                 f"the combined section names {tokens[key]}, which keeps the "
-                "pointer sentence true")
+                "section sentence true")
             page = self.draft_html[f"crosswalk/{key}/index.html"]
-            self.assertIn('href="/crosswalk/ctpat/#control-areas"',
-                          page, f"{key}: no pointer link to the section")
-            self.assertIn("names this programme in its combined section",
-                          page, key)
-            self.assertIn(mod._esc(heading), page, key)
-            self.assertNotIn(
-                'id="control-areas"', page,
-                f"{key}: the combined table renders once, on the CTPAT page")
+            with self.subTest(instrument=key, check="no pointer sentence"):
+                self.assertNotIn("rendered on the", page)
+            with self.subTest(instrument=key, check="old anchor kept"):
+                # Review of 50b453ea3: the old anchor now marks the shared
+                # table's section, so outside links still land on it.
+                self.assertEqual(page.count('id="reverse-crosswalk"'), 1)
+            self.assertEqual(page.count('id="control-areas"'), 1, key)
+            self.assertEqual(table_re.search(page).group(1), shared,
+                             f"{key}: the whole shared table, as on CTPAT")
+            self.assertIn(
+                "It names this programme in its combined section &quot;"
+                + mod._esc(heading) + "&quot;. The table is that whole "
+                'section, the same one the <a href="/crosswalk/ctpat/">',
+                page, key)
 
     def test_aicpa_tsc_taxonomy_spellings_all_aliased(self):
         """Round-2 item 7 (agy F4): no alias maps to aicpa-tsc because no
@@ -5234,13 +5440,13 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def _xw_table(self, html):
         match = re.search(
-            r'<div class="tablewrap bounded" tabindex="0" role="region"'
-            r'[^>]*>\s*'
-            r'(<table class="matrix sticky sticky-col"[^>]*>.*?</table>)',
+            r'<div class="tablewrap" tabindex="0" role="region" '
+            r'aria-label="[^"]+">\s*'
+            r'(<table class="matrix [^"]*"[^>]*>.*?</table>)',
             html, re.S)
         self.assertIsNotNone(
-            match, "the table sits in a bounded scroll box (spec 7.31) in "
-            "the matrix markup (spec 7.30)")
+            match, "the table sits in its sideways scroll box (item 46) in "
+            "the matrix markup (spec 7.30), a named region (spec 7.34)")
         return match.group(1)
 
     def test_crosswalk_pages_are_left_rail_pages_with_no_right_rail(self):
@@ -5550,10 +5756,10 @@ class DraftSiteRenderTests(unittest.TestCase):
         """Directive item 2 and spec 7.30 markup: the row-header column
         carries no data-col, so no topic view names it and it shows on
         every view page; every other header and cell carries its column's
-        key; the crosswalk table sits in its bounded scroll box (spec
-        7.31) with no status line and no data-matrix marker (maintainer
-        defect report 2026-11-04: no script changes columns); and the full
-        table reads as served (no cell is hidden in the markup)."""
+        key; the crosswalk table sits in its sideways scroll box (item 46)
+        with no status line and no data-matrix marker (maintainer defect
+        report 2026-11-04: no script changes columns); and the full table
+        reads as served (no cell is hidden in the markup)."""
         main = self.draft_html["crosswalk/index.html"]
         topic_keys = {k for _, _, keys, _ in self._XW_TOPICS for k in keys}
         for rel in self._xw_table_pages():
@@ -5583,17 +5789,18 @@ class DraftSiteRenderTests(unittest.TestCase):
                         "every keyed cell belongs to a topic view")
         self.assertRegex(
             main, r'<div class="wide">'
-            r'<div class="tablewrap bounded" tabindex="0" role="region"'
+            r'\s*<div class="tablewrap" tabindex="0" role="region"'
             r'[^>]*>\s*<table '
-            r'class="matrix sticky sticky-col">',
-            "the table sits in its bounded scroll box, named as a region, "
+            r'class="matrix [^"]*">',
+            "the table sits in its sideways scroll box, named as a region, "
             "with no status line and no data-matrix marker")
 
     def test_crosswalk_table_sentences_hold_for_every_column(self):
         """Directive item 3 and the page prose rule: the sentences about the
         table are generated from the columns each page renders and checked
-        against its rendered cells. A cell with no count link is empty on
-        screen (round 4 item 3) and has no mapping in the model; a
+        against its rendered cells. A cell with no count link reads "no
+        mapping" (td.na, spec 7.34; round 4 item 3 left it empty on screen)
+        and has no mapping in the model; a
         count-link cell lands on its instrument page at its domain;
         identifiers show only in the columns the compliance alignment matrix
         carries (wherever the model has any), and the other columns' cells
@@ -5612,7 +5819,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 "A cell with a recorded mapping carries a count of the "
                 "domain's documents that address the instrument, opening "
                 "the instrument page at that domain, and a cell with none "
-                "is left empty.", intro, rel)
+                'reads "no mapping".', intro, rel)
             table = self._xw_table(html)
             for row in self._XW_ROW_RE.findall(table)[1:]:
                 cells = self._XW_CELL_RE.findall(row)
@@ -5743,8 +5950,9 @@ class DraftSiteRenderTests(unittest.TestCase):
     # -- 31. crosswalk round 3 (site f2) ------------------------------------
 
     _XW_HEAD_RE = re.compile(
-        r'<th scope="col" data-col="([a-z0-9-]+)">([^<]+)'
-        r'<span class="org">([^<]+)</span></th>')
+        r'<th scope="col" data-col="([a-z0-9-]+)"(?: data-grp="[1-6]")?>'
+        r'([^<]+)<span class="org">([^<]+)</span>'
+        r'(?:<span class="grp">[^<]+</span>)?</th>')
     _XW_COUNT_CELL_RE = re.compile(
         r"^(?:<code>[^<\s]+</code>(?:, <code>[^<\s]+</code>)*"
         r'(?:<span class="vh">, and more</span>)? )?'
@@ -6010,7 +6218,9 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # -- 32. crosswalk round 4 (site f2) ------------------------------------
 
-    _XW_NO_DOCS = '<span class="vh">no documents</span>'
+    # Spec 7.34 td.na: an empty cell keeps the site's word in the cell, so
+    # screen readers and copied text read what sighted readers see.
+    _XW_NO_DOCS = "no mapping"
     _XW_MORE = '<span class="vh">, and more</span>'
     _XW_VH_RE = re.compile(r'<span class="vh">[^<]*</span>')
     _XW_VISIBLE_CELL_RE = re.compile(
@@ -6035,6 +6245,24 @@ class DraftSiteRenderTests(unittest.TestCase):
             for (_, _, body), key in zip(cells[1:], columns):
                 yield key, domain, body
 
+    def _xw_cells_na(self, html):
+        """(column key, domain, whether td.na, cell body) for every data
+        cell rendered."""
+        table = self._xw_table(html)
+        columns = self._XW_COL_RE.findall(table)
+        for row in self._XW_ROW_RE.findall(table)[1:]:
+            cells = self._XW_CELL_RE.findall(row)
+            domain = re.search(r'href="/([a-z-]+)/"',
+                               cells[0][2]).group(1)
+            for (_, attrs, body), key in zip(cells[1:], columns):
+                cls = _XW_CLASS_ATTR_RE.search(attrs)
+                yield (key, domain, bool(cls) and "na" in cls.group(1).split(),
+                       body)
+
+    _XW_COUNT_ALONE_RE = re.compile(
+        r'<a href="/crosswalk/([a-z0-9-]+)/#([a-z-]+)">\d+'
+        r'<span class="vh"> documents?</span></a>')
+
     @staticmethod
     def _xw_split_names(text):
         return re.split(r", and |, | and ", text)
@@ -6051,13 +6279,17 @@ class DraftSiteRenderTests(unittest.TestCase):
         columns take their cells from the reverse crosswalk, show no code,
         and their instrument page carries its control areas. Every rendered
         column falls in exactly one class, and a page with no code column
-        (the Trade view today) says nothing about code type."""
+        (the Trade view today) says nothing about code type. Item 44: the
+        label and remaining columns' count-alone clauses name a cell with a
+        recorded mapping, and every cell of those columns, td.na included,
+        is checked against them."""
         full = self.mod.parse_taxonomy_full(
             self.mod.TAXONOMY.read_text(encoding="utf-8"))
         xw = self.mod.build_crosswalk(full)
         cap = self.mod.CROSSWALK_CELL_ID_CAP
         seen = {"codes": 0, "labels": 0, "unmapped": 0, "rest": 0,
-                "no codes": 0, "single": 0}
+                "no codes": 0, "single": 0, "count alone": 0,
+                "na in a count-alone column": 0}
         for rel in self._xw_table_pages():
             html = self.draft_html[rel]
             intro = self._xw_intro(html)
@@ -6127,16 +6359,37 @@ class DraftSiteRenderTests(unittest.TestCase):
             named(
                 rf"In {cols}, the recorded "
                 r"mappings carry descriptive control-area labels rather "
-                r"than short identifiers, so a "
-                r"cell shows the count alone and the instrument page lists "
-                r"the labels in full\.", labels, "labels")
+                r"than short identifiers, so a cell with a recorded mapping "
+                r"shows the count alone and the instrument page lists the "
+                r"labels in full\.", labels, "labels")
             named(
                 rf"No domain has a recorded mapping in {cols}, so every cell "
-                r"there is empty\.",
+                r'there reads "no mapping"\.',
                 unmapped, "unmapped")
             tail = (r"cells from the documents mapped to the instrument's "
-                    r"control areas, shown as the count alone, and the "
-                    r"instrument page lists those control areas\.")
+                    r"control areas; there a cell with a recorded mapping "
+                    r"shows the count alone, and the instrument page lists "
+                    r"those control areas\.")
+            # Review round 1 WARN: the count-alone clauses cover a cell with
+            # a recorded mapping, and the opening sentence a cell with none,
+            # so every cell of the columns they name is checked: the count
+            # link alone, or td.na with only the word; a column with no
+            # mapping is td.na throughout.
+            alone = labels + rest
+            for key, domain, is_na, body in self._xw_cells_na(html):
+                cell = f"{rel}: {key} x {domain}"
+                if key in unmapped:
+                    self.assertTrue(is_na, cell)
+                if key not in alone + unmapped:
+                    continue
+                if is_na:
+                    self.assertEqual(body, self._XW_NO_DOCS, cell)
+                    seen["na in a count-alone column"] += key in alone
+                    continue
+                found = self._XW_COUNT_ALONE_RE.fullmatch(body)
+                self.assertIsNotNone(found, f"{cell}: {body!r}")
+                self.assertEqual(found.groups(), (key, domain), cell)
+                seen["count alone"] += 1
             if rest and len(rest) == len(columns):
                 self.assertIn(f"Every column{where} takes its ",
                               intro, rel)
@@ -6176,14 +6429,14 @@ class DraftSiteRenderTests(unittest.TestCase):
                         f"the corpus exercises every clause today: {seen}")
 
     def test_crosswalk_cells_show_only_codes_and_the_count_link(self):
-        """Round 4 item 3 (NOTE, spec 7.30): an empty cell holds only a
-        visually hidden "no documents", as the reference page marks it, and
-        "and more" past the cap is visually hidden, so no cell shows n/a or
-        "and more"; with the hidden text removed a mapped cell is its codes
-        and the count link alone. "And more" is present exactly when the
-        cell's single-word identifiers exceed the cap, which then shows the
-        cap's number of codes. The sentence that a cell with none is left
-        empty holds for every rendered cell."""
+        """Round 4 item 3 (NOTE, spec 7.30), moved to spec 7.34 td.na: an
+        empty cell holds only the word "no mapping", visible, and "and more"
+        past the cap is visually hidden, so no cell shows n/a or "and more";
+        with the hidden text removed a mapped cell is its codes and the count
+        link alone. "And more" is present exactly when the cell's single-word
+        identifiers exceed the cap, which then shows the cap's number of
+        codes. The sentence that a cell with none reads "no mapping" holds
+        for every rendered cell."""
         full = self.mod.parse_taxonomy_full(
             self.mod.TAXONOMY.read_text(encoding="utf-8"))
         xw = self.mod.build_crosswalk(full)
@@ -6191,7 +6444,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         empty = capped = 0
         for rel in self._xw_table_pages():
             html = self.draft_html[rel]
-            self.assertIn("and a cell with none is left empty.",
+            self.assertIn('and a cell with none reads "no mapping".',
                           self._xw_intro(html), rel)
             for key, domain, body in self._xw_cells(html):
                 where = f"{rel}: {key} x {domain}"
@@ -6202,7 +6455,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertNotIn("and more", text, where)
                 if entry is None:
                     self.assertEqual(body, self._XW_NO_DOCS, where)
-                    self.assertEqual(text, "", where)
+                    self.assertEqual(text, "no mapping", where)
                     empty += 1
                     continue
                 self.assertRegex(visible, self._XW_VISIBLE_CELL_RE, where)
@@ -6396,6 +6649,233 @@ class DraftSiteRenderTests(unittest.TestCase):
                                  f"{rel}: {key} x {domain}")
         self.assertTrue(capped, "the corpus has capped cells today")
 
+    # -- 43. crosswalk as a large matrix (baseline 1.7.0 spec 7.34) --------
+
+    def _xw_main(self, rel):
+        html = self.draft_html[rel]
+        return html[html.index("<main"):html.index("</main>")]
+
+    def _xw_code_columns(self, xw):
+        """The columns whose cells show a code in some domain, recomputed
+        here from the model: a single-word identifier recorded for it."""
+        return {key for key, data in xw["instruments"].items()
+                if any(len(i.split()) == 1 for e in data["by_domain"].values()
+                       for i in e["ids"])}
+
+    def test_crosswalk_tables_take_the_spec_7_34_combined_form(self):
+        """Item 43 (maintainer 2026-11-04 01:52Z): every crosswalk view's
+        table is the spec 7.34 combined form (_xw_combined_form_faults) with
+        exactly one pin cap, CROSSWALK_PIN_CLASS (review round 1 NOTE: no
+        test required pin-r10); no table takes data-matrix or the column
+        highlight, a matrix.js feature, since no page loads matrix.js (item
+        29); every cell of a count-only
+        column stays on 1 line (td.nowrap), and no code cell is nowrap; in a
+        table whose columns span more than one group each header names its
+        instrument group and carries that group's accent number, and in any
+        other table no header carries either (item 45); and the options left
+        out stay out (no toggles or ?cols=, no
+        heat, no rotated header)."""
+        self.assertEqual(self.mod.CROSSWALK_PIN_CLASS, "pin-r10")
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        xw = self.mod.build_crosswalk(full)
+        code_cols = self._xw_code_columns(xw)
+        group_of = {i.key: i.group for i in self.mod.CROSSWALK_INSTRUMENTS}
+        groups = list(self.mod.CROSSWALK_GROUPS)
+        kinds = set()
+        for rel in self._xw_table_pages():
+            main = self._xw_main(rel)
+            self.assertEqual(_xw_combined_form_faults(
+                main, self.mod.CROSSWALK_PIN_CLASS), [], rel)
+            found = _XW_REGION_RE.search(main)
+            self.assertEqual(found.group(3), "", rel)
+            for absent in ("data-matrix", "data-col-highlight"):
+                self.assertNotIn(absent, main, f"{rel}: {absent}")
+            columns = self._XW_COL_RE.findall(found.group(6))
+            kinds.update(key in code_cols for key in columns)
+            heads = re.findall(
+                r'<th scope="col" data-col="([a-z0-9-]+)"'
+                r'(?: data-grp="(\d)")?>[^<]*<span class="org">[^<]*</span>'
+                r'(?:<span class="grp">([^<]*)</span>)?</th>', found.group(6))
+            self.assertEqual([k for k, _, _ in heads], columns, rel)
+            # Item 45: one shared group takes no tag and no accent.
+            grouped = len({group_of[key] for key in columns}) > 1
+            for key, grp, name in heads:
+                if not grouped:
+                    self.assertEqual((grp, name), ("", ""), f"{rel}: {key}")
+                    continue
+                self.assertEqual(unescape(name), group_of[key], f"{rel}: {key}")
+                self.assertEqual(int(grp), groups.index(group_of[key]) + 1,
+                                 f"{rel}: {key}")
+            for row in self._XW_ROW_RE.findall(found.group(7)):
+                tds = _XW_TD_RE.findall(row)
+                self.assertEqual(len(tds), len(columns), rel)
+                for (attrs, _), key in zip(tds, columns):
+                    cls = _XW_CLASS_ATTR_RE.search(attrs)
+                    nowrap = bool(cls) and "nowrap" in cls.group(1).split()
+                    self.assertEqual(nowrap, key not in code_cols,
+                                     f"{rel}: {key} nowrap")
+            for absent in ("data-col-toggles", "data-heat", "heat-legend",
+                           'class="rot"'):
+                self.assertNotIn(absent, main, f"{rel}: {absent}")
+        self.assertEqual(kinds, {True, False},
+                         "code and count-only columns both render today")
+        disclosure = self.draft_html["disclosure/index.html"]
+        self.assertNotIn("?cols=", disclosure,
+                         "no toggles, so the address gains no key")
+
+    def test_crosswalk_empty_cells_are_td_na_with_the_word(self):
+        """Item 43 (spec 7.34 td.na): on every crosswalk view, a data cell
+        is td.na exactly where the model records no mapping for its column
+        and domain, holding only the visible word "no mapping" and no link,
+        and every other cell carries its count link (_xw_na_faults); the
+        word matches the generator's constant."""
+        self.assertEqual(self.mod.CROSSWALK_NA_WORD, "no mapping")
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        xw = self.mod.build_crosswalk(full)
+        na = 0
+        for rel in self._xw_table_pages():
+            table = self._xw_table(self.draft_html[rel])
+            self.assertEqual(_xw_na_faults(table), [], rel)
+            columns = self._XW_COL_RE.findall(table)
+            for row in self._XW_ROW_RE.findall(table)[1:]:
+                domain = re.search(r'href="/([a-z-]+)/"', row).group(1)
+                for (attrs, body), key in zip(_XW_TD_RE.findall(row), columns):
+                    cls = _XW_CLASS_ATTR_RE.search(attrs)
+                    is_na = bool(cls) and "na" in cls.group(1).split()
+                    entry = xw["instruments"][key]["by_domain"].get(domain)
+                    self.assertEqual(is_na, entry is None,
+                                     f"{rel}: {key} x {domain}")
+                    na += is_na
+        self.assertTrue(na, "the corpus has unmapped cells today")
+
+    def test_crosswalk_form_checks_bite_on_a_flipped_attribute(self):
+        """Item 43: each check above fails on the rendered crosswalk page
+        with one thing flipped: the region role dropped, a row header's
+        scope dropped, a combined class dropped, the pin cap swapped for
+        another, dropped, or joined by a second, and an empty cell's na class
+        dropped."""
+        main = self._xw_main("crosswalk/index.html")
+        pin = self.mod.CROSSWALK_PIN_CLASS
+        self.assertEqual(_xw_combined_form_faults(main, pin), [])
+        flips = (
+            (' role="region"', ""),
+            ('<th scope="row">', "<th>"),
+            (" zebra", ""),
+            (f" {pin} ", " pin-r12 "),
+            (f" {pin} ", " "),
+            (f" {pin} ", f" {pin} pin-r12 "),
+        )
+        for old, new in flips:
+            self.assertIn(old, main, old)
+            self.assertTrue(
+                _xw_combined_form_faults(main.replace(old, new, 1), pin),
+                f"flipping {old!r} to {new!r} is found")
+        table = self._xw_table(main)
+        self.assertEqual(_xw_na_faults(table), [])
+        na = re.search(r'<td class="na(?: nowrap)?"', table).group(0)
+        self.assertTrue(_xw_na_faults(table.replace(na, "<td", 1)),
+                        "an empty cell without td.na is found")
+
+    # -- 44. review round 1 of item 43 --------------------------------------
+
+    def test_no_crosswalk_table_can_stretch_its_pinned_column(self):
+        """Item 44 (review round 1 WARN): table.fixed has a 56rem minimum
+        and every table a 100% width, and the topic views' rem columns,
+        the pinned one included, summed to 18rem to 74rem, so fixed layout
+        spread the spare width
+        over every column, the pinned one past its cap. On the crosswalk
+        page and every static view, the table's markup has none of the ways
+        to set a column width (_xw_pin_stretch_faults: no fixed class, no
+        col, no width or style attribute on a cell), and each way back in is
+        found: the fixed class, a colgroup of rem widths, a cell's own
+        width. The test reads markup only and lays nothing out; the layout
+        was measured in a browser in review (round 2, headless Chrome), not
+        by this test. The canada view is the narrowest, 1 count-only column,
+        the case the WARN names for a phone."""
+        for rel in self._xw_table_pages():
+            self.assertEqual(_xw_pin_stretch_faults(self._xw_main(rel)), [],
+                             rel)
+        main = self._xw_main("crosswalk/view/canada/index.html")
+        flips = (
+            ('<table class="matrix ', '<table class="matrix fixed '),
+            ("</caption>\n<thead>",
+             '</caption>\n<colgroup><col><col class="r8" data-col="pip">'
+             "</colgroup>\n<thead>"),
+            ('<td class="', '<td width="128" class="'),
+        )
+        for old, new in flips:
+            self.assertIn(old, main, old)
+            self.assertTrue(
+                _xw_pin_stretch_faults(main.replace(old, new, 1)),
+                f"flipping {old!r} to {new!r} is found")
+
+    # -- 45. review round 2 of item 43 --------------------------------------
+
+    def test_one_group_crosswalk_tables_carry_no_group_tag(self):
+        """Item 45 (review round 2 WARN, measured in headless Chrome): a
+        table whose columns all share one instrument group carries no group
+        tag (.grp) and no data-grp accent (_xw_one_group_tag_faults); the
+        Privacy, Trade and Canada views are such tables today, so a change
+        to which views are one-group shows up here; and the check finds the
+        Trade view's first header given its group tag back."""
+        group_of = {i.key: i.group for i in self.mod.CROSSWALK_INSTRUMENTS}
+        one_group = set()
+        for rel in self._xw_table_pages():
+            main = self._xw_main(rel)
+            self.assertEqual(_xw_one_group_tag_faults(main, group_of), [], rel)
+            columns = self._XW_COL_RE.findall(_XW_REGION_RE.search(main)[6])
+            if len({group_of[key] for key in columns}) == 1:
+                one_group.add(rel)
+        self.assertEqual(one_group, {
+            f"crosswalk/view/{slug}/index.html"
+            for slug in ("privacy", "trade", "canada")})
+        main = self._xw_main("crosswalk/view/trade/index.html")
+        flipped, count = re.subn(
+            r'(<span class="org">[^<]*</span>)(</th>)',
+            r'\1<span class="grp">Sector and trade programmes</span>\2',
+            main, count=1)
+        self.assertEqual(count, 1)
+        self.assertTrue(_xw_one_group_tag_faults(flipped, group_of),
+                        "a group tag on a one-group table is found")
+
+    # -- 46. the crosswalk box scrolls sideways only ------------------------
+
+    def test_crosswalk_table_box_scrolls_sideways_only(self):
+        """Item 46 (maintainer 2026-11-04 12:58Z: the crosswalk scrolled
+        vertically by a few pixels; in headless Chrome the table box did:
+        on main by 3px to 6px at 1024 by 768, where the horizontal
+        scrollbar's gutter passed the 75vh cap, and with the 7.34 form's
+        wrapping cells by 1px to 317px, where the gutter or the table
+        passed it). The served baseline.css still caps both
+        bounded forms at 75vh with overflow: auto; on the crosswalk page and
+        every static view the wrapper is not .bounded and the table is not
+        .sticky (_xw_vertical_scroll_faults), and the pinned column
+        (sticky-col) stays; and each way back in is found. The test reads
+        markup and the stylesheet only and lays nothing out."""
+        css = self.draft_all["assets/baseline/baseline.css"].decode(
+            "utf-8")
+        for selector in (".tablewrap.bounded",
+                         ".tablewrap:has(> table.sticky)"):
+            self.assertIn(f"{selector} {{ max-height: 75vh; max-height: "
+                          "75svh; overflow: auto;", css, selector)
+        for rel in self._xw_table_pages():
+            main = self._xw_main(rel)
+            self.assertEqual(_xw_vertical_scroll_faults(main), [], rel)
+            self.assertIn("sticky-col",
+                          _XW_TABLE_RE.search(main).group(1).split(), rel)
+        main = self._xw_main("crosswalk/index.html")
+        flips = (
+            ('<div class="tablewrap" ', '<div class="tablewrap bounded" '),
+            ('<table class="matrix ', '<table class="matrix sticky '),
+        )
+        for old, new in flips:
+            self.assertIn(old, main, old)
+            self.assertTrue(
+                _xw_vertical_scroll_faults(main.replace(old, new, 1)),
+                f"flipping {old!r} to {new!r} is found")
+
     # -- 34. batch 3 round 2 ------------------------------------------------
 
     _TYPE_ADOPTER_LBL_RE = re.compile(
@@ -6451,9 +6931,9 @@ class DraftSiteRenderTests(unittest.TestCase):
         "Its AICPA TSC 2017 column is being populated domain by domain: "
         "until a document's Trust Services Criteria mapping has been "
         "assessed, its N/A in that column records that no mapping has been "
-        "made yet and does not assert that no criterion applies. The table "
-        "here leaves an AICPA TSC cell empty where every document the matrix "
-        "lists for the domain has N/A in that column."
+        "made yet and does not assert that no criterion applies. An AICPA TSC "
+        'cell in the table here reads "no mapping" where every document the '
+        "matrix lists for the domain has N/A in that column."
     )
 
     def _xw_all_pages(self):
@@ -6494,8 +6974,8 @@ class DraftSiteRenderTests(unittest.TestCase):
     def test_crosswalk_tsc_caveat_holds_for_every_tsc_cell(self):
         """Batch 3 round 2 NOTE: the caveat describes what the reader sees,
         so it is checked against the rendered cells and its source. On every
-        page carrying it, each AICPA TSC cell is empty (only the visually
-        hidden "no documents") exactly where every document of its domain
+        page carrying it, each AICPA TSC cell reads "no mapping" (td.na, spec
+        7.34) exactly where every document of its domain
         has N/A in the compliance alignment matrix's AICPA TSC 2017 column;
         no cell shows N/A; and the matrix itself states that the column is
         populated domain by domain and that its N/A records no mapping
@@ -6567,7 +7047,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         and each domain's document count: every row of a domain section is
         a document of that domain, some domain has documents the matrix does
         not list (so the unscoped wording is false today), each AICPA TSC
-        cell is empty exactly where every listed row is N/A, and every page
+        cell reads "no mapping" (empty before spec 7.34 td.na) exactly where
+        every listed row is N/A, and every page
         whose table has the column says "every document the matrix lists
         for the domain" and never "every document of the domain"."""
         full = self.mod.parse_taxonomy_full(
@@ -6597,9 +7078,9 @@ class DraftSiteRenderTests(unittest.TestCase):
             pages += 1
             text = self._xw_caveat_text(html)
             self.assertIn(
-                "The table here leaves an AICPA TSC cell empty where every "
-                "document the matrix lists for the domain has N/A in that "
-                "column.", text, rel)
+                'An AICPA TSC cell in the table here reads "no mapping" where '
+                "every document the matrix lists for the domain has N/A in "
+                "that column.", text, rel)
             self.assertNotIn("every document of the domain", text, rel)
             for key, domain, body in self._xw_cells(html):
                 if key != tsc:
@@ -6799,7 +7280,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         and on a crosswalk built from the matrix with that sentence removed,
         a view page and the AICPA TSC instrument page each say "being
         populated" and "no mapping has been made yet" exactly when the matrix
-        does, and the view page keeps the sentence on its empty cells."""
+        does, and the view page keeps the sentence on its "no mapping"
+        cells."""
         full = self.mod.parse_taxonomy_full(
             self.mod.TAXONOMY.read_text(encoding="utf-8"))
         source = self.mod.CROSSWALK_COMPLIANCE_MATRIX.read_text(
@@ -6809,8 +7291,9 @@ class DraftSiteRenderTests(unittest.TestCase):
         tsc = [i for i in self.mod.CROSSWALK_INSTRUMENTS
                if i.compliance_column == "AICPA TSC 2017"][0]
         table = (
-            "The table here leaves an AICPA TSC cell empty where every "
-            "document the matrix lists for the domain has N/A in that column."
+            'An AICPA TSC cell in the table here reads "no mapping" where '
+            "every document the matrix lists for the domain has N/A in that "
+            "column."
         )
         xw = self.mod.build_crosswalk(full)
         # The generator's view caveat is what the rendered pages carry.
@@ -11573,6 +12056,157 @@ class SiteB5FixTests(unittest.TestCase):
                               "the card names the other need paths")
 
 
+class SiteB8FixTests(unittest.TestCase):
+    """47: Site review batch B8 (three NOTE findings): the decision
+    narratives index takes its kind's name, the domain pages label their
+    tour steps, and every trade programme page renders the shared
+    control-area table; one test per finding, each failing without its fix
+    on the rendered pages."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_build()
+        cls.figures = cls.mod.compute_figures()
+        cls.draft_variant = next(
+            v for v in cls.mod.VARIANTS if v.draft_rules
+        )
+        rendered = cls.mod.render_variant(cls.figures, cls.draft_variant)
+        cls.draft_html = {
+            cls.mod.output_rel_for(cls.draft_variant, rel): content
+            for rel, content in rendered
+            if cls.mod.output_rel_for(cls.draft_variant, rel)
+            .endswith(".html")
+        }
+
+    def test_f16_decision_narratives_index_takes_its_kinds_name(self):
+        """F16: the decision narratives index sat at /decide/choices/, a
+        third name beside its heading and its reading-room segment. Every
+        kind's index slug is its heading in kebab case, at most a leading
+        qualifier dropped, and ends its pages' reading-room segment; the old
+        address renders nothing and no page links it."""
+        mod = self.mod
+        with self.subTest(check="the old address renders nothing"):
+            self.assertNotIn("decide/choices/index.html", self.draft_html)
+        with self.subTest(check="no page links the old address"):
+            self.assertEqual(
+                sorted(rel for rel, html in self.draft_html.items()
+                       if "/decide/choices" in html), [])
+        segments = {}
+        for page in self.figures["narratives"]:
+            segments.setdefault(page["narrative_type"], set()).add(
+                page["route"].split("/")[1])
+        for narrative_type, (slug, label, _) in (
+                mod.DRAFT_NARRATIVE_SUBTYPES.items()):
+            with self.subTest(kind=narrative_type):
+                self.assertTrue(
+                    label.lower().replace(" ", "-").endswith(slug),
+                    f"{slug}: not its heading {label!r} in kebab case")
+                self.assertTrue(segments.get(narrative_type), narrative_type)
+                for segment in segments[narrative_type]:
+                    self.assertTrue(segment.endswith(slug),
+                                    f"{slug}: not the end of /decisions/"
+                                    f"{segment}/")
+        self.assertEqual(
+            mod.DRAFT_NARRATIVE_SUBTYPES["Decision Narrative"][0],
+            "decision-narratives")
+        index = self.draft_html["decide/decision-narratives/index.html"]
+        self.assertIn("<h1>Decision narratives</h1>", index)
+        for rel in ("decide/index.html", "browse/index.html"):
+            self.assertIn('href="/decide/decision-narratives/"',
+                          self.draft_html[rel], rel)
+
+    def test_f29_domain_pages_label_their_tour_steps(self):
+        """F29: each domain page's Next is the next stop of the site tour,
+        and the last domain's jump to a document read as unrelated. Every
+        domain page labels the link "Next on the tour"; the order is
+        unchanged: Browse opens the first domain, each domain the next, and
+        the last the example document."""
+        mod = self.mod
+        seq = [dp["domain"] for dp in self.figures["domain_pages"]]
+        self.assertGreater(len(seq), 1)
+        browse = self.draft_html["browse/index.html"]
+        self.assertIn(
+            f'<a class="start" href="/{seq[0]}/">Open a domain: '
+            f"{mod._esc(mod.draft_domain_label(seq[0]))} <span", browse)
+        title = next(
+            d["title"] for d in mod.parse_taxonomy_full(
+                mod.TAXONOMY.read_text(encoding="utf-8"))
+            if d["path"] == mod.DRAFT_EXAMPLE_DOC)
+        for idx, domain in enumerate(seq):
+            if idx + 1 < len(seq):
+                href = f"/{seq[idx + 1]}/"
+                text = "Open a domain: " + mod._esc(
+                    mod.draft_domain_label(seq[idx + 1]))
+            else:
+                href = mod._doc_page_url("", mod.DRAFT_EXAMPLE_DOC)
+                text = "Open a document: " + mod._esc(title)
+            with self.subTest(domain=domain):
+                self.assertIn(
+                    '<div class="next"><p class="lbl">Next on the tour</p>'
+                    f'<a class="start" href="{href}">{text} <span',
+                    self.draft_html[f"{domain}/index.html"])
+
+    def test_f34_trade_programme_pages_render_the_shared_table(self):
+        """F34: /crosswalk/aeo/ said its control-area table is rendered on
+        the CTPAT page. Every programme page the combined section covers
+        carries the section's table, with a sentence naming the section,
+        and the CTPAT page keeps its own sentence."""
+        mod = self.mod
+        heading = mod.CROSSWALK_BY_KEY["ctpat"].reverse_section
+        rows = mod.parse_reverse_matrix(mod.CROSSWALK_REVERSE_MATRIX.read_text(
+            encoding="utf-8"))[heading]["rows"]
+        table_re = re.compile(
+            r'<h2 id="control-areas">[^<]*</h2>\n<p>(.*?)</p>\n'
+            r'<div class="wide">.*?(<tbody>.*?</tbody>)', re.S)
+        ctpat = table_re.search(self.draft_html["crosswalk/ctpat/index.html"])
+        self.assertRegex(
+            ctpat.group(1),
+            r"\AFrom the <a [^>]*>.*?</a>, which answers: given a control "
+            r"identifier or family, which documents address it\.\Z")
+        self.assertEqual(ctpat.group(2).count("<tr>"), len(rows))
+        covered = [i.key for i in mod.CROSSWALK_INSTRUMENTS
+                   if i.reverse_pointer == "ctpat"]
+        self.assertIn("aeo", covered)
+        for key in covered:
+            with self.subTest(instrument=key):
+                found = table_re.search(
+                    self.draft_html[f"crosswalk/{key}/index.html"])
+                self.assertIsNotNone(found, f"{key}: no control-area table")
+                # Review of 50b453ea3 NOTE: two plain sentences, no colon
+                # clause inside the naming sentence.
+                self.assertRegex(
+                    found.group(1),
+                    r"\AThe <a [^>]*>.*?</a> answers which documents address "
+                    r"a given control identifier or family\. It names this "
+                    r"programme in its combined section &quot;"
+                    + re.escape(mod._esc(heading))
+                    + r"&quot;\. The table is that whole section, the same "
+                    r'one the <a href="/crosswalk/ctpat/">[^<]*</a> '
+                    r"instrument page shows\.\Z")
+                self.assertEqual(found.group(2), ctpat.group(2))
+
+    def test_trade_programme_pages_keep_the_reverse_crosswalk_anchor(self):
+        """Review of 50b453ea3: the BASC, PIP, WCO SAFE and AEO pages lost
+        their old id="reverse-crosswalk" anchor, so an outside link to it
+        landed at the top. The shared table's section label carries that
+        id again, once, right above the section heading; the CTPAT page,
+        which never had the anchor, has none."""
+        mod = self.mod
+        covered = [i.key for i in mod.CROSSWALK_INSTRUMENTS
+                   if i.reverse_pointer == "ctpat"]
+        self.assertEqual(set(covered), {"basc", "pip", "wco-safe", "aeo"})
+        label_re = re.compile(
+            r'<p class="lbl sec" id="reverse-crosswalk">Mapped control '
+            r'areas, \d+</p>\n<h2 id="control-areas">')
+        for key in covered:
+            with self.subTest(instrument=key):
+                page = self.draft_html[f"crosswalk/{key}/index.html"]
+                self.assertEqual(page.count('id="reverse-crosswalk"'), 1)
+                self.assertRegex(page, label_re)
+        self.assertNotIn('id="reverse-crosswalk"',
+                         self.draft_html["crosswalk/ctpat/index.html"])
+
+
 class DraftTestSectionNumberTests(unittest.TestCase):
     """Round-1 NOTE: two test sections both said 8. Each numbered section
     comment carries its own number from the module docstring's list. Round 2
@@ -11769,8 +12403,14 @@ class PromotedRouteCoverageTests(unittest.TestCase):
         # slashless and index.html forms of the two redirected addresses,
         # and /draft itself (the /draft/* splat does not match it). Item
         # 3b788 adds the /licence/ spelling (the page prose spells
-        # "Licence", the route is /license/) in the same three forms.
+        # "Licence", the route is /license/) in the same three forms. Site
+        # review F16 adds the moved /decide/choices/ index in the same three
+        # forms, and its /draft/ address ahead of the splat.
         self.assertEqual(self.rules, [
+            ("/draft/decide/choices/", "/decide/decision-narratives/", "301"),
+            ("/draft/decide/choices", "/decide/decision-narratives/", "301"),
+            ("/draft/decide/choices/index.html",
+             "/decide/decision-narratives/", "301"),
             ("/draft/*", "/:splat", "301"),
             ("/draft", "/", "301"),
             ("/about/", "/contributors/", "301"),
@@ -11779,6 +12419,10 @@ class PromotedRouteCoverageTests(unittest.TestCase):
             ("/licence/", "/license/", "301"),
             ("/licence", "/license/", "301"),
             ("/licence/index.html", "/license/", "301"),
+            ("/decide/choices/", "/decide/decision-narratives/", "301"),
+            ("/decide/choices", "/decide/decision-narratives/", "301"),
+            ("/decide/choices/index.html", "/decide/decision-narratives/",
+             "301"),
             ("/pack/", "https://aiqt.ai/", "301"),
             ("/pack", "https://aiqt.ai/", "301"),
             ("/pack/index.html", "https://aiqt.ai/", "301"),
@@ -11810,12 +12454,37 @@ class PromotedRouteCoverageTests(unittest.TestCase):
                          "https://aiqt.ai/")
         self.assertEqual(self._resolve("/draft"), "index.html")
 
+    def test_f16_old_decision_narratives_addresses_redirect(self):
+        # Site review F16: every spelling of the old /decide/choices/ index,
+        # and of its /draft/ form, lands on the renamed index in one 301
+        # hop; the sitemap lists the new address and not the old.
+        new = "decide/decision-narratives/index.html"
+        sitemap = [c for rel, c in self.site_pages if rel == "sitemap.xml"][0]
+        with self.subTest(check="the old address renders nothing"):
+            self.assertNotIn("decide/choices/index.html", self.outputs)
+        with self.subTest(check="the sitemap drops the old address"):
+            self.assertNotIn("/decide/choices", sitemap)
+        self.assertIn(new, self.outputs)
+        self.assertIn("<loc>https://grclibrary.ai/decide/decision-narratives/"
+                      "</loc>", sitemap)
+        for old in ("/decide/choices/", "/decide/choices",
+                    "/decide/choices/index.html", "/draft/decide/choices/",
+                    "/draft/decide/choices",
+                    "/draft/decide/choices/index.html"):
+            with self.subTest(url=old):
+                self.assertEqual(self._resolve(old), new)
+
     # The pinned pre-promotion /draft/ output inventory (round-2 fix 6):
     # every dist-relative output path main 716a3f53b's own .web/build.py
     # rendered for the draft tree, stored as fixture literals, never derived
     # from the promoted render.
     DRAFT_INVENTORY = (REPO_ROOT / "tests" / "fixtures"
                        / "pre-promotion-draft-inventory.txt")
+    # Pinned draft pages whose promoted page moved after promotion, each
+    # reached in one hop by its own rule ahead of the splat (site review
+    # F16: the decision narratives index left /decide/choices/).
+    MOVED = {"draft/decide/choices/index.html":
+             "decide/decision-narratives/index.html"}
 
     def test_every_pre_promotion_draft_path_maps_through_the_splat(self):
         inventory = [
@@ -11828,9 +12497,10 @@ class PromotedRouteCoverageTests(unittest.TestCase):
         # baseline assets of the pre-promotion draft render.
         self.assertEqual(len(inventory), 531)
         self.assertEqual(len(inventory), len(set(inventory)))
+        self.assertLessEqual(set(self.MOVED), set(inventory))
         for out_rel in inventory:
             self.assertTrue(out_rel.startswith("draft/"), out_rel)
-            promoted_rel = out_rel[len("draft/"):]
+            promoted_rel = self.MOVED.get(out_rel, out_rel[len("draft/"):])
             if out_rel.endswith("/index.html"):
                 old_url = "/" + out_rel[: -len("index.html")]
             else:
