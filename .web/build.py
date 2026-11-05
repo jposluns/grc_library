@@ -46,8 +46,8 @@ title and og:description its rendered meta description, while the 404 page
 carries none and the card stays out of the sitemap), and the generated files
 ``robots.txt``, ``sitemap.xml``, ``llms.txt``, ``_headers`` (the Pages security
 headers, ``HEADERS_FILE``), ``_redirects`` (the Pages redirect rules,
-``REDIRECTS_FILE``: the pre-promotion /draft/ splat and the retired /about/
-and /pack/ addresses), and ``.well-known/security.txt`` (RFC 9116,
+``REDIRECTS_FILE``: the pre-promotion /draft/ splat, the retired /about/
+and /pack/ addresses and the moved /decide/choices/ index), and ``.well-known/security.txt`` (RFC 9116,
 ``SECURITY_TXT``); it also writes the committed ``.web/corpus-link-manifest.md`` (a generated artefact outside the ephemeral ``dist/`` tree). So the
 published surface is those pages and files; a repo file cannot
 leak onto the public site through this generator: the reading room reads ONLY
@@ -442,8 +442,15 @@ HEADERS_FILE = (
 # own rules (/draft itself lands on the promoted root). The site's prose
 # spells "Licence" (Canadian spelling) while the route is /license/, so the
 # /licence/ spelling a reader types lands on the page instead of the 404
-# (item 3b788), in the same three spellings as the other redirects.
+# (item 3b788), in the same three spellings as the other redirects. Site
+# review F16: the decision narratives index moved from /decide/choices/ to
+# /decide/decision-narratives/, so the old address redirects in the same
+# three spellings, and so does its pre-promotion /draft/ address, listed
+# ahead of the splat so the first matching rule lands it in one hop.
 REDIRECTS_FILE = (
+    "/draft/decide/choices/ /decide/decision-narratives/ 301\n"
+    "/draft/decide/choices /decide/decision-narratives/ 301\n"
+    "/draft/decide/choices/index.html /decide/decision-narratives/ 301\n"
     "/draft/* /:splat 301\n"
     "/draft / 301\n"
     "/about/ /contributors/ 301\n"
@@ -452,6 +459,9 @@ REDIRECTS_FILE = (
     "/licence/ /license/ 301\n"
     "/licence /license/ 301\n"
     "/licence/index.html /license/ 301\n"
+    "/decide/choices/ /decide/decision-narratives/ 301\n"
+    "/decide/choices /decide/decision-narratives/ 301\n"
+    "/decide/choices/index.html /decide/decision-narratives/ 301\n"
     "/pack/ https://aiqt.ai/ 301\n"
     "/pack https://aiqt.ai/ 301\n"
     "/pack/index.html https://aiqt.ai/ 301\n"
@@ -3043,7 +3053,13 @@ def parse_adopter_docs():
 # decide/<slug>/ (design D section 4.1 branch 2): (route slug, plural
 # heading, the reader's question the subtype answers). Mirrors
 # DRAFT_TYPE_PLURALS: a registry narrative_type with no entry is a build
-# error, so a new narrative type cannot publish without its index.
+# error, so a new narrative type cannot publish without its index. Each slug
+# is its heading in kebab case, at most a leading qualifier dropped (briefs,
+# question-sets). Site review F16: the decision narratives index sat at
+# decide/choices/, a third name beside its heading and its
+# decisions/decision-narratives/ pages; its slug is now the heading whole,
+# since "narratives" alone would name all six kinds, and _redirects maps the
+# old address.
 DRAFT_NARRATIVE_SUBTYPES = {
     "Executive Brief": (
         "briefs", "Executive briefs",
@@ -3061,7 +3077,7 @@ DRAFT_NARRATIVE_SUBTYPES = {
         "question-sets", "Oversight question sets",
         "What should we ask, and what evidence should come back?"),
     "Decision Narrative": (
-        "choices", "Decision narratives",
+        "decision-narratives", "Decision narratives",
         "What are the options on a genuine choice, and the trade-offs?"),
 }
 
@@ -3951,7 +3967,8 @@ class Instrument(NamedTuple):
                              # renders the combined reverse matrix section
                              # that names this programme (the CTPAT MSC and
                              # BASC v6 section carries no per-programme rows
-                             # to split, so the sibling pages point at it)
+                             # to split, so the sibling pages render its
+                             # whole table)
     org: str | None = None   # the organization tag under a main-table column
                              # header (spec 7.30: Name<span class="org">);
                              # a display name that opens with it drops it
@@ -7762,6 +7779,42 @@ def draft_crosswalk_instrument_values(xw, inst):
     sections = []
 
     rows = data["reverse_rows"]
+    area_label = data["reverse_area_label"]
+    label_id = ""
+    intro = (
+        "<p>From the "
+        + _xw_matrix_link(xw, CROSSWALK_REVERSE_MATRIX_PATH)
+        + ", which answers: given a control identifier or family, which "
+        "documents address it.</p>\n"
+    )
+    if inst.reverse_pointer:
+        # The combined trade section's rows all carry CTPAT MSC domain area
+        # labels, with no per-programme rows to split. Round-2 fix 5 rendered
+        # its table once, on the pointer target's page, and pointed there;
+        # site review F34: each programme the section names now renders the
+        # whole section's table too, and names the section.
+        target = xw["instruments"][inst.reverse_pointer]
+        rows = target["reverse_rows"]
+        area_label = target["reverse_area_label"]
+        # Review of 50b453ea3: these pages carried this section as
+        # id="reverse-crosswalk" before F34, so the section label keeps that
+        # id and an outside link to the old anchor still lands here. The
+        # pointer target's own page never had it and stays unchanged.
+        label_id = ' id="reverse-crosswalk"'
+        # The same review NOTE: one sentence held the matrix's purpose as a
+        # colon clause inside its naming of this programme; two plain
+        # sentences carry the same facts and links.
+        intro = (
+            "<p>The "
+            + _xw_matrix_link(xw, CROSSWALK_REVERSE_MATRIX_PATH)
+            + " answers which documents address a given control identifier "
+            "or family. It names this programme in its combined section "
+            "&quot;"
+            + _esc(target["inst"].reverse_section)
+            + "&quot;. The table is that whole section, the same one the "
+            f'<a href="{{{{BASE}}}}/crosswalk/{inst.reverse_pointer}/">'
+            f'{_esc(target["display"])}</a> instrument page shows.</p>\n'
+        )
     if rows:
         body = []
         for r in rows:
@@ -7773,42 +7826,21 @@ def draft_crosswalk_instrument_values(xw, inst):
                 f"<td>{_esc(r['alignment'])}</td></tr>"
             )
         sections.append(
-            f'<p class="lbl sec">Mapped control areas, {len(rows)}</p>\n'
+            f'<p class="lbl sec"{label_id}>Mapped control areas, '
+            f"{len(rows)}</p>\n"
             '<h2 id="control-areas">Control areas from the reverse '
             "crosswalk</h2>\n"
-            "<p>From the "
-            + _xw_matrix_link(xw, CROSSWALK_REVERSE_MATRIX_PATH)
-            + ", which answers: given a control identifier or family, which "
-            "documents address it.</p>\n"
-            '<div class="wide"><div class="tablewrap" tabindex="0" '
+            + intro
+            + '<div class="wide"><div class="tablewrap" tabindex="0" '
             'role="region" '
             'aria-label="Control areas from the reverse crosswalk">'
             '<table class="fixed">'
             '<colgroup><col class="w30"><col class="w50"><col class="w20">'
             "</colgroup>"
-            f'<thead><tr><th scope="col">{_esc(data["reverse_area_label"])}'
+            f'<thead><tr><th scope="col">{_esc(area_label)}'
             '</th><th scope="col">Library documents</th>'
             '<th scope="col">Alignment type</th></tr></thead>\n<tbody>\n'
             + "\n".join(body) + "\n</tbody></table></div></div>"
-        )
-
-    if inst.reverse_pointer:
-        # The combined trade section's rows all carry CTPAT MSC domain area
-        # labels, so the table renders once, on the pointer target's page;
-        # the programmes the section names point there (round-2 fix 5).
-        target = xw["instruments"][inst.reverse_pointer]
-        sections.append(
-            '<p class="lbl sec">Reverse crosswalk</p>\n'
-            '<h2 id="reverse-crosswalk">Control areas from the reverse '
-            "crosswalk</h2>\n"
-            "<p>The "
-            + _xw_matrix_link(xw, CROSSWALK_REVERSE_MATRIX_PATH)
-            + " names this programme in its combined section &quot;"
-            + _esc(target["inst"].reverse_section)
-            + "&quot;; its control-area table is rendered on the "
-            f'<a href="{{{{BASE}}}}/crosswalk/{inst.reverse_pointer}/'
-            '#control-areas">'
-            f'{_esc(target["display"])}</a> instrument page.</p>'
         )
 
     by_domain = data["by_domain"]
@@ -8010,6 +8042,10 @@ def render_draft_variant(figures, variant):
             continue
         emit(template_name, out_rel, fixed_extras[template_name]())
 
+    # The domain pages' Next chain is the site tour: Browse opens the first
+    # domain, each domain the next, and the last the example document.
+    # domain.html labels each link "Next on the tour" (site review F29: the
+    # last jump, to a document, read as unrelated without the label).
     domain_seq = figures["domain_pages"]
     for idx, dp in enumerate(domain_seq):
         if idx + 1 < len(domain_seq):

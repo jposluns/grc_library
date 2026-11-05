@@ -436,6 +436,12 @@ What is locked here, each test failing without its feature:
    view's wrapper is .bounded and no table is .sticky; the pinned column
    (sticky-col) stays. The check reads markup and the served stylesheet;
    the before and after measurements were taken in a browser in review.
+47. Site review batch B8 (three NOTE findings): the decision narratives
+   index takes its kind's name, /decide/decision-narratives/, and the old
+   /decide/choices/ address redirects there; the domain pages label their
+   tour steps "Next on the tour" in the unchanged tour order; and every
+   trade programme page the combined reverse section covers renders the
+   shared control-area table.
 """
 
 from __future__ import annotations
@@ -577,10 +583,11 @@ _ID_RE = re.compile(r'\bid="([^"]+)"')
 _ROW_HREF_RE = re.compile(r'<li><a href="([^"]*)">')
 
 # The six subtype index routes the reconciled design fixes
-# (RECONCILED.md: /draft/decide/<subtype-plural>/, design D section 4.1).
+# (RECONCILED.md: /draft/decide/<subtype-plural>/, design D section 4.1);
+# site review F16 renamed choices to decision-narratives, its kind's name.
 SUBTYPE_SLUGS = {
     "briefs", "scenarios", "journeys", "outcome-maps", "question-sets",
-    "choices",
+    "decision-narratives",
 }
 
 
@@ -955,10 +962,17 @@ class DraftSiteRenderTests(unittest.TestCase):
         # does not match), carry their own rules beside the original three.
         # Item 3b788: the page prose spells "Licence" while the route is
         # /license/, so the /licence/ spelling redirects in the same three
-        # spellings instead of landing on the 404.
+        # spellings instead of landing on the 404. Site review F16: the
+        # decision narratives index moved off /decide/choices/, so that
+        # address and its /draft/ form redirect in the same three spellings,
+        # the /draft/ ones ahead of the splat.
         self.assertEqual(len(self.by_rel["_redirects"]), 1)
         self.assertEqual(
             self.by_rel["_redirects"][0],
+            "/draft/decide/choices/ /decide/decision-narratives/ 301\n"
+            "/draft/decide/choices /decide/decision-narratives/ 301\n"
+            "/draft/decide/choices/index.html /decide/decision-narratives/ "
+            "301\n"
             "/draft/* /:splat 301\n"
             "/draft / 301\n"
             "/about/ /contributors/ 301\n"
@@ -967,6 +981,9 @@ class DraftSiteRenderTests(unittest.TestCase):
             "/licence/ /license/ 301\n"
             "/licence /license/ 301\n"
             "/licence/index.html /license/ 301\n"
+            "/decide/choices/ /decide/decision-narratives/ 301\n"
+            "/decide/choices /decide/decision-narratives/ 301\n"
+            "/decide/choices/index.html /decide/decision-narratives/ 301\n"
             "/pack/ https://aiqt.ai/ 301\n"
             "/pack https://aiqt.ai/ 301\n"
             "/pack/index.html https://aiqt.ai/ 301\n",
@@ -5317,12 +5334,14 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.assertNotIn("<table", rail.group(1),
                              f"{rel}: the table takes the main column")
 
-    def test_trade_programme_pages_point_at_the_combined_reverse_section(self):
+    def test_trade_programme_pages_render_the_combined_reverse_section(self):
         """Round-2 item 5 (agy F2): the combined trade section's rows all
-        carry CTPAT MSC domain area labels (none is BASC-labelled), so its
-        table renders once, on the CTPAT page, and every programme the
-        section names points there. The pointer sentence is checked against
-        the parsed section, so it stays true of the source data."""
+        carry CTPAT MSC domain area labels (none is BASC-labelled), so no
+        filter splits it. Site review F34: the table rendered once, on the
+        CTPAT page, and the other programmes only pointed there; every
+        programme the section names now renders the whole table, with a
+        sentence naming the section, checked against the parsed section so
+        it stays true of the source data."""
         mod = self.mod
         heading = "CTPAT MSC and BASC v6 (trade and supply-chain security)"
         sections = mod.parse_reverse_matrix(
@@ -5338,24 +5357,34 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(set(pointers), {"basc", "pip", "wco-safe", "aeo"})
         tokens = {"basc": "BASC", "pip": "PIP", "wco-safe": "WCO SAFE",
                   "aeo": "AEO"}
+        table_re = re.compile(
+            r'<h2 id="control-areas">.*?(<table\b.*?</table>)', re.S)
         ctpat = self.draft_html["crosswalk/ctpat/index.html"]
         self.assertIn('id="control-areas"', ctpat)
         self.assertIn("Procedural and cargo security", ctpat)
+        shared = table_re.search(ctpat).group(1)
+        self.assertEqual(shared.count("<tr><td>"), len(rows))
         for key, inst in pointers.items():
             self.assertEqual(inst.reverse_pointer, "ctpat")
             self.assertIn(
                 tokens[key], blob,
                 f"the combined section names {tokens[key]}, which keeps the "
-                "pointer sentence true")
+                "section sentence true")
             page = self.draft_html[f"crosswalk/{key}/index.html"]
-            self.assertIn('href="/crosswalk/ctpat/#control-areas"',
-                          page, f"{key}: no pointer link to the section")
-            self.assertIn("names this programme in its combined section",
-                          page, key)
-            self.assertIn(mod._esc(heading), page, key)
-            self.assertNotIn(
-                'id="control-areas"', page,
-                f"{key}: the combined table renders once, on the CTPAT page")
+            with self.subTest(instrument=key, check="no pointer sentence"):
+                self.assertNotIn("rendered on the", page)
+            with self.subTest(instrument=key, check="old anchor kept"):
+                # Review of 50b453ea3: the old anchor now marks the shared
+                # table's section, so outside links still land on it.
+                self.assertEqual(page.count('id="reverse-crosswalk"'), 1)
+            self.assertEqual(page.count('id="control-areas"'), 1, key)
+            self.assertEqual(table_re.search(page).group(1), shared,
+                             f"{key}: the whole shared table, as on CTPAT")
+            self.assertIn(
+                "It names this programme in its combined section &quot;"
+                + mod._esc(heading) + "&quot;. The table is that whole "
+                'section, the same one the <a href="/crosswalk/ctpat/">',
+                page, key)
 
     def test_aicpa_tsc_taxonomy_spellings_all_aliased(self):
         """Round-2 item 7 (agy F4): no alias maps to aicpa-tsc because no
@@ -12027,6 +12056,157 @@ class SiteB5FixTests(unittest.TestCase):
                               "the card names the other need paths")
 
 
+class SiteB8FixTests(unittest.TestCase):
+    """47: Site review batch B8 (three NOTE findings): the decision
+    narratives index takes its kind's name, the domain pages label their
+    tour steps, and every trade programme page renders the shared
+    control-area table; one test per finding, each failing without its fix
+    on the rendered pages."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_build()
+        cls.figures = cls.mod.compute_figures()
+        cls.draft_variant = next(
+            v for v in cls.mod.VARIANTS if v.draft_rules
+        )
+        rendered = cls.mod.render_variant(cls.figures, cls.draft_variant)
+        cls.draft_html = {
+            cls.mod.output_rel_for(cls.draft_variant, rel): content
+            for rel, content in rendered
+            if cls.mod.output_rel_for(cls.draft_variant, rel)
+            .endswith(".html")
+        }
+
+    def test_f16_decision_narratives_index_takes_its_kinds_name(self):
+        """F16: the decision narratives index sat at /decide/choices/, a
+        third name beside its heading and its reading-room segment. Every
+        kind's index slug is its heading in kebab case, at most a leading
+        qualifier dropped, and ends its pages' reading-room segment; the old
+        address renders nothing and no page links it."""
+        mod = self.mod
+        with self.subTest(check="the old address renders nothing"):
+            self.assertNotIn("decide/choices/index.html", self.draft_html)
+        with self.subTest(check="no page links the old address"):
+            self.assertEqual(
+                sorted(rel for rel, html in self.draft_html.items()
+                       if "/decide/choices" in html), [])
+        segments = {}
+        for page in self.figures["narratives"]:
+            segments.setdefault(page["narrative_type"], set()).add(
+                page["route"].split("/")[1])
+        for narrative_type, (slug, label, _) in (
+                mod.DRAFT_NARRATIVE_SUBTYPES.items()):
+            with self.subTest(kind=narrative_type):
+                self.assertTrue(
+                    label.lower().replace(" ", "-").endswith(slug),
+                    f"{slug}: not its heading {label!r} in kebab case")
+                self.assertTrue(segments.get(narrative_type), narrative_type)
+                for segment in segments[narrative_type]:
+                    self.assertTrue(segment.endswith(slug),
+                                    f"{slug}: not the end of /decisions/"
+                                    f"{segment}/")
+        self.assertEqual(
+            mod.DRAFT_NARRATIVE_SUBTYPES["Decision Narrative"][0],
+            "decision-narratives")
+        index = self.draft_html["decide/decision-narratives/index.html"]
+        self.assertIn("<h1>Decision narratives</h1>", index)
+        for rel in ("decide/index.html", "browse/index.html"):
+            self.assertIn('href="/decide/decision-narratives/"',
+                          self.draft_html[rel], rel)
+
+    def test_f29_domain_pages_label_their_tour_steps(self):
+        """F29: each domain page's Next is the next stop of the site tour,
+        and the last domain's jump to a document read as unrelated. Every
+        domain page labels the link "Next on the tour"; the order is
+        unchanged: Browse opens the first domain, each domain the next, and
+        the last the example document."""
+        mod = self.mod
+        seq = [dp["domain"] for dp in self.figures["domain_pages"]]
+        self.assertGreater(len(seq), 1)
+        browse = self.draft_html["browse/index.html"]
+        self.assertIn(
+            f'<a class="start" href="/{seq[0]}/">Open a domain: '
+            f"{mod._esc(mod.draft_domain_label(seq[0]))} <span", browse)
+        title = next(
+            d["title"] for d in mod.parse_taxonomy_full(
+                mod.TAXONOMY.read_text(encoding="utf-8"))
+            if d["path"] == mod.DRAFT_EXAMPLE_DOC)
+        for idx, domain in enumerate(seq):
+            if idx + 1 < len(seq):
+                href = f"/{seq[idx + 1]}/"
+                text = "Open a domain: " + mod._esc(
+                    mod.draft_domain_label(seq[idx + 1]))
+            else:
+                href = mod._doc_page_url("", mod.DRAFT_EXAMPLE_DOC)
+                text = "Open a document: " + mod._esc(title)
+            with self.subTest(domain=domain):
+                self.assertIn(
+                    '<div class="next"><p class="lbl">Next on the tour</p>'
+                    f'<a class="start" href="{href}">{text} <span',
+                    self.draft_html[f"{domain}/index.html"])
+
+    def test_f34_trade_programme_pages_render_the_shared_table(self):
+        """F34: /crosswalk/aeo/ said its control-area table is rendered on
+        the CTPAT page. Every programme page the combined section covers
+        carries the section's table, with a sentence naming the section,
+        and the CTPAT page keeps its own sentence."""
+        mod = self.mod
+        heading = mod.CROSSWALK_BY_KEY["ctpat"].reverse_section
+        rows = mod.parse_reverse_matrix(mod.CROSSWALK_REVERSE_MATRIX.read_text(
+            encoding="utf-8"))[heading]["rows"]
+        table_re = re.compile(
+            r'<h2 id="control-areas">[^<]*</h2>\n<p>(.*?)</p>\n'
+            r'<div class="wide">.*?(<tbody>.*?</tbody>)', re.S)
+        ctpat = table_re.search(self.draft_html["crosswalk/ctpat/index.html"])
+        self.assertRegex(
+            ctpat.group(1),
+            r"\AFrom the <a [^>]*>.*?</a>, which answers: given a control "
+            r"identifier or family, which documents address it\.\Z")
+        self.assertEqual(ctpat.group(2).count("<tr>"), len(rows))
+        covered = [i.key for i in mod.CROSSWALK_INSTRUMENTS
+                   if i.reverse_pointer == "ctpat"]
+        self.assertIn("aeo", covered)
+        for key in covered:
+            with self.subTest(instrument=key):
+                found = table_re.search(
+                    self.draft_html[f"crosswalk/{key}/index.html"])
+                self.assertIsNotNone(found, f"{key}: no control-area table")
+                # Review of 50b453ea3 NOTE: two plain sentences, no colon
+                # clause inside the naming sentence.
+                self.assertRegex(
+                    found.group(1),
+                    r"\AThe <a [^>]*>.*?</a> answers which documents address "
+                    r"a given control identifier or family\. It names this "
+                    r"programme in its combined section &quot;"
+                    + re.escape(mod._esc(heading))
+                    + r"&quot;\. The table is that whole section, the same "
+                    r'one the <a href="/crosswalk/ctpat/">[^<]*</a> '
+                    r"instrument page shows\.\Z")
+                self.assertEqual(found.group(2), ctpat.group(2))
+
+    def test_trade_programme_pages_keep_the_reverse_crosswalk_anchor(self):
+        """Review of 50b453ea3: the BASC, PIP, WCO SAFE and AEO pages lost
+        their old id="reverse-crosswalk" anchor, so an outside link to it
+        landed at the top. The shared table's section label carries that
+        id again, once, right above the section heading; the CTPAT page,
+        which never had the anchor, has none."""
+        mod = self.mod
+        covered = [i.key for i in mod.CROSSWALK_INSTRUMENTS
+                   if i.reverse_pointer == "ctpat"]
+        self.assertEqual(set(covered), {"basc", "pip", "wco-safe", "aeo"})
+        label_re = re.compile(
+            r'<p class="lbl sec" id="reverse-crosswalk">Mapped control '
+            r'areas, \d+</p>\n<h2 id="control-areas">')
+        for key in covered:
+            with self.subTest(instrument=key):
+                page = self.draft_html[f"crosswalk/{key}/index.html"]
+                self.assertEqual(page.count('id="reverse-crosswalk"'), 1)
+                self.assertRegex(page, label_re)
+        self.assertNotIn('id="reverse-crosswalk"',
+                         self.draft_html["crosswalk/ctpat/index.html"])
+
+
 class DraftTestSectionNumberTests(unittest.TestCase):
     """Round-1 NOTE: two test sections both said 8. Each numbered section
     comment carries its own number from the module docstring's list. Round 2
@@ -12223,8 +12403,14 @@ class PromotedRouteCoverageTests(unittest.TestCase):
         # slashless and index.html forms of the two redirected addresses,
         # and /draft itself (the /draft/* splat does not match it). Item
         # 3b788 adds the /licence/ spelling (the page prose spells
-        # "Licence", the route is /license/) in the same three forms.
+        # "Licence", the route is /license/) in the same three forms. Site
+        # review F16 adds the moved /decide/choices/ index in the same three
+        # forms, and its /draft/ address ahead of the splat.
         self.assertEqual(self.rules, [
+            ("/draft/decide/choices/", "/decide/decision-narratives/", "301"),
+            ("/draft/decide/choices", "/decide/decision-narratives/", "301"),
+            ("/draft/decide/choices/index.html",
+             "/decide/decision-narratives/", "301"),
             ("/draft/*", "/:splat", "301"),
             ("/draft", "/", "301"),
             ("/about/", "/contributors/", "301"),
@@ -12233,6 +12419,10 @@ class PromotedRouteCoverageTests(unittest.TestCase):
             ("/licence/", "/license/", "301"),
             ("/licence", "/license/", "301"),
             ("/licence/index.html", "/license/", "301"),
+            ("/decide/choices/", "/decide/decision-narratives/", "301"),
+            ("/decide/choices", "/decide/decision-narratives/", "301"),
+            ("/decide/choices/index.html", "/decide/decision-narratives/",
+             "301"),
             ("/pack/", "https://aiqt.ai/", "301"),
             ("/pack", "https://aiqt.ai/", "301"),
             ("/pack/index.html", "https://aiqt.ai/", "301"),
@@ -12264,12 +12454,37 @@ class PromotedRouteCoverageTests(unittest.TestCase):
                          "https://aiqt.ai/")
         self.assertEqual(self._resolve("/draft"), "index.html")
 
+    def test_f16_old_decision_narratives_addresses_redirect(self):
+        # Site review F16: every spelling of the old /decide/choices/ index,
+        # and of its /draft/ form, lands on the renamed index in one 301
+        # hop; the sitemap lists the new address and not the old.
+        new = "decide/decision-narratives/index.html"
+        sitemap = [c for rel, c in self.site_pages if rel == "sitemap.xml"][0]
+        with self.subTest(check="the old address renders nothing"):
+            self.assertNotIn("decide/choices/index.html", self.outputs)
+        with self.subTest(check="the sitemap drops the old address"):
+            self.assertNotIn("/decide/choices", sitemap)
+        self.assertIn(new, self.outputs)
+        self.assertIn("<loc>https://grclibrary.ai/decide/decision-narratives/"
+                      "</loc>", sitemap)
+        for old in ("/decide/choices/", "/decide/choices",
+                    "/decide/choices/index.html", "/draft/decide/choices/",
+                    "/draft/decide/choices",
+                    "/draft/decide/choices/index.html"):
+            with self.subTest(url=old):
+                self.assertEqual(self._resolve(old), new)
+
     # The pinned pre-promotion /draft/ output inventory (round-2 fix 6):
     # every dist-relative output path main 716a3f53b's own .web/build.py
     # rendered for the draft tree, stored as fixture literals, never derived
     # from the promoted render.
     DRAFT_INVENTORY = (REPO_ROOT / "tests" / "fixtures"
                        / "pre-promotion-draft-inventory.txt")
+    # Pinned draft pages whose promoted page moved after promotion, each
+    # reached in one hop by its own rule ahead of the splat (site review
+    # F16: the decision narratives index left /decide/choices/).
+    MOVED = {"draft/decide/choices/index.html":
+             "decide/decision-narratives/index.html"}
 
     def test_every_pre_promotion_draft_path_maps_through_the_splat(self):
         inventory = [
@@ -12282,9 +12497,10 @@ class PromotedRouteCoverageTests(unittest.TestCase):
         # baseline assets of the pre-promotion draft render.
         self.assertEqual(len(inventory), 531)
         self.assertEqual(len(inventory), len(set(inventory)))
+        self.assertLessEqual(set(self.MOVED), set(inventory))
         for out_rel in inventory:
             self.assertTrue(out_rel.startswith("draft/"), out_rel)
-            promoted_rel = out_rel[len("draft/"):]
+            promoted_rel = self.MOVED.get(out_rel, out_rel[len("draft/"):])
             if out_rel.endswith("/index.html"):
                 old_url = "/" + out_rel[: -len("index.html")]
             else:
