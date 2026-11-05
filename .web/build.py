@@ -5495,12 +5495,14 @@ CROSSWALK_ALIASES = {
     "ISO/IEC 27002:2022 (Information security controls)": "iso-iec-27002",
     "ISO/IEC 27002:2022 5.24 to 5.28": "iso-iec-27002",
     "ISO/IEC 27002:2022 §5.33, §8.10": "iso-iec-27002",
+    "ISO/IEC 27002:2022 §8.16": "iso-iec-27002",
     "ISO 31000:2018": "iso-31000",
     "ISO/IEC 27701:2025": "iso-iec-27701",
     "ISO/IEC 27701:2025 (privacy incident management)": "iso-iec-27701",
     "ISO/IEC 27701:2025 (PII principals' rights)": "iso-iec-27701",
     "ISO/IEC 27701:2025 Annex A.1.2.6": "iso-iec-27701",
     "ISO/IEC 27701:2025 Annex A.3.12": "iso-iec-27701",
+    "ISO/IEC 27701:2025 §5.3, Annex A.1.2.9, A.3.4": "iso-iec-27701",
     "ISO/IEC 27701:2025 §7.5.3, Annex A.3.14": "iso-iec-27701",
     "ISO/IEC 27701:2025 B.3.12 (PII processor breach notification "
     "provisions)": "iso-iec-27701",
@@ -5510,25 +5512,35 @@ CROSSWALK_ALIASES = {
     "LGPD Arts. 48 to 49": "lgpd",
     "PIPL": "pipl",
     "PIPL (China)": "pipl",
+    "PIPL Art. 45": "pipl",
+    "PIPL Art. 46": "pipl",
     "PIPL Art. 57": "pipl",
     "PIPL Article 57 (unofficial DigiChina English translation, last "
     "revised 7 September 2021)": "pipl",
 }
 
-# Exact taxonomy framework strings that join several texts with " / ": each
-# part, in order, with the instrument it names, or None for a part naming a
-# text that is no crosswalk instrument (integration round 3 WARN: the Data
-# Protection Act 2018 and ISO/IEC 27002 linked whole to the UK GDPR and
-# ISO/IEC 27001 pages; ISO/IEC 27002 has since gained its own page, so that
-# part now names it). The parts rejoined with " / " must give the string
-# back, every key must name a configured instrument, at least one part must
-# name one, and no string may also sit in CROSSWALK_ALIASES (build errors),
-# so a chip links each instrument it names and nothing it does not.
+# Exact taxonomy framework strings that join several texts with " / " or
+# " and ": each part, in order, with the instrument it names, or None for a
+# part naming a text that is no crosswalk instrument (integration round 3
+# WARN: the Data Protection Act 2018 and ISO/IEC 27002 linked whole to the
+# UK GDPR and ISO/IEC 27001 pages; ISO/IEC 27002 has since gained its own
+# page, so that part now names it). The parts rejoined with one of
+# CROSSWALK_ALIAS_PARTS_JOINERS must give the string back, every key must
+# name a configured instrument, at least one part must name one, and no
+# string may also sit in CROSSWALK_ALIASES (build errors), so a chip links
+# each instrument it names and nothing it does not. Only the listed strings
+# are split: " and " also sits inside many single names in the taxonomy
+# ("DORA Articles 17 and 19", "CSA Security Trust Assurance and Risk
+# (STAR)"), so no other string is split on it (item 3b788 draft round 2).
+CROSSWALK_ALIAS_PARTS_JOINERS = (" / ", " and ")
 CROSSWALK_ALIAS_PARTS = {
     "CSA CCM v4.1 / AICM v1.1": (
         ("CSA CCM v4.1", "csa-ccm"), ("AICM v1.1", "csa-aicm")),
     "CTPAT / PIP / BASC": (
         ("CTPAT", "ctpat"), ("PIP", "pip"), ("BASC", "basc")),
+    "ISO/IEC 27018:2025 and ISO/IEC 27701:2025": (
+        ("ISO/IEC 27018:2025", None),
+        ("ISO/IEC 27701:2025", "iso-iec-27701")),
     "ISO/IEC 27001:2022 / ISO/IEC 27002:2022": (
         ("ISO/IEC 27001:2022", "iso-iec-27001"),
         ("ISO/IEC 27002:2022", "iso-iec-27002")),
@@ -5591,6 +5603,17 @@ def crosswalk_alias_keys(name):
         return (CROSSWALK_ALIASES[name],)
     return tuple(key for _, key in CROSSWALK_ALIAS_PARTS.get(name, ())
                  if key is not None)
+
+
+def crosswalk_parts_joiner(name, parts):
+    """The first of CROSSWALK_ALIAS_PARTS_JOINERS that rejoins a compound
+    string's parts to the string itself, or None when none does (a build
+    error), so a chip shows the parts with the separator the taxonomy
+    wrote."""
+    for joiner in CROSSWALK_ALIAS_PARTS_JOINERS:
+        if joiner.join(part for part, _ in parts) == name:
+            return joiner
+    return None
 
 
 def normalize_concern_frameworks(names):
@@ -6766,7 +6789,8 @@ def draft_document_values(doc, docs_by_path):
                     f"{_esc(f)}</a></li>"
                 )
             elif f in CROSSWALK_ALIAS_PARTS:
-                chips.append("<li>" + " / ".join(
+                joiner = crosswalk_parts_joiner(f, CROSSWALK_ALIAS_PARTS[f])
+                chips.append("<li>" + joiner.join(
                     (f'<a href="{{{{BASE}}}}/crosswalk/{part_key}/">'
                      f"{_esc(part)}</a>") if part_key is not None
                     else (f'<a href="{_esc(_draft_search_url(part))}">'
@@ -8154,10 +8178,10 @@ def build_crosswalk(full_docs):
                 f"crosswalk: '{name}' is in both CROSSWALK_ALIASES and "
                 "CROSSWALK_ALIAS_PARTS"
             )
-        if " / ".join(part for part, _ in parts) != name:
+        if crosswalk_parts_joiner(name, parts) is None:
             raise BuildError(
                 f"crosswalk: the CROSSWALK_ALIAS_PARTS parts of '{name}' do "
-                "not rejoin with ' / ' to the string"
+                "not rejoin with ' / ' or ' and ' to the string"
             )
         if all(key is None for _, key in parts):
             raise BuildError(

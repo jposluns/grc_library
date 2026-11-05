@@ -455,7 +455,9 @@ What is locked here, each test failing without its feature:
    Also in the corpus naming its register row and edition, every pinned
    spelling aliases to it and none stays plain text, no --check alias
    warning names one, and its page lists exactly the documents naming it;
-   the compound naming ISO/IEC 27001 and ISO/IEC 27002 links both pages.
+   the compound naming ISO/IEC 27001 and ISO/IEC 27002 links both pages;
+   every taxonomy spelling of the five counts toward its page (draft round
+   2), and a compound joined with " and " keeps that joiner on its chip.
 """
 
 from __future__ import annotations
@@ -11634,15 +11636,16 @@ class DraftSiteRenderTests(unittest.TestCase):
     # Per added instrument, pinned as literals so a model regenerated from
     # anything else fails here: its label, the register Standard ID it names
     # and that row's Current version, the display name the page shows, every
-    # exact taxonomy spelling aliased to it, and the " / " compounds with a
-    # part naming it.
+    # exact taxonomy spelling aliased to it, and the compounds (joined with
+    # " / " or " and ") with a part naming it.
     _XW_ADDED = {
         "iso-iec-27002": (
             "ISO/IEC 27002", "ISO/IEC 27002", "2022", "ISO/IEC 27002:2022",
             ("ISO/IEC 27002:2022",
              "ISO/IEC 27002:2022 (Information security controls)",
              "ISO/IEC 27002:2022 5.24 to 5.28",
-             "ISO/IEC 27002:2022 §5.33, §8.10"),
+             "ISO/IEC 27002:2022 §5.33, §8.10",
+             "ISO/IEC 27002:2022 §8.16"),
             ("ISO/IEC 27001:2022 / ISO/IEC 27002:2022",)),
         "iso-31000": (
             "ISO 31000", "ISO 31000", "2018", "ISO 31000:2018",
@@ -11654,10 +11657,11 @@ class DraftSiteRenderTests(unittest.TestCase):
              "ISO/IEC 27701:2025 (PII principals' rights)",
              "ISO/IEC 27701:2025 Annex A.1.2.6",
              "ISO/IEC 27701:2025 Annex A.3.12",
+             "ISO/IEC 27701:2025 §5.3, Annex A.1.2.9, A.3.4",
              "ISO/IEC 27701:2025 §7.5.3, Annex A.3.14",
              "ISO/IEC 27701:2025 B.3.12 (PII processor breach notification "
              "provisions)"),
-            ()),
+            ("ISO/IEC 27018:2025 and ISO/IEC 27701:2025",)),
         "lgpd": (
             "LGPD", "Brazil LGPD", "2018 (in force 2020)", "LGPD",
             ("LGPD", "LGPD (Brazil)", "LGPD Article 48",
@@ -11665,10 +11669,22 @@ class DraftSiteRenderTests(unittest.TestCase):
             ()),
         "pipl": (
             "PIPL", "China PIPL", "2021", "PIPL",
-            ("PIPL", "PIPL (China)", "PIPL Art. 57",
+            ("PIPL", "PIPL (China)", "PIPL Art. 45", "PIPL Art. 46",
+             "PIPL Art. 57",
              "PIPL Article 57 (unofficial DigiChina English translation, "
              "last revised 7 September 2021)"),
             ()),
+    }
+    # The taxonomy spellings of the added instruments that the first draft
+    # left unaliased (item 3b788 draft round 2), each with the instrument it
+    # names, pinned so the coverage check below cannot pass on a taxonomy
+    # that no longer carries them.
+    _XW_ADDED_ROUND2 = {
+        "ISO/IEC 27002:2022 §8.16": "iso-iec-27002",
+        "ISO/IEC 27701:2025 §5.3, Annex A.1.2.9, A.3.4": "iso-iec-27701",
+        "PIPL Art. 45": "pipl",
+        "PIPL Art. 46": "pipl",
+        "ISO/IEC 27018:2025 and ISO/IEC 27701:2025": "iso-iec-27701",
     }
 
     def _assert_added_instrument(self, key):
@@ -11757,6 +11773,54 @@ class DraftSiteRenderTests(unittest.TestCase):
         whose article spellings sat in the plain-text map, is an instrument
         page now."""
         self._assert_added_instrument("pipl")
+
+    def test_every_taxonomy_spelling_of_an_added_instrument_counts(self):
+        """Item 3b788 draft round 2: the first draft left five taxonomy
+        spellings of the added instruments unaliased, so they counted toward
+        no page. Every taxonomy framework string the concern-page matcher
+        (INSTRUMENT_NAME_RES) ties to one of the five added instruments,
+        outside the listed namesakes and derived texts, resolves to that
+        instrument through the alias maps, among them the five pinned
+        spellings, which the taxonomy still carries."""
+        names = {n for d in self._full_taxonomy()
+                 for n in d.get("frameworks", [])}
+        self.assertLessEqual(set(self._XW_ADDED_ROUND2), names,
+                             "the taxonomy carries the pinned spellings")
+        unresolved = []
+        for key in self._XW_ADDED:
+            matcher = re.compile(self.INSTRUMENT_NAME_RES[key])
+            for name in sorted(n for n in names if matcher.search(n)):
+                if name in self.NOT_INSTRUMENT_NAMES:
+                    continue
+                if key not in self.mod.crosswalk_alias_keys(name):
+                    unresolved.append(f"{name!r} names {key}")
+        self.assertEqual(unresolved, [],
+                         "a spelling of an added instrument counts toward "
+                         "no page")
+        for name, key in self._XW_ADDED_ROUND2.items():
+            with self.subTest(name=name):
+                self.assertIn(key, self.mod.crosswalk_alias_keys(name))
+
+    def test_and_joined_compound_chip_keeps_its_separator(self):
+        """Item 3b788 draft round 2: "ISO/IEC 27018:2025 and ISO/IEC
+        27701:2025" is a compound joined with " and ". Its document page's
+        chip joins the two parts with " and ", as the taxonomy wrote them,
+        never " / ": the ISO/IEC 27701 part links that instrument's page and
+        the ISO/IEC 27018 part, which names no crosswalk instrument, keeps
+        its search address."""
+        name = "ISO/IEC 27018:2025 and ISO/IEC 27701:2025"
+        docs = [d for d in self._full_taxonomy()
+                if name in d.get("frameworks", [])]
+        self.assertTrue(docs, "a document names the compound")
+        chip = ('<li><a href="/search/?q=ISO%2FIEC+27018%3A2025">'
+                'ISO/IEC 27018:2025</a> and '
+                '<a href="/crosswalk/iso-iec-27701/">ISO/IEC 27701:2025</a>'
+                '</li>')
+        for d in docs:
+            rel = _page_rel_for(self.mod._doc_page_url("", d["path"]))
+            page = self.draft_html[rel]
+            self.assertIn(chip, page, rel)
+            self.assertNotIn("ISO/IEC 27018:2025</a> / <a", page, rel)
 
     # -- 41. the standards and frameworks page -------------------------------
 
@@ -12351,6 +12415,24 @@ class DraftIntegrationRound2GuardTests(unittest.TestCase):
             self._crosswalk_with_parts(
                 {"PIPEDA / Quebec Law 25": (("PIPEDA", "pipeda"),
                                             ("Law 25", "quebec-law-25"))})
+
+    def test_parts_joined_with_and_build(self):
+        """Item 3b788 draft round 2: a compound whose parts rejoin with
+        " and " to its string builds, and its chips use that joiner."""
+        name = "ISO/IEC 27018:2025 and ISO/IEC 27701:2025"
+        parts = (("ISO/IEC 27018:2025", None),
+                 ("ISO/IEC 27701:2025", "iso-iec-27701"))
+        self._crosswalk_with_parts({name: parts})
+        self.assertEqual(self.mod.crosswalk_parts_joiner(name, parts),
+                         " and ")
+
+    def test_parts_mixing_joiners_fail(self):
+        """Item 3b788 draft round 2: one compound's parts rejoin with one
+        joiner, so a string mixing " / " and " and " does not rejoin."""
+        with self.assertRaisesRegex(self.mod.BuildError, "do not rejoin"):
+            self._crosswalk_with_parts(
+                {"CTPAT / PIP and BASC": (("CTPAT", "ctpat"), ("PIP", "pip"),
+                                          ("BASC", "basc"))})
 
     def test_a_compound_also_in_the_alias_map_fails(self):
         with self.assertRaisesRegex(self.mod.BuildError, "in both"):
