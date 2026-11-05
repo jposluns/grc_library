@@ -79,6 +79,56 @@ GUARD-INPUT RESIDUE, stated at the point of use per validate-inference-before-ac
   * the hook sees files and refs. It cannot see whether the actor intends to continue, which is the
     thing it is really trying to constrain; it can only make yielding-with-work-outstanding require
     a deliberate act.
+
+CONSOLE AND DETAIL LOG (maintainer-directed 2026-11-04: refusal detail belongs on the backend, not
+the operator view). This changes only how a refusal is worded and routed, never whether the hook
+refuses. decide() renders the FULL detail: every outstanding or unverifiable branch, the resolved
+held-branches path and the one-shot escape. main() appends that detail to a per-session log,
+<store>/stop-hook-detail/turn-end.<first 12 characters of session_id>.log (each entry's header
+carries the whole session_id), where <store> is _DETAIL_STORE: GRC_STORE (a relative value is
+resolved against this checkout's root), else <repo-parent>/private, the same store resolution
+as stop-guard-unattended.py. The detail log never uses lint_common.resolve_working, whose
+transitional fallback can name a `.working` directory inside a git checkout. The text returned
+to the harness is then three short lines (summarize()), each at most _MAX_LINE_CHARS
+characters: what blocked, with the branch count and at most the first _SHOWN_ITEMS branches
+(each escaped with _printable, then cut to _MAX_ITEM_CHARS); WHY; and the one action that
+clears it, followed by the log
+path. PATH BUDGET: the log path adds 43 characters to the store path (with a 12-character
+session prefix), so the short form fits a store path of at most 79 characters (60 with the
+longer wording); a longer store path, or a log path with any non-printable character (a
+newline, a carriage return or a terminal escape, tested with the same rule _branch_display
+uses), falls back as below. A store inside this checkout, or inside any git working tree (a
+`.git` entry in the store directory or any ancestor up to the filesystem root, lexically or
+after resolving symlinks, or `git rev-parse --is-inside-work-tree` succeeding there with every
+inherited GIT_* variable removed), is refused before anything is created. The log is created
+without following symlinks (the store directory, the subdirectory and the file are opened with
+O_NOFOLLOW); the subdirectory must be owned by this uid with no group or other write bit; the
+file must be regular, mode 0600, owned by this uid and singly linked; and after the write the
+advertised path must still name the written file (lstat st_dev and st_ino against the
+descriptor's fstat). The resolution, checks, open and write run in a daemon thread joined for
+at most _DETAIL_TIMEOUT_S seconds, so a stalled filesystem cannot delay the refusal. If the log
+cannot be written (no usable session_id in the Stop payload, no store, a store inside this
+checkout or a git working tree, a timeout, or any open, check or write failure), or the log
+path cannot be shown on one console line, the console fallback is returned instead: the
+BLOCKED and WHY lines, one NOTE line naming the failure, then the branch list cut at the first
+_FALLBACK_ITEMS branches (the pre-2026-11-04 console cap) with one line counting the rest, the
+held-branches path and the one-shot escape. Every branch item the fallback shows is escaped
+with _printable, and so is every item of the last-resort form (the full detail with the NOTE
+after it, used when the fallback cannot be rendered), so a newline or terminal escape in a git
+error text cannot start a console line on any path; the detail log keeps the raw text. The
+held-branches path and the one-shot escape path are escaped with _printable wherever decide()
+renders them (the fallback, the last-resort form and the detail log alike), and so is the
+escape path in main()'s cannot-format refusal and every path the hook-helper-isolation refusal
+names, so a newline or terminal escape in a path cannot start a console line either. This
+fails open to visibility, never to silence:
+the count is always shown, and when the log was written the full list is there. RESIDUE: when
+the log was not written, branches past the first _FALLBACK_ITEMS are named nowhere, as before
+2026-11-04. Exit status, the escape and stop_hook_active handling are unchanged. RESIDUE:
+ancestors above the store directory are not checked for symlinks; the log is appended to
+without rotation; two sessions whose ids share their first 12 characters share one log file
+(each entry names its session); a write that times out may still complete later in the
+abandoned thread, and the process exit can still wait on a syscall the kernel does not let a
+fatal signal interrupt.
 """
 
 from __future__ import annotations
@@ -88,8 +138,10 @@ import errno
 import json
 import os
 import re as _re
+import stat
 import subprocess
 import sys
+import time
 import unicodedata
 from pathlib import Path
 
@@ -131,6 +183,11 @@ def _load_sibling(name, _cache={}):
         return _cache[name]
 
     def _refuse(why):
+        # A launch path holding a newline or a terminal escape is shown escaped, by the rule
+        # _printable applies (it is defined later in this module than this first call).
+        import unicodedata
+        why = "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                      else ascii(char)[1:-1] for char in why)
         print("BLOCKED (hook-helper-isolation): " + why + "; refusing to execute "
               "anything but the reviewed helper sources.", file=sys.stderr)
         sys.exit(2)
@@ -215,6 +272,33 @@ except Exception as exc:
     _HELD_FILE_ERROR = exc
 GIT_TIMEOUT = 20
 _EXPIRY = _re.compile(r"\d{4}-\d{2}-\d{2}", _re.ASCII)
+# Console refusal shape (see CONSOLE AND DETAIL LOG in the module docstring). _MAX_LINE_CHARS is
+# stop-guard-unattended.py's existing per-line clamp, mirrored here so both Stop hooks agree.
+_SHOWN_ITEMS = 3
+_FALLBACK_ITEMS = 8
+_MAX_ITEM_CHARS = 48
+_MAX_LINE_CHARS = 160
+_DETAIL_SUBDIR = "stop-hook-detail"
+_DETAIL_NAME = "turn-end"
+_SESSION_PREFIX_CHARS = 12
+_DETAIL_TIMEOUT_S = 2.0
+_SESSION_ID = _re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}", _re.ASCII)
+
+
+def _detail_store():
+    """The detail log's store directory, resolved as stop-guard-unattended.py resolves its own:
+    GRC_STORE (relative to this checkout's root when relative), else <repo-parent>/private."""
+    root = Path(__file__).resolve().parents[2]
+    value = os.environ.get("GRC_STORE")
+    if not value:
+        return root.parent / "private"
+    return Path(value) if os.path.isabs(value) else Path(os.path.normpath(root / value))
+
+
+try:
+    _DETAIL_STORE = _detail_store()
+except Exception:  # pragma: no cover - no store: the refusal falls back to the console
+    _DETAIL_STORE = None
 
 
 def _git_environment() -> dict:
@@ -242,10 +326,14 @@ def _blocking_stderr(stderr: bytes) -> bool:
                for line in stderr.split(b"\n"))
 
 
-def _branch_display(ref: bytes) -> str:
-    name = ref.removeprefix(b"refs/heads/").decode("utf-8", errors="backslashreplace")
+def _printable(text: str) -> str:
+    """Escape every character that is neither printable nor a space separator."""
     return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
-                   else ascii(char)[1:-1] for char in name)
+                   else ascii(char)[1:-1] for char in text)
+
+
+def _branch_display(ref: bytes) -> str:
+    return _printable(ref.removeprefix(b"refs/heads/").decode("utf-8", errors="backslashreplace"))
 
 
 def _git_display(output: bytes) -> str:
@@ -362,8 +450,14 @@ def unmerged_branches() -> list:
 
 
 
-def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
-    """Pure decision, so it is testable without a repository."""
+def decide(stop_hook_active: bool, escape: bool, branches: list,
+           shown: int | None = None, note: str | None = None) -> str | None:
+    """Pure decision, so it is testable without a repository. Returns the FULL detail (every
+    branch); main() routes it to the detail log and shows summarize() on the console. The
+    console fallback (_route_refusal) passes ``shown``, which keeps that many branches, each
+    escaped with _printable (the detail log form keeps the raw text), and counts the rest on
+    one line, and ``note``, placed before the list. The held-branches path and the one-shot
+    escape path are escaped with _printable on every form."""
     if stop_hook_active or escape:
         return None
     if not branches:
@@ -371,21 +465,227 @@ def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
     lines = ["BLOCKED (turn-end-outstanding-work): a turn-end yield while unmerged work is outstanding.",
              "WHY: an unmerged branch ahead of main is real outstanding work; yielding here strands it "
              "for the next session to untangle.", ""]
+    if note is not None:
+        lines.append(note)
     if branches:
+        listed = branches if shown is None else branches[:shown]
         lines.append("  Branches outstanding or not verifiable (%d):" % len(branches))
-        lines += ["    - %s (+%s)" % (n, a) for n, a in branches[:8]]
+        if shown is None:
+            lines += ["    - %s (+%s)" % (n, a) for n, a in listed]
+        else:
+            lines += ["    - " + _printable("%s (+%s)" % (n, a)) for n, a in listed]
+        if len(listed) < len(branches):
+            lines.append("    ... and %d more, not shown here" % (len(branches) - len(listed)))
         lines.append("    Held-branches record path:")
         # Show the ACTUAL resolved held-branches path (resolve_working -> local store), never a
         # hardcoded sibling path, so the remediation the guard prints follows the store migration.
-        lines.append("      %s" % (HELD_FILE if HELD_FILE is not None
+        lines.append("      %s" % (_printable(str(HELD_FILE)) if HELD_FILE is not None
                                    else "the held-branches file (resolved via lint_common.resolve_working)"))
     lines += [
         "",
         "CONSIDER INSTEAD: merge the branch(es) above, or record the hold with its reason in the "
         "held-branches file. For a genuine block (CI, a maintainer decision, an external wait), record that blocker, then run:",
-        f"      touch {ESCAPE_FILE}     # honoured once, then deleted",
+        f"      touch {_printable(str(ESCAPE_FILE))}     # honoured once, then deleted",
     ]
     return "\n".join(lines)
+
+
+def _clamp(line: str, limit: int = _MAX_LINE_CHARS) -> str:
+    """One console line cut to ``limit`` characters, marked with "..." when cut."""
+    return line if len(line) <= limit else line[:limit - 3] + "..."
+
+
+def summarize(branches: list, log_path: str) -> str:
+    """The three console lines, each at most _MAX_LINE_CHARS: what blocked (the count, then at
+    most the first _SHOWN_ITEMS branches, each escaped with _printable and then cut to
+    _MAX_ITEM_CHARS, so a newline or terminal escape in a git error text cannot break the
+    three-line form), WHY, and the one action that clears it followed by the detail log path.
+    The count precedes the list so a cut line keeps it. A log path with any non-printable
+    character, or one that cannot fit whole, raises before its length is used, and the caller
+    then shows the fallback. PATH BUDGET: with the shorter wording the log path may be at most
+    122 characters, so the store path at most 79 (see CONSOLE AND DETAIL LOG)."""
+    if _printable(log_path) != log_path:
+        raise ValueError("detail log path has a non-printable character")
+    shown = [_clamp(_printable("%s (+%s)" % (name, ahead)), _MAX_ITEM_CHARS)
+             for name, ahead in branches[:_SHOWN_ITEMS]]
+    if len(branches) > _SHOWN_ITEMS:
+        head = "%d branch(es) outstanding or not verifiable; first %d: " % (len(branches), len(shown))
+    else:
+        head = "%d branch(es) outstanding or not verifiable: " % len(branches)
+    for form in ("CONSIDER INSTEAD: merge or hold each branch; detail log: %s",
+                 "CONSIDER INSTEAD: merge or hold; log: %s"):
+        action = form % log_path
+        if len(action) <= _MAX_LINE_CHARS:
+            break
+    else:
+        raise ValueError("detail log path does not fit one console line")
+    return "\n".join([
+        _clamp("BLOCKED (turn-end-outstanding-work): " + head + ", ".join(shown)),
+        _clamp("WHY: a turn-end yield strands unmerged work ahead of main for the next session."),
+        action,
+    ])
+
+
+def _git_tree_marker(directory) -> str | None:
+    """What places ``directory`` inside a git working tree, or None: the first `.git` entry (of
+    any type) in it or an ancestor up to the filesystem root, on the lexical path and on the
+    resolved path, then `git rev-parse --is-inside-work-tree` exiting 0 there with every
+    inherited GIT_* variable removed (so neither GIT_DIR nor a ceiling changes discovery). A
+    missing git binary leaves the `.git` walk as the check; any other failure raises."""
+    lexical = Path(os.path.abspath(directory))
+    for start in (lexical, lexical.resolve()):
+        for candidate in (start, *start.parents):
+            try:
+                os.lstat(candidate / ".git")
+            except (FileNotFoundError, NotADirectoryError):
+                continue
+            return str(candidate / ".git")
+    root = lexical
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env["LC_ALL"] = "C"
+    try:
+        result = subprocess.run(['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree'],
+                                stdin=subprocess.DEVNULL, capture_output=True, env=env,
+                                timeout=_DETAIL_TIMEOUT_S, check=False)
+    except FileNotFoundError:
+        return None
+    return "git rev-parse" if result.returncode == 0 else None
+
+
+def _detail_dir():
+    """The store directory holding the detail log subdirectory: _DETAIL_STORE (GRC_STORE, else
+    <repo-parent>/private). None when no store resolves; raises when the store is inside this
+    checkout or inside any git working tree (detail never lands in a git tree)."""
+    if _DETAIL_STORE is None:
+        return None
+    found = Path(os.path.abspath(_DETAIL_STORE))
+    if found.resolve().is_relative_to(Path(REPO).resolve()):
+        raise PermissionError(errno.EPERM, "store resolves inside this checkout", str(found))
+    marker = _git_tree_marker(found)
+    if marker is not None:
+        raise PermissionError(errno.EPERM, "store is inside a git working tree (%s)" % marker,
+                              str(found))
+    return found
+
+
+def _append_private(directory, name: str, text: str) -> str:
+    """Append ``text`` to ``directory/_DETAIL_SUBDIR/name`` without following a symlink at the
+    directory, the subdirectory or the file. The subdirectory must be owned by this uid with no
+    group or other write bit; the file must be a singly linked regular file owned by this uid,
+    mode 0600; after the write the returned path must still name the written file (same st_dev
+    and st_ino). Any failure raises; the caller then fails open to the console."""
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+    top = os.open(directory, flags)
+    try:
+        try:
+            os.mkdir(_DETAIL_SUBDIR, 0o700, dir_fd=top)
+        except FileExistsError:
+            pass
+        sub = os.open(_DETAIL_SUBDIR, flags, dir_fd=top)
+    finally:
+        os.close(top)
+    try:
+        info = os.fstat(sub)
+        if (not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid()
+                or info.st_mode & (stat.S_IWGRP | stat.S_IWOTH)):
+            raise PermissionError(errno.EPERM, "detail log directory is not private", _DETAIL_SUBDIR)
+        fd = os.open(name, os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NOFOLLOW
+                     | os.O_NONBLOCK | os.O_CLOEXEC, 0o600, dir_fd=sub)
+    finally:
+        os.close(sub)
+    path = os.path.join(os.fspath(directory), _DETAIL_SUBDIR, name)
+    try:
+        info = os.fstat(fd)
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
+                or info.st_nlink != 1):
+            raise PermissionError(errno.EPERM, "detail log is not a private regular file", name)
+        os.fchmod(fd, 0o600)
+        data = text.encode("utf-8", errors="backslashreplace")
+        while data:
+            written = os.write(fd, data)
+            if written <= 0:
+                raise OSError(errno.EIO, "short write to detail log", name)
+            data = data[written:]
+        named = os.lstat(path)
+        if (named.st_dev, named.st_ino) != (info.st_dev, info.st_ino):
+            raise PermissionError(errno.EPERM, "detail log path was replaced during the write", name)
+    finally:
+        os.close(fd)
+    return path
+
+
+def _write_detail_log(detail: str, payload) -> str:
+    """Append the full refusal detail to this session's log and return its path, or raise."""
+    session = payload.get("session_id") if isinstance(payload, dict) else None
+    if not isinstance(session, str) or not _SESSION_ID.fullmatch(session):
+        raise ValueError("no usable session_id in the Stop payload")
+    directory = _detail_dir()
+    if directory is None:
+        raise FileNotFoundError(errno.ENOENT, "no private store directory resolved for the detail log")
+    stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    name = "%s.%s.log" % (_DETAIL_NAME, session[:_SESSION_PREFIX_CHARS])
+    return _append_private(directory, name, "=== %s turn-end-outstanding-work session %s ===\n%s\n\n"
+                           % (stamp, session, detail))
+
+
+def _bounded_write(detail: str, payload) -> str:
+    """_write_detail_log in a daemon thread joined for at most _DETAIL_TIMEOUT_S seconds, so a
+    stalled filesystem cannot delay the refusal; a timeout raises and the caller fails open."""
+    import threading
+    box = {}
+
+    def work():
+        try:
+            box["path"] = _write_detail_log(detail, payload)
+        except Exception as exc:
+            box["error"] = exc
+
+    worker = threading.Thread(target=work, name="stop-hook-detail-log", daemon=True)
+    worker.start()
+    worker.join(_DETAIL_TIMEOUT_S)
+    if worker.is_alive():
+        raise TimeoutError(errno.ETIMEDOUT, "detail log write exceeded %gs" % _DETAIL_TIMEOUT_S)
+    if "error" in box:
+        raise box["error"]
+    return box["path"]
+
+
+def _route_refusal(detail: str, branches: list, payload) -> str:
+    """Short console form after a successful log write; otherwise the console fallback: the
+    refusal with one NOTE line before the branch list, which is cut at _FALLBACK_ITEMS with the
+    rest counted (fail open to visibility, never to silence). Should that rendering fail, or
+    lack the NOTE, the full detail is shown with the NOTE after it (_last_resort)."""
+    state = "not written"
+    try:
+        path = _bounded_write(detail, payload)
+        state = "written but not summarized"
+        return summarize(branches, path)
+    except Exception as exc:
+        try:
+            why = _printable("%s: %s" % (type(exc).__name__, exc))
+        except Exception:
+            why = type(exc).__name__
+        note = _clamp("NOTE: detail log %s (%s); detail shown here." % (state, why))
+        try:
+            shown = decide(False, False, branches, shown=_FALLBACK_ITEMS, note=note)
+        except Exception:
+            shown = None
+        if not isinstance(shown, str) or note not in shown:
+            return _last_resort(detail, branches, note)
+        return shown
+
+
+def _last_resort(detail: str, branches: list, note: str) -> str:
+    """The full detail with ``note`` after it, every branch item escaped with _printable so a
+    raw newline inside an item cannot start a console line. When the escaped items cannot be
+    rendered, the whole detail is escaped onto one line instead (visible, never silent)."""
+    try:
+        safe = decide(False, False, [(_printable(str(n)), _printable(str(a))) for n, a in branches])
+    except Exception:
+        safe = None
+    if not isinstance(safe, str):
+        safe = _printable(detail)
+    return safe + "\n" + note
 
 
 def _fail_open() -> int:
@@ -439,7 +739,12 @@ def main() -> int:
             # The scan established a block; a rendering error must not erase it.
             # Escape handling above remains independent of this fallback.
             message = ("BLOCKED (turn-end-outstanding-work): cannot format outstanding work; "
-                       "one-shot escape: touch " + str(ESCAPE_FILE))
+                       "one-shot escape: touch " + _printable(str(ESCAPE_FILE)))
+        else:
+            if message:
+                # Wording and routing only: the full detail goes to the session log and the
+                # console gets three lines, or the full detail when the log cannot be written.
+                message = _route_refusal(message, branches, payload)
         if message:
             try:
                 print(message, file=sys.stderr)
@@ -554,7 +859,99 @@ def self_test() -> int:
         bad += 1
         print("FAIL malformed payload with no sentinel did not fail open")
 
-    total = len(SELF_TEST) + 4
+    # Console form: three lines, the count and at most the first _SHOWN_ITEMS branches.
+    many = [("b%d" % n, "1") for n in range(5)]
+    short = summarize(many, "/store/x.log")
+    if (len(short.splitlines()) != 3 or "5 branch(es)" not in short or "b2 (+1)" not in short
+            or "b3" in short or "first 3: " not in short or not short.endswith("/store/x.log")
+            or max(map(len, short.splitlines())) > _MAX_LINE_CHARS):
+        bad += 1
+        print("FAIL summarize did not cap the console list at three")
+
+    # No usable session_id: the refusal stays visible with the NOTE before the list, and
+    # nothing is written.
+    detail = decide(False, False, many)
+    with mock.patch.object(module, "_detail_dir") as no_dir:
+        routed = _route_refusal(detail, many, {})
+    if ("NOTE: detail log not written" not in routed or no_dir.called
+            or not routed.startswith("BLOCKED (turn-end-outstanding-work): ")
+            or routed.index("NOTE:") > routed.index("Branches outstanding")
+            or "b4 (+1)" not in routed or "more, not shown" in routed):
+        bad += 1
+        print("FAIL missing session_id did not fail open to the visible refusal")
+
+    # The fallback list stops at _FALLBACK_ITEMS branches and counts the rest.
+    lots = [("b%d" % n, "1") for n in range(_FALLBACK_ITEMS + 4)]
+    routed = _route_refusal(decide(False, False, lots), lots, {})
+    if ("b%d (+1)" % (_FALLBACK_ITEMS - 1) not in routed or "b%d (+1)" % _FALLBACK_ITEMS in routed
+            or "... and 4 more, not shown here" not in routed):
+        bad += 1
+        print("FAIL the console fallback did not cap the branch list")
+
+    # A usable session and store: the detail is appended to a 0600 log and three lines return.
+    import tempfile
+    with tempfile.TemporaryDirectory() as store, mock.patch.object(
+        module, "_detail_dir", return_value=Path(store)
+    ):
+        routed = _route_refusal(detail, many, {"session_id": "self-test-1"})
+        log = Path(store) / _DETAIL_SUBDIR / "turn-end.self-test-1.log"
+        logged = log.read_text(encoding="utf-8") if log.is_file() else ""
+        mode = stat.S_IMODE(os.lstat(log).st_mode) if log.is_file() else None
+    try:
+        expected = summarize(many, str(log))
+    except ValueError:
+        expected = None  # a TMPDIR beyond the PATH BUDGET: the fallback is the right answer
+    shown_ok = (routed == expected if expected is not None
+                else "NOTE: detail log written but not summarized" in routed)
+    if not shown_ok or "b4 (+1)" not in logged or mode != 0o600:
+        bad += 1
+        print("FAIL detail log was not written privately with the short console form")
+
+    # A short fixed directory, so this case never depends on TMPDIR: a 79-character store
+    # path fits the shorter wording exactly, and one more character does not.
+    fixed = "/" + "s" * 78 + "/" + _DETAIL_SUBDIR + "/turn-end.0123456789ab.log"
+    try:
+        fits = summarize(many, fixed).endswith("; log: " + fixed)
+    except ValueError:
+        fits = False
+    try:
+        summarize(many, "/s" + fixed)
+        overflow = False
+    except ValueError:
+        overflow = True
+    if not fits or not overflow:
+        bad += 1
+        print("FAIL the documented store-path budget does not hold")
+
+    # A log path with a newline, a carriage return or an escape is never advertised raw.
+    for odd in ("\n", "\r", "\x1b"):
+        try:
+            summarize(many, "/store" + odd + "x.log")
+        except ValueError:
+            continue
+        bad += 1
+        print("FAIL summarize advertised a log path with %r" % odd)
+
+    # Round 5: a newline or an ESC in a git error text never reaches the console raw on the
+    # fallback or on the last-resort form; the detail (the log's text) keeps it raw.
+    odd = [("claude/a", "unverified: fatal: bad\nref"), ("claude/b\x1b[2J", "1")]
+    raw = decide(False, False, odd)
+    real_decide = decide
+
+    def no_fallback(*args, **kwargs):
+        if kwargs.get("shown") is not None:
+            raise ValueError("fallback unavailable")
+        return real_decide(*args, **kwargs)
+
+    for label, patch in (("fallback", real_decide), ("last-resort", no_fallback)):
+        with mock.patch.object(module, "decide", patch):
+            routed = _route_refusal(raw, odd, {})
+        if ("\x1b" in routed or "bad\nref" in routed or "bad\\nref" not in routed
+                or "claude/b\\x1b[2J (+1)" not in routed or "bad\nref" not in raw):
+            bad += 1
+            print("FAIL the %s form showed a raw newline or ESC in an item" % label)
+
+    total = len(SELF_TEST) + 14
     print(str(total - bad) + "/" + str(total) + " decision cases pass")
     return 1 if bad else 0
 

@@ -32,8 +32,12 @@ What it does, in order (main first consumes any grc one-shot declared-wait escap
      dispatch-and-await, with a note naming the share source or fallback cause.
      Registry read failure -> allow, except a boundary-byte failure discards the first row and
      continues counting; missing registry means zero groups.
-  5. Otherwise -> BLOCK (exit 2), reporting the actionable count, producer command, rule and escape.
-     Item IDs and titles are not emitted (#2291). B's five-line/160-character clamps remain.
+  5. Otherwise -> BLOCK (exit 2). decide() renders the actionable count, producer command, rule and
+     escape under B's five-line/160-character clamps; run() routes that text as described under
+     CONSOLE AND DETAIL LOG below, so the console carries the count, the detail log path and the
+     declared-wait escape path (#2496), and the producer command and rule reach the console only
+     on the fallback path. Item IDs and titles never reach the console (#2291); only the detail
+     log holds them.
 
 Fail-OPEN. On failure to determine the mode or the actionable set, the hook ALLOWS the stop. A
 guard that traps the actor on its own malfunction protects nothing; a convenience guardrail that
@@ -45,11 +49,13 @@ plus grc path, checkout, worker and one-shot helpers. main() also carries the on
 pre-step. The registry observer, decision predicates, run() and payload parsing are from
 lab_infra commit 17b407b9 (PR #952, item 373); decide() and run() additionally carry the
 3b286 operator slot-share floor (max(share, 3)). Diagnostic transport carries 3b226's
-connected-socket syscall adaptation below. Block-message text carries P-1.36 (BLOCKED / WHY /
+connected-socket syscall adaptation below. decide()'s block text carries P-1.36 (BLOCKED / WHY /
 CONSIDER INSTEAD), #2291 (count only, producer on demand), #2496 (resolved declared-wait path)
-and 3b286 (required live count). MODE_SET_HINT retains the detailed grc guidance; the emitted
-hint is shortened to fit B's message format. Unusually long override paths can still be truncated
-by B's unchanged per-line clamp.
+and 3b286 (required live count); since 2026-11-04 that text goes to the detail log, and the
+console shows it only on the fallback path (CONSOLE AND DETAIL LOG below), except that the
+short form still names the resolved declared-wait path (#2496). MODE_SET_HINT retains
+the detailed grc guidance; the emitted hint is shortened to fit B's message format. Unusually
+long override paths can still be truncated by B's unchanged per-line clamp.
 
 GRC ADAPTATION (2026-09-27; backlog 3b113). Rebased the 2026-09-03 cross-project adoption
 (inbox msg 20260903T002018Z.from-lab_infra) onto lab_infra 17b407b9, adding the live-dispatch
@@ -110,6 +116,62 @@ with MSG_DONTWAIT. This also delivers under sandboxes that deny socket metadata 
 sendto while permitting sendmsg on an already-connected descriptor. Fork isolation, shared
 fd flags, deadlines, message bounds and fail-open behaviour are unchanged.
 
+CONSOLE AND DETAIL LOG (maintainer-directed 2026-11-04: refusal detail belongs on the backend, not
+the operator view). This changes only how a block is worded and routed, never whether the hook
+blocks. On a block, run() appends the full detail (decide()'s complete reason plus every
+actionable item's ID and title) to a per-session log,
+<store>/stop-hook-detail/stop-guard.<first 12 characters of session_id>.log (each entry's header
+carries the whole session_id), where <store> is the directory of _GRC_STATE_FILE (GRC_STORE or
+<repo-parent>/private, the lease's store). A store inside this checkout (_GRC_REPO_ROOT), or
+inside any git working tree (a `.git` entry in the store directory or any ancestor up to the
+filesystem root, lexically or after resolving symlinks, or `git rev-parse
+--is-inside-work-tree` succeeding there with every inherited GIT_* variable removed), is
+refused before anything is created. The diagnostic is then three short lines
+(_short_refusal), each at most _MAX_LINE_CHARS: what blocked with the actionable count, WHY
+with the live group count, and the one action that clears it, which names the declared-wait
+escape path (_grc_escape_file, #2496: a sentinel was once written at the wrong path because
+the message did not name it) with decide()'s condition "(once, after recording the blocker)",
+followed by the log path. When the escape path and the log path do not both fit that line, the
+escape path keeps the CONSIDER INSTEAD line, with the condition when it fits and "(condition
+in log)" when it does not, and the log path moves to the end of the WHY line; there is never a
+fourth line. No item ID or title appears
+in that form. PATH BUDGET: the log path adds 45 characters to the store path (with a
+12-character session prefix), so the short form fits a store path of at most 82 characters
+(the shortest WHY wording leaves 127 characters for the log path); a longer store path, an
+escape path longer than 101 characters, or a log or escape path with any non-printable
+character (a newline, a carriage return or a terminal escape, tested with _printable), takes
+the fallback below. The full detail (every item ID and title) is built only after the time
+budget and the session_id have been checked, inside the deadline-controlled write thread, so
+a very large item list cannot push the refusal past the budget. The log is created without
+following symlinks (the store directory, the subdirectory and the file are opened with
+O_NOFOLLOW); the subdirectory must be owned by this uid with no group or other write bit; the
+file must be regular, mode 0600, owned by this uid and singly linked; and after the write the
+advertised path must still name the written file (lstat st_dev and st_ino against the
+descriptor's fstat). Building the detail, the resolution, checks, open and write run in a
+daemon thread. TIME BUDGET: the Stop hook timeout in .claude/settings.json is 10 seconds and
+the producer alone may take PRODUCER_TIMEOUT_S (8), so the whole run is kept within
+_RUN_BUDGET_S (8.5) seconds of this module starting to execute (main() sets _RUN_DEADLINE):
+the thread is joined for at most min(_DETAIL_TIMEOUT_S, time left in that budget), and with
+less than _MIN_WRITE_S left, or no usable session_id, no detail is built and no write is
+attempted. The remaining 1.5 seconds cover interpreter startup and compiling this file,
+_diagnostic's 0.2-second fork wait and exit. If the log cannot be written (no usable
+session_id in the Stop payload, a missing store, a store inside this checkout or a git
+working tree, a timeout, a spent budget, or any open, check or write failure), or the log
+path and the escape path cannot both be shown within the three lines, the fallback is
+emitted instead (_fallback_refusal): decide()'s reason, then
+one NOTE line naming the failure, then the actionable count only. This fails open to
+visibility, never to silence, and keeps #2291: no item ID or title reaches the diagnostic on
+either path. Every fallback line is clamped to _MAX_LINE_CHARS and _MAX_LINE_BYTES, so the
+fallback always fits _diagnostic's PIPE_BUF cap with the NOTE intact. decide() escapes the
+declared-wait path with _printable, so a newline or terminal escape in it cannot start a
+diagnostic line on the fallback (the detail log carries the same escaped text), and the
+producer's fail-open NOTICE escapes the producer's stderr and path the same way. Exit status,
+the escape and stop_hook_active handling are unchanged. RESIDUE: ancestors above the store directory are
+not checked for symlinks; the log is appended to without rotation; two sessions whose ids
+share their first 12 characters share one log file (each entry names its session); a write
+that times out may still complete later in the abandoned thread, and the process exit can
+still wait on a syscall the kernel does not let a fatal signal interrupt.
+
 Self-test: python3 .claude/hooks/stop-guard-unattended.py --self-test.
 Self-contained: grc file/producer fixtures replace lab_infra tooling fixtures; registry cases remain.
 """
@@ -127,6 +189,9 @@ import sys
 import time
 from pathlib import Path
 from collections import deque
+
+# Start of the run's time budget (see TIME BUDGET under CONSOLE AND DETAIL LOG).
+_LOADED_AT = time.monotonic()
 
 # Architect-directed 2026-09-24: the block message is at most _MAX_REASON_LINES lines of at most
 # _MAX_LINE_CHARS characters, whatever the item count. B computes the first _MAX_IDS item numbers;
@@ -573,7 +638,7 @@ def actionable_items(root):
         return None  # timeout / spawn failure -> indeterminate -> fail open
     if proc.returncode != 0:
         reason = " ".join(proc.stderr.splitlines()).strip() or (exe + " exited " + str(proc.returncode))
-        _diagnostic("NOTICE (stop-guard-unattended; fail open): " + reason[:1024] + "\n")
+        _diagnostic("NOTICE (stop-guard-unattended; fail open): " + _printable(reason[:1024]) + "\n")
         return None  # producer error -> indeterminate -> fail open
     out = []
     for line in proc.stdout.splitlines():
@@ -877,7 +942,7 @@ def decide(mode, stop_hook_active, actionable, live_groups, share):
         "Yield allowed with at least %d live owned dispatch groups, or no actionable items "
         "(a [BLOCKED:<reason>] tag with a granted approvals row)." % required,
         "Declared wait: touch %s (once, after recording blocker); operator stop: set mode attended."
-        % _grc_escape_file(),
+        % _printable(_grc_escape_file()),
     ]
     return True, "\n".join(line[:_MAX_LINE_CHARS] for line in lines[:_MAX_REASON_LINES])
 
@@ -974,6 +1039,269 @@ def _diagnostic(message):
             os._exit(0)
 
 
+_DETAIL_SUBDIR = "stop-hook-detail"
+_DETAIL_NAME = "stop-guard"
+_SESSION_PREFIX_CHARS = 12
+_DETAIL_TIMEOUT_S = 2.0
+# TIME BUDGET: the whole run stays within _RUN_BUDGET_S of _LOADED_AT, under the 10-second Stop
+# hook timeout in .claude/settings.json with margin; _RUN_DEADLINE is set by main() only.
+_RUN_BUDGET_S = 8.5
+_MIN_WRITE_S = 0.25
+_RUN_DEADLINE = None
+_SESSION_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}", re.ASCII)
+# Per-line byte bound for the fallback: any valid 160-character UTF-8 line fits; only lines that
+# escape to more bytes (surrogate escapes) are cut further. Five reason lines plus the NOTE at
+# 641 bytes each, plus the short count line, stay below PIPE_BUF (4096), so _diagnostic never
+# truncates the fallback.
+_MAX_LINE_BYTES = 640
+
+
+def _printable(value):
+    """Escape control and other non-printable characters for the log and the fallback."""
+    return "".join(ch if ch.isprintable() else ascii(ch)[1:-1] for ch in str(value))
+
+
+def _clamp(line):
+    """One diagnostic line cut to _MAX_LINE_CHARS characters and _MAX_LINE_BYTES encoded bytes."""
+    line = line[:_MAX_LINE_CHARS]
+    while len(line.encode("utf-8", "backslashreplace")) > _MAX_LINE_BYTES:
+        line = line[:-1]
+    return line
+
+
+def _first_fit(forms, values, what):
+    """The first of ``forms`` that, filled with ``values``, fits one console line whole; raises
+    ValueError naming ``what`` when none does."""
+    for form in forms:
+        line = form % values
+        if _clamp(line) == line:
+            return line
+    raise ValueError("%s does not fit one console line" % what)
+
+
+def _short_refusal(count, live_groups, log_path, escape_path):
+    """The three diagnostic lines, each at most _MAX_LINE_CHARS: what blocked (count only,
+    #2291), WHY, and the one action that clears it. The action line names the declared-wait
+    escape path (#2496) with decide()'s condition (once, after recording the blocker) and then
+    the detail log path when all fit it whole; otherwise the escape path keeps the action line,
+    with the condition when it fits and "(condition in log)" when it does not, and the log path
+    ends the WHY line. There is never a fourth line. A log or escape path with any non-printable
+    character, or one that cannot fit whole, raises before its length is used, and the caller
+    then shows the fallback.
+    PATH BUDGET: the shortest WHY wording leaves 127 characters for the log path, so the store
+    path may be at most 82 (see CONSOLE AND DETAIL LOG); the escape path at most 101."""
+    if _printable(log_path) != log_path:
+        raise ValueError("detail log path has a non-printable character")
+    if _printable(escape_path) != escape_path:
+        raise ValueError("declared-wait path has a non-printable character")
+    blocked = _clamp("BLOCKED (stop-guard-unattended): unattended turn-end yield; the backlog tool "
+                     "reports %d actionable open backlog item(s)." % count)
+    why = _clamp("WHY: not whole-set exhaustion, and the live owned dispatch group count (%d) "
+                 "is below the required count." % live_groups)
+    try:
+        action = _first_fit(("CONSIDER INSTEAD: continue; wait (once, after recording the "
+                             "blocker): touch %s; log: %s",),
+                            (escape_path, log_path), "declared-wait and detail log paths")
+    except ValueError:
+        # Prefer the escape path on the action line; the log path ends the WHY line. The
+        # condition stays on the action line when it fits; otherwise the line says it is in
+        # the log (decide()'s reason, which the log carries, states it).
+        action = _first_fit(("CONSIDER INSTEAD: continue the top actionable item; declared wait "
+                             "(once, after recording the blocker): touch %s",
+                             "CONSIDER INSTEAD: continue; wait (once, after recording the "
+                             "blocker): touch %s",
+                             "CONSIDER INSTEAD: continue; wait (condition in log): touch %s"),
+                            (escape_path,), "declared-wait path")
+        why = _first_fit(("WHY: the live owned dispatch group count (%d) is below the required "
+                          "count; detail log: " % live_groups + "%s",
+                          "WHY: below the group floor; log: %s"),
+                         (log_path,), "detail log path")
+    return "\n".join([blocked, why, action])
+
+
+def _fallback_refusal(reason, count, state, why):
+    """The visible fallback: decide()'s reason, the NOTE right after it, then the actionable
+    count only (#2291: no item ID or title reaches the diagnostic). Every line is clamped, and
+    the reason keeps at most _MAX_REASON_LINES lines, so the text fits _diagnostic's PIPE_BUF cap."""
+    lines = [_clamp(line) for line in reason.split("\n")[:_MAX_REASON_LINES]]
+    lines.append(_clamp("NOTE: detail log %s (%s); reason shown here." % (state, why)))
+    lines.append(_clamp("Actionable items: %d (IDs and titles are not shown here, #2291)." % count))
+    return "\n".join(lines)
+
+
+def _append_private(directory, name, text):
+    """Append ``text`` to ``directory/_DETAIL_SUBDIR/name`` without following a symlink at the
+    directory, the subdirectory or the file. The subdirectory must be owned by this uid with no
+    group or other write bit; the file must be a singly linked regular file owned by this uid,
+    mode 0600; after the write the returned path must still name the written file (same st_dev
+    and st_ino). Any failure raises; the caller then fails open to the diagnostic."""
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+    top = os.open(directory, flags)
+    try:
+        try:
+            os.mkdir(_DETAIL_SUBDIR, 0o700, dir_fd=top)
+        except FileExistsError:
+            pass
+        sub = os.open(_DETAIL_SUBDIR, flags, dir_fd=top)
+    finally:
+        os.close(top)
+    try:
+        info = os.fstat(sub)
+        if (not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid()
+                or info.st_mode & (stat.S_IWGRP | stat.S_IWOTH)):
+            raise PermissionError(errno.EPERM, "detail log directory is not private", _DETAIL_SUBDIR)
+        fd = os.open(name, os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NOFOLLOW
+                     | os.O_NONBLOCK | os.O_CLOEXEC, 0o600, dir_fd=sub)
+    finally:
+        os.close(sub)
+    path = os.path.join(os.fspath(directory), _DETAIL_SUBDIR, name)
+    try:
+        info = os.fstat(fd)
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
+                or info.st_nlink != 1):
+            raise PermissionError(errno.EPERM, "detail log is not a private regular file", name)
+        os.fchmod(fd, 0o600)
+        data = text.encode("utf-8", "backslashreplace")
+        while data:
+            written = os.write(fd, data)
+            if written <= 0:
+                raise OSError(errno.EIO, "short write to detail log", name)
+            data = data[written:]
+        named = os.lstat(path)
+        if (named.st_dev, named.st_ino) != (info.st_dev, info.st_ino):
+            raise PermissionError(errno.EPERM, "detail log path was replaced during the write", name)
+    finally:
+        os.close(fd)
+    return path
+
+
+def _git_tree_marker(directory, timeout):
+    """What places ``directory`` inside a git working tree, or None: the first `.git` entry (of
+    any type) in it or an ancestor up to the filesystem root, on the lexical path and on the
+    resolved path, then `git rev-parse --is-inside-work-tree` exiting 0 there with every
+    inherited GIT_* variable removed (so neither GIT_DIR nor a ceiling changes discovery),
+    bounded by ``timeout``. A missing git binary leaves the `.git` walk as the check; any other
+    failure raises."""
+    lexical = Path(os.path.abspath(directory))
+    for start in (lexical, lexical.resolve()):
+        for candidate in (start, *start.parents):
+            try:
+                os.lstat(candidate / ".git")
+            except (FileNotFoundError, NotADirectoryError):
+                continue
+            return str(candidate / ".git")
+    root = lexical
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env["LC_ALL"] = "C"
+    try:
+        result = subprocess.run(['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree'],
+                                stdin=subprocess.DEVNULL, capture_output=True, env=env,
+                                timeout=max(timeout, 0.01), check=False)
+    except FileNotFoundError:
+        return None
+    return "git rev-parse" if result.returncode == 0 else None
+
+
+def _log_session(payload):
+    """The Stop payload's session_id when it can name a detail log; raises ValueError otherwise
+    (checked before the detail is built, and again by _write_detail_log)."""
+    session = payload.get("session_id") if isinstance(payload, dict) else None
+    if not isinstance(session, str) or not _SESSION_ID.fullmatch(session):
+        raise ValueError("no usable session_id in the Stop payload")
+    return session
+
+
+def _detail_text(reason, actionable):
+    """The full detail: decide()'s reason plus every actionable item's ID and title, escaped
+    with _printable. The reason alone when the items cannot be rendered. Built only inside
+    _bounded_write's deadline-controlled thread, so its unbounded size cannot delay the refusal."""
+    try:
+        return reason + "\nActionable items (%d):" % len(actionable) + "".join(
+            "\n  - %s: %s" % (_printable(iid), _printable(title)) for iid, title in actionable)
+    except Exception:
+        return reason
+
+
+def _write_detail_log(detail, payload, timeout=_DETAIL_TIMEOUT_S):
+    """Append the full refusal detail to this session's log and return its path, or raise. A
+    store inside this checkout or inside any git working tree is refused before anything is
+    created (the same refusals block-turn-end-with-outstanding-work.py applies)."""
+    started = time.monotonic()
+    session = _log_session(payload)
+    directory = os.path.dirname(_GRC_STATE_FILE)
+    if Path(directory).resolve().is_relative_to(Path(_GRC_REPO_ROOT).resolve()):
+        raise PermissionError(errno.EPERM, "store resolves inside this checkout", directory)
+    marker = _git_tree_marker(directory, timeout - (time.monotonic() - started))
+    if marker is not None:
+        raise PermissionError(errno.EPERM, "store is inside a git working tree (%s)" % marker,
+                              directory)
+    stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    name = "%s.%s.log" % (_DETAIL_NAME, session[:_SESSION_PREFIX_CHARS])
+    return _append_private(directory, name, "=== %s stop-guard-unattended session %s ===\n%s\n\n"
+                           % (stamp, session, detail))
+
+
+def _write_bound():
+    """Seconds the detail log write may take: _DETAIL_TIMEOUT_S, cut to the time left before
+    _RUN_DEADLINE when main() has set one (TIME BUDGET)."""
+    if _RUN_DEADLINE is None:
+        return _DETAIL_TIMEOUT_S
+    return min(_DETAIL_TIMEOUT_S, _RUN_DEADLINE - time.monotonic())
+
+
+def _bounded_write(reason, actionable, payload):
+    """Build the full detail (_detail_text) and write it (_write_detail_log) in one daemon thread
+    joined for at most _write_bound() seconds, so neither a stalled filesystem, a very large item
+    list nor a slow producer earlier in the run can push the refusal past the hook timeout. The
+    budget and the session_id are checked first: with less than _MIN_WRITE_S left, or no usable
+    session_id, no detail is built and no thread is started. A timeout, a spent budget or an
+    unusable session raises and the caller fails open."""
+    import threading
+    bound = _write_bound()
+    if bound < _MIN_WRITE_S:
+        raise TimeoutError(errno.ETIMEDOUT, "run time budget spent (%.2fs left)" % max(bound, 0.0))
+    _log_session(payload)
+    started = time.monotonic()
+    box = {}
+
+    def work():
+        try:
+            detail = _detail_text(reason, actionable)
+            box["path"] = _write_detail_log(detail, payload,
+                                            bound - (time.monotonic() - started))
+        except Exception as exc:
+            box["error"] = exc
+
+    worker = threading.Thread(target=work, name="stop-hook-detail-log", daemon=True)
+    worker.start()
+    worker.join(bound)
+    if worker.is_alive():
+        raise TimeoutError(errno.ETIMEDOUT, "detail log write exceeded %.2fs" % bound)
+    if "error" in box:
+        raise box["error"]
+    return box["path"]
+
+
+def _route_refusal(reason, actionable, live_groups, payload):
+    """Short diagnostic after a successful log write; the count-only fallback otherwise. The
+    full detail is built inside _bounded_write, never here (a very large item list with the
+    budget nearly spent still yields the fallback at once)."""
+    state = "not written"
+    try:
+        path = _bounded_write(reason, actionable, payload)
+        state = "written but not summarized"
+        return _short_refusal(len(actionable), live_groups, path, _grc_escape_file())
+    except Exception as exc:
+        try:
+            why = _printable("%s: %s" % (type(exc).__name__, exc))
+        except Exception:
+            why = type(exc).__name__
+        try:
+            return _fallback_refusal(reason, len(actionable), state, why)
+        except Exception:
+            return reason
+
+
 def run(root, payload):
     """Core: exit 2 (block) iff this is the ORCHESTRATOR session, unattended, not a stop-hook continuation,
     and pipeline shows actionable work without enough live dispatches; else 0.
@@ -995,8 +1323,18 @@ def run(root, payload):
         except Exception:
             share = (None, "unread")
     block, reason = decide(mode, stop_hook_active, actionable, live_groups, share)
+    if block:
+        # Wording and routing only: the full detail goes to the session log and the diagnostic
+        # is three lines, or the reason with the count only when the log cannot be written.
+        reason = _route_refusal(reason, actionable, live_groups, payload)
     if reason:
-        _diagnostic(reason + "\n")
+        import warnings
+        with warnings.catch_warnings():
+            # A detail-log thread that is still exiting (or abandoned after its timeout) would
+            # make os.fork() in _diagnostic warn on stderr; the diagnostic itself is unchanged.
+            warnings.filterwarnings("ignore", r".*is multi-threaded, use of fork\(\)",
+                                    DeprecationWarning)
+            _diagnostic(reason + "\n")
     return 2 if block else 0
 
 
@@ -1014,8 +1352,10 @@ def _parse_payload(raw):
 
 
 def main(argv):
+    global _RUN_DEADLINE
     if len(argv) > 1 and argv[1] == "--self-test":
         return _self_test()
+    _RUN_DEADLINE = _LOADED_AT + _RUN_BUDGET_S  # TIME BUDGET: the run, not only the write
     if _grc_consume_escape(repo_root()):
         return 0  # grc one-shot declared-wait sentinel consumed -> allow this stop (before any parse)
     try:
@@ -2082,6 +2422,84 @@ def _self_test():
             self.assertNotIn("title", reason)
             self.assertIn("500", reason)
             self.assertLess(len(reason), 1200)
+
+        def test_route_logs_detail_and_returns_three_lines(self):
+            # The real write lands under TMPDIR; the console assertion follows the PATH BUDGET,
+            # so the result does not depend on how long TMPDIR is.
+            many = [("%d" % i, "title%d" % i) for i in range(500)]
+            _b, reason = decide("unattended", False, many, 1, (None, "absent"))
+            with tempfile.TemporaryDirectory() as d:
+                with mock.patch.dict(globals(), _GRC_STATE_FILE=os.path.join(d, "session-state.md")):
+                    short = _route_refusal(reason, many, 1, {"session_id": "self-test-1"})
+                log = os.path.join(d, _DETAIL_SUBDIR, "stop-guard.self-test-1.log")
+                self.assertEqual(stat.S_IMODE(os.lstat(log).st_mode), 0o600)
+                with open(log, encoding="utf-8") as fh:
+                    logged = fh.read()
+            if len(log) <= _MAX_LINE_CHARS - len("WHY: below the group floor; log: "):
+                self.assertEqual(short, _short_refusal(500, 1, log, _grc_escape_file()))
+                self.assertEqual(len(short.splitlines()), 3)
+            else:
+                self.assertIn("NOTE: detail log written but not summarized (ValueError", short)
+            self.assertNotIn("title", short)
+            self.assertIn(reason, logged)
+            self.assertIn("  - 499: title499", logged)
+            self.assertIn("session self-test-1 ===", logged)
+
+        def test_short_form_on_a_short_fixed_directory(self):
+            # A short fixed directory, so this result never depends on TMPDIR.
+            log = "/s/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
+            escape = "/w/.allow-idle-stop"
+            short = _short_refusal(500, 1, log, escape)
+            self.assertEqual(len(short.splitlines()), 3)
+            self.assertEqual(short.splitlines()[2],
+                             "CONSIDER INSTEAD: continue; wait (once, after recording the "
+                             "blocker): touch %s; log: %s" % (escape, log))
+            store = "/" + "s" * 81
+            fits = store + "/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
+            lines = _short_refusal(500, 1, fits, escape).splitlines()
+            self.assertEqual(len(lines), 3)
+            self.assertEqual(lines[1], "WHY: below the group floor; log: " + fits)
+            self.assertTrue(lines[2].endswith("(once, after recording the blocker): touch " + escape))
+            with self.assertRaises(ValueError):
+                _short_refusal(500, 1, "/s" + fits, escape)
+            # Round 5: an escape path too long for the condition keeps the path and says the
+            # condition is in the log; 101 characters fit, 102 fall back.
+            for wide in ("/" + "w" * 89, "/" + "w" * 100):
+                lines = _short_refusal(500, 1, log, wide).splitlines()
+                self.assertEqual(lines[2], "CONSIDER INSTEAD: continue; wait (condition in log): "
+                                           "touch " + wide)
+                self.assertTrue(lines[1].endswith(" " + log))
+            with self.assertRaises(ValueError):
+                _short_refusal(500, 1, log, "/" + "w" * 101)
+
+        def test_short_form_refuses_a_non_printable_log_path(self):
+            for odd in ("\n", "\r", "\x1b[2J"):
+                with self.assertRaises(ValueError):
+                    _short_refusal(1, 0, "/s" + odd + "/stop-guard.x.log", "/w/.allow-idle-stop")
+                with self.assertRaises(ValueError):
+                    _short_refusal(1, 0, "/s/stop-guard.x.log", "/w" + odd + "/.allow-idle-stop")
+
+        def test_spent_run_budget_skips_the_write(self):
+            items = [("X-1", "t")]
+            _b, reason = decide("unattended", False, items, 0, (None, "absent"))
+            writer = mock.Mock(return_value="/s/x.log")
+            with mock.patch.dict(globals(), _RUN_DEADLINE=time.monotonic() + 0.1,
+                                 _write_detail_log=writer):
+                routed = _route_refusal(reason, items, 0, {"session_id": "s-1"})
+            writer.assert_not_called()
+            self.assertIn("NOTE: detail log not written (TimeoutError", routed)
+            self.assertIn("run time budget spent", routed)
+
+        def test_route_without_session_keeps_reason_and_count(self):
+            items = [("X-917", "zq-title-probe")]
+            _b, reason = decide("unattended", False, items, 0, (None, "absent"))
+            with mock.patch.dict(globals(), _append_private=mock.Mock()) as patched:
+                routed = _route_refusal(reason, items, 0, {})
+                patched["_append_private"].assert_not_called()
+            self.assertTrue(routed.startswith(reason + "\nNOTE: detail log not written (ValueError"))
+            self.assertIn("\nActionable items: 1 ", routed)
+            self.assertNotIn("zq-title-probe", routed)  # #2291: count only on the fallback too
+            self.assertNotIn("X-917", routed)
 
         # ---- default file-based mode adapter ----
         def test_grc_mode_map_reads_the_leading_token(self):
