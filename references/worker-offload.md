@@ -57,7 +57,7 @@ rule (maintainer-directed 2026-07-19; expanded 2026-07-26; restructured for the 
    dual-family panel: one claude worker and one gemini (agy) worker by preference, with codex substituting
    for either that cannot run; substantive-tier work (including corpus-document body, multi-surface,
    control-code, citation and normative-value changes and gate or linter edits, per
-   `.claude/references/governance/ai-assistant-workflow-disciplines.md`), sensitive work and tooling stay
+   `.claude/references/governance/ai-assistant-workflow-disciplines.md`), rule text, sensitive work and tooling stay
    triple-family. Light work's dual panel is the only discretionary reduction. On token or tooling
    unavailability the panel drops to the families that can run (triple to dual to single); going below
    dual, light work included, still needs that unavailability. A family is

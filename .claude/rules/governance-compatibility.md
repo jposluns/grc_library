@@ -14,7 +14,7 @@ session-depth/fresh-session triggers. The local attended-to-unattended timeout
 exception remains; ending unattended mode requires the operator.
 AIQT change-tracking-ext does not remove GRC's per-PR changelog obligation.
 AIQT verifier-diversity does not reduce GRC's triple-family standard for
-non-light work (light work: CLAUDE.md). A family is unavailable only if no account can dispatch;
+non-light work (light work: maintainer 2026-11-05, CLAUDE.md). A family is unavailable only if no account can dispatch;
 a lone family runs two passes on different models (versions count). Gate
 failures have no exception-register bypass.
 
