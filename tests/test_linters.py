@@ -73317,6 +73317,15 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             self.assertTrue(self._stop_log(hook, store, "s-1").is_file(), text)
             self.assertEqual(list(decoy.iterdir()), [])
 
+    @staticmethod
+    def _generous_bounds(hook):
+        """Write bound (and stop-guard's run budget) large enough that a loaded host
+        cannot reach the timeout fallback in a test that is not about timing."""
+        bounds = {"_DETAIL_TIMEOUT_S": 60.0}
+        if hook == "stop-guard-unattended":
+            bounds["_RUN_BUDGET_S"] = 120.0
+        return bounds
+
     def test_stop_hooks_store_inside_git_tree_falls_back(self):
         """A store under a `.git` entry (directory or file) or inside a bare repository is
         refused before anything is created; an inherited GIT_DIR does not refuse a clean store."""
@@ -73339,7 +73348,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     store = outer / "a" / "store"
                     store.mkdir(parents=True)
                     items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"},
-                                                           store)
+                                                           store, **self._generous_bounds(hook))
                     self.assertEqual(status, 2)
                     self._assert_fallback(hook, items, text)
                     self.assertIn("inside a git working tree", text)
@@ -73353,7 +73362,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 store.mkdir()
                 with patch.dict(os.environ, {"GIT_DIR": str(repo / ".git")}):
                     _items, status, text = self._stop_block(hook, td, 2, {"session_id": "s-1"},
-                                                            store)
+                                                            store, **self._generous_bounds(hook))
                 self.assertEqual(status, 2)
                 self.assertEqual(len(text.split("\n")), 3, text)
 
