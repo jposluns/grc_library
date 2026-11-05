@@ -24,9 +24,12 @@ Usage:
     python3 tools/lint-placeholder-leakage.py
     python3 tools/lint-placeholder-leakage.py path1 path2 ...
 
-Exit codes are the wrapper's (0 clean, 1 findings, the engine's convention): the wrapper drives the
-engine's per-file ``scan`` and returns its own combined verdict in the engine's ``run`` shape; the
-report-text parity with the engine's ``run`` is pinned by a regression test.
+Exit codes are the wrapper's (0 clean, 1 findings, the engine's convention; 2 a refused explicit
+path, missing or outside this tree (``guard_explicit_paths_cwd``'s SystemExit(2)), or an argparse
+usage error): the wrapper drives the engine's per-file ``scan`` and returns its own combined verdict
+in the engine's ``run`` shape; the report-text parity with the engine's ``run`` is pinned by two
+regression pins in ``tests/test_linters.py`` (the FAIL-report and OK-report parity tests), so the
+copied report shape cannot drift silently.
 """
 
 from __future__ import annotations

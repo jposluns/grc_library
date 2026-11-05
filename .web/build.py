@@ -137,6 +137,7 @@ from html import unescape as html_unescape
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import NamedTuple
+from xml.etree import ElementTree
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 WEB_DIR = REPO_ROOT / ".web"
@@ -371,27 +372,14 @@ _ROOT_HREF_RE = re.compile(r'(?i)href' + r'\s*=\s*["\']?/')
 # Pages carry a canonical URL for SEO. Both are the public repository / site, no secret.
 GITHUB_BLOB_BASE = "https://github.com/jposluns/grc_library/blob/main/"
 
-# The curated corpus artefacts linked from the llms.txt map (repo-relative path,
-# label). The manifest's llms.txt rows are re-derived from this list. NOTE: this
-# is a PARALLEL list to the corpus links render_llms_txt emits inline, not a
-# consumed single source (render_llms_txt hardcodes its own link lines with their
-# trailing descriptions); keep the two in sync by hand until a test or refactor
-# binds them (TODO 3.75 follow-up). By contrast, the manifest's domain-page and
-# type-page rows ARE drift-proof: they re-derive from the same `figures` the pages
-# render from. The repo-root and on-site (SITE_BASE) links in llms.txt are NOT
-# corpus-path targets and are deliberately excluded.
-CURATED_CORPUS_LINKS = [
-    ("taxonomy.yml", "taxonomy.yml"),
-    ("docs/portal.md", "Adopter portal"),
-    ("compliance/matrix-grc-compliance-alignment.md", "Compliance matrix"),
-    ("ai/README.md", "AI domain index"),
-    ("ai/policy-ai-compliance.md", "AI compliance policy"),
-    ("guardrails/README.md", "Governance rule-pack"),
-    ("governance/register-canonical-citations.md", "Canonical citations register"),
-    ("docs/decision-tree.md", "Decision tree"),
-    ("docs/adopter-guide.md", "Adopter guide"),
-    ("docs/maturity-scorecard.md", "Maturity scorecard"),
-]
+# The manifest's llms.txt rows are parsed back from the RENDERED llms.txt
+# Markdown itself (_llms_markdown_rows; round 4, item 1), the same way its
+# HTML rows come from the rendered pages, so no parallel curated list exists
+# to drift from the emitted map (the former CURATED_CORPUS_LINKS, the TODO
+# 3.75 follow-up). The manifest's domain-page and type-page rows re-derive
+# from the same `figures` the pages render from. The repo-root and on-site
+# (SITE_BASE) links in llms.txt are NOT corpus-path targets and are
+# deliberately excluded.
 SITE_BASE = "https://grclibrary.ai"
 
 # The shared-baseline CSP, copied byte for byte from the shared policy in
@@ -946,7 +934,7 @@ def narrative_source_blob_url(page):
     reading-room pages' "Read the source on GitHub" link uses THIS helper
     directly, so it keeps pointing at the source even after wave-2 PR-2b flips
     ``narrative_page_url`` below from the blob to the on-site route."""
-    return GITHUB_BLOB_BASE + page["path"]
+    return repo_blob_url(page["path"])
 
 
 def narrative_page_url(page):
@@ -1542,7 +1530,7 @@ def _narrative_link_url(target, source_rel):
             f"{source_rel}: link target does not resolve to a repo file: "
             f"{target!r} -> {resolved}"
         )
-    return GITHUB_BLOB_BASE + resolved
+    return repo_blob_url(resolved)
 
 
 def _render_narrative_links(text, source_rel):
@@ -2208,32 +2196,41 @@ def render_llms_txt(figures, variant):
     """llms.txt (the llmstxt.org convention): a curated Markdown map of the site
     and corpus for LLMs. Descriptive register only (a link list with short
     notes). Corpus artefacts link to GitHub (the source material); site pages
-    link to grclibrary.ai. All links resolve to real, verified artefacts."""
-    gh = GITHUB_BLOB_BASE
-    repo = "https://github.com/jposluns/grc_library"
+    link to grclibrary.ai. All links resolve to real, verified artefacts.
+    Every corpus blob link is emitted through ``repo_blob_url`` and the root
+    through ``repo_root_url`` (the emission ledger, round 2 of the
+    link-guard follow-up), so the ledger cross-check binds these links to
+    the manifest's llms.txt rows, themselves parsed back from this emitted
+    Markdown (round 4, item 1), one to one. Round 9: the map is read back
+    by a line grammar of exactly the shapes written here (``_llms_links``),
+    so a new line shape, or a parenthesis, bracket or URL in the prose,
+    fails the build until that grammar admits it; the summary's NOTICE.md
+    pointer is therefore written after a semicolon, not in parentheses."""
+    gh = repo_blob_url
+    repo = repo_root_url()
     return f"""# GRC Library
 
 > An openly-licensed corpus of organization-neutral governance,
 > risk, and compliance documentation in Markdown, spanning {figures['domain_count']} domains including a
 > self-contained AI-governance sub-corpus. Its original content is under CC BY-SA 4.0;
-> vendored third-party material and quotations keep their own licences (see NOTICE.md).
+> vendored third-party material and quotations keep their own licences; see NOTICE.md.
 > Descriptive reference material; not legal advice.
 
 ## Core
 - [GitHub repository]({repo}): the raw Markdown corpus, the source material.
-- [taxonomy.yml]({gh}taxonomy.yml): machine-readable inventory of every document.
-- [Adopter portal]({gh}docs/portal.md): audience-keyed navigation front door.
-- [Compliance matrix]({gh}compliance/matrix-grc-compliance-alignment.md): control-to-framework mappings.
+- [taxonomy.yml]({gh('taxonomy.yml')}): machine-readable inventory of every document.
+- [Adopter portal]({gh('docs/portal.md')}): audience-keyed navigation front door.
+- [Compliance matrix]({gh('compliance/matrix-grc-compliance-alignment.md')}): control-to-framework mappings.
 - [For AI]({_site_url_for(variant, "for-ai/index.html")}): how AI systems can learn from the corpus, plus a resource index.
 
 ## AI governance
-- [AI domain index]({gh}ai/README.md): the AI governance, risk, security, and documentation sub-corpus.
-- [AI compliance policy]({gh}ai/policy-ai-compliance.md): risk-tier classification and obligations.
-- [Governance rule-pack]({gh}guardrails/README.md): the disciplines an AI assistant follows when contributing to the corpus.
+- [AI domain index]({gh('ai/README.md')}): the AI governance, risk, security, and documentation sub-corpus.
+- [AI compliance policy]({gh('ai/policy-ai-compliance.md')}): risk-tier classification and obligations.
+- [Governance rule-pack]({gh('guardrails/README.md')}): the disciplines an AI assistant follows when contributing to the corpus.
 
 ## Optional
-- [Canonical citations register]({gh}governance/register-canonical-citations.md): the corpus's verified external-standard citations.
-- [Decision tree]({gh}docs/decision-tree.md), [Adopter guide]({gh}docs/adopter-guide.md), [Maturity scorecard]({gh}docs/maturity-scorecard.md).
+- [Canonical citations register]({gh('governance/register-canonical-citations.md')}): the corpus's verified external-standard citations.
+- [Decision tree]({gh('docs/decision-tree.md')}), [Adopter guide]({gh('docs/adopter-guide.md')}), [Maturity scorecard]({gh('docs/maturity-scorecard.md')}).
 """
 
 
@@ -2251,45 +2248,62 @@ def render_llms_txt(figures, variant):
 
 
 class _OutputLinkParser(HTMLParser):
-    """Collects every ``href`` and ``src`` attribute value of an HTML output,
-    whole as the parser decodes it (quoted or not, character references
-    decoded), with the anchor's own text for an ``<a>``. ``links`` holds
-    ``[url, anchor text or None]`` entries in document order; a non-anchor
-    URL (or an anchor never closed) keeps ``None``."""
+    """Collects EVERY attribute value of an HTML output, whole as the parser
+    decodes it (quoted or not, character references decoded), with the
+    anchor's own text for an ``<a href>``. Round 1 of the link-guard
+    follow-up widens the walk from href and src to every attribute (action,
+    formaction, srcset, a meta refresh content, data-* and the rest), so no
+    attribute carries an unwalked URL. ``values`` holds ``[tag, attribute
+    name, value, anchor text or None]`` entries in document order; a value
+    outside an anchor's href (or in an anchor never closed) keeps ``None``.
+    Anchor text excludes the text inside a ``class="vh"`` span: the
+    visually-hidden hint (such as "(opens in a new tab)") is not the link
+    text a reader sees, so the manifest's link-text column excludes it."""
 
     def __init__(self):
         super().__init__()
-        self.links = []
+        self.values = []
         self._anchor_entry = None
         self._anchor_parts = None
+        self._vh_depth = 0
 
     def handle_starttag(self, tag, attrs):
+        classes = ()
         for name, value in attrs:
-            if name in ("href", "src") and value is not None:
-                entry = [value, None]
-                self.links.append(entry)
-                if tag == "a" and name == "href":
-                    self._anchor_entry = entry
-                    self._anchor_parts = []
+            if value is None:
+                continue
+            entry = [tag, name, value, None]
+            self.values.append(entry)
+            if name == "class":
+                classes = value.split()
+            if tag == "a" and name == "href":
+                self._anchor_entry = entry
+                self._anchor_parts = []
+        if tag == "span" and (self._vh_depth or "vh" in classes):
+            # Any span nested inside a vh span deepens the count, so its
+            # close is paired and the hidden text stays excluded throughout.
+            self._vh_depth += 1
 
     def handle_endtag(self, tag):
+        if tag == "span" and self._vh_depth:
+            self._vh_depth -= 1
         if tag == "a" and self._anchor_entry is not None:
-            self._anchor_entry[1] = "".join(self._anchor_parts)
+            self._anchor_entry[3] = "".join(self._anchor_parts)
             self._anchor_entry = None
             self._anchor_parts = None
 
     def handle_data(self, data):
-        if self._anchor_parts is not None:
+        if self._anchor_parts is not None and not self._vh_depth:
             self._anchor_parts.append(data)
 
 
-def _html_link_urls(content):
-    """Every (URL, anchor text or None) an HTML output links through an
-    ``href`` or ``src`` attribute, by parsing, not patterns."""
+def _html_attribute_values(content):
+    """Every [tag, attribute name, value, anchor text or None] of an HTML
+    output, by parsing, not patterns."""
     parser = _OutputLinkParser()
     parser.feed(content)
     parser.close()
-    return [(url, text) for url, text in parser.links]
+    return parser.values
 
 
 _REPO_OWNER = "jposluns"
@@ -2304,7 +2318,11 @@ def _manifest_target(url):
     case-insensitive, the repository segment exactly grc_library, so no
     grc_library-prefixed sibling ever matches), with the target
     percent-decoded and taken whole up to the query or fragment. The bare
-    blob base links no corpus target."""
+    blob base links no corpus target. Round 2 of the link-guard follow-up
+    (fix 3): a target segment that is a dot segment (``.``, ``..``, or any
+    casing of ``%2e`` inside the segment, encoded or decoded), or a target
+    carrying ``;``, is rejected, so a counted manifest row can never carry
+    one."""
     try:
         parts = urllib.parse.urlsplit(url)
         port = parts.port
@@ -2323,86 +2341,168 @@ def _manifest_target(url):
         return None
     if segments[3] != "blob" or segments[4] != "main":
         return None
-    return urllib.parse.unquote("/".join(segments[5:])) or None
+    target = urllib.parse.unquote("/".join(segments[5:])) or None
+    if target is None or ";" in target:
+        return None
+    for segment in segments[5:] + target.split("/"):
+        if segment in (".", "..") or "%2e" in segment.lower():
+            return None
+    return target
 
 
-# Any OTHER occurrence of this repository in ANY emitted output (HTML or not)
-# fails the build, so no emitted spelling can bypass gate 75 (round-2 fix 3,
-# rebuilt at round 4): after normalizing backslashes (and the JSON-encoded
-# backslash-slash spelling) to slashes, a case-insensitive search finds the
-# github.com and raw.githubusercontent.com hosts, with optional port or
-# userinfo forms, followed by /jposluns/grc_library at a segment boundary
-# (the next character is not a letter, digit, underscore, hyphen or dot, so
-# grc_library_ref, grc_library-x, grc_library.ref and grc_libraryX never
-# match), and the bare jposluns/grc_library/ spelling outside any URL the
-# manifest scan counted.
-_REPO_HOST_OCCURRENCE_RE = re.compile(
-    r"(?:github\.com|raw\.githubusercontent\.com)"
-    r"(?::\d+)?"
-    r"(?:(?::[^/@\s]*)?@[^/\s]*)?"
-    r"/jposluns/grc_library(?![A-Za-z0-9_.-])",
-    re.IGNORECASE,
+# WHATWG URL cleaning (round 5 of the link-guard follow-up): the
+# transformations a browser applies to a destination string BEFORE parsing
+# it, so every scan compares the URL the browser will read, never the raw
+# attribute text. ASCII whitespace characters, as the URL standard uses the
+# term, and the C0-and-space strip set.
+_ASCII_WS = "\t\n\x0c\r "
+_C0_AND_SPACE = "".join(map(chr, range(0x21)))
+_HTTP_SCHEME_RE = re.compile(r"https?:", re.IGNORECASE)
+
+
+def _clean_destination_value(value):
+    """One parsed destination, WHATWG-cleaned: leading and trailing C0
+    control and space characters stripped, every ASCII tab, newline and
+    carriage return removed, and backslash read as slash in an http(s) URL
+    (the special-scheme rule). Round 5: browsers remove these characters or
+    read them as a slash, so a destination carrying one is compared in the
+    form the browser resolves, and a spelling such as ``ROOT&#10;/tree/...``
+    or ``ROOT\\tree\\...`` can no longer fake a destination boundary.
+    Round 6, item 3: the backslash-as-slash reading stops at the first
+    ``?`` or ``#``, because the WHATWG special-scheme parser reads a
+    backslash as a slash only in its scheme, authority and path states;
+    in the query and fragment states a backslash is an ordinary character,
+    so cleaning rewrites exactly the part of the URL the browser does."""
+    cleaned = value.strip(_C0_AND_SPACE)
+    cleaned = cleaned.replace("\t", "").replace("\n", "").replace("\r", "")
+    if _HTTP_SCHEME_RE.match(cleaned):
+        cut = len(cleaned)
+        for index, ch in enumerate(cleaned):
+            if ch in "?#":
+                cut = index
+                break
+        cleaned = cleaned[:cut].replace("\\", "/") + cleaned[cut:]
+    return cleaned
+
+
+# An HTML srcset/imagesrcset image-candidate descriptor: one width
+# (digits then w), density (floating-point number then x) or height
+# (digits then h) descriptor.
+_SRCSET_DESCRIPTOR_RE = re.compile(
+    r"\d+[wh]$|\d+(\.\d+)?([eE][-+]?\d+)?x$|\.\d+([eE][-+]?\d+)?x$"
 )
-_REPO_BARE_OCCURRENCE_RE = re.compile(r"jposluns/grc_library/", re.IGNORECASE)
-
-# A character that extends a URL path: a counted-URL occurrence or the bare
-# repository root is excused only when the next character is none of these.
-# A query or fragment does not extend the target (which is read whole up to
-# either), so the same URL with one appended stays excused.
-_URL_PATH_CHAR_RE = re.compile(r"[A-Za-z0-9._~%/-]")
-
-# Characters that bound the reported excerpt around a flagged occurrence.
-_OCCURRENCE_BOUNDARY = set(" \t\r\n\"'<>()[]`")
 
 
-def _normalize_separators(text):
-    """Backslashes, and the JSON-encoded backslash-slash spelling, normalized
-    to slashes, so no backslash spelling evades the occurrence scan."""
-    return text.replace("\\/", "/").replace("\\", "/")
-
-
-def _occurrence_excerpt(text, start, end):
-    """The flagged occurrence with its surrounding run of non-delimiter
-    characters, so the failure message shows the whole spelling as emitted
-    (after separator normalization)."""
-    while start > 0 and text[start - 1] not in _OCCURRENCE_BOUNDARY:
-        start -= 1
-    while end < len(text) and text[end] not in _OCCURRENCE_BOUNDARY:
-        end += 1
-    return text[start:end]
-
-
-def _excused_spans(text, urls):
-    """The (start, end) spans of every occurrence of a counted URL in
-    ``text`` (both already separator-normalized) whose next character does
-    not extend the URL path."""
-    spans = []
-    for url in urls:
-        if not url:
+def _srcset_candidates(value, where):
+    """The image candidate URLs of one srcset/imagesrcset value, by the
+    HTML image-candidate grammar: a URL is a maximal run of
+    non-whitespace characters; a URL ending in commas ends its candidate
+    there (trailing commas are separators, so a counted URL directly
+    followed by a comma is a clean candidate, round 5); otherwise at most
+    one descriptor may follow, ending at the next comma, and it must be a
+    width, density or height descriptor. A candidate with any other
+    descriptor is refused outright: the generator never emits one, and a
+    whitespace-faked candidate split (``srcset="ROOT&#9;/x.png"``) would
+    otherwise read as a URL a ledger entry authorizes while no browser
+    fetches it (round 5)."""
+    pos, n = 0, len(value)
+    while pos < n:
+        while pos < n and (value[pos] in _ASCII_WS or value[pos] == ","):
+            pos += 1
+        if pos >= n:
+            break
+        start = pos
+        while pos < n and value[pos] not in _ASCII_WS:
+            pos += 1
+        url = value[start:pos]
+        if url.endswith(","):
+            url = url.rstrip(",")
+            if url:
+                yield url
             continue
-        pos = text.find(url)
-        while pos != -1:
-            end = pos + len(url)
-            if end >= len(text) or not _URL_PATH_CHAR_RE.match(text[end]):
-                spans.append((pos, end))
-            pos = text.find(url, pos + 1)
-    return spans
+        yield url
+        descriptor_start = pos
+        while pos < n and value[pos] != ",":
+            pos += 1
+        descriptor = value[descriptor_start:pos].strip(_ASCII_WS)
+        if descriptor:
+            fields = descriptor.split()
+            if len(fields) != 1 or not _SRCSET_DESCRIPTOR_RE.match(fields[0]):
+                raise BuildError(
+                    f"{where}: srcset candidate {url!r} carries "
+                    f"{descriptor!r}, which is not one width, density or "
+                    f"height descriptor"
+                )
+        if pos < n:
+            pos += 1
 
 
-def _allowed_root_end(text, match):
-    """The end of a bare repository-root occurrence (with its trailing slash
-    when present), or None when ``match`` is not the allowed root form: the
-    exact ``https://github.com/jposluns/grc_library`` spelling with no path
-    after it (a query or fragment excepted), as before round 4."""
-    start = match.start() - len("https://")
-    if start < 0 or text[start:match.end()] != GITHUB_REPO_ROOT:
+def _meta_refresh_url(value):
+    """The URL of a meta refresh content value, by the WHATWG shared
+    declarative refresh steps: optional whitespace, the time (digits, then
+    digits and periods), a whitespace or ``;``/``,`` separator, then
+    optionally ``url`` and ``=`` (case-insensitive, whitespace allowed
+    around them), after which THE REST OF THE VALUE is the URL (a quoted
+    URL ends at its matching quote). Returns None when the value does not
+    parse as a refresh (the whole value is then the destination). Round 5:
+    the old regex cut the URL at the first whitespace, so a tab inside the
+    URL (``url=ROOT&#9;/tree/main/ai``) faked a destination boundary the
+    browser never sees."""
+    i, n = 0, len(value)
+    while i < n and value[i] in _ASCII_WS:
+        i += 1
+    start = i
+    while i < n and value[i].isdigit():
+        i += 1
+    if i == start and (i >= n or value[i] != "."):
         return None
-    end = match.end()
-    if end < len(text) and text[end] == "/":
-        end += 1
-    if end < len(text) and _URL_PATH_CHAR_RE.match(text[end]):
+    while i < n and (value[i].isdigit() or value[i] == "."):
+        i += 1
+    if i >= n:
         return None
-    return end
+    if value[i] not in _ASCII_WS and value[i] not in ";,":
+        return None
+    while i < n and value[i] in _ASCII_WS:
+        i += 1
+    if i < n and value[i] in ";,":
+        i += 1
+    while i < n and value[i] in _ASCII_WS:
+        i += 1
+    if i >= n:
+        return None
+    url = value[i:]
+    if url[:3].lower() == "url":
+        rest = url[3:].lstrip(_ASCII_WS)
+        if rest[:1] == "=":
+            url = rest[1:].lstrip(_ASCII_WS)
+    if url[:1] in ("'", '"'):
+        quote = url[0]
+        end = url.find(quote, 1)
+        url = url[1:end] if end != -1 else url[1:]
+    return url or None
+
+
+def _attr_url_candidates(tag, name, value, where):
+    """The URL strings a decoded attribute value can address, each
+    WHATWG-cleaned by ``_clean_destination_value``: a ``srcset``/
+    ``imagesrcset`` value yields each image candidate's URL by the HTML
+    candidate grammar (``_srcset_candidates``), a ``meta`` ``content``
+    value that parses as a declarative refresh yields the refresh URL
+    (``_meta_refresh_url``), and every other value is taken whole,
+    whatever the attribute (action, formaction, data-* and an unknown
+    attribute included). ``where`` names the output or template and the
+    attribute in a refusal."""
+    if name in ("srcset", "imagesrcset"):
+        for candidate in _srcset_candidates(value, where):
+            yield _clean_destination_value(candidate)
+        return
+    if tag == "meta" and name == "content":
+        url = _meta_refresh_url(value)
+        if url is not None:
+            yield _clean_destination_value(url)
+            return
+    yield _clean_destination_value(value)
+
 
 # The bare repository root is not a corpus-path target and is deliberately
 # excluded from the manifest (the llms.txt map and the topbar link it).
@@ -2419,131 +2519,1320 @@ def _staging_prefixes():
     )
 
 
-def _uncounted_repo_occurrences(pages, counted_targets, counted_urls_by_rel):
-    """Occurrences of this repository in ANY emitted output (HTML or not)
-    that the manifest scan does not count, as ``[(dist-relative path,
-    excerpt), ...]``: any host spelling of a raw, tree or other form, an
-    evasive spelling (port, userinfo, backslash, JSON-encoded or
-    scheme-less), a blob URL whose target no counted row carries, the blob
-    base itself with no target, or the bare jposluns/grc_library/ spelling
-    outside a counted URL. An occurrence inside a URL the manifest scan
-    counted is excused (the same separator normalization applied to both
-    sides, with the canonical blob URL of every counted target excusing the
-    non-HTML outputs, llms.txt among them), and the bare repository root,
-    with or without a trailing slash, stays allowed, matching the manifest's
-    declared scope."""
-    canonical = [
-        _normalize_separators(GITHUB_BLOB_BASE + target)
-        for target in counted_targets
+# ---------------------------------------------------------------------------
+# The repository-link emission ledger and its allow-list check (rounds 2 and
+# 3 of the link-guard follow-up). Five review rounds each found new URL
+# spellings that passed the occurrence denylist; classifying URL spellings is
+# a denylist over an open space and does not converge. Replaced by an
+# ALLOW-LIST that does not depend on URL syntax: the generator records every
+# repository link it emits (the ledger, one ledger per render, bound to that
+# render's result), and the check binds every occurrence of the owner token
+# ("jposluns") in a decoded view of every output file to one specific
+# ledger entry, each entry consumed exactly once (round 3, item 7), so
+# neither an unledgered spelling nor a repeated copy of a ledgered link can
+# pass, whatever the spelling. Round 5 removes span matching from the check
+# entirely: a round 4 review found that the fixed boundary set over the
+# decoded view (quotes, parentheses, angle brackets and whitespace removal
+# points) let tab, newline, carriage return, backslash, quote and
+# parenthesis spellings fake a destination boundary the browser never sees,
+# and that its "=" exception was a page-wide flag. A ledger entry is now
+# consumed only by a destination the output's OWN parsers read
+# (``_output_destinations``), WHATWG-cleaned, equal to the entry's emitted
+# string exactly, with multiplicity.
+#
+# Residual (disclose-guard-residuals): what the round 5 check still cannot
+# catch. (1) It counts the owner token only in a view decoded REPEATEDLY
+# (HTML character references, percent-encoding and the \/ \uXXXX \u{XXXXXX}
+# \xXX and CSS backslash-hex escapes) until the text stops changing, with
+# ASCII whitespace and backslashes then removed, so %256a, \x256a, \u{6a}
+# and the CSS \6a form all resolve (round 3, item 3), but a spelling that
+# never contains the token in that view still evades the count: base64 or
+# any other encoding assembled by script at view time (data: URLs,
+# String.fromCharCode, concatenation), a non-ASCII separator inside the
+# token (a zero-width or Unicode-whitespace character), an IDN/homoglyph
+# host, or a legacy JavaScript OCTAL escape (\152 reads here as the CSS hex
+# form and resolves to a different character). An owner token inside a
+# script or style body IS caught (it is a text node no entry consumes), so
+# this residual needs a view-invisible spelling; the refusal guard's
+# inline-script ban and the CSP bound that channel, and templates are
+# committed and reviewed. (2) Destinations are read with html.parser and
+# the grammars above, so markup that a browser's error recovery reads
+# differently from html.parser could move a token between prose and a
+# destination; any such divergence still has to keep the occurrence count
+# equal to the consumed entries' token count to pass. A <base> element,
+# which would rebase every relative URL, is refused in every HTML output
+# as well as in every template (round 6, item 2). (3) The CSS url()
+# reader applies only to copied stylesheet assets, whose bytes a pin
+# already verifies; a url() in a rendered page is never a destination.
+# (4) Every output that is neither HTML nor a stylesheet is read by an
+# ALLOW-LIST grammar of exactly the shapes this build emits, never by a
+# general Markdown or text reader (round 9; rounds 6 to 8 read a
+# CommonMark subset, and each review found a spelling it misread), and
+# any other shape fails the build naming the file, line and column.
+# llms.txt: a blank line, a "# " or "## " heading, a "> " block-quote
+# line, or a "- [label](https://...)" list item whose further links join
+# with ", " and which ends there, with "." or with ": " and a note; no
+# backtick, backslash, <, & (so no character reference can spell a URL;
+# round 10, item 4) or control character other than LF anywhere, a
+# > only as a line-opening block-quote marker, and no [ ] ( ) or
+# http:, https:, ftp: or www. text in any prose part (a heading, a
+# block-quote line, a label or a note). A destination is taken ONLY from
+# a list-item link, whose destination is https:// and RFC 3986
+# characters with no parenthesis, bracket, quote, ampersand or space.
+# That leaves no indented code, fence of either kind, reference
+# definition, raw HTML, URL autolink or code span. A GFM email or
+# mailto: or xmpp: autolink can still render from prose; it cannot be
+# a repository URL, and an owner-token spelling in one still fails the
+# occurrence count (round 10 review). robots.txt: comment,
+# blank, User-agent, Allow and Sitemap lines; _headers: rule paths,
+# indented header lines of the emitted header names and detach lines;
+# security.txt: the six RFC 9116 fields emitted. Each is read by its own
+# line format, with no Markdown reading at all, and a destination comes
+# only from a Sitemap value or a Contact, Encryption, Policy or
+# Canonical value (_headers carries no destination field). _redirects
+# has NO grammar (round 10, item 1): Cloudflare Pages substitutes a
+# source's * and :name placeholders into a target (:splat, :name), and
+# reads a target that opens // or /\ as another host, so a literal
+# target read by a grammar is not the URL served; the _redirects output
+# must therefore equal REDIRECTS_FILE byte for byte, any other content
+# fails the build naming the file, line and column of the first
+# difference, and the output yields no destination. sitemap.xml refuses a
+# CDATA section, a DOCTYPE, a comment or any other markup declaration,
+# any entity or character reference and any processing instruction other
+# than the exact XML declaration, then is read with
+# xml.etree.ElementTree, and each <loc> of the urlset/url/loc shape is a
+# destination. Any other output (a copied asset that is not HTML or a
+# stylesheet, such as the Markdown NOTICE.md files, scripts, fonts and
+# images) is read by NO grammar: it is published only as one whole
+# pin-verified copy (``_ledger_copied_output``), whether or not it
+# carries the owner token (round 10, item 3), and its owner-token
+# occurrences pass only as that copy's own, so for those files the pin,
+# not a parse, bounds what they carry. What remains outside the
+# grammars: the rules REDIRECTS_FILE itself defines are bound by review
+# of that committed constant, not by a parse (Cloudflare Pages
+# substitutes its placeholders at serve time; an owner token written
+# into it still fails the occurrence count, since _redirects yields no
+# destination to consume an entry); and the grammars model each format
+# as its specification reads it (CommonMark with the GFM autolink
+# extension, RFC 9309, Cloudflare Pages' documented _headers format,
+# RFC 9116, XML 1.0), so a consumer that reads an ADMITTED shape some
+# other way (for example a Markdown renderer with a further extension that
+# turns prose into a link) is not modelled. Only an admitted destination
+# consumes an entry, so an owner token such a consumer links in prose
+# still fails the occurrence count; the exposure left is the converse,
+# an admitted destination that some consumer does not read as a link,
+# which still consumes its entry and gains its manifest row. (5) The
+# backslash-as-slash cleaning applies up to the first ? or #, matching
+# the WHATWG special-scheme parser states (round 6, item 3); query and
+# fragment text is compared byte for byte.
+# ---------------------------------------------------------------------------
+
+# Ledger entry kinds: a counted corpus blob link (a manifest row), the bare
+# repository root link, and any other deliberate owner-token emission (the
+# footer profile and LinkedIn links, the search page's code-search URL, a
+# sibling-repository link such as jposluns/guardrails, a pinned copied asset).
+_LEDGER_COUNTED = "counted"
+_LEDGER_ROOT = "root"
+_LEDGER_OTHER = "other"
+
+# Emissions recorded by the helpers below while one output's content is being
+# built, attached to the active render's ledger by ``_attach_repo_emissions``
+# as soon as the output is known. The buffer is transient within one render:
+# render_draft_variant clears it on entry and raises if anything is left
+# unattached on exit. The ledger itself is one plain dict per render (output
+# path to entry list), created by render_site or render_draft_variant and
+# passed EXPLICITLY to verification, so no allowance survives from one
+# render into another (round 3, item 8). Entries are
+# ``(emitted string, kind, target or None, owner-token count)``.
+_PENDING_REPO_EMISSIONS = []
+
+
+def record_repo_emission(emitted, kind, target=None, tokens=None):
+    """Record ONE repository-link emission (the single helper every emitted
+    repository link routes through) and return the emitted string."""
+    if tokens is None:
+        tokens = _owner_token_count(emitted)
+    _PENDING_REPO_EMISSIONS.append((emitted, kind, target, tokens))
+    return emitted
+
+
+def repo_blob_url(target):
+    """The canonical blob URL of one counted corpus target, recorded in the
+    emission ledger; every generated corpus blob link is built HERE."""
+    return record_repo_emission(
+        GITHUB_BLOB_BASE + target, _LEDGER_COUNTED, target
+    )
+
+
+def repo_root_url():
+    """The bare repository-root URL, recorded in the emission ledger."""
+    return record_repo_emission(GITHUB_REPO_ROOT, _LEDGER_ROOT)
+
+
+def _attach_repo_emissions(ledger, out_rel, entries=()):
+    """Attach ``entries`` plus every pending recorded emission to one output
+    file's bucket in the given render's ledger."""
+    bucket = ledger.setdefault(out_rel, [])
+    bucket.extend(entries)
+    if _PENDING_REPO_EMISSIONS:
+        bucket.extend(_PENDING_REPO_EMISSIONS)
+        _PENDING_REPO_EMISSIONS.clear()
+
+
+def _retract_repo_emission(emitted, kind, target=None):
+    """Withdraw ONE pending recorded emission that a later rewrite removed
+    from the output before the output was known (the draft narrative body
+    relinks a corpus citation from its GitHub blob URL to the on-site
+    document page, site triage F30, after render_narrative_body recorded
+    that blob URL). Exactly one pending entry equal to ``(emitted, kind,
+    target)`` is removed, so the ledger records only what reaches the
+    output; with no such entry the build fails. A retraction can only
+    remove an allowance: retracting an emission that does reach the output
+    leaves that destination unledgered, which the guard refuses."""
+    for i, entry in enumerate(_PENDING_REPO_EMISSIONS):
+        if entry[:3] == (emitted, kind, target):
+            del _PENDING_REPO_EMISSIONS[i]
+            return
+    raise BuildError(
+        "retraction of a repository emission that was never recorded: "
+        f"{emitted!r}"
+    )
+
+
+def _ledger_copied_output(ledger, out_rel, data):
+    """Ledger a pin- or hash-verified byte-for-byte copied output (the
+    baseline assets and the link-preview card): its owner-token occurrences
+    (baseline.css names jposluns/posluns_site in its heading comment) are the
+    verified source's own, so the copy is ledgered from the bytes the pin
+    check already verified. Nothing is generated into these files. The
+    copies include Markdown files (assets/baseline/NOTICE.md and
+    assets/baseline/marks/NOTICE.md) as well as scripts, fonts and images;
+    round 9 reads none of them with any link grammar (only an HTML or
+    stylesheet copy has a destination reader), so a copy outside those two
+    kinds passes the allow-list only as this one whole-file entry, and an
+    owner token in it is bounded by the pin, not by a parse. Round 10,
+    item 3: every copy is ledgered, a token-free one with a zero-token
+    entry, so the whole-file entries are the pin-verified copy set and an
+    output no grammar reads that is not in it fails the build even when
+    it carries no owner token."""
+    text = data.decode("utf-8", "replace")
+    tokens = _owner_token_count(text)
+    ledger.setdefault(out_rel, []).append(
+        (text, _LEDGER_OTHER, None, tokens)
+    )
+
+
+# The owner token the allow-list counts, and the characters that can extend a
+# GitHub owner name. Boundary rule: an occurrence of "jposluns"
+# (case-insensitive) in the decoded view counts unless the adjacent character
+# on either side is an ASCII letter, digit or hyphen WITH no removed
+# (whitespace/backslash) character between them: a GitHub owner name is made
+# of exactly those characters, so "ajposluns" and "jposluns-2" are different
+# owners and not occurrences, while "/jposluns/", "=jposluns" and a token
+# reassembled across removed whitespace ("jpos luns", "see jposluns") all
+# count. A removal point is a boundary, so deleting whitespace can never glue
+# a neighbouring word onto the token and hide it.
+_OWNER_TOKEN = _REPO_OWNER
+_OWNER_NAME_CHARS = frozenset("abcdefghijklmnopqrstuvwxyz0123456789-")
+
+# The backslash escape forms the decoded view resolves: the ES2015
+# \u{XXXXXX} code point form (leading zeros allowed, as ES allows them;
+# round 4, item 5), the JavaScript/JSON \uXXXX and \xXX forms, the \/
+# solidus, and the CSS backslash-hex form with one optional terminating
+# ASCII whitespace character, consumed as CSS consumes it (round 3, item 3).
+# The CSS form is held to TWO to six hex digits: every token letter needs
+# two (j is \6a), a one-digit escape yields only a control character, and
+# decoding one-digit forms would eat the hex-letter neighbour of every
+# literal backslash (\C of \CONTRIBUTING.md), mangling reports for nothing.
+# The consumed terminating whitespace is captured so the decode can keep a
+# boundary where it stood (round 4, item 2).
+_JS_ESCAPE_RE = re.compile(
+    r"\\u\{(0*[0-9a-fA-F]{1,6})\}"
+    r"|\\u([0-9a-fA-F]{4})"
+    r"|\\x([0-9a-fA-F]{2})"
+    r"|\\/"
+    r"|\\([0-9a-fA-F]{2,6})([ \t\n\r\f]?)"
+)
+
+# The characters removed from the decoded view (ASCII whitespace and the
+# backslash), each removal marked as a token boundary.
+_VIEW_REMOVED_CHARS = frozenset("\t\n\r\x0b\x0c \\")
+
+# Decode passes before the view must stop changing; a view still changing
+# after this many passes is itself suspect and fails the build loudly.
+_VIEW_DECODE_LIMIT = 16
+
+
+def _decode_js_escape(match):
+    digits = (match.group(1) or match.group(2) or match.group(3)
+              or match.group(4))
+    if digits is None:
+        return "/"
+    value = int(digits, 16)
+    # A code point above the Unicode range is no escape; the spelling stays
+    # literal (its backslash is removed later, marking a boundary).
+    if value > 0x10FFFF:
+        return match.group(0)
+    if match.group(4) is not None:
+        # The CSS form keeps a boundary at the decoded sequence position on
+        # BOTH sides (round 4, item 2: consuming the terminating whitespace
+        # outright glued "\41 jposluns" into a longer owner name, and
+        # "jposluns\2d " grew a hyphen with no boundary, each counting 0):
+        # the leading backslash and the kept (or restored) whitespace are
+        # both removed later, each removal marking a boundary. The emission
+        # cannot grow a new escape: a backslash before ONE character
+        # matches only the \/ form (then the solidus decodes plainly, and a
+        # solidus never extends the owner name), and the appended
+        # whitespace separates the decoded character from whatever follows.
+        return "\\" + chr(value) + (match.group(5) or " ")
+    return chr(value)
+
+
+def _decoded_token_view(text):
+    """The decoded view the allow-list counts over, with its boundary map:
+    HTML character references (the standard library html module),
+    percent-encoding and the backslash escape forms above are decoded
+    REPEATEDLY until the text stops changing (round 3, item 3: one pass
+    leaves %256a as %6a, and the percent sign a decoded \\x25 assembles
+    appears only after the percent pass already ran), then every ASCII
+    whitespace character and backslash is removed. Returns
+    ``(view, removed_before)`` where ``removed_before[i]`` is True when at
+    least one removed character immediately preceded ``view[i]`` (a removal
+    point is a token boundary)."""
+    decoded = text
+    for _ in range(_VIEW_DECODE_LIMIT):
+        step = _JS_ESCAPE_RE.sub(
+            _decode_js_escape, urllib.parse.unquote(html_unescape(decoded))
+        )
+        if step == decoded:
+            break
+        decoded = step
+    else:
+        raise BuildError(
+            "decoded token view still changing after "
+            f"{_VIEW_DECODE_LIMIT} decode passes (a deeply nested "
+            f"encoding): {text[:120]!r}"
+        )
+    view = []
+    removed_before = []
+    removed = False
+    for ch in decoded:
+        if ch in _VIEW_REMOVED_CHARS:
+            removed = True
+            continue
+        view.append(ch)
+        removed_before.append(removed)
+        removed = False
+    return "".join(view), removed_before
+
+
+def _match_view_lower(view):
+    """The view lowercased for matching, per character and
+    length-preserving (round 3, item 4: str.lower expands U+0130 to two
+    characters, drifting every later offset off the boundary map and off
+    the view itself); a character whose lowercase form is not one character
+    is kept as it is, which cannot hide the ASCII owner token."""
+    return "".join(
+        lowered if len(lowered) == 1 else ch
+        for ch in view
+        for lowered in (ch.lower(),)
+    )
+
+
+def _owner_token_occurrences(view, removed_before):
+    """Start offsets of every occurrence of the owner token in a decoded
+    view, under the boundary rule above."""
+    low = _match_view_lower(view)
+    hits = []
+    pos = low.find(_OWNER_TOKEN)
+    while pos != -1:
+        end = pos + len(_OWNER_TOKEN)
+        left = (pos == 0 or removed_before[pos]
+                or low[pos - 1] not in _OWNER_NAME_CHARS)
+        right = (end >= len(low) or removed_before[end]
+                 or low[end] not in _OWNER_NAME_CHARS)
+        if left and right:
+            hits.append(pos)
+        pos = low.find(_OWNER_TOKEN, pos + 1)
+    return hits
+
+
+def _owner_token_count(text):
+    """Owner-token occurrences in the decoded view of ``text``."""
+    view, removed_before = _decoded_token_view(text)
+    return len(_owner_token_occurrences(view, removed_before))
+
+
+# Elements with no end tag (the HTML void elements): a start tag of one of
+# these opens no enclosure for the text-node tag binding below.
+_VOID_ELEMENTS = frozenset((
+    "area", "base", "br", "col", "embed", "hr", "img", "input", "link",
+    "meta", "param", "source", "track", "wbr",
+))
+
+
+class _SourceEmissionParser(HTMLParser):
+    """Attribute values and text nodes of a TEMPLATE or PARTIAL source (the
+    committed, reviewed inputs the generator renders), for extracting the
+    repository links a template emits into every page rendered from it.
+    Each text node carries its enclosing element's tag, so an allow-list
+    entry binds to where the text appears (round 4, item 3), and a
+    ``<base>`` start tag is counted for refusal."""
+
+    def __init__(self):
+        super().__init__()
+        self.attr_values = []
+        self.texts = []
+        self.base_tags = 0
+        self._open = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "base":
+            self.base_tags += 1
+        for name, value in attrs:
+            if value is not None:
+                self.attr_values.append((tag, name, value))
+        if tag not in _VOID_ELEMENTS:
+            self._open.append(tag)
+
+    def handle_endtag(self, tag):
+        if tag in self._open:
+            while self._open.pop() != tag:
+                pass
+
+    def handle_data(self, data):
+        self.texts.append((self._open[-1] if self._open else None, data))
+
+
+# The short, reviewed allow-list of deliberate owner-token template
+# emissions that are neither a counted corpus blob URL nor the exact
+# repository root (round 3, item 1): each key BINDS one emission to its
+# template or partial source, its tag, its attribute (None for a text
+# node) and the EXACT parser-decoded value it carries (round 4, item 3:
+# keyed by value alone, ANY template element could re-emit a reviewed
+# value and take its grant); each dict value is the reason the emission is
+# deliberate. Any other owner-token value or text node in a template or
+# partial fails the build naming the template and the value, so a template
+# edit can never mint free allowance.
+TEMPLATE_EMISSION_ALLOWLIST = {
+    ("partials/footer.html", "a", "href", "https://github.com/jposluns"):
+        "the footer's GitHub tile links the owner's profile",
+    ("partials/footer.html", "a", "href",
+     "https://www.linkedin.com/in/jposluns/"):
+        "the footer's LinkedIn tile links the owner's profile",
+    ("search.html", "a", "href",
+     "https://github.com/search?q=repo%3Ajposluns%2Fgrc_library&type=code"):
+        "the search page's full-text code-search link into the repository",
+    ("for-ai.html", "a", "href", "https://github.com/jposluns/guardrails"):
+        "the for-ai page links the sibling rule-pack repository",
+    ("for-ai.html", "a", None, "jposluns/guardrails"):
+        "the for-ai page names the rule-pack repository as link text",
+}
+
+
+def _source_repo_emissions(source, text):
+    """The ledger entries one template or partial source emits into every
+    page rendered from it. A value or text node carrying the owner token is
+    allowed ONLY as a counted corpus blob URL (which must then gain its
+    manifest row through the ledger cross-check), the exact repository
+    root, or a TEMPLATE_EMISSION_ALLOWLIST entry BOUND to this source, tag
+    and attribute or enclosing-text tag (round 4, item 3); anything else
+    raises naming the template and the value (round 3, item 1: before, any
+    owner-token value or text node was ledgered as kind other, so a
+    template carrying a tree link, a raw.githubusercontent.com link or a
+    plain mention minted its own allowance). A ``<base>`` element is
+    refused outright (round 4, item 3): it would rebase every relative URL
+    the rendered page carries. The allowance a source grants
+    must equal the owner-token count of its RAW text under the same
+    decoding the rendered output gets (round 3, item 2), so a spelling the
+    parser reads differently from the served bytes (a doubly encoded
+    reference, a token in an HTML comment the parser surfaces nowhere)
+    fails here, at the template, instead of granting allowance the output
+    never carries or carrying a token the source never granted."""
+    parser = _SourceEmissionParser()
+    parser.feed(text)
+    parser.close()
+    if parser.base_tags:
+        raise BuildError(
+            f"template {source}: a <base> element is refused (it would "
+            f"rebase every relative URL the rendered page carries)"
+        )
+    entries = []
+    for tag, name, value in parser.attr_values:
+        total = _owner_token_count(value)
+        if not total:
+            continue
+        covered = 0
+        for url in _attr_url_candidates(tag, name, value,
+                                        f"template {source} <{tag} {name}>"):
+            target = _manifest_target(url)
+            if target is not None:
+                tokens = _owner_token_count(url)
+                entries.append((url, _LEDGER_COUNTED, target, tokens))
+                covered += tokens
+            elif url in (GITHUB_REPO_ROOT, GITHUB_REPO_ROOT + "/"):
+                tokens = _owner_token_count(url)
+                entries.append((url, _LEDGER_ROOT, None, tokens))
+                covered += tokens
+        if covered == total:
+            continue
+        if covered == 0 and (
+            (source, tag, name, value) in TEMPLATE_EMISSION_ALLOWLIST
+        ):
+            entries.append((value, _LEDGER_OTHER, None, total))
+            continue
+        raise BuildError(
+            f"template {source}: owner-token attribute value is neither a "
+            f"counted corpus blob URL, the exact repository root, nor a "
+            f"TEMPLATE_EMISSION_ALLOWLIST entry bound to this source, tag "
+            f"and attribute (<{tag} {name}>): {value!r}"
+        )
+    for tag, data in parser.texts:
+        tokens = _owner_token_count(data)
+        if not tokens:
+            continue
+        if (source, tag, None, data) in TEMPLATE_EMISSION_ALLOWLIST:
+            entries.append((data, _LEDGER_OTHER, None, tokens))
+            continue
+        raise BuildError(
+            f"template {source}: owner-token text node is not a "
+            f"TEMPLATE_EMISSION_ALLOWLIST entry bound to this source and "
+            f"its enclosing <{tag}>: {data!r}"
+        )
+    granted = sum(entry[3] for entry in entries)
+    source_total = _owner_token_count(text)
+    if granted != source_total:
+        raise BuildError(
+            f"template {source}: the raw source carries {source_total} "
+            f"owner-token occurrence(s) under the output decoding but its "
+            f"parsed values and text nodes grant {granted} (a comment, a "
+            f"doubly encoded spelling, or markup the parser reads "
+            f"differently from the served bytes)"
+        )
+    return entries
+
+
+class _GuardOutputParser(HTMLParser):
+    """Attribute values and text nodes of a rendered HTML output, each
+    with the source line html.parser reports for it (round 5): the
+    allow-list's destinations come from this parse, never from spans of
+    the raw or decoded text, so no boundary character set exists to fake.
+    Text inside a <script> or <style> element arrives as a text node
+    too. A ``<base>`` start tag is counted for refusal (round 6, item 2),
+    as the template parser already does: it would rebase every relative
+    URL the rendered page carries."""
+
+    def __init__(self):
+        super().__init__()
+        self.attr_values = []  # (tag, attribute name, value, line)
+        self.texts = []        # (enclosing tag or None, data, line)
+        self.base_tags = 0
+        self._open = []
+
+    def handle_starttag(self, tag, attrs):
+        line = self.getpos()[0]
+        if tag == "base":
+            self.base_tags += 1
+        for name, value in attrs:
+            if value is not None:
+                self.attr_values.append((tag, name, value, line))
+        if tag not in _VOID_ELEMENTS:
+            self._open.append(tag)
+
+    def handle_endtag(self, tag):
+        if tag in self._open:
+            while self._open.pop() != tag:
+                pass
+
+    def handle_data(self, data):
+        self.texts.append(
+            (self._open[-1] if self._open else None, data, self.getpos()[0])
+        )
+
+
+# ---------------------------------------------------------------------------
+# Round 9: allow-list grammars for every output that is neither HTML nor a
+# stylesheet (residual item 4 above). Rounds 6 to 8 read llms.txt, and with
+# it robots.txt, sitemap.xml, _headers, _redirects and security.txt, by one
+# shared CommonMark-subset reader, and each review found a spelling that
+# reader read differently from a renderer or from the format's own
+# consumer. Each of those outputs is now read by a grammar of exactly the
+# shapes the generator emits; any other shape fails the build naming the
+# file, line and column, and a destination is taken only from the one
+# shape of each format that carries a URL.
+
+
+def _line_column(text, index):
+    """The one-based line and column of ``text[index]``; only LF ends a
+    line."""
+    line = text.count("\n", 0, index) + 1
+    column = index - (text.rfind("\n", 0, index) + 1) + 1
+    return line, column
+
+
+def _grammar_refusal(rel, text, index, what):
+    """A grammar refusal naming the output, the line and column of
+    ``text[index]`` and the rest of that line."""
+    line, column = _line_column(text, index)
+    end = text.find("\n", index)
+    excerpt = text[index:len(text) if end == -1 else end]
+    return BuildError(
+        f"{rel}: line {line} column {column}: {what}: {excerpt[:60]!r}"
+    )
+
+
+def _text_lines(text):
+    """``(start offset, line)`` for every line of ``text``, split at LF
+    alone; the empty remainder after a final LF is not a line."""
+    pieces = text.split("\n")
+    if pieces[-1] == "":
+        pieces.pop()
+    start = 0
+    for piece in pieces:
+        yield start, piece
+        start += len(piece) + 1
+
+
+# Every C0 control character except LF (so TAB, CR, VT and FF as well),
+# and DEL: refused anywhere in a line-format output or the sitemap.
+_TEXT_CONTROL_RE = re.compile(r"[\x00-\x09\x0b-\x1f\x7f]")
+
+
+def _refuse_text_controls(rel, text, grammar):
+    """Refuse the first control character other than LF in ``text``."""
+    match = _TEXT_CONTROL_RE.search(text)
+    if match:
+        raise _grammar_refusal(
+            rel, text, match.start(),
+            f"a control character (U+{ord(match.group()):04X}) is outside "
+            f"the {grammar} grammar")
+
+
+# The llms.txt grammar (round 9, item 1): the line shapes render_llms_txt
+# writes and nothing else. A prose part is a heading's text, a block-quote
+# line's text, a link label or a list-item note.
+# Round 10, item 4: an & anywhere (the emitted text has none), so no
+# entity or character reference can spell a URL a renderer decodes.
+_LLMS_ANYWHERE = {"`": "a backtick", "\\": "a backslash", "<": "a <",
+                  "&": "an &"}
+_LLMS_PROSE_REFUSED = {"[": "a [", "]": "a ]", "(": "a (", ")": "a )"}
+_LLMS_URL_TEXT_RE = re.compile(r"(?i)https?:|ftp:|www\.")
+# A list-item link destination: https:// then RFC 3986 characters other
+# than a parenthesis, bracket, quote, ampersand (no character reference)
+# or space, so a CommonMark renderer reads it as exactly these characters.
+_LLMS_DEST_RE = re.compile(r"https://[A-Za-z0-9._~:/?#@!$*+,;=%-]+")
+_LLMS_SHAPES = (
+    "a blank line, a '# ' or '## ' heading, a '> ' block-quote line, or a "
+    "'- [label](https://...)' list item"
+)
+
+
+def _llms_prescan(rel, text):
+    """The characters llms.txt refuses ANYWHERE, first in document order:
+    a control character other than LF, a backtick, a backslash, a <, an
+    & (round 10, item 4), and a > anywhere but column 1 (where it can
+    only open a block-quote line, which the line grammar then holds to
+    ``> `` and prose)."""
+    for i, ch in enumerate(text):
+        if ch in _LLMS_ANYWHERE:
+            what = _LLMS_ANYWHERE[ch]
+        elif ch == ">" and not (i == 0 or text[i - 1] == "\n"):
+            what = "a > that opens no block-quote line"
+        elif (ch < " " and ch != "\n") or ch == "\x7f":
+            what = f"a control character (U+{ord(ch):04X})"
+        else:
+            continue
+        raise _grammar_refusal(
+            rel, text, i, f"{what} is outside the llms.txt grammar")
+
+
+def _llms_prose(rel, text, start, end, part):
+    """Hold ``text[start:end]`` to the prose rule: nonempty, with no
+    [ ] ( ) and no http:, https:, ftp: or www. text (the prescan has already
+    refused the characters llms.txt refuses anywhere)."""
+    if start >= end:
+        raise _grammar_refusal(
+            rel, text, start, f"{part} with no text is outside the "
+            f"llms.txt grammar")
+    for k in range(start, end):
+        if text[k] in _LLMS_PROSE_REFUSED:
+            raise _grammar_refusal(
+                rel, text, k, f"{_LLMS_PROSE_REFUSED[text[k]]} in {part} "
+                f"is outside the llms.txt grammar")
+    match = _LLMS_URL_TEXT_RE.search(text, start, end)
+    if match:
+        raise _grammar_refusal(
+            rel, text, match.start(),
+            f"URL text in {part} is outside the llms.txt grammar")
+
+
+def _llms_item(rel, text, start, end):
+    """One list-item line ``text[start:end]``, which opens with ``- [``:
+    one or more ``[label](destination)`` links joined by ``, ``, then the
+    line end, ``.``, or ``: `` and a note. Returns ``(label, destination,
+    destination offset)`` per link."""
+    links = []
+    k = start + 2
+    while True:
+        close = text.find("]", k + 1, end)
+        if close == -1:
+            raise _grammar_refusal(
+                rel, text, k, "a link label that never closes is outside "
+                "the llms.txt grammar")
+        _llms_prose(rel, text, k + 1, close, "a link label")
+        if text[close + 1:close + 2] != "(" or close + 1 >= end:
+            raise _grammar_refusal(
+                rel, text, close + 1, "a link label not followed by ( is "
+                "outside the llms.txt grammar")
+        dest = _LLMS_DEST_RE.match(text, close + 2, end)
+        if dest is None:
+            raise _grammar_refusal(
+                rel, text, close + 2, "a link destination that is not "
+                "https:// and RFC 3986 characters is outside the llms.txt "
+                "grammar")
+        if dest.end() >= end or text[dest.end()] != ")":
+            raise _grammar_refusal(
+                rel, text, dest.end(), "a character outside the link "
+                "destination grammar (https:// and RFC 3986 characters "
+                "other than a parenthesis, bracket, quote, ampersand or "
+                "space, then ')') is outside the llms.txt grammar")
+        links.append((text[k + 1:close], dest.group(), close + 2))
+        k = dest.end() + 1
+        if k == end or text[k:end] == ".":
+            return links
+        if text.startswith(", [", k, end):
+            k += 2
+            continue
+        if text.startswith(": ", k, end):
+            _llms_prose(rel, text, k + 2, end, "a list-item note")
+            return links
+        raise _grammar_refusal(
+            rel, text, k, "text after a list-item link other than ', [' "
+            "and a further link, '.', or ': ' and a note is outside the "
+            "llms.txt grammar")
+
+
+def _llms_links(rel, text):
+    """Read llms.txt by its line grammar (round 9, item 1) and return
+    ``(label, destination, destination offset)`` for every list-item
+    link, in document order. Admitted: a blank line, a ``# `` or ``## ``
+    heading, a ``> `` block-quote line, and a ``- [label](https://...)``
+    list item (``_llms_item``); every prose part is held to
+    ``_llms_prose``. Anything else (indented code, a fence of either
+    kind, a reference definition, raw HTML, an autolink, a code span or
+    any other line) fails the build naming the line and column."""
+    _llms_prescan(rel, text)
+    links = []
+    for start, line in _text_lines(text):
+        end = start + len(line)
+        if not line:
+            continue
+        if line.startswith("# "):
+            _llms_prose(rel, text, start + 2, end, "a heading")
+        elif line.startswith("## "):
+            _llms_prose(rel, text, start + 3, end, "a heading")
+        elif line.startswith("> "):
+            _llms_prose(rel, text, start + 2, end, "a block-quote line")
+        elif line.startswith("- ["):
+            links.extend(_llms_item(rel, text, start, end))
+        else:
+            raise _grammar_refusal(
+                rel, text, start, f"a line that is none of the llms.txt "
+                f"shapes ({_LLMS_SHAPES})")
+    return links
+
+
+def _llms_destinations(rel, text):
+    """The llms.txt destinations: its list-item links alone."""
+    return [
+        ("url", "line {} column {} list-item link".format(
+            *_line_column(text, offset)), _clean_destination_value(dest))
+        for _, dest, offset in _llms_links(rel, text)
     ]
-    uncounted = []
+
+
+# robots.txt (round 9, item 2): the lines render_robots_txt writes. A
+# value never holds a space or a # (which RFC 9309 parsers read as a
+# comment), so the value read here is the value every parser reads; the
+# Sitemap value alone is a destination.
+_ROBOTS_LINE_RE = re.compile(
+    r"#.*|User-agent: [A-Za-z0-9_.*-]+|Allow: /[\x21\x22\x24-\x7e]*"
+    r"|Sitemap: (https://[\x21\x22\x24-\x7e]+)"
+)
+
+
+def _robots_destinations(rel, text):
+    """Read robots.txt by its line format: comment, blank, User-agent,
+    Allow and Sitemap lines; a Sitemap value is the one destination."""
+    _refuse_text_controls(rel, text, "robots.txt")
+    destinations = []
+    for start, line in _text_lines(text):
+        if not line:
+            continue
+        match = _ROBOTS_LINE_RE.fullmatch(line)
+        if match is None:
+            raise _grammar_refusal(
+                rel, text, start, "a line other than a comment, a blank, "
+                "User-agent, Allow or Sitemap is outside the robots.txt "
+                "grammar")
+        if match.group(1) is not None:
+            destinations.append((
+                "url", "line {} Sitemap".format(_line_column(text, start)[0]),
+                _clean_destination_value(match.group(1)),
+            ))
+    return destinations
+
+
+# _headers (round 9, item 2): Cloudflare Pages rule paths at column 1,
+# then two-space-indented header lines and "! " detach lines, of the
+# header names this build emits. No emitted header carries a link
+# destination (the CSP's host sources are not links), so _headers yields
+# none and any owner token in it fails the occurrence count.
+_HEADERS_NAMES = frozenset((
+    "Content-Security-Policy", "X-Frame-Options", "Permissions-Policy",
+    "Cross-Origin-Opener-Policy", "X-Robots-Tag",
+))
+_HEADERS_RULE_RE = re.compile(r"/[\x21-\x7e]*")
+_HEADERS_SET_RE = re.compile(
+    r"  ([A-Za-z0-9-]+): [\x21-\x7e](?:[\x20-\x7e]*[\x21-\x7e])?"
+)
+_HEADERS_DETACH_RE = re.compile(r"  ! ([A-Za-z0-9-]+)")
+
+
+def _headers_destinations(rel, text):
+    """Read _headers by its line format; it carries no destination."""
+    _refuse_text_controls(rel, text, "_headers")
+    in_rule = False
+    for start, line in _text_lines(text):
+        if _HEADERS_RULE_RE.fullmatch(line):
+            in_rule = True
+            continue
+        match = (_HEADERS_SET_RE.fullmatch(line)
+                 or _HEADERS_DETACH_RE.fullmatch(line))
+        if match is None or not in_rule:
+            raise _grammar_refusal(
+                rel, text, start, "a line other than a rule path or a "
+                "header or detach line under one is outside the _headers "
+                "grammar")
+        if match.group(1) not in _HEADERS_NAMES:
+            raise _grammar_refusal(
+                rel, text, start + match.start(1), "a header name this "
+                "build does not emit is outside the _headers grammar")
+    return []
+
+
+# _redirects (round 10, item 1): no grammar at all. Round 9 read
+# "source target 301" triples and compared each literal target, but
+# Cloudflare Pages substitutes a source's * and :name placeholders into
+# the target (:splat, :name) and reads a target opening // or /\ as
+# another host, so "/repo/* https://github.com/:splat 301" assembled an
+# unledgered repository URL at serve time from a target the guard read
+# as harmless. The output must now be the content the build defines for
+# it, REDIRECTS_FILE, byte for byte.
+
+
+def _redirects_destinations(rel, text):
+    """Hold _redirects to REDIRECTS_FILE byte for byte (round 10, item
+    1): any other content fails the build naming the line and column of
+    the first difference. The output yields no destination."""
+    expected = REDIRECTS_FILE
+    if text != expected:
+        at = next((i for i, (a, b) in enumerate(zip(text, expected))
+                   if a != b), min(len(text), len(expected)))
+        raise _grammar_refusal(
+            rel, text, at, "content other than the build's own "
+            "REDIRECTS_FILE, byte for byte, is outside the _redirects "
+            "output")
+    return []
+
+
+# security.txt (round 9, item 2): the six RFC 9116 fields this build
+# emits, one "Field: value" per line; the URI-valued fields (with no
+# space in the value) are the destinations.
+_SECURITY_FIELDS = {
+    "Contact": True, "Expires": False, "Encryption": True, "Policy": True,
+    "Preferred-Languages": False, "Canonical": True,
+}
+_SECURITY_LINE_RE = re.compile(
+    r"([A-Za-z-]+): ([\x21-\x7e](?:[\x20-\x7e]*[\x21-\x7e])?)"
+)
+
+
+def _security_destinations(rel, text):
+    """Read security.txt by its field format; Contact, Encryption, Policy
+    and Canonical values are the destinations."""
+    _refuse_text_controls(rel, text, "security.txt")
+    destinations = []
+    for start, line in _text_lines(text):
+        match = _SECURITY_LINE_RE.fullmatch(line)
+        if match is None or match.group(1) not in _SECURITY_FIELDS:
+            raise _grammar_refusal(
+                rel, text, start, "a line other than one of the emitted "
+                "RFC 9116 fields is outside the security.txt grammar")
+        if not _SECURITY_FIELDS[match.group(1)]:
+            continue
+        if " " in match.group(2):
+            raise _grammar_refusal(
+                rel, text, start + match.start(2), "a space in a URI "
+                "field value is outside the security.txt grammar")
+        destinations.append((
+            "url", "line {} {}".format(
+                _line_column(text, start)[0], match.group(1)),
+            _clean_destination_value(match.group(2)),
+        ))
+    return destinations
+
+
+# sitemap.xml (round 9, item 3): markup that can assemble text the raw
+# and decoded views never see is refused before any XML parse (round 8
+# review: "jpo<![CDATA[sluns]]>" inside a <loc> assembled an unledgered
+# repository URL); the document is then read with xml.etree.ElementTree
+# and held to the urlset/url/loc shape, and each <loc> is a destination.
+_SITEMAP_NS = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
+_XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>'
+_XML_REFUSED_RE = re.compile(r"<!|<\?|&")
+# With every markup declaration, processing instruction (after the
+# declaration) and reference refused, every < that opens neither an end
+# tag nor the declaration opens a start tag, in document order, which
+# maps each parsed element to its line and column.
+_XML_START_TAG_RE = re.compile(r"<(?![/?!])")
+
+
+def _xml_destinations(rel, text):
+    """Read an XML output (the sitemap) by its grammar: the exact XML
+    declaration, no markup declaration, processing instruction or
+    reference, then an attribute-free sitemap urlset of attribute-free
+    url elements each holding exactly one loc with one whitespace-free
+    URL; each loc is a destination."""
+    _refuse_text_controls(rel, text, "sitemap")
+    if not text.startswith(_XML_DECLARATION):
+        raise _grammar_refusal(
+            rel, text, 0, "a document that does not open with the exact "
+            "XML declaration is outside the sitemap grammar")
+    for match in _XML_REFUSED_RE.finditer(text):
+        at = match.start()
+        if match.group() == "<?":
+            if at == 0:
+                continue
+            what = "a processing instruction"
+        elif match.group() == "&":
+            what = "an entity or character reference"
+        elif text.startswith("<![CDATA[", at):
+            what = "a CDATA section"
+        elif text.startswith("<!DOCTYPE", at):
+            what = "a DOCTYPE"
+        elif text.startswith("<!--", at):
+            what = "a comment"
+        else:
+            what = "a markup declaration"
+        raise _grammar_refusal(
+            rel, text, at, f"{what} is outside the sitemap grammar")
+    try:
+        root = ElementTree.fromstring(text)
+    except ElementTree.ParseError as err:
+        line, column = err.position
+        raise BuildError(
+            f"{rel}: line {line} column {column + 1}: not well-formed "
+            f"XML: {err}") from None
+    elements = list(root.iter())
+    starts = [m.start() for m in _XML_START_TAG_RE.finditer(text)]
+    if len(starts) != len(elements):
+        raise BuildError(
+            f"{rel}: {len(starts)} start tag(s) in the text but "
+            f"{len(elements)} parsed element(s); the sitemap grammar "
+            f"cannot place them")
+    where = {id(el): at for el, at in zip(elements, starts)}
+
+    def refuse(el, what):
+        raise _grammar_refusal(
+            rel, text, where[id(el)], f"{what} is outside the sitemap "
+            f"grammar")
+
+    def blank(value):
+        return value is None or not value.strip(" \n")
+
+    if root.tag != _SITEMAP_NS + "urlset" or root.attrib or not blank(
+            root.text):
+        refuse(root, "a root other than an attribute-free sitemap urlset")
+    destinations = []
+    for url in root:
+        if (url.tag != _SITEMAP_NS + "url" or url.attrib or len(url) != 1
+                or not blank(url.text) or not blank(url.tail)):
+            refuse(url, "an element other than an attribute-free url "
+                   "holding exactly one loc")
+        loc = url[0]
+        if (loc.tag != _SITEMAP_NS + "loc" or loc.attrib or len(loc)
+                or not blank(loc.tail) or not loc.text
+                or any(c in loc.text for c in _ASCII_WS)):
+            refuse(loc, "an element other than an attribute-free loc "
+                   "holding one URL with no whitespace")
+        destinations.append((
+            "url", "line {} column {} <loc>".format(
+                *_line_column(text, where[id(loc)])),
+            _clean_destination_value(loc.text),
+        ))
+    return destinations
+
+
+# The grammar of each output, by its name: the HTML and stylesheet
+# readers, the sitemap XML grammar, one line format per text output, and
+# the exact-content check of _redirects (round 10, item 1). An output
+# with no grammar (a copied asset other than HTML or a stylesheet) is
+# read by none and must be a pin-verified copy (residual item 4).
+_LINE_FORMAT_READERS = {
+    "llms.txt": _llms_destinations,
+    "robots.txt": _robots_destinations,
+    "_headers": _headers_destinations,
+    "_redirects": _redirects_destinations,
+    "security.txt": _security_destinations,
+}
+
+
+def _output_grammar(rel):
+    """``"html"``, ``"css"``, ``"xml"``, a line-format name from
+    ``_LINE_FORMAT_READERS``, or None for an output no grammar reads."""
+    if rel.endswith(".html"):
+        return "html"
+    if rel.endswith(".css"):
+        return "css"
+    if rel.endswith(".xml"):
+        return "xml"
+    name = rel.rsplit("/", 1)[-1]
+    return name if name in _LINE_FORMAT_READERS else None
+
+
+def _ungrammared_refusal(rel, text):
+    """The refusal for an output no grammar reads that is not exactly one
+    whole pin-verified copy (round 10, item 3: token-free or not), or
+    whose owner-token occurrences or ledger entries are not exactly that
+    copy's: names the first line carrying an occurrence, else line 1."""
+    number, column, excerpt = 1, 1, text
+    for start, line in _text_lines(text):
+        if _owner_token_count(line):
+            number, _ = _line_column(text, start)
+            found = line.lower().find(_OWNER_TOKEN)
+            column = found + 1 if found >= 0 else 1
+            excerpt = line
+            break
+    return BuildError(
+        f"output {rel}: line {number} column {column}: no destination "
+        f"grammar reads this output (HTML, a stylesheet, sitemap XML, "
+        f"llms.txt, robots.txt, _headers and security.txt have one, and "
+        f"_redirects must equal REDIRECTS_FILE), so it is published only "
+        f"as one whole pin-verified copy whose entries grant exactly its "
+        f"owner-token occurrences: {excerpt[:200]!r}"
+    )
+
+
+# A CSS url() value, read only in copied stylesheet assets (round 5): a
+# <style> body or a style attribute of a rendered page is never a
+# destination, so a url() there can consume no ledger entry.
+_CSS_URL_RE = re.compile(
+    r"(?i)\burl\(\s*(?:'([^']*)'|\"([^\"]*)\"|([^)'\"\s]*))\s*\)"
+)
+
+
+def _output_destinations(rel, text):
+    """Every destination of one output, each from the output's OWN parser
+    and with its position (round 5): ``("url", where, cleaned value)`` for
+    an HTML attribute URL candidate (srcset candidates and the meta
+    refresh URL included), a CSS url() value of a stylesheet asset, or a
+    destination field of a sitemap or line-format output; ``("text",
+    where, data)`` for an HTML text node, which only an exact kind-other
+    ledger entry (a reviewed template text emission such as the for-ai
+    page's ``jposluns/guardrails`` link text) can consume. Round 6: a
+    ``<base>`` start tag in an HTML output is refused outright (item 2),
+    as the template parser already does. Round 9: every other output is
+    read by its own allow-list grammar (``_output_grammar``; residual item
+    4), which takes a destination only from the shape that carries one
+    and refuses any other shape by line and column; an output no grammar
+    reads is refused here."""
+    destinations = []
+    grammar = _output_grammar(rel)
+    if grammar == "html":
+        parser = _GuardOutputParser()
+        parser.feed(text)
+        parser.close()
+        if parser.base_tags:
+            raise BuildError(
+                f"output {rel}: a <base> element is refused (it would "
+                f"rebase every relative URL the rendered page carries)"
+            )
+        for tag, name, value, line in parser.attr_values:
+            where = f"line {line} <{tag}> {name}"
+            for url in _attr_url_candidates(tag, name, value,
+                                            f"{rel} {where}"):
+                destinations.append(("url", where, url))
+        for tag, data, line in parser.texts:
+            where = (f"line {line} <{tag}> text" if tag
+                     else f"line {line} text")
+            destinations.append(("text", where, data))
+    elif grammar == "css":
+        for match in _CSS_URL_RE.finditer(text):
+            value = next(g for g in match.groups() if g is not None)
+            destinations.append((
+                "url", f"offset {match.start()} url()",
+                _clean_destination_value(value),
+            ))
+    elif grammar == "xml":
+        destinations = _xml_destinations(rel, text)
+    elif grammar is not None:
+        destinations = _LINE_FORMAT_READERS[grammar](rel, text)
+    else:
+        raise _ungrammared_refusal(rel, text)
+    return destinations
+
+
+def _dest_token_count(value):
+    """``_owner_token_count`` with a fast path: a value holding no percent
+    sign, backslash or ampersand (no decodable escape form) and no owner
+    token in its whitespace-stripped lowercase spelling counts zero.
+    Whitespace is stripped first because the decoded view removes it, and
+    a non-ASCII character can never spell a letter of the ASCII token."""
+    if ("%" not in value and "\\" not in value and "&" not in value
+            and _OWNER_TOKEN not in "".join(value.split()).lower()):
+        return 0
+    return _owner_token_count(value)
+
+
+def _ledger_location(variant, rel):
+    """The manifest location one ledger output maps to: llms.txt for the
+    llms.txt map, the site path for an HTML page, else the output path
+    itself (which no manifest row carries, so a counted emission there fails
+    the cross-check loudly)."""
+    if rel == "llms.txt":
+        return "llms.txt"
+    if rel.endswith(".html"):
+        return _site_path_for(variant, rel)
+    return rel
+
+
+def _verify_repo_token_allowlist(variant, pages, ledger):
+    """The allow-list check, per output file (HTML and non-HTML alike,
+    llms.txt included), round 5: destinations come from the output's own
+    parsers (``_output_destinations``), never from spans of the raw or
+    decoded text; the round 4 fixed boundary set and its "=" exception are
+    gone. Every token-bearing ledger entry must be consumed by exactly one
+    parsed destination whose WHATWG-cleaned value equals the entry's
+    emitted string EXACTLY, with multiplicity (a destination consumes at
+    most one entry, so a second entry needs a second equal destination,
+    and a clean copy plus a suffixed copy of one blob URL no longer
+    balances two entries); a kind-other entry may instead equal a whole
+    pin-verified copied output (``_ledger_copied_output``) or one HTML
+    text node (a reviewed template text emission). An entry no free
+    destination equals fails the build naming it. Any leftover destination
+    that carries the owner token fails the build naming its position and
+    value (a destination with extra characters, an embedded ``?u=ROOT``, a
+    tree URL). Finally the owner-token occurrences of the decoded view
+    must equal exactly the tokens the consumed entries grant, so an
+    occurrence in prose, a comment, an end-tag attribute, a script or
+    style body, or anything else no parser surfaced fails too. Returns the
+    deduplicated set of matched counted rows, ``(target, location)``,
+    staging trees excluded, from which the manifest cross-check derives.
+    Spelling-independent: any encoding of the token the decoded view
+    resolves is counted the same way."""
+    staging = _staging_prefixes()
+    matched_counted = set()
     for rel, content in pages:
         text = (content.decode("utf-8", "replace")
                 if isinstance(content, bytes) else content)
-        text = _normalize_separators(text)
-        host_matches = list(_REPO_HOST_OCCURRENCE_RE.finditer(text))
-        bare_matches = list(_REPO_BARE_OCCURRENCE_RE.finditer(text))
-        if not host_matches and not bare_matches:
+        entries = ledger.get(rel, ())
+        view, removed_before = _decoded_token_view(text)
+        occurrences = _owner_token_occurrences(view, removed_before)
+        grammar = _output_grammar(rel)
+        if not entries and not occurrences and grammar == "css":
+            # An HTML output is always parsed (round 6, item 2), so a
+            # <base> element is refused even on a token-free page; round
+            # 9 reads the sitemap and every line-format output on every
+            # build too, so a shape outside its grammar (a CDATA section
+            # that assembles the token the views never see, say) fails
+            # even where no token is visible; round 10, item 3 checks an
+            # output no grammar reads on every build as well.
             continue
-        spans = _excused_spans(
-            text,
-            [_normalize_separators(url)
-             for url in counted_urls_by_rel.get(rel, ())],
+        if grammar is None:
+            # No grammar reads this output (round 9, residual item 4):
+            # it passes only as one whole pin-verified copy
+            # (_ledger_copied_output ledgers every copy, token-free ones
+            # included; round 10, item 3) whose entries grant exactly
+            # its occurrences.
+            whole = [e for e in entries
+                     if e[1] == _LEDGER_OTHER and e[0] == text]
+            if (not whole
+                    or any(e[3] > 0 and e not in whole for e in entries)
+                    or len(occurrences) != sum(e[3] for e in whole)):
+                raise _ungrammared_refusal(rel, text)
+            continue
+        destinations = _output_destinations(rel, text)
+        free = {"url": Counter(), "text": Counter()}
+        for kind, _, value in destinations:
+            free[kind][value] += 1
+        granted = 0
+        for emitted, kind, target, tokens in entries:
+            if tokens <= 0:
+                continue
+            if kind == _LEDGER_OTHER and emitted == text:
+                # A pin- or hash-verified byte-for-byte copied output
+                # (_ledger_copied_output): the entry IS the whole output,
+                # so its occurrences are the verified source's own.
+                granted += tokens
+                continue
+            if free["url"][emitted]:
+                free["url"][emitted] -= 1
+            elif kind == _LEDGER_OTHER and free["text"][emitted]:
+                free["text"][emitted] -= 1
+            else:
+                raise BuildError(
+                    f"ledgered repository emission never reached the "
+                    f"output {rel} as a parsed destination equal to the "
+                    f"emitted string (or every equal destination is "
+                    f"already consumed by another ledger entry): "
+                    f"{emitted!r}"
+                )
+            granted += tokens
+            if kind == _LEDGER_COUNTED and not (
+                staging and rel.startswith(staging)
+            ):
+                matched_counted.add((target, _ledger_location(variant, rel)))
+        for kind, where, value in destinations:
+            if free[kind][value] <= 0:
+                continue
+            if _dest_token_count(value) == 0:
+                continue
+            raise BuildError(
+                f"owner-token destination with no ledger entry in {rel} "
+                f"({where}): no unconsumed ledger entry equals this "
+                f"parsed destination: {value!r}"
+            )
+        if len(occurrences) != granted:
+            first = occurrences[0] if occurrences else 0
+            context = view[max(0, first - 80):
+                           first + len(_OWNER_TOKEN) + 80]
+            raise BuildError(
+                f"repository-owner occurrence(s) outside the emission "
+                f"ledger in {rel}: {len(occurrences)} occurrence(s) of "
+                f"'{_OWNER_TOKEN}' in the decoded output, {granted} "
+                f"granted by consumed ledger entries; first occurrence "
+                f"(decoded view, whitespace and backslashes removed): "
+                f"...{context}..."
+            )
+    return matched_counted
+
+
+def _verify_repo_ledger_rows(rows, ledger_counted):
+    """The manifest/ledger cross-check: every manifest row corresponds to a
+    counted ledger entry MATCHED in the output at the same target and
+    location (``_verify_repo_token_allowlist`` returns these, so a counted
+    row is only ever derived from a link proven to survive into the output,
+    round 3, item 7), and every matched counted entry outside a staging
+    tree appears as a manifest row."""
+    missing = sorted(set(rows) - ledger_counted)
+    if missing:
+        listed = "; ".join(f"{t} at {loc}" for t, loc in missing[:20])
+        raise BuildError(
+            "manifest row(s) with no counted emission-ledger entry (a "
+            "counted link must be emitted through repo_blob_url or a "
+            "template source): " + listed
+        )
+    extra = sorted(ledger_counted - set(rows))
+    if extra:
+        listed = "; ".join(f"{t} at {loc}" for t, loc in extra[:20])
+        raise BuildError(
+            "counted emission-ledger entr(y/ies) with no manifest row (the "
+            "emitted link never reached the rendered output, or landed in "
+            "an output the manifest does not cover): " + listed
         )
 
-        def covered(match):
-            return any(s <= match.start() and match.end() <= e
-                       for s, e in spans)
 
-        pending = [m for m in host_matches if not covered(m)]
-        pending_bare = [m for m in bare_matches if not covered(m)]
-        root_spans = []
-        flagged = []
-        for match in pending:
-            root_end = _allowed_root_end(text, match)
-            if root_end is not None:
-                root_spans.append((match.start() - len("https://"), root_end))
-            else:
-                flagged.append(match)
-        pending_bare = [
-            m for m in pending_bare
-            if not any(s <= m.start() and m.end() <= e for s, e in root_spans)
-        ]
-        if flagged or pending_bare:
-            # Second chance for an occurrence outside a parsed attribute (a
-            # non-HTML output, or page text): the canonical blob URL of a
-            # counted target excuses it, exactly as a counted attribute does.
-            spans.extend(_excused_spans(text, canonical))
-            flagged = [m for m in flagged if not covered(m)]
-            pending_bare = [m for m in pending_bare if not covered(m)]
-        flagged_spans = [(m.start(), m.end()) for m in flagged]
-        for match in pending_bare:
-            if any(match.start() < e and match.end() > s
-                   for s, e in flagged_spans):
-                continue  # already reported through its host form
-            flagged_spans.append((match.start(), match.end()))
-        for start, end in sorted(flagged_spans):
-            uncounted.append((rel, _occurrence_excerpt(text, start, end)))
-    return uncounted
+def _llms_markdown_rows(text):
+    """``(target, link text)`` for every counted corpus destination parsed
+    from the llms.txt Markdown, in document order and WITH multiplicity
+    (round 4, item 1: the manifest's llms.txt rows come from the parsed
+    destinations of the emitted map itself, as the HTML rows come from the
+    rendered pages, not from a curated parallel list a destination edit
+    could drift from). Round 9: read by the llms.txt line grammar
+    (``_llms_links``), the same reading the allow-list consumes
+    destinations by, so the rows and the guard can never read one map two
+    ways; the grammar admits only the shapes ``render_llms_txt`` writes and
+    refuses any other by line and column (rounds 5 to 8 read a CommonMark
+    subset here instead)."""
+    rows = []
+    for label, dest, _ in _llms_links("llms.txt", text):
+        target = _manifest_target(_clean_destination_value(dest))
+        if target is not None:
+            rows.append((target, label))
+    return rows
 
 
-def render_corpus_link_manifest(figures, variant, pages):
+def render_corpus_link_manifest(figures, variant, pages, ledger):
     """The committed web-to-corpus link manifest: one row per corpus/GitHub
     target the indexable root variant's pages link (its repo-relative path,
     its website location, and its link text). Re-derived by scanning the
     RENDERED HTML pages of the indexable root variant alone (a staging
     tree's outputs are out of the manifest's declared scope) plus the
-    curated llms.txt corpus links (CURATED_CORPUS_LINKS), so the manifest
+    corpus destinations parsed from the RENDERED llms.txt map itself
+    (``_llms_markdown_rows``, round 4, item 1), so the manifest
     cannot drift from the emitted links, whatever machinery emitted them.
-    Round 4: link URLs come whole from html.parser (every href and src
-    attribute value, ``_html_link_urls``) and are classified by
+    Round 4: link URLs come whole from html.parser and are classified by
     ``_manifest_target`` (urllib.parse), never by a pattern over the raw
-    text. The link text is the anchor's own text as the parser gives it
-    (whitespace collapsed to keep the table rows well formed; the target's
-    basename when the URL is not an anchor's or the anchor has no text). The
-    repo-root and on-site links are not corpus-path targets and are
-    excluded, matching the gate's scope. ``pages`` is the render_site output
-    (dist-relative path, content). Round-2 fix 3, kept: any other occurrence
-    of this repository in any emitted output is a BuildError, so no emitted
-    spelling can bypass gate 75."""
+    text; round 1 of the link-guard follow-up widened the walk to EVERY
+    attribute value (``_html_attribute_values``). The link text is the
+    anchor's own text as the parser gives it (whitespace collapsed to keep
+    the table rows well formed, a ``class="vh"`` span's hidden text
+    excluded; the target's basename when the URL is not an anchor's href or
+    the anchor has no text; the FIRST link's text wins for a repeated
+    (target, page) pair, except that a later anchor's own text replaces a
+    file-name FALLBACK, round 2 of the link-guard follow-up). The repo-root
+    and on-site links are not corpus-path targets and are excluded, matching
+    the gate's scope. ``pages`` is the render_site output (dist-relative
+    path, content). Round 2 of the link-guard follow-up replaces the
+    occurrence denylist wholesale: the allow-list check
+    (``_verify_repo_token_allowlist``) fails the build on any owner-token
+    occurrence the emission ledger does not cover, in any output and any
+    spelling, consuming every ledger entry by one PARSED destination whose
+    cleaned value equals it exactly, with multiplicity (round 3, item 7;
+    round 5 removed span matching), and the ledger cross-check
+    (``_verify_repo_ledger_rows``) binds the MATCHED counted
+    entries and the manifest rows one to one, so no emitted spelling can
+    bypass gate 75. ``ledger`` is the ledger of exactly this render
+    (render_site binds it to its result as ``pages.repo_ledger``, round 3,
+    item 8)."""
     rows = {}  # (target, location) -> link_text, dedup-safe and deterministic
-    for path, label in CURATED_CORPUS_LINKS:
-        rows[(path, "llms.txt")] = label
+    fallback = set()  # rows labelled by the file-name fallback so far
     staging = _staging_prefixes()
-    parsed_links = []  # (rel, [(url, anchor text or None), ...]), every HTML
     for rel, content in pages:
-        if not rel.endswith(".html") or not isinstance(content, str):
-            continue
-        links = _html_link_urls(content)
-        parsed_links.append((rel, links))
         if staging and rel.startswith(staging):
             continue
+        if rel == "llms.txt" and isinstance(content, str):
+            # The llms.txt rows, parsed from the emitted map itself with
+            # multiplicity (round 4, item 1); the FIRST link's text wins
+            # for a repeated target, like the HTML rows below.
+            for target, label in _llms_markdown_rows(content):
+                rows.setdefault((target, "llms.txt"), label)
+            continue
+        if not rel.endswith(".html") or not isinstance(content, str):
+            continue
         location = _site_path_for(variant, rel)
-        for url, anchor_text in links:
-            target = _manifest_target(url)
-            if target is None:
-                continue
-            label = " ".join(anchor_text.split()) if anchor_text else ""
-            rows[(target, location)] = label or target.rsplit("/", 1)[-1]
-    counted_targets = {target for target, _ in rows}
-    # A parsed URL counting a manifest target is excused wherever it occurs,
-    # on a staging page too (a staging link to a counted target gains no row
-    # and raises nothing; one to an uncounted target still fails below).
-    counted_urls_by_rel = {
-        rel: [url for url, _ in links
-              if _manifest_target(url) in counted_targets]
-        for rel, links in parsed_links
-    }
-    uncounted = _uncounted_repo_occurrences(
-        pages, counted_targets, counted_urls_by_rel
-    )
-    if uncounted:
-        listed = "; ".join(f"{rel}: {link}" for rel, link in uncounted[:20])
-        raise BuildError(
-            "repository occurrence(s) the corpus-link manifest scan does not "
-            "count (link the blob form in an href or src attribute of an "
-            "HTML page, or link the repository root): " + listed
-        )
+        for tag, name, value, anchor_text in _html_attribute_values(content):
+            for url in _attr_url_candidates(tag, name, value,
+                                            f"{rel} <{tag} {name}>"):
+                target = _manifest_target(url)
+                if target is None:
+                    continue
+                label = " ".join(anchor_text.split()) if anchor_text else ""
+                key = (target, location)
+                # The FIRST link's text wins for a repeated (target, page)
+                # pair; a later anchor with text of its own replaces a
+                # file-name FALLBACK only (an earlier non-anchor attribute
+                # or empty anchor never outlabels a real anchor text).
+                if key not in rows:
+                    rows[key] = label or target.rsplit("/", 1)[-1]
+                    if not label:
+                        fallback.add(key)
+                elif label and key in fallback:
+                    rows[key] = label
+                    fallback.discard(key)
+    matched_counted = _verify_repo_token_allowlist(variant, pages, ledger)
+    _verify_repo_ledger_rows(rows, matched_counted)
     lines = [
         "# Web-to-corpus link manifest",
         "",
@@ -4734,7 +6023,7 @@ def _draft_doc_or_source_link(docs_by_path, path, label):
             "(renamed or removed?)"
         )
     return (
-        f'<a href="{_esc(GITHUB_BLOB_BASE + path)}" target="_blank" '
+        f'<a href="{_esc(repo_blob_url(path))}" target="_blank" '
         f'rel="noopener noreferrer">{_esc(label)}{_DRAFT_NEW_TAB}</a>'
     )
 
@@ -5091,7 +6380,7 @@ def draft_documents_values(full_docs):
     area_chips = _draft_facet_chips(
         "area", by_domain, draft_domain_label, len(domain_docs))
     root_rows = "\n".join(
-        f'<li><a href="{_esc(GITHUB_BLOB_BASE + d["path"])}"'
+        f'<li><a href="{_esc(repo_blob_url(d["path"]))}"'
         ' target="_blank" rel="noopener noreferrer">'
         f'{_esc(d.get("title", d["path"]))}{_DRAFT_NEW_TAB}</a>'
         f'<span class="n">{_esc(d.get("type", "").lower())}, '
@@ -5215,7 +6504,7 @@ def draft_disclosure_values(scripts):
     generated from the rendered pages (round-2 NOTE: a typed list left out
     rail.js)."""
     links = " ".join(
-        f'<a href="{_esc(GITHUB_BLOB_BASE + ".web/baseline/" + name)}"'
+        f'<a href="{_esc(repo_blob_url(".web/baseline/" + name))}"'
         ' target="_blank" rel="noopener noreferrer">'
         f'{_esc(name)}{_DRAFT_NEW_TAB}</a>'
         for name in scripts
@@ -5272,7 +6561,7 @@ def draft_type_values(tp, docs_by_path, next_url, next_label, adopter_docs=()):
         area = draft_domain_label(d["domain"])
         if d["domain"] == ROOT_DOMAIN:
             link = (
-                f'<a href="{_esc(GITHUB_BLOB_BASE + d["path"])}"'
+                f'<a href="{_esc(repo_blob_url(d["path"]))}"'
                 ' target="_blank" rel="noopener noreferrer">'
                 f'{_esc(d["title"])}{_DRAFT_NEW_TAB}</a>'
             )
@@ -5487,7 +6776,7 @@ def draft_document_values(doc, docs_by_path):
             else:
                 rtitle = rd.get("title", rp) if rd else rp
                 rows.append(
-                    f'<li><a href="{_esc(GITHUB_BLOB_BASE + rp)}"'
+                    f'<li><a href="{_esc(repo_blob_url(rp))}"'
                     ' target="_blank" rel="noopener noreferrer">'
                     f'{_draft_wrapping_path(rtitle)}{_DRAFT_NEW_TAB}</a>'
                     '<span class="n">source</span></li>'
@@ -5505,7 +6794,7 @@ def draft_document_values(doc, docs_by_path):
         "DOC_OUTLINE_SECTION": outline_section,
         "DOC_LEAD": _esc(purpose),
         "DOC_RECORD": record,
-        "DOC_GITHUB_URL": _esc(GITHUB_BLOB_BASE + doc["path"]),
+        "DOC_GITHUB_URL": _esc(repo_blob_url(doc["path"])),
         "DOC_FRAMEWORKS_SECTION": frameworks_section,
         "DOC_RELATED_SECTION": related_section,
     }
@@ -5551,6 +6840,11 @@ def draft_narrative_body(body_html, source_rel, pages_by_path=None):
         target = _manifest_target(href) if pages_by_path else None
         doc = pages_by_path.get(target) if target else None
         if doc is not None and doc.get("domain") != ROOT_DOMAIN:
+            # The blob URL render_narrative_body recorded never reaches the
+            # output, so its ledger entry is withdrawn here, where the URL
+            # is dropped; the on-site page URL carries no owner token.
+            _retract_repo_emission(
+                html_unescape(href), _LEDGER_COUNTED, target)
             url = _doc_page_url("{{BASE}}", target)
             return f'<a href="{_esc(url)}">{m.group(2)}</a>'
         return (f'{m.group(1)} target="_blank" rel="noopener noreferrer">'
@@ -7956,7 +9250,7 @@ def draft_crosswalk_instrument_values(xw, inst):
     }
 
 
-def render_draft_variant(figures, variant):
+def render_draft_variant(figures, variant, ledger=None):
     """Render the whole /draft tree: the fixed pages, one page per corpus
     domain, one page per document type, one page per non-root corpus
     document, one page per docs/ adopter document (site a9), with
@@ -8016,6 +9310,27 @@ def render_draft_variant(figures, variant):
     concerns = draft_concern_join(figures, docs_by_path)
     pages = []
     used = set()
+    extras_keys = set()
+    # One emission ledger per render, bound to this render's result (round
+    # 3, item 8): a direct render_draft_variant call gets its own fresh
+    # dict, and render_site passes one run ledger across its variants, so
+    # no allowance survives from one render into another. The pending
+    # buffer is transient within the render: cleared here, checked empty
+    # before returning.
+    if ledger is None:
+        ledger = {}
+    _PENDING_REPO_EMISSIONS.clear()
+    # The repository links each template or partial source emits into every
+    # page rendered from it (the emission ledger, round 2 of the link-guard
+    # follow-up): extracted ONCE per source from the committed template text,
+    # then attached to each rendered page together with the generated links
+    # the extras builders recorded through repo_blob_url/record_repo_emission
+    # while this page's values were built.
+    partial_emissions = {
+        key: _source_repo_emissions(f"partials/{PARTIALS[key]}", text)
+        for key, text in partials.items()
+    }
+    template_emissions = {}
 
     def emit(template_name, out_rel, extra):
         html, used_keys = render_page(
@@ -8025,6 +9340,18 @@ def render_draft_variant(figures, variant):
         refuse_draft_page(out_rel, html)
         pages.append((out_rel, html))
         used.update(used_keys)
+        extras_keys.update(extra)
+        if template_name not in template_emissions:
+            template_emissions[template_name] = _source_repo_emissions(
+                template_name,
+                (template_dir / template_name).read_text(encoding="utf-8"),
+            )
+        entries = list(template_emissions[template_name])
+        for key in PARTIALS:
+            if key in used_keys:
+                entries.extend(partial_emissions[key])
+        _attach_repo_emissions(ledger, output_rel_for(variant, out_rel),
+                               entries)
 
     fixed_extras = {
         "landing.html": lambda: draft_landing_values(figures, docs_by_path),
@@ -8179,8 +9506,13 @@ def render_draft_variant(figures, variant):
         emit(template_name, out_rel, draft_disclosure_values(scripts))
         pages.insert(slot, pages.pop())
 
+    # Extras keys join the unused-value check (round 3, item 6): a recorded
+    # link inside an extras value whose key no template ever substitutes
+    # would otherwise attach silent allowance to a page that never carries
+    # the link.
     unused = sorted(
-        (set(PARTIALS) | set(figure_values(figures, variant))) - used
+        (set(PARTIALS) | set(figure_values(figures, variant)) | extras_keys)
+        - used
     )
     if unused:
         raise BuildError(
@@ -8193,15 +9525,25 @@ def render_draft_variant(figures, variant):
     # draft serves (spec section 4 item 3: mandatory on every site).
     run_palette_gate()
     for rel, data in assets:
-        pages.append((f"assets/baseline/{rel}", data))
+        asset_rel = f"assets/baseline/{rel}"
+        pages.append((asset_rel, data))
+        _ledger_copied_output(ledger, output_rel_for(variant, asset_rel),
+                              data)
     # The link-preview card (item 3b788): its hash-verified raw bytes, never
     # re-encoded, published beside the baseline assets. A non-.html output
     # never lands in the sitemap (render_site lists rendered pages alone).
-    pages.append((CARD_OUT_REL, load_card_bytes()))
+    card = load_card_bytes()
+    pages.append((CARD_OUT_REL, card))
+    _ledger_copied_output(ledger, output_rel_for(variant, CARD_OUT_REL), card)
+    if _PENDING_REPO_EMISSIONS:
+        raise BuildError(
+            "recorded repository emission(s) attached to no output: "
+            + ", ".join(repr(e[0]) for e in _PENDING_REPO_EMISSIONS[:5])
+        )
     return pages
 
 
-def render_variant(figures, variant):
+def render_variant(figures, variant, ledger=None):
     """Render one variant's HTML template tree and return relative outputs.
 
     Every variant in the promoted table renders through render_draft_variant
@@ -8209,7 +9551,7 @@ def render_variant(figures, variant):
     staging trees at the draft-site promotion); a non-draft-rules row is a
     table error, surfaced loudly here."""
     if variant.draft_rules:
-        return render_draft_variant(figures, variant)
+        return render_draft_variant(figures, variant, ledger)
     raise BuildError(
         f"variant {variant.name} has no renderer: the plain-template "
         "machinery was removed at the draft-site promotion (every variant "
@@ -8217,17 +9559,29 @@ def render_variant(figures, variant):
     )
 
 
+class RenderedPages(list):
+    """render_site's output list with that render's own emission ledger
+    bound to it (``repo_ledger``), so verification reads the allowance of
+    exactly this render and of no other (round 3, item 8)."""
+
+    def __init__(self, ledger):
+        super().__init__()
+        self.repo_ledger = ledger
+
+
 def render_site(figures):
     """Render every variant tree and return ``(dist-relative path, content)``.
 
     Each table row renders its own template tree. The indexable root tree
     alone emits crawler and discovery files, so a non-indexable staging tree
-    cannot publish a competing root.
+    cannot publish a competing root. The result carries this render's own
+    emission ledger as ``repo_ledger``.
     """
     indexable_variant()
-    pages = []
+    ledger = {}
+    pages = RenderedPages(ledger)
     for variant in VARIANTS:
-        variant_pages = render_variant(figures, variant)
+        variant_pages = render_variant(figures, variant, ledger)
         pages.extend(
             (output_rel_for(variant, out_rel), html)
             for out_rel, html in variant_pages
@@ -8247,9 +9601,11 @@ def render_site(figures):
                 output_rel_for(variant, "sitemap.xml"),
                 render_sitemap(variant, html_page_rels),
             ))
-            pages.append((
-                output_rel_for(variant, "llms.txt"), render_llms_txt(figures, variant),
-            ))
+            llms_rel = output_rel_for(variant, "llms.txt")
+            pages.append((llms_rel, render_llms_txt(figures, variant)))
+            # The llms.txt blob and root links were just recorded by
+            # repo_blob_url / repo_root_url; attach them to their output.
+            _attach_repo_emissions(ledger, llms_rel)
             # The Pages header and redirect rules and the RFC 9116
             # security.txt, emitted once each, at the output root alone (the
             # sole indexable variant has the empty prefix, so none lands
@@ -8259,6 +9615,11 @@ def render_site(figures):
             pages.append((
                 output_rel_for(variant, ".well-known/security.txt"), SECURITY_TXT,
             ))
+    if _PENDING_REPO_EMISSIONS:
+        raise BuildError(
+            "recorded repository emission(s) attached to no output: "
+            + ", ".join(repr(e[0]) for e in _PENDING_REPO_EMISSIONS[:5])
+        )
     return pages
 
 
@@ -10108,7 +11469,7 @@ def main(argv=None):
         # still matches the generator's partial and placeholder set.
         pages = render_site(figures)
         manifest_text = render_corpus_link_manifest(
-            figures, indexable_variant(), pages
+            figures, indexable_variant(), pages, pages.repo_ledger
         )
     except BuildError as e:
         print(f"web-generator FAIL: {e}", file=sys.stderr)
