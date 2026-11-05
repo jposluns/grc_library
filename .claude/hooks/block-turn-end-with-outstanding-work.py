@@ -115,7 +115,11 @@ _FALLBACK_ITEMS branches (the pre-2026-11-04 console cap) with one line counting
 held-branches path and the one-shot escape. Every branch item the fallback shows is escaped
 with _printable, and so is every item of the last-resort form (the full detail with the NOTE
 after it, used when the fallback cannot be rendered), so a newline or terminal escape in a git
-error text cannot start a console line on any path; the detail log keeps the raw text. This
+error text cannot start a console line on any path; the detail log keeps the raw text. The
+held-branches path and the one-shot escape path are escaped with _printable wherever decide()
+renders them (the fallback, the last-resort form and the detail log alike), and so is the
+escape path in main()'s cannot-format refusal and every path the hook-helper-isolation refusal
+names, so a newline or terminal escape in a path cannot start a console line either. This
 fails open to visibility, never to silence:
 the count is always shown, and when the log was written the full list is there. RESIDUE: when
 the log was not written, branches past the first _FALLBACK_ITEMS are named nowhere, as before
@@ -179,6 +183,11 @@ def _load_sibling(name, _cache={}):
         return _cache[name]
 
     def _refuse(why):
+        # A launch path holding a newline or a terminal escape is shown escaped, by the rule
+        # _printable applies (it is defined later in this module than this first call).
+        import unicodedata
+        why = "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                      else ascii(char)[1:-1] for char in why)
         print("BLOCKED (hook-helper-isolation): " + why + "; refusing to execute "
               "anything but the reviewed helper sources.", file=sys.stderr)
         sys.exit(2)
@@ -447,7 +456,8 @@ def decide(stop_hook_active: bool, escape: bool, branches: list,
     branch); main() routes it to the detail log and shows summarize() on the console. The
     console fallback (_route_refusal) passes ``shown``, which keeps that many branches, each
     escaped with _printable (the detail log form keeps the raw text), and counts the rest on
-    one line, and ``note``, placed before the list."""
+    one line, and ``note``, placed before the list. The held-branches path and the one-shot
+    escape path are escaped with _printable on every form."""
     if stop_hook_active or escape:
         return None
     if not branches:
@@ -469,13 +479,13 @@ def decide(stop_hook_active: bool, escape: bool, branches: list,
         lines.append("    Held-branches record path:")
         # Show the ACTUAL resolved held-branches path (resolve_working -> local store), never a
         # hardcoded sibling path, so the remediation the guard prints follows the store migration.
-        lines.append("      %s" % (HELD_FILE if HELD_FILE is not None
+        lines.append("      %s" % (_printable(str(HELD_FILE)) if HELD_FILE is not None
                                    else "the held-branches file (resolved via lint_common.resolve_working)"))
     lines += [
         "",
         "CONSIDER INSTEAD: merge the branch(es) above, or record the hold with its reason in the "
         "held-branches file. For a genuine block (CI, a maintainer decision, an external wait), record that blocker, then run:",
-        f"      touch {ESCAPE_FILE}     # honoured once, then deleted",
+        f"      touch {_printable(str(ESCAPE_FILE))}     # honoured once, then deleted",
     ]
     return "\n".join(lines)
 
@@ -729,7 +739,7 @@ def main() -> int:
             # The scan established a block; a rendering error must not erase it.
             # Escape handling above remains independent of this fallback.
             message = ("BLOCKED (turn-end-outstanding-work): cannot format outstanding work; "
-                       "one-shot escape: touch " + str(ESCAPE_FILE))
+                       "one-shot escape: touch " + _printable(str(ESCAPE_FILE)))
         else:
             if message:
                 # Wording and routing only: the full detail goes to the session log and the

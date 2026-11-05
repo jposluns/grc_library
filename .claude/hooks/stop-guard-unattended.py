@@ -162,8 +162,11 @@ emitted instead (_fallback_refusal): decide()'s reason, then
 one NOTE line naming the failure, then the actionable count only. This fails open to
 visibility, never to silence, and keeps #2291: no item ID or title reaches the diagnostic on
 either path. Every fallback line is clamped to _MAX_LINE_CHARS and _MAX_LINE_BYTES, so the
-fallback always fits _diagnostic's PIPE_BUF cap with the NOTE intact. Exit status, the escape
-and stop_hook_active handling are unchanged. RESIDUE: ancestors above the store directory are
+fallback always fits _diagnostic's PIPE_BUF cap with the NOTE intact. decide() escapes the
+declared-wait path with _printable, so a newline or terminal escape in it cannot start a
+diagnostic line on the fallback (the detail log carries the same escaped text), and the
+producer's fail-open NOTICE escapes the producer's stderr and path the same way. Exit status,
+the escape and stop_hook_active handling are unchanged. RESIDUE: ancestors above the store directory are
 not checked for symlinks; the log is appended to without rotation; two sessions whose ids
 share their first 12 characters share one log file (each entry names its session); a write
 that times out may still complete later in the abandoned thread, and the process exit can
@@ -635,7 +638,7 @@ def actionable_items(root):
         return None  # timeout / spawn failure -> indeterminate -> fail open
     if proc.returncode != 0:
         reason = " ".join(proc.stderr.splitlines()).strip() or (exe + " exited " + str(proc.returncode))
-        _diagnostic("NOTICE (stop-guard-unattended; fail open): " + reason[:1024] + "\n")
+        _diagnostic("NOTICE (stop-guard-unattended; fail open): " + _printable(reason[:1024]) + "\n")
         return None  # producer error -> indeterminate -> fail open
     out = []
     for line in proc.stdout.splitlines():
@@ -939,7 +942,7 @@ def decide(mode, stop_hook_active, actionable, live_groups, share):
         "Yield allowed with at least %d live owned dispatch groups, or no actionable items "
         "(a [BLOCKED:<reason>] tag with a granted approvals row)." % required,
         "Declared wait: touch %s (once, after recording blocker); operator stop: set mode attended."
-        % _grc_escape_file(),
+        % _printable(_grc_escape_file()),
     ]
     return True, "\n".join(line[:_MAX_LINE_CHARS] for line in lines[:_MAX_REASON_LINES])
 

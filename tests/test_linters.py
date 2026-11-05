@@ -73587,6 +73587,128 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             mod._short_refusal(4, 1, log, "/" + "w" * 101)
 
+    # ---- Round 6 (2026-11-05): every path and error text a Stop hook prints is escaped ----
+    # (label, raw character, the _printable form): each case fails on 6ef6aa643.
+    ODD_PATH_CHARS = (("newline", "\n", "\\n"), ("ESC", "\x1b", "\\x1b"))
+
+    def _odd_turn_end_paths(self, td, raw):
+        return (Path(td) / ("held" + raw + "x") / "held-branches.txt",
+                Path(td) / ("drop" + raw + "y") / ".allow-stop")
+
+    def _assert_paths_escaped(self, text, raw, shown, *paths):
+        for path in paths:
+            self.assertNotIn(str(path), text)
+            self.assertIn(str(path).replace(raw, shown), text)
+
+    def test_turn_end_fallback_escapes_held_and_escape_paths(self):
+        """Round 6 item 1: on the console fallback the held-branches path and the one-shot escape
+        path are escaped like the items, so a newline or an ESC in either cannot start a line."""
+        hook = "block-turn-end-with-outstanding-work"
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                held, escape = self._odd_turn_end_paths(td, raw)
+                items, status, text = self._stop_block(hook, td, 2, {}, None,
+                                                       HELD_FILE=held, ESCAPE_FILE=escape)
+                self.assertEqual(status, 2)
+                self._assert_fallback(hook, items, text)
+                self._assert_paths_escaped(text, raw, shown, held, escape)
+                lines = text.split("\n")
+                self.assertIn("      " + str(held).replace(raw, shown), lines)
+                self.assertIn("      touch " + str(escape).replace(raw, shown)
+                              + "     # honoured once, then deleted", lines)
+
+    def test_turn_end_last_resort_escapes_held_and_escape_paths(self):
+        """Round 6 item 1: the last-resort form (the full detail, then the NOTE) escapes both
+        paths too."""
+        from unittest.mock import patch
+        mod = load_linter_module(".claude/hooks/block-turn-end-with-outstanding-work.py",
+                                 "_turn_end_r6_last_resort")
+        branches = [("claude/a", "1")]
+        real = mod.decide
+
+        def no_fallback(*args, **kwargs):
+            if kwargs.get("shown") is not None:
+                raise ValueError("fallback unavailable")
+            return real(*args, **kwargs)
+
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                held, escape = self._odd_turn_end_paths(td, raw)
+                with patch.object(mod, "HELD_FILE", held), patch.object(mod, "ESCAPE_FILE", escape):
+                    detail = real(False, False, branches)
+                    with patch.object(mod, "decide", no_fallback):
+                        text = mod._route_refusal(detail, branches, {})
+                self.assertTrue(text.endswith("; detail shown here."), text)
+                self.assertIn("    - claude/a (+1)", text.split("\n"))
+                self._assert_paths_escaped(text, raw, shown, held, escape)
+
+    def test_turn_end_cannot_format_refusal_escapes_escape_path(self):
+        """Round 6 item 2: main()'s refusal when decide() itself fails names the escape path
+        escaped."""
+        hook = "block-turn-end-with-outstanding-work"
+
+        def broken(*args, **kwargs):
+            raise ValueError("rendering probe")
+
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                _held, escape = self._odd_turn_end_paths(td, raw)
+                _items, status, text = self._stop_block(hook, td, 1, {}, None,
+                                                        ESCAPE_FILE=escape, decide=broken)
+                self.assertEqual(status, 2)
+                self.assertEqual(text, "BLOCKED (turn-end-outstanding-work): cannot format "
+                                       "outstanding work; one-shot escape: touch "
+                                 + str(escape).replace(raw, shown))
+
+    def test_turn_end_isolation_refusal_escapes_launch_path(self):
+        """Round 6 item 2: the hook-helper-isolation refusal names the launch path escaped, on one
+        line."""
+        source = (REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py").read_bytes()
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                launch = Path(td) / ("odd" + raw + "dir") / "block-turn-end-with-outstanding-work.py"
+                launch.parent.mkdir()
+                launch.write_bytes(source)
+                proc = subprocess.run([sys.executable, "-I", str(launch)], input="{}",
+                                      capture_output=True, text=True, timeout=60)
+                self.assertEqual(proc.returncode, 2, proc.stderr)
+                self.assertTrue(proc.stderr.startswith("BLOCKED (hook-helper-isolation): "),
+                                proc.stderr)
+                self.assertEqual(len(proc.stderr.splitlines()), 1, proc.stderr)
+                self._assert_paths_escaped(proc.stderr, raw, shown, launch)
+
+    def test_stop_guard_fallback_escapes_declared_wait_path(self):
+        """Round 6 item 2: decide() escapes the declared-wait path, so the count-only fallback
+        cannot show it raw or split it across lines."""
+        hook = "stop-guard-unattended"
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                escape = "/w/drop" + raw + "y/.allow-idle-stop"
+                items, status, text = self._stop_block(hook, td, 4, {}, None,
+                                                       _grc_escape_file=lambda: escape)
+                self.assertEqual(status, 2)
+                self._assert_fallback(hook, items, text)
+                self.assertNotIn(escape, text)
+                self.assertNotIn("\x1b", text)
+                self.assertIn("Declared wait: touch " + escape.replace(raw, shown) + " (once, "
+                              "after recording blocker)", text.split("\n")[4])
+
+    def test_stop_guard_producer_notice_escapes_stderr(self):
+        """Round 6 item 2: the producer's fail-open NOTICE escapes the producer's error text."""
+        from unittest.mock import patch
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_stop_r6_notice")
+        with tempfile.TemporaryDirectory() as td:
+            exe = Path(td) / ".claude" / "hooks" / "nmw-actionable"
+            exe.parent.mkdir(parents=True)
+            exe.write_text("import sys\nsys.stderr.write('producer \\x1b[2J failed\\x07\\n')\n"
+                           "sys.exit(3)\n", encoding="utf-8")
+            exe.chmod(0o755)
+            sent = []
+            with patch.object(mod, "_diagnostic", sent.append):
+                self.assertIsNone(mod.actionable_items(td))
+        self.assertEqual(sent, ["NOTICE (stop-guard-unattended; fail open): "
+                                "producer \\x1b[2J failed\\x07\n"])
+
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()
         self.assertEqual(len(registered), 18)
