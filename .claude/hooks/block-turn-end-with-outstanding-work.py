@@ -79,6 +79,23 @@ GUARD-INPUT RESIDUE, stated at the point of use per validate-inference-before-ac
   * the hook sees files and refs. It cannot see whether the actor intends to continue, which is the
     thing it is really trying to constrain; it can only make yielding-with-work-outstanding require
     a deliberate act.
+
+CONSOLE AND DETAIL LOG (maintainer-directed 2026-11-04: refusal detail belongs on the backend, not
+the operator view). This changes only how a refusal is worded and routed, never whether the hook
+refuses. decide() renders the FULL detail: every outstanding or unverifiable branch, the resolved
+held-branches path and the one-shot escape. main() appends that detail to a per-session log,
+<store>/stop-hook-detail/turn-end-outstanding-work.<session_id>.log, where <store> is the same
+store-aware `.working` resolution (lint_common.resolve_working, strict) that locates the
+held-branches file. The text returned to the harness is then three short lines (summarize()):
+what blocked, with the branch count and at most the first _SHOWN_ITEMS branches; WHY; and the one
+action that clears it, followed by the log path. The log is created without following symlinks
+(the store directory, the subdirectory and the file are opened with O_NOFOLLOW), mode 0600,
+regular, owned by this uid and singly linked. If the log cannot be written (no usable session_id
+in the Stop payload, no store, a store inside this checkout, or any open, check or write
+failure), the full detail is returned instead with one NOTE line naming the failure: this fails
+open to visibility, never to silence. Exit status, the escape and stop_hook_active handling are
+unchanged. RESIDUE: ancestors above the store directory are not checked for symlinks, and the
+log is appended to without rotation.
 """
 
 from __future__ import annotations
@@ -88,8 +105,10 @@ import errno
 import json
 import os
 import re as _re
+import stat
 import subprocess
 import sys
+import time
 import unicodedata
 from pathlib import Path
 
@@ -215,6 +234,11 @@ except Exception as exc:
     _HELD_FILE_ERROR = exc
 GIT_TIMEOUT = 20
 _EXPIRY = _re.compile(r"\d{4}-\d{2}-\d{2}", _re.ASCII)
+# Console refusal shape (see CONSOLE AND DETAIL LOG in the module docstring).
+_SHOWN_ITEMS = 3
+_MAX_ITEM_CHARS = 120
+_DETAIL_SUBDIR = "stop-hook-detail"
+_SESSION_ID = _re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}", _re.ASCII)
 
 
 def _git_environment() -> dict:
@@ -363,7 +387,8 @@ def unmerged_branches() -> list:
 
 
 def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
-    """Pure decision, so it is testable without a repository."""
+    """Pure decision, so it is testable without a repository. Returns the FULL detail (every
+    branch); main() routes it to the detail log and shows summarize() on the console."""
     if stop_hook_active or escape:
         return None
     if not branches:
@@ -373,7 +398,7 @@ def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
              "for the next session to untangle.", ""]
     if branches:
         lines.append("  Branches outstanding or not verifiable (%d):" % len(branches))
-        lines += ["    - %s (+%s)" % (n, a) for n, a in branches[:8]]
+        lines += ["    - %s (+%s)" % (n, a) for n, a in branches]
         lines.append("    Held-branches record path:")
         # Show the ACTUAL resolved held-branches path (resolve_working -> local store), never a
         # hardcoded sibling path, so the remediation the guard prints follows the store migration.
@@ -386,6 +411,108 @@ def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
         f"      touch {ESCAPE_FILE}     # honoured once, then deleted",
     ]
     return "\n".join(lines)
+
+
+def summarize(branches: list, log_path: str) -> str:
+    """The three console lines: what blocked (count plus at most _SHOWN_ITEMS branches), WHY,
+    and the one action that clears it followed by the detail log path."""
+    shown = []
+    for name, ahead in branches[:_SHOWN_ITEMS]:
+        item = "%s (+%s)" % (name, ahead)
+        if len(item) > _MAX_ITEM_CHARS:
+            item = item[:_MAX_ITEM_CHARS - 3] + "..."
+        shown.append(item)
+    listed = ", ".join(shown)
+    if len(branches) > _SHOWN_ITEMS:
+        listed += ", and %d more" % (len(branches) - _SHOWN_ITEMS)
+    return "\n".join([
+        "BLOCKED (turn-end-outstanding-work): %d branch(es) outstanding or not verifiable: %s."
+        % (len(branches), listed),
+        "WHY: a turn-end yield strands unmerged work ahead of main for the next session.",
+        "CONSIDER INSTEAD: merge each listed branch or record its hold; "
+        "full list, hold file and escape: %s" % log_path,
+    ])
+
+
+def _detail_dir():
+    """The store directory holding the detail log subdirectory: the held-branches resolution
+    (resolve_working, strict) of the `.working` root. None when no store resolves or the
+    resolved location is inside this checkout (detail never lands in the public tree)."""
+    if _resolve_working is None:
+        return None
+    found = _resolve_working(".", repo_root=REPO, strict=True)
+    if found is None:
+        return None
+    found = Path(os.path.abspath(found))
+    if found.resolve().is_relative_to(Path(REPO).resolve()):
+        return None
+    return found
+
+
+def _append_private(directory, name: str, text: str) -> str:
+    """Append ``text`` to ``directory/_DETAIL_SUBDIR/name`` without following a symlink at the
+    directory, the subdirectory or the file; the file must end up a singly linked regular file
+    owned by this uid with mode 0600. Any failure raises; the caller then fails open to the
+    console."""
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+    top = os.open(directory, flags)
+    try:
+        try:
+            os.mkdir(_DETAIL_SUBDIR, 0o700, dir_fd=top)
+        except FileExistsError:
+            pass
+        sub = os.open(_DETAIL_SUBDIR, flags, dir_fd=top)
+    finally:
+        os.close(top)
+    try:
+        fd = os.open(name, os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NOFOLLOW
+                     | os.O_NONBLOCK | os.O_CLOEXEC, 0o600, dir_fd=sub)
+    finally:
+        os.close(sub)
+    try:
+        info = os.fstat(fd)
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
+                or info.st_nlink != 1):
+            raise PermissionError(errno.EPERM, "detail log is not a private regular file", name)
+        os.fchmod(fd, 0o600)
+        data = text.encode("utf-8", errors="backslashreplace")
+        while data:
+            written = os.write(fd, data)
+            if written <= 0:
+                raise OSError(errno.EIO, "short write to detail log", name)
+            data = data[written:]
+    finally:
+        os.close(fd)
+    return os.path.join(os.fspath(directory), _DETAIL_SUBDIR, name)
+
+
+def _write_detail_log(detail: str, payload) -> str:
+    """Append the full refusal detail to this session's log and return its path, or raise."""
+    session = payload.get("session_id") if isinstance(payload, dict) else None
+    if not isinstance(session, str) or not _SESSION_ID.fullmatch(session):
+        raise ValueError("no usable session_id in the Stop payload")
+    directory = _detail_dir()
+    if directory is None:
+        raise FileNotFoundError(errno.ENOENT, "no private store directory resolved for the detail log")
+    stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    return _append_private(directory, "turn-end-outstanding-work.%s.log" % session,
+                           "=== %s turn-end-outstanding-work ===\n%s\n\n" % (stamp, detail))
+
+
+def _route_refusal(detail: str, branches: list, payload) -> str:
+    """Short console form after a successful log write; the full detail otherwise."""
+    try:
+        path = _write_detail_log(detail, payload)
+    except Exception as exc:
+        try:
+            why = "%s: %s" % (type(exc).__name__, exc)
+        except Exception:
+            why = type(exc).__name__
+        return detail + "\nNOTE: detail log not written (%s); full detail shown here." % why
+    try:
+        return summarize(branches, path)
+    except Exception:
+        return detail
 
 
 def _fail_open() -> int:
@@ -440,6 +567,11 @@ def main() -> int:
             # Escape handling above remains independent of this fallback.
             message = ("BLOCKED (turn-end-outstanding-work): cannot format outstanding work; "
                        "one-shot escape: touch " + str(ESCAPE_FILE))
+        else:
+            if message:
+                # Wording and routing only: the full detail goes to the session log and the
+                # console gets three lines, or the full detail when the log cannot be written.
+                message = _route_refusal(message, branches, payload)
         if message:
             try:
                 print(message, file=sys.stderr)
@@ -554,7 +686,36 @@ def self_test() -> int:
         bad += 1
         print("FAIL malformed payload with no sentinel did not fail open")
 
-    total = len(SELF_TEST) + 4
+    # Console form: three lines, the count and at most the first _SHOWN_ITEMS branches.
+    many = [("b%d" % n, "1") for n in range(5)]
+    short = summarize(many, "/store/x.log")
+    if (len(short.splitlines()) != 3 or "5 branch(es)" not in short or "b2 (+1)" not in short
+            or "b3" in short or "and 2 more" not in short or not short.endswith("/store/x.log")):
+        bad += 1
+        print("FAIL summarize did not cap the console list at three")
+
+    # No usable session_id: the full detail stays visible, with a NOTE, and nothing is written.
+    detail = decide(False, False, many)
+    with mock.patch.object(module, "_detail_dir") as no_dir:
+        routed = _route_refusal(detail, many, {})
+    if not routed.startswith(detail) or "NOTE: detail log not written" not in routed or no_dir.called:
+        bad += 1
+        print("FAIL missing session_id did not fail open to the full detail")
+
+    # A usable session and store: the detail is appended to a 0600 log and three lines return.
+    import tempfile
+    with tempfile.TemporaryDirectory() as store, mock.patch.object(
+        module, "_detail_dir", return_value=Path(store)
+    ):
+        routed = _route_refusal(detail, many, {"session_id": "self-test-1"})
+        log = Path(store) / _DETAIL_SUBDIR / "turn-end-outstanding-work.self-test-1.log"
+        logged = log.read_text(encoding="utf-8") if log.is_file() else ""
+        mode = stat.S_IMODE(os.lstat(log).st_mode) if log.is_file() else None
+    if (routed != summarize(many, str(log)) or "b4 (+1)" not in logged or mode != 0o600):
+        bad += 1
+        print("FAIL detail log was not written privately with the short console form")
+
+    total = len(SELF_TEST) + 7
     print(str(total - bad) + "/" + str(total) + " decision cases pass")
     return 1 if bad else 0
 

@@ -72060,6 +72060,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
     """P-1.95: per-rendered-message refusal inventory and contract."""
 
     P = "/__p195__/grc_library"
+    DETAIL_LOG = "/__p195__/private/stop-hook-detail/p195.log"
     ARGV_MAIN = {
         "block-askuserquestion-unattended", "block-branch-to-main-edit",
         "block-operational-without-private", "block-orchestrator-self-qa",
@@ -72226,12 +72227,14 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
         add = group("block-turn-end-with-outstanding-work", "merge",
                     ("main", "print(message, file=sys.stderr)"), "turn-end-outstanding-work")
+        # 2026-11-04: the console form is three lines; the held-branches path and the full
+        # list go to the detail log (asserted on the writer's input in _render_case).
         for held in (True, False):
             for count in (1, 9):
                 add("held-%s-count-%s" % (held, count), (held, count),
-                    evidence=(("held-branches.txt" if held else
-                               "the held-branches file (resolved via"), "claude/probe0"),
-                    absent=("claude/probe8",) if count == 9 else ())
+                    evidence=(cls.DETAIL_LOG, "claude/probe0"),
+                    absent=("claude/probe3", "claude/probe8", "held-branches")
+                    if count == 9 else ("held-branches",))
 
         add = group("block-unbumped-version-commit", "bump",
                     ("main", "print('\\n'.join(lines),"))
@@ -72341,7 +72344,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 sites=(("decide", "BLOCKED (" + guard + ")"),))
         add = group("stop-guard-unattended", "continue",
                     ("run", "_diagnostic(reason + '\\n')"), "stop-guard-unattended")
-        add("actionable", None, evidence=("1 actionable open backlog item",), transport="diagnostic")
+        add("actionable", None, evidence=("1 actionable open backlog item", cls.DETAIL_LOG),
+            absent=("P-1.95", "probe"), transport="diagnostic")
         return cases
 
     def assert_refusal(self, message, *, guard, imperative):
@@ -72562,6 +72566,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     m(mod, "unmerged_branches", [("claude/probe%d" % n, "1") for n in range(count)])
                     p(mod, "HELD_FILE", Path("/__p195__/held-branches.txt") if held else None)
                     p(Path, "exists", lambda path: False)
+                    writer = m(mod, "_write_detail_log", self.DETAIL_LOG)
                 elif hook == "block-unbumped-version-commit":
                     bash("git commit -m probe")
                     m(mod, "project_root", Path(self.P))
@@ -72650,6 +72655,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     # 3b113 base: _diagnostic forks a writer child (its own --self-test covers that transport);
                     # here it writes directly so the rendered refusal is captured and checked.
                     p(mod, "_diagnostic", lambda message: diag_calls.append((sys._getframe(1).f_lineno, message)))
+                    writer = m(mod, "_write_detail_log", self.DETAIL_LOG)
                 else:
                     self.fail("No adapter: " + hook)
 
@@ -72721,6 +72727,18 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     fire.assert_called_once_with("BLOCK", messages[0].splitlines()[0])
                 if hook == "block-pr-without-resume-validate" and transport != "return":
                     sentinel.assert_called_once_with()
+                if hook in ("block-turn-end-with-outstanding-work", "stop-guard-unattended"):
+                    # The full detail reaches the per-session log writer, never the console.
+                    writer.assert_called_once()
+                    detail = writer.call_args.args[0]
+                    self.assert_refusal(detail, guard=case["guard"], imperative=case["imperative"])
+                    if hook == "stop-guard-unattended":
+                        self.assertIn("  - P-1.95: probe", detail)
+                    else:
+                        held, count = arg
+                        self.assertIn("held-branches.txt" if held else
+                                      "the held-branches file (resolved via", detail)
+                        self.assertIn("claude/probe%d (+1)" % (count - 1), detail)
                 if hook == "block-unstamped-turn-end":
                     self.assertEqual(current.call_count, int(case["id"] == "stale"))
                 if hook == "block-unbumped-version-commit":
@@ -72735,6 +72753,145 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             sys.settrace(old_trace)
             sys.path[:] = old_path
             self.assertEqual(external, [], "Attempted real external effects")
+
+    # ---- Stop-hook console form and per-session detail log (maintainer-directed 2026-11-04) ----
+    STOP_LOG_HOOKS = {
+        "block-turn-end-with-outstanding-work": ("turn-end-outstanding-work", "merge"),
+        "stop-guard-unattended": ("stop-guard-unattended", "continue"),
+    }
+
+    def _stop_block(self, hook, td, count, payload, store, **patches):
+        """Drive a Stop hook's real block path with `count` items, the detail log routed to
+        `store` (None: no store). Returns (items, exit status, console text)."""
+        import json
+        import lint_common
+        from contextlib import ExitStack, redirect_stderr
+        from unittest.mock import patch
+        turn_end = hook == "block-turn-end-with-outstanding-work"
+        with patch.dict(os.environ, {"CLAUDE_PROJECT_DIR": td}), \
+                patch.object(lint_common, "resolve_working", return_value=None):
+            mod = load_linter_module(".claude/hooks/%s.py" % hook,
+                                     "_stop_detail_" + hook.replace("-", "_"))
+        items = [("claude/probe%d" % n, "1") if turn_end else ("P-%d" % n, "title %d" % n)
+                 for n in range(count)]
+        sent = []
+        with ExitStack() as stack:
+            def p(name, value):
+                stack.enter_context(patch.object(mod, name, value))
+            if turn_end:
+                defaults = dict(
+                    is_worker_session=lambda: False, unmerged_branches=lambda: list(items),
+                    ESCAPE_FILE=Path(td) / ".allow-stop", HELD_FILE=None,
+                    REPO=Path(td) / "repo",
+                    _resolve_working=lambda rel, repo_root, strict: store)
+            else:
+                state = Path(store if store is not None else Path(td) / "no-store") / "session-state.md"
+                defaults = dict(
+                    _grc_consume_escape=lambda root: False,
+                    is_orchestrator_session=lambda root: True,
+                    read_operating_mode=lambda root: "unattended",
+                    actionable_items=lambda root: list(items),
+                    live_dispatch_groups=lambda: 0,
+                    read_slot_share=lambda: (None, "absent"),
+                    _GRC_STATE_FILE=str(state), _diagnostic=sent.append)
+            for name, value in {**defaults, **patches}.items():
+                p(name, value)
+            stack.enter_context(patch.object(sys, "stdin", io.StringIO(json.dumps(payload))))
+            err = stack.enter_context(redirect_stderr(io.StringIO()))
+            status = mod.main() if turn_end else mod.main([mod.__file__])
+            text = err.getvalue() if turn_end else "".join(sent)
+        return items, status, text.rstrip("\n")
+
+    def _stop_log(self, hook, store, session):
+        prefix = self.STOP_LOG_HOOKS[hook][0]
+        return Path(store) / "stop-hook-detail" / ("%s.%s.log" % (prefix, session))
+
+    def test_stop_hooks_console_short_form(self):
+        """A logged refusal is three conforming lines ending in the detail log path."""
+        for hook, (guard, verb) in self.STOP_LOG_HOOKS.items():
+            with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td:
+                store = Path(td) / "store"
+                store.mkdir()
+                _items, status, text = self._stop_block(hook, td, 2, {"session_id": "s-1"}, store)
+                self.assertEqual(status, 2)
+                lines = text.split("\n")
+                self.assertEqual(len(lines), 3, text)
+                self.assert_refusal(text, guard=guard, imperative=verb)
+                self.assertTrue(lines[2].endswith(str(self._stop_log(hook, store, "s-1"))), text)
+                for detail in ("Branches outstanding", "touch ", "Declared wait", "NOTE:"):
+                    self.assertNotIn(detail, text)
+
+    def test_stop_hooks_write_private_detail_log(self):
+        """Every item lands in a 0600 per-session log; a planted symlink is never followed."""
+        import stat
+        for hook in self.STOP_LOG_HOOKS:
+            with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td:
+                store = Path(td) / "store"
+                store.mkdir()
+                items, status, _text = self._stop_block(hook, td, 5, {"session_id": "s-1"}, store)
+                self.assertEqual(status, 2)
+                log = self._stop_log(hook, store, "s-1")
+                info = os.lstat(log)
+                self.assertTrue(stat.S_ISREG(info.st_mode))
+                self.assertEqual(stat.S_IMODE(info.st_mode), 0o600)
+                logged = log.read_text(encoding="utf-8")
+                for name, extra in items:
+                    self.assertIn(name + (" (+1)" if hook.startswith("block-") else ": " + extra), logged)
+                self.assertEqual(self._stop_block(hook, td, 5, {"session_id": "s-1"}, store)[1], 2)
+                self.assertEqual(log.read_text(encoding="utf-8").count("\n=== "), 1)  # appended
+                target = Path(td) / "target"
+                target.write_text("untouched", encoding="utf-8")
+                self._stop_log(hook, store, "s-2").symlink_to(target)
+                _items, status, text = self._stop_block(hook, td, 5, {"session_id": "s-2"}, store)
+                self.assertEqual(status, 2)
+                self.assertEqual(target.read_text(encoding="utf-8"), "untouched")
+                self.assertIn("NOTE: detail log not written", text)
+
+    def test_stop_hooks_log_failure_shows_full_detail(self):
+        """No usable session, no store or a failed write: every item stays on the console."""
+        from unittest.mock import Mock
+        for hook, (guard, verb) in self.STOP_LOG_HOOKS.items():
+            for case in ("no-session", "bad-session", "no-store", "write-error"):
+                with self.subTest(hook=hook, case=case), tempfile.TemporaryDirectory() as td:
+                    store = Path(td) / "store"
+                    store.mkdir()
+                    payload = {"no-session": {}, "bad-session": {"session_id": "../s"}}.get(
+                        case, {"session_id": "s-1"})
+                    patches = {"_append_private": Mock(side_effect=OSError(28, "disk full"))} \
+                        if case == "write-error" else {}
+                    items, status, text = self._stop_block(
+                        hook, td, 9, payload, None if case == "no-store" else store, **patches)
+                    self.assertEqual(status, 2)
+                    self.assert_refusal(text, guard=guard, imperative=verb)
+                    self.assertIn("NOTE: detail log not written (", text)
+                    for name, extra in items:
+                        self.assertIn(name + (" (+1)" if hook.startswith("block-") else ": " + extra), text)
+                    self.assertIn("touch ", text)  # the escape stays reachable
+                    if case == "write-error":
+                        self.assertIn("disk full", text)
+                    self.assertFalse((store / "stop-hook-detail").exists()
+                                     and any((store / "stop-hook-detail").iterdir()))
+
+    def test_stop_hooks_console_list_cap(self):
+        """The console shows the count and at most the first three items."""
+        for hook in self.STOP_LOG_HOOKS:
+            for count in (2, 3, 4, 9):
+                with self.subTest(hook=hook, count=count), tempfile.TemporaryDirectory() as td:
+                    store = Path(td) / "store"
+                    store.mkdir()
+                    items, status, text = self._stop_block(hook, td, count, {"session_id": "s-1"}, store)
+                    self.assertEqual(status, 2)
+                    if hook.startswith("block-"):
+                        self.assertIn("%d branch(es)" % count, text)
+                        shown = [name for name, _ in items if re.search(re.escape(name) + r"\b", text)]
+                        self.assertEqual(shown, [name for name, _ in items[:3]])
+                        if count > 3:
+                            self.assertIn("and %d more" % (count - 3), text)
+                        else:
+                            self.assertNotIn(" more", text)
+                    else:
+                        self.assertIn("%d actionable open backlog item(s)" % count, text)
+                        self.assertNotRegex(text, r"\bP-\d")  # count only (#2291)
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()
@@ -82416,14 +82573,14 @@ class HeldBranchExpiryTests(unittest.TestCase):
         message = err.getvalue()
         self.assertIn("held-branches.txt", message)
         self.assertIn(reason, message)
+        # No session_id in the payload, so no detail log: the full detail (every entry) is shown.
+        self.assertIn("NOTE: detail log not written (ValueError", message)
         displayed = [line for line in message.splitlines() if line.startswith("    - ")]
-        self.assertEqual(len(displayed), 8)
+        self.assertEqual(len(displayed), 11)
         self.assertIn("held-branches.txt", displayed[0])
         self.assertIn(reason, displayed[0])
-        for i in range(7):
+        for i in range(10):
             self.assertIn(f"outstanding-{i} (+1)", message)
-        for i in range(7, 10):
-            self.assertNotIn(f"outstanding-{i} (+1)", message)
         entries = hook.unmerged_branches()
         self.assertEqual(len(entries), 11)
         self.assertEqual(sum("held-branches.txt" in name for name, _ in entries), 1)
@@ -82524,7 +82681,9 @@ class HeldBranchExpiryTests(unittest.TestCase):
             with self.mock.patch.object(sys, "stdin", io.StringIO("{}")):
                 self.assertEqual(hook.main(), 2)
             stream.flush()
-            self.assertEqual(raw.getvalue(), b"BLOCKED: caf\\xe9\n")
+            self.assertEqual(raw.getvalue(), b"BLOCKED: caf\\xe9\nNOTE: detail log not written "
+                             b"(ValueError: no usable session_id in the Stop payload); "
+                             b"full detail shown here.\n")
             self.assert_held_escape(hook)
 
     def test_hook_child_locale(self):

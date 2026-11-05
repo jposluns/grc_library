@@ -33,7 +33,8 @@ What it does, in order (main first consumes any grc one-shot declared-wait escap
      Registry read failure -> allow, except a boundary-byte failure discards the first row and
      continues counting; missing registry means zero groups.
   5. Otherwise -> BLOCK (exit 2), reporting the actionable count, producer command, rule and escape.
-     Item IDs and titles are not emitted (#2291). B's five-line/160-character clamps remain.
+     Item IDs and titles are not emitted (#2291). B's five-line/160-character clamps remain in
+     decide(); run() routes that text as described under CONSOLE AND DETAIL LOG below.
 
 Fail-OPEN. On failure to determine the mode or the actionable set, the hook ALLOWS the stop. A
 guard that traps the actor on its own malfunction protects nothing; a convenience guardrail that
@@ -109,6 +110,24 @@ address discovery: wrap the inherited descriptor with explicit neutral metadata 
 with MSG_DONTWAIT. This also delivers under sandboxes that deny socket metadata queries and
 sendto while permitting sendmsg on an already-connected descriptor. Fork isolation, shared
 fd flags, deadlines, message bounds and fail-open behaviour are unchanged.
+
+CONSOLE AND DETAIL LOG (maintainer-directed 2026-11-04: refusal detail belongs on the backend, not
+the operator view). This changes only how a block is worded and routed, never whether the hook
+blocks. On a block, run() appends the full detail (decide()'s complete reason plus every
+actionable item's ID and title) to a per-session log,
+<store>/stop-hook-detail/stop-guard-unattended.<session_id>.log, where <store> is the directory
+of _GRC_STATE_FILE (GRC_STORE or <repo-parent>/private, the lease's store). The diagnostic is
+then three short lines (_short_refusal): what blocked with the actionable count, WHY with the
+live group count, and the one action that clears it followed by the log path. No item ID or
+title appears in that form. The log is created without following symlinks (the store
+directory, the subdirectory and the file are opened with O_NOFOLLOW), mode 0600, regular, owned
+by this uid and singly linked. If the log cannot be written (no usable session_id in the Stop
+payload, a missing store, or any open, check or write failure), the full detail is emitted
+instead with one NOTE line naming the failure: this fails open to visibility, never to silence.
+On that fallback path item titles do reach the diagnostic, and _diagnostic's PIPE_BUF cap
+still truncates a long list. Exit status, the escape and stop_hook_active handling are
+unchanged. RESIDUE: ancestors above the store directory are not checked for symlinks, and the
+log is appended to without rotation.
 
 Self-test: python3 .claude/hooks/stop-guard-unattended.py --self-test.
 Self-contained: grc file/producer fixtures replace lab_infra tooling fixtures; registry cases remain.
@@ -974,6 +993,102 @@ def _diagnostic(message):
             os._exit(0)
 
 
+_DETAIL_SUBDIR = "stop-hook-detail"
+_SESSION_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}", re.ASCII)
+
+
+def _printable(value):
+    """Escape control and other non-printable characters for the log and the fallback."""
+    return "".join(ch if ch.isprintable() else ascii(ch)[1:-1] for ch in str(value))
+
+
+def _short_refusal(count, live_groups, log_path):
+    """The three diagnostic lines: what blocked (count only, #2291), WHY, and the one action that
+    clears it followed by the detail log path. Lines 1 and 2 keep B's per-line clamp; line 3 is
+    not clamped so the path is never cut."""
+    lines = [
+        "BLOCKED (stop-guard-unattended): unattended turn-end yield; the backlog tool reports "
+        "%d actionable open backlog item(s)." % count,
+        "WHY: not whole-set exhaustion, and the live owned dispatch group count (%d) is below "
+        "the required count." % live_groups,
+    ]
+    lines = [line[:_MAX_LINE_CHARS] for line in lines]
+    lines.append("CONSIDER INSTEAD: continue on the highest-priority actionable item; "
+                 "rule, escape and full list: %s" % log_path)
+    return "\n".join(lines)
+
+
+def _append_private(directory, name, text):
+    """Append ``text`` to ``directory/_DETAIL_SUBDIR/name`` without following a symlink at the
+    directory, the subdirectory or the file; the file must end up a singly linked regular file
+    owned by this uid with mode 0600. Any failure raises; the caller then fails open to the
+    diagnostic."""
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+    top = os.open(directory, flags)
+    try:
+        try:
+            os.mkdir(_DETAIL_SUBDIR, 0o700, dir_fd=top)
+        except FileExistsError:
+            pass
+        sub = os.open(_DETAIL_SUBDIR, flags, dir_fd=top)
+    finally:
+        os.close(top)
+    try:
+        fd = os.open(name, os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NOFOLLOW
+                     | os.O_NONBLOCK | os.O_CLOEXEC, 0o600, dir_fd=sub)
+    finally:
+        os.close(sub)
+    try:
+        info = os.fstat(fd)
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
+                or info.st_nlink != 1):
+            raise PermissionError(errno.EPERM, "detail log is not a private regular file", name)
+        os.fchmod(fd, 0o600)
+        data = text.encode("utf-8", "backslashreplace")
+        while data:
+            written = os.write(fd, data)
+            if written <= 0:
+                raise OSError(errno.EIO, "short write to detail log", name)
+            data = data[written:]
+    finally:
+        os.close(fd)
+    return os.path.join(os.fspath(directory), _DETAIL_SUBDIR, name)
+
+
+def _write_detail_log(detail, payload):
+    """Append the full refusal detail to this session's log and return its path, or raise."""
+    session = payload.get("session_id") if isinstance(payload, dict) else None
+    if not isinstance(session, str) or not _SESSION_ID.fullmatch(session):
+        raise ValueError("no usable session_id in the Stop payload")
+    stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    return _append_private(os.path.dirname(_GRC_STATE_FILE),
+                           "stop-guard-unattended.%s.log" % session,
+                           "=== %s stop-guard-unattended ===\n%s\n\n" % (stamp, detail))
+
+
+def _route_refusal(reason, actionable, live_groups, payload):
+    """Short diagnostic after a successful log write; the full detail otherwise."""
+    detail = reason
+    try:
+        detail += "\nActionable items (%d):" % len(actionable)
+        detail += "".join("\n  - %s: %s" % (_printable(iid), _printable(title))
+                          for iid, title in actionable)
+    except Exception:
+        detail = reason
+    try:
+        path = _write_detail_log(detail, payload)
+    except Exception as exc:
+        try:
+            why = "%s: %s" % (type(exc).__name__, exc)
+        except Exception:
+            why = type(exc).__name__
+        return detail + "\nNOTE: detail log not written (%s); full detail shown here." % why
+    try:
+        return _short_refusal(len(actionable), live_groups, path)
+    except Exception:
+        return detail
+
+
 def run(root, payload):
     """Core: exit 2 (block) iff this is the ORCHESTRATOR session, unattended, not a stop-hook continuation,
     and pipeline shows actionable work without enough live dispatches; else 0.
@@ -995,6 +1110,10 @@ def run(root, payload):
         except Exception:
             share = (None, "unread")
     block, reason = decide(mode, stop_hook_active, actionable, live_groups, share)
+    if block:
+        # Wording and routing only: the full detail goes to the session log and the diagnostic
+        # is three lines, or the full detail when the log cannot be written.
+        reason = _route_refusal(reason, actionable, live_groups, payload)
     if reason:
         _diagnostic(reason + "\n")
     return 2 if block else 0
@@ -2082,6 +2201,32 @@ def _self_test():
             self.assertNotIn("title", reason)
             self.assertIn("500", reason)
             self.assertLess(len(reason), 1200)
+
+        def test_route_logs_detail_and_returns_three_lines(self):
+            many = [("%d" % i, "title%d" % i) for i in range(500)]
+            _b, reason = decide("unattended", False, many, 1, (None, "absent"))
+            with tempfile.TemporaryDirectory() as d:
+                with mock.patch.dict(globals(), _GRC_STATE_FILE=os.path.join(d, "session-state.md")):
+                    short = _route_refusal(reason, many, 1, {"session_id": "self-test-1"})
+                log = os.path.join(d, _DETAIL_SUBDIR, "stop-guard-unattended.self-test-1.log")
+                self.assertEqual(stat.S_IMODE(os.lstat(log).st_mode), 0o600)
+                with open(log, encoding="utf-8") as fh:
+                    logged = fh.read()
+            self.assertEqual(short, _short_refusal(500, 1, log))
+            self.assertEqual(len(short.splitlines()), 3)
+            self.assertNotIn("title", short)
+            self.assertIn(reason, logged)
+            self.assertIn("  - 499: title499", logged)
+
+        def test_route_without_session_keeps_full_detail(self):
+            items = [("1", "work")]
+            _b, reason = decide("unattended", False, items, 0, (None, "absent"))
+            with mock.patch.dict(globals(), _append_private=mock.Mock()) as patched:
+                routed = _route_refusal(reason, items, 0, {})
+                patched["_append_private"].assert_not_called()
+            self.assertTrue(routed.startswith(reason))
+            self.assertIn("  - 1: work", routed)
+            self.assertIn("NOTE: detail log not written (ValueError", routed)
 
         # ---- default file-based mode adapter ----
         def test_grc_mode_map_reads_the_leading_token(self):
