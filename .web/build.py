@@ -3701,10 +3701,11 @@ _DRAFT_NARR_TABLE_RE = re.compile(r"<table>(.*?)</table>", re.S)
 # two alignment matrices, the canonical citations register, and taxonomy.yml,
 # structural and loud on schema change exactly like parse_taxonomy. The
 # crosswalk page is a left-rail page (spec 7.32) whose side list carries the
-# matrix.js column presets (spec 7.30), one per topic view of design C 3.7
-# (maintainer decision 2026-11-03 18:53Z: the views stay by topic), and every
-# instrument by group; each preset is a link to its static view page, so the
-# views still resolve without script.
+# Views links, one per topic view of design C 3.7 (maintainer decision
+# 2026-11-03 18:53Z: the views stay by topic), and every instrument by
+# group; each view is a plain link to its view page (maintainer defect
+# report 2026-11-04: the matrix.js preset form switched columns out of
+# sight, so the rail navigates and no page loads matrix.js).
 
 CROSSWALK_COMPLIANCE_MATRIX = (
     REPO_ROOT / "compliance" / "matrix-grc-compliance-alignment.md"
@@ -4129,9 +4130,10 @@ def crosswalk_alias_keys(name):
 
 
 class CrosswalkPreset(NamedTuple):
-    """One topic view (design C 3.7): a matrix.js preset on the crosswalk
-    page (spec 7.30) and its static view at crosswalk/view/<slug>/, the page
-    the preset link resolves to without script (design C 3.8)."""
+    """One topic view (design C 3.7): a page at crosswalk/view/<slug>/
+    rendering its topic's columns, linked as a plain Views link in the
+    crosswalk side list (design C 3.8; the matrix.js preset form left with
+    the maintainer defect report 2026-11-04, the rail links navigate)."""
 
     slug: str
     label: str
@@ -4165,8 +4167,8 @@ CROSSWALK_TOPICS = (
 # group, then the instruments with a page and no column.
 CROSSWALK_RAIL_GROUPS = CROSSWALK_GROUPS + (_XW_G_ALSO,)
 
-# The All preset's id (spec 7.30 data-preset-id); a topic taking it would
-# make ?view=all name two views, so crosswalk_presets refuses it.
+# The All view's reserved slug; a topic taking it would give a topic view
+# the All view's name, so crosswalk_presets refuses it.
 CROSSWALK_ALL_ID = "all"
 
 
@@ -6570,20 +6572,20 @@ def _xw_column_name(data):
     return display
 
 
-def render_crosswalk_table(xw, keys, matrix):
+def render_crosswalk_table(xw, keys, full):
     """The domain-by-instrument table (design C 3.3) for the given instrument
     columns, in the spec 7.30 matrix markup: every instrument th and td
-    carries its data-col key and the row-header column carries none, so
-    matrix.js never hides it; a header is the name over its organization
-    tag, and a cell holds its single-word identifiers in code type and a
-    count link whose noun is visually hidden. Past the cap, "and more" is
-    visually hidden too, and an empty cell holds only a visually hidden
-    "no documents", as the reference page marks one, so the identifiers and
-    the count link are a cell's only visible content. ``matrix`` marks the
-    table data-matrix (the one matrix on the crosswalk page); a static
-    view's table is the same markup without it, so no script acts there.
-    No colgroup: a fixed column width would outlive the column matrix.js
-    hides."""
+    carries its data-col key (machine-readable column identity) and the
+    row-header column carries none; a header is the name over its
+    organization tag, and a cell holds its single-word identifiers in code
+    type and a count link whose noun is visually hidden. Past the cap, "and
+    more" is visually hidden too, and an empty cell holds only a visually
+    hidden "no documents", as the reference page marks one, so the
+    identifiers and the count link are a cell's only visible content. No
+    page marks the table data-matrix or loads matrix.js (maintainer defect
+    report 2026-11-04: the rail views navigate instead), so a page's
+    columns never change; ``full`` scopes the caption to the full table.
+    No colgroup: a fixed column width would outlive a dropped column."""
     head = ['<th scope="col">Domain</th>']
     for key in keys:
         data = xw["instruments"][key]
@@ -6628,16 +6630,15 @@ def render_crosswalk_table(xw, keys, matrix):
             else:
                 cells.append(f'<td data-col="{key}">{link}</td>')
         body.append("<tr>" + "".join(cells) + "</tr>")
-    marker = " data-matrix" if matrix else ""
     noun = "instrument" if len(keys) == 1 else "instruments"
-    # matrix.js hides columns on the crosswalk page, so its caption scopes
-    # the count to the full table; a static view's columns never change.
+    # The crosswalk page's caption scopes its count to the full table; a
+    # topic view's caption counts the columns here.
     caption = (
         f"Corpus domains by instruments, {len(keys)} in the full table"
-        if matrix else f"Corpus domains by {len(keys)} {noun}"
+        if full else f"Corpus domains by {len(keys)} {noun}"
     )
     return (
-        f'<table class="matrix sticky sticky-col"{marker}>\n'
+        '<table class="matrix sticky sticky-col">\n'
         f'<caption class="vh">{caption}</caption>\n'
         "<thead><tr>" + "".join(head) + "</tr></thead>\n"
         "<tbody>\n" + "\n".join(body) + "\n</tbody>\n</table>"
@@ -6652,7 +6653,7 @@ def _xw_names(xw, keys):
     return ", ".join(names[:-1]) + ", and " + names[-1]
 
 
-def _xw_table_intro(xw, keys, matrix):
+def _xw_table_intro(xw, keys, full):
     """The sentences under the table heading, derived from what the page's
     columns render, so each holds for every column it covers: the columns
     whose cells show a code are the compliance alignment matrix columns
@@ -6661,16 +6662,16 @@ def _xw_table_intro(xw, keys, matrix):
     show the count alone; a column with no recorded mapping in any domain is
     empty throughout; and the remaining columns take their cells from the
     documents the reverse framework control crosswalk cites, with the count
-    alone. On the crosswalk page (``matrix``) matrix.js hides columns, so
-    the counts name the full table; a static view's counts name the columns
-    here. The opening sentence says what every column is: an instrument the
+    alone. On the crosswalk page (``full``) the counts name the full table;
+    a topic view's counts name the columns here. The opening sentence says
+    what every column is: an instrument the
     matrices carry, as a compliance alignment matrix column or in a reverse
     framework control crosswalk section (build_crosswalk refuses a
     main-table instrument with neither), not one they map, since a column
     can have no recorded mapping in any domain (AICPA TSC today). A
     one-column group is named directly ("the PIP column here"), never
     counted."""
-    where = "of the full table" if matrix else "here"
+    where = "of the full table" if full else "here"
 
     def columns(group):
         if len(group) == 1:
@@ -6814,28 +6815,28 @@ def render_crosswalk_caveats(xw, keys=(), inst=None):
     ))
 
 
-def render_crosswalk_rail(xw, current=None, matrix=False):
+def render_crosswalk_rail(xw, current=None):
     """The crosswalk side list (spec 7.32; maintainer direction 2026-11-03
     15:06Z and 15:09Z: one side rail, on the left, which the right rail
     stood in for until the template carried it): the Views list, All plus
-    one preset per topic view, then every instrument under its group,
-    the "Also in the corpus" instruments included, each linking its page.
-    On the crosswalk page (``matrix``) each view carries its matrix.js
-    preset keys and id (spec 7.30); every view stays a link to the page that
-    shows it without script, and the current page's view is marked."""
+    one view per topic, then every instrument under its group, the "Also
+    in the corpus" instruments included, each linking its page. Every view
+    is a plain link to the page that shows it, and the current page's view
+    is marked. Maintainer defect report 2026-11-04 20:10 EST: as matrix.js
+    presets the view links switched columns in place while the matrix sat
+    below the fold at every width, so a rail click changed nothing the
+    visitor could see; the rail now navigates to the static view pages and
+    the crosswalk page loads no matrix script."""
 
-    def view(href, keys, slug, label, here):
+    def view(href, label, here):
         attrs = ' aria-current="page"' if here else ""
-        if matrix:
-            attrs += f' data-preset="{" ".join(keys)}" data-preset-id="{slug}"'
         return f'<li><a href="{href}"{attrs}>{_esc(label)}</a></li>'
 
-    views = [view("{{BASE}}/crosswalk/", (), CROSSWALK_ALL_ID, "All",
-                  current is None)]
+    views = [view("{{BASE}}/crosswalk/", "All", current is None)]
     for preset in xw["presets"]:
         views.append(view(
-            f"{{{{BASE}}}}/crosswalk/view/{preset.slug}/", preset.columns,
-            preset.slug, preset.label, current == preset.slug,
+            f"{{{{BASE}}}}/crosswalk/view/{preset.slug}/", preset.label,
+            current == preset.slug,
         ))
     parts = ['<p class="lbl">Views</p><ul>\n' + "\n".join(views) + "\n</ul>"]
     for group in CROSSWALK_RAIL_GROUPS:
@@ -6925,9 +6926,11 @@ def _xw_views_intro(xw, preset):
 
 def draft_crosswalk_values(xw, preset=None):
     """Per-page values for the crosswalk table page: the full table when
-    ``preset`` is None, as the page's one matrix with matrix.js and its
-    status line (spec 7.30), else that preset's columns only, the static view
-    its preset link opens without script (design C 3.7)."""
+    ``preset`` is None, else that topic's columns only, the page its view
+    link in the side list opens (design C 3.7). No page carries matrix.js,
+    a preset, or a status line (maintainer defect report 2026-11-04 20:10
+    EST: the in-place column switch happened below the fold, so a rail
+    click showed the visitor nothing; the views are plain links now)."""
     main_keys = [i.key for i in CROSSWALK_INSTRUMENTS if i.main_table]
     if preset is None:
         keys = main_keys
@@ -6950,8 +6953,8 @@ def draft_crosswalk_values(xw, preset=None):
         next_url = "{{BASE}}/browse/"
         next_label = "Browse by need, domain, or type"
     else:
-        # The view's columns in the full table's order, so the static page
-        # and the scripted view (matrix.js hides, never reorders) agree.
+        # The view's columns in the full table's order, so every view
+        # agrees with the full table (never reordered).
         keys = [k for k in main_keys if k in preset.columns]
         title = f"Crosswalk: {preset.label}"
         heading = f"Crosswalk: {preset.label}"
@@ -6978,27 +6981,18 @@ def draft_crosswalk_values(xw, preset=None):
             )
         next_url = "{{BASE}}/crosswalk/"
         next_label = "Open the full crosswalk"
-    matrix = preset is None
+    full = preset is None
     return {
         **_draft_nav("crosswalk"),
         "XW_TITLE": _esc(title),
         "XW_HEADING": _esc(heading),
         "XW_META": meta,
         "XW_LEAD": lead,
-        "XW_SCRIPT": (
-            '<script src="{{BASE}}/assets/baseline/matrix.js" defer></script>'
-            if matrix else ""
-        ),
-        "XW_RAIL": render_crosswalk_rail(
-            xw, preset.slug if preset else None, matrix),
+        "XW_RAIL": render_crosswalk_rail(xw, preset.slug if preset else None),
         "XW_TABLE_CAPTION": label,
-        "XW_TABLE_INTRO": _xw_table_intro(xw, keys, matrix),
+        "XW_TABLE_INTRO": _xw_table_intro(xw, keys, full),
         "XW_VIEWS_INTRO": _xw_views_intro(xw, preset),
-        "XW_STATUS": (
-            '<p class="matrix-status" role="status" aria-live="polite" '
-            "data-matrix-status></p>" if matrix else ""
-        ),
-        "XW_TABLE": render_crosswalk_table(xw, keys, matrix),
+        "XW_TABLE": render_crosswalk_table(xw, keys, full),
         "XW_BELOW": below,
         "XW_CAVEATS": render_crosswalk_caveats(xw, keys),
         "XW_NEXT_URL": next_url,
@@ -7009,7 +7003,16 @@ def draft_crosswalk_values(xw, preset=None):
 def _xw_register_block(inst, row):
     """The instrument page's register record (design C 3.4): the canonical
     citation row, staleness visible; or, for the two programmes the register
-    carries no row for, the compliance matrix's own column key naming."""
+    carries no row for, the compliance matrix's own column key naming.
+    The record renders in the main column, never as a ``side`` record:
+    the baseline rule ``.doc > .side { grid-column: 1; grid-row: span 7 }``
+    (baseline.css) puts a side record in the label column, and the section
+    label that follows it here is a label-column item too, so it had to
+    clear the whole 7-row span and the main column sat empty for the
+    record's full height under the lead (maintainer defect report
+    2026-11-04 20:11 EST: "a massive gap below the first sentence" on
+    /crosswalk/mitre-atlas/, and the same gap on every instrument page
+    with a register row)."""
     if row is None:
         return (
             "<p>The canonical citations register carries no row for this "
@@ -7035,7 +7038,7 @@ def _xw_register_block(inst, row):
     rows = "\n".join(
         f"<dt>{label}</dt><dd>{value}</dd>" for label, value in fields
     )
-    return f'<dl class="record side">\n{rows}\n</dl>'
+    return f'<dl class="record">\n{rows}\n</dl>'
 
 
 def draft_crosswalk_instrument_values(xw, inst):
@@ -7372,11 +7375,10 @@ def render_draft_variant(figures, variant):
                 draft_narrative_values(page, body_html, toc),
             )
 
-    # The crosswalk preset views and instrument pages (design C 3.4 and 3.7):
-    # one static page per preset (one per topic view), each the same
-    # generated table restricted to its columns and the page its matrix.js
-    # preset link opens without script, and one page per configured
-    # instrument.
+    # The crosswalk topic views and instrument pages (design C 3.4 and 3.7):
+    # one page per topic view, each the same generated table restricted to
+    # its columns and the page its Views link in the side list opens, and
+    # one page per configured instrument.
     for preset in crosswalk["presets"]:
         emit(
             "crosswalk.html", f"crosswalk/view/{preset.slug}/index.html",
