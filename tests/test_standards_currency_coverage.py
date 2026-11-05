@@ -139,7 +139,7 @@ class CitationCoverageTests(unittest.TestCase):
     ):
         relative = (
             "ai/citation.md" if suffix == ".md"
-            else ".web/templates/landing.html"
+            else ".web/templates-draft/landing.html"
         )
         values = {
             "governance/register-canonical-citations.md": register,
@@ -416,10 +416,8 @@ class CitationCoverageTests(unittest.TestCase):
         values = {
             "governance/register-canonical-citations.md": REGISTER,
             "ai/citation.md": "ISO 9001:2015",
-            ".web/templates/landing.html": "ISO 9001:2015",
-            ".web/templates/partials/footer.html": "WCAG 2.1",
-            ".web/templates-v2/landing.html": "ISO 9001:2015",
-            ".web/templates-v3/landing.html": "ISO 9001:2015",
+            ".web/templates-draft/landing.html": "ISO 9001:2015",
+            ".web/templates-draft/partials/footer.html": "WCAG 2.1",
             ".web/dist/index.html": "ISO 9001:2015",
             "CHANGELOG.md": "ISO/IEC 27001:2013",
         }
@@ -429,8 +427,8 @@ class CitationCoverageTests(unittest.TestCase):
             self.assertEqual(
                 [p.relative_to(root).as_posix() for p in files],
                 [
-                    ".web/templates/landing.html",
-                    ".web/templates/partials/footer.html",
+                    ".web/templates-draft/landing.html",
+                    ".web/templates-draft/partials/footer.html",
                     "ai/citation.md",
                 ],
             )

@@ -10,8 +10,10 @@ does not carry: the AIQT bootstrap, the default scan root (whole repo), the mark
 (``iter_targets``, kept here so the scan-scope regression's ALLOW map observes it unmoved), and the
 grc exempt policy (``is_exempt`` with the exempt-file set, the exempt-dir set, and the ``template-`` /
 ``worklist-`` filename-prefix carve-outs). The wrapper filters exempt files out before delegating, so
-the engine holds no project-file policy. These wrapper bytes are HAND-MAINTAINED, not
-compiler-generated, so gate 99 does NOT own them.
+the engine holds no project-file policy; it drives the engine's per-file ``scan`` and prints ONE
+combined report in the engine's ``run`` shape, with the generated manifest's wrapper-local scan
+(``manifest_findings``) counted and grouped alongside (round-3 fix 1c). These wrapper bytes are
+HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them.
 
 Boundary with the shall-near-uncertainty audit (``lint-shall-near-uncertainty.py``): the two share
 five marker tokens (TODO, TBD, FIXME, XXX, [Unverified]) plus a sixth in differing forms (this gate
@@ -22,17 +24,20 @@ Usage:
     python3 tools/lint-placeholder-leakage.py
     python3 tools/lint-placeholder-leakage.py path1 path2 ...
 
-Exit codes are the engine's: 0 clean; 1 findings.
+Exit codes are the wrapper's (0 clean, 1 findings, the engine's convention): the wrapper drives the
+engine's per-file ``scan`` and returns its own combined verdict in the engine's ``run`` shape; the
+report-text parity with the engine's ``run`` is pinned by a regression test.
 """
 
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import guard_explicit_paths_cwd, is_default_exempt_root, is_adopter_exempt, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import guard_explicit_paths_cwd, is_default_exempt_root, is_adopter_exempt, read_text_safe, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 # Derive the pack tools/ from this file's location, independent of REPO_ROOT.
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
@@ -56,6 +61,59 @@ EXEMPT_FILES = {
     # The decision tree references TODO.md and coverage gaps by name.
     "decision-tree.md",
 }
+
+# The generated web-to-corpus link manifest (.web/corpus-link-manifest.md, and
+# that exact path only; a file of the same name elsewhere is scanned normally)
+# enumerates every GitHub target the site links, TODO.md among them (document
+# pages link their sources' related documents). A row naming that file is a
+# link target, not a placeholder marker, so the literal TODO.md path token is
+# skipped in a row's target and link-text cells ALONE; every other cell, and
+# everything else in those cells, stays scanned (round-2 fix 2: the former
+# whole-file EXEMPT_FILES entry blinded the gate to template text leaking into
+# the manifest).
+MANIFEST_REL = ".web/corpus-link-manifest.md"
+
+# A whitespace-delimited cell token that IS the TODO.md path (bare or
+# directory-qualified), and nothing else.
+_TODO_PATH_TOKEN_RE = re.compile(r"(?:[\w.-]+/)*TODO\.md\Z")
+
+
+def _mask_manifest_line(line: str) -> str:
+    """The manifest line with the literal TODO.md path token blanked in the
+    target (first) and link-text (third) cells of a well-formed manifest row;
+    any other line, cell, or token is returned for scanning untouched."""
+    parts = line.split("|")
+    # A manifest row is "| target | location | link text |": five split parts
+    # with empty ends.
+    if len(parts) != 5 or parts[0].strip() or parts[4].strip():
+        return line
+    for cell_index in (1, 3):
+        parts[cell_index] = " ".join(
+            "" if _TODO_PATH_TOKEN_RE.fullmatch(token) else token
+            for token in parts[cell_index].split(" ")
+        )
+    return "|".join(parts)
+
+
+def manifest_findings(path: Path, *, patterns) -> list[tuple[int, str, str]]:
+    """Findings for the generated manifest: the engine's patterns over EVERY
+    line of the file, fenced or not (round-3 fix 1b: the manifest is a
+    generated table with no legitimate code fences, so the engine's
+    fence-aware line iterator would let a fence marker, terminated or not,
+    hide leaked content from the scan), each line masked by
+    ``_mask_manifest_line`` first. Reported excerpts are the original line,
+    like the engine's."""
+    findings: list[tuple[int, str, str]] = []
+    text = read_text_safe(path)
+    if text is None:
+        return findings
+    for lineno, line in enumerate(text.splitlines(), 1):
+        masked = _mask_manifest_line(line)
+        for pattern, label in patterns:
+            if pattern.search(masked):
+                findings.append((lineno, label, line.strip()[:140]))
+                break  # one finding per line is enough, like the engine
+    return findings
 
 # Directories whose content is exempt. The default set
 # (``.git``/``node_modules``/``__pycache__``) plus ``guardrails``,
@@ -150,7 +208,53 @@ def main(argv: list[str]) -> int:
     # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     targets = iter_targets(args.paths)
-    return _engine().run(targets, repo_root=REPO_ROOT, patterns=_placeholders_config())
+    # The generated manifest takes the narrow TODO.md-token carve-out here in
+    # the wrapper (project-file policy); every other target goes to the
+    # engine's per-file ``scan`` whole. Only the real manifest path qualifies.
+    # The wrapper groups and reports BOTH scans itself in ONE summary,
+    # mirroring the engine's ``run`` report shape (round-3 fix 1c: the former
+    # engine ``run`` call printed its own OK line before the wrapper's
+    # manifest FAIL block, a pass-then-fail contradiction, and its OK file
+    # count omitted the manifest).
+    manifest_path = (REPO_ROOT / MANIFEST_REL).resolve()
+    patterns = _placeholders_config()
+    engine = _engine()
+    grouped: dict[Path, list[tuple[int, str, str]]] = {}
+    for target in targets:
+        findings = (manifest_findings(target, patterns=patterns)
+                    if target == manifest_path
+                    else engine.scan(target, patterns=patterns))
+        if findings:
+            grouped[target] = findings
+    if not grouped:
+        print(f"OK: no placeholder leakage (scanned {len(targets)} files).")
+        return 0
+    total = 0
+    for path, findings in sorted(grouped.items()):
+        try:
+            rel = path.relative_to(REPO_ROOT)
+        except ValueError:
+            rel = path
+        print(f"=== {rel} ===")
+        for lineno, label, excerpt in findings:
+            print(f"  L{lineno} [{label}] {excerpt}")
+        total += len(findings)
+    print(
+        f"\nFAIL: {total} placeholder finding(s) across {len(grouped)} file(s)."
+    )
+    print(
+        "Placeholders such as TODO, TBD, FIXME, XXX, or "
+        "<YYYY-MM-DD>-style markers should not appear in production library "
+        "documents. Either complete the content or move the document to the "
+        "template directory (filename prefix `template-`)."
+    )
+    if manifest_path in grouped:
+        print(
+            f"{MANIFEST_REL} is generated: the TODO.md link-target token is "
+            "the only exempt cell content; regenerate the manifest from "
+            "clean sources instead of editing it."
+        )
+    return 1
 
 
 if __name__ == "__main__":
