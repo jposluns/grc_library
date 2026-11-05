@@ -8405,10 +8405,15 @@ class DraftSiteRenderTests(unittest.TestCase):
     # Literal expected Current version lines (round 3: the rows whose
     # recorded identifiers round 2's repeated-leading-word, year, and
     # 40-character rules dropped, plus a short marker, a "continuous" row,
-    # and the version round 2 joined into the heading), keyed by Standard
-    # ID. The rendered line appends a closing period where the cell carries
-    # none; the cell itself is never dropped or shortened.
+    # and the version round 2 joined into the heading; round 4: two rows
+    # whose version sits inside the ID text, so a substring check of the
+    # heading could never catch a dropped line), keyed by Standard ID. The
+    # rendered line appends a closing period where the cell carries none;
+    # the cell itself is never dropped or shortened.
     _STANDARDS_LITERAL_VERSION_LINES = {
+        "Resolution CD/ANPD No. 15/2024": "Current version: 2024.",
+        "WP248 rev.01 (Article 29 Working Party Guidelines on Data "
+        "Protection Impact Assessment)": "Current version: rev.01.",
         "EU NIS 2 Directive": "Current version: Directive 2022/2555.",
         "EU NIS 2 Implementing Regulation":
             "Current version: Commission Implementing Regulation (EU) "
@@ -8594,16 +8599,30 @@ class DraftSiteRenderTests(unittest.TestCase):
                                  "shows no line")
 
     def test_standards_every_version_cell_is_preserved(self):
-        """Round 3, the whole-register preservation check: for every one of
-        the register's 257 rows, the rendered entry contains the register's
-        plain Current version verbatim, in the heading or on its Current
-        version line; only a "-" cell (no recorded version) shows nothing.
-        Nothing in the version cell is ever dropped or shortened."""
+        """Round 4 fix 1 (round 3's whole-register check made exact) and
+        fix 3 (the row count compared against an independent reparse of the
+        register at test time, not a hard-coded figure): the page renders
+        one entry per reparsed register row, and a heading is accepted as
+        carrying the version only when it equals the ID and the version is
+        the whole ID or the ID's last whitespace token, or it is the exact
+        ISO or IEC colon join or IEEE hyphen join of a four-digit-year
+        version. Every other row with a version other than "-" must show
+        its whole Current version line (terminal period included,
+        "continuous" spelled out), so a version that merely sits inside the
+        ID text (the ANPD resolutions, the BASC rows, WP248 rev.01) fails
+        if its line is dropped. A "-" cell shows nothing."""
         html = self.draft_html["standards/index.html"]
         sections = self._register_sections()
-        self.assertEqual(sum(len(rows) for _, rows in sections), 257,
-                         "the register's row count at this commit")
+        self.assertTrue(sections, "the register parses to sections")
         groups = self._STANDARDS_GROUP_RE.findall(html)
+        self.assertEqual(len(groups), len(sections),
+                         "one rendered group per reparsed register section")
+        self.assertEqual(
+            sum(len(self._STANDARDS_ITEM_RE.findall(body))
+                for _, _, body in groups),
+            sum(len(rows) for _, rows in sections),
+            "one rendered entry per independently reparsed register row")
+        year = re.compile(r"\d{4}\Z")
         for (slug, _, body), (heading, rows) in zip(groups, sections):
             items = self._STANDARDS_ITEM_RE.findall(body)
             self.assertEqual(len(items), len(rows),
@@ -8611,16 +8630,53 @@ class DraftSiteRenderTests(unittest.TestCase):
             for (name, desc), cells in zip(items, rows):
                 sid = cells[0]
                 version = self.mod._xw_plain(cells[1])
+                name_text = unescape(name)
+                desc_text = unescape(desc)
                 with self.subTest(standard=sid):
                     if version == "-":
-                        self.assertNotIn("Current version:", unescape(desc))
+                        self.assertNotIn("Current version:", desc_text)
                         continue
-                    self.assertTrue(
-                        version in unescape(name)
-                        or f"Current version: {version}" in unescape(desc),
-                        f"{sid}: the version cell {version!r} is in neither "
-                        f"the heading {unescape(name)!r} nor a Current "
-                        "version line")
+                    tokens = sid.split()
+                    org = tokens[0].split("/")[0] if tokens else ""
+                    carried = (
+                        name_text == sid
+                        and (version == sid
+                             or (bool(tokens) and version == tokens[-1]))
+                    ) or (
+                        year.fullmatch(version) is not None
+                        and ((org in ("ISO", "IEC")
+                              and name_text == f"{sid}:{version}")
+                             or (org == "IEEE"
+                                 and name_text == f"{sid}-{version}"))
+                    )
+                    if carried:
+                        continue
+                    if version == "continuous":
+                        line = ("Current version: continuous "
+                                "(no fixed edition)")
+                    else:
+                        line = f"Current version: {version}"
+                    if not line.endswith("."):
+                        line += "."
+                    self.assertIn(
+                        line, desc_text,
+                        f"{sid}: the heading {name_text!r} does not carry "
+                        f"the version cell {version!r} in an accepted form, "
+                        "so the entry must show the whole Current version "
+                        "line")
+
+    def test_standards_h1_names_the_register(self):
+        """Round 4 fix 2: the page h1 is pinned to the register-scoped
+        sentence, and the page nowhere claims everything the corpus
+        cites."""
+        html = self.draft_html["standards/index.html"]
+        h1s = re.findall(r"<h1>(.*?)</h1>", html, re.S)
+        self.assertEqual(
+            [unescape(h) for h in h1s],
+            ["The standards and frameworks in the canonical citations "
+             "register."],
+            "the standards page carries exactly the decided h1")
+        self.assertNotIn("the corpus cites", html)
 
     def test_standards_display_rules_on_synthetic_rows(self):
         """Round 3, the rule edges no live register row pins today: the
