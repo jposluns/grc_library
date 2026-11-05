@@ -1,0 +1,14 @@
+# Reviewed store-dependent gate 36 tests (round-1 review E1; round-2 fix).
+# One test id per line: <test id> -- <reason>. CI has no private store
+# (GRC_STORE / <repo-parent>/private), no grc_library_private sibling and
+# no grc_library_ref sibling, so each test below skips or silently no-ops
+# there; the pre-push guard runs exactly this list on every push
+# (tools/run-store-dependent-tests.py), fail-closed, and the static scan
+# in tests/test_store_dependent_list.py must name exactly this set.
+# Found by observation (a CI-mode run, GRC_STORE at an empty directory and
+# no siblings, against a run with the reachable maintainer inputs),
+# confirmed by the static scan of skipTest / resolve_working store probes.
+tests.test_linters.ChangelogMirrorHeaderParityTests.test_runs_clean_on_corpus_at_head -- skips when no store supplies the detailed CHANGELOG mirror (default resolve_working lookup returns None in CI)
+tests.test_linters.HookToolItemCountParityTests.test_hook_and_private_validator_deferral_markers_match -- skips when the grc_library_private sibling is absent (hook deferral markers against the private validator's tuple)
+tests.test_linters.HookToolItemCountParityTests.test_hook_and_tool_count_agree_on_live_todo -- its private half silently no-ops when P-TODO.md (the tool's PTODO_PATH in the grc_library_private sibling) is absent; only the public TODO.md half runs in CI
+tests.test_linters.VerificationGuardrailSelfTests.test_block_unstamped_turn_end_behaviour -- skips when the grc_library_private sibling is absent (maintainer-scoped Stop-hook block/allow behaviour)

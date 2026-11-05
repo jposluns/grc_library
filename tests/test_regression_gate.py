@@ -2687,6 +2687,7 @@ class RegressionGateShardTests(unittest.TestCase):
         root = self._tmp_repo(["test_aa_one.py", "test_bb_two.py"],
                               weights=self.WEIGHTS)
         ran_total = 0
+        credited_totals = {"tests.test_aa_one": 0, "tests.test_bb_two": 0}
         with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
             for index in (1, 2):
                 code, _out, err = self._call(runner["shard_main"], index=index,
@@ -2697,8 +2698,59 @@ class RegressionGateShardTests(unittest.TestCase):
                 match = re.search(r"Ran (\d+) test", err)
                 self.assertIsNotNone(match, err)
                 ran_total += int(match.group(1))
+                # FLIP TABLE (round 2): the sentinel carries the shard's
+                # per-module credited-start counts for EVERY module, zero
+                # included, so the CI summary can sum them across shards.
+                # The captured stream can carry the test process's own
+                # warnings after the child's output; the sentinel is the
+                # last CHILD line, selected by its prefix here.
+                sentinel = [line for line in err.splitlines()
+                            if line.startswith("REGRESSION-SHARD-RESULT ")][-1]
+                counts = runner["_shard_sentinel_counts"](sentinel)
+                self.assertEqual(sorted(counts), sorted(credited_totals))
+                for name, count in counts.items():
+                    credited_totals[name] += count
         self.assertEqual(ran_total, 2, "the two shards together run exactly "
                                        "the suite's tests")
+        self.assertEqual(credited_totals,
+                         {"tests.test_aa_one": 1, "tests.test_bb_two": 1},
+                         "each module's credited starts, summed across the "
+                         "shards, match the serial run's")
+
+    def test_shard_main_publishes_credited_output_in_ci(self) -> None:
+        """FLIP TABLE (round 2): with GITHUB_OUTPUT set (a GitHub Actions
+        step), shard_main appends the validated per-module credited-start
+        counts as a block-style `credited` output; an unwritable
+        GITHUB_OUTPUT is a refusal, never a silent loss."""
+        runner = self._runner()
+        root = self._tmp_repo(["test_aa_one.py", "test_bb_two.py"],
+                              weights=self.WEIGHTS)
+        gh_output = root / "github-output.txt"
+        env = dict(_minimal_environ(), GITHUB_OUTPUT=str(gh_output))
+        with mock.patch.dict(os.environ, env, clear=True):
+            code, _out, err = self._call(runner["shard_main"], index=1,
+                                         count=2, repo_root=root)
+        self.assertEqual(code, 0, err)
+        text = gh_output.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        self.assertRegex(lines[0], r"^credited<<\S+$")
+        self.assertEqual(lines[-1], lines[0].partition("<<")[2],
+                         "the heredoc closes with its own delimiter")
+        parsed = {}
+        for line in lines[1:-1]:
+            name, _, value = line.partition(": ")
+            parsed[name] = int(value)
+        self.assertEqual(sorted(parsed),
+                         ["tests.test_aa_one", "tests.test_bb_two"])
+        self.assertEqual(sum(parsed.values()), 1,
+                         "one shard of the two-test suite credits one start")
+        unwritable = root / "no-such-dir" / "out.txt"
+        env = dict(_minimal_environ(), GITHUB_OUTPUT=str(unwritable))
+        with mock.patch.dict(os.environ, env, clear=True):
+            code, _out, err = self._call(runner["shard_main"], index=1,
+                                         count=2, repo_root=root)
+        self.assertEqual(code, 2, err)
+        self.assertIn("GITHUB_OUTPUT", err)
 
     def test_failing_test_fails_its_shard_alone(self) -> None:
         """A failing module turns exactly its own shard red (exit 1);
@@ -2782,26 +2834,48 @@ class RegressionGateShardTests(unittest.TestCase):
 
     def test_shard_sentinel_refusals(self) -> None:
         """A shard child's green exit is believed only from a sentinel
-        carrying this run's nonce, shard and reconciled counts."""
+        carrying this run's nonce, shard, reconciled counts and per-module
+        credited starts naming exactly the handed modules (round 2: a
+        sentinel without the credited tail, naming other modules, or whose
+        counts do not sum to its credited total is refused)."""
         runner = self._runner()
         refusal = runner["_shard_sentinel_refusal"]
         nonce = "ab" * 16
+        modules = ["tests.test_aa_one", "tests.test_bb_two"]
         good = ("REGRESSION-SHARD-RESULT %s shard=1/2 testsRun=3 "
-                "notStarted=1 wasSuccessful=True selected=4 units=2" % nonce)
-        self.assertIsNone(refusal(good, nonce, 1, 2))
+                "notStarted=1 wasSuccessful=True selected=4 units=2 "
+                "credited=3 tests.test_aa_one=2 tests.test_bb_two=1" % nonce)
+        self.assertIsNone(refusal(good, nonce, 1, 2, modules))
+        legacy = ("REGRESSION-SHARD-RESULT %s shard=1/2 testsRun=3 "
+                  "notStarted=1 wasSuccessful=True selected=4 units=2"
+                  % nonce)
         cases = (
-            ("not a sentinel", nonce, 1, 2),
-            (good, "cd" * 16, 1, 2),
-            (good, nonce, 2, 2),
-            (good.replace("testsRun=3", "testsRun=2"), nonce, 1, 2),
+            ("not a sentinel", nonce, 1, 2, modules),
+            (legacy, nonce, 1, 2, modules),  # FLIP: no credited tail
+            (good, "cd" * 16, 1, 2, modules),
+            (good, nonce, 2, 2, modules),
+            (good.replace("testsRun=3", "testsRun=2"), nonce, 1, 2, modules),
             (good.replace("wasSuccessful=True", "wasSuccessful=False"),
-             nonce, 1, 2),
-            (good.replace("units=2", "units=0"), nonce, 1, 2),
+             nonce, 1, 2, modules),
+            (good.replace("units=2", "units=0"), nonce, 1, 2, modules),
+            # FLIP: the counts must name exactly the handed modules.
+            (good, nonce, 1, 2, ["tests.test_aa_one"]),
+            (good.replace("tests.test_bb_two=1", "tests.test_cc_three=1"),
+             nonce, 1, 2, modules),
+            # FLIP: the counts must sum to the credited total, with at
+            # least one credited start, never more than testsRun.
+            (good.replace("credited=3", "credited=2"), nonce, 1, 2, modules),
+            (good.replace("credited=3 tests.test_aa_one=2 tests.test_bb_two=1",
+                          "credited=0 tests.test_aa_one=0 tests.test_bb_two=0"),
+             nonce, 1, 2, modules),
+            (good.replace("credited=3", "credited=4").replace(
+                "tests.test_aa_one=2", "tests.test_aa_one=3"),
+             nonce, 1, 2, modules),
         )
-        for last_line, want_nonce, index, count in cases:
-            with self.subTest(last_line=last_line[:40]):
+        for last_line, want_nonce, index, count, mods in cases:
+            with self.subTest(last_line=last_line[:60]):
                 self.assertIsNotNone(refusal(last_line, want_nonce, index,
-                                             count))
+                                             count, mods))
 
     def test_cli_refuses_malformed_shard_arguments(self) -> None:
         """The CLI refuses a malformed or unknown argument (exit 2)
@@ -2843,6 +2917,131 @@ class RegressionGateShardTests(unittest.TestCase):
         needed = re.findall(r"- ([a-z0-9-]+)", needs.group(1))
         self.assertEqual(needed, ["lint"] + ["regression-shard-%d" % i
                                              for i in range(1, count + 1)])
+        # FLIP TABLE (round 2): every shard job publishes its per-module
+        # credited-start counts as the pinned `credited` output of its
+        # id-pinned gate step, and the summary job runs the reconcile step
+        # that sums them (with the needs context in NEEDS_RESULTS).
+        self.assertEqual(
+            len(re.findall(r"(?m)^    outputs:\n      credited: "
+                           r"\$\{\{ steps\.gate\.outputs\.credited \}\}$",
+                           text)), count)
+        self.assertEqual(len(re.findall(r"(?m)^        id: gate$", text)),
+                         count)
+        self.assertEqual(
+            len(re.findall(r"(?m)^        run: python3 "
+                           r"tools/reconcile-regression-shards\.py$", text)),
+            1)
+        self.assertIn("NEEDS_RESULTS: ${{ toJSON(needs) }}", text)
+
+
+class ReconcileRegressionShardsTests(unittest.TestCase):
+    """tools/reconcile-regression-shards.py: the CI summary job's one
+    verification step. FLIP TABLE (round 2): it keeps the round-1 rule
+    (every needed job must have succeeded, an empty needs context fails)
+    and adds the per-module credited-start reconciliation that restores
+    the serial runner's refusal of a module with no credited start."""
+
+    TOOL = REPO_ROOT / "tools" / "reconcile-regression-shards.py"
+    MODULES = ["tests.test_aa_one", "tests.test_bb_two"]
+
+    def _tool(self):
+        return runpy.run_path(str(self.TOOL))
+
+    def _needs(self, credited_one, credited_two, result="success"):
+        return {
+            "lint": {"result": "success", "outputs": {}},
+            "regression-shard-1": {"result": result,
+                                   "outputs": {"credited": credited_one}},
+            "regression-shard-2": {"result": "success",
+                                   "outputs": {"credited": credited_two}},
+        }
+
+    def test_green_sums_across_shards(self) -> None:
+        tool = self._tool()
+        code, lines = tool["reconcile"](
+            self._needs("tests.test_aa_one: 1\ntests.test_bb_two: 0\n",
+                        "tests.test_aa_one: 0\ntests.test_bb_two: 2\n"),
+            self.MODULES)
+        self.assertEqual(code, 0, lines)
+        self.assertIn("credited starts tests.test_bb_two=2", lines)
+
+    def test_zero_credited_module_fails(self) -> None:
+        """FLIP TABLE: a module whose cross-shard total is zero (a wholly
+        skipped module) fails the required check, as the serial runner's
+        per-module refusal would."""
+        tool = self._tool()
+        code, lines = tool["reconcile"](
+            self._needs("tests.test_aa_one: 1\ntests.test_bb_two: 0\n",
+                        "tests.test_aa_one: 2\ntests.test_bb_two: 0\n"),
+            self.MODULES)
+        self.assertEqual(code, 1, lines)
+        self.assertTrue(any("tests/test_bb_two.py: 0 credited starts" in line
+                            for line in lines), lines)
+
+    def test_failed_cancelled_skipped_or_empty_needs_fail(self) -> None:
+        """The round-1 property is kept: a needed job that failed, was
+        cancelled, was skipped or is missing its result fails the check,
+        and an empty needs context never passes vacuously."""
+        tool = self._tool()
+        for bad in ("failure", "cancelled", "skipped", None):
+            with self.subTest(result=bad):
+                code, lines = tool["reconcile"](
+                    self._needs("tests.test_aa_one: 1\ntests.test_bb_two: 1\n",
+                                "tests.test_aa_one: 1\ntests.test_bb_two: 1\n",
+                                result=bad),
+                    self.MODULES)
+                self.assertEqual(code, 1, lines)
+        code, lines = tool["reconcile"]({}, self.MODULES)
+        self.assertEqual(code, 2, lines)
+
+    def test_missing_malformed_or_wrong_scope_output_refuses(self) -> None:
+        """FLIP TABLE: a shard that published no counts, unreadable counts,
+        or counts for a module set other than the on-disk one is a refusal
+        (exit 2), never a pass."""
+        tool = self._tool()
+        base = "tests.test_aa_one: 1\ntests.test_bb_two: 1\n"
+        for label, other in (
+                ("missing", ""),
+                ("malformed", "garbage"),
+                ("negative", "tests.test_aa_one: -1\ntests.test_bb_two: 1\n"),
+                ("duplicate", "tests.test_aa_one: 1\ntests.test_aa_one: 1\n"),
+                ("wrong-set", "tests.test_aa_one: 1\n"),
+                ("foreign-module",
+                 "tests.test_aa_one: 1\ntests.test_zz_other: 1\n")):
+            with self.subTest(label=label):
+                code, lines = tool["reconcile"](self._needs(base, other),
+                                                self.MODULES)
+                self.assertEqual(code, 2, lines)
+        no_shards = {"lint": {"result": "success", "outputs": {}}}
+        code, lines = tool["reconcile"](no_shards, self.MODULES)
+        self.assertEqual(code, 2, lines)
+
+    def test_main_reads_needs_and_on_disk_modules(self) -> None:
+        """End to end: main() reads NEEDS_RESULTS and the working
+        directory's tests/ module set, and fails closed without them."""
+        import json
+        root = Path(tempfile.mkdtemp(prefix="reconcile-"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        (root / "tests").mkdir()
+        (root / "tests" / "test_aa_one.py").write_text(PASSING_MODULE)
+        (root / "tests" / "test_bb_two.py").write_text(PASSING_MODULE)
+        needs = self._needs("tests.test_aa_one: 1\ntests.test_bb_two: 0\n",
+                            "tests.test_aa_one: 0\ntests.test_bb_two: 1\n")
+        env = dict(_minimal_environ(), NEEDS_RESULTS=json.dumps(needs))
+        green = subprocess.run([sys.executable, str(self.TOOL)],
+                               cwd=root, env=env, capture_output=True,
+                               text=True, timeout=120)
+        self.assertEqual(green.returncode, 0,
+                         green.stdout + green.stderr)
+        for env_missing in ({}, {"NEEDS_RESULTS": "not json"}):
+            with self.subTest(env=env_missing):
+                bad = subprocess.run(
+                    [sys.executable, str(self.TOOL)], cwd=root,
+                    env=dict(_minimal_environ(), **env_missing),
+                    capture_output=True, text=True, timeout=120)
+                self.assertEqual(bad.returncode, 2,
+                                 bad.stdout + bad.stderr)
+                self.assertIn("REFUSED", bad.stderr)
 
 
 if __name__ == "__main__":

@@ -185,18 +185,53 @@ argument, an expansion, a comment or a line continuation means the full guard.
 The fast path runs `run-pr-time-checks.sh` unchanged; every
 `run_all_audits.sh` gate except the linter regression suite (gate 36), by the
 runner's own names and commands read at run time, then the gate step's elapsed
-time; the palette gate; `.web/build.py --check`; and `tests/test_web_draft.py`.
-Unlike `run_all_audits.sh`, it does not show a passing gate's `DUE-SOON`,
-`WARN` and `NOTE` lines; a failing gate's output is shown in full.
+time; the store-dependent gate 36 subset
+([tools/run-store-dependent-tests.py](run-store-dependent-tests.py), below);
+the palette gate; `.web/build.py --check`; and `tests/test_web_draft.py`.
+Unlike `run_all_audits.sh`, the FAST path does not show a passing gate's
+`DUE-SOON`, `WARN` and `NOTE` lines; a failing gate's output is shown in
+full. The FULL guard path shows them as the runner does: each gate runs with
+a per-gate `GRC_RUNNER_ECHO_TOKEN`, a passing gate's `DUE-SOON` lines are
+always echoed, and its `WARN` and `NOTE` lines are echoed when the gate
+printed the runner-echo marker with that token (gates 6, 72 and 106).
 It prints a `FAST PATH` line naming the changed paths. The guard lists the
 gates itself, so `run_all_audits.sh` has no skip option and CI
 (`.github/workflows/quality.yml`, one step per gate) cannot be told to skip
 one. Skipped locally and left to CI: the rest of gate 36 (every other
-regression test and the completeness checks of `run-linter-regression.py`).
-The full suite, gate 36 whole included, still runs in CI on the pull request,
-and `merge-when-green.py` merges only on green CI. Residual: a failure in a
-skipped regression test that a site-only change causes is first seen in CI,
-not before the push. The guard's header gives the exact rules.
+regression test and the completeness checks of `run-linter-regression.py`);
+BOTH guard paths still run the reviewed store-dependent subset
+(`tests/store-dependent-tests.txt`) on every push, fail-closed, because CI
+has no store or sibling and cannot run those tests meaningfully.
+The full suite, gate 36 whole included, still runs in CI on the pull request
+as six shard jobs whose per-module credited-start counts the summary job
+reconciles, and `merge-when-green.py` merges only on green CI. Residual: a
+failure in a skipped regression test that a site-only change causes is first
+seen in CI, not before the push. The guard's header gives the exact rules.
+
+[tools/run-store-dependent-tests.py](run-store-dependent-tests.py) runs the
+reviewed store-dependent subset of gate 36 named in
+`tests/store-dependent-tests.txt` (one test id per line, with the reason):
+the tests that skip or silently no-op when the private store
+(`GRC_STORE` / `<repo-parent>/private`), the `grc_library_private` sibling
+or the `grc_library_ref` sibling is absent, found by observation (a CI-mode
+run against a maintainer-inputs run) and guarded by the static scan in
+`tests/test_store_dependent_list.py`, whose expected set is the list. The
+pre-push guard runs it on every push, on both paths, fail-closed: a missing,
+unreadable, empty or malformed list, a duplicate entry, or a listed test
+that cannot be loaded exits 2 and fails the push; a failing listed test
+exits 1. A listed test that skips (an adopter clone without the store) is a
+green skip; the maintainer's clone, which has the inputs, executes it.
+
+[tools/reconcile-regression-shards.py](reconcile-regression-shards.py) is
+the quality workflow summary job's one verification step (the required
+check "Lint markdown corpus"): it fails unless every needed job succeeded
+and the regression shards' `credited` job outputs (block-style
+`module: count` lines of per-module credited starts, published by
+`run-linter-regression.py --shard` from its validated shard sentinel) name
+exactly the on-disk `tests/test_*.py` modules and sum to at least one
+credited start per module, restoring the serial runner's per-module refusal
+across shards. A missing, malformed or wrongly-scoped shard output is a
+refusal (exit 2), never a pass.
 
 Residual: `git push --no-verify` and a command-level `core.hooksPath` override
 can skip the hook entirely, including overrides supplied through

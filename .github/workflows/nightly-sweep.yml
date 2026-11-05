@@ -39,6 +39,12 @@ jobs:
         with:
           python-version: "3.11"
 
+      # quality.yml installs the same pinned dependencies before its gates;
+      # without them the gates that import a sanctioned third-party package
+      # (the gate-22 idna path) silently run their stdlib fallback here.
+      - name: Install pinned dependencies
+        run: python3 -m pip install -r requirements.txt
+
       - name: Run full audit programme
         run: tools/run_all_audits.sh
 

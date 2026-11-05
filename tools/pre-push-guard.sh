@@ -26,9 +26,20 @@
 #   1. Every tools/run_all_audits.sh gate except gate 36, in runner order, by
 #      the runner's own name and command, read from its run_gate lines at run
 #      time (the same reading the fast path uses; see its grammar below).
-#      When that reading fails, the guard FAILS CLOSED to running
-#      tools/run_all_audits.sh whole, gate 36 included, so doubt never drops
-#      a check.
+#      On this full path each gate runs with the runner's advisory echo, as
+#      run_gate does: a per-gate GRC_RUNNER_ECHO_TOKEN, a passing gate's
+#      DUE-SOON lines always shown, and its WARN and NOTE lines shown when
+#      the gate opted in by printing the runner-echo marker with that token
+#      (gates 6, 72 and 106). When the gate-list reading fails, the guard
+#      FAILS CLOSED to running tools/run_all_audits.sh whole, gate 36
+#      included, so doubt never drops a check.
+#   1b. tools/run-store-dependent-tests.py - the reviewed store-dependent
+#      subset of gate 36 (tests/store-dependent-tests.txt), run on EVERY
+#      push, fail-closed: an unreadable or empty list, a malformed line, or
+#      a listed test that cannot be loaded fails the push. CI has no private
+#      store and no private sibling, so these tests skip or no-op there;
+#      this local run is their only pre-merge execution (see the list file
+#      for the per-test reasons).
 #   2. tools/run-pr-time-checks.sh  - the per-PR D-numbered delta gates (D6 retired) plus
 #                                     the history-aware trio (gates 45/40/31) against
 #                                     the merge base.
@@ -102,11 +113,15 @@
 #        (gate 36), in runner order, by the runner's own name and command, read
 #        from its run_gate lines at run time, so a gate added to the runner runs
 #        here by existing. As in the runner, a passing gate prints only OK and
-#        a failing gate's output is printed in full; unlike the runner, no
-#        advisory line is echoed from a passing gate (neither the DUE-SOON
-#        lines the runner shows for every gate nor the WARN and NOTE lines it
-#        shows for the gates that opt in), and the step stops at the first
-#        failing gate. The step ends with its elapsed time.
+#        a failing gate's output is printed in full; unlike the runner (and
+#        unlike this guard's own FULL path, which echoes them), no advisory
+#        line is echoed from a passing gate (neither the DUE-SOON lines the
+#        runner shows for every gate nor the WARN and NOTE lines it shows for
+#        the gates that opt in), and the step stops at the first failing
+#        gate. The step ends with its elapsed time.
+#     2b. tools/run-store-dependent-tests.py (the reviewed store-dependent
+#        subset of gate 36, as on the full path: run on every push,
+#        fail-closed on an unreadable list or a missing listed test).
 #     3. The palette gate .baseline/check_palette.py, with the arguments
 #        .web/build.py passes it but without .web/build.py's pin check (step 4
 #        runs .web/build.py, which makes that check).
@@ -124,21 +139,30 @@
 #   the lint job's partition-verifying --verify-shards step (kept in
 #   lock-step with run_all_audits.sh by the gate-parity gate).
 #
-#   Skipped locally, disclosed as left to CI, on BOTH paths: gate 36, that
-#   is, every tests/test_*.py module and the completeness checks
-#   tools/run-linter-regression.py makes (the fast path still runs
-#   tests/test_web_draft.py directly as its own step; the full path runs no
-#   part of gate 36), and, when the gate list is read from the runner, the
-#   full guard's former run_all_audits.sh summary line.
+#   Skipped locally, disclosed as left to CI, on BOTH paths: gate 36 EXCEPT
+#   the reviewed store-dependent subset, that is, every tests/test_*.py
+#   module and the completeness checks tools/run-linter-regression.py makes
+#   (the fast path still runs tests/test_web_draft.py directly as its own
+#   step; both paths run the store-dependent list through
+#   tools/run-store-dependent-tests.py, because CI, which has no private
+#   store and no private sibling, cannot run those tests meaningfully), and,
+#   when the gate list is read from the runner, the full guard's former
+#   run_all_audits.sh summary line.
 #   .github/workflows/quality.yml runs gate 36 whole, sharded, on every pull
-#   request, and tools/merge-when-green.py merges only when its required
-#   check, the summary job that needs every shard, succeeded.
+#   request (each shard publishing its per-module credited-start counts),
+#   and tools/merge-when-green.py merges only when its required check, the
+#   summary job that needs every shard and reconciles those counts,
+#   succeeded.
 #
-#   Residual (what is lost): local detection, before the push, of ANY gate 36
-#   failure, whatever changed (not only one a site-only change causes); that
-#   failure now first shows in CI, on the shard running the failing test, and
-#   the merge guard still blocks the merge. On the fast path a passing gate's
-#   DUE-SOON, WARN and NOTE lines are not shown before the push either.
+#   Residual (what is lost): local detection, before the push, of a gate 36
+#   failure OUTSIDE the store-dependent list, whatever changed (not only one
+#   a site-only change causes); that failure now first shows in CI, on the
+#   shard running the failing test, and the merge guard still blocks the
+#   merge. A listed store-dependent test still skips here when this clone
+#   has no store or sibling (an adopter clone); only the maintainer's clone
+#   actually executes it. On the fast path a passing gate's DUE-SOON, WARN
+#   and NOTE lines are not shown before the push (the full path shows them,
+#   as the runner does).
 #
 # Scope boundary: this guard gates PUSHES (the full guard's two post-commit /
 # pre-push runners plus `.web/build.py --check` when .web/build.py is present,
@@ -156,7 +180,7 @@
 #   git push -u origin <branch>
 #   BASE_REF=origin/develop tools/pre-push-guard.sh   # non-default base
 #
-# Exit codes: 1 for an installed-hook check failure; 0 only if both runners and the web check (when .web/build.py is present) pass, or on the fast path only if every fast-path check passes; 3 if the guard REFUSES to run
+# Exit codes: 1 for an installed-hook check failure; 0 only if the gate steps, the store-dependent list run, run-pr-time-checks.sh and the web check (when .web/build.py is present) pass, or on the fast path only if every fast-path check passes; 3 if the guard REFUSES to run
 # because stdout is piped (the RM-10 self-defence below, before any runner
 # starts); 4 if grc_library_private is required but absent (the _private check
 # below); 5 if the tracked working tree is dirty or its state cannot be read
@@ -460,8 +484,46 @@ fast_step() {
     fi
 }
 
-# One guard-path audit gate, on either path: like tools/run_all_audits.sh, a passing
-# gate's output stays hidden (its advisory lines are not echoed here) and a
+# One FULL-path audit gate, with the runner's advisory echo: as in
+# tools/run_all_audits.sh run_gate, the gate runs with a fresh per-gate
+# GRC_RUNNER_ECHO_TOKEN (CSPRNG, /dev/urandom fallback, else empty and said
+# so); on a pass its DUE-SOON lines are always shown, and its WARN and NOTE
+# lines too when the gate opted in by printing the runner-echo marker line
+# with this run's token (gates 6, 72 and 106; the token is the part data
+# cannot forge). A failing gate's output is printed in full before the guard
+# exits with the gate's status. The status is captured inside an `if`, as in
+# fast_step.
+audit_gate_echo() {
+    local prefix="$1"
+    local label="$2"
+    shift 2
+    local out rc token marker advisory
+    token="$(python3 -c 'import secrets; print(secrets.token_hex(16))' 2>/dev/null)"
+    [[ "${token}" =~ ^[0-9a-f]{32}$ ]] || token="$(od -An -N16 -tx1 /dev/urandom 2>/dev/null | tr -d ' \n')"
+    [[ "${token}" =~ ^[0-9a-f]{32}$ ]] || token=""
+    printf '%-66s ... ' "${prefix}: ${label}"
+    if out="$(GRC_RUNNER_ECHO_TOKEN="${token}" "$@" 2>&1)"; then rc=0; else rc=$?; fi
+    if [ "${rc}" -ne 0 ]; then
+        echo "FAIL (rc=${rc})"
+        printf '%s\n' "${out}"
+        echo ""
+        echo "pre-push guard FAILED at ${label} (rc=${rc}). Fix the artefact; do not push."
+        exit "${rc}"
+    fi
+    echo "OK"
+    [ -n "${token}" ] || echo "      NOTE: no random source for the advisory-echo token; this gate's advisory WARN/NOTE lines are not shown"
+    marker="runner-echo: tools/run_all_audits.sh shows this gate's advisory lines on a pass"
+    advisory='^DUE-SOON'
+    if [ -n "${token}" ] \
+        && printf '%s\n' "${out}" | grep -xF -- "${marker} ${token}" >/dev/null; then
+        advisory='^(DUE-SOON|WARN|NOTE)'
+    fi
+    printf '%s\n' "${out}" | grep -E "${advisory}" | sed 's/^/      /' || true
+}
+
+# One FAST-path audit gate: like tools/run_all_audits.sh, a passing
+# gate's output stays hidden (its advisory lines are not echoed here; the
+# header discloses that) and a
 # failing gate's output is printed in full before the guard exits with the
 # gate's status. The status is captured inside an `if`, as in fast_step.
 audit_gate() {
@@ -494,6 +556,8 @@ if [ "${fast_path}" -eq 1 ]; then
         audit_gate "pre-push guard fast path gate" "${key%%|*}" python3 "${gate_words[@]}"
     done
     echo "pre-push guard fast path: ${#fast_gates[@]} runner gates passed in $((SECONDS - gates_started))s."
+    fast_step "store-dependent gate 36 tests (tests/store-dependent-tests.txt, every push)" \
+        python3 tools/run-store-dependent-tests.py
     fast_step "palette gate (.baseline/check_palette.py, with .web/build.py's arguments)" \
         python3 -I .baseline/check_palette.py --site grclibrary --palettes .web/baseline/palettes.css
     fast_step ".web/build.py --check (web-generator health, from HEAD)" python3 .web/build.py --check
@@ -503,14 +567,15 @@ else
 
     if [ "${runner_gates_ok}" -eq 1 ]; then
         # Every runner gate but gate 36, in runner order, by the runner's own
-        # name and command (the same reading, and the same audit_gate, the
-        # fast path uses); gate 36 is left to CI, which runs the whole suite,
-        # sharded, on every pull request.
+        # name and command (the same reading the fast path uses), each with
+        # the runner's advisory echo (audit_gate_echo, as run_gate echoes);
+        # gate 36 is left to CI, which runs the whole suite, sharded, on
+        # every pull request.
         echo "=== pre-push guard 1/3: tools/run_all_audits.sh gates (all but the linter regression suite, gate 36, left to CI) ==="
         gates_started=${SECONDS}
         for key in "${runner_gates[@]}"; do
             read -r -a gate_words <<< "${key#*|}"
-            audit_gate "pre-push guard gate" "${key%%|*}" python3 "${gate_words[@]}"
+            audit_gate_echo "pre-push guard gate" "${key%%|*}" python3 "${gate_words[@]}"
         done
         echo "pre-push guard: ${#runner_gates[@]} runner gates passed in $((SECONDS - gates_started))s (gate 36 left to CI, which runs the whole suite, sharded, on every pull request)."
     else
@@ -533,6 +598,23 @@ else
             echo "pre-push guard FAILED at run_all_audits.sh (rc=${rc}). Fix the artefact; do not push."
             exit "${rc}"
         fi
+    fi
+
+    # The reviewed store-dependent subset of gate 36
+    # (tests/store-dependent-tests.txt), on every push, fail-closed: CI has
+    # no private store and no private sibling, so these tests skip or no-op
+    # there and this local run is their only pre-merge execution. Runs after
+    # the gates on BOTH branches above (on the fail-closed whole-runner
+    # fallback gate 36 just ran serially, but the list run still validates
+    # the committed list itself).
+    echo ""
+    echo "=== pre-push guard: store-dependent gate 36 tests (tests/store-dependent-tests.txt, every push) ==="
+    python3 tools/run-store-dependent-tests.py
+    rc=$?
+    if [ "${rc}" -ne 0 ]; then
+        echo ""
+        echo "pre-push guard FAILED at run-store-dependent-tests.py (rc=${rc}). Fix the artefact; do not push."
+        exit "${rc}"
     fi
 
     echo ""

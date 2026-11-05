@@ -13,12 +13,19 @@ permissions:
 
 jobs:
   # Gate 36 (the linter regression test suite) is sharded across the six
-  # regression-shard jobs below (maintainer directive 2026-11-04): together
-  # they run exactly the tests one serial run executes, each shard fails
-  # closed on any selection defect, and this job's gate-36 step verifies the
-  # same partition. The summary job carries the required-check name
-  # "Lint markdown corpus" and succeeds only when this job and every shard
-  # succeeded, so the merge guard's contract is unchanged.
+  # regression-shard jobs below (maintainer directive 2026-11-04). The
+  # equivalence with one serial run holds in two parts: (1) the shards
+  # together SELECT and run exactly the tests one serial run executes (each
+  # shard recomputes the whole partition and fails closed on any selection
+  # defect, and this job's gate-36 step verifies the same partition); and
+  # (2) the serial runner's PER-MODULE refusal (a module with no credited
+  # start fails the gate) is restored across shards by the summary job:
+  # each shard publishes its per-module credited-start counts as its
+  # `credited` job output, and the summary's reconcile step sums them and
+  # fails when any module's total is zero. The summary job carries the
+  # required-check name "Lint markdown corpus" and succeeds only when this
+  # job and every shard succeeded AND that reconciliation passes, so the
+  # merge guard's contract is unchanged.
   lint:
     name: Lint markdown corpus gates
     runs-on: ubuntu-latest
@@ -432,10 +439,17 @@ jobs:
   # Gate 36 shards. Each shard recomputes the whole deterministic selection
   # from tests/regression-shard-weights.json and refuses unless it is an
   # exact partition of the discovered tests, then runs only its own slice,
-  # so the six shards together run exactly the serial run's tests.
+  # so the six shards together run exactly the serial run's tests. Each
+  # shard also publishes its per-module credited-start counts (validated
+  # from the shard sentinel, written to GITHUB_OUTPUT as block-style
+  # `module: count` lines) as its `credited` job output; the summary job
+  # sums them across shards and fails when any module's total is zero,
+  # matching the serial runner's per-module refusal.
   regression-shard-1:
     name: Linter regression test suite (shard 1 of 6)
     runs-on: ubuntu-latest
+    outputs:
+      credited: ${{ steps.gate.outputs.credited }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -451,11 +465,14 @@ jobs:
         run: python3 -m pip install -r requirements.txt
 
       - name: Linter regression test suite (shard 1 of 6)
+        id: gate
         run: python3 tools/run-linter-regression.py --shard 1/6
 
   regression-shard-2:
     name: Linter regression test suite (shard 2 of 6)
     runs-on: ubuntu-latest
+    outputs:
+      credited: ${{ steps.gate.outputs.credited }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -471,11 +488,14 @@ jobs:
         run: python3 -m pip install -r requirements.txt
 
       - name: Linter regression test suite (shard 2 of 6)
+        id: gate
         run: python3 tools/run-linter-regression.py --shard 2/6
 
   regression-shard-3:
     name: Linter regression test suite (shard 3 of 6)
     runs-on: ubuntu-latest
+    outputs:
+      credited: ${{ steps.gate.outputs.credited }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -491,11 +511,14 @@ jobs:
         run: python3 -m pip install -r requirements.txt
 
       - name: Linter regression test suite (shard 3 of 6)
+        id: gate
         run: python3 tools/run-linter-regression.py --shard 3/6
 
   regression-shard-4:
     name: Linter regression test suite (shard 4 of 6)
     runs-on: ubuntu-latest
+    outputs:
+      credited: ${{ steps.gate.outputs.credited }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -511,11 +534,14 @@ jobs:
         run: python3 -m pip install -r requirements.txt
 
       - name: Linter regression test suite (shard 4 of 6)
+        id: gate
         run: python3 tools/run-linter-regression.py --shard 4/6
 
   regression-shard-5:
     name: Linter regression test suite (shard 5 of 6)
     runs-on: ubuntu-latest
+    outputs:
+      credited: ${{ steps.gate.outputs.credited }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -531,11 +557,14 @@ jobs:
         run: python3 -m pip install -r requirements.txt
 
       - name: Linter regression test suite (shard 5 of 6)
+        id: gate
         run: python3 tools/run-linter-regression.py --shard 5/6
 
   regression-shard-6:
     name: Linter regression test suite (shard 6 of 6)
     runs-on: ubuntu-latest
+    outputs:
+      credited: ${{ steps.gate.outputs.credited }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -551,13 +580,18 @@ jobs:
         run: python3 -m pip install -r requirements.txt
 
       - name: Linter regression test suite (shard 6 of 6)
+        id: gate
         run: python3 tools/run-linter-regression.py --shard 6/6
 
   # The required merge check (REQUIRED_CHECKS in the merge-when-green guard):
-  # it succeeds only when the lint job and every regression shard succeeded.
-  # if always() keeps it running, and failing, when a needed job fails, is
-  # cancelled or is skipped, so the merge guard sees a failed required check
-  # rather than a missing one.
+  # it succeeds only when the lint job and every regression shard succeeded
+  # AND the shards' per-module credited-start counts, summed by the pinned
+  # reconcile step, give every test module at least one credited start (the
+  # serial runner's per-module refusal, restored across shards). if always()
+  # keeps it running, and failing, when a needed job fails, is cancelled or
+  # is skipped, so the merge guard sees a failed required check rather than
+  # a missing one. The reconcile step fails closed on a missing, malformed
+  # or wrongly-scoped shard output.
   summary:
     name: Lint markdown corpus
     runs-on: ubuntu-latest
@@ -571,7 +605,17 @@ jobs:
       - regression-shard-6
     if: always()
     steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
       - name: Confirm the lint job and every regression shard succeeded
         env:
           NEEDS_RESULTS: ${{ toJSON(needs) }}
-        run: python3 -c 'import json, os, sys; needs = json.loads(os.environ["NEEDS_RESULTS"]); print("needed job results", sorted((name, job.get("result")) for name, job in needs.items())); sys.exit(0 if needs and all(job.get("result") == "success" for job in needs.values()) else 1)'
+        run: python3 tools/reconcile-regression-shards.py

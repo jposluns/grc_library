@@ -18612,6 +18612,11 @@ class PrePushGuardTests(unittest.TestCase):
             f"exit {second_rc}\n",
             encoding="utf-8",
         )
+        # The store-dependent list step runs on every push; this fixture
+        # exercises the exit-code chain of the runners around it.
+        (tools / "run-store-dependent-tests.py").write_text(
+            "import sys\nsys.exit(0)\n", encoding="utf-8"
+        )
         if web_rc is not None:
             web = tmp / ".web"
             web.mkdir()
@@ -19051,6 +19056,83 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIn("PASS (FAST PATH", result.stdout)
         self.assertNotIn("tools/run_all_audits.sh", ran)
         self.assertNotIn(self.REGRESSION_SCRIPT, ran)
+
+    def test_full_path_echoes_advisory_lines_from_a_passing_gate(self):
+        # FLIP TABLE (round-2 fix, round-1 WARN): on the FULL path a passing
+        # gate's DUE-SOON lines are echoed, and its WARN and NOTE lines when
+        # the gate prints the runner-echo marker with the guard's per-gate
+        # GRC_RUNNER_ECHO_TOKEN, exactly as tools/run_all_audits.sh run_gate
+        # echoes them; a gate that does not opt in keeps its WARN lines
+        # hidden, and the marker line itself is never echoed.
+        (self.root / "tools" / "fixture-echo.py").write_text(
+            "import os\nimport sys\n"
+            "with open('ran.log', 'a') as f:\n"
+            "    f.write(' '.join(sys.argv) + '\\n')\n"
+            "print('DUE-SOON  fixture band')\n"
+            "token = os.environ.get('GRC_RUNNER_ECHO_TOKEN', '')\n"
+            "if token:\n"
+            "    print(\"runner-echo: tools/run_all_audits.sh shows this \"\n"
+            "          \"gate's advisory lines on a pass \" + token)\n"
+            "print('WARN fixture warn line')\n"
+            "print('NOTE fixture note line')\n",
+            encoding="utf-8")
+        (self.root / "tools" / "fixture-silent.py").write_text(
+            "print('WARN unopted warn line')\n", encoding="utf-8")
+        self.set_runner_lines(
+            self.gate_lines
+            + 'run_gate "Fixture echo audit" python3 tools/fixture-echo.py\n'
+            + 'run_gate "Fixture silent audit" python3 tools/fixture-silent.py\n')
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("      DUE-SOON  fixture band", result.stdout)
+        self.assertIn("      WARN fixture warn line", result.stdout)
+        self.assertIn("      NOTE fixture note line", result.stdout)
+        self.assertNotIn("unopted warn line", result.stdout)
+        self.assertNotIn("runner-echo:", result.stdout)
+
+    def test_fast_path_does_not_echo_advisory_lines(self):
+        # The fast path's disclosure holds: no advisory line is echoed from
+        # a passing gate there (the header and tools/README.md say so).
+        (self.root / "tools" / "fixture-echo.py").write_text(
+            "print('DUE-SOON  fixture band')\n", encoding="utf-8")
+        self.set_runner_lines(
+            self.gate_lines
+            + 'run_gate "Fixture echo audit" python3 tools/fixture-echo.py\n')
+        self.change(".web/templates-draft/landing.html")
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("PASS (FAST PATH", result.stdout)
+        self.assertNotIn("DUE-SOON", result.stdout)
+
+    def test_both_paths_run_the_store_dependent_list(self):
+        # FLIP TABLE (round-2 fix, round-1 ERROR 1): both guard paths run
+        # the reviewed store-dependent gate 36 subset through
+        # tools/run-store-dependent-tests.py on every push.
+        for label, path in (("fast", ".web/templates-draft/landing.html"),
+                            ("full", "ai/policy-fixture.md")):
+            with self.subTest(path=label):
+                log = self.root / "ran.log"
+                if log.exists():
+                    log.write_text("", encoding="utf-8")
+                self.change(path)
+                result, ran = self.run_guard()
+                self.assertEqual(result.returncode, 0,
+                                 result.stdout + result.stderr)
+                self.assertIn("tools/run-store-dependent-tests.py", ran)
+                self.assertIn("store-dependent gate 36 tests", result.stdout)
+
+    def test_failing_store_dependent_list_blocks_the_push(self):
+        # Fail-closed wiring: the list runner's non-zero exit (here the
+        # stub's rc 3, as an unreadable list or a missing listed test would
+        # give) blocks the push with the guard's FAILED message.
+        (self.root / "fail-run-store-dependent-tests.py").write_text(
+            "", encoding="utf-8")
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
+        self.assertIn("pre-push guard FAILED at run-store-dependent-tests.py",
+                      result.stdout)
 
     def test_build_py_change_takes_full_guard(self):
         self.change(".web/build.py")
@@ -88531,42 +88613,94 @@ class BaselinePinLinterTests(LinterTestCase):
 
 class QualityWorkflowShardSummaryTests(unittest.TestCase):
     """The quality workflow's required-check summary job (maintainer
-    directive 2026-11-04): its pinned command, run exactly as the
-    workflow runs it, fails unless every needed job's result is
-    success. FLIP TABLE: the aggregate job fails when a shard fails, is
-    cancelled or is skipped, and when needs is empty."""
+    directive 2026-11-04; round 2): its pinned reconcile step, run exactly
+    as the workflow runs it, fails unless every needed job's result is
+    success AND the shards' per-module credited-start counts, summed,
+    give every on-disk test module at least one credited start. FLIP
+    TABLE: the aggregate job fails when a shard fails, is cancelled or is
+    skipped, when needs is empty, and when a module's cross-shard total
+    is zero; a missing or malformed shard output is a refusal."""
 
     def _summary_command(self) -> str:
         text = (REPO_ROOT / ".github" / "workflows" / "quality.yml").read_text(
             encoding="utf-8")
-        match = re.search(r"^        run: (python3 -c '.+')$", text, re.M)
-        self.assertIsNotNone(match, "the summary job's pinned run command "
-                                    "must be present in quality.yml")
+        match = re.search(
+            r"^        run: (python3 tools/reconcile-regression-shards\.py)$",
+            text, re.M)
+        self.assertIsNotNone(match, "the summary job's pinned reconcile "
+                                    "command must be present in quality.yml")
         return match.group(1)
+
+    def _modules(self) -> list[str]:
+        return sorted(
+            "tests." + name[:-3]
+            for name in os.listdir(REPO_ROOT / "tests")
+            if name.startswith("test_") and name.endswith(".py"))
+
+    def _needs(self, modules: list[str]) -> dict:
+        credited = "".join("%s: 1\n" % module for module in modules)
+        needs = {"lint": {"result": "success", "outputs": {}}}
+        for i in range(1, 7):
+            needs["regression-shard-%d" % i] = {
+                "result": "success", "outputs": {"credited": credited}}
+        return needs
 
     def _run_summary(self, needs: dict) -> subprocess.CompletedProcess:
         env = {"PATH": os.environ.get("PATH", ""),
                "NEEDS_RESULTS": json.dumps(needs)}
         return subprocess.run(["bash", "-c", self._summary_command()],
-                              env=env, capture_output=True, text=True,
-                              timeout=60)
+                              cwd=REPO_ROOT, env=env, capture_output=True,
+                              text=True, timeout=60)
 
     def test_summary_green_only_when_every_needed_job_succeeded(self):
-        ok = {"lint": {"result": "success"}}
-        for i in range(1, 7):
-            ok["regression-shard-%d" % i] = {"result": "success"}
+        ok = self._needs(self._modules())
         green = self._run_summary(ok)
         self.assertEqual(green.returncode, 0, green.stdout + green.stderr)
         for bad in ("failure", "cancelled", "skipped", None):
             with self.subTest(result=bad):
-                needs = dict(ok)
-                needs["regression-shard-3"] = {"result": bad}
+                needs = {name: dict(job) for name, job in ok.items()}
+                needs["regression-shard-3"]["result"] = bad
                 self.assertEqual(self._run_summary(needs).returncode, 1)
-        lint_failed = dict(ok)
-        lint_failed["lint"] = {"result": "failure"}
+        lint_failed = {name: dict(job) for name, job in ok.items()}
+        lint_failed["lint"]["result"] = "failure"
         self.assertEqual(self._run_summary(lint_failed).returncode, 1)
-        self.assertEqual(self._run_summary({}).returncode, 1,
-                         "an empty needs context must fail, not pass vacuously")
+        self.assertNotEqual(self._run_summary({}).returncode, 0,
+                            "an empty needs context must fail, not pass "
+                            "vacuously")
+
+    def test_summary_fails_a_module_with_zero_credited_starts(self):
+        """FLIP TABLE (round 2): every job green, but one module earned no
+        credited start in any shard (a wholly skipped module) -> the
+        required check fails, as the serial runner's per-module refusal
+        would have."""
+        modules = self._modules()
+        victim = modules[0]
+        needs = self._needs(modules)
+        credited = "".join("%s: %d\n" % (module, 0 if module == victim else 1)
+                           for module in modules)
+        for i in range(1, 7):
+            needs["regression-shard-%d" % i] = {
+                "result": "success", "outputs": {"credited": credited}}
+        run = self._run_summary(needs)
+        self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+        self.assertIn("0 credited starts", run.stdout)
+        self.assertIn(victim.partition(".")[2], run.stdout)
+
+    def test_summary_refuses_missing_or_malformed_shard_output(self):
+        """A shard that published no usable counts can never pass the
+        required check (fail closed, exit 2)."""
+        modules = self._modules()
+        for label, outputs in (
+                ("missing", {}),
+                ("malformed", {"credited": "garbage"}),
+                ("wrong-set", {"credited": "tests.test_only_one: 1\n"})):
+            with self.subTest(label=label):
+                needs = self._needs(modules)
+                needs["regression-shard-2"] = {"result": "success",
+                                               "outputs": outputs}
+                run = self._run_summary(needs)
+                self.assertEqual(run.returncode, 2,
+                                 run.stdout + run.stderr)
 
     def test_summary_command_matches_the_parity_pin(self):
         """The command the workflow runs is byte-identical to the one the
@@ -88588,6 +88722,7 @@ class GateParityShardFormTests(unittest.TestCase):
     below fails when the audit's shard-form checks are weakened."""
 
     REGRESSION = "tools/run-linter-regression.py"
+    SHA = "0123456789abcdef0123456789abcdef01234567"
 
     def _agp(self):
         import importlib.util
@@ -88597,27 +88732,57 @@ class GateParityShardFormTests(unittest.TestCase):
         spec.loader.exec_module(agp)
         return agp
 
+    def _setup_steps(self, checkout_sha=None, fetch_depth="0",
+                     with_install=True):
+        checkout_sha = checkout_sha or self.SHA
+        text = ("      - name: Checkout\n"
+                f"        uses: actions/checkout@{checkout_sha}\n"
+                "        with:\n"
+                f"          fetch-depth: {fetch_depth}\n"
+                "      - name: Set up Python\n"
+                f"        uses: actions/setup-python@{self.SHA}\n"
+                "        with:\n"
+                "          python-version: \"3.11\"\n")
+        if with_install:
+            text += ("      - name: Install pinned dependencies\n"
+                     "        run: python3 -m pip install -r requirements.txt\n")
+        return text
+
     def _workflow(self, agp, verify="--verify-shards 2", shard_one="1/2",
                   needs=("lint", "regression-shard-1", "regression-shard-2"),
                   summary_name="Lint markdown corpus", shard_one_name=None,
                   summary_run=None, drop_shard_two=False, extra_job="",
-                  verify_step=True):
+                  verify_step=True, shard_outputs=None, gate_id="gate",
+                  checkout_sha=None, fetch_depth="0", summary_setup=True,
+                  extra_summary_step="", pre_verify_step="",
+                  shard_setup=None):
         shard_one_name = shard_one_name or ("Linter regression test suite "
                                             "(shard 1 of 2)")
         summary_run = summary_run or agp.SUMMARY_STEP_RUN
+        if shard_outputs is None:
+            shard_outputs = ("    outputs:\n"
+                             "      credited: "
+                             "${{ steps.gate.outputs.credited }}\n")
+        id_line = f"        id: {gate_id}\n" if gate_id else ""
         verify_lines = ("      - name: Linter regression test suite\n"
                         f"        run: python3 {self.REGRESSION} {verify}\n"
                         if verify_step else "")
+        if shard_setup is None:
+            shard_setup = self._setup_steps(checkout_sha=checkout_sha,
+                                            fetch_depth=fetch_depth)
         shard_two = ("" if drop_shard_two else
                      "  regression-shard-2:\n"
                      "    name: Linter regression test suite (shard 2 of 2)\n"
                      "    runs-on: ubuntu-latest\n"
+                     + shard_outputs +
                      "    steps:\n"
-                     "      - name: Checkout\n"
-                     "        uses: actions/checkout@abc\n"
+                     + self._setup_steps() +
                      "      - name: Linter regression test suite (shard 2 of 2)\n"
+                     "        id: gate\n"
                      f"        run: python3 {self.REGRESSION} --shard 2/2\n")
         needs_lines = "".join(f"      - {name}\n" for name in needs)
+        summary_setup_lines = (self._setup_steps(with_install=False)
+                               if summary_setup else "")
         return ("name: Quality\n"
                 "on:\n"
                 "  push:\n"
@@ -88637,10 +88802,11 @@ class GateParityShardFormTests(unittest.TestCase):
                 "  regression-shard-1:\n"
                 f"    name: {shard_one_name}\n"
                 "    runs-on: ubuntu-latest\n"
+                + shard_outputs +
                 "    steps:\n"
-                "      - name: Checkout\n"
-                "        uses: actions/checkout@abc\n"
+                + shard_setup +
                 f"      - name: {shard_one_name}\n"
+                + id_line +
                 f"        run: python3 {self.REGRESSION} --shard {shard_one}\n"
                 + shard_two + extra_job +
                 "  summary:\n"
@@ -88650,11 +88816,13 @@ class GateParityShardFormTests(unittest.TestCase):
                 + needs_lines +
                 "    if: always()\n"
                 "    steps:\n"
+                + summary_setup_lines + pre_verify_step +
                 "      - name: Confirm the lint job and every regression "
                 "shard succeeded\n"
                 "        env:\n"
                 "          NEEDS_RESULTS: ${{ toJSON(needs) }}\n"
-                f"        run: {summary_run}\n")
+                f"        run: {summary_run}\n"
+                + extra_summary_step)
 
     def _parse(self, agp, text):
         root = Path(tempfile.mkdtemp(prefix="parity-shard-", dir=FIXTURE_DIR))
@@ -88702,6 +88870,38 @@ class GateParityShardFormTests(unittest.TestCase):
                 "    steps:\n      - name: Shape\n"
                 "        run: python3 tools/x.py\n")),
             "one-shard-only": dict(drop_shard_two=True),
+            # Round-2 hardening: the summary holds EXACTLY ONE verification
+            # step, the setup steps are pinned exactly, each shard declares
+            # the pinned credited output, and the gate step's id is pinned.
+            "two-summary-verify-steps": dict(extra_summary_step=(
+                "      - name: Confirm again\n"
+                "        env:\n"
+                "          NEEDS_RESULTS: ${{ toJSON(needs) }}\n"
+                "        run: python3 tools/reconcile-regression-shards.py\n")),
+            "summary-missing-setup": dict(summary_setup=False),
+            # A pinned-shaped FOURTH step before the verify step: only the
+            # exactly-one-verification-step sequence check refuses it, so
+            # weakening that check alone fails here.
+            "summary-extra-pinned-setup-step": dict(pre_verify_step=(
+                "      - name: Checkout\n"
+                "        uses: actions/checkout@"
+                "0123456789abcdef0123456789abcdef01234567\n"
+                "        with:\n"
+                "          fetch-depth: 0\n")),
+            "shard-outputs-missing": dict(shard_outputs=""),
+            "shard-outputs-wrong-expr": dict(shard_outputs=(
+                "    outputs:\n"
+                "      credited: ${{ steps.other.outputs.credited }}\n")),
+            "gate-step-id-missing": dict(gate_id=""),
+            "gate-step-wrong-id": dict(gate_id="runner"),
+            "unpinned-checkout-sha": dict(checkout_sha="abc"),
+            "setup-with-drift": dict(fetch_depth="1"),
+            "setup-step-missing": dict(shard_setup=(
+                "      - name: Checkout\n"
+                "        uses: actions/checkout@"
+                "0123456789abcdef0123456789abcdef01234567\n"
+                "        with:\n"
+                "          fetch-depth: 0\n")),
         }
         for label, kwargs in deviations.items():
             with self.subTest(label=label):
@@ -88719,12 +88919,60 @@ class GateParityShardFormTests(unittest.TestCase):
         # A setup-named step inside a shard job must not smuggle a gate
         # script past the by-name exclusion.
         agp = self._agp()
+        checkout_block = (
+            f"      - name: Checkout\n"
+            f"        uses: actions/checkout@{self.SHA}\n"
+            f"        with:\n"
+            f"          fetch-depth: 0\n")
         text = self._workflow(agp).replace(
-            "      - name: Checkout\n        uses: actions/checkout@abc\n",
+            checkout_block,
             "      - name: Checkout\n        run: python3 tools/lint-links.py\n",
             1)
         with self.assertRaisesRegex(agp.ParseError, "must not run a gate"):
             self._parse(agp, text)
+
+    def test_lint_job_setup_step_shape_is_pinned(self):
+        # Round-2 hardening: the lint job's setup steps are pinned to their
+        # exact accepted shapes too, so an unpinned action or a drifted
+        # command cannot hide behind the by-name exclusion.
+        agp = self._agp()
+        root = Path(tempfile.mkdtemp(prefix="parity-setup-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        base = ("name: Quality\n"
+                "on:\n"
+                "  push:\n"
+                "    branches:\n"
+                "      - main\n"
+                "  pull_request:\n"
+                "permissions:\n"
+                "  contents: read\n"
+                "jobs:\n"
+                "  lint:\n"
+                "    name: Lint\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "%s"
+                "      - name: Shape\n"
+                "        run: python3 tools/x.py\n")
+        good = base % self._setup_steps()
+        path = root / "quality.yml"
+        path.write_text(good, encoding="utf-8")
+        entries = agp.parse_workflow(path)
+        self.assertEqual([entry[1] for entry in entries], ["Shape"])
+        for label, kwargs in (
+                ("unpinned-sha", dict(checkout_sha="v4")),
+                ("with-drift", dict(fetch_depth="1"))):
+            with self.subTest(label=label):
+                path.write_text(base % self._setup_steps(**kwargs),
+                                encoding="utf-8")
+                with self.assertRaises(agp.ParseError):
+                    agp.parse_workflow(path)
+        drifted = good.replace(
+            "        run: python3 -m pip install -r requirements.txt\n",
+            "        run: python3 -m pip install requests\n")
+        path.write_text(drifted, encoding="utf-8")
+        with self.assertRaises(agp.ParseError):
+            agp.parse_workflow(path)
 
     def test_live_workflow_parses_under_the_shard_form(self):
         """The committed quality.yml is the shard form: gate 36 appears

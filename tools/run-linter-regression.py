@@ -249,15 +249,35 @@ equals the selected occurrence count, reconciled per unit (every
 selected occurrence reached ``startTest`` or is accounted by a
 ``setUpClass`` ``SkipTest`` record, with the same record-grouping
 rules as the full run), with at least one credited start in the shard.
-Residuals specific to shard mode, beyond the full run's: the
-per-module zero-credited-starts refusal holds for the whole suite, not
-per shard (a shard sees only its own units; the plain run, which
+The shard sentinel also carries ``credited`` (the shard's credited
+starts) and one per-module credited-start token for EVERY discovered
+module (zero allowed): a credited start is credited to the module
+whose loaded suite holds the started occurrence, exactly as in the
+full run. The parent refuses a sentinel whose module names are not
+exactly the handed modules, whose per-module counts do not sum to its
+``credited`` total, or whose ``credited`` exceeds ``testsRun``; and,
+when the ``GITHUB_OUTPUT`` environment file is set (a GitHub Actions
+step), it appends the counts as a ``credited`` multi-line step output
+of block-style ``module: count`` lines (refusing, exit 2, when that
+file cannot be written), so each CI shard job publishes its counts as
+a job output. The CI summary job's reconcile step
+(tools/reconcile-regression-shards.py) sums those counts across all
+shards and fails when any discovered module's total is zero, restoring
+before merge the serial runner's refusal of a module with no credited
+start; a shard output that is missing, malformed, or naming a module
+set other than the on-disk tests/test_*.py files is a refusal there,
+never a pass. Residuals specific to shard mode, beyond the full run's:
+within one shard the zero-credited refusal is for the shard as a whole
+(at least one credited start anywhere in it); the per-module rule is
+enforced across shards by the summary reconcile step, so it holds only
+where that step runs (CI; the plain run, which
 tools/run_all_audits.sh and the pre-commit hook still invoke, keeps
-that rule); and two units of one class object that land in one shard
-with nothing between them run under one ``setUpClass`` where the whole
-suite sets the class up twice (the standard loader yields one unit per
-class, so no current module is affected). Weights are advisory balance
-data; the selection mechanism, never a weight, decides membership.
+the serial per-module rule locally). Two units of one class object
+that land in one shard with nothing between them run under one
+``setUpClass`` where the whole suite sets the class up twice (the
+standard loader yields one unit per class, so no current module is
+affected). Weights are advisory balance data; the selection mechanism,
+never a weight, decides membership.
 
 Stdlib-only Python 3.11.
 """
@@ -904,7 +924,12 @@ def parse_shard_spec(text: str) -> tuple[int, int]:
 # per-unit accounting: every selected occurrence must reach startTest or
 # be accounted by a setUpClass SkipTest record (grouped into runs by the
 # same rules as the plain driver), and the shard must earn at least one
-# credited start (a start outside a skip-decorated class).
+# credited start (a start outside a skip-decorated class). The sentinel
+# additionally carries the shard's credited total and one credited-start
+# count per handed module (zero allowed), credited to the module whose
+# loaded suite holds the started occurrence, as in the plain driver; the
+# parent reconciles those counts and, in CI, publishes them as the job's
+# ``credited`` output for the summary's cross-shard per-module check.
 _SHARD_DRIVER = """\
 import importlib
 import importlib.util
@@ -1027,13 +1052,17 @@ if verify_only:
     sys.exit(0)
 selected = set(selection[shard_index])
 shard_occurrences = []
-for position, (case, _name) in enumerate(occurrences):
+for position, (case, name) in enumerate(occurrences):
     key = unit_of_occurrence[position]
     if key in selected:
-        shard_occurrences.append((case, key))
+        shard_occurrences.append((case, key, name))
 started_any = dict.fromkeys(selected, 0)
 not_started_by_unit = dict.fromkeys(selected, 0)
 credited = 0
+# Per-module credited starts, over EVERY handed module (zero stays zero for
+# a module none of this shard's units came from), so the sentinel reports a
+# complete per-module row the CI summary can sum across shards.
+credited_by_module = dict.fromkeys(modules, 0)
 class ShardResult(unittest.TextTestResult):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1045,7 +1074,7 @@ class ShardResult(unittest.TextTestResult):
         previous = None
         covered = False
         for position in range(self.next_occurrence, upto):
-            case, key = shard_occurrences[position]
+            case, key, _name = shard_occurrences[position]
             if case.__class__ is not previous:
                 holder = unittest.util.strclass(case.__class__)
                 covered = self.class_skips.get(holder, 0) > 0
@@ -1081,16 +1110,17 @@ class ShardResult(unittest.TextTestResult):
         global credited
         self.last_record = None
         for position in range(self.next_occurrence, len(shard_occurrences)):
-            case, key = shard_occurrences[position]
+            case, key, name = shard_occurrences[position]
             if case is test:
                 self.settle(position)
                 self.next_occurrence = position + 1
                 started_any[key] += 1
                 if not getattr(test.__class__, "__unittest_skip__", False):
                     credited += 1
+                    credited_by_module[name] += 1
                 break
         super().startTest(test)
-suite = unittest.TestSuite(case for case, _key in shard_occurrences)
+suite = unittest.TestSuite(case for case, _key, _name in shard_occurrences)
 runner = unittest.TextTestRunner(resultclass=ShardResult)
 result = runner.run(suite)
 result.settle(len(shard_occurrences))
@@ -1112,19 +1142,32 @@ if result.wasSuccessful():
 if failed:
     sys.exit(2)
 print("REGRESSION-SHARD-RESULT %s shard=%d/%d testsRun=%d notStarted=%d "
-      "wasSuccessful=%s selected=%d units=%d"
+      "wasSuccessful=%s selected=%d units=%d credited=%d %s"
       % (nonce, shard_index, shard_count, result.testsRun, result.not_started,
-         result.wasSuccessful(), len(shard_occurrences), len(selected)),
+         result.wasSuccessful(), len(shard_occurrences), len(selected),
+         credited,
+         " ".join("%s=%d" % (name, credited_by_module[name])
+                  for name in sorted(credited_by_module))),
       file=sys.stderr)
 sys.exit(0 if result.wasSuccessful() else 1)
 """
 
 # The shard run's completion sentinel and verify mode's selection sentinel.
+# The credited tail mirrors the plain sentinel's per-module counts: credited
+# starts for EVERY handed module (zero allowed), summed by the CI summary's
+# reconcile step across shards.
 _SHARD_SENTINEL = re.compile(
     r"^REGRESSION-SHARD-RESULT (?P<nonce>[0-9a-f]{32}) "
     r"shard=(?P<index>\d+)/(?P<count>\d+) testsRun=(?P<ran>\d+) "
     r"notStarted=(?P<notstarted>\d+) wasSuccessful=(?P<ok>True|False) "
-    r"selected=(?P<selected>\d+) units=(?P<units>\d+)$")
+    r"selected=(?P<selected>\d+) units=(?P<units>\d+) "
+    r"credited=(?P<credited>\d+)(?P<counts>( [A-Za-z0-9_.]+=\d+)*)$")
+
+# The GITHUB_OUTPUT heredoc delimiter for the per-module credited counts. The
+# counts' lines are "tests.<name>: <int>" (module names match the sentinel's
+# [A-Za-z0-9_.]+ tokens), so no counts line can equal the delimiter.
+_CREDITED_OUTPUT_NAME = "credited"
+_CREDITED_OUTPUT_DELIMITER = "GRC-CREDITED-COUNTS"
 _SELECTION_SENTINEL = re.compile(
     r"^REGRESSION-SHARD-SELECTION (?P<nonce>[0-9a-f]{32}) "
     r"shards=(?P<count>\d+) units=(?P<units>\d+) occurrences=(?P<occ>\d+)$")
@@ -1150,7 +1193,7 @@ def _run_shard_driver(spec_text: str, repo_root: Path, popen):
     refusal = completeness_refusal(modules, repo_root)
     if refusal is not None:
         print("REFUSED: " + refusal, file=sys.stderr)
-        return 2, None, ""
+        return 2, None, "", []
     print("Running test modules:")
     for name in modules:
         print("  " + name)
@@ -1173,11 +1216,23 @@ def _run_shard_driver(spec_text: str, repo_root: Path, popen):
         sys.stderr.write(line)
         sys.stderr.flush()
         lines.append(line)
-    return proc.wait(), lines, nonce
+    returncode = proc.wait()
+    proc.stderr.close()
+    return returncode, lines, nonce, modules
+
+
+def _shard_sentinel_counts(last_line: str) -> dict[str, int]:
+    """The per-module credited counts of a MATCHING shard sentinel."""
+    match = _SHARD_SENTINEL.match(last_line)
+    counts: dict[str, int] = {}
+    for token in match.group("counts").split():
+        name, _, value = token.partition("=")
+        counts[name] = int(value)
+    return counts
 
 
 def _shard_sentinel_refusal(last_line: str, nonce: str, index: int,
-                            count: int) -> str | None:
+                            count: int, modules: list[str]) -> str | None:
     """Refusal message when ``last_line`` is not a believable shard sentinel."""
     match = _SHARD_SENTINEL.match(last_line)
     if match is None:
@@ -1202,17 +1257,56 @@ def _shard_sentinel_refusal(last_line: str, nonce: str, index: int,
         return ("the shard sentinel's testsRun=%d plus notStarted=%d does "
                 "not equal the %d selected occurrences (with at least one "
                 "test run)" % (ran, not_started, selected))
+    credited = int(match.group("credited"))
+    counts = _shard_sentinel_counts(last_line)
+    if sorted(counts) != sorted(modules):
+        return ("the shard sentinel's per-module credited counts %s do not "
+                "name exactly the handed modules %s"
+                % (sorted(counts), sorted(modules)))
+    if credited < 1 or sum(counts.values()) != credited or credited > ran:
+        return ("the shard sentinel's per-module credited counts sum to %d, "
+                "which does not reconcile with credited=%d and testsRun=%d "
+                "(at least one credited start, summing exactly, never more "
+                "than the started tests)"
+                % (sum(counts.values()), credited, ran))
     if match.group("ok") != "True":
         return ("the child exited 0 but its own result reports "
                 "wasSuccessful=False")
     return None
 
 
+def _write_credited_output(counts: dict[str, int]) -> str | None:
+    """Append the per-module credited counts to the GITHUB_OUTPUT file.
+
+    No-op (None) outside GitHub Actions (GITHUB_OUTPUT unset or empty).
+    Returns a refusal message when the file cannot be written: in CI the
+    counts ARE the shard's contribution to the summary's per-module
+    reconciliation, so losing them silently would hollow that check out.
+    The value is block-style ``module: count`` lines, every handed module
+    present (zero allowed), sorted by module name.
+    """
+    target = os.environ.get("GITHUB_OUTPUT")
+    if not target:
+        return None
+    lines = "".join("%s: %d\n" % (name, counts[name])
+                    for name in sorted(counts))
+    payload = ("%s<<%s\n%s%s\n"
+               % (_CREDITED_OUTPUT_NAME, _CREDITED_OUTPUT_DELIMITER,
+                  lines, _CREDITED_OUTPUT_DELIMITER))
+    try:
+        with open(target, "a", encoding="utf-8") as fh:
+            fh.write(payload)
+    except OSError as exc:
+        return ("cannot append the per-module credited counts to "
+                "GITHUB_OUTPUT (%s): %s" % (target, exc))
+    return None
+
+
 def shard_main(index: int, count: int, repo_root: Path = REPO_ROOT,
                popen=subprocess.Popen) -> int:
     """Run shard ``index`` of ``count``; forwarded unittest exit code."""
-    returncode, lines, nonce = _run_shard_driver("%d/%d" % (index, count),
-                                                 repo_root, popen)
+    returncode, lines, nonce, modules = _run_shard_driver(
+        "%d/%d" % (index, count), repo_root, popen)
     if lines is None:
         return returncode
     if returncode == 0:
@@ -1223,7 +1317,11 @@ def shard_main(index: int, count: int, repo_root: Path = REPO_ROOT,
                                   "line with N at least 1; not a believable "
                                   "green shard run")
         last_line = lines[-1].rstrip("\n") if lines else ""
-        message = _shard_sentinel_refusal(last_line, nonce, index, count)
+        message = _shard_sentinel_refusal(last_line, nonce, index, count,
+                                          modules)
+        if message is not None:
+            return _refuse(lines, message)
+        message = _write_credited_output(_shard_sentinel_counts(last_line))
         if message is not None:
             return _refuse(lines, message)
     return returncode
@@ -1232,8 +1330,8 @@ def shard_main(index: int, count: int, repo_root: Path = REPO_ROOT,
 def verify_shards_main(count: int, repo_root: Path = REPO_ROOT,
                        popen=subprocess.Popen) -> int:
     """Check the ``count``-way selection without running a test."""
-    returncode, lines, nonce = _run_shard_driver("verify/%d" % count,
-                                                 repo_root, popen)
+    returncode, lines, nonce, _modules = _run_shard_driver("verify/%d" % count,
+                                                           repo_root, popen)
     if lines is None:
         return returncode
     if returncode == 0:
