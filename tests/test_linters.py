@@ -74142,15 +74142,15 @@ class BlockingHookMessageContractTests(unittest.TestCase):
     # Each case fails without its fix: the raw character reaches the console text, or the
     # displayed command names another path.
     # Characters str.splitlines() keeps inside a line (a line split there still carries them)...
-    INLINE_CHARS = (("ESC", "\x1b", "\\x1b"), ("CSI", "\x9b", "\\x9b"), ("RLO", "‮", "\\u202e"))
+    INLINE_CHARS = (("ESC", "\x1b", "\\x1b"), ("CSI", "\x9b", "\\x9b"), ("RLO", "\u202e", "\\u202e"))
     # ...and characters it splits on, which reach a line built from text split on LF only.
     LINE_BREAK_CHARS = (("CR", "\r", "\\r"), ("VT", "\x0b", "\\x0b"), ("NEL", "\x85", "\\x85"),
-                        ("LS", " ", "\\u2028"))
+                        ("LS", "\u2028", "\\u2028"))
     # One path segment for the displayed-command round trip: a newline, an ESC, a space, a
     # single quote, a backslash and a surrogate-escaped byte (0xff in the file name); round 4
     # (claude W1): a C1 control (NEL), U+202E and a plane-15 character, which bash rebuilt from
     # \uHHHH or \UHHHHHHHH only in a UTF-8 locale.
-    ODD_SEGMENT = "a b'c\\d\n\x1b[2J\udcffe\x85f‮g\U000f0000h"
+    ODD_SEGMENT = "a b'c\\d\n\x1b[2J\udcffe\x85f\u202eg\U000f0000h"
     _SHELL_WORD = re.compile(r"\$'(?:[^\\']|\\.)*'|(?:'[^']*'|\"'\")+|[^\s`';]+")
     # Locales the displayed-command round trip runs bash in (round 4, codex N3).
     SHELL_LOCALES = ("C", "C.UTF-8")
@@ -74447,7 +74447,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     # Round 4 (claude W2): a single-quoted absolute cd target whose tools/ holds
                     # the tool is the suggestion. _cd_operand reads no backslash or quote, so
                     # this target has a newline, an ESC, a space, NEL and U+202E only.
-                    target = Path(td).resolve() / "cd\n\x1b[2J \x85‮dir"
+                    target = Path(td).resolve() / "cd\n\x1b[2J \x85\u202edir"
                     (target / "tools").mkdir(parents=True)
                     (target / "tools" / "probe.py").write_text("", encoding="utf-8")
                     _block, text = wrong.decide("cd '%s' && python3 tools/probe.py" % target,
@@ -74767,7 +74767,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             with self.subTest(hook=hook, encoding="latin-1"):
                 with patch.object(os, "fsencode", latin1):
                     word = mod._shell_word(path)
-                    wide = mod._shell_word("/d/ ")
+                    wide = mod._shell_word("/d/\u2028")
                 self.assertEqual(word, "$'/d/\\x85e\\xffx'")
                 self.assertEqual(wide, "$'/d/\\xe2\\x80\\xa8'")
                 for locale in self.SHELL_LOCALES:
