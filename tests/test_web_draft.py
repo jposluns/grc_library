@@ -450,6 +450,12 @@ What is locked here, each test failing without its feature:
    tour steps "Next on the tour" in the unchanged tour order; and every
    trade programme page the combined reverse section covers renders the
    shared control-area table.
+48. Five held instruments join the crosswalk (item 3b788): ISO/IEC 27002,
+   ISO 31000, ISO/IEC 27701, the LGPD and the PIPL each have a page under
+   Also in the corpus naming its register row and edition, every pinned
+   spelling aliases to it and none stays plain text, no --check alias
+   warning names one, and its page lists exactly the documents naming it;
+   the compound naming ISO/IEC 27001 and ISO/IEC 27002 links both pages.
 """
 
 from __future__ import annotations
@@ -11144,6 +11150,11 @@ class DraftSiteRenderTests(unittest.TestCase):
         "pipeda": r"\bPIPEDA\b|Personal Information Protection and "
                   r"Electronic Documents Act",
         "quebec-law-25": r"\bLaw 25\b|\bBill 64\b",
+        "iso-iec-27002": r"\b27002\b",
+        "iso-31000": r"\b31000\b",
+        "iso-iec-27701": r"\b27701\b",
+        "lgpd": r"\bLGPD\b|Lei Geral de Proteção de Dados",
+        "pipl": r"\bPIPL\b|Personal Information Protection Law\b",
     }
     # Plain-text names the matcher hits that name a different text than the
     # instrument: a namesake, or guidance, a profile, or a regulation made
@@ -11180,9 +11191,9 @@ class DraftSiteRenderTests(unittest.TestCase):
     }
     # Separate texts that name no crosswalk instrument but sit beside one in
     # a taxonomy string (integration round 3 WARN: each linked whole to the
-    # instrument page); a linked span may not name any of them.
+    # instrument page); a linked span may not name any of them. ISO/IEC 27002
+    # left this map when it gained its own instrument page (item 48).
     SEPARATE_TEXT_RES = {
-        "ISO/IEC 27002": r"\b27002\b",
         "Data Protection Act 2018": r"\bData Protection Act\b",
     }
 
@@ -11539,17 +11550,16 @@ class DraftSiteRenderTests(unittest.TestCase):
         27002:2022" whole to the 27001 page. Under the normalized list
         (full-site review B4 F07) the compound never renders as one chip:
         its instrument part collapses into the instrument's label chip and
-        the other part is its own plain-text chip; neither string sits in
-        the exact alias map, and the plain parts count toward no
-        instrument."""
+        the other part is its own plain-text chip; the string does not sit
+        in the exact alias map, and the plain part counts toward no
+        instrument. ISO/IEC 27002 has its own page now (item 48), so the
+        27001 and 27002 compound names two instruments and the item 48 test
+        checks it."""
         parts = self.mod.CROSSWALK_ALIAS_PARTS
         expected = {
             "UK GDPR / Data Protection Act 2018":
                 ("<li>Data Protection Act 2018</li>",
                  '<a href="/crosswalk/gdpr/">'),
-            "ISO/IEC 27001:2022 / ISO/IEC 27002:2022":
-                ("<li>ISO/IEC 27002:2022</li>",
-                 '<a href="/crosswalk/iso-iec-27001/">'),
         }
         joins = self._concern_joins()
         for name, (plain_chip, link) in expected.items():
@@ -11618,6 +11628,135 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn("an unaliased spelling counts toward no instrument",
                       comment)
         self.assertNotIn("A spelling that cites an instrument", comment)
+
+    # -- 48. five held instruments join the crosswalk (item 3b788) ----------
+
+    # Per added instrument, pinned as literals so a model regenerated from
+    # anything else fails here: its label, the register Standard ID it names
+    # and that row's Current version, the display name the page shows, every
+    # exact taxonomy spelling aliased to it, and the " / " compounds with a
+    # part naming it.
+    _XW_ADDED = {
+        "iso-iec-27002": (
+            "ISO/IEC 27002", "ISO/IEC 27002", "2022", "ISO/IEC 27002:2022",
+            ("ISO/IEC 27002:2022",
+             "ISO/IEC 27002:2022 (Information security controls)",
+             "ISO/IEC 27002:2022 5.24 to 5.28",
+             "ISO/IEC 27002:2022 §5.33, §8.10"),
+            ("ISO/IEC 27001:2022 / ISO/IEC 27002:2022",)),
+        "iso-31000": (
+            "ISO 31000", "ISO 31000", "2018", "ISO 31000:2018",
+            ("ISO 31000:2018",), ()),
+        "iso-iec-27701": (
+            "ISO/IEC 27701", "ISO/IEC 27701", "2025", "ISO/IEC 27701:2025",
+            ("ISO/IEC 27701:2025",
+             "ISO/IEC 27701:2025 (privacy incident management)",
+             "ISO/IEC 27701:2025 (PII principals' rights)",
+             "ISO/IEC 27701:2025 Annex A.1.2.6",
+             "ISO/IEC 27701:2025 Annex A.3.12",
+             "ISO/IEC 27701:2025 §7.5.3, Annex A.3.14",
+             "ISO/IEC 27701:2025 B.3.12 (PII processor breach notification "
+             "provisions)"),
+            ()),
+        "lgpd": (
+            "LGPD", "Brazil LGPD", "2018 (in force 2020)", "LGPD",
+            ("LGPD", "LGPD (Brazil)", "LGPD Article 48",
+             "LGPD Arts. 48 to 49"),
+            ()),
+        "pipl": (
+            "PIPL", "China PIPL", "2021", "PIPL",
+            ("PIPL", "PIPL (China)", "PIPL Art. 57",
+             "PIPL Article 57 (unofficial DigiChina English translation, "
+             "last revised 7 September 2021)"),
+            ()),
+    }
+
+    def _assert_added_instrument(self, key):
+        """One added instrument, checked end to end: it is a page-only
+        instrument under Also in the corpus naming its register row, whose
+        Current version is the pinned edition; exactly its pinned spellings
+        alias to it, none stays in the plain-text map, and no --check alias
+        warning names one; and its rendered page carries the display name
+        and lists exactly the non-root documents naming it through a pinned
+        spelling or compound, recomputed here from the taxonomy, under a
+        label giving that count."""
+        label, register_id, edition, display, spellings, compounds = (
+            self._XW_ADDED[key])
+        mod = self.mod
+        inst = mod.CROSSWALK_BY_KEY.get(key)
+        self.assertIsNotNone(inst, f"{key} is a configured instrument")
+        self.assertEqual((inst.label, inst.group, inst.main_table,
+                          inst.register_id),
+                         (label, self._XW_ALSO, False, register_id))
+        register = mod.parse_citations_register(
+            mod.CITATIONS_REGISTER.read_text(encoding="utf-8"))
+        self.assertEqual(register[register_id]["version"], edition,
+                         "the register row's Current version")
+        self.assertEqual(
+            sorted(n for n, k in mod.CROSSWALK_ALIASES.items() if k == key),
+            sorted(spellings), "exactly the pinned spellings alias to it")
+        self.assertEqual(
+            sorted(n for n, parts in mod.CROSSWALK_ALIAS_PARTS.items()
+                   if key in [k for _, k in parts]),
+            sorted(compounds), "exactly the pinned compounds name it")
+        for name in spellings + compounds:
+            self.assertIn(key, mod.crosswalk_alias_keys(name), name)
+            self.assertNotIn(name, mod.CONCERN_PLAIN_ALIASES, name)
+        warned = {name for _, name in mod.crosswalk_alias_warnings()}
+        self.assertFalse(warned & set(spellings), "no alias warning names it")
+        page = self.draft_html[f"crosswalk/{key}/index.html"]
+        self.assertIn(f"<h1>{mod._esc(display)}</h1>", page)
+        names = set(spellings) | set(compounds)
+        expected = {mod._doc_page_url("", d["path"])
+                    for d in self._full_taxonomy()
+                    if d["domain"] != mod.ROOT_DOMAIN
+                    and names & set(d.get("frameworks", []))}
+        self.assertTrue(expected, "the taxonomy names it somewhere")
+        self.assertEqual(self._citation_hrefs(key), expected)
+        self.assertIn(f'<p class="lbl sec">Corpus citations, {len(expected)}'
+                      "</p>", page)
+
+    def test_iso_iec_27002_has_a_crosswalk_page(self):
+        """Item 48: ISO/IEC 27002, cited by 25 documents in its bare
+        spelling at 3bf5ce4a8, was a --check alias warning and plain text on
+        the concern pages. It is an instrument page now, and the compound it
+        shares with ISO/IEC 27001 links both pages on every concern page
+        carrying it, never a plain ISO/IEC 27002 chip."""
+        self._assert_added_instrument("iso-iec-27002")
+        name = "ISO/IEC 27001:2022 / ISO/IEC 27002:2022"
+        self.assertEqual(self.mod.crosswalk_alias_keys(name),
+                         ("iso-iec-27001", "iso-iec-27002"))
+        carrying = [slug for slug, (_, _, docs) in self._concern_joins().items()
+                    if any(name in d.get("frameworks", []) for d in docs)]
+        self.assertTrue(carrying, "a concern shelf carries the compound")
+        for slug in carrying:
+            html = self.draft_html[f"decide/{slug}/index.html"]
+            for key in ("iso-iec-27001", "iso-iec-27002"):
+                self.assertIn(f'<a href="/crosswalk/{key}/">', html, slug)
+            self.assertNotIn("<li>ISO/IEC 27002:2022</li>", html, slug)
+
+    def test_iso_31000_has_a_crosswalk_page(self):
+        """Item 48: ISO 31000, a --check alias warning at 3bf5ce4a8, is an
+        instrument page now."""
+        self._assert_added_instrument("iso-31000")
+
+    def test_iso_iec_27701_has_a_crosswalk_page(self):
+        """Item 48: ISO/IEC 27701, a --check alias warning at 3bf5ce4a8
+        whose clause spellings sat in the plain-text map, is an instrument
+        page now."""
+        self._assert_added_instrument("iso-iec-27701")
+
+    def test_lgpd_has_a_crosswalk_page(self):
+        """Item 48: Brazil's LGPD, a --check alias warning at 3bf5ce4a8
+        whose article spellings sat in the plain-text map, is an instrument
+        page now."""
+        self._assert_added_instrument("lgpd")
+
+    def test_pipl_has_a_crosswalk_page(self):
+        """Item 48: China's PIPL, a --check alias warning at 3bf5ce4a8
+        whose article spellings sat in the plain-text map, is an instrument
+        page now."""
+        self._assert_added_instrument("pipl")
 
     # -- 41. the standards and frameworks page -------------------------------
 
@@ -13395,10 +13534,10 @@ class CrosswalkPresetGroupTests(unittest.TestCase):
 
     def test_unknown_related_instrument_raises(self):
         with self.assertRaisesRegex(self.mod.BuildError,
-                                    "relates instrument 'lgpd', which is no "
-                                    "crosswalk instrument"):
+                                    "relates instrument 'no-such-instrument', "
+                                    "which is no crosswalk instrument"):
             self.mod.crosswalk_presets(topics=self._topic(
-                "privacy", related=("pipeda", "lgpd")))
+                "privacy", related=("pipeda", "no-such-instrument")))
 
     def test_column_in_no_topic_raises(self):
         topics = self._topic("security", columns=(

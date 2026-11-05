@@ -5362,6 +5362,20 @@ CROSSWALK_INSTRUMENTS = (
                "Canada PIPEDA", None, None, None, None, False),
     Instrument("quebec-law-25", "Quebec Law 25", _XW_G_ALSO,
                "Quebec Law 25", None, None, None, None, False),
+    # Register-and-taxonomy-only pages for the remaining frequently cited
+    # texts with a register row: each was a --check alias warning (cited by
+    # at least CROSSWALK_ALIAS_WARN_MIN documents), and its spellings left
+    # the plain-text map when it gained a page.
+    Instrument("iso-iec-27002", "ISO/IEC 27002", _XW_G_ALSO,
+               "ISO/IEC 27002", "colon", None, None, None, False),
+    Instrument("iso-31000", "ISO 31000", _XW_G_ALSO,
+               "ISO 31000", "colon", None, None, None, False),
+    Instrument("iso-iec-27701", "ISO/IEC 27701", _XW_G_ALSO,
+               "ISO/IEC 27701", "colon", None, None, None, False),
+    Instrument("lgpd", "LGPD", _XW_G_ALSO,
+               "Brazil LGPD", None, None, None, None, False),
+    Instrument("pipl", "PIPL", _XW_G_ALSO,
+               "China PIPL", None, None, None, None, False),
 )
 
 CROSSWALK_BY_KEY = {inst.key: inst for inst in CROSSWALK_INSTRUMENTS}
@@ -5477,13 +5491,36 @@ CROSSWALK_ALIASES = {
     "sector)": "quebec-law-25",
     "Quebec CQLR c. P-39.1, as amended by Law 25 (consolidated text updated "
     "to 1 April 2026)": "quebec-law-25",
+    "ISO/IEC 27002:2022": "iso-iec-27002",
+    "ISO/IEC 27002:2022 (Information security controls)": "iso-iec-27002",
+    "ISO/IEC 27002:2022 5.24 to 5.28": "iso-iec-27002",
+    "ISO/IEC 27002:2022 §5.33, §8.10": "iso-iec-27002",
+    "ISO 31000:2018": "iso-31000",
+    "ISO/IEC 27701:2025": "iso-iec-27701",
+    "ISO/IEC 27701:2025 (privacy incident management)": "iso-iec-27701",
+    "ISO/IEC 27701:2025 (PII principals' rights)": "iso-iec-27701",
+    "ISO/IEC 27701:2025 Annex A.1.2.6": "iso-iec-27701",
+    "ISO/IEC 27701:2025 Annex A.3.12": "iso-iec-27701",
+    "ISO/IEC 27701:2025 §7.5.3, Annex A.3.14": "iso-iec-27701",
+    "ISO/IEC 27701:2025 B.3.12 (PII processor breach notification "
+    "provisions)": "iso-iec-27701",
+    "LGPD": "lgpd",
+    "LGPD (Brazil)": "lgpd",
+    "LGPD Article 48": "lgpd",
+    "LGPD Arts. 48 to 49": "lgpd",
+    "PIPL": "pipl",
+    "PIPL (China)": "pipl",
+    "PIPL Art. 57": "pipl",
+    "PIPL Article 57 (unofficial DigiChina English translation, last "
+    "revised 7 September 2021)": "pipl",
 }
 
 # Exact taxonomy framework strings that join several texts with " / ": each
 # part, in order, with the instrument it names, or None for a part naming a
 # text that is no crosswalk instrument (integration round 3 WARN: the Data
 # Protection Act 2018 and ISO/IEC 27002 linked whole to the UK GDPR and
-# ISO/IEC 27001 pages). The parts rejoined with " / " must give the string
+# ISO/IEC 27001 pages; ISO/IEC 27002 has since gained its own page, so that
+# part now names it). The parts rejoined with " / " must give the string
 # back, every key must name a configured instrument, at least one part must
 # name one, and no string may also sit in CROSSWALK_ALIASES (build errors),
 # so a chip links each instrument it names and nothing it does not.
@@ -5493,7 +5530,8 @@ CROSSWALK_ALIAS_PARTS = {
     "CTPAT / PIP / BASC": (
         ("CTPAT", "ctpat"), ("PIP", "pip"), ("BASC", "basc")),
     "ISO/IEC 27001:2022 / ISO/IEC 27002:2022": (
-        ("ISO/IEC 27001:2022", "iso-iec-27001"), ("ISO/IEC 27002:2022", None)),
+        ("ISO/IEC 27001:2022", "iso-iec-27001"),
+        ("ISO/IEC 27002:2022", "iso-iec-27002")),
     "PIPEDA / Quebec Law 25": (
         ("PIPEDA", "pipeda"), ("Quebec Law 25", "quebec-law-25")),
     "UK GDPR / Data Protection Act 2018": (
@@ -5523,17 +5561,6 @@ CONCERN_PLAIN_ALIASES = {
     "NIST AI 600-1": "NIST AI 600-1 (Generative AI Profile)",
     "NIST AI RMF Generative AI Profile (NIST AI 600-1)":
         "NIST AI 600-1 (Generative AI Profile)",
-    "ISO/IEC 27002:2022 (Information security controls)":
-        "ISO/IEC 27002:2022",
-    "ISO/IEC 27002:2022 5.24 to 5.28": "ISO/IEC 27002:2022",
-    "ISO/IEC 27002:2022 §5.33, §8.10": "ISO/IEC 27002:2022",
-    "ISO/IEC 27701:2025 (privacy incident management)": "ISO/IEC 27701:2025",
-    "ISO/IEC 27701:2025 (PII principals' rights)": "ISO/IEC 27701:2025",
-    "ISO/IEC 27701:2025 Annex A.1.2.6": "ISO/IEC 27701:2025",
-    "ISO/IEC 27701:2025 Annex A.3.12": "ISO/IEC 27701:2025",
-    "ISO/IEC 27701:2025 §7.5.3, Annex A.3.14": "ISO/IEC 27701:2025",
-    "ISO/IEC 27701:2025 B.3.12 (PII processor breach notification "
-    "provisions)": "ISO/IEC 27701:2025",
     "ISO 22301:2019 §8.4": "ISO 22301:2019",
     "ISO/IEC 20000-1:2018 §8.6.1": "ISO/IEC 20000-1:2018",
     "ISO/IEC 27037:2012 §5.4.1 (minimize handling of the original; document "
@@ -5541,13 +5568,6 @@ CONCERN_PLAIN_ALIASES = {
     "ISO/IEC 27036-2:2022 7.3.3, Table 18, a) 5) ii) (incident management "
     "procedure agreed by the acquirer and the supplier)":
         "ISO/IEC 27036-2:2022",
-    "LGPD (Brazil)": "LGPD",
-    "LGPD Article 48": "LGPD",
-    "LGPD Arts. 48 to 49": "LGPD",
-    "PIPL (China)": "PIPL",
-    "PIPL Art. 57": "PIPL",
-    "PIPL Article 57 (unofficial DigiChina English translation, last "
-    "revised 7 September 2021)": "PIPL",
     "NIST SP 800-84 (2006) Section 2 (tabletop and functional exercises)":
         "NIST SP 800-84",
     "NIST SP 800-88 Rev. 2 §4.6": "NIST SP 800-88 Rev. 2",
