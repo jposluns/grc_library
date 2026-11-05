@@ -1215,7 +1215,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
                 with self.assertRaises(self.mod.BuildError) as ctx:
                     src(source, markup)
                 self.assertIn(source, str(ctx.exception))
-        for markup in ('<base href="https://bad.example/x/">',
+        for markup in ('<base href="https://www.iso.org/x/">',
                        "<base>"):
             with self.subTest(markup=markup):
                 with self.assertRaises(self.mod.BuildError) as ctx:
@@ -1451,7 +1451,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
         entries = [(root, self.mod._LEDGER_ROOT, None, 1),
                    (root, self.mod._LEDGER_ROOT, None, 1)]
         bad = (f'<a href="{root}">repo</a>'
-               f'<a href="https://example.com/x?return_to={root}">go</a>')
+               f'<a href="https://www.iso.org/x?return_to={root}">go</a>')
         with self.assertRaises(self.mod.BuildError) as ctx:
             self.manifest([("synthetic/index.html", bad)],
                           {"synthetic/index.html": list(entries)})
@@ -1547,10 +1547,10 @@ class RepoLinkAllowListTests(unittest.TestCase):
         clean = self.mod._clean_destination_value
         self.assertEqual(clean("https://github.com\\x\\y?q=a\\b#f\\g"),
                          "https://github.com/x/y?q=a\\b#f\\g")
-        self.assertEqual(clean("https://example.com/p#a\\b"),
-                         "https://example.com/p#a\\b")
-        self.assertEqual(clean("https://example.com/p?x=1\\2"),
-                         "https://example.com/p?x=1\\2")
+        self.assertEqual(clean("https://www.iso.org/p#a\\b"),
+                         "https://www.iso.org/p#a\\b")
+        self.assertEqual(clean("https://www.iso.org/p?x=1\\2"),
+                         "https://www.iso.org/p?x=1\\2")
 
     def test_output_base_element_is_refused(self):
         # Round 6, item 2 (flip: let _GuardOutputParser record attributes
@@ -1598,7 +1598,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
             self.assertIn("robots.txt: line 1 column 1: a line other than",
                           str(ctx.exception))
         with self.subTest(case="owner token in a run's unparsed remainder"):
-            bad = ("- [x](https://example.com/q)"
+            bad = ("- [x](https://www.iso.org/q)"
                    "https://github.com/jposluns/evil")
             with self.assertRaises(self.mod.BuildError) as ctx:
                 self.manifest([("llms.txt", bad)])
@@ -1620,10 +1620,10 @@ class RepoLinkAllowListTests(unittest.TestCase):
         # column rather than being read some other way.
         for label, content, where, what in (
             ("nested bracket in a label",
-             "- [a [b] c](https://example.com/)", "line 1 column 6",
+             "- [a [b] c](https://www.iso.org/)", "line 1 column 6",
              "a [ in a link label"),
             ("bracket inside a bare destination",
-             "- [x](https://example.com/a[1])", "line 1 column 28",
+             "- [x](https://www.iso.org/a[1])", "line 1 column 28",
              "a character outside the link destination grammar"),
         ):
             with self.subTest(case=label):
@@ -1661,7 +1661,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
         root_entry = (root, self.mod._LEDGER_ROOT, None, 1)
         cases = (
             ("raw tag",
-             f'see <a href="https://evil.example/?u=[x]({root})"> now'),
+             f'see <a href="https://www.iso.org/?u=[x]({root})"> now'),
             ("search-URL variant",
              f'see <a href="https://github.com/search?q=[x]({root})"> '
              f'now'),
@@ -1748,7 +1748,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
         root = self.mod.GITHUB_REPO_ROOT
         root_entry = (root, self.mod._LEDGER_ROOT, None, 1)
         prose = f"- [x]({root}) and `x"
-        autolink = f"see <{root}> and <https://example.com/a`b>"
+        autolink = f"see <{root}> and <https://www.iso.org/a`b>"
         cases = (
             ("in a link destination (the round 7 case)",
              f"- [y](z`a) [x]({root}) `note`", "line 1 column 8",
@@ -2081,7 +2081,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
             ("bracket in a note", note,
              f"line 1 column {note.rindex('[x]') + 1}",
              "a [ in a list-item note"),
-            ("empty label", "- [](https://example.com/)",
+            ("empty label", "- [](https://www.iso.org/)",
              "line 1 column 4", "a link label with no text"),
         )
         for label, bad, where, what in cases:
@@ -2095,13 +2095,13 @@ class RepoLinkAllowListTests(unittest.TestCase):
         # (which a GFM renderer would autolink), so a destination is
         # taken only from a list-item link; each fails by line and
         # column even with no owner token in it.
-        item = "- [x](https://example.com/)"
+        item = "- [x](https://www.iso.org/)"
         cases = (
             ("https text in a block-quote line",
-             "> see https://example.com/ now\n\n" + item,
+             "> see https://www.iso.org/ now\n\n" + item,
              "line 1 column 7", "URL text in a block-quote line"),
             ("http text in a label",
-             "- [http://example.com/](https://example.com/)",
+             "- [http://www.iso.org/](https://www.iso.org/)",
              "line 1 column 4", "URL text in a link label"),
             ("www text in a note", item + ": see www.example.com.",
              f"line 1 column {len(item) + len(': see ') + 1}",
@@ -2121,7 +2121,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
         # column with no owner token in sight (the real llms.txt, which
         # holds no &, passes the same grammar in the real build and in
         # test_real_llms_txt_matches_the_line_grammar).
-        item = "- [x](https://example.com/)"
+        item = "- [x](https://www.iso.org/)"
         ref = "> see https&#58;//example.com/ now\n\n" + item
         cases = (
             ("a character reference spelling a URL", ref,
@@ -2149,10 +2149,10 @@ class RepoLinkAllowListTests(unittest.TestCase):
         # now refused anywhere in llms.txt, so that case fails first at
         # the same line and column as "an &".
         root, entry = self.root_entry()
-        amp = "- [x](https://example.com/?a=1&b=2)"
+        amp = "- [x](https://www.iso.org/?a=1&b=2)"
         titled = f'- [x]({root} "t")'
         cases = (
-            ("http destination", "- [x](http://example.com/)",
+            ("http destination", "- [x](http://www.iso.org/)",
              "line 1 column 7", "a link destination that is not https://"),
             ("ampersand in a destination", amp,
              f"line 1 column {amp.index('&') + 1}",
@@ -2160,7 +2160,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
             ("link title", titled,
              f"line 1 column {titled.index(' ', 6) + 1}",
              "a character outside the link destination grammar"),
-            ("label not followed by (", "- [x] (https://example.com/)",
+            ("label not followed by (", "- [x] (https://www.iso.org/)",
              "line 1 column 6", "a link label not followed by ("),
             ("unclosed label", "- [x", "line 1 column 3",
              "a link label that never closes"),
@@ -2180,7 +2180,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
         self.refused("llms.txt", prose, {"llms.txt": [entry]},
                      f"line 1 column {prose.index(' and') + 1}",
                      "text after a list-item link")
-        for good in (f"- [a]({root}), [b](https://example.com/).",
+        for good in (f"- [a]({root}), [b](https://www.iso.org/).",
                      f"- [a]({root}): a note, with a comma.",
                      f"- [a]({root})"):
             with self.subTest(good=good):
@@ -2236,7 +2236,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
                 self.mod._output_destinations("_headers", good), [])
         cases = (
             ("an unemitted header name",
-             "/*\n  Location: https://example.com/\n", "line 2 column 3",
+             "/*\n  Location: https://www.iso.org/\n", "line 2 column 3",
              "a header name this build does not emit"),
             ("a header line before any rule",
              "  X-Frame-Options: DENY\n", "line 1 column 1",
@@ -2328,7 +2328,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
              "line 2 column 4", "U+0001", "robots.txt"),
             ("_headers", "/*\n  X-Frame-Options: DE\tNY\n",
              "line 2 column 22", "U+0009", "_headers"),
-            (sec, "Policy: https://example.com/\rx\n",
+            (sec, "Policy: https://www.iso.org/\rx\n",
              "line 1 column 29", "U+000D", "security.txt"),
             ("sitemap.xml", self.sitemap(loc + "\x0b"),
              f"line 3 column {len(loc) + 1}", "U+000B", "sitemap"),
@@ -2382,9 +2382,9 @@ class RepoLinkAllowListTests(unittest.TestCase):
                                        "Canonical")])
         rel = ".well-known/security.txt"
         cases = (
-            ("an unemitted field", "Hiring: https://example.com/\n",
+            ("an unemitted field", "Hiring: https://www.iso.org/\n",
              "line 1 column 1", "a line other than one of the emitted"),
-            ("a space in a URI value", "Policy: https://example.com/ x\n",
+            ("a space in a URI value", "Policy: https://www.iso.org/ x\n",
              "line 1 column 9", "a space in a URI field value"),
             ("a comment", "# note\n", "line 1 column 1",
              "a line other than one of the emitted"),
