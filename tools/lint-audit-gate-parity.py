@@ -117,6 +117,58 @@ pre-commit runs at all (a workflow disabled in the repository settings, pre-comm
 installed, ``SKIP=`` or ``--no-verify``); which python3 is found on PATH; and what the
 gate script does once started.
 
+Gate 36 shard form (maintainer directive 2026-11-04; round-2 hardening): in
+the WORKFLOW alone, the linter regression test suite may run sharded. The
+audit recognizes exactly one shard shape and refuses (exit 2) any deviation
+from it, so the shard form never weakens parity: the jobs mapping holds
+exactly ``lint``, a contiguous ``regression-shard-1`` ..
+``regression-shard-K`` (K at least 2) and ``summary``; each shard job is
+named ``Linter regression test suite (shard i of K)``, runs on ubuntu-latest,
+declares exactly the pinned job outputs ``credited`` (``${{
+steps.gate.outputs.credited }}``, the shard's per-module credited-start
+counts), ``units_sha256`` and ``selected_sha256`` (``${{
+steps.gate.outputs.<name> }}``, the digests of the shard's total and
+selected unit lists), and holds exactly the three setup steps of
+WORKFLOW_SETUP_STEP_ORDER, each pinned to its exact accepted shape
+(WORKFLOW_SETUP_STEP_SHAPES: ``Checkout`` is ``uses:
+actions/checkout@<full 40-hex SHA>`` with ``fetch-depth: 0``; ``Set up
+Python`` is ``uses: actions/setup-python@<full 40-hex SHA>`` with
+``python-version: "3.11"``; ``Install pinned dependencies`` runs exactly
+``python3 -m pip install -r requirements.txt``; a trailing `` # v...``
+version comment is tolerated on a ``uses`` value), followed by one
+gate-shaped step of the job's name with keys exactly ``name``, ``id`` (the
+pinned ``gate``) and ``run``, running exactly ``python3 [-I]
+tools/run-linter-regression.py --shard i/K``. The ``summary`` job is named
+``Lint markdown corpus`` (the merge guard's required check), needs exactly
+``lint`` and every shard job, carries ``if: always()``, and holds exactly
+the pinned ``Checkout`` and ``Set up Python`` setup steps followed by
+EXACTLY ONE verification step, whose keys are exactly ``name``, ``env`` and
+``run``, whose env is the pinned ``NEEDS_RESULTS: ${{ toJSON(needs) }}``,
+and whose run is exactly ``python3 tools/reconcile-regression-shards.py``
+(which fails unless every needed job succeeded and the shards'
+``credited`` outputs sum to at least one credited start per on-disk test
+module); a second step of that shape, or any other step, is a refusal, so
+a passing look-alike cannot stand beside the real check. The lint job keeps
+the gate-36 step at its inventory position, running exactly ``python3 [-I]
+tools/run-linter-regression.py --verify-shards K`` (the partition check;
+the shards run the suite), and its own setup steps are pinned to the same
+shapes and to their place: its first three steps are exactly
+WORKFLOW_SETUP_STEP_ORDER, each once, in order, and no later step carries
+a setup name, so deleting, repeating or reordering one is a refusal. (The
+plain one-job form, read for fixtures and history, pins each setup step's
+shape but not its presence or order.) With the shard form fully verified,
+that step counts as gate 36
+with no arguments (the shards together are the invocation), so the runner
+and pre-commit surfaces, which run gate 36 whole with no arguments, stay in
+argv parity. A workflow whose jobs mapping is exactly ``lint`` is read as
+before, and a ``--verify-shards`` argument without the shard jobs is an
+ordinary argv and fails the argv parity below. Residue: whether GitHub
+Actions actually runs the shard jobs, what the pinned action SHAs resolve
+to, and branch-protection settings, stay outside this audit, as for every
+gate; tools/merge-when-green.py requires the ``Lint markdown corpus`` check
+itself to succeed, and its ``needs`` make it fail when a shard fails, is
+cancelled or is skipped.
+
 Exit codes:
 
   0   parity clean.
@@ -172,8 +224,34 @@ PRECOMMIT_PATH = ".pre-commit-config.yaml"
 PRTIME_PATH = "tools/run-pr-time-checks.sh"
 
 # Workflow steps that are setup, not audit gates. These names are
-# excluded from the workflow's audit-gate list before comparison.
+# excluded from the workflow's audit-gate list before comparison. Each is
+# additionally pinned to its exact accepted shape (round-2 hardening): the
+# keys it may hold, the exact `with:` values, and either the exact run
+# command or a `uses:` value pinned to the named action at a FULL 40-hex
+# commit SHA (a trailing " # v..." version comment is tolerated). Anything
+# else is a ParseError, so a setup-named step cannot smuggle other content
+# past the by-name exclusion.
 WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python", "Install pinned dependencies"}
+WORKFLOW_SETUP_STEP_ORDER = ("Checkout", "Set up Python",
+                             "Install pinned dependencies")
+_USES_COMMENT = r"( # v[0-9][A-Za-z0-9.()-]*)?"
+WORKFLOW_SETUP_STEP_SHAPES = {
+    "Checkout": {
+        "keys": ("name", "uses", "with"),
+        "uses": re.compile(r"actions/checkout@[0-9a-f]{40}" + _USES_COMMENT),
+        "with": {"fetch-depth": "0"},
+    },
+    "Set up Python": {
+        "keys": ("name", "uses", "with"),
+        "uses": re.compile(r"actions/setup-python@[0-9a-f]{40}"
+                           + _USES_COMMENT),
+        "with": {"python-version": '"3.11"'},
+    },
+    "Install pinned dependencies": {
+        "keys": ("name", "run"),
+        "run": "python3 -m pip install -r requirements.txt",
+    },
+}
 
 # Workflow steps that are per-PR delta gates documented in
 # governance/specification-audit-programme.md §6.1. These are not part
@@ -675,7 +753,8 @@ class _Exact(dict):
 
 _SCALAR, _EMPTY, _BLOCK = ("scalar",), ("empty",), ("block",)
 WORKFLOW_STEP_SKELETON = {
-    "name": _SCALAR, "uses": _SCALAR, "if": _SCALAR, "run": _SCALAR + _BLOCK,
+    "name": _SCALAR, "id": _SCALAR, "uses": _SCALAR, "if": _SCALAR,
+    "run": _SCALAR + _BLOCK,
     "with": {"fetch-depth": _SCALAR, "python-version": _SCALAR},
     "env": {"BASE_SHA": _SCALAR, "HEAD_SHA": _SCALAR},
 }
@@ -690,6 +769,253 @@ PRECOMMIT_SKELETON = _Exact({
     "repos": [_Exact({"repo": frozenset({"local"}),
                       "hooks": [dict.fromkeys(sorted(PRECOMMIT_GATE_HOOK_KEYS), _SCALAR)]})],
 })
+
+# Gate 36 shard form (see the docstring's shard-form section). Every value a
+# deviation could hide behind is pinned: the job-key shapes, the shard job and
+# step names, the shard and verify commands (via GATE_COMMAND, so the optional
+# -I is tolerated as on every gate line), the summary job's name, if, needs,
+# env and run. SUMMARY_STEP_RUN fails unless every needed job's result is
+# "success", so a failed, cancelled or skipped shard fails the required check.
+REGRESSION_SCRIPT = "tools/run-linter-regression.py"
+SHARD_JOB_PREFIX = "regression-shard-"
+SHARD_JOB_NAME = "Linter regression test suite (shard %d of %d)"
+SHARD_GATE_STEP_KEYS = ("name", "id", "run")
+SHARD_GATE_STEP_ID = "gate"
+SHARD_CREDITED_OUTPUT = "${{ steps.gate.outputs.credited }}"
+# Each shard job publishes, beside its credited counts, the digests of its
+# total and selected unit lists; the job's outputs mapping is exactly these
+# three, each read from the id-pinned gate step.
+SHARD_JOB_OUTPUTS = {
+    "credited": SHARD_CREDITED_OUTPUT,
+    "units_sha256": "${{ steps.gate.outputs.units_sha256 }}",
+    "selected_sha256": "${{ steps.gate.outputs.selected_sha256 }}",
+}
+SUMMARY_JOB_KEY = "summary"
+SUMMARY_JOB_NAME = "Lint markdown corpus"
+SUMMARY_JOB_IF = "always()"
+SUMMARY_NEEDS_VALUE = "${{ toJSON(needs) }}"
+SUMMARY_STEP_RUN = "python3 tools/reconcile-regression-shards.py"
+SUMMARY_VERIFY_STEP_KEYS = ("name", "env", "run")
+SUMMARY_SETUP_STEP_ORDER = ("Checkout", "Set up Python")
+SUMMARY_STEP_SKELETON = _Exact({
+    "name": _SCALAR,
+    "env": _Exact({"NEEDS_RESULTS": frozenset({SUMMARY_NEEDS_VALUE})}),
+    "run": frozenset({SUMMARY_STEP_RUN}),
+})
+# A summary-job step: either a pinned setup step (name/uses/with) or the one
+# pinned verification step (name/env/run). _check_shard_jobs then pins the
+# exact sequence: Checkout, Set up Python, then EXACTLY ONE verification step.
+SUMMARY_ANY_STEP_SKELETON = {
+    "name": _SCALAR,
+    "uses": _SCALAR,
+    "run": _SCALAR,
+    "with": {"fetch-depth": _SCALAR, "python-version": _SCALAR},
+    "env": _Exact({"NEEDS_RESULTS": frozenset({SUMMARY_NEEDS_VALUE})}),
+}
+SHARD_SHAPE = ("the gate-36 shard form is exactly: jobs lint, regression-shard-1.."
+               "regression-shard-K (contiguous, K at least 2) and summary; each shard job "
+               "named 'Linter regression test suite (shard i of K)' on ubuntu-latest with "
+               "exactly the pinned outputs credited, units_sha256 and selected_sha256, "
+               "each '${{ steps.gate.outputs.<name> }}', the three "
+               "pinned WORKFLOW_SETUP_STEP_ORDER setup steps in order, then one same-named "
+               "step with keys name, id (exactly 'gate') and run, running "
+               "`python3 [-I] tools/run-linter-regression.py --shard i/K`; a summary job "
+               "named 'Lint markdown corpus' with if: always(), needs: lint plus every "
+               "shard, the pinned Checkout and Set up Python steps, and EXACTLY ONE "
+               "verification step with the pinned NEEDS_RESULTS env running exactly "
+               "`python3 tools/reconcile-regression-shards.py`; a lint job whose first "
+               "three steps are the pinned WORKFLOW_SETUP_STEP_ORDER setup steps, each "
+               "exactly once, in order; and one lint-job step "
+               "running `python3 [-I] tools/run-linter-regression.py --verify-shards K` "
+               "(see the shard-form section of tools/lint-audit-gate-parity.py)")
+
+
+def _workflow_jobs_skeleton(shard_count: int):
+    """The jobs-mapping skeleton: the lint job alone, or the shard form."""
+    if not shard_count:
+        return WORKFLOW_SKELETON
+    lint_job = WORKFLOW_SKELETON["jobs"]["lint"]
+    shard_job = _Exact({"name": _SCALAR, "runs-on": frozenset({"ubuntu-latest"}),
+                        "outputs": _Exact({key: frozenset({value}) for key, value
+                                           in SHARD_JOB_OUTPUTS.items()}),
+                        "steps": [WORKFLOW_STEP_SKELETON]})
+    needed = ["lint"] + [SHARD_JOB_PREFIX + str(i) for i in range(1, shard_count + 1)]
+    summary_job = _Exact({
+        "name": frozenset({SUMMARY_JOB_NAME}),
+        "runs-on": frozenset({"ubuntu-latest"}),
+        "needs": [frozenset(needed)],
+        "if": frozenset({SUMMARY_JOB_IF}),
+        "steps": [SUMMARY_ANY_STEP_SKELETON],
+    })
+    jobs = _Exact({"lint": lint_job})
+    for i in range(1, shard_count + 1):
+        jobs[SHARD_JOB_PREFIX + str(i)] = shard_job
+    jobs[SUMMARY_JOB_KEY] = summary_job
+    skeleton = _Exact(WORKFLOW_SKELETON)
+    skeleton["jobs"] = jobs
+    return skeleton
+
+
+def _shard_job_count(path: Path, jobs: _YamlNode) -> int:
+    """0 for the plain one-job workflow; otherwise the shard count K, with
+    any other jobs-mapping key set a ParseError (fail closed)."""
+    keys = jobs.keys()
+    if keys == ["lint"]:
+        return 0
+    numbers = []
+    for key in keys:
+        if key in ("lint", SUMMARY_JOB_KEY):
+            continue
+        suffix = key[len(SHARD_JOB_PREFIX):] if key.startswith(SHARD_JOB_PREFIX) else ""
+        if not (suffix.isascii() and suffix.isdigit()):
+            raise ParseError(f"{path.relative_to(REPO_ROOT)}:{jobs.lineno}: the jobs "
+                             f"mapping holds the key {key!r}; {SHARD_SHAPE}")
+        numbers.append(int(suffix))
+    if ("lint" not in keys or SUMMARY_JOB_KEY not in keys
+            or sorted(numbers) != list(range(1, len(numbers) + 1)) or len(numbers) < 2):
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}:{jobs.lineno}: the jobs mapping "
+                         f"holds {keys}, which is not the shard form's job set; "
+                         f"{SHARD_SHAPE}")
+    return len(numbers)
+
+
+def _check_setup_step(path: Path, step: _YamlNode, where: str) -> None:
+    """Raise a ParseError unless ``step``, named in WORKFLOW_SETUP_STEPS, holds
+    exactly its pinned accepted shape (WORKFLOW_SETUP_STEP_SHAPES): the exact
+    key set, the named action pinned by a full 40-hex commit SHA with the
+    exact ``with:`` values, or the exact run command."""
+    rel = path.relative_to(REPO_ROOT)
+    name = step.get("name").value
+    run = step.get("run")
+    if run is not None and run.kind == "scalar" and SCRIPT_RE.search(run.value):
+        raise ParseError(f"{rel}:{step.lineno}: {where} setup step {name!r} invokes "
+                         f"the gate script {SCRIPT_RE.search(run.value).group(1)!r}; "
+                         f"a setup step must not run a gate; {SHARD_SHAPE}")
+    shape = WORKFLOW_SETUP_STEP_SHAPES[name]
+    keys = tuple(step.keys())
+    if keys != shape["keys"]:
+        raise ParseError(f"{rel}:{step.lineno}: {where} setup step {name!r} has the "
+                         f"keys {list(keys)}, not exactly the pinned "
+                         f"{list(shape['keys'])} (WORKFLOW_SETUP_STEP_SHAPES); "
+                         f"{SHARD_SHAPE}")
+    if "uses" in shape:
+        uses = step.get("uses")
+        if uses.kind != "scalar" or not shape["uses"].fullmatch(uses.value):
+            raise ParseError(f"{rel}:{uses.lineno}: {where} setup step {name!r} uses "
+                             f"{uses.value!r}, which does not match the pinned action "
+                             f"at a full 40-hex commit SHA "
+                             f"({shape['uses'].pattern!r}); {SHARD_SHAPE}")
+        with_node = step.get("with")
+        pinned = shape["with"]
+        if (with_node.kind != "mapping" or with_node.keys() != list(pinned)
+                or any(with_node.get(key).kind != "scalar"
+                       or with_node.get(key).value != value
+                       for key, value in pinned.items())):
+            raise ParseError(f"{rel}:{with_node.lineno}: {where} setup step {name!r} "
+                             f"has a with mapping other than the pinned {pinned}; "
+                             f"{SHARD_SHAPE}")
+    elif run is None or run.kind != "scalar" or run.value != shape["run"]:
+        held = run.value if run is not None and run.kind == "scalar" else None
+        raise ParseError(f"{rel}:{step.lineno}: {where} setup step {name!r} runs "
+                         f"{held!r}, not exactly the pinned {shape['run']!r}; "
+                         f"{SHARD_SHAPE}")
+
+
+def _step_names(path: Path, steps: list[_YamlNode]) -> list[str]:
+    """Each step's name, refusing a step whose first key is not ``name``."""
+    for step in steps:
+        first = step.keys()[0]
+        if first != "name":
+            raise _not_a_gate_line(path, step.lineno,
+                                   f"step whose first key is {first!r}",
+                                   "is not read as a step (a step's first key is "
+                                   "`- name:`)")
+    return [step.get("name").value for step in steps]
+
+
+def _check_lint_setup_order(path: Path, steps: list[_YamlNode]) -> None:
+    """Raise a ParseError unless the lint job's first steps are exactly the
+    WORKFLOW_SETUP_STEP_ORDER setup steps, in that order, and no other lint
+    step carries a setup name: a deleted, repeated or reordered setup step
+    is refused, not just a misshapen one."""
+    names = _step_names(path, steps)
+    order = list(WORKFLOW_SETUP_STEP_ORDER)
+    setup = [name for name in names if name in WORKFLOW_SETUP_STEPS]
+    if names[:len(order)] != order or setup != order:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: the lint job's setup steps are "
+                         f"{setup} (its first steps {names[:len(order)]}), not exactly the "
+                         f"pinned {order}, each once, in order, before every other step; "
+                         f"{SHARD_SHAPE}")
+
+
+def _check_shard_jobs(path: Path, root: _YamlNode, shard_count: int) -> None:
+    """Raise a ParseError unless every shard job and the summary job hold
+    exactly the shard form's pinned content: the skeleton has already pinned
+    the summary name, if, env, run and each job's key set (the shard jobs'
+    ``credited`` output included); this check pins the step sequences, the
+    setup steps' exact shapes, the gate step's keys and ``id: gate``, and
+    EXACTLY ONE summary verification step."""
+    rel = path.relative_to(REPO_ROOT)
+    jobs = root.get("jobs")
+    for i in range(1, shard_count + 1):
+        job = jobs.get(SHARD_JOB_PREFIX + str(i))
+        expected_name = SHARD_JOB_NAME % (i, shard_count)
+        name = job.get("name")
+        if name.value != expected_name:
+            raise ParseError(f"{rel}:{name.lineno}: shard job {SHARD_JOB_PREFIX}{i} is "
+                             f"named {name.value!r}, not {expected_name!r}; {SHARD_SHAPE}")
+        steps = job.get("steps").items
+        names = _step_names(path, steps)
+        if names != list(WORKFLOW_SETUP_STEP_ORDER) + [expected_name]:
+            raise ParseError(f"{rel}:{job.lineno}: shard job {SHARD_JOB_PREFIX}{i} holds "
+                             f"the steps {names}, not exactly the pinned setup steps "
+                             f"{list(WORKFLOW_SETUP_STEP_ORDER)} followed by its one "
+                             f"gate step; {SHARD_SHAPE}")
+        for step in steps[:-1]:
+            _check_setup_step(path, step, f"shard job {SHARD_JOB_PREFIX}{i}")
+        step = steps[-1]
+        what = f"shard job step '{expected_name}'"
+        keys = tuple(step.keys())
+        if keys != SHARD_GATE_STEP_KEYS or step.get("id").value != SHARD_GATE_STEP_ID:
+            raise ParseError(f"{rel}:{step.lineno}: {what} is not the shard form's one "
+                             f"gate-shaped step with exactly the keys "
+                             f"{list(SHARD_GATE_STEP_KEYS)} and id "
+                             f"{SHARD_GATE_STEP_ID!r} (the id the pinned credited "
+                             f"output reads); {SHARD_SHAPE}")
+        run = step.get("run")
+        m = _gate_command(run.value) if run.kind == "scalar" else None
+        if not m:
+            raise _not_a_gate_line(path, run.lineno, what,
+                                   f"run command {run.value!r} is not an accepted "
+                                   f"gate line")
+        if (m.group("script") != REGRESSION_SCRIPT
+                or _gate_argv(m) != ("--shard", "%d/%d" % (i, shard_count))):
+            raise ParseError(f"{rel}:{run.lineno}: {what} runs {run.value!r}, not "
+                             f"`python3 [-I] {REGRESSION_SCRIPT} --shard "
+                             f"{i}/{shard_count}`; {SHARD_SHAPE}")
+    summary = jobs.get(SUMMARY_JOB_KEY)
+    needed = ["lint"] + [SHARD_JOB_PREFIX + str(i) for i in range(1, shard_count + 1)]
+    needs = [item.value for item in summary.get("needs").items]
+    if needs != needed:
+        raise ParseError(f"{rel}:{summary.get('needs').lineno}: the summary job needs "
+                         f"{needs}, not exactly {needed}; {SHARD_SHAPE}")
+    steps = summary.get("steps").items
+    names = _step_names(path, steps)
+    if (len(steps) != len(SUMMARY_SETUP_STEP_ORDER) + 1
+            or names[:-1] != list(SUMMARY_SETUP_STEP_ORDER)):
+        raise ParseError(f"{rel}:{summary.lineno}: the summary job holds the steps "
+                         f"{names}, not exactly the pinned setup steps "
+                         f"{list(SUMMARY_SETUP_STEP_ORDER)} followed by EXACTLY ONE "
+                         f"verification step; {SHARD_SHAPE}")
+    for step in steps[:-1]:
+        _check_setup_step(path, step, "summary job")
+    _check_skeleton(path, steps[-1], SUMMARY_STEP_SKELETON,
+                    "jobs.summary.steps[-1]")
+    verify_keys = tuple(steps[-1].keys())
+    if verify_keys != SUMMARY_VERIFY_STEP_KEYS:
+        raise ParseError(f"{rel}:{steps[-1].lineno}: the summary verification step has "
+                         f"the keys {list(verify_keys)}, not exactly "
+                         f"{list(SUMMARY_VERIFY_STEP_KEYS)}; {SHARD_SHAPE}")
 _KIND_NAMES = {"mapping": "a mapping", "sequence": "a list", "scalar": "a plain value",
                "block": "a `|` block scalar", "empty": "empty"}
 
@@ -1029,23 +1355,46 @@ def _not_a_gate_line(path: Path, lineno: int, what: str, problem: str) -> ParseE
 def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     """Return [(line_number, step_name, script_path, argv), ...] from quality.yml.
 
-    Reads the file against WORKFLOW_SKELETON, then each item of jobs.lint.steps, whose
-    first key must be ``name``. Skips the setup steps named in WORKFLOW_SETUP_STEPS and
-    the delta-gate steps in WORKFLOW_DELTA_GATE_STEPS. Every other step is a gate step:
-    its keys must be exactly ``name`` and ``run``, and its ``run`` value must match
-    GATE_COMMAND. Anything outside the skeleton is a ParseError. See GATE_COMMAND's
-    comment for what this does not cover.
+    Reads the file against WORKFLOW_SKELETON (or, when the jobs mapping holds
+    more than the lint job, against the gate-36 shard form's skeleton, with
+    the shard and summary jobs checked by ``_check_shard_jobs``), then each
+    item of jobs.lint.steps, whose first key must be ``name``. A setup step
+    named in WORKFLOW_SETUP_STEPS is pinned to its exact accepted shape
+    (``_check_setup_step``) and then excluded from the gate list; the
+    delta-gate steps in WORKFLOW_DELTA_GATE_STEPS are excluded as before.
+    Every other step is a gate step: its keys must
+    be exactly ``name`` and ``run``, and its ``run`` value must match
+    GATE_COMMAND. Under the shard form, the one lint-job step running
+    REGRESSION_SCRIPT must carry exactly ``--verify-shards K`` and counts as
+    gate 36 with no arguments (the shards together are the invocation; see
+    the docstring's shard-form section). Anything outside the skeleton is a
+    ParseError. See GATE_COMMAND's comment for what this does not cover.
     """
-    steps = _yaml_list(path, _yaml_surface(path, WORKFLOW_SKELETON, {},
-                                           WORKFLOW_PINNED_QUOTED_VALUES), "jobs", "lint", "steps")
+    root = _yaml_tree(path, _yaml_lines(path, {}, WORKFLOW_PINNED_QUOTED_VALUES))
+    jobs = root.get("jobs")
+    shard_count = 0
+    if jobs is not None and jobs.kind == "mapping":
+        shard_count = _shard_job_count(path, jobs)
+    _check_skeleton(path, root, _workflow_jobs_skeleton(shard_count), "")
+    if shard_count:
+        _check_shard_jobs(path, root, shard_count)
+    steps = _yaml_list(path, root, "jobs", "lint", "steps")
+    if shard_count:
+        _check_lint_setup_order(path, steps.items)
     entries: list[tuple[int, str, str, tuple[str, ...]]] = []
+    regression_steps = 0
     for step in steps.items:
         first = step.keys()[0]
         if first != "name":
             raise _not_a_gate_line(path, step.lineno, f"step whose first key is {first!r}",
                                    "is not read as a step (a step's first key is `- name:`)")
         step_name = step.get("name").value
-        if step_name in WORKFLOW_SETUP_STEPS or step_name in WORKFLOW_DELTA_GATE_STEPS:
+        if step_name in WORKFLOW_SETUP_STEPS:
+            # Pinned exactly (round-2 hardening): the by-name exclusion alone
+            # would let a setup-named step carry arbitrary content.
+            _check_setup_step(path, step, "lint job")
+            continue
+        if step_name in WORKFLOW_DELTA_GATE_STEPS:
             continue
         what = f"step '{step_name}'"
         keys = tuple(step.keys())
@@ -1057,7 +1406,24 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
         if not m:
             raise _not_a_gate_line(path, run.lineno, what, f"run command {run.value!r} is not "
                                    f"an accepted gate line")
-        entries.append((step.lineno, step_name, m.group("script"), _gate_argv(m)))
+        argv = _gate_argv(m)
+        if shard_count and m.group("script") == REGRESSION_SCRIPT:
+            regression_steps += 1
+            if regression_steps > 1:
+                raise ParseError(f"{path.relative_to(REPO_ROOT)}:{step.lineno}: the lint "
+                                 f"job runs {REGRESSION_SCRIPT} more than once; "
+                                 f"{SHARD_SHAPE}")
+            if argv != ("--verify-shards", str(shard_count)):
+                raise ParseError(f"{path.relative_to(REPO_ROOT)}:{run.lineno}: {what} runs "
+                                 f"{run.value!r}; with the shard jobs present it must run "
+                                 f"`python3 [-I] {REGRESSION_SCRIPT} --verify-shards "
+                                 f"{shard_count}`; {SHARD_SHAPE}")
+            argv = ()
+        entries.append((step.lineno, step_name, m.group("script"), argv))
+    if shard_count and not regression_steps:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: the shard jobs are present but "
+                         f"no lint-job step runs {REGRESSION_SCRIPT}; the shard form "
+                         f"keeps gate 36's partition-verifying step; {SHARD_SHAPE}")
     if not entries:
         raise ParseError(
             f"{path.relative_to(REPO_ROOT)}: no audit-step entries found"

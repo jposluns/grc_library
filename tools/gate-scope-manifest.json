@@ -129,6 +129,7 @@
       "lint-version-date-consistency.py",
       "lint-web-corpus-links.py",
       "lint-working-prose-hygiene.py",
+      "reconcile-regression-shards.py",
       "run-linter-regression.py"
     ],
     "narrative-only": [

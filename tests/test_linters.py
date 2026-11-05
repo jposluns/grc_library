@@ -16901,19 +16901,29 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         import subprocess as sp
         import tempfile
         # The hook's grc adapter applies only in a MAIN checkout (<root>/.git is a directory; 3b101), and
-        # its escape resolves the sentinel from GRC_DROP_ROOT; in a linked worktree the escape correctly
-        # does NOT fire, so this end-to-end assertion is only meaningful in a main checkout.
-        if not (REPO_ROOT / ".git").is_dir():
-            self.skipTest("main-checkout-scoped: the hook's adapter does not apply in a linked worktree")
-        hook = str(REPO_ROOT / ".claude" / "hooks" / "stop-guard-unattended.py")
-        with tempfile.TemporaryDirectory() as d:
+        # its escape resolves the sentinel from GRC_DROP_ROOT. The hook therefore runs from its own
+        # temporary main checkout (a copy of this checkout's hook beside a .git directory), whichever
+        # checkout runs this test: a linked worktree, such as a pre-push guard shard checkout, runs it
+        # too instead of skipping (CI fast track round 6). The copy carries a fixture fleet mode path
+        # (an absent file under the fixture), as the hook's own layout self-test does, so it never
+        # reads the live fleet file.
+        source = (REPO_ROOT / ".claude" / "hooks" / "stop-guard-unattended.py").read_text(encoding="utf-8")
+        live_line = '_FLEET_MODE_FILE = "/opt/' + 'orch-operator/operating-mode"'
+        self.assertEqual(source.count(live_line), 1)
+        with tempfile.TemporaryDirectory() as parent, tempfile.TemporaryDirectory() as d:
+            root = os.path.join(parent, "grc_library")
+            os.makedirs(os.path.join(root, ".git"))
+            os.makedirs(os.path.join(root, ".claude", "hooks"))
+            hook = os.path.join(root, ".claude", "hooks", "stop-guard-unattended.py")
+            with open(hook, "w", encoding="utf-8") as fh:
+                fh.write(source.replace(live_line, "_FLEET_MODE_FILE = %r" % os.path.join(parent, "no-fleet-file")))
             sentinel = os.path.join(d, ".allow-idle-stop")
             open(sentinel, "w").close()
             env = dict(os.environ, GRC_DROP_ROOT=d)
             env.pop("ORCH_VERIFY_OWNER", None)
             env.pop("CLAUDE_CONFIG_DIR", None)  # either worker signal skips the consume (3b101 QA r4)
-            r = sp.run([sys.executable, hook], input="not-json", capture_output=True,
-                       text=True, env=env, cwd=str(REPO_ROOT))
+            r = sp.run([sys.executable, "-B", hook], input="not-json", capture_output=True,
+                       text=True, env=env, cwd=root, timeout=60)
             self.assertEqual(r.returncode, 0,
                              "sentinel present -> allow, got %d\n%s" % (r.returncode, r.stderr))
             self.assertFalse(os.path.exists(sentinel),
@@ -17702,6 +17712,42 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         guard.git.assert_called()
 
 
+class StopGuardLinkedWorktreeTests(unittest.TestCase):
+    """CI fast track round 6 (codex ERROR, claude NOTE): the stop guard's end-to-end escape
+    test skipped whenever REPO_ROOT/.git was not a directory, so it skipped in every pre-push
+    guard shard checkout (a linked worktree) while the serial run executed it. It now builds
+    its own main-checkout fixture; this check runs it with REPO_ROOT standing for a linked
+    worktree and requires it to run and pass, not skip."""
+
+    def test_end_to_end_escape_test_runs_in_a_linked_worktree(self):
+        from unittest import mock
+        name = "test_stop_guard_unattended_main_consumes_escape_end_to_end"
+        hook_rel = Path(".claude") / "hooks" / "stop-guard-unattended.py"
+        layout = load_linter_module(hook_rel.as_posix(), "nmw_stop_guard_linked_layout")
+        with tempfile.TemporaryDirectory() as tmp:
+            # A linked worktree as git lays one out: its .git is a file naming an admin
+            # directory that holds HEAD and commondir.
+            admin = Path(tmp) / "main" / ".git" / "worktrees" / "wt"
+            admin.mkdir(parents=True)
+            (admin.parent.parent / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+            (admin / "HEAD").write_text("ref: refs/heads/wt\n", encoding="utf-8")
+            (admin / "commondir").write_text("../..\n", encoding="utf-8")
+            wt = Path(tmp) / "wt"
+            (wt / hook_rel).parent.mkdir(parents=True)
+            shutil.copyfile(REPO_ROOT / hook_rel, wt / hook_rel)
+            (wt / ".git").write_text("gitdir: %s\n" % admin, encoding="utf-8")
+            self.assertTrue((wt / ".git").is_file())
+            self.assertFalse(layout._is_primary_checkout(str(wt)),
+                             "the fixture must be a linked worktree as the hook reads one")
+            result = unittest.TestResult()
+            with mock.patch.dict(globals(), {"REPO_ROOT": wt}):
+                VerificationGuardrailSelfTests(name).run(result)
+        detail = "skipped=%r failures=%r errors=%r" % (result.skipped, result.failures, result.errors)
+        self.assertEqual(result.testsRun, 1, detail)
+        self.assertEqual(result.skipped, [], "the end-to-end test skipped in a linked worktree: " + detail)
+        self.assertEqual(result.failures + result.errors, [], detail)
+
+
 class NativePrePushGuardTests(unittest.TestCase):
     """Real hook and guard, with deterministic fixture runners and local Git."""
 
@@ -17720,6 +17766,9 @@ class NativePrePushGuardTests(unittest.TestCase):
             dest = self.root / "tools" / name
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(REPO_ROOT / "tools" / name, dest)
+        # The stub runner has no run_gate lines, so the guard fails closed to
+        # running it whole (gate 36 included) and needs no other helper: no
+        # local gate 36 shard step runs on that fallback.
         for name in ("run_all_audits.sh", "run-pr-time-checks.sh"):
             dest = self.root / "tools" / name
             dest.write_text('#!/bin/sh\necho ' + name + '\n[ ! -f fail ]\n')
@@ -17760,6 +17809,7 @@ class NativePrePushGuardTests(unittest.TestCase):
         for marker in ("run_all_audits.sh", "run-pr-time-checks.sh", "WEB CHECK",
                        "ADVISORY CHECK", "Safe to push"):
             self.assertIn(marker, allowed.stdout)
+        self.assertNotIn("local shards", allowed.stdout)
         (self.root / "fail").touch()
         blocked = self.push(code=1)
         self.assertIn("FAILED at run_all_audits.sh", blocked.stdout)
@@ -18612,6 +18662,8 @@ class PrePushGuardTests(unittest.TestCase):
             f"exit {second_rc}\n",
             encoding="utf-8",
         )
+        # The stub runner has no run_gate lines, so the guard fails closed to
+        # the whole runner (gate 36 included) and runs no local shard step.
         if web_rc is not None:
             web = tmp / ".web"
             web.mkdir()
@@ -18909,6 +18961,64 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             "    sys.exit(3)\n")
     RUN_GATE_RE = re.compile(r'^run_gate\s+"([^"]+)"\s+python3\s+(.+?)\s*$', re.M)
     REGRESSION_SCRIPT = "tools/run-linter-regression.py"
+    # The full guard's local gate 36 shard stub. It logs one JSON line per run
+    # to the absolute SHARDS_LOG (its working directory is the shard's own
+    # checkout), drops a marker under tests/tmp and lists what it sees there
+    # after the other shards have had time to do the same (a shared working
+    # tree shows their markers), then writes the outputs the real runner
+    # writes to GITHUB_OUTPUT, for the real reconcile tool. FIXTURE_SHARD_FAIL
+    # names a shard that exits 7; FIXTURE_SHARD_NO_OUTPUT one that writes no
+    # outputs (FIXTURE_SHARD_FAIL may name several, comma-separated);
+    # FIXTURE_SHARD_BAD_OUTPUT one whose outputs the reconcile
+    # refuses (exit 2); FIXTURE_SHARD_OTHER_UNITS one that reports another
+    # unit set (a reconcile failure, exit 1); FIXTURE_SHARD_BREAK_CHECKOUT one
+    # that deletes its checkout's .git file, so git worktree remove fails.
+    # FIXTURE_SHARD_HANG names a directory: every shard starts a child, writes
+    # "pid pgid child-pid" to shard-<i> there, and sleeps until stopped.
+    SHARD_STUB = (
+        "import json\nimport os\nimport subprocess\nimport sys\nimport time\n"
+        "index, count = sys.argv[2].split('/')\n"
+        "os.makedirs('tests/tmp', exist_ok=True)\n"
+        "open(os.path.join('tests/tmp', 'shard-' + index), 'w').close()\n"
+        "hang = os.environ.get('FIXTURE_SHARD_HANG')\n"
+        "if hang:\n"
+        "    child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(120)'])\n"
+        "    with open(os.path.join(hang, 'shard-' + index + '.tmp'), 'w') as f:\n"
+        "        f.write('%%d %%d %%d\\n' %% (os.getpid(), os.getpgid(0), child.pid))\n"
+        "    os.rename(os.path.join(hang, 'shard-' + index + '.tmp'),\n"
+        "              os.path.join(hang, 'shard-' + index))\n"
+        "    time.sleep(120)\n"
+        "time.sleep(1)\n"
+        "seen = sorted(os.listdir('tests/tmp'))\n"
+        "head = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True,\n"
+        "                      text=True).stdout.strip()\n"
+        "siblings = {name: os.path.realpath(os.path.join('..', name))\n"
+        "            for name in ('private', 'grc_library_private', 'grc_library_ref')\n"
+        "            if os.path.isdir(os.path.join('..', name))}\n"
+        "links = {name: os.readlink(os.path.join('..', name)) for name in sorted(os.listdir('..'))\n"
+        "         if os.path.islink(os.path.join('..', name))}\n"
+        "with open(%r, 'a') as f:\n"
+        "    f.write(json.dumps({'argv': sys.argv, 'cwd': os.path.realpath(os.getcwd()),\n"
+        "                        'output': os.environ.get('GITHUB_OUTPUT', ''),\n"
+        "                        'store': os.environ.get('GRC_STORE', ''),\n"
+        "                        'head': head, 'seen': seen, 'siblings': siblings,\n"
+        "                        'links': links, 'beside': sorted(os.listdir('..'))}) + '\\n')\n"
+        "print('Ran 1 test in 0.001s')\n"
+        "if index in os.environ.get('FIXTURE_SHARD_FAIL', '').split(','):\n"
+        "    print('stub shard failure in shard ' + index)\n"
+        "    sys.exit(7)\n"
+        "if os.environ.get('FIXTURE_SHARD_BREAK_CHECKOUT') == index:\n"
+        "    os.unlink('.git')\n"
+        "if os.environ.get('FIXTURE_SHARD_BAD_OUTPUT') == index:\n"
+        "    with open(os.environ['GITHUB_OUTPUT'], 'a') as f:\n"
+        "        f.write('junk=1\\n')\n"
+        "elif os.environ.get('FIXTURE_SHARD_NO_OUTPUT') != index:\n"
+        "    units = 'b' if os.environ.get('FIXTURE_SHARD_OTHER_UNITS') == index else 'a'\n"
+        "    modules = sorted('tests.' + n[:-3] for n in os.listdir('tests')\n"
+        "                     if n.startswith('test_') and n.endswith('.py'))\n"
+        "    with open(os.environ['GITHUB_OUTPUT'], 'a') as f:\n"
+        "        f.write('units_sha256=%%s\\nselected_sha256=%%064x\\ncredited<<END\\n%%sEND\\n'\n"
+        "                %% (units * 64, int(index), ''.join(m + ': 1\\n' for m in modules)))\n")
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(prefix="guard-fast-")
@@ -18933,6 +19043,16 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             dest = self.root / rel
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_text(self.STUB, encoding="utf-8")
+        # The full guard's local gate 36 shards run the shard stub, and the
+        # real reconcile tool reconciles what the stubs wrote; their temporary
+        # checkouts go under the fixture's own TMPDIR.
+        self.shards_log = Path(self.tmp.name) / "shards.log"
+        (self.root / self.REGRESSION_SCRIPT).write_text(
+            self.SHARD_STUB % str(self.shards_log), encoding="utf-8")
+        shutil.copyfile(REPO_ROOT / "tools" / "reconcile-regression-shards.py",
+                        self.root / "tools" / "reconcile-regression-shards.py")
+        self.shard_tmp = Path(self.tmp.name) / "tmpdir"
+        self.shard_tmp.mkdir()
         for rel, body in {
             ".web/templates-draft/landing.html": "<p>Welcome to the library</p>\n",
             ".web/baseline/palettes.css": ":root {}\n",
@@ -18951,7 +19071,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                     and k not in ("BASE_REF", "HEAD_REF")}
         self.env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1",
                         GRC_STORE=str(Path(self.tmp.name) / "no-store"),
-                        PRE_PUSH_GUARD_ALLOW_PIPE="1", BASE_REF="base")
+                        PRE_PUSH_GUARD_ALLOW_PIPE="1", BASE_REF="base",
+                        TMPDIR=str(self.shard_tmp))
+        for name in ("FIXTURE_SHARD_FAIL", "FIXTURE_SHARD_NO_OUTPUT", "FIXTURE_SHARD_BAD_OUTPUT",
+                     "FIXTURE_SHARD_OTHER_UNITS", "FIXTURE_SHARD_BREAK_CHECKOUT",
+                     "FIXTURE_SHARD_HANG", "GITHUB_OUTPUT"):
+            self.env.pop(name, None)
         self.git("init", "-q")
         self.git("config", "user.email", "fixture@example.com")
         self.git("config", "user.name", "Guard fixture")
@@ -18993,13 +19118,40 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         ran = log.read_text(encoding="utf-8").split() if log.exists() else []
         return result, ran
 
-    def assert_full_guard(self, result, ran, reason):
+    def shard_runs(self):
+        """The shard stub's JSON records, one per local shard run."""
+        if not self.shards_log.exists():
+            return []
+        return [json.loads(line) for line in
+                self.shards_log.read_text(encoding="utf-8").splitlines()]
+
+    def assert_full_guard(self, result, ran, reason, whole_runner=False):
         output = result.stdout + result.stderr
         self.assertNotIn("FAST PATH", output)
         self.assertIn(f"running the full guard ({reason}", result.stdout)
-        self.assertIn("tools/run_all_audits.sh", ran)
         self.assertIn("pre-push guard 1/3", result.stdout)
         self.assertEqual(result.returncode, 0, output)
+        if whole_runner:
+            # The gate list could not be read: the guard fails closed to the
+            # whole runner, gate 36 included, so doubt never drops a check;
+            # the local shards do not run gate 36 a second time.
+            self.assertIn("failing closed to the whole runner", output)
+            self.assertIn("tools/run_all_audits.sh", ran)
+            self.assertEqual(self.shard_runs(), [])
+            return
+        # The full guard runs every other runner gate, in runner order,
+        # without invoking the whole runner, and then gate 36 whole as six
+        # local shards (maintainer decision 2026-11-05 09:08 EST).
+        self.assertNotIn("tools/run_all_audits.sh", ran)
+        self.assertNotIn(self.REGRESSION_SCRIPT, ran)
+        self.assertIn("gate 36 passed as 6 local shards", result.stdout)
+        self.assertEqual(sorted(run["argv"][1:] for run in self.shard_runs()),
+                         [["--shard", "%d/6" % i] for i in range(1, 7)])
+        scripts = [cmd.split()[0]
+                   for _, cmd in self.RUN_GATE_RE.findall(self.gate_lines)]
+        expected = [s for s in scripts if s != self.REGRESSION_SCRIPT]
+        self.assertEqual([entry for entry in ran if entry in set(expected)],
+                         expected)
 
     def test_site_only_change_takes_fast_path(self):
         self.change(".web/templates-draft/landing.html", "CHANGELOG.md", "README.md")
@@ -19013,6 +19165,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIn("PASS (FAST PATH", result.stdout)
         self.assertNotIn("tools/run_all_audits.sh", ran)
         self.assertNotIn(self.REGRESSION_SCRIPT, ran)
+        # The fast path keeps leaving gate 36 to CI: no local shard runs.
+        self.assertEqual(self.shard_runs(), [])
+        self.assertNotIn("local shards", result.stdout)
         for expected in ("tools/run-pr-time-checks.sh", ".baseline/check_palette.py",
                          ".web/build.py", "tests/test_web_draft.py"):
             self.assertIn(expected, ran)
@@ -19035,6 +19190,362 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIn("PASS (FAST PATH", result.stdout)
         self.assertNotIn("tools/run_all_audits.sh", ran)
         self.assertNotIn(self.REGRESSION_SCRIPT, ran)
+
+    def test_full_path_echoes_advisory_lines_from_a_passing_gate(self):
+        # FLIP TABLE (round-2 fix, round-1 WARN): on the FULL path a passing
+        # gate's DUE-SOON lines are echoed, and its WARN and NOTE lines when
+        # the gate prints the runner-echo marker with the guard's per-gate
+        # GRC_RUNNER_ECHO_TOKEN, exactly as tools/run_all_audits.sh run_gate
+        # echoes them; a gate that does not opt in keeps its WARN lines
+        # hidden, and the marker line itself is never echoed.
+        (self.root / "tools" / "fixture-echo.py").write_text(
+            "import os\nimport sys\n"
+            "with open('ran.log', 'a') as f:\n"
+            "    f.write(' '.join(sys.argv) + '\\n')\n"
+            "print('DUE-SOON  fixture band')\n"
+            "token = os.environ.get('GRC_RUNNER_ECHO_TOKEN', '')\n"
+            "if token:\n"
+            "    print(\"runner-echo: tools/run_all_audits.sh shows this \"\n"
+            "          \"gate's advisory lines on a pass \" + token)\n"
+            "print('WARN fixture warn line')\n"
+            "print('NOTE fixture note line')\n",
+            encoding="utf-8")
+        (self.root / "tools" / "fixture-silent.py").write_text(
+            "print('WARN unopted warn line')\n", encoding="utf-8")
+        self.set_runner_lines(
+            self.gate_lines
+            + 'run_gate "Fixture echo audit" python3 tools/fixture-echo.py\n'
+            + 'run_gate "Fixture silent audit" python3 tools/fixture-silent.py\n')
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("      DUE-SOON  fixture band", result.stdout)
+        self.assertIn("      WARN fixture warn line", result.stdout)
+        self.assertIn("      NOTE fixture note line", result.stdout)
+        self.assertNotIn("unopted warn line", result.stdout)
+        self.assertNotIn("runner-echo:", result.stdout)
+
+    def test_fast_path_does_not_echo_advisory_lines(self):
+        # The fast path's disclosure holds: no advisory line is echoed from
+        # a passing gate there (the header and tools/README.md say so).
+        (self.root / "tools" / "fixture-echo.py").write_text(
+            "print('DUE-SOON  fixture band')\n", encoding="utf-8")
+        self.set_runner_lines(
+            self.gate_lines
+            + 'run_gate "Fixture echo audit" python3 tools/fixture-echo.py\n')
+        self.change(".web/templates-draft/landing.html")
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("PASS (FAST PATH", result.stdout)
+        self.assertNotIn("DUE-SOON", result.stdout)
+
+    def test_no_path_runs_a_store_dependent_list(self):
+        # FLIP TABLE (maintainer decision 2026-11-05 09:08 EST): the reviewed
+        # store-dependent list and its runner are gone; neither guard path
+        # names or runs them.
+        guard = (REPO_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        self.assertNotIn("run-store-dependent-tests", guard)
+        self.assertNotIn("store-dependent-tests.txt", guard)
+        for label, path in (("fast", ".web/templates-draft/landing.html"),
+                            ("full", "ai/policy-fixture.md")):
+            with self.subTest(path=label):
+                self.change(path)
+                result, ran = self.run_guard()
+                self.assertEqual(result.returncode, 0,
+                                 result.stdout + result.stderr)
+                self.assertFalse(any("store-dependent" in entry for entry in ran), ran)
+                self.assertNotIn("store-dependent", result.stdout)
+
+    def test_full_guard_runs_gate_36_as_six_isolated_local_shards(self):
+        # FLIP TABLE (round-4 ERROR): each local shard runs in its OWN
+        # temporary detached checkout of the commit being pushed, so one
+        # shard's tests/tmp fixtures are never seen by another; two shards
+        # sharing a working tree (or running in this clone's) fail here.
+        # A passing run removes every checkout and the shard directory.
+        self.change("ai/policy-fixture.md")
+        head = self.git("rev-parse", "HEAD").stdout.strip()
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        runs = self.shard_runs()
+        self.assertEqual(sorted(run["argv"][2] for run in runs),
+                         ["%d/6" % i for i in range(1, 7)])
+        trees = [run["cwd"] for run in runs]
+        self.assertEqual(len(set(trees)), 6, trees)
+        self.assertNotIn(os.path.realpath(self.root), trees)
+        for run in runs:
+            with self.subTest(shard=run["argv"][2]):
+                index = run["argv"][2].split("/")[0]
+                self.assertEqual(run["seen"], ["shard-" + index],
+                                 "a shard saw another shard's tests/tmp fixture")
+                self.assertEqual(run["head"], head)
+                self.assertTrue(run["cwd"].startswith(
+                    os.path.realpath(self.shard_tmp) + os.sep), run["cwd"])
+                self.assertEqual(os.path.basename(run["cwd"]), "repo")
+                self.assertTrue(os.path.realpath(run["output"]).startswith(
+                    os.path.dirname(run["cwd"]) + os.sep), run["output"])
+                # No sibling exists beside this fixture clone, so none is linked.
+                self.assertEqual(run["links"], {})
+        for i in range(1, 7):
+            self.assertRegex(result.stdout,
+                             r"gate 36 local shard %d/6: rc=0; Ran 1 test in " % i)
+        self.assertIn("OK: every needed job succeeded, the 6 shards discovered one "
+                      "unit set", result.stdout)
+        self.assertIn("gate 36 passed as 6 local shards", result.stdout)
+        self.assertEqual(os.listdir(self.shard_tmp), [])
+        worktrees = self.git("worktree", "list", "--porcelain").stdout
+        self.assertEqual(worktrees.count("worktree "), 1, worktrees)
+
+    def test_full_guard_shards_reach_this_clones_store_and_siblings(self):
+        # FLIP TABLE: each shard checkout's parent links to this clone's own
+        # store and siblings, and a relative GRC_STORE is made absolute, so
+        # the store is reachable from a shard as it is for the serial run.
+        # Round 6 (claude NOTE): each of the four siblings is a symbolic link
+        # to this clone's own sibling, by its absolute physical path, and
+        # nothing else sits beside a checkout but its log and output files;
+        # the passing run's cleanup removes the links as links, so every
+        # file in the linked store and siblings survives it.
+        parent = Path(self.tmp.name)
+        siblings = ("private", "grc_library_private", "grc_library_ref", "grc_library_scratch")
+        # With a private store present the guard's install-git-hooks.sh
+        # --check requires the installed hook, so this clone installs it.
+        for name in ("git-hooks/pre-push", "pre-push-hook.py", "check-dirty-tree-push.py"):
+            dest = self.root / "tools" / name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(REPO_ROOT / "tools" / name, dest)
+        self.move_base("Hook files")
+        subprocess.run(["sh", "tools/install-git-hooks.sh"], cwd=self.root, env=self.env,
+                       check=True, capture_output=True, text=True, timeout=30)
+        for name in siblings:
+            (parent / name / "nested").mkdir(parents=True)
+            (parent / name / "keep.md").write_text(name + "\n", encoding="utf-8")
+            (parent / name / "nested" / "keep.md").write_text(name + "\n", encoding="utf-8")
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard(GRC_STORE="../private")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        runs = self.shard_runs()
+        self.assertEqual(len(runs), 6)
+        for run in runs:
+            with self.subTest(shard=run["argv"][2]):
+                self.assertEqual(run["siblings"], {
+                    name: os.path.realpath(parent / name)
+                    for name in ("private", "grc_library_private", "grc_library_ref")})
+                self.assertEqual(run["links"], {
+                    name: os.path.join(os.path.realpath(parent), name) for name in siblings})
+                self.assertEqual(run["beside"], sorted(
+                    ["github-output", "repo", "shard.log", "worktree.log", *siblings]))
+                self.assertEqual(os.path.realpath(run["store"]),
+                                 os.path.realpath(parent / "private"))
+                self.assertTrue(os.path.isabs(run["store"]), run["store"])
+        self.assertIn("the shard checkouts were removed", result.stdout)
+        self.assertEqual(os.listdir(self.shard_tmp), [])
+        for name in siblings:
+            with self.subTest(survives=name):
+                self.assertEqual((parent / name / "keep.md").read_text(encoding="utf-8"), name + "\n")
+                self.assertEqual((parent / name / "nested" / "keep.md").read_text(encoding="utf-8"),
+                                 name + "\n")
+
+    def test_interrupt_stops_every_shard_group_and_keeps_the_checkouts(self):
+        # FLIP TABLE (round 6, both WARN): SIGINT to a guard running stub
+        # shards stops each shard's own process group (a shard and the
+        # child it started), waits for them, keeps and names every checkout
+        # and log, and exits 130; no later step runs. The guard starts with
+        # INT, TERM and HUP at their defaults, as from a terminal: bash cannot
+        # trap a signal that was ignored when it started.
+        import signal
+        import time
+        self.change("ai/policy-fixture.md")
+        marks = Path(self.tmp.name) / "hang"
+        marks.mkdir()
+        out_path = Path(self.tmp.name) / "guard.out"
+
+        def default_signals():
+            for number in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+                signal.signal(number, signal.SIG_DFL)
+
+        with open(out_path, "w", encoding="utf-8") as out:
+            guard = subprocess.Popen(["bash", "tools/pre-push-guard.sh"], cwd=self.root,
+                                     env=dict(self.env, FIXTURE_SHARD_HANG=str(marks)),
+                                     stdin=subprocess.DEVNULL, stdout=out,
+                                     stderr=subprocess.STDOUT, preexec_fn=default_signals)
+        try:
+            deadline = time.monotonic() + 60
+            while (len([m for m in marks.iterdir() if not m.name.endswith(".tmp")]) < 6
+                   and guard.poll() is None and time.monotonic() < deadline):
+                time.sleep(0.1)
+            started = sorted(m.name for m in marks.iterdir() if not m.name.endswith(".tmp"))
+            self.assertEqual(started, ["shard-%d" % i for i in range(1, 7)],
+                             out_path.read_text(encoding="utf-8"))
+            guard.send_signal(signal.SIGINT)
+            rc = guard.wait(timeout=60)
+        finally:
+            if guard.poll() is None:
+                guard.kill()
+                guard.wait(timeout=60)
+        output = out_path.read_text(encoding="utf-8")
+        self.assertEqual(rc, 130, output)
+        self.assertIn("SIGINT received during the gate 36 local shards", output)
+        self.assertIn("pre-push guard FAILED at gate 36 local shards (rc=130): interrupted by "
+                      "SIGINT", output)
+        self.assertNotIn("Safe to push", output)
+        records = [m.read_text(encoding="utf-8").split() for m in marks.iterdir()]
+        self.assertEqual(len({pgid for _pid, pgid, _child in records}), 6, records)
+        for pid, pgid, child in records:
+            with self.subTest(shard_pid=pid):
+                self.assertEqual(pid, pgid, "a shard does not lead its own process group")
+                self.assertNotEqual(int(pgid), os.getpgid(0))
+                # Every process of the group is gone (an orphan's reaping may lag).
+                deadline = time.monotonic() + 10
+                while time.monotonic() < deadline:
+                    try:
+                        os.killpg(int(pgid), 0)
+                    except ProcessLookupError:
+                        break
+                    time.sleep(0.1)
+                with self.assertRaises(ProcessLookupError):
+                    os.killpg(int(pgid), 0)
+                with self.assertRaises(ProcessLookupError):
+                    os.kill(int(child), 0)
+        ran = (self.root / "ran.log").read_text(encoding="utf-8").split()
+        self.assertNotIn("tools/run-pr-time-checks.sh", ran)
+        kept = re.findall(r"^  shard \d: \S+ \(checkout (\S+), log (\S+)\)$", output, re.M)
+        self.assertEqual(len(kept), 6, output)
+        for checkout, log in kept:
+            self.assertTrue(Path(checkout, "tools", "pre-push-guard.sh").is_file(), checkout)
+            self.assertTrue(Path(log).is_file(), log)
+        for checkout, _log in kept:
+            self.git("worktree", "remove", "--force", checkout)
+
+    def test_failed_checkout_removal_is_reported_and_pruned(self):
+        # FLIP TABLE (round 6, codex WARN): when git worktree remove fails
+        # for a shard checkout, the guard names it, runs git worktree prune
+        # once the shard directory is gone, says whether the registration
+        # remains, and never claims the checkouts were removed. Shard 2
+        # deletes its checkout's .git file, so git refuses to remove it.
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard(FIXTURE_SHARD_BREAK_CHECKOUT="2")
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 0, output)
+        broken = [run["cwd"] for run in self.shard_runs() if run["argv"][2] == "2/6"]
+        self.assertEqual(len(broken), 1, output)
+        self.assertIn("git worktree remove --force failed (rc=", result.stderr)
+        self.assertIn("for the shard checkout %s: " % broken[0], result.stderr)
+        self.assertIn("ran git worktree prune (rc=0)", result.stderr)
+        self.assertIn("the shard checkout %s was not removed by git worktree remove; its "
+                      "registration is no longer listed after git worktree prune" % broken[0],
+                      result.stderr)
+        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
+                      result.stdout)
+        self.assertNotIn("checkouts were removed", output)
+        self.assertEqual(os.listdir(self.shard_tmp), [])
+        worktrees = self.git("worktree", "list", "--porcelain").stdout
+        self.assertEqual(worktrees.count("worktree "), 1, worktrees)
+
+    def test_failing_local_shard_blocks_the_push_with_its_status(self):
+        # FLIP TABLE: a failing shard fails the push with that shard's own
+        # exit status (7 here), read directly; the later steps do not run,
+        # and every checkout and log is kept, its path printed.
+        self.change("ai/policy-fixture.md")
+        result, ran = self.run_guard(FIXTURE_SHARD_FAIL="3")
+        self.assertEqual(result.returncode, 7, result.stdout + result.stderr)
+        self.assertIn("gate 36 local shard 3/6: rc=7", result.stdout)
+        self.assertIn("stub shard failure in shard 3", result.stdout)
+        self.assertIn("pre-push guard FAILED at gate 36 local shards (rc=7): shard(s) 3 "
+                      "of 6 failed", result.stdout)
+        self.assertNotIn("tools/run-pr-time-checks.sh", ran)
+        self.assertNotIn("Safe to push", result.stdout)
+        kept = re.findall(r"^  shard \d: \S+ \(checkout (\S+), log (\S+)\)$",
+                          result.stdout, re.M)
+        self.assertEqual(len(kept), 6, result.stdout)
+        for checkout, log in kept:
+            self.assertTrue(Path(checkout, "tools", "pre-push-guard.sh").is_file(), checkout)
+            self.assertTrue(Path(log).is_file(), log)
+        for checkout, _log in kept:
+            self.git("worktree", "remove", "--force", checkout)
+
+    def test_missing_shard_output_or_reconcile_failure_blocks_the_push(self):
+        # FLIP TABLE (round 6, claude NOTE): every shard exits 0 but one
+        # wrote no outputs; the guard's own check names that shard and fails
+        # the push with 2 before the reconcile runs, keeping the checkouts.
+        # A reconcile refusal (malformed outputs) and a reconcile failure
+        # (another unit set) each fail the push with the reconcile's status.
+        self.change("ai/policy-fixture.md")
+        for env, rc, expected in (
+                ({"FIXTURE_SHARD_NO_OUTPUT": "5"}, 2,
+                 ["pre-push guard FAILED at gate 36 local shards (rc=2): shard(s) 5 of 6 "
+                  "exited 0 but wrote no step outputs (GITHUB_OUTPUT file missing or empty), "
+                  "so the reconcile was not run"]),
+                ({"FIXTURE_SHARD_BAD_OUTPUT": "4"}, 2,
+                 ["REFUSED: regression-shard-4 published no well-formed 'units_sha256' output",
+                  "pre-push guard FAILED at gate 36 local shards (rc=2): the shard reconcile "
+                  "failed (rc=2)"]),
+                ({"FIXTURE_SHARD_OTHER_UNITS": "3"}, 1,
+                 ["pre-push guard FAILED at gate 36 local shards (rc=1): the shard reconcile "
+                  "failed (rc=1)"])):
+            with self.subTest(env=env):
+                result, ran = self.run_guard(**env)
+                self.assertEqual(result.returncode, rc, result.stdout + result.stderr)
+                for text in expected:
+                    self.assertIn(text, result.stdout)
+                if "FIXTURE_SHARD_NO_OUTPUT" in env:
+                    self.assertNotIn("gate 36 local shard reconcile", result.stdout)
+                else:
+                    self.assertIn("gate 36 local shard reconcile", result.stdout)
+                self.assertNotIn("tools/run-pr-time-checks.sh", ran)
+                self.assertNotEqual(os.listdir(self.shard_tmp), [])
+                kept = re.findall(r"\(checkout (\S+), log", result.stdout)
+                self.assertEqual(len(kept), 6, result.stdout)
+                for checkout in kept:
+                    self.git("worktree", "remove", "--force", checkout)
+                for entry in self.shard_tmp.iterdir():
+                    shutil.rmtree(entry)
+                (self.root / "ran.log").unlink(missing_ok=True)
+
+    def test_header_exit_codes_match_the_shard_step(self):
+        # FLIP TABLE (round 6, claude NOTE): the header states the shard
+        # step's real exit codes: the first failing shard's own status in
+        # shard order (here shard 4 exits 5 and every other failing shard
+        # 7, so failing shards 4 and 6 exit 5, and 2 and 4 exit 7), else 2
+        # for set-up or a shard without outputs, else the reconcile's own
+        # status (1 failure, 2 refusal), and 130/143/129 on INT/TERM/HUP.
+        # The behaviour behind each code is pinned by the tests above and
+        # this one; the retired wording (a shard failure exits 1, a missing
+        # shard) is gone.
+        guard = (REPO_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        header = " ".join(line.lstrip("#").strip() for line in guard.split("\nset -u\n", 1)[0]
+                          .splitlines())
+        for text in ("At the local gate 36 shards (step 1b): the first failing shard's own exit "
+                     "status, in shard order, when any shard fails; otherwise 2 when the shard "
+                     "run cannot be set up or a shard exited 0 without writing its step outputs; "
+                     "otherwise the reconcile's own status when it fails (1 for a failure, 2 for "
+                     "a refusal); 130, 143 or 129 when SIGINT, SIGTERM or SIGHUP interrupts the "
+                     "step.",):
+            self.assertIn(text, header)
+        for retired in ("1 when a local gate 36 shard fails", "a shard is missing",
+                        "a missing shard"):
+            self.assertNotIn(retired, header)
+        self.assertNotIn("so a shard is missing", guard)
+        stub = self.root / self.REGRESSION_SCRIPT
+        stub.write_text(stub.read_text(encoding="utf-8").replace(
+            "    sys.exit(7)\n", "    sys.exit(5 if index == '4' else 7)\n"), encoding="utf-8")
+        self.change("ai/policy-fixture.md")
+        for failing, rc in (("4,6", 5), ("2,4", 7)):
+            with self.subTest(failing=failing):
+                result, _ran = self.run_guard(FIXTURE_SHARD_FAIL=failing)
+                self.assertEqual(result.returncode, rc, result.stdout + result.stderr)
+                for checkout in re.findall(r"\(checkout (\S+), log", result.stdout):
+                    self.git("worktree", "remove", "--force", checkout)
+
+    def test_local_shard_count_matches_the_quality_workflow(self):
+        # The guard's REGRESSION_SHARD_COUNT is the quality workflow's
+        # regression-shard job count, so the local run splits gate 36 as CI
+        # does.
+        guard = (REPO_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        quality = (REPO_ROOT / ".github" / "workflows" / "quality.yml").read_text(
+            encoding="utf-8")
+        counts = re.findall(r"^REGRESSION_SHARD_COUNT=(\d+)$", guard, re.M)
+        jobs = re.findall(r"^  regression-shard-(\d+):$", quality, re.M)
+        self.assertEqual(counts, [str(len(jobs))])
+        self.assertEqual(jobs, [str(i) for i in range(1, len(jobs) + 1)])
 
     def test_build_py_change_takes_full_guard(self):
         self.change(".web/build.py")
@@ -19067,9 +19578,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                          [cmd for _, cmd in expected])
 
     def test_ci_path_skips_nothing(self):
-        # The skip lives in the guard alone: the real runner and the CI workflows
-        # carry no skip option, the runner and quality.yml each run gate 36, and
-        # the guard calls the runner bare on the full path.
+        # The skip lives in the guard alone: the real runner carries no skip
+        # option and runs gate 36 whole; quality.yml runs gate 36 on every
+        # pull request as six shard jobs that together run exactly the suite
+        # plus the lint job's partition-verifying --verify-shards step; the
+        # nightly sweep runs the whole runner; and the guard invokes the
+        # whole runner only on its fail-closed fallback.
         runner = (REPO_ROOT / "tools" / "run_all_audits.sh").read_text(encoding="utf-8")
         quality = (REPO_ROOT / ".github" / "workflows" / "quality.yml").read_text(encoding="utf-8")
         nightly = (REPO_ROOT / ".github" / "workflows" / "nightly-sweep.yml").read_text(
@@ -19078,20 +19592,45 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(len(re.findall(r'^run_gate\s+"Linter regression test suite"\s+'
                                         r"python3\s+tools/run-linter-regression\.py\s*$",
                                         runner, re.M)), 1)
-        self.assertEqual(len(re.findall(r"^\s+run: python3 tools/run-linter-regression\.py\s*$",
-                                        quality, re.M)), 1)
+        self.assertEqual(len(re.findall(
+            r"^\s+run: python3 tools/run-linter-regression\.py --verify-shards 6\s*$",
+            quality, re.M)), 1)
+        self.assertEqual(sorted(re.findall(
+            r"^\s+run: python3 tools/run-linter-regression\.py --shard (\d+)/6\s*$",
+            quality, re.M)), [str(i) for i in range(1, 7)])
+        self.assertEqual(len(re.findall(
+            r"^\s+run: python3 tools/run-linter-regression\.py\s*$", quality, re.M)), 0)
         self.assertIn("run: tools/run_all_audits.sh", nightly)
         for label, text in (("tools/run_all_audits.sh", runner), ("quality.yml", quality),
                             ("nightly-sweep.yml", nightly)):
             with self.subTest(label):
                 self.assertNotRegex(text, r"PRE_PUSH|pre-push-guard|SKIP")
         call = r"""^[ \t]*(?:[A-Za-z_]\w*=[^\s"']*[ \t]+)*tools/run_all_audits\.sh\b.*$"""
-        self.assertEqual(re.findall(call, guard, re.M), ["    tools/run_all_audits.sh"])
-        # The full path runs the runner whole.
+        self.assertEqual(re.findall(call, guard, re.M),
+                         ["        tools/run_all_audits.sh"])
+        # The full path runs every runner gate but gate 36 (assert_full_guard
+        # carries the gate-by-gate check), never the whole runner.
         self.change(".web/templates-draft/landing.html", "ai/policy-fixture.md")
         result, ran = self.run_guard()
         self.assert_full_guard(result, ran, "ai/policy-fixture.md is not a site-only path")
         self.assertNotIn("fast path gate:", result.stdout)
+
+    def test_full_guard_runs_every_gate_but_36(self):
+        # FLIP TABLE (maintainer directive 2026-11-04 17:36 EST): the guard
+        # no longer runs gate 36 and still runs the rest, on the full path
+        # too, by the runner's own gate names in runner order.
+        self.change("ai/policy-fixture.md")
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran,
+                               "ai/policy-fixture.md is not a site-only path")
+        gates = [(name, " ".join(cmd.split()))
+                 for name, cmd in self.RUN_GATE_RE.findall(self.gate_lines)]
+        expected = [name for name, cmd in gates if cmd != self.REGRESSION_SCRIPT]
+        self.assertEqual(len(expected), len(gates) - 1)
+        labels = re.findall(r"^pre-push guard gate: (.+?) +\.\.\. ",
+                            result.stdout, re.M)
+        self.assertEqual(labels, expected)
+        self.assertNotIn("Linter regression test suite", labels)
 
     def test_corpus_document_takes_full_guard(self):
         self.change(".web/templates-draft/landing.html", "ai/policy-fixture.md")
@@ -19199,7 +19738,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         output = result.stdout + result.stderr
         self.assertNotIn("FAST PATH", output)
         self.assertIn("is not a site-only path", result.stdout)
-        self.assertIn("tools/run_all_audits.sh", ran)
+        self.assertNotIn("tools/run_all_audits.sh", ran)
+        self.assertNotIn(self.REGRESSION_SCRIPT, ran)
+        self.assertIn("gate 36 passed as 6 local shards", result.stdout)
 
     def test_two_merge_bases_take_full_guard(self):
         # Criss-cross history: base and HEAD each merge the other's first commit.
@@ -19246,7 +19787,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.change(".web/templates-draft/landing.html")
         result, ran = self.run_guard()
         self.assert_full_guard(result, ran, "the tools/run_all_audits.sh line 'run_gate "
-                               "\"Fixture shell audit\" bash tools/fixture.sh' cannot be parsed")
+                               "\"Fixture shell audit\" bash tools/fixture.sh' cannot be parsed",
+                               whole_runner=True)
 
     def test_missing_regression_gate_takes_full_guard(self):
         lines = "".join(line + "\n" for line in self.gate_lines.splitlines()
@@ -19255,7 +19797,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.change(".web/templates-draft/landing.html")
         result, ran = self.run_guard()
         self.assert_full_guard(result, ran, "tools/run_all_audits.sh has 0 linter regression "
-                               "suite gate lines")
+                               "suite gate lines", whole_runner=True)
 
     def test_new_runner_gate_runs_on_fast_path(self):
         (self.root / "tools" / "lint-fixture-new.py").write_text(self.STUB, encoding="utf-8")
@@ -19410,7 +19952,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 result, ran = self.run_guard()
                 (self.root / "ran.log").unlink(missing_ok=True)
                 self.assert_full_guard(result, ran, "the tools/run_all_audits.sh line "
-                                       f"'{extra.splitlines()[0]}' cannot be parsed")
+                                       f"'{extra.splitlines()[0]}' cannot be parsed",
+                                       whole_runner=True)
 
     def test_runner_line_with_other_blank_takes_full_guard(self):
         # The shell splits words on space and tab only, so a carriage return or a
@@ -19424,7 +19967,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 (self.root / "ran.log").unlink(missing_ok=True)
                 # Text mode reads the carriage return in the reason as a newline.
                 self.assert_full_guard(result, ran, "the tools/run_all_audits.sh line "
-                                       f"'{extra.rstrip(chr(13))}")
+                                       f"'{extra.rstrip(chr(13))}", whole_runner=True)
                 self.assertIn("' cannot be parsed", result.stdout)
 
     def test_runner_gate_not_starting_its_line_takes_full_guard(self):
@@ -19434,7 +19977,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.change(".web/templates-draft/landing.html")
         result, ran = self.run_guard()
         self.assert_full_guard(result, ran, f"the tools/run_all_audits.sh line '{extra}' "
-                               "cannot be parsed")
+                               "cannot be parsed", whole_runner=True)
 
     def test_runner_function_definition_is_not_a_gate_line(self):
         self.set_runner_lines("run_gate() {\n    \"$@\"\n}\n" + self.gate_lines)
@@ -19459,7 +20002,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.change(".web/templates-draft/landing.html")
         result, ran = self.run_guard()
         self.assert_full_guard(result, ran, "tools/run_all_audits.sh has 2 linter regression "
-                               "suite gate lines")
+                               "suite gate lines", whole_runner=True)
 
     def test_inherited_errexit_site_only_push_takes_fast_path(self):
         # git config exits 1 when no key matches; errexit must not end the guard there.
@@ -22448,6 +22991,10 @@ class AuditGateParityTests(LinterTestCase):
                 if name in surfaces:
                     changed = 0
                     for i, line in enumerate(lines):
+                        # The summary job's reconcile step is not a gate: its run is
+                        # pinned exactly (SUMMARY_STEP_RUN), so it is never switched.
+                        if "tools/reconcile-regression-shards.py" in line:
+                            continue
                         if line.lstrip().startswith(prefixes[name]) and " python3 tools/" in line:
                             lines[i] = line.replace(" python3 tools/", f" python3 {flag} tools/", 1)
                             changed += 1
@@ -23324,9 +23871,12 @@ class AuditGateParityTests(LinterTestCase):
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
         try:
             workflow, precommit = root / "quality.yml", root / "pre-commit.yaml"
+            # Each setup step's shape is pinned (a full 40-hex SHA, the step's own
+            # with: value), so the uses: line here is a pinned Set up Python step.
             workflow.write_text(
-                self._WORKFLOW_HEAD + "      - name: Checkout\n"
-                "        uses: actions/checkout@abc # v1\n        with:\n"
+                self._WORKFLOW_HEAD + "      - name: Set up Python\n"
+                "        uses: actions/setup-python@0123456789abcdef0123456789abcdef01234567"
+                " # v1\n        with:\n"
                 "          python-version: \"3.11\"\n\n      # A comment between steps.\n"
                 "      - name: A\n        run: python3 tools/a.py\n"
                 "      - name: Detect collection candidates on pack PRs (informational)\n"
@@ -23348,15 +23898,17 @@ class AuditGateParityTests(LinterTestCase):
     # marked, 1) at f0dbdfe07.
     def _run_yaml_edits(self, *edits: tuple[str, str, str]) -> subprocess.CompletedProcess:
         """Gate 35 over a copy of the real surfaces, with each (surface, old, new) edit
-        replacing the one occurrence of ``old`` in that surface by ``new``."""
+        replacing the FIRST occurrence of ``old`` in that surface by ``new`` (the lint
+        job's, where the gate-36 shard jobs repeat a setup line)."""
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r6-", dir=FIXTURE_DIR))
         try:
             for name in self._ISOLATED_SURFACES:
                 text = (REPO_ROOT / name).read_text(encoding="utf-8")
                 for surface, old, new in edits:
                     if surface == name:
-                        self.assertEqual(text.count(old), 1, f"fixture anchor {old!r}")
-                        text = text.replace(old, new)
+                        self.assertGreaterEqual(text.count(old), 1,
+                                                f"fixture anchor {old!r}")
+                        text = text.replace(old, new, 1)
                 target = root / name
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text(text, encoding="utf-8")
@@ -23419,7 +23971,8 @@ class AuditGateParityTests(LinterTestCase):
         try:
             workflow = root / "quality.yml"
             workflow.write_text(self._WORKFLOW_HEAD + "      - name: Set up Python\n"
-                                "        uses: actions/setup-python@abc # v1\n        with:\n"
+                                "        uses: actions/setup-python@"
+                                "0123456789abcdef0123456789abcdef01234567 # v1\n        with:\n"
                                 + self._WF_PYTHON + "\n      # A comment after the value.\n"
                                 "      - name: A\n        run: python3 tools/a.py\n",
                                 encoding="utf-8")
@@ -23427,8 +23980,12 @@ class AuditGateParityTests(LinterTestCase):
                              [("A", "tools/a.py", ())])
         finally:
             shutil.rmtree(root, ignore_errors=True)
-        self.assertEqual((REPO_ROOT / self._WF).read_text(encoding="utf-8").count(
-            self._WF_PYTHON), 1)
+        # Every python-version line of the real workflow (the lint job's and
+        # one per gate-36 shard job) is exactly the one pinned quoted value.
+        versions = [line for line in (REPO_ROOT / self._WF).read_text(
+            encoding="utf-8").splitlines(keepends=True) if "python-version" in line]
+        self.assertTrue(versions)
+        self.assertEqual(set(versions), {self._WF_PYTHON})
         result = self._run_yaml_edits()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(agp.WORKFLOW_PINNED_QUOTED_VALUES, {"python-version": '"3.11"'})
@@ -41292,7 +41849,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 26ba9d32f4a5e6974bda72955d86d81060df78d643d144676ed4401f34e4fa73
+        README.md DATA F 6f1d6f4a4093d5f52b993b685745e112a8fe11b1c767de3dab3dc1ac281c4ad0
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
@@ -41370,7 +41927,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         detect-env.py WRITE F bb9b977f0a07a9d27b09dcd85d271bb1f31efc826c5f6cd860106f283144ebc6
         external_overlay.py PASSIVE F fcbdb23ea95b360fdb467d3d4b39a0b1fd9ac1113eb6b431aeee1de0fbcbe2f1
         gate-mutation-variants.json DATA F c6af7a3c12d4d56ccae611dd77676e8be2113c3fed0ae83638d3be8790e72549
-        gate-scope-manifest.json DATA F a5b51798c51f98b3158f8dfb7b8faae4a0681225e311b22bbe497f84694ec7fe
+        gate-scope-manifest.json DATA F 5563aa2b82ad188c21aef1d5d7d6eb493f5f22c98a2856b7265203e0f1e4dce5
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
         git-hooks/pre-push TRANSPORT F 598806d6ab27e039ae858a935fa02813ba52588bd7ba2fab6586d27bd76d4267
@@ -41383,7 +41940,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F 48a5130538cf0e506226c7c47c8c2b98e8b8e5e6ba5df2177e8b02cdbdfb1545
+        lint-audit-gate-parity.py OWN F ffb0dd70552b0dc039bf3cbe3ab9dc1e6bda879787a614e495b47a56eb434515
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-baseline-pin.py OWN F 51ee0054937b8b51402d1bb1a325e7568a3d6a48a2eeb1aa428f6021d7ee1092
@@ -41485,7 +42042,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
-        pre-push-guard.sh FIXED F 518f725f04b7fc05d736c4546c8d0a79496e35967fbd171c33072e2872c674fb
+        pre-push-guard.sh FIXED F 374c73bbe619c1681bf5469fdc2e1fa5b573f43e09c0ef5acf22de1c52610bc9
         pre-push-hook.py TRANSPORT F d193c170d963cbca2e64bb76ce0b1dfbe7999b9f5af6c0701ae11d95f9d7f659
         preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
@@ -41493,14 +42050,15 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
         quick-guard.sh FIXED F 2e518f73cbbe613de9c3265e2996f8babd38a538ff8b50f922d0335430b13f5e
+        reconcile-regression-shards.py OWN F cdb29c6e8897ad810d16877ecb56bf762a51064af680784553032a24afec65b4
         ref-holds.py OWN F 12b4bc426cc0dc4f0cb070fc94feb3398c0d0d420c091e3e343393a16feb4f7d
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
-        run-linter-regression.py FIXED F 600fa27468c6f7b5371de09d5e646429017411a58ebdefff853b91dd965195e0
+        run-linter-regression.py FIXED F 2c0d701c578569c68c73e4f697425cf0638e49baa9e93d3994ae44de98bb8e17
         run-pr-time-checks.sh FIXED F 2caed4bb6e25ef2dd77397ca021c6af8752991b3a80d5a0c3fc83a38df384c35
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
-        run_all_audits.sh FIXED F b2591e806571f470dfe10dbedc38f2974cf5f032d7f3d535c6218b0499e8c449
+        run_all_audits.sh FIXED F ec86a76e9dec99394069b2fccab2fb84c152f9e9a16214f02358d8e2c60862fc
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
         session_facts.py PASSIVE F b4fc9c2f87ed95dd52a717bf07913c942777e1aae5ec902c595f10e5ed2ad77b
@@ -61675,6 +62233,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         lint-version-date-consistency.py
         lint-web-corpus-links.py
         lint-worker-id-anonymity.py
+        reconcile-regression-shards.py
         run-linter-regression.py
         """.split())
         delegated = {"check-class-attestation-on-pr.py": "check-class-completeness.py"}
@@ -88473,6 +89032,460 @@ class BaselinePinLinterTests(LinterTestCase):
         pinned bytes (the gate's default-root contract)."""
         result = run_linter(self.SCRIPT)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
+class QualityWorkflowShardSummaryTests(unittest.TestCase):
+    """The quality workflow's required-check summary job (maintainer
+    directive 2026-11-04; round 2): its pinned reconcile step, run exactly
+    as the workflow runs it, fails unless every needed job's result is
+    success AND the shards' per-module credited-start counts, summed,
+    give every on-disk test module at least one credited start. FLIP
+    TABLE: the aggregate job fails when a shard fails, is cancelled or is
+    skipped, when needs is empty, and when a module's cross-shard total
+    is zero; a missing or malformed shard output is a refusal."""
+
+    def _summary_command(self) -> str:
+        text = (REPO_ROOT / ".github" / "workflows" / "quality.yml").read_text(
+            encoding="utf-8")
+        match = re.search(
+            r"^        run: (python3 tools/reconcile-regression-shards\.py)$",
+            text, re.M)
+        self.assertIsNotNone(match, "the summary job's pinned reconcile "
+                                    "command must be present in quality.yml")
+        return match.group(1)
+
+    def _modules(self) -> list[str]:
+        return sorted(
+            "tests." + name[:-3]
+            for name in os.listdir(REPO_ROOT / "tests")
+            if name.startswith("test_") and name.endswith(".py"))
+
+    UNITS = "a" * 64
+
+    def _outputs(self, credited: str, units: str = UNITS, shard: int = 1):
+        return {"credited": credited, "units_sha256": units,
+                "selected_sha256": "%064x" % shard}
+
+    def _needs(self, modules: list[str]) -> dict:
+        credited = "".join("%s: 1\n" % module for module in modules)
+        needs = {"lint": {"result": "success", "outputs": {}}}
+        for i in range(1, 7):
+            needs["regression-shard-%d" % i] = {
+                "result": "success", "outputs": self._outputs(credited, shard=i)}
+        return needs
+
+    def _run_summary(self, needs: dict) -> subprocess.CompletedProcess:
+        env = {"PATH": os.environ.get("PATH", ""),
+               "NEEDS_RESULTS": json.dumps(needs)}
+        return subprocess.run(["bash", "-c", self._summary_command()],
+                              cwd=REPO_ROOT, env=env, capture_output=True,
+                              text=True, timeout=60)
+
+    def test_summary_green_only_when_every_needed_job_succeeded(self):
+        ok = self._needs(self._modules())
+        green = self._run_summary(ok)
+        self.assertEqual(green.returncode, 0, green.stdout + green.stderr)
+        for bad in ("failure", "cancelled", "skipped", None):
+            with self.subTest(result=bad):
+                needs = {name: dict(job) for name, job in ok.items()}
+                needs["regression-shard-3"]["result"] = bad
+                self.assertEqual(self._run_summary(needs).returncode, 1)
+        lint_failed = {name: dict(job) for name, job in ok.items()}
+        lint_failed["lint"]["result"] = "failure"
+        self.assertEqual(self._run_summary(lint_failed).returncode, 1)
+        self.assertNotEqual(self._run_summary({}).returncode, 0,
+                            "an empty needs context must fail, not pass "
+                            "vacuously")
+
+    def test_summary_fails_a_module_with_zero_credited_starts(self):
+        """FLIP TABLE (round 2): every job green, but one module earned no
+        credited start in any shard (a wholly skipped module) -> the
+        required check fails, as the serial runner's per-module refusal
+        would have."""
+        modules = self._modules()
+        victim = modules[0]
+        needs = self._needs(modules)
+        credited = "".join("%s: %d\n" % (module, 0 if module == victim else 1)
+                           for module in modules)
+        for i in range(1, 7):
+            needs["regression-shard-%d" % i] = {
+                "result": "success", "outputs": self._outputs(credited, shard=i)}
+        run = self._run_summary(needs)
+        self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+        self.assertIn("0 credited starts", run.stdout)
+        self.assertIn(victim.partition(".")[2], run.stdout)
+
+    def test_summary_fails_when_shards_discovered_different_units(self):
+        """FLIP TABLE (unit-set digests): every job green and every module
+        credited, but one shard's units_sha256 differs (a runner that
+        discovered another suite) -> the required check fails; a shard
+        without the digest outputs is a refusal."""
+        modules = self._modules()
+        needs = self._needs(modules)
+        needs["regression-shard-4"]["outputs"]["units_sha256"] = "b" * 64
+        run = self._run_summary(needs)
+        self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+        self.assertIn("different unit sets", run.stdout)
+        for output in ("units_sha256", "selected_sha256"):
+            with self.subTest(missing=output):
+                needs = self._needs(modules)
+                del needs["regression-shard-2"]["outputs"][output]
+                run = self._run_summary(needs)
+                self.assertEqual(run.returncode, 2, run.stdout + run.stderr)
+
+    def test_summary_refuses_missing_or_malformed_shard_output(self):
+        """A shard that published no usable counts can never pass the
+        required check (fail closed, exit 2)."""
+        modules = self._modules()
+        for label, outputs in (
+                ("missing", {}),
+                ("malformed", self._outputs("garbage", shard=2)),
+                ("wrong-set", self._outputs("tests.test_only_one: 1\n",
+                                            shard=2))):
+            with self.subTest(label=label):
+                needs = self._needs(modules)
+                needs["regression-shard-2"] = {"result": "success",
+                                               "outputs": outputs}
+                run = self._run_summary(needs)
+                self.assertEqual(run.returncode, 2,
+                                 run.stdout + run.stderr)
+
+    def test_summary_command_matches_the_parity_pin(self):
+        """The command the workflow runs is byte-identical to the one the
+        gate-parity audit pins (SUMMARY_STEP_RUN), so neither surface can
+        drift from the other."""
+        import importlib.util
+        tool = REPO_ROOT / "tools" / "lint-audit-gate-parity.py"
+        spec = importlib.util.spec_from_file_location("_agp_summary", str(tool))
+        agp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agp)
+        self.assertEqual(self._summary_command(), agp.SUMMARY_STEP_RUN)
+
+
+class GateParityShardFormTests(unittest.TestCase):
+    """Gate 35's gate-36 shard form (maintainer directive 2026-11-04):
+    the one accepted shape parses with gate 36 normalized to no
+    arguments, and every deviation near it is a ParseError (exit 2), so
+    the shard form never weakens parity. FLIP TABLE: each mutation
+    below fails when the audit's shard-form checks are weakened."""
+
+    REGRESSION = "tools/run-linter-regression.py"
+    SHA = "0123456789abcdef0123456789abcdef01234567"
+    SHARD_OUTPUTS = ("    outputs:\n"
+                     "      credited: ${{ steps.gate.outputs.credited }}\n"
+                     "      units_sha256: "
+                     "${{ steps.gate.outputs.units_sha256 }}\n"
+                     "      selected_sha256: "
+                     "${{ steps.gate.outputs.selected_sha256 }}\n")
+
+    def _agp(self):
+        import importlib.util
+        tool = REPO_ROOT / "tools" / "lint-audit-gate-parity.py"
+        spec = importlib.util.spec_from_file_location("_agp_shard", str(tool))
+        agp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agp)
+        return agp
+
+    def _setup_steps(self, checkout_sha=None, fetch_depth="0",
+                     with_install=True):
+        checkout_sha = checkout_sha or self.SHA
+        text = ("      - name: Checkout\n"
+                f"        uses: actions/checkout@{checkout_sha}\n"
+                "        with:\n"
+                f"          fetch-depth: {fetch_depth}\n"
+                "      - name: Set up Python\n"
+                f"        uses: actions/setup-python@{self.SHA}\n"
+                "        with:\n"
+                "          python-version: \"3.11\"\n")
+        if with_install:
+            text += ("      - name: Install pinned dependencies\n"
+                     "        run: python3 -m pip install -r requirements.txt\n")
+        return text
+
+    def _workflow(self, agp, verify="--verify-shards 2", shard_one="1/2",
+                  needs=("lint", "regression-shard-1", "regression-shard-2"),
+                  summary_name="Lint markdown corpus", shard_one_name=None,
+                  summary_run=None, drop_shard_two=False, extra_job="",
+                  verify_step=True, shard_outputs=None, gate_id="gate",
+                  checkout_sha=None, fetch_depth="0", summary_setup=True,
+                  extra_summary_step="", pre_verify_step="",
+                  shard_setup=None, lint_setup=None):
+        shard_one_name = shard_one_name or ("Linter regression test suite "
+                                            "(shard 1 of 2)")
+        summary_run = summary_run or agp.SUMMARY_STEP_RUN
+        if shard_outputs is None:
+            shard_outputs = self.SHARD_OUTPUTS
+        if lint_setup is None:
+            lint_setup = self._setup_steps()
+        id_line = f"        id: {gate_id}\n" if gate_id else ""
+        verify_lines = ("      - name: Linter regression test suite\n"
+                        f"        run: python3 {self.REGRESSION} {verify}\n"
+                        if verify_step else "")
+        if shard_setup is None:
+            shard_setup = self._setup_steps(checkout_sha=checkout_sha,
+                                            fetch_depth=fetch_depth)
+        shard_two = ("" if drop_shard_two else
+                     "  regression-shard-2:\n"
+                     "    name: Linter regression test suite (shard 2 of 2)\n"
+                     "    runs-on: ubuntu-latest\n"
+                     + shard_outputs +
+                     "    steps:\n"
+                     + self._setup_steps() +
+                     "      - name: Linter regression test suite (shard 2 of 2)\n"
+                     "        id: gate\n"
+                     f"        run: python3 {self.REGRESSION} --shard 2/2\n")
+        needs_lines = "".join(f"      - {name}\n" for name in needs)
+        summary_setup_lines = (self._setup_steps(with_install=False)
+                               if summary_setup else "")
+        return ("name: Quality\n"
+                "on:\n"
+                "  push:\n"
+                "    branches:\n"
+                "      - main\n"
+                "  pull_request:\n"
+                "permissions:\n"
+                "  contents: read\n"
+                "jobs:\n"
+                "  lint:\n"
+                "    name: Lint\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                + lint_setup +
+                "      - name: Shape\n"
+                "        run: python3 tools/x.py\n"
+                + verify_lines +
+                "  regression-shard-1:\n"
+                f"    name: {shard_one_name}\n"
+                "    runs-on: ubuntu-latest\n"
+                + shard_outputs +
+                "    steps:\n"
+                + shard_setup +
+                f"      - name: {shard_one_name}\n"
+                + id_line +
+                f"        run: python3 {self.REGRESSION} --shard {shard_one}\n"
+                + shard_two + extra_job +
+                "  summary:\n"
+                f"    name: {summary_name}\n"
+                "    runs-on: ubuntu-latest\n"
+                "    needs:\n"
+                + needs_lines +
+                "    if: always()\n"
+                "    steps:\n"
+                + summary_setup_lines + pre_verify_step +
+                "      - name: Confirm the lint job and every regression "
+                "shard succeeded\n"
+                "        env:\n"
+                "          NEEDS_RESULTS: ${{ toJSON(needs) }}\n"
+                f"        run: {summary_run}\n"
+                + extra_summary_step)
+
+    def _parse(self, agp, text):
+        root = Path(tempfile.mkdtemp(prefix="parity-shard-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        path = root / "quality.yml"
+        path.write_text(text, encoding="utf-8")
+        return agp.parse_workflow(path)
+
+    def test_shard_form_parses_with_gate_36_normalized(self):
+        agp = self._agp()
+        entries = self._parse(agp, self._workflow(agp))
+        self.assertEqual([entry[1:] for entry in entries],
+                         [("Shape", "tools/x.py", ()),
+                          ("Linter regression test suite", self.REGRESSION,
+                           ())])
+
+    def test_unsharded_workflow_keeps_the_verify_argv(self):
+        # Without the shard jobs a --verify-shards argument is an ordinary
+        # argv, so it reaches the argv parity comparison and fails there.
+        agp = self._agp()
+        text = ("name: Quality\non:\n  push:\n    branches:\n      - main\n"
+                "  pull_request:\npermissions:\n  contents: read\njobs:\n"
+                "  lint:\n    name: Lint\n    runs-on: ubuntu-latest\n"
+                "    steps:\n      - name: Linter regression test suite\n"
+                f"        run: python3 {self.REGRESSION} --verify-shards 6\n")
+        entries = self._parse(agp, text)
+        self.assertEqual(entries[0][3], ("--verify-shards", "6"))
+
+    def test_shard_form_deviations_are_parse_errors(self):
+        agp = self._agp()
+        deviations = {
+            "verify-count-mismatch": dict(verify="--verify-shards 3"),
+            "verify-step-missing": dict(verify_step=False),
+            "plain-gate-36-step": dict(verify=""),
+            "shard-spec-mismatch": dict(shard_one="2/2"),
+            "shard-name-drift": dict(shard_one_name="Regression shard one"),
+            "summary-name-drift": dict(summary_name="Lint summary"),
+            "needs-missing-shard": dict(needs=("lint", "regression-shard-1")),
+            "needs-missing-lint": dict(needs=("regression-shard-1",
+                                              "regression-shard-2")),
+            "summary-run-drift": dict(
+                summary_run="python3 -c 'import sys; sys.exit(0)'"),
+            "foreign-job": dict(extra_job=(
+                "  stray:\n    name: Stray\n    runs-on: ubuntu-latest\n"
+                "    steps:\n      - name: Shape\n"
+                "        run: python3 tools/x.py\n")),
+            "one-shard-only": dict(drop_shard_two=True),
+            # Round-2 hardening: the summary holds EXACTLY ONE verification
+            # step, the setup steps are pinned exactly, each shard declares
+            # the pinned credited output, and the gate step's id is pinned.
+            "two-summary-verify-steps": dict(extra_summary_step=(
+                "      - name: Confirm again\n"
+                "        env:\n"
+                "          NEEDS_RESULTS: ${{ toJSON(needs) }}\n"
+                "        run: python3 tools/reconcile-regression-shards.py\n")),
+            "summary-missing-setup": dict(summary_setup=False),
+            # A pinned-shaped FOURTH step before the verify step: only the
+            # exactly-one-verification-step sequence check refuses it, so
+            # weakening that check alone fails here.
+            "summary-extra-pinned-setup-step": dict(pre_verify_step=(
+                "      - name: Checkout\n"
+                "        uses: actions/checkout@"
+                "0123456789abcdef0123456789abcdef01234567\n"
+                "        with:\n"
+                "          fetch-depth: 0\n")),
+            "shard-outputs-missing": dict(shard_outputs=""),
+            "shard-outputs-wrong-expr": dict(shard_outputs=self.SHARD_OUTPUTS.replace(
+                "steps.gate.outputs.credited", "steps.other.outputs.credited")),
+            # The two unit-list digest outputs are pinned beside credited.
+            "shard-outputs-missing-unit-digest": dict(shard_outputs="".join(
+                line for line in self.SHARD_OUTPUTS.splitlines(keepends=True)
+                if "units_sha256" not in line)),
+            "shard-outputs-wrong-digest-expr": dict(shard_outputs=self.SHARD_OUTPUTS.replace(
+                "steps.gate.outputs.selected_sha256", "steps.gate.outputs.units_sha256")),
+            "gate-step-id-missing": dict(gate_id=""),
+            "gate-step-wrong-id": dict(gate_id="runner"),
+            "unpinned-checkout-sha": dict(checkout_sha="abc"),
+            "setup-with-drift": dict(fetch_depth="1"),
+            "setup-step-missing": dict(shard_setup=(
+                "      - name: Checkout\n"
+                "        uses: actions/checkout@"
+                "0123456789abcdef0123456789abcdef01234567\n"
+                "        with:\n"
+                "          fetch-depth: 0\n")),
+        }
+        for label, kwargs in deviations.items():
+            with self.subTest(label=label):
+                with self.assertRaises(agp.ParseError):
+                    self._parse(agp, self._workflow(agp, **kwargs))
+
+    def _setup_blocks(self):
+        """The three pinned setup steps as separate text blocks."""
+        text = self._setup_steps()
+        first = text.index("      - name: Set up Python\n")
+        second = text.index("      - name: Install pinned dependencies\n")
+        return text[:first], text[first:second], text[second:]
+
+    def test_lint_job_setup_steps_present_once_in_pinned_order(self):
+        """FLIP TABLE (gate 35 setup-order pin): under the shard form the
+        lint job's setup steps must be present exactly once and in the
+        pinned order. Each mutation below parses cleanly when only the
+        steps' shapes are checked, so weakening the sequence check fails
+        here."""
+        agp = self._agp()
+        self._parse(agp, self._workflow(agp))
+        checkout, python, install = self._setup_blocks()
+        mutations = {
+            "checkout-deleted": python + install,
+            "python-deleted": checkout + install,
+            "install-deleted": checkout + python,
+            "all-deleted": "",
+            "reordered": python + checkout + install,
+            "install-first": install + checkout + python,
+            "checkout-repeated": checkout + checkout + python + install,
+            "install-repeated": checkout + python + install + install,
+        }
+        for label, lint_setup in mutations.items():
+            with self.subTest(label=label):
+                with self.assertRaisesRegex(agp.ParseError,
+                                            "the lint job's setup steps"):
+                    self._parse(agp, self._workflow(agp, lint_setup=lint_setup))
+        # A setup step moved below a gate step is refused too.
+        good = self._workflow(agp)
+        moved = good.replace(install, "", 1).replace(
+            "        run: python3 tools/x.py\n",
+            "        run: python3 tools/x.py\n" + install, 1)
+        self.assertNotEqual(moved, good)
+        with self.assertRaisesRegex(agp.ParseError, "the lint job's setup steps"):
+            self._parse(agp, moved)
+
+    def test_shard_gap_is_a_parse_error(self):
+        agp = self._agp()
+        text = self._workflow(agp).replace("regression-shard-2",
+                                           "regression-shard-3")
+        with self.assertRaises(agp.ParseError):
+            self._parse(agp, text)
+
+    def test_shard_setup_step_running_a_gate_script_is_a_parse_error(self):
+        # A setup-named step inside a shard job must not smuggle a gate
+        # script past the by-name exclusion.
+        agp = self._agp()
+        checkout_block = (
+            f"      - name: Checkout\n"
+            f"        uses: actions/checkout@{self.SHA}\n"
+            f"        with:\n"
+            f"          fetch-depth: 0\n")
+        # The lint job now opens with its own setup steps; mutate the shard's.
+        head, marker, tail = self._workflow(agp).partition("  regression-shard-1:\n")
+        text = head + marker + tail.replace(
+            checkout_block,
+            "      - name: Checkout\n        run: python3 tools/lint-links.py\n",
+            1)
+        with self.assertRaisesRegex(agp.ParseError, "must not run a gate"):
+            self._parse(agp, text)
+
+    def test_lint_job_setup_step_shape_is_pinned(self):
+        # Round-2 hardening: the lint job's setup steps are pinned to their
+        # exact accepted shapes too, so an unpinned action or a drifted
+        # command cannot hide behind the by-name exclusion.
+        agp = self._agp()
+        root = Path(tempfile.mkdtemp(prefix="parity-setup-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        base = ("name: Quality\n"
+                "on:\n"
+                "  push:\n"
+                "    branches:\n"
+                "      - main\n"
+                "  pull_request:\n"
+                "permissions:\n"
+                "  contents: read\n"
+                "jobs:\n"
+                "  lint:\n"
+                "    name: Lint\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "%s"
+                "      - name: Shape\n"
+                "        run: python3 tools/x.py\n")
+        good = base % self._setup_steps()
+        path = root / "quality.yml"
+        path.write_text(good, encoding="utf-8")
+        entries = agp.parse_workflow(path)
+        self.assertEqual([entry[1] for entry in entries], ["Shape"])
+        for label, kwargs in (
+                ("unpinned-sha", dict(checkout_sha="v4")),
+                ("with-drift", dict(fetch_depth="1"))):
+            with self.subTest(label=label):
+                path.write_text(base % self._setup_steps(**kwargs),
+                                encoding="utf-8")
+                with self.assertRaises(agp.ParseError):
+                    agp.parse_workflow(path)
+        drifted = good.replace(
+            "        run: python3 -m pip install -r requirements.txt\n",
+            "        run: python3 -m pip install requests\n")
+        path.write_text(drifted, encoding="utf-8")
+        with self.assertRaises(agp.ParseError):
+            agp.parse_workflow(path)
+
+    def test_live_workflow_parses_under_the_shard_form(self):
+        """The committed quality.yml is the shard form: gate 36 appears
+        once, normalized to no arguments, at its inventory position."""
+        agp = self._agp()
+        entries = agp.parse_workflow(REPO_ROOT / ".github" / "workflows" /
+                                     "quality.yml")
+        regression = [entry for entry in entries
+                      if entry[2] == self.REGRESSION]
+        self.assertEqual([(entry[1], entry[3]) for entry in regression],
+                         [("Linter regression test suite", ())])
 
 
 if __name__ == "__main__":

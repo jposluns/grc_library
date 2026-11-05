@@ -2525,5 +2525,660 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         self.assertTrue((REPO_ROOT / "tests" / "test_linters.py").is_file())
 
 
+class RegressionGateShardTests(unittest.TestCase):
+    """Gate 36 CI sharding (maintainer directive 2026-11-04): the
+    selection deterministically and exactly partitions the test list, a
+    missing, duplicated, unknown or empty selection refuses, the shard
+    child runs its slice with the gate's refusal posture, and the CLI
+    refuses malformed shard arguments. The flip-table tests are marked
+    in their docstrings: each fails when its change is reverted or its
+    check is weakened."""
+
+    SHARD_COUNT = 6
+    WEIGHTS = '{\n  "schema": 1,\n  "units": {}\n}\n'
+
+    def _runner(self):
+        return runpy.run_path(str(RUNNER_PATH))
+
+    def _call(self, func, **kwargs):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = func(**kwargs)
+        return code, out.getvalue(), err.getvalue()
+
+    def _tmp_repo(self, test_files, body: str = PASSING_MODULE,
+                  weights: str | None = None):
+        root = Path(tempfile.mkdtemp(prefix="gate36-shard-"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        (root / "tests").mkdir()
+        (root / "tests" / "__init__.py").write_text("")
+        for rel in test_files:
+            (root / "tests" / rel).write_text(body)
+        if weights is not None:
+            (root / "tests" / "regression-shard-weights.json").write_text(weights)
+        return root
+
+    def _real_unit_keys(self, runner) -> list[str]:
+        """The real repository's unit keys, from its loaded suites."""
+        import importlib
+        # A direct `python3 tests/test_regression_gate.py` run has tests/ as
+        # sys.path[0]; the gate itself imports from the repository root.
+        if str(REPO_ROOT) not in sys.path:
+            sys.path.insert(0, str(REPO_ROOT))
+        keys: list[str] = []
+        for name in runner["discover_test_modules"](REPO_ROOT):
+            importlib.import_module(name)
+            suite = unittest.defaultTestLoader.loadTestsFromName(name)
+            cases = []
+            stack = [suite]
+            while stack:
+                item = stack.pop(0)
+                if isinstance(item, unittest.suite.BaseTestSuite):
+                    stack[0:0] = list(item)
+                else:
+                    cases.append(item)
+            for key, _first, _last in runner["compute_units"](name, cases):
+                keys.append(key)
+        return keys
+
+    def test_partition_complete_and_disjoint_over_real_test_list(self) -> None:
+        """FLIP TABLE: the shard partition is complete and disjoint over
+        the real test list. Fails when the committed weights file is
+        unreadable, when the selection stops being a partition of the
+        real suite's units, or when the partition check is weakened."""
+        runner = self._runner()
+        weights = runner["load_shard_weights"](
+            REPO_ROOT / "tests" / "regression-shard-weights.json")
+        keys = self._real_unit_keys(runner)
+        self.assertGreaterEqual(len(keys), self.SHARD_COUNT)
+        selection = runner["shard_selection"](keys, weights, self.SHARD_COUNT)
+        self.assertIsNone(
+            runner["partition_refusal"](selection, keys, self.SHARD_COUNT))
+        union: list[str] = []
+        for number in range(1, self.SHARD_COUNT + 1):
+            self.assertTrue(selection[number],
+                            "shard %d selects zero units" % number)
+            union.extend(selection[number])
+        self.assertEqual(sorted(union), sorted(keys))
+        self.assertEqual(len(union), len(set(union)))
+        again = runner["shard_selection"](keys, weights, self.SHARD_COUNT)
+        self.assertEqual(selection, again, "selection must be deterministic")
+
+    def test_missing_duplicated_unknown_or_empty_selection_refuses(self) -> None:
+        """FLIP TABLE: a missing or duplicated test fails, and so does an
+        empty shard and an unknown selected unit. Exercises the same
+        partition_refusal the shard driver and --verify-shards gate on."""
+        runner = self._runner()
+        keys = ["tests.test_a:A#0", "tests.test_a:B#0", "tests.test_b:C#0",
+                "tests.test_b:D#0"]
+        good = runner["shard_selection"](keys, {}, 2)
+        self.assertIsNone(runner["partition_refusal"](good, keys, 2))
+        missing = {n: list(v) for n, v in good.items()}
+        missing[1] = [keys[0], keys[1]]
+        missing[2] = [keys[2]]
+        self.assertIn("no shard selects",
+                      runner["partition_refusal"](missing, keys, 2) or "")
+        duplicated = {n: list(v) for n, v in good.items()}
+        duplicated[2] = duplicated[2] + [duplicated[1][0]]
+        self.assertIn("selected by shard",
+                      runner["partition_refusal"](duplicated, keys, 2) or "")
+        empty = {1: list(keys), 2: []}
+        self.assertIn("selects zero units",
+                      runner["partition_refusal"](empty, keys, 2) or "")
+        unknown = {n: list(v) for n, v in good.items()}
+        unknown[1] = unknown[1] + ["tests.test_x:Ghost#0"]
+        self.assertIn("do not hold",
+                      runner["partition_refusal"](unknown, keys, 2) or "")
+        wrong_shards = {1: list(keys)}
+        self.assertIn("not exactly 1..2",
+                      runner["partition_refusal"](wrong_shards, keys, 2) or "")
+
+    def test_compute_units_agrees_with_the_measure_tool(self) -> None:
+        """The unit definition is the measure tool's: the two
+        compute_units implementations give identical units, so the
+        committed weights key the same units the shards select."""
+        import importlib.util
+        runner = self._runner()
+        spec = importlib.util.spec_from_file_location(
+            "_measure_tool", str(REPO_ROOT / "tools" /
+                                 "measure-regression-timings.py"))
+        measure = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(measure)
+
+        class AlphaTests(unittest.TestCase):
+            def test_one(self):
+                pass
+
+            def test_two(self):
+                pass
+
+        class BetaTests(unittest.TestCase):
+            def test_three(self):
+                pass
+
+        class BareCase:
+            def run(self, result=None):
+                pass
+
+            def countTestCases(self):
+                return 1
+
+        twin_a = type("TwinTests", (unittest.TestCase,),
+                      {"test_t": lambda self: None})
+        twin_b = type("TwinTests", (unittest.TestCase,),
+                      {"test_t": lambda self: None})
+        fixtures = (
+            [AlphaTests("test_one"), AlphaTests("test_two"),
+             BetaTests("test_three"), AlphaTests("test_one")],
+            [twin_a("test_t"), twin_b("test_t")],
+            [BareCase(), BareCase(), AlphaTests("test_one")],
+            [],
+        )
+        for cases in fixtures:
+            with self.subTest(cases=len(cases)):
+                self.assertEqual(runner["compute_units"]("tests.m", cases),
+                                 measure.compute_units("tests.m", cases))
+
+    def test_shards_run_their_slices_end_to_end(self) -> None:
+        """Two modules, two shards, the real child driver: each shard is
+        green, together they run every test exactly once, and the
+        sentinel carries the shard and the counts."""
+        runner = self._runner()
+        root = self._tmp_repo(["test_aa_one.py", "test_bb_two.py"],
+                              weights=self.WEIGHTS)
+        ran_total = 0
+        credited_totals = {"tests.test_aa_one": 0, "tests.test_bb_two": 0}
+        digests = []
+        with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
+            for index in (1, 2):
+                code, _out, err = self._call(runner["shard_main"], index=index,
+                                             count=2, repo_root=root)
+                self.assertEqual(code, 0, err)
+                self.assertIn("REGRESSION-SHARD-RESULT", err)
+                self.assertIn("shard=%d/2" % index, err)
+                match = re.search(r"Ran (\d+) test", err)
+                self.assertIsNotNone(match, err)
+                ran_total += int(match.group(1))
+                # FLIP TABLE (round 2): the sentinel carries the shard's
+                # per-module credited-start counts for EVERY module, zero
+                # included, so the CI summary can sum them across shards.
+                # The captured stream can carry the test process's own
+                # warnings after the child's output; the sentinel is the
+                # last CHILD line, selected by its prefix here.
+                sentinel = [line for line in err.splitlines()
+                            if line.startswith("REGRESSION-SHARD-RESULT ")][-1]
+                counts = runner["_shard_sentinel_counts"](sentinel)
+                self.assertEqual(sorted(counts), sorted(credited_totals))
+                for name, count in counts.items():
+                    credited_totals[name] += count
+                digests.append(runner["_shard_sentinel_digests"](sentinel))
+        self.assertEqual(ran_total, 2, "the two shards together run exactly "
+                                       "the suite's tests")
+        # FLIP TABLE (unit-set digests): both shards publish one total
+        # unit-set digest (the same discovered suite) and differing
+        # selected-unit digests (their own slices).
+        self.assertEqual(digests[0][0], digests[1][0])
+        self.assertNotEqual(digests[0][1], digests[1][1])
+        self.assertEqual(digests[0][0], runner["unit_set_digest"](
+            ["tests.test_aa_one:PassingTests#0",
+             "tests.test_bb_two:PassingTests#0"]))
+        self.assertEqual(credited_totals,
+                         {"tests.test_aa_one": 1, "tests.test_bb_two": 1},
+                         "each module's credited starts, summed across the "
+                         "shards, match the serial run's")
+
+    def test_shard_main_publishes_credited_output_in_ci(self) -> None:
+        """FLIP TABLE (round 2): with GITHUB_OUTPUT set (a GitHub Actions
+        step), shard_main appends the validated per-module credited-start
+        counts as a block-style `credited` output; an unwritable
+        GITHUB_OUTPUT is a refusal, never a silent loss."""
+        runner = self._runner()
+        root = self._tmp_repo(["test_aa_one.py", "test_bb_two.py"],
+                              weights=self.WEIGHTS)
+        gh_output = root / "github-output.txt"
+        env = dict(_minimal_environ(), GITHUB_OUTPUT=str(gh_output))
+        with mock.patch.dict(os.environ, env, clear=True):
+            code, _out, err = self._call(runner["shard_main"], index=1,
+                                         count=2, repo_root=root)
+        self.assertEqual(code, 0, err)
+        text = gh_output.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        # FLIP TABLE (unit-set digests): the two single-line digest outputs
+        # come first, then the credited heredoc.
+        self.assertRegex(lines[0], r"^units_sha256=[0-9a-f]{64}$")
+        self.assertRegex(lines[1], r"^selected_sha256=[0-9a-f]{64}$")
+        lines = lines[2:]
+        self.assertRegex(lines[0], r"^credited<<\S+$")
+        self.assertEqual(lines[-1], lines[0].partition("<<")[2],
+                         "the heredoc closes with its own delimiter")
+        parsed = {}
+        for line in lines[1:-1]:
+            name, _, value = line.partition(": ")
+            parsed[name] = int(value)
+        self.assertEqual(sorted(parsed),
+                         ["tests.test_aa_one", "tests.test_bb_two"])
+        self.assertEqual(sum(parsed.values()), 1,
+                         "one shard of the two-test suite credits one start")
+        unwritable = root / "no-such-dir" / "out.txt"
+        env = dict(_minimal_environ(), GITHUB_OUTPUT=str(unwritable))
+        with mock.patch.dict(os.environ, env, clear=True):
+            code, _out, err = self._call(runner["shard_main"], index=1,
+                                         count=2, repo_root=root)
+        self.assertEqual(code, 2, err)
+        self.assertIn("GITHUB_OUTPUT", err)
+
+    def test_failing_test_fails_its_shard_alone(self) -> None:
+        """A failing module turns exactly its own shard red (exit 1);
+        the other shard stays green, so the aggregate's needs, not a
+        green shard, carry the failure."""
+        runner = self._runner()
+        root = self._tmp_repo(["test_aa_one.py"], weights=self.WEIGHTS)
+        (root / "tests" / "test_bb_two.py").write_text(FAILING_MODULE)
+        codes = {}
+        with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
+            for index in (1, 2):
+                code, _out, err = self._call(runner["shard_main"], index=index,
+                                             count=2, repo_root=root)
+                codes[index] = code
+        self.assertEqual(sorted(codes.values()), [0, 1], codes)
+
+    def test_verify_shards_checks_the_partition_without_running(self) -> None:
+        """--verify-shards reports the selection and runs no test."""
+        runner = self._runner()
+        root = self._tmp_repo(["test_aa_one.py", "test_bb_two.py"],
+                              weights=self.WEIGHTS)
+        with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
+            code, _out, err = self._call(runner["verify_shards_main"],
+                                         count=2, repo_root=root)
+        self.assertEqual(code, 0, err)
+        self.assertIn("REGRESSION-SHARD-SELECTION", err)
+        self.assertNotIn("Ran ", err)
+
+    def test_missing_or_malformed_weights_refuse(self) -> None:
+        """Shard and verify modes fail closed on balance data they
+        cannot read; the plain run never reads it."""
+        runner = self._runner()
+        for weights in (None, "{not json", '{"schema": 2, "units": {}}',
+                        '{"schema": 1, "units": {"a": -1}}'):
+            with self.subTest(weights=weights):
+                root = self._tmp_repo(["test_aa_one.py"], weights=weights)
+                with mock.patch.dict(os.environ, _minimal_environ(),
+                                     clear=True):
+                    code, _out, err = self._call(runner["shard_main"],
+                                                 index=1, count=1,
+                                                 repo_root=root)
+                self.assertEqual(code, 2, err)
+                self.assertIn("REFUSED", err)
+                self.assertIn("weights", err)
+
+    def test_driver_refuses_a_selection_that_drops_a_unit(self) -> None:
+        """FLIP TABLE wiring: the child gates its run on
+        partition_refusal. A tool whose selection silently drops a unit
+        is refused by the driver itself (exit 2), so a selection defect
+        cannot pass by reaching the runner."""
+        runner = self._runner()
+        root = self._tmp_repo(["test_aa_one.py", "test_bb_two.py"],
+                              weights=self.WEIGHTS)
+        bad_tool = root / "bad_tool.py"
+        bad_tool.write_text(
+            "import importlib.util\n"
+            "spec = importlib.util.spec_from_file_location('real', %r)\n"
+            "real = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(real)\n"
+            "for name in dir(real):\n"
+            "    if not name.startswith('_'):\n"
+            "        globals()[name] = getattr(real, name)\n"
+            "def shard_selection(unit_keys, weights, count):\n"
+            "    selection = real.shard_selection(unit_keys, weights, count)\n"
+            "    for keys in selection.values():\n"
+            "        if keys:\n"
+            "            keys.pop()\n"
+            "            break\n"
+            "    return selection\n" % str(RUNNER_PATH))
+        modules = ["tests.test_aa_one", "tests.test_bb_two"]
+        with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
+            proc = subprocess.run(
+                [sys.executable, "-c", runner["_SHARD_DRIVER"], *modules,
+                 "--shard-spec", "1/1", "--tool", str(bad_tool),
+                 "--weights", str(root / "tests" /
+                                  "regression-shard-weights.json")],
+                cwd=str(root), input="0" * 32 + "\n",
+                capture_output=True, text=True, timeout=120)
+        self.assertEqual(proc.returncode, 2, proc.stderr)
+        self.assertIn("no shard selects", proc.stderr)
+
+    def test_shard_sentinel_refusals(self) -> None:
+        """A shard child's green exit is believed only from a sentinel
+        carrying this run's nonce, shard, reconciled counts and per-module
+        credited starts naming exactly the handed modules (round 2: a
+        sentinel without the credited tail, naming other modules, or whose
+        counts do not sum to its credited total is refused)."""
+        runner = self._runner()
+        refusal = runner["_shard_sentinel_refusal"]
+        nonce = "ab" * 16
+        modules = ["tests.test_aa_one", "tests.test_bb_two"]
+        digests = "unitset=%s selection=%s" % ("a" * 64, "b" * 64)
+        good = ("REGRESSION-SHARD-RESULT %s shard=1/2 testsRun=3 "
+                "notStarted=1 wasSuccessful=True selected=4 units=2 %s "
+                "credited=3 tests.test_aa_one=2 tests.test_bb_two=1"
+                % (nonce, digests))
+        self.assertIsNone(refusal(good, nonce, 1, 2, modules))
+        legacy = ("REGRESSION-SHARD-RESULT %s shard=1/2 testsRun=3 "
+                  "notStarted=1 wasSuccessful=True selected=4 units=2"
+                  % nonce)
+        cases = (
+            ("not a sentinel", nonce, 1, 2, modules),
+            (legacy, nonce, 1, 2, modules),  # FLIP: no credited tail
+            # FLIP (unit-set digests): no unit-list digests, or malformed.
+            (good.replace(digests + " ", ""), nonce, 1, 2, modules),
+            (good.replace("a" * 64, "a" * 63), nonce, 1, 2, modules),
+            (good, "cd" * 16, 1, 2, modules),
+            (good, nonce, 2, 2, modules),
+            (good.replace("testsRun=3", "testsRun=2"), nonce, 1, 2, modules),
+            (good.replace("wasSuccessful=True", "wasSuccessful=False"),
+             nonce, 1, 2, modules),
+            (good.replace("units=2", "units=0"), nonce, 1, 2, modules),
+            # FLIP: the counts must name exactly the handed modules.
+            (good, nonce, 1, 2, ["tests.test_aa_one"]),
+            (good.replace("tests.test_bb_two=1", "tests.test_cc_three=1"),
+             nonce, 1, 2, modules),
+            # FLIP: the counts must sum to the credited total, with at
+            # least one credited start, never more than testsRun.
+            (good.replace("credited=3", "credited=2"), nonce, 1, 2, modules),
+            (good.replace("credited=3 tests.test_aa_one=2 tests.test_bb_two=1",
+                          "credited=0 tests.test_aa_one=0 tests.test_bb_two=0"),
+             nonce, 1, 2, modules),
+            (good.replace("credited=3", "credited=4").replace(
+                "tests.test_aa_one=2", "tests.test_aa_one=3"),
+             nonce, 1, 2, modules),
+        )
+        for last_line, want_nonce, index, count, mods in cases:
+            with self.subTest(last_line=last_line[:60]):
+                self.assertIsNotNone(refusal(last_line, want_nonce, index,
+                                             count, mods))
+
+    def test_cli_refuses_malformed_shard_arguments(self) -> None:
+        """The CLI refuses a malformed or unknown argument (exit 2)
+        before any child is spawned; only the three documented forms
+        dispatch."""
+        runner = self._runner()
+        for argv in (["--shard", "0/6"], ["--shard", "7/6"],
+                     ["--shard", "x/6"], ["--shard", "1/0"], ["--shard"],
+                     ["--verify-shards"], ["--verify-shards", "0"],
+                     ["--verify-shards", "x"], ["--bogus"],
+                     ["--shard", "1/6", "extra"]):
+            with self.subTest(argv=argv):
+                code, _out, err = self._call(runner["cli"], argv=argv)
+                self.assertEqual(code, 2, err)
+                self.assertIn("REFUSED", err)
+
+    def test_workflow_shards_match_the_selection_contract(self) -> None:
+        """The quality workflow's shard jobs and the lint job's
+        --verify-shards step agree on one shard count, and the summary
+        job needs the lint job and every shard (the required-check
+        contract merge-when-green relies on)."""
+        text = (REPO_ROOT / ".github" / "workflows" /
+                "quality.yml").read_text(encoding="utf-8")
+        shard_runs = re.findall(
+            r"^        run: python3 tools/run-linter-regression\.py "
+            r"--shard (\d+)/(\d+)$", text, re.M)
+        counts = {count for _i, count in shard_runs}
+        self.assertEqual(len(counts), 1, shard_runs)
+        count = int(counts.pop())
+        self.assertEqual(sorted(int(i) for i, _c in shard_runs),
+                         list(range(1, count + 1)))
+        self.assertEqual(
+            len(re.findall(r"^        run: python3 tools/run-linter-"
+                           r"regression\.py --verify-shards %d$" % count,
+                           text, re.M)), 1)
+        needs = re.search(r"^    needs:\n((?:      - [a-z0-9-]+\n)+)", text,
+                          re.M)
+        self.assertIsNotNone(needs)
+        needed = re.findall(r"- ([a-z0-9-]+)", needs.group(1))
+        self.assertEqual(needed, ["lint"] + ["regression-shard-%d" % i
+                                             for i in range(1, count + 1)])
+        # FLIP TABLE (round 2): every shard job publishes its per-module
+        # credited-start counts as the pinned `credited` output of its
+        # id-pinned gate step, and the summary job runs the reconcile step
+        # that sums them (with the needs context in NEEDS_RESULTS).
+        self.assertEqual(
+            len(re.findall(r"(?m)^    outputs:\n      credited: "
+                           r"\$\{\{ steps\.gate\.outputs\.credited \}\}$",
+                           text)), count)
+        self.assertEqual(len(re.findall(r"(?m)^        id: gate$", text)),
+                         count)
+        self.assertEqual(
+            len(re.findall(r"(?m)^        run: python3 "
+                           r"tools/reconcile-regression-shards\.py$", text)),
+            1)
+        self.assertIn("NEEDS_RESULTS: ${{ toJSON(needs) }}", text)
+
+
+class ReconcileRegressionShardsTests(unittest.TestCase):
+    """tools/reconcile-regression-shards.py: the CI summary job's one
+    verification step. FLIP TABLE (round 2): it keeps the round-1 rule
+    (every needed job must have succeeded, an empty needs context fails)
+    and adds the per-module credited-start reconciliation that restores
+    the serial runner's refusal of a module with no credited start."""
+
+    TOOL = REPO_ROOT / "tools" / "reconcile-regression-shards.py"
+    MODULES = ["tests.test_aa_one", "tests.test_bb_two"]
+    UNITS = "a" * 64
+
+    def _tool(self):
+        return runpy.run_path(str(self.TOOL))
+
+    def _needs(self, credited_one, credited_two, result="success",
+               units_two=UNITS):
+        return {
+            "lint": {"result": "success", "outputs": {}},
+            "regression-shard-1": {"result": result, "outputs": {
+                "credited": credited_one, "units_sha256": self.UNITS,
+                "selected_sha256": "1" * 64}},
+            "regression-shard-2": {"result": "success", "outputs": {
+                "credited": credited_two, "units_sha256": units_two,
+                "selected_sha256": "2" * 64}},
+        }
+
+    def test_shards_must_agree_on_the_unit_set(self) -> None:
+        """FLIP TABLE (unit-set digests): two green shards whose total
+        unit-set digests differ (two runners that discovered different
+        suites) fail the check, however their credited counts sum; a
+        missing or malformed digest output is a refusal."""
+        tool = self._tool()
+        counts = "tests.test_aa_one: 1\ntests.test_bb_two: 1\n"
+        code, lines = tool["reconcile"](
+            self._needs(counts, counts, units_two="b" * 64), self.MODULES)
+        self.assertEqual(code, 1, lines)
+        self.assertTrue(any("different unit sets" in line for line in lines),
+                        lines)
+        for output, value in (("units_sha256", None),
+                              ("selected_sha256", None),
+                              ("units_sha256", "A" * 64),
+                              ("selected_sha256", "abc")):
+            with self.subTest(output=output, value=value):
+                needs = self._needs(counts, counts)
+                if value is None:
+                    del needs["regression-shard-2"]["outputs"][output]
+                else:
+                    needs["regression-shard-2"]["outputs"][output] = value
+                code, lines = tool["reconcile"](needs, self.MODULES)
+                self.assertEqual(code, 2, lines)
+
+    def _output_file(self, root: Path, name: str, credited: str,
+                     units: str = UNITS, selected: str = "1" * 64) -> str:
+        """A GITHUB_OUTPUT file as tools/run-linter-regression.py --shard
+        writes it (digests, then the credited heredoc)."""
+        path = root / name
+        path.write_text("units_sha256=%s\nselected_sha256=%s\n"
+                        "credited<<GRC-CREDITED-COUNTS\n%sGRC-CREDITED-COUNTS\n"
+                        % (units, selected, credited), encoding="utf-8")
+        return str(path)
+
+    def test_local_shard_outputs_mode(self) -> None:
+        """FLIP TABLE (pre-push guard local shards): --shard-outputs K
+        reconciles the K GITHUB_OUTPUT files the guard's shards wrote, with
+        each shard's exit status. Green only when every status is 0 and
+        the outputs reconcile; a failing status fails; a missing shard
+        (too few pairs), an unreadable, empty or unparseable file, or a
+        bad status is a refusal."""
+        root = Path(tempfile.mkdtemp(prefix="reconcile-local-"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        (root / "tests").mkdir()
+        (root / "tests" / "test_aa_one.py").write_text(PASSING_MODULE)
+        (root / "tests" / "test_bb_two.py").write_text(PASSING_MODULE)
+        one = self._output_file(root, "one", "tests.test_aa_one: 1\n"
+                                             "tests.test_bb_two: 0\n")
+        two = self._output_file(root, "two", "tests.test_aa_one: 0\n"
+                                             "tests.test_bb_two: 1\n",
+                                selected="2" * 64)
+        other = self._output_file(root, "other", "tests.test_aa_one: 0\n"
+                                                 "tests.test_bb_two: 1\n",
+                                  units="b" * 64)
+        empty = root / "empty"
+        empty.write_text("", encoding="utf-8")
+        broken = root / "broken"
+        broken.write_text("credited<<END\ntests.test_aa_one: 1\n",
+                          encoding="utf-8")
+
+        def run(*args):
+            return subprocess.run(
+                [sys.executable, str(self.TOOL), "--shard-outputs", *args],
+                cwd=root, env=_minimal_environ(), capture_output=True,
+                text=True, timeout=120)
+
+        green = run("2", "0", one, "0", two)
+        self.assertEqual(green.returncode, 0, green.stdout + green.stderr)
+        self.assertIn("the 2 shards discovered one unit set", green.stdout)
+        failed = run("2", "0", one, "1", two)
+        self.assertEqual(failed.returncode, 1, failed.stdout + failed.stderr)
+        self.assertIn("regression-shard-2", failed.stdout)
+        differ = run("2", "0", one, "0", other)
+        self.assertEqual(differ.returncode, 1, differ.stdout + differ.stderr)
+        self.assertIn("different unit sets", differ.stdout)
+        for label, args in (
+                ("missing-shard", ("2", "0", one)),
+                ("no-count", ()),
+                ("bad-count", ("x", "0", one, "0", two)),
+                ("bad-status", ("2", "ok", one, "0", two)),
+                ("absent-file", ("2", "0", one, "0", str(root / "absent"))),
+                ("empty-file", ("2", "0", one, "0", str(empty))),
+                ("unterminated", ("2", "0", one, "0", str(broken)))):
+            with self.subTest(label=label):
+                result = run(*args)
+                self.assertEqual(result.returncode, 2,
+                                 result.stdout + result.stderr)
+        stray = subprocess.run([sys.executable, str(self.TOOL), "--other"],
+                               cwd=root, env=_minimal_environ(),
+                               capture_output=True, text=True, timeout=120)
+        self.assertEqual(stray.returncode, 2, stray.stdout + stray.stderr)
+
+    def test_local_mode_reads_the_runner_output_format(self) -> None:
+        """The runner's own GITHUB_OUTPUT writer and the reconcile's
+        local-mode parser agree: what one shard writes, the other reads
+        back as the same three outputs."""
+        runner = runpy.run_path(str(REPO_ROOT / "tools" /
+                                    "run-linter-regression.py"))
+        tool = self._tool()
+        root = Path(tempfile.mkdtemp(prefix="reconcile-format-"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        target = root / "github-output"
+        counts = {"tests.test_aa_one": 2, "tests.test_bb_two": 0}
+        with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": str(target)}):
+            self.assertIsNone(runner["_write_credited_output"](
+                counts, ("c" * 64, "d" * 64)))
+        parsed = tool["parse_step_outputs"](target.read_text(encoding="utf-8"))
+        self.assertEqual(parsed, {
+            "units_sha256": "c" * 64, "selected_sha256": "d" * 64,
+            "credited": "tests.test_aa_one: 2\ntests.test_bb_two: 0\n"})
+
+    def test_green_sums_across_shards(self) -> None:
+        tool = self._tool()
+        code, lines = tool["reconcile"](
+            self._needs("tests.test_aa_one: 1\ntests.test_bb_two: 0\n",
+                        "tests.test_aa_one: 0\ntests.test_bb_two: 2\n"),
+            self.MODULES)
+        self.assertEqual(code, 0, lines)
+        self.assertIn("credited starts tests.test_bb_two=2", lines)
+
+    def test_zero_credited_module_fails(self) -> None:
+        """FLIP TABLE: a module whose cross-shard total is zero (a wholly
+        skipped module) fails the required check, as the serial runner's
+        per-module refusal would."""
+        tool = self._tool()
+        code, lines = tool["reconcile"](
+            self._needs("tests.test_aa_one: 1\ntests.test_bb_two: 0\n",
+                        "tests.test_aa_one: 2\ntests.test_bb_two: 0\n"),
+            self.MODULES)
+        self.assertEqual(code, 1, lines)
+        self.assertTrue(any("tests/test_bb_two.py: 0 credited starts" in line
+                            for line in lines), lines)
+
+    def test_failed_cancelled_skipped_or_empty_needs_fail(self) -> None:
+        """The round-1 property is kept: a needed job that failed, was
+        cancelled, was skipped or is missing its result fails the check,
+        and an empty needs context never passes vacuously."""
+        tool = self._tool()
+        for bad in ("failure", "cancelled", "skipped", None):
+            with self.subTest(result=bad):
+                code, lines = tool["reconcile"](
+                    self._needs("tests.test_aa_one: 1\ntests.test_bb_two: 1\n",
+                                "tests.test_aa_one: 1\ntests.test_bb_two: 1\n",
+                                result=bad),
+                    self.MODULES)
+                self.assertEqual(code, 1, lines)
+        code, lines = tool["reconcile"]({}, self.MODULES)
+        self.assertEqual(code, 2, lines)
+
+    def test_missing_malformed_or_wrong_scope_output_refuses(self) -> None:
+        """FLIP TABLE: a shard that published no counts, unreadable counts,
+        or counts for a module set other than the on-disk one is a refusal
+        (exit 2), never a pass."""
+        tool = self._tool()
+        base = "tests.test_aa_one: 1\ntests.test_bb_two: 1\n"
+        for label, other in (
+                ("missing", ""),
+                ("malformed", "garbage"),
+                ("negative", "tests.test_aa_one: -1\ntests.test_bb_two: 1\n"),
+                ("duplicate", "tests.test_aa_one: 1\ntests.test_aa_one: 1\n"),
+                ("wrong-set", "tests.test_aa_one: 1\n"),
+                ("foreign-module",
+                 "tests.test_aa_one: 1\ntests.test_zz_other: 1\n")):
+            with self.subTest(label=label):
+                code, lines = tool["reconcile"](self._needs(base, other),
+                                                self.MODULES)
+                self.assertEqual(code, 2, lines)
+        no_shards = {"lint": {"result": "success", "outputs": {}}}
+        code, lines = tool["reconcile"](no_shards, self.MODULES)
+        self.assertEqual(code, 2, lines)
+
+    def test_main_reads_needs_and_on_disk_modules(self) -> None:
+        """End to end: main() reads NEEDS_RESULTS and the working
+        directory's tests/ module set, and fails closed without them."""
+        import json
+        root = Path(tempfile.mkdtemp(prefix="reconcile-"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        (root / "tests").mkdir()
+        (root / "tests" / "test_aa_one.py").write_text(PASSING_MODULE)
+        (root / "tests" / "test_bb_two.py").write_text(PASSING_MODULE)
+        needs = self._needs("tests.test_aa_one: 1\ntests.test_bb_two: 0\n",
+                            "tests.test_aa_one: 0\ntests.test_bb_two: 1\n")
+        env = dict(_minimal_environ(), NEEDS_RESULTS=json.dumps(needs))
+        green = subprocess.run([sys.executable, str(self.TOOL)],
+                               cwd=root, env=env, capture_output=True,
+                               text=True, timeout=120)
+        self.assertEqual(green.returncode, 0,
+                         green.stdout + green.stderr)
+        for env_missing in ({}, {"NEEDS_RESULTS": "not json"}):
+            with self.subTest(env=env_missing):
+                bad = subprocess.run(
+                    [sys.executable, str(self.TOOL)], cwd=root,
+                    env=dict(_minimal_environ(), **env_missing),
+                    capture_output=True, text=True, timeout=120)
+                self.assertEqual(bad.returncode, 2,
+                                 bad.stdout + bad.stderr)
+                self.assertIn("REFUSED", bad.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

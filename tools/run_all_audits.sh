@@ -11,9 +11,16 @@
 #   tools/run_all_audits.sh            # run all gates, aggregate failures
 #   FAIL_FAST=1 tools/run_all_audits.sh  # stop on first failure
 #
-# Rationale (per a closed backlog lessons-learned decision): phase-completion
-# gating requires the full audit sweep to pass locally before any push.
-# This script provides a single deterministic invocation for that sweep.
+# Rationale: this script is the single deterministic invocation of the FULL
+# sweep, every gate included. Since the gate-36 CI fast track (maintainer
+# directives 2026-11-04 and 2026-11-05), a push no longer runs this script
+# itself: the pre-push guard runs every gate here except the linter
+# regression test suite (gate 36) one by one, then, on its full path, gate 36
+# whole as six parallel local shards with the private store present (its
+# site-only fast path leaves gate 36 to CI, which runs it sharded with a
+# summary reconcile before merge), and it falls back to this whole script
+# only when it cannot read the gate list. The nightly sweep and manual full
+# runs still invoke this script whole, gate 36 included.
 # The current sweep covers the full corpus inventory; see
 # governance/specification-audit-programme.md section 6 for the
 # canonical inventory and current gate count.

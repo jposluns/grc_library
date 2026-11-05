@@ -186,17 +186,55 @@ The fast path runs `run-pr-time-checks.sh` unchanged; every
 `run_all_audits.sh` gate except the linter regression suite (gate 36), by the
 runner's own names and commands read at run time, then the gate step's elapsed
 time; the palette gate; `.web/build.py --check`; and `tests/test_web_draft.py`.
-Unlike `run_all_audits.sh`, it does not show a passing gate's `DUE-SOON`,
-`WARN` and `NOTE` lines; a failing gate's output is shown in full.
+Unlike `run_all_audits.sh`, the FAST path does not show a passing gate's
+`DUE-SOON`, `WARN` and `NOTE` lines; a failing gate's output is shown in
+full. The FULL guard path shows them as the runner does: each gate runs with
+a per-gate `GRC_RUNNER_ECHO_TOKEN`, a passing gate's `DUE-SOON` lines are
+always echoed, and its `WARN` and `NOTE` lines are echoed when the gate
+printed the runner-echo marker with that token (gates 6, 72 and 106).
 It prints a `FAST PATH` line naming the changed paths. The guard lists the
 gates itself, so `run_all_audits.sh` has no skip option and CI
 (`.github/workflows/quality.yml`, one step per gate) cannot be told to skip
-one. Skipped locally and left to CI: the rest of gate 36 (every other
-regression test and the completeness checks of `run-linter-regression.py`).
-The full suite, gate 36 whole included, still runs in CI on the pull request,
-and `merge-when-green.py` merges only on green CI. Residual: a failure in a
-skipped regression test that a site-only change causes is first seen in CI,
-not before the push. The guard's header gives the exact rules.
+one. Skipped locally on the fast path only, and left to CI: gate 36 (every
+regression test except `tests/test_web_draft.py`, and the completeness checks
+of `run-linter-regression.py`). The FULL guard runs gate 36 whole, with the
+private store present (maintainer decision 2026-11-05), after the other
+gates: six parallel `run-linter-regression.py --shard i/6` runs, each in its
+own temporary detached checkout of the commit being pushed (`git worktree add
+--detach` into a `mktemp` directory, beside symbolic links to this clone's
+store and siblings), each in its own process group with its own log and
+`GITHUB_OUTPUT` file and its exit status read directly;
+`reconcile-regression-shards.py --shard-outputs` then reconciles them. A
+failing shard (the guard exits with the first failing shard's own status), a
+shard that exits 0 without step outputs (exit 2, before the reconcile) or a
+failing reconcile (its own status: 1 failure, 2 refusal) fails the push and
+keeps the checkouts, printing their paths. INT, TERM or HUP during the shards
+stops every shard's process group, waits for them, keeps and names every
+checkout and log, and exits 130, 143 or 129. A passing run removes the
+checkouts; a checkout `git worktree remove` cannot remove is named, `git
+worktree prune` runs once its directory is gone, and the guard never claims
+that removal. The full suite, gate 36 whole included, still runs in CI on the pull
+request as six shard jobs whose outputs the summary job reconciles, and
+`merge-when-green.py` merges only on green CI. Residual: a failure in a
+regression test that a site-only change causes is first seen in CI, not
+before the push. The guard's header gives the exact rules.
+
+[tools/reconcile-regression-shards.py](reconcile-regression-shards.py) is
+the quality workflow summary job's one verification step (the required
+check "Lint markdown corpus"): it fails unless every needed job succeeded
+and the regression shards' `credited` job outputs (block-style
+`module: count` lines of per-module credited starts, published by
+`run-linter-regression.py --shard` from its validated shard sentinel) name
+exactly the on-disk `tests/test_*.py` modules and sum to at least one
+credited start per module, restoring the serial runner's per-module refusal
+across shards, and every shard's `units_sha256` output (the digest of the
+whole unit list its own suite load found; `selected_sha256` is that of its
+own units) is the same, so a discovery difference between runners fails.
+A missing, malformed or wrongly-scoped shard output is a refusal (exit 2),
+never a pass. Its local mode, `--shard-outputs K RC_1 FILE_1 ... RC_K
+FILE_K`, reads the same outputs from the `GITHUB_OUTPUT` files of the
+pre-push guard's local shards, with each shard's exit status; a wrong
+count or an unreadable file is a refusal.
 
 Residual: `git push --no-verify` and a command-level `core.hooksPath` override
 can skip the hook entirely, including overrides supplied through

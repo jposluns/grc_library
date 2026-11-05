@@ -219,19 +219,102 @@ its one extra, last line.
 Exit code is otherwise forwarded from unittest: 0 if all tests pass,
 non-zero on failure (1 when unittest reports a failure or an error).
 
+CI sharding (maintainer directive 2026-11-04, the 3b789 gate 36 split):
+``--shard I/K`` runs one deterministic slice of the same suite, and
+``--verify-shards K`` checks the slicing without running a test. A UNIT
+is a maximal run of consecutive occurrences of one class object within
+one module's loaded suite, flattened in suite order, exactly the unit
+``tools/measure-regression-timings.py`` measures (``compute_units``
+here is kept in agreement with that tool by a regression test). Units
+are assigned to the K shards by a deterministic greedy balance over
+the measured weights in ``tests/regression-shard-weights.json``
+(largest weight first, ties by unit key, each unit to the least-loaded
+shard, ties to the lowest shard number); a unit the weights file does
+not name gets a small default weight, so the weights only move units
+between shards and never decide whether one runs. Every shard child
+recomputes the WHOLE selection and refuses (exit 2) unless it is an
+exact partition of the units its own suite load found: a unit no shard
+selects, a unit two shards select, a selected unit the suites do not
+hold, and an empty shard are each a refusal, so a selection defect
+fails every shard loudly rather than dropping a test silently. The
+shard child keeps the plain run's refusal posture: its argv module
+list must match the on-disk tests/test_*.py files, an import that
+raises anything (BaseException included) is a refusal, a zero-case
+module is a refusal, a case object in two modules' suites is a
+refusal, an unreadable or malformed weights file is a refusal, the
+nonce travels over the child's stdin, and a green exit is believed
+only with unittest's own ``Ran N tests`` line and a nonce-carrying
+sentinel as the last stderr line whose ``testsRun`` plus ``notStarted``
+equals the selected occurrence count, reconciled per unit (every
+selected occurrence reached ``startTest`` or is accounted by a
+``setUpClass`` ``SkipTest`` record, with the same record-grouping
+rules as the full run), with at least one credited start in the shard.
+The shard sentinel also carries ``credited`` (the shard's credited
+starts) and one per-module credited-start token for EVERY discovered
+module (zero allowed): a credited start is credited to the module
+whose loaded suite holds the started occurrence, exactly as in the
+full run. The parent refuses a sentinel whose module names are not
+exactly the handed modules, whose per-module counts do not sum to its
+``credited`` total, or whose ``credited`` exceeds ``testsRun``; and,
+when the ``GITHUB_OUTPUT`` environment file is set (a GitHub Actions
+step), it appends the counts as a ``credited`` multi-line step output
+of block-style ``module: count`` lines (refusing, exit 2, when that
+file cannot be written), so each CI shard job publishes its counts as
+a job output. The sentinel and the outputs also carry two digests
+(``unit_set_digest``): ``unitset``, the sha256 of the TOTAL unit list
+the shard's own suite load found, and ``selection``, that of its
+selected units, published as the ``units_sha256`` and
+``selected_sha256`` outputs. The CI summary job's reconcile step
+(tools/reconcile-regression-shards.py) sums the counts across all
+shards and fails when any discovered module's total is zero, restoring
+before merge the serial runner's refusal of a module with no credited
+start, and fails unless every shard's ``units_sha256`` is the same, so
+two runners that discovered different suites cannot pass as one
+partition; a shard output that is missing, malformed, or naming a
+module set other than the on-disk tests/test_*.py files is a refusal
+there, never a pass. The pre-push guard (tools/pre-push-guard.sh) runs
+the same K shards locally, each in its own temporary detached checkout
+with ``GITHUB_OUTPUT`` pointed at a per-shard file, and reconciles
+those files with ``reconcile-regression-shards.py --shard-outputs``.
+Residuals specific to shard mode, beyond the full run's: within one
+shard the zero-credited refusal is for the shard as a whole (at least
+one credited start anywhere in it); the per-module rule is enforced
+across shards by the reconcile step, so it holds only where that step
+runs (CI's summary job and the pre-push guard; the plain run, which
+tools/run_all_audits.sh and the pre-commit hook still invoke, keeps
+the serial per-module rule). Two units of one class object
+that land in one shard with nothing between them run under one
+``setUpClass`` where the whole suite sets the class up twice (the
+standard loader yields one unit per class, so no current module is
+affected). Weights are advisory balance data; the selection mechanism,
+never a weight, decides membership.
+
 Stdlib-only Python 3.11.
 """
 
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 import re
 import secrets
 import subprocess
 import sys
+import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+
+# Shard-mode constants (see the docstring's CI-sharding section). The weights
+# file is committed, measured data from tools/measure-regression-timings.py;
+# a unit it does not name gets DEFAULT_UNIT_WEIGHT, and no effective weight
+# falls below MINIMUM_UNIT_WEIGHT, so a crowd of unmeasured units still
+# spreads across shards instead of piling onto one.
+WEIGHTS_RELATIVE_PATH = "tests/regression-shard-weights.json"
+WEIGHTS_SCHEMA_VERSION = 1
+DEFAULT_UNIT_WEIGHT = 0.1
+MINIMUM_UNIT_WEIGHT = 0.001
 
 # Child driver: FIRST consume the per-run nonce from stdin and rebind
 # stdin to os.devnull (closing the pipe), before any test module is
@@ -685,5 +768,657 @@ def main(repo_root: Path = REPO_ROOT, popen=subprocess.Popen) -> int:
     return returncode
 
 
+# ----------------------------------------------------------------------
+# CI sharding (the docstring's CI-sharding section). The pure selection
+# functions below are the single source of truth: the parent, the shard
+# child driver (which loads this file by path) and the tests all call
+# them, so the slicing CI runs is the slicing the tests exercise.
+# ----------------------------------------------------------------------
+
+
+def compute_units(module: str, cases: list) -> list[tuple[str, int, int]]:
+    """Group a module's flattened cases into units.
+
+    Returns ``[(key, first_index, last_index), ...]`` in suite order. A
+    unit is a maximal run of consecutive occurrences of one class
+    object; a case that is not a ``unittest.TestCase`` instance is its
+    own unit. Ordinals count units per qualname within the module, from
+    0, so every returned key is unique within the module. This mirrors
+    ``compute_units`` in tools/measure-regression-timings.py (whose
+    keys the weights file holds); a regression test keeps the two in
+    agreement.
+    """
+    units: list[list] = []
+    ordinals: dict[str, int] = {}
+    previous = None
+    for index, case in enumerate(cases):
+        grouped = isinstance(case, unittest.TestCase)
+        if grouped and units and type(case) is previous:
+            units[-1][2] = index
+        else:
+            qualname = type(case).__qualname__
+            ordinal = ordinals.get(qualname, 0)
+            ordinals[qualname] = ordinal + 1
+            units.append(["%s:%s#%d" % (module, qualname, ordinal), index, index])
+        previous = type(case) if grouped else None
+    return [tuple(unit) for unit in units]
+
+
+def load_shard_weights(path) -> dict[str, float]:
+    """The measured unit weights, or a ValueError naming what is wrong.
+
+    Shard mode fails closed on balance data it cannot read: a missing,
+    unreadable or malformed weights file is a refusal (exit 2 in the
+    caller), never a silent fallback, so every shard of one commit
+    computes its selection from one agreed input.
+    """
+    path = Path(path)
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ValueError(
+            "cannot read the shard weights file %s: %s" % (path, exc)) from None
+    try:
+        payload = json.loads(text)
+    except ValueError as exc:
+        raise ValueError(
+            "the shard weights file %s is not valid JSON: %s" % (path, exc)) from None
+    if (not isinstance(payload, dict)
+            or payload.get("schema") != WEIGHTS_SCHEMA_VERSION
+            or not isinstance(payload.get("units"), dict)):
+        raise ValueError(
+            "the shard weights file %s does not hold schema %d with a units "
+            "object" % (path, WEIGHTS_SCHEMA_VERSION))
+    weights: dict[str, float] = {}
+    for key, value in payload["units"].items():
+        if (not isinstance(key, str) or isinstance(value, bool)
+                or not isinstance(value, (int, float)) or value < 0):
+            raise ValueError(
+                "the shard weights file %s holds a unit entry that is not a "
+                "string key with a nonnegative number: %r" % (path, key))
+        weights[key] = float(value)
+    return weights
+
+
+def effective_weight(weights: dict[str, float], key: str) -> float:
+    """A unit's balance weight: measured, else the default, floored."""
+    return max(float(weights.get(key, DEFAULT_UNIT_WEIGHT)), MINIMUM_UNIT_WEIGHT)
+
+
+def shard_selection(unit_keys: list[str], weights: dict[str, float],
+                    count: int) -> dict[int, list[str]]:
+    """Deterministically partition ``unit_keys`` into ``count`` shards.
+
+    Greedy balance: units in descending effective weight (ties by key),
+    each to the least-loaded shard so far (ties to the lowest shard
+    number). The result maps each shard number (1-based) to its units
+    in ``unit_keys`` order. Deterministic for one input; weights only
+    move a unit between shards, never in or out of the run.
+    """
+    if count < 1:
+        raise ValueError("shard count must be at least 1, not %d" % count)
+    if len(set(unit_keys)) != len(unit_keys):
+        raise ValueError("the unit list holds a duplicate key")
+    loads = [0.0] * count
+    assigned: dict[str, int] = {}
+    for key in sorted(unit_keys, key=lambda k: (-effective_weight(weights, k), k)):
+        shard = min(range(count), key=lambda i: (loads[i], i))
+        assigned[key] = shard + 1
+        loads[shard] += effective_weight(weights, key)
+    selection: dict[int, list[str]] = {n: [] for n in range(1, count + 1)}
+    for key in unit_keys:
+        selection[assigned[key]].append(key)
+    return selection
+
+
+def partition_refusal(selection: dict[int, list[str]], unit_keys: list[str],
+                      count: int) -> str | None:
+    """Refusal message unless ``selection`` is an exact partition.
+
+    Fail closed: shard numbers must be exactly 1..count, every shard
+    must select at least one unit, every unit of ``unit_keys`` must be
+    selected exactly once, and nothing outside ``unit_keys`` may be
+    selected. Returns None when the partition is exact.
+    """
+    if sorted(selection) != list(range(1, count + 1)):
+        return ("the selection names shards %s, not exactly 1..%d"
+                % (sorted(selection), count))
+    if len(set(unit_keys)) != len(unit_keys):
+        return "the unit list holds a duplicate key"
+    expected = set(unit_keys)
+    seen: dict[str, int] = {}
+    for number in range(1, count + 1):
+        keys = selection[number]
+        if not keys:
+            return "shard %d/%d selects zero units" % (number, count)
+        for key in keys:
+            if key in seen:
+                return ("unit %s is selected by shard %d and shard %d; every "
+                        "unit must run exactly once" % (key, seen[key], number))
+            seen[key] = number
+            if key not in expected:
+                return ("shard %d selects unit %s, which the loaded suites do "
+                        "not hold" % (number, key))
+    missing = sorted(expected - set(seen))
+    if missing:
+        return ("no shard selects unit(s) %s; every unit must run exactly once"
+                % ", ".join(missing))
+    return None
+
+
+def unit_set_digest(unit_keys) -> str:
+    """The sha256 of a unit list as a SET: the sorted keys, one per line.
+
+    Each shard publishes the digest of the TOTAL unit list its own suite
+    load found and of its SELECTED units; the reconcile step requires
+    every shard's total digest to agree, so a discovery difference between
+    runners fails rather than splitting two different suites.
+    """
+    text = "".join(key + "\n" for key in sorted(unit_keys))
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def parse_shard_count(text: str) -> int:
+    """The shard count K from its decimal spelling, or a ValueError."""
+    if not (text.isascii() and text.isdigit()) or int(text) < 1:
+        raise ValueError("shard count must be a positive integer, not %r" % text)
+    return int(text)
+
+
+def parse_shard_spec(text: str) -> tuple[int, int]:
+    """(index, count) from an ``I/K`` shard spec, or a ValueError."""
+    index_text, sep, count_text = text.partition("/")
+    if not sep or not (index_text.isascii() and index_text.isdigit()):
+        raise ValueError("a shard is named I/K with integers I and K, not %r" % text)
+    count = parse_shard_count(count_text)
+    index = int(index_text)
+    if not 1 <= index <= count:
+        raise ValueError("shard index %d is outside 1..%d" % (index, count))
+    return index, count
+
+
+# Shard child driver. It repeats the plain driver's refusal posture (see
+# _DRIVER: nonce over stdin, argv-vs-disk module check, import and
+# zero-case refusals, the shared-case refusal), loads THIS file by the
+# path handed on argv to compute the selection with the same functions
+# the parent and the tests use, refuses unless that selection exactly
+# partitions the units its own suite load found, and then either reports
+# the selection (verify mode) or runs its own shard's occurrences with
+# per-unit accounting: every selected occurrence must reach startTest or
+# be accounted by a setUpClass SkipTest record (grouped into runs by the
+# same rules as the plain driver), and the shard must earn at least one
+# credited start (a start outside a skip-decorated class). The sentinel
+# additionally carries the shard's credited total and one credited-start
+# count per handed module (zero allowed), credited to the module whose
+# loaded suite holds the started occurrence, as in the plain driver, and
+# the digests of the total and selected unit lists; the parent reconciles
+# those counts and, when GITHUB_OUTPUT is set, publishes them as the
+# ``credited`` output for the cross-shard per-module check, beside the
+# digests.
+_SHARD_DRIVER = """\
+import importlib
+import importlib.util
+import os
+import sys
+import unittest
+
+nonce = sys.stdin.readline().strip()
+devnull = os.open(os.devnull, os.O_RDONLY)
+os.dup2(devnull, 0)
+os.close(devnull)
+argv = sys.argv[1:]
+if argv.count("--shard-spec") != 1:
+    print("REFUSED: the shard driver needs exactly one --shard-spec",
+          file=sys.stderr)
+    sys.exit(2)
+split = argv.index("--shard-spec")
+modules = argv[:split]
+tail = argv[split + 1:]
+if len(tail) != 5 or tail[1] != "--tool" or tail[3] != "--weights":
+    print("REFUSED: the shard driver's argv tail is not "
+          "--shard-spec S --tool T --weights W", file=sys.stderr)
+    sys.exit(2)
+spec_text, tool_path, weights_path = tail[0], tail[2], tail[4]
+on_disk = sorted(
+    "tests." + entry.name[:-3]
+    for entry in os.scandir("tests")
+    if entry.is_file(follow_symlinks=False)
+    and entry.name.startswith("test_") and entry.name.endswith(".py"))
+if sorted(modules) != on_disk:
+    print("REFUSED: shard driver argv modules %s do not match on-disk "
+          "tests/test_*.py files %s" % (sorted(modules), on_disk),
+          file=sys.stderr)
+    sys.exit(2)
+tool_spec = importlib.util.spec_from_file_location("regression_shard_tool",
+                                                   tool_path)
+tool = importlib.util.module_from_spec(tool_spec)
+tool_spec.loader.exec_module(tool)
+verify_only = spec_text.startswith("verify/")
+try:
+    if verify_only:
+        shard_index = 0
+        shard_count = tool.parse_shard_count(spec_text[len("verify/"):])
+    else:
+        shard_index, shard_count = tool.parse_shard_spec(spec_text)
+    weights = tool.load_shard_weights(weights_path)
+except ValueError as exc:
+    print("REFUSED: %s" % exc, file=sys.stderr)
+    sys.exit(2)
+failed = False
+for name in modules:
+    try:
+        importlib.import_module(name)
+    except BaseException as exc:
+        print("REFUSED: cannot import tests/%s.py: %r"
+              % (name.partition(".")[2], exc), file=sys.stderr)
+        failed = True
+if failed:
+    sys.exit(2)
+def flatten(suite):
+    for item in suite:
+        if isinstance(item, unittest.suite.BaseTestSuite):
+            yield from flatten(item)
+        else:
+            yield item
+
+loader = unittest.defaultTestLoader
+occurrences = []
+unit_of_occurrence = []
+unit_keys = []
+unit_sizes = {}
+for name in modules:
+    suite = loader.loadTestsFromName(name)
+    cases = list(flatten([suite]))
+    if len(cases) < 1:
+        print("REFUSED: tests/%s.py contributes zero test cases"
+              % name.partition(".")[2], file=sys.stderr)
+        failed = True
+        continue
+    for key, first, last in tool.compute_units(name, cases):
+        if key in unit_sizes:
+            print("REFUSED: unit key %s computed twice" % key, file=sys.stderr)
+            failed = True
+        unit_keys.append(key)
+        unit_sizes[key] = last - first + 1
+        for position in range(first, last + 1):
+            occurrences.append((cases[position], name))
+            unit_of_occurrence.append(key)
+if failed:
+    sys.exit(2)
+loaded_in = {}
+for case, loaded_by in occurrences:
+    loaded_in.setdefault(id(case), (case, set()))[1].add(loaded_by)
+for case, loaded_by in loaded_in.values():
+    names = sorted(loaded_by)
+    if len(names) > 1:
+        print("REFUSED: test case object %r is in the loaded suites of more "
+              "than one module (%s); its starts cannot be credited to one "
+              "module" % (case, ", ".join("tests/%s.py" % n.partition(".")[2]
+                                          for n in names)), file=sys.stderr)
+        failed = True
+if failed:
+    sys.exit(2)
+selection = tool.shard_selection(unit_keys, weights, shard_count)
+refusal = tool.partition_refusal(selection, unit_keys, shard_count)
+if refusal is not None:
+    print("REFUSED: %s" % refusal, file=sys.stderr)
+    sys.exit(2)
+if verify_only:
+    for number in range(1, shard_count + 1):
+        keys = selection[number]
+        print("shard %d/%d: %d units, %d occurrences, estimated %.1f s"
+              % (number, shard_count, len(keys),
+                 sum(unit_sizes[key] for key in keys),
+                 sum(tool.effective_weight(weights, key) for key in keys)),
+              file=sys.stderr)
+    print("REGRESSION-SHARD-SELECTION %s shards=%d units=%d occurrences=%d"
+          % (nonce, shard_count, len(unit_keys), len(occurrences)),
+          file=sys.stderr)
+    sys.exit(0)
+selected = set(selection[shard_index])
+shard_occurrences = []
+for position, (case, name) in enumerate(occurrences):
+    key = unit_of_occurrence[position]
+    if key in selected:
+        shard_occurrences.append((case, key, name))
+started_any = dict.fromkeys(selected, 0)
+not_started_by_unit = dict.fromkeys(selected, 0)
+credited = 0
+# Per-module credited starts, over EVERY handed module (zero stays zero for
+# a module none of this shard's units came from), so the sentinel reports a
+# complete per-module row the CI summary can sum across shards.
+credited_by_module = dict.fromkeys(modules, 0)
+class ShardResult(unittest.TextTestResult):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.next_occurrence = 0
+        self.class_skips = {}
+        self.last_record = None
+        self.not_started = 0
+    def settle(self, upto):
+        previous = None
+        covered = False
+        for position in range(self.next_occurrence, upto):
+            case, key, _name = shard_occurrences[position]
+            if case.__class__ is not previous:
+                holder = unittest.util.strclass(case.__class__)
+                covered = self.class_skips.get(holder, 0) > 0
+                if covered:
+                    self.class_skips[holder] -= 1
+                previous = case.__class__
+            if covered:
+                self.not_started += 1
+                not_started_by_unit[key] += 1
+        self.next_occurrence = upto
+        self.class_skips.clear()
+    def addSkip(self, test, reason):
+        holder = test.id()
+        if holder.startswith("setUpClass (") and holder.endswith(")"):
+            holder = holder[len("setUpClass ("):-1]
+            try:
+                previous = self._previousTestClass
+            except AttributeError:
+                print("\\nREFUSED: the unittest result has no "
+                      "_previousTestClass attribute (Python %d.%d.%d); "
+                      "setUpClass skip records cannot be grouped into runs"
+                      % sys.version_info[:3], file=sys.stderr)
+                sys.exit(2)
+            run = (holder, previous)
+            last = self.last_record
+            if last is None or last[0] != run[0] or last[1] is not run[1]:
+                self.class_skips[holder] = self.class_skips.get(holder, 0) + 1
+            self.last_record = run
+        else:
+            self.last_record = None
+        super().addSkip(test, reason)
+    def startTest(self, test):
+        global credited
+        self.last_record = None
+        for position in range(self.next_occurrence, len(shard_occurrences)):
+            case, key, name = shard_occurrences[position]
+            if case is test:
+                self.settle(position)
+                self.next_occurrence = position + 1
+                started_any[key] += 1
+                if not getattr(test.__class__, "__unittest_skip__", False):
+                    credited += 1
+                    credited_by_module[name] += 1
+                break
+        super().startTest(test)
+suite = unittest.TestSuite(case for case, _key, _name in shard_occurrences)
+runner = unittest.TextTestRunner(resultclass=ShardResult)
+result = runner.run(suite)
+result.settle(len(shard_occurrences))
+if result.wasSuccessful():
+    for key in selection[shard_index]:
+        expected = unit_sizes[key]
+        if started_any[key] + not_started_by_unit[key] != expected:
+            print("REFUSED: unit %s: %d occurrences loaded, %d reached "
+                  "startTest and %d are accounted by setUpClass skips; a "
+                  "selected test did not run" % (key, expected,
+                  started_any[key], not_started_by_unit[key]),
+                  file=sys.stderr)
+            failed = True
+    if not failed and credited < 1:
+        print("REFUSED: shard %d/%d ran zero credited tests (no start outside "
+              "a skip-decorated class)" % (shard_index, shard_count),
+              file=sys.stderr)
+        failed = True
+if failed:
+    sys.exit(2)
+print("REGRESSION-SHARD-RESULT %s shard=%d/%d testsRun=%d notStarted=%d "
+      "wasSuccessful=%s selected=%d units=%d unitset=%s selection=%s "
+      "credited=%d %s"
+      % (nonce, shard_index, shard_count, result.testsRun, result.not_started,
+         result.wasSuccessful(), len(shard_occurrences), len(selected),
+         tool.unit_set_digest(unit_keys),
+         tool.unit_set_digest(selection[shard_index]), credited,
+         " ".join("%s=%d" % (name, credited_by_module[name])
+                  for name in sorted(credited_by_module))),
+      file=sys.stderr)
+sys.exit(0 if result.wasSuccessful() else 1)
+"""
+
+# The shard run's completion sentinel and verify mode's selection sentinel.
+# The credited tail mirrors the plain sentinel's per-module counts: credited
+# starts for EVERY handed module (zero allowed), summed by the CI summary's
+# reconcile step across shards.
+_SHARD_SENTINEL = re.compile(
+    r"^REGRESSION-SHARD-RESULT (?P<nonce>[0-9a-f]{32}) "
+    r"shard=(?P<index>\d+)/(?P<count>\d+) testsRun=(?P<ran>\d+) "
+    r"notStarted=(?P<notstarted>\d+) wasSuccessful=(?P<ok>True|False) "
+    r"selected=(?P<selected>\d+) units=(?P<units>\d+) "
+    r"unitset=(?P<unitset>[0-9a-f]{64}) selection=(?P<selection>[0-9a-f]{64}) "
+    r"credited=(?P<credited>\d+)(?P<counts>( [A-Za-z0-9_.]+=\d+)*)$")
+
+# The GITHUB_OUTPUT heredoc delimiter for the per-module credited counts. The
+# counts' lines are "tests.<name>: <int>" (module names match the sentinel's
+# [A-Za-z0-9_.]+ tokens), so no counts line can equal the delimiter. The two
+# digest outputs are single-line: the sha256 of the shard's total unit set
+# and of its selected units (unit_set_digest).
+_CREDITED_OUTPUT_NAME = "credited"
+_CREDITED_OUTPUT_DELIMITER = "GRC-CREDITED-COUNTS"
+_UNIT_SET_OUTPUT_NAME = "units_sha256"
+_SELECTED_OUTPUT_NAME = "selected_sha256"
+_SELECTION_SENTINEL = re.compile(
+    r"^REGRESSION-SHARD-SELECTION (?P<nonce>[0-9a-f]{32}) "
+    r"shards=(?P<count>\d+) units=(?P<units>\d+) occurrences=(?P<occ>\d+)$")
+
+
+def _refuse(lines: list[str], message: str) -> int:
+    """Print a refusal on its own line, as main()'s refuse does."""
+    if lines and not lines[-1].endswith("\n"):
+        sys.stderr.write("\n")
+    print("REFUSED: " + message, file=sys.stderr)
+    return 2
+
+
+def _run_shard_driver(spec_text: str, repo_root: Path, popen):
+    """Spawn the shard driver; (returncode, stderr lines, nonce).
+
+    Mirrors main(): discovery and the completeness self-check run here
+    in the parent, the nonce travels over the child's stdin, and the
+    child's stderr streams through while being accumulated. On a parent
+    refusal the lines are None and the returncode is 2.
+    """
+    modules = discover_test_modules(repo_root)
+    refusal = completeness_refusal(modules, repo_root)
+    if refusal is not None:
+        print("REFUSED: " + refusal, file=sys.stderr)
+        return 2, None, "", []
+    print("Running test modules:")
+    for name in modules:
+        print("  " + name)
+    sys.stdout.flush()
+    nonce = secrets.token_hex(16)
+    proc = popen(
+        [sys.executable, "-c", _SHARD_DRIVER, *modules,
+         "--shard-spec", spec_text,
+         "--tool", str(Path(__file__).resolve()),
+         "--weights", str(Path(repo_root) / WEIGHTS_RELATIVE_PATH)],
+        cwd=str(repo_root),
+        stdin=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    proc.stdin.write((nonce + "\n").encode("ascii"))
+    proc.stdin.close()
+    lines: list[str] = []
+    for raw in proc.stderr:
+        line = raw.decode("utf-8", "replace")
+        sys.stderr.write(line)
+        sys.stderr.flush()
+        lines.append(line)
+    returncode = proc.wait()
+    proc.stderr.close()
+    return returncode, lines, nonce, modules
+
+
+def _shard_sentinel_counts(last_line: str) -> dict[str, int]:
+    """The per-module credited counts of a MATCHING shard sentinel."""
+    match = _SHARD_SENTINEL.match(last_line)
+    counts: dict[str, int] = {}
+    for token in match.group("counts").split():
+        name, _, value = token.partition("=")
+        counts[name] = int(value)
+    return counts
+
+
+def _shard_sentinel_refusal(last_line: str, nonce: str, index: int,
+                            count: int, modules: list[str]) -> str | None:
+    """Refusal message when ``last_line`` is not a believable shard sentinel."""
+    match = _SHARD_SENTINEL.match(last_line)
+    if match is None:
+        return ("the child's last stderr line is not the shard driver's "
+                "completion sentinel; completion is established only from "
+                "the executed suite's own result")
+    if match.group("nonce") != nonce:
+        return "the shard sentinel does not carry this run's nonce"
+    if (int(match.group("index")), int(match.group("count"))) != (index, count):
+        return ("the shard sentinel reports shard %s/%s, not the requested "
+                "%d/%d" % (match.group("index"), match.group("count"),
+                           index, count))
+    ran = int(match.group("ran"))
+    not_started = int(match.group("notstarted"))
+    selected = int(match.group("selected"))
+    units = int(match.group("units"))
+    if units < 1 or selected < units:
+        return ("the shard sentinel reports %d selected occurrences over %d "
+                "units; a shard runs at least one unit with at least one "
+                "occurrence each" % (selected, units))
+    if ran < 1 or ran + not_started != selected:
+        return ("the shard sentinel's testsRun=%d plus notStarted=%d does "
+                "not equal the %d selected occurrences (with at least one "
+                "test run)" % (ran, not_started, selected))
+    credited = int(match.group("credited"))
+    counts = _shard_sentinel_counts(last_line)
+    if sorted(counts) != sorted(modules):
+        return ("the shard sentinel's per-module credited counts %s do not "
+                "name exactly the handed modules %s"
+                % (sorted(counts), sorted(modules)))
+    if credited < 1 or sum(counts.values()) != credited or credited > ran:
+        return ("the shard sentinel's per-module credited counts sum to %d, "
+                "which does not reconcile with credited=%d and testsRun=%d "
+                "(at least one credited start, summing exactly, never more "
+                "than the started tests)"
+                % (sum(counts.values()), credited, ran))
+    if match.group("ok") != "True":
+        return ("the child exited 0 but its own result reports "
+                "wasSuccessful=False")
+    return None
+
+
+def _shard_sentinel_digests(last_line: str) -> tuple[str, str]:
+    """(total unit-set digest, selected-unit digest) of a MATCHING shard
+    sentinel."""
+    match = _SHARD_SENTINEL.match(last_line)
+    return match.group("unitset"), match.group("selection")
+
+
+def _write_credited_output(counts: dict[str, int],
+                           digests: tuple[str, str]) -> str | None:
+    """Append the shard's outputs to the GITHUB_OUTPUT file: the
+    per-module credited counts and the two unit-list digests.
+
+    No-op (None) when GITHUB_OUTPUT is unset or empty. Returns a refusal
+    message when the file cannot be written: in CI (and in the pre-push
+    guard's local shards) the outputs ARE the shard's contribution to the
+    per-module reconciliation and unit-set agreement, so losing them
+    silently would hollow those checks out. ``credited`` is block-style
+    ``module: count`` lines, every handed module present (zero allowed),
+    sorted by module name; ``units_sha256`` and ``selected_sha256`` are
+    the 64-hex digests.
+    """
+    target = os.environ.get("GITHUB_OUTPUT")
+    if not target:
+        return None
+    lines = "".join("%s: %d\n" % (name, counts[name])
+                    for name in sorted(counts))
+    payload = ("%s=%s\n%s=%s\n%s<<%s\n%s%s\n"
+               % (_UNIT_SET_OUTPUT_NAME, digests[0],
+                  _SELECTED_OUTPUT_NAME, digests[1],
+                  _CREDITED_OUTPUT_NAME, _CREDITED_OUTPUT_DELIMITER,
+                  lines, _CREDITED_OUTPUT_DELIMITER))
+    try:
+        with open(target, "a", encoding="utf-8") as fh:
+            fh.write(payload)
+    except OSError as exc:
+        return ("cannot append the per-module credited counts to "
+                "GITHUB_OUTPUT (%s): %s" % (target, exc))
+    return None
+
+
+def shard_main(index: int, count: int, repo_root: Path = REPO_ROOT,
+               popen=subprocess.Popen) -> int:
+    """Run shard ``index`` of ``count``; forwarded unittest exit code."""
+    returncode, lines, nonce, modules = _run_shard_driver(
+        "%d/%d" % (index, count), repo_root, popen)
+    if lines is None:
+        return returncode
+    if returncode == 0:
+        stderr_text = "".join(lines)
+        counts = _SUMMARY_LINE.findall(stderr_text)
+        if not counts or int(counts[-1]) < 1:
+            return _refuse(lines, "unittest exited 0 without a 'Ran N tests' "
+                                  "line with N at least 1; not a believable "
+                                  "green shard run")
+        last_line = lines[-1].rstrip("\n") if lines else ""
+        message = _shard_sentinel_refusal(last_line, nonce, index, count,
+                                          modules)
+        if message is not None:
+            return _refuse(lines, message)
+        message = _write_credited_output(_shard_sentinel_counts(last_line),
+                                         _shard_sentinel_digests(last_line))
+        if message is not None:
+            return _refuse(lines, message)
+    return returncode
+
+
+def verify_shards_main(count: int, repo_root: Path = REPO_ROOT,
+                       popen=subprocess.Popen) -> int:
+    """Check the ``count``-way selection without running a test."""
+    returncode, lines, nonce, _modules = _run_shard_driver("verify/%d" % count,
+                                                           repo_root, popen)
+    if lines is None:
+        return returncode
+    if returncode == 0:
+        last_line = lines[-1].rstrip("\n") if lines else ""
+        match = _SELECTION_SENTINEL.match(last_line)
+        if match is None:
+            return _refuse(lines, "the child's last stderr line is not the "
+                                  "shard driver's selection sentinel")
+        if match.group("nonce") != nonce:
+            return _refuse(lines, "the selection sentinel does not carry "
+                                  "this run's nonce")
+        if int(match.group("count")) != count:
+            return _refuse(lines, "the selection sentinel reports %s shards, "
+                                  "not the requested %d"
+                                  % (match.group("count"), count))
+        if int(match.group("units")) < 1 or (int(match.group("occ"))
+                                             < int(match.group("units"))):
+            return _refuse(lines, "the selection sentinel reports no units")
+    return returncode
+
+
+def cli(argv: list[str] | None = None) -> int:
+    """Dispatch: no argument runs the whole gate, as every runner surface
+    invokes it; ``--shard I/K`` and ``--verify-shards K`` are the CI shard
+    modes. Anything else is a refusal (exit 2), never a silent full run."""
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if not argv:
+        return main()
+    try:
+        if argv[0] == "--shard" and len(argv) == 2:
+            index, count = parse_shard_spec(argv[1])
+            return shard_main(index, count)
+        if argv[0] == "--verify-shards" and len(argv) == 2:
+            return verify_shards_main(parse_shard_count(argv[1]))
+    except ValueError as exc:
+        print("REFUSED: " + str(exc), file=sys.stderr)
+        return 2
+    print("REFUSED: usage: run-linter-regression.py [--shard I/K | "
+          "--verify-shards K] (no other argument)", file=sys.stderr)
+    return 2
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli())
