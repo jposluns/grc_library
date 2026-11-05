@@ -54,8 +54,10 @@ CONSIDER INSTEAD), #2291 (count only, producer on demand), #2496 (resolved decla
 and 3b286 (required live count); since 2026-11-04 that text goes to the detail log, and the
 console shows it only on the fallback path (CONSOLE AND DETAIL LOG below), except that the
 short form still names the resolved declared-wait path (#2496). MODE_SET_HINT retains
-the detailed grc guidance; the emitted hint is shortened to fit B's message format. Unusually
-long override paths can still be truncated by B's unchanged per-line clamp.
+the detailed grc guidance; the emitted hint is shortened to fit B's message format. B's
+per-line clamp never cuts the declared-wait command: an override path too long for that line
+leaves it naming the sentinel without a command, and the detail log carries the whole command
+(_declared_wait_line; hook escaping round 4, codex W1).
 
 GRC ADAPTATION (2026-09-27; backlog 3b113). Rebased the 2026-09-03 cross-project adoption
 (inbox msg 20260903T002018Z.from-lab_infra) onto lab_infra 17b407b9, adding the live-dispatch
@@ -139,8 +141,10 @@ escape path keeps the CONSIDER INSTEAD line, with the condition when it fits and
 in log)" when it does not, and the log path moves to the end of the WHY line; there is never a
 fourth line. No item ID or title appears
 in that form. PATH BUDGET: the log path adds 45 characters to the store path (with a
-12-character session prefix), so the short form fits a store path of at most 84 characters,
-and of 86 while the required count has one digit (the default floor is 3): the shortest WHY
+12-character session prefix), so the short form fits a store path of at most 84 characters
+while the required count has at most two digits, as run()'s always has (_SLOT_SHARE_MAX is
+64; hook escaping round 4, claude N3: a longer required count leaves less), and of 86 while
+it has one digit (the default floor is 3): the shortest WHY
 wording, "WHY: live <live>/<required> required; log: ", leaves 129 to 131 characters for the
 log path (82 when no required count is passed, as before round 3, where the shortest wording
 leaves 127); a longer store path, an
@@ -168,9 +172,9 @@ emitted instead (_fallback_refusal): decide()'s reason, then
 one NOTE line naming the failure, then the actionable count only. This fails open to
 visibility, never to silence, and keeps #2291: no item ID or title reaches the diagnostic on
 either path. Every fallback line is clamped to _MAX_LINE_CHARS and _MAX_LINE_BYTES, so the
-fallback always fits _diagnostic's PIPE_BUF cap with the NOTE intact. decide() escapes the
-declared-wait path with _printable, so a newline or terminal escape in it cannot start a
-diagnostic line on the fallback (the detail log carries the same escaped text), and the
+fallback always fits _diagnostic's PIPE_BUF cap with the NOTE intact. decide() writes the
+declared-wait path as one printable shell word (_shell_word), so a newline or terminal escape
+in it cannot start a diagnostic line on the fallback (the detail log carries the same text), and the
 producer's fail-open NOTICE escapes the producer's stderr and path the same way. Exit status,
 the escape and stop_hook_active handling are unchanged. RESIDUE: ancestors above the store directory are
 not checked for symlinks; the log is appended to without rotation; two sessions whose ids
@@ -958,9 +962,9 @@ def decide(mode, stop_hook_active, actionable, live_groups, share):
         "Yield allowed with at least %d live owned dispatch groups, or no actionable items "
         "(a [BLOCKED:<reason>] tag with a granted approvals row)." % required,
         # One shell word naming the declared-wait path itself (_shell_word): an escaped path in
-        # this command would touch a different file (hook escaping round 3, codex W1).
-        "Declared wait: touch %s (once, after recording blocker); operator stop: set mode attended."
-        % _shell_word(_grc_escape_file()),
+        # this command would touch a different file (hook escaping round 3, codex W1). The
+        # command is shown whole or not at all, never cut by the clamp below (round 4, codex W1).
+        _declared_wait_line(_grc_escape_file()),
     ]
     return True, "\n".join(line[:_MAX_LINE_CHARS] for line in lines[:_MAX_REASON_LINES])
 
@@ -1080,17 +1084,22 @@ def _printable(value):
 
 
 def _shell_word(text) -> str:
-    """``text`` as ONE shell word that names exactly ``text`` and prints on one line, for a
+    """``text`` as ONE shell word that names the path ``text`` and prints on one line, for a
     command a refusal tells the reader to run (escaping a shell-quoted word would change the
     path the command names): shlex.quote when every character is printable or a space
     separator, else a bash ANSI-C quoted $'...' word in which a backslash or a single quote is
     backslash-escaped and every other character outside that rule is an escape bash reads
-    back (below 0x80 the ascii() escape _printable shows, such as \\n or \\x1b; \\xHH for a
-    surrogate-escaped byte; \\uHHHH or \\UHHHHHHHH above, which bash rebuilds in a UTF-8
-    locale)."""
+    back in any locale: below 0x80 the ascii() escape _printable shows, such as \\n or
+    \\x1b; \\xHH for a surrogate-escaped byte; from 0x80 up, \\xHH for each byte of the
+    character's UTF-8 encoding (a \\uHHHH escape stays literal outside a UTF-8 locale, so
+    the copied command named another path; hook escaping round 4, claude W1). A relative
+    path starting with "-" is written "./" first, so touch, cd, git -C or python3 cannot
+    read it as an option (round 4, codex W2)."""
     import shlex
     import unicodedata
     text = str(text)
+    if text.startswith("-"):
+        text = "./" + text
 
     def plain(char):
         return char.isprintable() or unicodedata.category(char) == "Zs"
@@ -1108,11 +1117,31 @@ def _shell_word(text) -> str:
             out.append(ascii(char)[1:-1])  # \n, \r, \t or \xHH: the escape _printable shows
         elif 0xDC80 <= code <= 0xDCFF:
             out.append("\\x%02x" % (code - 0xDC00))  # a surrogate-escaped byte
-        elif code <= 0xFFFF:
-            out.append("\\u%04x" % code)
         else:
-            out.append("\\U%08x" % code)
+            out.append("".join("\\x%02x" % byte
+                               for byte in char.encode("utf-8", "surrogatepass")))
     return "$'" + "".join(out) + "'"
+
+
+_WAIT_FORMS = ("Declared wait: touch %s (once, after recording blocker); operator stop: set mode "
+               "attended.",
+               "Declared wait (once, after recording blocker): touch %s")
+_WAIT_TOO_LONG = ("Declared wait (once, after recording blocker): touch .allow-idle-stop in "
+                  "GRC_DROP_ROOT; its path is too long for this line (the detail log has it).")
+
+
+def _declared_wait_line(escape_path):
+    """decide()'s declared-wait line, at most _MAX_LINE_CHARS characters: the touch command
+    with the path as one shell word (_shell_word), shown whole or not at all. A cut word names
+    another path, or leaves a $'...' word unterminated (hook escaping round 4, codex W1). The
+    operator-stop hint is dropped first; when the command alone does not fit, the line names
+    the sentinel and its directory setting instead, and _detail_text adds the whole command
+    to the detail log."""
+    word = _shell_word(escape_path)
+    for form in _WAIT_FORMS:
+        if len(form % word) <= _MAX_LINE_CHARS:
+            return form % word
+    return _WAIT_TOO_LONG
 
 
 def _clamp(line):
@@ -1148,8 +1177,9 @@ def _short_refusal(count, live_groups, log_path, escape_path, required=None):
     character, or one that cannot fit whole, raises before its length is used, and the caller
     then shows the fallback.
     PATH BUDGET: with ``required`` given, as run() does, the shortest WHY wording leaves 129 to
-    131 characters for the log path, so the store path may be at most 84, or 86 with a
-    one-digit required count; without it, 127 and 82 (see CONSOLE AND DETAIL LOG); the escape
+    131 characters for the log path while the required count has at most two digits (as run()'s
+    always has), so the store path may be at most 84, or 86 with a one-digit required count;
+    without it, 127 and 82 (see CONSOLE AND DETAIL LOG); the escape
     path at most 101 as shell-quoted."""
     if _printable(log_path) != log_path:
         raise ValueError("detail log path has a non-printable character")
@@ -1284,8 +1314,12 @@ def _log_session(payload):
 def _detail_text(reason, actionable):
     """The full detail: decide()'s reason plus every actionable item's ID and title, escaped
     with _printable. The reason alone when the items cannot be rendered. Built only inside
-    _bounded_write's deadline-controlled thread, so its unbounded size cannot delay the refusal."""
+    _bounded_write's deadline-controlled thread, so its unbounded size cannot delay the refusal.
+    When the reason's declared-wait line could not carry the whole touch command
+    (_declared_wait_line), the command follows the reason on a line of its own, uncut."""
     try:
+        if _WAIT_TOO_LONG in reason.split("\n"):
+            reason += "\nDeclared wait command: touch " + _shell_word(_grc_escape_file())
         return reason + "\nActionable items (%d):" % len(actionable) + "".join(
             "\n  - %s: %s" % (_printable(iid), _printable(title)) for iid, title in actionable)
     except Exception:

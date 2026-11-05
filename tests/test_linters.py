@@ -73440,11 +73440,14 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         lines = raw.rstrip(b"\n").split(b"\n")
         self.assertTrue(lines[5].startswith(b"NOTE: detail log not written"), raw)
         self.assertLessEqual(max(map(len, lines)), 640)
-        # Round 3 (codex W1): the declared-wait path is one shell word, each surrogate-escaped
-        # byte written \xff inside $'...', so the line is ASCII and cut at 160 characters.
-        cut = [line for line in lines if line.startswith(b"Declared wait: touch $'/\\xff\\xff")]
-        self.assertEqual(len(cut), 1, raw)
-        self.assertEqual(len(cut[0]), 160)
+        # Round 4 (codex W1): the declared-wait path, one $'...' shell word of 300 \xff escapes,
+        # cannot fit the line whole, so the line names the sentinel without a command; it was
+        # cut at 160 characters, leaving an unterminated word naming another path.
+        self.assertFalse([line for line in lines if b"touch $'" in line], raw)
+        wait = [line for line in lines if line.startswith(b"Declared wait")]
+        self.assertEqual(len(wait), 1, raw)
+        self.assertIn(b".allow-idle-stop in GRC_DROP_ROOT", wait[0])
+        self.assertLessEqual(len(wait[0]), 160)
         # The byte clamp itself: lone surrogates escape to six bytes each, so a 160-character
         # line is cut further by bytes and fewer than 160 characters survive.
         mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_stop_byte_clamp_r3")
@@ -74138,9 +74141,13 @@ class BlockingHookMessageContractTests(unittest.TestCase):
     LINE_BREAK_CHARS = (("CR", "\r", "\\r"), ("VT", "\x0b", "\\x0b"), ("NEL", "\x85", "\\x85"),
                         ("LS", " ", "\\u2028"))
     # One path segment for the displayed-command round trip: a newline, an ESC, a space, a
-    # single quote, a backslash and a surrogate-escaped byte (0xff in the file name).
-    ODD_SEGMENT = "a b'c\\d\n\x1b[2J\udcffe"
+    # single quote, a backslash and a surrogate-escaped byte (0xff in the file name); round 4
+    # (claude W1): a C1 control (NEL), U+202E and a plane-15 character, which bash rebuilt from
+    # \uHHHH or \UHHHHHHHH only in a UTF-8 locale.
+    ODD_SEGMENT = "a b'c\\d\n\x1b[2J\udcffe\x85f‮g\U000f0000h"
     _SHELL_WORD = re.compile(r"\$'(?:[^\\']|\\.)*'|(?:'[^']*'|\"'\")+|[^\s`';]+")
+    # Locales the displayed-command round trip runs bash in (round 4, codex N3).
+    SHELL_LOCALES = ("C", "C.UTF-8")
 
     def _assert_text_escaped(self, text, raw, shown):
         self.assertNotIn(raw, text)
@@ -74148,7 +74155,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
     def _assert_names_path(self, text, prefix, path):
         """The shell word right after ``prefix`` in ``text`` is printable, and bash reads it as
-        exactly ``path`` (its bytes, so a surrogate-escaped byte counts)."""
+        exactly ``path`` (its bytes, so a surrogate-escaped byte counts) in each of
+        SHELL_LOCALES."""
         bash = shutil.which("bash")
         if bash is None:
             self.skipTest("bash unavailable")
@@ -74157,10 +74165,29 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         self.assertIsNotNone(match, text)
         word = match.group(0)
         self.assertTrue(word.isprintable(), repr(word))
-        out = subprocess.run([bash, "-c", "printf '%s\\0' " + word], capture_output=True,
+        for locale in self.SHELL_LOCALES:
+            out = subprocess.run([bash, "-c", "printf '%s\\0' " + word], capture_output=True,
+                                 env=dict(os.environ, LC_ALL=locale), timeout=60)
+            self.assertEqual(out.returncode, 0, out.stderr)
+            self.assertEqual(out.stdout, os.fsencode(str(path)) + b"\0", (locale, word))
+
+    def _assert_touches(self, text, prefix, cwd, relative):
+        """The shell word right after ``prefix`` in ``text``, run as ``touch <word>`` by bash in
+        ``cwd``, creates ``cwd/relative``: touch does not read it as an option."""
+        bash = shutil.which("bash")
+        if bash is None:
+            self.skipTest("bash unavailable")
+        self.assertIn(prefix, text)
+        match = self._SHELL_WORD.match(text, text.index(prefix) + len(prefix))
+        self.assertIsNotNone(match, text)
+        word = match.group(0)
+        target = Path(cwd) / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        self.assertFalse(target.exists(), target)
+        out = subprocess.run([bash, "-c", "touch " + word], cwd=cwd, capture_output=True,
                              env=dict(os.environ, LC_ALL="C"), timeout=60)
-        self.assertEqual(out.returncode, 0, out.stderr)
-        self.assertEqual(out.stdout, os.fsencode(str(path)) + b"\0", word)
+        self.assertEqual(out.returncode, 0, (word, out.stderr))
+        self.assertTrue(target.is_file(), word)
 
     def test_claude_attribution_escapes_snippet(self):
         """claude W1, codex E1: the matched attribution line, from a body file or the command
@@ -74410,6 +74437,16 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     _block, text = wrong.decide("python3 tools/probe.py", str(project))
                     self._assert_names_path(text, "Templates: `python3 ", tool)
                     self._assert_names_path(text, "(or `cd ", "%s/grc_library_scratch" % odd)
+                with self.subTest(site="wrong-repo cd-target suggestion"):
+                    # Round 4 (claude W2): a single-quoted absolute cd target whose tools/ holds
+                    # the tool is the suggestion. _cd_operand reads no backslash or quote, so
+                    # this target has a newline, an ESC, a space, NEL and U+202E only.
+                    target = Path(td).resolve() / "cd\n\x1b[2J \x85‮dir"
+                    (target / "tools").mkdir(parents=True)
+                    (target / "tools" / "probe.py").write_text("", encoding="utf-8")
+                    _block, text = wrong.decide("cd '%s' && python3 tools/probe.py" % target,
+                                                str(project))
+                    self._assert_names_path(text, "use `python3 ", target / "tools" / "probe.py")
             with self.subTest(site="turn-end detail and fallback"):
                 escape = odd / ".allow-stop"
                 with patch.object(turn, "ESCAPE_FILE", escape):
@@ -74431,15 +74468,181 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     text = turn.summarize([("claude/b", "1")], "/s/x.log")
                 self._assert_names_path(text, "recording it): touch ", plain)
             with self.subTest(site="stop-guard declared wait"):
-                escape = str(odd / ".allow-idle-stop")
+                # Round 4: a short path, so the word fits the line whole however long TMPDIR
+                # is (a longer word now drops the command instead of being cut, codex W1).
+                escape = "/w/odd" + self.ODD_SEGMENT + "dir/.allow-idle-stop"
                 with patch.object(guard, "_grc_escape_file", lambda: escape):
                     _block, text = guard.decide("unattended", False, [("1", "t")], 0,
                                                 (None, "absent"))
-                self._assert_names_path(text, "Declared wait: touch ", escape)
+                self._assert_names_path(text, "touch ", escape)
             with self.subTest(site="stop-guard short form"):
                 plain = "/w/a b'c/.allow-idle-stop"
                 text = guard._short_refusal(4, 1, "/s/x.log", plain, required=5)
                 self._assert_names_path(text, "blocker): touch ", plain)
+
+    # ---- 2026-11-05 round 4: leading dash, uncut declared wait, alert file, markers ----
+    WORD_HOOKS = ("block-branch-to-main-edit", "block-idle-stop-with-actionable-backlog",
+                  "block-orchestrator-self-qa", "block-pr-without-resume-validate",
+                  "block-turn-end-with-outstanding-work", "block-wrong-repo-tool",
+                  "stop-guard-unattended")
+
+    def test_displayed_touch_commands_keep_a_leading_dash_path(self):
+        """codex W2, claude N1: a relative GRC_DROP_ROOT starting with "-" gives a sentinel path
+        touch would read as an option; each copy of _shell_word writes it "./" first, and every
+        displayed touch command, run in the directory it is relative to, creates the sentinel.
+        One subtest per touch site."""
+        from unittest.mock import patch
+        for hook in self.WORD_HOOKS:
+            with self.subTest(site=hook + " _shell_word"):
+                mod = load_linter_module(".claude/hooks/%s.py" % hook,
+                                         "_esc4_word_" + hook.replace("-", "_"))
+                self.assertEqual(mod._shell_word("-drop/.x"), "./-drop/.x")
+                self.assertEqual(mod._shell_word("-a b/.x"), "'./-a b/.x'")
+                self.assertEqual(mod._shell_word("-a\nb/.x"), "$'./-a\\nb/.x'")
+                self.assertEqual(mod._shell_word("/abs/-x"), "/abs/-x")
+        idle = load_linter_module(".claude/hooks/block-idle-stop-with-actionable-backlog.py",
+                                  "_esc4_idle")
+        self_qa = load_linter_module(".claude/hooks/block-orchestrator-self-qa.py", "_esc4_self_qa")
+        resume = load_linter_module(".claude/hooks/block-pr-without-resume-validate.py",
+                                    "_esc4_resume")
+        turn = load_linter_module(".claude/hooks/block-turn-end-with-outstanding-work.py",
+                                  "_esc4_turn")
+        guard = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_esc4_guard")
+        with tempfile.TemporaryDirectory() as td:
+            with self.subTest(site="resume-validate sentinel"), \
+                    patch.dict(os.environ, {"GRC_DROP_ROOT": "-resume"}):
+                self.assertEqual(str(resume._sentinel_path()),
+                                 "-resume/.allow-pr-without-resume-validate")
+                self._assert_touches(resume._block_message(None), "    touch ", td,
+                                     "-resume/.allow-pr-without-resume-validate")
+            with self.subTest(site="idle-stop escape"), \
+                    patch.object(idle, "ESCAPE_FILE", Path("-idle/.allow-idle-stop")):
+                self._assert_touches(idle.decide(False, False, False, "attended-autonomous", 2),
+                                     "      touch ", td, "-idle/.allow-idle-stop")
+            with self.subTest(site="self-QA sentinel"), \
+                    patch.object(self_qa, "SENTINEL", Path("-qa/.allow-orchestrator-qa")):
+                self._assert_touches(self_qa._block_message("review this"), "    touch ", td,
+                                     "-qa/.allow-orchestrator-qa")
+            with self.subTest(site="turn-end detail"), \
+                    patch.object(turn, "ESCAPE_FILE", Path("-detail/.allow-stop")):
+                self._assert_touches(turn.decide(False, False, [("claude/b", "1")]),
+                                     "      touch ", td, "-detail/.allow-stop")
+            with self.subTest(site="turn-end short form"), \
+                    patch.object(turn, "HELD_FILE", None), \
+                    patch.object(turn, "ESCAPE_FILE", Path("-short/.allow-stop")):
+                self._assert_touches(turn.summarize([("claude/b", "1")], "/s/x.log"),
+                                     "recording it): touch ", td, "-short/.allow-stop")
+            with self.subTest(site="turn-end unformattable fallback"):
+                def boom(*args, **kwargs):
+                    raise ValueError("no format")
+                _items, status, text = self._stop_block(
+                    "block-turn-end-with-outstanding-work", td, 1, {}, None, decide=boom,
+                    ESCAPE_FILE=Path("-boom/.allow-stop"), **self._generous_bounds(
+                        "block-turn-end-with-outstanding-work"))
+                self.assertEqual(status, 2)
+                self._assert_touches(text, "one-shot escape: touch ", td, "-boom/.allow-stop")
+            with self.subTest(site="stop-guard declared wait"), \
+                    patch.object(guard, "_grc_escape_file", lambda: "-wait/.allow-idle-stop"):
+                _block, text = guard.decide("unattended", False, [("1", "t")], 0, (None, "absent"))
+                self._assert_touches(text, "Declared wait: touch ", td, "-wait/.allow-idle-stop")
+            with self.subTest(site="stop-guard short form"):
+                text = guard._short_refusal(4, 1, "/s/x.log", "-sg/.allow-idle-stop", required=5)
+                self._assert_touches(text, "blocker): touch ", td, "-sg/.allow-idle-stop")
+
+    def test_stop_guard_declared_wait_is_never_cut(self):
+        """codex W1, claude N2: decide()'s declared-wait command is shown whole or not at all.
+        A word too long for the first wording drops the operator-stop hint; a word too long
+        for any wording leaves a line naming the sentinel without a command, and the detail
+        log carries the whole command. The console fallback shows no cut word either."""
+        from unittest.mock import patch
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_esc4_wait")
+        # Widths: the first wording fits a word of 72 characters, the second one of 107.
+        cases = (("/w/" + "a" * 40 + "/.allow-idle-stop", "operator stop"),
+                 ("/w/" + "b" * 80 + "/.allow-idle-stop", "Declared wait (once"),
+                 ("/w/" + "c" * 180 + "/.allow-idle-stop", None),
+                 ("/w/" + "\x1b" * 30 + "/.allow-idle-stop", None))
+        for path, wording in cases:
+            with self.subTest(length=len(path), wording=wording), \
+                    patch.object(mod, "_grc_escape_file", lambda path=path: path):
+                block, reason = mod.decide("unattended", False, [("1", "t")], 0, (None, "absent"))
+                self.assertTrue(block)
+                lines = reason.split("\n")
+                self.assertLessEqual(max(map(len, lines)), 160, reason)
+                wait = [line for line in lines if line.startswith("Declared wait")]
+                self.assertEqual(len(wait), 1, reason)
+                detail = mod._detail_text(reason, [("1", "t")])
+                if wording is None:
+                    self.assertNotIn("touch /", wait[0])
+                    self.assertNotIn("touch $'", wait[0])
+                    self.assertIn("once, after recording blocker", wait[0])
+                    self.assertIn(".allow-idle-stop in GRC_DROP_ROOT", wait[0])
+                    self._assert_names_path(detail, "Declared wait command: touch ", path)
+                else:
+                    self.assertIn(wording, wait[0])
+                    self._assert_names_path(wait[0], "touch ", path)
+                    self.assertNotIn("Declared wait command", detail)
+        hook = "stop-guard-unattended"
+        long_path = "/w/" + "d" * 180 + "/.allow-idle-stop"
+        with tempfile.TemporaryDirectory() as td:
+            store = Path(td) / "store"
+            store.mkdir()
+            _items, status, text = self._stop_block(
+                hook, td, 2, {"session_id": "s-1"}, store, _grc_escape_file=lambda: long_path,
+                **self._generous_bounds(hook))
+            self.assertEqual(status, 2)
+            self.assertIn("NOTE: detail log written but not summarized", text)
+            self.assertNotIn("touch /w/", text)
+            self.assertIn(".allow-idle-stop in GRC_DROP_ROOT", text)
+            self._assert_names_path(self._stop_log(hook, store, "s-1").read_text(encoding="utf-8"),
+                                    "Declared wait command: touch ", long_path)
+
+    def test_stop_guard_store_budget_holds_for_every_reachable_required_count(self):
+        """claude N3: the documented 84-character store floor holds for every required count
+        run() can pass (max(share, 3) with the share at most _SLOT_SHARE_MAX, so two digits at
+        most), and the docstring states that condition rather than a bare floor."""
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_esc4_budget")
+        self.assertLessEqual(mod._SLOT_SHARE_MAX, 99)
+        tail = "/stop-hook-detail/stop-guard.0123abcd-456.log"
+        log = "/" + "s" * 83 + tail
+        for required in range(mod._MIN_LIVE_GROUPS, mod._SLOT_SHARE_MAX + 1):
+            for live in (0, required - 1):
+                with self.subTest(required=required, live=live):
+                    lines = mod._short_refusal(4, live, log, "/w/.allow-idle-stop",
+                                               required=required).split("\n")
+                    self.assertTrue(lines[1].endswith(" " + log), lines)
+        doc = " ".join(mod.__doc__.split())
+        self.assertIn("fits a store path of at most 84 characters while the required count has "
+                      "at most two digits", doc)
+
+    def test_opus5_alert_file_escapes_model_id(self):
+        """claude N4: the model id that is_opus5 accepts can carry an ESC or a CR; the alert
+        block written to MAINTAINER_ALERT.md shows it escaped, as _message does."""
+        from unittest.mock import patch
+        mod = load_linter_module(".claude/hooks/block-opus5-orchestrator-model.py", "_esc4_opus5")
+        for model, shown in (("claude-opus-5-0-\x1b[2J", "claude-opus-5-0-\\x1b[2J"),
+                             ("claude-opus-5-0-x\rBLOCKED", "claude-opus-5-0-x\\rBLOCKED")):
+            with self.subTest(model=model), tempfile.TemporaryDirectory() as td:
+                self.assertTrue(mod.is_opus5(model))
+                alert = Path(td) / "MAINTAINER_ALERT.md"
+                with patch.object(mod, "_alert_file", lambda: alert):
+                    mod.write_alert(model)
+                data = alert.read_bytes()
+                self.assertIn(("model `%s` (Opus 5.0)" % shown).encode("utf-8"), data)
+                self.assertNotIn(b"\x1b", data)
+                self.assertNotIn(b"\r", data)
+
+    def test_claude_attribution_strips_rebuilt_markers(self):
+        """claude N5: removing a contract marker once can join its halves into a new marker
+        (WHWHY:Y: leaves WHY:); the snippet is stripped until none is left, so the refusal holds
+        each marker exactly as often as a refusal with a plain snippet does."""
+        mod = load_linter_module(".claude/hooks/block-claude-attribution.py", "_esc4_markers")
+        clean = mod.decide("gh pr create -b 'Generated with Claude Code plain'")
+        nested = mod.decide("gh pr create -b 'Generated with Claude Code WHWHY:Y: "
+                            "BLOCBLOCKED (KED ( CONSIDER INCONSIDER INSTEAD:STEAD: x'")
+        self.assertIsNotNone(nested)
+        for marker in ("BLOCKED (", "WHY:", "CONSIDER INSTEAD:"):
+            with self.subTest(marker=marker):
+                self.assertEqual(nested.count(marker), clean.count(marker), nested)
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()

@@ -262,10 +262,17 @@ def _snippet(s: str) -> str:
     """The matched attribution text, made safe for the refusal contract: no em/en dashes, no
     contract-marker substrings, and escaped with _printable before it is truncated (the line is
     split on LF only, so a carriage return, a terminal escape or a Unicode line separator from
-    the command or the body file would otherwise reach the refusal raw)."""
+    the command or the body file would otherwise reach the refusal raw). The markers are removed
+    until none is left, since one removal can join a marker's halves (WHWHY:Y: leaves WHY:; hook
+    escaping round 4, claude N5)."""
     s = s.replace(chr(0x2014), "-").replace(chr(0x2013), "-")
-    for marker in ("BLOCKED (", "WHY:", "CONSIDER INSTEAD:"):
-        s = s.replace(marker, "")
+    while True:
+        stripped = s
+        for marker in ("BLOCKED (", "WHY:", "CONSIDER INSTEAD:"):
+            stripped = stripped.replace(marker, "")
+        if stripped == s:
+            break
+        s = stripped
     s = _printable(s.strip())
     return s[:117] + "..." if len(s) > 120 else s
 

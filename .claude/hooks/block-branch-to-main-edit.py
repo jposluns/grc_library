@@ -163,17 +163,22 @@ def _printable(text) -> str:
 
 
 def _shell_word(text) -> str:
-    """``text`` as ONE shell word that names exactly ``text`` and prints on one line, for a
+    """``text`` as ONE shell word that names the path ``text`` and prints on one line, for a
     command a refusal tells the reader to run (escaping a shell-quoted word would change the
     path the command names): shlex.quote when every character is printable or a space
     separator, else a bash ANSI-C quoted $'...' word in which a backslash or a single quote is
     backslash-escaped and every other character outside that rule is an escape bash reads
-    back (below 0x80 the ascii() escape _printable shows, such as \\n or \\x1b; \\xHH for a
-    surrogate-escaped byte; \\uHHHH or \\UHHHHHHHH above, which bash rebuilds in a UTF-8
-    locale)."""
+    back in any locale: below 0x80 the ascii() escape _printable shows, such as \\n or
+    \\x1b; \\xHH for a surrogate-escaped byte; from 0x80 up, \\xHH for each byte of the
+    character's UTF-8 encoding (a \\uHHHH escape stays literal outside a UTF-8 locale, so
+    the copied command named another path; hook escaping round 4, claude W1). A relative
+    path starting with "-" is written "./" first, so touch, cd, git -C or python3 cannot
+    read it as an option (round 4, codex W2)."""
     import shlex
     import unicodedata
     text = str(text)
+    if text.startswith("-"):
+        text = "./" + text
 
     def plain(char):
         return char.isprintable() or unicodedata.category(char) == "Zs"
@@ -191,10 +196,9 @@ def _shell_word(text) -> str:
             out.append(ascii(char)[1:-1])  # \n, \r, \t or \xHH: the escape _printable shows
         elif 0xDC80 <= code <= 0xDCFF:
             out.append("\\x%02x" % (code - 0xDC00))  # a surrogate-escaped byte
-        elif code <= 0xFFFF:
-            out.append("\\u%04x" % code)
         else:
-            out.append("\\U%08x" % code)
+            out.append("".join("\\x%02x" % byte
+                               for byte in char.encode("utf-8", "surrogatepass")))
     return "$'" + "".join(out) + "'"
 
 

@@ -278,9 +278,11 @@ def write_alert(model: str) -> None:
         if already_open(text):
             return
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        # The model id is read from the payload's transcript, so it is written escaped, as
+        # _message shows it (hook escaping round 4, claude N4).
         block = (
             f"\n### ALERT {ts} {MARKER}\n"
-            f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: orchestrator work on model `{model}` (Opus 5.0) is HALTED at the first tool call.\n"
+            f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: orchestrator work on model `{_printable(model)}` (Opus 5.0) is HALTED at the first tool call.\n"
             f"WHY: maintainer directive (2026-08-21, narrowed 2026-09-23) prohibits Opus 5.0 as the orchestrator's working model (Opus 5.5 and 5.1 are allowed).\n"
             f"CONSIDER INSTEAD: swap the session to a better working model (e.g. Opus 4.8, `claude-opus-4-8`) and re-resume. "
             f"This channel clears by removal: once the model is swapped, remove this block and reset "
