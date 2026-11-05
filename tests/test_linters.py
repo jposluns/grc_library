@@ -72767,13 +72767,21 @@ class BlockingHookMessageContractTests(unittest.TestCase):
     }
     # The fallback keeps the pre-2026-11-04 console cap of eight branches.
     TURN_END_FALLBACK_ITEMS = 8
+    # One generous bound for every wait in a test not about timing: the detail-log write bound
+    # (_generous_bounds) and the wait for the forked diagnostic's line (_stop_block).
+    GENEROUS_WAIT_S = 60.0
+    # The fixed wait _stop_block gives the forked _diagnostic unless a caller passes another.
+    DIAGNOSTIC_WAIT_S = 5.0
 
     def _stop_block(self, hook, td, count, payload, store, *, repo=None, names=None,
-                    real_diagnostic=False, **patches):
+                    real_diagnostic=False, diagnostic_wait_s=DIAGNOSTIC_WAIT_S, **patches):
         """Drive a Stop hook's real block path with `count` items (or the branch `names`), the
         detail log routed to `store` (None: no store) and the checkout root at `repo` (default
         <td>/repo). With `real_diagnostic`, stop-guard's own forked _diagnostic writes to a
-        regular file standing in for fd 2. Returns (items, exit status, console text)."""
+        regular file standing in for fd 2, and the line is awaited for up to
+        `diagnostic_wait_s` (a test not about timing passes GENEROUS_WAIT_S, since the forked
+        child may finish after the hook's own 0.2-second wait on a loaded host). Returns
+        (items, exit status, console text)."""
         import json
         import lint_common
         import time
@@ -72829,7 +72837,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     os.dup2(saved, 2)
                     os.close(saved)
                     os.close(out)
-                deadline = time.monotonic() + 5
+                deadline = time.monotonic() + diagnostic_wait_s
                 while time.monotonic() < deadline and not sink.read_bytes().endswith(b"\n"):
                     time.sleep(0.01)
                 text = sink.read_bytes().decode("utf-8", "backslashreplace")
@@ -72838,17 +72846,18 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 text = "".join(sent)
         return items, status, text.rstrip("\n")
 
-    @staticmethod
-    def _generous_bounds(hook):
+    @classmethod
+    def _generous_bounds(cls, hook):
         """Write bound (and stop-guard's run budget) large enough that a loaded host is very
         unlikely to reach the timeout fallback in a test that is not about timing. The cost is
-        the worst case: a hung git rev-parse holds the call for up to 60 s before it falls back.
-        Every _stop_block call in a test not about timing passes these; it is not the default
-        in _stop_block because test_stop_guard_run_budget_bounds_the_write relies on the real
-        2-second write bound."""
-        bounds = {"_DETAIL_TIMEOUT_S": 60.0}
+        the worst case: a hung git rev-parse holds the call for up to 60 s before it falls back
+        (and, with real_diagnostic, a line that never arrives holds it for up to
+        GENEROUS_WAIT_S more). Every _stop_block call in a test not about timing passes these;
+        it is not the default in _stop_block because
+        test_stop_guard_run_budget_bounds_the_write relies on the real 2-second write bound."""
+        bounds = {"_DETAIL_TIMEOUT_S": cls.GENEROUS_WAIT_S}
         if hook == "stop-guard-unattended":
-            bounds["_RUN_BUDGET_S"] = 120.0
+            bounds["_RUN_BUDGET_S"] = 2 * cls.GENEROUS_WAIT_S
         return bounds
 
     def _stop_log(self, hook, store, session):
@@ -73020,6 +73029,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             missing = Path(td) / ("m" * 200) / "store"
             items, status, text = self._stop_block(
                 hook, td, 200, {"session_id": "s-1"}, missing, real_diagnostic=True,
+                diagnostic_wait_s=self.GENEROUS_WAIT_S,
                 _grc_escape_file=lambda: "/" + "é" * 300 + "/.allow-idle-stop",
                 ACTIONABLE_PRODUCER="中" * 300, **self._generous_bounds(hook))
             self.assertEqual(status, 2)
@@ -73393,6 +73403,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             missing = Path(td) / "missing" / "store"
             _items, status, _text = self._stop_block(
                 hook, td, 3, {"session_id": "s-1"}, missing, real_diagnostic=True,
+                diagnostic_wait_s=self.GENEROUS_WAIT_S,
                 _grc_escape_file=lambda: "/" + "\udcff" * 300 + "/.allow-idle-stop",
                 ACTIONABLE_PRODUCER="\udcfe" * 300, **self._generous_bounds(hook))
             raw = (Path(td) / "fd2.out").read_bytes()
@@ -73424,7 +73435,10 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 store = Path(td) / "store"
                 store.mkdir()
                 items = Watched(("P-%d" % n, "title %d" % n) for n in range(200000))
-                budget = {"_RUN_BUDGET_S": 0.1} if case == "budget-nearly-spent" else {}
+                # no-session is not about timing: on the real 8.5-second budget a loaded host
+                # could report a spent budget instead, since the budget is checked first.
+                budget = ({"_RUN_BUDGET_S": 0.1} if case == "budget-nearly-spent"
+                          else self._generous_bounds(hook))
                 payload = {"session_id": "s-1"} if case == "budget-nearly-spent" else {}
                 _items, status, text = self._stop_block(
                     hook, td, 0, payload, store, actionable_items=lambda root: items, **budget)
