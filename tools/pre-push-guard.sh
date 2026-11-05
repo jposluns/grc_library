@@ -157,7 +157,7 @@
 #
 #   The skip lives here alone (maintainer decisions 2026-11-04 13:02Z and
 #   17:36 EST, and 2026-11-05 09:08 EST): the guard lists the runner's gates
-#   itself and runs each but gate 36 gate by gate on BOTH paths, then, on the
+#   itself and runs each gate except 36, one at a time, on BOTH paths, then, on the
 #   full path only, gate 36 as local shards, so tools/run_all_audits.sh takes
 #   no skip option or variable and still runs gate 36 whole when invoked
 #   directly (as the nightly sweep does), and .github/workflows/quality.yml

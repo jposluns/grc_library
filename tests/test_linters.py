@@ -42042,7 +42042,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
-        pre-push-guard.sh FIXED F fb4cef28cd9f9fa05c62794f3a01f40267ff5884239fa272b27ba318ae6f3bab
+        pre-push-guard.sh FIXED F 374c73bbe619c1681bf5469fdc2e1fa5b573f43e09c0ef5acf22de1c52610bc9
         pre-push-hook.py TRANSPORT F d193c170d963cbca2e64bb76ce0b1dfbe7999b9f5af6c0701ae11d95f9d7f659
         preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
