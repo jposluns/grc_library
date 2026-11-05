@@ -72645,7 +72645,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     p(Path, "is_file", lambda path:
                       path == Path("/__p195__/grc_library_scratch/tools/probe.py"))
                 elif hook == "stop-guard-unattended":
-                    payload.update(hook_event_name="Stop", stop_hook_active=False)
+                    # Round 4: the session_id is checked before the detail is built.
+                    payload.update(hook_event_name="Stop", stop_hook_active=False, session_id="p195")
                     m(mod, "_grc_consume_escape", False)
                     m(mod, "is_orchestrator_session", True)
                     m(mod, "read_operating_mode", "unattended")
@@ -72866,7 +72867,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             self.assertNotIn("title ", text)
 
     def test_stop_hooks_console_short_form(self):
-        """A logged refusal is three conforming lines, each within the clamp, ending in the log path."""
+        """A logged refusal is three conforming lines, each within the clamp, one ending in the
+        log path (turn-end: the action line; stop-guard: the action line, or the WHY line when
+        the declared-wait path keeps the action line, round 4)."""
         for hook, (guard, verb) in self.STOP_LOG_HOOKS.items():
             with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td:
                 store = Path(td) / "store"
@@ -72876,9 +72879,15 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 lines = text.split("\n")
                 self.assertEqual(len(lines), 3, text)
                 self.assert_refusal(text, guard=guard, imperative=verb)
-                self.assertTrue(lines[2].endswith(" " + str(self._stop_log(hook, store, "s-1"))), text)
+                log = " " + str(self._stop_log(hook, store, "s-1"))
+                if hook.startswith("block-"):
+                    self.assertTrue(lines[2].endswith(log), text)
+                else:
+                    self.assertTrue(lines[2].endswith(log) or lines[1].endswith(log), text)
                 self.assertLessEqual(max(map(len, lines)), 160, text)
-                for detail in ("Branches outstanding", "touch ", "Declared wait", "NOTE:"):
+                hidden = ("Branches outstanding", "touch ", "Declared wait", "NOTE:") \
+                    if hook.startswith("block-") else ("Declared wait", "NOTE:", "Actionable items")
+                for detail in hidden:
                     self.assertNotIn(detail, text)
 
     def test_stop_hooks_console_lines_clamped(self):
@@ -73144,13 +73153,15 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                         self.assertNotRegex(text, r"\bP-\d")  # count only (#2291)
 
     def test_stop_guard_docstring_matches_console_form(self):
-        """The docstring no longer says the console carries the producer command, the escape
-        or item titles (#2291 holds on the fallback too)."""
+        """The docstring no longer says the console carries the producer command or item
+        titles (#2291 holds on the fallback too); it names the escape path on the console
+        (#2496, round 4)."""
         mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_stop_detail_doc")
         doc = " ".join(mod.__doc__.split())
         self.assertNotIn("BLOCK (exit 2), reporting the actionable count, producer command, rule and escape", doc)
         self.assertNotIn("item titles do reach the diagnostic", doc)
-        self.assertIn("the console carries the count and the detail log path", doc)
+        self.assertIn("the console carries the count, the detail log path and the declared-wait "
+                      "escape path", doc)
         self.assertIn("no item ID or title reaches the diagnostic on either path", doc)
 
     # ---- Round 3 (2026-11-05): run budget, fallback cap, path safety, store resolution ----
@@ -73267,8 +73278,10 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 self.assertEqual(log.name, "%s.0123abcd-456.log" % self.STOP_LOG_NAMES[hook])
                 lines = text.split("\n")
                 self.assertEqual(len(lines), 3, text)
-                self.assertTrue(lines[2].endswith(" " + str(log)), text)
-                self.assertEqual(len(lines[2]), 160, text)
+                # Round 4: stop-guard may carry the log path on the WHY line instead.
+                logged = [line for line in lines[1:] if line.endswith(" " + str(log))]
+                self.assertEqual(len(logged), 1, text)
+                self.assertEqual(len(logged[0]), 160, text)
                 self.assertIn(" session %s ===" % session, log.read_text(encoding="utf-8"))
                 longer = Path(td) / ("s" * (pad + 1))
                 longer.mkdir()
@@ -73364,6 +73377,136 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         self.assertEqual(len(cut), 1, raw)
         # Cut by bytes, not by characters: fewer than 160 characters survive.
         self.assertLess(len(cut[0].decode("ascii").replace("\\udcff", "?")), 160)
+
+    # ---- Round 4 (2026-11-05): detail built inside the deadline, escaped items, escape path ----
+    def test_stop_guard_large_list_builds_no_detail_when_ineligible(self):
+        """A very large item list with the budget nearly spent, or with no usable session_id,
+        is never walked to build the detail: the count-only fallback shows at once."""
+        hook = "stop-guard-unattended"
+
+        class Watched(list):
+            walked = False
+
+            def __iter__(self):
+                self.walked = True
+                return super().__iter__()
+
+        for case in ("budget-nearly-spent", "no-session"):
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as td:
+                store = Path(td) / "store"
+                store.mkdir()
+                items = Watched(("P-%d" % n, "title %d" % n) for n in range(200000))
+                budget = {"_RUN_BUDGET_S": 0.1} if case == "budget-nearly-spent" else {}
+                payload = {"session_id": "s-1"} if case == "budget-nearly-spent" else {}
+                _items, status, text = self._stop_block(
+                    hook, td, 0, payload, store, actionable_items=lambda root: items, **budget)
+                self.assertEqual(status, 2)
+                self.assertFalse(items.walked, case)
+                self.assertIn("\nActionable items: 200000 ", text)
+                self.assertIn("run time budget spent" if case == "budget-nearly-spent"
+                              else "no usable session_id", text)
+                self.assertFalse((store / "stop-hook-detail").exists())
+
+    def test_stop_guard_detail_built_inside_deadline(self):
+        """Rendering a very large item list runs under the write deadline: an item whose title
+        stalls while the detail is built cannot hold the refusal past the bound."""
+        import threading
+        import time
+        from unittest.mock import Mock, patch
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_stop_detail_r4_build")
+        release = threading.Event()
+
+        class Stall:
+            def __str__(self):
+                release.wait(8)
+                return "stalled"
+
+        items = [("P-0", Stall())] + [("P-%d" % n, "title %d" % n) for n in range(1, 100000)]
+        _b, reason = mod.decide("unattended", False, items, 0, (None, "absent"))
+        writer = Mock(return_value="/__p195__/private/stop-hook-detail/stop-guard.s-1.log")
+        with patch.object(mod, "_RUN_DEADLINE", time.monotonic() + 0.8), \
+                patch.object(mod, "_write_detail_log", writer):
+            started = time.monotonic()
+            try:
+                text = mod._route_refusal(reason, items, 0, {"session_id": "s-1"})
+                elapsed = time.monotonic() - started
+            finally:
+                release.set()
+                for thread in threading.enumerate():
+                    if thread.name == "stop-hook-detail-log":
+                        thread.join(10)
+        # Built before the deadline-controlled thread, the stall would hold this for 8 s.
+        self.assertLess(elapsed, 2.0)
+        self.assertIn("NOTE: detail log not written (TimeoutError", text)
+        self.assertIn("\nActionable items: 100000 ", text)
+        self.assertNotIn("stalled", text)
+
+    def test_turn_end_short_form_escapes_shown_items(self):
+        """A newline or terminal escape in a shown item (a git error text) is escaped before it
+        is clamped, so the console stays three lines with no raw control character."""
+        hook = "block-turn-end-with-outstanding-work"
+        branches = [("claude/a", "unverified: fatal: bad\nref"),
+                    ("claude/b\x1b[2J", "1"),
+                    ("claude/c", "unverified: \x1b]0;title\x07")]
+        with tempfile.TemporaryDirectory() as td:
+            store = Path(td) / "store"
+            store.mkdir()
+            _items, status, text = self._stop_block(
+                hook, td, 0, {"session_id": "s-1"}, store,
+                unmerged_branches=lambda: list(branches))
+            self.assertEqual(status, 2)
+            lines = text.split("\n")
+            self.assertEqual(len(lines), 3, repr(text))
+            for raw in ("\x1b", "\x07", "\r"):
+                self.assertNotIn(raw, text)
+            self.assertIn("claude/a (+unverified: fatal: bad\\nref)", lines[0])
+            self.assertIn("claude/b\\x1b[2J (+1)", lines[0])
+            self.assertLessEqual(max(map(len, lines)), 160, text)
+            logged = self._stop_log(hook, store, "s-1").read_text(encoding="utf-8")
+            self.assertIn("claude/c", logged)
+
+    def test_stop_guard_short_form_names_escape_path(self):
+        """The declared-wait path (#2496) is on the action line beside the log path when both
+        fit; otherwise it keeps the action line and the log path ends the WHY line. Never a
+        fourth line."""
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_stop_detail_r4_escape")
+        escape = "/w/.allow-idle-stop"
+        log = "/s/stop-hook-detail/stop-guard.0123456789ab.log"
+        lines = mod._short_refusal(4, 1, log, escape).split("\n")
+        self.assertEqual(len(lines), 3)
+        self.assertEqual(lines[2], "CONSIDER INSTEAD: continue the top actionable item; "
+                                   "declared wait: touch %s; detail log: %s" % (escape, log))
+        self.assertNotIn(log, lines[1])
+        # Both paths, too long for the full wording, still share the action line when the
+        # shorter wording fits.
+        wide = "/w/" + "w" * 30 + "/.allow-idle-stop"
+        lines = mod._short_refusal(4, 1, log, wide).split("\n")
+        self.assertEqual(lines[2], "CONSIDER INSTEAD: continue; wait: touch %s; log: %s" % (wide, log))
+        long_log = "/" + "s" * 81 + "/stop-hook-detail/stop-guard.0123456789ab.log"
+        lines = mod._short_refusal(4, 1, long_log, escape).split("\n")
+        self.assertEqual(len(lines), 3)
+        self.assertEqual(lines[1], "WHY: below the group floor; log: " + long_log)
+        self.assertEqual(lines[2], "CONSIDER INSTEAD: continue the top actionable item; "
+                                   "declared wait: touch " + escape)
+        self.assertLessEqual(max(map(len, lines)), 160)
+        self.assert_refusal("\n".join(lines), guard="stop-guard-unattended", imperative="continue")
+        with self.assertRaises(ValueError):
+            mod._short_refusal(4, 1, log, "/" + "w" * 120)
+        with self.assertRaises(ValueError):
+            mod._short_refusal(4, 1, log, "/w\n/.allow-idle-stop")
+        # End to end (the store path follows TMPDIR, so either layout may apply).
+        hook = "stop-guard-unattended"
+        with tempfile.TemporaryDirectory() as td:
+            store = Path(td) / "store"
+            store.mkdir()
+            _items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"}, store,
+                                                    _grc_escape_file=lambda: escape)
+            self.assertEqual(status, 2)
+            lines = text.split("\n")
+            self.assertEqual(len(lines), 3, text)
+            self.assertIn("touch " + escape, lines[2])
+            self.assertIn(str(self._stop_log(hook, store, "s-1")), text)
+            self.assertNotIn("NOTE:", text)
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()

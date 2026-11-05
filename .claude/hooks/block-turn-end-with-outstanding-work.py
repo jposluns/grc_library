@@ -91,7 +91,8 @@ as stop-guard-unattended.py. The detail log never uses lint_common.resolve_worki
 transitional fallback can name a `.working` directory inside a git checkout. The text returned
 to the harness is then three short lines (summarize()), each at most _MAX_LINE_CHARS
 characters: what blocked, with the branch count and at most the first _SHOWN_ITEMS branches
-(each cut to _MAX_ITEM_CHARS); WHY; and the one action that clears it, followed by the log
+(each escaped with _printable, then cut to _MAX_ITEM_CHARS); WHY; and the one action that
+clears it, followed by the log
 path. PATH BUDGET: the log path adds 43 characters to the store path (with a 12-character
 session prefix), so the short form fits a store path of at most 79 characters (60 with the
 longer wording); a longer store path, or a log path with any non-printable character (a
@@ -478,15 +479,16 @@ def _clamp(line: str, limit: int = _MAX_LINE_CHARS) -> str:
 
 def summarize(branches: list, log_path: str) -> str:
     """The three console lines, each at most _MAX_LINE_CHARS: what blocked (the count, then at
-    most the first _SHOWN_ITEMS branches, each cut to _MAX_ITEM_CHARS), WHY, and the one action
-    that clears it followed by the detail log path. The count precedes the list so a cut line
-    keeps it. A log path with any non-printable character, or one that cannot fit whole, raises
-    before its length is used, and the caller then shows the fallback. PATH BUDGET: with the
-    shorter wording the log path may be at most 122 characters, so the store path at most 79
-    (see CONSOLE AND DETAIL LOG)."""
+    most the first _SHOWN_ITEMS branches, each escaped with _printable and then cut to
+    _MAX_ITEM_CHARS, so a newline or terminal escape in a git error text cannot break the
+    three-line form), WHY, and the one action that clears it followed by the detail log path.
+    The count precedes the list so a cut line keeps it. A log path with any non-printable
+    character, or one that cannot fit whole, raises before its length is used, and the caller
+    then shows the fallback. PATH BUDGET: with the shorter wording the log path may be at most
+    122 characters, so the store path at most 79 (see CONSOLE AND DETAIL LOG)."""
     if _printable(log_path) != log_path:
         raise ValueError("detail log path has a non-printable character")
-    shown = [_clamp("%s (+%s)" % (name, ahead), _MAX_ITEM_CHARS)
+    shown = [_clamp(_printable("%s (+%s)" % (name, ahead)), _MAX_ITEM_CHARS)
              for name, ahead in branches[:_SHOWN_ITEMS]]
     if len(branches) > _SHOWN_ITEMS:
         head = "%d branch(es) outstanding or not verifiable; first %d: " % (len(branches), len(shown))
