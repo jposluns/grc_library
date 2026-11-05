@@ -55,7 +55,7 @@ OVERLAY_DIGESTS: dict[str, str] = {
     ".claude/references/governance/action-before-explanation-of-inaction.md":
         "7cb3bbce65996a4ce92370fa2aec5d7eb6aecfa090d28144ee7148a7bca0a4aa",
     ".claude/references/governance/ai-assistant-workflow-disciplines.md":
-        "b1513a4d33beac74cc0fb05c9299f766dd24f1a4d5e4e07465da6c12d29508c3",
+        "4edba31c67f00d6fd9082c7d0518e78dee94556921dfdda40110bd9d6c940c0c",
     ".claude/references/governance/artefact-and-branch-discipline.md":
         "1413817589f0116a1350920f67c545a4a4b74207a97819e86b2367eba453dcde",
     ".claude/references/governance/change-tracking.md":

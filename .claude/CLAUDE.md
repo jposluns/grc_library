@@ -196,7 +196,7 @@ Corpus-wide sweeps, renames, convention migrations and single-file FR-167 matrix
 None is a gate or replaces existence gates; zero findings gets a history row; fix in-window or route.
 - `/matrix-fit` ([skill](../guardrails/skills/matrix-fit/SKILL.md)): semantic citation fit after each FR-167 expansion batch, at completion, ad-hoc.
 - `/claim-fit` ([skill](../guardrails/skills/claim-fit/SKILL.md)): held-source value precision after normative-claim batches; `informed-not-prescribed` fixes PHRASING, never value; `source-not-held` routes acquisition.
-- `/deep-assessment` ([skill](../guardrails/skills/deep-assessment/SKILL.md)): rare/multi-session, EXPLICIT maintainer invocation ONLY, never self-invoke; completion standard, no separate sign-off (2026-07-27).
+- `/deep-assessment` ([skill](../guardrails/skills/deep-assessment/SKILL.md)): rare/multi-session, EXPLICIT maintainer invocation ONLY, never self-invoke; completion standard.
 - `/reference-audit` ([skill](../guardrails/skills/reference-audit/SKILL.md)): held-vs-used breadth; FULL in deep-assessment; PER-TOUCH `--docs` every substantive corpus PR; `--ref-since`/`--ref-items` after reference changes.
 - `/screen-publications` ([skill](../guardrails/skills/publication-screening/SKILL.md)): untrusted publications; pending NEVER informs, screened NEVER upgrades trust, corroborate on use; `publications/SCREENING.md` verdicts, reference-base gate.
 - Screen every new ingest, pending backlog, and ad-hoc before reliance, especially doubt.
@@ -226,7 +226,7 @@ Default: attended-autonomous, maintainer reachable/glanceable every 15-20 minute
 **Offloadable (dispatch to a worker):** `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`,
 `/reference-audit`, `/screen-publications`, `verify`, `/full-qa`, `/fitness`, the read-only
 `/deep-assessment` probe phases, research / draft seeds, the pre-push skeptical verifier, and the
-high-assurance adversarial verifiers (the QA-to-workers transition is complete). **Stays orchestrator-side (never offloaded):** authoring
+high-assurance adversarial verifiers. **Stays orchestrator-side (never offloaded):** authoring
 corpus prose, applying diffs, routing findings, writing audit-trail rows, merging, and interacting with
 the maintainer.
 
@@ -242,7 +242,7 @@ At each consequential guard ask: can this source even in principle answer the qu
 **Pin an order to a commit that CONTAINS what it references**: for backlog item N, the commit that CREATED N, not a later one.
 **`orch-verify` workers are SINGLE-SHOT and SYNCHRONOUS**; scope each order to one self-contained pass. Read [dispatch mechanics](../references/worker-offload.md#dispatch-pinning-and-single-shot-mechanics) for required SHA/read-only instructions and transport mechanics.
 
-- **Maintainer/worker file-drops jump the queue.** A drop in the file-drop `inbox/` (a maintainer document, or a worker delivering something that was never ordered) is work handed to the orchestrator OUTSIDE the order queue; read it as soon as noticed (surfaced by [`tools/audit-inbox-drops.py`](../tools/audit-inbox-drops.py) at resume and task boundaries), never batched. This is distinct from an `orch-verify` worker's own result, which returns synchronously and is in hand the moment the dispatch returns.
+- **Maintainer/worker file-drops jump the queue.** A drop in the file-drop `inbox/` (a maintainer document, or a worker delivering something that was never ordered) is work handed to the orchestrator OUTSIDE the order queue; read it as soon as noticed (surfaced by [`tools/audit-inbox-drops.py`](../tools/audit-inbox-drops.py) at resume and task boundaries), never batched. This is distinct from an `orch-verify` worker's own result, which returns synchronously.
 
 ## Always-on inter-orchestrator peer comms (the `/opt/inbox` mail discipline)
 
@@ -288,7 +288,7 @@ Project wiring: QA BLOCKS ledger below, [`block-on-open-findings.py`](hooks/bloc
 
 ## Guardrail-seed pipeline: for every issue, propose a mechanized fix and let an expensive worker theorycraft it
 
-Standing habit (2026-08-21): for every action/issue assess whether an enforcing HOOK/LINT/GATE/guardrail could prevent the error class. For found/caused issues, errors or recurring friction, promptly send `inbox-send guardrails <file>`; keep a durable operational-store copy (`_scratch` seed inbox retired). Contract: issue, proposed resolutions, worker implementation plan. Dispatch an EXPENSIVE worker (Fable / `--expensive`) to theorycraft; never pre-judge infeasibility and discard the seed; that is the worker's finding. Keep seeds processing for unguarded classes. The guardrails orchestrator assesses/implements for the replacement pack we adopt. This implements AIQT rule five and defence in depth: mechanization layers on prose, never replaces it, wherever marginal cost is low.
+Standing habit (2026-08-21): for every action/issue assess whether an enforcing HOOK/LINT/GATE/guardrail could prevent the error class. For found/caused issues, errors or recurring friction, promptly send `inbox-send guardrails <file>`; keep a durable operational-store copy (`_scratch` seed inbox retired). Contract: issue, proposed resolutions, worker implementation plan. Dispatch an EXPENSIVE worker (Fable / `--expensive`) to theorycraft; never pre-judge infeasibility and discard the seed; infeasibility is the worker's finding. Keep seeds processing for unguarded classes. The guardrails orchestrator assesses/implements for the replacement pack we adopt. This implements AIQT rule five and defence in depth: mechanization layers on prose, never replaces it, wherever marginal cost is low.
 
 ## A delivered QA result BLOCKS progress until it is read and its findings are fixed
 
@@ -306,7 +306,7 @@ Read [`ai-assistant-workflow-disciplines`](references/governance/ai-assistant-wo
 - Worker positives re-verified at source; clean zero findings trusted on proof-of-run.
 - History row, even zero findings.
 - Deferred fixes documented, never silently left.
-Activities: `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`, `verify`, `/fitness`, `/full-qa`, `/deep-assessment`. Route to `/opt/grc/private/pending-decisions.md`, risk items flagged for morning review. Pack sign-off split: reactive `/trust-recovery` adds maintainer sign-off; proactive `/deep-assessment` (2026-07-27) only surfaces its outcome. Known QA issues outrank build/tooling/content: finish current task, then fix.
+Activities: `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`, `verify`, `/fitness`, `/full-qa`, `/deep-assessment`. Route to `/opt/grc/private/pending-decisions.md`, risk items flagged for morning review. Apply pack sign-off split: reactive `/trust-recovery` adds maintainer sign-off; proactive `/deep-assessment` (2026-07-27) only surfaces its outcome. Known QA issues outrank build/tooling/content: finish current task, then fix.
 
 ## Throughput pressure does not authorize QA abbreviation
 
@@ -316,8 +316,8 @@ Only shapes: (a) full formal `/validate-pr` dispatch, Subagent A on diff plus to
 ## Triple-family QA for every non-light QA pass (maintainer-directed)
 
 Every formal non-light QA activity in the completion standard, including `/deep-assessment` probe phases, uses Claude, Codex AND Gemini, EACH an orch-verify worker, identical refute-brief, verdicts reconciled across diverse blind spots. Claude never uses in-session Agent (`block-orchestrator-self-qa.py`). Permanent standard (2026-08-17), superseding 2026-07-29 dual-family and earlier consequential-only scope. Gemini is elastic, multiple workers per token.
-GRADUATED FLOOR only for TOKEN/TOOLING UNAVAILABILITY: limited/exhausted account or worker unable to deliver (e.g. wrapper stuck at interactive prompt). Use families that CAN run, triple to dual to single; note gap in QA row, re-run missing family when back. Beyond light work, NEVER discretionary downgrade.
-LIGHT WORK (small low-risk changes, replays of reviewed work, one-token or wording fixes) takes DUAL-family QA, claude and gemini (agy) preferred, codex substituting if either cannot run (maintainer 2026-11-05 00:44Z: "dual family for light work applies here, with preference towards claude and agy over codex - as codex is tempermental"). Substantive (tier below, e.g. control-code, citation, normative-value, gate or linter), sensitive and tooling changes stay triple-family. Record panel size in QA row.
+GRADUATED FLOOR only for TOKEN/TOOLING UNAVAILABILITY: limited/exhausted account or worker unable to deliver (e.g. wrapper stuck at interactive prompt). Use families that CAN run, triple to dual to single; note gap in QA row, re-run missing family when back. Light work's dual panel is the ONLY discretionary reduction; below dual still needs token/tooling unavailability.
+LIGHT WORK (small low-risk changes, replays of reviewed work, one-token or wording fixes) takes DUAL-family QA, claude and gemini (agy) preferred, codex substituting if either cannot run (maintainer 2026-11-05 00:44Z: "dual family for light work applies here, with preference towards claude and agy over codex - as codex is tempermental"). Substantive (tier below, corpus-document body, multi-surface, control-code, citation, normative-value, gate or linter), sensitive and tooling changes stay triple-family. Record panel size in QA row.
 Portable substantive tier: [`ai-assistant-workflow-disciplines`](references/governance/ai-assistant-workflow-disciplines.md), multi-family definition in [`high-assurance-verification`](references/governance/high-assurance-verification.md) stage 3.
 
 ## PR activity subscription discipline

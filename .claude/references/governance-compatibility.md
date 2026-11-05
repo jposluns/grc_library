@@ -104,7 +104,7 @@ tools/aiqt_rules.py pins their digests. The legacy procedures' old statements
 that GRC authors all portable AIQT and guardrails is only an export target are
 superseded for the imported AIQT snapshot: upstream owns those pinned bytes;
 GRC owns local compatibility and its legacy publication sources. New portable
-changes go through upstream review and an explicit re-pin. The old
+changes go through upstream review and a subsequent explicit re-pin. The old
 source/adapter discipline still applies to GRC-authored publication material.
 
 Maintainer decisions D1-D3 (2026-10-02 12:27Z) govern this cutover.

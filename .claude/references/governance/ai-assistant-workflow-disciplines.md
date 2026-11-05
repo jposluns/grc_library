@@ -331,9 +331,10 @@ The disciplines implement the same audit-trail-integrity principle the broader p
   applies here, with preference towards claude and agy over codex - as codex is tempermental"): small
   low-risk changes, replays of reviewed work and one-token or wording fixes take a dual-family
   `orch-verify` panel, claude and gemini (agy) preferred, codex substituting for either that cannot run.
-  It never covers substantive-tier work above (including control-code, citation and normative-value
-  changes and gate or linter edits), sensitive work or tooling, which keep the triple-family panel.
-  Record the panel size in the QA row. Rule of record: `.claude/CLAUDE.md` triple-family QA section.
+  It never covers substantive-tier work above (including corpus-document body, multi-surface, control-code,
+  citation and normative-value changes and gate or linter edits), sensitive work or tooling, which keep the
+  triple-family panel. Record the panel size in the QA row. Rule of record:
+  `.claude/CLAUDE.md` triple-family QA section.
 - Exchange channel and runbook: `multi-session-orchestration` (the former `grc_library_scratch` exchange
   channel is RETIRED, maintainer-directed 2026-09-23; worker results return synchronously via orch-verify and
   guardrail seeds go to guardrails via `inbox-send`).
