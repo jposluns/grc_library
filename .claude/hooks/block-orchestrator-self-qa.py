@@ -161,6 +161,12 @@ def _load_sibling(name, _cache={}):
         return _cache[name]
 
     def _refuse(why):
+        # A launch path holding a newline or a terminal escape is shown escaped, so the refusal
+        # stays one line: block-turn-end-with-outstanding-work.py's rule (each character that is
+        # neither printable nor a space separator becomes its ascii() escape).
+        import unicodedata
+        why = "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                      else ascii(char)[1:-1] for char in why)
         print("BLOCKED (hook-helper-isolation): " + why + "; refusing to execute "
               "anything but the reviewed helper sources.", file=sys.stderr)
         sys.exit(2)
@@ -351,6 +357,14 @@ def _dispatch_summary(text: str) -> str:
     return compact[:500] if compact else "<empty dispatch fields>"
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so a path cannot start a console line."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def _block_message(dispatch_text: str) -> str:
     return (
         "BLOCKED (orchestrator-self-qa): this "
@@ -380,7 +394,7 @@ def _block_message(dispatch_text: str) -> str:
         "  If this dispatch must run in-session, create a sentinel "
         "where filesystem permissions permit:\n"
         "    touch "
-        + str(SENTINEL)
+        + _printable(SENTINEL)
         + "     # successful rename/check/unlink permits the current call\n"
         "\n"
         "  Calls using the same working root share this speed bump. It does not "
@@ -423,7 +437,7 @@ def decide(payload: dict):
     if _consume_sentinel():
         return "bypass", (
             "AUTHORIZED IN-SESSION DISPATCH BYPASS CONSUMED: sentinel "
-            + str(SENTINEL)
+            + _printable(SENTINEL)
             + " had a successful rename operation to a claim path, lstat reported "
             "a regular file there, and unlink succeeded. A same-inode rename can "
             "leave the sentinel available again. This permits the current call; the claim path "

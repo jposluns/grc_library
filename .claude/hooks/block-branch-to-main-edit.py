@@ -91,6 +91,12 @@ def _load_sibling(name, _cache={}):
         return _cache[name]
 
     def _refuse(why):
+        # A launch path holding a newline or a terminal escape is shown escaped, so the refusal
+        # stays one line: block-turn-end-with-outstanding-work.py's rule (each character that is
+        # neither printable nor a space separator becomes its ascii() escape).
+        import unicodedata
+        why = "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                      else ascii(char)[1:-1] for char in why)
         print("BLOCKED (hook-helper-isolation): " + why + "; refusing to execute "
               "anything but the reviewed helper sources.", file=sys.stderr)
         sys.exit(2)
@@ -148,6 +154,14 @@ def _current_branch(repo_root: str):
     return out.stdout.strip() or None
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so a path cannot start a console line."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def decide(file_path: str, project_dir: str) -> tuple[bool, str]:
     if not isinstance(file_path, str) or not file_path.strip():
         return False, ""
@@ -174,7 +188,7 @@ def decide(file_path: str, project_dir: str) -> tuple[bool, str]:
             "CONSIDER INSTEAD: run `git -C {proj} checkout -b claude/<name>` first, then "
             "re-apply the edit. (If you genuinely intend to edit a SIBLING repo, use its "
             "absolute path so the target resolves outside `grc_library`.)"
-        ).replace("{proj}", str(proj))
+        ).replace("{proj}", _printable(proj))  # the project directory, shown escaped
         return True, reason
     return False, ""
 

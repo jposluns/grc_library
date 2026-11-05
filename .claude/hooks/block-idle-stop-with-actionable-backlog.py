@@ -116,6 +116,12 @@ def _load_sibling(name, _cache={}):
         return _cache[name]
 
     def _refuse(why):
+        # A launch path holding a newline or a terminal escape is shown escaped, so the refusal
+        # stays one line: block-turn-end-with-outstanding-work.py's rule (each character that is
+        # neither printable nor a space separator becomes its ascii() escape).
+        import unicodedata
+        why = "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                      else ascii(char)[1:-1] for char in why)
         print("BLOCKED (hook-helper-isolation): " + why + "; refusing to execute "
               "anything but the reviewed helper sources.", file=sys.stderr)
         sys.exit(2)
@@ -259,6 +265,14 @@ def actionable_count() -> int | None:
         return None
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so a path cannot start a console line."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def decide(stop_hook_active: bool, worker: bool, escape: bool,
            mode: str | None, actionable: int | None) -> str | None:
     """Pure decision, so it is testable without a repo, a lease, or the audit.
@@ -280,7 +294,7 @@ def decide(stop_hook_active: bool, worker: bool, escape: bool,
         "PR-by-PR. Run `python3 tools/audit-backlog-actionability.py --actionable-only` for the list.\n"
         "  If this is a GENUINE wait (CI, a dispatched worker, a maintainer decision, or a real "
         "session-closing wind-down), declare it:\n"
-        f"      touch {ESCAPE_FILE}   # this guard\x27s own one-shot sentinel\n"
+        f"      touch {_printable(ESCAPE_FILE)}   # this guard\x27s own one-shot sentinel\n"
         "  (the branch guard block-turn-end uses a SEPARATE .allow-stop; a wait during branch-bearing\n"
         "   work declares both. Distinct sentinels avoid a parallel-execution race on one shared file.)"
     )

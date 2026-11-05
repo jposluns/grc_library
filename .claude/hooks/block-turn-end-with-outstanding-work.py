@@ -92,10 +92,15 @@ transitional fallback can name a `.working` directory inside a git checkout. The
 to the harness is then three short lines (summarize()), each at most _MAX_LINE_CHARS
 characters: what blocked, with the branch count and at most the first _SHOWN_ITEMS branches
 (each escaped with _printable, then cut to _MAX_ITEM_CHARS); WHY; and the one action that
-clears it, followed by the log
-path. PATH BUDGET: the log path adds 43 characters to the store path (with a 12-character
+clears it, which names the held-branches record path and the one-shot escape (touch of
+ESCAPE_FILE) when they fit, so the reader learns the remedy without opening the log (as
+stop-guard-unattended.py keeps its escape on the console, #2496): both, else the escape alone,
+else the held path alone, each with the log path ending the action line or, failing that, the
+WHY line; when neither path fits, the action names only the log path (the log holds both). A
+held or escape path that is unset or has any non-printable character stays in the log only.
+PATH BUDGET: the log path adds 43 characters to the store path (with a 12-character
 session prefix), so the short form fits a store path of at most 79 characters (60 with the
-longer wording); a longer store path, or a log path with any non-printable character (a
+longer wording; a shorter one still when the held path or the escape is shown); a longer store path, or a log path with any non-printable character (a
 newline, a carriage return or a terminal escape, tested with the same rule _branch_display
 uses), falls back as below. A store inside this checkout, or inside any git working tree (a
 `.git` entry in the store directory or any ancestor up to the filesystem root, lexically or
@@ -495,15 +500,32 @@ def _clamp(line: str, limit: int = _MAX_LINE_CHARS) -> str:
     return line if len(line) <= limit else line[:limit - 3] + "..."
 
 
+def _console_path(path) -> str | None:
+    """``path`` as console text for the short form, or None when it is unset or holds any
+    non-printable character: the short form then leaves that path to the detail log (which
+    escapes it) rather than show an escaped path that a reader could take for the literal one."""
+    if path is None:
+        return None
+    text = str(path)
+    return text if _printable(text) == text else None
+
+
 def summarize(branches: list, log_path: str) -> str:
     """The three console lines, each at most _MAX_LINE_CHARS: what blocked (the count, then at
     most the first _SHOWN_ITEMS branches, each escaped with _printable and then cut to
     _MAX_ITEM_CHARS, so a newline or terminal escape in a git error text cannot break the
-    three-line form), WHY, and the one action that clears it followed by the detail log path.
-    The count precedes the list so a cut line keeps it. A log path with any non-printable
-    character, or one that cannot fit whole, raises before its length is used, and the caller
-    then shows the fallback. PATH BUDGET: with the shorter wording the log path may be at most
-    122 characters, so the store path at most 79 (see CONSOLE AND DETAIL LOG)."""
+    three-line form), WHY, and the one action that clears it, with the detail log path.
+    The action names the held-branches record path (HELD_FILE) and the one-shot escape
+    (ESCAPE_FILE) when they fit, so the remedy is on the console (as stop-guard-unattended.py
+    keeps its escape there, #2496): first both, then the escape alone, then the held path
+    alone. Each wording is tried with the log path ending the action line, then with the log
+    path ending the WHY line; when none fits, the action names only the log path, which holds
+    both. A held or escape path that is unset or has any non-printable character is left to
+    the log. The count precedes the list so a cut line keeps it. A log path with any
+    non-printable character, or one that cannot fit whole, raises before its length is used,
+    and the caller then shows the fallback. PATH BUDGET: with the shortest wording the log
+    path may be at most 122 characters, so the store path at most 79 (see CONSOLE AND DETAIL
+    LOG); every wording that names the held path or the escape needs a shorter log path."""
     if _printable(log_path) != log_path:
         raise ValueError("detail log path has a non-printable character")
     shown = [_clamp(_printable("%s (+%s)" % (name, ahead)), _MAX_ITEM_CHARS)
@@ -512,16 +534,33 @@ def summarize(branches: list, log_path: str) -> str:
         head = "%d branch(es) outstanding or not verifiable; first %d: " % (len(branches), len(shown))
     else:
         head = "%d branch(es) outstanding or not verifiable: " % len(branches)
-    for form in ("CONSIDER INSTEAD: merge or hold each branch; detail log: %s",
-                 "CONSIDER INSTEAD: merge or hold; log: %s"):
-        action = form % log_path
-        if len(action) <= _MAX_LINE_CHARS:
+    held, escape = _console_path(HELD_FILE), _console_path(ESCAPE_FILE)
+    remedies = []
+    if held is not None and escape is not None:
+        remedies.append("merge, or hold in " + held + "; genuine block: record it, then touch "
+                        + escape)
+    if escape is not None:
+        remedies.append("merge or hold; genuine block: record it, then touch " + escape)
+    if held is not None:
+        remedies.append("merge, or hold in " + held)
+    why = "WHY: a turn-end yield strands unmerged work ahead of main for the next session."
+    candidates = []
+    for remedy in remedies:
+        candidates.append((why, "CONSIDER INSTEAD: " + remedy + "; log: " + log_path))
+        for logged_why in ("WHY: a turn-end yield strands unmerged work ahead of main; "
+                           "detail log: " + log_path,
+                           "WHY: a turn-end yield strands unmerged work; log: " + log_path):
+            candidates.append((logged_why, "CONSIDER INSTEAD: " + remedy))
+    candidates += [(why, "CONSIDER INSTEAD: merge or hold each branch; detail log: " + log_path),
+                   (why, "CONSIDER INSTEAD: merge or hold; log: " + log_path)]
+    for why_line, action in candidates:
+        if len(why_line) <= _MAX_LINE_CHARS and len(action) <= _MAX_LINE_CHARS:
             break
     else:
         raise ValueError("detail log path does not fit one console line")
     return "\n".join([
         _clamp("BLOCKED (turn-end-outstanding-work): " + head + ", ".join(shown)),
-        _clamp("WHY: a turn-end yield strands unmerged work ahead of main for the next session."),
+        why_line,
         action,
     ])
 
@@ -859,14 +898,36 @@ def self_test() -> int:
         bad += 1
         print("FAIL malformed payload with no sentinel did not fail open")
 
-    # Console form: three lines, the count and at most the first _SHOWN_ITEMS branches.
+    # Console form: three lines, the count and at most the first _SHOWN_ITEMS branches. Fixed
+    # held and escape paths, so the result never depends on where this checkout lives.
     many = [("b%d" % n, "1") for n in range(5)]
-    short = summarize(many, "/store/x.log")
+    with mock.patch.object(module, "HELD_FILE", Path("/h/held-branches.txt")), \
+            mock.patch.object(module, "ESCAPE_FILE", Path("/w/.allow-stop")):
+        short = summarize(many, "/store/x.log")
+        wide = summarize(many, "/" + "s" * 90 + "/x.log")
     if (len(short.splitlines()) != 3 or "5 branch(es)" not in short or "b2 (+1)" not in short
             or "b3" in short or "first 3: " not in short or not short.endswith("/store/x.log")
             or max(map(len, short.splitlines())) > _MAX_LINE_CHARS):
         bad += 1
         print("FAIL summarize did not cap the console list at three")
+
+    # The remedy is on the console when it fits: the held-branches path and the one-shot escape
+    # with the log path; a longer log path moves to the WHY line; a held path with a newline is
+    # left to the log and the escape stays.
+    with mock.patch.object(module, "HELD_FILE", Path("/h/held\nx.txt")), \
+            mock.patch.object(module, "ESCAPE_FILE", Path("/w/.allow-stop")):
+        odd_held = summarize(many, "/store/x.log")
+    if (short.splitlines()[2] != "CONSIDER INSTEAD: merge, or hold in /h/held-branches.txt; "
+            "genuine block: record it, then touch /w/.allow-stop; log: /store/x.log"
+            or wide.splitlines()[1] != "WHY: a turn-end yield strands unmerged work; log: /"
+            + "s" * 90 + "/x.log"
+            or wide.splitlines()[2] != "CONSIDER INSTEAD: merge, or hold in /h/held-branches.txt; "
+            "genuine block: record it, then touch /w/.allow-stop"
+            or odd_held.splitlines()[2] != "CONSIDER INSTEAD: merge or hold; genuine block: record "
+            "it, then touch /w/.allow-stop; log: /store/x.log"
+            or "held" in odd_held):
+        bad += 1
+        print("FAIL summarize did not put the held path and the escape on the console")
 
     # No usable session_id: the refusal stays visible with the NOTE before the list, and
     # nothing is written.
@@ -951,7 +1012,7 @@ def self_test() -> int:
             bad += 1
             print("FAIL the %s form showed a raw newline or ESC in an item" % label)
 
-    total = len(SELF_TEST) + 14
+    total = len(SELF_TEST) + 15
     print(str(total - bad) + "/" + str(total) + " decision cases pass")
     return 1 if bad else 0
 

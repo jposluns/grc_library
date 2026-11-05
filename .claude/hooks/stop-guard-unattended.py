@@ -128,7 +128,9 @@ filesystem root, lexically or after resolving symlinks, or `git rev-parse
 --is-inside-work-tree` succeeding there with every inherited GIT_* variable removed), is
 refused before anything is created. The diagnostic is then three short lines
 (_short_refusal), each at most _MAX_LINE_CHARS: what blocked with the actionable count, WHY
-with the live group count, and the one action that clears it, which names the declared-wait
+with the live group count and the required count (decide()'s max(operator share, 3), from
+_required_groups) whenever a wording carrying both fits (only the shortest wording, used when
+nothing longer fits beside the log path, names neither), and the one action that clears it, which names the declared-wait
 escape path (_grc_escape_file, #2496: a sentinel was once written at the wrong path because
 the message did not name it) with decide()'s condition "(once, after recording the blocker)",
 followed by the log path. When the escape path and the log path do not both fit that line, the
@@ -901,6 +903,16 @@ def read_slot_share(path=None, project=None, expect_uid=None):
         return None, "invalid"
 
 
+def _required_groups(share):
+    """The required live owned dispatch group count for ``share`` (a (value, source-or-cause)
+    tuple), by decide()'s rule (3b286): the larger of the value and _MIN_LIVE_GROUPS, or
+    _MIN_LIVE_GROUPS when the value is None. run() passes it to the console short form;
+    decide() keeps its own statement of the rule (its mutation self-test targets it), and the
+    self-test test_short_form_shows_the_required_count checks that the two agree."""
+    value = share[0]
+    return _MIN_LIVE_GROUPS if value is None else max(_MIN_LIVE_GROUPS, value)
+
+
 def decide(mode, stop_hook_active, actionable, live_groups, share):
     """Pure decision. Returns (block: bool, reason: str). Block iff: unattended mode AND not already in a
     stop-hook continuation AND the actionable set is non-empty AND the known live count is below
@@ -1079,9 +1091,12 @@ def _first_fit(forms, values, what):
     raise ValueError("%s does not fit one console line" % what)
 
 
-def _short_refusal(count, live_groups, log_path, escape_path):
+def _short_refusal(count, live_groups, log_path, escape_path, required=None):
     """The three diagnostic lines, each at most _MAX_LINE_CHARS: what blocked (count only,
-    #2291), WHY, and the one action that clears it. The action line names the declared-wait
+    #2291), WHY, and the one action that clears it. The WHY line gives the live owned dispatch
+    group count and, when ``required`` (decide()'s required count, _required_groups) is given,
+    the required count whenever a wording carrying it fits; only the shortest wording, used
+    when nothing longer fits beside the log path, omits both counts. The action line names the declared-wait
     escape path (#2496) with decide()'s condition (once, after recording the blocker) and then
     the detail log path when all fit it whole; otherwise the escape path keeps the action line,
     with the condition when it fits and "(condition in log)" when it does not, and the log path
@@ -1096,8 +1111,19 @@ def _short_refusal(count, live_groups, log_path, escape_path):
         raise ValueError("declared-wait path has a non-printable character")
     blocked = _clamp("BLOCKED (stop-guard-unattended): unattended turn-end yield; the backlog tool "
                      "reports %d actionable open backlog item(s)." % count)
-    why = _clamp("WHY: not whole-set exhaustion, and the live owned dispatch group count (%d) "
-                 "is below the required count." % live_groups)
+    if required is None:
+        why = _clamp("WHY: not whole-set exhaustion, and the live owned dispatch group count (%d) "
+                     "is below the required count." % live_groups)
+        split_whys = ("WHY: the live owned dispatch group count (%d) is below the required "
+                      "count; detail log: " % live_groups + "%s",
+                      "WHY: below the group floor; log: %s")
+    else:
+        why = _clamp("WHY: not whole-set exhaustion, and the live owned dispatch group count (%d) "
+                     "is below the required count (%d)." % (live_groups, required))
+        split_whys = ("WHY: the live owned dispatch group count (%d) is below the required "
+                      "count (%d); detail log: " % (live_groups, required) + "%s",
+                      "WHY: %d of %d required groups live; log: " % (live_groups, required) + "%s",
+                      "WHY: below the group floor; log: %s")
     try:
         action = _first_fit(("CONSIDER INSTEAD: continue; wait (once, after recording the "
                              "blocker): touch %s; log: %s",),
@@ -1112,10 +1138,7 @@ def _short_refusal(count, live_groups, log_path, escape_path):
                              "blocker): touch %s",
                              "CONSIDER INSTEAD: continue; wait (condition in log): touch %s"),
                             (escape_path,), "declared-wait path")
-        why = _first_fit(("WHY: the live owned dispatch group count (%d) is below the required "
-                          "count; detail log: " % live_groups + "%s",
-                          "WHY: below the group floor; log: %s"),
-                         (log_path,), "detail log path")
+        why = _first_fit(split_whys, (log_path,), "detail log path")
     return "\n".join([blocked, why, action])
 
 
@@ -1282,15 +1305,17 @@ def _bounded_write(reason, actionable, payload):
     return box["path"]
 
 
-def _route_refusal(reason, actionable, live_groups, payload):
+def _route_refusal(reason, actionable, live_groups, payload, required=None):
     """Short diagnostic after a successful log write; the count-only fallback otherwise. The
     full detail is built inside _bounded_write, never here (a very large item list with the
-    budget nearly spent still yields the fallback at once)."""
+    budget nearly spent still yields the fallback at once). ``required`` is decide()'s
+    required live count, passed on to the short form."""
     state = "not written"
     try:
         path = _bounded_write(reason, actionable, payload)
         state = "written but not summarized"
-        return _short_refusal(len(actionable), live_groups, path, _grc_escape_file())
+        return _short_refusal(len(actionable), live_groups, path, _grc_escape_file(),
+                              required=required)
     except Exception as exc:
         try:
             why = _printable("%s: %s" % (type(exc).__name__, exc))
@@ -1326,7 +1351,7 @@ def run(root, payload):
     if block:
         # Wording and routing only: the full detail goes to the session log and the diagnostic
         # is three lines, or the reason with the count only when the log cannot be written.
-        reason = _route_refusal(reason, actionable, live_groups, payload)
+        reason = _route_refusal(reason, actionable, live_groups, payload, _required_groups(share))
     if reason:
         import warnings
         with warnings.catch_warnings():
@@ -2478,6 +2503,36 @@ def _self_test():
                     _short_refusal(1, 0, "/s" + odd + "/stop-guard.x.log", "/w/.allow-idle-stop")
                 with self.assertRaises(ValueError):
                     _short_refusal(1, 0, "/s/stop-guard.x.log", "/w" + odd + "/.allow-idle-stop")
+
+        def test_short_form_shows_the_required_count(self):
+            # decide()'s required count reaches the WHY line whenever a wording carrying it fits;
+            # the shortest wording still takes the longest log path (the PATH BUDGET holds).
+            for share, required in (((None, "absent"), 3), ((2, "default"), 3), ((7, "grc"), 7)):
+                self.assertEqual(_required_groups(share), required)
+            # Parity with decide()'s own statement of the rule: it blocks exactly below this count.
+            for value in (None, 1, 2, 3, 4, 7):
+                for live in range(9):
+                    block, _reason = decide("unattended", False, [("1", "t")], live, (value, "x"))
+                    self.assertEqual(block, live < _required_groups((value, "x")), (value, live))
+            log = "/s/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
+            escape = "/w/.allow-idle-stop"
+            lines = _short_refusal(500, 1, log, escape, required=7).splitlines()
+            self.assertEqual(lines[1], "WHY: not whole-set exhaustion, and the live owned dispatch "
+                                       "group count (1) is below the required count (7).")
+            wide = "/w/" + "w" * 30 + "/.allow-idle-stop"
+            lines = _short_refusal(500, 1, log, wide, required=7).splitlines()
+            self.assertEqual(lines[1], "WHY: the live owned dispatch group count (1) is below the "
+                                       "required count (7); detail log: " + log)
+            mid = "/" + "s" * 70 + "/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
+            lines = _short_refusal(500, 1, mid, escape, required=7).splitlines()
+            self.assertEqual(lines[1], "WHY: 1 of 7 required groups live; log: " + mid)
+            fits = "/" + "s" * 81 + "/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
+            lines = _short_refusal(500, 1, fits, escape, required=7).splitlines()
+            self.assertEqual(lines[1], "WHY: below the group floor; log: " + fits)
+            for text in (_short_refusal(500, 1, m, e, required=7) for m, e in
+                         ((log, escape), (log, wide), (mid, escape), (fits, escape))):
+                self.assertEqual(len(text.splitlines()), 3)
+                self.assertLessEqual(max(map(len, text.splitlines())), _MAX_LINE_CHARS)
 
         def test_spent_run_budget_skips_the_write(self):
             items = [("X-1", "t")]

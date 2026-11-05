@@ -190,6 +190,12 @@ def _load_sibling(name, _cache={}):
         return _cache[name]
 
     def _refuse(why):
+        # A launch path holding a newline or a terminal escape is shown escaped, so the refusal
+        # stays one line: block-turn-end-with-outstanding-work.py's rule (each character that is
+        # neither printable nor a space separator becomes its ascii() escape).
+        import unicodedata
+        why = "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                      else ascii(char)[1:-1] for char in why)
         print("BLOCKED (hook-helper-isolation): " + why + "; refusing to execute "
               "anything but the reviewed helper sources.", file=sys.stderr)
         sys.exit(2)
@@ -293,6 +299,14 @@ def _cd_operand(word: str):
     return parts[0]
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so a path cannot start a console line."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def decide(command: str, project_dir: str) -> tuple[bool, str]:
     if not isinstance(command, str) or not command.strip():
         return False, ""
@@ -363,7 +377,9 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
             flagged.append((t, _suggested(t, _tool_repo(t), m.start())))
     flagged = list(dict.fromkeys(flagged))
     if flagged:
-        lines = [f"  - `tools/{t}`: use `python3 {path} ...` "
+        # Each suggested path (under the project directory's parent, or a cd target) is shell
+        # quoted and then escaped: shell quoting keeps a newline raw.
+        lines = [f"  - `tools/{t}`: use `python3 {_printable(path)} ...` "
                  f"(absolute), not a cd-prefixed cwd-relative invocation."
                  for t, path in flagged]
         reason = (
@@ -397,15 +413,17 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
             if elsewhere:
                 hits.append((tool, elsewhere[0]))
         if hits:
+            # The project directory's name and parent are shown escaped (after shell quoting).
+            shown_name = _printable(project_name)
             lines = [
-                f"  - `tools/{tool}`: found in `{where}`; no scanned project-file match for `{project_name}`. "
-                f"Templates: `python3 {shlex.quote(f'{parent}/{where}/tools/{tool}')} ...` (or "
-                f"`cd {shlex.quote(f'{parent}/{where}')} && python3 tools/{tool} ...`, subject to the cd-tool allowlist)."
+                f"  - `tools/{tool}`: found in `{where}`; no scanned project-file match for `{shown_name}`. "
+                f"Templates: `python3 {_printable(shlex.quote(f'{parent}/{where}/tools/{tool}'))} ...` (or "
+                f"`cd {_printable(shlex.quote(f'{parent}/{where}'))} && python3 tools/{tool} ...`, subject to the cd-tool allowlist)."
                 for tool, where in hits
             ]
             reason = (
                 "BLOCKED (wrong-repo-tool-sibling): a cwd-relative `tools/<x>` match has no scanned project-file match for "
-                f"`{project_name}` but has a file match in a configured sibling.\n"
+                f"`{shown_name}` but has a file match in a configured sibling.\n"
                 "WHY: this scan suggests a possible repo mismatch; "
                 "the hook does not inspect the Bash cwd or establish which file would run.\n"
                 "CONSIDER INSTEAD: use an absolute tool path; the templates use python3, so select the appropriate interpreter. "

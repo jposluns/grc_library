@@ -93,6 +93,12 @@ def _load_sibling(name, _cache={}):
         return _cache[name]
 
     def _refuse(why):
+        # A launch path holding a newline or a terminal escape is shown escaped, so the refusal
+        # stays one line: block-turn-end-with-outstanding-work.py's rule (each character that is
+        # neither printable nor a space separator becomes its ascii() escape).
+        import unicodedata
+        why = "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                      else ascii(char)[1:-1] for char in why)
         print("BLOCKED (hook-helper-isolation): " + why + "; refusing to execute "
               "anything but the reviewed helper sources.", file=sys.stderr)
         sys.exit(2)
@@ -337,6 +343,14 @@ def decide(cmd, is_worker: bool, hist_text, start_date, sentinel_present: bool) 
     return BLOCK
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so a path cannot start a console line."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def _block_message(threshold) -> str:
     when = threshold.isoformat() if threshold else "the session start"
     return (
@@ -348,7 +362,8 @@ def _block_message(threshold) -> str:
         "then re-run this. For a genuine exception (e.g. a handoff-only session), create the one-shot "
         "sentinel then retry:\n"
         # The resolved path, shell-quoted: a literal <repo-parent> fallback does not run (P-1.21 r2, codex).
-        f"    touch {shlex.quote(str(_sentinel_path()))}"
+        # Then escaped: shell quoting keeps a newline raw, which would start a console line.
+        f"    touch {_printable(shlex.quote(str(_sentinel_path())))}"
     )
 
 

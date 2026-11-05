@@ -72242,14 +72242,18 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
         add = group("block-turn-end-with-outstanding-work", "merge",
                     ("main", "print(message, file=sys.stderr)"), "turn-end-outstanding-work")
-        # 2026-11-04: the console form is three lines; the held-branches path and the full
-        # list go to the detail log (asserted on the writer's input in _render_case).
+        # 2026-11-04: the console form is three lines; the full list goes to the detail log
+        # (asserted on the writer's input in _render_case). 2026-11-05: the held-branches
+        # record path and the one-shot escape are on the console too when they fit, as
+        # stop-guard keeps its escape there (#2496); an unresolved held path stays in the log.
         for held in (True, False):
             for count in (1, 9):
                 add("held-%s-count-%s" % (held, count), (held, count),
-                    evidence=(cls.DETAIL_LOG, "claude/probe0"),
-                    absent=("claude/probe3", "claude/probe8", "held-branches")
-                    if count == 9 else ("held-branches",))
+                    evidence=(cls.DETAIL_LOG, "claude/probe0",
+                              "then touch /__p195__/drop/.allow-stop")
+                    + (("hold in /__p195__/held-branches.txt",) if held else ()),
+                    absent=(("claude/probe3", "claude/probe8") if count == 9 else ())
+                    + (() if held else ("held-branches",)))
 
         add = group("block-unbumped-version-commit", "bump",
                     ("main", "print('\\n'.join(lines),"))
@@ -72359,7 +72363,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 sites=(("decide", "BLOCKED (" + guard + ")"),))
         add = group("stop-guard-unattended", "continue",
                     ("run", "_diagnostic(reason + '\\n')"), "stop-guard-unattended")
-        add("actionable", None, evidence=("1 actionable open backlog item", cls.DETAIL_LOG),
+        # 2026-11-05: the WHY line shows decide()'s required count (floor 3, share absent).
+        add("actionable", None, evidence=("1 actionable open backlog item", cls.DETAIL_LOG,
+                                          "is below the required count (3)"),
             absent=("P-1.95", "probe"), transport="diagnostic")
         return cases
 
@@ -72905,8 +72911,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
     def test_stop_hooks_console_short_form(self):
         """A logged refusal is three conforming lines, each within the clamp, one ending in the
-        log path (turn-end: the action line; stop-guard: the action line, or the WHY line when
-        the declared-wait path keeps the action line, round 4)."""
+        log path: the action line, or the WHY line when the action line keeps the remedy
+        (stop-guard: the declared-wait path, round 4; turn-end since 2026-11-05: the
+        held-branches path and the one-shot escape, which the log path's length decides)."""
         for hook, (guard, verb) in self.STOP_LOG_HOOKS.items():
             with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td:
                 store = Path(td) / "store"
@@ -72918,12 +72925,12 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 self.assertEqual(len(lines), 3, text)
                 self.assert_refusal(text, guard=guard, imperative=verb)
                 log = " " + str(self._stop_log(hook, store, "s-1"))
-                if hook.startswith("block-"):
-                    self.assertTrue(lines[2].endswith(log), text)
-                else:
-                    self.assertTrue(lines[2].endswith(log) or lines[1].endswith(log), text)
+                self.assertEqual([line.endswith(log) for line in lines[1:]].count(True), 1, text)
                 self.assertLessEqual(max(map(len, lines)), 160, text)
-                hidden = ("Branches outstanding", "touch ", "Declared wait", "NOTE:") \
+                if hook.startswith("block-") and "touch " in text:
+                    # _stop_block's default escape path; it is named whole or not at all.
+                    self.assertIn("then touch " + str(Path(td) / ".allow-stop"), lines[2])
+                hidden = ("Branches outstanding", "Declared wait", "NOTE:") \
                     if hook.startswith("block-") else ("Declared wait", "NOTE:", "Actionable items")
                 for detail in hidden:
                     self.assertNotIn(detail, text)
@@ -73737,6 +73744,197 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                                 proc.stderr)
                 self.assertEqual(len(proc.stderr.splitlines()), 1, proc.stderr)
                 self._assert_paths_escaped(proc.stderr, raw, shown, launch)
+
+    # ---- 2026-11-05: every refusal copy escapes; Stop-hook short forms carry their remedy ----
+    def _refuse_hooks(self):
+        """(hook, parsed source) for every hook whose source defines _refuse anywhere. This is
+        the rerunnable search for the copied refusal helper (the turn-end copy and the 17 others
+        that, at 0526f67bb, printed the launch path raw)."""
+        import ast
+        found = []
+        for path in sorted((REPO_ROOT / ".claude" / "hooks").glob("*.py")):
+            tree = ast.parse(self._source(path.stem))
+            if any(isinstance(node, ast.FunctionDef) and node.name == "_refuse"
+                   for node in ast.walk(tree)):
+                found.append((path.stem, tree))
+        return found
+
+    def test_every_isolation_refusal_escapes_launch_path(self):
+        """Every hook's _load_sibling, run as written from a launch path holding a newline or
+        an ESC, refuses on exactly one line with the path escaped by the turn-end rule. The
+        function itself is executed (not the whole hook), so hooks that reach _load_sibling
+        only on some payloads are covered the same way."""
+        import ast
+        from contextlib import redirect_stderr
+        hooks = self._refuse_hooks()
+        self.assertEqual(len(hooks), 18, [hook for hook, _tree in hooks])
+        for hook, tree in hooks:
+            loader, = [node for node in tree.body
+                       if isinstance(node, ast.FunctionDef) and node.name == "_load_sibling"]
+            code = compile(ast.Module(body=[loader], type_ignores=[]), hook + ".py", "exec")
+            for label, raw, shown in self.ODD_PATH_CHARS:
+                with self.subTest(hook=hook, char=label), tempfile.TemporaryDirectory() as td:
+                    launch = str(Path(td) / ("odd" + raw + "dir") / (hook + ".py"))
+                    namespace = {"__name__": "__main__", "__file__": launch}
+                    exec(code, namespace)
+                    err = io.StringIO()
+                    with redirect_stderr(err), self.assertRaises(SystemExit) as caught:
+                        namespace["_load_sibling"]("_hookutil")
+                    self.assertEqual(caught.exception.code, 2)
+                    text = err.getvalue()
+                    self.assertTrue(text.startswith("BLOCKED (hook-helper-isolation): "), text)
+                    self.assertEqual(len(text.splitlines()), 1, repr(text))
+                    self._assert_paths_escaped(text, raw, shown, launch)
+
+    def test_hook_printed_paths_escaped(self):
+        """Beyond _refuse, the hooks that print a path derived from their own location or the
+        project directory escape it the same way: the idle-stop escape, the self-QA sentinel
+        (block and bypass), the resume-validate sentinel, the branch-to-main project directory
+        and the wrong-repo-tool templates under the project's parent."""
+        import shlex
+        from unittest.mock import patch
+        idle = load_linter_module(".claude/hooks/block-idle-stop-with-actionable-backlog.py",
+                                  "_esc_idle_stop")
+        self_qa = load_linter_module(".claude/hooks/block-orchestrator-self-qa.py", "_esc_self_qa")
+        resume = load_linter_module(".claude/hooks/block-pr-without-resume-validate.py",
+                                    "_esc_resume")
+        branch = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_esc_branch")
+        wrong = load_linter_module(".claude/hooks/block-wrong-repo-tool.py", "_esc_wrong_repo")
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                odd = Path(td).resolve() / ("odd" + raw + "dir")
+                escape = odd / ".allow-idle-stop"
+                with patch.object(idle, "ESCAPE_FILE", escape):
+                    text = idle.decide(False, False, False, "attended-autonomous", 2)
+                self._assert_paths_escaped(text, raw, shown, escape)
+                sentinel = odd / ".allow-orchestrator-qa"
+                with patch.object(self_qa, "SENTINEL", sentinel):
+                    text = self_qa._block_message("review this")
+                    self._assert_paths_escaped(text, raw, shown, sentinel)
+                    with patch.object(self_qa, "_is_worker_session", lambda: False), \
+                            patch.object(self_qa, "_consume_sentinel", lambda: True):
+                        action, text = self_qa.decide(
+                            {"tool_name": "Task", "tool_input": {"prompt": "review this"}})
+                    self.assertEqual(action, "bypass")
+                    self._assert_paths_escaped(text, raw, shown, sentinel)
+                with patch.dict(os.environ, {"GRC_DROP_ROOT": str(odd)}):
+                    text = resume._block_message(None)
+                    quoted = shlex.quote(str(resume._sentinel_path()))
+                self._assert_paths_escaped(text, raw, shown, quoted)
+                with patch.object(branch, "_current_branch", lambda root: "main"):
+                    block, text = branch.decide(str(odd / "x.md"), str(odd))
+                self.assertTrue(block)
+                self._assert_paths_escaped(text, raw, shown, odd)
+                project = odd / "grc_library"
+                sibling = odd / "grc_library_scratch" / "tools"
+                sibling.mkdir(parents=True)
+                (sibling / "probe.py").write_text("", encoding="utf-8")
+                roots = {"grc_library": project / "tools", "grc_library_scratch": sibling}
+                with patch.object(wrong, "_sibling_roots", lambda project_dir: roots):
+                    for command in ("python3 tools/probe.py", "cd /x && python3 tools/probe.py"):
+                        block, text = wrong.decide(command, str(project))
+                        self.assertTrue(block, command)
+                        self.assertNotIn(str(odd), text)
+                        self.assertIn(str(odd).replace(raw, shown) + "/grc_library_scratch", text)
+
+    def test_turn_end_short_form_names_hold_record_and_escape(self):
+        """The turn-end short form names the held-branches record path and the one-shot escape
+        when they fit (stop-guard keeps its escape on the console, #2496), so the remedy needs
+        no log: both with the log path, then the log path on the WHY line, then the escape
+        alone, then the held path alone. A path with a non-printable character is left to the
+        log, never shown raw or escaped; the 79-character store-path budget is unchanged."""
+        from unittest.mock import patch
+        mod = load_linter_module(".claude/hooks/block-turn-end-with-outstanding-work.py",
+                                 "_turn_end_remedy")
+        many = [("claude/b%d" % n, "1") for n in range(5)]
+        held, escape = Path("/h/held-branches.txt"), Path("/w/.allow-stop")
+        tail = "/stop-hook-detail/turn-end.0123456789ab.log"
+        log = "/s/turn-end.x.log"
+
+        def lines(log_path, held_file=held, escape_file=escape):
+            with patch.object(mod, "HELD_FILE", held_file), \
+                    patch.object(mod, "ESCAPE_FILE", escape_file):
+                text = mod.summarize(many, log_path)
+            out = text.split("\n")
+            self.assertEqual(len(out), 3, text)
+            self.assertLessEqual(max(map(len, out)), 160, text)
+            self.assert_refusal(text, guard="turn-end-outstanding-work", imperative="merge")
+            return out
+
+        both = ("CONSIDER INSTEAD: merge, or hold in /h/held-branches.txt; genuine block: "
+                "record it, then touch /w/.allow-stop")
+        escape_only = "CONSIDER INSTEAD: merge or hold; genuine block: record it, then touch /w/.allow-stop"
+        self.assertEqual(lines(log)[2], both + "; log: " + log)
+        middle = "/" + "s" * 40 + tail
+        out = lines(middle)
+        self.assertEqual(out[1], "WHY: a turn-end yield strands unmerged work ahead of main; "
+                                 "detail log: " + middle)
+        self.assertEqual(out[2], both)
+        wide = "/" + "s" * 60 + tail
+        out = lines(wide)
+        self.assertEqual(out[1], "WHY: a turn-end yield strands unmerged work; log: " + wide)
+        self.assertEqual(out[2], both)
+        self.assertEqual(lines(log, held_file=Path("/h/" + "h" * 90 + "/held-branches.txt"))[2],
+                         escape_only + "; log: " + log)
+        self.assertEqual(lines(log, held_file=None)[2], escape_only + "; log: " + log)
+        self.assertEqual(lines(log, escape_file=Path("/w/" + "w" * 120 + "/.allow-stop"))[2],
+                         "CONSIDER INSTEAD: merge, or hold in /h/held-branches.txt; log: " + log)
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label):
+                text = "\n".join(lines(log, held_file=Path("/h/held" + raw + "x/held-branches.txt")))
+                self.assertNotIn("held", text)
+                self.assertIn(escape_only, text)
+                text = "\n".join(lines(log, escape_file=Path("/w/drop" + raw + "y/.allow-stop")))
+                self.assertNotIn("drop", text)
+                self.assertNotIn("touch", text)
+                self.assertIn("hold in /h/held-branches.txt", text)
+        budget = "/" + "s" * 78 + tail
+        self.assertEqual(len(budget), 122)
+        self.assertEqual(lines(budget)[2], "CONSIDER INSTEAD: merge or hold; log: " + budget)
+        with self.assertRaises(ValueError), patch.object(mod, "HELD_FILE", held), \
+                patch.object(mod, "ESCAPE_FILE", escape):
+            mod.summarize(many, "/s" + budget)
+
+    def test_stop_guard_short_form_shows_required_count(self):
+        """The short form's WHY line shows decide()'s required live group count (the larger of
+        the operator share and 3) whenever a wording carrying it fits; run() passes it, so a
+        share above the floor reaches the console. The 82-character store budget is unchanged."""
+        from unittest.mock import Mock
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_stop_required")
+        self.assertEqual([mod._required_groups(share) for share in
+                          ((None, "absent"), (2, "default"), (5, "grc"))], [3, 3, 5])
+        tail = "/stop-hook-detail/stop-guard.0123456789ab.log"
+        log, escape = "/s" + tail, "/w/.allow-idle-stop"
+
+        def why(log_path, escape_path=escape):
+            out = mod._short_refusal(4, 1, log_path, escape_path, required=5).split("\n")
+            self.assertEqual(len(out), 3)
+            self.assertLessEqual(max(map(len, out)), 160)
+            return out[1]
+
+        self.assertEqual(why(log), "WHY: not whole-set exhaustion, and the live owned dispatch "
+                                   "group count (1) is below the required count (5).")
+        self.assertEqual(why(log, "/w/" + "w" * 30 + "/.allow-idle-stop"),
+                         "WHY: the live owned dispatch group count (1) is below the required "
+                         "count (5); detail log: " + log)
+        middle = "/" + "s" * 70 + tail
+        self.assertEqual(why(middle), "WHY: 1 of 5 required groups live; log: " + middle)
+        budget = "/" + "s" * 81 + tail
+        self.assertEqual(why(budget), "WHY: below the group floor; log: " + budget)
+        hook = "stop-guard-unattended"
+        with tempfile.TemporaryDirectory() as td:
+            store = Path(td) / "store"
+            store.mkdir()
+            writer = Mock(return_value="/__p195__/private/stop-hook-detail/stop-guard.s-1.log")
+            _items, status, text = self._stop_block(
+                hook, td, 4, {"session_id": "s-1"}, store, read_slot_share=lambda: (5, "grc"),
+                _grc_escape_file=lambda: escape, _write_detail_log=writer,
+                **self._generous_bounds(hook))
+        self.assertEqual(status, 2)
+        writer.assert_called_once()
+        self.assertEqual(text.split("\n")[1], "WHY: not whole-set exhaustion, and the live owned "
+                                              "dispatch group count (0) is below the required "
+                                              "count (5).")
 
     def test_stop_guard_fallback_escapes_declared_wait_path(self):
         """Round 6 item 2: decide() escapes the declared-wait path, so the count-only fallback
