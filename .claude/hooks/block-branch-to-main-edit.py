@@ -169,9 +169,11 @@ def _shell_word(text) -> str:
     separator, else a bash ANSI-C quoted $'...' word in which a backslash or a single quote is
     backslash-escaped and every other character outside that rule is an escape bash reads
     back in any locale: below 0x80 the ascii() escape _printable shows, such as \\n or
-    \\x1b; \\xHH for a surrogate-escaped byte; from 0x80 up, \\xHH for each byte of the
-    character's UTF-8 encoding (a \\uHHHH escape stays literal outside a UTF-8 locale, so
-    the copied command named another path; hook escaping round 4, claude W1). A relative
+    \\x1b; from 0x80 up, a surrogate-escaped byte included, \\xHH for each byte os.fsencode
+    gives: the path's own bytes in this process's filesystem encoding, which bash rebuilds in
+    any locale (a \\uHHHH escape stayed literal outside a UTF-8 locale, round 4, claude W1;
+    UTF-8 bytes named another path when the hook ran in a non-UTF-8 locale, round 5, claude
+    N3). A character that encoding cannot hold keeps its UTF-8 bytes. A relative
     path starting with "-" is written "./" first, so touch, cd, git -C or python3 cannot
     read it as an option (round 4, codex W2)."""
     import shlex
@@ -194,11 +196,12 @@ def _shell_word(text) -> str:
             out.append(char)
         elif code < 0x80:
             out.append(ascii(char)[1:-1])  # \n, \r, \t or \xHH: the escape _printable shows
-        elif 0xDC80 <= code <= 0xDCFF:
-            out.append("\\x%02x" % (code - 0xDC00))  # a surrogate-escaped byte
         else:
-            out.append("".join("\\x%02x" % byte
-                               for byte in char.encode("utf-8", "surrogatepass")))
+            try:
+                data = os.fsencode(char)  # a surrogate-escaped byte gives that byte back
+            except UnicodeEncodeError:
+                data = char.encode("utf-8", "surrogatepass")
+            out.append("".join("\\x%02x" % byte for byte in data))
     return "$'" + "".join(out) + "'"
 
 
@@ -225,12 +228,14 @@ def decide(file_path: str, project_dir: str) -> tuple[bool, str]:
             f"(`{_printable(rel)}`) while the repo is on `{branch}`.\n"  # rel is from the payload
             "WHY: `main` is PR-only; edits belong on a feature branch, and an edit on `main` "
             "is essentially never intended.\n"
-            "CONSIDER INSTEAD: run `git -C {proj} checkout -b claude/<name>` first, then "
-            "re-apply the edit. (If you genuinely intend to edit a SIBLING repo, use its "
-            "absolute path so the target resolves outside `grc_library`.)"
-        # The project directory in a command the reader runs: one shell word naming it
-        # (_shell_word), not an escaped path, which would name another directory.
-        ).replace("{proj}", _shell_word(proj))
+            # The project directory in a command the reader runs: one shell word naming it
+            # (_shell_word), not an escaped path, which would name another directory. It is
+            # placed in this sentence only: a str.replace over the whole message also rewrote
+            # a payload path holding "{proj}" (hook escaping round 5, claude N2).
+            f"CONSIDER INSTEAD: run `git -C {_shell_word(proj)} checkout -b claude/<name>` "
+            "first, then re-apply the edit. (If you genuinely intend to edit a SIBLING repo, "
+            "use its absolute path so the target resolves outside `grc_library`.)"
+        )
         return True, reason
     return False, ""
 

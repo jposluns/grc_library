@@ -358,9 +358,11 @@ def _shell_word(text) -> str:
     separator, else a bash ANSI-C quoted $'...' word in which a backslash or a single quote is
     backslash-escaped and every other character outside that rule is an escape bash reads
     back in any locale: below 0x80 the ascii() escape _printable shows, such as \\n or
-    \\x1b; \\xHH for a surrogate-escaped byte; from 0x80 up, \\xHH for each byte of the
-    character's UTF-8 encoding (a \\uHHHH escape stays literal outside a UTF-8 locale, so
-    the copied command named another path; hook escaping round 4, claude W1). A relative
+    \\x1b; from 0x80 up, a surrogate-escaped byte included, \\xHH for each byte os.fsencode
+    gives: the path's own bytes in this process's filesystem encoding, which bash rebuilds in
+    any locale (a \\uHHHH escape stayed literal outside a UTF-8 locale, round 4, claude W1;
+    UTF-8 bytes named another path when the hook ran in a non-UTF-8 locale, round 5, claude
+    N3). A character that encoding cannot hold keeps its UTF-8 bytes. A relative
     path starting with "-" is written "./" first, so touch, cd, git -C or python3 cannot
     read it as an option (round 4, codex W2)."""
     import shlex
@@ -383,11 +385,12 @@ def _shell_word(text) -> str:
             out.append(char)
         elif code < 0x80:
             out.append(ascii(char)[1:-1])  # \n, \r, \t or \xHH: the escape _printable shows
-        elif 0xDC80 <= code <= 0xDCFF:
-            out.append("\\x%02x" % (code - 0xDC00))  # a surrogate-escaped byte
         else:
-            out.append("".join("\\x%02x" % byte
-                               for byte in char.encode("utf-8", "surrogatepass")))
+            try:
+                data = os.fsencode(char)  # a surrogate-escaped byte gives that byte back
+            except UnicodeEncodeError:
+                data = char.encode("utf-8", "surrogatepass")
+            out.append("".join("\\x%02x" % byte for byte in data))
     return "$'" + "".join(out) + "'"
 
 

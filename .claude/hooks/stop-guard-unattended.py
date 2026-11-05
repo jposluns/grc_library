@@ -56,8 +56,10 @@ console shows it only on the fallback path (CONSOLE AND DETAIL LOG below), excep
 short form still names the resolved declared-wait path (#2496). MODE_SET_HINT retains
 the detailed grc guidance; the emitted hint is shortened to fit B's message format. B's
 per-line clamp never cuts the declared-wait command: an override path too long for that line
-leaves it naming the sentinel without a command, and the detail log carries the whole command
-(_declared_wait_line; hook escaping round 4, codex W1).
+leaves it naming the sentinel and the directory setting the hook used without a command
+(_declared_wait_line; hook escaping round 4, codex W1). The detail log carries the whole
+command when it is written; when it is not, the fallback's line says so instead of pointing
+at the log (_fallback_refusal; round 5, claude W1).
 
 GRC ADAPTATION (2026-09-27; backlog 3b113). Rebased the 2026-09-03 cross-project adoption
 (inbox msg 20260903T002018Z.from-lab_infra) onto lab_infra 17b407b9, adding the live-dispatch
@@ -1090,9 +1092,11 @@ def _shell_word(text) -> str:
     separator, else a bash ANSI-C quoted $'...' word in which a backslash or a single quote is
     backslash-escaped and every other character outside that rule is an escape bash reads
     back in any locale: below 0x80 the ascii() escape _printable shows, such as \\n or
-    \\x1b; \\xHH for a surrogate-escaped byte; from 0x80 up, \\xHH for each byte of the
-    character's UTF-8 encoding (a \\uHHHH escape stays literal outside a UTF-8 locale, so
-    the copied command named another path; hook escaping round 4, claude W1). A relative
+    \\x1b; from 0x80 up, a surrogate-escaped byte included, \\xHH for each byte os.fsencode
+    gives: the path's own bytes in this process's filesystem encoding, which bash rebuilds in
+    any locale (a \\uHHHH escape stayed literal outside a UTF-8 locale, round 4, claude W1;
+    UTF-8 bytes named another path when the hook ran in a non-UTF-8 locale, round 5, claude
+    N3). A character that encoding cannot hold keeps its UTF-8 bytes. A relative
     path starting with "-" is written "./" first, so touch, cd, git -C or python3 cannot
     read it as an option (round 4, codex W2)."""
     import shlex
@@ -1115,19 +1119,38 @@ def _shell_word(text) -> str:
             out.append(char)
         elif code < 0x80:
             out.append(ascii(char)[1:-1])  # \n, \r, \t or \xHH: the escape _printable shows
-        elif 0xDC80 <= code <= 0xDCFF:
-            out.append("\\x%02x" % (code - 0xDC00))  # a surrogate-escaped byte
         else:
-            out.append("".join("\\x%02x" % byte
-                               for byte in char.encode("utf-8", "surrogatepass")))
+            try:
+                data = os.fsencode(char)  # a surrogate-escaped byte gives that byte back
+            except UnicodeEncodeError:
+                data = char.encode("utf-8", "surrogatepass")
+            out.append("".join("\\x%02x" % byte for byte in data))
     return "$'" + "".join(out) + "'"
 
 
 _WAIT_FORMS = ("Declared wait: touch %s (once, after recording blocker); operator stop: set mode "
                "attended.",
                "Declared wait (once, after recording blocker): touch %s")
-_WAIT_TOO_LONG = ("Declared wait (once, after recording blocker): touch .allow-idle-stop in "
-                  "GRC_DROP_ROOT; its path is too long for this line (the detail log has it).")
+_WAIT_TOO_LONG = ("Declared wait (once, after recording blocker): touch .allow-idle-stop in %s; "
+                  "its path is too long for this line (%s).")
+# The directory _grc_escape_file used: GRC_DROP_ROOT absolute, GRC_DROP_ROOT relative (resolved
+# against the repo root by _grc_under_root), or unset or empty (round 5, claude N1).
+_WAIT_DIRS = ("GRC_DROP_ROOT", "<repo-root>/GRC_DROP_ROOT", "<repo-parent>/grc_working")
+_WAIT_LOGGED = "the detail log has it"
+_WAIT_NOT_LOGGED = "no detail log written"
+# Each too-long line decide() can write, mapped to its wording for an unwritten detail log.
+_WAIT_UNLOGGED = {_WAIT_TOO_LONG % (where, _WAIT_LOGGED): _WAIT_TOO_LONG % (where, _WAIT_NOT_LOGGED)
+                  for where in _WAIT_DIRS}
+
+
+def _grc_escape_dir_label():
+    """The directory _grc_escape_file uses, named as the too-long declared-wait line shows it,
+    from the same GRC_DROP_ROOT reading: the setting when it is absolute, the setting under the
+    repo root when it is relative (_grc_under_root), the default when it is unset or empty."""
+    value = os.environ.get("GRC_DROP_ROOT")
+    if not value:
+        return _WAIT_DIRS[2]
+    return _WAIT_DIRS[0] if os.path.isabs(value) else _WAIT_DIRS[1]
 
 
 def _declared_wait_line(escape_path):
@@ -1135,13 +1158,14 @@ def _declared_wait_line(escape_path):
     with the path as one shell word (_shell_word), shown whole or not at all. A cut word names
     another path, or leaves a $'...' word unterminated (hook escaping round 4, codex W1). The
     operator-stop hint is dropped first; when the command alone does not fit, the line names
-    the sentinel and its directory setting instead, and _detail_text adds the whole command
-    to the detail log."""
+    the sentinel and the directory the hook used (_grc_escape_dir_label; round 5, claude N1)
+    and says the detail log has the command: _detail_text adds the whole command to the log,
+    and _fallback_refusal rewords the line when the log was not written (round 5, claude W1)."""
     word = _shell_word(escape_path)
     for form in _WAIT_FORMS:
         if len(form % word) <= _MAX_LINE_CHARS:
             return form % word
-    return _WAIT_TOO_LONG
+    return _WAIT_TOO_LONG % (_grc_escape_dir_label(), _WAIT_LOGGED)
 
 
 def _clamp(line):
@@ -1222,8 +1246,13 @@ def _short_refusal(count, live_groups, log_path, escape_path, required=None):
 def _fallback_refusal(reason, count, state, why):
     """The visible fallback: decide()'s reason, the NOTE right after it, then the actionable
     count only (#2291: no item ID or title reaches the diagnostic). Every line is clamped, and
-    the reason keeps at most _MAX_REASON_LINES lines, so the text fits _diagnostic's PIPE_BUF cap."""
-    lines = [_clamp(line) for line in reason.split("\n")[:_MAX_REASON_LINES]]
+    the reason keeps at most _MAX_REASON_LINES lines, so the text fits _diagnostic's PIPE_BUF cap.
+    When the detail log was not written, a too-long declared-wait line says so instead of
+    pointing at the log (round 5, claude W1)."""
+    lines = reason.split("\n")[:_MAX_REASON_LINES]
+    if state == "not written":
+        lines = [_WAIT_UNLOGGED.get(line, line) for line in lines]
+    lines = [_clamp(line) for line in lines]
     lines.append(_clamp("NOTE: detail log %s (%s); reason shown here." % (state, why)))
     lines.append(_clamp("Actionable items: %d (IDs and titles are not shown here, #2291)." % count))
     return "\n".join(lines)
@@ -1318,7 +1347,7 @@ def _detail_text(reason, actionable):
     When the reason's declared-wait line could not carry the whole touch command
     (_declared_wait_line), the command follows the reason on a line of its own, uncut."""
     try:
-        if _WAIT_TOO_LONG in reason.split("\n"):
+        if any(line in _WAIT_UNLOGGED for line in reason.split("\n")):
             reason += "\nDeclared wait command: touch " + _shell_word(_grc_escape_file())
         return reason + "\nActionable items (%d):" % len(actionable) + "".join(
             "\n  - %s: %s" % (_printable(iid), _printable(title)) for iid, title in actionable)

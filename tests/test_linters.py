@@ -73426,8 +73426,10 @@ class BlockingHookMessageContractTests(unittest.TestCase):
     def test_stop_guard_fallback_byte_clamp(self):
         """Lone surrogates escape to six bytes each, so a 160-character line can exceed
         _MAX_LINE_BYTES; the byte clamp cuts it and every delivered line fits 640 bytes."""
+        from unittest.mock import patch
         hook = "stop-guard-unattended"
-        with tempfile.TemporaryDirectory() as td:
+        # An absolute GRC_DROP_ROOT, as the patched sentinel path is (round 5, claude N1).
+        with tempfile.TemporaryDirectory() as td, patch.dict(os.environ, {"GRC_DROP_ROOT": "/"}):
             missing = Path(td) / "missing" / "store"
             _items, status, _text = self._stop_block(
                 hook, td, 3, {"session_id": "s-1"}, missing, real_diagnostic=True,
@@ -73446,7 +73448,11 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         self.assertFalse([line for line in lines if b"touch $'" in line], raw)
         wait = [line for line in lines if line.startswith(b"Declared wait")]
         self.assertEqual(len(wait), 1, raw)
-        self.assertIn(b".allow-idle-stop in GRC_DROP_ROOT", wait[0])
+        # Round 5 (claude W1): the log was not written, so the line does not point at it.
+        self.assertEqual(wait[0], b"Declared wait (once, after recording blocker): touch "
+                                  b".allow-idle-stop in GRC_DROP_ROOT; its path is too long for "
+                                  b"this line (no detail log written).")
+        self.assertNotIn(b"detail log has it", raw)
         self.assertLessEqual(len(wait[0]), 160)
         # The byte clamp itself: lone surrogates escape to six bytes each, so a 160-character
         # line is cut further by bytes and fewer than 160 characters survive.
@@ -74562,7 +74568,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                  ("/w/" + "c" * 180 + "/.allow-idle-stop", None),
                  ("/w/" + "\x1b" * 30 + "/.allow-idle-stop", None))
         for path, wording in cases:
+            # An absolute GRC_DROP_ROOT, as the patched sentinel path is (round 5, claude N1).
             with self.subTest(length=len(path), wording=wording), \
+                    patch.dict(os.environ, {"GRC_DROP_ROOT": "/w"}), \
                     patch.object(mod, "_grc_escape_file", lambda path=path: path):
                 block, reason = mod.decide("unattended", False, [("1", "t")], 0, (None, "absent"))
                 self.assertTrue(block)
@@ -74583,7 +74591,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     self.assertNotIn("Declared wait command", detail)
         hook = "stop-guard-unattended"
         long_path = "/w/" + "d" * 180 + "/.allow-idle-stop"
-        with tempfile.TemporaryDirectory() as td:
+        with tempfile.TemporaryDirectory() as td, patch.dict(os.environ, {"GRC_DROP_ROOT": "/w"}):
             store = Path(td) / "store"
             store.mkdir()
             _items, status, text = self._stop_block(
@@ -74592,7 +74600,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             self.assertEqual(status, 2)
             self.assertIn("NOTE: detail log written but not summarized", text)
             self.assertNotIn("touch /w/", text)
-            self.assertIn(".allow-idle-stop in GRC_DROP_ROOT", text)
+            # Written, so the line points at the log (round 5, claude W1).
+            self.assertIn(".allow-idle-stop in GRC_DROP_ROOT; its path is too long for this line "
+                          "(the detail log has it).", text)
             self._assert_names_path(self._stop_log(hook, store, "s-1").read_text(encoding="utf-8"),
                                     "Declared wait command: touch ", long_path)
 
@@ -74643,6 +74653,132 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         for marker in ("BLOCKED (", "WHY:", "CONSIDER INSTEAD:"):
             with self.subTest(marker=marker):
                 self.assertEqual(nested.count(marker), clean.count(marker), nested)
+
+    # ---- 2026-11-05 round 5: wait line by write state and directory, payload path, fsencode ----
+    WAIT_LOGGED = ("Declared wait (once, after recording blocker): touch .allow-idle-stop in "
+                   "%s; its path is too long for this line (the detail log has it).")
+
+    def test_stop_guard_too_long_wait_line_follows_the_log_write(self):
+        """claude W1, codex N1, agy N2: the declared-wait line for a path too long to show
+        says the detail log has the command only when that log was written; the fallback for
+        an unwritten log says none was written. Only that line is reworded: a whole command
+        whose path holds the same words still names that path."""
+        from unittest.mock import patch
+        hook = "stop-guard-unattended"
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_esc5_wait_log")
+        long_path = "/w/" + "e" * 180 + "/.allow-idle-stop"
+        logged = self.WAIT_LOGGED % "GRC_DROP_ROOT"
+        unlogged = logged.replace("(the detail log has it)", "(no detail log written)")
+        with patch.dict(os.environ, {"GRC_DROP_ROOT": "/w"}), \
+                patch.object(mod, "_grc_escape_file", lambda: long_path):
+            _block, reason = mod.decide("unattended", False, [("1", "t")], 0, (None, "absent"))
+        self.assertIn(logged, reason.split("\n"))
+        with self.subTest(state="not written"):
+            text = mod._fallback_refusal(reason, 1, "not written", "OSError: probe")
+            self.assertIn(unlogged, text.split("\n"))
+            self.assertNotIn("detail log has it", text)
+        with self.subTest(state="written but not summarized"):
+            text = mod._fallback_refusal(reason, 1, "written but not summarized", "ValueError: x")
+            self.assertIn(logged, text.split("\n"))
+        with self.subTest(state="not written, hook run"), tempfile.TemporaryDirectory() as td, \
+                patch.dict(os.environ, {"GRC_DROP_ROOT": "/w"}):
+            _items, status, text = self._stop_block(
+                hook, td, 2, {"session_id": "s-1"}, Path(td) / "missing" / "store",
+                _grc_escape_file=lambda: long_path, **self._generous_bounds(hook))
+            self.assertEqual(status, 2)
+            self.assertIn("NOTE: detail log not written (", text)
+            self.assertIn(unlogged, text.split("\n"))
+            self.assertNotIn("detail log has it", text)
+        with self.subTest(case="a shown path holding the wording"):
+            path = "/w/(the detail log has it)/.allow-idle-stop"
+            with patch.dict(os.environ, {"GRC_DROP_ROOT": "/w"}), \
+                    patch.object(mod, "_grc_escape_file", lambda: path):
+                _block, reason = mod.decide("unattended", False, [("1", "t")], 0,
+                                            (None, "absent"))
+            text = mod._fallback_refusal(reason, 1, "not written", "OSError: probe")
+            self._assert_names_path(text, "Declared wait: touch ", path)
+
+    def test_stop_guard_too_long_wait_line_names_the_directory_used(self):
+        """claude N1: the declared-wait line for a path too long to show names the directory
+        _grc_escape_file used: GRC_DROP_ROOT when it is absolute, the repo root joined with it
+        when it is relative, and the default beside the repo when it is unset or empty. Every
+        wording, logged or not, fits one 160-character line."""
+        from unittest.mock import patch
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_esc5_wait_dir")
+        parent = "/p/" + "q" * 120
+        relative = "r" * 120
+        cases = ((None, "<repo-parent>/grc_working", os.path.join(parent, "grc_working")),
+                 ("", "<repo-parent>/grc_working", os.path.join(parent, "grc_working")),
+                 (relative, "<repo-root>/GRC_DROP_ROOT",
+                  os.path.join(mod._GRC_REPO_ROOT, relative)),
+                 ("/a" + "a" * 120, "GRC_DROP_ROOT", "/a" + "a" * 120))
+        for value, shown, directory in cases:
+            with self.subTest(value=value), patch.dict(os.environ), \
+                    patch.object(mod, "_GRC_PARENT", parent):
+                os.environ.pop("GRC_DROP_ROOT", None)
+                if value is not None:
+                    os.environ["GRC_DROP_ROOT"] = value
+                escape = mod._grc_escape_file()
+                self.assertEqual(escape, os.path.join(directory, ".allow-idle-stop"))
+                _block, reason = mod.decide("unattended", False, [("1", "t")], 0,
+                                            (None, "absent"))
+                wait = [line for line in reason.split("\n") if line.startswith("Declared wait")]
+                self.assertEqual(wait, [self.WAIT_LOGGED % shown], reason)
+                self._assert_names_path(mod._detail_text(reason, [("1", "t")]),
+                                        "Declared wait command: touch ", escape)
+        for logged, unlogged in mod._WAIT_UNLOGGED.items():
+            with self.subTest(line=logged):
+                self.assertLessEqual(len(logged), 160)
+                self.assertLessEqual(len(unlogged), 160)
+
+    def test_branch_to_main_refusal_keeps_the_payload_path(self):
+        """claude N2: the project directory goes into the CONSIDER INSTEAD command only; an
+        edited path holding "{proj}" is shown as edited, not with the directory put in."""
+        from unittest.mock import patch
+        mod = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_esc5_branch")
+        with tempfile.TemporaryDirectory() as td:
+            proj = Path(td).resolve() / "grc_library"
+            proj.mkdir()
+            with patch.object(mod, "_current_branch", lambda root: "main"):
+                block, text = mod.decide(str(proj / "docs" / "{proj}.md"), str(proj))
+            self.assertTrue(block)
+            self.assertIn("(`docs/{proj}.md`)", text)
+            self.assertEqual(text.count(str(proj)), 1, text)
+            self._assert_names_path(text, "git -C ", proj)
+
+    def test_shell_words_follow_the_filesystem_encoding(self):
+        """claude N3: from 0x80 up, a surrogate-escaped byte included, every copy of
+        _shell_word writes the bytes os.fsencode gives, so with a Latin-1 filesystem encoding
+        U+0085 is the byte 0x85, not its UTF-8 bytes, and bash reads the word back as the
+        path's own bytes in every locale. A character the encoding cannot hold keeps its
+        UTF-8 bytes rather than raising."""
+        from unittest.mock import patch
+        bash = shutil.which("bash")
+        if bash is None:
+            self.skipTest("bash unavailable")
+
+        def latin1(name):
+            return os.fspath(name).encode("latin-1", "surrogateescape")
+
+        path = "/d/\x85e\udcffx"
+        for hook in self.WORD_HOOKS:
+            mod = load_linter_module(".claude/hooks/%s.py" % hook,
+                                     "_esc5_fs_" + hook.replace("-", "_"))
+            with self.subTest(hook=hook, encoding="latin-1"):
+                with patch.object(os, "fsencode", latin1):
+                    word = mod._shell_word(path)
+                    wide = mod._shell_word("/d/ ")
+                self.assertEqual(word, "$'/d/\\x85e\\xffx'")
+                self.assertEqual(wide, "$'/d/\\xe2\\x80\\xa8'")
+                for locale in self.SHELL_LOCALES:
+                    out = subprocess.run([bash, "-c", "printf '%s\\0' " + word],
+                                         capture_output=True,
+                                         env=dict(os.environ, LC_ALL=locale), timeout=60)
+                    self.assertEqual(out.returncode, 0, out.stderr)
+                    self.assertEqual(out.stdout, latin1(path) + b"\0", (locale, word))
+            with self.subTest(hook=hook, encoding="this process"):
+                self._assert_names_path("touch " + mod._shell_word(path), "touch ", path)
+                self.assertEqual(mod._shell_word("/d/\ud800"), "$'/d/\\xed\\xa0\\x80'")
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()
