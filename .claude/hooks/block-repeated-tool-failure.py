@@ -138,6 +138,14 @@ except Exception:  # pragma: no cover - defensive
 HOOK_NAME = "repeated-tool-failure"
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies)."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def decide(subject: str):
     """Return (block, reason). Pure w.r.t. side effects: it READS the shared block state but
     does not write it (the caller records). `subject` is the canonical block subject from
@@ -164,9 +172,11 @@ def decide(subject: str):
                              "act on it instead of re-asking",
     }.get(blocking_hook, "change its STRUCTURE (not just its wording or description) so it no "
                          "longer trips the same block")
+    # The recorded hook name comes from the state file, which accepts any JSON value: it is shown
+    # escaped, so a decoded newline or terminal escape in it cannot reach the refusal raw.
     lines = [
         f"BLOCKED (repeated-tool-failure): REPEAT-BLOCK: an UNCHANGED resubmission of a command that "
-        f"`{blocking_hook}` just blocked.\n"
+        f"`{_printable(blocking_hook)}` just blocked.\n"
         f"WHY: the literal command string does not reflect the fix the block asked for (a common "
         f"cause is editing the command DESCRIPTION, not the command STRING); resubmitting the "
         f"same shape is the intent-vs-artefact loop this guard breaks.\n"

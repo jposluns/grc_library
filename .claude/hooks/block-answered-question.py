@@ -227,11 +227,22 @@ def _read_stores(project_dir: str) -> list[tuple[str, str]]:
     return out
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so text read from a store cannot carry a
+    terminal escape or a line break into the refusal."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def find_matches(keys: list[str], stores: list[tuple[str, str]]) -> list[str]:
     """Return human-readable 'store:line' hits for keys that appear in any store.
     A section key '3.69' matches a store token '3.69' or '3.69a' (word-ish boundary
     that tolerates a trailing letter but not a longer number, so '3.6' does not match
-    '3.69')."""
+    '3.69'). The matched store line is escaped with _printable before it is cut, so a
+    terminal escape in a store line reaches the refusal as text; the label is a fixed store
+    path and the key matches a digit or backlog-id pattern."""
     hits: list[str] = []
     for key in keys:
         if re.fullmatch(r"\d+(?:\.\d+)+", key):
@@ -243,7 +254,7 @@ def find_matches(keys: list[str], stores: list[tuple[str, str]]) -> list[str]:
         for label, text in stores:
             for ln in text.splitlines():
                 if pat.search(ln):
-                    snippet = ln.strip()
+                    snippet = _printable(ln.strip())
                     if len(snippet) > 240:
                         snippet = snippet[:240] + " ..."
                     hits.append(f"[{label}] key `{key}`: {snippet}")

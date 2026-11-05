@@ -97,8 +97,10 @@ def _load_tool_helper(name, _cache={}):
     try:
         source = helper.read_bytes()
     except OSError as exc:
+        # The error text is escaped, not only joined: an OSError names its file through repr,
+        # but its message may carry a terminal escape (hook escaping round 3, codex E1).
         print("BLOCKED (hook-helper-isolation): " + name + ": unavailable: " +
-              " ".join(str(exc).splitlines()), file=sys.stderr)
+              _printable(" ".join(str(exc).splitlines())), file=sys.stderr)
         sys.exit(2)
     module = type(sys)(name)
     module.__file__ = str(helper)
@@ -841,10 +843,12 @@ def infer_type(text: str) -> str:
 
 
 def trunc_words(title: str, n: int = 10) -> str:
-    """First ``n`` words of the title, stripped of a leading bold/label run."""
+    """First ``n`` words of the title, stripped of a leading bold/label run, escaped with
+    _printable (the pipeline view prints it; splitting on whitespace removes line breaks but
+    not a terminal escape)."""
     title = re.sub(r"\*\*[^*]*\*\*", lambda m: m.group(0).strip("*"), title).strip()
     words = title.split()
-    return " ".join(words[:n]) + (" ..." if len(words) > n else "")
+    return _printable(" ".join(words[:n])) + (" ..." if len(words) > n else "")
 
 
 def parse_done(done_text: str, limit: int = 5) -> list[tuple[int, str]]:
@@ -1642,7 +1646,10 @@ def _load_default_approvals(explicit: "str | None") -> str:
         text = path.read_bytes().decode("utf-8")  # keep lone CRs for the refusal check (QA r7)
     except (OSError, UnicodeDecodeError) as exc:
         set_approvals(set())
-        return f"[BLOCKED] approvals: {_printable(path)} unreadable ({exc}); NO tag counts as blocked."
+        # str(OSError) shows a filename through repr, but the message itself is escaped too, so
+        # no exception text reaches the note raw (hook escaping round 3, codex E1).
+        return (f"[BLOCKED] approvals: {_printable(path)} unreadable ({_printable(exc)}); NO tag "
+                "counts as blocked.")
     refusal = register_refusal(text)
     if refusal is not None:
         set_approvals(set())
@@ -1719,7 +1726,8 @@ def main(argv: list[str]) -> int:
                   f"open item, rewrite it as a top-level `- **<id> ...` bullet, an index row or a `### <id>` heading:",
                   file=out)
             for src, n, ln in item_like:
-                print(f"  - {src}:{n}: {ln.strip()[:87] + '...' if len(ln.strip()) > 90 else ln.strip()}", file=out)
+                shown = _printable(ln.strip())  # backlog text, escaped before it is cut
+                print(f"  - {src}:{n}: {shown[:87] + '...' if len(shown) > 90 else shown}", file=out)
 
     def print_unreadable(out) -> None:
         # P-TODO 3b121: printed before the ACTIONABLE list, which nmw-actionable parses to the end of output.
@@ -1742,7 +1750,9 @@ def main(argv: list[str]) -> int:
     rows, blocked, actionable = build_report(public_text, private_text, private_dir=private_dir)
 
     def trunc(t: str, w: int = 52) -> str:
-        t = t.strip()
+        # A title is backlog text: escaped before it is cut, so a terminal escape in it reaches
+        # the console (and nmw-actionable's id<TAB>title lines) as text (hook escaping round 3).
+        t = _printable(t.strip())
         return t if len(t) <= w else t[: w - 3] + "..."
 
     if not args.actionable_only:

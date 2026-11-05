@@ -41874,7 +41874,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         alignment_citation_ids.json DATA F cfa3de2c52597f242d12bfce2d71756e897c173de8df9a1577aed4f42b571d56
         alignment_citation_reference.py PASSIVE F 4d26e0d5906e57bbe205f641575c6589d0afad3f60d8b4995aa07c26caf1db4b
         audit-activity-timing.py SKIP F e80df37531885836146bc027bc25e2c9afbeab6359b343f957d16449603e92b0
-        audit-backlog-actionability.py OWN F 307f3b5f8dfbb384eb0627f1eb50978742cb376acb51c459dfa6b65a1d068549
+        audit-backlog-actionability.py OWN F 0843d6b5003092fa1da8ea6cbad43c47ce6751138acd3a45fb065cc02d523cb5
         audit-claim-precision.py ROOT F c2e537144efb7458cba00827577f959907263a7dfffcc75bab54c888f1e1d4b2
         audit-cross-repo-references.py OWN F f29ff55d094366575fcf45011fa08ab358f561519093248d1f37f8f4d79b3428
         audit-gate-blindspots.py OWN F a20d49b67e8bfa12a01f69d2847053fd8dca4dc50cb0b56acdb5c05d0763be48
@@ -42099,7 +42099,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         .corpus-management/tools/pack_release_delta.py 9954156fab2677b2e68f665945703d834a704ab4374ae2eaf85010ba3a54c9ad
         .corpus-management/tools/profile_loader.py 0b61489bb735fce429c9103c814ec6b3ee3499b6ff0bea194ab6223bbd946697
         vendor/aiqt/tools/aiqt_corpus.py d263897ff93e84e73c509b373e59669a07767e5795618475a1628ea4657e2a47
-        .claude/hooks/block-unbumped-version-commit.py 06f680c81e4af2a23721da2f374eec73dab0e5d3a9bf03895bade5ce2a08a065
+        .claude/hooks/block-unbumped-version-commit.py 65c34c56695b8ebf8c7a91e8f3533f5f5a5feceee3d99b3f1b4c4f4e6d565553
     """
 
     POLICIES = frozenset(
@@ -72246,11 +72246,12 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         # (asserted on the writer's input in _render_case). 2026-11-05: the held-branches
         # record path and the one-shot escape are on the console too when they fit, as
         # stop-guard keeps its escape there (#2496); an unresolved held path stays in the log.
+        # Round 3 (claude N5): the escape carries its one-shot condition, as stop-guard's does.
         for held in (True, False):
             for count in (1, 9):
                 add("held-%s-count-%s" % (held, count), (held, count),
                     evidence=(cls.DETAIL_LOG, "claude/probe0",
-                              "then touch /__p195__/drop/.allow-stop")
+                              "(once, after recording it): touch /__p195__/drop/.allow-stop")
                     + (("hold in /__p195__/held-branches.txt",) if held else ()),
                     absent=(("claude/probe3", "claude/probe8") if count == 9 else ())
                     + (() if held else ("held-branches",)))
@@ -72928,8 +72929,11 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 self.assertEqual([line.endswith(log) for line in lines[1:]].count(True), 1, text)
                 self.assertLessEqual(max(map(len, lines)), 160, text)
                 if hook.startswith("block-") and "touch " in text:
-                    # _stop_block's default escape path; it is named whole or not at all.
-                    self.assertIn("then touch " + str(Path(td) / ".allow-stop"), lines[2])
+                    # _stop_block's default escape path; it is named whole or not at all, as one
+                    # shell word, after its one-shot condition (round 3, claude N5).
+                    import shlex
+                    self.assertIn("(once, after recording it): touch "
+                                  + shlex.quote(str(Path(td) / ".allow-stop")), lines[2])
                 hidden = ("Branches outstanding", "Declared wait", "NOTE:") \
                     if hook.startswith("block-") else ("Declared wait", "NOTE:", "Actionable items")
                 for detail in hidden:
@@ -73320,7 +73324,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         so a 36-character id fits the documented store-path budget exactly; one more character
         falls back. Each entry's header still carries the whole session id."""
         session = "0123abcd-4567-89ef-0123-456789abcdef"
-        budgets = {"block-turn-end-with-outstanding-work": 79, "stop-guard-unattended": 82}
+        # Round 3 (codex W2): run() passes the required count (3 here), whose compact wording
+        # "WHY: live 0/3 required; log: " is four characters shorter than the count-free one.
+        budgets = {"block-turn-end-with-outstanding-work": 79, "stop-guard-unattended": 86}
         with tempfile.TemporaryDirectory() as probe:
             if len(probe) + 2 > min(budgets.values()):
                 self.skipTest("TMPDIR is too long to build the budget-length store path")
@@ -73434,10 +73440,17 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         lines = raw.rstrip(b"\n").split(b"\n")
         self.assertTrue(lines[5].startswith(b"NOTE: detail log not written"), raw)
         self.assertLessEqual(max(map(len, lines)), 640)
-        cut = [line for line in lines if line.startswith(b"Declared wait: touch /\\udcff")]
+        # Round 3 (codex W1): the declared-wait path is one shell word, each surrogate-escaped
+        # byte written \xff inside $'...', so the line is ASCII and cut at 160 characters.
+        cut = [line for line in lines if line.startswith(b"Declared wait: touch $'/\\xff\\xff")]
         self.assertEqual(len(cut), 1, raw)
-        # Cut by bytes, not by characters: fewer than 160 characters survive.
-        self.assertLess(len(cut[0].decode("ascii").replace("\\udcff", "?")), 160)
+        self.assertEqual(len(cut[0]), 160)
+        # The byte clamp itself: lone surrogates escape to six bytes each, so a 160-character
+        # line is cut further by bytes and fewer than 160 characters survive.
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_stop_byte_clamp_r3")
+        clamped = mod._clamp("Declared wait: touch /" + "\udcff" * 300)
+        self.assertLessEqual(len(clamped.encode("utf-8", "backslashreplace")), 640)
+        self.assertLess(len(clamped), 160)
 
     # ---- Round 4 (2026-11-05): detail built inside the deadline, escaped items, escape path ----
     def test_stop_guard_large_list_builds_no_detail_when_ineligible(self):
@@ -73681,8 +73694,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 self._assert_paths_escaped(text, raw, shown, held, escape)
                 lines = text.split("\n")
                 self.assertIn("      " + str(held).replace(raw, shown), lines)
-                self.assertIn("      touch " + str(escape).replace(raw, shown)
-                              + "     # honoured once, then deleted", lines)
+                # Round 3 (codex W1): one $'...' shell word that names the escape path itself.
+                self.assertIn("      touch $'" + str(escape).replace(raw, shown)
+                              + "'     # honoured once, then deleted", lines)
 
     def test_turn_end_last_resort_escapes_held_and_escape_paths(self):
         """Round 6 item 1: the last-resort form (the full detail, then the NOTE) escapes both
@@ -73724,9 +73738,10 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                                                         ESCAPE_FILE=escape, decide=broken,
                                                         **self._generous_bounds(hook))
                 self.assertEqual(status, 2)
+                # Round 3 (codex W1): one $'...' shell word that names the escape path itself.
                 self.assertEqual(text, "BLOCKED (turn-end-outstanding-work): cannot format "
-                                       "outstanding work; one-shot escape: touch "
-                                 + str(escape).replace(raw, shown))
+                                       "outstanding work; one-shot escape: touch $'"
+                                 + str(escape).replace(raw, shown) + "'")
 
     def test_turn_end_isolation_refusal_escapes_launch_path(self):
         """Round 6 item 2: the hook-helper-isolation refusal names the launch path escaped, on one
@@ -73861,9 +73876,11 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             self.assert_refusal(text, guard="turn-end-outstanding-work", imperative="merge")
             return out
 
-        both = ("CONSIDER INSTEAD: merge, or hold in /h/held-branches.txt; genuine block: "
-                "record it, then touch /w/.allow-stop")
-        escape_only = "CONSIDER INSTEAD: merge or hold; genuine block: record it, then touch /w/.allow-stop"
+        # Round 3 (claude N5): the escape carries its one-shot condition, as stop-guard's does.
+        both = ("CONSIDER INSTEAD: merge, or hold in /h/held-branches.txt; genuine block (once, "
+                "after recording it): touch /w/.allow-stop")
+        escape_only = ("CONSIDER INSTEAD: merge or hold; genuine block (once, after recording it): "
+                       "touch /w/.allow-stop")
         self.assertEqual(lines(log)[2], both + "; log: " + log)
         middle = "/" + "s" * 40 + tail
         out = lines(middle)
@@ -73898,7 +73915,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
     def test_stop_guard_short_form_shows_required_count(self):
         """The short form's WHY line shows decide()'s required live group count (the larger of
         the operator share and 3) whenever a wording carrying it fits; run() passes it, so a
-        share above the floor reaches the console. The 82-character store budget is unchanged."""
+        share above the floor reaches the console. The 82-character store budget still holds;
+        with the required count given, the compact wording keeps both counts up to 86."""
         from unittest.mock import Mock
         mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_stop_required")
         self.assertEqual([mod._required_groups(share) for share in
@@ -73919,8 +73937,14 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                          "count (5); detail log: " + log)
         middle = "/" + "s" * 70 + tail
         self.assertEqual(why(middle), "WHY: 1 of 5 required groups live; log: " + middle)
+        # Round 3 (codex W2): the compact wording keeps both counts where the count-free one
+        # was used, and at the four extra log-path characters it leaves room for.
         budget = "/" + "s" * 81 + tail
-        self.assertEqual(why(budget), "WHY: below the group floor; log: " + budget)
+        self.assertEqual(why(budget), "WHY: live 1/5 required; log: " + budget)
+        wider = "/" + "s" * 85 + tail
+        self.assertEqual(why(wider), "WHY: live 1/5 required; log: " + wider)
+        with self.assertRaises(ValueError):
+            why("/s" + wider)
         hook = "stop-guard-unattended"
         with tempfile.TemporaryDirectory() as td:
             store = Path(td) / "store"
@@ -73950,7 +73974,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 self._assert_fallback(hook, items, text)
                 self.assertNotIn(escape, text)
                 self.assertNotIn("\x1b", text)
-                self.assertIn("Declared wait: touch " + escape.replace(raw, shown) + " (once, "
+                # Round 3 (codex W1): one $'...' shell word that names the path itself.
+                self.assertIn("Declared wait: touch $'" + escape.replace(raw, shown) + "' (once, "
                               "after recording blocker)", text.split("\n")[4])
 
     def test_stop_guard_producer_notice_escapes_stderr(self):
@@ -74103,6 +74128,318 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 self.assertIn("refusing to execute it", text)
                 self._assert_paths_escaped(text, raw, shown, odd)
                 self.assertEqual(len(text.splitlines()), 1, repr(text))
+
+    # ---- 2026-11-05 round 3: text from tool input, the environment and the filesystem ----
+    # Each case fails without its fix: the raw character reaches the console text, or the
+    # displayed command names another path.
+    # Characters str.splitlines() keeps inside a line (a line split there still carries them)...
+    INLINE_CHARS = (("ESC", "\x1b", "\\x1b"), ("CSI", "\x9b", "\\x9b"), ("RLO", "‮", "\\u202e"))
+    # ...and characters it splits on, which reach a line built from text split on LF only.
+    LINE_BREAK_CHARS = (("CR", "\r", "\\r"), ("VT", "\x0b", "\\x0b"), ("NEL", "\x85", "\\x85"),
+                        ("LS", " ", "\\u2028"))
+    # One path segment for the displayed-command round trip: a newline, an ESC, a space, a
+    # single quote, a backslash and a surrogate-escaped byte (0xff in the file name).
+    ODD_SEGMENT = "a b'c\\d\n\x1b[2J\udcffe"
+    _SHELL_WORD = re.compile(r"\$'(?:[^\\']|\\.)*'|(?:'[^']*'|\"'\")+|[^\s`';]+")
+
+    def _assert_text_escaped(self, text, raw, shown):
+        self.assertNotIn(raw, text)
+        self.assertIn(shown, text)
+
+    def _assert_names_path(self, text, prefix, path):
+        """The shell word right after ``prefix`` in ``text`` is printable, and bash reads it as
+        exactly ``path`` (its bytes, so a surrogate-escaped byte counts)."""
+        bash = shutil.which("bash")
+        if bash is None:
+            self.skipTest("bash unavailable")
+        self.assertIn(prefix, text)
+        match = self._SHELL_WORD.match(text, text.index(prefix) + len(prefix))
+        self.assertIsNotNone(match, text)
+        word = match.group(0)
+        self.assertTrue(word.isprintable(), repr(word))
+        out = subprocess.run([bash, "-c", "printf '%s\\0' " + word], capture_output=True,
+                             env=dict(os.environ, LC_ALL="C"), timeout=60)
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertEqual(out.stdout, os.fsencode(str(path)) + b"\0", word)
+
+    def test_claude_attribution_escapes_snippet(self):
+        """claude W1, codex E1: the matched attribution line, from a body file or the command
+        text (split on LF only), is escaped before it is cut, so the refusal keeps three lines."""
+        mod = load_linter_module(".claude/hooks/block-claude-attribution.py", "_esc3_attribution")
+        for label, raw, shown in self.INLINE_CHARS + self.LINE_BREAK_CHARS:
+            with self.subTest(char=label, origin="body file"):
+                text = mod.decide("gh pr create --title t --body-file /b/body.md",
+                                  read_file=lambda path: "Co-Authored-By: Claude" + raw + "[2J x\n")
+                self.assertIn("the body file /b/body.md carries", text)
+                self.assertIn("Claude" + shown + "[2J x`", text)
+                self._assert_text_escaped(text, raw, shown)
+                self.assertEqual(len(text.splitlines()), 3, repr(text))
+            with self.subTest(char=label, origin="command"):
+                text = mod.decide("gh pr create -b 'Generated with Claude Code " + raw + " end'")
+                self.assertIn("the command text carries", text)
+                self._assert_text_escaped(text, raw, shown)
+                self.assertEqual(len(text.splitlines()), 3, repr(text))
+
+    def test_answered_question_escapes_store_line(self):
+        """codex E1, claude N4: a matched decision-store line is escaped before it is cut."""
+        mod = load_linter_module(".claude/hooks/block-answered-question.py", "_esc3_answered")
+        for label, raw, shown in self.INLINE_CHARS:
+            with self.subTest(char=label):
+                store = "- **3.69** decided" + raw + "[2J (" + "x" * 300 + ")\n"
+                hits = mod.find_matches(["3.69"], [(".working/pending-decisions.md", store)])
+                self.assertEqual(len(hits), 1, hits)
+                self.assertIn("decided" + shown + "[2J (", hits[0])
+                self._assert_text_escaped(hits[0], raw, shown)
+                self.assertTrue(hits[0].endswith(" ..."), hits[0])
+
+    def test_open_findings_escapes_ledger_text(self):
+        """codex E1, claude N4: an error row's finding, and a misfiled row with its heading,
+        are ledger text: escaped before the cut on both refusals."""
+        from contextlib import redirect_stderr
+        mod = load_linter_module(".claude/hooks/block-on-open-findings.py", "_esc3_findings")
+        for label, raw, shown in self.INLINE_CHARS:
+            with self.subTest(char=label, form="error row"):
+                err = io.StringIO()
+                with redirect_stderr(err):
+                    rc = mod.decide_exit([("error", "a finding " + raw + "[2J " + "y" * 200, None)], "")
+                self.assertEqual(rc, 2)
+                self.assertIn("  - a finding " + shown + "[2J y", err.getvalue())
+                self._assert_text_escaped(err.getvalue(), raw, shown)
+            with self.subTest(char=label, form="misfiled row"):
+                ledger = ("# Ledger\n\n## Legend " + raw + "[31m\n\n| 2026-11-05 | error | row " + raw
+                          + "[2J | |\n\n## Open\n\n## Closed today\n")
+                err = io.StringIO()
+                with redirect_stderr(err):
+                    rc = mod.decide_exit([], ledger)
+                self.assertEqual(rc, 2)
+                self.assertIn("BLOCKED (open-findings-misfiled)", err.getvalue())
+                self.assertIn("row " + shown + "[2J", err.getvalue())
+                self._assert_text_escaped(err.getvalue(), raw, shown)
+
+    def test_unjustified_decision_escapes_classification(self):
+        """codex E1: the submitted classification (captured up to LF) is escaped before the cut."""
+        mod = load_linter_module(".claude/hooks/block-unjustified-decision.py", "_esc3_unjustified")
+        clean = mod.decide("**Classification:** MAYBE later\n")[1]
+        for label, raw, shown in self.INLINE_CHARS + self.LINE_BREAK_CHARS:
+            with self.subTest(char=label):
+                block, text = mod.decide("**Classification:** MAYBE" + raw + "[2J later\n")
+                self.assertTrue(block)
+                self.assertIn("Classification 'MAYBE" + shown + "[2J later' is not", text)
+                self._assert_text_escaped(text, raw, shown)
+                self.assertEqual(len(text.splitlines()), len(clean.splitlines()), repr(text))
+
+    def test_repeated_tool_failure_escapes_recorded_hook_name(self):
+        """codex E1: the hook name in the state file is any decoded JSON string, so it can hold
+        a newline or a terminal escape; the refusal shows it escaped and keeps three lines."""
+        import json
+        import time
+        from unittest.mock import patch
+        mod = load_linter_module(".claude/hooks/block-repeated-tool-failure.py", "_esc3_repeated")
+        for label, raw, shown in ((("LF", "\n", "\\n"),) + self.INLINE_CHARS
+                                  + self.LINE_BREAK_CHARS):
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                state = Path(td) / "recent-blocks.jsonl"
+                state.write_text(json.dumps({"cmd": "git add -A", "hook": "evil" + raw + "[2J",
+                                             "ts": int(time.time())}) + "\n", encoding="utf-8")
+                with patch.dict(os.environ, {"HOOK_STATE_FILE": str(state)}):
+                    block, text = mod.decide("git add -A")
+                self.assertTrue(block)
+                self.assertIn("`evil" + shown + "[2J` just blocked", text)
+                self.assertNotIn("evil" + raw, text)
+                self.assertEqual(len(text.splitlines()), 3, repr(text))
+
+    def test_nmw_actionable_notice_escapes_tool_stderr(self):
+        """codex E1: the producer's own fail-open NOTICE escapes the audit tool's stderr."""
+        with tempfile.TemporaryDirectory() as td:
+            tool = Path(td) / "tool.py"
+            tool.write_text("import sys\nsys.stderr.write('boom \\x1b[2J end\\x07\\n')\nsys.exit(3)\n",
+                            encoding="utf-8")
+            proc = subprocess.run(
+                [sys.executable, "-I", str(REPO_ROOT / ".claude" / "hooks" / "nmw-actionable")],
+                env=dict(os.environ, NMW_ACTIONABLE_TOOL=str(tool)), capture_output=True,
+                text=True, timeout=60)
+        self.assertEqual(proc.returncode, 1, proc.stderr)
+        self.assertEqual(proc.stderr,
+                         "NOTICE (nmw-actionable; fail open): boom \\x1b[2J end\\x07\n")
+
+    def test_audit_tool_escapes_backlog_text(self):
+        """codex E1: tools/audit-backlog-actionability.py escapes backlog text before it cuts it:
+        each listed title (the ACTIONABLE list nmw-actionable reads), an item-like line, the
+        pipeline view's titles, and the text of an exception reading the approvals register."""
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest.mock import patch
+        mod = load_linter_module("tools/audit-backlog-actionability.py", "_esc3_audit")
+        for label, raw, shown in self.INLINE_CHARS:
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                todo = Path(td) / "TODO.md"
+                todo.write_text("## 1. Section\n\n### 1.1 An item " + raw + "[31m red [public]\n\n"
+                                "```" + raw + "[2J unclosed\n", encoding="utf-8")
+                for extra in ([], ["--pipeline"]):
+                    out, err = io.StringIO(), io.StringIO()
+                    with patch.object(mod, "_load_default_approvals", lambda explicit: "note"), \
+                            patch.object(mod, "PTODO_PATH", Path(td) / "absent-P-TODO.md"), \
+                            redirect_stdout(out), redirect_stderr(err):
+                        self.assertEqual(mod.main(["--todo", str(todo)] + extra), 0)
+                    text = out.getvalue() + err.getvalue()
+                    self.assertIn("An item " + shown + "[31m red", text, extra)
+                    self.assertIn("```" + shown + "[2J unclosed", text, extra)
+                    self._assert_text_escaped(text, raw, shown)
+                register = Path(td) / "blocked-approvals.md"
+                register.write_text("x\n", encoding="utf-8")
+                with patch.object(mod.Path, "read_bytes",
+                                  side_effect=OSError("disk " + raw + "[2J gone")):
+                    note = mod._load_default_approvals(str(register))
+                self.assertIn("unreadable (disk " + shown + "[2J gone)", note)
+                self._assert_text_escaped(note, raw, shown)
+                err = io.StringIO()
+                with patch.object(mod.Path, "read_bytes",
+                                  side_effect=OSError("disk " + raw + "[2J gone")), \
+                        redirect_stderr(err), self.assertRaises(SystemExit):
+                    mod._load_tool_helper("_esc3_absent_helper")
+                self.assertIn("_esc3_absent_helper: unavailable: disk " + shown + "[2J gone",
+                              err.getvalue())
+                self._assert_text_escaped(err.getvalue(), raw, shown)
+
+    def test_version_guard_escapes_staged_paths(self):
+        """claude N3: with core.quotePath=false git lists a C1 control in a staged path raw; the
+        version guard's BLOCKED list and both NOTEs (auto-bumped, stale Date) show it escaped."""
+        import json
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+
+            def git(*args):
+                subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True)
+            hooks = repo / ".claude" / "hooks"
+            hooks.mkdir(parents=True)
+            hook = hooks / "block-unbumped-version-commit.py"
+            shutil.copy(REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py", hook)
+            git("init", "-q")
+            git("config", "user.email", "t@example.invalid")
+            git("config", "user.name", "t")
+            git("config", "core.quotePath", "false")
+            names = {"remaining": "odd\x9bx.md", "fixed": "fix\x9by.md", "lag": "lag\x9bz.md"}
+            head = "**Version:** 1.0.0\n**Date:** 2000-01-01\n\n"
+            for name in names.values():
+                (repo / name).write_text(head + "old body\n", encoding="utf-8")
+            git("add", "--", *names.values())
+            git("commit", "-q", "-m", "init")
+            for key in ("remaining", "fixed"):
+                (repo / names[key]).write_text(head + "new body\n", encoding="utf-8")
+            (repo / names["lag"]).write_text(head.replace("1.0.0", "1.0.1") + "old body\n",
+                                             encoding="utf-8")
+            git("add", "--", *names.values())
+            # An unstaged change keeps the first file from being auto-bumped, so it is listed.
+            (repo / names["remaining"]).write_text(head + "newer body\n", encoding="utf-8")
+            payload = json.dumps({"tool_name": "Bash", "cwd": str(repo),
+                                  "tool_input": {"command": "git commit -m x"}})
+            env = dict(os.environ, CLAUDE_PROJECT_DIR=str(repo), PYTHONIOENCODING="utf-8")
+            cp = subprocess.run([sys.executable, str(hook)], input=payload, capture_output=True,
+                                text=True, encoding="utf-8", env=env, timeout=60)
+        self.assertEqual(cp.returncode, 2, cp.stderr)
+        self.assertIn("  - odd\\x9bx.md\n", cp.stderr)
+        self.assertIn("re-staged: fix\\x9by.md.", cp.stderr)
+        self.assertIn("lag\\x9bz.md", cp.stderr)
+        self.assertNotIn("\x9b", cp.stderr)
+
+    def test_wrong_repo_tool_escapes_project_name(self):
+        """claude N2: the project directory's own name (not only its parent) is shown escaped."""
+        from unittest.mock import patch
+        wrong = load_linter_module(".claude/hooks/block-wrong-repo-tool.py", "_esc3_wrong_name")
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                parent = Path(td).resolve()
+                project = parent / ("proj" + raw + "name")
+                project.mkdir()
+                sibling = parent / "grc_library_scratch" / "tools"
+                sibling.mkdir(parents=True)
+                (sibling / "probe.py").write_text("", encoding="utf-8")
+                with patch.object(wrong, "_sibling_roots",
+                                  lambda project_dir: {"grc_library_scratch": sibling}):
+                    block, text = wrong.decide("python3 tools/probe.py", str(project))
+                self.assertTrue(block)
+                self.assertIn("no scanned project-file match for `proj" + shown + "name`", text)
+                self.assertNotIn("proj" + raw, text)
+
+    def test_displayed_commands_name_the_same_path(self):
+        """codex W1: every command a refusal tells the reader to run names its path as one
+        printable shell word that bash reads back as that exact path ($'...' when the path has
+        a character outside the escaping rule, shell quoting otherwise), so escaping no longer
+        changes the target. One subtest per command site."""
+        from unittest.mock import patch
+        idle = load_linter_module(".claude/hooks/block-idle-stop-with-actionable-backlog.py",
+                                  "_esc3_idle")
+        self_qa = load_linter_module(".claude/hooks/block-orchestrator-self-qa.py", "_esc3_self_qa")
+        resume = load_linter_module(".claude/hooks/block-pr-without-resume-validate.py",
+                                    "_esc3_resume")
+        branch = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_esc3_branch")
+        wrong = load_linter_module(".claude/hooks/block-wrong-repo-tool.py", "_esc3_wrong_word")
+        turn = load_linter_module(".claude/hooks/block-turn-end-with-outstanding-work.py",
+                                  "_esc3_turn_word")
+        guard = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_esc3_guard_word")
+        with tempfile.TemporaryDirectory() as td:
+            odd = Path(td).resolve() / ("odd" + self.ODD_SEGMENT + "dir")
+            with self.subTest(site="resume-validate sentinel"), \
+                    patch.dict(os.environ, {"GRC_DROP_ROOT": str(odd)}):
+                self._assert_names_path(resume._block_message(None), "    touch ",
+                                        resume._sentinel_path())
+            with self.subTest(site="idle-stop escape"):
+                escape = odd / ".allow-idle-stop"
+                with patch.object(idle, "ESCAPE_FILE", escape):
+                    text = idle.decide(False, False, False, "attended-autonomous", 2)
+                self._assert_names_path(text, "      touch ", escape)
+            with self.subTest(site="self-QA sentinel"):
+                sentinel = odd / ".allow-orchestrator-qa"
+                with patch.object(self_qa, "SENTINEL", sentinel):
+                    self._assert_names_path(self_qa._block_message("review this"), "    touch ",
+                                            sentinel)
+            with self.subTest(site="branch-to-main checkout"):
+                with patch.object(branch, "_current_branch", lambda root: "main"):
+                    _block, text = branch.decide(str(odd / "x.md"), str(odd))
+                self._assert_names_path(text, "git -C ", odd)
+            project = odd / "grc_library"
+            sibling = odd / "grc_library_scratch" / "tools"
+            sibling.mkdir(parents=True)
+            (sibling / "probe.py").write_text("", encoding="utf-8")
+            roots = {"grc_library": project / "tools", "grc_library_scratch": sibling}
+            tool = "%s/grc_library_scratch/tools/probe.py" % odd
+            with patch.object(wrong, "_sibling_roots", lambda project_dir: roots):
+                with self.subTest(site="wrong-repo absolute-path suggestion"):
+                    _block, text = wrong.decide("cd /x && python3 tools/probe.py", str(project))
+                    self._assert_names_path(text, "use `python3 ", tool)
+                with self.subTest(site="wrong-repo sibling templates"):
+                    _block, text = wrong.decide("python3 tools/probe.py", str(project))
+                    self._assert_names_path(text, "Templates: `python3 ", tool)
+                    self._assert_names_path(text, "(or `cd ", "%s/grc_library_scratch" % odd)
+            with self.subTest(site="turn-end detail and fallback"):
+                escape = odd / ".allow-stop"
+                with patch.object(turn, "ESCAPE_FILE", escape):
+                    text = turn.decide(False, False, [("claude/b", "1")])
+                self._assert_names_path(text, "      touch ", escape)
+            with self.subTest(site="turn-end unformattable fallback"):
+                def boom(*args, **kwargs):
+                    raise ValueError("no format")
+                _items, status, text = self._stop_block(
+                    "block-turn-end-with-outstanding-work", td, 1, {}, None, decide=boom,
+                    ESCAPE_FILE=odd / ".allow-stop", **self._generous_bounds(
+                        "block-turn-end-with-outstanding-work"))
+                self.assertEqual(status, 2)
+                self._assert_names_path(text, "one-shot escape: touch ", odd / ".allow-stop")
+            plain = "/w/a b'c/.allow-stop"
+            with self.subTest(site="turn-end short form"):
+                with patch.object(turn, "HELD_FILE", None), \
+                        patch.object(turn, "ESCAPE_FILE", Path(plain)):
+                    text = turn.summarize([("claude/b", "1")], "/s/x.log")
+                self._assert_names_path(text, "recording it): touch ", plain)
+            with self.subTest(site="stop-guard declared wait"):
+                escape = str(odd / ".allow-idle-stop")
+                with patch.object(guard, "_grc_escape_file", lambda: escape):
+                    _block, text = guard.decide("unattended", False, [("1", "t")], 0,
+                                                (None, "absent"))
+                self._assert_names_path(text, "Declared wait: touch ", escape)
+            with self.subTest(site="stop-guard short form"):
+                plain = "/w/a b'c/.allow-idle-stop"
+                text = guard._short_refusal(4, 1, "/s/x.log", plain, required=5)
+                self._assert_names_path(text, "blocker): touch ", plain)
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()

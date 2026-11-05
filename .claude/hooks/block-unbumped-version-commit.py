@@ -377,6 +377,16 @@ def offenders(diff: str, versioned: set[str]) -> list[str]:
     return out
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies). A staged path is listed through it: git
+    quotes C0 controls in --name-only output, but with core.quotePath=false a C1 control or a
+    bidirectional or other format character stays raw (hook escaping round 3, claude N3)."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def git(root: Path, *args: str) -> str:
     # Raw bytes, decoded WITHOUT newline translation: text=True would apply universal newlines and
     # turn a lone CR inside a tracked line into a line break before any parser sees it (#2496 r5).
@@ -536,7 +546,8 @@ def main() -> int:
                 lag = stale_date_after_bump(vdiff, texts, today_note)
                 if lag:
                     print("NOTE (version-bump guard): a staged Version/README Version change carries a "
-                          f"**Date:** that is not today UTC ({today_note}): {', '.join(lag)}. Co-bump the "
+                          f"**Date:** that is not today UTC ({today_note}): "
+                          f"{', '.join(_printable(p) for p in lag)}. Co-bump the "
                           "Date in THIS commit (a later Date-only commit fails gate 40); D4 blocks at push.",
                           file=sys.stderr)
         except Exception:
@@ -575,7 +586,7 @@ def main() -> int:
     if fixed:
         print("NOTE (version-bump guard): auto-bumped **Version:** (patch), set the first date-shaped "
               f"**Date:** before the metadata-region end to {today} if one exists, and re-staged: "
-              f"{', '.join(fixed)}. A PATCH "
+              f"{', '.join(_printable(p) for p in fixed)}. A PATCH "
               "bump is assumed; if a minor/major is intended, edit **Version:** yourself and re-commit.",
               file=sys.stderr)
     if not remaining:
@@ -588,7 +599,7 @@ def main() -> int:
         "present, no numeric Version match before the metadata-region end such as a bracketed template, or an exception during the attempt):",
         "",
     ]
-    lines += [f"  - {p}" for p in remaining]
+    lines += [f"  - {_printable(p)}" for p in remaining]
     lines += [
         "",
         "WHY: a body change without a Version+Date bump trips the delta gates (D2 on a body change "

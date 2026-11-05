@@ -129,18 +129,22 @@ filesystem root, lexically or after resolving symlinks, or `git rev-parse
 refused before anything is created. The diagnostic is then three short lines
 (_short_refusal), each at most _MAX_LINE_CHARS: what blocked with the actionable count, WHY
 with the live group count and the required count (decide()'s max(operator share, 3), from
-_required_groups) whenever a wording carrying both fits (only the shortest wording, used when
-nothing longer fits beside the log path, names neither), and the one action that clears it, which names the declared-wait
+_required_groups) on every wording, the shortest being "WHY: live 1/5 required; log: " (hook
+escaping round 3, codex W2: the count-free wording it replaced was longer), and the one action
+that clears it, which names the declared-wait
 escape path (_grc_escape_file, #2496: a sentinel was once written at the wrong path because
-the message did not name it) with decide()'s condition "(once, after recording the blocker)",
+the message did not name it) as one shell word (_shell_word) with decide()'s condition "(once, after recording the blocker)",
 followed by the log path. When the escape path and the log path do not both fit that line, the
 escape path keeps the CONSIDER INSTEAD line, with the condition when it fits and "(condition
 in log)" when it does not, and the log path moves to the end of the WHY line; there is never a
 fourth line. No item ID or title appears
 in that form. PATH BUDGET: the log path adds 45 characters to the store path (with a
-12-character session prefix), so the short form fits a store path of at most 82 characters
-(the shortest WHY wording leaves 127 characters for the log path); a longer store path, an
-escape path longer than 101 characters, or a log or escape path with any non-printable
+12-character session prefix), so the short form fits a store path of at most 84 characters,
+and of 86 while the required count has one digit (the default floor is 3): the shortest WHY
+wording, "WHY: live <live>/<required> required; log: ", leaves 129 to 131 characters for the
+log path (82 when no required count is passed, as before round 3, where the shortest wording
+leaves 127); a longer store path, an
+escape path longer than 101 characters (shell-quoted), or a log or escape path with any non-printable
 character (a newline, a carriage return or a terminal escape, tested with _printable), takes
 the fallback below. The full detail (every item ID and title) is built only after the time
 budget and the session_id have been checked, inside the deadline-controlled write thread, so
@@ -953,8 +957,10 @@ def decide(mode, stop_hook_active, actionable, live_groups, share):
         "(full list: %s)." % ACTIONABLE_PRODUCER,
         "Yield allowed with at least %d live owned dispatch groups, or no actionable items "
         "(a [BLOCKED:<reason>] tag with a granted approvals row)." % required,
+        # One shell word naming the declared-wait path itself (_shell_word): an escaped path in
+        # this command would touch a different file (hook escaping round 3, codex W1).
         "Declared wait: touch %s (once, after recording blocker); operator stop: set mode attended."
-        % _printable(_grc_escape_file()),
+        % _shell_word(_grc_escape_file()),
     ]
     return True, "\n".join(line[:_MAX_LINE_CHARS] for line in lines[:_MAX_REASON_LINES])
 
@@ -1073,6 +1079,42 @@ def _printable(value):
     return "".join(ch if ch.isprintable() else ascii(ch)[1:-1] for ch in str(value))
 
 
+def _shell_word(text) -> str:
+    """``text`` as ONE shell word that names exactly ``text`` and prints on one line, for a
+    command a refusal tells the reader to run (escaping a shell-quoted word would change the
+    path the command names): shlex.quote when every character is printable or a space
+    separator, else a bash ANSI-C quoted $'...' word in which a backslash or a single quote is
+    backslash-escaped and every other character outside that rule is an escape bash reads
+    back (below 0x80 the ascii() escape _printable shows, such as \\n or \\x1b; \\xHH for a
+    surrogate-escaped byte; \\uHHHH or \\UHHHHHHHH above, which bash rebuilds in a UTF-8
+    locale)."""
+    import shlex
+    import unicodedata
+    text = str(text)
+
+    def plain(char):
+        return char.isprintable() or unicodedata.category(char) == "Zs"
+
+    if all(plain(char) for char in text):
+        return shlex.quote(text)
+    out = []
+    for char in text:
+        code = ord(char)
+        if char in "\\'":
+            out.append("\\" + char)
+        elif plain(char):
+            out.append(char)
+        elif code < 0x80:
+            out.append(ascii(char)[1:-1])  # \n, \r, \t or \xHH: the escape _printable shows
+        elif 0xDC80 <= code <= 0xDCFF:
+            out.append("\\x%02x" % (code - 0xDC00))  # a surrogate-escaped byte
+        elif code <= 0xFFFF:
+            out.append("\\u%04x" % code)
+        else:
+            out.append("\\U%08x" % code)
+    return "$'" + "".join(out) + "'"
+
+
 def _clamp(line):
     """One diagnostic line cut to _MAX_LINE_CHARS characters and _MAX_LINE_BYTES encoded bytes."""
     line = line[:_MAX_LINE_CHARS]
@@ -1095,20 +1137,25 @@ def _short_refusal(count, live_groups, log_path, escape_path, required=None):
     """The three diagnostic lines, each at most _MAX_LINE_CHARS: what blocked (count only,
     #2291), WHY, and the one action that clears it. The WHY line gives the live owned dispatch
     group count and, when ``required`` (decide()'s required count, _required_groups) is given,
-    the required count whenever a wording carrying it fits; only the shortest wording, used
-    when nothing longer fits beside the log path, omits both counts. The action line names the declared-wait
-    escape path (#2496) with decide()'s condition (once, after recording the blocker) and then
+    the required count on every wording (the shortest, "WHY: live 1/5 required; log: ", is
+    shorter than the count-free "WHY: below the group floor; log: ", which is used only when
+    ``required`` is not given; hook escaping round 3, codex W2). The action line names the declared-wait
+    escape path (#2496) as one shell word (_shell_word: a path with a space or a quote is
+    shell-quoted, so the copied command touches that path) with decide()'s condition (once, after recording the blocker) and then
     the detail log path when all fit it whole; otherwise the escape path keeps the action line,
     with the condition when it fits and "(condition in log)" when it does not, and the log path
     ends the WHY line. There is never a fourth line. A log or escape path with any non-printable
     character, or one that cannot fit whole, raises before its length is used, and the caller
     then shows the fallback.
-    PATH BUDGET: the shortest WHY wording leaves 127 characters for the log path, so the store
-    path may be at most 82 (see CONSOLE AND DETAIL LOG); the escape path at most 101."""
+    PATH BUDGET: with ``required`` given, as run() does, the shortest WHY wording leaves 129 to
+    131 characters for the log path, so the store path may be at most 84, or 86 with a
+    one-digit required count; without it, 127 and 82 (see CONSOLE AND DETAIL LOG); the escape
+    path at most 101 as shell-quoted."""
     if _printable(log_path) != log_path:
         raise ValueError("detail log path has a non-printable character")
     if _printable(escape_path) != escape_path:
         raise ValueError("declared-wait path has a non-printable character")
+    escape_word = _shell_word(escape_path)
     blocked = _clamp("BLOCKED (stop-guard-unattended): unattended turn-end yield; the backlog tool "
                      "reports %d actionable open backlog item(s)." % count)
     if required is None:
@@ -1123,11 +1170,11 @@ def _short_refusal(count, live_groups, log_path, escape_path, required=None):
         split_whys = ("WHY: the live owned dispatch group count (%d) is below the required "
                       "count (%d); detail log: " % (live_groups, required) + "%s",
                       "WHY: %d of %d required groups live; log: " % (live_groups, required) + "%s",
-                      "WHY: below the group floor; log: %s")
+                      "WHY: live %d/%d required; log: " % (live_groups, required) + "%s")
     try:
         action = _first_fit(("CONSIDER INSTEAD: continue; wait (once, after recording the "
                              "blocker): touch %s; log: %s",),
-                            (escape_path, log_path), "declared-wait and detail log paths")
+                            (escape_word, log_path), "declared-wait and detail log paths")
     except ValueError:
         # Prefer the escape path on the action line; the log path ends the WHY line. The
         # condition stays on the action line when it fits; otherwise the line says it is in
@@ -1137,7 +1184,7 @@ def _short_refusal(count, live_groups, log_path, escape_path, required=None):
                              "CONSIDER INSTEAD: continue; wait (once, after recording the "
                              "blocker): touch %s",
                              "CONSIDER INSTEAD: continue; wait (condition in log): touch %s"),
-                            (escape_path,), "declared-wait path")
+                            (escape_word,), "declared-wait path")
         why = _first_fit(split_whys, (log_path,), "detail log path")
     return "\n".join([blocked, why, action])
 
@@ -2528,7 +2575,12 @@ def _self_test():
             self.assertEqual(lines[1], "WHY: 1 of 7 required groups live; log: " + mid)
             fits = "/" + "s" * 81 + "/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
             lines = _short_refusal(500, 1, fits, escape, required=7).splitlines()
-            self.assertEqual(lines[1], "WHY: below the group floor; log: " + fits)
+            self.assertEqual(lines[1], "WHY: live 1/7 required; log: " + fits)
+            # Round 3 (codex W2): the compact wording keeps both counts at every log path the
+            # count-free wording took, and at four characters more.
+            wider = "/" + "s" * 85 + "/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
+            lines = _short_refusal(500, 1, wider, escape, required=7).splitlines()
+            self.assertEqual(lines[1], "WHY: live 1/7 required; log: " + wider)
             for text in (_short_refusal(500, 1, m, e, required=7) for m, e in
                          ((log, escape), (log, wide), (mid, escape), (fits, escape))):
                 self.assertEqual(len(text.splitlines()), 3)

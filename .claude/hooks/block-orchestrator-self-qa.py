@@ -365,6 +365,42 @@ def _printable(text) -> str:
                    else ascii(char)[1:-1] for char in str(text))
 
 
+def _shell_word(text) -> str:
+    """``text`` as ONE shell word that names exactly ``text`` and prints on one line, for a
+    command a refusal tells the reader to run (escaping a shell-quoted word would change the
+    path the command names): shlex.quote when every character is printable or a space
+    separator, else a bash ANSI-C quoted $'...' word in which a backslash or a single quote is
+    backslash-escaped and every other character outside that rule is an escape bash reads
+    back (below 0x80 the ascii() escape _printable shows, such as \\n or \\x1b; \\xHH for a
+    surrogate-escaped byte; \\uHHHH or \\UHHHHHHHH above, which bash rebuilds in a UTF-8
+    locale)."""
+    import shlex
+    import unicodedata
+    text = str(text)
+
+    def plain(char):
+        return char.isprintable() or unicodedata.category(char) == "Zs"
+
+    if all(plain(char) for char in text):
+        return shlex.quote(text)
+    out = []
+    for char in text:
+        code = ord(char)
+        if char in "\\'":
+            out.append("\\" + char)
+        elif plain(char):
+            out.append(char)
+        elif code < 0x80:
+            out.append(ascii(char)[1:-1])  # \n, \r, \t or \xHH: the escape _printable shows
+        elif 0xDC80 <= code <= 0xDCFF:
+            out.append("\\x%02x" % (code - 0xDC00))  # a surrogate-escaped byte
+        elif code <= 0xFFFF:
+            out.append("\\u%04x" % code)
+        else:
+            out.append("\\U%08x" % code)
+    return "$'" + "".join(out) + "'"
+
+
 def _block_message(dispatch_text: str) -> str:
     return (
         "BLOCKED (orchestrator-self-qa): this "
@@ -394,7 +430,7 @@ def _block_message(dispatch_text: str) -> str:
         "  If this dispatch must run in-session, create a sentinel "
         "where filesystem permissions permit:\n"
         "    touch "
-        + _printable(SENTINEL)
+        + _shell_word(SENTINEL)  # one shell word naming the sentinel itself
         + "     # successful rename/check/unlink permits the current call\n"
         "\n"
         "  Calls using the same working root share this speed bump. It does not "

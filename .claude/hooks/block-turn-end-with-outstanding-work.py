@@ -337,6 +337,42 @@ def _printable(text: str) -> str:
                    else ascii(char)[1:-1] for char in text)
 
 
+def _shell_word(text) -> str:
+    """``text`` as ONE shell word that names exactly ``text`` and prints on one line, for a
+    command a refusal tells the reader to run (escaping a shell-quoted word would change the
+    path the command names): shlex.quote when every character is printable or a space
+    separator, else a bash ANSI-C quoted $'...' word in which a backslash or a single quote is
+    backslash-escaped and every other character outside that rule is an escape bash reads
+    back (below 0x80 the ascii() escape _printable shows, such as \\n or \\x1b; \\xHH for a
+    surrogate-escaped byte; \\uHHHH or \\UHHHHHHHH above, which bash rebuilds in a UTF-8
+    locale)."""
+    import shlex
+    import unicodedata
+    text = str(text)
+
+    def plain(char):
+        return char.isprintable() or unicodedata.category(char) == "Zs"
+
+    if all(plain(char) for char in text):
+        return shlex.quote(text)
+    out = []
+    for char in text:
+        code = ord(char)
+        if char in "\\'":
+            out.append("\\" + char)
+        elif plain(char):
+            out.append(char)
+        elif code < 0x80:
+            out.append(ascii(char)[1:-1])  # \n, \r, \t or \xHH: the escape _printable shows
+        elif 0xDC80 <= code <= 0xDCFF:
+            out.append("\\x%02x" % (code - 0xDC00))  # a surrogate-escaped byte
+        elif code <= 0xFFFF:
+            out.append("\\u%04x" % code)
+        else:
+            out.append("\\U%08x" % code)
+    return "$'" + "".join(out) + "'"
+
+
 def _branch_display(ref: bytes) -> str:
     return _printable(ref.removeprefix(b"refs/heads/").decode("utf-8", errors="backslashreplace"))
 
@@ -490,7 +526,8 @@ def decide(stop_hook_active: bool, escape: bool, branches: list,
         "",
         "CONSIDER INSTEAD: merge the branch(es) above, or record the hold with its reason in the "
         "held-branches file. For a genuine block (CI, a maintainer decision, an external wait), record that blocker, then run:",
-        f"      touch {_printable(str(ESCAPE_FILE))}     # honoured once, then deleted",
+        # One shell word naming the escape path itself (_shell_word), so the command, copied, touches it.
+        f"      touch {_shell_word(ESCAPE_FILE)}     # honoured once, then deleted",
     ]
     return "\n".join(lines)
 
@@ -516,7 +553,8 @@ def summarize(branches: list, log_path: str) -> str:
     _MAX_ITEM_CHARS, so a newline or terminal escape in a git error text cannot break the
     three-line form), WHY, and the one action that clears it, with the detail log path.
     The action names the held-branches record path (HELD_FILE) and the one-shot escape
-    (ESCAPE_FILE) when they fit, so the remedy is on the console (as stop-guard-unattended.py
+    (ESCAPE_FILE, as one shell word, with its condition "once, after recording it") when they
+    fit, so the remedy is on the console (as stop-guard-unattended.py
     keeps its escape there, #2496): first both, then the escape alone, then the held path
     alone. Each wording is tried with the log path ending the action line, then with the log
     path ending the WHY line; when none fits, the action names only the log path, which holds
@@ -535,12 +573,16 @@ def summarize(branches: list, log_path: str) -> str:
     else:
         head = "%d branch(es) outstanding or not verifiable: " % len(branches)
     held, escape = _console_path(HELD_FILE), _console_path(ESCAPE_FILE)
+    # The escape is honoured once (decide()'s "# honoured once, then deleted"), as stop-guard's
+    # "(once, after recording the blocker)" says; the path is one shell word (_shell_word), so a
+    # path with a space or a quote is still the path the copied command touches.
+    escape = None if escape is None else _shell_word(escape)
     remedies = []
     if held is not None and escape is not None:
-        remedies.append("merge, or hold in " + held + "; genuine block: record it, then touch "
-                        + escape)
+        remedies.append("merge, or hold in " + held + "; genuine block (once, after recording "
+                        "it): touch " + escape)
     if escape is not None:
-        remedies.append("merge or hold; genuine block: record it, then touch " + escape)
+        remedies.append("merge or hold; genuine block (once, after recording it): touch " + escape)
     if held is not None:
         remedies.append("merge, or hold in " + held)
     why = "WHY: a turn-end yield strands unmerged work ahead of main for the next session."
@@ -778,7 +820,7 @@ def main() -> int:
             # The scan established a block; a rendering error must not erase it.
             # Escape handling above remains independent of this fallback.
             message = ("BLOCKED (turn-end-outstanding-work): cannot format outstanding work; "
-                       "one-shot escape: touch " + _printable(str(ESCAPE_FILE)))
+                       "one-shot escape: touch " + _shell_word(ESCAPE_FILE))
         else:
             if message:
                 # Wording and routing only: the full detail goes to the session log and the
@@ -918,13 +960,13 @@ def self_test() -> int:
             mock.patch.object(module, "ESCAPE_FILE", Path("/w/.allow-stop")):
         odd_held = summarize(many, "/store/x.log")
     if (short.splitlines()[2] != "CONSIDER INSTEAD: merge, or hold in /h/held-branches.txt; "
-            "genuine block: record it, then touch /w/.allow-stop; log: /store/x.log"
+            "genuine block (once, after recording it): touch /w/.allow-stop; log: /store/x.log"
             or wide.splitlines()[1] != "WHY: a turn-end yield strands unmerged work; log: /"
             + "s" * 90 + "/x.log"
             or wide.splitlines()[2] != "CONSIDER INSTEAD: merge, or hold in /h/held-branches.txt; "
-            "genuine block: record it, then touch /w/.allow-stop"
-            or odd_held.splitlines()[2] != "CONSIDER INSTEAD: merge or hold; genuine block: record "
-            "it, then touch /w/.allow-stop; log: /store/x.log"
+            "genuine block (once, after recording it): touch /w/.allow-stop"
+            or odd_held.splitlines()[2] != "CONSIDER INSTEAD: merge or hold; genuine block (once, "
+            "after recording it): touch /w/.allow-stop; log: /store/x.log"
             or "held" in odd_held):
         bad += 1
         print("FAIL summarize did not put the held path and the escape on the console")

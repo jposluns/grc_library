@@ -307,6 +307,42 @@ def _printable(text) -> str:
                    else ascii(char)[1:-1] for char in str(text))
 
 
+def _shell_word(text) -> str:
+    """``text`` as ONE shell word that names exactly ``text`` and prints on one line, for a
+    command a refusal tells the reader to run (escaping a shell-quoted word would change the
+    path the command names): shlex.quote when every character is printable or a space
+    separator, else a bash ANSI-C quoted $'...' word in which a backslash or a single quote is
+    backslash-escaped and every other character outside that rule is an escape bash reads
+    back (below 0x80 the ascii() escape _printable shows, such as \\n or \\x1b; \\xHH for a
+    surrogate-escaped byte; \\uHHHH or \\UHHHHHHHH above, which bash rebuilds in a UTF-8
+    locale)."""
+    import shlex
+    import unicodedata
+    text = str(text)
+
+    def plain(char):
+        return char.isprintable() or unicodedata.category(char) == "Zs"
+
+    if all(plain(char) for char in text):
+        return shlex.quote(text)
+    out = []
+    for char in text:
+        code = ord(char)
+        if char in "\\'":
+            out.append("\\" + char)
+        elif plain(char):
+            out.append(char)
+        elif code < 0x80:
+            out.append(ascii(char)[1:-1])  # \n, \r, \t or \xHH: the escape _printable shows
+        elif 0xDC80 <= code <= 0xDCFF:
+            out.append("\\x%02x" % (code - 0xDC00))  # a surrogate-escaped byte
+        elif code <= 0xFFFF:
+            out.append("\\u%04x" % code)
+        else:
+            out.append("\\U%08x" % code)
+    return "$'" + "".join(out) + "'"
+
+
 def decide(command: str, project_dir: str) -> tuple[bool, str]:
     if not isinstance(command, str) or not command.strip():
         return False, ""
@@ -363,10 +399,10 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
             cand = Path(before[-1]) / "tools" / t
             try:
                 if cand.is_file():
-                    return shlex.quote(str(cand))
+                    return _shell_word(cand)
             except OSError:
                 pass
-        return shlex.quote(f"{parent}/{repo}/tools/{t}")
+        return _shell_word(f"{parent}/{repo}/tools/{t}")
 
     flagged = []
     for m in _INVOKE.finditer(command):
@@ -377,9 +413,11 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
             flagged.append((t, _suggested(t, _tool_repo(t), m.start())))
     flagged = list(dict.fromkeys(flagged))
     if flagged:
-        # Each suggested path (under the project directory's parent, or a cd target) is shell
-        # quoted and then escaped: shell quoting keeps a newline raw.
-        lines = [f"  - `tools/{t}`: use `python3 {_printable(path)} ...` "
+        # Each suggested path (under the project directory's parent, or a cd target) is one
+        # shell word (_shell_word): a printable path shell-quoted, any other a $'...' word that
+        # rebuilds it, so the template stays on one line and still names that path (escaping a
+        # shell-quoted word named a different path, hook escaping round 3, codex W1).
+        lines = [f"  - `tools/{t}`: use `python3 {path} ...` "
                  f"(absolute), not a cd-prefixed cwd-relative invocation."
                  for t, path in flagged]
         reason = (
@@ -413,12 +451,13 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
             if elsewhere:
                 hits.append((tool, elsewhere[0]))
         if hits:
-            # The project directory's name and parent are shown escaped (after shell quoting).
+            # The project directory's name is shown escaped; the templates name its parent's paths
+            # as one shell word each (_shell_word), so a copied template runs the named file.
             shown_name = _printable(project_name)
             lines = [
                 f"  - `tools/{tool}`: found in `{where}`; no scanned project-file match for `{shown_name}`. "
-                f"Templates: `python3 {_printable(shlex.quote(f'{parent}/{where}/tools/{tool}'))} ...` (or "
-                f"`cd {_printable(shlex.quote(f'{parent}/{where}'))} && python3 tools/{tool} ...`, subject to the cd-tool allowlist)."
+                f"Templates: `python3 {_shell_word(f'{parent}/{where}/tools/{tool}')} ...` (or "
+                f"`cd {_shell_word(f'{parent}/{where}')} && python3 tools/{tool} ...`, subject to the cd-tool allowlist)."
                 for tool, where in hits
             ]
             reason = (
