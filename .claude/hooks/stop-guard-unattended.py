@@ -118,29 +118,43 @@ CONSOLE AND DETAIL LOG (maintainer-directed 2026-11-04: refusal detail belongs o
 the operator view). This changes only how a block is worded and routed, never whether the hook
 blocks. On a block, run() appends the full detail (decide()'s complete reason plus every
 actionable item's ID and title) to a per-session log,
-<store>/stop-hook-detail/stop-guard-unattended.<session_id>.log, where <store> is the directory
-of _GRC_STATE_FILE (GRC_STORE or <repo-parent>/private, the lease's store). A store that resolves
-inside this checkout (_GRC_REPO_ROOT) is refused before anything is created. The diagnostic is
-then three short lines (_short_refusal), each at most _MAX_LINE_CHARS: what blocked with the
-actionable count, WHY with the live group count, and the one action that clears it followed by
-the log path. No item ID or title appears in that form. The log is created without following
-symlinks (the store directory, the subdirectory and the file are opened with O_NOFOLLOW); the
-subdirectory must be owned by this uid with no group or other write bit; the file must be
-regular, mode 0600, owned by this uid and singly linked; and after the write the advertised path
-must still name the written file (lstat st_dev and st_ino against the descriptor's fstat). The
-resolution, open and write run in a daemon thread joined for at most _DETAIL_TIMEOUT_S seconds,
-so a stalled filesystem cannot delay the refusal. If the log cannot be written (no usable
-session_id in the Stop payload, a missing store, a store inside this checkout, a timeout, or
-any open, check or write failure), or the log path cannot fit one console line, the fallback
-is emitted instead (_fallback_refusal): decide()'s reason, then one NOTE line naming the
-failure, then the actionable count only. This fails open to visibility, never to silence, and
-keeps #2291: no item ID or title reaches the diagnostic on either path. Every fallback line is
-clamped to _MAX_LINE_CHARS and _MAX_LINE_BYTES, so the fallback always fits _diagnostic's
-PIPE_BUF cap with the NOTE intact. Exit status, the escape and stop_hook_active handling are
-unchanged. RESIDUE: ancestors above the store directory are not checked for symlinks; the log
-is appended to without rotation; a write that times out may still complete later in the
-abandoned thread, and the process exit can still wait on a syscall the kernel does not let a
-fatal signal interrupt.
+<store>/stop-hook-detail/stop-guard.<first 12 characters of session_id>.log (each entry's header
+carries the whole session_id), where <store> is the directory of _GRC_STATE_FILE (GRC_STORE or
+<repo-parent>/private, the lease's store). A store inside this checkout (_GRC_REPO_ROOT), or
+inside any git working tree (a `.git` entry in the store directory or any ancestor up to the
+filesystem root, lexically or after resolving symlinks, or `git rev-parse
+--is-inside-work-tree` succeeding there with every inherited GIT_* variable removed), is
+refused before anything is created. The diagnostic is then three short lines
+(_short_refusal), each at most _MAX_LINE_CHARS: what blocked with the actionable count, WHY
+with the live group count, and the one action that clears it followed by the log path. No
+item ID or title appears in that form. PATH BUDGET: the log path adds 45 characters to the
+store path (with a 12-character session prefix), so the short form fits a store path of at
+most 82 characters (51 with the longer wording); a longer store path, or a log path with any
+non-printable character (a newline, a carriage return or a terminal escape, tested with
+_printable), takes the fallback below. The log is created without following symlinks (the
+store directory, the subdirectory and the file are opened with O_NOFOLLOW); the subdirectory
+must be owned by this uid with no group or other write bit; the file must be regular, mode
+0600, owned by this uid and singly linked; and after the write the advertised path must still
+name the written file (lstat st_dev and st_ino against the descriptor's fstat). The
+resolution, checks, open and write run in a daemon thread. TIME BUDGET: the Stop hook timeout
+in .claude/settings.json is 10 seconds and the producer alone may take PRODUCER_TIMEOUT_S (8),
+so the whole run is kept within _RUN_BUDGET_S (8.5) seconds of this module starting to
+execute (main() sets _RUN_DEADLINE): the thread is joined for at most min(_DETAIL_TIMEOUT_S,
+time left in that budget), and with less than _MIN_WRITE_S left no write is attempted. The
+remaining 1.5 seconds cover interpreter startup and compiling this file, _diagnostic's
+0.2-second fork wait and exit. If the log cannot be written (no usable session_id in the Stop
+payload, a missing store, a store inside this checkout or a git working tree, a timeout, a
+spent budget, or any open, check or write failure), or the log path cannot be shown on one
+console line, the fallback is emitted instead (_fallback_refusal): decide()'s reason, then
+one NOTE line naming the failure, then the actionable count only. This fails open to
+visibility, never to silence, and keeps #2291: no item ID or title reaches the diagnostic on
+either path. Every fallback line is clamped to _MAX_LINE_CHARS and _MAX_LINE_BYTES, so the
+fallback always fits _diagnostic's PIPE_BUF cap with the NOTE intact. Exit status, the escape
+and stop_hook_active handling are unchanged. RESIDUE: ancestors above the store directory are
+not checked for symlinks; the log is appended to without rotation; two sessions whose ids
+share their first 12 characters share one log file (each entry names its session); a write
+that times out may still complete later in the abandoned thread, and the process exit can
+still wait on a syscall the kernel does not let a fatal signal interrupt.
 
 Self-test: python3 .claude/hooks/stop-guard-unattended.py --self-test.
 Self-contained: grc file/producer fixtures replace lab_infra tooling fixtures; registry cases remain.
@@ -159,6 +173,9 @@ import sys
 import time
 from pathlib import Path
 from collections import deque
+
+# Start of the run's time budget (see TIME BUDGET under CONSOLE AND DETAIL LOG).
+_LOADED_AT = time.monotonic()
 
 # Architect-directed 2026-09-24: the block message is at most _MAX_REASON_LINES lines of at most
 # _MAX_LINE_CHARS characters, whatever the item count. B computes the first _MAX_IDS item numbers;
@@ -1007,7 +1024,14 @@ def _diagnostic(message):
 
 
 _DETAIL_SUBDIR = "stop-hook-detail"
+_DETAIL_NAME = "stop-guard"
+_SESSION_PREFIX_CHARS = 12
 _DETAIL_TIMEOUT_S = 2.0
+# TIME BUDGET: the whole run stays within _RUN_BUDGET_S of _LOADED_AT, under the 10-second Stop
+# hook timeout in .claude/settings.json with margin; _RUN_DEADLINE is set by main() only.
+_RUN_BUDGET_S = 8.5
+_MIN_WRITE_S = 0.25
+_RUN_DEADLINE = None
 _SESSION_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}", re.ASCII)
 # Per-line byte bound for the fallback: any valid 160-character UTF-8 line fits; only lines that
 # escape to more bytes (surrogate escapes) are cut further. Five reason lines plus the NOTE at
@@ -1032,7 +1056,12 @@ def _clamp(line):
 def _short_refusal(count, live_groups, log_path):
     """The three diagnostic lines, each at most _MAX_LINE_CHARS: what blocked (count only,
     #2291), WHY, and the one action that clears it followed by the detail log path. A log path
-    that cannot fit whole raises, and the caller then shows the fallback."""
+    with any non-printable character, or one that cannot fit whole, raises before its length is
+    used, and the caller then shows the fallback. PATH BUDGET: with the shorter wording the log
+    path may be at most 127 characters, so the store path at most 82 (see CONSOLE AND DETAIL
+    LOG)."""
+    if _printable(log_path) != log_path:
+        raise ValueError("detail log path has a non-printable character")
     for form in ("CONSIDER INSTEAD: continue the top actionable item; detail log: %s",
                  "CONSIDER INSTEAD: continue; log: %s"):
         action = form % log_path
@@ -1105,38 +1134,84 @@ def _append_private(directory, name, text):
     return path
 
 
-def _write_detail_log(detail, payload):
+def _git_tree_marker(directory, timeout):
+    """What places ``directory`` inside a git working tree, or None: the first `.git` entry (of
+    any type) in it or an ancestor up to the filesystem root, on the lexical path and on the
+    resolved path, then `git rev-parse --is-inside-work-tree` exiting 0 there with every
+    inherited GIT_* variable removed (so neither GIT_DIR nor a ceiling changes discovery),
+    bounded by ``timeout``. A missing git binary leaves the `.git` walk as the check; any other
+    failure raises."""
+    lexical = Path(os.path.abspath(directory))
+    for start in (lexical, lexical.resolve()):
+        for candidate in (start, *start.parents):
+            try:
+                os.lstat(candidate / ".git")
+            except (FileNotFoundError, NotADirectoryError):
+                continue
+            return str(candidate / ".git")
+    root = lexical
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env["LC_ALL"] = "C"
+    try:
+        result = subprocess.run(['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree'],
+                                stdin=subprocess.DEVNULL, capture_output=True, env=env,
+                                timeout=max(timeout, 0.01), check=False)
+    except FileNotFoundError:
+        return None
+    return "git rev-parse" if result.returncode == 0 else None
+
+
+def _write_detail_log(detail, payload, timeout=_DETAIL_TIMEOUT_S):
     """Append the full refusal detail to this session's log and return its path, or raise. A
-    store that resolves inside this checkout is refused before anything is created (the same
-    resolve and is_relative_to refusal block-turn-end-with-outstanding-work.py applies)."""
+    store inside this checkout or inside any git working tree is refused before anything is
+    created (the same refusals block-turn-end-with-outstanding-work.py applies)."""
+    started = time.monotonic()
     session = payload.get("session_id") if isinstance(payload, dict) else None
     if not isinstance(session, str) or not _SESSION_ID.fullmatch(session):
         raise ValueError("no usable session_id in the Stop payload")
     directory = os.path.dirname(_GRC_STATE_FILE)
     if Path(directory).resolve().is_relative_to(Path(_GRC_REPO_ROOT).resolve()):
         raise PermissionError(errno.EPERM, "store resolves inside this checkout", directory)
+    marker = _git_tree_marker(directory, timeout - (time.monotonic() - started))
+    if marker is not None:
+        raise PermissionError(errno.EPERM, "store is inside a git working tree (%s)" % marker,
+                              directory)
     stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    return _append_private(directory, "stop-guard-unattended.%s.log" % session,
-                           "=== %s stop-guard-unattended ===\n%s\n\n" % (stamp, detail))
+    name = "%s.%s.log" % (_DETAIL_NAME, session[:_SESSION_PREFIX_CHARS])
+    return _append_private(directory, name, "=== %s stop-guard-unattended session %s ===\n%s\n\n"
+                           % (stamp, session, detail))
+
+
+def _write_bound():
+    """Seconds the detail log write may take: _DETAIL_TIMEOUT_S, cut to the time left before
+    _RUN_DEADLINE when main() has set one (TIME BUDGET)."""
+    if _RUN_DEADLINE is None:
+        return _DETAIL_TIMEOUT_S
+    return min(_DETAIL_TIMEOUT_S, _RUN_DEADLINE - time.monotonic())
 
 
 def _bounded_write(detail, payload):
-    """_write_detail_log in a daemon thread joined for at most _DETAIL_TIMEOUT_S seconds, so a
-    stalled filesystem cannot delay the refusal; a timeout raises and the caller fails open."""
+    """_write_detail_log in a daemon thread joined for at most _write_bound() seconds, so neither
+    a stalled filesystem nor a slow producer earlier in the run can push the refusal past the
+    hook timeout. With less than _MIN_WRITE_S left no thread is started. A timeout or a spent
+    budget raises and the caller fails open."""
     import threading
+    bound = _write_bound()
+    if bound < _MIN_WRITE_S:
+        raise TimeoutError(errno.ETIMEDOUT, "run time budget spent (%.2fs left)" % max(bound, 0.0))
     box = {}
 
     def work():
         try:
-            box["path"] = _write_detail_log(detail, payload)
+            box["path"] = _write_detail_log(detail, payload, bound)
         except Exception as exc:
             box["error"] = exc
 
     worker = threading.Thread(target=work, name="stop-hook-detail-log", daemon=True)
     worker.start()
-    worker.join(_DETAIL_TIMEOUT_S)
+    worker.join(bound)
     if worker.is_alive():
-        raise TimeoutError(errno.ETIMEDOUT, "detail log write exceeded %gs" % _DETAIL_TIMEOUT_S)
+        raise TimeoutError(errno.ETIMEDOUT, "detail log write exceeded %.2fs" % bound)
     if "error" in box:
         raise box["error"]
     return box["path"]
@@ -1158,7 +1233,7 @@ def _route_refusal(reason, actionable, live_groups, payload):
         return _short_refusal(len(actionable), live_groups, path)
     except Exception as exc:
         try:
-            why = "%s: %s" % (type(exc).__name__, exc)
+            why = _printable("%s: %s" % (type(exc).__name__, exc))
         except Exception:
             why = type(exc).__name__
         try:
@@ -1217,8 +1292,10 @@ def _parse_payload(raw):
 
 
 def main(argv):
+    global _RUN_DEADLINE
     if len(argv) > 1 and argv[1] == "--self-test":
         return _self_test()
+    _RUN_DEADLINE = _LOADED_AT + _RUN_BUDGET_S  # TIME BUDGET: the run, not only the write
     if _grc_consume_escape(repo_root()):
         return 0  # grc one-shot declared-wait sentinel consumed -> allow this stop (before any parse)
     try:
@@ -2287,20 +2364,54 @@ def _self_test():
             self.assertLess(len(reason), 1200)
 
         def test_route_logs_detail_and_returns_three_lines(self):
+            # The real write lands under TMPDIR; the console assertion follows the PATH BUDGET,
+            # so the result does not depend on how long TMPDIR is.
             many = [("%d" % i, "title%d" % i) for i in range(500)]
             _b, reason = decide("unattended", False, many, 1, (None, "absent"))
             with tempfile.TemporaryDirectory() as d:
                 with mock.patch.dict(globals(), _GRC_STATE_FILE=os.path.join(d, "session-state.md")):
                     short = _route_refusal(reason, many, 1, {"session_id": "self-test-1"})
-                log = os.path.join(d, _DETAIL_SUBDIR, "stop-guard-unattended.self-test-1.log")
+                log = os.path.join(d, _DETAIL_SUBDIR, "stop-guard.self-test-1.log")
                 self.assertEqual(stat.S_IMODE(os.lstat(log).st_mode), 0o600)
                 with open(log, encoding="utf-8") as fh:
                     logged = fh.read()
-            self.assertEqual(short, _short_refusal(500, 1, log))
-            self.assertEqual(len(short.splitlines()), 3)
+            if len(log) <= _MAX_LINE_CHARS - len("CONSIDER INSTEAD: continue; log: "):
+                self.assertEqual(short, _short_refusal(500, 1, log))
+                self.assertEqual(len(short.splitlines()), 3)
+            else:
+                self.assertIn("NOTE: detail log written but not summarized (ValueError", short)
             self.assertNotIn("title", short)
             self.assertIn(reason, logged)
             self.assertIn("  - 499: title499", logged)
+            self.assertIn("session self-test-1 ===", logged)
+
+        def test_short_form_on_a_short_fixed_directory(self):
+            # A short fixed directory, so this result never depends on TMPDIR.
+            log = "/s/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
+            short = _short_refusal(500, 1, log)
+            self.assertEqual(len(short.splitlines()), 3)
+            self.assertTrue(short.endswith("; detail log: " + log))
+            store = "/" + "s" * 81
+            fits = store + "/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
+            self.assertTrue(_short_refusal(500, 1, fits).endswith("; log: " + fits))
+            with self.assertRaises(ValueError):
+                _short_refusal(500, 1, "/s" + fits)
+
+        def test_short_form_refuses_a_non_printable_log_path(self):
+            for odd in ("\n", "\r", "\x1b[2J"):
+                with self.assertRaises(ValueError):
+                    _short_refusal(1, 0, "/s" + odd + "/stop-guard.x.log")
+
+        def test_spent_run_budget_skips_the_write(self):
+            items = [("X-1", "t")]
+            _b, reason = decide("unattended", False, items, 0, (None, "absent"))
+            writer = mock.Mock(return_value="/s/x.log")
+            with mock.patch.dict(globals(), _RUN_DEADLINE=time.monotonic() + 0.1,
+                                 _write_detail_log=writer):
+                routed = _route_refusal(reason, items, 0, {"session_id": "s-1"})
+            writer.assert_not_called()
+            self.assertIn("NOTE: detail log not written (TimeoutError", routed)
+            self.assertIn("run time budget spent", routed)
 
         def test_route_without_session_keeps_reason_and_count(self):
             items = [("X-917", "zq-title-probe")]

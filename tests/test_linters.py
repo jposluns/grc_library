@@ -65123,7 +65123,7 @@ def _rewrite_slot_share_fixture(test, source, path):
 
 
 class HookDescendantIsolationTests(unittest.TestCase):
-    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 1, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 17, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 18}
+    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 2, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 18, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 18}
     NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(repo_root), 'rev-parse', '--absolute-git-dir']", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', '-c', 'core.warnAmbiguousRefs=false', '-c', 'trace2.normalTarget=', '-c', 'trace2.perfTarget=', '-c', 'trace2.eventTarget=', '-C', str(REPO), *args]", "['git', 'check-ref-format', '--allow-onelevel', name]", "['git', 'check-ref-format', text]", "['git', 'config', '--file', os.path.join(current, b'config'), '--get', 'core.worktree']", "['git', 'init', '-q', str(repo)]", "['git', 'ls-tree', '-z', '--full-tree', rev, '--', f':(literal){path}']", "['git', 'show', f'{ref}:{path}', '--']", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['git', *here, '-c', 'core.warnAmbiguousRefs=true', 'rev-parse', '--symbolic-full-name', name]", "['git', *here, 'rev-parse', '--absolute-git-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-common-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-path', 'index']", "['git', *here, 'rev-parse', '--show-object-format']", "['git', *here, 'rev-parse', '--show-toplevel']", "['git', *here, 'rev-parse', '--verify', '--quiet', '--end-of-options', name + '^{commit}']", "['git', *here, 'rev-parse', '--verify', '--quiet', '--end-of-options', name]", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
     PYTHON_TARGETS = {'block-idle-stop-with-actionable-backlog.py': {'str(script)'}, 'block-unbumped-version-commit.py': {"str(d5 / '.claude' / 'hooks' / 'hook.py')"}, 'clock-inject.py': {'code'}, 'future-stamp-write.py': {'code'}, 'stamp-truth-stop.py': {'code'}, 'nmw-actionable': {'TOOL'}, 'stop-guard-unattended.py': {'exe', 'hook', 'code', "os.path.join(r, '.claude', 'hooks', os.path.basename(__file__))"}}
 
@@ -72759,6 +72759,13 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         "block-turn-end-with-outstanding-work": ("turn-end-outstanding-work", "merge"),
         "stop-guard-unattended": ("stop-guard-unattended", "continue"),
     }
+    # Round 3: the log file is <short name>.<first 12 characters of session_id>.log.
+    STOP_LOG_NAMES = {
+        "block-turn-end-with-outstanding-work": "turn-end",
+        "stop-guard-unattended": "stop-guard",
+    }
+    # The fallback keeps the pre-2026-11-04 console cap of eight branches.
+    TURN_END_FALLBACK_ITEMS = 8
 
     def _stop_block(self, hook, td, count, payload, store, *, repo=None, names=None,
                     real_diagnostic=False, **patches):
@@ -72791,7 +72798,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 defaults = dict(
                     is_worker_session=lambda: False, unmerged_branches=lambda: list(items),
                     ESCAPE_FILE=Path(td) / ".allow-stop", HELD_FILE=None, REPO=repo,
-                    _resolve_working=lambda rel, repo_root, strict: store)
+                    _DETAIL_STORE=store)
             else:
                 state = Path(store if store is not None else Path(td) / "no-store") / "session-state.md"
                 defaults = dict(
@@ -72831,19 +72838,28 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         return items, status, text.rstrip("\n")
 
     def _stop_log(self, hook, store, session):
-        prefix = self.STOP_LOG_HOOKS[hook][0]
-        return Path(store) / "stop-hook-detail" / ("%s.%s.log" % (prefix, session))
+        prefix = self.STOP_LOG_NAMES[hook]
+        return Path(store) / "stop-hook-detail" / ("%s.%s.log" % (prefix, session[:12]))
 
-    def _assert_fallback(self, hook, items, text):
-        """The visible fallback: a conforming refusal, the NOTE, and (turn-end) every item or
-        (stop-guard, #2291) the count with no item ID or title."""
+    def _assert_fallback(self, hook, items, text, state="not written"):
+        """The visible fallback: a conforming refusal, the NOTE, and (turn-end) the NOTE before
+        the list, the first eight items and a count of the rest, or (stop-guard, #2291) the
+        count with no item ID or title."""
         guard, verb = self.STOP_LOG_HOOKS[hook]
         self.assert_refusal(text, guard=guard, imperative=verb)
-        self.assertIn("NOTE: detail log not written (", text)
+        self.assertIn("NOTE: detail log %s (" % state, text)
         self.assertIn("touch ", text)  # the escape stays reachable
         if hook.startswith("block-"):
-            for name, ahead in items:
+            cap = self.TURN_END_FALLBACK_ITEMS
+            self.assertLess(text.index("NOTE: detail log"), text.index("Branches outstanding"), text)
+            for name, ahead in items[:cap]:
                 self.assertIn("%s (+%s)" % (name, ahead), text)
+            for name, ahead in items[cap:]:
+                self.assertNotIn("%s (+%s)" % (name, ahead), text)
+            if len(items) > cap:
+                self.assertIn("    ... and %d more, not shown here" % (len(items) - cap), text)
+            else:
+                self.assertNotIn("more, not shown here", text)
         else:
             self.assertIn("\nActionable items: %d " % len(items), text)
             self.assertNotRegex(text, r"\bP-\d")
@@ -73136,6 +73152,218 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         self.assertNotIn("item titles do reach the diagnostic", doc)
         self.assertIn("the console carries the count and the detail log path", doc)
         self.assertIn("no item ID or title reaches the diagnostic on either path", doc)
+
+    # ---- Round 3 (2026-11-05): run budget, fallback cap, path safety, store resolution ----
+    def test_stop_guard_run_budget_bounds_the_write(self):
+        """A slow producer and a stalled log write share one run budget, so together they
+        cannot push the refusal past the hook timeout; the fallback shows."""
+        import threading
+        import time
+        hook = "stop-guard-unattended"
+        with tempfile.TemporaryDirectory() as td:
+            store = Path(td) / "store"
+            store.mkdir()
+            release = threading.Event()
+
+            def slow_items(root):
+                time.sleep(0.6)
+                return [("P-%d" % n, "title %d" % n) for n in range(4)]
+
+            def stalled(directory, name, text):
+                release.wait(8)
+                return os.path.join(directory, "stop-hook-detail", name)
+
+            started = time.monotonic()
+            try:
+                items, status, text = self._stop_block(
+                    hook, td, 4, {"session_id": "s-1"}, store, actionable_items=slow_items,
+                    _append_private=stalled, _RUN_BUDGET_S=1.0)
+                elapsed = time.monotonic() - started
+            finally:
+                release.set()
+        self.assertEqual(status, 2)
+        # Without the shared budget: 0.6 s of producer plus the full 2-second write bound.
+        self.assertLess(elapsed, 2.2)
+        self._assert_fallback(hook, items, text)
+        self.assertIn("TimeoutError", text)
+
+    def test_stop_guard_spent_budget_skips_the_write(self):
+        """With less than _MIN_WRITE_S of the run budget left, no write is attempted."""
+        from unittest.mock import Mock
+        hook = "stop-guard-unattended"
+        with tempfile.TemporaryDirectory() as td:
+            store = Path(td) / "store"
+            store.mkdir()
+            writer = Mock(return_value=str(store / "x.log"))
+            items, status, text = self._stop_block(hook, td, 3, {"session_id": "s-1"}, store,
+                                                   _write_detail_log=writer, _RUN_BUDGET_S=0.0)
+        self.assertEqual(status, 2)
+        writer.assert_not_called()
+        self._assert_fallback(hook, items, text)
+        self.assertIn("run time budget spent", text)
+
+    def test_stop_guard_run_budget_fits_hook_timeout(self):
+        """The run budget covers the producer and stays under the configured hook timeout with
+        at least one second of margin for startup, the fork wait and exit."""
+        import json
+        settings = json.loads((REPO_ROOT / ".claude/settings.json").read_text())
+        timeouts = [hook.get("timeout") for group in settings["hooks"]["Stop"]
+                    for hook in group["hooks"]
+                    if "stop-guard-unattended.py" in hook.get("command", "")]
+        self.assertEqual(len(timeouts), 1)
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_stop_budget")
+        self.assertGreater(mod._RUN_BUDGET_S, mod.PRODUCER_TIMEOUT_S)
+        self.assertLessEqual(mod._RUN_BUDGET_S + 1.0, timeouts[0])
+        self.assertLessEqual(mod._DETAIL_TIMEOUT_S, mod._RUN_BUDGET_S)
+
+    def test_turn_end_fallback_caps_console_list(self):
+        """200 branches without a log: the NOTE, then eight branches and a count of the rest."""
+        hook = "block-turn-end-with-outstanding-work"
+        with tempfile.TemporaryDirectory() as td:
+            items, status, text = self._stop_block(hook, td, 200, {}, None)
+        self.assertEqual(status, 2)
+        self._assert_fallback(hook, items, text)
+        lines = text.split("\n")
+        self.assertLessEqual(len(lines), 20, text)
+        self.assertIn("    ... and 192 more, not shown here", lines)
+        self.assertNotIn("claude/probe8 (+1)", text)
+
+    def test_stop_hooks_non_printable_log_path_falls_back(self):
+        """A newline, carriage return or terminal escape in the store path is never advertised
+        raw; the log is still written and the fallback names the reason."""
+        for hook in self.STOP_LOG_HOOKS:
+            for odd in ("\n", "\r", "\x1b[2J"):
+                with self.subTest(hook=hook, odd=odd), tempfile.TemporaryDirectory() as td:
+                    store = Path(td) / ("st" + odd + "ore")
+                    store.mkdir()
+                    items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"},
+                                                           store)
+                    self.assertEqual(status, 2)
+                    self._assert_fallback(hook, items, text, state="written but not summarized")
+                    self.assertIn("non-printable character", text)
+                    self.assertNotIn("ore/stop-hook-detail", text)
+                    if odd != "\n":
+                        self.assertNotIn(odd, text)
+                    self.assertTrue(self._stop_log(hook, store, "s-1").is_file())
+
+    def test_stop_hooks_log_name_fits_path_budget(self):
+        """The log name is the short guard name and the first 12 characters of the session id,
+        so a 36-character id fits the documented store-path budget exactly; one more character
+        falls back. Each entry's header still carries the whole session id."""
+        session = "0123abcd-4567-89ef-0123-456789abcdef"
+        budgets = {"block-turn-end-with-outstanding-work": 79, "stop-guard-unattended": 82}
+        with tempfile.TemporaryDirectory() as probe:
+            if len(probe) + 2 > min(budgets.values()):
+                self.skipTest("TMPDIR is too long to build the budget-length store path")
+        for hook, budget in budgets.items():
+            with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td:
+                pad = budget - len(td) - 1
+                store = Path(td) / ("s" * pad)
+                self.assertEqual(len(str(store)), budget)
+                store.mkdir()
+                _items, status, text = self._stop_block(hook, td, 2, {"session_id": session}, store)
+                self.assertEqual(status, 2)
+                log = self._stop_log(hook, store, session)
+                self.assertEqual(log.name, "%s.0123abcd-456.log" % self.STOP_LOG_NAMES[hook])
+                lines = text.split("\n")
+                self.assertEqual(len(lines), 3, text)
+                self.assertTrue(lines[2].endswith(" " + str(log)), text)
+                self.assertEqual(len(lines[2]), 160, text)
+                self.assertIn(" session %s ===" % session, log.read_text(encoding="utf-8"))
+                longer = Path(td) / ("s" * (pad + 1))
+                longer.mkdir()
+                items, status, text = self._stop_block(hook, td, 2, {"session_id": session},
+                                                       longer)
+                self.assertEqual(status, 2)
+                self._assert_fallback(hook, items, text, state="written but not summarized")
+
+    def test_turn_end_detail_store_is_grc_store(self):
+        """Turn-end resolves its detail store as stop-guard does (GRC_STORE, else
+        <repo-parent>/private), never through lint_common.resolve_working."""
+        import lint_common
+        from unittest.mock import patch
+        hook = "block-turn-end-with-outstanding-work"
+        root = (REPO_ROOT / ".claude" / "hooks" / (hook + ".py")).resolve().parents[2]
+        clean = {k: v for k, v in os.environ.items() if k != "GRC_STORE"}
+        for extra, want in (({}, root.parent / "private"),
+                            ({"GRC_STORE": "/__p195__/abs-store"}, Path("/__p195__/abs-store")),
+                            ({"GRC_STORE": "../rel-store"}, root.parent / "rel-store")):
+            with self.subTest(env=extra), patch.dict(os.environ, {**clean, **extra}, clear=True), \
+                    patch.object(lint_common, "resolve_working", return_value=Path("/__decoy__")):
+                mod = load_linter_module(".claude/hooks/%s.py" % hook, "_turn_end_store")
+            self.assertEqual(mod._DETAIL_STORE, want)
+        with tempfile.TemporaryDirectory() as td:
+            store = Path(td) / "store"
+            store.mkdir()
+            decoy = Path(td) / "decoy"
+            decoy.mkdir()
+            _items, status, text = self._stop_block(
+                hook, td, 2, {"session_id": "s-1"}, store,
+                _resolve_working=lambda rel, repo_root, strict: decoy)
+            self.assertEqual(status, 2)
+            self.assertTrue(self._stop_log(hook, store, "s-1").is_file(), text)
+            self.assertEqual(list(decoy.iterdir()), [])
+
+    def test_stop_hooks_store_inside_git_tree_falls_back(self):
+        """A store under a `.git` entry (directory or file) or inside a bare repository is
+        refused before anything is created; an inherited GIT_DIR does not refuse a clean store."""
+        import subprocess
+        from unittest.mock import patch
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        for hook in self.STOP_LOG_HOOKS:
+            for case in ("dot-git-directory", "dot-git-file", "bare-repository"):
+                with self.subTest(hook=hook, case=case), tempfile.TemporaryDirectory() as td:
+                    outer = Path(td) / "outer"
+                    if case == "dot-git-directory":
+                        (outer / ".git").mkdir(parents=True)
+                    elif case == "dot-git-file":
+                        outer.mkdir()
+                        (outer / ".git").write_text("gitdir: /__p195__/none\n", encoding="utf-8")
+                    else:
+                        outer = Path(td) / "bare.git"
+                        subprocess.run(["git", "init", "-q", "--bare", str(outer)], check=True,
+                                       capture_output=True, env=env, timeout=60)
+                    store = outer / "a" / "store"
+                    store.mkdir(parents=True)
+                    items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"},
+                                                           store)
+                    self.assertEqual(status, 2)
+                    self._assert_fallback(hook, items, text)
+                    self.assertIn("inside a git working tree", text)
+                    self.assertFalse((store / "stop-hook-detail").exists())
+            with self.subTest(hook=hook, case="inherited-GIT_DIR"), \
+                    tempfile.TemporaryDirectory() as td:
+                repo = Path(td) / "elsewhere"
+                subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True,
+                               env=env, timeout=60)
+                store = Path(td) / "store"
+                store.mkdir()
+                with patch.dict(os.environ, {"GIT_DIR": str(repo / ".git")}):
+                    _items, status, text = self._stop_block(hook, td, 2, {"session_id": "s-1"},
+                                                            store)
+                self.assertEqual(status, 2)
+                self.assertEqual(len(text.split("\n")), 3, text)
+
+    def test_stop_guard_fallback_byte_clamp(self):
+        """Lone surrogates escape to six bytes each, so a 160-character line can exceed
+        _MAX_LINE_BYTES; the byte clamp cuts it and every delivered line fits 640 bytes."""
+        hook = "stop-guard-unattended"
+        with tempfile.TemporaryDirectory() as td:
+            missing = Path(td) / "missing" / "store"
+            _items, status, _text = self._stop_block(
+                hook, td, 3, {"session_id": "s-1"}, missing, real_diagnostic=True,
+                _grc_escape_file=lambda: "/" + "\udcff" * 300 + "/.allow-idle-stop",
+                ACTIONABLE_PRODUCER="\udcfe" * 300)
+            raw = (Path(td) / "fd2.out").read_bytes()
+        self.assertEqual(status, 2)
+        self.assertTrue(raw.endswith(b"\n"), raw[-200:])
+        lines = raw.rstrip(b"\n").split(b"\n")
+        self.assertTrue(lines[5].startswith(b"NOTE: detail log not written"), raw)
+        self.assertLessEqual(max(map(len, lines)), 640)
+        cut = [line for line in lines if line.startswith(b"Declared wait: touch /\\udcff")]
+        self.assertEqual(len(cut), 1, raw)
+        # Cut by bytes, not by characters: fewer than 160 characters survive.
+        self.assertLess(len(cut[0].decode("ascii").replace("\\udcff", "?")), 160)
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()
@@ -82817,14 +83045,19 @@ class HeldBranchExpiryTests(unittest.TestCase):
         message = err.getvalue()
         self.assertIn("held-branches.txt", message)
         self.assertIn(reason, message)
-        # No session_id in the payload, so no detail log: the full detail (every entry) is shown.
+        # No session_id in the payload, so no detail log: the console fallback shows the NOTE
+        # before the list, the first eight entries and a count of the rest.
         self.assertIn("NOTE: detail log not written (ValueError", message)
+        self.assertLess(message.index("NOTE: detail log"), message.index("Branches outstanding"))
         displayed = [line for line in message.splitlines() if line.startswith("    - ")]
-        self.assertEqual(len(displayed), 11)
+        self.assertEqual(len(displayed), 8)
         self.assertIn("held-branches.txt", displayed[0])
         self.assertIn(reason, displayed[0])
-        for i in range(10):
+        for i in range(7):
             self.assertIn(f"outstanding-{i} (+1)", message)
+        for i in range(7, 10):
+            self.assertNotIn(f"outstanding-{i} (+1)", message)
+        self.assertIn("    ... and 3 more, not shown here", message)
         entries = hook.unmerged_branches()
         self.assertEqual(len(entries), 11)
         self.assertEqual(sum("held-branches.txt" in name for name, _ in entries), 1)
@@ -82927,7 +83160,7 @@ class HeldBranchExpiryTests(unittest.TestCase):
             stream.flush()
             self.assertEqual(raw.getvalue(), b"BLOCKED: caf\\xe9\nNOTE: detail log not written "
                              b"(ValueError: no usable session_id in the Stop payload); "
-                             b"full detail shown here.\n")
+                             b"detail shown here.\n")
             self.assert_held_escape(hook)
 
     def test_hook_child_locale(self):
