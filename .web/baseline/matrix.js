@@ -20,7 +20,10 @@
      exactly a preset's). Toggles and presets stay in sync. The address carries ?cols=<key>+<key> for a set that is
      no preset and ?view= for a set that is one; ?cols= is read on load only where toggles exist.
    - Column highlight: data-col-highlight on the table. Hovering or focusing a cell adds the class colhl to every
-     cell sharing its data-col, and removes it on leaving; it never moves focus. */
+     cell sharing its data-col, and removes it on leaving; it never moves focus.
+   From 1.8.0: while every visible column header carries the same data-grp, the table gets data-one-grp and the
+   group tags (.grp) are not shown, since they would repeat 1 name on every column and only add width; they return
+   as soon as a second group is visible. The coloured group accent under each header stays. */
 (function () {
   "use strict";
   var table = document.querySelector("table[data-matrix]");
@@ -48,6 +51,11 @@
     var shown = shownKeys();
     toggles.forEach(function (t) { t.setAttribute("aria-pressed", shown.indexOf(col(t)) >= 0 ? "true" : "false"); });
   }
+  function groupTags() {
+    var grps = heads.filter(function (h) { return !h.hidden; }).map(function (h) { return h.getAttribute("data-grp") || ""; });
+    var one = grps.length > 0 && grps[0] !== "" && grps.every(function (g) { return g === grps[0]; });
+    if (one) { table.setAttribute("data-one-grp", ""); } else { table.removeAttribute("data-one-grp"); }
+  }
   function writeAddress(set) {
     if (!urlOK) { return; }
     var s = new URLSearchParams(window.location.search);
@@ -72,6 +80,7 @@
     var shown = heads.filter(function (h) { return !h.hidden; }).length;
     if (status) { status.textContent = "View: " + label(p) + ". Showing " + shown + " of " + heads.length + " columns."; }
     syncToggles();
+    groupTags();
     if (write) {
       var id = p.getAttribute("data-preset-id");
       writeAddress(toggles.length ? { view: k.length && id ? id : "", cols: "" } : { view: k.length && id ? id : "" });
@@ -89,6 +98,7 @@
     });
     if (status) { status.textContent = "Showing " + shown.length + " of " + heads.length + " columns."; }
     syncToggles();
+    groupTags();
     if (write) { writeAddress({ view: "", cols: sameSet(shown, all) ? "" : shown.join(" ") }); }
   }
 
@@ -108,6 +118,7 @@
     });
   });
   slice(document.querySelectorAll("[data-col-toggles]")).forEach(function (g) { g.hidden = false; });
+  groupTags();
 
   var done = false;
   if (urlOK && toggles.length) {

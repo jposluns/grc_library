@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The promoted site tree (PR 2b's rebuild on the shared family site
-template, baseline 1.7.0, flipped to the site root at the draft-site
+template, baseline 1.9.2, flipped to the site root at the draft-site
 promotion, maintainer decisions 2026-11-04).
 
 What is locked here, each test failing without its feature:
@@ -341,20 +341,28 @@ What is locked here, each test failing without its feature:
    refused, so the build passes without the caveat; and the 404 page lead
    names each top bar link, in the bar's order, by its exact label, or,
    for a label listed in _404_LEAD_FORMS, by that fixed form only.
-39. Baseline 1.7.0 (CHANGELOG 1.7.0; spec sections 6.1, 7.24 and 7.29): the
-   pin names 1.7.0, and the 5 files 1.7.0 changes (baseline.css,
-   palettes.css, search.js, matrix.js and the palette gate) carry the
-   release's digests in the pin, in the repository and, for the served
-   ones, in the draft copy; the served palettes.css gives grclibrary the 13
-   matrix tokens in all 4 of its light and dark forms, and the build's
-   palette gate fails on a palette without them or with a heat step text
-   cannot be read on; the landing page's About line has exactly one
+39. Baseline 1.9.2 (CHANGELOG 1.7.0 to 1.9.2; spec sections 4 item 3, 6.1,
+   6.4, 7.24 and 7.29): the pin names 1.9.2, and the files 1.9.1 changes
+   that grc copies (baseline.css and the palette gate), the vendored
+   NOTICE.md (its Inter item comes from 1.9.0), the files 1.8.0 changes or adds
+   (palettes.css, matrix.js, the overflow check), and search.js, which 1.7.0
+   changed, carry the release's digests in the pin, in the repository and,
+   for the served ones, in the draft copy; the card builder and its fonts
+   are not copied or pinned (a card change waits for the owner's approval);
+   the overflow check is pinned beside the palette gate and, like it, never
+   served; the served palettes.css gives grclibrary the 13 matrix tokens in
+   all 4 of its light and dark forms, and the build's palette gate, which
+   reads the pinned baseline.css for the component tokens, fails on a
+   palette without them, with a heat step text cannot be read on, with 2
+   light heat steps closer than 1.8.0 allows, or with a chip colour that
+   misses its contrast; the landing page's About line has exactly one
    ordinary space after each dot span and none before it; and All Documents
-   has two facet groups again, type and area (?type=, ?area=), each opted
-   in to unavailable chips (data-filter-empty="disable") with the served
-   counts kept (no data-filter-count="live"), so the filter paragraph's
-   unavailable-chip sentence holds in every combined state, replayed on
-   the rendered rows.
+   has two facet groups, type and area (?type=, ?area=), each opted in to
+   unavailable chips (data-filter-empty="disable") and to live counts
+   (data-filter-count="live", the owner's 1.9.1 notice, item 4), so the
+   filter paragraph's count and unavailable-chip sentences hold in every
+   combined state, replayed on the rendered rows, and no page text says the
+   counts never change.
 40. The link-preview card (item 3b788, the family-card design of item 3b762
    ported to the promoted tree): every indexable page's head carries the
    sister sites' og: and twitter: tag set exactly once, og:url equal to the
@@ -461,7 +469,7 @@ from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# The draft CSP, copied from baseline 1.7.0 SPECIFICATION.md section 9
+# The draft CSP, copied from baseline 1.9.2 SPECIFICATION.md section 9
 # (unchanged since 1.3.1), the shared policy for draft pages; build.py must
 # carry it byte for byte.
 SPEC_SECTION_9_CSP = (
@@ -472,8 +480,8 @@ SPEC_SECTION_9_CSP = (
     " frame-ancestors 'none'"
 )
 
-# Baseline 1.7.0 SPECIFICATION.md section 7.33, in the full form every 1.7.0
-# reference page carries: the light and dark switch, the last child of
+# Baseline 1.9.2 SPECIFICATION.md section 7.33, in the full form every 1.9.2
+# reference page carries (byte-identical to 1.8.0's in SHA256SUMS): the light and dark switch, the last child of
 # header.mast after nav.nav, hidden until scheme.js shows it.
 SCHEME_SWITCH = (
     '<button class="scheme" type="button" data-scheme-toggle '
@@ -495,23 +503,31 @@ SCHEME_SCRIPT_TAG = (
     '<script data-cfasync="false" src="/assets/baseline/scheme.js">'
     "</script>"
 )
-# The baseline 1.7.0 SHA256SUMS digests of the files 1.7.0 changes
-# (CHANGELOG 1.7.0: baseline.css, palettes.css, search.js, matrix.js and
-# tools/check_palette.py), and of scheme.js, which 1.6.0 added and 1.7.0
-# leaves unchanged; every other pinned file is unchanged from 1.6.1.
-RELEASE_1_7_0_DIGESTS = {
+# The baseline 1.9.2 SHA256SUMS digests of the copied files 1.9.0 and 1.9.1
+# change (CHANGELOG 1.9.1: baseline.css and tools/check_palette.py;
+# CHANGELOG 1.9.0: NOTICE.md, item 4, the Inter card fonts), of the files
+# 1.8.0 changes or adds (palettes.css, matrix.js, tools/check_overflow.js,
+# which the site pins beside the palette gate, spec section 4 item 3), of
+# search.js, which 1.7.0 changed, and of scheme.js, which 1.6.0 added; every
+# other pinned file is unchanged from 1.6.1. 1.9.2 itself changes only
+# tools/build_card.js and the documents, none of which grc copies.
+RELEASE_1_9_2_DIGESTS = {
     ".web/baseline/scheme.js":
         "39d035d986f53c987cbe92516b9a5fd499af5c7fcdda701ea896c63c45ef1634",
+    ".web/baseline/NOTICE.md":
+        "f3490afb17111397afe5f35b79a6409c76179f1f4165e3a15f3547d74c6408f2",
     ".web/baseline/baseline.css":
-        "8a902e09bc770744e4f1a15066a0c5ef33095d829a5dc59486a502c567dac777",
+        "d9e738d6b6e9e34bb35bd5d371b43d615cc34ca2a9924db3b4f9d86144760b33",
     ".web/baseline/palettes.css":
-        "cf4bed49e0c3c16fcc8272acbf8263753e2f392db6dcdac96313540b0da220f2",
+        "c8230746e395dd247d6f3fde32a4b5b12296e658bca7be1830487fc5d80aff5c",
     ".web/baseline/search.js":
         "ff39a504d988c51510be466b2ad7e5eb2edf8299eead35b4070a20ac768359bb",
     ".web/baseline/matrix.js":
-        "f8b2d53a4bd5ad25bae8974668c3e0b71f32298bc3b2f96913c2455a0739d87e",
+        "ae3641b09640f76ee67acb371327f3158fe4c8ec11977c5fbb9f442183dd1ebf",
     ".baseline/check_palette.py":
-        "cae71e9a43e87c5687bc50dc75784e83b3a5b643a4e9a07298294b9d270971a4",
+        "5a070591050b641a0b5b435af3bb368e3b02138fdb1c98470b752a661cafff72",
+    ".baseline/check_overflow.js":
+        "8e50e8f311516ae4ed7ed653ce24d4c727530e081f44ba9f55af32e9c0d4ba01",
 }
 # Section 6.1: grclibrary's dark --bg in 1.6.0 (#1f1718 in 1.5.1), unchanged
 # in 1.7.0, which adds tokens and changes no existing value.
@@ -881,6 +897,30 @@ def _replay_search_js(rows, query="", active=None, results=False,
         titled = rank and terms and all(t in row["title"] for t in terms)
         (first if titled else rest).append(row)
     return first + rest
+
+
+def _replay_live_counts(rows, groups, query="", active=None):
+    """The would-show counts baseline 1.7.0 search.js computes (spec 7.29,
+    its count()), replayed in its own 1-pass form: a row that misses a
+    typed word counts nowhere; one that fails no active facet counts toward
+    its values in every group and every All; one that fails exactly 1
+    group's choice counts toward that group's values and All alone; one
+    that fails 2 or more counts nowhere. Returns {group: {"all": n,
+    "v": {value: n}}}; a value no counted row holds has no entry (0)."""
+    terms = query.lower().split()
+    active = {g: v for g, v in (active or {}).items() if v}
+    tally = {g: {"all": 0, "v": {}} for g in groups}
+    for row in rows:
+        if not all(t in row["hay"] for t in terms):
+            continue
+        failed = [g for g, v in active.items() if v not in row["tokens"][g]]
+        if len(failed) >= 2:
+            continue
+        for g in failed or groups:
+            tally[g]["all"] += 1
+            for v in dict.fromkeys(row["tokens"][g]):
+                tally[g]["v"][v] = tally[g]["v"].get(v, 0) + 1
+    return tally
 
 
 class DraftSiteRenderTests(unittest.TestCase):
@@ -3278,12 +3318,17 @@ class DraftSiteRenderTests(unittest.TestCase):
         "word; a type, an area and words combine. A second click on a chosen "
         "chip, or a click on All, clears that chip's group and leaves the "
         "other choices as they are. Each chip's count is the number of "
+        "documents it would show with the other group's choice and the "
+        "words typed, All counting them with its own group cleared, so the "
+        "counts change as the choices and the words change; with nothing "
+        "chosen or typed, and without script, each count is the number of "
         "documents of its type or area in the whole list, All counting the "
-        "whole list, and stays the same whatever else is chosen; the status "
-        "line under the text filter gives how many documents show. A type or "
-        "area chip that would show no documents with the other group's "
-        "choice and the words typed is marked unavailable, with a dashed "
-        "border: choosing it on the page (a plain click, Enter or Space) "
+        "whole list. The status line under the text filter gives how many "
+        "documents show. A type or area chip that would show no documents "
+        "with the other group's choice and the words typed is marked "
+        "unavailable: it is greyed out, with its word struck through and its "
+        "count at zero. Choosing it on the page (a plain click, Enter or "
+        "Space) "
         "leaves the list and the page address as they are, and the status "
         "line says that it would show no documents, until the next change. "
         "Opening a chip's link in a new tab or window goes to the address it "
@@ -3597,18 +3642,24 @@ class DraftSiteRenderTests(unittest.TestCase):
         """Round-1 ERROR: "Each chip's count is the number of documents in
         this list that it keeps, and All keeps the whole list" was false once
         filters combine (with ?type=policy&area=ai the Policy and AI chips
-        kept their whole-list counts while one row showed). The paragraph's
-        count, All and status claims are replayed in every combined state,
-        every type value (All included) by every area value (All included),
-        and each type page's filter address as search.js loads it: every
-        chip's count is its documents in the whole list and All's the whole
-        list; search.js writes no text but the status line, so no count
-        changes with the state; a click on All, or a second click on the
-        chosen chip, clears only that chip's group; and the status line,
-        under the text filter, gives how many rows show. Some state shows a
-        chip fewer rows than its count, so the old wording was false."""
+        kept their whole-list counts while one row showed). From the 1.9.2
+        adoption both groups carry live counts (the owner's 1.9.1 notice,
+        item 4), and the paragraph's count, All and status claims are
+        replayed in every combined state, every type value (All included) by
+        every area value (All included), with and without a typed word, and
+        each type page's filter address as search.js loads it: the served
+        count (no script, and the live count with nothing chosen or typed)
+        is a chip's documents in the whole list and All's the whole list;
+        search.js's own 1-pass tally, replayed, gives each chip the documents
+        it would show with the other group's choice and the words typed, and
+        All those with its own group cleared; a click on All, or a second
+        click on the chosen chip, clears only that chip's group; and the
+        status line, under the text filter, gives how many rows show. Some
+        state changes a chip's count, so "the counts change" is true, and
+        the old "stays the same" wording is gone."""
         index = self.draft_html[self._INDEX_REL]
         self.assertIn(self.INDEX_FILTER_PROSE, index)
+        self.assertNotIn("stays the same whatever else is chosen", index)
         rows = self._index_replay_rows()
         chips = {}
         for group in ("type", "area"):
@@ -3622,20 +3673,55 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(chips["type"][""], len(rows), "All is the list")
         self.assertEqual(chips["area"][""], len(rows), "All is the list")
         js = self.draft_all["assets/baseline/search.js"].decode("utf-8")
-        # From 1.7.0 search.js also writes a chip's .n (el), only in a group
-        # with data-filter-count="live", which neither group carries, and
-        # the text of the hidden note it creates once (note); so the counts
-        # stay as served.
+        # search.js writes the status line, a chip's .n (el) in a group with
+        # data-filter-count="live", which both groups carry, and the text of
+        # the hidden note it creates once (note).
         self.assertEqual(set(re.findall(r"(\w+)\.textContent\s*=", js)),
                          {"status", "el", "note"},
-                         "only the status line's text changes here")
+                         "only the status line and the counts change here")
         self.assertIn('        if (g.live) {\n'
-                      '          var el = c.querySelector(".n");', js)
+                      '          var el = c.querySelector(".n");\n'
+                      '          if (el && el.textContent !== String(n)) { '
+                      'el.textContent = String(n); }', js)
         self.assertIn('live: el.getAttribute("data-filter-count") === "live"',
                       js)
-        self.assertNotIn("data-filter-count", index)
+        self.assertIn('var n = v ? tally[g.name].v[v] || 0 : '
+                      'tally[g.name].all;', js)
+        self.assertEqual(index.count('data-filter-count="live"'), 2)
         self.assertIn('status.textContent = "Showing " + shown + " of " + '
                       'total + " documents.";', js)
+        # The live counts, replayed in search.js's own form, against the
+        # paragraph's definition: with nothing chosen or typed they equal
+        # the served counts; in every state, typed word or none, a chip
+        # counts the rows its choice would show beside the other group's
+        # choice, and All the rows with its own group cleared.
+        groups = ("type", "area")
+        idle = _replay_live_counts(rows, groups)
+        for group in groups:
+            for value, n in chips[group].items():
+                self.assertEqual(
+                    idle[group]["v"].get(value, 0) if value
+                    else idle[group]["all"], n,
+                    f"{group}={value}: idle live count is the served count")
+        word = rows[0]["hay"].split()[0]
+        changed = 0
+        for query in ("", word):
+            for t in chips["type"]:
+                for a in chips["area"]:
+                    state = {"type": t, "area": a}
+                    live = _replay_live_counts(rows, groups, query, state)
+                    for group, other in (("type", "area"),
+                                         ("area", "type")):
+                        for value, served in chips[group].items():
+                            n = (live[group]["v"].get(value, 0) if value
+                                 else live[group]["all"])
+                            self.assertEqual(
+                                n, len(_replay_search_js(
+                                    rows, query,
+                                    {group: value, other: state[other]})),
+                                f"{query!r} {state} {group}={value}")
+                            changed += n != served
+        self.assertTrue(changed, "some state changes a chip's count")
         self.assertRegex(index, r'<input id="q" type="search"[^>]*>'
                                 r'<p class="status" role="status"[^>]*'
                                 r'\sdata-search-status></p></form>')
@@ -3682,10 +3768,12 @@ class DraftSiteRenderTests(unittest.TestCase):
         for chips that show when a choice would give no results; site round
         b170-r1: two groups again, each marking such a chip): All Documents has
         exactly the type and area groups, each a ul.chips opted in with
-        data-filter-empty="disable" and labelled for screen readers, each
-        holding its own All chip, so no All chip sits outside a group; no
-        group opts in to live counts, because the filter paragraph says the
-        counts stay the same; and no other draft page has a facet group."""
+        data-filter-empty="disable" and, from the 1.9.2 adoption (the
+        owner's 1.9.1 notice, item 4), data-filter-count="live" beside it,
+        and labelled for screen readers, each holding its own All chip, so
+        no All chip sits outside a group; no page text says the counts never
+        change (spec 7.29: "A page whose text says the counts never change
+        must say otherwise"); and no other draft page has a facet group."""
         index = self.draft_html[self._INDEX_REL]
         for group in ("type", "area"):
             with self.subTest(group=group):
@@ -3693,7 +3781,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                     index.count(f'data-filter-group="{group}"'), 1)
                 self.assertIn(
                     f'<ul class="chips" data-filter-group="{group}" '
-                    'data-filter-empty="disable" '
+                    'data-filter-empty="disable" data-filter-count="live" '
                     f'aria-label="Filter by {group}">', index)
                 chips = self._FACET_CHIP_RE.findall(
                     self._facet_group(group)[1])
@@ -3703,11 +3791,21 @@ class DraftSiteRenderTests(unittest.TestCase):
             re.findall(r'\sdata-filter-group="([^"]*)"', index),
             ["type", "area"])
         self.assertEqual(index.count('data-filter-empty="disable"'), 2)
+        self.assertEqual(index.count('data-filter-count="live"'), 2)
         self.assertEqual(index.count(' data-filter=""'), 2,
                          "no All chip outside the two groups")
-        self.assertNotIn("data-filter-count", index)
-        self.assertIn("and stays the same whatever else is chosen",
-                      self.INDEX_FILTER_PROSE)
+        self.assertIn("so the counts change as the choices and the words "
+                      "change", self.INDEX_FILTER_PROSE)
+        never = re.compile(r"\b(stays? the same|never change|do(?:es)? not "
+                           r"change|unchanged|fixed|static)\b", re.I)
+        for rel, html in self.draft_html.items():
+            text = re.sub(r"<[^>]+>", " ", html)
+            for sentence in re.split(r"(?<=[.;:])\s", text):
+                if re.search(r"\bcounts?\b", sentence, re.I):
+                    self.assertIsNone(
+                        never.search(sentence),
+                        f"{rel}: a count sentence says it never changes: "
+                        f"{sentence.strip()[:200]}")
         self.assertEqual(
             sorted(rel for rel, html in self.draft_html.items()
                    if "data-filter-group" in html), [self._INDEX_REL])
@@ -3721,10 +3819,13 @@ class DraftSiteRenderTests(unittest.TestCase):
         would-show count is 0, counted with the words typed and every other
         group's choice, never for All or the chosen chip ("var off = ...");
         activating one returns before any choice, row or address change and
-        writes the refusal to the status line; and baseline.css draws it
-        with a dashed border. Replayed on the rendered rows in every
+        writes the refusal to the status line; baseline.css 1.9.1 greys it
+        out (the unavailable chip colours on the unavailable fill) and
+        strikes its word through but not its count; and, with live counts
+        on, its count reads 0. Replayed on the rendered rows in every
         combined state (every type value by every area value, All
-        included): the chips the sentence covers exist on this page."""
+        included): the chips the sentence covers exist on this page, and
+        each has a live count of 0."""
         index = self.draft_html[self._INDEX_REL]
         self.assertIn(self.INDEX_FILTER_PROSE, index)
         js = self.draft_all["assets/baseline/search.js"].decode("utf-8")
@@ -3756,8 +3857,14 @@ class DraftSiteRenderTests(unittest.TestCase):
         css = self.draft_all["assets/baseline/baseline.css"].decode(
             "utf-8")
         self.assertIn('.chips a[aria-disabled="true"], .chips '
-                      'button[aria-disabled="true"] { border-style: dashed;',
-                      css)
+                      'button[aria-disabled="true"] { color: '
+                      'var(--chip-unavailable-fg); background: '
+                      'var(--chip-unavailable-bg); border-color: '
+                      'var(--chip-unavailable-border); border-style: dashed; '
+                      'cursor: not-allowed; text-decoration: line-through; '
+                      'text-decoration-thickness: 1px; }', css)
+        self.assertIn('.chips [aria-disabled="true"] .n { display: '
+                      'inline-block; text-decoration: none; }', css)
         rows = self._index_replay_rows()
         chips = {group: [v for _, v, _, _ in self._FACET_CHIP_RE.findall(
                      self._facet_group(group)[1])]
@@ -3773,8 +3880,15 @@ class DraftSiteRenderTests(unittest.TestCase):
                         # The would-show count of spec 7.29: the rows
                         # holding every other group's choice and this
                         # chip's value (no words typed here).
-                        unavailable += not _replay_search_js(
+                        off = not _replay_search_js(
                             rows, active={**state, group: value})
+                        unavailable += off
+                        if off:
+                            live = _replay_live_counts(
+                                rows, ("type", "area"), active=state)
+                            self.assertEqual(
+                                live[group]["v"].get(value, 0), 0,
+                                f"{state} {group}={value}: count at 0")
         self.assertTrue(unavailable,
                         "some state has a chip the sentence covers")
 
@@ -7799,12 +7913,13 @@ class DraftSiteRenderTests(unittest.TestCase):
             (REPO_ROOT / ".baseline" / "pin.toml").read_text(encoding="utf-8")
         )
         prefix = ".web/baseline/"
-        # Baseline 1.7.0 section 4 items 2 and 3: the palette gate is pinned
-        # beside the copies and never served.
+        # Baseline 1.8.0 section 4 items 2 and 3: the palette gate and the
+        # overflow check are pinned beside the copies and never served.
         served = {key: digest for key, digest in pin["files"].items()
-                  if key != self.mod.PALETTE_GATE_KEY}
+                  if key not in self.mod.UNSERVED_PIN_KEYS}
         self.assertEqual(set(pin["files"]) - set(served),
-                         {".baseline/check_palette.py"})
+                         {".baseline/check_palette.py",
+                          ".baseline/check_overflow.js"})
         for key, digest in served.items():
             self.assertTrue(key.startswith(prefix), key)
             rel = key[len(prefix):]
@@ -7823,8 +7938,8 @@ class DraftSiteRenderTests(unittest.TestCase):
                          "exactly the pinned files are copied")
         self.assertEqual(
             [rel for rel, _ in self.site_pages
-             if rel.endswith("check_palette.py")], [],
-            "the palette gate is never served")
+             if rel.endswith(("check_palette.py", "check_overflow.js"))], [],
+            "the palette gate and the overflow check are never served")
 
     def test_pinned_scripts_are_the_release_script_set(self):
         """Baseline 1.7.0 SPECIFICATION.md section 8: "The 6 scripts are the
@@ -7886,18 +8001,31 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # -- 25. baseline 1.6.0: switch, scheme.js, dark palette, palette gate --
 
-    def test_pin_and_copies_are_baseline_1_7_0(self):
-        """The 1.7.0 move (CHANGELOG 1.7.0: every site moves to 1.7.0):
-        the pin names 1.7.0, and the files 1.7.0 changes, with scheme.js
-        from 1.6.0, carry the release's SHA256SUMS digests in the pin, in the
-        repository and, for the served ones, in the draft copy; the module
-        docstring and the CSP comment name the pinned version."""
+    def test_pin_and_copies_are_baseline_1_9_2(self):
+        """The 1.9.2 move (the owner's 1.9.1 notice: grclibrary.ai, whose
+        documents page prompted the chip states, moves; the 1.9.2 notice:
+        move to 1.9.2 instead, with the same steps): the pin names 1.9.2,
+        and the copied files 1.9.0 to 1.9.2 change, with the files 1.8.0
+        changes or adds, search.js from 1.7.0 and scheme.js from 1.6.0,
+        carry the release's SHA256SUMS digests in the pin, in the repository
+        and, for the served ones, in the draft copy; the card builder, its
+        fonts and its data file template are neither copied nor pinned (any
+        card change waits for the owner's approval of a before and after
+        preview, spec 7.35); the module docstring and the CSP comment name
+        the pinned version."""
         import tomllib
         pin = tomllib.loads(
             (REPO_ROOT / ".baseline" / "pin.toml").read_text(encoding="utf-8")
         )
-        self.assertEqual(pin["version"], "1.7.0")
-        for key, digest in RELEASE_1_7_0_DIGESTS.items():
+        self.assertEqual(pin["version"], "1.9.2")
+        for card_tool in ("build_card.js", "card-fonts",
+                          "site-card.example.toml", "site-card.toml",
+                          "Inter-Regular.otf", "inter-LICENSE.txt"):
+            self.assertFalse(
+                [key for key in pin["files"] if card_tool in key], card_tool)
+            self.assertFalse((REPO_ROOT / ".baseline" / card_tool).exists(),
+                             card_tool)
+        for key, digest in RELEASE_1_9_2_DIGESTS.items():
             self.assertEqual(pin["files"].get(key), digest, f"{key} pin")
             self.assertEqual(
                 hashlib.sha256((REPO_ROOT / key).read_bytes()).hexdigest(),
@@ -10959,6 +11087,26 @@ class PaletteGateFixtureTests(unittest.TestCase):
     def test_released_palette_passes(self):
         self.assertIsNone(self.mod.run_palette_gate())
 
+    def test_gate_reads_the_pinned_baseline_css(self):
+        """From 1.9.1 the gate reads baseline.css to resolve the family and
+        component tokens, by default the one beside palettes.css. The build
+        names the pinned served copy with --baseline (the 1.9.1 notice,
+        step 4): the released palettes.css alone in a folder with no
+        baseline.css still passes, and a stylesheet whose chip text
+        resolves to --rule fails on the chip text contrast."""
+        alone = self._palettes(self._released())
+        self.assertFalse((alone.parent / "baseline.css").exists())
+        self.assertIsNone(self.mod.run_palette_gate(alone))
+        css = self.mod.PALETTE_BASELINE_CSS.read_text(encoding="utf-8")
+        self.assertEqual(css.count("--chip-fg: var(--text);"), 1)
+        bad = self._root() / "baseline.css"
+        bad.write_text(css.replace("--chip-fg: var(--text);",
+                                   "--chip-fg: var(--rule);"),
+                       encoding="utf-8")
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    r"chip-fg.*FAIL"):
+            self.mod.run_palette_gate(baseline=bad)
+
     def test_low_contrast_dark_text_fails(self):
         bad = self._palettes(_doctor_dark_token(
             self._released(), "text-muted", "#2a2a2a"))
@@ -10979,13 +11127,31 @@ class PaletteGateFixtureTests(unittest.TestCase):
                     self.mod.run_palette_gate(bad)
 
     def test_heat_step_text_cannot_be_read_on_fails(self):
-        """1.7.0 checks the text on each heat step at 4.5:1: a dark --heat-4
-        as light as the dark --text fails the build's gate."""
+        """From 1.7.0 the gate checks the text on each heat step at 4.5:1: a
+        dark --heat-4 as light as the dark --text fails the build's gate."""
         bad = self._palettes(_doctor_dark_token(
             self._released(), "heat-4", "#e9e9e9"))
         with self.assertRaisesRegex(self.mod.BuildError,
                                     r"text on heat-4 .*FAIL"):
             self.mod.run_palette_gate(bad)
+
+    def test_light_heat_steps_too_close_fail(self):
+        """CHANGELOG 1.8.0 and spec 6.1: neighbouring heat steps must lie at
+        least 2.5 apart (OKLab x 100). A light --heat-2 set to the released
+        light --heat-1, in both light forms so the forms agree and every
+        contrast pair still passes, fails the build's gate on the distance
+        alone."""
+        css = self._released()
+        heat_1 = _dark_token(css, "heat-1", _LIGHT_BLOCKS)
+        self.assertEqual(len(set(heat_1)), 1, heat_1)
+        bad = self._palettes(_doctor_dark_token(
+            css, "heat-2", heat_1[0], openers=_LIGHT_BLOCKS))
+        with self.assertRaisesRegex(
+                self.mod.BuildError,
+                r"heat step distance \(OKLab x 100\) .*needs 2\.5 FAIL"
+                ) as caught:
+            self.mod.run_palette_gate(bad)
+        self.assertIn("1 failing check", str(caught.exception))
 
     def test_override_in_one_dark_form_only_fails(self):
         bad = self._palettes(_doctor_dark_token(
@@ -11048,12 +11214,29 @@ class PaletteGateFixtureTests(unittest.TestCase):
         with self.assertRaisesRegex(self.mod.BuildError, "has no pin entry"):
             self.mod.run_palette_gate(pin_path=pin)
 
-    def test_asset_copy_skips_only_the_gate_key(self):
-        """The gate's pin key is the one key outside .web/baseline/ the asset
-        copy accepts, and it is never copied (served)."""
+    def test_asset_copy_skips_only_the_tool_keys(self):
+        """The pin keys of the palette gate and, from baseline 1.8.0, the
+        overflow check are the only keys outside .web/baseline/ the asset
+        copy accepts, and neither is copied (served)."""
+        self.assertEqual(self.mod.UNSERVED_PIN_KEYS,
+                         {self.mod.PALETTE_GATE_KEY,
+                          ".baseline/check_overflow.js"})
         assets = dict(self.mod.load_baseline_assets())
-        self.assertNotIn("check_palette.py", {Path(r).name for r in assets})
+        self.assertFalse({"check_palette.py", "check_overflow.js"}
+                         & {Path(r).name for r in assets})
         self.assertIn("scheme.js", assets)
+
+    def test_asset_copy_refuses_another_key_outside_the_tree(self):
+        """Only the fixed tool keys sit outside .web/baseline/: any other
+        .baseline/ key fails the asset copy."""
+        root = self._root()
+        pin = root / "pin.toml"
+        pin.write_text(
+            (REPO_ROOT / ".baseline" / "pin.toml").read_text(encoding="utf-8")
+            + f'".baseline/other.js" = "{"0" * 64}"\n', encoding="utf-8")
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    r"pin entry outside .*\.baseline/other"):
+            self.mod.load_baseline_assets(pin_path=pin)
 
 
 class StickyTableBoundFixtureTests(unittest.TestCase):
@@ -11987,7 +12170,8 @@ class SiteB5FixTests(unittest.TestCase):
         self.assertLess(len(body.group(1)), 300,
                         "the body usage paragraph stays short")
         for kept in ("match every word;",
-                     "marked unavailable, with a dashed border",
+                     "marked unavailable: it is greyed out, with its word "
+                     "struck through and its count at zero",
                      "All and a chosen chip are never unavailable."):
             self.assertIn(kept, index, "no mechanics claim is dropped")
 

@@ -17,11 +17,13 @@ The pin also records the package's build tools that the repository copies
 outside the served tree, never served: exactly the paths in
 ``PINNED_TOOLS`` (the palette gate ``.baseline/check_palette.py``, which the
 package's adoption step 3 pins in the same ``[files]`` table and the site
-build runs). Each is verified like a copied file: a regular file, not a
-symbolic link, under a real ``.baseline`` directory, whose SHA-256 matches its
-pin entry; a pinned tool that is missing, a tool present with no pin entry,
-and a pin with no entry for a ``PINNED_TOOLS`` path (the pin must include
-every one, file or no file) are findings.
+build runs, and the overflow check ``.baseline/check_overflow.js``, which the
+package's specification pins like the palette gate and which no gate runs).
+Each is verified like a copied file: a regular file, not a symbolic link,
+under a real ``.baseline`` directory, whose SHA-256 matches its pin entry; a
+pinned tool that is missing, a tool present with no pin entry, and a pin with
+no entry for a ``PINNED_TOOLS`` path (the pin must include every one, file or
+no file) are findings.
 
 This gate recomputes the SHA-256 of every file under ``.web/baseline/`` and
 of every pinned tool, and compares them with the pin. It fails on:
@@ -86,10 +88,12 @@ TREE_REL = ".web/baseline"
 TREE_PREFIX = TREE_REL + "/"
 HEX_DIGITS = frozenset("0123456789abcdef")
 # The package's build tools pinned outside the served tree (the palette gate,
-# copied from the package's tools/check_palette.py). Fixed paths: a new tool
-# is a reviewed edit here, never a pin key alone.
+# copied from the package's tools/check_palette.py, and the overflow check,
+# copied from its tools/check_overflow.js). Fixed paths: a new tool is a
+# reviewed edit here, never a pin key alone.
 TOOLS_DIR_REL = ".baseline"
-PINNED_TOOLS = frozenset({".baseline/check_palette.py"})
+PINNED_TOOLS = frozenset({".baseline/check_palette.py",
+                          ".baseline/check_overflow.js"})
 
 
 class PinError(Exception):
