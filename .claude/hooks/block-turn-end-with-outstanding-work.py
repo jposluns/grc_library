@@ -112,7 +112,11 @@ checkout or a git working tree, a timeout, or any open, check or write failure),
 path cannot be shown on one console line, the console fallback is returned instead: the
 BLOCKED and WHY lines, one NOTE line naming the failure, then the branch list cut at the first
 _FALLBACK_ITEMS branches (the pre-2026-11-04 console cap) with one line counting the rest, the
-held-branches path and the one-shot escape. This fails open to visibility, never to silence:
+held-branches path and the one-shot escape. Every branch item the fallback shows is escaped
+with _printable, and so is every item of the last-resort form (the full detail with the NOTE
+after it, used when the fallback cannot be rendered), so a newline or terminal escape in a git
+error text cannot start a console line on any path; the detail log keeps the raw text. This
+fails open to visibility, never to silence:
 the count is always shown, and when the log was written the full list is there. RESIDUE: when
 the log was not written, branches past the first _FALLBACK_ITEMS are named nowhere, as before
 2026-11-04. Exit status, the escape and stop_hook_active handling are unchanged. RESIDUE:
@@ -441,8 +445,9 @@ def decide(stop_hook_active: bool, escape: bool, branches: list,
            shown: int | None = None, note: str | None = None) -> str | None:
     """Pure decision, so it is testable without a repository. Returns the FULL detail (every
     branch); main() routes it to the detail log and shows summarize() on the console. The
-    console fallback (_route_refusal) passes ``shown``, which keeps that many branches and
-    counts the rest on one line, and ``note``, placed before the list."""
+    console fallback (_route_refusal) passes ``shown``, which keeps that many branches, each
+    escaped with _printable (the detail log form keeps the raw text), and counts the rest on
+    one line, and ``note``, placed before the list."""
     if stop_hook_active or escape:
         return None
     if not branches:
@@ -455,7 +460,10 @@ def decide(stop_hook_active: bool, escape: bool, branches: list,
     if branches:
         listed = branches if shown is None else branches[:shown]
         lines.append("  Branches outstanding or not verifiable (%d):" % len(branches))
-        lines += ["    - %s (+%s)" % (n, a) for n, a in listed]
+        if shown is None:
+            lines += ["    - %s (+%s)" % (n, a) for n, a in listed]
+        else:
+            lines += ["    - " + _printable("%s (+%s)" % (n, a)) for n, a in listed]
         if len(listed) < len(branches):
             lines.append("    ... and %d more, not shown here" % (len(branches) - len(listed)))
         lines.append("    Held-branches record path:")
@@ -636,7 +644,7 @@ def _route_refusal(detail: str, branches: list, payload) -> str:
     """Short console form after a successful log write; otherwise the console fallback: the
     refusal with one NOTE line before the branch list, which is cut at _FALLBACK_ITEMS with the
     rest counted (fail open to visibility, never to silence). Should that rendering fail, or
-    lack the NOTE, the full detail is shown with the NOTE after it."""
+    lack the NOTE, the full detail is shown with the NOTE after it (_last_resort)."""
     state = "not written"
     try:
         path = _bounded_write(detail, payload)
@@ -653,8 +661,21 @@ def _route_refusal(detail: str, branches: list, payload) -> str:
         except Exception:
             shown = None
         if not isinstance(shown, str) or note not in shown:
-            return detail + "\n" + note
+            return _last_resort(detail, branches, note)
         return shown
+
+
+def _last_resort(detail: str, branches: list, note: str) -> str:
+    """The full detail with ``note`` after it, every branch item escaped with _printable so a
+    raw newline inside an item cannot start a console line. When the escaped items cannot be
+    rendered, the whole detail is escaped onto one line instead (visible, never silent)."""
+    try:
+        safe = decide(False, False, [(_printable(str(n)), _printable(str(a))) for n, a in branches])
+    except Exception:
+        safe = None
+    if not isinstance(safe, str):
+        safe = _printable(detail)
+    return safe + "\n" + note
 
 
 def _fail_open() -> int:
@@ -901,7 +922,26 @@ def self_test() -> int:
         bad += 1
         print("FAIL summarize advertised a log path with %r" % odd)
 
-    total = len(SELF_TEST) + 12
+    # Round 5: a newline or an ESC in a git error text never reaches the console raw on the
+    # fallback or on the last-resort form; the detail (the log's text) keeps it raw.
+    odd = [("claude/a", "unverified: fatal: bad\nref"), ("claude/b\x1b[2J", "1")]
+    raw = decide(False, False, odd)
+    real_decide = decide
+
+    def no_fallback(*args, **kwargs):
+        if kwargs.get("shown") is not None:
+            raise ValueError("fallback unavailable")
+        return real_decide(*args, **kwargs)
+
+    for label, patch in (("fallback", real_decide), ("last-resort", no_fallback)):
+        with mock.patch.object(module, "decide", patch):
+            routed = _route_refusal(raw, odd, {})
+        if ("\x1b" in routed or "bad\nref" in routed or "bad\\nref" not in routed
+                or "claude/b\\x1b[2J (+1)" not in routed or "bad\nref" not in raw):
+            bad += 1
+            print("FAIL the %s form showed a raw newline or ESC in an item" % label)
+
+    total = len(SELF_TEST) + 14
     print(str(total - bad) + "/" + str(total) + " decision cases pass")
     return 1 if bad else 0
 

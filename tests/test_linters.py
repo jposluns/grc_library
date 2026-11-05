@@ -73474,20 +73474,22 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         log = "/s/stop-hook-detail/stop-guard.0123456789ab.log"
         lines = mod._short_refusal(4, 1, log, escape).split("\n")
         self.assertEqual(len(lines), 3)
-        self.assertEqual(lines[2], "CONSIDER INSTEAD: continue the top actionable item; "
-                                   "declared wait: touch %s; detail log: %s" % (escape, log))
+        self.assertEqual(lines[2], "CONSIDER INSTEAD: continue; wait (once, after recording the "
+                                   "blocker): touch %s; log: %s" % (escape, log))
         self.assertNotIn(log, lines[1])
-        # Both paths, too long for the full wording, still share the action line when the
-        # shorter wording fits.
+        # Both paths, too long to share the action line, split: the escape path and the
+        # condition keep the action line and the log path ends the WHY line.
         wide = "/w/" + "w" * 30 + "/.allow-idle-stop"
         lines = mod._short_refusal(4, 1, log, wide).split("\n")
-        self.assertEqual(lines[2], "CONSIDER INSTEAD: continue; wait: touch %s; log: %s" % (wide, log))
+        self.assertEqual(lines[2], "CONSIDER INSTEAD: continue the top actionable item; declared "
+                                   "wait (once, after recording the blocker): touch " + wide)
+        self.assertTrue(lines[1].endswith("; detail log: " + log))
         long_log = "/" + "s" * 81 + "/stop-hook-detail/stop-guard.0123456789ab.log"
         lines = mod._short_refusal(4, 1, long_log, escape).split("\n")
         self.assertEqual(len(lines), 3)
         self.assertEqual(lines[1], "WHY: below the group floor; log: " + long_log)
-        self.assertEqual(lines[2], "CONSIDER INSTEAD: continue the top actionable item; "
-                                   "declared wait: touch " + escape)
+        self.assertEqual(lines[2], "CONSIDER INSTEAD: continue the top actionable item; declared "
+                                   "wait (once, after recording the blocker): touch " + escape)
         self.assertLessEqual(max(map(len, lines)), 160)
         self.assert_refusal("\n".join(lines), guard="stop-guard-unattended", imperative="continue")
         with self.assertRaises(ValueError):
@@ -73507,6 +73509,83 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             self.assertIn("touch " + escape, lines[2])
             self.assertIn(str(self._stop_log(hook, store, "s-1")), text)
             self.assertNotIn("NOTE:", text)
+
+    # ---- Round 5 (2026-11-05): escaped fallback items, declared-wait condition on the console ----
+    TURN_END_ODD_BRANCHES = [("claude/a", "unverified: fatal: bad\nref"),
+                             ("claude/b\x1b[2J", "1"),
+                             ("claude/c", "unverified: \x1b]0;title\x07")]
+
+    def _assert_items_escaped(self, text):
+        for raw in ("\x1b", "\x07", "bad\nref"):
+            self.assertNotIn(raw, text)
+        self.assertIn("    - claude/a (+unverified: fatal: bad\\nref)", text.split("\n"))
+        self.assertIn("    - claude/b\\x1b[2J (+1)", text.split("\n"))
+        self.assertIn("    - claude/c (+unverified: \\x1b]0;title\\x07)", text.split("\n"))
+
+    def test_turn_end_fallback_escapes_shown_items(self):
+        """When the detail log cannot be written, every branch item the fallback shows is
+        escaped: a newline or an ESC in a git error text never reaches the console raw."""
+        hook = "block-turn-end-with-outstanding-work"
+        branches = list(self.TURN_END_ODD_BRANCHES)
+        with tempfile.TemporaryDirectory() as td:
+            _items, status, text = self._stop_block(hook, td, 0, {}, None,
+                                                    unmerged_branches=lambda: list(branches))
+        self.assertEqual(status, 2)
+        self.assertIn("NOTE: detail log not written (ValueError", text)
+        self.assertLess(text.index("NOTE:"), text.index("Branches outstanding"), text)
+        self._assert_items_escaped(text)
+
+    def test_turn_end_last_resort_escapes_items(self):
+        """When the fallback cannot be rendered, the last-resort form (the full detail, then the
+        NOTE) escapes every item too, so no item can start a console line on any path; the
+        detail itself keeps the raw text for the log."""
+        from unittest.mock import patch
+        mod = load_linter_module(".claude/hooks/block-turn-end-with-outstanding-work.py",
+                                 "_turn_end_r5_last_resort")
+        branches = list(self.TURN_END_ODD_BRANCHES)
+        real = mod.decide
+        detail = real(False, False, branches)
+        self.assertIn("bad\nref", detail)
+
+        def no_fallback(*args, **kwargs):
+            if kwargs.get("shown") is not None:
+                raise ValueError("fallback unavailable")
+            return real(*args, **kwargs)
+
+        with patch.object(mod, "decide", no_fallback):
+            text = mod._route_refusal(detail, branches, {})
+        self.assertTrue(text.endswith("\nNOTE: detail log not written (ValueError: no usable "
+                                      "session_id in the Stop payload); detail shown here."), text)
+        self.assertNotIn("not shown here", text)
+        self._assert_items_escaped(text)
+
+    def test_stop_guard_short_form_keeps_wait_condition(self):
+        """The console's declared-wait wording keeps decide()'s condition (once, after recording
+        the blocker) when it fits the line; otherwise it keeps the path and says the condition is
+        in the log, which carries decide()'s reason."""
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_stop_detail_r5_wait")
+        log = "/s/stop-hook-detail/stop-guard.0123456789ab.log"
+        _b, reason = mod.decide("unattended", False, [("P-1", "t")], 0, (None, "absent"))
+        self.assertIn("(once, after recording blocker)", reason)
+        for escape in ("/w/.allow-idle-stop", "/" + "w" * 50, "/" + "w" * 83):
+            with self.subTest(escape=len(escape)):
+                lines = mod._short_refusal(4, 1, log, escape).split("\n")
+                self.assertEqual(len(lines), 3)
+                self.assertIn("wait (once, after recording the blocker): touch " + escape, lines[2])
+                self.assertIn(log, "\n".join(lines[1:]))
+                self.assertLessEqual(max(map(len, lines)), 160)
+        for escape in ("/" + "w" * 84, "/" + "w" * 100):
+            with self.subTest(escape=len(escape)):
+                lines = mod._short_refusal(4, 1, log, escape).split("\n")
+                self.assertEqual(len(lines), 3)
+                self.assertEqual(lines[2], "CONSIDER INSTEAD: continue; wait (condition in log): "
+                                           "touch " + escape)
+                self.assertTrue(lines[1].endswith(" " + log))
+                self.assertLessEqual(max(map(len, lines)), 160)
+                self.assert_refusal("\n".join(lines), guard="stop-guard-unattended",
+                                    imperative="continue")
+        with self.assertRaises(ValueError):
+            mod._short_refusal(4, 1, log, "/" + "w" * 101)
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()

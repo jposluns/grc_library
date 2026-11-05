@@ -130,13 +130,15 @@ refused before anything is created. The diagnostic is then three short lines
 (_short_refusal), each at most _MAX_LINE_CHARS: what blocked with the actionable count, WHY
 with the live group count, and the one action that clears it, which names the declared-wait
 escape path (_grc_escape_file, #2496: a sentinel was once written at the wrong path because
-the message did not name it) followed by the log path. When the escape path and the log path
-do not both fit that line, the escape path keeps the CONSIDER INSTEAD line and the log path
-moves to the end of the WHY line; there is never a fourth line. No item ID or title appears
+the message did not name it) with decide()'s condition "(once, after recording the blocker)",
+followed by the log path. When the escape path and the log path do not both fit that line, the
+escape path keeps the CONSIDER INSTEAD line, with the condition when it fits and "(condition
+in log)" when it does not, and the log path moves to the end of the WHY line; there is never a
+fourth line. No item ID or title appears
 in that form. PATH BUDGET: the log path adds 45 characters to the store path (with a
 12-character session prefix), so the short form fits a store path of at most 82 characters
 (the shortest WHY wording leaves 127 characters for the log path); a longer store path, an
-escape path longer than 120 characters, or a log or escape path with any non-printable
+escape path longer than 101 characters, or a log or escape path with any non-printable
 character (a newline, a carriage return or a terminal escape, tested with _printable), takes
 the fallback below. The full detail (every item ID and title) is built only after the time
 budget and the session_id have been checked, inside the deadline-controlled write thread, so
@@ -1077,30 +1079,35 @@ def _first_fit(forms, values, what):
 def _short_refusal(count, live_groups, log_path, escape_path):
     """The three diagnostic lines, each at most _MAX_LINE_CHARS: what blocked (count only,
     #2291), WHY, and the one action that clears it. The action line names the declared-wait
-    escape path (#2496) and then the detail log path when both fit it whole; otherwise the
-    escape path keeps the action line and the log path ends the WHY line. There is never a
-    fourth line. A log or escape path with any non-printable character, or one that cannot fit
-    whole, raises before its length is used, and the caller then shows the fallback. PATH
-    BUDGET: the shortest WHY wording leaves 127 characters for the log path, so the store path
-    may be at most 82 (see CONSOLE AND DETAIL LOG); the escape path at most 120."""
+    escape path (#2496) with decide()'s condition (once, after recording the blocker) and then
+    the detail log path when all fit it whole; otherwise the escape path keeps the action line,
+    with the condition when it fits and "(condition in log)" when it does not, and the log path
+    ends the WHY line. There is never a fourth line. A log or escape path with any non-printable
+    character, or one that cannot fit whole, raises before its length is used, and the caller
+    then shows the fallback.
+    PATH BUDGET: the shortest WHY wording leaves 127 characters for the log path, so the store
+    path may be at most 82 (see CONSOLE AND DETAIL LOG); the escape path at most 101."""
     if _printable(log_path) != log_path:
         raise ValueError("detail log path has a non-printable character")
     if _printable(escape_path) != escape_path:
         raise ValueError("declared-wait path has a non-printable character")
     blocked = _clamp("BLOCKED (stop-guard-unattended): unattended turn-end yield; the backlog tool "
                      "reports %d actionable open backlog item(s)." % count)
+    why = _clamp("WHY: not whole-set exhaustion, and the live owned dispatch group count (%d) "
+                 "is below the required count." % live_groups)
     try:
-        why = _clamp("WHY: not whole-set exhaustion, and the live owned dispatch group count (%d) "
-                     "is below the required count." % live_groups)
-        action = _first_fit(("CONSIDER INSTEAD: continue the top actionable item; declared wait: "
-                             "touch %s; detail log: %s",
-                             "CONSIDER INSTEAD: continue; wait: touch %s; log: %s"),
+        action = _first_fit(("CONSIDER INSTEAD: continue; wait (once, after recording the "
+                             "blocker): touch %s; log: %s",),
                             (escape_path, log_path), "declared-wait and detail log paths")
     except ValueError:
-        # Prefer the escape path on the action line; the log path ends the WHY line.
-        action = _first_fit(("CONSIDER INSTEAD: continue the top actionable item; declared wait: "
-                             "touch %s",
-                             "CONSIDER INSTEAD: continue; wait: touch %s"),
+        # Prefer the escape path on the action line; the log path ends the WHY line. The
+        # condition stays on the action line when it fits; otherwise the line says it is in
+        # the log (decide()'s reason, which the log carries, states it).
+        action = _first_fit(("CONSIDER INSTEAD: continue the top actionable item; declared wait "
+                             "(once, after recording the blocker): touch %s",
+                             "CONSIDER INSTEAD: continue; wait (once, after recording the "
+                             "blocker): touch %s",
+                             "CONSIDER INSTEAD: continue; wait (condition in log): touch %s"),
                             (escape_path,), "declared-wait path")
         why = _first_fit(("WHY: the live owned dispatch group count (%d) is below the required "
                           "count; detail log: " % live_groups + "%s",
@@ -2441,17 +2448,26 @@ def _self_test():
             escape = "/w/.allow-idle-stop"
             short = _short_refusal(500, 1, log, escape)
             self.assertEqual(len(short.splitlines()), 3)
-            self.assertTrue(short.endswith("declared wait: touch %s; detail log: %s" % (escape, log)))
+            self.assertEqual(short.splitlines()[2],
+                             "CONSIDER INSTEAD: continue; wait (once, after recording the "
+                             "blocker): touch %s; log: %s" % (escape, log))
             store = "/" + "s" * 81
             fits = store + "/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
             lines = _short_refusal(500, 1, fits, escape).splitlines()
             self.assertEqual(len(lines), 3)
             self.assertEqual(lines[1], "WHY: below the group floor; log: " + fits)
-            self.assertTrue(lines[2].endswith("touch " + escape))
+            self.assertTrue(lines[2].endswith("(once, after recording the blocker): touch " + escape))
             with self.assertRaises(ValueError):
                 _short_refusal(500, 1, "/s" + fits, escape)
+            # Round 5: an escape path too long for the condition keeps the path and says the
+            # condition is in the log; 101 characters fit, 102 fall back.
+            for wide in ("/" + "w" * 89, "/" + "w" * 100):
+                lines = _short_refusal(500, 1, log, wide).splitlines()
+                self.assertEqual(lines[2], "CONSIDER INSTEAD: continue; wait (condition in log): "
+                                           "touch " + wide)
+                self.assertTrue(lines[1].endswith(" " + log))
             with self.assertRaises(ValueError):
-                _short_refusal(500, 1, log, "/" + "w" * 120)
+                _short_refusal(500, 1, log, "/" + "w" * 101)
 
         def test_short_form_refuses_a_non_printable_log_path(self):
             for odd in ("\n", "\r", "\x1b[2J"):
