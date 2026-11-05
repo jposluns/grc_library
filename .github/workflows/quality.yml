@@ -12,8 +12,15 @@ permissions:
   contents: read
 
 jobs:
+  # Gate 36 (the linter regression test suite) is sharded across the six
+  # regression-shard jobs below (maintainer directive 2026-11-04): together
+  # they run exactly the tests one serial run executes, each shard fails
+  # closed on any selection defect, and this job's gate-36 step verifies the
+  # same partition. The summary job carries the required-check name
+  # "Lint markdown corpus" and succeeds only when this job and every shard
+  # succeeded, so the merge guard's contract is unchanged.
   lint:
-    name: Lint markdown corpus
+    name: Lint markdown corpus gates
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -135,8 +142,12 @@ jobs:
       - name: Gate-name parity audit
         run: python3 tools/lint-audit-gate-parity.py
 
+      # Gate 36 in shard form: the suite itself runs in the six parallel
+      # regression-shard jobs; this step proves their selection is an exact
+      # partition of the discovered tests (a test no shard selects, a test
+      # two shards select, or an empty shard refuses), without running them.
       - name: Linter regression test suite
-        run: python3 tools/run-linter-regression.py
+        run: python3 tools/run-linter-regression.py --verify-shards 6
 
       - name: Claude-rules local-copy sync audit
         run: python3 tools/lint-claude-rules-sync.py
@@ -417,3 +428,150 @@ jobs:
             echo "No pack changes in this PR. Skipping detector."
             echo "(Run on demand: python3 tools/detect-collection-candidates.py)"
           fi
+
+  # Gate 36 shards. Each shard recomputes the whole deterministic selection
+  # from tests/regression-shard-weights.json and refuses unless it is an
+  # exact partition of the discovered tests, then runs only its own slice,
+  # so the six shards together run exactly the serial run's tests.
+  regression-shard-1:
+    name: Linter regression test suite (shard 1 of 6)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Linter regression test suite (shard 1 of 6)
+        run: python3 tools/run-linter-regression.py --shard 1/6
+
+  regression-shard-2:
+    name: Linter regression test suite (shard 2 of 6)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Linter regression test suite (shard 2 of 6)
+        run: python3 tools/run-linter-regression.py --shard 2/6
+
+  regression-shard-3:
+    name: Linter regression test suite (shard 3 of 6)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Linter regression test suite (shard 3 of 6)
+        run: python3 tools/run-linter-regression.py --shard 3/6
+
+  regression-shard-4:
+    name: Linter regression test suite (shard 4 of 6)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Linter regression test suite (shard 4 of 6)
+        run: python3 tools/run-linter-regression.py --shard 4/6
+
+  regression-shard-5:
+    name: Linter regression test suite (shard 5 of 6)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Linter regression test suite (shard 5 of 6)
+        run: python3 tools/run-linter-regression.py --shard 5/6
+
+  regression-shard-6:
+    name: Linter regression test suite (shard 6 of 6)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Linter regression test suite (shard 6 of 6)
+        run: python3 tools/run-linter-regression.py --shard 6/6
+
+  # The required merge check (REQUIRED_CHECKS in the merge-when-green guard):
+  # it succeeds only when the lint job and every regression shard succeeded.
+  # if always() keeps it running, and failing, when a needed job fails, is
+  # cancelled or is skipped, so the merge guard sees a failed required check
+  # rather than a missing one.
+  summary:
+    name: Lint markdown corpus
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - regression-shard-1
+      - regression-shard-2
+      - regression-shard-3
+      - regression-shard-4
+      - regression-shard-5
+      - regression-shard-6
+    if: always()
+    steps:
+      - name: Confirm the lint job and every regression shard succeeded
+        env:
+          NEEDS_RESULTS: ${{ toJSON(needs) }}
+        run: python3 -c 'import json, os, sys; needs = json.loads(os.environ["NEEDS_RESULTS"]); print("needed job results", sorted((name, job.get("result")) for name, job in needs.items())); sys.exit(0 if needs and all(job.get("result") == "success" for job in needs.values()) else 1)'

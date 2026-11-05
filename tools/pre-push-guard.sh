@@ -14,11 +14,21 @@
 #
 # A push whose every changed path is site-only, and that clears every check
 # below that would send it to the full guard, takes the FAST PATH described
-# below; any other push runs the full guard. The full guard chains the two
-# runners that PR-workflow step 4 mandates, plus a web-generator health check,
-# before any push, stopping on the first failure:
+# below; any other push runs the full guard. On EVERY push (maintainer
+# directive 2026-11-04 17:36 EST) the guard runs every runner gate EXCEPT the
+# linter regression test suite (gate 36), which is left to CI: the quality
+# workflow runs the whole suite on every pull request, split across parallel
+# shard jobs that together run exactly the serial run's tests plus a
+# partition-verifying step, and tools/merge-when-green.py merges only when
+# its required check (the summary job "Lint markdown corpus", which needs
+# every shard) succeeded. The full guard runs, stopping on the first failure:
 #
-#   1. tools/run_all_audits.sh      - all corpus gates, from HEAD.
+#   1. Every tools/run_all_audits.sh gate except gate 36, in runner order, by
+#      the runner's own name and command, read from its run_gate lines at run
+#      time (the same reading the fast path uses; see its grammar below).
+#      When that reading fails, the guard FAILS CLOSED to running
+#      tools/run_all_audits.sh whole, gate 36 included, so doubt never drops
+#      a check.
 #   2. tools/run-pr-time-checks.sh  - the per-PR D-numbered delta gates (D6 retired) plus
 #                                     the history-aware trio (gates 45/40/31) against
 #                                     the merge base.
@@ -27,9 +37,9 @@
 # It then prints one ADVISORY that never blocks: build-reference-manifest.py --check
 # (reference-manifest drift against the grc_library_ref sibling; P-TODO 3b62).
 #
-# Together those two runners cover every gate the CI workflow runs, so a
-# green full guard means the push will not flip CI red on a gate failure. A
-# green fast path does not carry that promise (see its residual below).
+# Coverage: a green full guard means the push will not flip CI red on any
+# gate except gate 36, which CI runs whole, sharded, before merge. A green
+# fast path covers less again (see its residual below).
 #
 # Site-only fast path (maintainer directive 2026-11-04: accelerated pushes when
 # the change is web site content, not corpus or tooling).
@@ -104,26 +114,31 @@
 #   It prints one FAST PATH line naming the changed paths, then the reference
 #   manifest advisory, then a PASS line with the elapsed time.
 #
-#   The skip lives here alone (maintainer decision 2026-11-04 13:02Z, design
-#   B): the guard lists the runner's gates itself and runs each but gate 36, so
-#   tools/run_all_audits.sh takes no skip option or variable, and neither it
-#   nor .github/workflows/quality.yml, which runs each gate, gate 36 included,
-#   as its own step, is changed or can be told to skip a gate.
+#   The skip lives here alone (maintainer decisions 2026-11-04 13:02Z and
+#   17:36 EST): the guard lists the runner's gates itself and runs each but
+#   gate 36, now on BOTH paths, so tools/run_all_audits.sh takes no skip
+#   option or variable and still runs gate 36 whole when invoked directly (as
+#   the nightly sweep does), and .github/workflows/quality.yml is never told
+#   to skip a gate: it runs every gate on every pull request, gate 36 as six
+#   parallel shard jobs that together run exactly the serial run's tests plus
+#   the lint job's partition-verifying --verify-shards step (kept in
+#   lock-step with run_all_audits.sh by the gate-parity gate).
 #
-#   Skipped locally, disclosed as left to CI: gate 36 apart from
-#   tests/test_web_draft.py (the rest of tests/test_linters.py and of the other
-#   tests/test_*.py modules, and the completeness checks
-#   tools/run-linter-regression.py makes), and the full guard's own
-#   run_all_audits.sh summary. .github/workflows/quality.yml runs the full gate
-#   set, gate 36 whole included, on every pull request (kept in lock-step with
-#   run_all_audits.sh by the gate-parity gate), and tools/merge-when-green.py
-#   merges only on green CI. This change alters neither.
+#   Skipped locally, disclosed as left to CI, on BOTH paths: gate 36, that
+#   is, every tests/test_*.py module and the completeness checks
+#   tools/run-linter-regression.py makes (the fast path still runs
+#   tests/test_web_draft.py directly as its own step; the full path runs no
+#   part of gate 36), and, when the gate list is read from the runner, the
+#   full guard's former run_all_audits.sh summary line.
+#   .github/workflows/quality.yml runs gate 36 whole, sharded, on every pull
+#   request, and tools/merge-when-green.py merges only when its required
+#   check, the summary job that needs every shard, succeeded.
 #
-#   Residual (what is lost): local detection, before the push, of a failure in
-#   a gate 36 test that a site-only change causes (a test that reads a template,
-#   a vendored .web/baseline/ file, .baseline/pin.toml or a root close-out
-#   file); that failure now first shows in CI. A passing gate's DUE-SOON, WARN
-#   and NOTE lines are not shown before the push either.
+#   Residual (what is lost): local detection, before the push, of ANY gate 36
+#   failure, whatever changed (not only one a site-only change causes); that
+#   failure now first shows in CI, on the shard running the failing test, and
+#   the merge guard still blocks the merge. On the fast path a passing gate's
+#   DUE-SOON, WARN and NOTE lines are not shown before the push either.
 #
 # Scope boundary: this guard gates PUSHES (the full guard's two post-commit /
 # pre-push runners plus `.web/build.py --check` when .web/build.py is present,
@@ -267,12 +282,69 @@ site_only_path() {
     return 1
 }
 
+# The runner's gates, as "runner name|command" in runner order, read from its
+# run_gate lines into runner_gates (shared by the fast path and the full
+# guard, which both run every gate but gate 36). A line that names run_gate
+# anywhere, other than the function's definition line, but does not match the
+# one shape the runner uses, an unreadable runner, or a gate 36 line missing
+# or repeated leaves the reason in runner_gates_reason and returns 1. The
+# name holds nothing the shell expands inside double quotes, and the command
+# is plain tokens separated by single spaces (see the header), so the shell
+# splits it exactly as the guard does. The blanks are space and tab alone,
+# the two the shell splits words on, not [[:space:]], which also admits a
+# carriage return, vertical tab and form feed. The characters are listed one
+# by one, not as ranges, so the match does not depend on the locale.
+runner_gates=()
+runner_gates_reason=""
+read_runner_gates() {
+    local line name key found=0 blank gate_re token
+    local -a gates=()
+    blank='[ '$'\t'']'
+    token='[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_./=-]+'
+    gate_re='^run_gate'"${blank}"'+"([^"$`\|]+)"'"${blank}"'+python3'"${blank}"'+('"${token}"'( '"${token}"')*)'"${blank}"'*$'
+    if [ ! -f tools/run_all_audits.sh ] || [ ! -r tools/run_all_audits.sh ]; then
+        runner_gates_reason="tools/run_all_audits.sh cannot be read, so the gates to run cannot be listed"
+        return 1
+    fi
+    while IFS= read -r line || [ -n "${line}" ]; do
+        [[ "${line}" == *run_gate* ]] || continue
+        [ "${line}" = "run_gate() {" ] && continue
+        if ! [[ "${line}" =~ ${gate_re} ]]; then
+            runner_gates_reason="the tools/run_all_audits.sh line '${line}' cannot be parsed, so the gates to run cannot be listed"
+            return 1
+        fi
+        name="${BASH_REMATCH[1]}"
+        key="${name}|${BASH_REMATCH[2]}"
+        if [ "${key}" = "${REGRESSION_GATE}" ]; then
+            found=$((found + 1))
+        else
+            gates+=("${key}")
+        fi
+    done < tools/run_all_audits.sh
+    if [ "${found}" -ne 1 ]; then
+        runner_gates_reason="tools/run_all_audits.sh has ${found} linter regression suite gate lines ('${REGRESSION_GATE%%|*}' running ${REGRESSION_GATE#*|}), not one, so the gate the guard narrows cannot be named"
+        return 1
+    fi
+    if [ "${#gates[@]}" -eq 0 ]; then
+        runner_gates_reason="tools/run_all_audits.sh has no gate besides the linter regression suite"
+        return 1
+    fi
+    runner_gates=("${gates[@]}")
+    return 0
+}
+# The status is captured inside an `if`, so an inherited errexit (SHELLOPTS)
+# cannot end the guard on a reading failure; the full guard then fails closed
+# to the whole runner, gate 36 included.
+if read_runner_gates; then
+    runner_gates_ok=1
+else
+    runner_gates_ok=0
+fi
+
 # Sets fast_path to 1 when the push qualifies, filling changed_paths and
 # fast_gates; otherwise returns with the reason in full_reason.
 select_fast_path() {
-    local hiding rc merge_base record_re header path shown ended=0 line name
-    local blank gate_re token key found=0
-    local -a gates=()
+    local hiding rc merge_base record_re header path shown ended=0
     if [ -n "${HEAD_REF:-}" ] && [ "${HEAD_REF}" != "HEAD" ]; then
         full_reason="HEAD_REF is ${HEAD_REF}, not HEAD, so the changed set would not describe the tree the gates read"
         return
@@ -358,48 +430,14 @@ select_fast_path() {
         return
     fi
 
-    # The runner's gates, as "runner name|command" in runner order, read from its
-    # run_gate lines. A line that names run_gate anywhere, other than the
-    # function's definition line, but does not match the one shape the runner
-    # uses, an unreadable runner, or a gate 36 line missing or repeated means the
-    # full guard. The name holds nothing the shell expands inside double quotes,
-    # and the command is plain tokens separated by single spaces (see the
-    # header), so the shell splits it exactly as the guard does. The blanks are
-    # space and tab alone, the two the shell splits words on, not [[:space:]],
-    # which also admits a carriage return, vertical tab and form feed. The
-    # characters are listed one by one, not as ranges, so the match does not
-    # depend on the locale.
-    blank='[ '$'\t'']'
-    token='[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_./=-]+'
-    gate_re='^run_gate'"${blank}"'+"([^"$`\|]+)"'"${blank}"'+python3'"${blank}"'+('"${token}"'( '"${token}"')*)'"${blank}"'*$'
-    if [ ! -f tools/run_all_audits.sh ] || [ ! -r tools/run_all_audits.sh ]; then
-        full_reason="tools/run_all_audits.sh cannot be read, so the gates to run cannot be listed"
+    # The runner's gates, read once above by read_runner_gates (shared with
+    # the full guard). A reading failure means the full guard, which then
+    # fails closed to the whole runner.
+    if [ "${runner_gates_ok}" -ne 1 ]; then
+        full_reason="${runner_gates_reason}"
         return
     fi
-    while IFS= read -r line || [ -n "${line}" ]; do
-        [[ "${line}" == *run_gate* ]] || continue
-        [ "${line}" = "run_gate() {" ] && continue
-        if ! [[ "${line}" =~ ${gate_re} ]]; then
-            full_reason="the tools/run_all_audits.sh line '${line}' cannot be parsed, so the gates to run cannot be listed"
-            return
-        fi
-        name="${BASH_REMATCH[1]}"
-        key="${name}|${BASH_REMATCH[2]}"
-        if [ "${key}" = "${REGRESSION_GATE}" ]; then
-            found=$((found + 1))
-        else
-            gates+=("${key}")
-        fi
-    done < tools/run_all_audits.sh
-    if [ "${found}" -ne 1 ]; then
-        full_reason="tools/run_all_audits.sh has ${found} linter regression suite gate lines ('${REGRESSION_GATE%%|*}' running ${REGRESSION_GATE#*|}), not one, so the gate the fast path narrows cannot be named"
-        return
-    fi
-    if [ "${#gates[@]}" -eq 0 ]; then
-        full_reason="tools/run_all_audits.sh has no gate besides the linter regression suite"
-        return
-    fi
-    fast_gates=("${gates[@]}")
+    fast_gates=("${runner_gates[@]}")
     fast_path=1
 }
 select_fast_path
@@ -422,15 +460,16 @@ fast_step() {
     fi
 }
 
-# One fast-path audit gate: like tools/run_all_audits.sh, a passing gate's output
-# stays hidden (its advisory lines are not echoed here) and a failing gate's
-# output is printed in full before the guard exits with the gate's status. The
-# status is captured inside an `if`, as in fast_step.
-fast_gate() {
-    local label="$1"
-    shift
+# One guard-path audit gate, on either path: like tools/run_all_audits.sh, a passing
+# gate's output stays hidden (its advisory lines are not echoed here) and a
+# failing gate's output is printed in full before the guard exits with the
+# gate's status. The status is captured inside an `if`, as in fast_step.
+audit_gate() {
+    local prefix="$1"
+    local label="$2"
+    shift 2
     local out rc
-    printf '%-66s ... ' "pre-push guard fast path gate: ${label}"
+    printf '%-66s ... ' "${prefix}: ${label}"
     if out="$("$@" 2>&1)"; then rc=0; else rc=$?; fi
     if [ "${rc}" -ne 0 ]; then
         echo "FAIL (rc=${rc})"
@@ -452,7 +491,7 @@ if [ "${fast_path}" -eq 1 ]; then
         # The command's plain tokens split into an array at single spaces, with
         # no pathname expansion, and run as that array.
         read -r -a gate_words <<< "${key#*|}"
-        fast_gate "${key%%|*}" python3 "${gate_words[@]}"
+        audit_gate "pre-push guard fast path gate" "${key%%|*}" python3 "${gate_words[@]}"
     done
     echo "pre-push guard fast path: ${#fast_gates[@]} runner gates passed in $((SECONDS - gates_started))s."
     fast_step "palette gate (.baseline/check_palette.py, with .web/build.py's arguments)" \
@@ -462,21 +501,38 @@ if [ "${fast_path}" -eq 1 ]; then
 else
     echo "pre-push-guard: running the full guard (${full_reason})."
 
-    # Capture each runner's exit code from the BARE command, not from inside an
-    # `if ! cmd` test: `rc=$?` after `if ! cmd; then` would capture the negated
-    # status (0), making the guard exit 0 on failure. (improvement-log #439 HIGH:
-    # the original `if ! cmd; then rc=$?` form exited 0 on a failing runner and
-    # let `&& git push` proceed. set -u is on and the guard does not set -e, but
-    # an inherited errexit (SHELLOPTS) is possible: it ends the guard at the
-    # failing runner, before the report below, with that runner's rc, so the
-    # exit code still reaches the caller.)
-    echo "=== pre-push guard 1/3: run_all_audits.sh (corpus gates, from HEAD) ==="
-    tools/run_all_audits.sh
-    rc=$?
-    if [ "${rc}" -ne 0 ]; then
-        echo ""
-        echo "pre-push guard FAILED at run_all_audits.sh (rc=${rc}). Fix the artefact; do not push."
-        exit "${rc}"
+    if [ "${runner_gates_ok}" -eq 1 ]; then
+        # Every runner gate but gate 36, in runner order, by the runner's own
+        # name and command (the same reading, and the same audit_gate, the
+        # fast path uses); gate 36 is left to CI, which runs the whole suite,
+        # sharded, on every pull request.
+        echo "=== pre-push guard 1/3: tools/run_all_audits.sh gates (all but the linter regression suite, gate 36, left to CI) ==="
+        gates_started=${SECONDS}
+        for key in "${runner_gates[@]}"; do
+            read -r -a gate_words <<< "${key#*|}"
+            audit_gate "pre-push guard gate" "${key%%|*}" python3 "${gate_words[@]}"
+        done
+        echo "pre-push guard: ${#runner_gates[@]} runner gates passed in $((SECONDS - gates_started))s (gate 36 left to CI, which runs the whole suite, sharded, on every pull request)."
+    else
+        # Fail closed: the gate list cannot be read, so run the whole runner,
+        # gate 36 included; doubt never drops a check.
+        echo "pre-push-guard: NOTE: the runner's gate list cannot be read (${runner_gates_reason}); failing closed to the whole runner, gate 36 included." >&2
+        # Capture the runner's exit code from the BARE command, not from inside an
+        # `if ! cmd` test: `rc=$?` after `if ! cmd; then` would capture the negated
+        # status (0), making the guard exit 0 on failure. (improvement-log #439 HIGH:
+        # the original `if ! cmd; then rc=$?` form exited 0 on a failing runner and
+        # let `&& git push` proceed. set -u is on and the guard does not set -e, but
+        # an inherited errexit (SHELLOPTS) is possible: it ends the guard at the
+        # failing runner, before the report below, with that runner's rc, so the
+        # exit code still reaches the caller.)
+        echo "=== pre-push guard 1/3: run_all_audits.sh (corpus gates, from HEAD) ==="
+        tools/run_all_audits.sh
+        rc=$?
+        if [ "${rc}" -ne 0 ]; then
+            echo ""
+            echo "pre-push guard FAILED at run_all_audits.sh (rc=${rc}). Fix the artefact; do not push."
+            exit "${rc}"
+        fi
     fi
 
     echo ""

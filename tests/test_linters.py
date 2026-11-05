@@ -18993,13 +18993,29 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         ran = log.read_text(encoding="utf-8").split() if log.exists() else []
         return result, ran
 
-    def assert_full_guard(self, result, ran, reason):
+    def assert_full_guard(self, result, ran, reason, whole_runner=False):
         output = result.stdout + result.stderr
         self.assertNotIn("FAST PATH", output)
         self.assertIn(f"running the full guard ({reason}", result.stdout)
-        self.assertIn("tools/run_all_audits.sh", ran)
         self.assertIn("pre-push guard 1/3", result.stdout)
         self.assertEqual(result.returncode, 0, output)
+        if whole_runner:
+            # The gate list could not be read: the guard fails closed to the
+            # whole runner, gate 36 included, so doubt never drops a check.
+            self.assertIn("failing closed to the whole runner", output)
+            self.assertIn("tools/run_all_audits.sh", ran)
+            return
+        # FLIP TABLE (maintainer directive 2026-11-04 17:36 EST): the full
+        # guard no longer runs gate 36 and still runs every other runner
+        # gate, in runner order, without invoking the whole runner.
+        self.assertNotIn("tools/run_all_audits.sh", ran)
+        self.assertNotIn(self.REGRESSION_SCRIPT, ran)
+        self.assertIn("gate 36 left to CI", result.stdout)
+        scripts = [cmd.split()[0]
+                   for _, cmd in self.RUN_GATE_RE.findall(self.gate_lines)]
+        expected = [s for s in scripts if s != self.REGRESSION_SCRIPT]
+        self.assertEqual([entry for entry in ran if entry in set(expected)],
+                         expected)
 
     def test_site_only_change_takes_fast_path(self):
         self.change(".web/templates-draft/landing.html", "CHANGELOG.md", "README.md")
@@ -19067,9 +19083,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                          [cmd for _, cmd in expected])
 
     def test_ci_path_skips_nothing(self):
-        # The skip lives in the guard alone: the real runner and the CI workflows
-        # carry no skip option, the runner and quality.yml each run gate 36, and
-        # the guard calls the runner bare on the full path.
+        # The skip lives in the guard alone: the real runner carries no skip
+        # option and runs gate 36 whole; quality.yml runs gate 36 on every
+        # pull request as six shard jobs that together run exactly the suite
+        # plus the lint job's partition-verifying --verify-shards step; the
+        # nightly sweep runs the whole runner; and the guard invokes the
+        # whole runner only on its fail-closed fallback.
         runner = (REPO_ROOT / "tools" / "run_all_audits.sh").read_text(encoding="utf-8")
         quality = (REPO_ROOT / ".github" / "workflows" / "quality.yml").read_text(encoding="utf-8")
         nightly = (REPO_ROOT / ".github" / "workflows" / "nightly-sweep.yml").read_text(
@@ -19078,20 +19097,45 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(len(re.findall(r'^run_gate\s+"Linter regression test suite"\s+'
                                         r"python3\s+tools/run-linter-regression\.py\s*$",
                                         runner, re.M)), 1)
-        self.assertEqual(len(re.findall(r"^\s+run: python3 tools/run-linter-regression\.py\s*$",
-                                        quality, re.M)), 1)
+        self.assertEqual(len(re.findall(
+            r"^\s+run: python3 tools/run-linter-regression\.py --verify-shards 6\s*$",
+            quality, re.M)), 1)
+        self.assertEqual(sorted(re.findall(
+            r"^\s+run: python3 tools/run-linter-regression\.py --shard (\d+)/6\s*$",
+            quality, re.M)), [str(i) for i in range(1, 7)])
+        self.assertEqual(len(re.findall(
+            r"^\s+run: python3 tools/run-linter-regression\.py\s*$", quality, re.M)), 0)
         self.assertIn("run: tools/run_all_audits.sh", nightly)
         for label, text in (("tools/run_all_audits.sh", runner), ("quality.yml", quality),
                             ("nightly-sweep.yml", nightly)):
             with self.subTest(label):
                 self.assertNotRegex(text, r"PRE_PUSH|pre-push-guard|SKIP")
         call = r"""^[ \t]*(?:[A-Za-z_]\w*=[^\s"']*[ \t]+)*tools/run_all_audits\.sh\b.*$"""
-        self.assertEqual(re.findall(call, guard, re.M), ["    tools/run_all_audits.sh"])
-        # The full path runs the runner whole.
+        self.assertEqual(re.findall(call, guard, re.M),
+                         ["        tools/run_all_audits.sh"])
+        # The full path runs every runner gate but gate 36 (assert_full_guard
+        # carries the gate-by-gate check), never the whole runner.
         self.change(".web/templates-draft/landing.html", "ai/policy-fixture.md")
         result, ran = self.run_guard()
         self.assert_full_guard(result, ran, "ai/policy-fixture.md is not a site-only path")
         self.assertNotIn("fast path gate:", result.stdout)
+
+    def test_full_guard_runs_every_gate_but_36(self):
+        # FLIP TABLE (maintainer directive 2026-11-04 17:36 EST): the guard
+        # no longer runs gate 36 and still runs the rest, on the full path
+        # too, by the runner's own gate names in runner order.
+        self.change("ai/policy-fixture.md")
+        result, ran = self.run_guard()
+        self.assert_full_guard(result, ran,
+                               "ai/policy-fixture.md is not a site-only path")
+        gates = [(name, " ".join(cmd.split()))
+                 for name, cmd in self.RUN_GATE_RE.findall(self.gate_lines)]
+        expected = [name for name, cmd in gates if cmd != self.REGRESSION_SCRIPT]
+        self.assertEqual(len(expected), len(gates) - 1)
+        labels = re.findall(r"^pre-push guard gate: (.+?) +\.\.\. ",
+                            result.stdout, re.M)
+        self.assertEqual(labels, expected)
+        self.assertNotIn("Linter regression test suite", labels)
 
     def test_corpus_document_takes_full_guard(self):
         self.change(".web/templates-draft/landing.html", "ai/policy-fixture.md")
@@ -19199,7 +19243,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         output = result.stdout + result.stderr
         self.assertNotIn("FAST PATH", output)
         self.assertIn("is not a site-only path", result.stdout)
-        self.assertIn("tools/run_all_audits.sh", ran)
+        self.assertNotIn("tools/run_all_audits.sh", ran)
+        self.assertNotIn(self.REGRESSION_SCRIPT, ran)
+        self.assertIn("gate 36 left to CI", result.stdout)
 
     def test_two_merge_bases_take_full_guard(self):
         # Criss-cross history: base and HEAD each merge the other's first commit.
@@ -19246,7 +19292,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.change(".web/templates-draft/landing.html")
         result, ran = self.run_guard()
         self.assert_full_guard(result, ran, "the tools/run_all_audits.sh line 'run_gate "
-                               "\"Fixture shell audit\" bash tools/fixture.sh' cannot be parsed")
+                               "\"Fixture shell audit\" bash tools/fixture.sh' cannot be parsed",
+                               whole_runner=True)
 
     def test_missing_regression_gate_takes_full_guard(self):
         lines = "".join(line + "\n" for line in self.gate_lines.splitlines()
@@ -19255,7 +19302,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.change(".web/templates-draft/landing.html")
         result, ran = self.run_guard()
         self.assert_full_guard(result, ran, "tools/run_all_audits.sh has 0 linter regression "
-                               "suite gate lines")
+                               "suite gate lines", whole_runner=True)
 
     def test_new_runner_gate_runs_on_fast_path(self):
         (self.root / "tools" / "lint-fixture-new.py").write_text(self.STUB, encoding="utf-8")
@@ -19410,7 +19457,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 result, ran = self.run_guard()
                 (self.root / "ran.log").unlink(missing_ok=True)
                 self.assert_full_guard(result, ran, "the tools/run_all_audits.sh line "
-                                       f"'{extra.splitlines()[0]}' cannot be parsed")
+                                       f"'{extra.splitlines()[0]}' cannot be parsed",
+                                       whole_runner=True)
 
     def test_runner_line_with_other_blank_takes_full_guard(self):
         # The shell splits words on space and tab only, so a carriage return or a
@@ -19424,7 +19472,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 (self.root / "ran.log").unlink(missing_ok=True)
                 # Text mode reads the carriage return in the reason as a newline.
                 self.assert_full_guard(result, ran, "the tools/run_all_audits.sh line "
-                                       f"'{extra.rstrip(chr(13))}")
+                                       f"'{extra.rstrip(chr(13))}", whole_runner=True)
                 self.assertIn("' cannot be parsed", result.stdout)
 
     def test_runner_gate_not_starting_its_line_takes_full_guard(self):
@@ -19434,7 +19482,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.change(".web/templates-draft/landing.html")
         result, ran = self.run_guard()
         self.assert_full_guard(result, ran, f"the tools/run_all_audits.sh line '{extra}' "
-                               "cannot be parsed")
+                               "cannot be parsed", whole_runner=True)
 
     def test_runner_function_definition_is_not_a_gate_line(self):
         self.set_runner_lines("run_gate() {\n    \"$@\"\n}\n" + self.gate_lines)
@@ -19459,7 +19507,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.change(".web/templates-draft/landing.html")
         result, ran = self.run_guard()
         self.assert_full_guard(result, ran, "tools/run_all_audits.sh has 2 linter regression "
-                               "suite gate lines")
+                               "suite gate lines", whole_runner=True)
 
     def test_inherited_errexit_site_only_push_takes_fast_path(self):
         # git config exits 1 when no key matches; errexit must not end the guard there.
@@ -23348,15 +23396,17 @@ class AuditGateParityTests(LinterTestCase):
     # marked, 1) at f0dbdfe07.
     def _run_yaml_edits(self, *edits: tuple[str, str, str]) -> subprocess.CompletedProcess:
         """Gate 35 over a copy of the real surfaces, with each (surface, old, new) edit
-        replacing the one occurrence of ``old`` in that surface by ``new``."""
+        replacing the FIRST occurrence of ``old`` in that surface by ``new`` (the lint
+        job's, where the gate-36 shard jobs repeat a setup line)."""
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r6-", dir=FIXTURE_DIR))
         try:
             for name in self._ISOLATED_SURFACES:
                 text = (REPO_ROOT / name).read_text(encoding="utf-8")
                 for surface, old, new in edits:
                     if surface == name:
-                        self.assertEqual(text.count(old), 1, f"fixture anchor {old!r}")
-                        text = text.replace(old, new)
+                        self.assertGreaterEqual(text.count(old), 1,
+                                                f"fixture anchor {old!r}")
+                        text = text.replace(old, new, 1)
                 target = root / name
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text(text, encoding="utf-8")
@@ -23427,8 +23477,12 @@ class AuditGateParityTests(LinterTestCase):
                              [("A", "tools/a.py", ())])
         finally:
             shutil.rmtree(root, ignore_errors=True)
-        self.assertEqual((REPO_ROOT / self._WF).read_text(encoding="utf-8").count(
-            self._WF_PYTHON), 1)
+        # Every python-version line of the real workflow (the lint job's and
+        # one per gate-36 shard job) is exactly the one pinned quoted value.
+        versions = [line for line in (REPO_ROOT / self._WF).read_text(
+            encoding="utf-8").splitlines(keepends=True) if "python-version" in line]
+        self.assertTrue(versions)
+        self.assertEqual(set(versions), {self._WF_PYTHON})
         result = self._run_yaml_edits()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(agp.WORKFLOW_PINNED_QUOTED_VALUES, {"python-version": '"3.11"'})
@@ -41383,7 +41437,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
         lint-allowlist-spec-parity.py NO_FS F 3d5305af59343ba7d81b35dd74be82e88106661d9533de20eba2567f308fe6a2
-        lint-audit-gate-parity.py OWN F 48a5130538cf0e506226c7c47c8c2b98e8b8e5e6ba5df2177e8b02cdbdfb1545
+        lint-audit-gate-parity.py OWN F ba9bfe54138a151109440e6a3d5166d64783b524a196b808a087bd62d13bd92f
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-baseline-pin.py OWN F 51ee0054937b8b51402d1bb1a325e7568a3d6a48a2eeb1aa428f6021d7ee1092
@@ -41485,7 +41539,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
-        pre-push-guard.sh FIXED F 518f725f04b7fc05d736c4546c8d0a79496e35967fbd171c33072e2872c674fb
+        pre-push-guard.sh FIXED F d13fd36ba4babe54b275a49ce64ae99e89d3d438dd97d8286378147334c5d47c
         pre-push-hook.py TRANSPORT F d193c170d963cbca2e64bb76ce0b1dfbe7999b9f5af6c0701ae11d95f9d7f659
         preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
@@ -41497,7 +41551,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
-        run-linter-regression.py FIXED F 600fa27468c6f7b5371de09d5e646429017411a58ebdefff853b91dd965195e0
+        run-linter-regression.py FIXED F b99351c9c2fec22c90fd87102c9d8c848d42f5a77794542dd5002f6aceab5740
         run-pr-time-checks.sh FIXED F 2caed4bb6e25ef2dd77397ca021c6af8752991b3a80d5a0c3fc83a38df384c35
         run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
         run_all_audits.sh FIXED F b2591e806571f470dfe10dbedc38f2974cf5f032d7f3d535c6218b0499e8c449
@@ -88473,6 +88527,215 @@ class BaselinePinLinterTests(LinterTestCase):
         pinned bytes (the gate's default-root contract)."""
         result = run_linter(self.SCRIPT)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
+class QualityWorkflowShardSummaryTests(unittest.TestCase):
+    """The quality workflow's required-check summary job (maintainer
+    directive 2026-11-04): its pinned command, run exactly as the
+    workflow runs it, fails unless every needed job's result is
+    success. FLIP TABLE: the aggregate job fails when a shard fails, is
+    cancelled or is skipped, and when needs is empty."""
+
+    def _summary_command(self) -> str:
+        text = (REPO_ROOT / ".github" / "workflows" / "quality.yml").read_text(
+            encoding="utf-8")
+        match = re.search(r"^        run: (python3 -c '.+')$", text, re.M)
+        self.assertIsNotNone(match, "the summary job's pinned run command "
+                                    "must be present in quality.yml")
+        return match.group(1)
+
+    def _run_summary(self, needs: dict) -> subprocess.CompletedProcess:
+        env = {"PATH": os.environ.get("PATH", ""),
+               "NEEDS_RESULTS": json.dumps(needs)}
+        return subprocess.run(["bash", "-c", self._summary_command()],
+                              env=env, capture_output=True, text=True,
+                              timeout=60)
+
+    def test_summary_green_only_when_every_needed_job_succeeded(self):
+        ok = {"lint": {"result": "success"}}
+        for i in range(1, 7):
+            ok["regression-shard-%d" % i] = {"result": "success"}
+        green = self._run_summary(ok)
+        self.assertEqual(green.returncode, 0, green.stdout + green.stderr)
+        for bad in ("failure", "cancelled", "skipped", None):
+            with self.subTest(result=bad):
+                needs = dict(ok)
+                needs["regression-shard-3"] = {"result": bad}
+                self.assertEqual(self._run_summary(needs).returncode, 1)
+        lint_failed = dict(ok)
+        lint_failed["lint"] = {"result": "failure"}
+        self.assertEqual(self._run_summary(lint_failed).returncode, 1)
+        self.assertEqual(self._run_summary({}).returncode, 1,
+                         "an empty needs context must fail, not pass vacuously")
+
+    def test_summary_command_matches_the_parity_pin(self):
+        """The command the workflow runs is byte-identical to the one the
+        gate-parity audit pins (SUMMARY_STEP_RUN), so neither surface can
+        drift from the other."""
+        import importlib.util
+        tool = REPO_ROOT / "tools" / "lint-audit-gate-parity.py"
+        spec = importlib.util.spec_from_file_location("_agp_summary", str(tool))
+        agp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agp)
+        self.assertEqual(self._summary_command(), agp.SUMMARY_STEP_RUN)
+
+
+class GateParityShardFormTests(unittest.TestCase):
+    """Gate 35's gate-36 shard form (maintainer directive 2026-11-04):
+    the one accepted shape parses with gate 36 normalized to no
+    arguments, and every deviation near it is a ParseError (exit 2), so
+    the shard form never weakens parity. FLIP TABLE: each mutation
+    below fails when the audit's shard-form checks are weakened."""
+
+    REGRESSION = "tools/run-linter-regression.py"
+
+    def _agp(self):
+        import importlib.util
+        tool = REPO_ROOT / "tools" / "lint-audit-gate-parity.py"
+        spec = importlib.util.spec_from_file_location("_agp_shard", str(tool))
+        agp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agp)
+        return agp
+
+    def _workflow(self, agp, verify="--verify-shards 2", shard_one="1/2",
+                  needs=("lint", "regression-shard-1", "regression-shard-2"),
+                  summary_name="Lint markdown corpus", shard_one_name=None,
+                  summary_run=None, drop_shard_two=False, extra_job="",
+                  verify_step=True):
+        shard_one_name = shard_one_name or ("Linter regression test suite "
+                                            "(shard 1 of 2)")
+        summary_run = summary_run or agp.SUMMARY_STEP_RUN
+        verify_lines = ("      - name: Linter regression test suite\n"
+                        f"        run: python3 {self.REGRESSION} {verify}\n"
+                        if verify_step else "")
+        shard_two = ("" if drop_shard_two else
+                     "  regression-shard-2:\n"
+                     "    name: Linter regression test suite (shard 2 of 2)\n"
+                     "    runs-on: ubuntu-latest\n"
+                     "    steps:\n"
+                     "      - name: Checkout\n"
+                     "        uses: actions/checkout@abc\n"
+                     "      - name: Linter regression test suite (shard 2 of 2)\n"
+                     f"        run: python3 {self.REGRESSION} --shard 2/2\n")
+        needs_lines = "".join(f"      - {name}\n" for name in needs)
+        return ("name: Quality\n"
+                "on:\n"
+                "  push:\n"
+                "    branches:\n"
+                "      - main\n"
+                "  pull_request:\n"
+                "permissions:\n"
+                "  contents: read\n"
+                "jobs:\n"
+                "  lint:\n"
+                "    name: Lint\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "      - name: Shape\n"
+                "        run: python3 tools/x.py\n"
+                + verify_lines +
+                "  regression-shard-1:\n"
+                f"    name: {shard_one_name}\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "      - name: Checkout\n"
+                "        uses: actions/checkout@abc\n"
+                f"      - name: {shard_one_name}\n"
+                f"        run: python3 {self.REGRESSION} --shard {shard_one}\n"
+                + shard_two + extra_job +
+                "  summary:\n"
+                f"    name: {summary_name}\n"
+                "    runs-on: ubuntu-latest\n"
+                "    needs:\n"
+                + needs_lines +
+                "    if: always()\n"
+                "    steps:\n"
+                "      - name: Confirm the lint job and every regression "
+                "shard succeeded\n"
+                "        env:\n"
+                "          NEEDS_RESULTS: ${{ toJSON(needs) }}\n"
+                f"        run: {summary_run}\n")
+
+    def _parse(self, agp, text):
+        root = Path(tempfile.mkdtemp(prefix="parity-shard-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        path = root / "quality.yml"
+        path.write_text(text, encoding="utf-8")
+        return agp.parse_workflow(path)
+
+    def test_shard_form_parses_with_gate_36_normalized(self):
+        agp = self._agp()
+        entries = self._parse(agp, self._workflow(agp))
+        self.assertEqual([entry[1:] for entry in entries],
+                         [("Shape", "tools/x.py", ()),
+                          ("Linter regression test suite", self.REGRESSION,
+                           ())])
+
+    def test_unsharded_workflow_keeps_the_verify_argv(self):
+        # Without the shard jobs a --verify-shards argument is an ordinary
+        # argv, so it reaches the argv parity comparison and fails there.
+        agp = self._agp()
+        text = ("name: Quality\non:\n  push:\n    branches:\n      - main\n"
+                "  pull_request:\npermissions:\n  contents: read\njobs:\n"
+                "  lint:\n    name: Lint\n    runs-on: ubuntu-latest\n"
+                "    steps:\n      - name: Linter regression test suite\n"
+                f"        run: python3 {self.REGRESSION} --verify-shards 6\n")
+        entries = self._parse(agp, text)
+        self.assertEqual(entries[0][3], ("--verify-shards", "6"))
+
+    def test_shard_form_deviations_are_parse_errors(self):
+        agp = self._agp()
+        deviations = {
+            "verify-count-mismatch": dict(verify="--verify-shards 3"),
+            "verify-step-missing": dict(verify_step=False),
+            "plain-gate-36-step": dict(verify=""),
+            "shard-spec-mismatch": dict(shard_one="2/2"),
+            "shard-name-drift": dict(shard_one_name="Regression shard one"),
+            "summary-name-drift": dict(summary_name="Lint summary"),
+            "needs-missing-shard": dict(needs=("lint", "regression-shard-1")),
+            "needs-missing-lint": dict(needs=("regression-shard-1",
+                                              "regression-shard-2")),
+            "summary-run-drift": dict(
+                summary_run="python3 -c 'import sys; sys.exit(0)'"),
+            "foreign-job": dict(extra_job=(
+                "  stray:\n    name: Stray\n    runs-on: ubuntu-latest\n"
+                "    steps:\n      - name: Shape\n"
+                "        run: python3 tools/x.py\n")),
+            "one-shard-only": dict(drop_shard_two=True),
+        }
+        for label, kwargs in deviations.items():
+            with self.subTest(label=label):
+                with self.assertRaises(agp.ParseError):
+                    self._parse(agp, self._workflow(agp, **kwargs))
+
+    def test_shard_gap_is_a_parse_error(self):
+        agp = self._agp()
+        text = self._workflow(agp).replace("regression-shard-2",
+                                           "regression-shard-3")
+        with self.assertRaises(agp.ParseError):
+            self._parse(agp, text)
+
+    def test_shard_setup_step_running_a_gate_script_is_a_parse_error(self):
+        # A setup-named step inside a shard job must not smuggle a gate
+        # script past the by-name exclusion.
+        agp = self._agp()
+        text = self._workflow(agp).replace(
+            "      - name: Checkout\n        uses: actions/checkout@abc\n",
+            "      - name: Checkout\n        run: python3 tools/lint-links.py\n",
+            1)
+        with self.assertRaisesRegex(agp.ParseError, "must not run a gate"):
+            self._parse(agp, text)
+
+    def test_live_workflow_parses_under_the_shard_form(self):
+        """The committed quality.yml is the shard form: gate 36 appears
+        once, normalized to no arguments, at its inventory position."""
+        agp = self._agp()
+        entries = agp.parse_workflow(REPO_ROOT / ".github" / "workflows" /
+                                     "quality.yml")
+        regression = [entry for entry in entries
+                      if entry[2] == self.REGRESSION]
+        self.assertEqual([(entry[1], entry[3]) for entry in regression],
+                         [("Linter regression test suite", ())])
 
 
 if __name__ == "__main__":
