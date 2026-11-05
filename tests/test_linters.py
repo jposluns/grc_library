@@ -72838,6 +72838,19 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 text = "".join(sent)
         return items, status, text.rstrip("\n")
 
+    @staticmethod
+    def _generous_bounds(hook):
+        """Write bound (and stop-guard's run budget) large enough that a loaded host is very
+        unlikely to reach the timeout fallback in a test that is not about timing. The cost is
+        the worst case: a hung git rev-parse holds the call for up to 60 s before it falls back.
+        Every _stop_block call in a test not about timing passes these; it is not the default
+        in _stop_block because test_stop_guard_run_budget_bounds_the_write relies on the real
+        2-second write bound."""
+        bounds = {"_DETAIL_TIMEOUT_S": 60.0}
+        if hook == "stop-guard-unattended":
+            bounds["_RUN_BUDGET_S"] = 120.0
+        return bounds
+
     def _stop_log(self, hook, store, session):
         prefix = self.STOP_LOG_NAMES[hook]
         return Path(store) / "stop-hook-detail" / ("%s.%s.log" % (prefix, session[:12]))
@@ -72874,7 +72887,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td:
                 store = Path(td) / "store"
                 store.mkdir()
-                _items, status, text = self._stop_block(hook, td, 2, {"session_id": "s-1"}, store)
+                _items, status, text = self._stop_block(hook, td, 2, {"session_id": "s-1"}, store,
+                                                        **self._generous_bounds(hook))
                 self.assertEqual(status, 2)
                 lines = text.split("\n")
                 self.assertEqual(len(lines), 3, text)
@@ -72900,7 +72914,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             store.mkdir()
             names = ["claude/%s-%d" % ("x" * 300, n) for n in range(5)]
             _items, status, text = self._stop_block(hook, td, 0, {"session_id": "s-1"}, store,
-                                                    names=names)
+                                                    names=names, **self._generous_bounds(hook))
             self.assertEqual(status, 2)
             lines = text.split("\n")
             self.assertEqual(len(lines), 3, text)
@@ -72910,7 +72924,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             store = Path(td) / "store"
             store.mkdir()
             _items, status, text = self._stop_block(hook, td, 0, {"session_id": "s-1"}, store,
-                                                    names=["b" * 300])
+                                                    names=["b" * 300],
+                                                    **self._generous_bounds(hook))
             self.assertEqual(status, 2)
             line = text.split("\n")[0]
             limit = 48  # _MAX_ITEM_CHARS
@@ -72921,7 +72936,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             store.mkdir()
             items, status, text = self._stop_block(
                 hook, td, 2, {"session_id": "s-1"}, store,
-                _append_private=Mock(side_effect=OSError(5, "e" * 400)))
+                _append_private=Mock(side_effect=OSError(5, "e" * 400)),
+                **self._generous_bounds(hook))
             self.assertEqual(status, 2)
             note = [ln for ln in text.split("\n") if ln.startswith("NOTE:")]
             self.assertEqual(len(note), 1, text)
@@ -72935,7 +72951,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td:
                 store = Path(td) / "store"
                 store.mkdir()
-                items, status, _text = self._stop_block(hook, td, 5, {"session_id": "s-1"}, store)
+                bounds = self._generous_bounds(hook)
+                items, status, _text = self._stop_block(hook, td, 5, {"session_id": "s-1"}, store,
+                                                        **bounds)
                 self.assertEqual(status, 2)
                 log = self._stop_log(hook, store, "s-1")
                 info = os.lstat(log)
@@ -72944,12 +72962,14 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 logged = log.read_text(encoding="utf-8")
                 for name, extra in items:
                     self.assertIn(name + (" (+1)" if hook.startswith("block-") else ": " + extra), logged)
-                self.assertEqual(self._stop_block(hook, td, 5, {"session_id": "s-1"}, store)[1], 2)
+                self.assertEqual(self._stop_block(hook, td, 5, {"session_id": "s-1"}, store,
+                                                  **bounds)[1], 2)
                 self.assertEqual(log.read_text(encoding="utf-8").count("\n=== "), 1)  # appended
                 target = Path(td) / "target"
                 target.write_text("untouched", encoding="utf-8")
                 self._stop_log(hook, store, "s-2").symlink_to(target)
-                _items, status, text = self._stop_block(hook, td, 5, {"session_id": "s-2"}, store)
+                _items, status, text = self._stop_block(hook, td, 5, {"session_id": "s-2"}, store,
+                                                        **bounds)
                 self.assertEqual(status, 2)
                 self.assertEqual(target.read_text(encoding="utf-8"), "untouched")
                 self.assertIn("NOTE: detail log not written", text)
@@ -72968,7 +72988,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     patches = {"_append_private": Mock(side_effect=OSError(28, "disk full"))} \
                         if case == "write-error" else {}
                     items, status, text = self._stop_block(
-                        hook, td, 9, payload, None if case == "no-store" else store, **patches)
+                        hook, td, 9, payload, None if case == "no-store" else store, **patches,
+                        **self._generous_bounds(hook))
                     self.assertEqual(status, 2)
                     self._assert_fallback(hook, items, text)
                     if case == "write-error":
@@ -72984,7 +73005,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 store = repo / "private"
                 store.mkdir(parents=True)
                 items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"}, store,
-                                                       repo=repo)
+                                                       repo=repo, **self._generous_bounds(hook))
                 self.assertEqual(status, 2)
                 self._assert_fallback(hook, items, text)
                 self.assertIn("inside this checkout", text)
@@ -73000,7 +73021,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             items, status, text = self._stop_block(
                 hook, td, 200, {"session_id": "s-1"}, missing, real_diagnostic=True,
                 _grc_escape_file=lambda: "/" + "é" * 300 + "/.allow-idle-stop",
-                ACTIONABLE_PRODUCER="中" * 300)
+                ACTIONABLE_PRODUCER="中" * 300, **self._generous_bounds(hook))
             self.assertEqual(status, 2)
             raw = (Path(td) / "fd2.out").read_bytes()
             self.assertTrue(raw.endswith(b"\n"), raw[-200:])
@@ -73031,7 +73052,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     return written
 
                 with patch.object(os, "write", write_then_swap):
-                    items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"}, store)
+                    items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"},
+                                                           store, **self._generous_bounds(hook))
                 self.assertEqual(len(swapped), 1)
                 self.assertEqual(status, 2)
                 self._assert_fallback(hook, items, text)
@@ -73093,7 +73115,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     elif case == "symlink":
                         detail_dir.symlink_to(elsewhere)
                     with patch.object(os, "fstat", foreign_dir if case == "foreign-uid" else real_fstat):
-                        items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"}, store)
+                        items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"},
+                                                               store, **self._generous_bounds(hook))
                     self.assertEqual(status, 2)
                     self._assert_fallback(hook, items, text)
                     self.assertEqual(list(elsewhere.iterdir()), [])
@@ -73125,7 +73148,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                         os.chmod(log, 0o600)
                         os.link(log, Path(td) / "alias")
                     with patch.object(os, "fstat", foreign_file if case == "foreign-uid" else real_fstat):
-                        items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"}, store)
+                        items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"},
+                                                               store, **self._generous_bounds(hook))
                     self.assertEqual(status, 2)
                     self._assert_fallback(hook, items, text)
                     self.assertIn("not a private regular file", text)
@@ -73138,7 +73162,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 with self.subTest(hook=hook, count=count), tempfile.TemporaryDirectory() as td:
                     store = Path(td) / "store"
                     store.mkdir()
-                    items, status, text = self._stop_block(hook, td, count, {"session_id": "s-1"}, store)
+                    items, status, text = self._stop_block(hook, td, count, {"session_id": "s-1"},
+                                                           store, **self._generous_bounds(hook))
                     self.assertEqual(status, 2)
                     if hook.startswith("block-"):
                         self.assertIn("%d branch(es)" % count, text)
@@ -73231,7 +73256,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         """200 branches without a log: the NOTE, then eight branches and a count of the rest."""
         hook = "block-turn-end-with-outstanding-work"
         with tempfile.TemporaryDirectory() as td:
-            items, status, text = self._stop_block(hook, td, 200, {}, None)
+            items, status, text = self._stop_block(hook, td, 200, {}, None,
+                                                   **self._generous_bounds(hook))
         self.assertEqual(status, 2)
         self._assert_fallback(hook, items, text)
         lines = text.split("\n")
@@ -73248,7 +73274,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     store = Path(td) / ("st" + odd + "ore")
                     store.mkdir()
                     items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"},
-                                                           store)
+                                                           store, **self._generous_bounds(hook))
                     self.assertEqual(status, 2)
                     self._assert_fallback(hook, items, text, state="written but not summarized")
                     self.assertIn("non-printable character", text)
@@ -73272,7 +73298,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 store = Path(td) / ("s" * pad)
                 self.assertEqual(len(str(store)), budget)
                 store.mkdir()
-                _items, status, text = self._stop_block(hook, td, 2, {"session_id": session}, store)
+                _items, status, text = self._stop_block(hook, td, 2, {"session_id": session}, store,
+                                                        **self._generous_bounds(hook))
                 self.assertEqual(status, 2)
                 log = self._stop_log(hook, store, session)
                 self.assertEqual(log.name, "%s.0123abcd-456.log" % self.STOP_LOG_NAMES[hook])
@@ -73286,7 +73313,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 longer = Path(td) / ("s" * (pad + 1))
                 longer.mkdir()
                 items, status, text = self._stop_block(hook, td, 2, {"session_id": session},
-                                                       longer)
+                                                       longer, **self._generous_bounds(hook))
                 self.assertEqual(status, 2)
                 self._assert_fallback(hook, items, text, state="written but not summarized")
 
@@ -73312,19 +73339,11 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             decoy.mkdir()
             _items, status, text = self._stop_block(
                 hook, td, 2, {"session_id": "s-1"}, store,
-                _resolve_working=lambda rel, repo_root, strict: decoy)
+                _resolve_working=lambda rel, repo_root, strict: decoy,
+                **self._generous_bounds(hook))
             self.assertEqual(status, 2)
             self.assertTrue(self._stop_log(hook, store, "s-1").is_file(), text)
             self.assertEqual(list(decoy.iterdir()), [])
-
-    @staticmethod
-    def _generous_bounds(hook):
-        """Write bound (and stop-guard's run budget) large enough that a loaded host
-        cannot reach the timeout fallback in a test that is not about timing."""
-        bounds = {"_DETAIL_TIMEOUT_S": 60.0}
-        if hook == "stop-guard-unattended":
-            bounds["_RUN_BUDGET_S"] = 120.0
-        return bounds
 
     def test_stop_hooks_store_inside_git_tree_falls_back(self):
         """A store under a `.git` entry (directory or file) or inside a bare repository is
@@ -73375,7 +73394,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             _items, status, _text = self._stop_block(
                 hook, td, 3, {"session_id": "s-1"}, missing, real_diagnostic=True,
                 _grc_escape_file=lambda: "/" + "\udcff" * 300 + "/.allow-idle-stop",
-                ACTIONABLE_PRODUCER="\udcfe" * 300)
+                ACTIONABLE_PRODUCER="\udcfe" * 300, **self._generous_bounds(hook))
             raw = (Path(td) / "fd2.out").read_bytes()
         self.assertEqual(status, 2)
         self.assertTrue(raw.endswith(b"\n"), raw[-200:])
@@ -73462,7 +73481,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             store.mkdir()
             _items, status, text = self._stop_block(
                 hook, td, 0, {"session_id": "s-1"}, store,
-                unmerged_branches=lambda: list(branches))
+                unmerged_branches=lambda: list(branches), **self._generous_bounds(hook))
             self.assertEqual(status, 2)
             lines = text.split("\n")
             self.assertEqual(len(lines), 3, repr(text))
@@ -73511,7 +73530,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             store = Path(td) / "store"
             store.mkdir()
             _items, status, text = self._stop_block(hook, td, 4, {"session_id": "s-1"}, store,
-                                                    _grc_escape_file=lambda: escape)
+                                                    _grc_escape_file=lambda: escape,
+                                                    **self._generous_bounds(hook))
             self.assertEqual(status, 2)
             lines = text.split("\n")
             self.assertEqual(len(lines), 3, text)
@@ -73538,7 +73558,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         branches = list(self.TURN_END_ODD_BRANCHES)
         with tempfile.TemporaryDirectory() as td:
             _items, status, text = self._stop_block(hook, td, 0, {}, None,
-                                                    unmerged_branches=lambda: list(branches))
+                                                    unmerged_branches=lambda: list(branches),
+                                                    **self._generous_bounds(hook))
         self.assertEqual(status, 2)
         self.assertIn("NOTE: detail log not written (ValueError", text)
         self.assertLess(text.index("NOTE:"), text.index("Branches outstanding"), text)
@@ -73617,7 +73638,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
                 held, escape = self._odd_turn_end_paths(td, raw)
                 items, status, text = self._stop_block(hook, td, 2, {}, None,
-                                                       HELD_FILE=held, ESCAPE_FILE=escape)
+                                                       HELD_FILE=held, ESCAPE_FILE=escape,
+                                                       **self._generous_bounds(hook))
                 self.assertEqual(status, 2)
                 self._assert_fallback(hook, items, text)
                 self._assert_paths_escaped(text, raw, shown, held, escape)
@@ -73663,7 +73685,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
                 _held, escape = self._odd_turn_end_paths(td, raw)
                 _items, status, text = self._stop_block(hook, td, 1, {}, None,
-                                                        ESCAPE_FILE=escape, decide=broken)
+                                                        ESCAPE_FILE=escape, decide=broken,
+                                                        **self._generous_bounds(hook))
                 self.assertEqual(status, 2)
                 self.assertEqual(text, "BLOCKED (turn-end-outstanding-work): cannot format "
                                        "outstanding work; one-shot escape: touch "
@@ -73694,7 +73717,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
                 escape = "/w/drop" + raw + "y/.allow-idle-stop"
                 items, status, text = self._stop_block(hook, td, 4, {}, None,
-                                                       _grc_escape_file=lambda: escape)
+                                                       _grc_escape_file=lambda: escape,
+                                                       **self._generous_bounds(hook))
                 self.assertEqual(status, 2)
                 self._assert_fallback(hook, items, text)
                 self.assertNotIn(escape, text)
