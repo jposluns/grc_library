@@ -3730,9 +3730,16 @@ _DRAFT_NARR_TABLE_RE = re.compile(r"<table>(.*?)</table>", re.S)
 # ---------------------------------------------------------------------------
 # The /draft/crosswalk/ pages (design C section 3.7 Version A, upgraded to
 # 3.8; on baseline 1.7.0, whose matrix.js arrived in 1.5.0, spec 7.30 to 7.32
-# keep their 1.5.1 contract for a page without the opt-in column toggles,
-# column highlight and pinned-column cap that 1.7.0 adds, none of which these
-# pages use): one domain-by-instrument table,
+# keep their 1.5.1 contract for a page without the opt-in column toggles
+# and column highlight that 1.7.0 adds, neither of which these pages use
+# since no page loads matrix.js, and every view's table takes the spec 7.34
+# combined form without fixed layout or rem column widths (see
+# CROSSWALK_PIN_CLASS) and without the bounded box and sticky header (see
+# render_crosswalk_table): wrapping cells, the capped pinned column, row
+# guides, empty cells marked, and column-group accents where a table spans
+# more than one group (render_crosswalk_table); no column toggles, so no
+# ?cols= address, and no heat shading or rotated headers): one
+# domain-by-instrument table,
 # one page per instrument, and a plain view page per topic, all re-parsed on
 # every build from the
 # two alignment matrices, the canonical citations register, and taxonomy.yml,
@@ -3888,6 +3895,30 @@ CROSSWALK_TSC_SECTION_OPENING = "\n".join((
 # Representative identifiers shown per cell before "and more" (design C 3.3
 # caps a cell at roughly six).
 CROSSWALK_CELL_ID_CAP = 6
+
+# The crosswalk table's pinned column (spec 7.31 pin-cap and pin-r<N>,
+# restated in 7.34 item 1.3): the domain names are 1 or 2 short words, so
+# its cap is 10rem, not the default 15rem. No crosswalk table is
+# table.fixed (review round 1 WARN): baseline.css gives a table width: 100%
+# and table.fixed a 56rem minimum, and in fixed layout every column has a
+# set width (the pinned one from its cells), so a table wider than its
+# columns spreads the rest over all of them, the pinned column past its cap.
+# Any crosswalk table could be that wide: the topic views' rem sums, the
+# pinned column included, ran from 18rem to 74rem against that minimum and
+# a main column with no maximum width. In automatic layout the spare width
+# goes to the data columns, which set no width, and the pinned column is
+# never wider than its cap; so there is no colgroup. A column is at least
+# as wide as its header, which keeps 1 line outside table.fixed, so the
+# full table still grows past the page and scrolls sideways (review rounds
+# 2 and 3, measured in headless Chrome: the full
+# table scrolled at 390px and 1512px, and the pinned column was never wider
+# than its 160px cap).
+CROSSWALK_PIN_CLASS = "pin-r10"
+# The word an empty cell keeps (spec 7.34 td.na, the site's own word): no
+# recorded mapping for that domain in that column.
+CROSSWALK_NA_WORD = "no mapping"
+# Spec 7.34 column groups: data-grp="1" to "6", the family's 6 hues.
+CROSSWALK_GROUP_HUES = 6
 
 # --check warning threshold (design C 3.5): a taxonomy framework string cited
 # by at least this many documents with no alias is surfaced, so a new
@@ -6990,27 +7021,58 @@ def _xw_column_name(data):
     return display
 
 
+def _xw_shows_codes(data):
+    """Whether a column's cells show a code in some domain: a single-word
+    identifier the compliance alignment matrix records (_xw_short_ids)."""
+    return any(_xw_short_ids(e["ids"]) for e in data["by_domain"].values())
+
+
 def render_crosswalk_table(xw, keys, full):
     """The domain-by-instrument table (design C 3.3) for the given instrument
-    columns, in the spec 7.30 matrix markup: every instrument th and td
-    carries its data-col key (machine-readable column identity) and the
-    row-header column carries none; a header is the name over its
-    organization tag, and a cell holds its single-word identifiers in code
+    columns, in the spec 7.30 matrix markup inside the spec 7.34 combined
+    form, in automatic layout (CROSSWALK_PIN_CLASS says why). Every
+    instrument th and td carries its data-col key (machine-readable column
+    identity) and the row-header column carries none; a header is the name
+    over its organization tag and, in a table whose columns span more than
+    one group, its group tag (data-grp, the group's place in
+    CROSSWALK_GROUPS), and a cell holds its single-word identifiers in code
     type and a count link whose noun is visually hidden. Past the cap, "and
-    more" is visually hidden too, and an empty cell holds only a visually
-    hidden "no documents", as the reference page marks one, so the
-    identifiers and the count link are a cell's only visible content. No
-    page marks the table data-matrix or loads matrix.js (maintainer defect
-    report 2026-11-04: the rail views navigate instead), so a page's
-    columns never change; ``full`` scopes the caption to the full table.
-    No colgroup: a fixed column width would outlive a dropped column."""
+    more" is visually hidden. An empty cell is td.na and keeps
+    CROSSWALK_NA_WORD, so screen readers and copied text read what sighted
+    readers see. A column whose cells show codes wraps; in any other column
+    every cell is td.nowrap. No column sets a width, so the pinned column
+    alone has one, and it is never wider than its cap. The wrapper is the
+    focusable region named by the caption's words; it scrolls sideways
+    only, at the table's full height. No page marks the table data-matrix
+    or loads matrix.js (maintainer defect report 2026-11-04: the rail views
+    navigate instead), so a page's columns never change and no table takes
+    the spec 7.34 column highlight, a matrix.js feature; ``full`` scopes
+    the caption to the full table."""
+    if len(CROSSWALK_GROUPS) > CROSSWALK_GROUP_HUES:
+        raise BuildError(
+            f"crosswalk: {len(CROSSWALK_GROUPS)} column groups, but spec "
+            f"7.34 draws {CROSSWALK_GROUP_HUES} group accents"
+        )
+    coded = {key for key in keys if _xw_shows_codes(xw["instruments"][key])}
+    # The group tag and accent tell a column's group from its neighbours'.
+    # Where every column shares one group (the Privacy, Trade and Canada
+    # views today) the side list names each column's group instead, and the
+    # tag, one line in spaced capitals, set each count-only column's width:
+    # the Trade view scrolled sideways by 99px at 1512px (review round 2
+    # WARN, measured in headless Chrome). The site cannot change the
+    # template's header CSS, so such a table's headers carry neither.
+    grouped = len({xw["instruments"][k]["inst"].group for k in keys}) > 1
     head = ['<th scope="col">Domain</th>']
     for key in keys:
         data = xw["instruments"][key]
+        inst = data["inst"]
+        grp = (f' data-grp="{CROSSWALK_GROUPS.index(inst.group) + 1}"'
+               if grouped else "")
+        tag = f'<span class="grp">{_esc(inst.group)}</span>' if grouped else ""
         head.append(
-            f'<th scope="col" data-col="{key}">'
+            f'<th scope="col" data-col="{key}"{grp}>'
             f'{_esc(_xw_column_name(data))}'
-            f'<span class="org">{_esc(data["inst"].org)}</span></th>'
+            f'<span class="org">{_esc(inst.org)}</span>{tag}</th>'
         )
     body = []
     for domain in xw["domains"]:
@@ -7021,10 +7083,11 @@ def render_crosswalk_table(xw, keys, full):
         for key in keys:
             data = xw["instruments"][key]
             entry = data["by_domain"].get(domain)
+            nowrap = "" if key in coded else " nowrap"
             if not entry:
                 cells.append(
-                    f'<td data-col="{key}"><span class="vh">no documents'
-                    "</span></td>"
+                    f'<td class="na{nowrap}" data-col="{key}">'
+                    f"{CROSSWALK_NA_WORD}</td>"
                 )
                 continue
             count = len(entry["docs"])
@@ -7046,20 +7109,36 @@ def render_crosswalk_table(xw, keys, full):
                 codes = ", ".join(f"<code>{_esc(i)}</code>" for i in shown)
                 cells.append(f'<td data-col="{key}">{codes}{tail} {link}</td>')
             else:
-                cells.append(f'<td data-col="{key}">{link}</td>')
+                attrs = f' class="{nowrap.strip()}"' if nowrap else ""
+                cells.append(f'<td{attrs} data-col="{key}">{link}</td>')
         body.append("<tr>" + "".join(cells) + "</tr>")
     noun = "instrument" if len(keys) == 1 else "instruments"
     # The crosswalk page's caption scopes its count to the full table; a
     # topic view's caption counts the columns here.
-    caption = (
+    caption = _esc(
         f"Corpus domains by instruments, {len(keys)} in the full table"
         if full else f"Corpus domains by {len(keys)} {noun}"
     )
+    # The box scrolls sideways only (maintainer 2026-11-04 12:58Z: the
+    # crosswalk must not scroll vertically). baseline.css caps a
+    # .tablewrap.bounded, and any .tablewrap holding table.sticky, at 75vh
+    # with overflow: auto, and the horizontal scrollbar's gutter counts
+    # against that cap, so a table within a gutter of 75vh scrolled
+    # vertically by a few pixels (3px to 6px at 1024 by 768 before the 7.34
+    # form, measured in headless Chrome) and a taller one by more (up to
+    # 317px with the 7.34 form's wrapping cells). A sticky header sticks
+    # only inside that bound, so the table carries neither; its rows scroll
+    # with the page, and the pinned column (sticky-col) still holds while
+    # the box scrolls sideways.
+    classes = (f"matrix sticky-col pin-cap {CROSSWALK_PIN_CLASS} "
+               "cells-wrap zebra rowhover")
     return (
-        '<table class="matrix sticky sticky-col">\n'
+        '<div class="tablewrap" tabindex="0" role="region" '
+        f'aria-label="{caption}">\n'
+        f'<table class="{classes}">\n'
         f'<caption class="vh">{caption}</caption>\n'
         "<thead><tr>" + "".join(head) + "</tr></thead>\n"
-        "<tbody>\n" + "\n".join(body) + "\n</tbody>\n</table>"
+        "<tbody>\n" + "\n".join(body) + "\n</tbody>\n</table>\n</div>"
     )
 
 
@@ -7076,10 +7155,14 @@ def _xw_table_intro(xw, keys, full):
     columns render, so each holds for every column it covers: the columns
     whose cells show a code are the compliance alignment matrix columns
     with a single-word identifier in some domain (_xw_short_ids), and they
-    are named; the other matrix columns record phrase-length labels only and
-    show the count alone; a column with no recorded mapping in any domain is
-    empty throughout; and the remaining columns count the documents mapped
-    to the instrument's control areas. On the crosswalk page (``full``) the
+    are named; the other matrix columns record phrase-length labels only, so
+    a cell there with a recorded mapping shows the count alone; a column with
+    no recorded mapping in any domain reads CROSSWALK_NA_WORD throughout; and
+    the remaining columns count the documents mapped to the instrument's
+    control areas, where a cell with a recorded mapping shows the count
+    alone. The count-alone clauses cover only a cell with a recorded
+    mapping, since a td.na cell in the same column shows CROSSWALK_NA_WORD
+    and no count (review round 1 WARN). On the crosswalk page (``full``) the
     counts name the full table; a topic view's counts name the columns here.
     The sentences say what a cell means to the reader, which documents
     address the instrument and which of its identifiers they address, never
@@ -7104,9 +7187,7 @@ def _xw_table_intro(xw, keys, full):
     unmapped = [k for k in keys if not data[k]["by_domain"]]
     comp = [k for k in keys if CROSSWALK_BY_KEY[k].compliance_column
             and k not in unmapped]
-    codes = [k for k in comp
-             if any(_xw_short_ids(e["ids"])
-                    for e in data[k]["by_domain"].values())]
+    codes = [k for k in comp if _xw_shows_codes(data[k])]
     labels = [k for k in comp if k not in codes]
     rest = [k for k in keys if k not in comp and k not in unmapped]
     parts = [
@@ -7114,7 +7195,8 @@ def _xw_table_intro(xw, keys, full):
         "frameworks, and programmes the corpus alignment matrices carry. "
         "A cell with a recorded mapping carries a count of the domain's "
         "documents that address the instrument, opening the instrument "
-        "page at that domain, and a cell with none is left empty."
+        "page at that domain, and a cell with none reads "
+        f'"{CROSSWALK_NA_WORD}".'
     ]
     if codes:
         parts.append(
@@ -7128,19 +7210,19 @@ def _xw_table_intro(xw, keys, full):
         parts.append(
             f"In {columns(labels)}, the recorded mappings carry descriptive "
             "control-area labels rather than short identifiers, so a cell "
-            "shows the count alone and the instrument page lists the labels "
-            "in full."
+            "with a recorded mapping shows the count alone and the "
+            "instrument page lists the labels in full."
         )
     if unmapped:
         parts.append(
             f"No domain has a recorded mapping in {columns(unmapped)}, so "
-            "every cell there is empty."
+            f'every cell there reads "{CROSSWALK_NA_WORD}".'
         )
     if rest:
         cites = (
             "cells from the documents mapped to the instrument's control "
-            "areas, shown as the count alone, and the instrument page "
-            "lists those control areas."
+            "areas; there a cell with a recorded mapping shows the count "
+            "alone, and the instrument page lists those control areas."
         )
         if len(rest) == len(keys):
             parts.append(f"Every column {where} takes its {cites}")
@@ -7165,12 +7247,13 @@ def _xw_matrix_link(xw, path):
 def render_crosswalk_caveats(xw, keys=(), inst=None):
     """The "What this mapping is" block (design C 3.6): the matrices' own
     caveats, carried nearly verbatim, each attributed to its on-site source.
-    The AICPA TSC caveat describes what the reader sees, an empty cell here
-    for the matrix's N/A, so it renders only where the page's table has that
-    column (``keys``, the table's columns; an instrument page has none)
-    (batch 3 round 2 NOTE: since f2 no cell shows N/A, and the caveat sat on
-    pages with no such column). A cell is empty where every row the matrix
-    lists for its domain is N/A, and the matrix lists only some of a
+    The AICPA TSC caveat describes what the reader sees, a cell reading
+    CROSSWALK_NA_WORD here for the matrix's N/A, so it renders only where the
+    page's table has that column (``keys``, the table's columns; an
+    instrument page has none) (batch 3 round 2 NOTE: since f2 no cell shows
+    N/A, and the caveat sat on pages with no such column). A cell reads it
+    where every row the matrix lists for its domain is N/A, and the matrix
+    lists only some of a
     domain's documents, so the sentence names those rows (batch 3 round 3
     item 1). The AICPA TSC instrument page (``inst``) carries its own
     caveat, its N/A rows counted from the matrix, so it stays true as the
@@ -7195,8 +7278,9 @@ def render_crosswalk_caveats(xw, keys=(), inst=None):
                 "criterion applies."
             )
         tsc += (
-            " The table here leaves an AICPA TSC cell empty where every "
-            "document the matrix lists for the domain has N/A in that column."
+            f' An AICPA TSC cell in the table here reads "{CROSSWALK_NA_WORD}" '
+            "where every document the matrix lists for the domain has N/A in "
+            "that column."
         )
     elif inst is not None and inst.compliance_column == "AICPA TSC 2017":
         data = xw["instruments"][inst.key]
