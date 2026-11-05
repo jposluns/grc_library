@@ -454,6 +454,7 @@ What is locked here, each test failing without its feature:
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import importlib.util
 import inspect
@@ -923,6 +924,1714 @@ def _replay_live_counts(rows, groups, query="", active=None):
     return tally
 
 
+class RepoLinkAllowListTests(unittest.TestCase):
+    """The repository-link guard as an allow-list over decoded output
+    (link-guard follow-up round 2): the emission ledger, the owner-token
+    count over the decoded view (character references, percent-encoding and
+    JavaScript/JSON escapes decoded; ASCII whitespace and backslashes
+    removed with removal points kept as boundaries), the owner-name
+    boundary rule, the hardened ``_manifest_target`` and the
+    manifest/ledger cross-checks. Round 5: a ledger entry is consumed only
+    by a destination the output's own parsers read (an attribute URL
+    candidate, a CSS url() of a stylesheet asset, a text node for a
+    reviewed kind-other text emission; round 9: a destination field of
+    the allow-list grammar of a sitemap or line-format output),
+    WHATWG-cleaned and equal to the entry's emitted string exactly; no
+    span of the raw or decoded text is matched and no boundary character
+    set exists. An output no grammar reads (a synthetic ``.txt`` here)
+    passes only as one whole pin-verified copy. Runs without the heavy full-site
+    fixture: the per-render ledger is passed explicitly (round 3, item 8)
+    and the llms.txt rows derive from the page text itself (round 4, item
+    1), so a synthetic page stands alone."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_build()
+        cls.variant = cls.mod.indexable_variant()
+
+    def manifest(self, pages, ledger=None):
+        """Render the manifest over synthetic pages alone, with the given
+        per-output ledger entries passed explicitly."""
+        return self.mod.render_corpus_link_manifest(
+            None, self.variant, pages, ledger or {})
+
+    def counted(self, target):
+        url = self.mod.GITHUB_BLOB_BASE + target
+        return (url, self.mod._LEDGER_COUNTED, target,
+                self.mod._owner_token_count(url))
+
+    def other(self, emitted):
+        return (emitted, self.mod._LEDGER_OTHER, None,
+                self.mod._owner_token_count(emitted))
+
+    def test_every_round_one_and_two_spelling_fails(self):
+        # Round 1 and round 2 spelling matrix (flips: disable the count
+        # comparison, or skip the character-reference, percent or
+        # JavaScript-escape decode, or keep whitespace or backslashes in
+        # the view): every spelling resolves to the owner token in the
+        # decoded view, so each fails the allow-list, in a synthetic HTML
+        # page and a synthetic text output alike, with no ledger entry.
+        tree = "https://github.com/jposluns/grc_library/tree/main/ai"
+        spellings = (
+            ("charref slashes",
+             "https:&#47;&#47;github.com&#47;jposluns&#47;grc_library"
+             "&#47;tree&#47;main&#47;ai"),
+            ("charref sol",
+             "https:&sol;&sol;github.com&sol;jposluns&sol;grc_library"
+             "&sol;tree&sol;main&sol;ai"),
+            ("charref underscore",
+             "https://github.com/jposluns/grc&#95;library/tree/main/ai"),
+            ("charref in owner",
+             "https://github.com/&#106;posluns/grc_library/tree/main/ai"),
+            ("newline split owner",
+             "https://github.com/jpos\nluns/grc_library/tree/main/ai"),
+            ("tab split repository",
+             "https://github.com/jposluns/grc_li\tbrary/tree/main/ai"),
+            ("cr split",
+             "https://github.com/jposluns/\rgrc_library/tree/main/ai"),
+            ("percent-encoded host",
+             "https://%67ithub.com/jposluns/grc_library/tree/main/ai"),
+            ("percent-encoded owner",
+             "https://github.com/%6Aposluns/grc_library/tree/main/ai"),
+            ("percent-encoded host with newline-split repository",
+             "https://%67ithub.com/jposluns/grc_li\nbrary/tree/main/ai"),
+            ("dot segment",
+             "https://github.com/./jposluns/grc_library/tree/main/ai"),
+            ("up segment",
+             "https://github.com/x/../jposluns/grc_library/tree/main/ai"),
+            ("encoded dot segment",
+             "https://github.com/%2e/jposluns/grc_library/tree/main/ai"),
+            ("backslash separators",
+             "https://github.com\\jposluns\\grc_library\\tree\\main\\ai"),
+            ("token split by a backslash",
+             "https://github.com/jpos\\luns/grc_library/tree/main/ai"),
+            ("json escaped slashes",
+             "https:\\/\\/github.com\\/jposluns\\/grc_library"
+             "\\/tree\\/main\\/ai"),
+            ("x2f escapes",
+             "https:\\x2f\\x2fgithub.com\\x2fjposluns\\x2fgrc_library"
+             "\\x2ftree\\x2fmain\\x2fai"),
+            ("u escape in owner",
+             "https://github.com/\\u006aposluns/grc_library/tree/main/ai"),
+            (".git suffix", "https://github.com/jposluns/grc_library.git"),
+            ("scheme relative",
+             "//github.com/jposluns/grc_library/tree/main/ai"),
+            # The userinfo spelling, split so the synthetic test input is
+            # not email-shaped on this source line (gate 22 scans tests).
+            ("userinfo",
+             "https://user"
+             "@github.com/jposluns/grc_library/tree/main/ai"),
+            ("port",
+             "https://github.com:8443/jposluns/grc_library/tree/main/ai"),
+        )
+        for label, bad in spellings:
+            for rel, template in (
+                ("synthetic/index.html", '<p><a href="{}">probe</a></p>'),
+                ("synthetic.txt", "see {} for the source"),
+            ):
+                with self.subTest(spelling=label, page=rel):
+                    with self.assertRaises(self.mod.BuildError) as ctx:
+                        self.manifest([(rel, template.format(bad))])
+                    self.assertIn(rel, str(ctx.exception))
+        markups = (
+            ("meta refresh",
+             f'<meta http-equiv="refresh" content="0; url={tree}">'),
+            ("newline-split meta refresh URL",
+             '<meta http-equiv="refresh" content="0; '
+             'url=https://github.com/jpos\nluns/grc_library/tree/main/ai">'),
+            ("style url()",
+             f'<style>body {{ background: url({tree}/x.png) }}</style>'),
+            ("base href",
+             '<base href="https://github.com/jposluns/grc_library'
+             '/tree/main/">'),
+            ("srcset", f'<img srcset="{tree}/x.png 1x, /y.png 2x">'),
+            ("form action", f'<form action="{tree}"></form>'),
+        )
+        for label, markup in markups:
+            with self.subTest(spelling=label):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([("synthetic/index.html", markup)])
+                self.assertIn("synthetic/index.html", str(ctx.exception))
+
+    def test_counted_links_pass_including_srcset_with_a_comma(self):
+        # Round 1 found a counted srcset URL followed by a comma wrongly
+        # rejected; round 5 reads candidates by the HTML image-candidate
+        # grammar, and the rule THIS test pins is that grammar's
+        # trailing-comma strip (flip: drop the url.endswith(",") branch
+        # of _srcset_candidates, and the comma reads as URL material, so
+        # the third case's candidate equals no entry): a counted URL
+        # with a descriptor AND one whose trailing comma directly
+        # separates the candidates both pass and gain their manifest row.
+        blob = self.mod.GITHUB_BLOB_BASE + "docs/portal.md"
+        with self.subTest(markup="plain counted link"):
+            text = self.manifest(
+                [("synthetic/index.html", f'<a href="{blob}">portal</a>')],
+                {"synthetic/index.html": [self.counted("docs/portal.md")]})
+            self.assertIn("| docs/portal.md | /synthetic/ | portal |", text)
+        with self.subTest(markup="counted srcset candidate with a comma"):
+            text = self.manifest(
+                [("synthetic/index.html",
+                  f'<img srcset="{blob} 1x, /x.png 2x">')],
+                {"synthetic/index.html": [self.counted("docs/portal.md")]})
+            self.assertIn("| docs/portal.md | /synthetic/ | portal.md |",
+                          text)
+        with self.subTest(markup="counted srcset URL directly at a comma"):
+            text = self.manifest(
+                [("synthetic/index.html",
+                  f'<img srcset="{blob}, /x.png 2x">')],
+                {"synthetic/index.html": [self.counted("docs/portal.md")]})
+            self.assertIn("| docs/portal.md | /synthetic/ | portal.md |",
+                          text)
+
+    def test_siblings_and_other_owners_pass(self):
+        # A different owner is not an occurrence of the token (boundary
+        # rule), so it needs no ledger entry; a same-owner sibling
+        # repository is a deliberate emission and passes ledgered as kind
+        # other, gaining no manifest row. Round 9: the sibling link moved
+        # from a synthetic .txt output (which no grammar reads any more)
+        # to an HTML anchor, which keeps the same guarantee. Round 10,
+        # item 3: an output no grammar reads must be a pin-verified copy
+        # even when token-free, so the other-owner cases moved from a
+        # synthetic .txt output to an HTML anchor and its text as well.
+        for content in (
+            "https://github.com/ajposluns/grc_library/README.md",
+            "https://github.com/jposlunsx/grc_library/README.md",
+            "https://github.com/x-jposluns/grc_library/README.md",
+            "wordjposluns/grc_library/README.md",
+        ):
+            with self.subTest(content=content):
+                text = self.manifest([
+                    ("synthetic/index.html",
+                     f'<a href="{content}">see {content}</a>')])
+                self.assertNotIn("grc_library", text)
+        sibling = "https://github.com/jposluns/guardrails"
+        text = self.manifest(
+            [("synthetic/index.html", f'<a href="{sibling}">rule-pack</a>')],
+            {"synthetic/index.html": [self.other(sibling)]})
+        self.assertNotIn("guardrails", text)
+
+    def test_owner_token_boundary_rule(self):
+        # The stated boundary rule (flip: drop the owner-name-character
+        # boundary, or stop marking a removal point as a boundary): an
+        # adjacent ASCII letter, digit or hyphen with no removed character
+        # between extends the owner name, so the token is a different
+        # owner; any other neighbour, a removal point included, bounds it.
+        count = self.mod._owner_token_count
+        for text in ("ajposluns", "jposlunsx", "x-jposluns", "jposluns-2",
+                     "wordjposluns"):
+            with self.subTest(text=text, counted=False):
+                self.assertEqual(count(text), 0)
+        for text in ("jposluns", "/jposluns/", "=jposluns", "_jposluns_",
+                     "see jposluns/x", "jpos luns", "jpos\\luns",
+                     "a jposluns", "JPosluns/", "jpos%6cuns"):
+            with self.subTest(text=text, counted=True):
+                self.assertEqual(count(text), 1)
+
+    def test_later_anchor_text_replaces_a_file_name_fallback(self):
+        # Link-guard follow-up round 2, item 4 (flip: restore the plain
+        # setdefault): a row first labelled by the file-name FALLBACK (a
+        # non-anchor attribute, or an anchor with no text) takes a later
+        # anchor's own text; a repeated fallback never outlabels it, and a
+        # later anchor never relabels a row that has a real anchor text.
+        blob = self.mod.GITHUB_BLOB_BASE + "no-such-fallback.md"
+        entry = self.counted("no-such-fallback.md")
+        text = self.manifest(
+            [("synthetic/index.html",
+              f'<div data-href="{blob}"></div>'
+              f'<a href="{blob}">real label</a>'
+              f'<div data-href="{blob}"></div>')],
+            {"synthetic/index.html": [entry, entry, entry]})
+        self.assertIn("| no-such-fallback.md | /synthetic/ | real label |",
+                      text)
+        self.assertNotIn("| no-such-fallback.md | /synthetic/ | "
+                         "no-such-fallback.md |", text)
+
+    def test_template_source_rejects_unlisted_owner_emissions(self):
+        # Round 3 item 1 (flip: restore the kind-other fallback in
+        # _source_repo_emissions): a template or partial value carrying the
+        # owner token is allowed ONLY as a counted corpus blob URL, the
+        # exact repository root, or an exact TEMPLATE_EMISSION_ALLOWLIST
+        # entry; every injected spelling fails naming the template and the
+        # value, and an unlisted text mention fails too.
+        src = self.mod._source_repo_emissions
+        base = self.mod.GITHUB_BLOB_BASE
+        bad_values = (
+            "https://github.com/jposluns/grc_library/tree/main/ai",
+            "https://raw.githubusercontent.com/jposluns/grc_library"
+            "/main/taxonomy.yml",
+            base + "../x.md",
+            base + "x.md;y",
+            "http://github.com/jposluns/grc_library/blob/main/x.md",
+            "https:&#47;&#47;github.com&#47;jposluns&#47;grc_library"
+            "&#47;tree&#47;main&#47;ai",
+        )
+        for bad in bad_values:
+            with self.subTest(value=bad):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    src("fixture.html", f'<a href="{bad}">probe</a>')
+                self.assertIn("fixture.html", str(ctx.exception))
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            src("fixture.html", "<p>ask jposluns about the corpus</p>")
+        self.assertIn("text node", str(ctx.exception))
+        self.assertIn("fixture.html", str(ctx.exception))
+        # The deliberate emissions pass: a counted URL, the exact root, and
+        # every reviewed allow-list entry (from the source, tag and
+        # attribute or text position it is bound to, round 4, item 3).
+        counted = src("fixture.html",
+                      f'<a href="{base}docs/portal.md">x</a>')
+        self.assertEqual(counted[0][1], self.mod._LEDGER_COUNTED)
+        root = src("fixture.html",
+                   f'<a href="{self.mod.GITHUB_REPO_ROOT}">x</a>')
+        self.assertEqual(root[0][1], self.mod._LEDGER_ROOT)
+        for source, tag, attr, value in self.mod.TEMPLATE_EMISSION_ALLOWLIST:
+            with self.subTest(allowed=value, source=source):
+                if attr is not None:
+                    markup = '<{0} {1}="{2}">x</{0}>'.format(
+                        tag, attr, value.replace("&", "&amp;"))
+                else:
+                    markup = f"<{tag}>{value}</{tag}>"
+                entries = src(source, markup)
+                self.assertEqual(entries[0][1], self.mod._LEDGER_OTHER)
+
+    def test_template_allowlist_binds_source_tag_and_attribute(self):
+        # Round 4 item 3 (flips: look an allow-list value up alone again,
+        # or tolerate a <base> element): a reviewed value emitted from any
+        # OTHER source, tag, attribute or text position takes no grant and
+        # fails like any injected spelling, and a <base> element is refused
+        # outright, whatever it carries (it would rebase every relative URL
+        # the rendered page carries).
+        src = self.mod._source_repo_emissions
+        profile = "https://github.com/jposluns"
+        bound = src("partials/footer.html", f'<a href="{profile}">x</a>')
+        self.assertEqual(bound[0][1], self.mod._LEDGER_OTHER)
+        for source, markup in (
+            ("fixture.html", f'<a href="{profile}">x</a>'),
+            ("partials/footer.html", f'<img src="{profile}">'),
+            ("partials/footer.html", f'<a data-href="{profile}">x</a>'),
+            ("partials/footer.html", f'<a href="#">{profile}</a>'),
+            ("for-ai.html", "<p>jposluns/guardrails</p>"),
+        ):
+            with self.subTest(source=source, markup=markup):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    src(source, markup)
+                self.assertIn(source, str(ctx.exception))
+        for markup in ('<base href="https://www.iso.org/x/">',
+                       "<base>"):
+            with self.subTest(markup=markup):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    src("fixture.html", markup)
+                self.assertIn("<base>", str(ctx.exception))
+
+    def test_template_allowance_equals_raw_source_count(self):
+        # Round 3 item 2 (flip: drop the granted == source_total guard): a
+        # token the parser surfaces nowhere fails at the template instead
+        # of granting nothing and surfacing later as an output failure
+        # naming only the page: an HTML comment, and an end-tag attribute,
+        # which html.parser reads as a bare end tag, surfacing the value
+        # in no attribute or text node. With the guard flipped, the call
+        # raises nothing at all, so the flip is caught structurally; the
+        # round 4 message-wording subcases (claude N4) are replaced by
+        # test_comment_and_end_tag_attribute_are_caught_structurally,
+        # where the OUTPUT rule catches the same two shapes itself.
+        src = self.mod._source_repo_emissions
+        end_tag_attr = ('<p>x</p data-note="https://github.com/jposluns'
+                        '/grc_library/blob/main/x.md">')
+        for markup in ("<!-- maintained by jposluns -->", end_tag_attr):
+            with self.subTest(markup=markup):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    src("fixture.html", markup)
+                self.assertIn("fixture.html", str(ctx.exception))
+
+    def test_decoded_view_resolves_layered_escapes(self):
+        # Round 3 item 3 (flip: decode once instead of repeating to a fixed
+        # point, or drop the \u{...} or CSS escape forms): each spelling
+        # resolves to the owner token in the decoded view, and each fails
+        # the allow-list in a synthetic output with no ledger entry.
+        count = self.mod._owner_token_count
+        for text in ("%6aposluns", "%256aposluns", "\\x256aposluns",
+                     "\\u{6a}posluns", "\\6a posluns",
+                     "&amp;#106;posluns"):
+            with self.subTest(text=text):
+                self.assertEqual(count(text), 1)
+        for spelling in ("%256aposluns/grc_library",
+                         "\\x256aposluns/grc_library",
+                         "\\u{6a}posluns/grc_library",
+                         "\\6a posluns/grc_library"):
+            with self.subTest(spelling=spelling):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([("synthetic.txt", f"see {spelling}")])
+                self.assertIn("synthetic.txt", str(ctx.exception))
+
+    def test_owner_token_matching_survives_length_changing_case(self):
+        # Round 3 item 4 (flip: restore view.lower() for matching): U+0130
+        # lowercases to two characters, so every later offset drifted off
+        # the boundary map and 'İjposlunsx' raised IndexError; matching is
+        # per character and length-preserving, so offsets stay aligned.
+        count = self.mod._owner_token_count
+        self.assertEqual(count("\u0130jposlunsx"), 0)
+        self.assertEqual(count("\u0130jposluns"), 1)
+        self.assertEqual(count("JPOSLUNS"), 1)
+        self.assertEqual(count("\u0130JPosluns and jposluns"), 2)
+
+    def test_counted_multiplicity_is_matched_span_by_span(self):
+        # Round 3 item 7 (flip: compare token totals instead of consuming
+        # one disjoint span per entry): with two counted emissions of one
+        # target plus the root ledgered, an output carrying the blob URL
+        # once and the root twice balances the old TOTALS (3 = 3) while one
+        # counted link was replaced by an uncounted repository URL; the
+        # span match fails it, and the honest output passes with one
+        # deduplicated row.
+        target = "docs/portal.md"
+        blob = self.mod.GITHUB_BLOB_BASE + target
+        root = self.mod.GITHUB_REPO_ROOT
+        ledger = {"synthetic/index.html": [
+            self.counted(target), self.counted(target),
+            (root, self.mod._LEDGER_ROOT, None, 1),
+        ]}
+        good = (f'<a href="{blob}">one</a><a href="{blob}">two</a>'
+                f'<a href="{root}">repo</a>')
+        text = self.manifest([("synthetic/index.html", good)],
+                             {k: list(v) for k, v in ledger.items()})
+        self.assertIn(f"| {target} | /synthetic/ | one |", text)
+        bad = (f'<a href="{blob}">one</a><a href="{root}">repo</a>'
+               f'<a href="{root}">again</a>')
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.manifest([("synthetic/index.html", bad)],
+                          {k: list(v) for k, v in ledger.items()})
+        self.assertIn(blob, str(ctx.exception))
+
+    def test_llms_rows_derive_from_the_parsed_markdown_destinations(self):
+        # Round 3 item 7 and round 4 item 1 (flips: seed the llms.txt rows
+        # from a curated parallel list again, or skip the llms.txt Markdown
+        # parse): the llms.txt rows come from the destinations parsed out
+        # of the emitted map itself, labelled by the link text, with
+        # multiplicity deduplicated first-wins; a ledgered blob URL that
+        # never survives into the text fails naming the lost emission
+        # (round 9: the link-free text is a heading, a shape the llms.txt
+        # grammar admits, so the failure is the unconsumed entry).
+        target = "docs/portal.md"
+        entry = self.counted(target)
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.manifest([("llms.txt", "# no links left here")],
+                          {"llms.txt": [entry]})
+        self.assertIn("llms.txt", str(ctx.exception))
+        self.assertIn("never reached", str(ctx.exception))
+        blob = self.mod.GITHUB_BLOB_BASE + target
+        good = f"- [Adopter portal]({blob})"
+        text = self.manifest([("llms.txt", good)], {"llms.txt": [entry]})
+        self.assertIn(f"| {target} | llms.txt | Adopter portal |", text)
+        twice = f"- [Adopter portal]({blob})\n- [again]({blob})"
+        text = self.manifest([("llms.txt", twice)],
+                             {"llms.txt": [entry, entry]})
+        self.assertIn(f"| {target} | llms.txt | Adopter portal |", text)
+        self.assertNotIn("| again |", text)
+
+    def test_entries_match_whole_destinations_only(self):
+        # Round 4 item 1, rebuilt at round 5 (flip: let a destination that
+        # merely STARTS WITH an entry's string consume it, or match the
+        # entry as a plain substring again): a longer, different URL that
+        # merely CONTAINS an entry's string can never consume its
+        # allowance, because consumption needs a parsed destination EQUAL
+        # to the entry, in llms.txt and in an HTML page alike.
+        root = self.mod.GITHUB_REPO_ROOT
+        target = "docs/portal.md"
+        blob = self.mod.GITHUB_BLOB_BASE + target
+        profile = "https://github.com/jposluns"
+        root_entry = (root, self.mod._LEDGER_ROOT, None, 1)
+        cases = (
+            ("root plus /tree/main/ai in llms.txt", "llms.txt",
+             f"- [GitHub repository]({root}/tree/main/ai): the source.",
+             [root_entry]),
+            ("root plus /tree/main/ai from a template value",
+             "synthetic/index.html",
+             f'<a href="{root}/tree/main/ai">probe</a>', [root_entry]),
+            ("counted blob plus ;unlisted", "synthetic/index.html",
+             f'<a href="{blob};unlisted">probe</a>',
+             [self.counted(target)]),
+            ("counted blob plus a dot segment", "synthetic/index.html",
+             f'<a href="{blob}/../">probe</a>', [self.counted(target)]),
+            ("profile as the prefix of a tree URL", "synthetic/index.html",
+             f'<a href="{profile}/grc_library/tree/main/ai">probe</a>',
+             [self.other(profile)]),
+            ("root as the prefix of a sibling grc_library_x",
+             "synthetic/index.html",
+             f'<a href="{root}_x">probe</a>', [root_entry]),
+            ("root embedded after = inside a longer URL",
+             "synthetic/index.html",
+             f'<a href="https://github.com/x?u={root}">probe</a>',
+             [root_entry]),
+        )
+        for label, rel, content, entries in cases:
+            with self.subTest(case=label):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([(rel, content)], {rel: list(entries)})
+                self.assertIn(rel, str(ctx.exception))
+
+    def test_duplicated_counted_emission_with_one_copy_suffixed_fails(self):
+        # Round 4 item 1, re-closed at round 5 (the duplicated-emission
+        # counterexample, reopened in round 4 by a character-referenced
+        # newline before the suffix): with two counted emissions of one
+        # target ledgered, an output carrying the blob URL once clean and
+        # once suffixed fails, with a plain suffix AND with a newline
+        # reference before it (the browser removes the newline, so the
+        # cleaned destination is the suffixed URL, which equals no entry),
+        # while two clean copies pass with one deduplicated row.
+        target = "docs/portal.md"
+        blob = self.mod.GITHUB_BLOB_BASE + target
+        entries = [self.counted(target), self.counted(target)]
+        for suffix in (";unlisted", "&#10;;unlisted"):
+            bad = (f'<a href="{blob}">one</a>'
+                   f'<a href="{blob}{suffix}">two</a>')
+            with self.subTest(suffix=suffix):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([("synthetic/index.html", bad)],
+                                  {"synthetic/index.html": list(entries)})
+                self.assertIn(blob, str(ctx.exception))
+        good = f'<a href="{blob}">one</a><a href="{blob}">two</a>'
+        text = self.manifest([("synthetic/index.html", good)],
+                             {"synthetic/index.html": list(entries)})
+        self.assertIn(f"| {target} | /synthetic/ | one |", text)
+
+    def test_round_five_faked_boundaries_fail(self):
+        # Round 5 (flips: skip a WHATWG cleaning step so a tab, newline,
+        # carriage return or backslash still splits a destination, restore
+        # the old refresh regex that cut the URL at whitespace, drop the
+        # srcset descriptor refusal, or re-admit the quote and parenthesis
+        # boundary set): browsers remove tab, newline and carriage return
+        # inside a URL and read a backslash as a slash, and a quote or
+        # parenthesis is URL material, so each spelling below is one
+        # DIFFERENT destination; it can consume nothing, and the ledgered
+        # root entry fails unconsumed (the malformed srcset is refused
+        # outright instead).
+        root = self.mod.GITHUB_REPO_ROOT
+        root_entry = (root, self.mod._LEDGER_ROOT, None, 1)
+        backslashes = ("https:\\\\github.com\\jposluns\\grc_library"
+                       "\\tree\\main\\ai")
+        cases = (
+            ("character-reference newline after the root",
+             "synthetic/index.html",
+             f'<a href="{root}&#10;/tree/main/ai">probe</a>'),
+            ("literal tab after the root", "synthetic/index.html",
+             f'<a href="{root}\t/tree/main/ai">probe</a>'),
+            ("named Tab reference after the root", "synthetic/index.html",
+             f'<a href="{root}&Tab;/tree/main/ai">probe</a>'),
+            ("backslash separators read as slashes", "synthetic/index.html",
+             f'<a href="{backslashes}">probe</a>'),
+            ("tab reference inside a meta refresh URL",
+             "synthetic/index.html",
+             f'<meta http-equiv="refresh" '
+             f'content="0; url={root}&#9;/tree/main/ai">'),
+            ("tab-faked srcset candidate split", "synthetic/index.html",
+             f'<img srcset="{root}&#9;/x.png">'),
+            ("CSS escape boundary inside a style body",
+             "synthetic/index.html",
+             f'<style>body {{ background: '
+             f'url({root}\\9 /tree/main/ai) }}</style>'),
+            ("single quote inside the URL", "synthetic/index.html",
+             f'<a href="{root}\'/tree/main/ai">probe</a>'),
+            ("parenthesis inside the URL", "synthetic/index.html",
+             f'<a href="{root}(/tree/main/ai)">probe</a>'),
+            ("parenthesised Markdown destination", "llms.txt",
+             f"- [GitHub]({root}(/tree/main/ai))"),
+        )
+        for label, rel, content in cases:
+            with self.subTest(case=label):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([(rel, content)], {rel: [root_entry]})
+                self.assertIn(rel, str(ctx.exception))
+
+    def test_page_wide_root_grant_is_gone(self):
+        # Round 5 (flip: restore the page-wide "=" exception one clean
+        # parsed root link switched on): with TWO root entries ledgered, a
+        # page carrying one clean root link and one root EMBEDDED in
+        # another URL's query string fails (the embedded spelling is no
+        # parsed destination equal to the entry), while two clean root
+        # links consume both entries and pass.
+        root = self.mod.GITHUB_REPO_ROOT
+        entries = [(root, self.mod._LEDGER_ROOT, None, 1),
+                   (root, self.mod._LEDGER_ROOT, None, 1)]
+        bad = (f'<a href="{root}">repo</a>'
+               f'<a href="https://www.iso.org/x?return_to={root}">go</a>')
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.manifest([("synthetic/index.html", bad)],
+                          {"synthetic/index.html": list(entries)})
+        self.assertIn("synthetic/index.html", str(ctx.exception))
+        good = f'<a href="{root}">repo</a><a href="{root}">again</a>'
+        text = self.manifest([("synthetic/index.html", good)],
+                             {"synthetic/index.html": list(entries)})
+        self.assertIn("| Corpus target | Website location | Link text |",
+                      text)
+
+    def test_round_five_cleaned_destinations_consume_entries(self):
+        # Round 5 (flips: drop one WHATWG cleaning step from
+        # _clean_destination_value, or the quoted-URL cut from the refresh
+        # grammar): a destination the browser reads as EXACTLY the
+        # ledgered URL consumes its entry even when the attribute spells
+        # it with a removable character: surrounding spaces (stripped), an
+        # internal tab reference (removed), backslashes in an http(s) URL
+        # (read as slashes), or refresh quotes (cut at the match).
+        root = self.mod.GITHUB_REPO_ROOT
+        backslashes = root.replace("//", "\\\\").replace("/jposluns",
+                                                         "\\jposluns")
+        backslashes = backslashes.replace("/grc_library", "\\grc_library")
+        cases = (
+            ("surrounding spaces", f'<a href=" {root} ">repo</a>'),
+            ("internal tab reference",
+             f'<a href="{root[:30]}&#9;{root[30:]}">repo</a>'),
+            ("backslash spelling of the root",
+             f'<a href="{backslashes}">repo</a>'),
+            ("quoted meta refresh URL",
+             f'<meta http-equiv="refresh" content="0; url=\'{root}\'">'),
+        )
+        for label, markup in cases:
+            with self.subTest(case=label):
+                text = self.manifest(
+                    [("synthetic/index.html", markup)],
+                    {"synthetic/index.html":
+                     [(root, self.mod._LEDGER_ROOT, None, 1)]})
+                self.assertIn(
+                    "| Corpus target | Website location | Link text |", text)
+
+    def test_llms_destination_grammar_refuses_other_commonmark_forms(self):
+        # Round 5 read an angle-bracketed destination and one carrying
+        # balanced parentheses per CommonMark, and both consumed their
+        # entries. Round 9, item 1 replaces that reading: render_llms_txt
+        # writes neither form, so the destination grammar (https:// and
+        # RFC 3986 characters with no parenthesis, bracket, quote,
+        # ampersand or space) refuses each by line and column, and a
+        # plain destination still consumes its entry and gains its row.
+        target = "docs/probe(v2).md"
+        blob = self.mod.GITHUB_BLOB_BASE + target
+        plain = self.mod.GITHUB_BLOB_BASE + "docs/portal.md"
+        cases = (
+            ("balanced parentheses", f"- [probe]({blob}): note.",
+             self.counted(target),
+             f"line 1 column {len('- [probe](') + blob.index('(') + 1}",
+             "a character outside the link destination grammar"),
+            ("angle-bracket form", f"- [portal](<{plain}>): note.",
+             self.counted("docs/portal.md"), "line 1 column 12", "a <"),
+        )
+        for label, bad, entry, where, what in cases:
+            with self.subTest(case=label):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([("llms.txt", bad)], {"llms.txt": [entry]})
+                self.assertIn(f"llms.txt: {where}: {what}",
+                              str(ctx.exception))
+        text = self.manifest(
+            [("llms.txt", f"- [portal]({plain}): note.")],
+            {"llms.txt": [self.counted("docs/portal.md")]})
+        self.assertIn("| docs/portal.md | llms.txt | portal |", text)
+
+    def test_cleaning_strips_newline_and_carriage_return_separately(self):
+        # Round 6, item 5 (flips: drop ONLY the newline removal, or ONLY
+        # the carriage-return removal, from _clean_destination_value):
+        # each removal is pinned on a case of its own, so a flip that
+        # drops either one fails here by itself instead of hiding behind
+        # the other (the earlier cases spelled the removable character
+        # as a tab or reached it through a character reference).
+        clean = self.mod._clean_destination_value
+        root = self.mod.GITHUB_REPO_ROOT
+        with self.subTest(removed="newline alone"):
+            self.assertEqual(clean(root[:12] + "\n" + root[12:]), root)
+        with self.subTest(removed="carriage return alone"):
+            self.assertEqual(clean(root[:12] + "\r" + root[12:]), root)
+        with self.subTest(removed="tab alone"):
+            self.assertEqual(clean(root[:12] + "\t" + root[12:]), root)
+
+    def test_backslash_cleaning_spares_query_and_fragment(self):
+        # Round 6, item 3 (flip: restore the whole-URL backslash-to-slash
+        # replacement): the WHATWG special-scheme parser reads a
+        # backslash as a slash only in its scheme, authority and path
+        # states, so cleaning rewrites backslashes only up to the first
+        # ? or #, and the query and fragment keep theirs byte for byte.
+        clean = self.mod._clean_destination_value
+        self.assertEqual(clean("https://github.com\\x\\y?q=a\\b#f\\g"),
+                         "https://github.com/x/y?q=a\\b#f\\g")
+        self.assertEqual(clean("https://www.iso.org/p#a\\b"),
+                         "https://www.iso.org/p#a\\b")
+        self.assertEqual(clean("https://www.iso.org/p?x=1\\2"),
+                         "https://www.iso.org/p?x=1\\2")
+
+    def test_output_base_element_is_refused(self):
+        # Round 6, item 2 (flip: let _GuardOutputParser record attributes
+        # only, with no <base> refusal in _output_destinations): a <base>
+        # start tag in a rendered HTML output is refused outright, as the
+        # template parser already does, even on a page carrying no owner
+        # token and no ledger entry.
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.manifest([("synthetic/index.html",
+                            '<base href="/elsewhere/"><p>plain page</p>')])
+        self.assertIn("<base> element is refused", str(ctx.exception))
+        self.assertIn("synthetic/index.html", str(ctx.exception))
+
+    def test_llms_reader_orders_constructs_per_commonmark(self):
+        # Round 6, item 1 (flips: skip the autolink parse so the round 5
+        # link regex reads inside it again, read a backslash-escaped \]
+        # as closing a label, skip the code-span parse, or restore the
+        # whole-run overlap skip with no owner-bearing remainder
+        # refusal): each construct below either consumed a ledger entry
+        # it never linked or hid an owner-bearing run at round 5.
+        # Round 9, item 1: the llms.txt grammar admits no autolink and
+        # no text after a list-item link but ", [", "." or ": " and a
+        # note, so the autolink and remainder cases now fail by line and
+        # column at the grammar; robots.txt is read by its own line
+        # format (item 2), which refuses the Markdown-shaped line.
+        root = self.mod.GITHUB_REPO_ROOT
+        root_entry = (root, self.mod._LEDGER_ROOT, None, 1)
+        with self.subTest(case="link-shaped text inside an autolink"):
+            bad = f"see <https://github.com/search?q=[x]({root})> now"
+            with self.assertRaises(self.mod.BuildError) as ctx:
+                self.manifest([("llms.txt", bad)],
+                              {"llms.txt": [root_entry]})
+            self.assertIn("llms.txt: line 1 column 5: a < is outside the "
+                          "llms.txt grammar", str(ctx.exception))
+        with self.subTest(case="escaped bracket keeps the label open"):
+            bad = f"- [a\\]({root})/tree/main/ai"
+            with self.assertRaises(self.mod.BuildError) as ctx:
+                self.manifest([("llms.txt", bad)],
+                              {"llms.txt": [root_entry]})
+            self.assertIn("llms.txt: line 1 column 5: a backslash",
+                          str(ctx.exception))
+            with self.assertRaises(self.mod.BuildError) as ctx:
+                self.manifest([("robots.txt", bad)],
+                              {"robots.txt": [root_entry]})
+            self.assertIn("robots.txt: line 1 column 1: a line other than",
+                          str(ctx.exception))
+        with self.subTest(case="owner token in a run's unparsed remainder"):
+            bad = ("- [x](https://www.iso.org/q)"
+                   "https://github.com/jposluns/evil")
+            with self.assertRaises(self.mod.BuildError) as ctx:
+                self.manifest([("llms.txt", bad)])
+            self.assertIn("llms.txt: line 1 column 29: text after a "
+                          "list-item link", str(ctx.exception))
+        with self.subTest(case="owner-bearing URL inside a code span"):
+            # Round 8, item 1: a backtick is outside the llms.txt subset,
+            # so the would-be code span now fails at the subset check.
+            bad = f"run `{root}` today"
+            with self.assertRaises(self.mod.BuildError) as ctx:
+                self.manifest([("llms.txt", bad)],
+                              {"llms.txt": [root_entry]})
+            self.assertIn("llms.txt: line 1 column 5: a backtick",
+                          str(ctx.exception))
+
+    def test_llms_reader_refuses_unsupported_constructs(self):
+        # Round 6, item 1, restated at round 9, item 1: a construct
+        # outside the llms.txt grammar fails the build by line and
+        # column rather than being read some other way.
+        for label, content, where, what in (
+            ("nested bracket in a label",
+             "- [a [b] c](https://www.iso.org/)", "line 1 column 6",
+             "a [ in a link label"),
+            ("bracket inside a bare destination",
+             "- [x](https://www.iso.org/a[1])", "line 1 column 28",
+             "a character outside the link destination grammar"),
+        ):
+            with self.subTest(case=label):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([("llms.txt", content)])
+                self.assertIn(f"llms.txt: {where}: {what}",
+                              str(ctx.exception))
+
+    def test_llms_autolink_is_refused(self):
+        # Round 6, item 1 read an autolink's URI as a destination, so a
+        # ledgered root autolink passed. Round 9, item 1 replaces that:
+        # render_llms_txt writes no autolink, and a < is outside the
+        # llms.txt grammar anywhere, so the autolink fails the build by
+        # line and column and its URI consumes nothing.
+        root = self.mod.GITHUB_REPO_ROOT
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.manifest(
+                [("llms.txt", f"> see the source\n\n<{root}>\n")],
+                {"llms.txt": [(root, self.mod._LEDGER_ROOT, None, 1)]})
+        self.assertIn("llms.txt: line 3 column 1: a <", str(ctx.exception))
+
+    def test_llms_raw_html_is_refused(self):
+        # Round 7, item 1 (flip: skip a < that opens no autolink, as
+        # round 6 did): a raw tag is text a Markdown renderer passes
+        # through, so a link written inside its attribute consumed the
+        # ROOT entry at round 6 while no rendered link carried it; in
+        # llms.txt any < that opens no autolink now fails the build by
+        # position (round 8: by line and column, at the subset check).
+        # Round 9 (items 1 and 2) replaces the two pass cases: an
+        # autolink is outside the llms.txt grammar too, and robots.txt
+        # is read by its own line format, so a prose line carrying a <
+        # and a URL there is refused by line and column instead of
+        # yielding a bare-URL destination.
+        root = self.mod.GITHUB_REPO_ROOT
+        root_entry = (root, self.mod._LEDGER_ROOT, None, 1)
+        cases = (
+            ("raw tag",
+             f'see <a href="https://www.iso.org/?u=[x]({root})"> now'),
+            ("search-URL variant",
+             f'see <a href="https://github.com/search?q=[x]({root})"> '
+             f'now'),
+            ("autolink", f"see <{root}> for the source"),
+        )
+        for label, bad in cases:
+            with self.subTest(case=label):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([("llms.txt", bad)],
+                                  {"llms.txt": [root_entry]})
+                self.assertIn("llms.txt: line 1 column 5: a < is outside "
+                              "the llms.txt grammar", str(ctx.exception))
+        with self.subTest(case="a stray < in robots.txt is refused"):
+            stray = f"a < b and c > d, source {root}\n"
+            with self.assertRaises(self.mod.BuildError) as ctx:
+                self.mod._output_destinations("robots.txt", stray)
+            self.assertIn("robots.txt: line 1 column 1: a line other than",
+                          str(ctx.exception))
+            with self.assertRaises(self.mod.BuildError):
+                self.manifest([("robots.txt", stray)],
+                              {"robots.txt": [root_entry]})
+
+    def test_residual_states_the_grammars_and_what_remains(self):
+        # Round 8 review (d), round 9, item 4 (flip: restore the round 8
+        # residual item (4), which claimed a construct the reader cannot
+        # read "can only fail the build, never widen it"): residual item
+        # (4) states the allow-list grammar of every output that is
+        # neither HTML nor a stylesheet, that a destination comes only
+        # from the shape that carries one, and what truly remains
+        # outside the grammars, and the false claim is gone from the
+        # whole module. The llms.txt reader's docstring names the shapes
+        # it admits.
+        source = (REPO_ROOT / ".web" / "build.py").read_text(
+            encoding="utf-8")
+        flat = " ".join(source.replace("#", " ").split())
+        self.assertNotIn("never widen it", flat)
+        self.assertNotIn("can only tighten the check", flat)
+        item = source.split("# (4) Every output that is neither HTML", 1)
+        self.assertEqual(len(item), 2, "residual item (4) is rewritten")
+        item = item[1].split("(5) The", 1)[0]
+        item = " ".join(item.replace("#", " ").split())
+        for phrase in ("ALLOW-LIST grammar", "file, line and column",
+                       "llms.txt", "robots.txt", "_headers", "_redirects",
+                       "security.txt", "sitemap.xml", "CDATA section",
+                       "DOCTYPE", "entity or character reference",
+                       "xml.etree.ElementTree", "ONLY from a list-item",
+                       "no Markdown", "What remains outside the grammars",
+                       "NOTICE.md", "whole pin-verified copy"):
+            self.assertIn(phrase, item)
+        doc = " ".join(self.mod._llms_links.__doc__.split())
+        for phrase in ("blank line", "heading", "block-quote line",
+                       "list item", "indented code", "fence",
+                       "reference definition", "line and column"):
+            self.assertIn(phrase, doc)
+
+    def test_copied_asset_docstring_names_the_markdown_copies(self):
+        # Round 8 review (e), round 9, item 4 (flip: restore the round 8
+        # wording, which said every copied asset other than HTML or a
+        # stylesheet is not served as Markdown): assets/baseline/NOTICE.md
+        # and assets/baseline/marks/NOTICE.md ARE Markdown, pin-verified
+        # and ledgered whole, so the copied-output docstring names them
+        # and says no grammar reads them, and no comment or docstring in
+        # the module still claims copied assets are not Markdown.
+        doc = " ".join(self.mod._ledger_copied_output.__doc__.split())
+        for phrase in ("Markdown", "assets/baseline/NOTICE.md",
+                       "assets/baseline/marks/NOTICE.md",
+                       "whole-file entry"):
+            self.assertIn(phrase, doc)
+        source = (REPO_ROOT / ".web" / "build.py").read_text(
+            encoding="utf-8")
+        flat = " ".join(source.replace("#", " ").split())
+        self.assertNotIn("is not served as Markdown", flat)
+
+    def test_llms_backtick_anywhere_is_refused(self):
+        # Round 7, item 3 read a backtick inside a link destination as
+        # destination text, so "- [y](z`a) [x](ROOT) `note`" passed;
+        # round 8, item 1 updates that case to the subset rule, and
+        # round 9 keeps it as the llms.txt grammar's anywhere-refusal
+        # (flip: drop the backtick from _LLMS_ANYWHERE): llms.txt holds
+        # no backtick anywhere, so it and every other placement below
+        # fail the build by line and column before any line shape is
+        # read. Round 9: the autolink case now fails first at its < (no
+        # autolink is admitted), at the same line and earlier column.
+        root = self.mod.GITHUB_REPO_ROOT
+        root_entry = (root, self.mod._LEDGER_ROOT, None, 1)
+        prose = f"- [x]({root}) and `x"
+        autolink = f"see <{root}> and <https://www.iso.org/a`b>"
+        cases = (
+            ("in a link destination (the round 7 case)",
+             f"- [y](z`a) [x]({root}) `note`", "line 1 column 8",
+             "a backtick"),
+            ("in prose", prose,
+             f"line 1 column {prose.index('`') + 1}", "a backtick"),
+            ("in a label", f"- [`x`]({root})", "line 1 column 4",
+             "a backtick"),
+            ("inside an autolink URI", autolink, "line 1 column 5", "a <"),
+            ("in a block quote", f"> a ` b\n\n- [x]({root})",
+             "line 1 column 5", "a backtick"),
+            ("on a later line", f"# T\n\n- [x]({root})\n\n``",
+             "line 5 column 1", "a backtick"),
+            ("a backtick fence", f"```\n- [x]({root})\n```\n",
+             "line 1 column 1", "a backtick"),
+        )
+        for label, bad, where, what in cases:
+            with self.subTest(case=label):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([("llms.txt", bad)],
+                                  {"llms.txt": [root_entry]})
+                self.assertIn(f"llms.txt: {where}: {what}",
+                              str(ctx.exception))
+
+    def test_llms_cross_paragraph_code_span_fails(self):
+        # Round 7 review (codex): a lone backtick in one paragraph paired
+        # with a backtick inside a later raw tag's attribute, so the
+        # round 7 code-span scan skipped the tag's < and the [x](ROOT)
+        # inside the attribute consumed the ROOT entry while no rendered
+        # link carried it. Round 8, item 1 (flip: drop the backtick
+        # refusal, or the subset check itself): the lone backtick is
+        # outside the llms.txt subset and fails first, by line and
+        # column.
+        root = self.mod.GITHUB_REPO_ROOT
+        root_entry = (root, self.mod._LEDGER_ROOT, None, 1)
+        bad = (f"- a lone ` here\n\n"
+               f"<a title=\"`\" href=\"[x]({root})\">later\n")
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.manifest([("llms.txt", bad)], {"llms.txt": [root_entry]})
+        self.assertIn("llms.txt: line 1 column 10: a backtick",
+                      str(ctx.exception))
+
+    def test_llms_subset_rule_by_character(self):
+        # Round 8, item 1, kept at round 9 as the llms.txt grammar's
+        # anywhere-refusals (flips: drop the backslash, < or > refusal,
+        # or the control-character refusal, from _llms_prescan, or the
+        # column-1 block-quote allowance): each character class fails by
+        # line and column, while a > opening a "> " block-quote line
+        # passes. Round 9: no autolink is admitted, so the round 8
+        # autolink pass case is gone and the < and > wording names the
+        # grammar; a CR, a TAB and DEL are refused anywhere (only LF
+        # ends a line), even inside a prose part the line grammar would
+        # otherwise admit.
+        root = self.mod.GITHUB_REPO_ROOT
+        root_entry = (root, self.mod._LEDGER_ROOT, None, 1)
+        link = f"- [x]({root}) a"
+        column = f"line 1 column {len(link) + 1}"
+        bad_cases = (
+            ("backslash", link + "\\b", "a backslash", column),
+            ("< anywhere", link + "\n- a <b", "a <", "line 2 column 5"),
+            ("> not opening a line", link + "> b",
+             "a > that opens no block-quote line", column),
+            ("indented > is no line-opening marker", link + "\n > b",
+             "a > that opens no block-quote line", "line 2 column 2"),
+            ("carriage return in prose", f"> a\rb\n\n- [x]({root})",
+             "a control character (U+000D)", "line 1 column 4"),
+            ("tab in prose", f"> a\tb\n\n- [x]({root})",
+             "a control character (U+0009)", "line 1 column 4"),
+            ("DEL in prose", f"> a\x7fb\n\n- [x]({root})",
+             "a control character (U+007F)", "line 1 column 4"),
+        )
+        for label, bad, what, where in bad_cases:
+            with self.subTest(case=label):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([("llms.txt", bad)],
+                                  {"llms.txt": [root_entry]})
+                self.assertIn(f"llms.txt: {where}: {what}",
+                              str(ctx.exception))
+        good_cases = (
+            ("block-quote marker",
+             f"> a summary\n> more\n\n- [x]({root})"),
+            ("heading, quote and item",
+             f"# T\n\n> a summary\n\n## Core\n- [x]({root}): note."),
+        )
+        for label, good in good_cases:
+            with self.subTest(case=label):
+                text = self.manifest([("llms.txt", good)],
+                                     {"llms.txt": [root_entry]})
+                self.assertIn(
+                    "| Corpus target | Website location | Link text |",
+                    text)
+
+    def test_llms_prose_bracket_is_refused(self):
+        # Round 7, item 3 read an unmatched [ in prose as plain text, as
+        # CommonMark does, and the later ROOT link consumed its entry.
+        # Round 9, item 1 replaces that reading: render_llms_txt writes
+        # no bracket outside a list-item link, so a list item that does
+        # not open with its link is no admitted shape, and a [ in a
+        # prose part is refused by line and column.
+        root = self.mod.GITHUB_REPO_ROOT
+        root_entry = (root, self.mod._LEDGER_ROOT, None, 1)
+        cases = (
+            ("list item opening with prose",
+             f"- see [ bracketed prose and then [x]({root})",
+             "line 1 column 1", "a line that is none of the llms.txt "
+             "shapes"),
+            ("bracket in a block-quote line",
+             f"> see [ bracketed prose\n\n- [x]({root})",
+             "line 1 column 7", "a [ in a block-quote line"),
+        )
+        for label, bad, where, what in cases:
+            with self.subTest(case=label):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([("llms.txt", bad)],
+                                  {"llms.txt": [root_entry]})
+                self.assertIn(f"llms.txt: {where}: {what}",
+                              str(ctx.exception))
+
+    def test_non_ascii_whitespace_fakes_no_destination_end(self):
+        # Round 6, item 4 pinned that U+00A0 cannot end a bare URL run
+        # (the WHATWG cleaning removes only ASCII whitespace). Round 9
+        # reads no bare URL runs; the same guarantee now comes from the
+        # grammars (flip: admit non-ASCII characters in the llms.txt
+        # destination class or the robots.txt value class): a
+        # destination continued past U+00A0 is outside each grammar, so
+        # a clean root plus an invisible continuation is refused by line
+        # and column instead of consuming the root entry. The round 6
+        # synthetic .txt case stays, now refused as an output no grammar
+        # reads.
+        root = self.mod.GITHUB_REPO_ROOT
+        root_entry = (root, self.mod._LEDGER_ROOT, None, 1)
+        bad = f"see {root} /tree/main/ai now"
+        cases = (
+            ("synthetic.txt", bad, "line 1 column 24"),
+            ("llms.txt", f"- [x]({root} /tree/main/ai)",
+             f"line 1 column {len('- [x](') + len(root) + 1}"),
+            ("robots.txt", f"Sitemap: {root} /tree/main/ai\n",
+             "line 1 column 1"),
+        )
+        for rel, content, where in cases:
+            with self.subTest(output=rel):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([(rel, content)], {rel: [root_entry]})
+                self.assertIn(f"{rel}: {where}:", str(ctx.exception))
+
+    def test_prose_copy_of_a_ledgered_url_consumes_nothing(self):
+        # Round 5 (flip: let a prose text node consume a root or counted
+        # entry): a page whose only spelling of the root URL is visible
+        # prose fails with the entry unconsumed, because only a kind-other
+        # entry (a reviewed template text emission, such as the for-ai
+        # page's link text) is consumable as a text node; an equal
+        # kind-other entry does pass.
+        root = self.mod.GITHUB_REPO_ROOT
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.manifest(
+                [("synthetic/index.html", f"<p>{root}</p>")],
+                {"synthetic/index.html":
+                 [(root, self.mod._LEDGER_ROOT, None, 1)]})
+        self.assertIn("never reached", str(ctx.exception))
+        text = self.manifest(
+            [("synthetic/index.html", "<p>jposluns/guardrails</p>")],
+            {"synthetic/index.html": [self.other("jposluns/guardrails")]})
+        self.assertIn("| Corpus target | Website location | Link text |",
+                      text)
+
+    def test_unledgered_destination_is_named_with_its_position(self):
+        # Round 5 (flip: drop the leftover-destination refusal and fall
+        # through to the occurrence accounting): a token-bearing parsed
+        # destination no entry equals is refused BY NAME, with its parsed
+        # position and cleaned value, before any occurrence arithmetic, so
+        # the report points at the attribute, not at a decoded-view
+        # context excerpt.
+        tree = "https://github.com/jposluns/grc_library/tree/main/ai"
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.manifest([("synthetic/index.html",
+                            f'<a href="{tree}">probe</a>')])
+        message = str(ctx.exception)
+        self.assertIn("owner-token destination with no ledger entry",
+                      message)
+        self.assertIn("<a> href", message)
+        self.assertIn(tree, message)
+
+    def test_comment_and_end_tag_attribute_are_caught_structurally(self):
+        # Round 5, replacing the two round 4 subcases that verified the
+        # grant-mismatch flip through message wording alone (claude N4):
+        # an owner token in an output HTML comment and one in an end-tag
+        # attribute (which html.parser surfaces in no attribute or text
+        # node) are caught by the occurrence accounting itself: no parsed
+        # destination carries them, so the decoded-view count exceeds the
+        # granted count and the build fails naming the page, with no
+        # message wording needed to tell the rule fired.
+        end_tag_attr = ('<p>x</p data-note="https://github.com/jposluns'
+                        '/grc_library/blob/main/x.md">')
+        for markup in ("<!-- maintained by jposluns -->", end_tag_attr):
+            with self.subTest(markup=markup):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([("synthetic/index.html", markup)])
+                self.assertIn("synthetic/index.html", str(ctx.exception))
+                self.assertIn("jposluns", str(ctx.exception))
+
+    def test_css_escape_keeps_boundaries_at_the_decoded_position(self):
+        # Round 4 item 2 (flip: consume the CSS terminating whitespace
+        # with no boundary kept): the decoded character of a CSS hex
+        # escape is bounded on both sides, so a neighbouring decoded
+        # owner-name character cannot glue onto the token and hide it; and
+        # the \u{...} form accepts leading zeros (round 4, item 5, where
+        # the flip is the former 6-digit cap with no 0* prefix).
+        count = self.mod._owner_token_count
+        for text in ("see \\41 jposluns/grc_library",
+                     "jposluns\\2d /grc_library",
+                     "\\41 jposluns", "jposluns\\2d x",
+                     "\\u{06a}posluns", "\\u{000006a}posluns"):
+            with self.subTest(text=text):
+                self.assertEqual(count(text), 1)
+        for spelling in ("see \\41 jposluns/grc_library",
+                         "jposluns\\2d /grc_library"):
+            with self.subTest(spelling=spelling):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([("synthetic.txt", spelling)])
+                self.assertIn("synthetic.txt", str(ctx.exception))
+
+    def test_manifest_target_rejects_dot_segments_and_semicolons(self):
+        # Round 2 item 3 (flips: drop the dot-segment or the semicolon
+        # reject): a counted row can carry neither a dot segment (plain or
+        # percent-encoded, any case) nor a semicolon.
+        base = self.mod.GITHUB_BLOB_BASE
+        target = self.mod._manifest_target
+        self.assertEqual(target(base + "docs/portal.md"), "docs/portal.md")
+        self.assertEqual(target(base + "docs/x.y.md"), "docs/x.y.md")
+        for bad in ("../x.md", "./x.md", "a/../x.md", "a/./x.md",
+                    "%2e%2e/x.md", "a/%2E/x.md", "%2E%2e/x.md",
+                    "x.md;y", "x%3By.md"):
+            with self.subTest(target=bad):
+                self.assertIsNone(target(base + bad))
+
+    def test_ledger_row_mismatch_fails_both_ways(self):
+        # Round 2 item 1 (flips: drop either cross-check): every manifest
+        # row needs a counted ledger entry at its target and location, and
+        # every counted ledger entry needs its manifest row. Round 3 item 7
+        # sharpens the second direction: a counted entry whose URL never
+        # reached the output now fails the span match itself, naming the
+        # entry, before any row comparison.
+        blob = self.mod.GITHUB_BLOB_BASE + "no-such-row.md"
+        page = ("synthetic/index.html", f'<a href="{blob}">probe</a>')
+        with self.subTest(direction="row without a counted ledger entry"):
+            with self.assertRaises(self.mod.BuildError) as ctx:
+                self.manifest(
+                    [page], {"synthetic/index.html": [self.other(blob)]})
+            self.assertIn("no counted emission-ledger entry",
+                          str(ctx.exception))
+        with self.subTest(direction="counted ledger entry without a row"):
+            with self.assertRaises(self.mod.BuildError) as ctx:
+                self.manifest(
+                    [("synthetic/index.html", "<p>nothing here</p>")],
+                    {"synthetic/index.html":
+                     [self.counted("no-such-row.md")]})
+            self.assertIn("never reached the output", str(ctx.exception))
+        with self.subTest(direction="counted entry in an uncovered output"):
+            # A counted link that DOES reach a non-HTML output other than
+            # llms.txt matches its destination but has no manifest row,
+            # so the cross-check still fails it loudly. Round 9: the
+            # output is robots.txt, whose Sitemap value is a destination
+            # (a synthetic .bin output is read by no grammar any more).
+            with self.assertRaises(self.mod.BuildError) as ctx:
+                self.manifest(
+                    [("robots.txt", f"Sitemap: {blob}\n")],
+                    {"robots.txt": [self.counted("no-such-row.md")]})
+            self.assertIn("no manifest row", str(ctx.exception))
+
+    # -- round 9: allow-list grammars for every output that is neither
+    # HTML nor a stylesheet (residual item 4 in .web/build.py) ----------
+
+    def root_entry(self):
+        root = self.mod.GITHUB_REPO_ROOT
+        return root, (root, self.mod._LEDGER_ROOT, None, 1)
+
+    def refused(self, rel, content, ledger, where, what):
+        """Assert the manifest call fails with ``rel: where: what``."""
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.manifest([(rel, content)], ledger)
+        self.assertIn(f"{rel}: {where}: {what}", str(ctx.exception))
+
+    def passes(self, rel, content, ledger):
+        text = self.manifest([(rel, content)], ledger)
+        self.assertIn("| Corpus target | Website location | Link text |",
+                      text)
+
+    def test_round_eight_llms_counterexamples_are_refused(self):
+        # Round 8 review (a), round 9, item 1 (flip: let a line that is
+        # none of the llms.txt shapes through instead of refusing it):
+        # at 94c5481a4 each of these let text no renderer links consume
+        # the ROOT entry: an indented code block, a ~~~ fence, a
+        # reference definition, and a block-quoted reference definition
+        # whose search URL carries [x](ROOT). Each now fails by line and
+        # column, and an equal list-item link still passes.
+        root, entry = self.root_entry()
+        shapes = "a line that is none of the llms.txt shapes"
+        cases = (
+            ("indented code block", f"# T\n\n    - [x]({root})\n",
+             "line 3 column 1", shapes),
+            ("tilde fence", f"~~~\n- [x]({root})\n~~~\n",
+             "line 1 column 1", shapes),
+            ("reference definition", f"[r]: {root}\n",
+             "line 1 column 1", shapes),
+            ("block-quoted reference definition",
+             f"> [go]: https://github.com/search?q=[x]({root})\n",
+             "line 1 column 3", "a [ in a block-quote line"),
+        )
+        for label, bad, where, what in cases:
+            with self.subTest(case=label):
+                self.refused("llms.txt", bad, {"llms.txt": [entry]},
+                             where, what)
+        self.passes("llms.txt", f"# T\n\n- [x]({root})\n",
+                    {"llms.txt": [entry]})
+
+    def test_llms_prose_rule(self):
+        # Round 9, item 1 (flip: drop ( and ) from _LLMS_PROSE_REFUSED):
+        # no prose part (a heading, a block-quote line, a label or a
+        # note) holds a bracket or a parenthesis, so none can open link
+        # syntax a renderer reads; each fails by line and column.
+        root, entry = self.root_entry()
+        item = f"- [x]({root})"
+        note = item + ": see [x]."
+        cases = (
+            ("parenthesis in a block-quote line",
+             "> see (NOTICE.md).\n\n" + item, "line 1 column 7",
+             "a ( in a block-quote line"),
+            ("parenthesis in a heading", "# T )\n\n" + item,
+             "line 1 column 5", "a ) in a heading"),
+            ("bracket in a note", note,
+             f"line 1 column {note.rindex('[x]') + 1}",
+             "a [ in a list-item note"),
+            ("empty label", "- [](https://www.iso.org/)",
+             "line 1 column 4", "a link label with no text"),
+        )
+        for label, bad, where, what in cases:
+            with self.subTest(case=label):
+                self.refused("llms.txt", bad, {"llms.txt": [entry]},
+                             where, what)
+
+    def test_llms_prose_url_text_rule(self):
+        # Round 9, item 1 (flip: drop the URL-text check from
+        # _llms_prose): no prose part holds http:, https: or www. text
+        # (which a GFM renderer would autolink), so a destination is
+        # taken only from a list-item link; each fails by line and
+        # column even with no owner token in it.
+        item = "- [x](https://www.iso.org/)"
+        cases = (
+            ("https text in a block-quote line",
+             "> see https://www.iso.org/ now\n\n" + item,
+             "line 1 column 7", "URL text in a block-quote line"),
+            ("http text in a label",
+             "- [http://www.iso.org/](https://www.iso.org/)",
+             "line 1 column 4", "URL text in a link label"),
+            ("www text in a note", item + ": see www.example.com.",
+             f"line 1 column {len(item) + len(': see ') + 1}",
+             "URL text in a list-item note"),
+        )
+        for label, bad, where, what in cases:
+            with self.subTest(case=label):
+                self.refused("llms.txt", bad, None, where, what)
+
+    def test_llms_ampersand_and_ftp_text_are_refused(self):
+        # Round 10, item 4 (flips: drop "&" from _LLMS_ANYWHERE, or
+        # "ftp:" from _LLMS_URL_TEXT_RE): prose admitted & (so a
+        # character reference such as &#58; could spell a URL a
+        # renderer decodes and autolinks) and ftp: text. An & is now
+        # refused anywhere in llms.txt (the emitted text has none) and
+        # ftp: is URL text in every prose part; each fails by line and
+        # column with no owner token in sight (the real llms.txt, which
+        # holds no &, passes the same grammar in the real build and in
+        # test_real_llms_txt_matches_the_line_grammar).
+        item = "- [x](https://www.iso.org/)"
+        ref = "> see https&#58;//example.com/ now\n\n" + item
+        cases = (
+            ("a character reference spelling a URL", ref,
+             f"line 1 column {ref.index('&') + 1}",
+             "an & is outside the llms.txt grammar"),
+            ("an & in a heading", "# A & B\n\n" + item, "line 1 column 5",
+             "an & is outside the llms.txt grammar"),
+            ("ftp text in a block-quote line",
+             "> see ftp://example.com/ now\n\n" + item,
+             "line 1 column 7", "URL text in a block-quote line"),
+            ("ftp text in a note", item + ": see FTP://example.com.",
+             f"line 1 column {len(item) + len(': see ') + 1}",
+             "URL text in a list-item note"),
+        )
+        for label, bad, where, what in cases:
+            with self.subTest(case=label):
+                self.refused("llms.txt", bad, None, where, what)
+
+    def test_llms_destination_grammar(self):
+        # Round 9, item 1 (flip: widen _LLMS_DEST_RE to any http(s) run
+        # with no space or parenthesis): a list-item destination is
+        # https:// and RFC 3986 characters other than a parenthesis,
+        # bracket, quote, ampersand or space, then ")"; anything else
+        # fails by line and column. Round 10, item 4: an ampersand is
+        # now refused anywhere in llms.txt, so that case fails first at
+        # the same line and column as "an &".
+        root, entry = self.root_entry()
+        amp = "- [x](https://www.iso.org/?a=1&b=2)"
+        titled = f'- [x]({root} "t")'
+        cases = (
+            ("http destination", "- [x](http://www.iso.org/)",
+             "line 1 column 7", "a link destination that is not https://"),
+            ("ampersand in a destination", amp,
+             f"line 1 column {amp.index('&') + 1}",
+             "an & is outside the llms.txt grammar"),
+            ("link title", titled,
+             f"line 1 column {titled.index(' ', 6) + 1}",
+             "a character outside the link destination grammar"),
+            ("label not followed by (", "- [x] (https://www.iso.org/)",
+             "line 1 column 6", "a link label not followed by ("),
+            ("unclosed label", "- [x", "line 1 column 3",
+             "a link label that never closes"),
+        )
+        for label, bad, where, what in cases:
+            with self.subTest(case=label):
+                self.refused("llms.txt", bad, {"llms.txt": [entry]},
+                             where, what)
+
+    def test_llms_list_item_tail_grammar(self):
+        # Round 9, item 1 (flip: accept any text after a list-item
+        # link): after a link comes the line end, ", [" and a further
+        # link, ".", or ": " and a note; other text fails by line and
+        # column, and the emitted forms pass with every link consumed.
+        root, entry = self.root_entry()
+        prose = f"- [x]({root}) and more"
+        self.refused("llms.txt", prose, {"llms.txt": [entry]},
+                     f"line 1 column {prose.index(' and') + 1}",
+                     "text after a list-item link")
+        for good in (f"- [a]({root}), [b](https://www.iso.org/).",
+                     f"- [a]({root}): a note, with a comma.",
+                     f"- [a]({root})"):
+            with self.subTest(good=good):
+                self.passes("llms.txt", good, {"llms.txt": [entry]})
+
+    def test_robots_txt_reads_no_markdown(self):
+        # Round 8 review (b), round 9, item 2 (flip: let a robots.txt
+        # line that is none of its shapes through): at 94c5481a4 the
+        # shared reader, which models no code spans, read [x](ROOT)
+        # inside backticks in robots.txt as a Markdown link and consumed
+        # the ROOT entry. robots.txt is now read by its own line format:
+        # a comment is no destination, so the backticked link in a
+        # comment consumes nothing and the entry fails unconsumed; a
+        # backticked line is no robots.txt shape and fails by line and
+        # column; and a Sitemap value is the one destination.
+        root, entry = self.root_entry()
+        head = "User-agent: *\nAllow: /\n"
+        with self.subTest(case="backticked link in a comment"):
+            with self.assertRaises(self.mod.BuildError) as ctx:
+                self.manifest(
+                    [("robots.txt", f"# see `[x]({root})`\n{head}")],
+                    {"robots.txt": [entry]})
+            self.assertIn("never reached", str(ctx.exception))
+        with self.subTest(case="backticked link on its own line"):
+            self.refused("robots.txt", f"{head}`[x]({root})`\n",
+                         {"robots.txt": [entry]}, "line 3 column 1",
+                         "a line other than")
+        for bad, where in (
+                (f"{head}Sitemap: {root} # note\n", "line 3 column 1"),
+                (f"{head}Disallow: /x\n", "line 3 column 1"),
+                (f" {head}", "line 1 column 1")):
+            with self.subTest(bad=bad):
+                self.refused("robots.txt", bad, None, where,
+                             "a line other than")
+        self.passes("robots.txt", f"{head}Sitemap: {root}\n",
+                    {"robots.txt": [entry]})
+        self.assertEqual(
+            self.mod._output_destinations(
+                "robots.txt", self.mod.render_robots_txt()),
+            [("url", f"line {self.mod.render_robots_txt().count(chr(10))}"
+              f" Sitemap", f"{self.mod.SITE_BASE}/sitemap.xml")])
+
+    def test_headers_file_grammar(self):
+        # Round 9, item 2 (flip: admit a header name this build does
+        # not emit): _headers is rule paths, then indented header lines
+        # of the emitted names and detach lines; no emitted header
+        # carries a link destination, so a token in a header value
+        # consumes nothing.
+        root, entry = self.root_entry()
+        for good in (self.mod.render_headers_file(),
+                     self.mod.HEADERS_FILE + self.mod.DRAFT_HEADERS_BLOCK):
+            self.assertEqual(
+                self.mod._output_destinations("_headers", good), [])
+        cases = (
+            ("an unemitted header name",
+             "/*\n  Location: https://www.iso.org/\n", "line 2 column 3",
+             "a header name this build does not emit"),
+            ("a header line before any rule",
+             "  X-Frame-Options: DENY\n", "line 1 column 1",
+             "a line other than a rule path"),
+            ("a comment", "/*\n# note\n", "line 2 column 1",
+             "a line other than a rule path"),
+        )
+        for label, bad, where, what in cases:
+            with self.subTest(case=label):
+                self.refused("_headers", bad, None, where, what)
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.manifest(
+                [("_headers",
+                  f"/*\n  Content-Security-Policy: default-src {root}\n")],
+                {"_headers": [entry]})
+        self.assertIn("never reached", str(ctx.exception))
+
+    def test_redirects_output_is_exactly_the_redirects_file(self):
+        # Round 10, item 1 (codex ERROR, claude WARN; flip: restore the
+        # round 9 "source target 301" line grammar, which compared each
+        # literal target): Cloudflare Pages substitutes a source's * and
+        # :name into a target (:splat, :name) and reads a target opening
+        # // or /\ as another host, so each case below assembles an
+        # unledgered repository URL at serve time from a target that
+        # carries no owner token. _redirects now has no grammar: the
+        # output must equal REDIRECTS_FILE byte for byte, any other
+        # content fails by line and column of the first difference, and
+        # the exact file yields no destination. A ledgered root target,
+        # which round 9 admitted, is refused too.
+        root, entry = self.root_entry()
+        exact = self.mod.REDIRECTS_FILE
+        what = ("content other than the build's own REDIRECTS_FILE, byte "
+                "for byte, is outside the _redirects output")
+        first = exact.index("\n") + 1
+        cases = (
+            ("splat into a repository host",
+             "/repo/* https://github.com/:splat 301\n", "line 1 column 2"),
+            ("splat completing the owner",
+             "/r/* https://github.com/jpo:splat 301\n", "line 1 column 2"),
+            ("named placeholder",
+             "/gh/:owner/:repo https://github.com/:owner/:repo 301\n",
+             "line 1 column 2"),
+            ("protocol-relative target",
+             "/gh/* //github.com/:splat 301\n", "line 1 column 2"),
+            ("backslash host target",
+             "/gh/* /\\github.com/:splat 301\n", "line 1 column 2"),
+            ("a ledgered root target", f"/repo {root} 301\n",
+             "line 1 column 2"),
+            ("a rule appended to the exact file",
+             exact + "/r/* https://github.com/:splat 301\n",
+             f"line {exact.count(chr(10)) + 1} column 1"),
+            ("a truncated file", exact[:first], "line 2 column 1"),
+            ("a control character in the exact file",
+             exact[:first] + "\t" + exact[first:], "line 2 column 1"),
+        )
+        for label, bad, where in cases:
+            with self.subTest(case=label):
+                self.refused("_redirects", bad,
+                             {"_redirects": [entry]} if root in bad
+                             else None, where, what)
+        self.passes("_redirects", exact, None)
+        self.assertEqual(
+            self.mod._output_destinations("_redirects", exact), [])
+        self.assertFalse(hasattr(self.mod, "_REDIRECTS_LINE_RE"),
+                         "the general _redirects line grammar is dropped")
+        item = (REPO_ROOT / ".web" / "build.py").read_text(
+            encoding="utf-8").split(
+            "# (4) Every output that is neither HTML", 1)[1].split(
+            "(5) The", 1)[0]
+        item = " ".join(item.replace("#", " ").split())
+        for phrase in ("_redirects has NO grammar", "REDIRECTS_FILE byte "
+                       "for byte", ":splat", "// or /\\"):
+            self.assertIn(phrase, item)
+        self.assertNotIn("_redirects: source, target, 301", item)
+        self.assertNotIn("a redirect target", item)
+
+    def test_text_control_refusal_in_each_line_format_and_sitemap(self):
+        # Round 10, item 2 (flip: make _refuse_text_controls a no-op):
+        # the control-character refusal had no test outside llms.txt.
+        # One control character in each of robots.txt, _headers,
+        # security.txt and sitemap.xml fails naming that grammar, the
+        # code point and the line and column (a robots.txt comment
+        # admits any other character, so there the refusal is the only
+        # check that catches it).
+        sec = ".well-known/security.txt"
+        loc = "  <url><loc>https://grclibrary.ai/</loc></url>"
+        cases = (
+            ("robots.txt", "User-agent: *\n# a\x01b\n",
+             "line 2 column 4", "U+0001", "robots.txt"),
+            ("_headers", "/*\n  X-Frame-Options: DE\tNY\n",
+             "line 2 column 22", "U+0009", "_headers"),
+            (sec, "Policy: https://www.iso.org/\rx\n",
+             "line 1 column 29", "U+000D", "security.txt"),
+            ("sitemap.xml", self.sitemap(loc + "\x0b"),
+             f"line 3 column {len(loc) + 1}", "U+000B", "sitemap"),
+        )
+        for rel, bad, where, code, grammar in cases:
+            with self.subTest(rel=rel):
+                self.refused(rel, bad, None, where,
+                             f"a control character ({code}) is outside "
+                             f"the {grammar} grammar")
+
+    def test_output_with_no_grammar_must_be_a_pinned_copy(self):
+        # Round 10, item 3 (flip: skip a token-free output no grammar
+        # reads unread again, as at a69708fb3): an output no grammar
+        # reads passes only as one whole pin-verified copy, token-free
+        # or not, so a token-free synthetic output with no whole-copy
+        # entry fails naming line 1, and the same bytes pass once
+        # ledgered by _ledger_copied_output, which now ledgers a
+        # token-free copy with a zero-token entry.
+        content = "a token-free asset that no pin verified\n"
+        for label, ledger in (
+                ("no ledger entry", None),
+                ("an entry for other bytes",
+                 {"synthetic.txt": [(content + "x", self.mod._LEDGER_OTHER,
+                                     None, 0)]})):
+            with self.subTest(case=label):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([("synthetic.txt", content)], ledger)
+                self.assertIn("output synthetic.txt: line 1 column 1: no "
+                              "destination grammar reads this output",
+                              str(ctx.exception))
+        ledger = {}
+        self.mod._ledger_copied_output(ledger, "synthetic.txt",
+                                       content.encode("utf-8"))
+        self.assertEqual(
+            ledger, {"synthetic.txt": [(content, self.mod._LEDGER_OTHER,
+                                        None, 0)]})
+        self.passes("synthetic.txt", content, ledger)
+
+    def test_security_txt_grammar(self):
+        # Round 9, item 2 (flip: admit an RFC 9116 field this build does
+        # not emit): one emitted field per line; Contact, Encryption,
+        # Policy and Canonical values are the destinations, and a token
+        # in another field consumes nothing.
+        root, entry = self.root_entry()
+        self.assertEqual(
+            [value for _, _, value in self.mod._output_destinations(
+                ".well-known/security.txt", self.mod.SECURITY_TXT)],
+            [line.split(": ", 1)[1]
+             for line in self.mod.SECURITY_TXT.splitlines()
+             if line.split(":")[0] in ("Contact", "Encryption", "Policy",
+                                       "Canonical")])
+        rel = ".well-known/security.txt"
+        cases = (
+            ("an unemitted field", "Hiring: https://www.iso.org/\n",
+             "line 1 column 1", "a line other than one of the emitted"),
+            ("a space in a URI value", "Policy: https://www.iso.org/ x\n",
+             "line 1 column 9", "a space in a URI field value"),
+            ("a comment", "# note\n", "line 1 column 1",
+             "a line other than one of the emitted"),
+        )
+        for label, bad, where, what in cases:
+            with self.subTest(case=label):
+                self.refused(rel, bad, None, where, what)
+        self.passes(rel, f"Policy: {root}\n", {rel: [entry]})
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.manifest([(rel, f"Preferred-Languages: en, {root}\n")],
+                          {rel: [entry]})
+        self.assertIn("never reached", str(ctx.exception))
+
+    def sitemap(self, body, head=None):
+        return ((head if head is not None else
+                 '<?xml version="1.0" encoding="UTF-8"?>\n')
+                + '<urlset xmlns="http://www.sitemaps.org/schemas/'
+                'sitemap/0.9">\n' + body + "\n</urlset>\n")
+
+    def test_sitemap_cdata_counterexample_is_refused(self):
+        # Round 8 review (c), round 9, item 3: at 94c5481a4 a CDATA
+        # section split the owner token inside a <loc>, so the raw and
+        # decoded views held no token, the token-free sitemap was never
+        # read, and the XML a crawler reads carried an unledgered
+        # repository URL. A CDATA section is now refused by line and
+        # column before any XML parse.
+        line = ("  <url><loc>https://github.com/jpo<![CDATA[sluns]]>"
+                "/grc_library/tree/main/ai</loc></url>")
+        self.refused("sitemap.xml", self.sitemap(line), None,
+                     f"line 3 column {line.index('<![') + 1}",
+                     "a CDATA section")
+
+    def test_sitemap_declarations_and_references_are_refused(self):
+        # Round 9, item 3 (flips: drop "<!" or "&" from
+        # _XML_REFUSED_RE, or skip a token-free sitemap as round 8
+        # did): a DOCTYPE, a comment, an entity or character reference
+        # and a processing instruction after the declaration are each
+        # refused by line and column, with no owner token in sight.
+        loc = "  <url><loc>https://grclibrary.ai/</loc></url>"
+        decl = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        amp = "  <url><loc>https://grclibrary.ai/?a=1&amp;b=2</loc></url>"
+        ref = "  <url><loc>https://grclibrary.ai/&#106;</loc></url>"
+        cases = (
+            ("DOCTYPE", self.sitemap(loc, decl + "<!DOCTYPE urlset>\n"),
+             "line 2 column 1", "a DOCTYPE"),
+            ("comment", self.sitemap(loc + "\n  <!-- x -->"),
+             "line 4 column 3", "a comment"),
+            ("entity reference", self.sitemap(amp),
+             f"line 3 column {amp.index('&') + 1}",
+             "an entity or character reference"),
+            ("character reference", self.sitemap(ref),
+             f"line 3 column {ref.index('&') + 1}",
+             "an entity or character reference"),
+            ("processing instruction",
+             self.sitemap(loc, decl + "<?pi x?>\n"), "line 2 column 1",
+             "a processing instruction"),
+            ("no exact declaration", self.sitemap(loc, "<?xml version="
+                                                  "'1.0'?>\n"),
+             "line 1 column 1", "a document that does not open"),
+        )
+        for label, bad, where, what in cases:
+            with self.subTest(case=label):
+                self.refused("sitemap.xml", bad, None, where, what)
+
+    def test_sitemap_shape_and_loc_destinations(self):
+        # Round 9, item 3 (flips: stop refusing a url element that holds
+        # anything but one loc, or stop taking each loc as a
+        # destination): the sitemap is read with xml.etree.ElementTree
+        # and held to the urlset/url/loc shape; each loc consumes an
+        # equal entry, and any other shape fails by line and column.
+        root, entry = self.root_entry()
+        self.passes("sitemap.xml",
+                    self.sitemap(f"  <url><loc>{root}</loc></url>"),
+                    {"sitemap.xml": [entry]})
+        site = "https://grclibrary.ai/"
+        cases = (
+            ("a second child in a url",
+             self.sitemap(f"  <url><loc>{site}</loc><priority>1"
+                          f"</priority></url>"), "line 3 column 3",
+             "an element other than an attribute-free url"),
+            ("a loc attribute",
+             self.sitemap(f'  <url><loc id="x">{site}</loc></url>'),
+             "line 3 column 8", "an element other than an attribute-free "
+             "loc"),
+            ("whitespace in a loc",
+             self.sitemap(f"  <url><loc> {site} </loc></url>"),
+             "line 3 column 8", "an element other than an attribute-free "
+             "loc"),
+            ("another root",
+             '<?xml version="1.0" encoding="UTF-8"?>\n<feed><loc>'
+             f"{site}</loc></feed>\n", "line 2 column 1",
+             "a root other than an attribute-free sitemap urlset"),
+            ("text in a url", self.sitemap(f"  <url>x<loc>{site}</loc>"
+                                           f"</url>"), "line 3 column 3",
+             "an element other than an attribute-free url"),
+            ("not well-formed", self.sitemap(f"  <url><loc>{site}</url>"),
+             "line 3 column", "not well-formed XML"),
+        )
+        for label, bad, where, what in cases:
+            with self.subTest(case=label):
+                with self.assertRaises(self.mod.BuildError) as ctx:
+                    self.manifest([("sitemap.xml", bad)])
+                self.assertIn(f"sitemap.xml: {where}", str(ctx.exception))
+                self.assertIn(what, str(ctx.exception))
+
+    def test_output_with_no_grammar_passes_only_as_a_whole_copy(self):
+        # Round 9, residual item 4 (flip: let an output no grammar reads
+        # through unchecked): an output that is not HTML, a stylesheet,
+        # the sitemap or a line-format output (a copied asset such as
+        # assets/baseline/NOTICE.md) is read by no grammar, so its
+        # owner-token occurrences pass only as one whole pin-verified
+        # copy; a ledgered sibling link in such an output, which round 8
+        # read as a bare URL, fails naming the line and column.
+        sibling = "https://github.com/jposluns/guardrails"
+        content = f"see {sibling} for the rule-pack\n"
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.manifest([("synthetic.txt", content)],
+                          {"synthetic.txt": [self.other(sibling)]})
+        self.assertIn("output synthetic.txt: line 1 column 24: no "
+                      "destination grammar reads this output",
+                      str(ctx.exception))
+        copy = "# Notice\n\nMaintained by jposluns; see [x](https://x/).\n"
+        rel = "assets/baseline/NOTICE.md"
+        text = self.manifest([(rel, copy)],
+                             {rel: [(copy, self.mod._LEDGER_OTHER, None, 1)]})
+        self.assertIn("| Corpus target | Website location | Link text |",
+                      text)
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.manifest([(rel, copy + "jposluns\n")],
+                          {rel: [(copy, self.mod._LEDGER_OTHER, None, 1)]})
+        self.assertIn(f"output {rel}: line 3 column", str(ctx.exception))
+
+    def _relinked_body(self, onsite, kept):
+        """One draft narrative body citing ``onsite`` (a page in the
+        lookup) and ``kept`` (no page), rendered and recorded as
+        render_narrative_body does, then adapted by draft_narrative_body;
+        returns the adapted body and the pending emissions left."""
+        self.mod._PENDING_REPO_EMISSIONS.clear()
+        self.addCleanup(self.mod._PENDING_REPO_EMISSIONS.clear)
+        source_rel = "executive/synthetic-brief.md"
+        links = self.mod._render_narrative_links(
+            f"See [board guide](../{onsite}) and [overview](../{kept}).",
+            source_rel)
+        body = self.mod.draft_narrative_body(
+            f"<p>{links}</p>", source_rel, {onsite: {"domain": "ai"}})
+        return body, list(self.mod._PENDING_REPO_EMISSIONS)
+
+    def test_relinked_narrative_citation_leaves_no_ledger_entry(self):
+        # Replay onto main 6bd4f53d0 (flip: drop the _retract_repo_emission
+        # call in draft_narrative_body's relink, and the blob URL
+        # render_narrative_body recorded stays among the pending entries
+        # although the page now carries the on-site URL; in the build that
+        # stale entry is the "never reached the output" failure on
+        # decisions/briefs/brief-ai-data-governance/index.html): a body
+        # citation relinked to its on-site document page (site triage
+        # F30) withdraws its own counted entry, and a citation with no
+        # page keeps its blob link and its entry.
+        onsite, kept = "ai/guide-ai-board-oversight.md", "README.md"
+        body, pending = self._relinked_body(onsite, kept)
+        self.assertNotIn(self.mod.GITHUB_BLOB_BASE + onsite, body)
+        self.assertIn(self.mod.GITHUB_BLOB_BASE + kept, body)
+        self.assertEqual([e[:3] for e in pending],
+                         [(self.mod.GITHUB_BLOB_BASE + kept,
+                           self.mod._LEDGER_COUNTED, kept)])
+        rel = "synthetic/index.html"
+        text = self.manifest([(rel, body.replace("{{BASE}}", ""))],
+                             {rel: pending})
+        self.assertIn(f"| {kept} | /synthetic/ |", text)
+        self.assertNotIn(f"| {onsite} |", text)
+
+    def test_retracting_an_unrecorded_emission_fails(self):
+        # Replay onto main 6bd4f53d0 (flip: let _retract_repo_emission
+        # return when no pending entry is equal): a relink whose blob
+        # URL was never recorded fails the build instead of passing
+        # silently, so a retraction can only withdraw a recorded entry.
+        self.mod._PENDING_REPO_EMISSIONS.clear()
+        self.addCleanup(self.mod._PENDING_REPO_EMISSIONS.clear)
+        onsite = "ai/guide-ai-board-oversight.md"
+        url = self.mod.GITHUB_BLOB_BASE + onsite
+        body = (f'<p><a href="{url}" target="_blank" rel="noopener">'
+                "board guide</a></p>")
+        with self.assertRaises(self.mod.BuildError) as ctx:
+            self.mod.draft_narrative_body(
+                body, "executive/synthetic-brief.md",
+                {onsite: {"domain": "ai"}})
+        self.assertIn("retraction of a repository emission that was never "
+                      "recorded", str(ctx.exception))
+
+    def test_document_cited_twice_is_retracted_once_per_citation(self):
+        # Link-guard replay round 2, note 2 (flip: let _retract_repo_emission
+        # remove every pending entry equal to the key, not the first one):
+        # one on-site document cited twice in one body records two equal
+        # entries, and each relinked citation withdraws exactly one, so
+        # the buffer ends empty. A retraction that removed both equal
+        # entries leaves too few: the direct retraction below keeps one
+        # of two, and an equal entry recorded elsewhere on the page (a
+        # link that stays) survives the body's two retractions.
+        self.mod._PENDING_REPO_EMISSIONS.clear()
+        self.addCleanup(self.mod._PENDING_REPO_EMISSIONS.clear)
+        onsite = "ai/guide-ai-board-oversight.md"
+        blob = self.mod.GITHUB_BLOB_BASE + onsite
+        key = (blob, self.mod._LEDGER_COUNTED, onsite)
+        source_rel = "executive/synthetic-brief.md"
+        lookup = {onsite: {"domain": "ai"}}
+        text = (f"See [board guide](../{onsite}) and again "
+                f"[the same guide](../{onsite}).")
+        body = self.mod.draft_narrative_body(
+            "<p>" + self.mod._render_narrative_links(text, source_rel)
+            + "</p>", source_rel, lookup)
+        self.assertNotIn(blob, body)
+        self.assertEqual(body.count('<a href="'), 2)
+        self.assertEqual(self.mod._PENDING_REPO_EMISSIONS, [])
+        self.mod.repo_blob_url(onsite)
+        self.mod.repo_blob_url(onsite)
+        self.mod._retract_repo_emission(*key)
+        self.assertEqual([e[:3] for e in self.mod._PENDING_REPO_EMISSIONS],
+                         [key])
+        self.mod._PENDING_REPO_EMISSIONS.clear()
+        self.mod.repo_blob_url(onsite)
+        self.mod.draft_narrative_body(
+            "<p>" + self.mod._render_narrative_links(text, source_rel)
+            + "</p>", source_rel, lookup)
+        self.assertEqual([e[:3] for e in self.mod._PENDING_REPO_EMISSIONS],
+                         [key])
+
+    def test_retraction_key_reads_the_unescaped_href_once(self):
+        # Link-guard replay round 2, note 1 (flip: take the target from
+        # the escaped href while the emission is unescaped): a page whose
+        # path carries a character the href escapes (``&`` as ``&amp;``)
+        # is found in the lookup and its recorded entry is withdrawn,
+        # because the emission and the target are both read from the one
+        # unescaped value. The mixed key looked up ``a&amp;b.md``, missed
+        # the page and left the blob link and its entry in place.
+        self.mod._PENDING_REPO_EMISSIONS.clear()
+        self.addCleanup(self.mod._PENDING_REPO_EMISSIONS.clear)
+        onsite = "ai/a&b.md"
+        url = self.mod.repo_blob_url(onsite)
+        body = self.mod.draft_narrative_body(
+            f'<p><a href="{self.mod._esc(url)}" target="_blank" '
+            'rel="noopener">guide</a></p>',
+            "executive/synthetic-brief.md", {onsite: {"domain": "ai"}})
+        self.assertNotIn(self.mod._esc(url), body)
+        self.assertIn(
+            self.mod._esc(self.mod._doc_page_url("{{BASE}}", onsite)), body)
+        self.assertEqual(self.mod._PENDING_REPO_EMISSIONS, [])
+
+
 class DraftSiteRenderTests(unittest.TestCase):
     """Tests over one shared full-site render (the heavy fixture)."""
 
@@ -931,6 +2640,14 @@ class DraftSiteRenderTests(unittest.TestCase):
         cls.mod = _load_build()
         cls.figures = cls.mod.compute_figures()
         cls.site_pages = cls.mod.render_site(cls.figures)
+        # The canonical render's own emission ledger, bound to its result
+        # (round 3, item 8: a fabricated variant rendered through the same
+        # module gets a private ledger of its own and can no longer pollute
+        # this one); the guard tests pass a copy per call (_ledgered).
+        cls.site_ledger = {
+            rel: list(entries)
+            for rel, entries in cls.site_pages.repo_ledger.items()
+        }
         # The promoted tree has the empty prefix, so the variant's own render
         # (not a prefix filter) is the page-set fixture; the discovery files
         # render_site appends on top are reached through by_rel.
@@ -949,6 +2666,37 @@ class DraftSiteRenderTests(unittest.TestCase):
         cls.by_rel = {}
         for rel, content in cls.site_pages:
             cls.by_rel.setdefault(rel, []).append(content)
+
+    # -- emission-ledger helpers (link-guard follow-up rounds 2 and 3): a
+    # manifest call runs over a copy of the canonical render's own ledger,
+    # plus one synthetic page's entries where the test's page legitimately
+    # links the repository, exactly as a real new emission would through
+    # repo_blob_url or a template source. The ledger is passed explicitly
+    # (round 3, item 8); _ledgered binds it onto the module's manifest
+    # call for the with-block, so each existing call site reads as before
+    # while no module-level ledger exists any more. -------------------------
+
+    def _ledger_copy(self, rel=None, entries=None):
+        ledger = {k: list(v) for k, v in self.site_ledger.items()}
+        if rel is not None:
+            ledger[rel] = entries
+        return ledger
+
+    def _ledgered(self, rel=None, entries=None):
+        return mock.patch.object(
+            self.mod, "render_corpus_link_manifest",
+            functools.partial(self.mod.render_corpus_link_manifest,
+                              ledger=self._ledger_copy(rel, entries)),
+        )
+
+    def _counted_entry(self, target):
+        url = self.mod.GITHUB_BLOB_BASE + target
+        return (url, self.mod._LEDGER_COUNTED, target,
+                self.mod._owner_token_count(url))
+
+    def _other_entry(self, emitted):
+        return (emitted, self.mod._LEDGER_OTHER, None,
+                self.mod._owner_token_count(emitted))
 
     # -- 1. the promoted root (pre-promotion: the frozen root; the
     # byte-identical-root test retired with the old root tree and is replaced
@@ -988,6 +2736,33 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.assertIn(f"<loc>{loc}</loc>", sitemap)
         self.assertNotIn("404.html", sitemap)
         self.assertIn("https://grclibrary.ai/for-ai/", self.by_rel["llms.txt"][0])
+
+    def test_real_llms_txt_matches_the_line_grammar(self):
+        # Round 8, item 1 held the rendered llms.txt to the subset;
+        # round 9, item 1 holds it to the line grammar (flip: restore
+        # the summary's "(see NOTICE.md)" wording, whose parentheses are
+        # outside the prose rule): the rendered llms.txt holds no
+        # backtick, backslash or <, its only > characters open "> "
+        # block-quote lines (the llmstxt.org summary), every line is one
+        # admitted shape, every "](" in it opens a list-item link the
+        # grammar reads, and it yields its manifest rows.
+        text = self.by_rel["llms.txt"][0]
+        for ch in ("`", "\\", "<"):
+            self.assertNotIn(ch, text)
+        quoted = [line for line in text.splitlines() if ">" in line]
+        self.assertTrue(quoted)
+        for line in quoted:
+            self.assertTrue(line.startswith("> "), line)
+            self.assertEqual(line.count(">"), 1, line)
+        for line in text.splitlines():
+            self.assertTrue(
+                line == "" or line.startswith(("# ", "## ", "> ", "- [")),
+                line)
+        links = self.mod._llms_links("llms.txt", text)
+        self.assertEqual(len(links), text.count("]("))
+        for _, dest, _ in links:
+            self.assertTrue(dest.startswith("https://"), dest)
+        self.assertTrue(self.mod._llms_markdown_rows(text))
 
     def test_no_page_links_the_draft(self):
         for rel, content in self.site_pages:
@@ -1046,13 +2821,15 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(set(listed), expected)
 
     def test_uncounted_repository_link_fails_the_build(self):
-        # Round-2 fix 3: a repository link in any emitted output (HTML or
-        # not) that the manifest scan does not count (a raw, tree or other
-        # form) would bypass gate 75, so it is a BuildError; the real render
-        # passes (every emitted repository link is counted or the bare root).
+        # Round-2 fix 3, rebuilt at link-guard follow-up round 2 as the
+        # emission-ledger allow-list: an owner-token occurrence in any
+        # emitted output (HTML or not) that the ledger does not cover is a
+        # BuildError, whatever its spelling; the real render passes (every
+        # emitted repository link is routed through the ledger).
         variant = self.mod.indexable_variant()
-        self.mod.render_corpus_link_manifest(
-            self.figures, variant, self.site_pages)
+        with self._ledgered():
+            self.mod.render_corpus_link_manifest(
+                self.figures, variant, self.site_pages)
         bad_links = (
             "https://github.com/jposluns/grc_library/tree/main/ai",
             "https://raw.githubusercontent.com/jposluns/grc_library/main/taxonomy.yml",
@@ -1064,7 +2841,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         for bad in bad_links:
             for rel, template in synthetic_pages:
                 with self.subTest(link=bad, page=rel):
-                    with self.assertRaises(self.mod.BuildError) as ctx:
+                    with self._ledgered(), \
+                            self.assertRaises(self.mod.BuildError) as ctx:
                         self.mod.render_corpus_link_manifest(
                             self.figures, variant,
                             list(self.site_pages)
@@ -1072,21 +2850,25 @@ class DraftSiteRenderTests(unittest.TestCase):
                         )
                     self.assertIn(bad, str(ctx.exception))
                     self.assertIn(rel, str(ctx.exception))
-        # A blob link in an output the scan does NOT read (non-HTML) is
-        # uncounted too; in a scanned HTML page the same link is counted as a
-        # manifest row instead (and gate 75 then resolves it).
+        # A blob link in a non-HTML output gains no manifest row, so an
+        # unledgered one fails; in an HTML page, the same link ledgered as a
+        # counted emission is counted as a manifest row (and gate 75 then
+        # resolves it).
         blob = self.mod.GITHUB_BLOB_BASE + "no-such-file.md"
-        with self.assertRaises(self.mod.BuildError) as ctx:
+        with self._ledgered(), \
+                self.assertRaises(self.mod.BuildError) as ctx:
             self.mod.render_corpus_link_manifest(
                 self.figures, variant,
                 list(self.site_pages) + [("synthetic.txt", f"see {blob}")],
             )
         self.assertIn(blob, str(ctx.exception))
-        text = self.mod.render_corpus_link_manifest(
-            self.figures, variant,
-            list(self.site_pages)
-            + [("synthetic/index.html", f'<a href="{blob}">probe</a>')],
-        )
+        with self._ledgered("synthetic/index.html",
+                            [self._counted_entry("no-such-file.md")]):
+            text = self.mod.render_corpus_link_manifest(
+                self.figures, variant,
+                list(self.site_pages)
+                + [("synthetic/index.html", f'<a href="{blob}">probe</a>')],
+            )
         self.assertIn("| no-such-file.md | /synthetic/ |", text)
 
     def test_manifest_scan_counts_only_the_indexable_variant_pages(self):
@@ -1107,7 +2889,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         )
         with mock.patch.object(
             self.mod, "VARIANTS", self.mod.VARIANTS + (staging,)
-        ):
+        ), self._ledgered("v9/probe/index.html",
+                          [self._counted_entry("taxonomy.yml")]):
             text = self.mod.render_corpus_link_manifest(
                 self.figures, variant, list(self.site_pages) + [staged_page])
         self.assertNotIn("/v9/", text)
@@ -1120,11 +2903,13 @@ class DraftSiteRenderTests(unittest.TestCase):
         # never split into a counted row and an uncounted link.
         variant = self.mod.indexable_variant()
         blob = self.mod.GITHUB_BLOB_BASE + "docs/probe(v2).md"
-        text = self.mod.render_corpus_link_manifest(
-            self.figures, variant,
-            list(self.site_pages)
-            + [("synthetic/index.html", f'<a href="{blob}">probe</a>')],
-        )
+        with self._ledgered("synthetic/index.html",
+                            [self._counted_entry("docs/probe(v2).md")]):
+            text = self.mod.render_corpus_link_manifest(
+                self.figures, variant,
+                list(self.site_pages)
+                + [("synthetic/index.html", f'<a href="{blob}">probe</a>')],
+            )
         self.assertIn("| docs/probe(v2).md | /synthetic/ | probe |", text)
 
     def test_non_canonical_repository_link_spellings_fail_the_build(self):
@@ -1141,7 +2926,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         )
         for bad in spellings:
             with self.subTest(link=bad):
-                with self.assertRaises(self.mod.BuildError) as ctx:
+                with self._ledgered(), \
+                        self.assertRaises(self.mod.BuildError) as ctx:
                     self.mod.render_corpus_link_manifest(
                         self.figures, variant,
                         list(self.site_pages)
@@ -1150,17 +2936,28 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertIn(bad, str(ctx.exception))
 
     def test_sibling_repository_link_does_not_trigger_the_check(self):
-        # Round-3 fix 2: a boundary is required after the repository name,
-        # so a link to the grc_library_ref sibling is not read as this
-        # repository and raises nothing.
+        # Round-3 fix 2, re-scoped at link-guard follow-up round 2: a link
+        # to the grc_library_ref sibling never gains a manifest row (the
+        # repository segment must be exactly grc_library). The allow-list
+        # counts the OWNER token, so a same-owner sibling link is itself an
+        # emission: ledgered (kind other) it passes and stays out of the
+        # manifest; unledgered it fails like any other owner occurrence.
+        # Round 9: the link is an HTML anchor (a synthetic .txt output is
+        # read by no grammar any more), which keeps the same guarantee.
         variant = self.mod.indexable_variant()
         sibling = ("https://github.com/jposluns/grc_library_ref"
                    "/blob/main/README.md")
-        text = self.mod.render_corpus_link_manifest(
-            self.figures, variant,
-            list(self.site_pages) + [("synthetic.txt", f"see {sibling}")],
-        )
+        page = ("synthetic/index.html", f'<a href="{sibling}">ref</a>')
+        with self._ledgered("synthetic/index.html",
+                            [self._other_entry(sibling)]):
+            text = self.mod.render_corpus_link_manifest(
+                self.figures, variant, list(self.site_pages) + [page],
+            )
         self.assertNotIn("grc_library_ref", text)
+        with self._ledgered(), self.assertRaises(self.mod.BuildError):
+            self.mod.render_corpus_link_manifest(
+                self.figures, variant, list(self.site_pages) + [page],
+            )
 
     def test_single_quoted_counted_href_produces_a_correct_manifest_row(self):
         # Round-3 fix 2: a single quote ends a target in both scans, so a
@@ -1168,12 +2965,14 @@ class DraftSiteRenderTests(unittest.TestCase):
         # anchor text, never a garbled row.
         variant = self.mod.indexable_variant()
         blob = self.mod.GITHUB_BLOB_BASE + "no-such-quoted.md"
-        text = self.mod.render_corpus_link_manifest(
-            self.figures, variant,
-            list(self.site_pages)
-            + [("synthetic/index.html",
-                f"<a href='{blob}'>quoted probe</a>")],
-        )
+        with self._ledgered("synthetic/index.html",
+                            [self._counted_entry("no-such-quoted.md")]):
+            text = self.mod.render_corpus_link_manifest(
+                self.figures, variant,
+                list(self.site_pages)
+                + [("synthetic/index.html",
+                    f"<a href='{blob}'>quoted probe</a>")],
+            )
         self.assertIn(
             "| no-such-quoted.md | /synthetic/ | quoted probe |", text)
 
@@ -1183,24 +2982,32 @@ class DraftSiteRenderTests(unittest.TestCase):
         # these was counted as README.md while the real target never
         # resolved. The parser takes the attribute value whole, so each is
         # counted as its own (unresolvable) target and fails gate 75 instead
-        # of passing.
+        # of passing. Round 5: a backslash in an http(s) URL is WHATWG-read
+        # as a slash, so the backslash tail is counted as the slash target
+        # the browser resolves (and the emitted entry carries that form).
         variant = self.mod.indexable_variant()
-        for tail in (")x", ">x", "\\x", "'x"):
+        for tail, counted_tail in ((")x", ")x"), (">x", ">x"),
+                                   ("\\x", "/x"), ("'x", "'x")):
             with self.subTest(tail=tail):
-                target = "README.md" + tail
-                blob = self.mod.GITHUB_BLOB_BASE + target
-                text = self.mod.render_corpus_link_manifest(
-                    self.figures, variant,
-                    list(self.site_pages)
-                    + [("synthetic/index.html",
-                        f'<a href="{blob}">probe</a>')],
-                )
+                target = "README.md" + counted_tail
+                blob = self.mod.GITHUB_BLOB_BASE + "README.md" + tail
+                with self._ledgered("synthetic/index.html",
+                                    [self._counted_entry(target)]):
+                    text = self.mod.render_corpus_link_manifest(
+                        self.figures, variant,
+                        list(self.site_pages)
+                        + [("synthetic/index.html",
+                            f'<a href="{blob}">probe</a>')],
+                    )
                 self.assertIn(f"| {target} | /synthetic/ | probe |", text)
 
     def test_dot_suffixed_sibling_repository_is_not_matched(self):
-        # Round-4 fix 3: grc_library.ref passed the old (?![\w-]) boundary
-        # and was wrongly rejected; a dot now bounds the repository name too,
-        # so every grc_library-prefixed sibling passes untouched.
+        # Round-4 fix 3, re-scoped at link-guard follow-up round 2: no
+        # grc_library-prefixed sibling repository ever gains a manifest row
+        # (the repository segment must be exactly grc_library); ledgered as
+        # a deliberate same-owner emission (kind other), each passes.
+        # Round 9: each link is an HTML anchor (a synthetic .txt output is
+        # read by no grammar any more), which keeps the same guarantee.
         variant = self.mod.indexable_variant()
         for sibling in (
             "https://github.com/jposluns/grc_library.ref/blob/main/README.md",
@@ -1208,20 +3015,23 @@ class DraftSiteRenderTests(unittest.TestCase):
             "https://github.com/jposluns/grc_libraryX/blob/main/README.md",
         ):
             with self.subTest(link=sibling):
-                text = self.mod.render_corpus_link_manifest(
-                    self.figures, variant,
-                    list(self.site_pages)
-                    + [("synthetic.txt", f"see {sibling}")],
-                )
+                with self._ledgered("synthetic/index.html",
+                                    [self._other_entry(sibling)]):
+                    text = self.mod.render_corpus_link_manifest(
+                        self.figures, variant,
+                        list(self.site_pages)
+                        + [("synthetic/index.html",
+                            f'<a href="{sibling}">ref</a>')],
+                    )
                 for name in ("grc_library.ref", "grc_library-x",
                              "grc_libraryX"):
                     self.assertNotIn(name, text)
 
     def test_evasive_spellings_of_an_uncounted_link_fail_the_build(self):
-        # Round-4 fix 3: round 3 found that backslash, port, userinfo,
-        # JSON-encoded and scheme-less spellings passed the scheme-anchored
-        # regex; the occurrence scan now reads the host wherever it appears,
-        # after normalizing backslash and JSON-encoded separators.
+        # Round-4 fix 3, rebuilt at link-guard follow-up round 2: backslash,
+        # port, userinfo, JSON-encoded and scheme-less spellings all carry
+        # the owner token in the decoded view, so each fails the allow-list
+        # with no ledger entry, in an HTML page and a text output alike.
         variant = self.mod.indexable_variant()
         spellings = (
             "https://github.com\\jposluns\\grc_library\\tree\\main\\ai",
@@ -1240,15 +3050,261 @@ class DraftSiteRenderTests(unittest.TestCase):
         for bad in spellings:
             for rel, template in synthetic_pages:
                 with self.subTest(link=bad, page=rel):
-                    with self.assertRaises(self.mod.BuildError) as ctx:
+                    with self._ledgered(), \
+                            self.assertRaises(self.mod.BuildError) as ctx:
                         self.mod.render_corpus_link_manifest(
                             self.figures, variant,
                             list(self.site_pages)
                             + [(rel, template.format(bad))],
                         )
                     self.assertIn(rel, str(ctx.exception))
-                    # The excerpt is reported separator-normalized.
-                    self.assertIn("tree/main/ai", str(ctx.exception))
+                    # The excerpt reports the decoded view around the token.
+                    self.assertIn("jposluns", str(ctx.exception))
+
+    def test_attribute_values_beyond_href_and_src_are_walked(self):
+        # Link-guard follow-up round 1, kept at round 2: a counted canonical
+        # URL in a form action, an img srcset candidate, a formaction, a
+        # meta refresh content or a data-* attribute gains a manifest row
+        # (ledgered as the counted emission it is), and an uncounted (tree)
+        # form in the same attributes fails the allow-list naming the page.
+        variant = self.mod.indexable_variant()
+        blob = self.mod.GITHUB_BLOB_BASE + "no-such-attr.md"
+        counted_markup = (
+            f'<form action="{blob}"></form>',
+            f'<img srcset="/x.png 1x, {blob} 2x">',
+            f'<button formaction="{blob}">go</button>',
+            f'<meta http-equiv="refresh" content="0; url={blob}">',
+            f'<div data-href="{blob}"></div>',
+        )
+        for markup in counted_markup:
+            with self.subTest(markup=markup):
+                with self._ledgered("synthetic/index.html",
+                                    [self._counted_entry("no-such-attr.md")]):
+                    text = self.mod.render_corpus_link_manifest(
+                        self.figures, variant,
+                        list(self.site_pages)
+                        + [("synthetic/index.html", markup)],
+                    )
+                self.assertIn("| no-such-attr.md | /synthetic/ |", text)
+        tree = "https://github.com/jposluns/grc_library/tree/main/ai"
+        bad_markup = (
+            f'<form action="{tree}"></form>',
+            f'<img srcset="/x.png 1x, {tree} 2x">',
+            f'<div data-href="{tree}"></div>',
+        )
+        for markup in bad_markup:
+            with self.subTest(markup=markup):
+                with self._ledgered(), \
+                        self.assertRaises(self.mod.BuildError) as ctx:
+                    self.mod.render_corpus_link_manifest(
+                        self.figures, variant,
+                        list(self.site_pages)
+                        + [("synthetic/index.html", markup)],
+                    )
+                self.assertIn("synthetic/index.html", str(ctx.exception))
+                self.assertIn(tree, str(ctx.exception))
+
+    def test_whitespace_and_separator_href_spellings_fail_the_build(self):
+        # Link-guard follow-up round 1, rebuilt at round 2: a newline or tab
+        # smuggled into an href, a character-referenced href, and the
+        # backslash and JSON-encoded-slash spellings of a counted URL all
+        # resolve to the owner token in the decoded view (whitespace and
+        # backslashes removed, removal points kept as boundaries), so each
+        # fails the allow-list with no ledger entry.
+        variant = self.mod.indexable_variant()
+        counted = self.mod.GITHUB_BLOB_BASE + "CONTRIBUTING.md"
+        cases = (
+            ("https://github.com/jposluns/\ngrc_library/tree/main/ai",
+             "tree/main/ai"),
+            ("https://github.com/jposluns/grc_li\tbrary/tree/main/ai",
+             "tree/main/ai"),
+            ("https:&#47;&#47;github.com&#47;jposluns&#47;grc_library"
+             "&#47;tree&#47;main&#47;ai", "tree/main/ai"),
+            # The backslash spellings report as the slash-read URL
+            # (round 5: WHATWG reads a backslash in an http(s) URL as a
+            # slash before any comparison).
+            (counted.replace("/", "\\"), "CONTRIBUTING.md"),
+            (counted.replace("/", "\\/"), "CONTRIBUTING.md"),
+        )
+        for href, reported in cases:
+            with self.subTest(href=href):
+                with self._ledgered(), \
+                        self.assertRaises(self.mod.BuildError) as ctx:
+                    self.mod.render_corpus_link_manifest(
+                        self.figures, variant,
+                        list(self.site_pages)
+                        + [("synthetic/index.html",
+                            f'<a href="{href}">probe</a>')],
+                    )
+                self.assertIn("synthetic/index.html", str(ctx.exception))
+                self.assertIn("jposluns", str(ctx.exception))
+                self.assertIn(reported, str(ctx.exception))
+
+    def test_encoded_repository_spellings_in_text_fail_the_build(self):
+        # Link-guard follow-up round 1, kept at round 2 (flip: skip the
+        # character-reference or percent decode in _decoded_token_view):
+        # character references (&#47;, &sol;, &#95;) in page text and
+        # percent-encoded owner or repository spellings (%6A, %5F) in a
+        # non-HTML output are decoded before the token count, so each
+        # fails the build.
+        variant = self.mod.indexable_variant()
+        cases = (
+            ("synthetic/index.html",
+             "<p>see https:&#47;&#47;github.com&#47;jposluns&#47;"
+             "grc_library&#47;tree&#47;main&#47;ai</p>"),
+            ("synthetic/index.html",
+             "<p>see https:&sol;&sol;github.com&sol;jposluns&sol;"
+             "grc_library&sol;tree&sol;main&sol;ai</p>"),
+            ("synthetic/index.html",
+             "<p>see https://github.com/jposluns/grc&#95;library/"
+             "tree/main/ai</p>"),
+            ("synthetic.txt",
+             "see https://github.com/%6Aposluns/grc_library/tree/main/ai"),
+            ("synthetic.txt",
+             "see https://github.com/jposluns/grc%5Flibrary/tree/main/ai"),
+        )
+        for rel, content in cases:
+            with self.subTest(page=rel, content=content):
+                with self._ledgered(), \
+                        self.assertRaises(self.mod.BuildError) as ctx:
+                    self.mod.render_corpus_link_manifest(
+                        self.figures, variant,
+                        list(self.site_pages) + [(rel, content)],
+                    )
+                self.assertIn(rel, str(ctx.exception))
+                self.assertIn("tree/main/ai", str(ctx.exception))
+
+    def test_prefix_residual_after_a_counted_url_or_the_root_fails(self):
+        # Link-guard follow-up round 1, kept at round 2: a counted canonical
+        # URL or the repository root with an appended run (;missing) in an
+        # output with no ledger entry still carries the owner token, so the
+        # allow-list fails it; no prefix excusal exists any more.
+        variant = self.mod.indexable_variant()
+        counted = self.mod.GITHUB_BLOB_BASE + "CONTRIBUTING.md"
+        for content in (
+            f"see {counted};missing for the source",
+            f"see {self.mod.GITHUB_REPO_ROOT};missing for the source",
+        ):
+            with self.subTest(content=content):
+                with self._ledgered(), \
+                        self.assertRaises(self.mod.BuildError) as ctx:
+                    self.mod.render_corpus_link_manifest(
+                        self.figures, variant,
+                        list(self.site_pages) + [("synthetic.txt", content)],
+                    )
+                self.assertIn("synthetic.txt", str(ctx.exception))
+                self.assertIn(";missing", str(ctx.exception))
+
+    def test_manifest_link_text_excludes_visually_hidden_spans(self):
+        # Link-guard follow-up round 1, small item (flip: let handle_data
+        # keep vh-span text): the vh span's hidden hint is not the link text
+        # a reader sees, so the row's link-text cell excludes it.
+        variant = self.mod.indexable_variant()
+        blob = self.mod.GITHUB_BLOB_BASE + "no-such-vh.md"
+        with self._ledgered("synthetic/index.html",
+                            [self._counted_entry("no-such-vh.md")]):
+            text = self.mod.render_corpus_link_manifest(
+                self.figures, variant,
+                list(self.site_pages)
+                + [("synthetic/index.html",
+                    f'<a href="{blob}">probe'
+                    '<span class="vh"> (opens in a new tab)</span></a>')],
+            )
+        self.assertIn("| no-such-vh.md | /synthetic/ | probe |", text)
+
+    def test_first_link_text_wins_for_a_repeated_target(self):
+        # Link-guard follow-up round 1, kept at round 2: the FIRST link's
+        # own text labels a repeated (target, page) pair; a later anchor's
+        # text replaces only a file-name FALLBACK (the round-2 test below).
+        variant = self.mod.indexable_variant()
+        blob = self.mod.GITHUB_BLOB_BASE + "no-such-repeat.md"
+        entry = self._counted_entry("no-such-repeat.md")
+        with self._ledgered("synthetic/index.html", [entry, entry]):
+            text = self.mod.render_corpus_link_manifest(
+                self.figures, variant,
+                list(self.site_pages)
+                + [("synthetic/index.html",
+                    f'<a href="{blob}">first label</a>'
+                    f'<a href="{blob}">second label</a>')],
+            )
+        self.assertIn("| no-such-repeat.md | /synthetic/ | first label |",
+                      text)
+        self.assertNotIn("second label", text)
+
+    def test_bare_occurrence_needs_a_left_boundary(self):
+        # Link-guard follow-up round 1, kept at round 2 (flip: drop the
+        # owner-name-character boundary from the token count): a different
+        # owner whose name merely ends in this one's (ajposluns) is not an
+        # occurrence of the token, so it raises nothing; the real bare
+        # spelling, whitespace-separated, still fails. Round 10, item 3:
+        # an output no grammar reads must be a pin-verified copy even
+        # when token-free, so the synthetic prose is an HTML text node.
+        variant = self.mod.indexable_variant()
+        with self._ledgered():
+            text = self.mod.render_corpus_link_manifest(
+                self.figures, variant,
+                list(self.site_pages)
+                + [("synthetic/index.html",
+                    "<p>see ajposluns/grc_library/README.md</p>")],
+            )
+        self.assertNotIn("ajposluns", text)
+        with self._ledgered(), self.assertRaises(self.mod.BuildError):
+            self.mod.render_corpus_link_manifest(
+                self.figures, variant,
+                list(self.site_pages)
+                + [("synthetic/index.html",
+                    "<p>see jposluns/grc_library/README.md</p>")],
+            )
+
+    def test_ledger_is_bound_to_one_render_and_pending_drains(self):
+        # Round 3 items 5 and 8 (flip: share one module-level ledger dict
+        # across renders again, or drop the per-render binding): a second
+        # render_site produces its OWN ledger object with the same shape
+        # (nothing doubled, nothing shared), its manifest verifies over
+        # that fresh ledger, a direct render_variant call leaves the
+        # canonical render's ledger untouched, and the pending emission
+        # buffer is empty whenever a render returns.
+        pages2 = self.mod.render_site(self.figures)
+        self.assertEqual(self.mod._PENDING_REPO_EMISSIONS, [])
+        ledger2 = pages2.repo_ledger
+        self.assertIsNot(ledger2, self.site_pages.repo_ledger)
+        self.assertEqual(
+            {rel: len(entries) for rel, entries in ledger2.items()},
+            {rel: len(entries) for rel, entries in self.site_ledger.items()},
+        )
+        text = self.mod.render_corpus_link_manifest(
+            self.figures, self.mod.indexable_variant(), pages2, ledger2)
+        self.assertIn("| Corpus target | Website location | Link text |",
+                      text)
+        before = {
+            rel: len(entries)
+            for rel, entries in self.site_pages.repo_ledger.items()
+        }
+        self.mod.render_variant(self.figures, self.draft_variant)
+        self.assertEqual(
+            {rel: len(entries)
+             for rel, entries in self.site_pages.repo_ledger.items()},
+            before,
+            "a direct render must not grow another render's ledger",
+        )
+        self.assertEqual(self.mod._PENDING_REPO_EMISSIONS, [])
+
+    def test_unused_extras_key_fails_the_build(self):
+        # Round 3 item 6 (flip: leave extras keys out of the unused-value
+        # check): an extras value whose key no template ever substitutes is
+        # dead computation that can carry recorded-link allowance onto a
+        # page that never renders the link, so the render names it loudly.
+        original = self.mod.draft_license_values
+
+        def padded(*args, **kwargs):
+            values = dict(original(*args, **kwargs))
+            values["UNUSED_PROBE_VALUE"] = "probe"
+            return values
+
+        with mock.patch.object(self.mod, "draft_license_values", padded):
+            with self.assertRaises(self.mod.BuildError) as ctx:
+                self.mod.render_variant(self.figures, self.draft_variant)
+        self.assertIn("UNUSED_PROBE_VALUE", str(ctx.exception))
 
     def test_draft_page_set_is_complete(self):
         self.assertIn("index.html", self.draft_html)

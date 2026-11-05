@@ -5977,6 +5977,21 @@ class PlaceholderLeakageTests(LinterTestCase):
                          (engine_code, engine_text))
         self.assertEqual(engine_code, 0, engine_text)
 
+    def test_docstring_documents_exit_two_and_the_regression_pins(self):
+        # Link-guard follow-up round 1, small item: the wrapper's docstring
+        # documents exit 2 (a refused explicit path through
+        # guard_explicit_paths_cwd, or an argparse usage error) beside 0 and
+        # 1, and names the two report-text parity tests above as regression
+        # pins, so the documented exit contract matches the guard's
+        # SystemExit(2) and argparse's own exit 2.
+        wrapper = load_linter_module(
+            "tools/lint-placeholder-leakage.py", "_plh_wrapper_docstring"
+        )
+        doc = wrapper.__doc__
+        self.assertIn("2 a refused explicit", doc)
+        self.assertIn("usage error", doc)
+        self.assertIn("regression pins", doc)
+
 
 class DateFormatTests(LinterTestCase):
     """tools/lint-date-format.py"""
@@ -41995,7 +42010,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
         lint-pii-in-content.py CWD F 3892a7ab7f09960df0bdeb187a3e2b61f406483620d6baa1eaa238ea91166d8e
-        lint-placeholder-leakage.py CWD F b37d2c6e8059f10902b853449c6e40b6c6aa2366ec4636075f04825ae782e447
+        lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
         lint-publication-manifest.py NO_FS F 4a017db9b2313865a406351d0d0d2fb2f0d4ffdaee4c79397b742d89965b21ad
