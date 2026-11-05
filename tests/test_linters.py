@@ -16901,19 +16901,29 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         import subprocess as sp
         import tempfile
         # The hook's grc adapter applies only in a MAIN checkout (<root>/.git is a directory; 3b101), and
-        # its escape resolves the sentinel from GRC_DROP_ROOT; in a linked worktree the escape correctly
-        # does NOT fire, so this end-to-end assertion is only meaningful in a main checkout.
-        if not (REPO_ROOT / ".git").is_dir():
-            self.skipTest("main-checkout-scoped: the hook's adapter does not apply in a linked worktree")
-        hook = str(REPO_ROOT / ".claude" / "hooks" / "stop-guard-unattended.py")
-        with tempfile.TemporaryDirectory() as d:
+        # its escape resolves the sentinel from GRC_DROP_ROOT. The hook therefore runs from its own
+        # temporary main checkout (a copy of this checkout's hook beside a .git directory), whichever
+        # checkout runs this test: a linked worktree, such as a pre-push guard shard checkout, runs it
+        # too instead of skipping (CI fast track round 6). The copy carries a fixture fleet mode path
+        # (an absent file under the fixture), as the hook's own layout self-test does, so it never
+        # reads the live fleet file.
+        source = (REPO_ROOT / ".claude" / "hooks" / "stop-guard-unattended.py").read_text(encoding="utf-8")
+        live_line = '_FLEET_MODE_FILE = "/opt/' + 'orch-operator/operating-mode"'
+        self.assertEqual(source.count(live_line), 1)
+        with tempfile.TemporaryDirectory() as parent, tempfile.TemporaryDirectory() as d:
+            root = os.path.join(parent, "grc_library")
+            os.makedirs(os.path.join(root, ".git"))
+            os.makedirs(os.path.join(root, ".claude", "hooks"))
+            hook = os.path.join(root, ".claude", "hooks", "stop-guard-unattended.py")
+            with open(hook, "w", encoding="utf-8") as fh:
+                fh.write(source.replace(live_line, "_FLEET_MODE_FILE = %r" % os.path.join(parent, "no-fleet-file")))
             sentinel = os.path.join(d, ".allow-idle-stop")
             open(sentinel, "w").close()
             env = dict(os.environ, GRC_DROP_ROOT=d)
             env.pop("ORCH_VERIFY_OWNER", None)
             env.pop("CLAUDE_CONFIG_DIR", None)  # either worker signal skips the consume (3b101 QA r4)
-            r = sp.run([sys.executable, hook], input="not-json", capture_output=True,
-                       text=True, env=env, cwd=str(REPO_ROOT))
+            r = sp.run([sys.executable, "-B", hook], input="not-json", capture_output=True,
+                       text=True, env=env, cwd=root, timeout=60)
             self.assertEqual(r.returncode, 0,
                              "sentinel present -> allow, got %d\n%s" % (r.returncode, r.stderr))
             self.assertFalse(os.path.exists(sentinel),
@@ -17700,6 +17710,42 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         guard.git.assert_not_called()
         guard.try_auto_bump(Path("/nonexistent"), "governance/README.md", "2026-09-25")
         guard.git.assert_called()
+
+
+class StopGuardLinkedWorktreeTests(unittest.TestCase):
+    """CI fast track round 6 (codex ERROR, claude NOTE): the stop guard's end-to-end escape
+    test skipped whenever REPO_ROOT/.git was not a directory, so it skipped in every pre-push
+    guard shard checkout (a linked worktree) while the serial run executed it. It now builds
+    its own main-checkout fixture; this check runs it with REPO_ROOT standing for a linked
+    worktree and requires it to run and pass, not skip."""
+
+    def test_end_to_end_escape_test_runs_in_a_linked_worktree(self):
+        from unittest import mock
+        name = "test_stop_guard_unattended_main_consumes_escape_end_to_end"
+        hook_rel = Path(".claude") / "hooks" / "stop-guard-unattended.py"
+        layout = load_linter_module(hook_rel.as_posix(), "nmw_stop_guard_linked_layout")
+        with tempfile.TemporaryDirectory() as tmp:
+            # A linked worktree as git lays one out: its .git is a file naming an admin
+            # directory that holds HEAD and commondir.
+            admin = Path(tmp) / "main" / ".git" / "worktrees" / "wt"
+            admin.mkdir(parents=True)
+            (admin.parent.parent / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+            (admin / "HEAD").write_text("ref: refs/heads/wt\n", encoding="utf-8")
+            (admin / "commondir").write_text("../..\n", encoding="utf-8")
+            wt = Path(tmp) / "wt"
+            (wt / hook_rel).parent.mkdir(parents=True)
+            shutil.copyfile(REPO_ROOT / hook_rel, wt / hook_rel)
+            (wt / ".git").write_text("gitdir: %s\n" % admin, encoding="utf-8")
+            self.assertTrue((wt / ".git").is_file())
+            self.assertFalse(layout._is_primary_checkout(str(wt)),
+                             "the fixture must be a linked worktree as the hook reads one")
+            result = unittest.TestResult()
+            with mock.patch.dict(globals(), {"REPO_ROOT": wt}):
+                VerificationGuardrailSelfTests(name).run(result)
+        detail = "skipped=%r failures=%r errors=%r" % (result.skipped, result.failures, result.errors)
+        self.assertEqual(result.testsRun, 1, detail)
+        self.assertEqual(result.skipped, [], "the end-to-end test skipped in a linked worktree: " + detail)
+        self.assertEqual(result.failures + result.errors, [], detail)
 
 
 class NativePrePushGuardTests(unittest.TestCase):
@@ -18922,12 +18968,26 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # tree shows their markers), then writes the outputs the real runner
     # writes to GITHUB_OUTPUT, for the real reconcile tool. FIXTURE_SHARD_FAIL
     # names a shard that exits 7; FIXTURE_SHARD_NO_OUTPUT one that writes no
-    # outputs.
+    # outputs (FIXTURE_SHARD_FAIL may name several, comma-separated);
+    # FIXTURE_SHARD_BAD_OUTPUT one whose outputs the reconcile
+    # refuses (exit 2); FIXTURE_SHARD_OTHER_UNITS one that reports another
+    # unit set (a reconcile failure, exit 1); FIXTURE_SHARD_BREAK_CHECKOUT one
+    # that deletes its checkout's .git file, so git worktree remove fails.
+    # FIXTURE_SHARD_HANG names a directory: every shard starts a child, writes
+    # "pid pgid child-pid" to shard-<i> there, and sleeps until stopped.
     SHARD_STUB = (
         "import json\nimport os\nimport subprocess\nimport sys\nimport time\n"
         "index, count = sys.argv[2].split('/')\n"
         "os.makedirs('tests/tmp', exist_ok=True)\n"
         "open(os.path.join('tests/tmp', 'shard-' + index), 'w').close()\n"
+        "hang = os.environ.get('FIXTURE_SHARD_HANG')\n"
+        "if hang:\n"
+        "    child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(120)'])\n"
+        "    with open(os.path.join(hang, 'shard-' + index + '.tmp'), 'w') as f:\n"
+        "        f.write('%%d %%d %%d\\n' %% (os.getpid(), os.getpgid(0), child.pid))\n"
+        "    os.rename(os.path.join(hang, 'shard-' + index + '.tmp'),\n"
+        "              os.path.join(hang, 'shard-' + index))\n"
+        "    time.sleep(120)\n"
         "time.sleep(1)\n"
         "seen = sorted(os.listdir('tests/tmp'))\n"
         "head = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True,\n"
@@ -18935,21 +18995,30 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "siblings = {name: os.path.realpath(os.path.join('..', name))\n"
         "            for name in ('private', 'grc_library_private', 'grc_library_ref')\n"
         "            if os.path.isdir(os.path.join('..', name))}\n"
+        "links = {name: os.readlink(os.path.join('..', name)) for name in sorted(os.listdir('..'))\n"
+        "         if os.path.islink(os.path.join('..', name))}\n"
         "with open(%r, 'a') as f:\n"
         "    f.write(json.dumps({'argv': sys.argv, 'cwd': os.path.realpath(os.getcwd()),\n"
         "                        'output': os.environ.get('GITHUB_OUTPUT', ''),\n"
         "                        'store': os.environ.get('GRC_STORE', ''),\n"
-        "                        'head': head, 'seen': seen, 'siblings': siblings}) + '\\n')\n"
+        "                        'head': head, 'seen': seen, 'siblings': siblings,\n"
+        "                        'links': links, 'beside': sorted(os.listdir('..'))}) + '\\n')\n"
         "print('Ran 1 test in 0.001s')\n"
-        "if os.environ.get('FIXTURE_SHARD_FAIL') == index:\n"
+        "if index in os.environ.get('FIXTURE_SHARD_FAIL', '').split(','):\n"
         "    print('stub shard failure in shard ' + index)\n"
         "    sys.exit(7)\n"
-        "if os.environ.get('FIXTURE_SHARD_NO_OUTPUT') != index:\n"
+        "if os.environ.get('FIXTURE_SHARD_BREAK_CHECKOUT') == index:\n"
+        "    os.unlink('.git')\n"
+        "if os.environ.get('FIXTURE_SHARD_BAD_OUTPUT') == index:\n"
+        "    with open(os.environ['GITHUB_OUTPUT'], 'a') as f:\n"
+        "        f.write('junk=1\\n')\n"
+        "elif os.environ.get('FIXTURE_SHARD_NO_OUTPUT') != index:\n"
+        "    units = 'b' if os.environ.get('FIXTURE_SHARD_OTHER_UNITS') == index else 'a'\n"
         "    modules = sorted('tests.' + n[:-3] for n in os.listdir('tests')\n"
         "                     if n.startswith('test_') and n.endswith('.py'))\n"
         "    with open(os.environ['GITHUB_OUTPUT'], 'a') as f:\n"
         "        f.write('units_sha256=%%s\\nselected_sha256=%%064x\\ncredited<<END\\n%%sEND\\n'\n"
-        "                %% ('a' * 64, int(index), ''.join(m + ': 1\\n' for m in modules)))\n")
+        "                %% (units * 64, int(index), ''.join(m + ': 1\\n' for m in modules)))\n")
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(prefix="guard-fast-")
@@ -19004,7 +19073,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                         GRC_STORE=str(Path(self.tmp.name) / "no-store"),
                         PRE_PUSH_GUARD_ALLOW_PIPE="1", BASE_REF="base",
                         TMPDIR=str(self.shard_tmp))
-        for name in ("FIXTURE_SHARD_FAIL", "FIXTURE_SHARD_NO_OUTPUT", "GITHUB_OUTPUT"):
+        for name in ("FIXTURE_SHARD_FAIL", "FIXTURE_SHARD_NO_OUTPUT", "FIXTURE_SHARD_BAD_OUTPUT",
+                     "FIXTURE_SHARD_OTHER_UNITS", "FIXTURE_SHARD_BREAK_CHECKOUT",
+                     "FIXTURE_SHARD_HANG", "GITHUB_OUTPUT"):
             self.env.pop(name, None)
         self.git("init", "-q")
         self.git("config", "user.email", "fixture@example.com")
@@ -19212,6 +19283,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 self.assertEqual(os.path.basename(run["cwd"]), "repo")
                 self.assertTrue(os.path.realpath(run["output"]).startswith(
                     os.path.dirname(run["cwd"]) + os.sep), run["output"])
+                # No sibling exists beside this fixture clone, so none is linked.
+                self.assertEqual(run["links"], {})
         for i in range(1, 7):
             self.assertRegex(result.stdout,
                              r"gate 36 local shard %d/6: rc=0; Ran 1 test in " % i)
@@ -19226,7 +19299,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # FLIP TABLE: each shard checkout's parent links to this clone's own
         # store and siblings, and a relative GRC_STORE is made absolute, so
         # the store is reachable from a shard as it is for the serial run.
+        # Round 6 (claude NOTE): each of the four siblings is a symbolic link
+        # to this clone's own sibling, by its absolute physical path, and
+        # nothing else sits beside a checkout but its log and output files;
+        # the passing run's cleanup removes the links as links, so every
+        # file in the linked store and siblings survives it.
         parent = Path(self.tmp.name)
+        siblings = ("private", "grc_library_private", "grc_library_ref", "grc_library_scratch")
         # With a private store present the guard's install-git-hooks.sh
         # --check requires the installed hook, so this clone installs it.
         for name in ("git-hooks/pre-push", "pre-push-hook.py", "check-dirty-tree-push.py"):
@@ -19236,8 +19315,10 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.move_base("Hook files")
         subprocess.run(["sh", "tools/install-git-hooks.sh"], cwd=self.root, env=self.env,
                        check=True, capture_output=True, text=True, timeout=30)
-        for name in ("private", "grc_library_private", "grc_library_ref"):
-            (parent / name).mkdir()
+        for name in siblings:
+            (parent / name / "nested").mkdir(parents=True)
+            (parent / name / "keep.md").write_text(name + "\n", encoding="utf-8")
+            (parent / name / "nested" / "keep.md").write_text(name + "\n", encoding="utf-8")
         self.change("ai/policy-fixture.md")
         result, _ran = self.run_guard(GRC_STORE="../private")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -19248,9 +19329,116 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 self.assertEqual(run["siblings"], {
                     name: os.path.realpath(parent / name)
                     for name in ("private", "grc_library_private", "grc_library_ref")})
+                self.assertEqual(run["links"], {
+                    name: os.path.join(os.path.realpath(parent), name) for name in siblings})
+                self.assertEqual(run["beside"], sorted(
+                    ["github-output", "repo", "shard.log", "worktree.log", *siblings]))
                 self.assertEqual(os.path.realpath(run["store"]),
                                  os.path.realpath(parent / "private"))
                 self.assertTrue(os.path.isabs(run["store"]), run["store"])
+        self.assertIn("the shard checkouts were removed", result.stdout)
+        self.assertEqual(os.listdir(self.shard_tmp), [])
+        for name in siblings:
+            with self.subTest(survives=name):
+                self.assertEqual((parent / name / "keep.md").read_text(encoding="utf-8"), name + "\n")
+                self.assertEqual((parent / name / "nested" / "keep.md").read_text(encoding="utf-8"),
+                                 name + "\n")
+
+    def test_interrupt_stops_every_shard_group_and_keeps_the_checkouts(self):
+        # FLIP TABLE (round 6, both WARN): SIGINT to a guard running stub
+        # shards stops each shard's own process group (a shard and the
+        # child it started), waits for them, keeps and names every checkout
+        # and log, and exits 130; no later step runs. The guard starts with
+        # INT, TERM and HUP at their defaults, as from a terminal: bash cannot
+        # trap a signal that was ignored when it started.
+        import signal
+        import time
+        self.change("ai/policy-fixture.md")
+        marks = Path(self.tmp.name) / "hang"
+        marks.mkdir()
+        out_path = Path(self.tmp.name) / "guard.out"
+
+        def default_signals():
+            for number in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+                signal.signal(number, signal.SIG_DFL)
+
+        with open(out_path, "w", encoding="utf-8") as out:
+            guard = subprocess.Popen(["bash", "tools/pre-push-guard.sh"], cwd=self.root,
+                                     env=dict(self.env, FIXTURE_SHARD_HANG=str(marks)),
+                                     stdin=subprocess.DEVNULL, stdout=out,
+                                     stderr=subprocess.STDOUT, preexec_fn=default_signals)
+        try:
+            deadline = time.monotonic() + 60
+            while (len([m for m in marks.iterdir() if not m.name.endswith(".tmp")]) < 6
+                   and guard.poll() is None and time.monotonic() < deadline):
+                time.sleep(0.1)
+            started = sorted(m.name for m in marks.iterdir() if not m.name.endswith(".tmp"))
+            self.assertEqual(started, ["shard-%d" % i for i in range(1, 7)],
+                             out_path.read_text(encoding="utf-8"))
+            guard.send_signal(signal.SIGINT)
+            rc = guard.wait(timeout=60)
+        finally:
+            if guard.poll() is None:
+                guard.kill()
+                guard.wait(timeout=60)
+        output = out_path.read_text(encoding="utf-8")
+        self.assertEqual(rc, 130, output)
+        self.assertIn("SIGINT received during the gate 36 local shards", output)
+        self.assertIn("pre-push guard FAILED at gate 36 local shards (rc=130): interrupted by "
+                      "SIGINT", output)
+        self.assertNotIn("Safe to push", output)
+        records = [m.read_text(encoding="utf-8").split() for m in marks.iterdir()]
+        self.assertEqual(len({pgid for _pid, pgid, _child in records}), 6, records)
+        for pid, pgid, child in records:
+            with self.subTest(shard_pid=pid):
+                self.assertEqual(pid, pgid, "a shard does not lead its own process group")
+                self.assertNotEqual(int(pgid), os.getpgid(0))
+                # Every process of the group is gone (an orphan's reaping may lag).
+                deadline = time.monotonic() + 10
+                while time.monotonic() < deadline:
+                    try:
+                        os.killpg(int(pgid), 0)
+                    except ProcessLookupError:
+                        break
+                    time.sleep(0.1)
+                with self.assertRaises(ProcessLookupError):
+                    os.killpg(int(pgid), 0)
+                with self.assertRaises(ProcessLookupError):
+                    os.kill(int(child), 0)
+        ran = (self.root / "ran.log").read_text(encoding="utf-8").split()
+        self.assertNotIn("tools/run-pr-time-checks.sh", ran)
+        kept = re.findall(r"^  shard \d: \S+ \(checkout (\S+), log (\S+)\)$", output, re.M)
+        self.assertEqual(len(kept), 6, output)
+        for checkout, log in kept:
+            self.assertTrue(Path(checkout, "tools", "pre-push-guard.sh").is_file(), checkout)
+            self.assertTrue(Path(log).is_file(), log)
+        for checkout, _log in kept:
+            self.git("worktree", "remove", "--force", checkout)
+
+    def test_failed_checkout_removal_is_reported_and_pruned(self):
+        # FLIP TABLE (round 6, codex WARN): when git worktree remove fails
+        # for a shard checkout, the guard names it, runs git worktree prune
+        # once the shard directory is gone, says whether the registration
+        # remains, and never claims the checkouts were removed. Shard 2
+        # deletes its checkout's .git file, so git refuses to remove it.
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard(FIXTURE_SHARD_BREAK_CHECKOUT="2")
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 0, output)
+        broken = [run["cwd"] for run in self.shard_runs() if run["argv"][2] == "2/6"]
+        self.assertEqual(len(broken), 1, output)
+        self.assertIn("git worktree remove --force failed (rc=", result.stderr)
+        self.assertIn("for the shard checkout %s: " % broken[0], result.stderr)
+        self.assertIn("ran git worktree prune (rc=0)", result.stderr)
+        self.assertIn("the shard checkout %s was not removed by git worktree remove; its "
+                      "registration is no longer listed after git worktree prune" % broken[0],
+                      result.stderr)
+        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
+                      result.stdout)
+        self.assertNotIn("checkouts were removed", output)
+        self.assertEqual(os.listdir(self.shard_tmp), [])
+        worktrees = self.git("worktree", "list", "--porcelain").stdout
+        self.assertEqual(worktrees.count("worktree "), 1, worktrees)
 
     def test_failing_local_shard_blocks_the_push_with_its_status(self):
         # FLIP TABLE: a failing shard fails the push with that shard's own
@@ -19275,20 +19463,77 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             self.git("worktree", "remove", "--force", checkout)
 
     def test_missing_shard_output_or_reconcile_failure_blocks_the_push(self):
-        # FLIP TABLE: every shard exits 0 but one wrote no outputs (a shard
-        # missing from the reconciliation); the reconcile refuses and the
-        # push fails with its status, keeping the checkouts.
+        # FLIP TABLE (round 6, claude NOTE): every shard exits 0 but one
+        # wrote no outputs; the guard's own check names that shard and fails
+        # the push with 2 before the reconcile runs, keeping the checkouts.
+        # A reconcile refusal (malformed outputs) and a reconcile failure
+        # (another unit set) each fail the push with the reconcile's status.
         self.change("ai/policy-fixture.md")
-        result, ran = self.run_guard(FIXTURE_SHARD_NO_OUTPUT="5")
-        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-        self.assertIn("REFUSED: regression-shard-5 published no well-formed "
-                      "'units_sha256' output", result.stdout)
-        self.assertIn("pre-push guard FAILED at gate 36 local shards (rc=2): the shard "
-                      "reconcile failed", result.stdout)
-        self.assertNotIn("tools/run-pr-time-checks.sh", ran)
-        self.assertNotEqual(os.listdir(self.shard_tmp), [])
-        for checkout in re.findall(r"\(checkout (\S+), log", result.stdout):
-            self.git("worktree", "remove", "--force", checkout)
+        for env, rc, expected in (
+                ({"FIXTURE_SHARD_NO_OUTPUT": "5"}, 2,
+                 ["pre-push guard FAILED at gate 36 local shards (rc=2): shard(s) 5 of 6 "
+                  "exited 0 but wrote no step outputs (GITHUB_OUTPUT file missing or empty), "
+                  "so the reconcile was not run"]),
+                ({"FIXTURE_SHARD_BAD_OUTPUT": "4"}, 2,
+                 ["REFUSED: regression-shard-4 published no well-formed 'units_sha256' output",
+                  "pre-push guard FAILED at gate 36 local shards (rc=2): the shard reconcile "
+                  "failed (rc=2)"]),
+                ({"FIXTURE_SHARD_OTHER_UNITS": "3"}, 1,
+                 ["pre-push guard FAILED at gate 36 local shards (rc=1): the shard reconcile "
+                  "failed (rc=1)"])):
+            with self.subTest(env=env):
+                result, ran = self.run_guard(**env)
+                self.assertEqual(result.returncode, rc, result.stdout + result.stderr)
+                for text in expected:
+                    self.assertIn(text, result.stdout)
+                if "FIXTURE_SHARD_NO_OUTPUT" in env:
+                    self.assertNotIn("gate 36 local shard reconcile", result.stdout)
+                else:
+                    self.assertIn("gate 36 local shard reconcile", result.stdout)
+                self.assertNotIn("tools/run-pr-time-checks.sh", ran)
+                self.assertNotEqual(os.listdir(self.shard_tmp), [])
+                kept = re.findall(r"\(checkout (\S+), log", result.stdout)
+                self.assertEqual(len(kept), 6, result.stdout)
+                for checkout in kept:
+                    self.git("worktree", "remove", "--force", checkout)
+                for entry in self.shard_tmp.iterdir():
+                    shutil.rmtree(entry)
+                (self.root / "ran.log").unlink(missing_ok=True)
+
+    def test_header_exit_codes_match_the_shard_step(self):
+        # FLIP TABLE (round 6, claude NOTE): the header states the shard
+        # step's real exit codes: the first failing shard's own status in
+        # shard order (here shard 4 exits 5 and every other failing shard
+        # 7, so failing shards 4 and 6 exit 5, and 2 and 4 exit 7), else 2
+        # for set-up or a shard without outputs, else the reconcile's own
+        # status (1 failure, 2 refusal), and 130/143/129 on INT/TERM/HUP.
+        # The behaviour behind each code is pinned by the tests above and
+        # this one; the retired wording (a shard failure exits 1, a missing
+        # shard) is gone.
+        guard = (REPO_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        header = " ".join(line.lstrip("#").strip() for line in guard.split("\nset -u\n", 1)[0]
+                          .splitlines())
+        for text in ("At the local gate 36 shards (step 1b): the first failing shard's own exit "
+                     "status, in shard order, when any shard fails; otherwise 2 when the shard "
+                     "run cannot be set up or a shard exited 0 without writing its step outputs; "
+                     "otherwise the reconcile's own status when it fails (1 for a failure, 2 for "
+                     "a refusal); 130, 143 or 129 when SIGINT, SIGTERM or SIGHUP interrupts the "
+                     "step.",):
+            self.assertIn(text, header)
+        for retired in ("1 when a local gate 36 shard fails", "a shard is missing",
+                        "a missing shard"):
+            self.assertNotIn(retired, header)
+        self.assertNotIn("so a shard is missing", guard)
+        stub = self.root / self.REGRESSION_SCRIPT
+        stub.write_text(stub.read_text(encoding="utf-8").replace(
+            "    sys.exit(7)\n", "    sys.exit(5 if index == '4' else 7)\n"), encoding="utf-8")
+        self.change("ai/policy-fixture.md")
+        for failing, rc in (("4,6", 5), ("2,4", 7)):
+            with self.subTest(failing=failing):
+                result, _ran = self.run_guard(FIXTURE_SHARD_FAIL=failing)
+                self.assertEqual(result.returncode, rc, result.stdout + result.stderr)
+                for checkout in re.findall(r"\(checkout (\S+), log", result.stdout):
+                    self.git("worktree", "remove", "--force", checkout)
 
     def test_local_shard_count_matches_the_quality_workflow(self):
         # The guard's REGRESSION_SHARD_COUNT is the quality workflow's
@@ -41604,7 +41849,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 00cc6bf93719b8f1fd96f711ddf7272b289b00522a07fa01596afe869e3ef65d
+        README.md DATA F 6f1d6f4a4093d5f52b993b685745e112a8fe11b1c767de3dab3dc1ac281c4ad0
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
@@ -41797,7 +42042,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
-        pre-push-guard.sh FIXED F 55b58da8ea992a6ff63ebbe24b42b5c7ec2b5852c40106a22dfd89000e021320
+        pre-push-guard.sh FIXED F fb4cef28cd9f9fa05c62794f3a01f40267ff5884239fa272b27ba318ae6f3bab
         pre-push-hook.py TRANSPORT F d193c170d963cbca2e64bb76ce0b1dfbe7999b9f5af6c0701ae11d95f9d7f659
         preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088

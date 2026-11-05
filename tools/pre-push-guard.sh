@@ -42,19 +42,32 @@
 #      directory), so no shard's fixtures under tests/tmp are seen by
 #      another shard's whole-repository scan (round-4 finding: one shared
 #      working tree failed VanishingScratchTests). Beside each checkout sit
-#      links to this clone's own siblings (the private store
-#      <repo-parent>/private, grc_library_private, grc_library_ref), and a
-#      relative GRC_STORE is made absolute, so the store is reachable as it
-#      is for the serial run. Each shard's output goes to its own log file,
-#      its step outputs to its own GITHUB_OUTPUT file, and its exit status
-#      is read directly from wait. tools/reconcile-regression-shards.py
-#      --shard-outputs then reconciles the six (every shard succeeded, all
-#      six discovered one unit set, every module earned a credited start).
-#      Any shard failure, a missing shard, or a reconcile failure fails the
-#      push, keeping the checkouts and printing their paths; a passing run
-#      removes every temporary checkout and shard directory. On the
-#      fail-closed whole-runner fallback below gate 36 has just run
-#      serially, so this step does not run again.
+#      symbolic links to whichever of this clone's own siblings exist (the
+#      private store <repo-parent>/private, grc_library_private,
+#      grc_library_ref and grc_library_scratch), and a relative GRC_STORE is
+#      made absolute, so the store is reachable as it is for the serial run.
+#      Each shard runs in its own process group with stdin from /dev/null;
+#      its output goes to its own log file, its step outputs to its own
+#      GITHUB_OUTPUT file, and its exit status is read directly from wait.
+#      When every shard exits 0, each shard's GITHUB_OUTPUT file must be
+#      present and non-empty, or the step fails (exit 2) without running
+#      the reconcile. tools/reconcile-regression-shards.py --shard-outputs
+#      then reconciles the six (every shard succeeded, all six discovered
+#      one unit set, every module earned a credited start); after a shard
+#      failure it still runs, for its report only. A shard failure, a
+#      shard without step outputs, or a reconcile failure fails the push,
+#      keeping every checkout and log and printing their paths. INT, TERM
+#      or HUP during this step stops every shard's process group (TERM,
+#      then KILL after 10 seconds), waits for the shards, keeps and names
+#      every checkout and log, and exits 130, 143 or 129. A passing run
+#      removes each checkout with git worktree remove --force, then the
+#      shard directory (only a real directory named grc-gate36-shards.*;
+#      the sibling links are removed as links, never followed). A failed
+#      removal is reported with its path, git worktree prune then runs
+#      after the directory is gone, and the guard says whether that
+#      checkout's registration remains; it never claims a removal that
+#      failed. On the fail-closed whole-runner fallback below gate 36 has
+#      just run serially, so this step does not run again.
 #   2. tools/run-pr-time-checks.sh  - the per-PR D-numbered delta gates (D6 retired) plus
 #                                     the history-aware trio (gates 45/40/31) against
 #                                     the merge base.
@@ -194,10 +207,14 @@
 # because stdout is piped (the RM-10 self-defence below, before any runner
 # starts); 4 if grc_library_private is required but absent (the _private check
 # below); 5 if the tracked working tree is dirty or its state cannot be read
-# (the attestation-soundness check below); 1 when a local gate 36 shard fails or
-# the shard reconcile fails, 2 when the shard run cannot be set up or a shard is
-# missing; otherwise the first failing blocking check's non-zero rc (that check's
-# own diagnostics are printed above).
+# (the attestation-soundness check below). At the local gate 36 shards (step
+# 1b): the first failing shard's own exit status, in shard order, when any
+# shard fails; otherwise 2 when the shard run cannot be set up or a shard
+# exited 0 without writing its step outputs; otherwise the reconcile's own
+# status when it fails (1 for a failure, 2 for a refusal); 130, 143 or 129
+# when SIGINT, SIGTERM or SIGHUP interrupts the step. Otherwise the first
+# failing blocking check's non-zero rc (that check's own diagnostics are
+# printed above).
 
 set -u
 
@@ -299,6 +316,8 @@ REGRESSION_SHARD_COUNT=6
 # The siblings each shard checkout's parent links back to this clone's own,
 # so a shard reaches the private store and siblings as the serial run does.
 REGRESSION_SHARD_SIBLINGS=(private grc_library_private grc_library_ref grc_library_scratch)
+# Seconds a stopped shard's process group has after TERM before KILL.
+REGRESSION_SHARD_STOP_GRACE=10
 fast_path=0
 full_reason=""
 changed_paths=()
@@ -564,14 +583,17 @@ audit_gate() {
 
 # Gate 36 whole, as REGRESSION_SHARD_COUNT parallel local shards (header,
 # step 1b). shard_root and shard_dirs (indexed from 1) name the temporary
-# directories, so a failure can keep and print them.
+# directories, so a failure can keep and print them; shard_pids (indexed
+# from 1) holds each running shard's pid, which is also its process group.
 shard_root=""
 shard_dirs=()
+shard_pids=()
 
 # A failed local shard run: keep every checkout and log, print where they
 # are, and exit with rc.
 shard_fail() {
     local rc="$1" message="$2" i
+    trap - INT TERM HUP
     echo ""
     echo "pre-push guard FAILED at gate 36 local shards (rc=${rc}): ${message}."
     if [ -n "${shard_root}" ]; then
@@ -585,10 +607,50 @@ shard_fail() {
     exit "${rc}"
 }
 
+# INT, TERM or HUP during the shard step (the trap run_gate36_shards sets):
+# TERM every shard's process group, KILL any group still alive after
+# REGRESSION_SHARD_STOP_GRACE seconds, wait for every shard, then keep and
+# name every checkout and log and exit 128 + the signal number. Further
+# signals are ignored while the shards are stopped.
+shard_interrupted() {
+    local name="$1" rc="$2" i alive deadline
+    trap '' INT TERM HUP
+    echo ""
+    echo "pre-push guard: SIG${name} received during the gate 36 local shards; stopping every shard's process group."
+    for i in "${!shard_pids[@]}"; do
+        kill -TERM -- "-${shard_pids[i]}" 2>/dev/null || kill -TERM "${shard_pids[i]}" 2>/dev/null || true
+    done
+    deadline=$((SECONDS + REGRESSION_SHARD_STOP_GRACE))
+    while :; do
+        alive=""
+        for i in "${!shard_pids[@]}"; do
+            if kill -0 -- "-${shard_pids[i]}" 2>/dev/null; then
+                alive="${alive:+${alive} }${i}"
+            fi
+        done
+        [ -n "${alive}" ] || break
+        if [ "${SECONDS}" -ge "${deadline}" ]; then
+            echo "pre-push guard: shard(s) ${alive} still running ${REGRESSION_SHARD_STOP_GRACE}s after TERM; sending KILL."
+            for i in ${alive}; do
+                kill -KILL -- "-${shard_pids[i]}" 2>/dev/null || true
+            done
+            break
+        fi
+        sleep 0.2
+    done
+    for i in "${!shard_pids[@]}"; do
+        wait "${shard_pids[i]}" 2>/dev/null || true
+    done
+    shard_fail "${rc}" "interrupted by SIG${name}; every shard's process group was stopped and waited for"
+}
+
 run_gate36_shards() {
     local count="${REGRESSION_SHARD_COUNT}" commit parent store i dir tree rc started
-    local sibling ran verdict first_rc=0 failed="" reconcile_rc
-    local -a pids=() statuses=() pairs=()
+    local sibling ran verdict first_rc=0 failed="" reconcile_rc no_output="" out
+    local -a statuses=() pairs=() unremoved=()
+    trap 'shard_interrupted INT 130' INT
+    trap 'shard_interrupted TERM 143' TERM
+    trap 'shard_interrupted HUP 129' HUP
     echo ""
     echo "=== pre-push guard 1b/3: linter regression suite (gate 36) whole, as ${count} parallel local shards, each in its own checkout of the commit being pushed ==="
     started=${SECONDS}
@@ -602,6 +664,11 @@ run_gate36_shards() {
         shard_root=""
         shard_fail 2 "cannot create the temporary shard directory"
     fi
+    # Its physical path, so each checkout's path is the one git registers.
+    if ! dir="$(cd "${shard_root}" && pwd -P)" || [ -z "${dir}" ]; then
+        shard_fail 2 "the temporary shard directory ${shard_root} cannot be resolved"
+    fi
+    shard_root="${dir}"
     # A relative GRC_STORE is read against the repository root, so it is made
     # absolute here to keep naming this clone's store from a shard checkout.
     store="${GRC_STORE:-}"
@@ -628,8 +695,12 @@ run_gate36_shards() {
         done
     done
     # Each shard runs its own checkout's runner, from that checkout, with its
-    # own GITHUB_OUTPUT file and log; Git's repository variables are cleared
-    # so a git command in a test reads the shard's checkout.
+    # own GITHUB_OUTPUT file and log and stdin from /dev/null; Git's
+    # repository variables are cleared so a git command in a test reads the
+    # shard's checkout. Job control is on only while the shards start, so
+    # each shard (a subshell that execs the runner) leads its own process
+    # group, which the signal trap stops whole.
+    set -m
     for ((i = 1; i <= count; i++)); do
         (
             cd "${shard_dirs[i]}/${REPO_NAME}" || exit 2
@@ -639,13 +710,14 @@ run_gate36_shards() {
             fi
             export GITHUB_OUTPUT="${shard_dirs[i]}/github-output"
             exec python3 tools/run-linter-regression.py --shard "${i}/${count}"
-        ) > "${shard_dirs[i]}/shard.log" 2>&1 &
-        pids[i]=$!
+        ) < /dev/null > "${shard_dirs[i]}/shard.log" 2>&1 &
+        shard_pids[i]=$!
     done
+    set +m
     # Each exit status is read directly from wait, inside an `if` that keeps
     # it, so an inherited errexit cannot end the guard before the report.
     for ((i = 1; i <= count; i++)); do
-        if wait "${pids[i]}"; then rc=0; else rc=$?; fi
+        if wait "${shard_pids[i]}"; then rc=0; else rc=$?; fi
         statuses[i]="${rc}"
         ran="$(grep -E '^Ran [0-9]+ tests? in ' "${shard_dirs[i]}/shard.log" | tail -n 1 || true)"
         verdict="$(grep -E '^(OK|FAILED)( \(.*\))?$' "${shard_dirs[i]}/shard.log" | tail -n 1 || true)"
@@ -653,11 +725,11 @@ run_gate36_shards() {
         if [ "${rc}" -ne 0 ]; then
             failed="${failed:+${failed}, }${i}"
             [ "${first_rc}" -ne 0 ] || first_rc="${rc}"
+        elif [ ! -s "${shard_dirs[i]}/github-output" ]; then
+            no_output="${no_output:+${no_output}, }${i}"
         fi
     done
-    if [ "${#statuses[@]}" -ne "${count}" ]; then
-        shard_fail 2 "${#statuses[@]} of ${count} shards reported a status, so a shard is missing"
-    fi
+    shard_pids=()
     for ((i = 1; i <= count; i++)); do
         if [ "${statuses[i]}" -ne 0 ]; then
             echo ""
@@ -666,6 +738,11 @@ run_gate36_shards() {
         fi
         pairs+=("${statuses[i]}" "${shard_dirs[i]}/github-output")
     done
+    # A shard that exited 0 must have written its step outputs; without them
+    # the reconcile has nothing of that shard to check, so it is not run.
+    if [ -z "${failed}" ] && [ -n "${no_output}" ]; then
+        shard_fail 2 "shard(s) ${no_output} of ${count} exited 0 but wrote no step outputs (GITHUB_OUTPUT file missing or empty), so the reconcile was not run"
+    fi
     # The reconcile reads tests/ from the first shard's checkout (the commit
     # being pushed), with that checkout's own tool.
     echo ""
@@ -684,14 +761,49 @@ run_gate36_shards() {
     if [ "${reconcile_rc}" -ne 0 ]; then
         shard_fail "${reconcile_rc}" "the shard reconcile failed (rc=${reconcile_rc})"
     fi
-    # A passing run removes every temporary checkout, then the shard directory.
+    trap - INT TERM HUP
+    # A passing run removes every temporary checkout, then the shard
+    # directory. rmtree removes the sibling links as links and never follows
+    # them, and it runs only on a real directory named grc-gate36-shards.*.
     for ((i = 1; i <= count; i++)); do
-        if ! git worktree remove --force "${shard_dirs[i]}/${REPO_NAME}" > /dev/null 2>&1; then
-            echo "pre-push guard: WARNING: could not remove the shard checkout ${shard_dirs[i]}/${REPO_NAME}; remove it with git worktree remove --force." >&2
+        tree="${shard_dirs[i]}/${REPO_NAME}"
+        if out="$(git worktree remove --force "${tree}" 2>&1)"; then
+            :
+        else
+            rc=$?
+            unremoved+=("${tree}")
+            echo "pre-push guard: WARNING: git worktree remove --force failed (rc=${rc}) for the shard checkout ${tree}: ${out//$'\n'/ }" >&2
         fi
     done
-    if ! python3 -I -c 'import shutil, sys; shutil.rmtree(sys.argv[1])' "${shard_root}"; then
+    case "${shard_root##*/}" in
+        grc-gate36-shards.?*)
+            if [ -d "${shard_root}" ] && [ ! -L "${shard_root}" ] \
+                    && python3 -I -c 'import shutil, sys; shutil.rmtree(sys.argv[1])' "${shard_root}"; then
+                rc=0
+            else
+                rc=1
+            fi
+            ;;
+        *) rc=1 ;;
+    esac
+    if [ "${rc}" -ne 0 ]; then
         echo "pre-push guard: WARNING: could not remove the shard directory ${shard_root}." >&2
+    fi
+    if [ "${#unremoved[@]}" -gt 0 ]; then
+        # The registration of a checkout git could not remove is stale once
+        # its directory is gone; prune clears it then, and only then.
+        if out="$(git worktree prune 2>&1)"; then rc=0; else rc=$?; fi
+        echo "pre-push guard: WARNING: ran git worktree prune (rc=${rc})${out:+: ${out//$'\n'/ }}." >&2
+        out="$(git worktree list --porcelain 2>/dev/null || true)"
+        for tree in "${unremoved[@]}"; do
+            if [[ $'\n'"${out}"$'\n' == *$'\n'"worktree ${tree}"$'\n'* ]]; then
+                echo "pre-push guard: WARNING: the shard checkout ${tree} is still registered; once its directory is gone, run git worktree prune." >&2
+            else
+                echo "pre-push guard: WARNING: the shard checkout ${tree} was not removed by git worktree remove; its registration is no longer listed after git worktree prune." >&2
+            fi
+        done
+        echo "pre-push guard: gate 36 passed as ${count} local shards in $((SECONDS - started))s; ${#unremoved[@]} of ${count} shard checkouts could not be removed by git worktree remove (named above)."
+        return 0
     fi
     echo "pre-push guard: gate 36 passed as ${count} local shards in $((SECONDS - started))s; the shard checkouts were removed."
 }

@@ -201,12 +201,19 @@ of `run-linter-regression.py`). The FULL guard runs gate 36 whole, with the
 private store present (maintainer decision 2026-11-05), after the other
 gates: six parallel `run-linter-regression.py --shard i/6` runs, each in its
 own temporary detached checkout of the commit being pushed (`git worktree add
---detach` into a `mktemp` directory, beside links to this clone's store and
-siblings), each with its own log and `GITHUB_OUTPUT` file and its exit status
-read directly; `reconcile-regression-shards.py --shard-outputs` then
-reconciles them. A failing or missing shard or a failing reconcile fails the
-push and keeps the checkouts, printing their paths; a passing run removes
-them. The full suite, gate 36 whole included, still runs in CI on the pull
+--detach` into a `mktemp` directory, beside symbolic links to this clone's
+store and siblings), each in its own process group with its own log and
+`GITHUB_OUTPUT` file and its exit status read directly;
+`reconcile-regression-shards.py --shard-outputs` then reconciles them. A
+failing shard (the guard exits with the first failing shard's own status), a
+shard that exits 0 without step outputs (exit 2, before the reconcile) or a
+failing reconcile (its own status: 1 failure, 2 refusal) fails the push and
+keeps the checkouts, printing their paths. INT, TERM or HUP during the shards
+stops every shard's process group, waits for them, keeps and names every
+checkout and log, and exits 130, 143 or 129. A passing run removes the
+checkouts; a checkout `git worktree remove` cannot remove is named, `git
+worktree prune` runs once its directory is gone, and the guard never claims
+that removal. The full suite, gate 36 whole included, still runs in CI on the pull
 request as six shard jobs whose outputs the summary job reconciles, and
 `merge-when-green.py` merges only on green CI. Residual: a failure in a
 regression test that a site-only change causes is first seen in CI, not
