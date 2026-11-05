@@ -332,7 +332,7 @@ The disciplines implement the same audit-trail-integrity principle the broader p
   low-risk changes, replays of reviewed work and one-token or wording fixes take, for their formal QA
   activities (for example `/validate-pr`), a dual-family `orch-verify` panel, claude and gemini (agy) preferred, codex substituting for either that cannot run.
   It never covers substantive-tier work above (including corpus-document body, multi-surface, control-code,
-  citation and normative-value changes and gate or linter edits), rule text, sensitive work or tooling, which keep the
+  citation and normative-value changes and gate or linter edits), rule text (CLAUDE.md, `.claude/rules`, governance overlays, playbooks, skills), sensitive work or tooling, which keep the
   triple-family panel. Record the panel size in the QA row. Rule of record:
   `.claude/CLAUDE.md` triple-family QA section.
 - Exchange channel and runbook: `multi-session-orchestration` (the former `grc_library_scratch` exchange
