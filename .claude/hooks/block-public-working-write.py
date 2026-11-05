@@ -270,6 +270,14 @@ def _bash_writes_public_working(command, project_dir):
     return False
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so a path cannot start a console line."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def decide(tool_name: str, tool_input: dict, project_dir: str) -> str | None:
     """Return a block reason for matching origin/store/path proxies, or None to allow.
 
@@ -285,8 +293,8 @@ def decide(tool_name: str, tool_input: dict, project_dir: str) -> str | None:
     if tool_name in ("Edit", "Write", "MultiEdit", "NotebookEdit"):
         fp = tool_input.get("file_path") or tool_input.get("notebook_path") or ""
         if fp and _path_under_public_working(project_dir, fp):
-            return (
-                f"BLOCKED (public-working-write): a write to {fp} resolving to the repository's resolved "
+            return (  # fp is the payload's path as given, shown escaped
+                f"BLOCKED (public-working-write): a write to {_printable(fp)} resolving to the repository's resolved "
                 f".working root or a descendant.\n"
                 f"WHY: this hook's origin-URL and store-directory checks matched. It guards against "
                 f"writes into the retired public working-state tree, but does not establish re-creation, "

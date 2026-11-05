@@ -182,7 +182,7 @@ def decide(file_path: str, project_dir: str) -> tuple[bool, str]:
         rel = target.relative_to(proj)
         reason = (
             "BLOCKED (branch-to-main-edit): an edit to a `grc_library` file "
-            f"(`{rel}`) while the repo is on `{branch}`.\n"
+            f"(`{_printable(rel)}`) while the repo is on `{branch}`.\n"  # rel is from the payload
             "WHY: `main` is PR-only; edits belong on a feature branch, and an edit on `main` "
             "is essentially never intended.\n"
             "CONSIDER INSTEAD: run `git -C {proj} checkout -b claude/<name>` first, then "

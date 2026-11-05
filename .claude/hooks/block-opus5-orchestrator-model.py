@@ -292,9 +292,18 @@ def write_alert(model: str) -> None:
         return
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so a path cannot start a console line."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def _message(model: str) -> str:
+    # The model id is read from the payload's transcript, so it is shown escaped.
     return (
-        f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: this orchestrator tool call on `{model}` (Opus 5.0) "
+        f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: this orchestrator tool call on `{_printable(model)}` (Opus 5.0) "
         f"is halted unconditionally (maintainer directive 2026-08-21).\n"
         f"WHY: Opus 5.0 is a banned working model for the orchestrator (Opus 5.5 and 5.1 are allowed); running orchestrator work on "
         f"it is prohibited.\n"

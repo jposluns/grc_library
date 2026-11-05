@@ -41874,7 +41874,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         alignment_citation_ids.json DATA F cfa3de2c52597f242d12bfce2d71756e897c173de8df9a1577aed4f42b571d56
         alignment_citation_reference.py PASSIVE F 4d26e0d5906e57bbe205f641575c6589d0afad3f60d8b4995aa07c26caf1db4b
         audit-activity-timing.py SKIP F e80df37531885836146bc027bc25e2c9afbeab6359b343f957d16449603e92b0
-        audit-backlog-actionability.py OWN F c089004a4e41f3a8c9273d7df9926331953635bc3133ba22023e1f2a7ffc1244
+        audit-backlog-actionability.py OWN F 307f3b5f8dfbb384eb0627f1eb50978742cb376acb51c459dfa6b65a1d068549
         audit-claim-precision.py ROOT F c2e537144efb7458cba00827577f959907263a7dfffcc75bab54c888f1e1d4b2
         audit-cross-repo-references.py OWN F f29ff55d094366575fcf45011fa08ab358f561519093248d1f37f8f4d79b3428
         audit-gate-blindspots.py OWN F a20d49b67e8bfa12a01f69d2847053fd8dca4dc50cb0b56acdb5c05d0763be48
@@ -42087,7 +42087,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         tail-safe.sh COMMAND F 07908bc54b40d06445f63a08f92526d22e4a030465ee235104a3ec41fbbb0b02
         tension-scan.py NO_FS F 280e4a102c450e944f0b850fb4cdd6e6f9113d2516f15ffbb7856e3ed9e9241f
         todo-number-floor.json DATA F b5b684a17754dd265c1072f2342971befcc59b5a6e0b579f48eb21ea172f047b
-        todo_index_rows.py PASSIVE F 6aba39ba20b4bbbe5ffab3fe94ef520ec95ce8d8e2510ea73696c17d196c2e4a
+        todo_index_rows.py PASSIVE F 4240298ca6e831034c437790bda95248ea9752922e741e155a3a258d20e39ac7
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4
         validate-review-artifacts.py OWN F 037b7cc690f09b3168dbc6ba22b908c5f7cccc0d47d4f6fe9f929e5e9a98a10d
         verify-reference-modules.py OWN F 18e5a34453e336aecb569547c920d7d7112ae4fa8a5377fb860d7fcfd29151bd
@@ -73968,6 +73968,141 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 self.assertIsNone(mod.actionable_items(td))
         self.assertEqual(sent, ["NOTICE (stop-guard-unattended; fail open): "
                                 "producer \\x1b[2J failed\\x07\n"])
+
+    # ---- 2026-11-05 round 2: payload paths in refusals and tool console text are escaped ----
+    # Each case fails without its fix: the raw path (or model id) would reach the text.
+    def test_branch_to_main_edit_escapes_payload_path(self):
+        """The edited file's repository-relative path comes from the payload's file_path."""
+        from unittest.mock import patch
+        mod = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_esc2_branch")
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                proj = Path(td).resolve() / "grc_library"
+                rel = Path("odd" + raw + "dir") / "x.md"
+                with patch.object(mod, "_current_branch", lambda root: "main"):
+                    block, text = mod.decide(str(proj / rel), str(proj))
+                self.assertTrue(block)
+                self._assert_paths_escaped(text, raw, shown, rel)
+                self.assertEqual(len(text.splitlines()), 3, repr(text))
+
+    def test_public_working_write_escapes_payload_path(self):
+        """The Edit/Write refusal names the payload's file_path as given."""
+        from unittest.mock import patch
+        mod = load_linter_module(".claude/hooks/block-public-working-write.py", "_esc2_public")
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                proj = Path(td).resolve() / "grc_library"
+                fp = proj / ".working" / ("odd" + raw + "dir") / "x.md"
+                with patch.object(mod, "_origin_is_maintainer", lambda project_dir: True), \
+                        patch.object(mod, "_private_working_present", lambda project_dir: True):
+                    text = mod.decide("Write", {"file_path": str(fp)}, str(proj))
+                self.assertIsNotNone(text)
+                self._assert_paths_escaped(text, raw, shown, fp)
+                self.assertEqual(len(text.splitlines()), 3, repr(text))
+
+    def test_claude_attribution_escapes_body_file_path(self):
+        """The refusal names the --body-file operand taken from the command."""
+        import shlex
+        mod = load_linter_module(".claude/hooks/block-claude-attribution.py", "_esc2_attribution")
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                body = os.path.join(td, "odd" + raw + "dir", "body.md")
+                command = "gh pr create --title t --body-file " + shlex.quote(body)
+                text = mod.decide(command, read_file=lambda path: "Co-Authored-By: Claude <c@x>")
+                self.assertIsNotNone(text)
+                self.assertIn("the body file ", text)
+                self._assert_paths_escaped(text, raw, shown, body)
+                self.assertEqual(len(text.splitlines()), 3, repr(text))
+
+    def test_opus5_message_escapes_model_id(self):
+        """The refusal names the model id read from the payload's transcript; an ESC after the
+        banned core still classifies as Opus 5.0, so it reaches the console."""
+        mod = load_linter_module(".claude/hooks/block-opus5-orchestrator-model.py", "_esc2_opus5")
+        self.assertTrue(mod.is_opus5("claude-opus-5@odd\x1bx"))
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label):
+                model = "claude-opus-5@odd" + raw + "x"
+                text = mod._message(model)
+                self._assert_paths_escaped(text, raw, shown, model)
+                self.assertEqual(len(text.splitlines()), 3, repr(text))
+
+    def test_audit_tool_escapes_printed_paths(self):
+        """tools/audit-backlog-actionability.py (run by nmw-actionable and the idle-stop hook)
+        escapes the approvals-register path on every note that names it, the store error (an
+        InaccessiblePath message names path components), and the TODO.md and P-TODO.md paths it
+        prints, so a path cannot add a line that nmw-actionable parses."""
+        import errno
+        from contextlib import redirect_stdout
+        from unittest.mock import patch
+        mod = load_linter_module("tools/audit-backlog-actionability.py", "_esc2_audit")
+        header = "| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n"
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                odd = Path(td) / ("odd" + raw + "dir")
+                odd.mkdir()
+                (odd / "a-directory.md").mkdir()
+                (odd / "undecodable.md").write_bytes(b"\xff\n")
+                (odd / "refused.md").write_text("<x>\n" + header, encoding="utf-8")
+                (odd / "granting.md").write_text(header, encoding="utf-8")
+                for name, wording in (("missing.md", "no register at"),
+                                      ("a-directory.md", "is not a regular file"),
+                                      ("undecodable.md", "unreadable"),
+                                      ("refused.md", "refused"),
+                                      ("granting.md", "granted row(s) in")):
+                    note = mod._load_default_approvals(str(odd / name))
+                    self.assertIn(wording, note)
+                    self._assert_paths_escaped(note, raw, shown, odd / name)
+                    self.assertEqual(len(note.splitlines()), 1, repr(note))
+                store = odd / "private"
+                blocked = mod.InaccessiblePath(
+                    errno.ENOTDIR, "present but not a directory (at %s, a path component of %s)"
+                    % (odd, store), str(store))
+
+                def refuse(*args, **kwargs):
+                    raise blocked
+                with patch.object(mod, "_store_dir", refuse):
+                    note = mod._load_default_approvals(None)
+                self.assertIn("cannot be examined", note)
+                self._assert_paths_escaped(note, raw, shown, odd)
+                self.assertEqual(len(note.splitlines()), 1, repr(note))
+                out = io.StringIO()
+                with patch.object(mod, "TODO_PATH", odd / "TODO.md"), redirect_stdout(out):
+                    self.assertEqual(mod.main([]), 0)
+                self.assertIn("advisory: TODO.md not found at", out.getvalue())
+                self._assert_paths_escaped(out.getvalue(), raw, shown, odd / "TODO.md")
+                todo = Path(td) / "TODO.md"
+                todo.write_text("## 1. Section\n\n### 1.1 An item [public]\n", encoding="utf-8")
+                out = io.StringIO()
+                with patch.object(mod, "PTODO_PATH", odd / "P-TODO.md"), \
+                        patch.object(mod, "_load_default_approvals", lambda explicit: "note"), \
+                        redirect_stdout(out):
+                    self.assertEqual(mod.main(["--todo", str(todo)]), 0)
+                self.assertIn("(private list ", out.getvalue())
+                self._assert_paths_escaped(out.getvalue(), raw, shown, odd / "P-TODO.md")
+
+    def test_todo_index_rows_refusal_escapes_directory(self):
+        """tools/todo_index_rows.py refuses a symlinked lint_common.py naming its own directory;
+        the directory is escaped, so the ImportError a tool's traceback prints stays one line."""
+        from unittest.mock import patch
+        source = (REPO_ROOT / "tools" / "todo_index_rows.py").read_bytes()
+        for label, raw, shown in self.ODD_PATH_CHARS:
+            with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
+                odd = Path(td).resolve() / ("odd" + raw + "dir")
+                odd.mkdir()
+                try:
+                    os.symlink(REPO_ROOT / "tools" / "lint_common.py", odd / "lint_common.py")
+                except OSError as exc:
+                    self.skipTest(f"symlinks unavailable: {exc}")
+                helper = odd / "todo_index_rows.py"
+                helper.write_bytes(source)
+                namespace = {"__name__": "_esc2_todo_index_rows", "__file__": str(helper)}
+                with patch.dict(sys.modules), self.assertRaises(ImportError) as caught:
+                    sys.modules.pop("lint_common", None)
+                    exec(compile(source, str(helper), "exec", dont_inherit=True), namespace)
+                text = str(caught.exception)
+                self.assertIn("refusing to execute it", text)
+                self._assert_paths_escaped(text, raw, shown, odd)
+                self.assertEqual(len(text.splitlines()), 1, repr(text))
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()

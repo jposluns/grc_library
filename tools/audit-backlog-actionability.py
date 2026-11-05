@@ -66,6 +66,14 @@ import unicodedata
 import sys
 from pathlib import Path
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    .claude/hooks/block-turn-end-with-outstanding-work.py applies), so a path or an error text
+    cannot start a console line: nmw-actionable reads this tool's output line by line."""
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def _load_tool_helper(name, _cache={}):
     """Load reviewed source, without adding tools to the module search path."""
     if name in _cache:
@@ -1612,7 +1620,8 @@ def _load_default_approvals(explicit: "str | None") -> str:
             store = _store_dir(REPO_ROOT, strict=True)
         except (InaccessiblePath, OSError) as exc:
             set_approvals(set())
-            return f"[BLOCKED] approvals: the operational store cannot be examined ({exc}); NO tag counts as blocked."
+            # An InaccessiblePath message names path components (lint_common), so it is shown escaped.
+            return f"[BLOCKED] approvals: the operational store cannot be examined ({_printable(exc)}); NO tag counts as blocked."
         if store is None:
             origin = _origin_is_maintainer()
             if origin is not False:
@@ -1625,22 +1634,22 @@ def _load_default_approvals(explicit: "str | None") -> str:
     try:  # every probe inside the handler: a metadata error must not cost the actionable count (QA r3)
         if not path.exists():
             set_approvals(set())
-            return (f"[BLOCKED] approvals: no register at {path}; NO tag counts as blocked "
+            return (f"[BLOCKED] approvals: no register at {_printable(path)}; NO tag counts as blocked "
                     f"(a missing register never widens what is blocked).")
         if not path.is_file():
             set_approvals(set())
-            return f"[BLOCKED] approvals: {path} is not a regular file; NO tag counts as blocked."
+            return f"[BLOCKED] approvals: {_printable(path)} is not a regular file; NO tag counts as blocked."
         text = path.read_bytes().decode("utf-8")  # keep lone CRs for the refusal check (QA r7)
     except (OSError, UnicodeDecodeError) as exc:
         set_approvals(set())
-        return f"[BLOCKED] approvals: {path} unreadable ({exc}); NO tag counts as blocked."
+        return f"[BLOCKED] approvals: {_printable(path)} unreadable ({exc}); NO tag counts as blocked."
     refusal = register_refusal(text)
     if refusal is not None:
         set_approvals(set())
-        return f"[BLOCKED] approvals: {path} refused ({refusal}); NO tag counts as blocked."
+        return f"[BLOCKED] approvals: {_printable(path)} refused ({refusal}); NO tag counts as blocked."
     ids, skipped = parse_approvals(text)
     set_approvals(ids)
-    note = f"[BLOCKED] approvals: {len(ids)} granted row(s) in {path}."
+    note = f"[BLOCKED] approvals: {len(ids)} granted row(s) in {_printable(path)}."
     if skipped:
         note += f" {len(skipped)} row(s) grant nothing: " + "; ".join(skipped)
     return note
@@ -1688,7 +1697,7 @@ def main(argv: list[str]) -> int:
 
     todo = Path(args.todo)
     if not todo.is_file():
-        print(f"advisory: TODO.md not found at {todo} (portable clone); no-op.")
+        print(f"advisory: TODO.md not found at {_printable(todo)} (portable clone); no-op.")
         return 0
     public_text = todo.read_text(encoding="utf-8", errors="replace")
 
@@ -1696,7 +1705,7 @@ def main(argv: list[str]) -> int:
     private_text = ptodo.read_text(encoding="utf-8", errors="replace") \
         if ptodo.is_file() else None
     private_note = "" if private_text is not None \
-        else f" (private list {ptodo} absent; public-only)"
+        else f" (private list {_printable(ptodo)} absent; public-only)"
 
     approvals_note = _load_default_approvals(args.approvals)  # every mode, including --pipeline (QA r1)
     item_like = [(src, n, ln) for src, txt in (("public", public_text), ("private", private_text)) if txt is not None

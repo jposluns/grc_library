@@ -268,6 +268,14 @@ def _snippet(s: str) -> str:
     return s[:117] + "..." if len(s) > 120 else s
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so a path cannot start a console line."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def find_attribution(text: str):
     raw_lines = text.split("\n")
     for view in text_views(text):
@@ -303,7 +311,8 @@ def decide(command: str, read_file=None, cwd: str | None = None) -> str | None:
             path = os.path.join(cwd, path)
         content = reader(path)
         if content is not None:
-            texts.append(("the body file " + path, content))
+            # The --body-file operand comes from the command, so it is shown escaped.
+            texts.append(("the body file " + _printable(path), content))
     for origin, text in texts:
         hit = find_attribution(text)
         if hit:
