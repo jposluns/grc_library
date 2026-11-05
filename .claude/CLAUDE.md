@@ -317,6 +317,7 @@ Only shapes: (a) full formal `/validate-pr` dispatch, Subagent A on diff plus to
 
 Every formal QA activity in the completion standard, including `/deep-assessment` probe phases, uses Claude, Codex AND Gemini, EACH an orch-verify worker, identical refute-brief, reconciled verdicts. Claude never uses in-session Agent (`block-orchestrator-self-qa.py`). Permanent EVERY-pass standard (2026-08-17), superseding 2026-07-29 dual-family and earlier consequential-only scope; diverse blind spots require reconciliation. Gemini is elastic, multiple workers per token.
 GRADUATED FLOOR only for TOKEN/TOOLING UNAVAILABILITY: limited/exhausted account or worker unable to deliver (e.g. wrapper stuck at interactive prompt). Use families that CAN run, triple to dual to single; note gap in QA row, re-run missing family when back. NEVER discretionary downgrade.
+LIGHT WORK takes DUAL-family QA (maintainer 2026-11-04 19:44 EST: "dual family for light work applies here, with preference towards claude and agy over codex"): small, low-risk changes, replays of reviewed work and one-token or wording fixes use claude and agy; substantive, sensitive and gate or tooling changes stay triple-family. Record the panel size in the QA row.
 Portable substantive tier: [`ai-assistant-workflow-disciplines`](references/governance/ai-assistant-workflow-disciplines.md), multi-family definition in [`high-assurance-verification`](references/governance/high-assurance-verification.md) stage 3.
 
 ## PR activity subscription discipline
