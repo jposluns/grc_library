@@ -6836,15 +6836,17 @@ def draft_narrative_body(body_html, source_rel, pages_by_path=None):
         )
 
     def relink(m):
-        href = m.group(1)[len('<a href="'):-1]
-        target = _manifest_target(href) if pages_by_path else None
+        # The attribute value unescaped ONCE: the recorded emission and its
+        # target are both read from this one value, so the retraction key
+        # never mixes the escaped and the unescaped forms.
+        blob = html_unescape(m.group(1)[len('<a href="'):-1])
+        target = _manifest_target(blob) if pages_by_path else None
         doc = pages_by_path.get(target) if target else None
         if doc is not None and doc.get("domain") != ROOT_DOMAIN:
             # The blob URL render_narrative_body recorded never reaches the
             # output, so its ledger entry is withdrawn here, where the URL
             # is dropped; the on-site page URL carries no owner token.
-            _retract_repo_emission(
-                html_unescape(href), _LEDGER_COUNTED, target)
+            _retract_repo_emission(blob, _LEDGER_COUNTED, target)
             url = _doc_page_url("{{BASE}}", target)
             return f'<a href="{_esc(url)}">{m.group(2)}</a>'
         return (f'{m.group(1)} target="_blank" rel="noopener noreferrer">'

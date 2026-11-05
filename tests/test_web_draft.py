@@ -2573,6 +2573,64 @@ class RepoLinkAllowListTests(unittest.TestCase):
         self.assertIn("retraction of a repository emission that was never "
                       "recorded", str(ctx.exception))
 
+    def test_document_cited_twice_is_retracted_once_per_citation(self):
+        # Link-guard replay round 2, note 2 (flip: let _retract_repo_emission
+        # remove every pending entry equal to the key, not the first one):
+        # one on-site document cited twice in one body records two equal
+        # entries, and each relinked citation withdraws exactly one, so
+        # the buffer ends empty. A retraction that removed both equal
+        # entries leaves too few: the direct retraction below keeps one
+        # of two, and an equal entry recorded elsewhere on the page (a
+        # link that stays) survives the body's two retractions.
+        self.mod._PENDING_REPO_EMISSIONS.clear()
+        self.addCleanup(self.mod._PENDING_REPO_EMISSIONS.clear)
+        onsite = "ai/guide-ai-board-oversight.md"
+        blob = self.mod.GITHUB_BLOB_BASE + onsite
+        key = (blob, self.mod._LEDGER_COUNTED, onsite)
+        source_rel = "executive/synthetic-brief.md"
+        lookup = {onsite: {"domain": "ai"}}
+        text = (f"See [board guide](../{onsite}) and again "
+                f"[the same guide](../{onsite}).")
+        body = self.mod.draft_narrative_body(
+            "<p>" + self.mod._render_narrative_links(text, source_rel)
+            + "</p>", source_rel, lookup)
+        self.assertNotIn(blob, body)
+        self.assertEqual(body.count('<a href="'), 2)
+        self.assertEqual(self.mod._PENDING_REPO_EMISSIONS, [])
+        self.mod.repo_blob_url(onsite)
+        self.mod.repo_blob_url(onsite)
+        self.mod._retract_repo_emission(*key)
+        self.assertEqual([e[:3] for e in self.mod._PENDING_REPO_EMISSIONS],
+                         [key])
+        self.mod._PENDING_REPO_EMISSIONS.clear()
+        self.mod.repo_blob_url(onsite)
+        self.mod.draft_narrative_body(
+            "<p>" + self.mod._render_narrative_links(text, source_rel)
+            + "</p>", source_rel, lookup)
+        self.assertEqual([e[:3] for e in self.mod._PENDING_REPO_EMISSIONS],
+                         [key])
+
+    def test_retraction_key_reads_the_unescaped_href_once(self):
+        # Link-guard replay round 2, note 1 (flip: take the target from
+        # the escaped href while the emission is unescaped): a page whose
+        # path carries a character the href escapes (``&`` as ``&amp;``)
+        # is found in the lookup and its recorded entry is withdrawn,
+        # because the emission and the target are both read from the one
+        # unescaped value. The mixed key looked up ``a&amp;b.md``, missed
+        # the page and left the blob link and its entry in place.
+        self.mod._PENDING_REPO_EMISSIONS.clear()
+        self.addCleanup(self.mod._PENDING_REPO_EMISSIONS.clear)
+        onsite = "ai/a&b.md"
+        url = self.mod.repo_blob_url(onsite)
+        body = self.mod.draft_narrative_body(
+            f'<p><a href="{self.mod._esc(url)}" target="_blank" '
+            'rel="noopener">guide</a></p>',
+            "executive/synthetic-brief.md", {onsite: {"domain": "ai"}})
+        self.assertNotIn(self.mod._esc(url), body)
+        self.assertIn(
+            self.mod._esc(self.mod._doc_page_url("{{BASE}}", onsite)), body)
+        self.assertEqual(self.mod._PENDING_REPO_EMISSIONS, [])
+
 
 class DraftSiteRenderTests(unittest.TestCase):
     """Tests over one shared full-site render (the heavy fixture)."""
