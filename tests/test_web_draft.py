@@ -39,7 +39,7 @@ What is locked here, each test failing without its feature:
    pinned file, an unpinned extra and a key outside the tree each fail the
    build. Gate 110 passes on the vendored tree, the pinned scripts are the
    release's whole script set (spec section 8), ``matrix.js`` loads exactly
-   on a page with a matrix (proved on fixtures too), every ``.sticky`` table
+   on a page with a matrix, today no page (proved on fixtures too), every ``.sticky`` table
    sits in a bounded scroll box (spec section 7.31), and the licence page
    names the pin's version, which no template types (spec section 11). The
    served stylesheet carries the 1.5.1 rule that content with the hidden
@@ -243,20 +243,25 @@ What is locked here, each test failing without its feature:
    whole document; a type page that lists one All Documents row drops the
    narrowing clause; and Browse calls All Documents every corpus document,
    which the adopter documents it leaves out are not.
-29. Crosswalk left rail and matrix presets (site f2, baseline 1.5.1 sections
-   7.30 to 7.32, unchanged at 1.6.0): the crosswalk page and its preset views are left-rail pages
+29. Crosswalk left rail and views (site f2, baseline 1.5.1 sections
+   7.30 to 7.32, unchanged at 1.6.0; maintainer defect report 2026-11-04
+   20:10 EST retired the matrix.js presets, whose in-place column switch
+   happened out of sight): the crosswalk page and its topic views are
+   left-rail pages
    with no right rail (the instrument pages keep the logo-only rail); the
    side list names every instrument under its group, the Also in the corpus
-   instruments included; the matrix.js presets are All plus the topic views
-   (item 30), each a link to its static view; the row-header column
-   carries no data-col and sits outside every preset; the table is the
-   page's one matrix in a bounded scroll box and shows every column without
-   script; the sentences about the table and the views hold for every column
+   instruments included; the Views links are All plus the topic views
+   (item 30), each a plain link that navigates to its rendered view page;
+   the row-header column
+   carries no data-col and sits outside every topic; the table sits in a
+   bounded scroll box with no data-matrix marker or status line and shows
+   every column as served;
+   the sentences about the table and the views hold for every column
    and view they cover; the generator refuses groups and instruments that
-   disagree; and the disclosure names the view the matrix script writes into
-   the page address.
+   disagree; and the disclosure, whose pages load no matrix script, names
+   no ?view= key.
 30. Crosswalk topic views (site f2 round 2, maintainer decision 2026-11-03
-   18:53Z: the views stay by topic): the presets equal design C 3.7's topic
+   18:53Z: the views stay by topic): the views equal design C 3.7's topic
    views, pinned as literals; each renders at /draft/crosswalk/view/<topic>/
    with its topic's columns and, where it has any, its related instrument
    pages, and no other view route renders; the rail's Views list is All plus
@@ -268,7 +273,7 @@ What is locked here, each test failing without its feature:
 31. Crosswalk round 3 (site f2): the Views sentence tells All, which opens
    the full table, from the topic views; the sentences about the side list
    say the group lists, not the Views list, hold the instruments; the
-   disclosure's ?view= clause matches what matrix.js writes and removes;
+   disclosure carries no ?view= clause since no page loads matrix.js;
    headers and cells take the spec 7.30 markup (name over organization tag,
    single-word identifiers in code type, a count link with a visually hidden
    noun) and no phrase-length label sits in a matrix cell; a view's column
@@ -1078,8 +1083,9 @@ class DraftSiteRenderTests(unittest.TestCase):
         """Baseline 1.5.0 adds matrix.js (spec 7.30, 1 matrix per page), and
         each script is opt-in per page (spec section 8), so adopting the
         release switches it on nowhere: it loads exactly on a page whose
-        table carries ``data-matrix``: the crosswalk page from site f2
-        (section 29 below), and MatrixScriptFixtureTests proves the rule on
+        table carries ``data-matrix``, today no page (the crosswalk's
+        opt-in left with the maintainer defect report 2026-11-04, section
+        29 below), and MatrixScriptFixtureTests proves the rule on
         fixtures too."""
         for rel, html in self.draft_html.items():
             self.assertEqual(
@@ -1486,12 +1492,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         "never writes the type or area of a chip marked unavailable, though "
         "a chip's link opened in a new tab or window carries it, as any link "
         "does.",
-        "When the reader chooses a crosswalk topic view, the matrix script "
-        "writes the view's short identifier (for example, privacy) into the "
-        "page address (?view=) the same way, and removes it from the address "
-        "when the reader chooses All.",
-        "This site's host, Cloudflare, receives that address, query, choices "
-        "and view included, when the reader reloads the page and with later "
+        "This site's host, Cloudflare, receives that address, query and "
+        "choices included, when the reader reloads the page and with later "
         "requests from the page to this site.",
         "Scripts the page runs, including the Cloudflare Web Analytics "
         "beacon, can read the page address.",
@@ -1518,16 +1520,19 @@ class DraftSiteRenderTests(unittest.TestCase):
         about 1,270 characters, hard to read, so it is split into short
         paragraphs by subject. The split adds, drops and rewords nothing,
         and one sentence, the search script's, was later reworded for
-        baseline 1.7.0: the claim's paragraphs, read in order and split at
-        sentence ends, are the old claim's sentences with that one reworded,
-        so each paragraph holds whole sentences, and each sentence appears
-        on the rendered page exactly once."""
+        baseline 1.7.0; the matrix script's ?view= sentence left with the
+        script (maintainer defect report 2026-11-04: the crosswalk rail
+        navigates, so no page loads matrix.js and nothing writes ?view=),
+        and the host sentence dropped "and view" with it. The claim's
+        paragraphs, read in order and split at sentence ends, are exactly
+        these sentences, so each paragraph holds whole sentences, and each
+        sentence appears on the rendered page exactly once."""
         page = self.draft_html["disclosure/index.html"]
         parts = self._disclosure_claim_parts(page)
         # Four paragraphs by subject, each opening on its own sentence.
         self.assertEqual(len(parts), 4, "the claim is four paragraphs")
         for part, first in zip(parts, [self._D6_CLAIM_SENTENCES[i]
-                                       for i in (0, 2, 4, 7)]):
+                                       for i in (0, 2, 4, 6)]):
             self.assertTrue(part.startswith(first), first)
         self.assertEqual(
             [s for p in parts for s in re.split(r"(?<=\.)\s+(?=[A-Z])", p)],
@@ -1569,13 +1574,9 @@ class DraftSiteRenderTests(unittest.TestCase):
             "?area=), so the query and those choices can appear in the "
             "browser history; the script itself never writes the type or "
             "area of a chip marked unavailable, though a chip's link opened "
-            "in a new tab or window carries it, as any link does. When the "
-            "reader chooses a crosswalk topic "
-            "view, the matrix script writes the view's short identifier (for "
-            "example, privacy) into the page address (?view=) the same way, "
-            "and removes it from the address when the reader chooses All. "
-            "This site's host, Cloudflare, receives that address, query, "
-            "choices and view included, when the reader reloads the page and "
+            "in a new tab or window carries it, as any link does. "
+            "This site's host, Cloudflare, receives that address, query and "
+            "choices included, when the reader reloads the page and "
             "with later requests from the page to this site. Scripts the page "
             "runs, including the Cloudflare Web Analytics beacon, can read the "
             "page address.", claim)
@@ -1627,18 +1628,17 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn("write(next);", click[:click.index("});")],
                       "the write happens inside the click handler only")
         # "the search script writes the query into the page address (?q=),
-        # and on All Documents ... the type and area (?type=, ?area=)" and
-        # the matrix script's ?view= clause (checked against matrix.js in
-        # section 31): they are the only loaded scripts that write the
-        # address; search.js writes ?q= and one key per facet group, the
-        # only facet groups on the draft being All Documents' type and area,
-        # and matrix.js writes ?view= and loads on the crosswalk page alone
-        # (site f2), so "when the reader chooses a crosswalk topic view"
-        # covers it.
+        # and on All Documents ... the type and area (?type=, ?area=)":
+        # search.js is the only loaded script that writes the address; it
+        # writes ?q= and one key per facet group, the only facet groups on
+        # the draft being All Documents' type and area. matrix.js stays a
+        # vendored baseline asset, but no page loads it (maintainer defect
+        # report 2026-11-04: the crosswalk rail navigates), so the claim
+        # carries no ?view= clause and names no matrix script.
         self.assertEqual(
             sorted(n for n, js in sources.items() if "replaceState" in js),
-            ["matrix.js", "search.js"],
-            "exactly the search and matrix scripts write the page address")
+            ["search.js"],
+            "the search script alone writes the page address")
         self.assertIn('p.set("q", input.value)', sources["search.js"])
         self.assertIn("p.set(g.name, g.value)", sources["search.js"])
         groups = {
@@ -1656,23 +1656,21 @@ class DraftSiteRenderTests(unittest.TestCase):
             sources["search.js"].index('c.addEventListener("click"'):]
         self.assertLess(click.index('=== "true") {'),
                         click.index("write();"))
-        # matrix.js 1.7.0 writes { view: id } for a topic preset and deletes
-        # view for All; ?cols= only where column toggles exist, and the
-        # crosswalk has none (section 31 reads the exact call).
-        self.assertIn('{ view: k.length && id ? id : "" }',
-                      sources["matrix.js"])
-        self.assertNotIn("data-col-toggles",
-                         self.draft_html["crosswalk/index.html"])
+        # The matrix script loads nowhere and nothing else writes ?view=,
+        # so the claim says nothing about it (section 29 pins the rail).
         self.assertEqual(
             sorted(rel for rel, html in self.draft_html.items()
                    if "/assets/baseline/matrix.js" in html),
-            ["crosswalk/index.html"],
-            "the matrix script loads on the crosswalk page alone")
+            [], "no page loads the matrix script")
+        self.assertNotIn("?view=", claim,
+                         "the claim names no address key nothing writes")
+        self.assertNotIn("data-col-toggles",
+                         self.draft_html["crosswalk/index.html"])
         # Batch 3 integration: the claim names every script's address and
         # storage behaviour together, so a script that writes the address
         # or keeps storage and goes unnamed fails here.
         named = {"scheme.js": 'under the key "scheme"',
-                 "search.js": "(?q=)", "matrix.js": "(?view=)"}
+                 "search.js": "(?q=)"}
         self.assertEqual(
             sorted(n for n, js in sources.items()
                    if "replaceState" in js or "localStorage" in js),
@@ -4417,10 +4415,9 @@ class DraftSiteRenderTests(unittest.TestCase):
                 "list")
         main = self.draft_html["crosswalk/index.html"]
         self.assertIn(
-            '<li><a href="/crosswalk/" aria-current="page" '
-            'data-preset="" data-preset-id="all">All</a></li>',
-            main, "the full crosswalk marks All as the current view, and All "
-            "is its matrix.js preset showing every column")
+            '<li><a href="/crosswalk/" aria-current="true">All</a></li>',
+            main, "the full crosswalk marks All as the current view, a "
+            "plain link showing every column")
 
     def test_crosswalk_caveat_block_present(self):
         pages = ["crosswalk/index.html"]
@@ -4447,7 +4444,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                               f"{rel}: caveat block misses {fragment!r}")
 
     _XWI_LEAD_RE = re.compile(r'<p class="lead">.*?</p>', re.S)
-    _XWI_RECORD_RE = re.compile(r'<dl class="record side">.*?</dl>', re.S)
+    _XWI_RECORD_RE = re.compile(r'<dl class="record">.*?</dl>', re.S)
 
     def test_crosswalk_instrument_pages_free_of_register_internal_text(self):
         """Round-2 item 1: the instrument lead piped the whole register Topic
@@ -4513,6 +4510,39 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertNotIn("COBIT 2025", cobit,
                          "the register note's unpublished version never "
                          "reaches the page")
+
+    def test_crosswalk_instrument_register_sits_in_the_main_column(self):
+        """Maintainer defect report 2026-11-04 20:11 EST: "a massive gap
+        below the first sentence" on /crosswalk/mitre-atlas/. The register
+        record rendered as <dl class="record side">, and the baseline rule
+        `.doc > .side { grid-column: 1; grid-row: span 7 }` (baseline.css)
+        places a side record in the label column; the section label that
+        follows it on an instrument page is a label-column item too, so it
+        had to clear the whole 7-row span, and the main column sat empty
+        for the record's full height under the lead (486 to 758 px measured
+        at 1512 px) on every instrument page with a register row. The
+        record renders in the main column under its Canonical citation
+        label, so content follows the lead with no empty band; document
+        pages, whose record sits beside main-column content, keep the side
+        form."""
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        xw = self.mod.build_crosswalk(full)
+        with_rows = 0
+        for inst in self.mod.CROSSWALK_INSTRUMENTS:
+            rel = f"crosswalk/{inst.key}/index.html"
+            html = self.draft_html[rel]
+            self.assertNotIn('<dl class="record side">', html,
+                             f"{rel}: no side record in the label column")
+            if xw["instruments"][inst.key]["register"] is not None:
+                with_rows += 1
+                self.assertIn(
+                    '<p class="lbl blk">Canonical citation</p>\n'
+                    '<dl class="record">', html,
+                    f"{rel}: the record sits in the main column under its "
+                    "label")
+        self.assertTrue(with_rows, "an instrument has a register row today, "
+                        "so the rule bites")
 
     def test_browse_and_landing_link_the_crosswalk(self):
         """Round-2 item 2: no page outside /draft/crosswalk/ linked the
@@ -4636,9 +4666,6 @@ class DraftSiteRenderTests(unittest.TestCase):
         r'<p class="lbl">([^<]*)</p><ul>(.*?)</ul>', re.S)
     _XW_RAIL_LINK_RE = re.compile(
         r'<li><a href="([^"]*)"([^>]*)>([^<]*)</a></li>')
-    _XW_PRESET_RE = re.compile(
-        r'<a href="([^"]*)"[^>]*\sdata-preset="([^"]*)" '
-        r'data-preset-id="([^"]*)">([^<]*)</a>')
     _XW_ROW_RE = re.compile(r"<tr>(.*?)</tr>", re.S)
     _XW_CELL_RE = re.compile(r"<(th|td)\b([^>]*)>(.*?)</\1>", re.S)
     _XW_DATA_COL_RE = re.compile(r'\sdata-col="([^"]*)"')
@@ -4651,7 +4678,8 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def _xw_main_order(self, columns):
         """A view's columns as the full table orders them (round 3 item 7:
-        matrix.js hides columns and never reorders them)."""
+        a view restricts the full table's columns and never reorders
+        them)."""
         return [i.key for i in self.mod.CROSSWALK_INSTRUMENTS
                 if i.main_table and i.key in columns]
 
@@ -4770,44 +4798,56 @@ class DraftSiteRenderTests(unittest.TestCase):
         r'<p class="lbl blk">Related instrument pages</p>'
         r'<ul class="chips">(.*?)</ul>', re.S)
 
-    def test_crosswalk_presets_equal_the_topics(self):
-        """Round 2 item 1: the matrix.js presets (spec 7.30) are All plus
-        the topic views of design C 3.7, each holding exactly its topic's
-        columns, in topic order; every column sits in at least one topic,
-        the Also in the corpus instruments in none. Each preset lives in the
-        side list and is a link to a page that resolves without script and
-        renders that preset's columns; a static view carries no preset and
-        no matrix, so no script acts there."""
-        main = self.draft_html["crosswalk/index.html"]
-        expected = [("/crosswalk/", "", "all", "All")] + [
-            (f"/crosswalk/view/{slug}/", " ".join(columns), slug,
-             self.mod._esc(label))
-            for slug, label, columns, _ in self._XW_TOPICS]
-        presets = self._XW_PRESET_RE.findall(main)
-        self.assertEqual(presets, expected,
-                         "the presets are All plus the topic views")
-        rail = self._XW_RAIL_RE.search(main).group(1)
-        self.assertEqual(rail.count("data-preset="), len(expected))
-        self.assertEqual(main.count("data-preset="), len(expected),
-                         "every preset sits in the side list")
-        columns = self._XW_COL_RE.findall(main)
-        in_presets = [k for _, keys, _, _ in presets for k in keys.split()]
-        self.assertEqual(sorted(set(in_presets)), sorted(columns),
-                         "every column sits in at least one topic preset, "
-                         "and no preset names a column the table has not")
+    def test_crosswalk_rail_views_are_plain_links_that_navigate(self):
+        """Maintainer defect report 2026-11-04 20:10 EST ("many of the links
+        on the left bar don't bring you to anything", the Views list): as
+        matrix.js presets (spec 7.30) the view links switched columns in
+        place while the matrix sat below the fold at 1512 and 390 px, so an
+        unmodified rail click changed nothing the visitor could see. The
+        Views links are plain links now: no crosswalk table page carries a
+        preset attribute, a data-matrix table, a matrix status line, or the
+        matrix script, so every rail click navigates, and each Views link
+        opens a rendered page whose heading names the view (visible,
+        non-empty content). The topic views of design C 3.7 still hold:
+        each view page renders exactly its topic's columns in the full
+        table's order, every column sits in at least one topic, and the
+        Also in the corpus instruments sit in none."""
+        for rel in self._xw_table_pages():
+            html = self.draft_html[rel]
+            for marker in ("data-preset", "data-matrix", "matrix-status",
+                           "/assets/baseline/matrix.js"):
+                self.assertNotIn(marker, html, f"{rel}: {marker}")
+            rail = self._XW_RAIL_RE.search(html).group(1)
+            label, body = self._XW_RAIL_BLOCK_RE.findall(rail)[0]
+            self.assertEqual(label, "Views", rel)
+            links = self._XW_RAIL_LINK_RE.findall(body)
+            self.assertEqual(
+                [href for href, _, _ in links],
+                ["/crosswalk/"] + [f"/crosswalk/view/{t.slug}/"
+                                   for t in self.mod.CROSSWALK_TOPICS],
+                f"{rel}: the Views list is All then the topic views")
+            for href, attrs, text in links:
+                self.assertNotIn("data-", attrs, f"{rel}: a plain link")
+                target_rel = _page_rel_for(href)
+                self.assertIn(target_rel, self.draft_html, href)
+                heading = ("<h1>The crosswalk</h1>" if href == "/crosswalk/"
+                           else f"<h1>Crosswalk: {text}</h1>")
+                self.assertIn(heading, self.draft_html[target_rel],
+                              f"{href}: the click lands on its view's page")
+        for slug, _, columns, _ in self._XW_TOPICS:
+            view = self.draft_html[f"crosswalk/view/{slug}/index.html"]
+            self.assertEqual(self._XW_COL_RE.findall(self._xw_table(view)),
+                             self._xw_main_order(columns),
+                             f"the '{slug}' view renders its topic's columns")
+        columns = self._XW_COL_RE.findall(
+            self.draft_html["crosswalk/index.html"])
+        covered = {k for _, _, keys, _ in self._XW_TOPICS for k in keys}
+        self.assertEqual(sorted(covered), sorted(columns),
+                         "every column sits in at least one topic view, and "
+                         "no topic names a column the table has not")
         also = dict(self._xw_groups())[self._XW_ALSO]
-        self.assertFalse(set(also) & set(in_presets),
-                         "an instrument with no column is in no preset")
-        for href, keys, slug, _ in presets[1:]:
-            rel = _page_rel_for(href)
-            self.assertIn(rel, self.draft_html,
-                          f"preset '{slug}' links a page that resolves")
-            view = self.draft_html[rel]
-            self.assertEqual(self._XW_COL_RE.findall(view),
-                             self._xw_main_order(keys.split()),
-                             f"the '{slug}' view renders its preset's columns")
-            self.assertNotIn("data-preset=", view, rel)
-            self.assertNotRegex(view, r"\sdata-matrix\b", rel)
+        self.assertFalse(set(also) & covered,
+                         "an instrument with no column is in no topic view")
 
     def test_crosswalk_topic_view_routes_render(self):
         """Round 2 item 1: each topic view renders at its old route
@@ -4867,19 +4907,39 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.assertEqual([(href, text) for href, _, text in links],
                              expected, f"{rel}: Views is All plus the topics")
             current = [href for href, attrs, _ in links
-                       if 'aria-current="page"' in attrs]
+                       if 'aria-current="true"' in attrs]
             self.assertEqual(current, [own], f"{rel}: its own view is current")
 
-    def test_crosswalk_row_header_column_sits_outside_every_preset(self):
-        """Directive item 2 and spec 7.30: the row-header column carries no
-        data-col, so no preset names it and matrix.js never hides it; every
-        other header and cell carries its column's key; the crosswalk table
-        is the page's one matrix, in its bounded scroll box (spec 7.31),
-        with the status line above it; and without script the full table
-        reads (no cell is hidden in the markup)."""
+    def test_crosswalk_rail_current_view_carries_the_styled_marker(self):
+        """Round 2 item 1 (WARN, regression): the vendored baseline styles
+        the lrail current item only as [aria-current="true"] or
+        [aria-pressed="true"] (baseline.css .lrail rule), so the earlier
+        aria-current="page" form rendered no visible marker. The crosswalk
+        page marks All, each view page marks its own view, with
+        aria-current="true", exactly one marker per rail."""
+        pages = [("crosswalk/index.html", "/crosswalk/", "All")] + [
+            (f"crosswalk/view/{slug}/index.html",
+             f"/crosswalk/view/{slug}/", label)
+            for slug, label, _, _ in self._XW_TOPICS]
+        for rel, own, label in pages:
+            rail = self._XW_RAIL_RE.search(self.draft_html[rel]).group(1)
+            self.assertEqual(rail.count("aria-current"), 1,
+                             f"{rel}: one current marker in the rail")
+            self.assertIn(
+                f'<li><a href="{own}" aria-current="true">'
+                f"{self.mod._esc(label)}</a></li>", rail,
+                f"{rel}: its own view carries the styled marker")
+
+    def test_crosswalk_row_header_column_sits_outside_every_topic(self):
+        """Directive item 2 and spec 7.30 markup: the row-header column
+        carries no data-col, so no topic view names it and it shows on
+        every view page; every other header and cell carries its column's
+        key; the crosswalk table sits in its bounded scroll box (spec
+        7.31) with no status line and no data-matrix marker (maintainer
+        defect report 2026-11-04: no script changes columns); and the full
+        table reads as served (no cell is hidden in the markup)."""
         main = self.draft_html["crosswalk/index.html"]
-        preset_keys = {k for _, keys, _, _ in self._XW_PRESET_RE.findall(main)
-                       for k in keys.split()}
+        topic_keys = {k for _, _, keys, _ in self._XW_TOPICS for k in keys}
         for rel in self._xw_table_pages():
             html = self.draft_html[rel]
             table = self._xw_table(html)
@@ -4903,14 +4963,14 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertEqual([k.group(1) for k in keys], columns, rel)
                 if rel == "crosswalk/index.html":
                     self.assertTrue(
-                        {k.group(1) for k in keys} <= preset_keys,
-                        "every keyed cell belongs to a preset")
+                        {k.group(1) for k in keys} <= topic_keys,
+                        "every keyed cell belongs to a topic view")
         self.assertRegex(
-            main, r'<p class="matrix-status" role="status" '
-            r'aria-live="polite" data-matrix-status></p>\s*<div class="wide">'
+            main, r'<div class="wide">'
             r'<div class="tablewrap bounded" tabindex="0">\s*<table '
-            r'class="matrix sticky sticky-col" data-matrix>',
-            "the status line sits above the page's one matrix")
+            r'class="matrix sticky sticky-col">',
+            "the table sits in its bounded scroll box, with no status line "
+            "and no data-matrix marker")
 
     def test_crosswalk_table_sentences_hold_for_every_column(self):
         """Directive item 3 and the page prose rule: the sentences about the
@@ -4969,34 +5029,40 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def test_crosswalk_views_sentences_hold_for_every_view(self):
         """The page prose rule on the Views sentences, checked against the
-        rendered pages: the number of topic views equals the presets in the
-        side list; "every column is in at least one topic" holds for the
-        rendered presets; "the Domain column shows in every view" holds
-        because the row-header column is outside every preset (test above);
-        the clause that a topic can take columns from more than one group
-        appears exactly when a rendered topic's columns sit under more than
-        one group in the rendered side list, the clause that a column can
-        sit in more than one topic exactly when a rendered column does, and
-        the related pages clause exactly when a rendered view links related
-        pages (qualified, since only some do); each Also in the corpus
-        instrument the sentence counts has a rendered page and no column;
-        and a view page's sentence names only what its side list holds (the
-        other views, All among them, and every instrument)."""
+        rendered pages: the number of topic views equals the Views links in
+        the side list; "every column is in at least one topic" holds for
+        the rendered views' pages; "the Domain column shows in every view"
+        holds because the row-header column is outside every topic (test
+        above); the clause that a topic can take columns from more than one
+        group appears exactly when a rendered topic's columns sit under
+        more than one group in the rendered side list, the clause that a
+        column can sit in more than one topic exactly when a rendered
+        column does, and the related pages clause exactly when a rendered
+        view links related pages (qualified, since only some do); each Also
+        in the corpus instrument the sentence counts has a rendered page
+        and no column; and a view page's sentence names only what its side
+        list holds (the other views, All among them, and every
+        instrument)."""
         main = self.draft_html["crosswalk/index.html"]
-        presets = self._XW_PRESET_RE.findall(main)
+        views = self._XW_RAIL_LINK_RE.findall(self._XW_RAIL_BLOCK_RE.findall(
+            self._XW_RAIL_RE.search(main).group(1))[0][1])
+        topic_hrefs = [href for href, _, _ in views[1:]]
         also = dict(self._xw_groups())[self._XW_ALSO]
         para = re.search(r"<p>(Each of the (\d+) topic views in the Views "
                          r"list .*?)</p>", main, re.S)
         self.assertIsNotNone(para, "the Views sentence on the crosswalk")
         text = para.group(1)
-        self.assertEqual(int(para.group(2)), len(presets) - 1,
-                         "the topic view count equals the rendered presets")
+        self.assertEqual(int(para.group(2)), len(topic_hrefs),
+                         "the topic view count equals the rendered Views "
+                         "links")
         self.assertIn(
             "shows the columns for one topic, and All shows every column; "
             "every column is in at least one topic, and the Domain column "
             "shows in every view.", text)
         columns = self._XW_COL_RE.findall(main)
-        topic_keys = [keys.split() for _, keys, _, _ in presets[1:]]
+        topic_keys = [
+            self._XW_COL_RE.findall(self.draft_html[_page_rel_for(href)])
+            for href in topic_hrefs]
         self.assertEqual({k for keys in topic_keys for k in keys},
                          set(columns), "every column is in a topic")
         rail = self._XW_RAIL_RE.search(main).group(1)
@@ -5010,7 +5076,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         shared = any(flat.count(k) > 1 for k in flat)
         related = any(
             self._XW_RELATED_RE.search(self.draft_html[_page_rel_for(href)])
-            for href, _, _, _ in presets[1:])
+            for href in topic_hrefs)
         self.assertTrue(spans and shared and related,
                         "the corpus exercises every clause today")
         self.assertEqual(
@@ -5023,7 +5089,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             "which also links the topic's related instrument pages where it "
             "has any" in unescape(text), related,
             "the related pages clause holds on the rendered pages")
-        self.assertIn("Without script every column shows here, All is a link "
+        self.assertIn("Every column shows here, All is a link "
                       "to this full table, and each topic view is a link to a "
                       "page with that topic's columns only", unescape(text))
         tail = re.search(
@@ -5079,17 +5145,22 @@ class DraftSiteRenderTests(unittest.TestCase):
         return unescape(" ".join(para.group(1).split()))
 
     def test_crosswalk_views_sentence_tells_all_from_the_topic_views(self):
-        """Round 3 item 1 (ERROR): without script All opens the full table,
-        and only a topic view opens a page with its topic's columns only.
-        The sentence says so, checked against the side list's links and the
-        pages they open: All is the crosswalk page itself, which renders
-        every main-table column, and each topic link opens a page with
-        exactly its preset's columns, fewer than the full table."""
+        """Round 3 item 1 (ERROR), wording from round 2 of item 3b788: the
+        crosswalk loads no script, so the sentence drops the "Without
+        script" qualifier; All opens the full table, and only a topic view
+        opens a page with its topic's columns only. The sentence says so,
+        checked against the side list's links and the pages they open: All
+        is the crosswalk page itself, which renders every main-table
+        column, and each topic link opens a page with exactly its topic's
+        columns, fewer than the full table."""
         text = self._xw_views_text()
         self.assertIn(
-            "Without script every column shows here, All is a link to this "
+            "Every column shows here, All is a link to this "
             "full table, and each topic view is a link to a page with that "
             "topic's columns only", text)
+        self.assertNotIn("Without script", text,
+                         "no script remains, so the sentence no longer "
+                         "qualifies itself")
         self.assertNotIn("each view is a link to a page with that topic's "
                          "columns only", text, "All is no topic page")
         main = self.draft_html["crosswalk/index.html"]
@@ -5098,16 +5169,32 @@ class DraftSiteRenderTests(unittest.TestCase):
         main_keys = self._xw_main_keys()
         self.assertEqual(self._XW_COL_RE.findall(main), main_keys,
                          "this page is the full table")
-        presets = self._XW_PRESET_RE.findall(main)
-        self.assertEqual(presets[0][:2], ("/crosswalk/", ""),
+        views = self._XW_RAIL_LINK_RE.findall(self._XW_RAIL_BLOCK_RE.findall(
+            self._XW_RAIL_RE.search(main).group(1))[0][1])
+        self.assertEqual((views[0][0], views[0][2]), ("/crosswalk/", "All"),
                          "All links this full table")
-        self.assertEqual(presets[0][3], "All")
-        for href, keys, slug, _ in presets[1:]:
+        by_slug = {t.slug: t for t in self.mod.CROSSWALK_TOPICS}
+        for href, _, _ in views[1:]:
+            slug = href.rstrip("/").rsplit("/", 1)[-1]
             view = self.draft_html[_page_rel_for(href)]
             shown = self._XW_COL_RE.findall(view)
-            self.assertEqual(sorted(shown), sorted(keys.split()), slug)
+            self.assertEqual(sorted(shown), sorted(by_slug[slug].columns),
+                             slug)
             self.assertLess(len(shown), len(main_keys),
                             f"{slug}: a topic page holds its columns only")
+
+    def test_crosswalk_comments_describe_plain_view_pages(self):
+        """Round 2 item 3 (NOTE): the crosswalk loads no matrix.js, so the
+        generator's own account of the views names plain view pages: the
+        section comment no longer says "static preset views" and the
+        _xw_views_intro docstring no longer says a preset is one topic's
+        columns."""
+        source = Path(self.mod.__file__).read_text(encoding="utf-8")
+        self.assertNotIn("static preset views", source)
+        self.assertNotIn("each preset is one topic's columns",
+                         self.mod._xw_views_intro.__doc__)
+        self.assertIn("each view page shows one topic's columns",
+                      self.mod._xw_views_intro.__doc__)
 
     def test_crosswalk_side_list_sentences_name_the_lists_that_hold(self):
         """Round 3 item 2 (ERROR): the Views list holds only All and the
@@ -5145,51 +5232,23 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.assertRegex(prose, r"the group lists (?:below it )?name "
                              r"every instrument under its group", rel)
 
-    def test_disclosure_view_claim_matches_matrix_js(self):
-        """Round 3 item 3 (WARN): the disclosure's ?view= clause says what
-        matrix.js does, read from the served script and the rendered presets:
-        on a topic view the script writes the chosen preset's data-preset-id
-        (a short identifier, not the view's name), and on All, whose
-        data-preset is empty, it removes the parameter. The example the
-        clause gives is a topic preset's id on the rendered crosswalk."""
+    def test_disclosure_claim_carries_no_view_clause(self):
+        """Round 3 item 3 recorded the ?view= clause against matrix.js; the
+        matrix script left the crosswalk with the maintainer defect report
+        2026-11-04 20:10 EST (the rail views navigate instead of switching
+        columns out of sight), so no page loads it, nothing on the site
+        writes ?view=, and the disclosure's claim names neither a matrix
+        script nor the ?view= key. No page carries a preset attribute, a
+        data-matrix table, or a matrix status line either, so the scripted
+        and served pages agree."""
         page = self.draft_html["disclosure/index.html"]
         claim = " ".join(self._disclosure_claim_parts(page))
-        clause = re.search(
-            r"When the reader chooses a crosswalk topic view, the matrix "
-            r"script writes the view's short identifier \(for example, "
-            r"([a-z0-9-]+)\) into the page address \(\?view=\) the same way, "
-            r"and removes it from the address when the reader chooses All\.",
-            claim)
-        self.assertIsNotNone(clause, claim)
-        main = self.draft_html["crosswalk/index.html"]
-        presets = {pid: (keys, unescape(label)) for _, keys, pid, label
-                   in self._XW_PRESET_RE.findall(main)}
-        example = clause.group(1)
-        self.assertIn(example, presets, "the example is a rendered preset id")
-        keys, label = presets[example]
-        self.assertTrue(keys, "the example is a topic view with columns")
-        self.assertNotEqual(label, example,
-                            "the address takes the id, not the view's name")
-        self.assertEqual([k for k, lbl in presets.values() if lbl == "All"],
-                         [""], "All carries no column keys")
-        js = self.draft_all["assets/baseline/matrix.js"].decode("utf-8")
-        # keys(p) reads data-preset, so All's k is empty; a preset with keys
-        # writes its data-preset-id as ?view=, and All deletes the parameter
-        # (writeAddress sets a key with a value and deletes an empty one).
-        # From 1.7.0 the same call also clears ?cols= on a page with column
-        # toggles; the crosswalk has none, so it writes ?view= alone, and
-        # ?cols= is written only from the toggles (showSet).
-        self.assertIn('return (p.getAttribute("data-preset") || "")', js)
-        self.assertIn("var k = keys(p);", js)
-        self.assertIn('var id = p.getAttribute("data-preset-id");', js)
-        self.assertIn('writeAddress(toggles.length ? { view: k.length && id '
-                      '? id : "", cols: "" } : { view: k.length && id ? id '
-                      ': "" });', js)
-        self.assertIn('if (set[k]) { s.set(k, set[k]); } else { '
-                      's.delete(k); }', js)
-        self.assertIn('var toggles = slice(document.querySelectorAll('
-                      '"[data-col-toggles] button[data-col]"));', js)
-        self.assertNotIn("data-col-toggles", main)
+        self.assertNotIn("?view=", claim)
+        self.assertNotIn("matrix script", claim)
+        for rel, html in self.draft_html.items():
+            for marker in ("/assets/baseline/matrix.js", "data-preset",
+                           "data-matrix", "matrix-status"):
+                self.assertNotIn(marker, html, f"{rel}: {marker}")
 
     def test_crosswalk_headers_and_cells_follow_spec_7_30(self):
         """Round 3 item 4 (WARN): spec 7.30 markup. A header is the name over
@@ -5253,11 +5312,11 @@ class DraftSiteRenderTests(unittest.TestCase):
                         "today, so the prefix rule bites")
 
     def test_crosswalk_counts_name_their_scope(self):
-        """Round 3 items 5 and 6 (WARN): matrix.js hides columns on the
-        crosswalk page, so every count there names the full table (caption,
-        label, meta, and the intro's column split); a static view's columns
-        never change, so its split counts the columns here. Wherever a
-        caption states a number, it equals the rendered data-col headers."""
+        """Round 3 items 5 and 6 (WARN): the crosswalk page renders the full
+        table, so every count there names the full table (caption, label,
+        meta, and the intro's column split); a topic view's columns are a
+        subset, so its split counts the columns here. Wherever a caption
+        states a number, it equals the rendered data-col headers."""
         split_views = 0
         for rel in self._xw_table_pages():
             html = self.draft_html[rel]
@@ -5296,10 +5355,10 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertTrue(split_views, "a view splits its columns today")
 
     def test_crosswalk_view_columns_follow_the_full_table_order(self):
-        """Round 3 item 7 (NOTE): matrix.js hides columns and never reorders
-        them, so each static view lists its columns in the full table's
-        order and agrees with the scripted view; at least one topic names
-        its columns in another order, so the rule bites."""
+        """Round 3 item 7 (NOTE): a topic view restricts the full table's
+        columns and never reorders them, so each view lists its columns in
+        the full table's order; at least one topic names its columns in
+        another order, so the rule bites."""
         order = self._XW_COL_RE.findall(
             self.draft_html["crosswalk/index.html"])
         reordered = False
@@ -9279,7 +9338,7 @@ class MatrixScriptFixtureTests(unittest.TestCase):
 
 
 class CrosswalkPresetGroupTests(unittest.TestCase):
-    """29 to 31: the presets are the topic views, and the generator refuses
+    """29 to 31: the views equal the topic views, and the generator refuses
     every way the topics, the groups and the instruments could disagree, so
     a column can never fall out of every topic, a topic can never show
     nothing or a column the table has not, and an instrument can never fall
