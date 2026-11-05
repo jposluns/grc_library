@@ -260,19 +260,29 @@ when the ``GITHUB_OUTPUT`` environment file is set (a GitHub Actions
 step), it appends the counts as a ``credited`` multi-line step output
 of block-style ``module: count`` lines (refusing, exit 2, when that
 file cannot be written), so each CI shard job publishes its counts as
-a job output. The CI summary job's reconcile step
-(tools/reconcile-regression-shards.py) sums those counts across all
+a job output. The sentinel and the outputs also carry two digests
+(``unit_set_digest``): ``unitset``, the sha256 of the TOTAL unit list
+the shard's own suite load found, and ``selection``, that of its
+selected units, published as the ``units_sha256`` and
+``selected_sha256`` outputs. The CI summary job's reconcile step
+(tools/reconcile-regression-shards.py) sums the counts across all
 shards and fails when any discovered module's total is zero, restoring
 before merge the serial runner's refusal of a module with no credited
-start; a shard output that is missing, malformed, or naming a module
-set other than the on-disk tests/test_*.py files is a refusal there,
-never a pass. Residuals specific to shard mode, beyond the full run's:
-within one shard the zero-credited refusal is for the shard as a whole
-(at least one credited start anywhere in it); the per-module rule is
-enforced across shards by the summary reconcile step, so it holds only
-where that step runs (CI; the plain run, which
+start, and fails unless every shard's ``units_sha256`` is the same, so
+two runners that discovered different suites cannot pass as one
+partition; a shard output that is missing, malformed, or naming a
+module set other than the on-disk tests/test_*.py files is a refusal
+there, never a pass. The pre-push guard (tools/pre-push-guard.sh) runs
+the same K shards locally, each in its own temporary detached checkout
+with ``GITHUB_OUTPUT`` pointed at a per-shard file, and reconciles
+those files with ``reconcile-regression-shards.py --shard-outputs``.
+Residuals specific to shard mode, beyond the full run's: within one
+shard the zero-credited refusal is for the shard as a whole (at least
+one credited start anywhere in it); the per-module rule is enforced
+across shards by the reconcile step, so it holds only where that step
+runs (CI's summary job and the pre-push guard; the plain run, which
 tools/run_all_audits.sh and the pre-commit hook still invoke, keeps
-the serial per-module rule locally). Two units of one class object
+the serial per-module rule). Two units of one class object
 that land in one shard with nothing between them run under one
 ``setUpClass`` where the whole suite sets the class up twice (the
 standard loader yields one unit per class, so no current module is
@@ -284,6 +294,7 @@ Stdlib-only Python 3.11.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -895,6 +906,18 @@ def partition_refusal(selection: dict[int, list[str]], unit_keys: list[str],
     return None
 
 
+def unit_set_digest(unit_keys) -> str:
+    """The sha256 of a unit list as a SET: the sorted keys, one per line.
+
+    Each shard publishes the digest of the TOTAL unit list its own suite
+    load found and of its SELECTED units; the reconcile step requires
+    every shard's total digest to agree, so a discovery difference between
+    runners fails rather than splitting two different suites.
+    """
+    text = "".join(key + "\n" for key in sorted(unit_keys))
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
 def parse_shard_count(text: str) -> int:
     """The shard count K from its decimal spelling, or a ValueError."""
     if not (text.isascii() and text.isdigit()) or int(text) < 1:
@@ -927,9 +950,11 @@ def parse_shard_spec(text: str) -> tuple[int, int]:
 # credited start (a start outside a skip-decorated class). The sentinel
 # additionally carries the shard's credited total and one credited-start
 # count per handed module (zero allowed), credited to the module whose
-# loaded suite holds the started occurrence, as in the plain driver; the
-# parent reconciles those counts and, in CI, publishes them as the job's
-# ``credited`` output for the summary's cross-shard per-module check.
+# loaded suite holds the started occurrence, as in the plain driver, and
+# the digests of the total and selected unit lists; the parent reconciles
+# those counts and, when GITHUB_OUTPUT is set, publishes them as the
+# ``credited`` output for the cross-shard per-module check, beside the
+# digests.
 _SHARD_DRIVER = """\
 import importlib
 import importlib.util
@@ -1142,10 +1167,12 @@ if result.wasSuccessful():
 if failed:
     sys.exit(2)
 print("REGRESSION-SHARD-RESULT %s shard=%d/%d testsRun=%d notStarted=%d "
-      "wasSuccessful=%s selected=%d units=%d credited=%d %s"
+      "wasSuccessful=%s selected=%d units=%d unitset=%s selection=%s "
+      "credited=%d %s"
       % (nonce, shard_index, shard_count, result.testsRun, result.not_started,
          result.wasSuccessful(), len(shard_occurrences), len(selected),
-         credited,
+         tool.unit_set_digest(unit_keys),
+         tool.unit_set_digest(selection[shard_index]), credited,
          " ".join("%s=%d" % (name, credited_by_module[name])
                   for name in sorted(credited_by_module))),
       file=sys.stderr)
@@ -1161,13 +1188,18 @@ _SHARD_SENTINEL = re.compile(
     r"shard=(?P<index>\d+)/(?P<count>\d+) testsRun=(?P<ran>\d+) "
     r"notStarted=(?P<notstarted>\d+) wasSuccessful=(?P<ok>True|False) "
     r"selected=(?P<selected>\d+) units=(?P<units>\d+) "
+    r"unitset=(?P<unitset>[0-9a-f]{64}) selection=(?P<selection>[0-9a-f]{64}) "
     r"credited=(?P<credited>\d+)(?P<counts>( [A-Za-z0-9_.]+=\d+)*)$")
 
 # The GITHUB_OUTPUT heredoc delimiter for the per-module credited counts. The
 # counts' lines are "tests.<name>: <int>" (module names match the sentinel's
-# [A-Za-z0-9_.]+ tokens), so no counts line can equal the delimiter.
+# [A-Za-z0-9_.]+ tokens), so no counts line can equal the delimiter. The two
+# digest outputs are single-line: the sha256 of the shard's total unit set
+# and of its selected units (unit_set_digest).
 _CREDITED_OUTPUT_NAME = "credited"
 _CREDITED_OUTPUT_DELIMITER = "GRC-CREDITED-COUNTS"
+_UNIT_SET_OUTPUT_NAME = "units_sha256"
+_SELECTED_OUTPUT_NAME = "selected_sha256"
 _SELECTION_SENTINEL = re.compile(
     r"^REGRESSION-SHARD-SELECTION (?P<nonce>[0-9a-f]{32}) "
     r"shards=(?P<count>\d+) units=(?P<units>\d+) occurrences=(?P<occ>\d+)$")
@@ -1275,23 +1307,36 @@ def _shard_sentinel_refusal(last_line: str, nonce: str, index: int,
     return None
 
 
-def _write_credited_output(counts: dict[str, int]) -> str | None:
-    """Append the per-module credited counts to the GITHUB_OUTPUT file.
+def _shard_sentinel_digests(last_line: str) -> tuple[str, str]:
+    """(total unit-set digest, selected-unit digest) of a MATCHING shard
+    sentinel."""
+    match = _SHARD_SENTINEL.match(last_line)
+    return match.group("unitset"), match.group("selection")
 
-    No-op (None) outside GitHub Actions (GITHUB_OUTPUT unset or empty).
-    Returns a refusal message when the file cannot be written: in CI the
-    counts ARE the shard's contribution to the summary's per-module
-    reconciliation, so losing them silently would hollow that check out.
-    The value is block-style ``module: count`` lines, every handed module
-    present (zero allowed), sorted by module name.
+
+def _write_credited_output(counts: dict[str, int],
+                           digests: tuple[str, str]) -> str | None:
+    """Append the shard's outputs to the GITHUB_OUTPUT file: the
+    per-module credited counts and the two unit-list digests.
+
+    No-op (None) when GITHUB_OUTPUT is unset or empty. Returns a refusal
+    message when the file cannot be written: in CI (and in the pre-push
+    guard's local shards) the outputs ARE the shard's contribution to the
+    per-module reconciliation and unit-set agreement, so losing them
+    silently would hollow those checks out. ``credited`` is block-style
+    ``module: count`` lines, every handed module present (zero allowed),
+    sorted by module name; ``units_sha256`` and ``selected_sha256`` are
+    the 64-hex digests.
     """
     target = os.environ.get("GITHUB_OUTPUT")
     if not target:
         return None
     lines = "".join("%s: %d\n" % (name, counts[name])
                     for name in sorted(counts))
-    payload = ("%s<<%s\n%s%s\n"
-               % (_CREDITED_OUTPUT_NAME, _CREDITED_OUTPUT_DELIMITER,
+    payload = ("%s=%s\n%s=%s\n%s<<%s\n%s%s\n"
+               % (_UNIT_SET_OUTPUT_NAME, digests[0],
+                  _SELECTED_OUTPUT_NAME, digests[1],
+                  _CREDITED_OUTPUT_NAME, _CREDITED_OUTPUT_DELIMITER,
                   lines, _CREDITED_OUTPUT_DELIMITER))
     try:
         with open(target, "a", encoding="utf-8") as fh:
@@ -1321,7 +1366,8 @@ def shard_main(index: int, count: int, repo_root: Path = REPO_ROOT,
                                           modules)
         if message is not None:
             return _refuse(lines, message)
-        message = _write_credited_output(_shard_sentinel_counts(last_line))
+        message = _write_credited_output(_shard_sentinel_counts(last_line),
+                                         _shard_sentinel_digests(last_line))
         if message is not None:
             return _refuse(lines, message)
     return returncode

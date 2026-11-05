@@ -124,9 +124,11 @@ from it, so the shard form never weakens parity: the jobs mapping holds
 exactly ``lint``, a contiguous ``regression-shard-1`` ..
 ``regression-shard-K`` (K at least 2) and ``summary``; each shard job is
 named ``Linter regression test suite (shard i of K)``, runs on ubuntu-latest,
-declares exactly the pinned ``credited`` job output (``${{
+declares exactly the pinned job outputs ``credited`` (``${{
 steps.gate.outputs.credited }}``, the shard's per-module credited-start
-counts), and holds exactly the three setup steps of
+counts), ``units_sha256`` and ``selected_sha256`` (``${{
+steps.gate.outputs.<name> }}``, the digests of the shard's total and
+selected unit lists), and holds exactly the three setup steps of
 WORKFLOW_SETUP_STEP_ORDER, each pinned to its exact accepted shape
 (WORKFLOW_SETUP_STEP_SHAPES: ``Checkout`` is ``uses:
 actions/checkout@<full 40-hex SHA>`` with ``fetch-depth: 0``; ``Set up
@@ -150,7 +152,12 @@ a passing look-alike cannot stand beside the real check. The lint job keeps
 the gate-36 step at its inventory position, running exactly ``python3 [-I]
 tools/run-linter-regression.py --verify-shards K`` (the partition check;
 the shards run the suite), and its own setup steps are pinned to the same
-shapes. With the shard form fully verified, that step counts as gate 36
+shapes and to their place: its first three steps are exactly
+WORKFLOW_SETUP_STEP_ORDER, each once, in order, and no later step carries
+a setup name, so deleting, repeating or reordering one is a refusal. (The
+plain one-job form, read for fixtures and history, pins each setup step's
+shape but not its presence or order.) With the shard form fully verified,
+that step counts as gate 36
 with no arguments (the shards together are the invocation), so the runner
 and pre-commit surfaces, which run gate 36 whole with no arguments, stay in
 argv parity. A workflow whose jobs mapping is exactly ``lint`` is read as
@@ -775,6 +782,14 @@ SHARD_JOB_NAME = "Linter regression test suite (shard %d of %d)"
 SHARD_GATE_STEP_KEYS = ("name", "id", "run")
 SHARD_GATE_STEP_ID = "gate"
 SHARD_CREDITED_OUTPUT = "${{ steps.gate.outputs.credited }}"
+# Each shard job publishes, beside its credited counts, the digests of its
+# total and selected unit lists; the job's outputs mapping is exactly these
+# three, each read from the id-pinned gate step.
+SHARD_JOB_OUTPUTS = {
+    "credited": SHARD_CREDITED_OUTPUT,
+    "units_sha256": "${{ steps.gate.outputs.units_sha256 }}",
+    "selected_sha256": "${{ steps.gate.outputs.selected_sha256 }}",
+}
 SUMMARY_JOB_KEY = "summary"
 SUMMARY_JOB_NAME = "Lint markdown corpus"
 SUMMARY_JOB_IF = "always()"
@@ -800,14 +815,17 @@ SUMMARY_ANY_STEP_SKELETON = {
 SHARD_SHAPE = ("the gate-36 shard form is exactly: jobs lint, regression-shard-1.."
                "regression-shard-K (contiguous, K at least 2) and summary; each shard job "
                "named 'Linter regression test suite (shard i of K)' on ubuntu-latest with "
-               "the pinned credited output '${{ steps.gate.outputs.credited }}', the three "
+               "exactly the pinned outputs credited, units_sha256 and selected_sha256, "
+               "each '${{ steps.gate.outputs.<name> }}', the three "
                "pinned WORKFLOW_SETUP_STEP_ORDER setup steps in order, then one same-named "
                "step with keys name, id (exactly 'gate') and run, running "
                "`python3 [-I] tools/run-linter-regression.py --shard i/K`; a summary job "
                "named 'Lint markdown corpus' with if: always(), needs: lint plus every "
                "shard, the pinned Checkout and Set up Python steps, and EXACTLY ONE "
                "verification step with the pinned NEEDS_RESULTS env running exactly "
-               "`python3 tools/reconcile-regression-shards.py`; and one lint-job step "
+               "`python3 tools/reconcile-regression-shards.py`; a lint job whose first "
+               "three steps are the pinned WORKFLOW_SETUP_STEP_ORDER setup steps, each "
+               "exactly once, in order; and one lint-job step "
                "running `python3 [-I] tools/run-linter-regression.py --verify-shards K` "
                "(see the shard-form section of tools/lint-audit-gate-parity.py)")
 
@@ -818,8 +836,8 @@ def _workflow_jobs_skeleton(shard_count: int):
         return WORKFLOW_SKELETON
     lint_job = WORKFLOW_SKELETON["jobs"]["lint"]
     shard_job = _Exact({"name": _SCALAR, "runs-on": frozenset({"ubuntu-latest"}),
-                        "outputs": _Exact({"credited":
-                                           frozenset({SHARD_CREDITED_OUTPUT})}),
+                        "outputs": _Exact({key: frozenset({value}) for key, value
+                                           in SHARD_JOB_OUTPUTS.items()}),
                         "steps": [WORKFLOW_STEP_SKELETON]})
     needed = ["lint"] + [SHARD_JOB_PREFIX + str(i) for i in range(1, shard_count + 1)]
     summary_job = _Exact({
@@ -913,6 +931,21 @@ def _step_names(path: Path, steps: list[_YamlNode]) -> list[str]:
                                    "is not read as a step (a step's first key is "
                                    "`- name:`)")
     return [step.get("name").value for step in steps]
+
+
+def _check_lint_setup_order(path: Path, steps: list[_YamlNode]) -> None:
+    """Raise a ParseError unless the lint job's first steps are exactly the
+    WORKFLOW_SETUP_STEP_ORDER setup steps, in that order, and no other lint
+    step carries a setup name: a deleted, repeated or reordered setup step
+    is refused, not just a misshapen one."""
+    names = _step_names(path, steps)
+    order = list(WORKFLOW_SETUP_STEP_ORDER)
+    setup = [name for name in names if name in WORKFLOW_SETUP_STEPS]
+    if names[:len(order)] != order or setup != order:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: the lint job's setup steps are "
+                         f"{setup} (its first steps {names[:len(order)]}), not exactly the "
+                         f"pinned {order}, each once, in order, before every other step; "
+                         f"{SHARD_SHAPE}")
 
 
 def _check_shard_jobs(path: Path, root: _YamlNode, shard_count: int) -> None:
@@ -1346,6 +1379,8 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     if shard_count:
         _check_shard_jobs(path, root, shard_count)
     steps = _yaml_list(path, root, "jobs", "lint", "steps")
+    if shard_count:
+        _check_lint_setup_order(path, steps.items)
     entries: list[tuple[int, str, str, tuple[str, ...]]] = []
     regression_steps = 0
     for step in steps.items:

@@ -2688,6 +2688,7 @@ class RegressionGateShardTests(unittest.TestCase):
                               weights=self.WEIGHTS)
         ran_total = 0
         credited_totals = {"tests.test_aa_one": 0, "tests.test_bb_two": 0}
+        digests = []
         with mock.patch.dict(os.environ, _minimal_environ(), clear=True):
             for index in (1, 2):
                 code, _out, err = self._call(runner["shard_main"], index=index,
@@ -2710,8 +2711,17 @@ class RegressionGateShardTests(unittest.TestCase):
                 self.assertEqual(sorted(counts), sorted(credited_totals))
                 for name, count in counts.items():
                     credited_totals[name] += count
+                digests.append(runner["_shard_sentinel_digests"](sentinel))
         self.assertEqual(ran_total, 2, "the two shards together run exactly "
                                        "the suite's tests")
+        # FLIP TABLE (unit-set digests): both shards publish one total
+        # unit-set digest (the same discovered suite) and differing
+        # selected-unit digests (their own slices).
+        self.assertEqual(digests[0][0], digests[1][0])
+        self.assertNotEqual(digests[0][1], digests[1][1])
+        self.assertEqual(digests[0][0], runner["unit_set_digest"](
+            ["tests.test_aa_one:PassingTests#0",
+             "tests.test_bb_two:PassingTests#0"]))
         self.assertEqual(credited_totals,
                          {"tests.test_aa_one": 1, "tests.test_bb_two": 1},
                          "each module's credited starts, summed across the "
@@ -2733,6 +2743,11 @@ class RegressionGateShardTests(unittest.TestCase):
         self.assertEqual(code, 0, err)
         text = gh_output.read_text(encoding="utf-8")
         lines = text.splitlines()
+        # FLIP TABLE (unit-set digests): the two single-line digest outputs
+        # come first, then the credited heredoc.
+        self.assertRegex(lines[0], r"^units_sha256=[0-9a-f]{64}$")
+        self.assertRegex(lines[1], r"^selected_sha256=[0-9a-f]{64}$")
+        lines = lines[2:]
         self.assertRegex(lines[0], r"^credited<<\S+$")
         self.assertEqual(lines[-1], lines[0].partition("<<")[2],
                          "the heredoc closes with its own delimiter")
@@ -2842,9 +2857,11 @@ class RegressionGateShardTests(unittest.TestCase):
         refusal = runner["_shard_sentinel_refusal"]
         nonce = "ab" * 16
         modules = ["tests.test_aa_one", "tests.test_bb_two"]
+        digests = "unitset=%s selection=%s" % ("a" * 64, "b" * 64)
         good = ("REGRESSION-SHARD-RESULT %s shard=1/2 testsRun=3 "
-                "notStarted=1 wasSuccessful=True selected=4 units=2 "
-                "credited=3 tests.test_aa_one=2 tests.test_bb_two=1" % nonce)
+                "notStarted=1 wasSuccessful=True selected=4 units=2 %s "
+                "credited=3 tests.test_aa_one=2 tests.test_bb_two=1"
+                % (nonce, digests))
         self.assertIsNone(refusal(good, nonce, 1, 2, modules))
         legacy = ("REGRESSION-SHARD-RESULT %s shard=1/2 testsRun=3 "
                   "notStarted=1 wasSuccessful=True selected=4 units=2"
@@ -2852,6 +2869,9 @@ class RegressionGateShardTests(unittest.TestCase):
         cases = (
             ("not a sentinel", nonce, 1, 2, modules),
             (legacy, nonce, 1, 2, modules),  # FLIP: no credited tail
+            # FLIP (unit-set digests): no unit-list digests, or malformed.
+            (good.replace(digests + " ", ""), nonce, 1, 2, modules),
+            (good.replace("a" * 64, "a" * 63), nonce, 1, 2, modules),
             (good, "cd" * 16, 1, 2, modules),
             (good, nonce, 2, 2, modules),
             (good.replace("testsRun=3", "testsRun=2"), nonce, 1, 2, modules),
@@ -2943,18 +2963,134 @@ class ReconcileRegressionShardsTests(unittest.TestCase):
 
     TOOL = REPO_ROOT / "tools" / "reconcile-regression-shards.py"
     MODULES = ["tests.test_aa_one", "tests.test_bb_two"]
+    UNITS = "a" * 64
 
     def _tool(self):
         return runpy.run_path(str(self.TOOL))
 
-    def _needs(self, credited_one, credited_two, result="success"):
+    def _needs(self, credited_one, credited_two, result="success",
+               units_two=UNITS):
         return {
             "lint": {"result": "success", "outputs": {}},
-            "regression-shard-1": {"result": result,
-                                   "outputs": {"credited": credited_one}},
-            "regression-shard-2": {"result": "success",
-                                   "outputs": {"credited": credited_two}},
+            "regression-shard-1": {"result": result, "outputs": {
+                "credited": credited_one, "units_sha256": self.UNITS,
+                "selected_sha256": "1" * 64}},
+            "regression-shard-2": {"result": "success", "outputs": {
+                "credited": credited_two, "units_sha256": units_two,
+                "selected_sha256": "2" * 64}},
         }
+
+    def test_shards_must_agree_on_the_unit_set(self) -> None:
+        """FLIP TABLE (unit-set digests): two green shards whose total
+        unit-set digests differ (two runners that discovered different
+        suites) fail the check, however their credited counts sum; a
+        missing or malformed digest output is a refusal."""
+        tool = self._tool()
+        counts = "tests.test_aa_one: 1\ntests.test_bb_two: 1\n"
+        code, lines = tool["reconcile"](
+            self._needs(counts, counts, units_two="b" * 64), self.MODULES)
+        self.assertEqual(code, 1, lines)
+        self.assertTrue(any("different unit sets" in line for line in lines),
+                        lines)
+        for output, value in (("units_sha256", None),
+                              ("selected_sha256", None),
+                              ("units_sha256", "A" * 64),
+                              ("selected_sha256", "abc")):
+            with self.subTest(output=output, value=value):
+                needs = self._needs(counts, counts)
+                if value is None:
+                    del needs["regression-shard-2"]["outputs"][output]
+                else:
+                    needs["regression-shard-2"]["outputs"][output] = value
+                code, lines = tool["reconcile"](needs, self.MODULES)
+                self.assertEqual(code, 2, lines)
+
+    def _output_file(self, root: Path, name: str, credited: str,
+                     units: str = UNITS, selected: str = "1" * 64) -> str:
+        """A GITHUB_OUTPUT file as tools/run-linter-regression.py --shard
+        writes it (digests, then the credited heredoc)."""
+        path = root / name
+        path.write_text("units_sha256=%s\nselected_sha256=%s\n"
+                        "credited<<GRC-CREDITED-COUNTS\n%sGRC-CREDITED-COUNTS\n"
+                        % (units, selected, credited), encoding="utf-8")
+        return str(path)
+
+    def test_local_shard_outputs_mode(self) -> None:
+        """FLIP TABLE (pre-push guard local shards): --shard-outputs K
+        reconciles the K GITHUB_OUTPUT files the guard's shards wrote, with
+        each shard's exit status. Green only when every status is 0 and
+        the outputs reconcile; a failing status fails; a missing shard
+        (too few pairs), an unreadable, empty or unparseable file, or a
+        bad status is a refusal."""
+        root = Path(tempfile.mkdtemp(prefix="reconcile-local-"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        (root / "tests").mkdir()
+        (root / "tests" / "test_aa_one.py").write_text(PASSING_MODULE)
+        (root / "tests" / "test_bb_two.py").write_text(PASSING_MODULE)
+        one = self._output_file(root, "one", "tests.test_aa_one: 1\n"
+                                             "tests.test_bb_two: 0\n")
+        two = self._output_file(root, "two", "tests.test_aa_one: 0\n"
+                                             "tests.test_bb_two: 1\n",
+                                selected="2" * 64)
+        other = self._output_file(root, "other", "tests.test_aa_one: 0\n"
+                                                 "tests.test_bb_two: 1\n",
+                                  units="b" * 64)
+        empty = root / "empty"
+        empty.write_text("", encoding="utf-8")
+        broken = root / "broken"
+        broken.write_text("credited<<END\ntests.test_aa_one: 1\n",
+                          encoding="utf-8")
+
+        def run(*args):
+            return subprocess.run(
+                [sys.executable, str(self.TOOL), "--shard-outputs", *args],
+                cwd=root, env=_minimal_environ(), capture_output=True,
+                text=True, timeout=120)
+
+        green = run("2", "0", one, "0", two)
+        self.assertEqual(green.returncode, 0, green.stdout + green.stderr)
+        self.assertIn("the 2 shards discovered one unit set", green.stdout)
+        failed = run("2", "0", one, "1", two)
+        self.assertEqual(failed.returncode, 1, failed.stdout + failed.stderr)
+        self.assertIn("regression-shard-2", failed.stdout)
+        differ = run("2", "0", one, "0", other)
+        self.assertEqual(differ.returncode, 1, differ.stdout + differ.stderr)
+        self.assertIn("different unit sets", differ.stdout)
+        for label, args in (
+                ("missing-shard", ("2", "0", one)),
+                ("no-count", ()),
+                ("bad-count", ("x", "0", one, "0", two)),
+                ("bad-status", ("2", "ok", one, "0", two)),
+                ("absent-file", ("2", "0", one, "0", str(root / "absent"))),
+                ("empty-file", ("2", "0", one, "0", str(empty))),
+                ("unterminated", ("2", "0", one, "0", str(broken)))):
+            with self.subTest(label=label):
+                result = run(*args)
+                self.assertEqual(result.returncode, 2,
+                                 result.stdout + result.stderr)
+        stray = subprocess.run([sys.executable, str(self.TOOL), "--other"],
+                               cwd=root, env=_minimal_environ(),
+                               capture_output=True, text=True, timeout=120)
+        self.assertEqual(stray.returncode, 2, stray.stdout + stray.stderr)
+
+    def test_local_mode_reads_the_runner_output_format(self) -> None:
+        """The runner's own GITHUB_OUTPUT writer and the reconcile's
+        local-mode parser agree: what one shard writes, the other reads
+        back as the same three outputs."""
+        runner = runpy.run_path(str(REPO_ROOT / "tools" /
+                                    "run-linter-regression.py"))
+        tool = self._tool()
+        root = Path(tempfile.mkdtemp(prefix="reconcile-format-"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        target = root / "github-output"
+        counts = {"tests.test_aa_one": 2, "tests.test_bb_two": 0}
+        with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": str(target)}):
+            self.assertIsNone(runner["_write_credited_output"](
+                counts, ("c" * 64, "d" * 64)))
+        parsed = tool["parse_step_outputs"](target.read_text(encoding="utf-8"))
+        self.assertEqual(parsed, {
+            "units_sha256": "c" * 64, "selected_sha256": "d" * 64,
+            "credited": "tests.test_aa_one: 2\ntests.test_bb_two: 0\n"})
 
     def test_green_sums_across_shards(self) -> None:
         tool = self._tool()

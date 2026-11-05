@@ -444,12 +444,18 @@ jobs:
   # from the shard sentinel, written to GITHUB_OUTPUT as block-style
   # `module: count` lines) as its `credited` job output; the summary job
   # sums them across shards and fails when any module's total is zero,
-  # matching the serial runner's per-module refusal.
+  # matching the serial runner's per-module refusal. Each shard also
+  # publishes `units_sha256` (the digest of the whole unit list its own
+  # suite load found) and `selected_sha256` (that of its own units); the
+  # summary fails unless every shard's `units_sha256` agrees, so a
+  # discovery difference between runners fails the required check.
   regression-shard-1:
     name: Linter regression test suite (shard 1 of 6)
     runs-on: ubuntu-latest
     outputs:
       credited: ${{ steps.gate.outputs.credited }}
+      units_sha256: ${{ steps.gate.outputs.units_sha256 }}
+      selected_sha256: ${{ steps.gate.outputs.selected_sha256 }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -473,6 +479,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       credited: ${{ steps.gate.outputs.credited }}
+      units_sha256: ${{ steps.gate.outputs.units_sha256 }}
+      selected_sha256: ${{ steps.gate.outputs.selected_sha256 }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -496,6 +504,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       credited: ${{ steps.gate.outputs.credited }}
+      units_sha256: ${{ steps.gate.outputs.units_sha256 }}
+      selected_sha256: ${{ steps.gate.outputs.selected_sha256 }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -519,6 +529,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       credited: ${{ steps.gate.outputs.credited }}
+      units_sha256: ${{ steps.gate.outputs.units_sha256 }}
+      selected_sha256: ${{ steps.gate.outputs.selected_sha256 }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -542,6 +554,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       credited: ${{ steps.gate.outputs.credited }}
+      units_sha256: ${{ steps.gate.outputs.units_sha256 }}
+      selected_sha256: ${{ steps.gate.outputs.selected_sha256 }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -565,6 +579,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       credited: ${{ steps.gate.outputs.credited }}
+      units_sha256: ${{ steps.gate.outputs.units_sha256 }}
+      selected_sha256: ${{ steps.gate.outputs.selected_sha256 }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

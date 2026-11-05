@@ -14,13 +14,15 @@
 #
 # A push whose every changed path is site-only, and that clears every check
 # below that would send it to the full guard, takes the FAST PATH described
-# below; any other push runs the full guard. On EVERY push (maintainer
-# directive 2026-11-04 17:36 EST) the guard runs every runner gate EXCEPT the
-# linter regression test suite (gate 36), which is left to CI: the quality
-# workflow runs the whole suite on every pull request, split across parallel
-# shard jobs that together run exactly the serial run's tests plus a
-# partition-verifying step, and tools/merge-when-green.py merges only when
-# its required check (the summary job "Lint markdown corpus", which needs
+# below; any other push runs the full guard. Both paths run every runner gate
+# except the linter regression test suite (gate 36) gate by gate. The FULL
+# guard then runs gate 36 WHOLE, with the private store present, as six
+# parallel local shards (maintainer decision 2026-11-05 09:08 EST, replacing
+# the reviewed store-dependent list); the fast path leaves gate 36 to CI. The
+# quality workflow still runs the whole suite on every pull request, split
+# across parallel shard jobs that together run exactly the serial run's tests
+# plus a partition-verifying step, and tools/merge-when-green.py merges only
+# when its required check (the summary job "Lint markdown corpus", which needs
 # every shard) succeeded. The full guard runs, stopping on the first failure:
 #
 #   1. Every tools/run_all_audits.sh gate except gate 36, in runner order, by
@@ -33,13 +35,26 @@
 #      (gates 6, 72 and 106). When the gate-list reading fails, the guard
 #      FAILS CLOSED to running tools/run_all_audits.sh whole, gate 36
 #      included, so doubt never drops a check.
-#   1b. tools/run-store-dependent-tests.py - the reviewed store-dependent
-#      subset of gate 36 (tests/store-dependent-tests.txt), run on EVERY
-#      push, fail-closed: an unreadable or empty list, a malformed line, or
-#      a listed test that cannot be loaded fails the push. CI has no private
-#      store and no private sibling, so these tests skip or no-op there;
-#      this local run is their only pre-merge execution (see the list file
-#      for the per-test reasons).
+#   1b. Gate 36 whole, as REGRESSION_SHARD_COUNT (6, the quality workflow's
+#      shard count) parallel local shards: tools/run-linter-regression.py
+#      --shard i/6, each in its OWN temporary detached checkout of the exact
+#      commit being pushed (git worktree add --detach into a mktemp
+#      directory), so no shard's fixtures under tests/tmp are seen by
+#      another shard's whole-repository scan (round-4 finding: one shared
+#      working tree failed VanishingScratchTests). Beside each checkout sit
+#      links to this clone's own siblings (the private store
+#      <repo-parent>/private, grc_library_private, grc_library_ref), and a
+#      relative GRC_STORE is made absolute, so the store is reachable as it
+#      is for the serial run. Each shard's output goes to its own log file,
+#      its step outputs to its own GITHUB_OUTPUT file, and its exit status
+#      is read directly from wait. tools/reconcile-regression-shards.py
+#      --shard-outputs then reconciles the six (every shard succeeded, all
+#      six discovered one unit set, every module earned a credited start).
+#      Any shard failure, a missing shard, or a reconcile failure fails the
+#      push, keeping the checkouts and printing their paths; a passing run
+#      removes every temporary checkout and shard directory. On the
+#      fail-closed whole-runner fallback below gate 36 has just run
+#      serially, so this step does not run again.
 #   2. tools/run-pr-time-checks.sh  - the per-PR D-numbered delta gates (D6 retired) plus
 #                                     the history-aware trio (gates 45/40/31) against
 #                                     the merge base.
@@ -48,9 +63,10 @@
 # It then prints one ADVISORY that never blocks: build-reference-manifest.py --check
 # (reference-manifest drift against the grc_library_ref sibling; P-TODO 3b62).
 #
-# Coverage: a green full guard means the push will not flip CI red on any
-# gate except gate 36, which CI runs whole, sharded, before merge. A green
-# fast path covers less again (see its residual below).
+# Coverage: a green full guard has run every runner gate, gate 36 included
+# (whole, sharded, with the private store present), so its tests that skip
+# or degrade in CI for want of the store have run here. A green fast path
+# covers less (see its residual below).
 #
 # Site-only fast path (maintainer directive 2026-11-04: accelerated pushes when
 # the change is web site content, not corpus or tooling).
@@ -119,9 +135,6 @@
 #        runner shows for every gate nor the WARN and NOTE lines it shows for
 #        the gates that opt in), and the step stops at the first failing
 #        gate. The step ends with its elapsed time.
-#     2b. tools/run-store-dependent-tests.py (the reviewed store-dependent
-#        subset of gate 36, as on the full path: run on every push,
-#        fail-closed on an unreadable list or a missing listed test).
 #     3. The palette gate .baseline/check_palette.py, with the arguments
 #        .web/build.py passes it but without .web/build.py's pin check (step 4
 #        runs .web/build.py, which makes that check).
@@ -130,39 +143,36 @@
 #   manifest advisory, then a PASS line with the elapsed time.
 #
 #   The skip lives here alone (maintainer decisions 2026-11-04 13:02Z and
-#   17:36 EST): the guard lists the runner's gates itself and runs each but
-#   gate 36, now on BOTH paths, so tools/run_all_audits.sh takes no skip
-#   option or variable and still runs gate 36 whole when invoked directly (as
-#   the nightly sweep does), and .github/workflows/quality.yml is never told
-#   to skip a gate: it runs every gate on every pull request, gate 36 as six
-#   parallel shard jobs that together run exactly the serial run's tests plus
-#   the lint job's partition-verifying --verify-shards step (kept in
-#   lock-step with run_all_audits.sh by the gate-parity gate).
+#   17:36 EST, and 2026-11-05 09:08 EST): the guard lists the runner's gates
+#   itself and runs each but gate 36 gate by gate on BOTH paths, then, on the
+#   full path only, gate 36 as local shards, so tools/run_all_audits.sh takes
+#   no skip option or variable and still runs gate 36 whole when invoked
+#   directly (as the nightly sweep does), and .github/workflows/quality.yml
+#   is never told to skip a gate: it runs every gate on every pull request,
+#   gate 36 as six parallel shard jobs that together run exactly the serial
+#   run's tests plus the lint job's partition-verifying --verify-shards step
+#   (kept in lock-step with run_all_audits.sh by the gate-parity gate).
 #
-#   Skipped locally, disclosed as left to CI, on BOTH paths: gate 36 EXCEPT
-#   the reviewed store-dependent subset, that is, every tests/test_*.py
-#   module and the completeness checks tools/run-linter-regression.py makes
-#   (the fast path still runs tests/test_web_draft.py directly as its own
-#   step; both paths run the store-dependent list through
-#   tools/run-store-dependent-tests.py, because CI, which has no private
-#   store and no private sibling, cannot run those tests meaningfully), and,
-#   when the gate list is read from the runner, the full guard's former
-#   run_all_audits.sh summary line.
+#   Skipped locally on the FAST PATH only, disclosed as left to CI: gate 36
+#   (every tests/test_*.py module and the completeness checks
+#   tools/run-linter-regression.py makes; the fast path still runs
+#   tests/test_web_draft.py directly as its own step). On both paths, when
+#   the gate list is read from the runner, the full guard's former
+#   run_all_audits.sh summary line is not printed.
 #   .github/workflows/quality.yml runs gate 36 whole, sharded, on every pull
-#   request (each shard publishing its per-module credited-start counts),
-#   and tools/merge-when-green.py merges only when its required check, the
-#   summary job that needs every shard and reconciles those counts,
-#   succeeded.
+#   request (each shard publishing its per-module credited-start counts and
+#   unit-set digests), and tools/merge-when-green.py merges only when its
+#   required check, the summary job that needs every shard and reconciles
+#   those outputs, succeeded.
 #
-#   Residual (what is lost): local detection, before the push, of a gate 36
-#   failure OUTSIDE the store-dependent list, whatever changed (not only one
-#   a site-only change causes); that failure now first shows in CI, on the
-#   shard running the failing test, and the merge guard still blocks the
-#   merge. A listed store-dependent test still skips here when this clone
-#   has no store or sibling (an adopter clone); only the maintainer's clone
-#   actually executes it. On the fast path a passing gate's DUE-SOON, WARN
-#   and NOTE lines are not shown before the push (the full path shows them,
-#   as the runner does).
+#   Residual (what is lost on the fast path): local detection, before the
+#   push, of a gate 36 failure a site-only change causes; that failure first
+#   shows in CI, on the shard running the failing test, and the merge guard
+#   still blocks the merge. CI has no private store, so a gate 36 test that
+#   needs the store and skips or degrades there runs before merge only on a
+#   full-path push from a clone that has the store. On the fast path a
+#   passing gate's DUE-SOON, WARN and NOTE lines are not shown before the
+#   push (the full path shows them, as the runner does).
 #
 # Scope boundary: this guard gates PUSHES (the full guard's two post-commit /
 # pre-push runners plus `.web/build.py --check` when .web/build.py is present,
@@ -180,12 +190,14 @@
 #   git push -u origin <branch>
 #   BASE_REF=origin/develop tools/pre-push-guard.sh   # non-default base
 #
-# Exit codes: 1 for an installed-hook check failure; 0 only if the gate steps, the store-dependent list run, run-pr-time-checks.sh and the web check (when .web/build.py is present) pass, or on the fast path only if every fast-path check passes; 3 if the guard REFUSES to run
+# Exit codes: 1 for an installed-hook check failure; 0 only if the gate steps, the local gate 36 shards and their reconcile, run-pr-time-checks.sh and the web check (when .web/build.py is present) pass, or on the fast path only if every fast-path check passes; 3 if the guard REFUSES to run
 # because stdout is piped (the RM-10 self-defence below, before any runner
 # starts); 4 if grc_library_private is required but absent (the _private check
 # below); 5 if the tracked working tree is dirty or its state cannot be read
-# (the attestation-soundness check below); otherwise the first failing blocking check's
-# non-zero rc (that check's own diagnostics are printed above).
+# (the attestation-soundness check below); 1 when a local gate 36 shard fails or
+# the shard reconcile fails, 2 when the shard run cannot be set up or a shard is
+# missing; otherwise the first failing blocking check's non-zero rc (that check's
+# own diagnostics are printed above).
 
 set -u
 
@@ -213,6 +225,7 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+REPO_NAME="$(basename "${REPO_ROOT}")"
 cd "${REPO_ROOT}"
 
 # _private defence-in-depth (1.19.8 (closing PR #1030) layered assurance): on the maintainer's
@@ -280,6 +293,12 @@ BASE_REF="${BASE_REF:-origin/main}"
 # The runner's linter regression suite gate (gate 36), as "runner name|command":
 # the one runner gate the fast path does not run whole.
 REGRESSION_GATE="Linter regression test suite|tools/run-linter-regression.py"
+# The full guard's local gate 36 shard count: the quality workflow's six
+# regression-shard jobs (a regression test keeps the two equal).
+REGRESSION_SHARD_COUNT=6
+# The siblings each shard checkout's parent links back to this clone's own,
+# so a shard reaches the private store and siblings as the serial run does.
+REGRESSION_SHARD_SIBLINGS=(private grc_library_private grc_library_ref grc_library_scratch)
 fast_path=0
 full_reason=""
 changed_paths=()
@@ -543,6 +562,140 @@ audit_gate() {
     echo "OK"
 }
 
+# Gate 36 whole, as REGRESSION_SHARD_COUNT parallel local shards (header,
+# step 1b). shard_root and shard_dirs (indexed from 1) name the temporary
+# directories, so a failure can keep and print them.
+shard_root=""
+shard_dirs=()
+
+# A failed local shard run: keep every checkout and log, print where they
+# are, and exit with rc.
+shard_fail() {
+    local rc="$1" message="$2" i
+    echo ""
+    echo "pre-push guard FAILED at gate 36 local shards (rc=${rc}): ${message}."
+    if [ -n "${shard_root}" ]; then
+        echo "The shard checkouts and logs are kept for inspection under ${shard_root}:"
+        for i in "${!shard_dirs[@]}"; do
+            echo "  shard ${i}: ${shard_dirs[i]} (checkout ${shard_dirs[i]}/${REPO_NAME}, log ${shard_dirs[i]}/shard.log)"
+        done
+        echo "Once inspected, remove each checkout with git worktree remove --force <checkout>, then the directory."
+    fi
+    echo "Fix the artefact; do not push."
+    exit "${rc}"
+}
+
+run_gate36_shards() {
+    local count="${REGRESSION_SHARD_COUNT}" commit parent store i dir tree rc started
+    local sibling ran verdict first_rc=0 failed="" reconcile_rc
+    local -a pids=() statuses=() pairs=()
+    echo ""
+    echo "=== pre-push guard 1b/3: linter regression suite (gate 36) whole, as ${count} parallel local shards, each in its own checkout of the commit being pushed ==="
+    started=${SECONDS}
+    if ! commit="$(git rev-parse --verify --quiet 'HEAD^{commit}')" || [ -z "${commit}" ]; then
+        shard_fail 2 "HEAD cannot be read, so the commit being pushed cannot be checked out"
+    fi
+    if ! parent="$(cd "${REPO_ROOT}/.." && pwd -P)"; then
+        shard_fail 2 "the directory holding this clone cannot be read, so its siblings cannot be linked"
+    fi
+    if ! shard_root="$(mktemp -d "${TMPDIR:-/tmp}/grc-gate36-shards.XXXXXX")" || [ -z "${shard_root}" ]; then
+        shard_root=""
+        shard_fail 2 "cannot create the temporary shard directory"
+    fi
+    # A relative GRC_STORE is read against the repository root, so it is made
+    # absolute here to keep naming this clone's store from a shard checkout.
+    store="${GRC_STORE:-}"
+    if [ -n "${store}" ] && [ "${store#/}" = "${store}" ]; then
+        store="${REPO_ROOT}/${store}"
+    fi
+    for ((i = 1; i <= count; i++)); do
+        dir="${shard_root}/shard-${i}"
+        tree="${dir}/${REPO_NAME}"
+        shard_dirs[i]="${dir}"
+        if ! mkdir "${dir}" || ! : > "${dir}/github-output"; then
+            shard_fail 2 "cannot create ${dir}"
+        fi
+        if ! git worktree add --detach "${tree}" "${commit}" > "${dir}/worktree.log" 2>&1; then
+            cat "${dir}/worktree.log"
+            shard_fail 2 "git worktree add --detach of ${commit} into ${tree} failed"
+        fi
+        for sibling in "${REGRESSION_SHARD_SIBLINGS[@]}"; do
+            if [ -e "${parent}/${sibling}" ] || [ -L "${parent}/${sibling}" ]; then
+                if ! ln -s "${parent}/${sibling}" "${dir}/${sibling}"; then
+                    shard_fail 2 "cannot link ${dir}/${sibling} to ${parent}/${sibling}"
+                fi
+            fi
+        done
+    done
+    # Each shard runs its own checkout's runner, from that checkout, with its
+    # own GITHUB_OUTPUT file and log; Git's repository variables are cleared
+    # so a git command in a test reads the shard's checkout.
+    for ((i = 1; i <= count; i++)); do
+        (
+            cd "${shard_dirs[i]}/${REPO_NAME}" || exit 2
+            unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR GIT_PREFIX
+            if [ -n "${store}" ]; then
+                export GRC_STORE="${store}"
+            fi
+            export GITHUB_OUTPUT="${shard_dirs[i]}/github-output"
+            exec python3 tools/run-linter-regression.py --shard "${i}/${count}"
+        ) > "${shard_dirs[i]}/shard.log" 2>&1 &
+        pids[i]=$!
+    done
+    # Each exit status is read directly from wait, inside an `if` that keeps
+    # it, so an inherited errexit cannot end the guard before the report.
+    for ((i = 1; i <= count; i++)); do
+        if wait "${pids[i]}"; then rc=0; else rc=$?; fi
+        statuses[i]="${rc}"
+        ran="$(grep -E '^Ran [0-9]+ tests? in ' "${shard_dirs[i]}/shard.log" | tail -n 1 || true)"
+        verdict="$(grep -E '^(OK|FAILED)( \(.*\))?$' "${shard_dirs[i]}/shard.log" | tail -n 1 || true)"
+        echo "gate 36 local shard ${i}/${count}: rc=${rc}; ${ran:-no Ran line}; ${verdict:-no result line} (log ${shard_dirs[i]}/shard.log)"
+        if [ "${rc}" -ne 0 ]; then
+            failed="${failed:+${failed}, }${i}"
+            [ "${first_rc}" -ne 0 ] || first_rc="${rc}"
+        fi
+    done
+    if [ "${#statuses[@]}" -ne "${count}" ]; then
+        shard_fail 2 "${#statuses[@]} of ${count} shards reported a status, so a shard is missing"
+    fi
+    for ((i = 1; i <= count; i++)); do
+        if [ "${statuses[i]}" -ne 0 ]; then
+            echo ""
+            echo "--- gate 36 local shard ${i}/${count} failed (rc=${statuses[i]}); the last 60 lines of ${shard_dirs[i]}/shard.log:"
+            tail -n 60 "${shard_dirs[i]}/shard.log"
+        fi
+        pairs+=("${statuses[i]}" "${shard_dirs[i]}/github-output")
+    done
+    # The reconcile reads tests/ from the first shard's checkout (the commit
+    # being pushed), with that checkout's own tool.
+    echo ""
+    echo "gate 36 local shard reconcile (tools/reconcile-regression-shards.py --shard-outputs ${count}):"
+    if (cd "${shard_dirs[1]}/${REPO_NAME}" \
+            && exec python3 tools/reconcile-regression-shards.py --shard-outputs "${count}" "${pairs[@]}") \
+            > "${shard_root}/reconcile.log" 2>&1; then
+        reconcile_rc=0
+    else
+        reconcile_rc=$?
+    fi
+    sed 's/^/      /' "${shard_root}/reconcile.log"
+    if [ -n "${failed}" ]; then
+        shard_fail "${first_rc}" "shard(s) ${failed} of ${count} failed (reconcile rc=${reconcile_rc})"
+    fi
+    if [ "${reconcile_rc}" -ne 0 ]; then
+        shard_fail "${reconcile_rc}" "the shard reconcile failed (rc=${reconcile_rc})"
+    fi
+    # A passing run removes every temporary checkout, then the shard directory.
+    for ((i = 1; i <= count; i++)); do
+        if ! git worktree remove --force "${shard_dirs[i]}/${REPO_NAME}" > /dev/null 2>&1; then
+            echo "pre-push guard: WARNING: could not remove the shard checkout ${shard_dirs[i]}/${REPO_NAME}; remove it with git worktree remove --force." >&2
+        fi
+    done
+    if ! python3 -I -c 'import shutil, sys; shutil.rmtree(sys.argv[1])' "${shard_root}"; then
+        echo "pre-push guard: WARNING: could not remove the shard directory ${shard_root}." >&2
+    fi
+    echo "pre-push guard: gate 36 passed as ${count} local shards in $((SECONDS - started))s; the shard checkouts were removed."
+}
+
 if [ "${fast_path}" -eq 1 ]; then
     echo "=== pre-push guard FAST PATH: every changed path is site-only, so tools/run_all_audits.sh runs here without the linter regression suite (gate 36), which is left to CI; the full suite still runs in CI before merge. Changed paths (${#changed_paths[@]}): ${changed_paths[*]} ==="
     fast_step "run-pr-time-checks.sh (delta + history-aware gates)" tools/run-pr-time-checks.sh
@@ -556,8 +709,6 @@ if [ "${fast_path}" -eq 1 ]; then
         audit_gate "pre-push guard fast path gate" "${key%%|*}" python3 "${gate_words[@]}"
     done
     echo "pre-push guard fast path: ${#fast_gates[@]} runner gates passed in $((SECONDS - gates_started))s."
-    fast_step "store-dependent gate 36 tests (tests/store-dependent-tests.txt, every push)" \
-        python3 tools/run-store-dependent-tests.py
     fast_step "palette gate (.baseline/check_palette.py, with .web/build.py's arguments)" \
         python3 -I .baseline/check_palette.py --site grclibrary --palettes .web/baseline/palettes.css
     fast_step ".web/build.py --check (web-generator health, from HEAD)" python3 .web/build.py --check
@@ -569,15 +720,15 @@ else
         # Every runner gate but gate 36, in runner order, by the runner's own
         # name and command (the same reading the fast path uses), each with
         # the runner's advisory echo (audit_gate_echo, as run_gate echoes);
-        # gate 36 is left to CI, which runs the whole suite, sharded, on
-        # every pull request.
-        echo "=== pre-push guard 1/3: tools/run_all_audits.sh gates (all but the linter regression suite, gate 36, left to CI) ==="
+        # then gate 36 whole, as local shards (step 1b).
+        echo "=== pre-push guard 1/3: tools/run_all_audits.sh gates (all but the linter regression suite, gate 36, which runs next as local shards) ==="
         gates_started=${SECONDS}
         for key in "${runner_gates[@]}"; do
             read -r -a gate_words <<< "${key#*|}"
             audit_gate_echo "pre-push guard gate" "${key%%|*}" python3 "${gate_words[@]}"
         done
-        echo "pre-push guard: ${#runner_gates[@]} runner gates passed in $((SECONDS - gates_started))s (gate 36 left to CI, which runs the whole suite, sharded, on every pull request)."
+        echo "pre-push guard: ${#runner_gates[@]} runner gates passed in $((SECONDS - gates_started))s."
+        run_gate36_shards
     else
         # Fail closed: the gate list cannot be read, so run the whole runner,
         # gate 36 included; doubt never drops a check.
@@ -598,23 +749,6 @@ else
             echo "pre-push guard FAILED at run_all_audits.sh (rc=${rc}). Fix the artefact; do not push."
             exit "${rc}"
         fi
-    fi
-
-    # The reviewed store-dependent subset of gate 36
-    # (tests/store-dependent-tests.txt), on every push, fail-closed: CI has
-    # no private store and no private sibling, so these tests skip or no-op
-    # there and this local run is their only pre-merge execution. Runs after
-    # the gates on BOTH branches above (on the fail-closed whole-runner
-    # fallback gate 36 just ran serially, but the list run still validates
-    # the committed list itself).
-    echo ""
-    echo "=== pre-push guard: store-dependent gate 36 tests (tests/store-dependent-tests.txt, every push) ==="
-    python3 tools/run-store-dependent-tests.py
-    rc=$?
-    if [ "${rc}" -ne 0 ]; then
-        echo ""
-        echo "pre-push guard FAILED at run-store-dependent-tests.py (rc=${rc}). Fix the artefact; do not push."
-        exit "${rc}"
     fi
 
     echo ""
