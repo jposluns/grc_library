@@ -13,8 +13,8 @@ no-manufactured-winddown policy and AIQT continue-by-default supersede the old
 session-depth/fresh-session triggers. The local attended-to-unattended timeout
 exception remains; ending unattended mode requires the operator.
 AIQT change-tracking-ext does not remove GRC's per-PR changelog obligation.
-AIQT verifier-diversity does not reduce GRC's triple-family standard (except
-CLAUDE.md light work). A family is unavailable only if no account can dispatch;
+AIQT verifier-diversity does not reduce GRC's triple-family standard for
+non-light work (light work: CLAUDE.md). A family is unavailable only if no account can dispatch;
 a lone family runs two passes on different models (versions count). Gate
 failures have no exception-register bypass.
 
