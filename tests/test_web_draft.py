@@ -8315,7 +8315,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                       comment)
         self.assertNotIn("A spelling that cites an instrument", comment)
 
-    # -- 40. the standards and frameworks page -------------------------------
+    # -- 41. the standards and frameworks page -------------------------------
 
     _STANDARDS_REGISTER_COLUMNS = [
         "Standard ID", "Current version", "Publication date", "Topic",
