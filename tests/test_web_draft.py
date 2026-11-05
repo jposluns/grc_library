@@ -4415,7 +4415,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 "list")
         main = self.draft_html["crosswalk/index.html"]
         self.assertIn(
-            '<li><a href="/crosswalk/" aria-current="page">All</a></li>',
+            '<li><a href="/crosswalk/" aria-current="true">All</a></li>',
             main, "the full crosswalk marks All as the current view, a "
             "plain link showing every column")
 
@@ -4907,8 +4907,28 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.assertEqual([(href, text) for href, _, text in links],
                              expected, f"{rel}: Views is All plus the topics")
             current = [href for href, attrs, _ in links
-                       if 'aria-current="page"' in attrs]
+                       if 'aria-current="true"' in attrs]
             self.assertEqual(current, [own], f"{rel}: its own view is current")
+
+    def test_crosswalk_rail_current_view_carries_the_styled_marker(self):
+        """Round 2 item 1 (WARN, regression): the vendored baseline styles
+        the lrail current item only as [aria-current="true"] or
+        [aria-pressed="true"] (baseline.css .lrail rule), so the earlier
+        aria-current="page" form rendered no visible marker. The crosswalk
+        page marks All, each view page marks its own view, with
+        aria-current="true", exactly one marker per rail."""
+        pages = [("crosswalk/index.html", "/crosswalk/", "All")] + [
+            (f"crosswalk/view/{slug}/index.html",
+             f"/crosswalk/view/{slug}/", label)
+            for slug, label, _, _ in self._XW_TOPICS]
+        for rel, own, label in pages:
+            rail = self._XW_RAIL_RE.search(self.draft_html[rel]).group(1)
+            self.assertEqual(rail.count("aria-current"), 1,
+                             f"{rel}: one current marker in the rail")
+            self.assertIn(
+                f'<li><a href="{own}" aria-current="true">'
+                f"{self.mod._esc(label)}</a></li>", rail,
+                f"{rel}: its own view carries the styled marker")
 
     def test_crosswalk_row_header_column_sits_outside_every_topic(self):
         """Directive item 2 and spec 7.30 markup: the row-header column
@@ -5069,7 +5089,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             "which also links the topic's related instrument pages where it "
             "has any" in unescape(text), related,
             "the related pages clause holds on the rendered pages")
-        self.assertIn("Without script every column shows here, All is a link "
+        self.assertIn("Every column shows here, All is a link "
                       "to this full table, and each topic view is a link to a "
                       "page with that topic's columns only", unescape(text))
         tail = re.search(
@@ -5125,17 +5145,22 @@ class DraftSiteRenderTests(unittest.TestCase):
         return unescape(" ".join(para.group(1).split()))
 
     def test_crosswalk_views_sentence_tells_all_from_the_topic_views(self):
-        """Round 3 item 1 (ERROR): without script All opens the full table,
-        and only a topic view opens a page with its topic's columns only.
-        The sentence says so, checked against the side list's links and the
-        pages they open: All is the crosswalk page itself, which renders
-        every main-table column, and each topic link opens a page with
-        exactly its preset's columns, fewer than the full table."""
+        """Round 3 item 1 (ERROR), wording from round 2 of item 3b788: the
+        crosswalk loads no script, so the sentence drops the "Without
+        script" qualifier; All opens the full table, and only a topic view
+        opens a page with its topic's columns only. The sentence says so,
+        checked against the side list's links and the pages they open: All
+        is the crosswalk page itself, which renders every main-table
+        column, and each topic link opens a page with exactly its topic's
+        columns, fewer than the full table."""
         text = self._xw_views_text()
         self.assertIn(
-            "Without script every column shows here, All is a link to this "
+            "Every column shows here, All is a link to this "
             "full table, and each topic view is a link to a page with that "
             "topic's columns only", text)
+        self.assertNotIn("Without script", text,
+                         "no script remains, so the sentence no longer "
+                         "qualifies itself")
         self.assertNotIn("each view is a link to a page with that topic's "
                          "columns only", text, "All is no topic page")
         main = self.draft_html["crosswalk/index.html"]
@@ -5157,6 +5182,19 @@ class DraftSiteRenderTests(unittest.TestCase):
                              slug)
             self.assertLess(len(shown), len(main_keys),
                             f"{slug}: a topic page holds its columns only")
+
+    def test_crosswalk_comments_describe_plain_view_pages(self):
+        """Round 2 item 3 (NOTE): the crosswalk loads no matrix.js, so the
+        generator's own account of the views names plain view pages: the
+        section comment no longer says "static preset views" and the
+        _xw_views_intro docstring no longer says a preset is one topic's
+        columns."""
+        source = Path(self.mod.__file__).read_text(encoding="utf-8")
+        self.assertNotIn("static preset views", source)
+        self.assertNotIn("each preset is one topic's columns",
+                         self.mod._xw_views_intro.__doc__)
+        self.assertIn("each view page shows one topic's columns",
+                      self.mod._xw_views_intro.__doc__)
 
     def test_crosswalk_side_list_sentences_name_the_lists_that_hold(self):
         """Round 3 item 2 (ERROR): the Views list holds only All and the

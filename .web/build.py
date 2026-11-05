@@ -3696,8 +3696,8 @@ _DRAFT_NARR_TABLE_RE = re.compile(r"<table>(.*?)</table>", re.S)
 # keep their 1.5.1 contract for a page without the opt-in column toggles,
 # column highlight and pinned-column cap that 1.7.0 adds, none of which these
 # pages use): one domain-by-instrument table,
-# one page per instrument, and static preset views, all re-parsed on every
-# build from the
+# one page per instrument, and a plain view page per topic, all re-parsed on
+# every build from the
 # two alignment matrices, the canonical citations register, and taxonomy.yml,
 # structural and loud on schema change exactly like parse_taxonomy. The
 # crosswalk page is a left-rail page (spec 7.32) whose side list carries the
@@ -6829,7 +6829,10 @@ def render_crosswalk_rail(xw, current=None):
     the crosswalk page loads no matrix script."""
 
     def view(href, label, here):
-        attrs = ' aria-current="page"' if here else ""
+        # The marker is the "true" form because the vendored baseline styles
+        # the lrail current item only as [aria-current="true"] (baseline.css
+        # .lrail rule); the "page" form rendered no visible marker.
+        attrs = ' aria-current="true"' if here else ""
         return f'<li><a href="{href}"{attrs}>{_esc(label)}</a></li>'
 
     views = [view("{{BASE}}/crosswalk/", "All", current is None)]
@@ -6857,7 +6860,7 @@ def render_crosswalk_rail(xw, current=None):
 
 def _xw_views_intro(xw, preset):
     """The sentences about the side list, true for every item they cover and
-    derived from the topics: each preset is one topic's columns
+    derived from the topics: each view page shows one topic's columns
     (crosswalk_presets, which also puts every column in a topic), All opens
     the full table and each topic view a page of its columns, the row-header
     column carries no data-col, the clauses on topics spanning groups and
@@ -6896,7 +6899,7 @@ def _xw_views_intro(xw, preset):
     elif shared:
         text += " A column can sit in more than one topic."
     text += (
-        " Without script every column shows here, All is a link to this full "
+        " Every column shows here, All is a link to this full "
         "table, and each topic view is a link to a page with that topic's "
         "columns only"
     )
