@@ -87916,7 +87916,8 @@ class WebSiteHardeningTests(unittest.TestCase):
     """
 
     # The exact decided header values (owner decisions 2026-11-03 and the
-    # 2026-11-04 promotion CSP flip), in file order.
+    # 2026-11-04 promotion CSP flip), in file order. Site fix F17 (item
+    # 3b788) dropped bluetooth, which Chromium does not recognize.
     EXPECTED_HEADERS = {
         "Content-Security-Policy": (
             "default-src 'none'; script-src 'self' 'unsafe-inline'"
@@ -87927,7 +87928,7 @@ class WebSiteHardeningTests(unittest.TestCase):
         ),
         "X-Frame-Options": "DENY",
         "Permissions-Policy": (
-            "accelerometer=(), autoplay=(), bluetooth=(), browsing-topics=(),"
+            "accelerometer=(), autoplay=(), browsing-topics=(),"
             " camera=(), display-capture=(), fullscreen=(), geolocation=(),"
             " gyroscope=(), hid=(), magnetometer=(), microphone=(), midi=(),"
             " payment=(), serial=(), usb=()"
