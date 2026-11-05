@@ -50,10 +50,15 @@ rule (maintainer-directed 2026-07-19; expanded 2026-07-26; restructured for the 
    order to one `orch-verify` worker of each family and assess the deliveries together: different models
    surface different perspectives, so the cross-family read is how nothing is missed. Reconcile them; a
    finding in only one family's delivery is triaged on its own merits. This is the operational form of
-   the permanent triple-family QA standard, which applies to EVERY QA pass (each member an `orch-verify`
-   worker, one per family; the Claude member is a claude-family `orch-verify` worker, NEVER the in-session
-   Agent tool, per `block-orchestrator-self-qa.py`). On token or tooling unavailability the panel drops
-   to the families that can run (triple to dual to single), never a discretionary downgrade. A family is
+   the permanent triple-family QA standard, which applies to every QA pass except light work (each member
+   an `orch-verify` worker, one per family; the Claude member is a claude-family `orch-verify` worker,
+   NEVER the in-session Agent tool, per `block-orchestrator-self-qa.py`). LIGHT WORK (maintainer
+   2026-11-05 00:44Z, recorded in `.claude/CLAUDE.md`'s triple-family QA section) takes a dual-family
+   panel: one claude worker and one gemini (agy) worker by preference, with codex substituting for either
+   that cannot run; substantive-tier work (including control-code, citation and normative-value changes
+   and gate or linter edits, per `.claude/references/governance/ai-assistant-workflow-disciplines.md`),
+   sensitive work and tooling stay triple-family. On token or tooling unavailability the panel drops to the families that can run
+   (triple to dual to single); beyond light work, never a discretionary downgrade. A family is
    unavailable only if no account can dispatch; a lone family runs two passes on two different models of
    that family, and different model versions (for example Opus 4.8 and Opus 5.5) count as different models;
    re-priming the same model does not count. RESIDUE: a

@@ -13,9 +13,10 @@ no-manufactured-winddown policy and AIQT continue-by-default supersede the old
 session-depth/fresh-session triggers. The local attended-to-unattended timeout
 exception remains; ending unattended mode requires the operator.
 AIQT change-tracking-ext does not remove GRC's per-PR changelog obligation.
-AIQT verifier-diversity does not reduce GRC's triple-family standard. A family is
-unavailable only if no account can dispatch; a lone family runs two passes on
-different models (versions count). Gate failures have no exception-register bypass.
+AIQT verifier-diversity does not reduce GRC's triple-family standard (except
+CLAUDE.md light work). A family is unavailable only if no account can dispatch;
+a lone family runs two passes on different models (versions count). Gate
+failures have no exception-register bypass.
 
 1. Gate work/failure/suppression or exception proposal: apply gate-discipline.md and its diagnose skill. Never weaken,
    bypass, suppress, or regenerate in CI to manufacture a pass. Fix or descope.
@@ -103,7 +104,7 @@ tools/aiqt_rules.py pins their digests. The legacy procedures' old statements
 that GRC authors all portable AIQT and guardrails is only an export target are
 superseded for the imported AIQT snapshot: upstream owns those pinned bytes;
 GRC owns local compatibility and its legacy publication sources. New portable
-changes go through upstream review and a subsequent explicit re-pin. The old
+changes go through upstream review and an explicit re-pin. The old
 source/adapter discipline still applies to GRC-authored publication material.
 
 Maintainer decisions D1-D3 (2026-10-02 12:27Z) govern this cutover.
