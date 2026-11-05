@@ -366,6 +366,29 @@ What is locked here, each test failing without its feature:
    non-PNG or wrong-size card, on a page carrying its own canonical, og: or
    twitter: tag, and on a page without exactly one title, meta description
    and head close.
+41. The standards page (maintainer decisions 2026-11-04 16:09 EST): the
+   Standards and frameworks page at /standards/ lists every citations-register
+   row grouped by register section, each entry the row's Standard ID plus
+   Current version composed per the register's citing convention with its
+   Topic, its Upstream check location as the one external link ("none
+   recorded" for "-"), and, where the Standard ID is a crosswalk instrument's
+   register_id, an internal link to that instrument's page; the rail anchors
+   equal the register's sections; the page sits under the Crosswalk bar
+   section, carries the aligned-to-not-certified caveat, and is linked from
+   the crosswalk caveats block, the comply Not listed section, and a sixth
+   landing Start here entry whose count is computed at build time. Round 3:
+   the heading joins the ID and version only in the safe publisher forms
+   (ISO/IEC colon and IEEE hyphen for a version that is exactly a four-digit
+   year, the ID alone where the version repeats the ID or its last token);
+   every other entry shows the register's Current version cell verbatim on
+   a Current version line ("continuous" spelled out, "-" nothing), pinned
+   by literal headings and lines, synthetic rule-edge rows, and a
+   whole-register preservation test over all 257 rows; the scope
+   sentence claims only what the register records and counts the main-table
+   instruments; the landing, comply, and crosswalk wording names the
+   register and the one "Standards & frameworks" label; no raw backtick
+   reaches an entry; and the flat register view keeps its heading-free
+   input contract while the section reader requires headings.
 """
 
 from __future__ import annotations
@@ -977,6 +1000,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn("browse/index.html", self.draft_html)
         self.assertIn("search/index.html", self.draft_html)
         self.assertIn("documents/index.html", self.draft_html)
+        self.assertIn("standards/index.html", self.draft_html)
         self.assertIn("contributors/index.html", self.draft_html)
         self.assertIn("for-ai/index.html", self.draft_html)
         self.assertIn("disclosure/index.html", self.draft_html)
@@ -1336,6 +1360,10 @@ class DraftSiteRenderTests(unittest.TestCase):
             return "/browse/"
         if first in ("decide", "decisions"):
             return "/decide/"
+        if first == "standards":
+            # The standards page sits under the Crosswalk section
+            # (maintainer decision 2026-11-04 16:09 EST).
+            return "/crosswalk/"
         if first in ("documents", "crosswalk", "search"):
             return f"/{first}/"
         self.assertIn(route, ("index.html", "404.html",
@@ -8286,6 +8314,471 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn("an unaliased spelling counts toward no instrument",
                       comment)
         self.assertNotIn("A spelling that cites an instrument", comment)
+
+    # -- 41. the standards and frameworks page -------------------------------
+
+    _STANDARDS_REGISTER_COLUMNS = [
+        "Standard ID", "Current version", "Publication date", "Topic",
+        "Superseded versions", "Upstream check location",
+        "Last verified (UTC)"]
+    _STANDARDS_GROUP_RE = re.compile(
+        r'<h2 id="([^"]+)">([^<]*)</h2>\s*<ul>(.*?)</ul>', re.S)
+    _STANDARDS_ITEM_RE = re.compile(
+        r'<li><span class="row-name">(.*?)</span>'
+        r'<span class="row-desc">(.*?)</span></li>', re.S)
+
+    def _register_sections(self):
+        """An independent reparse of the citations register: ``(heading,
+        [row cells, ...])`` per ``##`` section in register order, rows under
+        the register's exact seven-column header only (so a prose section or
+        the AI security tooling references table contributes none), raw cell
+        strings."""
+        text = (REPO_ROOT / "governance"
+                / "register-canonical-citations.md").read_text(
+                    encoding="utf-8")
+        sections = []
+        heading = None
+        state = "outside"
+        for line in text.splitlines():
+            if line.startswith("## "):
+                heading = line[len("## "):].strip()
+                state = "outside"
+                continue
+            if not line.strip().startswith("|"):
+                state = "outside"
+                continue
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if cells == self._STANDARDS_REGISTER_COLUMNS:
+                state = "header"
+                continue
+            if state == "header":
+                state = "rows"
+                if not sections or sections[-1][0] != heading:
+                    sections.append((heading, []))
+                continue
+            if state == "rows":
+                sections[-1][1].append(cells)
+        return [(h, rows) for h, rows in sections if rows]
+
+    # Literal expected headings for representative register rows (round 3:
+    # the heading is the Standard ID verbatim, joined with the Current
+    # version only in the exact publisher forms that are safe by
+    # construction): an ISO/IEC and an IEC edition whose version is exactly
+    # a four-digit year (colon), two IEEE ones (hyphen, the publisher's
+    # format), and NIST FIPS 198-1, the register's one row whose version
+    # equals the ID's last whitespace token (so the ID alone is the full
+    # citation). Every other row is headed by the ID alone, whatever its
+    # version; the entry's Current version line carries the cell.
+    _STANDARDS_LITERAL_HEADINGS = {
+        "ISO/IEC 27001": "ISO/IEC 27001:2022",
+        "IEC 62443-4-2": "IEC 62443-4-2:2019",
+        "IEEE 2883": "IEEE 2883-2022",
+        "IEEE 7000": "IEEE 7000-2021",
+        "NIST FIPS 198-1": "NIST FIPS 198-1",
+        "NIST SP 800-53": "NIST SP 800-53",
+        "CSA CCM": "CSA CCM",
+        "CSA STAR": "CSA STAR",
+        "STRIDE": "STRIDE",
+        "BASC International Norm V6-2022 (Control and Security Management "
+        "System, CSMS)":
+            "BASC International Norm V6-2022 (Control and Security "
+            "Management System, CSMS)",
+        "BASC International Security Standard 6.0.2 (2022, companies with "
+        "indirect relation to the cargo)":
+            "BASC International Security Standard 6.0.2 (2022, companies "
+            "with indirect relation to the cargo)",
+        "WP248 rev.01 (Article 29 Working Party Guidelines on Data "
+        "Protection Impact Assessment)":
+            "WP248 rev.01 (Article 29 Working Party Guidelines on Data "
+            "Protection Impact Assessment)",
+        "Australia National AI Plan 2025": "Australia National AI Plan 2025",
+        "Resolution CD/ANPD No. 15/2024": "Resolution CD/ANPD No. 15/2024",
+        "CAN/DGSI 101:2025": "CAN/DGSI 101:2025",
+        "EU GDPR": "EU GDPR",
+        "EU NIS 2 Directive": "EU NIS 2 Directive",
+        "US HIPAA": "US HIPAA",
+        "Colorado AI Act": "Colorado AI Act",
+        "NERC CIP": "NERC CIP",
+        "India DPDPA": "India DPDPA",
+    }
+
+    # Literal expected Current version lines (round 3: the rows whose
+    # recorded identifiers round 2's repeated-leading-word, year, and
+    # 40-character rules dropped, plus a short marker, a "continuous" row,
+    # and the version round 2 joined into the heading; round 4: two rows
+    # whose version sits inside the ID text, so a substring check of the
+    # heading could never catch a dropped line), keyed by Standard ID. The
+    # rendered line appends a closing period where the cell carries none;
+    # the cell itself is never dropped or shortened.
+    _STANDARDS_LITERAL_VERSION_LINES = {
+        "Resolution CD/ANPD No. 15/2024": "Current version: 2024.",
+        "WP248 rev.01 (Article 29 Working Party Guidelines on Data "
+        "Protection Impact Assessment)": "Current version: rev.01.",
+        "EU NIS 2 Directive": "Current version: Directive 2022/2555.",
+        "EU NIS 2 Implementing Regulation":
+            "Current version: Commission Implementing Regulation (EU) "
+            "2024/2690.",
+        "China Cross-Border Data Provisions (2024)":
+            "Current version: 2024-03-22 (immediate effect).",
+        "CAN/DGSI 101:2025": "Current version: 2nd edition, 2025.",
+        "LINDDUN":
+            "Current version: v240118 (knowledge release; methods GO / PRO "
+            "/ MAESTRO).",
+        "Security Directive 1580-21-01":
+            "Current version: SD 1580-21-01E (effective 2026-01-16 through "
+            "2027-01-15; cancels and supersedes SD 1580-21-01D).",
+        "CSA STAR": "Current version: continuous (no fixed edition).",
+        "NIST SP 800-53": "Current version: Rev. 5.",
+    }
+
+    # Headings that already carry the whole version cell, so no Current
+    # version line shows: a joined publisher citation and the last-token row.
+    _STANDARDS_NO_VERSION_LINE = (
+        "ISO/IEC 27001:2022", "IEEE 2883-2022", "NIST FIPS 198-1")
+
+    def test_standards_entries_equal_a_reparse_of_the_register(self):
+        """One entry per register data row, grouped by register section in
+        register order; each entry's heading is the Standard ID, alone or
+        with a bare-year publisher join (round 3), its Topic follows, the
+        Upstream check location is the one external link ("none recorded"
+        for "-"), and the rail anchors equal the register's sections."""
+        html = self.draft_html["standards/index.html"]
+        sections = self._register_sections()
+        self.assertTrue(sections, "the register parses to sections")
+        groups = self._STANDARDS_GROUP_RE.findall(html)
+        self.assertEqual([unescape(h) for _, h, _ in groups],
+                         [h for h, _ in sections],
+                         "one group per register section, in register order")
+        rail = re.search(r'<nav class="rail".*?<ol>(.*?)</ol>', html, re.S)
+        self.assertIsNotNone(rail, "the standards page carries a rail")
+        self.assertEqual(
+            re.findall(r'<li><a href="#([^"]*)">([^<]*)</a></li>',
+                       rail.group(1)),
+            [(slug, h) for slug, h, _ in groups],
+            "the rail anchors equal the rendered sections")
+        total = 0
+        for (slug, _, body), (heading, rows) in zip(groups, sections):
+            items = self._STANDARDS_ITEM_RE.findall(body)
+            self.assertEqual(len(items), len(rows),
+                             f"{heading}: one entry per register row")
+            for (name, desc), cells in zip(items, rows):
+                total += 1
+                sid, version, topic, upstream = (
+                    cells[0], cells[1], cells[3], cells[5])
+                with self.subTest(standard=sid):
+                    citation = unescape(name)
+                    # Structural: every heading is the row's Standard ID,
+                    # alone or joined with exactly a four-digit year (the
+                    # safe publisher forms); the exact convention is pinned
+                    # by the literal table below
+                    # (test_standards_representative_citations).
+                    self.assertTrue(
+                        citation == sid or (
+                            citation.startswith(sid)
+                            and citation[len(sid)] in ":-"
+                            and re.fullmatch(
+                                r"\d{4}", citation[len(sid) + 1:])),
+                        f"{citation!r} is the Standard ID, alone or with a "
+                        "bare-year publisher join")
+                    expected = self._STANDARDS_LITERAL_HEADINGS.get(sid)
+                    if expected is not None:
+                        self.assertEqual(citation, expected)
+                    expected_topic = self.mod._XW_TOPIC_NOTE_RE.sub(
+                        "", self.mod._xw_plain(topic))
+                    if expected_topic and expected_topic != "-":
+                        self.assertIn(
+                            self.mod._esc(expected_topic).rstrip("."), desc)
+                    if upstream == "-":
+                        self.assertIn(
+                            "Upstream check location: none recorded.", desc)
+                        self.assertNotIn('target="_blank"', desc)
+                    else:
+                        self.assertIn("Upstream check location: <a", desc)
+                        self.assertIn(
+                            f'href="{self.mod._esc(upstream)}"', desc)
+                        self.assertEqual(desc.count('target="_blank"'), 1,
+                                         "one external link per entry")
+        self.assertEqual(html.count('<span class="row-name">'), total,
+                         "every rendered entry is one register row")
+        self.assertIn(
+            f"{total} citations across {len(sections)} register sections",
+            html, "the meta line's counts are recomputed")
+
+    def test_standards_instrument_links_cover_exactly_the_register_ids(self):
+        """Every row whose Standard ID is a crosswalk instrument's
+        register_id links that instrument's page with its display name, and
+        no other entry links a crosswalk page."""
+        html = self.draft_html["standards/index.html"]
+        by_register_id = {i.register_id: i
+                          for i in self.mod.CROSSWALK_INSTRUMENTS
+                          if i.register_id is not None}
+        full = self.mod.parse_taxonomy_full(
+            self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        xw = self.mod.build_crosswalk(full)
+        linked = unlinked = 0
+        groups = self._STANDARDS_GROUP_RE.findall(html)
+        for (slug, _, body), (heading, rows) in zip(groups,
+                                                    self._register_sections()):
+            items = self._STANDARDS_ITEM_RE.findall(body)
+            for (name, desc), cells in zip(items, rows):
+                inst = by_register_id.get(cells[0])
+                with self.subTest(standard=cells[0]):
+                    if inst is None:
+                        unlinked += 1
+                        self.assertNotIn("/crosswalk/", desc)
+                    else:
+                        linked += 1
+                        self.assertIn(
+                            f'Mapped in the crosswalk: <a href="/crosswalk/'
+                            f'{inst.key}/">'
+                            f'{self.mod._esc(xw["instruments"][inst.key]["display"])}'
+                            "</a>", desc)
+        self.assertTrue(linked and unlinked,
+                        "rows of both kinds exist today")
+
+    def test_standards_page_caveat_nav_and_crosslinks(self):
+        """The standards page carries the aligned-to-not-certified caveat
+        and marks the Crosswalk bar section; the crosswalk caveats block,
+        the comply Not listed section and a sixth landing Start here entry
+        link /standards/, the landing count computed from the register."""
+        html = self.draft_html["standards/index.html"]
+        self.assertIn("aligned to these instruments, not certified against "
+                      "them", html)
+        self.assertIn('<a href="/crosswalk/" aria-current="page">', html)
+        crosswalk = self.draft_html["crosswalk/index.html"]
+        caveats = self._XW_CAVEATS_RE.search(crosswalk)
+        self.assertIsNotNone(caveats)
+        self.assertIn('href="/standards/"', caveats.group(1),
+                      "the crosswalk caveats block links the standards page")
+        comply = self.draft_html["comply/index.html"]
+        not_listed = re.search(r'<h2 id="not-listed">(.*?)<h2 ', comply, re.S)
+        self.assertIsNotNone(not_listed)
+        self.assertIn('href="/standards/"', not_listed.group(1),
+                      "the comply Not listed section links the standards page")
+        landing = self.draft_html["index.html"]
+        entries = re.search(r'<ol class="entries">(.*?)</ol>', landing, re.S)
+        self.assertIsNotNone(entries)
+        rows = re.findall(r'<li><a href="([^"]*)">', entries.group(1))
+        self.assertEqual(len(rows), 6, "six Start here entries")
+        self.assertIn("/standards/", rows)
+        count = sum(len(rows_) for _, rows_ in self._register_sections())
+        self.assertIn(f'<span class="n">{count} citations</span>',
+                      entries.group(1),
+                      "the landing count is computed from the register and "
+                      "uses the standards page's own unit (round 2 note)")
+
+    def test_standards_representative_citations(self):
+        """Round 3: each representative heading equals its literal (ISO/IEC
+        and IEC colon, IEEE hyphen, every other row the Standard ID alone),
+        each representative Current version line equals its literal (the
+        register's cell verbatim, "continuous" spelled out), and a heading
+        that carries the whole cell shows no line."""
+        html = self.draft_html["standards/index.html"]
+        entries = {}
+        for name, desc in self._STANDARDS_ITEM_RE.findall(html):
+            entries[unescape(name)] = unescape(desc)
+        for sid, expected in self._STANDARDS_LITERAL_HEADINGS.items():
+            with self.subTest(standard=sid):
+                self.assertIn(expected, entries,
+                              f"{sid}: headed {expected!r}")
+        for sid, line in self._STANDARDS_LITERAL_VERSION_LINES.items():
+            heading = self._STANDARDS_LITERAL_HEADINGS.get(sid, sid)
+            with self.subTest(standard=sid):
+                self.assertIn(heading, entries,
+                              f"{sid}: headed by the ID alone")
+                self.assertIn(line, entries[heading],
+                              f"{sid}: the register's cell, verbatim, on "
+                              "the entry's Current version line")
+        self.assertIn("Current version: 1996 (with HITECH",
+                      entries["US HIPAA"],
+                      "a long legal version renders in full")
+        for heading in self._STANDARDS_NO_VERSION_LINE:
+            with self.subTest(standard=heading):
+                self.assertNotIn("Current version:", entries[heading],
+                                 "a heading that carries the whole cell "
+                                 "shows no line")
+
+    def test_standards_every_version_cell_is_preserved(self):
+        """Round 4 fix 1 (round 3's whole-register check made exact) and
+        fix 3 (the row count compared against an independent reparse of the
+        register at test time, not a hard-coded figure): the page renders
+        one entry per reparsed register row, and a heading is accepted as
+        carrying the version only when it equals the ID and the version is
+        the whole ID or the ID's last whitespace token, or it is the exact
+        ISO or IEC colon join or IEEE hyphen join of a four-digit-year
+        version. Every other row with a version other than "-" must show
+        its whole Current version line (terminal period included,
+        "continuous" spelled out), so a version that merely sits inside the
+        ID text (the ANPD resolutions, the BASC rows, WP248 rev.01) fails
+        if its line is dropped. A "-" cell shows nothing."""
+        html = self.draft_html["standards/index.html"]
+        sections = self._register_sections()
+        self.assertTrue(sections, "the register parses to sections")
+        groups = self._STANDARDS_GROUP_RE.findall(html)
+        self.assertEqual(len(groups), len(sections),
+                         "one rendered group per reparsed register section")
+        self.assertEqual(
+            sum(len(self._STANDARDS_ITEM_RE.findall(body))
+                for _, _, body in groups),
+            sum(len(rows) for _, rows in sections),
+            "one rendered entry per independently reparsed register row")
+        year = re.compile(r"\d{4}\Z")
+        for (slug, _, body), (heading, rows) in zip(groups, sections):
+            items = self._STANDARDS_ITEM_RE.findall(body)
+            self.assertEqual(len(items), len(rows),
+                             f"{heading}: one entry per register row")
+            for (name, desc), cells in zip(items, rows):
+                sid = cells[0]
+                version = self.mod._xw_plain(cells[1])
+                name_text = unescape(name)
+                desc_text = unescape(desc)
+                with self.subTest(standard=sid):
+                    if version == "-":
+                        self.assertNotIn("Current version:", desc_text)
+                        continue
+                    tokens = sid.split()
+                    org = tokens[0].split("/")[0] if tokens else ""
+                    carried = (
+                        name_text == sid
+                        and (version == sid
+                             or (bool(tokens) and version == tokens[-1]))
+                    ) or (
+                        year.fullmatch(version) is not None
+                        and ((org in ("ISO", "IEC")
+                              and name_text == f"{sid}:{version}")
+                             or (org == "IEEE"
+                                 and name_text == f"{sid}-{version}"))
+                    )
+                    if carried:
+                        continue
+                    if version == "continuous":
+                        line = ("Current version: continuous "
+                                "(no fixed edition)")
+                    else:
+                        line = f"Current version: {version}"
+                    if not line.endswith("."):
+                        line += "."
+                    self.assertIn(
+                        line, desc_text,
+                        f"{sid}: the heading {name_text!r} does not carry "
+                        f"the version cell {version!r} in an accepted form, "
+                        "so the entry must show the whole Current version "
+                        "line")
+
+    def test_standards_h1_names_the_register(self):
+        """Round 4 fix 2: the page h1 is pinned to the register-scoped
+        sentence, and the page nowhere claims everything the corpus
+        cites."""
+        html = self.draft_html["standards/index.html"]
+        h1s = re.findall(r"<h1>(.*?)</h1>", html, re.S)
+        self.assertEqual(
+            [unescape(h) for h in h1s],
+            ["The standards and frameworks in the canonical citations "
+             "register."],
+            "the standards page carries exactly the decided h1")
+        self.assertNotIn("the corpus cites", html)
+
+    def test_standards_display_rules_on_synthetic_rows(self):
+        """Round 3, the rule edges no live register row pins today: the
+        bare-year join requires the version to be exactly a four-digit
+        year; a version equal to the whole ID shows no line; a "-" version
+        shows nothing; "continuous" is spelled out; any other version shows
+        on a Current version line, whatever its org."""
+        def row(sid, version):
+            return {"id": sid, "version": version}
+        cite = self.mod._standards_citation
+        line = self.mod._standards_version_display
+        self.assertEqual(cite(row("ISO/IEC 99999", "2024")),
+                         "ISO/IEC 99999:2024")
+        self.assertIsNone(line(row("ISO/IEC 99999", "2024")))
+        self.assertEqual(cite(row("IEEE 99999", "2024")), "IEEE 99999-2024")
+        self.assertIsNone(line(row("IEEE 99999", "2024")))
+        self.assertEqual(cite(row("ISO/IEC 99999", "2024 (corrected)")),
+                         "ISO/IEC 99999")
+        self.assertEqual(line(row("ISO/IEC 99999", "2024 (corrected)")),
+                         "Current version: 2024 (corrected)")
+        self.assertEqual(cite(row("NIST Example 7", "2024")),
+                         "NIST Example 7")
+        self.assertEqual(line(row("NIST Example 7", "2024")),
+                         "Current version: 2024")
+        self.assertEqual(cite(row("Example Framework", "Example Framework")),
+                         "Example Framework")
+        self.assertIsNone(line(row("Example Framework", "Example Framework")))
+        self.assertIsNone(line(row("Example Framework", "Framework")))
+        self.assertIsNone(line(row("Example Framework", "-")))
+        self.assertEqual(line(row("Example Framework", "continuous")),
+                         "Current version: continuous (no fixed edition)")
+
+    def test_standards_scope_claims_only_what_the_register_records(self):
+        """Round 2 fix 1 and note: the scope sentence claims the recorded
+        edition and, where one is recorded, the register's upstream check
+        location, never a currency check for every row (53 rows record no
+        location); its crosswalk count is the main-table count, the
+        crosswalk page's own figure."""
+        html = self.draft_html["standards/index.html"]
+        main_count = len([i for i in self.mod.CROSSWALK_INSTRUMENTS
+                          if i.main_table])
+        self.assertIn(
+            f"The crosswalk maps {main_count} instruments in depth", html)
+        self.assertIn(
+            "cited with the edition the register records, and with the "
+            "register's upstream check location where one is recorded",
+            html)
+        self.assertNotIn("checked for currency at its upstream location",
+                         html)
+
+    def test_standards_scope_wording_names_the_register(self):
+        """Round 2 fix 6 and note: the landing tile, the comply Not listed
+        paragraph, and the crosswalk caveat scope the standards page's
+        coverage to the canonical citations register, not to everything the
+        corpus cites, and every link to the page uses the one label
+        (Standards &amp; frameworks)."""
+        landing = self.draft_html["index.html"]
+        self.assertIn(
+            "Every standard, law, framework, and programme in the canonical "
+            "citations register, grouped by register section", landing)
+        comply = self.draft_html["comply/index.html"]
+        self.assertIn(
+            "Every standard, law, framework, and programme in the canonical "
+            "citations register, mapped here or not", comply)
+        crosswalk = self.draft_html["crosswalk/index.html"]
+        self.assertIn(
+            "The standards, laws, frameworks, and programmes in the "
+            "canonical citations register, mapped here or not", crosswalk)
+        for page in (landing, comply, crosswalk):
+            self.assertNotIn("programme the corpus cites", page)
+            self.assertNotIn("programmes the corpus cites", page)
+            self.assertNotIn("Standards and frameworks</a>", page,
+                             "one link label: Standards &amp; frameworks")
+
+    def test_standards_topic_renders_no_raw_backtick(self):
+        """Round 2 note: a register Topic's Markdown code span (NIST SP
+        800-171 names an OSCAL identifier) renders as plain text; no raw
+        backtick reaches a standards entry."""
+        html = self.draft_html["standards/index.html"]
+        self.assertIn("SP_800_171_3_0_0", html,
+                      "the code span's text still renders")
+        for name, desc in self._STANDARDS_ITEM_RE.findall(html):
+            self.assertNotIn("`", name)
+            self.assertNotIn("`", desc)
+
+    def test_flat_register_view_keeps_its_heading_free_contract(self):
+        """Round 2 fix 7: parse_citations_register (the flat view) still
+        reads a table above any ## heading, its old input contract; the
+        standards page's section reader is the one that requires a
+        heading."""
+        table = "\n".join((
+            "| Standard ID | Current version | Publication date | Topic | "
+            "Superseded versions | Upstream check location | "
+            "Last verified (UTC) |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+            "| Example 1 | 2020 | 2020-01 | Example topic | - | - | - |",
+        ))
+        flat = self.mod.parse_citations_register(table)
+        self.assertEqual(list(flat), ["Example 1"])
+        self.assertEqual(flat["Example 1"]["version"], "2020")
+        with self.assertRaises(self.mod.BuildError):
+            self.mod.parse_citations_register_sections(table)
 
 
 class DraftAdventureGuardTests(unittest.TestCase):
