@@ -327,6 +327,14 @@ The disciplines implement the same audit-trail-integrity principle the broader p
 - Worker-hallucination tracking artefact: `hallucination-metrics`.
 - Worker-brief template: `/opt/grc/private/worker-brief-template.md`.
 - Verifier-override register: `/opt/grc/private/verifier-overrides.md` (surfaced at `/orch`).
+- Light-work QA tier (maintainer 2026-11-05 00:44Z [19:44 EST 2026-11-04]: "dual family for light work
+  applies here, with preference towards claude and agy over codex - as codex is tempermental"): small
+  low-risk changes, replays of reviewed work and one-token or wording fixes take, for their formal QA
+  activities (for example `/validate-pr`), a dual-family `orch-verify` panel, claude and gemini (agy) preferred, codex substituting for either that cannot run.
+  It never covers substantive-tier work above (including corpus-document body, multi-surface, control-code,
+  citation and normative-value changes and gate or linter edits), rule text (for example CLAUDE.md, `.claude/rules`, `.claude/commands`, governance overlays, playbooks, skills and corpus-management rule sources), sensitive work or tooling, which keep the
+  triple-family panel. Record the panel size in the QA row. Rule of record:
+  `.claude/CLAUDE.md` triple-family QA section.
 - Exchange channel and runbook: `multi-session-orchestration` (the former `grc_library_scratch` exchange
   channel is RETIRED, maintainer-directed 2026-09-23; worker results return synchronously via orch-verify and
   guardrail seeds go to guardrails via `inbox-send`).
