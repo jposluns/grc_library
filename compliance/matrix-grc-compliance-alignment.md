@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.12.8\
-**Date:** 2026-10-27\
+**Version:** 1.12.11\
+**Date:** 2026-11-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -13,6 +13,12 @@
 **Repository Path:** [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This matrix maps the GRC library documents it lists to the control domains and section references of ten compliance, security, assurance, and AI-control frameworks, so a reader can trace which documents support a framework's requirements and which frameworks a document touches. The cross-framework view of the same alignments is the [Cross-Framework Alignment Matrix](../governance/matrix-cross-framework-alignment.md).
 
 ---
 
