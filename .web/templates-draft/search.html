@@ -16,7 +16,7 @@
 <h1>Search the library</h1>
 <div class="rail"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"></div>
 <p class="meta" id="search-prompt">{{SEARCH_PROMPT}}</p>
-<p>With script, the results stay empty until you type, or open a search address with words in ?q=; then a document shows when every word is in its title, type, area, or, where it has them, its purpose or framework names, and those whose title holds every word come first. The page address keeps your words (?q=), so a search can be linked. Without script, the whole list stays below.</p>
+<p>With script, the results stay empty until you type, or open a search address with words in ?q=; then a document shows when every word is in its title, type, area, or, where it has them, its purpose or framework names, and those whose title holds every word come first. The page address keeps your words (?q=), so a search can be linked. Without script, the whole list stays below, newest first.</p>
 <form class="search" role="search" data-search><label class="lbl" for="q">Search the library</label><input id="q" type="search" autocomplete="off" aria-describedby="search-prompt" placeholder="e.g. incident response, ISO 27001, retention, privileged access"><p class="status" role="status" aria-live="polite" data-search-status></p></form>
 <div class="wide"><ul class="plan one described" aria-label="Search results" data-search-mode="results" data-search-prompt="{{SEARCH_STATUS_PROMPT}}" data-search-scope>
 {{SEARCH_ROWS}}
@@ -25,6 +25,5 @@
 <div class="next"><p class="lbl">Next</p><a class="start" href="{{BASE}}/browse/">Browse by need, domain, or type <span class="arrow" aria-hidden="true">&rarr;</span></a></div></div></div>
 </main>
 {{FOOTER}}
-<p class="vh" id="copy-status" role="status" aria-live="polite"></p>
 </body>
 </html>

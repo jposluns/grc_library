@@ -15,14 +15,15 @@
 <div class="wrap"><div class="doc"><p class="lbl first">All Documents</p>
 <h1>All Documents</h1>
 <div class="rail"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"></div>
-<p class="meta">{{INDEX_COUNT}} documents across {{INDEX_AREA_COUNT}} areas, each with its own page, listed by title from A to Z, plus {{INDEX_ROOT_COUNT}} library specifications read on GitHub, in {{INDEX_TYPE_COUNT}} types. The list is generated from the library at build time, so a document added or removed appears or drops out on the next build.</p>
+<p class="meta">{{INDEX_COUNT}} documents across {{INDEX_AREA_COUNT}} areas, each with its own page, listed by title from A to Z, plus {{INDEX_ROOT_COUNT}} library specifications read on GitHub, in {{INDEX_TYPE_COUNT}} types. The list is generated from the library at build time, so a document added or removed appears or drops out on the next build. An area here is a corpus domain. The adopter documents under docs/, outside the corpus, have no row here; <a href="{{BASE}}/browse/#adopter-documents">Browse</a> lists them, and the search page's list carries them.</p>
 <p class="lbl blk">Library specifications</p>
 <ul class="plan one described">
 {{INDEX_ROOT_ROWS}}
 </ul>
 <p class="lbl sec">Documents, {{INDEX_COUNT}}</p>
 <h2>Every document in a corpus area, A to Z</h2>
-<p>With script, a type chip keeps the documents of its type and an area chip the documents of its area, and typing keeps the documents whose title, type, area, purpose, or framework names match every word; a type, an area and words combine. A second click on a chosen chip, or a click on All, clears that chip's group and leaves the other choices as they are. Each chip's count is the number of documents of its type or area in the whole list, All counting the whole list, and stays the same whatever else is chosen; the status line under the text filter gives how many documents show. A type or area chip that would show no documents with the other group's choice and the words typed is marked unavailable, with a dashed border: choosing it on the page (a plain click, Enter or Space) leaves the list and the page address as they are, and the status line says that it would show no documents, until the next change. Opening a chip's link in a new tab or window goes to the address it links, as any link does: the whole list for All, and the list filtered to that chip's type or area alone for any other chip. All and a chosen chip are never unavailable. The page address keeps the choice (?type=, ?area=, ?q=), so a filtered list can be linked. Without script, the whole list stays as it is.</p>
+<p>With script, a type chip, an area chip, and the words typed each narrow the list, alone or combined; the page address keeps the choice (?type=, ?area=, ?q=), so a filtered list can be linked. Without script, the whole list stays as it is.</p>
+<details><summary>How the filters behave</summary><p>With script, a type chip keeps the documents of its type and an area chip the documents of its area, and typing keeps the documents whose title, type, area, purpose, or framework names match every word; a type, an area and words combine. A second click on a chosen chip, or a click on All, clears that chip's group and leaves the other choices as they are. Each chip's count is the number of documents of its type or area in the whole list, All counting the whole list, and stays the same whatever else is chosen; the status line under the text filter gives how many documents show. A type or area chip that would show no documents with the other group's choice and the words typed is marked unavailable, with a dashed border: choosing it on the page (a plain click, Enter or Space) leaves the list and the page address as they are, and the status line says that it would show no documents, until the next change. Opening a chip's link in a new tab or window goes to the address it links, as any link does: the whole list for All, and the list filtered to that chip's type or area alone for any other chip. All and a chosen chip are never unavailable.</p></details>
 <p class="lbl blk">Type</p>
 <ul class="chips" data-filter-group="type" data-filter-empty="disable" aria-label="Filter by type">
 {{INDEX_TYPE_CHIPS}}
@@ -38,6 +39,5 @@
 <div class="next"><p class="lbl">Next</p><a class="start" href="{{BASE}}/browse/">Browse by need, domain, or type <span class="arrow" aria-hidden="true">&rarr;</span></a></div></div></div>
 </main>
 {{FOOTER}}
-<p class="vh" id="copy-status" role="status" aria-live="polite"></p>
 </body>
 </html>

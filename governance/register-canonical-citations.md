@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.6.18\
-**Date:** 2026-10-28\
+**Version:** 1.6.20\
+**Date:** 2026-11-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -342,6 +342,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | BASC International Security Standard 6.0.2 (2022, companies with indirect relation to the cargo) | 6.0.2 | 2022 | BASC security standard for companies with indirect relation to the cargo | - | https://www.wbasco.org/en/document/basc-international-norm-and-standards-implementation-guide-v6-2022 | needs-reconfirm |
 | BASC International Security Standard 6.0.3 (2022, companies implementing basic security operational controls) | 6.0.3 | 2022 | BASC security standard for companies implementing basic security operational controls | - | https://www.wbasco.org/en/document/basc-international-norm-and-standards-implementation-guide-v6-2022 | needs-reconfirm |
 | CTPAT MSC | 2020 | 2020 | Customs-Trade Partnership Against Terrorism Minimum Security Criteria | - | https://www.cbp.gov/border-security/ports-entry/cargo-security/ctpat-customs-trade-partnership-against-terrorism/apply/security-criteria | verified 2026-07-09 |
+| AEO/AEOS (UK) | - | - | UK HMRC Authorized Economic Operator customs and trade security programme (Security and Safety authorization); requirement areas per HMRC guidance, which carries no versioned edition, so the version columns record none | - | https://www.gov.uk/guidance/authorised-economic-operator-certification | needs-reconfirm |
 
 ## Sector-specific (energy, telecom, finance)
 

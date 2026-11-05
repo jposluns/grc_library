@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Domain README\
 **Document Type:** Register\
-**Version:** 1.4.16\
-**Date:** 2026-10-27\
+**Version:** 1.4.17\
+**Date:** 2026-11-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory holds the GRC secure-development standards: security standards, quick-reference guides, compliance registers, policies, and procedures for developers and DevOps practitioners. Content addresses secure development baseline requirements, CI/CD pipeline security, developer toolchain security, and compliance controls for software development activities. These are normative GRC artefacts of the same shape as content in [`security/`](../security/), [`risk/`](../risk/), and the other domain directories.
+This directory holds the GRC secure-development standards: security standards, quick-reference guides, compliance registers, policies, and procedures for developers and DevOps practitioners. Content addresses secure development baseline requirements, CI/CD pipeline security, developer toolchain security, and compliance controls for software development activities. These are normative GRC artefacts of the same shape as the content of the [Security](../security/) and [Risk](../risk/) domains and the other domains in the library.
 
 A second layer, the draggable operational pack, formerly shipped here; it now lives at the repository root as [`guardrails/`](../guardrails/). See its README for the pack and its adoption options.
 

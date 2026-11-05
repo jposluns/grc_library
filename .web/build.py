@@ -416,12 +416,14 @@ DRAFT_CSP = (
 # at-promotion owner decision, executed at the draft-site promotion). The
 # zone keeps sending X-Content-Type-Options, Referrer-Policy,
 # Access-Control-Allow-Origin and Strict-Transport-Security automatically,
-# so none of those is repeated here.
+# so none of those is repeated here. bluetooth is not a Permissions-Policy
+# feature Chromium recognizes, so naming it logged one console warning per
+# page load (item 3b788); the list carries recognized features only.
 HEADERS_FILE = (
     "/*\n"
     f"  Content-Security-Policy: {DRAFT_CSP}\n"
     "  X-Frame-Options: DENY\n"
-    "  Permissions-Policy: accelerometer=(), autoplay=(), bluetooth=(),"
+    "  Permissions-Policy: accelerometer=(), autoplay=(),"
     " browsing-topics=(), camera=(), display-capture=(), fullscreen=(),"
     " geolocation=(), gyroscope=(), hid=(), magnetometer=(), microphone=(),"
     " midi=(), payment=(), serial=(), usb=()\n"
@@ -437,13 +439,19 @@ HEADERS_FILE = (
 # subject is now the AIQT project. Round-2 fix 7: the splat covers only
 # paths under /draft/, and Pages matches rules literally, so the slashless
 # and explicit index.html spellings of each redirected address carry their
-# own rules (/draft itself lands on the promoted root).
+# own rules (/draft itself lands on the promoted root). The site's prose
+# spells "Licence" (Canadian spelling) while the route is /license/, so the
+# /licence/ spelling a reader types lands on the page instead of the 404
+# (item 3b788), in the same three spellings as the other redirects.
 REDIRECTS_FILE = (
     "/draft/* /:splat 301\n"
     "/draft / 301\n"
     "/about/ /contributors/ 301\n"
     "/about /contributors/ 301\n"
     "/about/index.html /contributors/ 301\n"
+    "/licence/ /license/ 301\n"
+    "/licence /license/ 301\n"
+    "/licence/index.html /license/ 301\n"
     "/pack/ https://aiqt.ai/ 301\n"
     "/pack https://aiqt.ai/ 301\n"
     "/pack/index.html https://aiqt.ai/ 301\n"
@@ -663,15 +671,29 @@ def load_narratives():
     return pages
 
 
+# The CC BY-SA quotation sentence 10 of the 12 domain READMEs carry in their
+# Purpose intro, as it reads after link and code-span flattening (the opening
+# pronoun varies). The domain template's hardcoded Note callout states the
+# same rule on every domain page, so the lead drops its own copy and all 12
+# pages state it exactly once (site triage F01).
+_DOMAIN_LEAD_LICENCE_RE = re.compile(
+    r"\s*(?:All|Its|Their) original content is released under CC BY-SA 4\.0; "
+    r"a quotation that NOTICE\.md allows or keeps under its transition clause "
+    r"keeps its source licence and is not relicensed under CC BY-SA 4\.0\."
+)
+
+
 def read_domain_purpose(domain):
     """Return the ``## Purpose`` intro of ``<domain>/README.md`` as clean plain
     text. Normally that is the section's first paragraph. When the first
     paragraph is a list lead-in (it ends with a colon, the dev-security case),
     the following list items' lead-in sentences are folded in so the page never
-    renders a dangling colon. Markdown links, bold, and code spans are flattened.
-    Every corpus domain README follows the section model and carries a Purpose
-    section; a missing file or missing section is a coupling breakage the
-    generator-health check must surface."""
+    renders a dangling colon. Markdown links, bold, and code spans are flattened,
+    and the CC BY-SA quotation sentence is dropped: the domain page's Note
+    callout already states it, so the lead never repeats it. Every corpus domain
+    README follows the section model and carries a Purpose section; a missing
+    file or missing section is a coupling breakage the generator-health check
+    must surface."""
     p = REPO_ROOT / domain / "README.md"
     if not p.is_file():
         raise BuildError(f"domain README not found at {p}")
@@ -725,7 +747,8 @@ def read_domain_purpose(domain):
         if leads:
             intro = intro.rstrip(":").rstrip() + ": " + "; ".join(leads) + "."
 
-    return _MD_LINK_RE.sub(r"\1", intro).replace("**", "").replace("`", "")
+    text = _MD_LINK_RE.sub(r"\1", intro).replace("**", "").replace("`", "")
+    return _DOMAIN_LEAD_LICENCE_RE.sub("", text).strip()
 
 
 def compute_figures():
@@ -967,9 +990,11 @@ NARRATIVE_ROUTE_PREFIX = "decisions/"
 # renderer's own intro-section id and is always present.
 NARRATIVE_SHELL_IDS = {
     # The shell's ids are every id its narrative.html carries (the
-    # skip-link target, two heading anchors and the copy status line).
+    # skip-link target and two heading anchors; the copy-status live region
+    # left with opt-in copy.js, review round 2 item 4: no draft page loads
+    # copy.js, so no template carries the region it would write to).
     "templates-draft": {
-        "narr-intro", "main-content", "source", "domains", "copy-status",
+        "narr-intro", "main-content", "source", "domains",
     },
 }
 
@@ -2038,6 +2063,14 @@ def render_page(template_name, figures, variant, template_dir, partials, extra=N
     values = {**partials, **figure_values(figures, variant)}
     if extra:
         values.update(extra)
+    # The footer's site bar marks this site among the 6 family sites with
+    # aria-current="page" on every page, the base behaviour (review round 2
+    # item 1: baseline.css styles only the "page" form on .family .card, so
+    # the round-1 aria-current="true" off the home page dropped the visual
+    # current-site marker there). Semantically the card marks the current
+    # SITE of the set, not the current page; a template request asks the
+    # baseline owner to style aria-current="true" so grc can switch later.
+    values["FOOTER_HOME_CURRENT"] = ' aria-current="page"'
     used = set()
 
     def sub(match):
@@ -3452,7 +3485,8 @@ def draft_concern_join(figures, docs_by_path):
             TYPE_RANK.get(d.get("type"), len(TYPE_ORDER)),
             d.get("title", "").lower(), d["path"],
         ))
-        frameworks = sorted({f for d in docs for f in d.get("frameworks", [])})
+        frameworks = normalize_concern_frameworks(
+            {f for d in docs for f in d.get("frameworks", [])})
         if pages:
             domains = sorted({d for p in pages for d in p["domains"]})
         else:
@@ -3553,14 +3587,16 @@ DRAFT_GOVERN_ARTEFACTS = {
 # Where the govern path lands (design D section 4.2): the two programme
 # areas, the document types that stand a programme up, and the
 # programme-maturity concern page appended in draft_govern_values. Each type
-# maps to what its documents do for the programme, the clause the Lands
-# sentence carries, so the sentence's type count and clauses come from this
-# one table.
+# maps to its role clause, the clause the Lands sentence carries, so the
+# sentence's type count and clauses come from this one table. The clauses
+# read generic singular, the type's role (site review batch B5 F40:
+# "roadmaps stage it" overstated a type holding one corpus document; the
+# rows beside the sentence carry the honest counts).
 DRAFT_GOVERN_LANDING_DOMAINS = ("governance", "compliance")
 DRAFT_GOVERN_LANDING_TYPES = {
-    "Roadmap": "stage it",
-    "Charter": "establish the authority to do it",
-    "Plan": "coordinate the events it must survive",
+    "Roadmap": "a roadmap stages it",
+    "Charter": "a charter establishes the authority to do it",
+    "Plan": "a plan coordinates the events it must survive",
 }
 DRAFT_GOVERN_CONCERN = "programme-maturity"
 
@@ -3866,9 +3902,9 @@ class Instrument(NamedTuple):
     label: str               # short display label (the column header base)
     group: str               # instrument-group band (design C 3.2)
     register_id: str | None  # Standard ID in the citations register; None for
-                             # the two programmes the register carries no row
-                             # for (PIP and AEO/AEO-S), whose naming source is
-                             # the compliance matrix's own column key
+                             # a programme the register carries no row for
+                             # (PIP), whose naming source is the compliance
+                             # matrix's own column key
     version_join: str | None  # how label + register Current version compose
                              # the display name: "colon", "space", "paren", or
                              # None (a long legal version shows on the
@@ -3969,8 +4005,13 @@ CROSSWALK_INSTRUMENTS = (
     Instrument("wco-safe", "WCO SAFE", _XW_G_TRADE,
                "WCO SAFE Framework", "paren", "WCO SAFE", None, None, True,
                reverse_pointer="ctpat", org="WCO"),
+    # The register row's Standard ID writes the Security and Safety
+    # authorization as HMRC does, "AEOS" (the held Customs Technical
+    # Handbook extract: "Authorised Economic Operator Criteria - Security
+    # and Safety - AEOS Only"); the compliance matrix's own column key stays
+    # "AEO/AEO-S", the corpus's long-standing spelling.
     Instrument("aeo", "AEO/AEO-S", _XW_G_TRADE,
-               None, None, "AEO/AEO-S", None, None, True,
+               "AEO/AEOS (UK)", None, "AEO/AEO-S", None, None, True,
                reverse_pointer="ctpat", org="HMRC"),
     Instrument("aicpa-tsc", "AICPA TSC", _XW_G_AUDIT,
                "AICPA TSP Section 100", None, "AICPA TSC 2017", None, None, True,
@@ -4014,6 +4055,7 @@ CROSSWALK_ALIASES = {
     "NIST AI RMF 1.0 (2023)": "nist-ai-rmf",
     "NIST AI RMF 1.0 (NIST AI 100-1)": "nist-ai-rmf",
     "NIST AI RMF 1.0 MANAGE 4.3": "nist-ai-rmf",
+    "NIST AI RMF 1.0: Govern function": "nist-ai-rmf",
     "NIST AI 100-1 (AI RMF 1.0)": "nist-ai-rmf",
     "CSA CCM v4.1": "csa-ccm",
     "CSA CCM v4.1.0": "csa-ccm",
@@ -4038,6 +4080,7 @@ CROSSWALK_ALIASES = {
     "MITRE ATLAS (2026.07)": "mitre-atlas",
     "EU AI Act": "eu-ai-act",
     "EU AI Act (2024)": "eu-ai-act",
+    "EU AI Act 2024": "eu-ai-act",
     "EU AI Act (Regulation (EU) 2024/1689)": "eu-ai-act",
     "EU AI Act (Regulation (EU) 2024/1689 as amended by Regulation (EU) "
     "2026/1744)": "eu-ai-act",
@@ -4120,6 +4163,68 @@ CROSSWALK_ALIAS_PARTS = {
 }
 
 
+# Exact taxonomy framework strings naming a text that is NO crosswalk
+# instrument, mapped to the one display spelling the concern pages show for
+# that text (review round 2 item 4: the round-1 dedupe collapsed only the
+# instrument-aliased spellings, so near-duplicate plain names such as
+# "ETSI EN 304 223 V2.1.1" beside "ETSI EN 304 223 V2.1.1 (2025-12)" still
+# sat side by side). Like the instrument maps, only exact spellings are
+# listed, and a spelling that adds a date, edition, descriptive parenthetical
+# or clause pointer to the SAME text collapses to that text's one spelling;
+# a distinct publication (another part, volume, chapter or track) is never
+# merged, and no entry invents an instrument: the result stays plain text.
+# A key that also sits in an instrument alias map, or a value that is itself
+# a key here or in an instrument alias map, is a build error.
+CONCERN_PLAIN_ALIASES = {
+    "ETSI EN 304 223 V2.1.1 (2025-12)": "ETSI EN 304 223 V2.1.1",
+    "ETSI TR 104 128 V1.1.1 (2025-05) clause 6.6.5":
+        "ETSI TR 104 128 V1.1.1 (2025-05)",
+    "OECD AI Principles (2019, updated 2024)": "OECD AI Principles",
+    "OECD AI Principles (2019 Recommendation as updated 2024)":
+        "OECD AI Principles",
+    "NIST AI 600-1": "NIST AI 600-1 (Generative AI Profile)",
+    "NIST AI RMF Generative AI Profile (NIST AI 600-1)":
+        "NIST AI 600-1 (Generative AI Profile)",
+    "ISO/IEC 27002:2022 (Information security controls)":
+        "ISO/IEC 27002:2022",
+    "ISO/IEC 27002:2022 5.24 to 5.28": "ISO/IEC 27002:2022",
+    "ISO/IEC 27002:2022 §5.33, §8.10": "ISO/IEC 27002:2022",
+    "ISO/IEC 27701:2025 (privacy incident management)": "ISO/IEC 27701:2025",
+    "ISO/IEC 27701:2025 (PII principals' rights)": "ISO/IEC 27701:2025",
+    "ISO/IEC 27701:2025 Annex A.1.2.6": "ISO/IEC 27701:2025",
+    "ISO/IEC 27701:2025 Annex A.3.12": "ISO/IEC 27701:2025",
+    "ISO/IEC 27701:2025 §7.5.3, Annex A.3.14": "ISO/IEC 27701:2025",
+    "ISO/IEC 27701:2025 B.3.12 (PII processor breach notification "
+    "provisions)": "ISO/IEC 27701:2025",
+    "ISO 22301:2019 §8.4": "ISO 22301:2019",
+    "ISO/IEC 20000-1:2018 §8.6.1": "ISO/IEC 20000-1:2018",
+    "ISO/IEC 27037:2012 §5.4.1 (minimize handling of the original; document "
+    "unavoidable changes)": "ISO/IEC 27037:2012 §5.4.1",
+    "ISO/IEC 27036-2:2022 7.3.3, Table 18, a) 5) ii) (incident management "
+    "procedure agreed by the acquirer and the supplier)":
+        "ISO/IEC 27036-2:2022",
+    "LGPD (Brazil)": "LGPD",
+    "LGPD Article 48": "LGPD",
+    "LGPD Arts. 48 to 49": "LGPD",
+    "PIPL (China)": "PIPL",
+    "PIPL Art. 57": "PIPL",
+    "PIPL Article 57 (unofficial DigiChina English translation, last "
+    "revised 7 September 2021)": "PIPL",
+    "NIST SP 800-84 (2006) Section 2 (tabletop and functional exercises)":
+        "NIST SP 800-84",
+    "NIST SP 800-88 Rev. 2 §4.6": "NIST SP 800-88 Rev. 2",
+    "NIST SP 800-61 Rev. 3, including §2.3 (roles and authorities to "
+    "confiscate, disconnect or shut down technology assets)":
+        "NIST SP 800-61 Rev. 3",
+    "NIST SSDF v1.1": "NIST SSDF",
+    "NIST SSDF Version 1.1": "NIST SSDF",
+    "NIST SSDF (SP 800-218 Version 1.1)": "NIST SSDF",
+    "NIST SSDF SP 800-218 Version 1.1": "NIST SSDF",
+    "NIST Privacy Framework v1.0": "NIST Privacy Framework 1.0",
+    "EU Cyber Resilience Act (CRA)": "EU Cyber Resilience Act",
+}
+
+
 def crosswalk_alias_keys(name):
     """The instrument keys one exact taxonomy framework string names through
     the committed alias maps, in order; empty for a string neither carries.
@@ -4128,6 +4233,36 @@ def crosswalk_alias_keys(name):
         return (CROSSWALK_ALIASES[name],)
     return tuple(key for _, key in CROSSWALK_ALIAS_PARTS.get(name, ())
                  if key is not None)
+
+
+def normalize_concern_frameworks(names):
+    """The concern page's framework list, normalized against the committed
+    alias maps before listing and counting (full-site review B4 F07: one
+    chip per raw taxonomy spelling put EU AI Act and EU AI Act (2024) side
+    by side, both linking one instrument page). Every spelling either
+    instrument map resolves collapses into one entry per instrument it
+    names, shown as the instrument's short label; a compound's part naming
+    no instrument, and a spelling outside both maps, each stay one
+    plain-text entry, normalized through CONCERN_PLAIN_ALIASES (review
+    round 2 item 4) so near-duplicate spellings of one non-instrument text
+    collapse too. Returns (display, key) pairs, key None for plain text,
+    sorted by display."""
+    keys = set()
+    plain = set()
+    for name in names:
+        if name in CROSSWALK_ALIASES:
+            keys.add(CROSSWALK_ALIASES[name])
+        elif name in CROSSWALK_ALIAS_PARTS:
+            for part, key in CROSSWALK_ALIAS_PARTS[name]:
+                if key is None:
+                    plain.add(CONCERN_PLAIN_ALIASES.get(part, part))
+                else:
+                    keys.add(key)
+        else:
+            plain.add(CONCERN_PLAIN_ALIASES.get(name, name))
+    entries = [(CROSSWALK_BY_KEY[key].label, key) for key in keys]
+    entries += [(name, None) for name in plain]
+    return sorted(entries, key=lambda entry: (entry[0].lower(), entry[0]))
 
 
 class CrosswalkPreset(NamedTuple):
@@ -4548,8 +4683,12 @@ def _draft_series(items):
     return ", ".join(items[:-1]) + ", and " + items[-1]
 
 
-def draft_landing_values(figures):
+def draft_landing_values(figures, docs_by_path):
     gov = _draft_domain_page(figures, DRAFT_EXAMPLE_DOMAIN)
+    # Site review batch B5 F24: the Open a document card never named its
+    # target; the description opens with the example document's taxonomy
+    # title, so a renamed document renames the card on the next build.
+    example = docs_by_path[DRAFT_EXAMPLE_DOC]
     return {
         **_draft_nav(),
         "GOV_COUNT": str(gov["count"]),
@@ -4557,18 +4696,19 @@ def draft_landing_values(figures):
         "XW_INSTRUMENT_COUNT": str(
             len([i for i in CROSSWALK_INSTRUMENTS if i.main_table])
         ),
-        # The sixth Start here entry's count (maintainer decisions 2026-11-04
-        # 16:09 EST), recounted from the register at build time so the
-        # landing claim that every count is computed stays true.
+        # The Standards Start here entry's count (maintainer decisions
+        # 2026-11-04 16:09 EST), recounted from the register at build time so
+        # the landing claim that every count is computed stays true.
         "STANDARDS_ROW_COUNT": str(sum(
             len(rows) for _, rows in parse_citations_register_sections(
                 CITATIONS_REGISTER.read_text(encoding="utf-8"))
         )),
         "EXAMPLE_DOC_URL": _doc_page_url("{{BASE}}", DRAFT_EXAMPLE_DOC),
+        "EXAMPLE_DOC_TITLE": _esc(example.get("title", DRAFT_EXAMPLE_DOC)),
     }
 
 
-def draft_browse_values(figures, adopter_docs):
+def draft_browse_values(figures, adopter_docs, xw):
     needs = "\n".join(
         f'<li><a href="{href}"><span class="t">{_esc(title)}</span>'
         f'<span class="n">{_esc(tag)}</span>'
@@ -4607,9 +4747,23 @@ def draft_browse_values(figures, adopter_docs):
         f"{'specification' if root == 1 else 'specifications'} included; "
         f"the {n_guides} adopter "
         f"{'document' if n_guides == 1 else 'documents'} listed below "
-        f"{'is' if n_guides == 1 else 'are'} not counted here. The "
-        "search page's list adds the adopter documents and leaves out the "
-        "library specifications."
+        f"{'is' if n_guides == 1 else 'are'} not counted here."
+    )
+    # Site review batch B5 F27: the meta's "plus N library specifications"
+    # and the Specification type row read as a contradiction; one clause
+    # splits the row's count, present exactly when the two numbers differ.
+    spec_total = dict(figures["types"]).get("Specification", 0)
+    if root and spec_total > root:
+        in_domains = spec_total - root
+        type_scope += (
+            f" Of the Specification row's {spec_total}, {in_domains} "
+            f"{'sits' if in_domains == 1 else 'sit'} in the domains and "
+            f"{root} {'is' if root == 1 else 'are'} the library "
+            f"{'specification' if root == 1 else 'specifications'}."
+        )
+    type_scope += (
+        " The search page's list adds the adopter documents and leaves out "
+        "the library specifications."
     )
     # A full sentence, singular for one file, naming the metadata block each
     # entry is read from (round-3 note 4).
@@ -4625,6 +4779,17 @@ def draft_browse_values(figures, adopter_docs):
             "Each entry is read from the leading metadata block of its file, "
             "so the list follows the repository at every build."
         )
+    # Site review batch B5 F09: the By instrument heading sat over a lone
+    # sentence with no list, unlike its sibling sections, and its full-table
+    # count was never squared with the number of instrument pages. One row
+    # per configured instrument, in configured order, each landing on its
+    # generated page, with the instrument's group as the annotation.
+    instruments = "\n".join(
+        f'<li><a href="{{{{BASE}}}}/crosswalk/{inst.key}/">'
+        f'{_esc(xw["instruments"][inst.key]["display"])}</a>'
+        f"<small>{_esc(inst.group)}</small></li>"
+        for inst in CROSSWALK_INSTRUMENTS
+    )
     first_domain, _ = figures["domains"][0]
     # The executive path block (design D section 3): the hub link plus one
     # chip per narrative kind, each count generated from the registry, the
@@ -4652,6 +4817,8 @@ def draft_browse_values(figures, adopter_docs):
         "XW_INSTRUMENT_COUNT": str(
             len([i for i in CROSSWALK_INSTRUMENTS if i.main_table])
         ),
+        "XW_TOTAL_INSTRUMENT_COUNT": str(len(CROSSWALK_INSTRUMENTS)),
+        "XW_INSTRUMENT_PLAN": instruments,
         "NEXT_DOMAIN_URL": "{{BASE}}/" + first_domain + "/",
         "NEXT_DOMAIN_LABEL": _esc(draft_domain_label(first_domain)),
     }
@@ -4773,6 +4940,23 @@ def draft_search_values(full_docs, adopter_docs):
     clauses.insert(0, "by " + ", ".join(fields[:-1]) + ", and " + fields[-1])
     if len(clauses) > 1:
         clauses[-1] = "and " + clauses[-1]
+    # Site review batch B5 F08 and F11: the prompt said domains and area in
+    # one sentence without tying the two words together, and the library
+    # specifications dropped out of the pool with no word on it. One sentence
+    # defines area where the adopter documents make the two differ, and one
+    # names the root specifications' exclusion, each generated so it appears
+    # exactly when its condition holds.
+    tail = ""
+    if n_adopter:
+        tail += (" A corpus document's area is its domain; an adopter "
+                 "document's area is docs/.")
+    n_root = sum(1 for d in full_docs if d.get("domain") == ROOT_DOMAIN)
+    if n_root:
+        tail += (
+            f" The {n_root} library "
+            f"{'specification' if n_root == 1 else 'specifications'}, read "
+            f"on GitHub, {'has' if n_root == 1 else 'have'} no row here."
+        )
     if n_adopter:
         corpus_rows = len(rows) - n_adopter
         corpus_noun = "document" if corpus_rows == 1 else "documents"
@@ -4786,7 +4970,7 @@ def draft_search_values(full_docs, adopter_docs):
         head = f"Search the {len(rows)} {noun} across the {domains} {domain_noun} "
     return {
         **_draft_nav("search"),
-        "SEARCH_PROMPT": head + ", ".join(clauses) + ".",
+        "SEARCH_PROMPT": head + ", ".join(clauses) + "." + tail,
         # The status prompt names the fields a row's data-search text holds,
         # never the whole document (round-1 NOTE: "it holds every word" read
         # as full text, which only GitHub searches); purpose and frameworks
@@ -4986,13 +5170,21 @@ def draft_license_values(pin_path=None):
 
 def draft_doc_purpose(doc):
     """A document's taxonomy purpose, or a generated line when it has none
-    (shared by the document page lead and the type page rows)."""
+    (shared by the document page lead and the type page rows). A purpose
+    ending with a colon introduces a list the lead never shows (item 3b788
+    site review F10: six leads ended mid-promise), so the trailing
+    colon-terminated fragment is dropped back to the last whole sentence,
+    and a purpose that is only that fragment keeps its text with the colon
+    closed to a full stop."""
     purpose = doc.get("purpose", "")
     if not purpose:
         purpose = (
             f"A {doc.get('type', '').lower()} in the "
             f"{draft_domain_label(doc.get('domain', ''))} area of the GRC Library."
         )
+    if purpose.endswith(":"):
+        head, sep, _ = purpose[:-1].rpartition(". ")
+        purpose = head + "." if sep else purpose[:-1].rstrip() + "."
     return purpose
 
 
@@ -5142,28 +5334,76 @@ def draft_document_values(doc, docs_by_path):
     outline_section = ""
     sections = doc.get("sections", [])
     if sections:
-        items = "\n".join(
-            "<li>"
-            + _esc(re.sub(r"\*\*([^*]+)\*\*", r"\1", s.replace("`", "")))
-            + "</li>"
+        labels = [
+            _esc(re.sub(r"\*\*([^*]+)\*\*", r"\1", s.replace("`", "")))
             for s in sections
+        ]
+        items = "\n".join(f"<li>{label}</li>" for label in labels)
+        # More than 15 single-word headings (the glossary's letter index)
+        # read as one bullet per line down the page (item 3b788 site review
+        # F22), so such an outline takes the stylesheet's multi-column plan
+        # idiom; any other outline stays a plain list.
+        ul_class = (
+            ' class="plan three"'
+            if sum(1 for label in labels if " " not in label) > 15
+            else ""
         )
-        outline_section = f'<h2>Outline</h2>\n<ul>\n{items}\n</ul>'
-    record = "\n".join(
-        f"<dt>{_esc(field)}</dt><dd>{_esc(doc[key])}</dd>"
-        for field, key in DRAFT_RECORD_FIELDS if doc.get(key)
-    )
+        outline_section = f'<h2>Outline</h2>\n<ul{ul_class}>\n{items}\n</ul>'
+    # The record's Type opens its /types/ page (every rendered document's
+    # type has one: an adopter type no taxonomy document carries fails the
+    # build) and Category opens the document's domain page, where one
+    # exists (the root and docs/ areas have none). Item 3b788 site review
+    # F04: both rendered as plain text, so a document page carried no link
+    # to its own domain or type hub.
+    record_rows = []
+    for field, key in DRAFT_RECORD_FIELDS:
+        if not doc.get(key):
+            continue
+        value = _esc(doc[key])
+        if key == "type":
+            value = (
+                f'<a href="{{{{BASE}}}}/types/{type_slug(doc[key])}/">'
+                f"{value}</a>"
+            )
+        elif key == "category" and doc.get("domain") not in (
+                ROOT_DOMAIN, ADOPTER_DOCS_AREA):
+            value = f'<a href="{{{{BASE}}}}/{doc["domain"]}/">{value}</a>'
+        record_rows.append(f"<dt>{_esc(field)}</dt><dd>{value}</dd>")
+    record = "\n".join(record_rows)
     frameworks_section = ""
     if doc.get("frameworks"):
-        # Each chip opens the search already run for its framework name (the
-        # ?q= address search.js reads on load, spec 7.29; design B 5.5: a
-        # bare search link lost the framework the reader clicked).
-        chips = "".join(
-            f'<li><a href="{_esc(_draft_search_url(f))}">{_esc(f)}</a></li>'
-            for f in doc["frameworks"]
-        )
+        # A name the committed alias map ties to a crosswalk instrument
+        # opens that instrument's page, a compound name links each part the
+        # map resolves, and any other name or part keeps the search already
+        # run for it (the ?q= address search.js reads on load, spec 7.29;
+        # design B 5.5: a bare search link lost the framework the reader
+        # clicked). Item 3b788 site review F15: every chip searched even
+        # where the instrument page exists, while the concern pages already
+        # linked the same names to their crosswalk pages.
+        chips = []
+        for f in doc["frameworks"]:
+            key = CROSSWALK_ALIASES.get(f)
+            if key:
+                chips.append(
+                    f'<li><a href="{{{{BASE}}}}/crosswalk/{key}/">'
+                    f"{_esc(f)}</a></li>"
+                )
+            elif f in CROSSWALK_ALIAS_PARTS:
+                chips.append("<li>" + " / ".join(
+                    (f'<a href="{{{{BASE}}}}/crosswalk/{part_key}/">'
+                     f"{_esc(part)}</a>") if part_key is not None
+                    else (f'<a href="{_esc(_draft_search_url(part))}">'
+                          f"{_esc(part)}</a>")
+                    for part, part_key in CROSSWALK_ALIAS_PARTS[f]
+                ) + "</li>")
+            else:
+                chips.append(
+                    f'<li><a href="{_esc(_draft_search_url(f))}">'
+                    f"{_esc(f)}</a></li>"
+                )
         frameworks_section = (
-            f'<h2>Frameworks it maps to</h2>\n<ul class="chips">{chips}</ul>'
+            '<h2>Frameworks it maps to</h2>\n<ul class="chips">'
+            + "".join(chips) + "</ul>"
         )
     related_section = ""
     if doc.get("related_documents"):
@@ -5203,12 +5443,31 @@ def draft_document_values(doc, docs_by_path):
     }
 
 
-def draft_narrative_body(body_html, source_rel):
+def _draft_table_heading(headings, pos):
+    """The text of the last ``(start, text)`` heading before ``pos``, with
+    any raw double quote closed to its entity so the text can sit in an
+    aria-label attribute; None when no heading precedes the position."""
+    text = None
+    for start, heading in headings:
+        if start >= pos:
+            break
+        text = heading
+    return text.replace('"', "&quot;") if text else None
+
+
+def draft_narrative_body(body_html, source_rel, pages_by_path=None):
     """Adapt one render_narrative_body result to the draft shell (see
     _DRAFT_NARR_SECTION_RE). Each rewrite must account for every section,
     every link and every table in the body, so a renderer shape change raises
     here rather than shipping a section with no box, a link with no new-tab
-    hint or a table that widens the page."""
+    hint or a table that widens the page. A body citation whose GitHub blob
+    target is a page in ``pages_by_path`` (the merged taxonomy-plus-adopter
+    lookup) outside the root domain lands on its on-site document page
+    instead: the briefs cited every governing document as raw Markdown on
+    GitHub although the site renders a page for each (site triage F30). The
+    page's own "Read the source on GitHub" link keeps the explicit GitHub
+    route, and a target with no page (a README, a root specification, a
+    sibling narrative source) keeps its blob link in the external form."""
     body, moved = _DRAFT_NARR_SECTION_RE.subn(
         lambda m: f'<section class="narr">\n    <div id="{m.group(1)}">',
         body_html,
@@ -5218,19 +5477,56 @@ def draft_narrative_body(body_html, source_rel):
             f"draft: {source_rel}: a narrative section outside the shape the "
             "draft shell adapts (renderer change?)"
         )
-    body, marked = _DRAFT_NARR_LINK_RE.subn(
-        lambda m: (f'{m.group(1)} target="_blank" rel="noopener noreferrer">'
-                   f"{m.group(2)}{_DRAFT_NEW_TAB}</a>"),
-        body,
-    )
+
+    def relink(m):
+        href = m.group(1)[len('<a href="'):-1]
+        target = _manifest_target(href) if pages_by_path else None
+        doc = pages_by_path.get(target) if target else None
+        if doc is not None and doc.get("domain") != ROOT_DOMAIN:
+            url = _doc_page_url("{{BASE}}", target)
+            return f'<a href="{_esc(url)}">{m.group(2)}</a>'
+        return (f'{m.group(1)} target="_blank" rel="noopener noreferrer">'
+                f"{m.group(2)}{_DRAFT_NEW_TAB}</a>")
+
+    body, marked = _DRAFT_NARR_LINK_RE.subn(relink, body)
     if marked != body_html.count("<a "):
         raise BuildError(
             f"draft: {source_rel}: a narrative link outside the shape the "
             "draft shell adapts (renderer change?)"
         )
-    body, wrapped = _DRAFT_NARR_TABLE_RE.subn(
-        r'<div class="tablewrap" tabindex="0"><table>\1</table></div>', body
-    )
+    # The wrapper is a keyboard focus stop (tabindex="0"), so it carries a
+    # name AT can announce: role="region" plus an aria-label naming the
+    # table from its preceding section heading (review round 2 item 4: the
+    # round-1 "Table n" told a reader which table, not what it holds; the
+    # constrained renderer has no table captions, so the nearest heading is
+    # the table's name). Several tables under one heading are told apart by
+    # position, and a table before any heading keeps the counted fallback.
+    headings = [
+        (m.start(), " ".join(re.sub(r"<[^>]+>", "", m.group(2)).split()))
+        for m in re.finditer(r"<h([23])(?:\s[^>]*)?>(.*?)</h\1>", body, re.S)
+    ]
+    table_starts = [m.start() for m in _DRAFT_NARR_TABLE_RE.finditer(body)]
+    per_heading = Counter()
+    for start in table_starts:
+        per_heading[_draft_table_heading(headings, start)] += 1
+    seen = Counter()
+    table_no = iter(range(1, len(table_starts) + 1))
+
+    def _wrap_table(m):
+        heading = _draft_table_heading(headings, m.start())
+        if heading is None:
+            label = f"Table {next(table_no)}"
+        else:
+            seen[heading] += 1
+            label = heading if per_heading[heading] == 1 \
+                else f"{heading}, table {seen[heading]}"
+        return (
+            f'<div class="tablewrap" tabindex="0" role="region" '
+            f'aria-label="{label}">'
+            f"<table>{m.group(1)}</table></div>"
+        )
+
+    body, wrapped = _DRAFT_NARR_TABLE_RE.subn(_wrap_table, body)
     if wrapped != body_html.count("<table"):
         raise BuildError(
             f"draft: {source_rel}: a narrative table outside the shape the "
@@ -5239,7 +5535,7 @@ def draft_narrative_body(body_html, source_rel):
     return body
 
 
-def draft_narrative_values(page, body_html, toc):
+def draft_narrative_values(page, body_html, toc, pages_by_path=None):
     _, label, _ = draft_narrative_subtype(page["narrative_type"])
     rail_items = "\n".join(
         f'<li><a href="#{anchor}">{_esc(heading)}</a></li>'
@@ -5263,7 +5559,8 @@ def draft_narrative_values(page, body_html, toc):
             "every claim resolves to the governing corpus documents."
         ),
         "NARRATIVE_RAIL_ITEMS": rail_items,
-        "NARRATIVE_BODY": draft_narrative_body(body_html, page["path"]),
+        "NARRATIVE_BODY": draft_narrative_body(
+            body_html, page["path"], pages_by_path),
         # Brace-escaped as on v2 and v3 (narrative_page_values).
         "NARRATIVE_SOURCE_URL": _esc(narrative_source_blob_url(page)).replace("{", "&#123;"),
         "NARRATIVE_DOMAIN_CHIPS": chips,
@@ -5410,9 +5707,9 @@ def draft_concern_values(concern):
     """One concern topic page at decide/<slug>/ (design D section 5): the
     curated title, lede and group; then the generated blocks, the leadership
     pages mapped to the concern (or the declared-gap block, never hidden), the
-    governing-documents shelf, the frameworks touched (each name linking its
-    crosswalk instrument page where the alias map carries one, else plain
-    text), and the Go deeper domain chips."""
+    governing-documents shelf, the frameworks touched (normalized to one
+    entry per instrument, each label linking its crosswalk instrument page,
+    any other cited text plain), and the Go deeper domain chips."""
     board_question = dict(DRAFT_DECIDE_GROUPS)[concern["group"]]
     pages = concern["mapped_pages"]
     docs = concern["docs"]
@@ -5506,30 +5803,20 @@ def draft_concern_values(concern):
         for d in docs
     )
     if concern["frameworks"]:
-        # Each name whose exact spelling the committed alias map carries
-        # links its crosswalk instrument page (the crosswalk ships on this
-        # branch), a name joining several texts links each part that names
-        # an instrument to its own page and shows any other part as plain
-        # text, and a name outside both maps stays plain text, never a
-        # guessed link (fix for the concern-page WARN: the page said the
-        # crosswalk was not built yet).
+        # The list arrives normalized from draft_concern_join (full-site
+        # review B4 F07): one chip per crosswalk instrument the documents'
+        # alignments name, as its short label, linking its instrument page
+        # (the crosswalk ships on this branch); a cited text naming no
+        # instrument stays plain text, never a guessed link.
         chips = []
-        for f in concern["frameworks"]:
-            key = CROSSWALK_ALIASES.get(f)
-            if key:
+        for name, key in concern["frameworks"]:
+            if key is not None:
                 chips.append(
                     f'<li><a href="{{{{BASE}}}}/crosswalk/{key}/">'
-                    f"{_esc(f)}</a></li>"
+                    f"{_esc(name)}</a></li>"
                 )
-            elif f in CROSSWALK_ALIAS_PARTS:
-                chips.append("<li>" + " / ".join(
-                    f'<a href="{{{{BASE}}}}/crosswalk/{part_key}/">'
-                    f"{_esc(part)}</a>" if part_key is not None
-                    else _esc(part)
-                    for part, part_key in CROSSWALK_ALIAS_PARTS[f]
-                ) + "</li>")
             else:
-                chips.append(f"<li>{_esc(f)}</li>")
+                chips.append(f"<li>{_esc(name)}</li>")
         frameworks = '<ul class="chips">' + "".join(chips) + "</ul>"
     else:
         frameworks = (
@@ -5601,10 +5888,7 @@ def draft_govern_values(figures, docs_by_path, concerns):
     types_sentence = (
         f"The work rests on {n_types} document "
         + ("type" if n_types == 1 else "types") + ": "
-        + _draft_series(
-            f"{draft_type_plural(type_name).lower()} {role}"
-            for type_name, role in DRAFT_GOVERN_LANDING_TYPES.items()
-        ) + "."
+        + _draft_series(DRAFT_GOVERN_LANDING_TYPES.values()) + "."
     )
     return {
         **_draft_nav("browse"),
@@ -5652,11 +5936,25 @@ def draft_comply_values(figures, docs_by_path, xw):
                  for path, _ in entry["docs"]}
         paths |= {d["path"] for d in data["citations"]}
         mapped_union |= paths
+        # A main-table instrument whose count is 0 (AICPA TSC today, a
+        # design C 3.4 column kept while the matrix populates it) says why
+        # the 0 stands beside instruments with counts, generated from the
+        # same parsed matrix status the crosswalk caveats use, so the note
+        # disappears the moment mappings land (site triage F28). The note
+        # is a sentence, so it ends with a full stop (review round 3 item 2).
+        note = ""
+        if inst.main_table and not paths:
+            note = (
+                ". No document counts toward it yet; its crosswalk column "
+                "is being populated domain by domain."
+                if data["column_populating"] else
+                ". No document counts toward it yet."
+            )
         rows.append(
             f'<li><a href="{{{{BASE}}}}/crosswalk/{inst.key}/">'
             f'{_esc(data["display"])}</a>'
             f'<span class="n">{len(paths)} {_xw_doc_noun(len(paths))}</span>'
-            f'<small>{_esc(inst.group)}</small></li>'
+            f'<small>{_esc(inst.group)}{note}</small></li>'
         )
     main_keys = [i.key for i in CROSSWALK_INSTRUMENTS if i.main_table]
     extra_keys = [i.key for i in CROSSWALK_INSTRUMENTS if not i.main_table]
@@ -5817,7 +6115,22 @@ def draft_solutions_values(figures, concerns):
     }
 
 
-def draft_policies_values(figures):
+def _draft_domain_names_policies(figures, docs_by_path, domain):
+    """Whether at least one of ``domain``'s documents names a policy among
+    its Related Documents (a path whose file name starts ``policy-``), the
+    checkable trace of the domain working under policies it does not
+    publish itself (review round 2 item 4: the generated sentence claimed
+    the domains "rely on the overarching security and governance policies",
+    which no gate checked)."""
+    for d in _draft_domain_page(figures, domain)["docs"]:
+        doc = docs_by_path.get(d["path"], {})
+        for rp in doc.get("related_documents", ()):
+            if rp.rpartition("/")[2].startswith("policy-"):
+                return True
+    return False
+
+
+def draft_policies_values(figures, docs_by_path):
     """The policies need page at policies/ (design D section 4.5): the
     policy and template type pages as the start rows, then the subject
     rows, one per domain with at least one policy or template, each count
@@ -5845,8 +6158,41 @@ def draft_policies_values(figures):
     ]
     policy_count = _draft_type_entry(figures, "Policy")["count"]
     template_count = _draft_type_entry(figures, "Template")["count"]
+    # Site review batch B5 F41: the domains outside the subject list had no
+    # pointer to where their governing intent lives. One generated sentence
+    # names them, in the domains' display order, present exactly when such
+    # domains exist. Review round 2 item 4: the sentence said the domains
+    # "rely on the overarching security and governance policies", a claim
+    # nothing checked; it now states only what each domain's documents show
+    # (a Related Documents entry naming a policy), recomputed per build.
+    missing = [domain for domain, _ in figures["domains"]
+               if domain not in per_domain]
+    naming = [d for d in missing
+              if _draft_domain_names_policies(figures, docs_by_path, d)]
+    if len(missing) == 1:
+        gap = (f"{draft_domain_label(missing[0])} publishes no policy or "
+               "template of its own; ")
+        if naming:
+            gap += ("documents it carries name the policies of other "
+                    "domains among their related documents, and ")
+        gap += "its domain page lists what it carries."
+    elif missing:
+        gap = (_draft_series(draft_domain_label(d) for d in missing)
+               + " publish no policy or template of their own; ")
+        if naming == missing:
+            gap += ("documents in each name the policies of other domains "
+                    "among their related documents, and ")
+        elif naming:
+            gap += ("documents in "
+                    + _draft_series(draft_domain_label(d) for d in naming)
+                    + " name the policies of other domains among their "
+                    "related documents, and ")
+        gap += "each domain page lists what the domain carries."
+    else:
+        gap = ""
     return {
         **_draft_nav("browse"),
+        "POL_GAP_LINE": f"<p>{_esc(gap)}</p>" if gap else "",
         "POL_META": (
             f"{policy_count} policies and {template_count} templates in the "
             f"corpus, across {len(subjects)} subjects."
@@ -6434,6 +6780,21 @@ def build_crosswalk(full_docs):
                 f"crosswalk: no CROSSWALK_ALIAS_PARTS part of '{name}' names "
                 "a crosswalk instrument"
             )
+    # The plain-name map may neither shadow an instrument alias (the
+    # instrument chip wins) nor chain or point into one (its value is the
+    # final plain display text).
+    for name, display in CONCERN_PLAIN_ALIASES.items():
+        if name in CROSSWALK_ALIASES or name in CROSSWALK_ALIAS_PARTS:
+            raise BuildError(
+                f"crosswalk: '{name}' is in CONCERN_PLAIN_ALIASES and an "
+                "instrument alias map"
+            )
+        if display in CONCERN_PLAIN_ALIASES or display in CROSSWALK_ALIASES \
+                or display in CROSSWALK_ALIAS_PARTS:
+            raise BuildError(
+                f"crosswalk: CONCERN_PLAIN_ALIASES display '{display}' is "
+                "itself a mapped spelling (chain or instrument shadow)"
+            )
     for anchor_path in (CROSSWALK_FORWARD_MATRIX_PATH,
                         CROSSWALK_COMPLIANCE_MATRIX_PATH,
                         CROSSWALK_REVERSE_MATRIX_PATH):
@@ -6717,10 +7078,14 @@ def _xw_table_intro(xw, keys, full):
     with a single-word identifier in some domain (_xw_short_ids), and they
     are named; the other matrix columns record phrase-length labels only and
     show the count alone; a column with no recorded mapping in any domain is
-    empty throughout; and the remaining columns take their cells from the
-    documents the reverse framework control crosswalk cites, with the count
-    alone. On the crosswalk page (``full``) the counts name the full table;
-    a topic view's counts name the columns here. The opening sentence says
+    empty throughout; and the remaining columns count the documents mapped
+    to the instrument's control areas. On the crosswalk page (``full``) the
+    counts name the full table; a topic view's counts name the columns here.
+    The sentences say what a cell means to the reader, which documents
+    address the instrument and which of its identifiers they address, never
+    which generator table a value came from: the matrix-by-matrix
+    attribution lives in the caveat block and on the instrument pages (site
+    triage F35). The opening sentence says
     what every column is: an instrument the
     matrices carry, as a compliance alignment matrix column or in a reverse
     framework control crosswalk section (build_crosswalk refuses a
@@ -6745,26 +7110,26 @@ def _xw_table_intro(xw, keys, full):
     labels = [k for k in comp if k not in codes]
     rest = [k for k in keys if k not in comp and k not in unmapped]
     parts = [
-        "Rows are the corpus domains and columns are instruments the "
-        "alignment matrices carry, each as a column of the compliance "
-        "alignment matrix or in a section of the reverse framework control "
-        "crosswalk. A cell with a recorded mapping carries a generated "
-        "document count that opens the instrument page at that domain, and "
-        "a cell with none is left empty."
+        "Rows are the corpus domains and columns are the standards, laws, "
+        "frameworks, and programmes the corpus alignment matrices carry. "
+        "A cell with a recorded mapping carries a count of the domain's "
+        "documents that address the instrument, opening the instrument "
+        "page at that domain, and a cell with none is left empty."
     ]
     if codes:
         parts.append(
-            f"In {columns(codes)}, a cell also shows, in code type, up to "
-            f"{CROSSWALK_CELL_ID_CAP} of the single-word identifiers that the "
-            "compliance alignment matrix records for its domain, where it "
-            "records any, and the instrument page lists every identifier and "
-            "label in full."
+            f"In {columns(codes)}, a cell also previews, in code type, up "
+            f"to {CROSSWALK_CELL_ID_CAP} of the control and clause "
+            "identifiers the domain's documents are mapped to, where any "
+            "are recorded, and the instrument page lists every identifier "
+            "and label in full."
         )
     if labels:
         parts.append(
-            f"In {columns(labels)}, the compliance alignment matrix records "
-            "only phrase-length labels, so a cell shows the count alone and "
-            "the instrument page lists the labels in full."
+            f"In {columns(labels)}, the recorded mappings carry descriptive "
+            "control-area labels rather than short identifiers, so a cell "
+            "shows the count alone and the instrument page lists the labels "
+            "in full."
         )
     if unmapped:
         parts.append(
@@ -6773,9 +7138,9 @@ def _xw_table_intro(xw, keys, full):
         )
     if rest:
         cites = (
-            "cells from the documents the reverse framework control "
-            "crosswalk cites, with the count alone, and the instrument page "
-            "lists the control areas that crosswalk maps."
+            "cells from the documents mapped to the instrument's control "
+            "areas, shown as the count alone, and the instrument page "
+            "lists those control areas."
         )
         if len(rest) == len(keys):
             parts.append(f"Every column {where} takes its {cites}")
@@ -6880,7 +7245,7 @@ def render_crosswalk_caveats(xw, keys=(), inst=None):
     ))
 
 
-def render_crosswalk_rail(xw, current=None):
+def render_crosswalk_rail(xw, current=None, instrument=None):
     """The crosswalk side list (spec 7.32; maintainer direction 2026-11-03
     15:06Z and 15:09Z: one side rail, on the left, which the right rail
     stood in for until the template carried it): the Views list, All plus
@@ -6891,7 +7256,11 @@ def render_crosswalk_rail(xw, current=None):
     presets the view links switched columns in place while the matrix sat
     below the fold at every width, so a rail click changed nothing the
     visitor could see; the rail now navigates to the static view pages and
-    the crosswalk page loads no matrix script."""
+    the crosswalk page loads no matrix script. The instrument pages carry
+    the same rail with ``instrument`` set: the hub and views offered the
+    sideways paths that an instrument page then dropped (site triage F02),
+    so the rail renders there too, its own instrument marked current and no
+    view marked (an instrument page shows no view)."""
 
     def view(href, label, here):
         # The marker is the "true" form because the vendored baseline styles
@@ -6900,7 +7269,8 @@ def render_crosswalk_rail(xw, current=None):
         attrs = ' aria-current="true"' if here else ""
         return f'<li><a href="{href}"{attrs}>{_esc(label)}</a></li>'
 
-    views = [view("{{BASE}}/crosswalk/", "All", current is None)]
+    views = [view("{{BASE}}/crosswalk/", "All",
+                  current is None and instrument is None)]
     for preset in xw["presets"]:
         views.append(view(
             f"{{{{BASE}}}}/crosswalk/view/{preset.slug}/", preset.label,
@@ -6911,13 +7281,16 @@ def render_crosswalk_rail(xw, current=None):
         keys = [i.key for i in CROSSWALK_INSTRUMENTS if i.group == group]
         if not keys:
             continue
+        items = []
+        for key in keys:
+            attrs = ' aria-current="true"' if key == instrument else ""
+            items.append(
+                f'<li><a href="{{{{BASE}}}}/crosswalk/{key}/"{attrs}>'
+                f'{_esc(xw["instruments"][key]["display"])}</a></li>'
+            )
         parts.append(
             f'<p class="lbl">{_esc(group)}</p><ul>\n'
-            + "\n".join(
-                f'<li><a href="{{{{BASE}}}}/crosswalk/{key}/">'
-                f'{_esc(xw["instruments"][key]["display"])}</a></li>'
-                for key in keys
-            )
+            + "\n".join(items)
             + "\n</ul>"
         )
     return "\n".join(parts)
@@ -7070,8 +7443,9 @@ def draft_crosswalk_values(xw, preset=None):
 
 def _xw_register_block(inst, row):
     """The instrument page's register record (design C 3.4): the canonical
-    citation row, staleness visible; or, for the two programmes the register
-    carries no row for, the compliance matrix's own column key naming.
+    citation row, staleness visible; or, for a programme the register
+    carries no row for (PIP), the compliance matrix's own column key
+    naming.
     The record renders in the main column, never as a ``side`` record:
     the baseline rule ``.doc > .side { grid-column: 1; grid-row: span 7 }``
     (baseline.css) puts a side record in the label column, and the section
@@ -7095,13 +7469,22 @@ def _xw_register_block(inst, row):
             'rel="noopener noreferrer">'
             f'{_draft_wrapping_path(row["upstream"])}{_DRAFT_NEW_TAB}</a>'
         )
+    # The register's Last verified column mixes two cell forms, "verified
+    # <date>" and the bare date, so the verbatim cell read "Last verified
+    # (UTC): verified 2026-09-25" on some pages and "2026-08-30" on others
+    # (site triage F19). The label already says verified, so the page shows
+    # the date alone; the register column itself stays as committed (no
+    # corpus bump).
+    verified = row["verified"]
+    if verified.startswith("verified "):
+        verified = verified[len("verified "):]
     fields = (
         ("Standard ID", _esc(row["id"])),
         ("Current version", _esc(row["version"])),
         ("Publication date", _esc(row["date"])),
         ("Topic", _esc(row["topic"])),
         ("Upstream check location", upstream),
-        ("Last verified (UTC)", _esc(row["verified"])),
+        ("Last verified (UTC)", _esc(verified)),
     )
     rows = "\n".join(
         f"<dt>{label}</dt><dd>{value}</dd>" for label, value in fields
@@ -7313,7 +7696,9 @@ def draft_crosswalk_instrument_values(xw, inst):
             + _xw_matrix_link(xw, CROSSWALK_REVERSE_MATRIX_PATH)
             + ", which answers: given a control identifier or family, which "
             "documents address it.</p>\n"
-            '<div class="wide"><div class="tablewrap" tabindex="0">'
+            '<div class="wide"><div class="tablewrap" tabindex="0" '
+            'role="region" '
+            'aria-label="Control areas from the reverse crosswalk">'
             '<table class="fixed">'
             '<colgroup><col class="w30"><col class="w50"><col class="w20">'
             "</colgroup>"
@@ -7428,6 +7813,7 @@ def draft_crosswalk_instrument_values(xw, inst):
         "XWI_LEAD": _esc(
             f"Where the corpus maps to {data['display']}: {lead_tail}."
         ),
+        "XWI_RAIL": render_crosswalk_rail(xw, instrument=inst.key),
         "XWI_REGISTER": _xw_register_block(inst, row),
         "XWI_SECTIONS": "\n".join(sections),
         "XW_CAVEATS": render_crosswalk_caveats(xw, inst=inst),
@@ -7505,8 +7891,9 @@ def render_draft_variant(figures, variant):
         used.update(used_keys)
 
     fixed_extras = {
-        "landing.html": lambda: draft_landing_values(figures),
-        "browse.html": lambda: draft_browse_values(figures, adopter_docs),
+        "landing.html": lambda: draft_landing_values(figures, docs_by_path),
+        "browse.html": lambda: draft_browse_values(
+            figures, adopter_docs, crosswalk),
         "search.html": lambda: draft_search_values(full_docs, adopter_docs),
         "documents.html": lambda: draft_documents_values(full_docs),
         "crosswalk.html": lambda: draft_crosswalk_values(crosswalk),
@@ -7516,7 +7903,7 @@ def render_draft_variant(figures, variant):
         "comply.html": lambda: draft_comply_values(
             figures, docs_by_path, crosswalk),
         "solutions.html": lambda: draft_solutions_values(figures, concerns),
-        "policies.html": lambda: draft_policies_values(figures),
+        "policies.html": lambda: draft_policies_values(figures, docs_by_path),
         # Static template prose carried over from the old root at promotion
         # (maintainer decisions 2026-11-04): the Contributors page and the
         # For-AI page. Neither belongs to a top-bar section.
@@ -7618,7 +8005,7 @@ def render_draft_variant(figures, variant):
         ):
             emit(
                 "narrative.html", out_rel,
-                draft_narrative_values(page, body_html, toc),
+                draft_narrative_values(page, body_html, toc, pages_by_path),
             )
 
     # The crosswalk topic views and instrument pages (design C 3.4 and 3.7):
@@ -9538,6 +9925,25 @@ def stale_standard_editions(texts=None):
     return hits
 
 
+def generator_ok_line(page_rels, artefact_count, out_dir, written, summary):
+    """The OK line of a writing run, its counts labelled apart: the dist
+    HTML pages, the other dist files written beside them (assets, feeds and
+    control files; review round 2 item 4: "wrote 540 page(s)" counted 44
+    non-HTML files as pages), and the committed artefact(s) (item 3b788:
+    one log said "wrote 541 page(s)" and then "540 pages" for the same
+    build, because the first count silently included the corpus-link
+    manifest). ``page_rels`` is every dist path written; an HTML page is
+    one ending ``.html``."""
+    html_count = sum(1 for rel in page_rels if rel.endswith(".html"))
+    other_count = len(page_rels) - html_count
+    return (
+        f"web-generator OK: wrote {html_count} HTML page(s) and "
+        f"{other_count} other file(s) to {out_dir} and "
+        f"{artefact_count} committed artefact(s) ({', '.join(written)}). "
+        f"{summary}"
+    )
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(
         description="Render the grclibrary.ai public site (the promoted baseline-template tree: the fixed pages, per-domain, per-type and per-document pages, the decide hub and concern pages, the decisions/<subtype>/<slug>/ executive reading-room pages, and the crosswalk views and instrument pages) from the live corpus.",
@@ -9661,10 +10067,10 @@ def main(argv=None):
     # --out, and committed in the same PR as any corpus/link change (paired surface).
     CORPUS_LINK_MANIFEST.write_text(manifest_text, encoding="utf-8")
     written.append(str(CORPUS_LINK_MANIFEST.relative_to(REPO_ROOT)))
-    print(
-        f"web-generator OK: wrote {len(written)} page(s) to {out_dir} "
-        f"({', '.join(written)}). {summary}"
-    )
+    print(generator_ok_line(
+        [rel for rel, _ in pages], len(written) - len(pages), out_dir,
+        written, summary
+    ))
     return 0
 
 

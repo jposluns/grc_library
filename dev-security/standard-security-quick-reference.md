@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.30\
-**Date:** 2026-10-22\
+**Version:** 1.1.32\
+**Date:** 2026-11-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -13,6 +13,12 @@
 **Repository Path:** [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This quick reference condenses the most common development security questions into one page: the prohibitions and their exception requirements, the authentication, data-handling, secrets, environment, pipeline, and encryption rules, and the pre-production checklists, each pointing back to the governing standard or procedure. It is the first stop for developers, DevOps practitioners, and platform engineers; when the answer is not here, the relevant standard and then the security team are the next stops.
 
 ---
 
