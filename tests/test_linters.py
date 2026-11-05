@@ -41386,7 +41386,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-gate-parity.py OWN F 48a5130538cf0e506226c7c47c8c2b98e8b8e5e6ba5df2177e8b02cdbdfb1545
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
-        lint-baseline-pin.py OWN F b118d17b4e80267b4567d276c8e99064300bcd79c18fb648cf057253172f14f2
+        lint-baseline-pin.py OWN F 51ee0054937b8b51402d1bb1a325e7568a3d6a48a2eeb1aa428f6021d7ee1092
         lint-bookkeeping-parity.py NO_FS F 8f85da2547e95ad49c86265764b5d460db92e210d6339a593fbc896fc10b3181
         lint-ccm-aicm-citations.py CWD F 6a1eb4d255f76d35ed337441b0f7127ffd6d943d8c47730921e6f872491685a7
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
@@ -88086,8 +88086,10 @@ class BaselinePinLinterTests(LinterTestCase):
     site-template tree ``.web/baseline/`` must match the SHA-256 recorded in
     ``.baseline/pin.toml``, with no unpinned file, no pinned file missing and
     no pin key outside the tree except the pinned palette gate
-    ``.baseline/check_palette.py``, which is verified the same way and which
-    the pin must include; a missing or malformed pin refuses (exit 2).
+    ``.baseline/check_palette.py`` and, from baseline 1.8.0, the pinned
+    overflow check ``.baseline/check_overflow.js``, each verified the same
+    way and each of which the pin must include; a missing or malformed pin
+    refuses (exit 2).
 
     Each fixture builds a synthetic repository root in a unique mkdtemp
     directory under ``tests/tmp/`` and points the gate at it with ``--root``,
@@ -88110,9 +88112,11 @@ class BaselinePinLinterTests(LinterTestCase):
         files = {
             ".web/baseline/baseline.css": b"body { color: #123456; }\n",
             ".web/baseline/fonts/sample-LICENSE.txt": b"SIL OFL 1.1 sample\n",
-            # The pinned palette gate (baseline section 4 items 2 and 3),
-            # which the pin must include.
+            # The pinned palette gate (baseline section 4 items 2 and 3)
+            # and, from 1.8.0, the pinned overflow check (section 4 item
+            # 3), which the pin must include.
             ".baseline/check_palette.py": b"print('palette gate sample')\n",
+            ".baseline/check_overflow.js": b"// overflow check sample\n",
         }
         for rel, data in files.items():
             (root / rel).write_bytes(data)
@@ -88131,7 +88135,7 @@ class BaselinePinLinterTests(LinterTestCase):
         pin.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     def _write_tree_only_pin(self, root: Path) -> None:
-        """Pin the two vendored files alone, with no palette gate entry."""
+        """Pin the two vendored files alone, with no pinned tool entry."""
         import hashlib
 
         self._write_pin(root, {
@@ -88180,7 +88184,8 @@ class BaselinePinLinterTests(LinterTestCase):
             rel: hashlib.sha256((root / rel).read_bytes()).hexdigest()
             for rel in (".web/baseline/baseline.css",
                         ".web/baseline/fonts/sample-LICENSE.txt",
-                        ".baseline/check_palette.py")
+                        ".baseline/check_palette.py",
+                        ".baseline/check_overflow.js")
         }
         files["docs/outside.md"] = "0" * 64
         self._write_pin(root, files)
@@ -88192,8 +88197,37 @@ class BaselinePinLinterTests(LinterTestCase):
         root = self._pin_fixture_root()
         result = run_linter(self.SCRIPT, "--root", root)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("OK: 2 file(s) under .web/baseline/ and 1 pinned tool(s)",
+        self.assertIn("OK: 2 file(s) under .web/baseline/ and 2 pinned tool(s)",
                       result.stdout)
+
+    def test_pinned_overflow_check_changed_byte_flagged(self) -> None:
+        """Baseline 1.8.0 section 4 item 3: the overflow check is pinned like
+        the palette gate, so a changed byte in it is a finding."""
+        root = self._pin_fixture_root()
+        tool = root / ".baseline" / "check_overflow.js"
+        tool.write_bytes(tool.read_bytes() + b"process.exit(0);\n")
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline/check_overflow.js: SHA-256", result.stdout)
+        self.assertIn("does not match the pinned", result.stdout)
+
+    def test_overflow_check_without_pin_entry_flagged(self) -> None:
+        """The pin must include the overflow check: a pin naming only the
+        palette gate beside the tree is a finding for the overflow check."""
+        import hashlib
+
+        root = self._pin_fixture_root()
+        self._write_pin(root, {
+            rel: hashlib.sha256((root / rel).read_bytes()).hexdigest()
+            for rel in (".web/baseline/baseline.css",
+                        ".web/baseline/fonts/sample-LICENSE.txt",
+                        ".baseline/check_palette.py")
+        })
+        result = run_linter(self.SCRIPT, "--root", root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(".baseline/check_overflow.js: present with no entry",
+                      result.stdout)
+        self.assertNotIn(".baseline/check_palette.py:", result.stdout)
 
     def test_pinned_tool_changed_byte_flagged(self) -> None:
         root = self._pin_fixture_root()
@@ -88262,10 +88296,11 @@ class BaselinePinLinterTests(LinterTestCase):
         self.assertIn(".baseline/pin.toml: cannot be read", result.stderr)
         mod = load_linter_module(self.SCRIPT, "lint_baseline_pin_tools_dir")
         findings = mod.tool_findings(
-            root, {".baseline/check_palette.py": "0" * 64})
-        self.assertEqual(len(findings), 1, findings)
-        self.assertIn(".baseline: symbolic link or not a real directory",
-                      findings[0])
+            root, {rel: "0" * 64 for rel in mod.PINNED_TOOLS})
+        self.assertEqual(len(findings), len(mod.PINNED_TOOLS), findings)
+        for finding in findings:
+            self.assertIn(".baseline: symbolic link or not a real directory",
+                          finding)
 
     def test_pinned_tool_symlink_flagged(self) -> None:
         root = self._pin_fixture_root()
@@ -88289,7 +88324,8 @@ class BaselinePinLinterTests(LinterTestCase):
             rel: hashlib.sha256((root / rel).read_bytes()).hexdigest()
             for rel in (".web/baseline/baseline.css",
                         ".web/baseline/fonts/sample-LICENSE.txt",
-                        ".baseline/check_palette.py", ".baseline/other.py")
+                        ".baseline/check_palette.py",
+                        ".baseline/check_overflow.js", ".baseline/other.py")
         }
         self._write_pin(root, files)
         result = run_linter(self.SCRIPT, "--root", root)

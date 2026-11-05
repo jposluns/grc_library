@@ -395,7 +395,7 @@ CURATED_CORPUS_LINKS = [
 SITE_BASE = "https://grclibrary.ai"
 
 # The shared-baseline CSP, copied byte for byte from the shared policy in
-# baseline 1.7.0 SPECIFICATION.md section 9 (unchanged since 1.3.1; section 9
+# baseline 1.9.2 SPECIFICATION.md section 9 (unchanged since 1.3.1; section 9
 # states that the light and dark switch of 1.6.0 needs no CSP change): the
 # same policy on every family site, and on every page here since the
 # promotion executed the recorded owner decision that ``/*`` takes this
@@ -2652,7 +2652,7 @@ def _doc_page_url(base, path):
 
 # ---------------------------------------------------------------------------
 # The /draft tree (PR 2b): the grclibrary.ai rebuild on the shared family site
-# template (baseline 1.7.0, pinned under .web/baseline/ by PR 2a). The tree is
+# template (baseline 1.9.2, pinned under .web/baseline/ by PR 2a). The tree is
 # VARIANT-SCOPED by Variant.draft_rules, renders from its own templates under
 # .web/templates-draft/, and is self-contained: every internal link and asset
 # is {{BASE}}-prefixed and the pinned baseline runtime files are copied to
@@ -3745,7 +3745,7 @@ _DRAFT_NARR_TABLE_RE = re.compile(r"<table>(.*?)</table>", re.S)
 
 # ---------------------------------------------------------------------------
 # The /draft/crosswalk/ pages (design C section 3.7 Version A, upgraded to
-# 3.8; on baseline 1.7.0, whose matrix.js arrived in 1.5.0, spec 7.30 to 7.32
+# 3.8; on baseline 1.9.2, whose matrix.js arrived in 1.5.0, spec 7.30 to 7.32
 # keep their 1.5.1 contract for a page without the opt-in column toggles
 # and column highlight that 1.7.0 adds, neither of which these pages use
 # since no page loads matrix.js, and every view's table takes the spec 7.34
@@ -3753,9 +3753,10 @@ _DRAFT_NARR_TABLE_RE = re.compile(r"<table>(.*?)</table>", re.S)
 # CROSSWALK_PIN_CLASS) and without the bounded box and sticky header (see
 # render_crosswalk_table): wrapping cells, the capped pinned column, row
 # guides, empty cells marked, and column-group accents where a table spans
-# more than one group (render_crosswalk_table); no column toggles, so no
-# ?cols= address, and no heat shading or rotated headers): one
-# domain-by-instrument table,
+# more than one group (render_crosswalk_table; a one-group table carries no
+# group tag in the markup, so the tags 1.8.0 hides in a one-group view are
+# never served); no column toggles, so no ?cols= address, and no heat
+# shading or rotated headers): one domain-by-instrument table,
 # one page per instrument, and a plain view page per topic, all re-parsed on
 # every build from the
 # two alignment matrices, the canonical citations register, and taxonomy.yml,
@@ -4534,9 +4535,9 @@ def load_baseline_assets(baseline_dir=None, pin_path=None):
     pinned = set()
     for key in sorted(files):
         digest = files[key]
-        if key == PALETTE_GATE_KEY:
+        if key in UNSERVED_PIN_KEYS:
             # Pinned beside the copies but never served; run_palette_gate
-            # verifies and runs it.
+            # verifies and runs the palette gate, and gate 110 verifies both.
             continue
         if not key.startswith(prefix) or not isinstance(digest, str):
             raise BuildError(
@@ -4570,22 +4571,35 @@ def load_baseline_assets(baseline_dir=None, pin_path=None):
     return assets
 
 
-# The palette gate (baseline 1.7.0 SPECIFICATION.md section 4 items 2 and 3):
+# The palette gate (baseline 1.9.2 SPECIFICATION.md section 4 items 2 and 3):
 # the package's tools/check_palette.py, copied to .baseline/check_palette.py
 # and pinned in .baseline/pin.toml beside the served copies, never served.
 # Every draft build runs it on the served palettes.css (the pin-verified
 # source of draft/assets/baseline/palettes.css) for this site, so a palette
 # that misses a contrast threshold fails the build, --check included (CI and
 # the pre-push guard run --check). The site has no site-palette.css (the
-# owner has asked for none), so the gate runs without --site-palette.
+# owner has asked for none), so the gate runs without --site-palette. From
+# the 1.9.1 baseline the gate also reads baseline.css to resolve the family
+# and component tokens (the chip colours among them); the build names the
+# pinned served copy with --baseline (the 1.9.1 notice, step 4), so a
+# palettes.css elsewhere (the test fixtures) is still checked against the
+# pinned stylesheet, never against whatever file sits beside it.
 PALETTE_GATE_KEY = ".baseline/check_palette.py"
+# From the 1.8.0 baseline (SPECIFICATION.md section 4 item 3) the package's
+# tools/check_overflow.js is copied to .baseline/check_overflow.js and pinned
+# like the palette gate, never served. It needs Node.js and Playwright, so no
+# build or gate runs it.
+OVERFLOW_CHECK_KEY = ".baseline/check_overflow.js"
+UNSERVED_PIN_KEYS = frozenset({PALETTE_GATE_KEY, OVERFLOW_CHECK_KEY})
 PALETTE_SITE = "grclibrary"
 PALETTE_CSS = WEB_DIR / "baseline" / "palettes.css"
+PALETTE_BASELINE_CSS = WEB_DIR / "baseline" / "baseline.css"
 
 
-def run_palette_gate(palettes=None, gate=None, pin_path=None):
+def run_palette_gate(palettes=None, gate=None, pin_path=None, baseline=None):
     """Verify the palette gate against the pin, then run it on ``palettes``
-    (default ``PALETTE_CSS``). BuildError when the pin has no entry for the
+    (default ``PALETTE_CSS``) with ``baseline`` (default
+    ``PALETTE_BASELINE_CSS``) as its --baseline. BuildError when the pin has no entry for the
     gate, the gate is missing, is not a regular file by ``lstat`` (a symbolic
     link is refused, never followed) or differs from its pinned SHA-256, or
     the gate exits non-zero (a failing pairing, or input it cannot read).
@@ -4597,6 +4611,8 @@ def run_palette_gate(palettes=None, gate=None, pin_path=None):
     import stat
     import tempfile
     palettes = Path(palettes) if palettes is not None else PALETTE_CSS
+    baseline = (Path(baseline) if baseline is not None
+                else PALETTE_BASELINE_CSS)
     gate = Path(gate) if gate is not None else REPO_ROOT / PALETTE_GATE_KEY
     _, files = read_baseline_pin(pin_path)
     digest = files.get(PALETTE_GATE_KEY)
@@ -4627,7 +4643,7 @@ def run_palette_gate(palettes=None, gate=None, pin_path=None):
         try:
             result = subprocess.run(
                 [sys.executable, "-I", str(copy), "--site", PALETTE_SITE,
-                 "--palettes", str(palettes)],
+                 "--palettes", str(palettes), "--baseline", str(baseline)],
                 capture_output=True, text=True, timeout=120,
             )
         except (OSError, subprocess.TimeoutExpired) as e:
@@ -5039,10 +5055,14 @@ def draft_documents_values(full_docs):
     search.js facet groups (spec 7.29; maintainer 2026-11-03: All Documents
     carries the filters, and type is a filter of it, not a separate
     heading), each chip's count recounted from the rows it filters and each
-    chip a plain link to its facet address. From baseline 1.7.0 both groups
+    chip a plain link to its facet address. From the 1.7.0 baseline both groups
     carry data-filter-empty="disable" in the template, so search.js marks a
-    chip that would show no rows unavailable; the served counts stay, as the
-    page's filter paragraph says. The root specifications, which have no
+    chip that would show no rows unavailable; from the 1.9.2 adoption (the
+    owner's 1.9.1 notice, item 4) both also carry data-filter-count="live",
+    so search.js sets each chip's count to the rows it would show (0 on an
+    unavailable chip), as the page's filter paragraph says. The served counts
+    built here are the whole-list counts, which the page shows with nothing
+    chosen and without script. The root specifications, which have no
     on-site page, open on GitHub and stay out of the filtered rows."""
     domain_docs = sorted(
         (d for d in full_docs if d.get("domain") != ROOT_DOMAIN),
@@ -5330,10 +5350,10 @@ def draft_type_values(tp, docs_by_path, next_url, next_label, adopter_docs=()):
         # NOTE: Checklists and Roadmaps each list one document); rows that
         # all sit in one area leave the area chips nothing to narrow, so only
         # the text filter is named (integration note: Guides, Principles,
-        # SOPs and Specifications each sit in one area). From baseline 1.7.0
-        # an area chip holding none of the type's rows is unavailable there,
-        # which narrows nothing either, so the clause names only the area
-        # chips holding them (adoption round-2 NOTE).
+        # SOPs and Specifications each sit in one area). From the 1.7.0
+        # baseline an area chip holding none of the type's rows is
+        # unavailable there, which narrows nothing either, so the clause
+        # names only the area chips holding them (adoption round-2 NOTE).
         if len(in_index) == 1:
             narrow = ""
         elif len({d["domain"] for d in in_index}) == 1:
