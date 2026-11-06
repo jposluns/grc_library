@@ -93685,7 +93685,7 @@ class BaselinePinLinterTests(LinterTestCase):
             encoding="utf-8")
         release = re.findall(r'^const VERSION = "(\d+\.\d+\.\d+)";$', builder,
                              re.M)
-        self.assertEqual(release, ["1.11.0"], "the pinned builder's release")
+        self.assertEqual(release, ["1.11.1"], "the pinned builder's release")
         self.assertEqual(pin["version"], release[0],
                          "the pin names the release of its card builder")
         result = run_linter(self.SCRIPT)

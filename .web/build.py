@@ -383,7 +383,7 @@ GITHUB_BLOB_BASE = "https://github.com/jposluns/grc_library/blob/main/"
 SITE_BASE = "https://grclibrary.ai"
 
 # The shared-baseline CSP, copied byte for byte from the shared policy in
-# baseline 1.11.0 SPECIFICATION.md section 9 (unchanged since 1.3.1; section 9
+# baseline 1.11.1 SPECIFICATION.md section 9 (unchanged since 1.3.1; section 9
 # states that the light and dark switch of 1.6.0 needs no CSP change): the
 # same policy on every family site, and on every page here since the
 # promotion executed the recorded owner decision that ``/*`` takes this
@@ -3941,7 +3941,7 @@ def _doc_page_url(base, path):
 
 # ---------------------------------------------------------------------------
 # The /draft tree (PR 2b): the grclibrary.ai rebuild on the shared family site
-# template (baseline 1.11.0, pinned under .web/baseline/ by PR 2a). The tree is
+# template (baseline 1.11.1, pinned under .web/baseline/ by PR 2a). The tree is
 # VARIANT-SCOPED by Variant.draft_rules, renders from its own templates under
 # .web/templates-draft/, and is self-contained: every internal link and asset
 # is {{BASE}}-prefixed and the pinned baseline runtime files are copied to
@@ -5034,7 +5034,7 @@ _DRAFT_NARR_TABLE_RE = re.compile(r"<table>(.*?)</table>", re.S)
 
 # ---------------------------------------------------------------------------
 # The /draft/crosswalk/ pages (design C section 3.7 Version A, upgraded to
-# 3.8; on baseline 1.11.0, whose matrix.js arrived in 1.5.0, spec 7.30 to 7.32
+# 3.8; on baseline 1.11.1, whose matrix.js arrived in 1.5.0, spec 7.30 to 7.32
 # keep their 1.5.1 contract for a page without the opt-in column toggles
 # and column highlight that 1.7.0 adds, neither of which these pages use
 # since no page loads matrix.js, and every view's table takes the spec 7.34
@@ -5988,7 +5988,7 @@ def load_baseline_assets(baseline_dir=None, pin_path=None):
     return assets
 
 
-# The palette gate (baseline 1.11.0 SPECIFICATION.md section 4 items 2 and 3):
+# The palette gate (baseline 1.11.1 SPECIFICATION.md section 4 items 2 and 3):
 # the package's tools/check_palette.py, copied to .baseline/check_palette.py
 # and pinned in .baseline/pin.toml beside the served copies, never served.
 # Every draft build runs it on the served palettes.css (the pin-verified

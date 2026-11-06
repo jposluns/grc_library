@@ -14,7 +14,7 @@
 :root { --print-paper: #ffffff; --print-ink: #000000; }
 /* Layout tokens: the page gutter, the hero logo column, the rail column, the label column of the document and
    region grids, and the footer's band, tile, logo and mark sizes. */
-:root { --pad: clamp(1rem, 3vw, 3.2rem); --art: clamp(11rem, 22vw, 30rem); --railw: clamp(13rem, 13vw, 17rem); --label-col: 9rem; --band: 0.55rem; --tile: 3.4rem; --tile-logo: 2.75rem; --mark: 2rem; }
+:root { --pad: clamp(1rem, 3vw, 3.2rem); --art: clamp(11rem, 22vw, 30rem); --railw: clamp(13rem, 13vw, 17rem); --label-col: 9rem; --band: 0.4rem; --tile: 2.75rem; --tile-logo: 1.9rem; --mark: 1.5rem; }
 @media (prefers-color-scheme: dark) { :where(:root:not([data-scheme="light"])) { --gold: #e6c15a; --silver: #cfcfcf; --ord-progress: #6faa62; --ord-speed: #e1791b; --ord-cost: #ef675c; } }
 :where(:root[data-scheme="dark"]) { --gold: #e6c15a; --silver: #cfcfcf; --ord-progress: #6faa62; --ord-speed: #e1791b; --ord-cost: #ef675c; }
 /* Component tokens (from 1.9.1): the colours of the controls a site most often wants to restyle, each defaulting
@@ -557,7 +557,9 @@ dl.record.cols div { break-inside: avoid; }
    by the palette gate: the bands (--band-tint-bg, --band-dark-*), the banner frame (--banner-from, --banner-to), the
    before-and-after boxes (--pair-before-bg, --pair-before-bg-on-tint for a before box on a tinted band, --pair-after-bg,
    --pair-panel-bg for the inner message or code panel) and the card grid (--box-bg, --box-border). */
-.band { padding: clamp(2.2rem, 5vw, 4rem) 0; }
+/* --band-pad (from 1.11.1, requested by vendorreplies.ai): a site may set the bands' top and bottom spacing in its
+   site.css; unset, the 1.11.0 spacing applies. */
+.band { padding: var(--band-pad, clamp(2.2rem, 5vw, 4rem)) 0; }
 .band + .band { border-top: 0; }
 .band-tint { background: var(--band-tint-bg); }
 .band-dark { background: var(--band-dark-bg); color: var(--band-dark-fg); }
@@ -610,7 +612,8 @@ dl.record.cols div { break-inside: avoid; }
 /* Family footer: 1 bar at the content width. The 6 project cards, current site first, on the rotated
    spectrum, and from 1.11.0 vendorreplies.ai's card last on silver; then the GitHub, LinkedIn and ORCID tiles under a grey tail of the band; then the signature tile as the
    posluns.ca link. The footer is a size container, so the bar responds to its own width and never wraps:
-   stage A (>= 1500 px of content width, from 1.11.0; >= 1400 until 1.10.0) full size; stage C (< 1500) names visually
+   stage A (>= 1160 px of content width, from 1.11.1; >= 1500 in 1.11.0; >= 1400 until 1.10.0) names shown, the 3 marks
+   grouped beside the signature, the signature without "A" and "Project" below 1240; stage C (< 1160) names visually
    hidden, equal tiles that shrink to fit; the signature shrinks below 750,
    loses "A" and "Project" below 650, and shrinks again below 450. Below 600 the marks and the signature drop to a
    second line under the grey band (phones). The bar is contiguous: no gaps between tiles. */
@@ -647,20 +650,39 @@ dl.record.cols div { break-inside: avoid; }
 .family .slice-vr { background: var(--band-silver); background: linear-gradient(90deg, var(--band-silver) 0%, var(--band-sheen) 35%, var(--band-silver) 60%, var(--band-silver-deep) 85%, var(--band-silver) 100%); }
 .family .bar:has(.slice-vr) .tail .tile-1 { background: linear-gradient(90deg, var(--band-silver) 0%, var(--band-grey) 20%); }
 .family .card, .family .sig { display: flex; align-items: center; flex: 1 1 auto; min-width: 0; min-height: var(--tile); background: var(--surface-raised); color: var(--text); text-decoration: none; white-space: nowrap; }
-.family .card { gap: 0.6rem; padding: 0.3rem 0.7rem; font: 600 0.95rem/1.2 "Public Sans", system-ui, sans-serif; letter-spacing: -0.015em; }
+.family .card { gap: 0.4rem; padding: 0.2rem 0.45rem; font: 600 0.85rem/1.2 "Public Sans", system-ui, sans-serif; letter-spacing: -0.015em; }
 .family .card:hover, .family .sig:hover { box-shadow: inset 0 -3px 0 var(--gold-rule); }
 .family .card img { width: var(--tile-logo); height: var(--tile-logo); display: block; flex: none; }
 .family .card .tld { color: var(--gold); }
-.family .card[aria-current="page"] .cname { box-shadow: inset 0 -2px 0 var(--gold-rule); }
+/* The current site's tile carries the gold line under its whole width at every stage (owner, 2026-11-06, from 1.11.1;
+   until 1.11.0 a 2 px line under the name alone while the names showed). */
+.family .card[aria-current="page"] { box-shadow: inset 0 -3px 0 var(--gold-rule); }
 .family .tail .card { width: var(--tile); justify-content: center; padding: 0.3rem; }
 .family .tail .card img { width: var(--mark); height: var(--mark); object-fit: contain; }
 .sig { margin: 0; font: 400 1.5rem/1 "Dancing Script", cursive; color: var(--silver); white-space: nowrap; }
 .sig .pre, .sig .post { font-size: 0.78em; white-space: pre; }
 .sig .gold { color: var(--gold); }
-.family .sig { padding: 0 0.6rem; justify-content: center; }
+.family .sig { padding: 0 0.5rem; justify-content: center; font-size: 1.25rem; }
 /* Stage B (1.0.0 to 1.10.0: names kept at scaled sizes from 1040 to 1399 px) is removed in 1.11.0: 7 names clip at
-   every scaled size below 1493 px of content width, so the names show at full size from 1500 px and the logos below it. */
-@container footer (max-width: 1499px) {
+   every scaled size below 1493 px of content width. From 1.11.1 the bar is compact (2.75rem tiles, so every target stays
+   44 px tall; 1.9rem logos; 0.85rem names) and stage A starts at 1160 px, which a 1280 px window gives even with a
+   scroll bar (owner, 2026-11-06: names on desktop screens from 1280 px). In stage A the 3 marks sit close together
+   beside the signature under 1 band that fades from the last project card's colour to grey, and the signature drops
+   "A" and "Project" until 1240 px; in stage C they share the width equally with the project tiles, as in 1.11.0.
+   Stage A is written as (width > 1159px), the exact complement of stage C's (max-width: 1159px), so that a fractional
+   width such as 1159.02 px (a 1233 px window) falls in exactly 1 stage. */
+@container footer (width > 1159px) {
+  .family .tail { background: linear-gradient(90deg, var(--tail-from) 0%, var(--band-grey) 60%); }
+  .family .bar:has(.slice-vr) .tail { background: linear-gradient(90deg, var(--band-silver) 0%, var(--band-grey) 60%); }
+  .family .tail .tile-1, .family .tail .tile-2, .family .tail .tile-3, .family .bar:has(.slice-vr) .tail .tile-1 { background: transparent; }
+  .family .tail .card { width: auto; padding: 0.2rem 0.15rem; }
+  .family .tail .tile-1 .card { padding-left: 0.4rem; }
+  .family .tail .tile-3 .card { padding-right: 0.3rem; }
+  .family .tail .card img { width: 1.35rem; height: 1.35rem; }
+  .family .sig .pre, .family .sig .post { display: none; }
+}
+@container footer (min-width: 1240px) { .family .sig .pre, .family .sig .post { display: inline; } }
+@container footer (max-width: 1159px) {
   .family .cards { flex: 7 1 0; }
   .family .tail { flex: 3 1 0; }
   .family .slice, .family .tail .tile { flex: 1 1 0; }

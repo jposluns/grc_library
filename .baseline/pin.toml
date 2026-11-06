@@ -1,7 +1,7 @@
-version = "1.11.0"
+version = "1.11.1"
 
 [files]
-".baseline/build_card.js" = "3a653136b84808a77ab54fe80b46b06ebb13000d63c2d38e9b21f7127cc80b43"
+".baseline/build_card.js" = "fc05c9aeb646620034cb014cd9afb752e6aca4b448df48d3d369cbd447ec5c8a"
 ".baseline/card-fonts/Inter-Bold.otf" = "00fd6f4691ee8884a33b46bf45851b341927c37c30064f558e1befb242971c49"
 ".baseline/card-fonts/Inter-ExtraBold.otf" = "2012ceaf1470372c415f95c00495a1ad1ebdcd1cd6a6225808f011d459a9b12a"
 ".baseline/card-fonts/Inter-Regular.otf" = "be6d709dcb730ddaf050cbdae6fe89bd56d5d14dc66885639bbf6f06bd03521b"
@@ -10,7 +10,7 @@ version = "1.11.0"
 ".baseline/check_palette.py" = "fd6a41d816e25076cb54cabb50d04d959fdb5072fee3b937d9be89a186d8c8c1"
 ".web/baseline/LICENSE" = "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
 ".web/baseline/NOTICE.md" = "a84715f2a3d6ee761ca2cbd8a8656fa204f45b6f0df120dfb3ae557eef472dc8"
-".web/baseline/baseline.css" = "48d474963881ac430b4e48cca5494783293db758907416a682212c1946bf4d52"
+".web/baseline/baseline.css" = "fbc97a3cbcda9bf0df3a914485720d008fdefe702592fab4bb2b12ce4661c3be"
 ".web/baseline/copy.js" = "9bf99b50471889b768c795af5a4f84f526cecf7622a1f1265ca3d088b31339a4"
 ".web/baseline/fonts.css" = "a309a8ff4026a67fb5d10dea2c02e5b9ea2c1b32d4b18d7892015e038397396a"
 ".web/baseline/fonts/dancing-script-LICENSE.txt" = "c02c0002d3bbd41a16933c162888c400469c7029f1362ca9d60d5ed20ea7d157"
