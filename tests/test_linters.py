@@ -38635,6 +38635,34 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(findings, [],
                          f"a KNOWN_SKIPPED_PRS member must not be demanded rows; got {findings}")
 
+    def test_known_skipped_3071_drops_row_demand_and_flips_when_unlisted(self) -> None:
+        # #3071 (the original 3b782 PR, closed without merge on 2026-11-06) will sit inside
+        # a contiguous CHANGELOG range. Every other number has its validate-pr, retro and
+        # bypass-log rows; #3071 has none, as it has no merge commit. Listed, it raises no
+        # row demand; with the number removed from the set, both checks demand its rows.
+        mod = self._load_module()
+        spanned = mod.parse_changelog_prs(
+            "**2026-11-03 | 2026.11.15 | PRs #3068-#3078 (10 PRs)**\n")
+        self.assertIn(3071, spanned)
+        rows = spanned - {3071}
+        vp_status = {n: "normal" for n in rows}
+
+        def demands(skipped: frozenset[int]) -> list[str]:
+            universe = spanned - skipped
+            return (mod.qa_cadence_findings(universe, vp_status, set(rows),
+                                            inception=3068, known_handoff=frozenset())
+                    + mod.bypass_log_findings(universe, set(rows), inception=3068))
+
+        listed = demands(mod.KNOWN_SKIPPED_PRS)
+        self.assertEqual(listed, [], f"a listed #3071 must not be demanded rows; got {listed}")
+        self.assertIn(3071, mod.KNOWN_SKIPPED_PRS)
+        unlisted = demands(mod.KNOWN_SKIPPED_PRS - {3071})
+        self.assertTrue(unlisted, "an unlisted #3071 must be demanded rows")
+        self.assertTrue(all("#3071" in f for f in unlisted),
+                        f"only #3071 may be demanded rows; got {unlisted}")
+        self.assertTrue(any("[qa-cadence]" in f for f in unlisted), unlisted)
+        self.assertTrue(any("[bypass-log]" in f for f in unlisted), unlisted)
+
     def test_changelog_dotted_pr_token_not_backtrack_truncated(self) -> None:
         # P-3.245 F1 (codex /validate-pr): PR_RANGE_TOKEN's `\d+` must not
         # backtrack to a truncated phantom PR when a dotted token follows
@@ -45032,7 +45060,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-baseline-pin.py OWN F 38eb62fa2d783bbc91988f631c7d48af7c6476c6876362a3154052df458f985d
-        lint-bookkeeping-parity.py NO_FS F 8f85da2547e95ad49c86265764b5d460db92e210d6339a593fbc896fc10b3181
+        lint-bookkeeping-parity.py NO_FS F e5e59ca9188608b97c1598cc78253b63b670cf706c224ffbaa77c975a32abcf7
         lint-ccm-aicm-citations.py CWD F 6a1eb4d255f76d35ed337441b0f7127ffd6d943d8c47730921e6f872491685a7
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
         lint-changelog-link-coverage.py CWD F 0eb2c21687bcae9e697ab26d0273e766530ec144f1417ac04309badae1bd1bd2
