@@ -5187,9 +5187,11 @@ CROSSWALK_TSC_SECTION_OPENING = "\n".join((
     "instrument (Norm or Security Standard) so the clause resolves |",
     "| WCO SAFE | WCO SAFE Framework of Standards | Pillar II references, "
     "Pillar II Standards 1 (Partnership) and 2 (Security), Annex IV "
-    "elements (A, F, K, L and M) and Section VI (Trade Continuity and "
+    "elements (A, B, F, I, K, L and M) and Section VI (Trade Continuity and "
     "Resumption); each standard, element and section is cited with its held "
-    "title |",
+    "title; a cell that cites an Annex IV element cites the element alone, "
+    "or beside a numbered Pillar II standard or Section VI, never beside a "
+    "Pillar II reference alone |",
     "| AEO/AEO-S | UK HMRC Authorized Economic Operator (Security and "
     "Safety) | Requirement area headings |",
     "| AICPA TSC 2017 | AICPA 2017 Trust Services Criteria (TSP Section "
@@ -8206,8 +8208,8 @@ def parse_reverse_matrix(text):
 
 def _xw_split_identifiers(cell):
     """Split a compliance matrix cell into identifiers on top-level commas and
-    semicolons (a separator inside parentheses, as in "Pillar II
-    (Customs-to-Business; Standard 6)", does not split)."""
+    semicolons (a separator inside parentheses, as in "Annex IV F
+    (Information Exchange, Access and Confidentiality)", does not split)."""
     parts = []
     depth = 0
     cur = []

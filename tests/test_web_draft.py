@@ -12621,7 +12621,13 @@ class DraftSiteRenderTests(unittest.TestCase):
         "Annex IV K, the trading partner security standard", "Annex IV K,
         the security standards set out in this Annex" and "Annex IV K, the
         Customs-to-Business partnership pillar" are reported (names
-        Security, Security and Partnership); a multi-word held title used
+        Security, Security and Partnership); compound wording that ends in
+        a one-word held title and another kind's noun is read as naming
+        that title under the kind-noun rule, though the compound names no
+        part (finding WCO-SWEEP-REV7-0922), so "Annex IV F, the
+        information technology element" (names Technology) and "Section
+        VI, the crisis communication section" (names Communication) are
+        reported; a multi-word held title used
         as ordinary words is reported whatever its kind ("Annex IV F, the
         AEO's personnel security vetting" names element J, "Pillar III
         Standard 1, the establishment of mutual cooperation" names Pillar 3
@@ -12952,7 +12958,12 @@ class DraftSiteRenderTests(unittest.TestCase):
         "Section III, Pillar 1 - Customs-to-Customs and Standard X" passes
         while "Pillar II Standard 2 (Security), Pillar II
         (Customs-to-Business) and Standard K" does not;
-        text before the first citation of an identifier is not checked; a
+        text before the first citation of an identifier is not checked;
+        sentence punctuation is read only in the order emphasis, footnote
+        marker, full stop, so emphasis after a full stop ("Pillar II
+        Standard 2 (Security).**") and a closing curly quotation mark
+        (U+201D) after a citation are reported as trailing text (finding
+        WCO-SWEEP-REV7-0922); a
         lone capital letter used as an ordinary word inside a description
         ("the U.S. rules", "the A-to-M list", the pronoun "I") is reported
         too; a part name with a lowercase or numeric identifier inside a
@@ -13307,7 +13318,9 @@ class DraftSiteRenderTests(unittest.TestCase):
         "Pillar II (Customs-to-Business)" after the documents' own WCO SAFE
         rows were corrected to Annex IV element A and element M. Each row
         cites the element its document's alignment row cites, with the
-        held title. Other pillar-only cells stay as they are by decision."""
+        held title. Other pillar-only cells stay as they are by decision,
+        except the seven to which finding WCO-SWEEP-REST-0507 and its
+        review round 2 added an element (_WCO_ELEMENT_ROWS)."""
         expected = {
             "compliance/policy-legal-and-regulatory-compliance.md":
                 "Annex IV A (Demonstrated Compliance with Customs "
@@ -13325,6 +13338,1189 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertEqual(len(refs), 1, refs)
                 self.assertEqual(self._wco_cited_parts(refs[0][1][1]),
                                  self._wco_cited_parts(cell))
+
+    # The WCO SAFE cells of the compliance matrix that cited Pillar II
+    # alone, each checked against the held 2025 text for a more precise
+    # Annex IV element (finding WCO-SWEEP-REST-0507 and its review round
+    # 2). Element B (Satisfactory System for Management of Commercial
+    # Records, held line 4643) requires that the AEO "properly archive
+    # records for later production to Customs" (lines 4658 to 4659): the
+    # records retention standard and the data retention schedule. Element
+    # M (Measurement, Analyses and Improvement, line 5070): "The AEO and
+    # Customs should plan and implement monitoring, measurement, analysis
+    # and improvement processes" (line 5071), with regular self-assessments
+    # of the security management system (line 5085): the continuous
+    # assurance and improvement framework; and (review round 2, codex WARN
+    # 2) the trade compliance programme gap assessment template, whose
+    # annual readiness reviews (its Purpose), internal security audit or
+    # self-assessment row (its Section 1) and remediation plan linked to
+    # CAPA records (its Remediation plan section) carry the
+    # self-assessments of line 5085 and the review results "and
+    # recommendations for possible enhancements to be incorporated in a
+    # plan for the forthcoming period" (lines 5088 to 5090). Element F
+    # (Information Exchange, Access and Confidentiality, line 4778)
+    # requires "a documented information security policy and procedures
+    # and/or security-related controls, such as firewalls, passwords"
+    # (lines 4808 to 4809) and back-up capabilities (line 4811): the CTPAT
+    # and PIP IT controls registers. Element I (Premises Security, line
+    # 4946) fits the physical security of IT infrastructure standard in
+    # part only (review round 2, claude NOTE 2): the standard leaves
+    # building perimeter access and broader facility security to
+    # Facilities, so the element covers its IT rooms only, not the
+    # building perimeter of lines 4955 to 4956. Review round 3 (claude
+    # NOTE 4): the standard evidences restricted access to its IT rooms
+    # (its section 5) and access credentials and cameras (sections 5 and
+    # 6), which held lines 4978 to 4979, "Only properly identified and
+    # authorized persons, vehicles and goods are permitted to access the
+    # facilities", and 4991, "There should be appropriate security
+    # systems, such as, theft alarm and/or access control systems", carry;
+    # it has no clause marking restricted areas, so held line 4993
+    # ("Restricted areas should be clearly identified") is not quoted
+    # (_WCO_ELEMENT_I_HELD, _WCO_ELEMENT_I_UNSUPPORTED). Each cell cites
+    # its element alone (review round 2, agy WARN 1; the convention test
+    # below).
+    _WCO_PILLAR_ROW = "Pillar II (Customs-to-Business)"
+    _WCO_ELEMENT_ROWS = {
+        "governance/standard-records-retention-and-destruction.md":
+            "Annex IV B (Satisfactory System for Management of Commercial "
+            "Records)",
+        "governance/register-data-retention-schedule.md":
+            "Annex IV B (Satisfactory System for Management of Commercial "
+            "Records)",
+        "governance/framework-continuous-assurance-and-improvement.md":
+            "Annex IV M (Measurement, Analyses and Improvement)",
+        "compliance/logistics/register-ctpat-united-states-it-controls.md":
+            "Annex IV F (Information Exchange, Access and Confidentiality)",
+        "compliance/logistics/register-pip-canada-controls.md":
+            "Annex IV F (Information Exchange, Access and Confidentiality)",
+        "compliance/logistics/template-trade-compliance-gap-assessment.md":
+            "Annex IV M (Measurement, Analyses and Improvement)",
+        "operations/standard-physical-security-of-it-infrastructure.md":
+            "Annex IV I (Premises Security)",
+    }
+    # The cells left citing Pillar II alone, by decision; the charter's
+    # pillar is spelled as held line 4535 spells it, "Pillar II
+    # (Customs-to-Business Partnerships)", and the others keep the short
+    # form the held contents entry for Pillar 2 gives at line 139.
+    _WCO_PILLAR_ONLY_ROWS = {
+        "governance/charter-governance-library.md":
+            "Pillar II (Customs-to-Business Partnerships)",
+        "compliance/logistics/annex-basc-programme-overview.md":
+            _WCO_PILLAR_ROW,
+        "compliance/logistics/annex-logistics-sector-requirements.md":
+            _WCO_PILLAR_ROW,
+        "compliance/logistics/register-ctpat-united-states-msc-controls.md":
+            _WCO_PILLAR_ROW,
+    }
+
+    def test_wco_safe_pillar_only_cells_reviewed_for_elements(self):
+        """Finding WCO-SWEEP-REST-0507: eleven compliance matrix rows cited
+        WCO SAFE by pillar alone. Six were given the Annex IV element the
+        held 2025 text clearly supports, and review round 2 (codex WARN 2)
+        gave the trade compliance programme gap assessment template
+        element M, each with its exact held title (_WCO_ELEMENT_ROWS); four
+        stay pillar-only by decision (_WCO_PILLAR_ONLY_ROWS). No single
+        held element clearly fits the library charter, the BASC programme
+        overview or the logistics sector annex; for the full CTPAT minimum
+        security criteria register (review round 2, codex NOTE), no single
+        element adequately represents the document's breadth. Each pinned
+        cell passes the matrix guard, and the matrix's pillar-only cells
+        are exactly the four, so a new pillar-only cell, or one of the
+        seven losing its element, fails."""
+        _matrix_text, rows = self._compliance_matrix_rows()
+        cells = {row["path"]: row["cells"]["WCO SAFE"] for row in rows}
+        pinned = {**self._WCO_ELEMENT_ROWS, **self._WCO_PILLAR_ONLY_ROWS}
+        self.assertEqual({path: cells.get(path) for path in pinned}, pinned)
+        for path, cell in pinned.items():
+            with self.subTest(path=path):
+                self.assertEqual(self._wco_matrix_cell_findings(cell), [])
+        self.assertEqual(
+            sorted(path for path, cell in cells.items()
+                   if re.fullmatch(r"Pillar II \([^)]*\)", cell)),
+            sorted(self._WCO_PILLAR_ONLY_ROWS))
+        # The CTPAT register's rationale (review round 2, codex NOTE): its
+        # physical security controls overlap element I, so "no single held
+        # element clearly fits" overstated it.
+        doc = " ".join(
+            self.test_wco_safe_pillar_only_cells_reviewed_for_elements
+            .__doc__.split())
+        self.assertIn("for the full CTPAT minimum security criteria "
+                      "register (review round 2, codex NOTE), no single "
+                      "element adequately represents the document's "
+                      "breadth", doc)
+        self.assertNotRegex(doc, r"clearly fits [^.;]*CTPAT")
+
+    def test_wco_safe_element_cells_cite_no_bare_pillar(self):
+        """Review round 2 of finding WCO-SWEEP-REST-0507 (agy WARN 1,
+        claude NOTE 3, codex NOTE): six cells that gained an Annex IV
+        element kept "Pillar II (Customs-to-Business); " beside it, unlike
+        the element-only cells of rows 71, 117 and 144. The convention
+        is: a cell that cites an Annex IV element cites the element alone,
+        or beside a numbered Pillar II standard or Section VI, never beside
+        a Pillar II reference alone. Checked on every cell of the column:
+        each piece the build's splitter gives a cell citing an element must
+        itself cite a standard, element or section (_wco_cited_parts); and
+        the column key and its build pin
+        (CROSSWALK_TSC_SECTION_OPENING) state the convention."""
+        _matrix_text, rows = self._compliance_matrix_rows()
+        bare = []
+        for row in rows:
+            cell = row["cells"]["WCO SAFE"]
+            pieces = self.mod._xw_split_identifiers(cell)
+            if not any(self._wco_elements(piece) for piece in pieces):
+                continue
+            bare.extend(f"{row['path']}: {piece}" for piece in pieces
+                        if not self._wco_cited_parts(piece))
+        self.assertEqual(bare, [])
+        convention = ("a cell that cites an Annex IV element cites the "
+                      "element alone, or beside a numbered Pillar II "
+                      "standard or Section VI, never beside a Pillar II "
+                      "reference alone")
+        self.assertTrue(self._WCO_LEGEND.endswith(f"; {convention}"))
+        self.assertIn(
+            f"| WCO SAFE | WCO SAFE Framework of Standards | "
+            f"{self._WCO_LEGEND} |",
+            self.mod.CROSSWALK_TSC_SECTION_OPENING.split("\n"))
+
+    # The singular Pillar II spelling (review round 2, claude NOTE 5):
+    # case-sensitive, and only in the pillar citation form.
+    _WCO_SINGULAR_PILLAR_RE = re.compile(
+        r"Pillar II \(Customs-to-Business Partnership(?!s)")
+
+    def test_wco_safe_pillar_ii_spelled_as_held(self):
+        """Finding WCO-SWEEP-REST-0507: the charter's matrix row spelled
+        Pillar II "(Customs-to-Business Partnership)", but held line 4535
+        spells it "Pillar II (Customs-to-Business Partnerships)". No
+        taxonomy document and no line of the compliance matrix carries the
+        singular spelling, and the held spelling stands in the matrix.
+        Review round 2 (claude NOTE 5): the guard is case-sensitive and
+        reads only the "Pillar II (Customs-to-Business Partnership" form
+        (_WCO_SINGULAR_PILLAR_RE), so a faithful quotation of held line
+        2421, "A Customs-to-Business partnership programme", is not
+        reported."""
+        singular = self._WCO_SINGULAR_PILLAR_RE
+        self.assertIsNone(singular.search(
+            "A Customs-to-Business partnership programme"))
+        self.assertIsNone(singular.search(
+            "Pillar II (Customs-to-Business Partnerships)"))
+        self.assertIsNotNone(singular.search(
+            "Pillar II (Customs-to-Business Partnership)"))
+        found = []
+        for d in self._full_taxonomy():
+            path = REPO_ROOT / d["path"]
+            if not path.is_file():
+                continue
+            for number, line in enumerate(
+                    path.read_text(encoding="utf-8").splitlines(), 1):
+                if singular.search(line):
+                    found.append(f"{d['path']}:{number}")
+        text, _rows = self._compliance_matrix_rows()
+        found.extend(f"matrix:{number}" for number, line in
+                     enumerate(text.splitlines(), 1)
+                     if singular.search(line))
+        self.assertEqual(found, [])
+        self.assertIn("Pillar II (Customs-to-Business Partnerships)", text)
+
+    # The CTPAT (US) part of the supply chain programme matrix's NEEC
+    # Mutual Recognition cell (review round 6, agy W1): it read "CTPAT
+    # (US)" as settled. The held WCO AEO Compendium (2020) records October
+    # 2014, US and Mexico, among concluded MRAs (lines 14854 to 14855) and
+    # titles Mexico's programme "Authorized Economic Operator" (line 2038);
+    # a search of it for NEEC, Nuevo Esquema, Empresas Certificadas and
+    # Certified Companies finds no line.
+    _SUPPLY_CHAIN_NEEC_CTPAT = (
+        "CTPAT (US): not confirmed by a held source (the WCO AEO Compendium "
+        "(2020) records a concluded US-Mexico MRA, October 2014, and titles "
+        "Mexico's programme Authorized Economic Operator; it does not name "
+        "NEEC)")
+
+    # Lines naming WCO SAFE whose programme claims are left as they are
+    # (finding WCO-SWEEP-REST-0507): each says that BASC, PIP, NEEC or
+    # HMRC AEO-S derives from, rests on, aligns with, implements or is
+    # recognized within the Framework, and the held texts of those
+    # programmes are not yet acquired. Review round 2 (claude NOTE 1 and
+    # NOTE 6) added the two AEO-S lines that say the programme is the UK's
+    # implementation of the Framework, and pins every carrier by path and
+    # exact line text, so adding, removing or rewording one fails.
+    # Review round 6 (agy W1): the NEEC carrier's CTPAT (US) part is
+    # qualified (_SUPPLY_CHAIN_NEEC_CTPAT); its "alignment with WCO SAFE"
+    # stays for the programme-claims PR.
+    _WCO_HELD_BACK_BASIS_CLAIMS = tuple(sorted((
+        ("compliance/logistics/README.md",
+         "Multi-country private trade-security programme, predominantly "
+         "Latin American, recognized within the WCO SAFE Framework."),
+        ("compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md",
+         "AEO status is granted by HMRC under the UK's implementation of "
+         "the World Customs Organization (WCO) SAFE Framework of "
+         "Standards. AEO-S requires that an applicant demonstrates "
+         "adequate security standards across:"),
+        ("compliance/logistics/annex-basc-programme-overview.md",
+         "This annex provides the programme overview for organizations "
+         "that pursue or maintain Business Alliance for Secure Commerce "
+         "(BASC) certification. BASC is an international supply-chain "
+         "security programme widely adopted in Latin American trade and "
+         "logistics operations and recognized within the World Customs "
+         "Organization (WCO) SAFE Framework as a trade-security "
+         "partnership programme analogous to CTPAT (United States), AEO "
+         "(United Kingdom and other jurisdictions), PIP (Canada), and "
+         "similar programmes."),
+        ("compliance/logistics/procedure-aeo-united-kingdom-self-"
+         "assessment.md",
+         "The AEO-S programme, administered by HMRC and Border Force under "
+         "the UK's implementation of the World Customs Organization (WCO) "
+         "SAFE Framework of Standards, requires the organization to "
+         "demonstrate that adequate IT and cybersecurity controls are in "
+         "place to protect trade systems, trade data, and the integrity of "
+         "customs documentation."),
+        ("compliance/logistics/procedure-aeo-united-kingdom-self-"
+         "assessment.md",
+         "| WCO SAFE Framework (2025 edition), Annex IV element F "
+         "(Information Exchange, Access and Confidentiality) | AEO "
+         "condition that the operator has a documented information "
+         "security policy and procedures or security-related controls "
+         "protecting its electronic systems from unauthorized access, and "
+         "procedures and back-up capabilities against the loss of "
+         "information; this self-assessment evidences that operator "
+         "condition (§2.6.6 ICT Security, under Pillar 1 Standard 6, sets "
+         "the Customs administration's own ICT security strategy, not the "
+         "operator's); the Framework is the international basis of the "
+         "HMRC AEO-S programme |"),
+        ("compliance/logistics/register-pip-canada-controls.md",
+         "**Mutual recognition:** The CBSA maintains Authorized Economic "
+         "Operator mutual recognition arrangements with partner customs "
+         "administrations; the held reference material documents the "
+         "Canada-Mexico AEO mutual recognition arrangement, signed in "
+         "Cancun, Mexico, on 11 May 2016. Organizations holding a "
+         "partner-programme certification (for example CTPAT, or an AEO or "
+         "AEO-S scheme) should confirm the current scope of any applicable "
+         "arrangement against the CBSA's published mutual recognition "
+         "arrangements before relying on it for evidence reuse. The UK "
+         "AEO-S programme derives from the WCO SAFE Framework and provides "
+         "functionally comparable security and safety certification."),
+        ("compliance/logistics/register-pip-canada-controls.md",
+         "PIP is a voluntary partnership programme in which businesses "
+         "commit to enhancing border security in exchange for expedited "
+         "cargo processing at Canadian ports of entry. The programme is "
+         "administered by CBSA and aligns with the World Customs "
+         "Organization (WCO) SAFE Framework of Standards. The PIP security "
+         "profile is organized into four security areas: corporate "
+         "security, cargo and conveyance security, physical security, and "
+         "supply chain partner security. Cybersecurity is addressed within "
+         "the corporate security area; PIP does not publish a separate, "
+         "numbered information-technology requirement set. The control "
+         "references below are the organization's own, mapped to those PIP "
+         "cybersecurity expectations."),
+        ("compliance/logistics/register-pip-canada-controls.md",
+         "Canada's PIP and the UK's AEO-S both derive from the WCO SAFE "
+         "Framework, resulting in significant overlap in security "
+         "requirements. The WCO AEO Compendium (2020) records no Canada-UK "
+         "mutual recognition arrangement, so an AEO-S certification can "
+         "inform a PIP application (as evidence of comparable WCO SAFE "
+         "controls) but is not a formal shortcut to CBSA acceptance."),
+        ("governance/register-glossary.md",
+         "| **BASC** | Business Alliance for Secure Commerce. International "
+         "private supply-chain security programme, predominantly Latin "
+         "American, recognized within the WCO SAFE Framework. See "
+         "[`compliance/logistics/annex-basc-programme-overview.md`]"
+         "(../compliance/logistics/annex-basc-programme-overview.md). |"),
+        ("supply-chain/matrix-supply-chain-security-programme-alignment.md",
+         "| **BASC**: Business Alliance for Secure Commerce | BASC "
+         "Organization (WBO) | Latin America; global membership | Private "
+         "voluntary certification | Market access signals; supply chain "
+         "security assurance | WCO SAFE Framework aligned |"),
+        ("supply-chain/matrix-supply-chain-security-programme-alignment.md",
+         "| **NEEC**: New Scheme of Certified Companies | Servicio de "
+         "Administración Tributaria (SAT) | Mexico | Voluntary "
+         "trusted-trader | Expedited customs processing in Mexico; "
+         f"facilitation benefits | {_SUPPLY_CHAIN_NEEC_CTPAT}; alignment "
+         "with WCO SAFE |"),
+    )))
+    # Lines the claim matcher reads that make no programme claim about WCO
+    # SAFE (review round 2): the matched word belongs to another standard
+    # (NIST SP 800-57 and ISO/IEC 27002:2022), or to the EU AEO
+    # Guidelines' description of ISO 28001:2007. Pinned as (path, line).
+    _WCO_CLAIM_WORDING_REVIEWED = tuple(sorted((
+        ("security/framework-cryptographic-key-lifecycle.md",
+         "This framework establishes the strategic governance, lifecycle "
+         "controls, and operational standards for managing cryptographic "
+         "keys across the organization's IT, OT, cloud, and BASC-certified "
+         "trade environments. It defines a unified structure for key "
+         "generation, distribution, storage, rotation, revocation, and "
+         "destruction, aligned with NIST SP 800-57 and ISO/IEC 27002:2022 "
+         "§8.24, and applicable to BASC-certified and WCO SAFE trade "
+         "environments (which prescribe no cryptographic standard of their "
+         "own)."),
+        ("supply-chain/matrix-supply-chain-security-programme-alignment.md",
+         "| **ISO 28001** | International Organization for Standardization "
+         "| Global | Implementation standard | EU AEO Guidelines (TAXUD, "
+         "Rev 6, §3.III.4.3 c) describe ISO 28001:2007 as having more "
+         "specific supply chain security requirements and aiming to align "
+         "with WCO SAFE AEO criteria | The Guidelines say customs "
+         "authorities should consider ISO 28001 compliance in an AEO "
+         "authorization; applicability to later editions is unverified |"),
+        ("supply-chain/matrix-supply-chain-security-programme-alignment.md",
+         "| ISO 28000:2022 certification | AEO-S: HMRC takes an ISO 28000 "
+         "certificate and assessor report into account to the extent its "
+         "criteria correspond to AEO criteria (UK HMRC AEO security and "
+         "safety criteria handbook, §11.17). AEO: EU AEO Guidelines "
+         "(TAXUD, Rev 6, §3.III.4.3 c) describe the 2007 edition of ISO "
+         "28000 as having very general requirements and identify ISO "
+         "28001:2007 as more specific and aiming to align with WCO SAFE AEO "
+         "criteria; applicability to ISO 28000:2022 remains unverified. "
+         "CTPAT and PIP acceptance remains unverified. |"),
+    )))
+    # Programme claim wording about WCO SAFE (review round 2, claude WARN
+    # 1 and NOTE 6): derive, underpin, underlie, basis, based on,
+    # foundation, recognized within, aligned, aligns, align or alignment
+    # with, and implementation of the Framework.
+    _WCO_CLAIM_RE = re.compile(
+        r"(?i)\b(?:deriv\w*|underpin\w*|underl(?:y|ie)\w*|basis|based on"
+        r"|foundation\w*|recogni[sz]ed within|aligned|aligns"
+        r"|align(?:ment)? with|implementation of (?:the )?"
+        r"(?:World Customs Organization|WCO|SAFE))\b")
+    # What held lines 4532 to 4534 support: "provides baseline technical
+    # guidance for the / implementation of AEO programmes at the global
+    # level between WCO Members and the international trade / community.
+    # It is designed to serve as a starting point for national AEO
+    # programme implementation".
+    _WCO_HELD_GUIDANCE = (
+        "baseline technical guidance for the implementation of AEO "
+        "programmes at the global level and is designed to serve as a "
+        "starting point for national AEO programme implementation")
+
+    def test_wco_safe_derivation_claims_follow_the_held_text(self):
+        """Finding WCO-SWEEP-REST-0507: the supply chain programme matrix
+        said "All national AEO/trusted-trader programmes derived from WCO
+        SAFE" and "All national programmes derive from WCO SAFE
+        standards", with the Framework underpinning them all, while held
+        lines 4532 to 4534 give it "baseline technical guidance for the
+        implementation of AEO programmes at the global level" and say "It
+        is designed to serve as a starting point for national AEO
+        programme implementation". Its programme summary row now says
+        that. Review round 2 (claude WARN 1): the glossary called the
+        Framework "The international standard underlying national AEO
+        programmes", which the round 1 matcher did not read; its entry now
+        gives the held wording (_WCO_HELD_GUIDANCE), and the matcher
+        (_WCO_CLAIM_RE) reads underlie and the alignment, recognition and
+        implementation wording too. Across the taxonomy documents and the
+        README of each of their directories, the lines with a table row or
+        prose sentence naming WCO SAFE and carrying that wording are
+        exactly the held-back programme claims
+        (_WCO_HELD_BACK_BASIS_CLAIMS) and the reviewed lines that make no
+        programme claim (_WCO_CLAIM_WORDING_REVIEWED), each pinned by path
+        and exact line text. Matcher limits: a claim worded another way
+        (as "modelled on the Framework"), or in a sentence
+        or row that does not name WCO SAFE, is not caught; a prose line is
+        split into sentences at a full stop followed by white space, so an
+        abbreviation can split a sentence."""
+        wco = re.compile(self.INSTRUMENT_NAME_RES["wco-safe"])
+        claim = self._WCO_CLAIM_RE
+        for wording in ("The international standard underlying national "
+                        "AEO programmes.",
+                        "the Framework underlies every programme",
+                        "the programme aligns with the WCO SAFE Framework",
+                        "the UK's implementation of the World Customs "
+                        "Organization (WCO) SAFE Framework"):
+            with self.subTest(wording=wording):
+                self.assertIsNotNone(claim.search(wording))
+        rels = set()
+        for d in self._full_taxonomy():
+            rels.add(d["path"])
+            rels.add("/".join(d["path"].split("/")[:-1] + ["README.md"]))
+        found = set()
+        for rel in sorted(rels):
+            path = REPO_ROOT / rel
+            if not path.is_file():
+                continue
+            for line in path.read_text(encoding="utf-8").splitlines():
+                units = ([line] if line.lstrip().startswith("|")
+                         else re.split(r"(?<=\.)\s+", line))
+                if any(wco.search(unit) and claim.search(unit)
+                       for unit in units):
+                    found.add((rel, line))
+        self.assertEqual(
+            sorted(found),
+            sorted(self._WCO_HELD_BACK_BASIS_CLAIMS
+                   + self._WCO_CLAIM_WORDING_REVIEWED))
+        self.assertEqual(len(self._WCO_HELD_BACK_BASIS_CLAIMS), 11)
+        glossary = (REPO_ROOT / "governance/register-glossary.md"
+                    ).read_text(encoding="utf-8")
+        self.assertEqual(
+            [line for line in glossary.splitlines()
+             if line.startswith("| **WCO SAFE Framework** |")],
+            ["| **WCO SAFE Framework** | World Customs Organization SAFE "
+             "Framework of Standards to Secure and Facilitate Global Trade. "
+             f"Provides {self._WCO_HELD_GUIDANCE}. |"])
+        text = (REPO_ROOT / "supply-chain/matrix-supply-chain-security-"
+                "programme-alignment.md").read_text(encoding="utf-8")
+        rows = [line for line in text.splitlines()
+                if line.startswith("| **WCO SAFE Framework** |")]
+        self.assertEqual(len(rows), 1, rows)
+        # Review round 3 (claude NOTE 3): the Mutual Recognition cell held
+        # the Framework's design intent, which belongs with its Benefit;
+        # it now says recognition runs through MRAs between Customs
+        # administrations (held lines 5212 to 5216) and points to the note
+        # after the programme-pair table.
+        self.assertTrue(rows[0].endswith(
+            "| Baseline technical guidance for the implementation of AEO "
+            "programmes at the global level; designed to serve as a "
+            "starting point for national AEO programme implementation | "
+            f"{self._WCO_SUMMARY_MUTUAL_RECOGNITION} |"), rows[0])
+        self.assertNotIn("| Designed to serve", rows[0])
+
+    # Held lines 5215 to 5216, among the benefits under mutual recognition
+    # arrangements/agreements (MRAs) of line 5212.
+    _WCO_HELD_MRA_BENEFIT = (
+        "Recognition by other Customs administrations via MRAs as a "
+        "low-risk trader in the Customs automated risking system, which "
+        "may lead to fewer examinations")
+
+    def test_wco_safe_mutual_recognition_note_follows_the_held_text(self):
+        """Review round 2 of finding WCO-SWEEP-REST-0507 (codex WARN 1,
+        claude NOTE 4): the supply chain programme matrix's programme-pair
+        table (Programme Pair, Mutual Recognition Basis, Shared Evidence
+        Possible) had a "WCO SAFE ↔ All" row, presenting the Framework as
+        one side of a universal pairing, with "Confirm per programme pair
+        above", which led nowhere for a programme with no listed pair. The
+        row is removed; the sentence after the table gives the Framework's
+        held role (_WCO_HELD_GUIDANCE), quotes held lines 5215 to 5216 on
+        recognition via MRAs (_WCO_HELD_MRA_BENEFIT), says recognition and
+        evidence reuse need confirmation against the applicable
+        arrangement and programme requirements, and limits what the table
+        establishes to mutual recognition (_WCO_MRA_SCOPE_NOTE, review
+        round 3: it said no shared-evidence basis is established for a
+        programme with no listed pair, which the shared evidence table
+        contradicted for BASC and NEEC)."""
+        note = self._supply_chain_mra_note()
+        for part in (
+                f"The WCO SAFE Framework is not a programme pair: it "
+                f"provides {self._WCO_HELD_GUIDANCE}.",
+                f'"{self._WCO_HELD_MRA_BENEFIT}"',
+                "Confirm recognition and any evidence reuse against the "
+                "applicable arrangement and each programme's requirements "
+                "before relying on them.",
+                *self._WCO_MRA_SCOPE_NOTE):
+            with self.subTest(part=part):
+                self.assertIn(part, note)
+        self.assertNotIn("no shared-evidence basis", note)
+
+    def _supply_chain_mra_note(self):
+        """The paragraph after the supply chain programme matrix's
+        programme-pair table, which must name no WCO SAFE pair."""
+        lines = (REPO_ROOT / "supply-chain/matrix-supply-chain-security-"
+                 "programme-alignment.md").read_text(
+                     encoding="utf-8").splitlines()
+        header = ("| Programme Pair | Mutual Recognition Basis | Shared "
+                  "Evidence Possible |")
+        self.assertEqual(lines.count(header), 1)
+        start = lines.index(header)
+        end = start
+        while end < len(lines) and lines[end].startswith("|"):
+            end += 1
+        wco = re.compile(self.INSTRUMENT_NAME_RES["wco-safe"])
+        self.assertEqual([row for row in lines[start:end]
+                          if wco.search(row)], [])
+        self.assertEqual(lines[end], "")
+        return lines[end + 1]
+
+    # The supply chain programme matrix's summary row for the Framework
+    # (review round 3, claude NOTE 3): its Mutual Recognition cell, from
+    # held lines 5212 to 5216 ("Benefits under mutual recognition
+    # arrangements/agreements (MRAs)", "Recognition by other Customs
+    # administrations via MRAs"). Review round 4 (claude WARN 2): MRAs are
+    # one route, not the only one; held Section VII, 2.1 (lines 3578 to
+    # 3607) presumes recognition within a regional Customs union AEO
+    # programme "without the need for separate or additional MRAs".
+    _WCO_SUMMARY_MUTUAL_RECOGNITION = (
+        "Not a programme: recognition of an AEO by other Customs "
+        "administrations can come through mutual recognition arrangements "
+        "or agreements (MRAs) between Customs administrations or, within a "
+        "regional Customs union AEO programme, is presumed among the "
+        "Members without separate or additional MRAs (Section VII, 2.1); "
+        "see the note after the programme-pair table under [Mutual "
+        "recognition arrangements](#mutual-recognition-arrangements)")
+    # Held Section VII, 2.1 (Regional Customs union AEO programmes), lines
+    # 3595 to 3604 and 3605 to 3607, as the note after the programme-pair
+    # table quotes them (review round 4, claude WARN 2).
+    _WCO_HELD_CUSTOMS_UNION = (
+        "it is presumed that AEO status granted by the Customs "
+        "administration of one Member is recognized by the Customs "
+        "administrations of the other Members within the Customs union",
+        "could benefit from AEO status across the whole region without the "
+        "need for separate or additional MRAs")
+    # What the note after the programme-pair table says the table
+    # establishes (review round 3; all three reviewers): mutual recognition
+    # only, for the programmes without a listed pair, and whether AEO
+    # (Mexico) is NEEC's pair. The held Canada-Mexico arrangement guide
+    # (programs/AEO-MRA-Mexico-Canada, line 91) says "In Mexico, the
+    # program is known as Authorized Economic Operator" and does not name
+    # NEEC. Review round 4 (claude NOTE 1): the first sentence no longer
+    # ties mutual recognition to evidence reuse, which the acceptance
+    # wording at the start of the section governs.
+    _WCO_MRA_SCOPE_NOTE = (
+        # Review round 6 (claude N1): nor for the pairs whose basis is
+        # marked not confirmed by a held source.
+        "The table above lists no mutual recognition pair for BASC, NEEC, "
+        "ISO 28000:2022 or ISO 28001:2007, so no mutual recognition is "
+        "established here for them, nor for the pairs whose basis is "
+        "marked not confirmed by a held source.",
+        "AEO (Mexico) in the PIP row is not counted as NEEC's pair: the "
+        "held Canada-Mexico arrangement guide names the Mexican programme "
+        "Authorized Economic Operator and does not name NEEC.",
+        "The CTPAT (US) recognition shown for NEEC in the programme summary "
+        "and the application priority below has no held arrangement text; "
+        "confirm it before relying on it.")
+    # Wording that presented evidence reuse as established (review round
+    # 3: codex WARN 2, claude WARN 1 and NOTE 1, agy finding 1), and what
+    # replaced each.
+    _SUPPLY_CHAIN_REUSE_WORDING = (
+        ("Evidence collected for one programme can often satisfy another.",
+         "Evidence collected for one programme may also support another, "
+         "but only where that programme accepts it, requirement by "
+         "requirement; the shared evidence shown below marks candidate "
+         "overlaps, not established reuse."),
+        ("The following evidence types can be collected once and reused "
+         "across multiple programme requirements:",
+         "The following evidence types are candidate overlaps: each may be "
+         "collected once and offered to more than one programme, subject "
+         "to each programme accepting it requirement by requirement. The "
+         "table shows where an evidence type is relevant, not where reuse "
+         "has been accepted:"),
+        ("foundational evidence set used by all others",
+         "| 1 | CTPAT | Primary US market access; its evidence set is a "
+         "candidate starting point for the applications below, subject to "
+         "each programme's acceptance |"),
+        # Review round 4 (claude WARN 1, codex WARN 1): the application
+        # priority rows below CTPAT's stated reuse or recognition as
+        # settled.
+        ("uses the CTPAT evidence set",
+         "| 2 | AEO-S (UK) | UK market access; the CTPAT evidence set is a "
+         "candidate starting point, subject to that programme's "
+         "acceptance; HMRC supplements still required |"),
+        ("uses the same evidence set",
+         "| 3 | AEO (EU) | EU market access; parallel to AEO-S; the CTPAT "
+         "evidence set is a candidate starting point, subject to that "
+         "programme's acceptance; EU supplements still required |"),
+        # Review round 6 (claude W1): rows 4, 6 and 7 are now as
+        # _SUPPLY_CHAIN_PRIORITY_RECOGNITION gives them.
+        ("CTPAT mutual recognition supports application",
+         "| 4 | PIP (Canada) | Canadian market access; CTPAT mutual "
+         "recognition is a possible facilitation benefit, to confirm "
+         "against the arrangement itself |"),
+        ("CTPAT mutual recognition provides foundation",
+         "| 6 | NEEC | Mexican market access; CTPAT mutual recognition, not "
+         "confirmed by a held source for NEEC, is a possible facilitation "
+         "benefit, to confirm against any applicable arrangement |"),
+        ("AEO/AEO-S mutual recognition provides foundation",
+         "| 7 | OEA | Brazilian market access; the WCO AEO Compendium (2020) "
+         "records no EU or UK arrangement with Brazil; check any concluded "
+         "later before relying on it |"),
+        # Review round 5 (defect-class sweep after round 4 drafter N1): the
+        # BASC priority row stated reuse of the CTPAT controls as settled.
+        ("builds on CTPAT controls",
+         "| 5 | BASC | Latin American market access; the CTPAT controls are "
+         "a candidate starting point, subject to that programme's "
+         "acceptance; claimed ISO 28000:2022 requirements unverified |"),
+    )
+
+    def test_supply_chain_evidence_reuse_is_candidate_overlap(self):
+        """Review round 3 of finding WCO-SWEEP-REST-0507 (all three
+        reviewers): the supply chain programme matrix's note after the
+        programme-pair table said a programme with no listed pair has no
+        shared-evidence basis, while the section's opening ("can often
+        satisfy another"), the shared evidence table's lead-in ("can be
+        collected once and reused") and CTPAT's application priority
+        ("foundational evidence set used by all others") presented reuse
+        as established, and the shared evidence table lists BASC and NEEC.
+        Each of the three now describes candidate overlaps subject to
+        each programme's requirement-by-requirement acceptance
+        (_SUPPLY_CHAIN_REUSE_WORDING), the note speaks only of mutual
+        recognition (_WCO_MRA_SCOPE_NOTE), and every programme it names
+        has no row in the programme-pair table."""
+        text = (REPO_ROOT / "supply-chain/matrix-supply-chain-security-"
+                "programme-alignment.md").read_text(encoding="utf-8")
+        lines = text.splitlines()
+        for old, new in self._SUPPLY_CHAIN_REUSE_WORDING:
+            with self.subTest(old=old):
+                self.assertNotIn(old, text)
+                self.assertIn(new, text)
+        self.assertNotIn("used by all", text)
+        self.assertNotRegex(text, r"(?i)can (?:often )?(?:satisfy|be "
+                                  r"collected once and reused)")
+        pairs = [line.split("|")[1] for line in lines
+                 if "↔" in line and line.startswith("|")]
+        self.assertTrue(pairs)
+        for name in ("BASC", "NEEC", "ISO 28000:2022", "ISO 28001"):
+            with self.subTest(name=name):
+                self.assertFalse([pair for pair in pairs
+                                  if re.search(rf"(?<![\w:]){re.escape(name)}"
+                                               rf"(?![\w:])", pair)], pairs)
+                self.assertIn(name, self._WCO_MRA_SCOPE_NOTE[0])
+        self.assertTrue(any("AEO (Mexico)" in pair for pair in pairs))
+        # BASC and NEEC are listed in the shared evidence table, which the
+        # note no longer contradicts.
+        shared = text.split("## Shared evidence opportunities", 1)[1]
+        self.assertRegex(shared, r"\| Documented security policy \| [^|]*"
+                                 r"\bBASC, NEEC\b")
+
+    # The programme-pair table's Shared Evidence Possible cells (review
+    # round 4, codex WARN 2), by pair. Each marks a candidate overlap not
+    # confirmed by a held source and keeps its jurisdiction-supplement
+    # wording; the AEO-S and OEA cell, like the PIP and AEO (Mexico) row,
+    # does not present facilitation as evidence reuse.
+    _SUPPLY_CHAIN_PAIR_SHARED_EVIDENCE = {
+        "CTPAT ↔ AEO-S (UK)":
+            "Candidate overlap, not confirmed by a held source: most "
+            "domains; UK legal supplements required",
+        "CTPAT ↔ AEO (EU)":
+            "Candidate overlap, not confirmed by a held source: most "
+            "domains; EU legal supplements required",
+        "CTPAT ↔ PIP":
+            "Candidate overlap, not confirmed by a held source; subject to "
+            "jurisdiction-specific supplements",
+        # Review round 6 (claude N2): the cell described a facilitation
+        # benefit at Brazilian customs, which would need a UK-Brazil
+        # arrangement that the held WCO AEO Compendium (2020) does not
+        # record (sections V and VI, lines 14683 to 15091; the Brazil table,
+        # lines 12465 to 12514).
+        "AEO-S ↔ OEA (Brazil)":
+            "Candidate overlap, not confirmed by a held source; any "
+            "facilitation would depend on a UK-Brazil arrangement, which no "
+            "held source records",
+        "AEO (EU) ↔ OEA (Brazil)":
+            "Candidate overlap, not confirmed by a held source",
+        # Review round 5 (round 4 drafter N1): the cell said "Substantial
+        # overlap"; no held source compares the UK and EU programmes after
+        # the UK's exit (the WCO AEO Compendium 2020, lines 6027 to 6031,
+        # still records the UK programme as "AEO (European Union
+        # Programme)").
+        "AEO-S ↔ AEO (EU)":
+            "Candidate overlap, not confirmed by a held source; separate "
+            "applications required",
+    }
+
+    def test_supply_chain_pair_shared_evidence_is_candidate_overlap(self):
+        """Review round 4 of finding WCO-SWEEP-REST-0507 (codex WARN 2):
+        five Shared Evidence Possible cells in the supply chain programme
+        matrix's programme-pair table said "Yes" ("Yes: most domains",
+        "Yes, subject to", "Yes: AEO-S holders may receive facilitation
+        at Brazilian customs", "Yes"), stating shared evidence as settled
+        and, for AEO-S and OEA, offering facilitation as the reason. Each
+        now marks a candidate overlap not confirmed by a held source
+        (_SUPPLY_CHAIN_PAIR_SHARED_EVIDENCE), and no cell in that column
+        begins with "Yes". Review round 5 (round 4 drafter N1): the AEO-S
+        and AEO (EU) cell said "Substantial overlap" and now marks a
+        candidate overlap too; every pair but PIP and AEO (Mexico), whose
+        cell says the held source states no evidence reuse, is pinned, and
+        no cell says "Substantial"."""
+        lines = (REPO_ROOT / "supply-chain/matrix-supply-chain-security-"
+                 "programme-alignment.md").read_text(
+                     encoding="utf-8").splitlines()
+        cells = {}
+        for line in lines:
+            if line.startswith("|") and "↔" in line:
+                parts = [part.strip() for part in line.split("|")[1:-1]]
+                self.assertEqual(len(parts), 3, line)
+                cells[parts[0]] = parts[2]
+        for pair, cell in self._SUPPLY_CHAIN_PAIR_SHARED_EVIDENCE.items():
+            with self.subTest(pair=pair):
+                self.assertEqual(cells.get(pair), cell)
+        self.assertEqual(
+            sorted(set(cells) - set(self._SUPPLY_CHAIN_PAIR_SHARED_EVIDENCE)),
+            ["PIP ↔ AEO (Mexico)"])
+        self.assertEqual([cell for cell in cells.values()
+                          if cell.startswith("Yes")
+                          or "Substantial" in cell], [])
+
+    # Recognition stated as settled without a held source (review round 5,
+    # defect-class sweep after round 4 drafter N1). The held WCO AEO
+    # Compendium (2020) lists concluded bilateral MRAs (section V, lines
+    # 14683 to 14922: Canada and US June 2008, Japan and US June 2009,
+    # Korea and US June 2010, EU and US May 2012 (the EU's own table, line
+    # 13502, says July 2012, so the matrix gives the year only), and the EU
+    # with Norway, Japan, Switzerland and China) and MRAs being negotiated
+    # (section VI, from line 14949: EU and Canada, US and Brazil, US and
+    # United Kingdom); it lists no EU-Brazil, UK-Brazil or UK-EU
+    # arrangement, and the held Brazilian OEA guide names no partner.
+    # Each programme summary Mutual Recognition cell (by row prefix) and
+    # each programme-pair Mutual Recognition Basis cell (by pair) now says
+    # which recognitions the Compendium records and which no held source
+    # confirms, with the replaced wording.
+    _SUPPLY_CHAIN_SUMMARY_RECOGNITION = (
+        ("| **CTPAT**:",
+         "AEO (EU), AEO-S (UK), PIP (Canada), AEO (Japan, Korea, others)",
+         "AEO (EU), PIP (Canada), AEO (Japan, Korea, others): concluded MRAs "
+         "in the WCO AEO Compendium (2020); AEO-S (UK) is not confirmed by "
+         "a held source (the Compendium lists the United Kingdom as under "
+         "negotiation with the US)"),
+        ("| **AEO-S**:",
+         "CTPAT (US), AEO (EU), OEA (Brazil), others",
+         "Not confirmed by a held source: CTPAT (US), AEO (EU), OEA "
+         "(Brazil), others (the WCO AEO Compendium (2020) lists the United "
+         "Kingdom as under negotiation with the US)"),
+        ("| **AEO**:",
+         "CTPAT (US), AEO-S (UK), PIP (Canada, under negotiation), OEA "
+         "(Brazil), others",
+         "CTPAT (US) and others: concluded MRAs in the WCO AEO Compendium "
+         "(2020); PIP (Canada): under negotiation in the Compendium; AEO-S "
+         "(UK) and OEA (Brazil): not confirmed by a held source"),
+        ("| **OEA**:",
+         "AEO (EU); AEO-S (UK); CTPAT (US)",
+         "Not confirmed by a held source: AEO (EU); AEO-S (UK); CTPAT (US) "
+         "(the WCO AEO Compendium (2020) lists the US as under negotiation "
+         "with Brazil and no EU or UK arrangement with Brazil)"),
+        # Review round 6 (claude N3, codex N1): "no Canada-UK arrangement"
+        # read as a fact; the Compendium's Canada table (lines 12537 to
+        # 12547) lists no United Kingdom entry, which records no
+        # arrangement rather than showing none exists.
+        ("| **PIP**:",
+         "US (CTPAT, 2008), Japan, Korea, Singapore, Mexico (2016), "
+         "Australia, Israel (signed); EU under negotiation, no Canada-UK "
+         "arrangement (WCO AEO Compendium 2020)",
+         "US (CTPAT, 2008), Japan, Korea, Singapore, Mexico (2016), "
+         "Australia, Israel (signed); EU under negotiation (WCO AEO "
+         "Compendium 2020); no Canada-UK arrangement recorded in the WCO AEO "
+         "Compendium (2020)"),
+    )
+    _SUPPLY_CHAIN_PAIR_RECOGNITION_BASIS = {
+        "CTPAT ↔ AEO-S (UK)": (
+            "UK-US Trade and Investment Working Group; post-Brexit bilateral "
+            "arrangement",
+            "Not confirmed by a held source: UK-US Trade and Investment "
+            "Working Group; post-Brexit bilateral arrangement (the WCO AEO "
+            "Compendium (2020) lists US-United Kingdom as under "
+            "negotiation)"),
+        "CTPAT ↔ AEO (EU)": (
+            "US-EU Mutual Recognition Agreement (2012; updated 2019)",
+            "US-EU Mutual Recognition Agreement (2012, a concluded MRA in the "
+            "WCO AEO Compendium (2020)); the 2019 update is not confirmed by "
+            "a held source"),
+        "AEO-S ↔ AEO (EU)": (
+            "UK HMRC aligned criteria to EU AEO post-Brexit; separate "
+            "national authorizations",
+            "Not confirmed by a held source: UK HMRC aligned criteria to EU "
+            "AEO post-Brexit; separate national authorizations"),
+        "AEO-S ↔ OEA (Brazil)": (
+            "UK-Brazil Trade Working Group framework",
+            "Not confirmed by a held source: UK-Brazil Trade Working Group "
+            "framework"),
+        "AEO (EU) ↔ OEA (Brazil)": (
+            "EU-Brazil mutual recognition agreement",
+            "Not confirmed by a held source: EU-Brazil mutual recognition "
+            "agreement (the WCO AEO Compendium (2020) lists no EU-Brazil "
+            "MRA, concluded or under negotiation)"),
+        # Review round 6 (claude N3): the Compendium records June 2008,
+        # Canada and US, among concluded MRAs (lines 14700 to 14701), which
+        # the cell did not cite.
+        "CTPAT ↔ PIP": (
+            "Canada-US CBSA-CBP mutual recognition (confirm current scope "
+            "against the CBSA's published arrangements)",
+            "Canada-US CBSA-CBP mutual recognition (2008, a concluded MRA in "
+            "the WCO AEO Compendium (2020); confirm current scope against "
+            "the CBSA's published arrangements)"),
+    }
+
+    def test_supply_chain_recognition_claims_name_their_held_source(self):
+        """Review round 5 of finding WCO-SWEEP-REST-0507 (defect-class sweep
+        after round 4 drafter N1): the supply chain programme matrix's
+        programme summary Mutual Recognition cells for CTPAT, AEO-S, AEO
+        and OEA, and five Mutual Recognition Basis cells of its
+        programme-pair table, stated recognition as settled, including
+        arrangements the held WCO AEO Compendium (2020) lists only as under
+        negotiation (US-United Kingdom, US-Brazil) or not at all (EU-Brazil,
+        UK-Brazil, UK-EU). Each cell now separates what the Compendium
+        records from what no held source confirms
+        (_SUPPLY_CHAIN_SUMMARY_RECOGNITION,
+        _SUPPLY_CHAIN_PAIR_RECOGNITION_BASIS), and the replaced wording is
+        gone. Review round 6 (claude N3, codex N1): the PIP row and the
+        CTPAT and PIP pair are pinned too, the row's Canada-UK silence
+        written as not recorded in the Compendium and the pair citing it.
+        The PIP and AEO (Mexico) pair (held arrangement guide) and the
+        pinned BASC and NEEC carriers are not pinned here."""
+        lines = (REPO_ROOT / "supply-chain/matrix-supply-chain-security-"
+                 "programme-alignment.md").read_text(
+                     encoding="utf-8").splitlines()
+        for prefix, old, new in self._SUPPLY_CHAIN_SUMMARY_RECOGNITION:
+            with self.subTest(row=prefix):
+                rows = [line for line in lines if line.startswith(prefix)]
+                self.assertEqual(len(rows), 1, rows)
+                self.assertTrue(rows[0].endswith(f"| {new} |"), rows[0])
+                self.assertNotIn(f"| {old} |", rows[0])
+        basis = {}
+        for line in lines:
+            if line.startswith("|") and "↔" in line:
+                parts = [part.strip() for part in line.split("|")[1:-1]]
+                self.assertEqual(len(parts), 3, line)
+                basis[parts[0]] = parts[1]
+        for pair, (old, new) in (
+                self._SUPPLY_CHAIN_PAIR_RECOGNITION_BASIS.items()):
+            with self.subTest(pair=pair):
+                self.assertEqual(basis.get(pair), new)
+                self.assertNotEqual(basis.get(pair), old)
+
+    def _supply_chain_matrix_lines(self):
+        return (REPO_ROOT / "supply-chain/matrix-supply-chain-security-"
+                "programme-alignment.md").read_text(
+                    encoding="utf-8").splitlines()
+
+    def test_supply_chain_priority_recognition_is_a_facilitation_benefit(
+            self):
+        """Review round 6 of finding WCO-SWEEP-REST-0507 (claude W1): the
+        supply chain programme matrix's application priority row 7 (OEA)
+        said "AEO/AEO-S mutual recognition is a possible application
+        advantage, to confirm against each arrangement itself", which
+        presupposes EU and UK arrangements with Brazil that the held WCO
+        AEO Compendium (2020) does not record (sections V and VI, lines
+        14683 to 15091; the Brazil table, lines 12465 to 12514). Rows 4
+        (PIP) and 6 (NEEC) said "application advantage", which no held
+        line supports: held SAFE lines 5212 to 5216 list "Benefits under
+        mutual recognition arrangements/agreements (MRAs)", among them
+        "Recognition by other Customs administrations via MRAs as a
+        low-risk trader in the Customs automated risking system, which may
+        lead to fewer examinations", that is a facilitation benefit. Row 7
+        now says what the Compendium records, rows 4 and 6 say "a possible
+        facilitation benefit" (row 6 marking the NEEC recognition not
+        confirmed by a held source), and no line says "application
+        advantage"."""
+        lines = self._supply_chain_matrix_lines()
+        self.assertEqual([line for line in lines
+                          if "application advantage" in line], [])
+        rows = {line.split("|")[1].strip(): line for line in lines
+                if re.match(r"\| [4-7] \|", line)}
+        expected = dict(
+            (new.split("|")[1].strip(), new)
+            for _old, new in self._SUPPLY_CHAIN_REUSE_WORDING
+            if re.match(r"\| [467] \|", new))
+        self.assertEqual(sorted(expected), ["4", "6", "7"])
+        for number, row in expected.items():
+            with self.subTest(row=number):
+                self.assertEqual(rows.get(number), row)
+        self.assertNotIn("AEO/AEO-S mutual recognition", rows["7"])
+        self.assertIn("possible facilitation benefit", rows["4"])
+        self.assertIn("possible facilitation benefit", rows["6"])
+
+    def test_supply_chain_neec_ctpat_recognition_is_not_confirmed(self):
+        """Review round 6 of finding WCO-SWEEP-REST-0507 (agy W1): the
+        supply chain programme matrix's NEEC Mutual Recognition cell said
+        "CTPAT (US); alignment with WCO SAFE", the CTPAT recognition stated
+        as settled. Its CTPAT part now says it is not confirmed by a held
+        source and what the Compendium records instead
+        (_SUPPLY_CHAIN_NEEC_CTPAT); "alignment with WCO SAFE" stays for the
+        programme-claims PR, and the pinned carrier follows the new text."""
+        rows = [line for line in self._supply_chain_matrix_lines()
+                if line.startswith("| **NEEC**:")]
+        self.assertEqual(len(rows), 1, rows)
+        self.assertTrue(rows[0].endswith(
+            f"| {self._SUPPLY_CHAIN_NEEC_CTPAT}; alignment with WCO SAFE |"),
+            rows[0])
+        self.assertNotIn("| CTPAT (US); ", rows[0])
+        self.assertIn(
+            ("supply-chain/matrix-supply-chain-security-programme-"
+             "alignment.md", rows[0]), self._WCO_HELD_BACK_BASIS_CLAIMS)
+
+    def test_supply_chain_mra_note_excludes_unconfirmed_pairs(self):
+        """Review round 6 of finding WCO-SWEEP-REST-0507 (claude N1): the
+        note after the programme-pair table limited its "no mutual
+        recognition is established here" to the programmes with no listed
+        pair, which implied it was established for every listed pair,
+        while four pairs give their basis as not confirmed by a held
+        source. The note's sentence now covers those pairs
+        (_WCO_MRA_SCOPE_NOTE), and the table still has such pairs."""
+        note = self._supply_chain_mra_note()
+        self.assertIn(
+            "so no mutual recognition is established here for them, nor for "
+            "the pairs whose basis is marked not confirmed by a held "
+            "source.", note)
+        unconfirmed = [line for line in self._supply_chain_matrix_lines()
+                       if line.startswith("|") and "↔" in line
+                       and line.split("|")[2].strip().startswith(
+                           "Not confirmed by a held source")]
+        self.assertEqual(len(unconfirmed), 4, unconfirmed)
+
+    def test_supply_chain_aeo_s_oea_facilitation_needs_an_arrangement(self):
+        """Review round 6 of finding WCO-SWEEP-REST-0507 (claude N2): the
+        AEO-S and OEA (Brazil) Shared Evidence Possible cell described
+        "facilitation that AEO-S holders may receive at Brazilian customs",
+        a recognition benefit that would need a UK-Brazil arrangement no
+        held source records. The cell now says that facilitation would
+        depend on such an arrangement
+        (_SUPPLY_CHAIN_PAIR_SHARED_EVIDENCE)."""
+        rows = [line for line in self._supply_chain_matrix_lines()
+                if line.startswith("| AEO-S ↔ OEA (Brazil) |")]
+        self.assertEqual(len(rows), 1, rows)
+        self.assertTrue(rows[0].endswith(
+            "| Candidate overlap, not confirmed by a held source; any "
+            "facilitation would depend on a UK-Brazil arrangement, which no "
+            "held source records |"), rows[0])
+        self.assertNotIn("may receive at Brazilian customs", rows[0])
+
+    def test_supply_chain_pip_recognition_follows_the_compendium(self):
+        """Review round 6 of finding WCO-SWEEP-REST-0507 (claude N3, codex
+        N1): the CTPAT and PIP pair basis stated the Canada-US recognition
+        without its held source, and the PIP summary cell's "no Canada-UK
+        arrangement" read as a fact rather than as the Compendium's
+        silence. The pair cites the Compendium's concluded Canada-US MRA
+        (lines 14700 to 14701) and the summary cell says no Canada-UK
+        arrangement is recorded in the WCO AEO Compendium (2020)."""
+        lines = self._supply_chain_matrix_lines()
+        pip = [line for line in lines if line.startswith("| **PIP**:")]
+        self.assertEqual(len(pip), 1, pip)
+        self.assertTrue(pip[0].endswith(
+            "; no Canada-UK arrangement recorded in the WCO AEO Compendium "
+            "(2020) |"), pip[0])
+        self.assertNotIn("no Canada-UK arrangement (", pip[0])
+        pair = [line for line in lines if line.startswith("| CTPAT ↔ PIP |")]
+        self.assertEqual(len(pair), 1, pair)
+        self.assertIn(
+            "| Canada-US CBSA-CBP mutual recognition (2008, a concluded MRA "
+            "in the WCO AEO Compendium (2020); confirm current scope against "
+            "the CBSA's published arrangements) |", pair[0])
+
+    # The CTPAT registers' mutual recognition statements (review round 6:
+    # agy W2, claude N4, codex N2), by path: each old line, stating a
+    # CTPAT and UK AEO-S arrangement (and, in the MSC register's AEO-S
+    # section, evidence reuse) as settled, and the line that replaced it.
+    # The held WCO AEO Compendium (2020) lists US and United Kingdom only
+    # under "VI. MRAs BEING NEGOTIATED" (lines 14949 and 14976) and
+    # records May 2012, EU and US (lines 14774 to 14775), and June 2008,
+    # Canada and US (lines 14700 to 14701), among concluded MRAs.
+    _CTPAT_REGISTER_RECOGNITION = (
+        ("compliance/logistics/register-ctpat-united-states-it-controls.md",
+         "**Mutual recognition:** CTPAT and UK AEO-S maintain a mutual "
+         "recognition arrangement under the UK-US Trade and Investment "
+         "Working Group, providing reciprocal facilitation benefits for "
+         "qualifying members at points of entry in both countries.",
+         "**Mutual recognition:** A CTPAT and UK AEO-S mutual recognition "
+         "arrangement is not confirmed by a held source: the WCO AEO "
+         "Compendium (2020) lists US-United Kingdom only among MRAs being "
+         "negotiated, so confirm its current status before relying on it. "
+         "The concluded CTPAT arrangements the Compendium records include "
+         "EU-US (May 2012) and Canada-US (June 2008). See "),
+        ("compliance/logistics/register-ctpat-united-states-msc-controls.md",
+         "**Mutual recognition:** CTPAT maintains mutual recognition "
+         "arrangements with AEO (EU), UK AEO-S, and Canada PIP, providing "
+         "reciprocal facilitation benefits for qualifying members.",
+         "**Mutual recognition:** The concluded CTPAT arrangements the WCO "
+         "AEO Compendium (2020) records include EU-US (May 2012, with AEO "
+         "(EU)) and Canada-US (June 2008, with Canada PIP); confirm the "
+         "facilitation each provides against the arrangement itself. A "
+         "CTPAT and UK AEO-S arrangement is not confirmed by a held source: "
+         "the Compendium lists US-United Kingdom only among MRAs being "
+         "negotiated."),
+        ("compliance/logistics/register-ctpat-united-states-msc-controls.md",
+         "The mutual recognition arrangement between CTPAT and AEO-S means "
+         "that evidence collected for CTPAT compliance can generally be "
+         "reused for AEO-S",
+         "A CTPAT and AEO-S mutual recognition arrangement is not confirmed "
+         "by a held source (the WCO AEO Compendium (2020) lists US-United "
+         "Kingdom only among MRAs being negotiated), so evidence collected "
+         "for CTPAT compliance is a candidate overlap for AEO-S, subject to "
+         "HMRC acceptance requirement by requirement, with the following "
+         "jurisdiction-specific supplements:"),
+    )
+
+    def test_ctpat_registers_qualify_uk_recognition(self):
+        """Review round 6 of finding WCO-SWEEP-REST-0507 (agy W2, claude
+        N4, codex N2): the CTPAT IT controls register said CTPAT and UK
+        AEO-S "maintain a mutual recognition arrangement", and the CTPAT
+        MSC register said CTPAT "maintains mutual recognition arrangements
+        with AEO (EU), UK AEO-S, and Canada PIP" and that the CTPAT and
+        AEO-S arrangement means CTPAT evidence "can generally be reused for
+        AEO-S", while the held Compendium lists US-United Kingdom only as
+        being negotiated. Each line now says the UK arrangement is not
+        confirmed by a held source, names the concluded CTPAT arrangements
+        the Compendium records, and treats evidence reuse as a candidate
+        overlap subject to HMRC acceptance (_CTPAT_REGISTER_RECOGNITION).
+        Neither register says "maintain" of a recognition arrangement."""
+        for rel, old, new in self._CTPAT_REGISTER_RECOGNITION:
+            text = (REPO_ROOT / rel).read_text(encoding="utf-8")
+            with self.subTest(rel=rel, new=new[:40]):
+                self.assertNotIn(old, text)
+                self.assertEqual(
+                    len([line for line in text.splitlines()
+                         if new in line]), 1)
+        for rel in sorted({rel for rel, _old, _new
+                           in self._CTPAT_REGISTER_RECOGNITION}):
+            text = (REPO_ROOT / rel).read_text(encoding="utf-8")
+            with self.subTest(rel=rel):
+                self.assertNotRegex(
+                    text, r"(?i)maintains? (?:a )?mutual recognition "
+                          r"arrangements?")
+
+    def test_ctpat_it_register_aeo_s_shared_evidence_is_candidate(self):
+        """Review round 6 of finding WCO-SWEEP-REST-0507 (defect-class sweep
+        after agy W2, claude N4 and codex N2): the CTPAT IT controls
+        register's CTPAT-AEO-S control alignment table answered "Yes" in
+        every Shared Evidence Possible cell and its lead-in said the table
+        would "reduce duplication of evidence", stating reuse for AEO-S as
+        settled, as the supply chain matrix's pair cells did before round
+        4. Each cell now marks a candidate overlap subject to HMRC
+        acceptance, keeping its supplement wording, and the lead-in speaks
+        of candidate evidence overlaps."""
+        lines = (REPO_ROOT / "compliance/logistics/register-ctpat-united-"
+                 "states-it-controls.md").read_text(
+                     encoding="utf-8").splitlines()
+        header = ("| CTPAT Criterion | AEO-S Equivalent Requirement | Shared "
+                  "Evidence Possible |")
+        self.assertEqual(lines.count(header), 1)
+        start = lines.index(header) + 2
+        end = start
+        while end < len(lines) and lines[end].startswith("|"):
+            end += 1
+        cells = [line.split("|")[3].strip() for line in lines[start:end]]
+        self.assertEqual(len(cells), 10, cells)
+        prefix = "Candidate overlap, subject to HMRC acceptance"
+        self.assertEqual([cell for cell in cells
+                          if not cell.startswith(prefix)], [])
+        self.assertEqual(
+            sorted(set(cells)),
+            [prefix,
+             f"{prefix}; retention periods may differ",
+             f"{prefix}; with HMRC-specific notification supplement"])
+        self.assertIn(
+            "The table below cross-references CTPAT IT criteria with their "
+            "AEO-S counterparts to identify candidate evidence overlaps, each "
+            "subject to HMRC acceptance requirement by requirement.",
+            lines[start - 4])
+        self.assertNotIn("reduce duplication of evidence",
+                         "\n".join(lines))
+
+    def test_wco_safe_recognition_routes_are_not_exclusive(self):
+        """Review round 4 of finding WCO-SWEEP-REST-0507 (claude WARN 2
+        and NOTE 1): the supply chain programme matrix's WCO SAFE summary
+        row said recognition "runs through" MRAs and the note after the
+        programme-pair table said it "comes from" other Customs
+        administrations through MRAs, which reads as the only route. Held
+        lines 5212 to 5216 list recognition via MRAs as one benefit, and
+        held Section VII, 2.1 (lines 3578 to 3607) presumes recognition
+        within a regional Customs union AEO programme without separate or
+        additional MRAs. The summary row (_WCO_SUMMARY_MUTUAL_RECOGNITION)
+        and the note name both routes, the note quoting the held Customs
+        union text (_WCO_HELD_CUSTOMS_UNION), and the note no longer
+        speaks of a mutual-recognition basis for evidence reuse."""
+        text = (REPO_ROOT / "supply-chain/matrix-supply-chain-security-"
+                "programme-alignment.md").read_text(encoding="utf-8")
+        for wording in ("runs through mutual recognition",
+                        "recognition comes from other Customs "
+                        "administrations through",
+                        "mutual-recognition basis for evidence reuse"):
+            with self.subTest(wording=wording):
+                self.assertNotIn(wording, text)
+        row = [line for line in text.splitlines()
+               if line.startswith("| **WCO SAFE Framework** |")]
+        self.assertEqual(len(row), 1, row)
+        self.assertIn(self._WCO_SUMMARY_MUTUAL_RECOGNITION, row[0])
+        note = self._supply_chain_mra_note()
+        self.assertIn(
+            "so recognition by other Customs administrations can come "
+            "through mutual recognition arrangements or agreements (MRAs). "
+            "MRAs are not the only route: its Section VII, 2.1, on regional "
+            "Customs union AEO programmes, says that under that concept "
+            f"\"{self._WCO_HELD_CUSTOMS_UNION[0]}\", so businesses "
+            f"\"{self._WCO_HELD_CUSTOMS_UNION[1]}\".", note)
+
+    # The glossary's AEO entry (review round 3: codex WARN 1, claude NOTE
+    # 2, agy finding 2): held lines 3701 to 3703, Annex I Definitions,
+    # define the AEO as the approved operator.
+    _WCO_HELD_AEO_DEFINITION = (
+        "a party involved in the international movement of goods in "
+        "whatever function that has been approved by or on behalf of a "
+        "national Customs administration as complying with WCO or "
+        "equivalent supply chain security standards")
+
+    def test_glossary_aeo_is_the_approved_operator(self):
+        """Review round 3 of finding WCO-SWEEP-REST-0507 (codex WARN 1,
+        claude NOTE 2, agy finding 2): the glossary defined the AEO as a
+        "WCO SAFE Framework partnership programme", but held lines 3701 to
+        3703 define it as the approved operator. The entry now quotes that
+        definition (_WCO_HELD_AEO_DEFINITION) and describes the national
+        AEO programmes and the Framework's guidance role
+        (_WCO_HELD_GUIDANCE) in separate sentences."""
+        glossary = (REPO_ROOT / "governance/register-glossary.md"
+                    ).read_text(encoding="utf-8")
+        rows = [line for line in glossary.splitlines()
+                if line.startswith("| **AEO** |")]
+        self.assertEqual(rows, [
+            "| **AEO** | Authorized Economic Operator. The operator, not the "
+            "programme: the WCO SAFE Framework (2025 edition) defines an AEO "
+            f"as \"{self._WCO_HELD_AEO_DEFINITION}\". National customs "
+            "authorities approve operators under national or regional "
+            "Customs union AEO programmes (the Framework's Section VII, "
+            "2.1), which grant trade facilitation benefits. The Framework "
+            "itself is not a programme: it provides "
+            f"{self._WCO_HELD_GUIDANCE}. |"])
+        self.assertNotIn("Framework partnership programme", rows[0])
+        # Review round 4 (claude NOTE 2): "under their own AEO programmes"
+        # left out the regional Customs union AEO programmes of held
+        # Section VII, 2.1 (lines 3578 to 3607).
+        self.assertNotIn("under their own AEO programmes", rows[0])
+
+    def test_wco_legend_test_docstring_and_spacing(self):
+        """Review round 3 of finding WCO-SWEEP-REST-0507 (claude NOTE 6):
+        the WCO SAFE legend test's docstring said element M was on "two
+        rows" beside "element M is on three rows", and its continuity row
+        assignment had lost the space before its opening parenthesis."""
+        doc = " ".join(
+            self.test_wco_safe_matrix_legend_describes_the_column
+            .__doc__.split())
+        self.assertNotIn("M (two rows)", doc)
+        self.assertIn("element M is on three rows", doc)
+        source = Path(__file__).read_text(encoding="utf-8")
+        self.assertIn('        continuity = ("supply-chain/annex-trade-and-'
+                      'supply-chain-"\n', source)
+        self.assertEqual(re.findall(r"\n[ ]+[a-z_]+ =\(", source), [])
+
+    def test_wco_safe_splitter_docstring_quotes_a_current_cell(self):
+        """Finding WCO-SWEEP-REST-0507: the docstring of
+        _xw_split_identifiers in .web/build.py gave "Pillar II
+        (Customs-to-Business; Standard 6)" as its example, a cell the WCO
+        SAFE attribution sweep retired (the held Pillar 2 Standard 6 is
+        Facilitation). The example it quotes is a piece of a current
+        compliance matrix cell, holds a separator inside parentheses, and
+        is not split."""
+        doc = " ".join(self.mod._xw_split_identifiers.__doc__.split())
+        quoted = re.findall(r'"([^"]+)"', doc)
+        self.assertEqual(len(quoted), 1, quoted)
+        example = quoted[0]
+        self.assertRegex(example, r"\([^)]*[,;][^)]*\)")
+        self.assertEqual(self.mod._xw_split_identifiers(example), [example])
+        _matrix_text, rows = self._compliance_matrix_rows()
+        pieces = {piece for row in rows for cell in row["cells"].values()
+                  for piece in self.mod._xw_split_identifiers(cell)}
+        self.assertIn(example, pieces)
+
+    def test_wco_safe_compound_and_trailing_limits_are_stated(self):
+        """Finding WCO-SWEEP-REV7-0922: two guard limits a reviewer found
+        were not disclosed. Compound wording ending in a one-word held
+        title and another kind's noun is reported under the kind-noun
+        rule, and emphasis after a full stop or a closing curly quotation
+        mark (U+201D) after a citation is reported as trailing text. The
+        cases are pinned as reported, and the docstrings of
+        _wco_description_findings and _wco_unread_findings state them."""
+        described = " ".join(self._wco_description_findings.__doc__.split())
+        for case, word in (
+                ("Annex IV F, the information technology element",
+                 "Technology"),
+                ("Section VI, the crisis communication section",
+                 "Communication")):
+            with self.subTest(case=case):
+                document = self._wco_both_guards(case)[1]
+                self.assertTrue(any(f": names {word}," in finding
+                                    for finding in document), document)
+                self.assertIn(f'"{case}" (names {word})', described)
+        unread = " ".join(self._wco_unread_findings.__doc__.split())
+        for case, shown in (
+                ("Pillar II Standard 2 (Security).**",
+                 '"Pillar II Standard 2 (Security).**"'),
+                ("Pillar II Standard 2 (Security)”", "(U+201D)")):
+            with self.subTest(case=case):
+                matrix, document = self._wco_both_guards(case)
+                for findings in (matrix, document):
+                    self.assertTrue(any(": unread text after it:" in finding
+                                        for finding in findings), findings)
+                self.assertIn(shown, unread)
+        self.assertIn("finding WCO-SWEEP-REV7-0922", described)
+        self.assertIn("finding WCO-SWEEP-REV7-0922", unread)
 
     def test_wco_safe_alignment_references_name_held_parts(self):
         """WCO SAFE attribution sweep: framework-alignment tables gave WCO
@@ -14164,9 +15360,12 @@ class DraftSiteRenderTests(unittest.TestCase):
     # (parts as _wco_cited_parts gives them), which the two describe.
     _WCO_LEGEND = (
         "Pillar II references, Pillar II Standards 1 (Partnership) and 2 "
-        "(Security), Annex IV elements (A, F, K, L and M) and Section VI "
-        "(Trade Continuity and Resumption); each standard, element and "
-        "section is cited with its held title")
+        "(Security), Annex IV elements (A, B, F, I, K, L and M) and Section "
+        "VI (Trade Continuity and Resumption); each standard, element and "
+        "section is cited with its held title; a cell that cites an Annex "
+        "IV element cites the element alone, or beside a numbered Pillar "
+        "II standard or Section VI, never beside a Pillar II reference "
+        "alone")
     _WCO_COVERAGE = (
         "Focused on Pillar II (Customs-to-Business Partnerships): chiefly "
         "Standard 2 (Security), with Standard 1 (Partnership) on eleven of "
@@ -14175,16 +15374,37 @@ class DraftSiteRenderTests(unittest.TestCase):
         "IV, mostly element F (Information Exchange, Access and "
         "Confidentiality), which carries the AEO's information security "
         "policy, with element K (Trading Partner Security) on all thirteen "
-        "business-partner rows and elements A, L and M on one row each; "
+        "business-partner rows, element B (Satisfactory System for "
+        "Management of Commercial Records) on the two records retention "
+        "rows, element M (Measurement, Analyses and Improvement) on three "
+        "rows, element I (Premises Security) on the IT infrastructure "
+        "physical security row for its IT rooms only, as restricted access "
+        "(\"Only properly identified and authorized persons, vehicles and "
+        "goods are permitted to access the facilities\") and access control "
+        "systems (\"There should be appropriate security systems, such as, "
+        "theft alarm and/or access control systems\"), not the building "
+        "perimeter, and elements A and L on one row each; "
         "Section VI (Trade Continuity "
         "and Resumption) is cited beside element L on the trade and "
         "supply-chain continuity row; Pillar I (Customs-to-Customs), "
         "including the Customs administrations' own ICT security strategy "
         "at 2.6.6, is largely outside this matrix's IT scope")
+    # Element I (Premises Security) as the IT infrastructure physical
+    # security standard evidences it (review round 3, claude NOTE 4): held
+    # lines 4978 to 4979 and held line 4991, quoted in the coverage row;
+    # and held line 4993, which the standard does not evidence.
+    _WCO_ELEMENT_I_HELD = (
+        "Only properly identified and authorized persons, vehicles and "
+        "goods are permitted to access the facilities",
+        "There should be appropriate security systems, such as, theft alarm "
+        "and/or access control systems")
+    _WCO_ELEMENT_I_UNSUPPORTED = (
+        "Restricted areas should be clearly identified")
     _WCO_COLUMN_PARTS = {
         ("Standard", "2", "1"), ("Standard", "2", "2"),
-        ("Annex IV", "A"), ("Annex IV", "F"), ("Annex IV", "K"),
-        ("Annex IV", "L"), ("Annex IV", "M"), ("Section", "VI"),
+        ("Annex IV", "A"), ("Annex IV", "B"), ("Annex IV", "F"),
+        ("Annex IV", "I"), ("Annex IV", "K"), ("Annex IV", "L"),
+        ("Annex IV", "M"), ("Section", "VI"),
     }
 
     def test_wco_safe_matrix_legend_describes_the_column(self):
@@ -14209,7 +15429,23 @@ class DraftSiteRenderTests(unittest.TestCase):
         number of rows citing each of elements A, L and M ("one row each",
         so citing any of them on a second row fails), and the row citing
         Section VI, which must be the trade and supply-chain continuity
-        row alone, citing element L beside it. The rest of the coverage
+        row alone, citing element L beside it. Finding WCO-SWEEP-REST-0507:
+        elements B, I and M were added to pillar-only cells
+        (_WCO_ELEMENT_ROWS), so the column key names elements A, B, F, I,
+        K, L and M, and the coverage row's counts for B (the two records
+        retention rows), M, I (the IT infrastructure physical security row)
+        and A and L (one row each) are taken from the cells. Review round
+        2: element M is on three rows, the sweep's two and the gap
+        assessment template (codex WARN 2); the coverage row limits element
+        I to the IT rooms, not the building perimeter (claude NOTE 2); and
+        the column key states when a cell cites an element alone (agy WARN
+        1). Review round 3 (claude NOTE 4): the coverage row quoted held
+        line 4993, "Restricted areas should be clearly identified", which
+        the standard does not evidence; it now quotes held lines 4978 to
+        4979 and 4991 (_WCO_ELEMENT_I_HELD), restricted access and access
+        control systems, which the standard's IT room access controls
+        carry. The rest of the
+        coverage
         row's wording (what each part holds, "chiefly", "mostly", Pillar
         I's scope) is pinned as text (_WCO_COVERAGE), not derived."""
         text, rows = self._compliance_matrix_rows()
@@ -14267,10 +15503,47 @@ class DraftSiteRenderTests(unittest.TestCase):
                  for row in rows}
         counts = {letter: sum(("Annex IV", letter) in cited
                               for cited in parts.values())
-                  for letter in "ALM"}
-        self.assertEqual(len(set(counts.values())), 1, counts)
-        self.assertIn(f"elements A, L and M on {words[counts['A']]} row each",
+                  for letter in "ABILM"}
+        self.assertEqual(counts["A"], counts["L"], counts)
+        self.assertIn(f"elements A and L on {words[counts['A']]} row each",
                       self._WCO_COVERAGE)
+        # Elements B, M and I (finding WCO-SWEEP-REST-0507), from the cells.
+        cited_by = {letter: sorted(path for path, cited in parts.items()
+                                   if ("Annex IV", letter) in cited)
+                    for letter in "BI"}
+        self.assertEqual(cited_by["B"], sorted(
+            path for path, cell in self._WCO_ELEMENT_ROWS.items()
+            if "Annex IV B " in cell))
+        self.assertIn("element B (Satisfactory System for Management of "
+                      f"Commercial Records) on the {words[counts['B']]} "
+                      "records retention rows", self._WCO_COVERAGE)
+        self.assertIn("element M (Measurement, Analyses and Improvement) on "
+                      f"{words[counts['M']]} rows", self._WCO_COVERAGE)
+        self.assertEqual(cited_by["I"], [
+            "operations/standard-physical-security-of-it-infrastructure.md"])
+        held_access, held_systems = self._WCO_ELEMENT_I_HELD
+        self.assertIn("element I (Premises Security) on the IT "
+                      "infrastructure physical security row for its IT "
+                      f"rooms only, as restricted access (\"{held_access}\") "
+                      "and access control systems "
+                      f"(\"{held_systems}\"), not the building perimeter",
+                      self._WCO_COVERAGE)
+        self.assertNotIn(self._WCO_ELEMENT_I_UNSUPPORTED, text)
+        standard = (REPO_ROOT / "operations/standard-physical-security-of-"
+                    "it-infrastructure.md").read_text(encoding="utf-8")
+        for evidence in ("all IT equipment rooms is restricted to "
+                         "authorized IT Operations personnel",
+                         "Physical access requires a credential"):
+            with self.subTest(evidence=evidence):
+                self.assertIn(evidence, standard)
+        self.assertNotIn("clearly identified", standard)
+        self.assertEqual(sorted(path for path, cited in parts.items()
+                                if ("Annex IV", "M") in cited), [
+            "compliance/logistics/template-trade-compliance-gap-"
+            "assessment.md",
+            "governance/framework-continuous-assurance-and-improvement.md",
+            "governance/framework-metrics-monitoring-and-performance-"
+            "reporting.md"])
         continuity = ("supply-chain/annex-trade-and-supply-chain-"
                       "continuity-controls.md")
         self.assertEqual(sorted(path for path, cited in parts.items()
@@ -15882,8 +17155,9 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
         by a neutral pointer to the cross-framework matrix, and the Version
         carries the branch's two PATCH bumps (1.12.8 to 1.12.10) plus round
         3 item 1's (1.12.11), item 3b788 draft round 3's WCO SAFE column
-        correction's (1.12.12) and the WCO SAFE attribution sweep's
-        (1.12.13)."""
+        correction's (1.12.12), the WCO SAFE attribution sweep's (1.12.13)
+        and its follow-up's (1.12.14, findings WCO-SWEEP-REST-0507 and
+        WCO-SWEEP-REV7-0922)."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -15894,7 +17168,7 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
                       "the [Cross-Framework Alignment Matrix]"
                       "(../governance/matrix-cross-framework-alignment.md).",
                       text)
-        self.assertIn("**Version:** 1.12.13\\\n", text)
+        self.assertIn("**Version:** 1.12.14\\\n", text)
 
     def test_quick_reference_purpose_matches_its_exception_rows(self):
         """Item 3: the Purpose said "the absolute prohibitions" though
@@ -15988,7 +17262,8 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
         with the Date kept. Item 3b788 draft round 3's WCO SAFE column
         correction bumps it again (1.12.12) and sets the Date to
         2026-11-06; the WCO SAFE attribution sweep bumps it once more
-        (1.12.13) with the same Date."""
+        (1.12.13) and its follow-up again (1.12.14), each with the same
+        Date."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -15997,7 +17272,7 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
                       "to the control domains and section references of "
                       "ten compliance, security, assurance, and AI-control "
                       "frameworks, so a reader can trace", text)
-        self.assertIn("**Version:** 1.12.13\\\n", text)
+        self.assertIn("**Version:** 1.12.14\\\n", text)
         self.assertIn("**Date:** 2026-11-06\\\n", text)
 
 

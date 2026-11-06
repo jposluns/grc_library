@@ -2,8 +2,8 @@
 
 **Document Title:** US CTPAT Full Minimum Security Criteria Controls Register\
 **Document Type:** Register\
-**Version:** 1.0.5\
-**Date:** 2026-07-02\
+**Version:** 1.0.6\
+**Date:** 2026-11-06\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md)\
@@ -23,7 +23,7 @@ This register documents the organization's implementation status against the ful
 **Programme authority:** U.S. Customs and Border Protection (CBP)\
 **UK equivalent:** Authorized Economic Operator to Security and Safety (AEO-S): see [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md)\
 **Canada equivalent:** Partners in Protection (PIP): see [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md)\
-**Mutual recognition:** CTPAT maintains mutual recognition arrangements with AEO (EU), UK AEO-S, and Canada PIP, providing reciprocal facilitation benefits for qualifying members.
+**Mutual recognition:** The concluded CTPAT arrangements the WCO AEO Compendium (2020) records include EU-US (May 2012, with AEO (EU)) and Canada-US (June 2008, with Canada PIP); confirm the facilitation each provides against the arrangement itself. A CTPAT and UK AEO-S arrangement is not confirmed by a held source: the Compendium lists US-United Kingdom only among MRAs being negotiated.
 
 ---
 
@@ -131,7 +131,7 @@ CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) 
 
 ## UK AEO-s parallel controls
 
-For each of the seven CTPAT domains, the equivalent AEO-S requirement exists under the UK HMRC AEO-S criteria. The mutual recognition arrangement between CTPAT and AEO-S means that evidence collected for CTPAT compliance can generally be reused for AEO-S, with the following jurisdiction-specific supplements:
+For each of the seven CTPAT domains, the equivalent AEO-S requirement exists under the UK HMRC AEO-S criteria. A CTPAT and AEO-S mutual recognition arrangement is not confirmed by a held source (the WCO AEO Compendium (2020) lists US-United Kingdom only among MRAs being negotiated), so evidence collected for CTPAT compliance is a candidate overlap for AEO-S, subject to HMRC acceptance requirement by requirement, with the following jurisdiction-specific supplements:
 
 | CTPAT Domain | AEO-S Supplement Required |
 |---|---|
