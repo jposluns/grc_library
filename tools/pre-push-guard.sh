@@ -2066,7 +2066,7 @@ shard_interrupted() {
 run_gate36_shards() {
     local count="${REGRESSION_SHARD_COUNT}" commit parent store i dir tree rc started
     local sibling ran verdict first_rc=0 failed="" reconcile_rc no_output="" out shown left
-    local list_rc root_shown then_run
+    local list_rc root_shown then_run remove_rc
     local identity owner_start owner_ns owner_boot owner_machine admin
     local -a statuses=() pairs=() unremoved=()
     trap 'shard_interrupted INT 130' INT
@@ -2218,6 +2218,11 @@ run_gate36_shards() {
     # A passing run removes every temporary checkout, then the shard
     # directory. rmtree removes the sibling links as links and never follows
     # them, and it runs only on a real directory named grc-gate36-shards.*.
+    # A failed rmtree is reported as one line (its exit status, then the
+    # exception type and message, or a fallback text when the removal ended
+    # without a message, for example by a signal), not as a traceback. That
+    # line and the WARNING after it name the shard directory bash-quoted
+    # with printf %q, so neither is split by a newline or CR in its path.
     for ((i = 1; i <= count; i++)); do
         tree="${shard_dirs[i]}/${REPO_NAME}"
         if out="$(git worktree remove --force "${tree}" 2>&1)"; then
@@ -2228,11 +2233,18 @@ run_gate36_shards() {
             echo "pre-push guard: WARNING: git worktree remove --force failed (rc=${rc}) for the shard checkout ${tree}: ${out//$'\n'/ }" >&2
         fi
     done
+    printf -v root_shown '%q' "${shard_root}"
     case "${shard_root##*/}" in
         grc-gate36-shards.?*)
-            if [ -d "${shard_root}" ] && [ ! -L "${shard_root}" ] \
-                    && python3 -I -c 'import shutil, sys; shutil.rmtree(sys.argv[1])' "${shard_root}"; then
-                rc=0
+            if [ -d "${shard_root}" ] && [ ! -L "${shard_root}" ]; then
+                if out="$(python3 -I -c $'import shutil, sys\ntry:\n    shutil.rmtree(sys.argv[1])\nexcept Exception as error:\n    sys.exit("%s: %s" % (type(error).__name__, error))' "${shard_root}" 2>&1)"; then
+                    rc=0
+                else
+                    remove_rc=$?
+                    rc=1
+                    out="${out//$'\n'/ }"
+                    echo "pre-push guard: removing the shard directory ${root_shown} failed (rc=${remove_rc}): ${out:-the removal process printed no message}" >&2
+                fi
             else
                 rc=1
             fi
@@ -2240,7 +2252,7 @@ run_gate36_shards() {
         *) rc=1 ;;
     esac
     if [ "${rc}" -ne 0 ]; then
-        echo "pre-push guard: WARNING: could not remove the shard directory ${shard_root}." >&2
+        echo "pre-push guard: WARNING: could not remove the shard directory ${root_shown}." >&2
     fi
     if [ "${#unremoved[@]}" -gt 0 ]; then
         # Report only, for this run's own checkouts: no repository-wide git
@@ -2255,7 +2267,6 @@ run_gate36_shards() {
         # its registration gone, the command for it alone, to run in this
         # clone.
         if out="$(git worktree list --porcelain 2>/dev/null)"; then list_rc=0; else list_rc=$?; fi
-        printf -v root_shown '%q' "${shard_root}"
         for tree in "${unremoved[@]}"; do
             printf -v shown '%q' "${tree}"
             if [ -e "${tree}" ] || [ -L "${tree}" ]; then
