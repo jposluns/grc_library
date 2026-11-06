@@ -5519,31 +5519,43 @@ CROSSWALK_ALIASES = {
     "revised 7 September 2021)": "pipl",
 }
 
-# Exact taxonomy framework strings that join several texts with " / " or
-# " and ": each part, in order, with the instrument it names, or None for a
-# part naming a text that is no crosswalk instrument (integration round 3
-# WARN: the Data Protection Act 2018 and ISO/IEC 27002 linked whole to the
-# UK GDPR and ISO/IEC 27001 pages; ISO/IEC 27002 has since gained its own
-# page, so that part now names it). The parts rejoined with one of
+# Exact taxonomy framework strings that join several texts with " / ",
+# " and " or ", ": each part, in order, with the instrument it names, or
+# None for a part naming a text that is no crosswalk instrument (integration
+# round 3 WARN: the Data Protection Act 2018 and ISO/IEC 27002 linked whole
+# to the UK GDPR and ISO/IEC 27001 pages; ISO/IEC 27002 has since gained its
+# own page, so that part now names it). The parts rejoined with one of
 # CROSSWALK_ALIAS_PARTS_JOINERS must give the string back, every key must
 # name a configured instrument, at least one part must name one, and no
 # string may also sit in CROSSWALK_ALIASES (build errors), so a chip links
 # each instrument it names and nothing it does not. Only the listed strings
-# are split: " and " also sits inside many single names in the taxonomy
-# ("DORA Articles 17 and 19", "CSA Security Trust Assurance and Risk
-# (STAR)"), so no other string is split on it (item 3b788 draft round 2).
-CROSSWALK_ALIAS_PARTS_JOINERS = (" / ", " and ")
+# are split: " and " and ", " also sit inside many single names in the
+# taxonomy ("DORA Articles 17 and 19", "CSA Security Trust Assurance and
+# Risk (STAR)", "CSA CCM v4.1 SEF-08, SEF-03"), so no other string is split
+# on them (item 3b788 draft round 2). A string joining texts none of which
+# is a crosswalk instrument stays whole (finding XW-GDPR-CHIP-2128 sweep).
+CROSSWALK_ALIAS_PARTS_JOINERS = (" / ", " and ", ", ")
 CROSSWALK_ALIAS_PARTS = {
     "CSA CCM v4.1 / AICM v1.1": (
         ("CSA CCM v4.1", "csa-ccm"), ("AICM v1.1", "csa-aicm")),
     "CTPAT / PIP / BASC": (
         ("CTPAT", "ctpat"), ("PIP", "pip"), ("BASC", "basc")),
+    "EU AI Act, GDPR": (
+        ("EU AI Act", "eu-ai-act"), ("GDPR", "gdpr")),
+    # Finding XW-GDPR-CHIP-2128: the BMS overlay annex's one chip linked
+    # none of the three texts it names.
+    "GDPR / UK GDPR / CCPA": (
+        ("GDPR", "gdpr"), ("UK GDPR", "gdpr"), ("CCPA", None)),
+    "GDPR / UK GDPR / equivalents": (
+        ("GDPR", "gdpr"), ("UK GDPR", "gdpr"), ("equivalents", None)),
     "ISO/IEC 27018:2025 and ISO/IEC 27701:2025": (
         ("ISO/IEC 27018:2025", None),
         ("ISO/IEC 27701:2025", "iso-iec-27701")),
     "ISO/IEC 27001:2022 / ISO/IEC 27002:2022": (
         ("ISO/IEC 27001:2022", "iso-iec-27001"),
         ("ISO/IEC 27002:2022", "iso-iec-27002")),
+    "PIPEDA / CPPA (CPPA lapsed, not in force)": (
+        ("PIPEDA", "pipeda"), ("CPPA (CPPA lapsed, not in force)", None)),
     "PIPEDA / Quebec Law 25": (
         ("PIPEDA", "pipeda"), ("Quebec Law 25", "quebec-law-25")),
     "UK GDPR / Data Protection Act 2018": (
@@ -8198,7 +8210,7 @@ def build_crosswalk(full_docs):
         if crosswalk_parts_joiner(name, parts) is None:
             raise BuildError(
                 f"crosswalk: the CROSSWALK_ALIAS_PARTS parts of '{name}' do "
-                "not rejoin with ' / ' or ' and ' to the string"
+                "not rejoin with ' / ', ' and ' or ', ' to the string"
             )
         if all(key is None for _, key in parts):
             raise BuildError(

@@ -11889,6 +11889,102 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.assertIn(chip, page, rel)
             self.assertNotIn("ISO/IEC 27018:2025</a> / <a", page, rel)
 
+    def _assert_split_compound(self, name, chip, whole_href, keys,
+                               must_carry=()):
+        """One compound split through CROSSWALK_ALIAS_PARTS (finding
+        XW-GDPR-CHIP-2128 and its sweep), pinned as literals: every document
+        page naming it shows the pinned chip, whose instrument parts link
+        their crosswalk pages and whose other parts keep the search address
+        an unknown single framework name gets, and never the whole string's
+        search address; each instrument page a part names lists every such
+        document, among them the pinned ones."""
+        docs = [d for d in self._full_taxonomy()
+                if name in d.get("frameworks", [])]
+        self.assertTrue(docs, f"a document names {name!r}")
+        self.assertLessEqual(set(must_carry), {d["path"] for d in docs})
+        self.assertEqual(self.mod.crosswalk_alias_keys(name), keys)
+        for d in docs:
+            href = self.mod._doc_page_url("", d["path"])
+            rel = _page_rel_for(href)
+            page = self.draft_html[rel]
+            self.assertIn(chip, page, rel)
+            self.assertNotIn(f'href="{whole_href}"', page, rel)
+            for key in set(keys):
+                self.assertIn(href, self._citation_hrefs(key), (rel, key))
+
+    def test_gdpr_uk_gdpr_ccpa_chip_links_each_instrument(self):
+        """Finding XW-GDPR-CHIP-2128: "GDPR / UK GDPR / CCPA" had no alias
+        parts, so the BMS overlay annex page showed it as one chip searching
+        the whole string. GDPR and UK GDPR now link the GDPR page, and CCPA,
+        no crosswalk instrument, keeps a search for itself alone, as an
+        unknown single name does."""
+        self._assert_split_compound(
+            "GDPR / UK GDPR / CCPA",
+            '<li><a href="/crosswalk/gdpr/">GDPR</a> / '
+            '<a href="/crosswalk/gdpr/">UK GDPR</a> / '
+            '<a href="/search/?q=CCPA">CCPA</a></li>',
+            "/search/?q=GDPR+%2F+UK+GDPR+%2F+CCPA", ("gdpr", "gdpr"),
+            must_carry=("operations/ot/annex-bms-overlay.md",))
+
+    def test_gdpr_uk_gdpr_equivalents_chip_links_each_instrument(self):
+        """Finding XW-GDPR-CHIP-2128 sweep: "GDPR / UK GDPR / equivalents"
+        names GDPR and UK GDPR; both link the GDPR page and "equivalents",
+        naming no instrument, keeps its own search address."""
+        self._assert_split_compound(
+            "GDPR / UK GDPR / equivalents",
+            '<li><a href="/crosswalk/gdpr/">GDPR</a> / '
+            '<a href="/crosswalk/gdpr/">UK GDPR</a> / '
+            '<a href="/search/?q=equivalents">equivalents</a></li>',
+            "/search/?q=GDPR+%2F+UK+GDPR+%2F+equivalents", ("gdpr", "gdpr"),
+            must_carry=("dev-security/standard-mobile-application-security"
+                        ".md",))
+
+    def test_pipeda_cppa_chip_links_pipeda(self):
+        """Finding XW-GDPR-CHIP-2128 sweep: "PIPEDA / CPPA (CPPA lapsed, not
+        in force)" names PIPEDA, which links its page, and the lapsed CPPA
+        bill, no crosswalk instrument, which keeps its own search address."""
+        self._assert_split_compound(
+            "PIPEDA / CPPA (CPPA lapsed, not in force)",
+            '<li><a href="/crosswalk/pipeda/">PIPEDA</a> / '
+            '<a href="/search/?q=CPPA+%28CPPA+lapsed%2C+not+in+force%29">'
+            'CPPA (CPPA lapsed, not in force)</a></li>',
+            "/search/?q=PIPEDA+%2F+CPPA+%28CPPA+lapsed%2C+not+in+force%29",
+            ("pipeda",),
+            must_carry=("privacy/template-privacy-notice.md",))
+
+    def test_eu_ai_act_gdpr_comma_chip_links_both(self):
+        """Finding XW-GDPR-CHIP-2128 sweep: "EU AI Act, GDPR", on the three
+        cloud hardening baselines, joins two crosswalk instruments with ", ";
+        its chip links both pages and keeps the comma the taxonomy wrote."""
+        self._assert_split_compound(
+            "EU AI Act, GDPR",
+            '<li><a href="/crosswalk/eu-ai-act/">EU AI Act</a>, '
+            '<a href="/crosswalk/gdpr/">GDPR</a></li>',
+            "/search/?q=EU+AI+Act%2C+GDPR", ("eu-ai-act", "gdpr"),
+            must_carry=tuple(
+                f"dev-security/standard-cloud-hardening-baseline-{cloud}.md"
+                for cloud in ("aws", "azure", "gcp")))
+
+    def test_no_unsplit_compound_has_an_aliased_part(self):
+        """Finding XW-GDPR-CHIP-2128 sweep guard: no taxonomy framework
+        string outside both instrument maps splits on " / ", " and " or
+        ", " into pieces one of which is itself an exact CROSSWALK_ALIASES
+        spelling, so a new compound naming an instrument in an aliased form
+        fails here until it is split or aliased. Matcher limit: a piece
+        naming an instrument in an unaliased form (for example "EU GDPR
+        (Regulation 2016/679)") is not caught, and neither is a compound
+        whose instrument part is unaliased."""
+        aliases = self.mod.CROSSWALK_ALIASES
+        parts = self.mod.CROSSWALK_ALIAS_PARTS
+        names = {n for d in self._full_taxonomy()
+                 for n in d.get("frameworks", [])}
+        unsplit = sorted(
+            name for name in names
+            if name not in aliases and name not in parts
+            and any(piece in aliases for joiner in (" / ", " and ", ", ")
+                    for piece in name.split(joiner) if piece != name))
+        self.assertEqual(unsplit, [])
+
     # -- 41. the standards and frameworks page -------------------------------
 
     _STANDARDS_REGISTER_COLUMNS = [
@@ -12492,6 +12588,23 @@ class DraftIntegrationRound2GuardTests(unittest.TestCase):
         self._crosswalk_with_parts({name: parts})
         self.assertEqual(self.mod.crosswalk_parts_joiner(name, parts),
                          " and ")
+
+    def test_parts_joined_with_comma_build(self):
+        """Finding XW-GDPR-CHIP-2128 sweep: a compound whose parts rejoin
+        with ", " to its string builds, and its chips use that joiner."""
+        name = "EU AI Act, GDPR"
+        parts = (("EU AI Act", "eu-ai-act"), ("GDPR", "gdpr"))
+        self._crosswalk_with_parts({name: parts})
+        self.assertEqual(self.mod.crosswalk_parts_joiner(name, parts), ", ")
+
+    def test_rejoin_error_names_every_joiner(self):
+        """Finding XW-GDPR-CHIP-2128 sweep: the rejoin build error names
+        each accepted joiner, ", " among them."""
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    "' / ', ' and ' or ', '"):
+            self._crosswalk_with_parts(
+                {"EU AI Act, GDPR": (("EU AI Act", "eu-ai-act"),
+                                     ("EU GDPR", "gdpr"))})
 
     def test_parts_mixing_joiners_fail(self):
         """Item 3b788 draft round 2: one compound's parts rejoin with one
