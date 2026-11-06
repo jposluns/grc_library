@@ -68,13 +68,6 @@
     },
     {
       "class": "policy",
-      "corpus_path": "compliance/public-sector/annex-public-sector-requirements.md",
-      "display_name": "Public Sector GRC Requirements Annex",
-      "id": "GRC-ANNEX-PUBLIC-SECTOR-REQUIREMENTS",
-      "source_identifier": null
-    },
-    {
-      "class": "policy",
       "corpus_path": "ai/charter-ai-ethics-review-panel.md",
       "display_name": "AI Ethics Review Panel Charter",
       "id": "GRC-CHARTER-AI-ETHICS-REVIEW-PANEL",
@@ -18952,7 +18945,7 @@
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 201,
+    "node_count": 200,
     "record_count": 548,
     "records_by_relationship_class": {
       "commitment": 1,

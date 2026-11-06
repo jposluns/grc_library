@@ -1351,13 +1351,6 @@
       "corpus_path": "ai/register-model-registry.md"
     },
     {
-      "id": "GRC-ANNEX-PUBLIC-SECTOR-REQUIREMENTS",
-      "display_name": "Public Sector GRC Requirements Annex",
-      "class": "policy",
-      "source_identifier": null,
-      "corpus_path": "compliance/public-sector/annex-public-sector-requirements.md"
-    },
-    {
       "id": "GRC-GDL-ESG-AI-ETHICS-DISCLOSURE",
       "display_name": "ESG and AI Ethics Disclosure Guideline",
       "class": "guideline",

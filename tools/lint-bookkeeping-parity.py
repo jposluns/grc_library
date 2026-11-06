@@ -399,17 +399,22 @@ INCEPTION = 329
 # invisible while this check's window was empty.
 KNOWN_HANDOFF_NO_ROW: frozenset[int] = frozenset({300, 322, 334, 1054})
 
-# Never-merged PR numbers that fall INSIDE a contiguous weekly range in the root
-# CHANGELOG. The weekly headers cite gap-free PR ranges by convention (a skipped
-# number is shown in-range rather than as a visible gap), but this gate builds its
-# "every merged PR needs a QA row" universe by expanding those ranges, so a skipped
-# number would otherwise be demanded a validate-pr and a bypass-log row it can never
-# have. These PRs were opened-and-closed-without-merge (verified: no `(#N)` merge
-# commit on `main`), so excluding them is a false-positive fix, not a gate weakening.
+# Never-merged PR numbers that fall INSIDE a contiguous daily or weekly range in the
+# root CHANGELOG, or that are listed in advance of one. The roll-up headers cite
+# gap-free PR ranges by convention (a skipped number is shown in-range rather than as
+# a visible gap), but this gate builds its "every merged PR needs a QA row" universe
+# by expanding those ranges, so a skipped number would otherwise be demanded a
+# validate-pr and a bypass-log row it can never have. These PRs were
+# opened-and-closed-without-merge (verified: no `(#N)` merge commit on `main`), so
+# excluding them is a false-positive fix, not a gate weakening.
 # #2698 is not a PR but an issue number (closed; commit 35549cb6 records it, 3b336).
 # #2961 is a Dependabot bump closed without merge on 2026-10-28; the root CHANGELOG
 # `Week of 2026-10-19 (PRs #2853-#2981)` roll-up shows it in range.
-KNOWN_SKIPPED_PRS: frozenset[int] = frozenset({1092, 1093, 1221, 1400, 1471, 1493, 1648, 2083, 2653, 2698, 2961})
+# #3071 is the original 3b782 PR, closed without merge on 2026-11-06 by maintainer
+# decision; the same change (item 3b782) is re-landed as a new PR. It is listed in
+# advance so the coming 2026-11-03 daily roll-up, and the weekly roll-up after it,
+# which will span #3071, pass gate 50.
+KNOWN_SKIPPED_PRS: frozenset[int] = frozenset({1092, 1093, 1221, 1400, 1471, 1493, 1648, 2083, 2653, 2698, 2961, 3071})
 
 # A row whose Findings cell marks the PR as a session-closing handoff
 # (validate-pr + retro both legitimately skipped, the loop-break).
