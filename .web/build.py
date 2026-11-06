@@ -5517,9 +5517,11 @@ CROSSWALK_ALIASES = {
     "BASC International Security Standard 6.0.2/6.0.3 (2022)": "basc",
     "WCO SAFE Framework": "wco-safe",
     "WCO SAFE Framework (2025 edition)": "wco-safe",
-    "WCO SAFE Framework of Standards: ICT security pillar": "wco-safe",
+    "WCO SAFE Framework (2025 edition), Pillar 1 Standard 6 §2.6.6 (ICT "
+    "Security)": "wco-safe",
     "AEO-S (UK)": "aeo",
     "AEO-S IT Control Requirements": "aeo",
+    "UK HMRC AEO / AEO-S guidance": "aeo",
     "COBIT 2019": "cobit",
     "COBIT 2019 APO14.09, DSS01": "cobit",
     "COBIT 2019 BAI06 (Managed IT Changes)": "cobit",
@@ -5535,7 +5537,6 @@ CROSSWALK_ALIASES = {
     "PIPEDA Sch 1 Principle 9 (amendment)": "pipeda",
     "PIPEDA Sch 1 Principle 9 (Individual Access)": "pipeda",
     "Quebec Law 25": "quebec-law-25",
-    "Quebec Law 25 (Canada, CQLR c. P-39.1)": "quebec-law-25",
     "Quebec Law 25 (S.Q. 2021, c. 25)": "quebec-law-25",
     "Quebec Law 25 (CQLR c. P-39.1) sections 3.3 and 12.1 (private "
     "sector)": "quebec-law-25",

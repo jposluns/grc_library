@@ -11230,7 +11230,8 @@ class DraftSiteRenderTests(unittest.TestCase):
     }
     # Plain-text names the matcher hits that name a different text than the
     # instrument: a namesake, or guidance, a profile, or a regulation made
-    # under the instrument. Each stays unaliased, by design.
+    # under the instrument, or a statute the instrument amends. Each stays
+    # unaliased, by design.
     NOT_INSTRUMENT_NAMES = {
         "Accelerate (DORA research)":
             "DORA here is DevOps Research and Assessment",
@@ -11276,8 +11277,12 @@ class DraftSiteRenderTests(unittest.TestCase):
             "the HITRUST Common Security Framework, not the NIST CSF",
         "NIS 2 Implementing Acts":
             "the implementing acts made under NIS 2",
-        "UK HMRC AEO / AEO-S guidance":
-            "HMRC guidance on the AEO programme",
+        # Review of 247cd21f8 (codex ERROR): CQLR c. P-39.1 is the
+        # private-sector statute Law 25 amended, while the citations
+        # register row for Quebec Law 25 names the amending act.
+        "Quebec Law 25 (Canada, CQLR c. P-39.1)":
+            "names CQLR c. P-39.1, the private-sector statute Law 25 "
+            "amended, not the amending act the register row names",
     }
     # Separate texts that name no crosswalk instrument but sit beside one in
     # a taxonomy string (integration round 3 WARN: each linked whole to the
@@ -11685,8 +11690,11 @@ class DraftSiteRenderTests(unittest.TestCase):
         pages' citation sentence does, and the meta line claims only the
         counted union. The qualifier stays needed because the alias map
         resolves exact spellings only: since XW-GDPR-CHIP-2128 review
-        follow-up 2 every current single-instrument taxonomy spelling is
-        aliased, so the former witness "COBIT 2019 DSS05" now counts, and
+        follow-up 2 every current taxonomy spelling that the concern-page
+        matcher (INSTRUMENT_NAME_RES) ties to an instrument is aliased or a
+        listed namesake or derived text (NOT_INSTRUMENT_NAMES), so the
+        former witness "COBIT 2019 DSS05" now counts; a spelling naming an
+        instrument in a form the matcher does not list is not checked, and
         any other spelling of the same instrument still counts toward
         none."""
         comply = self.draft_html["comply/index.html"]
@@ -11895,7 +11903,13 @@ class DraftSiteRenderTests(unittest.TestCase):
     # The single-instrument taxonomy spellings that had no alias at
     # 5c28b6d5c (XW-GDPR-CHIP-2128 review follow-up 2), each with the
     # instrument it names, pinned so the sweep below cannot pass on a
-    # taxonomy that no longer carries them.
+    # taxonomy that no longer carries them. Review of 247cd21f8: "UK HMRC
+    # AEO / AEO-S guidance" is the aeo instrument itself, which the
+    # citations register defines by that guidance; the WCO SAFE spelling
+    # is the AEO procedure's corrected citation (the Framework has no ICT
+    # security pillar; ICT Security is 2.6.6 under Pillar 1, Standard 6);
+    # "Quebec Law 25 (Canada, CQLR c. P-39.1)" left for
+    # NOT_INSTRUMENT_NAMES.
     _XW_FOLLOWUP2 = {
         "ISO/IEC 27001:2022 Annex A.5.33": "iso-iec-27001",
         "ISO/IEC 27001:2022 Annex A.5.36 (Compliance with policies, rules "
@@ -11937,20 +11951,21 @@ class DraftSiteRenderTests(unittest.TestCase):
         "UK GDPR Art. 20": "gdpr",
         "UK GDPR Art. 21": "gdpr",
         "UK GDPR Arts. 22A-22D (per the UK annex)": "gdpr",
-        "WCO SAFE Framework of Standards: ICT security pillar": "wco-safe",
+        "WCO SAFE Framework (2025 edition), Pillar 1 Standard 6 §2.6.6 (ICT "
+        "Security)": "wco-safe",
+        "UK HMRC AEO / AEO-S guidance": "aeo",
         "COBIT 2019 BAI06 (Managed IT Changes)": "cobit",
         "COBIT 2019 DSS05": "cobit",
         "Canada PIPEDA (OPC Fair Information Principles)": "pipeda",
         "PIPEDA Sch 1 Principle 3 (withdrawal of consent)": "pipeda",
         "PIPEDA Sch 1 Principle 9 (amendment)": "pipeda",
         "PIPEDA Sch 1 Principle 9 (Individual Access)": "pipeda",
-        "Quebec Law 25 (Canada, CQLR c. P-39.1)": "quebec-law-25",
     }
 
     def test_every_single_instrument_spelling_is_aliased(self):
         """XW-GDPR-CHIP-2128 review follow-up 2: single-instrument spellings
-        such as "GDPR Art. 15" and "Quebec Law 25 (Canada, CQLR c. P-39.1)"
-        had no alias, so they rendered unlinked and counted on no page.
+        such as "GDPR Art. 15" and "COBIT 2019 DSS05" had no alias, so they
+        rendered unlinked and counted on no page.
         Every taxonomy framework string outside both instrument maps that
         the concern-page matcher (INSTRUMENT_NAME_RES) ties to an instrument
         is a listed namesake or derived text (NOT_INSTRUMENT_NAMES); each
@@ -11982,6 +11997,74 @@ class DraftSiteRenderTests(unittest.TestCase):
                             and name in d.get("frameworks", []):
                         self.assertIn(mod._doc_page_url("", d["path"]),
                                       hrefs, d["path"])
+
+    _AEO_PROCEDURE = (
+        "compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md")
+
+    def test_hmrc_aeo_guidance_counts_on_the_aeo_page(self):
+        """Review of 247cd21f8 (claude ERROR): "UK HMRC AEO / AEO-S
+        guidance" sat in NOT_INSTRUMENT_NAMES as guidance on the AEO
+        programme, but the citations register defines the aeo instrument by
+        that HMRC guidance, so the UK AEO procedure that calls it its
+        primary regulatory driver counted toward WCO SAFE and ISO/IEC 27001
+        and not toward AEO. The spelling resolves to aeo and is no listed
+        exclusion, and the procedure is on the AEO page."""
+        name = "UK HMRC AEO / AEO-S guidance"
+        self.assertNotIn(name, self.NOT_INSTRUMENT_NAMES)
+        self.assertEqual(self.mod.crosswalk_alias_keys(name), ("aeo",))
+        docs = [d for d in self._full_taxonomy()
+                if name in d.get("frameworks", [])]
+        self.assertIn(self._AEO_PROCEDURE, [d["path"] for d in docs])
+        hrefs = self._citation_hrefs("aeo")
+        for d in docs:
+            self.assertIn(self.mod._doc_page_url("", d["path"]), hrefs,
+                          d["path"])
+
+    def test_quebec_p39_1_spelling_is_not_a_law_25_alias(self):
+        """Review of 247cd21f8 (codex ERROR): "Quebec Law 25 (Canada, CQLR
+        c. P-39.1)" names the private-sector statute Law 25 amended, while
+        the register row for Quebec Law 25 names the amending act, so the
+        spelling is a listed exclusion with no alias, and the DPIA template
+        that carries it is not on the Quebec Law 25 page through it."""
+        name = "Quebec Law 25 (Canada, CQLR c. P-39.1)"
+        self.assertIn(name, self.NOT_INSTRUMENT_NAMES)
+        self.assertNotIn(name, self.mod.CROSSWALK_ALIASES)
+        self.assertEqual(self.mod.crosswalk_alias_keys(name), ())
+        docs = [d for d in self._full_taxonomy()
+                if name in d.get("frameworks", [])]
+        self.assertIn("privacy/template-dpia.md", [d["path"] for d in docs])
+        hrefs = self._citation_hrefs("quebec-law-25")
+        for d in docs:
+            if not any("quebec-law-25" in self.mod.crosswalk_alias_keys(n)
+                       for n in d.get("frameworks", [])):
+                self.assertNotIn(self.mod._doc_page_url("", d["path"]),
+                                 hrefs, d["path"])
+
+    def test_wco_safe_citation_names_no_ict_security_pillar(self):
+        """Review of 247cd21f8 (claude WARN, codex WARN, agy NOTE): the
+        UK AEO procedure cited a "WCO SAFE Framework of Standards: ICT
+        security pillar", but the held 2025 text rests on three pillars
+        (Customs-to-Customs, Customs-to-Business, Customs-to-other
+        Government Agencies) and puts ICT Security at 2.6.6, under Pillar 1
+        Standard 6. No taxonomy framework string naming WCO SAFE, and no
+        line of the procedure, names a security pillar (the cloud providers'
+        Security Pillar names are other texts), and the corrected spelling
+        links the WCO SAFE page."""
+        names = {n for d in self._full_taxonomy()
+                 for n in d.get("frameworks", [])}
+        wco = re.compile(self.INSTRUMENT_NAME_RES["wco-safe"])
+        self.assertEqual(
+            sorted(n for n in names
+                   if wco.search(n) and re.search(r"(?i)security pillar", n)),
+            [])
+        text = (REPO_ROOT / self._AEO_PROCEDURE).read_text(encoding="utf-8")
+        self.assertNotRegex(text, r"(?i)security pillar")
+        name = ("WCO SAFE Framework (2025 edition), Pillar 1 Standard 6 "
+                "§2.6.6 (ICT Security)")
+        self.assertIn(f"| {name} |", text)
+        self.assertEqual(self.mod.crosswalk_alias_keys(name), ("wco-safe",))
+        self.assertIn(self.mod._doc_page_url("", self._AEO_PROCEDURE),
+                      self._citation_hrefs("wco-safe"))
 
     def test_and_joined_compound_chip_keeps_its_separator(self):
         """Item 3b788 draft round 2: "ISO/IEC 27018:2025 and ISO/IEC
