@@ -17,10 +17,14 @@ The pin also records the package's build tools that the repository copies
 outside the served tree, never served: exactly the paths in
 ``PINNED_TOOLS`` (the palette gate ``.baseline/check_palette.py``, which the
 package's adoption step 3 pins in the same ``[files]`` table and the site
-build runs, and the overflow check ``.baseline/check_overflow.js``, which the
-package's specification pins like the palette gate and which no gate runs).
+build runs; the overflow check ``.baseline/check_overflow.js``, which the
+package's specification pins like the palette gate and which no gate runs;
+and the package's link-preview card builder
+``.baseline/build_card.js`` with its 3 Inter fonts and their licence under
+``.baseline/card-fonts/``, which no build or gate runs).
 Each is verified like a copied file: a regular file, not a symbolic link,
-under a real ``.baseline`` directory, whose SHA-256 matches its pin entry; a
+reached through real directories from ``.baseline`` down (``.baseline`` and,
+for the fonts, ``.baseline/card-fonts``), whose SHA-256 matches its pin entry; a
 pinned tool that is missing, a tool present with no pin entry, and a pin with
 no entry for a ``PINNED_TOOLS`` path (the pin must include every one, file or
 no file) are findings.
@@ -42,8 +46,9 @@ of every pinned tool, and compares them with the pin. It fails on:
   (the pin governs only the vendored tree and those tools; a key elsewhere
   would silently extend its authority);
 - a pinned tool whose bytes drift from the pin, that is missing, that is a
-  symbolic link or not a regular file, or whose ``.baseline`` directory is a
-  symbolic link or not a real directory; a tool present with no pin entry;
+  symbolic link or not a regular file, or whose ``.baseline`` directory (or
+  ``.baseline/card-fonts`` directory) is a symbolic link or not a real
+  directory; a tool present with no pin entry;
   and a ``PINNED_TOOLS`` path with no pin entry and no file;
 - a refused tree shape, found before traversal starts and named by path:
   a ``.web`` or ``.web/baseline`` entry that is a symbolic link or not a
@@ -91,9 +96,19 @@ HEX_DIGITS = frozenset("0123456789abcdef")
 # copied from the package's tools/check_palette.py, and the overflow check,
 # copied from its tools/check_overflow.js). Fixed paths: a new tool is a
 # reviewed edit here, never a pin key alone.
-TOOLS_DIR_REL = ".baseline"
 PINNED_TOOLS = frozenset({".baseline/check_palette.py",
-                          ".baseline/check_overflow.js"})
+                          ".baseline/check_overflow.js",
+                          # Baseline 1.10.0 (SPECIFICATION.md section 7.35):
+                          # the link-preview card builder, copied from the
+                          # package's tools/build_card.js, and its 3 Inter
+                          # fonts with their SIL OFL licence, copied from
+                          # tools/card-fonts/. Never served: the builder runs
+                          # only on a review machine, never in the build.
+                          ".baseline/build_card.js",
+                          ".baseline/card-fonts/Inter-Bold.otf",
+                          ".baseline/card-fonts/Inter-ExtraBold.otf",
+                          ".baseline/card-fonts/Inter-Regular.otf",
+                          ".baseline/card-fonts/inter-LICENSE.txt"})
 
 
 class PinError(Exception):
@@ -214,8 +229,9 @@ def tool_findings(root: Path, pinned: dict[str, str]) -> list[str]:
     """Findings for the pinned build tools (``PINNED_TOOLS``).
 
     Each tool is classified by ``lstat`` before anything is opened, as in
-    the vendored tree: a pinned tool must be a regular file under a real
-    ``.baseline`` directory (a symbolic link could alias other bytes) whose
+    the vendored tree: a pinned tool must be a regular file reached through
+    real directories from ``.baseline`` down (a symbolic link could alias
+    other bytes) whose
     SHA-256 matches its pin entry. A tool present with no pin entry is a
     finding too, so the build never runs an unpinned copy, and so is a pin
     with no entry for a tool even when the file is absent too: the pin must
@@ -223,7 +239,6 @@ def tool_findings(root: Path, pinned: dict[str, str]) -> list[str]:
     silently.
     """
     findings: list[str] = []
-    tools_dir = root / TOOLS_DIR_REL
     for rel in sorted(PINNED_TOOLS):
         path = root / rel
         if rel not in pinned:
@@ -235,8 +250,20 @@ def tool_findings(root: Path, pinned: dict[str, str]) -> list[str]:
                                 f"the pin must include every pinned tool "
                                 f"(pinned tool without a pin entry)")
             continue
-        if tools_dir.is_symlink() or not tools_dir.is_dir():
-            findings.append(f"{TOOLS_DIR_REL}: symbolic link or not a real "
+        # Every directory from .baseline down to the tool must be real: the
+        # card fonts sit one level deeper, in .baseline/card-fonts/, and a
+        # symbolic link there could alias other bytes as one at .baseline
+        # could. The first faulty directory is named, so each tool yields one
+        # finding.
+        bad_dir = None
+        for depth in range(1, len(Path(rel).parts)):
+            dir_rel = "/".join(Path(rel).parts[:depth])
+            dir_path = root / dir_rel
+            if dir_path.is_symlink() or not dir_path.is_dir():
+                bad_dir = dir_rel
+                break
+        if bad_dir is not None:
+            findings.append(f"{bad_dir}: symbolic link or not a real "
                             f"directory; a pinned tool must be reached "
                             f"through a real directory")
             continue

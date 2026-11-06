@@ -32,6 +32,11 @@ PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "to
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
+# The one pinned, byte-identical licence text outside .web/baseline/ that
+# main() drops from discovery (root-anchored, resolved against REPO_ROOT):
+# the Inter card-font licence that tools/lint-baseline-pin.py (gate 110) pins.
+PINNED_LICENCE_TEXT = (REPO_ROOT / ".baseline" / "card-fonts" / "inter-LICENSE.txt").resolve()
+
 SCAN_SUFFIXES = {".md", ".py", ".yaml", ".yml", ".json", ".toml", ".txt", ".cff"}
 
 EXEMPT_FILES = {
@@ -233,6 +238,13 @@ def main(argv: list[str]) -> int:
     # merely named baseline elsewhere is still scanned.
     baseline_tree = (REPO_ROOT / ".web" / "baseline").resolve()
     targets = [t for t in targets if not t.is_relative_to(baseline_tree)]
+    # The same route for the one pinned licence text outside that tree: the
+    # SIL OFL licence of the Inter card fonts, which baseline 1.10.0 copies to
+    # .baseline/card-fonts/ beside the card builder and gate 110 pins byte for
+    # byte (never served). Exactly that file and nothing wider: the rest of
+    # .baseline/ and of card-fonts/ is still scanned, and so is a file of the
+    # same name anywhere else, so no domain is added to ALLOW_LIST for it.
+    targets = [t for t in targets if t != PINNED_LICENCE_TEXT]
     # Same reasoning for the ephemeral build output: .web/dist/ is the
     # git-ignored render artefact (never committed, absent in CI), and from
     # PR 2b it carries the draft's byte-verified copy of the pinned tree above

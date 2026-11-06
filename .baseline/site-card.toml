@@ -1,0 +1,28 @@
+# site-card.toml: the data file of .baseline/build_card.js (baseline 1.10.0, SPECIFICATION.md section 7.35).
+# Copy, colours and the illustration are owner-approved inputs: change them only on the owner's instruction.
+# name, tld, line1 and line2 carry CARD_IMAGE_ALT in .web/build.py; sub is the subline of the live card image,
+# .web/static/images/grclibrary-card.png. It is not the home page's og:description, which .web/build.py takes from
+# the page's meta description (.web/templates-draft/landing.html).
+# Tags: with no description field the builder's card-tags.html would carry sub as og:description and
+# twitter:description. grc does not use card-tags.html: .web/build.py emits the link-preview head tags of every
+# indexable page itself (draft_head_tag_block) and fails a page that already carries an og: or twitter: tag, so no
+# description is set here.
+# For the owner's before and after preview: word_colour and background are grclibrary's palette values, so the
+# wordmark and background change from the live card's light blue on dark navy, and the illustration renders from
+# art, not from the live card's own artwork, so it looks different too. The layout is still open: the
+# builder reports, for either layout, what the Microsoft Teams crop would cut; agree side or centre with the owner.
+# Run from the repository root, naming the palettes: node .baseline/build_card.js --data .baseline/site-card.toml
+# --out <dir> --before .web/static/images/grclibrary-card.png --palettes .web/baseline/palettes.css. The builder's
+# default, ../palettes.css beside it, does not exist here, and logo needs it for the touch icon's background.
+
+site = "grclibrary"
+# layout = "centre"                     # "side" (the default) or "centre"; agree the layout with the owner
+name = "GRCLibrary"
+tld = ".ai"
+line1 = "Governance, risk, and compliance."
+line2 = "Engineered like software."
+sub = "360+ documents in 12 domains, with tooling for your AI to align and update them."   # the subline on the live card, .web/static/images/grclibrary-card.png
+art = "../.web/baseline/logos/grclibrary-card.svg"
+logo = "../.web/baseline/logos/grclibrary.svg"
+word_colour = "#bb75d0"                  # dark --brand of site-grclibrary, .web/baseline/palettes.css
+background = "#110814"                   # dark --bg of site-grclibrary, .web/baseline/palettes.css

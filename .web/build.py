@@ -383,7 +383,7 @@ GITHUB_BLOB_BASE = "https://github.com/jposluns/grc_library/blob/main/"
 SITE_BASE = "https://grclibrary.ai"
 
 # The shared-baseline CSP, copied byte for byte from the shared policy in
-# baseline 1.9.2 SPECIFICATION.md section 9 (unchanged since 1.3.1; section 9
+# baseline 1.10.0 SPECIFICATION.md section 9 (unchanged since 1.3.1; section 9
 # states that the light and dark switch of 1.6.0 needs no CSP change): the
 # same policy on every family site, and on every page here since the
 # promotion executed the recorded owner decision that ``/*`` takes this
@@ -3941,7 +3941,7 @@ def _doc_page_url(base, path):
 
 # ---------------------------------------------------------------------------
 # The /draft tree (PR 2b): the grclibrary.ai rebuild on the shared family site
-# template (baseline 1.9.2, pinned under .web/baseline/ by PR 2a). The tree is
+# template (baseline 1.10.0, pinned under .web/baseline/ by PR 2a). The tree is
 # VARIANT-SCOPED by Variant.draft_rules, renders from its own templates under
 # .web/templates-draft/, and is self-contained: every internal link and asset
 # is {{BASE}}-prefixed and the pinned baseline runtime files are copied to
@@ -5034,7 +5034,7 @@ _DRAFT_NARR_TABLE_RE = re.compile(r"<table>(.*?)</table>", re.S)
 
 # ---------------------------------------------------------------------------
 # The /draft/crosswalk/ pages (design C section 3.7 Version A, upgraded to
-# 3.8; on baseline 1.9.2, whose matrix.js arrived in 1.5.0, spec 7.30 to 7.32
+# 3.8; on baseline 1.10.0, whose matrix.js arrived in 1.5.0, spec 7.30 to 7.32
 # keep their 1.5.1 contract for a page without the opt-in column toggles
 # and column highlight that 1.7.0 adds, neither of which these pages use
 # since no page loads matrix.js, and every view's table takes the spec 7.34
@@ -5870,7 +5870,8 @@ def load_baseline_assets(baseline_dir=None, pin_path=None):
         digest = files[key]
         if key in UNSERVED_PIN_KEYS:
             # Pinned beside the copies but never served; run_palette_gate
-            # verifies and runs the palette gate, and gate 110 verifies both.
+            # verifies and runs the palette gate, and gate 110 verifies every
+            # unserved tool (the card builder and its fonts included).
             continue
         if not key.startswith(prefix) or not isinstance(digest, str):
             raise BuildError(
@@ -5904,7 +5905,7 @@ def load_baseline_assets(baseline_dir=None, pin_path=None):
     return assets
 
 
-# The palette gate (baseline 1.9.2 SPECIFICATION.md section 4 items 2 and 3):
+# The palette gate (baseline 1.10.0 SPECIFICATION.md section 4 items 2 and 3):
 # the package's tools/check_palette.py, copied to .baseline/check_palette.py
 # and pinned in .baseline/pin.toml beside the served copies, never served.
 # Every draft build runs it on the served palettes.css (the pin-verified
@@ -5923,7 +5924,22 @@ PALETTE_GATE_KEY = ".baseline/check_palette.py"
 # like the palette gate, never served. It needs Node.js and Playwright, so no
 # build or gate runs it.
 OVERFLOW_CHECK_KEY = ".baseline/check_overflow.js"
-UNSERVED_PIN_KEYS = frozenset({PALETTE_GATE_KEY, OVERFLOW_CHECK_KEY})
+# From the 1.10.0 baseline (SPECIFICATION.md section 7.35, README section 4
+# item 3) the link-preview card builder, tools/build_card.js, is copied to
+# .baseline/build_card.js and its 3 Inter fonts with their SIL OFL licence,
+# tools/card-fonts/, to .baseline/card-fonts/, and all 5 are pinned like the
+# palette gate. They are never served: the builder runs only on a review
+# machine with Node.js and Playwright, never in the deploy build, so no build
+# or gate runs it; gate 110 verifies every one against the pin.
+CARD_BUILDER_KEYS = frozenset({
+    ".baseline/build_card.js",
+    ".baseline/card-fonts/Inter-Bold.otf",
+    ".baseline/card-fonts/Inter-ExtraBold.otf",
+    ".baseline/card-fonts/Inter-Regular.otf",
+    ".baseline/card-fonts/inter-LICENSE.txt",
+})
+UNSERVED_PIN_KEYS = frozenset(
+    {PALETTE_GATE_KEY, OVERFLOW_CHECK_KEY} | CARD_BUILDER_KEYS)
 PALETTE_SITE = "grclibrary"
 PALETTE_CSS = WEB_DIR / "baseline" / "palettes.css"
 PALETTE_BASELINE_CSS = WEB_DIR / "baseline" / "baseline.css"

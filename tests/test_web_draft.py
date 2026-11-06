@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The promoted site tree (PR 2b's rebuild on the shared family site
-template, baseline 1.9.2, flipped to the site root at the draft-site
+template, baseline 1.10.0, flipped to the site root at the draft-site
 promotion, maintainer decisions 2026-11-04).
 
 What is locked here, each test failing without its feature:
@@ -341,14 +341,15 @@ What is locked here, each test failing without its feature:
    refused, so the build passes without the caveat; and the 404 page lead
    names each top bar link, in the bar's order, by its exact label, or,
    for a label listed in _404_LEAD_FORMS, by that fixed form only.
-39. Baseline 1.9.2 (CHANGELOG 1.7.0 to 1.9.2; spec sections 4 item 3, 6.1,
-   6.4, 7.24 and 7.29): the pin names 1.9.2, and the files 1.9.1 changes
-   that grc copies (baseline.css and the palette gate), the vendored
+39. Baseline 1.10.0 (CHANGELOG 1.7.0 to 1.10.0; spec sections 4 item 3,
+   6.1, 6.4, 7.24, 7.29 and 7.35): the pin names 1.10.0, and the files 1.9.1
+   changes that grc copies (baseline.css and the palette gate), the vendored
    NOTICE.md (its Inter item comes from 1.9.0), the files 1.8.0 changes or adds
    (palettes.css, matrix.js, the overflow check), and search.js, which 1.7.0
    changed, carry the release's digests in the pin, in the repository and,
-   for the served ones, in the draft copy; the card builder and its fonts
-   are not copied or pinned (a card change waits for the owner's approval);
+   for the served ones, in the draft copy; the 1.10.0 card builder and its
+   fonts are copied and pinned with 1.10.0's digests, never served, and the
+   live card is unchanged (a card change waits for the owner's approval);
    the overflow check is pinned beside the palette gate and, like it, never
    served; the served palettes.css gives grclibrary the 13 matrix tokens in
    all 4 of its light and dark forms, and the build's palette gate, which
@@ -478,7 +479,7 @@ from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# The draft CSP, copied from baseline 1.9.2 SPECIFICATION.md section 9
+# The draft CSP, copied from baseline 1.10.0 SPECIFICATION.md section 9
 # (unchanged since 1.3.1), the shared policy for draft pages; build.py must
 # carry it byte for byte.
 SPEC_SECTION_9_CSP = (
@@ -519,7 +520,25 @@ SCHEME_SCRIPT_TAG = (
 # which the site pins beside the palette gate, spec section 4 item 3), of
 # search.js, which 1.7.0 changed, and of scheme.js, which 1.6.0 added; every
 # other pinned file is unchanged from 1.6.1. 1.9.2 itself changes only
-# tools/build_card.js and the documents, none of which grc copies.
+# tools/build_card.js and the documents, none of which grc copied then.
+# The baseline 1.10.0 SHA256SUMS digests of the card builder and its fonts,
+# which item 3b788 copies to .baseline/ and pins beside the other tools
+# (spec 7.35), never served. 1.10.0 changes only tools/build_card.js,
+# tools/site-card.example.toml and the documents, and leaves every other
+# copied file byte-identical to 1.9.2 (its CHANGELOG), so every digest in
+# the pin is 1.10.0's and the pin's version is 1.10.0.
+RELEASE_1_10_0_CARD_DIGESTS = {
+    ".baseline/build_card.js":
+        "3d0cecc8851ff6a2e1cab8c3c7dfdbcebc35c8f02260581cbfcf47ad70d990df",
+    ".baseline/card-fonts/Inter-Bold.otf":
+        "00fd6f4691ee8884a33b46bf45851b341927c37c30064f558e1befb242971c49",
+    ".baseline/card-fonts/Inter-ExtraBold.otf":
+        "2012ceaf1470372c415f95c00495a1ad1ebdcd1cd6a6225808f011d459a9b12a",
+    ".baseline/card-fonts/Inter-Regular.otf":
+        "be6d709dcb730ddaf050cbdae6fe89bd56d5d14dc66885639bbf6f06bd03521b",
+    ".baseline/card-fonts/inter-LICENSE.txt":
+        "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a",
+}
 RELEASE_1_9_2_DIGESTS = {
     ".web/baseline/scheme.js":
         "39d035d986f53c987cbe92516b9a5fd499af5c7fcdda701ea896c63c45ef1634",
@@ -10012,12 +10031,14 @@ class DraftSiteRenderTests(unittest.TestCase):
         )
         prefix = ".web/baseline/"
         # Baseline 1.8.0 section 4 items 2 and 3: the palette gate and the
-        # overflow check are pinned beside the copies and never served.
+        # overflow check are pinned beside the copies and never served; from
+        # 1.10.0 (section 7.35) the card builder and its fonts are too.
         served = {key: digest for key, digest in pin["files"].items()
                   if key not in self.mod.UNSERVED_PIN_KEYS}
         self.assertEqual(set(pin["files"]) - set(served),
                          {".baseline/check_palette.py",
-                          ".baseline/check_overflow.js"})
+                          ".baseline/check_overflow.js",
+                          *self.mod.CARD_BUILDER_KEYS})
         for key, digest in served.items():
             self.assertTrue(key.startswith(prefix), key)
             rel = key[len(prefix):]
@@ -10036,8 +10057,11 @@ class DraftSiteRenderTests(unittest.TestCase):
                          "exactly the pinned files are copied")
         self.assertEqual(
             [rel for rel, _ in self.site_pages
-             if rel.endswith(("check_palette.py", "check_overflow.js"))], [],
-            "the palette gate and the overflow check are never served")
+             if rel.endswith(("check_palette.py", "check_overflow.js",
+                              "build_card.js", ".otf",
+                              "inter-LICENSE.txt"))], [],
+            "the palette gate, the overflow check, the card builder and its "
+            "fonts are never served")
 
     def test_pinned_scripts_are_the_release_script_set(self):
         """Baseline 1.7.0 SPECIFICATION.md section 8: "The 6 scripts are the
@@ -10099,30 +10123,39 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # -- 25. baseline 1.6.0: switch, scheme.js, dark palette, palette gate --
 
-    def test_pin_and_copies_are_baseline_1_9_2(self):
+    def test_pin_and_copies_are_baseline_1_10_0(self):
         """The 1.9.2 move (the owner's 1.9.1 notice: grclibrary.ai, whose
         documents page prompted the chip states, moves; the 1.9.2 notice:
-        move to 1.9.2 instead, with the same steps): the pin names 1.9.2,
-        and the copied files 1.9.0 to 1.9.2 change, with the files 1.8.0
+        move to 1.9.2 instead, with the same steps), then item 3b788's move to
+        1.10.0, which changes no copied file but the card builder: the pin
+        names 1.10.0, and the copied files 1.9.0 to 1.9.2 change, with the files 1.8.0
         changes or adds, search.js from 1.7.0 and scheme.js from 1.6.0,
         carry the release's SHA256SUMS digests in the pin, in the repository
-        and, for the served ones, in the draft copy; the card builder, its
-        fonts and its data file template are neither copied nor pinned (any
-        card change waits for the owner's approval of a before and after
-        preview, spec 7.35); the module docstring and the CSP comment name
-        the pinned version."""
+        and, for the served ones, in the draft copy; the 1.10.0 card builder
+        and its fonts (item 3b788, spec 7.35) are copied and pinned with the
+        1.10.0 SHA256SUMS digests and never served, while the data file
+        template is not copied and the site's data file is not pinned (the
+        live card changes only after the owner approves a before and after
+        preview); the module docstring and the CSP comment name the pinned
+        version."""
         import tomllib
         pin = tomllib.loads(
             (REPO_ROOT / ".baseline" / "pin.toml").read_text(encoding="utf-8")
         )
-        self.assertEqual(pin["version"], "1.9.2")
-        for card_tool in ("build_card.js", "card-fonts",
-                          "site-card.example.toml", "site-card.toml",
-                          "Inter-Regular.otf", "inter-LICENSE.txt"):
+        self.assertEqual(pin["version"], "1.10.0")
+        for key, digest in RELEASE_1_10_0_CARD_DIGESTS.items():
+            self.assertEqual(pin["files"].get(key), digest, f"{key} pin")
+            self.assertEqual(
+                hashlib.sha256((REPO_ROOT / key).read_bytes()).hexdigest(),
+                digest, f"{key} copy")
+            self.assertNotIn(
+                "assets/baseline/" + key[len(".baseline/"):], self.draft_all,
+                f"{key} is never served")
+        for card_data in ("site-card.example.toml", "site-card.toml"):
             self.assertFalse(
-                [key for key in pin["files"] if card_tool in key], card_tool)
-            self.assertFalse((REPO_ROOT / ".baseline" / card_tool).exists(),
-                             card_tool)
+                [key for key in pin["files"] if card_data in key], card_data)
+        self.assertFalse(
+            (REPO_ROOT / ".baseline" / "site-card.example.toml").exists())
         for key, digest in RELEASE_1_9_2_DIGESTS.items():
             self.assertEqual(pin["files"].get(key), digest, f"{key} pin")
             self.assertEqual(
@@ -13526,14 +13559,19 @@ class PaletteGateFixtureTests(unittest.TestCase):
             self.mod.run_palette_gate(pin_path=pin)
 
     def test_asset_copy_skips_only_the_tool_keys(self):
-        """The pin keys of the palette gate and, from baseline 1.8.0, the
-        overflow check are the only keys outside .web/baseline/ the asset
-        copy accepts, and neither is copied (served)."""
+        """The pin keys of the palette gate, from baseline 1.8.0 the
+        overflow check and from 1.10.0 the card builder and its fonts are
+        the only keys outside .web/baseline/ the asset copy accepts, and
+        none is copied (served)."""
         self.assertEqual(self.mod.UNSERVED_PIN_KEYS,
                          {self.mod.PALETTE_GATE_KEY,
-                          ".baseline/check_overflow.js"})
+                          ".baseline/check_overflow.js",
+                          *RELEASE_1_10_0_CARD_DIGESTS})
         assets = dict(self.mod.load_baseline_assets())
-        self.assertFalse({"check_palette.py", "check_overflow.js"}
+        self.assertFalse({"check_palette.py", "check_overflow.js",
+                          "build_card.js", "Inter-Bold.otf",
+                          "Inter-ExtraBold.otf", "Inter-Regular.otf",
+                          "inter-LICENSE.txt"}
                          & {Path(r).name for r in assets})
         self.assertIn("scheme.js", assets)
 
