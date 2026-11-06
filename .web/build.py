@@ -5185,8 +5185,11 @@ CROSSWALK_TSC_SECTION_OPENING = "\n".join((
     "V6-2022 (CSMS, §4 to §9.4) and the applicable Security Standard "
     "6.0.2/6.0.3 (§1 to §5) | Clause references; each cell names the "
     "instrument (Norm or Security Standard) so the clause resolves |",
-    "| WCO SAFE | WCO SAFE Framework of Standards | Pillar and standard "
-    "references |",
+    "| WCO SAFE | WCO SAFE Framework of Standards | Pillar II references, "
+    "Pillar II Standards 1 (Partnership) and 2 (Security), Annex IV "
+    "elements (A, F, K, L and M) and Section VI (Trade Continuity and "
+    "Resumption); each standard, element and section is cited with its held "
+    "title |",
     "| AEO/AEO-S | UK HMRC Authorized Economic Operator (Security and "
     "Safety) | Requirement area headings |",
     "| AICPA TSC 2017 | AICPA 2017 Trust Services Criteria (TSP Section "

@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.37\
-**Date:** 2026-11-01\
+**Version:** 1.0.38\
+**Date:** 2026-11-06\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -143,7 +143,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 | ISO/IEC 27001:2022 | Annex A: Information security controls | Security compliance evidence |
 | ISO 28000:2022 | Supply-Chain Security and Resilience | Trade compliance controls; ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified <!-- ref-absence: ISO 28000:2022 --> |
 | BASC v6 (2022) | Trade and Customs Compliance | BASC obligations, Chapter reporting |
-| WCO SAFE Framework (2025 edition) | AEO Security | Customs compliance and AEO obligations |
+| WCO SAFE Framework (2025 edition) | Annex IV (AEO Conditions, Requirements and Benefits), element A (Demonstrated Compliance with Customs Requirements) | Customs compliance and AEO obligations |
 | EU GDPR | Art 33, Data protection | Breach notification, DPA reporting |
 | EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical infrastructure resilience | Entities must submit staged significant-incident reports (Art 23(4): early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident; incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph); an intermediate report on relevant status updates upon request of a CSIRT or, where applicable, the competent authority (Article 23(4)(c)); final report within one month after submission of the incident notification, or a progress report then and the final report within one month of handling where the incident is still ongoing) |
 | EU AI Act (2024) | Art 26(5); Art 73; Art 75(1a), inserted by Regulation (EU) 2026/1744 | AI serious incident reporting |
