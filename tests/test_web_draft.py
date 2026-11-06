@@ -21204,10 +21204,12 @@ class ProgrammeClaimsTests(unittest.TestCase):
     # with a dash ("... senior management - §11.12 requires") or with a
     # colon that no whitespace follows ("... senior management:§11.12
     # requires"); a comma followed by a joining word not listed here (nor,
-    # plus, with, which); a comma followed by any other word before the
+    # plus, with, which), or by a joining word with no space after the
+    # comma ("...,and §11.12"); a comma followed by any other word before the
     # citation ("..., handbook §11.12 requires", "..., HMRC's §11.12
     # requires"), which the direct-comma rule does not reach; a sentence
-    # ended by ? or !, or by a full stop followed by a bracket, quote or
+    # ended by ?, ! or an ellipsis, or by a full stop followed by anything
+    # but whitespace or the line end, such as a bracket, a quote, ** or
     # <br> ("... senior management? Section 11.12 requires reporting to
     # HMRC."), which ends no clause or sentence (_CLAUSE_END,
     # _SENTENCE_END), so the scope and recipients, or the section 11.8
@@ -21218,8 +21220,9 @@ class ProgrammeClaimsTests(unittest.TestCase):
     # recipients borrowed from a later clause inside the same parenthetical
     # ("(§11.12 requires reporting to HMRC, whilst for cargo units reports
     # go to law enforcement or senior management)"), since the part of the
-    # parenthetical after the citation stops only at a neighbouring
-    # citation; a citation whose own comma segment names the scope and
+    # parenthetical after the citation stops at a neighbouring citation, a
+    # clause end or the closing bracket, never at a comma join; a citation
+    # whose own comma segment names the scope and
     # recipients while also stating an unheld duty; and a citation that
     # _SECTION_11_12 does not read, such as § 11.12 with a space, section
     # followed by a tab or two spaces, Sec. 11.12, sections 11.8 and 11.12,
@@ -21462,10 +21465,10 @@ class ProgrammeClaimsTests(unittest.TestCase):
         10 (review round 5, claude WARN 1, codex WARN, agy NOTE): not before
         a comma that joins a new clause (_CLAUSE_JOIN) and, outside a
         parenthetical, not before a comma that directly precedes it. Round
-        11 (review round 6, claude NOTE 1 and NOTE 2; narrowed in round 12,
-        review round 7, claude NOTE 3 and NOTE 4): the join also matches a
-        colon followed by whitespace, and citations are read without regard
-        to case."""
+        11 (review round 6, claude NOTE 1 and NOTE 2): citations are read
+        without regard to case, and the join also matches whilst, though,
+        because and a colon. Round 12 (review round 7, claude finding 3):
+        only a colon followed by whitespace joins."""
         lines = [(rel, number, line)
                  for rel, number, line in self._md_lines()
                  if self._SECTION_11_12.search(line)]
