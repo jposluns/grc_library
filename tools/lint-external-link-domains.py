@@ -91,6 +91,13 @@ ALLOW_LIST = {
     "keepachangelog.com", "semver.org", "calver.org",  # non-publisher: format conventions
     "spdx.dev",  # SPDX project current site (spdx.org redirects here); citation-verification spec section 7.1
     "creativecommons.org",  # non-publisher: the corpus licence
+    # The home of the SIL Open Font License, named in the byte-equal Inter licence
+    # .baseline/card-fonts/inter-LICENSE.txt that baseline 1.10.0 pins beside
+    # the card builder (never served). A licence host, not a citation
+    # publisher with a Canonical Citations Register entry, so the
+    # citation-verification spec (section 7) is not updated (section 7.2
+    # eligibility; as with creativecommons.org).
+    "scripts.sil.org",  # non-publisher: the home of the SIL Open Font License (pinned Inter card-font licence)
     # The project's own public site (grclibrary.ai on Cloudflare Pages; the
     # canonical URLs emitted on the per-domain pages by .web/build.py). Not a
     # citation publisher, so the citation-verification spec (§7) is not updated.

@@ -5870,7 +5870,8 @@ def load_baseline_assets(baseline_dir=None, pin_path=None):
         digest = files[key]
         if key in UNSERVED_PIN_KEYS:
             # Pinned beside the copies but never served; run_palette_gate
-            # verifies and runs the palette gate, and gate 110 verifies both.
+            # verifies and runs the palette gate, and gate 110 verifies every
+            # unserved tool (the card builder and its fonts included).
             continue
         if not key.startswith(prefix) or not isinstance(digest, str):
             raise BuildError(
@@ -5923,7 +5924,22 @@ PALETTE_GATE_KEY = ".baseline/check_palette.py"
 # like the palette gate, never served. It needs Node.js and Playwright, so no
 # build or gate runs it.
 OVERFLOW_CHECK_KEY = ".baseline/check_overflow.js"
-UNSERVED_PIN_KEYS = frozenset({PALETTE_GATE_KEY, OVERFLOW_CHECK_KEY})
+# From the 1.10.0 baseline (SPECIFICATION.md section 7.35, README section 4
+# item 3) the link-preview card builder, tools/build_card.js, is copied to
+# .baseline/build_card.js and its 3 Inter fonts with their SIL OFL licence,
+# tools/card-fonts/, to .baseline/card-fonts/, and all 5 are pinned like the
+# palette gate. They are never served: the builder runs only on a review
+# machine with Node.js and Playwright, never in the deploy build, so no build
+# or gate runs it; gate 110 verifies every one against the pin.
+CARD_BUILDER_KEYS = frozenset({
+    ".baseline/build_card.js",
+    ".baseline/card-fonts/Inter-Bold.otf",
+    ".baseline/card-fonts/Inter-ExtraBold.otf",
+    ".baseline/card-fonts/Inter-Regular.otf",
+    ".baseline/card-fonts/inter-LICENSE.txt",
+})
+UNSERVED_PIN_KEYS = frozenset(
+    {PALETTE_GATE_KEY, OVERFLOW_CHECK_KEY} | CARD_BUILDER_KEYS)
 PALETTE_SITE = "grclibrary"
 PALETTE_CSS = WEB_DIR / "baseline" / "palettes.css"
 PALETTE_BASELINE_CSS = WEB_DIR / "baseline" / "baseline.css"

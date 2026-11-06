@@ -1,0 +1,15 @@
+# site-card.toml: the data file of .baseline/build_card.js (baseline 1.10.0, SPECIFICATION.md section 7.35).
+# Copy, colours and the illustration are owner-approved inputs: change them only on the owner's instruction.
+# name, tld, line1 and line2 carry CARD_IMAGE_ALT in .web/build.py; sub is the home page's og:description.
+
+site = "grclibrary"
+# layout = "centre"                     # "side" (the default) or "centre"; agree the layout with the owner
+name = "GRCLibrary"
+tld = ".ai"
+line1 = "Governance, risk, and compliance."
+line2 = "Engineered like software."
+sub = "360+ documents in 12 domains, with tooling for your AI to align and update them."   # the subline on the live card, .web/static/images/grclibrary-card.png
+art = "../.web/baseline/logos/grclibrary-card.svg"
+logo = "../.web/baseline/logos/grclibrary.svg"
+word_colour = "#bb75d0"                  # dark --brand of site-grclibrary, .web/baseline/palettes.css
+background = "#110814"                   # dark --bg of site-grclibrary, .web/baseline/palettes.css

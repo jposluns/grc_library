@@ -1,6 +1,11 @@
 version = "1.9.2"
 
 [files]
+".baseline/build_card.js" = "3d0cecc8851ff6a2e1cab8c3c7dfdbcebc35c8f02260581cbfcf47ad70d990df"
+".baseline/card-fonts/Inter-Bold.otf" = "00fd6f4691ee8884a33b46bf45851b341927c37c30064f558e1befb242971c49"
+".baseline/card-fonts/Inter-ExtraBold.otf" = "2012ceaf1470372c415f95c00495a1ad1ebdcd1cd6a6225808f011d459a9b12a"
+".baseline/card-fonts/Inter-Regular.otf" = "be6d709dcb730ddaf050cbdae6fe89bd56d5d14dc66885639bbf6f06bd03521b"
+".baseline/card-fonts/inter-LICENSE.txt" = "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a"
 ".baseline/check_overflow.js" = "8e50e8f311516ae4ed7ed653ce24d4c727530e081f44ba9f55af32e9c0d4ba01"
 ".baseline/check_palette.py" = "5a070591050b641a0b5b435af3bb368e3b02138fdb1c98470b752a661cafff72"
 ".web/baseline/LICENSE" = "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
