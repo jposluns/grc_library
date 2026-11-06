@@ -18987,11 +18987,16 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # FIXTURE_SHARD_BAD_OUTPUT one whose outputs the reconcile
     # refuses (exit 2); FIXTURE_SHARD_OTHER_UNITS one that reports another
     # unit set (a reconcile failure, exit 1); FIXTURE_SHARD_BREAK_CHECKOUT one
-    # that deletes its checkout's .git file, so git worktree remove fails.
+    # that deletes its checkout's .git file, so git worktree remove fails;
+    # FIXTURE_SHARD_KEEP_CHECKOUT one that leaves a read-only directory
+    # holding a file in its checkout, so the shard directory cannot be
+    # removed; FIXTURE_SHARD_UNREGISTER_CHECKOUT one that deletes its
+    # checkout's git record, so git worktree remove fails and the checkout
+    # is no longer registered.
     # FIXTURE_SHARD_HANG names a directory: every shard starts a child, writes
     # "pid pgid child-pid" to shard-<i> there, and sleeps until stopped.
     SHARD_STUB = (
-        "import json\nimport os\nimport subprocess\nimport sys\nimport time\n"
+        "import json\nimport os\nimport shutil\nimport subprocess\nimport sys\nimport time\n"
         "index, count = sys.argv[2].split('/')\n"
         "os.makedirs('tests/tmp', exist_ok=True)\n"
         "open(os.path.join('tests/tmp', 'shard-' + index), 'w').close()\n"
@@ -19024,6 +19029,14 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "    sys.exit(7)\n"
         "if os.environ.get('FIXTURE_SHARD_BREAK_CHECKOUT') == index:\n"
         "    os.unlink('.git')\n"
+        "if os.environ.get('FIXTURE_SHARD_KEEP_CHECKOUT') == index:\n"
+        "    os.mkdir('kept')\n"
+        "    open(os.path.join('kept', 'held'), 'w').close()\n"
+        "    os.chmod('kept', 0o500)\n"
+        "if os.environ.get('FIXTURE_SHARD_UNREGISTER_CHECKOUT') == index:\n"
+        "    shutil.rmtree(subprocess.run(['git', 'rev-parse', '--absolute-git-dir'],\n"
+        "                                 capture_output=True, text=True,\n"
+        "                                 check=True).stdout.strip())\n"
         "if os.environ.get('FIXTURE_SHARD_BAD_OUTPUT') == index:\n"
         "    with open(os.environ['GITHUB_OUTPUT'], 'a') as f:\n"
         "        f.write('junk=1\\n')\n"
@@ -19090,7 +19103,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                         TMPDIR=str(self.shard_tmp))
         for name in ("FIXTURE_SHARD_FAIL", "FIXTURE_SHARD_NO_OUTPUT", "FIXTURE_SHARD_BAD_OUTPUT",
                      "FIXTURE_SHARD_OTHER_UNITS", "FIXTURE_SHARD_BREAK_CHECKOUT",
-                     "FIXTURE_SHARD_HANG", "GITHUB_OUTPUT"):
+                     "FIXTURE_SHARD_KEEP_CHECKOUT", "FIXTURE_SHARD_UNREGISTER_CHECKOUT",
+                     "FIXTURE_SHARD_HANG", "FIXTURE_GIT_WORKTREE_LIST_FAIL", "GITHUB_OUTPUT"):
             self.env.pop(name, None)
         self.git("init", "-q")
         self.git("config", "user.email", "fixture@example.com")
@@ -22063,12 +22077,41 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             self.assertTrue(checkout.startswith(roots[0] + os.sep), checkout)
             self.git("worktree", "remove", "--force", checkout)
 
-    def test_failed_checkout_removal_is_reported_and_pruned(self):
-        # FLIP TABLE (round 6, codex WARN): when git worktree remove fails
-        # for a shard checkout, the guard names it, runs git worktree prune
-        # once the shard directory is gone, says whether the registration
-        # remains, and never claims the checkouts were removed. Shard 2
-        # deletes its checkout's .git file, so git refuses to remove it.
+    # How a passing run states a checkout's registration: still listed, or
+    # not read because git worktree list failed.
+    REGISTERED = r"it is still registered"
+    REGISTRATION_UNREAD = (r"its registration state could not be read \(git worktree list "
+                           r"failed, rc=\d+\), so it may still be registered")
+
+    @staticmethod
+    def printed_removal_commands(stderr, directory="gone", registration=REGISTERED):
+        """The per-checkout commands, as printed, that a passing run gave for
+        checkouts it could not remove whose directory is gone (or left),
+        with the registration stated as the registration pattern says."""
+        then_run = {"gone": r"Run in this clone:",
+                    "left": r"Remove the shard directory .+? once nothing uses it; once its "
+                            r"directory is gone, run in this clone:"}[directory]
+        return re.findall(
+            r"(?m)^pre-push guard: WARNING: the shard checkout .+? was not removed by git "
+            r"worktree remove; its directory is %s and %s\. %s (.+)$"
+            % (directory, registration, then_run), stderr)
+
+    @classmethod
+    def failed_removal_commands(cls, stderr, directory="gone", registration=REGISTERED):
+        """The commands printed_removal_commands finds, each split into words
+        with shlex.split."""
+        import shlex
+        return [shlex.split(command)
+                for command in cls.printed_removal_commands(stderr, directory, registration)]
+
+    def test_failed_checkout_removal_is_reported_for_that_checkout_alone(self):
+        # FLIP TABLE (round 6, codex WARN; CIPRUNE-0106): when git worktree
+        # remove fails for a shard checkout, the guard names it, says what
+        # is left of it and that its registration is still listed, prints
+        # the command for that checkout alone (bash-quoted), runs no
+        # git worktree prune, and never claims the checkouts were removed.
+        # Shard 2 deletes its checkout's .git file, so git refuses to
+        # remove it; the printed command then removes its registration.
         self.change("ai/policy-fixture.md")
         result, _ran = self.run_guard(FIXTURE_SHARD_BREAK_CHECKOUT="2")
         output = result.stdout + result.stderr
@@ -22077,16 +22120,274 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(len(broken), 1, output)
         self.assertIn("git worktree remove --force failed (rc=", result.stderr)
         self.assertIn("for the shard checkout %s: " % broken[0], result.stderr)
-        self.assertIn("ran git worktree prune (rc=0)", result.stderr)
-        self.assertIn("the shard checkout %s was not removed by git worktree remove; its "
-                      "registration is no longer listed after git worktree prune" % broken[0],
-                      result.stderr)
+        self.assertNotIn("git worktree prune", output)
+        commands = self.failed_removal_commands(result.stderr)
+        self.assertEqual(commands, [["git", "worktree", "remove", "--force", "--", broken[0]]],
+                         result.stderr)
         self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
                       result.stdout)
         self.assertNotIn("checkouts were removed", output)
         self.assertEqual(os.listdir(self.shard_tmp), [])
         worktrees = self.git("worktree", "list", "--porcelain").stdout
+        self.assertIn("worktree %s\n" % broken[0], worktrees)
+        self.assertEqual(worktrees.count("worktree "), 2, worktrees)
+        # The printed command, run as printed, removes that registration.
+        self.git(*commands[0][1:])
+        worktrees = self.git("worktree", "list", "--porcelain").stdout
         self.assertEqual(worktrees.count("worktree "), 1, worktrees)
+
+    def test_failed_checkout_removal_leaves_other_stale_registrations(self):
+        # FLIP TABLE (CIPRUNE-0106): a passing run whose own checkout
+        # removal fails acts on that checkout alone. Another stale worktree
+        # registration of this repository (standing in for a checkout of
+        # another live run or another checkout of this repository, whose
+        # directory is gone) survives the run, and no printed command names
+        # it; a repository-wide git worktree prune would have cleared it.
+        other = Path(self.tmp.name) / "other-run" / "checkout"
+        other.parent.mkdir()
+        self.git("worktree", "add", "--detach", str(other), "HEAD")
+        other = Path(os.path.realpath(other))
+        shutil.rmtree(other.parent)
+        before = self.git("worktree", "list", "--porcelain").stdout
+        self.assertIn("worktree %s\n" % other, before)
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard(FIXTURE_SHARD_BREAK_CHECKOUT="2")
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 0, output)
+        broken = [run["cwd"] for run in self.shard_runs() if run["argv"][2] == "2/6"]
+        self.assertEqual(len(broken), 1, output)
+        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
+                      result.stdout)
+        # The registrations first: the other one survives the run.
+        after = self.git("worktree", "list", "--porcelain").stdout
+        self.assertIn("worktree %s\n" % other, after)
+        self.assertIn("worktree %s\n" % broken[0], after)
+        self.assertEqual(after.count("worktree "), 3, after)
+        self.assertNotIn("git worktree prune", output)
+        self.assertNotIn(str(other), output)
+        self.assertEqual(self.failed_removal_commands(result.stderr),
+                         [["git", "worktree", "remove", "--force", "--", broken[0]]],
+                         result.stderr)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
+    def test_failed_checkout_removal_reports_its_directory_left(self):
+        # FLIP TABLE (CIPRUNE-0106 round 2): git worktree remove fails for
+        # shard 2's checkout (its .git file is gone), and the shard
+        # directory cannot be removed either (the checkout holds a
+        # read-only directory with a file in it), so that checkout's
+        # directory is left and it is still registered. The guard says its
+        # directory is left, not gone, names the shard directory
+        # (bash-quoted) to remove once nothing uses it, and prints the
+        # command for that checkout alone to run once its directory is gone;
+        # run then, that command removes its registration.
+        import shlex
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard(FIXTURE_SHARD_BREAK_CHECKOUT="2",
+                                      FIXTURE_SHARD_KEEP_CHECKOUT="2")
+        output = result.stdout + result.stderr
+        broken = [run["cwd"] for run in self.shard_runs() if run["argv"][2] == "2/6"]
+        self.assertEqual(len(broken), 1, output)
+        kept = os.path.join(broken[0], "kept")
+        # Restored before the fixture's own cleanup (cleanups run last first).
+        self.addCleanup(lambda: os.path.isdir(kept) and os.chmod(kept, 0o700))
+        self.assertEqual(result.returncode, 0, output)
+        self.assertIn("for the shard checkout %s: " % broken[0], result.stderr)
+        shard_root = os.path.dirname(os.path.dirname(broken[0]))
+        self.assertIn("could not remove the shard directory %s." % shard_root, result.stderr)
+        self.assertTrue(os.path.isdir(broken[0]), output)
+        named = re.findall(r"(?m)^pre-push guard: WARNING: the shard checkout .+? its "
+                           r"directory is left .+? Remove the shard directory (.+?) once "
+                           r"nothing uses it;", result.stderr)
+        self.assertEqual([shlex.split(directory) for directory in named], [[shard_root]],
+                         result.stderr)
+        self.assertEqual(self.failed_removal_commands(result.stderr, "left"),
+                         [["git", "worktree", "remove", "--force", "--", broken[0]]],
+                         result.stderr)
+        self.assertEqual(self.printed_removal_commands(result.stderr), [], result.stderr)
+        self.assertNotIn("git worktree prune", output)
+        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
+                      result.stdout)
+        self.assertNotIn("checkouts were removed", output)
+        worktrees = self.git("worktree", "list", "--porcelain").stdout
+        self.assertIn("worktree %s\n" % broken[0], worktrees)
+        self.assertEqual(worktrees.count("worktree "), 2, worktrees)
+        # The named shard directory removed, the checkout's directory is
+        # gone, and the printed command then removes its registration.
+        os.chmod(kept, 0o700)
+        shutil.rmtree(shard_root)
+        self.assertFalse(os.path.lexists(broken[0]))
+        self.git(*self.failed_removal_commands(result.stderr, "left")[0][1:])
+        worktrees = self.git("worktree", "list", "--porcelain").stdout
+        self.assertEqual(worktrees.count("worktree "), 1, worktrees)
+
+    def test_failed_checkout_removal_reports_its_registration_no_longer_listed(self):
+        # FLIP TABLE (CIPRUNE-0106 round 2): shard 2 deletes its checkout's
+        # git record (<git common dir>/worktrees/<id>), so git worktree
+        # remove fails for it and its registration is absent from git
+        # worktree list afterwards. The guard says so, with no command for
+        # that checkout (there is nothing left to remove), and runs no git
+        # worktree prune.
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard(FIXTURE_SHARD_UNREGISTER_CHECKOUT="2")
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 0, output)
+        broken = [run["cwd"] for run in self.shard_runs() if run["argv"][2] == "2/6"]
+        self.assertEqual(len(broken), 1, output)
+        self.assertIn("git worktree remove --force failed (rc=", result.stderr)
+        self.assertIn("for the shard checkout %s: " % broken[0], result.stderr)
+        self.assertIn("pre-push guard: WARNING: the shard checkout %s was not removed by git "
+                      "worktree remove; its directory is gone and its registration is no "
+                      "longer listed by git worktree list.\n" % broken[0], result.stderr)
+        self.assertNotIn("still registered", result.stderr)
+        for directory in ("gone", "left"):
+            self.assertEqual(self.printed_removal_commands(result.stderr, directory), [],
+                             result.stderr)
+        self.assertNotIn("git worktree prune", output)
+        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
+                      result.stdout)
+        self.assertNotIn("checkouts were removed", output)
+        self.assertEqual(os.listdir(self.shard_tmp), [])
+        worktrees = self.git("worktree", "list", "--porcelain").stdout
+        self.assertNotIn("worktree %s\n" % broken[0], worktrees)
+        self.assertEqual(worktrees.count("worktree "), 1, worktrees)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
+    def test_failed_checkout_removal_reports_its_directory_left_and_registration_gone(self):
+        # FLIP TABLE (CIPRUNE-0106 round 4, claude WARN): shard 2's checkout
+        # holds a read-only directory with a file in it, and nothing else
+        # breaks it. git worktree remove --force then fails to delete that
+        # directory but still deletes the checkout's git record, so its
+        # directory is left and its registration is no longer listed. The
+        # guard says exactly that, names the shard directory (bash-quoted)
+        # to remove once nothing uses it, and prints no git worktree remove
+        # command for that checkout (there is no registration to remove).
+        import shlex
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard(FIXTURE_SHARD_KEEP_CHECKOUT="2")
+        output = result.stdout + result.stderr
+        broken = [run["cwd"] for run in self.shard_runs() if run["argv"][2] == "2/6"]
+        self.assertEqual(len(broken), 1, output)
+        kept = os.path.join(broken[0], "kept")
+        # Restored before the fixture's own cleanup (cleanups run last first).
+        self.addCleanup(lambda: os.path.isdir(kept) and os.chmod(kept, 0o700))
+        self.assertEqual(result.returncode, 0, output)
+        self.assertIn("git worktree remove --force failed (rc=", result.stderr)
+        self.assertIn("for the shard checkout %s: " % broken[0], result.stderr)
+        shard_root = os.path.dirname(os.path.dirname(broken[0]))
+        self.assertIn("could not remove the shard directory %s." % shard_root, result.stderr)
+        self.assertTrue(os.path.isdir(broken[0]), output)
+        shown = subprocess.run(["bash", "-c", 'printf %q "$1"', "bash", shard_root],
+                               capture_output=True, text=True, timeout=30, check=True).stdout
+        self.assertIn("pre-push guard: WARNING: the shard checkout %s was not removed by git "
+                      "worktree remove; its directory is left and its registration is no "
+                      "longer listed by git worktree list. Remove the shard directory %s once "
+                      "nothing uses it.\n" % (broken[0], shown), result.stderr)
+        named = re.findall(r"(?m)^pre-push guard: WARNING: the shard checkout .+? its "
+                           r"directory is left and its registration is no longer listed by "
+                           r"git worktree list\. Remove the shard directory (.+) once nothing "
+                           r"uses it\.$", result.stderr)
+        self.assertEqual([shlex.split(directory) for directory in named], [[shard_root]],
+                         result.stderr)
+        self.assertNotIn("still registered", result.stderr)
+        self.assertNotIn("could not be read", result.stderr)
+        self.assertNotIn("git worktree remove --force --", output)
+        for directory in ("gone", "left"):
+            self.assertEqual(self.printed_removal_commands(result.stderr, directory), [],
+                             result.stderr)
+        self.assertNotIn("git worktree prune", output)
+        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
+                      result.stdout)
+        self.assertNotIn("checkouts were removed", output)
+        worktrees = self.git("worktree", "list", "--porcelain").stdout
+        self.assertNotIn("worktree %s\n" % broken[0], worktrees)
+        self.assertEqual(worktrees.count("worktree "), 1, worktrees)
+        # The named shard directory, removed once nothing uses it, takes the
+        # checkout's directory with it.
+        os.chmod(kept, 0o700)
+        shutil.rmtree(shard_root)
+        self.assertFalse(os.path.lexists(broken[0]))
+
+    def test_failed_checkout_removal_with_unreadable_registrations_keeps_its_command(self):
+        # FLIP TABLE (CIPRUNE-0106 round 3, claude and codex WARN): git
+        # worktree remove fails for shard 2's checkout (its .git file is
+        # gone), and the fixture switch FIXTURE_GIT_WORKTREE_LIST_FAIL makes
+        # a git shim fail git worktree list (rc=3). The guard keeps that
+        # exit status: it says the registration state could not be read,
+        # never that the registration is no longer listed, and still prints
+        # the command for that checkout alone, which, run as printed,
+        # removes the registration that is in fact still there.
+        path = self.git_shim('if [ -n "${FIXTURE_GIT_WORKTREE_LIST_FAIL}" ] '
+                             '&& [ "$1" = worktree ] && [ "$2" = list ]; then exit 3; fi')
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard(FIXTURE_SHARD_BREAK_CHECKOUT="2",
+                                      FIXTURE_GIT_WORKTREE_LIST_FAIL="1", **path)
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 0, output)
+        broken = [run["cwd"] for run in self.shard_runs() if run["argv"][2] == "2/6"]
+        self.assertEqual(len(broken), 1, output)
+        self.assertIn("for the shard checkout %s: " % broken[0], result.stderr)
+        self.assertIn("its directory is gone and its registration state could not be read "
+                      "(git worktree list failed, rc=3), so it may still be registered.",
+                      result.stderr)
+        self.assertNotIn("no longer listed", result.stderr)
+        self.assertNotIn("and it is still registered", result.stderr)
+        self.assertNotIn("git worktree prune", output)
+        commands = self.failed_removal_commands(result.stderr,
+                                                registration=self.REGISTRATION_UNREAD)
+        self.assertEqual(commands, [["git", "worktree", "remove", "--force", "--", broken[0]]],
+                         result.stderr)
+        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
+                      result.stdout)
+        self.assertNotIn("checkouts were removed", output)
+        self.assertEqual(os.listdir(self.shard_tmp), [])
+        # The real git, without the shim, still lists it; the command removes it.
+        worktrees = self.git("worktree", "list", "--porcelain").stdout
+        self.assertIn("worktree %s\n" % broken[0], worktrees)
+        self.assertEqual(worktrees.count("worktree "), 2, worktrees)
+        self.git(*commands[0][1:])
+        worktrees = self.git("worktree", "list", "--porcelain").stdout
+        self.assertEqual(worktrees.count("worktree "), 1, worktrees)
+
+    def test_failed_removal_command_is_shell_quoted_and_runs_as_printed(self):
+        # FLIP TABLE (CIPRUNE-0106 round 2): the shard checkouts sit under a
+        # TMPDIR whose name holds a space and a tab, so bash printf %q
+        # quotes the printed path in $'...' form. Run as printed through
+        # bash, the command gives git that path as one argument and removes
+        # exactly that checkout's registration: another worktree of this
+        # repository stays registered.
+        odd = Path(self.tmp.name) / "shard tmp\tdir"
+        odd.mkdir()
+        other = Path(self.tmp.name) / "other checkout"
+        self.git("worktree", "add", "--detach", str(other), "HEAD")
+        other = os.path.realpath(other)
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard(FIXTURE_SHARD_BREAK_CHECKOUT="2", TMPDIR=str(odd))
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 0, output)
+        broken = [run["cwd"] for run in self.shard_runs() if run["argv"][2] == "2/6"]
+        self.assertEqual(len(broken), 1, output)
+        self.assertIn(" ", broken[0])
+        self.assertIn("\t", broken[0])
+        self.assertEqual(os.listdir(odd), [])
+        commands = self.printed_removal_commands(result.stderr)
+        self.assertEqual(len(commands), 1, result.stderr)
+        before = self.git("worktree", "list", "--porcelain").stdout
+        self.assertIn("worktree %s\n" % broken[0], before)
+        self.assertIn("worktree %s\n" % other, before)
+        self.assertEqual(before.count("worktree "), 3, before)
+        ran = subprocess.run(["bash", "-c", commands[0]], cwd=self.root, env=self.env,
+                             capture_output=True, text=True, timeout=30)
+        self.assertEqual(ran.returncode, 0, commands[0] + "\n" + ran.stdout + ran.stderr)
+        after = self.git("worktree", "list", "--porcelain").stdout
+        self.assertNotIn("worktree %s\n" % broken[0], after)
+        self.assertIn("worktree %s\n" % other, after)
+        self.assertEqual(after.count("worktree "), 2, after)
+        # The words bash reads from it, and the $'...' form that carries the tab.
+        words = subprocess.run(["bash", "-c", "printf '%s\\0' " + commands[0]],
+                               capture_output=True, text=True, timeout=30, check=True).stdout
+        self.assertEqual(words.split("\0")[:-1],
+                         ["git", "worktree", "remove", "--force", "--", broken[0]])
+        self.assertIn("$'", commands[0])
 
     def test_failing_local_shard_blocks_the_push_with_its_status(self):
         # FLIP TABLE: a failing shard fails the push with that shard's own
@@ -44636,7 +44937,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 9d965952a1ab45c5da0002fb37e871b97dd7c1b02f227b8182c06f2fcb581ed3
+        README.md DATA F 58a974434989d08e3d238d9e3ef5cefe162f438032219e4ba4fe98a863599fb0
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
@@ -44829,7 +45130,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
-        pre-push-guard.sh FIXED F 119883342e4b7f9ee86fbb9da2fc05551e356ccebc971d44216070a908204a55
+        pre-push-guard.sh FIXED F 5d6390c0b2d5e8c11dd5aaa49eb1854c4a74f305588c6d1a515d908862b85df1
         pre-push-hook.py TRANSPORT F d193c170d963cbca2e64bb76ce0b1dfbe7999b9f5af6c0701ae11d95f9d7f659
         preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
