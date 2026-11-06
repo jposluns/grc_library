@@ -41,21 +41,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 **2026-11-05 | 2026.11.24 | PR #3087** - web: On the crosswalk, the Views links in the left rail now open each view's page, and the open view is highlighted. Instrument pages no longer show a large empty gap below their opening sentence.
 
-**2026-11-04 | 2026.11.23 | PR #3086** - web: The rebuilt site is now the live grclibrary.ai. Its pages move from /draft/ to the site root, and old /draft/ addresses forward to their new homes. The old About page becomes Contributors, the rule pack page forwards to the AIQT project at aiqt.ai, and the For AI page carries over. The old staging versions at /v2/ and /v3/ are retired. Shared links now show the site's card image on LinkedIn and other social sites.
-
-**2026-11-04 | 2026.11.22 | PR #3085** - tools: The assistant's message timestamp now shows Toronto local time with its zone, for example [2026-11-04 16:55 EST], instead of UTC, as the maintainer asked. The old UTC form is no longer accepted. Records and file dates stay in UTC.
-
-**2026-11-04 | 2026.11.21 | PR #3084** - tools: Pushing a change that touches only the web site is now faster. The pre-push check runs every audit gate except the linter regression suite, which CI still runs before any merge, so a site-only push takes about 3 minutes instead of about 40. Changes to the site generator or any Python tooling still get the full check.
-
-**2026-11-04 | 2026.11.20 | PR #3083** - web: A draft site test now checks the parts a long title word is split into on a phone, not only whole words, so a future long word cannot slip past unmeasured. The live site does not change.
-
-**2026-11-04 | 2026.11.19 | PR #3082** - web: Draft site tidy-up. Two new checks catch mistakes in the source of the AICPA TSC matrix page, and test notes now match what the tests do. A long word in a draft document title now breaks with a hyphen only when it is longer than 17 letters, so words such as Responsibilities stay whole on a phone. The live site does not change.
-
-**2026-11-04 | 2026.11.18 | PR #3081** - web: No page of the draft site scrolls sideways on a phone any more. Long counts and lists of control references now wrap onto their own line, long web addresses can break after each slash, and very long title words can break with a hyphen. The live site does not change.
-
-**2026-11-04 | 2026.11.17 | PR #3080** - web: The draft of the new grclibrary.ai moves to version 1.7.0 of the shared site template. On All Documents, the Type and Area filters grey out any choice that would show no documents. The decision page questions use the full width, and the disclosure page's data handling section is split into short paragraphs. The live site does not change. The spelling check also no longer slows down sharply on some Unicode text.
-
-**2026-11-04 | 2026.11.16 | PR #3079** - web: The draft site's note that the AICPA TSC column is still being filled in can no longer drop silently. If the matrix text it reads is moved or reworded, the site build fails and tells the editor what to update. A test also keeps the 404 page's list of links in step with the top bar. The live site does not change.
+**2026-11-04 | 2026.11.23 | PRs #3079-#3086 (8 PRs)** - The rebuilt site became the live grclibrary.ai, with old /draft/ addresses forwarding to their new homes. Before that, the draft moved to template 1.7.0, stopped scrolling sideways on phones, and gained checks on its matrix note and on long title words. The assistant's timestamps now show Toronto time, and site-only pushes run a faster pre-push check.
 
 **2026-11-03 | 2026.11.15 | PR #3078** - web: The draft of the new grclibrary.ai gets a new top bar: Browse, All Documents, Decisions, Crosswalk, Search and GitHub. Search now shows results only once you type, and All Documents gains type and area filters. The crosswalk lists its instruments in a left side list with topic views. The disclosure page explains the light and dark switch's browser storage. The live site does not change.
 
