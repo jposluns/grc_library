@@ -11,6 +11,9 @@
 # wordmark and background change from the live card's light blue on dark navy, and the illustration renders from
 # art, not from the live card's own artwork, so it looks different too. The layout is still open: the
 # builder reports, for either layout, what the Microsoft Teams crop would cut; agree side or centre with the owner.
+# Run from the repository root, naming the palettes: node .baseline/build_card.js --data .baseline/site-card.toml
+# --out <dir> --before .web/static/images/grclibrary-card.png --palettes .web/baseline/palettes.css. The builder's
+# default, ../palettes.css beside it, does not exist here, and logo needs it for the touch icon's background.
 
 site = "grclibrary"
 # layout = "centre"                     # "side" (the default) or "centre"; agree the layout with the owner
