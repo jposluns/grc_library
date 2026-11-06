@@ -7700,7 +7700,10 @@ class DraftSiteRenderTests(unittest.TestCase):
     # The topic views of design C 3.7 as the 8c3d83756 build carried them
     # (slug, label, columns, related instrument pages), pinned as literals so
     # a preset model regenerated from anything else fails here (round 2,
-    # maintainer decision 2026-11-03 18:53Z: the views stay by topic).
+    # maintainer decision 2026-11-03 18:53Z: the views stay by topic). The
+    # privacy view's related pages gained ISO/IEC 27701, LGPD and PIPL by the
+    # maintainer decision of 2026-11-05, appended in the crosswalk's
+    # instrument order.
     _XW_TOPICS = (
         ("security", "Security",
          ("iso-iec-27001", "nist-csf", "nist-sp-800-53", "csa-ccm",
@@ -7709,7 +7712,8 @@ class DraftSiteRenderTests(unittest.TestCase):
          ("iso-iec-42001", "nist-ai-rmf", "csa-aicm", "eu-ai-act",
           "owasp-llm-top-10", "mitre-atlas"), ()),
         ("privacy", "Privacy and data protection",
-         ("gdpr", "eu-ai-act", "nis-2"), ("pipeda", "quebec-law-25")),
+         ("gdpr", "eu-ai-act", "nis-2"),
+         ("pipeda", "quebec-law-25", "iso-iec-27701", "lgpd", "pipl")),
         ("resilience", "Resilience and financial services",
          ("dora", "nis-2", "csa-ccm"), ()),
         ("trade", "Trade and customs",
@@ -7808,6 +7812,36 @@ class DraftSiteRenderTests(unittest.TestCase):
             self._XW_RELATED_RE.search(
                 self.draft_html["crosswalk/index.html"]),
             "the full crosswalk's side list already names every instrument")
+
+    def test_crosswalk_privacy_view_links_27701_lgpd_and_pipl(self):
+        """Maintainer decision 2026-11-05: the privacy topic view links the
+        ISO/IEC 27701, LGPD and PIPL instrument pages (#3096 gave each a
+        page) after its PIPEDA and Quebec Law 25 links, each chip naming its
+        instrument and resolving to a rendered page; no other view links
+        them, and none of the three becomes a column."""
+        added = (("iso-iec-27701", "ISO/IEC 27701"), ("lgpd", "LGPD"),
+                 ("pipl", "PIPL"))
+        html = self.draft_html["crosswalk/view/privacy/index.html"]
+        block = self._XW_RELATED_RE.search(html)
+        self.assertIsNotNone(block, "the privacy view's related pages block")
+        chips = re.findall(r'<a href="([^"]*)">([^<]*)</a>', block.group(1))
+        self.assertEqual(
+            [href for href, _ in chips],
+            ["/crosswalk/pipeda/", "/crosswalk/quebec-law-25/"]
+            + [f"/crosswalk/{key}/" for key, _ in added])
+        for (href, text), (key, label) in zip(chips[2:], added):
+            self.assertTrue(text.startswith(label), f"{key}: {text}")
+            self.assertIn(_page_rel_for(href), self.draft_html, href)
+            self.assertNotIn(key, self._XW_COL_RE.findall(
+                self._xw_table(html)), f"{key}: no column")
+        for slug, _, _, _ in self._XW_TOPICS:
+            if slug == "privacy":
+                continue
+            other = self._XW_RELATED_RE.search(
+                self.draft_html[f"crosswalk/view/{slug}/index.html"])
+            hrefs = _HREF_RE.findall(other.group(1)) if other else []
+            for key, _ in added:
+                self.assertNotIn(f"/crosswalk/{key}/", hrefs, slug)
 
     def test_crosswalk_rail_views_equal_the_topics(self):
         """Round 2 item 1: on the crosswalk page and on every view, the side
